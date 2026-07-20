@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.2';
+const CACHE_VERSION = 'v3.0.3';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -30,10 +30,10 @@ const CORE_ASSETS = [
   '/components/ecc-icons.js',
   '/header-footer.css?v=2.56.0',
   '/script.js?v=5',
-  '/site-layout.js?v=2.61.0',
+  '/site-layout.js?v=3.0.3',
   '/auth-guard.js',
   '/calculators/auth-gate.js?v=2',
-  '/bonds-auth-2026.js?v=3.0.2',
+  '/bonds-auth-2026.js?v=3.0.3',
   '/supabase-client.js',
   '/lib/formatting.js',
   '/assets/bonds-logo-2026-header.webp',
@@ -161,7 +161,15 @@ function isSameOrigin(url) {
 }
 
 function isCoreAsset(request) {
-  return CORE_ASSETS.includes(new URL(request.url).pathname);
+  // Match by pathname so versioned URLs like /file.js?v=3 still count as core assets
+  const reqPath = new URL(request.url).pathname;
+  return CORE_ASSETS.some(asset => {
+    try {
+      return new URL(asset, self.location.origin).pathname === reqPath;
+    } catch (e) {
+      return false;
+    }
+  });
 }
 
 function isImage(request) {

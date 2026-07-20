@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.0.2"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.0.3"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
@@ -42,6 +42,8 @@
     const result = await sb.auth.getUser();
     return result;
   }
+
+  let _lastKnownUser = null;
 
   async function getSession() {
     const sb = getSupabase();
@@ -245,6 +247,7 @@
       console.warn('[BondsAuth] initSiteAuth: container not found', containerId);
       return;
     }
+    console.log('[BondsAuth] initSiteAuth running for', containerId);
 
     function toggleAuthButtons(showAuthButtons) {
       ['headerLoginBtn', 'headerSignupBtn'].forEach(id => {
@@ -253,13 +256,21 @@
       });
     }
 
-    function render(user) {
+    function render(user, source) {
+      console.log('[BondsAuth] render called, user:', user?.id || 'null', 'source:', source || 'unknown');
       if (!user) {
+        // Defensive: don't overwrite a known logged-in user with a null from an initial race
+        if (_lastKnownUser && source === 'onAuthStateChange_INITIAL_SESSION') {
+          console.log('[BondsAuth] ignoring INITIAL_SESSION null because we already have a user');
+          return;
+        }
         container.innerHTML = '';
         toggleAuthButtons(true);
+        _lastKnownUser = null;
         return;
       }
 
+      _lastKnownUser = user;
       toggleAuthButtons(false);
 
       getProfile(user.id).then(({ data: profile, error: profileError }) => {
@@ -282,13 +293,34 @@
               <a href="#" onclick="window.BondsAuth.signOut().then(()=>location.reload());return false;" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#ff8a8a;text-decoration:none;font-size:0.85rem;">🚪 تسجيل الخروج</a>
             </div>
           </div>`;
+      }).catch(err => {
+        console.error('[BondsAuth] getProfile failed:', err);
+        // Still show user with email fallback
+        const name = user.email?.split('@')[0] || 'مستخدم';
+        const initial = name.charAt(0).toUpperCase();
+        const isEn = location.pathname.startsWith('/en/');
+        const profileUrl = isEn ? '/en/calculators/auth/profile.html' : '/calculators/auth/profile.html';
+        const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
+        container.innerHTML = `
+          <div class="bonds-user-menu" style="position:relative;display:flex;align-items:center;gap:0.75rem;cursor:pointer;" onclick="event.stopPropagation();this.querySelector('.bonds-dropdown').style.display=this.querySelector('.bonds-dropdown').style.display==='block'?'none':'block';">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#0c0c0c;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;border:2px solid var(--gold);">${initial}</div>
+            <span style="color:var(--gold);font-weight:700;font-size:0.9rem;white-space:nowrap;">${name}</span>
+            <span style="color:var(--text-secondary);font-size:0.7rem;">▼</span>
+            <div class="bonds-dropdown" style="position:absolute;top:calc(100% + 8px);left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:8px 0;min-width:180px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:9999;">
+              <a href="${profileUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">👤 الملف الشخصي</a>
+              <a href="${subUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">💎 الاشتراك</a>
+              <div style="height:1px;background:var(--border);margin:6px 0;"></div>
+              <a href="#" onclick="window.BondsAuth.signOut().then(()=>location.reload());return false;" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:#ff8a8a;text-decoration:none;font-size:0.85rem;">🚪 تسجيل الخروج</a>
+            </div>
+          </div>`;
       });
     }
 
     getUser()
       .then(({ data: userData, error: userError }) => {
         if (userError) console.warn('[BondsAuth] getUser error:', userError.message);
-        render(userData?.user || null);
+        console.log('[BondsAuth] getUser result:', userData?.user?.id || 'null');
+        render(userData?.user || null, 'getUser');
       })
       .catch(err => {
         console.error('[BondsAuth] initSiteAuth failed:', err);
@@ -300,7 +332,8 @@
     const sb = getSupabase();
     if (sb && !_authHeaderListener) {
       const { data: listener } = sb.auth.onAuthStateChange((event, session) => {
-        render(session?.user || null);
+        console.log('[BondsAuth] onAuthStateChange:', event, 'session user:', session?.user?.id || 'null');
+        render(session?.user || null, 'onAuthStateChange_' + event);
       });
       _authHeaderListener = listener;
     }

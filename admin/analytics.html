@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/api/env"></script>
-  <script src="/bonds-auth-2026.js?v=3.0.2"></script>
+  <script src="/bonds-auth-2026.js?v=3.0.3"></script>
   <script>BondsAuth.initAdminGuard();</script>
   <style>
     body { background: var(--bg); color: var(--text); font-family: 'Vazirmatn', sans-serif; min-height: 100vh; }
@@ -154,7 +154,7 @@
       const { data: userData } = await window.BondsAuth?.getUser?.() || {};
       const user = userData?.user;
       if (!user) {
-        // Let /bonds-auth-2026.js?v=3.0.2'loading').textContent = 'يجب تسجيل الدخول للوصول إلى لوحة التحكم';
+        // Let /bonds-auth-2026.js?v=3.0.3'loading').textContent = 'يجب تسجيل الدخول للوصول إلى لوحة التحكم';
         return;
       }
       token = userData.session?.access_token || '';

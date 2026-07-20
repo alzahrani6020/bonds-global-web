@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>حاسبة الجدوى المالية للمصنع | بوندز — هل مشروعك الصناعي مربح؟</title>
+  <meta name="description" content="احسب الجدوى المالية لمشروعك الصناعي قبل التأسيس: تكاليف الآلات والمعدات، المواد الخام، الإنتاج اليومي، نقطة التعادل، والسيناريوهات. أداة مجانية من بوندز." />
+  <meta property="og:title" content="حاسبة الجدوى المالية للمصنع | بوندز" />
+  <meta property="og:description" content="هل مصنعك مربح؟ احسب تكاليف الاستثمار والتشغيل والإيرادات المتوقعة قبل ما تبدأ." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/manufacturing-feasibility" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="حاسبة الجدوى المالية للمصنع | بوندز" />
+  <meta name="twitter:description" content="احسب الجدوى المالية لمشروعك الصناعي قبل التأسيس." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <link rel="canonical" href="https://bonds-global.com/calculators/manufacturing-feasibility" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="shared-calculators.css" />
+  <link rel="stylesheet" href="../styles/design-system.css" />
+  <link rel="stylesheet" href="feasibility.css" />
+  <link rel="stylesheet" href="scenario-cards-shared.css" />
+  <script src="shared-ui.js"></script>
+  <script src="shared-utils.js"></script>
+  <script src="shared-export.js"></script>
+  <script src="db-client.js"></script>
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.54.0" />
+  <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
+  <script src="/calculators/auth-gate.js?v=2"></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "حاسبة الجدوى المالية للمصنع — هل مشروعك الصناعي مربح؟",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "SAR"
+    },
+    "url": "https://bonds-global.com/calculators/manufacturing-feasibility",
+    "description": "احسب الجدوى المالية لمشروعك الصناعي قبل التأسيس: تكاليف الآلات والمعدات، المواد الخام، الإنتاج اليومي، نقطة التعادل، والسيناريوهات."
+  }
+  </script>
+</head>
+<body>
+  <div id="site-header"></div>
+  <div class="feas-container">
+    <div class="feas-header">
+      <div class="feas-badge">🏭 لرواد الأعمال الصناعيين — قبل التأسيس</div>
+      <h1>حاسبة الجدوى المالية للمصنع</h1>
+      <p>احسب تكاليف الاستثمار والتشغيل والإيرادات المتوقعة <strong>قبل</strong> ما تبدأ إنتاجك الأول. جرب السيناريوهات واتخذ قرارك بثقة.</p>
+    </div>
+
+    <div id="progressContainer"></div>
+
+    <div class="bonds-card calc-mb-4">
+      <div class="bonds-form-group">
+        <label for="country">الدولة / السوق</label>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+          <option value="">اختر الدولة</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="bonds-tabs">
+      <div class="bonds-tab active" onclick="showTab('setup')">📋 تكاليف الاستثمار</div>
+      <div class="bonds-tab" onclick="showTab('monthly')">⚙️ التكاليف الشهرية</div>
+      <div class="bonds-tab" onclick="showTab('revenue')">🏭 الإنتاج والإيرادات</div>
+      <div class="bonds-tab" onclick="showTab('result')">📊 النتيجة</div>
+    </div>
+
+    <!-- Tab 1: Setup Costs -->
+    <div id="setup" class="bonds-panel active">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 هذه التكاليف تُدفع <strong>مرة واحدة</strong> قبل بدء الإنتاج</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>الآلات والمعدات <abbr title="تكلفة شراء أو تأجير الآلات والخطوط الإنتاجية">ⓘ</abbr></label><input id="sMachinery" class="bonds-input" type="number" value="150000" placeholder="150000" /></div>
+          <div class="bonds-form-group"><label>أدوات وتجهيزات <abbr title="القوالب، الأدوات اليدوية، أثاث المكاتب والورشة">ⓘ</abbr></label><input id="sTools" class="bonds-input" type="number" value="20000" placeholder="20000" /></div>
+          <div class="bonds-form-group"><label>التراخيص والتسجيل <abbr title="تراخيص صناعية، بلدية، غرفة تجارية، بيئية">ⓘ</abbr></label><input id="sLicense" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>تجهيز المنشأة <abbr title="إيجار أو بناء المصنع، أعمال كهرباء وماء، عزل، أرضيات">ⓘ</abbr></label><input id="sFacility" class="bonds-input" type="number" value="50000" placeholder="50000" /></div>
+          <div class="bonds-form-group"><label>مخزون مواد أولية <abbr title="المواد الخام الأولية اللازمة لبدء الإنتاج">ⓘ</abbr></label><input id="sRawMaterials" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
+          <div class="bonds-form-group"><label>الأمن والسلامة والبيئة <abbr title="أنظمة إطفاء، كاميرات، معدات سلامة، معالجة بيئية">ⓘ</abbr></label><input id="sSafety" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>تصميم الهوية والتسويق <abbr title="شعار، موقع إلكتروني، كتالوج، حملة افتتاح">ⓘ</abbr></label><input id="sMarketing" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>مصاريف أخرى <abbr title="أي تكاليف استثمار إضافية">ⓘ</abbr></label><input id="sOther" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+        </div>
+        <div class="feas-section-title">📝 ملخص تكاليف الاستثمار</div>
+        <div class="metric-row" id="setupSummary">
+          <div class="metric-box"><div class="label">إجمالي الاستثمار</div><div class="value" id="setupTotal">0 ر.س</div></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: التكاليف الشهرية →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Monthly Costs -->
+    <div id="monthly" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 هذه التكاليف تُدفع <strong>كل شهر</strong></p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>الإيجار الشهري <abbr title="إيجار المصنع أو المستودع">ⓘ</abbr></label><input id="mRent" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>الرواتب والأجور <abbr title="رواتب العمال والفنيين والإداريين">ⓘ</abbr></label><input id="mSalaries" class="bonds-input" type="number" value="25000" placeholder="25000" /></div>
+          <div class="bonds-form-group"><label>الكهرباء والماء والغاز <abbr title="فواتير الطاقة والماء والغاز الصناعي">ⓘ</abbr></label><input id="mUtilities" class="bonds-input" type="number" value="4000" placeholder="4000" /></div>
+          <div class="bonds-form-group"><label>المواد الخام الشهرية <abbr title="متوسط تكلفة المواد الخام شهرياً">ⓘ</abbr></label><input id="mRawMaterials" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
+          <div class="bonds-form-group"><label>الصيانة والقطع الغيار <abbr title="صيانة دورية + قطع غيار">ⓘ</abbr></label><input id="mMaintenance" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
+          <div class="bonds-form-group"><label>التسويق والمبيعات <abbr title="مصاريف التسويق والمبيعات الشهرية">ⓘ</abbr></label><input id="mAds" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
+          <div class="bonds-form-group"><label>الإنترنت والاشتراكات <abbr title="إنترنت، برامج، اشتراكات">ⓘ</abbr></label><input id="mSubscriptions" class="bonds-input" type="number" value="1000" placeholder="1000" /></div>
+          <div class="bonds-form-group"><label>مصاريف متنوعة <abbr title="مصاريف غير متوقعة ومتفرقة">ⓘ</abbr></label><input id="mMisc" class="bonds-input" type="number" value="2000" placeholder="2000" /></div>
+        </div>
+        <div class="feas-section-title">📊 ملخص التكاليف الشهرية</div>
+        <div class="metric-row" id="monthlySummary">
+          <div class="metric-box"><div class="label">الإجمالي الشهري</div><div class="value" id="monthlyTotal">0 ر.س</div></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">التالي: الإنتاج والإيرادات →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Production & Revenue -->
+    <div id="revenue" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 ابدأ بأرقام واقعية — الطاقة الفعلية قد تكون أقل من الطاقة القصوى</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>سعر بيع الوحدة <abbr title="متوسط سعر بيع المنتج النهائي للعميل">ⓘ</abbr></label><input id="rPrice" class="bonds-input" type="number" value="50" placeholder="50" min="1" /></div>
+          <div class="bonds-form-group"><label>تكلفة المواد الخام / وحدة <abbr title="تكلفة المواد الخام المباشرة لإنتاج وحدة واحدة">ⓘ</abbr></label><input id="rRawCost" class="bonds-input" type="number" value="20" placeholder="20" min="0" /></div>
+          <div class="bonds-form-group"><label>الإنتاج اليومي المتوقع (وحدة) <abbr title="عدد الوحدات التي تنتجها يومياً في المتوسط">ⓘ</abbr></label><input id="rDailyUnits" class="bonds-input" type="number" value="200" placeholder="200" min="1" /></div>
+          <div class="bonds-form-group"><label>أيام العمل في الشهر <abbr title="عدد أيام عمل المصنع شهرياً">ⓘ</abbr></label><input id="rWorkDays" class="bonds-input" type="number" value="26" placeholder="26" min="1" max="31" /></div>
+        </div>
+        <div class="feas-section-title">📉 تكاليف وهدر إضافية (اختياري)</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>نسبة الهدر والإنتاج المعيب (%) <abbr title="نسبة الوحدات التالفة أو المعادة خلال الإنتاج">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="3" placeholder="3" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>عمولة التوزيع / المنصة (%) <abbr title="ما تدفعه للموزع أو المنصة من قيمة المبيعات">ⓘ</abbr></label><input id="commissionPct" class="bonds-input" type="number" value="0" placeholder="0" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>تكلفة التغليف / وحدة <abbr title="تكلفة العلبة أو الكرتون أو الملصقات">ⓘ</abbr></label><input id="packagingCostPerUnit" class="bonds-input" type="number" value="1" placeholder="1" min="0" /></div>
+          <div class="bonds-form-group"><label>نمو الإنتاج شهرياً (%) <abbr title="معدل النمو الشهري المتوقع للإنتاج (0 = ثبات)">ⓘ</abbr></label><input id="monthlyGrowthPct" class="bonds-input" type="number" value="0" placeholder="1" min="0" max="100" /></div>
+        </div>
+        <div class="feas-section-title">💵 ملخص الإيرادات المتوقعة</div>
+        <div class="metric-row" id="revenueSummary">
+          <div class="metric-box"><div class="label">إيراد يومي</div><div class="value" id="revDaily">0 ر.س</div></div>
+          <div class="metric-box"><div class="label">إيراد شهري</div><div class="value" id="revMonthly">0 ر.س</div></div>
+          <div class="metric-box"><div class="label">إيراد سنوي</div><div class="value" id="revYearly">0 ر.س</div></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← السابق</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">احسب النتيجة 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Result -->
+    <div id="result" class="bonds-panel">
+      <div id="resultContent">
+        <div class="calc-empty-state-box-lg">
+          <div class="calc-empty-icon-lg">📊</div>
+          <p class="calc-text-lg-semibold">اكمل الخطوات السابقة لترى النتيجة</p>
+          <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('setup')">ابدأ الآن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ===== PROGRESS =====
+const progress = new BondsUI.ProgressTracker('progressContainer', ['تكاليف الاستثمار', 'التكاليف الشهرية', 'الإنتاج والإيرادات', 'النتيجة']);
+
+// ===== TABS =====
+const tabIds = ['setup','monthly','revenue','result'];
+let currentTab = 0;
+
+function showTab(id) {
+  document.querySelectorAll('.bonds-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bonds-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = tabIds.indexOf(id);
+  currentTab = idx;
+  progress.set(idx);
+  document.querySelectorAll('.bonds-tab')[idx].classList.add('active');
+  if (id === 'setup') updateSetupSummary();
+  if (id === 'monthly') updateMonthlySummary();
+  if (id === 'revenue') updateRevenueSummary();
+}
+
+function nextTab() {
+  if (currentTab < tabIds.length - 1) showTab(tabIds[currentTab + 1]);
+}
+function prevTab() {
+  if (currentTab > 0) showTab(tabIds[currentTab - 1]);
+}
+
+function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+function updateSetupSummary() {
+  const total = getVal('sMachinery') + getVal('sTools') + getVal('sLicense') + getVal('sFacility') + getVal('sRawMaterials') + getVal('sSafety') + getVal('sMarketing') + getVal('sOther');
+  document.getElementById('setupTotal').textContent = total.toLocaleString('ar-SA') + ' ر.س';
+}
+
+function updateMonthlySummary() {
+  const total = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mRawMaterials') + getVal('mMaintenance') + getVal('mAds') + getVal('mSubscriptions') + getVal('mMisc');
+  document.getElementById('monthlyTotal').textContent = total.toLocaleString('ar-SA') + ' ر.س';
+}
+
+function updateRevenueSummary() {
+  const daily = getVal('rPrice') * getVal('rDailyUnits');
+  const monthly = daily * getVal('rWorkDays');
+  const yearly = monthly * 12;
+  document.getElementById('revDaily').textContent = daily.toLocaleString('ar-SA') + ' ر.س';
+  document.getElementById('revMonthly').textContent = monthly.toLocaleString('ar-SA') + ' ر.س';
+  document.getElementById('revYearly').textContent = yearly.toLocaleString('ar-SA') + ' ر.س';
+}
+
+['sMachinery','sTools','sLicense','sFacility','sRawMaterials','sSafety','sMarketing','sOther'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateSetupSummary);
+});
+['mRent','mSalaries','mUtilities','mRawMaterials','mMaintenance','mAds','mSubscriptions','mMisc'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateMonthlySummary);
+});
+['rPrice','rRawCost','rDailyUnits','rWorkDays','wasteRatePct','commissionPct','packagingCostPerUnit','monthlyGrowthPct'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateRevenueSummary);
+});
+
+function calculateAll() {
+  const priceRes = BondsUI.validateField('rPrice', { required:true, type:'number', min:1, label:'سعر بيع الوحدة' });
+  const dailyUnitsRes = BondsUI.validateField('rDailyUnits', { required:true, type:'number', min:1, label:'الإنتاج اليومي' });
+  const workDaysRes = BondsUI.validateField('rWorkDays', { required:true, type:'number', min:1, max:31, label:'أيام العمل' });
+  if (!priceRes.valid || !dailyUnitsRes.valid || !workDaysRes.valid) {
+    BondsUI.toast('⚠️ راجع حقول الإنتاج والإيرادات', 'warning');
+    showTab('revenue');
+    return;
+  }
+
+  const setupTotal = getVal('sMachinery') + getVal('sTools') + getVal('sLicense') + getVal('sFacility') + getVal('sRawMaterials') + getVal('sSafety') + getVal('sMarketing') + getVal('sOther');
+  const monthlyFixed = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mMaintenance') + getVal('mAds') + getVal('mSubscriptions') + getVal('mMisc');
+  const monthlyRawMaterialsInput = getVal('mRawMaterials');
+
+  const price = getVal('rPrice');
+  const rawCost = getVal('rRawCost');
+  const dailyUnits = getVal('rDailyUnits');
+  const workDays = getVal('rWorkDays');
+  const wasteRate = getVal('wasteRatePct') / 100;
+  const commissionRate = getVal('commissionPct') / 100;
+  const packagingCost = getVal('packagingCostPerUnit');
+  const growthRate = getVal('monthlyGrowthPct') / 100;
+
+  const grossMonthlyUnits = dailyUnits * workDays;
+  const goodUnits = Math.floor(grossMonthlyUnits * (1 - wasteRate));
+  const wastedUnits = grossMonthlyUnits - goodUnits;
+
+  const grossRevenue = goodUnits * price;
+  const commissionAmount = grossRevenue * commissionRate;
+  const monthlyRevenue = grossRevenue - commissionAmount;
+
+  const variableCostPerUnit = rawCost + packagingCost;
+  const monthlyVariable = (goodUnits * variableCostPerUnit) + (wastedUnits * rawCost) + monthlyRawMaterialsInput;
+  const monthlyTotal = monthlyFixed + monthlyVariable;
+  const monthlyProfit = monthlyRevenue - monthlyTotal;
+  const yearlyProfit = monthlyProfit * 12;
+  const profitMargin = monthlyRevenue > 0 ? (monthlyProfit / monthlyRevenue) * 100 : 0;
+
+  const contributionPerUnit = price * (1 - commissionRate) - variableCostPerUnit;
+  const breakEvenUnits = contributionPerUnit > 0 ? Math.ceil(monthlyFixed / contributionPerUnit) : Infinity;
+  const breakEvenRevenue = contributionPerUnit > 0 ? breakEvenUnits * price : Infinity;
+  const roiMonths = monthlyProfit > 0 ? setupTotal / monthlyProfit : Infinity;
+
+  // Scenarios based on daily units
+  function scenario(daily) {
+    const units = daily * workDays;
+    const good = Math.floor(units * (1 - wasteRate));
+    const rev = good * price * (1 - commissionRate);
+    const varCost = good * variableCostPerUnit + (units - good) * rawCost + monthlyRawMaterialsInput;
+    const profit = rev - monthlyFixed - varCost;
+    const margin = rev > 0 ? (profit / rev) * 100 : 0;
+    return { daily, good, rev, profit, margin };
+  }
+  const scenarios = {
+    pessimistic: scenario(Math.max(1, Math.round(dailyUnits * 0.6))),
+    expected: scenario(dailyUnits),
+    optimistic: scenario(Math.round(dailyUnits * 1.4))
+  };
+
+  window._mfResult = {
+    setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, monthlyRevenue, yearlyRevenue: monthlyRevenue * 12,
+    monthlyProfit, yearlyProfit, profitMargin, breakEvenUnits, breakEvenRevenue, roiMonths, scenarios,
+    grossRevenue, commissionAmount, wastedUnits, goodUnits, price, dailyUnits, workDays, rawCost, packagingCost
+  };
+
+  let verdictHTML = '';
+  if (monthlyProfit < 0) {
+    verdictHTML = `
+      <div class="verdict-box loss">
+        <div class="verdict-icon">🔴</div>
+        <div class="verdict-title" style="color:#ef4444;">تحذير: المشروع يتوقع خسارة شهرية</div>
+        <div class="verdict-text">
+          بإنتاج ${dailyUnits} وحدة/يوم، تتوقع خسارة <strong>${Math.abs(monthlyProfit).toLocaleString('ar-SA')} ر.س</strong> شهرياً.<br>
+          💡 <strong>الحلول:</strong> ارفع الإنتاج إلى ${breakEvenUnits === Infinity ? '—' : Math.ceil(breakEvenUnits / workDays)} وحدة/يوم، أو قلل التكاليف، أو ارفع السعر.
+        </div>
+      </div>`;
+  } else if (roiMonths > 36) {
+    verdictHTML = `
+      <div class="verdict-box warning">
+        <div class="verdict-icon">🟡</div>
+        <div class="verdict-title" style="color:#f59e0b;">مربح لكن بطيء الاسترداد</div>
+        <div class="verdict-text">
+          المشروع مربح ${monthlyProfit.toLocaleString('ar-SA')} ر.س/شهر، لكن يحتاج <strong>${Math.ceil(roiMonths)} شهر</strong> لاسترداد رأس المال.<br>
+          💡 جرب زيادة الطاقة الإنتاجية أو تقليل التكاليف لتسريع الاسترداد.
+        </div>
+      </div>`;
+  } else {
+    verdictHTML = `
+      <div class="verdict-box profit">
+        <div class="verdict-icon">🟢</div>
+        <div class="verdict-title" style="color:#22c55e;">مشروع صناعي مربح ومبشر!</div>
+        <div class="verdict-text">
+          تتوقع ربح <strong>${monthlyProfit.toLocaleString('ar-SA')} ر.س</strong> شهرياً بهامش ${profitMargin.toFixed(1)}%.<br>
+          استرداد رأس المال خلال <strong>${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' شهر'}</strong> تقريباً.
+        </div>
+      </div>`;
+  }
+
+  const pess = scenarios.pessimistic;
+  const exp = scenarios.expected;
+  const opt = scenarios.optimistic;
+
+  document.getElementById('resultContent').innerHTML = `
+    ${verdictHTML}
+
+    <div class="feas-section-title">📈 النتائج الرئيسية</div>
+    <div class="metric-row">
+      <div class="metric-box"><div class="label">نقطة التعادل (شهرياً)</div><div class="value">${breakEvenUnits === Infinity ? '—' : breakEvenUnits.toLocaleString('ar-SA') + ' وحدة'}</div></div>
+      <div class="metric-box"><div class="label">نقطة التعادل (يومياً)</div><div class="value">${breakEvenUnits === Infinity ? '—' : Math.ceil(breakEvenUnits / workDays).toLocaleString('ar-SA') + ' وحدة'}</div></div>
+      <div class="metric-box"><div class="label">الربح الشهري المتوقع</div><div class="value" style="color:${monthlyProfit>=0?'#22c55e':'#ef4444'}">${monthlyProfit.toLocaleString('ar-SA')} ر.س</div></div>
+      <div class="metric-box"><div class="label">هامش الربح</div><div class="value">${profitMargin.toFixed(1)}%</div></div>
+      <div class="metric-box"><div class="label">استرداد رأس المال</div><div class="value">${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' شهر'}</div></div>
+      <div class="metric-box"><div class="label">إجمالي الاستثمار</div><div class="value">${setupTotal.toLocaleString('ar-SA')} ر.س</div></div>
+      ${commissionAmount > 0 ? `<div class="metric-box"><div class="label">عمولة التوزيع / شهر</div><div class="value" style="color:#ef4444">${commissionAmount.toLocaleString('ar-SA')} ر.س</div></div>` : ''}
+      ${wastedUnits > 0 ? `<div class="metric-box"><div class="label">وحدات هالكة / شهر</div><div class="value" style="color:#ef4444">${wastedUnits.toLocaleString('ar-SA')} وحدة</div></div>` : ''}
+    </div>
+
+    <div class="feas-section-title">🎲 السيناريوهات</div>
+    <div class="scenario-grid">
+      <div class="scenario-card pessimistic">
+        <div class="scenario-label" style="color:#ef4444;">المتشائم</div>
+        <div class="scenario-value" style="color:#ef4444;">${pess.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="scenario-desc">${pess.daily.toLocaleString('ar-SA')} وحدة/يوم<br>هامش: ${pess.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card expected">
+        <div class="scenario-label" style="color:var(--gold);">المتوقع</div>
+        <div class="scenario-value" style="color:var(--gold);">${exp.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="scenario-desc">${exp.daily.toLocaleString('ar-SA')} وحدة/يوم<br>هامش: ${exp.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card optimistic">
+        <div class="scenario-label" style="color:#22c55e;">المتفائل</div>
+        <div class="scenario-value" style="color:#22c55e;">${opt.profit.toLocaleString('ar-SA')} ر.س</div>
+        <div class="scenario-desc">${opt.daily.toLocaleString('ar-SA')} وحدة/يوم<br>هامش: ${opt.margin.toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <div class="feas-section-title">📋 ملخص تفصيلي</div>
+    <div class="bonds-card" style="text-align:right;">
+      <p><strong>💰 الإيرادات:</strong></p>
+      <p>• إيراد شهري إجمالي: ${grossRevenue.toLocaleString('ar-SA')} ر.س | بعد العمولة: ${monthlyRevenue.toLocaleString('ar-SA')} ر.س | سنوي: ${(monthlyRevenue * 12).toLocaleString('ar-SA')} ر.س</p>
+      <p style="margin-top:0.5rem;"><strong>📉 التكاليف الشهرية:</strong></p>
+      <p>• ثابتة: ${monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${monthlyVariable.toLocaleString('ar-SA')} ر.س | الإجمالي: ${monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
+      <p style="margin-top:0.5rem;"><strong>📊 الربحية:</strong></p>
+      <p>• شهري: ${monthlyProfit.toLocaleString('ar-SA')} ر.س | سنوي: ${yearlyProfit.toLocaleString('ar-SA')} ر.س | هامش: ${profitMargin.toFixed(1)}%</p>
+      <p style="margin-top:0.5rem;"><strong>🎯 نقطة التعادل:</strong></p>
+      <p>• ${breakEvenUnits === Infinity ? 'لا توجد نقطة تعادل قابلة للتحقيق' : breakEvenUnits.toLocaleString('ar-SA') + ' وحدة/شهر | إيراد: ' + breakEvenRevenue.toLocaleString('ar-SA') + ' ر.س'}</p>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('setup'); BondsUI.toast('🔄 ابدأ من جديد وجرّب أرقام جديدة', 'info');">🔄 جرب أرقام جديدة</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelMF()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFMF()">📄 PDF</button>
+    </div>
+    <div id="fundingSuggestions"></div>
+  `;
+
+  loadFundingSuggestions();
+}
+
+async function loadFundingSuggestions() {
+  const container = document.getElementById('fundingSuggestions');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-secondary);">جاري البحث عن مصادر تمويل مقترحة...</div>';
+  const country = document.getElementById('country')?.value || 'SA';
+  try {
+    const res = await fetch('/api/funding-sources?country_code=' + country + '&sector=manufacturing&limit=3');
+    const json = await res.json();
+    const list = json.data || [];
+    if (!list.length) { container.innerHTML = ''; return; }
+    const typeLabels = { bank: 'بنك', fund: 'صندوق', investor: 'مستثمر', government_program: 'برنامج حكومي' };
+    container.innerHTML = `
+      <div class="feas-section-title">💡 مصادر تمويل مقترحة</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
+        ${list.map(s => `
+          <div class="bonds-card" style="border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--gold);font-weight:700;margin-bottom:0.25rem;">${typeLabels[s.type] || s.type}</div>
+            <div style="font-weight:800;margin-bottom:0.5rem;">${s.name_ar || s.name_en}</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">${s.description || ''}</div>
+            ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener" style="color:var(--gold);font-size:0.85rem;">التفاصيل ←</a>` : ''}
+          </div>
+        `).join('')}
+      </div>
+      <div style="text-align:center;margin-top:1rem;">
+        <a href="../funding-sources.html" class="bonds-btn bonds-btn-secondary">استعراض كل مصادر التمويل</a>
+      </div>
+    `;
+  } catch (e) {
+    container.innerHTML = '';
+  }
+}
+
+async function exportExcelMF() {
+  if (!window._mfResult) { BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning'); return; }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') { BondsUI.toast('❌ فشل تحميل مكتبة Excel', 'error'); return; }
+  const d = window._mfResult;
+  const wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'تقرير الجدوى المالية للمصنع', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  const inputs = [
+    ['بند', 'القيمة'],
+    ['الآلات والمعدات', getVal('sMachinery')],
+    ['أدوات وتجهيزات', getVal('sTools')],
+    ['التراخيص والتسجيل', getVal('sLicense')],
+    ['تجهيز المنشأة', getVal('sFacility')],
+    ['مخزون مواد أولية', getVal('sRawMaterials')],
+    ['الأمن والسلامة والبيئة', getVal('sSafety')],
+    ['تصميم الهوية والتسويق', getVal('sMarketing')],
+    ['مصاريف أخرى', getVal('sOther')],
+    ['', ''],
+    ['الإيجار الشهري', getVal('mRent')],
+    ['الرواتب والأجور', getVal('mSalaries')],
+    ['الكهرباء والماء والغاز', getVal('mUtilities')],
+    ['المواد الخام الشهرية', getVal('mRawMaterials')],
+    ['الصيانة والقطع الغيار', getVal('mMaintenance')],
+    ['التسويق والمبيعات', getVal('mAds')],
+    ['الإنترنت والاشتراكات', getVal('mSubscriptions')],
+    ['مصاريف متنوعة', getVal('mMisc')],
+    ['', ''],
+    ['سعر بيع الوحدة', getVal('rPrice')],
+    ['تكلفة المواد الخام / وحدة', getVal('rRawCost')],
+    ['الإنتاج اليومي', getVal('rDailyUnits')],
+    ['أيام العمل', getVal('rWorkDays')],
+    ['نسبة الهدر', getVal('wasteRatePct')],
+    ['عمولة التوزيع', getVal('commissionPct')],
+    ['تكلفة التغليف / وحدة', getVal('packagingCostPerUnit')]
+  ];
+
+  const results = [
+    ['المؤشر', 'القيمة'],
+    ['إجمالي الاستثمار', d.setupTotal],
+    ['التكاليف الثابتة / شهر', d.monthlyFixed],
+    ['التكاليف المتغيرة / شهر', d.monthlyVariable],
+    ['إجمالي التكاليف / شهر', d.monthlyTotal],
+    ['الإيراد الشهري الصافي', d.monthlyRevenue],
+    ['الربح الشهري', d.monthlyProfit],
+    ['الربح السنوي', d.yearlyProfit],
+    ['هامش الربح %', d.profitMargin.toFixed(2)],
+    ['نقطة التعادل (وحدة/شهر)', d.breakEvenUnits === Infinity ? '—' : d.breakEvenUnits],
+    ['استرداد رأس المال (شهر)', d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths)]
+  ];
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(inputs), 'المدخلات');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(results), 'النتائج');
+  XLSX.writeFile(wb, 'دراسة-جدوى-المصنع.xlsx');
+}
+
+async function exportPDFMF() {
+  if (!window._mfResult) { BondsUI.toast('⚠️ احسب النتائج أولاً', 'warning'); return; }
+  const title = 'دراسة الجدوى المالية للمصنع';
+  const content = document.getElementById('resultContent').innerHTML;
+  if (window.openPrintWindow) {
+    window.openPrintWindow({ title, content, reportType: 'feasibility' });
+  } else {
+    BondsUI.toast('⚠️ مكتبة الطباعة غير متوفرة', 'warning');
+  }
+}
+
+updateSetupSummary();
+updateMonthlySummary();
+updateRevenueSummary();
+</script>
+<script src="../components/universal-dropdown.js?v=2.51.8"></script>
+<script src="../components/universal-dropdown-init.js"></script>
+</body>
+</html>
