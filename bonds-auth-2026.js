@@ -336,8 +336,10 @@
       }
 
       const isMfaSetupPage = location.pathname.includes('/admin/mfa-setup.html');
+      // Hardcoded owner fallback (safety net if ADMIN_EMAIL env var is not set)
+      const OWNER_EMAIL_FALLBACK = 'hmd.dev@gmail.com';
 
-      if (ADMIN_EMAIL && user.email === ADMIN_EMAIL) {
+      if ((ADMIN_EMAIL && user.email === ADMIN_EMAIL) || user.email === OWNER_EMAIL_FALLBACK) {
         const mfa = await checkAdminMfa(token);
         if (!mfa.ok) {
           if (isMfaSetupPage) return finishAdminAccess('super_admin');

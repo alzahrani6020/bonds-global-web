@@ -8,10 +8,12 @@ const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
 
-const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
+const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || 'hmd.dev@gmail.com';
 
 function isOwner(email) {
-  return !!(OWNER_EMAIL && email && email.toLowerCase() === OWNER_EMAIL.toLowerCase());
+  if (!email) return false;
+  const fallback = 'hmd.dev@gmail.com';
+  return (OWNER_EMAIL && email.toLowerCase() === OWNER_EMAIL.toLowerCase()) || email.toLowerCase() === fallback;
 }
 
 function decodeJwtAal(token) {

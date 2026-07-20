@@ -46,7 +46,7 @@
   </div>
 
   <div class="test">
-    <h3>3. bonds-auth-2026.js</h3>
+    <h3>3. bonds-auth-2026.js?v=3.0.0</h3>
     <div id="t3">جاري الفحص...</div>
   </div>
 
@@ -67,7 +67,7 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/api/env"></script>
-  <script src="/bonds-auth-2026.js?v=4"></script>
+  <script src="/bonds-auth-2026.js?v=3.0.0"></script>
   <script>
     async function runTests() {
       // Test 1: Supabase library
@@ -93,11 +93,11 @@
       // Test 3: BondsAuth
       const t3 = document.getElementById('t3');
       if (window.BondsAuth && window.BondsAuth.getSupabase && window.BondsAuth.getSupabase()) {
-        t3.innerHTML = '<span class="pass">✅ PASS</span> — bonds-auth-2026.js يعمل وSupabase Client جاهز';
+        t3.innerHTML = '<span class="pass">✅ PASS</span> — bonds-auth-2026.js?v=3.0.0 يعمل وSupabase Client جاهز';
       } else if (window.BondsAuth) {
-        t3.innerHTML = '<span class="warn">⚠️ WARN</span> — bonds-auth-2026.js محمل لكن Supabase Client غير جاهز';
+        t3.innerHTML = '<span class="warn">⚠️ WARN</span> — bonds-auth-2026.js?v=3.0.0 محمل لكن Supabase Client غير جاهز';
       } else {
-        t3.innerHTML = '<span class="fail">❌ FAIL</span> — bonds-auth-2026.js غير محمل!';
+        t3.innerHTML = '<span class="fail">❌ FAIL</span> — bonds-auth-2026.js?v=3.0.0 غير محمل!';
       }
 
       // Test 4: Session
