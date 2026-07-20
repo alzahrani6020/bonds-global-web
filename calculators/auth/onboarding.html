@@ -241,7 +241,7 @@
         }
 
         showSuccess('✅ تم الحفظ! جاري التوجيه...');
-        const redirect = sessionStorage.getItem('auth_redirect') || '/v3/portfolio';
+        const redirect = sessionStorage.getItem('auth_redirect') || '/index.html';
         sessionStorage.removeItem('auth_redirect');
         setTimeout(() => location.href = redirect, 1000);
       });
@@ -271,7 +271,7 @@
         await window.BondsAuth.updateProfile(user.id, payload);
         sessionStorage.setItem('bonds_onboarding_skipped', Date.now().toString());
         setLoading(false);
-        const redirect = sessionStorage.getItem('auth_redirect') || '/v3/portfolio';
+        const redirect = sessionStorage.getItem('auth_redirect') || '/index.html';
         sessionStorage.removeItem('auth_redirect');
         location.href = redirect;
       });

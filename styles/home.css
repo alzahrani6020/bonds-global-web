@@ -377,7 +377,7 @@
   justify-content: space-between;
   gap: var(--space-8);
   padding: var(--space-10) var(--space-12);
-  background: linear-gradient(135deg, rgba(212, 168, 83, 0.08), rgba(16, 24, 45, 0.6));
+  background: linear-gradient(135deg, var(--gold-glow), var(--bg-card));
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }
@@ -442,7 +442,7 @@
   display: grid;
   place-items: center;
   font-weight: 700;
-  color: #0a0f1a;
+  color: var(--text-inverse);
   flex-shrink: 0;
 }
 .testimonial-card__name {

@@ -520,7 +520,7 @@ body[dir="ltr"] .dropdown-menu {
 /* ===== Footer ===== */
 .footer {
   position: relative;
-  background: var(--bg-dark);
+  background: var(--bg-secondary);
   color: var(--text-inverse);
   padding: var(--space-16) var(--space-6) var(--space-6);
   border-top: 1px solid var(--border);
@@ -563,7 +563,7 @@ body[dir="ltr"] .dropdown-menu {
 .footer-title {
   font-weight: 800;
   font-size: 0.95rem;
-  color: var(--text-inverse);
+  color: var(--text);
   margin-bottom: var(--space-4);
 }
 
@@ -594,7 +594,7 @@ html[dir="ltr"] .footer-links a:hover {
   max-width: 1280px;
   margin: var(--space-10) auto 0;
   padding-top: var(--space-6);
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -615,7 +615,7 @@ html[dir="ltr"] .footer-links a:hover {
   justify-content: center;
   width: 2rem;
   height: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border);
   border-radius: 50%;
   color: var(--text-secondary);
   font-size: 0.8rem;
