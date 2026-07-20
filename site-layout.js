@@ -563,11 +563,26 @@
     setActiveLinks();
     applyCalendlyUrl();
 
-    if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
-      window.BondsAuth.initSiteAuth('authContainer');
-    }
+    initAuthHeader();
 
     initThemeToggle();
+  }
+
+  function initAuthHeader() {
+    if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
+      window.BondsAuth.initSiteAuth('authContainer');
+      return;
+    }
+    // Dynamically load the auth script on pages that don't include it directly
+    const authScript = document.createElement('script');
+    authScript.src = '/bonds-auth-2026.js?v=2.99.9';
+    authScript.async = true;
+    authScript.onload = function () {
+      if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
+        window.BondsAuth.initSiteAuth('authContainer');
+      }
+    };
+    document.head.appendChild(authScript);
   }
 
   if (document.readyState === 'loading') {
