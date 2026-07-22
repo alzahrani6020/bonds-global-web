@@ -267,6 +267,62 @@
     return sb.auth.verifyOtp({ email, token, type: type || 'email' });
   }
 
+  // ── Server-proxy OTP endpoints ────────────────────────────
+  // These bypass Supabase's public rate limits by sending the OTP from the
+  // Vercel server using the service role key. Use them for signup and magic
+  // link flows to avoid blocking international users.
+
+  async function sendOtpViaProxy(email, options) {
+    await ensureEnv();
+    const payload = {
+      email,
+      shouldCreateUser: !!(options && options.shouldCreateUser),
+      metadata: (options && options.data) || {},
+      language: (options && options.language) || 'ar'
+    };
+    const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : 'https://bonds-global.com');
+    const res = await fetch(origin + '/api/v3/auth/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { error: new Error(json.error || 'Failed to send verification email') };
+    }
+    return { data: json, error: null };
+  }
+
+  async function verifyOtpViaProxy(email, token, options) {
+    await ensureEnv();
+    const payload = {
+      email,
+      token,
+      type: (options && options.type) || 'email',
+      pendingPassword: (options && options.pendingPassword) || undefined
+    };
+    const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : 'https://bonds-global.com');
+    const res = await fetch(origin + '/api/v3/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { error: new Error(json.error || 'Invalid or expired token') };
+    }
+    // Persist the returned session into the Supabase client so the rest of the
+    // app (getUser, getSession, signOut) continues to work transparently.
+    const sb = getSupabase();
+    if (sb && json.session) {
+      await sb.auth.setSession({
+        access_token: json.session.access_token,
+        refresh_token: json.session.refresh_token
+      });
+    }
+    return { data: json, error: null };
+  }
+
   async function updateUser(attributes) {
     await ensureEnv();
     const sb = getSupabase();
@@ -337,9 +393,9 @@
       status = 'inactive';
     }
 
-    const limits = tier === 'enterprise' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true, webhooks: true } :
-                   tier === 'pro' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true } :
-                   { maxScenarios: 3, pdfExport: false, healthHistory: false, apiAccess: false };
+    const limits = tier === 'enterprise' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true, webhooks: true, paidCalculators: true } :
+                   tier === 'pro' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true, paidCalculators: true } :
+                   { maxScenarios: 3, pdfExport: false, healthHistory: false, apiAccess: false, paidCalculators: false };
 
     const allowed = status === 'active' && (limits[feature] === true || limits[feature] > 0);
     return { allowed, tier, status, limits, reason: allowed ? null : 'tier_limit' };
@@ -511,10 +567,13 @@
       }
 
       const isMfaSetupPage = location.pathname.includes('/admin/mfa-setup.html');
-      // Hardcoded owner fallback (safety net if ADMIN_EMAIL env var is not set)
-      const OWNER_EMAIL_FALLBACK = 'hmd.dev@gmail.com';
+      // Hardcoded owner fallbacks (safety net if ADMIN_EMAIL env var is not set)
+      const OWNER_EMAIL_FALLBACKS = ['iiffund.dev@gmail.com'];
+      const configuredOwner = getEnv().ADMIN_EMAIL || '';
+      const ownerEmails = [...OWNER_EMAIL_FALLBACKS];
+      if (configuredOwner) ownerEmails.push(configuredOwner);
 
-      if ((getEnv().ADMIN_EMAIL && user.email === getEnv().ADMIN_EMAIL) || user.email === OWNER_EMAIL_FALLBACK) {
+      if (ownerEmails.some(e => user.email.toLowerCase() === e.toLowerCase())) {
         const mfa = await checkAdminMfa(token);
         if (!mfa.ok) {
           if (isMfaSetupPage) return finishAdminAccess('super_admin');
@@ -629,7 +688,7 @@
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
     getSupabase, ensureEnv, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
-    signUp, signIn, signInWithOTP, verifyOTP, updateUser, signInWithOAuth, resendConfirmation, signOut, checkFeatureAccess,
+    signUp, signIn, signInWithOTP, verifyOTP, sendOtpViaProxy, verifyOtpViaProxy, updateUser, signInWithOAuth, resendConfirmation, signOut, checkFeatureAccess,
     getRedirectUrl, clearRedirectUrl,
     normalizePhone, isValidPhone,
     initSiteAuth, initAdminGuard
