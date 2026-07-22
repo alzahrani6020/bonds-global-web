@@ -227,26 +227,29 @@ body[dir="ltr"] .dropdown-menu {
 /* ===== Grouped calculators dropdown ===== */
 .dropdown-menu--grouped {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   position: fixed;
   top: 72px;
-  left: 50vw;
-  right: auto;
-  width: min(1100px, calc(100vw - 2rem));
+  left: 1rem;
+  right: 1rem;
+  width: auto;
+  max-width: 1100px;
   max-height: min(560px, 85vh);
+  margin: 0 auto;
   padding: 1.25rem;
   overflow-y: auto;
   background: var(--bg-elevated, var(--bg-card));
   border: 1px solid var(--border);
   border-radius: 16px;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
-  transform: translateX(-50%) translateY(-8px);
+  transform: translateY(-8px);
+  box-sizing: border-box;
 }
 
 .dropdown:hover > .dropdown-menu--grouped,
 .dropdown.is-open > .dropdown-menu--grouped {
-  transform: translateX(-50%) translateY(0);
+  transform: translateY(0);
 }
 
 .dropdown-group {
