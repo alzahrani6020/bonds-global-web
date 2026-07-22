@@ -2,39 +2,23 @@
 .env*
 node_modules/
 package-lock.json
-
-# Ignore old/experimental and temporary artifacts
-bonds-v2/
-tmp-*
 .tmp-*
+tmp-*
 tmp-screenshots/
 tests/visual/snapshots/
 tests/visual/baselines/
 tests/visual/diffs/
-.tmp_*
 screenshots/
-
-# Python/runtime artifacts
 __pycache__/
 *.pyc
 server.log
-
-.env*
 .logo_venv/
-
-# Local/temporary development artifacts
 abhur_images/
 monitor_kimi.ps1
 reports/existing-brochure-text.txt
-
-# Generated study PDFs/MDs — uploaded as GitHub Release assets instead
 feasibility-study-*.pdf
 feasibility-study-*.md
 دراسة-جدوى-*.pdf
 دراسة-جدوى-*.md
-
-# Temporary dropdown test screenshots
 dropdown-test*.png
 dropdown-forced.png
-
-.env*
