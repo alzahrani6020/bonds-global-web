@@ -177,6 +177,39 @@ BEGIN
   END IF;
 END $$;
 
+-- Safety net: ensure every public table that has RLS enabled also has at least
+-- the service_role and admin_select policies. Some system-owned tables may not
+-- be visible to pg_class/apply_safe_rls ownership checks.
+DO $$
+DECLARE
+  r RECORD;
+  v_policy_base TEXT;
+BEGIN
+  FOR r IN
+    SELECT c.relname AS tablename
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public'
+      AND c.relkind = 'r'
+      AND c.relrowsecurity = true
+      AND NOT EXISTS (
+        SELECT 1 FROM pg_policies p WHERE p.schemaname = n.nspname AND p.tablename = c.relname
+      )
+  LOOP
+    v_policy_base := replace(r.tablename, '.', '_');
+
+    EXECUTE format(
+      'CREATE POLICY "%I_admin_select" ON public.%I FOR SELECT TO authenticated USING (public.is_bonds_admin());',
+      v_policy_base, r.tablename
+    );
+
+    EXECUTE format(
+      'CREATE POLICY "%I_service_all" ON public.%I FOR ALL TO service_role USING (true) WITH CHECK (true);',
+      v_policy_base, r.tablename
+    );
+  END LOOP;
+END $$;
+
 -- Verify: show tables that still have no policies (should be none after this runs).
 SELECT c.relname AS tablename
 FROM pg_class c
