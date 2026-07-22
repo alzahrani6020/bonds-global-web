@@ -260,6 +260,7 @@
       aboutTitle: isEn ? 'About Bonds' : 'عن بوندز',
       knowledgeTitle: isEn ? 'Knowledge Center' : 'المركز المعرفي',
       legalTitle: isEn ? 'Legal' : 'قانوني',
+      partnersTitle: isEn ? 'Partners' : 'شركاؤنا',
       rights: isEn
         ? 'All rights reserved. Bonds Financial & Management Consulting © 2026'
         : 'جميع الحقوق محفوظة. بوندز للاستشارات المالية والإدارية © 2026',
@@ -320,6 +321,13 @@
       <div class="footer-links">
         <a href="${clientPortalHref}">${isEn ? 'Client Portal' : 'بوابة العميل'}</a>
         <a href="${contactHref}">${isEn ? 'Request Service' : 'طلب خدمة'}</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">${labels.partnersTitle}</div>
+      <div class="footer-links">
+        <a href="https://thiqqah.live/" target="_blank" rel="noopener noreferrer">${isEn ? 'Thiqqah Al-Dhahabiya' : 'ثقة الذهبية'}</a>
+        <a href="https://afaq-global.com/" target="_blank" rel="noopener noreferrer">${isEn ? 'Afaq Creative Production' : 'آفاق الإبداعية'}</a>
       </div>
     </div>
     <div>
@@ -564,8 +572,17 @@
     applyCalendlyUrl();
 
     initAuthHeader();
+    initGlobalAuthGate();
 
     initThemeToggle();
+  }
+
+  function initGlobalAuthGate() {
+    if (document.querySelector('script[src*="global-auth-gate.js"]')) return;
+    const gateScript = document.createElement('script');
+    gateScript.src = '/global-auth-gate.js?v=1';
+    gateScript.async = true;
+    document.head.appendChild(gateScript);
   }
 
   function initAuthHeader() {
