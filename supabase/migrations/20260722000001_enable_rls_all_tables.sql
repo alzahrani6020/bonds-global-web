@@ -5,6 +5,24 @@
 -- data where a user/owner/profile column exists.
 -- ============================================
 
+-- Helper function: check whether the current user is an admin or manager.
+-- Looks at admin_roles (super_admin / admin) and advisory_roles (manager).
+CREATE OR REPLACE FUNCTION public.is_bonds_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.admin_roles
+    WHERE user_id = auth.uid() AND role IN ('super_admin', 'admin')
+  )
+  OR EXISTS (
+    SELECT 1 FROM public.advisory_roles
+    WHERE user_id = auth.uid() AND role = 'manager'
+  );
+$$;
+
 -- Helper function: apply safe default RLS policies to a table based on
 -- available ownership columns.
 CREATE OR REPLACE FUNCTION public.apply_safe_rls(
@@ -48,6 +66,7 @@ BEGIN
   EXECUTE format('DROP POLICY IF EXISTS "%I_insert" ON public.%I;', v_policy_base, p_table);
   EXECUTE format('DROP POLICY IF EXISTS "%I_update" ON public.%I;', v_policy_base, p_table);
   EXECUTE format('DROP POLICY IF EXISTS "%I_delete" ON public.%I;', v_policy_base, p_table);
+  EXECUTE format('DROP POLICY IF EXISTS "%I_admin_select" ON public.%I;', v_policy_base, p_table);
   EXECUTE format('DROP POLICY IF EXISTS "%I_service_all" ON public.%I;', v_policy_base, p_table);
 
   -- If we found an ownership column, grant authenticated users access to their own rows.
@@ -69,6 +88,12 @@ BEGIN
       v_policy_base, p_table, v_owner_col
     );
   END IF;
+
+  -- Admin/manager read access for dashboards and admin panels.
+  EXECUTE format(
+    'CREATE POLICY "%I_admin_select" ON public.%I FOR SELECT TO authenticated USING (public.is_bonds_admin());',
+    v_policy_base, p_table
+  );
 
   -- Service role can do everything (used by serverless APIs).
   EXECUTE format(
@@ -94,8 +119,9 @@ BEGIN
   END LOOP;
 END $$;
 
--- Clean up helper function.
+-- Clean up helper functions.
 DROP FUNCTION IF EXISTS public.apply_safe_rls(TEXT, TEXT[]);
+-- Keep public.is_bonds_admin() for policies to use.
 
 -- Allow anonymous users to submit contact messages / partner requests / leads.
 -- These are intentionally public write-only tables.
