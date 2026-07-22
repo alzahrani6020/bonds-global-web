@@ -189,15 +189,33 @@ async function handleSendOtp(req, res) {
       return sendJson(res, 500, { error: updateError.message });
     }
 
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
+    const authPath = language === 'ar'
+      ? '/calculators/auth/verify-otp.html'
+      : '/en/calculators/auth/verify-otp.html';
+    const magicUrl = `${appUrl}${authPath}?email=${encodeURIComponent(email)}&token=${encodeURIComponent(otp)}`;
+
     const subject = language === 'ar'
       ? 'رمز التحقق الخاص بك — بوندز'
       : 'Your verification code — Bonds';
     const bodyText = language === 'ar'
-      ? `رمز التحقق الخاص بك هو: ${otp}\nالرمز صالح لمدة 10 دقائق.`
-      : `Your verification code is: ${otp}\nThis code is valid for 10 minutes.`;
+      ? `رمز التحقق الخاص بك هو: ${otp}\n\nيمكنك إدخاله يدوياً في الموقع، أو استخدام الرابط التالي للدخول مباشرة:\n${magicUrl}\n\nالرمز صالح لمدة 10 دقائق.`
+      : `Your verification code is: ${otp}\n\nYou can enter it manually on the site, or use the following link to sign in directly:\n${magicUrl}\n\nThis code is valid for 10 minutes.`;
     const bodyHtml = language === 'ar'
-      ? `<div dir="rtl"><p>رمز التحقق الخاص بك هو:</p><h2>${otp}</h2><p>الرمز صالح لمدة 10 دقائق.</p></div>`
-      : `<p>Your verification code is:</p><h2>${otp}</h2><p>This code is valid for 10 minutes.</p>`;
+      ? `<div dir="rtl" style="font-family:system-ui,Tahoma,sans-serif;line-height:1.6;color:#111;">
+          <p>رمز التحقق الخاص بك هو:</p>
+          <h2 style="letter-spacing:4px;font-size:2rem;margin:0.5rem 0;">${otp}</h2>
+          <p>يمكنك إدخال الرمز يدوياً في الموقع، أو الضغط على الرابط أدناه للدخول مباشرة:</p>
+          <p><a href="${magicUrl}" style="display:inline-block;padding:12px 24px;background:#d4a853;color:#0a0f1a;text-decoration:none;border-radius:8px;font-weight:700;">الدخول إلى بوندز</a></p>
+          <p style="color:#666;font-size:0.9rem;">الرمز صالح لمدة 10 دقائق.</p>
+        </div>`
+      : `<div style="font-family:system-ui,Inter,sans-serif;line-height:1.6;color:#111;">
+          <p>Your verification code is:</p>
+          <h2 style="letter-spacing:4px;font-size:2rem;margin:0.5rem 0;">${otp}</h2>
+          <p>You can enter the code manually on the site, or click the button below to sign in directly:</p>
+          <p><a href="${magicUrl}" style="display:inline-block;padding:12px 24px;background:#d4a853;color:#0a0f1a;text-decoration:none;border-radius:8px;font-weight:700;">Sign in to Bonds</a></p>
+          <p style="color:#666;font-size:0.9rem;">This code is valid for 10 minutes.</p>
+        </div>`;
 
     const emailResult = await sendEmail({
       to: email,

@@ -112,6 +112,20 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
       function showSuccess(msg) { successMsg.textContent = msg; successMsg.style.display = 'block'; errorMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
       function showInfo(msg) { infoMsg.textContent = msg; infoMsg.style.display = 'block'; errorMsg.style.display = 'none'; successMsg.style.display = 'none'; }
 
+      // Auto-fill token from magic-link URL and submit automatically.
+      const urlToken = params.get('token');
+      if (urlToken && urlToken.length === 6 && !phone) {
+        urlToken.split('').forEach((digit, i) => {
+          if (inputs[i]) inputs[i].value = digit;
+        });
+        if (email) {
+          showInfo('Signing you in automatically...');
+          setTimeout(() => {
+            document.getElementById('otpForm').dispatchEvent(new Event('submit'));
+          }, 500);
+        }
+      }
+
       function escapeHtml(text) {
         const div = document.createElement('div');
         div.textContent = text;
