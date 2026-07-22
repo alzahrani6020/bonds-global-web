@@ -35,10 +35,7 @@
       const script = document.createElement('script');
       script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
       script.async = true;
-      script.onload = () => {
-        console.log('[BondsAuth] Supabase library loaded dynamically');
-        resolve();
-      };
+      script.onload = () => resolve();
       script.onerror = () => reject(new Error('Failed to load Supabase library'));
       document.head.appendChild(script);
     });
@@ -66,7 +63,6 @@
   async function ensureEnv(retries = 5) {
     await ensureSupabaseLibrary();
     const current = getEnv();
-    console.log('[BondsAuth] ensureEnv called. Current env:', { url: current.SUPABASE_URL ? 'set' : 'missing', key: current.SUPABASE_ANON_KEY ? 'set' : 'missing' });
     if (current.SUPABASE_URL && current.SUPABASE_ANON_KEY) {
       return current;
     }
@@ -74,14 +70,12 @@
       _envPromise = (async () => {
         for (let i = 0; i < retries; i++) {
           const loopEnv = getEnv();
-          console.log('[BondsAuth] env retry', i, 'current:', { url: loopEnv.SUPABASE_URL ? 'set' : 'missing', key: loopEnv.SUPABASE_ANON_KEY ? 'set' : 'missing' });
           if (loopEnv.SUPABASE_URL && loopEnv.SUPABASE_ANON_KEY) {
             return loopEnv;
           }
           try {
             await loadEnvScript();
             const afterLoad = getEnv();
-            console.log('[BondsAuth] /api/env loaded. After load:', { url: afterLoad.SUPABASE_URL ? 'set' : 'missing', key: afterLoad.SUPABASE_ANON_KEY ? 'set' : 'missing', full: afterLoad });
             if (afterLoad.SUPABASE_URL && afterLoad.SUPABASE_ANON_KEY) {
               return afterLoad;
             }
@@ -414,7 +408,7 @@
         console.warn('[BondsAuth] initSiteAuth: container not found', containerId);
         return;
       }
-      console.log('[BondsAuth] initSiteAuth running for', containerId);
+
 
     function toggleAuthButtons(showAuthButtons) {
       ['headerLoginBtn', 'headerSignupBtn'].forEach(id => {
@@ -424,11 +418,10 @@
     }
 
     function render(user, source) {
-      console.log('[BondsAuth] render called, user:', user?.id || 'null', 'source:', source || 'unknown');
       if (!user) {
         // Defensive: don't overwrite a known logged-in user with a null from an initial race
         if (_lastKnownUser && source === 'onAuthStateChange_INITIAL_SESSION') {
-          console.log('[BondsAuth] ignoring INITIAL_SESSION null because we already have a user');
+
           return;
         }
         container.innerHTML = '';
@@ -486,7 +479,7 @@
     getUser()
       .then(({ data: userData, error: userError }) => {
         if (userError) console.warn('[BondsAuth] getUser error:', userError.message);
-        console.log('[BondsAuth] getUser result:', userData?.user?.id || 'null');
+
         render(userData?.user || null, 'getUser');
       })
       .catch(err => {
@@ -499,7 +492,7 @@
     const sb = getSupabase();
     if (sb && !_authHeaderListener) {
       const { data: listener } = sb.auth.onAuthStateChange((event, session) => {
-        console.log('[BondsAuth] onAuthStateChange:', event, 'session user:', session?.user?.id || 'null');
+
         render(session?.user || null, 'onAuthStateChange_' + event);
       });
       _authHeaderListener = listener;

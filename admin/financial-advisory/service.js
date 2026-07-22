@@ -60,27 +60,21 @@
     }
     // Use session bridge from parent dashboard if available (avoids iframe storage issues).
     const bridgeSession = window.__ADMIN_SESSION;
-    console.log('[AdvisoryService] bridgeSession present:', !!bridgeSession, 'type:', typeof bridgeSession);
     if (bridgeSession && typeof bridgeSession === 'object' && typeof sb.auth.setSession === 'function') {
       try {
         const minimalSession = {
           access_token: bridgeSession.access_token,
           refresh_token: bridgeSession.refresh_token
         };
-        console.log('[AdvisoryService] calling setSession with minimal tokens');
         await sb.auth.setSession(minimalSession);
-        console.log('[AdvisoryService] setSession succeeded');
         const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
-        console.log('[AdvisoryService] getSession after setSession:', { hasSession: !!session, error: error?.message });
         if (!error && session) return session.user;
       } catch (e) {
         console.warn('[AdvisoryService] session bridge failed:', e?.message, e?.stack);
       }
     }
     try {
-      console.log('[AdvisoryService] falling back to getSession');
       const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
-      console.log('[AdvisoryService] fallback getSession:', { hasSession: !!session, error: error?.message });
       if (error || !session) throw new Error('Session required');
       return session.user;
     } catch (e) {
