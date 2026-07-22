@@ -152,4 +152,78 @@
       requestAnimationFrame(draw);
     })();
   }
+
+  /* ---------- Service Worker update notification (zero perf impact) ---------- */
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    navigator.serviceWorker.addEventListener('message', function (event) {
+      if (event.data && event.data.type === 'SW_ACTIVATED') {
+        showUpdateBanner();
+      }
+    });
+  }
+
+  function showUpdateBanner() {
+    if (document.getElementById('bonds-sw-update-banner')) return;
+
+    const isEn = document.documentElement.lang === 'en';
+    const banner = document.createElement('div');
+    banner.id = 'bonds-sw-update-banner';
+    banner.setAttribute('role', 'status');
+    banner.setAttribute('aria-live', 'polite');
+    banner.style.cssText = [
+      'position:fixed',
+      'top:0',
+      'left:0',
+      'right:0',
+      'z-index:2147483647',
+      'display:flex',
+      'align-items:center',
+      'justify-content:center',
+      'gap:12px',
+      'padding:10px 16px',
+      'font-family:inherit',
+      'font-size:14px',
+      'line-height:1.4',
+      'color:#0a0f1a',
+      'background:linear-gradient(90deg,#f0c96a,#d4a853)',
+      'box-shadow:0 4px 12px rgba(0,0,0,0.25)',
+      'direction:' + (isEn ? 'ltr' : 'rtl')
+    ].join(';');
+
+    banner.innerHTML =
+      '<span>' + (isEn ? 'A new version is available.' : 'يتوفر إصدار جديد من الموقع.') + '</span>' +
+      '<button id="bonds-sw-update-btn" type="button" style="padding:4px 12px;border:0;border-radius:6px;background:#0a0f1a;color:#f0c96a;font-weight:700;cursor:pointer;">' +
+      (isEn ? 'Update' : 'تحديث') +
+      '</button>' +
+      '<button id="bonds-sw-update-dismiss" type="button" aria-label="' + (isEn ? 'Dismiss' : 'تجاهل') + '" style="margin-' + (isEn ? 'left' : 'right') + ':8px;padding:0 4px;border:0;background:transparent;color:#0a0f1a;font-size:18px;line-height:1;cursor:pointer;">×</button>';
+
+    banner.querySelector('#bonds-sw-update-btn').addEventListener('click', function () {
+      window.location.reload();
+    });
+    banner.querySelector('#bonds-sw-update-dismiss').addEventListener('click', function () {
+      banner.remove();
+    });
+
+    document.body.appendChild(banner);
+  }
+
+  /* ---------- Site version indicator (async, for debugging only) ---------- */
+  (function loadSiteVersion() {
+    if (!('fetch' in window)) return;
+    fetch('/sw.js', { cache: 'no-store' })
+      .then(function (res) { return res.text(); })
+      .then(function (text) {
+        const match = text.match(/const\s+CACHE_VERSION\s*=\s*['"]([^'"]+)['"];/);
+        const version = match ? match[1] : 'unknown';
+        let meta = document.querySelector('meta[name="bonds-version"]');
+        if (!meta) {
+          meta = document.createElement('meta');
+          meta.setAttribute('name', 'bonds-version');
+          document.head.appendChild(meta);
+        }
+        meta.setAttribute('content', version);
+        window.BONDS_VERSION = version;
+      })
+      .catch(function () { /* silent fail — this is debugging metadata only */ });
+  })();
 })();
