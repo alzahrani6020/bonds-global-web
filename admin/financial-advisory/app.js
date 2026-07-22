@@ -813,13 +813,16 @@
 
   // ========== Init ==========
   function init() {
-    $$('.fa-nav a').forEach(a => {
-      a.addEventListener('click', (e) => {
+    const faNav = document.querySelector('.fa-nav');
+    if (faNav) {
+      faNav.addEventListener('click', e => {
+        const a = e.target.closest('.fa-nav a');
+        if (!a) return;
         e.preventDefault();
         const view = a.dataset.view;
         if (view) showView(view);
       });
-    });
+    }
     // Refresh when parent dashboard sends session token.
     window.addEventListener('admin-session-ready', () => {
       state.role = null;

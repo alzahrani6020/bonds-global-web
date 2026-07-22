@@ -73,7 +73,7 @@
       transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
     }
     .sidebar-link:hover, .sidebar-link.active { background: rgba(184,149,78,0.12); color: var(--gold); }
-    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.75; flex-shrink: 0; }
+    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.75; flex-shrink: 0; pointer-events: none; }
 
     .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
     .sidebar-user { display: flex; align-items: center; gap: 0.75rem; }
@@ -122,10 +122,12 @@
     .stat-card {
       background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
       padding: 1.25rem; box-shadow: var(--shadow); transition: all 0.2s;
+      cursor: pointer; user-select: none;
     }
-    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); }
+    .stat-card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .stat-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     .stat-card__header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-    .stat-card__icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .stat-card__icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; pointer-events: none; }
     .stat-card__icon--gold { background: rgba(184,149,78,0.12); }
     .stat-card__icon--blue { background: rgba(59,130,246,0.12); }
     .stat-card__icon--green { background: rgba(34,197,94,0.12); }
@@ -141,7 +143,7 @@
       display: flex; flex-direction: column; gap: 0.75rem;
     }
     .module-card:hover { border-color: var(--border-hover); transform: translateY(-3px); box-shadow: var(--shadow-lg); }
-    .module-card__icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(184,149,78,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .module-card__icon { width: 48px; height: 48px; border-radius: 12px; background: rgba(184,149,78,0.12); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; pointer-events: none; }
 
     /* Online Users inline styles */
     .online-toolbar { display: flex; gap: 0.75rem; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; }
@@ -612,16 +614,16 @@
           </div>
           ${statErrors}
           <div class="stats-grid">
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${counts.users.toLocaleString('ar-SA')}</div><div class="stat-card__label">المستخدمين</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${counts.subscriptions.toLocaleString('ar-SA')}</div><div class="stat-card__label">الاشتراكات</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">💰</div></div><div class="stat-card__num">${counts.revenue.toLocaleString('ar-SA')} ر.س</div><div class="stat-card__label">إيرادات فعالة</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">✉️</div></div><div class="stat-card__num">${counts.messages.toLocaleString('ar-SA')}</div><div class="stat-card__label">الرسائل</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">📊</div></div><div class="stat-card__num">${counts.advisoryClients.toLocaleString('ar-SA')}</div><div class="stat-card__label">عملاء الاستشارات</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📁</div></div><div class="stat-card__num">${counts.advisoryProjects.toLocaleString('ar-SA')}</div><div class="stat-card__label">مشاريع استشارية</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${counts.recoveryAssets.toLocaleString('ar-SA')}</div><div class="stat-card__label">أصول متعثرة</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${counts.cities.toLocaleString('ar-SA')}</div><div class="stat-card__label">مدن City Intelligence</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${counts.aiReviews.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
-            <div class="stat-card"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${counts.onlineUsers.toLocaleString('ar-SA')}</div><div class="stat-card__label">متواجدون الآن</div></div>
+            <div class="stat-card" data-target="/admin/users.html?embed=1" data-title="المستخدمين" tabindex="0" role="button" aria-label="عرض المستخدمين"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${counts.users.toLocaleString('ar-SA')}</div><div class="stat-card__label">المستخدمين</div></div>
+            <div class="stat-card" data-target="/admin/subscriptions.html?embed=1" data-title="الاشتراكات" tabindex="0" role="button" aria-label="عرض الاشتراكات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${counts.subscriptions.toLocaleString('ar-SA')}</div><div class="stat-card__label">الاشتراكات</div></div>
+            <div class="stat-card" data-target="/admin/executive-dashboard?embed=1" data-title="لوحة المؤشرات التنفيذية" tabindex="0" role="button" aria-label="عرض الإيرادات والمؤشرات التنفيذية"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">💰</div></div><div class="stat-card__num">${counts.revenue.toLocaleString('ar-SA')} ر.س</div><div class="stat-card__label">إيرادات فعالة</div></div>
+            <div class="stat-card" data-target="/admin/messages.html?embed=1" data-title="الرسائل" tabindex="0" role="button" aria-label="عرض الرسائل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">✉️</div></div><div class="stat-card__num">${counts.messages.toLocaleString('ar-SA')}</div><div class="stat-card__label">الرسائل</div></div>
+            <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض عملاء الاستشارات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">📊</div></div><div class="stat-card__num">${counts.advisoryClients.toLocaleString('ar-SA')}</div><div class="stat-card__label">عملاء الاستشارات</div></div>
+            <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض المشاريع الاستشارية"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📁</div></div><div class="stat-card__num">${counts.advisoryProjects.toLocaleString('ar-SA')}</div><div class="stat-card__label">مشاريع استشارية</div></div>
+            <div class="stat-card" data-target="/admin/distressed-recovery?embed=1" data-title="إنقاذ الأصول المتعثرة" tabindex="0" role="button" aria-label="عرض الأصول المتعثرة"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${counts.recoveryAssets.toLocaleString('ar-SA')}</div><div class="stat-card__label">أصول متعثرة</div></div>
+            <div class="stat-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence" tabindex="0" role="button" aria-label="عرض مدن City Intelligence"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${counts.cities.toLocaleString('ar-SA')}</div><div class="stat-card__label">مدن City Intelligence</div></div>
+            <div class="stat-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص" tabindex="0" role="button" aria-label="عرض طلبات مراجعة AI"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${counts.aiReviews.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
+            <div class="stat-card" data-target="online-users" data-title="المتواجدون" tabindex="0" role="button" aria-label="عرض المتواجدين الآن"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${counts.onlineUsers.toLocaleString('ar-SA')}</div><div class="stat-card__label">متواجدون الآن</div></div>
           </div>
 
           <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:1rem;">الوحدات</h2>
@@ -707,8 +709,22 @@
             </button>
           </div>`;
 
-        overviewEl.querySelectorAll('.module-card').forEach(card => {
-          card.onclick = () => loadModule(card.dataset.target, card.dataset.title);
+        function openCard(target, title) {
+          if (!target) return;
+          setActive(target);
+          loadModule(target, title);
+        }
+        overviewEl.addEventListener('click', e => {
+          const card = e.target.closest('.module-card') || e.target.closest('.stat-card');
+          if (!card) return;
+          openCard(card.dataset.target, card.dataset.title);
+        });
+        overviewEl.addEventListener('keydown', e => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          const card = e.target.closest('.stat-card');
+          if (!card) return;
+          e.preventDefault();
+          openCard(card.dataset.target, card.dataset.title);
         });
       }
 

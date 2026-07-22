@@ -154,10 +154,11 @@
       const { data: userData } = await window.BondsAuth?.getUser?.() || {};
       const user = userData?.user;
       if (!user) {
-        // Let /bonds-auth-2026.js?v=3.0.6'loading').textContent = 'يجب تسجيل الدخول للوصول إلى لوحة التحكم';
+        document.getElementById('loading').textContent = 'يجب تسجيل الدخول للوصول إلى لوحة التحكم';
         return;
       }
-      token = userData.session?.access_token || '';
+      const sessionRes = await window.BondsAuth?.getSession?.() || {};
+      token = sessionRes.data?.session?.access_token || '';
       document.getElementById('adminInfo').textContent = user.email;
       loadAnalytics();
     }

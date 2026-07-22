@@ -52,6 +52,7 @@
     if (e.origin !== location.origin) return;
     if (e.data && e.data.type === 'admin-token') {
       window.__ADMIN_TOKEN = e.data.token || '';
+      window.dispatchEvent(new Event('admin-token-ready'));
     }
     if (e.data && e.data.type === 'admin-session') {
       window.__ADMIN_SESSION = e.data.session || null;

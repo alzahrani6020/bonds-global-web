@@ -21,29 +21,85 @@
     ]);
   }
 
+  function getAdminToken() {
+    return window.__ADMIN_TOKEN || window.__ADMIN_SESSION?.access_token || '';
+  }
+
+  async function apiRequest(action, token) {
+    const t = token || getAdminToken();
+    if (!t) throw new Error('No admin token available');
+    const res = await fetch('/api/admin?action=' + encodeURIComponent(action), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + t, 'Accept': 'application/json' }
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.error || ('API ' + action + ' failed'));
+    return json;
+  }
+
   async function getSessionUser() {
-    const sb = getSb();
-    // Use session bridge from parent dashboard if available (avoids iframe storage issues).
-    if (window.__ADMIN_SESSION && typeof sb.auth.setSession === 'function') {
+    // Prefer server-side verification via admin token to avoid iframe storage/auth issues.
+    const token = getAdminToken();
+    if (token) {
       try {
-        await sb.auth.setSession(window.__ADMIN_SESSION);
-        const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
-        if (!error && session) return session.user;
+        const json = await withTimeout(apiRequest('me', token), 'api:me');
+        if (json.success && json.id && json.email) {
+          return { id: json.id, email: json.email };
+        }
       } catch (e) {
-        console.warn('[AdvisoryService] session bridge failed:', e.message);
+        console.warn('[AdvisoryService] API me failed:', e?.message);
       }
     }
-    const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
-    if (error || !session) throw new Error('Session required');
-    return session.user;
+
+    let sb;
+    try {
+      sb = getSb();
+    } catch (e) {
+      console.error('[AdvisoryService] getSb failed:', e?.message, e?.stack);
+      throw new Error('Supabase client error: ' + (e?.message || 'unknown'));
+    }
+    // Use session bridge from parent dashboard if available (avoids iframe storage issues).
+    const bridgeSession = window.__ADMIN_SESSION;
+    console.log('[AdvisoryService] bridgeSession present:', !!bridgeSession, 'type:', typeof bridgeSession);
+    if (bridgeSession && typeof bridgeSession === 'object' && typeof sb.auth.setSession === 'function') {
+      try {
+        const minimalSession = {
+          access_token: bridgeSession.access_token,
+          refresh_token: bridgeSession.refresh_token
+        };
+        console.log('[AdvisoryService] calling setSession with minimal tokens');
+        await sb.auth.setSession(minimalSession);
+        console.log('[AdvisoryService] setSession succeeded');
+        const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
+        console.log('[AdvisoryService] getSession after setSession:', { hasSession: !!session, error: error?.message });
+        if (!error && session) return session.user;
+      } catch (e) {
+        console.warn('[AdvisoryService] session bridge failed:', e?.message, e?.stack);
+      }
+    }
+    try {
+      console.log('[AdvisoryService] falling back to getSession');
+      const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
+      console.log('[AdvisoryService] fallback getSession:', { hasSession: !!session, error: error?.message });
+      if (error || !session) throw new Error('Session required');
+      return session.user;
+    } catch (e) {
+      console.error('[AdvisoryService] getSession failed:', e?.message, e?.stack);
+      throw e;
+    }
   }
+
+  const OWNER_EMAILS = ['iiffund.dev@gmail.com'];
 
   async function getUserRole() {
     const user = await getSessionUser();
     const sb = getSb();
 
     // Owner fallback first to avoid depending on admin_roles query.
-    if (window.__ENV?.ADMIN_EMAIL && user.email === window.__ENV.ADMIN_EMAIL) {
+    const configuredOwner = window.__ENV?.ADMIN_EMAIL || '';
+    const owners = [...OWNER_EMAILS];
+    if (configuredOwner) owners.push(configuredOwner);
+    if (owners.some(e => user.email.toLowerCase() === e.toLowerCase())) {
       return { role: 'manager', user };
     }
 

@@ -21,28 +21,111 @@
     ]);
   }
 
+  function getAdminToken() {
+    return window.__ADMIN_TOKEN || window.__ADMIN_SESSION?.access_token || '';
+  }
+
+  async function apiRequest(action, token) {
+    const t = token || getAdminToken();
+    if (!t) throw new Error('No admin token available');
+    const res = await fetch('/api/admin?action=' + encodeURIComponent(action), {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + t, 'Accept': 'application/json' }
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json?.error || ('API ' + action + ' failed'));
+    return json;
+  }
+
   async function getSessionUser() {
-    const sb = getSb();
-    // Use session bridge from parent dashboard if available (avoids iframe storage issues).
-    if (window.__ADMIN_SESSION && typeof sb.auth.setSession === 'function') {
+    // Prefer server-side verification via admin token to avoid iframe storage/auth issues.
+    const token = getAdminToken();
+    if (token) {
       try {
-        await sb.auth.setSession(window.__ADMIN_SESSION);
-        const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
-        if (!error && session) return session.user;
+        const json = await withTimeout(apiRequest('me', token), 'api:me');
+        if (json.success && json.id && json.email) {
+          return { id: json.id, email: json.email, role: json.role || null };
+        }
       } catch (e) {
-        console.warn('[ExecutiveService] session bridge failed:', e.message);
+        console.warn('[ExecutiveService] API me failed:', e?.message);
       }
     }
-    const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
-    if (error || !session) throw new Error('Session required');
-    return session.user;
+
+    let sb;
+    try {
+      sb = getSb();
+    } catch (e) {
+      console.error('[ExecutiveService] getSb failed:', e?.message, e?.stack);
+      throw new Error('Supabase client error: ' + (e?.message || 'unknown'));
+    }
+
+    // Use session bridge from parent dashboard if available (avoids iframe storage issues).
+    const bridgeSession = window.__ADMIN_SESSION;
+    console.log('[ExecutiveService] bridgeSession present:', !!bridgeSession, 'type:', typeof bridgeSession);
+    if (bridgeSession && typeof bridgeSession === 'object' && typeof sb.auth.setSession === 'function') {
+      try {
+        const minimalSession = {
+          access_token: bridgeSession.access_token,
+          refresh_token: bridgeSession.refresh_token
+        };
+        console.log('[ExecutiveService] calling setSession with minimal tokens');
+        await sb.auth.setSession(minimalSession);
+        console.log('[ExecutiveService] setSession succeeded');
+        const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
+        console.log('[ExecutiveService] getSession after setSession:', { hasSession: !!session, error: error?.message });
+        if (!error && session) return session.user;
+      } catch (e) {
+        console.warn('[ExecutiveService] session bridge failed:', e?.message, e?.stack);
+      }
+    }
+
+    try {
+      console.log('[ExecutiveService] falling back to getSession');
+      const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
+      console.log('[ExecutiveService] fallback getSession:', { hasSession: !!session, error: error?.message });
+      if (error || !session) throw new Error('Session required');
+      return session.user;
+    } catch (e) {
+      console.error('[ExecutiveService] getSession failed:', e?.message, e?.stack);
+      throw e;
+    }
+  }
+
+  const OWNER_EMAILS = ['iiffund.dev@gmail.com'];
+
+  function mapApiRole(apiRole) {
+    if (apiRole === 'super_admin') return 'owner';
+    if (apiRole === 'admin') return 'admin';
+    if (apiRole === 'support' || apiRole === 'manager') return 'manager';
+    return null;
   }
 
   async function getUserRole() {
+    const token = getAdminToken();
+    if (token) {
+      try {
+        const json = await withTimeout(apiRequest('me', token), 'api:me');
+        if (json.success && json.role && json.email) {
+          const role = mapApiRole(json.role);
+          if (role) {
+            return {
+              role,
+              user: { id: json.id, email: json.email }
+            };
+          }
+        }
+      } catch (e) {
+        console.warn('[ExecutiveService] API role lookup failed:', e?.message);
+      }
+    }
+
     const user = await getSessionUser();
     const sb = getSb();
 
-    if (window.__ENV?.ADMIN_EMAIL && user.email === window.__ENV.ADMIN_EMAIL) {
+    const configuredOwner = window.__ENV?.ADMIN_EMAIL || '';
+    const owners = [...OWNER_EMAILS];
+    if (configuredOwner) owners.push(configuredOwner);
+    if (owners.some(e => user.email.toLowerCase() === e.toLowerCase())) {
       return { role: 'owner', user };
     }
 
@@ -67,7 +150,7 @@
       console.warn('[ExecutiveService] advisory_roles check failed:', e.message);
     }
 
-    return { role: null, user };
+    throw new Error('لم يتم العثور على دور للمستخدم: ' + (user?.email || user?.id || 'unknown'));
   }
 
   function monthKey(d) {
@@ -90,58 +173,17 @@
     return `${m}/${y}`;
   }
 
-  async function getStats() {
-    const sb = getSb();
+  function aggregateStats(raw) {
     const months = last12Months();
 
-    const queries = [
-      {
-        key: 'subscriptions',
-        q: sb.from('subscriptions').select('status, tier, created_at').order('created_at', { ascending: true })
-      },
-      {
-        key: 'profiles',
-        q: sb.from('profiles').select('created_at').order('created_at', { ascending: true })
-      },
-      {
-        key: 'advisoryClients',
-        q: sb.from('advisory_clients').select('status, created_at').order('created_at', { ascending: true })
-      },
-      {
-        key: 'advisoryProjects',
-        q: sb.from('advisory_projects').select('status, budget, start_date, created_at, client_id, advisory_clients(name)').order('created_at', { ascending: false })
-      },
-      {
-        key: 'recoveryAssets',
-        q: sb.from('recovery_assets').select('status, original_value, distressed_value, name, category, created_at').order('created_at', { ascending: false })
-      }
-    ];
-
-    const results = await Promise.all(queries.map(item =>
-      withTimeout(item.q, 'query:' + item.key)
-        .then(res => ({ key: item.key, ok: true, res }))
-        .catch(err => ({ key: item.key, ok: false, err }))
-    ));
-
     const data = {
-      subscriptions: [],
-      profiles: [],
-      advisoryClients: [],
-      advisoryProjects: [],
-      recoveryAssets: [],
-      errors: []
+      subscriptions: raw.subscriptions || [],
+      profiles: raw.profiles || [],
+      advisoryClients: raw.advisoryClients || [],
+      advisoryProjects: raw.advisoryProjects || [],
+      recoveryAssets: raw.recoveryAssets || [],
+      errors: raw.errors || []
     };
-
-    for (const r of results) {
-      if (!r.ok) {
-        data.errors.push({ key: r.key, message: r.err?.message || String(r.err) });
-        continue;
-      }
-      if (r.res.error) {
-        data.errors.push({ key: r.key, message: r.res.error.message || String(r.res.error) });
-      }
-      data[r.key] = r.res.data || [];
-    }
 
     // Revenue calculations
     const activeSubs = data.subscriptions.filter(s => s.status === 'active');
@@ -211,8 +253,81 @@
     };
   }
 
+  async function getStats() {
+    const token = getAdminToken();
+    if (token) {
+      try {
+        const json = await withTimeout(apiRequest('executive-stats', token), 'api:executive-stats');
+        if (json.success) return aggregateStats(json);
+      } catch (e) {
+        console.warn('[ExecutiveService] API executive-stats failed:', e?.message);
+      }
+    }
+
+    const sb = getSb();
+    const queries = [
+      {
+        key: 'subscriptions',
+        q: sb.from('subscriptions').select('status, tier, created_at').order('created_at', { ascending: true })
+      },
+      {
+        key: 'profiles',
+        q: sb.from('profiles').select('created_at').order('created_at', { ascending: true })
+      },
+      {
+        key: 'advisoryClients',
+        q: sb.from('advisory_clients').select('status, created_at').order('created_at', { ascending: true })
+      },
+      {
+        key: 'advisoryProjects',
+        q: sb.from('advisory_projects').select('status, budget, start_date, created_at, client_id, advisory_clients(name)').order('created_at', { ascending: false })
+      },
+      {
+        key: 'recoveryAssets',
+        q: sb.from('recovery_assets').select('status, original_value, distressed_value, name, category, created_at').order('created_at', { ascending: false })
+      }
+    ];
+
+    const results = await Promise.all(queries.map(item =>
+      withTimeout(item.q, 'query:' + item.key)
+        .then(res => ({ key: item.key, ok: true, res }))
+        .catch(err => ({ key: item.key, ok: false, err }))
+    ));
+
+    const data = {
+      subscriptions: [],
+      profiles: [],
+      advisoryClients: [],
+      advisoryProjects: [],
+      recoveryAssets: [],
+      errors: []
+    };
+
+    for (const r of results) {
+      if (!r.ok) {
+        data.errors.push({ key: r.key, message: r.err?.message || String(r.err) });
+        continue;
+      }
+      if (r.res.error) {
+        data.errors.push({ key: r.key, message: r.res.error.message || String(r.res.error) });
+      }
+      data[r.key] = r.res.data || [];
+    }
+
+    return aggregateStats(data);
+  }
+
   async function ensureAccess() {
-    const { role, user } = await getUserRole();
+    let role, user;
+    try {
+      ({ role, user } = await getUserRole());
+    } catch (e) {
+      console.error('[ExecutiveService] ensureAccess failed:', e?.message, e?.stack);
+      if (e?.message?.includes('Maximum call stack') || e?.message?.includes('call stack')) {
+        throw new Error('خطأ داخلي في جلسة المستخدم. جرّب إعادة تحميل الصفحة أو تسجيل الخروج والدخول مرة أخرى.');
+      }
+      throw new Error('فشل التحقق من الصلاحيات: ' + (e?.message || 'خطأ غير معروف'));
+    }
     if (!role) throw new Error('ليس لديك صلاحية الوصول إلى لوحة المؤشرات التنفيذية');
     return { role, user };
   }

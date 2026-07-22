@@ -50,7 +50,7 @@
     } catch (e) {}
   }
 
-  function saveSettings() {
+  function persistSettings() {
     try {
       localStorage.setItem(LS_MARGIN, state.settings.margin);
       localStorage.setItem(LS_FIXED, state.settings.fixedCosts);
@@ -454,7 +454,7 @@
     const fd = new FormData(e.target);
     state.settings.margin = Math.max(0, Math.min(100, parseFloat(fd.get('margin')) || 0)) / 100;
     state.settings.fixedCosts = Math.max(0, parseFloat(fd.get('fixedCosts')) || 0);
-    saveSettings();
+    persistSettings();
     closeModal();
     refresh();
   }
@@ -509,21 +509,42 @@
 
   function init() {
     loadSettings();
-    $$('.ex-nav a').forEach(a => {
-      a.addEventListener('click', (e) => {
+    const exNav = document.querySelector('.ex-nav');
+    if (exNav) {
+      exNav.addEventListener('click', e => {
+        const a = e.target.closest('.ex-nav a');
+        if (!a) return;
         e.preventDefault();
         const view = a.dataset.view;
         if (view) showView(view);
       });
-    });
+    }
     // Refresh when parent dashboard sends session token.
     window.addEventListener('admin-session-ready', () => {
       state.role = null;
       showView(VIEWS.OVERVIEW);
     });
-    showView(VIEWS.OVERVIEW);
-    initRealtime();
-    initPolling();
+    // When loaded inside the unified admin iframe, wait for the parent token
+    // bridge before hitting Supabase auth (avoids iframe storage issues).
+    const inIframe = window.parent !== window;
+    const hasBridge = !!window.__ADMIN_TOKEN || !!window.__ADMIN_SESSION;
+    if (inIframe && !hasBridge) {
+      let started = false;
+      const start = () => {
+        if (started) return;
+        started = true;
+        showView(VIEWS.OVERVIEW);
+        initRealtime();
+        initPolling();
+      };
+      window.addEventListener('admin-token-ready', start, { once: true });
+      window.addEventListener('admin-session-ready', start, { once: true });
+      setTimeout(start, 2500);
+    } else {
+      showView(VIEWS.OVERVIEW);
+      initRealtime();
+      initPolling();
+    }
   }
 
   root.ExecutiveApp = {

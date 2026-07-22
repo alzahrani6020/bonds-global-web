@@ -45,6 +45,7 @@
     wrapper.innerHTML = svg;
     const svgEl = wrapper.firstElementChild;
     svgEl.setAttribute('aria-hidden', 'true');
+    svgEl.style.pointerEvents = 'none';
     node.textContent = text.slice(match[0].length);
     node.parentNode.insertBefore(svgEl, node);
   }

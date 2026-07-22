@@ -98,7 +98,8 @@
         document.getElementById('loading').textContent = 'يجب تسجيل الدخول للوصول إلى لوحة التحكم';
         return;
       }
-      token = userData.session?.access_token || '';
+      const sessionRes = await window.BondsAuth?.getSession?.() || {};
+      token = sessionRes.data?.session?.access_token || '';
       document.getElementById('adminInfo').textContent = user.email;
       loadSettings();
     }
