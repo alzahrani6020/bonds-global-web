@@ -116,15 +116,15 @@ async function handleSendOtp(req, res) {
   }
 
   try {
-    const supabase = getSupabaseClient();
+    // Admin actions (create user) require the service role key.
+    const adminClient = getSupabaseClient();
 
     // For new users we create the auth user immediately with service role so
-    // Supabase does not throttle the public endpoint. The OTP email is still
-    // sent by Supabase Auth.
+    // Supabase does not throttle the public endpoint.
     if (shouldCreateUser) {
-      const { data: signUpData, error: signUpError } = await supabase.auth.admin.createUser({
+      const { error: signUpError } = await adminClient.auth.admin.createUser({
         email,
-        email_confirm: false,
+        email_confirm: true,
         user_metadata: { ...metadata, language }
       });
 
@@ -137,11 +137,15 @@ async function handleSendOtp(req, res) {
       }
     }
 
-    // Send the OTP / magic link email through Supabase Auth.
-    const { error } = await supabase.auth.signInWithOtp({
+    // signInWithOtp MUST be called with the anon key, not the service role key.
+    // Using the service role key returns "Signups not allowed for otp". Calling
+    // it server-side with the anon key means the request goes out from Vercel's
+    // IP, bypassing the per-user rate limits that international users hit.
+    const authClient = getAuthClient();
+    const { error } = await authClient.auth.signInWithOtp({
       email,
       options: {
-        shouldCreateUser: false, // we already created above, or user exists
+        shouldCreateUser: false,
         data: { ...metadata, language }
       }
     });

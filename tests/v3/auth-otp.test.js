@@ -21,9 +21,15 @@ const mockSupabaseClient = {
   }
 };
 
-// The service role client uses the same object for auth.admin and auth.* calls.
+// The service role client uses the same object for auth.admin calls.
 jest.mock('../../v3/lib/supabase', () => ({
   getSupabaseClient: jest.fn(() => mockSupabaseClient)
+}));
+
+// The anon key client is used for signInWithOtp.
+jest.mock('../../v3/lib/auth', () => ({
+  getAuthClient: jest.fn(() => mockSupabaseClient),
+  getUserFromToken: jest.fn(() => null)
 }));
 
 jest.mock('../../lib/api/rate-limit', () => ({
