@@ -24,15 +24,30 @@ const mockSignInWithPassword = jest.fn(() => Promise.resolve({
   },
   error: null
 }));
+const mockGenerateLink = jest.fn(() => Promise.resolve({
+  data: {
+    properties: { hashed_token: 'magic-token' }
+  },
+  error: null
+}));
+const mockVerifyOtp = jest.fn(() => Promise.resolve({
+  data: {
+    user: { id: 'u1', email: 'test@example.com' },
+    session: { access_token: 'at-magic', refresh_token: 'rt-magic', expires_at: 9999999999 }
+  },
+  error: null
+}));
 
 const mockSupabaseClient = {
   auth: {
     admin: {
       createUser: mockCreateUser,
       updateUserById: mockUpdateUserById,
-      listUsers: mockListUsers
+      listUsers: mockListUsers,
+      generateLink: mockGenerateLink
     },
-    signInWithPassword: mockSignInWithPassword
+    signInWithPassword: mockSignInWithPassword,
+    verifyOtp: mockVerifyOtp
   }
 };
 
@@ -98,6 +113,8 @@ describe('/api/v3/auth OTP proxy', () => {
     mockUpdateUserById.mockClear();
     mockListUsers.mockClear();
     mockSignInWithPassword.mockClear();
+    mockGenerateLink.mockClear();
+    mockVerifyOtp.mockClear();
   });
 
   test('POST /auth/send-otp creates user and sends OTP', async () => {
@@ -151,6 +168,22 @@ describe('/api/v3/auth OTP proxy', () => {
     expect(res._json.session.access_token).toBe('at');
     expect(mockUpdateUserById).toHaveBeenCalled();
     expect(mockSignInWithPassword).toHaveBeenCalled();
+  });
+
+  test('POST /auth/verify-otp returns session without changing password', async () => {
+    const req = mockReq({
+      method: 'POST',
+      url: '/api/v3/auth/verify-otp',
+      body: { email: 'test@example.com', token: '123456' }
+    });
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(res._json.success).toBe(true);
+    expect(res._json.session.access_token).toBe('at-magic');
+    expect(mockUpdateUserById).not.toHaveBeenCalled();
+    expect(mockGenerateLink).toHaveBeenCalled();
+    expect(mockVerifyOtp).toHaveBeenCalled();
   });
 
   test('POST /auth/verify-otp rejects missing token', async () => {

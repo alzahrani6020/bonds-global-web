@@ -281,45 +281,73 @@ async function handleVerifyOtp(req, res) {
     delete updatedMetadata.bonds_otp;
     delete updatedMetadata.bonds_otp_expires_at;
 
-    // Set the user's chosen password during signup.
-    const password = (pendingPassword && pendingPassword.length >= 8)
-      ? pendingPassword
-      : generateTempPassword();
-
-    const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
-      password,
-      user_metadata: updatedMetadata
-    });
-
-    if (updateError) {
-      console.error('[auth/verify-otp] updateUserById error:', updateError.message);
-      return sendJson(res, 500, { error: updateError.message });
-    }
-
-    // Create a real Supabase session using the (new) password.
     const authClient = getAuthClient();
-    const { data, error: signInError } = await authClient.auth.signInWithPassword({
-      email,
-      password
-    });
+    let sessionData;
 
-    if (signInError || !data.session) {
-      console.error('[auth/verify-otp] signInWithPassword error:', signInError?.message);
-      return sendJson(res, 401, {
-        error: signInError?.message || 'Invalid or expired code'
+    if (pendingPassword && pendingPassword.length >= 8) {
+      // Signup flow: set the user's chosen password and create a session.
+      const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
+        password: pendingPassword,
+        user_metadata: updatedMetadata
       });
+
+      if (updateError) {
+        console.error('[auth/verify-otp] updateUserById error:', updateError.message);
+        return sendJson(res, 500, { error: updateError.message });
+      }
+
+      const { data, error: signInError } = await authClient.auth.signInWithPassword({
+        email,
+        password: pendingPassword
+      });
+
+      if (signInError || !data.session) {
+        console.error('[auth/verify-otp] signInWithPassword error:', signInError?.message);
+        return sendJson(res, 401, {
+          error: signInError?.message || 'Invalid or expired code'
+        });
+      }
+
+      sessionData = data;
+    } else {
+      // Login flow: do not change the user's password. Instead generate a
+      // magic-link token server-side and exchange it for a session.
+      const { data: linkData, error: linkError } = await adminClient.auth.admin.generateLink({
+        type: 'magiclink',
+        email
+      });
+
+      if (linkError || !linkData?.properties?.hashed_token) {
+        console.error('[auth/verify-otp] generateLink error:', linkError?.message);
+        return sendJson(res, 500, { error: linkError?.message || 'Failed to create session' });
+      }
+
+      const { data, error: verifyError } = await authClient.auth.verifyOtp({
+        type: 'magiclink',
+        token: linkData.properties.hashed_token,
+        email
+      });
+
+      if (verifyError || !data.session) {
+        console.error('[auth/verify-otp] verifyOtp magiclink error:', verifyError?.message);
+        return sendJson(res, 401, {
+          error: verifyError?.message || 'Invalid or expired code'
+        });
+      }
+
+      sessionData = data;
     }
 
     return sendJson(res, 200, {
       success: true,
       user: {
-        id: data.user.id,
-        email: data.user.email
+        id: sessionData.user.id,
+        email: sessionData.user.email
       },
       session: {
-        access_token: data.session.access_token,
-        refresh_token: data.session.refresh_token,
-        expires_at: data.session.expires_at
+        access_token: sessionData.session.access_token,
+        refresh_token: sessionData.session.refresh_token,
+        expires_at: sessionData.session.expires_at
       }
     });
   } catch (err) {
