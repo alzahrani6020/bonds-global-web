@@ -109,11 +109,13 @@ DECLARE
   r RECORD;
 BEGIN
   FOR r IN
-    SELECT tablename
-    FROM pg_tables
-    WHERE schemaname = 'public'
-      AND tablename NOT LIKE 'pg_%'
-      AND tablename NOT LIKE '_%'
+    SELECT c.relname AS tablename
+    FROM pg_class c
+    JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = 'public'
+      AND c.relkind = 'r'
+      AND c.relname NOT LIKE 'pg_%'
+      AND c.relname NOT LIKE '_%'
   LOOP
     PERFORM public.apply_safe_rls(r.tablename);
   END LOOP;
