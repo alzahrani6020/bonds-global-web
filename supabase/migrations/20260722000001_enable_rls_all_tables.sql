@@ -51,7 +51,7 @@ BEGIN
     ) THEN
       v_owner_col := v_col;
       EXIT;
-    END LOOP;
+    END IF;
   END LOOP;
 
   -- Special case: profiles uses id as the user id.
