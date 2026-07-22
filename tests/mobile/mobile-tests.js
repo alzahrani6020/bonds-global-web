@@ -23,6 +23,8 @@ const PAGES = [
   { name: 'feasibility-ar', url: '/calculators/feasibility.html' },
   { name: 'v3-portfolio-ar', url: '/v3/portfolio' },
   { name: 'index-en', url: '/en/index.html' },
+  { name: 'auth-ar', url: '/calculators/auth/index.html' },
+  { name: 'auth-en', url: '/en/calculators/auth/index.html' },
 ];
 
 (async () => {

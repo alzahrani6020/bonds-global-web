@@ -36,6 +36,11 @@ const PAGES = [
   { name: 'index-en', url: '/en/index.html' },
   { name: 'valuation-ar', url: '/valuation/index.html' },
   { name: 'valuation-en', url: '/en/valuation/index.html' },
+  { name: 'auth-ar', url: '/calculators/auth/index.html' },
+  { name: 'auth-signup-ar', url: '/calculators/auth/index.html?tab=signup' },
+  { name: 'auth-verify-otp-ar', url: '/calculators/auth/verify-otp.html' },
+  { name: 'auth-onboarding-ar', url: '/calculators/auth/onboarding.html' },
+  { name: 'auth-en', url: '/en/calculators/auth/index.html' },
 ];
 
 (async () => {
