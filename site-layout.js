@@ -171,6 +171,15 @@
           { label: labels.manufacturingFeasibilityCalc, href: calcBase + 'manufacturing-feasibility.html' },
         ],
       },
+      {
+        heading: { ar: 'حاسبات متخصصة', en: 'Specialized Calculators' },
+        items: [
+          { label: labels.restaurantCalc, href: calcBase + 'restaurant.html' },
+          { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
+          { label: labels.medicalCalc, href: calcBase + 'medical-viability.html' },
+          { label: labels.valuation, href: langBase + 'valuation/index.html' },
+        ],
+      },
     ];
 
     const intelligenceDropdown = [
@@ -374,8 +383,8 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.56.0';
-    if (document.querySelector('link[href*="header-footer.css?v=2.54.0"]')) return;
+    const href = '/header-footer.css?v=2.57.0';
+    if (document.querySelector('link[href*="header-footer.css?v=2.54.0"], link[href*="header-footer.css?v=2.56.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;

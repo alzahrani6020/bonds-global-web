@@ -30,7 +30,7 @@ const CORE_ASSETS = [
   '/components/ecc-icons.js',
   '/header-footer.css?v=2.56.0',
   '/script.js?v=5',
-  '/site-layout.js?v=3.0.6',
+  '/site-layout.js?v=3.0.7',
   '/auth-guard.js',
   '/calculators/auth-gate.js?v=2',
   '/bonds-auth-2026.js?v=3.0.6',
