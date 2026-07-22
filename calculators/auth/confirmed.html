@@ -49,6 +49,9 @@
       spinner.style.display = 'none';
 
       if (user) {
+        // Preserve the original destination the user wanted before auth
+        const authRedirect = sessionStorage.getItem('auth_redirect');
+
         // Complete signup if pending password exists (magic link / OAuth signup)
         const pendingPassword = sessionStorage.getItem('otp_pending_password');
         if (pendingPassword) {
@@ -87,6 +90,7 @@
               <a href="/calculators/auth/onboarding.html" class="btn">أكمل معلوماتك</a>
             `;
           } else {
+            const destination = authRedirect || '/calculators/dashboard.html';
             card.innerHTML = `
               <span class="icon">🎉</span>
               <h1>تم تأكيد حسابك!</h1>
@@ -95,7 +99,7 @@
                 تم تأكيد حسابك في <span class="brand">Bonds للاستشارات المالية</span> بنجاح.<br>
                 يمكنك الآن استخدام جميع الخدمات.
               </p>
-              <a href="/calculators/dashboard.html" class="btn">لوحة التحكم</a>
+              <a href="${destination}" class="btn">لوحة التحكم</a>
             `;
           }
         }).catch(() => {

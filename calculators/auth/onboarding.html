@@ -33,6 +33,10 @@
         <img src="../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" />
         <span>Bonds</span>
       </div>
+      <div class="auth-top-nav">
+        <a href="../../index.html" class="auth-home-link">← الرئيسية</a>
+        <a href="../../en/calculators/auth/onboarding.html" class="auth-lang-link">EN</a>
+      </div>
 
       <h1>أكمل معلومات منشأتك</h1>
       <p class="subtitle">بيانات دقيقة تساعدنا في تقديم استشارة مخصصة لك.</p>
@@ -76,7 +80,7 @@
           </div>
           <div class="form-group">
             <label for="phone">رقم الجوال *</label>
-            <input type="tel" id="phone" required placeholder="05xxxxxxxx" dir="ltr" />
+            <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="05xxxxxxxx" dir="ltr" />
           </div>
         </div>
 
@@ -97,14 +101,14 @@
           </div>
           <div class="form-group">
             <label for="employeeCount">عدد الموظفين *</label>
-            <input type="number" id="employeeCount" required min="0" placeholder="مثال: 12" />
+            <input type="number" id="employeeCount" required min="0" inputmode="numeric" placeholder="مثال: 12" />
           </div>
         </div>
 
         <div class="row">
           <div class="form-group">
             <label for="branchCount">عدد فروع المنشأة *</label>
-            <input type="number" id="branchCount" required min="1" placeholder="مثال: 1" />
+            <input type="number" id="branchCount" required min="1" inputmode="numeric" placeholder="مثال: 1" />
           </div>
           <div class="form-group">
             <label for="bio">نبذة عن المشروع *</label>

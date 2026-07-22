@@ -20,15 +20,45 @@ body{font-family:'Tajawal','Inter',system-ui,sans-serif;background:var(--bg);col
 .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:currentColor;border-radius:50%;animation:spin 0.8s linear infinite;display:none}
 .btn.loading .spinner{display:inline-block}
 .btn.loading .btn-text{opacity:0.7}
-@keyframes spin{to{transform:rotate(360deg)}
-} @media(max-width:480px){.auth-card{padding:var(--space-6) var(--space-4)}
-.btn-primary:hover{background:#d4b76a}
+@keyframes spin{to{transform:rotate(360deg)}}
 .back-link{display:block;text-align:center;margin-top:var(--space-6);color:var(--text-secondary);font-size:0.9rem;text-decoration:none}
 .back-link:hover{color:var(--gold)}
 .error-actions{display:flex;flex-wrap:wrap;gap:var(--space-3);margin-top:var(--space-3)}
 .help-box{background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:var(--radius-md);padding:var(--space-4);margin-top:var(--space-6);font-size:0.85rem;color:var(--text-secondary);text-align:center;line-height:1.7}
 .help-box a{color:var(--gold);font-weight:700;text-decoration:none}
 .help-box a:hover{text-decoration:underline}
-.logo{display:flex;align-items:center;justify-content:center;gap:var(--space-3);margin-bottom:var(--space-6)}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4)}
-body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:clamp(1rem,4vh,3rem) var(--space-4)}
+
+/* Terms checkbox — larger tap target */
+.terms-row{margin-top:var(--space-5)}
+.terms-label{display:flex;align-items:flex-start;gap:0.75rem;cursor:pointer;padding:0.5rem 0;font-size:0.85rem;line-height:1.6;font-weight:400;color:var(--text-secondary)}
+.terms-label input[type="checkbox"]{width:1.1rem;height:1.1rem;min-width:1.1rem;margin-top:0.15rem;accent-color:var(--gold);cursor:pointer}
+.terms-label .link{color:var(--gold);font-weight:700;text-decoration:none}
+.terms-label .link:hover{text-decoration:underline}
+
+.auth-nav{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin-top:var(--space-6);padding-top:var(--space-4);border-top:1px solid var(--border)}
+.auth-nav .back-link{margin-top:0}
+.auth-top-nav{display:flex;align-items:center;justify-content:space-between;gap:var(--space-3);margin-bottom:var(--space-5)}
+.auth-home-link,.auth-lang-link{color:var(--text-secondary);font-size:0.85rem;text-decoration:none;font-weight:600;transition:color 0.2s}
+.auth-home-link:hover,.auth-lang-link:hover{color:var(--gold)}
+
+/* Two-step signup */
+.signup-step{animation:stepIn 0.25s ease}
+@keyframes stepIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.step-header{display:flex;align-items:center;gap:0.75rem;margin-bottom:var(--space-5);text-align:right}
+html[dir="ltr"] .step-header{text-align:left}
+.step-badge{width:36px;height:36px;border-radius:50%;background:var(--gold);color:#0c0c0c;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-title{font-weight:700;color:var(--text);font-size:1rem}
+.step-subtitle{font-size:0.8rem;color:var(--text-secondary);margin-top:0.15rem}
+.step-actions{display:flex;gap:var(--space-3);margin-top:var(--space-5)}
+.step-actions .btn{flex:1}
+
+@media(max-width:560px){
+  .row{grid-template-columns:1fr}
+}
+
+@media(max-width:480px){
+  .auth-card{padding:var(--space-6) var(--space-4)}
+  .logo{margin-bottom:var(--space-6)}
+  .btn-primary:hover{background:#d4b76a}
+}

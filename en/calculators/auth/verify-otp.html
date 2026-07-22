@@ -42,6 +42,10 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
         <img src="../../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" />
         <span>Bonds</span>
       </div>
+      <div class="auth-top-nav">
+        <a href="../../../index.html" class="auth-home-link">← Home</a>
+        <a href="../../../calculators/auth/verify-otp.html" class="auth-lang-link">العربية</a>
+      </div>
       <h1>Verify Your Email</h1>
       <p class="subtitle" id="subtitle">Enter the 6-digit code we sent to your email address.</p>
       <p id="emailHint" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
@@ -181,7 +185,8 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
             return;
           }
 
-          const { data, error } = await window.BondsAuth.verifyOTP(email, token, 'email');
+          const pendingPassword = sessionStorage.getItem('otp_pending_password');
+          const { data, error } = await window.BondsAuth.verifyOtpViaProxy(email, token, { type: 'email', pendingPassword: pendingPassword || undefined });
           if (error) {
             setLoading('verifyBtn', false);
             const msg = error.message || '';
@@ -196,13 +201,7 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
           }
 
           showSuccess('Email verified ✅');
-
-          const pendingPassword = sessionStorage.getItem('otp_pending_password');
-          if (pendingPassword) {
-            const { error: pwError } = await window.BondsAuth.updateUser({ password: pendingPassword });
-            if (pwError) console.warn('[OTP] Password set warning:', pwError);
-            sessionStorage.removeItem('otp_pending_password');
-          }
+          sessionStorage.removeItem('otp_pending_password');
 
           const user = data?.user;
           if (user) {
@@ -247,7 +246,7 @@ h1{font-size:1.2rem;font-weight:800;margin-bottom:var(--space-3);color:var(--gol
           showInfo('Code resent to your phone 📱');
           return;
         }
-        const { error } = await window.BondsAuth.signInWithOTP(email, { shouldCreateUser: false });
+        const { error } = await window.BondsAuth.sendOtpViaProxy(email);
         setLoading('resendBtn', false);
         if (error) { showError(error.message); return; }
         showInfo('Code resent 📧 Check your inbox (and spam folder).');

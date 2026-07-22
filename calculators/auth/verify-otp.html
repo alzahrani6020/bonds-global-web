@@ -33,6 +33,10 @@
         <img src="../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" />
         <span>Bonds</span>
       </div>
+      <div class="auth-top-nav">
+        <a href="../../index.html" class="auth-home-link">← الرئيسية</a>
+        <a href="../../en/calculators/auth/verify-otp.html" class="auth-lang-link">EN</a>
+      </div>
       <h1>تأكيد البريد الإلكتروني</h1>
       <p class="subtitle" id="subtitle">أدخل الرمز المؤلف من 6 أرقام الذي أرسلناه إلى بريدك الإلكتروني.</p>
       <p id="emailHint" style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:var(--space-4);line-height:1.6;">
@@ -45,12 +49,12 @@
 
       <form id="otpForm">
         <div class="otp-inputs" id="otpInputs">
-          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="Digit 1" />
-          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 2" />
-          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 3" />
-          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 4" />
-          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 5" />
-          <input type="text" inputmode="numeric" maxlength="1" aria-label="Digit 6" />
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="الرقم 1" />
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="الرقم 2" />
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="الرقم 3" />
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="الرقم 4" />
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="الرقم 5" />
+          <input type="text" inputmode="numeric" maxlength="1" autocomplete="one-time-code" aria-label="الرقم 6" />
         </div>
         <button type="submit" class="btn btn-primary" id="verifyBtn">
           <span class="spinner"></span>
@@ -174,7 +178,8 @@
             return;
           }
 
-          const { data, error } = await window.BondsAuth.verifyOTP(email, token, 'email');
+          const pendingPassword = sessionStorage.getItem('otp_pending_password');
+          const { data, error } = await window.BondsAuth.verifyOtpViaProxy(email, token, { type: 'email', pendingPassword: pendingPassword || undefined });
           if (error) {
             setLoading('verifyBtn', false);
             const msg = error.message || '';
@@ -189,17 +194,7 @@
           }
 
           showSuccess('تم التحقق من البريد الإلكتروني ✅');
-
-          // Set password if stored from signup
-          const pendingPassword = sessionStorage.getItem('otp_pending_password');
-          if (pendingPassword) {
-            const { error: pwError } = await window.BondsAuth.updateUser({ password: pendingPassword });
-            if (pwError) {
-              console.warn('[OTP] Password set warning:', pwError);
-              // Not fatal; user can reset password later
-            }
-            sessionStorage.removeItem('otp_pending_password');
-          }
+          sessionStorage.removeItem('otp_pending_password');
 
           // Save/update profile
           const user = data?.user;
@@ -251,7 +246,7 @@
           showInfo('تم إعادة إرسال الرمز إلى جوالك 📱');
           return;
         }
-        const { error } = await window.BondsAuth.signInWithOTP(email, { shouldCreateUser: false });
+        const { error } = await window.BondsAuth.sendOtpViaProxy(email);
         setLoading('resendBtn', false);
         if (error) { showError(error.message); return; }
         showInfo('تم إعادة الإرسال 📧 تحقق من بريدك وجرب الرابط إذا لم يكن هناك رمز.');

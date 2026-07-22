@@ -114,6 +114,10 @@ body{padding:0}
         <img src="../../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" />
         <span>Bonds</span>
       </div>
+      <div class="auth-top-nav">
+        <a href="../../../index.html" class="auth-home-link">← Home</a>
+        <a href="../../../calculators/auth/index.html" class="auth-lang-link">العربية</a>
+      </div>
 
       <div class="tabs">
         <button class="tab-btn active" data-tab="login">Sign In</button>
@@ -138,12 +142,12 @@ body{padding:0}
         <form id="loginForm">
           <div class="form-group">
             <label for="loginEmail">Email</label>
-            <input type="email" id="loginEmail" required placeholder="your@email.com" />
+            <input type="email" id="loginEmail" required autocomplete="email" placeholder="your@email.com" />
           </div>
           <div class="form-group">
             <label for="loginPassword">Password</label>
             <div class="pw-wrap">
-              <input type="password" id="loginPassword" required placeholder="••••••••" />
+              <input type="password" id="loginPassword" required autocomplete="current-password" placeholder="••••••••" />
               <button type="button" class="pw-toggle" data-target="loginPassword" title="Show/Hide">👁️</button>
             </div>
           </div>
@@ -159,9 +163,6 @@ body{padding:0}
         <button id="otpBtn" class="btn btn-secondary">
           <span class="spinner"></span>
           <span class="btn-text">Send Sign-in Link 📧</span>
-        </button>
-        <button id="passkeyBtn" class="btn btn-secondary" style="margin-top:var(--space-3);border-style:dashed">
-          <span class="btn-text">🔐 Sign in with Passkey</span>
         </button>
         <button id="googleBtn" class="btn btn-google" style="margin-top:var(--space-3)">
           <span class="btn-text">🔍 Sign in with Google</span>
@@ -195,74 +196,103 @@ body{padding:0}
           <p>Start free in under a minute — no credit card required.</p>
         </div>
         <form id="signupForm">
-          <div class="form-group">
-            <label for="signupCountry">Country *</label>
-            <select id="signupCountry" name="country" required data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="Select country">
-              <option value="">Select country</option>
-            </select>
-          </div>
-          <div class="form-group" id="signupCityGroup">
-            <label for="signupCity">City *</label>
-            <select id="signupCity" name="city" required data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="Select city">
-              <option value="">Select city</option>
-            </select>
-          </div>
-          <div class="form-group" id="signupCityFreeGroup" style="display:none;">
-            <label for="signupCityFree">City</label>
-            <input type="text" id="signupCityFree" placeholder="e.g. London" />
-          </div>
-          <div class="form-group">
-            <label for="signupName">Restaurant / Company Name *</label>
-            <input type="text" id="signupName" required autocomplete="organization" placeholder="e.g. Tasty Bites" />
-          </div>
-          <div class="form-group">
-            <label for="signupEmail">Email *</label>
-            <input type="email" id="signupEmail" required autocomplete="email" placeholder="your@email.com" />
-          </div>
-          <div class="form-group">
-            <label for="signupPhone">Phone *</label>
-            <div class="phone-row">
-              <span class="phone-prefix" id="signupPhonePrefix">+966</span>
-              <input type="tel" id="signupPhone" required autocomplete="tel" placeholder="5xxxxxxxx" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label for="signupPassword">Password *</label>
-            <div class="password-row">
-              <div class="pw-wrap" style="flex:1">
-                <input type="password" id="signupPassword" required minlength="8" placeholder="Min 8 characters" />
-                <button type="button" class="pw-toggle" data-target="signupPassword" title="Show/Hide">👁️</button>
+          <!-- Step 1: Account credentials -->
+          <div class="signup-step" data-step="1">
+            <div class="step-header">
+              <span class="step-badge">1</span>
+              <div>
+                <div class="step-title">Account Details</div>
+                <div class="step-subtitle">Enter your email and password</div>
               </div>
-              <button type="button" class="btn-small" id="genPwBtn" title="Generate strong password">🔐 Generate</button>
             </div>
-            <div class="strength-bar" id="strengthBar"><div></div></div>
-            <div class="strength-label" id="strengthLabel">Enter a password</div>
-            <div class="req-list" id="reqList">
-              <div class="req-item" data-req="len">At least 8 characters</div>
-              <div class="req-item" data-req="upper">Uppercase letter (A-Z)</div>
-              <div class="req-item" data-req="num">Number (0-9)</div>
-              <div class="req-item" data-req="special">Special character (!@#$...)</div>
+            <div class="form-group">
+              <label for="signupEmail">Email *</label>
+              <input type="email" id="signupEmail" required autocomplete="email" placeholder="your@email.com" />
+            </div>
+            <div class="form-group">
+              <label for="signupPassword">Password *</label>
+              <div class="password-row">
+                <div class="pw-wrap" style="flex:1">
+                  <input type="password" id="signupPassword" required minlength="8" autocomplete="new-password" placeholder="Min 8 characters" />
+                  <button type="button" class="pw-toggle" data-target="signupPassword" title="Show/Hide">👁️</button>
+                </div>
+                <button type="button" class="btn-small" id="genPwBtn" title="Generate strong password">🔐 Generate</button>
+              </div>
+              <div class="strength-bar" id="strengthBar"><div></div></div>
+              <div class="strength-label" id="strengthLabel">Enter a password</div>
+              <div class="req-list" id="reqList">
+                <div class="req-item" data-req="len">At least 8 characters</div>
+                <div class="req-item" data-req="upper">Uppercase letter (A-Z)</div>
+                <div class="req-item" data-req="num">Number (0-9)</div>
+                <div class="req-item" data-req="special">Special character (!@#$...)</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="signupPasswordConfirm">Confirm Password *</label>
+              <div class="pw-wrap">
+                <input type="password" id="signupPasswordConfirm" required autocomplete="new-password" placeholder="Re-enter password" />
+                <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="Show/Hide">👁️</button>
+              </div>
+              <div class="match-label" id="matchLabel"></div>
+            </div>
+            <div class="form-group terms-row">
+              <label class="terms-label">
+                <input type="checkbox" id="termsAccept" required>
+                <span>I agree to the <a href="../../terms.html" target="_blank" class="link">Terms of Use</a> and
+                <a href="../../privacy.html" target="_blank" class="link">Privacy Policy</a> *</span>
+              </label>
+            </div>
+            <button type="button" class="btn btn-primary" id="signupNextBtn">
+              <span class="btn-text">Continue</span>
+            </button>
+          </div>
+
+          <!-- Step 2: Business profile -->
+          <div class="signup-step" data-step="2" style="display:none;">
+            <div class="step-header">
+              <span class="step-badge">2</span>
+              <div>
+                <div class="step-title">Business Profile</div>
+                <div class="step-subtitle">Complete your profile</div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="signupCountry">Country *</label>
+              <select id="signupCountry" name="country" required data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="Select country">
+                <option value="">Select country</option>
+              </select>
+            </div>
+            <div class="form-group" id="signupCityGroup">
+              <label for="signupCity">City *</label>
+              <select id="signupCity" name="city" required data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="Select city">
+                <option value="">Select city</option>
+              </select>
+            </div>
+            <div class="form-group" id="signupCityFreeGroup" style="display:none;">
+              <label for="signupCityFree">City</label>
+              <input type="text" id="signupCityFree" placeholder="e.g. London" />
+            </div>
+            <div class="form-group">
+              <label for="signupName">Restaurant / Company Name *</label>
+              <input type="text" id="signupName" required autocomplete="organization" placeholder="e.g. Tasty Bites" />
+            </div>
+            <div class="form-group">
+              <label for="signupPhone">Phone *</label>
+              <div class="phone-row">
+                <span class="phone-prefix" id="signupPhonePrefix">+966</span>
+                <input type="tel" id="signupPhone" required inputmode="numeric" autocomplete="tel" placeholder="5xxxxxxxx" />
+              </div>
+            </div>
+            <div class="step-actions">
+              <button type="button" class="btn btn-secondary" id="signupBackBtn">
+                <span class="btn-text">Back</span>
+              </button>
+              <button type="submit" class="btn btn-primary" id="signupBtn">
+                <span class="spinner"></span>
+                <span class="btn-text">Create Account</span>
+              </button>
             </div>
           </div>
-          <div class="form-group">
-            <label for="signupPasswordConfirm">Confirm Password</label>
-            <div class="pw-wrap">
-              <input type="password" id="signupPasswordConfirm" required placeholder="Re-enter password" />
-              <button type="button" class="pw-toggle" data-target="signupPasswordConfirm" title="Show/Hide">👁️</button>
-            </div>
-            <div class="match-label" id="matchLabel"></div>
-          </div>
-          <div class="form-group" style="display:flex;align-items:flex-start;gap:0.6rem;margin-top:1rem">
-            <input type="checkbox" id="termsAccept" required style="width:auto;margin-top:0.25rem;accent-color:var(--gold)">
-            <label for="termsAccept" style="font-size:0.85rem;line-height:1.6;font-weight:400;color:var(--text-secondary);margin:0">
-              I agree to the <a href="../../terms.html" target="_blank" class="link">Terms of Use</a> and
-              <a href="../../privacy.html" target="_blank" class="link">Privacy Policy</a> *
-            </label>
-          </div>
-          <button type="submit" class="btn btn-primary" id="signupBtn">
-            <span class="spinner"></span>
-            <span class="btn-text">Create Account</span>
-          </button>
         </form>
         <p class="auth-switch">Already have an account? <button type="button" data-switch="login">Sign In</button></p>
       </div>
@@ -272,7 +302,10 @@ body{padding:0}
         or use the <a href="./diagnose.html">diagnose tool</a>
       </div>
 
-      <a href="../../calculator.html" class="back-link">← Back to Calculator</a>
+      <div class="auth-nav">
+        <a href="../../../index.html" class="back-link">← Home</a>
+        <a href="../../../calculator.html" class="back-link">Calculator →</a>
+      </div>
     </div>
   </div>
     </main>
@@ -375,6 +408,41 @@ body{padding:0}
         document.getElementById('errorActions').innerHTML = '';
         document.getElementById('errorActions').style.display = 'none';
         document.getElementById('successMsg').style.display = 'none';
+      }
+
+      // ── OTP cooldown helpers ─────────────────────────────────
+      const OTP_COOLDOWN_SECONDS = 30;
+      function getOtpCooldownRemaining(storageKey) {
+        try {
+          const last = parseInt(sessionStorage.getItem(storageKey) || '0', 10);
+          if (!last) return 0;
+          const remaining = OTP_COOLDOWN_SECONDS - Math.floor((Date.now() - last) / 1000);
+          return remaining > 0 ? remaining : 0;
+        } catch (e) { return 0; }
+      }
+      function startOtpCooldown(storageKey, btn, originalText) {
+        try { sessionStorage.setItem(storageKey, String(Date.now())); } catch (e) {}
+        if (!btn) return;
+        btn.disabled = true;
+        let remaining = OTP_COOLDOWN_SECONDS;
+        function tick() {
+          remaining = getOtpCooldownRemaining(storageKey);
+          if (remaining > 0) {
+            btn.querySelector('.btn-text').textContent = originalText + ' (' + remaining + ')';
+          } else {
+            btn.disabled = false;
+            btn.querySelector('.btn-text').textContent = originalText;
+          }
+        }
+        tick();
+        const interval = setInterval(function() {
+          tick();
+          if (remaining <= 0) clearInterval(interval);
+        }, 1000);
+      }
+      function showOtpCooldownError(storageKey) {
+        const remaining = getOtpCooldownRemaining(storageKey);
+        showError('Please wait ' + remaining + ' seconds before resending the email, to avoid a temporary block from the authentication server.');
       }
 
       // Password visibility toggle
@@ -597,18 +665,38 @@ body{padding:0}
         }
         showSuccess('Signed in! Redirecting...');
         if (typeof gtag !== 'undefined') gtag('event', 'login', { method: 'email' });
-        setTimeout(() => window.location.href = redirectTo, 800);
+        // Check if onboarding needed
+        const user = data?.user;
+        if (user) {
+          window.BondsAuth.getProfile(user.id).then(({ data: profile }) => {
+            const needsOnboarding = !profile || !profile.city || !profile.business_type || !profile.bio || !profile.needs;
+            if (needsOnboarding) {
+              sessionStorage.setItem('auth_redirect', redirectTo);
+              window.location.href = 'onboarding.html';
+            } else {
+              window.location.href = redirectTo;
+            }
+          }).catch(() => {
+            window.location.href = redirectTo;
+          });
+        } else {
+          setTimeout(() => window.location.href = redirectTo, 800);
+        }
       });
 
       window.sendMagicLink = async function() {
         hideMessages();
         const email = document.getElementById('loginEmail').value.trim();
         if (!email) { showError('Enter your email first'); return; }
+        const otpBtn = document.getElementById('otpBtn');
+        const cooldownKey = 'bonds_otp_cooldown_' + email.toLowerCase();
+        if (getOtpCooldownRemaining(cooldownKey) > 0) { showOtpCooldownError(cooldownKey); return; }
         setLoading('otpBtn', true);
-        const { error } = await window.BondsAuth.signInWithOTP(email);
+        const { error } = await window.BondsAuth.sendOtpViaProxy(email);
         setLoading('otpBtn', false);
         if (error) { showError(error.message); return; }
-        showSuccess('Sign-in link sent! Click the link in your email to sign in 📧');
+        startOtpCooldown(cooldownKey, otpBtn, 'Send sign-in link 📧');
+        showSuccess('Sign-in link sent! Click the link in your email to sign in. Don\'t forget to check your Spam folder 📧');
       };
 
       window.resendActivation = async function(email) {
@@ -627,19 +715,23 @@ body{padding:0}
         hideMessages();
         const email = document.getElementById('loginEmail').value.trim();
         if (!email) { showError('Enter your email first'); return; }
+        const otpBtn = document.getElementById('otpBtn');
+        const cooldownKey = 'bonds_otp_cooldown_' + email.toLowerCase();
+        if (getOtpCooldownRemaining(cooldownKey) > 0) { showOtpCooldownError(cooldownKey); return; }
         setLoading('otpBtn', true);
-        const { error } = await window.BondsAuth.signInWithOTP(email);
+        const { error } = await window.BondsAuth.sendOtpViaProxy(email);
         setLoading('otpBtn', false);
         if (error) {
           const msg = error.message || '';
           if (/rate limit|too many requests|request rate limit/i.test(msg)) {
-            showError('Email sending limit reached. Please wait 30–60 minutes and try again, or contact us on WhatsApp for help.', '<a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;">📱 WhatsApp</a>');
+            showError('Email sending limit reached temporarily. Please wait a few minutes up to an hour and try again. If you are outside Saudi Arabia, the email may take a little longer — please check your Spam folder before retrying.', '<a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;">📱 WhatsApp</a>');
           } else {
             showError(msg);
           }
           return;
         }
-        showSuccess('Magic link sent! Click the link in your email to sign in 📧');
+        startOtpCooldown(cooldownKey, otpBtn, 'Send sign-in link 📧');
+        showSuccess('Magic link sent! Check your inbox and Spam folder 📧');
       });
 
       // Phone OTP Login
@@ -692,8 +784,51 @@ body{padding:0}
         if (error) showError(error.message);
       });
 
+      // Two-step signup navigation
+      function validateSignupStep1() {
+        const email = document.getElementById('signupEmail').value.trim();
+        const password = document.getElementById('signupPassword').value;
+        const confirm = document.getElementById('signupPasswordConfirm').value;
+        const terms = document.getElementById('termsAccept').checked;
+
+        if (!email) { showError('Enter your email'); return false; }
+        if (password.length < 8) { showError('Password must be at least 8 characters'); return false; }
+        if (password !== confirm) { showError('Passwords do not match'); return false; }
+        if (checkStrength(password) < 3) { showError('Password is weak — add numbers and symbols'); return false; }
+        if (!terms) { showError('You must agree to the Terms of Use and Privacy Policy'); return false; }
+        return true;
+      }
+
+      function showSignupStep(step) {
+        document.querySelectorAll('#signupForm .signup-step').forEach(function(el) {
+          el.style.display = el.dataset.step == step ? 'block' : 'none';
+        });
+        if (step === 2) {
+          if (window.initUniversalDropdowns) window.initUniversalDropdowns(document.getElementById('signupForm'));
+          document.querySelectorAll('#signupForm select[data-universal-dropdown]').forEach(function(select) {
+            try { var dd = window.getUniversalDropdown && window.getUniversalDropdown(select); if (dd && typeof dd.refresh === 'function') dd.refresh(); } catch(e){}
+          });
+          setTimeout(function() { document.getElementById('signupCountry').focus(); }, 100);
+        } else {
+          setTimeout(function() { document.getElementById('signupEmail').focus(); }, 100);
+        }
+      }
+
+      document.getElementById('signupNextBtn').addEventListener('click', function() {
+        hideMessages();
+        if (validateSignupStep1()) showSignupStep(2);
+      });
+
+      document.getElementById('signupBackBtn').addEventListener('click', function() {
+        hideMessages();
+        showSignupStep(1);
+      });
+
       document.getElementById('signupForm').addEventListener('submit', async (e) => {
         e.preventDefault();
+        // Only submit from step 2
+        const step2Visible = document.querySelector('#signupForm .signup-step[data-step="2"]').style.display !== 'none';
+        if (!step2Visible) return;
         hideMessages();
         setLoading('signupBtn', true);
         const email = document.getElementById('signupEmail').value.trim();
@@ -722,7 +857,11 @@ body{padding:0}
         sessionStorage.setItem('otp_pending_city', city);
         sessionStorage.setItem('otp_email', email);
 
-        const { error } = await window.BondsAuth.signInWithOTP(email, {
+        const signupBtn = document.getElementById('signupBtn');
+        const cooldownKey = 'bonds_otp_cooldown_' + email.toLowerCase();
+        if (getOtpCooldownRemaining(cooldownKey) > 0) { showOtpCooldownError(cooldownKey); setLoading('signupBtn', false); return; }
+
+        const { error } = await window.BondsAuth.sendOtpViaProxy(email, {
           shouldCreateUser: true,
           data: { restaurant_name: name, phone: phone, country: country, city: city, language: 'en' }
         });
@@ -733,13 +872,14 @@ body{padding:0}
           if (/already registered/i.test(msg)) {
             showError('This email is already registered — try signing in');
           } else if (/rate limit|too many requests|request rate limit/i.test(msg)) {
-            showError('Email sending limit reached. Please wait 30–60 minutes and try again, or contact us on WhatsApp for help.', '<a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;">📱 WhatsApp</a>');
+            showError('Email sending limit reached temporarily. Please wait a few minutes up to an hour and try again. If you are outside Saudi Arabia, the email may take a little longer — please check your Spam folder before retrying.', '<a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;">📱 WhatsApp</a>');
           } else {
             showError(msg);
           }
           return;
         }
-        showSuccess('Verification code sent to your email 📧');
+        startOtpCooldown(cooldownKey, signupBtn, 'Create account');
+        showSuccess('Verification code sent to your email 📧 — check your inbox and Spam folder.');
         setTimeout(() => {
           window.location.href = './verify-otp.html?email=' + encodeURIComponent(email);
         }, 800);

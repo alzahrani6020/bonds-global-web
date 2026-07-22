@@ -31,16 +31,20 @@
         <img src="../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" />
         <span>Bonds</span>
       </div>
+      <div class="auth-top-nav">
+        <a href="../../index.html" class="auth-home-link">← الرئيسية</a>
+        <a href="../../en/calculators/auth/reset.html" class="auth-lang-link">EN</a>
+      </div>
       <div id="errorMsg" class="error-msg"></div>
       <div id="successMsg" class="success-msg"></div>
       <form id="resetForm">
         <div class="form-group">
           <label for="newPassword">كلمة المرور الجديدة</label>
-          <input type="password" id="newPassword" required minlength="8" placeholder="8 أحرف على الأقل" dir="ltr" />
+          <input type="password" id="newPassword" required minlength="8" autocomplete="new-password" placeholder="8 أحرف على الأقل" dir="ltr" />
         </div>
         <div class="form-group">
           <label for="confirmPassword">تأكيد كلمة المرور</label>
-          <input type="password" id="confirmPassword" required placeholder="أعد كتابة كلمة المرور" dir="ltr" />
+          <input type="password" id="confirmPassword" required autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" dir="ltr" />
         </div>
         <button type="submit" class="btn btn-primary">تحديث كلمة المرور</button>
       </form>

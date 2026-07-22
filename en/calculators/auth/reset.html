@@ -33,16 +33,20 @@
         <img src="../../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" />
         <span>Bonds</span>
       </div>
+      <div class="auth-top-nav">
+        <a href="../../../index.html" class="auth-home-link">← Home</a>
+        <a href="../../../calculators/auth/reset.html" class="auth-lang-link">العربية</a>
+      </div>
       <div id="errorMsg" class="error-msg"></div>
       <div id="successMsg" class="success-msg"></div>
       <form id="resetForm">
         <div class="form-group">
           <label for="newPassword">New Password</label>
-          <input type="password" id="newPassword" required minlength="8" placeholder="Min 8 characters" />
+          <input type="password" id="newPassword" required minlength="8" autocomplete="new-password" placeholder="Min 8 characters" />
         </div>
         <div class="form-group">
           <label for="confirmPassword">Confirm Password</label>
-          <input type="password" id="confirmPassword" required placeholder="Re-enter password" />
+          <input type="password" id="confirmPassword" required autocomplete="new-password" placeholder="Re-enter password" />
         </div>
         <button type="submit" class="btn btn-primary">Update Password</button>
       </form>

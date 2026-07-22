@@ -43,6 +43,10 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
         <img src="../../../assets/bonds-logo-2026-sm.webp?v=2026" alt="Bonds" />
         <span>Bonds</span>
       </div>
+      <div class="auth-top-nav">
+        <a href="../../../index.html" class="auth-home-link">← Home</a>
+        <a href="../../../calculators/auth/onboarding.html" class="auth-lang-link">العربية</a>
+      </div>
 
       <h1>Complete Your Business Profile</h1>
       <p class="subtitle">Accurate information helps us provide personalized consulting for you.</p>
@@ -86,7 +90,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
           </div>
           <div class="form-group">
             <label for="phone">Phone Number *</label>
-            <input type="tel" id="phone" required placeholder="05xxxxxxxx" />
+            <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="05xxxxxxxx" />
           </div>
         </div>
 
@@ -107,14 +111,14 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
           </div>
           <div class="form-group">
             <label for="employeeCount">Number of Employees *</label>
-            <input type="number" id="employeeCount" required min="0" placeholder="e.g. 12" />
+            <input type="number" id="employeeCount" required min="0" inputmode="numeric" placeholder="e.g. 12" />
           </div>
         </div>
 
         <div class="row">
           <div class="form-group">
             <label for="branchCount">Number of Branches *</label>
-            <input type="number" id="branchCount" required min="1" placeholder="e.g. 1" />
+            <input type="number" id="branchCount" required min="1" inputmode="numeric" placeholder="e.g. 1" />
           </div>
           <div class="form-group">
             <label for="bio">Business Bio *</label>

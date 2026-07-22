@@ -64,6 +64,9 @@
       spinner.style.display = 'none';
 
       if (user) {
+        // Preserve the original destination the user wanted before auth
+        const authRedirect = sessionStorage.getItem('auth_redirect');
+
         // Complete signup if pending password exists (magic link / OAuth signup)
         const pendingPassword = sessionStorage.getItem('otp_pending_password');
         if (pendingPassword) {
@@ -100,6 +103,7 @@
               <a href="/en/calculators/auth/onboarding.html" class="btn">Complete your profile</a>
             `;
           } else {
+            const destination = authRedirect || '/en/calculators/restaurant.html';
             card.innerHTML = `
               <span class="icon">🎉</span>
               <h1>Account Confirmed!</h1>
@@ -108,7 +112,7 @@
                 Your account at <span class="brand">Bonds Financial Consultancy</span> has been confirmed.<br>
                 You can now use all services.
               </p>
-              <a href="/en/calculators/restaurant.html" class="btn">Go to Calculator</a>
+              <a href="${destination}" class="btn">Go to Calculator</a>
               <a href="/en/calculators/auth/subscription.html" class="btn btn-secondary">Manage Subscription</a>
             `;
           }
