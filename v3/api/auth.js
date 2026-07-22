@@ -1,5 +1,7 @@
+const crypto = require('crypto');
 const { getAuthClient } = require('../lib/auth');
 const { getSupabaseClient } = require('../lib/supabase');
+const { sendEmail } = require('../../lib/api/email');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -75,6 +77,20 @@ function isValidEmail(email) {
   return typeof email === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
+function generateOtp(length = 6) {
+  const digits = '0123456789';
+  const bytes = crypto.randomBytes(length);
+  let otp = '';
+  for (let i = 0; i < length; i += 1) {
+    otp += digits[bytes[i] % 10];
+  }
+  return otp;
+}
+
+function generateTempPassword(length = 32) {
+  return crypto.randomBytes(length).toString('hex');
+}
+
 // ── OTP proxy endpoints ────────────────────────────────────────────────────
 // These endpoints use the Supabase Service Role key server-side so the
 // browser never hits Supabase Auth directly. This gives us full control over
@@ -116,11 +132,10 @@ async function handleSendOtp(req, res) {
   }
 
   try {
-    // Admin actions (create user) require the service role key.
+    // Admin actions (create user / update user) require the service role key.
     const adminClient = getSupabaseClient();
 
-    // For new users we create the auth user immediately with service role so
-    // Supabase does not throttle the public endpoint.
+    // For new users we create the auth user immediately with service role.
     if (shouldCreateUser) {
       const { error: signUpError } = await adminClient.auth.admin.createUser({
         email,
@@ -129,7 +144,7 @@ async function handleSendOtp(req, res) {
       });
 
       if (signUpError) {
-        // If user already exists, fall through to OTP sign-in instead of failing.
+        // If user already exists, fall through to OTP send instead of failing.
         if (!/already|exists/i.test(signUpError.message)) {
           console.error('[auth/send-otp] createUser error:', signUpError.message);
           return sendJson(res, 500, { error: signUpError.message });
@@ -137,29 +152,71 @@ async function handleSendOtp(req, res) {
       }
     }
 
-    // signInWithOtp MUST be called with the anon key, not the service role key.
-    // Using the service role key returns "Signups not allowed for otp". Calling
-    // it server-side with the anon key means the request goes out from Vercel's
-    // IP, bypassing the per-user rate limits that international users hit.
-    const authClient = getAuthClient();
-    const { error } = await authClient.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: false,
-        data: { ...metadata, language }
+    // Generate a server-side OTP and store it in the user's metadata. We do
+    // NOT use Supabase signInWithOtp here because:
+    //   1. It rejects service-role clients with "Signups not allowed for otp".
+    //   2. Anon-key calls from Vercel share a single IP and hit Supabase's
+    //      email/IP rate limits immediately.
+    // Sending the OTP ourselves through Resend/SMTP bypasses both issues.
+    const otp = generateOtp(6);
+    const otpExpiresAt = Date.now() + 10 * 60 * 1000; // 10 minutes
+
+    const { data: userData, error: lookupError } = await adminClient.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000
+    });
+
+    if (lookupError) {
+      console.error('[auth/send-otp] listUsers error:', lookupError.message);
+      return sendJson(res, 500, { error: lookupError.message });
+    }
+
+    const user = userData?.users?.find((u) => u.email?.toLowerCase() === email);
+    if (!user) {
+      return sendJson(res, 404, { error: 'User not found' });
+    }
+
+    const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...user.user_metadata,
+        bonds_otp: otp,
+        bonds_otp_expires_at: otpExpiresAt
       }
     });
 
-    if (error) {
-      console.error('[auth/send-otp] signInWithOtp error:', error.message);
-      return sendJson(res, 500, { error: error.message });
+    if (updateError) {
+      console.error('[auth/send-otp] updateUserById error:', updateError.message);
+      return sendJson(res, 500, { error: updateError.message });
+    }
+
+    const subject = language === 'ar'
+      ? 'رمز التحقق الخاص بك — بوندز'
+      : 'Your verification code — Bonds';
+    const bodyText = language === 'ar'
+      ? `رمز التحقق الخاص بك هو: ${otp}\nالرمز صالح لمدة 10 دقائق.`
+      : `Your verification code is: ${otp}\nThis code is valid for 10 minutes.`;
+    const bodyHtml = language === 'ar'
+      ? `<div dir="rtl"><p>رمز التحقق الخاص بك هو:</p><h2>${otp}</h2><p>الرمز صالح لمدة 10 دقائق.</p></div>`
+      : `<p>Your verification code is:</p><h2>${otp}</h2><p>This code is valid for 10 minutes.</p>`;
+
+    const emailResult = await sendEmail({
+      to: email,
+      subject,
+      text: bodyText,
+      html: bodyHtml
+    });
+
+    if (!emailResult.success) {
+      console.error('[auth/send-otp] sendEmail error:', emailResult.error);
+      return sendJson(res, 500, { error: emailResult.error || 'Failed to send email' });
     }
 
     return sendJson(res, 200, {
       success: true,
+      demo: emailResult.demo || false,
       message: language === 'ar'
-        ? 'تم إرسال رابط التحقق إلى بريدك.'
-        : 'Verification link sent to your email.'
+        ? 'تم إرسال رمز التحقق إلى بريدك.'
+        : 'Verification code sent to your email.'
     });
   } catch (err) {
     console.error('[auth/send-otp] unexpected error:', err.message);
@@ -175,7 +232,6 @@ async function handleVerifyOtp(req, res) {
   const body = await parseBody(req);
   const email = String(body.email || '').trim().toLowerCase();
   const token = String(body.token || '').trim();
-  const type = body.type || 'email';
   const pendingPassword = body.pendingPassword;
 
   if (!isValidEmail(email) || !token) {
@@ -183,25 +239,65 @@ async function handleVerifyOtp(req, res) {
   }
 
   try {
-    const supabase = getSupabaseClient();
+    const adminClient = getSupabaseClient();
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      email,
-      token,
-      type
+    const { data: userData, error: lookupError } = await adminClient.auth.admin.listUsers({
+      page: 1,
+      perPage: 1000
     });
 
-    if (error || !data.session) {
-      return sendJson(res, 401, {
-        error: error?.message || 'Invalid or expired token'
-      });
+    if (lookupError) {
+      console.error('[auth/verify-otp] listUsers error:', lookupError.message);
+      return sendJson(res, 500, { error: lookupError.message });
     }
 
-    // If the user has a pending password from the signup flow, set it now.
-    if (pendingPassword && pendingPassword.length >= 8) {
-      const adminClient = getSupabaseClient();
-      await adminClient.auth.admin.updateUserById(data.user.id, {
-        password: pendingPassword
+    const user = userData?.users?.find((u) => u.email?.toLowerCase() === email);
+    if (!user) {
+      return sendJson(res, 401, { error: 'Invalid or expired code' });
+    }
+
+    const otp = user.user_metadata?.bonds_otp;
+    const expiresAt = user.user_metadata?.bonds_otp_expires_at;
+
+    if (!otp || Date.now() > Number(expiresAt || 0)) {
+      return sendJson(res, 401, { error: 'Invalid or expired code' });
+    }
+
+    if (token !== String(otp)) {
+      return sendJson(res, 401, { error: 'Invalid code' });
+    }
+
+    // Clear the OTP so it cannot be reused.
+    const updatedMetadata = { ...(user.user_metadata || {}) };
+    delete updatedMetadata.bonds_otp;
+    delete updatedMetadata.bonds_otp_expires_at;
+
+    // Set the user's chosen password during signup.
+    const password = (pendingPassword && pendingPassword.length >= 8)
+      ? pendingPassword
+      : generateTempPassword();
+
+    const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
+      password,
+      user_metadata: updatedMetadata
+    });
+
+    if (updateError) {
+      console.error('[auth/verify-otp] updateUserById error:', updateError.message);
+      return sendJson(res, 500, { error: updateError.message });
+    }
+
+    // Create a real Supabase session using the (new) password.
+    const authClient = getAuthClient();
+    const { data, error: signInError } = await authClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (signInError || !data.session) {
+      console.error('[auth/verify-otp] signInWithPassword error:', signInError?.message);
+      return sendJson(res, 401, {
+        error: signInError?.message || 'Invalid or expired code'
       });
     }
 

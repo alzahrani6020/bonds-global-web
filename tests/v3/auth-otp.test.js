@@ -3,21 +3,36 @@
  */
 
 const mockCreateUser = jest.fn(() => Promise.resolve({ data: { user: { id: 'u1', email: 'test@example.com' } }, error: null }));
-const mockSignInWithOtp = jest.fn(() => Promise.resolve({ error: null }));
-const mockVerifyOtp = jest.fn(() => Promise.resolve({
-  data: { user: { id: 'u1', email: 'test@example.com' }, session: { access_token: 'at', refresh_token: 'rt', expires_at: 9999999999 } },
+const mockUpdateUserById = jest.fn(() => Promise.resolve({ error: null }));
+const mockListUsers = jest.fn(() => Promise.resolve({
+  data: {
+    users: [{
+      id: 'u1',
+      email: 'test@example.com',
+      user_metadata: {
+        bonds_otp: '123456',
+        bonds_otp_expires_at: Date.now() + 600_000
+      }
+    }]
+  },
   error: null
 }));
-const mockUpdateUserById = jest.fn(() => Promise.resolve({ error: null }));
+const mockSignInWithPassword = jest.fn(() => Promise.resolve({
+  data: {
+    user: { id: 'u1', email: 'test@example.com' },
+    session: { access_token: 'at', refresh_token: 'rt', expires_at: 9999999999 }
+  },
+  error: null
+}));
 
 const mockSupabaseClient = {
   auth: {
     admin: {
       createUser: mockCreateUser,
-      updateUserById: mockUpdateUserById
+      updateUserById: mockUpdateUserById,
+      listUsers: mockListUsers
     },
-    signInWithOtp: mockSignInWithOtp,
-    verifyOtp: mockVerifyOtp
+    signInWithPassword: mockSignInWithPassword
   }
 };
 
@@ -76,9 +91,9 @@ function mockRes() {
 describe('/api/v3/auth OTP proxy', () => {
   beforeEach(() => {
     mockCreateUser.mockClear();
-    mockSignInWithOtp.mockClear();
-    mockVerifyOtp.mockClear();
     mockUpdateUserById.mockClear();
+    mockListUsers.mockClear();
+    mockSignInWithPassword.mockClear();
   });
 
   test('POST /auth/send-otp creates user and sends OTP', async () => {
@@ -92,7 +107,7 @@ describe('/api/v3/auth OTP proxy', () => {
     expect(res.statusCode).toBe(200);
     expect(res._json.success).toBe(true);
     expect(mockCreateUser).toHaveBeenCalled();
-    expect(mockSignInWithOtp).toHaveBeenCalled();
+    expect(mockUpdateUserById).toHaveBeenCalled();
   });
 
   test('POST /auth/send-otp rejects invalid email', async () => {
@@ -130,7 +145,8 @@ describe('/api/v3/auth OTP proxy', () => {
     expect(res.statusCode).toBe(200);
     expect(res._json.success).toBe(true);
     expect(res._json.session.access_token).toBe('at');
-    expect(mockUpdateUserById).toHaveBeenCalledWith('u1', { password: 'StrongPass1!' });
+    expect(mockUpdateUserById).toHaveBeenCalled();
+    expect(mockSignInWithPassword).toHaveBeenCalled();
   });
 
   test('POST /auth/verify-otp rejects missing token', async () => {
