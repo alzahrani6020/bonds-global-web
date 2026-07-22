@@ -206,6 +206,9 @@ async function handleSendOtp(req, res) {
       html: bodyHtml
     });
 
+    // Diagnostic logging while we verify Resend/SMTP config in production.
+    console.error('[auth/send-otp] emailResult:', JSON.stringify(emailResult));
+
     if (!emailResult.success) {
       console.error('[auth/send-otp] sendEmail error:', emailResult.error);
       return sendJson(res, 500, { error: emailResult.error || 'Failed to send email' });
