@@ -1,6 +1,76 @@
 export const config = { runtime: 'edge' };
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+
+async function supabaseRequest(path, options = {}) {
+  const url = `${SUPABASE_URL}/rest/v1${path}`;
+  const res = await fetch(url, {
+    ...options,
+    headers: {
+      'apikey': SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+      'Content-Type': 'application/json',
+      ...(options.headers || {})
+    }
+  });
+  if (!res.ok) return { data: null, error: await res.text() };
+  return { data: await res.json(), error: null };
+}
+
+async function verifyPaidUser(request) {
+  const authHeader = request.headers.get('authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return { allowed: false, reason: 'missing_token' };
+  }
+  const token = authHeader.slice(7);
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+    return { allowed: false, reason: 'server_config' };
+  }
+
+  // Validate token with Supabase Auth API
+  const userRes = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'apikey': SUPABASE_SERVICE_KEY
+    }
+  });
+  if (!userRes.ok) {
+    return { allowed: false, reason: 'invalid_token' };
+  }
+  const user = await userRes.json();
+  if (!user || !user.id) {
+    return { allowed: false, reason: 'invalid_token' };
+  }
+
+  // Admin bypass
+  const { data: adminRole } = await supabaseRequest(`/admin_roles?select=role&user_id=eq.${user.id}&limit=1`);
+  if (adminRole && adminRole.length > 0 && adminRole[0].role) {
+    return { allowed: true, user };
+  }
+
+  const [{ data: profiles }, { data: subs }] = await Promise.all([
+    supabaseRequest(`/profiles?select=tier,tier_expires_at&id=eq.${user.id}&limit=1`),
+    supabaseRequest(`/subscriptions?select=tier,status,current_period_end&user_id=eq.${user.id}&limit=1`)
+  ]);
+  const profile = profiles && profiles[0];
+  const sub = subs && subs[0];
+
+  let tier = profile?.tier || sub?.tier || 'free';
+  if (profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+    tier = 'free';
+  }
+  let status = sub?.status || 'inactive';
+  if (status === 'active' && sub?.current_period_end && new Date(sub.current_period_end) < new Date()) {
+    status = 'inactive';
+  }
+  const isPaid = status === 'active' && (tier === 'pro' || tier === 'enterprise');
+  if (!isPaid) {
+    return { allowed: false, reason: 'subscription_required', tier, status };
+  }
+  return { allowed: true, user, tier };
+}
 
 const ALLOWED_ORIGINS = [
   'https://bonds-global.com',
@@ -150,6 +220,11 @@ export default async function handler(request) {
   }
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), { status: 405, headers: corsHeaders(request) });
+  }
+
+  const authCheck = await verifyPaidUser(request);
+  if (!authCheck.allowed) {
+    return new Response(JSON.stringify({ error: 'Unauthorized', reason: authCheck.reason }), { status: 401, headers: corsHeaders(request) });
   }
 
   let body = {};

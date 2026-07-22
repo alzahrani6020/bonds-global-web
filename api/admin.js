@@ -8,12 +8,14 @@ const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
 
-const OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || 'hmd.dev@gmail.com';
+const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
+const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
+if (CONFIGURED_OWNER_EMAIL) OWNER_EMAILS.push(CONFIGURED_OWNER_EMAIL.toLowerCase());
+const OWNER_EMAIL = CONFIGURED_OWNER_EMAIL || OWNER_EMAILS[0];
 
 function isOwner(email) {
   if (!email) return false;
-  const fallback = 'hmd.dev@gmail.com';
-  return (OWNER_EMAIL && email.toLowerCase() === OWNER_EMAIL.toLowerCase()) || email.toLowerCase() === fallback;
+  return OWNER_EMAILS.includes(email.toLowerCase());
 }
 
 function decodeJwtAal(token) {
@@ -82,7 +84,7 @@ async function verifyAdmin(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback
-  if (OWNER_EMAIL && user.email === OWNER_EMAIL) {
+  if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) return null;
     return user;
   }
@@ -99,7 +101,7 @@ async function verifyAdminStrict(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback — always super_admin
-  if (OWNER_EMAIL && user.email === OWNER_EMAIL) {
+  if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) return null;
     return user;
   }
@@ -109,15 +111,41 @@ async function verifyAdminStrict(req, sb) {
   return user;
 }
 
+async function verifyExecutiveAccess(req, sb) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  const token = authHeader.slice(7);
+  const { data: { user }, error } = await sb.auth.getUser(token);
+  if (error || !user) return null;
+  if (isOwner(user.email)) {
+    if (!(await checkAdminMfa(req, sb))) return null;
+    return user;
+  }
+  const { data: adminRole } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
+  if (adminRole && ['super_admin', 'admin', 'support'].includes(adminRole.role)) {
+    if (!(await checkAdminMfa(req, sb))) return null;
+    return user;
+  }
+  const { data: advRole } = await sb.from('advisory_roles').select('role').eq('user_id', user.id).single();
+  if (advRole?.role === 'manager') {
+    if (!(await checkAdminMfa(req, sb))) return null;
+    return user;
+  }
+  return null;
+}
+
 // ── Audit logging ───────────────────────────────────────────
 async function getActorRole(sb, admin) {
-  if (OWNER_EMAIL && admin.email === OWNER_EMAIL) return 'super_admin';
+  if (isOwner(admin.email)) return 'super_admin';
   try {
     const { data } = await sb.from('admin_roles').select('role').eq('user_id', admin.id).single();
-    return data?.role || 'unknown';
-  } catch (e) {
-    return 'unknown';
-  }
+    if (data?.role) return data.role;
+  } catch (e) {}
+  try {
+    const { data } = await sb.from('advisory_roles').select('role').eq('user_id', admin.id).single();
+    if (data?.role) return data.role;
+  } catch (e) {}
+  return 'unknown';
 }
 
 async function logAdminAction(sb, admin, action, targetType, targetId, targetEmail, details, req) {
@@ -154,7 +182,7 @@ async function getAuditLog(sb, opts = {}) {
 // ── Security Center ─────────────────────────────────────────
 async function getSecurityStatus(sb) {
   const enforceMfa = await isAdminMfaEnforced(sb);
-  const ownerEmail = OWNER_EMAIL;
+  const ownerEmail = OWNER_EMAILS.join(', ');
 
   const { data: roles, error: rolesError } = await sb.from('admin_roles').select('*').order('created_at', { ascending: false });
   if (rolesError) throw rolesError;
@@ -613,7 +641,7 @@ async function verifyAdminUser(req, sb) {
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) return null;
   // Owner fallback
-  if (OWNER_EMAIL && user.email === OWNER_EMAIL) {
+  if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) return null;
     return { user, role: 'super_admin' };
   }
@@ -1137,6 +1165,40 @@ async function getStats(sb) {
   };
 }
 
+// ── Executive Dashboard Stats ───────────────────────────────
+async function getExecutiveStats(sb) {
+  const [
+    { data: subscriptions, error: subscriptionsError },
+    { data: profiles, error: profilesError },
+    { data: advisoryClients, error: advisoryClientsError },
+    { data: advisoryProjects, error: advisoryProjectsError },
+    { data: recoveryAssets, error: recoveryAssetsError }
+  ] = await Promise.all([
+    sb.from('subscriptions').select('status, tier, created_at').order('created_at', { ascending: true }),
+    sb.from('profiles').select('created_at').order('created_at', { ascending: true }),
+    sb.from('advisory_clients').select('status, created_at').order('created_at', { ascending: true }),
+    sb.from('advisory_projects').select('status, budget, start_date, created_at, client_id, advisory_clients(name)').order('created_at', { ascending: false }),
+    sb.from('recovery_assets').select('status, original_value, distressed_value, name, category, created_at').order('created_at', { ascending: false })
+  ]);
+
+  const errors = [];
+  if (subscriptionsError) errors.push({ key: 'subscriptions', message: subscriptionsError.message });
+  if (profilesError) errors.push({ key: 'profiles', message: profilesError.message });
+  if (advisoryClientsError) errors.push({ key: 'advisoryClients', message: advisoryClientsError.message });
+  if (advisoryProjectsError) errors.push({ key: 'advisoryProjects', message: advisoryProjectsError.message });
+  if (recoveryAssetsError) errors.push({ key: 'recoveryAssets', message: recoveryAssetsError.message });
+
+  return {
+    success: true,
+    subscriptions: subscriptions || [],
+    profiles: profiles || [],
+    advisoryClients: advisoryClients || [],
+    advisoryProjects: advisoryProjects || [],
+    recoveryAssets: recoveryAssets || [],
+    errors
+  };
+}
+
 // ── Main Handler ────────────────────────────────────────────
 async function handler(req, res) {
   setAllowedOrigin(res, req);
@@ -1171,6 +1233,11 @@ async function handler(req, res) {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getStats(sb));
+      }
+      if (action === 'executive-stats') {
+        const admin = await verifyExecutiveAccess(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getExecutiveStats(sb));
       }
       if (action === 'messages') {
         const admin = await verifyAdmin(req, sb);
@@ -1344,7 +1411,7 @@ async function handler(req, res) {
         const token = authHeader.slice(7);
         const { data: { user }, error } = await sb.auth.getUser(token);
         if (error || !user) return res.status(403).json({ error: 'Invalid token' });
-        if (!OWNER_EMAIL || user.email !== OWNER_EMAIL) return res.status(403).json({ error: 'Not authorized' });
+        if (!isOwner(user.email)) return res.status(403).json({ error: 'Not authorized' });
         // Upsert super_admin (insert or update)
         const { error: upsertErr } = await sb.from('admin_roles')
           .upsert({ user_id: user.id, role: 'super_admin', granted_by: user.id }, { onConflict: 'user_id' });
