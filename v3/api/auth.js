@@ -206,12 +206,18 @@ async function handleSendOtp(req, res) {
       html: bodyHtml
     });
 
-    // Diagnostic logging while we verify Resend/SMTP config in production.
-    console.error('[auth/send-otp] emailResult:', JSON.stringify(emailResult));
-
     if (!emailResult.success) {
       console.error('[auth/send-otp] sendEmail error:', emailResult.error);
       return sendJson(res, 500, { error: emailResult.error || 'Failed to send email' });
+    }
+
+    if (emailResult.demo) {
+      console.error('[auth/send-otp] mailer not configured:', emailResult.reason);
+      return sendJson(res, 500, {
+        error: language === 'ar'
+          ? 'خدمة البريد غير مهيأة. يرجى التواصل مع الدعم.'
+          : 'Email service is not configured. Please contact support.'
+      });
     }
 
     return sendJson(res, 200, {

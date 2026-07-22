@@ -47,6 +47,10 @@ jest.mock('../../v3/lib/auth', () => ({
   getUserFromToken: jest.fn(() => null)
 }));
 
+jest.mock('../../lib/api/email', () => ({
+  sendEmail: jest.fn(() => Promise.resolve({ success: true }))
+}));
+
 jest.mock('../../lib/api/rate-limit', () => ({
   checkRateLimit: jest.fn(() => false)
 }));
