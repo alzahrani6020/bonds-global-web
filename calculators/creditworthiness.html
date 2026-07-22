@@ -48,7 +48,8 @@
   <meta name="twitter:description" content="قيم أي شركة أو مصنع أو سند مالي وفق 9 معايير ائتمانية دولية واحصل على تصنيف من AAA إلى عالي المخاطر مع تقرير كامل." />
 
 <script src="/calculators/auth-gate.js?v=2"></script>
-  </head>
+    <script src="/auth-guard.js"></script>
+</head>
 <body>
   <div id="site-header"></div>
   <div class="cw-container">
@@ -652,5 +653,22 @@
 <script src="shared-geo.js?v=6"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script>
+  // Paid-tier gate for feasibility / creditworthiness features
+  (function () {
+    function runGate() {
+      if (typeof window.requireTier === 'function') {
+        window.requireTier('paidCalculators');
+      } else {
+        setTimeout(runGate, 100);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', runGate);
+    } else {
+      runGate();
+    }
+  })();
+</script>
 </body>
 </html>

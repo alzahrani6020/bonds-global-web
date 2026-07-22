@@ -47,6 +47,7 @@
     "description": "احسب الجدوى المالية لمشروعك الصناعي قبل التأسيس: تكاليف الآلات والمعدات، المواد الخام، الإنتاج اليومي، نقطة التعادل، والسيناريوهات."
   }
   </script>
+  <script src="/auth-guard.js"></script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -489,5 +490,22 @@ updateRevenueSummary();
 </script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script>
+  // Paid-tier gate for feasibility / creditworthiness features
+  (function () {
+    function runGate() {
+      if (typeof window.requireTier === 'function') {
+        window.requireTier('paidCalculators');
+      } else {
+        setTimeout(runGate, 100);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', runGate);
+    } else {
+      runGate();
+    }
+  })();
+</script>
 </body>
 </html>

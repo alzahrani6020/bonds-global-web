@@ -22,7 +22,8 @@
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
 <script src="/calculators/auth-gate.js?v=2"></script>
-  </head>
+    <script src="/auth-guard.js"></script>
+</head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
 
@@ -2486,5 +2487,22 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 <script src="../../site-layout.js?v=3.0.6"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+<script>
+  // Paid-tier gate for feasibility / creditworthiness features
+  (function () {
+    function runGate() {
+      if (typeof window.requireTier === 'function') {
+        window.requireTier('paidCalculators');
+      } else {
+        setTimeout(runGate, 100);
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', runGate);
+    } else {
+      runGate();
+    }
+  })();
+</script>
 </body>
 </html>
