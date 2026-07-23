@@ -76,6 +76,14 @@
           <div class="cx-metric__value" id="mTime">—</div>
           <div class="cx-metric__label">Avg. Time to Result (s)</div>
         </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mLeads">—</div>
+          <div class="cx-metric__label">Emails Captured</div>
+        </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mLastEvent">—</div>
+          <div class="cx-metric__label">Last Event</div>
+        </div>
       </div>
       <p class="cx-note" id="metricsNote">
         Data is fetched from <code>/api/log-usage</code>. Make sure you are signed in with an admin account.
@@ -208,6 +216,9 @@
         document.getElementById('mSaved').textContent = m.saved != null ? m.saved.toLocaleString('en-US') : '—';
         document.getElementById('mV3').textContent = m.v3 != null ? m.v3.toLocaleString('en-US') : '—';
         document.getElementById('mTime').textContent = m.avgTimeToResult != null ? m.avgTimeToResult.toLocaleString('en-US') : '—';
+        document.getElementById('mLeads').textContent = (m.emailCaptured != null ? m.emailCaptured.toLocaleString('en-US') : '—');
+        var lastEvent = json.events && json.events[0] && json.events[0].created_at;
+        document.getElementById('mLastEvent').textContent = lastEvent ? new Date(lastEvent).toLocaleString('en-US') : '—';
         document.getElementById('metricsNote').textContent = '✅ Data loaded successfully (last 30 days). Events: ' + (json.events ? json.events.length : 0).toLocaleString('en-US');
 
         // A/B variant analysis

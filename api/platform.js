@@ -883,7 +883,7 @@ async function logUsageHandler(req, res) {
       const metrics = {
         started: 0, completed: 0, saved: 0, exported: 0, v3: 0,
         signup_prompts: 0, signups_confirmed: 0, guests_continued: 0,
-        totalDuration: 0, durationCount: 0
+        email_captured: 0, totalDuration: 0, durationCount: 0
       };
       const byCalculator = {};
       (data || []).forEach(row => {
@@ -898,6 +898,7 @@ async function logUsageHandler(req, res) {
         if (e === 'calc_signup_prompt_confirmed') { metrics.signups_confirmed++; }
         if (e === 'calc_guest_continued') { metrics.guests_continued++; }
         if (e === 'calc_signup_from_action') { metrics.signup_prompts++; }
+        if (e === 'email_captured') { metrics.email_captured++; }
         if (typeof row.duration_seconds === 'number' && row.duration_seconds > 0) {
           metrics.totalDuration += row.duration_seconds;
           metrics.durationCount++;
@@ -916,6 +917,7 @@ async function logUsageHandler(req, res) {
           signupPrompts: metrics.signup_prompts,
           signupsConfirmed: metrics.signups_confirmed,
           guestsContinued: metrics.guests_continued,
+          emailCaptured: metrics.email_captured,
           avgTimeToResult: metrics.durationCount ? Math.round(metrics.totalDuration / metrics.durationCount) : null
         },
         byCalculator,

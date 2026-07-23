@@ -66,6 +66,14 @@
           <div class="cx-metric__value" id="mTime">—</div>
           <div class="cx-metric__label">متوسط وقت الإكمال (ث)</div>
         </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mLeads">—</div>
+          <div class="cx-metric__label">البريدات الملتقطة</div>
+        </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mLastEvent">—</div>
+          <div class="cx-metric__label">آخر حدث</div>
+        </div>
       </div>
       <p class="cx-note" id="metricsNote">
         يتم جلب البيانات من <code>/api/log-usage</code>. تأكد من تسجيل دخولك بحساب إداري.
@@ -199,6 +207,9 @@
         document.getElementById('mSaved').textContent = m.saved != null ? m.saved.toLocaleString('ar-SA') : '—';
         document.getElementById('mV3').textContent = m.v3 != null ? m.v3.toLocaleString('ar-SA') : '—';
         document.getElementById('mTime').textContent = m.avgTimeToResult != null ? m.avgTimeToResult.toLocaleString('ar-SA') : '—';
+        document.getElementById('mLeads').textContent = (m.emailCaptured != null ? m.emailCaptured.toLocaleString('ar-SA') : '—');
+        var lastEvent = json.events && json.events[0] && json.events[0].created_at;
+        document.getElementById('mLastEvent').textContent = lastEvent ? new Date(lastEvent).toLocaleString('ar-SA') : '—';
         document.getElementById('metricsNote').textContent = '✅ تم جلب البيانات بنجاح (آخر 30 يوم). عدد الأحداث: ' + (json.events ? json.events.length : 0).toLocaleString('ar-SA');
 
         // A/B variant analysis
