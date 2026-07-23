@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Calculator Conversion Dashboard | Bonds</title>
+  <meta name="description" content="Track user journey from calculator to saved project or V3 conversion." />
+  <meta property="og:title" content="Calculator Conversion Dashboard | Bonds" />
+  <meta property="og:description" content="Track user journey from calculator to saved project or V3 conversion." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/admin/conversion-dashboard" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Calculator Conversion Dashboard | Bonds" />
+  <meta name="twitter:description" content="Track user journey from calculator to saved project or V3 conversion." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="canonical" href="https://bonds-global.com/en/admin/conversion-dashboard" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    .cx-dashboard { max-width:1100px; margin:0 auto; padding:2rem 1rem; }
+    .cx-dashboard h1 { color:var(--gold); font-size:1.75rem; margin-bottom:0.5rem; }
+    .cx-dashboard .subtitle { color:var(--text-secondary); margin-bottom:2rem; }
+    .cx-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+    .cx-card h2 { color:var(--gold); font-size:1.15rem; margin:0 0 1rem; }
+    .cx-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; }
+    .cx-metric { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:1rem; text-align:center; }
+    .cx-metric__value { font-size:2rem; font-weight:800; color:var(--gold); }
+    .cx-metric__label { color:var(--text-secondary); font-size:0.85rem; margin-top:0.25rem; }
+    .cx-table { width:100%; border-collapse:collapse; font-size:0.9rem; }
+    .cx-table th, .cx-table td { padding:0.75rem; border-bottom:1px solid var(--border); text-align:left; }
+    .cx-table th { color:var(--gold); font-weight:700; }
+    .cx-badge { display:inline-block; padding:0.25rem 0.6rem; border-radius:999px; font-size:0.75rem; font-weight:700; }
+    .cx-badge--ok { background:rgba(34,197,94,0.12); color:#4ade80; }
+    .cx-badge--pending { background:rgba(234,179,8,0.12); color:#facc15; }
+    .cx-events { display:flex; flex-wrap:wrap; gap:0.5rem; }
+    .cx-event { background:rgba(212,168,83,0.1); color:var(--gold); border:1px solid rgba(212,168,83,0.25); border-radius:8px; padding:0.4rem 0.7rem; font-size:0.8rem; font-family:monospace; }
+    .cx-note { color:var(--text-secondary); font-size:0.85rem; margin-top:1rem; line-height:1.6; }
+    .cx-cta { display:flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap; }
+    .cx-cta a { padding:0.75rem 1.25rem; border-radius:10px; font-weight:700; text-decoration:none; }
+    .cx-cta .btn-primary { background:linear-gradient(135deg, #d4a853, #f0c96a); color:#0c0c1c; }
+    .cx-cta .btn-outline { border:1px solid var(--border); color:var(--text); }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="cx-dashboard">
+    <h1>📊 Calculator Conversion Dashboard</h1>
+    <p class="subtitle">Track the user journey from calculator to saved project or V3 conversion.</p>
+
+    <div class="cx-card">
+      <h2>Key Metrics (Last 30 Days)</h2>
+      <div class="cx-grid">
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mStarted">—</div>
+          <div class="cx-metric__label">Calculations Started</div>
+        </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mCompleted">—</div>
+          <div class="cx-metric__label">Calculations Completed</div>
+        </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mSaved">—</div>
+          <div class="cx-metric__label">Projects Saved</div>
+        </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mV3">—</div>
+          <div class="cx-metric__label">Converted to V3</div>
+        </div>
+        <div class="cx-metric">
+          <div class="cx-metric__value" id="mTime">—</div>
+          <div class="cx-metric__label">Avg. Time to Result (s)</div>
+        </div>
+      </div>
+      <p class="cx-note" id="metricsNote">
+        Data is fetched from <code>/api/log-usage</code>. Make sure you are signed in with an admin account.
+      </p>
+      <div class="cx-cta">
+        <a href="/en/admin/dashboard.html" class="btn-primary">Back to Main Dashboard</a>
+        <a href="/admin/ai-reviews.html" class="btn-outline">AI Reviews</a>
+      </div>
+    </div>
+
+    <div class="cx-card">
+      <h2>Calculator Rollout Status</h2>
+      <table class="cx-table" id="calcStatusTable">
+        <thead>
+          <tr>
+            <th>Calculator</th>
+            <th>English Mirror</th>
+            <th>No-login-first</th>
+            <th>Guest Save</th>
+            <th>V3 Convert</th>
+            <th>Sticky CTA</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="cx-card">
+      <h2>Tracked Events</h2>
+      <div class="cx-events">
+        <span class="cx-event">calc_started</span>
+        <span class="cx-event">calc_completed</span>
+        <span class="cx-event">calc_time_to_result</span>
+        <span class="cx-event">calc_save_clicked</span>
+        <span class="cx-event">calc_export_clicked</span>
+        <span class="cx-event">calc_v3_clicked</span>
+        <span class="cx-event">calc_project_saved</span>
+        <span class="cx-event">calc_signup_prompt_confirmed</span>
+        <span class="cx-event">calc_guest_continued</span>
+        <span class="cx-event">calc_modal_dismissed</span>
+        <span class="cx-event">sticky_cta_shown</span>
+      </div>
+      <p class="cx-note">
+        All events are sent to <code>/api/log-usage</code> with calculator ID, country, and language.
+      </p>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="../../site-layout.js?v=3.0.7"></script>
+  <script src="../../script.js?v=3.0.0"></script>
+  <script src="../../supabase-client.js"></script>
+  <script src="../../bonds-auth-2026.js?v=3.0.6"></script>
+  <script>
+    var calculators = [
+      { name: 'feasibility', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'cash-flow', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'factory-cost', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'pricing', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'loan', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'roi', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'restaurant', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'menu-engineering', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'menu-engineering-simple', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'dish-margin', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'creditworthiness', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'medical-viability', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'manufacturing-feasibility', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'real-project-analysis', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'invoice-analyzer', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'dashboard', en: true, anonymous: true, guestSave: false, v3: false, sticky: false },
+      { name: 'feasibility-template', en: true, anonymous: true, guestSave: true, v3: true, sticky: true },
+      { name: 'feasibility-template-real-estate', en: true, anonymous: true, guestSave: true, v3: true, sticky: true }
+    ];
+
+    var countryVariants = ['ae','bh','dj','dz','eg','iq','jo','km','kw','lb','ly','ma','mr','om','ps','qa','sd','so','sy','tn','ye'];
+    countryVariants.forEach(function(c) {
+      calculators.push({ name: 'factory-cost-' + c, en: true, anonymous: true, guestSave: true, v3: true, sticky: true });
+    });
+
+    function badge(ok) {
+      return ok ? '<span class="cx-badge cx-badge--ok">✓</span>' : '<span class="cx-badge cx-badge--pending">—</span>';
+    }
+
+    var tbody = document.querySelector('#calcStatusTable tbody');
+    calculators.forEach(function(c) {
+      var row = document.createElement('tr');
+      row.innerHTML = '<td>' + c.name + '</td>' +
+        '<td>' + badge(c.en) + '</td>' +
+        '<td>' + badge(c.anonymous) + '</td>' +
+        '<td>' + badge(c.guestSave) + '</td>' +
+        '<td>' + badge(c.v3) + '</td>' +
+        '<td>' + badge(c.sticky) + '</td>';
+      tbody.appendChild(row);
+    });
+
+    // Load live metrics from /api/log-usage
+    async function loadMetrics() {
+      try {
+        if (!window.BondsAuth || !window.BondsAuth.getSession) return;
+        var sd = await window.BondsAuth.getSession();
+        var token = sd && sd.session && sd.session.access_token;
+        var res = await fetch('/api/log-usage?days=30', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        var json = await res.json().catch(function() { return {}; });
+        if (!res.ok || !json.success) {
+          document.getElementById('metricsNote').textContent = '⚠️ ' + (json.error || 'Failed to load metrics');
+          return;
+        }
+        var m = json.metrics || {};
+        document.getElementById('mStarted').textContent = m.started != null ? m.started.toLocaleString('en-US') : '—';
+        document.getElementById('mCompleted').textContent = m.completed != null ? m.completed.toLocaleString('en-US') : '—';
+        document.getElementById('mSaved').textContent = m.saved != null ? m.saved.toLocaleString('en-US') : '—';
+        document.getElementById('mV3').textContent = m.v3 != null ? m.v3.toLocaleString('en-US') : '—';
+        document.getElementById('mTime').textContent = m.avgTimeToResult != null ? m.avgTimeToResult.toLocaleString('en-US') : '—';
+        document.getElementById('metricsNote').textContent = '✅ Data loaded successfully (last 30 days). Events: ' + (json.events ? json.events.length : 0).toLocaleString('en-US');
+      } catch (e) {
+        document.getElementById('metricsNote').textContent = '⚠️ Error loading metrics';
+      }
+    }
+    setTimeout(loadMetrics, 800);
+  </script>
+</body>
+</html>

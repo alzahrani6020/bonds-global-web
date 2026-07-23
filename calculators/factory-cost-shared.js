@@ -473,6 +473,12 @@
         'expected'
       );
     }
+    if (typeof window !== 'undefined') {
+      window._calcCompleted = true;
+      if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+        window.BondsAnalytics.trackEvent('calc_completed', { source: 'factory-cost', country: _config.countryCode || 'SA' });
+      }
+    }
   }
 
   function updateCharts(data) {

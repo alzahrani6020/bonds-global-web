@@ -56,8 +56,7 @@
   </script>
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
-  </head>
+</head>
 <body>
 
   <!-- Top Bar -->
@@ -158,8 +157,10 @@
             <div id="resultsTableContainer" class="calc-mt-6"></div>
 
             <div class="share-bar hidden-print calc-mt-6">
-              <button onclick="exportExcel()" class="btn btn-outline calc-btn-sm">📊 Excel</button>
-              <button onclick="exportPDF()" class="btn btn-outline calc-btn-sm">🖨️ طباعة / PDF</button>
+              <button onclick="checkAuthForAction('save', saveCashFlowProject)" class="btn btn-outline calc-btn-sm">💾 حفظ المشروع</button>
+              <button onclick="checkAuthForAction('excel', exportExcel)" class="btn btn-outline calc-btn-sm">📊 Excel</button>
+              <button onclick="checkAuthForAction('pdf', exportPDF)" class="btn btn-outline calc-btn-sm">🖨️ طباعة / PDF</button>
+              <button onclick="checkAuthForAction('v3', convertCashFlowToV3)" class="btn btn-primary calc-btn-sm" style="background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c0c;border:none;">🚀 حوّل إلى مشروع V3</button>
             </div>
           </div>
 
@@ -571,6 +572,10 @@
     }
 
     function calculateAll() {
+      if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+        window.BondsAnalytics.trackEvent('calc_completed', { source: 'cash-flow', country: document.getElementById('country')?.value || 'SA' });
+      }
+      window._calcCompleted = true;
       try {
         var openingRes = BondsUI.validateField('openingBalance', { required:true, type:'number', min:0, label:'الرصيد الافتتاحي' });
         if (!openingRes.valid) {
@@ -838,11 +843,222 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.6"></script>
+<script src="shared-analytics.js"></script>
+<script src="auth-modal.js"></script>
+<script src="exit-intent.js"></script>
 <script src="../site-layout.js?v=3.0.7"></script>
 <script src="shared-geo.js?v=6"></script>
 
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script>
+  // Auth-aware action gate: calculator is fully usable without login.
+  // Login is only requested when the user tries to save, export, or convert to V3.
+  (function () {
+    function storeCurrentInputs() {
+      try {
+        var payload = {
+          openingBalance: parseFloat(document.getElementById('openingBalance').value) || 0,
+          wasteAndIncidentalsPct: parseFloat(document.getElementById('wasteAndIncidentalsPct').value) || 0,
+          country: document.getElementById('country')?.value || 'SA'
+        };
+        // Save 12 months of inflows/outflows
+        if (typeof INFLOW_ROWS !== 'undefined' && typeof OUTFLOW_ROWS !== 'undefined') {
+          INFLOW_ROWS.forEach(function(row) {
+            payload['in_' + row.id] = [];
+            for (var i = 0; i < 12; i++) {
+              payload['in_' + row.id].push(parseFloat(document.getElementById('in_' + row.id + '_' + i)?.value) || 0);
+            }
+          });
+          OUTFLOW_ROWS.forEach(function(row) {
+            payload['out_' + row.id] = [];
+            for (var i = 0; i < 12; i++) {
+              payload['out_' + row.id].push(parseFloat(document.getElementById('out_' + row.id + '_' + i)?.value) || 0);
+            }
+          });
+        }
+        sessionStorage.setItem('bonds_cashflow_draft', JSON.stringify(payload));
+      } catch (e) {}
+    }
+
+    window.checkAuthForAction = async function(action, onAllowed) {
+      storeCurrentInputs();
+      if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+        window.BondsAnalytics.trackEvent('calc_action_clicked', { action: action, source: 'cash-flow', country: document.getElementById('country')?.value || 'SA' });
+      }
+      const { data: userData } = await window.BondsAuth.getUser();
+      if (userData?.user) {
+        if (onAllowed) onAllowed();
+        return true;
+      }
+      sessionStorage.setItem('auth_redirect', window.location.pathname + window.location.search);
+      sessionStorage.setItem('bonds_pending_action', JSON.stringify({ source: window.location.pathname, action: action }));
+      if (typeof showAuthModal === 'function') {
+        showAuthModal(action, function() {
+          if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+            window.BondsAnalytics.trackEvent('calc_signup_prompt_confirmed', { action: action, source: 'cash-flow' });
+          }
+          window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        }, function() {
+          if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+            window.BondsAnalytics.trackEvent('calc_guest_continued', { action: action, source: 'cash-flow' });
+          }
+        });
+      } else {
+        window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+      }
+      return false;
+    };
+
+    window.saveCashFlowProject = function() {
+      try {
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('calc_project_saved', { source: 'cash-flow', country: document.getElementById('country')?.value || 'SA' });
+        }
+        var months = (typeof getMonthData === 'function') ? getMonthData() : [];
+        var totalIn = 0, totalOut = 0, netFlow = 0, closing = 0;
+        months.forEach(function(m) {
+          totalIn += m.totalIn;
+          totalOut += m.totalOut;
+          netFlow += m.netCashFlow;
+          closing = m.closingBalance;
+        });
+        var summary = 'واردات ' + totalIn.toLocaleString('ar-SA') + ' ر.س · مصروفات ' + totalOut.toLocaleString('ar-SA') + ' ر.س · رصيد ختامي ' + closing.toLocaleString('ar-SA') + ' ر.س';
+        var projects = JSON.parse(localStorage.getItem('bonds_guest_projects') || '[]');
+        projects.unshift({
+          title: 'خطة التدفق النقدي',
+          summary: summary,
+          href: window.location.pathname + window.location.search,
+          createdAt: new Date().toISOString(),
+          source: 'cash-flow'
+        });
+        localStorage.setItem('bonds_guest_projects', JSON.stringify(projects.slice(0, 20)));
+        BondsUI.toast('✅ تم حفظ المشروع في مساحتك', 'success');
+      } catch (e) {
+        BondsUI.toast('⚠️ لم يتم الحفظ محلياً', 'warning');
+      }
+    };
+
+    window.convertCashFlowToV3 = async function() {
+      try {
+        BondsUI.toast('جاري إنشاء مشروع V3...', 'info');
+        var months = (typeof getMonthData === 'function') ? getMonthData() : [];
+        var totalIn = 0, totalOut = 0, closing = 0;
+        months.forEach(function(m) {
+          totalIn += m.totalIn;
+          totalOut += m.totalOut;
+          closing = m.closingBalance;
+        });
+        var name = closing >= 0 ? 'خطة تدفق نقدي إيجابية' : 'خطة تدفق نقدي تحتاج مراجعة';
+        var payload = {
+          name: name,
+          sector: 'تخطيط مالي',
+          activity: 'تدفق نقدي',
+          cityCode: null,
+          currency: 'SAR',
+          capital: 0,
+          revenue: totalIn,
+          annualProfit: closing,
+          language: 'ar'
+        };
+        const { data: sessionData } = await window.BondsAuth.getSession();
+        const token = sessionData?.session?.access_token;
+        const res = await fetch('/api/v3/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          BondsUI.toast('⚠️ ' + (json.error || 'فشل إنشاء المشروع'), 'error');
+          return;
+        }
+        if (json.project?.id) {
+          window.location.href = '/v3/project?id=' + encodeURIComponent(json.project.id);
+        } else {
+          BondsUI.toast('⚠️ لم يتم استلام رابط المشروع', 'error');
+        }
+      } catch (e) {
+        BondsUI.toast('⚠️ فشل الاتصال بمشروع V3', 'error');
+      }
+    };
+
+    // Track first user interaction
+    (function trackFirstInteraction() {
+      var tracked = false;
+      function once() {
+        if (tracked) return;
+        tracked = true;
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('calc_started', { source: 'cash-flow', country: document.getElementById('country')?.value || 'SA' });
+        }
+      }
+      document.querySelectorAll('input, select').forEach(function(el) {
+        el.addEventListener('input', once);
+        el.addEventListener('change', once);
+      });
+    })();
+
+    // Restore draft inputs if user returns from login
+    (function restoreDraft() {
+      try {
+        var raw = sessionStorage.getItem('bonds_cashflow_draft');
+        if (!raw) return;
+        var draft = JSON.parse(raw);
+        if (draft.openingBalance !== undefined) document.getElementById('openingBalance').value = draft.openingBalance;
+        if (draft.wasteAndIncidentalsPct !== undefined) document.getElementById('wasteAndIncidentalsPct').value = draft.wasteAndIncidentalsPct;
+        if (draft.country) {
+          var countrySel = document.getElementById('country');
+          if (countrySel) countrySel.value = draft.country;
+        }
+        if (typeof INFLOW_ROWS !== 'undefined' && typeof OUTFLOW_ROWS !== 'undefined') {
+          INFLOW_ROWS.forEach(function(row) {
+            var arr = draft['in_' + row.id];
+            if (arr) {
+              for (var i = 0; i < 12; i++) {
+                var el = document.getElementById('in_' + row.id + '_' + i);
+                if (el && arr[i] !== undefined) el.value = arr[i];
+              }
+            }
+          });
+          OUTFLOW_ROWS.forEach(function(row) {
+            var arr = draft['out_' + row.id];
+            if (arr) {
+              for (var i = 0; i < 12; i++) {
+                var el = document.getElementById('out_' + row.id + '_' + i);
+                if (el && arr[i] !== undefined) el.value = arr[i];
+              }
+            }
+          });
+        }
+        sessionStorage.removeItem('bonds_cashflow_draft');
+        if (typeof calculateAll === 'function') calculateAll();
+      } catch (e) {}
+    })();
+
+    // Auto-execute pending action if user just returned from login
+    (function handlePendingAction() {
+      if (typeof window === 'undefined' || !window.BondsAuth) return;
+      window.BondsAuth.getUser().then(function(userData) {
+        if (!userData?.user) return;
+        try {
+          var pendingRaw = sessionStorage.getItem('bonds_pending_action');
+          if (!pendingRaw) return;
+          var pending = JSON.parse(pendingRaw);
+          if (pending.source !== window.location.pathname) return;
+          sessionStorage.removeItem('bonds_pending_action');
+          if (pending.action === 'save' && window.saveCashFlowProject) window.saveCashFlowProject();
+          else if (pending.action === 'excel' && window.exportExcel) window.exportExcel();
+          else if (pending.action === 'pdf' && window.exportPDF) window.exportPDF();
+          else if (pending.action === 'v3' && window.convertCashFlowToV3) window.convertCashFlowToV3();
+        } catch (e) {}
+      });
+    })();
+  })();
+</script>
 <script>
 (function(){
   var lastDay = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);

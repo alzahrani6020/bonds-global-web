@@ -39,7 +39,7 @@
   "description": "Calculate return on investment ROI, payback period, and net present value NPV with simple steps."
 }
   </script>
-<script src="/calculators/auth-gate.js?v=2"></script>
+
   </head>
 <body>
   <div id="site-header"></div>
@@ -104,12 +104,23 @@
             <span class="metric-label">Annual Cash Flow</span>
             <span class="metric-value" id="annualCashFlow">—</span>
           </div>
+          <div class="share-bar" style="margin-top:1.5rem;justify-content:center;">
+            <button onclick="checkAuthForAction('save', saveROIProject)" class="btn btn-outline calc-btn-sm">💾 Save Project</button>
+            <button onclick="checkAuthForAction('pdf', function(){ window.print(); })" class="btn btn-outline calc-btn-sm">🖨️ Print</button>
+            <button onclick="checkAuthForAction('v3', convertROIToV3)" class="btn btn-primary calc-btn-sm" style="background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c0c;border:none;">🚀 Convert to V3 Project</button>
+          </div>
         </div>
       </div>
     </div>
   </section>
 
   <div id="site-footer"></div>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.0.6"></script>
+  <script src="../../calculators/shared-analytics.js"></script>
+  <script src="../../calculators/auth-modal.js"></script>
+  <script src="../../calculators/exit-intent.js"></script>
   <script src="../../site-layout.js"></script>
   <script>
     function formatCurrency(value) {
@@ -117,6 +128,10 @@
     }
 
     function calculateROI() {
+      if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+        window.BondsAnalytics.trackEvent('calc_completed', { calculator: 'roi', country: 'SA' });
+      }
+      window._calcCompleted = true;
       const investment = parseFloat(document.getElementById('initialInvestment').value) || 0;
       const revenue = parseFloat(document.getElementById('annualRevenue').value) || 0;
       const costs = parseFloat(document.getElementById('annualCosts').value) || 0;
@@ -147,6 +162,178 @@
       document.getElementById('resultsPanel').style.display = 'block';
       document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
+  </script>
+  <script>
+    // Auth-aware action gate: calculator is fully usable without login.
+    // Login is only requested when the user tries to save, export, or convert to V3.
+    (function () {
+      function storeCurrentInputs() {
+        try {
+          var payload = {};
+          ['initialInvestment','annualRevenue','annualCosts','projectYears','discountRate'].forEach(function(id) {
+            var el = document.getElementById(id);
+            payload[id] = el ? el.value : '';
+          });
+          sessionStorage.setItem('bonds_roi_draft', JSON.stringify(payload));
+        } catch (e) {}
+      }
+
+      window.bondsSaveDraft = storeCurrentInputs;
+
+      function trackActionEvent(action) {
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          var name = action === 'save' ? 'calc_save_clicked' :
+                     action === 'pdf' ? 'calc_export_clicked' :
+                     action === 'v3' ? 'calc_v3_clicked' : 'calc_action_clicked';
+          window.BondsAnalytics.trackEvent(name, { calculator: 'roi', action: action, country: 'SA' });
+        }
+      }
+
+      window.checkAuthForAction = async function(action, onAllowed) {
+        storeCurrentInputs();
+        trackActionEvent(action);
+        if (window.BondsAuth && window.BondsAuth.getUser) {
+          const { data: userData } = await window.BondsAuth.getUser();
+          if (userData?.user) {
+            if (onAllowed) onAllowed();
+            return true;
+          }
+        }
+        sessionStorage.setItem('auth_redirect', window.location.pathname + window.location.search);
+        sessionStorage.setItem('bonds_pending_action', JSON.stringify({ source: window.location.pathname, action: action }));
+        if (typeof showAuthModal === 'function') {
+          showAuthModal(action, function() {
+            if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+              window.BondsAnalytics.trackEvent('calc_signup_from_action', { calculator: 'roi', action: action });
+            }
+            window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+          }, function() {
+            // continue as guest
+          });
+        } else {
+          window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        }
+        return false;
+      };
+
+      window.saveROIProject = function() {
+        try {
+          if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+            window.BondsAnalytics.trackEvent('calc_project_saved', { calculator: 'roi', country: 'SA' });
+          }
+          var roiText = document.getElementById('roiResult')?.textContent || '—';
+          var paybackText = document.getElementById('paybackPeriod')?.textContent || '—';
+          var title = 'Return on Investment Study';
+          var summary = 'ROI ' + roiText + ' · Payback ' + paybackText;
+          var projects = JSON.parse(localStorage.getItem('bonds_guest_projects') || '[]');
+          projects.unshift({
+            title: title,
+            summary: summary,
+            href: window.location.pathname + window.location.search,
+            createdAt: new Date().toISOString(),
+            source: 'roi'
+          });
+          localStorage.setItem('bonds_guest_projects', JSON.stringify(projects.slice(0, 20)));
+          BondsUI.toast('✅ Project saved to your workspace', 'success');
+        } catch (e) {
+          BondsUI.toast('⚠️ Could not save locally', 'warning');
+        }
+      };
+
+      window.convertROIToV3 = async function() {
+        try {
+          BondsUI.toast('Creating V3 project...', 'info');
+          var investment = parseFloat(document.getElementById('initialInvestment')?.value) || 0;
+          var revenue = parseFloat(document.getElementById('annualRevenue')?.value) || 0;
+          var costs = parseFloat(document.getElementById('annualCosts')?.value) || 0;
+          var years = parseFloat(document.getElementById('projectYears')?.value) || 5;
+          var annualNet = revenue - costs;
+          var payload = {
+            name: 'Return on Investment Study',
+            sector: 'Investment',
+            activity: 'Investment Evaluation',
+            cityCode: null,
+            currency: 'USD',
+            capital: investment,
+            revenue: revenue * years,
+            annualProfit: annualNet * years,
+            language: 'en'
+          };
+          const { data: sessionData } = await window.BondsAuth.getSession();
+          const token = sessionData?.session?.access_token;
+          const res = await fetch('/api/v3/projects', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+            },
+            body: JSON.stringify(payload)
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            BondsUI.toast('⚠️ ' + (json.error || 'Failed to create project'), 'error');
+            return;
+          }
+          if (json.project?.id) {
+            window.location.href = '/en/v3/project?id=' + encodeURIComponent(json.project.id);
+          } else {
+            BondsUI.toast('⚠️ Project link not received', 'error');
+          }
+        } catch (e) {
+          BondsUI.toast('⚠️ Failed to connect to V3 project', 'error');
+        }
+      };
+
+      // Track first user interaction
+      (function trackFirstInteraction() {
+        var tracked = false;
+        function once() {
+          if (tracked) return;
+          tracked = true;
+          if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+            window.BondsAnalytics.trackEvent('calc_started', { calculator: 'roi', country: 'SA' });
+          }
+        }
+        document.querySelectorAll('input, select').forEach(function(el) {
+          el.addEventListener('input', once);
+          el.addEventListener('change', once);
+        });
+      })();
+
+      // Restore draft inputs if user returns from login
+      (function restoreDraft() {
+        try {
+          var raw = sessionStorage.getItem('bonds_roi_draft');
+          if (!raw) return;
+          var draft = JSON.parse(raw);
+          Object.keys(draft).forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el && draft[id] !== undefined && draft[id] !== '') {
+              el.value = draft[id];
+            }
+          });
+          sessionStorage.removeItem('bonds_roi_draft');
+        } catch (e) {}
+      })();
+
+      // Auto-execute pending action if user just returned from login
+      (function handlePendingAction() {
+        if (typeof window === 'undefined' || !window.BondsAuth) return;
+        window.BondsAuth.getUser().then(function(userData) {
+          if (!userData?.user) return;
+          try {
+            var pendingRaw = sessionStorage.getItem('bonds_pending_action');
+            if (!pendingRaw) return;
+            var pending = JSON.parse(pendingRaw);
+            if (pending.source !== window.location.pathname) return;
+            sessionStorage.removeItem('bonds_pending_action');
+            if (pending.action === 'save' && window.saveROIProject) window.saveROIProject();
+            else if (pending.action === 'pdf' && window.print) window.print();
+            else if (pending.action === 'v3' && window.convertROIToV3) window.convertROIToV3();
+          } catch (e) {}
+        });
+      })();
+    })();
   </script>
 </body>
 </html>

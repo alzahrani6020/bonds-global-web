@@ -51,8 +51,6 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
-    <script src="/auth-guard.js"></script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -234,6 +232,10 @@ function updateRevenueSummary() {
 
 // ===== MAIN CALCULATION =====
 function calculateAll() {
+  if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+    window.BondsAnalytics.trackEvent('calc_completed', { calculator: 'feasibility', country: document.getElementById('country')?.value || 'SA' });
+  }
+  window._calcCompleted = true;
   const avgPriceRes = BondsUI.validateField('rAvgPrice', { required:true, type:'number', min:1, label:'Average Price' });
   const dailyOrdersRes = BondsUI.validateField('rDailyOrders', { required:true, type:'number', min:1, label:'Daily Orders' });
   const workDaysRes = BondsUI.validateField('rWorkDays', { required:true, type:'number', min:1, max:31, label:'Work Days' });
@@ -366,8 +368,10 @@ function calculateAll() {
 
     <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
       <button class="bonds-btn bonds-btn-secondary" onclick="showTab('setup'); BondsUI.toast('🔄 Try new numbers', 'info');">🔄 Try New Numbers</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelFeas()">📊 Excel</button>
-      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFFeas()">📄 PDF</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="checkAuthForAction('save', saveFeasibilityProject)">💾 Save Project</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="checkAuthForAction('excel', exportExcelFeas)">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="checkAuthForAction('pdf', exportPDFFeas)">📄 PDF</button>
+      <button class="bonds-btn bonds-btn-primary" style="background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c0c;" onclick="checkAuthForAction('v3', convertToV3Project)">🚀 Convert to V3 Project</button>
     </div>
     <div id="fundingSuggestions"></div>
   `;
@@ -581,28 +585,203 @@ const onboard = new BondsUI.Onboarding([
 setTimeout(() => onboard.start(), 600);
 </script>
 <script src="../../calculators/usage-guard.js"></script>
-  <script src="../../page-tracker-v2.js"></script>
-<script src="../../calculators/shared-geo.js?v=6"></script>
-
+<script src="../../page-tracker-v2.js"></script>
+<script src="/api/env"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/bonds-auth-2026.js?v=3.0.6"></script>
+<script src="../../calculators/shared-analytics.js"></script>
+<script src="../../calculators/auth-modal.js"></script>
+<script src="../../calculators/exit-intent.js"></script>
 <script src="../../site-layout.js?v=3.0.7"></script>
-  <div id="site-footer"></div>
+<script src="../../calculators/shared-geo.js?v=6"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+  <div id="site-footer"></div>
 <script>
-  // Paid-tier gate for feasibility / creditworthiness features
+  // Auth-aware action gate: calculator is fully usable without login.
+  // Login is only requested when the user tries to save, export, or convert to V3.
   (function () {
-    function runGate() {
-      if (typeof window.requireTier === 'function') {
-        window.requireTier('paidCalculators');
-      } else {
-        setTimeout(runGate, 100);
+    function storeCurrentInputs() {
+      try {
+        const payload = {
+          sLicense: getVal('sLicense'), sFurniture: getVal('sFurniture'), sEquipment: getVal('sEquipment'),
+          sMarketing: getVal('sMarketing'), sSafety: getVal('sSafety'), sOther: getVal('sOther'),
+          mRent: getVal('mRent'), mSalaries: getVal('mSalaries'), mUtilities: getVal('mUtilities'),
+          mGasNet: getVal('mGasNet'), mSupplies: getVal('mSupplies'), mAds: getVal('mAds'), mMisc: getVal('mMisc'),
+          rAvgPrice: getVal('rAvgPrice'), rDailyOrders: getVal('rDailyOrders'), rWorkDays: getVal('rWorkDays'),
+          platformFeePct: getVal('platformFeePct'), wasteRatePct: getVal('wasteRatePct'),
+          packagingCostPerOrder: getVal('packagingCostPerOrder'), deliveryCostPerOrder: getVal('deliveryCostPerOrder'),
+          monthlyGrowthPct: getVal('monthlyGrowthPct'), country: document.getElementById('country')?.value || 'SA'
+        };
+        sessionStorage.setItem('bonds_feasibility_draft', JSON.stringify(payload));
+      } catch (e) {}
+    }
+
+    window.bondsSaveDraft = storeCurrentInputs;
+
+    function trackActionEvent(action) {
+      if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+        var name = action === 'save' ? 'calc_save_clicked' :
+                   (action === 'excel' || action === 'pdf') ? 'calc_export_clicked' :
+                   action === 'v3' ? 'calc_v3_clicked' : 'calc_action_clicked';
+        window.BondsAnalytics.trackEvent(name, { calculator: 'feasibility', action: action, country: document.getElementById('country')?.value || 'SA' });
       }
     }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', runGate);
-    } else {
-      runGate();
-    }
+
+    window.checkAuthForAction = async function(action, onAllowed) {
+      storeCurrentInputs();
+      trackActionEvent(action);
+      if (window.BondsAuth && window.BondsAuth.getUser) {
+        const { data: userData } = await window.BondsAuth.getUser();
+        if (userData?.user) {
+          if (onAllowed) onAllowed();
+          return true;
+        }
+      }
+      sessionStorage.setItem('auth_redirect', window.location.pathname + window.location.search);
+      sessionStorage.setItem('bonds_pending_action', JSON.stringify({ source: window.location.pathname, action: action }));
+      if (typeof showAuthModal === 'function') {
+        showAuthModal(action, function() {
+          if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+            window.BondsAnalytics.trackEvent('calc_signup_from_action', { calculator: 'feasibility', action: action });
+          }
+          window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        }, function() {
+          // user chose to continue as guest
+        });
+      } else {
+        window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+      }
+      return false;
+    };
+
+    window.saveFeasibilityProject = function() {
+      try {
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('calc_project_saved', { calculator: 'feasibility', country: document.getElementById('country')?.value || 'SA' });
+        }
+        const d = window._feasResult;
+        const title = (d && d.verdict === 'profit')
+          ? 'Profitable Restaurant Project'
+          : (d && d.verdict === 'warning')
+            ? 'Restaurant Project Needs Review'
+            : 'Restaurant Viability Study';
+        const summary = d
+          ? 'Monthly profit ' + d.monthlyProfit.toLocaleString('en-US') + ' SAR · Payback ' + (d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths) + ' months')
+          : 'Restaurant viability study saved';
+        const projects = JSON.parse(localStorage.getItem('bonds_guest_projects') || '[]');
+        projects.unshift({
+          title: title,
+          summary: summary,
+          href: window.location.pathname + window.location.search,
+          createdAt: new Date().toISOString(),
+          source: 'feasibility'
+        });
+        localStorage.setItem('bonds_guest_projects', JSON.stringify(projects.slice(0, 20)));
+        BondsUI.toast('✅ Project saved to your workspace', 'success');
+      } catch (e) {
+        BondsUI.toast('⚠️ Could not save locally', 'warning');
+      }
+    };
+
+    window.convertToV3Project = async function() {
+      try {
+        BondsUI.toast('Creating V3 project...', 'info');
+        const d = window._feasResult;
+        const name = (d && d.verdict === 'profit')
+          ? 'Profitable Restaurant Project'
+          : (d && d.verdict === 'warning')
+            ? 'Restaurant Project Needs Review'
+            : 'Restaurant Viability Study';
+        const payload = {
+          name,
+          sector: 'Restaurants & Hospitality',
+          activity: 'Restaurant',
+          cityCode: null,
+          currency: 'SAR',
+          capital: d ? d.setupTotal : 0,
+          revenue: d ? d.yearlyRevenue : 0,
+          annualProfit: d ? d.yearlyProfit : 0,
+          language: 'en'
+        };
+        const { data: sessionData } = await window.BondsAuth.getSession();
+        const token = sessionData?.session?.access_token;
+        const res = await fetch('/api/v3/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          BondsUI.toast('⚠️ ' + (json.error || 'Failed to create project'), 'error');
+          return;
+        }
+        if (json.project?.id) {
+          window.location.href = '/en/v3/project?id=' + encodeURIComponent(json.project.id);
+        } else {
+          BondsUI.toast('⚠️ Project link not received', 'error');
+        }
+      } catch (e) {
+        BondsUI.toast('⚠️ Failed to connect to V3 project', 'error');
+      }
+    };
+
+    // Restore draft inputs if user returns from login
+    (function restoreDraft() {
+      try {
+        const raw = sessionStorage.getItem('bonds_feasibility_draft');
+        if (!raw) return;
+        const draft = JSON.parse(raw);
+        Object.keys(draft).forEach(function(id) {
+          const el = document.getElementById(id);
+          if (el && draft[id] !== undefined && draft[id] !== '') {
+            el.value = draft[id];
+          }
+        });
+        sessionStorage.removeItem('bonds_feasibility_draft');
+        updateSetupSummary();
+        updateMonthlySummary();
+        updateRevenueSummary();
+      } catch (e) {}
+    })();
+
+    // Track first user interaction
+    (function trackFirstInteraction() {
+      var tracked = false;
+      function once() {
+        if (tracked) return;
+        tracked = true;
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('calc_started', { calculator: 'feasibility', country: document.getElementById('country')?.value || 'SA' });
+        }
+      }
+      document.querySelectorAll('input, select').forEach(function(el) {
+        el.addEventListener('input', once);
+        el.addEventListener('change', once);
+      });
+    })();
+
+    // Auto-execute pending action if user just returned from login
+    (function handlePendingAction() {
+      if (typeof window === 'undefined' || !window.BondsAuth) return;
+      window.BondsAuth.getUser().then(function(userData) {
+        if (!userData?.user) return;
+        try {
+          const pendingRaw = sessionStorage.getItem('bonds_pending_action');
+          if (!pendingRaw) return;
+          const pending = JSON.parse(pendingRaw);
+          if (pending.source !== window.location.pathname) return;
+          sessionStorage.removeItem('bonds_pending_action');
+          if (pending.action === 'save' && window.saveFeasibilityProject) window.saveFeasibilityProject();
+          else if (pending.action === 'excel' && window.exportExcelFeas) window.exportExcelFeas();
+          else if (pending.action === 'pdf' && window.exportPDFFeas) window.exportPDFFeas();
+          else if (pending.action === 'v3' && window.convertToV3Project) window.convertToV3Project();
+        } catch (e) {}
+      });
+    })();
   })();
 </script>
 </body>

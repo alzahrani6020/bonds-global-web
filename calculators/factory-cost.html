@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
 <link rel="stylesheet" href="factory-cost-shared.css" />
+  <script src="shared-ui.js"></script>
   <link rel="canonical" href="https://bonds-global.com/calculators/factory-cost" />
   <meta property="og:title" content="حاسبة تكلفة المصنع المتقدمة | بوندز" />
   <meta property="og:description" content="احسب تكلفة إنشاء وتشغيل مصنعك في 22 دولة عربية - رواتب، تأمين، مواد خام، سيناريوهات" />
@@ -22,8 +23,7 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
-  </head>
+</head>
 <body>
   <div id="site-header"></div>
 
@@ -221,6 +221,10 @@
             <tbody id="setupTable"></tbody>
           </table>
         </div>
+        <div class="share-bar" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin:1.5rem 0;">
+          <button class="btn-primary" onclick="checkAuthForAction('save', saveFactoryCostProject)" style="background:var(--bg-card);color:var(--gold);border:1px solid var(--gold);">💾 حفظ المشروع</button>
+          <button class="btn-primary" onclick="checkAuthForAction('v3', convertFactoryCostToV3)" style="background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c0c;border:none;">🚀 حوّل إلى مشروع V3</button>
+        </div>
         <div class="note">
           ⚠️ هذه التقديرات تقريبية بناءً على بيانات الجهات الحكومية ومتوسطات السوق في كل بلد. الأسعار الفعلية تختلف حسب الموقع والنشاط والمفاوضات.
         </div>
@@ -258,8 +262,199 @@
   <script src="../admin/analytics-tracker.js?v=1"></script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
+<script src="shared-analytics.js"></script>
+<script src="auth-modal.js"></script>
+<script src="exit-intent.js"></script>
 <script src="../site-layout.js?v=3.0.7"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script>
+  // Auth-aware action gate: calculator is fully usable without login.
+  // Login is only requested when the user tries to save or convert to V3.
+  (function () {
+    function collectInputs() {
+      try {
+        var payload = {
+          country: document.getElementById('country')?.value || 'SA',
+          city: document.getElementById('city')?.value || '',
+          industry: document.getElementById('industry')?.value || 'food',
+          area: parseFloat(document.getElementById('area')?.value) || 0,
+          employees: parseFloat(document.getElementById('employees')?.value) || 0,
+          units: parseFloat(document.getElementById('units')?.value) || 0,
+          sellingPrice: parseFloat(document.getElementById('sellingPrice')?.value) || 0,
+          wasteAndIncidentalsPct: parseFloat(document.getElementById('wasteAndIncidentalsPct')?.value) || 0
+        };
+        return payload;
+      } catch (e) {
+        return {};
+      }
+    }
+
+    function storeCurrentInputs() {
+      try {
+        sessionStorage.setItem('bonds_factorycost_draft', JSON.stringify(collectInputs()));
+      } catch (e) {}
+    }
+
+    window.checkAuthForAction = async function(action, onAllowed) {
+      storeCurrentInputs();
+      if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+        window.BondsAnalytics.trackEvent('calc_action_clicked', { action: action, source: 'factory-cost', country: document.getElementById('country')?.value || 'SA' });
+      }
+      const { data: userData } = await window.BondsAuth.getUser();
+      if (userData?.user) {
+        if (onAllowed) onAllowed();
+        return true;
+      }
+      sessionStorage.setItem('auth_redirect', window.location.pathname + window.location.search);
+      sessionStorage.setItem('bonds_pending_action', JSON.stringify({ source: window.location.pathname, action: action }));
+      if (typeof showAuthModal === 'function') {
+        showAuthModal(action, function() {
+          if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+            window.BondsAnalytics.trackEvent('calc_signup_prompt_confirmed', { action: action, source: 'factory-cost' });
+          }
+          window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        }, function() {
+          if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+            window.BondsAnalytics.trackEvent('calc_guest_continued', { action: action, source: 'factory-cost' });
+          }
+        });
+      } else {
+        window.location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+      }
+      return false;
+    };
+
+    window.saveFactoryCostProject = function() {
+      try {
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('calc_project_saved', { source: 'factory-cost', country: document.getElementById('country')?.value || 'SA' });
+        }
+        var totalMonthlyEl = document.getElementById('totalMonthly');
+        var totalYearlyEl = document.getElementById('totalYearly');
+        var setupCostEl = document.getElementById('setupCost');
+        var summary = 'تكلفة شهرية ' + (totalMonthlyEl ? totalMonthlyEl.textContent : '—') +
+          ' · سنوية ' + (totalYearlyEl ? totalYearlyEl.textContent : '—') +
+          ' · تأسيس ' + (setupCostEl ? setupCostEl.textContent : '—');
+        var projects = JSON.parse(localStorage.getItem('bonds_guest_projects') || '[]');
+        projects.unshift({
+          title: 'دراسة تكلفة المصنع',
+          summary: summary,
+          href: window.location.pathname + window.location.search,
+          createdAt: new Date().toISOString(),
+          source: 'factory-cost'
+        });
+        localStorage.setItem('bonds_guest_projects', JSON.stringify(projects.slice(0, 20)));
+        BondsUI.toast('✅ تم حفظ المشروع في مساحتك', 'success');
+      } catch (e) {
+        BondsUI.toast('⚠️ لم يتم الحفظ محلياً', 'warning');
+      }
+    };
+
+    window.convertFactoryCostToV3 = async function() {
+      try {
+        BondsUI.toast('جاري إنشاء مشروع V3...', 'info');
+        var totalMonthlyEl = document.getElementById('totalMonthly');
+        var totalYearlyEl = document.getElementById('totalYearly');
+        var setupCostEl = document.getElementById('setupCost');
+        var parseText = function(el) { return parseFloat((el?.textContent || '0').replace(/[^\d.\-]/g, '').replace(/,/g, '')) || 0; };
+        var monthly = parseText(totalMonthlyEl);
+        var yearly = parseText(totalYearlyEl);
+        var setup = parseText(setupCostEl);
+        var industrySelect = document.getElementById('industry');
+        var industryName = industrySelect?.options?.[industrySelect.selectedIndex]?.text || 'مصنع';
+        var payload = {
+          name: 'دراسة تكلفة ' + industryName,
+          sector: 'صناعة',
+          activity: industryName,
+          cityCode: null,
+          currency: 'AED',
+          capital: setup,
+          revenue: yearly,
+          annualProfit: yearly - (monthly * 12),
+          language: 'ar'
+        };
+        const { data: sessionData } = await window.BondsAuth.getSession();
+        const token = sessionData?.session?.access_token;
+        const res = await fetch('/api/v3/projects', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+          },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          BondsUI.toast('⚠️ ' + (json.error || 'فشل إنشاء المشروع'), 'error');
+          return;
+        }
+        if (json.project?.id) {
+          window.location.href = '/v3/project?id=' + encodeURIComponent(json.project.id);
+        } else {
+          BondsUI.toast('⚠️ لم يتم استلام رابط المشروع', 'error');
+        }
+      } catch (e) {
+        BondsUI.toast('⚠️ فشل الاتصال بمشروع V3', 'error');
+      }
+    };
+
+    // Track first user interaction
+    (function trackFirstInteraction() {
+      var tracked = false;
+      function once() {
+        if (tracked) return;
+        tracked = true;
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('calc_started', { source: 'factory-cost', country: document.getElementById('country')?.value || 'SA' });
+        }
+      }
+      document.querySelectorAll('input, select').forEach(function(el) {
+        el.addEventListener('input', once);
+        el.addEventListener('change', once);
+      });
+    })();
+
+    // Restore draft inputs if user returns from login
+    (function restoreDraft() {
+      try {
+        var raw = sessionStorage.getItem('bonds_factorycost_draft');
+        if (!raw) return;
+        var draft = JSON.parse(raw);
+        Object.keys(draft).forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el && draft[id] !== undefined && draft[id] !== '') {
+            el.value = draft[id];
+          }
+        });
+        sessionStorage.removeItem('bonds_factorycost_draft');
+        if (typeof window.FactoryCostCalculator !== 'undefined') {
+          var country = draft.country || 'SA';
+          var lang = 'ar';
+          if (window.FactoryCostCountries && window.FactoryCostCountries[lang][country]) {
+            window.FactoryCostCalculator.init(window.FactoryCostCountries[lang][country]);
+          }
+        }
+      } catch (e) {}
+    })();
+
+    // Auto-execute pending action if user just returned from login
+    (function handlePendingAction() {
+      if (typeof window === 'undefined' || !window.BondsAuth) return;
+      window.BondsAuth.getUser().then(function(userData) {
+        if (!userData?.user) return;
+        try {
+          var pendingRaw = sessionStorage.getItem('bonds_pending_action');
+          if (!pendingRaw) return;
+          var pending = JSON.parse(pendingRaw);
+          if (pending.source !== window.location.pathname) return;
+          sessionStorage.removeItem('bonds_pending_action');
+          if (pending.action === 'save' && window.saveFactoryCostProject) window.saveFactoryCostProject();
+          else if (pending.action === 'v3' && window.convertFactoryCostToV3) window.convertFactoryCostToV3();
+        } catch (e) {}
+      });
+    })();
+  })();
+</script>
 </body>
 </html>

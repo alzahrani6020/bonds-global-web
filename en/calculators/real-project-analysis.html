@@ -19,7 +19,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/supabase-client.js"></script>
-  <script src="/auth-guard.js"></script>
+  
   <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
   <script src="../../calculators/shared-ui.js"></script>
   <script src="../../calculators/shared-utils.js"></script>
@@ -56,7 +56,7 @@
   <meta name="twitter:title" content="Real Project Analysis | Bonds — Calculate Hidden Costs & Risks" />
   <meta name="twitter:description" content="Bonds Real Project Analysis calculator: automatically calculate hidden costs, risk reserve, break-even, payback period, and investment rating." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+
   </head>
 <body>
   <div id="site-header"></div>
@@ -528,5 +528,14 @@ progress.set(0);
 <div id="site-footer"></div>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+
+<script src="../../calculators/shared-analytics.js"></script>
+<script src="../../calculators/auth-modal.js"></script>
+<script src="../../calculators/exit-intent.js"></script>
+<script src="../../calculators/anonymous-first.js"></script>
+<script>
+  window.__bondsCalcConfig = {"name": "real-project-analysis", "v3": {"capital": "#projectValue", "revenue": "#revenue", "cost": "#costs", "sector": "#activityType", "activity": "#project"}, "saveTitle": "Real Project Analysis", "lang": "en", "rel": "../../calculators/"};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
 </body>
 </html>

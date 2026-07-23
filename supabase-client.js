@@ -41,7 +41,7 @@ function getRedirectUrl() {
   const params = new URLSearchParams(window.location.search);
   const fromParam = params.get('redirect');
   const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : '');
-  const fallback = '/calculators/restaurant.html';
+  const fallback = '/my-bonds/';
   if (fromParam) {
     const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : fallback;
     return origin ? origin + safe : safe;

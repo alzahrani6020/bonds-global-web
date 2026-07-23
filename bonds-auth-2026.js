@@ -196,9 +196,9 @@
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
     const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : '');
-    const fallback = origin + '/index.html';
+    const fallback = origin + '/my-bonds/';
     if (fromParam) {
-      const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : '/index.html';
+      const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : '/my-bonds/';
       try { sessionStorage.setItem('auth_redirect', safe); } catch(e) {}
       return origin + safe;
     }
@@ -440,6 +440,8 @@
         const isEn = location.pathname.startsWith('/en/');
         const profileUrl = isEn ? '/en/calculators/auth/profile.html' : '/calculators/auth/profile.html';
         const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
+        const myBondsUrl = isEn ? '/en/my-bonds/' : '/my-bonds/';
+        const myBondsLabel = isEn ? 'My Bonds' : 'مساحتي';
 
         container.innerHTML = `
           <div class="bonds-user-menu" style="position:relative;display:flex;align-items:center;gap:0.75rem;cursor:pointer;" onclick="event.stopPropagation();this.querySelector('.bonds-dropdown').style.display=this.querySelector('.bonds-dropdown').style.display==='block'?'none':'block';">
@@ -447,6 +449,7 @@
             <span style="color:var(--gold);font-weight:700;font-size:0.9rem;white-space:nowrap;">${name}</span>
             <span style="color:var(--text-secondary);font-size:0.7rem;">▼</span>
             <div class="bonds-dropdown" style="position:absolute;top:calc(100% + 8px);left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:8px 0;min-width:180px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:9999;">
+              <a href="${myBondsUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">🏠 ${myBondsLabel}</a>
               <a href="${profileUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">👤 الملف الشخصي</a>
               <a href="${subUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">💎 الاشتراك</a>
               <div style="height:1px;background:var(--border);margin:6px 0;"></div>
@@ -461,12 +464,15 @@
         const isEn = location.pathname.startsWith('/en/');
         const profileUrl = isEn ? '/en/calculators/auth/profile.html' : '/calculators/auth/profile.html';
         const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
+        const myBondsUrl = isEn ? '/en/my-bonds/' : '/my-bonds/';
+        const myBondsLabel = isEn ? 'My Bonds' : 'مساحتي';
         container.innerHTML = `
           <div class="bonds-user-menu" style="position:relative;display:flex;align-items:center;gap:0.75rem;cursor:pointer;" onclick="event.stopPropagation();this.querySelector('.bonds-dropdown').style.display=this.querySelector('.bonds-dropdown').style.display==='block'?'none':'block';">
             <div style="width:32px;height:32px;border-radius:50%;background:var(--gold);color:#0c0c0c;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:0.9rem;border:2px solid var(--gold);">${initial}</div>
             <span style="color:var(--gold);font-weight:700;font-size:0.9rem;white-space:nowrap;">${name}</span>
             <span style="color:var(--text-secondary);font-size:0.7rem;">▼</span>
             <div class="bonds-dropdown" style="position:absolute;top:calc(100% + 8px);left:0;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:8px 0;min-width:180px;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.4);z-index:9999;">
+              <a href="${myBondsUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">🏠 ${myBondsLabel}</a>
               <a href="${profileUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">👤 الملف الشخصي</a>
               <a href="${subUrl}" style="display:flex;align-items:center;gap:10px;padding:10px 16px;color:var(--text);text-decoration:none;font-size:0.85rem;">💎 الاشتراك</a>
               <div style="height:1px;background:var(--border);margin:6px 0;"></div>

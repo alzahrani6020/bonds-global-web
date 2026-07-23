@@ -23,8 +23,8 @@
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
-    <script src="/auth-guard.js"></script>
+
+    
 </head>
 <body>
   <div class="progress-bar no-print"><div id="progressFill"></div></div>
@@ -3780,22 +3780,15 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 <script src="../../site-layout.js?v=3.0.7"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+
+
+<script src="../../calculators/shared-analytics.js"></script>
+<script src="../../calculators/auth-modal.js"></script>
+<script src="../../calculators/exit-intent.js"></script>
+<script src="../../calculators/anonymous-first.js"></script>
 <script>
-  // Paid-tier gate for feasibility / creditworthiness features
-  (function () {
-    function runGate() {
-      if (typeof window.requireTier === 'function') {
-        window.requireTier('paidCalculators');
-      } else {
-        setTimeout(runGate, 100);
-      }
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', runGate);
-    } else {
-      runGate();
-    }
-  })();
+  window.__bondsCalcConfig = {"name": "feasibility-template", "v3": {"capital": "#total-capital", "revenue": "#total-revenue", "profit": "#net-profit", "sector": "#cover-business-name", "activity": "#cover-idea"}, "saveTitle": "Feasibility Template", "skipDraftRestore": true, "lang": "en", "rel": "../../calculators/"};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
 </script>
 </body>
 </html>

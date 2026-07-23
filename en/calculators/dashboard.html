@@ -80,7 +80,7 @@
 
   <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
 
-<script src="/calculators/auth-gate.js?v=2"></script>
+
   </head>
 <body>
 
@@ -338,5 +338,14 @@ window.addEventListener('load', () => { loadStats(); loadRecent(); loadScenarios
 <script src="../../calculators/shared-geo.js?v=6"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+
+<script src="../../calculators/shared-analytics.js"></script>
+<script src="../../calculators/auth-modal.js"></script>
+<script src="../../calculators/exit-intent.js"></script>
+<script src="../../calculators/anonymous-first.js"></script>
+<script>
+  window.__bondsCalcConfig = {"name": "dashboard", "skipV3Button": true, "skipDraftRestore": true, "lang": "en", "rel": "../../calculators/"};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
 </body>
 </html>

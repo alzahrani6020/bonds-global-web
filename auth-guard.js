@@ -110,6 +110,8 @@
       const isEn = window.location.pathname.startsWith('/en/');
       const profileUrl = isEn ? '/en/calculators/auth/profile.html' : '/calculators/auth/profile.html';
       const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
+      const myBondsUrl = isEn ? '/en/my-bonds/' : '/my-bonds/';
+      const myBondsLabel = isEn ? 'My Bonds' : 'مساحتي';
 
       // Build avatar with unique IDs
       const avatarId = 'ha_' + Math.random().toString(36).slice(2, 8);
@@ -125,6 +127,7 @@
             <span style="color:var(--text-secondary);font-size:0.7rem;">▼</span>
           </button>
           <div class="dropdown-menu" style="min-width:180px;">
+            <a href="${myBondsUrl}">🏠 ${myBondsLabel}</a>
             <a href="${profileUrl}">👤 ${isEn ? 'Profile' : 'الملف الشخصي'}</a>
             <a href="${subUrl}">💎 ${isEn ? 'Subscription' : 'الاشتراك'}</a>
             <div style="border-top:1px solid var(--border);margin:0.4rem 0;"></div>

@@ -15,9 +15,26 @@
   <meta name="twitter:title" content="Factory Cost Calculator - KM | Bonds" />
   <meta name="twitter:description" content="Factory Cost Calculator - KM | Bonds" />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-<script src="/calculators/auth-gate.js?v=2"></script>
-  </head>
+</head>
 <body>
   <p>Redirecting to <a href="factory-cost.html?country=KM">Factory Cost Calculator - KM | Bonds</a>...</p>
+  <script src="../../calculators/shared-analytics.js"></script>
+  <script src="../../calculators/auth-modal.js"></script>
+  <script src="../../calculators/exit-intent.js"></script>
+  <script src="../../calculators/anonymous-first.js"></script>
+  <script>
+    BondsAnonymousFirst.init({
+      name: 'factorycost-' + (document.getElementById('country')?.value || 'SA').toLowerCase(),
+      lang: 'en',
+      v3: {
+        capital: '#setupCost',
+        revenue: '#totalYearly',
+        cost: '#totalMonthly',
+        sector: '#industry',
+        activity: '#industry'
+      },
+      v3ButtonContainer: '.results-actions, .calc-actions, .page-actions, .toolbar'
+    });
+  </script>
 </body>
 </html>

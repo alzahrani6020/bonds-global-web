@@ -120,7 +120,7 @@
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
     const valuationHref = langBase + 'valuation/index.html';
-    const clientPortalHref = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
+    const clientPortalHref = isEn ? '/en/my-bonds/' : '/my-bonds/';
     const loginHref = langBase + 'calculators/auth/login.html';
     const signupHref = langBase + 'calculators/auth/index.html?tab=signup';
     const v3Base = 'v3/';
@@ -285,7 +285,7 @@
     const reportsHref = isEn ? langBase + 'reports/index.html' : langBase + '../reports/index.html';
     const faqHref = langBase + 'faq.html';
     const contactHref = langBase + 'contact.html';
-    const clientPortalHref = isEn ? '/en/v3/portfolio' : '/v3/portfolio';
+    const clientPortalHref = isEn ? '/en/my-bonds/' : '/my-bonds/';
     const privacyHref = langBase + 'privacy.html';
     const termsHref = langBase + 'terms.html';
 
@@ -328,7 +328,7 @@
     <div>
       <div class="footer-title">${isEn ? 'Clients' : 'العملاء'}</div>
       <div class="footer-links">
-        <a href="${clientPortalHref}">${isEn ? 'Client Portal' : 'بوابة العميل'}</a>
+        <a href="${clientPortalHref}">${isEn ? 'My Bonds' : 'مساحتي'}</a>
         <a href="${contactHref}">${isEn ? 'Request Service' : 'طلب خدمة'}</a>
       </div>
     </div>

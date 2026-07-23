@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Manufacturing Feasibility Calculator | Bonds — Is Your Industrial Project Profitable?</title>
+  <meta name="description" content="Calculate the financial feasibility of your manufacturing project before launch: machinery costs, raw materials, daily output, break-even point, and scenarios. Free tool from Bonds." />
+  <meta property="og:title" content="Manufacturing Feasibility Calculator | Bonds" />
+  <meta property="og:description" content="Is your factory profitable? Calculate investment, operating, and expected revenue costs before you start." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/calculators/manufacturing-feasibility" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Manufacturing Feasibility Calculator | Bonds" />
+  <meta name="twitter:description" content="Calculate the financial feasibility of your manufacturing project before launch." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/manufacturing-feasibility" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="/calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="../../styles/design-system.css" />
+  <link rel="stylesheet" href="/calculators/feasibility.css" />
+  <link rel="stylesheet" href="/calculators/scenario-cards-shared.css" />
+  <script src="/calculators/shared-ui.js"></script>
+  <script src="/calculators/shared-utils.js"></script>
+  <script src="/calculators/shared-export.js"></script>
+  <script src="/calculators/db-client.js"></script>
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+  <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
+  
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Manufacturing Feasibility Calculator — Is Your Industrial Project Profitable?",
+    "applicationCategory": "BusinessApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "SAR"
+    },
+    "url": "https://bonds-global.com/en/calculators/manufacturing-feasibility",
+    "description": "Calculate the financial feasibility of your manufacturing project before launch: machinery costs, raw materials, daily output, break-even point, and scenarios."
+  }
+  </script>
+</head>
+<body>
+  <div id="site-header"></div>
+  <div class="feas-container">
+    <div class="feas-header">
+      <div class="feas-badge">🏭 For industrial entrepreneurs — before launch</div>
+      <h1>Manufacturing Feasibility Calculator</h1>
+      <p>Calculate investment, operating, and expected revenue costs <strong>before</strong> your first production run. Try different scenarios and make your decision with confidence.</p>
+    </div>
+
+    <div id="progressContainer"></div>
+
+    <div class="bonds-card calc-mb-4">
+      <div class="bonds-form-group">
+        <label for="country">Country / Market</label>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="en">
+          <option value="">Select country</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="bonds-tabs">
+      <div class="bonds-tab active" onclick="showTab('setup')">📋 Investment Costs</div>
+      <div class="bonds-tab" onclick="showTab('monthly')">⚙️ Monthly Costs</div>
+      <div class="bonds-tab" onclick="showTab('revenue')">🏭 Production & Revenue</div>
+      <div class="bonds-tab" onclick="showTab('result')">📊 Result</div>
+    </div>
+
+    <!-- Tab 1: Setup Costs -->
+    <div id="setup" class="bonds-panel active">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 These costs are paid <strong>once</strong> before production starts</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>Machinery & Equipment <abbr title="Cost of purchasing or leasing machinery and production lines">ⓘ</abbr></label><input id="sMachinery" class="bonds-input" type="number" value="150000" placeholder="150000" /></div>
+          <div class="bonds-form-group"><label>Tools & Fixtures <abbr title="Molds, hand tools, office and workshop furniture">ⓘ</abbr></label><input id="sTools" class="bonds-input" type="number" value="20000" placeholder="20000" /></div>
+          <div class="bonds-form-group"><label>Licenses & Registration <abbr title="Industrial, municipal, chamber of commerce, and environmental licenses">ⓘ</abbr></label><input id="sLicense" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>Facility Setup <abbr title="Factory rent or construction, electrical and plumbing work, insulation, flooring">ⓘ</abbr></label><input id="sFacility" class="bonds-input" type="number" value="50000" placeholder="50000" /></div>
+          <div class="bonds-form-group"><label>Initial Raw Material Inventory <abbr title="Initial raw materials needed to start production">ⓘ</abbr></label><input id="sRawMaterials" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
+          <div class="bonds-form-group"><label>Safety, Security & Environment <abbr title="Fire systems, cameras, safety equipment, environmental treatment">ⓘ</abbr></label><input id="sSafety" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>Branding & Marketing <abbr title="Logo, website, catalog, launch campaign">ⓘ</abbr></label><input id="sMarketing" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>Other Expenses <abbr title="Any additional investment costs">ⓘ</abbr></label><input id="sOther" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+        </div>
+        <div class="feas-section-title">📝 Investment Cost Summary</div>
+        <div class="metric-row" id="setupSummary">
+          <div class="metric-box"><div class="label">Total Investment</div><div class="value" id="setupTotal">0 SAR</div></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">Next: Monthly Costs →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 2: Monthly Costs -->
+    <div id="monthly" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 These costs are paid <strong>every month</strong></p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>Monthly Rent <abbr title="Factory or warehouse rent">ⓘ</abbr></label><input id="mRent" class="bonds-input" type="number" value="10000" placeholder="10000" /></div>
+          <div class="bonds-form-group"><label>Salaries & Wages <abbr title="Workers, technicians, and administrative staff salaries">ⓘ</abbr></label><input id="mSalaries" class="bonds-input" type="number" value="25000" placeholder="25000" /></div>
+          <div class="bonds-form-group"><label>Electricity, Water & Gas <abbr title="Energy, water, and industrial gas bills">ⓘ</abbr></label><input id="mUtilities" class="bonds-input" type="number" value="4000" placeholder="4000" /></div>
+          <div class="bonds-form-group"><label>Monthly Raw Materials <abbr title="Average monthly raw material cost">ⓘ</abbr></label><input id="mRawMaterials" class="bonds-input" type="number" value="30000" placeholder="30000" /></div>
+          <div class="bonds-form-group"><label>Maintenance & Spare Parts <abbr title="Periodic maintenance + spare parts">ⓘ</abbr></label><input id="mMaintenance" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
+          <div class="bonds-form-group"><label>Marketing & Sales <abbr title="Monthly marketing and sales expenses">ⓘ</abbr></label><input id="mAds" class="bonds-input" type="number" value="3000" placeholder="3000" /></div>
+          <div class="bonds-form-group"><label>Internet & Subscriptions <abbr title="Internet, software, subscriptions">ⓘ</abbr></label><input id="mSubscriptions" class="bonds-input" type="number" value="1000" placeholder="1000" /></div>
+          <div class="bonds-form-group"><label>Miscellaneous Expenses <abbr title="Unexpected and miscellaneous expenses">ⓘ</abbr></label><input id="mMisc" class="bonds-input" type="number" value="2000" placeholder="2000" /></div>
+        </div>
+        <div class="feas-section-title">📊 Monthly Cost Summary</div>
+        <div class="metric-row" id="monthlySummary">
+          <div class="metric-box"><div class="label">Total Monthly</div><div class="value" id="monthlyTotal">0 SAR</div></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="nextTab()">Next: Production & Revenue →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 3: Production & Revenue -->
+    <div id="revenue" class="bonds-panel">
+      <div class="bonds-card">
+        <p class="calc-text-secondary calc-mb-4 calc-text-center">💡 Start with realistic numbers — actual capacity is often lower than maximum capacity</p>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>Unit Selling Price <abbr title="Average selling price of the finished product to the customer">ⓘ</abbr></label><input id="rPrice" class="bonds-input" type="number" value="50" placeholder="50" min="1" /></div>
+          <div class="bonds-form-group"><label>Raw Material Cost / Unit <abbr title="Direct raw material cost to produce one unit">ⓘ</abbr></label><input id="rRawCost" class="bonds-input" type="number" value="20" placeholder="20" min="0" /></div>
+          <div class="bonds-form-group"><label>Expected Daily Output (units) <abbr title="Number of units produced per day on average">ⓘ</abbr></label><input id="rDailyUnits" class="bonds-input" type="number" value="200" placeholder="200" min="1" /></div>
+          <div class="bonds-form-group"><label>Working Days per Month <abbr title="Number of working days per month">ⓘ</abbr></label><input id="rWorkDays" class="bonds-input" type="number" value="26" placeholder="26" min="1" max="31" /></div>
+        </div>
+        <div class="feas-section-title">📉 Additional Costs & Waste (Optional)</div>
+        <div class="bonds-form-row">
+          <div class="bonds-form-group"><label>Waste & Defective Production Rate (%) <abbr title="Percentage of damaged or reworked units during production">ⓘ</abbr></label><input id="wasteRatePct" class="bonds-input" type="number" value="3" placeholder="3" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>Distribution / Platform Commission (%) <abbr title="What you pay to the distributor or platform from sales value">ⓘ</abbr></label><input id="commissionPct" class="bonds-input" type="number" value="0" placeholder="0" min="0" max="100" /></div>
+          <div class="bonds-form-group"><label>Packaging Cost / Unit <abbr title="Cost of box, carton, or labels">ⓘ</abbr></label><input id="packagingCostPerUnit" class="bonds-input" type="number" value="1" placeholder="1" min="0" /></div>
+          <div class="bonds-form-group"><label>Monthly Production Growth (%) <abbr title="Expected monthly production growth rate (0 = stable)">ⓘ</abbr></label><input id="monthlyGrowthPct" class="bonds-input" type="number" value="0" placeholder="1" min="0" max="100" /></div>
+        </div>
+        <div class="feas-section-title">💵 Expected Revenue Summary</div>
+        <div class="metric-row" id="revenueSummary">
+          <div class="metric-box"><div class="label">Daily Revenue</div><div class="value" id="revDaily">0 SAR</div></div>
+          <div class="metric-box"><div class="label">Monthly Revenue</div><div class="value" id="revMonthly">0 SAR</div></div>
+          <div class="metric-box"><div class="label">Yearly Revenue</div><div class="value" id="revYearly">0 SAR</div></div>
+        </div>
+        <div class="calc-text-center">
+          <button class="bonds-btn bonds-btn-secondary bonds-btn-sm" onclick="prevTab()">← Previous</button>
+          <button class="bonds-btn bonds-btn-primary" onclick="calculateAll();nextTab();">Calculate Result 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab 4: Result -->
+    <div id="result" class="bonds-panel">
+      <div id="resultContent">
+        <div class="calc-empty-state-box-lg">
+          <div class="calc-empty-icon-lg">📊</div>
+          <p class="calc-text-lg-semibold">Complete the previous steps to see the result</p>
+          <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('setup')">Start Now</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ===== PROGRESS =====
+const progress = new BondsUI.ProgressTracker('progressContainer', ['Investment Costs', 'Monthly Costs', 'Production & Revenue', 'Result']);
+
+// ===== TABS =====
+const tabIds = ['setup','monthly','revenue','result'];
+let currentTab = 0;
+
+function showTab(id) {
+  document.querySelectorAll('.bonds-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bonds-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  const idx = tabIds.indexOf(id);
+  currentTab = idx;
+  progress.set(idx);
+  document.querySelectorAll('.bonds-tab')[idx].classList.add('active');
+  if (id === 'setup') updateSetupSummary();
+  if (id === 'monthly') updateMonthlySummary();
+  if (id === 'revenue') updateRevenueSummary();
+}
+
+function nextTab() {
+  if (currentTab < tabIds.length - 1) showTab(tabIds[currentTab + 1]);
+}
+function prevTab() {
+  if (currentTab > 0) showTab(tabIds[currentTab - 1]);
+}
+
+function getVal(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+
+function updateSetupSummary() {
+  const total = getVal('sMachinery') + getVal('sTools') + getVal('sLicense') + getVal('sFacility') + getVal('sRawMaterials') + getVal('sSafety') + getVal('sMarketing') + getVal('sOther');
+  document.getElementById('setupTotal').textContent = total.toLocaleString('en-US') + ' SAR';
+}
+
+function updateMonthlySummary() {
+  const total = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mRawMaterials') + getVal('mMaintenance') + getVal('mAds') + getVal('mSubscriptions') + getVal('mMisc');
+  document.getElementById('monthlyTotal').textContent = total.toLocaleString('en-US') + ' SAR';
+}
+
+function updateRevenueSummary() {
+  const daily = getVal('rPrice') * getVal('rDailyUnits');
+  const monthly = daily * getVal('rWorkDays');
+  const yearly = monthly * 12;
+  document.getElementById('revDaily').textContent = daily.toLocaleString('en-US') + ' SAR';
+  document.getElementById('revMonthly').textContent = monthly.toLocaleString('en-US') + ' SAR';
+  document.getElementById('revYearly').textContent = yearly.toLocaleString('en-US') + ' SAR';
+}
+
+['sMachinery','sTools','sLicense','sFacility','sRawMaterials','sSafety','sMarketing','sOther'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateSetupSummary);
+});
+['mRent','mSalaries','mUtilities','mRawMaterials','mMaintenance','mAds','mSubscriptions','mMisc'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateMonthlySummary);
+});
+['rPrice','rRawCost','rDailyUnits','rWorkDays','wasteRatePct','commissionPct','packagingCostPerUnit','monthlyGrowthPct'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input', updateRevenueSummary);
+});
+
+function calculateAll() {
+  const priceRes = BondsUI.validateField('rPrice', { required:true, type:'number', min:1, label:'Unit selling price' });
+  const dailyUnitsRes = BondsUI.validateField('rDailyUnits', { required:true, type:'number', min:1, label:'Daily output' });
+  const workDaysRes = BondsUI.validateField('rWorkDays', { required:true, type:'number', min:1, max:31, label:'Working days' });
+  if (!priceRes.valid || !dailyUnitsRes.valid || !workDaysRes.valid) {
+    BondsUI.toast('⚠️ Please review production and revenue fields', 'warning');
+    showTab('revenue');
+    return;
+  }
+
+  const setupTotal = getVal('sMachinery') + getVal('sTools') + getVal('sLicense') + getVal('sFacility') + getVal('sRawMaterials') + getVal('sSafety') + getVal('sMarketing') + getVal('sOther');
+  const monthlyFixed = getVal('mRent') + getVal('mSalaries') + getVal('mUtilities') + getVal('mMaintenance') + getVal('mAds') + getVal('mSubscriptions') + getVal('mMisc');
+  const monthlyRawMaterialsInput = getVal('mRawMaterials');
+
+  const price = getVal('rPrice');
+  const rawCost = getVal('rRawCost');
+  const dailyUnits = getVal('rDailyUnits');
+  const workDays = getVal('rWorkDays');
+  const wasteRate = getVal('wasteRatePct') / 100;
+  const commissionRate = getVal('commissionPct') / 100;
+  const packagingCost = getVal('packagingCostPerUnit');
+
+  const grossMonthlyUnits = dailyUnits * workDays;
+  const goodUnits = Math.floor(grossMonthlyUnits * (1 - wasteRate));
+  const wastedUnits = grossMonthlyUnits - goodUnits;
+
+  const grossRevenue = goodUnits * price;
+  const commissionAmount = grossRevenue * commissionRate;
+  const monthlyRevenue = grossRevenue - commissionAmount;
+
+  const variableCostPerUnit = rawCost + packagingCost;
+  const monthlyVariable = (goodUnits * variableCostPerUnit) + (wastedUnits * rawCost) + monthlyRawMaterialsInput;
+  const monthlyTotal = monthlyFixed + monthlyVariable;
+  const monthlyProfit = monthlyRevenue - monthlyTotal;
+  const yearlyProfit = monthlyProfit * 12;
+  const profitMargin = monthlyRevenue > 0 ? (monthlyProfit / monthlyRevenue) * 100 : 0;
+
+  const contributionPerUnit = price * (1 - commissionRate) - variableCostPerUnit;
+  const breakEvenUnits = contributionPerUnit > 0 ? Math.ceil(monthlyFixed / contributionPerUnit) : Infinity;
+  const breakEvenRevenue = contributionPerUnit > 0 ? breakEvenUnits * price : Infinity;
+  const roiMonths = monthlyProfit > 0 ? setupTotal / monthlyProfit : Infinity;
+
+  function scenario(daily) {
+    const units = daily * workDays;
+    const good = Math.floor(units * (1 - wasteRate));
+    const rev = good * price * (1 - commissionRate);
+    const varCost = good * variableCostPerUnit + (units - good) * rawCost + monthlyRawMaterialsInput;
+    const profit = rev - monthlyFixed - varCost;
+    const margin = rev > 0 ? (profit / rev) * 100 : 0;
+    return { daily, good, rev, profit, margin };
+  }
+  const scenarios = {
+    pessimistic: scenario(Math.max(1, Math.round(dailyUnits * 0.6))),
+    expected: scenario(dailyUnits),
+    optimistic: scenario(Math.round(dailyUnits * 1.4))
+  };
+
+  window._mfResult = {
+    setupTotal, monthlyFixed, monthlyVariable, monthlyTotal, monthlyRevenue, yearlyRevenue: monthlyRevenue * 12,
+    monthlyProfit, yearlyProfit, profitMargin, breakEvenUnits, breakEvenRevenue, roiMonths, scenarios,
+    grossRevenue, commissionAmount, wastedUnits, goodUnits, price, dailyUnits, workDays, rawCost, packagingCost
+  };
+
+  let verdictHTML = '';
+  if (monthlyProfit < 0) {
+    verdictHTML = `
+      <div class="verdict-box loss">
+        <div class="verdict-icon">🔴</div>
+        <div class="verdict-title" style="color:#ef4444;">Warning: Project expects a monthly loss</div>
+        <div class="verdict-text">
+          With ${dailyUnits} units/day, you expect a monthly loss of <strong>${Math.abs(monthlyProfit).toLocaleString('en-US')} SAR</strong>.<br>
+          💡 <strong>Solutions:</strong> Increase output to ${breakEvenUnits === Infinity ? '—' : Math.ceil(breakEvenUnits / workDays)} units/day, reduce costs, or raise the price.
+        </div>
+      </div>`;
+  } else if (roiMonths > 36) {
+    verdictHTML = `
+      <div class="verdict-box warning">
+        <div class="verdict-icon">🟡</div>
+        <div class="verdict-title" style="color:#f59e0b;">Profitable but slow payback</div>
+        <div class="verdict-text">
+          Project is profitable ${monthlyProfit.toLocaleString('en-US')} SAR/month, but needs <strong>${Math.ceil(roiMonths)} months</strong> to recover the investment.<br>
+          💡 Try increasing production capacity or reducing costs to speed up payback.
+        </div>
+      </div>`;
+  } else {
+    verdictHTML = `
+      <div class="verdict-box profit">
+        <div class="verdict-icon">🟢</div>
+        <div class="verdict-title" style="color:#22c55e;">Profitable manufacturing project!</div>
+        <div class="verdict-text">
+          You expect a profit of <strong>${monthlyProfit.toLocaleString('en-US')} SAR</strong> per month with a ${profitMargin.toFixed(1)}% margin.<br>
+          Investment payback in approximately <strong>${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' months'}</strong>.
+        </div>
+      </div>`;
+  }
+
+  const pess = scenarios.pessimistic;
+  const exp = scenarios.expected;
+  const opt = scenarios.optimistic;
+
+  document.getElementById('resultContent').innerHTML = `
+    ${verdictHTML}
+
+    <div class="feas-section-title">📈 Key Results</div>
+    <div class="metric-row">
+      <div class="metric-box"><div class="label">Break-even (monthly)</div><div class="value">${breakEvenUnits === Infinity ? '—' : breakEvenUnits.toLocaleString('en-US') + ' units'}</div></div>
+      <div class="metric-box"><div class="label">Break-even (daily)</div><div class="value">${breakEvenUnits === Infinity ? '—' : Math.ceil(breakEvenUnits / workDays).toLocaleString('en-US') + ' units'}</div></div>
+      <div class="metric-box"><div class="label">Expected Monthly Profit</div><div class="value" style="color:${monthlyProfit>=0?'#22c55e':'#ef4444'}">${monthlyProfit.toLocaleString('en-US')} SAR</div></div>
+      <div class="metric-box"><div class="label">Profit Margin</div><div class="value">${profitMargin.toFixed(1)}%</div></div>
+      <div class="metric-box"><div class="label">Payback Period</div><div class="value">${roiMonths === Infinity ? '—' : Math.ceil(roiMonths) + ' months'}</div></div>
+      <div class="metric-box"><div class="label">Total Investment</div><div class="value">${setupTotal.toLocaleString('en-US')} SAR</div></div>
+      ${commissionAmount > 0 ? `<div class="metric-box"><div class="label">Distribution Commission / Month</div><div class="value" style="color:#ef4444">${commissionAmount.toLocaleString('en-US')} SAR</div></div>` : ''}
+      ${wastedUnits > 0 ? `<div class="metric-box"><div class="label">Defective Units / Month</div><div class="value" style="color:#ef4444">${wastedUnits.toLocaleString('en-US')} units</div></div>` : ''}
+    </div>
+
+    <div class="feas-section-title">🎲 Scenarios</div>
+    <div class="scenario-grid">
+      <div class="scenario-card pessimistic">
+        <div class="scenario-label" style="color:#ef4444;">Pessimistic</div>
+        <div class="scenario-value" style="color:#ef4444;">${pess.profit.toLocaleString('en-US')} SAR</div>
+        <div class="scenario-desc">${pess.daily.toLocaleString('en-US')} units/day<br>Margin: ${pess.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card expected">
+        <div class="scenario-label" style="color:var(--gold);">Expected</div>
+        <div class="scenario-value" style="color:var(--gold);">${exp.profit.toLocaleString('en-US')} SAR</div>
+        <div class="scenario-desc">${exp.daily.toLocaleString('en-US')} units/day<br>Margin: ${exp.margin.toFixed(1)}%</div>
+      </div>
+      <div class="scenario-card optimistic">
+        <div class="scenario-label" style="color:#22c55e;">Optimistic</div>
+        <div class="scenario-value" style="color:#22c55e;">${opt.profit.toLocaleString('en-US')} SAR</div>
+        <div class="scenario-desc">${opt.daily.toLocaleString('en-US')} units/day<br>Margin: ${opt.margin.toFixed(1)}%</div>
+      </div>
+    </div>
+
+    <div class="feas-section-title">📋 Detailed Summary</div>
+    <div class="bonds-card" style="text-align:left;">
+      <p><strong>💰 Revenue:</strong></p>
+      <p>• Gross monthly revenue: ${grossRevenue.toLocaleString('en-US')} SAR | After commission: ${monthlyRevenue.toLocaleString('en-US')} SAR | Yearly: ${(monthlyRevenue * 12).toLocaleString('en-US')} SAR</p>
+      <p style="margin-top:0.5rem;"><strong>📉 Monthly Costs:</strong></p>
+      <p>• Fixed: ${monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${monthlyVariable.toLocaleString('en-US')} SAR | Total: ${monthlyTotal.toLocaleString('en-US')} SAR</p>
+      <p style="margin-top:0.5rem;"><strong>📊 Profitability:</strong></p>
+      <p>• Monthly: ${monthlyProfit.toLocaleString('en-US')} SAR | Yearly: ${yearlyProfit.toLocaleString('en-US')} SAR | Margin: ${profitMargin.toFixed(1)}%</p>
+      <p style="margin-top:0.5rem;"><strong>🎯 Break-even:</strong></p>
+      <p>• ${breakEvenUnits === Infinity ? 'No achievable break-even point' : breakEvenUnits.toLocaleString('en-US') + ' units/month | Revenue: ' + breakEvenRevenue.toLocaleString('en-US') + ' SAR'}</p>
+    </div>
+
+    <div style="text-align:center;margin-top:var(--space-6);display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <button class="bonds-btn bonds-btn-secondary" onclick="showTab('setup'); BondsUI.toast('🔄 Try new numbers', 'info');">🔄 Try New Numbers</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportExcelMF()">📊 Excel</button>
+      <button class="bonds-btn bonds-btn-primary" onclick="exportPDFMF()">📄 PDF</button>
+    </div>
+    <div id="fundingSuggestions"></div>
+  `;
+
+  loadFundingSuggestions();
+}
+
+async function loadFundingSuggestions() {
+  const container = document.getElementById('fundingSuggestions');
+  if (!container) return;
+  container.innerHTML = '<div style="text-align:center;padding:1rem;color:var(--text-secondary);">Searching for suggested funding sources...</div>';
+  const country = document.getElementById('country')?.value || 'SA';
+  try {
+    const res = await fetch('/api/funding-sources?country_code=' + country + '&sector=manufacturing&limit=3');
+    const json = await res.json();
+    const list = json.data || [];
+    if (!list.length) { container.innerHTML = ''; return; }
+    const typeLabels = { bank: 'Bank', fund: 'Fund', investor: 'Investor', government_program: 'Government Program' };
+    container.innerHTML = `
+      <div class="feas-section-title">💡 Suggested Funding Sources</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;">
+        ${list.map(s => `
+          <div class="bonds-card" style="border:1px solid var(--border);">
+            <div style="font-size:0.75rem;color:var(--gold);font-weight:700;margin-bottom:0.25rem;">${typeLabels[s.type] || s.type}</div>
+            <div style="font-weight:800;margin-bottom:0.5rem;">${s.name_en || s.name_ar}</div>
+            <div style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:0.5rem;">${s.description || ''}</div>
+            ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener" style="color:var(--gold);font-size:0.85rem;">Details →</a>` : ''}
+          </div>
+        `).join('')}
+      </div>
+      <div style="text-align:center;margin-top:1rem;">
+        <a href="../../funding-sources.html" class="bonds-btn bonds-btn-secondary">Browse All Funding Sources</a>
+      </div>
+    `;
+  } catch (e) {
+    container.innerHTML = '';
+  }
+}
+
+async function exportExcelMF() {
+  if (!window._mfResult) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
+  await loadLib('https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js', 'XLSX');
+  if (typeof XLSX === 'undefined') { BondsUI.toast('❌ Failed to load Excel library', 'error'); return; }
+  const d = window._mfResult;
+  const wb = XLSX.utils.book_new();
+  wb.Props = { Title: 'Manufacturing Feasibility Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
+
+  const inputs = [
+    ['Item', 'Value'],
+    ['Machinery & Equipment', getVal('sMachinery')],
+    ['Tools & Fixtures', getVal('sTools')],
+    ['Licenses & Registration', getVal('sLicense')],
+    ['Facility Setup', getVal('sFacility')],
+    ['Initial Raw Material Inventory', getVal('sRawMaterials')],
+    ['Safety, Security & Environment', getVal('sSafety')],
+    ['Branding & Marketing', getVal('sMarketing')],
+    ['Other Expenses', getVal('sOther')],
+    ['', ''],
+    ['Monthly Rent', getVal('mRent')],
+    ['Salaries & Wages', getVal('mSalaries')],
+    ['Electricity, Water & Gas', getVal('mUtilities')],
+    ['Monthly Raw Materials', getVal('mRawMaterials')],
+    ['Maintenance & Spare Parts', getVal('mMaintenance')],
+    ['Marketing & Sales', getVal('mAds')],
+    ['Internet & Subscriptions', getVal('mSubscriptions')],
+    ['Miscellaneous Expenses', getVal('mMisc')],
+    ['', ''],
+    ['Unit Selling Price', getVal('rPrice')],
+    ['Raw Material Cost / Unit', getVal('rRawCost')],
+    ['Daily Output', getVal('rDailyUnits')],
+    ['Working Days', getVal('rWorkDays')],
+    ['Waste Rate', getVal('wasteRatePct')],
+    ['Distribution Commission', getVal('commissionPct')],
+    ['Packaging Cost / Unit', getVal('packagingCostPerUnit')]
+  ];
+
+  const results = [
+    ['Metric', 'Value'],
+    ['Total Investment', d.setupTotal],
+    ['Fixed Costs / Month', d.monthlyFixed],
+    ['Variable Costs / Month', d.monthlyVariable],
+    ['Total Costs / Month', d.monthlyTotal],
+    ['Net Monthly Revenue', d.monthlyRevenue],
+    ['Monthly Profit', d.monthlyProfit],
+    ['Yearly Profit', d.yearlyProfit],
+    ['Profit Margin %', d.profitMargin.toFixed(2)],
+    ['Break-even (units/month)', d.breakEvenUnits === Infinity ? '—' : d.breakEvenUnits],
+    ['Payback Period (months)', d.roiMonths === Infinity ? '—' : Math.ceil(d.roiMonths)]
+  ];
+
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(inputs), 'Inputs');
+  XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(results), 'Results');
+  XLSX.writeFile(wb, 'manufacturing-feasibility-study.xlsx');
+}
+
+async function exportPDFMF() {
+  if (!window._mfResult) { BondsUI.toast('⚠️ Calculate results first', 'warning'); return; }
+  const title = 'Manufacturing Feasibility Study';
+  const content = document.getElementById('resultContent').innerHTML;
+  if (window.openPrintWindow) {
+    window.openPrintWindow({ title, content, reportType: 'feasibility' });
+  } else {
+    BondsUI.toast('⚠️ Print library not available', 'warning');
+  }
+}
+
+updateSetupSummary();
+updateMonthlySummary();
+updateRevenueSummary();
+</script>
+<script src="../../components/universal-dropdown.js?v=2.51.8"></script>
+<script src="../../components/universal-dropdown-init.js"></script>
+
+<script src="../../calculators/shared-analytics.js"></script>
+<script src="../../calculators/auth-modal.js"></script>
+<script src="../../calculators/exit-intent.js"></script>
+<script src="../../calculators/anonymous-first.js"></script>
+<script>
+  window.__bondsCalcConfig = {"name": "manufacturing-feasibility", "v3": {"capital": "#setupTotal", "revenue": "#revYearly", "cost": "#monthlyTotal"}, "saveTitle": "Manufacturing Feasibility", "lang": "en", "rel": "../../calculators/"};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
+</body>
+</html>

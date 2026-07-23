@@ -42,7 +42,7 @@
   <script src="calc-functions.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/auth-guard.js?v=5"></script>
+  
   <script>
     // Fallback avatar loader — runs after auth-guard.js
     (function() {
@@ -106,7 +106,7 @@
   </script>
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+
   </head>
 <body class="calc-page-body calc-page-body--ar">
 
@@ -2528,5 +2528,14 @@
 <script src="../site-layout.js?v=3.0.7"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+
+<script src="shared-analytics.js"></script>
+<script src="auth-modal.js"></script>
+<script src="exit-intent.js"></script>
+<script src="anonymous-first.js"></script>
+<script>
+  window.__bondsCalcConfig = {"name": "restaurant", "v3": {"capital": "#rentCost", "revenue": "#monthlyGMV", "profit": "#targetProfitPerOrder", "sector": "#countrySelect", "activity": "#countrySelect"}, "saveTitle": "حاسبة المطاعم", "lang": "ar", "rel": ""};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
 </body>
 </html>

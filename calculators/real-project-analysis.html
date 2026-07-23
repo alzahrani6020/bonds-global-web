@@ -19,7 +19,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/supabase-client.js"></script>
-  <script src="/auth-guard.js"></script>
+  
   <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
   <script src="shared-ui.js"></script>
   <script src="shared-utils.js"></script>
@@ -56,7 +56,7 @@
   <meta name="twitter:title" content="تحليل المشروع الحقيقي | بوندز — احسب التكاليف الخفية والمخاطر" />
   <meta name="twitter:description" content="حاسبة تحليل المشروع الحقيقي من بوندز: احسب التكاليف الخفية، الاحتياطي، نقطة التعادل، فترة الاسترداد، والتصنيف الاستثماري." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+
   </head>
 <body>
   <div id="site-header"></div>
@@ -520,5 +520,14 @@ toggleDeliveryCost();
 <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+
+<script src="shared-analytics.js"></script>
+<script src="auth-modal.js"></script>
+<script src="exit-intent.js"></script>
+<script src="anonymous-first.js"></script>
+<script>
+  window.__bondsCalcConfig = {"name": "real-project-analysis", "v3": {"capital": "#projectValue", "revenue": "#revenue", "cost": "#costs", "sector": "#activityType", "activity": "#project"}, "saveTitle": "تحليل المشروع الحقيقي", "lang": "ar", "rel": ""};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
 </body>
 </html>

@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Bonds</title>
+  <meta name="description" content="Your personal space on Bonds: saved projects, reports, and next steps." />
+  <meta property="og:title" content="My Bonds" />
+  <meta property="og:description" content="Your personal space on Bonds: saved projects, reports, and next steps." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/my-bonds" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="My Bonds" />
+  <meta name="twitter:description" content="Your personal space on Bonds: saved projects, reports, and next steps." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <link rel="canonical" href="https://bonds-global.com/en/my-bonds" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../styles/design-system.css" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="../../bonds-auth-2026.js?v=3.0.6"></script>
+  <script>BondsAuth.initSiteAuth();</script>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="my-bonds-page">
+    <section class="my-bonds-hero">
+      <div class="my-bonds-hero__content">
+        <h1>My Bonds</h1>
+        <p>All your projects, calculations, and reports in one place.</p>
+      </div>
+    </section>
+
+    <section class="my-bonds-container">
+      <!-- Guest CTA -->
+      <div id="guestCta" class="bonds-card my-bonds-guest" style="display:none;">
+        <div class="my-bonds-guest__icon">👋</div>
+        <h2>Welcome to Bonds</h2>
+        <p>Try our calculators for free and save your results here after signing in.</p>
+        <div class="my-bonds-actions">
+          <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">Start Feasibility Calculator</a>
+          <a href="../calculators/auth/index.html?redirect=/en/my-bonds/" class="bonds-btn bonds-btn-secondary">Sign In</a>
+        </div>
+      </div>
+
+      <!-- User welcome -->
+      <div id="userWelcome" class="bonds-card my-bonds-welcome" style="display:none;">
+        <div class="my-bonds-welcome__text">
+          <h2 id="userName">Welcome</h2>
+          <p>You have <strong id="projectCount">0</strong> saved projects.</p>
+        </div>
+        <div class="my-bonds-actions">
+          <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">+ New Project</a>
+          <a href="../../v3/portfolio" class="bonds-btn bonds-btn-secondary">Portfolio Dashboard</a>
+        </div>
+      </div>
+
+      <!-- Projects list -->
+      <div class="my-bonds-section">
+        <h3 class="my-bonds-section__title">Saved Projects</h3>
+        <div id="projectsList" class="my-bonds-grid">
+          <div class="bonds-card my-bonds-empty">
+            <p>No saved projects yet.</p>
+            <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">Start Your First Project</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick links -->
+      <div class="my-bonds-section">
+        <h3 class="my-bonds-section__title">Quick Tools</h3>
+        <div class="my-bonds-quick-links">
+          <a href="../calculators/feasibility.html" class="bonds-card my-bonds-link">
+            <span class="my-bonds-link__icon">🧮</span>
+            <span class="my-bonds-link__text">Feasibility Calculator</span>
+          </a>
+          <a href="../calculators/cash-flow.html" class="bonds-card my-bonds-link">
+            <span class="my-bonds-link__icon">💰</span>
+            <span class="my-bonds-link__text">Cash Flow</span>
+          </a>
+          <a href="../../v3/portfolio" class="bonds-card my-bonds-link">
+            <span class="my-bonds-link__icon">📊</span>
+            <span class="my-bonds-link__text">Portfolio</span>
+          </a>
+          <a href="../calculators/auth/subscription.html" class="bonds-card my-bonds-link">
+            <span class="my-bonds-link__icon">💎</span>
+            <span class="my-bonds-link__text">Subscription</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="../../site-layout.js?v=3.0.7"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const PROJECTS_KEY = 'bonds_guest_projects';
+
+      function loadGuestProjects() {
+        try {
+          const raw = localStorage.getItem(PROJECTS_KEY);
+          return raw ? JSON.parse(raw) : [];
+        } catch (e) {
+          return [];
+        }
+      }
+
+      function saveGuestProjects(projects) {
+        try {
+          localStorage.setItem(PROJECTS_KEY, JSON.stringify(projects.slice(0, 20)));
+        } catch (e) {}
+      }
+
+      function formatDate(iso) {
+        if (!iso) return '';
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '';
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      }
+
+      function escapeHtml(str) {
+        if (typeof str !== 'string') return '';
+        return str.replace(/[&<>"']/g, function(m) {
+          return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]);
+        });
+      }
+
+      function showToast(message, type) {
+        type = type || 'info';
+        var el = document.createElement('div');
+        el.textContent = message;
+        el.style.cssText = 'position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:9999;padding:0.75rem 1.25rem;border-radius:8px;font-weight:600;box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+        if (type === 'success') el.style.background = '#22c55e';
+        else if (type === 'error') el.style.background = '#ef4444';
+        else el.style.background = 'var(--gold)';
+        el.style.color = type === 'info' ? '#0c0c0c' : '#fff';
+        document.body.appendChild(el);
+        setTimeout(function() { el.remove(); }, 3000);
+      }
+
+      async function apiFetch(url, options) {
+        const { data: sessionData } = await window.BondsAuth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+        };
+        return fetch(url, { ...(options || {}), headers: { ...headers, ...(options?.headers || {}) } });
+      }
+
+      async function loadSupabaseProjects() {
+        try {
+          const res = await apiFetch('/api/v3/projects', { method: 'GET' });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) return [];
+          return (json.projects || []).map(function(p) {
+            return {
+              id: p.id,
+              title: p.name,
+              summary: (p.metadata && p.metadata.summary) || (p.sector + (p.activity ? ' · ' + p.activity : '')),
+              href: (p.metadata && p.metadata.href) || '../../v3/project?id=' + encodeURIComponent(p.id),
+              createdAt: p.created_at,
+              source: (p.metadata && p.metadata.source) || p.sector || 'v3',
+              synced: true
+            };
+          });
+        } catch (e) {
+          return [];
+        }
+      }
+
+      async function syncGuestProjects(guestProjects) {
+        if (!guestProjects || guestProjects.length === 0) return [];
+        const synced = [];
+        for (var i = 0; i < guestProjects.length; i++) {
+          var p = guestProjects[i];
+          try {
+            var payload = {
+              name: p.title || 'Local Project',
+              sector: p.source || 'General',
+              activity: 'Local',
+              cityCode: null,
+              currency: 'SAR',
+              capital: 0,
+              revenue: 0,
+              annualProfit: 0,
+              language: 'en',
+              metadata: {
+                summary: p.summary || '',
+                href: p.href || '',
+                source: p.source || 'local',
+                createdAt: p.createdAt || new Date().toISOString()
+              }
+            };
+            var res = await apiFetch('/api/v3/projects', { method: 'POST', body: JSON.stringify(payload) });
+            var json = await res.json().catch(() => ({}));
+            if (res.ok && json.project) {
+              synced.push({
+                id: json.project.id,
+                title: p.title,
+                summary: p.summary,
+                href: p.href,
+                createdAt: p.createdAt,
+                source: p.source,
+                synced: true
+              });
+            }
+          } catch (e) {}
+        }
+        return synced;
+      }
+
+      function renderProjects(projects, isGuest) {
+        const container = document.getElementById('projectsList');
+        if (!container) return;
+
+        if (!projects || projects.length === 0) {
+          container.innerHTML = `
+            <div class="bonds-card my-bonds-empty">
+              <p>No saved projects yet.</p>
+              <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">Start Your First Project</a>
+            </div>
+          `;
+          return;
+        }
+
+        container.innerHTML = projects.map(function(p) {
+          const title = escapeHtml(p.title || 'Untitled Project');
+          const date = formatDate(p.createdAt);
+          const summary = escapeHtml(p.summary || '');
+          const href = escapeHtml(p.href || '../calculators/feasibility.html');
+          const badge = isGuest ? '<span class="my-bonds-badge">Local</span>' : (p.synced ? '' : '<span class="my-bonds-badge">Local</span>');
+          return `
+            <div class="bonds-card my-bonds-project">
+              <div class="my-bonds-project__header">
+                <h4 class="my-bonds-project__title">${title}</h4>
+                ${badge}
+              </div>
+              <p class="my-bonds-project__summary">${summary}</p>
+              <div class="my-bonds-project__meta">
+                <span class="my-bonds-project__date">${date}</span>
+                <a href="${href}" class="bonds-btn bonds-btn-sm bonds-btn-secondary">View</a>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      async function init() {
+        const { data: userData } = await window.BondsAuth.getUser();
+        const user = userData?.user || null;
+        const guestProjects = loadGuestProjects();
+
+        if (user) {
+          document.getElementById('userWelcome').style.display = 'flex';
+          document.getElementById('guestCta').style.display = 'none';
+
+          const name = user.user_metadata?.restaurant_name || user.email?.split('@')[0] || 'User';
+          const nameEl = document.getElementById('userName');
+          if (nameEl) nameEl.textContent = 'Welcome, ' + name;
+
+          const supabaseProjects = await loadSupabaseProjects();
+          let allProjects = supabaseProjects;
+
+          if (guestProjects.length > 0) {
+            const synced = await syncGuestProjects(guestProjects);
+            if (synced.length > 0) {
+              saveGuestProjects([]);
+              showToast('✅ Uploaded ' + synced.length + ' project(s) to the cloud', 'success');
+              allProjects = synced.concat(supabaseProjects);
+            } else {
+              allProjects = guestProjects.concat(supabaseProjects);
+            }
+          }
+
+          const countEl = document.getElementById('projectCount');
+          if (countEl) countEl.textContent = String(allProjects.length);
+          renderProjects(allProjects, false);
+        } else {
+          document.getElementById('guestCta').style.display = 'block';
+          document.getElementById('userWelcome').style.display = 'none';
+          renderProjects(guestProjects, true);
+        }
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+
+  <style>
+    .my-bonds-page {
+      min-height: 70vh;
+      padding-bottom: 4rem;
+    }
+    .my-bonds-hero {
+      background: linear-gradient(135deg, rgba(212,168,83,0.12) 0%, rgba(10,15,26,0) 60%);
+      padding: 4rem 1rem 2rem;
+      text-align: center;
+    }
+    .my-bonds-hero__content h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .my-bonds-hero__content p {
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .my-bonds-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 1.5rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .my-bonds-guest,
+    .my-bonds-welcome {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 1rem;
+      padding: 2rem;
+    }
+    .my-bonds-guest__icon {
+      font-size: 3rem;
+    }
+    .my-bonds-welcome {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .my-bonds-welcome__text h2 {
+      margin: 0 0 0.25rem;
+      font-size: 1.4rem;
+    }
+    .my-bonds-actions {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .my-bonds-section__title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 1rem;
+    }
+    .my-bonds-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+    }
+    .my-bonds-empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-secondary);
+    }
+    .my-bonds-project {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      padding: 1.25rem;
+    }
+    .my-bonds-project__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+    }
+    .my-bonds-project__title {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+    .my-bonds-badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      background: rgba(212,168,83,0.15);
+      color: var(--gold);
+      border: 1px solid var(--border);
+    }
+    .my-bonds-project__summary {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      flex: 1;
+    }
+    .my-bonds-project__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .my-bonds-project__date {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .my-bonds-quick-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1rem;
+    }
+    .my-bonds-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.75rem;
+      padding: 1.5rem 1rem;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .my-bonds-link:hover {
+      transform: translateY(-3px);
+      border-color: var(--gold);
+    }
+    .my-bonds-link__icon {
+      font-size: 2rem;
+    }
+    .my-bonds-link__text {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+    @media (max-width: 640px) {
+      .my-bonds-welcome {
+        flex-direction: column;
+        text-align: center;
+      }
+      .my-bonds-hero__content h1 {
+        font-size: 1.5rem;
+      }
+    }
+  </style>
+</body>
+</html>

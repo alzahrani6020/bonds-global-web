@@ -8,7 +8,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../../bonds-auth-2026.js?v=3.0.6"></script>
-  <script src="../../auth-guard.js"></script>
+  
   <script src="../../calculators/shared-geo.js?v=6"></script>
   <script src="../../calculators/shared-platforms.js"></script>
   <link rel="stylesheet" href="../../styles.css" />
@@ -52,7 +52,7 @@
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
 <link rel="stylesheet" href="../../calculators/scenario-cards-shared.css" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+
   </head>
 <body>
   <div id="site-header"></div>
@@ -830,5 +830,14 @@ init();
   <div id="site-footer"></div>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+
+<script src="../../calculators/shared-analytics.js"></script>
+<script src="../../calculators/auth-modal.js"></script>
+<script src="../../calculators/exit-intent.js"></script>
+<script src="../../calculators/anonymous-first.js"></script>
+<script>
+  window.__bondsCalcConfig = {"name": "menu-engineering", "v3": {}, "saveTitle": "Menu Engineering", "lang": "en", "rel": "../../calculators/"};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
 </body>
 </html>

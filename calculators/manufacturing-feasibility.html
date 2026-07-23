@@ -30,7 +30,7 @@
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
   <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-  <script src="/calculators/auth-gate.js?v=2"></script>
+  
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -47,7 +47,7 @@
     "description": "احسب الجدوى المالية لمشروعك الصناعي قبل التأسيس: تكاليف الآلات والمعدات، المواد الخام، الإنتاج اليومي، نقطة التعادل، والسيناريوهات."
   }
   </script>
-  <script src="/auth-guard.js"></script>
+  
 </head>
 <body>
   <div id="site-header"></div>
@@ -490,22 +490,15 @@ updateRevenueSummary();
 </script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+
+
+<script src="shared-analytics.js"></script>
+<script src="auth-modal.js"></script>
+<script src="exit-intent.js"></script>
+<script src="anonymous-first.js"></script>
 <script>
-  // Paid-tier gate for feasibility / creditworthiness features
-  (function () {
-    function runGate() {
-      if (typeof window.requireTier === 'function') {
-        window.requireTier('paidCalculators');
-      } else {
-        setTimeout(runGate, 100);
-      }
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', runGate);
-    } else {
-      runGate();
-    }
-  })();
+  window.__bondsCalcConfig = {"name": "manufacturing-feasibility", "v3": {"capital": "#setupTotal", "revenue": "#revYearly", "cost": "#monthlyTotal"}, "saveTitle": "دراسة الجدوى التصنيعية", "lang": "ar", "rel": ""};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
 </script>
 </body>
 </html>

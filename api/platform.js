@@ -853,27 +853,103 @@ async function siteHandler(req, res) {
 // ── Log Usage ──────────────────────────────────────────────
 async function logUsageHandler(req, res) {
   setAllowedOrigin(res, req);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const supabase = getSupabase();
+
+  if (req.method === 'GET') {
+    try {
+      const user = await resolveAuthUser(req);
+      if (!user) return res.status(401).json({ error: 'Authentication required' });
+      const { data: adminRole } = await supabase.from('admin_roles').select('role').eq('user_id', user.id).single();
+      if (!adminRole?.role) return res.status(403).json({ error: 'Admin access required' });
+
+      const days = Math.min(parseInt(req.query?.days || '30', 10), 90);
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString();
+
+      const { data, error } = await supabase
+        .from('calculator_events')
+        .select('event, calculator, country, lang, action, duration_seconds, properties, created_at')
+        .gte('created_at', since)
+        .order('created_at', { ascending: false })
+        .limit(10000);
+
+      if (error) throw error;
+
+      // Aggregate metrics
+      const metrics = {
+        started: 0, completed: 0, saved: 0, exported: 0, v3: 0,
+        signup_prompts: 0, signups_confirmed: 0, guests_continued: 0,
+        totalDuration: 0, durationCount: 0
+      };
+      const byCalculator = {};
+      (data || []).forEach(row => {
+        const e = row.event;
+        const c = row.calculator || 'unknown';
+        if (!byCalculator[c]) byCalculator[c] = { started: 0, completed: 0, saved: 0, exported: 0, v3: 0 };
+        if (e === 'calc_started') { metrics.started++; byCalculator[c].started++; }
+        if (e === 'calc_completed') { metrics.completed++; byCalculator[c].completed++; }
+        if (e === 'calc_save_clicked' || e === 'calc_project_saved') { metrics.saved++; byCalculator[c].saved++; }
+        if (e === 'calc_export_clicked') { metrics.exported++; byCalculator[c].exported++; }
+        if (e === 'calc_v3_clicked') { metrics.v3++; byCalculator[c].v3++; }
+        if (e === 'calc_signup_prompt_confirmed') { metrics.signups_confirmed++; }
+        if (e === 'calc_guest_continued') { metrics.guests_continued++; }
+        if (e === 'calc_signup_from_action') { metrics.signup_prompts++; }
+        if (typeof row.duration_seconds === 'number' && row.duration_seconds > 0) {
+          metrics.totalDuration += row.duration_seconds;
+          metrics.durationCount++;
+        }
+      });
+
+      return res.status(200).json({
+        success: true,
+        days,
+        metrics: {
+          started: metrics.started,
+          completed: metrics.completed,
+          saved: metrics.saved,
+          exported: metrics.exported,
+          v3: metrics.v3,
+          signupPrompts: metrics.signup_prompts,
+          signupsConfirmed: metrics.signups_confirmed,
+          guestsContinued: metrics.guests_continued,
+          avgTimeToResult: metrics.durationCount ? Math.round(metrics.totalDuration / metrics.durationCount) : null
+        },
+        byCalculator,
+        events: data
+      });
+    } catch (err) {
+      console.error('[log-usage GET] Error:', err);
+      return res.status(500).json({ success: false, error: 'Failed to fetch metrics' });
+    }
+  }
+
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
-    const { calculator, country, inputs, results, scenario_type } = req.body || {};
+    const body = req.body || {};
+    const event = body.event || body.calculator || '';
+    const calculator = body.calculator || event;
     if (!calculator) return res.status(400).json({ error: 'calculator required' });
 
     const user = await resolveAuthUser(req);
-    if (!user) return res.status(401).json({ error: 'Authentication required' });
+    const ip = getClientIp(req);
 
-    const supabase = getSupabase();
-    const { error } = await supabase.from('usage_logs').insert([{
-      user_id: user.id,
-      calculator,
-      country: country || null,
-      inputs: inputs || null,
-      results: results || null,
-      scenario_type: scenario_type || null
+    const { error } = await supabase.from('calculator_events').insert([{
+      event: event,
+      calculator: calculator,
+      country: (body.country || '').toString().slice(0, 8) || null,
+      lang: (body.lang || '').toString().slice(0, 8) || null,
+      session_id: (body.session_id || '').toString().slice(0, 64) || null,
+      user_id: user ? user.id : null,
+      action: (body.action || '').toString().slice(0, 32) || null,
+      duration_seconds: typeof body.duration_seconds === 'number' ? Math.max(0, Math.min(body.duration_seconds, 86400)) : null,
+      properties: body.properties || body.inputs || {},
+      url: (body.url || '').toString().slice(0, 512) || null,
+      ip_hash: anonymizeIp(ip)
     }]);
 
     if (error) throw error;

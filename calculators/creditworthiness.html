@@ -47,8 +47,8 @@
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
   <meta name="twitter:description" content="قيم أي شركة أو مصنع أو سند مالي وفق 9 معايير ائتمانية دولية واحصل على تصنيف من AAA إلى عالي المخاطر مع تقرير كامل." />
 
-<script src="/calculators/auth-gate.js?v=2"></script>
-    <script src="/auth-guard.js"></script>
+
+    
 </head>
 <body>
   <div id="site-header"></div>
@@ -653,22 +653,15 @@
 <script src="shared-geo.js?v=6"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+
+
+<script src="shared-analytics.js"></script>
+<script src="auth-modal.js"></script>
+<script src="exit-intent.js"></script>
+<script src="anonymous-first.js"></script>
 <script>
-  // Paid-tier gate for feasibility / creditworthiness features
-  (function () {
-    function runGate() {
-      if (typeof window.requireTier === 'function') {
-        window.requireTier('paidCalculators');
-      } else {
-        setTimeout(runGate, 100);
-      }
-    }
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', runGate);
-    } else {
-      runGate();
-    }
-  })();
+  window.__bondsCalcConfig = {"name": "creditworthiness", "v3": {"capital": "#financingAmount", "revenue": "#revenue", "profit": "#netProfit", "sector": "#sector", "activity": "#companyName"}, "saveTitle": "تحليل الائتمان", "lang": "ar", "rel": ""};
+  BondsAnonymousFirst.init(window.__bondsCalcConfig);
 </script>
 </body>
 </html>
