@@ -28,6 +28,7 @@ const AUTH_PATTERNS = [
 const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/env',
   '/api/advisors',
+  '/api/capture-lead',
   '/api/contact',
   '/api/nps-submit',
   '/api/nps-check',
