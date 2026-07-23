@@ -252,6 +252,14 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/capture-lead",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/capture-lead/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/image-search",
       "destination": "/api/research"
     },

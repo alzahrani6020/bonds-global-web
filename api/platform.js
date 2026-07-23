@@ -960,6 +960,43 @@ async function logUsageHandler(req, res) {
   }
 }
 
+// ── Lead Capture ───────────────────────────────────────────
+async function leadCaptureHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  try {
+    const body = req.body || {};
+    const email = String(body.email || '').trim().toLowerCase();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Valid email required' });
+    }
+
+    const supabase = getSupabase();
+    const ip = getClientIp(req);
+    const { error } = await supabase.from('calculator_leads').insert([{
+      email,
+      calculator: String(body.calculator || '').slice(0, 64) || 'unknown',
+      country: String(body.country || '').slice(0, 8) || null,
+      lang: String(body.lang || '').slice(0, 8) || null,
+      session_id: String(body.session_id || '').slice(0, 64) || null,
+      source: String(body.source || 'exit_intent').slice(0, 32),
+      url: String(body.url || '').slice(0, 512) || null,
+      metadata: body.metadata || {}
+    }]);
+
+    if (error) throw error;
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[lead-capture] Error:', err);
+    return res.status(500).json({ success: false, error: 'Failed to capture lead' });
+  }
+}
+
 // ── NPS ────────────────────────────────────────────────────
 function npsEscapeHtml(str) {
   return String(str || '')
@@ -1198,6 +1235,12 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/log-usage' || pathname === '/api/log-usage/') {
       if (await checkRateLimit('public', req, res)) return;
       return logUsageHandler(req, res);
+    }
+
+    // Lead capture
+    if (pathname === '/api/capture-lead' || pathname === '/api/capture-lead/') {
+      if (await checkRateLimit('public', req, res)) return;
+      return leadCaptureHandler(req, res);
     }
 
     // NPS

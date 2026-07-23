@@ -68,7 +68,8 @@ async function createProject(req, res, user) {
     capital,
     revenue,
     annualProfit,
-    language
+    language,
+    metadata
   } = body;
 
   if (!name || !sector) {
@@ -90,7 +91,8 @@ async function createProject(req, res, user) {
       revenue: revenue || 0,
       annual_profit: annualProfit || 0,
       language: language || 'ar',
-      status: 'active'
+      status: 'active',
+      metadata: metadata || null
     };
 
     const { data: project, error: insertError } = await supabase

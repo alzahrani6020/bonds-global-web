@@ -137,6 +137,25 @@
       var activity = activityVal || (rtl ? 'نشاط تجاري' : 'Commercial Activity');
       var currency = getCurrency(getCountry());
 
+      var metadata = {
+        source: 'calculator',
+        calculator: calcName,
+        country: getCountry(),
+        language: lang,
+        url: window.location.href,
+        createdAt: new Date().toISOString()
+      };
+      if (typeof v3.metadata === 'function') {
+        try { var customMeta = v3.metadata(); for (var mk in customMeta) metadata[mk] = customMeta[mk]; } catch (e) {}
+      } else if (v3.metadata && typeof v3.metadata === 'object') {
+        for (var mk2 in v3.metadata) metadata[mk2] = v3.metadata[mk2];
+      }
+      // Auto-capture visible result summary
+      try {
+        var summaryEl = document.querySelector('.feas-summary, .calc-summary, #resultPanel, .results-panel, .result-card');
+        if (summaryEl) metadata.resultSummary = summaryEl.textContent.trim().slice(0, 1000);
+      } catch (e) {}
+
       var payload = {
         name: name,
         sector: sector,
@@ -146,7 +165,8 @@
         capital: capital,
         revenue: revenue,
         annualProfit: annualProfit,
-        language: lang
+        language: lang,
+        metadata: metadata
       };
 
       var token = '';

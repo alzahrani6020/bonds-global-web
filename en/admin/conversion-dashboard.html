@@ -104,6 +104,22 @@
     </div>
 
     <div class="cx-card">
+      <h2>A/B Test Analysis — Auth Modal Copy</h2>
+      <table class="cx-table" id="abVariantTable">
+        <thead>
+          <tr>
+            <th>Variant</th>
+            <th>Impressions</th>
+            <th>Sign-ins</th>
+            <th>Conversion Rate</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="cx-note" id="abNote">Calculated from <code>calc_signup_prompt_shown</code> and <code>calc_signup_prompt_confirmed</code> events.</p>
+    </div>
+
+    <div class="cx-card">
       <h2>Tracked Events</h2>
       <div class="cx-events">
         <span class="cx-event">calc_started</span>
@@ -193,6 +209,35 @@
         document.getElementById('mV3').textContent = m.v3 != null ? m.v3.toLocaleString('en-US') : '—';
         document.getElementById('mTime').textContent = m.avgTimeToResult != null ? m.avgTimeToResult.toLocaleString('en-US') : '—';
         document.getElementById('metricsNote').textContent = '✅ Data loaded successfully (last 30 days). Events: ' + (json.events ? json.events.length : 0).toLocaleString('en-US');
+
+        // A/B variant analysis
+        var variants = {};
+        (json.events || []).forEach(function(ev) {
+          var props = ev.properties || {};
+          if (ev.event === 'calc_signup_prompt_shown' && props.variant) {
+            if (!variants[props.variant]) variants[props.variant] = { shown: 0, confirmed: 0 };
+            variants[props.variant].shown++;
+          }
+          if (ev.event === 'calc_signup_prompt_confirmed' && props.variant) {
+            if (!variants[props.variant]) variants[props.variant] = { shown: 0, confirmed: 0 };
+            variants[props.variant].confirmed++;
+          }
+        });
+        var abTbody = document.querySelector('#abVariantTable tbody');
+        abTbody.innerHTML = '';
+        Object.keys(variants).sort().forEach(function(v) {
+          var data = variants[v];
+          var rate = data.shown ? ((data.confirmed / data.shown) * 100).toFixed(2) + '%' : '0%';
+          var row = document.createElement('tr');
+          row.innerHTML = '<td><strong>' + v + '</strong></td>' +
+            '<td>' + data.shown.toLocaleString('en-US') + '</td>' +
+            '<td>' + data.confirmed.toLocaleString('en-US') + '</td>' +
+            '<td>' + rate + '</td>';
+          abTbody.appendChild(row);
+        });
+        if (!Object.keys(variants).length) {
+          document.getElementById('abNote').textContent = 'Not enough A/B data yet. This section will update automatically when events are available.';
+        }
       } catch (e) {
         document.getElementById('metricsNote').textContent = '⚠️ Error loading metrics';
       }

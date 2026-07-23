@@ -94,6 +94,22 @@
     </div>
 
     <div class="cx-card">
+      <h2>تحليل A/B Test لنصوص Auth Modal</h2>
+      <table class="cx-table" id="abVariantTable">
+        <thead>
+          <tr>
+            <th>النسخة</th>
+            <th>مرات العرض</th>
+            <th>تسجيل دخول</th>
+            <th>معدل التحويل</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <p class="cx-note" id="abNote">يتم حساب النتائج من أحداث <code>calc_signup_prompt_shown</code> و <code>calc_signup_prompt_confirmed</code>.</p>
+    </div>
+
+    <div class="cx-card">
       <h2>الأحداث المُتتبعة</h2>
       <div class="cx-events">
         <span class="cx-event">calc_started</span>
@@ -184,6 +200,35 @@
         document.getElementById('mV3').textContent = m.v3 != null ? m.v3.toLocaleString('ar-SA') : '—';
         document.getElementById('mTime').textContent = m.avgTimeToResult != null ? m.avgTimeToResult.toLocaleString('ar-SA') : '—';
         document.getElementById('metricsNote').textContent = '✅ تم جلب البيانات بنجاح (آخر 30 يوم). عدد الأحداث: ' + (json.events ? json.events.length : 0).toLocaleString('ar-SA');
+
+        // A/B variant analysis
+        var variants = {};
+        (json.events || []).forEach(function(ev) {
+          var props = ev.properties || {};
+          if (ev.event === 'calc_signup_prompt_shown' && props.variant) {
+            if (!variants[props.variant]) variants[props.variant] = { shown: 0, confirmed: 0 };
+            variants[props.variant].shown++;
+          }
+          if (ev.event === 'calc_signup_prompt_confirmed' && props.variant) {
+            if (!variants[props.variant]) variants[props.variant] = { shown: 0, confirmed: 0 };
+            variants[props.variant].confirmed++;
+          }
+        });
+        var abTbody = document.querySelector('#abVariantTable tbody');
+        abTbody.innerHTML = '';
+        Object.keys(variants).sort().forEach(function(v) {
+          var data = variants[v];
+          var rate = data.shown ? ((data.confirmed / data.shown) * 100).toFixed(2) + '%' : '0%';
+          var row = document.createElement('tr');
+          row.innerHTML = '<td><strong>' + v + '</strong></td>' +
+            '<td>' + data.shown.toLocaleString('ar-SA') + '</td>' +
+            '<td>' + data.confirmed.toLocaleString('ar-SA') + '</td>' +
+            '<td>' + rate + '</td>';
+          abTbody.appendChild(row);
+        });
+        if (!Object.keys(variants).length) {
+          document.getElementById('abNote').textContent = 'لا توجد بيانات A/B كافية بعد. سيتم تحديث هذا القسم تلقائيًا عند توفر أحداث.';
+        }
       } catch (e) {
         document.getElementById('metricsNote').textContent = '⚠️ خطأ في جلب البيانات';
       }
