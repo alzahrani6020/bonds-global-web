@@ -13,7 +13,67 @@ const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
+const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
 const crypto = require('crypto');
+
+// In-memory throttle for admin conversion alerts (serverless best-effort)
+const alertThrottle = new Map();
+function shouldAlert(key, intervalMs = 60 * 60 * 1000) {
+  const now = Date.now();
+  const last = alertThrottle.get(key);
+  if (!last || (now - last) > intervalMs) {
+    alertThrottle.set(key, now);
+    return true;
+  }
+  return false;
+}
+
+async function notifySlack(message) {
+  const slackUrl = process.env.SLACK_WEBHOOK_URL;
+  if (!slackUrl) return;
+  try {
+    await fetch(slackUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: message })
+    });
+  } catch (e) {}
+}
+
+async function notifyAdminsConversionEvent(eventType, details) {
+  if (!ADMIN_EMAILS.length) return;
+  const throttleKey = eventType + ':' + (details.calculator || 'all');
+  if (!shouldAlert(throttleKey)) return;
+
+  const subject = eventType === 'lead'
+    ? '✉️ New calculator lead captured'
+    : '🚀 New calculator V3 conversion';
+
+  const html = `
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;">
+      <h2 style="color:#b8954e;">${subject}</h2>
+      <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
+        <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">Calculator</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${details.calculator || '-'}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">Country</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${details.country || '-'}</td></tr>
+        <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">Language</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${details.lang || '-'}</td></tr>
+        ${details.email ? `<tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">Email</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${details.email}</td></tr>` : ''}
+        ${details.url ? `<tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">Source URL</td><td style="padding:0.5rem;border-bottom:1px solid #eee;"><a href="${details.url}" style="color:#b8954e;">View</a></td></tr>` : ''}
+      </table>
+      <p style="margin-top:1.5rem;font-size:0.85rem;color:#555555;">
+        <a href="${APP_URL}/admin/conversion-dashboard.html" style="color:#b8954e;">Open Conversion Dashboard →</a>
+      </p>
+    </div>
+  `;
+
+  for (const adminEmail of ADMIN_EMAILS) {
+    try { await sendEmail({ to: adminEmail, subject, text: subject, html }); } catch (e) {}
+  }
+
+  const slackMsg = eventType === 'lead'
+    ? `✉️ New calculator lead: ${details.calculator} (${details.country || 'unknown'}) — ${details.email}`
+    : `🚀 New V3 conversion: ${details.calculator} (${details.country || 'unknown'})`;
+  notifySlack(slackMsg + (details.url ? ` | ${details.url}` : ''));
+}
 
 function getClientIp(req) {
   const forwarded = req.headers['x-forwarded-for'];
@@ -955,6 +1015,17 @@ async function logUsageHandler(req, res) {
     }]);
 
     if (error) throw error;
+
+    // Notify admins on V3 conversion (throttled)
+    if (event === 'calc_v3_clicked') {
+      notifyAdminsConversionEvent('v3', {
+        calculator: calculator,
+        country: (body.country || '').toString().slice(0, 8) || null,
+        lang: (body.lang || '').toString().slice(0, 8) || null,
+        url: (body.url || '').toString().slice(0, 512) || null
+      }).catch(() => {});
+    }
+
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('[log-usage] Error:', err);
@@ -992,6 +1063,16 @@ async function leadCaptureHandler(req, res) {
     }]);
 
     if (error) throw error;
+
+    // Notify admins (throttled)
+    notifyAdminsConversionEvent('lead', {
+      calculator: String(body.calculator || '').slice(0, 64) || 'unknown',
+      country: String(body.country || '').slice(0, 8) || null,
+      lang: String(body.lang || '').slice(0, 8) || null,
+      email: email,
+      url: String(body.url || '').slice(0, 512) || null
+    }).catch(() => {});
+
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('[lead-capture] Error:', err);
