@@ -133,7 +133,7 @@
     const sectorsBase = langBase + 'sectors/';
 
     const serviceDropdown = [
-      { label: labels.financialAdvisory, href: langBase + 'fixed-income-intelligence.html' },
+      { label: labels.financialAdvisory, href: homeHref },
       { label: labels.analysis, href: servicesHref + '#analysis' },
       { label: labels.cashflow, href: servicesHref + '#cashflow' },
       { label: labels.feasibility, href: servicesHref + '#feasibility' },
@@ -301,7 +301,7 @@
     <div>
       <div class="footer-title">${labels.servicesTitle}</div>
       <div class="footer-links">
-        <a href="${langBase + 'fixed-income-intelligence.html'}">${isEn ? 'Financial Advisory' : 'الاستشارات المالية'}</a>
+        <a href="${homeHref}">${isEn ? 'Financial Advisory' : 'الاستشارات المالية'}</a>
         <a href="${servicesHref}">${isEn ? 'Financial Consulting' : 'الاستشارات المالية'}</a>
         <a href="${servicesHref}">${isEn ? 'Management Consulting' : 'الاستشارات الإدارية'}</a>
         <a href="${servicesHref}#feasibility">${isEn ? 'Feasibility Studies' : 'دراسات الجدوى'}</a>

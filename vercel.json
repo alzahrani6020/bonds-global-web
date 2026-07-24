@@ -586,6 +586,26 @@
       "statusCode": 301
     },
     {
+      "source": "/fixed-income-intelligence",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/fixed-income-intelligence.html",
+      "destination": "/",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/fixed-income-intelligence",
+      "destination": "/en/",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/fixed-income-intelligence.html",
+      "destination": "/en/",
+      "statusCode": 301
+    },
+    {
       "source": "/client/index.html",
       "destination": "/v3/portfolio",
       "statusCode": 301

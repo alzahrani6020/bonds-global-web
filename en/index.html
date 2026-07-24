@@ -1,392 +1,245 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-  <base href="/en/" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>BONDS | Feasibility, Valuation & Funding Platform</title>
-  <meta name="description" content="Get a feasibility study, risk assessment, funding options, and investment memorandum — all in one platform powered by AI and advisory review." />
-  <meta property="og:title" content="BONDS | Feasibility, Valuation & Funding Platform" />
-  <meta property="og:description" content="Get a feasibility study, risk assessment, funding options, and investment memorandum — all in one platform." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png?v=2026b" />
+  <title>Bonds Financial Advisory | Bonds</title>
+  <meta name="description" content="Bonds Financial Advisory: comprehensive financial solutions for individuals and institutions, from feasibility studies to financial and investment planning." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles/fixed-income-landing.css?v=4" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://bonds-global.com/en/" />
+  <meta property="og:title" content="Bonds Financial Advisory | Bonds" />
+  <meta property="og:description" content="Comprehensive financial solutions for individuals and institutions, from feasibility studies to financial and investment planning." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
   <meta property="og:url" content="https://bonds-global.com/en/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="BONDS | Feasibility, Valuation & Funding Platform" />
-  <meta name="twitter:description" content="Get a feasibility study, risk assessment, funding options, and investment memorandum — all in one platform." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png?v=2026b" />
-  <link rel="canonical" href="https://bonds-global.com/en/" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="../styles.css?v=3.0.0" />
-  <link rel="stylesheet" href="../styles/design-system.css?v=3.0.0" />
-  <link rel="stylesheet" href="../styles/home.css?v=3.0.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/api/env"></script>
-  <script src="/bonds-auth-2026.js?v=3.0.6"></script>
-  <script>
-    // Apply saved theme before render to avoid flash (must run before site-layout.js)
-    (function () {
-      try {
-        const saved = localStorage.getItem('theme');
-        if (saved === 'light' || saved === 'dark') {
-          document.documentElement.setAttribute('data-theme', saved);
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <script>
-    // Google Analytics 4 — only loads when GA_MEASUREMENT_ID is configured
-    (function(){
-      const gaId = (window.__ENV && window.__ENV.GA_MEASUREMENT_ID) || '';
-      if (!gaId || gaId.indexOf('G-') !== 0) return;
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', gaId);
-      const s = document.createElement('script');
-      s.async = true;
-      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaId);
-      document.head.appendChild(s);
-    })();
-  </script>
+  <meta name="twitter:title" content="Bonds Financial Advisory | Bonds" />
+  <meta name="twitter:description" content="Comprehensive financial solutions for individuals and institutions, from feasibility studies to financial and investment planning." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 </head>
-<body>
+<body class="fi-page">
+  <div class="fi-ticker">
+    <div class="fi-ticker__items">
+      <div class="fi-ticker__track" aria-hidden="true">
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SPREAD</span>
+          <span class="fi-ticker__value">332bps</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+4.7</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">EUR/USD</span>
+          <span class="fi-ticker__value">1.0847</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SOFR</span>
+          <span class="fi-ticker__value">5.307%</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">US 10Y</span>
+          <span class="fi-ticker__value">4.312</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.018</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">DE 10Y</span>
+          <span class="fi-ticker__value">2.541</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SPREAD</span>
+          <span class="fi-ticker__value">332bps</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+4.7</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">EUR/USD</span>
+          <span class="fi-ticker__value">1.0847</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SOFR</span>
+          <span class="fi-ticker__value">5.307%</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">US 10Y</span>
+          <span class="fi-ticker__value">4.312</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.018</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">DE 10Y</span>
+          <span class="fi-ticker__value">2.541</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
+        </div>
+      </div>
+    </div>
+    <div class="fi-ticker__live">
+      <span class="fi-ticker__pulse"></span>
+      <span>LIVE</span>
+      <span style="color:rgba(255,255,255,0.4);">BG</span>
+    </div>
+  </div>
+
   <div id="site-header"></div>
 
-  <!-- Hero -->
-  <section class="hero" id="hero">
-    <div class="hero__bg" aria-hidden="true"></div>
-    <div class="container hero__inner">
-      <div class="hero__content">
-        <span class="hero__eyebrow">BONDS Investment Platform</span>
-        <h1 class="hero__title text-balance">
-          Turn your project idea into an <span class="text-gradient">investment-ready report</span>
-        </h1>
-        <p class="hero__desc">
-          Feasibility study, risk assessment, funding options, and investment memorandum — all in one platform instead of juggling tools and advisors.
-        </p>
-        <ul class="hero__trust-list">
-          <li>
-            <span class="hero__check" aria-hidden="true">✓</span>
-            AI-powered financial analysis
-          </li>
-          <li>
-            <span class="hero__check" aria-hidden="true">✓</span>
-            Advisory review of business models
-          </li>
-          <li>
-            <span class="hero__check" aria-hidden="true">✓</span>
-            Investment memo ready for banks and investors
-          </li>
-        </ul>
-        <div class="hero__actions">
-          <a href="/en/calculator-wizard.html" class="btn btn-primary btn-lg">Start your project →</a>
-          <a href="contact.html" class="btn btn-outline">Talk to an advisor</a>
-        </div>
-      </div>
-      <div class="hero__visual" aria-hidden="true">
-        <div class="hero__orb hero__orb--1"></div>
-        <div class="hero__orb hero__orb--2"></div>
-        <div class="hero-dashboard-preview card">
-          <div class="hero-dashboard-preview__header">
-            <span class="hero-dashboard-preview__dot"></span>
-            <span class="hero-dashboard-preview__dot"></span>
-            <span class="hero-dashboard-preview__dot"></span>
+  <main>
+    <section class="fi-hero">
+      <div class="fi-hero__grid">
+        <div class="fi-hero__content">
+          <div class="fi-hero__est">
+            <strong>Est. 1991</strong>
+            <span></span>
+            <strong>London</strong>
+            <span></span>
+            <strong>New York</strong>
+            <span></span>
+            <strong>Singapore</strong>
           </div>
-          <div class="hero-dashboard-preview__body">
-            <div class="hero-dashboard-preview__metric">
-              <span>Feasibility Score</span>
-              <strong>82%</strong>
-            </div>
-            <div class="hero-dashboard-preview__bar">
-              <div class="hero-dashboard-preview__fill" style="width: 82%"></div>
-            </div>
-            <div class="hero-dashboard-preview__row">
-              <span>Net Present Value</span>
-              <strong>SAR 2.4M</strong>
-            </div>
-            <div class="hero-dashboard-preview__row">
-              <span>Payback Period</span>
-              <strong>28 months</strong>
+          <h1 class="fi-hero__title">
+            Bonds<br />
+            Financial<br />
+            <em>Advisory</em>
+          </h1>
+          <p class="fi-hero__subtitle">
+            Your trusted financial partner for turning vision into clear investment decisions.
+            Comprehensive financial advisory for individuals and institutions since 1991.
+          </p>
+          <div class="fi-hero__cta">
+            <a href="/en/calculators/auth/index.html" class="fi-btn fi-btn--primary">Access Markets →</a>
+            <a href="/en/case-studies.html" class="fi-btn fi-btn--secondary">View Research</a>
+          </div>
+        </div>
+
+        <div class="fi-dashboard" aria-hidden="true">
+          <div class="fi-dashboard__header">
+            <div class="fi-dashboard__title">Portfolio Snapshot</div>
+            <div class="fi-dashboard__live">
+              <span class="fi-ticker__pulse"></span>
+              <span>LIVE</span>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stats -->
-  <section class="stats-section" id="stats" aria-label="Platform statistics">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">🌍</div>
-          <div class="stat-num" data-target="22">22</div>
-          <div class="stat-label">Arab Countries</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">🏙️</div>
-          <div class="stat-num" data-target="818">818</div>
-          <div class="stat-label">Cities</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">🏭</div>
-          <div class="stat-num" data-target="280">280</div>
-          <div class="stat-label">Economic Activities</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">📊</div>
-          <div class="stat-num" data-target="50000" data-suffix="+">50,000+</div>
-          <div class="stat-label">Financial Analyses</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- How it works -->
-  <section class="section how-it-works" id="how-it-works">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">How it works</span>
-        <h2 class="section__title">From idea to funding in clear steps</h2>
-        <p class="section__subtitle">No deep finance background needed. BONDS guides you step by step.</p>
-      </header>
-      <div class="stepper" role="list">
-        <div class="stepper__item stepper__item--complete" role="listitem">
-          <div class="stepper__dot">1</div>
-          <span class="stepper__label">Enter your project data</span>
-        </div>
-        <div class="stepper__item stepper__item--active" role="listitem">
-          <div class="stepper__dot">2</div>
-          <span class="stepper__label">Get analysis & assessment</span>
-        </div>
-        <div class="stepper__item" role="listitem">
-          <div class="stepper__dot">3</div>
-          <span class="stepper__label">Review with an advisor</span>
-        </div>
-        <div class="stepper__item" role="listitem">
-          <div class="stepper__dot">4</div>
-          <span class="stepper__label">Export memo to investors</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- What you get -->
-  <section class="section section--alt solutions" id="solutions">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">What you get</span>
-        <h2 class="section__title">Everything you need for a sound investment decision</h2>
-      </header>
-      <div class="solutions-grid">
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">📋</div>
-          <h3 class="solution-card__title">Financial Feasibility Study</h3>
-          <p class="solution-card__desc">Complete financial model with cash flows, break-even point, and expected return.</p>
-          <a href="calculator-wizard.html" class="solution-card__link">Start the study →</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">🎯</div>
-          <h3 class="solution-card__title">Real Project Analysis</h3>
-          <p class="solution-card__desc">Calculate hidden costs, contingency, break-even, and payback period automatically.</p>
-          <a href="calculators/real-project-analysis.html" class="solution-card__link">Analyze your project →</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">⚖️</div>
-          <h3 class="solution-card__title">Asset & Risk Valuation</h3>
-          <p class="solution-card__desc">Fair asset valuation and assessment of market, operational, and financial risks.</p>
-          <a href="valuation/index.html" class="solution-card__link">Value your asset →</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">🏦</div>
-          <h3 class="solution-card__title">Funding Readiness</h3>
-          <p class="solution-card__desc">Discover available funding options and estimate your bank-approval likelihood.</p>
-          <a href="funding-readiness.html" class="solution-card__link">Check readiness →</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">📈</div>
-          <h3 class="solution-card__title">Investment Memorandum</h3>
-          <p class="solution-card__desc">Professional investment memo ready for banks, investors, and partners.</p>
-          <a href="/v3/portfolio" class="solution-card__link">Build your memo →</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Case studies -->
-  <section class="section case-studies" id="case-studies">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">Success stories</span>
-        <h2 class="section__title">Real results from the BONDS platform</h2>
-      </header>
-      <div class="case-studies-grid">
-        <article class="card case-card reveal">
-          <div class="case-card__meta">
-            <span class="badge badge--gold">Restaurants</span>
-            <span class="case-card__location">Riyadh</span>
-          </div>
-          <h3 class="case-card__title">12% lower unit cost</h3>
-          <p class="case-card__desc">We helped a burger chain owner restructure the cost menu and improve profit margin.</p>
-        </article>
-        <article class="card case-card reveal">
-          <div class="case-card__meta">
-            <span class="badge badge--gold">Manufacturing</span>
-            <span class="case-card__location">Dammam</span>
-          </div>
-          <h3 class="case-card__title">SAR 1.8M funding approval</h3>
-          <p class="case-card__desc">We prepared a full feasibility study for a packaging factory that secured bank financing.</p>
-        </article>
-        <article class="card case-card reveal">
-          <div class="case-card__meta">
-            <span class="badge badge--gold">Services</span>
-            <span class="case-card__location">Dubai</span>
-          </div>
-          <h3 class="case-card__title">Asset valuation for investment fund</h3>
-          <p class="case-card__desc">We valued an operational asset portfolio for an acquisition worth AED 4.5M.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section testimonials" id="testimonials" aria-label="Customer testimonials">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">Testimonials</span>
-        <h2 class="section__title">Trusted by entrepreneurs and investors</h2>
-      </header>
-      <div class="testimonials-grid">
-        <article class="testimonial-card reveal">
-          <p class="testimonial-card__quote">BONDS saved me hours of project analysis. The investment memo was bank-ready within hours.</p>
-          <div class="testimonial-card__author">
-            <div class="testimonial-card__avatar">A</div>
-            <div>
-              <div class="testimonial-card__name">Abdullah Al-Subaie</div>
-              <div class="testimonial-card__role">Founder, Restaurant Chain</div>
+          <div class="fi-dashboard__grid">
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">Portfolio Yield</div>
+              <div class="fi-dashboard__value fi-dashboard__value--gold">5.24%</div>
+              <div class="fi-dashboard__sub fi-dashboard__sub--up">+0.18% YTD</div>
+            </div>
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">Mod. Duration</div>
+              <div class="fi-dashboard__value">6.84</div>
+              <div class="fi-dashboard__sub">Yrs</div>
+            </div>
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">Credit Quality</div>
+              <div class="fi-dashboard__value">AA–</div>
+              <div class="fi-dashboard__sub">Avg. Rating</div>
+            </div>
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">DV01</div>
+              <div class="fi-dashboard__value">$48,210</div>
+              <div class="fi-dashboard__sub">Per $1M</div>
             </div>
           </div>
-        </article>
-        <article class="testimonial-card reveal">
-          <p class="testimonial-card__quote">The financial analysis was accurate and clear. It helped us secure financing of SAR 1.8M.</p>
-          <div class="testimonial-card__author">
-            <div class="testimonial-card__avatar">F</div>
-            <div>
-              <div class="testimonial-card__name">Fahad Al-Dossari</div>
-              <div class="testimonial-card__role">GM, Packaging Factory</div>
+          <div class="fi-dashboard__chart">
+            <div class="fi-dashboard__chart-title">US Treasury Yield Curve</div>
+            <div class="fi-dashboard__chart-area">
+              <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="fiCurveFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(212,168,83,0.35)" />
+                    <stop offset="100%" stop-color="rgba(212,168,83,0)" />
+                  </linearGradient>
+                </defs>
+                <path d="M0,95 C30,92 50,85 80,75 C110,65 140,55 170,48 C200,42 230,38 260,36 C290,34 320,33 350,32 L400,30 L400,120 L0,120 Z" fill="url(#fiCurveFill)" />
+                <path d="M0,95 C30,92 50,85 80,75 C110,65 140,55 170,48 C200,42 230,38 260,36 C290,34 320,33 350,32 L400,30" fill="none" stroke="var(--gold)" stroke-width="2.5" />
+                <circle cx="80" cy="75" r="3" fill="#fff" />
+                <circle cx="170" cy="48" r="3" fill="#fff" />
+                <circle cx="260" cy="36" r="3" fill="#fff" />
+                <circle cx="350" cy="32" r="3" fill="#fff" />
+              </svg>
+            </div>
+            <div class="fi-dashboard__axis">
+              <span>M</span><span>3M</span><span>2Y</span><span>5Y</span><span>10Y</span><span>20Y</span><span>30Y</span>
             </div>
           </div>
-        </article>
-        <article class="testimonial-card reveal">
-          <p class="testimonial-card__quote">The asset valuation was professional and market-standard. Excellent handling of investor needs.</p>
-          <div class="testimonial-card__author">
-            <div class="testimonial-card__avatar">S</div>
-            <div>
-              <div class="testimonial-card__name">Sarah Al-Qahtani</div>
-              <div class="testimonial-card__role">Partner, Investment Fund</div>
-            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fi-features">
+      <div class="fi-features__header">
+        <span class="fi-features__label">Our Services</span>
+        <h2 class="fi-features__title">Integrated financial solutions for <em>smarter decisions</em></h2>
+        <p class="fi-features__subtitle">Specialized financial advisory from project idea through execution and ongoing investment performance monitoring.</p>
+      </div>
+      <div class="fi-features__grid">
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust badges -->
-  <section class="trust-section" aria-label="Trusted tools">
-    <div class="container">
-      <p class="trust-section__title">Built on trusted tools and standards</p>
-      <div class="trust-logos">
-        <span class="trust-logo">Zoho</span>
-        <span class="trust-logo">Supabase</span>
-        <span class="trust-logo">Vercel</span>
-        <span class="trust-logo">Stripe</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Partners -->
-  <section class="partners-section" aria-label="Our partners">
-    <div class="container">
-      <p class="partners-section__eyebrow">Our Partners</p>
-      <h2 class="partners-section__title">Companies We Trust</h2>
-      <div class="partners-grid">
-        <a href="https://thiqqah.live/" target="_blank" rel="noopener noreferrer" class="partner-card">
-          <span class="partner-card__name">Thiqqah Al-Dhahabiya</span>
-          <span class="partner-card__desc">Company formation and general services in Saudi Arabia</span>
-        </a>
-        <a href="https://afaq-global.com/" target="_blank" rel="noopener noreferrer" class="partner-card">
-          <span class="partner-card__name">Afaq Creative Production</span>
-          <span class="partner-card__desc">Events, films, and creative marketing</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="section section--alt faq" id="faq">
-    <div class="container container--narrow">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">FAQ</span>
-        <h2 class="section__title">What would you like to know?</h2>
-      </header>
-      <div class="faq-list">
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">Do I need financial experience to use BONDS?</summary>
-          <p class="faq-item__answer">No. The platform is designed for business owners. You enter your project data, and we turn it into a clear financial analysis.</p>
-        </details>
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">How long does a feasibility study take?</summary>
-          <p class="faq-item__answer">The initial analysis is ready instantly. Advisory review and the final report take between 24 and 72 business hours.</p>
-        </details>
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">Is the report accepted by banks?</summary>
-          <p class="faq-item__answer">BONDS reports follow standardized financial analysis principles. We always recommend reviewing with your specific bank before final submission.</p>
-        </details>
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">What is the difference between free and paid plans?</summary>
-          <p class="faq-item__answer">The free plan gives you an initial analysis. Paid plans unlock investment memos, advanced valuation, and advisory support.</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="section cta-section" id="cta">
-    <div class="container">
-      <div class="cta-card card">
-        <div class="cta-card__content">
-          <h2 class="cta-card__title">Ready to turn your idea into an investment decision?</h2>
-          <p class="cta-card__desc">Start your project now and get an initial analysis within minutes.</p>
+          <h3 class="fi-feature__title">Feasibility Studies</h3>
+          <p class="fi-feature__text">Accurate economic and financial analysis for your investment projects before making decisions.</p>
         </div>
-        <div class="cta-card__actions">
-          <a href="/en/calculator-wizard.html" class="btn btn-primary btn-lg">Start free — no signup →</a>
-          <a href="contact.html" class="btn btn-outline">Talk to an advisor</a>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h3 class="fi-feature__title">Financial Planning</h3>
+          <p class="fi-feature__text">Realistic financial plans aligned with your short and long-term goals.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3 class="fi-feature__title">Investment Advisory</h3>
+          <p class="fi-feature__text">Investment guidance based on market data, risk analysis, and opportunity assessment.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="fi-feature__title">Risk Management</h3>
+          <p class="fi-feature__text">Identify financial risks and design strategies to protect against volatility.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+          </div>
+          <h3 class="fi-feature__title">Valuation & Pricing</h3>
+          <p class="fi-feature__text">Fair valuation of assets and companies using approved and transparent financial models.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <h3 class="fi-feature__title">Executive Reports</h3>
+          <p class="fi-feature__text">Concise reports and presentations for senior management and investors.</p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section class="fi-cta-section">
+      <div class="fi-cta-section__inner">
+        <h2 class="fi-cta-section__title">Ready to make <em>smarter financial decisions</em>?</h2>
+        <p class="fi-cta-section__text">Connect with the Bonds Financial Advisory team and start your investment journey with confidence and clarity.</p>
+        <div class="fi-hero__cta" style="justify-content:center;">
+          <a href="/en/calculators/auth/index.html" class="fi-btn fi-btn--primary">Open Account →</a>
+          <a href="/en/contact.html" class="fi-btn fi-btn--secondary">Talk to Sales</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <div id="site-footer"></div>
+
+  <script src="../supabase-client.js"></script>
+  <script src="../auth-guard.js"></script>
   <script src="../site-layout.js?v=3.0.7"></script>
-  <script src="../script.js?v=5"></script>
-  <script>
-    // Make solution cards clickable on the whole card surface
-    document.querySelectorAll('.solution-card').forEach(function(card) {
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', function(e) {
-        if (e.target.closest('a')) return;
-        const link = card.querySelector('.solution-card__link');
-        if (link) {
-          // Use link.click() so target/rel attributes are respected
-          link.click();
-        }
-      });
-    });
-  </script>
+  <script src="../page-tracker-v2.js"></script>
 </body>
 </html>

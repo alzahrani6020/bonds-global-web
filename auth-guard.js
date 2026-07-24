@@ -112,7 +112,7 @@
       const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
       const myBondsUrl = isEn ? '/en/my-bonds/' : '/my-bonds/';
       const myBondsLabel = isEn ? 'My Bonds' : 'مساحتي';
-      const faUrl = isEn ? '/en/fixed-income-intelligence' : '/fixed-income-intelligence';
+      const faUrl = isEn ? '/en/' : '/';
       const faLabel = isEn ? 'Financial Advisory' : 'الاستشارات المالية';
 
       // Build avatar with unique IDs

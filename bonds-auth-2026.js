@@ -442,7 +442,7 @@
         const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
         const myBondsUrl = isEn ? '/en/my-bonds/' : '/my-bonds/';
         const myBondsLabel = isEn ? 'My Bonds' : 'مساحتي';
-        const faUrl = isEn ? '/en/fixed-income-intelligence' : '/fixed-income-intelligence';
+        const faUrl = isEn ? '/en/' : '/';
         const faLabel = isEn ? 'Financial Advisory' : 'الاستشارات المالية';
 
         container.innerHTML = `
@@ -469,7 +469,7 @@
         const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
         const myBondsUrl = isEn ? '/en/my-bonds/' : '/my-bonds/';
         const myBondsLabel = isEn ? 'My Bonds' : 'مساحتي';
-        const faUrl = isEn ? '/en/fixed-income-intelligence' : '/fixed-income-intelligence';
+        const faUrl = isEn ? '/en/' : '/';
         const faLabel = isEn ? 'Financial Advisory' : 'الاستشارات المالية';
         container.innerHTML = `
           <div class="bonds-user-menu" style="position:relative;display:flex;align-items:center;gap:0.75rem;cursor:pointer;" onclick="event.stopPropagation();this.querySelector('.bonds-dropdown').style.display=this.querySelector('.bonds-dropdown').style.display==='block'?'none':'block';">

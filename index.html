@@ -3,404 +3,243 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>بوندز | منصة دراسات الجدوى والتمويل</title>
-  <meta name="description" content="احصل على دراسة جدوى، تقييم مخاطر، خيارات تمويل، ونشرة استثمارية جاهزة — كلها من منصة واحدة مدعومة بالذكاء الاصطناعي والمراجعة الاستشارية." />
-  <meta property="og:title" content="بوندز | منصة دراسات الجدوى والتمويل" />
-  <meta property="og:description" content="احصل على دراسة جدوى، تقييم مخاطر، خيارات تمويل، ونشرة استثمارية جاهزة — كلها من منصة واحدة." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png?v=2026b" />
+  <title>بوندز للاستشارات المالية | Bonds</title>
+  <meta name="description" content="بوندز للاستشارات المالية: حلول مالية متكاملة للأفراد والمؤسسات، من دراسات الجدوى إلى التخطيط المالي والاستثماري." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles/fixed-income-landing.css?v=4" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="canonical" href="https://bonds-global.com/" />
+  <meta property="og:title" content="بوندز للاستشارات المالية | Bonds" />
+  <meta property="og:description" content="حلول مالية متكاملة للأفراد والمؤسسات، من دراسات الجدوى إلى التخطيط المالي والاستثماري." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
   <meta property="og:url" content="https://bonds-global.com/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="بوندز | منصة دراسات الجدوى والتمويل" />
-  <meta name="twitter:description" content="احصل على دراسة جدوى، تقييم مخاطر، خيارات تمويل، ونشرة استثمارية جاهزة — كلها من منصة واحدة." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png?v=2026b" />
-  <link rel="canonical" href="https://bonds-global.com/" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
-  <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
-  <meta name="theme-color" content="#0a0f1a" />
-  <link rel="stylesheet" href="styles.css?v=3.0.0" />
-  <link rel="stylesheet" href="styles/design-system.css?v=3.0.0" />
-  <link rel="stylesheet" href="styles/home.css?v=3.0.0" />
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="/api/env"></script>
-  <script src="/bonds-auth-2026.js?v=3.0.6"></script>
-  <script>
-    // Apply saved theme before render to avoid flash (must run before site-layout.js)
-    (function () {
-      try {
-        const saved = localStorage.getItem('theme');
-        if (saved === 'light' || saved === 'dark') {
-          document.documentElement.setAttribute('data-theme', saved);
-        }
-      } catch (e) {}
-    })();
-  </script>
-  <script>
-    // Google Analytics 4 — only loads when GA_MEASUREMENT_ID is configured
-    (function(){
-      const gaId = (window.__ENV && window.__ENV.GA_MEASUREMENT_ID) || '';
-      if (!gaId || gaId.indexOf('G-') !== 0) return;
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      window.gtag = gtag;
-      gtag('js', new Date());
-      gtag('config', gaId);
-      const s = document.createElement('script');
-      s.async = true;
-      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(gaId);
-      document.head.appendChild(s);
-    })();
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    "name": "بوندز | Bonds Global",
-    "url": "https://bonds-global.com/",
-    "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
-    "description": "منصة دراسات الجدوى والتمويل والنشرات الاستثمارية المدعومة بالذكاء الاصطناعي.",
-    "sameAs": []
-  }
-  </script>
+  <meta name="twitter:title" content="بوندز للاستشارات المالية | Bonds" />
+  <meta name="twitter:description" content="حلول مالية متكاملة للأفراد والمؤسسات، من دراسات الجدوى إلى التخطيط المالي والاستثماري." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
 </head>
-<body>
+<body class="fi-page">
+  <div class="fi-ticker">
+    <div class="fi-ticker__items">
+      <div class="fi-ticker__track" aria-hidden="true">
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SPREAD</span>
+          <span class="fi-ticker__value">332bps</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+4.7</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">EUR/USD</span>
+          <span class="fi-ticker__value">1.0847</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SOFR</span>
+          <span class="fi-ticker__value">5.307%</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">US 10Y</span>
+          <span class="fi-ticker__value">4.312</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.018</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">DE 10Y</span>
+          <span class="fi-ticker__value">2.541</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SPREAD</span>
+          <span class="fi-ticker__value">332bps</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+4.7</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">EUR/USD</span>
+          <span class="fi-ticker__value">1.0847</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">SOFR</span>
+          <span class="fi-ticker__value">5.307%</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">US 10Y</span>
+          <span class="fi-ticker__value">4.312</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.018</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">DE 10Y</span>
+          <span class="fi-ticker__value">2.541</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
+        </div>
+      </div>
+    </div>
+    <div class="fi-ticker__live">
+      <span class="fi-ticker__pulse"></span>
+      <span>LIVE</span>
+      <span style="color:rgba(255,255,255,0.4);">BG</span>
+    </div>
+  </div>
+
   <div id="site-header"></div>
 
-  <!-- Hero -->
-  <section class="hero" id="hero">
-    <div class="hero__bg" aria-hidden="true"></div>
-    <div class="container hero__inner">
-      <div class="hero__content">
-        <span class="hero__eyebrow">منصة بوندز الاستثمارية</span>
-        <h1 class="hero__title text-balance">
-          حوّل فكرة مشروعك إلى <span class="text-gradient">تقرير استثماري جاهز</span>
-        </h1>
-        <p class="hero__desc">
-          دراسة جدوى، تقييم مخاطر، خيارات تمويل، ونشرة استثمارية — كلها من منصة واحدة بدلاً من البحث بين عدة أدوات ومستشارين.
-        </p>
-        <ul class="hero__trust-list">
-          <li>
-            <span class="hero__check" aria-hidden="true">✓</span>
-            تحليل مالي مدعوم بالذكاء الاصطناعي
-          </li>
-          <li>
-            <span class="hero__check" aria-hidden="true">✓</span>
-            مراجعة استشارية لنماذج الأعمال
-          </li>
-          <li>
-            <span class="hero__check" aria-hidden="true">✓</span>
-            نشرة استثمارية جاهزة للبنوك والمستثمرين
-          </li>
-        </ul>
-        <div class="hero__actions">
-          <a href="/calculator-wizard.html" class="btn btn-primary btn-lg">ابدأ مشروعك الآن ←</a>
-          <a href="contact.html" class="btn btn-outline">تحدث مع مستشار</a>
-        </div>
-      </div>
-      <div class="hero__visual" aria-hidden="true">
-        <div class="hero__orb hero__orb--1"></div>
-        <div class="hero__orb hero__orb--2"></div>
-        <div class="hero-dashboard-preview card">
-          <div class="hero-dashboard-preview__header">
-            <span class="hero-dashboard-preview__dot"></span>
-            <span class="hero-dashboard-preview__dot"></span>
-            <span class="hero-dashboard-preview__dot"></span>
+  <main>
+    <section class="fi-hero">
+      <div class="fi-hero__grid">
+        <div class="fi-hero__content">
+          <div class="fi-hero__est">
+            <strong>Est. 1991</strong>
+            <span></span>
+            <strong>London</strong>
+            <span></span>
+            <strong>New York</strong>
+            <span></span>
+            <strong>Singapore</strong>
           </div>
-          <div class="hero-dashboard-preview__body">
-            <div class="hero-dashboard-preview__metric">
-              <span>مؤشر الجدوى</span>
-              <strong>82%</strong>
-            </div>
-            <div class="hero-dashboard-preview__bar">
-              <div class="hero-dashboard-preview__fill" style="width: 82%"></div>
-            </div>
-            <div class="hero-dashboard-preview__row">
-              <span>صافي القيمة الحالية</span>
-              <strong>2.4M ر.س</strong>
-            </div>
-            <div class="hero-dashboard-preview__row">
-              <span>فترة الاسترداد</span>
-              <strong>28 شهر</strong>
+          <h1 class="fi-hero__title">
+            بوندز<br />
+            للاستشارات<br />
+            <em>المالية</em>
+          </h1>
+          <p class="fi-hero__subtitle">
+            شريكك المالي الموثوق لتحويل الرؤى إلى قرارات استثمارية واضحة. نقدم استشارات
+            مالية متكاملة للأفراد والمؤسسات منذ 1991.
+          </p>
+          <div class="fi-hero__cta">
+            <a href="/calculators/auth/index.html" class="fi-btn fi-btn--primary">الوصول للأسواق ←</a>
+            <a href="/case-studies.html" class="fi-btn fi-btn--secondary">عرض الأبحاث</a>
+          </div>
+        </div>
+
+        <div class="fi-dashboard" aria-hidden="true">
+          <div class="fi-dashboard__header">
+            <div class="fi-dashboard__title">Portfolio Snapshot</div>
+            <div class="fi-dashboard__live">
+              <span class="fi-ticker__pulse"></span>
+              <span>LIVE</span>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Stats -->
-  <section class="stats-section" id="stats" aria-label="إحصائيات المنصة">
-    <div class="container">
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">🌍</div>
-          <div class="stat-num" data-target="22">22</div>
-          <div class="stat-label">دولة عربية</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">🏙️</div>
-          <div class="stat-num" data-target="818">818</div>
-          <div class="stat-label">مدينة</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">🏭</div>
-          <div class="stat-num" data-target="280">280</div>
-          <div class="stat-label">نشاط اقتصادي</div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-icon" aria-hidden="true">📊</div>
-          <div class="stat-num" data-target="50000" data-suffix="+">50,000+</div>
-          <div class="stat-label">تحليل مالي</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- How it works -->
-  <section class="section how-it-works" id="how-it-works">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">كيف تعمل المنصة</span>
-        <h2 class="section__title">من الفكرة إلى التمويل في خطوات واضحة</h2>
-        <p class="section__subtitle">لا تحتاج لخبرة مالية عميقة. بوندز ترشدك خطوة بخطوة.</p>
-      </header>
-      <div class="stepper" role="list">
-        <div class="stepper__item stepper__item--complete" role="listitem">
-          <div class="stepper__dot">1</div>
-          <span class="stepper__label">أدخل بيانات مشروعك</span>
-        </div>
-        <div class="stepper__item stepper__item--active" role="listitem">
-          <div class="stepper__dot">2</div>
-          <span class="stepper__label">احصل على التحليل والتقييم</span>
-        </div>
-        <div class="stepper__item" role="listitem">
-          <div class="stepper__dot">3</div>
-          <span class="stepper__label">راجع النتائج مع المستشار</span>
-        </div>
-        <div class="stepper__item" role="listitem">
-          <div class="stepper__dot">4</div>
-          <span class="stepper__label">صدّر النشرة للمستثمرين</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- What you get -->
-  <section class="section section--alt solutions" id="solutions">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">ماذا تحصل عليه</span>
-        <h2 class="section__title">كل ما تحتاجه لاتخاذ قرار استثماري سليم</h2>
-      </header>
-      <div class="solutions-grid">
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">📋</div>
-          <h3 class="solution-card__title">دراسة جدوى مالية</h3>
-          <p class="solution-card__desc">نموذج مالي كامل بالتدفقات النقدية، نقطة التعادل، والعائد المتوقع.</p>
-          <a href="calculator-wizard.html" class="solution-card__link">ابدأ الدراسة ←</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">🎯</div>
-          <h3 class="solution-card__title">تحليل المشروع الحقيقي</h3>
-          <p class="solution-card__desc">احسب التكاليف الخفية، الاحتياطي، نقطة التعادل، وفترة الاسترداد تلقائياً.</p>
-          <a href="calculators/real-project-analysis.html" class="solution-card__link">حلّل مشروعك ←</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">⚖️</div>
-          <h3 class="solution-card__title">تقييم الأصول والمخاطر</h3>
-          <p class="solution-card__desc">تقييم عادل للأصل وفحص المخاطر السوقية والتشغيلية والمالية.</p>
-          <a href="valuation/index.html" class="solution-card__link">قيم أصلك ←</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">🏦</div>
-          <h3 class="solution-card__title">جاهزية التمويل</h3>
-          <p class="solution-card__desc">تعرف على فرص التمويل المتاحة واحتمالية الموافقة البنكية.</p>
-          <a href="funding-readiness.html" class="solution-card__link">اختبر جاهزيتك ←</a>
-        </article>
-        <article class="card solution-card reveal">
-          <div class="solution-card__icon" aria-hidden="true">📈</div>
-          <h3 class="solution-card__title">نشرة استثمارية</h3>
-          <p class="solution-card__desc">مذكرة استثمارية احترافية جاهزة للبنوك والمستثمرين والشركاء.</p>
-          <a href="/v3/portfolio" class="solution-card__link">ابنِ نشرتك ←</a>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Case studies -->
-  <section class="section case-studies" id="case-studies">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">قصص نجاح</span>
-        <h2 class="section__title">نتائج حقيقية من منصة بوندز</h2>
-      </header>
-      <div class="case-studies-grid">
-        <article class="card case-card reveal">
-          <div class="case-card__meta">
-            <span class="badge badge--gold">مطاعم</span>
-            <span class="case-card__location">الرياض</span>
-          </div>
-          <h3 class="case-card__title">تقليل تكلفة الوحدة 12%</h3>
-          <p class="case-card__desc">ساعدنا صاحب سلسلة برجر في إعادة هيكلة قائمة التكاليف وتحسين هامش الربح.</p>
-        </article>
-        <article class="card case-card reveal">
-          <div class="case-card__meta">
-            <span class="badge badge--gold">تصنيع</span>
-            <span class="case-card__location">الدمام</span>
-          </div>
-          <h3 class="case-card__title">موافقة تمويل 1.8M ر.س</h3>
-          <p class="case-card__desc">أعددنا دراسة جدوى كاملة لمصنع تعبئة أسهم في الحصول على تمويل بنكي.</p>
-        </article>
-        <article class="card case-card reveal">
-          <div class="case-card__meta">
-            <span class="badge badge--gold">خدمات</span>
-            <span class="case-card__location">دبي</span>
-          </div>
-          <h3 class="case-card__title">تقييم أصل لصندوق استثماري</h3>
-          <p class="case-card__desc">قيّمنا محفظة أصول تشغيلية لعملية استحواذ بقيمة 4.5M درهم.</p>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Testimonials -->
-  <section class="section testimonials" id="testimonials" aria-label="شهادات العملاء">
-    <div class="container">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">آراء العملاء</span>
-        <h2 class="section__title">ثقة رواد الأعمال والمستثمرين</h2>
-      </header>
-      <div class="testimonials-grid">
-        <article class="testimonial-card reveal">
-          <p class="testimonial-card__quote">وفّرت لي بوندز وقتًا طويلاً في تحليل المشروع. النشرة الاستثمارية كانت جاهزة للبنك خلال ساعات.</p>
-          <div class="testimonial-card__author">
-            <div class="testimonial-card__avatar">ع</div>
-            <div>
-              <div class="testimonial-card__name">عبدالله السبيعي</div>
-              <div class="testimonial-card__role">مؤسس، سلسلة مطاعم</div>
+          <div class="fi-dashboard__grid">
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">Portfolio Yield</div>
+              <div class="fi-dashboard__value fi-dashboard__value--gold">5.24%</div>
+              <div class="fi-dashboard__sub fi-dashboard__sub--up">+0.18% YTD</div>
+            </div>
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">Mod. Duration</div>
+              <div class="fi-dashboard__value">6.84</div>
+              <div class="fi-dashboard__sub">Yrs</div>
+            </div>
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">Credit Quality</div>
+              <div class="fi-dashboard__value">AA–</div>
+              <div class="fi-dashboard__sub">Avg. Rating</div>
+            </div>
+            <div class="fi-dashboard__card">
+              <div class="fi-dashboard__label">DV01</div>
+              <div class="fi-dashboard__value">$48,210</div>
+              <div class="fi-dashboard__sub">Per $1M</div>
             </div>
           </div>
-        </article>
-        <article class="testimonial-card reveal">
-          <p class="testimonial-card__quote">التحليل المالي دقيق وواضح. ساعدنا في الحصول على موافقة تمويل بقيمة 1.8 مليون ريال.</p>
-          <div class="testimonial-card__author">
-            <div class="testimonial-card__avatar">ف</div>
-            <div>
-              <div class="testimonial-card__name">فهد الدوسري</div>
-              <div class="testimonial-card__role">مدير عام، مصنع تعبئة</div>
+          <div class="fi-dashboard__chart">
+            <div class="fi-dashboard__chart-title">US Treasury Yield Curve</div>
+            <div class="fi-dashboard__chart-area">
+              <svg viewBox="0 0 400 120" preserveAspectRatio="none">
+                <defs>
+                  <linearGradient id="fiCurveFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(212,168,83,0.35)" />
+                    <stop offset="100%" stop-color="rgba(212,168,83,0)" />
+                  </linearGradient>
+                </defs>
+                <path d="M0,95 C30,92 50,85 80,75 C110,65 140,55 170,48 C200,42 230,38 260,36 C290,34 320,33 350,32 L400,30 L400,120 L0,120 Z" fill="url(#fiCurveFill)" />
+                <path d="M0,95 C30,92 50,85 80,75 C110,65 140,55 170,48 C200,42 230,38 260,36 C290,34 320,33 350,32 L400,30" fill="none" stroke="var(--gold)" stroke-width="2.5" />
+                <circle cx="80" cy="75" r="3" fill="#fff" />
+                <circle cx="170" cy="48" r="3" fill="#fff" />
+                <circle cx="260" cy="36" r="3" fill="#fff" />
+                <circle cx="350" cy="32" r="3" fill="#fff" />
+              </svg>
+            </div>
+            <div class="fi-dashboard__axis">
+              <span>M</span><span>3M</span><span>2Y</span><span>5Y</span><span>10Y</span><span>20Y</span><span>30Y</span>
             </div>
           </div>
-        </article>
-        <article class="testimonial-card reveal">
-          <p class="testimonial-card__quote">تقييم الأصول كان محترفًا ومستندًا لمعايير سوقية. تعامل ممتاز وفريق يفهم احتياج المستثمر.</p>
-          <div class="testimonial-card__author">
-            <div class="testimonial-card__avatar">س</div>
-            <div>
-              <div class="testimonial-card__name">سارة القحطاني</div>
-              <div class="testimonial-card__role">شريك، صندوق استثماري</div>
-            </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="fi-features">
+      <div class="fi-features__header">
+        <span class="fi-features__label">خدماتنا</span>
+        <h2 class="fi-features__title">حلول مالية متكاملة <em>لقرارات أذكى</em></h2>
+        <p class="fi-features__subtitle">نقدم استشارات مالية متخصصة تبدأ من فكرة المشروع وحتى تنفيذه ومراقبة أدائه الاستثماري.</p>
+      </div>
+      <div class="fi-features__grid">
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
           </div>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- Trust badges -->
-  <section class="trust-section" aria-label="شركاء موثوقون">
-    <div class="container">
-      <p class="trust-section__title">أدوات ومعايير موثوقة</p>
-      <div class="trust-logos">
-        <span class="trust-logo">Zoho</span>
-        <span class="trust-logo">Supabase</span>
-        <span class="trust-logo">Vercel</span>
-        <span class="trust-logo">Stripe</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Partners -->
-  <section class="partners-section" aria-label="شركاؤنا">
-    <div class="container">
-      <p class="partners-section__eyebrow">شركاؤنا</p>
-      <h2 class="partners-section__title">شركات نثق بها</h2>
-      <div class="partners-grid">
-        <a href="https://thiqqah.live/" target="_blank" rel="noopener noreferrer" class="partner-card">
-          <span class="partner-card__name">ثقة الذهبية</span>
-          <span class="partner-card__desc">تأسيس شركات وخدمات عامة في السعودية</span>
-        </a>
-        <a href="https://afaq-global.com/" target="_blank" rel="noopener noreferrer" class="partner-card">
-          <span class="partner-card__name">آفاق الإبداعية برودكشن</span>
-          <span class="partner-card__desc">فعاليات، أفلام، وتسويق إبداعي</span>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section class="section section--alt faq" id="faq">
-    <div class="container container--narrow">
-      <header class="section-header text-center">
-        <span class="section__eyebrow">الأسئلة الشائعة</span>
-        <h2 class="section__title">ما الذي تريد معرفته؟</h2>
-      </header>
-      <div class="faq-list">
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">هل أحتاج خبرة مالية لاستخدام بوندز؟</summary>
-          <p class="faq-item__answer">لا. المنصة مصممة لرجال الأعمال. تدخل بيانات مشروعك، ونحن نحوّلها إلى تحليل مالي واضح.</p>
-        </details>
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">كم تستغرق دراسة الجدوى؟</summary>
-          <p class="faq-item__answer">التحليل الأولي جاهز فوراً. المراجعة الاستشارية والتقرير النهائي تستغرق بين 24 إلى 72 ساعة عمل.</p>
-        </details>
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">هل التقرير مقبول من البنوك؟</summary>
-          <p class="faq-item__answer">تقارير بوندز تتبع معايير تحليل مالي موحدة. ننصح دائماً بمراجعة البنك المختص قبل التقديم النهائي.</p>
-        </details>
-        <details class="faq-item reveal">
-          <summary class="faq-item__question">ما الفرق بين الخطة المجانية والمدفوعة؟</summary>
-          <p class="faq-item__answer">الخطة المجانية تمنحك تحليلاً أولياً. الخطط المدفوعة تفتح النشرات الاستثمارية، التقييم المتقدم، والدعم الاستشاري.</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA -->
-  <section class="section cta-section" id="cta">
-    <div class="container">
-      <div class="cta-card card">
-        <div class="cta-card__content">
-          <h2 class="cta-card__title">جاهز لتحويل فكرتك إلى قرار استثماري؟</h2>
-          <p class="cta-card__desc">ابدأ مشروعك الآن واحصل على تحليل أولي خلال دقائق.</p>
+          <h3 class="fi-feature__title">دراسات الجدوى</h3>
+          <p class="fi-feature__text">تحليل اقتصادي ومالي دقيق لمشاريعك الاستثمارية قبل اتخاذ القرار.</p>
         </div>
-        <div class="cta-card__actions">
-          <a href="/calculator-wizard.html" class="btn btn-primary btn-lg">ابدأ مجاناً — بدون تسجيل ←</a>
-          <a href="contact.html" class="btn btn-outline">تحدث مع مستشار</a>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <h3 class="fi-feature__title">التخطيط المالي</h3>
+          <p class="fi-feature__text">وضع خطط مالية واقعية تتوافق مع أهدافك قصيرة وطويلة المدى.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3 class="fi-feature__title">الاستشارات الاستثمارية</h3>
+          <p class="fi-feature__text">توجيه استثماري مبني على بيانات السوق وتحليل المخاطر والفرص.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          </div>
+          <h3 class="fi-feature__title">إدارة المخاطر</h3>
+          <p class="fi-feature__text">تحديد المخاطر المالية وتصميم استراتيجيات للحماية من التقلبات.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"/></svg>
+          </div>
+          <h3 class="fi-feature__title">التقييم والتسعير</h3>
+          <p class="fi-feature__text">تقييم عادل للأصول والشركات بنماذج مالية معتمدة وشفافة.</p>
+        </div>
+        <div class="fi-feature">
+          <div class="fi-feature__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <h3 class="fi-feature__title">التقارير التنفيذية</h3>
+          <p class="fi-feature__text">تقارير وعروض تقديمية موجزة للإدارة العليا والمستثمرين.</p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
+
+    <section class="fi-cta-section">
+      <div class="fi-cta-section__inner">
+        <h2 class="fi-cta-section__title">جاهز لاتخاذ <em>قرارات مالية أذكى</em>؟</h2>
+        <p class="fi-cta-section__text">تواصل مع فريق بوندز للاستشارات المالية وابدأ رحلتك الاستثمارية بثقة ووضوح.</p>
+        <div class="fi-hero__cta" style="justify-content:center;">
+          <a href="/calculators/auth/index.html" class="fi-btn fi-btn--primary">فتح حساب ←</a>
+          <a href="/contact.html" class="fi-btn fi-btn--secondary">تواصل مع المبيعات</a>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <div id="site-footer"></div>
+
+  <script src="supabase-client.js"></script>
+  <script src="auth-guard.js"></script>
   <script src="site-layout.js?v=3.0.7"></script>
-  <script src="script.js?v=3.0.0"></script>
-  <script>
-    // Make solution cards clickable on the whole card surface
-    document.querySelectorAll('.solution-card').forEach(function(card) {
-      card.style.cursor = 'pointer';
-      card.addEventListener('click', function(e) {
-        // If user clicked the actual link, let the browser handle it
-        if (e.target.closest('a')) return;
-        const link = card.querySelector('.solution-card__link');
-        if (link) {
-          // Use link.click() so target/rel attributes are respected
-          link.click();
-        }
-      });
-    });
-  </script>
+  <script src="page-tracker-v2.js"></script>
 </body>
 </html>
