@@ -105,20 +105,35 @@
 
 /* ── Custom landing header ────────────────────────────────── */
 /* Use existing site header; override for dark landing page */
-.fi-page #site-header {
-  background: rgba(7, 11, 20, 0.92);
-  border-bottom: 1px solid rgba(212, 168, 83, 0.08);
+.fi-page #site-header .main-header,
+.fi-page #site-header.main-header {
+  background: rgba(7, 11, 20, 0.95) !important;
+  border-bottom: 1px solid rgba(212, 168, 83, 0.08) !important;
 }
 
 .fi-page #site-header a,
 .fi-page #site-header .nav-link,
 .fi-page #site-header .dropdown-toggle {
-  color: #fff;
+  color: #fff !important;
 }
 
 .fi-page #site-header a:hover,
-.fi-page #site-header .nav-link:hover {
-  color: var(--gold);
+.fi-page #site-header .nav-link:hover,
+.fi-page #site-header .dropdown-toggle:hover {
+  color: var(--gold) !important;
+}
+
+.fi-page #site-header .header-brand {
+  filter: brightness(0) invert(1);
+}
+
+/* Hide live-chat widget on this landing page */
+.fi-page iframe[src*="tawk.to"],
+.fi-page .tawk-min-container,
+.fi-page .tawk-flex,
+.fi-page #tawkto-chat-widget,
+.fi-page [class*="tawk"] {
+  display: none !important;
 }
 
 /* ── Hero ─────────────────────────────────────────────────── */
