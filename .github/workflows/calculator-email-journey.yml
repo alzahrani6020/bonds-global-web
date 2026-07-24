@@ -2,8 +2,8 @@ name: Calculator Lead Email Journey
 
 on:
   schedule:
-    # Every hour (UTC)
-    - cron: '0 * * * *'
+    # Once per day at 09:00 UTC
+    - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:

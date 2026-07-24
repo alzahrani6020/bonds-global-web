@@ -567,7 +567,7 @@
     },
     {
       "path": "/api/calculator-email-journey",
-      "schedule": "0 * * * *"
+      "schedule": "0 9 * * *"
     },
     {
       "path": "/api/calculator-leads/retention",
