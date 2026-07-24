@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Leads الحاسبات | بوندز</title>
+  <meta name="description" content="متابعة البريدات الملتقطة من الحاسبات وحالة الرسائل التتابعية." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <style>
+    .lead-dashboard { max-width:1200px; margin:0 auto; padding:2rem 1rem; }
+    .lead-dashboard h1 { color:var(--gold); font-size:1.75rem; margin-bottom:0.5rem; }
+    .lead-dashboard .subtitle { color:var(--text-secondary); margin-bottom:2rem; }
+    .lead-card { background:var(--bg-card); border:1px solid var(--border); border-radius:16px; padding:1.5rem; margin-bottom:1.5rem; }
+    .lead-card h2 { color:var(--gold); font-size:1.15rem; margin:0 0 1rem; }
+    .lead-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:1rem; }
+    .lead-metric { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; padding:1rem; text-align:center; }
+    .lead-metric__value { font-size:1.75rem; font-weight:800; color:var(--gold); }
+    .lead-metric__label { color:var(--text-secondary); font-size:0.8rem; margin-top:0.25rem; }
+    .lead-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    .lead-table th, .lead-table td { padding:0.65rem; border-bottom:1px solid var(--border); text-align:right; }
+    .lead-table th { color:var(--gold); font-weight:700; }
+    .lead-table td { color:var(--text); }
+    .lead-badge { display:inline-block; padding:0.2rem 0.5rem; border-radius:999px; font-size:0.7rem; font-weight:700; }
+    .lead-badge--ok { background:rgba(34,197,94,0.12); color:#4ade80; }
+    .lead-badge--warn { background:rgba(234,179,8,0.12); color:#facc15; }
+    .lead-btn { padding:0.6rem 1rem; border-radius:8px; font-weight:700; border:none; cursor:pointer; background:linear-gradient(135deg,#d4a853,#f0c96a); color:#0c0c1c; }
+    .lead-btn:disabled { opacity:0.6; cursor:not-allowed; }
+    .lead-cta { display:flex; gap:1rem; margin-top:1.5rem; flex-wrap:wrap; }
+    .lead-cta a { padding:0.6rem 1rem; border-radius:8px; font-weight:700; text-decoration:none; border:1px solid var(--border); color:var(--text); }
+    .lead-note { color:var(--text-secondary); font-size:0.85rem; margin-top:1rem; }
+    .chart-bar { display:flex; align-items:center; gap:0.75rem; margin:0.4rem 0; }
+    .chart-bar__fill { height:8px; background:linear-gradient(90deg,#d4a853,#f0c96a); border-radius:4px; min-width:4px; }
+    .chart-bar__label { flex:1; font-size:0.85rem; color:var(--text); }
+    .chart-bar__value { font-size:0.85rem; color:var(--gold); font-weight:700; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="lead-dashboard">
+    <h1>📧 Leads الحاسبات</h1>
+    <p class="subtitle">متابعة البريدات الملتقطة وحالة رسائل retargeting.</p>
+
+    <div class="lead-card">
+      <h2>المؤشرات الرئيسية</h2>
+      <div class="lead-grid">
+        <div class="lead-metric"><div class="lead-metric__value" id="mTotal">—</div><div class="lead-metric__label">إجمالي Leads</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="m24h">—</div><div class="lead-metric__label">آخر 24 ساعة</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="m7d">—</div><div class="lead-metric__label">آخر 7 أيام</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mUnsub">—</div><div class="lead-metric__label">إلغاء اشتراك</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mConverted">—</div><div class="lead-metric__label">محولون</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mBounced">—</div><div class="lead-metric__label">Bounce</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mComplained">—</div><div class="lead-metric__label">Complaint</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mSent0">—</div><div class="lead-metric__label">رسائل ترحيب</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mSent1">—</div><div class="lead-metric__label">تذكير 24h</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mSent2">—</div><div class="lead-metric__label">تذكير 7d</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mSent3">—</div><div class="lead-metric__label">عرض مستشار 14d</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mOpens">—</div><div class="lead-metric__label">فتحات</div></div>
+        <div class="lead-metric"><div class="lead-metric__value" id="mClicks">—</div><div class="lead-metric__label">نقرات</div></div>
+      </div>
+      <div class="lead-cta">
+        <button class="lead-btn" id="runJourneyBtn" onclick="runJourney()">تشغيل الرحلة الآن</button>
+        <button class="lead-btn" id="retentionBtn" onclick="runRetention()" style="background:transparent;color:var(--text);border:1px solid var(--border);">تنظيف البيانات القديمة</button>
+        <a href="/admin/conversion-dashboard.html">لوحة التحويل</a>
+        <a href="/admin/dashboard.html">الرئيسية</a>
+        <a href="/admin/en/calculator-leads.html">English</a>
+      </div>
+      <p class="lead-note" id="journeyNote"></p>
+    </div>
+
+    <div class="lead-card">
+      <h2>اختبار A/B للعناوين</h2>
+      <div id="abVariants"></div>
+    </div>
+
+    <div class="lead-card">
+      <h2>أعلى الحاسبات (آخر 30 يوم)</h2>
+      <div id="byCalculator"></div>
+    </div>
+
+    <div class="lead-card">
+      <h2>آخر 50 Lead</h2>
+      <div style="overflow-x:auto;">
+        <table class="lead-table" id="leadsTable">
+          <thead>
+            <tr>
+              <th>البريد</th>
+              <th>الحاسبة</th>
+              <th>المصدر</th>
+              <th>الدولة</th>
+              <th>اللغة</th>
+              <th>الحالة</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <script src="../supabase-client.js"></script>
+  <script src="../auth-guard.js"></script>
+  <script src="../components/universal-dropdown.js"></script>
+  <script src="../components/universal-dropdown-init.js"></script>
+  <script>
+    async function fetchStats() {
+      try {
+        const session = await window.BondsAuth?.getSession?.();
+        const res = await fetch('/api/calculator-leads', {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session && session.access_token ? { 'Authorization': 'Bearer ' + session.access_token } : {})
+          }
+        });
+        if (!res.ok) throw new Error('Unauthorized or failed');
+        const data = await res.json();
+        render(data);
+      } catch (err) {
+        document.getElementById('journeyNote').textContent = '⚠️ ' + (err.message === 'Unauthorized or failed' ? 'يجب تسجيل الدخول كإداري.' : err.message);
+      }
+    }
+
+    function render(data) {
+      document.getElementById('mTotal').textContent = data.totals.total.toLocaleString('ar-SA');
+      document.getElementById('m24h').textContent = data.totals.last24h.toLocaleString('ar-SA');
+      document.getElementById('m7d').textContent = data.totals.last7d.toLocaleString('ar-SA');
+      document.getElementById('mUnsub').textContent = data.totals.unsubscribed.toLocaleString('ar-SA');
+      document.getElementById('mConverted').textContent = data.totals.converted.toLocaleString('ar-SA');
+      document.getElementById('mBounced').textContent = data.totals.bounced.toLocaleString('ar-SA');
+      document.getElementById('mComplained').textContent = data.totals.complained.toLocaleString('ar-SA');
+      document.getElementById('mSent0').textContent = (data.sequences[0] || 0).toLocaleString('ar-SA');
+      document.getElementById('mSent1').textContent = (data.sequences[1] || 0).toLocaleString('ar-SA');
+      document.getElementById('mSent2').textContent = (data.sequences[2] || 0).toLocaleString('ar-SA');
+      document.getElementById('mSent3').textContent = (data.sequences[3] || 0).toLocaleString('ar-SA');
+      document.getElementById('mOpens').textContent = (data.sequences.opens || 0).toLocaleString('ar-SA');
+      document.getElementById('mClicks').textContent = (data.sequences.clicks || 0).toLocaleString('ar-SA');
+
+      const max = Math.max(...data.byCalculator.map(c => c.count), 1);
+      document.getElementById('abVariants').innerHTML = (data.variantByStep || []).map(v => {
+        const rate = v.sent ? ((v.clicks / v.sent) * 100).toFixed(1) : '0.0';
+        const stepName = ['ترحيب', '24h', '7d', 'مستشار'][v.step] || v.step;
+        return `
+          <div class="chart-bar">
+            <span class="chart-bar__label">الخطوة ${stepName} — النسخة ${v.variant}</span>
+            <div class="chart-bar__fill" style="width:${Math.min(rate * 5, 100).toFixed(1)}%"></div>
+            <span class="chart-bar__value">${v.clicks}/${v.sent} (${rate}%)</span>
+          </div>
+        `;
+      }).join('') || '<p class="lead-note">لا توجد بيانات كافية</p>';
+
+      document.getElementById('byCalculator').innerHTML = data.byCalculator.map(c => `
+        <div class="chart-bar">
+          <span class="chart-bar__label">${escapeHtml(c.calculator)}</span>
+          <div class="chart-bar__fill" style="width:${(c.count / max * 100).toFixed(1)}%"></div>
+          <span class="chart-bar__value">${c.count}</span>
+        </div>
+      `).join('') || '<p class="lead-note">لا توجد بيانات</p>';
+
+      const tbody = document.querySelector('#leadsTable tbody');
+      tbody.innerHTML = data.recentLeads.map(l => `
+        <tr>
+          <td>${escapeHtml(maskEmail(l.email))}</td>
+          <td>${escapeHtml(l.calculator)}</td>
+          <td>${escapeHtml(l.source || '-')}</td>
+          <td>${escapeHtml(l.country || '-')}</td>
+          <td>${escapeHtml(l.lang || '-')}</td>
+          <td>${getStatusBadge(l)}</td>
+          <td>${new Date(l.created_at).toLocaleString('ar-SA')}</td>
+        </tr>
+      `).join('');
+    }
+
+    function getStatusBadge(l) {
+      if (l.converted_at) return '<span class="lead-badge lead-badge--ok">محول</span>';
+      if (l.complained_at) return '<span class="lead-badge lead-badge--warn">Complaint</span>';
+      if (l.bounced_at) return '<span class="lead-badge lead-badge--warn">Bounce</span>';
+      if (l.unsubscribed_at) return '<span class="lead-badge lead-badge--warn">إلغى</span>';
+      return '<span class="lead-badge lead-badge--ok">نشط</span>';
+    }
+
+    function maskEmail(email) {
+      if (!email || !email.includes('@')) return email;
+      const [name, domain] = email.split('@');
+      const masked = name.length > 3 ? name.slice(0, 2) + '***' + name.slice(-1) : '***';
+      return masked + '@' + domain;
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    }
+
+    async function runJourney() {
+      const btn = document.getElementById('runJourneyBtn');
+      const note = document.getElementById('journeyNote');
+      btn.disabled = true;
+      note.textContent = '⏳ جاري تشغيل الرحلة...';
+      try {
+        const session = await window.BondsAuth?.getSession?.();
+        const res = await fetch('/api/calculator-email-journey', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session && session.access_token ? { 'Authorization': 'Bearer ' + session.access_token } : {})
+          }
+        });
+        const data = await res.json();
+        note.textContent = data.success ? '✅ تم تشغيل الرحلة بنجاح.' : '⚠️ فشل: ' + (data.error || 'غير معروف');
+        if (data.success) fetchStats();
+      } catch (err) {
+        note.textContent = '⚠️ خطأ: ' + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function runRetention() {
+      const btn = document.getElementById('retentionBtn');
+      const note = document.getElementById('journeyNote');
+      if (!confirm('سيتم حذف Leads الملغية/المرتدة قبل 30 يومًا وتجاهل هوية النشطة قبل أكثر من سنة. متابعة؟')) return;
+      btn.disabled = true;
+      note.textContent = '⏳ جاري تنظيف البيانات...';
+      try {
+        const session = await window.BondsAuth?.getSession?.();
+        const res = await fetch('/api/calculator-leads/retention', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(session && session.access_token ? { 'Authorization': 'Bearer ' + session.access_token } : {})
+          }
+        });
+        const data = await res.json();
+        note.textContent = data.success
+          ? `✅ تم حذف ${data.deleted} وإخفاء هوية ${data.anonymized}. المتبقي: ${data.remaining}.`
+          : '⚠️ فشل: ' + (data.error || 'غير معروف');
+        if (data.success) fetchStats();
+      } catch (err) {
+        note.textContent = '⚠️ خطأ: ' + err.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    fetchStats();
+  </script>
+</body>
+</html>

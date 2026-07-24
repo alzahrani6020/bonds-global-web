@@ -34,6 +34,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.6"></script>
+  <script src="/calculators/auth/lead-conversion.js?v=1"></script>
   <script>
     (async () => {
       const card = document.getElementById('card');
@@ -91,6 +92,7 @@
             `;
           } else {
             const destination = authRedirect || '/calculators/dashboard.html';
+            if (window.BondsLeadConversion) window.BondsLeadConversion.markConverted(user.email);
             card.innerHTML = `
               <span class="icon">🎉</span>
               <h1>تم تأكيد حسابك!</h1>

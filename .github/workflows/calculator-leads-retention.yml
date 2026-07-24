@@ -1,0 +1,22 @@
+name: Calculator Leads Data Retention
+
+on:
+  schedule:
+    # Every Sunday at 02:00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+
+jobs:
+  retention:
+    name: Run calculator leads retention cleanup
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger retention cleanup
+        run: |
+          curl -fsS -X POST "${SITE_URL}/api/calculator-leads/retention" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${CRON_SECRET}"
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://bonds-global.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

@@ -260,6 +260,78 @@
       "destination": "/api/platform"
     },
     {
+      "source": "/api/calculator-email-journey",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/calculator-email-journey/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/calculator-leads",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/calculator-leads/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/mark-lead-converted",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/mark-lead-converted/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/calculator-leads/convert",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/calculator-leads/convert/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/calculator-leads/retention",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/calculator-leads/retention/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/unsubscribe-lead",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/unsubscribe-lead/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/track-click",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/track-click/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/track-open",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/track-open/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/email-webhook",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/email-webhook/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/image-search",
       "destination": "/api/research"
     },
@@ -492,6 +564,14 @@
     {
       "path": "/api/v3/admin/alerts/evaluate",
       "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/calculator-email-journey",
+      "schedule": "0 * * * *"
+    },
+    {
+      "path": "/api/calculator-leads/retention",
+      "schedule": "0 2 * * 0"
     }
   ],
   "redirects": [

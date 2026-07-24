@@ -114,10 +114,28 @@
         return;
       }
       input.style.borderColor = '';
-      captureEmail(email, 'exit_intent');
-      track('email_captured', { calculator: getCalcName(), source: 'exit_intent' });
-      if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '✅ تم إرسال الرابط إلى بريدك' : '✅ Link sent to your email', 'success');
-      close();
+      var btn = overlay.querySelector('[data-action="email"]');
+      var originalText = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = rtl ? '⏳ جاري الإرسال...' : '⏳ Sending...';
+
+      captureEmail(email, 'exit_intent')
+        .then(function(res) {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          if (res.ok) {
+            track('email_captured', { calculator: getCalcName(), source: 'exit_intent' });
+            if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '✅ تم إرسال الرابط إلى بريدك' : '✅ Link sent to your email', 'success');
+            close();
+          } else {
+            if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '⚠️ لم نتمكن من الإرسال، حاول مجددًا' : '⚠️ Could not send, please try again', 'error');
+          }
+        })
+        .catch(function() {
+          btn.disabled = false;
+          btn.textContent = originalText;
+          if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '⚠️ خطأ في الشبكة' : '⚠️ Network error', 'error');
+        });
     });
 
     overlay.querySelector('[data-action="save"]').addEventListener('click', function() {
@@ -146,6 +164,40 @@
       showExitModal();
     }
   });
+
+  // Mobile exit-intent: detect quick upward scroll near top of page
+  // (user reaching for the browser chrome/address bar to leave)
+  (function initMobileExitIntent() {
+    var isTouch = window.matchMedia('(pointer: coarse)').matches || 'ontouchstart' in window;
+    if (!isTouch) return;
+
+    var lastScrollY = window.scrollY || 0;
+    var lastScrollTime = Date.now();
+    var minVelocity = 1.8; // px/ms upward
+    var topThreshold = 180; // px from top
+    var mobileTriggered = false;
+
+    window.addEventListener('scroll', function() {
+      if (mobileTriggered || hasTriggered || !window._calcCompleted) return;
+      var now = Date.now();
+      var scrollY = window.scrollY || 0;
+      var deltaY = scrollY - lastScrollY;
+      var deltaT = now - lastScrollTime;
+
+      if (deltaT > 0 && deltaY < 0 && scrollY < topThreshold) {
+        var velocity = Math.abs(deltaY) / deltaT;
+        if (velocity >= minVelocity) {
+          mobileTriggered = true;
+          hasTriggered = true;
+          track('exit_intent_shown', { calculator: getCalcName(), device: 'mobile' });
+          showExitModal();
+        }
+      }
+
+      lastScrollY = scrollY;
+      lastScrollTime = now;
+    }, { passive: true });
+  })();
 
   // Mobile / all devices: warn before leaving with unsaved results
   window.addEventListener('beforeunload', function(e) {

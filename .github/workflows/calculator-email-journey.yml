@@ -1,0 +1,22 @@
+name: Calculator Lead Email Journey
+
+on:
+  schedule:
+    # Every hour (UTC)
+    - cron: '0 * * * *'
+  workflow_dispatch:
+
+jobs:
+  journey:
+    name: Run calculator lead retargeting email journey
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger retargeting email journey
+        run: |
+          curl -fsS -X POST "${SITE_URL}/api/calculator-email-journey" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${CRON_SECRET}"
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://bonds-global.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

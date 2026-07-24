@@ -143,6 +143,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.6"></script>
+  <script src="/calculators/auth/lead-conversion.js?v=1"></script>
   <script src="../../../v3/master-data/countries-governorates-cities.js"></script>
 
   <script>
@@ -299,6 +300,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
         }
 
         showSuccess('✅ Saved! Redirecting...');
+        if (window.BondsLeadConversion && user?.email) window.BondsLeadConversion.markConverted(user.email);
         const redirect = sessionStorage.getItem('auth_redirect') || '/en/v3/portfolio';
         sessionStorage.removeItem('auth_redirect');
         setTimeout(() => location.href = redirect, 1000);
@@ -327,6 +329,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
           language: 'en'
         };
         await window.BondsAuth.updateProfile(user.id, payload);
+        if (window.BondsLeadConversion && user?.email) window.BondsLeadConversion.markConverted(user.email);
         sessionStorage.setItem('bonds_onboarding_skipped', Date.now().toString());
         setLoading(false);
         const redirect = sessionStorage.getItem('auth_redirect') || '/en/v3/portfolio';

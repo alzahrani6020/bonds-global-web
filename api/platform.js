@@ -13,6 +13,7 @@ const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
+const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || process.env.SUPABASE_SERVICE_KEY || 'bonds-default-secret';
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
 const crypto = require('crypto');
 
@@ -1033,6 +1034,728 @@ async function logUsageHandler(req, res) {
   }
 }
 
+function buildTrackClickUrl(targetUrl, email, step) {
+  const payload = JSON.stringify({ u: targetUrl, e: email, s: step, t: Date.now() });
+  const payloadB64 = Buffer.from(payload).toString('base64url');
+  const token = crypto.createHash('sha256').update(payloadB64 + UNSUBSCRIBE_SECRET).digest('base64url');
+  return `${APP_URL}/api/track-click?d=${encodeURIComponent(payloadB64)}&sig=${encodeURIComponent(token)}`;
+}
+
+function buildTrackOpenUrl(email, step) {
+  const payload = JSON.stringify({ e: email, s: step, t: Date.now() });
+  const payloadB64 = Buffer.from(payload).toString('base64url');
+  const token = crypto.createHash('sha256').update(payloadB64 + UNSUBSCRIBE_SECRET).digest('base64url');
+  return `${APP_URL}/api/track-open?d=${encodeURIComponent(payloadB64)}&sig=${encodeURIComponent(token)}`;
+}
+
+// ── Calculator Lead Email Journey ──────────────────────────
+function calculatorEmailTemplates(step, data) {
+  const rtl = data.lang === 'ar';
+  const calcName = data.calculator;
+  const returnUrl = data.url || APP_URL;
+  const token = data.unsubscribeToken || data.unsubscribe_token || '';
+  const email = data.email || '';
+  const variant = data.variant === 'B' ? 'B' : 'A';
+  const unsubscribeUrl = `${APP_URL}/api/unsubscribe-lead?token=${encodeURIComponent(token)}`;
+  const trackedReturnUrl = buildTrackClickUrl(returnUrl, email, step);
+  const trackedUnsubscribeUrl = buildTrackClickUrl(unsubscribeUrl, email, step);
+  const trackedHomeUrl = buildTrackClickUrl(APP_URL, email, step);
+  const trackedOpenUrl = buildTrackOpenUrl(email, step);
+  const advisorUrl = buildTrackClickUrl(`${APP_URL}/advisor`, email, step);
+
+  const footerHtml = rtl
+    ? `<hr style="border:0;border-top:1px solid #eee;margin:1.5rem 0;">
+       <p style="font-size:0.8rem;color:#888;">أنت تتلقى هذا البريد لأنك استخدمت أداة حاسبة في بوندز.</p>
+       <p style="font-size:0.8rem;"><a href="${trackedUnsubscribeUrl}" style="color:#b8954e;">إلغاء الاشتراك</a> | <a href="${trackedHomeUrl}" style="color:#b8954e;">بوندز</a></p>`
+    : `<hr style="border:0;border-top:1px solid #eee;margin:1.5rem 0;">
+       <p style="font-size:0.8rem;color:#888;">You received this because you used a Bonds calculator.</p>
+       <p style="font-size:0.8rem;"><a href="${trackedUnsubscribeUrl}" style="color:#b8954e;">Unsubscribe</a> | <a href="${trackedHomeUrl}" style="color:#b8954e;">Bonds</a></p>`;
+
+  const footerText = rtl
+    ? `---\nأنت تتلقى هذا البريد لأنك استخدمت أداة حاسبة في بوندز.\nإلغاء الاشتراك: ${trackedUnsubscribeUrl}\nبوندز: ${trackedHomeUrl}`
+    : `---\nYou received this because you used a Bonds calculator.\nUnsubscribe: ${trackedUnsubscribeUrl}\nBonds: ${trackedHomeUrl}`;
+
+  const preheader = (text) => `
+    <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">${escapeHtml(text)}</div>
+    <img src="${trackedOpenUrl}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />
+  `;
+
+  const subjects = {
+    0: {
+      A: rtl ? `✅ نتائجك جاهزة من حاسبة ${calcName}` : `✅ Your ${calcName} calculator results are ready`,
+      B: rtl ? `🎯 ${calcName} — راجع نتائجك الآن` : `🎯 ${calcName} — review your results now`
+    },
+    1: {
+      A: rtl ? `⏰ احفظ نتائج حاسبة ${calcName}` : `⏰ Save your ${calcName} results before they're gone`,
+      B: rtl ? `⚠️ نتائج ${calcName} ستُفقد قريبًا` : `⚠️ Your ${calcName} results will be lost soon`
+    },
+    2: {
+      A: rtl ? `🚀 حوّل نتائج ${calcName} إلى خطة استثمارية` : `🚀 Turn your ${calcName} results into an investment plan`,
+      B: rtl ? `📈 هل تريد الربح من فكرة ${calcName}؟` : `📈 Want to profit from your ${calcName} idea?`
+    },
+    3: {
+      A: rtl ? `🤝 هل تحتاج مساعدة في مشروع ${calcName}؟` : `🤝 Need help with your ${calcName} project?`,
+      B: rtl ? `💼 مستشار بوندز جاهز لمساعدتك في ${calcName}` : `💼 A Bonds advisor is ready to help with ${calcName}`
+    }
+  };
+
+  const previews = {
+    0: rtl ? 'شكراً لاستخدامك الحاسبة. اضغط لمراجعتها وحفظها.' : 'Thanks for using the calculator. Click to review and save.',
+    1: rtl ? 'نتائجك لا تزال متاحة لكنها لن تُحفظ إلا بتسجيل الدخول.' : 'Your results are still available but only saved if you sign in.',
+    2: rtl ? 'حوّلها إلى خطة استثمارية متكاملة مع Bonds V3.' : 'Convert it into a complete investment plan with Bonds V3.',
+    3: rtl ? 'احصل على مراجعة احترافية لمشروعك من مستشار متخصص.' : 'Get a professional review of your project from a specialist advisor.'
+  };
+
+  if (step === 0) {
+    const html = `
+      ${preheader(previews[0])}
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;direction:${rtl?'rtl':'ltr'};text-align:${rtl?'right':'left'};">
+        <h2 style="color:#b8954e;">${rtl ? 'نتائجك جاهزة!' : 'Your results are ready!'}</h2>
+        <p>${rtl ? 'شكراً لاستخدامك حاسبة' : 'Thanks for using the'} <strong>${calcName}</strong> ${rtl ? 'في بوندز.' : 'calculator on Bonds.'}</p>
+        <p>${rtl ? 'يمكنك العودة لنتائجك ومتابعة العمل من خلال الرابط أدناه:' : 'You can return to your results and continue working using the link below:'}</p>
+        <a href="${trackedReturnUrl}" style="display:inline-block;margin:1rem 0;padding:0.75rem 1.5rem;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c1c;text-decoration:none;border-radius:8px;font-weight:700;">${rtl ? 'العودة لنتائجي →' : 'Back to my results →'}</a>
+        <p style="margin-top:1rem;">${rtl ? 'أو سجّل دخولك لحفظ المشروع كاملًا والاستمرار في V3.' : 'Or sign in to save the full project and continue with V3.'}</p>
+        ${footerHtml}
+      </div>
+    `;
+    const text = rtl
+      ? `نتائجك جاهزة!\n\nشكراً لاستخدامك حاسبة ${calcName} في بوندز.\n\nالعودة لنتائجك: ${trackedReturnUrl}\n\nأو سجّل دخولك لحفظ المشروع والاستمرار في V3.\n\n${footerText}`
+      : `Your results are ready!\n\nThanks for using the ${calcName} calculator on Bonds.\n\nBack to your results: ${trackedReturnUrl}\n\nOr sign in to save the full project and continue with V3.\n\n${footerText}`;
+    return { subject: subjects[0][variant], html, text, preview: previews[0] };
+  }
+
+  if (step === 1) {
+    const html = `
+      ${preheader(previews[1])}
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;direction:${rtl?'rtl':'ltr'};text-align:${rtl?'right':'left'};">
+        <h2 style="color:#b8954e;">${rtl ? 'لا تفقد عملك' : 'Don\'t lose your work'}</h2>
+        <p>${rtl ? 'أمس استخدمت حاسبة' : 'Yesterday you used the'} <strong>${calcName}</strong> ${rtl ? 'في بوندز.' : 'calculator on Bonds.'}</p>
+        <p>${rtl ? 'نتائجك لا تزال متاحة، لكنها لن تُحفظ إلا إذا سجّلت دخولك.' : 'Your results are still available, but they will only be saved if you sign in.'}</p>
+        <a href="${trackedReturnUrl}" style="display:inline-block;margin:1rem 0;padding:0.75rem 1.5rem;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c1c;text-decoration:none;border-radius:8px;font-weight:700;">${rtl ? 'حفظ مشروعي الآن →' : 'Save my project now →'}</a>
+        ${footerHtml}
+      </div>
+    `;
+    const text = rtl
+      ? `لا تفقد عملك\n\nأمس استخدمت حاسبة ${calcName} في بوندز.\n\nنتائجك لا تزال متاحة، لكنها لن تُحفظ إلا إذا سجّلت دخولك.\n\nحفظ مشروعي الآن: ${trackedReturnUrl}\n\n${footerText}`
+      : `Don\'t lose your work\n\nYesterday you used the ${calcName} calculator on Bonds.\n\nYour results are still available, but they will only be saved if you sign in.\n\nSave my project now: ${trackedReturnUrl}\n\n${footerText}`;
+    return { subject: subjects[1][variant], html, text, preview: previews[1] };
+  }
+
+  if (step === 2) {
+    const html = `
+      ${preheader(previews[2])}
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;direction:${rtl?'rtl':'ltr'};text-align:${rtl?'right':'left'};">
+        <h2 style="color:#b8954e;">${rtl ? 'هل تريد الذهاب أبعد؟' : 'Ready to go further?'}</h2>
+        <p>${rtl ? 'قبل أسبوع استخدمت حاسبة' : 'A week ago you used the'} <strong>${calcName}</strong> ${rtl ? 'في بوندز.' : 'calculator on Bonds.'}</p>
+        <p>${rtl ? 'بonds V3 يحوّل نتائجك إلى خطة استثمارية متكاملة: تحليل مالي، تقييم مخاطر، دراسة سوق، وتقرير احترافي.' : 'Bonds V3 turns your results into a complete investment plan: financial analysis, risk assessment, market study, and a professional report.'}</p>
+        <a href="${trackedReturnUrl}" style="display:inline-block;margin:1rem 0;padding:0.75rem 1.5rem;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c1c;text-decoration:none;border-radius:8px;font-weight:700;">${rtl ? 'ابدأ خطتي الاستثمارية →' : 'Start my investment plan →'}</a>
+        ${footerHtml}
+      </div>
+    `;
+    const text = rtl
+      ? `هل تريد الذهاب أبعد؟\n\nقبل أسبوع استخدمت حاسبة ${calcName} في بوندز.\n\nبonds V3 يحوّل نتائجك إلى خطة استثمارية متكاملة.\n\nابدأ خطتي الاستثمارية: ${trackedReturnUrl}\n\n${footerText}`
+      : `Ready to go further?\n\nA week ago you used the ${calcName} calculator on Bonds.\n\nBonds V3 turns your results into a complete investment plan.\n\nStart my investment plan: ${trackedReturnUrl}\n\n${footerText}`;
+    return { subject: subjects[2][variant], html, text, preview: previews[2] };
+  }
+
+  // Step 3: advisor offer (~14 days)
+  const html = `
+    ${preheader(previews[3])}
+    <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;direction:${rtl?'rtl':'ltr'};text-align:${rtl?'right':'left'};">
+      <h2 style="color:#b8954e;">${rtl ? 'هل تحتاج مساعدة متخصصة؟' : 'Need specialist help?'}</h2>
+      <p>${rtl ? 'قبل أسبوعين استخدمت حاسبة' : 'Two weeks ago you used the'} <strong>${calcName}</strong> ${rtl ? 'في بوندز.' : 'calculator on Bonds.'}</p>
+      <p>${rtl ? 'مستشارو بوندز يمكنهم مراجعة مشروعك وتقديم توصيات عملية للخطوات التالية.' : 'Bonds advisors can review your project and provide practical recommendations for next steps.'}</p>
+      <a href="${advisorUrl}" style="display:inline-block;margin:1rem 0;padding:0.75rem 1.5rem;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c1c;text-decoration:none;border-radius:8px;font-weight:700;">${rtl ? 'طلب مراجعة مجانية →' : 'Request a free review →'}</a>
+      <p style="margin-top:1rem;font-size:0.9rem;color:var(--text-secondary);">${rtl ? 'أو عد إلى نتائجك:' : 'Or return to your results:'} <a href="${trackedReturnUrl}" style="color:#b8954e;">${rtl ? 'النتائج' : 'Results'}</a></p>
+      ${footerHtml}
+    </div>
+  `;
+  const text = rtl
+    ? `هل تحتاج مساعدة متخصصة؟\n\nقبل أسبوعين استخدمت حاسبة ${calcName} في بوندز.\n\nمستشارو بوندز يمكنهم مراجعة مشروعك وتقديم توصيات عملية.\n\nطلب مراجعة مجانية: ${advisorUrl}\n\nأو عد إلى النتائج: ${trackedReturnUrl}\n\n${footerText}`
+    : `Need specialist help?\n\nTwo weeks ago you used the ${calcName} calculator on Bonds.\n\nBonds advisors can review your project and provide practical recommendations.\n\nRequest a free review: ${advisorUrl}\n\nOr return to results: ${trackedReturnUrl}\n\n${footerText}`;
+  return { subject: subjects[3][variant], html, text, preview: previews[3] };
+}
+
+async function sendCalculatorEmail(supabase, lead, step) {
+  // We need a lead id to track unsubscribes and duplicates
+  let leadId = lead.id;
+  if (!leadId && lead.email) {
+    const { data: matched } = await supabase.from('calculator_leads')
+      .select('id, unsubscribed_at, converted_at, bounced_at, complained_at')
+      .eq('email', lead.email)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .single();
+    if (matched) {
+      leadId = matched.id;
+      if (matched.unsubscribed_at) return { skipped: true, reason: 'unsubscribed' };
+      if (matched.converted_at) return { skipped: true, reason: 'converted' };
+      if (matched.bounced_at) return { skipped: true, reason: 'bounced' };
+      if (matched.complained_at) return { skipped: true, reason: 'complained' };
+    }
+  }
+
+  if (leadId) {
+    // Check status flags
+    const { data: status } = await supabase.from('calculator_leads')
+      .select('unsubscribed_at, converted_at, bounced_at, complained_at')
+      .eq('id', leadId)
+      .single();
+    if (status?.unsubscribed_at) return { skipped: true, reason: 'unsubscribed' };
+    if (status?.converted_at) return { skipped: true, reason: 'converted' };
+    if (status?.bounced_at) return { skipped: true, reason: 'bounced' };
+    if (status?.complained_at) return { skipped: true, reason: 'complained' };
+
+    // Check already sent
+    const { data: existing } = await supabase.from('calculator_email_sequences')
+      .select('id')
+      .eq('lead_id', leadId)
+      .eq('step', step)
+      .single();
+    if (existing) return { skipped: true, reason: 'already_sent' };
+
+    // Check retry limit for previous failures (max 3 attempts, at least 1h apart)
+    const { data: failedLog } = await supabase.from('calculator_email_send_logs')
+      .select('attempts, failed_at')
+      .eq('lead_id', leadId)
+      .eq('step', step)
+      .single();
+    if (failedLog) {
+      if (failedLog.attempts >= 3) return { skipped: true, reason: 'max_retries_exceeded' };
+      const hoursSinceFailure = (Date.now() - new Date(failedLog.failed_at).getTime()) / (60 * 60 * 1000);
+      if (hoursSinceFailure < 1) return { skipped: true, reason: 'retry_cooldown' };
+    }
+  }
+
+  const variant = Math.random() < 0.5 ? 'A' : 'B';
+  const tpl = calculatorEmailTemplates(step, { ...lead, variant });
+  const result = await sendEmail({
+    to: lead.email,
+    subject: tpl.subject,
+    html: tpl.html,
+    text: tpl.text
+  });
+
+  // Retry logic: only mark as sent on real success. Demo mode (missing config) is treated
+  // as a soft skip so the admin sees the issue; transient failures are retried by the cron.
+  if (result.success && !result.demo) {
+    await supabase.from('calculator_email_sequences').insert([{
+      lead_id: leadId || lead.id || null,
+      email: lead.email,
+      calculator: lead.calculator,
+      step,
+      variant
+    }]);
+    // Clear any previous failure log on successful retry
+    if (leadId || lead.id) {
+      await supabase.from('calculator_email_send_logs')
+        .delete()
+        .eq('lead_id', leadId || lead.id)
+        .eq('step', step);
+    }
+    return result;
+  }
+
+  if (result.demo) {
+    // Configuration missing — log once as a demo send so we don't spam retries.
+    await supabase.from('calculator_email_sequences').insert([{
+      lead_id: leadId || lead.id || null,
+      email: lead.email,
+      calculator: lead.calculator,
+      step,
+      variant
+    }]);
+    return { ...result, demo: true };
+  }
+
+  // Transient failure — log for retry (up to 3 attempts, at least 1h apart)
+  const { data: existingLog } = await supabase.from('calculator_email_send_logs')
+    .select('id, attempts')
+    .eq('lead_id', leadId || lead.id || 0)
+    .eq('step', step)
+    .single();
+
+  const attempts = (existingLog?.attempts || 0) + 1;
+  const logRow = {
+    lead_id: leadId || lead.id || null,
+    email: lead.email,
+    step,
+    attempts,
+    last_error: String(result.error || result.reason || 'unknown').slice(0, 500),
+    failed_at: new Date().toISOString()
+  };
+
+  if (existingLog) {
+    await supabase.from('calculator_email_send_logs')
+      .update(logRow)
+      .eq('id', existingLog.id);
+  } else {
+    await supabase.from('calculator_email_send_logs').insert([logRow]);
+  }
+
+  return { success: false, error: result.error || result.reason || 'send_failed', attempts };
+}
+
+async function runCalculatorEmailJourney() {
+  const supabase = getSupabase();
+  const now = new Date();
+
+  // Step 0: immediate (sent inline on capture, but also catch any missed)
+  const { data: leads0 } = await supabase.from('calculator_leads')
+    .select('id, email, calculator, country, lang, url, unsubscribe_token, created_at')
+    .is('unsubscribed_at', null)
+    .is('converted_at', null)
+    .is('bounced_at', null)
+    .is('complained_at', null)
+    .order('created_at', { ascending: false })
+    .limit(100);
+
+  for (const lead of (leads0 || [])) {
+    const ageMs = now - new Date(lead.created_at);
+    if (ageMs < 5 * 60 * 1000) { // within 5 minutes
+      const { data: sent } = await supabase.from('calculator_email_sequences')
+        .select('id').eq('lead_id', lead.id).eq('step', 0).single();
+      if (!sent) await sendCalculatorEmail(supabase, lead, 0);
+    }
+  }
+
+  // Step 1: ~24 hours
+  const { data: leads1 } = await supabase.from('calculator_leads')
+    .select('id, email, calculator, country, lang, url, unsubscribe_token, created_at')
+    .is('unsubscribed_at', null)
+    .is('converted_at', null)
+    .is('bounced_at', null)
+    .is('complained_at', null)
+    .lte('created_at', new Date(now - 22 * 60 * 60 * 1000).toISOString())
+    .gte('created_at', new Date(now - 48 * 60 * 60 * 1000).toISOString())
+    .limit(200);
+
+  for (const lead of (leads1 || [])) {
+    await sendCalculatorEmail(supabase, lead, 1);
+  }
+
+  // Step 2: ~7 days
+  const { data: leads2 } = await supabase.from('calculator_leads')
+    .select('id, email, calculator, country, lang, url, unsubscribe_token, created_at')
+    .is('unsubscribed_at', null)
+    .is('converted_at', null)
+    .is('bounced_at', null)
+    .is('complained_at', null)
+    .lte('created_at', new Date(now - 6 * 24 * 60 * 60 * 1000).toISOString())
+    .gte('created_at', new Date(now - 10 * 24 * 60 * 60 * 1000).toISOString())
+    .limit(200);
+
+  for (const lead of (leads2 || [])) {
+    await sendCalculatorEmail(supabase, lead, 2);
+  }
+
+  // Step 3: ~14 days — advisor offer
+  const { data: leads3 } = await supabase.from('calculator_leads')
+    .select('id, email, calculator, country, lang, url, unsubscribe_token, created_at')
+    .is('unsubscribed_at', null)
+    .is('converted_at', null)
+    .is('bounced_at', null)
+    .is('complained_at', null)
+    .lte('created_at', new Date(now - 13 * 24 * 60 * 60 * 1000).toISOString())
+    .gte('created_at', new Date(now - 18 * 24 * 60 * 60 * 1000).toISOString())
+    .limit(200);
+
+  for (const lead of (leads3 || [])) {
+    await sendCalculatorEmail(supabase, lead, 3);
+  }
+}
+
+async function calculatorEmailJourneyHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  // Require a secret token, cron secret, or admin auth
+  let isAuthorized = false;
+  const cronSecret = req.headers?.['x-cron-secret'];
+  const expectedCronSecret = process.env.CRON_SECRET;
+  if (cronSecret && expectedCronSecret && cronSecret === expectedCronSecret) {
+    isAuthorized = true;
+  } else {
+    const secret = req.query?.secret || req.body?.secret || '';
+    const adminSecret = process.env.CALCULATOR_JOURNEY_SECRET || process.env.ADMIN_API_SECRET || UNSUBSCRIBE_SECRET;
+    if (secret === adminSecret) {
+      isAuthorized = true;
+    } else {
+      const user = await resolveAuthUser(req);
+      if (user) {
+        const supabase = getSupabase();
+        const { data: adminRole } = await supabase.from('admin_roles').select('role').eq('user_id', user.id).single();
+        if (adminRole?.role) isAuthorized = true;
+      }
+    }
+  }
+
+  if (!isAuthorized) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+
+  try {
+    await runCalculatorEmailJourney();
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[calculator-email-journey] Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+async function unsubscribeLeadHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const token = (req.query?.token || '').toString();
+  if (!token) return res.status(400).json({ error: 'Token required' });
+
+  try {
+    const supabase = getSupabase();
+    const { error } = await supabase.from('calculator_leads')
+      .update({ unsubscribed_at: new Date().toISOString() })
+      .eq('unsubscribe_token', token);
+    if (error) throw error;
+
+    const rtl = req.headers['accept-language']?.startsWith('ar');
+    const message = rtl
+      ? '✅ تم إلغاء اشتراكك بنجاح. لن تتلقى المزيد من رسائل الحاسبات.'
+      : '✅ You have been unsubscribed successfully. You will no longer receive calculator emails.';
+    return res.status(200).send(`<html lang="${rtl?'ar':'en'}" dir="${rtl?'rtl':'ltr'}"><body style="font-family:Arial;padding:2rem;text-align:center;"><h2>${message}</h2></body></html>`);
+  } catch (err) {
+    console.error('[unsubscribe-lead] Error:', err);
+    return res.status(500).json({ error: err.message });
+  }
+}
+
+// ── Email Click Tracking ───────────────────────────────────
+async function trackClickHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  const { d, sig } = req.query || {};
+  if (!d) return res.status(400).json({ error: 'Missing data' });
+
+  let payload;
+  let payloadStr;
+  try {
+    payloadStr = Buffer.from(d, 'base64url').toString('utf8');
+    payload = JSON.parse(payloadStr);
+  } catch (err) {
+    return res.status(400).json({ error: 'Invalid data' });
+  }
+
+  const expectedSig = crypto.createHash('sha256').update(payloadStr + UNSUBSCRIBE_SECRET).digest('base64url');
+  if (!sig || sig !== expectedSig) {
+    return res.status(403).json({ error: 'Invalid signature' });
+  }
+
+  const targetUrl = payload.u || APP_URL;
+  const email = payload.e;
+  const step = typeof payload.s === 'number' ? payload.s : null;
+
+  try {
+    const supabase = getSupabase();
+    if (email && step !== null) {
+      await supabase.from('calculator_email_sequences')
+        .update({ clicked_at: new Date().toISOString() })
+        .eq('email', email)
+        .eq('step', step)
+        .is('clicked_at', null);
+    }
+  } catch (err) {
+    console.error('[track-click] Error:', err);
+  }
+
+  return res.status(302).setHeader('Location', targetUrl).end();
+}
+
+// ── Email Open Tracking ────────────────────────────────────
+const TRANSPARENT_GIF = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+
+async function trackOpenHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  const { d, sig } = req.query || {};
+  if (!d) {
+    res.setHeader('Content-Type', 'image/gif');
+    return res.status(200).send(TRANSPARENT_GIF);
+  }
+
+  let payload;
+  let payloadStr;
+  try {
+    payloadStr = Buffer.from(d, 'base64url').toString('utf8');
+    payload = JSON.parse(payloadStr);
+  } catch (err) {
+    res.setHeader('Content-Type', 'image/gif');
+    return res.status(200).send(TRANSPARENT_GIF);
+  }
+
+  const expectedSig = crypto.createHash('sha256').update(payloadStr + UNSUBSCRIBE_SECRET).digest('base64url');
+  if (!sig || sig !== expectedSig) {
+    res.setHeader('Content-Type', 'image/gif');
+    return res.status(200).send(TRANSPARENT_GIF);
+  }
+
+  const email = payload.e;
+  const step = typeof payload.s === 'number' ? payload.s : null;
+
+  try {
+    const supabase = getSupabase();
+    if (email && step !== null) {
+      await supabase.from('calculator_email_sequences')
+        .update({ opened_at: new Date().toISOString() })
+        .eq('email', email)
+        .eq('step', step)
+        .is('opened_at', null);
+    }
+  } catch (err) {
+    console.error('[track-open] Error:', err);
+  }
+
+  res.setHeader('Content-Type', 'image/gif');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  return res.status(200).send(TRANSPARENT_GIF);
+}
+
+// ── Resend Email Webhook (bounce / complaint) ──────────────
+async function emailWebhookHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  try {
+    const body = req.body || {};
+    const type = body.type || '';
+    const email = body.data?.to || body.data?.email || body.email;
+
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(200).json({ success: true, ignored: true });
+    }
+
+    const supabase = getSupabase();
+    const now = new Date().toISOString();
+    const emailLower = String(email).toLowerCase().trim();
+
+    if (type === 'email.bounced' || type === 'email.delivery_failed' || type === 'bounced') {
+      await supabase.from('calculator_leads')
+        .update({ bounced_at: now })
+        .eq('email', emailLower);
+      console.log('[email-webhook] Bounce recorded for:', emailLower);
+    } else if (type === 'email.complained' || type === 'complained' || type === 'spam') {
+      await supabase.from('calculator_leads')
+        .update({ complained_at: now })
+        .eq('email', emailLower);
+      console.log('[email-webhook] Complaint recorded for:', emailLower);
+    } else {
+      return res.status(200).json({ success: true, ignored: true, type });
+    }
+
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[email-webhook] Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+async function requireAdminAuth(req, res) {
+  const user = await resolveAuthUser(req);
+  if (!user) return { error: res.status(401).json({ error: 'Authentication required' }) };
+  const supabase = getSupabase();
+  const { data: adminRole } = await supabase.from('admin_roles').select('role').eq('user_id', user.id).single();
+  if (!adminRole?.role) return { error: res.status(403).json({ error: 'Admin required' }) };
+  return { supabase, user };
+}
+
+// ── Calculator Leads Admin Stats ───────────────────────────
+async function calculatorLeadsStatsHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+
+  const auth = await requireAdminAuth(req, res);
+  if (auth.error) return auth.error;
+  const { supabase } = auth;
+
+  try {
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+    const since7d = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { count: totalLeads } = await supabase.from('calculator_leads').select('*', { count: 'exact', head: true });
+    const { count: leads24h } = await supabase.from('calculator_leads').select('*', { count: 'exact', head: true }).gte('created_at', since24h);
+    const { count: leads7d } = await supabase.from('calculator_leads').select('*', { count: 'exact', head: true }).gte('created_at', since7d);
+    const { count: unsubscribed } = await supabase.from('calculator_leads').select('*', { count: 'exact', head: true }).not('unsubscribed_at', 'is', null);
+    const { count: converted } = await supabase.from('calculator_leads').select('*', { count: 'exact', head: true }).not('converted_at', 'is', null);
+    const { count: bounced } = await supabase.from('calculator_leads').select('*', { count: 'exact', head: true }).not('bounced_at', 'is', null);
+    const { count: complained } = await supabase.from('calculator_leads').select('*', { count: 'exact', head: true }).not('complained_at', 'is', null);
+
+    const { data: sequences } = await supabase.from('calculator_email_sequences').select('step, variant, opened_at, clicked_at').gte('created_at', since30d);
+    const seqStats = { 0: 0, 1: 0, 2: 0, 3: 0, opens: 0, clicks: 0 };
+    const variants = { A: { sent: 0, clicks: 0 }, B: { sent: 0, clicks: 0 } };
+    const variantByStep = {};
+    (sequences || []).forEach(s => {
+      if (typeof s.step === 'number') seqStats[s.step] = (seqStats[s.step] || 0) + 1;
+      if (s.opened_at) seqStats.opens++;
+      if (s.clicked_at) seqStats.clicks++;
+      const v = s.variant === 'B' ? 'B' : 'A';
+      variants[v].sent++;
+      if (s.clicked_at) variants[v].clicks++;
+      const key = s.step + ':' + v;
+      if (!variantByStep[key]) variantByStep[key] = { step: s.step, variant: v, sent: 0, clicks: 0 };
+      variantByStep[key].sent++;
+      if (s.clicked_at) variantByStep[key].clicks++;
+    });
+
+    const { data: recentLeads } = await supabase.from('calculator_leads')
+      .select('id, email, calculator, country, lang, source, url, created_at, unsubscribed_at, converted_at, bounced_at, complained_at')
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    const { data: allLeads } = await supabase.from('calculator_leads')
+      .select('calculator')
+      .gte('created_at', since30d);
+    const calcCounts = {};
+    (allLeads || []).forEach(l => { calcCounts[l.calculator] = (calcCounts[l.calculator] || 0) + 1; });
+    const byCalculator = Object.entries(calcCounts)
+      .map(([calculator, count]) => ({ calculator, count }))
+      .sort((a, b) => b.count - a.count);
+
+    return res.status(200).json({
+      success: true,
+      totals: {
+        total: totalLeads || 0,
+        last24h: leads24h || 0,
+        last7d: leads7d || 0,
+        unsubscribed: unsubscribed || 0,
+        converted: converted || 0,
+        bounced: bounced || 0,
+        complained: complained || 0
+      },
+      sequences: seqStats,
+      variants,
+      variantByStep: Object.values(variantByStep),
+      recentLeads: recentLeads || [],
+      byCalculator
+    });
+  } catch (err) {
+    console.error('[calculator-leads-stats] Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+async function markLeadConvertedHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const { email } = req.body || {};
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email))) {
+    return res.status(400).json({ success: false, error: 'Valid email required' });
+  }
+  const normalizedEmail = String(email).toLowerCase().trim();
+
+  // Allow admins to mark any lead converted, or authenticated users to mark their own email
+  const user = await resolveAuthUser(req);
+  let supabase = getSupabase();
+  let isAdmin = false;
+  if (user) {
+    const { data: adminRole } = await supabase.from('admin_roles').select('role').eq('user_id', user.id).single();
+    isAdmin = !!adminRole?.role;
+  }
+  if (!isAdmin) {
+    if (!user) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+    if (user.email !== normalizedEmail) {
+      return res.status(403).json({ success: false, error: 'Can only mark your own email as converted' });
+    }
+    if (await checkRateLimit('auth', req, res)) return;
+  }
+
+  try {
+    const { error } = await supabase.from('calculator_leads')
+      .update({ converted_at: new Date().toISOString() })
+      .eq('email', normalizedEmail);
+
+    if (error) throw error;
+    return res.status(200).json({ success: true });
+  } catch (err) {
+    console.error('[mark-lead-converted] Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+// ── Calculator Leads Retention ─────────────────────────────
+async function calculatorLeadsRetentionHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const auth = await requireAdminAuth(req, res);
+  if (auth.error) return auth.error;
+  const { supabase } = auth;
+
+  try {
+    const now = new Date();
+    const thirtyDaysAgo = new Date(now - 30 * 24 * 60 * 60 * 1000).toISOString();
+    const oneYearAgo = new Date(now - 365 * 24 * 60 * 60 * 1000).toISOString();
+
+    // 1. Hard-delete leads that opted out or were undeliverable more than 30 days ago
+    const { error: deleteError, count: deleted } = await supabase.from('calculator_leads')
+      .delete()
+      .or(`unsubscribed_at.lt.${thirtyDaysAgo},bounced_at.lt.${thirtyDaysAgo},complained_at.lt.${thirtyDaysAgo}`)
+      .select('id');
+    if (deleteError) throw deleteError;
+
+    // 2. Anonymize active leads older than 1 year (GDPR data minimization)
+    const { error: anonError } = await supabase.from('calculator_leads')
+      .update({
+        email: 'anonymized@deleted.local',
+        metadata: {},
+        url: null,
+        session_id: null,
+        anonymized_at: now.toISOString()
+      })
+      .is('anonymized_at', null)
+      .lt('created_at', oneYearAgo);
+    if (anonError) throw anonError;
+
+    // 3. Count remaining leads for reporting
+    const { count: remaining } = await supabase.from('calculator_leads')
+      .select('*', { count: 'exact', head: true });
+    const { count: anonymized } = await supabase.from('calculator_leads')
+      .select('*', { count: 'exact', head: true }).not('anonymized_at', 'is', null);
+
+    return res.status(200).json({
+      success: true,
+      deleted: deleted || 0,
+      anonymized: anonymized || 0,
+      remaining: remaining || 0
+    });
+  } catch (err) {
+    console.error('[calculator-leads-retention] Error:', err);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+}
+
 // ── Lead Capture ───────────────────────────────────────────
 async function leadCaptureHandler(req, res) {
   setAllowedOrigin(res, req);
@@ -1051,18 +1774,32 @@ async function leadCaptureHandler(req, res) {
 
     const supabase = getSupabase();
     const ip = getClientIp(req);
-    const { error } = await supabase.from('calculator_leads').insert([{
+    const unsubscribeToken = crypto.randomBytes(32).toString('hex');
+    const emailHash = crypto.createHash('sha256').update(email).digest('hex');
+    const { data: insertedLead, error } = await supabase.from('calculator_leads').insert([{
       email,
+      email_hash: emailHash,
       calculator: String(body.calculator || '').slice(0, 64) || 'unknown',
       country: String(body.country || '').slice(0, 8) || null,
       lang: String(body.lang || '').slice(0, 8) || null,
       session_id: String(body.session_id || '').slice(0, 64) || null,
       source: String(body.source || 'exit_intent').slice(0, 32),
       url: String(body.url || '').slice(0, 512) || null,
-      metadata: body.metadata || {}
-    }]);
+      metadata: body.metadata || {},
+      unsubscribe_token: unsubscribeToken
+    }]).select('id, email, email_hash, calculator, country, lang, url, unsubscribe_token').single();
 
     if (error) throw error;
+
+    // Send immediate welcome email
+    sendCalculatorEmail(supabase, insertedLead || {
+      email,
+      calculator: String(body.calculator || '').slice(0, 64) || 'unknown',
+      country: String(body.country || '').slice(0, 8) || null,
+      lang: String(body.lang || '').slice(0, 8) || null,
+      url: String(body.url || '').slice(0, 512) || null,
+      unsubscribe_token: unsubscribeToken
+    }, 0).catch(() => {});
 
     // Notify admins (throttled)
     notifyAdminsConversionEvent('lead', {
@@ -1324,6 +2061,48 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/capture-lead' || pathname === '/api/capture-lead/') {
       if (await checkRateLimit('public', req, res)) return;
       return leadCaptureHandler(req, res);
+    }
+
+    // Calculator lead retargeting email journey (cron + admin trigger)
+    if (pathname === '/api/calculator-email-journey' || pathname === '/api/calculator-email-journey/') {
+      return calculatorEmailJourneyHandler(req, res);
+    }
+
+    // Calculator leads admin stats
+    if (pathname === '/api/calculator-leads' || pathname === '/api/calculator-leads/') {
+      return calculatorLeadsStatsHandler(req, res);
+    }
+
+    // Mark calculator lead as converted (called after signup/purchase)
+    if (pathname === '/api/mark-lead-converted' || pathname === '/api/mark-lead-converted/' ||
+        pathname === '/api/calculator-leads/convert' || pathname === '/api/calculator-leads/convert/') {
+      return markLeadConvertedHandler(req, res);
+    }
+
+    // Calculator leads data retention (GDPR cleanup)
+    if (pathname === '/api/calculator-leads/retention' || pathname === '/api/calculator-leads/retention/') {
+      return calculatorLeadsRetentionHandler(req, res);
+    }
+
+    // One-click unsubscribe for calculator lead emails
+    if (pathname === '/api/unsubscribe-lead' || pathname === '/api/unsubscribe-lead/') {
+      if (await checkRateLimit('public', req, res)) return;
+      return unsubscribeLeadHandler(req, res);
+    }
+
+    // Email click tracking for calculator lead sequences
+    if (pathname === '/api/track-click' || pathname === '/api/track-click/') {
+      return trackClickHandler(req, res);
+    }
+
+    // Email open tracking pixel for calculator lead sequences
+    if (pathname === '/api/track-open' || pathname === '/api/track-open/') {
+      return trackOpenHandler(req, res);
+    }
+
+    // Resend email webhook (bounce / complaint)
+    if (pathname === '/api/email-webhook' || pathname === '/api/email-webhook/') {
+      return emailWebhookHandler(req, res);
     }
 
     // NPS

@@ -152,6 +152,9 @@
       emailBtn.addEventListener('click', function() {
         var email = prompt(cfg.lang === 'ar' ? 'أدخل بريدك لإرسال النتائج:' : 'Enter your email to send results:');
         if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          emailBtn.disabled = true;
+          var originalText = emailBtn.textContent;
+          emailBtn.textContent = cfg.lang === 'ar' ? '⏳ جاري...' : '⏳ Sending...';
           fetch('/api/capture-lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -163,8 +166,22 @@
               source: 'sticky_cta',
               url: window.location.href
             })
-          }).catch(function(){});
-          if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(cfg.lang === 'ar' ? '✅ تم إرسال الرابط' : '✅ Link sent', 'success');
+          }).then(function(res) {
+            emailBtn.disabled = false;
+            emailBtn.textContent = originalText;
+            if (res.ok) {
+              if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+                window.BondsAnalytics.trackEvent('email_captured', { calculator: cfg.name, source: 'sticky_cta' });
+              }
+              if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(cfg.lang === 'ar' ? '✅ تم إرسال الرابط' : '✅ Link sent', 'success');
+            } else {
+              if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(cfg.lang === 'ar' ? '⚠️ لم نتمكن من الإرسال' : '⚠️ Could not send', 'error');
+            }
+          }).catch(function() {
+            emailBtn.disabled = false;
+            emailBtn.textContent = originalText;
+            if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(cfg.lang === 'ar' ? '⚠️ خطأ في الشبكة' : '⚠️ Network error', 'error');
+          });
         }
       });
     }
