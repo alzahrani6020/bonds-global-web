@@ -110,8 +110,8 @@
       const isEn = window.location.pathname.startsWith('/en/');
       const profileUrl = isEn ? '/en/calculators/auth/profile.html' : '/calculators/auth/profile.html';
       const subUrl = isEn ? '/en/calculators/auth/subscription.html' : '/calculators/auth/subscription.html';
-      const myBondsUrl = isEn ? '/en/my-bonds/' : '/my-bonds/';
-      const myBondsLabel = isEn ? 'My Bonds' : 'مساحتي';
+      const myBondsUrl = isEn ? '/en/fixed-income-intelligence' : '/fixed-income-intelligence';
+      const myBondsLabel = isEn ? 'Financial Advisory' : 'الاستشارات المالية';
 
       // Build avatar with unique IDs
       const avatarId = 'ha_' + Math.random().toString(36).slice(2, 8);
