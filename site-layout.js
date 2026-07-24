@@ -59,6 +59,7 @@
       home: isEn ? 'Home' : 'الرئيسية',
       about: isEn ? 'About' : 'من نحن',
       services: isEn ? 'Services' : 'خدماتنا',
+      financialAdvisory: isEn ? 'Financial Advisory' : 'الاستشارات المالية',
       guides: isEn ? 'Guides' : 'الأدلة',
       calculators: isEn ? 'Calculators' : 'الحاسبات',
       intelligence: isEn ? 'Intelligence' : 'الذكاء الاقتصادي',
@@ -132,6 +133,7 @@
     const sectorsBase = langBase + 'sectors/';
 
     const serviceDropdown = [
+      { label: labels.financialAdvisory, href: langBase + 'fixed-income-intelligence.html' },
       { label: labels.analysis, href: servicesHref + '#analysis' },
       { label: labels.cashflow, href: servicesHref + '#cashflow' },
       { label: labels.feasibility, href: servicesHref + '#feasibility' },
@@ -299,6 +301,7 @@
     <div>
       <div class="footer-title">${labels.servicesTitle}</div>
       <div class="footer-links">
+        <a href="${langBase + 'fixed-income-intelligence.html'}">${isEn ? 'Financial Advisory' : 'الاستشارات المالية'}</a>
         <a href="${servicesHref}">${isEn ? 'Financial Consulting' : 'الاستشارات المالية'}</a>
         <a href="${servicesHref}">${isEn ? 'Management Consulting' : 'الاستشارات الإدارية'}</a>
         <a href="${servicesHref}#feasibility">${isEn ? 'Feasibility Studies' : 'دراسات الجدوى'}</a>
