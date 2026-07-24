@@ -121,7 +121,7 @@
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
     const valuationHref = langBase + 'valuation/index.html';
-    const clientPortalHref = isEn ? '/en/fixed-income-intelligence' : '/fixed-income-intelligence';
+    const clientPortalHref = isEn ? '/en/my-bonds/' : '/my-bonds/';
     const loginHref = langBase + 'calculators/auth/login.html';
     const signupHref = langBase + 'calculators/auth/index.html?tab=signup';
     const v3Base = 'v3/';
