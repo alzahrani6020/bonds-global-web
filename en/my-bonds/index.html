@@ -25,7 +25,6 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../../bonds-auth-2026.js?v=3.0.6"></script>
-  <script>BondsAuth.initSiteAuth();</script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -58,7 +57,7 @@
         </div>
         <div class="my-bonds-actions">
           <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">+ New Project</a>
-          <a href="../../v3/portfolio" class="bonds-btn bonds-btn-secondary">Portfolio Dashboard</a>
+          <a href="../../en/v3/portfolio" class="bonds-btn bonds-btn-secondary">Portfolio Dashboard</a>
         </div>
       </div>
 
@@ -85,7 +84,7 @@
             <span class="my-bonds-link__icon">💰</span>
             <span class="my-bonds-link__text">Cash Flow</span>
           </a>
-          <a href="../../v3/portfolio" class="bonds-card my-bonds-link">
+          <a href="../../en/v3/portfolio" class="bonds-card my-bonds-link">
             <span class="my-bonds-link__icon">📊</span>
             <span class="my-bonds-link__text">Portfolio</span>
           </a>
@@ -159,30 +158,63 @@
         return fetch(url, { ...(options || {}), headers: { ...headers, ...(options?.headers || {}) } });
       }
 
+      function setProjectsLoading(loading) {
+        const container = document.getElementById('projectsList');
+        if (!container) return;
+        if (loading) {
+          container.innerHTML = `
+            <div class="bonds-card my-bonds-empty" style="grid-column:1/-1;">
+              <p>Loading your projects...</p>
+            </div>
+          `;
+        }
+      }
+
+      function showProjectsError(message, retryFn) {
+        const container = document.getElementById('projectsList');
+        if (!container) return;
+        container.innerHTML = `
+          <div class="bonds-card my-bonds-empty" style="grid-column:1/-1;">
+            <p style="color:#ef4444;margin-bottom:1rem;">${escapeHtml(message)}</p>
+            <button type="button" class="bonds-btn bonds-btn-primary" id="retryProjects">Retry</button>
+          </div>
+        `;
+        const btn = document.getElementById('retryProjects');
+        if (btn && retryFn) btn.addEventListener('click', retryFn);
+      }
+
       async function loadSupabaseProjects() {
         try {
           const res = await apiFetch('/api/v3/projects', { method: 'GET' });
           const json = await res.json().catch(() => ({}));
-          if (!res.ok) return [];
+          if (!res.ok) {
+            const msg = json.error || 'Failed to load projects from cloud';
+            throw new Error(msg);
+          }
           return (json.projects || []).map(function(p) {
+            const sector = p.sector || '';
+            const activity = p.activity || '';
+            const fallbackSummary = sector + (sector && activity ? ' · ' : '') + activity;
             return {
               id: p.id,
               title: p.name,
-              summary: (p.metadata && p.metadata.summary) || (p.sector + (p.activity ? ' · ' + p.activity : '')),
-              href: (p.metadata && p.metadata.href) || '../../v3/project?id=' + encodeURIComponent(p.id),
+              summary: (p.metadata && p.metadata.summary) || fallbackSummary,
+              href: (p.metadata && p.metadata.href) || '../../en/v3/project?id=' + encodeURIComponent(p.id),
               createdAt: p.created_at,
-              source: (p.metadata && p.metadata.source) || p.sector || 'v3',
+              source: (p.metadata && p.metadata.source) || sector || 'v3',
               synced: true
             };
           });
         } catch (e) {
-          return [];
+          console.error('[my-bonds] loadSupabaseProjects failed:', e);
+          throw e;
         }
       }
 
       async function syncGuestProjects(guestProjects) {
-        if (!guestProjects || guestProjects.length === 0) return [];
+        if (!guestProjects || guestProjects.length === 0) return { synced: [], failed: [] };
         const synced = [];
+        const failed = [];
         for (var i = 0; i < guestProjects.length; i++) {
           var p = guestProjects[i];
           try {
@@ -215,10 +247,14 @@
                 source: p.source,
                 synced: true
               });
+            } else {
+              failed.push(p);
             }
-          } catch (e) {}
+          } catch (e) {
+            failed.push(p);
+          }
         }
-        return synced;
+        return { synced, failed };
       }
 
       function renderProjects(projects, isGuest) {
@@ -258,39 +294,63 @@
       }
 
       async function init() {
-        const { data: userData } = await window.BondsAuth.getUser();
-        const user = userData?.user || null;
-        const guestProjects = loadGuestProjects();
+        try {
+          const { data: userData } = await window.BondsAuth.getUser();
+          const user = userData?.user || null;
+          const guestProjects = loadGuestProjects();
 
-        if (user) {
-          document.getElementById('userWelcome').style.display = 'flex';
-          document.getElementById('guestCta').style.display = 'none';
+          if (user) {
+            document.getElementById('userWelcome').style.display = 'flex';
+            document.getElementById('guestCta').style.display = 'none';
 
-          const name = user.user_metadata?.restaurant_name || user.email?.split('@')[0] || 'User';
-          const nameEl = document.getElementById('userName');
-          if (nameEl) nameEl.textContent = 'Welcome, ' + name;
+            const name = user.user_metadata?.full_name || user.user_metadata?.restaurant_name || user.email?.split('@')[0] || 'User';
+            const nameEl = document.getElementById('userName');
+            if (nameEl) nameEl.textContent = 'Welcome, ' + name;
 
-          const supabaseProjects = await loadSupabaseProjects();
-          let allProjects = supabaseProjects;
-
-          if (guestProjects.length > 0) {
-            const synced = await syncGuestProjects(guestProjects);
-            if (synced.length > 0) {
-              saveGuestProjects([]);
-              showToast('✅ Uploaded ' + synced.length + ' project(s) to the cloud', 'success');
-              allProjects = synced.concat(supabaseProjects);
-            } else {
-              allProjects = guestProjects.concat(supabaseProjects);
+            setProjectsLoading(true);
+            let supabaseProjects = [];
+            try {
+              supabaseProjects = await loadSupabaseProjects();
+            } catch (e) {
+              showProjectsError(e.message || 'Failed to load projects', init);
+              return;
             }
-          }
 
-          const countEl = document.getElementById('projectCount');
-          if (countEl) countEl.textContent = String(allProjects.length);
-          renderProjects(allProjects, false);
-        } else {
-          document.getElementById('guestCta').style.display = 'block';
-          document.getElementById('userWelcome').style.display = 'none';
-          renderProjects(guestProjects, true);
+            let allProjects = supabaseProjects;
+
+            if (guestProjects.length > 0) {
+              const { synced, failed } = await syncGuestProjects(guestProjects);
+              if (synced.length > 0) {
+                saveGuestProjects(failed);
+                if (failed.length === 0) {
+                  showToast('✅ Uploaded ' + synced.length + ' project(s) to the cloud', 'success');
+                } else {
+                  showToast('⚠️ Uploaded ' + synced.length + ' of ' + (synced.length + failed.length) + ' projects. Remaining kept locally.', 'info');
+                }
+                allProjects = synced.concat(supabaseProjects);
+              } else {
+                allProjects = guestProjects.concat(supabaseProjects);
+              }
+            }
+
+            const countEl = document.getElementById('projectCount');
+            if (countEl) countEl.textContent = String(allProjects.length);
+            renderProjects(allProjects, false);
+          } else {
+            document.getElementById('guestCta').style.display = 'block';
+            document.getElementById('userWelcome').style.display = 'none';
+            renderProjects(guestProjects, true);
+          }
+        } catch (e) {
+          console.error('[my-bonds] init failed:', e);
+          const container = document.getElementById('projectsList');
+          if (container) {
+            container.innerHTML = `
+              <div class="bonds-card my-bonds-empty" style="grid-column:1/-1;">
+                <p style="color:#ef4444;">Failed to load the page. Please refresh or sign in again.</p>
+              </div>
+            `;
+          }
         }
       }
 

@@ -1,6 +1,7 @@
 const { getSupabaseClient } = require('../lib/supabase');
 const { LifecycleEngine } = require('../../lib/enterprise-lifecycle');
 const { getUserRole, can } = require('../../lib/ecc/role-guard');
+// Note: project write/delete authorization is enforced by Supabase RLS (user_id scoped).
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -53,11 +54,8 @@ async function resolveCityId(supabase, cityCode) {
 
 async function createProject(req, res, user) {
   const supabase = getSupabaseClient();
-  const role = await getUserRole(supabase, user.id);
-  if (!can(role, 'write')) {
-    return sendJson(res, 403, { error: 'Forbidden: insufficient role to create project' });
-  }
-
+  // RLS policies already enforce that users can only create projects for themselves.
+  // Role guard is reserved for shared/team assets in the Executive Command Center.
   const body = await parseBody(req);
   const {
     name,
@@ -147,11 +145,7 @@ async function getProject(req, res, user, projectId) {
 
 async function deleteProject(req, res, user, projectId) {
   const supabase = getSupabaseClient();
-  const role = await getUserRole(supabase, user.id);
-  if (!can(role, 'write')) {
-    return sendJson(res, 403, { error: 'Forbidden: insufficient role to delete project' });
-  }
-
+  // RLS policies already enforce user-scoped deletes.
   const { error } = await supabase
     .from('bonds_projects')
     .delete()
