@@ -983,7 +983,10 @@ async function exportPDF() {
   doc.save('bonds-menu-engineering.pdf');
 }
 
-init();
+// انتظر تحميل جميع السكربتات قبل init
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(init, 200);
+});
 </script>
 <script>
 
