@@ -236,14 +236,15 @@ async function init() {
     sb = window.BondsAuth.getSupabase();
     await loadAllData();
     await loadMatrix();
-    // انتظر تحميل بيانات الدول قبل تعبئة القائمة
-    if (window.BondsGeo && window.BondsGeo.ensureMasterData) {
-      window.BondsGeo.ensureMasterData()
-        .then(() => populateCountries())
-        .catch(err => console.error('Failed to load country data:', err));
-    } else {
-      setTimeout(populateCountries, 500); // fallback
-    }
+    // انتظر تهيئة Universal Dropdown
+    const checkAndPopulate = () => {
+      if (window.getUniversalDropdown) {
+        populateCountries();
+      } else {
+        setTimeout(checkAndPopulate, 50);
+      }
+    };
+    setTimeout(checkAndPopulate, 100);
   } catch (e) {
     document.getElementById('matrixContainer').innerHTML = '<div class="error">' + escapeHtml(e.message) + '</div>';
   }
