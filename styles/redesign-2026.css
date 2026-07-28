@@ -342,7 +342,16 @@
 
 .fi-dashboard__chart-area {
   height: 130px;
+  min-height: 120px;
   margin-bottom: 0.75rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.fi-dashboard__chart-area svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .fi-dashboard__axis {
