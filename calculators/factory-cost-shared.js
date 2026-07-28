@@ -332,7 +332,8 @@
     let elecRate = 0.20;
     if (city.elecLow !== undefined) {
       const voltageEl = getEl('voltage');
-      elecRate = voltageEl && voltageEl.value === 'medium' ? (city.elecMed || city.elecLow) : city.elecLow;
+      const voltage = voltageEl ? voltageEl.value : 'low';
+      elecRate = voltage === 'medium' ? (city.elecMed || city.elecLow) : city.elecLow;
     }
     const electricityMonthly = electricity * elecRate * industry.elecMult;
 
@@ -463,6 +464,54 @@
     // Show results
     const results = getEl('results');
     if (results) results.classList.add('show');
+
+    // Expose result for shared enhancements
+    window._factoryCostResult = {
+      country: _config.countryCode || '',
+      currency: currency,
+      locale: locale,
+      inputs: {
+        country: _config.countryCode || '',
+        cityKey: cityKey,
+        industryKey: industryKey,
+        area: area,
+        type: type,
+        localWorkers: localWorkers,
+        expatWorkers: expatWorkers,
+        localSalary: localSalary,
+        expatSalary: expatSalary,
+        electricity: electricity,
+        water: water,
+        monthlyProduction: monthlyProduction,
+        maintenancePct: maintenancePct,
+        insurancePct: insurancePct,
+        rawMaterialPct: rawMaterialPct,
+        unitPrice: unitPrice,
+        wasteAndIncidentalsPct: wasteAndIncidentalsPct,
+        voltage: voltage
+      },
+      monthly: {
+        rentMonthly, electricityMonthly, waterMonthly, supervisionMonthly, licenseMonthly,
+        localPayroll, expatPayroll, gosiLocal, gosiExpat, expatFees,
+        rawMaterialMonthly, maintenanceMonthly, insuranceMonthly, wasteAndIncidentalsMonthly,
+        totalMonthly
+      },
+      yearly: {
+        pessimistic: pessimistic,
+        expected: totalYearly,
+        optimistic: optimistic
+      },
+      setup: {
+        planApproval, deposit, electricityConnection, civilDefense, buildingPermit, basicInsurance, miscSetup,
+        setupCost
+      },
+      metrics: {
+        unitCost, breakEvenUnits, breakEvenRevenue, profitMargin, paybackMonths, monthlyRevenue
+      }
+    };
+    if (typeof window.onFactoryCostCalculated === 'function') {
+      window.onFactoryCostCalculated(window._factoryCostResult);
+    }
 
     // Tracking
     if (typeof trackCalculation === 'function') {

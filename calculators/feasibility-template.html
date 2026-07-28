@@ -13,7 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <link rel="stylesheet" href="feasibility-template-shared.css" />
-<link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
+<link rel="stylesheet" href="../header-footer.css?v=2.59.0" />
 <link rel="canonical" href="https://bonds-global.com/calculators/feasibility-template" />
   <meta property="og:description" content="نموذج دراسة جدوى احترافي متكامل: PESTLE، SWOT، تحليل مالي، تدفق نقدي، سيناريوهات. مجاني من بوندز." />
   <meta property="og:url" content="https://bonds-global.com/calculators/feasibility-template" />
@@ -1314,6 +1314,7 @@
     <div class="template-page" id="page-dashboard">
       <div class="template-header-print"><img src="../assets/bonds-logo-2026-sm.webp?v=2026" alt="بوندز" /><div class="doc-title">لوحة التحكم التنفيذية — ملخص المستثمر</div></div>
       <div class="page-header"><div class="section-number">26</div><div><h2>لوحة التحكم التنفيذية</h2><p>ملخص المستثمر في صفحة واحدة</p></div></div>
+      <div id="becKpiHost" class="reveal calc-mt-4"></div>
 
       <div class="dash-header">
         <h3 id="dash-project-name">اسم المشروع</h3>
@@ -1402,6 +1403,7 @@
         <canvas id="dash-chart-cashflow" height="100"></canvas>
       </div>
 
+      <div class="share-bar" id="becExportHost" style="margin-top:1rem;justify-content:center;"></div>
       <p class="dash-footer-note">هذه اللوحة تُلخّص البيانات المدخلة في النموذج. للتفاصيل الكاملة، راجع الأقسام السابقة.</p>
     </div>
 
@@ -4146,10 +4148,33 @@
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiRevenue', label: isAr ? 'الإيرادات' : 'Revenue', color: 'blue' },
+      { id: 'becKpiNetProfit', label: isAr ? 'صافي الربح' : 'Net Profit', color: 'green' },
+      { id: 'becKpiMargin', label: isAr ? 'هامش الربح' : 'Margin', unit: '%', color: 'gold' },
+      { id: 'becKpiRoi', label: isAr ? 'العائد' : 'ROI', unit: '%', color: 'purple' },
+      { id: 'becKpiPayback', label: isAr ? 'الاسترداد' : 'Payback', color: 'orange' },
+      { id: 'becKpiBreakEven', label: isAr ? 'التعادل' : 'Break-even', color: 'red' },
+      { id: 'becKpiCapital', label: isAr ? 'رأس المال' : 'Capital', color: 'gray' }
+    ],
+    alertsContainer: '#page-dashboard',
+    exportContainer: '#becExportHost',
+    aiContainer: '#page-dashboard',
+    calcType: 'feasibility-template'
+  });
+})();
+</script>
 
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>

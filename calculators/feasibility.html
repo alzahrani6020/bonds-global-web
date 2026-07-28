@@ -25,7 +25,7 @@
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
+<link rel="stylesheet" href="../header-footer.css?v=2.59.0" />
   <link rel="canonical" href="https://bonds-global.com/calculators/feasibility" />
   <script type="application/ld+json">
   {
@@ -161,6 +161,7 @@
 
     <!-- Tab 4: Result -->
     <div id="result" class="bonds-panel">
+      <div id="becKpiHost" class="reveal calc-mt-4"></div>
       <div id="resultContent">
         <div class="calc-empty-state-box-lg">
           <div class="calc-empty-icon-lg">📊</div>
@@ -168,6 +169,7 @@
           <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('setup')">ابدأ الآن</button>
         </div>
       </div>
+      <div class="share-bar" id="becExportHost" style="margin-top:1.5rem;justify-content:center;"></div>
     </div>
   </div>
 
@@ -235,6 +237,108 @@ function updateRevenueSummary() {
 });
 
 // ===== MAIN CALCULATION =====
+function updateSharedEnhancements(result, inputs) {
+  if (window.BondsEnhancements) {
+    window.BondsEnhancements.updateKpiCards({
+      becKpiMonthlyProfit: { text: result.monthlyProfit.toLocaleString('ar-SA') + ' ر.س', color: result.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiProfitMargin: { text: result.profitMargin.toFixed(1) + '%', color: result.profitMargin >= 20 ? '#16a34a' : (result.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+      becKpiRoiMonths: { text: result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths) + ' شهر', color: result.roiMonths > 0 && result.roiMonths <= 24 ? '#16a34a' : '#f59e0b' },
+      becKpiBreakEvenDaily: { text: Math.ceil(result.beOrdersPerDay) + ' طلب', color: result.beOrdersPerDay > 0 && result.beOrdersPerDay <= inputs.revenue.dailyOrders ? '#16a34a' : '#f59e0b' },
+      becKpiSetupTotal: { text: result.setupTotal.toLocaleString('ar-SA') + ' ر.س', color: '#94a3b8' },
+      becKpiMonthlyRevenue: { text: result.monthlyRevenue.toLocaleString('ar-SA') + ' ر.س', color: '#3b82f6' }
+    });
+    window.BondsEnhancements.updateSmartAlerts({
+      profitMargin: result.profitMargin,
+      revenue: result.monthlyRevenue,
+      fixedCosts: result.monthlyFixed,
+      netProfit: result.monthlyProfit,
+      roiMonths: result.roiMonths,
+      beOrdersPerDay: result.beOrdersPerDay,
+      dailyOrders: inputs.revenue.dailyOrders,
+      setupTotal: result.setupTotal
+    });
+  }
+
+  window.getCalculatorData = function() {
+    var country = document.getElementById('country')?.value || 'SA';
+    return {
+      country: country,
+      currency: 'SAR',
+      inputs: inputs,
+      kpis: [
+        { label: 'الربح الشهري', value: result.monthlyProfit.toLocaleString('ar-SA') + ' ر.س', color: result.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+        { label: 'هامش الربح', value: result.profitMargin.toFixed(1) + '%', color: result.profitMargin >= 20 ? '#16a34a' : (result.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+        { label: 'استرداد رأس المال', value: result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths) + ' شهر', color: '#d4a853' },
+        { label: 'نقطة التعادل اليومية', value: Math.ceil(result.beOrdersPerDay) + ' طلب', color: '#a855f7' },
+        { label: 'تكلفة الافتتاح', value: result.setupTotal.toLocaleString('ar-SA') + ' ر.س', color: '#94a3b8' }
+      ],
+      csvRows: [
+        ['البند', 'القيمة'],
+        ['الدولة', country],
+        ['تكلفة الافتتاح', result.setupTotal],
+        ['التكاليف الثابتة/شهر', result.monthlyFixed],
+        ['التكاليف المتغيرة/شهر', result.monthlyVariable],
+        ['إجمالي التكاليف/شهر', result.monthlyTotal],
+        ['الإيراد الشهري', result.monthlyRevenue],
+        ['الإيراد السنوي', result.yearlyRevenue],
+        ['الربح الشهري', result.monthlyProfit],
+        ['الربح السنوي', result.yearlyProfit],
+        ['هامش الربح (%)', result.profitMargin],
+        ['استرداد رأس المال (شهر)', result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths)],
+        ['نقطة التعادل اليومية', Math.ceil(result.beOrdersPerDay)],
+        ['نقطة التعادل الشهرية', Math.ceil(result.beOrdersPerMonth)],
+        ['إيراد نقطة التعادل/شهر', result.beRevenuePerMonth]
+      ].concat(
+        Object.keys(inputs.setupCosts || {}).map(function(k) { return ['تكلفة افتتاح: ' + k, inputs.setupCosts[k]]; }),
+        Object.keys(inputs.monthlyCosts || {}).map(function(k) { return ['تكلفة شهرية: ' + k, inputs.monthlyCosts[k]]; }),
+        [['متوسط السعر', inputs.revenue.avgPrice], ['الطلبات اليومية', inputs.revenue.dailyOrders], ['أيام العمل', inputs.revenue.workDays]],
+        [['عمولة المنصة (%)', inputs.options.platformFeePct], ['الهدر والنثريات (%)', inputs.options.wasteRatePct], ['نمو شهري (%)', inputs.options.monthlyGrowthPct]]
+      ),
+      aiPayload: {
+        country: country,
+        setup_total: result.setupTotal,
+        monthly_fixed: result.monthlyFixed,
+        monthly_variable: result.monthlyVariable,
+        monthly_total: result.monthlyTotal,
+        monthly_revenue: result.monthlyRevenue,
+        yearly_revenue: result.yearlyRevenue,
+        monthly_profit: result.monthlyProfit,
+        yearly_profit: result.yearlyProfit,
+        profit_margin_pct: result.profitMargin,
+        roi_months: result.roiMonths === Infinity ? null : Math.ceil(result.roiMonths),
+        break_even_daily: Math.ceil(result.beOrdersPerDay),
+        break_even_monthly: Math.ceil(result.beOrdersPerMonth),
+        setup_costs: inputs.setupCosts,
+        monthly_costs: inputs.monthlyCosts,
+        revenue: inputs.revenue,
+        options: inputs.options
+      },
+      aiType: 'feasibility_analysis'
+    };
+  };
+}
+
+window.loadCalculatorData = function(data) {
+  if (!data || !data.inputs) return;
+  var i = data.inputs;
+  var setIfExists = function(id, val) { var el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  Object.keys(i.setupCosts || {}).forEach(function(k) { setIfExists(k, i.setupCosts[k]); });
+  Object.keys(i.monthlyCosts || {}).forEach(function(k) { setIfExists(k, i.monthlyCosts[k]); });
+  if (i.revenue) {
+    setIfExists('rAvgPrice', i.revenue.avgPrice);
+    setIfExists('rDailyOrders', i.revenue.dailyOrders);
+    setIfExists('rWorkDays', i.revenue.workDays);
+  }
+  if (i.options) {
+    setIfExists('platformFeePct', i.options.platformFeePct);
+    setIfExists('wasteRatePct', i.options.wasteRatePct);
+    setIfExists('packagingCostPerOrder', i.options.packagingCostPerOrder);
+    setIfExists('deliveryCostPerOrder', i.options.deliveryCostPerOrder);
+    setIfExists('monthlyGrowthPct', i.options.monthlyGrowthPct);
+  }
+  calculateAll();
+};
+
 function calculateAll() {
   if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
     window.BondsAnalytics.trackEvent('calc_completed', { source: 'feasibility', country: document.getElementById('country')?.value || 'SA' });
@@ -387,6 +491,7 @@ function calculateAll() {
   `;
 
   loadFundingSuggestions();
+  updateSharedEnhancements(window._feasResult, { setupCosts: setupCosts, monthlyCosts: monthlyCosts, revenue: revenue, options: options });
 }
 
 async function loadFundingSuggestions() {
@@ -605,7 +710,7 @@ setTimeout(() => onboard.start(), 600);
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>
 <script src="exit-intent.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
@@ -789,6 +894,28 @@ setTimeout(() => onboard.start(), 600);
       });
     })();
   })();
+</script>
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiMonthlyProfit', label: 'الربح الشهري', color: 'green' },
+      { id: 'becKpiProfitMargin', label: 'هامش الربح', unit: '%', color: 'blue' },
+      { id: 'becKpiRoiMonths', label: 'استرداد رأس المال', color: 'gold' },
+      { id: 'becKpiBreakEvenDaily', label: 'نقطة التعادل اليومية', color: 'purple' },
+      { id: 'becKpiSetupTotal', label: 'تكلفة الافتتاح', color: 'red' },
+      { id: 'becKpiMonthlyRevenue', label: 'الإيراد الشهري', color: 'orange' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '#becExportHost',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'feasibility'
+  });
+})();
 </script>
 </body>
 </html>

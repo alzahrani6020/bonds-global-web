@@ -9,7 +9,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles/page-redesign-2026.css?v=1" />
+
   <link rel="stylesheet" href="../styles/fixed-income-landing.css?v=4" />
+  <link rel="stylesheet" href="../styles/redesign-2026.css?v=1" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/en/" />
   <meta property="og:title" content="Bonds Financial Advisory | Bonds" />
@@ -32,14 +35,9 @@
           <span class="fi-ticker__change fi-ticker__change--up">+4.7</span>
         </div>
         <div class="fi-ticker__item">
-          <span class="fi-ticker__label">EUR/USD</span>
-          <span class="fi-ticker__value">1.0847</span>
-          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
-        </div>
-        <div class="fi-ticker__item">
-          <span class="fi-ticker__label">SOFR</span>
-          <span class="fi-ticker__value">5.307%</span>
-          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+          <span class="fi-ticker__label">DE 10Y</span>
+          <span class="fi-ticker__value">2.541</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
         </div>
         <div class="fi-ticker__item">
           <span class="fi-ticker__label">US 10Y</span>
@@ -47,9 +45,14 @@
           <span class="fi-ticker__change fi-ticker__change--up">+0.018</span>
         </div>
         <div class="fi-ticker__item">
-          <span class="fi-ticker__label">DE 10Y</span>
-          <span class="fi-ticker__value">2.541</span>
-          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
+          <span class="fi-ticker__label">SOFR</span>
+          <span class="fi-ticker__value">5.307%</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">EUR/USD</span>
+          <span class="fi-ticker__value">1.0847</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
         </div>
         <div class="fi-ticker__item">
           <span class="fi-ticker__label">SPREAD</span>
@@ -57,14 +60,9 @@
           <span class="fi-ticker__change fi-ticker__change--up">+4.7</span>
         </div>
         <div class="fi-ticker__item">
-          <span class="fi-ticker__label">EUR/USD</span>
-          <span class="fi-ticker__value">1.0847</span>
-          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
-        </div>
-        <div class="fi-ticker__item">
-          <span class="fi-ticker__label">SOFR</span>
-          <span class="fi-ticker__value">5.307%</span>
-          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+          <span class="fi-ticker__label">DE 10Y</span>
+          <span class="fi-ticker__value">2.541</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
         </div>
         <div class="fi-ticker__item">
           <span class="fi-ticker__label">US 10Y</span>
@@ -72,9 +70,14 @@
           <span class="fi-ticker__change fi-ticker__change--up">+0.018</span>
         </div>
         <div class="fi-ticker__item">
-          <span class="fi-ticker__label">DE 10Y</span>
-          <span class="fi-ticker__value">2.541</span>
-          <span class="fi-ticker__change fi-ticker__change--down">-0.024</span>
+          <span class="fi-ticker__label">SOFR</span>
+          <span class="fi-ticker__value">5.307%</span>
+          <span class="fi-ticker__change fi-ticker__change--down">-0.008</span>
+        </div>
+        <div class="fi-ticker__item">
+          <span class="fi-ticker__label">EUR/USD</span>
+          <span class="fi-ticker__value">1.0847</span>
+          <span class="fi-ticker__change fi-ticker__change--up">+0.0012</span>
         </div>
       </div>
     </div>
@@ -88,17 +91,17 @@
   <div id="site-header"></div>
 
   <main>
-    <section class="fi-hero">
+    <section class="fi-hero v2026">
       <div class="fi-hero__grid">
         <div class="fi-hero__content">
           <div class="fi-hero__est">
-            <strong>Est. 1991</strong>
+            <strong>SINGAPORE</strong>
             <span></span>
-            <strong>London</strong>
+            <strong>NEW YORK</strong>
             <span></span>
-            <strong>New York</strong>
+            <strong>LONDON</strong>
             <span></span>
-            <strong>Singapore</strong>
+            <strong>EST. 1991</strong>
           </div>
           <h1 class="fi-hero__title">
             Bonds<br />
@@ -109,9 +112,10 @@
             Your trusted financial partner for turning vision into clear investment decisions.
             Comprehensive financial advisory for individuals and institutions since 1991.
           </p>
+          <p class="fi-hero__tagline-en">Your Partner in Financial & Management Excellence</p>
           <div class="fi-hero__cta">
-            <a href="/en/calculators/auth/index.html" class="fi-btn fi-btn--primary">Access Markets →</a>
             <a href="/en/case-studies.html" class="fi-btn fi-btn--secondary">View Research</a>
+            <a href="/en/calculators/auth/index.html" class="fi-btn fi-btn--primary">Access Markets →</a>
           </div>
         </div>
 
@@ -146,25 +150,37 @@
             </div>
           </div>
           <div class="fi-dashboard__chart">
-            <div class="fi-dashboard__chart-title">US Treasury Yield Curve</div>
+            <div class="fi-dashboard__chart-header">
+              <div class="fi-dashboard__chart-title">MENA Yield Curve</div>
+              <div class="fi-dashboard__live">
+                <span class="fi-ticker__pulse"></span>
+                <span>LIVE</span>
+              </div>
+            </div>
             <div class="fi-dashboard__chart-area">
               <svg viewBox="0 0 400 120" preserveAspectRatio="none">
                 <defs>
-                  <linearGradient id="fiCurveFill" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="fiCurveFillSa" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="rgba(212,168,83,0.35)" />
                     <stop offset="100%" stop-color="rgba(212,168,83,0)" />
                   </linearGradient>
+                  <linearGradient id="fiCurveFillAe" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(96,165,250,0.25)" />
+                    <stop offset="100%" stop-color="rgba(96,165,250,0)" />
+                  </linearGradient>
                 </defs>
-                <path d="M0,95 C30,92 50,85 80,75 C110,65 140,55 170,48 C200,42 230,38 260,36 C290,34 320,33 350,32 L400,30 L400,120 L0,120 Z" fill="url(#fiCurveFill)" />
+                <path d="M0,95 C30,92 50,85 80,75 C110,65 140,55 170,48 C200,42 230,38 260,36 C290,34 320,33 350,32 L400,30 L400,120 L0,120 Z" fill="url(#fiCurveFillSa)" />
                 <path d="M0,95 C30,92 50,85 80,75 C110,65 140,55 170,48 C200,42 230,38 260,36 C290,34 320,33 350,32 L400,30" fill="none" stroke="var(--gold)" stroke-width="2.5" />
-                <circle cx="80" cy="75" r="3" fill="#fff" />
-                <circle cx="170" cy="48" r="3" fill="#fff" />
-                <circle cx="260" cy="36" r="3" fill="#fff" />
-                <circle cx="350" cy="32" r="3" fill="#fff" />
+                <path d="M0,100 C40,96 70,88 100,82 C140,74 180,65 220,58 C260,52 300,50 340,49 L400,48 L400,120 L0,120 Z" fill="url(#fiCurveFillAe)" />
+                <path d="M0,100 C40,96 70,88 100,82 C140,74 180,65 220,58 C260,52 300,50 340,49 L400,48" fill="none" stroke="#60a5fa" stroke-width="2" />
               </svg>
             </div>
             <div class="fi-dashboard__axis">
-              <span>M</span><span>3M</span><span>2Y</span><span>5Y</span><span>10Y</span><span>20Y</span><span>30Y</span>
+              <span>3M</span><span>6M</span><span>1Y</span><span>2Y</span><span>5Y</span><span>10Y</span><span>20Y</span><span>30Y</span>
+            </div>
+            <div class="fi-dashboard__legend">
+              <span class="sa">Saudi Arabia</span>
+              <span class="ae">UAE</span>
             </div>
           </div>
         </div>
@@ -239,7 +255,7 @@
 
   <script src="../supabase-client.js"></script>
   <script src="../auth-guard.js"></script>
-  <script src="../site-layout.js?v=3.0.7"></script>
+  <script src="../site-layout.js?v=3.0.8"></script>
   <script src="../page-tracker-v2.js"></script>
 </body>
 </html>

@@ -140,6 +140,7 @@
 
   <!-- Results -->
   <div id="resultsSection" style="display:none;">
+    <div id="becKpiHost" class="reveal" style="margin-bottom:1.5rem;"></div>
 
     <!-- Invoice Breakdown -->
     <div class="invoice-card" id="invoiceCard">
@@ -297,6 +298,7 @@
 
     <!-- Verdict -->
     <div id="verdictBox" style="text-align:center; padding:1.5rem; border-radius:12px; margin:1rem 0; font-weight:700;"></div>
+    <div id="becExportHost" style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin:1rem 0;"></div>
 
     <div style="display:flex; gap:0.5rem; flex-wrap:wrap; justify-content:center; margin:1rem 0;">
       <button class="btn-calc secondary" onclick="exportInvoiceExcel()">📊 Excel</button>
@@ -660,8 +662,126 @@ function calculateInvoice() {
 
   window._lastInvoice = { price, discount, commissionPct, paymentFeePct, serviceFeePct, productCost, deliveryFee, vatRate, dailyOrders, workingDays, itemName, commissionAmount, serviceFeeAmount, paymentFeeAmount, vatCommission, vatServiceFee, vatPayment, vatDelivery, afterDiscount, totalDeductions, netIncome, netProfit, marginPct, profitNoDiscount, lossFromDiscount, dailyProfit, monthlyProfit, yearlyProfit, dailyProfitNoDiscount, monthlyProfitNoDiscount, extraOrdersNeeded, requiredIncreasePct };
 
+  updateSharedEnhancements();
   BondsUI.toast('✅ تم التحليل بنجاح', 'success');
 }
+
+function updateSharedEnhancements() {
+  const d = window._lastInvoice;
+  if (!d) return;
+  const isAr = document.documentElement.lang === 'ar';
+  const loc = isAr ? 'ar-SA' : 'en-US';
+  const fmt = (n) => typeof n === 'number' && isFinite(n) ? Math.round(n).toLocaleString(loc) : (n || '—');
+  const sym = currentSymbol || (isAr ? 'ر.س' : 'SAR');
+  const country = document.getElementById('countrySelect')?.value || 'SA';
+
+  if (window.BondsEnhancements) {
+    window.BondsEnhancements.updateKpiCards({
+      becKpiNetProfit: { text: fmt(d.netProfit) + ' ' + sym, color: d.netProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiMargin: { text: d.marginPct.toFixed(1) + '%', color: d.marginPct >= 25 ? '#16a34a' : (d.marginPct >= 15 ? '#f59e0b' : '#dc2626') },
+      becKpiDaily: { text: fmt(d.dailyProfit) + ' ' + sym, color: d.dailyProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiMonthly: { text: fmt(d.monthlyProfit) + ' ' + sym, color: d.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiYearly: { text: fmt(d.yearlyProfit) + ' ' + sym, color: d.yearlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiExtraOrders: { text: d.extraOrdersNeeded === Infinity ? '∞' : fmt(d.extraOrdersNeeded), color: '#a855f7' },
+      becKpiDiscountLoss: { text: fmt(d.lossFromDiscount) + ' ' + sym, color: d.lossFromDiscount > 0 ? '#dc2626' : '#94a3b8' }
+    });
+    window.BondsEnhancements.updateSmartAlerts({
+      profitMargin: d.marginPct,
+      netProfit: d.netProfit,
+      revenue: d.price,
+      fixedCosts: d.productCost + d.deliveryFee
+    });
+  }
+
+  window.getCalculatorData = function() {
+    return {
+      country: country,
+      currency: sym,
+      inputs: {
+        orderPrice: d.price,
+        merchantDiscount: d.discount,
+        platformCommissionPct: d.commissionPct,
+        paymentFeePct: d.paymentFeePct,
+        serviceFeePct: d.serviceFeePct,
+        productCost: d.productCost,
+        deliveryFee: d.deliveryFee,
+        vatRate: d.vatRate,
+        dailyOrders: d.dailyOrders,
+        workingDays: d.workingDays,
+        itemName: d.itemName,
+        country: country,
+        platform: document.getElementById('platformSelect')?.value || ''
+      },
+      kpis: [
+        { label: isAr ? 'صافي ربح الفاتورة' : 'Net Profit / Invoice', value: fmt(d.netProfit) + ' ' + sym, color: d.netProfit >= 0 ? '#16a34a' : '#dc2626' },
+        { label: isAr ? 'هامش الربح' : 'Profit Margin', value: d.marginPct.toFixed(1) + '%', color: d.marginPct >= 25 ? '#16a34a' : (d.marginPct >= 15 ? '#f59e0b' : '#dc2626') },
+        { label: isAr ? 'الربح اليومي' : 'Daily Profit', value: fmt(d.dailyProfit) + ' ' + sym, color: d.dailyProfit >= 0 ? '#16a34a' : '#dc2626' },
+        { label: isAr ? 'الربح الشهري' : 'Monthly Profit', value: fmt(d.monthlyProfit) + ' ' + sym, color: d.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+        { label: isAr ? 'الربح السنوي' : 'Yearly Profit', value: fmt(d.yearlyProfit) + ' ' + sym, color: d.yearlyProfit >= 0 ? '#16a34a' : '#dc2626' }
+      ],
+      csvRows: [
+        [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+        [isAr ? 'الدولة' : 'Country', country],
+        [isAr ? 'المنصة' : 'Platform', document.getElementById('platformSelect')?.value || ''],
+        [isAr ? 'سعر الطلب' : 'Order Price', d.price],
+        [isAr ? 'خصم التاجر' : 'Merchant Discount', d.discount],
+        [isAr ? 'عمولة المنصة %' : 'Platform Commission %', d.commissionPct],
+        [isAr ? 'رسوم الدفع %' : 'Payment Fee %', d.paymentFeePct],
+        [isAr ? 'رسوم الخدمة %' : 'Service Fee %', d.serviceFeePct],
+        [isAr ? 'تكلفة المنتج' : 'Product Cost', d.productCost],
+        [isAr ? 'رسوم التوصيل' : 'Delivery Fee', d.deliveryFee],
+        [isAr ? 'نسبة الضريبة %' : 'VAT %', d.vatRate],
+        [isAr ? 'الطلبات اليومية' : 'Daily Orders', d.dailyOrders],
+        [isAr ? 'أيام العمل' : 'Working Days', d.workingDays],
+        [isAr ? 'صافي الربح' : 'Net Profit', d.netProfit],
+        [isAr ? 'هامش الربح %' : 'Profit Margin %', d.marginPct],
+        [isAr ? 'الربح اليومي' : 'Daily Profit', d.dailyProfit],
+        [isAr ? 'الربح الشهري' : 'Monthly Profit', d.monthlyProfit],
+        [isAr ? 'الربح السنوي' : 'Yearly Profit', d.yearlyProfit]
+      ],
+      aiPayload: {
+        country: country,
+        currency: sym,
+        order_price: d.price,
+        merchant_discount: d.discount,
+        platform_commission_pct: d.commissionPct,
+        payment_fee_pct: d.paymentFeePct,
+        service_fee_pct: d.serviceFeePct,
+        product_cost: d.productCost,
+        delivery_fee: d.deliveryFee,
+        vat_rate: d.vatRate,
+        daily_orders: d.dailyOrders,
+        working_days: d.workingDays,
+        net_profit: d.netProfit,
+        margin_pct: d.marginPct,
+        monthly_profit: d.monthlyProfit,
+        yearly_profit: d.yearlyProfit
+      },
+      aiType: 'invoice_analyzer'
+    };
+  };
+}
+
+window.loadCalculatorData = function(data) {
+  if (!data || !data.inputs) return;
+  const set = (id, v) => { const el = document.getElementById(id); if (el && v !== undefined) el.value = v; };
+  set('countrySelect', data.inputs.country);
+  if (data.inputs.country && window.BondsPlatforms) onCountryChange();
+  set('platformSelect', data.inputs.platform);
+  if (data.inputs.platform && window.BondsPlatforms) onPlatformChange();
+  set('orderPrice', data.inputs.orderPrice);
+  set('merchantDiscount', data.inputs.merchantDiscount);
+  set('platformCommissionPct', data.inputs.platformCommissionPct);
+  set('paymentFeePct', data.inputs.paymentFeePct);
+  set('serviceFeePct', data.inputs.serviceFeePct);
+  set('productCost', data.inputs.productCost);
+  set('deliveryFee', data.inputs.deliveryFee);
+  set('vatRate', data.inputs.vatRate);
+  set('dailyOrders', data.inputs.dailyOrders);
+  set('workingDays', data.inputs.workingDays);
+  set('itemName', data.inputs.itemName);
+  calculateInvoice();
+};
 
 function compareAllPlatforms() {
   var code = document.getElementById('countrySelect').value;
@@ -1019,10 +1139,35 @@ BondsDB.init().then(function() {
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiNetProfit', label: isAr ? 'ربح الفاتورة' : 'Invoice Profit', color: 'green' },
+      { id: 'becKpiMargin', label: isAr ? 'هامش الربح' : 'Margin', unit: '%', color: 'gold' },
+      { id: 'becKpiDaily', label: isAr ? 'ربح يومي' : 'Daily Profit', color: 'blue' },
+      { id: 'becKpiMonthly', label: isAr ? 'ربح شهري' : 'Monthly Profit', color: 'purple' },
+      { id: 'becKpiYearly', label: isAr ? 'ربح سنوي' : 'Yearly Profit', color: 'orange' },
+      { id: 'becKpiExtraOrders', label: isAr ? 'طلبات تعويض' : 'Extra Orders', color: 'red' },
+      { id: 'becKpiDiscountLoss', label: isAr ? 'خسارة الخصم' : 'Discount Loss', color: 'gray' }
+    ],
+    alertsContainer: '#resultsSection',
+    exportContainer: '#becExportHost',
+    aiContainer: '#resultsSection',
+    scenarioContainer: '#resultsSection',
+    calcType: 'invoice-analyzer'
+  });
+})();
+</script>
 
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>

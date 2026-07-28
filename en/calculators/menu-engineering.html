@@ -22,7 +22,7 @@
 
   <script src="../../calculators/db-client.js"></script>
   
-<link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+<link rel="stylesheet" href="../../header-footer.css?v=2.59.0" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/menu-engineering" />
   <script type="application/ld+json">
   {
@@ -152,10 +152,13 @@
       </div>
     </div>
 
+    <div id="becKpiHost" class="reveal calc-mt-4"></div>
+
     <!-- Matrix -->
     <div id="matrixContainer">
       <div class="loading">Loading data...</div>
     </div>
+    <div id="becExportHost" class="share-bar" style="margin-top:0.75rem;justify-content:center;"></div>
 
     <!-- Promo Simulator -->
     <div class="me-actions">
@@ -662,6 +665,104 @@ async function loadMatrix() {
   html += `</div>`;
   if (isDemo) html += '<div style="text-align:center;color:var(--primary);font-size:0.85rem;margin-bottom:var(--space-6);">🎮 Demo data — Enter your real sales to see your results</div>';
   document.getElementById('matrixContainer').innerHTML = html;
+  updateSharedEnhancements(data, isDemo);
+}
+
+function updateSharedEnhancements(data, isDemo) {
+  const isAr = document.documentElement.lang === 'ar';
+  const cur = isAr ? 'ريال' : 'SAR';
+  const loc = isAr ? 'ar-SA' : 'en-US';
+  const fmt = (n) => typeof n === 'number' && isFinite(n) ? Math.round(n).toLocaleString(loc) : (n || '0');
+  const s = (data && data.summary) || {};
+  let totalItems = 0, totalRevenue = 0, totalCost = 0, totalProfit = 0, marginSum = 0, marginCount = 0;
+  const cats = ['stars', 'engines', 'treasures', 'stalled'];
+  const hasItems = cats.some(k => (data && data[k] && data[k].length));
+  if (hasItems) {
+    cats.forEach(k => {
+      (data[k] || []).forEach(item => {
+        totalItems++;
+        totalRevenue += item.total_revenue || 0;
+        totalCost += item.total_cost || 0;
+        totalProfit += item.gross_profit || 0;
+        marginSum += item.profit_margin_pct || 0;
+        marginCount++;
+      });
+    });
+  } else if (isDemo) {
+    totalItems = 8;
+    totalRevenue = 34338;
+    totalCost = 18453;
+    totalProfit = 128;
+    marginSum = 306;
+    marginCount = 8;
+  }
+  const avgMargin = marginCount ? (marginSum / marginCount) : (parseFloat(s.avg_margin) || 0);
+  const platformFees = s.platform_fees || (totalRevenue - totalCost - totalProfit) || 0;
+
+  if (window.BondsEnhancements) {
+    window.BondsEnhancements.updateKpiCards({
+      becKpiItems: { text: fmt(totalItems), color: '#d4a853' },
+      becKpiRevenue: { text: fmt(totalRevenue) + ' ' + cur, color: '#3b82f6' },
+      becKpiCost: { text: fmt(totalCost) + ' ' + cur, color: '#ef4444' },
+      becKpiFees: { text: fmt(platformFees) + ' ' + cur, color: '#f59e0b' },
+      becKpiProfit: { text: fmt(totalProfit) + ' ' + cur, color: totalProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiMargin: { text: avgMargin.toFixed(1) + '%', color: avgMargin >= 40 ? '#16a34a' : (avgMargin >= 20 ? '#f59e0b' : '#dc2626') }
+    });
+    window.BondsEnhancements.updateSmartAlerts({
+      profitMargin: avgMargin,
+      netProfit: totalProfit,
+      revenue: totalRevenue,
+      fixedCosts: totalCost
+    });
+  }
+
+  window.getCalculatorData = function() {
+    const starCount = (data && data.stars && data.stars.length) || 0;
+    const engineCount = (data && data.engines && data.engines.length) || 0;
+    const treasureCount = (data && data.treasures && data.treasures.length) || 0;
+    const stalledCount = (data && data.stalled && data.stalled.length) || 0;
+    return {
+      country: 'SA',
+      currency: cur,
+      inputs: { totalItems: totalItems, totalRevenue: totalRevenue, totalCost: totalCost, platformFees: platformFees, totalProfit: totalProfit, avgMargin: avgMargin },
+      kpis: [
+        { label: isAr ? 'عدد المنتجات' : 'Total Items', value: fmt(totalItems), color: '#d4a853' },
+        { label: isAr ? 'إجمالي الإيرادات' : 'Total Revenue', value: fmt(totalRevenue) + ' ' + cur, color: '#3b82f6' },
+        { label: isAr ? 'إجمالي التكاليف' : 'Total Cost', value: fmt(totalCost) + ' ' + cur, color: '#ef4444' },
+        { label: isAr ? 'عمولات المنصات' : 'Platform Fees', value: fmt(platformFees) + ' ' + cur, color: '#f59e0b' },
+        { label: isAr ? 'إجمالي الربح' : 'Total Profit', value: fmt(totalProfit) + ' ' + cur, color: totalProfit >= 0 ? '#16a34a' : '#dc2626' },
+        { label: isAr ? 'متوسط الهامش' : 'Avg Margin', value: avgMargin.toFixed(1) + '%', color: avgMargin >= 40 ? '#16a34a' : (avgMargin >= 20 ? '#f59e0b' : '#dc2626') }
+      ],
+      csvRows: [
+        [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+        [isAr ? 'عدد المنتجات' : 'Total Items', totalItems],
+        [isAr ? 'إجمالي الإيرادات' : 'Total Revenue', totalRevenue],
+        [isAr ? 'إجمالي التكاليف' : 'Total Cost', totalCost],
+        [isAr ? 'عمولات المنصات' : 'Platform Fees', platformFees],
+        [isAr ? 'إجمالي الربح' : 'Total Profit', totalProfit],
+        [isAr ? 'متوسط الهامش %' : 'Avg Margin %', avgMargin.toFixed(1)],
+        [isAr ? 'النجوم' : 'Stars', starCount],
+        [isAr ? 'المحرك' : 'Engines', engineCount],
+        [isAr ? 'المكنوز' : 'Treasures', treasureCount],
+        [isAr ? 'المتعثرة' : 'Stalled', stalledCount]
+      ],
+      aiPayload: {
+        country: 'SA',
+        currency: cur,
+        total_items: totalItems,
+        total_revenue: totalRevenue,
+        total_cost: totalCost,
+        platform_fees: platformFees,
+        total_profit: totalProfit,
+        avg_margin_pct: avgMargin,
+        stars: starCount,
+        engines: engineCount,
+        treasures: treasureCount,
+        stalled: stalledCount
+      },
+      aiType: 'menu_engineering'
+    };
+  };
 }
 
 // Promo Simulator
@@ -826,10 +927,33 @@ init();
 </script>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
-<script src="../../site-layout.js?v=3.0.7"></script>
+<script src="../../site-layout.js?v=3.0.8"></script>
   <div id="site-footer"></div>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+
+<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiItems', label: isAr ? 'المنتجات' : 'Items', color: 'gold' },
+      { id: 'becKpiRevenue', label: isAr ? 'الإيرادات' : 'Revenue', color: 'blue' },
+      { id: 'becKpiCost', label: isAr ? 'التكاليف' : 'Cost', color: 'red' },
+      { id: 'becKpiFees', label: isAr ? 'العمولات' : 'Fees', color: 'orange' },
+      { id: 'becKpiProfit', label: isAr ? 'الربح' : 'Profit', color: 'green' },
+      { id: 'becKpiMargin', label: isAr ? 'متوسط الهامش' : 'Avg Margin', unit: '%', color: 'purple' }
+    ],
+    alertsContainer: '#matrixContainer',
+    exportContainer: '#becExportHost',
+    aiContainer: '#matrixContainer',
+    calcType: 'menu-engineering'
+  });
+})();
+</script>
 
 <script src="../../calculators/shared-analytics.js"></script>
 <script src="../../calculators/auth-modal.js"></script>

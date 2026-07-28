@@ -28,7 +28,7 @@
   <script src="shared-export.js"></script>
   <script src="db-client.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.59.0" />
   <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
   
   <script type="application/ld+json">
@@ -157,6 +157,7 @@
 
     <!-- Tab 4: Result -->
     <div id="result" class="bonds-panel">
+      <div id="becKpiHost" class="reveal calc-mt-4"></div>
       <div id="resultContent">
         <div class="calc-empty-state-box-lg">
           <div class="calc-empty-icon-lg">📊</div>
@@ -164,6 +165,7 @@
           <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('setup')">ابدأ الآن</button>
         </div>
       </div>
+      <div class="share-bar" id="becExportHost" style="margin-top:1.5rem;justify-content:center;"></div>
     </div>
   </div>
 
@@ -225,6 +227,126 @@ function updateRevenueSummary() {
 ['rPrice','rRawCost','rDailyUnits','rWorkDays','wasteRatePct','commissionPct','packagingCostPerUnit','monthlyGrowthPct'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', updateRevenueSummary);
 });
+
+function updateSharedEnhancements(result, inputs) {
+  const isAr = document.documentElement.lang === 'ar';
+  const cur = isAr ? 'ر.س' : 'SAR';
+  const unit = isAr ? 'وحدة' : 'units';
+  const month = isAr ? 'شهر' : 'mo';
+  const loc = isAr ? 'ar-SA' : 'en-US';
+  const fmt = (n) => n === Infinity ? '—' : (typeof n === 'number' ? n.toLocaleString(loc) : n);
+
+  if (window.BondsEnhancements) {
+    window.BondsEnhancements.updateKpiCards({
+      becKpiMonthlyProfit: { text: fmt(result.monthlyProfit) + ' ' + cur, color: result.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiProfitMargin: { text: result.profitMargin.toFixed(1) + '%', color: result.profitMargin >= 20 ? '#16a34a' : (result.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+      becKpiRoiMonths: { text: result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths) + ' ' + month, color: result.roiMonths > 0 && result.roiMonths <= 24 ? '#16a34a' : '#f59e0b' },
+      becKpiBreakEvenDaily: { text: result.breakEvenUnits === Infinity ? '—' : Math.ceil(result.breakEvenUnits / result.workDays).toLocaleString(loc) + ' ' + unit, color: (result.breakEvenUnits <= result.goodUnits ? '#16a34a' : '#f59e0b') },
+      becKpiSetupTotal: { text: fmt(result.setupTotal) + ' ' + cur, color: '#94a3b8' },
+      becKpiMonthlyRevenue: { text: fmt(result.monthlyRevenue) + ' ' + cur, color: '#3b82f6' }
+    });
+    window.BondsEnhancements.updateSmartAlerts({
+      profitMargin: result.profitMargin,
+      revenue: result.monthlyRevenue,
+      fixedCosts: result.monthlyFixed,
+      netProfit: result.monthlyProfit,
+      roiMonths: result.roiMonths,
+      breakEvenUnits: result.breakEvenUnits,
+      dailyUnits: inputs.revenue.dailyUnits,
+      setupTotal: result.setupTotal
+    });
+  }
+
+  window.getCalculatorData = function() {
+    const country = document.getElementById('country')?.value || 'SA';
+    return {
+      country: country,
+      currency: isAr ? 'ريال' : 'SAR',
+      inputs: inputs,
+      kpis: [
+        { label: isAr ? 'الربح الشهري' : 'Monthly Profit', value: fmt(result.monthlyProfit) + ' ' + cur, color: result.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+        { label: isAr ? 'هامش الربح' : 'Profit Margin', value: result.profitMargin.toFixed(1) + '%', color: result.profitMargin >= 20 ? '#16a34a' : (result.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+        { label: isAr ? 'استرداد رأس المال' : 'Payback Period', value: result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths) + ' ' + month, color: '#d4a853' },
+        { label: isAr ? 'نقطة التعادل اليومية' : 'Daily Break-even', value: result.breakEvenUnits === Infinity ? '—' : Math.ceil(result.breakEvenUnits / result.workDays) + ' ' + unit, color: '#a855f7' },
+        { label: isAr ? 'إجمالي الاستثمار' : 'Total Investment', value: fmt(result.setupTotal) + ' ' + cur, color: '#94a3b8' }
+      ],
+      csvRows: [
+        [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+        [isAr ? 'الدولة' : 'Country', country],
+        [isAr ? 'إجمالي الاستثمار' : 'Total Investment', result.setupTotal],
+        [isAr ? 'التكاليف الثابتة/شهر' : 'Fixed Costs/Month', result.monthlyFixed],
+        [isAr ? 'التكاليف المتغيرة/شهر' : 'Variable Costs/Month', result.monthlyVariable],
+        [isAr ? 'إجمالي التكاليف/شهر' : 'Total Costs/Month', result.monthlyTotal],
+        [isAr ? 'الإيراد الشهري' : 'Monthly Revenue', result.monthlyRevenue],
+        [isAr ? 'الإيراد السنوي' : 'Yearly Revenue', result.yearlyRevenue],
+        [isAr ? 'الربح الشهري' : 'Monthly Profit', result.monthlyProfit],
+        [isAr ? 'الربح السنوي' : 'Yearly Profit', result.yearlyProfit],
+        [isAr ? 'هامش الربح (%)' : 'Profit Margin %', result.profitMargin],
+        [isAr ? 'استرداد رأس المال (شهر)' : 'Payback Period (months)', result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths)],
+        [isAr ? 'نقطة التعادل (وحدة/شهر)' : 'Break-even (units/month)', result.breakEvenUnits === Infinity ? '—' : result.breakEvenUnits],
+        [isAr ? 'نقطة التعادل (وحدة/يوم)' : 'Break-even (units/day)', result.breakEvenUnits === Infinity ? '—' : Math.ceil(result.breakEvenUnits / result.workDays)],
+        [isAr ? 'وحدات صالحة/شهر' : 'Good Units/Month', result.goodUnits],
+        [isAr ? 'وحدات هالكة/شهر' : 'Defective Units/Month', result.wastedUnits]
+      ].concat(
+        Object.keys(inputs.setup || {}).map(k => [isAr ? 'استثمار: ' + k : 'Investment: ' + k, inputs.setup[k]]),
+        Object.keys(inputs.monthly || {}).map(k => [isAr ? 'شهري: ' + k : 'Monthly: ' + k, inputs.monthly[k]]),
+        [[isAr ? 'سعر البيع' : 'Selling Price', inputs.revenue.price], [isAr ? 'تكلفة خام/وحدة' : 'Raw Cost/Unit', inputs.revenue.rawCost], [isAr ? 'الإنتاج اليومي' : 'Daily Output', inputs.revenue.dailyUnits], [isAr ? 'أيام العمل' : 'Working Days', inputs.revenue.workDays]],
+        [[isAr ? 'نسبة الهدر (%)' : 'Waste Rate %', inputs.options.wasteRatePct], [isAr ? 'عمولة التوزيع (%)' : 'Distribution Commission %', inputs.options.commissionPct], [isAr ? 'تكلفة التغليف/وحدة' : 'Packaging Cost/Unit', inputs.options.packagingCostPerUnit], [isAr ? 'نمو شهري (%)' : 'Monthly Growth %', inputs.options.monthlyGrowthPct]]
+      ),
+      aiPayload: {
+        country: country,
+        setup_total: result.setupTotal,
+        monthly_fixed: result.monthlyFixed,
+        monthly_variable: result.monthlyVariable,
+        monthly_total: result.monthlyTotal,
+        monthly_revenue: result.monthlyRevenue,
+        yearly_revenue: result.yearlyRevenue,
+        monthly_profit: result.monthlyProfit,
+        yearly_profit: result.yearlyProfit,
+        profit_margin_pct: result.profitMargin,
+        roi_months: result.roiMonths === Infinity ? null : Math.ceil(result.roiMonths),
+        break_even_monthly_units: result.breakEvenUnits === Infinity ? null : result.breakEvenUnits,
+        break_even_daily_units: result.breakEvenUnits === Infinity ? null : Math.ceil(result.breakEvenUnits / result.workDays),
+        waste_rate_pct: inputs.options.wasteRatePct,
+        commission_pct: inputs.options.commissionPct,
+        packaging_cost_per_unit: inputs.options.packagingCostPerUnit,
+        monthly_growth_pct: inputs.options.monthlyGrowthPct,
+        setup_inputs: inputs.setup,
+        monthly_inputs: inputs.monthly,
+        revenue_inputs: inputs.revenue
+      },
+      aiType: 'manufacturing_feasibility'
+    };
+  };
+}
+
+window.loadCalculatorData = function(data) {
+  if (!data || !data.inputs) return;
+  const i = data.inputs;
+  const setIfExists = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  Object.keys(i.setup || {}).forEach(k => setIfExists(k, i.setup[k]));
+  Object.keys(i.monthly || {}).forEach(k => setIfExists(k, i.monthly[k]));
+  if (i.revenue) {
+    setIfExists('rPrice', i.revenue.price);
+    setIfExists('rRawCost', i.revenue.rawCost);
+    setIfExists('rDailyUnits', i.revenue.dailyUnits);
+    setIfExists('rWorkDays', i.revenue.workDays);
+  }
+  if (i.options) {
+    setIfExists('wasteRatePct', i.options.wasteRatePct);
+    setIfExists('commissionPct', i.options.commissionPct);
+    setIfExists('packagingCostPerUnit', i.options.packagingCostPerUnit);
+    setIfExists('monthlyGrowthPct', i.options.monthlyGrowthPct);
+  }
+  if (i.country) {
+    const c = document.getElementById('country');
+    if (c) c.value = i.country;
+  }
+  updateSetupSummary();
+  updateMonthlySummary();
+  updateRevenueSummary();
+  calculateAll();
+};
 
 function calculateAll() {
   const priceRes = BondsUI.validateField('rPrice', { required:true, type:'number', min:1, label:'سعر بيع الوحدة' });
@@ -383,6 +505,26 @@ function calculateAll() {
   `;
 
   loadFundingSuggestions();
+
+  const inputs = {
+    setup: {
+      sMachinery: getVal('sMachinery'), sTools: getVal('sTools'), sLicense: getVal('sLicense'), sFacility: getVal('sFacility'),
+      sRawMaterials: getVal('sRawMaterials'), sSafety: getVal('sSafety'), sMarketing: getVal('sMarketing'), sOther: getVal('sOther')
+    },
+    monthly: {
+      mRent: getVal('mRent'), mSalaries: getVal('mSalaries'), mUtilities: getVal('mUtilities'), mRawMaterials: getVal('mRawMaterials'),
+      mMaintenance: getVal('mMaintenance'), mAds: getVal('mAds'), mSubscriptions: getVal('mSubscriptions'), mMisc: getVal('mMisc')
+    },
+    revenue: {
+      price: getVal('rPrice'), rawCost: getVal('rRawCost'), dailyUnits: getVal('rDailyUnits'), workDays: getVal('rWorkDays')
+    },
+    options: {
+      wasteRatePct: getVal('wasteRatePct'), commissionPct: getVal('commissionPct'),
+      packagingCostPerUnit: getVal('packagingCostPerUnit'), monthlyGrowthPct: getVal('monthlyGrowthPct')
+    },
+    country: document.getElementById('country')?.value || 'SA'
+  };
+  updateSharedEnhancements(window._mfResult, inputs);
 }
 
 async function loadFundingSuggestions() {
@@ -491,6 +633,29 @@ updateRevenueSummary();
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiMonthlyProfit', label: isAr ? 'الربح الشهري' : 'Monthly Profit', color: 'green' },
+      { id: 'becKpiProfitMargin', label: isAr ? 'هامش الربح' : 'Profit Margin', unit: '%', color: 'blue' },
+      { id: 'becKpiRoiMonths', label: isAr ? 'استرداد رأس المال' : 'Payback Period', color: 'gold' },
+      { id: 'becKpiBreakEvenDaily', label: isAr ? 'نقطة التعادل اليومية' : 'Daily Break-even', color: 'purple' },
+      { id: 'becKpiSetupTotal', label: isAr ? 'إجمالي الاستثمار' : 'Total Investment', color: 'red' },
+      { id: 'becKpiMonthlyRevenue', label: isAr ? 'الإيراد الشهري' : 'Monthly Revenue', color: 'orange' }
+    ],
+    alertsContainer: '.feas-container',
+    exportContainer: '#becExportHost',
+    aiContainer: '.feas-container',
+    scenarioContainer: '.feas-container',
+    calcType: 'manufacturing-feasibility'
+  });
+})();
+</script>
 
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>

@@ -588,6 +588,7 @@
         updateSummary(months);
         checkSmartAlert(months);
         updateLeadCapture(months);
+        updateSharedEnhancements(months);
         loadChartJS().then(function() {
           updateChart(months);
         }).catch(function(e) {
@@ -597,6 +598,82 @@
         
         BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
+    }
+
+    function updateSharedEnhancements(months) {
+      var totalIn = 0, totalOut = 0, netFlow = 0, totalWaste = 0;
+      var minBal = Infinity, maxBal = -Infinity;
+      var negativeMonths = 0;
+      months.forEach(function(m) {
+        totalIn += m.totalIn;
+        totalOut += m.totalOut;
+        totalWaste += m.wasteAndIncidentals;
+        netFlow += m.netCashFlow;
+        if (m.closingBalance < minBal) minBal = m.closingBalance;
+        if (m.closingBalance > maxBal) maxBal = m.closingBalance;
+        if (m.closingBalance < 0) negativeMonths++;
+      });
+      if (minBal === Infinity) minBal = 0;
+      if (maxBal === -Infinity) maxBal = 0;
+      var avgMonthlyOut = totalOut / 12;
+      var runway = avgMonthlyOut > 0 && months[11].closingBalance > 0 ? (months[11].closingBalance / avgMonthlyOut).toFixed(1) : (netFlow >= 0 ? '∞' : '0');
+
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiTotalIn: { text: formatCurrency(totalIn), color: '#16a34a' },
+          becKpiTotalOut: { text: formatCurrency(totalOut), color: '#dc2626' },
+          becKpiNetFlow: { text: formatCurrency(netFlow), color: netFlow >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiClosing: { text: formatCurrency(months[11].closingBalance), color: months[11].closingBalance >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiMinBal: { text: formatCurrency(minBal), color: minBal >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiRunway: { text: runway + ' شهر', color: runway === '∞' || parseFloat(runway) > 3 ? '#16a34a' : '#f59e0b' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          minBalance: minBal,
+          netFlow: netFlow,
+          revenue: totalIn,
+          fixedCosts: totalOut
+        });
+      }
+
+      window.getCalculatorData = function() {
+        return {
+          country: document.getElementById('country')?.value || 'SA',
+          totalIn: totalIn,
+          totalOut: totalOut,
+          netFlow: netFlow,
+          closingBalance: months[11].closingBalance,
+          minBalance: minBal,
+          maxBalance: maxBal,
+          negativeMonths: negativeMonths,
+          kpis: [
+            { label: 'إجمالي الواردات', value: formatCurrency(totalIn), color: '#16a34a' },
+            { label: 'إجمالي المصروفات', value: formatCurrency(totalOut), color: '#dc2626' },
+            { label: 'صافي التدفق', value: formatCurrency(netFlow), color: netFlow >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'الرصيد الختامي', value: formatCurrency(months[11].closingBalance), color: months[11].closingBalance >= 0 ? '#16a34a' : '#dc2626' }
+          ],
+          csvRows: [
+            ['البند', 'القيمة'],
+            ['الرصيد الافتتاحي', parseFloat(document.getElementById('openingBalance').value) || 0],
+            ['إجمالي الواردات', totalIn],
+            ['إجمالي المصروفات', totalOut],
+            ['الهدر والنثريات', totalWaste],
+            ['صافي التدفق', netFlow],
+            ['الرصيد الختامي', months[11].closingBalance],
+            ['أدنى رصيد', minBal],
+            ['أعلى رصيد', maxBal]
+          ],
+          aiPayload: {
+            total_inflow: totalIn,
+            total_outflow: totalOut,
+            net_cash_flow: netFlow,
+            closing_balance: months[11].closingBalance,
+            min_balance: minBal,
+            negative_months: negativeMonths,
+            months: months.map(function(m, i) { return { month: MONTHS_AR[i], inflow: m.totalIn, outflow: m.totalOut, closing: m.closingBalance }; })
+          },
+          aiType: 'cash_flow_analysis'
+        };
+      };
     }
 
     function loadExample() {
@@ -846,7 +923,7 @@
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>
 <script src="exit-intent.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
 <script src="shared-geo.js?v=6"></script>
 
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
@@ -1064,6 +1141,27 @@
   var lastDay = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
   var dateStr = lastDay.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
   document.querySelectorAll('.offer-date-ar').forEach(function(el){ el.textContent = dateStr; });
+})();
+</script>
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  window.BondsEnhancements.init({
+    kpiContainer: '.calc-panel.calc-mb-6',
+    kpis: [
+      { id: 'becKpiTotalIn', label: 'إجمالي الواردات', color: '#16a34a' },
+      { id: 'becKpiTotalOut', label: 'إجمالي المصروفات', color: '#dc2626' },
+      { id: 'becKpiNetFlow', label: 'صافي التدفق', color: '#3b82f6' },
+      { id: 'becKpiClosing', label: 'الرصيد الختامي', color: '#d4a853' },
+      { id: 'becKpiMinBal', label: 'أدنى رصيد', color: '#a855f7' },
+      { id: 'becKpiRunway', label: 'مدى البقاء (أشهر)', color: '#f97316' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'cashflow'
+  });
 })();
 </script>
 </body>

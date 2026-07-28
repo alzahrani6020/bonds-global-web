@@ -185,6 +185,7 @@
             <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.25rem;">سنوي</div>
           </div>
         </div>
+        <div id="becKpiHost" class="reveal calc-mt-4"></div>
         <div class="result-summary">
           <div class="result-box"><div class="value" id="totalMonthly">0</div><div class="label">الشهري (AED)</div></div>
           <div class="result-box"><div class="value" id="totalYearly">0</div><div class="label">السنوي (AED)</div></div>
@@ -225,6 +226,7 @@
           <button class="btn-primary" onclick="checkAuthForAction('save', saveFactoryCostProject)" style="background:var(--bg-card);color:var(--gold);border:1px solid var(--gold);">💾 حفظ المشروع</button>
           <button class="btn-primary" onclick="checkAuthForAction('v3', convertFactoryCostToV3)" style="background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c0c;border:none;">🚀 حوّل إلى مشروع V3</button>
         </div>
+        <div class="share-bar" id="becExportHost" style="margin-top:1rem;justify-content:center;"></div>
         <div class="note">
           ⚠️ هذه التقديرات تقريبية بناءً على بيانات الجهات الحكومية ومتوسطات السوق في كل بلد. الأسعار الفعلية تختلف حسب الموقع والنشاط والمفاوضات.
         </div>
@@ -262,10 +264,152 @@
   <script src="../admin/analytics-tracker.js?v=1"></script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiTotalMonthly', label: isAr ? 'التكلفة الشهرية' : 'Monthly Cost', color: 'blue' },
+      { id: 'becKpiTotalYearly', label: isAr ? 'التكلفة السنوية' : 'Yearly Cost', color: 'purple' },
+      { id: 'becKpiSetupCost', label: isAr ? 'تكلفة التأسيس' : 'Setup Cost', color: 'gray' },
+      { id: 'becKpiCostPerUnit', label: isAr ? 'تكلفة الوحدة' : 'Cost Per Unit', color: 'orange' },
+      { id: 'becKpiProfitMargin', label: isAr ? 'هامش الربح' : 'Profit Margin', unit: '%', color: 'green' },
+      { id: 'becKpiBreakEvenUnits', label: isAr ? 'نقطة التعادل' : 'Break-even', color: 'red' }
+    ],
+    alertsContainer: '.container',
+    exportContainer: '#becExportHost',
+    aiContainer: '.container',
+    scenarioContainer: '.container',
+    calcType: 'factory-cost'
+  });
+
+  function updateSharedEnhancements(result) {
+    const r = result;
+    const m = r.metrics;
+    const cur = r.currency || (isAr ? 'ر.س' : 'SAR');
+    const loc = r.locale || (isAr ? 'ar-SA' : 'en-US');
+    const fmt = (n) => typeof n === 'number' ? Math.round(n).toLocaleString(loc) : n;
+
+    if (window.BondsEnhancements) {
+      window.BondsEnhancements.updateKpiCards({
+        becKpiTotalMonthly: { text: fmt(r.monthly.totalMonthly) + ' ' + cur, color: '#3b82f6' },
+        becKpiTotalYearly: { text: fmt(r.yearly.expected) + ' ' + cur, color: '#a855f7' },
+        becKpiSetupCost: { text: fmt(r.setup.setupCost) + ' ' + cur, color: '#94a3b8' },
+        becKpiCostPerUnit: { text: m.unitCost > 0 ? fmt(m.unitCost) + ' ' + cur : '—', color: '#f59e0b' },
+        becKpiProfitMargin: { text: m.profitMargin > 0 ? m.profitMargin.toFixed(1) + '%' : '—', color: m.profitMargin >= 20 ? '#16a34a' : (m.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+        becKpiBreakEvenUnits: { text: m.breakEvenUnits > 0 ? fmt(m.breakEvenUnits) + ' ' + (isAr ? 'وحدة' : 'units') : '—', color: '#22c55e' }
+      });
+      window.BondsEnhancements.updateSmartAlerts({
+        profitMargin: m.profitMargin,
+        revenue: m.monthlyRevenue,
+        fixedCosts: r.monthly.totalMonthly - r.monthly.rawMaterialMonthly,
+        netProfit: m.monthlyRevenue - r.monthly.totalMonthly
+      });
+    }
+
+    window.getCalculatorData = function() {
+      return {
+        country: r.country || 'SA',
+        currency: isAr ? 'ريال' : 'SAR',
+        inputs: r.inputs,
+        kpis: [
+          { label: isAr ? 'التكلفة الشهرية' : 'Monthly Cost', value: fmt(r.monthly.totalMonthly) + ' ' + cur, color: '#3b82f6' },
+          { label: isAr ? 'التكلفة السنوية' : 'Yearly Cost', value: fmt(r.yearly.expected) + ' ' + cur, color: '#a855f7' },
+          { label: isAr ? 'تكلفة التأسيس' : 'Setup Cost', value: fmt(r.setup.setupCost) + ' ' + cur, color: '#94a3b8' },
+          { label: isAr ? 'تكلفة الوحدة' : 'Cost Per Unit', value: m.unitCost > 0 ? fmt(m.unitCost) + ' ' + cur : '—', color: '#f59e0b' },
+          { label: isAr ? 'هامش الربح' : 'Profit Margin', value: m.profitMargin > 0 ? m.profitMargin.toFixed(1) + '%' : '—', color: m.profitMargin >= 20 ? '#16a34a' : (m.profitMargin >= 10 ? '#f59e0b' : '#dc2626') }
+        ],
+        csvRows: [
+          [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+          [isAr ? 'الدولة' : 'Country', r.country],
+          [isAr ? 'المدينة' : 'City', r.inputs.cityKey],
+          [isAr ? 'الصناعة' : 'Industry', r.inputs.industryKey],
+          [isAr ? 'المساحة (م²)' : 'Area (m²)', r.inputs.area],
+          [isAr ? 'نوع المنشأة' : 'Facility Type', r.inputs.type],
+          [isAr ? 'العمالة المحلية' : 'Local Workers', r.inputs.localWorkers],
+          [isAr ? 'العمالة الوافدة' : 'Expat Workers', r.inputs.expatWorkers],
+          [isAr ? 'استهلاك الكهرباء' : 'Electricity (kWh)', r.inputs.electricity],
+          [isAr ? 'استهلاك الماء' : 'Water (m³)', r.inputs.water],
+          [isAr ? 'الإنتاج الشهري' : 'Monthly Production', r.inputs.monthlyProduction],
+          [isAr ? 'سعر بيع الوحدة' : 'Unit Price', r.inputs.unitPrice],
+          [isAr ? 'الإيراد الشهري' : 'Monthly Revenue', m.monthlyRevenue],
+          [isAr ? 'التكلفة الشهرية' : 'Monthly Cost', r.monthly.totalMonthly],
+          [isAr ? 'التكلفة السنوية' : 'Yearly Cost', r.yearly.expected],
+          [isAr ? 'تكلفة التأسيس' : 'Setup Cost', r.setup.setupCost],
+          [isAr ? 'تكلفة الوحدة' : 'Cost Per Unit', m.unitCost],
+          [isAr ? 'نقطة التعادل (وحدة/شهر)' : 'Break-even (units/month)', m.breakEvenUnits],
+          [isAr ? 'إيراد التعادل' : 'Break-even Revenue', m.breakEvenRevenue],
+          [isAr ? 'هامش الربح %' : 'Profit Margin %', m.profitMargin],
+          [isAr ? 'فترة الاسترداد (شهر)' : 'Payback (months)', m.paybackMonths]
+        ],
+        aiPayload: {
+          country: r.country,
+          city: r.inputs.cityKey,
+          industry: r.inputs.industryKey,
+          area: r.inputs.area,
+          facility_type: r.inputs.type,
+          local_workers: r.inputs.localWorkers,
+          expat_workers: r.inputs.expatWorkers,
+          electricity_kwh: r.inputs.electricity,
+          water_m3: r.inputs.water,
+          monthly_production: r.inputs.monthlyProduction,
+          unit_price: r.inputs.unitPrice,
+          monthly_cost: r.monthly.totalMonthly,
+          yearly_cost: r.yearly.expected,
+          setup_cost: r.setup.setupCost,
+          cost_per_unit: m.unitCost,
+          break_even_units: m.breakEvenUnits,
+          profit_margin_pct: m.profitMargin,
+          payback_months: m.paybackMonths
+        },
+        aiType: 'factory_cost_analysis'
+      };
+    };
+  }
+
+  window.onFactoryCostCalculated = function(result) {
+    updateSharedEnhancements(result);
+  };
+
+  window.loadCalculatorData = function(data) {
+    if (!data || !data.inputs) return;
+    const i = data.inputs;
+    const setIfExists = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+    if (i.country) {
+      const c = document.getElementById('country');
+      if (c) { c.value = i.country; c.dispatchEvent(new Event('change', { bubbles: true })); }
+    }
+    setIfExists('city', i.cityKey);
+    setIfExists('industry', i.industryKey);
+    setIfExists('area', i.area);
+    setIfExists('type', i.type);
+    setIfExists('localWorkers', i.localWorkers);
+    setIfExists('expatWorkers', i.expatWorkers);
+    setIfExists('localSalary', i.localSalary);
+    setIfExists('expatSalary', i.expatSalary);
+    setIfExists('electricity', i.electricity);
+    setIfExists('water', i.water);
+    setIfExists('monthlyProduction', i.monthlyProduction);
+    setIfExists('maintenancePct', i.maintenancePct);
+    setIfExists('insurancePct', i.insurancePct);
+    setIfExists('rawMaterialPct', i.rawMaterialPct);
+    setIfExists('unitPrice', i.unitPrice);
+    setIfExists('wasteAndIncidentalsPct', i.wasteAndIncidentalsPct);
+    setIfExists('voltage', i.voltage);
+    if (window.FactoryCostCalculator && window.FactoryCostCalculator.calculate) {
+      window.FactoryCostCalculator.calculate();
+    }
+  };
+})();
+</script>
+
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>
 <script src="exit-intent.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 <script>

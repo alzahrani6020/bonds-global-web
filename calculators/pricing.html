@@ -415,8 +415,8 @@
         <div class="card reveal reveal-delay-1">
           <h3 class="calc-card-title">🔗 روابط مفيدة</h3>
           <div class="calc-links-list">
-            <a href="../calculator.html" class="calc-link-item">
-              <span class="calc-link-arrow">→</span> آلة حاسبة نقطة التعادل
+            <a href="break-even.html" class="calc-link-item">
+              <span class="calc-link-arrow">→</span> حاسبة نقطة التعادل
             </a>
             <a href="../index.html" class="calc-link-item">
               <span class="calc-link-arrow">→</span> الصفحة الرئيسية
@@ -810,6 +810,8 @@
         analysisText.innerHTML = '<span style="color:var(--gold-bright)">تم استخراج هامش الربح المستهدف (' + inputs.margin.toFixed(1) + '%) من سعر البيع المستهدف.</span><br><br>' + analysisText.innerHTML;
       }
 
+      updateSharedEnhancements(r, inputs);
+
       // Smart Alert CTA
       var alertBox = document.getElementById('smartAlertBox');
       var alertText = document.getElementById('smartAlertText');
@@ -1067,6 +1069,125 @@
       document.getElementById('shareLink').value = url.toString();
     }
 
+    function updateSharedEnhancements(r, inputs) {
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiPrice: { text: formatCurrency(r.priceBeforeTax), color: r.priceBeforeTax > 0 ? '#3b82f6' : '#94a3b8' },
+          becKpiNetProfit: { text: formatCurrency(r.netProfitPerUnit), color: r.netProfitPerUnit >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiMonthlyProfit: { text: formatCurrency(r.monthlyProfit), color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiActualMargin: { text: r.actualMargin.toFixed(1) + '%', color: r.actualMargin >= 20 ? '#16a34a' : (r.actualMargin >= 10 ? '#f59e0b' : '#dc2626') },
+          becKpiBreakEven: { text: formatCurrency(r.breakEvenPrice), color: r.breakEvenPrice > 0 && r.breakEvenPrice <= r.priceBeforeTax ? '#16a34a' : '#f59e0b' },
+          becKpiTotalCost: { text: formatCurrency(r.totalCostPerUnit), color: '#94a3b8' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          profitMargin: r.actualMargin,
+          revenue: r.priceBeforeTax * (inputs.volume || 0),
+          fixedCosts: inputs.monthlyFixed,
+          netProfitPerUnit: r.netProfitPerUnit,
+          monthlyProfit: r.monthlyProfit,
+          totalCostPerUnit: r.totalCostPerUnit,
+          priceBeforeTax: r.priceBeforeTax,
+          breakEvenPrice: r.breakEvenPrice,
+          platformFeePct: inputs.platformFeePct,
+          paymentGatewayFeePct: inputs.paymentGatewayFeePct,
+          taxRate: inputs.taxRate,
+          zakatRate: inputs.zakatRate
+        });
+      }
+
+      window.getCalculatorData = function() {
+        var currency = getCurrencySymbol();
+        return {
+          country: document.getElementById('country')?.value || 'SA',
+          currency: currency,
+          inputs: inputs,
+          mode: currentPricingMode,
+          kpis: [
+            { label: 'سعر البيع', value: formatCurrency(r.priceBeforeTax), color: '#3b82f6' },
+            { label: 'الربح الصافي / وحدة', value: formatCurrency(r.netProfitPerUnit), color: r.netProfitPerUnit >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'الربح الشهري', value: formatCurrency(r.monthlyProfit), color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'الهامش الفعلي', value: r.actualMargin.toFixed(1) + '%', color: r.actualMargin >= 20 ? '#16a34a' : (r.actualMargin >= 10 ? '#f59e0b' : '#dc2626') },
+            { label: 'سعر التعادل', value: formatCurrency(r.breakEvenPrice), color: '#dc2626' },
+            { label: 'التكلفة الكاملة / وحدة', value: formatCurrency(r.totalCostPerUnit), color: '#94a3b8' }
+          ],
+          csvRows: [
+            ['البند', 'القيمة'],
+            ['التكلفة المباشرة للوحدة', inputs.direct],
+            ['التكاليف غير المباشرة للوحدة', inputs.overhead],
+            ['تكلفة التغليف للوحدة', inputs.packagingCostPerUnit],
+            ['تكلفة التوصيل للوحدة', inputs.deliveryCostPerUnit],
+            ['تكلفة اكتساب العميل للوحدة', inputs.cacPerUnit],
+            ['الهدر والنثريات المتوقعة (%)', inputs.wasteAndIncidentalsPct],
+            ['عمولة المنصة (%)', inputs.platformFeePct],
+            ['رسوم بوابة الدفع (%)', inputs.paymentGatewayFeePct],
+            ['هامش الربح المستهدف (%)', inputs.margin],
+            ['نسبة الضريبة (%)', inputs.taxRate],
+            ['نسبة الزكاة (%)', inputs.zakatRate],
+            ['حجم المبيعات المستهدف شهرياً', inputs.volume],
+            ['التكاليف الثابتة الشهرية', inputs.monthlyFixed],
+            ['', ''],
+            ['سعر البيع على المنصة', r.priceBeforeTax],
+            ['إجمالي التكلفة الكاملة للوحدة', r.totalCostPerUnit],
+            ['الربح قبل الضريبة', r.profitBeforeTax],
+            ['الضريبة', r.taxAmount],
+            ['الربح بعد الضريبة', r.profitAfterTax],
+            ['الزكاة', r.zakatAmount],
+            ['الربح الصافي للوحدة', r.netProfitPerUnit],
+            ['الربح الشهري المستهدف', r.monthlyProfit],
+            ['الهامش الربح الفعلي (%)', r.actualMargin],
+            ['سعر التعادل الأدنى', r.breakEvenPrice]
+          ],
+          aiPayload: {
+            direct_cost: inputs.direct,
+            overhead_cost: inputs.overhead,
+            packaging_cost: inputs.packagingCostPerUnit,
+            delivery_cost: inputs.deliveryCostPerUnit,
+            cac: inputs.cacPerUnit,
+            waste_and_incidentals_pct: inputs.wasteAndIncidentalsPct,
+            platform_fee_pct: inputs.platformFeePct,
+            payment_gateway_fee_pct: inputs.paymentGatewayFeePct,
+            desired_margin_pct: inputs.margin,
+            tax_rate_pct: inputs.taxRate,
+            zakat_rate_pct: inputs.zakatRate,
+            monthly_volume: inputs.volume,
+            monthly_fixed: inputs.monthlyFixed,
+            result_price_before_tax: r.priceBeforeTax,
+            result_total_cost_per_unit: r.totalCostPerUnit,
+            result_net_profit_per_unit: r.netProfitPerUnit,
+            result_monthly_profit: r.monthlyProfit,
+            result_actual_margin_pct: r.actualMargin,
+            result_break_even_price: r.breakEvenPrice
+          },
+          aiType: 'pricing_analysis'
+        };
+      };
+    }
+
+    window.loadCalculatorData = function(data) {
+      if (!data || !data.inputs) return;
+      var i = data.inputs;
+      if (i.direct !== undefined) document.getElementById('directCost').value = i.direct;
+      if (i.overhead !== undefined) document.getElementById('overheadCost').value = i.overhead;
+      if (i.packagingCostPerUnit !== undefined) document.getElementById('packagingCost').value = i.packagingCostPerUnit;
+      if (i.deliveryCostPerUnit !== undefined) document.getElementById('deliveryCost').value = i.deliveryCostPerUnit;
+      if (i.cacPerUnit !== undefined) document.getElementById('cac').value = i.cacPerUnit;
+      if (i.wasteAndIncidentalsPct !== undefined) document.getElementById('wasteAndIncidentalsPct').value = i.wasteAndIncidentalsPct;
+      if (i.platformFeePct !== undefined) document.getElementById('platformFee').value = i.platformFeePct;
+      if (i.paymentGatewayFeePct !== undefined) document.getElementById('paymentGatewayFee').value = i.paymentGatewayFeePct;
+      if (i.margin !== undefined) document.getElementById('desiredMargin').value = i.margin;
+      if (i.taxRate !== undefined) document.getElementById('taxRate').value = i.taxRate;
+      if (i.zakatRate !== undefined) document.getElementById('zakatRate').value = i.zakatRate;
+      if (i.volume !== undefined) document.getElementById('monthlyVolume').value = i.volume;
+      if (i.monthlyFixed !== undefined) document.getElementById('monthlyFixed').value = i.monthlyFixed;
+      if (data.mode === 'price' && data.inputs && data.inputs.targetPrice !== undefined) {
+        document.getElementById('targetPrice').value = data.inputs.targetPrice;
+        setPricingMode('price', false);
+      } else {
+        setPricingMode('margin', false);
+      }
+      calculateAll();
+    };
+
     function calculateAll() {
       if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
         window.BondsAnalytics.trackEvent('calc_completed', { source: 'pricing', country: document.getElementById('country')?.value || 'SA' });
@@ -1305,7 +1426,7 @@
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>
 <script src="exit-intent.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
 <script src="shared-geo.js?v=6"></script>
 
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
@@ -1481,6 +1602,28 @@
   var lastDay = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0);
   var dateStr = lastDay.toLocaleDateString('ar-SA', { day: 'numeric', month: 'long', year: 'numeric' });
   document.querySelectorAll('.offer-date-ar').forEach(function(el){ el.textContent = dateStr; });
+})();
+</script>
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '.calc-panel.calc-mb-6',
+    kpis: [
+      { id: 'becKpiPrice', label: 'سعر البيع', color: 'blue' },
+      { id: 'becKpiNetProfit', label: 'الربح الصافي / وحدة', color: 'green' },
+      { id: 'becKpiMonthlyProfit', label: 'الربح الشهري', color: 'gold' },
+      { id: 'becKpiActualMargin', label: 'الهامش الفعلي', unit: '%', color: 'purple' },
+      { id: 'becKpiBreakEven', label: 'سعر التعادل', color: 'red' },
+      { id: 'becKpiTotalCost', label: 'التكلفة الكاملة / وحدة', color: 'orange' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'pricing'
+  });
 })();
 </script>
 </body>

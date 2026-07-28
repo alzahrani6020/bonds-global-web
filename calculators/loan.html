@@ -612,6 +612,8 @@
         alertBox.style.display = 'none';
       }
 
+      updateSharedEnhancements(r, inputs);
+
       // Lead Capture
       var leadBox = document.getElementById('leadCaptureBox');
       leadBox.style.display = 'block';
@@ -1075,6 +1077,119 @@
       openPrintWindow({ content: content, title: 'تقرير القرض والتمويل', headerTitle: 'تقرير القرض والتمويل', autoPrint: true, reportType: 'loan' });
     }
 
+    function updateSharedEnhancements(r, inputs) {
+      var dti = 0, dtiText = '—';
+      if (inputs.monthlyIncome > 0) {
+        dti = (r.installment / inputs.monthlyIncome) * 100;
+        dtiText = dti.toFixed(1) + '%';
+      }
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiInstallment: { text: formatNumber(r.installment) + ' ر.س', color: r.installment > 0 ? '#d4a853' : '#94a3b8' },
+          becKpiNetLoan: { text: formatNumber(r.netLoan) + ' ر.س', color: '#3b82f6' },
+          becKpiTotalInterest: { text: formatNumber(r.totalInterest) + ' ر.س', color: '#dc2626' },
+          becKpiTotalPaid: { text: formatNumber(r.totalPaid) + ' ر.س', color: '#a855f7' },
+          becKpiEar: { text: (r.ear * 100).toFixed(2) + '%', color: r.ear * 100 > inputs.interestRate ? '#dc2626' : '#f59e0b' },
+          becKpiDti: { text: dtiText, color: dti > 50 ? '#dc2626' : (dti > 30 ? '#f59e0b' : '#16a34a') }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          interestRate: inputs.interestRate,
+          dti: dti,
+          installment: r.installment,
+          monthlyIncome: inputs.monthlyIncome,
+          totalInterest: r.totalInterest,
+          ear: r.ear * 100,
+          netLoan: r.netLoan,
+          totalPaid: r.totalPaid
+        });
+      }
+
+      window.getCalculatorData = function() {
+        return {
+          country: document.getElementById('country')?.value || 'SA',
+          currency: 'SAR',
+          inputs: inputs,
+          kpis: [
+            { label: 'القسط الشهري', value: formatNumber(r.installment) + ' ر.س', color: '#d4a853' },
+            { label: 'صافي القرض', value: formatNumber(r.netLoan) + ' ر.س', color: '#3b82f6' },
+            { label: 'إجمالي الفائدة', value: formatNumber(r.totalInterest) + ' ر.س', color: '#dc2626' },
+            { label: 'إجمالي المدفوع', value: formatNumber(r.totalPaid) + ' ر.س', color: '#a855f7' },
+            { label: 'معدل الفائدة الفعلي EAR', value: (r.ear * 100).toFixed(2) + '%', color: r.ear * 100 > inputs.interestRate ? '#dc2626' : '#f59e0b' },
+            { label: 'نسبة القسط من الدخل', value: dtiText, color: dti > 50 ? '#dc2626' : (dti > 30 ? '#f59e0b' : '#16a34a') }
+          ],
+          csvRows: [
+            ['البند', 'القيمة'],
+            ['مبلغ القرض', inputs.loanAmount],
+            ['الدفعة المقدمة', inputs.downPayment],
+            ['نسبة الفائدة السنوية (%)', inputs.interestRate],
+            ['مدة القرض (أشهر)', inputs.loanTerm],
+            ['تكرار السداد', inputs.frequency === 'monthly' ? 'شهري' : 'ربع سنوي'],
+            ['طريقة احتساب الفائدة', inputs.interestMethod === 'fixed' ? 'ثابتة' : 'تناقصية'],
+            ['نوع المقترض', inputs.borrowerType === 'individual' ? 'فرد' : 'شركة'],
+            ['رسوم إضافية', inputs.extraFees],
+            ['نسبة الرسوم الإدارية (%)', inputs.adminFeeRate],
+            ['مبلغ الرسوم الإدارية', inputs.adminFeeAmount],
+            ['طريقة خصم الرسوم', inputs.adminFeeMethod],
+            ['نسبة مساهمة المقترض (%)', inputs.participationRate],
+            ['الدخل الشهري', inputs.monthlyIncome],
+            ['', ''],
+            ['صافي القرض', r.netLoan],
+            ['المبلغ المُستلم بعد الرسوم', r.netReceived],
+            ['القسط', r.installment],
+            ['إجمالي الفائدة', r.totalInterest],
+            ['إجمالي المدفوع', r.totalPaid],
+            ['معدل الفائدة الفعلي EAR (%)', (r.ear * 100).toFixed(2)],
+            ['تكلفة المشروع الإجمالية', r.totalProjectCost],
+            ['مساهمة المقترض', r.borrowerContribution]
+          ],
+          aiPayload: {
+            loan_amount: inputs.loanAmount,
+            down_payment: inputs.downPayment,
+            interest_rate_pct: inputs.interestRate,
+            loan_term_months: inputs.loanTerm,
+            frequency: inputs.frequency,
+            interest_method: inputs.interestMethod,
+            borrower_type: inputs.borrowerType,
+            extra_fees: inputs.extraFees,
+            admin_fee_rate_pct: inputs.adminFeeRate,
+            admin_fee_amount: inputs.adminFeeAmount,
+            admin_fee_method: inputs.adminFeeMethod,
+            participation_rate_pct: inputs.participationRate,
+            monthly_income: inputs.monthlyIncome,
+            result_net_loan: r.netLoan,
+            result_net_received: r.netReceived,
+            result_installment: r.installment,
+            result_total_interest: r.totalInterest,
+            result_total_paid: r.totalPaid,
+            result_ear_pct: r.ear * 100,
+            result_total_project_cost: r.totalProjectCost,
+            result_borrower_contribution: r.borrowerContribution,
+            result_dti_pct: dti
+          },
+          aiType: 'loan_analysis'
+        };
+      };
+    }
+
+    window.loadCalculatorData = function(data) {
+      if (!data || !data.inputs) return;
+      var i = data.inputs;
+      if (i.loanAmount !== undefined) document.getElementById('loanAmount').value = i.loanAmount;
+      if (i.downPayment !== undefined) document.getElementById('downPayment').value = i.downPayment;
+      if (i.interestRate !== undefined) document.getElementById('interestRate').value = i.interestRate;
+      if (i.loanTerm !== undefined) document.getElementById('loanTerm').value = i.loanTerm;
+      if (i.frequency !== undefined) document.getElementById('paymentFrequency').value = i.frequency;
+      if (i.interestMethod !== undefined) document.getElementById('interestMethod').value = i.interestMethod;
+      if (i.borrowerType !== undefined) document.getElementById('borrowerType').value = i.borrowerType;
+      if (i.extraFees !== undefined) document.getElementById('extraFees').value = i.extraFees;
+      if (i.adminFeeRate !== undefined) document.getElementById('adminFeeRate').value = i.adminFeeRate;
+      if (i.adminFeeAmount !== undefined) document.getElementById('adminFeeAmount').value = i.adminFeeAmount;
+      if (i.adminFeeMethod !== undefined) document.getElementById('adminFeeMethod').value = i.adminFeeMethod;
+      if (i.participationRate !== undefined) document.getElementById('participationRate').value = i.participationRate;
+      if (i.monthlyIncome !== undefined) document.getElementById('monthlyIncome').value = i.monthlyIncome;
+      calculateAll();
+    };
+
     function calculateAll() {
       if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
         window.BondsAnalytics.trackEvent('calc_completed', { source: 'loan', country: document.getElementById('country')?.value || 'SA' });
@@ -1303,7 +1418,7 @@
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>
 <script src="exit-intent.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
 <script src="shared-geo.js?v=6"></script>
 
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
@@ -1469,6 +1584,28 @@
       });
     })();
   })();
+</script>
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '.calc-panel.calc-mb-6',
+    kpis: [
+      { id: 'becKpiInstallment', label: 'القسط الشهري', color: 'gold' },
+      { id: 'becKpiNetLoan', label: 'صافي القرض', color: 'blue' },
+      { id: 'becKpiTotalInterest', label: 'إجمالي الفائدة', color: 'red' },
+      { id: 'becKpiTotalPaid', label: 'إجمالي المدفوع', color: 'purple' },
+      { id: 'becKpiEar', label: 'معدل الفائدة الفعلي EAR', unit: '%', color: 'orange' },
+      { id: 'becKpiDti', label: 'نسبة القسط من الدخل', unit: '%', color: 'green' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'loan'
+  });
+})();
 </script>
 </body>
 </html>

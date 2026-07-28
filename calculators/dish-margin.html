@@ -28,7 +28,7 @@
 
   <script src="db-client.js"></script>
   
-<link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
+<link rel="stylesheet" href="../header-footer.css?v=2.59.0" />
   <link rel="canonical" href="https://bonds-global.com/calculators/dish-margin" />
   <script type="application/ld+json">
   {
@@ -189,6 +189,7 @@
         <div>
           <h3 class="calc-title-gold">📊 نتائج الوجبة</h3>
           <div id="resultsSection">
+            <div id="becKpiHost" class="reveal calc-mt-4"></div>
             <div class="result-grid">
               <div class="result-card" id="cardCommission">
                 <div class="result-value" id="valCommission">—</div>
@@ -228,6 +229,7 @@
               <button type="button" class="btn btn-secondary" onclick="shareWhatsApp()">📱 واتساب</button>
               <button type="button" class="btn btn-secondary" onclick="exportExcelSettings()">📊 تصدير إكسيل</button>
             </div>
+            <div class="share-bar" id="becExportHost" style="margin-top:1rem;justify-content:center;"></div>
           </div>
         </div>
       </div>
@@ -609,7 +611,115 @@
         analysisBox.style.display = 'none';
         alertBox.classList.remove('show');
       }
+
+      window._dmResult = {
+        dishName: document.getElementById('dishName').value || '',
+        country: currentCountry,
+        currency: currentCurrency,
+        foodCost: foodCost,
+        packagingCost: packagingCost,
+        sellingPrice: sellingPrice,
+        commissionRate: commissionRate,
+        totalPrimeCost: totalPrimeCost,
+        commissionValue: commissionValue,
+        grossProfit: grossProfit,
+        margin: margin
+      };
+
+      updateSharedEnhancements(window._dmResult);
     }
+
+    function updateSharedEnhancements(result){
+      const isAr = document.documentElement.lang === 'ar';
+      const cur = result.currency || (isAr ? 'ر.س' : 'SAR');
+      const loc = isAr ? 'ar-SA' : 'en-US';
+      const fmt = (n) => typeof n === 'number' ? n.toLocaleString(loc, {maximumFractionDigits:2}) : n;
+
+      if(window.BondsEnhancements){
+        window.BondsEnhancements.updateKpiCards({
+          becKpiSellingPrice: { text: fmt(result.sellingPrice) + ' ' + cur, color: '#3b82f6' },
+          becKpiTotalCost: { text: fmt(result.totalPrimeCost) + ' ' + cur, color: '#94a3b8' },
+          becKpiCommission: { text: fmt(result.commissionValue) + ' ' + cur, color: '#dc2626' },
+          becKpiProfit: { text: fmt(result.grossProfit) + ' ' + cur, color: result.grossProfit >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiMargin: { text: result.margin.toFixed(1) + '%', color: result.margin >= 50 ? '#16a34a' : (result.margin >= 40 ? '#f59e0b' : '#dc2626') },
+          becKpiTargetPrice: { text: document.getElementById('calculatedPrice').value ? fmt(parseFloat(document.getElementById('calculatedPrice').value)) + ' ' + cur : '—', color: '#a855f7' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          profitMargin: result.margin,
+          revenue: result.sellingPrice,
+          fixedCosts: result.totalPrimeCost,
+          netProfit: result.grossProfit
+        });
+      }
+
+      window.getCalculatorData = function(){
+        const reversePrice = parseFloat(document.getElementById('calculatedPrice').value) || 0;
+        return {
+          country: result.country || 'SA',
+          currency: isAr ? 'ريال' : 'SAR',
+          inputs: {
+            dishName: result.dishName,
+            foodCost: result.foodCost,
+            packagingCost: result.packagingCost,
+            sellingPrice: result.sellingPrice,
+            commissionRate: result.commissionRate
+          },
+          kpis: [
+            { label: isAr ? 'سعر البيع' : 'Selling Price', value: fmt(result.sellingPrice) + ' ' + cur, color: '#3b82f6' },
+            { label: isAr ? 'التكلفة المباشرة' : 'Direct Cost', value: fmt(result.totalPrimeCost) + ' ' + cur, color: '#94a3b8' },
+            { label: isAr ? 'العمولة' : 'Commission', value: fmt(result.commissionValue) + ' ' + cur, color: '#dc2626' },
+            { label: isAr ? 'صافي الربح' : 'Net Profit', value: fmt(result.grossProfit) + ' ' + cur, color: result.grossProfit >= 0 ? '#16a34a' : '#dc2626' },
+            { label: isAr ? 'هامش الربح' : 'Profit Margin', value: result.margin.toFixed(1) + '%', color: result.margin >= 50 ? '#16a34a' : (result.margin >= 40 ? '#f59e0b' : '#dc2626') }
+          ],
+          csvRows: [
+            [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+            [isAr ? 'اسم الوجبة' : 'Dish Name', result.dishName],
+            [isAr ? 'الدولة' : 'Country', result.country],
+            [isAr ? 'العملة' : 'Currency', cur],
+            [isAr ? 'تكلفة المكونات' : 'Food Cost', result.foodCost],
+            [isAr ? 'تكلفة التغليف' : 'Packaging Cost', result.packagingCost],
+            [isAr ? 'إجمالي التكلفة' : 'Total Cost', result.totalPrimeCost],
+            [isAr ? 'سعر البيع' : 'Selling Price', result.sellingPrice],
+            [isAr ? 'نسبة العمولة' : 'Commission Rate %', result.commissionRate],
+            [isAr ? 'قيمة العمولة' : 'Commission Value', result.commissionValue],
+            [isAr ? 'صافي الربح' : 'Net Profit', result.grossProfit],
+            [isAr ? 'هامش الربح %' : 'Profit Margin %', result.margin],
+            [isAr ? 'السعر المُحسَّب' : 'Calculated Price', reversePrice]
+          ],
+          aiPayload: {
+            country: result.country,
+            currency: isAr ? 'ريال' : 'SAR',
+            dish_name: result.dishName,
+            food_cost: result.foodCost,
+            packaging_cost: result.packagingCost,
+            selling_price: result.sellingPrice,
+            commission_rate_pct: result.commissionRate,
+            commission_value: result.commissionValue,
+            total_cost: result.totalPrimeCost,
+            net_profit: result.grossProfit,
+            profit_margin_pct: result.margin,
+            calculated_price: reversePrice
+          },
+          aiType: 'dish_margin'
+        };
+      };
+    }
+
+    window.loadCalculatorData = function(data){
+      if(!data || !data.inputs) return;
+      const i = data.inputs;
+      const setIfExists = (id, val) => { const el = document.getElementById(id); if(el && val !== undefined) el.value = val; };
+      setIfExists('dishName', i.dishName);
+      setIfExists('foodCost', i.foodCost);
+      setIfExists('packagingCost', i.packagingCost);
+      setIfExists('sellingPrice', i.sellingPrice);
+      setIfExists('commissionRate', i.commissionRate);
+      setIfExists('revFoodCost', i.foodCost);
+      setIfExists('revPackagingCost', i.packagingCost);
+      setIfExists('revCommissionRate', i.commissionRate);
+      calculate();
+      calculateReverse();
+    };
 
     function calculatePlatform(foodCost, packagingCost, sellingPrice, platform) {
       var totalPrimeCost = foodCost + packagingCost;
@@ -1140,9 +1250,33 @@
 </script>
 <script src="usage-guard.js"></script>
   <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=3.0.7"></script>
+<script src="../site-layout.js?v=3.0.8"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiSellingPrice', label: isAr ? 'سعر البيع' : 'Selling Price', color: 'blue' },
+      { id: 'becKpiTotalCost', label: isAr ? 'التكلفة المباشرة' : 'Direct Cost', color: 'gray' },
+      { id: 'becKpiCommission', label: isAr ? 'العمولة' : 'Commission', color: 'red' },
+      { id: 'becKpiProfit', label: isAr ? 'صافي الربح' : 'Net Profit', color: 'green' },
+      { id: 'becKpiMargin', label: isAr ? 'هامش الربح' : 'Profit Margin', unit: '%', color: 'gold' },
+      { id: 'becKpiTargetPrice', label: isAr ? 'السعر المُحسَّب' : 'Calculated Price', color: 'purple' }
+    ],
+    alertsContainer: '.calc-section-pt-1 .container',
+    exportContainer: '#becExportHost',
+    aiContainer: '.calc-section-pt-1 .container',
+    scenarioContainer: '.calc-section-pt-1 .container',
+    calcType: 'dish-margin'
+  });
+})();
+</script>
 
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>

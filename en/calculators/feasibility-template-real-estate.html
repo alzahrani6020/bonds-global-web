@@ -10,7 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/feasibility-template-shared-en.css" />
-<link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+<link rel="stylesheet" href="../../header-footer.css?v=2.59.0" />
 <link rel="canonical" href="https://bonds-global.com/en/calculators/feasibility-template-real-estate" />
   <meta property="og:description" content="Professional integrated feasibility study: PESTLE, SWOT, financial analysis, cash flow, scenarios. Free from Bonds." />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/feasibility-template-real-estate" />
@@ -759,6 +759,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
         <canvas id="dash-chart-cashflow" height="100"></canvas>
       </div>
 
+      <div class="share-bar" id="becExportHost" style="margin-top:1rem;justify-content:center;"></div>
       <p class="dash-footer-note">This dashboard summarizes data entered in the template. For full details, review the preceding sections.</p>
     </div>
 
@@ -859,7 +860,7 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
       document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green">✅</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
-      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span>✅</span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= 18 ? '<span class="text-green">✅</span>' : payback > 0 && payback <= 36 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
       document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green">✅</span>' : roi >= 10 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
@@ -867,6 +868,83 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
 
       renderCharts(revenue, fixed, variable, net);
       updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits);
+      updateSharedEnhancements();
+    }
+
+    function updateSharedEnhancements() {
+      const isAr = document.documentElement.lang === 'ar';
+      const cur = isAr ? 'ريال' : 'SAR';
+      const loc = isAr ? 'ar-SA' : 'en-US';
+      const fmt = (n) => typeof n === 'number' ? Math.round(n).toLocaleString(loc) : n;
+      const revenue = parseNumber(document.getElementById('total-revenue')?.value) || 0;
+      const fixed = parseNumber(document.getElementById('total-fixed')?.value) || 0;
+      const variable = parseNumber(document.getElementById('total-var')?.value) || 0;
+      const net = parseNumber(document.getElementById('net-profit')?.value) || 0;
+      const margin = parseNumber(document.getElementById('profit-margin')?.value) || 0;
+      const roi = parseNumber(document.getElementById('roi-percent')?.value) || 0;
+      const payback = parseNumber(document.getElementById('payback-period')?.value) || 0;
+      const beUnits = parseNumber(document.getElementById('break-even-units')?.value) || 0;
+      const totalCapital = parseNumber(document.getElementById('total-capital')?.value) || 0;
+      const country = document.getElementById('cover-country')?.value || 'SA';
+
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiRevenue: { text: fmt(revenue) + ' ' + cur, color: '#3b82f6' },
+          becKpiNetProfit: { text: fmt(net) + ' ' + cur, color: net >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiMargin: { text: margin.toFixed(1) + '%', color: margin >= 25 ? '#16a34a' : (margin >= 15 ? '#f59e0b' : '#dc2626') },
+          becKpiRoi: { text: roi.toFixed(1) + '%', color: roi >= 20 ? '#16a34a' : (roi >= 10 ? '#f59e0b' : '#dc2626') },
+          becKpiPayback: { text: payback > 0 && payback < 999 ? payback.toFixed(1) + ' ' + (isAr ? 'شهر' : 'mo') : '—', color: payback > 0 && payback <= 24 ? '#16a34a' : '#f59e0b' },
+          becKpiBreakEven: { text: beUnits > 0 ? fmt(beUnits) + ' ' + (isAr ? 'وحدة' : 'units') : '—', color: '#a855f7' },
+          becKpiCapital: { text: fmt(totalCapital) + ' ' + cur, color: '#94a3b8' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          profitMargin: margin,
+          revenue: revenue,
+          fixedCosts: fixed,
+          netProfit: net
+        });
+      }
+
+      window.getCalculatorData = function() {
+        return {
+          country: country,
+          currency: isAr ? 'ريال' : 'SAR',
+          inputs: { revenue: revenue, fixed: fixed, variable: variable, net: net, margin: margin, roi: roi, payback: payback, beUnits: beUnits, totalCapital: totalCapital },
+          kpis: [
+            { label: isAr ? 'الإيرادات الشهرية' : 'Monthly Revenue', value: fmt(revenue) + ' ' + cur, color: '#3b82f6' },
+            { label: isAr ? 'صافي الربح' : 'Net Profit', value: fmt(net) + ' ' + cur, color: net >= 0 ? '#16a34a' : '#dc2626' },
+            { label: isAr ? 'هامش الربح' : 'Profit Margin', value: margin.toFixed(1) + '%', color: margin >= 25 ? '#16a34a' : (margin >= 15 ? '#f59e0b' : '#dc2626') },
+            { label: isAr ? 'العائد على الاستثمار' : 'ROI', value: roi.toFixed(1) + '%', color: roi >= 20 ? '#16a34a' : (roi >= 10 ? '#f59e0b' : '#dc2626') },
+            { label: isAr ? 'فترة الاسترداد' : 'Payback Period', value: payback > 0 && payback < 999 ? payback.toFixed(1) + ' ' + (isAr ? 'شهر' : 'mo') : '—', color: '#d4a853' }
+          ],
+          csvRows: [
+            [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+            [isAr ? 'الدولة' : 'Country', country],
+            [isAr ? 'الإيرادات الشهرية' : 'Monthly Revenue', revenue],
+            [isAr ? 'التكاليف الثابتة' : 'Fixed Costs', fixed],
+            [isAr ? 'التكاليف المتغيرة' : 'Variable Costs', variable],
+            [isAr ? 'صافي الربح' : 'Net Profit', net],
+            [isAr ? 'هامش الربح %' : 'Profit Margin %', margin],
+            [isAr ? 'العائد على الاستثمار %' : 'ROI %', roi],
+            [isAr ? 'فترة الاسترداد (شهر)' : 'Payback (months)', payback],
+            [isAr ? 'نقطة التعادل (وحدة)' : 'Break-even (units)', beUnits],
+            [isAr ? 'رأس المال المطلوب' : 'Total Capital', totalCapital]
+          ],
+          aiPayload: {
+            country: country,
+            revenue: revenue,
+            fixed_costs: fixed,
+            variable_costs: variable,
+            net_profit: net,
+            profit_margin_pct: margin,
+            roi_pct: roi,
+            payback_months: payback,
+            break_even_units: beUnits,
+            total_capital: totalCapital
+          },
+          aiType: 'feasibility_template'
+        };
+      };
     }
 
     function updateDashboard(revenue, fixed, variable, net, marginPct, roi, paybackMonths, beUnits) {
@@ -2484,10 +2562,34 @@ Example: Achieve 100K SAR monthly revenue within 12 months"></textarea></div>
   </script>
 <script src="../../calculators/usage-guard.js"></script>
   <script src="../../page-tracker-v2.js"></script>
-<script src="../../site-layout.js?v=3.0.7"></script>
+<script src="../../site-layout.js?v=3.0.8"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 
+
+<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiRevenue', label: isAr ? 'الإيرادات' : 'Revenue', color: 'blue' },
+      { id: 'becKpiNetProfit', label: isAr ? 'صافي الربح' : 'Net Profit', color: 'green' },
+      { id: 'becKpiMargin', label: isAr ? 'هامش الربح' : 'Margin', unit: '%', color: 'gold' },
+      { id: 'becKpiRoi', label: isAr ? 'العائد' : 'ROI', unit: '%', color: 'purple' },
+      { id: 'becKpiPayback', label: isAr ? 'الاسترداد' : 'Payback', color: 'orange' },
+      { id: 'becKpiBreakEven', label: isAr ? 'التعادل' : 'Break-even', color: 'red' },
+      { id: 'becKpiCapital', label: isAr ? 'رأس المال' : 'Capital', color: 'gray' }
+    ],
+    alertsContainer: '#page-dashboard',
+    exportContainer: '#becExportHost',
+    aiContainer: '#page-dashboard',
+    calcType: 'feasibility-template-real-estate'
+  });
+})();
+</script>
 
 <script src="../../calculators/shared-analytics.js"></script>
 <script src="../../calculators/auth-modal.js"></script>

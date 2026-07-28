@@ -43,7 +43,9 @@
   --white: var(--text);
   --font: "Vazirmatn", "Cairo", system-ui, sans-serif;
   --font-display: "Vazirmatn", "Cairo", system-ui, sans-serif;
-  --font-en: "Inter", system-ui, sans-serif;
+  --font-en: "Outfit", "Inter", system-ui, sans-serif;
+  --font-display-en: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-mono: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -95,7 +97,6 @@
   --text-6xl: 3.75rem;
   --border-medium: rgba(197, 160, 40, 0.25);
   --transition-fast: 0.15s ease;
-  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   --success: #22c55e;
   --warning: #facc15;
   --info: #3b82f6;

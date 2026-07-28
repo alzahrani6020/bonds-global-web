@@ -127,6 +127,84 @@
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
     }
 
+    function updateSharedEnhancements(result, inputs) {
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiNetProfit: { text: formatCurrency(result.netProfit), color: result.netProfit >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiRoi: { text: result.roi.toFixed(2) + '%', color: result.roi >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiPayback: { text: result.paybackText, color: result.payback > 0 && result.payback <= inputs.years ? '#16a34a' : '#f59e0b' },
+          becKpiNpv: { text: formatCurrency(result.npv), color: result.npv >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiAnnualCashFlow: { text: formatCurrency(result.annualNet), color: result.annualNet >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiTotalReturn: { text: formatCurrency(result.totalNet), color: result.totalNet >= inputs.investment ? '#16a34a' : '#f59e0b' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          profitMargin: result.roi,
+          revenue: inputs.revenue,
+          fixedCosts: inputs.costs + inputs.investment,
+          netProfit: result.netProfit,
+          npv: result.npv,
+          payback: result.payback,
+          projectYears: inputs.years,
+          annualNet: result.annualNet
+        });
+      }
+
+      window.getCalculatorData = function() {
+        return {
+          country: 'SA',
+          currency: 'USD',
+          inputs: inputs,
+          kpis: [
+            { label: 'Net Profit', value: formatCurrency(result.netProfit), color: result.netProfit >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'ROI', value: result.roi.toFixed(2) + '%', color: result.roi >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'Payback Period', value: result.paybackText, color: result.payback > 0 && result.payback <= inputs.years ? '#16a34a' : '#f59e0b' },
+            { label: 'NPV', value: formatCurrency(result.npv), color: result.npv >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'Annual Cash Flow', value: formatCurrency(result.annualNet), color: result.annualNet >= 0 ? '#16a34a' : '#dc2626' }
+          ],
+          csvRows: [
+            ['Item', 'Value'],
+            ['Initial Investment', inputs.investment],
+            ['Annual Revenue', inputs.revenue],
+            ['Annual Operating Costs', inputs.costs],
+            ['Project Duration (Years)', inputs.years],
+            ['Annual Discount Rate (%)', (inputs.discountRate * 100).toFixed(2)],
+            ['', ''],
+            ['Annual Cash Flow', result.annualNet],
+            ['Total Return', result.totalNet],
+            ['Net Profit', result.netProfit],
+            ['ROI (%)', result.roi],
+            ['Payback Period (Years)', result.payback],
+            ['NPV', result.npv]
+          ],
+          aiPayload: {
+            initial_investment: inputs.investment,
+            annual_revenue: inputs.revenue,
+            annual_costs: inputs.costs,
+            project_years: inputs.years,
+            discount_rate_pct: inputs.discountRate * 100,
+            annual_net_cash_flow: result.annualNet,
+            total_return: result.totalNet,
+            net_profit: result.netProfit,
+            roi_pct: result.roi,
+            payback_years: result.payback,
+            npv: result.npv
+          },
+          aiType: 'roi_analysis'
+        };
+      };
+    }
+
+    window.loadCalculatorData = function(data) {
+      if (!data || !data.inputs) return;
+      var i = data.inputs;
+      if (i.investment !== undefined) document.getElementById('initialInvestment').value = i.investment;
+      if (i.revenue !== undefined) document.getElementById('annualRevenue').value = i.revenue;
+      if (i.costs !== undefined) document.getElementById('annualCosts').value = i.costs;
+      if (i.years !== undefined) document.getElementById('projectYears').value = i.years;
+      if (i.discountRate !== undefined) document.getElementById('discountRate').value = i.discountRate;
+      calculateROI();
+    };
+
     function calculateROI() {
       if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
         window.BondsAnalytics.trackEvent('calc_completed', { calculator: 'roi', country: 'SA' });
@@ -154,12 +232,24 @@
         npv += annualNet / Math.pow(1 + discountRate, i);
       }
 
+      const inputs = { investment: investment, revenue: revenue, costs: costs, years: years, discountRate: discountRate };
+      const result = {
+        annualNet: annualNet,
+        totalNet: totalNet,
+        netProfit: netProfit,
+        roi: roi,
+        payback: payback,
+        paybackText: isFinite(payback) ? payback.toFixed(2) + ' years' : 'Unlimited',
+        npv: npv
+      };
+
       document.getElementById('netProfit').textContent = formatCurrency(netProfit);
       document.getElementById('roiResult').textContent = roi.toFixed(2) + '%';
-      document.getElementById('paybackPeriod').textContent = isFinite(payback) ? payback.toFixed(2) + ' years' : 'Unlimited';
+      document.getElementById('paybackPeriod').textContent = result.paybackText;
       document.getElementById('npvResult').textContent = formatCurrency(npv);
       document.getElementById('annualCashFlow').textContent = formatCurrency(annualNet);
       document.getElementById('resultsPanel').style.display = 'block';
+      updateSharedEnhancements(result, inputs);
       document.getElementById('resultsPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   </script>
@@ -335,5 +425,27 @@
       })();
     })();
   </script>
+<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '#resultsPanel',
+    kpis: [
+      { id: 'becKpiNetProfit', label: 'Net Profit', color: 'green' },
+      { id: 'becKpiRoi', label: 'ROI', unit: '%', color: 'blue' },
+      { id: 'becKpiPayback', label: 'Payback Period', color: 'gold' },
+      { id: 'becKpiNpv', label: 'NPV', color: 'purple' },
+      { id: 'becKpiAnnualCashFlow', label: 'Annual Cash Flow', color: 'orange' },
+      { id: 'becKpiTotalReturn', label: 'Total Return', color: 'red' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'roi'
+  });
+})();
+</script>
 </body>
 </html>

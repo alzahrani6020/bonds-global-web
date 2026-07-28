@@ -615,6 +615,7 @@
         var months = getMonthData();
         generateResultsTable(months);
         updateSummary(months);
+        updateSharedEnhancements(months);
         checkSmartAlert(months);
         updateLeadCapture(months);
         loadChartJS().then(function() {
@@ -626,6 +627,84 @@
         
         BondsUI.toast('❌ حدث خطأ في الحساب: ' + err.message, 'error');
       }
+    }
+
+    function updateSharedEnhancements(months) {
+      var totalIn = 0, totalOut = 0, netFlow = 0, totalWaste = 0;
+      var minBal = Infinity, maxBal = -Infinity;
+      var negativeMonths = 0;
+      months.forEach(function(m) {
+        totalIn += m.totalIn;
+        totalOut += m.totalOut;
+        totalWaste += m.wasteAndIncidentals;
+        netFlow += m.netCashFlow;
+        if (m.closingBalance < minBal) minBal = m.closingBalance;
+        if (m.closingBalance > maxBal) maxBal = m.closingBalance;
+        if (m.closingBalance < 0) negativeMonths++;
+      });
+      if (minBal === Infinity) minBal = 0;
+      if (maxBal === -Infinity) maxBal = 0;
+      var avgMonthlyOut = totalOut / 12;
+      var runway = avgMonthlyOut > 0 && months[11].closingBalance > 0 ? (months[11].closingBalance / avgMonthlyOut).toFixed(1) : (netFlow >= 0 ? '∞' : '0');
+      var isAr = document.documentElement.lang === 'ar';
+      var cur = isAr ? 'ريال' : 'SAR';
+
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiTotalIn: { text: formatNumber(totalIn) + ' ' + cur, color: '#16a34a' },
+          becKpiTotalOut: { text: formatNumber(totalOut) + ' ' + cur, color: '#dc2626' },
+          becKpiNetFlow: { text: formatNumber(netFlow) + ' ' + cur, color: netFlow >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiClosing: { text: formatNumber(months[11].closingBalance) + ' ' + cur, color: months[11].closingBalance >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiMinBal: { text: formatNumber(minBal) + ' ' + cur, color: minBal >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiRunway: { text: runway + ' ' + (isAr ? 'شهر' : 'mo'), color: runway === '∞' || parseFloat(runway) > 3 ? '#16a34a' : '#f59e0b' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          minBalance: minBal,
+          netFlow: netFlow,
+          revenue: totalIn,
+          fixedCosts: totalOut
+        });
+      }
+
+      window.getCalculatorData = function() {
+        return {
+          country: document.getElementById('country')?.value || 'SA',
+          totalIn: totalIn,
+          totalOut: totalOut,
+          netFlow: netFlow,
+          closingBalance: months[11].closingBalance,
+          minBalance: minBal,
+          maxBalance: maxBal,
+          negativeMonths: negativeMonths,
+          kpis: [
+            { label: isAr ? 'إجمالي الواردات' : 'Total Inflows', value: formatNumber(totalIn) + ' ' + cur, color: '#16a34a' },
+            { label: isAr ? 'إجمالي المصروفات' : 'Total Outflows', value: formatNumber(totalOut) + ' ' + cur, color: '#dc2626' },
+            { label: isAr ? 'صافي التدفق' : 'Net Cash Flow', value: formatNumber(netFlow) + ' ' + cur, color: netFlow >= 0 ? '#16a34a' : '#dc2626' },
+            { label: isAr ? 'الرصيد الختامي' : 'Closing Balance', value: formatNumber(months[11].closingBalance) + ' ' + cur, color: months[11].closingBalance >= 0 ? '#16a34a' : '#dc2626' }
+          ],
+          csvRows: [
+            [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+            [isAr ? 'الرصيد الافتتاحي' : 'Opening Balance', parseFloat(document.getElementById('openingBalance').value) || 0],
+            [isAr ? 'إجمالي الواردات' : 'Total Inflows', totalIn],
+            [isAr ? 'إجمالي المصروفات' : 'Total Outflows', totalOut],
+            [isAr ? 'الهدر والنثريات' : 'Waste & Incidentals', totalWaste],
+            [isAr ? 'صافي التدفق' : 'Net Cash Flow', netFlow],
+            [isAr ? 'الرصيد الختامي' : 'Closing Balance', months[11].closingBalance],
+            [isAr ? 'أدنى رصيد' : 'Min Balance', minBal],
+            [isAr ? 'أعلى رصيد' : 'Max Balance', maxBal]
+          ],
+          aiPayload: {
+            total_inflow: totalIn,
+            total_outflow: totalOut,
+            net_cash_flow: netFlow,
+            closing_balance: months[11].closingBalance,
+            min_balance: minBal,
+            negative_months: negativeMonths,
+            months: months.map(function(m, i) { return { month: MONTHS_AR[i], inflow: m.totalIn, outflow: m.totalOut, closing: m.closingBalance }; })
+          },
+          aiType: 'cash_flow_analysis'
+        };
+      };
     }
 
     function loadExample() {
@@ -872,7 +951,7 @@
   \u003Cscript src="/api/env">\u003C/script>
   \u003Cscript src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js">\u003C/script>
   \u003Cscript src="/bonds-auth-2026.js?v=3.0.6">\u003C/script>
-\u003Cscript src="../../site-layout.js?v=3.0.7">\u003C/script>
+\u003Cscript src="../../site-layout.js?v=3.0.8">\u003C/script>
 \u003C/body>
         \u003C/html>
       `);
@@ -1174,6 +1253,29 @@
       });
     })();
   })();
+</script>
+<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  var isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '.calc-panel.calc-mb-6',
+    kpis: [
+      { id: 'becKpiTotalIn', label: isAr ? 'إجمالي الواردات' : 'Total Inflows', color: '#16a34a' },
+      { id: 'becKpiTotalOut', label: isAr ? 'إجمالي المصروفات' : 'Total Outflows', color: '#dc2626' },
+      { id: 'becKpiNetFlow', label: isAr ? 'صافي التدفق' : 'Net Cash Flow', color: '#3b82f6' },
+      { id: 'becKpiClosing', label: isAr ? 'الرصيد الختامي' : 'Closing Balance', color: '#d4a853' },
+      { id: 'becKpiMinBal', label: isAr ? 'أدنى رصيد' : 'Min Balance', color: '#a855f7' },
+      { id: 'becKpiRunway', label: isAr ? 'مدى البقاء (أشهر)' : 'Runway (months)', color: '#f97316' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'cashflow'
+  });
+})();
 </script>
 </body>
 </html>

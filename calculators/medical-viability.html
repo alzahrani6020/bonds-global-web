@@ -28,7 +28,7 @@
   <script src="calc-functions.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   
-  <link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.59.0" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="canonical" href="https://bonds-global.com/calculators/medical-viability" />
   <script type="application/ld+json">
@@ -137,6 +137,7 @@
         <div class="reveal reveal-delay-1">
           <div class="calc-panel-default calc-panel-default--compact calc-panel-default--blur calc-panel-default--mb">
             <h2 class="calc-title-xl">النتائج</h2>
+            <div id="becKpiHost" class="reveal calc-mt-4"></div>
             <div id="resultContent">
               <div class="calc-empty-state-box">
                 <div class="calc-empty-icon-lg">🏥</div>
@@ -523,7 +524,125 @@
       `;
       updateShareLink();
       renderChart(r);
+      updateSharedEnhancements(r, inputs, inv);
     }
+
+    function updateSharedEnhancements(r, inputs, inv) {
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiInvestmentScore: { text: (inv ? inv.score : 0) + '/100', color: inv ? inv.verdictColor : '#94a3b8' },
+          becKpiMonthlyProfit: { text: Math.round(r.monthlyProfit).toLocaleString('ar-SA') + ' ر.س', color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiProfitMargin: { text: r.profitMargin.toFixed(1) + '%', color: r.profitMargin >= 20 ? '#16a34a' : (r.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+          becKpiRoiMonths: { text: r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' شهر', color: r.roiMonths > 0 && r.roiMonths <= 24 ? '#16a34a' : '#f59e0b' },
+          becKpiBreakEvenDaily: { text: Math.ceil(r.beUnitsPerDay) + ' ' + (inputs.config ? inputs.config.unitLabel : 'وحدة'), color: r.beUnitsPerDay > 0 && r.beUnitsPerDay <= r.dailyUnits ? '#16a34a' : '#f59e0b' },
+          becKpiSetupTotal: { text: r.setupTotal.toLocaleString('ar-SA') + ' ر.س', color: '#94a3b8' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          profitMargin: r.profitMargin,
+          revenue: r.grossRevenue,
+          fixedCosts: r.monthlyFixed,
+          netProfit: r.monthlyProfit,
+          roiMonths: r.roiMonths,
+          beUnitsPerDay: r.beUnitsPerDay,
+          dailyUnits: r.dailyUnits,
+          investmentScore: inv ? inv.score : 0
+        });
+      }
+
+      window.getCalculatorData = function() {
+        var country = document.getElementById('country')?.value || 'SA';
+        return {
+          country: country,
+          currency: 'SAR',
+          activity: inputs.activity,
+          inputs: inputs,
+          kpis: [
+            { label: 'مؤشر الاستثمار', value: (inv ? inv.score : 0) + '/100', color: inv ? inv.verdictColor : '#94a3b8' },
+            { label: 'الربح الشهري', value: Math.round(r.monthlyProfit).toLocaleString('ar-SA') + ' ر.س', color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'هامش الربح', value: r.profitMargin.toFixed(1) + '%', color: r.profitMargin >= 20 ? '#16a34a' : (r.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+            { label: 'استرداد رأس المال', value: r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' شهر', color: '#d4a853' },
+            { label: 'نقطة التعادل اليومية', value: Math.ceil(r.beUnitsPerDay) + ' ' + (inputs.config ? inputs.config.unitLabel : 'وحدة'), color: '#a855f7' }
+          ],
+          csvRows: [
+            ['البند', 'القيمة'],
+            ['النشاط', inputs.activity],
+            ['الدولة', country],
+            ['الإيراد الإجمالي/شهر', r.grossRevenue],
+            ['الإيراد الصافي/شهر', r.netRevenue],
+            ['التكاليف الثابتة/شهر', r.monthlyFixed],
+            ['التكاليف المتغيرة/شهر', r.monthlyVariable],
+            ['الهدر والنثريات/شهر', r.wasteAndIncidentalsAmount],
+            ['الربح الشهري', r.monthlyProfit],
+            ['الربح السنوي', r.yearlyProfit],
+            ['هامش الربح (%)', r.profitMargin],
+            ['استرداد رأس المال (شهر)', r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths)],
+            ['نقطة التعادل اليومية', Math.ceil(r.beUnitsPerDay)],
+            ['نقطة التعادل الشهرية', Math.ceil(r.beUnitsPerMonth)],
+            ['تكلفة الافتتاح', r.setupTotal],
+            ['مؤشر الاستثمار', inv ? inv.score : 0],
+            ['تقييم الاستثمار', inv ? inv.verdictLabel : '—']
+          ].concat(
+            Object.keys(inputs.setup || {}).map(function(k) { return ['تكلفة افتتاح: ' + k, inputs.setup[k]]; }),
+            Object.keys(inputs.monthly || {}).map(function(k) { return ['تكلفة شهرية: ' + k, inputs.monthly[k]]; }),
+            (inputs.revenue ? [['سعر الوحدة', inputs.revenue.unitPrice], ['وحدات يومية', inputs.revenue.dailyUnits], ['أيام العمل', inputs.revenue.workDays]] : [])
+          ),
+          aiPayload: {
+            country: country,
+            activity: inputs.activity,
+            gross_revenue: r.grossRevenue,
+            net_revenue: r.netRevenue,
+            monthly_fixed: r.monthlyFixed,
+            monthly_variable: r.monthlyVariable,
+            monthly_profit: r.monthlyProfit,
+            yearly_profit: r.yearlyProfit,
+            profit_margin_pct: r.profitMargin,
+            roi_months: r.roiMonths === Infinity ? null : Math.ceil(r.roiMonths),
+            break_even_daily: Math.ceil(r.beUnitsPerDay),
+            break_even_monthly: Math.ceil(r.beUnitsPerMonth),
+            setup_total: r.setupTotal,
+            investment_score: inv ? inv.score : 0,
+            investment_verdict: inv ? inv.verdict : '—',
+            setup_costs: inputs.setup,
+            monthly_costs: inputs.monthly,
+            revenue_inputs: inputs.revenue,
+            options: inputs.options
+          },
+          aiType: 'medical_viability_analysis'
+        };
+      };
+    }
+
+    window.loadCalculatorData = function(data) {
+      if (!data || !data.inputs) return;
+      var i = data.inputs;
+      if (i.activity) {
+        document.getElementById('activity').value = i.activity;
+        onActivityChange();
+      }
+      if (data.country) {
+        document.getElementById('country').value = data.country;
+        onCountryChange();
+      }
+      var allFields = [];
+      var config = ACTIVITIES[i.activity || document.getElementById('activity').value];
+      if (config) {
+        allFields = allFields.concat(config.setupFields || [], config.monthlyFields || [], config.variableFields || []);
+      }
+      allFields.push({ id: 'rUnitPrice' }, { id: 'rDailyUnits' }, { id: 'rWorkDays' }, { id: 'vMonthlyGrowth' }, { id: 'vVatRate' }, { id: 'vZakatRate' }, { id: 'vExtraServiceRevenue' }, { id: 'vExtraServiceCost' }, { id: 'wasteAndIncidentalsPct' });
+      allFields.forEach(function(f) {
+        var val = i.setup ? i.setup[f.id] : (i.monthly ? i.monthly[f.id] : (i.revenue ? i.revenue[f.id] : (i.options ? i.options[f.id] : undefined)));
+        if (val === undefined && i.options) {
+          var camel = f.id.replace(/^v/, '');
+          camel = camel.charAt(0).toLowerCase() + camel.slice(1);
+          val = i.options[camel];
+        }
+        if (val !== undefined) {
+          var el = document.getElementById(f.id);
+          if (el) el.value = val;
+        }
+      });
+      calculateAll();
+    };
 
     function renderChart(r) {
       const ctx = document.getElementById('medChart');
@@ -713,7 +832,7 @@
   <script src="../page-tracker-v2.js"></script>
   <script src="shared-geo.js?v=6"></script>
 
-  <script src="../site-layout.js?v=3.0.7"></script>
+  <script src="../site-layout.js?v=3.0.8"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 
@@ -724,6 +843,28 @@
 <script>
   window.__bondsCalcConfig = {"name": "medical-viability", "v3": {"sector": "#activity", "activity": "#activity"}, "saveTitle": "الجدوى الطبية", "lang": "ar", "rel": ""};
   BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiInvestmentScore', label: 'مؤشر الاستثمار', color: 'gold' },
+      { id: 'becKpiMonthlyProfit', label: 'الربح الشهري', color: 'green' },
+      { id: 'becKpiProfitMargin', label: 'هامش الربح', unit: '%', color: 'blue' },
+      { id: 'becKpiRoiMonths', label: 'استرداد رأس المال', color: 'purple' },
+      { id: 'becKpiBreakEvenDaily', label: 'نقطة التعادل اليومية', color: 'orange' },
+      { id: 'becKpiSetupTotal', label: 'تكلفة الافتتاح', color: 'red' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'medical_viability'
+  });
+})();
 </script>
 </body>
 </html>

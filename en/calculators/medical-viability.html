@@ -29,7 +29,7 @@
   <script src="../../calculators/db-client.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
   
-  <link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.59.0" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="canonical" href="https://bonds-global.com/en/calculators/medical-viability" />
   <script type="application/ld+json">
@@ -138,6 +138,7 @@
         <div class="reveal reveal-delay-1">
           <div class="calc-panel-default calc-panel-default--compact calc-panel-default--blur calc-panel-default--mb">
             <h2 class="calc-title-xl">Results</h2>
+            <div id="becKpiHost" class="reveal calc-mt-4"></div>
             <div id="resultContent">
               <div class="calc-empty-state-box">
                 <div class="calc-empty-icon-lg">🏥</div>
@@ -513,7 +514,125 @@
       `;
       updateShareLink();
       renderChart(r);
+      updateSharedEnhancements(r, inputs, inv);
     }
+
+    function updateSharedEnhancements(r, inputs, inv) {
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiInvestmentScore: { text: (inv ? inv.score : 0) + '/100', color: inv ? inv.verdictColor : '#94a3b8' },
+          becKpiMonthlyProfit: { text: Math.round(r.monthlyProfit).toLocaleString('en-US') + ' SAR', color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiProfitMargin: { text: r.profitMargin.toFixed(1) + '%', color: r.profitMargin >= 20 ? '#16a34a' : (r.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+          becKpiRoiMonths: { text: r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' months', color: r.roiMonths > 0 && r.roiMonths <= 24 ? '#16a34a' : '#f59e0b' },
+          becKpiBreakEvenDaily: { text: Math.ceil(r.beUnitsPerDay) + ' ' + (inputs.config ? inputs.config.unitLabel : 'unit') + 's', color: r.beUnitsPerDay > 0 && r.beUnitsPerDay <= r.dailyUnits ? '#16a34a' : '#f59e0b' },
+          becKpiSetupTotal: { text: r.setupTotal.toLocaleString('en-US') + ' SAR', color: '#94a3b8' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          profitMargin: r.profitMargin,
+          revenue: r.grossRevenue,
+          fixedCosts: r.monthlyFixed,
+          netProfit: r.monthlyProfit,
+          roiMonths: r.roiMonths,
+          beUnitsPerDay: r.beUnitsPerDay,
+          dailyUnits: r.dailyUnits,
+          investmentScore: inv ? inv.score : 0
+        });
+      }
+
+      window.getCalculatorData = function() {
+        var country = document.getElementById('country')?.value || 'SA';
+        return {
+          country: country,
+          currency: 'SAR',
+          activity: inputs.activity,
+          inputs: inputs,
+          kpis: [
+            { label: 'Investment Score', value: (inv ? inv.score : 0) + '/100', color: inv ? inv.verdictColor : '#94a3b8' },
+            { label: 'Monthly Profit', value: Math.round(r.monthlyProfit).toLocaleString('en-US') + ' SAR', color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'Profit Margin', value: r.profitMargin.toFixed(1) + '%', color: r.profitMargin >= 20 ? '#16a34a' : (r.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+            { label: 'Payback Period', value: r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths) + ' months', color: '#d4a853' },
+            { label: 'Daily Break-Even', value: Math.ceil(r.beUnitsPerDay) + ' ' + (inputs.config ? inputs.config.unitLabel : 'unit') + 's', color: '#a855f7' }
+          ],
+          csvRows: [
+            ['Item', 'Value'],
+            ['Activity', inputs.activity],
+            ['Country', country],
+            ['Gross Revenue / Month', r.grossRevenue],
+            ['Net Revenue / Month', r.netRevenue],
+            ['Monthly Fixed Cost', r.monthlyFixed],
+            ['Monthly Variable Cost', r.monthlyVariable],
+            ['Waste & Incidentals / Month', r.wasteAndIncidentalsAmount],
+            ['Monthly Profit', r.monthlyProfit],
+            ['Yearly Profit', r.yearlyProfit],
+            ['Profit Margin (%)', r.profitMargin],
+            ['Payback Period (months)', r.roiMonths === Infinity ? '—' : Math.ceil(r.roiMonths)],
+            ['Daily Break-Even', Math.ceil(r.beUnitsPerDay)],
+            ['Monthly Break-Even', Math.ceil(r.beUnitsPerMonth)],
+            ['Setup Cost', r.setupTotal],
+            ['Investment Score', inv ? inv.score : 0],
+            ['Investment Verdict', inv ? inv.verdictLabel : '—']
+          ].concat(
+            Object.keys(inputs.setup || {}).map(function(k) { return ['Setup: ' + k, inputs.setup[k]]; }),
+            Object.keys(inputs.monthly || {}).map(function(k) { return ['Monthly: ' + k, inputs.monthly[k]]; }),
+            (inputs.revenue ? [['Unit Price', inputs.revenue.unitPrice], ['Daily Units', inputs.revenue.dailyUnits], ['Work Days', inputs.revenue.workDays]] : [])
+          ),
+          aiPayload: {
+            country: country,
+            activity: inputs.activity,
+            gross_revenue: r.grossRevenue,
+            net_revenue: r.netRevenue,
+            monthly_fixed: r.monthlyFixed,
+            monthly_variable: r.monthlyVariable,
+            monthly_profit: r.monthlyProfit,
+            yearly_profit: r.yearlyProfit,
+            profit_margin_pct: r.profitMargin,
+            roi_months: r.roiMonths === Infinity ? null : Math.ceil(r.roiMonths),
+            break_even_daily: Math.ceil(r.beUnitsPerDay),
+            break_even_monthly: Math.ceil(r.beUnitsPerMonth),
+            setup_total: r.setupTotal,
+            investment_score: inv ? inv.score : 0,
+            investment_verdict: inv ? inv.verdict : '—',
+            setup_costs: inputs.setup,
+            monthly_costs: inputs.monthly,
+            revenue_inputs: inputs.revenue,
+            options: inputs.options
+          },
+          aiType: 'medical_viability_analysis'
+        };
+      };
+    }
+
+    window.loadCalculatorData = function(data) {
+      if (!data || !data.inputs) return;
+      var i = data.inputs;
+      if (i.activity) {
+        document.getElementById('activity').value = i.activity;
+        onActivityChange();
+      }
+      if (data.country) {
+        document.getElementById('country').value = data.country;
+        onCountryChange();
+      }
+      var allFields = [];
+      var config = ACTIVITIES[i.activity || document.getElementById('activity').value];
+      if (config) {
+        allFields = allFields.concat(config.setupFields || [], config.monthlyFields || [], config.variableFields || []);
+      }
+      allFields.push({ id: 'rUnitPrice' }, { id: 'rDailyUnits' }, { id: 'rWorkDays' }, { id: 'vMonthlyGrowth' }, { id: 'vVatRate' }, { id: 'vZakatRate' }, { id: 'vExtraServiceRevenue' }, { id: 'vExtraServiceCost' }, { id: 'wasteAndIncidentalsPct' });
+      allFields.forEach(function(f) {
+        var val = i.setup ? i.setup[f.id] : (i.monthly ? i.monthly[f.id] : (i.revenue ? i.revenue[f.id] : (i.options ? i.options[f.id] : undefined)));
+        if (val === undefined && i.options) {
+          var camel = f.id.replace(/^v/, '');
+          camel = camel.charAt(0).toLowerCase() + camel.slice(1);
+          val = i.options[camel];
+        }
+        if (val !== undefined) {
+          var el = document.getElementById(f.id);
+          if (el) el.value = val;
+        }
+      });
+      calculateAll();
+    };
 
     function renderChart(r) {
       const ctx = document.getElementById('medChart');
@@ -702,7 +821,7 @@
   <script src="../../page-tracker-v2.js"></script>
   <script src="../../calculators/shared-geo.js?v=6"></script>
 
-  <script src="../../site-layout.js?v=3.0.7"></script>
+  <script src="../../site-layout.js?v=3.0.8"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 
@@ -713,6 +832,28 @@
 <script>
   window.__bondsCalcConfig = {"name": "medical-viability", "v3": {"sector": "#activity", "activity": "#activity"}, "saveTitle": "Medical Viability", "lang": "en", "rel": "../../calculators/"};
   BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
+<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiInvestmentScore', label: 'Investment Score', color: 'gold' },
+      { id: 'becKpiMonthlyProfit', label: 'Monthly Profit', color: 'green' },
+      { id: 'becKpiProfitMargin', label: 'Profit Margin', unit: '%', color: 'blue' },
+      { id: 'becKpiRoiMonths', label: 'Payback Period', color: 'purple' },
+      { id: 'becKpiBreakEvenDaily', label: 'Daily Break-Even', color: 'orange' },
+      { id: 'becKpiSetupTotal', label: 'Setup Cost', color: 'red' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'medical_viability'
+  });
+})();
 </script>
 </body>
 </html>

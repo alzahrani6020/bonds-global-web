@@ -129,7 +129,7 @@
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
     const calcBase = langBase + 'calculators/';
-    const calcBreakEven = langBase + 'calculator.html';
+    const calcBreakEven = calcBase + 'break-even.html';
     const sectorsBase = langBase + 'sectors/';
 
     const serviceDropdown = [
@@ -243,15 +243,15 @@
       </ul>
     </nav>
     <div class="header-actions">
-      <a href="${langHref}" class="lang-switch" aria-label="${isEn ? 'Switch to Arabic' : 'Switch to English'}">${labels.langSwitch}</a>
+      <a href="${clientPortalHref}" class="btn-header" id="headerCtaBtn">${labels.cta}</a>
+      <a href="${signupHref}" class="header-signup" id="headerSignupBtn">${labels.signup}</a>
+      <a href="${loginHref}" class="header-login" id="headerLoginBtn">${labels.login}</a>
       <div id="authContainer" class="header-account-wrap">
         <a href="${clientPortalHref}" class="header-account" aria-label="${labels.accountLabel}">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>
         </a>
       </div>
-      <a href="${loginHref}" class="header-login" id="headerLoginBtn">${labels.login}</a>
-      <a href="${signupHref}" class="header-signup" id="headerSignupBtn">${labels.signup}</a>
-      <a href="${clientPortalHref}" class="btn-header">${labels.cta}</a>
+      <a href="${langHref}" class="lang-switch" aria-label="${isEn ? 'Switch to Arabic' : 'Switch to English'}">${labels.langSwitch}</a>
       <button class="nav-toggle" id="navToggle" aria-label="${isEn ? 'Menu' : 'القائمة'}"><span></span><span></span><span></span></button>
     </div>
   </div>
@@ -386,8 +386,8 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.58.0';
-    if (document.querySelector('link[href*="header-footer.css?v=2.58.0"]')) return;
+    const href = '/header-footer.css?v=2.59.0';
+    if (document.querySelector('link[href*="header-footer.css?v=2.59.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;

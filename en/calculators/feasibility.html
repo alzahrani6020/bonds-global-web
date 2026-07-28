@@ -25,7 +25,7 @@
 
   <script src="../../calculators/db-client.js"></script>
   
-<link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+<link rel="stylesheet" href="../../header-footer.css?v=2.59.0" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/feasibility" />
   <script type="application/ld+json">
   {
@@ -160,6 +160,7 @@
 
     <!-- Tab 4: Result -->
     <div id="result" class="bonds-panel">
+      <div id="becKpiHost" class="reveal calc-mt-4"></div>
       <div id="resultContent">
         <div class="calc-empty-state-box-lg">
           <div class="calc-empty-icon-lg">📊</div>
@@ -167,6 +168,7 @@
           <button class="bonds-btn bonds-btn-primary calc-mt-4" onclick="showTab('setup')">Start Now</button>
         </div>
       </div>
+      <div class="share-bar" id="becExportHost" style="margin-top:1.5rem;justify-content:center;"></div>
     </div>
   </div>
 
@@ -229,6 +231,108 @@ function updateRevenueSummary() {
 ['rAvgPrice','rDailyOrders','rWorkDays','platformFeePct','wasteRatePct','packagingCostPerOrder','deliveryCostPerOrder','monthlyGrowthPct'].forEach(id => {
   document.getElementById(id)?.addEventListener('input', updateRevenueSummary);
 });
+
+function updateSharedEnhancements(result, inputs) {
+  if (window.BondsEnhancements) {
+    window.BondsEnhancements.updateKpiCards({
+      becKpiMonthlyProfit: { text: result.monthlyProfit.toLocaleString('en-US') + ' SAR', color: result.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+      becKpiProfitMargin: { text: result.profitMargin.toFixed(1) + '%', color: result.profitMargin >= 20 ? '#16a34a' : (result.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+      becKpiRoiMonths: { text: result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths) + ' months', color: result.roiMonths > 0 && result.roiMonths <= 24 ? '#16a34a' : '#f59e0b' },
+      becKpiBreakEvenDaily: { text: Math.ceil(result.beOrdersPerDay) + ' orders', color: result.beOrdersPerDay > 0 && result.beOrdersPerDay <= inputs.revenue.dailyOrders ? '#16a34a' : '#f59e0b' },
+      becKpiSetupTotal: { text: result.setupTotal.toLocaleString('en-US') + ' SAR', color: '#94a3b8' },
+      becKpiMonthlyRevenue: { text: result.monthlyRevenue.toLocaleString('en-US') + ' SAR', color: '#3b82f6' }
+    });
+    window.BondsEnhancements.updateSmartAlerts({
+      profitMargin: result.profitMargin,
+      revenue: result.monthlyRevenue,
+      fixedCosts: result.monthlyFixed,
+      netProfit: result.monthlyProfit,
+      roiMonths: result.roiMonths,
+      beOrdersPerDay: result.beOrdersPerDay,
+      dailyOrders: inputs.revenue.dailyOrders,
+      setupTotal: result.setupTotal
+    });
+  }
+
+  window.getCalculatorData = function() {
+    var country = document.getElementById('country')?.value || 'SA';
+    return {
+      country: country,
+      currency: 'SAR',
+      inputs: inputs,
+      kpis: [
+        { label: 'Monthly Profit', value: result.monthlyProfit.toLocaleString('en-US') + ' SAR', color: result.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
+        { label: 'Profit Margin', value: result.profitMargin.toFixed(1) + '%', color: result.profitMargin >= 20 ? '#16a34a' : (result.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+        { label: 'Payback Period', value: result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths) + ' months', color: '#d4a853' },
+        { label: 'Daily Break-Even', value: Math.ceil(result.beOrdersPerDay) + ' orders', color: '#a855f7' },
+        { label: 'Setup Cost', value: result.setupTotal.toLocaleString('en-US') + ' SAR', color: '#94a3b8' }
+      ],
+      csvRows: [
+        ['Item', 'Value'],
+        ['Country', country],
+        ['Setup Cost', result.setupTotal],
+        ['Monthly Fixed Cost', result.monthlyFixed],
+        ['Monthly Variable Cost', result.monthlyVariable],
+        ['Total Monthly Cost', result.monthlyTotal],
+        ['Monthly Revenue', result.monthlyRevenue],
+        ['Yearly Revenue', result.yearlyRevenue],
+        ['Monthly Profit', result.monthlyProfit],
+        ['Yearly Profit', result.yearlyProfit],
+        ['Profit Margin (%)', result.profitMargin],
+        ['Payback Period (months)', result.roiMonths === Infinity ? '—' : Math.ceil(result.roiMonths)],
+        ['Daily Break-Even', Math.ceil(result.beOrdersPerDay)],
+        ['Monthly Break-Even', Math.ceil(result.beOrdersPerMonth)],
+        ['Break-Even Revenue/Month', result.beRevenuePerMonth]
+      ].concat(
+        Object.keys(inputs.setupCosts || {}).map(function(k) { return ['Setup: ' + k, inputs.setupCosts[k]]; }),
+        Object.keys(inputs.monthlyCosts || {}).map(function(k) { return ['Monthly: ' + k, inputs.monthlyCosts[k]]; }),
+        [['Average Price', inputs.revenue.avgPrice], ['Daily Orders', inputs.revenue.dailyOrders], ['Work Days', inputs.revenue.workDays]],
+        [['Platform Fee (%)', inputs.options.platformFeePct], ['Waste & Incidentals (%)', inputs.options.wasteRatePct], ['Monthly Growth (%)', inputs.options.monthlyGrowthPct]]
+      ),
+      aiPayload: {
+        country: country,
+        setup_total: result.setupTotal,
+        monthly_fixed: result.monthlyFixed,
+        monthly_variable: result.monthlyVariable,
+        monthly_total: result.monthlyTotal,
+        monthly_revenue: result.monthlyRevenue,
+        yearly_revenue: result.yearlyRevenue,
+        monthly_profit: result.monthlyProfit,
+        yearly_profit: result.yearlyProfit,
+        profit_margin_pct: result.profitMargin,
+        roi_months: result.roiMonths === Infinity ? null : Math.ceil(result.roiMonths),
+        break_even_daily: Math.ceil(result.beOrdersPerDay),
+        break_even_monthly: Math.ceil(result.beOrdersPerMonth),
+        setup_costs: inputs.setupCosts,
+        monthly_costs: inputs.monthlyCosts,
+        revenue: inputs.revenue,
+        options: inputs.options
+      },
+      aiType: 'feasibility_analysis'
+    };
+  };
+}
+
+window.loadCalculatorData = function(data) {
+  if (!data || !data.inputs) return;
+  var i = data.inputs;
+  var setIfExists = function(id, val) { var el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+  Object.keys(i.setupCosts || {}).forEach(function(k) { setIfExists(k, i.setupCosts[k]); });
+  Object.keys(i.monthlyCosts || {}).forEach(function(k) { setIfExists(k, i.monthlyCosts[k]); });
+  if (i.revenue) {
+    setIfExists('rAvgPrice', i.revenue.avgPrice);
+    setIfExists('rDailyOrders', i.revenue.dailyOrders);
+    setIfExists('rWorkDays', i.revenue.workDays);
+  }
+  if (i.options) {
+    setIfExists('platformFeePct', i.options.platformFeePct);
+    setIfExists('wasteRatePct', i.options.wasteRatePct);
+    setIfExists('packagingCostPerOrder', i.options.packagingCostPerOrder);
+    setIfExists('deliveryCostPerOrder', i.options.deliveryCostPerOrder);
+    setIfExists('monthlyGrowthPct', i.options.monthlyGrowthPct);
+  }
+  calculateAll();
+};
 
 // ===== MAIN CALCULATION =====
 function calculateAll() {
@@ -377,6 +481,7 @@ function calculateAll() {
   `;
 
   loadFundingSuggestions();
+  updateSharedEnhancements(window._feasResult, { setupCosts: setupCosts, monthlyCosts: monthlyCosts, revenue: revenue, options: options });
 }
 
 async function loadFundingSuggestions() {
@@ -592,7 +697,7 @@ setTimeout(() => onboard.start(), 600);
 <script src="../../calculators/shared-analytics.js"></script>
 <script src="../../calculators/auth-modal.js"></script>
 <script src="../../calculators/exit-intent.js"></script>
-<script src="../../site-layout.js?v=3.0.7"></script>
+<script src="../../site-layout.js?v=3.0.8"></script>
 <script src="../../calculators/shared-geo.js?v=6"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
@@ -783,6 +888,28 @@ setTimeout(() => onboard.start(), 600);
       });
     })();
   })();
+</script>
+<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiMonthlyProfit', label: 'Monthly Profit', color: 'green' },
+      { id: 'becKpiProfitMargin', label: 'Profit Margin', unit: '%', color: 'blue' },
+      { id: 'becKpiRoiMonths', label: 'Payback Period', color: 'gold' },
+      { id: 'becKpiBreakEvenDaily', label: 'Daily Break-Even', color: 'purple' },
+      { id: 'becKpiSetupTotal', label: 'Setup Cost', color: 'red' },
+      { id: 'becKpiMonthlyRevenue', label: 'Monthly Revenue', color: 'orange' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '#becExportHost',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'feasibility'
+  });
+})();
 </script>
 </body>
 </html>

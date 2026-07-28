@@ -24,7 +24,7 @@
   <script src="shared-utils.js"></script>
   <script src="shared-export.js"></script>
   <script src="creditworthiness-engine.js"></script>
-  <link rel="stylesheet" href="../header-footer.css?v=2.58.0" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.59.0" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/calculators/creditworthiness" />
   <script type="application/ld+json">
@@ -216,7 +216,9 @@
       </div>
     </form>
 
+    <div id="becKpiHost" class="reveal calc-mt-4"></div>
     <div id="result" class="cw-result"></div>
+    <div class="share-bar" id="becExportHost" style="margin-top:1.5rem;justify-content:center;"></div>
   </div>
   <div id="site-footer"></div>
 
@@ -254,12 +256,13 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.6"></script>
-  <script src="../site-layout.js?v=3.0.7"></script>
+  <script src="../site-layout.js?v=3.0.8"></script>
 
   <script>
     (function(){
       'use strict';
       const STORAGE_KEY = 'bonds_creditworthiness_inputs';
+      const lang = document.documentElement.lang === 'en' ? 'en' : 'ar';
 
       function get(id){ return document.getElementById(id); }
       function num(id){ const v = parseFloat(get(id)?.value); return isNaN(v) ? 0 : v; }
@@ -528,11 +531,100 @@
         resultEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
 
+      function updateSharedEnhancements(result, inputs){
+        const isAr = lang === 'ar';
+        const loc = isAr ? 'ar-SA' : 'en-US';
+        const ratingLabel = isAr ? result.rating.label : result.rating.enLabel;
+        const r = result.ratios;
+
+        if(window.BondsEnhancements){
+          window.BondsEnhancements.updateKpiCards({
+            becKpiTotalScore: { text: result.totalScore + '/100', color: result.rating.color },
+            becKpiRating: { text: ratingLabel, color: result.rating.color },
+            becKpiDebtRatio: { text: (r.debtRatio * 100).toFixed(1) + '%', color: r.debtRatio <= 0.4 ? '#16a34a' : (r.debtRatio <= 0.6 ? '#f59e0b' : '#dc2626') },
+            becKpiCurrentRatio: { text: r.currentRatio.toFixed(2), color: r.currentRatio >= 1.5 ? '#16a34a' : (r.currentRatio >= 1 ? '#f59e0b' : '#dc2626') },
+            becKpiInterestCoverage: { text: isFinite(r.interestCoverage) ? r.interestCoverage.toFixed(2) + 'x' : '—', color: r.interestCoverage >= 3 ? '#16a34a' : (r.interestCoverage >= 1.5 ? '#f59e0b' : '#dc2626') },
+            becKpiDscr: { text: r.dscr.toFixed(2) + 'x', color: r.dscr >= 1.5 ? '#16a34a' : (r.dscr >= 1 ? '#f59e0b' : '#dc2626') },
+            becKpiNetMargin: { text: (r.netProfitMargin * 100).toFixed(1) + '%', color: r.netProfitMargin >= 0.1 ? '#16a34a' : (r.netProfitMargin >= 0.03 ? '#f59e0b' : '#dc2626') },
+            becKpiCollateral: { text: (r.collateralCoverage * 100).toFixed(0) + '%', color: r.collateralCoverage >= 1 ? '#16a34a' : (r.collateralCoverage >= 0.6 ? '#f59e0b' : '#dc2626') }
+          });
+          window.BondsEnhancements.updateSmartAlerts({
+            totalScore: result.totalScore,
+            debtRatio: r.debtRatio,
+            currentRatio: r.currentRatio,
+            interestCoverage: isFinite(r.interestCoverage) ? r.interestCoverage : 999,
+            dscr: r.dscr,
+            netProfitMargin: r.netProfitMargin * 100,
+            collateralCoverage: r.collateralCoverage
+          });
+        }
+
+        window.getCalculatorData = function(){
+          return {
+            country: inputs.country || 'SA',
+            currency: isAr ? 'ريال' : 'SAR',
+            inputs: inputs,
+            kpis: [
+              { label: isAr ? 'الدرجة الإجمالية' : 'Total Score', value: result.totalScore + '/100', color: result.rating.color },
+              { label: isAr ? 'التصنيف الائتماني' : 'Credit Rating', value: ratingLabel, color: result.rating.color },
+              { label: isAr ? 'نسبة الديون' : 'Debt Ratio', value: (r.debtRatio * 100).toFixed(1) + '%', color: r.debtRatio <= 0.4 ? '#16a34a' : (r.debtRatio <= 0.6 ? '#f59e0b' : '#dc2626') },
+              { label: isAr ? 'النسبة الجارية' : 'Current Ratio', value: r.currentRatio.toFixed(2), color: r.currentRatio >= 1.5 ? '#16a34a' : (r.currentRatio >= 1 ? '#f59e0b' : '#dc2626') },
+              { label: isAr ? 'تغطية الفوائد' : 'Interest Coverage', value: isFinite(r.interestCoverage) ? r.interestCoverage.toFixed(2) + 'x' : '—', color: r.interestCoverage >= 3 ? '#16a34a' : (r.interestCoverage >= 1.5 ? '#f59e0b' : '#dc2626') }
+            ],
+            csvRows: [
+              [isAr ? 'البند' : 'Item', isAr ? 'القيمة' : 'Value'],
+              [isAr ? 'اسم الشركة' : 'Company Name', inputs.companyName],
+              [isAr ? 'القطاع' : 'Sector', inputs.sector],
+              [isAr ? 'الدولة' : 'Country', inputs.country],
+              [isAr ? 'مبلغ التمويل' : 'Financing Amount', inputs.financingAmount],
+              [isAr ? 'الدرجة الإجمالية' : 'Total Score', result.totalScore],
+              [isAr ? 'التصنيف' : 'Rating', ratingLabel],
+              [isAr ? 'نسبة الديون' : 'Debt Ratio', r.debtRatio],
+              [isAr ? 'النسبة الجارية' : 'Current Ratio', r.currentRatio],
+              [isAr ? 'النسبة السريعة' : 'Quick Ratio', r.quickRatio],
+              [isAr ? 'حقوق الملكية' : 'Equity Ratio', r.equityRatio],
+              [isAr ? 'الديون/حقوق الملكية' : 'Debt to Equity', r.debtToEquity],
+              [isAr ? 'هامش صافي الربح' : 'Net Profit Margin', r.netProfitMargin],
+              [isAr ? 'العائد على الأصول' : 'ROA', r.roa],
+              [isAr ? 'العائد على حقوق الملكية' : 'ROE', r.roe],
+              [isAr ? 'تغطية الفوائد' : 'Interest Coverage', isFinite(r.interestCoverage) ? r.interestCoverage : '—'],
+              [isAr ? 'تغطية خدمة الدين' : 'DSCR', r.dscr],
+              [isAr ? 'تغطية الضمانات' : 'Collateral Coverage', r.collateralCoverage]
+            ].concat(Object.values(result.axes).map(a => [isAr ? 'معيار: ' + a.label : 'Axis: ' + a.label, a.score])),
+            aiPayload: {
+              country: inputs.country,
+              company_name: inputs.companyName,
+              sector: inputs.sector,
+              financing_amount: inputs.financingAmount,
+              total_score: result.totalScore,
+              rating: ratingLabel,
+              axes: Object.values(result.axes).map(a => ({ axis: a.label, score: a.score, weight: a.weight })),
+              ratios: r
+            },
+            aiType: 'creditworthiness'
+          };
+        };
+      }
+
+      window.loadCalculatorData = function(data){
+        if(!data || !data.inputs) return;
+        const i = data.inputs;
+        for(const key in i){
+          const el = get(key);
+          if(!el) continue;
+          if(el.type === 'checkbox') el.checked = !!i[key];
+          else el.value = i[key];
+        }
+        get('prVal').textContent = (i.paymentRegularity || 0) + '%';
+        calculateCredit();
+      };
+
       window.calculateCredit = function(){
         const data = gather();
         saveInputs();
-        _cwResult = CreditEngine.evaluate(data);
-        _cwReport = CreditEngine.generateReport(_cwResult, 'ar');
+        _cwResult = CreditEngine.evaluate(data, lang);
+        _cwReport = CreditEngine.generateReport(_cwResult, lang);
+        updateSharedEnhancements(_cwResult, data);
 
         if(sessionStorage.getItem('bonds_lead_captured')){
           showResult();
@@ -654,6 +746,31 @@
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 
+<script src="shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  const isAr = document.documentElement.lang === 'ar';
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiTotalScore', label: isAr ? 'الدرجة الإجمالية' : 'Total Score', color: 'gold' },
+      { id: 'becKpiRating', label: isAr ? 'التصنيف' : 'Rating', color: 'green' },
+      { id: 'becKpiDebtRatio', label: isAr ? 'نسبة الديون' : 'Debt Ratio', unit: '%', color: 'red' },
+      { id: 'becKpiCurrentRatio', label: isAr ? 'النسبة الجارية' : 'Current Ratio', color: 'blue' },
+      { id: 'becKpiInterestCoverage', label: isAr ? 'تغطية الفوائد' : 'Interest Coverage', color: 'purple' },
+      { id: 'becKpiDscr', label: isAr ? 'تغطية خدمة الدين' : 'DSCR', color: 'orange' },
+      { id: 'becKpiNetMargin', label: isAr ? 'هامش الربح' : 'Net Margin', unit: '%', color: 'green' },
+      { id: 'becKpiCollateral', label: isAr ? 'تغطية الضمانات' : 'Collateral Coverage', unit: '%', color: 'blue' }
+    ],
+    alertsContainer: '.cw-container',
+    exportContainer: '#becExportHost',
+    aiContainer: '.cw-container',
+    scenarioContainer: '.cw-container',
+    calcType: 'creditworthiness'
+  });
+})();
+</script>
 
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>

@@ -22,6 +22,7 @@
     // Global aliases for backwards compatibility with HTML inline scripts
     if (typeof self !== 'undefined' && self === root) {
       self.calculateBreakEven = exports.calculateBreakEven;
+      self.calculatePriceTargets = exports.calculatePriceTargets;
       self.calculateLoan = exports.calculateLoan;
       self.calculateDTI = exports.calculateDTI;
       self.calculatePricing = exports.calculatePricing;
@@ -117,6 +118,97 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
     adjustedVariableCostPerUnit,
     fixedCostBreakdown: options.fixedCostBreakdown || null,
     variableCostBreakdown: options.variableCostBreakdown || null
+  };
+}
+
+/**
+ * Calculate optimal/target prices for a given cost structure.
+ *
+ * @param {number} fixedCosts       – monthly fixed costs
+ * @param {number} variableCostPerUnit
+ * @param {number} quantity         – expected monthly quantity
+ * @param {Object} [options]        – { platformFeePct, campaignDiscountPct, wasteAndIncidentalsPct, taxRate, zakatRate }
+ */
+function calculatePriceTargets(fixedCosts, variableCostPerUnit, quantity, options) {
+  fixedCosts = fixedCosts || 0;
+  variableCostPerUnit = variableCostPerUnit || 0;
+  quantity = quantity || 0;
+  options = options || {};
+
+  var platformFeePct = options.platformFeePct || 0;
+  var campaignDiscountPct = options.campaignDiscountPct || 0;
+  var wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || 0;
+  var taxRate = (options.taxRate !== undefined && options.taxRate !== null) ? options.taxRate : 0;
+  var zakatRate = (options.zakatRate !== undefined && options.zakatRate !== null) ? options.zakatRate : 0;
+  var totalDeductionPct = platformFeePct + campaignDiscountPct;
+  var adjustedVariableCostPerUnit = variableCostPerUnit * (1 + wasteAndIncidentalsPct / 100);
+
+  // Minimum price where contribution per unit is zero (covers variable cost only)
+  var minPriceNoLoss = Infinity;
+  if (totalDeductionPct < 100) {
+    minPriceNoLoss = adjustedVariableCostPerUnit / (1 - totalDeductionPct / 100);
+  }
+
+  // Price that achieves zero net profit at the expected quantity
+  var priceForZeroProfit = 0;
+  if (quantity > 0 && totalDeductionPct < 100) {
+    priceForZeroProfit = (fixedCosts + adjustedVariableCostPerUnit * quantity) / (quantity * (1 - totalDeductionPct / 100));
+  }
+
+  function netProfitAtPrice(price) {
+    var effectivePrice = price * (1 - totalDeductionPct / 100);
+    var revenue = quantity * effectivePrice;
+    var totalCost = fixedCosts + adjustedVariableCostPerUnit * quantity;
+    var profit = revenue - totalCost;
+    var taxAmount = profit > 0 ? profit * (taxRate / 100) : 0;
+    var profitAfterTax = profit - taxAmount;
+    var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
+    return profitAfterTax - zakatAmount;
+  }
+
+  // Find price that yields a specific net profit margin on gross revenue
+  function priceForMargin(targetMarginPct) {
+    var low = Math.max(priceForZeroProfit, minPriceNoLoss, 0);
+    var high = Math.max(low * 2, minPriceNoLoss * 2, 1);
+    var maxIter = 60;
+    for (var i = 0; i < maxIter; i++) {
+      var mid = (low + high) / 2;
+      var net = netProfitAtPrice(mid);
+      var grossRevenue = quantity * mid;
+      var margin = grossRevenue > 0 ? (net / grossRevenue) * 100 : 0;
+      if (Math.abs(margin - targetMarginPct) < 0.01 || (high - low) < 0.001) return mid;
+      if (margin < targetMarginPct) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    return (low + high) / 2;
+  }
+
+  // Find price that yields a specific absolute net profit
+  function priceForProfit(targetProfit) {
+    var low = priceForZeroProfit;
+    var high = Math.max(low * 2, minPriceNoLoss * 2, 1);
+    var maxIter = 60;
+    for (var i = 0; i < maxIter; i++) {
+      var mid = (low + high) / 2;
+      var net = netProfitAtPrice(mid);
+      if (Math.abs(net - targetProfit) < 0.01 || (high - low) < 0.001) return mid;
+      if (net < targetProfit) {
+        low = mid;
+      } else {
+        high = mid;
+      }
+    }
+    return (low + high) / 2;
+  }
+
+  return {
+    minPriceNoLoss: minPriceNoLoss,
+    priceForZeroProfit: priceForZeroProfit,
+    priceForMargin: priceForMargin,
+    priceForProfit: priceForProfit
   };
 }
 
@@ -1386,6 +1478,7 @@ function calculateRealProjectAnalysis(input) {
 
 return {
   calculateBreakEven,
+  calculatePriceTargets,
   calculateLoan,
   calculateDTI,
   calculatePricing,

@@ -80,7 +80,7 @@
 
   <script src="../../calculators/db-client.js"></script>
   
-<link rel="stylesheet" href="../../header-footer.css?v=2.58.0" />
+<link rel="stylesheet" href="../../header-footer.css?v=2.59.0" />
   <link rel="canonical" href="https://bonds-global.com/en/calculators/restaurant" />
   <script type="application/ld+json">
   {
@@ -339,6 +339,9 @@
         <div class="smart-alert" id="smartAlert">
           <strong class="calc-text-danger">⚠️ Alert:</strong> <span id="smartAlertText"></span>
         </div>
+
+        <!-- Shared Enhancements KPI Host -->
+        <div id="becKpiHost" class="reveal calc-mt-8"></div>
 
         <!-- Health Score -->
         <div class="analysis-box reveal calc-mt-6 calc-hidden" id="healthScoreBox">
@@ -1499,6 +1502,7 @@
       }
 
       updateShareLink(r.inputs);
+      updateSharedEnhancements(r);
     }
 
     function calculateHealthScore(r) {
@@ -1869,6 +1873,122 @@
         });
       }).catch(function(e) {  });
     }
+
+    function updateSharedEnhancements(r) {
+      if (window.BondsEnhancements) {
+        window.BondsEnhancements.updateKpiCards({
+          becKpiNetProfit: { text: formatNumber(Math.round(r.netProfit)) + ' ' + currentCurrency, color: r.netProfit >= 0 ? '#16a34a' : '#dc2626' },
+          becKpiProfitMargin: { text: r.profitMargin.toFixed(1) + '%', color: r.profitMargin >= 20 ? '#16a34a' : (r.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+          becKpiFoodCost: { text: r.weightedFoodCostPct.toFixed(1) + '%', color: r.weightedFoodCostPct <= 30 ? '#16a34a' : (r.weightedFoodCostPct <= 35 ? '#f59e0b' : '#dc2626') },
+          becKpiBreakEvenDaily: { text: r.breakEvenDaily > 0 ? r.breakEvenDaily + ' orders' : 'N/A', color: r.breakEvenDaily > 0 && r.breakEvenDaily <= r.inputs.dailyOrders ? '#16a34a' : '#f59e0b' },
+          becKpiBreakEvenMonthly: { text: r.breakEvenMonthly > 0 ? r.breakEvenMonthly + ' orders' : 'N/A', color: r.breakEvenMonthly > 0 && r.breakEvenMonthly <= (r.inputs.dailyOrders * r.inputs.workingDays) ? '#16a34a' : '#f59e0b' },
+          becKpiBestPlatform: { text: r.bestPlatform.name || '—', color: '#d4a853' }
+        });
+        window.BondsEnhancements.updateSmartAlerts({
+          profitMargin: r.profitMargin,
+          revenue: r.totalMonthlyRevenue,
+          fixedCosts: r.monthlyFixed,
+          netProfit: r.netProfit,
+          foodCostPct: r.weightedFoodCostPct,
+          breakEvenDaily: r.breakEvenDaily,
+          dailyOrders: r.inputs.dailyOrders,
+          bestPlatform: r.bestPlatform.name,
+          worstPlatform: r.worstPlatform.name
+        });
+      }
+
+      window.getCalculatorData = function() {
+        var inputs = r.inputs;
+        return {
+          country: currentCountry || 'SA',
+          currency: currentCurrency || 'SAR',
+          inputs: inputs,
+          businessModel: currentBusinessModel,
+          kpis: [
+            { label: 'Monthly Net Profit', value: formatNumber(Math.round(r.netProfit)) + ' ' + currentCurrency, color: r.netProfit >= 0 ? '#16a34a' : '#dc2626' },
+            { label: 'Profit Margin', value: r.profitMargin.toFixed(1) + '%', color: r.profitMargin >= 20 ? '#16a34a' : (r.profitMargin >= 10 ? '#f59e0b' : '#dc2626') },
+            { label: 'Avg. Food Cost', value: r.weightedFoodCostPct.toFixed(1) + '%', color: r.weightedFoodCostPct <= 30 ? '#16a34a' : (r.weightedFoodCostPct <= 35 ? '#f59e0b' : '#dc2626') },
+            { label: 'Daily Break-Even', value: r.breakEvenDaily > 0 ? r.breakEvenDaily + ' orders' : 'N/A', color: '#d4a853' },
+            { label: 'Best Platform', value: r.bestPlatform.name || '—', color: '#3b82f6' }
+          ],
+          csvRows: [
+            ['Item', 'Value'],
+            ['Business Model', currentBusinessModel],
+            ['Daily Orders', inputs.dailyOrders],
+            ['Working Days/Month', inputs.workingDays],
+            ['Monthly Revenue', r.totalMonthlyRevenue],
+            ['Monthly Variable Cost', r.totalMonthlyVarCost],
+            ['Monthly Fixed Cost', r.monthlyFixed],
+            ['Monthly Net Profit', r.netProfit],
+            ['Profit Margin (%)', r.profitMargin],
+            ['Avg. Food Cost (%)', r.weightedFoodCostPct],
+            ['Daily Break-Even', r.breakEvenDaily],
+            ['Monthly Break-Even', r.breakEvenMonthly],
+            ['Best Platform', r.bestPlatform.name],
+            ['Worst Platform', r.worstPlatform.name],
+            ['Number of Dishes', inputs.dishes.length]
+          ].concat(
+            inputs.dishes.map(function(d, idx) { return ['Dish ' + (idx + 1) + ': ' + d.name, 'Price ' + d.price + ' / Cost ' + d.cost + ' / Mix ' + d.salesMix + '%']; }),
+            inputs.platforms.map(function(p) { return ['Platform: ' + p.name, 'Fee ' + p.fee + '%']; })
+          ),
+          aiPayload: {
+            country: currentCountry || 'SA',
+            currency: currentCurrency || 'SAR',
+            business_model: currentBusinessModel,
+            daily_orders: inputs.dailyOrders,
+            working_days: inputs.workingDays,
+            monthly_revenue: r.totalMonthlyRevenue,
+            monthly_variable_cost: r.totalMonthlyVarCost,
+            monthly_fixed_cost: r.monthlyFixed,
+            net_profit: r.netProfit,
+            profit_margin_pct: r.profitMargin,
+            weighted_food_cost_pct: r.weightedFoodCostPct,
+            break_even_daily: r.breakEvenDaily,
+            break_even_monthly: r.breakEvenMonthly,
+            best_platform: r.bestPlatform.name,
+            worst_platform: r.worstPlatform.name,
+            dishes: inputs.dishes.map(function(d) { return { name: d.name, price: d.price, cost: d.cost, sales_mix_pct: d.salesMix }; }),
+            platforms: inputs.platforms.map(function(p) { return { name: p.name, fee_pct: p.fee, service_fee_pct: p.serviceFee || 0 }; })
+          },
+          aiType: 'restaurant_analysis'
+        };
+      };
+    }
+
+    window.loadCalculatorData = function(data) {
+      if (!data || !data.inputs) return;
+      var i = data.inputs;
+      if (data.businessModel) {
+        currentBusinessModel = data.businessModel;
+        setBusinessModel(currentBusinessModel);
+      }
+      if (Array.isArray(i.dishes)) {
+        dishes = i.dishes.map(function(d) { return { name: d.name || 'Dish', price: d.price || 0, cost: d.cost || 0, salesMix: d.salesMix || 0, ingredients: d.ingredients || [] }; });
+        renderDishes();
+      }
+      if (i.rent !== undefined) document.getElementById('rentCost').value = i.rent;
+      if (i.salaries !== undefined) document.getElementById('salariesCost').value = i.salaries;
+      if (i.utilities !== undefined) document.getElementById('utilitiesCost').value = i.utilities;
+      if (i.licenses !== undefined) document.getElementById('licensesCost').value = i.licenses;
+      if (i.cloudKitchen !== undefined) document.getElementById('cloudKitchenCost').value = i.cloudKitchen;
+      if (i.marketing !== undefined) document.getElementById('marketingCost').value = i.marketing;
+      if (i.packaging !== undefined) document.getElementById('packagingCost').value = i.packaging;
+      if (i.delivery !== undefined) document.getElementById('deliveryCost').value = i.delivery;
+      if (i.wasteRate !== undefined) document.getElementById('wasteRate').value = i.wasteRate;
+      if (i.wasteAndIncidentalsPct !== undefined) document.getElementById('wasteAndIncidentalsPct').value = i.wasteAndIncidentalsPct;
+      if (i.dailyOrders !== undefined) document.getElementById('dailyOrders').value = i.dailyOrders;
+      if (i.workingDays !== undefined) document.getElementById('workingDays').value = i.workingDays;
+      if (i.monthlyGMV !== undefined) document.getElementById('monthlyGMV').value = i.monthlyGMV;
+      if (Array.isArray(i.platforms)) {
+        document.querySelectorAll('#platformContainer input[type="checkbox"]').forEach(function(cb) { cb.checked = false; });
+        i.platforms.forEach(function(p) {
+          var platformDef = PLATFORMS.find(function(x) { return x.name === p.name; });
+          var cb = platformDef ? document.getElementById(platformDef.id) : null;
+          if (cb) cb.checked = true;
+        });
+      }
+      calculateAll();
+    };
 
     // ===== Main Calculate =====
     function calculateAll() {
@@ -2579,7 +2699,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.6"></script>
-<script src="../../site-layout.js?v=3.0.7"></script>
+<script src="../../site-layout.js?v=3.0.8"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 
@@ -2590,6 +2710,28 @@
 <script>
   window.__bondsCalcConfig = {"name": "restaurant", "v3": {"capital": "#rentCost", "revenue": "#monthlyGMV", "profit": "#targetProfitPerOrder", "sector": "#countrySelect", "activity": "#countrySelect"}, "saveTitle": "Restaurant Calculator", "lang": "en", "rel": "../../calculators/"};
   BondsAnonymousFirst.init(window.__bondsCalcConfig);
+</script>
+<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script>
+(function() {
+  if (!window.BondsEnhancements) return;
+  window.BondsEnhancements.init({
+    kpiContainer: '#becKpiHost',
+    kpis: [
+      { id: 'becKpiNetProfit', label: 'Monthly Net Profit', color: 'green' },
+      { id: 'becKpiProfitMargin', label: 'Profit Margin', unit: '%', color: 'blue' },
+      { id: 'becKpiFoodCost', label: 'Avg. Food Cost', unit: '%', color: 'gold' },
+      { id: 'becKpiBreakEvenDaily', label: 'Daily Break-Even', color: 'purple' },
+      { id: 'becKpiBreakEvenMonthly', label: 'Monthly Break-Even', color: 'orange' },
+      { id: 'becKpiBestPlatform', label: 'Best Platform', color: 'red' }
+    ],
+    alertsContainer: '.calc-grid',
+    exportContainer: '.share-bar',
+    aiContainer: '.calc-grid',
+    scenarioContainer: '.calc-grid',
+    calcType: 'restaurant'
+  });
+})();
 </script>
 </body>
 </html>
