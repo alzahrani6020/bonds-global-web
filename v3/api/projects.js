@@ -31,8 +31,7 @@ async function listProjects(req, res, user) {
     .select(`
       id, name, project_number, sector, sub_sector, activity,
       city_id, currency, status, capital, revenue, annual_profit,
-      language, metadata, created_at, updated_at,
-      city:city_id (code, name_ar, name_en, country_code)
+      language, metadata, created_at, updated_at
     `)
     .eq('user_id', user.id)
     .order('created_at', { ascending: false });
@@ -132,8 +131,7 @@ async function getProject(req, res, user, projectId) {
     .select(`
       id, name, project_number, sector, sub_sector, activity,
       city_id, currency, status, capital, revenue, annual_profit,
-      language, metadata, created_at, updated_at,
-      city:city_id (code, name_ar, name_en, country_code)
+      language, metadata, created_at, updated_at
     `)
     .eq('id', projectId)
     .eq('user_id', user.id)
