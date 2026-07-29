@@ -1,9 +1,11 @@
 name: Calculator Lead Email Journey
 
 on:
-  schedule:
-    # Once per day at 09:00 UTC
-    - cron: '0 9 * * *'
+  # Temporarily disabled to conserve subscriptions while the owner is away.
+  # Re-enable by uncommenting the schedule block below.
+  # schedule:
+  #   # Once per day at 09:00 UTC
+  #   - cron: '0 9 * * *'
   workflow_dispatch:
 
 jobs:
