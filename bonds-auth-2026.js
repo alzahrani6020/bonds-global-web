@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.0.6"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.0.7"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
@@ -398,8 +398,8 @@
   // ── UI: Site header avatar/login ──────────────────────────
   let _authHeaderListener = null;
   let _initSiteAuthRunning = false;
-  async function initSiteAuth(containerId) {
-    if (_initSiteAuthRunning) return;
+  async function initSiteAuth(containerId, force) {
+    if (_initSiteAuthRunning && !force) return;
     _initSiteAuthRunning = true;
     try {
       await ensureEnv();

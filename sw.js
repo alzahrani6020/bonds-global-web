@@ -33,7 +33,7 @@ const CORE_ASSETS = [
   '/site-layout.js?v=3.0.8',
   '/auth-guard.js',
   '/calculators/auth-gate.js?v=2',
-  '/bonds-auth-2026.js?v=3.0.6',
+  '/bonds-auth-2026.js?v=3.0.7',
   '/supabase-client.js',
   '/lib/formatting.js',
   '/assets/bonds-logo-2026-header.webp',

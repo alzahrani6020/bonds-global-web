@@ -25,7 +25,7 @@
   <link rel="stylesheet" href="../styles/my-bonds.css?v=1" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-  <script src="../bonds-auth-2026.js?v=3.0.6"></script>
+  <script src="../bonds-auth-2026.js?v=3.0.7"></script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -307,6 +307,11 @@
             const name = user.user_metadata?.full_name || user.user_metadata?.restaurant_name || user.email?.split('@')[0] || 'مستخدم';
             const nameEl = document.getElementById('userName');
             if (nameEl) nameEl.textContent = 'مرحباً، ' + name;
+
+            // Sync header auth state so it shows the logged-in user instead of login buttons
+            if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
+              setTimeout(() => window.BondsAuth.initSiteAuth('authContainer', true), 0);
+            }
 
             setProjectsLoading(true);
             let supabaseProjects = [];
