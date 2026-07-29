@@ -58,7 +58,7 @@
   <div id="site-header"></div>
   <div class="me-container">
     <div class="me-header">
-      <h1>🎯 Menu Engineering Engine</h1>
+      <h1>Menu Engineering Engine</h1>
       <p>Classify your dishes based on actual sales data. Know which Stars to keep, which Workhorses drive your sales, and which Puzzles to promote.</p>
     </div>
 
@@ -240,10 +240,12 @@ function loadCountryPlatforms() {
   const platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(countryCode) : [];
   if (!countryCode) {
     sel.innerHTML = '<option value="">Select platform...</option>';
-    return;
+  } else {
+    sel.innerHTML = '<option value="">Select platform...</option>' +
+      platforms.map((p, idx) => `<option value="${idx}">${p.nameEn || p.name} (${p.fee}%)</option>`).join('');
   }
-  sel.innerHTML = '<option value="">Select platform...</option>' +
-    platforms.map((p, idx) => `<option value="${idx}">${p.nameEn || p.name} (${p.fee}%)</option>`).join('');
+  const dd = window.getUniversalDropdown && window.getUniversalDropdown(sel);
+  if (dd && typeof dd.refresh === 'function') dd.refresh();
 }
 
 function fillPlatformData() {

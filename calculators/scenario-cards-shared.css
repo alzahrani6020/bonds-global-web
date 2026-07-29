@@ -153,8 +153,9 @@
 .calc-metric-card__value { font-size: 1.4rem; font-weight: 700; }
 
 /* Menu engineering specific */
-.calc-tag-danger { background: #ef4444; border-color: #ef4444; color: #fff; }
-.btn-secondary.calc-tag-danger { background: #dc2626; border-color: #dc2626; color: #fff; }
+.calc-tag-danger { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.35); color: #f87171; }
+.btn-secondary.calc-tag-danger { background: transparent; border-color: rgba(239, 68, 68, 0.4); color: #f87171; }
+.btn-secondary.calc-tag-danger:hover { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.6); }
 .calc-menu-empty { color: var(--text-muted); text-align: center; padding: 1rem 0; }
 .calc-menu-card { border: 1px solid var(--border); }
 .calc-menu-card__tag { font-size: 0.75rem; color: var(--gold); font-weight: 700; margin-bottom: 0.25rem; }

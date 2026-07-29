@@ -70,7 +70,7 @@ function html(strings, ...values) {
   <div id="site-header"></div>
   <div class="me-container">
     <div class="me-header">
-      <h1>🎯 محرك هندسة المنيو</h1>
+      <h1>محرك هندسة المنيو</h1>
       <p>صنّف وجباتك بناءً على بيانات المبيعات الفعلية. اعرف النجوم التي تحافظ عليها، والمحرك الذي يدفع مبيعاتك، والمكنوز الذي تروج له.</p>
     </div>
 
@@ -305,10 +305,12 @@ function loadCountryPlatforms() {
   const platforms = window.BondsPlatforms ? window.BondsPlatforms.getPlatforms(countryCode) : [];
   if (!countryCode) {
     sel.innerHTML = '<option value="">اختر التطبيق...</option>';
-    return;
+  } else {
+    sel.innerHTML = '<option value="">اختر التطبيق...</option>' +
+      platforms.map((p, idx) => `<option value="${idx}">${escapeHtml(p.name)} (${escapeHtml(p.fee)}%)</option>`).join('');
   }
-  sel.innerHTML = '<option value="">اختر التطبيق...</option>' +
-    platforms.map((p, idx) => `<option value="${idx}">${escapeHtml(p.name)} (${escapeHtml(p.fee)}%)</option>`).join('');
+  const dd = window.getUniversalDropdown && window.getUniversalDropdown(sel);
+  if (dd && typeof dd.refresh === 'function') dd.refresh();
 }
 
 function fillPlatformData() {
