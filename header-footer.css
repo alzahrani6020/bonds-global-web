@@ -704,38 +704,11 @@ html[dir="ltr"] .footer-links a:hover {
   }
 }
 
-/* ===== Floating WhatsApp button ===== */
-.whatsapp-float {
+/* ===== Branded chat launcher (WhatsApp) ===== */
+.bonds-chat-launcher,
+#bonds-chat-launcher {
   position: fixed;
   bottom: 20px;
-  left: 20px;
-  z-index: 9998;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: var(--gold);
-  color: #0a0f1a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 16px rgba(212, 168, 83, 0.35);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  text-decoration: none;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-.whatsapp-float:hover {
-  transform: scale(1.08);
-  background: var(--gold-bright);
-  box-shadow: 0 6px 24px rgba(212, 168, 83, 0.45);
-}
-.whatsapp-float svg {
-  width: 28px;
-  height: 28px;
-}
-
-#tawk-custom-launcher {
-  position: fixed;
-  bottom: 88px;
   right: 20px;
   z-index: 9997;
   display: flex;
@@ -749,39 +722,34 @@ html[dir="ltr"] .footer-links a:hover {
   font-weight: 700;
   font-family: inherit;
   font-size: 0.9rem;
+  text-decoration: none;
   cursor: pointer;
   box-shadow: 0 4px 16px rgba(212, 168, 83, 0.35);
   transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
-#tawk-custom-launcher:hover {
+.bonds-chat-launcher:hover,
+#bonds-chat-launcher:hover {
   transform: translateY(-2px);
   background: var(--gold-bright);
   box-shadow: 0 6px 24px rgba(212, 168, 83, 0.45);
 }
-#tawk-custom-launcher svg {
+.bonds-chat-launcher svg,
+#bonds-chat-launcher svg {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
 }
 
 @media (max-width: 768px) {
-  .whatsapp-float {
-    width: 52px;
-    height: 52px;
+  .bonds-chat-launcher,
+  #bonds-chat-launcher {
     bottom: 16px;
-    left: 16px;
-  }
-  .whatsapp-float svg {
-    width: 26px;
-    height: 26px;
-  }
-  #tawk-custom-launcher {
-    bottom: 80px;
     right: 16px;
     padding: 10px 14px;
     font-size: 0.85rem;
   }
-  #tawk-custom-launcher svg {
+  .bonds-chat-launcher svg,
+  #bonds-chat-launcher svg {
     width: 18px;
     height: 18px;
   }
