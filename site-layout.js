@@ -386,8 +386,8 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.60.0';
-    if (document.querySelector('link[href*="header-footer.css?v=2.60.0"]')) return;
+    const href = '/header-footer.css?v=2.61.0';
+    if (document.querySelector('link[href*="header-footer.css?v=2.61.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
@@ -656,6 +656,28 @@
         desktop: { position: 'br', xOffset: 20, yOffset: 20 },
         mobile: { position: 'br', xOffset: 12, yOffset: 12 }
       }
+    };
+
+    // Custom branded launcher (gold) to replace the default green Tawk.to bubble
+    const lang = detectLang();
+    const label = lang === 'en' ? 'Chat' : 'دردشة';
+    const title = lang === 'en' ? 'Chat with us' : 'تحدث معنا';
+    const customBtn = document.createElement('button');
+    customBtn.id = 'tawk-custom-launcher';
+    customBtn.type = 'button';
+    customBtn.setAttribute('aria-label', title);
+    customBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7A8.38 8.38 0 0 1 4 11.5a8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg><span>${label}</span>`;
+    customBtn.addEventListener('click', () => {
+      if (window.Tawk_API) {
+        window.Tawk_API.showWidget && window.Tawk_API.showWidget();
+        window.Tawk_API.maximize && window.Tawk_API.maximize();
+      }
+    });
+    document.body.appendChild(customBtn);
+
+    window.Tawk_API.onLoad = function() {
+      // Hide the default green Tawk.to launcher; use our branded button instead
+      if (window.Tawk_API.hideWidget) window.Tawk_API.hideWidget();
     };
 
     const chatScript = document.createElement('script');

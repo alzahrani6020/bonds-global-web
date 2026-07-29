@@ -733,6 +733,37 @@ html[dir="ltr"] .footer-links a:hover {
   height: 28px;
 }
 
+#tawk-custom-launcher {
+  position: fixed;
+  bottom: 88px;
+  right: 20px;
+  z-index: 9997;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  border: 1px solid rgba(197, 160, 40, 0.4);
+  background: var(--gold);
+  color: #0a0f1a;
+  font-weight: 700;
+  font-family: inherit;
+  font-size: 0.9rem;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(212, 168, 83, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+#tawk-custom-launcher:hover {
+  transform: translateY(-2px);
+  background: var(--gold-bright);
+  box-shadow: 0 6px 24px rgba(212, 168, 83, 0.45);
+}
+#tawk-custom-launcher svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
 @media (max-width: 768px) {
   .whatsapp-float {
     width: 52px;
@@ -743,6 +774,16 @@ html[dir="ltr"] .footer-links a:hover {
   .whatsapp-float svg {
     width: 26px;
     height: 26px;
+  }
+  #tawk-custom-launcher {
+    bottom: 80px;
+    right: 16px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+  #tawk-custom-launcher svg {
+    width: 18px;
+    height: 18px;
   }
 }
 
