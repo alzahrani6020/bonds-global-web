@@ -94,6 +94,8 @@
     .modal label { display: block; margin-bottom: 0.4rem; font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); }
     .modal input, .modal select, .modal textarea { width: 100%; padding: 0.75rem 1rem; margin-bottom: 1rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-card); font-family: inherit; font-size: 0.9rem; }
     .modal-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; }
+    #grantSubModal .ud-menu { max-width: 100%; }
+    #grantSubModal .ud-item { white-space: normal; word-break: break-word; overflow-wrap: anywhere; }
   </style>
   <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
   <script src="/api/env"></script>
@@ -229,7 +231,7 @@
     <div class="modal">
       <h3>⭐ منح اشتراك / فترة مجانية</h3>
       <label for="grantSubUser">المستخدم *</label>
-      <select id="grantSubUser" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المستخدم">
+      <select id="grantSubUser" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المستخدم" data-ud-fixed="true">
         <option value="">اختر المستخدم</option>
       </select>
       <label for="grantSubTier">الخطة *</label>
