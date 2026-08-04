@@ -682,33 +682,22 @@
       }
     }
 
+    let messagesInitialized = false;
     async function initMessages() {
-      // Ensure we have an admin token before loading messages.
-      const token = await BondsAdminCommon.getAdminToken();
-      if (!token) {
-        // Wait for token bridge from parent unified dashboard.
-        return new Promise(resolve => {
-          const onReady = async () => {
-            window.removeEventListener('admin-token-ready', onReady);
-            await fetchAdminUsers();
-            loadMessagesPage(1);
-            resolve();
-          };
-          window.addEventListener('admin-token-ready', onReady);
-          // Fallback in case event is missed.
-          setTimeout(async () => {
-            window.removeEventListener('admin-token-ready', onReady);
-            await fetchAdminUsers();
-            loadMessagesPage(1);
-            resolve();
-          }, 2500);
-        });
-      }
+      if (messagesInitialized) return;
+      messagesInitialized = true;
       await fetchAdminUsers();
       loadMessagesPage(1);
     }
 
-    window.addEventListener('load', initMessages);
+    // Register token listener immediately so we don't miss the event from parent dashboard.
+    window.addEventListener('admin-token-ready', initMessages, { once: true });
+    // Fallback: init on window load if token already available or event missed.
+    window.addEventListener('load', () => {
+      initMessages();
+      // Extra safety fallback.
+      setTimeout(() => initMessages(), 2000);
+    });
   </script>
   <script src="/admin/admin-embed.js?v=3"></script>
 <script src="/components/emoji-icons.js"></script>
