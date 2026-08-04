@@ -266,7 +266,7 @@
     </main>
   </div>
 
-  <script src="/admin/admin-common.js?v=2"></script>
+  <script src="/admin/admin-common.js?v=3"></script>
   <script>
     function showTab(tab) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
@@ -683,23 +683,34 @@
     }
 
     async function initMessages() {
+      // Ensure we have an admin token before loading messages.
+      const token = await BondsAdminCommon.getAdminToken();
+      if (!token) {
+        // Wait for token bridge from parent unified dashboard.
+        return new Promise(resolve => {
+          const onReady = async () => {
+            window.removeEventListener('admin-token-ready', onReady);
+            await fetchAdminUsers();
+            loadMessagesPage(1);
+            resolve();
+          };
+          window.addEventListener('admin-token-ready', onReady);
+          // Fallback in case event is missed.
+          setTimeout(async () => {
+            window.removeEventListener('admin-token-ready', onReady);
+            await fetchAdminUsers();
+            loadMessagesPage(1);
+            resolve();
+          }, 2500);
+        });
+      }
       await fetchAdminUsers();
       loadMessagesPage(1);
     }
 
-    window.addEventListener('load', () => {
-      // If token is already injected by parent dashboard, init immediately.
-      if (window.__ADMIN_TOKEN || window.__ADMIN_SESSION?.access_token) {
-        initMessages();
-      } else {
-        // Wait for token bridge from parent unified dashboard.
-        window.addEventListener('admin-token-ready', initMessages, { once: true });
-        // Fallback: init after a short delay in case event is missed.
-        setTimeout(initMessages, 1200);
-      }
-    });
+    window.addEventListener('load', initMessages);
   </script>
-  <script src="/admin/admin-embed.js?v=2"></script>
+  <script src="/admin/admin-embed.js?v=3"></script>
 <script src="/components/emoji-icons.js"></script>
 <script src="/components/emoji-renderer.js"></script>
 </body>

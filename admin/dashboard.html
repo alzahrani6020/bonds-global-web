@@ -303,7 +303,7 @@
     }
   </style>
   <script>BondsAuth.initAdminGuard();</script>
-  <script src="/admin/admin-common.js"></script>
+  <script src="/admin/admin-common.js?v=3"></script>
 <script src="/calculators/auth-gate.js?v=3.0.0"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=3.0.0" />
 </head>
@@ -993,7 +993,7 @@
         iframeWrap.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>جارِ تحميل القسم...</p></div>';
         const iframe = document.createElement('iframe');
         iframe.className = 'module-frame';
-        iframe.src = url + '&_v=2';
+        iframe.src = url + '&_v=3';
         iframe.title = title || '';
         iframe.scrolling = 'yes';
         iframe.setAttribute('scrolling', 'yes');
