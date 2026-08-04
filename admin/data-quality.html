@@ -8,7 +8,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
-  <script src="/admin/admin-common.js?v=3"></script>
+  <script src="/admin/admin-common.js?v=4"></script>
+  <script src="/admin/admin-embed.js?v=4"></script>
   <style>
     :root {
       --bg: #f5f0e8; --bg-secondary: #ffffff; --bg-card: rgba(255,255,255,0.85);
@@ -130,7 +131,20 @@
       `;
     }
 
-    window.addEventListener('load', loadReport);
+    function init() {
+      loadReport();
+    }
+
+    if (location.search.includes('embed=1')) {
+      if (window.__ADMIN_TOKEN) {
+        init();
+      } else {
+        window.addEventListener('admin-token-ready', init, { once: true });
+        setTimeout(() => { if (!window.__ADMIN_TOKEN) init(); }, 2500);
+      }
+    } else {
+      window.addEventListener('load', init);
+    }
   </script>
 </body>
 </html>
