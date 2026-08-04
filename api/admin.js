@@ -721,8 +721,9 @@ async function getMessages(sb, params = {}) {
   }
 
   let result = await runQuery(true);
-  // If assigned_to column does not exist yet (migration not applied), fall back to unfiltered query.
-  if (result.error && /column.*assigned_to|assigned_to.*column|schema cache/i.test(result.error.message || '')) {
+  // If assigned_to filtering fails (e.g. migration not applied), fall back to unfiltered query
+  // so the messages list keeps working even when the schema is not fully updated.
+  if (result.error) {
     result = await runQuery(false);
   }
   if (result.error) throw result.error;
