@@ -73,7 +73,7 @@
       transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
     }
     .sidebar-link:hover, .sidebar-link.active { background: rgba(184,149,78,0.12); color: var(--gold); }
-    .sidebar-link svg { width: 20px; height: 20px; opacity: 0.75; flex-shrink: 0; pointer-events: none; }
+    .sidebar-link svg, .sidebar-link * svg { width: 20px; height: 20px; opacity: 0.75; flex-shrink: 0; pointer-events: none; }
 
     .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
     .sidebar-user { display: flex; align-items: center; gap: 0.75rem; }
@@ -1019,15 +1019,17 @@
         });
       }
 
-      document.querySelectorAll('.sidebar-link').forEach(link => {
-        link.addEventListener('click', () => {
-          const target = link.dataset.target;
-          if (!target) return;
-          const title = link.dataset.title;
-          setActive(target);
-          loadModule(target, title);
-          if (window.innerWidth <= 1024) document.getElementById('sidebar').classList.remove('open');
-        });
+      const sidebarEl = document.getElementById('sidebar');
+      sidebarEl.addEventListener('click', (e) => {
+        const link = e.target.closest('.sidebar-link');
+        if (!link) return;
+        const target = link.dataset.target;
+        if (!target) return;
+        e.preventDefault();
+        const title = link.dataset.title;
+        setActive(target);
+        loadModule(target, title);
+        if (window.innerWidth <= 1024) sidebarEl.classList.remove('open');
       });
 
       document.getElementById('mobileToggle').onclick = () => {
