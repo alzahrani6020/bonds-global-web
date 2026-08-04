@@ -705,19 +705,29 @@ async function getMessages(sb, params = {}) {
   const assignedFilter = (params.assigned || '').trim();
   const currentUserId = params.currentUserId || '';
 
-  let query = sb.from('contact_messages').select('*', { count: 'exact' });
-  if (search) {
-    query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%,message.ilike.%${search}%`);
+  async function runQuery(useAssignedFilters = true) {
+    let q = sb.from('contact_messages').select('*', { count: 'exact' });
+    if (search) {
+      q = q.or(`email.ilike.%${search}%,name.ilike.%${search}%,message.ilike.%${search}%`);
+    }
+    if (useAssignedFilters && assignedFilter === 'me') {
+      if (currentUserId) q = q.eq('assigned_to', currentUserId);
+    } else if (useAssignedFilters && assignedFilter === 'unassigned') {
+      q = q.is('assigned_to', null);
+    } else if (useAssignedFilters && assignedFilter && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignedFilter)) {
+      q = q.eq('assigned_to', assignedFilter);
+    }
+    return q.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
   }
-  if (assignedFilter === 'me') {
-    if (currentUserId) query = query.eq('assigned_to', currentUserId);
-  } else if (assignedFilter === 'unassigned') {
-    query = query.is('assigned_to', null);
-  } else if (assignedFilter && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignedFilter)) {
-    query = query.eq('assigned_to', assignedFilter);
+
+  let result = await runQuery(true);
+  // If assigned_to column does not exist yet (migration not applied), fall back to unfiltered query.
+  if (result.error && /column.*assigned_to|assigned_to.*column|schema cache/i.test(result.error.message || '')) {
+    result = await runQuery(false);
   }
-  const { data, error, count } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
-  if (error) throw error;
+  if (result.error) throw result.error;
+
+  const { data, count } = result;
 
   // Enrich messages with assignee profile info in a separate query to avoid FK alias ambiguity.
   let messages = data || [];
