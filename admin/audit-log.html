@@ -78,7 +78,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script>BondsAuth.initAdminGuard();</script>
-<script src="/calculators/auth-gate.js?v=2"></script>
+  <script src="/admin/admin-common.js"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="admin-layout">
@@ -146,7 +147,7 @@
   </div>
 
   <script src="../page-tracker-v2.js"></script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
   <script>
     let allLogs = [];
     let filteredLogs = [];
@@ -158,15 +159,6 @@
       if (e.data?.type === 'admin-token' && e.data?.token) window.__ADMIN_TOKEN = e.data.token;
     });
 
-    async function getToken() {
-      let token = window.__ADMIN_TOKEN || '';
-      if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
-        const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
-        const { data: { session } } = await client.auth.getSession();
-        token = session?.access_token || '';
-      }
-      return token;
-    }
 
     function roleBadge(role) {
       const map = { super_admin: 'badge--super', admin: 'badge--admin', support: 'badge--support' };
@@ -191,7 +183,7 @@
       const tbody = document.getElementById('logTable');
       tbody.innerHTML = '<tr><td colspan="6" class="empty">جارِ التحميل...</td></tr>';
       try {
-        const token = await getToken();
+        const token = await BondsAdminCommon.getAdminToken();
         const res = await fetch('/api/admin?action=audit-log&limit=500', {
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
@@ -281,5 +273,7 @@
 
     window.addEventListener('load', refresh);
   </script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

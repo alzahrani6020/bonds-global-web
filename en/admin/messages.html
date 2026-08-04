@@ -64,11 +64,27 @@
     .message-time { font-size: 0.8rem; color: var(--text-muted); }
     .message-email { font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem; }
     .message-body { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; }
-    .message-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .message-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
 
     .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
     .badge--new { background: rgba(212,168,83,0.15); color: var(--gold); }
     .badge--read { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
+    .badge--assignee { background: rgba(59,130,246,0.12); color: var(--info); }
+
+    .filter-chips { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-chip { padding: 0.4rem 0.9rem; border-radius: 50px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .filter-chip:hover { border-color: var(--border-hover); color: var(--gold); }
+    .filter-chip.active { background: rgba(184,149,78,0.12); color: var(--gold); border-color: var(--border-hover); }
+
+    .assign-menu { position: relative; display: inline-block; }
+    .assign-dropdown {
+      position: absolute; top: calc(100% + 0.35rem); left: 0; min-width: 220px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 50; display: none; flex-direction: column; padding: 0.5rem; max-height: 300px; overflow-y: auto;
+    }
+    .assign-dropdown.open { display: flex; }
+    .assign-option { padding: 0.55rem 0.75rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text); text-align: left; white-space: nowrap; }
+    .assign-option:hover { background: rgba(184,149,78,0.1); }
+    .assign-option.unassign { color: var(--danger); border-top: 1px solid var(--border); margin-top: 0.35rem; padding-top: 0.6rem; }
+    .assignee-line { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem; }
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
 
@@ -97,7 +113,7 @@
 
   <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
 
-  <script src="/global-auth-gate.js?v=1"></script>
+  <script src="/global-auth-gate.js?v=2"></script>
 </head>
 <body>
 
@@ -172,6 +188,11 @@
         </div>
       </div>
 
+      <div class="filter-chips" id="msgFilters">
+        <button class="filter-chip active" data-filter="all" onclick="setMessageFilter('all')">All</button>
+        <button class="filter-chip" data-filter="unassigned" onclick="setMessageFilter('unassigned')">Unassigned</button>
+        <button class="filter-chip" data-filter="me" onclick="setMessageFilter('me')">My messages</button>
+      </div>
       <div class="message-list" id="messageList">
         <div class="loading">Loading...</div>
       </div>
@@ -189,10 +210,31 @@
       return token;
     }
 
+    let msgAssignedFilter = 'all';
+    let adminUsers = [];
+
+    async function fetchAdminUsers() {
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=admin-users', {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        adminUsers = data.users || [];
+      } catch (e) {
+        console.error('[Messages] failed to load admins:', e);
+        adminUsers = [];
+      }
+    }
+
     async function fetchMessages() {
       try {
         const token = await getAdminToken();
-        const res = await fetch('/api/admin?action=messages', {
+        const params = new URLSearchParams({ action: 'messages' });
+        if (msgAssignedFilter && msgAssignedFilter !== 'all') params.set('assigned', msgAssignedFilter);
+        const res = await fetch('/api/admin?' + params.toString(), {
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -209,12 +251,18 @@
       }
     }
 
-    async function toggleRead(id) {
+    function setMessageFilter(filter) {
+      msgAssignedFilter = filter || 'all';
+      document.querySelectorAll('#msgFilters .filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === msgAssignedFilter));
+      refreshMessages();
+    }
+
+    async function toggleRead(id, currentlyRead) {
       try {
         await fetch('/api/admin?action=messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
-          body: JSON.stringify({ action: 'mark_read', id })
+          body: JSON.stringify({ action: currentlyRead ? 'mark_unread' : 'mark_read', id })
         });
       } catch(e) {}
       refreshMessages();
@@ -230,6 +278,52 @@
         });
       } catch(e) {}
       refreshMessages();
+    }
+
+    function replyTo(email, name) {
+      if (!email) return;
+      // English page doesn't have compose tab; open mailto as fallback
+      window.location.href = 'mailto:' + encodeURIComponent(email) + '?subject=' + encodeURIComponent('Re: Your message to Bonds') + '&body=' + encodeURIComponent('Hi ' + (name || '') + ',\n\n');
+    }
+
+    function toggleAssignDropdown(btn) {
+      const menu = btn.parentElement.querySelector('.assign-dropdown');
+      if (!menu) return;
+      const isOpen = menu.classList.contains('open');
+      document.querySelectorAll('.assign-dropdown.open').forEach(d => d.classList.remove('open'));
+      menu.classList.toggle('open', !isOpen);
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.assign-menu')) {
+        document.querySelectorAll('.assign-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+
+    async function assignMessage(messageId, userId) {
+      try {
+        await fetch('/api/admin?action=messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
+          body: JSON.stringify({ action: 'assign', id: messageId, assigned_to: userId })
+        });
+      } catch(e) {}
+      refreshMessages();
+    }
+
+    async function unassignMessage(messageId) {
+      try {
+        await fetch('/api/admin?action=messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
+          body: JSON.stringify({ action: 'unassign', id: messageId })
+        });
+      } catch(e) {}
+      refreshMessages();
+    }
+
+    function escapeHtml(str) {
+      return String(str ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
     }
 
     function timeAgo(dateStr) {
@@ -257,21 +351,32 @@
         container.innerHTML = '<div class="loading">No messages</div>';
         return;
       }
-      container.innerHTML = msgs.map(m => `
+      container.innerHTML = msgs.map(m => {
+        const assignee = m.assigned_to_profile;
+        const assignOptions = adminUsers.map(u => `<div class="assign-option" onclick="assignMessage('${m.id}', '${u.id}')">${escapeHtml(u.full_name || u.email || u.id.slice(0, 8))}</div>`).join('');
+        const unassignOption = assignee ? `<div class="assign-option unassign" onclick="unassignMessage('${m.id}')">Unassign</div>` : '';
+        const assigneeHtml = assignee ? `<div class="assignee-line"><span class="badge badge--assignee">👤 Assigned to: ${escapeHtml(assignee.full_name || assignee.email || 'User')}</span></div>` : '';
+        return `
         <div class="message-card ${m.read ? '' : 'unread'}">
           <div class="message-header">
             <span class="message-sender">${m.name} ${m.read ? '' : '<span class="badge badge--new">New</span>'}</span>
             <span class="message-time">${timeAgo(m.created_at)}</span>
           </div>
           <div class="message-email">${m.email}${m.phone ? ' | ' + m.phone : ''}</div>
-          <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;">${m.sector || ''} ${m.service ? '→ ' + m.service : ''}</div>
-          <div class="message-body">${m.message}</div>
+          <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.35rem;">${m.sector || ''} ${m.service ? '→ ' + m.service : ''}</div>
+          ${assigneeHtml}
+          <div class="message-body">${escapeHtml(m.message)}</div>
           <div class="message-actions">
-            <button class="btn-sm ${m.read ? 'btn-primary' : 'btn-secondary'}" onclick="toggleRead('${m.id}')">${m.read ? 'Mark unread' : 'Mark read'}</button>
+            <button class="btn-sm ${m.read ? 'btn-primary' : 'btn-secondary'}" onclick="toggleRead('${m.id}', ${m.read})">${m.read ? 'Mark unread' : 'Mark read'}</button>
+            <div class="assign-menu">
+              <button class="btn-sm btn-secondary" onclick="toggleAssignDropdown(this)">${assignee ? 'Change assignee' : 'Assign reader'}</button>
+              <div class="assign-dropdown">${assignOptions}${unassignOption}</div>
+            </div>
+            ${m.email ? `<button class="btn-sm btn-secondary" onclick="replyTo('${m.email}', '${escapeHtml(m.name || '')}')">Reply</button><a class="btn-sm btn-secondary" href="mailto:${encodeURIComponent(m.email)}?subject=${encodeURIComponent('Re: Your message to Bonds')}&body=${encodeURIComponent('Hi ' + (m.name || '') + ',\n\n')}" style="text-decoration:none">✉️ Email</a>` : ''}
             <button class="btn-sm btn-danger" onclick="deleteMessage('${m.id}')">Delete</button>
           </div>
         </div>
-      `).join('');
+      `;}).join('');
       const badge = document.getElementById('msgBadge');
       if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
     }
@@ -281,8 +386,13 @@
       setTimeout(renderMessages, 300);
     }
 
-    window.addEventListener('load', renderMessages);
+    window.addEventListener('load', async () => {
+      await fetchAdminUsers();
+      renderMessages();
+    });
 
   </script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

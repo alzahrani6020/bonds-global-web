@@ -11,6 +11,8 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="admin-auth.js"></script>
+  <script src="/admin/admin-common.js"></script>
+  <script src="/admin/admin-geo.js"></script>
   <style>
     :root { --bg: #f5f0e8; --bg-card: #ffffff; --gold: #b8954e; --gold-bright: #d4b87a; --text: #1a1a1a; --text-secondary: #555555; --border: rgba(0,0,0,0.08); --danger: #ef4444; --success: #22c55e; }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,7 +58,7 @@
     @media (max-width: 900px) { .sidebar { display: none; } .main-content { margin-right: 0; } .form-grid { grid-template-columns: 1fr; } }
   </style>
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="admin-layout">
@@ -81,15 +83,13 @@
         <p style="color:var(--text-secondary);font-size:0.9rem;">أضف أو عدّل البنوك والصناديق والمستثمرين وبرامج التمويل الحكومية.</p>
       </div>
 
+      <div id="fundingStatus" style="display:none;padding:1rem;border-radius:12px;margin-bottom:1rem;font-weight:600;"></div>
+
       <div class="toolbar">
         <button class="btn btn-primary" id="openAdd">+ إضافة جديدة</button>
         <input type="text" id="searchInput" placeholder="بحث بالاسم..." />
         <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="filterType">
           <option value="">كل الأنواع</option>
-          <option value="bank">بنوك</option>
-          <option value="fund">صناديق</option>
-          <option value="investor">مستثمرون</option>
-          <option value="government_program">برامج حكومية</option>
         </select>
       </div>
 
@@ -120,19 +120,14 @@
         <div class="form-grid">
           <div class="form-group"><label>النوع *</label>
             <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="f_type" required>
-              <option value="bank">بنك</option>
-              <option value="fund">صندوق</option>
-              <option value="investor">مستثمر</option>
-              <option value="government_program">برنامج حكومي</option>
+              <option value="">اختر النوع</option>
             </select>
           </div>
           <div class="form-group"><label>الاسم بالعربي *</label><input type="text" id="f_name_ar" required /></div>
           <div class="form-group"><label>الاسم بالإنجليزية</label><input type="text" id="f_name_en" /></div>
           <div class="form-group"><label>الدولة *</label>
             <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="f_country_code" required>
-              <option value="SA">SA</option><option value="AE">AE</option><option value="EG">EG</option><option value="JO">JO</option>
-              <option value="KW">KW</option><option value="QA">QA</option><option value="BH">BH</option><option value="OM">OM</option>
-              <option value="MA">MA</option><option value="TN">TN</option><option value="DZ">DZ</option><option value="IQ">IQ</option>
+              <option value="">اختر الدولة</option>
             </select>
           </div>
           <div class="form-group"><label>القطاع (مفصول بفواصل)</label><input type="text" id="f_sector" placeholder="technology,manufacturing" /></div>
@@ -166,16 +161,46 @@
       const modal = document.getElementById('sourceModal');
       const form = document.getElementById('sourceForm');
       let sources = [];
-      let token = '';
 
-      async function getToken() {
-        if (token) return token;
-        const env = window.__ENV || {};
-        const sb = supabase.createClient(env.SUPABASE_URL, env.SUPABASE_ANON_KEY);
-        const { data } = await sb.auth.getSession();
-        token = data?.session?.access_token || '';
-        return token;
+      const SOURCE_TYPES = [
+        { value: 'bank', label: 'بنك' },
+        { value: 'fund', label: 'صندوق' },
+        { value: 'investor', label: 'مستثمر' },
+        { value: 'government_program', label: 'برنامج حكومي' }
+      ];
+
+      function populateStaticDropdowns() {
+        const filterType = document.getElementById('filterType');
+        const fType = document.getElementById('f_type');
+        SOURCE_TYPES.forEach(t => {
+          const opt1 = document.createElement('option');
+          opt1.value = t.value; opt1.textContent = t.label;
+          filterType.appendChild(opt1);
+          const opt2 = document.createElement('option');
+          opt2.value = t.value; opt2.textContent = t.label;
+          fType.appendChild(opt2);
+        });
+
+        const countrySelect = document.getElementById('f_country_code');
+        if (typeof adminCountryName === 'function') {
+          const codes = Object.keys(window.COUNTRY_NAMES_AR || {}).sort((a,b) => adminCountryName(a).localeCompare(adminCountryName(b)));
+          // Fallback if COUNTRY_NAMES_AR not exposed
+          const list = (codes.length ? codes : ['SA','AE','EG','JO','KW','QA','BH','OM','MA','TN','DZ','IQ']);
+          list.forEach(code => {
+            const opt = document.createElement('option');
+            opt.value = code;
+            opt.textContent = adminCountryName(code) + ' (' + code + ')';
+            countrySelect.appendChild(opt);
+          });
+        }
+        if (window.initUniversalDropdowns) {
+          window.initUniversalDropdowns(filterType.parentElement);
+          window.initUniversalDropdowns(fType.parentElement);
+          window.initUniversalDropdowns(countrySelect.parentElement);
+        }
       }
+      populateStaticDropdowns();
+
 
       async function load() {
         try {
@@ -251,7 +276,7 @@
 
       window.deleteSource = async function(id) {
         if (!confirm('هل أنت متأكد من الحذف؟')) return;
-        await fetch('/api/funding-sources?id=' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + await getToken() } });
+        await fetch('/api/funding-sources?id=' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + await BondsAdminCommon.getAdminToken() } });
         load();
       };
 
@@ -288,10 +313,10 @@
           is_active: document.getElementById('f_is_active').checked,
           is_featured: document.getElementById('f_is_featured').checked
         };
-        const opts = { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await getToken() }, body: JSON.stringify(body) };
+        const opts = { method: id ? 'PUT' : 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + await BondsAdminCommon.getAdminToken() }, body: JSON.stringify(body) };
         const url = id ? '/api/funding-sources?id=' + id : '/api/funding-sources';
         const res = await fetch(url, opts);
-        if (!res.ok) { alert('فشل الحفظ'); return; }
+        if (!res.ok) { BondsAdminCommon.showAdminStatus('fundingStatus', 'فشل الحفظ', true); return; }
         modal.classList.remove('open');
         load();
       });
@@ -302,8 +327,10 @@
       load();
     })();
   </script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

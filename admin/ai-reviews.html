@@ -85,6 +85,11 @@
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
     .empty { text-align: center; padding: 3rem; color: var(--text-muted); }
+    .pagination-container { margin-top: 1.25rem; }
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+    .pagination-info { font-size: 0.85rem; color: var(--text-secondary); }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .totals-note { font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem; text-align: center; }
 
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200;
@@ -135,9 +140,10 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
+  <script src="/admin/update-sidebar-user.js?v=1"></script>
   <script>BondsAuth.initAdminGuard();</script>
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
@@ -198,10 +204,13 @@
       </div>
 
       <div class="tabs" id="statusTabs"></div>
+      <div id="reviewStatus" style="display:none;border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:0.9rem;font-weight:600;"></div>
+      <p class="totals-note" id="totalsNote">الأرقام تعكس الصفحة المحملة حالياً.</p>
 
       <div class="review-list" id="reviewList">
         <div class="loading">جارِ التحميل...</div>
       </div>
+      <div id="reviewPagination" class="pagination-container"></div>
     </main>
   </div>
 
@@ -219,6 +228,7 @@
     </div>
   </div>
 
+  <script src="/admin/admin-common.js"></script>
   <script>
     const STATUS_CONFIG = {
       all: { label: 'الكل', class: '' },
@@ -239,32 +249,25 @@
     let allReviews = [];
     let currentFilter = 'all';
     let selectedReview = null;
-    let cachedToken = null;
-
-    async function getAuthToken() {
-      if (cachedToken) return cachedToken;
-      let token = window.__ADMIN_TOKEN || window.__ADMIN_SESSION?.access_token || '';
-      if (!token && window.BondsAuth?.getSession) {
-        try {
-          const { data: { session } } = await window.BondsAuth.getSession();
-          token = session?.access_token || '';
-        } catch (e) {}
-      }
-      cachedToken = token;
-      return token;
-    }
+    let reviewPageSize = 50;
+    let reviewCurrentPage = 1;
+    let reviewTotal = 0;
 
     async function authHeaders() {
-      const token = await getAuthToken();
+      const token = await BondsAdminCommon.getAdminToken();
       return token ? { 'Authorization': 'Bearer ' + token } : {};
     }
 
-    async function fetchReviews() {
-      const res = await fetch('/api/admin?action=ai-reviews', { headers: await authHeaders() });
+    async function fetchReviews({ limit = 50, offset = 0, status = '' } = {}) {
+      const params = new URLSearchParams({ action: 'ai-reviews', limit: String(limit), offset: String(offset) });
+      if (status && status !== 'all') params.set('status', status);
+      const res = await fetch('/api/admin?' + params.toString(), { headers: await authHeaders() });
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const json = await res.json();
       if (json.error) throw new Error(json.error);
-      return json.data || [];
+      const data = json.data || [];
+      reviewTotal = typeof json.total === 'number' ? json.total : data.length;
+      return data;
     }
 
     function parseResult(result) {
@@ -296,54 +299,104 @@
     function renderTabs() {
       const container = document.getElementById('statusTabs');
       container.innerHTML = Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
-        const count = key === 'all' ? allReviews.length : allReviews.filter(r => r.status === key).length;
-        return `<button class="tab ${currentFilter === key ? 'active' : ''}" data-status="${key}" onclick="setFilter('${key}')">${cfg.label} (${count})</button>`;
+        let count;
+        if (key === currentFilter) {
+          count = reviewTotal;
+        } else {
+          count = key === 'all' ? allReviews.length : allReviews.filter(r => r.status === key).length;
+        }
+        return `<button class="tab ${currentFilter === key ? 'active' : ''}" data-status="${key}" onclick="setFilter('${key}')">${cfg.label} (${count.toLocaleString('ar-SA')})</button>`;
       }).join('');
     }
 
     function setFilter(status) {
       currentFilter = status;
-      renderTabs();
-      renderReviews();
+      loadReviewsPage(1, status);
+    }
+
+    async function loadReviewsPage(page = 1, status = currentFilter) {
+      reviewCurrentPage = page;
+      currentFilter = status;
+      const offset = (page - 1) * reviewPageSize;
+      document.getElementById('reviewList').innerHTML = '<div class="loading">جارِ التحميل...</div>';
+      try {
+        allReviews = await fetchReviews({ limit: reviewPageSize, offset, status });
+        updateStats();
+        renderTabs();
+        renderReviews();
+        renderPagination();
+      } catch (e) {
+        document.getElementById('reviewList').innerHTML = '<div class="empty">فشل تحميل الطلبات: ' + e.message + '</div>';
+      }
     }
 
     function renderReviews() {
       const filtered = currentFilter === 'all' ? allReviews : allReviews.filter(r => r.status === currentFilter);
       const container = document.getElementById('reviewList');
+      container.innerHTML = '';
       if (!filtered.length) {
         container.innerHTML = '<div class="empty">لا توجد طلبات في هذا القسم</div>';
         return;
       }
-      container.innerHTML = filtered.map(r => {
+      const fragment = document.createDocumentFragment();
+      filtered.forEach(r => {
         const req = r.ai_requests || {};
         const result = parseResult(req.ai_results?.result);
         const profile = r.profiles || {};
         const statusCfg = STATUS_CONFIG[r.status] || STATUS_CONFIG.pending_review;
         const payload = req.payload || {};
-        return `
-          <div class="review-card">
-            <div class="review-header">
-              <div>
-                <div class="review-title">${TYPE_LABELS[req.type] || req.type || 'تحليل AI'}</div>
-                <div class="review-meta">
-                  <span>👤 ${profile.full_name || '—'} (${profile.email || '—'})</span>
-                  <span>🎯 النتيجة: ${result?.risk_level || result?.risk_score ?? '—'}</span>
-                  <span>💰 ${formatCurrency(payload.monthly_revenue || payload.annual_revenue)} إيراد</span>
-                  <span>⏰ ${timeAgo(r.created_at)}</span>
-                </div>
+        const card = document.createElement('div');
+        card.className = 'review-card';
+        card.innerHTML = `
+          <div class="review-header">
+            <div>
+              <div class="review-title">${TYPE_LABELS[req.type] || req.type || 'تحليل AI'}</div>
+              <div class="review-meta">
+                <span>👤 ${profile.full_name || '—'} (${profile.email || '—'})</span>
+                <span>🎯 النتيجة: ${(result?.risk_level || result?.risk_score) ?? '—'}</span>
+                <span>💰 ${formatCurrency(payload.monthly_revenue || payload.annual_revenue)} إيراد</span>
+                <span>⏰ ${timeAgo(r.created_at)}</span>
               </div>
-              <span class="badge ${statusCfg.class}">${statusCfg.label}</span>
             </div>
-            ${r.note ? `<div class="review-note">📝 ${r.note}</div>` : ''}
-            <div class="review-actions">
-              <button class="btn-sm btn-primary" onclick="openReview('${r.id}')">عرض التفاصيل</button>
-              ${r.status !== 'under_review' ? `<button class="btn-sm btn-secondary" onclick="quickUpdate('${r.id}', 'under_review')">تعيين قيد المراجعة</button>` : ''}
-              ${r.status !== 'approved' ? `<button class="btn-sm btn-success" onclick="quickUpdate('${r.id}', 'approved')">اعتماد</button>` : ''}
-              ${r.status !== 'returned' ? `<button class="btn-sm btn-danger" onclick="quickUpdate('${r.id}', 'returned')">إعادة للعميل</button>` : ''}
-            </div>
+            <span class="badge ${statusCfg.class}">${statusCfg.label}</span>
+          </div>
+          ${r.note ? `<div class="review-note">📝 ${r.note}</div>` : ''}
+          <div class="review-actions">
+            <button class="btn-sm btn-primary" onclick="openReview('${r.id}')">عرض التفاصيل</button>
+            ${r.status !== 'under_review' ? `<button class="btn-sm btn-secondary" onclick="quickUpdate('${r.id}', 'under_review')">تعيين قيد المراجعة</button>` : ''}
+            ${r.status !== 'approved' ? `<button class="btn-sm btn-success" onclick="quickUpdate('${r.id}', 'approved')">اعتماد</button>` : ''}
+            ${r.status !== 'returned' ? `<button class="btn-sm btn-danger" onclick="quickUpdate('${r.id}', 'returned')">إعادة للعميل</button>` : ''}
           </div>
         `;
-      }).join('');
+        fragment.appendChild(card);
+      });
+      container.appendChild(fragment);
+    }
+
+    function renderPagination() {
+      const container = document.getElementById('reviewPagination');
+      const totalPages = Math.ceil(reviewTotal / reviewPageSize) || 1;
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      const start = (reviewCurrentPage - 1) * reviewPageSize + 1;
+      const end = Math.min(reviewCurrentPage * reviewPageSize, reviewTotal);
+      container.innerHTML = `
+        <div class="pagination">
+          <button class="btn-sm btn-secondary" onclick="changeReviewPage(-1)" ${reviewCurrentPage <= 1 ? 'disabled' : ''}>السابق</button>
+          <span class="pagination-info">صفحة ${reviewCurrentPage.toLocaleString('ar-SA')} من ${totalPages.toLocaleString('ar-SA')} (${start.toLocaleString('ar-SA')}–${end.toLocaleString('ar-SA')} من ${reviewTotal.toLocaleString('ar-SA')})</span>
+          <button class="btn-sm btn-secondary" onclick="changeReviewPage(1)" ${reviewCurrentPage >= totalPages ? 'disabled' : ''}>التالي</button>
+        </div>
+      `;
+    }
+
+    function changeReviewPage(delta) {
+      const totalPages = Math.ceil(reviewTotal / reviewPageSize) || 1;
+      const newPage = Math.max(1, Math.min(totalPages, reviewCurrentPage + delta));
+      if (newPage !== reviewCurrentPage) {
+        loadReviewsPage(newPage, currentFilter);
+      }
     }
 
     function updateStats() {
@@ -355,15 +408,7 @@
     }
 
     async function refreshReviews() {
-      document.getElementById('reviewList').innerHTML = '<div class="loading">جارِ التحميل...</div>';
-      try {
-        allReviews = await fetchReviews();
-        updateStats();
-        renderTabs();
-        renderReviews();
-      } catch (e) {
-        document.getElementById('reviewList').innerHTML = '<div class="empty">فشل تحميل الطلبات: ' + e.message + '</div>';
-      }
+      await loadReviewsPage(reviewCurrentPage, currentFilter);
     }
 
     function openReview(id) {
@@ -452,6 +497,10 @@
       await refreshReviews();
     }
 
+    function showReviewStatus(msg, isError) {
+      BondsAdminCommon.showAdminStatus('reviewStatus', msg, isError);
+    }
+
     async function updateReview(id, status, assigned_to, admin_notes) {
       try {
         const body = { id, status };
@@ -466,7 +515,7 @@
         const json = await res.json();
         if (json.error) throw new Error(json.error);
       } catch (e) {
-        alert('فشل حفظ التحديث: ' + e.message);
+        showReviewStatus('فشل حفظ التحديث: ' + e.message, true);
         throw e;
       }
     }
@@ -477,8 +526,10 @@
 
     window.addEventListener('load', refreshReviews);
   </script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

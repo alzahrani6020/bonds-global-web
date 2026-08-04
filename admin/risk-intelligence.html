@@ -53,12 +53,15 @@
     .badge--e { background: rgba(239,68,68,0.15); color: #f87171; }
     .hidden { display: none; }
   </style>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="container">
     <a href="/admin/dashboard.html" class="back-link">⬅️ العودة إلى لوحة الإدارة</a>
     <h1>إدارة تقييم المخاطر (Risk Intelligence)</h1>
+    <p style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.25);border-radius:8px;padding:0.75rem 1rem;margin-bottom:1rem;color:var(--text-secondary);font-size:0.9rem;">
+      ℹ️ هذا المحرك <strong>قواعدي محلي</strong> يعتمد على المعايير والأوزان المُحدَّدة مسبقاً. لا يستخدم نموذج لغوي خارجي (LLM) في إنتاج التقييم أو التوصيات.
+    </p>
     <div id="status" class="status"></div>
 
     <div class="toolbar">
@@ -102,20 +105,12 @@
     (function () {
       'use strict';
 
-      const ASSET_CLASSES = (typeof BondsRiskIntelligenceStandards !== 'undefined' && BondsRiskIntelligenceStandards.listAssetClasses)
-        ? BondsRiskIntelligenceStandards.listAssetClasses()
-        : [
-          'realEstate','business','factory','machineryEquipment','vehiclesFleet','agricultureFarms','livestock',
-          'naturalResourcesMining','oilGas','infrastructure','intellectualProperty','brandsTrademarks','patents',
-          'copyrightsContent','franchises','licensesPermits','financialAssets','cryptoDigital','commodities',
-          'artCollectibles','jewelryPreciousMetals','softwareTechnology','medicalEquipment','educationalEquipment',
-          'distressedAsset','tourismAsset','personalWealth','scrapSalvage','maritimeAsset','logisticsAsset',
-          'fuelStation','beautyWellness','giftsStationery','furnitureAsset','retailBusiness'
-        ];
+      const Standards = (typeof BondsRiskIntelligenceStandards !== 'undefined' && BondsRiskIntelligenceStandards)
+        ? BondsRiskIntelligenceStandards
+        : null;
 
-      const CATEGORIES = (typeof BondsRiskIntelligenceStandards !== 'undefined' && BondsRiskIntelligenceStandards.CATEGORIES)
-        ? BondsRiskIntelligenceStandards.CATEGORIES
-        : [];
+      const ASSET_CLASSES = Standards ? Standards.listAssetClasses() : [];
+      const CATEGORIES = Standards ? Standards.CATEGORIES : [];
 
       const assetSelect = document.getElementById('assetClassSelect');
       const loadBtn = document.getElementById('loadBtn');
@@ -131,21 +126,6 @@
 
       let currentAsset = '';
       let currentResult = null;
-
-      function escapeHtml(str) {
-        if (str == null) return '';
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;');
-      }
-
-      function showStatus(msg, isError) {
-        statusEl.textContent = msg;
-        statusEl.className = 'status is-open ' + (isError ? 'error' : 'success');
-        setTimeout(() => { statusEl.className = 'status'; }, 5000);
-      }
 
       function getBadgeClass(grade) {
         return 'badge--' + (grade || 'c').toLowerCase();
@@ -176,7 +156,7 @@
           card.className = 'category-card';
           card.innerHTML = `
             <div class="category-header">
-              <span>${escapeHtml(cat.labelAr)} <small>(${escapeHtml(cat.labelEn)})</small></span>
+              <span>${BondsAdminCommon.escapeHtml(cat.labelAr)} <small>(${BondsAdminCommon.escapeHtml(cat.labelEn)})</small></span>
               <span class="category-score">الوزن ${weightPct}% — <span id="cat-score-${cat.id}">-</span></span>
             </div>
             <div class="factor-grid" id="cat-grid-${cat.id}"></div>
@@ -202,8 +182,8 @@
               inputHtml = `<input type="number" name="${inputName}" min="0" max="5" step="1" value="0" />`;
             }
             wrapper.innerHTML = `
-              <label>${escapeHtml(f.labelAr)} ${f.critical ? '<span style="color:#f87171">*</span>' : ''}</label>
-              <small>${escapeHtml(f.descriptionAr)}</small>
+              <label>${BondsAdminCommon.escapeHtml(f.labelAr)} ${f.critical ? '<span style="color:#f87171">*</span>' : ''}</label>
+              <small>${BondsAdminCommon.escapeHtml(f.descriptionAr)}</small>
               ${inputHtml}
             `;
             grid.appendChild(wrapper);
@@ -236,7 +216,7 @@
         const answers = collectAnswers();
         currentResult = BondsRiskIntelligenceEngine.calculate(currentAsset, answers);
         if (!currentResult.success) {
-          showStatus(currentResult.error, true);
+          BondsAdminCommon.showAdminStatus('status', currentResult.error, true);
           return;
         }
         renderResult(currentResult);
@@ -259,8 +239,8 @@
           mitigationsCard.classList.remove('hidden');
           mitigationsList.innerHTML = result.mitigations.map(m => `
             <div style="margin-bottom:1rem">
-              <strong>${escapeHtml(m.labelAr)} (${m.score})</strong>
-              <ul>${m.actionsAr.map(a => `<li>${escapeHtml(a)}</li>`).join('')}</ul>
+              <strong>${BondsAdminCommon.escapeHtml(m.labelAr)} (${m.score})</strong>
+              <ul>${m.actionsAr.map(a => `<li>${BondsAdminCommon.escapeHtml(a)}</li>`).join('')}</ul>
             </div>
           `).join('');
         } else {
@@ -271,7 +251,7 @@
       async function saveAssessment() {
         if (!currentResult || !currentResult.success) return;
         if (!window.supabaseClient) {
-          showStatus('عميل Supabase غير متاح', true);
+          BondsAdminCommon.showAdminStatus('status', 'عميل Supabase غير متاح', true);
           return;
         }
         const { data: { user } } = await window.supabaseClient.auth.getUser();
@@ -294,9 +274,9 @@
           .from('risk_assessments')
           .insert(payload);
         if (error) {
-          showStatus('فشل الحفظ: ' + error.message, true);
+          BondsAdminCommon.showAdminStatus('status', 'فشل الحفظ: ' + error.message, true);
         } else {
-          showStatus('تم حفظ التقييم بنجاح');
+          BondsAdminCommon.showAdminStatus('status', 'تم حفظ التقييم بنجاح');
           loadAssessments();
         }
       }
@@ -312,7 +292,7 @@
           .order('created_at', { ascending: false })
           .limit(50);
         if (error) {
-          assessmentsContainer.innerHTML = '<p style="padding:1rem;color:#f87171">' + escapeHtml(error.message) + '</p>';
+          assessmentsContainer.innerHTML = '<p style="padding:1rem;color:#f87171">' + BondsAdminCommon.escapeHtml(error.message) + '</p>';
           return;
         }
         if (!data || !data.length) {
@@ -321,12 +301,12 @@
         }
         const rows = data.map(r => `
           <tr>
-            <td>${escapeHtml(r.asset_class)}</td>
-            <td>${escapeHtml(r.asset_name || '-')}</td>
+            <td>${BondsAdminCommon.escapeHtml(r.asset_class)}</td>
+            <td>${BondsAdminCommon.escapeHtml(r.asset_name || '-')}</td>
             <td>${r.risk_index}</td>
-            <td><span class="badge ${getBadgeClass(r.risk_grade)}">${escapeHtml(r.risk_grade)}</span></td>
+            <td><span class="badge ${getBadgeClass(r.risk_grade)}">${BondsAdminCommon.escapeHtml(r.risk_grade)}</span></td>
             <td>${r.confidence_score}%</td>
-            <td>${escapeHtml(r.status)}</td>
+            <td>${BondsAdminCommon.escapeHtml(r.status)}</td>
             <td>${new Date(r.created_at).toLocaleDateString('ar-SA')}</td>
           </tr>
         `).join('');
@@ -351,7 +331,7 @@
       loadBtn.addEventListener('click', () => {
         currentAsset = assetSelect.value;
         if (!currentAsset) {
-          showStatus('اختر فئة الأصل أولاً', true);
+          BondsAdminCommon.showAdminStatus('status', 'اختر فئة الأصل أولاً', true);
           return;
         }
         renderFactors();
@@ -380,6 +360,9 @@
   </script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script>BondsAuth.initAdminGuard();</script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-common.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

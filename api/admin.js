@@ -194,8 +194,8 @@ async function getSecurityStatus(sb) {
     (profiles || []).forEach(p => profileMap[p.id] = p);
   }
 
-  const adminUsers = [];
-  for (const r of roles || []) {
+  // Resolve emails and MFA status in parallel to avoid N+1 sequential auth calls
+  const adminUsers = await Promise.all((roles || []).map(async (r) => {
     let email = profileMap[r.user_id]?.email || '';
     if (!email) {
       try {
@@ -211,7 +211,7 @@ async function getSecurityStatus(sb) {
     } catch (e) {
       mfaEnabled = false;
     }
-    adminUsers.push({
+    return {
       user_id: r.user_id,
       role: r.role,
       email,
@@ -219,8 +219,8 @@ async function getSecurityStatus(sb) {
       mfa_enabled: mfaEnabled,
       is_owner: isOwner(email),
       created_at: r.created_at
-    });
-  }
+    };
+  }));
 
   const warnings = [];
   if (!ownerEmail) warnings.push('ADMIN_EMAIL غير مُعرَّف في بيئة Vercel.');
@@ -251,7 +251,7 @@ async function updateSecuritySettings(sb, body, admin, req) {
 
 // ── Bank Transfers ──────────────────────────────────────────
 async function getBankTransfers(sb) {
-  const { data, error } = await sb.from('bank_transfer_requests').select('*').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('bank_transfer_requests').select('*').order('created_at', { ascending: false }).limit(500);
   if (error) throw error;
   return { data };
 }
@@ -292,6 +292,21 @@ async function getSettings(sb) {
   return settings;
 }
 
+async function getTierPrices(sb) {
+  try {
+    const settings = await getSettings(sb);
+    const pro = parseFloat(settings.price_pro_sar);
+    const ent = parseFloat(settings.price_enterprise_sar);
+    return {
+      pro: !isNaN(pro) && pro > 0 ? pro : 82,
+      enterprise: !isNaN(ent) && ent > 0 ? ent : 212
+    };
+  } catch (e) {
+    console.warn('[admin] failed to load tier prices, using defaults:', e);
+    return { pro: 82, enterprise: 212 };
+  }
+}
+
 async function updateSettings(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   for (const [key, value] of Object.entries(body)) {
@@ -304,7 +319,7 @@ async function updateSettings(sb, body, admin, req) {
 // ── Exceptions ──────────────────────────────────────────────
 async function getExceptions(sb, admin) {
   if (!admin) throw new Error('Admin required');
-  const { data, error } = await sb.from('usage_exceptions').select('*, profiles:user_id(email, restaurant_name)').order('created_at', { ascending: false });
+  const { data, error } = await sb.from('usage_exceptions').select('*, profiles:user_id(email, restaurant_name)').order('created_at', { ascending: false }).limit(500);
   if (error) throw error;
   return { data };
 }
@@ -342,7 +357,7 @@ async function getAnalytics(sb, admin) {
   const { count: proUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro');
   const { count: entUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise');
 
-  const { data: usageData } = await sb.from('usage_logs').select('calculator, user_id, created_at').gte('created_at', thirtyDaysAgo);
+  const { data: usageData } = await sb.from('usage_logs').select('calculator, user_id, created_at').gte('created_at', thirtyDaysAgo).limit(1000);
   const calcStats = {};
   const userStats = {};
   const dayStats = {};
@@ -366,7 +381,8 @@ async function getAnalytics(sb, admin) {
   const bankRevenue = (verifiedTransfers || []).reduce((sum, t) => sum + (t.amount_sar || 0), 0);
 
   const { data: activeSubs } = await sb.from('subscriptions').select('status, tier').eq('status', 'active');
-  const stripeRevenue = (activeSubs || []).reduce((sum, s) => sum + (s.tier === 'enterprise' ? 212 : s.tier === 'pro' ? 82 : 0), 0);
+  const prices = await getTierPrices(sb);
+  const stripeRevenue = (activeSubs || []).reduce((sum, s) => sum + (s.tier === 'enterprise' ? prices.enterprise : s.tier === 'pro' ? prices.pro : 0), 0);
 
   return {
     users: { total: totalUsers, pro: proUsers || 0, enterprise: entUsers || 0, free: Math.max(0, totalUsers - (proUsers || 0) - (entUsers || 0)) },
@@ -445,7 +461,7 @@ async function getUserActivity(sb, userId) {
     .select('session_id, page, section, url, country, city, duration_seconds, created_at')
     .eq('user_id', userId)
     .order('created_at', { ascending: true })
-    .limit(500);
+    .limit(1000);
   if (viewsError) throw viewsError;
 
   // Group views by session
@@ -508,6 +524,7 @@ async function getUserJourney(sb, sessionId) {
       .select('page, section, url, referrer, country, city, duration_seconds, created_at')
       .eq('session_id', sessionId)
       .order('created_at', { ascending: true })
+      .limit(1000)
   ]);
 
   const journey = (views || []).map((v, i, arr) => {
@@ -542,7 +559,7 @@ async function getPageViews(sb) {
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
 
   // Views by section/page/day (last 7 days)
-  const { data: views7 } = await sb.from('page_views').select('page, section, created_at').gte('created_at', sevenDaysAgo);
+  const { data: views7 } = await sb.from('page_views').select('page, section, created_at').gte('created_at', sevenDaysAgo).limit(1000);
   const sectionStats = {};
   const pageStats = {};
   const dayStats = {};
@@ -554,7 +571,7 @@ async function getPageViews(sb) {
   });
 
   // Sessions duration (last 30 days)
-  const { data: sessions } = await sb.from('page_sessions').select('page, duration_seconds, started_at').gte('started_at', thirtyDaysAgo);
+  const { data: sessions } = await sb.from('page_sessions').select('page, duration_seconds, started_at').gte('started_at', thirtyDaysAgo).limit(1000);
   const pageDuration = {};
   const pageSessionCount = {};
   (sessions || []).forEach(s => {
@@ -578,9 +595,13 @@ async function getPageViews(sb) {
 }
 
 // ── AI Review Requests ──────────────────────────────────────
-async function getAiReviews(sb, admin) {
+async function getAiReviews(sb, admin, params = {}) {
   if (!admin) throw new Error('Admin required');
-  const { data, error } = await sb
+  const limit = Math.min(parseInt(params.limit) || 50, 200);
+  const offset = Math.max(parseInt(params.offset) || 0, 0);
+  const status = params.status;
+
+  let query = sb
     .from('ai_review_requests')
     .select(`
       *,
@@ -589,10 +610,12 @@ async function getAiReviews(sb, admin) {
         ai_results(result, risk_score)
       ),
       profiles:user_id(email, full_name)
-    `)
+    `, { count: 'exact' })
     .order('created_at', { ascending: false });
+  if (status) query = query.eq('status', status);
+  const { data, error, count } = await query.range(offset, offset + limit - 1);
   if (error) throw error;
-  return { data: data || [] };
+  return { data: data || [], total: count || 0 };
 }
 
 async function updateAiReview(sb, body, admin, req) {
@@ -652,19 +675,114 @@ async function verifyAdminUser(req, sb) {
 }
 
 // ── Messages ────────────────────────────────────────────────
-async function getMessages(sb) {
-  const { data, error } = await sb.from('contact_messages').select('*').order('created_at', { ascending: false });
+async function getAdminUsers(sb) {
+  const { data: roles, error } = await sb.from('admin_roles')
+    .select('user_id, role, profiles(id, email, full_name)')
+    .in('role', ['super_admin', 'admin'])
+    .order('created_at', { ascending: false })
+    .limit(500);
   if (error) throw error;
-  return { success: true, messages: data || [] };
+  const seen = new Set();
+  return (roles || []).map(r => {
+    const p = r.profiles || {};
+    return {
+      id: r.user_id,
+      email: p.email || '',
+      full_name: p.full_name || '',
+      role: r.role
+    };
+  }).filter(u => {
+    if (seen.has(u.id)) return false;
+    seen.add(u.id);
+    return true;
+  });
+}
+
+async function getMessages(sb, params = {}) {
+  const limit = Math.min(parseInt(params.limit) || 50, 500);
+  const offset = Math.max(parseInt(params.offset) || 0, 0);
+  const search = (params.search || '').trim();
+  const assignedFilter = (params.assigned || '').trim();
+  const currentUserId = params.currentUserId || '';
+
+  let query = sb.from('contact_messages').select('*', { count: 'exact' });
+  if (search) {
+    query = query.or(`email.ilike.%${search}%,name.ilike.%${search}%,message.ilike.%${search}%`);
+  }
+  if (assignedFilter === 'me') {
+    if (currentUserId) query = query.eq('assigned_to', currentUserId);
+  } else if (assignedFilter === 'unassigned') {
+    query = query.is('assigned_to', null);
+  } else if (assignedFilter && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignedFilter)) {
+    query = query.eq('assigned_to', assignedFilter);
+  }
+  const { data, error, count } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+  if (error) throw error;
+
+  // Enrich messages with assignee profile info in a separate query to avoid FK alias ambiguity.
+  let messages = data || [];
+  const assigneeIds = [...new Set(messages.map(m => m.assigned_to).filter(Boolean))];
+  if (assigneeIds.length) {
+    const { data: profiles } = await sb.from('profiles').select('id, email, full_name').in('id', assigneeIds);
+    const profileMap = new Map((profiles || []).map(p => [p.id, p]));
+    messages = messages.map(m => ({
+      ...m,
+      assigned_to_profile: m.assigned_to ? profileMap.get(m.assigned_to) || null : null
+    }));
+  }
+
+  return { success: true, messages, total: count || 0 };
+}
+
+async function resolveAssignee(sb, identifier) {
+  if (!identifier) return null;
+  const value = String(identifier).trim();
+  if (!value) return null;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+  if (isUuid) return value;
+  const { data: profiles } = await sb.from('profiles').select('id').eq('email', value).limit(1);
+  if (profiles?.length) return profiles[0].id;
+  return null;
 }
 
 async function updateMessage(sb, body, admin, req) {
-  const { action: subAction, id } = body;
+  const { action: subAction, id, read, assigned_to } = body;
   if (!id) throw new Error('id required');
-  if (subAction === 'mark_read') {
-    const { error } = await sb.from('contact_messages').update({ read: true }).eq('id', id);
+  if (subAction === 'mark_read' || read === true) {
+    const { error } = await sb.from('contact_messages').update({ read: true, updated_at: new Date().toISOString() }).eq('id', id);
     if (error) throw error;
     if (admin) await logAdminAction(sb, admin, 'message_mark_read', 'contact_message', id, null, {}, req);
+    return { success: true };
+  }
+  if (subAction === 'mark_unread' || read === false) {
+    const { error } = await sb.from('contact_messages').update({ read: false, updated_at: new Date().toISOString() }).eq('id', id);
+    if (error) throw error;
+    if (admin) await logAdminAction(sb, admin, 'message_mark_unread', 'contact_message', id, null, {}, req);
+    return { success: true };
+  }
+  if (subAction === 'assign') {
+    const assigneeId = await resolveAssignee(sb, assigned_to);
+    if (assigned_to && !assigneeId) throw new Error('Assignee not found');
+    const update = {
+      assigned_to: assigneeId,
+      assigned_by: admin?.id || null,
+      assigned_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await sb.from('contact_messages').update(update).eq('id', id);
+    if (error) throw error;
+    if (admin) await logAdminAction(sb, admin, 'message_assign', 'contact_message', id, null, { assigned_to: assigneeId }, req);
+    return { success: true };
+  }
+  if (subAction === 'unassign') {
+    const { error } = await sb.from('contact_messages').update({
+      assigned_to: null,
+      assigned_by: null,
+      assigned_at: null,
+      updated_at: new Date().toISOString()
+    }).eq('id', id);
+    if (error) throw error;
+    if (admin) await logAdminAction(sb, admin, 'message_unassign', 'contact_message', id, null, {}, req);
     return { success: true };
   }
   if (subAction === 'delete') {
@@ -764,7 +882,7 @@ async function getSentMessages(sb) {
 
 // ── Roles ───────────────────────────────────────────────────
 async function getRoles(sb) {
-  const { data: roles, error } = await sb.from('admin_roles').select('*').order('created_at', { ascending: false });
+  const { data: roles, error } = await sb.from('admin_roles').select('*').order('created_at', { ascending: false }).limit(500);
   if (error) throw error;
 
   // Get user emails/names manually since FK relationship may not be in schema cache
@@ -840,81 +958,229 @@ async function getTotalUsers(sb) {
   }
 }
 
-async function getUsers(sb) {
-  let authUsers = [];
-  let useAuth = true;
-  try {
-    const { data: authList } = await sb.auth.admin.listUsers();
-    authUsers = authList?.users || [];
-  } catch (e) {
-    useAuth = false;
-  }
-  // If auth admin API is unavailable or returns no users (e.g. missing service-role key),
-  // fall back to the profiles table so the admin UI is never empty because of auth-only logic.
-  if (useAuth && authUsers.length === 0) {
-    useAuth = false;
+async function getProfileCompletenessStats(sb) {
+  const [{ count: total }, { count: complete }, { count: partial }, { count: incomplete }] = await Promise.all([
+    sb.from('profiles').select('*', { count: 'exact', head: true }),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).eq('profile_completeness', 100),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).lt('profile_completeness', 100).gt('profile_completeness', 0),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).or('profile_completeness.eq.0,profile_completeness.is.null')
+  ]);
+  return {
+    success: true,
+    total: total || 0,
+    complete: complete || 0,
+    partial: partial || 0,
+    incomplete: incomplete || 0
+  };
+}
+
+async function sendProfileReminder(sb, body, admin, req) {
+  const { id } = body || {};
+  if (!id) throw new Error('id required');
+
+  const { data: profile, error } = await sb.from('profiles')
+    .select('id, email, restaurant_name, profile_completeness, language')
+    .eq('id', id)
+    .single();
+  if (error) throw error;
+  if (!profile) throw new Error('User not found');
+  if (profile.profile_completeness >= 100) {
+    return { success: true, sent: false, message: 'Profile already complete' };
   }
 
-  const { data: profileList, error: profileErr } = await sb.from('profiles')
-    .select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at')
-    .order('created_at', { ascending: false });
+  const lang = profile.language || 'ar';
+  const name = profile.restaurant_name || 'مستخدم بوندز';
+  const link = lang === 'en'
+    ? 'https://bonds-global.com/en/calculators/auth/profile.html'
+    : 'https://bonds-global.com/calculators/auth/profile.html';
+
+  const subject = lang === 'en'
+    ? 'Complete your Bonds profile'
+    : 'أكمل ملفك الشخصي في بوندز';
+  const whatsappLink = 'https://wa.me/966567566616?text=' + encodeURIComponent(
+    lang === 'en'
+      ? 'Hello ' + name + ', please complete your Bonds profile so we can provide better advice: ' + link
+      : 'مرحباً ' + name + '، نود تذكيرك بإكمال ملفك الشخصي في بوندز لنقدم لك استشارة أفضل: ' + link
+  );
+  const html = lang === 'en'
+    ? `<div dir="ltr" style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;">
+        <h2 style="color:#b8954e;">Hello ${name}</h2>
+        <p>Your profile is still missing some information. Completing it helps us provide tailored financial advice.</p>
+        <p><a href="${link}" style="display:inline-block;padding:0.75rem 1.5rem;background:#b8954e;color:#fff;border-radius:8px;text-decoration:none;">Complete profile</a></p>
+        <p>Or <a href="${whatsappLink}" style="color:#16a34a;">contact us on WhatsApp</a>.</p>
+        <p style="font-size:0.85rem;color:#555;">Bonds Global</p>
+      </div>`
+    : `<div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;">
+        <h2 style="color:#b8954e;">مرحباً ${name}</h2>
+        <p>ملفك الشخصي لا يزال ناقصًا بعض المعلومات. إكماله يساعدنا في تقديم استشارة مالية مخصصة لك.</p>
+        <p><a href="${link}" style="display:inline-block;padding:0.75rem 1.5rem;background:#b8954e;color:#fff;border-radius:8px;text-decoration:none;">إكمال الملف الشخصي</a></p>
+        <p>أو <a href="${whatsappLink}" style="color:#16a34a;">تواصل معنا عبر واتساب</a>.</p>
+        <p style="font-size:0.85rem;color:#555;">بوندز العالمية</p>
+      </div>`;
+
+  const result = await sendEmail({
+    to: profile.email,
+    subject,
+    text: subject,
+    html
+  });
+  if (!result.success) throw new Error(result.error || 'Failed to send email');
+
+  await logAdminAction(sb, admin, 'send_profile_reminder', 'user', id, profile.email, { completeness: profile.profile_completeness }, req);
+  return { success: true, sent: true, message: 'Reminder sent' };
+}
+
+async function getDataQualityReport(sb) {
+  const [
+    { count: leadsTotal },
+    { count: leadsValid },
+    { count: leadsInvalid },
+    { count: contactsTotal },
+    { count: contactsValid },
+    { count: contactsInvalid },
+    { count: profilesTotal },
+    { count: profilesComplete },
+    { count: profilesPartial },
+    { count: profilesIncomplete }
+  ] = await Promise.all([
+    sb.from('calculator_leads').select('*', { count: 'exact', head: true }),
+    sb.from('calculator_leads').select('*', { count: 'exact', head: true }).eq('validation_status', 'valid'),
+    sb.from('calculator_leads').select('*', { count: 'exact', head: true }).neq('validation_status', 'valid'),
+    sb.from('contact_messages').select('*', { count: 'exact', head: true }),
+    sb.from('contact_messages').select('*', { count: 'exact', head: true }).eq('validation_status', 'valid'),
+    sb.from('contact_messages').select('*', { count: 'exact', head: true }).neq('validation_status', 'valid'),
+    sb.from('profiles').select('*', { count: 'exact', head: true }),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).eq('profile_completeness', 100),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).lt('profile_completeness', 100).gt('profile_completeness', 0),
+    sb.from('profiles').select('*', { count: 'exact', head: true }).or('profile_completeness.eq.0,profile_completeness.is.null')
+  ]);
+  return {
+    success: true,
+    calculator_leads: { total: leadsTotal || 0, valid: leadsValid || 0, invalid: leadsInvalid || 0 },
+    contact_messages: { total: contactsTotal || 0, valid: contactsValid || 0, invalid: contactsInvalid || 0 },
+    profiles: { total: profilesTotal || 0, complete: profilesComplete || 0, partial: profilesPartial || 0, incomplete: profilesIncomplete || 0 }
+  };
+}
+
+async function sendBulkProfileReminders(sb, admin, req) {
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+  const { data: profiles, error } = await sb.from('profiles')
+    .select('id, email, restaurant_name, profile_completeness, language, profile_reminder_sent_at')
+    .lt('profile_completeness', 100)
+    .or(`profile_reminder_sent_at.is.null,profile_reminder_sent_at.lt.${sevenDaysAgo}`)
+    .order('created_at', { ascending: false })
+    .limit(200);
+  if (error) throw error;
+
+  let sent = 0;
+  let failed = 0;
+  const concurrency = 5;
+  const queue = (profiles || []).slice();
+
+  async function processOne(profile) {
+    if (!profile.email) { failed++; return; }
+    try {
+      await sendProfileReminder(sb, { id: profile.id }, admin || { id: 'cron', email: 'cron@bonds-global.com' }, req);
+      await sb.from('profiles').update({ profile_reminder_sent_at: new Date().toISOString() }).eq('id', profile.id);
+      sent++;
+    } catch (e) {
+      console.error('[bulk-reminder] failed for', profile.email, e.message);
+      failed++;
+    }
+  }
+
+  async function worker() {
+    while (queue.length) {
+      const profile = queue.shift();
+      await processOne(profile);
+    }
+  }
+
+  await Promise.all(Array.from({ length: concurrency }, worker));
+  return { success: true, sent, failed, total: (profiles || []).length };
+}
+
+async function getUsers(sb, params = {}) {
+  const limit = Math.min(parseInt(params.limit) || 50, 500);
+  const offset = Math.max(parseInt(params.offset) || 0, 0);
+  const search = (params.search || '').trim();
+  const tier = params.tier;
+  const status = params.status;
+
+  const completeness = params.completeness;
+
+  let query = sb.from('profiles')
+    .select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at, profile_completeness', { count: 'exact' });
+
+  if (completeness === 'incomplete') query = query.lt('profile_completeness', 100);
+  else if (completeness === 'complete') query = query.eq('profile_completeness', 100);
+  else if (completeness === 'partial') query = query.lt('profile_completeness', 100).gt('profile_completeness', 0);
+  if (search) {
+    query = query.or(`email.ilike.%${search}%,restaurant_name.ilike.%${search}%,business_type.ilike.%${search}%`);
+  }
+  if (tier) query = query.eq('tier', tier);
+  if (status) query = query.eq('status', status);
+  query = query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
+
+  const { data: profileList, error: profileErr, count } = await query;
   if (profileErr) throw profileErr;
-
-  const profileMap = {};
-  (profileList || []).forEach(p => profileMap[p.id] = p);
 
   // Map admin roles by user_id for UI guards
   const { data: roleList } = await sb.from('admin_roles').select('user_id, role');
   const roleMap = {};
   (roleList || []).forEach(r => roleMap[r.user_id] = r.role);
 
-  let merged = [];
-  if (useAuth) {
-    merged = authUsers.map(u => {
-      const p = profileMap[u.id] || {};
-      return {
-        id: u.id,
-        restaurant_name: p.restaurant_name || u.user_metadata?.restaurant_name || 'مستخدم جديد',
-        email: u.email,
-        phone: p.phone || u.user_metadata?.phone || u.phone || '',
-        country: p.country || u.user_metadata?.country || '',
-        city: p.city || u.user_metadata?.city || '',
-        business_type: p.business_type || u.user_metadata?.business_type || '',
-        bio: p.bio || u.user_metadata?.bio || '',
-        needs: p.needs || u.user_metadata?.needs || '',
-        employee_count: p.employee_count || parseInt(u.user_metadata?.employee_count) || 0,
-        branch_count: p.branch_count || parseInt(u.user_metadata?.branch_count) || 1,
-        tier: p.tier || 'free',
-        tier_expires_at: p.tier_expires_at || null,
-        status: p.status || 'active',
-        created_at: u.created_at,
-        last_sign_in_at: u.last_sign_in_at || null,
-        admin_role: roleMap[u.id] || null
-      };
-    });
-  } else {
-    merged = (profileList || []).map(p => ({
+  // Fetch auth metadata for the current page in parallel (small N per page)
+  const authMap = {};
+  await Promise.all((profileList || []).map(async (p) => {
+    try {
+      const { data } = await sb.auth.admin.getUserById(p.id);
+      if (data?.user) authMap[p.id] = data.user;
+    } catch (e) {}
+  }));
+
+  // Fallback last activity from user_presence when auth last_sign_in_at is null
+  const presenceMap = {};
+  try {
+    const userIds = (profileList || []).map(p => p.id).filter(Boolean);
+    if (userIds.length) {
+      const { data: presenceRows } = await sb.from('user_presence')
+        .select('user_id, last_seen_at')
+        .in('user_id', userIds)
+        .order('last_seen_at', { ascending: false });
+      (presenceRows || []).forEach(r => {
+        if (r.user_id && (!presenceMap[r.user_id] || new Date(r.last_seen_at) > new Date(presenceMap[r.user_id]))) {
+          presenceMap[r.user_id] = r.last_seen_at;
+        }
+      });
+    }
+  } catch (e) {}
+
+  const merged = (profileList || []).map(p => {
+    const u = authMap[p.id];
+    return {
       id: p.id,
-      restaurant_name: p.restaurant_name || p.email || 'مستخدم جديد',
-      email: p.email,
-      phone: p.phone || '',
-      country: p.country || '',
-      city: p.city || '',
-      business_type: p.business_type || '',
-      bio: p.bio || '',
-      needs: p.needs || '',
-      employee_count: p.employee_count || 0,
-      branch_count: p.branch_count || 1,
+      restaurant_name: p.restaurant_name || u?.user_metadata?.restaurant_name || 'مستخدم جديد',
+      email: p.email || u?.email || '',
+      phone: p.phone || u?.user_metadata?.phone || u?.phone || '',
+      country: p.country || u?.user_metadata?.country || '',
+      city: p.city || u?.user_metadata?.city || '',
+      business_type: p.business_type || u?.user_metadata?.business_type || '',
+      bio: p.bio || u?.user_metadata?.bio || '',
+      needs: p.needs || u?.user_metadata?.needs || '',
+      employee_count: p.employee_count || parseInt(u?.user_metadata?.employee_count) || 0,
+      branch_count: p.branch_count || parseInt(u?.user_metadata?.branch_count) || 1,
       tier: p.tier || 'free',
       tier_expires_at: p.tier_expires_at || null,
       status: p.status || 'active',
-      created_at: p.created_at,
-      last_sign_in_at: null,
+      created_at: u?.created_at || p.created_at,
+      last_sign_in_at: u?.last_sign_in_at || presenceMap[p.id] || null,
+      profile_completeness: p.profile_completeness ?? 0,
       admin_role: roleMap[p.id] || null
-    }));
-  }
+    };
+  });
 
-  return { success: true, recentUsers: merged };
+  return { success: true, recentUsers: merged, total: count || 0 };
 }
 
 async function updateUser(sb, body, admin, req) {
@@ -1104,16 +1370,27 @@ async function handleResetLink(sb, body) {
 }
 
 // ── Subscriptions ───────────────────────────────────────────
-async function getSubscriptions(sb) {
-  const { data: subs, error: subsError } = await sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false });
+async function getSubscriptions(sb, params = {}) {
+  const limit = Math.min(parseInt(params.limit) || 50, 500);
+  const offset = Math.max(parseInt(params.offset) || 0, 0);
+  const tier = params.tier;
+  const status = params.status;
+
+  let query = sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at', { count: 'exact' });
+  if (tier) query = query.eq('tier', tier);
+  if (status) query = query.eq('status', status);
+  const { data: subs, error: subsError, count } = await query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
   if (subsError) throw subsError;
+
   const { count: proCount } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro');
   const { count: entCount } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise');
-  const monthlyRevenue = (proCount || 0) * 82 + (entCount || 0) * 212;
+  const prices = await getTierPrices(sb);
+  const monthlyRevenue = (proCount || 0) * prices.pro + (entCount || 0) * prices.enterprise;
   return {
     success: true,
     stats: { proUsers: proCount || 0, enterpriseUsers: entCount || 0, monthlyRevenue },
-    recentSubscriptions: subs || []
+    recentSubscriptions: subs || [],
+    total: count || 0
   };
 }
 
@@ -1149,7 +1426,8 @@ async function getStats(sb) {
   const proUsers = proCount || 0;
   const enterpriseUsers = enterpriseCount || 0;
   const freeUsers = Math.max(0, totalUsers - proUsers - enterpriseUsers);
-  const monthlyRevenue = proUsers * 82 + enterpriseUsers * 212;
+  const prices = await getTierPrices(sb);
+  const monthlyRevenue = proUsers * prices.pro + enterpriseUsers * prices.enterprise;
   return {
     success: true,
     stats: {
@@ -1174,11 +1452,11 @@ async function getExecutiveStats(sb) {
     { data: advisoryProjects, error: advisoryProjectsError },
     { data: recoveryAssets, error: recoveryAssetsError }
   ] = await Promise.all([
-    sb.from('subscriptions').select('status, tier, created_at').order('created_at', { ascending: true }),
-    sb.from('profiles').select('created_at').order('created_at', { ascending: true }),
-    sb.from('advisory_clients').select('status, created_at').order('created_at', { ascending: true }),
-    sb.from('advisory_projects').select('status, budget, start_date, created_at, client_id, advisory_clients(name)').order('created_at', { ascending: false }),
-    sb.from('recovery_assets').select('status, original_value, distressed_value, name, category, created_at').order('created_at', { ascending: false })
+    sb.from('subscriptions').select('status, tier, created_at').order('created_at', { ascending: true }).limit(2000),
+    sb.from('profiles').select('created_at').order('created_at', { ascending: true }).limit(2000),
+    sb.from('advisory_clients').select('status, created_at').order('created_at', { ascending: true }).limit(2000),
+    sb.from('advisory_projects').select('status, budget, start_date, created_at, client_id, advisory_clients(name)').order('created_at', { ascending: false }).limit(1000),
+    sb.from('recovery_assets').select('status, original_value, distressed_value, name, category, created_at').order('created_at', { ascending: false }).limit(1000)
   ]);
 
   const errors = [];
@@ -1242,7 +1520,19 @@ async function handler(req, res) {
       if (action === 'messages') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await getMessages(sb));
+        const params = {
+          limit: req.query?.limit,
+          offset: req.query?.offset,
+          search: req.query?.search,
+          assigned: req.query?.assigned,
+          currentUserId: admin?.id || ''
+        };
+        return res.status(200).json(await getMessages(sb, params));
+      }
+      if (action === 'admin-users') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json({ success: true, users: await getAdminUsers(sb) });
       }
       if (action === 'sent-messages') {
         const admin = await verifyAdminStrict(req, sb);
@@ -1263,12 +1553,36 @@ async function handler(req, res) {
       if (action === 'users') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await getUsers(sb));
+        const params = {
+          limit: req.query?.limit,
+          offset: req.query?.offset,
+          search: req.query?.search,
+          tier: req.query?.tier,
+          status: req.query?.status,
+          completeness: req.query?.completeness
+        };
+        return res.status(200).json(await getUsers(sb, params));
+      }
+      if (action === 'profile-completeness-stats') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getProfileCompletenessStats(sb));
+      }
+      if (action === 'data-quality-report') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getDataQualityReport(sb));
       }
       if (action === 'subscriptions') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await getSubscriptions(sb));
+        const params = {
+          limit: req.query?.limit,
+          offset: req.query?.offset,
+          tier: req.query?.tier,
+          status: req.query?.status
+        };
+        return res.status(200).json(await getSubscriptions(sb, params));
       }
       if (action === 'analytics') {
         const admin = await verifyAdminStrict(req, sb);
@@ -1298,7 +1612,12 @@ async function handler(req, res) {
       if (action === 'ai-reviews') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await getAiReviews(sb, admin));
+        const params = {
+          limit: req.query?.limit,
+          offset: req.query?.offset,
+          status: req.query?.status
+        };
+        return res.status(200).json(await getAiReviews(sb, admin, params));
       }
       if (action === 'audit-log') {
         const admin = await verifyAdminStrict(req, sb);
@@ -1404,6 +1723,23 @@ async function handler(req, res) {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await updateSecuritySettings(sb, req.body, admin, req));
+      }
+      if (action === 'send-profile-reminder') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await sendProfileReminder(sb, req.body, admin, req));
+      }
+      if (action === 'send-profile-reminders-bulk') {
+        const cronSecret = req.headers['x-cron-secret'];
+        const expectedCronSecret = process.env.CRON_SECRET;
+        let admin = null;
+        if (cronSecret && expectedCronSecret && cronSecret === expectedCronSecret) {
+          admin = { id: null, email: 'cron@bonds-global.com' };
+        } else {
+          admin = await verifyAdmin(req, sb);
+          if (!admin) return res.status(403).json({ error: 'Admin or cron required' });
+        }
+        return res.status(200).json(await sendBulkProfileReminders(sb, admin, req));
       }
       if (action === 'makeOwnerAdmin') {
         const authHeader = req.headers.authorization;

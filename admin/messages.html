@@ -87,12 +87,28 @@
     .message-email { font-size: 0.8rem; color: var(--gold); margin-bottom: 0.5rem; }
     .message-subject { font-weight: 800; margin-bottom: 0.5rem; color: var(--text); }
     .message-body { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
-    .message-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+    .message-actions { display: flex; gap: 0.5rem; margin-top: 0.75rem; flex-wrap: wrap; }
 
     .badge { display: inline-block; padding: 0.2rem 0.6rem; border-radius: 50px; font-size: 0.7rem; font-weight: 700; }
     .badge--new { background: rgba(212,168,83,0.15); color: var(--gold); }
     .badge--read { background: rgba(100,116,139,0.15); color: var(--text-secondary); }
     .badge--email { background: rgba(59,130,246,0.15); color: var(--info); }
+    .badge--assignee { background: rgba(59,130,246,0.12); color: var(--info); }
+
+    .filter-chips { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .filter-chip { padding: 0.4rem 0.9rem; border-radius: 50px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-secondary); font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .filter-chip:hover { border-color: var(--border-hover); color: var(--gold); }
+    .filter-chip.active { background: rgba(184,149,78,0.12); color: var(--gold); border-color: var(--border-hover); }
+
+    .assign-menu { position: relative; display: inline-block; }
+    .assign-dropdown {
+      position: absolute; top: calc(100% + 0.35rem); right: 0; min-width: 220px; background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 50; display: none; flex-direction: column; padding: 0.5rem; max-height: 300px; overflow-y: auto;
+    }
+    .assign-dropdown.open { display: flex; }
+    .assign-option { padding: 0.55rem 0.75rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--text); text-align: right; white-space: nowrap; }
+    .assign-option:hover { background: rgba(184,149,78,0.1); }
+    .assign-option.unassign { color: var(--danger); border-top: 1px solid var(--border); margin-top: 0.35rem; padding-top: 0.6rem; }
+    .assignee-line { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 0.5rem; }
 
     .loading { color: var(--text-muted); font-style: italic; text-align: center; padding: 2rem; }
 
@@ -108,8 +124,9 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
+  <script src="/admin/update-sidebar-user.js?v=1"></script>
   <script>BondsAuth.initAdminGuard();</script>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
@@ -167,7 +184,7 @@
           <p>رسائل التواصل من المستخدمين والزوار، وإرسال تنبيهات للمستخدمين</p>
         </div>
         <div style="display:flex;gap:0.5rem;">
-          <button class="btn-sm btn-primary" onclick="showTab('compose')">✉ رسالة جديدة</button>
+          <button class="btn-sm btn-primary" onclick="showTab('compose')"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M36 27c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V9c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v18z"/><path fill="#99AAB5" d="M11.95 17.636L.637 28.949c-.027.028-.037.063-.06.091.34.57.814 1.043 1.384 1.384.029-.023.063-.033.09-.06L13.365 19.05c.39-.391.39-1.023 0-1.414-.392-.391-1.024-.391-1.415 0M35.423 29.04c-.021-.028-.033-.063-.06-.09L24.051 17.636c-.392-.391-1.024-.391-1.415 0-.391.392-.391 1.024 0 1.414l11.313 11.314c.026.026.062.037.09.06.571-.34 1.044-.814 1.384-1.384"/><path fill="#99AAB5" d="M32 5H4C1.791 5 0 6.791 0 9v1.03l14.528 14.496c1.894 1.893 4.988 1.893 6.884 0L36 10.009V9c0-2.209-1.791-4-4-4z"/><path fill="#E1E8ED" d="M32 5H4C2.412 5 1.051 5.934.405 7.275l14.766 14.767c1.562 1.562 4.096 1.562 5.657 0L35.595 7.275C34.949 5.934 33.589 5 32 5z"/></svg></span> رسالة جديدة</button>
           <button class="btn-sm btn-secondary" onclick="refreshMessages()">↻ تحديث</button>
         </div>
       </div>
@@ -188,14 +205,28 @@
       </div>
 
       <div class="tabs">
-        <button class="tab-btn active" data-tab="inbox" onclick="showTab('inbox')">📥 الوارد</button>
-        <button class="tab-btn" data-tab="compose" onclick="showTab('compose')">✉ رسالة جديدة</button>
-        <button class="tab-btn" data-tab="sent" onclick="showTab('sent')">📤 الصادر</button>
+        <button class="tab-btn active" data-tab="inbox" onclick="showTab('inbox')"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#D99E82" d="M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4v-9c0-2.209.791-3 3-3h30c2.209 0 3 .791 3 3v9z"/><path fill="#662113" d="M25 20c0 3.866-3.134 7-7 7s-7-3.134-7-7h14z"/><path fill="#C1694F" d="M4 36h28c2.209 0 4-1.791 4-4H0c0 2.209 1.791 4 4 4z"/><path fill="#77B255" d="M26.716 8h-4.783V2c0-1.105-.896-2-2-2h-4.001c-1.104 0-1.999.896-1.999 2v6H9.148c-1.223 0-1.516.623-.651 1.489l7.863 7.863c.865.865 2.28.865 3.146 0l7.863-7.863C28.232 8.623 27.94 8 26.716 8z"/></svg></span> الوارد</button>
+        <button class="tab-btn" data-tab="compose" onclick="showTab('compose')"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M36 27c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V9c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v18z"/><path fill="#99AAB5" d="M11.95 17.636L.637 28.949c-.027.028-.037.063-.06.091.34.57.814 1.043 1.384 1.384.029-.023.063-.033.09-.06L13.365 19.05c.39-.391.39-1.023 0-1.414-.392-.391-1.024-.391-1.415 0M35.423 29.04c-.021-.028-.033-.063-.06-.09L24.051 17.636c-.392-.391-1.024-.391-1.415 0-.391.392-.391 1.024 0 1.414l11.313 11.314c.026.026.062.037.09.06.571-.34 1.044-.814 1.384-1.384"/><path fill="#99AAB5" d="M32 5H4C1.791 5 0 6.791 0 9v1.03l14.528 14.496c1.894 1.893 4.988 1.893 6.884 0L36 10.009V9c0-2.209-1.791-4-4-4z"/><path fill="#E1E8ED" d="M32 5H4C2.412 5 1.051 5.934.405 7.275l14.766 14.767c1.562 1.562 4.096 1.562 5.657 0L35.595 7.275C34.949 5.934 33.589 5 32 5z"/></svg></span> رسالة جديدة</button>
+        <button class="tab-btn" data-tab="sent" onclick="showTab('sent')"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#D99E82" d="M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4v-9c0-2.209.791-3 3-3h30c2.209 0 3 .791 3 3v9z"/><path fill="#662113" d="M25 20c0 3.866-3.134 7-7 7s-7-3.134-7-7h14z"/><path fill="#C1694F" d="M4 36h28c2.209 0 4-1.791 4-4H0c0 2.209 1.791 4 4 4z"/><path fill="#DD2E44" d="M27.435 8.511L19.572.648c-.864-.865-2.28-.865-3.145 0L8.564 8.511C7.7 9.377 7.993 10 9.216 10H14v6c0 1.104.896 2 2 2h4c1.104 0 2-.896 2-2v-6h4.784c1.223 0 1.516-.623.651-1.489z"/></svg></span> الصادر</button>
       </div>
 
       <div id="panel-inbox" class="tab-panel active">
+        <div class="filter-chips" id="msgFilters">
+          <button class="filter-chip active" data-filter="all" onclick="setMessageFilter('all')">الكل</button>
+          <button class="filter-chip" data-filter="unassigned" onclick="setMessageFilter('unassigned')">غير معينة</button>
+          <button class="filter-chip" data-filter="me" onclick="setMessageFilter('me')">رسائلي</button>
+        </div>
+        <div id="messagesError" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:1rem;margin-bottom:1rem;color:var(--danger);font-size:0.9rem;font-weight:600;">
+          <span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg></span>️ تعذر تحميل الرسائل. تأكد من الاتصال بالخادم أو أعد المحاولة.
+        </div>
+        <div id="actionStatus" style="display:none;border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:0.9rem;font-weight:600;"></div>
         <div class="message-list" id="messageList">
           <div class="loading">جارِ التحميل...</div>
+        </div>
+        <div id="messagesPagination" style="display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:1.5rem;">
+          <button id="messagesPrevBtn" class="btn-sm btn-secondary" onclick="loadMessagesPage(msgCurrentPage - 1)">السابق</button>
+          <span id="messagesPageInfo" style="font-size:0.85rem;color:var(--text-secondary);font-weight:600;"></span>
+          <button id="messagesNextBtn" class="btn-sm btn-secondary" onclick="loadMessagesPage(msgCurrentPage + 1)">التالي</button>
         </div>
       </div>
 
@@ -235,17 +266,8 @@
     </main>
   </div>
 
+  <script src="/admin/admin-common.js?v=2"></script>
   <script>
-    async function getAdminToken() {
-      let token = window.__ADMIN_TOKEN || '';
-      if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
-        const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
-        const { data: { session } } = await client.auth.getSession();
-        token = session?.access_token || '';
-      }
-      return token;
-    }
-
     function showTab(tab) {
       document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'panel-' + tab));
@@ -253,27 +275,82 @@
       if (tab === 'inbox') renderMessages();
     }
 
-    async function fetchMessages() {
+    let msgPageSize = 50;
+    let msgCurrentPage = 1;
+    let msgTotal = 0;
+    let currentMessages = [];
+    let msgAssignedFilter = 'all';
+    let adminUsers = [];
+
+    async function fetchAdminUsers() {
       try {
-        const token = await getAdminToken();
-        const res = await fetch('/api/admin?action=messages', {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=admin-users', {
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (!data.success) throw new Error(data.error);
+        adminUsers = data.users || [];
+      } catch (e) {
+        console.error('[Messages] failed to load admins:', e);
+        adminUsers = [];
+      }
+    }
+
+    async function fetchMessages({ limit = 50, offset = 0, search = '', assigned = 'all' } = {}) {
+      try {
+        const token = await BondsAdminCommon.getAdminToken();
+        const params = new URLSearchParams({ action: 'messages', limit: String(limit), offset: String(offset) });
+        if (search) params.set('search', search);
+        if (assigned && assigned !== 'all') params.set('assigned', assigned);
+        const res = await fetch('/api/admin?' + params.toString(), {
+          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error);
+        msgTotal = typeof data.total === 'number' ? data.total : (data.messages || []).length;
         return data.messages || [];
       } catch (e) {
-        return [
-          { id: 'demo-1', name: 'أحمد محمد', email: 'ahmed@example.com', phone: '+966501234567', sector: 'صناعة', service: 'دراسة جدوى متكاملة', message: 'أود الاستفسار عن دراسة جدوى متكاملة لمصنع بلاستيك في الرياض.', read: false, created_at: new Date(Date.now() - 3600000).toISOString() },
-          { id: 'demo-2', name: 'سارة عبدالله', email: 'sara@example.com', phone: '+971501234567', sector: 'تجارة', service: 'تحليل مالي', message: 'أحتاج تحليل مالي لسلسلة متاجرنا.', read: true, created_at: new Date(Date.now() - 86400000).toISOString() },
-        ];
+        console.error('[Messages] failed to load:', e);
+        msgTotal = 0;
+        const errEl = document.getElementById('messagesError');
+        if (errEl) errEl.style.display = 'block';
+        return [];
       }
+    }
+
+    function setMessageFilter(filter) {
+      msgAssignedFilter = filter || 'all';
+      document.querySelectorAll('#msgFilters .filter-chip').forEach(c => c.classList.toggle('active', c.dataset.filter === msgAssignedFilter));
+      loadMessagesPage(1);
+    }
+
+    async function loadMessagesPage(page) {
+      msgCurrentPage = Math.max(1, page);
+      const offset = (msgCurrentPage - 1) * msgPageSize;
+      const errEl = document.getElementById('messagesError');
+      if (errEl) errEl.style.display = 'none';
+      document.getElementById('messageList').innerHTML = '<div class="loading">جارِ التحميل...</div>';
+      currentMessages = await fetchMessages({ limit: msgPageSize, offset, assigned: msgAssignedFilter });
+      renderMessages();
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.max(1, Math.ceil(msgTotal / msgPageSize));
+      const info = document.getElementById('messagesPageInfo');
+      const prev = document.getElementById('messagesPrevBtn');
+      const next = document.getElementById('messagesNextBtn');
+      if (info) info.textContent = 'صفحة ' + msgCurrentPage + ' من ' + totalPages + ' (' + msgTotal + ' رسالة)';
+      if (prev) prev.disabled = msgCurrentPage <= 1;
+      if (next) next.disabled = msgCurrentPage >= totalPages || msgTotal === 0;
     }
 
     async function fetchSentMessages() {
       try {
-        const token = await getAdminToken();
+        const token = await BondsAdminCommon.getAdminToken();
         const res = await fetch('/api/admin?action=sent-messages', {
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
@@ -286,9 +363,13 @@
       }
     }
 
+    function showActionStatus(msg, isError) {
+      BondsAdminCommon.showAdminStatus('actionStatus', msg, isError);
+    }
+
     function openWhatsApp(phone, name) {
       let digits = (phone || '').replace(/\D/g, '');
-      if (!digits) { alert('لا يوجد رقم واتساب'); return; }
+      if (!digits) { showActionStatus('لا يوجد رقم واتساب لهذا المرسل', true); return; }
       // Convert Saudi local numbers (05xxxxxxxx / 0xxxxxxxx) to international format
       if (digits.startsWith('05')) digits = '966' + digits.slice(1);
       else if (digits.startsWith('0')) digits = '966' + digits.slice(1);
@@ -296,27 +377,44 @@
       window.open('https://wa.me/' + digits + '?text=' + encodeURIComponent(text), '_blank');
     }
 
-    async function toggleRead(id) {
+    async function toggleRead(id, currentlyRead) {
       try {
-        await fetch('/api/admin?action=messages', {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=messages', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
-          body: JSON.stringify({ action: 'mark_read', id })
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: currentlyRead ? 'mark_unread' : 'mark_read', id })
         });
-      } catch(e) {}
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+      } catch(e) {
+        showActionStatus('تعذر تحديث حالة الرسالة. تأكد من الاتصال بالخادم.', true);
+      }
       refreshMessages();
     }
 
     async function deleteMessage(id) {
       if (!confirm('هل أنت متأكد من حذف هذه الرسالة؟')) return;
       try {
-        await fetch('/api/admin?action=messages', {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=messages', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (window.__ADMIN_TOKEN || '') },
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ action: 'delete', id })
         });
-      } catch(e) {}
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+      } catch(e) {
+        showActionStatus('تعذر حذف الرسالة. تأكد من الاتصال بالخادم.', true);
+      }
       refreshMessages();
+    }
+
+    function replyTo(email, name) {
+      if (!email) { showActionStatus('لا يوجد بريد إلكتروني للرد عليه', true); return; }
+      document.getElementById('msgRecipient').value = email;
+      document.getElementById('msgSubject').value = 'رد: رسالتك إلى بوندز';
+      document.getElementById('msgBody').value = 'مرحباً ' + (name || '') + '،\n\n';
+      showTab('compose');
+      document.getElementById('msgBody').focus();
     }
 
     async function sendUserMessage() {
@@ -335,7 +433,7 @@
       status.className = 'compose-status';
       btn.disabled = true;
       try {
-        const token = await getAdminToken();
+        const token = await BondsAdminCommon.getAdminToken();
         const res = await fetch('/api/admin?action=messages', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -355,6 +453,50 @@
       }
     }
 
+    function toggleAssignDropdown(btn) {
+      const menu = btn.parentElement.querySelector('.assign-dropdown');
+      if (!menu) return;
+      const isOpen = menu.classList.contains('open');
+      document.querySelectorAll('.assign-dropdown.open').forEach(d => d.classList.remove('open'));
+      menu.classList.toggle('open', !isOpen);
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.assign-menu')) {
+        document.querySelectorAll('.assign-dropdown.open').forEach(d => d.classList.remove('open'));
+      }
+    });
+
+    async function assignMessage(messageId, userId) {
+      try {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'assign', id: messageId, assigned_to: userId })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+      } catch (e) {
+        showActionStatus('تعذر تعيين القارئ. تأكد من الاتصال بالخادم.', true);
+      }
+      refreshMessages();
+    }
+
+    async function unassignMessage(messageId) {
+      try {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'unassign', id: messageId })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+      } catch (e) {
+        showActionStatus('تعذر إلغاء التعيين. تأكد من الاتصال بالخادم.', true);
+      }
+      refreshMessages();
+    }
+
     function timeAgo(dateStr) {
       const d = new Date(dateStr);
       const now = new Date();
@@ -367,35 +509,141 @@
       return 'منذ ' + days + ' يوم';
     }
 
-    async function renderMessages() {
-      const msgs = await fetchMessages();
-      const total = msgs.length;
+    function renderMessages() {
+      const msgs = currentMessages;
+      const total = msgTotal;
       const unread = msgs.filter(m => !m.read).length;
       const today = msgs.filter(m => new Date(m.date || m.created_at).toDateString() === new Date().toDateString()).length;
       document.getElementById('totalMessages').textContent = total;
       document.getElementById('unreadMessages').textContent = unread;
       document.getElementById('todayMessages').textContent = today;
       const container = document.getElementById('messageList');
+      container.innerHTML = '';
       if (msgs.length === 0) {
-        container.innerHTML = '<div class="loading">لا توجد رسائل واردة</div>';
+        const empty = document.createElement('div');
+        empty.className = 'loading';
+        empty.textContent = 'لا توجد رسائل واردة';
+        container.appendChild(empty);
+        const badge = document.getElementById('msgBadge');
+        if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
         return;
       }
-      container.innerHTML = msgs.map(m => `
-        <div class="message-card ${m.read ? '' : 'unread'}">
-          <div class="message-header">
-            <span class="message-sender">${m.name} ${m.read ? '' : '<span class="badge badge--new">جديد</span>'}</span>
-            <span class="message-time">${timeAgo(m.created_at)}</span>
-          </div>
-          <div class="message-email">${m.email}${m.phone ? ' | ' + m.phone : ''}</div>
-          <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:0.5rem;">${m.sector || ''} ${m.service ? '→ ' + m.service : ''}</div>
-          <div class="message-body">${m.message}</div>
-          <div class="message-actions">
-            <button class="btn-sm ${m.read ? 'btn-secondary' : 'btn-primary'}" onclick="toggleRead('${m.id}')">${m.read ? 'تعيين غير مقروء' : 'تعيين مقروء'}</button>
-            ${m.phone ? `<button class="btn-sm btn-whatsapp" onclick="openWhatsApp('${m.phone}', '${(m.name || '').replace(/'/g, "\\'")}')">واتساب</button>` : ''}
-            <button class="btn-sm btn-danger" onclick="deleteMessage('${m.id}')">حذف</button>
-          </div>
-        </div>
-      `).join('');
+      const fragment = document.createDocumentFragment();
+      for (const m of msgs) {
+        const card = document.createElement('div');
+        card.className = 'message-card' + (m.read ? '' : ' unread');
+
+        const header = document.createElement('div');
+        header.className = 'message-header';
+        const sender = document.createElement('span');
+        sender.className = 'message-sender';
+        sender.textContent = m.name || '';
+        if (!m.read) {
+          sender.appendChild(document.createTextNode(' '));
+          const badge = document.createElement('span');
+          badge.className = 'badge badge--new';
+          badge.textContent = 'جديد';
+          sender.appendChild(badge);
+        }
+        const time = document.createElement('span');
+        time.className = 'message-time';
+        time.textContent = timeAgo(m.created_at);
+        header.appendChild(sender);
+        header.appendChild(time);
+        card.appendChild(header);
+
+        const email = document.createElement('div');
+        email.className = 'message-email';
+        email.textContent = (m.email || '') + (m.phone ? ' | ' + m.phone : '');
+        card.appendChild(email);
+
+        const meta = document.createElement('div');
+        meta.style.cssText = 'font-size:0.75rem;color:var(--text-muted);margin-bottom:0.35rem;';
+        meta.textContent = (m.sector || '') + (m.service ? ' → ' + m.service : '');
+        card.appendChild(meta);
+
+        const assignee = m.assigned_to_profile;
+        if (assignee) {
+          const assigneeLine = document.createElement('div');
+          assigneeLine.className = 'assignee-line';
+          assigneeLine.innerHTML = '<span class="badge badge--assignee">👤 معينة إلى: ' + BondsAdminCommon.escapeHtml(assignee.full_name || assignee.email || 'مستخدم') + '</span>';
+          card.appendChild(assigneeLine);
+        }
+
+        const body = document.createElement('div');
+        body.className = 'message-body';
+        body.textContent = m.message || '';
+        card.appendChild(body);
+
+        const actions = document.createElement('div');
+        actions.className = 'message-actions';
+
+        const readBtn = document.createElement('button');
+        readBtn.className = 'btn-sm ' + (m.read ? 'btn-secondary' : 'btn-primary');
+        readBtn.textContent = m.read ? 'تعيين غير مقروء' : 'تعيين مقروء';
+        readBtn.onclick = () => toggleRead(m.id, m.read);
+        actions.appendChild(readBtn);
+
+        const assignMenu = document.createElement('div');
+        assignMenu.className = 'assign-menu';
+        const assignBtn = document.createElement('button');
+        assignBtn.className = 'btn-sm btn-secondary';
+        assignBtn.textContent = assignee ? 'تغيير التعيين' : 'تعيين قارئ';
+        assignBtn.onclick = (e) => toggleAssignDropdown(e.currentTarget);
+        const assignDropdown = document.createElement('div');
+        assignDropdown.className = 'assign-dropdown';
+        assignDropdown.dataset.messageId = m.id;
+        adminUsers.forEach(u => {
+          const opt = document.createElement('div');
+          opt.className = 'assign-option';
+          opt.textContent = (u.full_name || u.email || u.id.slice(0, 8));
+          opt.onclick = () => assignMessage(m.id, u.id);
+          assignDropdown.appendChild(opt);
+        });
+        if (assignee) {
+          const unassignOpt = document.createElement('div');
+          unassignOpt.className = 'assign-option unassign';
+          unassignOpt.textContent = 'إلغاء التعيين';
+          unassignOpt.onclick = () => unassignMessage(m.id);
+          assignDropdown.appendChild(unassignOpt);
+        }
+        assignMenu.appendChild(assignBtn);
+        assignMenu.appendChild(assignDropdown);
+        actions.appendChild(assignMenu);
+
+        if (m.email) {
+          const replyBtn = document.createElement('button');
+          replyBtn.className = 'btn-sm btn-secondary';
+          replyBtn.textContent = 'رد';
+          replyBtn.onclick = () => replyTo(m.email, m.name || '');
+          actions.appendChild(replyBtn);
+
+          const mailBtn = document.createElement('a');
+          mailBtn.className = 'btn-sm btn-secondary';
+          mailBtn.href = 'mailto:' + encodeURIComponent(m.email) + '?subject=' + encodeURIComponent('رد: رسالتك إلى بوندز') + '&body=' + encodeURIComponent('مرحباً ' + (m.name || '') + '،\n\n');
+          mailBtn.textContent = '✉️ بريد';
+          mailBtn.style.textDecoration = 'none';
+          actions.appendChild(mailBtn);
+        }
+
+        if (m.phone) {
+          const waBtn = document.createElement('button');
+          waBtn.className = 'btn-sm btn-whatsapp';
+          waBtn.textContent = 'واتساب';
+          waBtn.onclick = () => openWhatsApp(m.phone, m.name || '');
+          actions.appendChild(waBtn);
+        }
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-sm btn-danger';
+        delBtn.textContent = 'حذف';
+        delBtn.onclick = () => deleteMessage(m.id);
+        actions.appendChild(delBtn);
+
+        card.appendChild(actions);
+        fragment.appendChild(card);
+      }
+      container.appendChild(fragment);
       const badge = document.getElementById('msgBadge');
       if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
     }
@@ -411,12 +659,12 @@
       container.innerHTML = msgs.map(m => `
         <div class="message-card">
           <div class="message-header">
-            <span class="message-sender">إلى: ${m.recipient_name || m.recipient_email || m.user_id}</span>
+            <span class="message-sender">إلى: ${BondsAdminCommon.escapeHtml(m.recipient_name || m.recipient_email || m.user_id)}</span>
             <span class="message-time">${timeAgo(m.created_at)}</span>
           </div>
-          <div class="message-email">${m.recipient_email || ''} ${m.email_sent ? '<span class="badge badge--email">تم الإرسال بالبريد</span>' : ''}</div>
-          <div class="message-subject">${m.subject}</div>
-          <div class="message-body">${m.body}</div>
+          <div class="message-email">${BondsAdminCommon.escapeHtml(m.recipient_email || '')} ${m.email_sent ? '<span class="badge badge--email">تم الإرسال بالبريد</span>' : ''}</div>
+          <div class="message-subject">${BondsAdminCommon.escapeHtml(m.subject)}</div>
+          <div class="message-body">${BondsAdminCommon.escapeHtml(m.body).replace(/\n/g, '<br>')}</div>
         </div>
       `).join('');
     }
@@ -424,16 +672,20 @@
     function refreshMessages() {
       const activeTab = document.querySelector('.tab-btn.active')?.dataset.tab || 'inbox';
       if (activeTab === 'inbox') {
-        document.getElementById('messageList').innerHTML = '<div class="loading">جارِ التحديث...</div>';
-        setTimeout(renderMessages, 300);
+        loadMessagesPage(msgCurrentPage);
       } else if (activeTab === 'sent') {
         document.getElementById('sentList').innerHTML = '<div class="loading">جارِ التحديث...</div>';
         setTimeout(renderSentMessages, 300);
       }
     }
 
-    window.addEventListener('load', renderMessages);
+    window.addEventListener('load', async () => {
+      await fetchAdminUsers();
+      loadMessagesPage(1);
+    });
   </script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

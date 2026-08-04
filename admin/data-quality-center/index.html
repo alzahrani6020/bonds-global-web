@@ -14,10 +14,11 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/supabase-client.js"></script>
+  <script src="/admin/admin-common.js"></script>
   <script src="/lib/enterprise/validation.js"></script>
   <script src="/admin/data-quality-center/service.js?v=1"></script>
   <script src="/admin/data-quality-center/app.js?v=1"></script>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
 </head>
 <body>
@@ -28,8 +29,8 @@
         <span>مركز جودة البيانات</span>
       </div>
       <ul class="ai-nav">
-        <li><a href="#" data-view="dashboard" class="active">📊 لوحة المؤشرات</a></li>
-        <li><a href="#" data-view="issues">⚠️ المشاكل</a></li>
+        <li><a href="#" data-view="dashboard" class="active"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#5C913B" d="M13 33H7V16c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v17z"/><path fill="#3B94D9" d="M29 33h-6V9c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v24z"/><path fill="#DD2E44" d="M21 33h-6V23c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v10z"/></svg></span> لوحة المؤشرات</a></li>
+        <li><a href="#" data-view="issues"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg></span>️ المشاكل</a></li>
       </ul>
       <div class="ai-sidebar-footer">
         <a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a>
@@ -55,10 +56,12 @@
     </main>
   </div>
 
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script src="/admin/ai-business-advisor/guard.js"></script>
   <script src="/admin/admin-accessibility.js"></script>
 <script src="/admin/admin-sidebar-icons.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

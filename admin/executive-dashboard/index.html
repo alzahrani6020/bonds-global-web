@@ -16,9 +16,10 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="/supabase-client.js"></script>
+  <script src="/admin/admin-common.js"></script>
   <script src="/admin/executive-dashboard/service.js?v=6"></script>
   <script src="/admin/executive-dashboard/app.js?v=6"></script>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
 </head>
 <body>
@@ -29,9 +30,9 @@
         <span>المؤشرات التنفيذية</span>
       </div>
       <ul class="ex-nav">
-        <li><a href="#" data-view="overview" class="active">📊 نظرة عامة</a></li>
-        <li><a href="#" data-view="revenue">💰 الإيرادات والأرباح</a></li>
-        <li><a href="#" data-view="projects">📁 المشاريع والفرص</a></li>
+        <li><a href="#" data-view="overview" class="active"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#5C913B" d="M13 33H7V16c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v17z"/><path fill="#3B94D9" d="M29 33h-6V9c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v24z"/><path fill="#DD2E44" d="M21 33h-6V23c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v10z"/></svg></span> نظرة عامة</a></li>
+        <li><a href="#" data-view="revenue"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FDD888" d="M31.898 23.938C31.3 17.32 28 14 28 14l-6-8h-8l-6 8s-1.419 1.433-2.567 4.275C3.444 18.935 2 20.789 2 23c0 1.448.625 2.742 1.609 3.655C3.233 27.357 3 28.147 3 29c0 1.958 1.136 3.636 2.775 4.456C7.058 35.378 8.772 36 10 36h16c1.379 0 3.373-.779 4.678-3.31C32.609 31.999 34 30.17 34 28c0-1.678-.834-3.154-2.102-4.062zM18 6c.55 0 1.058-.158 1.5-.416.443.258.951.416 1.5.416 1.657 0 4-2.344 4-4 0 0 0-2-2-2-.788 0-1 1-2 1s-1-1-3-1-2 1-3 1-1.211-1-2-1c-2 0-2 2-2 2 0 1.656 2.344 4 4 4 .549 0 1.057-.158 1.5-.416.443.258.951.416 1.5.416z"/><path fill="#BF6952" d="M24 6c0 .552-.447 1-1 1H13c-.552 0-1-.448-1-1s.448-1 1-1h10c.553 0 1 .448 1 1z"/><path fill="#67757F" d="M23.901 24.542c0-4.477-8.581-4.185-8.581-6.886 0-1.308 1.301-1.947 2.811-1.947 2.538 0 2.99 1.569 4.139 1.569.813 0 1.205-.493 1.205-1.046 0-1.284-2.024-2.256-3.965-2.592V12.4c0-.773-.65-1.4-1.454-1.4-.805 0-1.456.627-1.456 1.4v1.283c-2.116.463-3.937 1.875-3.937 4.176 0 4.299 8.579 4.125 8.579 7.145 0 1.047-1.178 2.093-3.111 2.093-2.901 0-3.867-1.889-5.045-1.889-.574 0-1.087.464-1.087 1.164 0 1.113 1.938 2.451 4.603 2.824l-.001.01v1.398c0 .772.652 1.4 1.456 1.4.804 0 1.455-.628 1.455-1.4v-1.398c0-.017-.008-.03-.009-.045 2.398-.43 4.398-1.932 4.398-4.619z"/></svg></span> الإيرادات والأرباح</a></li>
+        <li><a href="#" data-view="projects"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#269" d="M0 29c0 2.209 1.791 4 4 4h24c2.209 0 4-1.791 4-4V12c0-2.209-1.791-4-4-4h-9c-3.562 0-3-5-8.438-5H4C1.791 3 0 4.791 0 7v22z"/><path fill="#55ACEE" d="M30 10h-6.562C18 10 18.562 15 15 15H6c-2.209 0-4 1.791-4 4v10c0 .553-.448 1-1 1s-1-.447-1-1c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V14c0-2.209-1.791-4-4-4z"/></svg></span> المشاريع والفرص</a></li>
       </ul>
       <div class="ex-sidebar-footer">
         <a href="/admin/dashboard.html">⬅️ لوحة الإدارة الرئيسية</a>
@@ -48,7 +49,7 @@
         <div class="ex-topbar-actions">
           <span class="ex-live" id="ex-live" title="تحديث لحظي">● Live</span>
           <span class="ex-last-update" id="ex-last-update">—</span>
-          <button class="ecc-btn ecc-btn--ghost" onclick="ExecutiveApp.openSettings()">⚙️ الإعدادات</button>
+          <button class="ecc-btn ecc-btn--ghost" onclick="ExecutiveApp.openSettings()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M34 15h-3.362c-.324-1.369-.864-2.651-1.582-3.814l2.379-2.379c.781-.781.781-2.048 0-2.829l-1.414-1.414c-.781-.781-2.047-.781-2.828 0l-2.379 2.379C23.65 6.225 22.369 5.686 21 5.362V2c0-1.104-.896-2-2-2h-2c-1.104 0-2 .896-2 2v3.362c-1.369.324-2.651.864-3.814 1.582L8.808 4.565c-.781-.781-2.048-.781-2.828 0L4.565 5.979c-.781.781-.781 2.048-.001 2.829l2.379 2.379C6.225 12.35 5.686 13.632 5.362 15H2c-1.104 0-2 .896-2 2v2c0 1.104.896 2 2 2h3.362c.324 1.368.864 2.65 1.582 3.813l-2.379 2.379c-.78.78-.78 2.048.001 2.829l1.414 1.414c.78.78 2.047.78 2.828 0l2.379-2.379c1.163.719 2.445 1.258 3.814 1.582V34c0 1.104.896 2 2 2h2c1.104 0 2-.896 2-2v-3.362c1.368-.324 2.65-.864 3.813-1.582l2.379 2.379c.781.781 2.047.781 2.828 0l1.414-1.414c.781-.781.781-2.048 0-2.829l-2.379-2.379c.719-1.163 1.258-2.445 1.582-3.814H34c1.104 0 2-.896 2-2v-2C36 15.896 35.104 15 34 15zM18 26c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z"/></svg></span>️ الإعدادات</button>
           <button class="ecc-btn ecc-btn--primary" onclick="ExecutiveApp.refresh()">↻ تحديث</button>
         </div>
       </header>
@@ -67,8 +68,10 @@
       window.addEventListener('unhandledrejection', function (e) { status('❌ خطأ غير متوقع: ' + (e.reason?.message || e.reason)); });
     })();
   </script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
   <script src="/admin/admin-accessibility.js"></script>
 <script src="/admin/admin-sidebar-icons.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

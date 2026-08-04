@@ -83,7 +83,7 @@
     }
   </style>
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
@@ -143,16 +143,16 @@
       </div>
 
       <div class="alert alert--warning" id="roleAlert" style="display:none;">
-        ⚠️ هذه الصفحة متاحة فقط لـ Super Admin
+        <span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg></span>️ هذه الصفحة متاحة فقط لـ Super Admin
         <br><br>
         <button class="btn-sm btn-primary" id="makeOwnerBtn" onclick="makeOwnerAdmin()" style="display:none;">
-          ⚡ اجعلني Super Admin
+          <span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFAC33" d="M32.938 15.651C32.792 15.26 32.418 15 32 15H19.925L26.89 1.458c.219-.426.106-.947-.271-1.243C26.437.071 26.218 0 26 0c-.233 0-.466.082-.653.243L18 6.588 3.347 19.243c-.316.273-.43.714-.284 1.105S3.582 21 4 21h12.075L9.11 34.542c-.219.426-.106.947.271 1.243.182.144.401.215.619.215.233 0 .466-.082.653-.243L18 29.412l14.653-12.655c.317-.273.43-.714.285-1.106z"/></svg></span> اجعلني Super Admin
         </button>
         <span id="makeOwnerMsg" style="font-size:0.85rem;margin-right:0.5rem;"></span>
       </div>
 
       <div class="form-card" id="addRoleForm" style="display:none;">
-        <h3>➕ إضافة مشرف جديد</h3>
+        <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M31 15H21V5c0-1.657-1.343-3-3-3s-3 1.343-3 3v10H5c-1.657 0-3 1.343-3 3s1.343 3 3 3h10v10c0 1.657 1.343 3 3 3s3-1.343 3-3V21h10c1.657 0 3-1.343 3-3s-1.343-3-3-3z"/></svg></span> إضافة مشرف جديد</h3>
         <div class="alert alert--warning" style="margin-bottom:1rem;font-size:0.8rem;">
           دور <strong>super_admin</strong> محجوز لحساب المالك فقط. يمكن منح Admin / Support / Viewer للفريق.
         </div>
@@ -175,7 +175,7 @@
 
       <div class="table-card">
         <div class="table-header">
-          <h3>👤 فريق الإدارة</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#269" d="M24 26.799v-2.566c2-1.348 4.08-3.779 4.703-6.896.186.103.206.17.413.17.991 0 1.709-1.287 1.709-2.873 0-1.562-.823-2.827-1.794-2.865.187-.674.293-1.577.293-2.735C29.324 5.168 26 .527 18.541.527c-6.629 0-10.777 4.641-10.777 8.507 0 1.123.069 2.043.188 2.755-.911.137-1.629 1.352-1.629 2.845 0 1.587.804 2.873 1.796 2.873.206 0 .025-.067.209-.17C8.952 20.453 11 22.885 13 24.232v2.414c-5 .645-12 3.437-12 6.23v1.061C1 35 2.076 35 3.137 35h29.725C33.924 35 35 35 35 33.938v-1.061c0-2.615-6-5.225-11-6.078z"/></svg></span> فريق الإدارة</h3>
         </div>
         <table class="data-table">
           <thead>
@@ -197,14 +197,9 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
+  <script src="/admin/update-sidebar-user.js?v=1"></script>
   <script>BondsAuth.initAdminGuard();</script>
   <script>
-    const DEMO_ROLES = [
-      { id: 'demo-1', user_id: 'user-1', role: 'super_admin', created_at: '2026-01-01T00:00:00Z', profiles: { restaurant_name: 'أحمد المشرف', email: 'super@example.com' } },
-      { id: 'demo-2', user_id: 'user-2', role: 'admin', created_at: '2026-03-15T00:00:00Z', profiles: { restaurant_name: 'سارة المشرفة', email: 'admin@example.com' } },
-      { id: 'demo-3', user_id: 'user-3', role: 'support', created_at: '2026-05-01T00:00:00Z', profiles: { restaurant_name: 'محمد الدعم', email: 'support@example.com' } },
-    ];
-
     async function fetchRoles() {
       let token = window.__ADMIN_TOKEN || '';
       if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
@@ -364,8 +359,10 @@
   </script>
 
   <script src="../page-tracker-v2.js"></script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

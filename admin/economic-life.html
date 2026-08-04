@@ -27,7 +27,7 @@
     .status.error { background: rgba(239,68,68,0.1); color: #f87171; }
     .back-link { color: var(--gold); text-decoration: none; display: inline-block; margin-bottom: 1rem; }
   </style>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="container">
@@ -64,12 +64,6 @@
       const filterEl = document.getElementById('assetFilter');
       const searchEl = document.getElementById('searchInput');
       let rows = [];
-
-      function showStatus(msg, isError) {
-        statusEl.textContent = msg;
-        statusEl.className = 'status is-open ' + (isError ? 'error' : 'success');
-        setTimeout(() => statusEl.classList.remove('is-open'), 5000);
-      }
 
       function getClient() {
         return window.supabaseClient || (window.supabase && window.supabase.client);
@@ -132,14 +126,14 @@
       async function save() {
         const client = getClient();
         if (!client || !client.auth) {
-          showStatus('لم يتم العثور على جلسة Supabase. يرجى تسجيل الدخول.', true);
+          BondsAdminCommon.showAdminStatus('status', 'لم يتم العثور على جلسة Supabase. يرجى تسجيل الدخول.', true);
           return;
         }
 
         const { data: sessionData } = await client.auth.getSession();
         const token = sessionData && sessionData.session && sessionData.session.access_token;
         if (!token) {
-          showStatus('لا يوجد توكن صالح. يرجى تسجيل الدخول.', true);
+          BondsAdminCommon.showAdminStatus('status', 'لا يوجد توكن صالح. يرجى تسجيل الدخول.', true);
           return;
         }
 
@@ -172,10 +166,10 @@
             const json = await res.json();
             if (!json.success) throw new Error(json.error || 'Save failed');
           }
-          showStatus('تم حفظ التغييرات بنجاح.', false);
+          BondsAdminCommon.showAdminStatus('status', 'تم حفظ التغييرات بنجاح.', false);
           await fetchData();
         } catch (err) {
-          showStatus('فشل الحفظ: ' + err.message, true);
+          BondsAdminCommon.showAdminStatus('status', 'فشل الحفظ: ' + err.message, true);
         } finally {
           saveBtn.disabled = false;
           saveBtn.textContent = 'حفظ التغييرات';
@@ -192,6 +186,9 @@
   </script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script>BondsAuth.initAdminGuard();</script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-common.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

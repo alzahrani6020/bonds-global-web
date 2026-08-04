@@ -97,8 +97,9 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
+  <script src="/admin/update-sidebar-user.js?v=1"></script>
   <script>BondsAuth.initAdminGuard();</script>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
@@ -155,12 +156,18 @@
           <h1>الاشتراكات <span id="demoIndicator" class="demo-badge" style="display:none;">Demo</span></h1>
           <p>إدارة خطط الاشتراك والمشتركين</p>
         </div>
-        <button class="btn-sm btn-primary" onclick="openGrantSubModal()">⭐ منح اشتراك / فترة مجانية</button>
-        <button class="btn-sm btn-primary" id="activateMySubBtn" style="display:none;" onclick="activateMySubscription()">👑 تفعيل اشتراكي</button>
-        <button class="btn-sm btn-primary" onclick="refreshData()">↻ تحديث</button>
-        <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ تصدير CSV</button>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          <button class="btn-sm btn-primary" onclick="openGrantSubModal()">⭐ منح اشتراك / فترة مجانية</button>
+          <button class="btn-sm btn-primary" id="activateMySubBtn" style="display:none;" onclick="activateMySubscription()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#F4900C" d="M14.174 17.075L6.75 7.594l-3.722 9.481z"/><path fill="#F4900C" d="M17.938 5.534l-6.563 12.389H24.5z"/><path fill="#F4900C" d="M21.826 17.075l7.424-9.481 3.722 9.481z"/><path fill="#FFCC4D" d="M28.669 15.19L23.887 3.523l-5.88 11.668-.007.003-.007-.004-5.88-11.668L7.331 15.19C4.197 10.833 1.28 8.042 1.28 8.042S3 20.75 3 33h30c0-12.25 1.72-24.958 1.72-24.958s-2.917 2.791-6.051 7.148z"/><circle fill="#5C913B" cx="17.957" cy="22" r="3.688"/><circle fill="#981CEB" cx="26.463" cy="22" r="2.412"/><circle fill="#DD2E44" cx="32.852" cy="22" r="1.986"/><circle fill="#981CEB" cx="9.45" cy="22" r="2.412"/><circle fill="#DD2E44" cx="3.061" cy="22" r="1.986"/><path fill="#FFAC33" d="M33 34H3c-.552 0-1-.447-1-1s.448-1 1-1h30c.553 0 1 .447 1 1s-.447 1-1 1zm0-3.486H3c-.552 0-1-.447-1-1s.448-1 1-1h30c.553 0 1 .447 1 1s-.447 1-1 1z"/><circle fill="#FFCC4D" cx="1.447" cy="8.042" r="1.407"/><circle fill="#F4900C" cx="6.75" cy="7.594" r="1.192"/><circle fill="#FFCC4D" cx="12.113" cy="3.523" r="1.784"/><circle fill="#FFCC4D" cx="34.553" cy="8.042" r="1.407"/><circle fill="#F4900C" cx="29.25" cy="7.594" r="1.192"/><circle fill="#FFCC4D" cx="23.887" cy="3.523" r="1.784"/><circle fill="#F4900C" cx="17.938" cy="5.534" r="1.784"/></svg></span> تفعيل اشتراكي</button>
+          <button class="btn-sm btn-primary" onclick="refreshData()">↻ تحديث</button>
+          <button class="btn-sm btn-secondary" onclick="exportCSV()">⬇ تصدير CSV</button>
+        </div>
       </div>
 
+      <div id="subsError" style="display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:1rem;margin-bottom:1.5rem;color:var(--danger);font-size:0.9rem;font-weight:600;">
+        <span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg></span>️ تعذر تحميل بيانات الاشتراكات. تأكد من الاتصال بالخادم أو أعد المحاولة.
+      </div>
+      <div id="subsActionStatus" style="display:none;border-radius:12px;padding:1rem;margin-bottom:1.5rem;font-size:0.9rem;font-weight:600;"></div>
       <div class="stats-grid">
         <div class="stat-card">
           <div class="stat-card__header">
@@ -171,21 +178,21 @@
         </div>
         <div class="stat-card">
           <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--ent">🚀</div>
+            <div class="stat-card__icon stat-card__icon--ent"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg></span></div>
           </div>
           <div class="stat-card__num" id="entCount">—</div>
           <div class="stat-card__label">مشتركين Enterprise</div>
         </div>
         <div class="stat-card">
           <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--rev">💰</div>
+            <div class="stat-card__icon stat-card__icon--rev"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FDD888" d="M31.898 23.938C31.3 17.32 28 14 28 14l-6-8h-8l-6 8s-1.419 1.433-2.567 4.275C3.444 18.935 2 20.789 2 23c0 1.448.625 2.742 1.609 3.655C3.233 27.357 3 28.147 3 29c0 1.958 1.136 3.636 2.775 4.456C7.058 35.378 8.772 36 10 36h16c1.379 0 3.373-.779 4.678-3.31C32.609 31.999 34 30.17 34 28c0-1.678-.834-3.154-2.102-4.062zM18 6c.55 0 1.058-.158 1.5-.416.443.258.951.416 1.5.416 1.657 0 4-2.344 4-4 0 0 0-2-2-2-.788 0-1 1-2 1s-1-1-3-1-2 1-3 1-1.211-1-2-1c-2 0-2 2-2 2 0 1.656 2.344 4 4 4 .549 0 1.057-.158 1.5-.416.443.258.951.416 1.5.416z"/><path fill="#BF6952" d="M24 6c0 .552-.447 1-1 1H13c-.552 0-1-.448-1-1s.448-1 1-1h10c.553 0 1 .448 1 1z"/><path fill="#67757F" d="M23.901 24.542c0-4.477-8.581-4.185-8.581-6.886 0-1.308 1.301-1.947 2.811-1.947 2.538 0 2.99 1.569 4.139 1.569.813 0 1.205-.493 1.205-1.046 0-1.284-2.024-2.256-3.965-2.592V12.4c0-.773-.65-1.4-1.454-1.4-.805 0-1.456.627-1.456 1.4v1.283c-2.116.463-3.937 1.875-3.937 4.176 0 4.299 8.579 4.125 8.579 7.145 0 1.047-1.178 2.093-3.111 2.093-2.901 0-3.867-1.889-5.045-1.889-.574 0-1.087.464-1.087 1.164 0 1.113 1.938 2.451 4.603 2.824l-.001.01v1.398c0 .772.652 1.4 1.456 1.4.804 0 1.455-.628 1.455-1.4v-1.398c0-.017-.008-.03-.009-.045 2.398-.43 4.398-1.932 4.398-4.619z"/></svg></span></div>
           </div>
           <div class="stat-card__num" id="mrr">—</div>
           <div class="stat-card__label">الإيرادات الشهرية (MRR)</div>
         </div>
         <div class="stat-card">
           <div class="stat-card__header">
-            <div class="stat-card__icon stat-card__icon--churn">📉</div>
+            <div class="stat-card__icon stat-card__icon--churn"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#3B94D9" d="M31.002 33c-.721 0-1.416-.39-1.774-1.072l-9.738-18.59-6.076 6.076c-.446.447-1.076.66-1.705.564-.626-.092-1.171-.474-1.47-1.03l-7-13c-.524-.973-.16-2.186.813-2.709.975-.523 2.186-.16 2.709.812l5.726 10.633 6.1-6.099c.45-.45 1.089-.659 1.716-.563.629.096 1.175.485 1.47 1.049l11 21c.513.979.135 2.187-.844 2.699-.297.157-.614.23-.927.23z"/></svg></span></div>
           </div>
           <div class="stat-card__num" id="churn">—</div>
           <div class="stat-card__label">معدل الاستبعاد</div>
@@ -194,7 +201,7 @@
 
       <div class="table-card">
         <div class="table-header">
-          <h3>💳 الاشتراكات النشطة</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFAC33" d="M4 5C1.791 5 0 6.791 0 9v18c0 2.209 1.791 4 4 4h28c2.209 0 4-1.791 4-4V9s0-4-4-4H4z"/><path fill="#292F33" d="M0 10h36v5H0z"/><path fill="#F4F7F9" d="M4 19h28v6H4z"/><path fill="#8899A6" d="M19 24c-1.703 0-2.341-1.21-2.469-1.801-.547.041-1.08.303-1.805.764C13.961 23.449 13.094 24 12 24c-1.197 0-1.924-.675-2-2-.003-.056.038-.188.021-.188-1.858 0-3.202 1.761-3.215 1.779-.195.267-.499.409-.806.409-.206 0-.413-.063-.591-.194-.445-.327-.542-.953-.215-1.398C5.271 22.303 7.11 20 10 20c1.937 0 2.048 1.375 2.078 1.888l.007.109c.486-.034.991-.354 1.57-.723.961-.61 2.153-1.371 3.75-.962.871.223 1.007 1.031 1.059 1.336.013.076.032.19.049.226.007 0 .146.091.577.13.82.075 1.721-.279 2.675-.653.988-.388 2.01-.788 3.111-.788 3.389 0 4.767 1.635 4.913 1.821.34.435.264 1.063-.171 1.403-.175.137-.381.207-.587.213-.307.009-.613-.123-.817-.384-.024-.027-.93-1.054-3.337-1.054-.723 0-1.528.315-2.381.649-1.009.396-2.434.789-3.496.789z"/></svg></span> الاشتراكات النشطة</h3>
         </div>
         <table class="data-table">
           <thead>
@@ -208,7 +215,7 @@
             </tr>
           </thead>
           <tbody id="subsTable">
-            <tr><td colspan="5" class="loading">جارِ التحميل...</td></tr>
+            <tr><td colspan="6" class="loading">جارِ التحميل...</td></tr>
           </tbody>
         </table>
       </div>
@@ -239,21 +246,15 @@
     </div>
   </div>
 
+  <script src="/admin/admin-common.js"></script>
   <script>
-    async function getAdminToken() {
-      let token = window.__ADMIN_TOKEN || '';
-      if (!token && typeof supabase !== 'undefined' && window.__ENV?.SUPABASE_URL) {
-        const client = supabase.createClient(window.__ENV.SUPABASE_URL, window.__ENV.SUPABASE_ANON_KEY);
-        const { data: { session } } = await client.auth.getSession();
-        token = session?.access_token || '';
-      }
-      return token;
-    }
-
-    async function fetchStats() {
+    async function fetchStats({ limit = 50, offset = 0, tier = '', status = '' } = {}) {
       try {
-        const token = await getAdminToken();
-        const res = await fetch('/api/admin?action=subscriptions', {
+        const params = new URLSearchParams({ action: 'subscriptions', limit: String(limit), offset: String(offset) });
+        if (tier) params.set('tier', tier);
+        if (status) params.set('status', status);
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?' + params.toString(), {
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -262,17 +263,81 @@
         if (data.demo) document.getElementById('demoIndicator').style.display = 'inline-block';
         return data;
       } catch (e) {
-        document.getElementById('demoIndicator').style.display = 'inline-block';
+        console.error('[Subscriptions] failed to load:', e);
+        document.getElementById('subsError').style.display = 'block';
         return {
-          demo: true,
-          stats: { proUsers: 186, enterpriseUsers: 87, monthlyRevenue: 14250 },
-          recentSubscriptions: [
-            { user_id: '1', tier: 'pro', status: 'active', current_period_end: '2026-07-07T00:00:00Z', created_at: '2026-06-07T00:00:00Z' },
-            { user_id: '2', tier: 'enterprise', status: 'active', current_period_end: '2026-07-06T00:00:00Z', created_at: '2026-06-06T00:00:00Z' },
-            { user_id: '3', tier: 'pro', status: 'past_due', current_period_end: '2026-06-10T00:00:00Z', created_at: '2026-05-07T00:00:00Z' },
-          ]
+          demo: false,
+          stats: { proUsers: 0, enterpriseUsers: 0, monthlyRevenue: 0 },
+          recentSubscriptions: [],
+          total: 0
         };
       }
+    }
+
+    window._subsTotal = 0;
+    let subPageSize = 50;
+    let subCurrentPage = 1;
+
+    async function loadSubscriptionsPage(page) {
+      subCurrentPage = page || 1;
+      const offset = (subCurrentPage - 1) * subPageSize;
+      const data = await fetchStats({ limit: subPageSize, offset });
+      const s = data.stats || {};
+      document.getElementById('proCount').textContent = (s.proUsers || 0).toLocaleString('ar-SA');
+      document.getElementById('entCount').textContent = (s.enterpriseUsers || 0).toLocaleString('ar-SA');
+      document.getElementById('mrr').textContent = formatCurrency(s.monthlyRevenue || 0);
+      const recentSubs = data.recentSubscriptions || [];
+      const activeCount = recentSubs.filter(x => x.status === 'active' || x.status === 'trialing').length;
+      const cancelledCount = recentSubs.filter(x => x.status === 'cancelled' || x.status === 'inactive').length;
+      const churnRate = activeCount + cancelledCount > 0 ? ((cancelledCount / (activeCount + cancelledCount)) * 100).toFixed(1) : '0.0';
+      document.getElementById('churn').textContent = churnRate + '%';
+
+      window._subsData = data.recentSubscriptions || [];
+      window._subsTotal = data.total || 0;
+      renderSubscriptions();
+    }
+
+    function renderPagination() {
+      const total = window._subsTotal || 0;
+      const totalPages = Math.ceil(total / subPageSize) || 1;
+      let container = document.getElementById('subsPagination');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'subsPagination';
+        container.style.cssText = 'display:flex;justify-content:center;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;';
+        const tableCard = document.querySelector('.table-card');
+        if (tableCard && tableCard.parentNode) tableCard.parentNode.insertBefore(container, tableCard.nextSibling);
+      }
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+      let html = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const activeStyle = i === subCurrentPage ? 'background:var(--gold);color:#1a1a1a;border-color:var(--gold);' : '';
+        html += `<button class="btn-sm" style="min-width:2.5rem;${activeStyle}" onclick="loadSubscriptionsPage(${i})">${i}</button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function renderSubscriptions() {
+      const tbody = document.getElementById('subsTable');
+      const subs = window._subsData || [];
+      if (subs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="loading">لا يوجد اشتراكات</td></tr>';
+      } else {
+        tbody.innerHTML = subs.map(sub => `
+          <tr>
+            <td>${sub.user_id.slice(0, 8)}...</td>
+            <td><span class="badge badge--${sub.tier === 'pro' ? 'pro' : 'enterprise'}">${sub.tier === 'pro' ? 'Pro' : 'Enterprise'}</span></td>
+            <td>${statusBadge(sub.status)}</td>
+            <td>${formatDate(sub.created_at)}</td>
+            <td>${formatDate(sub.current_period_end || sub.created_at)}</td>
+            <td><button class="btn-sm btn-primary" onclick="openGrantSubModal('${sub.user_id}')">مدد</button></td>
+          </tr>
+        `).join('');
+      }
+      renderPagination();
     }
 
     function statusBadge(status) {
@@ -291,38 +356,15 @@
     }
 
     async function refreshData() {
-      const data = await fetchStats();
-      const s = data.stats;
-      document.getElementById('proCount').textContent = s.proUsers.toLocaleString('ar-SA');
-      document.getElementById('entCount').textContent = s.enterpriseUsers.toLocaleString('ar-SA');
-      document.getElementById('mrr').textContent = formatCurrency(s.monthlyRevenue);
-      document.getElementById('churn').textContent = '2.4%';
-
-      const tbody = document.getElementById('subsTable');
-      window._subsData = data.recentSubscriptions || [];
-      const subs = window._subsData;
-      if (subs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading">لا يوجد اشتراكات</td></tr>';
-        return;
-      }
-      tbody.innerHTML = subs.map(sub => `
-        <tr>
-          <td>${sub.user_id.slice(0, 8)}...</td>
-          <td><span class="badge badge--${sub.tier === 'pro' ? 'pro' : 'enterprise'}">${sub.tier === 'pro' ? 'Pro' : 'Enterprise'}</span></td>
-          <td>${statusBadge(sub.status)}</td>
-          <td>${formatDate(sub.created_at)}</td>
-          <td>${formatDate(sub.current_period_end || sub.created_at)}</td>
-          <td><button class="btn-sm btn-primary" onclick="openGrantSubModal('${sub.user_id}')">مدد</button></td>
-        </tr>
-      `).join('');
+      await loadSubscriptionsPage(1);
     }
 
     window.addEventListener('load', refreshData);
 
     async function fetchUsers() {
       try {
-        const token = await getAdminToken();
-        const res = await fetch('/api/admin?action=users', {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=users&limit=500', {
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -338,7 +380,7 @@
     let currentAdminId = null;
     async function fetchCurrentAdmin() {
       try {
-        const token = await getAdminToken();
+        const token = await BondsAdminCommon.getAdminToken();
         const res = await fetch('/api/admin?action=me', {
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
@@ -354,8 +396,12 @@
     }
     window.addEventListener('load', fetchCurrentAdmin);
 
+    function showSubsStatus(msg, isError) {
+      BondsAdminCommon.showAdminStatus('subsActionStatus', msg, isError);
+    }
+
     function activateMySubscription() {
-      if (!currentAdminId) return alert('لم يتم التعرف على المستخدم الحالي');
+      if (!currentAdminId) return showSubsStatus('لم يتم التعرف على المستخدم الحالي', true);
       openGrantSubModal(currentAdminId);
     }
 
@@ -394,8 +440,8 @@
       const tier = document.getElementById('grantSubTier').value;
       const expires = document.getElementById('grantSubExpires').value;
       const reason = document.getElementById('grantSubReason').value.trim();
-      if (!userId) return alert('اختر المستخدم');
-      if (!tier) return alert('اختر الخطة');
+      if (!userId) return showSubsStatus('اختر المستخدم', true);
+      if (!tier) return showSubsStatus('اختر الخطة', true);
 
       const body = {
         action: 'grant-access',
@@ -406,7 +452,7 @@
       };
 
       try {
-        const token = await getAdminToken();
+        const token = await BondsAdminCommon.getAdminToken();
         const res = await fetch('/api/admin?action=users', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -414,13 +460,13 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert('✅ تم منح الاشتراك بنجاح');
+          showSubsStatus('✅ تم منح الاشتراك بنجاح', false);
           closeGrantSubModal();
           refreshData();
         } else {
-          alert(data.error || 'فشل منح الاشتراك');
+          showSubsStatus(data.error || 'فشل منح الاشتراك', true);
         }
-      } catch (e) { alert('خطأ في الاتصال'); }
+      } catch (e) { showSubsStatus('خطأ في الاتصال', true); }
     }
 
     function exportCSV() {
@@ -456,6 +502,8 @@
   <script src="../components/universal-dropdown.js?v=2.51.8"></script>
   <script src="../components/universal-dropdown-init.js"></script>
   <script src="../page-tracker-v2.js"></script>
-  <script src="/admin/admin-embed.js"></script>
+  <script src="/admin/admin-embed.js?v=2"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

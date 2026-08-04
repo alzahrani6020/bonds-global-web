@@ -12,7 +12,9 @@
     style.textContent = `
       html.admin-embed,
       html.admin-embed body {
-        overflow: hidden;
+        overflow: auto;
+        height: auto;
+        min-height: 100%;
       }
       .admin-embed .sidebar,
       .admin-embed #sidebar,
@@ -43,8 +45,41 @@
     document.documentElement.classList.add('admin-embed');
   }
 
+  let lastReportedHeight = 0;
+  let heightTimeout = null;
+  function reportHeight() {
+    if (heightTimeout) return;
+    heightTimeout = setTimeout(() => {
+      heightTimeout = null;
+      const height = Math.max(
+        document.body?.scrollHeight || 0,
+        document.documentElement?.scrollHeight || 0,
+        document.body?.offsetHeight || 0,
+        document.documentElement?.offsetHeight || 0
+      );
+      // Only send when height changes meaningfully to avoid loops
+      if (height > 0 && Math.abs(height - lastReportedHeight) > 5) {
+        lastReportedHeight = height;
+        window.parent.postMessage({ type: 'iframe-height', height }, location.origin);
+      }
+    }, 100);
+  }
+
   if (isEmbed) {
     applyEmbedStyles();
+    // Report content height so the parent dashboard can resize the iframe
+    // and provide a unified scrollbar instead of an inner iframe scrollbar.
+    window.addEventListener('load', reportHeight);
+    window.addEventListener('resize', reportHeight);
+    // Observe DOM changes that may affect height (e.g. messages loaded)
+    if (typeof MutationObserver !== 'undefined' && document.body) {
+      const observer = new MutationObserver(() => {
+        window.requestAnimationFrame(reportHeight);
+      });
+      observer.observe(document.body, { childList: true, subtree: true, attributes: true });
+    }
+    // Fallback periodic reports in case dynamic content loads slowly
+    setInterval(reportHeight, 2000);
   }
 
   // Token bridge: receive admin token/session from parent unified dashboard

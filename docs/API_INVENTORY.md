@@ -88,8 +88,9 @@ All routes live in `api/admin.js`. Auth is **admin Bearer** (`super_admin`, `adm
 | `/api/admin?action=exceptions` | POST | `{ user_id*, calculator, limit_override*, reason }` | Create exception | admin Bearer (strict) | none |
 | `/api/admin?action=exceptions` | DELETE | `?id=*` | Delete exception | admin Bearer (strict) | none |
 | `/api/admin?action=stats` | GET | — | Dashboard stats | admin Bearer | none |
-| `/api/admin?action=messages` | GET | — | List contact messages | admin Bearer | none |
-| `/api/admin?action=messages` | POST | `{ action: "mark_read" \| "delete", id }` | Update message | admin Bearer | none |
+| `/api/admin?action=messages` | GET | `?assigned=me|unassigned|<uuid>` | List contact messages (optionally filtered by assignee) | admin Bearer | none |
+| `/api/admin?action=messages` | POST | `{ action: "mark_read" \| "mark_unread" \| "assign" \| "unassign" \| "delete", id }` or `{ read: boolean, id }` | Update message read state, assignee, or delete | admin Bearer | none |
+| `/api/admin?action=admin-users` | GET | — | List admin users (super_admin/admin) | admin Bearer | none |
 | `/api/admin?action=roles` | GET | — | List admin roles | admin Bearer (strict) | none |
 | `/api/admin?action=roles` | POST | `{ action: "add" \| "remove", email, role }` or `{ id }` | Manage roles | admin Bearer (strict) | none |
 | `/api/admin?action=users` | GET | — | List merged auth + profile users | admin Bearer | none |
