@@ -267,7 +267,7 @@
             <li><strong>التدفق النقدي الشهري:</strong> ${Math.round(financial.netCashFlow).toLocaleString('ar-SA')} ر.س</li>
             <li><strong>مستوى الصحة المالية:</strong> ${financial.healthLabel} (${financial.healthScore}/100)</li>
           </ul>
-          ${financial.flags.length ? '<h3>⚠️ تنبيهات:</h3><ul>' + financial.flags.map(f => `<li>${f.text}</li>`).join('') + '</ul>' : ''}
+          ${financial.flags.length ? "<h3><svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> تنبيهات:</h3><ul>" + financial.flags.map(f => `<li>${f.text}</li>`).join('') + '</ul>' : ''}
         </section>
 
         <section>

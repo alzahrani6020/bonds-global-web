@@ -177,10 +177,10 @@ async function main() {
   console.log('[smoke test] Risk level:', result.risk_level);
   console.log('[smoke test] Executive summary:', result.executive_summary?.slice(0, 120) + '...');
   console.log('[smoke test] Recommendations:', JSON.stringify(result.recommendations).slice(0, 160) + '...');
-  console.log('✅ OpenAI real smoke test passed');
+  console.log(" OpenAI real smoke test passed");
 }
 
 main().catch((err) => {
-  console.error('❌ OpenAI real smoke test failed:', err.message);
+  console.error(" OpenAI real smoke test failed:", err.message);
   process.exit(1);
 });

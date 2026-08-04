@@ -154,7 +154,7 @@ async function main() {
   }
   console.log(`Opportunity scoring completed: ${scored} rows`);
 
-  console.log('\n✅ Backfill finished.');
+  console.log("\n Backfill finished.");
 }
 
 main().catch(err => {

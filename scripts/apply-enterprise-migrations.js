@@ -11,7 +11,7 @@ const { Client } = require('pg');
 const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
-  console.error('❌ Please set the DATABASE_URL environment variable.');
+  console.error(" Please set the DATABASE_URL environment variable.");
   console.error('Example: postgresql://postgres:PASSWORD@db.hutxsqzplyuqgnghsrcs.supabase.co:5432/postgres');
   process.exit(1);
 }
@@ -26,16 +26,16 @@ async function main() {
     ssl: { rejectUnauthorized: false }
   });
 
-  console.log('🔌 Connecting to database...');
+  console.log(" Connecting to database...");
   await client.connect();
 
   try {
-    console.log('🚀 Running enterprise migrations...');
+    console.log(" Running enterprise migrations...");
     await client.query('BEGIN');
     await client.query(sql);
     await client.query("SELECT public.refresh_global_search_index()");
     await client.query('COMMIT');
-    console.log('✅ Migrations applied successfully.');
+    console.log(" Migrations applied successfully.");
 
     const checks = [
       'SELECT COUNT(*) AS workflow_definitions FROM public.workflow_definitions',
@@ -44,14 +44,14 @@ async function main() {
       'SELECT COUNT(*) AS global_search_index FROM public.global_search_index'
     ];
 
-    console.log('\n📊 Verification:');
+    console.log("\n Verification:");
     for (const q of checks) {
       const res = await client.query(q);
       console.log('  ', res.rows[0]);
     }
   } catch (err) {
     await client.query('ROLLBACK').catch(() => {});
-    console.error('\n❌ Migration failed:');
+    console.error("\n Migration failed:");
     console.error(err.message);
     process.exit(1);
   } finally {

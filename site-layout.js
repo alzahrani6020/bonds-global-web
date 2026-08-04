@@ -357,7 +357,7 @@
     <div class="footer-socials">
       <a href="https://www.linkedin.com/company/bonds-global" target="_blank" rel="noopener" aria-label="LinkedIn">in</a>
       <a href="https://x.com/bonds_global" target="_blank" rel="noopener" aria-label="X">X</a>
-      <a href="https://instagram.com/bonds.global" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+      <a href="https://instagram.com/bonds.global" target="_blank" rel="noopener" aria-label="Instagram"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M4 5s0-1 1-1h6s1 0 1 1v2H4V5z"/><path fill="#31373D" d="M0 10s0-4 4-4h28s4 0 4 4v18s0 4-4 4H4s-4 0-4-4V10z"/><circle fill="#CCD6DD" cx="21" cy="19" r="10"/><circle fill="#31373D" cx="21" cy="19" r="8"/><circle fill="#3B88C3" cx="21" cy="19" r="5"/><circle fill="#FFF" cx="32.5" cy="9.5" r="1.5"/><path fill="#F5F8FA" d="M12 9.5c0 .829-.671 1.5-1.5 1.5h-5C4.671 11 4 10.329 4 9.5S4.671 8 5.5 8h5c.829 0 1.5.671 1.5 1.5z"/></svg></a>
     </div>
   </div>
 </footer>
@@ -416,13 +416,13 @@
     btn.className = 'theme-toggle';
     btn.setAttribute('aria-label', 'Toggle theme');
     btn.title = isEn ? 'Toggle theme' : 'تبديل الوضع';
-    btn.textContent = html.getAttribute('data-theme') !== 'light' ? '☀️' : '🌙';
+    btn.innerHTML = html.getAttribute('data-theme') !== 'light' ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg>" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#FFD983\" d=\"M30.312.776C32 19 20 32 .776 30.312c8.199 7.717 21.091 7.588 29.107-.429C37.9 21.867 38.03 8.975 30.312.776z\"/><path d=\"M30.705 15.915c-.453.454-.453 1.189 0 1.644.454.453 1.189.453 1.643 0 .454-.455.455-1.19 0-1.644-.453-.454-1.189-.454-1.643 0zm-16.022 14.38c-.682.681-.682 1.783 0 2.465.68.682 1.784.682 2.464 0 .681-.682.681-1.784 0-2.465-.68-.682-1.784-.682-2.464 0zm13.968-2.147c-1.135 1.135-2.974 1.135-4.108 0-1.135-1.135-1.135-2.975 0-4.107 1.135-1.136 2.974-1.136 4.108 0 1.135 1.133 1.135 2.973 0 4.107z\" fill=\"#FFCC4D\"/></svg>";
 
     btn.addEventListener('click', function () {
       const isDark = html.getAttribute('data-theme') !== 'light';
       const next = isDark ? 'light' : 'dark';
       applyTheme(next);
-      btn.textContent = next === 'dark' ? '☀️' : '🌙';
+      btn.innerHTML = next === 'dark' ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg>" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#FFD983\" d=\"M30.312.776C32 19 20 32 .776 30.312c8.199 7.717 21.091 7.588 29.107-.429C37.9 21.867 38.03 8.975 30.312.776z\"/><path d=\"M30.705 15.915c-.453.454-.453 1.189 0 1.644.454.453 1.189.453 1.643 0 .454-.455.455-1.19 0-1.644-.453-.454-1.189-.454-1.643 0zm-16.022 14.38c-.682.681-.682 1.783 0 2.465.68.682 1.784.682 2.464 0 .681-.682.681-1.784 0-2.465-.68-.682-1.784-.682-2.464 0zm13.968-2.147c-1.135 1.135-2.974 1.135-4.108 0-1.135-1.135-1.135-2.975 0-4.107 1.135-1.136 2.974-1.136 4.108 0 1.135 1.133 1.135 2.973 0 4.107z\" fill=\"#FFCC4D\"/></svg>";
       localStorage.setItem('theme', next);
     });
 
@@ -595,7 +595,7 @@
   function initGlobalAuthGate() {
     if (document.querySelector('script[src*="global-auth-gate.js"]')) return;
     const gateScript = document.createElement('script');
-    gateScript.src = '/global-auth-gate.js?v=1';
+    gateScript.src = '/global-auth-gate.js?v=2';
     gateScript.async = true;
     document.head.appendChild(gateScript);
   }

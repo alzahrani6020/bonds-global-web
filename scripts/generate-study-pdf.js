@@ -43,9 +43,9 @@ const fs = require('fs');
   const pages = match ? match[1] : 'unknown';
 
   const stats = fs.statSync(outputPath);
-  console.log('✅ PDF created:', outputPath);
-  console.log('📄 Pages:', pages);
-  console.log('📦 Size:', (stats.size / 1024 / 1024).toFixed(2), 'MB');
+  console.log(" PDF created:", outputPath);
+  console.log(" Pages:", pages);
+  console.log(" Size:", (stats.size / 1024 / 1024).toFixed(2), 'MB');
 
   await browser.close();
 })();

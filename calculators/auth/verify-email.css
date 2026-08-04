@@ -9,3 +9,4 @@
     .btn{display:inline-block;width:100%;padding:14px 24px;border-radius:10px;font-family:inherit;font-size:1rem;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;background:var(--gold);color:#0c0c0c}
     .btn:hover{background:#d4b76a;transform:translateY(-1px)}
   
+.icon svg { width: 1em; height: 1em; display: block; margin: 0 auto; }

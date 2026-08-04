@@ -16,11 +16,11 @@ const WEBHOOK_URL = process.env.STRIPE_WEBHOOK_URL || 'https://bonds-global.com/
 
 async function main() {
   if (!process.env.STRIPE_SECRET_KEY) {
-    console.error('❌ Error: STRIPE_SECRET_KEY is required');
+    console.error(" Error: STRIPE_SECRET_KEY is required");
     process.exit(1);
   }
 
-  console.log('🏦 Running full Stripe setup...\n');
+  console.log(" Running full Stripe setup...\n");
   const outputs = {};
 
   // ── 1. Tax Rate (Saudi VAT 15%) ───────────────────────────────
@@ -30,7 +30,7 @@ async function main() {
       tr => tr.display_name === 'VAT' && tr.percentage === 15 && tr.jurisdiction === 'SA'
     );
     if (saVat) {
-      console.log('⏭️  Tax Rate already exists:', saVat.id);
+      console.log("⏭  Tax Rate already exists:", saVat.id);
       outputs.taxRateId = saVat.id;
     } else {
       const taxRate = await stripe.taxRates.create({
@@ -40,11 +40,11 @@ async function main() {
         percentage: 15,
         inclusive: false,
       });
-      console.log(`✅ Tax Rate created: ${taxRate.id}`);
+      console.log(` Tax Rate created: ${taxRate.id}`);
       outputs.taxRateId = taxRate.id;
     }
   } catch (err) {
-    console.error('❌ Tax Rate error:', err.message);
+    console.error(" Tax Rate error:", err.message);
   }
 
   // ── 2. Products & Prices ──────────────────────────────────────
@@ -58,7 +58,7 @@ async function main() {
       const pro = existingProducts.data.find(p => p.name === 'Bonds Pro');
       const prices = await stripe.prices.list({ product: pro.id, limit: 1 });
       proPrice = prices.data[0];
-      console.log('⏭️  Product "Bonds Pro" already exists — Price:', proPrice.id);
+      console.log("⏭  Product \"Bonds Pro\" already exists — Price:", proPrice.id);
     } else {
       const pro = await stripe.products.create({
         name: 'Bonds Pro',
@@ -70,7 +70,7 @@ async function main() {
         currency: 'sar',
         recurring: { interval: 'month' },
       });
-      console.log(`✅ Bonds Pro created — Price: ${proPrice.id}`);
+      console.log(` Bonds Pro created — Price: ${proPrice.id}`);
     }
     outputs.pricePro = proPrice.id;
 
@@ -80,7 +80,7 @@ async function main() {
       const ent = existingProducts.data.find(p => p.name === 'Bonds Enterprise');
       const prices = await stripe.prices.list({ product: ent.id, limit: 1 });
       entPrice = prices.data[0];
-      console.log('⏭️  Product "Bonds Enterprise" already exists — Price:', entPrice.id);
+      console.log("⏭  Product \"Bonds Enterprise\" already exists — Price:", entPrice.id);
     } else {
       const ent = await stripe.products.create({
         name: 'Bonds Enterprise',
@@ -92,11 +92,11 @@ async function main() {
         currency: 'sar',
         recurring: { interval: 'month' },
       });
-      console.log(`✅ Bonds Enterprise created — Price: ${entPrice.id}`);
+      console.log(` Bonds Enterprise created — Price: ${entPrice.id}`);
     }
     outputs.priceEnterprise = entPrice.id;
   } catch (err) {
-    console.error('❌ Product/Price error:', err.message);
+    console.error(" Product/Price error:", err.message);
   }
 
   // ── 3. Webhook Endpoint ───────────────────────────────────────
@@ -104,7 +104,7 @@ async function main() {
     const endpoints = await stripe.webhookEndpoints.list({ limit: 100 });
     const existing = endpoints.data.find(wh => wh.url === WEBHOOK_URL);
     if (existing) {
-      console.log('⏭️  Webhook already exists:', existing.id);
+      console.log("⏭  Webhook already exists:", existing.id);
       outputs.webhookSecret = existing.secret;
     } else {
       const wh = await stripe.webhookEndpoints.create({
@@ -117,23 +117,23 @@ async function main() {
           'customer.subscription.deleted',
         ],
       });
-      console.log(`✅ Webhook created: ${wh.id}`);
+      console.log(` Webhook created: ${wh.id}`);
       console.log(`   Secret: ${wh.secret}`);
       outputs.webhookSecret = wh.secret;
     }
   } catch (err) {
-    console.error('❌ Webhook error:', err.message);
+    console.error(" Webhook error:", err.message);
   }
 
   // ── Summary ───────────────────────────────────────────────────
-  console.log('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('📋 Add these to Vercel Environment Variables:');
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log("\n");
+  console.log(" Add these to Vercel Environment Variables:");
+  console.log("");
   if (outputs.taxRateId)     console.log(`STRIPE_TAX_RATE_ID=${outputs.taxRateId}`);
   if (outputs.pricePro)      console.log(`STRIPE_PRICE_PRO=${outputs.pricePro}`);
   if (outputs.priceEnterprise) console.log(`STRIPE_PRICE_ENTERPRISE=${outputs.priceEnterprise}`);
   if (outputs.webhookSecret) console.log(`STRIPE_WEBHOOK_SECRET=${outputs.webhookSecret}`);
-  console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
+  console.log("\n");
 }
 
 main();

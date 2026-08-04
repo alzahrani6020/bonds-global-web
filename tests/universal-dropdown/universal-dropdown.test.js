@@ -116,12 +116,12 @@ describe('UniversalDropdown', () => {
     const wrapper = wrapperBySelectId(page, 'iconSelect');
     await wrapper.locator('.ud-trigger').click();
 
-    const firstItemIcon = await wrapper.locator('.ud-item').first().locator('.ud-icon').textContent();
-    expect(firstItemIcon).toBe('🇸🇦');
+    const firstItemIcon = await wrapper.locator('.ud-item').first().locator('.ud-icon').innerHTML();
+    expect(firstItemIcon).toContain('<svg');
 
     await wrapper.locator('.ud-item').filter({ hasText: 'الإمارات' }).click();
-    const triggerIcon = await wrapper.locator('.ud-trigger-value .ud-icon').textContent();
-    expect(triggerIcon).toBe('🇦🇪');
+    const triggerIcon = await wrapper.locator('.ud-trigger-value .ud-icon').innerHTML();
+    expect(triggerIcon).toContain('<svg');
     const triggerText = await wrapper.locator('.ud-trigger-value').textContent();
     expect(triggerText).toContain('الإمارات');
 

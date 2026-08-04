@@ -12,7 +12,7 @@ const endpoint = process.env.AI_TEST_ENDPOINT || 'https://bonds-global.com/api/v
 const token = process.env.AI_TEST_JWT;
 
 if (!token) {
-  console.error('❌ Missing AI_TEST_JWT environment variable.');
+  console.error(" Missing AI_TEST_JWT environment variable.");
   console.error('   Provide a valid Supabase user JWT to test the endpoint.');
   process.exit(1);
 }

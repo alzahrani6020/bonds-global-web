@@ -42,7 +42,7 @@ function processFile(file) {
   html = html.replace(/var\(--card\)/g, 'var(--bg-card)');
 
   fs.writeFileSync(file, html, 'utf8');
-  console.log('✓', path.relative(process.cwd(), file));
+  console.log("", path.relative(process.cwd(), file));
 }
 
 for (const file of files) {

@@ -87,15 +87,40 @@ describe('/api/capture-lead', () => {
     expect(res._json.success).toBe(true);
   });
 
-  test('rejects invalid email', async () => {
+  test('accepts invalid email and marks it invalid', async () => {
     const req = mockReq({
       url: '/api/capture-lead',
       body: { email: 'not-an-email', calculator: 'break-even' }
     });
     const res = mockRes();
     await handler(req, res);
-    expect(res.statusCode).toBe(400);
-    expect(res._json.error).toMatch(/Valid email/);
+    expect(res.statusCode).toBe(200);
+    expect(res._json.success).toBe(true);
+    expect(res._json.validation_status).toBe('invalid');
+  });
+
+  test('accepts missing email and marks it invalid', async () => {
+    const req = mockReq({
+      url: '/api/capture-lead',
+      body: { calculator: 'break-even' }
+    });
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(res._json.success).toBe(true);
+    expect(res._json.validation_status).toBe('invalid');
+  });
+
+  test('accepts incomplete lead with missing phone/city/activity', async () => {
+    const req = mockReq({
+      url: '/api/capture-lead',
+      body: { email: 'test@example.com', calculator: 'break-even' }
+    });
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.statusCode).toBe(200);
+    expect(res._json.success).toBe(true);
+    expect(res._json.validation_status).toBe('invalid');
   });
 });
 

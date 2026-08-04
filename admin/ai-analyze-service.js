@@ -54,27 +54,27 @@
 
   function renderResult(result) {
     if (!result || typeof result !== 'object') return '<p>لا توجد نتيجة</p>';
-    const exec = result.executive_summary ? `<p class="ai-result-summary">${escapeHtml(result.executive_summary)}</p>` : '';
-    const analysis = result.analysis ? `<div class="ai-result-section"><h4>التحليل</h4><p>${escapeHtml(result.analysis)}</p></div>` : '';
-    const risk = result.risk_level ? `<div class="ai-result-badge ai-result-badge--${riskClass(result.risk_level)}">${escapeHtml(result.risk_level)} ${result.risk_score !== undefined ? `(${result.risk_score})` : ''}</div>` : '';
+    const exec = result.executive_summary ? `<p class="ai-result-summary">${BondsAdminCommon.escapeHtml(result.executive_summary)}</p>` : '';
+    const analysis = result.analysis ? `<div class="ai-result-section"><h4>التحليل</h4><p>${BondsAdminCommon.escapeHtml(result.analysis)}</p></div>` : '';
+    const risk = result.risk_level ? `<div class="ai-result-badge ai-result-badge--${riskClass(result.risk_level)}">${BondsAdminCommon.escapeHtml(result.risk_level)} ${result.risk_score !== undefined ? `(${result.risk_score})` : ''}</div>` : '';
     const recs = Array.isArray(result.recommendations)
-      ? `<div class="ai-result-section"><h4>التوصيات</h4><ul>${result.recommendations.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`
+      ? `<div class="ai-result-section"><h4>التوصيات</h4><ul>${result.recommendations.map(r => `<li>${BondsAdminCommon.escapeHtml(r)}</li>`).join('')}</ul></div>`
       : '';
     const strengths = Array.isArray(result.strengths)
-      ? `<div class="ai-result-section"><h4>نقاط القوة</h4><ul>${result.strengths.map(s => `<li>${escapeHtml(s)}</li>`).join('')}</ul></div>`
+      ? `<div class="ai-result-section"><h4>نقاط القوة</h4><ul>${result.strengths.map(s => `<li>${BondsAdminCommon.escapeHtml(s)}</li>`).join('')}</ul></div>`
       : '';
     const weaknesses = Array.isArray(result.weaknesses)
-      ? `<div class="ai-result-section"><h4>نقاط الضعف</h4><ul>${result.weaknesses.map(w => `<li>${escapeHtml(w)}</li>`).join('')}</ul></div>`
+      ? `<div class="ai-result-section"><h4>نقاط الضعف</h4><ul>${result.weaknesses.map(w => `<li>${BondsAdminCommon.escapeHtml(w)}</li>`).join('')}</ul></div>`
       : '';
     const missing = Array.isArray(result.missing_data) && result.missing_data.length
-      ? `<div class="ai-result-section"><h4>بيانات ناقصة</h4><ul>${result.missing_data.map(m => `<li>${escapeHtml(m)}</li>`).join('')}</ul></div>`
+      ? `<div class="ai-result-section"><h4>بيانات ناقصة</h4><ul>${result.missing_data.map(m => `<li>${BondsAdminCommon.escapeHtml(m)}</li>`).join('')}</ul></div>`
       : '';
     const metrics = result.financial_summary && Array.isArray(result.financial_summary.key_metrics)
       ? `<div class="ai-result-section"><h4>المؤشرات المالية</h4><div class="ai-result-metrics">${result.financial_summary.key_metrics.map(m => `
           <div class="ai-result-metric">
-            <div class="ai-result-metric__name">${escapeHtml(m.name)}</div>
-            <div class="ai-result-metric__value">${escapeHtml(String(m.value ?? '—'))}</div>
-            <div class="ai-result-metric__source">${escapeHtml(m.source || '')} ${m.confidence !== undefined ? `· ثقة ${m.confidence}%` : ''}</div>
+            <div class="ai-result-metric__name">${BondsAdminCommon.escapeHtml(m.name)}</div>
+            <div class="ai-result-metric__value">${BondsAdminCommon.escapeHtml(String(m.value ?? '—'))}</div>
+            <div class="ai-result-metric__source">${BondsAdminCommon.escapeHtml(m.source || '')} ${m.confidence !== undefined ? `· ثقة ${m.confidence}%` : ''}</div>
           </div>`).join('')}</div></div>`
       : '';
 
@@ -97,11 +97,6 @@
     if (text.includes('مرتفع') || text.includes('medium')) return 'warning';
     if (text.includes('متوسط') || text.includes('low')) return 'success';
     return 'neutral';
-  }
-
-  function escapeHtml(str) {
-    if (str == null) return '';
-    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   global.AiAnalyzeService = {

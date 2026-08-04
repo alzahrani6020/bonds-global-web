@@ -166,3 +166,53 @@ describe('No regression to old country-platforms-data.js in calculators', () => 
     expect(badFiles).toEqual([]);
   });
 });
+
+
+describe('Geo data chunks', () => {
+  test('geo-data/meta.js exists and lists 96 countries', () => {
+    const metaPath = path.join(__dirname, '..', 'calculators', 'geo-data', 'meta.js');
+    expect(fs.existsSync(metaPath)).toBe(true);
+    loadScript('calculators/geo-data/meta.js');
+    const meta = global.window.BondsGeoMeta || {};
+    expect(Object.keys(meta).length).toBe(96);
+    expect(meta.SA).toBeTruthy();
+    expect(meta.SA.name).toBe('السعودية');
+  });
+
+  test('geo-data/sa.js chunk loads and has governorates and cities', () => {
+    loadScript('calculators/geo-data/sa.js');
+    const data = global.window.BondsGeoCountryData && global.window.BondsGeoCountryData.SA;
+    expect(data).toBeTruthy();
+    expect(Array.isArray(data.governorates)).toBe(true);
+    expect(data.governorates.length).toBeGreaterThan(0);
+    expect(Array.isArray(data.governorates[0].cities)).toBe(true);
+    expect(data.governorates[0].cities.length).toBeGreaterThan(0);
+  });
+});
+
+describe('No direct master-data scripts in calculator HTML', () => {
+  test('no calculator HTML references v3/master-data/*.js', () => {
+    const calculatorsDir = path.join(__dirname, '..', 'calculators');
+    const enCalculatorsDir = path.join(__dirname, '..', 'en', 'calculators');
+    const dirs = [calculatorsDir, enCalculatorsDir].filter(d => fs.existsSync(d));
+    const badFiles = [];
+    const regex = /v3\/master-data\/(countries-governorates-cities|global-countries|arab-extended-countries)\.js/;
+
+    function walk(dir) {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const p = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          walk(p);
+        } else if (entry.isFile() && entry.name.endsWith('.html')) {
+          const content = fs.readFileSync(p, 'utf8');
+          if (regex.test(content)) {
+            badFiles.push(path.relative(path.join(__dirname, '..'), p));
+          }
+        }
+      }
+    }
+
+    dirs.forEach(walk);
+    expect(badFiles).toEqual([]);
+  });
+});

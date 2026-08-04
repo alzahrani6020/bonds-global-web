@@ -1265,6 +1265,7 @@ async function grantAccess(sb, body, admin, req) {
     status: tier === 'free' ? 'inactive' : 'active',
     payment_method: 'manual',
     current_period_end: expires_at || null,
+    created_at: now,
     updated_at: now,
   };
   const { error: subErr } = await sb.from('subscriptions').upsert(sub, { onConflict: 'user_id' });
@@ -1282,6 +1283,30 @@ async function grantAccess(sb, body, admin, req) {
   }
 
   await logAdminAction(sb, admin, 'grant_access', 'user', id, targetEmail || null, { tier, expires_at, reason }, req);
+  return { success: true };
+}
+
+async function cancelAccess(sb, body, admin, req) {
+  if (!admin) throw new Error('Admin required');
+  const { id } = body;
+  if (!id) throw new Error('id required');
+
+  const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
+  assertNotOwner(targetEmail, 'cancel access for');
+  assertNotAdmin(targetRole, 'cancel access for');
+
+  const now = new Date().toISOString();
+  const { error: profileErr } = await sb.from('profiles')
+    .update({ tier: 'free', tier_expires_at: null, updated_at: now })
+    .eq('id', id);
+  if (profileErr) throw profileErr;
+
+  const { error: subErr } = await sb.from('subscriptions')
+    .update({ status: 'cancelled', current_period_end: now, updated_at: now })
+    .eq('user_id', id);
+  if (subErr) throw subErr;
+
+  await logAdminAction(sb, admin, 'cancel_access', 'user', id, targetEmail || null, {}, req);
   return { success: true };
 }
 
@@ -1726,6 +1751,7 @@ async function handler(req, res) {
         if (subAction === 'create') return res.status(200).json(await createUserAdmin(sb, req.body, admin, req));
         if (subAction === 'update') return res.status(200).json(await updateUser(sb, req.body, admin, req));
         if (subAction === 'grant-access') return res.status(200).json(await grantAccess(sb, req.body, admin, req));
+        if (subAction === 'cancel-access') return res.status(200).json(await cancelAccess(sb, req.body, admin, req));
         if (subAction === 'delete') return res.status(200).json(await deleteUser(sb, req.body, admin, req));
         if (subAction === 'reset-password') return res.status(200).json(await resetPassword(sb, req.body, admin, req));
         return res.status(400).json({ error: 'Invalid sub-action' });

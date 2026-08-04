@@ -9,8 +9,8 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="../../bonds-auth-2026.js?v=3.0.7"></script>
   
-  <script src="../../calculators/shared-geo.js?v=6"></script>
-  <script src="../../calculators/shared-platforms.js"></script>
+  <script src="../../calculators/shared-geo.js?v=7"></script>
+  <script src="../../calculators/shared-platforms-loader.js"></script>
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <link rel="stylesheet" href="../../styles/design-system.css" />
@@ -64,15 +64,15 @@
 
     <div id="authAlert"></div>
     <div class="calc-flex-center-wrap calc-flex-center-wrap--mb">
-      <button class="btn-secondary" onclick="seedDemoData()">🚀 Load Demo Data</button>
-      <button class="btn-secondary calc-tag-danger" onclick="clearAllData()">🗑️ Clear All Data</button>
-      <button class="btn-secondary" onclick="exportExcel()">📊 Export Excel</button>
-      <button class="btn-secondary" onclick="exportPDF()">📄 Export PDF</button>
+      <button class="btn-secondary" onclick="seedDemoData()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg></span> Load Demo Data</button>
+      <button class="btn-secondary calc-tag-danger" onclick="clearAllData()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#9AAAB4" d="M31.5 4l-1.784 4.542L27.932 4h-4.147l-1.926 4.903L19.932 4h-3.863l-1.926 4.903L12.216 4H8.068L6.284 8.542 4.5 4H2.133l3.735 28.013h24.263L33.867 4H31.5zm-5.642 1.678l2.459 6.425-2.601 6.621-2.457-6.254 2.599-6.792zM18 6.049l2.457 6.42L18 18.723l-2.457-6.254L18 6.049zm-7.858-.371l2.599 6.792-2.457 6.254-2.601-6.621 2.459-6.425zM5.958 16.611l.326-.853 2.549 6.66-1.573 4.004-1.302-9.811zM8.068 32l2.216-5.79L12.5 32H8.068zm3.668-9.582l2.407-6.288 2.406 6.288-2.406 6.126-2.407-6.126zM15.784 32L18 26.21 20.216 32h-4.432zm3.667-9.582l2.406-6.288 2.406 6.288-2.406 6.126-2.406-6.126zM23.5 32l2.216-5.79L27.932 32H23.5zm5.392-5.192l-1.725-4.39 2.549-6.659.411 1.074-1.235 9.975z"/><path fill="#67757F" d="M32 34c0-1.104-.896-2-2-2H6c-1.104 0-2 .896-2 2s.896 2 2 2h24c1.104 0 2-.896 2-2zm4-32c0-1.105-.896-2-2-2H2C.896 0 0 .896 0 2c0 1.105.896 2 2 2h32c1.104 0 2-.895 2-2z"/></svg></span>️ Clear All Data</button>
+      <button class="btn-secondary" onclick="exportExcel()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#5C913B" d="M13 33H7V16c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v17z"/><path fill="#3B94D9" d="M29 33h-6V9c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v24z"/><path fill="#DD2E44" d="M21 33h-6V23c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v10z"/></svg></span> Export Excel</button>
+      <button class="btn-secondary" onclick="exportPDF()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#E1E8ED" d="M32.415 9.586l-9-9C23.054.225 22.553 0 22 0c-1.104 0-1.999.896-2 2 0 .552.224 1.053.586 1.415l-3.859 3.859 9 9 3.859-3.859c.362.361.862.585 1.414.585 1.104 0 2.001-.896 2-2 0-.552-.224-1.052-.585-1.414z"/><path fill="#CCD6DD" d="M22 0H7C4.791 0 3 1.791 3 4v28c0 2.209 1.791 4 4 4h22c2.209 0 4-1.791 4-4V11h-9c-1 0-2-1-2-2V0z"/><path fill="#99AAB5" d="M22 0h-2v9c0 2.209 1.791 4 4 4h9v-2h-9c-1 0-2-1-2-2V0zm-5 8c0 .552-.448 1-1 1H8c-.552 0-1-.448-1-1s.448-1 1-1h8c.552 0 1 .448 1 1zm0 4c0 .552-.448 1-1 1H8c-.552 0-1-.448-1-1s.448-1 1-1h8c.552 0 1 .448 1 1zm12 4c0 .552-.447 1-1 1H8c-.552 0-1-.448-1-1s.448-1 1-1h20c.553 0 1 .448 1 1zm0 4c0 .553-.447 1-1 1H8c-.552 0-1-.447-1-1 0-.553.448-1 1-1h20c.553 0 1 .447 1 1zm0 4c0 .553-.447 1-1 1H8c-.552 0-1-.447-1-1 0-.553.448-1 1-1h20c.553 0 1 .447 1 1zm0 4c0 .553-.447 1-1 1H8c-.552 0-1-.447-1-1 0-.553.448-1 1-1h20c.553 0 1 .447 1 1z"/></svg></span> Export PDF</button>
     </div>
 
     <!-- Data Entry Tabs -->
     <div class="me-actions">
-      <h2>📥 Data Entry</h2>
+      <h2><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#D99E82" d="M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4v-9c0-2.209.791-3 3-3h30c2.209 0 3 .791 3 3v9z"/><path fill="#662113" d="M25 20c0 3.866-3.134 7-7 7s-7-3.134-7-7h14z"/><path fill="#C1694F" d="M4 36h28c2.209 0 4-1.791 4-4H0c0 2.209 1.791 4 4 4z"/><path fill="#77B255" d="M26.716 8h-4.783V2c0-1.105-.896-2-2-2h-4.001c-1.104 0-1.999.896-1.999 2v6H9.148c-1.223 0-1.516.623-.651 1.489l7.863 7.863c.865.865 2.28.865 3.146 0l7.863-7.863C28.232 8.623 27.94 8 26.716 8z"/></svg></span> Data Entry</h2>
       <div class="tabs">
         <div class="tab active" onclick="switchTab('platforms', event)">Platforms</div>
         <div class="tab" onclick="switchTab('ingredients', event)">Ingredients</div>
@@ -93,7 +93,7 @@
           <div class="form-group"><label for="pGateway">Payment Gateway (%)</label><input id="pGateway" type="number" value="1.75" /></div>
           <div class="form-group"><label for="pDelivery">Delivery Fee (SAR)</label><input id="pDelivery" type="number" value="0" /></div>
         </div>
-        <button class="btn-primary" onclick="addPlatform()">➕ Add Platform</button>
+        <button class="btn-primary" onclick="addPlatform()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M31 15H21V5c0-1.657-1.343-3-3-3s-3 1.343-3 3v10H5c-1.657 0-3 1.343-3 3s1.343 3 3 3h10v10c0 1.657 1.343 3 3 3s3-1.343 3-3V21h10c1.657 0 3-1.343 3-3s-1.343-3-3-3z"/></svg></span> Add Platform</button>
         <div id="pList" class="list-box"></div>
       </div>
 
@@ -105,7 +105,7 @@
           <div class="form-group"><label>Cost per Unit (SAR)</label><input id="iCost" type="number" step="0.01" placeholder="12.50" /></div>
           <div class="form-group"><label>Category</label><input id="iCategory" placeholder="Meat" value="other" /></div>
         </div>
-        <button class="btn-primary" onclick="addIngredient()">➕ Add Ingredient</button>
+        <button class="btn-primary" onclick="addIngredient()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M31 15H21V5c0-1.657-1.343-3-3-3s-3 1.343-3 3v10H5c-1.657 0-3 1.343-3 3s1.343 3 3 3h10v10c0 1.657 1.343 3 3 3s3-1.343 3-3V21h10c1.657 0 3-1.343 3-3s-1.343-3-3-3z"/></svg></span> Add Ingredient</button>
         <div id="iList" class="list-box"></div>
       </div>
 
@@ -123,7 +123,7 @@
           </div>
           <div class="form-group"><label>Base Price (SAR)</label><input id="mPrice" type="number" step="0.01" placeholder="35" /></div>
         </div>
-        <button class="btn-primary" onclick="addMenuItem()">➕ Add Dish</button>
+        <button class="btn-primary" onclick="addMenuItem()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M31 15H21V5c0-1.657-1.343-3-3-3s-3 1.343-3 3v10H5c-1.657 0-3 1.343-3 3s1.343 3 3 3h10v10c0 1.657 1.343 3 3 3s3-1.343 3-3V21h10c1.657 0 3-1.343 3-3s-1.343-3-3-3z"/></svg></span> Add Dish</button>
         <div id="mList" class="list-box"></div>
       </div>
 
@@ -135,7 +135,7 @@
           <div class="form-group"><label>Quantity Required</label><input id="cQty" type="number" step="0.01" placeholder="0.15" /></div>
           <div class="form-group"><label>Unit</label><input id="cUnit" type="text" placeholder="kg or g or piece" /></div>
         </div>
-        <button class="btn-primary" onclick="addMenuItemIngredient()">➕ Link Ingredient to Dish</button>
+        <button class="btn-primary" onclick="addMenuItemIngredient()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M31 15H21V5c0-1.657-1.343-3-3-3s-3 1.343-3 3v10H5c-1.657 0-3 1.343-3 3s1.343 3 3 3h10v10c0 1.657 1.343 3 3 3s3-1.343 3-3V21h10c1.657 0 3-1.343 3-3s-1.343-3-3-3z"/></svg></span> Link Ingredient to Dish</button>
         <div id="cList" class="list-box"></div>
       </div>
 
@@ -147,7 +147,7 @@
           <div class="form-group"><label>Quantity</label><input id="sQty" type="number" value="1" /></div>
           <div class="form-group"><label>Selling Price (SAR)</label><input id="sPrice" type="number" step="0.01" /></div>
         </div>
-        <button class="btn-primary" onclick="addSale()">➕ Record Sale</button>
+        <button class="btn-primary" onclick="addSale()"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M31 15H21V5c0-1.657-1.343-3-3-3s-3 1.343-3 3v10H5c-1.657 0-3 1.343-3 3s1.343 3 3 3h10v10c0 1.657 1.343 3 3 3s3-1.343 3-3V21h10c1.657 0 3-1.343 3-3s-1.343-3-3-3z"/></svg></span> Record Sale</button>
         <div id="sList" class="list-box"></div>
       </div>
     </div>
@@ -175,7 +175,7 @@
 
     <!-- Omnichannel Margin Calculator -->
     <div class="me-actions">
-      <h2>🌐 Omnichannel Margin Calculator</h2>
+      <h2><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#3B88C3" d="M18 0C8.059 0 0 8.059 0 18s8.059 18 18 18 18-8.059 18-18S27.941 0 18 0zM2.05 19h3.983c.092 2.506.522 4.871 1.229 7H4.158c-1.207-2.083-1.95-4.459-2.108-7zM19 8V2.081c2.747.436 5.162 2.655 6.799 5.919H19zm7.651 2c.754 2.083 1.219 4.46 1.317 7H19v-7h7.651zM17 2.081V8h-6.799C11.837 4.736 14.253 2.517 17 2.081zM17 10v7H8.032c.098-2.54.563-4.917 1.317-7H17zM6.034 17H2.05c.158-2.54.901-4.917 2.107-7h3.104c-.705 2.129-1.135 4.495-1.227 7zm1.998 2H17v7H9.349c-.754-2.083-1.219-4.459-1.317-7zM17 28v5.919c-2.747-.437-5.163-2.655-6.799-5.919H17zm2 5.919V28h6.8c-1.637 3.264-4.053 5.482-6.8 5.919zM19 26v-7h8.969c-.099 2.541-.563 4.917-1.317 7H19zm10.967-7h3.982c-.157 2.541-.9 4.917-2.107 7h-3.104c.706-2.129 1.136-4.494 1.229-7zm0-2c-.093-2.505-.523-4.871-1.229-7h3.104c1.207 2.083 1.95 4.46 2.107 7h-3.982zm.512-9h-2.503c-.717-1.604-1.606-3.015-2.619-4.199C27.346 4.833 29.089 6.267 30.479 8zM10.643 3.801C9.629 4.985 8.74 6.396 8.023 8H5.521c1.39-1.733 3.133-3.166 5.122-4.199zM5.521 28h2.503c.716 1.604 1.605 3.015 2.619 4.198C8.654 31.166 6.911 29.733 5.521 28zm19.836 4.198c1.014-1.184 1.902-2.594 2.619-4.198h2.503c-1.39 1.733-3.133 3.166-5.122 4.198z"/></svg></span> Omnichannel Margin Calculator</h2>
       <p class="calc-text-secondary calc-mb-6 calc-text-center">Compare selling via delivery apps vs direct sales from your own website</p>
       <div class="form-row">
         <div class="form-group"><label>Dish</label><select data-universal-dropdown="true" id="omniItem"><option value="">Select...</option></select></div>
@@ -815,7 +815,7 @@ async function runOmnichannel() {
     const plat = d.platform;
     const dir = d.direct;
     const comp = d.comparison;
-    box.innerHTML = `<div class="result-box"><h4>🌐 Comparison: ${d.item_name} (${d.item_price} SAR)</h4>
+    box.innerHTML = `<div class="result-box"><h4><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="100%" height="100%"><path fill="#3B88C3" d="M18 0C8.059 0 0 8.059 0 18s8.059 18 18 18 18-8.059 18-18S27.941 0 18 0zM2.05 19h3.983c.092 2.506.522 4.871 1.229 7H4.158c-1.207-2.083-1.95-4.459-2.108-7zM19 8V2.081c2.747.436 5.162 2.655 6.799 5.919H19zm7.651 2c.754 2.083 1.219 4.46 1.317 7H19v-7h7.651zM17 2.081V8h-6.799C11.837 4.736 14.253 2.517 17 2.081zM17 10v7H8.032c.098-2.54.563-4.917 1.317-7H17zM6.034 17H2.05c.158-2.54.901-4.917 2.107-7h3.104c-.705 2.129-1.135 4.495-1.227 7zm1.998 2H17v7H9.349c-.754-2.083-1.219-4.459-1.317-7zM17 28v5.919c-2.747-.437-5.163-2.655-6.799-5.919H17zm2 5.919V28h6.8c-1.637 3.264-4.053 5.482-6.8 5.919zM19 26v-7h8.969c-.099 2.541-.563 4.917-1.317 7H19zm10.967-7h3.982c-.157 2.541-.9 4.917-2.107 7h-3.104c.706-2.129 1.136-4.494 1.229-7zm0-2c-.093-2.505-.523-4.871-1.229-7h3.104c1.207 2.083 1.95 4.46 2.107 7h-3.982zm.512-9h-2.503c-.717-1.604-1.606-3.015-2.619-4.199C27.346 4.833 29.089 6.267 30.479 8zM10.643 3.801C9.629 4.985 8.74 6.396 8.023 8H5.521c1.39-1.733 3.133-3.166 5.122-4.199zM5.521 28h2.503c.716 1.604 1.605 3.015 2.619 4.198C8.654 31.166 6.911 29.733 5.521 28zm19.836 4.198c1.014-1.184 1.902-2.594 2.619-4.198h2.503c-1.39 1.733-3.133 3.166-5.122 4.198z"/></svg></span> Comparison: ${d.item_name} (${d.item_price} SAR)</h4>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-4);margin:var(--space-4) 0;">
         <div style="background:var(--bg-card);padding:var(--space-4);border-radius:var(--radius);border:1px solid var(--border);">
           <h5 style="color:#ef4444;margin-bottom:var(--space-2);">📱 ${plat.name}</h5>
@@ -828,7 +828,7 @@ async function runOmnichannel() {
           <p><strong>Margin: ${plat.margin_pct}%</strong></p>
         </div>
         <div style="background:var(--bg-card);padding:var(--space-4);border-radius:var(--radius);border:1px solid var(--border);">
-          <h5 style="color:#22c55e;margin-bottom:var(--space-2);">🌐 Direct Sales</h5>
+          <h5 style="color:#22c55e;margin-bottom:var(--space-2);"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" width="100%" height="100%"><path fill="#3B88C3" d="M18 0C8.059 0 0 8.059 0 18s8.059 18 18 18 18-8.059 18-18S27.941 0 18 0zM2.05 19h3.983c.092 2.506.522 4.871 1.229 7H4.158c-1.207-2.083-1.95-4.459-2.108-7zM19 8V2.081c2.747.436 5.162 2.655 6.799 5.919H19zm7.651 2c.754 2.083 1.219 4.46 1.317 7H19v-7h7.651zM17 2.081V8h-6.799C11.837 4.736 14.253 2.517 17 2.081zM17 10v7H8.032c.098-2.54.563-4.917 1.317-7H17zM6.034 17H2.05c.158-2.54.901-4.917 2.107-7h3.104c-.705 2.129-1.135 4.495-1.227 7zm1.998 2H17v7H9.349c-.754-2.083-1.219-4.459-1.317-7zM17 28v5.919c-2.747-.437-5.163-2.655-6.799-5.919H17zm2 5.919V28h6.8c-1.637 3.264-4.053 5.482-6.8 5.919zM19 26v-7h8.969c-.099 2.541-.563 4.917-1.317 7H19zm10.967-7h3.982c-.157 2.541-.9 4.917-2.107 7h-3.104c.706-2.129 1.136-4.494 1.229-7zm0-2c-.093-2.505-.523-4.871-1.229-7h3.104c1.207 2.083 1.95 4.46 2.107 7h-3.982zm.512-9h-2.503c-.717-1.604-1.606-3.015-2.619-4.199C27.346 4.833 29.089 6.267 30.479 8zM10.643 3.801C9.629 4.985 8.74 6.396 8.023 8H5.521c1.39-1.733 3.133-3.166 5.122-4.199zM5.521 28h2.503c.716 1.604 1.605 3.015 2.619 4.198C8.654 31.166 6.911 29.733 5.521 28zm19.836 4.198c1.014-1.184 1.902-2.594 2.619-4.198h2.503c-1.39 1.733-3.133 3.166-5.122 4.198z"/></svg></span> Direct Sales</h5>
           <p>Acquisition: ${dir.cac} SAR</p>
           <p>Delivery: ${dir.delivery_fee} SAR</p>
           <p>Gateway: ${dir.gateway_fee} SAR</p>
@@ -965,5 +965,7 @@ init();
   window.__bondsCalcConfig = {"name": "menu-engineering", "v3": {}, "saveTitle": "Menu Engineering", "lang": "en", "rel": "../../calculators/"};
   BondsAnonymousFirst.init(window.__bondsCalcConfig);
 </script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

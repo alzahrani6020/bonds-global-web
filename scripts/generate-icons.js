@@ -21,7 +21,7 @@ const SIZES = [192, 512];
     await page.goto(dataUrl, { waitUntil: 'networkidle' });
     await page.screenshot({ path: path.join(OUT_DIR, `icon-${size}.png`), type: 'png' });
     await page.close();
-    console.log(`✅ Generated icon-${size}.png`);
+    console.log(` Generated icon-${size}.png`);
   }
 
   await browser.close();

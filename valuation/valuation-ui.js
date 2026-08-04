@@ -20,23 +20,6 @@
     });
   }
 
-  function debounce(fn, wait) {
-    let t;
-    return function () {
-      clearTimeout(t);
-      t = setTimeout(fn, wait);
-    };
-  }
-
-  function escapeHtml(str) {
-    if (str == null) return '';
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
-
   function formatDueIndicator(dueStr) {
     if (!dueStr) return '';
     const due = new Date(dueStr);
@@ -44,8 +27,8 @@
     today.setHours(0, 0, 0, 0);
     due.setHours(0, 0, 0, 0);
     const diff = Math.ceil((due - today) / (1000 * 60 * 60 * 24));
-    if (diff < 0) return ' ⚠️ متأخر';
-    if (diff <= 30) return ' ⏳ قريب';
+    if (diff < 0) return " <svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> متأخر";
+    if (diff <= 30) return ' <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFE8B6" d="M21 18c0-2.001 3.246-3.369 5-6 2-3 2-10 2-10H8s0 7 2 10c1.754 2.631 5 3.999 5 6s-3.246 3.369-5 6c-2 3-2 10-2 10h20s0-7-2-10c-1.754-2.631-5-3.999-5-6z"/><path fill="#FFAC33" d="M18 2h-8s0 4 1 7c1.304 3.912 6 4.999 6 9s0 13 1 13 1-9 1-13 4.697-5.088 6-9c1-3 1-7 1-7h-8z"/><path fill="#3B88C3" d="M30 34c0 1.104-.896 2-2 2H8c-1.104 0-2-.896-2-2s.896-2 2-2h20c1.104 0 2 .896 2 2zm0-32c0 1.104-.896 2-2 2H8c-1.104 0-2-.896-2-2s.896-2 2-2h20c1.104 0 2 .896 2 2z"/></svg> قريب';
     return '';
   }
 
@@ -114,7 +97,7 @@
         const badgeText = isActive
           ? (this.locale.texts.activeBadge || 'متاح')
           : (this.locale.texts.comingSoonBadge || 'قريباً');
-        const icon = this.locale.icons && this.locale.icons[slug] ? this.locale.icons[slug] : '📦';
+        const icon = this.locale.icons && this.locale.icons[slug] ? this.locale.icons[slug] : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#662113\" d=\"M4 11v12.375c0 2.042 1.093 2.484 1.093 2.484l11.574 9.099C18.489 36.39 18 33.375 18 33.375V22L4 11z\"/><path fill=\"#C1694F\" d=\"M32 11v12.375c0 2.042-1.063 2.484-1.063 2.484s-9.767 7.667-11.588 9.099C17.526 36.39 18 33.375 18 33.375V22l14-11z\"/><path fill=\"#D99E82\" d=\"M19.289.5c-.753-.61-1.988-.61-2.742 0L4.565 10.029c-.754.61-.754 1.607 0 2.216l12.023 9.646c.754.609 1.989.609 2.743 0l12.104-9.73c.754-.609.754-1.606 0-2.216L19.289.5z\"/><path fill=\"#D99E82\" d=\"M18 35.75c-.552 0-1-.482-1-1.078V21.745c0-.596.448-1.078 1-1.078.553 0 1 .482 1 1.078v12.927c0 .596-.447 1.078-1 1.078z\"/><path fill=\"#99AAB5\" d=\"M28 18.836c0 1.104.104 1.646-1 2.442l-2.469 1.878c-1.104.797-1.531.113-1.531-.992v-2.961c0-.193-.026-.4-.278-.608C20.144 16.47 10.134 8.519 8.31 7.051l4.625-3.678c1.266.926 10.753 8.252 14.722 11.377.197.156.343.328.343.516v3.57z\"/><path fill=\"#CCD6DD\" d=\"M27.656 14.75C23.688 11.625 14.201 4.299 12.935 3.373l-1.721 1.368-2.904 2.31c1.825 1.468 11.834 9.419 14.412 11.544.151.125.217.25.248.371L27.903 15c-.06-.087-.146-.171-.247-.25z\"/><path fill=\"#CCD6DD\" d=\"M28 18.836v-3.57c0-.188-.146-.359-.344-.516-3.968-3.125-13.455-10.451-14.721-11.377l-2.073 1.649c3.393 2.669 12.481 9.681 14.86 11.573.256.204.278.415.278.608v4.836l1-.761c1.104-.797 1-1.338 1-2.442z\"/><path fill=\"#E1E8ED\" d=\"M27.656 14.75C23.688 11.625 14.201 4.299 12.935 3.373l-2.073 1.649c3.393 2.669 12.481 9.681 14.86 11.573.037.029.06.059.087.088L27.903 15c-.06-.087-.146-.171-.247-.25z\"/></svg>";
         return `
           <div class="asset-card ${isActive ? 'asset-card--active' : 'asset-card--disabled'}" data-slug="${slug}" role="${isActive ? 'button' : ''}" tabindex="${isActive ? '0' : '-1'}">
             <div class="asset-card__icon">${icon}</div>
@@ -203,7 +186,7 @@
         const state = idx < this.currentStep ? 'step--complete' : (idx === this.currentStep ? 'step--active' : '');
         return `
           <div class="step ${state}" data-step="${idx}" role="button" tabindex="0" aria-label="${step.title}">
-            <div class="step__dot">${idx < this.currentStep ? '✓' : (idx + 1)}</div>
+            <div class="step__dot">${idx < this.currentStep ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" : (idx + 1)}</div>
             <div class="step__label">${step.title}</div>
           </div>
         `;
@@ -338,11 +321,11 @@
           <div class="ca-meta__grid">
             <div class="ca-meta__field">
               <label>${t.conditionAssetName || 'اسم الأصل'}</label>
-              <input type="text" id="caAssetName" value="${escapeHtml(meta.assetName || this.inputs.assetName || '')}" />
+              <input type="text" id="caAssetName" value="${BondsCommon.escapeHtml(meta.assetName || this.inputs.assetName || '')}" />
             </div>
             <div class="ca-meta__field">
               <label>${t.conditionAssetIdentifier || 'معرّف الأصل'}</label>
-              <input type="text" id="caAssetIdentifier" value="${escapeHtml(meta.assetIdentifier || '')}" />
+              <input type="text" id="caAssetIdentifier" value="${BondsCommon.escapeHtml(meta.assetIdentifier || '')}" />
             </div>
             <div class="ca-meta__field">
               <label>${t.conditionAssessmentDate || 'تاريخ الفحص'}</label>
@@ -357,7 +340,7 @@
           </div>
           <div class="ca-meta__field ca-meta__field--full">
             <label>${t.conditionNotes || 'ملاحظات'}</label>
-            <textarea id="caNotes" rows="2">${escapeHtml(meta.notes || '')}</textarea>
+            <textarea id="caNotes" rows="2">${BondsCommon.escapeHtml(meta.notes || '')}</textarea>
           </div>
           <div class="ca-meta__field ca-meta__field--full" id="caPreviousWrap" style="display:none">
             <label>${t.conditionLoadPrevious || 'تحميل تقييم سابق'}</label>
@@ -436,7 +419,7 @@
               <div class="ca-result__item"><span>${t.conditionGradeResult}</span><strong>${result.grade} — ${gradeLabel}</strong></div>
               <div class="ca-result__item"><span>${t.conditionConfidenceResult}</span><strong>${result.confidenceScore}%</strong></div>
             </div>
-            ${result.capped ? `<div class="ca-critical-warning">⚠ ${t.conditionCriticalWarning}</div>` : ''}
+            ${result.capped ? `<div class="ca-critical-warning"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg> ${t.conditionCriticalWarning}</div>` : ''}
           `;
         }
         this.saveDraft();
@@ -554,7 +537,7 @@
           res.data.map(a => {
             const dueIndicator = formatDueIndicator(a.next_assessment_due);
             const label = `${a.assessment_date} — ${a.asset_name || a.asset_identifier || a.id} — ${a.grade || ''}${dueIndicator}`;
-            return `<option value="${a.id}" ${a.id === currentId ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+            return `<option value="${a.id}" ${a.id === currentId ? 'selected' : ''}>${BondsCommon.escapeHtml(label)}</option>`;
           }).join('');
 
         this.populateComparisonSelect();
@@ -724,7 +707,7 @@
       select.disabled = false;
       select.innerHTML = list.map(a => {
         const label = `${a.assessment_date} — ${a.asset_name || a.asset_identifier || a.id} — ${a.grade || ''}`;
-        return `<option value="${a.id}">${escapeHtml(label)}</option>`;
+        return `<option value="${a.id}">${BondsCommon.escapeHtml(label)}</option>`;
       }).join('');
     }
 
@@ -767,7 +750,7 @@
           <tbody>
             ${rows.map(a => `
               <tr>
-                <td>${escapeHtml(a.asset_name || a.asset_identifier || a.id)}</td>
+                <td>${BondsCommon.escapeHtml(a.asset_name || a.asset_identifier || a.id)}</td>
                 <td>${a.assessment_date}</td>
                 <td>${a.score}</td>
                 <td>${a.grade || ''}</td>
@@ -884,8 +867,8 @@
               <span class="ca-maintenance__priority">${priorityLabel[task.priority] || task.priority}</span>
             </div>
             <div class="ca-maintenance__body">
-              <div><strong>${t.conditionMaintenanceCategory || 'الفئة'}:</strong> ${escapeHtml(label)}</div>
-              <div><strong>${t.conditionMaintenanceAction || 'الإجراء'}:</strong> ${escapeHtml(action)}</div>
+              <div><strong>${t.conditionMaintenanceCategory || 'الفئة'}:</strong> ${BondsCommon.escapeHtml(label)}</div>
+              <div><strong>${t.conditionMaintenanceAction || 'الإجراء'}:</strong> ${BondsCommon.escapeHtml(action)}</div>
             </div>
           </div>
         `;
@@ -982,7 +965,7 @@
     }
 
     attachInputListeners() {
-      const save = debounce(() => {
+      const save = BondsCommon.debounce(() => {
         this.collectStepInputs();
         this.saveDraft();
       }, 400);
@@ -1693,8 +1676,8 @@
 
       panel.style.display = 'block';
       header.innerHTML = validation.passed
-        ? `<div class="validation-badge validation-badge--pass">${t.validationPassed || '✅ البيانات صالحة'}</div>`
-        : `<div class="validation-badge validation-badge--fail">${t.validationFailed || '❌ البيانات غير كافية'}</div>`;
+        ? `<div class="validation-badge validation-badge--pass">${t.validationPassed || "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> البيانات صالحة"}</div>`
+        : `<div class="validation-badge validation-badge--fail">${t.validationFailed || "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#DD2E44\" d=\"M21.533 18.002L33.768 5.768c.976-.976.976-2.559 0-3.535-.977-.977-2.559-.977-3.535 0L17.998 14.467 5.764 2.233c-.976-.977-2.56-.977-3.535 0-.977.976-.977 2.559 0 3.535l12.234 12.234L2.201 30.265c-.977.977-.977 2.559 0 3.535.488.488 1.128.732 1.768.732s1.28-.244 1.768-.732l12.262-12.263 12.234 12.234c.488.488 1.128.732 1.768.732.64 0 1.279-.244 1.768-.732.976-.977.976-2.559 0-3.535L21.533 18.002z\"/></svg> البيانات غير كافية"}</div>`;
 
       const scoreItems = [
         { label: t.confidenceScore || 'درجة الثقة', value: validation.confidenceScore },
@@ -1781,7 +1764,7 @@
       } catch (err) {
         console.error('[ValuationUI] generateAiReport error:', err);
         if (status) status.textContent = isEn ? 'Generation failed' : 'فشل التوليد';
-        if (content) content.innerHTML = `<div class="ai-report-error">${escapeHtml(err.message)}</div>`;
+        if (content) content.innerHTML = `<div class="ai-report-error">${BondsCommon.escapeHtml(err.message)}</div>`;
       }
     }
 
@@ -1818,9 +1801,9 @@
       }
       if (approveBtn) {
         const isApproved = data.status === 'approved';
-        approveBtn.textContent = isApproved
-          ? (isEn ? '✅ Approved' : '✅ تم الاعتماد')
-          : (isEn ? '✅ Approve Report' : '✅ اعتماد التقرير');
+        approveBtn.innerHTML = isApproved
+          ? (isEn ? "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> Approved" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> تم الاعتماد")
+          : (isEn ? "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> Approve Report" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> اعتماد التقرير");
         approveBtn.disabled = isApproved;
         const freshApprove = approveBtn.cloneNode(true);
         approveBtn.parentNode.replaceChild(freshApprove, approveBtn);
@@ -1901,7 +1884,7 @@
         console.error('[ValuationUI] approveAiReport error:', err);
         alert(err.message);
         if (approveBtn) {
-          approveBtn.textContent = isEn ? '✅ Approve Report' : '✅ اعتماد التقرير';
+          approveBtn.innerHTML = isEn ? "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> Approve Report" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> اعتماد التقرير";
           approveBtn.disabled = false;
         }
       }
@@ -1948,7 +1931,7 @@
       } catch (err) {
         console.error('[ValuationUI] issueCertificate error:', err);
         if (status) status.textContent = isEn ? 'Issuance failed' : 'فشل الإصدار';
-        if (body) body.innerHTML = `<div class="certificate-error">${escapeHtml(err.message)}</div>`;
+        if (body) body.innerHTML = `<div class="certificate-error">${BondsCommon.escapeHtml(err.message)}</div>`;
       }
     }
 
@@ -1975,18 +1958,18 @@
           </div>
           <div class="bdvc-certificate__number">${data.certificate_number}</div>
           <div class="bdvc-certificate__grid">
-            <div><strong>${isEn ? 'Asset' : 'الأصل'}:</strong> ${escapeHtml(this._lastResult.inputs?.assetName || this._lastResult.inputs?.name || '')}</div>
-            <div><strong>${isEn ? 'Class' : 'الفئة'}:</strong> ${escapeHtml(this.currentAsset)}</div>
+            <div><strong>${isEn ? 'Asset' : 'الأصل'}:</strong> ${BondsCommon.escapeHtml(this._lastResult.inputs?.assetName || this._lastResult.inputs?.name || '')}</div>
+            <div><strong>${isEn ? 'Class' : 'الفئة'}:</strong> ${BondsCommon.escapeHtml(this.currentAsset)}</div>
             <div><strong>${isEn ? 'Issued' : 'تاريخ الإصدار'}:</strong> ${new Date(data.issued_at).toLocaleDateString(isEn ? 'en-US' : 'ar-SA')}</div>
             <div><strong>${isEn ? 'Valid until' : 'صالحة حتى'}:</strong> ${new Date(data.valid_until).toLocaleDateString(isEn ? 'en-US' : 'ar-SA')}</div>
           </div>
           <div class="bdvc-certificate__seal">
-            <div class="bdvc-certificate__seal-id">${isEn ? 'Seal ID' : 'رقم الختم'}: ${escapeHtml(data.seal_metadata.seal_id)}</div>
-            <div class="bdvc-certificate__seal-hash">${isEn ? 'Seal Hash' : 'بصمة الختم'}: ${escapeHtml(data.seal_metadata.seal_hash)}</div>
+            <div class="bdvc-certificate__seal-id">${isEn ? 'Seal ID' : 'رقم الختم'}: ${BondsCommon.escapeHtml(data.seal_metadata.seal_id)}</div>
+            <div class="bdvc-certificate__seal-hash">${isEn ? 'Seal Hash' : 'بصمة الختم'}: ${BondsCommon.escapeHtml(data.seal_metadata.seal_hash)}</div>
           </div>
           <div class="bdvc-certificate__qr">
             <img src="${qrUrl}" alt="${isEn ? 'Verification QR' : 'QR للتحقق'}" />
-            <div class="bdvc-certificate__verify-url">${escapeHtml(data.verification_url)}</div>
+            <div class="bdvc-certificate__verify-url">${BondsCommon.escapeHtml(data.verification_url)}</div>
           </div>
           <div class="bdvc-certificate__footer">
             ${isEn ? 'This certificate was issued by BONDS AI Valuation Analyst and is verified cryptographically.' : 'هذه الشهادة صادرة عن محلل بوندز الذكي للتقييم ومُتحققة تشفيرياً.'}

@@ -92,13 +92,13 @@
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
   <div id="site-header"></div>
   <header>
-    <h1>✦ Bonds V3 CMS</h1>
+    <h1><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg></span> Bonds V3 CMS</h1>
   </header>
 
   <div class="container">
@@ -195,12 +195,12 @@
 
       <div id="marketPanel" class="panel">
         <div class="card">
-          <h3>✦ تحليل السوق تلقائياً</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg></span> تحليل السوق تلقائياً</h3>
           <form id="autoFillMarketForm" class="form-grid" onsubmit="runAutoFillMarket(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="autoFillMarketCitySelect" required></select></div>
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="autoFillMarketActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit">✦ تحليل السوق تلقائياً</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg></span> تحليل السوق تلقائياً</button></div>
           </form>
           <div id="autoFillMarketResult"></div>
         </div>
@@ -233,13 +233,13 @@
 
       <div id="dataSourcesPanel" class="panel">
         <div class="card">
-          <h3>✦ تحديث تلقائي</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg></span> تحديث تلقائي</h3>
           <p>اختر المدينة والنشاط لجلب البيانات تلقائياً من جميع المحركات.</p>
           <form id="autoFillForm" class="form-grid" onsubmit="runAutoFill(event)">
             <div><label>المدينة</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="city_code" id="autoFillCitySelect" required></select></div>
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="autoFillActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
-            <div style="grid-column: 1 / -1;"><button type="submit">✦ تحديث تلقائي للكل</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg></span> تحديث تلقائي للكل</button></div>
           </form>
           <div id="autoFillResult"></div>
         </div>
@@ -284,7 +284,7 @@
 
       <div id="competitorCalibrationPanel" class="panel">
         <div class="card">
-          <h3>✦ معايرة عدد المنافسين</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg></span> معايرة عدد المنافسين</h3>
           <form id="calibrationForm" class="form-grid" onsubmit="runCalibration(event)">
             <div><label>النشاط</label><select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" name="activity_code" id="calibrationActivitySelect" required></select></div>
             <div><label>السنة</label><input name="year" type="number" value="2025"></div>
@@ -313,7 +313,7 @@
 
       <div id="alertsPanel" class="panel">
         <div class="card">
-          <h3>⚑ قواعد الإنذارات</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 2h12l-2 4 4 14H4V2z"/></svg></span> قواعد الإنذارات</h3>
           <form id="alertRuleForm" class="form-grid" onsubmit="createAlertRule(event)">
             <div><label>اسم القاعدة</label><input name="name" required></div>
             <div><label>المؤشر</label>
@@ -353,7 +353,7 @@
                 <option value="critical">حرج</option>
               </select>
             </div>
-            <div style="grid-column: 1 / -1;"><button type="submit">➕ إضافة قاعدة</button></div>
+            <div style="grid-column: 1 / -1;"><button type="submit"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M31 15H21V5c0-1.657-1.343-3-3-3s-3 1.343-3 3v10H5c-1.657 0-3 1.343-3 3s1.343 3 3 3h10v10c0 1.657 1.343 3 3 3s3-1.343 3-3V21h10c1.657 0 3-1.343 3-3s-1.343-3-3-3z"/></svg></span> إضافة قاعدة</button></div>
           </form>
           <div id="alertRulesMessage"></div>
           <table>
@@ -370,7 +370,7 @@
         </div>
 
         <div class="card">
-          <h3>📜 تاريخ الإنذارات</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFD983" d="M32 0H10C7.791 0 6 1.791 6 4v24H4c-2.209 0-4 1.791-4 4s1.791 4 4 4h24c2.209 0 4-1.791 4-4V8c2.209 0 4-1.791 4-4s-1.791-4-4-4z"/><path fill="#E39F3D" d="M8 10h24V8H10L8 7z"/><path fill="#FFE8B6" d="M10 0C7.791 0 6 1.791 6 4v24.555C5.41 28.211 4.732 28 4 28c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4V7.445C8.59 7.789 9.268 8 10 8c2.209 0 4-1.791 4-4s-1.791-4-4-4z"/><path fill="#C1694F" d="M12 4c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2M6 32c0 1.104-.896 2-2 2s-2-.896-2-2 .896-2 2-2 2 .896 2 2m24-17c0 .552-.447 1-1 1H11c-.552 0-1-.448-1-1s.448-1 1-1h18c.553 0 1 .448 1 1m0 4c0 .553-.447 1-1 1H11c-.552 0-1-.447-1-1s.448-1 1-1h18c.553 0 1 .447 1 1m0 4c0 .553-.447 1-1 1H11c-.552 0-1-.447-1-1s.448-1 1-1h18c.553 0 1 .447 1 1m0 4c0 .553-.447 1-1 1H11c-.552 0-1-.447-1-1 0-.553.448-1 1-1h18c.553 0 1 .447 1 1"/></svg></span> تاريخ الإنذارات</h3>
           <div id="alertsHistoryMessage"></div>
           <div id="alertsHistoryList"></div>
         </div>
@@ -378,7 +378,7 @@
 
       <div id="mlPanel" class="panel">
         <div class="card">
-          <h3>🤖 نماذج التقدير (ML Regression)</h3>
+          <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><ellipse fill="#F4900C" cx="33.5" cy="14.5" rx="2.5" ry="3.5"/><ellipse fill="#F4900C" cx="2.5" cy="14.5" rx="2.5" ry="3.5"/><path fill="#FFAC33" d="M34 19c0 .553-.447 1-1 1h-3c-.553 0-1-.447-1-1v-9c0-.552.447-1 1-1h3c.553 0 1 .448 1 1v9zM7 19c0 .553-.448 1-1 1H3c-.552 0-1-.447-1-1v-9c0-.552.448-1 1-1h3c.552 0 1 .448 1 1v9z"/><path fill="#FFCC4D" d="M28 5c0 2.761-4.478 4-10 4C12.477 9 8 7.761 8 5s4.477-5 10-5c5.522 0 10 2.239 10 5z"/><path fill="#F4900C" d="M25 4.083C25 5.694 21.865 7 18 7c-3.866 0-7-1.306-7-2.917 0-1.611 3.134-2.917 7-2.917 3.865 0 7 1.306 7 2.917z"/><path fill="#269" d="M30 5.5C30 6.881 28.881 7 27.5 7h-19C7.119 7 6 6.881 6 5.5S7.119 3 8.5 3h19C28.881 3 30 4.119 30 5.5z"/><path fill="#55ACEE" d="M30 6H6c-1.104 0-2 .896-2 2v26h28V8c0-1.104-.896-2-2-2z"/><path fill="#3B88C3" d="M35 33v-1c0-1.104-.896-2-2-2H22.071l-3.364 3.364c-.391.391-1.023.391-1.414 0L13.929 30H3c-1.104 0-2 .896-2 2v1c0 1.104-.104 2 1 2h32c1.104 0 1-.896 1-2z"/><circle fill="#FFF" cx="24.5" cy="14.5" r="4.5"/><circle fill="#DD2E44" cx="24.5" cy="14.5" r="2.721"/><circle fill="#FFF" cx="11.5" cy="14.5" r="4.5"/><path fill="#F5F8FA" d="M29 25.5c0 1.381-1.119 2.5-2.5 2.5h-17C8.119 28 7 26.881 7 25.5S8.119 23 9.5 23h17c1.381 0 2.5 1.119 2.5 2.5z"/><path fill="#CCD6DD" d="M17 23h2v5h-2zm-5 0h2v5h-2zm10 0h2v5h-2zM7 25.5c0 1.21.859 2.218 2 2.45v-4.9c-1.141.232-2 1.24-2 2.45zm20-2.45v4.899c1.141-.232 2-1.24 2-2.45s-.859-2.217-2-2.449z"/><circle fill="#DD2E44" cx="11.5" cy="14.5" r="2.721"/></svg></span> نماذج التقدير (ML Regression)</h3>
           <p>تدريب نماذج انحدار بسيطة من البيانات الموجودة في قاعدة البيانات.</p>
           <form id="mlTrainForm" class="form-grid" onsubmit="trainML(event)">
             <div><label>الدولة</label>
@@ -1296,5 +1296,7 @@
   <div id="site-footer"></div>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

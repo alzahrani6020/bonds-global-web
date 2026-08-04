@@ -81,7 +81,7 @@ const ACTIVITY_CODES = [
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -104,11 +104,11 @@ async function main() {
         [cityInfo.code]
       );
       if (cityRows.length === 0) {
-        console.warn(`⚠️ City not found: ${cityInfo.code}`);
+        console.warn(` City not found: ${cityInfo.code}`);
         continue;
       }
       const city = cityRows[0];
-      console.log(`\n🏙️ ${cityInfo.code} (${city.country_code})`);
+      console.log(`\n ${cityInfo.code} (${city.country_code})`);
 
       // Run city engine for indicators
       try {
@@ -119,10 +119,10 @@ async function main() {
           countryCode: city.country_code,
           year
         });
-        console.log(`  ✓ CityEngine: ${cityResult.adapters.map(a => a.sourceId + ':' + a.status).join(', ')}`);
+        console.log(`   CityEngine: ${cityResult.adapters.map(a => a.sourceId + ':' + a.status).join(', ')}`);
         cityCount++;
       } catch (err) {
-        console.error(`  ✗ CityEngine failed: ${err.message}`);
+        console.error(`   CityEngine failed: ${err.message}`);
       }
 
       // Run activity engines
@@ -154,14 +154,14 @@ async function main() {
           activityCount++;
           process.stdout.write('.');
         } catch (err) {
-          console.error(`\n  ✗ ${activityCode} failed: ${err.message}`);
+          console.error(`\n   ${activityCode} failed: ${err.message}`);
         }
       }
     }
 
-    console.log(`\n\n✅ Done. Processed ${cityCount} cities and ${activityCount} city/activity combinations.`);
+    console.log(`\n\n Done. Processed ${cityCount} cities and ${activityCount} city/activity combinations.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     process.exit(1);
   } finally {
     await client.end();

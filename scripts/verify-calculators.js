@@ -27,22 +27,22 @@ const tests = [
       for (const sel of t.expect) {
         const count = await page.locator(sel).count();
         if (count === 0) {
-          console.log(`❌ ${t.name}: missing ${sel}`);
+          console.log(` ${t.name}: missing ${sel}`);
           failed++;
         } else {
-          console.log(`✅ ${t.name}: ${sel} found`);
+          console.log(` ${t.name}: ${sel} found`);
         }
       }
 
       if (errors.length) {
         const unexpected = errors.filter(e => !e.includes('supabaseUrl is required'));
         if (unexpected.length) {
-          console.log(`⚠️ ${t.name} unexpected page errors:`, unexpected.slice(0, 3));
+          console.log(` ${t.name} unexpected page errors:`, unexpected.slice(0, 3));
           failed++;
         }
       }
     } catch (e) {
-      console.log(`❌ ${t.name}: exception ${e.message}`);
+      console.log(` ${t.name}: exception ${e.message}`);
       failed++;
     }
 

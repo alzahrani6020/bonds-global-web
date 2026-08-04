@@ -1,0 +1,22 @@
+name: Profile Completion Reminders
+
+on:
+  schedule:
+    # Once per day at 08:00 UTC
+    - cron: '0 8 * * *'
+  workflow_dispatch:
+
+jobs:
+  reminders:
+    name: Send profile completion reminders
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger bulk profile reminders
+        run: |
+          curl -fsS -X POST "${SITE_URL}/api/admin?action=send-profile-reminders-bulk" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${CRON_SECRET}"
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://bonds-global.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

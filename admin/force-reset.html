@@ -17,11 +17,11 @@
     .msg.error { background: rgba(239,68,68,0.15); color: #ff8a8a; }
     .msg.success { background: rgba(34,197,94,0.15); color: #22c55e; }
   </style>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="card">
-    <div style="font-size:3rem;margin-bottom:0.5rem;">🔐</div>
+    <div style="font-size:3rem;margin-bottom:0.5rem;"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#AAB8C2" d="M13 3C7.477 3 3 7.477 3 13v10h4V13c0-3.313 2.687-6 6-6s6 2.687 6 6v10h4V13c0-5.523-4.477-10-10-10z"/><path fill="#FFAC33" d="M26 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V20c0-2.209 1.791-4 4-4h18c2.209 0 4 1.791 4 4v12z"/><path fill="#C1694F" d="M35 9c0-4.971-4.029-9-9-9s-9 4.029-9 9c0 3.917 2.507 7.24 6 8.477V33.5c0 1.381 1.119 2.5 2.5 2.5 1.213 0 2.223-.864 2.45-2.01.018.001.032.01.05.01.553 0 1-.447 1-1v-1c0-.553-.447-1-1-1v-1c.553 0 1-.447 1-1v-2c0-.553-.447-1-1-1v-2.277c.596-.347 1-.984 1-1.723v-4.523c3.493-1.236 6-4.559 6-8.477zm-9-7c1.104 0 2 .896 2 2s-.896 2-2 2-2-.896-2-2 .896-2 2-2z"/></svg></span></div>
     <h2>تغيير كلمة المرور</h2>
     <p>اضغط الزر لتغيير كلمة المرور مباشرة</p>
     <input type="email" id="email" placeholder="البريد الإلكتروني">
@@ -32,6 +32,7 @@
   </div>
 
   <script src="/api/env"></script>
+  <script src="/admin/admin-common.js?v=4"></script>
   <script>
     (function() {
       const env = window.__ENV || {};
@@ -40,12 +41,9 @@
       }
     })();
 
-    function getToken() {
-      try { return localStorage.getItem('bonds-auth-token') || ''; } catch (e) { return ''; }
-    }
-
-    (function checkAuth() {
-      if (!getToken()) {
+    (async function checkAuth() {
+      const token = await BondsAdminCommon.getAdminToken();
+      if (!token) {
         document.getElementById('result').innerHTML = '<div class="msg error">يجب تسجيل الدخول كمسؤول أولاً</div>';
         document.getElementById('btn').disabled = true;
       }
@@ -57,7 +55,7 @@
       const secret = document.getElementById('secret').value.trim();
       const btn = document.getElementById('btn');
       const result = document.getElementById('result');
-      const token = getToken();
+      const token = await BondsAdminCommon.getAdminToken();
 
       if (!token) { result.innerHTML = '<div class="msg error">يجب تسجيل الدخول كمسؤول أولاً</div>'; return; }
       if (!email) { result.innerHTML = '<div class="msg error">أدخل البريد الإلكتروني</div>'; return; }
@@ -69,7 +67,7 @@
       result.innerHTML = '';
 
       try {
-        const res = await fetch('/api/force-reset', {
+        const res = await fetch('/api/admin?action=force-reset', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ email, password, secret })
@@ -90,5 +88,7 @@
     }
   </script>
   <script src="../page-tracker-v2.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

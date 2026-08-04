@@ -26,9 +26,9 @@ const client = new Client({ connectionString, ssl: { rejectUnauthorized: false }
   await client.connect();
   try {
     await client.query(sql);
-    console.log(`✅ Applied ${path.basename(file)}`);
+    console.log(` Applied ${path.basename(file)}`);
   } catch (err) {
-    console.error(`❌ Failed to apply ${path.basename(file)}:`, err.message);
+    console.error(` Failed to apply ${path.basename(file)}:`, err.message);
     process.exit(1);
   } finally {
     await client.end();

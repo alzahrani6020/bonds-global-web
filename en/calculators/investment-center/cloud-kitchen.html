@@ -20,9 +20,9 @@
 <link rel="stylesheet" href="../../../calculators/investment-center/investment-center.css?v=2" />
   <link rel="icon" type="image/svg+xml" href="../../../assets/bonds-mark.svg" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="/calculators/shared-platforms.js?v=2"></script>
+  <script src="/calculators/shared-platforms-loader.js?v=2"></script>
   <link rel="stylesheet" href="../../../components/universal-dropdown.css" />
-  <script src="/calculators/shared-geo.js?v=6"></script>
+  <script src="/calculators/shared-geo.js?v=7"></script>
   <script src="../../../components/universal-dropdown.js"></script>
   <script src="/calculators/shared-country-selector.js?v=3"></script>
   <style>
@@ -83,6 +83,12 @@
       font-size: 1.75rem;
       margin-bottom: 0.75rem;
       color: var(--gold);
+    }
+    .hca-input-icon svg {
+      width: 1.75rem;
+      height: 1.75rem;
+      display: block;
+      margin: 0 auto;
     }
     .hca-input-card label {
       display: block;
@@ -175,14 +181,14 @@
       }
     }
   </style>
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div id="site-header"></div>
 
   <main class="investment-calculator">
     <div class="investment-calculator__header">
-      <div style="font-size:3rem;margin-bottom:var(--space-3);">☁️</div>
+      <div style="font-size:3rem;margin-bottom:var(--space-3);"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M27 8c-.701 0-1.377.106-2.015.298.005-.1.015-.197.015-.298 0-3.313-2.687-6-6-6-2.769 0-5.093 1.878-5.785 4.427C12.529 6.154 11.783 6 11 6c-3.314 0-6 2.686-6 6 0 3.312 2.686 6 6 6 2.769 0 5.093-1.878 5.785-4.428.686.273 1.432.428 2.215.428.375 0 .74-.039 1.096-.104-.058.36-.096.727-.096 1.104 0 3.865 3.135 7 7 7s7-3.135 7-7c0-3.866-3.135-7-7-7z"/><path fill="#E1E8ED" d="M31 22c-.467 0-.91.085-1.339.204.216-.526.339-1.1.339-1.704 0-2.485-2.015-4.5-4.5-4.5-1.019 0-1.947.351-2.701.921C22.093 14.096 19.544 12 16.5 12c-2.838 0-5.245 1.822-6.131 4.357C9.621 16.125 8.825 16 8 16c-4.418 0-8 3.582-8 8 0 4.419 3.582 8 8 8h23c2.762 0 5-2.238 5-5s-2.238-5-5-5z"/></svg></span>️</div>
       <h1>Cloud Kitchen Calculator</h1>
       <p>Analyze the feasibility of a delivery-only cloud kitchen.</p>
     </div>
@@ -992,25 +998,25 @@
 
         <div class="hca-inputs-grid">
           <div class="hca-input-card">
-            <div class="hca-input-icon">📢</div>
+            <div class="hca-input-icon" data-icon="megaphone"></div>
             <label for="hcaMarketingMonthly">Monthly Marketing</label>
             <input type="number" id="hcaMarketingMonthly" value="3000" min="0" oninput="updateHiddenCosts()" />
             <span class="hca-input-unit">SAR / month</span>
           </div>
           <div class="hca-input-card">
-            <div class="hca-input-icon">🗑️</div>
+            <div class="hca-input-icon" data-icon="trash"></div>
             <label for="hcaFoodWasteRate">Food Waste</label>
             <input type="number" id="hcaFoodWasteRate" value="5" min="0" max="100" oninput="updateHiddenCosts()" />
             <span class="hca-input-unit">% of materials</span>
           </div>
           <div class="hca-input-card">
-            <div class="hca-input-icon">📦</div>
+            <div class="hca-input-icon" data-icon="package"></div>
             <label for="hcaPackagingCost">Packaging</label>
             <input type="number" id="hcaPackagingCost" value="3" min="0" oninput="updateHiddenCosts()" />
             <span class="hca-input-unit">per order</span>
           </div>
           <div class="hca-input-card">
-            <div class="hca-input-icon">%</div>
+            <div class="hca-input-icon" data-icon="percent"></div>
             <label for="hcaAppFeesRate">App Fees</label>
             <input type="number" id="hcaAppFeesRate" value="25" min="0" max="100" oninput="updateHiddenCosts()" />
             <span class="hca-input-unit">% of sales</span>
@@ -1107,6 +1113,129 @@
           </div>
         </div>
       </div>
+
+      <!-- Pro-Forma Financial Statements -->
+      <div class="pro-forma-statements" style="margin: 1.5rem 0;">
+        <h3>Pro-Forma Financial Statements</h3>
+        <div class="pro-forma-summary" style="background: rgba(212,168,83,0.08); border: 1px solid rgba(212,168,83,0.2); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem;">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+            <div><strong>Total Revenue</strong><br><span id="pfTotalRevenue">--</span></div>
+            <div><strong>Net Income</strong><br><span id="pfTotalNetIncome">--</span></div>
+            <div><strong>NPV</strong><br><span id="pfNpv">--</span></div>
+            <div><strong>IRR</strong><br><span id="pfIrr">--</span></div>
+            <div><strong>Funding Gap</strong><br><span id="pfFundingGap">--</span></div>
+            <div><strong>Step Capex</strong><br><span id="pfStepCapex">--</span></div>
+          </div>
+        </div>
+
+        <div id="capacityExpansionsPanel" style="margin-bottom: 1rem; display: none;">
+          <h4 style="color: var(--gold);">Capacity Expansion Schedule</h4>
+          <div style="overflow-x: auto;">
+            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <th style="text-align: left; padding: 0.5rem;">Month</th>
+                  <th style="text-align: center; padding: 0.5rem;">New Capacity</th>
+                  <th style="text-align: center; padding: 0.5rem;">Cost</th>
+                </tr>
+              </thead>
+              <tbody id="capacityExpansionsBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">Cumulative Cash Flow Curve (J-Curve)</h4>
+          <div style="height: 280px; position: relative;">
+            <canvas id="proFormaCashCurveChart"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">NPV/IRR Sensitivity Analysis</h4>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">Impact of changes in average ticket and daily orders on project value.</p>
+          <div style="height: 260px; position: relative;">
+            <canvas id="proFormaSensitivityChart"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">Monte Carlo Risk Simulation</h4>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">1,000 random scenarios for ticket price, cost, and volume.</p>
+          <div class="monte-carlo-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>Success Rate (NPV&gt;0)</strong><br><span id="mcSuccessRate">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>Mean NPV</strong><br><span id="mcMeanNpv">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>Median NPV</strong><br><span id="mcMedianNpv">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>P5 - P95 NPV</strong><br><span id="mcNpvRange">--</span></div>
+          </div>
+          <div class="monte-carlo-risk" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>VaR 95%</strong><br><span id="mcVar95">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>CVaR 95%</strong><br><span id="mcCvar95">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>VaR 99%</strong><br><span id="mcVar99">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>CVaR 99%</strong><br><span id="mcCvar99">--</span></div>
+          </div>
+          <div style="height: 260px; position: relative;">
+            <canvas id="monteCarloHistogramChart"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">Yearly Income Statement</h4>
+          <div style="overflow-x: auto;">
+            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <th style="text-align: left; padding: 0.5rem;">Item</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 1</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 2</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 3</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 4</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 5</th>
+                </tr>
+              </thead>
+              <tbody id="proFormaIncomeBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">Yearly Cash Flow Statement</h4>
+          <div style="overflow-x: auto;">
+            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <th style="text-align: left; padding: 0.5rem;">Item</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 1</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 2</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 3</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 4</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 5</th>
+                </tr>
+              </thead>
+              <tbody id="proFormaCashflowBody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">Yearly Balance Sheet</h4>
+          <div style="overflow-x: auto;">
+            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+              <thead>
+                <tr style="border-bottom: 1px solid var(--border);">
+                  <th style="text-align: left; padding: 0.5rem;">Item</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 1</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 2</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 3</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 4</th>
+                  <th style="text-align: center; padding: 0.5rem;">Year 5</th>
+                </tr>
+              </thead>
+              <tbody id="proFormaBalanceBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </main>
 
@@ -1116,7 +1245,11 @@
   <script src="../../../page-tracker-v2.js"></script>
   <script src="../../../calculators/investment-center/investment-engine.js?v=2"></script>
   <script src="../../../calculators/investment-center/investment-validator.js?v=2"></script>
-  <script src="../../../calculators/investment-center/decision-intelligence.js?v=2"></script>
+  <script src="../../../calculators/investment-center/pro-forma-engine.js?v=1"></script>
+  <script src="../../../calculators/investment-center/investment-risk-engine.js?v=1"></script>
+    <script src="../../../calculators/investment-center/profile-autofill.js?v=1"></script>
+<script src="../../../calculators/investment-center/decision-intelligence.js?v=2"></script>
+  <script src="../../../calculators/investment-center/pro-forma-renderer.js?v=1"></script>
   <script src="../../../calculators/shared-export.js"></script>
   <script>
     const sectorId = 'cloud-kitchen';
@@ -1994,6 +2127,11 @@
         renderDecisionIntelligence(diResult);
       }
 
+      // Pro-Forma Financial Statements
+      if (window.ProFormaRenderer && window.ProFormaRenderer.render) {
+        window.ProFormaRenderer.render(inputs, { sector: sectorId, isAr, formatNumber });
+      }
+
       updateHiddenCosts();
       document.getElementById('resultsSection').classList.remove('hidden');
       window._lastResult = result;
@@ -2146,5 +2284,16 @@
       BondsCountrySelector.init({ select: '#country' });
     }
   </script>
+  <script src="../../../components/ecc-icons.js"></script>
+  <script>
+    (function () {
+      if (!window.EccIcons) return;
+      document.querySelectorAll('.hca-input-icon[data-icon]').forEach(function (el) {
+        el.innerHTML = window.EccIcons.get(el.dataset.icon);
+      });
+    })();
+  </script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

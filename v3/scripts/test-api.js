@@ -19,7 +19,7 @@ async function request(path, options = {}) {
 }
 
 function log(name, status, ok) {
-  console.log(`${ok ? '✅' : '❌'} ${name}: ${status}`);
+  console.log(`${ok ? "" : ""} ${name}: ${status}`);
 }
 
 async function runTests() {

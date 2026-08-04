@@ -117,10 +117,10 @@ async function main() {
   console.log('\nTesting API...');
   await runCommand('node', [path.join(__dirname, 'test-api.js')]);
 
-  console.log('\n✅ Setup complete!');
+  console.log("\n Setup complete!");
 }
 
 main().catch(err => {
-  console.error('\n❌ Setup failed:', err.message);
+  console.error("\n Setup failed:", err.message);
   process.exit(1);
 });

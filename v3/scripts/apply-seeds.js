@@ -19,7 +19,7 @@ async function main() {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!url || !key) {
-    console.error('❌ Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+    console.error(" Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
     process.exit(1);
   }
 
@@ -32,12 +32,12 @@ async function main() {
   const { error } = await supabase.rpc('exec_sql', { sql });
 
   if (error) {
-    console.error('❌ Failed to apply seeds:', error.message);
+    console.error(" Failed to apply seeds:", error.message);
     console.log('Fallback: copy the SQL from supabase/seed/all-seeds.sql and run it in Supabase SQL Editor.');
     process.exit(1);
   }
 
-  console.log('✅ Seeds applied successfully');
+  console.log(" Seeds applied successfully");
 }
 
 main();

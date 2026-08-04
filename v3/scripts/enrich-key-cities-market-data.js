@@ -56,7 +56,7 @@ const SALARY_MULTIPLIER = {
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -139,12 +139,12 @@ async function main() {
 
         updated++;
       }
-      console.log(`✓ ${city.name_ar}: ${activities.length} activities`);
+      console.log(` ${city.name_ar}: ${activities.length} activities`);
     }
 
-    console.log(`\n✅ Done. Updated ${updated} market rows for key cities.`);
+    console.log(`\n Done. Updated ${updated} market rows for key cities.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     console.error(err.stack);
     process.exit(1);
   } finally {

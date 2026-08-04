@@ -1,0 +1,23 @@
+{
+  "generatedAt": "2026-07-30T22:16:48.097Z",
+  "fields": [
+    { "key": "average_selling_price", "label": "سعر البيع", "type": "number" },
+    { "key": "average_buying_price", "label": "سعر الشراء", "type": "number" },
+    { "key": "transaction_count", "label": "الصفقات", "type": "number" },
+    { "key": "supply_index", "label": "العرض", "type": "number", "min": 1, "max": 10 },
+    { "key": "demand_index", "label": "الطلب", "type": "number", "min": 1, "max": 10 },
+    { "key": "competitor_count", "label": "المنافسين", "type": "number" },
+    { "key": "average_sale_speed_days", "label": "السرعة", "type": "number" },
+    { "key": "inflation_rate", "label": "التضخم", "type": "number", "step": 0.001 },
+    { "key": "interest_rate", "label": "الفائدة", "type": "number", "step": 0.001 },
+    { "key": "economic_growth_rate", "label": "النمو", "type": "number", "step": 0.001 },
+    { "key": "risk_score", "label": "المخاطرة", "type": "number", "min": 0, "max": 10, "step": 0.1 },
+    { "key": "confidence", "label": "الثقة", "type": "number", "min": 0, "max": 1, "step": 0.01 },
+    { "key": "data_quality_score", "label": "الجودة", "type": "number", "min": 0, "max": 100, "step": 1 }
+  ],
+  "outlooks": [
+    { "value": "positive", "label": "إيجابية" },
+    { "value": "neutral", "label": "محايدة" },
+    { "value": "negative", "label": "سلبية" }
+  ]
+}

@@ -162,6 +162,7 @@
     }
   </style>
 <script src="../site-layout.js?v=3.1.0"></script>
+  <script src="/lib/bonds-common.js"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/investment-map" />
   <script type="application/ld+json">
   {
@@ -192,7 +193,7 @@
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
 
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
@@ -406,13 +407,13 @@
       markersLayer.clearLayers();
       // debug: renderMarkers received cities.length
       if (!cities.length) {
-        showStatus('لا توجد مدن تطابق الفلاتر.', true);
+        BondsCommon.showAdminStatus('status', 'لا توجد مدن تطابق الفلاتر.', true);
         return;
       }
 
       // Geocode cities missing coordinates
       const missing = cities.filter(c => !c.lat || !c.lng);
-      if (missing.length) showStatus(`جاري تحديد إحداثيات ${missing.length} مدينة...`);
+      if (missing.length) BondsCommon.showAdminStatus('status', `جاري تحديد إحداثيات ${missing.length} مدينة...`, false);
       const enriched = await Promise.all(cities.map(async city => {
         if (city.lat && city.lng) return city;
         const coords = await geocodeCity(city);
@@ -423,10 +424,9 @@
       const valid = enriched.filter(c => c.lat && c.lng);
       // debug: valid cities with lat/lng
       if (valid.length === 0) {
-        showStatus('المدن المختارة لا تحتوي على إحداثيات جغرافية.', true);
+        BondsCommon.showAdminStatus('status', 'المدن المختارة لا تحتوي على إحداثيات جغرافية.', true);
         return;
       }
-      hideStatus();
 
       const bounds = L.latLngBounds();
       valid.forEach(city => {
@@ -481,7 +481,7 @@
       const activity = document.getElementById('activitySelect').value;
       const minScore = document.getElementById('scoreRange').value;
 
-      showStatus('جاري تحميل المدن...');
+      BondsCommon.showAdminStatus('status', 'جاري تحميل المدن...', false);
       try {
         const params = new URLSearchParams({
           include: activity ? 'opportunity' : 'cities',
@@ -496,7 +496,7 @@
         const filtered = city ? citiesData.filter(c => c.code === city) : citiesData;
         await renderMarkers(filtered);
       } catch (err) {
-        showStatus('فشل تحميل البيانات: ' + err.message, true);
+        BondsCommon.showAdminStatus('status', 'فشل تحميل البيانات: ' + err.message, true);
       }
     }
 
@@ -506,10 +506,10 @@
       const city = document.getElementById('citySelect').value;
       const activity = document.getElementById('activitySelect').value;
       if (!activity) {
-        showStatus('يرجى اختيار نشاط اقتصادي أولاً.', true);
+        BondsCommon.showAdminStatus('status', 'يرجى اختيار نشاط اقتصادي أولاً.', true);
         return;
       }
-      showStatus('جاري تحميل أعلى الفرص...');
+      BondsCommon.showAdminStatus('status', 'جاري تحميل أعلى الفرص...', false);
       try {
         const params = new URLSearchParams({ activity, limit: '10', year: 'latest' });
         if (country) params.set('country', country);
@@ -527,19 +527,10 @@
         })).filter(c => !city || c.code === city);
         await renderMarkers(mapped);
       } catch (err) {
-        showStatus('فشل تحميل أعلى الفرص: ' + err.message, true);
+        BondsCommon.showAdminStatus('status', 'فشل تحميل أعلى الفرص: ' + err.message, true);
       }
     }
 
-    function showStatus(text, isError) {
-      const el = document.getElementById('status');
-      el.textContent = text;
-      el.style.display = 'block';
-      el.className = isError ? 'error' : 'loading';
-    }
-    function hideStatus() {
-      document.getElementById('status').style.display = 'none';
-    }
 
     document.getElementById('scoreRange').addEventListener('input', e => {
       document.getElementById('scoreValue').textContent = e.target.value;
@@ -572,12 +563,14 @@
         }
         updateChatContext();
       } catch (err) {
-        showStatus('فشل تحميل الفلاتر: ' + err.message, true);
+        BondsCommon.showAdminStatus('status', 'فشل تحميل الفلاتر: ' + err.message, true);
       }
     })();
   </script>
   <script src="/v3/components/ai-chat-widget.js"></script>
   <div id="site-footer"></div>
   <script src="shared-v3-ui.js" defer></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

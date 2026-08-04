@@ -14,6 +14,17 @@
     revenueExceedsCapacity: 'الإيرادات المتوقعة تتجاوز الطاقة التشغيلية القصوى. يرجى مراجعة المدخلات.',
     paybackExceedsDuration: 'فترة الاسترداد أطول من مدة المشروع، مما يعني أن المشروع لا يحقق عائداً ضمن الفترة المخططة.',
     roiTooHigh: 'العائد على الاستثمار غير واقعي (أكثر من 1000%). يرجى مراجعة الإيرادات أو الاستثمار.',
+    channelSumNot100: 'مجموع قنوات البيع (المباشرة + الموزعين + المنصات) يجب أن يساوي 100%.',
+    priceBelowCost: 'سعر بيع العبوة أقل من التكلفة المتغيرة. سيؤدي ذلك إلى خسارة على كل وحدة.',
+    wastageRange: 'نسبة الهدر يجب أن تكون بين 0% و 100%.',
+    productionCapacityMismatch: 'الإنتاج اليومي يبدو مرتفعاً جداً مقارنة بساعات التشغيل والورديات.',
+    salariesMismatch: 'تكلفة العمالة المحسوبة تختلف كثيراً عن الرواتب المدخلة.',
+    profitMarginOutOfRange: 'هامش الربح خارج النطاق المنطقي (يجب أن يكون بين 5% و 80%). يرجى مراجعة السعر والتكلفة.',
+    paybackUnrealistic: 'فترة الاسترداد غير واقعية (أكثر من 10 سنوات). يرجى مراجعة الاستثمار والأرباح.',
+    roiNegative: 'العائد على الاستثمار سلبي. المشروع لا يحقق ربحاً بالمدخلات الحالية.',
+    wastageTooHigh: 'نسبة الهدر مرتفعة جداً (أكثر من 20%). في مصانع المياه الحديثة لا تتجاوز عادة 2-5%.',
+    electricityRateOutOfRange: 'سعر الكهرباء خارج النطاق المتوقع لهذه المنطقة. يرجى التحقق من التعرفة الصناعية الفعلية.',
+    waterRateOutOfRange: 'سعر المياه خارج النطاق المتوقع لهذه المنطقة. يرجى التحقق من التعرفة الصناعية الفعلية.',
     fixBeforeReport: 'يرجى تصحيح التحذيرات أعلاه قبل إصدار التقرير.',
     title: 'تحذيرات التحقق من البيانات'
   };
@@ -28,6 +39,17 @@
     revenueExceedsCapacity: 'Expected revenue exceeds maximum operating capacity. Please review inputs.',
     paybackExceedsDuration: 'Payback period exceeds project duration, meaning the project does not return within the planned period.',
     roiTooHigh: 'Return on investment is unrealistic (over 1000%). Please review revenue or investment.',
+    channelSumNot100: 'Sales channel ratios (direct + distributors + platforms) must sum to 100%.',
+    priceBelowCost: 'Bottle selling price is lower than variable cost. This results in a loss per unit.',
+    wastageRange: 'Wastage rate must be between 0% and 100%.',
+    productionCapacityMismatch: 'Daily production seems too high compared to operating hours and shifts.',
+    salariesMismatch: 'Calculated labor cost differs significantly from entered monthly salaries.',
+    profitMarginOutOfRange: 'Profit margin is outside a realistic range (should be between 5% and 80%). Please review price and cost.',
+    paybackUnrealistic: 'Payback period is unrealistic (more than 10 years). Please review investment and profit.',
+    roiNegative: 'Return on investment is negative. The project does not generate profit with current inputs.',
+    wastageTooHigh: 'Wastage rate is very high (over 20%). Modern water plants usually stay within 2-5%.',
+    electricityRateOutOfRange: 'Electricity rate is outside the expected range for this region. Please verify the actual industrial tariff.',
+    waterRateOutOfRange: 'Water rate is outside the expected range for this region. Please verify the actual industrial tariff.',
     fixBeforeReport: 'Please fix the warnings above before generating the report.',
     title: 'Data Validation Warnings'
   };
@@ -291,6 +313,65 @@
     // 8. ROI too high
     if (typeof inputs.roi === 'number' && inputs.roi > 1000) {
       warnings.push(t.roiTooHigh);
+    }
+
+    // 9. Water-factory specific validations
+    if (sectorId === 'water-factory') {
+      const channelSum = (inputs.directSalesRate || 0) + (inputs.distributorSalesRate || 0) + (inputs.platformSalesRate || 0);
+      if (Math.abs(channelSum - 100) > 0.01) {
+        warnings.push(t.channelSumNot100);
+      }
+
+      if (typeof inputs.wastageRate === 'number' && (inputs.wastageRate < 0 || inputs.wastageRate > 100)) {
+        warnings.push(t.wastageRange);
+      }
+
+      const materialCost = (inputs.bottleCostPerUnit || 0) + (inputs.capCostPerUnit || 0) + (inputs.labelCostPerUnit || 0);
+      const variableCost = materialCost + (inputs.cartonCostPerBottle || 0) + (inputs.shrinkCostPerBottle || 0) + (inputs.logisticsCostPerBottle || 0);
+      if (inputs.bottlePrice > 0 && variableCost > inputs.bottlePrice) {
+        warnings.push(t.priceBelowCost);
+      }
+
+      const hours = inputs.operatingHoursPerDay || 1;
+      const shifts = inputs.shiftCount || 1;
+      const theoreticalMax = hours * shifts * 2000;
+      if (inputs.dailyProduction > theoreticalMax) {
+        warnings.push(t.productionCapacityMismatch);
+      }
+
+      const autoSalaries = shifts * (inputs.workersPerShift || 0) * (inputs.shiftCostPerWorker || 0) * (inputs.monthlyWorkingDays || 0);
+      if (autoSalaries > 0 && inputs.monthlySalaries > 0) {
+        const diff = Math.abs(autoSalaries - inputs.monthlySalaries) / inputs.monthlySalaries;
+        if (diff > 0.5) {
+          warnings.push(t.salariesMismatch);
+        }
+      }
+
+      if (inputs.wastageRate > 20) {
+        warnings.push(t.wastageTooHigh);
+      }
+
+      const electricityRanges = { SA: [0.05, 0.30], AE: [0.10, 0.40], KW: [0.03, 0.20], QA: [0.05, 0.25], BH: [0.05, 0.25], OM: [0.05, 0.25], EG: [0.05, 0.35], JO: [0.08, 0.35], IQ: [0.03, 0.30], MA: [0.05, 0.25], SY: [0.01, 0.15], LB: [0.10, 0.50], TN: [0.05, 0.25], DZ: [0.03, 0.25], LY: [0.01, 0.20], SD: [0.01, 0.15], YE: [0.01, 0.15], DJ: [0.05, 0.35], SO: [0.03, 0.20], MR: [0.05, 0.25], KM: [0.05, 0.30], PS: [0.08, 0.35] };
+      const waterRanges = { SA: [1.0, 12.0], AE: [1.5, 8.0], KW: [1.0, 8.0], QA: [1.5, 8.0], BH: [1.0, 6.0], OM: [1.0, 5.0], EG: [0.5, 4.0], JO: [0.5, 4.0], IQ: [0.2, 3.0], MA: [0.5, 4.0], SY: [0.1, 1.5], LB: [0.5, 5.0], TN: [0.5, 3.5], DZ: [0.3, 3.0], LY: [0.2, 2.5], SD: [0.1, 1.5], YE: [0.1, 1.2], DJ: [0.5, 5.0], SO: [0.2, 2.0], MR: [0.3, 3.0], KM: [0.3, 3.5], PS: [0.5, 4.0] };
+      const countryCode = (inputs.country || 'SA').toUpperCase();
+      const eRange = electricityRanges[countryCode];
+      const wRange = waterRanges[countryCode];
+      if (eRange && (inputs.electricityRatePerKwh < eRange[0] || inputs.electricityRatePerKwh > eRange[1])) {
+        warnings.push(t.electricityRateOutOfRange);
+      }
+      if (wRange && (inputs.waterRatePerM3 < wRange[0] || inputs.waterRatePerM3 > wRange[1])) {
+        warnings.push(t.waterRateOutOfRange);
+      }
+
+      if (typeof inputs.profitMargin === 'number' && (inputs.profitMargin < 5 || inputs.profitMargin > 80)) {
+        warnings.push(t.profitMarginOutOfRange);
+      }
+      if (typeof inputs.paybackPeriod === 'number' && inputs.paybackPeriod > 10) {
+        warnings.push(t.paybackUnrealistic);
+      }
+      if (typeof inputs.roi === 'number' && inputs.roi < 0) {
+        warnings.push(t.roiNegative);
+      }
     }
 
     return {

@@ -27,7 +27,7 @@ async function main() {
   const dbUrl = process.env.SUPABASE_DB_URL;
   
   if (!dbUrl) {
-    console.error('❌ Error: SUPABASE_DB_URL is required');
+    console.error(" Error: SUPABASE_DB_URL is required");
     console.error('   Get it from: Supabase Dashboard → Project Settings → Database → Connection string');
     console.error('   Then run:');
     console.error('   SUPABASE_DB_URL="postgresql://postgres:password@db.xxx.supabase.co:5432/postgres" node scripts/auto-deploy-migrations.js');
@@ -38,13 +38,13 @@ async function main() {
     .filter(f => f.endsWith('.sql'))
     .sort();
 
-  console.log(`📁 Found ${files.length} migration files\n`);
+  console.log(` Found ${files.length} migration files\n`);
 
   const client = new Client({ connectionString: dbUrl });
 
   try {
     await client.connect();
-    console.log('✅ Connected to Supabase\n');
+    console.log(" Connected to Supabase\n");
 
     // Create tracking table
     await client.query(`
@@ -64,7 +64,7 @@ async function main() {
       );
 
       if (rows.length > 0) {
-        console.log(`⏭️  ${file} — already applied`);
+        console.log(`⏭  ${file} — already applied`);
         skipped++;
         continue;
       }
@@ -72,7 +72,7 @@ async function main() {
       let content = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf-8');
       content = wrapInSafeBlock(content);
 
-      console.log(`🚀 Applying: ${file}`);
+      console.log(` Applying: ${file}`);
 
       try {
         await client.query(content);
@@ -80,20 +80,20 @@ async function main() {
           'INSERT INTO _migrations (filename) VALUES ($1)',
           [file]
         );
-        console.log(`   ✅ Success\n`);
+        console.log(`    Success\n`);
         applied++;
       } catch (err) {
-        console.error(`   ❌ FAILED: ${err.message}`);
-        console.error('\n⚠️  Stopping. Fix the error and re-run.');
+        console.error(`    FAILED: ${err.message}`);
+        console.error("\n  Stopping. Fix the error and re-run.");
         process.exit(1);
       }
     }
 
-    console.log(`\n🎉 Done! Applied: ${applied}, Skipped: ${skipped}, Total: ${files.length}`);
-    console.log('\n✅ All migrations are now in your database.');
+    console.log(`\n Done! Applied: ${applied}, Skipped: ${skipped}, Total: ${files.length}`);
+    console.log("\n All migrations are now in your database.");
 
   } catch (err) {
-    console.error('❌ Connection failed:', err.message);
+    console.error(" Connection failed:", err.message);
     process.exit(1);
   } finally {
     await client.end();

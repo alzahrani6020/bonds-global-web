@@ -317,19 +317,19 @@
             <h2 class="contact-form__title">Send Your Request</h2>
             <div class="contact-form__row">
               <div class="contact-form__group">
-                <label class="contact-form__label" for="contactName">Name *</label>
-                <input id="contactName" class="contact-form__input" type="text" name="name" required minlength="2" placeholder="Your full name" autocomplete="name" aria-describedby="nameError" />
+                <label class="contact-form__label" for="contactName">Name</label>
+                <input id="contactName" class="contact-form__input" type="text" name="name" placeholder="Your full name" autocomplete="name" aria-describedby="nameError" />
                 <div class="contact-form__field-error" id="nameError">Please enter your full name (at least 2 characters).</div>
               </div>
               <div class="contact-form__group">
-                <label class="contact-form__label" for="contactPhone">WhatsApp Number *</label>
-                <input id="contactPhone" class="contact-form__input" type="tel" name="phone" required placeholder="e.g., +966 56 756 6616" autocomplete="tel" inputmode="tel" aria-describedby="phoneError" />
+                <label class="contact-form__label" for="contactPhone">WhatsApp Number</label>
+                <input id="contactPhone" class="contact-form__input" type="tel" name="phone" placeholder="e.g., +966 56 756 6616" autocomplete="tel" inputmode="tel" aria-describedby="phoneError" />
                 <div class="contact-form__field-error" id="phoneError">Please enter a valid WhatsApp number.</div>
               </div>
             </div>
             <div class="contact-form__group">
-              <label class="contact-form__label" for="contactEmail">Email *</label>
-              <input id="contactEmail" class="contact-form__input" type="email" name="email" required placeholder="your@email.com" autocomplete="email" inputmode="email" aria-describedby="emailError" />
+              <label class="contact-form__label" for="contactEmail">Email</label>
+              <input id="contactEmail" class="contact-form__input" type="email" name="email" placeholder="your@email.com" autocomplete="email" inputmode="email" aria-describedby="emailError" />
               <div class="contact-form__field-error" id="emailError">Please enter a valid email address.</div>
             </div>
             <div class="contact-form__row">
@@ -365,8 +365,8 @@
               </div>
             </div>
             <div class="contact-form__group">
-              <label class="contact-form__label" for="contactMessage">Request Details *</label>
-              <textarea id="contactMessage" class="contact-form__textarea" name="message" rows="5" required minlength="10" maxlength="2000" placeholder="Briefly describe your situation and the service you need..." aria-describedby="messageError messageCount"></textarea>
+              <label class="contact-form__label" for="contactMessage">Request Details</label>
+              <textarea id="contactMessage" class="contact-form__textarea" name="message" rows="5" maxlength="2000" placeholder="Briefly describe your situation and the service you need..." aria-describedby="messageError messageCount"></textarea>
               <div class="contact-form__field-error" id="messageError">Please provide request details (at least 10 characters).</div>
             </div>
             <!-- Honeypot -->
@@ -476,7 +476,7 @@
       const fields = {
         name: { el: form.name, error: document.getElementById('nameError'), validate: v => v.trim().length >= 2 },
         phone: { el: form.phone, error: document.getElementById('phoneError'), validate: v => /^[\d\s\+\-\(\)]{8,}$/.test(v.trim()) },
-        email: { el: form.email, error: document.getElementById('emailError'), validate: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
+        email: { el: form.email, error: document.getElementById('emailError'), validate: v => !v.trim() || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) },
         message: { el: form.message, error: document.getElementById('messageError'), validate: v => v.trim().length >= 10 }
       };
 
@@ -491,17 +491,13 @@
         Object.keys(fields).forEach(key => setFieldError(key, false));
       }
 
-      function validateAll() {
-        let valid = true;
+      // Show warnings but never block submission
+      function validateAll(showWarnings = true) {
         clearAllFieldErrors();
         Object.keys(fields).forEach(key => {
           const f = fields[key];
-          if (!f.validate(f.el.value)) {
-            setFieldError(key, true);
-            valid = false;
-          }
+          if (showWarnings) setFieldError(key, !f.validate(f.el.value));
         });
-        return valid;
       }
 
       Object.keys(fields).forEach(key => {
@@ -541,22 +537,19 @@
       }
 
       function openWhatsApp(data) {
-        const text = 'Hello, my name is ' + data.name +
+        if (!data.phone) return;
+        const text = 'Hello, my name is ' + (data.name || '—') +
           '\nMy number: ' + data.phone +
-          '\nEmail: ' + data.email +
+          '\nEmail: ' + (data.email || '—') +
           '\nSector: ' + (data.sector || '—') +
           '\nService needed: ' + (data.service || '—') +
-          '\nMessage: ' + data.message;
+          '\nMessage: ' + (data.message || '—');
         window.open('https://wa.me/966567566616?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
       }
 
       form.addEventListener('submit', async function (e) {
         e.preventDefault();
-        if (!validateAll()) {
-          const firstInvalid = Object.values(fields).find(f => f.error.style.display === 'block');
-          if (firstInvalid) firstInvalid.el.focus();
-          return;
-        }
+        validateAll(true);
 
         resetMessages();
         setLoading(true);
@@ -604,5 +597,7 @@
   <script src="../site-layout.js?v=3.1.0"></script>
   <script src="../components/universal-dropdown.js?v=2.51.8"></script>
   <script src="../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

@@ -206,7 +206,7 @@ function auditJS(file, content) {
 }
 
 // ============ Main ============
-console.log('🔍 Bonds Global Site Audit\n');
+console.log(" Bonds Global Site Audit\n");
 
 walk(ROOT, (file) => {
   const basename = path.basename(file);
@@ -235,10 +235,10 @@ const counts = { CRITICAL: 0, HIGH: 0, MEDIUM: 0, LOW: 0 };
 for (const i of issues) counts[i.sev]++;
 
 console.log(`Checked ${checked} files. Found ${issues.length} issues:\n`);
-console.log(`  🔴 CRITICAL: ${counts.CRITICAL}`);
-console.log(`  🟠 HIGH:     ${counts.HIGH}`);
-console.log(`  🟡 MEDIUM:   ${counts.MEDIUM}`);
-console.log(`  🟢 LOW:      ${counts.LOW}`);
+console.log(`   CRITICAL: ${counts.CRITICAL}`);
+console.log(`   HIGH:     ${counts.HIGH}`);
+console.log(`   MEDIUM:   ${counts.MEDIUM}`);
+console.log(`   LOW:      ${counts.LOW}`);
 
 if (issues.length > 0) {
   const grouped = {};
@@ -260,9 +260,9 @@ if (issues.length > 0) {
 
 console.log('\n');
 if (counts.CRITICAL > 0 || counts.HIGH > 0) {
-  console.log('❌ Audit FAILED — fix CRITICAL and HIGH issues before deploying.');
+  console.log(" Audit FAILED — fix CRITICAL and HIGH issues before deploying.");
   process.exit(1);
 } else {
-  console.log('✅ Audit PASSED');
+  console.log(" Audit PASSED");
   process.exit(0);
 }

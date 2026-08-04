@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.54';
+const CACHE_VERSION = 'v3.0.59';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -32,7 +32,8 @@ const CORE_ASSETS = [
   '/script.js?v=5',
   '/site-layout.js?v=3.1.0',
   '/auth-guard.js',
-  '/calculators/auth-gate.js?v=2',
+  '/calculators/auth-gate.js?v=3',
+  '/global-auth-gate.js?v=2',
   '/bonds-auth-2026.js?v=3.0.7',
   '/supabase-client.js',
   '/lib/formatting.js',
@@ -62,12 +63,15 @@ const CORE_ASSETS = [
   '/calculators/investment-center/investment-center.css',
   '/calculators/investment-center/investment-validator.js',
   '/calculators/investment-center/decision-intelligence.js',
-  '/calculators/shared-geo.js?v=6',
-  '/calculators/shared-platforms.js',
+  '/calculators/shared-geo.js?v=7',
+  '/calculators/shared-platforms-loader.js',
+  '/calculators/shared-data-cache.js',
+  '/calculators/platform-data-loader.js',
+  '/calculators/platform-data/meta.js',
+  '/calculators/platform-data/sa.js',
+  '/calculators/geo-data/meta.js',
+  '/calculators/geo-data/sa.js',
   '/calculators/shared-country-selector.js?v=3',
-  '/v3/master-data/countries-governorates-cities.js',
-  '/v3/master-data/global-countries.js',
-  '/v3/master-data/arab-extended-countries.js',
   '/calculators/creditworthiness.html',
   '/en/calculators/creditworthiness.html',
   '/calculators/creditworthiness-engine.js',

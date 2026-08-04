@@ -12,7 +12,7 @@ const { Client } = require('pg');
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -146,12 +146,12 @@ async function main() {
       `, [p.old_id, p.new_id]);
       marketCopied += mktCount || 0;
 
-      console.log(`✓ ${p.name_ar} (${p.country_code}): ${indCount} indicators, ${mktCount} market rows`);
+      console.log(` ${p.name_ar} (${p.country_code}): ${indCount} indicators, ${mktCount} market rows`);
     }
 
-    console.log(`\n✅ Done. Copied ${indicatorsCopied} indicator rows and ${marketCopied} market rows.`);
+    console.log(`\n Done. Copied ${indicatorsCopied} indicator rows and ${marketCopied} market rows.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     process.exit(1);
   } finally {
     await client.end();

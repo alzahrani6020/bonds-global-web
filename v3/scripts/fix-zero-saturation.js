@@ -29,7 +29,7 @@ const DEFAULT_SATURATION_BY_ACTIVITY = {
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -99,9 +99,9 @@ async function main() {
       if (fixed % 200 === 0) console.log(`Fixed ${fixed}...`);
     }
 
-    console.log(`\n✅ Done. Fixed ${fixed} rows.`);
+    console.log(`\n Done. Fixed ${fixed} rows.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     console.error(err.stack);
     process.exit(1);
   } finally {

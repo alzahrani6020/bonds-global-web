@@ -71,9 +71,9 @@ async function main() {
         year
       });
       const totalImported = result.adapters.reduce((sum, a) => sum + a.recordsImported, 0);
-      console.log(`✅ ${city.name_ar} (${city.code}): ${totalImported} metrics`);
+      console.log(` ${city.name_ar} (${city.code}): ${totalImported} metrics`);
     } catch (err) {
-      console.error(`❌ ${city.name_ar} (${city.code}): ${err.message}`);
+      console.error(` ${city.name_ar} (${city.code}): ${err.message}`);
     }
   }
 
@@ -100,9 +100,9 @@ async function main() {
             year
           });
         }
-        console.log(`✅ ${city.name_ar}: activity engines complete`);
+        console.log(` ${city.name_ar}: activity engines complete`);
       } catch (err) {
-        console.error(`❌ ${city.name_ar}: ${err.message}`);
+        console.error(` ${city.name_ar}: ${err.message}`);
       }
     }
   }

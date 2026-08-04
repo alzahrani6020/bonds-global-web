@@ -47,10 +47,10 @@ const PAGES = [
       const bodyWidth = await page.evaluate(() => document.body.scrollWidth);
       const viewportWidth = await page.evaluate(() => window.innerWidth);
       if (bodyWidth > viewportWidth + 1) {
-        console.log(`❌ ${p.name}: horizontal overflow (${bodyWidth}px > ${viewportWidth}px)`);
+        console.log(` ${p.name}: horizontal overflow (${bodyWidth}px > ${viewportWidth}px)`);
         failed++;
       } else {
-        console.log(`✅ ${p.name}: no horizontal overflow`);
+        console.log(` ${p.name}: no horizontal overflow`);
       }
 
       // Check tables do not overflow their containers
@@ -58,10 +58,10 @@ const PAGES = [
         tables.some((t) => t.scrollWidth > t.clientWidth + 1)
       );
       if (overflowingTables) {
-        console.log(`❌ ${p.name}: table overflows container`);
+        console.log(` ${p.name}: table overflows container`);
         failed++;
       } else {
-        console.log(`✅ ${p.name}: no table overflow`);
+        console.log(` ${p.name}: no table overflow`);
       }
 
       // Test dropdown toggle on touch (no hover)
@@ -71,9 +71,9 @@ const PAGES = [
         const dropdown = await page.locator('.main-header .dropdown').first();
         const isOpen = await dropdown.evaluate((el) => el.classList.contains('is-open'));
         if (isOpen) {
-          console.log(`✅ ${p.name}: dropdown toggles open on tap`);
+          console.log(` ${p.name}: dropdown toggles open on tap`);
         } else {
-          console.log(`❌ ${p.name}: dropdown did not open on tap`);
+          console.log(` ${p.name}: dropdown did not open on tap`);
           failed++;
         }
 
@@ -81,14 +81,14 @@ const PAGES = [
         await page.evaluate(() => document.elementFromPoint(10, 10)?.click());
         const isClosed = !(await dropdown.evaluate((el) => el.classList.contains('is-open')));
         if (isClosed) {
-          console.log(`✅ ${p.name}: dropdown closes on outside tap`);
+          console.log(` ${p.name}: dropdown closes on outside tap`);
         } else {
-          console.log(`❌ ${p.name}: dropdown did not close on outside tap`);
+          console.log(` ${p.name}: dropdown did not close on outside tap`);
           failed++;
         }
       }
     } catch (err) {
-      console.error(`❌ ${p.name}: ${err.message}`);
+      console.error(` ${p.name}: ${err.message}`);
       failed++;
     } finally {
       await page.close();
@@ -98,9 +98,9 @@ const PAGES = [
   await browser.close();
 
   if (failed) {
-    console.error(`\n❌ ${failed} mobile test(s) failed.`);
+    console.error(`\n ${failed} mobile test(s) failed.`);
     process.exit(1);
   }
 
-  console.log('\n✅ All mobile interaction tests passed.');
+  console.log("\n All mobile interaction tests passed.");
 })();

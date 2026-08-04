@@ -6,7 +6,25 @@
   'use strict';
 
   const TIMEOUT_MS = 15000;
-  const TIER_PRICE = { pro: 82, enterprise: 212 };
+  let TIER_PRICE = { pro: 82, enterprise: 212 };
+
+  async function loadTierPrices(token) {
+    try {
+      const t = token || await BondsAdminCommon.getAdminToken();
+      if (!t) return;
+      const res = await fetch('/api/admin?action=settings', {
+        headers: { 'Authorization': 'Bearer ' + t }
+      });
+      if (!res.ok) return;
+      const settings = await res.json();
+      const pro = parseFloat(settings.price_pro_sar);
+      const ent = parseFloat(settings.price_enterprise_sar);
+      if (!isNaN(pro) && pro > 0) TIER_PRICE.pro = pro;
+      if (!isNaN(ent) && ent > 0) TIER_PRICE.enterprise = ent;
+    } catch (e) {
+      console.warn('[ExecutiveService] failed to load tier prices:', e);
+    }
+  }
 
   function getSb() {
     const sb = (typeof getSupabase === 'function') ? getSupabase() : window.supabaseClient;
@@ -21,12 +39,8 @@
     ]);
   }
 
-  function getAdminToken() {
-    return window.__ADMIN_TOKEN || window.__ADMIN_SESSION?.access_token || '';
-  }
-
   async function apiRequest(action, token) {
-    const t = token || getAdminToken();
+    const t = token || await BondsAdminCommon.getAdminToken();
     if (!t) throw new Error('No admin token available');
     const res = await fetch('/api/admin?action=' + encodeURIComponent(action), {
       method: 'GET',
@@ -39,7 +53,7 @@
 
   async function getSessionUser() {
     // Prefer server-side verification via admin token to avoid iframe storage/auth issues.
-    const token = getAdminToken();
+    const token = await BondsAdminCommon.getAdminToken();
     if (token) {
       try {
         const json = await withTimeout(apiRequest('me', token), 'api:me');
@@ -95,7 +109,7 @@
   }
 
   async function getUserRole() {
-    const token = getAdminToken();
+    const token = await BondsAdminCommon.getAdminToken();
     if (token) {
       try {
         const json = await withTimeout(apiRequest('me', token), 'api:me');
@@ -248,7 +262,8 @@
   }
 
   async function getStats() {
-    const token = getAdminToken();
+    const token = await BondsAdminCommon.getAdminToken();
+    await loadTierPrices(token);
     if (token) {
       try {
         const json = await withTimeout(apiRequest('executive-stats', token), 'api:executive-stats');

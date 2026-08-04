@@ -21,23 +21,23 @@ async function main() {
     .sort();
 
   if (files.length === 0) {
-    console.error('❌ No SQL files found in supabase/migrations/');
+    console.error(" No SQL files found in supabase/migrations/");
     process.exit(1);
   }
 
-  console.log(`📁 Found ${files.length} migration(s)\n`);
+  console.log(` Found ${files.length} migration(s)\n`);
 
   if (isDryRun || !dbUrl) {
-    console.log('🔍 DRY RUN — Copy & paste into Supabase SQL Editor\n');
-    console.log('═'.repeat(60));
+    console.log(" DRY RUN — Copy & paste into Supabase SQL Editor\n");
+    console.log("".repeat(60));
     for (const file of files) {
       const content = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf-8');
-      console.log(`\n-- 📄 ${file}`);
+      console.log(`\n--  ${file}`);
       console.log(content.trim());
-      console.log('\n' + '─'.repeat(60));
+      console.log('\n' + "".repeat(60));
     }
     if (!dbUrl) {
-      console.log('\n⚠️  Set SUPABASE_DB_URL to execute automatically:');
+      console.log("\n  Set SUPABASE_DB_URL to execute automatically:");
       console.log('   SUPABASE_DB_URL="postgresql://postgres:password@db.xxx.supabase.co:5432/postgres" node scripts/apply-migrations.js');
     }
     return;
@@ -48,7 +48,7 @@ async function main() {
 
   try {
     await client.connect();
-    console.log('✅ Connected to Supabase\n');
+    console.log(" Connected to Supabase\n");
 
     // Create migrations tracking table if not exists
     await client.query(`
@@ -65,12 +65,12 @@ async function main() {
       );
 
       if (rows.length > 0) {
-        console.log(`⏭️  ${file} — already applied`);
+        console.log(`⏭  ${file} — already applied`);
         continue;
       }
 
       const content = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf-8');
-      console.log(`🚀 Applying: ${file}`);
+      console.log(` Applying: ${file}`);
 
       try {
         await client.query(content);
@@ -78,18 +78,18 @@ async function main() {
           'INSERT INTO _migrations (filename) VALUES ($1)',
           [file]
         );
-        console.log(`   ✅ Applied successfully\n`);
+        console.log(`    Applied successfully\n`);
       } catch (err) {
-        console.error(`   ❌ FAILED: ${err.message}`);
-        console.error('\n⚠️  Stopping. Fix the error and re-run.');
+        console.error(`    FAILED: ${err.message}`);
+        console.error("\n  Stopping. Fix the error and re-run.");
         process.exit(1);
       }
     }
 
-    console.log('\n🎉 All migrations applied successfully!');
+    console.log("\n All migrations applied successfully!");
 
   } catch (err) {
-    console.error('❌ Database connection failed:', err.message);
+    console.error(" Database connection failed:", err.message);
     process.exit(1);
   } finally {
     await client.end();

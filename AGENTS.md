@@ -273,6 +273,9 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 1. **لا تعدّل يدوياً**:
    - `calculators/shared-platforms.js` (يُولّد تلقائياً من `country-platforms-data.js`)
+   - `calculators/shared-platforms-loader.js` (يُعدّل يدوياً عند الحاجة؛ لا يحتوي على بيانات)
+   - `calculators/platform-data/*` (يُولّد تلقائياً)
+   - `calculators/geo-data/*` (يُولّد تلقائياً من `v3/master-data/*.js`)
    - `package-lock.json`
    - `.vercel/`
 
@@ -329,6 +332,10 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `economic_life_database` — قاعدة بيانات العمر الاقتصادي
 - `depreciation_factors` — عوامل الاستهلاك
 
+> **Soft validation للعملاء المحتملين**: جدولا `calculator_leads` و `contact_messages` يقبلان الآن بيانات ناقصة أو غير صحيحة (بريد/جوال مفقود أو غير صالح، بدون اسم/مدينة/نشاط...) ويتتبعان جودتها عبر عمودي `validation_status` و `validation_notes`. انظر migrations `20260731000000_soft_lead_contact_validation.sql` و `20260807000005_calculator_leads_email_hash.sql`.
+> 
+> **اكتمال الملف الشخصي**: جدول `profiles` يحتوي على عمود `profile_completeness` (0–100) يُحسب تلقائيًا عبر Trigger عند إدخال/تحديث الصف، ويُستخدم في لوحة الإدارة للفلترة والتذكيرات. Migration: `20260730000000_profile_completeness.sql`.
+
 ### 11.2 Stripe — المنتجات
 - Bonds Pro: سعر شهري **71 ر.س** (إجمالي 82 ر.س شامل VAT 15%)
 - Bonds Enterprise: سعر شهري **184 ر.س** (إجمالي 212 ر.س شامل VAT 15%)
@@ -343,15 +350,32 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - API: `api/moyasar-checkout.js` + `api/moyasar-verify.js`
 
 ### 11.3 البلدان المدعومة
-96 دولة: 22 دولة عربية أساسية (أعضاء الجامعة العربية) + 10 أسواق عربية/مراقبة إضافية + 64 دولة عالمية. البيانات الجغرافية في `v3/master-data/countries-governorates-cities.js` (الأساسية)، `v3/master-data/global-countries.js` (العالمية)، و`v3/master-data/arab-extended-countries.js` (الإضافية). بيانات المنصات/العملات في `calculators/shared-platforms.js`.
+96 دولة: 22 دولة عربية أساسية (أعضاء الجامعة العربية) + 10 أسواق عربية/مراقبة إضافية + 64 دولة عالمية. البيانات الجغرافية المصدرية في `v3/master-data/countries-governorates-cities.js` (الأساسية)، `v3/master-data/global-countries.js` (العالمية)، و`v3/master-data/arab-extended-countries.js` (الإضافية). بيانات المنصات/العملات المصدرية في `calculators/country-platforms-data.js`.
 
-### 11.4 تحديث بيانات المنصات
+### 11.4 تحديث بيانات المنصات والبيانات الجغرافية
+
+#### بيانات المنصات
 - المصدر الأصلي: `calculators/country-platforms-data.js`
 - ملف المشروع المستخدم: `calculators/shared-platforms.js` (يُولّد تلقائياً)
-- ملفات البيانات الجغرافية: `v3/master-data/countries-governorates-cities.js`، `v3/master-data/global-countries.js`، `v3/master-data/arab-extended-countries.js`
-- `calculators/shared-geo.js` يدمج البيانات الجغرافية الثلاثة
 - لإعادة التوليد: `npm run regenerate:platforms`
-- أدوات `tools/apply_csv_data.py` و `tools/apply_csv_data_v2.py` و `tools/update_operating_models.py` تعيد التوليد تلقائياً بعد التعديل.
+- التقسيم حسب الدولة:
+  - `calculators/platform-data/meta.js` — بيانات تعريفية لجميع الدول (العملة، الضريبة، الرمز).
+  - `calculators/platform-data/{code}.js` — بيانات المنصات لكل دولة على حدة (96 ملف).
+  - `calculators/shared-platforms-loader.js` — يحمّل `meta.js` + ملف الدولة النشطة فقط أثناء تحليل HTML، مع توافق كامل مع API القديم `BondsPlatforms.getPlatforms(code)`.
+  - `calculators/platform-data-loader.js` — يحمّل أي دولة عند الطلب (للاستخدامات المستقبلية/Async).
+- لا تُعدّل ملفات `calculators/platform-data/*` يدوياً؛ يُعاد توليدها بالكامل من `scripts/extract-platform-data.js`.
+- جميع الحاسبات التي كانت تحمّل `shared-platforms.js` أصبحت تحمّل `shared-platforms-loader.js`.
+- أدوات `tools/apply_csv_data.py` و `tools/apply_csv_data_v2.py` و `tools/update_operating_models.py` تعيد توليد المنصات تلقائياً بعد التعديل.
+
+#### البيانات الجغرافية
+- المصدر الأصلي: `v3/master-data/countries-governorates-cities.js`، `v3/master-data/global-countries.js`، `v3/master-data/arab-extended-countries.js`
+- لإعادة التوليد الكامل: `npm run regenerate:geo` (يحدّث البيانات المصدرية ثم يُنشئ الـ chunks)
+- لتوليد الـ chunks فقط: `npm run regenerate:geo-chunks`
+- التقسيم حسب الدولة:
+  - `calculators/geo-data/meta.js` — بيانات تعريفية لجميع الدول (الاسم، الاسم الإنجليزي، العلم).
+  - `calculators/geo-data/{code}.js` — بيانات كل دولة (المحافظات/المدن) على حدة (96 ملف).
+  - `calculators/shared-geo.js` — يحمّل `meta.js` + ملف الدولة النشطة فوراً، ويحمّل باقي الدول عند الحاجة أو في الخلفية، مع تخزين البيانات المندمجة في IndexedDB عبر `calculators/shared-data-cache.js`.
+- لا تُعدّل ملفات `calculators/geo-data/*` يدوياً؛ يُعاد توليدها بالكامل من `scripts/extract-geo-data.js`.
 - الاختبارات: `tests/bonds-geo.test.js` تتحقق من سلامة `BondsGeo` و `BondsPlatforms` وعدم رجوع `country-platforms-data.js` إلى ملفات الحاسبات.
 
 ### 11.5 CSS مشترك لحاسبات تكلفة المصنع
@@ -363,7 +387,20 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `calculators/feasibility-template-shared.css` و `calculators/feasibility-template-shared-en.css`: الأنماط المشتركة لقوالب دراسة الجدوى.
 - `calculators/scenario-cards-shared.css`: أنماط بطاقات السيناريو/الحكم/المقاييس المشتركة لـ `feasibility.html` و `medical-viability.html` (عربي وإنجليزي).
 
-### 11.6 الاختبارات و GitHub Actions
+### 11.6 حاسبة مصنع المياه (Investment Center)
+
+حاسبة `water-factory` في `calculators/investment-center/water-factory.html` و `en/calculators/investment-center/water-factory.html` تستهدف قرار استثماري دقيق لمصنع تعبئة مياه.
+
+- **بيانات السوق**: `calculators/investment-center/water-factory-data.js` يحتوي على مرجعيات لـ 22 دولة عربية (تكاليف تغليف، طاقة، مياه، أجور، تراخيص، معايير، منافسين، مصادر).
+- **الملء التلقائي**: زر "ملء تلقائي من بيانات السوق" يجرب أولاً `/api/v3/water-factory-data?country=XX` ثم يعود إلى الملف المحلي إذا لم يتوفر API.
+- **قوالب المصنع**: أزرار صغير/متوسط/كبير (5K/20K/50K عبوة/يوم) تضبط الإنتاج والمساحة والعمالة وتكلفة المصنع.
+- **وضعان للإدخال**: الوضع **الأساسي** يعرض ~25 حقل فقط (الأهم لقرار الاستثمار)، بينما الوضع **الاحترافي** يعرض كل الـ 56 حقل مع المراحل التفصيلية. الحقول المخفية في الأساسي تأخذ قيمها الافتراضية.
+- **مساهمة المستخدم**: قسم "اقترح تحديث بيانات" يرسل إلى `/api/contact` ببيانات منظمة (البند، القيمة الحالية، القيمة المقترحة، المصدر، الملاحظات) لتتم مراجعتها من الإدارة.
+- **API ديناميكي**: `v3/api/water-factory-data.js` يخدم `GET /api/v3/water-factory-data` للقراءة العامة و `POST` محمي بـ `ADMIN_API_TOKEN` لتحديث بيانات الدولة.
+- **Seed**: `scripts/seed-water-factory-market-data.js` يدفع البيانات المحلية إلى Supabase لأول مرة.
+- **القوائم المالية التقديرية (Pro-Forma)**: `calculators/investment-center/pro-forma-engine.js` يبني قائمة الدخل (Income Statement) وقائمة التدفقات النقدية (Cash Flow) والميزانية العمومية (Balance Sheet) لمدة 5 سنوات، مع حساب EBITDA، الإهلاك، الفائدة، الضريبة، **Tax Loss Carryforward**، و**NPV/IRR** على مستوى المشروع، ورصد "حفرة السيولة" (Cash Deficit) تلقائياً. تُعرض حالياً في `water-factory` مع J-Curve للتدفقات النقدية وتحليل حساسية NPV/IRR، وتُحسب من المدخلات التفصيلية.
+
+### 11.7 الاختبارات و GitHub Actions
 - `package.json` يحدد `"node": "24.x"` لتثبيت إصدار Node على Vercel وتجنب التحذيرات.
 - `npm audit` يُظهر ثغرة واحدة فقط في `xlsx` (لا يوجد إصلاح upstream). باقي الاعتماديات المعرّضة تمّ رفعها عبر `overrides` في `package.json`.
 - `npm test` — Jest: `tests/bonds-geo.test.js` + `tests/calc-functions.test.js`.
@@ -375,6 +412,8 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `npm run test:visual:update` — تحديث صور baseline للاختبارات البصرية.
 - CI: `.github/workflows/ci.yml` يشغّل كل ما سبق عند كل push/PR.
 - تطبيق migrations تلقائياً: `.github/workflows/apply-migrations.yml` يشغّل `supabase db push --include-all` عند أي تعديل في `supabase/migrations/` على فرع `main`. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets. ملاحظة: `--include-all` ضروري لأن بعض الـ migrations القديمة طُبّقت يدوياً عبر SQL Editor وهي غير مسجلة في remote history. قاعدة: كل ملف migration يجب أن يكون idempotent ويحمل رقم إصدار فريداً (تكرار الإصدار بين ملفين يُسقط `db push` بخطأ `schema_migrations_pkey`).
+- تذكيرات إكمال الملف الشخصي: `.github/workflows/profile-reminders.yml` يشغّل endpoint `/api/admin?action=send-profile-reminders-bulk` يوميًا باستخدام `CRON_SECRET`؛ يتطلب إضافة `CRON_SECRET` في GitHub Secrets.
+- تقرير جودة البيانات: صفحة `admin/data-quality.html` و endpoint `GET /api/admin?action=data-quality-report`.
 - لإعادة توليد أيقونات PWA بعد تغيير الشعار: `node scripts/generate-icons.js`.
 - لتحديث/إضافة Open Graph tags لصفحة جديدة: `node scripts/apply-og-tags.js`.
 
@@ -433,7 +472,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - **ثيم فاتح**: أضف `data-ud-theme="light"` على `<html>` أو أي أصل، أو يُكتشف تلقائياً بواسطة `scripts/apply-universal-dropdown.py`.
   - **تراجع الجوال**: على أجهزة اللمس، القوائم القصيرة (≤6 خيارات افتراضياً) تبقى `<select>` أصلي؛ القوائم الطويلة تُحسّن.
   - **reduced-motion**: يحترم `prefers-reduced-motion` ويُلغي الحركات.
-  - **أيقونات الخيارات**: يدعم `<option data-icon="...">` (رابط صورة أو إيموجي) لعرض الأيقونة بجوار النص في عناصر القائمة وفي قيمة الـ trigger المختارة.
+  - **أيقونات الخيارات**: يدعم `<option data-icon="...">` (رابط صورة، أو اسم أيقونة مسجّل في `EccIcons` مثل `checkCircle`/`xCircle`/`warning`، أو إيموجي) لعرض الأيقونة بجوار النص في عناصر القائمة وفي قيمة الـ trigger المختارة. عند استخدام اسم أيقونة، يجب تحميل `components/ecc-icons.js` في الصفحة.
 
 ### 11.9 Enterprise Intelligence Layer (Wave 4.3)
 طبقة موحّدة لتشغيل المحركات الذكية معاً وإنتاج قرار موثوق.

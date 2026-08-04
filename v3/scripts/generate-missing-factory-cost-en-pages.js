@@ -105,7 +105,7 @@ const template = (code, country, citiesOptions) => `<!DOCTYPE html>
   <div class="container">
     <div class="calc-grid">
       <div class="card">
-        <h2 class="section-title">📝 Factory Data</h2>
+        <h2 class="section-title"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 32c0 2.209-1.791 4-4 4H5c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h22c2.209 0 4 1.791 4 4v28z"/><path fill="#99AAB5" d="M27 24c0 .553-.447 1-1 1H6c-.552 0-1-.447-1-1 0-.553.448-1 1-1h20c.553 0 1 .447 1 1zm-16 4c0 .553-.448 1-1 1H6c-.552 0-1-.447-1-1 0-.553.448-1 1-1h4c.552 0 1 .447 1 1zM27 8c0 .552-.447 1-1 1H6c-.552 0-1-.448-1-1s.448-1 1-1h20c.553 0 1 .448 1 1zm0 4c0 .553-.447 1-1 1H6c-.552 0-1-.447-1-1 0-.553.448-1 1-1h20c.553 0 1 .447 1 1zm0 4c0 .553-.447 1-1 1H6c-.552 0-1-.447-1-1 0-.553.448-1 1-1h20c.553 0 1 .447 1 1zm0 4c0 .553-.447 1-1 1H6c-.552 0-1-.447-1-1 0-.553.448-1 1-1h20c.553 0 1 .447 1 1z"/><path fill="#66757F" d="M31 6.272c-.827-.535-1.837-.579-2.521-.023l-.792.646-1.484 1.211-.1.08-2.376 1.938-11.878 9.686c-.437.357-.793 1.219-1.173 2.074-.378.85-.969 2.852-1.443 4.391-.148.25-1.065 1.846-.551 2.453.52.615 2.326.01 2.568-.076 1.626-.174 3.731-.373 4.648-.58.924-.211 1.854-.395 2.291-.752.008-.006.01-.018.017-.023l11.858-9.666.792-.646.144-.118V6.272z"/><path fill="#D99E82" d="M18.145 22.526s-1.274-1.881-2.117-2.553c-.672-.843-2.549-2.116-2.549-2.116-.448-.446-1.191-.48-1.629-.043-.437.438-.793 1.366-1.173 2.291-.472 1.146-1.276 4.154-1.768 5.752-.083.272.517-.45.503-.21-.01.187.027.394.074.581l-.146.159.208.067c.025.082.05.154.068.21l.159-.146c.187.047.394.084.58.074.24-.014-.483.587-.21.503 1.598-.493 4.607-1.296 5.752-1.768.924-.381 1.854-.736 2.291-1.174.439-.435.406-1.178-.043-1.627z"/><path fill="#EA596E" d="M25.312 4.351c-.876.875-.876 2.293 0 3.168l3.167 3.168c.876.874 2.294.874 3.168 0l3.169-3.168c.874-.875.874-2.293 0-3.168l-3.169-3.168c-.874-.875-2.292-.875-3.168 0l-3.167 3.168z"/><path fill="#FFCC4D" d="M11.849 17.815l3.17 3.17 3.165 3.166 11.881-11.879-6.337-6.336-11.879 11.879z"/><path fill="#292F33" d="M11.298 26.742s-2.06 1.133-2.616.576c-.557-.558.581-2.611.581-2.611s1.951.036 2.035 2.035z"/><path fill="#CCD6DD" d="M23.728 5.935l3.96-3.96 6.336 6.337-3.96 3.96z"/><path fill="#99AAB5" d="M26.103 3.558l.792-.792 6.336 6.335-.792.792zM24.52 5.142l.791-.791 6.336 6.335-.792.792z"/></svg> Factory Data</h2>
         <div class="input-group">
           <label for="city">Industrial Zone / City</label>
           <select id="city">
@@ -171,7 +171,7 @@ ${citiesOptions}
       </div>
 
       <div class="card">
-        <h2 class="section-title">📊 Costs & Production</h2>
+        <h2 class="section-title"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#5C913B" d="M13 33H7V16c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v17z"/><path fill="#3B94D9" d="M29 33h-6V9c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v24z"/><path fill="#DD2E44" d="M21 33h-6V23c0-1.104.896-2 2-2h2c1.104 0 2 .896 2 2v10z"/></svg> Costs & Production</h2>
         <div class="input-row">
           <div class="input-group">
             <label for="monthlyProduction">Monthly Production (units)</label>
@@ -196,12 +196,12 @@ ${citiesOptions}
           <label for="insurancePct">Annual Insurance (% of facility value)</label>
           <input type="number" id="insurancePct" placeholder="0.5" min="0" max="10" />
         </div>
-        <button class="btn-primary" onclick="calculate()" style="width:100%">🚀 Calculate Cost</button>
+        <button class="btn-primary" onclick="calculate()" style="width:100%"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg> Calculate Cost</button>
       </div>
     </div>
 
     <div id="results" class="results">
-      <h2 class="section-title">📈 Cost Summary</h2>
+      <h2 class="section-title"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#DD2E44" d="M4.998 33c-.32 0-.645-.076-.946-.239-.973-.523-1.336-1.736-.813-2.709l7-13c.299-.557.845-.939 1.47-1.031.626-.092 1.258.118 1.705.565l6.076 6.076 9.738-18.59c.512-.978 1.721-1.357 2.699-.843.979.512 1.356 1.721.844 2.7l-11 21c-.295.564-.841.953-1.47 1.05-.627.091-1.266-.113-1.716-.563l-6.1-6.099-5.724 10.631C6.4 32.619 5.71 33 4.998 33z"/></svg> Cost Summary</h2>
       <div class="scenario-cards">
         <div class="scenario-card pessimistic">
           <div class="scenario-label">Pessimistic</div>
@@ -236,7 +236,7 @@ ${citiesOptions}
         </div>
       </div>
 
-      <h2 class="section-title">📋 Monthly Cost Breakdown</h2>
+      <h2 class="section-title"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#C1694F" d="M32 34c0 1.104-.896 2-2 2H6c-1.104 0-2-.896-2-2V7c0-1.104.896-2 2-2h24c1.104 0 2 .896 2 2v27z"/><path fill="#FFF" d="M29 32c0 .553-.447 1-1 1H8c-.552 0-1-.447-1-1V9c0-.552.448-1 1-1h20c.553 0 1 .448 1 1v23z"/><path fill="#CCD6DD" d="M25 3h-4c0-1.657-1.343-3-3-3s-3 1.343-3 3h-4c-1.104 0-2 .896-2 2v5h18V5c0-1.104-.896-2-2-2z"/><circle fill="#292F33" cx="18" cy="3" r="2"/><path fill="#99AAB5" d="M20 14c0 .552-.447 1-1 1h-9c-.552 0-1-.448-1-1s.448-1 1-1h9c.553 0 1 .448 1 1zm7 4c0 .552-.447 1-1 1H10c-.552 0-1-.448-1-1s.448-1 1-1h16c.553 0 1 .448 1 1zm0 4c0 .553-.447 1-1 1H10c-.552 0-1-.447-1-1 0-.553.448-1 1-1h16c.553 0 1 .447 1 1zm0 4c0 .553-.447 1-1 1H10c-.552 0-1-.447-1-1 0-.553.448-1 1-1h16c.553 0 1 .447 1 1zm0 4c0 .553-.447 1-1 1h-9c-.552 0-1-.447-1-1 0-.553.448-1 1-1h9c.553 0 1 .447 1 1z"/></svg> Monthly Cost Breakdown</h2>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Item</th><th>Monthly</th><th>Yearly</th><th>Share</th></tr></thead>
@@ -244,7 +244,7 @@ ${citiesOptions}
         </table>
       </div>
 
-      <h2 class="section-title">🏗️ Setup Costs (One-time)</h2>
+      <h2 class="section-title"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M28.25 8.513c0-.145-.117-.263-.263-.263h-.475c-.145 0-.263.118-.263.263v11.475c0 .145.117.263.263.263h.475c.145 0 .263-.117.263-.263V8.513z"/><g fill="#F19020"><circle cx="27.75" cy="19.75" r="1.5"/><circle cx="27.75" cy="22.25" r="1"/></g><path fill="#BD2032" d="M33.25 8.25h-4.129L9.946.29 9.944.289h-.001c-.016-.007-.032-.005-.047-.01C9.849.265 9.802.25 9.75.25h-.002c-.066 0-.13.014-.19.038-.045.02-.084.05-.122.082-.012.009-.026.014-.037.025-.047.046-.085.102-.11.164V.56c-.004.009-.003.02-.006.029l-5.541 7.81c-.003.004-.003.01-.006.014-.285.176-.486.477-.486.837v2c0 .552.448 1 1 1h1.495L2.031 34H.25v2h18.958v-2h-1.74l-3.713-21.75H33.25c.553 0 1-.448 1-1v-2c0-.552-.447-1-1-1zm-21.769 4L9.75 13.639 8.02 12.25h3.461zM9.75 21.3l3.667 2.404-3.667 2-3.667-2L9.75 21.3zm-3.639.71l.474-2.784 1.866 1.223-2.34 1.561zm4.938-1.561l1.87-1.225.477 2.789-2.347-1.564zm-1.299-.866l-2.828-1.885 2.828-2.322 2.828 2.322-2.828 1.885zm-2.563-3.887l.362-2.127 1.131.928-1.493 1.199zm3.633-1.198l1.132-.929.364 2.13-1.496-1.201zM5.073 8.25L9.25 2.362V6.25h-2c-.552 0-1 .448-1 1v1H5.073zm.53 16.738l2.73 1.489-3.29 1.794.56-3.283zM15.443 34H4.067l.686-4.024L9.75 27.25l5.006 2.731.687 4.019zm-1.54-9.015l.562 3.291-3.298-1.799 2.736-1.492zM13.25 8.25v-1c0-.552-.448-1-1-1h-2V1.499L26.513 8.25H13.25zm2 3h-1.16v-2h1.16v2zm3 0h-2v-2h2v2zm3 0h-2v-2h2v2zm3 0h-2v-2h2v2zm3 0h-2v-2h2v2zm3 0h-2v-2h2v2zm3-.5c0 .276-.224.5-.5.5h-1.5v-2h1.5c.276 0 .5.224.5.5v1z"/><path fill="#4B545D" d="M12.25 7.25h-2c-.552 0-1 .448-1 1v2c0 .552.448 1 1 1h3v-4h-1z"/><path fill="#CDD7DF" d="M11.25 7.25h2v4h-2z"/><path fill="#66757F" d="M34.844 24v-1H20.656v1h.844v2.469h-.844v1h14.188v-1H34V24z"/></svg> Setup Costs (One-time)</h2>
       <div class="table-wrap">
         <table>
           <thead><tr><th>Item</th><th>Cost</th><th>Notes</th></tr></thead>
@@ -252,7 +252,7 @@ ${citiesOptions}
         </table>
       </div>
       <div class="note">
-        ⚠️ These estimates are approximate based on market averages in ${country.nameEn}. Actual prices vary by location, activity, and negotiation. Please review with a financial advisor.
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg> These estimates are approximate based on market averages in ${country.nameEn}. Actual prices vary by location, activity, and negotiation. Please review with a financial advisor.
       </div>
     </div>
   </div>

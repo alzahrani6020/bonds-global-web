@@ -11,7 +11,7 @@ const envPath = path.join(__dirname, '..', '.env.local');
 const envContent = fs.readFileSync(envPath, 'utf-8');
 const dbUrlMatch = envContent.match(/SUPABASE_DB_URL=(.+)/);
 if (!dbUrlMatch) {
-  console.error('❌ SUPABASE_DB_URL not found in .env.local');
+  console.error(" SUPABASE_DB_URL not found in .env.local");
   process.exit(1);
 }
 const connectionString = dbUrlMatch[1].trim();
@@ -70,15 +70,15 @@ async function run() {
   const client = new Client({ connectionString, ssl: { rejectUnauthorized: false } });
   try {
     await client.connect();
-    console.log('🔌 Connected to Supabase PostgreSQL');
+    console.log(" Connected to Supabase PostgreSQL");
     await client.query(sql);
-    console.log('✅ Migration completed successfully!');
+    console.log(" Migration completed successfully!");
     console.log('   - page_views table created');
     console.log('   - page_sessions table created');
     console.log('   - RLS policies enabled');
     console.log('   - Indexes created');
   } catch (err) {
-    console.error('❌ Migration failed:', err.message);
+    console.error(" Migration failed:", err.message);
     process.exit(1);
   } finally {
     await client.end();

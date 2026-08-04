@@ -260,11 +260,11 @@ function main() {
     }
   });
 
-  console.log('🔍 API Auth & Routing Audit\n');
+  console.log(" API Auth & Routing Audit\n");
   console.log(`Checked ${checkedFiles.reduce((sum, f) => sum + f.calls.length, 0)} fetch calls in ${checkedFiles.length} files.\n`);
 
   if (issues.length === 0) {
-    console.log('✅ No API auth or routing issues found.');
+    console.log(" No API auth or routing issues found.");
     process.exit(0);
   }
 
@@ -272,11 +272,11 @@ function main() {
   const high = issues.filter(i => i.severity === 'high');
 
   console.log(`Found ${issues.length} issue(s):`);
-  console.log(`  🔴 CRITICAL (missing auth): ${critical.length}`);
-  console.log(`  🟠 HIGH (missing endpoint): ${high.length}\n`);
+  console.log(`   CRITICAL (missing auth): ${critical.length}`);
+  console.log(`   HIGH (missing endpoint): ${high.length}\n`);
 
   for (const issue of issues) {
-    const icon = issue.severity === 'critical' ? '🔴' : '🟠';
+    const icon = issue.severity === 'critical' ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><circle fill=\"#DD2E44\" cx=\"18\" cy=\"18\" r=\"18\"/></svg>" : "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><circle fill=\"#F4900C\" cx=\"18\" cy=\"18\" r=\"18\"/></svg>";
     console.log(`${icon} ${issue.file}:${issue.line}`);
     console.log(`   Endpoint: ${issue.endpoint}`);
     console.log(`   ${issue.message}\n`);

@@ -63,9 +63,43 @@
   // Public pages (homepage, about, services, blog, pricing, etc.) are allowed.
   if (isPublicAuthPage() || !isProtectedPage()) return;
 
+  const TOKEN_KEY = 'bonds-auth-token';
+
+  function getStoredToken() {
+    try {
+      return window.localStorage.getItem(TOKEN_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function redirectToLogin() {
+    const returnUrl = encodeURIComponent(window.location.href);
+    const isEn = path.startsWith('/en/');
+    const loginUrl = isEn ? '/en/calculators/auth/?redirect=' + returnUrl : '/calculators/auth/?redirect=' + returnUrl;
+    window.location.replace(loginUrl);
+  }
+
+  // Fast path: avoid an async round-trip if the token is already in storage.
+  if (getStoredToken()) {
+    // Still verify with BondsAuth in the background, but don't block the page
+    // for the common case where the token is valid.
+    if (window.BondsAuth && typeof window.BondsAuth.getUser === 'function') {
+      window.BondsAuth.getUser().then(function (result) {
+        if (!result || !result.data || !result.data.user) {
+          redirectToLogin();
+        }
+      }).catch(function () {
+        // Network or transient error: don't log the user out immediately.
+        // The next page load or action will re-check.
+      });
+    }
+    return;
+  }
+
   async function enforce() {
     let attempts = 0;
-    const maxAttempts = 50; // ~5 seconds
+    const maxAttempts = 60; // ~6 seconds
 
     while (typeof window === 'undefined' || !window.BondsAuth || !window.BondsAuth.getUser) {
       if (attempts >= maxAttempts) break;
@@ -87,13 +121,6 @@
     } catch (e) {
       redirectToLogin();
     }
-  }
-
-  function redirectToLogin() {
-    const returnUrl = encodeURIComponent(window.location.href);
-    const isEn = path.startsWith('/en/');
-    const loginUrl = isEn ? '/en/calculators/auth/?redirect=' + returnUrl : '/calculators/auth/?redirect=' + returnUrl;
-    window.location.replace(loginUrl);
   }
 
   if (document.readyState === 'loading') {

@@ -117,7 +117,12 @@
       basedOn: 'بناءً على',
       outOf: 'من',
       score: 'الدرجة',
-      qualityIssues: 'ملاحظات الجودة'
+      qualityIssues: 'ملاحظات الجودة',
+      altmanZScore: 'مؤشر Altman Z-Score',
+      altmanSafe: 'منطقة آمنة',
+      altmanGrey: 'منطقة رمادية',
+      altmanDistress: 'منطقة خطر',
+      altmanNote: 'مؤشر تقريبي لمخاطر الإفلاس مستقبلاً (أعلى = أكثر أماناً).'
     },
     en: {
       currency: 'SAR',
@@ -227,7 +232,12 @@
       basedOn: 'Based on',
       outOf: 'of',
       score: 'Score',
-      qualityIssues: 'Quality Issues'
+      qualityIssues: 'Quality Issues',
+      altmanZScore: 'Altman Z-Score',
+      altmanSafe: 'Safe zone',
+      altmanGrey: 'Grey zone',
+      altmanDistress: 'Distress zone',
+      altmanNote: 'Approximate forward-looking bankruptcy risk indicator (higher = safer).'
     }
   };
 
@@ -292,10 +302,10 @@
 
   function getVerdictColor(recommendation) {
     switch (recommendation) {
-      case 'proceed': return { bg: '#dcfce7', border: '#86efac', text: '#166534', icon: '✓' };
+      case 'proceed': return { bg: '#dcfce7', border: '#86efac', text: '#166534', icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" };
       case 'mitigate': return { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af', icon: '!' };
       case 'reconsider': return { bg: '#fef9c3', border: '#fde047', text: '#854d0e', icon: '?' };
-      case 'avoid': return { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b', icon: '✕' };
+      case 'avoid': return { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b', icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>" };
       default: return { bg: '#fef3c7', border: '#fcd34d', text: '#92400e', icon: '!' };
     }
   }
@@ -551,6 +561,59 @@
       summary: lang === 'en'
         ? `Debt-to-equity ${debtEquityRatio.toFixed(2)}, DSCR ${dscr.toFixed(2)}, self-finance ${selfFinanceRatio.toFixed(1)}%.`
         : `الدين/حقوق الملكية ${debtEquityRatio.toFixed(2)}، تغطية خدمة الدين ${dscr.toFixed(2)}، التمويل الذاتي ${selfFinanceRatio.toFixed(1)}%.`
+    };
+  }
+
+  function calculateAltmanZScore(inputs, engineResult) {
+    const t = i18n[lang] || i18n[DEFAULT_LANG];
+    const metrics = engineResult.metrics || {};
+    const totalInvestment = toNumber(metrics.totalInvestment);
+    const monthlyNetCashFlow = toNumber(metrics.monthlyNetCashFlow);
+    const profitMargin = toNumber(metrics.profitMargin);
+
+    if (totalInvestment <= 0 || monthlyNetCashFlow === 0) {
+      return { score: 0, zone: 'unknown', label: t.noData };
+    }
+
+    // Approximate annual figures
+    const annualNetCashFlow = monthlyNetCashFlow * 12;
+    const annualSales = profitMargin > 0 ? annualNetCashFlow / (profitMargin / 100) : annualNetCashFlow;
+    const annualEbit = annualNetCashFlow;
+    const retainedEarnings = annualNetCashFlow * 5; // 5-year projection
+    const equity = toNumber(inputs.equityAmount, totalInvestment * (toNumber(inputs.equityRatio, 30) / 100));
+    const liabilities = toNumber(inputs.loanAmount, totalInvestment - equity);
+
+    // Working capital proxy using CCC days if available
+    const dso = toNumber(inputs.dsoDays, 15);
+    const dio = toNumber(inputs.dioDays, 20);
+    const dpo = toNumber(inputs.dpoDays, 30);
+    const workingCapitalDays = Math.max(-90, dpo - dso - dio);
+    const workingCapital = annualSales * (workingCapitalDays / 365);
+
+    const A = workingCapital / totalInvestment;
+    const B = retainedEarnings / totalInvestment;
+    const C = annualEbit / totalInvestment;
+    const D = liabilities > 0 ? equity / liabilities : 99;
+    const E = annualSales / totalInvestment;
+
+    // Altman Z-Score for private/non-manufacturing firms
+    const score = 0.717 * A + 0.847 * B + 3.107 * C + 0.420 * D + 0.998 * E;
+
+    let zone = 'grey';
+    let label = t.altmanGrey;
+    if (score >= 2.99) {
+      zone = 'safe';
+      label = t.altmanSafe;
+    } else if (score < 1.81) {
+      zone = 'distress';
+      label = t.altmanDistress;
+    }
+
+    return {
+      score: parseFloat(score.toFixed(2)),
+      zone,
+      label,
+      components: { A, B, C, D, E }
     };
   }
 
@@ -929,7 +992,7 @@
           const likelihood = Math.min(5, Math.max(1, raw));
           return impact === cell.impact && likelihood === cell.likelihood;
         });
-        html += `<td style="background:${cell.color};${active ? 'box-shadow:inset 0 0 0 2px #1a1a1a;' : ''}">${active ? '●' : ''}</td>`;
+        html += `<td style="background:${cell.color};${active ? 'box-shadow:inset 0 0 0 2px #1a1a1a;' : ''}">${active ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"currentColor\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/></svg>" : ''}</td>`;
       }
       html += '</tr>';
     }
@@ -938,7 +1001,7 @@
   }
 
   // ===== 10. Executive Report HTML =====
-  function buildExecutiveReport(inputs, engineResult, decision, confidence, dataQuality, risk, financing, market, cashFlow, keyRisks, keyOpportunities) {
+  function buildExecutiveReport(inputs, engineResult, decision, confidence, dataQuality, risk, financing, market, cashFlow, keyRisks, keyOpportunities, altmanZScore) {
     const t = i18n[lang] || i18n[DEFAULT_LANG];
     const isEn = lang === 'en';
     const dir = isEn ? 'ltr' : 'rtl';
@@ -1097,6 +1160,7 @@
         <div class="metric-item"><div class="label">${t.breakEvenTiming}</div><div class="value">${formatMonths(metrics.paybackMonths, lang)}</div></div>
         <div class="metric-item"><div class="label">${t.marketShare}</div><div class="value">${formatP(market.marketShare)}</div></div>
         <div class="metric-item"><div class="label">${t.riskLevelLabel}</div><div class="value">${risk.score}</div></div>
+        ${altmanZScore && altmanZScore.score > 0 ? `<div class="metric-item" style="border-left:4px solid ${altmanZScore.zone === 'safe' ? '#22c55e' : altmanZScore.zone === 'distress' ? '#ef4444' : '#f59e0b'}"><div class="label">${t.altmanZScore}</div><div class="value">${altmanZScore.score}</div><div style="font-size:0.75rem;color:${altmanZScore.zone === 'safe' ? '#22c55e' : altmanZScore.zone === 'distress' ? '#ef4444' : '#f59e0b'}">${altmanZScore.label}</div></div>` : ''}
       </div>
 
       <div class="two-col">
@@ -1187,11 +1251,12 @@
     const financing = analyzeFinancing(inputs, engineResult);
     const market = analyzeMarket(inputs, engineResult);
     const cashFlow = analyzeCashFlow(inputs, engineResult);
+    const altmanZScore = calculateAltmanZScore(inputs, engineResult);
     const recommendation = buildRecommendation(engineResult, dataQuality, risk, financing, market, cashFlow);
     const confidence = calculateConfidence(dataQuality, risk, market, cashFlow, financing);
     const keyRisks = buildKeyRisks(risk, financing, market, cashFlow);
     const keyOpportunities = buildOpportunities(market, cashFlow, inputs, engineResult);
-    const executiveReport = buildExecutiveReport(inputs, engineResult, recommendation, confidence, dataQuality, risk, financing, market, cashFlow, keyRisks, keyOpportunities);
+    const executiveReport = buildExecutiveReport(inputs, engineResult, recommendation, confidence, dataQuality, risk, financing, market, cashFlow, keyRisks, keyOpportunities, altmanZScore);
 
     return {
       dataQuality,
@@ -1199,6 +1264,7 @@
       financingAnalysis: financing,
       marketAnalysis: market,
       cashFlowAnalysis: cashFlow,
+      altmanZScore,
       recommendation,
       confidenceScore: confidence,
       executiveReport,
@@ -1251,7 +1317,7 @@
     }
     container.innerHTML = items.map(item => {
       const badge = type === 'risk' ? (item.severity || 'medium') : (item.impact || 'medium');
-      const icon = type === 'risk' ? '⚠️' : '💡';
+      const icon = type === 'risk' ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg>" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#FFD983\" d=\"M29 11.06c0 6.439-5 7.439-5 13.44 0 3.098-3.123 3.359-5.5 3.359-2.053 0-6.586-.779-6.586-3.361C11.914 18.5 7 17.5 7 11.06 7 5.029 12.285.14 18.083.14 23.883.14 29 5.029 29 11.06z\"/><path fill=\"#CCD6DD\" d=\"M22.167 32.5c0 .828-2.234 2.5-4.167 2.5-1.933 0-4.167-1.672-4.167-2.5 0-.828 2.233-.5 4.167-.5 1.933 0 4.167-.328 4.167.5z\"/><path fill=\"#FFCC4D\" d=\"M22.707 10.293c-.391-.391-1.023-.391-1.414 0L18 13.586l-3.293-3.293c-.391-.391-1.023-.391-1.414 0s-.391 1.023 0 1.414L17 15.414V26c0 .553.448 1 1 1s1-.447 1-1V15.414l3.707-3.707c.391-.391.391-1.023 0-1.414z\"/><path fill=\"#99AAB5\" d=\"M24 31c0 1.104-.896 2-2 2h-8c-1.104 0-2-.896-2-2v-6h12v6z\"/><path fill=\"#CCD6DD\" d=\"M11.999 32c-.48 0-.904-.347-.985-.836-.091-.544.277-1.06.822-1.15l12-2c.544-.098 1.06.277 1.15.822.091.544-.277 1.06-.822 1.15l-12 2c-.055.01-.111.014-.165.014zm0-4c-.48 0-.904-.347-.985-.836-.091-.544.277-1.06.822-1.15l12-2c.544-.097 1.06.277 1.15.822.091.544-.277 1.06-.822 1.15l-12 2c-.055.01-.111.014-.165.014z\"/></svg>";
       return `
         <div class="di-list-item di-list-item--${badge}">
           <div class="di-list-item__icon">${icon}</div>
@@ -1281,12 +1347,13 @@
     `;
   }
 
-  function renderSummary(containerId, dataQuality, risk, financing, market, cashFlow) {
+  function renderSummary(containerId, dataQuality, risk, financing, market, cashFlow, altmanZScore) {
     const container = document.getElementById(containerId);
     if (!container) return;
     const t = i18n[lang];
     const finLabel = financing.assessment === 'good' ? t.good : financing.assessment === 'fair' ? t.fair : t.poor;
     const liqLabel = t[cashFlow.liquidity] || cashFlow.liquidity;
+    const zColor = altmanZScore.zone === 'safe' ? '#22c55e' : altmanZScore.zone === 'distress' ? '#ef4444' : '#f59e0b';
     container.innerHTML = `
       <div class="di-summary-grid">
         <div class="di-summary-item di-summary-item--${dataQuality.level}"><div class="di-summary-item__label">${t.dataQuality}</div><div class="di-summary-item__value">${dataQuality.score}<span>/100</span></div></div>
@@ -1295,6 +1362,7 @@
         <div class="di-summary-item di-summary-item--${market.level}"><div class="di-summary-item__label">${t.marketAnalysis}</div><div class="di-summary-item__value">${market.score}<span>/100</span></div></div>
         <div class="di-summary-item di-summary-item--${cashFlow.level}"><div class="di-summary-item__label">${t.cashFlowAnalysis}</div><div class="di-summary-item__value">${cashFlow.score}<span>/100</span></div></div>
         <div class="di-summary-item"><div class="di-summary-item__label">${t.debtEquityRatio}</div><div class="di-summary-item__value">${financing.debtEquityRatio.toFixed(2)}</div></div>
+        ${altmanZScore && altmanZScore.score > 0 ? `<div class="di-summary-item" style="border-color:${zColor}"><div class="di-summary-item__label">${t.altmanZScore}</div><div class="di-summary-item__value" style="color:${zColor}">${altmanZScore.score}</div><div style="font-size:0.7rem;color:${zColor}">${altmanZScore.label}</div></div>` : ''}
       </div>`;
   }
 
@@ -1313,15 +1381,15 @@
           <div class="di-data-quality__track"><div class="di-data-quality__fill" style="width:${dataQuality.score}%; background:${color}"></div></div>
           <div class="di-data-quality__checklist">
             <div class="di-data-quality__check ${dataQuality.filledFields >= dataQuality.totalFields * 0.5 ? 'ok' : ''}">
-              <span class="di-data-quality__icon">${dataQuality.filledFields >= dataQuality.totalFields * 0.5 ? '✓' : '○'}</span>
+              <span class="di-data-quality__icon">${dataQuality.filledFields >= dataQuality.totalFields * 0.5 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" : "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/></svg>"}</span>
               <span>${t.fieldsCompleted}: ${dataQuality.filledFields} ${t.outOf} ${dataQuality.totalFields}</span>
             </div>
             <div class="di-data-quality__check ${dataQuality.zeroOrDefaultFields <= dataQuality.totalFields * 0.3 ? 'ok' : ''}">
-              <span class="di-data-quality__icon">${dataQuality.zeroOrDefaultFields <= dataQuality.totalFields * 0.3 ? '✓' : '○'}</span>
+              <span class="di-data-quality__icon">${dataQuality.zeroOrDefaultFields <= dataQuality.totalFields * 0.3 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" : "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/></svg>"}</span>
               <span>${t.fieldsZero}: ${dataQuality.zeroOrDefaultFields}</span>
             </div>
             <div class="di-data-quality__check ${dataQuality.rangeIssues === 0 ? 'ok' : ''}">
-              <span class="di-data-quality__icon">${dataQuality.rangeIssues === 0 ? '✓' : '!'}</span>
+              <span class="di-data-quality__icon">${dataQuality.rangeIssues === 0 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" : '!'}</span>
               <span>${t.rangeIssuesLabel}: ${dataQuality.rangeIssues}</span>
             </div>
           </div>

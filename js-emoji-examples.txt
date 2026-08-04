@@ -1,0 +1,323 @@
+.\auth-guard.js: yle="min-width:180px;">
+            <a href="${myBondsUrl}">🏠 ${myBondsLabel}</a>
+         
+.\bonds-auth-2026.js: ;color:var(--text);text-decoration:none;font-size:0.85rem;">🏠 ${myBondsLabel}</a>
+         
+.\calculator-wizard.js: tainer.innerHTML = '<div class="validation-warnings__title">⚠️ ' + BondsCommon.escapeHtml(t
+.\site-layout.js: obal" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+    </div>
+  </div>
+</foo
+.\admin\admin-auth-v2.js: >
+          <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+          <h2 style="co
+.\admin\admin-auth.js: >
+          <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+          <h2 style="co
+.\admin\admin-geo.js: 
+  }
+
+  function countryFlag(code) {
+    if (!code) return '🌐';
+    const c = String(code).
+.\admin\admin-sidebar-icons.js: .
+*/
+(function () {
+  'use strict';
+
+  const ICONS = {
+    '📊': '<svg viewBox="0 0 24 24" f
+.\admin\ai-business-advisor\analysis-engine.js: >
+          </ul>
+          ${financial.flags.length ? '<h3>⚠️ تنبيهات:</h3><ul>' + financi
+.\admin\ai-business-advisor\app.js: Access(msg) {
+    setContent('<div class="ai-no-access"><h2>⛔ لا توجد صلاحية</h2><p>' + (ms
+.\admin\city-intelligence\app.js: 
+          <div class="ci-metric-icon ci-metric-icon--gold">🏙️</div>
+          <div class="
+.\admin\data-quality-center\app.js:    } catch (e) {
+      setContent('<div class="ai-empty"><p>❌ فشل تحميل الملخص: ' + BondsAd
+.\admin\distressed-recovery\app.js: class="fa-empty" style="flex-direction:column;gap:1rem;"><p>⚠️ ${err.message}</p><a href="/
+.\admin\executive-dashboard\app.js: >
+          <div style="font-size:3rem;margin-bottom:1rem;">🚫</div>
+          <h2>لا توجد ص
+.\admin\global-search\app.js:   if (resultsEl) resultsEl.innerHTML = '<p class="ai-empty">❌ فشل البحث: ' + BondsAdminComm
+.\api\funding.js: ;max-width:600px;margin:0 auto;"><h2 style="color:#b8954e;">🏦 طلب تحويل بنكي جديد</h2><tabl
+.\api\platform.js: ey)) return;
+
+  const subject = eventType === 'lead'
+    ? '✉️ New calculator lead captured
+.\api\research.js: 
+    let verdict;
+    if (!isProfitable) {
+      verdict = `⚠️ الخصم ${discount_pct}% يجعل 
+.\calculators\anonymous-first.js: indow.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '✅ تم حفظ المشروع' : '✅ Project 
+.\calculators\auth-modal.js: -auth-modal">' +
+      '<div class="bonds-auth-modal__icon">🔒</div>' +
+      '<h3 class="bo
+.\calculators\calc-functions.js: فة الطعام', 'عبء العمولة', 'أمان التعادل'];
+  var icons = ['💰', '🍽️', '📱', '🛡️'];
+
+  // 1. 
+.\calculators\db-client-auto.js: ntElement.lang === 'ar';
+    var t = {
+      save: isRTL ? '💾 حفظ النتيجة' : '💾 Save Result
+.\calculators\exit-intent.js: -exit-modal">' +
+      '<div class="bonds-exit-modal__icon">💾</div>' +
+      '<h3 class="bo
+.\calculators\shared-enhancements.js: inBalance < 0) {
+      alerts.push({ type: 'danger', icon: '🚨', title: isAr ? 'رصيد نقدي سا
+.\calculators\shared-export.js: });
+    if (window.BondsUI && BondsUI.toast) BondsUI.toast('✅ تم نسخ الرابط!', 'success');
+
+.\calculators\shared-ui.js: style="font-weight:700;color:var(--gold);font-size:0.9rem;">📊 اكتمال الإعداد: ${pct}%</span
+.\calculators\sticky-cta.js: delay: cfg.delay || 1200,
+      title: cfg.title || (rtl ? '✨ نتائجك جاهزة' : '✨ Your resul
+.\calculators\usage-guard.js: imit - used);
+
+    if (remaining === 0) {
+      showBanner('⚠️ لقد استنفدت محاولاتك المجاني
+.\calculators\investment-center\decision-intelligence.js: { bg: '#dcfce7', border: '#86efac', text: '#166534', icon: '✓' };
+      case 'mitigate': re
+.\components\emoji-icons.js: custom SVG using currentColor.
+ */
+
+const EMOJI_SVGS = {
+  "☀": "<svg aria-hidden=\"true\" 
+.\en\v3\portfolio\portfolio-dashboard.js: tion empty-state">
+          <div class="empty-state__icon">📁</div>
+          <div class="e
+.\lib\ai\prompts.js: التحليل: تقرير تقييم أصل شامل (BONDS AI Valuation Analyst)
+
+⚠️ قواعد صارمة:
+- هذه الطبقة تح
+.\scripts\add-inline-footers.js: );
+
+fs.writeFileSync(inputPath, html, 'utf8');
+console.log('✅ Added inline footers before',
+.\scripts\api-auth-audit.js: ot send it`
+        });
+      }
+    }
+  });
+
+  console.log('🔍 API Auth & Routing Audit\n');
+.\scripts\apply-enterprise-migrations.js: ss.env.DATABASE_URL;
+
+if (!DATABASE_URL) {
+  console.error('❌ Please set the DATABASE_URL e
+.\scripts\apply-migration.js: ct();
+  try {
+    await client.query(sql);
+    console.log(`✅ Applied ${path.basename(file)
+.\scripts\apply-migrations.js:    .sort();
+
+  if (files.length === 0) {
+    console.error('❌ No SQL files found in supabas
+.\scripts\apply-og-tags.js: 
+    fs.writeFileSync(file, html, 'utf8');
+    console.log(`✅ ${relPath}`);
+    updated++;
+
+.\scripts\apply-rls-migration.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Missing SUPABASE_DB_URL / DAT
+.\scripts\auto-deploy-migrations.js: .env.SUPABASE_DB_URL;
+  
+  if (!dbUrl) {
+    console.error('❌ Error: SUPABASE_DB_URL is req
+.\scripts\build-condition-standards.js: riteFileSync(sqlPath, generateSql(), 'utf8');
+
+console.log(`✓ Wrote ${jsPath}`);
+console.lo
+.\scripts\fix-v3-theme.js: ');
+
+  fs.writeFileSync(file, html, 'utf8');
+  console.log('✓', path.relative(process.cwd()
+.\scripts\full-setup.js: d: path.resolve(__dirname, '..')
+    });
+    console.log(`  ✅ ${key}`);
+  } catch (e) {
+   
+.\scripts\generate-icons.js: ), type: 'png' });
+    await page.close();
+    console.log(`✅ Generated icon-${size}.png`);
+.\scripts\generate-investment-calculators.js: .');
+
+const sectorsAr = [
+  {
+    id: 'medical',
+    icon: '🏥',
+    title: 'حاسبة الاستثمار
+.\scripts\generate-report.js: 
+  
+  const stats = fs.statSync(outputPath);
+  console.log('✅ Report PDF created: ' + outpu
+.\scripts\generate-study-pdf.js: ';
+
+  const stats = fs.statSync(outputPath);
+  console.log('✅ PDF created:', outputPath);
+ 
+.\scripts\i18n-audit.js: ${rel} (no Arabic counterpart)`);
+    }
+  }
+
+  console.log('🔍 Bonds Global i18n Audit\n');
+
+.\scripts\install-hooks.js: __dirname, '..'),
+    stdio: 'inherit'
+  });
+  console.log('✅ Git hooks installed successfu
+.\scripts\og-audit.js: g html lang');
+  }
+
+  if (issues.length) {
+    console.log(`❌ ${relPath}: ${issues.join(', 
+.\scripts\populate-all-competitors.js: , config.targets, activityMap, year);
+  }
+
+  console.log('\n✅ All competitor data populated
+.\scripts\run-page-tracking-migration.js: SUPABASE_DB_URL=(.+)/);
+if (!dbUrlMatch) {
+  console.error('❌ SUPABASE_DB_URL not found in 
+.\scripts\setup-stripe.js: 
+  if (!process.env.STRIPE_SECRET_KEY) {
+    console.error('❌ Error: STRIPE_SECRET_KEY is r
+.\scripts\setup-supabase.js: rocess.env.DATABASE_URL;
+  if (!dbUrl) {
+    console.error('❌ Error: SUPABASE_DB_URL or DAT
+.\scripts\site-audit.js:     }
+  }
+}
+
+// ============ Main ============
+console.log('🔍 Bonds Global Site Audit\n');
+
+.\scripts\test-ai-analyze-live.js:  = process.env.AI_TEST_JWT;
+
+if (!token) {
+  console.error('❌ Missing AI_TEST_JWT environme
+.\scripts\test-openai-real.js: ult.recommendations).slice(0, 160) + '...');
+  console.log('✅ OpenAI real smoke test passed
+.\scripts\test-orchestrator-real.js: guarded.guardrails.computed_verdict}`);
+  }
+
+  console.log('✅ Orchestrator real end-to-end 
+.\scripts\v3-backfill-2026.js: nity scoring completed: ${scored} rows`);
+
+  console.log('\n✅ Backfill finished.');
+}
+
+main
+.\scripts\verify-calculators.js: .count();
+        if (count === 0) {
+          console.log(`❌ ${t.name}: missing ${sel}`);
+
+.\scripts\verify-migrations.js:    .sort();
+
+  if (files.length === 0) {
+    console.error('❌ No migration files found');
+ 
+.\scripts\verify-production.js: .count();
+        if (count === 0) {
+          console.log(`❌ ${t.name}: missing ${sel}`);
+
+.\tests\a11y\a11y-tests.js:      if (criticalOrSerious.length) {
+        console.log(`\n❌ ${p.name} — ${count} critical
+.\tests\mobile\mobile-tests.js:   if (bodyWidth > viewportWidth + 1) {
+        console.log(`❌ ${p.name}: horizontal overflo
+.\tests\visual\visual-tests.js: ileSync(snapshotPath, baselinePath);
+          console.log(`📸 baseline updated: ${viewport.
+.\v3\api\ai.js: ce)}% (${label}).`;
+  if (confidence < 50) {
+    note += '\n⚠️ هذه البيانات تقديرية؛ يُنصح 
+.\v3\components\ai-chat-widget.js: class="bonds-ai-chat-toggle" aria-label="فتح المساعد الذكي">🤖</button>
+      <div class="bo
+.\v3\portfolio\portfolio-dashboard.js: tion empty-state">
+          <div class="empty-state__icon">📁</div>
+          <div class="e
+.\v3\scripts\apply-confidence-grading.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\apply-official-data-to-cities.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\apply-seeds.js: SERVICE_ROLE_KEY;
+
+  if (!url || !key) {
+    console.error('❌ Missing SUPABASE_URL or SUPAB
+.\v3\scripts\auto-fill-key-cities.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\create-stripe-webhook.js: nd('npx', ['vercel', '--prod', '--yes']);
+
+  console.log('\n✅ Stripe webhook setup complete
+.\v3\scripts\enrich-all-activities-market-data.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\enrich-all-cities-market-data.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\enrich-key-cities-market-data.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\enrich-key-cities.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\fill-city-indicators.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\fill-city-market-data.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\fix-zero-saturation.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\generate-activity-data.js: 
+        year
+      });
+      success++;
+      console.log(`✅ ${city.name_ar} (${city.code}
+.\v3\scripts\generate-missing-factory-cost-en-pages.js: 
+      <div class="card">
+        <h2 class="section-title">📝 Factory Data</h2>
+        <di
+.\v3\scripts\generate-missing-factory-cost-pages.js: 
+      <div class="card">
+        <h2 class="section-title">📝 بيانات المصنع</h2>
+        <d
+.\v3\scripts\import-cities-sql.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\import-master-data.js: n(dataDir, 'special-city-types.csv')));
+
+    console.log('\n✅ Master data import complete')
+.\v3\scripts\link-old-city-data.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\seed-data-acquisition.js: (sum, a) => sum + a.recordsImported, 0);
+      console.log(`✅ ${city.name_ar} (${city.code}
+.\v3\scripts\seed-official-country-data.js: DATABASE_URL;
+  if (!connectionString) {
+    console.error('❌ Please set SUPABASE_DB_URL or
+.\v3\scripts\setup-all.js: , [path.join(__dirname, 'test-api.js')]);
+
+  console.log('\n✅ Setup complete!');
+}
+
+main().
+.\v3\scripts\test-api.js: 
+}
+
+function log(name, status, ok) {
+  console.log(`${ok ? '✅' : '❌'} ${name}: ${status}`);
+.\valuation\condition-assessment-engine.js: </p>`;
+    if (result.capped) html += `<p class="ca-capped">⚠ ${t.capped}</p>`;
+
+    html +
+.\valuation\valuation-locale.js: Result: 'لا توجد نتيجة للتحقق.',
+        validationPassed: '✅ البيانات صالحة للتحليل',
+    
+.\valuation\valuation-ui.js: today) / (1000 * 60 * 60 * 24));
+    if (diff < 0) return ' ⚠️ متأخر';
+    if (diff <= 30) 

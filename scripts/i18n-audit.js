@@ -108,19 +108,19 @@ function main() {
     }
   }
 
-  console.log('🔍 Bonds Global i18n Audit\n');
+  console.log(" Bonds Global i18n Audit\n");
   if (missing.length === 0 && langIssues.length === 0) {
-    console.log('✅ All required HTML files have language counterparts and correct lang/dir attributes.');
+    console.log(" All required HTML files have language counterparts and correct lang/dir attributes.");
     process.exit(0);
   }
 
   if (missing.length) {
-    console.log('❌ Missing language counterpart:');
+    console.log(" Missing language counterpart:");
     missing.forEach(m => console.log(`  - ${m}`));
     console.log();
   }
   if (langIssues.length) {
-    console.log('❌ Incorrect lang/dir attributes:');
+    console.log(" Incorrect lang/dir attributes:");
     langIssues.forEach(i => console.log(`  - ${i}`));
     console.log();
   }

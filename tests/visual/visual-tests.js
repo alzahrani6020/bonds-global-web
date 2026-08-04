@@ -105,7 +105,7 @@ function writePng(png, filePath) {
         if (UPDATE_BASELINE) {
           ensureDir(path.dirname(baselinePath));
           fs.copyFileSync(snapshotPath, baselinePath);
-          console.log(`📸 baseline updated: ${viewport.name}/${p.name}`);
+          console.log(` baseline updated: ${viewport.name}/${p.name}`);
           continue;
         }
 
@@ -113,7 +113,7 @@ function writePng(png, filePath) {
           ensureDir(path.dirname(baselinePath));
           fs.copyFileSync(snapshotPath, baselinePath);
           created++;
-          console.log(`⚠️  baseline created: ${viewport.name}/${p.name}`);
+          console.log(`  baseline created: ${viewport.name}/${p.name}`);
           continue;
         }
 
@@ -121,7 +121,7 @@ function writePng(png, filePath) {
         const img2 = readPng(snapshotPath);
 
         if (img1.width !== img2.width || img1.height !== img2.height) {
-          console.log(`❌ ${viewport.name}/${p.name}: size mismatch (${img1.width}x${img1.height} vs ${img2.width}x${img2.height})`);
+          console.log(` ${viewport.name}/${p.name}: size mismatch (${img1.width}x${img1.height} vs ${img2.width}x${img2.height})`);
           failed++;
           continue;
         }
@@ -141,13 +141,13 @@ function writePng(png, filePath) {
 
         if (diffRatio > TOLERANCE) {
           writePng(diff, diffPath);
-          console.log(`❌ ${viewport.name}/${p.name}: ${diffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%)`);
+          console.log(` ${viewport.name}/${p.name}: ${diffPixels} pixels differ (${(diffRatio * 100).toFixed(2)}%)`);
           failed++;
         } else {
-          console.log(`✅ ${viewport.name}/${p.name}: no diff`);
+          console.log(` ${viewport.name}/${p.name}: no diff`);
         }
       } catch (err) {
-        console.error(`❌ ${viewport.name}/${p.name}: ${err.message}`);
+        console.error(` ${viewport.name}/${p.name}: ${err.message}`);
         failed++;
       }
     }
@@ -158,18 +158,18 @@ function writePng(png, filePath) {
   await browser.close();
 
   if (UPDATE_BASELINE) {
-    console.log(`\n📸 Baselines updated for ${PAGES.length * VIEWPORTS.length} screenshots.`);
+    console.log(`\n Baselines updated for ${PAGES.length * VIEWPORTS.length} screenshots.`);
     return;
   }
 
   if (created) {
-    console.log(`\n⚠️ Created ${created} missing baseline(s). Review them, then run 'npm run test:visual:update' to commit.`);
+    console.log(`\n Created ${created} missing baseline(s). Review them, then run 'npm run test:visual:update' to commit.`);
   }
 
   if (failed) {
-    console.error(`\n❌ ${failed} screenshot(s) failed or differed. See ${DIFFS_DIR}`);
+    console.error(`\n ${failed} screenshot(s) failed or differed. See ${DIFFS_DIR}`);
     process.exit(1);
   }
 
-  console.log(`\n✅ All ${PAGES.length * VIEWPORTS.length} screenshots match baselines.`);
+  console.log(`\n All ${PAGES.length * VIEWPORTS.length} screenshots match baselines.`);
 })();

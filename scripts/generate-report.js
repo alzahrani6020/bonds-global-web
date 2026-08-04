@@ -341,8 +341,8 @@ const path = require('path');
   });
   
   const stats = fs.statSync(outputPath);
-  console.log('✅ Report PDF created: ' + outputPath);
-  console.log('📄 Size: ' + (stats.size / 1024 / 1024).toFixed(2) + ' MB');
+  console.log(" Report PDF created: " + outputPath);
+  console.log(" Size: " + (stats.size / 1024 / 1024).toFixed(2) + ' MB');
   
   await browser.close();
 })();

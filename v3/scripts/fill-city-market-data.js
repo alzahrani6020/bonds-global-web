@@ -18,7 +18,7 @@ const ACTIVITY_CODES = [
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -201,12 +201,12 @@ async function main() {
         inserted++;
       }
       insertedTotal += inserted;
-      console.log(`✓ ${activity.name_ar}: ${inserted} rows`);
+      console.log(` ${activity.name_ar}: ${inserted} rows`);
     }
 
-    console.log(`\n✅ Done. Inserted/updated ${insertedTotal} market rows. Skipped ${skippedTotal}.`);
+    console.log(`\n Done. Inserted/updated ${insertedTotal} market rows. Skipped ${skippedTotal}.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     console.error(err.stack);
     process.exit(1);
   } finally {

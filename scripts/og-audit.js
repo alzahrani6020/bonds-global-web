@@ -66,16 +66,16 @@ for (const file of files) {
   }
 
   if (issues.length) {
-    console.log(`❌ ${relPath}: ${issues.join(', ')}`);
+    console.log(` ${relPath}: ${issues.join(', ')}`);
     exitCode = 1;
   } else {
-    console.log(`✅ ${relPath}`);
+    console.log(` ${relPath}`);
   }
 }
 
 if (exitCode) {
-  console.error('\n❌ Open Graph audit failed.');
+  console.error("\n Open Graph audit failed.");
 } else {
-  console.log('\n✅ All audited pages have complete Open Graph / Twitter tags.');
+  console.log("\n All audited pages have complete Open Graph / Twitter tags.");
 }
 process.exit(exitCode);

@@ -1,0 +1,366 @@
+{
+  "generatedAt": "2026-07-30T22:20:40.655Z",
+  "total": 40,
+  "calculators": [
+    {
+      "name": "break-even",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "cash-flow",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "creditworthiness",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "dashboard",
+      "ar": true,
+      "en": true,
+      "anonymous": false,
+      "guestSave": false,
+      "v3": false,
+      "sticky": false
+    },
+    {
+      "name": "dish-margin",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-ae",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-bh",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-dj",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-dz",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-eg",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-iq",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-jo",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-km",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-kw",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-lb",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-ly",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-ma",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-mr",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-om",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-ps",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-qa",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-sd",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-so",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-sy",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-tn",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "factory-cost-ye",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "feasibility",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "feasibility-template",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "feasibility-template-real-estate",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "invoice-analyzer",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "loan",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "manufacturing-feasibility",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "medical-viability",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "menu-engineering",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "menu-engineering-simple",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "pricing",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "real-project-analysis",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "restaurant",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    },
+    {
+      "name": "roi",
+      "ar": true,
+      "en": true,
+      "anonymous": true,
+      "guestSave": true,
+      "v3": true,
+      "sticky": true
+    }
+  ]
+}

@@ -43,6 +43,37 @@ for (const [code, data] of Object.entries(COUNTRIES_DATA)) {
   };
 }
 
+// Generate per-country platform chunks for lazy loading
+const platformDataDir = path.join(root, 'calculators', 'platform-data');
+if (!fs.existsSync(platformDataDir)) {
+  fs.mkdirSync(platformDataDir, { recursive: true });
+}
+
+const metaOutput = `/**
+ * Bonds Global — Platform Country Metadata
+ * Generated from calculators/country-platforms-data.js
+ */
+(function () {
+  'use strict';
+  window.BondsPlatformMeta = ${JSON.stringify(COUNTRY_META, null, 2)};
+})();
+`;
+fs.writeFileSync(path.join(platformDataDir, 'meta.js'), metaOutput, 'utf8');
+
+for (const [code, data] of Object.entries(PLATFORMS_DATA)) {
+  const countryOutput = `/**
+ * Bonds Global — Platform data for ${code}
+ * Generated from calculators/country-platforms-data.js
+ */
+(function () {
+  'use strict';
+  window.BondsPlatformCountryData = window.BondsPlatformCountryData || {};
+  window.BondsPlatformCountryData['${code}'] = ${JSON.stringify(data, null, 2)};
+})();
+`;
+  fs.writeFileSync(path.join(platformDataDir, code.toLowerCase() + '.js'), countryOutput, 'utf8');
+}
+
 const output = `/**
  * Bonds Global — Shared Platform & Country Metadata
  * Extracted from country-platforms-data.js for use with BondsGeo.
@@ -107,4 +138,5 @@ const output = `/**
 
 fs.writeFileSync(outputPath, output, 'utf8');
 console.log(`Wrote ${outputPath}`);
+console.log(`Wrote per-country chunks to ${platformDataDir}`);
 console.log(`Countries: ${Object.keys(COUNTRY_META).length}`);

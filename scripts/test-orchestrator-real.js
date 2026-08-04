@@ -150,10 +150,10 @@ async function main() {
     throw new Error(`Expected computed_verdict=avoid, got ${guarded.guardrails.computed_verdict}`);
   }
 
-  console.log('✅ Orchestrator real end-to-end test passed');
+  console.log(" Orchestrator real end-to-end test passed");
 }
 
 main().catch((err) => {
-  console.error('❌ Orchestrator real end-to-end test failed:', err.message);
+  console.error(" Orchestrator real end-to-end test failed:", err.message);
   process.exit(1);
 });

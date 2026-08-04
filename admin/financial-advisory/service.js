@@ -21,12 +21,8 @@
     ]);
   }
 
-  function getAdminToken() {
-    return window.__ADMIN_TOKEN || window.__ADMIN_SESSION?.access_token || '';
-  }
-
   async function apiRequest(action, token) {
-    const t = token || getAdminToken();
+    const t = token || await BondsAdminCommon.getAdminToken();
     if (!t) throw new Error('No admin token available');
     const res = await fetch('/api/admin?action=' + encodeURIComponent(action), {
       method: 'GET',
@@ -39,7 +35,7 @@
 
   async function getSessionUser() {
     // Prefer server-side verification via admin token to avoid iframe storage/auth issues.
-    const token = getAdminToken();
+    const token = await BondsAdminCommon.getAdminToken();
     if (token) {
       try {
         const json = await withTimeout(apiRequest('me', token), 'api:me');

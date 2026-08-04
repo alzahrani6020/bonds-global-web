@@ -1,0 +1,739 @@
+wrote tools/emoji_summary.txt
+✅ : 67
+❌ : 53
+⚠️ : 31
+✓ : 17
+🚀 : 12
+── : 11
+📋 : 10
+📊 : 9
+️ : 9
+📄 : 8
+📈 : 8
+📁 : 8
+🇸🇦 : 8
+🇦🇪 : 8
+🔒 : 7
+🤖 : 7
+🇮🇶 : 7
+🇺🇦 : 7
+🇨🇴 : 7
+🇵🇰 : 7
+🇪🇹 : 7
+🇰🇲 : 7
+🇯🇴 : 7
+🇳🇿 : 7
+🇵🇹 : 7
+🇨🇳 : 7
+🇹🇩 : 7
+🇧🇫 : 7
+🇰🇼 : 7
+🇳🇱 : 7
+🇧🇩 : 7
+🇹🇭 : 7
+🇨🇦 : 7
+🇨🇿 : 7
+🇹🇳 : 7
+🇵🇪 : 7
+🇸🇸 : 7
+🇮🇪 : 7
+🇱🇰 : 7
+🇬🇭 : 7
+🇹🇼 : 7
+🇸🇾 : 7
+🇪🇨 : 7
+🇮🇹 : 7
+🇰🇿 : 7
+🇸🇬 : 7
+🇳🇴 : 7
+🇫🇷 : 7
+🇿🇲 : 7
+🇩🇯 : 7
+🇺🇸 : 7
+🇲🇱 : 7
+🇲🇷 : 7
+🇱🇾 : 7
+🇬🇲 : 7
+🇿🇦 : 7
+🇻🇳 : 7
+🇦🇹 : 7
+🇩🇿 : 7
+🇰🇷 : 7
+🇧🇭 : 7
+🇸🇩 : 7
+🇹🇷 : 7
+🇪🇷 : 7
+🇧🇪 : 7
+🇲🇾 : 7
+🇸🇱 : 7
+🇸🇪 : 7
+🇭🇺 : 7
+🇫🇮 : 7
+🇩🇰 : 7
+🇲🇦 : 7
+🇩🇪 : 7
+🇺🇬 : 7
+🇴🇲 : 7
+🇸🇳 : 7
+🇦🇺 : 7
+🇵🇦 : 7
+🇪🇬 : 7
+🇻🇪 : 7
+🇹🇿 : 7
+🇮🇩 : 7
+🇩🇴 : 7
+🇰🇪 : 7
+🇬🇧 : 7
+🇱🇧 : 7
+🇾🇪 : 7
+🇧🇷 : 7
+🇨🇱 : 7
+🇮🇳 : 7
+🇵🇭 : 7
+🇨🇷 : 7
+🇮🇱 : 7
+🇵🇱 : 7
+🇶🇦 : 7
+🇲🇽 : 7
+🇸🇴 : 7
+🇧🇯 : 7
+🇪🇸 : 7
+🇭🇰 : 7
+🇵🇸 : 7
+🇬🇷 : 7
+🇳🇪 : 7
+🇷🇴 : 7
+🇦🇷 : 7
+🇨🇭 : 7
+🇳🇬 : 7
+🇺🇿 : 7
+🇯🇵 : 7
+🇷🇺 : 7
+🔍 : 6
+💾 : 6
+💼 : 5
+🏭 : 5
+💡 : 5
+🎉 : 5
+🔌 : 5
+📦 : 5
+🚪 : 4
+🏠 : 4
+💎 : 4
+────────────────────────────────────────── : 4
+─────────────────────────────────────────────── : 4
+──────────────────────────────────────── : 4
+💰 : 4
+🏦 : 4
+🏗️ : 4
+🎯 : 4
+──────────────────────────────────────────── : 4
+🟠 : 4
+🔴 : 4
+⚡ : 4
+🔗 : 4
+👤 : 3
+🌐 : 3
+👥 : 3
+💳 : 3
+🟢 : 3
+🏙️ : 3
+🔧 : 3
+⛔ : 3
+──────────────────────────────────────────────── : 3
+📌 : 3
+📍 : 3
+─────────────────────────────────────────────────── : 3
+──────────────────────────────────────────────────── : 3
+💵 : 3
+─────────────────────────────────── : 3
+─────────────────────────────────────────── : 3
+────────────────────────────────────── : 3
+──────────────────────────────────── : 3
+🤝 : 3
+📱 : 3
+📧 : 3
+🟡 : 3
+🌾 : 3
+💻 : 3
+🛒 : 3
+🎓 : 3
+🏢 : 3
+⚠ : 3
+🚛 : 3
+📝 : 3
+🎨 : 3
+🏥 : 3
+💆 : 3
+▼ : 2
+────────────────────────── : 2
+─────────────────────────────────────── : 2
+📷 : 2
+🌙 : 2
+⭐ : 2
+📨 : 2
+⚙️ : 2
+🛡️ : 2
+🔄 : 2
+🧑 : 2
+➕ : 2
+🧠 : 2
+🔐 : 2
+✉️ : 2
+⬅️ : 2
+▶️ : 2
+🏆 : 2
+📎 : 2
+🚫 : 2
+📅 : 2
+🕘 : 2
+─────────────────────────────── : 2
+────────────────────────────────────────────── : 2
+─────────────────────────── : 2
+────────────── : 2
+📩 : 2
+───────────────────────────────── : 2
+🍽️ : 2
+📤 : 2
+📥 : 2
+📉 : 2
+🔥 : 2
+🚨 : 2
+○ : 2
+📭 : 2
+✨ : 2
+✕ : 2
+👓 : 2
+🛵 : 2
+📚 : 2
+🦷 : 2
+🚚 : 2
+👉 : 2
+✗ : 2
+🏡 : 2
+🧸 : 2
+☕ : 2
+🔩 : 2
+🏬 : 2
+⛺ : 2
+🏫 : 2
+🧪 : 2
+🧱 : 2
+💊 : 2
+⛽ : 2
+🍷 : 2
+💧 : 2
+⚓ : 2
+🧴 : 2
+🩻 : 2
+🏨 : 2
+🐄 : 2
+🍞 : 2
+🚢 : 2
+🌉 : 2
+🧵 : 2
+🎁 : 2
+📸 : 2
+🍔 : 2
+📜 : 2
+📡 : 2
+🏖️ : 2
+🛋️ : 2
+──────────────────────────── : 1
+────────────────────────────── : 1
+☀️ : 1
+⚕️ : 1
+🖨️ : 1
+───────────────────────────────────────────────────────── : 1
+──────────────────────────────────────────────────────────── : 1
+────────────────────────────────────────────────────────── : 1
+────────────────────────────────────────────────── : 1
+───────────────────────────────────────────────────── : 1
+───────────────────────────────────────────────── : 1
+────────────────────────────────────────────────────── : 1
+─────────────────────────────────────────────────────── : 1
+✏️ : 1
+───────────────────────────────────────── : 1
+────────────────────────────────── : 1
+───────────────────────────── : 1
+🖼️ : 1
+▶ : 1
+● : 1
+✈ : 1
+⚑ : 1
+🤷 : 1
+⚕ : 1
+🧾 : 1
+🛋 : 1
+📘 : 1
+🏗 : 1
+😰 : 1
+👔 : 1
+🛢 : 1
+🏛 : 1
+🔵 : 1
+🎮 : 1
+🛡 : 1
+🔑 : 1
+⚖ : 1
+🖥 : 1
+🏖 : 1
+🕒 : 1
+🖨 : 1
+🏷 : 1
+🍽 : 1
+🌆 : 1
+🌍 : 1
+🏙 : 1
+👑 : 1
+💬 : 1
+🌪 : 1
+☀ : 1
+☁ : 1
+✧ : 1
+🕌 : 1
+🖼 : 1
+☆ : 1
+🏅 : 1
+🏘 : 1
+👋 : 1
+🙏 : 1
+⛏ : 1
+🔔 : 1
+🏞 : 1
+📆 : 1
+🛑 : 1
+🎟 : 1
+🧩 : 1
+🌟 : 1
+🏁 : 1
+🔹 : 1
+🗓 : 1
+🛎 : 1
+🛍 : 1
+💪 : 1
+⚙ : 1
+👷 : 1
+💸 : 1
+🧹 : 1
+📏 : 1
+❤ : 1
+📖 : 1
+🍰 : 1
+📞 : 1
+✍ : 1
+🎛 : 1
+🥧 : 1
+✉ : 1
+🚒 : 1
+🗄 : 1
+🥩 : 1
+📐 : 1
+🔬 : 1
+🧮 : 1
+★ : 1
+📂 : 1
+🌊 : 1
+📢 : 1
+🔨 : 1
+🧬 : 1
+☰ : 1
+❓ : 1
+📣 : 1
+🌿 : 1
+➡ : 1
+🗺 : 1
+🔢 : 1
+🥘 : 1
+✏ : 1
+🛠 : 1
+👁 : 1
+📑 : 1
+⚗ : 1
+🎲 : 1
+🚧 : 1
+🗑 : 1
+✦ : 1
+═ : 1
+─ : 1
+═══════════════════════════════════════════════════════════ : 1
+╔══════════════════════════════════════════════════════════╗ : 1
+─── : 1
+╚══════════════════════════════════════════════════════════╝ : 1
+║ : 1
+🗄️ : 1
+✈️ : 1
+⚗️ : 1
+🛍️ : 1
+☁️ : 1
+🏞️ : 1
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ : 1
+───────────────────────── : 1
+下一步 : 1
+）必须继承此类。 : 1
+、 : 1
+将原始数据转换为统一的 : 1
+适配器支持的指标列表（子类可覆盖）。 : 1
+验证原始数据项是否有效。 : 1
+格式。 : 1
+所有具体适配器（ : 1
+统一的数据源适配器接口。 : 1
+根据指标和来源质量计算置信度（ : 1
+原始数据对象数组 : 1
+从数据源获取原始数据。 : 1
+）。 : 1
+是否为该指标的推荐来源（子类可覆盖）。 : 1
+运行单个适配器。 : 1
+限制错误数量 : 1
+获取所有相关 : 1
+更新 : 1
+获取 : 1
+存储原始数据 : 1
+编排数据获取流程： : 1
+转换并存储 : 1
+处理每条数据 : 1
+融合并更新 : 1
+推断缺失指标 : 1
+融合每个指标 : 1
+状态 : 1
+记录 : 1
+获取原始数据 : 1
+指标。 : 1
+按 : 1
+分组 : 1
+创建 : 1
+以确定 : 1
+默认 : 1
+选择置信度最高的文本值 : 1
+过滤过期数据 : 1
+优先使用手动覆盖值 : 1
+融合多个同一指标的测量值。 : 1
+计算加权平均值（数值型）或选择最佳文本值 : 1
+若无可信来源，返回 : 1
+融合来自多个来源的同一指标，输出单一可信值。 : 1
+年 : 1
+根据置信度和时间赋予权重 : 1
+每年衰减 : 1
+分 : 1
+并标记为需推断 : 1
+规则： : 1
+月收入用于该活动 : 1
+当没有可信数据源时，使用算法和基准数据推断指标。 : 1
+推断缺失指标。 : 1
+工厂 : 1
+目标渗透率 : 1
+假设 : 1
+这不是机器学习模型，而是一组基于已知关系的启发式规则。 : 1
+餐饮通常高于仓库 : 1
+零售 : 1
+市场规模 : 1
+人均年消费 : 1
+人口 : 1
+🆕 : 1
+🛢️ : 1
+⛏️ : 1
+
+=== Files ===
+admin/admin-auth-v2.js: ['🔒']
+admin/admin-auth.js: ['🔒']
+admin/admin-geo.js: ['🌐']
+admin/admin-sidebar-icons.js: ['▶️', '⚕️', '⚙️', '⚠️', '✅', '✉️', '➕', '⬅️', '⭐', '🌐', '🎯', '🏗️', '🏙️', '🏦', '👥', '💰', '💳', '📁', '📄', '📈', '📊', '📋', '📨', '🔄', '🔍', '🔐', '🔧', '🚪', '🛡️', '🟢', '🤖', '🧑', '🧠']
+admin/ai-business-advisor/analysis-engine.js: ['⚠️']
+admin/ai-business-advisor/app.js: ['▶️', '⚠️', '⛔', '✅', '❌', '⬅️', '️', '🏭', '💡', '💾', '📁', '🖨️', '🤖']
+admin/city-intelligence/app.js: ['──', '──────────────────────────────────────────', '───────────────────────────────────────────────', '────────────────────────────────────────────────', '─────────────────────────────────────────────────', '──────────────────────────────────────────────────', '───────────────────────────────────────────────────', '────────────────────────────────────────────────────', '─────────────────────────────────────────────────────', '──────────────────────────────────────────────────────', '───────────────────────────────────────────────────────', '─────────────────────────────────────────────────────────', '──────────────────────────────────────────────────────────', '────────────────────────────────────────────────────────────', '❌', '⭐', '️', '🏆', '🏙️', '📄', '📈', '📊', '📌', '📍', '🚀', '🤖']
+admin/data-quality-center/app.js: ['⛔', '✅', '❌']
+admin/distressed-recovery/app.js: ['⚠️', '✏️', '❌', '️', '📎', '🤖']
+admin/executive-dashboard/app.js: ['⚠️', '✅', '❌', '️', '🎯', '👥', '💰', '💵', '📁', '📅', '📈', '📊', '🕘', '🚫']
+admin/global-search/app.js: ['❌']
+api/admin.js: ['──', '───────────────────────────────', '──────────────────────────────────', '───────────────────────────────────', '──────────────────────────────────────', '─────────────────────────────────────────', '──────────────────────────────────────────', '───────────────────────────────────────────', '────────────────────────────────────────────', '──────────────────────────────────────────────', '───────────────────────────────────────────────', '────────────────────────────────────────────────', '───────────────────────────────────────────────────']
+api/funding.js: ['──', '───────────────────────────', '───────────────────────────────────', '──────────────────────────────────────', '────────────────────────────────────────', '──────────────────────────────────────────', '🏦']
+api/payments.js: ['──', '──────────────', '────────────────────────────────────────', '────────────────────────────────────────────', '────────────────────────────────────────────────']
+api/platform.js: ['──', '──────────────', '──────────────────────────', '───────────────────────────', '─────────────────────────────', '─────────────────────────────────', '───────────────────────────────────', '────────────────────────────────────', '───────────────────────────────────────────', '────────────────────────────────────────────', '──────────────────────────────────────────────', '───────────────────────────────────────────────', '────────────────────────────────────────────────────', '⚠️', '✅', '✉️', '🎯', '💼', '📈', '📩', '🚀', '🤝']
+api/research.js: ['──', '─────────────────────────────────', '────────────────────────────────────────', '───────────────────────────────────────────', '────────────────────────────────────────────', '⚠️', '✅']
+auth-guard.js: ['▼', '🏠', '👤', '💎', '💼', '🔒', '🚪']
+bonds-auth-2026.js: ['──', '──────────────────────────', '────────────────────────────', '──────────────────────────────', '───────────────────────────────────────', '────────────────────────────────────────', '──────────────────────────────────────────', '───────────────────────────────────────────────', '▼', '🏠', '👤', '💎', '💼', '🔒', '🚪']
+calculator-wizard.js: ['⚠️']
+calculators/anonymous-first.js: ['⚠️', '✅', '🚀']
+calculators/auth-modal.js: ['✅', '🔒']
+calculators/calc-functions.js: ['🍽️', '💰', '📱', '🛡️']
+calculators/country-platforms-data.js: ['🇦🇪', '🇦🇷', '🇦🇹', '🇦🇺', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇭', '🇧🇯', '🇧🇷', '🇨🇦', '🇨🇭', '🇨🇱', '🇨🇳', '🇨🇴', '🇨🇷', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇴', '🇩🇿', '🇪🇨', '🇪🇬', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇷', '🇬🇧', '🇬🇭', '🇬🇲', '🇬🇷', '🇭🇰', '🇭🇺', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇳', '🇮🇶', '🇮🇹', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇲', '🇰🇷', '🇰🇼', '🇰🇿', '🇱🇧', '🇱🇰', '🇱🇾', '🇲🇦', '🇲🇱', '🇲🇷', '🇲🇽', '🇲🇾', '🇳🇪', '🇳🇬', '🇳🇱', '🇳🇴', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇸', '🇵🇹', '🇶🇦', '🇷🇴', '🇷🇺', '🇸🇦', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇱', '🇸🇳', '🇸🇴', '🇸🇸', '🇸🇾', '🇹🇩', '🇹🇭', '🇹🇳', '🇹🇷', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇸', '🇺🇿', '🇻🇪', '🇻🇳', '🇾🇪', '🇿🇦', '🇿🇲']
+calculators/db-client-auto.js: ['✅', '❌', '💾', '📤', '📥']
+calculators/exit-intent.js: ['⚠️', '✅', '💾', '📧']
+calculators/geo-data/ae.js: ['🇦🇪']
+calculators/geo-data/ar.js: ['🇦🇷']
+calculators/geo-data/at.js: ['🇦🇹']
+calculators/geo-data/au.js: ['🇦🇺']
+calculators/geo-data/bd.js: ['🇧🇩']
+calculators/geo-data/be.js: ['🇧🇪']
+calculators/geo-data/bf.js: ['🇧🇫']
+calculators/geo-data/bh.js: ['🇧🇭']
+calculators/geo-data/bj.js: ['🇧🇯']
+calculators/geo-data/br.js: ['🇧🇷']
+calculators/geo-data/ca.js: ['🇨🇦']
+calculators/geo-data/ch.js: ['🇨🇭']
+calculators/geo-data/cl.js: ['🇨🇱']
+calculators/geo-data/cn.js: ['🇨🇳']
+calculators/geo-data/co.js: ['🇨🇴']
+calculators/geo-data/cr.js: ['🇨🇷']
+calculators/geo-data/cz.js: ['🇨🇿']
+calculators/geo-data/de.js: ['🇩🇪']
+calculators/geo-data/dj.js: ['🇩🇯']
+calculators/geo-data/dk.js: ['🇩🇰']
+calculators/geo-data/do.js: ['🇩🇴']
+calculators/geo-data/dz.js: ['🇩🇿']
+calculators/geo-data/ec.js: ['🇪🇨']
+calculators/geo-data/eg.js: ['🇪🇬']
+calculators/geo-data/er.js: ['🇪🇷']
+calculators/geo-data/es.js: ['🇪🇸']
+calculators/geo-data/et.js: ['🇪🇹']
+calculators/geo-data/fi.js: ['🇫🇮']
+calculators/geo-data/fr.js: ['🇫🇷']
+calculators/geo-data/gb.js: ['🇬🇧']
+calculators/geo-data/gh.js: ['🇬🇭']
+calculators/geo-data/gm.js: ['🇬🇲']
+calculators/geo-data/gr.js: ['🇬🇷']
+calculators/geo-data/hk.js: ['🇭🇰']
+calculators/geo-data/hu.js: ['🇭🇺']
+calculators/geo-data/id.js: ['🇮🇩']
+calculators/geo-data/ie.js: ['🇮🇪']
+calculators/geo-data/il.js: ['🇮🇱']
+calculators/geo-data/in.js: ['🇮🇳']
+calculators/geo-data/iq.js: ['🇮🇶']
+calculators/geo-data/it.js: ['🇮🇹']
+calculators/geo-data/jo.js: ['🇯🇴']
+calculators/geo-data/jp.js: ['🇯🇵']
+calculators/geo-data/ke.js: ['🇰🇪']
+calculators/geo-data/km.js: ['🇰🇲']
+calculators/geo-data/kr.js: ['🇰🇷']
+calculators/geo-data/kw.js: ['🇰🇼']
+calculators/geo-data/kz.js: ['🇰🇿']
+calculators/geo-data/lb.js: ['🇱🇧']
+calculators/geo-data/lk.js: ['🇱🇰']
+calculators/geo-data/ly.js: ['🇱🇾']
+calculators/geo-data/ma.js: ['🇲🇦']
+calculators/geo-data/meta.js: ['🇦🇪', '🇦🇷', '🇦🇹', '🇦🇺', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇭', '🇧🇯', '🇧🇷', '🇨🇦', '🇨🇭', '🇨🇱', '🇨🇳', '🇨🇴', '🇨🇷', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇴', '🇩🇿', '🇪🇨', '🇪🇬', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇷', '🇬🇧', '🇬🇭', '🇬🇲', '🇬🇷', '🇭🇰', '🇭🇺', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇳', '🇮🇶', '🇮🇹', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇲', '🇰🇷', '🇰🇼', '🇰🇿', '🇱🇧', '🇱🇰', '🇱🇾', '🇲🇦', '🇲🇱', '🇲🇷', '🇲🇽', '🇲🇾', '🇳🇪', '🇳🇬', '🇳🇱', '🇳🇴', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇸', '🇵🇹', '🇶🇦', '🇷🇴', '🇷🇺', '🇸🇦', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇱', '🇸🇳', '🇸🇴', '🇸🇸', '🇸🇾', '🇹🇩', '🇹🇭', '🇹🇳', '🇹🇷', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇸', '🇺🇿', '🇻🇪', '🇻🇳', '🇾🇪', '🇿🇦', '🇿🇲']
+calculators/geo-data/ml.js: ['🇲🇱']
+calculators/geo-data/mr.js: ['🇲🇷']
+calculators/geo-data/mx.js: ['🇲🇽']
+calculators/geo-data/my.js: ['🇲🇾']
+calculators/geo-data/ne.js: ['🇳🇪']
+calculators/geo-data/ng.js: ['🇳🇬']
+calculators/geo-data/nl.js: ['🇳🇱']
+calculators/geo-data/no.js: ['🇳🇴']
+calculators/geo-data/nz.js: ['🇳🇿']
+calculators/geo-data/om.js: ['🇴🇲']
+calculators/geo-data/pa.js: ['🇵🇦']
+calculators/geo-data/pe.js: ['🇵🇪']
+calculators/geo-data/ph.js: ['🇵🇭']
+calculators/geo-data/pk.js: ['🇵🇰']
+calculators/geo-data/pl.js: ['🇵🇱']
+calculators/geo-data/ps.js: ['🇵🇸']
+calculators/geo-data/pt.js: ['🇵🇹']
+calculators/geo-data/qa.js: ['🇶🇦']
+calculators/geo-data/ro.js: ['🇷🇴']
+calculators/geo-data/ru.js: ['🇷🇺']
+calculators/geo-data/sa.js: ['🇸🇦']
+calculators/geo-data/sd.js: ['🇸🇩']
+calculators/geo-data/se.js: ['🇸🇪']
+calculators/geo-data/sg.js: ['🇸🇬']
+calculators/geo-data/sl.js: ['🇸🇱']
+calculators/geo-data/sn.js: ['🇸🇳']
+calculators/geo-data/so.js: ['🇸🇴']
+calculators/geo-data/ss.js: ['🇸🇸']
+calculators/geo-data/sy.js: ['🇸🇾']
+calculators/geo-data/td.js: ['🇹🇩']
+calculators/geo-data/th.js: ['🇹🇭']
+calculators/geo-data/tn.js: ['🇹🇳']
+calculators/geo-data/tr.js: ['🇹🇷']
+calculators/geo-data/tw.js: ['🇹🇼']
+calculators/geo-data/tz.js: ['🇹🇿']
+calculators/geo-data/ua.js: ['🇺🇦']
+calculators/geo-data/ug.js: ['🇺🇬']
+calculators/geo-data/us.js: ['🇺🇸']
+calculators/geo-data/uz.js: ['🇺🇿']
+calculators/geo-data/ve.js: ['🇻🇪']
+calculators/geo-data/vn.js: ['🇻🇳']
+calculators/geo-data/ye.js: ['🇾🇪']
+calculators/geo-data/za.js: ['🇿🇦']
+calculators/geo-data/zm.js: ['🇿🇲']
+calculators/investment-center/decision-intelligence.js: ['○', '●', '⚠️', '✓', '✕', '💡']
+calculators/platform-data/ae.js: ['🇦🇪']
+calculators/platform-data/ar.js: ['🇦🇷']
+calculators/platform-data/at.js: ['🇦🇹']
+calculators/platform-data/au.js: ['🇦🇺']
+calculators/platform-data/bd.js: ['🇧🇩']
+calculators/platform-data/be.js: ['🇧🇪']
+calculators/platform-data/bf.js: ['🇧🇫']
+calculators/platform-data/bh.js: ['🇧🇭']
+calculators/platform-data/bj.js: ['🇧🇯']
+calculators/platform-data/br.js: ['🇧🇷']
+calculators/platform-data/ca.js: ['🇨🇦']
+calculators/platform-data/ch.js: ['🇨🇭']
+calculators/platform-data/cl.js: ['🇨🇱']
+calculators/platform-data/cn.js: ['🇨🇳']
+calculators/platform-data/co.js: ['🇨🇴']
+calculators/platform-data/cr.js: ['🇨🇷']
+calculators/platform-data/cz.js: ['🇨🇿']
+calculators/platform-data/de.js: ['🇩🇪']
+calculators/platform-data/dj.js: ['🇩🇯']
+calculators/platform-data/dk.js: ['🇩🇰']
+calculators/platform-data/do.js: ['🇩🇴']
+calculators/platform-data/dz.js: ['🇩🇿']
+calculators/platform-data/ec.js: ['🇪🇨']
+calculators/platform-data/eg.js: ['🇪🇬']
+calculators/platform-data/er.js: ['🇪🇷']
+calculators/platform-data/es.js: ['🇪🇸']
+calculators/platform-data/et.js: ['🇪🇹']
+calculators/platform-data/fi.js: ['🇫🇮']
+calculators/platform-data/fr.js: ['🇫🇷']
+calculators/platform-data/gb.js: ['🇬🇧']
+calculators/platform-data/gh.js: ['🇬🇭']
+calculators/platform-data/gm.js: ['🇬🇲']
+calculators/platform-data/gr.js: ['🇬🇷']
+calculators/platform-data/hk.js: ['🇭🇰']
+calculators/platform-data/hu.js: ['🇭🇺']
+calculators/platform-data/id.js: ['🇮🇩']
+calculators/platform-data/ie.js: ['🇮🇪']
+calculators/platform-data/il.js: ['🇮🇱']
+calculators/platform-data/in.js: ['🇮🇳']
+calculators/platform-data/iq.js: ['🇮🇶']
+calculators/platform-data/it.js: ['🇮🇹']
+calculators/platform-data/jo.js: ['🇯🇴']
+calculators/platform-data/jp.js: ['🇯🇵']
+calculators/platform-data/ke.js: ['🇰🇪']
+calculators/platform-data/km.js: ['🇰🇲']
+calculators/platform-data/kr.js: ['🇰🇷']
+calculators/platform-data/kw.js: ['🇰🇼']
+calculators/platform-data/kz.js: ['🇰🇿']
+calculators/platform-data/lb.js: ['🇱🇧']
+calculators/platform-data/lk.js: ['🇱🇰']
+calculators/platform-data/ly.js: ['🇱🇾']
+calculators/platform-data/ma.js: ['🇲🇦']
+calculators/platform-data/meta.js: ['🇦🇪', '🇦🇷', '🇦🇹', '🇦🇺', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇭', '🇧🇯', '🇧🇷', '🇨🇦', '🇨🇭', '🇨🇱', '🇨🇳', '🇨🇴', '🇨🇷', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇴', '🇩🇿', '🇪🇨', '🇪🇬', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇷', '🇬🇧', '🇬🇭', '🇬🇲', '🇬🇷', '🇭🇰', '🇭🇺', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇳', '🇮🇶', '🇮🇹', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇲', '🇰🇷', '🇰🇼', '🇰🇿', '🇱🇧', '🇱🇰', '🇱🇾', '🇲🇦', '🇲🇱', '🇲🇷', '🇲🇽', '🇲🇾', '🇳🇪', '🇳🇬', '🇳🇱', '🇳🇴', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇸', '🇵🇹', '🇶🇦', '🇷🇴', '🇷🇺', '🇸🇦', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇱', '🇸🇳', '🇸🇴', '🇸🇸', '🇸🇾', '🇹🇩', '🇹🇭', '🇹🇳', '🇹🇷', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇸', '🇺🇿', '🇻🇪', '🇻🇳', '🇾🇪', '🇿🇦', '🇿🇲']
+calculators/platform-data/ml.js: ['🇲🇱']
+calculators/platform-data/mr.js: ['🇲🇷']
+calculators/platform-data/mx.js: ['🇲🇽']
+calculators/platform-data/my.js: ['🇲🇾']
+calculators/platform-data/ne.js: ['🇳🇪']
+calculators/platform-data/ng.js: ['🇳🇬']
+calculators/platform-data/nl.js: ['🇳🇱']
+calculators/platform-data/no.js: ['🇳🇴']
+calculators/platform-data/nz.js: ['🇳🇿']
+calculators/platform-data/om.js: ['🇴🇲']
+calculators/platform-data/pa.js: ['🇵🇦']
+calculators/platform-data/pe.js: ['🇵🇪']
+calculators/platform-data/ph.js: ['🇵🇭']
+calculators/platform-data/pk.js: ['🇵🇰']
+calculators/platform-data/pl.js: ['🇵🇱']
+calculators/platform-data/ps.js: ['🇵🇸']
+calculators/platform-data/pt.js: ['🇵🇹']
+calculators/platform-data/qa.js: ['🇶🇦']
+calculators/platform-data/ro.js: ['🇷🇴']
+calculators/platform-data/ru.js: ['🇷🇺']
+calculators/platform-data/sa.js: ['🇸🇦']
+calculators/platform-data/sd.js: ['🇸🇩']
+calculators/platform-data/se.js: ['🇸🇪']
+calculators/platform-data/sg.js: ['🇸🇬']
+calculators/platform-data/sl.js: ['🇸🇱']
+calculators/platform-data/sn.js: ['🇸🇳']
+calculators/platform-data/so.js: ['🇸🇴']
+calculators/platform-data/ss.js: ['🇸🇸']
+calculators/platform-data/sy.js: ['🇸🇾']
+calculators/platform-data/td.js: ['🇹🇩']
+calculators/platform-data/th.js: ['🇹🇭']
+calculators/platform-data/tn.js: ['🇹🇳']
+calculators/platform-data/tr.js: ['🇹🇷']
+calculators/platform-data/tw.js: ['🇹🇼']
+calculators/platform-data/tz.js: ['🇹🇿']
+calculators/platform-data/ua.js: ['🇺🇦']
+calculators/platform-data/ug.js: ['🇺🇬']
+calculators/platform-data/us.js: ['🇺🇸']
+calculators/platform-data/uz.js: ['🇺🇿']
+calculators/platform-data/ve.js: ['🇻🇪']
+calculators/platform-data/vn.js: ['🇻🇳']
+calculators/platform-data/ye.js: ['🇾🇪']
+calculators/platform-data/za.js: ['🇿🇦']
+calculators/platform-data/zm.js: ['🇿🇲']
+calculators/shared-enhancements.js: ['⚠️', '✅', '✓', '🏭', '💾', '📉', '📋', '🔒', '🔥', '🔴', '🖼️', '🚨', '🟠', '🟡', '🤖']
+calculators/shared-export.js: ['⚠️', '⚡', '✅', '❌', '📌', '📱']
+calculators/shared-platforms.js: ['🇦🇪', '🇦🇷', '🇦🇹', '🇦🇺', '🇧🇩', '🇧🇪', '🇧🇫', '🇧🇭', '🇧🇯', '🇧🇷', '🇨🇦', '🇨🇭', '🇨🇱', '🇨🇳', '🇨🇴', '🇨🇷', '🇨🇿', '🇩🇪', '🇩🇯', '🇩🇰', '🇩🇴', '🇩🇿', '🇪🇨', '🇪🇬', '🇪🇷', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇷', '🇬🇧', '🇬🇭', '🇬🇲', '🇬🇷', '🇭🇰', '🇭🇺', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇳', '🇮🇶', '🇮🇹', '🇯🇴', '🇯🇵', '🇰🇪', '🇰🇲', '🇰🇷', '🇰🇼', '🇰🇿', '🇱🇧', '🇱🇰', '🇱🇾', '🇲🇦', '🇲🇱', '🇲🇷', '🇲🇽', '🇲🇾', '🇳🇪', '🇳🇬', '🇳🇱', '🇳🇴', '🇳🇿', '🇴🇲', '🇵🇦', '🇵🇪', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇸', '🇵🇹', '🇶🇦', '🇷🇴', '🇷🇺', '🇸🇦', '🇸🇩', '🇸🇪', '🇸🇬', '🇸🇱', '🇸🇳', '🇸🇴', '🇸🇸', '🇸🇾', '🇹🇩', '🇹🇭', '🇹🇳', '🇹🇷', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇸', '🇺🇿', '🇻🇪', '🇻🇳', '🇾🇪', '🇿🇦', '🇿🇲']
+calculators/shared-ui.js: ['▶', '○', '✅', '✓', '🎉', '💡', '📊', '📭', '🚀']
+calculators/sticky-cta.js: ['⚠️', '✅', '✨', '💾', '📧', '🔗', '🚀']
+calculators/usage-guard.js: ['⚠️', '⚡']
+components/emoji-icons.js: ['☀', '☁', '★', '☆', '☕', '☰', '⚑', '⚓', '⚕', '⚖', '⚗', '⚙', '⚠', '⚡', '⛏', '⛔', '⛺', '⛽', '✅', '✈', '✉', '✍', '✏', '✓', '✕', '✗', '✦', '✧', '✨', '❌', '❓', '❤', '➕', '➡', '🌆', '🌉', '🌊', '🌍', '🌐', '🌙', '🌟', '🌪', '🌾', '🌿', '🍔', '🍞', '🍰', '🍷', '🍽', '🎁', '🎉', '🎓', '🎛', '🎟', '🎨', '🎮', '🎯', '🎲', '🏁', '🏅', '🏆', '🏖', '🏗', '🏘', '🏙', '🏛', '🏞', '🏠', '🏡', '🏢', '🏥', '🏦', '🏨', '🏫', '🏬', '🏭', '🏷', '🐄', '👁', '👉', '👋', '👑', '👓', '👔', '👤', '👥', '👷', '💆', '💊', '💎', '💡', '💧', '💪', '💬', '💰', '💳', '💵', '💸', '💻', '💼', '💾', '📁', '📂', '📄', '📅', '📆', '📈', '📉', '📊', '📋', '📌', '📍', '📎', '📏', '📐', '📑', '📖', '📘', '📚', '📜', '📝', '📞', '📡', '📢', '📣', '📤', '📥', '📦', '📧', '📨', '📩', '📭', '📱', '📷', '📸', '🔄', '🔌', '🔍', '🔐', '🔑', '🔒', '🔔', '🔗', '🔢', '🔥', '🔧', '🔨', '🔩', '🔬', '🔴', '🔵', '🔹', '🕌', '🕒', '🕘', '🖥', '🖨', '🖼', '🗄', '🗑', '🗓', '🗺', '😰', '🙏', '🚀', '🚒', '🚚', '🚛', '🚢', '🚧', '🚨', '🚪', '🚫', '🛋', '🛍', '🛎', '🛑', '🛒', '🛠', '🛡', '🛢', '🛵', '🟠', '🟡', '🟢', '🤖', '🤝', '🤷', '🥘', '🥧', '🥩', '🦷', '🧑', '🧠', '🧩', '🧪', '🧬', '🧮', '🧱', '🧴', '🧵', '🧸', '🧹', '🧾', '🩻']
+en/v3/portfolio/portfolio-dashboard.js: ['✓', '📁']
+lib/ai/prompts.js: ['⚠️']
+scripts/add-inline-footers.js: ['✅']
+scripts/api-auth-audit.js: ['✅', '🔍', '🔴', '🟠']
+scripts/apply-enterprise-migrations.js: ['✅', '❌', '📊', '🔌', '🚀']
+scripts/apply-migration.js: ['✅', '❌']
+scripts/apply-migrations.js: ['─', '═', '⚠️', '✅', '❌', '️', '🎉', '📁', '📄', '🔍', '🚀']
+scripts/apply-og-tags.js: ['✅']
+scripts/apply-rls-migration.js: ['⚠️', '✅', '✓', '❌', '📄', '🔌']
+scripts/auto-deploy-migrations.js: ['⚠️', '✅', '❌', '️', '🎉', '📁', '🚀']
+scripts/build-condition-standards.js: ['✓']
+scripts/fix-v3-theme.js: ['✓']
+scripts/full-setup.js: ['───', '═══════════════════════════════════════════════════════════', '║', '╔══════════════════════════════════════════════════════════╗', '╚══════════════════════════════════════════════════════════╝', '⚠️', '✅', '❌', '👉', '💳', '📋', '📡', '🔗', '🗄️', '🚀']
+scripts/generate-icons.js: ['✅']
+scripts/generate-investment-calculators.js: ['☁️', '☕', '⚗️', '⚠️', '⚡', '⛺', '✅', '✈️', '🌾', '🍔', '🍞', '🍷', '🍽️', '🎓', '🎨', '🏖️', '🏗️', '🏞️', '🏠', '🏡', '🏢', '🏥', '🏨', '🏫', '🏬', '🏭', '👓', '💆', '💊', '💧', '💵', '💻', '📋', '📚', '📦', '🔧', '🚚', '🚛', '🚢', '🛋️', '🛍️', '🛒', '🛵', '🤝', '🦷', '🧪', '🧱', '🧴', '🧵', '🧸', '🩻']
+scripts/generate-report.js: ['✅', '📄']
+scripts/generate-study-pdf.js: ['✅', '📄', '📦']
+scripts/i18n-audit.js: ['✅', '❌', '🔍']
+scripts/install-hooks.js: ['✅', '❌']
+scripts/og-audit.js: ['✅', '❌']
+scripts/populate-all-competitors.js: ['✅']
+scripts/run-page-tracking-migration.js: ['✅', '❌', '🔌']
+scripts/setup-stripe.js: ['──', '───────────────────────────────', '──────────────────────────────────────', '───────────────────────────────────────', '───────────────────────────────────────────────────', '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', '✅', '❌', '️', '🏦', '📋']
+scripts/setup-supabase.js: ['✅', '❌', '️', '🎉', '📋', '🔗']
+scripts/site-audit.js: ['✅', '❌', '🔍', '🔴', '🟠', '🟡', '🟢']
+scripts/test-ai-analyze-live.js: ['❌']
+scripts/test-openai-real.js: ['✅', '❌']
+scripts/test-orchestrator-real.js: ['✅', '❌']
+scripts/v3-backfill-2026.js: ['✅']
+scripts/verify-calculators.js: ['⚠️', '✅', '❌']
+scripts/verify-migrations.js: ['✅', '❌']
+scripts/verify-production.js: ['⚠️', '✅', '❌']
+site-layout.js: ['☀️', '🌙', '📷']
+tests/a11y/a11y-tests.js: ['✅', '❌']
+tests/mobile/mobile-tests.js: ['✅', '❌']
+tests/universal-dropdown/universal-dropdown.test.js: ['🇦🇪', '🇸🇦']
+tests/visual/visual-tests.js: ['⚠️', '✅', '❌', '📸']
+v3/api/ai.js: ['⚠️']
+v3/api/auth.js: ['──', '─────────────────────────', '────────────────────────────────────────────────────']
+v3/api/ecc.js: ['下一步']
+v3/components/ai-chat-widget.js: ['🤖']
+v3/engine/data-acquisition/BaseAdapter.js: ['、', '从数据源获取原始数据。', '原始数据对象数组', '将原始数据转换为统一的', '所有具体适配器（', '是否为该指标的推荐来源（子类可覆盖）。', '根据指标和来源质量计算置信度（', '格式。', '统一的数据源适配器接口。', '适配器支持的指标列表（子类可覆盖）。', '验证原始数据项是否有效。', '）。', '）必须继承此类。']
+v3/engine/data-acquisition/DataPipeline.js: ['以确定', '分组', '创建', '处理每条数据', '存储原始数据', '指标。', '按', '推断缺失指标', '更新', '状态', '编排数据获取流程：', '获取', '获取原始数据', '获取所有相关', '融合并更新', '融合每个指标', '记录', '转换并存储', '运行单个适配器。', '限制错误数量']
+v3/engine/data-acquisition/FusionCore.js: ['优先使用手动覆盖值', '分', '年', '并标记为需推断', '根据置信度和时间赋予权重', '每年衰减', '若无可信来源，返回', '融合多个同一指标的测量值。', '融合来自多个来源的同一指标，输出单一可信值。', '规则：', '计算加权平均值（数值型）或选择最佳文本值', '过滤过期数据', '选择置信度最高的文本值', '默认']
+v3/engine/data-acquisition/InferenceEngine.js: ['人口', '人均年消费', '假设', '工厂', '市场规模', '当没有可信数据源时，使用算法和基准数据推断指标。', '推断缺失指标。', '月收入用于该活动', '目标渗透率', '这不是机器学习模型，而是一组基于已知关系的启发式规则。', '零售', '餐饮通常高于仓库']
+v3/engine/data-acquisition/adapters/GastatAdapter.js: ['──', '────────────────────────────────────']
+v3/engine/data-acquisition/adapters/SamaAdapter.js: ['──', '────────────────────────────────────']
+v3/master-data/arab-extended-countries.js: ['🇧🇫', '🇧🇯', '🇪🇷', '🇬🇲', '🇲🇱', '🇳🇪', '🇸🇱', '🇸🇳', '🇸🇸', '🇹🇩']
+v3/master-data/countries-governorates-cities.js: ['🇦🇪', '🇧🇭', '🇩🇯', '🇩🇿', '🇪🇬', '🇮🇶', '🇯🇴', '🇰🇲', '🇰🇼', '🇱🇧', '🇱🇾', '🇲🇦', '🇲🇷', '🇴🇲', '🇵🇸', '🇶🇦', '🇸🇦', '🇸🇩', '🇸🇴', '🇸🇾', '🇹🇳', '🇾🇪']
+v3/master-data/global-countries.js: ['🇦🇷', '🇦🇹', '🇦🇺', '🇧🇩', '🇧🇪', '🇧🇷', '🇨🇦', '🇨🇭', '🇨🇱', '🇨🇳', '🇨🇴', '🇨🇷', '🇨🇿', '🇩🇪', '🇩🇰', '🇩🇴', '🇪🇨', '🇪🇸', '🇪🇹', '🇫🇮', '🇫🇷', '🇬🇧', '🇬🇭', '🇬🇷', '🇭🇰', '🇭🇺', '🇮🇩', '🇮🇪', '🇮🇱', '🇮🇳', '🇮🇹', '🇯🇵', '🇰🇪', '🇰🇷', '🇰🇿', '🇱🇰', '🇲🇽', '🇲🇾', '🇳🇬', '🇳🇱', '🇳🇴', '🇳🇿', '🇵🇦', '🇵🇪', '🇵🇭', '🇵🇰', '🇵🇱', '🇵🇹', '🇷🇴', '🇷🇺', '🇸🇪', '🇸🇬', '🇹🇭', '🇹🇷', '🇹🇼', '🇹🇿', '🇺🇦', '🇺🇬', '🇺🇸', '🇺🇿', '🇻🇪', '🇻🇳', '🇿🇦', '🇿🇲']
+v3/portfolio/portfolio-dashboard.js: ['✓', '📁']
+v3/scripts/apply-confidence-grading.js: ['✅', '✓', '❌']
+v3/scripts/apply-official-data-to-cities.js: ['✅', '❌']
+v3/scripts/apply-seeds.js: ['✅', '❌']
+v3/scripts/auto-fill-key-cities.js: ['⚠️', '✅', '✓', '✗', '❌', '🏙️']
+v3/scripts/create-stripe-webhook.js: ['✅', '❌']
+v3/scripts/enrich-all-activities-market-data.js: ['✅', '❌']
+v3/scripts/enrich-all-cities-market-data.js: ['✅', '❌']
+v3/scripts/enrich-key-cities-market-data.js: ['✅', '✓', '❌']
+v3/scripts/enrich-key-cities.js: ['⚠️', '✅', '✓', '❌']
+v3/scripts/fill-city-indicators.js: ['✅', '❌']
+v3/scripts/fill-city-market-data.js: ['✅', '✓', '❌']
+v3/scripts/fix-zero-saturation.js: ['✅', '❌']
+v3/scripts/generate-activity-data.js: ['✅', '❌']
+v3/scripts/generate-missing-factory-cost-en-pages.js: ['⚠️', '🏗️', '📈', '📊', '📋', '📝', '🚀']
+v3/scripts/generate-missing-factory-cost-pages.js: ['⚠️', '🏗️', '📈', '📊', '📋', '📝', '🚀']
+v3/scripts/import-cities-sql.js: ['✅', '❌', '🆕', '📊', '📍', '🔌']
+v3/scripts/import-master-data.js: ['✅', '❌']
+v3/scripts/link-old-city-data.js: ['✅', '✓', '❌']
+v3/scripts/seed-data-acquisition.js: ['✅', '❌']
+v3/scripts/seed-official-country-data.js: ['✅', '✓', '❌']
+v3/scripts/setup-all.js: ['✅', '❌']
+v3/scripts/test-api.js: ['✅', '❌']
+valuation/condition-assessment-engine.js: ['⚠']
+valuation/valuation-locale.js: ['⚓', '⚙️', '⚠️', '⛏️', '⛽', '✅', '❌', '️', '🌉', '🌾', '🎁', '🎓', '🎨', '🏖️', '🏢', '🏥', '🏭', '🐄', '💆', '💎', '💡', '💻', '💼', '📄', '📈', '📋', '📜', '📦', '🔩', '🚛', '🛋️', '🛒', '🛢️']
+valuation/valuation-ui.js: ['⚠', '⚠️', '✅', '✓', '❌', '📦']

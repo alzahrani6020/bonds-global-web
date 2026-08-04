@@ -106,9 +106,9 @@
         source: calcName
       });
       localStorage.setItem('bonds_guest_projects', JSON.stringify(projects.slice(0, 20)));
-      if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '✅ تم حفظ المشروع' : '✅ Project saved', 'success');
+      if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> تم حفظ المشروع" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> Project saved", 'success');
     } catch (e) {
-      if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '⚠️ لم يتم الحفظ' : '⚠️ Could not save', 'warning');
+      if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> لم يتم الحفظ" : "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> Could not save", 'warning');
     }
   };
 
@@ -180,16 +180,16 @@
       });
       var json = await res.json().catch(function () { return {}; });
       if (!res.ok) {
-        if (window.BondsUI && window.BondsUI.toast) BondsUI.toast('⚠️ ' + (json.error || (rtl ? 'فشل إنشاء المشروع' : 'Failed to create project')), 'error');
+        if (window.BondsUI && window.BondsUI.toast) BondsUI.toast("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> " + (json.error || (rtl ? 'فشل إنشاء المشروع' : 'Failed to create project')), 'error');
         return;
       }
       if (json.project && json.project.id) {
         window.location.href = (lang === 'ar' ? '/v3/project?id=' : '/en/v3/project?id=') + encodeURIComponent(json.project.id);
       } else {
-        if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '⚠️ لم يتم استلام رابط المشروع' : '⚠️ Project link not received', 'error');
+        if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> لم يتم استلام رابط المشروع" : "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> Project link not received", 'error');
       }
     } catch (e) {
-      if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? '⚠️ فشل الاتصال بمشروع V3' : '⚠️ Failed to connect to V3 project', 'error');
+      if (window.BondsUI && window.BondsUI.toast) BondsUI.toast(rtl ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> فشل الاتصال بمشروع V3" : "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z\"/><path d=\"M12 9v4\"/><path d=\"M12 17h.01\"/></svg> Failed to connect to V3 project", 'error');
     }
   };
 
@@ -270,7 +270,7 @@
     btn.setAttribute('data-bonds-v3', '1');
     btn.className = 'btn btn-primary hidden-print';
     btn.style.cssText = 'background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c1c;border:none;border-radius:8px;padding:0.65rem 1.1rem;font-weight:700;margin:0.25rem;';
-    btn.textContent = rtl ? '🚀 حوّل إلى مشروع V3' : '🚀 Convert to V3 Project';
+    btn.innerHTML = rtl ? "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#A0041E\" d=\"M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z\"/><path fill=\"#FFAC33\" d=\"M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z\"/><circle fill=\"#FFCC4D\" cx=\"8.999\" cy=\"27\" r=\"4\"/><path fill=\"#55ACEE\" d=\"M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z\"/><path d=\"M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z\"/><path fill=\"#A0041E\" d=\"M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z\"/></svg> حوّل إلى مشروع V3" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#A0041E\" d=\"M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z\"/><path fill=\"#FFAC33\" d=\"M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z\"/><circle fill=\"#FFCC4D\" cx=\"8.999\" cy=\"27\" r=\"4\"/><path fill=\"#55ACEE\" d=\"M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z\"/><path d=\"M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z\"/><path fill=\"#A0041E\" d=\"M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z\"/></svg> Convert to V3 Project";
     btn.onclick = function () { window.checkAuthForAction('v3', window.convertBondsToV3); };
     container.appendChild(btn);
   }
@@ -335,7 +335,7 @@
         else el.value = value;
       });
       if (hasAny && window.BondsUI && window.BondsUI.toast) {
-        BondsUI.toast(rtl ? '✅ تم استعادة المدخلات من الرابط' : '✅ Inputs restored from link', 'success');
+        BondsUI.toast(rtl ? "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> تم استعادة المدخلات من الرابط" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> Inputs restored from link", 'success');
       }
     } catch (e) {}
   }

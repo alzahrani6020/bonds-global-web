@@ -50,6 +50,76 @@
     projects: []
   };
 
+  const MODULE_NAME = 'financial-advisory';
+  const CACHE_TTL = 120000;
+
+  function cacheGet(scope) {
+    if (window.BondsAdminModuleCache) return BondsAdminModuleCache.get(MODULE_NAME, scope, CACHE_TTL);
+    return null;
+  }
+  function cacheSet(scope, data) {
+    if (window.BondsAdminModuleCache) BondsAdminModuleCache.set(MODULE_NAME, scope, data);
+  }
+  function invalidateCache(scope) {
+    if (!window.BondsAdminModuleCache) return;
+    if (scope) BondsAdminModuleCache.invalidate(MODULE_NAME, scope);
+    else BondsAdminModuleCache.invalidate(MODULE_NAME);
+  }
+
+  async function cachedListClients(search) {
+    const scope = `clients:${search || ''}`;
+    let data = cacheGet(scope);
+    if (data) return data;
+    data = await AdvisoryService.listClients({ search });
+    cacheSet(scope, data);
+    return data;
+  }
+
+  async function cachedListProjects({ search, client_id } = {}) {
+    const scope = `projects:${client_id || 'all'}:${search || ''}`;
+    let data = cacheGet(scope);
+    if (data) return data;
+    data = await AdvisoryService.listProjects({ search, client_id });
+    cacheSet(scope, data);
+    return data;
+  }
+
+  async function cachedListStudies({ search, client_id } = {}) {
+    const scope = `studies:${client_id || 'all'}:${search || ''}`;
+    let data = cacheGet(scope);
+    if (data) return data;
+    data = await AdvisoryService.listStudies({ search, client_id });
+    cacheSet(scope, data);
+    return data;
+  }
+
+  async function cachedListModels({ search, client_id } = {}) {
+    const scope = `models:${client_id || 'all'}:${search || ''}`;
+    let data = cacheGet(scope);
+    if (data) return data;
+    data = await AdvisoryService.listModels({ search, client_id });
+    cacheSet(scope, data);
+    return data;
+  }
+
+  async function cachedGetDashboardStats() {
+    const scope = 'dashboardStats';
+    let data = cacheGet(scope);
+    if (data) return data;
+    data = await AdvisoryService.getDashboardStats();
+    cacheSet(scope, data);
+    return data;
+  }
+
+  async function cachedListActivity(params = {}) {
+    const scope = params.entity_type ? `activity:${params.entity_type}:${params.entity_id || ''}` : 'activity';
+    let data = cacheGet(scope);
+    if (data) return data;
+    data = await AdvisoryService.listActivity(params);
+    cacheSet(scope, data);
+    return data;
+  }
+
   function $(sel) { return document.querySelector(sel); }
   function $$ (sel) { return Array.from(document.querySelectorAll(sel)); }
   function el(tag, cls, html) {
@@ -161,7 +231,7 @@
   // ========== Dashboard ==========
   async function renderDashboard() {
     $('#fa-content').innerHTML = '<div class="fa-empty"><div class="fa-spinner"></div><p>جارِ تحميل لوحة الاستشارات...</p></div>';
-    const stats = await AdvisoryService.getDashboardStats();
+    const stats = await cachedGetDashboardStats();
     const content = $('#fa-content');
     const errorsHtml = stats.errors?.length ? `
       <div class="ecc-alert ecc-alert--danger">
@@ -240,7 +310,7 @@
   // ========== Clients ==========
   async function renderClients() {
     const search = $('#fa-search-input')?.value?.trim() || '';
-    state.clients = await AdvisoryService.listClients({ search });
+    state.clients = await cachedListClients(search);
     const rows = state.clients.map(c => `
       <tr>
         <td><a href="#" onclick="AdvisoryApp.openDetail('client','${c.id}');return false;">${c.name}</a></td>
@@ -311,6 +381,7 @@
     try {
       if (id) await AdvisoryService.updateClient(id, payload);
       else await AdvisoryService.createClient(payload);
+      invalidateCache();
       closeModal();
       toast('تم حفظ العميل', 'success');
       renderClients();
@@ -318,7 +389,7 @@
   }
   async function deleteClient(id) {
     if (!confirm('هل أنت متأكد من حذف هذا العميل وجميع بياناته؟')) return;
-    try { await AdvisoryService.deleteClient(id); toast('تم الحذف', 'success'); renderClients(); }
+    try { await AdvisoryService.deleteClient(id); invalidateCache(); toast('تم الحذف', 'success'); renderClients(); }
     catch (err) { toast(err.message, 'error'); }
   }
 
@@ -326,7 +397,7 @@
   async function renderProjects() {
     const search = $('#fa-search-input')?.value?.trim() || '';
     const clientFilter = $('#fa-project-client')?.value || '';
-    state.projects = await AdvisoryService.listProjects({ search, client_id: clientFilter || undefined });
+    state.projects = await cachedListProjects({ search, client_id: clientFilter || undefined });
     const rows = state.projects.map(p => `
       <tr>
         <td><a href="#" onclick="AdvisoryApp.openDetail('project','${p.id}');return false;">${p.name}</a></td>
@@ -355,7 +426,7 @@
   }
 
   async function projectForm(project) {
-    const clients = state.clients.length ? state.clients : await AdvisoryService.listClients({});
+    const clients = state.clients.length ? state.clients : await cachedListClients('');
     const clientOptions = clients.map(c => `<option value="${c.id}" ${project?.client_id===c.id?'selected':''}>${c.name}</option>`).join('');
     return `
       <form id="fa-project-form" onsubmit="AdvisoryApp.saveProject(event,'${project?.id || ''}')">
@@ -397,12 +468,12 @@
     try {
       if (id) await AdvisoryService.updateProject(id, payload);
       else await AdvisoryService.createProject(payload);
-      closeModal(); toast('تم حفظ المشروع', 'success'); renderProjects();
+      invalidateCache(); closeModal(); toast('تم حفظ المشروع', 'success'); renderProjects();
     } catch (err) { toast(err.message, 'error'); }
   }
   async function deleteProject(id) {
     if (!confirm('هل أنت متأكد من حذف هذا المشروع؟')) return;
-    try { await AdvisoryService.deleteProject(id); toast('تم الحذف', 'success'); renderProjects(); }
+    try { await AdvisoryService.deleteProject(id); invalidateCache(); toast('تم الحذف', 'success'); renderProjects(); }
     catch (err) { toast(err.message, 'error'); }
   }
 
@@ -411,7 +482,7 @@
   async function renderStudies() {
     const search = $('#fa-search-input')?.value?.trim() || '';
     const clientFilter = $('#fa-study-client')?.value || '';
-    const studies = await AdvisoryService.listStudies({ search, client_id: clientFilter || undefined });
+    const studies = await cachedListStudies({ search, client_id: clientFilter || undefined });
     const rows = studies.map(s => `
       <tr>
         <td><a href="#" onclick="AdvisoryApp.openDetail('study','${s.id}');return false;">${s.title}</a></td>
@@ -440,8 +511,8 @@
   }
 
   async function studyForm(study) {
-    const clients = state.clients.length ? state.clients : await AdvisoryService.listClients({});
-    const clientProjects = study ? await AdvisoryService.listProjects({ client_id: study.client_id }) : [];
+    const clients = state.clients.length ? state.clients : await cachedListClients('');
+    const clientProjects = study ? await cachedListProjects({ client_id: study.client_id }) : [];
     const clientOptions = clients.map(c => `<option value="${c.id}" ${study?.client_id===c.id?'selected':''}>${c.name}</option>`).join('');
     const projectOptions = clientProjects.map(p => `<option value="${p.id}" ${study?.project_id===p.id?'selected':''}>${p.name}</option>`).join('');
     return `
@@ -489,12 +560,12 @@
     try {
       if (id) await AdvisoryService.updateStudy(id, payload);
       else await AdvisoryService.createStudy(payload);
-      closeModal(); toast('تم حفظ الدراسة', 'success'); renderStudies();
+      invalidateCache(); closeModal(); toast('تم حفظ الدراسة', 'success'); renderStudies();
     } catch (err) { toast(err.message, 'error'); }
   }
   async function deleteStudy(id) {
     if (!confirm('هل أنت متأكد من حذف الدراسة؟')) return;
-    try { await AdvisoryService.deleteStudy(id); toast('تم الحذف', 'success'); renderStudies(); }
+    try { await AdvisoryService.deleteStudy(id); invalidateCache(); toast('تم الحذف', 'success'); renderStudies(); }
     catch (err) { toast(err.message, 'error'); }
   }
 
@@ -502,7 +573,7 @@
   async function renderModels() {
     const search = $('#fa-search-input')?.value?.trim() || '';
     const clientFilter = $('#fa-model-client')?.value || '';
-    const models = await AdvisoryService.listModels({ search, client_id: clientFilter || undefined });
+    const models = await cachedListModels({ search, client_id: clientFilter || undefined });
     const rows = models.map(m => `
       <tr>
         <td><a href="#" onclick="AdvisoryApp.openDetail('model','${m.id}');return false;">${m.name}</a></td>
@@ -531,8 +602,8 @@
   }
 
   async function modelForm(model) {
-    const clients = state.clients.length ? state.clients : await AdvisoryService.listClients({});
-    const clientProjects = model ? await AdvisoryService.listProjects({ client_id: model.client_id }) : [];
+    const clients = state.clients.length ? state.clients : await cachedListClients('');
+    const clientProjects = model ? await cachedListProjects({ client_id: model.client_id }) : [];
     const clientOptions = clients.map(c => `<option value="${c.id}" ${model?.client_id===c.id?'selected':''}>${c.name}</option>`).join('');
     const projectOptions = clientProjects.map(p => `<option value="${p.id}" ${model?.project_id===p.id?'selected':''}>${p.name}</option>`).join('');
     return `
@@ -583,17 +654,17 @@
     try {
       if (id) await AdvisoryService.updateModel(id, payload);
       else await AdvisoryService.createModel(payload);
-      closeModal(); toast('تم حفظ النموذج', 'success'); renderModels();
+      invalidateCache(); closeModal(); toast('تم حفظ النموذج', 'success'); renderModels();
     } catch (err) { toast(err.message, 'error'); }
   }
   async function deleteModel(id) {
     if (!confirm('هل أنت متأكد من حذف النموذج؟')) return;
-    try { await AdvisoryService.deleteModel(id); toast('تم الحذف', 'success'); renderModels(); }
+    try { await AdvisoryService.deleteModel(id); invalidateCache(); toast('تم الحذف', 'success'); renderModels(); }
     catch (err) { toast(err.message, 'error'); }
   }
 
   async function refreshProjectOptions(clientId, selectId) {
-    const projects = await AdvisoryService.listProjects({ client_id: clientId });
+    const projects = await cachedListProjects({ client_id: clientId });
     const sel = document.getElementById(selectId);
     if (!sel) return;
     sel.innerHTML = '<option value="">بدون مشروع</option>' + projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
@@ -699,6 +770,7 @@
     if (!input.files?.length) return;
     try {
       await AdvisoryService.uploadDocument(entityType, entityId, input.files[0]);
+      invalidateCache();
       toast('تم رفع المستند', 'success');
       const container = $('#fa-detail-content');
       container.innerHTML = await renderDocumentsSection(container.dataset.type, container.dataset.id);
@@ -716,6 +788,7 @@
     if (!confirm('حذف المستند؟')) return;
     try {
       await AdvisoryService.deleteDocument(id);
+      invalidateCache();
       toast('تم الحذف', 'success');
       const container = $('#fa-detail-content');
       container.innerHTML = await renderDocumentsSection(container.dataset.type, container.dataset.id);
@@ -751,6 +824,7 @@
     if (!content) return;
     try {
       await AdvisoryService.createNote(entityType, entityId, content);
+      invalidateCache();
       toast('تمت إضافة الملاحظة', 'success');
       const container = $('#fa-detail-content');
       container.innerHTML = await renderNotesSection(container.dataset.type, container.dataset.id);
@@ -761,6 +835,7 @@
     if (!confirm('حذف الملاحظة؟')) return;
     try {
       await AdvisoryService.deleteNote(id);
+      invalidateCache();
       toast('تم الحذف', 'success');
       const container = $('#fa-detail-content');
       container.innerHTML = await renderNotesSection(container.dataset.type, container.dataset.id);
@@ -769,12 +844,12 @@
 
   // ========== Activity ==========
   async function renderActivitySection(entityType, entityId) {
-    const logs = await AdvisoryService.listActivity({ entity_type: entityType, entity_id: entityId });
+    const logs = await cachedListActivity({ entity_type: entityType, entity_id: entityId });
     return renderActivityList(logs);
   }
 
   async function renderActivity() {
-    const logs = await AdvisoryService.listActivity({});
+    const logs = await cachedListActivity({});
     $('#fa-content').innerHTML = `
       <div class="fa-header"><h1>السجل الزمني</h1></div>
       <div class="ecc-card">

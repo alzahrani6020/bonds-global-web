@@ -12,7 +12,7 @@ function main() {
     .sort();
 
   if (files.length === 0) {
-    console.error('❌ No migration files found');
+    console.error(" No migration files found");
     process.exit(1);
   }
 
@@ -24,13 +24,13 @@ function main() {
     const content = fs.readFileSync(filePath, 'utf8');
 
     if (file <= previousName) {
-      console.error(`❌ Migration files must be sorted lexicographically: ${file}`);
+      console.error(` Migration files must be sorted lexicographically: ${file}`);
       hasIssue = true;
     }
     previousName = file;
 
     if (!content.trim()) {
-      console.error(`❌ Empty migration file: ${file}`);
+      console.error(` Empty migration file: ${file}`);
       hasIssue = true;
     }
   });
@@ -39,7 +39,7 @@ function main() {
     process.exit(1);
   }
 
-  console.log(`✅ ${files.length} migration files verified and ordered:`);
+  console.log(` ${files.length} migration files verified and ordered:`);
   files.forEach(f => console.log(`   - ${f}`));
 }
 

@@ -17,7 +17,7 @@
     div.innerHTML = `
       <div id="admin-auth-overlay" style="position:fixed;inset:0;background:#1a1a1a;z-index:9999;display:flex;align-items:center;justify-content:center;font-family:Vazirmatn,Inter,system-ui,sans-serif;">
         <div style="text-align:center;max-width:400px;padding:2rem;">
-          <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+          <div style="font-size:3rem;margin-bottom:1rem;"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#AAB8C2" d="M18 3C12.477 3 8 7.477 8 13v10h4V13c0-3.313 2.686-6 6-6s6 2.687 6 6v10h4V13c0-5.523-4.477-10-10-10z"/><path fill="#FFAC33" d="M31 32c0 2.209-1.791 4-4 4H9c-2.209 0-4-1.791-4-4V20c0-2.209 1.791-4 4-4h18c2.209 0 4 1.791 4 4v12z"/></svg></div>
           <h2 style="color:#1a1a1a;margin-bottom:0.5rem;">التحقق من الصلاحيات...</h2>
           <p id="admin-auth-status" style="color:#555555;">جارِ التحقق من صلاحية الوصول الإداري</p>
           <button id="admin-auth-login" style="display:none;margin-top:1.5rem;padding:0.75rem 2rem;border-radius:10px;border:none;background:linear-gradient(135deg,#d4a853,#f0c96a);color:#1a1a1a;font-weight:800;font-size:0.9rem;cursor:pointer;" onclick="

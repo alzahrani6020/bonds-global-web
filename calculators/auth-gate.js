@@ -36,11 +36,81 @@
     return;
   }
 
-  // Check for a stored session token (synchronous gate to avoid flash of content)
-  const hasToken = !!window.localStorage.getItem('bonds-auth-token');
-  if (hasToken) return;
+  const TOKEN_KEY = 'bonds-auth-token';
+  const REDIRECT_URL = '/calculators/auth/?redirect=' + encodeURIComponent(window.location.href);
 
-  // No token: redirect to login, preserving the intended destination
-  const returnUrl = encodeURIComponent(window.location.href);
-  window.location.replace('/calculators/auth/?redirect=' + returnUrl);
+  function getStoredToken() {
+    try {
+      return window.localStorage.getItem(TOKEN_KEY);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Fast path: a stored token means the user is (almost certainly) logged in.
+  if (!!getStoredToken()) {
+    return;
+  }
+
+  // If the URL carries OAuth/magic-link tokens, Supabase needs a moment to
+  // extract them and persist the session. Don't redirect immediately.
+  const search = window.location.search || '';
+  const looksLikeOAuthCallback = /[?&](code=|access_token=|refresh_token=|type=|redirect=)/.test(search);
+
+  function redirectToLogin() {
+    window.location.replace(REDIRECT_URL);
+  }
+
+  // Try to recover the session asynchronously. This prevents false logouts when
+  // the token hasn't been written to localStorage yet (race on navigation) or
+  // when the session is being extracted from the URL after OAuth/magic link.
+  function tryRecoverSession() {
+    return new Promise(function (resolve) {
+      // If BondsAuth is already loaded, ask it for the session.
+      if (window.BondsAuth && typeof window.BondsAuth.getSession === 'function') {
+        window.BondsAuth.getSession()
+          .then(function (result) {
+            resolve(!!(result && result.data && result.data.session));
+          })
+          .catch(function () {
+            resolve(false);
+          });
+        return;
+      }
+
+      // Otherwise wait a short moment for the auth library to load, then check
+      // localStorage again (Supabase writes the token there once initialized).
+      var attempts = 0;
+      var maxAttempts = looksLikeOAuthCallback ? 50 : 30; // up to ~2.5s for OAuth, ~1.5s otherwise
+      var interval = setInterval(function () {
+        attempts++;
+        if (getStoredToken()) {
+          clearInterval(interval);
+          resolve(true);
+          return;
+        }
+        if (window.BondsAuth && typeof window.BondsAuth.getSession === 'function') {
+          clearInterval(interval);
+          window.BondsAuth.getSession()
+            .then(function (result) {
+              resolve(!!(result && result.data && result.data.session));
+            })
+            .catch(function () {
+              resolve(false);
+            });
+          return;
+        }
+        if (attempts >= maxAttempts) {
+          clearInterval(interval);
+          resolve(false);
+        }
+      }, 50);
+    });
+  }
+
+  tryRecoverSession().then(function (hasSession) {
+    if (!hasSession) {
+      redirectToLogin();
+    }
+  });
 })();

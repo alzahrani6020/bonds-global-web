@@ -431,7 +431,7 @@ const KEY_CITY_INDICATORS = {
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -449,7 +449,7 @@ async function main() {
         [code]
       );
       if (cityRows.length === 0) {
-        console.warn(`⚠️ City not found: ${code}`);
+        console.warn(` City not found: ${code}`);
         continue;
       }
       const cityId = cityRows[0].id;
@@ -504,12 +504,12 @@ async function main() {
       `, [cityId, year]);
       marketCount += rowCount;
 
-      console.log(`✓ ${code} (${cityRows[0].name_ar}): indicators + ${rowCount} market rows`);
+      console.log(` ${code} (${cityRows[0].name_ar}): indicators + ${rowCount} market rows`);
     }
 
-    console.log(`\n✅ Done. Enriched ${cityCount} key cities and ${marketCount} market rows.`);
+    console.log(`\n Done. Enriched ${cityCount} key cities and ${marketCount} market rows.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     console.error(err.stack);
     process.exit(1);
   } finally {

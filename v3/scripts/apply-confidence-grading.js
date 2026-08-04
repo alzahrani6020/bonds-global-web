@@ -49,7 +49,7 @@ function scoreFromSource(source, map) {
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -74,7 +74,7 @@ async function main() {
         SET overall_confidence = $1
         WHERE year = $2 AND COALESCE(metadata->>'source', '') = $3
       `, [confidence, year, source]);
-      console.log(`✓ Indicators source "${source || '(empty)'}" → confidence ${confidence}% (${rowCount} rows)`);
+      console.log(` Indicators source "${source || '(empty)'}" → confidence ${confidence}% (${rowCount} rows)`);
     }
 
     // Update city_market_data
@@ -92,12 +92,12 @@ async function main() {
         SET confidence = $1
         WHERE data_year = $2 AND COALESCE(source, '') = $3
       `, [confidence, year, source]);
-      console.log(`✓ Market source "${source || '(empty)'}" → confidence ${confidence}% (${rowCount} rows)`);
+      console.log(` Market source "${source || '(empty)'}" → confidence ${confidence}% (${rowCount} rows)`);
     }
 
-    console.log('\n✅ Confidence grading applied.');
+    console.log("\n Confidence grading applied.");
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     console.error(err.stack);
     process.exit(1);
   } finally {

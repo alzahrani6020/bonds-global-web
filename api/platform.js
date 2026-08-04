@@ -47,8 +47,8 @@ async function notifyAdminsConversionEvent(eventType, details) {
   if (!shouldAlert(throttleKey)) return;
 
   const subject = eventType === 'lead'
-    ? '✉️ New calculator lead captured'
-    : '🚀 New calculator V3 conversion';
+    ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#CCD6DD\" d=\"M36 27c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V9c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v18z\"/><path fill=\"#99AAB5\" d=\"M11.95 17.636L.637 28.949c-.027.028-.037.063-.06.091.34.57.814 1.043 1.384 1.384.029-.023.063-.033.09-.06L13.365 19.05c.39-.391.39-1.023 0-1.414-.392-.391-1.024-.391-1.415 0M35.423 29.04c-.021-.028-.033-.063-.06-.09L24.051 17.636c-.392-.391-1.024-.391-1.415 0-.391.392-.391 1.024 0 1.414l11.313 11.314c.026.026.062.037.09.06.571-.34 1.044-.814 1.384-1.384\"/><path fill=\"#99AAB5\" d=\"M32 5H4C1.791 5 0 6.791 0 9v1.03l14.528 14.496c1.894 1.893 4.988 1.893 6.884 0L36 10.009V9c0-2.209-1.791-4-4-4z\"/><path fill=\"#E1E8ED\" d=\"M32 5H4C2.412 5 1.051 5.934.405 7.275l14.766 14.767c1.562 1.562 4.096 1.562 5.657 0L35.595 7.275C34.949 5.934 33.589 5 32 5z\"/></svg> New calculator lead captured"
+    : "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#A0041E\" d=\"M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z\"/><path fill=\"#FFAC33\" d=\"M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z\"/><circle fill=\"#FFCC4D\" cx=\"8.999\" cy=\"27\" r=\"4\"/><path fill=\"#55ACEE\" d=\"M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z\"/><path d=\"M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z\"/><path fill=\"#A0041E\" d=\"M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z\"/></svg> New calculator V3 conversion";
 
   const html = `
     <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:1.5rem;background:#f8f9fa;border-radius:12px;">
@@ -71,8 +71,8 @@ async function notifyAdminsConversionEvent(eventType, details) {
   }
 
   const slackMsg = eventType === 'lead'
-    ? `✉️ New calculator lead: ${details.calculator} (${details.country || 'unknown'}) — ${details.email}`
-    : `🚀 New V3 conversion: ${details.calculator} (${details.country || 'unknown'})`;
+    ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M36 27c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V9c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v18z"/><path fill="#99AAB5" d="M11.95 17.636L.637 28.949c-.027.028-.037.063-.06.091.34.57.814 1.043 1.384 1.384.029-.023.063-.033.09-.06L13.365 19.05c.39-.391.39-1.023 0-1.414-.392-.391-1.024-.391-1.415 0M35.423 29.04c-.021-.028-.033-.063-.06-.09L24.051 17.636c-.392-.391-1.024-.391-1.415 0-.391.392-.391 1.024 0 1.414l11.313 11.314c.026.026.062.037.09.06.571-.34 1.044-.814 1.384-1.384"/><path fill="#99AAB5" d="M32 5H4C1.791 5 0 6.791 0 9v1.03l14.528 14.496c1.894 1.893 4.988 1.893 6.884 0L36 10.009V9c0-2.209-1.791-4-4-4z"/><path fill="#E1E8ED" d="M32 5H4C2.412 5 1.051 5.934.405 7.275l14.766 14.767c1.562 1.562 4.096 1.562 5.657 0L35.595 7.275C34.949 5.934 33.589 5 32 5z"/></svg> New calculator lead: ${details.calculator} (${details.country || 'unknown'}) — ${details.email}`
+    : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg> New V3 conversion: ${details.calculator} (${details.country || 'unknown'})`;
   notifySlack(slackMsg + (details.url ? ` | ${details.url}` : ''));
 }
 
@@ -543,29 +543,29 @@ async function siteContactHandler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    if (!name || !phone) {
-      return res.status(400).json({ success: false, error: 'Name and phone are required' });
-    }
-
-    const phoneStr = String(phone).trim();
-    if (!isValidPhone(phoneStr)) {
-      return res.status(400).json({ success: false, error: 'Invalid phone number' });
-    }
-
+    const nameStr = name ? String(name).trim() : '';
+    const phoneStr = phone ? String(phone).trim() : '';
     const emailStr = email ? String(email).toLowerCase().trim() : '';
-    if (emailStr && !isValidEmail(emailStr)) {
-      return res.status(400).json({ success: false, error: 'Invalid email address' });
-    }
-
+    const cityStr = city ? String(city).trim() : '';
     const sectorVal = sector || activity || '';
     const serviceVal = service || source || '';
     const isContactPage = !!(message && (sectorVal || serviceVal));
 
+    const notes = [];
+    if (!nameStr) notes.push('missing name');
+    if (!phoneStr) notes.push('missing phone');
+    else if (!isValidPhone(phoneStr)) notes.push('invalid phone');
+    if (emailStr && !isValidEmail(emailStr)) notes.push('invalid email');
+    if (!cityStr) notes.push('missing city');
+    if (!sectorVal) notes.push('missing business activity');
+
+    const validationStatus = notes.length === 0 ? 'valid' : 'invalid';
+
     const payload = {
-      name: String(name).slice(0, 200),
-      phone: phoneStr.slice(0, 50),
+      name: nameStr ? nameStr.slice(0, 200) : null,
+      phone: phoneStr ? phoneStr.slice(0, 50) : null,
       email: emailStr ? emailStr.slice(0, 200) : null,
-      city: city ? String(city).slice(0, 100) : null,
+      city: cityStr ? cityStr.slice(0, 100) : null,
       sector: sectorVal ? String(sectorVal).slice(0, 100) : null,
       service: serviceVal ? String(serviceVal).slice(0, 100) : null,
       message: message ? String(message).slice(0, 5000) : JSON.stringify({
@@ -575,8 +575,13 @@ async function siteContactHandler(req, res) {
         pageUrl: url || ''
       }),
       read: false,
-      source: source ? String(source).slice(0, 100) : (isContactPage ? 'contact-page' : 'website')
+      source: source ? String(source).slice(0, 100) : (isContactPage ? 'contact-page' : 'website'),
+      validation_status: validationStatus,
+      validation_notes: notes.join(', ') || null
     };
+
+    const displayName = payload.name || '—';
+    const displayPhone = payload.phone || '—';
 
     let savedId = null;
     let saveError = null;
@@ -628,8 +633,8 @@ async function siteContactHandler(req, res) {
           service: payload.service,
           message: payload.message,
           _subject: isContactPage
-            ? `طلب تواصل جديد من ${payload.name} — بوندز`
-            : `طلب دراسة جدوى جديد — ${payload.name}`,
+            ? `طلب تواصل جديد من ${displayName} — بوندز`
+            : `طلب دراسة جدوى جديد — ${displayName}`,
           _replyto: payload.email || undefined
         })
       });
@@ -645,13 +650,13 @@ async function siteContactHandler(req, res) {
     const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
     if (adminEmails.length > 0) {
       const emailSubject = isContactPage
-        ? `طلب تواصل جديد من ${payload.name} — بوندز`
-        : `طلب دراسة جدوى جديد — ${payload.name}`;
+        ? `طلب تواصل جديد من ${displayName} — بوندز`
+        : `طلب دراسة جدوى جديد — ${displayName}`;
 
       const emailBody = isContactPage
         ? `
-اسم المرسل: ${payload.name}
-الجوال: ${payload.phone}
+اسم المرسل: ${displayName}
+الجوال: ${displayPhone}
 البريد: ${payload.email || 'غير متوفر'}
 المدينة: ${payload.city || 'غير محددة'}
 القطاع: ${payload.sector || 'غير محدد'}
@@ -664,8 +669,8 @@ ${message || '—'}
 تم الاستلام عبر: bonds-global.com/contact
         `.trim()
         : `
-اسم المرسل: ${payload.name}
-الجوال: ${payload.phone}
+اسم المرسل: ${displayName}
+الجوال: ${displayPhone}
 البريد: ${payload.email || 'غير متوفر'}
 المدينة: ${payload.city || 'غير محددة'}
 النشاط: ${payload.sector || 'غير محدد'}
@@ -685,8 +690,8 @@ ${message ? 'الرسالة:\n' + message : ''}
 <div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#1a1a1a;">
   <h2 style="color:#b8954e;">طلب تواصل جديد — بوندز</h2>
   <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
-    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الاسم</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${escapeHtml(payload.name)}</td></tr>
-    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الجوال</td><td style="padding:0.5rem;border-bottom:1px solid #eee;direction:ltr;text-align:right;">${escapeHtml(payload.phone)}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الاسم</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${escapeHtml(displayName)}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الجوال</td><td style="padding:0.5rem;border-bottom:1px solid #eee;direction:ltr;text-align:right;">${escapeHtml(displayPhone)}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">البريد</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.email ? escapeHtml(payload.email) : '-'}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">المدينة</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.city ? escapeHtml(payload.city) : '-'}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">القطاع</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.sector ? escapeHtml(payload.sector) : '-'}</td></tr>
@@ -703,10 +708,10 @@ ${message ? 'الرسالة:\n' + message : ''}
         `
         : `
 <div dir="rtl" style="font-family:Vazirmatn,system-ui,sans-serif;line-height:1.6;color:#1a1a1a;">
-  <h2 style="color:#b8954e;">📩 طلب دراسة جدوى جديد</h2>
+  <h2 style="color:#b8954e;"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V14c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v18z"/><path fill="#99AAB5" d="M11.95 22.636L.637 33.949c-.027.028-.037.063-.06.091.34.57.814 1.043 1.384 1.384.029-.023.063-.033.09-.06L13.365 24.05c.39-.391.39-1.023 0-1.414-.392-.391-1.024-.391-1.415 0M35.423 34.04c-.021-.028-.033-.063-.06-.09L24.051 22.636c-.392-.391-1.024-.391-1.415 0-.391.392-.391 1.024 0 1.414l11.313 11.314c.026.026.062.037.09.06.571-.34 1.044-.814 1.384-1.384"/><path fill="#99AAB5" d="M32 10H4c-2.209 0-4 1.791-4 4v1.03l14.528 14.496c1.894 1.894 4.988 1.894 6.884 0L36 15.009V14c0-2.209-1.791-4-4-4z"/><path fill="#E1E8ED" d="M32 10H4c-1.588 0-2.949.934-3.595 2.275l14.766 14.767c1.562 1.562 4.096 1.562 5.657 0l14.767-14.767C34.949 10.934 33.589 10 32 10z"/><path fill="#55ACEE" d="M26.716 7H22V2c0-1.104-.895-2-2-2h-4c-1.104 0-2 .896-2 2v5H9.148c-1.223 0-1.515.624-.651 1.489l7.863 7.863c.865.865 2.28.865 3.145 0l7.863-7.863C28.232 7.624 27.94 7 26.716 7z"/></svg> طلب دراسة جدوى جديد</h2>
   <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
-    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الاسم</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.name}</td></tr>
-    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الجوال</td><td style="padding:0.5rem;border-bottom:1px solid #eee;direction:ltr;text-align:right;">${payload.phone}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الاسم</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${displayName}</td></tr>
+    <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">الجوال</td><td style="padding:0.5rem;border-bottom:1px solid #eee;direction:ltr;text-align:right;">${displayPhone}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">البريد</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.email || '-'}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">المدينة</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.city || '-'}</td></tr>
     <tr><td style="padding:0.5rem;border-bottom:1px solid #eee;font-weight:700;">النشاط</td><td style="padding:0.5rem;border-bottom:1px solid #eee;">${payload.sector || '-'}</td></tr>
@@ -732,6 +737,8 @@ ${message ? 'الرسالة:\n' + message : ''}
       saved: !!savedId,
       demo: !savedId,
       saveError: savedId ? undefined : saveError,
+      validation_status: validationStatus,
+      validation_notes: notes.join(', ') || null,
       message: savedId
         ? 'Lead received successfully'
         : 'Lead received but NOT saved to database — check server logs'
@@ -1082,20 +1089,20 @@ function calculatorEmailTemplates(step, data) {
 
   const subjects = {
     0: {
-      A: rtl ? `✅ نتائجك جاهزة من حاسبة ${calcName}` : `✅ Your ${calcName} calculator results are ready`,
-      B: rtl ? `🎯 ${calcName} — راجع نتائجك الآن` : `🎯 ${calcName} — review your results now`
+      A: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#77B255" d="M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z"/><path fill="#FFF" d="M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z"/></svg> نتائجك جاهزة من حاسبة ${calcName}` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#77B255" d="M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z"/><path fill="#FFF" d="M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z"/></svg> Your ${calcName} calculator results are ready`,
+      B: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><circle fill="#DD2E44" cx="18" cy="18" r="18"/><circle fill="#FFF" cx="18" cy="18" r="13.5"/><circle fill="#DD2E44" cx="18" cy="18" r="10"/><circle fill="#FFF" cx="18" cy="18" r="6"/><circle fill="#DD2E44" cx="18" cy="18" r="3"/><path opacity=".2" d="M18.24 18.282l13.144 11.754s-2.647 3.376-7.89 5.109L17.579 18.42l.661-.138z"/><path fill="#FFAC33" d="M18.294 19c-.255 0-.509-.097-.704-.292-.389-.389-.389-1.018 0-1.407l.563-.563c.389-.389 1.018-.389 1.408 0 .388.389.388 1.018 0 1.407l-.564.563c-.194.195-.448.292-.703.292z"/><path fill="#55ACEE" d="M24.016 6.981c-.403 2.079 0 4.691 0 4.691l7.054-7.388c.291-1.454-.528-3.932-1.718-4.238-1.19-.306-4.079.803-5.336 6.935zm5.003 5.003c-2.079.403-4.691 0-4.691 0l7.388-7.054c1.454-.291 3.932.528 4.238 1.718.306 1.19-.803 4.079-6.935 5.336z"/><path fill="#3A87C2" d="M32.798 4.485L21.176 17.587c-.362.362-1.673.882-2.51.046-.836-.836-.419-2.08-.057-2.443L31.815 3.501s.676-.635 1.159-.152-.176 1.136-.176 1.136z"/></svg> ${calcName} — راجع نتائجك الآن` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><circle fill="#DD2E44" cx="18" cy="18" r="18"/><circle fill="#FFF" cx="18" cy="18" r="13.5"/><circle fill="#DD2E44" cx="18" cy="18" r="10"/><circle fill="#FFF" cx="18" cy="18" r="6"/><circle fill="#DD2E44" cx="18" cy="18" r="3"/><path opacity=".2" d="M18.24 18.282l13.144 11.754s-2.647 3.376-7.89 5.109L17.579 18.42l.661-.138z"/><path fill="#FFAC33" d="M18.294 19c-.255 0-.509-.097-.704-.292-.389-.389-.389-1.018 0-1.407l.563-.563c.389-.389 1.018-.389 1.408 0 .388.389.388 1.018 0 1.407l-.564.563c-.194.195-.448.292-.703.292z"/><path fill="#55ACEE" d="M24.016 6.981c-.403 2.079 0 4.691 0 4.691l7.054-7.388c.291-1.454-.528-3.932-1.718-4.238-1.19-.306-4.079.803-5.336 6.935zm5.003 5.003c-2.079.403-4.691 0-4.691 0l7.388-7.054c1.454-.291 3.932.528 4.238 1.718.306 1.19-.803 4.079-6.935 5.336z"/><path fill="#3A87C2" d="M32.798 4.485L21.176 17.587c-.362.362-1.673.882-2.51.046-.836-.836-.419-2.08-.057-2.443L31.815 3.501s.676-.635 1.159-.152-.176 1.136-.176 1.136z"/></svg> ${calcName} — review your results now`
     },
     1: {
-      A: rtl ? `⏰ احفظ نتائج حاسبة ${calcName}` : `⏰ Save your ${calcName} results before they're gone`,
-      B: rtl ? `⚠️ نتائج ${calcName} ستُفقد قريبًا` : `⚠️ Your ${calcName} results will be lost soon`
+      A: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M20 6.042c0 1.112-.903 2.014-2 2.014s-2-.902-2-2.014V2.014C16 .901 16.903 0 18 0s2 .901 2 2.014v4.028z"/><path fill="#FFAC33" d="M9.18 36c-.224 0-.452-.052-.666-.159-.736-.374-1.035-1.28-.667-2.027l8.94-18.127c.252-.512.768-.835 1.333-.835s1.081.323 1.333.835l8.941 18.127c.368.747.07 1.653-.666 2.027-.736.372-1.631.07-1.999-.676L18.121 19.74l-7.607 15.425c-.262.529-.788.835-1.334.835z"/><path fill="#58595B" d="M18.121 20.392c-.263 0-.516-.106-.702-.295L3.512 5.998c-.388-.394-.388-1.031 0-1.424s1.017-.393 1.404 0L18.121 17.96 31.324 4.573c.389-.393 1.017-.393 1.405 0 .388.394.388 1.031 0 1.424l-13.905 14.1c-.187.188-.439.295-.703.295z"/><path fill="#DD2E44" d="M34.015 19.385c0 8.898-7.115 16.111-15.894 16.111-8.777 0-15.893-7.213-15.893-16.111 0-8.9 7.116-16.113 15.893-16.113 8.778-.001 15.894 7.213 15.894 16.113z"/><path fill="#E6E7E8" d="M30.041 19.385c0 6.674-5.335 12.084-11.92 12.084-6.583 0-11.919-5.41-11.919-12.084C6.202 12.71 11.538 7.3 18.121 7.3c6.585-.001 11.92 5.41 11.92 12.085z"/><path fill="#FFCC4D" d="M30.04 1.257c-1.646 0-3.135.676-4.214 1.77l8.429 8.544C35.333 10.478 36 8.968 36 7.299c0-3.336-2.669-6.042-5.96-6.042zm-24.08 0c1.645 0 3.135.676 4.214 1.77l-8.429 8.544C.667 10.478 0 8.968 0 7.299c0-3.336 2.668-6.042 5.96-6.042z"/><path fill="#414042" d="M23 20h-5c-.552 0-1-.447-1-1v-9c0-.552.448-1 1-1s1 .448 1 1v8h4c.553 0 1 .448 1 1 0 .553-.447 1-1 1z"/></svg> احفظ نتائج حاسبة ${calcName}` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M20 6.042c0 1.112-.903 2.014-2 2.014s-2-.902-2-2.014V2.014C16 .901 16.903 0 18 0s2 .901 2 2.014v4.028z"/><path fill="#FFAC33" d="M9.18 36c-.224 0-.452-.052-.666-.159-.736-.374-1.035-1.28-.667-2.027l8.94-18.127c.252-.512.768-.835 1.333-.835s1.081.323 1.333.835l8.941 18.127c.368.747.07 1.653-.666 2.027-.736.372-1.631.07-1.999-.676L18.121 19.74l-7.607 15.425c-.262.529-.788.835-1.334.835z"/><path fill="#58595B" d="M18.121 20.392c-.263 0-.516-.106-.702-.295L3.512 5.998c-.388-.394-.388-1.031 0-1.424s1.017-.393 1.404 0L18.121 17.96 31.324 4.573c.389-.393 1.017-.393 1.405 0 .388.394.388 1.031 0 1.424l-13.905 14.1c-.187.188-.439.295-.703.295z"/><path fill="#DD2E44" d="M34.015 19.385c0 8.898-7.115 16.111-15.894 16.111-8.777 0-15.893-7.213-15.893-16.111 0-8.9 7.116-16.113 15.893-16.113 8.778-.001 15.894 7.213 15.894 16.113z"/><path fill="#E6E7E8" d="M30.041 19.385c0 6.674-5.335 12.084-11.92 12.084-6.583 0-11.919-5.41-11.919-12.084C6.202 12.71 11.538 7.3 18.121 7.3c6.585-.001 11.92 5.41 11.92 12.085z"/><path fill="#FFCC4D" d="M30.04 1.257c-1.646 0-3.135.676-4.214 1.77l8.429 8.544C35.333 10.478 36 8.968 36 7.299c0-3.336-2.669-6.042-5.96-6.042zm-24.08 0c1.645 0 3.135.676 4.214 1.77l-8.429 8.544C.667 10.478 0 8.968 0 7.299c0-3.336 2.668-6.042 5.96-6.042z"/><path fill="#414042" d="M23 20h-5c-.552 0-1-.447-1-1v-9c0-.552.448-1 1-1s1 .448 1 1v8h4c.553 0 1 .448 1 1 0 .553-.447 1-1 1z"/></svg> Save your ${calcName} results before they're gone`,
+      B: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg> نتائج ${calcName} ستُفقد قريبًا` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg> Your ${calcName} results will be lost soon`
     },
     2: {
-      A: rtl ? `🚀 حوّل نتائج ${calcName} إلى خطة استثمارية` : `🚀 Turn your ${calcName} results into an investment plan`,
-      B: rtl ? `📈 هل تريد الربح من فكرة ${calcName}؟` : `📈 Want to profit from your ${calcName} idea?`
+      A: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg> حوّل نتائج ${calcName} إلى خطة استثمارية` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg> Turn your ${calcName} results into an investment plan`,
+      B: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#DD2E44" d="M4.998 33c-.32 0-.645-.076-.946-.239-.973-.523-1.336-1.736-.813-2.709l7-13c.299-.557.845-.939 1.47-1.031.626-.092 1.258.118 1.705.565l6.076 6.076 9.738-18.59c.512-.978 1.721-1.357 2.699-.843.979.512 1.356 1.721.844 2.7l-11 21c-.295.564-.841.953-1.47 1.05-.627.091-1.266-.113-1.716-.563l-6.1-6.099-5.724 10.631C6.4 32.619 5.71 33 4.998 33z"/></svg> هل تريد الربح من فكرة ${calcName}؟` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M31 2H5C3.343 2 2 3.343 2 5v26c0 1.657 1.343 3 3 3h26c1.657 0 3-1.343 3-3V5c0-1.657-1.343-3-3-3z"/><path fill="#E1E8ED" d="M31 1H5C2.791 1 1 2.791 1 5v26c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V5c0-2.209-1.791-4-4-4zm0 2c1.103 0 2 .897 2 2v4h-6V3h4zm-4 16h6v6h-6v-6zm0-2v-6h6v6h-6zM25 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM17 3v6h-6V3h6zm-6 8h6v6h-6v-6zm0 8h6v6h-6v-6zM3 5c0-1.103.897-2 2-2h4v6H3V5zm0 6h6v6H3v-6zm0 8h6v6H3v-6zm2 14c-1.103 0-2-.897-2-2v-4h6v6H5zm6 0v-6h6v6h-6zm8 0v-6h6v6h-6zm12 0h-4v-6h6v4c0 1.103-.897 2-2 2z"/><path fill="#DD2E44" d="M4.998 33c-.32 0-.645-.076-.946-.239-.973-.523-1.336-1.736-.813-2.709l7-13c.299-.557.845-.939 1.47-1.031.626-.092 1.258.118 1.705.565l6.076 6.076 9.738-18.59c.512-.978 1.721-1.357 2.699-.843.979.512 1.356 1.721.844 2.7l-11 21c-.295.564-.841.953-1.47 1.05-.627.091-1.266-.113-1.716-.563l-6.1-6.099-5.724 10.631C6.4 32.619 5.71 33 4.998 33z"/></svg> Want to profit from your ${calcName} idea?`
     },
     3: {
-      A: rtl ? `🤝 هل تحتاج مساعدة في مشروع ${calcName}؟` : `🤝 Need help with your ${calcName} project?`,
-      B: rtl ? `💼 مستشار بوندز جاهز لمساعدتك في ${calcName}` : `💼 A Bonds advisor is ready to help with ${calcName}`
+      A: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" xml:space="preserve"><path fill="#EF9645" d="M16.428 30.331a2.31 2.31 0 0 0 3.217-.568.798.798 0 0 0-.197-1.114l-1.85-1.949 4.222 2.955a1.497 1.497 0 0 0 2.089-.369 1.5 1.5 0 0 0-.369-2.089l-3.596-3.305 5.375 3.763a1.497 1.497 0 0 0 2.089-.369 1.5 1.5 0 0 0-.369-2.089l-4.766-4.073 5.864 4.105a1.497 1.497 0 0 0 2.089-.369 1.5 1.5 0 0 0-.369-2.089L4.733 11.194l-3.467 5.521c-.389.6-.283 1.413.276 1.891l7.786 6.671c.355.304.724.591 1.107.859l5.993 4.195z"/><path fill="#FFDC5D" d="M29.802 21.752 18.5 13.601l-.059-.08.053-.08.053-.053.854.469c.958.62 3.147 1.536 4.806 1.536 1.135 0 1.815-.425 2.018-1.257a1.409 1.409 0 0 0-1.152-1.622 6.788 6.788 0 0 1-2.801-1.091l-.555-.373c-.624-.421-1.331-.898-1.853-1.206-.65-.394-1.357-.585-2.163-.585-1.196 0-2.411.422-3.585.83l-1.266.436a5.18 5.18 0 0 1-1.696.271c-1.544 0-3.055-.586-4.516-1.152l-.147-.058a1.389 1.389 0 0 0-1.674.56L1.35 15.669a1.357 1.357 0 0 0 .257 1.761l7.785 6.672c.352.301.722.588 1.1.852l6.165 4.316a2 2 0 0 0 2.786-.491.803.803 0 0 0-.196-1.115l-1.833-1.283a.424.424 0 0 1-.082-.618.422.422 0 0 1 .567-.075l3.979 2.785a1.4 1.4 0 0 0 1.606-2.294l-3.724-2.606a.424.424 0 0 1-.082-.618.423.423 0 0 1 .567-.075l5.132 3.593a1.4 1.4 0 0 0 1.606-2.294l-4.868-3.407a.42.42 0 0 1-.081-.618.377.377 0 0 1 .506-.066l5.656 3.959a1.4 1.4 0 0 0 1.606-2.295z"/><path d="M16.536 27.929c-.07.267-.207.498-.389.681l-1.004.996a1.494 1.494 0 0 1-1.437.396 1.5 1.5 0 0 1-.683-2.512l1.004-.996a1.494 1.494 0 0 1 1.437-.396 1.502 1.502 0 0 1 1.072 1.831zM5.992 23.008l1.503-1.497a1.5 1.5 0 0 0-.444-2.429 1.495 1.495 0 0 0-1.674.31l-1.503 1.497a1.5 1.5 0 0 0 .445 2.429 1.496 1.496 0 0 0 1.673-.31zm5.204.052a1.5 1.5 0 1 0-2.122-2.118L6.072 23.94a1.5 1.5 0 1 0 2.122 2.118l3.002-2.998zm2.25 3a1.5 1.5 0 0 0-.945-2.555 1.489 1.489 0 0 0-1.173.44L9.323 25.94a1.5 1.5 0 0 0 .945 2.556c.455.036.874-.141 1.173-.44l2.005-1.996zm16.555-4.137.627-.542-6.913-10.85-12.27 1.985a1.507 1.507 0 0 0-1.235 1.737c.658 2.695 6.003.693 8.355-.601l11.436 8.271z" fill="#EF9645"/><path d="M16.536 26.929c-.07.267-.207.498-.389.681l-1.004.996a1.494 1.494 0 0 1-1.437.396 1.5 1.5 0 0 1-.683-2.512l1.004-.996a1.494 1.494 0 0 1 1.437-.396 1.502 1.502 0 0 1 1.072 1.831zM5.992 22.008l1.503-1.497a1.5 1.5 0 0 0-.444-2.429 1.497 1.497 0 0 0-1.674.31l-1.503 1.497a1.5 1.5 0 0 0 .445 2.429 1.496 1.496 0 0 0 1.673-.31zm5.204.052a1.5 1.5 0 1 0-2.122-2.118L6.072 22.94a1.5 1.5 0 1 0 2.122 2.118l3.002-2.998zm2.25 3a1.5 1.5 0 0 0-.945-2.555 1.489 1.489 0 0 0-1.173.44L9.323 24.94a1.5 1.5 0 0 0 .945 2.556c.455.036.874-.141 1.173-.44l2.005-1.996zm21.557-7.456a1.45 1.45 0 0 0 .269-1.885l-.003-.005-3.467-6.521a1.488 1.488 0 0 0-1.794-.6c-1.992.771-4.174 1.657-6.292.937l-1.098-.377c-1.948-.675-4.066-1.466-6-.294-.695.409-1.738 1.133-2.411 1.58a6.873 6.873 0 0 1-2.762 1.076 1.502 1.502 0 0 0-1.235 1.737c.613 2.512 5.3.908 7.838-.369a.968.968 0 0 1 1.002.081l11.584 8.416 4.369-3.776z" fill="#FFCC4D"/></svg> هل تحتاج مساعدة في مشروع ${calcName}؟` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" xml:space="preserve"><path fill="#EF9645" d="M16.428 30.331a2.31 2.31 0 0 0 3.217-.568.798.798 0 0 0-.197-1.114l-1.85-1.949 4.222 2.955a1.497 1.497 0 0 0 2.089-.369 1.5 1.5 0 0 0-.369-2.089l-3.596-3.305 5.375 3.763a1.497 1.497 0 0 0 2.089-.369 1.5 1.5 0 0 0-.369-2.089l-4.766-4.073 5.864 4.105a1.497 1.497 0 0 0 2.089-.369 1.5 1.5 0 0 0-.369-2.089L4.733 11.194l-3.467 5.521c-.389.6-.283 1.413.276 1.891l7.786 6.671c.355.304.724.591 1.107.859l5.993 4.195z"/><path fill="#FFDC5D" d="M29.802 21.752 18.5 13.601l-.059-.08.053-.08.053-.053.854.469c.958.62 3.147 1.536 4.806 1.536 1.135 0 1.815-.425 2.018-1.257a1.409 1.409 0 0 0-1.152-1.622 6.788 6.788 0 0 1-2.801-1.091l-.555-.373c-.624-.421-1.331-.898-1.853-1.206-.65-.394-1.357-.585-2.163-.585-1.196 0-2.411.422-3.585.83l-1.266.436a5.18 5.18 0 0 1-1.696.271c-1.544 0-3.055-.586-4.516-1.152l-.147-.058a1.389 1.389 0 0 0-1.674.56L1.35 15.669a1.357 1.357 0 0 0 .257 1.761l7.785 6.672c.352.301.722.588 1.1.852l6.165 4.316a2 2 0 0 0 2.786-.491.803.803 0 0 0-.196-1.115l-1.833-1.283a.424.424 0 0 1-.082-.618.422.422 0 0 1 .567-.075l3.979 2.785a1.4 1.4 0 0 0 1.606-2.294l-3.724-2.606a.424.424 0 0 1-.082-.618.423.423 0 0 1 .567-.075l5.132 3.593a1.4 1.4 0 0 0 1.606-2.294l-4.868-3.407a.42.42 0 0 1-.081-.618.377.377 0 0 1 .506-.066l5.656 3.959a1.4 1.4 0 0 0 1.606-2.295z"/><path d="M16.536 27.929c-.07.267-.207.498-.389.681l-1.004.996a1.494 1.494 0 0 1-1.437.396 1.5 1.5 0 0 1-.683-2.512l1.004-.996a1.494 1.494 0 0 1 1.437-.396 1.502 1.502 0 0 1 1.072 1.831zM5.992 23.008l1.503-1.497a1.5 1.5 0 0 0-.444-2.429 1.495 1.495 0 0 0-1.674.31l-1.503 1.497a1.5 1.5 0 0 0 .445 2.429 1.496 1.496 0 0 0 1.673-.31zm5.204.052a1.5 1.5 0 1 0-2.122-2.118L6.072 23.94a1.5 1.5 0 1 0 2.122 2.118l3.002-2.998zm2.25 3a1.5 1.5 0 0 0-.945-2.555 1.489 1.489 0 0 0-1.173.44L9.323 25.94a1.5 1.5 0 0 0 .945 2.556c.455.036.874-.141 1.173-.44l2.005-1.996zm16.555-4.137.627-.542-6.913-10.85-12.27 1.985a1.507 1.507 0 0 0-1.235 1.737c.658 2.695 6.003.693 8.355-.601l11.436 8.271z" fill="#EF9645"/><path d="M16.536 26.929c-.07.267-.207.498-.389.681l-1.004.996a1.494 1.494 0 0 1-1.437.396 1.5 1.5 0 0 1-.683-2.512l1.004-.996a1.494 1.494 0 0 1 1.437-.396 1.502 1.502 0 0 1 1.072 1.831zM5.992 22.008l1.503-1.497a1.5 1.5 0 0 0-.444-2.429 1.497 1.497 0 0 0-1.674.31l-1.503 1.497a1.5 1.5 0 0 0 .445 2.429 1.496 1.496 0 0 0 1.673-.31zm5.204.052a1.5 1.5 0 1 0-2.122-2.118L6.072 22.94a1.5 1.5 0 1 0 2.122 2.118l3.002-2.998zm2.25 3a1.5 1.5 0 0 0-.945-2.555 1.489 1.489 0 0 0-1.173.44L9.323 24.94a1.5 1.5 0 0 0 .945 2.556c.455.036.874-.141 1.173-.44l2.005-1.996zm21.557-7.456a1.45 1.45 0 0 0 .269-1.885l-.003-.005-3.467-6.521a1.488 1.488 0 0 0-1.794-.6c-1.992.771-4.174 1.657-6.292.937l-1.098-.377c-1.948-.675-4.066-1.466-6-.294-.695.409-1.738 1.133-2.411 1.58a6.873 6.873 0 0 1-2.762 1.076 1.502 1.502 0 0 0-1.235 1.737c.613 2.512 5.3.908 7.838-.369a.968.968 0 0 1 1.002.081l11.584 8.416 4.369-3.776z" fill="#FFCC4D"/></svg> Need help with your ${calcName} project?`,
+      B: rtl ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#9A4E1C" d="M32 8h-6V4c0-2.209-1.791-4-4-4h-8c-2.209 0-4 1.791-4 4v4H4c-2.209 0-4 1.791-4 4v20c0 2.209 1.791 4 4 4h28c2.209 0 4-1.791 4-4V12c0-2.209-1.791-4-4-4zM12 6c0-1.104.896-2 2-2h8c1.104 0 2 .896 2 2v2H12V6z"/><path fill="#662113" d="M36 20c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4v-8c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v8z"/><path fill="#9A4E1C" d="M36 18c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4v-6c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v6z"/><path fill="#CCD6DD" d="M22 18c0 1.104-.896 2-2 2h-4c-1.104 0-2-.896-2-2s.896-2 2-2h4c1.104 0 2 .896 2 2"/></svg> مستشار بوندز جاهز لمساعدتك في ${calcName}` : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#9A4E1C" d="M32 8h-6V4c0-2.209-1.791-4-4-4h-8c-2.209 0-4 1.791-4 4v4H4c-2.209 0-4 1.791-4 4v20c0 2.209 1.791 4 4 4h28c2.209 0 4-1.791 4-4V12c0-2.209-1.791-4-4-4zM12 6c0-1.104.896-2 2-2h8c1.104 0 2 .896 2 2v2H12V6z"/><path fill="#662113" d="M36 20c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4v-8c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v8z"/><path fill="#9A4E1C" d="M36 18c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4v-6c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v6z"/><path fill="#CCD6DD" d="M22 18c0 1.104-.896 2-2 2h-4c-1.104 0-2-.896-2-2s.896-2 2-2h4c1.104 0 2 .896 2 2"/></svg> A Bonds advisor is ready to help with ${calcName}`
     }
   };
 
@@ -1422,8 +1429,8 @@ async function unsubscribeLeadHandler(req, res) {
 
     const rtl = req.headers['accept-language']?.startsWith('ar');
     const message = rtl
-      ? '✅ تم إلغاء اشتراكك بنجاح. لن تتلقى المزيد من رسائل الحاسبات.'
-      : '✅ You have been unsubscribed successfully. You will no longer receive calculator emails.';
+      ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> تم إلغاء اشتراكك بنجاح. لن تتلقى المزيد من رسائل الحاسبات."
+      : "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#77B255\" d=\"M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z\"/><path fill=\"#FFF\" d=\"M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z\"/></svg> You have been unsubscribed successfully. You will no longer receive calculator emails.";
     return res.status(200).send(`<html lang="${rtl?'ar':'en'}" dir="${rtl?'rtl':'ltr'}"><body style="font-family:Arial;padding:2rem;text-align:center;"><h2>${message}</h2></body></html>`);
   } catch (err) {
     console.error('[unsubscribe-lead] Error:', err);
@@ -1767,50 +1774,82 @@ async function leadCaptureHandler(req, res) {
 
   try {
     const body = req.body || {};
-    const email = String(body.email || '').trim().toLowerCase();
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Valid email required' });
+    const emailRaw = String(body.email || '').trim().toLowerCase();
+    const phoneRaw = String(body.phone || '').trim();
+    const cityRaw = String(body.city || '').trim();
+    const activityRaw = String(body.business_activity || body.activity || '').trim();
+    const countryRaw = String(body.country || '').trim();
+
+    const notes = [];
+    let email = null;
+    let emailHash = null;
+    if (!emailRaw) {
+      notes.push('missing email');
+    } else if (!isValidEmail(emailRaw)) {
+      notes.push('invalid email');
+      email = emailRaw.slice(0, 255);
+      emailHash = crypto.createHash('sha256').update(email).digest('hex');
+    } else {
+      email = emailRaw.slice(0, 255);
+      emailHash = crypto.createHash('sha256').update(email).digest('hex');
     }
+
+    if (phoneRaw && !isValidPhone(phoneRaw)) notes.push('invalid phone');
+    if (!cityRaw) notes.push('missing city');
+    if (!activityRaw) notes.push('missing business activity');
+    if (!countryRaw) notes.push('missing country');
+
+    const validationStatus = notes.length === 0 ? 'valid' : 'invalid';
 
     const supabase = getSupabase();
     const ip = getClientIp(req);
     const unsubscribeToken = crypto.randomBytes(32).toString('hex');
-    const emailHash = crypto.createHash('sha256').update(email).digest('hex');
-    const { data: insertedLead, error } = await supabase.from('calculator_leads').insert([{
+
+    const insertPayload = {
       email,
       email_hash: emailHash,
+      phone: phoneRaw ? phoneRaw.slice(0, 50) : null,
       calculator: String(body.calculator || '').slice(0, 64) || 'unknown',
-      country: String(body.country || '').slice(0, 8) || null,
+      country: countryRaw ? countryRaw.slice(0, 8) : null,
+      city: cityRaw ? cityRaw.slice(0, 100) : null,
+      business_activity: activityRaw ? activityRaw.slice(0, 100) : null,
       lang: String(body.lang || '').slice(0, 8) || null,
       session_id: String(body.session_id || '').slice(0, 64) || null,
       source: String(body.source || 'exit_intent').slice(0, 32),
       url: String(body.url || '').slice(0, 512) || null,
       metadata: body.metadata || {},
-      unsubscribe_token: unsubscribeToken
-    }]).select('id, email, email_hash, calculator, country, lang, url, unsubscribe_token').single();
+      unsubscribe_token: unsubscribeToken,
+      validation_status: validationStatus,
+      validation_notes: notes.join(', ') || null
+    };
+
+    const { data: insertedLead, error } = await supabase.from('calculator_leads').insert([insertPayload]).select('id, email, email_hash, calculator, country, lang, url, unsubscribe_token, validation_status').single();
 
     if (error) throw error;
 
-    // Send immediate welcome email
-    sendCalculatorEmail(supabase, insertedLead || {
-      email,
-      calculator: String(body.calculator || '').slice(0, 64) || 'unknown',
-      country: String(body.country || '').slice(0, 8) || null,
-      lang: String(body.lang || '').slice(0, 8) || null,
-      url: String(body.url || '').slice(0, 512) || null,
-      unsubscribe_token: unsubscribeToken
-    }, 0).catch(() => {});
+    // Send immediate welcome email only when email looks valid
+    if (email && isValidEmail(email)) {
+      sendCalculatorEmail(supabase, insertedLead || {
+        email,
+        calculator: insertPayload.calculator,
+        country: insertPayload.country,
+        lang: insertPayload.lang,
+        url: insertPayload.url,
+        unsubscribe_token: unsubscribeToken
+      }, 0).catch(() => {});
+    }
 
     // Notify admins (throttled)
     notifyAdminsConversionEvent('lead', {
-      calculator: String(body.calculator || '').slice(0, 64) || 'unknown',
-      country: String(body.country || '').slice(0, 8) || null,
-      lang: String(body.lang || '').slice(0, 8) || null,
-      email: email,
-      url: String(body.url || '').slice(0, 512) || null
+      calculator: insertPayload.calculator,
+      country: insertPayload.country,
+      lang: insertPayload.lang,
+      email: email || '—',
+      url: insertPayload.url,
+      validation_status: validationStatus
     }).catch(() => {});
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, validation_status: validationStatus });
   } catch (err) {
     console.error('[lead-capture] Error:', err);
     return res.status(500).json({ success: false, error: 'Failed to capture lead' });

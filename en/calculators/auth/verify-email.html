@@ -13,6 +13,7 @@
     .container{width:100%;max-width:420px;text-align:center}
     .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-10) var(--space-6)}
     .icon{font-size:4rem;margin-bottom:var(--space-6);display:block}
+    .icon svg{width:1em;height:1em;display:block;margin:0 auto}
     h1{font-size:1.5rem;font-weight:800;margin-bottom:var(--space-4);color:var(--gold)}
     p{color:var(--text-secondary);font-size:1rem;line-height:1.7;margin-bottom:var(--space-6)}
     .brand{color:var(--gold);font-weight:700}
@@ -32,12 +33,12 @@
 
   <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
 
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="container">
     <div class="card">
-      <span class="icon">📧</span>
+      <span class="icon" data-icon="mail"></span>
       <h1>Account Created Successfully!</h1>
       <p>
         Your account has been created at <span class="brand">Bonds Financial Consultancy</span>.<br><br>
@@ -48,5 +49,16 @@
     </div>
   </div>
   <script src="../../../page-tracker-v2.js"></script>
+<script src="../../../components/ecc-icons.js"></script>
+<script>
+(function () {
+  if (!window.EccIcons) return;
+  document.querySelectorAll('.icon[data-icon]').forEach(function (el) {
+    el.innerHTML = window.EccIcons.get(el.dataset.icon);
+  });
+})();
+</script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

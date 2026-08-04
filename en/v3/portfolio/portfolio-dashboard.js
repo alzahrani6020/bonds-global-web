@@ -259,7 +259,7 @@
     if (!projects.length) {
       return `
         <div class="ecc-card projects-section empty-state">
-          <div class="empty-state__icon">📁</div>
+          <div class="empty-state__icon"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#269" d="M0 29c0 2.209 1.791 4 4 4h24c2.209 0 4-1.791 4-4V12c0-2.209-1.791-4-4-4h-9c-3.562 0-3-5-8.438-5H4C1.791 3 0 4.791 0 7v22z"/><path fill="#55ACEE" d="M30 10h-6.562C18 10 18.562 15 15 15H6c-2.209 0-4 1.791-4 4v10c0 .553-.448 1-1 1s-1-.447-1-1c0 2.209 1.791 4 4 4h26c2.209 0 4-1.791 4-4V14c0-2.209-1.791-4-4-4z"/></svg></div>
           <div class="empty-state__title">No projects yet</div>
           <p class="empty-state__text">Create your first project. In a few steps you'll get a feasibility study, risk assessment, and financing options.</p>
           ${canCreate ? `<div class="empty-state__actions"><button type="button" class="ecc-btn ecc-btn--primary" onclick="PortfolioDashboard.createProject()">${icon('plus', 16)} Create New Project</button><button type="button" class="ecc-btn ecc-btn--secondary" onclick="PortfolioDashboard.createDemoProject()">${icon('sparkles', 16)} Try a demo project</button></div>` : ''}
@@ -482,7 +482,7 @@
         <ul class="getting-started__list">
           ${steps.map(s => `
             <li class="getting-started__item">
-              <span class="getting-started__check ${s.done ? 'is-done' : ''}">${s.done ? '✓' : ''}</span>
+              <span class="getting-started__check ${s.done ? 'is-done' : ''}">${s.done ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" : ''}</span>
               <span class="getting-started__label ${s.done ? 'is-done' : ''}">${s.label}</span>
             </li>
           `).join('')}

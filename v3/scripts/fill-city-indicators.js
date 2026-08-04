@@ -11,7 +11,7 @@ const { Client } = require('pg');
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -151,9 +151,9 @@ async function main() {
       if (inserted % 100 === 0) console.log(`Inserted ${inserted}...`);
     }
 
-    console.log(`\n✅ Done. Inserted ${inserted} indicator rows. Skipped ${skipped}.`);
+    console.log(`\n Done. Inserted ${inserted} indicator rows. Skipped ${skipped}.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     process.exit(1);
   } finally {
     await client.end();

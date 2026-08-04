@@ -190,7 +190,7 @@ const OFFICIAL_DATA = {
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -223,12 +223,12 @@ async function main() {
         `, [countryCode, year, metric.code, metric.value, data.source, 90, JSON.stringify({ official: true })]);
         inserted++;
       }
-      console.log(`✓ ${countryCode}: 5 official metrics inserted`);
+      console.log(` ${countryCode}: 5 official metrics inserted`);
     }
 
-    console.log(`\n✅ Done. Inserted/updated ${inserted} official country metrics.`);
+    console.log(`\n Done. Inserted/updated ${inserted} official country metrics.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     process.exit(1);
   } finally {
     await client.end();

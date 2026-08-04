@@ -70,10 +70,10 @@ async function main() {
         year
       });
       success++;
-      console.log(`✅ ${city.name_ar} (${city.code})`);
+      console.log(` ${city.name_ar} (${city.code})`);
     } catch (err) {
       failed++;
-      console.warn(`❌ ${city.name_ar} (${city.code}):`, err.message);
+      console.warn(` ${city.name_ar} (${city.code}):`, err.message);
     }
   }
 

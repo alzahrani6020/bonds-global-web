@@ -21,7 +21,9 @@
     "setup:supabase": "node scripts/setup-supabase.js",
     "setup:stripe": "node scripts/setup-stripe.js",
     "regenerate:platforms": "node scripts/extract-platform-data.js",
-    "regenerate:geo": "node scripts/update-geo-from-geonames.js",
+    "regenerate:geo": "node scripts/update-geo-from-geonames.js && node scripts/extract-geo-data.js",
+    "regenerate:geo-chunks": "node scripts/extract-geo-data.js",
+    "regenerate:calculator-status": "node scripts/generate-calculator-status.js",
     "bump:cache": "node scripts/bump-cache-version.js"
   },
   "dependencies": {
@@ -42,6 +44,7 @@
     "pixelmatch": "^5.3.0",
     "playwright": "^1.61.0",
     "pngjs": "^7.0.0",
+    "twemoji": "^14.0.2",
     "vercel": "^56.3.2"
   },
   "overrides": {

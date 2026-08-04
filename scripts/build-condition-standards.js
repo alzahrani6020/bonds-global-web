@@ -436,7 +436,7 @@ const sqlPath = path.join(root, 'supabase', 'migrations', '20260714000000_condit
 fs.writeFileSync(jsPath, generateJs(), 'utf8');
 fs.writeFileSync(sqlPath, generateSql(), 'utf8');
 
-console.log(`✓ Wrote ${jsPath}`);
-console.log(`✓ Wrote ${sqlPath}`);
-console.log(`✓ Total master points: ${MASTER_POINTS.length}`);
-console.log(`✓ Asset classes covered: ${Object.keys(ASSET_CLASS_LABELS).length}`);
+console.log(` Wrote ${jsPath}`);
+console.log(` Wrote ${sqlPath}`);
+console.log(` Total master points: ${MASTER_POINTS.length}`);
+console.log(` Asset classes covered: ${Object.keys(ASSET_CLASS_LABELS).length}`);

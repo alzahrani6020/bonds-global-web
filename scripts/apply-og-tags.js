@@ -123,7 +123,7 @@ for (const file of files) {
 
   if (html !== originalHtml) {
     fs.writeFileSync(file, html, 'utf8');
-    console.log(`✅ ${relPath}`);
+    console.log(` ${relPath}`);
     updated++;
   } else {
     skipped++;

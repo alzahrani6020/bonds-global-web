@@ -108,15 +108,19 @@
   100% { transform: translateX(-50%); }
 }
 
+body {
+  overflow-x: visible !important;
+}
+
 /* ---------- Hero Redesign ---------- */
 .fi-hero {
   position: relative;
-  padding: calc(var(--header-height) + 3.5rem) 0 5rem;
+  padding: calc(var(--header-height) + 3.5rem) 1.5rem 5rem;
   background:
     radial-gradient(ellipse at 70% 30%, rgba(212, 168, 83, 0.08) 0%, transparent 45%),
     radial-gradient(ellipse at 30% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 40%),
     linear-gradient(180deg, #070b14 0%, #0a0f1a 100%);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .fi-hero::before {
@@ -135,13 +139,32 @@
 .fi-hero__grid {
   position: relative;
   z-index: 1;
-  max-width: var(--container-wide, 1440px);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 4rem;
+  padding: 0;
+  display: flex;
+  gap: 1.5rem;
   align-items: center;
+  justify-content: center;
+}
+
+.fi-hero__content,
+.fi-dashboard {
+  flex: 1 1 calc(50% - 0.75rem);
+  min-width: 0;
+  max-width: calc(50% - 0.75rem);
+  opacity: 1 !important;
+  animation: none !important;
+}
+
+[dir="rtl"] .fi-hero__grid {
+  flex-direction: row-reverse;
+}
+
+[dir="ltr"] .fi-hero__grid {
+  flex-direction: row;
 }
 
 .fi-hero__est {
@@ -167,7 +190,7 @@
 
 .fi-hero__title {
   font-family: var(--font);
-  font-size: clamp(2.8rem, 5.5vw, 5rem);
+  font-size: clamp(2.4rem, 4.5vw, 4.2rem);
   font-weight: 800;
   line-height: 1.15;
   color: var(--text);
@@ -180,9 +203,9 @@
 }
 
 .fi-hero__subtitle {
-  max-width: 520px;
+  max-width: 620px;
   color: rgba(232, 236, 244, 0.75);
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   line-height: 1.8;
   margin-bottom: 1rem;
 }
@@ -203,6 +226,8 @@
   gap: 1rem;
   flex-wrap: wrap;
 }
+
+[dir="rtl"] .fi-hero__cta { justify-content: flex-end; }
 
 .fi-btn {
   display: inline-flex;
@@ -249,7 +274,7 @@
   backdrop-filter: blur(20px);
   border: 1px solid rgba(197, 160, 40, 0.15);
   border-radius: var(--radius-lg, 24px);
-  padding: 1.5rem;
+  padding: 2rem;
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.25);
 }
 
@@ -394,10 +419,23 @@
 }
 
 /* ---------- Responsive ---------- */
+@media (max-width: 1200px) {
+  .fi-hero__grid {
+    padding: 0 1.5rem;
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 1100px) {
   .fi-hero__grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 3rem;
+  }
+
+  .fi-hero__content,
+  .fi-dashboard {
+    flex: 1 1 auto;
+    width: 100%;
   }
 
   .fi-dashboard {

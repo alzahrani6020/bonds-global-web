@@ -369,9 +369,9 @@ async function main() {
     await importCities(client, parseCsv(path.join(dataDir, 'cities.csv')));
     await importCities(client, parseCsv(path.join(dataDir, 'special-city-types.csv')));
 
-    console.log('\n✅ Master data import complete');
+    console.log("\n Master data import complete");
   } catch (err) {
-    console.error('\n❌ Import failed:', err.message);
+    console.error("\n Import failed:", err.message);
     throw err;
   } finally {
     await client.end();

@@ -66,4 +66,4 @@ html = html.replace(
 );
 
 fs.writeFileSync(inputPath, html, 'utf8');
-console.log('✅ Added inline footers before', indices.length - 1, 'sections');
+console.log(" Added inline footers before", indices.length - 1, 'sections');

@@ -59,6 +59,7 @@
   <div id="site-footer"></div>
 
   <script src="bonds-auth-2026.js?v=3.0.7"></script>
+  <script src="/lib/bonds-common.js"></script>
   <script src="site-layout.js?v=3.1.0"></script>
   <script>
     async function loadAdvisors() {
@@ -77,16 +78,16 @@
           <article class="advisor-card">
             <div class="advisor-header">
               <div class="advisor-avatar">
-                ${advisor.avatar_url ? `<img src="${advisor.avatar_url}" alt="${escapeHtml(advisor.name)}">` : advisor.name.charAt(0)}
+                ${advisor.avatar_url ? `<img src="${advisor.avatar_url}" alt="${BondsCommon.escapeHtml(advisor.name)}">` : advisor.name.charAt(0)}
               </div>
               <div>
-                <div class="advisor-name">${escapeHtml(advisor.name)}</div>
-                <div class="advisor-title">${escapeHtml(advisor.title || '')}</div>
+                <div class="advisor-name">${BondsCommon.escapeHtml(advisor.name)}</div>
+                <div class="advisor-title">${BondsCommon.escapeHtml(advisor.title || '')}</div>
               </div>
             </div>
-            <p class="advisor-bio">${escapeHtml(advisor.bio || '')}</p>
+            <p class="advisor-bio">${BondsCommon.escapeHtml(advisor.bio || '')}</p>
             <div class="advisor-tags">
-              ${(advisor.specializations || []).map(s => `<span class="advisor-tag">${escapeHtml(s)}</span>`).join('')}
+              ${(advisor.specializations || []).map(s => `<span class="advisor-tag">${BondsCommon.escapeHtml(s)}</span>`).join('')}
             </div>
             <div class="advisor-meta">
               <span>${advisor.years_experience || 0}+ سنة خبرة</span>
@@ -101,14 +102,10 @@
       }
     }
 
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
 
     loadAdvisors();
   </script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

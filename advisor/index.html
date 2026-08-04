@@ -36,7 +36,7 @@
     .advisor-empty { color: var(--text-secondary); padding: 1rem 0; }
     .advisor-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
   </style>
-  <script src="/global-auth-gate.js?v=1"></script>
+  <script src="/global-auth-gate.js?v=2"></script>
 </head>
 <body>
   <div id="advisorApp">
@@ -44,6 +44,7 @@
   </div>
 
   <script src="../bonds-auth-2026.js?v=3.0.7"></script>
+  <script src="/lib/bonds-common.js"></script>
   <script>
     const IS_EN = false;
 
@@ -79,8 +80,8 @@
         <div class="advisor-layout">
           <main class="advisor-main">
             <div class="advisor-header">
-              <h1>مرحباً، ${escapeHtml(advisor.name)}</h1>
-              <p>${escapeHtml(advisor.title || '')} · نسبة العمولة ${advisor.commission_rate}%</p>
+              <h1>مرحباً، ${BondsCommon.escapeHtml(advisor.name)}</h1>
+              <p>${BondsCommon.escapeHtml(advisor.title || '')} · نسبة العمولة ${advisor.commission_rate}%</p>
             </div>
 
             <div class="advisor-stats">
@@ -99,8 +100,8 @@
                     ${assignments.map(a => `
                       <tr>
                         <td><span class="advisor-status advisor-status--${a.status}">${statusLabel(a.status)}</span></td>
-                        <td>${escapeHtml(a.ai_requests?.type || '-')}</td>
-                        <td>${escapeHtml(a.note || '-')}</td>
+                        <td>${BondsCommon.escapeHtml(a.ai_requests?.type || '-')}</td>
+                        <td>${BondsCommon.escapeHtml(a.note || '-')}</td>
                         <td>${formatDate(a.created_at)}</td>
                         <td>${actionButtons(a)}</td>
                       </tr>
@@ -118,7 +119,7 @@
                   <tbody>
                     ${earnings.map(e => `
                       <tr>
-                        <td>${escapeHtml(e.description)}</td>
+                        <td>${BondsCommon.escapeHtml(e.description)}</td>
                         <td>${e.gross_amount.toFixed(2)} ر.س</td>
                         <td>${e.commission_amount.toFixed(2)} ر.س</td>
                         <td>${e.net_amount.toFixed(2)} ر.س</td>
@@ -178,14 +179,10 @@
       return new Date(d).toLocaleDateString('ar-SA');
     }
 
-    function escapeHtml(text) {
-      if (!text) return '';
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
 
     init();
   </script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

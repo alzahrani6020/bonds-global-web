@@ -61,6 +61,21 @@
   box-shadow: 0 0 0 3px rgba(34,197,94,0.12) !important;
 }
 
+/* Inline SVG icon inside input labels */
+.input-label-icon {
+  display: inline-flex;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.15em;
+  margin-inline-end: 0.35em;
+  color: var(--bonds-gold);
+}
+.input-label-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
 /* ===== BUTTONS ===== */
 .bonds-btn {
   display: inline-flex;

@@ -1,0 +1,16 @@
+{
+  "generatedAt": "2026-07-30T22:16:48.097Z",
+  "categories": [
+    { "id": "structural", "labelAr": "إنشائي / فيزيائي", "labelEn": "Structural / Physical" },
+    { "id": "mechanical", "labelAr": "ميكانيكي / وظيفي", "labelEn": "Mechanical / Functional" },
+    { "id": "electrical", "labelAr": "كهربائي / إلكتروني", "labelEn": "Electrical / Electronics" },
+    { "id": "safety", "labelAr": "سلامة / امتثال", "labelEn": "Safety / Compliance" },
+    { "id": "environmental", "labelAr": "بيئي / استدامة", "labelEn": "Environmental / ESG" },
+    { "id": "maintenance", "labelAr": "صيانة / سجلات", "labelEn": "Maintenance / Records" },
+    { "id": "operational", "labelAr": "تشغيلي / استخدام", "labelEn": "Operational / Utilization" },
+    { "id": "aesthetic", "labelAr": "جمالي / مظهري", "labelEn": "Aesthetics / Cosmetic" },
+    { "id": "documentation", "labelAr": "توثيق / قانوني", "labelEn": "Documentation / Legal" },
+    { "id": "technology", "labelAr": "تقني / عدم ملاءمة", "labelEn": "Technology / Obsolescence" }
+  ],
+  "pointTypes": ["0-5", "0-10", "yes/no", "pass/fail", "numeric"]
+}

@@ -22,7 +22,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="auth-container">
@@ -40,11 +40,17 @@
       <form id="resetForm">
         <div class="form-group">
           <label for="newPassword">كلمة المرور الجديدة</label>
-          <input type="password" id="newPassword" required minlength="8" autocomplete="new-password" placeholder="8 أحرف على الأقل" dir="ltr" />
+          <div class="pw-wrap">
+            <input type="password" id="newPassword" required minlength="8" autocomplete="new-password" placeholder="8 أحرف على الأقل" dir="ltr" />
+            <button type="button" class="pw-toggle" data-target="newPassword" title="إظهار/إخفاء"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
         </div>
         <div class="form-group">
           <label for="confirmPassword">تأكيد كلمة المرور</label>
-          <input type="password" id="confirmPassword" required autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" dir="ltr" />
+          <div class="pw-wrap">
+            <input type="password" id="confirmPassword" required autocomplete="new-password" placeholder="أعد كتابة كلمة المرور" dir="ltr" />
+            <button type="button" class="pw-toggle" data-target="confirmPassword" title="إظهار/إخفاء"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></button>
+          </div>
         </div>
         <button type="submit" class="btn btn-primary">تحديث كلمة المرور</button>
       </form>
@@ -73,11 +79,29 @@
         showSuccess('تم تحديث كلمة المرور! جاري التوجيه...');
         setTimeout(function(){window.location.href='index.html';},1500);
       });
+      // Password visibility toggle
+      const eyeSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>';
+      const eyeOffSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7c.78 0 1.53-.09 2.24-.26"/><path d="M2 2l20 20"/></svg>';
+      function setPwToggleIcon(btn, isVisible) {
+        btn.innerHTML = isVisible ? eyeOffSvg : eyeSvg;
+        btn.setAttribute('aria-pressed', String(isVisible));
+      }
+      document.querySelectorAll('.pw-toggle').forEach(function(btn) {
+        setPwToggleIcon(btn, false);
+        btn.addEventListener('click', function() {
+          var input = document.getElementById(btn.dataset.target);
+          var visible = input.type === 'password';
+          input.type = visible ? 'text' : 'password';
+          setPwToggleIcon(btn, visible);
+        });
+      });
     })();
   </script>
 <script>
 
 </script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

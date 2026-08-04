@@ -105,9 +105,9 @@
             <span class="metric-value" id="annualCashFlow">—</span>
           </div>
           <div class="share-bar" style="margin-top:1.5rem;justify-content:center;">
-            <button onclick="checkAuthForAction('save', saveROIProject)" class="btn btn-outline calc-btn-sm">💾 Save Project</button>
-            <button onclick="checkAuthForAction('pdf', function(){ window.print(); })" class="btn btn-outline calc-btn-sm">🖨️ Print</button>
-            <button onclick="checkAuthForAction('v3', convertROIToV3)" class="btn btn-primary calc-btn-sm" style="background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c0c;border:none;">🚀 Convert to V3 Project</button>
+            <button onclick="checkAuthForAction('save', saveROIProject)" class="btn btn-outline calc-btn-sm"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M4 36s-4 0-4-4V4s0-4 4-4h26c1 0 2 1 2 1l3 3s1 1 1 2v26s0 4-4 4H4z"/><path fill="#55ACEE" d="M5 19v-1s0-2 2-2h21c2 0 2 2 2 2v1H5z"/><path fill="#E1E8ED" d="M5 32.021V19h25v13s0 2-2 2H7c-2 0-2-1.979-2-1.979zM10 3s0-1 1-1h18c1.048 0 1 1 1 1v10s0 1-1 1H11s-1 0-1-1V3zm12 10h5V3h-5v10z"/></svg></span> Save Project</button>
+            <button onclick="checkAuthForAction('pdf', function(){ window.print(); })" class="btn btn-outline calc-btn-sm"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#67757F" d="M30 12H6V5c0-1.105.826-2 1.846-2h20.309C29.173 3 30 3.895 30 5v7zm0 19c0 1.104-.896 2-2 2H8c-1.104 0-2-.896-2-2v-3h24v3z"/><path fill="#E1E8ED" d="M27 12H9V2c0-1.105.896-2 2-2h14c1.104 0 2 .896 2 2v10z"/><path fill="#5DADEC" d="M34 25c0 1-1 3-3 3H5c-2 0-3-2-3-3v-9c0-2.209 1.791-4 4-4h24c2.209 0 4 1.791 4 4v9z"/><path fill="#292F33" d="M30 25c0-1.104-.978-2-2.182-2H8.182C6.977 23 6 23.896 6 25v4h24v-4z"/><path fill="#4289C1" d="M30 15c0 1.104-.896 2-2 2H8c-1.104 0-2-.896-2-2v-4h24v4z"/><path fill="#E1E8ED" d="M27 34c0 1.104-.896 2-2 2H11c-1.104 0-2-.896-2-2v-8h18v8z"/><path fill="#9AAAB4" d="M25 29c0 .553-.447 1-1 1H12c-.552 0-1-.447-1-1 0-.553.448-1 1-1h12c.553 0 1 .447 1 1z"/><circle fill="#F5F8FA" cx="30.5" cy="19.5" r="1.5"/><path fill="#9AAAB4" d="M25 32c0 .553-.447 1-1 1H12c-.552 0-1-.447-1-1 0-.553.448-1 1-1h12c.553 0 1 .447 1 1zM9 25h18v2H9z"/></svg></span>️ Print</button>
+            <button onclick="checkAuthForAction('v3', convertROIToV3)" class="btn btn-primary calc-btn-sm" style="background:linear-gradient(135deg,#d4a853,#f0c96a);color:#0c0c0c;border:none;"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg></span> Convert to V3 Project</button>
           </div>
         </div>
       </div>
@@ -447,5 +447,7 @@
   });
 })();
 </script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

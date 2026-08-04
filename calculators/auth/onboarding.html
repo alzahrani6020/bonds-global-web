@@ -24,7 +24,7 @@
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="auth-container">
@@ -50,22 +50,22 @@
       <div id="errorMsg" class="error-msg"></div>
       <div id="successMsg" class="success-msg"></div>
 
-      <form id="onboardingForm">
+      <form id="onboardingForm" novalidate>
         <div class="form-group">
-          <label for="restaurantName">اسم المطعم / الشركة *</label>
-          <input type="text" id="restaurantName" required placeholder="مثال: مطعم الذواقة" />
+          <label for="restaurantName">اسم المطعم / الشركة</label>
+          <input type="text" id="restaurantName" placeholder="مثال: مطعم الذواقة" />
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label for="country">الدولة *</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country" required>
+            <label for="country">الدولة</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50" id="country">
               <option value="">اختر الدولة</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="governorate">المحافظة / المنطقة *</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="governorate" required>
+            <label for="governorate">المحافظة / المنطقة</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="governorate">
               <option value="">اختر المحافظة</option>
             </select>
           </div>
@@ -73,21 +73,21 @@
 
         <div class="row">
           <div class="form-group">
-            <label for="city">المدينة *</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city" required>
+            <label for="city">المدينة</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city">
               <option value="">اختر المدينة</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="phone">رقم الجوال *</label>
-            <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="05xxxxxxxx" dir="ltr" />
+            <label for="phone">رقم الجوال</label>
+            <input type="tel" id="phone" inputmode="numeric" autocomplete="tel" placeholder="05xxxxxxxx" dir="ltr" />
           </div>
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label for="businessType">نوع النشاط التجاري *</label>
-            <select data-universal-dropdown="true" id="businessType" required>
+            <label for="businessType">نوع النشاط التجاري</label>
+            <select data-universal-dropdown="true" id="businessType">
               <option value="">اختر النشاط</option>
               <option value="restaurant">مطعم / مطعم سريع</option>
               <option value="cafe">مقهى</option>
@@ -100,30 +100,30 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="employeeCount">عدد الموظفين *</label>
-            <input type="number" id="employeeCount" required min="0" inputmode="numeric" placeholder="مثال: 12" />
+            <label for="employeeCount">عدد الموظفين</label>
+            <input type="number" id="employeeCount" min="0" inputmode="numeric" placeholder="مثال: 12" />
           </div>
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label for="branchCount">عدد فروع المنشأة *</label>
-            <input type="number" id="branchCount" required min="1" inputmode="numeric" placeholder="مثال: 1" />
+            <label for="branchCount">عدد فروع المنشأة</label>
+            <input type="number" id="branchCount" min="1" inputmode="numeric" placeholder="مثال: 1" />
           </div>
           <div class="form-group">
-            <label for="bio">نبذة عن المشروع *</label>
-            <textarea id="bio" required rows="3" placeholder="اكتب نبذة مختصرة عن مشروعك..."></textarea>
+            <label for="bio">نبذة عن المشروع</label>
+            <textarea id="bio" rows="3" placeholder="اكتب نبذة مختصرة عن مشروعك..."></textarea>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="needs">الاحتياجات والخدمات المطلوبة *</label>
-          <textarea id="needs" required rows="3" placeholder="مثال: تحليل مالي، دراسة جدوى متكاملة، تسعير..."></textarea>
+          <label for="needs">الاحتياجات والخدمات المطلوبة</label>
+          <textarea id="needs" rows="3" placeholder="مثال: تحليل مالي، دراسة جدوى متكاملة، تسعير..."></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary" id="saveBtn">
           <span class="spinner"></span>
-          <span class="btn-text">💾 حفظ والمتابعة</span>
+          <span class="btn-text"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M4 36s-4 0-4-4V4s0-4 4-4h26c1 0 2 1 2 1l3 3s1 1 1 2v26s0 4-4 4H4z"/><path fill="#55ACEE" d="M5 19v-1s0-2 2-2h21c2 0 2 2 2 2v1H5z"/><path fill="#E1E8ED" d="M5 32.021V19h25v13s0 2-2 2H7c-2 0-2-1.979-2-1.979zM10 3s0-1 1-1h18c1.048 0 1 1 1 1v10s0 1-1 1H11s-1 0-1-1V3zm12 10h5V3h-5v10z"/></svg></span> حفظ والمتابعة</span>
         </button>
         <button type="button" class="btn btn-secondary" id="skipBtn" style="margin-top:0.75rem;width:100%;">⏭️ تخطي الآن (إكمال لاحقاً)</button>
       </form>
@@ -134,8 +134,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script src="/calculators/auth/lead-conversion.js?v=1"></script>
-  <script src="../../v3/master-data/countries-governorates-cities.js"></script>
-  <script src="../../calculators/shared-geo.js?v=6"></script>
+  <script src="../../calculators/shared-geo.js?v=7"></script>
 
   <script>
     (function() {
@@ -213,11 +212,11 @@
 
         const country = countrySelect.value;
         const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
-        if (!isValidPhone(phone, country)) {
-          setLoading(false);
-          return showError(country === 'SA'
-            ? 'رقم الجوال يجب أن يبدأ بـ 05 أو +9665 ويتكون من 10 أرقام'
-            : 'رقم الجوال غير صالح — أدخل رقم محلي أو دولي (مثلاً +20xxxxxxxx)');
+        // Allow empty/invalid phone; backend tracks validation_status for leads.
+        const phoneInvalid = phone && !isValidPhone(phone, country);
+        if (phoneInvalid) {
+          // Non-blocking warning only
+          console.warn('[onboarding] phone looks invalid, saving anyway:', phone);
         }
 
         const selectedCity = citySelect.options[citySelect.selectedIndex];
@@ -288,5 +287,7 @@
   <script src="../../page-tracker-v2.js"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

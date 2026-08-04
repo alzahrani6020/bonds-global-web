@@ -21,12 +21,12 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="container">
     <div class="card">
-      <span class="icon">📧</span>
+      <span class="icon" data-icon="mail"></span>
       <h1>تم إنشاء الحساب بنجاح!</h1>
       <p>
         تم إنشاء حسابك في <span class="brand">Bonds للاستشارات المالية</span>.<br><br>
@@ -40,5 +40,16 @@
 
 </script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="../../components/ecc-icons.js"></script>
+<script>
+(function () {
+  if (!window.EccIcons) return;
+  document.querySelectorAll('.icon[data-icon]').forEach(function (el) {
+    el.innerHTML = window.EccIcons.get(el.dataset.icon);
+  });
+})();
+</script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

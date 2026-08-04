@@ -78,7 +78,7 @@ function pseudoRandom(seed) {
 async function main() {
   const connectionString = process.env.SUPABASE_DB_URL || process.env.DATABASE_URL;
   if (!connectionString) {
-    console.error('❌ Please set SUPABASE_DB_URL or DATABASE_URL');
+    console.error(" Please set SUPABASE_DB_URL or DATABASE_URL");
     process.exit(1);
   }
 
@@ -220,9 +220,9 @@ async function main() {
       console.log(`Inserted batch ${Math.floor(i / batchSize) + 1} - ${Math.min(i + batchSize, rows.length)}`);
     }
 
-    console.log(`\n✅ Done. Updated ${updated} rows. Skipped ${skipped} high-confidence key-city rows.`);
+    console.log(`\n Done. Updated ${updated} rows. Skipped ${skipped} high-confidence key-city rows.`);
   } catch (err) {
-    console.error('❌ Error:', err.message);
+    console.error(" Error:", err.message);
     console.error(err.stack);
     process.exit(1);
   } finally {

@@ -112,6 +112,30 @@
       img.setAttribute('aria-hidden', 'true');
       return img;
     }
+    if (/^\s*<svg[>\s]/i.test(icon)) {
+      const span = document.createElement('span');
+      span.className = 'ud-icon';
+      span.innerHTML = icon;
+      span.setAttribute('aria-hidden', 'true');
+      return span;
+    }
+    if (typeof window !== 'undefined' && window.EccIcons && typeof window.EccIcons.has === 'function' && window.EccIcons.has(icon)) {
+      const span = document.createElement('span');
+      span.className = 'ud-icon';
+      span.innerHTML = window.EccIcons.get(icon);
+      span.setAttribute('aria-hidden', 'true');
+      return span;
+    }
+    if (typeof window !== 'undefined' && window.EmojiIcons && typeof window.EmojiIcons.get === 'function') {
+      const emojiSvg = window.EmojiIcons.get(icon);
+      if (emojiSvg) {
+        const span = document.createElement('span');
+        span.className = 'ud-icon';
+        span.innerHTML = emojiSvg;
+        span.setAttribute('aria-hidden', 'true');
+        return span;
+      }
+    }
     const span = document.createElement('span');
     span.className = 'ud-icon';
     span.textContent = icon;

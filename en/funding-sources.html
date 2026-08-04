@@ -135,7 +135,7 @@
 
   <section style="padding: 0 2rem;">
     <div class="project-match">
-      <h3>🔍 Find funding for your project</h3>
+      <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#9AAAB4" d="M27.388 24.642L24.56 27.47l-4.95-4.95 2.828-2.828z"/><path fill="#66757F" d="M34.683 29.11l-5.879-5.879c-.781-.781-2.047-.781-2.828 0l-2.828 2.828c-.781.781-.781 2.047 0 2.828l5.879 5.879c1.562 1.563 4.096 1.563 5.658 0 1.56-1.561 1.559-4.094-.002-5.656z"/><circle fill="#8899A6" cx="13.586" cy="13.669" r="13.5"/><circle fill="#BBDDF5" cx="13.586" cy="13.669" r="9.5"/></svg></span> Find funding for your project</h3>
       <div class="grid">
         <div>
           <label for="matchCountry">Country</label>
@@ -203,7 +203,7 @@
     </div>
 
     <div class="filter-actions">
-      <button class="btn-primary" id="searchBtn">🔍 Search</button>
+      <button class="btn-primary" id="searchBtn"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#9AAAB4" d="M27.388 24.642L24.56 27.47l-4.95-4.95 2.828-2.828z"/><path fill="#66757F" d="M34.683 29.11l-5.879-5.879c-.781-.781-2.047-.781-2.828 0l-2.828 2.828c-.781.781-.781 2.047 0 2.828l5.879 5.879c1.562 1.563 4.096 1.563 5.658 0 1.56-1.561 1.559-4.094-.002-5.656z"/><circle fill="#8899A6" cx="13.586" cy="13.669" r="13.5"/><circle fill="#BBDDF5" cx="13.586" cy="13.669" r="9.5"/></svg></span> Search</button>
       <button class="btn-outline" id="resetBtn">Reset</button>
     </div>
 
@@ -219,6 +219,7 @@
   <div id="site-footer"></div>
 
   <script src="../site-layout.js?v=3.1.0"></script>
+  <script src="/lib/bonds-common.js"></script>
   <script src="../script.js?v=5" defer></script>
   <script>
     (function() {
@@ -350,18 +351,11 @@
         return Number(n).toLocaleString('en-US');
       }
 
-      function debounce(fn, ms) {
-        let t;
-        return function() {
-          clearTimeout(t);
-          t = setTimeout(fn, ms);
-        };
-      }
 
       typeEl.addEventListener('change', render);
       countryEl.addEventListener('change', render);
-      sectorEl.addEventListener('input', debounce(render, 400));
-      searchEl.addEventListener('input', debounce(render, 400));
+      sectorEl.addEventListener('input', BondsCommon.debounce(render, 400));
+      searchEl.addEventListener('input', BondsCommon.debounce(render, 400));
       document.getElementById('searchBtn').addEventListener('click', load);
       document.getElementById('resetBtn').addEventListener('click', function(){
         typeEl.value = ''; countryEl.value = ''; sectorEl.value = ''; searchEl.value = '';
@@ -381,5 +375,7 @@
   </script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

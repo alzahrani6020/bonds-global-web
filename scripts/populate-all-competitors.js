@@ -292,7 +292,7 @@ async function main() {
     await syncTagToTargets(supabase, config.tag, config.targets, activityMap, year);
   }
 
-  console.log('\n✅ All competitor data populated.');
+  console.log("\n All competitor data populated.");
 }
 
 main().catch(err => {

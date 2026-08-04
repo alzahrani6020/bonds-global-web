@@ -87,10 +87,10 @@ async function main() {
   console.log('Redeploying Vercel...');
   await runCommand('npx', ['vercel', '--prod', '--yes']);
 
-  console.log('\n✅ Stripe webhook setup complete');
+  console.log("\n Stripe webhook setup complete");
 }
 
 main().catch(err => {
-  console.error('\n❌ Failed:', err.message);
+  console.error("\n Failed:", err.message);
   process.exit(1);
 });

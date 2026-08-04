@@ -21,7 +21,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="container">
@@ -82,7 +82,7 @@
           const needsOnboarding = !profile || !profile.city || !profile.business_type || !profile.bio || !profile.needs;
           if (needsOnboarding) {
             card.innerHTML = `
-              <span class="icon">🎉</span>
+              <span class="icon" data-icon="celebration"></span>
               <h1>تم تأكيد حسابك!</h1>
               <p>
                 مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
@@ -94,7 +94,7 @@
             const destination = authRedirect || '/calculators/dashboard.html';
             if (window.BondsLeadConversion) window.BondsLeadConversion.markConverted(user.email);
             card.innerHTML = `
-              <span class="icon">🎉</span>
+              <span class="icon" data-icon="celebration"></span>
               <h1>تم تأكيد حسابك!</h1>
               <p>
                 مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
@@ -106,7 +106,7 @@
           }
         }).catch(() => {
           card.innerHTML = `
-            <span class="icon">🎉</span>
+            <span class="icon" data-icon="celebration"></span>
             <h1>تم تأكيد حسابك!</h1>
             <p>
               مرحباً <strong>${user.user_metadata?.restaurant_name || user.email}</strong>!<br><br>
@@ -119,7 +119,7 @@
       } else {
         // No session — maybe already confirmed or token expired
         card.innerHTML = `
-          <span class="icon">✅</span>
+          <span class="icon" data-icon="checkCircle"></span>
           <h1>تم تأكيد الحساب!</h1>
           <p>
             تم تأكيد بريدك الإلكتروني في <span class="brand">Bonds للاستشارات المالية</span>.<br><br>
@@ -134,5 +134,16 @@
 
 </script>
   <script src="../../page-tracker-v2.js"></script>
+<script src="../../components/ecc-icons.js"></script>
+<script>
+(function () {
+  if (!window.EccIcons) return;
+  document.querySelectorAll('.icon[data-icon]').forEach(function (el) {
+    el.innerHTML = window.EccIcons.get(el.dataset.icon);
+  });
+})();
+</script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

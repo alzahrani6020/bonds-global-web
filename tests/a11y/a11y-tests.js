@@ -77,7 +77,7 @@ const PAGES = [
       reports.push({ name: p.name, url: fullUrl, violations: criticalOrSerious });
 
       if (criticalOrSerious.length) {
-        console.log(`\n❌ ${p.name} — ${count} critical/serious violation(s)`);
+        console.log(`\n ${p.name} — ${count} critical/serious violation(s)`);
         criticalOrSerious.forEach((v) => {
           console.log(`   • ${v.id} (${v.impact}): ${v.help}`);
           v.nodes.forEach((node) => {
@@ -86,10 +86,10 @@ const PAGES = [
           });
         });
       } else {
-        console.log(`✅ ${p.name}: no critical/serious violations`);
+        console.log(` ${p.name}: no critical/serious violations`);
       }
     } catch (err) {
-      console.error(`❌ ${p.name}: ${err.message}`);
+      console.error(` ${p.name}: ${err.message}`);
       totalViolations++;
     } finally {
       await page.close();
@@ -99,9 +99,9 @@ const PAGES = [
   await browser.close();
 
   if (totalViolations) {
-    console.error(`\n❌ ${totalViolations} critical/serious accessibility violation(s) found.`);
+    console.error(`\n ${totalViolations} critical/serious accessibility violation(s) found.`);
     process.exit(1);
   }
 
-  console.log('\n✅ No critical/serious accessibility violations found.');
+  console.log("\n No critical/serious accessibility violations found.");
 })();

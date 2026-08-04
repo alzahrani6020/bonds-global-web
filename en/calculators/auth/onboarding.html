@@ -34,7 +34,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
   <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
 
 <link rel="stylesheet" href="../../../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="auth-container">
@@ -60,22 +60,22 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
       <div id="errorMsg" class="error-msg"></div>
       <div id="successMsg" class="success-msg"></div>
 
-      <form id="onboardingForm">
+      <form id="onboardingForm" novalidate>
         <div class="form-group">
-          <label for="restaurantName">Restaurant / Company Name *</label>
-          <input type="text" id="restaurantName" required placeholder="e.g. Gourmet Restaurant" />
+          <label for="restaurantName">Restaurant / Company Name</label>
+          <input type="text" id="restaurantName" placeholder="e.g. Gourmet Restaurant" />
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label for="country">Country *</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country" required>
+            <label for="country">Country</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="country">
               <option value="">Select country</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="governorate">Governorate / Region *</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="governorate" required>
+            <label for="governorate">Governorate / Region</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="governorate">
               <option value="">Select governorate</option>
             </select>
           </div>
@@ -83,21 +83,21 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
 
         <div class="row">
           <div class="form-group">
-            <label for="city">City *</label>
-            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city" required>
+            <label for="city">City</label>
+            <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="city">
               <option value="">Select city</option>
             </select>
           </div>
           <div class="form-group">
-            <label for="phone">Phone Number *</label>
-            <input type="tel" id="phone" required inputmode="numeric" autocomplete="tel" placeholder="05xxxxxxxx" />
+            <label for="phone">Phone Number</label>
+            <input type="tel" id="phone" inputmode="numeric" autocomplete="tel" placeholder="05xxxxxxxx" />
           </div>
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label for="businessType">Business Type *</label>
-            <select data-universal-dropdown="true" id="businessType" required>
+            <label for="businessType">Business Type</label>
+            <select data-universal-dropdown="true" id="businessType">
               <option value="">Select type</option>
               <option value="restaurant">Restaurant / Fast Food</option>
               <option value="cafe">Cafe</option>
@@ -110,30 +110,30 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
             </select>
           </div>
           <div class="form-group">
-            <label for="employeeCount">Number of Employees *</label>
-            <input type="number" id="employeeCount" required min="0" inputmode="numeric" placeholder="e.g. 12" />
+            <label for="employeeCount">Number of Employees</label>
+            <input type="number" id="employeeCount" min="0" inputmode="numeric" placeholder="e.g. 12" />
           </div>
         </div>
 
         <div class="row">
           <div class="form-group">
-            <label for="branchCount">Number of Branches *</label>
-            <input type="number" id="branchCount" required min="1" inputmode="numeric" placeholder="e.g. 1" />
+            <label for="branchCount">Number of Branches</label>
+            <input type="number" id="branchCount" min="1" inputmode="numeric" placeholder="e.g. 1" />
           </div>
           <div class="form-group">
-            <label for="bio">Business Bio *</label>
-            <textarea id="bio" required rows="3" placeholder="Write a short description of your business..."></textarea>
+            <label for="bio">Business Bio</label>
+            <textarea id="bio" rows="3" placeholder="Write a short description of your business..."></textarea>
           </div>
         </div>
 
         <div class="form-group">
-          <label for="needs">Needs & Required Services *</label>
-          <textarea id="needs" required rows="3" placeholder="e.g. financial analysis, feasibility study, pricing..."></textarea>
+          <label for="needs">Needs & Required Services</label>
+          <textarea id="needs" rows="3" placeholder="e.g. financial analysis, feasibility study, pricing..."></textarea>
         </div>
 
         <button type="submit" class="btn btn-primary" id="saveBtn">
           <span class="spinner"></span>
-          <span class="btn-text">💾 Save &amp; Continue</span>
+          <span class="btn-text"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#31373D" d="M4 36s-4 0-4-4V4s0-4 4-4h26c1 0 2 1 2 1l3 3s1 1 1 2v26s0 4-4 4H4z"/><path fill="#55ACEE" d="M5 19v-1s0-2 2-2h21c2 0 2 2 2 2v1H5z"/><path fill="#E1E8ED" d="M5 32.021V19h25v13s0 2-2 2H7c-2 0-2-1.979-2-1.979zM10 3s0-1 1-1h18c1.048 0 1 1 1 1v10s0 1-1 1H11s-1 0-1-1V3zm12 10h5V3h-5v10z"/></svg></span> Save &amp; Continue</span>
         </button>
         <button type="button" class="btn btn-secondary" id="skipBtn" style="margin-top:0.75rem;width:100%;">⏭️ Skip for now (complete later)</button>
       </form>
@@ -144,7 +144,6 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script src="/calculators/auth/lead-conversion.js?v=1"></script>
-  <script src="../../../v3/master-data/countries-governorates-cities.js"></script>
 
   <script>
     (function() {
@@ -184,7 +183,8 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
           const c = data[code];
           const opt = document.createElement('option');
           opt.value = code;
-          opt.textContent = `${c.flag || ''} ${c.nameEn}`;
+          opt.setAttribute('data-icon', c.flag || '');
+          opt.textContent = c.nameEn;
           countrySelect.appendChild(opt);
         });
         if (selected) countrySelect.value = selected;
@@ -267,11 +267,10 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
 
         const country = countrySelect.value;
         const phone = document.getElementById('phone').value.trim().replace(/\s+/g, '');
-        if (!isValidPhone(phone, country)) {
-          setLoading(false);
-          return showError(country === 'SA'
-            ? 'Phone number must start with 05 or +9665 and be 10 digits'
-            : 'Phone number is invalid — enter a local or international number (e.g. +20xxxxxxxx)');
+        // Allow empty/invalid phone; backend tracks validation_status for leads.
+        const phoneInvalid = phone && !isValidPhone(phone, country);
+        if (phoneInvalid) {
+          console.warn('[onboarding] phone looks invalid, saving anyway:', phone);
         }
 
         const selectedCity = citySelect.options[citySelect.selectedIndex];
@@ -342,5 +341,7 @@ h1{text-align:center;color:var(--gold);font-size:1.25rem;font-weight:800;margin-
   <script src="../../../page-tracker-v2.js"></script>
 <script src="../../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../../components/universal-dropdown-init.js"></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

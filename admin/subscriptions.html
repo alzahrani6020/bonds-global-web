@@ -59,6 +59,8 @@
 
     .btn-sm { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.3s; border: none; cursor: pointer; }
     .btn-primary { background: linear-gradient(135deg, var(--gold), var(--gold-bright)); color: #1a1a1a; }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: var(--text); border: 1px solid var(--border); }
+    .btn-danger { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
 
     .table-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
     .table-header { display: flex; align-items: center; justify-content: space-between; padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); }
@@ -326,16 +328,21 @@
       if (subs.length === 0) {
         tbody.innerHTML = '<tr><td colspan="6" class="loading">لا يوجد اشتراكات</td></tr>';
       } else {
-        tbody.innerHTML = subs.map(sub => `
+        tbody.innerHTML = subs.map(sub => {
+          const canCancel = sub.status === 'active' || sub.status === 'trialing';
+          return `
           <tr>
             <td>${sub.user_id.slice(0, 8)}...</td>
             <td><span class="badge badge--${sub.tier === 'pro' ? 'pro' : 'enterprise'}">${sub.tier === 'pro' ? 'Pro' : 'Enterprise'}</span></td>
             <td>${statusBadge(sub.status)}</td>
             <td>${formatDate(sub.created_at)}</td>
             <td>${formatDate(sub.current_period_end || sub.created_at)}</td>
-            <td><button class="btn-sm btn-primary" onclick="openGrantSubModal('${sub.user_id}')">مدد</button></td>
+            <td>
+              <button class="btn-sm btn-primary" onclick="openGrantSubModal('${sub.user_id}')">مدد</button>
+              ${canCancel ? `<button class="btn-sm btn-danger" style="margin-right:0.35rem;" onclick="cancelSubscription('${sub.user_id}')">إيقاف</button>` : ''}
+            </td>
           </tr>
-        `).join('');
+        `}).join('');
       }
       renderPagination();
     }
@@ -411,11 +418,11 @@
       const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
       if (dd && dd.setOptions) {
         dd.setOptions(users);
-        if (selectedId) dd.value = selectedId;
+        dd.value = selectedId || '';
       } else {
         select.innerHTML = '<option value="">اختر المستخدم</option>';
         users.forEach(u => { const opt = document.createElement('option'); opt.value = u.value; opt.textContent = u.label; select.appendChild(opt); });
-        if (selectedId) select.value = selectedId;
+        select.value = selectedId || '';
       }
     }
 
@@ -466,7 +473,33 @@
         } else {
           showSubsStatus(data.error || 'فشل منح الاشتراك', true);
         }
-      } catch (e) { showSubsStatus('خطأ في الاتصال', true); }
+      } catch (e) {
+        console.error('submitGrantSub error:', e);
+        showSubsStatus('خطأ في الاتصال: ' + (e.message || ''), true);
+      }
+    }
+
+    async function cancelSubscription(userId) {
+      if (!userId) return;
+      if (!confirm('هل أنت متأكد من إيقاف الاشتراك وإعادة المستخدم إلى الخطة المجانية؟')) return;
+      try {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'cancel-access', id: userId })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showSubsStatus('✅ تم إيقاف الاشتراك', false);
+          refreshData();
+        } else {
+          showSubsStatus(data.error || 'فشل إيقاف الاشتراك', true);
+        }
+      } catch (e) {
+        console.error('cancelSubscription error:', e);
+        showSubsStatus('خطأ في الاتصال', true);
+      }
     }
 
     function exportCSV() {

@@ -388,7 +388,7 @@
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=2"></script>
+<script src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
@@ -397,7 +397,7 @@
     <h1>◎ ذكاء المدن</h1>
     <p>مؤشرات اقتصادية وعقارية وسوقية لـ أكثر من 1200 مدينة في 22 دولة عربية — مدعومة بـ Bonds V3 Data Engine</p>
     <div id="alertBell" class="alert-bell" title="الإنذارات">
-      ⚑
+      <span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 2h12l-2 4 4 14H4V2z"/></svg></span>
       <span id="alertCount" class="alert-count hidden">0</span>
     </div>
     <div id="alertDropdown" class="alert-dropdown hidden">
@@ -427,10 +427,10 @@
         <option value="2024">2024</option>
       </select>
       <a href="/v3/investment-map" class="map-link">▣ الخريطة الاستثمارية</a>
-      <a href="/v3/city-comparison" class="map-link">⚖️ مقارنة المدن</a>
-      <a href="/v3/project-readiness" class="map-link">✓ جاهزية المشروع</a>
-      <a href="/v3/opportunity-bank" class="map-link">🏦 بنك الفرص</a>
-      <button id="autoUpdateBtn" class="auto-update-btn hidden">✦ تحديث تلقائي</button>
+      <a href="/v3/city-comparison" class="map-link"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M3.923 22.923c-.212.511-.798.751-1.308.539-.51-.213-.751-.798-.539-1.308L6.693 9.616c.212-.51.798-.751 1.307-.539.51.213.751.798.539 1.308L3.923 22.923z"/><path fill="#66757F" d="M13.923 22.154c.212.51-.029 1.095-.539 1.308-.51.212-1.095-.028-1.308-.539L7.461 10.385c-.212-.51.029-1.095.539-1.308.51-.212 1.095.029 1.308.539l4.615 12.538zm10.001.769c-.213.511-.799.751-1.309.539-.51-.213-.75-.798-.538-1.308l4.616-12.539c.212-.509.797-.75 1.307-.538.51.213.752.798.539 1.308l-4.615 12.538z"/><path fill="#66757F" d="M33.923 22.154c.212.51-.028 1.095-.538 1.308-.51.212-1.096-.028-1.309-.539l-4.615-12.538c-.213-.51.029-1.095.539-1.308.51-.212 1.095.029 1.307.539l4.616 12.538z"/><path fill="#FFAC33" d="M14.857 22H1.143C.512 22 0 22.511 0 23.143c0 2.524 3.582 4.571 8 4.571s8-2.047 8-4.571c0-.632-.512-1.143-1.143-1.143zM24 34H12c-.552 0-1-.447-1-1 0-2.209 3.134-4 7-4s7 1.791 7 4c0 .553-.447 1-1 1zm10.857-12H21.143c-.632 0-1.143.511-1.143 1.143 0 2.524 3.581 4.571 8 4.571s8-2.047 8-4.571c0-.632-.511-1.143-1.143-1.143z"/><path fill="#FFAC33" d="M19 3c0-.552-.447-1-1-1-.552 0-1 .448-1 1v27c0 .553.448 1 1 1 .553 0 1-.447 1-1V3z"/><circle fill="#FFAC33" cx="18" cy="4" r="2"/><circle fill="#FFAC33" cx="8" cy="10" r="2"/><circle fill="#FFAC33" cx="28" cy="10" r="2"/><path fill="#FFAC33" d="M28 10c0 1.104 0 0-10 0S8 11.104 8 10s3-4 10-4 10 2.896 10 4z"/></svg></span>️ مقارنة المدن</a>
+      <a href="/v3/project-readiness" class="map-link"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" aria-hidden="true"><path d="M4 12l6 6 10-14"/></svg></span> جاهزية المشروع</a>
+      <a href="/v3/opportunity-bank" class="map-link"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M3 16h30v18H3z"/><path fill="#CCD6DD" d="M2 34h32c1.104 0 2 .896 2 2H0c0-1.104.896-2 2-2z"/><path fill="#292F33" d="M18 23c-1.657 0-3 1.343-3 3v6h6v-6c0-1.657-1.343-3-3-3z"/><path fill="#CCD6DD" d="M3 21h4v11H3zm6 0h4v11H9zm20 0h4v11h-4zm-6 0h4v11h-4z"/><path fill="#AAB8C2" d="M2 32h32v2H2z"/><path fill="#66757F" d="M36 11L18 0 0 11z"/><path fill="#CCD6DD" d="M18 2.4L2 12v4h32v-4z"/><path fill="#8899A6" d="M3 19h4v2H3zm6 0h4v2H9zm14 0h4v2h-4zm6 0h4v2h-4z"/><path fill="#CCD6DD" d="M1 12h34v5H1z"/><path fill="#AAB8C2" d="M36 12c0 .552-.447 1-1 1H1c-.552 0-1-.448-1-1v-1c0-.552.448-1 1-1h34c.553 0 1 .448 1 1v1zm0 6c0 .552-.447 1-1 1H1c-.552 0-1-.448-1-1v-1c0-.552.448-1 1-1h34c.553 0 1 .448 1 1v1z"/><path fill="#E1E8ED" d="M13 32h10v2H13z"/><path fill="#F5F8FA" d="M11 34h14v2H11z"/></svg></span> بنك الفرص</a>
+      <button id="autoUpdateBtn" class="auto-update-btn hidden"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.5 7.5L22 12l-7.5 2.5L12 22l-2.5-7.5L2 12l7.5-2.5z"/></svg></span> تحديث تلقائي</button>
     </div>
 
     <div id="content">
@@ -438,7 +438,7 @@
     </div>
 
     <div id="scenarioCard" class="card hidden" style="margin-top: 1.5rem;">
-      <h3>🧪 محرك السيناريوهات السريع</h3>
+      <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#CCD6DD" d="M14.563 14.414L25.47 3.505l6.961 6.962-10.908 10.908z"/><path fill="#68E090" d="M8.103 34.399C2.5 34 1.5 30.062 1.635 27.932c.322-5.07 15.601-16.551 15.601-16.551l12.517 1.93c.001 0-17.389 21.392-21.65 21.088z"/><path fill="#8899A6" d="M32.326 3.708C29.405.787 26.104-.649 24.954.502c-.013.013-.022.031-.034.044-.006.006-.015.008-.021.014L2.295 23.164c-1.412 1.412-2.19 3.29-2.19 5.288 0 1.997.778 3.875 2.19 5.287 1.413 1.413 3.291 2.19 5.288 2.19 1.998 0 3.875-.777 5.287-2.189l22.604-22.604c.007-.007.009-.016.015-.023.013-.012.03-.02.043-.033 1.151-1.15-.285-4.451-3.206-7.372zM10.75 31.619c-.846.846-1.97 1.311-3.166 1.311s-2.321-.466-3.167-1.312c-.846-.846-1.312-1.97-1.312-3.167 0-1.196.466-2.32 1.311-3.166L25.412 4.29c.622 1.144 1.56 2.394 2.749 3.584 1.189 1.189 2.44 2.127 3.584 2.749L10.75 31.619z"/><path fill="#17BF63" d="M29.196 13.144c-.058.379-2.627.751-5.691.343-3.063-.408-5.482-1.223-5.403-1.82.08-.597 2.627-.751 5.691-.343s5.495 1.224 5.403 1.82zM10.84 23.247c-.31.31-.813.31-1.123 0-.31-.31-.31-.813 0-1.123.31-.31.813-.31 1.123 0 .31.31.31.813 0 1.123zm3.317 2.615c-.507.507-1.328.506-1.835 0-.506-.506-.506-1.328 0-1.834.507-.507 1.328-.506 1.834 0 .507.506.508 1.327.001 1.834zm1.677-5.324c-.476.476-1.25.476-1.726 0s-.476-1.249 0-1.726c.476-.476 1.249-.477 1.725 0 .478.477.478 1.25.001 1.726zm-6.868 8.858c-.581.581-1.524.581-2.105 0-.582-.582-.581-1.524 0-2.105s1.523-.581 2.105 0c.581.581.582 1.523 0 2.105zm11.396-9.158c-.413.413-1.083.413-1.496 0-.413-.413-.412-1.083.001-1.496.414-.414 1.083-.414 1.496-.001.413.414.413 1.083-.001 1.497zm-1.207-4.288c-.27.27-.708.27-.979 0-.27-.27-.27-.708 0-.979.27-.27.708-.271.979 0 .27.271.27.709 0 .979z"/><ellipse transform="rotate(-45.001 30.817 5.223)" fill="#CCD6DD" cx="30.817" cy="5.223" rx="1.184" ry="4.847"/></svg></span> محرك السيناريوهات السريع</h3>
       <p style="color: var(--text-secondary); font-size: 0.9rem;">اختبر تأثير الصدمات الاقتصادية على نموذج <strong id="scenarioModelName">-</strong></p>
       <div class="preset-group" id="scenarioPresets" style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0;"></div>
       <div id="scenarioResults" style="overflow-x: auto;"></div>
@@ -453,7 +453,7 @@
   <!-- Feedback Modal -->
   <div id="feedbackModal" class="modal-overlay">
     <div class="modal">
-      <h3>✏️ تصحيح البيانات</h3>
+      <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#D99E82" d="M35.222 33.598c-.647-2.101-1.705-6.059-2.325-7.566-.501-1.216-.969-2.438-1.544-3.014-.575-.575-1.553-.53-2.143.058 0 0-2.469 1.675-3.354 2.783-1.108.882-2.785 3.357-2.785 3.357-.59.59-.635 1.567-.06 2.143.576.575 1.798 1.043 3.015 1.544 1.506.62 5.465 1.676 7.566 2.325.359.11 1.74-1.271 1.63-1.63z"/><path fill="#EA596E" d="M13.643 5.308c1.151 1.151 1.151 3.016 0 4.167l-4.167 4.168c-1.151 1.15-3.018 1.15-4.167 0L1.141 9.475c-1.15-1.151-1.15-3.016 0-4.167l4.167-4.167c1.15-1.151 3.016-1.151 4.167 0l4.168 4.167z"/><path fill="#FFCC4D" d="M31.353 23.018l-4.17 4.17-4.163 4.165L7.392 15.726l8.335-8.334 15.626 15.626z"/><path fill="#292F33" d="M32.078 34.763s2.709 1.489 3.441.757c.732-.732-.765-3.435-.765-3.435s-2.566.048-2.676 2.678z"/><path fill="#CCD6DD" d="M2.183 10.517l8.335-8.335 5.208 5.209-8.334 8.335z"/><path fill="#99AAB5" d="M3.225 11.558l8.334-8.334 1.042 1.042L4.267 12.6zm2.083 2.086l8.335-8.335 1.042 1.042-8.335 8.334z"/></svg></span>️ تصحيح البيانات</h3>
       <p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: -0.5rem;">
         ساعدنا في تحسين دقة البيانات للمدينة والنشاط المختارين.
       </p>
@@ -1179,5 +1179,7 @@
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
   <script src="shared-v3-ui.js" defer></script>
+<script src="/components/emoji-icons.js"></script>
+<script src="/components/emoji-renderer.js"></script>
 </body>
 </html>

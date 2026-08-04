@@ -13,10 +13,6 @@
     if (el) el.innerHTML = html;
   }
 
-  function escapeHtml(str) {
-    return String(str).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  }
-
   function formatDate(d) {
     return d ? new Date(d).toLocaleString('ar-SA') : '—';
   }
@@ -55,7 +51,7 @@
         </div>
       `);
     } catch (e) {
-      setContent('<div class="ai-empty"><p>❌ فشل تحميل الملخص: ' + escapeHtml(e.message) + '</p></div>');
+      setContent("<div class=\"ai-empty\"><p><svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#DD2E44\" d=\"M21.533 18.002L33.768 5.768c.976-.976.976-2.559 0-3.535-.977-.977-2.559-.977-3.535 0L17.998 14.467 5.764 2.233c-.976-.977-2.56-.977-3.535 0-.977.976-.977 2.559 0 3.535l12.234 12.234L2.201 30.265c-.977.977-.977 2.559 0 3.535.488.488 1.128.732 1.768.732s1.28-.244 1.768-.732l12.262-12.263 12.234 12.234c.488.488 1.128.732 1.768.732.64 0 1.279-.244 1.768-.732.976-.977.976-2.559 0-3.535L21.533 18.002z\"/></svg> فشل تحميل الملخص: " + BondsAdminCommon.escapeHtml(e.message) + '</p></div>');
     }
   }
 
@@ -66,8 +62,8 @@
       const rows = issues.map(i => `
         <tr>
           <td><span class="ai-badge ${severityClass(i.severity)}">${severityLabel(i.severity)}</span></td>
-          <td>${escapeHtml(i.entity_type)}</td>
-          <td>${escapeHtml(i.message)}</td>
+          <td>${BondsAdminCommon.escapeHtml(i.entity_type)}</td>
+          <td>${BondsAdminCommon.escapeHtml(i.message)}</td>
           <td>${formatDate(i.created_at)}</td>
           <td>
             ${i.status === 'open' ? `<button class="ai-btn ai-btn-secondary" onclick="DataQualityApp.resolve('${i.id}')">حل</button>` : '<span class="ai-badge ai-badge-success">محلول</span>'}
@@ -110,7 +106,7 @@
         </div>
       `);
     } catch (e) {
-      setContent('<div class="ai-empty"><p>❌ فشل تحميل المشاكل: ' + escapeHtml(e.message) + '</p></div>');
+      setContent("<div class=\"ai-empty\"><p><svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#DD2E44\" d=\"M21.533 18.002L33.768 5.768c.976-.976.976-2.559 0-3.535-.977-.977-2.559-.977-3.535 0L17.998 14.467 5.764 2.233c-.976-.977-2.56-.977-3.535 0-.977.976-.977 2.559 0 3.535l12.234 12.234L2.201 30.265c-.977.977-.977 2.559 0 3.535.488.488 1.128.732 1.768.732s1.28-.244 1.768-.732l12.262-12.263 12.234 12.234c.488.488 1.128.732 1.768.732.64 0 1.279-.244 1.768-.732.976-.977.976-2.559 0-3.535L21.533 18.002z\"/></svg> فشل تحميل المشاكل: " + BondsAdminCommon.escapeHtml(e.message) + '</p></div>');
     }
   }
 
@@ -121,14 +117,28 @@
     else renderIssues();
   }
 
+  function renderCheckResult(result) {
+    const counts = result && typeof result === 'object' ? result : {};
+    const summary = Object.entries(counts).map(([k, v]) => {
+      const val = typeof v === 'object' ? JSON.stringify(v) : v;
+      return `<li><strong>${BondsAdminCommon.escapeHtml(k)}:</strong> ${BondsAdminCommon.escapeHtml(String(val))}</li>`;
+    }).join('');
+    return `
+      <div class="ai-card" style="margin-bottom:1.5rem;border:1px solid rgba(34,197,94,0.3);background:rgba(34,197,94,0.05);">
+        <h3 class="ecc-card__title"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#77B255" d="M36 32c0 2.209-1.791 4-4 4H4c-2.209 0-4-1.791-4-4V4c0-2.209 1.791-4 4-4h28c2.209 0 4 1.791 4 4v28z"/><path fill="#FFF" d="M29.28 6.362c-1.156-.751-2.704-.422-3.458.736L14.936 23.877l-5.029-4.65c-1.014-.938-2.596-.875-3.533.138-.937 1.014-.875 2.596.139 3.533l7.209 6.666c.48.445 1.09.665 1.696.665.673 0 1.534-.282 2.099-1.139.332-.506 12.5-19.27 12.5-19.27.751-1.159.421-2.707-.737-3.458z"/></svg> اكتمل الفحص</h3>
+        <ul class="ai-insights">${summary || '<li>لم يُعاد أي تفصيل</li>'}</ul>
+        <button class="ai-btn ai-btn-secondary" onclick="DataQualityApp.render(_currentView)">متابعة</button>
+      </div>
+    `;
+  }
+
   async function runChecks() {
     setContent('<div class="ai-empty"><div class="ai-spinner"></div><p>جارِ تشغيل فحوصات جودة البيانات...</p></div>');
     try {
       const result = await SERVICE.runChecks();
-      alert('✅ تم اكتمال الفحص:\n' + JSON.stringify(result, null, 2));
-      render(_currentView);
+      setContent(renderCheckResult(result));
     } catch (e) {
-      setContent('<div class="ai-empty"><p>❌ فشل تشغيل الفحص: ' + escapeHtml(e.message) + '</p></div>');
+      setContent("<div class=\"ai-empty\"><p><svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#DD2E44\" d=\"M21.533 18.002L33.768 5.768c.976-.976.976-2.559 0-3.535-.977-.977-2.559-.977-3.535 0L17.998 14.467 5.764 2.233c-.976-.977-2.56-.977-3.535 0-.977.976-.977 2.559 0 3.535l12.234 12.234L2.201 30.265c-.977.977-.977 2.559 0 3.535.488.488 1.128.732 1.768.732s1.28-.244 1.768-.732l12.262-12.263 12.234 12.234c.488.488 1.128.732 1.768.732.64 0 1.279-.244 1.768-.732.976-.977.976-2.559 0-3.535L21.533 18.002z\"/></svg> فشل تشغيل الفحص: " + BondsAdminCommon.escapeHtml(e.message) + '</p></div>');
     }
   }
 
@@ -137,7 +147,7 @@
       await SERVICE.resolveIssue(id);
       renderIssues();
     } catch (e) {
-      alert('❌ فشل تحديث الحالة: ' + e.message);
+      alert("<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#DD2E44\" d=\"M21.533 18.002L33.768 5.768c.976-.976.976-2.559 0-3.535-.977-.977-2.559-.977-3.535 0L17.998 14.467 5.764 2.233c-.976-.977-2.56-.977-3.535 0-.977.976-.977 2.559 0 3.535l12.234 12.234L2.201 30.265c-.977.977-.977 2.559 0 3.535.488.488 1.128.732 1.768.732s1.28-.244 1.768-.732l12.262-12.263 12.234 12.234c.488.488 1.128.732 1.768.732.64 0 1.279-.244 1.768-.732.976-.977.976-2.559 0-3.535L21.533 18.002z\"/></svg> فشل تحديث الحالة: " + e.message);
     }
   }
 
@@ -154,7 +164,7 @@
     try {
       const roleInfo = await SERVICE.getUserRole();
       if (!roleInfo || !roleInfo.role) {
-        setContent('<div class="ai-no-access"><h2>⛔ لا توجد صلاحية</h2><p>لا تملك صلاحية الوصول إلى مركز جودة البيانات.</p></div>');
+        setContent("<div class=\"ai-no-access\"><h2><svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#BE1931\" d=\"M36 18c0 9.941-8.059 18-18 18S0 27.941 0 18 8.059 0 18 0s18 8.059 18 18z\"/><path fill=\"#FFF\" d=\"M32 20c0 1.104-.896 2-2 2H6c-1.104 0-2-.896-2-2v-4c0-1.104.896-2 2-2h24c1.104 0 2 .896 2 2v4z\"/></svg> لا توجد صلاحية</h2><p>لا تملك صلاحية الوصول إلى مركز جودة البيانات.</p></div>");
         return;
       }
       const el = document.getElementById('dq-user');
@@ -164,7 +174,7 @@
         a.addEventListener('click', e => { e.preventDefault(); render(a.dataset.view); });
       });
     } catch (e) {
-      setContent('<div class="ai-empty"><p>❌ خطأ أثناء التهيئة: ' + escapeHtml(e.message) + '</p></div>');
+      setContent("<div class=\"ai-empty\"><p><svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#DD2E44\" d=\"M21.533 18.002L33.768 5.768c.976-.976.976-2.559 0-3.535-.977-.977-2.559-.977-3.535 0L17.998 14.467 5.764 2.233c-.976-.977-2.56-.977-3.535 0-.977.976-.977 2.559 0 3.535l12.234 12.234L2.201 30.265c-.977.977-.977 2.559 0 3.535.488.488 1.128.732 1.768.732s1.28-.244 1.768-.732l12.262-12.263 12.234 12.234c.488.488 1.128.732 1.768.732.64 0 1.279-.244 1.768-.732.976-.977.976-2.559 0-3.535L21.533 18.002z\"/></svg> خطأ أثناء التهيئة: " + BondsAdminCommon.escapeHtml(e.message) + '</p></div>');
     }
   }
 

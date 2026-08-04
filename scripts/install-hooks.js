@@ -8,9 +8,9 @@ try {
     cwd: path.resolve(__dirname, '..'),
     stdio: 'inherit'
   });
-  console.log('✅ Git hooks installed successfully!');
+  console.log(" Git hooks installed successfully!");
   console.log('   Audit will run automatically before every commit.');
 } catch (e) {
-  console.error('❌ Failed to install hooks:', e.message);
+  console.error(" Failed to install hooks:", e.message);
   process.exit(1);
 }
