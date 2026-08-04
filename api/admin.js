@@ -1759,7 +1759,7 @@ async function handler(req, res) {
       if (action === 'messages') {
         const subAction = req.body?.action;
         if (subAction === 'send') {
-          const admin = await verifyAdminStrict(req, sb);
+          const admin = await verifyAdmin(req, sb);
           if (!admin) return res.status(403).json({ error: 'Admin required' });
           return res.status(200).json(await sendUserMessage(sb, req.body, admin, req));
         }
