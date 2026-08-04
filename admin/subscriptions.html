@@ -371,12 +371,22 @@
     async function fetchUsers() {
       try {
         const token = await BondsAdminCommon.getAdminToken();
-        const res = await fetch('/api/admin?action=users&limit=500', {
-          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        window._usersData = data.recentUsers || data.users || [];
+        const all = [];
+        let offset = 0;
+        const limit = 500;
+        while (offset < 20000) {
+          const res = await fetch(`/api/admin?action=users&limit=${limit}&offset=${offset}`, {
+            headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          const data = await res.json();
+          const users = data.recentUsers || data.users || [];
+          if (!users.length) break;
+          all.push(...users);
+          if (users.length < limit) break;
+          offset += limit;
+        }
+        window._usersData = all;
       } catch (e) {
         console.warn('Failed to load users for grant modal:', e);
         window._usersData = [];
@@ -414,7 +424,11 @@
 
     function populateGrantSubUsers(selectedId) {
       const select = document.getElementById('grantSubUser');
-      const users = (window._usersData || []).map(u => ({ value: u.id, label: (u.restaurant_name || u.email || u.id) + ' — ' + (u.email || u.id) }));
+      const users = (window._usersData || []).map(u => {
+        const name = u.restaurant_name || u.email || u.id;
+        const email = u.email && u.email !== u.restaurant_name ? u.email : '';
+        return { value: u.id, label: email ? name + ' — ' + email : name };
+      });
       const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
       if (dd && dd.setOptions) {
         dd.setOptions(users);
