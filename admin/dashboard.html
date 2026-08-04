@@ -802,6 +802,8 @@
 
       let onlineRefreshTimer = null;
       let onlineAutoRefresh = true;
+      let tokenRefreshTimer = null;
+      let currentIframe = null;
 
       async function apiGet(action, params) {
         const token = (await sb.auth.getSession())?.data?.session?.access_token || '';
@@ -980,6 +982,8 @@
         const titleEl = document.getElementById('pageTitle');
         if (titleEl) titleEl.textContent = title || 'لوحة التحكم الموحدة';
         if (onlineRefreshTimer) { clearInterval(onlineRefreshTimer); onlineRefreshTimer = null; }
+        if (tokenRefreshTimer) { clearInterval(tokenRefreshTimer); tokenRefreshTimer = null; }
+        currentIframe = null;
         if (url === 'overview') {
           iframeWrap.innerHTML = '<div class="overview" id="overviewPanel"></div>';
           loadStats().then(renderOverview);
@@ -1011,6 +1015,20 @@
         };
         iframeWrap.innerHTML = '';
         iframeWrap.appendChild(iframe);
+        currentIframe = iframe;
+        tokenRefreshTimer = setInterval(async () => {
+          if (!currentIframe || !currentIframe.contentWindow) return;
+          try {
+            const { data: { session } } = await sb.auth.getSession();
+            const token = session?.access_token || window.__ADMIN_TOKEN || '';
+            if (token) {
+              currentIframe.contentWindow.postMessage({ type: 'admin-token', token }, location.origin);
+            }
+            if (session) {
+              currentIframe.contentWindow.postMessage({ type: 'admin-session', session }, location.origin);
+            }
+          } catch (e) {}
+        }, 300000);
       }
 
       function setActive(target) {
