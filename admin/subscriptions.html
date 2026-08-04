@@ -98,6 +98,9 @@
     #grantSubUser { width: 100%; min-height: 160px; margin-bottom: 1rem; padding: 0.5rem; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-card); font-family: inherit; font-size: 0.9rem; }
     #grantSubUser option { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--border); }
     #grantSubUser option:checked { background: var(--gold); color: #1a1a1a; }
+    #grantSubUser option:disabled { color: #999; font-style: italic; background: #f5f5f5; }
+    #grantSubStatus.status-error { background: rgba(239,68,68,0.08); color: #dc2626; border: 1px solid rgba(239,68,68,0.25); }
+    #grantSubStatus.status-success { background: rgba(34,197,94,0.08); color: #16a34a; border: 1px solid rgba(34,197,94,0.25); }
   </style>
   <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
   <script src="/api/env"></script>
@@ -232,9 +235,10 @@
   <div class="modal-overlay" id="grantSubModal" onclick="if(event.target===this)closeGrantSubModal()">
     <div class="modal">
       <h3>⭐ منح اشتراك / فترة مجانية</h3>
+      <div id="grantSubStatus" style="display:none;border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;font-weight:600;"></div>
       <label for="grantSubUser">المستخدم *</label>
       <input type="text" id="grantSubUserSearch" placeholder="اكتب للبحث في المستخدمين..." oninput="filterGrantSubUsers()" autocomplete="off" />
-      <select id="grantSubUser" size="6">
+      <select id="grantSubUser" size="6" onchange="onGrantSubUserChange()">
         <option value="">اختر المستخدم</option>
       </select>
       <label for="grantSubTier">الخطة *</label>
@@ -433,18 +437,29 @@
       return email ? name + ' — ' + email : name;
     }
 
+    function showGrantSubStatus(msg, isError) {
+      const el = document.getElementById('grantSubStatus');
+      el.textContent = msg;
+      el.className = isError ? 'status-error' : 'status-success';
+      el.style.display = msg ? 'block' : 'none';
+    }
+
     function populateGrantSubUsers(selectedId) {
       const select = document.getElementById('grantSubUser');
       select.innerHTML = '<option value="">اختر المستخدم</option>';
       (window._usersData || []).forEach(u => {
         const opt = document.createElement('option');
         opt.value = u.id;
-        opt.textContent = buildUserLabel(u);
+        const isAdmin = !!u.admin_role;
+        opt.textContent = buildUserLabel(u) + (isAdmin ? ' (مشرف — لا يمكن منح اشتراك)' : '');
         opt.dataset.search = (u.restaurant_name || '') + ' ' + (u.email || '') + ' ' + (u.id || '');
+        opt.dataset.admin = isAdmin ? '1' : '';
+        if (isAdmin) opt.disabled = true;
         select.appendChild(opt);
       });
       select.value = selectedId || '';
       filterGrantSubUsers();
+      onGrantSubUserChange();
     }
 
     function filterGrantSubUsers() {
@@ -456,6 +471,16 @@
       });
     }
 
+    function onGrantSubUserChange() {
+      const select = document.getElementById('grantSubUser');
+      const selected = select.options[select.selectedIndex];
+      if (selected && selected.dataset.admin === '1') {
+        showGrantSubStatus('لا يمكن منح اشتراك لحساب مشرف. اختر مستخدمًا عاديًا.', true);
+      } else {
+        showGrantSubStatus('', false);
+      }
+    }
+
     function defaultExpires() {
       const d = new Date();
       d.setDate(d.getDate() + 30);
@@ -465,6 +490,7 @@
 
     function openGrantSubModal(userId) {
       document.getElementById('grantSubUserSearch').value = '';
+      showGrantSubStatus('', false);
       populateGrantSubUsers(userId || '');
       document.getElementById('grantSubTier').value = 'pro';
       document.getElementById('grantSubExpires').value = defaultExpires();
@@ -478,8 +504,11 @@
       const tier = document.getElementById('grantSubTier').value;
       const expires = document.getElementById('grantSubExpires').value;
       const reason = document.getElementById('grantSubReason').value.trim();
-      if (!userId) return showSubsStatus('اختر المستخدم', true);
-      if (!tier) return showSubsStatus('اختر الخطة', true);
+      const select = document.getElementById('grantSubUser');
+      const selected = select.options[select.selectedIndex];
+      if (!userId) return showGrantSubStatus('اختر المستخدم', true);
+      if (!tier) return showGrantSubStatus('اختر الخطة', true);
+      if (selected && selected.dataset.admin === '1') return showGrantSubStatus('لا يمكن منح اشتراك لحساب مشرف', true);
 
       const body = {
         action: 'grant-access',
@@ -498,15 +527,15 @@
         });
         const data = await res.json();
         if (data.success) {
-          showSubsStatus('✅ تم منح الاشتراك بنجاح', false);
+          showGrantSubStatus('✅ تم منح الاشتراك بنجاح', false);
           closeGrantSubModal();
           refreshData();
         } else {
-          showSubsStatus(data.error || 'فشل منح الاشتراك', true);
+          showGrantSubStatus(data.error || 'فشل منح الاشتراك', true);
         }
       } catch (e) {
         console.error('submitGrantSub error:', e);
-        showSubsStatus('خطأ في الاتصال: ' + (e.message || ''), true);
+        showGrantSubStatus('خطأ في الاتصال: ' + (e.message || ''), true);
       }
     }
 
