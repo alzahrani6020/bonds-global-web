@@ -1120,21 +1120,30 @@ async function getUsers(sb, params = {}) {
 
   const completeness = params.completeness;
 
-  let query = sb.from('profiles')
-    .select('id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at, profile_completeness', { count: 'exact' });
-
-  if (completeness === 'incomplete') query = query.lt('profile_completeness', 100);
-  else if (completeness === 'complete') query = query.eq('profile_completeness', 100);
-  else if (completeness === 'partial') query = query.lt('profile_completeness', 100).gt('profile_completeness', 0);
-  if (search) {
-    query = query.or(`email.ilike.%${search}%,restaurant_name.ilike.%${search}%,business_type.ilike.%${search}%`);
+  async function runQuery(includeCompleteness = true) {
+    const selectCols = includeCompleteness
+      ? 'id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at, profile_completeness'
+      : 'id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at';
+    let q = sb.from('profiles').select(selectCols, { count: 'exact' });
+    if (includeCompleteness && completeness === 'incomplete') q = q.lt('profile_completeness', 100);
+    else if (includeCompleteness && completeness === 'complete') q = q.eq('profile_completeness', 100);
+    else if (includeCompleteness && completeness === 'partial') q = q.lt('profile_completeness', 100).gt('profile_completeness', 0);
+    if (search) {
+      q = q.or(`email.ilike.%${search}%,restaurant_name.ilike.%${search}%,business_type.ilike.%${search}%`);
+    }
+    if (tier) q = q.eq('tier', tier);
+    if (status) q = q.eq('status', status);
+    return q.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
   }
-  if (tier) query = query.eq('tier', tier);
-  if (status) query = query.eq('status', status);
-  query = query.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
 
-  const { data: profileList, error: profileErr, count } = await query;
-  if (profileErr) throw profileErr;
+  let result = await runQuery(true);
+  // Fallback if profile_completeness column is missing (migration not applied)
+  if (result.error && /column.*profile_completeness|profile_completeness.*column|schema cache/i.test(result.error.message || '')) {
+    result = await runQuery(false);
+  }
+  if (result.error) throw result.error;
+
+  const { data: profileList, count } = result;
 
   // Map admin roles by user_id for UI guards
   const { data: roleList } = await sb.from('admin_roles').select('user_id, role');
