@@ -1042,35 +1042,50 @@ async function sendProfileReminder(sb, body, admin, req) {
 }
 
 async function getDataQualityReport(sb) {
-  const [
-    { count: leadsTotal },
-    { count: leadsValid },
-    { count: leadsInvalid },
-    { count: contactsTotal },
-    { count: contactsValid },
-    { count: contactsInvalid },
-    { count: profilesTotal },
-    { count: profilesComplete },
-    { count: profilesPartial },
-    { count: profilesIncomplete }
-  ] = await Promise.all([
-    sb.from('calculator_leads').select('*', { count: 'exact', head: true }),
-    sb.from('calculator_leads').select('*', { count: 'exact', head: true }).eq('validation_status', 'valid'),
-    sb.from('calculator_leads').select('*', { count: 'exact', head: true }).neq('validation_status', 'valid'),
-    sb.from('contact_messages').select('*', { count: 'exact', head: true }),
-    sb.from('contact_messages').select('*', { count: 'exact', head: true }).eq('validation_status', 'valid'),
-    sb.from('contact_messages').select('*', { count: 'exact', head: true }).neq('validation_status', 'valid'),
-    sb.from('profiles').select('*', { count: 'exact', head: true }),
-    sb.from('profiles').select('*', { count: 'exact', head: true }).eq('profile_completeness', 100),
-    sb.from('profiles').select('*', { count: 'exact', head: true }).lt('profile_completeness', 100).gt('profile_completeness', 0),
-    sb.from('profiles').select('*', { count: 'exact', head: true }).or('profile_completeness.eq.0,profile_completeness.is.null')
+  async function countProfiles() {
+    const { count: total, error: totalErr } = await sb.from('profiles').select('*', { count: 'exact', head: true });
+    if (totalErr && /column.*profile_completeness|profile_completeness.*column|schema cache/i.test(totalErr.message || '')) {
+      return { total: total || 0, complete: 0, partial: 0, incomplete: 0 };
+    }
+    const [{ count: complete }, { count: partial }, { count: incomplete }] = await Promise.all([
+      sb.from('profiles').select('*', { count: 'exact', head: true }).eq('profile_completeness', 100),
+      sb.from('profiles').select('*', { count: 'exact', head: true }).lt('profile_completeness', 100).gt('profile_completeness', 0),
+      sb.from('profiles').select('*', { count: 'exact', head: true }).or('profile_completeness.eq.0,profile_completeness.is.null')
+    ]);
+    return { total: total || 0, complete: complete || 0, partial: partial || 0, incomplete: incomplete || 0 };
+  }
+
+  async function countLeads() {
+    const { count: total, error: totalErr } = await sb.from('calculator_leads').select('*', { count: 'exact', head: true });
+    if (totalErr && /column.*validation_status|validation_status.*column|schema cache/i.test(totalErr.message || '')) {
+      return { total: total || 0, valid: 0, invalid: 0 };
+    }
+    const [{ count: valid }, { count: invalid }] = await Promise.all([
+      sb.from('calculator_leads').select('*', { count: 'exact', head: true }).eq('validation_status', 'valid'),
+      sb.from('calculator_leads').select('*', { count: 'exact', head: true }).neq('validation_status', 'valid')
+    ]);
+    return { total: total || 0, valid: valid || 0, invalid: invalid || 0 };
+  }
+
+  async function countContacts() {
+    const { count: total, error: totalErr } = await sb.from('contact_messages').select('*', { count: 'exact', head: true });
+    if (totalErr && /column.*validation_status|validation_status.*column|schema cache/i.test(totalErr.message || '')) {
+      return { total: total || 0, valid: 0, invalid: 0 };
+    }
+    const [{ count: valid }, { count: invalid }] = await Promise.all([
+      sb.from('contact_messages').select('*', { count: 'exact', head: true }).eq('validation_status', 'valid'),
+      sb.from('contact_messages').select('*', { count: 'exact', head: true }).neq('validation_status', 'valid')
+    ]);
+    return { total: total || 0, valid: valid || 0, invalid: invalid || 0 };
+  }
+
+  const [profiles, calculator_leads, contact_messages] = await Promise.all([
+    countProfiles(),
+    countLeads(),
+    countContacts()
   ]);
-  return {
-    success: true,
-    calculator_leads: { total: leadsTotal || 0, valid: leadsValid || 0, invalid: leadsInvalid || 0 },
-    contact_messages: { total: contactsTotal || 0, valid: contactsValid || 0, invalid: contactsInvalid || 0 },
-    profiles: { total: profilesTotal || 0, complete: profilesComplete || 0, partial: profilesPartial || 0, incomplete: profilesIncomplete || 0 }
-  };
+
+  return { success: true, calculator_leads, contact_messages, profiles };
 }
 
 async function sendBulkProfileReminders(sb, admin, req) {
