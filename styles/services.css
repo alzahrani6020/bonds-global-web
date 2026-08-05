@@ -583,3 +583,22 @@
 }
 
 .cookie-banner__text a { text-decoration: underline; }
+
+/* Smooth anchor scrolling for services page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Service card icon micro-interaction */
+.service-card__icon svg {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+.service-card:hover .service-card__icon svg {
+  transform: scale(1.12) rotate(-4deg);
+  color: var(--gold-bright, #f0c96a);
+}
+
+/* Ensure service cards with IDs remain valid scroll targets */
+.service-card[id] {
+  scroll-margin-top: 100px;
+}
