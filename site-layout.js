@@ -133,7 +133,7 @@
     const sectorsBase = langBase + 'sectors/';
 
     const serviceDropdown = [
-      { label: labels.financialAdvisory, href: homeHref },
+      { label: labels.financialAdvisory, href: servicesHref },
       { label: labels.analysis, href: servicesHref + '#analysis' },
       { label: labels.cashflow, href: servicesHref + '#cashflow' },
       { label: labels.feasibility, href: servicesHref + '#feasibility' },
