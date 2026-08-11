@@ -78,7 +78,7 @@ const PAGES = [
         }
 
         // Close by clicking outside
-        await page.evaluate(() => document.elementFromPoint(10, 10)?.click());
+        await page.mouse.click(10, 10);
         const isClosed = !(await dropdown.evaluate((el) => el.classList.contains('is-open')));
         if (isClosed) {
           console.log(` ${p.name}: dropdown closes on outside tap`);

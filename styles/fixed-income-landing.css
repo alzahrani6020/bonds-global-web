@@ -3,6 +3,7 @@
 .fi-page {
   background: #070b14;
   color: #fff;
+  overflow-x: hidden;
 }
 
 .fi-ticker {
@@ -15,6 +16,7 @@
   justify-content: space-between;
   gap: 1.25rem;
   backdrop-filter: blur(6px);
+  overflow: hidden;
 }
 
 .fi-ticker__items {
@@ -22,6 +24,7 @@
   gap: 1.75rem;
   overflow: hidden;
   white-space: nowrap;
+  min-width: 0;
   mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 5%, #000 95%, transparent);
 }
@@ -109,16 +112,26 @@
   border-bottom: 1px solid rgba(212, 168, 83, 0.08) !important;
 }
 
-.fi-page #site-header a,
+.fi-page #site-header a:not(.btn-header):not(.header-signup),
 .fi-page #site-header .nav-link,
 .fi-page #site-header .dropdown-toggle {
   color: #fff !important;
 }
 
-.fi-page #site-header a:hover,
+.fi-page #site-header a:not(.btn-header):not(.header-signup):hover,
 .fi-page #site-header .nav-link:hover,
 .fi-page #site-header .dropdown-toggle:hover {
   color: var(--gold) !important;
+}
+
+.fi-page #site-header .btn-header,
+.fi-page #site-header .btn-header:hover {
+  color: #0a0f1a !important;
+}
+
+.fi-page #site-header .header-signup,
+.fi-page #site-header .header-signup:hover {
+  color: #0a0f1a !important;
 }
 
 .fi-page #site-header .header-brand {

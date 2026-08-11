@@ -485,8 +485,12 @@ body[dir="ltr"] .dropdown-menu {
     border-left: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
     transform: translateX(100%);
-    transition: transform var(--transition);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform var(--transition), opacity var(--transition), visibility var(--transition);
     overflow-y: auto;
+    overflow-x: hidden;
+    contain: layout paint;
   }
 
   html[dir="ltr"] .main-nav,
@@ -500,6 +504,19 @@ body[dir="ltr"] .dropdown-menu {
 
   .main-nav.is-open {
     transform: translateX(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .main-nav ul {
+    display: block;
+    width: 100%;
+  }
+
+  .main-nav li,
+  .main-nav .dropdown {
+    display: block;
+    width: 100%;
   }
 
   .main-nav a,

@@ -108,10 +108,6 @@
   100% { transform: translateX(-50%); }
 }
 
-body {
-  overflow-x: visible !important;
-}
-
 /* ---------- Hero Redesign ---------- */
 .fi-hero {
   position: relative;
@@ -395,6 +391,13 @@ body {
   margin-top: 0.75rem;
   font-size: 0.75rem;
   color: rgba(148, 163, 184, 0.85);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.fi-dashboard__legend span {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .fi-dashboard__legend span {
