@@ -1477,6 +1477,12 @@
     <priority>0.5</priority>
   </url>
   <url>
+    <loc>https://bonds-global.com/en/funding-extraction</loc>
+    <lastmod>2026-08-11</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://bonds-global.com/en/funding-readiness</loc>
     <lastmod>2026-08-04</lastmod>
     <changefreq>weekly</changefreq>
@@ -1707,6 +1713,12 @@
   <url>
     <loc>https://bonds-global.com/for-banks</loc>
     <lastmod>2026-08-04</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bonds-global.com/funding-extraction</loc>
+    <lastmod>2026-08-11</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
