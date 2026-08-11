@@ -59,6 +59,13 @@ function isExcludedDir(relDir) {
   return parts.some((part) => EXCLUDED_DIR_NAMES.has(part));
 }
 
+function isExcludedFile(fileName) {
+  if (EXCLUDED_FILES.has(fileName)) return true;
+  // Search-engine verification files (e.g. google62a502fa9a665553.html)
+  if (/^google[0-9a-f]+\.html$/i.test(fileName)) return true;
+  return false;
+}
+
 function walk(dir, files = [], relPrefix = '') {
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
@@ -69,7 +76,7 @@ function walk(dir, files = [], relPrefix = '') {
       walk(fullPath, files, relPath);
     } else if (entry.isFile() && entry.name.endsWith('.html')) {
       if (isExcludedDir(relPath)) continue;
-      if (EXCLUDED_FILES.has(entry.name)) continue;
+      if (isExcludedFile(entry.name)) continue;
       files.push(relPath);
     }
   }
