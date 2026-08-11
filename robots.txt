@@ -1,3 +1,33 @@
 User-agent: *
 Allow: /
+
+# Private / internal areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /calculators/auth/
+Disallow: /client/
+Disallow: /my-bonds/
+Disallow: /scripts/
+Disallow: /tools/
+Disallow: /tests/
+Disallow: /supabase/
+Disallow: /templates/
+Disallow: /components/
+
+# Utility / draft pages that should not be indexed
+Disallow: /test.html
+Disallow: /v.html
+Disallow: /proof.html
+Disallow: /letterhead.html
+Disallow: /verify.html
+Disallow: /auth.html
+Disallow: /auth-v2.html
+Disallow: /404.html
+Disallow: /500.html
+
+# Avoid indexing URL parameters and common tracking fragments
+Disallow: /*?*
+Disallow: /*#
+
+Host: https://bonds-global.com
 Sitemap: https://bonds-global.com/sitemap.xml

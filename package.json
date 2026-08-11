@@ -24,7 +24,8 @@
     "regenerate:geo": "node scripts/update-geo-from-geonames.js && node scripts/extract-geo-data.js",
     "regenerate:geo-chunks": "node scripts/extract-geo-data.js",
     "regenerate:calculator-status": "node scripts/generate-calculator-status.js",
-    "bump:cache": "node scripts/bump-cache-version.js"
+    "bump:cache": "node scripts/bump-cache-version.js",
+    "generate:sitemap": "node scripts/generate-sitemap.js"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",
