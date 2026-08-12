@@ -1,0 +1,20 @@
+name: Social Scheduled Posts Cron
+
+on:
+  schedule:
+    # Every 10 minutes
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    name: Publish due social media posts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger social cron
+        run: |
+          curl -fsS -X GET "${SITE_URL}/api/social-cron?cronSecret=${CRON_SECRET}"
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://bonds-global.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

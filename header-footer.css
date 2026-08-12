@@ -144,6 +144,18 @@
   background: rgba(212, 168, 83, 0.1);
 }
 
+.main-nav a.nav-highlight {
+  background: var(--gold);
+  color: #0a0f1a;
+  border: 1px solid var(--gold);
+}
+
+.main-nav a.nav-highlight:hover,
+.main-nav a.nav-highlight.active {
+  background: var(--gold-bright);
+  color: #0a0f1a;
+}
+
 .main-nav .dropdown {
   position: relative;
 }
@@ -690,6 +702,12 @@ html[dir="ltr"] .footer-links a:hover {
   border-color: var(--gold);
   color: var(--gold);
   background: var(--gold-glow);
+}
+
+.footer-socials a svg {
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
 }
 
 @media (max-width: 1024px) {

@@ -38,6 +38,10 @@ async function handler(req, res) {
     CALENDLY_URL: process.env.CALENDLY_URL || 'https://calendly.com/iiffund-dev/30min',
     ADMIN_EMAIL: process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '',
     ADMIN_ENFORCE_MFA: adminEnforceMfa ? 'true' : 'false',
+    SOCIAL_INSTAGRAM_URL: process.env.SOCIAL_INSTAGRAM_URL || 'https://instagram.com/bonds.global',
+    SOCIAL_YOUTUBE_URL: process.env.SOCIAL_YOUTUBE_URL || 'https://www.youtube.com/@bondsglobal',
+    SOCIAL_X_URL: process.env.SOCIAL_X_URL || 'https://x.com/bonds_global',
+    SOCIAL_LINKEDIN_URL: process.env.SOCIAL_LINKEDIN_URL || 'https://www.linkedin.com/company/bonds-global',
   };
 
   res.status(200).end(`window.__ENV = ${JSON.stringify(env)};`);

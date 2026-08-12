@@ -22,7 +22,7 @@ const files = PATTERNS.flatMap((p) => {
   } catch {
     return [];
   }
-}).filter((f) => !f.includes('node_modules') && !f.includes('.vercel'));
+}).filter((f) => !f.includes('node_modules') && !f.includes('.vercel') && !path.basename(f).startsWith('google') && !path.basename(f).startsWith('BingSiteAuth'));
 
 const requiredMeta = [
   { name: 'description', attr: 'name' },

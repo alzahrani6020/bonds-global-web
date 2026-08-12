@@ -330,6 +330,45 @@ All routes require **`x-admin-token`** header matching `ADMIN_TOKEN`.
 
 ---
 
+## 5. Social Media APIs
+
+| Route | File | Methods | Description | Auth | Rate limit |
+|---|---|---|---|---|---|
+| `/api/social-feed` | `api/social-feed.js` | GET | Latest posts from Instagram/YouTube/X | none | `public` |
+| `/api/social-accounts` | `api/social-accounts.js` | GET | Connection status per platform | admin Bearer | `auth` |
+| `/api/social-accounts` | `api/social-accounts.js` | POST | Test a platform token (`action=test`) | admin Bearer | `auth` |
+| `/api/social-publish` | `api/social-publish.js` | POST | Publish to selected platforms | admin Bearer | `strict` |
+| `/api/social-upload` | `api/social-upload.js` | POST | Upload media (base64) to Supabase Storage | admin Bearer | `strict` |
+| `/api/social-schedule` | `api/social-schedule.js` | GET, POST, DELETE | Schedule / list / cancel posts | admin Bearer | `auth` |
+| `/api/social-cron` | `api/social-cron.js` | GET, POST | Publish due scheduled posts | CRON_SECRET | `webhook` |
+
+### `/api/social-feed`
+- **Query**: `limit` (max 20, default 6), `platforms` (comma list or `all`)
+- **Success**: `{ success: true, posts: [...], cached?: boolean, errors?: [...] }`
+- Returns empty list when `SOCIAL_FEED_ENABLED` is not `true`.
+
+### `/api/social-accounts` (POST)
+- **Body**: `{ action: "test", platform: "instagram" | "youtube" | "x" }`
+- **Success**: `{ success: true, result: { platform, ok, error? } }`
+
+### `/api/social-publish`
+- **Body**: `{ platforms: ["instagram", "x", "youtube"], text*, mediaUrl?, mediaType? }`
+- **Success**: `{ success: true, results: [{ platform, success, id?, permalink?, error? }] }`
+
+### `/api/social-upload`
+- **Body**: `{ filename, contentType, base64 }`
+- **Success**: `{ success: true, url, path }`
+
+### `/api/social-schedule`
+- **POST Body**: `{ platforms, content, mediaUrl?, mediaType?, scheduledAt }`
+- **Success**: `{ success: true, post: { id, ... } }`
+
+### `/api/social-cron`
+- **Query/Header**: `cronSecret` or `x-cron-secret`
+- **Success**: `{ success: true, processed: N, results: [...] }`
+
+---
+
 ## Notes
 
 - No centralized rate-limiting middleware exists; limits are ad-hoc in-memory per handler.

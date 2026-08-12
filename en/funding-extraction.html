@@ -27,6 +27,7 @@
   <script defer src="/_vercel/insights/script.js"></script>
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/page-redesign-2026.css?v=1" />
+  <link rel="stylesheet" href="../styles/funding-request-form.css?v=1" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="canonical" href="https://bonds-global.com/en/funding-extraction" />
   <link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-extraction" />
@@ -63,7 +64,7 @@
       <p class="hero__desc">We help you secure the right financing for your company, institution, or project — from businesses and factories to hotels, clinics, and real estate mortgages.</p>
       <p class="hero__tagline-en">Financing for Businesses &amp; Projects</p>
       <div class="hero__cta">
-        <a href="contact.html" class="fi-btn fi-btn--primary">Request Your Funding →</a>
+        <a href="#funding-request" class="fi-btn fi-btn--primary">Submit Funding Request →</a>
         <a href="services.html" class="fi-btn fi-btn--secondary">All Services</a>
       </div>
     </div>
@@ -173,6 +174,139 @@
     </div>
   </section>
 
+  <!-- Funding Request Form -->
+  <section class="section funding-request" id="funding-request">
+    <div class="container funding-request__container">
+      <div class="section-header reveal">
+        <span class="section__eyebrow">Funding Request</span>
+        <h2 class="section__title">Submit Your Funding Request</h2>
+      </div>
+      <div class="funding-request__card reveal">
+        <div class="funding-request__intro">
+          <h2>Funding Extraction Request Form</h2>
+          <p>Fill in the details below and upload initial documents. A Bonds advisor will review your request and contact you within 24 business hours.</p>
+        </div>
+
+        <form class="funding-request__form" data-funding-request-form data-lang="en" data-endpoint="/api/funding-request" data-success="Your funding request has been sent successfully." data-error="Failed to send request. Please try again.">
+          <input type="text" name="website" class="funding-request__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+          <div class="funding-request__field">
+            <label class="funding-request__label" for="fr-name">Full Name <span class="required" aria-hidden="true">*</span></label>
+            <input class="funding-request__input" id="fr-name" name="name" type="text" required autocomplete="name" maxlength="200" />
+          </div>
+
+          <div class="funding-request__field">
+            <label class="funding-request__label" for="fr-company">Company / Project Name <span class="required" aria-hidden="true">*</span></label>
+            <input class="funding-request__input" id="fr-company" name="company" type="text" required autocomplete="organization" maxlength="200" />
+          </div>
+
+          <div class="funding-request__field">
+            <label class="funding-request__label" for="fr-email">Email Address <span class="required" aria-hidden="true">*</span></label>
+            <input class="funding-request__input" id="fr-email" name="email" type="email" required autocomplete="email" maxlength="200" />
+          </div>
+
+          <div class="funding-request__field">
+            <label class="funding-request__label" for="fr-phone">Phone Number <span class="required" aria-hidden="true">*</span></label>
+            <input class="funding-request__input" id="fr-phone" name="phone" type="tel" required autocomplete="tel" placeholder="e.g. 0567566616 or +966567566616" maxlength="50" />
+          </div>
+
+          <div class="funding-request__field">
+            <label class="funding-request__label" for="fr-country">Country <span class="required" aria-hidden="true">*</span></label>
+            <input class="funding-request__input" id="fr-country" name="country" type="text" required list="fr-countries" placeholder="Select or type your country" maxlength="100" />
+            <datalist id="fr-countries">
+              <option value="Saudi Arabia">Saudi Arabia</option>
+              <option value="United Arab Emirates">United Arab Emirates</option>
+              <option value="Egypt">Egypt</option>
+              <option value="Kuwait">Kuwait</option>
+              <option value="Qatar">Qatar</option>
+              <option value="Bahrain">Bahrain</option>
+              <option value="Oman">Oman</option>
+              <option value="Jordan">Jordan</option>
+              <option value="Lebanon">Lebanon</option>
+              <option value="Iraq">Iraq</option>
+              <option value="Morocco">Morocco</option>
+              <option value="Tunisia">Tunisia</option>
+              <option value="Algeria">Algeria</option>
+              <option value="Libya">Libya</option>
+              <option value="Sudan">Sudan</option>
+              <option value="Yemen">Yemen</option>
+              <option value="Syria">Syria</option>
+              <option value="Palestine">Palestine</option>
+              <option value="Turkey">Turkey</option>
+              <option value="United Kingdom">United Kingdom</option>
+              <option value="United States">United States</option>
+              <option value="Canada">Canada</option>
+              <option value="Australia">Australia</option>
+              <option value="France">France</option>
+              <option value="Germany">Germany</option>
+              <option value="Netherlands">Netherlands</option>
+              <option value="Switzerland">Switzerland</option>
+              <option value="China">China</option>
+              <option value="India">India</option>
+              <option value="Pakistan">Pakistan</option>
+              <option value="Bangladesh">Bangladesh</option>
+              <option value="Nigeria">Nigeria</option>
+              <option value="South Africa">South Africa</option>
+              <option value="Kenya">Kenya</option>
+              <option value="Ethiopia">Ethiopia</option>
+            </datalist>
+          </div>
+
+          <div class="funding-request__field">
+            <label class="funding-request__label" for="fr-type">Required Financing Type <span class="required" aria-hidden="true">*</span></label>
+            <select class="funding-request__select" id="fr-type" name="financingType" required>
+              <option value="" disabled selected>Select financing type</option>
+              <option value="Companies &amp; Institutions">Companies &amp; Institutions</option>
+              <option value="Factories &amp; Industry">Factories &amp; Industry</option>
+              <option value="Hotels &amp; Hospitality">Hotels &amp; Hospitality</option>
+              <option value="Clinics &amp; Healthcare">Clinics &amp; Healthcare</option>
+              <option value="Real Estate Mortgage">Real Estate Mortgage</option>
+              <option value="Startups">Startups</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="funding-request__field">
+            <label class="funding-request__label" for="fr-amount">Funding Amount Required <span class="required" aria-hidden="true">*</span></label>
+            <input class="funding-request__input" id="fr-amount" name="amount" type="number" min="1" step="any" required placeholder="e.g. 500000" />
+          </div>
+
+          <div class="funding-request__field funding-request__field--full">
+            <label class="funding-request__label" for="fr-purpose">Purpose of Funding</label>
+            <textarea class="funding-request__textarea" id="fr-purpose" name="purpose" rows="4" maxlength="2000" placeholder="Briefly explain why you need the funding and how it will be used..."></textarea>
+          </div>
+
+          <div class="funding-request__field funding-request__field--full">
+            <label class="funding-request__label" for="fr-letter">Cover Letter to Bonds <span class="required" aria-hidden="true">*</span></label>
+            <textarea class="funding-request__textarea" id="fr-letter" name="letter" rows="6" required maxlength="4000">Dear Bonds Financial Advisory Team,
+
+I am submitting this request for your assistance in securing suitable financing for my company/project detailed above.
+
+Please review the attached file and contact me to complete the procedures.
+
+Best regards,</textarea>
+          </div>
+
+          <div class="funding-request__field funding-request__field--full funding-request__file">
+            <label class="funding-request__label" for="fr-files">Upload Files (Optional)</label>
+            <input class="funding-request__file-input" id="fr-files" name="files" type="file" multiple data-fr-file accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" />
+            <div class="funding-request__file-area" aria-hidden="true">
+              <span class="funding-request__file-icon">📎</span>
+              <span data-fr-file-text>Click or drag files here</span>
+              <span class="funding-request__help">PDF, Word, Excel or images — up to 3 files, 4 MB total</span>
+            </div>
+            <div class="funding-request__file-list" data-fr-file-list></div>
+          </div>
+
+          <div class="funding-request__actions">
+            <div class="funding-request__status" data-fr-status role="status" aria-live="polite"></div>
+            <button class="funding-request__submit" type="submit" data-fr-submit>Submit Funding Request →</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="cta-section">
     <div class="container">
@@ -189,12 +323,13 @@
   <a href="https://wa.me/966567566616" target="_blank" rel="noopener" class="float-whatsapp" aria-label="WhatsApp"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:28px;height:28px;fill:currentColor;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg></a>
 
   <script src="../script.js?v=5" defer></script>
-  <script src="../site-layout.js?v=3.1.0"></script>
+  <script src="../site-layout.js?v=3.2.0"></script>
   <script src="../page-tracker-v2.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script src="/components/emoji-icons.js"></script>
   <script src="/components/emoji-renderer.js"></script>
+  <script src="../scripts/funding-request-form.js?v=1"></script>
 </body>
 </html>

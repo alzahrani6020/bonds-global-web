@@ -1,0 +1,280 @@
+/* ===== Funding Request Form — used on funding-extraction pages ===== */
+
+.funding-request__container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.funding-request__card {
+  background: var(--bg-card, rgba(16, 24, 45, 0.6));
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: var(--radius-xl, 16px);
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+}
+
+.funding-request__intro {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.funding-request__intro h2 {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--text, #e8ecf4);
+}
+
+.funding-request__intro p {
+  margin: 0;
+  color: var(--text-secondary, #94a3b8);
+  line-height: 1.7;
+}
+
+.funding-request__form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .funding-request__form {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.funding-request__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.funding-request__field--full {
+  grid-column: 1 / -1;
+}
+
+.funding-request__label {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.funding-request__label .required {
+  color: var(--gold, #d4a853);
+  margin-inline-start: 0.25rem;
+}
+
+.funding-request__input,
+.funding-request__select,
+.funding-request__textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--text, #e8ecf4);
+  background: var(--surface, var(--bg-card, rgba(255, 255, 255, 0.05)));
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: var(--radius-lg, 12px);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.funding-request__input:focus,
+.funding-request__select:focus,
+.funding-request__textarea:focus {
+  border-color: var(--gold, #d4a853);
+  box-shadow: 0 0 0 3px var(--gold-glow, rgba(212, 168, 83, 0.12));
+}
+
+.funding-request__textarea {
+  min-height: 140px;
+  resize: vertical;
+  line-height: 1.7;
+}
+
+.funding-request__select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4a853' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: left 1rem center;
+  padding-inline-start: 1rem;
+  padding-inline-end: 2.5rem;
+}
+
+.funding-request__file {
+  position: relative;
+  grid-column: 1 / -1;
+}
+
+.funding-request__file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.funding-request__file-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1.5rem;
+  text-align: center;
+  color: var(--text-secondary, #94a3b8);
+  background: var(--surface, var(--bg-card, rgba(255, 255, 255, 0.03)));
+  border: 2px dashed var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: var(--radius-lg, 12px);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.funding-request__file:hover .funding-request__file-area,
+.funding-request__file-input:focus + .funding-request__file-area {
+  border-color: var(--gold, #d4a853);
+  background: var(--gold-glow, rgba(212, 168, 83, 0.08));
+}
+
+.funding-request__file-icon {
+  font-size: 1.5rem;
+  color: var(--gold, #d4a853);
+}
+
+.funding-request__file-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.funding-request__file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--text, #e8ecf4);
+  background: var(--bg-card, rgba(255, 255, 255, 0.05));
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: 999px;
+}
+
+.funding-request__file-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  padding: 0;
+  margin: 0;
+  font-size: 0.75rem;
+  line-height: 1;
+  color: var(--text-secondary, #94a3b8);
+  background: transparent;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.funding-request__file-remove:hover,
+.funding-request__file-remove:focus {
+  color: #fff;
+  background: rgba(239, 68, 68, 0.85);
+}
+
+.funding-request__help {
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+  margin-top: 0.25rem;
+}
+
+.funding-request__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.funding-request__submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0a0f1a;
+  background: linear-gradient(135deg, var(--gold, #d4a853), var(--gold-bright, #f0c96a));
+  border: 0;
+  border-radius: var(--radius-lg, 12px);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.funding-request__submit:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px var(--gold-glow, rgba(212, 168, 83, 0.25));
+}
+
+.funding-request__submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.funding-request__status {
+  padding: 0.875rem 1rem;
+  border-radius: var(--radius-lg, 12px);
+  font-weight: 600;
+  text-align: center;
+  display: none;
+}
+
+.funding-request__status.is-visible {
+  display: block;
+}
+
+.funding-request__status--success {
+  color: #14532d;
+  background: #dcfce7;
+  border: 1px solid #86efac;
+}
+
+.funding-request__status--error {
+  color: #7f1d1d;
+  background: #fee2e2;
+  border: 1px solid #fca5a5;
+}
+
+.funding-request__hp {
+  position: absolute;
+  left: -9999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .funding-request__input,
+  .funding-request__select,
+  .funding-request__textarea,
+  .funding-request__file-area,
+  .funding-request__submit {
+    transition: none;
+  }
+  .funding-request__submit:hover:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Light mode overrides */
+html[data-theme="light"] .funding-request__card,
+:root[data-theme="light"] .funding-request__card {
+  background: var(--bg-card, rgba(255, 255, 255, 0.85));
+}

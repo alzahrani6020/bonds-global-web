@@ -8,6 +8,7 @@ const { sendEmail } = require('../lib/api/email');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { verifyBearer } = require('../lib/api/auth-helper');
 const { setAllowedOrigin } = require('../lib/api/cors');
+const { handleFundingExtractionRequest } = require('../lib/api/funding-request-handler');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
@@ -370,6 +371,9 @@ async function handler(req, res) {
       return fundingReadinessAction(req, res);
     case 'bank-partner-request':
       return bankPartnerRequestAction(req, res);
+    case 'funding-request':
+      if (await checkRateLimit('public', req, res)) return;
+      return handleFundingExtractionRequest(req, res);
     default:
       return res.status(400).json({ error: 'Invalid or missing action' });
   }

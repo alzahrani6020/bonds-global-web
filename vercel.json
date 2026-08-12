@@ -380,6 +380,14 @@
       "destination": "/calculators/investment-center/:sector"
     },
     {
+      "source": "/api/funding-request",
+      "destination": "/api/funding?action=funding-request"
+    },
+    {
+      "source": "/api/funding-request/",
+      "destination": "/api/funding?action=funding-request"
+    },
+    {
       "source": "/api/([^/]+)",
       "destination": "/api/$1"
     },

@@ -434,6 +434,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 | إنقاذ الأصول المتعثرة | `/admin/distressed-recovery/` | تقييم الأصول وخطط الإنقاذ. |
 | City Intelligence | `/admin/city-intelligence/` | تحليل المدن والأحياء والتقارير الجغرافية. |
 | مراجعة المتخصص (AI) | `/admin/ai-reviews.html` | إدارة طلبات مراجعة تحليلات AI من العملاء. تعتمد على `ai_review_requests` والحالات: pending_review → assigned → under_review → approved → returned. |
+| التواصل الاجتماعي | `/admin/social-media/` | ربط ونشر ومراقبة حسابات بوندز على Instagram و YouTube و X. APIs: `/api/social-feed`، `/api/social-accounts`، `/api/social-publish`. انظر `docs/SOCIAL_INTEGRATION.md`. |
 
 #### مستشار الأعمال الذكي — ملاحظات تنفيذية
 - الملفات في `admin/ai-business-advisor/`.
