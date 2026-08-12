@@ -24,6 +24,12 @@ module.exports = async function handler(req, res) {
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const path = url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/';
 
+  const route = req.query?.__route;
+  if (route && String(route).startsWith('social-')) {
+    if (req.method === 'OPTIONS') return res.status(200).end();
+    return require('../../lib/social/api-handlers')(req, res, route);
+  }
+
   if (path === '/analyze-document' || path === '/analyze-document/') {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });

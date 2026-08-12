@@ -59,6 +59,42 @@
       "destination": "/api/analyze-feasibility"
     },
     {
+      "source": "/api/social-feed",
+      "destination": "/api/v3?__route=social-feed"
+    },
+    {
+      "source": "/api/social-accounts",
+      "destination": "/api/v3?__route=social-accounts"
+    },
+    {
+      "source": "/api/social-publish",
+      "destination": "/api/v3?__route=social-publish"
+    },
+    {
+      "source": "/api/social-schedule",
+      "destination": "/api/v3?__route=social-schedule"
+    },
+    {
+      "source": "/api/social-upload",
+      "destination": "/api/v3?__route=social-upload"
+    },
+    {
+      "source": "/api/social-cron",
+      "destination": "/api/v3?__route=social-cron"
+    },
+    {
+      "source": "/api/depreciation-factors",
+      "destination": "/api/reference-data?__route=depreciation-factors"
+    },
+    {
+      "source": "/api/economic-life",
+      "destination": "/api/reference-data?__route=economic-life"
+    },
+    {
+      "source": "/api/market-intelligence",
+      "destination": "/api/reference-data?__route=market-intelligence"
+    },
+    {
       "source": "/api/track",
       "destination": "/api/platform"
     },

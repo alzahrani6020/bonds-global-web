@@ -20,13 +20,14 @@ jest.mock('../../lib/api/admin-auth', () => ({
   verifyAdminOrEditor: (...args) => mockVerifyAdminOrEditor(...args)
 }));
 
-const handler = require('../../api/social-upload');
+const v3Handler = require('../../api/v3/index.js');
 
 function mockReq(overrides = {}) {
   return {
     method: 'POST',
+    url: '/api/v3',
     headers: {},
-    query: {},
+    query: { __route: 'social-upload' },
     body: {},
     socket: {},
     ...overrides
@@ -54,14 +55,14 @@ describe('/api/social-upload', () => {
   test('rejects unauthenticated', async () => {
     mockVerifyAdminOrEditor.mockResolvedValue({ authorized: false, reason: 'missing' });
     const res = mockRes();
-    await handler(mockReq(), res);
+    await v3Handler(mockReq(), res);
     expect(res.statusCode).toBe(401);
   });
 
   test('rejects unsupported content type', async () => {
     mockVerifyAdminOrEditor.mockResolvedValue({ authorized: true, userId: 'user-123', role: 'admin' });
     const res = mockRes();
-    await handler(mockReq({
+    await v3Handler(mockReq({
       headers: { authorization: 'Bearer token' },
       body: { filename: 'a.pdf', contentType: 'application/pdf', base64: 'abcd' }
     }), res);
@@ -72,7 +73,7 @@ describe('/api/social-upload', () => {
     mockVerifyAdminOrEditor.mockResolvedValue({ authorized: true, userId: 'user-123', role: 'admin' });
     mockStorage.upload.mockResolvedValue({ data: { path: 'user-123/file.jpg' }, error: null });
     const res = mockRes();
-    await handler(mockReq({
+    await v3Handler(mockReq({
       headers: { authorization: 'Bearer token' },
       body: { filename: 'test.jpg', contentType: 'image/jpeg', base64: Buffer.from('image-data').toString('base64') }
     }), res);

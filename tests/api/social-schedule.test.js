@@ -14,13 +14,14 @@ jest.mock('../../lib/api/admin-auth', () => ({
   verifyAdminOrEditor: (...args) => mockVerifyAdminOrEditor(...args)
 }));
 
-const handler = require('../../api/social-schedule');
+const v3Handler = require('../../api/v3/index.js');
 
 function mockReq(overrides = {}) {
   return {
     method: 'GET',
+    url: '/api/v3',
     headers: {},
-    query: {},
+    query: { __route: 'social-schedule' },
     body: {},
     socket: {},
     ...overrides
@@ -48,7 +49,7 @@ describe('/api/social-schedule', () => {
   test('GET rejects unauthenticated', async () => {
     mockVerifyAdminOrEditor.mockResolvedValue({ authorized: false, reason: 'missing' });
     const res = mockRes();
-    await handler(mockReq(), res);
+    await v3Handler(mockReq(), res);
     expect(res.statusCode).toBe(401);
   });
 
@@ -61,7 +62,7 @@ describe('/api/social-schedule', () => {
       then: cb => cb({ data: [], error: null })
     }));
     const res = mockRes();
-    await handler(mockReq({ headers: { authorization: 'Bearer token' } }), res);
+    await v3Handler(mockReq({ headers: { authorization: 'Bearer token' } }), res);
     expect(res.statusCode).toBe(200);
     expect(res._json.success).toBe(true);
     expect(res._json.posts).toEqual([]);
@@ -70,7 +71,7 @@ describe('/api/social-schedule', () => {
   test('POST validates platforms', async () => {
     mockVerifyAdminOrEditor.mockResolvedValue({ authorized: true, userId: 'user-123', role: 'admin' });
     const res = mockRes();
-    await handler(mockReq({
+    await v3Handler(mockReq({
       method: 'POST',
       headers: { authorization: 'Bearer token' },
       body: { content: 'Hello', scheduledAt: '2030-01-01T00:00:00Z' }
@@ -81,7 +82,7 @@ describe('/api/social-schedule', () => {
   test('POST validates future scheduledAt', async () => {
     mockVerifyAdminOrEditor.mockResolvedValue({ authorized: true, userId: 'user-123', role: 'admin' });
     const res = mockRes();
-    await handler(mockReq({
+    await v3Handler(mockReq({
       method: 'POST',
       headers: { authorization: 'Bearer token' },
       body: { platforms: ['x'], content: 'Hello', scheduledAt: '2020-01-01T00:00:00Z' }

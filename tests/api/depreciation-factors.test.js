@@ -16,15 +16,15 @@ jest.mock('../../lib/api/admin-auth', () => ({
   verifyAdminOrEditor: (...args) => mockVerifyAdminOrEditor(...args)
 }));
 
-const handler = require('../../api/depreciation-factors');
+const handler = require('../../api/reference-data');
 
 function mockReq(overrides = {}) {
   return {
     method: 'GET',
     headers: {},
-    query: {},
     body: {},
-    ...overrides
+    ...overrides,
+    query: { __route: 'depreciation-factors', ...(overrides.query || {}) }
   };
 }
 

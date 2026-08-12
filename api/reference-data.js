@@ -1,33 +1,77 @@
 /**
- * Market Intelligence API
+ * Reference Data API
  *
- * GET  /api/market-intelligence
- *      ?assetClass=&country=&region=&city=&sector=&history=1&limit=
- * POST /api/market-intelligence
- *      Body: upsert payload (admin/editor)
- *      Body: { action: 'refresh' } (admin/editor or CRON_SECRET)
+ * Unified endpoint for:
+ *   - /api/depreciation-factors
+ *   - /api/economic-life
+ *   - /api/market-intelligence
+ *
+ * Merged into one Vercel Serverless Function to stay within the Hobby plan limit.
  */
+
 const getSupabase = require('../lib/api/supabase');
 const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
 
-const ALLOWED_ROLES = ['admin', 'editor']; // kept for backward compatibility
+const ALLOWED_ROLES = ['admin', 'editor'];
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
 
-// Refresh must finish before Cloudflare's ~100s proxy timeout (HTTP 524).
 const SOURCE_FETCH_TIMEOUT_MS = 15000;
 const SOURCE_CONCURRENCY = 5;
 const UPSERT_CONCURRENCY = 10;
 const SOURCE_START_BUDGET_MS = 60000;
 const TOTAL_TIME_BUDGET_MS = 80000;
 const REPORT_TIMEZONE = 'Asia/Riyadh';
-// Keep in sync with the cron schedule in .github/workflows/market-intelligence-refresh.yml
 const REFRESH_CRON_INTERVAL_HOURS = 3;
 
-function getReportRecipients() {
-  const raw = process.env.REPORT_EMAILS || process.env.MANAGER_EMAIL || process.env.ADMIN_EMAIL || '';
-  return raw.split(',').map(e => e.trim()).filter(Boolean);
+function cors(res, req) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
+function safeNum(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+function toSnake(str) {
+  return str.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
+}
+
+function getPath(obj, path) {
+  if (!path) return obj;
+  return path.split('.').reduce((acc, part) => {
+    if (acc === undefined || acc === null) return undefined;
+    if (part.endsWith(']')) {
+      const [key, idxStr] = part.split('[');
+      let node = key ? acc[key] : acc;
+      const idx = Number(idxStr.replace(']', ''));
+      return Array.isArray(node) ? node[idx] : undefined;
+    }
+    if (Array.isArray(acc) && /^\d+$/.test(part)) {
+      return acc[Number(part)];
+    }
+    return acc[part];
+  }, obj);
+}
+
+async function mapLimit(items, limit, fn) {
+  const results = new Array(items.length);
+  let cursor = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (cursor < items.length) {
+      const idx = cursor++;
+      results[idx] = await fn(items[idx]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 }
 
 function formatRiyadhTime(date) {
@@ -47,8 +91,9 @@ function nextRunRiyadh(now) {
   return next;
 }
 
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function getReportRecipients() {
+  const raw = process.env.REPORT_EMAILS || process.env.MANAGER_EMAIL || process.env.ADMIN_EMAIL || '';
+  return raw.split(',').map(e => e.trim()).filter(Boolean);
 }
 
 function buildRefreshReport(result, fatalError) {
@@ -56,7 +101,7 @@ function buildRefreshReport(result, fatalError) {
   const timeStr = formatRiyadhTime(now);
   const nextStr = formatRiyadhTime(nextRunRiyadh(now));
 
-  let status; // { key, ar, en, icon, color }
+  let status;
   if (fatalError) {
     status = { key: 'failure', ar: 'فشل', en: 'FAILURE', icon: '\u274c', color: '#dc2626' };
   } else if (result.failed === 0 && result.skipped === 0) {
@@ -148,55 +193,6 @@ async function sendRefreshReport(result, fatalError) {
   } catch (err) {
     return { sent: false, reason: err.message };
   }
-}
-
-async function mapLimit(items, limit, fn) {
-  const results = new Array(items.length);
-  let cursor = 0;
-  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
-    while (cursor < items.length) {
-      const idx = cursor++;
-      results[idx] = await fn(items[idx]);
-    }
-  });
-  await Promise.all(workers);
-  return results;
-}
-
-function cors(res, req) {
-  setAllowedOrigin(res, req);
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-}
-
-function safeNum(v, fallback = 0) {
-  const n = Number(v);
-  return Number.isFinite(n) ? n : fallback;
-}
-
-function toSnake(str) {
-  return str.replace(/[A-Z]/g, c => '_' + c.toLowerCase());
-}
-
-function getPath(obj, path) {
-  if (!path) return obj;
-  return path.split('.').reduce((acc, part) => {
-    if (acc === undefined || acc === null) return undefined;
-    if (part.endsWith(']')) {
-      const [key, idxStr] = part.split('[');
-      let node = key ? acc[key] : acc;
-      const idx = Number(idxStr.replace(']', ''));
-      return Array.isArray(node) ? node[idx] : undefined;
-    }
-    if (Array.isArray(acc) && /^\d+$/.test(part)) {
-      return acc[Number(part)];
-    }
-    return acc[part];
-  }, obj);
-}
-
-async function checkAuth(req, supabase) {
-  return verifyAdminOrEditor(req, supabase);
 }
 
 function isAllowedSourceUrl(urlStr) {
@@ -301,10 +297,147 @@ async function refreshSources(supabase) {
   return { updated, failed, skipped, errors, total: (sources || []).length, elapsedMs: Date.now() - startedAt };
 }
 
-module.exports = async function handler(req, res) {
-  cors(res, req);
-  if (req.method === 'OPTIONS') return res.status(200).end();
+/* ---------- Depreciation Factors ---------- */
+async function handleDepreciationFactors(req, res) {
+  const supabase = getSupabase();
 
+  if (req.method === 'GET') {
+    const { assetClass } = req.query || {};
+    let query = supabase
+      .from('depreciation_factors')
+      .select('*')
+      .order('asset_class', { ascending: true });
+
+    if (assetClass) {
+      query = query.eq('asset_class', assetClass);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+    return res.status(200).json({ success: true, data });
+  }
+
+  if (req.method === 'POST') {
+    const auth = await verifyAdminOrEditor(req, supabase);
+    if (!auth.authorized) {
+      const status = auth.reason === 'forbidden' ? 403 : 401;
+      return res.status(status).json({ success: false, error: auth.reason === 'forbidden' ? 'Forbidden' : 'Unauthorized' });
+    }
+
+    const body = req.body || {};
+    const { assetClass, nameAr, nameEn, factors, methods, notes } = body;
+
+    if (!assetClass) {
+      return res.status(400).json({ success: false, error: 'assetClass is required' });
+    }
+
+    const payload = {
+      asset_class: assetClass,
+      name_ar: nameAr || null,
+      name_en: nameEn || null,
+      factors: factors || {},
+      methods: methods || {},
+      notes: notes || null,
+      updated_at: new Date().toISOString()
+    };
+
+    const { data, error } = await supabase
+      .from('depreciation_factors')
+      .upsert(payload, { onConflict: 'asset_class' })
+      .select();
+
+    if (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+
+    return res.status(200).json({ success: true, data });
+  }
+
+  return res.status(405).json({ success: false, error: 'Method not allowed' });
+}
+
+/* ---------- Economic Life ---------- */
+async function handleEconomicLife(req, res) {
+  const supabase = getSupabase();
+
+  if (req.method === 'GET') {
+    const { assetClass } = req.query || {};
+    let query = supabase
+      .from('economic_life_database')
+      .select('*')
+      .order('asset_class', { ascending: true });
+
+    if (assetClass) {
+      query = query.eq('asset_class', assetClass);
+    }
+
+    const { data, error } = await query;
+    if (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+    return res.status(200).json({ success: true, data });
+  }
+
+  if (req.method === 'POST') {
+    const auth = await verifyAdminOrEditor(req, supabase);
+    if (!auth.authorized) {
+      const status = auth.reason === 'forbidden' ? 403 : 401;
+      return res.status(status).json({ success: false, error: auth.reason === 'forbidden' ? 'Forbidden' : 'Unauthorized' });
+    }
+
+    const body = req.body || {};
+    const assetClass = body.assetClass || body.asset_class;
+    const nameAr = body.nameAr || body.name_ar;
+    const nameEn = body.nameEn || body.name_en;
+    const economicLifeYears = body.economicLifeYears || body.economic_life_years;
+    const accountingLifeYears = body.accountingLifeYears || body.accounting_life_years;
+    const technicalLifeYears = body.technicalLifeYears || body.technical_life_years;
+    const designLifeYears = body.designLifeYears || body.design_life_years;
+    const operationalLifeYears = body.operationalLifeYears || body.operational_life_years;
+    const minLifeYears = body.minLifeYears || body.min_life_years;
+    const maxLifeYears = body.maxLifeYears || body.max_life_years;
+    const source = body.source;
+    const notes = body.notes;
+
+    if (!assetClass) {
+      return res.status(400).json({ success: false, error: 'assetClass is required' });
+    }
+
+    const upsertData = {
+      asset_class: assetClass,
+      name_ar: nameAr,
+      name_en: nameEn,
+      economic_life_years: Number(economicLifeYears) || 0,
+      accounting_life_years: Number(accountingLifeYears) || 0,
+      technical_life_years: Number(technicalLifeYears) || 0,
+      design_life_years: Number(designLifeYears) || 0,
+      operational_life_years: Number(operationalLifeYears) || 0,
+      min_life_years: Number(minLifeYears) || 0,
+      max_life_years: Number(maxLifeYears) || 0,
+      source: source || 'BONDS Valuation Standards',
+      notes: notes || '',
+      updated_at: new Date().toISOString()
+    };
+    if (body.updated_by) upsertData.updated_by = body.updated_by;
+
+    const { data, error } = await supabase
+      .from('economic_life_database')
+      .upsert(upsertData, { onConflict: 'asset_class' })
+      .select();
+
+    if (error) {
+      return res.status(500).json({ success: false, error: error.message });
+    }
+    return res.status(200).json({ success: true, data });
+  }
+
+  return res.status(405).json({ success: false, error: 'Method not allowed' });
+}
+
+/* ---------- Market Intelligence ---------- */
+async function handleMarketIntelligence(req, res) {
   const supabase = getSupabase();
 
   if (req.method === 'GET') {
@@ -351,7 +484,7 @@ module.exports = async function handler(req, res) {
 
     let auth = { authorized: false };
     if (!cronOk) {
-      auth = await checkAuth(req, supabase);
+      auth = await verifyAdminOrEditor(req, supabase);
       if (!auth.authorized) {
         const status = auth.reason === 'forbidden' ? 403 : 401;
         return res.status(status).json({ success: false, error: auth.reason === 'forbidden' ? 'Forbidden' : 'Unauthorized' });
@@ -361,7 +494,6 @@ module.exports = async function handler(req, res) {
     if (isRefresh) {
       try {
         const result = await refreshSources(supabase);
-        // Email the report only for cron-triggered refreshes (not manual admin runs)
         const email = cronOk ? await sendRefreshReport(result) : { sent: false, reason: 'manual_trigger' };
         return res.status(200).json({ success: true, ...result, email });
       } catch (err) {
@@ -441,4 +573,18 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(405).json({ success: false, error: 'Method not allowed' });
+}
+
+/* ---------- Main Handler ---------- */
+module.exports = async function handler(req, res) {
+  cors(res, req);
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const route = req.query?.__route;
+
+  if (route === 'depreciation-factors') return handleDepreciationFactors(req, res);
+  if (route === 'economic-life') return handleEconomicLife(req, res);
+  if (route === 'market-intelligence') return handleMarketIntelligence(req, res);
+
+  return res.status(404).json({ success: false, error: 'Not found' });
 };
