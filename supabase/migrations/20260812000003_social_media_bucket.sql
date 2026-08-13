@@ -15,15 +15,36 @@ on conflict (id) do update set
   allowed_mime_types = array['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/quicktime'];
 
 -- Allow public read of social-media objects.
-create policy if not exists "Social media public read"
-  on storage.objects
-  for select
-  to public
-  using (bucket_id = 'social-media');
+-- Wrapped in a DO block because "CREATE POLICY IF NOT EXISTS" requires Postgres 16+.
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and policyname = 'Social media public read'
+  ) then
+    create policy "Social media public read"
+      on storage.objects
+      for select
+      to public
+      using (bucket_id = 'social-media');
+  end if;
+end $$;
 
 -- Allow authenticated users to upload (server-side service role bypasses RLS anyway).
-create policy if not exists "Social media authenticated upload"
-  on storage.objects
-  for insert
-  to authenticated
-  with check (bucket_id = 'social-media');
+do $$
+begin
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'storage'
+      and tablename = 'objects'
+      and policyname = 'Social media authenticated upload'
+  ) then
+    create policy "Social media authenticated upload"
+      on storage.objects
+      for insert
+      to authenticated
+      with check (bucket_id = 'social-media');
+  end if;
+end $$;
