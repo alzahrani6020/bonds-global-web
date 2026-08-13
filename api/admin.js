@@ -25,13 +25,38 @@ function isOwner(email) {
  * connection (SUPABASE_DB_URL). This avoids needing a Supabase Management API
  * access token and lets the project apply migrations from a secure Vercel
  * endpoint using the CRON_SECRET.
+ *
+ * Supabase's direct DB host (db.<ref>.supabase.co) is IPv6-only and Vercel
+ * serverless functions cannot resolve it, so we rewrite it to the IPv4-enabled
+ * session pooler host when needed.
  */
-async function applySocialMigrations() {
-  const { Client } = require('pg');
+function resolveMigrationDbUrl() {
   const dbUrl = process.env.SUPABASE_DB_URL;
   if (!dbUrl) {
     throw new Error('SUPABASE_DB_URL is not configured in environment variables');
   }
+
+  try {
+    const url = new URL(dbUrl);
+    const directMatch = url.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/i);
+    if (!directMatch) {
+      // Already a pooler/custom URL.
+      return dbUrl;
+    }
+    const ref = directMatch[1];
+    const poolerHost = process.env.SUPABASE_POOLER_HOST || 'aws-1-eu-central-1.pooler.supabase.com';
+    url.hostname = poolerHost;
+    url.port = '5432';
+    url.username = `postgres.${ref}`;
+    return url.toString();
+  } catch (err) {
+    throw new Error(`Failed to parse SUPABASE_DB_URL: ${err.message}`);
+  }
+}
+
+async function applySocialMigrations() {
+  const { Client } = require('pg');
+  const connectionString = resolveMigrationDbUrl();
 
   const migrationsDir = path.join(process.cwd(), 'supabase', 'migrations');
   const files = [
@@ -42,7 +67,7 @@ async function applySocialMigrations() {
   ];
 
   const client = new Client({
-    connectionString: dbUrl,
+    connectionString,
     ssl: { rejectUnauthorized: false },
   });
 
