@@ -54,17 +54,34 @@ function resolveMigrationDbUrl() {
   }
 }
 
-async function applySocialMigrations() {
+function validateMigrationPath(inputPath) {
+  if (!inputPath) return null;
+  const normalized = path.normalize(inputPath).replace(/\\/g, '/');
+  if (normalized.includes('..')) {
+    throw new Error('Invalid migration file path');
+  }
+  if (!normalized.startsWith('supabase/migrations/')) {
+    throw new Error('Migration file must be inside supabase/migrations/');
+  }
+  if (!normalized.endsWith('.sql')) {
+    throw new Error('Migration file must be a .sql file');
+  }
+  return normalized;
+}
+
+async function applyMigrations(targetFile = null) {
   const { Client } = require('pg');
   const connectionString = resolveMigrationDbUrl();
-
   const migrationsDir = path.join(process.cwd(), 'supabase', 'migrations');
-  const files = [
-    '20260812000000_social_accounts.sql',
-    '20260812000001_social_posts.sql',
-    '20260812000002_social_scheduled_posts.sql',
-    '20260812000003_social_media_bucket.sql',
-  ];
+
+  const files = targetFile
+    ? [targetFile]
+    : [
+        '20260812000000_social_accounts.sql',
+        '20260812000001_social_posts.sql',
+        '20260812000002_social_scheduled_posts.sql',
+        '20260812000003_social_media_bucket.sql',
+      ];
 
   const client = new Client({
     connectionString,
@@ -75,7 +92,7 @@ async function applySocialMigrations() {
   const applied = [];
   try {
     for (const file of files) {
-      const filePath = path.join(migrationsDir, file);
+      const filePath = path.join(process.cwd(), file);
       if (!fs.existsSync(filePath)) {
         throw new Error(`Migration file not found: ${filePath}`);
       }
@@ -1880,7 +1897,8 @@ async function handler(req, res) {
         if (!expectedCronSecret || cronSecret !== expectedCronSecret) {
           return res.status(403).json({ success: false, error: 'Unauthorized' });
         }
-        const result = await applySocialMigrations();
+        const targetFile = validateMigrationPath(req.query?.migration_file || req.body?.migration_file);
+        const result = await applyMigrations(targetFile);
         return res.status(200).json({ success: true, ...result });
       }
       if (action === 'makeOwnerAdmin') {
