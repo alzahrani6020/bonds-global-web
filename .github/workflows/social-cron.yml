@@ -14,6 +14,11 @@ jobs:
     steps:
       - name: Trigger social cron
         run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET is not set. Skipping social cron (no scheduled posts will be published)."
+            echo "Add CRON_SECRET to GitHub repository secrets to enable scheduled posting."
+            exit 0
+          fi
           curl -fsS -X GET "${SITE_URL}/api/social-cron?cronSecret=${CRON_SECRET}"
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://bonds-global.com' }}
