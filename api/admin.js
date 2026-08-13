@@ -3,6 +3,8 @@
  * Routes: /api/admin?action=bank-transfers|settings|exceptions|analytics
  */
 
+const fs = require('fs');
+const path = require('path');
 const getSupabase = require('../lib/api/supabase');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
@@ -16,6 +18,51 @@ const OWNER_EMAIL = CONFIGURED_OWNER_EMAIL || OWNER_EMAILS[0];
 function isOwner(email) {
   if (!email) return false;
   return OWNER_EMAILS.includes(email.toLowerCase());
+}
+
+/**
+ * Apply the social-media Supabase migrations directly over the Postgres
+ * connection (SUPABASE_DB_URL). This avoids needing a Supabase Management API
+ * access token and lets the project apply migrations from a secure Vercel
+ * endpoint using the CRON_SECRET.
+ */
+async function applySocialMigrations() {
+  const { Client } = require('pg');
+  const dbUrl = process.env.SUPABASE_DB_URL;
+  if (!dbUrl) {
+    throw new Error('SUPABASE_DB_URL is not configured in environment variables');
+  }
+
+  const migrationsDir = path.join(process.cwd(), 'supabase', 'migrations');
+  const files = [
+    '20260812000000_social_accounts.sql',
+    '20260812000001_social_posts.sql',
+    '20260812000002_social_scheduled_posts.sql',
+    '20260812000003_social_media_bucket.sql',
+  ];
+
+  const client = new Client({
+    connectionString: dbUrl,
+    ssl: { rejectUnauthorized: false },
+  });
+
+  await client.connect();
+  const applied = [];
+  try {
+    for (const file of files) {
+      const filePath = path.join(migrationsDir, file);
+      if (!fs.existsSync(filePath)) {
+        throw new Error(`Migration file not found: ${filePath}`);
+      }
+      const sql = fs.readFileSync(filePath, 'utf8');
+      await client.query(sql);
+      applied.push(file);
+    }
+  } finally {
+    await client.end();
+  }
+
+  return { applied, count: applied.length };
 }
 
 function decodeJwtAal(token) {
@@ -1801,6 +1848,15 @@ async function handler(req, res) {
           if (!admin) return res.status(403).json({ error: 'Admin or cron required' });
         }
         return res.status(200).json(await sendBulkProfileReminders(sb, admin, req));
+      }
+      if (action === 'run-migrations') {
+        const cronSecret = req.headers['x-cron-secret'] || req.query?.cronSecret;
+        const expectedCronSecret = process.env.CRON_SECRET;
+        if (!expectedCronSecret || cronSecret !== expectedCronSecret) {
+          return res.status(403).json({ success: false, error: 'Unauthorized' });
+        }
+        const result = await applySocialMigrations();
+        return res.status(200).json({ success: true, ...result });
       }
       if (action === 'makeOwnerAdmin') {
         const authHeader = req.headers.authorization;
