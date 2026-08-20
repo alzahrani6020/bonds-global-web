@@ -12,7 +12,7 @@
         return;
       }
       const script = document.createElement('script');
-      script.src = '/bonds-auth-2026.js?v=3.0.7';
+      script.src = '/bonds-auth-2026.js?v=3.0.8';
       script.async = true;
       script.onload = function () { resolve(); };
       script.onerror = function () { resolve(); };
