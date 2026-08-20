@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Bonds-Certified Advisors | Ask an Expert</title>
   <meta name="description" content="Choose a Bonds-certified financial advisor to review your project analysis and answer your investment questions." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="../styles/fonts-en.css">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/page-redesign-2026.css?v=1" />
 
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />  <link rel="manifest" href="/manifest.json" />
+
   <style>
     .advisors-hero { padding: 6rem 2rem 3rem; text-align: center; background: linear-gradient(180deg, rgba(212,168,83,0.08) 0%, transparent 60%); }
     .advisors-hero h1 { font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; color: var(--text); margin-bottom: 1rem; }
@@ -36,14 +36,42 @@
   <link rel="canonical" href="https://bonds-global.com/en/advisors" />
   <meta property="og:title" content="Bonds-Certified Advisors | Ask an Expert" />
   <meta property="og:description" content="Choose a Bonds-certified financial advisor to review your project analysis and answer your investment questions." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Bonds-Certified+Advisors+%7C+Ask+an+Expert&amp;description=Choose+a+Bonds-certified+financial+advisor+to+review+your+project+analysis+and+answer+your+investment+questions.&amp;lang=en" />
+  <meta property="og:image:alt" content="Bonds-Certified Advisors | Ask an Expert" />
   <meta property="og:url" content="https://bonds-global.com/en/advisors" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Bonds-Certified Advisors | Ask an Expert" />
   <meta name="twitter:description" content="Choose a Bonds-certified financial advisor to review your project analysis and answer your investment questions." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Bonds-Certified+Advisors+%7C+Ask+an+Expert&amp;description=Choose+a+Bonds-certified+financial+advisor+to+review+your+project+analysis+and+answer+your+investment+questions.&amp;lang=en" />
 
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/advisors" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/advisors" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -60,7 +88,7 @@
 
   <script src="../bonds-auth-2026.js?v=3.0.7"></script>
   <script src="/lib/bonds-common.js"></script>
-  <script src="../site-layout.js?v=3.2.0"></script>
+  <script defer src="../site-layout.js?v=3.2.0"></script>
   <script>
     async function loadAdvisors() {
       const container = document.getElementById('advisorsContainer');
@@ -78,7 +106,7 @@
           <article class="advisor-card">
             <div class="advisor-header">
               <div class="advisor-avatar">
-                ${advisor.avatar_url ? `<img src="${advisor.avatar_url}" alt="${BondsCommon.escapeHtml(advisor.name)}">` : advisor.name.charAt(0)}
+                ${advisor.avatar_url ? `<img src="${advisor.avatar_url}" alt="${BondsCommon.escapeHtml(advisor.name)}" loading="lazy" decoding="async">` : advisor.name.charAt(0)}
               </div>
               <div>
                 <div class="advisor-name">${BondsCommon.escapeHtml(advisor.name)}</div>
@@ -105,7 +133,7 @@
 
     loadAdvisors();
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

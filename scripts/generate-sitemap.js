@@ -95,6 +95,11 @@ function toUrlPath(relPath) {
   return normalized;
 }
 
+function canonicalUrl(relPath) {
+  const urlPath = toUrlPath(relPath);
+  return `${BASE_URL}/${urlPath}`.replace(/\/$/, '') || `${BASE_URL}/`;
+}
+
 function escapeXml(value) {
   return value
     .replace(/&/g, '&amp;')
@@ -150,6 +155,33 @@ function formatDate(date) {
   return date.toISOString().split('T')[0];
 }
 
+function detectLang(relPath) {
+  const p = relPath.replace(/\\/g, '/');
+  if (p.startsWith('en/') || p.includes('/en/')) return 'en';
+  return 'ar';
+}
+
+function counterpartRelPath(relPath) {
+  const p = relPath.replace(/\\/g, '/');
+  const parts = p.split('/');
+  if (parts.length >= 2 && parts[0] === 'blog' && parts[1] === 'en') {
+    return ['blog'].concat(parts.slice(2)).join('/');
+  }
+  if (parts.length >= 2 && parts[0] === 'reports' && parts[1] === 'en') {
+    return ['reports'].concat(parts.slice(2)).join('/');
+  }
+  if (parts[0] === 'en') {
+    return parts.slice(1).join('/');
+  }
+  if (parts[0] === 'blog') {
+    return ['blog', 'en'].concat(parts.slice(1)).join('/');
+  }
+  if (parts[0] === 'reports') {
+    return ['reports', 'en'].concat(parts.slice(1)).join('/');
+  }
+  return ['en'].concat(parts).join('/');
+}
+
 function main() {
   const files = walk(process.cwd());
   const urls = files
@@ -158,6 +190,7 @@ function main() {
       const fullUrl = `${BASE_URL}/${urlPath}`;
       const stats = fs.statSync(relPath);
       return {
+        relPath,
         loc: fullUrl.replace(/\/$/, '') || `${BASE_URL}/`,
         lastmod: formatDate(stats.mtime),
         changefreq: getChangeFreq(relPath),
@@ -166,14 +199,27 @@ function main() {
     })
     .sort((a, b) => a.loc.localeCompare(b.loc));
 
+  const fileSet = new Set(files);
+
   const lines = [
     '<?xml version="1.0" encoding="UTF-8"?>',
-    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">',
   ];
 
   for (const url of urls) {
+    const relPath = url.relPath;
+    const lang = detectLang(relPath);
+    const counterRel = counterpartRelPath(relPath);
+    const hasCounter = fileSet.has(counterRel);
+
     lines.push('  <url>');
     lines.push(`    <loc>${escapeXml(url.loc)}</loc>`);
+    lines.push(`    <xhtml:link rel="alternate" hreflang="${lang}" href="${escapeXml(url.loc)}" />`);
+    if (hasCounter) {
+      const counterUrl = canonicalUrl(counterRel);
+      const counterLang = lang === 'ar' ? 'en' : 'ar';
+      lines.push(`    <xhtml:link rel="alternate" hreflang="${counterLang}" href="${escapeXml(counterUrl)}" />`);
+    }
     lines.push(`    <lastmod>${url.lastmod}</lastmod>`);
     lines.push(`    <changefreq>${url.changefreq}</changefreq>`);
     lines.push(`    <priority>${url.priority}</priority>`);

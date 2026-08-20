@@ -1,30 +1,55 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
+<head>  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <title>تأكيد البريد الإلكتروني — Bonds</title>
+  <link rel="stylesheet" href="../../styles/fonts-ar.css">
   <link rel="stylesheet" href="../../styles.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
+    <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
+  <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="./auth-shared.css?v=2" />
   <link rel="stylesheet" href="verify-otp.css" />
   <link rel="canonical" href="https://bonds-global.com/calculators/auth/verify-otp" />
   <meta property="og:title" content="تأكيد البريد الإلكتروني — Bonds" />
   <meta property="og:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=%D8%AA%D8%A3%D9%83%D9%8A%D8%AF+%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF+%D8%A7%D9%84%D8%A5%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A+%E2%80%94+Bonds&amp;description=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A7%D8%AA+%D9%85%D8%A7%D9%84%D9%8A%D8%A9+%D9%85%D8%AA%D8%AE%D8%B5%D8%B5%D8%A9+%D9%88%D8%A7%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA+%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A%D8%A9+%D9%85%D9%86+%D8%A8%D9%88%D9%86%D8%AF%D8%B2.&amp;lang=ar" />
+  <meta property="og:image:alt" content="تأكيد البريد الإلكتروني — Bonds" />
   <meta property="og:url" content="https://bonds-global.com/calculators/auth/verify-otp" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="تأكيد البريد الإلكتروني — Bonds" />
   <meta name="twitter:description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=%D8%AA%D8%A3%D9%83%D9%8A%D8%AF+%D8%A7%D9%84%D8%A8%D8%B1%D9%8A%D8%AF+%D8%A7%D9%84%D8%A5%D9%84%D9%83%D8%AA%D8%B1%D9%88%D9%86%D9%8A+%E2%80%94+Bonds&amp;description=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A7%D8%AA+%D9%85%D8%A7%D9%84%D9%8A%D8%A9+%D9%85%D8%AA%D8%AE%D8%B5%D8%B5%D8%A9+%D9%88%D8%A7%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1%D8%A7%D8%AA+%D8%A7%D9%82%D8%AA%D8%B5%D8%A7%D8%AF%D9%8A%D8%A9+%D9%85%D9%86+%D8%A8%D9%88%D9%86%D8%AF%D8%B2.&amp;lang=ar" />
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<script src="/calculators/auth-gate.js?v=3"></script>
-  </head>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+</head>
 <body>
   <div class="auth-container">
     <div class="auth-card">
@@ -263,8 +288,8 @@
       function hideMessages() { errorMsg.style.display = 'none'; successMsg.style.display = 'none'; infoMsg.style.display = 'none'; }
     })();
   </script>
-  <script src="../../page-tracker-v2.js"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+  <script defer src="../../page-tracker-v2.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

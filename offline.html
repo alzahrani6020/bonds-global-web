@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>أنت غير متصل | بوندز</title>
+  <meta name="description" content="يبدو أنك غير متصل بالإنترنت. بعض الصفحات المحفوظة مسبقًا لا تزال متاحة، أو يمكنك إعادة المحاولة." />
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="styles/fonts-ar.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="header-footer.css?v=2.63.0" />
+  <link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <style>
+    .offline-page {
+      min-height: 70vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+    .offline-page__icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      color: var(--gold);
+    }
+    .offline-page__title {
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+      font-weight: 700;
+      margin-bottom: 1rem;
+      color: var(--text);
+    }
+    .offline-page__text {
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto 2rem;
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+    .offline-page__actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .offline-page__actions a,
+    .offline-page__actions button {
+      padding: 0.875rem 1.75rem;
+      border-radius: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .offline-page__actions a:hover,
+    .offline-page__actions button:hover { transform: translateY(-2px); }
+    .offline-page__actions .btn-primary {
+      background: linear-gradient(90deg, var(--gold-bright), var(--gold));
+      color: #0a0f1a;
+      border: 0;
+      box-shadow: 0 4px 14px rgba(212, 168, 83, 0.25);
+    }
+    .offline-page__actions .btn-secondary {
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: rgba(255,255,255,0.03);
+    }
+  </style>
+  <link rel="canonical" href="https://bonds-global.com/offline" />
+  <meta property="og:title" content="أنت غير متصل | بوندز" />
+  <meta property="og:description" content="يبدو أنك غير متصل بالإنترنت. بعض الصفحات المحفوظة مسبقًا لا تزال متاحة، أو يمكنك إعادة المحاولة." />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=%D8%A3%D9%86%D8%AA+%D8%BA%D9%8A%D8%B1+%D9%85%D8%AA%D8%B5%D9%84+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D9%8A%D8%A8%D8%AF%D9%88+%D8%A3%D9%86%D9%83+%D8%BA%D9%8A%D8%B1+%D9%85%D8%AA%D8%B5%D9%84+%D8%A8%D8%A7%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA.+%D8%A8%D8%B9%D8%B6+%D8%A7%D9%84%D8%B5%D9%81%D8%AD%D8%A7%D8%AA+%D8%A7%D9%84%D9%85%D8%AD%D9%81%D9%88%D8%B8%D8%A9+%D9%85%D8%B3%D8%A8%D9%82%D9%8B%D8%A7+%D9%84%D8%A7+%D8%AA%D8%B2%D8%A7%D9%84+%D9%85%D8%AA%D8%A7%D8%AD%D8%A9%D8%8C+%D8%A3%D9%88+%D9%8A%D9%85%D9%83%D9%86%D9%83+%D8%A5%D8%B9%D8%A7%D8%AF%D8%A9+%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D9%88%D9%84%D8%A9.&amp;lang=ar" />
+  <meta property="og:image:alt" content="أنت غير متصل | بوندز" />
+  <meta property="og:url" content="https://bonds-global.com/offline" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="أنت غير متصل | بوندز" />
+  <meta name="twitter:description" content="يبدو أنك غير متصل بالإنترنت. بعض الصفحات المحفوظة مسبقًا لا تزال متاحة، أو يمكنك إعادة المحاولة." />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=%D8%A3%D9%86%D8%AA+%D8%BA%D9%8A%D8%B1+%D9%85%D8%AA%D8%B5%D9%84+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D9%8A%D8%A8%D8%AF%D9%88+%D8%A3%D9%86%D9%83+%D8%BA%D9%8A%D8%B1+%D9%85%D8%AA%D8%B5%D9%84+%D8%A8%D8%A7%D9%84%D8%A5%D9%86%D8%AA%D8%B1%D9%86%D8%AA.+%D8%A8%D8%B9%D8%B6+%D8%A7%D9%84%D8%B5%D9%81%D8%AD%D8%A7%D8%AA+%D8%A7%D9%84%D9%85%D8%AD%D9%81%D9%88%D8%B8%D8%A9+%D9%85%D8%B3%D8%A8%D9%82%D9%8B%D8%A7+%D9%84%D8%A7+%D8%AA%D8%B2%D8%A7%D9%84+%D9%85%D8%AA%D8%A7%D8%AD%D8%A9%D8%8C+%D8%A3%D9%88+%D9%8A%D9%85%D9%83%D9%86%D9%83+%D8%A5%D8%B9%D8%A7%D8%AF%D8%A9+%D8%A7%D9%84%D9%85%D8%AD%D8%A7%D9%88%D9%84%D8%A9.&amp;lang=ar" />
+
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/offline" />
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main id="main-content">
+    <section class="offline-page">
+      <div>
+        <svg class="offline-page__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+          <path d="M4.5 16.5c-1.5-1.5-2.5-3.5-2.5-5.5 0-4.4 3.6-8 8-8 2 0 3.8.7 5.2 2M7.5 19.5c1.2 1.2 2.8 2 4.5 2 4.4 0 8-3.6 8-8 0-1.5-.4-2.9-1.1-4.1" />
+          <path d="M3 21L21 3" />
+        </svg>
+        <h1 class="offline-page__title">أنت غير متصل بالإنترنت</h1>
+        <p class="offline-page__text">
+          يبدو أن الاتصال بالشبكة انقطع. الصفحات التي زرتها سابقًا وتم حفظها ستظل متاحة، ويمكنك محاولة إعادة الاتصال بالضغط على الزر أدناه.
+        </p>
+        <div class="offline-page__actions">
+          <button type="button" class="btn-primary" onclick="location.reload()">إعادة المحاولة</button>
+          <a href="/" class="btn-secondary">الصفحة الرئيسية</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="supabase-client.js" defer></script>
+  <script src="auth-guard.js" defer></script>
+  <script src="site-layout.js?v=3.2.0" defer></script>
+  <script src="script.js" defer></script>
+</body>
+</html>

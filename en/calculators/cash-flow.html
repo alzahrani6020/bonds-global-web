@@ -8,15 +8,14 @@
   <meta name="description" content="Calculate cash flow forecasts for 12 months: inflows, outflows, and closing balance. A free tool from Bonds." />
   <meta property="og:title" content="Cash Flow Calculator | Bonds" />
   <meta property="og:description" content="Calculate cash flow forecasts for 12 months: inflows, outflows, and closing balance." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Cash+Flow+Calculator+%7C+Bonds&amp;description=Calculate+cash+flow+forecasts+for+12+months%3A+inflows%2C+outflows%2C+and+closing+balance.&amp;lang=en" />
+  <meta property="og:image:alt" content="Cash Flow Calculator | Bonds" />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/cash-flow" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Cash Flow Calculator | Bonds" />
   <meta name="twitter:description" content="Calculate cash flow forecasts for 12 months: inflows, outflows, and closing balance." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Cash+Flow+Calculator+%7C+Bonds&amp;description=Calculate+cash+flow+forecasts+for+12+months%3A+inflows%2C+outflows%2C+and+closing+balance.&amp;lang=en" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="preconnect" href="https://cdn.sheetjs.com" />
   <link rel="prefetch" href="../../calculator.html" as="document" />
@@ -24,38 +23,71 @@
   <link rel="prefetch" href="loan.html" as="document" />
   <link rel="preload" href="../../assets/bonds-logo-2026.webp?v=2026" as="image" type="image/webp" />
   <script defer src="/_vercel/insights/script.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <link rel="stylesheet" href="../../styles/design-system.css" />
   <link rel="stylesheet" href="cash-flow.css" />
   <script src="../../calculators/shared-ui.js"></script>
-  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />  <link rel="manifest" href="/manifest.json" />
+
   <script src="../../calculators/shared-utils.js"></script>
   
 
   <script src="../../calculators/db-client.js"></script>
-<link rel="canonical" href="https://bonds-global.com/en/calculators/cash-flow" />
-  <script type="application/ld+json">
-  {
+<link rel="canonical" href="https://bonds-global.com/en/calculators/cash-flow" /><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bonds-global.com/en/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Calculators",
+      "item": "https://bonds-global.com/en/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Cash Flow Calculator",
+      "item": "https://bonds-global.com/en/calculators/cash-flow.html"
+    }
+  ]
+}
+</script>
+
+  <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Cash Flow Calculator",
-  "applicationCategory": "BusinessApplication",
+  "description": "Calculate cash flow forecasts for 12 months: inflows, outflows, and closing balance. A free tool from Bonds.",
+  "url": "https://bonds-global.com/en/calculators/cash-flow",
+  "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "en",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "SAR"
-  },
-  "url": "https://bonds-global.com/en/calculators/cash-flow",
-  "description": "Calculate cash flow forecasts for 12 months: inflows, outflows, and closing balance. A free tool from Bonds."
-}
-  </script>
+  }
+}</script>
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-
-  </head>
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/cash-flow" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/cash-flow" />
+</head>
 <body>
 
   <!-- Top Bar -->
@@ -68,6 +100,12 @@
 
   <!-- Header -->
   <div id="site-header"></div>
+<nav aria-label="Breadcrumb" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/">Home</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/calculator.html">Calculators</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">Cash Flow Calculator</li>
+  </ol>
+</nav>
+
 
   <!-- Hero -->
   <section class="hero calc-hero">
@@ -914,7 +952,7 @@
           ${summaryHTML}
           <h3>التفاصيل الشهرية</h3>
           ${resultsHTML}
-          ${chartImg ? '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="Closing Balance" />' : ''}
+          ${chartImg ? '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="Closing Balance"  loading="lazy" decoding="async" />' : ''}
           <div class="footer" style="background:#f8f5ef;border:1px solid #d4a853;border-radius:16px;padding:20px;margin-top:30px;text-align:center;">
             <strong style="color:#1a1a1a;font-size:14px;display:block;margin-bottom:12px;">📌 A note from Bonds</strong>
             <p style="color:#555;font-size:12px;line-height:1.8;margin-bottom:16px;">The figures above are an intelligent estimate based on your data; they give you a strong initial financial view to help you evaluate your project's opportunity before you decide.</p>
@@ -1022,7 +1060,7 @@
   </script>
   <button onclick="window.scrollTo({top:0,behavior:\'smooth\'})" id="backToTop" class="back-to-top" aria-label="Back to top">↑</button>
   <script>window.addEventListener('scroll',function(){var b=document.getElementById('backToTop');if(window.scrollY>400){b.style.opacity='1';b.style.visibility='visible';}else{b.style.opacity='0';b.style.visibility='hidden';}});</script>
-  <script src="../../page-tracker-v2.js"></script>
+  <script defer src="../../page-tracker-v2.js"></script>
 <script src="/api/env"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/bonds-auth-2026.js?v=3.0.7"></script>
@@ -1254,7 +1292,7 @@
     })();
   })();
 </script>
-<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script defer src="../../calculators/shared-enhancements.js?v=1"></script>
 <script>
 (function() {
   if (!window.BondsEnhancements) return;
@@ -1277,7 +1315,7 @@
   });
 })();
 </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

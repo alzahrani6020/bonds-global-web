@@ -8,15 +8,14 @@
   <meta name="description" content="Calculate your project's break-even point: units and revenue needed to cover costs. A free tool from Bonds." />
   <meta property="og:title" content="Break-Even Calculator | Bonds" />
   <meta property="og:description" content="Calculate your project's break-even point: fixed costs, variable costs, selling price, and expected sales volume." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Break-Even+Calculator+%7C+Bonds&amp;description=Calculate+your+project&amp;lang=en" />
+  <meta property="og:image:alt" content="Break-Even Calculator | Bonds" />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/break-even" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Break-Even Calculator | Bonds" />
   <meta name="twitter:description" content="Calculate your project's break-even point: fixed costs, variable costs, selling price, and expected sales volume." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Break-Even+Calculator+%7C+Bonds&amp;description=Calculate+your+project&amp;lang=en" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   <link rel="preconnect" href="https://cdn.sheetjs.com" />
@@ -25,12 +24,14 @@
   <link rel="prefetch" href="../../en/calculators/loan.html" as="document" />
   <link rel="preload" href="../../assets/bonds-logo-2026.webp?v=2026" as="image" type="image/webp" />
   <script defer src="/_vercel/insights/script.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../styles/page-shared.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <link rel="stylesheet" href="../../styles/calculator-landing.css" />
-  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />  <link rel="manifest" href="/manifest.json" />
+
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/calc-functions.js"></script>
   <script src="../../calculators/shared-platforms-loader.js"></script>
@@ -38,7 +39,7 @@
   <script src="../../calculators/shared-export.js" defer></script>
   <link rel="canonical" href="https://bonds-global.com/en/calculators/break-even" />
   <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-  <script src="../../calculators/auth-gate.js?v=3"></script>
+  <script defer src="../../calculators/auth-gate.js?v=3"></script>
   <script src="/lib/bonds-common.js"></script>
   <style>
     .scenario-list { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.75rem; }
@@ -69,8 +70,58 @@
     .kpi-card__label { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem; }
     .kpi-card__value { font-size: 1.45rem; font-weight: 800; color: var(--text); line-height: 1.2; }
     .kpi-card__unit { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.2rem; }
-  </style>
-  </head>
+  </style><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bonds-global.com/en/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Calculators",
+      "item": "https://bonds-global.com/en/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Break-Even Calculator",
+      "item": "https://bonds-global.com/en/calculators/break-even.html"
+    }
+  ]
+}
+</script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Break-Even Calculator",
+  "description": "Calculate your project",
+  "url": "https://bonds-global.com/en/calculators/break-even",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "en",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/break-even" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/break-even" />
+</head>
 <body class="body-ar">
 
   <!-- Top Bar -->
@@ -83,6 +134,12 @@
 
   <!-- Header -->
   <div id="site-header"></div>
+<nav aria-label="Breadcrumb" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/">Home</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/calculator.html">Calculators</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">Break-Even Calculator</li>
+  </ol>
+</nav>
+
 
   <!-- Hero -->
   <section class="hero page-hero-compact">
@@ -2754,9 +2811,9 @@
           </table>
           
           <h3>Charts</h3>
-          ${chartImg ? '<img class="chart-img" src="' + chartImg + '" alt="Chart of Costs and Revenue" />' : ''}
-          ${scenarioImg ? '<img class="chart-img" src="' + scenarioImg + '" alt="Scenario Comparison" style="max-height:240px;" />' : ''}
-          ${costImg ? '<img class="chart-img" src="' + costImg + '" alt="Cost Composition" style="max-width:300px; margin:15px auto; display:block;" />' : ''}
+          ${chartImg ? '<img class="chart-img" src="' + chartImg + '" alt="Chart of Costs and Revenue"  loading="lazy" decoding="async" />' : ''}
+          ${scenarioImg ? '<img class="chart-img" src="' + scenarioImg + '" alt="Scenario Comparison" style="max-height:240px;"  loading="lazy" decoding="async" />' : ''}
+          ${costImg ? '<img class="chart-img" src="' + costImg + '" alt="Cost Composition" style="max-width:300px; margin:15px auto; display:block;"  loading="lazy" decoding="async" />' : ''}
           
           <h3>Scenario Comparison</h3>
           <table>
@@ -3874,10 +3931,10 @@
 
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
   <script>window.BondsAuth && window.BondsAuth.initSiteAuth('authContainer');</script>
-  <script src="../../page-tracker-v2.js"></script>
+  <script defer src="../../page-tracker-v2.js"></script>
   <script src="../../calculators/shared-geo.js?v=7"></script>
-  <script src="../../site-layout.js?v=3.2.0"></script>
-  <script src="../../calculators/shared-enhancements.js?v=1"></script>
+  <script defer src="../../site-layout.js?v=3.2.0"></script>
+  <script defer src="../../calculators/shared-enhancements.js?v=1"></script>
   <script>
   (function() {
     if (!window.BondsEnhancements) return;
@@ -3898,7 +3955,7 @@
     });
   })();
   </script>
-<script src="../../components/ecc-icons.js"></script>
+<script defer src="../../components/ecc-icons.js"></script>
 <script>
 (function () {
   if (!window.EccIcons) return;
@@ -3907,7 +3964,7 @@
   });
 })();
 </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

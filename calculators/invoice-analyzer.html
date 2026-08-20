@@ -4,10 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>حاسبة تحليل الفواتير | بوندز</title>
-  <meta name="description" content="حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta name="description" content="حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل." />  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="shared-calculators.css" />
   <script src="shared-ui.js"></script>
   <script src="shared-utils.js"></script>
@@ -17,39 +14,85 @@
   <script src="db-client.js"></script>
   <script src="db-client-auto.js"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <link rel="stylesheet" href="invoice-analyzer.css" />
-<link rel="canonical" href="https://bonds-global.com/calculators/invoice-analyzer" />
-  <script type="application/ld+json">
-  {
+<link rel="canonical" href="https://bonds-global.com/calculators/invoice-analyzer" /><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "الرئيسية",
+      "item": "https://bonds-global.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "الحاسبات",
+      "item": "https://bonds-global.com/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "حاسبة تحليل الفواتير",
+      "item": "https://bonds-global.com/calculators/invoice-analyzer.html"
+    }
+  ]
+}
+</script>
+
+  <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "حاسبة تحليل الفواتير",
-  "applicationCategory": "BusinessApplication",
+  "description": "حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل.",
+  "url": "https://bonds-global.com/calculators/invoice-analyzer",
+  "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "ar",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "SAR"
-  },
-  "url": "https://bonds-global.com/calculators/invoice-analyzer",
-  "description": "حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل."
-}
-  </script>
+  }
+}</script>
   <meta property="og:title" content="حاسبة تحليل الفواتير | بوندز" />
   <meta property="og:description" content="حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%AA%D8%AD%D9%84%D9%8A%D9%84+%D8%A7%D9%84%D9%81%D9%88%D8%A7%D8%AA%D9%8A%D8%B1+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%AD%D9%84%D9%84+%D9%81%D8%A7%D8%AA%D9%88%D8%B1%D8%A9+%D9%83%D9%84+%D8%B7%D9%84%D8%A8+%E2%80%94+%D8%B1%D8%A8%D8%AD+%D8%A7%D9%84%D9%81%D8%A7%D8%AA%D9%88%D8%B1%D8%A9%D8%8C+%D8%B1%D8%A8%D8%AD+%D8%A7%D9%84%D9%8A%D9%88%D9%85%D8%8C+%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D8%8C+%D8%A7%D9%84%D8%B3%D9%86%D8%A9.+%D9%82%D8%A7%D8%B1%D9%86+%D8%A8%D9%8A%D9%86+%D9%85%D9%86%D8%B5%D8%A7%D8%AA+%D8%A7%D9%84%D8%AA%D9%88%D8%B5%D9%8A%D9%84.&amp;lang=ar" />
+  <meta property="og:image:alt" content="حاسبة تحليل الفواتير | بوندز" />
   <meta property="og:url" content="https://bonds-global.com/calculators/invoice-analyzer" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="حاسبة تحليل الفواتير | بوندز" />
   <meta name="twitter:description" content="حلل فاتورة كل طلب — ربح الفاتورة، ربح اليوم، الشهر، السنة. قارن بين منصات التوصيل." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%AA%D8%AD%D9%84%D9%8A%D9%84+%D8%A7%D9%84%D9%81%D9%88%D8%A7%D8%AA%D9%8A%D8%B1+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%AD%D9%84%D9%84+%D9%81%D8%A7%D8%AA%D9%88%D8%B1%D8%A9+%D9%83%D9%84+%D8%B7%D9%84%D8%A8+%E2%80%94+%D8%B1%D8%A8%D8%AD+%D8%A7%D9%84%D9%81%D8%A7%D8%AA%D9%88%D8%B1%D8%A9%D8%8C+%D8%B1%D8%A8%D8%AD+%D8%A7%D9%84%D9%8A%D9%88%D9%85%D8%8C+%D8%A7%D9%84%D8%B4%D9%87%D8%B1%D8%8C+%D8%A7%D9%84%D8%B3%D9%86%D8%A9.+%D9%82%D8%A7%D8%B1%D9%86+%D8%A8%D9%8A%D9%86+%D9%85%D9%86%D8%B5%D8%A7%D8%AA+%D8%A7%D9%84%D8%AA%D9%88%D8%B5%D9%8A%D9%84.&amp;lang=ar" />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
 
-  </head>
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/invoice-analyzer" />
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/invoice-analyzer" />
+</head>
 <body>
   <div id="site-header"></div>
+
+<nav aria-label="مسار التنقل" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة تحليل الفواتير</li>
+  </ol>
+</nav>
+
+<nav aria-label="مسار التنقل" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة تحليل الفواتير</li>
+  </ol>
+</nav>
 
 <div class="container">
   <h1 class="page-title">
@@ -1138,13 +1181,13 @@ BondsDB.init().then(function() {
 
 </script>
 <script src="usage-guard.js"></script>
-  <script src="../page-tracker-v2.js"></script>
-<script src="../site-layout.js?v=3.2.0"></script>
+  <script defer src="../page-tracker-v2.js"></script>
+<script defer src="../site-layout.js?v=3.2.0"></script>
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
 
-<script src="shared-enhancements.js?v=1"></script>
+<script defer src="shared-enhancements.js?v=1"></script>
 <script>
 (function() {
   if (!window.BondsEnhancements) return;
@@ -1177,7 +1220,7 @@ BondsDB.init().then(function() {
   window.__bondsCalcConfig = {"name": "invoice-analyzer", "v3": {"capital": "#productCost", "revenue": "#sumYearly", "profit": "#valNetProfit", "sector": "#itemName", "activity": "#itemName"}, "saveTitle": "تحليل الفاتورة", "lang": "ar", "rel": ""};
   BondsAnonymousFirst.init(window.__bondsCalcConfig);
 </script>
-  <script src="../components/ecc-icons.js"></script>
+  <script defer src="../components/ecc-icons.js"></script>
   <script>
     (function () {
       if (!window.EccIcons) return;
@@ -1186,7 +1229,7 @@ BondsDB.init().then(function() {
       });
     })();
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

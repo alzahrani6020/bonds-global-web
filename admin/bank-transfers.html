@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <link rel="manifest" href="/manifest.json" />  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>طلبات التحويل البنكي | بوندز</title>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="../styles.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/api/env"></script>
@@ -40,7 +40,7 @@
     .status-message.error { background: rgba(239,68,68,0.1); color: #f87171; }
     @media (max-width: 768px) { .admin-sidebar { display: none; } .admin-main { margin-right: 0; } }
   </style>
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="admin-layout">
@@ -176,9 +176,9 @@
 
     init();
   </script>
-  <script src="../page-tracker-v2.js"></script>
+  <script defer src="../page-tracker-v2.js"></script>
   <script src="/admin/admin-embed.js?v=4"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

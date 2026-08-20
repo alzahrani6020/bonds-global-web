@@ -90,6 +90,10 @@
       research: isEn ? 'Surveys & Research' : 'الاستبيانات والبحوث',
       projectRescue: isEn ? 'Project Rescue' : 'إحياء المشاريع',
       fundingExtraction: isEn ? 'Funding Extraction' : 'استخراج التمويل',
+      fundingHub: isEn ? 'Funding & Investment' : 'التمويل والاستثمار',
+      investmentOpportunities: isEn ? 'Investment Opportunities' : 'فرص استثمارية',
+      fundingSources: isEn ? 'Funding Sources' : 'مصادر التمويل',
+      fundingReadiness: isEn ? 'Funding Readiness' : 'جاهزية التمويل',
       breakEven: isEn ? 'Break-Even' : 'نقطة التعادل',
       projectWizard: isEn ? 'Project Feasibility Wizard' : 'معالج جدوى المشاريع',
       investmentCenter: isEn ? 'Investment Center' : 'مركز الحاسبات الاستثمارية',
@@ -107,6 +111,7 @@
       valuation: isEn ? 'Valuation' : 'التقييم',
       creditworthinessCalc: isEn ? 'Credit Rating' : 'تقييم الجدارة الائتمانية',
       realProjectAnalysis: isEn ? 'Real Project Analysis' : 'تحليل المشروع الحقيقي',
+      search: isEn ? 'Search' : 'بحث',
       factorySa: isEn ? 'Factory Cost — Saudi' : 'تكلفة المصنع — السعودية',
       factoryEg: isEn ? 'Factory Cost — Egypt' : 'تكلفة المصنع — مصر',
       pricingFeasibilityGroup: isEn ? 'Pricing & Feasibility' : 'التسعير والجدوى',
@@ -128,8 +133,12 @@
     const clientPortalHref = isEn ? '/en/my-bonds/' : '/my-bonds/';
     const loginHref = langBase + 'calculators/auth/login.html';
     const signupHref = langBase + 'calculators/auth/index.html?tab=signup';
+    const searchHref = langBase + 'search.html';
     const v3Base = 'v3/';
-    const fundingReadinessHref = langBase + 'calculators/creditworthiness.html';
+    const fundingReadinessHref = langBase + 'funding-readiness.html';
+    const fundingSourcesHref = langBase + 'funding-sources.html';
+    const fundingHubHref = langBase + 'funding.html';
+    const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
     const fundingExtractionHref = langBase + 'funding-extraction.html';
@@ -192,6 +201,14 @@
       },
     ];
 
+    const fundingDropdown = [
+      { label: labels.fundingHub, href: fundingHubHref },
+      { label: labels.fundingExtraction, href: fundingExtractionHref },
+      { label: labels.fundingSources, href: fundingSourcesHref },
+      { label: labels.fundingReadiness, href: fundingReadinessHref },
+      { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
+    ];
+
     const intelligenceDropdown = [
       { label: labels.cityIntelligence, href: '/' + v3Base + 'city-intelligence' },
       { label: labels.cityComparison, href: '/' + v3Base + 'city-comparison' },
@@ -227,7 +244,7 @@
     const navItems = [
       { href: homeHref, label: labels.home },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
-      { href: fundingExtractionHref, label: labels.fundingExtraction, highlight: true },
+      { type: 'dropdown', label: labels.fundingHub, items: fundingDropdown, highlight: true },
       { type: 'dropdown', label: labels.calculators, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Calculators →' : 'جميع الحاسبات →' } },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
       { href: contactHref, label: labels.contact },
@@ -235,7 +252,8 @@
 
     const navHtml = navItems.map(item => {
       if (item.type === 'dropdown') {
-        return `<li class="dropdown"><button type="button" class="dropdown-toggle" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
+        const highlightClass = item.highlight ? ' nav-highlight' : '';
+        return `<li class="dropdown"><button type="button" class="dropdown-toggle${highlightClass}" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
       }
       const highlightClass = item.highlight ? ' nav-highlight' : '';
       return `<li><a href="${item.href}" data-nav="${item.href}" class="${highlightClass}">${item.label}</a></li>`;
@@ -253,6 +271,9 @@
       </ul>
     </nav>
     <div class="header-actions">
+      <a href="${searchHref}" class="header-search" aria-label="${labels.search}" title="${labels.search}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
+      </a>
       <a href="${clientPortalHref}" class="btn-header" id="headerCtaBtn">${labels.cta}</a>
       <a href="${signupHref}" class="header-signup" id="headerSignupBtn">${labels.signup}</a>
       <a href="${loginHref}" class="header-login" id="headerLoginBtn">${labels.login}</a>
@@ -297,6 +318,11 @@
     };
 
     const servicesHref = langBase + 'services.html';
+    const fundingHubHref = langBase + 'funding.html';
+    const fundingExtractionHref = langBase + 'funding-extraction.html';
+    const fundingSourcesHref = langBase + 'funding-sources.html';
+    const fundingReadinessHref = langBase + 'funding-readiness.html';
+    const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const aboutHref = langBase + 'about.html';
     const caseStudiesHref = langBase + 'case-studies.html';
     const projectRescueHref = langBase + 'project-rescue.html';
@@ -326,6 +352,16 @@
         <a href="${servicesHref}">${isEn ? 'Corporate Restructuring' : 'إعادة هيكلة الشركات'}</a>
         <a href="${projectRescueHref}">${isEn ? 'Project Rescue' : 'إحياء المشاريع المتعثرة'}</a>
         <a href="${servicesHref}">${isEn ? 'Risk & Governance' : 'إدارة المخاطر والحوكمة'}</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-title">${isEn ? 'Funding & Investment' : 'التمويل والاستثمار'}</div>
+      <div class="footer-links">
+        <a href="${fundingHubHref}">${isEn ? 'Funding & Investment Hub' : 'بوابة التمويل والاستثمار'}</a>
+        <a href="${fundingExtractionHref}">${isEn ? 'Funding Extraction' : 'استخراج التمويل'}</a>
+        <a href="${fundingSourcesHref}">${isEn ? 'Funding Sources' : 'مصادر التمويل'}</a>
+        <a href="${fundingReadinessHref}">${isEn ? 'Funding Readiness' : 'جاهزية التمويل'}</a>
+        <a href="${investmentOpportunitiesHref}">${isEn ? 'Investment Opportunities' : 'فرص استثمارية'}</a>
       </div>
     </div>
     <div>
@@ -501,16 +537,27 @@
     } catch (e) {}
   }
 
+  function buildSkipLink(lang) {
+    const isEn = lang === 'en';
+    const text = isEn ? 'Skip to main content' : 'تخطي إلى المحتوى الرئيسي';
+    return `<a href="#main-content" class="skip-link" style="position:absolute;left:0;top:-44px;z-index:10000;padding:12px 18px;background:linear-gradient(90deg,#f0c96a,#d4a853);color:#0a0f1a;font-weight:700;text-decoration:none;border-radius:0 0 12px 0;transition:top .2s;" onfocus="this.style.top='0'" onblur="this.style.top='-44px'">${text}</a>`;
+  }
+
   function inject() {
     const lang = detectLang();
     const base = getBase();
     ensureLayoutCSS();
+
+    // Ensure <main> has an id for skip-link targeting
+    const mainEl = document.querySelector('main');
+    if (mainEl && !mainEl.id) mainEl.id = 'main-content';
 
     const noPrint = shouldNoPrint();
     const headerContainer = document.getElementById('site-header');
     const footerContainer = document.getElementById('site-footer');
 
     if (headerContainer) {
+      headerContainer.insertAdjacentHTML('beforebegin', buildSkipLink(lang));
       headerContainer.innerHTML = buildHeader(lang, base);
       if (noPrint) headerContainer.classList.add('no-print');
       const navToggle = document.getElementById('navToggle');

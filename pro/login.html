@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
+  <link rel="manifest" href="/manifest.json" />  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>تسجيل الدخول | Bonds Pro</title>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="styles.css" />
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="container">
@@ -63,7 +63,7 @@
     form.addEventListener('submit', e => { e.preventDefault(); auth('signin'); });
     document.getElementById('signup-btn').addEventListener('click', () => auth('signup'));
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

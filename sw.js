@@ -3,14 +3,18 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.64';
+const CACHE_VERSION = 'v3.0.68';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
 const CORE_ASSETS = [
   '/',
   '/index.html',
+  '/offline.html',
+  '/404.html',
   '/styles.css',
+  '/styles/fonts-ar.css',
+  '/styles/fonts-en.css',
   '/styles/tokens.css',
   '/styles/base.css',
   '/styles/components.css',
@@ -194,6 +198,13 @@ async function networkFirst(request) {
   } catch (err) {
     const cached = await caches.match(request);
     if (cached) return cached;
+
+    // If this is a page navigation and we are offline, show the offline fallback
+    if (request.mode === 'navigate' || request.destination === 'document') {
+      const offline = await caches.match('/offline.html');
+      if (offline) return offline;
+    }
+
     throw err;
   }
 }

@@ -6,6 +6,8 @@
   <title>بوابة العميل | Bonds</title>
   <meta name="description" content="بوابة العميل في بوندز — رحلة المشروع من الفكرة إلى النشر الاستثماري." />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="/styles.css" />
   <link rel="stylesheet" href="/styles/design-system.css" />
   <script src="/api/env"></script>
@@ -106,7 +108,7 @@
       .client-welcome__card { padding: var(--space-8) var(--space-5); }
     }
   </style>
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div id="site-header"></div>
@@ -118,7 +120,7 @@
 
   <section class="client-welcome" id="client-guest" hidden>
     <div class="client-welcome__card">
-      <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" class="client-welcome__logo" />
+      <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" class="client-welcome__logo" / width="799" height="533">
       <div class="client-welcome__eyebrow">بوابة العميل</div>
       <h1 class="client-welcome__title">حوّل فكرتك إلى قرار استثماري واضح</h1>
       <p class="client-welcome__subtitle">
@@ -149,7 +151,7 @@
     </div>
   </section>
 
-  <script src="/site-layout.js?v=3.2.0"></script>
+  <script defer src="/site-layout.js?v=3.2.0"></script>
   <script>
     (async function () {
       try {
@@ -163,7 +165,7 @@
       document.getElementById('client-guest').hidden = false;
     })();
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

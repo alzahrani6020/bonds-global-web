@@ -5,13 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Advisor Dashboard | Bonds</title>
-  <meta name="description" content="Bonds-certified advisor dashboard to manage reviews and track earnings." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="description" content="Bonds-certified advisor dashboard to manage reviews and track earnings." />    <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../styles/design-system.css" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <style>
     .advisor-layout { display: flex; min-height: 100vh; }
     .advisor-main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; }
@@ -39,15 +37,42 @@
   <link rel="canonical" href="https://bonds-global.com/en/advisor/" />
   <meta property="og:title" content="Advisor Dashboard | Bonds" />
   <meta property="og:description" content="Bonds-certified advisor dashboard to manage reviews and track earnings." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Advisor+Dashboard+%7C+Bonds&amp;description=Bonds-certified+advisor+dashboard+to+manage+reviews+and+track+earnings.&amp;lang=en" />
+  <meta property="og:image:alt" content="Advisor Dashboard | Bonds" />
   <meta property="og:url" content="https://bonds-global.com/en/advisor/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Advisor Dashboard | Bonds" />
   <meta name="twitter:description" content="Bonds-certified advisor dashboard to manage reviews and track earnings." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Advisor+Dashboard+%7C+Bonds&amp;description=Bonds-certified+advisor+dashboard+to+manage+reviews+and+track+earnings.&amp;lang=en" />
 
-  <script src="/global-auth-gate.js?v=2"></script>
+  <script defer src="/global-auth-gate.js?v=2"></script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/advisor/" />
 </head>
 <body>
   <div id="advisorApp">
@@ -193,7 +218,7 @@
 
     init();
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

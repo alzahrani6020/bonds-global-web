@@ -23,6 +23,7 @@ server.log
 .logo_venv/
 
 # Local/temporary development artifacts
+.archive/
 abhur_images/
 monitor_kimi.ps1
 reports/existing-brochure-text.txt

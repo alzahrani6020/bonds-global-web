@@ -379,3 +379,63 @@ a:focus-visible,
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* Accessibility: visible focus outline */
+:focus-visible {
+  outline: 3px solid var(--gold-bright);
+  outline-offset: 3px;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+/* Skip link base styles (actual positioning is inline in site-layout.js) */
+.skip-link {
+  font-family: inherit;
+}
+
+/* Breadcrumbs */
+.breadcrumbs {
+  padding: 0.75rem 1.5rem;
+  background: rgba(16, 24, 45, 0.5);
+  border-bottom: 1px solid var(--border);
+}
+.breadcrumbs__list {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+.breadcrumbs__item {
+  display: flex;
+  align-items: center;
+}
+.breadcrumbs__link {
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.breadcrumbs__link:hover {
+  color: var(--gold);
+}
+.breadcrumbs__item--current {
+  color: var(--gold);
+  font-weight: 600;
+}
+.breadcrumbs__sep {
+  color: var(--gold);
+  opacity: 0.5;
+  margin: 0 0.25rem;
+}

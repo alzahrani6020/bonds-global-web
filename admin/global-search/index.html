@@ -7,10 +7,9 @@
   <title>البحث الموحد | بوندز</title>
   <meta name="description" content="بحث موحد في العملاء والمشاريع والأصول والدراسات والتقارير." />
   <script src="/admin/ai-business-advisor/redirect-standalone.js"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+    <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="../../styles/fonts-ar.css">
   <link rel="stylesheet" href="/admin/ai-business-advisor/styles.css?v=3" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -19,14 +18,14 @@
   <script src="/lib/enterprise/search.js"></script>
   <script src="/admin/global-search/app.js?v=1"></script>
 <link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
 </head>
 <body>
   <div class="ai-layout">
     <aside class="ai-sidebar" id="gs-sidebar">
       <div class="ai-brand">
-        <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" />
+        <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" / width="799" height="533">
         <span>البحث الموحد</span>
       </div>
       <div class="ai-sidebar-footer">
@@ -69,7 +68,7 @@
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 <script src="/admin/admin-sidebar-icons.js"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

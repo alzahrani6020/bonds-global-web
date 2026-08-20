@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-ud-theme="light">
 <head>
+  <link rel="manifest" href="/manifest.json" />
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>تغيير كلمة المرور — بوندز</title>
@@ -17,7 +18,7 @@
     .msg.error { background: rgba(239,68,68,0.15); color: #ff8a8a; }
     .msg.success { background: rgba(34,197,94,0.15); color: #22c55e; }
   </style>
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="card">
@@ -87,8 +88,8 @@
       btn.textContent = 'تغيير كلمة المرور';
     }
   </script>
-  <script src="../page-tracker-v2.js"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+  <script defer src="../page-tracker-v2.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

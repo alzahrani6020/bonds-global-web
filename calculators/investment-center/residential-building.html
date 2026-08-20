@@ -1,35 +1,109 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
+<head>  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>حاسبة بناء عمائر سكنية | بوندز</title>
   <meta name="description" content="حاسبة استثمارية لتحليل جدوى المشاريع في قطاع حاسبة بناء عمائر سكنية" />
   <meta property="og:title" content="حاسبة بناء عمائر سكنية | بوندز" />
   <meta property="og:description" content="احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <meta property="og:url" content="https://bonds-global.com/calculators/investment-center/residential-building.html" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%A8%D9%86%D8%A7%D8%A1+%D8%B9%D9%85%D8%A7%D8%A6%D8%B1+%D8%B3%D9%83%D9%86%D9%8A%D8%A9+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%A7%D8%AD%D8%B3%D8%A8+ROI%D8%8C+IRR%D8%8C+NPV%D8%8C+%D9%81%D8%AA%D8%B1%D8%A9+%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%B1%D8%AF%D8%A7%D8%AF%D8%8C+%D9%86%D9%82%D8%B7%D8%A9+%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D8%AF%D9%84%D8%8C+%D9%88%D8%AF%D8%B1%D8%AC%D8%A9+%D8%A7%D9%84%D9%85%D8%AE%D8%A7%D8%B7%D8%B1%D8%A9.&amp;lang=ar" />
+  <meta property="og:image:alt" content="حاسبة بناء عمائر سكنية | بوندز" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/investment-center/residential-building" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="حاسبة بناء عمائر سكنية | بوندز" />
   <meta name="twitter:description" content="احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <link rel="canonical" href="https://bonds-global.com/calculators/investment-center/residential-building.html" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%A8%D9%86%D8%A7%D8%A1+%D8%B9%D9%85%D8%A7%D8%A6%D8%B1+%D8%B3%D9%83%D9%86%D9%8A%D8%A9+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%A7%D8%AD%D8%B3%D8%A8+ROI%D8%8C+IRR%D8%8C+NPV%D8%8C+%D9%81%D8%AA%D8%B1%D8%A9+%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%B1%D8%AF%D8%A7%D8%AF%D8%8C+%D9%86%D9%82%D8%B7%D8%A9+%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D8%AF%D9%84%D8%8C+%D9%88%D8%AF%D8%B1%D8%AC%D8%A9+%D8%A7%D9%84%D9%85%D8%AE%D8%A7%D8%B7%D8%B1%D8%A9.&amp;lang=ar" />
+  <link rel="canonical" href="https://bonds-global.com/calculators/investment-center/residential-building" />
+    <link rel="stylesheet" href="../../styles/fonts-ar.css">
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../header-footer.css?v=2.54.0" />
   <link rel="stylesheet" href="./investment-center.css?v=2" />
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
+  <link rel="manifest" href="/manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="../../components/universal-dropdown.css" />
   <script src="../../components/universal-dropdown.js"></script>
   <script src="../../calculators/shared-geo.js?v=6"></script>
-  <script src="../../calculators/shared-platforms.js?v=2"></script>
-  <script src="../../calculators/shared-country-selector.js?v=3"></script>
-  
+  <script src="../../calculators/shared-platforms-loader.js?v=2"></script>
+  <script src="../../calculators/shared-country-selector.js?v=3"></script><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "الرئيسية",
+      "item": "https://bonds-global.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "الحاسبات",
+      "item": "https://bonds-global.com/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "مركز الاستثمار",
+      "item": "https://bonds-global.com/calculators/investment-center/index.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "حاسبة بناء عمائر سكنية",
+      "item": "https://bonds-global.com/calculators/investment-center/residential-building.html"
+    }
+  ]
+}
+</script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "حاسبة بناء عمائر سكنية",
+  "description": "حاسبة استثمارية لتحليل جدوى المشاريع في قطاع حاسبة بناء عمائر سكنية",
+  "url": "https://bonds-global.com/calculators/investment-center/residential-building",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "ar",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  }
+}</script>
+
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/residential-building" />
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/residential-building" />
 </head>
 <body>
   <div id="site-header"></div>
+
+<nav aria-label="مسار التنقل" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculators/investment-center/index.html">مركز الاستثمار</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة بناء عمائر سكنية</li>
+  </ol>
+</nav>
+
+<nav aria-label="مسار التنقل" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة بناء عمائر سكنية</li>
+  </ol>
+</nav>
+
+<nav aria-label="مسار التنقل" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة بناء عمائر سكنية</li>
+  </ol>
+</nav>
 
   <main class="investment-calculator">
     <div class="investment-calculator__header">
@@ -946,8 +1020,8 @@
 
   <div id="site-footer"></div>
 
-  <script src="../../site-layout.js?v=2.54.0"></script>
-  <script src="../../page-tracker-v2.js"></script>
+  <script defer src="../../site-layout.js?v=2.54.0"></script>
+  <script defer src="../../page-tracker-v2.js"></script>
   <script src="./investment-engine.js?v=2"></script>
   <script src="./investment-validator.js?v=2"></script>
   <script src="./pro-forma-engine.js?v=1"></script>

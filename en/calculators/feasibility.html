@@ -7,10 +7,8 @@
   <meta name="description" content="Calculate your restaurant's financial viability before opening: setup costs, monthly expenses, platform fee, food waste, packaging, delivery, monthly growth, break-even point, and optimistic/pessimistic scenarios. Free tool from Bonds." />
   <meta property="og:title" content="Restaurant Financial Viability Calculator | Bonds" />
   <meta property="og:description" content="Is your restaurant idea profitable? Calculate before you spend a single riyal, taking platforms and real costs into account." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Restaurant+Financial+Viability+Calculator+%7C+Bonds&amp;description=Is+your+restaurant+idea+profitable%3F+Calculate+before+you+spend+a+single+riyal%2C+taking+platforms+and+real+costs+into+account.&amp;lang=en" />
+  <meta property="og:image:alt" content="Restaurant Financial Viability Calculator | Bonds" />    <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <link rel="stylesheet" href="../../styles/design-system.css" />
@@ -21,39 +19,78 @@
   <script src="../../calculators/shared-export.js"></script>
   <script src="../../calculators/calc-functions.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   
 
   <script src="../../calculators/db-client.js"></script>
   
 <link rel="stylesheet" href="../../header-footer.css?v=2.63.0" />
-  <link rel="canonical" href="https://bonds-global.com/en/calculators/feasibility" />
-  <script type="application/ld+json">
-  {
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/feasibility" /><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bonds-global.com/en/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Calculators",
+      "item": "https://bonds-global.com/en/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Restaurant Financial Viability Calculator",
+      "item": "https://bonds-global.com/en/calculators/feasibility.html"
+    }
+  ]
+}
+</script>
+
+  <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
-  "name": "Restaurant Financial Viability Calculator — Is Your Idea Profitable?",
-  "applicationCategory": "BusinessApplication",
+  "name": "Restaurant Financial Viability Calculator",
+  "description": "Calculate your restaurant",
+  "url": "https://bonds-global.com/en/calculators/feasibility",
+  "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "en",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "SAR"
-  },
-  "url": "https://bonds-global.com/en/calculators/feasibility",
-  "description": "Calculate your restaurant's financial viability before opening: setup costs, monthly expenses, platform fee, food waste, packaging, delivery, monthly growth, break-even point, and optimistic/pessimistic scenarios. Free tool from Bonds."
-}
-  </script>
+  }
+}</script>
   <meta property="og:url" content="https://bonds-global.com/en/calculators/feasibility" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Restaurant Financial Viability Calculator | Bonds — Is Your Idea Profitable?" />
   <meta name="twitter:description" content="Calculate your restaurant" />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Restaurant+Financial+Viability+Calculator+%7C+Bonds+%E2%80%94+Is+Your+Idea+Profitable%3F&amp;description=Calculate+your+restaurant&amp;lang=en" />
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/feasibility" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/feasibility" />
 </head>
 <body>
   <div id="site-header"></div>
+<nav aria-label="Breadcrumb" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/">Home</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/calculator.html">Calculators</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">Restaurant Financial Viability Calculator</li>
+  </ol>
+</nav>
   <div class="feas-container">
     <div class="feas-header">
       <div class="feas-badge"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#A0041E" d="M1 17l8-7 16 1 1 16-7 8s.001-5.999-6-12-12-6-12-6z"/><path fill="#FFAC33" d="M.973 35s-.036-7.979 2.985-11S15 21.187 15 21.187 14.999 29 11.999 32c-3 3-11.026 3-11.026 3z"/><circle fill="#FFCC4D" cx="8.999" cy="27" r="4"/><path fill="#55ACEE" d="M35.999 0s-10 0-22 10c-6 5-6 14-4 16s11 2 16-4c10-12 10-22 10-22z"/><path d="M26.999 5c-1.623 0-3.013.971-3.641 2.36.502-.227 1.055-.36 1.641-.36 2.209 0 4 1.791 4 4 0 .586-.133 1.139-.359 1.64 1.389-.627 2.359-2.017 2.359-3.64 0-2.209-1.791-4-4-4z"/><path fill="#A0041E" d="M8 28s0-4 1-5 13.001-10.999 14-10-9.001 13-10.001 14S8 28 8 28z"/></svg></span> For Entrepreneurs — Before Opening</div>
@@ -690,14 +727,14 @@ const onboard = new BondsUI.Onboarding([
 setTimeout(() => onboard.start(), 600);
 </script>
 <script src="../../calculators/usage-guard.js"></script>
-<script src="../../page-tracker-v2.js"></script>
+<script defer src="../../page-tracker-v2.js"></script>
 <script src="/api/env"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/bonds-auth-2026.js?v=3.0.7"></script>
 <script src="../../calculators/shared-analytics.js"></script>
 <script src="../../calculators/auth-modal.js"></script>
 <script src="../../calculators/exit-intent.js"></script>
-<script src="../../site-layout.js?v=3.2.0"></script>
+<script defer src="../../site-layout.js?v=3.2.0"></script>
 <script src="../../calculators/shared-geo.js?v=7"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
@@ -889,7 +926,7 @@ setTimeout(() => onboard.start(), 600);
     })();
   })();
 </script>
-<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script defer src="../../calculators/shared-enhancements.js?v=1"></script>
 <script>
 (function() {
   if (!window.BondsEnhancements) return;
@@ -911,7 +948,7 @@ setTimeout(() => onboard.start(), 600);
   });
 })();
 </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

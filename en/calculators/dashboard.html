@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Dashboard | Bonds</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <title>Dashboard | Bonds</title>    <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <style>
     .dashboard { padding-top: 100px; max-width: 1280px; margin: 0 auto; padding-left: 1.5rem; padding-right: 1.5rem; padding-bottom: 4rem; }
@@ -70,22 +68,76 @@
 <link rel="canonical" href="https://bonds-global.com/en/calculators/dashboard" />
   <meta property="og:title" content="Dashboard | Bonds" />
   <meta property="og:description" content="Specialized financial calculators and economic consulting from Bonds." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Dashboard+%7C+Bonds&amp;description=Specialized+financial+calculators+and+economic+consulting+from+Bonds.&amp;lang=en" />
+  <meta property="og:image:alt" content="Dashboard | Bonds" />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/dashboard" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Dashboard | Bonds" />
   <meta name="twitter:description" content="Specialized financial calculators and economic consulting from Bonds." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Dashboard+%7C+Bonds&amp;description=Specialized+financial+calculators+and+economic+consulting+from+Bonds.&amp;lang=en" />
 
-  <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." />
+  <meta name="description" content="Specialized financial calculators and economic consulting from Bonds." /><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bonds-global.com/en/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Calculators",
+      "item": "https://bonds-global.com/en/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Dashboard",
+      "item": "https://bonds-global.com/en/calculators/dashboard.html"
+    }
+  ]
+}
+</script>
 
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Dashboard",
+  "description": "Specialized financial calculators and economic consulting from Bonds.",
+  "url": "https://bonds-global.com/en/calculators/dashboard",
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "en",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "SAR"
+  }
+}</script>
 
-  </head>
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/dashboard" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/dashboard" />
+</head>
 <body>
 
   <div id="site-header"></div>
 
+<nav aria-label="Breadcrumb" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/">Home</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/calculator.html">Calculators</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">Dashboard</li>
+  </ol>
+</nav>
   <main class="dashboard">
     <div class="dashboard-header">
       <h1>Dashboard</h1>
@@ -333,8 +385,8 @@ window.addEventListener('load', () => { loadStats(); loadRecent(); loadScenarios
   </script>
 
 <script src="../../calculators/usage-guard.js"></script>
-  <script src="../../page-tracker-v2.js"></script>
-<script src="../../site-layout.js?v=3.2.0"></script>
+  <script defer src="../../page-tracker-v2.js"></script>
+<script defer src="../../site-layout.js?v=3.2.0"></script>
 <script src="../../calculators/shared-geo.js?v=7"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
@@ -347,7 +399,7 @@ window.addEventListener('load', () => { loadStats(); loadRecent(); loadScenarios
   window.__bondsCalcConfig = {"name": "dashboard", "skipV3Button": true, "skipDraftRestore": true, "lang": "en", "rel": "../../calculators/"};
   BondsAnonymousFirst.init(window.__bondsCalcConfig);
 </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

@@ -7,14 +7,13 @@
   <meta name="description" content="Use Bonds reports to assess project feasibility and creditworthiness for your customers. Request an API sandbox today." />
   <meta property="og:title" content="Bonds for Banks & Lenders" />
   <meta property="og:description" content="Feasibility and risk assessment for SME financing, powered by AI and certified advisors." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Bonds+for+Banks+%26+Lenders&amp;description=Feasibility+and+risk+assessment+for+SME+financing%2C+powered+by+AI+and+certified+advisors.&amp;lang=en" />
+  <meta property="og:image:alt" content="Bonds for Banks & Lenders" />    <link rel="stylesheet" href="../styles/fonts-en.css">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/page-redesign-2026.css?v=1" />
 
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <style>
     .fb-hero { min-height: 70vh; display: flex; align-items: center; background: var(--bg); padding-top: 100px; padding-bottom: 3rem; }
     .fb-container { max-width: 1000px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
@@ -42,8 +41,35 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Bonds for Banks & Lenders | Bonds" />
   <meta name="twitter:description" content="Use Bonds reports to assess project feasibility and creditworthiness for your customers. Request an API sandbox today." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Bonds+for+Banks+%26+Lenders&amp;description=Feasibility+and+risk+assessment+for+SME+financing%2C+powered+by+AI+and+certified+advisors.&amp;lang=en" />
 
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/for-banks" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/for-banks" />
 </head>
 <body>
   <div id="header-placeholder"></div>
@@ -130,7 +156,7 @@
     </div>
   </section>
 
-  <script src="../site-layout.js?v=3.2.0"></script>
+  <script defer src="../site-layout.js?v=3.2.0"></script>
   <script>
     async function submitBankForm(e) {
       e.preventDefault();
@@ -185,7 +211,7 @@
   </script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

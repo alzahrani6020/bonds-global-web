@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>إدارة مصادر التمويل | بوندز</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <title>إدارة مصادر التمويل | بوندز</title>  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="admin-auth.js"></script>
@@ -58,13 +56,13 @@
     @media (max-width: 900px) { .sidebar { display: none; } .main-content { margin-right: 0; } .form-grid { grid-template-columns: 1fr; } }
   </style>
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
   <div class="admin-layout">
     <aside class="sidebar">
       <div class="sidebar-brand">
-        <img src="../assets/bonds-mark.svg" alt="Bonds" />
+        <img src="../assets/bonds-mark.svg" alt="Bonds" / loading="lazy" decoding="async">
         <span>بوندز</span>
       </div>
       <nav>
@@ -330,7 +328,7 @@
   <script src="/admin/admin-embed.js?v=4"></script>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../components/universal-dropdown-init.js"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

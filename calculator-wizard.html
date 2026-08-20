@@ -1,28 +1,56 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="dark">
-<head>
-  <meta charset="UTF-8" />
+<head>  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Project Feasibility Wizard | بوندز</title>
   <meta name="description" content="معالج جدوى المشاريع من بوندز: 7 مراحل لتقييم استثمارك عبر درجات الاستثمار والتمويل والسوق والمخاطرة مع تقرير PDF احترافي." />
   <meta property="og:title" content="Project Feasibility Wizard | بوندز" />
   <meta property="og:description" content="قيّم مشروعك في 7 مراحل واحصل على قرار استثماري نهائي وتقرير PDF." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Project+Feasibility+Wizard+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D9%82%D9%8A%D9%91%D9%85+%D9%85%D8%B4%D8%B1%D9%88%D8%B9%D9%83+%D9%81%D9%8A+7+%D9%85%D8%B1%D8%A7%D8%AD%D9%84+%D9%88%D8%A7%D8%AD%D8%B5%D9%84+%D8%B9%D9%84%D9%89+%D9%82%D8%B1%D8%A7%D8%B1+%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1%D9%8A+%D9%86%D9%87%D8%A7%D8%A6%D9%8A+%D9%88%D8%AA%D9%82%D8%B1%D9%8A%D8%B1+PDF.&amp;lang=ar" />
+  <meta property="og:image:alt" content="Project Feasibility Wizard | بوندز" />
   <meta property="og:url" content="https://bonds-global.com/calculator-wizard" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Project Feasibility Wizard | بوندز" />
   <meta name="twitter:description" content="قيّم مشروعك في 7 مراحل واحصل على قرار استثماري نهائي وتقرير PDF." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Project+Feasibility+Wizard+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D9%82%D9%8A%D9%91%D9%85+%D9%85%D8%B4%D8%B1%D9%88%D8%B9%D9%83+%D9%81%D9%8A+7+%D9%85%D8%B1%D8%A7%D8%AD%D9%84+%D9%88%D8%A7%D8%AD%D8%B5%D9%84+%D8%B9%D9%84%D9%89+%D9%82%D8%B1%D8%A7%D8%B1+%D8%A7%D8%B3%D8%AA%D8%AB%D9%85%D8%A7%D8%B1%D9%8A+%D9%86%D9%87%D8%A7%D8%A6%D9%8A+%D9%88%D8%AA%D9%82%D8%B1%D9%8A%D8%B1+PDF.&amp;lang=ar" />
   <link rel="canonical" href="https://bonds-global.com/calculator-wizard" />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles/fonts-ar.css">
   <link rel="stylesheet" href="styles.css" />
 <link rel="stylesheet" href="styles/calculator-wizard.css" />
   <link rel="icon" type="image/svg+xml" href="assets/bonds-mark.svg" />
+  <link rel="manifest" href="/manifest.json" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <script src="calculators/investment-center/decision-intelligence.js?v=2"></script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator-wizard" />
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator-wizard" />
 </head>
 <body>
   <div id="site-header"></div>
@@ -679,11 +707,11 @@
 
   <div id="site-footer"></div>
 
-  <script src="site-layout.js?v=3.2.0"></script>
+  <script defer src="site-layout.js?v=3.2.0"></script>
   <script src="/lib/bonds-common.js"></script>
-  <script src="page-tracker-v2.js"></script>
+  <script defer src="page-tracker-v2.js"></script>
   <script src="calculator-wizard.js"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

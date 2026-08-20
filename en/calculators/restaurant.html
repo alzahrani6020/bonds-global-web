@@ -8,16 +8,14 @@
   <meta name="description" content="Calculate your restaurant or cloud kitchen profitability accurately: ingredient costs, platform commissions, break-even, and platform comparison. Covers all 22 Arab countries. A free tool from Bonds." />
   <meta property="og:title" content="Restaurant & Cloud Kitchen Calculator | Bonds" />
   <meta property="og:description" content="Calculate your restaurant or cloud kitchen profitability accurately: ingredient costs, platform commissions, break-even." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Restaurant+%26+Cloud+Kitchen+Calculator+%7C+Bonds&amp;description=Calculate+your+restaurant+or+cloud+kitchen+profitability+accurately%3A+ingredient+costs%2C+platform+commissions%2C+break-even.&amp;lang=en" />
+  <meta property="og:image:alt" content="Restaurant & Cloud Kitchen Calculator | Bonds" />
   <meta property="og:url" content="https://bonds-global.com/en/calculators/restaurant" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Restaurant & Cloud Kitchen Calculator | Bonds" />
   <meta name="twitter:description" content="Calculate your restaurant or cloud kitchen profitability accurately." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Restaurant+%26+Cloud+Kitchen+Calculator+%7C+Bonds&amp;description=Calculate+your+restaurant+or+cloud+kitchen+profitability+accurately%3A+ingredient+costs%2C+platform+commissions%2C+break-even.&amp;lang=en" />  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="preconnect" href="https://cdnjs.cloudflare.com" />
   <link rel="preconnect" href="https://cdn.sheetjs.com" />
   <link rel="prefetch" href="../../calculator.html" as="document" />
@@ -26,7 +24,7 @@
   <link rel="prefetch" href="loan.html" as="document" />
   <link rel="preload" href="../../assets/bonds-logo-2026.webp?v=2026" as="image" type="image/webp" />
   <script defer src="/_vercel/insights/script.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../calculators/shared-calculators.css" />
   <link rel="stylesheet" href="../../styles/design-system.css" />
@@ -34,6 +32,7 @@
   <link rel="stylesheet" href="restaurant.css" />
   <script src="../../calculators/shared-ui.js"></script>
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/shared-geo.js?v=7"></script>
   <script src="../../calculators/shared-platforms-loader.js"></script>
@@ -82,27 +81,58 @@
   <script src="../../calculators/db-client.js"></script>
   
 <link rel="stylesheet" href="../../header-footer.css?v=2.63.0" />
-  <link rel="canonical" href="https://bonds-global.com/en/calculators/restaurant" />
-  <script type="application/ld+json">
-  {
+  <link rel="canonical" href="https://bonds-global.com/en/calculators/restaurant" /><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://bonds-global.com/en/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Calculators",
+      "item": "https://bonds-global.com/en/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Restaurant & Cloud Kitchen Calculator",
+      "item": "https://bonds-global.com/en/calculators/restaurant.html"
+    }
+  ]
+}
+</script>
+
+  <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Restaurant & Cloud Kitchen Calculator",
-  "applicationCategory": "BusinessApplication",
+  "description": "Calculate your restaurant or cloud kitchen profitability accurately: ingredient costs, platform commissions, break-even, and platform comparison. Covers all 22 Arab countries. A free tool from Bonds.",
+  "url": "https://bonds-global.com/en/calculators/restaurant",
+  "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "en",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "SAR"
-  },
-  "url": "https://bonds-global.com/en/calculators/restaurant",
-  "description": "Calculate your restaurant or cloud kitchen profitability accurately: ingredient costs, platform commissions, break-even, and platform comparison. Covers all 22 Arab countries. A free tool from Bonds."
-}
-  </script>
+  }
+}</script>
 
-<link rel="stylesheet" href="../../components/universal-dropdown.css?v=2.51.8" />
-
-  </head>
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/restaurant" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/restaurant" />
+</head>
 <body class="calc-page-body calc-page-body--en">
 
   <!-- Top Bar -->
@@ -116,6 +146,11 @@
   <!-- Header -->
   <div id="site-header"></div>
 
+<nav aria-label="Breadcrumb" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/">Home</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/en/calculator.html">Calculators</a></li><li class="breadcrumbs__sep" aria-hidden="true">></li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">Restaurant & Cloud Kitchen Calculator</li>
+  </ol>
+</nav>
   <!-- Hero -->
   <section class="hero calc-hero--compact">
     <div class="container calc-text-center">
@@ -2693,11 +2728,11 @@
     </div>
   </div>
 <script src="../../calculators/usage-guard.js"></script>
-  <script src="../../page-tracker-v2.js"></script>
+  <script defer src="../../page-tracker-v2.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
-<script src="../../site-layout.js?v=3.2.0"></script>
+<script defer src="../../site-layout.js?v=3.2.0"></script>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
 <script src="../../components/universal-dropdown-init.js"></script>
 
@@ -2709,7 +2744,7 @@
   window.__bondsCalcConfig = {"name": "restaurant", "v3": {"capital": "#rentCost", "revenue": "#monthlyGMV", "profit": "#targetProfitPerOrder", "sector": "#countrySelect", "activity": "#countrySelect"}, "saveTitle": "Restaurant Calculator", "lang": "en", "rel": "../../calculators/"};
   BondsAnonymousFirst.init(window.__bondsCalcConfig);
 </script>
-<script src="../../calculators/shared-enhancements.js?v=1"></script>
+<script defer src="../../calculators/shared-enhancements.js?v=1"></script>
 <script>
 (function() {
   if (!window.BondsEnhancements) return;
@@ -2731,7 +2766,7 @@
   });
 })();
 </script>
-<script src="../../components/ecc-icons.js"></script>
+<script defer src="../../components/ecc-icons.js"></script>
 <script>
 (function () {
   if (!window.EccIcons) return;
@@ -2740,7 +2775,7 @@
   });
 })();
 </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

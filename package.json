@@ -25,7 +25,12 @@
     "regenerate:geo-chunks": "node scripts/extract-geo-data.js",
     "regenerate:calculator-status": "node scripts/generate-calculator-status.js",
     "bump:cache": "node scripts/bump-cache-version.js",
-    "generate:sitemap": "node scripts/generate-sitemap.js"
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "generate:search-index": "node scripts/generate-search-index.js",
+    "apply:dynamic-og": "node scripts/apply-dynamic-og.js && node scripts/encode-og-image-amps.js",
+    "apply:structured-data": "node scripts/apply-structured-data.js",
+    "apply:organization-schema": "node scripts/apply-organization-schema.js",
+    "apply:hreflang": "node scripts/apply-hreflang.js"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",
@@ -40,11 +45,13 @@
   },
   "devDependencies": {
     "axe-core": "^4.10.2",
+    "bidi-shaper": "^0.1.2",
     "jest": "^30.4.2",
     "pg": "^8.21.0",
     "pixelmatch": "^5.3.0",
     "playwright": "^1.61.0",
     "pngjs": "^7.0.0",
+    "sharp": "^0.35.3",
     "twemoji": "^14.0.2",
     "vercel": "^56.3.2"
   },

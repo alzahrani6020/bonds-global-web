@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-theme="dark">
 <head>
+  <link rel="manifest" href="/manifest.json" />
   <base href="/en/wave4/" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>BONDS — Start with your goal</title>
   <meta name="description" content="BONDS intelligent platform: start with your goal and let the system determine sector, template, forms and reports." />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <style>
     :root { font-family: 'Inter', system-ui, sans-serif; }
@@ -95,20 +96,48 @@
   <link rel="canonical" href="https://bonds-global.com/en/wave4/" />
   <meta property="og:title" content="BONDS — Start with your goal" />
   <meta property="og:description" content="BONDS intelligent platform: start with your goal and let the system determine sector, template, forms and reports." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=BONDS+%E2%80%94+Start+with+your+goal&amp;description=BONDS+intelligent+platform%3A+start+with+your+goal+and+let+the+system+determine+sector%2C+template%2C+forms+and+reports.&amp;lang=en" />
+  <meta property="og:image:alt" content="BONDS — Start with your goal" />
   <meta property="og:url" content="https://bonds-global.com/en/wave4/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="BONDS — Start with your goal" />
   <meta name="twitter:description" content="BONDS intelligent platform: start with your goal and let the system determine sector, template, forms and reports." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=BONDS+%E2%80%94+Start+with+your+goal&amp;description=BONDS+intelligent+platform%3A+start+with+your+goal+and+let+the+system+determine+sector%2C+template%2C+forms+and+reports.&amp;lang=en" />
 
-  <script src="/global-auth-gate.js?v=2"></script>
+  <script defer src="/global-auth-gate.js?v=2"></script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/wave4/" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/wave4/" />
 </head>
 <body>
   <div class="container">
     <div class="brand">
-      <img src="../../assets/bonds-logo-v2.webp" alt="BONDS" />
+      <img src="../../assets/bonds-logo-v2.webp" alt="BONDS" / width="1536" height="1024">
       <span>BONDS — Intelligent Economic Platform</span>
     </div>
 
@@ -363,7 +392,7 @@
       resultSection.scrollIntoView({ behavior: 'smooth' });
     }
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

@@ -1,20 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+  <link rel="manifest" href="/manifest.json" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Redirect | Bonds</title>
   <meta name="description" content="Unified project page in the Bonds client portal — analyses, reports, reviews, and documents." />
-  <link rel="canonical" href="https://bonds-global.com/en/v3/project" />
+  <link rel="canonical" href="https://bonds-global.com/en/client/project" />
   <meta property="og:title" content="Project Details | Client Portal | Bonds" />
   <meta property="og:description" content="Unified project page in the Bonds client portal — analyses, reports, reviews, and documents." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
-  <meta property="og:url" content="https://bonds-global.com/en/v3/project" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Project+Details+%7C+Client+Portal+%7C+Bonds&amp;description=Unified+project+page+in+the+Bonds+client+portal+%E2%80%94+analyses%2C+reports%2C+reviews%2C+and+documents.&amp;lang=en" />
+  <meta property="og:image:alt" content="Project Details | Client Portal | Bonds" />
+  <meta property="og:url" content="https://bonds-global.com/en/client/project" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Project Details | Client Portal | Bonds" />
   <meta name="twitter:description" content="Unified project page in the Bonds client portal — analyses, reports, reviews, and documents." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Project+Details+%7C+Client+Portal+%7C+Bonds&amp;description=Unified+project+page+in+the+Bonds+client+portal+%E2%80%94+analyses%2C+reports%2C+reviews%2C+and+documents.&amp;lang=en" />
   <script>
     (function () {
       const params = new URLSearchParams(location.search);
@@ -23,11 +25,35 @@
       window.location.replace(target);
     })();
   </script>
-  <script src="/global-auth-gate.js?v=2"></script>
+  <script defer src="/global-auth-gate.js?v=2"></script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
 </head>
 <body>
   <p>Redirecting to <a id="target" href="/en/v3/portfolio">Project</a>...</p>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

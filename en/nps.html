@@ -4,12 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Rate your experience | Bonds</title>
-  <meta name="description" content="Help us improve Bonds by sharing your feedback." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="description" content="Help us improve Bonds by sharing your feedback." />    <link rel="stylesheet" href="../styles/fonts-en.css">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <style>
     .nps-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: var(--bg); padding: 2rem; }
     .nps-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; max-width: 560px; width: 100%; text-align: center; }
@@ -28,15 +26,43 @@
   <link rel="canonical" href="https://bonds-global.com/en/nps" />
   <meta property="og:title" content="Rate your experience | Bonds" />
   <meta property="og:description" content="Help us improve Bonds by sharing your feedback." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Rate+your+experience+%7C+Bonds&amp;description=Help+us+improve+Bonds+by+sharing+your+feedback.&amp;lang=en" />
+  <meta property="og:image:alt" content="Rate your experience | Bonds" />
   <meta property="og:url" content="https://bonds-global.com/en/nps" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Rate your experience | Bonds" />
   <meta name="twitter:description" content="Help us improve Bonds by sharing your feedback." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Rate+your+experience+%7C+Bonds&amp;description=Help+us+improve+Bonds+by+sharing+your+feedback.&amp;lang=en" />
 
-  <script src="/global-auth-gate.js?v=2"></script>
+  <script defer src="/global-auth-gate.js?v=2"></script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/nps" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/nps" />
 </head>
 <body>
   <div class="nps-page">
@@ -129,7 +155,7 @@
 
     loadSurvey();
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

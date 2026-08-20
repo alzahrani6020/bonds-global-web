@@ -7,15 +7,14 @@
   <meta name="description" content="Find out how ready your project is for financing in 2 minutes. Free tool powered by AI and local market data." />
   <meta property="og:title" content="Free Funding Readiness Score | Bonds" />
   <meta property="og:description" content="Find out how ready your project is for financing in 2 minutes." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <meta property="og:url" content="https://bonds-global.com/en/funding-readiness" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Free+Funding+Readiness+Score+%7C+Bonds&amp;description=Find+out+how+ready+your+project+is+for+financing+in+2+minutes.&amp;lang=en" />
+  <meta property="og:image:alt" content="Free Funding Readiness Score | Bonds" />
+  <meta property="og:url" content="https://bonds-global.com/en/funding-readiness" />    <link rel="stylesheet" href="../styles/fonts-en.css">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/page-redesign-2026.css?v=1" />
 
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <style>
     .fr-hero { min-height: 70vh; display: flex; align-items: center; background: var(--bg); padding-top: 100px; padding-bottom: 3rem; }
     .fr-container { max-width: 720px; margin: 0 auto; padding: 0 1.5rem; width: 100%; }
@@ -55,8 +54,35 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Free Funding Readiness Score | Bonds" />
   <meta name="twitter:description" content="Find out how ready your project is for financing in 2 minutes. Free tool powered by AI and local market data." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Free+Funding+Readiness+Score+%7C+Bonds&amp;description=Find+out+how+ready+your+project+is+for+financing+in+2+minutes.&amp;lang=en" />
 
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding-readiness" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-readiness" />
 </head>
 <body>
   <div id="header-placeholder"></div>
@@ -165,6 +191,14 @@
             <p class="fr-score-desc" id="finalDesc">-</p>
           </div>
           <div class="fr-result-card" id="finalTips"></div>
+          <div class="fr-result-card" style="margin-top:1rem;">
+            <div style="font-weight:700;color:var(--gold);margin-bottom:0.75rem;">Your Next Steps</div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+              <a href="funding-sources.html" style="color:var(--text);text-decoration:none;padding:0.75rem;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border);">🔍 Browse funding sources for your sector</a>
+              <a href="funding-extraction.html" style="color:var(--text);text-decoration:none;padding:0.75rem;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border);">📝 Request help with funding extraction</a>
+              <a href="investment-opportunities.html" style="color:var(--text);text-decoration:none;padding:0.75rem;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid var(--border);">💰 Have capital? Explore investment opportunities</a>
+            </div>
+          </div>
           <div class="fr-actions" style="justify-content:center;">
             <a href="pricing.html" class="fr-btn">Get Full AI Analysis</a>
             <a href="contact.html" class="fr-btn fr-btn-secondary">Speak to an Advisor</a>
@@ -174,7 +208,7 @@
     </div>
   </section>
 
-  <script src="../site-layout.js?v=3.2.0"></script>
+  <script defer src="../site-layout.js?v=3.2.0"></script>
   <script src="/api/env"></script>
   <script>
     const answers = {};
@@ -331,7 +365,7 @@
       }
     }
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

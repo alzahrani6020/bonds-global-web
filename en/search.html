@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Search | Bonds Global</title>
+  <meta name="description" content="Search Bonds Global calculators, reports, articles, and services." />
+  <meta property="og:title" content="Search | Bonds Global" />
+  <meta property="og:description" content="Search Bonds Global calculators, reports, articles, and services." />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Search&amp;description=Search%20Bonds%20Global%20calculators%2C%20reports%2C%20articles%2C%20and%20services.&amp;lang=en" />
+  <meta property="og:url" content="https://bonds-global.com/en/search" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Search | Bonds Global" />
+  <meta name="twitter:description" content="Search Bonds Global calculators, reports, articles, and services." />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Search&amp;description=Search%20Bonds%20Global%20calculators%2C%20reports%2C%20articles%2C%20and%20services.&amp;lang=en" />
+  <link rel="canonical" href="https://bonds-global.com/en/search" />
+  <link rel="stylesheet" href="../styles.css" />
+  <script src="../site-layout.js" defer></script>
+  <style>
+    .search-hero { padding: 4rem 1rem 2rem; text-align: center; }
+    .search-hero h1 { font-size: clamp(1.8rem, 4vw, 2.8rem); margin-bottom: 0.5rem; }
+    .search-hero p { color: var(--text-secondary); max-width: 600px; margin: 0 auto 1.5rem; }
+    .search-box { position: relative; max-width: 720px; margin: 0 auto; }
+    .search-box input { width: 100%; padding: 1.1rem 1.5rem 1.1rem 3.5rem; border-radius: 14px; border: 1px solid var(--border); background: rgba(255,255,255,0.04); color: var(--text); font-size: 1.1rem; }
+    .search-box button { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: var(--gold); border: 0; border-radius: 10px; padding: 0.6rem 1rem; color: #0a0f1a; font-weight: 700; cursor: pointer; }
+    .search-results { max-width: 900px; margin: 2rem auto; padding: 0 1rem 4rem; }
+    .search-result { background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; margin-bottom: 1rem; transition: transform 0.15s, box-shadow 0.15s; }
+    .search-result:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.25); }
+    .search-result__cat { font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 0.35rem; }
+    .search-result__title { font-size: 1.15rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text); }
+    .search-result__title a { text-decoration: none; color: inherit; }
+    .search-result__title a:hover { color: var(--gold); }
+    .search-result__desc { color: var(--text-secondary); line-height: 1.55; font-size: 0.95rem; }
+    .search-result mark { background: rgba(212,168,83,0.25); color: var(--gold-bright); padding: 0 0.15rem; border-radius: 3px; }
+    .search-empty { text-align: center; color: var(--text-secondary); padding: 3rem 1rem; }
+    .search-loading { text-align: center; color: var(--text-secondary); padding: 2rem; }
+    @media (max-width: 640px) {
+      .search-box button { padding: 0.5rem 0.75rem; font-size: 0.85rem; }
+    }
+  </style>
+  <meta property="og:image:alt" content="Search | Bonds Global" />
+
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/search" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/search" />
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main-content">
+    <section class="search-hero">
+      <h1>Search Bonds Global</h1>
+      <p>Type a keyword to find calculators, reports, articles, and services.</p>
+      <div class="search-box">
+        <input type="search" id="searchInput" placeholder="e.g. break-even, cash flow, factory..." autocomplete="off" />
+        <button id="searchBtn" type="button">Search</button>
+      </div>
+    </section>
+    <section class="search-results" id="searchResults" aria-live="polite">
+      <div class="search-loading" id="searchLoading">Loading index...</div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script>
+    (function () {
+      'use strict';
+      const input = document.getElementById('searchInput');
+      const btn = document.getElementById('searchBtn');
+      const results = document.getElementById('searchResults');
+      const loading = document.getElementById('searchLoading');
+      let index = [];
+      let ready = false;
+
+      function normalize(str) {
+        return (str || '').toLowerCase();
+      }
+
+      function highlight(text, query) {
+        if (!query) return text;
+        const q = normalize(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp('(' + q + ')', 'gi');
+        return text.replace(re, '<mark>$1</mark>');
+      }
+
+      function render(items, query) {
+        if (!query) {
+          results.innerHTML = '<div class="search-empty">Start typing above to see results.</div>';
+          return;
+        }
+        if (items.length === 0) {
+          results.innerHTML = '<div class="search-empty">No matching results found. Try different keywords.</div>';
+          return;
+        }
+        const html = items.map(function (item) {
+          return '<article class="search-result">' +
+            '<div class="search-result__cat">' + item.category + '</div>' +
+            '<h2 class="search-result__title"><a href="' + item.url + '">' + highlight(item.title, query) + '</a></h2>' +
+            '<div class="search-result__desc">' + highlight(item.description, query) + '</div>' +
+            '</article>';
+        }).join('');
+        results.innerHTML = html;
+      }
+
+      function search(query) {
+        const q = normalize(query).trim();
+        if (!q) { render([], ''); return; }
+        const terms = q.split(/\s+/).filter(function (t) { return t.length > 1; });
+        const items = index.map(function (item) {
+          const hay = normalize(item.title + ' ' + item.description + ' ' + item.category);
+          let score = 0;
+          terms.forEach(function (term) {
+            if (normalize(item.title).includes(term)) score += 10;
+            if (normalize(item.description).includes(term)) score += 4;
+            if (normalize(item.category).includes(term)) score += 2;
+            if (hay.includes(term)) score += 1;
+          });
+          return { item, score };
+        }).filter(function (r) { return r.score > 0; })
+          .sort(function (a, b) { return b.score - a.score; })
+          .slice(0, 24)
+          .map(function (r) { return r.item; });
+        render(items, q);
+      }
+
+      function run() { search(input.value); }
+
+      fetch('/assets/search-index-en.json')
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          index = (data && data.entries) || [];
+          ready = true;
+          loading.style.display = 'none';
+          const params = new URLSearchParams(window.location.search);
+          const q = params.get('q') || '';
+          if (q) { input.value = q; search(q); }
+          else { render([], ''); }
+        })
+        .catch(function (err) {
+          console.error(err);
+          results.innerHTML = '<div class="search-empty">Could not load search index. Please try again later.</div>';
+        });
+
+      input.addEventListener('input', function () { if (ready) run(); });
+      btn.addEventListener('click', run);
+      input.addEventListener('keydown', function (e) { if (e.key === 'Enter') run(); });
+    })();
+  </script>
+</body>
+</html>

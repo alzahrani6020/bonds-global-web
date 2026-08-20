@@ -42,6 +42,7 @@ async function handler(req, res) {
     SOCIAL_YOUTUBE_URL: process.env.SOCIAL_YOUTUBE_URL || 'https://www.youtube.com/@bondsglobal',
     SOCIAL_X_URL: process.env.SOCIAL_X_URL || 'https://x.com/bonds_global',
     SOCIAL_LINKEDIN_URL: process.env.SOCIAL_LINKEDIN_URL || 'https://www.linkedin.com/company/bonds-global',
+    WHATSAPP_NUMBER: process.env.WHATSAPP_NUMBER || '966567566616',
   };
 
   res.status(200).end(`window.__ENV = ${JSON.stringify(env)};`);

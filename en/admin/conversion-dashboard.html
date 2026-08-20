@@ -7,20 +7,19 @@
   <meta name="description" content="Track user journey from calculator to saved project or V3 conversion." />
   <meta property="og:title" content="Calculator Conversion Dashboard | Bonds" />
   <meta property="og:description" content="Track user journey from calculator to saved project or V3 conversion." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=Calculator+Conversion+Dashboard+%7C+Bonds&amp;description=Track+user+journey+from+calculator+to+saved+project+or+V3+conversion.&amp;lang=en" />
+  <meta property="og:image:alt" content="Calculator Conversion Dashboard | Bonds" />
   <meta property="og:url" content="https://bonds-global.com/en/admin/conversion-dashboard" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Calculator Conversion Dashboard | Bonds" />
   <meta name="twitter:description" content="Track user journey from calculator to saved project or V3 conversion." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <link rel="canonical" href="https://bonds-global.com/en/admin/conversion-dashboard" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=Calculator+Conversion+Dashboard+%7C+Bonds&amp;description=Track+user+journey+from+calculator+to+saved+project+or+V3+conversion.&amp;lang=en" />
+  <link rel="canonical" href="https://bonds-global.com/en/admin/conversion-dashboard" />    <link rel="stylesheet" href="../../styles/fonts-en.css">
   <link rel="stylesheet" href="../../styles.css" />
   <link rel="stylesheet" href="../../header-footer.css?v=2.63.0" />
   <link rel="icon" href="../../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <style>
     .cx-dashboard { max-width:1100px; margin:0 auto; padding:2rem 1rem; }
     .cx-dashboard h1 { color:var(--gold); font-size:1.75rem; margin-bottom:0.5rem; }
@@ -45,6 +44,30 @@
     .cx-cta .btn-primary { background:linear-gradient(135deg, #d4a853, #f0c96a); color:#0c0c1c; }
     .cx-cta .btn-outline { border:1px solid var(--border); color:var(--text); }
   </style>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
 </head>
 <body>
   <div id="site-header"></div>
@@ -149,7 +172,7 @@
   </main>
 
   <div id="site-footer"></div>
-  <script src="../../site-layout.js?v=3.2.0"></script>
+  <script defer src="../../site-layout.js?v=3.2.0"></script>
   <script src="../../script.js?v=3.0.0"></script>
   <script src="../../supabase-client.js"></script>
   <script src="../../bonds-auth-2026.js?v=3.0.7"></script>
@@ -255,7 +278,7 @@
     }
     setTimeout(loadMetrics, 800);
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

@@ -380,8 +380,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 
 ### 11.5 CSS مشترك لحاسبات تكلفة المصنع
 - `calculators/factory-cost-shared.css`: الأنماط المشتركة لصفحات تكلفة المصنع العربية.
-- `calculators/factory-cost-shared-en.css`: الأنماط المشتركة لمعظم الصفحات الإنجليزية.
-- `calculators/factory-cost-shared-en-light.css`: نسخة إنجليزية خفيفة لـ 5 دول (dj, km, mr, ps, so).
+- `calculators/factory-cost-shared-en.css`: الأنماط المشتركة للصفحات الإنجليزية.
 - صفحات `factory-cost-*.html` (ما عدا `factory-cost.html` الرئيسية) تستخدم هذه الملفات بدلاً من `<style>` داخلي.
 - `calculators/auth/auth-shared.css`: الأنماط المشتركة لصفحات المصادقة (تستخدمه جميع صفحات `calculators/auth/` مع الاحتفاظ بأنماط خاصة في كل صفحة حسب الحاجة).
 - `calculators/feasibility-template-shared.css` و `calculators/feasibility-template-shared-en.css`: الأنماط المشتركة لقوالب دراسة الجدوى.
@@ -411,12 +410,18 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `npm run test:visual` — اختبارات انحدار الواجهة البصرية عبر `pixelmatch`.
 - `npm run test:visual:update` — تحديث صور baseline للاختبارات البصرية.
 - `npm run generate:sitemap` — إعادة توليد `sitemap.xml` من الملفات العامة (`scripts/generate-sitemap.js`).
+- `npm run generate:search-index` — إعادة توليد فهارس البحث `assets/search-index.json` و `assets/search-index-en.json` من صفحات الموقع.
+- `npm run apply:dynamic-og` — تحديث `og:image` و `twitter:image` بصور Open Graph ديناميكية (`/api/og-image`) لجميع الصفحات العامة.
+- `npm run apply:structured-data` — إضافة JSON-LD `SoftwareApplication` لصفحات الحاسبات.
+- `npm run apply:organization-schema` — إضافة JSON-LD `Organization` لجميع الصفحات العامة.
+- `npm run apply:hreflang` — إضافة روابط `hreflang` للصفحات المترجمة (ar ↔ en).
+- `npm run generate:sitemap` — إعادة توليد `sitemap.xml` مع روابط `hreflang` البديلة.
 - CI: `.github/workflows/ci.yml` يشغّل كل ما سبق عند كل push/PR.
 - تطبيق migrations تلقائياً: `.github/workflows/apply-migrations.yml` يشغّل `supabase db push --include-all` عند أي تعديل في `supabase/migrations/` على فرع `main`. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets. ملاحظة: `--include-all` ضروري لأن بعض الـ migrations القديمة طُبّقت يدوياً عبر SQL Editor وهي غير مسجلة في remote history. قاعدة: كل ملف migration يجب أن يكون idempotent ويحمل رقم إصدار فريداً (تكرار الإصدار بين ملفين يُسقط `db push` بخطأ `schema_migrations_pkey`).
 - تذكيرات إكمال الملف الشخصي: `.github/workflows/profile-reminders.yml` يشغّل endpoint `/api/admin?action=send-profile-reminders-bulk` يوميًا باستخدام `CRON_SECRET`؛ يتطلب إضافة `CRON_SECRET` في GitHub Secrets.
 - تقرير جودة البيانات: صفحة `admin/data-quality.html` و endpoint `GET /api/admin?action=data-quality-report`.
 - لإعادة توليد أيقونات PWA بعد تغيير الشعار: `node scripts/generate-icons.js`.
-- لتحديث/إضافة Open Graph tags لصفحة جديدة: `node scripts/apply-og-tags.js`.
+- لتحديث/إضافة Open Graph tags لصفحة جديدة: `node scripts/apply-og-tags.js`. يستخدم هذا السكربت صورة Open Graph ديناميكية (`/api/og-image`) عندما لا تتوفر صورة مخصصة.
 
 ### 11.7 وحدات لوحة التحكم الإدارية
 اللوحة الموحدة في `admin/dashboard.html` تُحمّل الوحدات داخل iframe عبر `?embed=1`. كل وحدة هي SPA مستقلة (HTML/CSS/JS) وتستخدم `admin-embed.js` لإخفاء قائمتها الجانبية داخل اللوحة.

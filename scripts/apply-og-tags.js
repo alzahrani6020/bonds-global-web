@@ -8,6 +8,12 @@ const path = require('path');
 const ROOT = path.join(__dirname, '..');
 const DOMAIN = process.env.DOMAIN || 'https://bonds-global.com';
 const DEFAULT_IMAGE = `${DOMAIN}/assets/bonds-logo-2026.webp`;
+
+function ogImageUrl(title, description, lang) {
+  const t = encodeURIComponent(title).replace(/%20/g, '+');
+  const d = encodeURIComponent(description).replace(/%20/g, '+');
+  return `${DOMAIN}/api/og-image?title=${t}&description=${d}&lang=${lang}`;
+}
 const DEFAULT_DESC = 'حاسبات مالية متخصصة واستشارات اقتصادية من بوندز.';
 const DEFAULT_DESC_EN = 'Specialized financial calculators and economic consulting from Bonds.';
 
@@ -95,8 +101,12 @@ for (const file of files) {
   if (!hasTag(html, /<meta[^>]+property=["']og:description["']/i)) {
     tagsToAdd += `  <meta property="og:description" content="${ogDesc}" />\n`;
   }
+  const dynamicImage = ogImageUrl(ogTitle, ogDesc, isEn ? 'en' : 'ar');
   if (!hasTag(html, /<meta[^>]+property=["']og:image["']/i)) {
-    tagsToAdd += `  <meta property="og:image" content="${DEFAULT_IMAGE}" />\n`;
+    tagsToAdd += `  <meta property="og:image" content="${dynamicImage}" />\n`;
+  }
+  if (!hasTag(html, /<meta[^>]+property=["']og:image:alt["']/i)) {
+    tagsToAdd += `  <meta property="og:image:alt" content="${ogTitle}" />\n`;
   }
   if (!hasTag(html, /<meta[^>]+property=["']og:url["']/i)) {
     tagsToAdd += `  <meta property="og:url" content="${url}" />\n`;
@@ -114,7 +124,7 @@ for (const file of files) {
     tagsToAdd += `  <meta name="twitter:description" content="${ogDesc}" />\n`;
   }
   if (!hasTag(html, /<meta[^>]+name=["']twitter:image["']/i)) {
-    tagsToAdd += `  <meta name="twitter:image" content="${DEFAULT_IMAGE}" />\n`;
+    tagsToAdd += `  <meta name="twitter:image" content="${dynamicImage}" />\n`;
   }
 
   if (tagsToAdd) {

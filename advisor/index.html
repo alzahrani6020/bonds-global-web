@@ -5,13 +5,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>لوحة المستشار | بوندز</title>
-  <meta name="description" content="لوحة تحكم المستشار المعتمد من بوندز لإدارة المراجعات ومتابعة الأرباح." />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <meta name="description" content="لوحة تحكم المستشار المعتمد من بوندز لإدارة المراجعات ومتابعة الأرباح." />    <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/design-system.css" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <style>
     .advisor-layout { display: flex; min-height: 100vh; }
     .advisor-main { flex: 1; padding: 2rem; max-width: 1200px; margin: 0 auto; }
@@ -36,7 +34,7 @@
     .advisor-empty { color: var(--text-secondary); padding: 1rem 0; }
     .advisor-login { min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; }
   </style>
-  <script src="/global-auth-gate.js?v=2"></script>
+  <script defer src="/global-auth-gate.js?v=2"></script>
 </head>
 <body>
   <div id="advisorApp">
@@ -182,7 +180,7 @@
 
     init();
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

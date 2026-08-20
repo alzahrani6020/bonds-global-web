@@ -1,2120 +1,2850 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://bonds-global.com</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/about</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/about" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/about" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/advisor</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/advisor" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/advisor" />
+    <lastmod>2026-08-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/advisors</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/advisors" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/advisors" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/break-even-explained</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/break-even-explained" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/break-even-explained" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/cash-flow-mistakes</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/cash-flow-mistakes" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/cash-flow-mistakes" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/en</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/en/break-even-explained</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/break-even-explained" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/break-even-explained" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/en/cash-flow-mistakes</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/cash-flow-mistakes" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/cash-flow-mistakes" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/en/financial-kpis</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/financial-kpis" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/financial-kpis" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/en/pricing-strategy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/pricing-strategy" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/pricing-strategy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/en/tax-zakat-sme</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/tax-zakat-sme" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/tax-zakat-sme" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/financial-kpis</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/financial-kpis" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/financial-kpis" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/pricing-strategy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/pricing-strategy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/pricing-strategy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/blog/tax-zakat-sme</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/blog/tax-zakat-sme" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/blog/en/tax-zakat-sme" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/book</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/book" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/book" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculator</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculator-v2</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator-v2" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator-v2" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculator-wizard</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator-wizard" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator-wizard" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/break-even</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/break-even" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/break-even" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/cash-flow</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/cash-flow" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/cash-flow" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/creditworthiness</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/creditworthiness" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/creditworthiness" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/dashboard</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/dashboard" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/dashboard" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/dish-margin</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/dish-margin" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/dish-margin" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-ae</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ae" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ae" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-bh</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-bh" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-bh" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-dj</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-dj" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-dj" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-dz</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-dz" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-dz" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-eg</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-eg" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-eg" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-iq</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-iq" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-iq" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-jo</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-jo" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-jo" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-km</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-km" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-km" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-kw</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-kw" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-kw" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-lb</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-lb" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-lb" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-ly</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ly" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ly" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-ma</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ma" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ma" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-mr</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-mr" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-mr" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-om</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-om" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-om" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-ps</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ps" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ps" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-qa</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-qa" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-qa" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-sd</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-sd" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-sd" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-so</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-so" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-so" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-sy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-sy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-sy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-tn</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-tn" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-tn" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/factory-cost-ye</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ye" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ye" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/feasibility</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/feasibility" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/feasibility" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/feasibility-template</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/feasibility-template" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/feasibility-template" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/feasibility-template-real-estate</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/feasibility-template-real-estate" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/feasibility-template-real-estate" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/agriculture</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/agriculture" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/agriculture" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/building-materials-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/building-materials-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/building-materials-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/buy-to-rent</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/buy-to-rent" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/buy-to-rent" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/chemicals-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/chemicals-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/chemicals-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/cloud-kitchen</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/cloud-kitchen" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/cloud-kitchen" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/coffee-shop</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/coffee-shop" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/coffee-shop" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/commercial</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/commercial" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/commercial" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/commercial-complex</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/commercial-complex" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/commercial-complex" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/commercial-mall</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/commercial-mall" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/commercial-mall" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/concrete-structure-cost</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/concrete-structure-cost" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/concrete-structure-cost" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/construction</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/construction" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/construction" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/construction-profitability</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/construction-profitability" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/construction-profitability" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/contractor-cashflow</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/contractor-cashflow" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/contractor-cashflow" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/dental-clinic</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/dental-clinic" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/dental-clinic" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/distressed-project-evaluation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/distressed-project-evaluation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/distressed-project-evaluation" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/distribution-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/distribution-center" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/distribution-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/e-learning-platform</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/e-learning-platform" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/e-learning-platform" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/education</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/education" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/education" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/fast-food-restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/fast-food-restaurant" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/fast-food-restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/fine-dining-restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/fine-dining-restaurant" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/fine-dining-restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/finishing-cost</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/finishing-cost" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/finishing-cost" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/food-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/food-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/food-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/food-truck</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/food-truck" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/food-truck" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/furniture-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/furniture-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/furniture-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/hospital</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/hospital" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/hospital" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/hotel</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/hotel" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/hotel" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/hotel-apartments</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/hotel-apartments" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/hotel-apartments" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/industrial</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/industrial" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/industrial" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/land-development</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/land-development" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/land-development" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/last-mile-delivery</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/last-mile-delivery" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/last-mile-delivery" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/logistics</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/logistics" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/logistics" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/medical</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/medical" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/medical" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/medical-complex</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/medical-complex" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/medical-complex" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/medical-lab</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/medical-lab" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/medical-lab" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/nursery</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/nursery" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/nursery" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/optical-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/optical-center" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/optical-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/packaging-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/packaging-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/packaging-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/pharmacy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/pharmacy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/pharmacy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/physiotherapy-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/physiotherapy-center" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/physiotherapy-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/plastic-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/plastic-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/plastic-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/private-school</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/private-school" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/private-school" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/private-university</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/private-university" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/private-university" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/property-rehabilitation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/property-rehabilitation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/property-rehabilitation" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/quick-real-estate</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/quick-real-estate" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/quick-real-estate" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/radiology-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/radiology-center" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/radiology-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/real-estate</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/real-estate" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/real-estate" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/residential-building</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/residential-building" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/residential-building" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/restaurant" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/restaurants</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/restaurants" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/restaurants" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/retail</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/retail" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/retail" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/shipping-company</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/shipping-company" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/shipping-company" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/technology</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/technology" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/technology" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/tender-pricing</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tender-pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tender-pricing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/textiles-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/textiles-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/textiles-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/tourism</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourism" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourism" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/tourism-company</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourism-company" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourism-company" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/tourist-camp</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourist-camp" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourist-camp" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/tourist-resort</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourist-resort" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourist-resort" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/training-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/training-center" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/training-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/transport-fleet</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/transport-fleet" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/transport-fleet" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/villa-construction</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/villa-construction" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/villa-construction" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/warehouses</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/warehouses" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/warehouses" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/investment-center/water-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/water-factory" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/water-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/invoice-analyzer</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/invoice-analyzer" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/invoice-analyzer" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/loan</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/loan" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/loan" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/manufacturing-feasibility</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/manufacturing-feasibility" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/manufacturing-feasibility" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/medical-viability</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/medical-viability" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/medical-viability" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/menu-engineering</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/menu-engineering" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/menu-engineering" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/menu-engineering-simple</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/menu-engineering-simple" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/menu-engineering-simple" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/pricing</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/pricing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/real-project-analysis</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/real-project-analysis" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/real-project-analysis" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/restaurant" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/calculators/roi</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/roi" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/roi" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/case-studies</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/case-studies" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/case-studies" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/contact</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/contact" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/contact" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/distressed-recovery-study</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/distressed-recovery-study" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/dr-talal-alzahrani</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/dr-talal-alzahrani" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/dr-talal-alzahrani" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/about</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/about" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/about" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/advisor</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/advisor" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/advisor" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/advisors</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/advisors" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/advisors" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/book</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/book" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/book" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculator</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculator-v2</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator-v2" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator-v2" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculator-wizard</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator-wizard" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator-wizard" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/break-even</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/break-even" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/break-even" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/cash-flow</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/cash-flow" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/cash-flow" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/creditworthiness</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/creditworthiness" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/creditworthiness" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/dashboard</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/dashboard" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/dashboard" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/dish-margin</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/dish-margin" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/dish-margin" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-ae</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ae" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ae" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-bh</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-bh" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-bh" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-dj</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-dj" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-dj" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-dz</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-dz" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-dz" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-eg</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-eg" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-eg" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-iq</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-iq" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-iq" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-jo</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-jo" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-jo" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-km</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-km" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-km" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-kw</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-kw" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-kw" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-lb</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-lb" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-lb" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-ly</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ly" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ly" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-ma</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ma" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ma" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-mr</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-mr" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-mr" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-om</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-om" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-om" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-ps</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ps" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ps" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-qa</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-qa" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-qa" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-sd</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-sd" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-sd" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-so</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-so" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-so" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-sy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-sy" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-sy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-tn</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-tn" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-tn" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/factory-cost-ye</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/factory-cost-ye" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/factory-cost-ye" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/feasibility</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/feasibility" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/feasibility" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/feasibility-template</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/feasibility-template" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/feasibility-template" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/feasibility-template-real-estate</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/feasibility-template-real-estate" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/feasibility-template-real-estate" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/agriculture</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/agriculture" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/agriculture" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/building-materials-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/building-materials-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/building-materials-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/buy-to-rent</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/buy-to-rent" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/buy-to-rent" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/chemicals-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/chemicals-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/chemicals-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/cloud-kitchen</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/cloud-kitchen" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/cloud-kitchen" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/coffee-shop</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/coffee-shop" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/coffee-shop" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/commercial</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/commercial" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/commercial" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/commercial-complex</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/commercial-complex" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/commercial-complex" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/commercial-mall</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/commercial-mall" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/commercial-mall" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/concrete-structure-cost</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/concrete-structure-cost" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/concrete-structure-cost" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/construction</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/construction" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/construction" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/construction-profitability</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/construction-profitability" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/construction-profitability" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/contractor-cashflow</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/contractor-cashflow" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/contractor-cashflow" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/dental-clinic</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/dental-clinic" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/dental-clinic" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/distressed-project-evaluation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/distressed-project-evaluation" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/distressed-project-evaluation" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/distribution-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/distribution-center" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/distribution-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/e-learning-platform</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/e-learning-platform" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/e-learning-platform" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/education</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/education" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/education" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/fast-food-restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/fast-food-restaurant" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/fast-food-restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/fine-dining-restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/fine-dining-restaurant" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/fine-dining-restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/finishing-cost</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/finishing-cost" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/finishing-cost" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/food-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/food-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/food-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/food-truck</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/food-truck" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/food-truck" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/furniture-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/furniture-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/furniture-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/hospital</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/hospital" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/hospital" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/hotel</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/hotel" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/hotel" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/hotel-apartments</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/hotel-apartments" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/hotel-apartments" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/industrial</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/industrial" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/industrial" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/land-development</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/land-development" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/land-development" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/last-mile-delivery</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/last-mile-delivery" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/last-mile-delivery" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/logistics</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/logistics" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/logistics" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/medical</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/medical" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/medical" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/medical-complex</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/medical-complex" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/medical-complex" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/medical-lab</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/medical-lab" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/medical-lab" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/nursery</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/nursery" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/nursery" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/optical-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/optical-center" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/optical-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/packaging-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/packaging-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/packaging-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/pharmacy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/pharmacy" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/pharmacy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/physiotherapy-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/physiotherapy-center" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/physiotherapy-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/plastic-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/plastic-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/plastic-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/private-school</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/private-school" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/private-school" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/private-university</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/private-university" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/private-university" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/property-rehabilitation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/property-rehabilitation" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/property-rehabilitation" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/quick-real-estate</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/quick-real-estate" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/quick-real-estate" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/radiology-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/radiology-center" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/radiology-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/real-estate</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/real-estate" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/real-estate" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/residential-building</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/residential-building" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/residential-building" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/restaurant" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/restaurants</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/restaurants" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/restaurants" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/retail</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/retail" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/retail" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/shipping-company</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/shipping-company" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/shipping-company" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/technology</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/technology" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/technology" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/tender-pricing</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tender-pricing" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tender-pricing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/textiles-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/textiles-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/textiles-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/tourism</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourism" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourism" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/tourism-company</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourism-company" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourism-company" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/tourist-camp</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourist-camp" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourist-camp" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/tourist-resort</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/tourist-resort" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/tourist-resort" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/training-center</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/training-center" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/training-center" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/transport-fleet</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/transport-fleet" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/transport-fleet" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/villa-construction</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/villa-construction" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/villa-construction" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/warehouses</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/warehouses" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/warehouses" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/investment-center/water-factory</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/water-factory" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/water-factory" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/invoice-analyzer</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/invoice-analyzer" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/invoice-analyzer" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/loan</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/loan" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/loan" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/manufacturing-feasibility</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/manufacturing-feasibility" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/manufacturing-feasibility" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/medical-viability</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/medical-viability" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/medical-viability" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/menu-engineering</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/menu-engineering" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/menu-engineering" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/menu-engineering-simple</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/menu-engineering-simple" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/menu-engineering-simple" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/pricing</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/pricing" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/pricing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/real-project-analysis</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/real-project-analysis" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/real-project-analysis" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/restaurant</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/restaurant" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/restaurant" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/calculators/roi</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/roi" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/roi" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/case-studies</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/case-studies" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/case-studies" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/contact</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/contact" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/contact" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/dr-talal-alzahrani</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/dr-talal-alzahrani" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/dr-talal-alzahrani" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/faq</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/faq" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/faq" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/fixed-income-intelligence</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/fixed-income-intelligence" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/fixed-income-intelligence" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/for-banks</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/for-banks" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/for-banks" />
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://bonds-global.com/en/funding</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/funding-extraction</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding-extraction" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-extraction" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/funding-readiness</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding-readiness" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-readiness" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/funding-sources</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding-sources" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-sources" />
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://bonds-global.com/en/investment-opportunities</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/investment-opportunities" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/investment-opportunities" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/methodology</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/methodology" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/methodology" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/nps</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/nps" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/nps" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/partner-portal-guide</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/partner-portal-guide" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/partner-portal-guide" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/pitch</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/pitch" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pitch" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/pitch-print</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/pitch-print" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pitch-print" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/pricing</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/pricing" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pricing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/privacy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/privacy" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/privacy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/project-rescue</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/project-rescue" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/project-rescue" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/reports</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/reports" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/reports/distressed-recovery-feasibility-study</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/reports/distressed-recovery-feasibility-study" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/distressed-recovery-feasibility-study" />
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
+    <loc>https://bonds-global.com/en/search</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/search" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/search" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-ae</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ae" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ae" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-bh</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-bh" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-bh" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-dz</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-dz" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-dz" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-eg</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-eg" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-eg" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-iq</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-iq" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-iq" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-jo</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-jo" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-jo" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-kw</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-kw" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-kw" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-lb</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-lb" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-lb" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-ly</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ly" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ly" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-ma</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ma" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ma" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-om</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-om" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-om" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-qa</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-qa" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-qa" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-sd</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-sd" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-sd" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-sy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-sy" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-sy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-tn</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-tn" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-tn" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/sectors/manufacturing-ye</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ye" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ye" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/services</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/services" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/services" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/suppliers-guide</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/suppliers-guide" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/suppliers-guide" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/terms</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/terms" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/terms" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/v3/portfolio</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/v3/portfolio" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/portfolio" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/v3/project</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/v3/project" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/project" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/valuation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/valuation" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/valuation" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/en/wave4</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/wave4" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/wave4" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/faq</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/faq" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/faq" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/fixed-income-intelligence</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/fixed-income-intelligence" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/fixed-income-intelligence" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/for-banks</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/for-banks" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/for-banks" />
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bonds-global.com/funding</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/funding-extraction</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-extraction" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding-extraction" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/funding-readiness</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-readiness" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding-readiness" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/funding-sources</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/funding-sources" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/funding-sources" />
+    <lastmod>2026-08-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bonds-global.com/investment-opportunities</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/investment-opportunities" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/investment-opportunities" />
+    <lastmod>2026-08-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/methodology</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/methodology" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/methodology" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/nps</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/nps" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/nps" />
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://bonds-global.com/offline</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/offline" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/partner-portal-guide</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/partner-portal-guide" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/partner-portal-guide" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/pitch</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pitch" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/pitch" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/pitch-print</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pitch-print" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/pitch-print" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/pricing</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pricing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/pricing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/privacy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/privacy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/privacy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/pro</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pro" />
+    <lastmod>2026-08-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/pro/login</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pro/login" />
+    <lastmod>2026-08-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/pro/report</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/pro/report" />
+    <lastmod>2026-08-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/project-rescue</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/project-rescue" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/project-rescue" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/30-day-action-plan-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/30-day-action-plan-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/current-opportunities-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/current-opportunities-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/distressed-recovery-feasibility-study</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/distressed-recovery-feasibility-study" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/distressed-recovery-feasibility-study-full-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/distressed-recovery-feasibility-study-full-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/distressed-recovery-feasibility-study-full-en</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/distressed-recovery-feasibility-study-full-en" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/distressed-recovery-feasibility-study-vaccinated-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/distressed-recovery-feasibility-study-vaccinated-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/distressed-recovery-investment-memorandum</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/distressed-recovery-investment-memorandum" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/en/validation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/reports/en/validation" />
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/validation" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/executive-summary-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/executive-summary-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/food-manufacturing-jeddah-feasibility</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/food-manufacturing-jeddah-feasibility" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/investor-brief-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/investor-brief-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/investor-deck-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/investor-deck-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/investor-deck-v2-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/investor-deck-v2-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/investor-due-diligence-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/investor-due-diligence-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/investor-meeting-kit-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/investor-meeting-kit-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/top-5-investor-questions-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/top-5-investor-questions-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/vaccinated-additions-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/vaccinated-additions-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/vaccinated-additions-en</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/vaccinated-additions-en" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/validation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/validation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/reports/en/validation" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/reports/why-invest-now-ar</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/reports/why-invest-now-ar" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
+    <loc>https://bonds-global.com/search</loc>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/search" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/search" />
+    <lastmod>2026-08-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://bonds-global.com/sectors/manufacturing</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-ae</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ae" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ae" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-bh</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-bh" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-bh" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-dz</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-dz" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-dz" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-eg</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-eg" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-eg" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-iq</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-iq" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-iq" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-jo</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-jo" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-jo" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-kw</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-kw" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-kw" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-lb</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-lb" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-lb" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-ly</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ly" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ly" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-ma</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ma" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ma" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-om</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-om" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-om" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-qa</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-qa" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-qa" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-sd</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-sd" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-sd" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-sy</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-sy" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-sy" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-tn</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-tn" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-tn" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/sectors/manufacturing-ye</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/sectors/manufacturing-ye" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/sectors/manufacturing-ye" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/services</loc>
-    <lastmod>2026-08-11</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/services" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/services" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/suppliers-guide</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/suppliers-guide" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/suppliers-guide" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/terms</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/terms" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/terms" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/alerts</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/alerts" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/city-comparison</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/city-comparison" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/city-intelligence</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/city-intelligence" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/investment-map</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/investment-map" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/opportunity-bank</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/opportunity-bank" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/portfolio</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/portfolio" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/v3/portfolio" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/project</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/project" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/v3/project" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/project-readiness</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/project-readiness" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/v3/scenarios</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/scenarios" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/valuation</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/valuation" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/valuation" />
+    <lastmod>2026-08-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://bonds-global.com/wave4</loc>
-    <lastmod>2026-08-04</lastmod>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/wave4" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/wave4" />
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

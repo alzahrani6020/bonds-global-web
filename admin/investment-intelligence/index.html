@@ -7,6 +7,7 @@
   <meta name="description" content="Investment Intelligence Suite — توليد النشرات الاستثمارية" />
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/supabase-client.js"></script>
@@ -44,7 +45,7 @@
     .ii-toast { position:fixed; bottom:24px; left:24px; background:var(--gold); color:#0a0f1a; padding:12px 20px; border-radius:10px; font-weight:700; display:none; }
     pre { background:rgba(0,0,0,0.2); padding:12px; border-radius:8px; overflow:auto; font-size:12px; }
   </style>
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
 </head>
 <body>
@@ -180,7 +181,7 @@
     })();
   </script>
 <script src="/admin/admin-sidebar-icons.js"></script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

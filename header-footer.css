@@ -389,6 +389,27 @@ body[dir="ltr"] .dropdown-menu {
   background: rgba(212, 168, 83, 0.08);
 }
 
+.header-search {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  color: rgba(232, 236, 244, 0.9);
+  transition: all 0.25s ease;
+}
+
+.header-search svg {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.header-search:hover {
+  color: var(--gold-bright);
+  background: rgba(212, 168, 83, 0.12);
+}
+
 .header-login,
 .header-signup {
   display: inline-flex;

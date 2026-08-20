@@ -8,15 +8,14 @@
   <meta name="description" content="احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي. أداة مجانية من بوندز." />
   <meta property="og:title" content="حاسبة تدفق النقد | بوندز" />
   <meta property="og:description" content="احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%AA%D8%AF%D9%81%D9%82+%D8%A7%D9%84%D9%86%D9%82%D8%AF+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%A7%D8%AD%D8%B3%D8%A8+%D8%AA%D9%88%D9%82%D8%B9%D8%A7%D8%AA+%D8%A7%D9%84%D8%AA%D8%AF%D9%81%D9%82+%D8%A7%D9%84%D9%86%D9%82%D8%AF%D9%8A+%D9%84%D9%80+12+%D8%B4%D9%87%D8%B1%D8%A7%D9%8B%3A+%D8%A7%D9%84%D9%88%D8%A7%D8%B1%D8%AF%D8%A7%D8%AA%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D8%B1%D9%88%D9%81%D8%A7%D8%AA%D8%8C+%D9%88%D8%A7%D9%84%D8%B1%D8%B5%D9%8A%D8%AF+%D8%A7%D9%84%D8%AE%D8%AA%D8%A7%D9%85%D9%8A.&amp;lang=ar" />
+  <meta property="og:image:alt" content="حاسبة تدفق النقد | بوندز" />
   <meta property="og:url" content="https://bonds-global.com/calculators/cash-flow" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="حاسبة تدفق النقد | بوندز" />
   <meta name="twitter:description" content="احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%AA%D8%AF%D9%81%D9%82+%D8%A7%D9%84%D9%86%D9%82%D8%AF+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%A7%D8%AD%D8%B3%D8%A8+%D8%AA%D9%88%D9%82%D8%B9%D8%A7%D8%AA+%D8%A7%D9%84%D8%AA%D8%AF%D9%81%D9%82+%D8%A7%D9%84%D9%86%D9%82%D8%AF%D9%8A+%D9%84%D9%80+12+%D8%B4%D9%87%D8%B1%D8%A7%D9%8B%3A+%D8%A7%D9%84%D9%88%D8%A7%D8%B1%D8%AF%D8%A7%D8%AA%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D8%B1%D9%88%D9%81%D8%A7%D8%AA%D8%8C+%D9%88%D8%A7%D9%84%D8%B1%D8%B5%D9%8A%D8%AF+%D8%A7%D9%84%D8%AE%D8%AA%D8%A7%D9%85%D9%8A.&amp;lang=ar" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <link rel="preconnect" href="https://cdn.sheetjs.com" />
   <link rel="prefetch" href="../calculator.html" as="document" />
@@ -24,38 +23,72 @@
   <link rel="prefetch" href="loan.html" as="document" />
   <link rel="preload" href="../assets/bonds-logo-2026.webp?v=2026" as="image" type="image/webp" />
   <script defer src="/_vercel/insights/script.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  
+  <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="shared-calculators.css" />
   <link rel="stylesheet" href="cash-flow.css" />
   <link rel="stylesheet" href="../styles/design-system.css" />
   <script src="shared-ui.js"></script>
-  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />  <link rel="manifest" href="/manifest.json" />
+
   <script src="shared-utils.js"></script>
   <script src="shared-charts.js" defer></script>
   <script src="shared-export.js" defer></script>
   
 
   <script src="db-client.js"></script>
-<link rel="canonical" href="https://bonds-global.com/calculators/cash-flow" />
-  <script type="application/ld+json">
-  {
+<link rel="canonical" href="https://bonds-global.com/calculators/cash-flow" /><script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "الرئيسية",
+      "item": "https://bonds-global.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "الحاسبات",
+      "item": "https://bonds-global.com/calculator.html"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "حاسبة تدفق النقد",
+      "item": "https://bonds-global.com/calculators/cash-flow.html"
+    }
+  ]
+}
+</script>
+
+  <script type="application/ld+json">{
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "حاسبة تدفق النقد",
-  "applicationCategory": "BusinessApplication",
+  "description": "احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي. أداة مجانية من بوندز.",
+  "url": "https://bonds-global.com/calculators/cash-flow",
+  "applicationCategory": "FinanceApplication",
   "operatingSystem": "Any",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "inLanguage": "ar",
+  "provider": {
+    "@type": "Organization",
+    "name": "Bonds Global",
+    "url": "https://bonds-global.com"
+  },
   "offers": {
     "@type": "Offer",
     "price": "0",
     "priceCurrency": "SAR"
-  },
-  "url": "https://bonds-global.com/calculators/cash-flow",
-  "description": "احسب توقعات التدفق النقدي لـ 12 شهراً: الواردات، المصروفات، والرصيد الختامي. أداة مجانية من بوندز."
-}
-  </script>
+  }
+}</script>
 
-<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/cash-flow" />
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/cash-flow" />
 </head>
 <body>
 
@@ -69,6 +102,18 @@
 
   <!-- Header -->
   <div id="site-header"></div>
+
+<nav aria-label="مسار التنقل" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة تدفق النقد</li>
+  </ol>
+</nav>
+<nav aria-label="مسار التنقل" class="breadcrumbs">
+  <ol class="breadcrumbs__list">
+    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة تدفق النقد</li>
+  </ol>
+</nav>
+
 
   <!-- Hero -->
   <section class="hero calc-hero">
@@ -266,7 +311,7 @@
             </ol>
           </div>
           <div class="calc-text-center">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" class="calc-qr-img">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https://wa.me/966567566616" alt="WhatsApp QR" class="calc-qr-img" loading="lazy" decoding="async">
             <p class="calc-qr-caption">امسح للتواصل عبر واتساب</p>
           </div>
         </div>
@@ -856,7 +901,7 @@
       summaryHTML += '</table>';
 
       var content = '<h3>ملخص سنوي</h3>' + summaryHTML + '<h3>التفاصيل الشهرية</h3>' + resultsHTML;
-      if (chartImg) content += '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="الرصيد الختامي" />';
+      if (chartImg) content += '<h3>الرسم البياني</h3><img class="chart-img" src="' + chartImg + '" alt="الرصيد الختامي"  loading="lazy" decoding="async" />';
       openPrintWindow({ content: content, title: 'تقرير التدفق النقدي', headerTitle: 'تقرير توقعات التدفق النقدي', autoPrint: true, reportType: 'cash-flow' });
     }
 
@@ -916,14 +961,14 @@
 <script>
 </script>
 <script src="usage-guard.js"></script>
-  <script src="../page-tracker-v2.js"></script>
+  <script defer src="../page-tracker-v2.js"></script>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.0.7"></script>
 <script src="shared-analytics.js"></script>
 <script src="auth-modal.js"></script>
 <script src="exit-intent.js"></script>
-<script src="../site-layout.js?v=3.2.0"></script>
+<script defer src="../site-layout.js?v=3.2.0"></script>
 <script src="shared-geo.js?v=7"></script>
 
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
@@ -1143,7 +1188,7 @@
   document.querySelectorAll('.offer-date-ar').forEach(function(el){ el.textContent = dateStr; });
 })();
 </script>
-<script src="shared-enhancements.js?v=1"></script>
+<script defer src="shared-enhancements.js?v=1"></script>
 <script>
 (function() {
   window.BondsEnhancements.init({
@@ -1164,7 +1209,7 @@
   });
 })();
 </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

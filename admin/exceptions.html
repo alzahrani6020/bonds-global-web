@@ -3,15 +3,15 @@
 <html lang="ar" dir="rtl">
 
 <head>
-
+  <link rel="manifest" href="/manifest.json" />
   <meta charset="UTF-8">
 
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>استثناءات العملاء | بوندز</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+  
+  <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="../styles.css">
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -70,7 +70,7 @@
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
 
-<script src="/calculators/auth-gate.js?v=3"></script>
+<script defer src="/calculators/auth-gate.js?v=3"></script>
   </head>
 
 <body>
@@ -385,7 +385,7 @@
 
   </script>
 
-  <script src="../page-tracker-v2.js"></script>
+  <script defer src="../page-tracker-v2.js"></script>
 
   <script src="/admin/admin-embed.js?v=4"></script>
 
@@ -393,8 +393,8 @@
 
 <script src="../components/universal-dropdown-init.js"></script>
 
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 
 </html>

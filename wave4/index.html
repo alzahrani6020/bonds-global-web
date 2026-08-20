@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="dark">
 <head>
+  <link rel="manifest" href="/manifest.json" />
   <base href="/wave4/" />
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>بوندز — ابدأ بهدفك</title>
   <meta name="description" content="منصة بوندز الذكية: ابدأ بنيتك واترك النظام يحدد القطاع والنموذج والنماذج والتقارير." />
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="../styles.css" />
   <style>
     :root { font-family: 'Vazirmatn', system-ui, sans-serif; }
@@ -99,20 +100,48 @@
   <link rel="canonical" href="https://bonds-global.com/wave4/" />
   <meta property="og:title" content="بوندز — ابدأ بهدفك" />
   <meta property="og:description" content="منصة بوندز الذكية: ابدأ بنيتك واترك النظام يحدد القطاع والنموذج والنماذج والتقارير." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=%D8%A8%D9%88%D9%86%D8%AF%D8%B2+%E2%80%94+%D8%A7%D8%A8%D8%AF%D8%A3+%D8%A8%D9%87%D8%AF%D9%81%D9%83&amp;description=%D9%85%D9%86%D8%B5%D8%A9+%D8%A8%D9%88%D9%86%D8%AF%D8%B2+%D8%A7%D9%84%D8%B0%D9%83%D9%8A%D8%A9%3A+%D8%A7%D8%A8%D8%AF%D8%A3+%D8%A8%D9%86%D9%8A%D8%AA%D9%83+%D9%88%D8%A7%D8%AA%D8%B1%D9%83+%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85+%D9%8A%D8%AD%D8%AF%D8%AF+%D8%A7%D9%84%D9%82%D8%B7%D8%A7%D8%B9+%D9%88%D8%A7%D9%84%D9%86%D9%85%D9%88%D8%B0%D8%AC+%D9%88%D8%A7%D9%84%D9%86%D9%85%D8%A7%D8%B0%D8%AC+%D9%88%D8%A7%D9%84%D8%AA%D9%82%D8%A7%D8%B1%D9%8A%D8%B1.&amp;lang=ar" />
+  <meta property="og:image:alt" content="بوندز — ابدأ بهدفك" />
   <meta property="og:url" content="https://bonds-global.com/wave4/" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="بوندز — ابدأ بهدفك" />
   <meta name="twitter:description" content="منصة بوندز الذكية: ابدأ بنيتك واترك النظام يحدد القطاع والنموذج والنماذج والتقارير." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=%D8%A8%D9%88%D9%86%D8%AF%D8%B2+%E2%80%94+%D8%A7%D8%A8%D8%AF%D8%A3+%D8%A8%D9%87%D8%AF%D9%81%D9%83&amp;description=%D9%85%D9%86%D8%B5%D8%A9+%D8%A8%D9%88%D9%86%D8%AF%D8%B2+%D8%A7%D9%84%D8%B0%D9%83%D9%8A%D8%A9%3A+%D8%A7%D8%A8%D8%AF%D8%A3+%D8%A8%D9%86%D9%8A%D8%AA%D9%83+%D9%88%D8%A7%D8%AA%D8%B1%D9%83+%D8%A7%D9%84%D9%86%D8%B8%D8%A7%D9%85+%D9%8A%D8%AD%D8%AF%D8%AF+%D8%A7%D9%84%D9%82%D8%B7%D8%A7%D8%B9+%D9%88%D8%A7%D9%84%D9%86%D9%85%D9%88%D8%B0%D8%AC+%D9%88%D8%A7%D9%84%D9%86%D9%85%D8%A7%D8%B0%D8%AC+%D9%88%D8%A7%D9%84%D8%AA%D9%82%D8%A7%D8%B1%D9%8A%D8%B1.&amp;lang=ar" />
 
-  <script src="/global-auth-gate.js?v=2"></script>
+  <script defer src="/global-auth-gate.js?v=2"></script>
+
+  <script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Bonds Global",
+  "alternateName": "بوندز BONDS للاستشارات المالية والإدارية",
+  "url": "https://bonds-global.com",
+  "logo": "https://bonds-global.com/assets/bonds-logo-2026-v2.png",
+  "sameAs": [
+    "https://www.linkedin.com/company/bonds-global",
+    "https://x.com/bonds_global",
+    "https://instagram.com/bonds.global",
+    "https://www.youtube.com/@bondsglobal"
+  ],
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+966-56-756-6616",
+    "contactType": "customer service",
+    "availableLanguage": [
+      "Arabic",
+      "English"
+    ]
+  }
+}</script>
+
+  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/wave4/" />
+  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/wave4/" />
 </head>
 <body>
   <div class="container">
     <div class="brand">
-      <img src="../assets/bonds-logo-v2.webp" alt="بوندز" />
+      <img src="../assets/bonds-logo-v2.webp" alt="بوندز" / width="1536" height="1024">
       <span>بوندز — المنصة الاقتصادية الذكية</span>
     </div>
 
@@ -367,7 +396,7 @@
       resultSection.scrollIntoView({ behavior: 'smooth' });
     }
   </script>
-<script src="/components/emoji-icons.js"></script>
-<script src="/components/emoji-renderer.js"></script>
+<script src="/components/emoji-icons.js" defer></script>
+<script src="/components/emoji-renderer.js" defer></script>
 </body>
 </html>

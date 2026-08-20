@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       migration_file:
-        description: 'Migration file to apply (relative to repo root). Leave empty to apply the social migrations set.'
+        description: 'Migration file to apply (relative to repo root). Leave empty to apply the latest migration file.'
         required: false
         default: ''
 

@@ -2040,6 +2040,9 @@ module.exports = async function handler(req, res) {
   setCors(res, req);
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  // Global rate limit across all /api/platform routes (generous, protects unlisted endpoints too)
+  if (await checkRateLimit('global', req, res)) return;
+
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = url.pathname;
 
@@ -2104,22 +2107,26 @@ module.exports = async function handler(req, res) {
 
     // Calculator lead retargeting email journey (cron + admin trigger)
     if (pathname === '/api/calculator-email-journey' || pathname === '/api/calculator-email-journey/') {
+      if (await checkRateLimit('strict', req, res)) return;
       return calculatorEmailJourneyHandler(req, res);
     }
 
     // Calculator leads admin stats
     if (pathname === '/api/calculator-leads' || pathname === '/api/calculator-leads/') {
+      if (await checkRateLimit('strict', req, res)) return;
       return calculatorLeadsStatsHandler(req, res);
     }
 
     // Mark calculator lead as converted (called after signup/purchase)
     if (pathname === '/api/mark-lead-converted' || pathname === '/api/mark-lead-converted/' ||
         pathname === '/api/calculator-leads/convert' || pathname === '/api/calculator-leads/convert/') {
+      if (await checkRateLimit('public', req, res)) return;
       return markLeadConvertedHandler(req, res);
     }
 
     // Calculator leads data retention (GDPR cleanup)
     if (pathname === '/api/calculator-leads/retention' || pathname === '/api/calculator-leads/retention/') {
+      if (await checkRateLimit('strict', req, res)) return;
       return calculatorLeadsRetentionHandler(req, res);
     }
 
@@ -2131,16 +2138,19 @@ module.exports = async function handler(req, res) {
 
     // Email click tracking for calculator lead sequences
     if (pathname === '/api/track-click' || pathname === '/api/track-click/') {
+      if (await checkRateLimit('public', req, res)) return;
       return trackClickHandler(req, res);
     }
 
     // Email open tracking pixel for calculator lead sequences
     if (pathname === '/api/track-open' || pathname === '/api/track-open/') {
+      if (await checkRateLimit('public', req, res)) return;
       return trackOpenHandler(req, res);
     }
 
     // Resend email webhook (bounce / complaint)
     if (pathname === '/api/email-webhook' || pathname === '/api/email-webhook/') {
+      if (await checkRateLimit('webhook', req, res)) return;
       return emailWebhookHandler(req, res);
     }
 
