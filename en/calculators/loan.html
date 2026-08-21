@@ -263,6 +263,12 @@
             </div>
           </div>
 
+          <div class="calc-cta-box" id="loanExtractionCta">
+            <h3>Get matched financing</h3>
+            <p>Send this loan estimate to our funding extraction form to receive offers from banks and funds.</p>
+            <a href="../funding-extraction.html" id="loanExtractionLink" class="btn btn-primary">Get financing based on this loan →</a>
+          </div>
+
           <div class="calc-cta-box">
             <h3>ابغى تحليل أعمق؟</h3>
             <p>هذه الأداة تقديرية. لو تبي مقارنة بين عروض تمويل مختلفة — نحن نقدم استشارة مجانية.</p>
@@ -1372,6 +1378,7 @@
         updateResults(r, inputs);
         updateAmortizationTable(r, inputs);
         updateShareLink(inputs);
+        updateFundingExtractionLink(inputs);
         loadChartJS().then(function() {
           updateCharts(r, inputs);
         }).catch(function(e) {
@@ -1452,6 +1459,25 @@
       url.searchParams.set('p', inputs.participationRate);
       if (inputs.monthlyIncome > 0) url.searchParams.set('i', inputs.monthlyIncome);
       document.getElementById('shareLink').value = url.toString();
+    }
+
+    function updateFundingExtractionLink(inputs) {
+      var link = document.getElementById('loanExtractionLink');
+      if (!link || !window.BondsFundingContext) return;
+      var ctx = {
+        source: 'loan',
+        amount: inputs.loanAmount,
+        country: document.getElementById('country')?.value || '',
+        purposeCategory: 'Project Finance',
+        note: 'Loan amount: ' + inputs.loanAmount + ' — Term: ' + inputs.loanTerm + ' months — Rate: ' + inputs.interestRate + '%'
+      };
+      link.href = window.BondsFundingContext.buildUrl('../funding-extraction.html', ctx, 'en');
+      link.onclick = function () {
+        window.BondsFundingContext.set(ctx);
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('loan_calc_extraction_clicked', { amount: inputs.loanAmount, country: ctx.country });
+        }
+      };
     }
 
     function copyLink() {
@@ -1579,6 +1605,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="/bonds-auth-2026.js?v=3.1.2"></script>
 <script src="../../calculators/shared-analytics.js"></script>
+<script src="../../scripts/funding-context.js"></script>
 <script src="../../calculators/auth-modal.js"></script>
 <script src="../../calculators/exit-intent.js"></script>
 <script src="../../calculators/shared-geo.js?v=7"></script>

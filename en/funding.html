@@ -20,6 +20,7 @@
   <link rel="stylesheet" href="../styles/fonts-en.css">
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/page-redesign-2026.css?v=1" />
+  <link rel="stylesheet" href="../styles/funding-hub.css?v=1" />
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json" />
   <link rel="canonical" href="https://bonds-global.com/en/funding" />
@@ -43,86 +44,39 @@
     }
   }
   </script>
-  <style>
-    .funding-hub__hero { padding: 9rem 2rem 5rem; text-align: center; background: var(--bg); }
-    .funding-hub__hero h1 { font-size: 2.8rem; font-weight: 900; color: var(--text); margin-bottom: 1rem; line-height: 1.2; }
-    .funding-hub__hero h1 span { color: var(--gold); }
-    .funding-hub__hero p { color: var(--text-secondary); max-width: 700px; margin: 0 auto 2rem; font-size: 1.15rem; line-height: 1.8; }
-    .funding-hub__cta { display: inline-flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
-
-    .funding-hub__paths { padding: 4rem 2rem; background: var(--bg); }
-    .funding-hub__grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; }
-    .funding-path { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; transition: transform 0.2s, border-color 0.2s; text-align: center; }
-    .funding-path:hover { transform: translateY(-6px); border-color: var(--gold); }
-    .funding-path__icon { font-size: 3rem; margin-bottom: 1rem; }
-    .funding-path h2 { font-size: 1.6rem; font-weight: 800; color: var(--gold); margin-bottom: 0.75rem; }
-    .funding-path p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem; }
-    .funding-path__links { display: flex; flex-direction: column; gap: 0.75rem; }
-    .funding-path__links a { display: block; padding: 0.85rem 1.25rem; border-radius: 10px; text-decoration: none; font-weight: 700; transition: all 0.2s; }
-    .funding-path__links .btn-primary { background: var(--gold); color: #0a0f1a; }
-    .funding-path__links .btn-primary:hover { filter: brightness(1.1); }
-    .funding-path__links .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
-    .funding-path__links .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
-
-    .funding-hub__tools { padding: 4rem 2rem; background: var(--cream-100); }
-    .funding-hub__tools h2 { text-align: center; font-size: 2rem; font-weight: 800; color: var(--text); margin-bottom: 2.5rem; }
-    .tools-grid { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
-    .tool-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; text-decoration: none; color: inherit; transition: transform 0.2s, border-color 0.2s; }
-    .tool-card:hover { transform: translateY(-4px); border-color: var(--gold); }
-    .tool-card__icon { font-size: 2rem; margin-bottom: 0.75rem; }
-    .tool-card h3 { font-size: 1.15rem; font-weight: 800; color: var(--text); margin-bottom: 0.5rem; }
-    .tool-card p { font-size: 0.95rem; color: var(--text-secondary); line-height: 1.7; }
-
-    .funding-hub__stats { padding: 4rem 2rem; background: var(--bg); }
-    .stats-grid { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
-    .stat-item { text-align: center; padding: 2rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; }
-    .stat-item .number { font-size: 2.5rem; font-weight: 900; color: var(--gold); margin-bottom: 0.5rem; }
-    .stat-item .label { color: var(--text-secondary); font-size: 0.95rem; }
-
-    .funding-hub__investor-teaser { padding: 4rem 2rem; background: linear-gradient(135deg, rgba(212,168,83,0.08) 0%, transparent 100%); }
-    .investor-teaser__inner { max-width: 900px; margin: 0 auto; text-align: center; }
-    .investor-teaser__inner h2 { font-size: 2rem; font-weight: 800; color: var(--gold); margin-bottom: 1rem; }
-    .investor-teaser__inner p { color: var(--text-secondary); line-height: 1.8; margin-bottom: 1.5rem; }
-
-    @media (max-width: 640px) {
-      .funding-hub__hero { padding: 7rem 1.5rem 3rem; }
-      .funding-hub__hero h1 { font-size: 2rem; }
-      .funding-path { padding: 1.75rem; }
-    }
-  </style>
 </head>
 <body style="font-family:'Inter',system-ui,sans-serif">
   <div id="site-header"></div>
 
-  <section class="funding-hub__hero v2026">
+  <section class="funding-hub__hero v2026" data-analytics-view="funding_hub_view">
     <span class="hero__eyebrow">One Gateway for Funding & Investment</span>
     <h1>Get <span>Funding</span> for Your Project or <span>Invest</span> With Us</h1>
     <p>Bonds connects entrepreneurs seeking financing with investors looking for profitable opportunities in distressed assets and growing projects.</p>
     <div class="funding-hub__cta">
-      <a href="funding-extraction.html" class="fi-btn fi-btn--primary">Request Funding Now →</a>
-      <a href="investment-opportunities.html" class="fi-btn fi-btn--secondary">Explore Investment Opportunities</a>
+      <a href="funding-extraction.html" class="fi-btn fi-btn--primary" data-track="funding_path_selected" data-track-props='{"location":"hero"}'>Request Funding Now →</a>
+      <a href="investment-opportunities.html" class="fi-btn fi-btn--secondary" data-track="investment_path_selected" data-track-props='{"location":"hero"}'>Explore Investment Opportunities</a>
     </div>
   </section>
 
   <section class="funding-hub__paths">
     <div class="funding-hub__grid">
       <div class="funding-path reveal">
-        <div class="funding-path__icon">🏢</div>
+        <div class="funding-path__icon" data-ecc-icon="building" aria-hidden="true"></div>
         <h2>I Need Funding</h2>
         <p>Whether you own a company, factory, hotel, clinic, or startup — we help you extract the right financing from banks, funds, and government programs.</p>
         <div class="funding-path__links">
-          <a href="funding-extraction.html" class="btn-primary">Funding Extraction</a>
-          <a href="funding-readiness.html" class="btn-outline">Check Your Readiness</a>
-          <a href="funding-sources.html" class="btn-outline">Browse Funding Sources</a>
+          <a href="funding-extraction.html" class="btn-primary" data-track="funding_path_selected" data-track-props='{"location":"path_card"}'>Funding Extraction</a>
+          <a href="funding-readiness.html" class="btn-outline" data-track="funding_tool_clicked" data-track-props='{"tool":"readiness","location":"path_card"}'>Check Your Readiness</a>
+          <a href="funding-sources.html" class="btn-outline" data-track="funding_tool_clicked" data-track-props='{"tool":"sources","location":"path_card"}'>Browse Funding Sources</a>
         </div>
       </div>
       <div class="funding-path reveal reveal-delay-1">
-        <div class="funding-path__icon">💰</div>
+        <div class="funding-path__icon" data-ecc-icon="wallet" aria-hidden="true"></div>
         <h2>I Want to Invest</h2>
         <p>Join Bonds partners in reviving distressed real estate assets. Competitive returns, clear profit-sharing model, and professional management.</p>
         <div class="funding-path__links">
-          <a href="investment-opportunities.html" class="btn-primary">Investment Opportunities</a>
-          <a href="../reports/investor-deck-ar.html" class="btn-outline">Investor Deck</a>
+          <a href="investment-opportunities.html" class="btn-primary" data-track="investment_path_selected" data-track-props='{"location":"path_card"}'>Investment Opportunities</a>
+          <a href="../reports/investor-deck-ar.html" class="btn-outline" data-track="investment_cta_clicked" data-track-props='{"asset":"investor_deck","location":"path_card"}'>Investor Deck</a>
         </div>
       </div>
     </div>
@@ -131,23 +85,23 @@
   <section class="funding-hub__tools">
     <h2>Free Financing Tools</h2>
     <div class="tools-grid">
-      <a href="funding-readiness.html" class="tool-card reveal">
-        <div class="tool-card__icon">📊</div>
+      <a href="funding-readiness.html" class="tool-card reveal" data-track="funding_tool_clicked" data-track-props='{"tool":"readiness","location":"tools_grid"}'>
+        <div class="tool-card__icon" data-ecc-icon="barChart" aria-hidden="true"></div>
         <h3>Funding Readiness Quiz</h3>
         <p>Answer 5 quick questions and get an initial assessment of your project based on bank and investor criteria.</p>
       </a>
-      <a href="funding-sources.html" class="tool-card reveal reveal-delay-1">
-        <div class="tool-card__icon">🏦</div>
+      <a href="funding-sources.html" class="tool-card reveal reveal-delay-1" data-track="funding_tool_clicked" data-track-props='{"tool":"sources","location":"tools_grid"}'>
+        <div class="tool-card__icon" data-ecc-icon="building" aria-hidden="true"></div>
         <h3>Funding Sources Directory</h3>
         <p>Search banks, funds, investors, and government financing programs by country and sector.</p>
       </a>
-      <a href="calculators/loan.html" class="tool-card reveal reveal-delay-2">
-        <div class="tool-card__icon">🧮</div>
+      <a href="calculators/loan.html" class="tool-card reveal reveal-delay-2" data-track="funding_tool_clicked" data-track-props='{"tool":"loan_calculator","location":"tools_grid"}'>
+        <div class="tool-card__icon" data-ecc-icon="sliders" aria-hidden="true"></div>
         <h3>Loan Calculator</h3>
         <p>Calculate monthly installments, total interest, and repayment capacity before applying for financing.</p>
       </a>
-      <a href="calculators/roi.html" class="tool-card reveal reveal-delay-2">
-        <div class="tool-card__icon">📈</div>
+      <a href="calculators/roi.html" class="tool-card reveal reveal-delay-2" data-track="funding_tool_clicked" data-track-props='{"tool":"roi_calculator","location":"tools_grid"}'>
+        <div class="tool-card__icon" data-ecc-icon="trendingUp" aria-hidden="true"></div>
         <h3>ROI Calculator</h3>
         <p>Evaluate the profitability and payback period of your investment project.</p>
       </a>
@@ -157,31 +111,39 @@
   <section class="funding-hub__stats">
     <div class="stats-grid">
       <div class="stat-item reveal">
-        <div class="number">96</div>
-        <div class="label">Supported Countries</div>
+        <div class="stat-item__icon" data-ecc-icon="checkCircle" aria-hidden="true"></div>
+        <div class="stat-item__label">Free Initial Assessment</div>
       </div>
       <div class="stat-item reveal reveal-delay-1">
-        <div class="number">3,000+</div>
-        <div class="label">Companies Advised by Bonds</div>
+        <div class="stat-item__icon" data-ecc-icon="globe" aria-hidden="true"></div>
+        <div class="stat-item__label">Multiple Financing Options</div>
       </div>
       <div class="stat-item reveal reveal-delay-2">
-        <div class="number">19-20%</div>
-        <div class="label">Target IRR for Investment Opportunities</div>
+        <div class="stat-item__icon" data-ecc-icon="shieldCheck" aria-hidden="true"></div>
+        <div class="stat-item__label">Data Confidentiality</div>
       </div>
       <div class="stat-item reveal reveal-delay-2">
-        <div class="number">24 Hours</div>
-        <div class="label">Initial Response on Funding Requests</div>
+        <div class="stat-item__icon" data-ecc-icon="users" aria-hidden="true"></div>
+        <div class="stat-item__label">Follow-up Until Closing</div>
       </div>
     </div>
   </section>
 
   <section class="funding-hub__investor-teaser">
     <div class="investor-teaser__inner reveal">
-      <h2>Do You Have Capital and Seek a Safe Investment Opportunity?</h2>
+      <h2>Do You Have Capital and Seek a Structured, Managed Investment Opportunity?</h2>
       <p>Bonds' distressed asset revival model offers competitive returns with strict risk management: engineering and legal due diligence, comprehensive insurance, clear profit-sharing contracts, and portfolio diversification.</p>
-      <a href="investment-opportunities.html" class="fi-btn fi-btn--primary">Discover Investment Opportunities →</a>
+      <small class="investor-teaser__disclaimer">Investing involves risks, including the potential loss of capital. Returns shown are historical or estimated and are not guaranteed.</small>
+      <a href="investment-opportunities.html" class="fi-btn fi-btn--primary" data-track="investment_cta_clicked" data-track-props='{"location":"investor_teaser"}'>Discover Investment Opportunities →</a>
     </div>
   </section>
+
+  <div class="funding-hub__sticky-cta" aria-hidden="true">
+    <a href="funding-readiness.html" data-track="funding_sticky_cta_clicked" data-track-props='{"tool":"readiness"}'>
+      <span data-ecc-icon="barChart"></span>
+      Start your free assessment
+    </a>
+  </div>
 
   <div id="site-footer"></div>
   <script src="/api/env" defer></script>
@@ -189,5 +151,7 @@
   <script src="/bonds-auth-2026.js?v=3.1.2" defer></script>
   <script src="../site-layout.js?v=3.2.2" defer></script>
   <script src="../script.js" defer></script>
+  <script src="../components/ecc-icons.js" defer></script>
+  <script src="../scripts/funding-hub.js?v=1" defer></script>
 </body>
 </html>

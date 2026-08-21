@@ -269,6 +269,12 @@
             </div>
           </div>
 
+          <div class="calc-cta-box" id="loanExtractionCta">
+            <h3>استخرج تمويلاً مطابقاً</h3>
+            <p>انقل بيانات هذا القرض إلى نموذج استخراج التمويل للحصول على عروض من بنوك وصناديق.</p>
+            <a href="../funding-extraction.html" id="loanExtractionLink" class="btn btn-primary">استخرج تمويلاً بناءً على هذا القرض →</a>
+          </div>
+
           <div class="calc-cta-box">
             <h3>ابغى تحليل أعمق؟</h3>
             <p>هذه الأداة تقديرية. لو تبي مقارنة بين عروض تمويل مختلفة — نحن نقدم استشارة مجانية.</p>
@@ -1258,6 +1264,7 @@
         updateResults(r, inputs);
         updateAmortizationTable(r, inputs);
         updateShareLink(inputs);
+        updateFundingExtractionLink(inputs);
         loadChartJS().then(function() {
           updateCharts(r, inputs);
         }).catch(function(e) {
@@ -1338,6 +1345,25 @@
       url.searchParams.set('p', inputs.participationRate);
       if (inputs.monthlyIncome > 0) url.searchParams.set('i', inputs.monthlyIncome);
       document.getElementById('shareLink').value = url.toString();
+    }
+
+    function updateFundingExtractionLink(inputs) {
+      var link = document.getElementById('loanExtractionLink');
+      if (!link || !window.BondsFundingContext) return;
+      var ctx = {
+        source: 'loan',
+        amount: inputs.loanAmount,
+        country: document.getElementById('country')?.value || '',
+        purposeCategory: 'تمويل مشروع',
+        note: 'مبلغ القرض: ' + inputs.loanAmount + ' — المدة: ' + inputs.loanTerm + ' شهر — الفائدة: ' + inputs.interestRate + '%'
+      };
+      link.href = window.BondsFundingContext.buildUrl('../funding-extraction.html', ctx, 'ar');
+      link.onclick = function () {
+        window.BondsFundingContext.set(ctx);
+        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
+          window.BondsAnalytics.trackEvent('loan_calc_extraction_clicked', { amount: inputs.loanAmount, country: ctx.country });
+        }
+      };
     }
 
     // Load from URL params
@@ -1461,6 +1487,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.1.2"></script>
 <script src="shared-analytics.js"></script>
+<script src="../scripts/funding-context.js"></script>
 <script src="auth-modal.js"></script>
 <script src="exit-intent.js"></script>
 <script defer src="../site-layout.js?v=3.2.2"></script>

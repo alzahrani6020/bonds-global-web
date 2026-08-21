@@ -106,6 +106,9 @@
     .source-card .desc { font-size: 0.9rem; color: var(--text-secondary); line-height: 1.7; margin-bottom: 1rem; }
     .source-card .eligibility { font-size: 0.85rem; color: var(--text-secondary); background: rgba(255,255,255,0.03); padding: 0.75rem; border-radius: 8px; margin-bottom: 1rem; }
     .source-card a { color: var(--gold); font-weight: 700; text-decoration: none; font-size: 0.9rem; }
+    .source-card__actions { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+    .source-card__cta { display: inline-flex; align-items: center; padding: 0.5rem 0.9rem; border-radius: 8px; background: var(--gold); color: #0a0f1a !important; font-weight: 800; }
+    .source-card__cta:hover { filter: brightness(1.1); }
 
     .loading, .empty { text-align: center; color: var(--text-secondary); padding: 4rem 1rem; }
     .featured-tag { position: absolute; top: 1rem; left: 1rem; background: var(--gold); color: #0a0f1a; font-size: 0.7rem; font-weight: 800; padding: 0.2rem 0.6rem; border-radius: 12px; }
@@ -263,6 +266,7 @@
   <script defer src="site-layout.js?v=3.2.2"></script>
   <script src="/lib/bonds-common.js"></script>
   <script src="script.js?v=5" defer></script>
+  <script src="scripts/funding-context.js" defer></script>
   <script>
     (function() {
       const resultsEl = document.getElementById('results');
@@ -319,6 +323,26 @@
         }
       }
 
+      const SOURCE_TYPE_MAP = {
+        bank: 'شركات ومؤسسات',
+        fund: 'شركات ومؤسسات',
+        investor: 'مشاريع ناشئة',
+        government_program: 'شركات ومؤسسات'
+      };
+
+      function getExtractionUrl(s) {
+        if (!window.BondsFundingContext) return 'funding-extraction.html';
+        const amount = Number(s.max_amount) || Number(s.min_amount) || 0;
+        return window.BondsFundingContext.buildUrl('funding-extraction.html', {
+          source: 'sources',
+          country: s.country_code,
+          sector: s.sector,
+          amount: amount > 0 ? amount : undefined,
+          financingType: SOURCE_TYPE_MAP[s.type] || 'أخرى',
+          selectedSource: s.name_ar || s.name_en
+        }, 'ar');
+      }
+
       function render() {
         const filtered = applyClientFilters(allSources);
         resultsInfo.style.display = 'flex';
@@ -341,10 +365,32 @@
             ${s.min_amount || s.max_amount ? `<div class="amount">${formatAmount(s.min_amount)} – ${formatAmount(s.max_amount)} ${s.currency || 'SAR'}</div>` : ''}
             ${s.description ? `<div class="desc">${s.description}</div>` : ''}
             ${s.eligibility ? `<div class="eligibility"><strong>الأهلية:</strong> ${s.eligibility}</div>` : ''}
-            ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener">زيارة الموقع ←</a>` : ''}
+            <div class="source-card__actions">
+              <a href="${getExtractionUrl(s)}" data-fr-extraction="${s.id || ''}" class="source-card__cta">اطلب هذا التمويل</a>
+              ${s.website ? `<a href="${s.website}" target="_blank" rel="noopener">زيارة الموقع ←</a>` : ''}
+            </div>
           </div>
         `).join('');
       }
+
+      resultsEl.addEventListener('click', function (e) {
+        const link = e.target.closest('[data-fr-extraction]');
+        if (!link) return;
+        const id = link.dataset.frExtraction;
+        const s = allSources.find(function (x) { return String(x.id) === id; });
+        if (s && window.BondsFundingContext) {
+          const amount = Number(s.max_amount) || Number(s.min_amount) || 0;
+          window.BondsFundingContext.set({
+            source: 'sources',
+            country: s.country_code,
+            sector: s.sector,
+            amount: amount > 0 ? amount : undefined,
+            financingType: SOURCE_TYPE_MAP[s.type] || 'أخرى',
+            selectedSource: s.name_ar || s.name_en
+          });
+        }
+        if (typeof gtag !== 'undefined') gtag('event', 'funding_sources_extraction_clicked', { source_id: id });
+      });
 
       window.toggleSave = function(id) {
         if (savedIds.has(id)) savedIds.delete(id);

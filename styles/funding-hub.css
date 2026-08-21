@@ -1,0 +1,343 @@
+/* ===== BONDS Funding Hub — shared styles (AR + EN) ===== */
+/* Keeps the existing page structure, replaces emoji with ECC icons, and adds a sticky mobile CTA. */
+
+/* ---------- Hero ---------- */
+.funding-hub__hero {
+  padding: 9rem 2rem 5rem;
+  text-align: center;
+  background: var(--bg);
+}
+
+.funding-hub__hero h1 {
+  font-size: clamp(2rem, 5vw, 2.8rem);
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 1rem;
+  line-height: 1.2;
+}
+
+.funding-hub__hero h1 span {
+  color: var(--gold);
+}
+
+.funding-hub__hero p {
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  font-size: 1.15rem;
+  line-height: 1.8;
+}
+
+.funding-hub__cta {
+  display: inline-flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ---------- Paths ---------- */
+.funding-hub__paths {
+  padding: 4rem 2rem;
+  background: var(--bg);
+}
+
+.funding-hub__grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 2rem;
+}
+
+.funding-path {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  text-align: center;
+}
+
+.funding-path:hover {
+  transform: translateY(-6px);
+  border-color: var(--gold);
+}
+
+.funding-path__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: rgba(212, 168, 83, 0.08);
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.funding-path__icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.funding-path h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+
+.funding-path p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.funding-path__links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.funding-path__links a {
+  display: block;
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.funding-path__links .btn-primary {
+  background: var(--gold);
+  color: #0a0f1a;
+}
+
+.funding-path__links .btn-primary:hover {
+  filter: brightness(1.1);
+}
+
+.funding-path__links .btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.funding-path__links .btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ---------- Tools ---------- */
+.funding-hub__tools {
+  padding: 4rem 2rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.funding-hub__tools h2 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 2.5rem;
+}
+
+.tools-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.tool-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.tool-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gold);
+}
+
+.tool-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(212, 168, 83, 0.08);
+  color: var(--gold);
+  margin-bottom: 0.75rem;
+}
+
+.tool-card__icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.tool-card h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 0.5rem;
+}
+
+.tool-card p {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ---------- Trust signals / stats ---------- */
+.funding-hub__stats {
+  padding: 4rem 2rem;
+  background: var(--bg);
+}
+
+.stats-grid {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+.stat-item__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: rgba(212, 168, 83, 0.08);
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.stat-item__icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.stat-item__label {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+/* ---------- Investor teaser ---------- */
+.funding-hub__investor-teaser {
+  padding: 4rem 2rem;
+  background: linear-gradient(135deg, rgba(212, 168, 83, 0.08) 0%, transparent 100%);
+}
+
+.investor-teaser__inner {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.investor-teaser__inner h2 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--gold);
+  margin-bottom: 1rem;
+}
+
+.investor-teaser__inner p {
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 1.5rem;
+}
+
+.investor-teaser__disclaimer {
+  display: block;
+  max-width: 640px;
+  margin: 0 auto 1.5rem;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.6;
+}
+
+/* ---------- Sticky mobile CTA ---------- */
+.funding-hub__sticky-cta {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1000;
+  display: none;
+  padding: 0.75rem 1rem;
+  background: rgba(10, 15, 26, 0.95);
+  border-top: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+  transform: translateY(100%);
+  transition: transform 0.25s ease;
+}
+
+.funding-hub__sticky-cta.is-visible {
+  transform: translateY(0);
+}
+
+.funding-hub__sticky-cta a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #0a0f1a;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.funding-hub__sticky-cta a svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
+  .funding-hub__sticky-cta {
+    display: block;
+  }
+
+  .funding-hub__hero {
+    padding: 7rem 1.5rem 3rem;
+  }
+
+  .funding-path {
+    padding: 1.75rem;
+  }
+
+  .funding-hub__tools h2,
+  .investor-teaser__inner h2 {
+    font-size: 1.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .funding-path,
+  .tool-card,
+  .funding-hub__sticky-cta {
+    transition: none;
+  }
+}

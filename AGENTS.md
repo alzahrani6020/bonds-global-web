@@ -69,6 +69,8 @@
 - **`en/`** = الإنجليزية (`lang="en" dir="ltr"`)
 - الحاسبات في `calculators/` (عربي) و `en/calculators/` (إنجليزي)
 - **النسختان يدويتان** — أي تعديل في ملف عربي يتطلب تعديل الملف الإنجليزي المقابل إن وجد.
+- **صفحات التمويل والاستثمار**: `/funding` و `/en/funding` تستخدمان `styles/funding-hub.css` و `scripts/funding-hub.js`. لا تُضف أرقام تسويقية (مثل "96 دولة" أو "3,000+ شركة") إلا بعد التحقق من مصدر داخلي موثق.
+- **ربط أدوات التمويل**: الأدوات (`funding-readiness`، `funding-sources`، `calculators/loan`، `calculators/roi`) تنقل السياق إلى `/funding-extraction` عبر `scripts/funding-context.js` (query params + sessionStorage). أي تعديل في هذه الأدوات يجب أن يبقى ضمن whitelist الحقول المسموح بنقلها.
 
 ---
 
