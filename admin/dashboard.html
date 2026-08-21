@@ -582,6 +582,7 @@
           recoveryAssets: 0,
           cities: 0,
           aiReviews: 0,
+          fundingCases: 0,
           onlineUsers: 0,
           _errors: []
         };
@@ -594,7 +595,8 @@
           { key: 'advisoryProjects', q: sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true }) },
           { key: 'recoveryAssets', q: sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true }) },
           { key: 'cities', q: sb?.from('cities')?.select('*', { count: 'exact', head: true }) },
-          { key: 'aiReviews', q: sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true }) }
+          { key: 'aiReviews', q: sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true }) },
+          { key: 'fundingCases', q: sb?.from('funding_cases')?.select('*', { count: 'exact', head: true }) }
         ];
 
         const results = await Promise.allSettled(
@@ -664,6 +666,7 @@
             <div class="stat-card" data-target="/admin/distressed-recovery?embed=1" data-title="إنقاذ الأصول المتعثرة" tabindex="0" role="button" aria-label="عرض الأصول المتعثرة"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${counts.recoveryAssets.toLocaleString('ar-SA')}</div><div class="stat-card__label">أصول متعثرة</div></div>
             <div class="stat-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence" tabindex="0" role="button" aria-label="عرض مدن City Intelligence"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${counts.cities.toLocaleString('ar-SA')}</div><div class="stat-card__label">مدن City Intelligence</div></div>
             <div class="stat-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص" tabindex="0" role="button" aria-label="عرض طلبات مراجعة AI"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${counts.aiReviews.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
+            <div class="stat-card" data-target="/admin/funding-cases/?embed=1" data-title="طلبات التمويل" tabindex="0" role="button" aria-label="عرض طلبات التمويل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">🏦</div></div><div class="stat-card__num">${counts.fundingCases.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات التمويل</div></div>
             <div class="stat-card" data-target="online-users" data-title="المتواجدون" tabindex="0" role="button" aria-label="عرض المتواجدين الآن"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${counts.onlineUsers.toLocaleString('ar-SA')}</div><div class="stat-card__label">متواجدون الآن</div></div>
           </div>
 
@@ -723,6 +726,11 @@
               <div class="module-card__icon">🔍</div>
               <div class="module-card__title">مراجعة المتخصص</div>
               <div class="module-card__desc">طلبات مراجعة تحليلات AI</div>
+            </button>
+            <button class="module-card" data-target="/admin/funding-cases/?embed=1" data-title="طلبات التمويل">
+              <div class="module-card__icon">🏦</div>
+              <div class="module-card__title">طلبات التمويل</div>
+              <div class="module-card__desc">متابعة حالات التمويل والعملاء</div>
             </button>
             <button class="module-card" data-target="/admin/social-media?embed=1" data-title="التواصل الاجتماعي">
               <div class="module-card__icon">📱</div>

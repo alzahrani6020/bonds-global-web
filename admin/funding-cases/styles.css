@@ -263,6 +263,42 @@
   color: var(--gold, #d4a853);
 }
 
+/* KPI cards */
+.fc-kpis {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.fc-kpi {
+  background: rgba(16, 24, 45, 0.6);
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+
+.fc-kpi__num {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--gold, #d4a853);
+  margin-bottom: 0.25rem;
+}
+
+.fc-kpi__label {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.fc-kpi--danger {
+  border-color: rgba(239, 68, 68, 0.35);
+}
+
+.fc-kpi--danger .fc-kpi__num {
+  color: #fca5a5;
+}
+
 /* Detail */
 .fc-detail-header {
   display: flex;
@@ -300,6 +336,13 @@
   margin-bottom: 0.75rem;
 }
 
+.fc-section h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--gold, #d4a853);
+  margin: 1rem 0 0.5rem;
+}
+
 .fc-grid-2 {
   display: grid;
   grid-template-columns: 1fr;
@@ -320,6 +363,12 @@
 .fc-field > div {
   font-weight: 500;
   word-break: break-word;
+}
+
+.fc-field .ecc-select:disabled,
+.fc-field .ecc-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .fc-box {
@@ -387,17 +436,45 @@
   white-space: pre-wrap;
 }
 
+.fc-timeline-note--success {
+  color: #86efac;
+  font-size: 0.8rem;
+  border-top: none;
+  padding-top: 0.25rem;
+}
+
 .fc-doc {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.fc-doc:last-child {
+  border-bottom: none;
+}
+
 .fc-muted {
   color: var(--text-secondary, #94a3b8);
   font-size: 0.9rem;
+}
+
+.fc-deadline--overdue {
+  border-color: rgba(239, 68, 68, 0.5) !important;
+  color: #fca5a5;
+}
+
+.fc-advisory-link {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.fc-advisory-link code {
+  font-size: 0.8rem;
 }
 
 .fc-toast {
@@ -448,6 +525,10 @@
   .fc-grid-2 {
     grid-template-columns: 1fr 1fr;
   }
+
+  .fc-kpis {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 /* Desktop */
@@ -468,6 +549,10 @@
   .fc-detail-side .fc-sticky {
     position: sticky;
     top: 1rem;
+  }
+
+  .fc-kpis {
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 

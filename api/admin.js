@@ -9,6 +9,7 @@ const getSupabase = require('../lib/api/supabase');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
+const FundingCases = require('../lib/api/funding-cases-admin');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -217,6 +218,31 @@ async function verifyExecutiveAccess(req, sb) {
   }
   const { data: advRole } = await sb.from('advisory_roles').select('role').eq('user_id', user.id).single();
   if (advRole?.role === 'manager') {
+    if (!(await checkAdminMfa(req, sb))) return null;
+    return user;
+  }
+  return null;
+}
+
+async function verifyFundingCaseAccess(req, sb, minAdvisoryRole = null) {
+  const admin = await verifyAdmin(req, sb);
+  if (admin) return admin;
+
+  if (!minAdvisoryRole) return null;
+
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  const token = authHeader.slice(7);
+  const { data: { user }, error } = await sb.auth.getUser(token);
+  if (error || !user) return null;
+
+  const { data: advRole } = await sb.from('advisory_roles')
+    .select('role')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  const levels = { viewer: 1, advisor: 2, manager: 3 };
+  if (advRole?.role && levels[advRole.role] >= levels[minAdvisoryRole]) {
     if (!(await checkAdminMfa(req, sb))) return null;
     return user;
   }
@@ -1551,12 +1577,14 @@ async function getStats(sb) {
     { count: proCount },
     { count: enterpriseCount },
     { count: scenariosCount },
+    { count: fundingCasesCount },
     { data: recentSubs },
     { data: profileList }
   ] = await Promise.all([
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro'),
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise'),
     sb.from('scenarios').select('*', { count: 'exact', head: true }),
+    sb.from('funding_cases').select('*', { count: 'exact', head: true }),
     sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false }).limit(10),
     sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false }).limit(10)
   ]);
@@ -1582,6 +1610,7 @@ async function getStats(sb) {
     stats: {
       totalUsers, freeUsers, proUsers, enterpriseUsers,
       totalScenarios: scenariosCount || 0,
+      fundingCases: fundingCasesCount || 0,
       monthlyRevenue,
       conversionRate: totalUsers > 0 ? ((proUsers + enterpriseUsers) / totalUsers * 100).toFixed(1) : '0.0',
       arpu: totalUsers > 0 ? (monthlyRevenue / totalUsers).toFixed(2) : '0.00'
@@ -1627,143 +1656,7 @@ async function getExecutiveStats(sb) {
 }
 
 // ── Funding Cases ───────────────────────────────────────────
-const FUNDING_CASE_STATUSES = [
-  'new', 'initial_review', 'documents_required', 'under_assessment',
-  'funding_options', 'submitted_to_provider', 'provider_review',
-  'approved', 'declined', 'on_hold', 'closed'
-];
-
-const FUNDING_STATUS_LABELS = {
-  ar: {
-    new: 'جديد',
-    initial_review: 'مراجعة أولية',
-    documents_required: 'مستندات مطلوبة',
-    under_assessment: 'قيد التقييم',
-    funding_options: 'خيارات تمويل',
-    submitted_to_provider: 'تم التقديم للجهة',
-    provider_review: 'قيد مراجعة الجهة',
-    approved: 'موافق عليه',
-    declined: 'مرفوض',
-    on_hold: 'معلّق',
-    closed: 'مغلق'
-  },
-  en: {
-    new: 'New',
-    initial_review: 'Initial Review',
-    documents_required: 'Documents Required',
-    under_assessment: 'Under Assessment',
-    funding_options: 'Funding Options',
-    submitted_to_provider: 'Submitted to Provider',
-    provider_review: 'Provider Review',
-    approved: 'Approved',
-    declined: 'Declined',
-    on_hold: 'On Hold',
-    closed: 'Closed'
-  }
-};
-
-async function getFundingCases(sb, params) {
-  const page = Math.max(1, parseInt(params.page || '1', 10));
-  const limit = Math.min(100, Math.max(5, parseInt(params.limit || '20', 10)));
-  const offset = (page - 1) * limit;
-
-  let query = sb
-    .from('funding_cases')
-    .select('id, case_reference, status, source, name, company, email, phone, country, financing_type, amount, purpose_category, sector, readiness_score, assigned_to, provider_name, submitted_at, approved_at, closed_at, next_action_at, created_at, updated_at', { count: 'exact' });
-
-  if (params.status) query = query.eq('status', params.status);
-  if (params.source) query = query.eq('source', params.source);
-  if (params.financingType) query = query.eq('financing_type', params.financingType);
-  if (params.assignedTo) query = query.eq('assigned_to', params.assignedTo);
-  if (params.search) {
-    const term = `%${String(params.search).replace(/[%_]/g, '\\$&')}%`;
-    query = query.or(`case_reference.ilike.${term},company.ilike.${term},email.ilike.${term},phone.ilike.${term}`);
-  }
-
-  query = query.order('created_at', { ascending: false });
-  query = query.range(offset, offset + limit - 1);
-
-  const { data, error, count } = await query;
-  if (error) throw new Error(error.message);
-
-  return {
-    cases: data || [],
-    pagination: { page, limit, total: count || 0, pages: Math.ceil((count || 0) / limit) },
-    statusLabels: FUNDING_STATUS_LABELS
-  };
-}
-
-async function getFundingCaseDetail(sb, id) {
-  const { data: caseData, error } = await sb
-    .from('funding_cases')
-    .select('*')
-    .eq('id', id)
-    .single();
-  if (error) throw new Error(error.message);
-
-  const [{ data: events }, { data: documents }] = await Promise.all([
-    sb.from('funding_case_events').select('*').eq('case_id', id).order('created_at', { ascending: false }),
-    sb.from('funding_case_documents').select('*').eq('case_id', id).order('created_at', { ascending: false })
-  ]);
-
-  return { case: caseData, events: events || [], documents: documents || [], statusLabels: FUNDING_STATUS_LABELS };
-}
-
-async function updateFundingCase(sb, id, updates, actor) {
-  const allowed = ['status', 'assigned_to', 'internal_notes', 'next_action_at', 'provider_name', 'provider_reference', 'approved_at', 'closed_at'];
-  const set = {};
-  for (const key of allowed) {
-    if (updates[key] !== undefined) set[key] = updates[key] === '' ? null : updates[key];
-  }
-  if (Object.keys(set).length === 0) throw new Error('No valid fields to update');
-  set.updated_at = new Date().toISOString();
-
-  const { data: before } = await sb.from('funding_cases').select('status').eq('id', id).single();
-
-  const { data, error } = await sb.from('funding_cases').update(set).eq('id', id).select('*').single();
-  if (error) throw new Error(error.message);
-
-  if (updates.status && before && before.status !== updates.status) {
-    await sb.from('funding_case_events').insert({
-      case_id: id,
-      event_type: 'status_changed',
-      from_status: before.status,
-      to_status: updates.status,
-      actor_id: actor.id,
-      actor_email: actor.email,
-      metadata: {}
-    });
-  }
-
-  if (updates.assigned_to !== undefined) {
-    await sb.from('funding_case_events').insert({
-      case_id: id,
-      event_type: 'assigned',
-      actor_id: actor.id,
-      actor_email: actor.email,
-      metadata: { assigned_to: updates.assigned_to }
-    });
-  }
-
-  return data;
-}
-
-async function addFundingCaseNote(sb, caseId, note, actor) {
-  const clean = String(note || '').trim().slice(0, 2000);
-  if (!clean) throw new Error('Note cannot be empty');
-
-  const { data, error } = await sb.from('funding_case_events').insert({
-    case_id: caseId,
-    event_type: 'note_added',
-    note: clean,
-    actor_id: actor.id,
-    actor_email: actor.email,
-    metadata: {}
-  }).select('*').single();
-
-  if (error) throw new Error(error.message);
-  return data;
-}
+// Logic lives in lib/api/funding-cases-admin.js and is re-exported below.
 
 // ── Main Handler ────────────────────────────────────────────
 async function handler(req, res) {
@@ -1920,15 +1813,25 @@ async function handler(req, res) {
         return res.status(200).json(await getSecurityStatus(sb));
       }
       if (action === 'funding-cases-list') {
-        const admin = await verifyAdmin(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await getFundingCases(sb, req.query || {}));
+        const admin = await verifyFundingCaseAccess(req, sb, 'viewer');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory access required' });
+        return res.status(200).json(await FundingCases.getFundingCases(sb, req.query || {}));
       }
       if (action === 'funding-cases-detail') {
-        const admin = await verifyAdmin(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const admin = await verifyFundingCaseAccess(req, sb, 'viewer');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory access required' });
         if (!req.query?.id) return res.status(400).json({ error: 'Missing id' });
-        return res.status(200).json(await getFundingCaseDetail(sb, req.query.id));
+        return res.status(200).json(await FundingCases.getFundingCaseDetail(sb, req.query.id));
+      }
+      if (action === 'funding-cases-assignees') {
+        const admin = await verifyFundingCaseAccess(req, sb, 'manager');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory manager required' });
+        return res.status(200).json(await FundingCases.listAssignees(sb));
+      }
+      if (action === 'funding-cases-kpis') {
+        const admin = await verifyFundingCaseAccess(req, sb, 'viewer');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory access required' });
+        return res.status(200).json(await FundingCases.getFundingCaseKpis(sb));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }
@@ -2066,18 +1969,48 @@ async function handler(req, res) {
         return res.status(200).json({ success: true, role: 'super_admin' });
       }
       if (action === 'funding-cases-update') {
-        const admin = await verifyAdmin(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const admin = await verifyFundingCaseAccess(req, sb, 'manager');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory manager required' });
         if (!req.body?.id) return res.status(400).json({ error: 'Missing id' });
-        const data = await updateFundingCase(sb, req.body.id, req.body, admin);
+        const data = await FundingCases.updateFundingCase(sb, req.body.id, req.body, admin);
         return res.status(200).json({ success: true, case: data });
       }
       if (action === 'funding-cases-add-note') {
-        const admin = await verifyAdmin(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const admin = await verifyFundingCaseAccess(req, sb, 'advisor');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory access required' });
         if (!req.body?.caseId || !req.body?.note) return res.status(400).json({ error: 'Missing caseId or note' });
-        const data = await addFundingCaseNote(sb, req.body.caseId, req.body.note, admin);
+        const data = await FundingCases.addFundingCaseNote(sb, req.body.caseId, req.body.note, admin);
         return res.status(200).json({ success: true, event: data });
+      }
+      if (action === 'funding-cases-request-document') {
+        const admin = await verifyFundingCaseAccess(req, sb, 'manager');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory manager required' });
+        if (!req.body?.caseId) return res.status(400).json({ error: 'Missing caseId' });
+        return res.status(200).json(await FundingCases.requestDocument(sb, req.body.caseId, req.body, admin));
+      }
+      if (action === 'funding-cases-upload-document') {
+        const admin = await verifyFundingCaseAccess(req, sb, 'advisor');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory access required' });
+        if (!req.body?.caseId || !req.body?.file) return res.status(400).json({ error: 'Missing caseId or file' });
+        return res.status(200).json(await FundingCases.uploadDocument(sb, req.body.caseId, req.body.file, admin));
+      }
+      if (action === 'funding-cases-link-advisory') {
+        const admin = await verifyFundingCaseAccess(req, sb, 'manager');
+        if (!admin) return res.status(403).json({ error: 'Admin or advisory manager required' });
+        if (!req.body?.caseId) return res.status(400).json({ error: 'Missing caseId' });
+        return res.status(200).json(await FundingCases.linkAdvisoryClient(sb, req.body.caseId, req.body, admin));
+      }
+      if (action === 'send-funding-reminders') {
+        const cronSecret = req.headers['x-cron-secret'];
+        const expectedCronSecret = process.env.CRON_SECRET;
+        let admin = null;
+        if (cronSecret && expectedCronSecret && cronSecret === expectedCronSecret) {
+          admin = { id: null, email: 'cron@bonds-global.com' };
+        } else {
+          admin = await verifyAdmin(req, sb);
+          if (!admin) return res.status(403).json({ error: 'Admin or cron required' });
+        }
+        return res.status(200).json(await FundingCases.sendFundingCaseReminders(sb, admin));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }

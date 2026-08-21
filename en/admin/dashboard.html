@@ -253,6 +253,14 @@
           <div class="stat-card__num" id="arpuNum">—</div>
           <div class="stat-card__label">ARPU</div>
         </div>
+        <div class="stat-card">
+          <div class="stat-card__header">
+            <div class="stat-card__icon stat-card__icon--conversion"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true">🏦</span></div>
+            <span class="stat-card__change change-up" id="fundingChange">+6%</span>
+          </div>
+          <div class="stat-card__num" id="fundingNum">—</div>
+          <div class="stat-card__label">Funding Cases</div>
+        </div>
       </div>
 
       <div class="section-row">
@@ -306,6 +314,7 @@
       calcs: { total: '8,432', change: '+18%', changeUp: true },
       conversion: { total: '14.9%', change: '+2.3%', changeUp: true },
       arpu: { total: '$11.4', change: '+4.1%', changeUp: true },
+      funding: { total: 42, change: '+6%', changeUp: true },
       monthlyRevenue: [8200, 9500, 10200, 11800, 13100, 14250],
       subscriptionSplit: [65, 20, 15]
     };
@@ -380,6 +389,7 @@
       document.getElementById('calcNum').textContent = formatNum(s.totalScenarios);
       document.getElementById('convNum').textContent = s.conversionRate + '%';
       document.getElementById('arpuNum').textContent = '$' + s.arpu;
+      document.getElementById('fundingNum').textContent = formatNum(s.fundingCases);
       if (subsChart) {
         subsChart.data.datasets[0].data = [s.freeUsers, s.proUsers, s.enterpriseUsers];
         subsChart.update();
@@ -395,6 +405,7 @@
       document.getElementById('calcNum').textContent = DEMO_DATA.calcs.total;
       document.getElementById('convNum').textContent = DEMO_DATA.conversion.total;
       document.getElementById('arpuNum').textContent = DEMO_DATA.arpu.total;
+      document.getElementById('fundingNum').textContent = DEMO_DATA.funding.total;
     }
 
     function renderUsers(users) {

@@ -214,6 +214,13 @@
     return sb.from('admin_roles').select('role').eq('user_id', userId).single();
   }
 
+  async function getAdvisoryRole(userId) {
+    await ensureEnv();
+    const sb = getSupabase();
+    if (!sb || !userId) return { data: null, error: new Error('Not initialized') };
+    return sb.from('advisory_roles').select('role').eq('user_id', userId).maybeSingle();
+  }
+
   function getRedirectUrl() {
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
@@ -643,16 +650,27 @@
       }
 
       getAdminRole(user.id).then(async ({ data: roleRow }) => {
-        if (!roleRow || !['super_admin','admin','support'].includes(roleRow.role)) {
-          if (statusEl) statusEl.textContent = 'ليس لديك صلاحية الوصول الإداري';
-          return;
+        if (roleRow && ['super_admin','admin','support'].includes(roleRow.role)) {
+          const mfa = await checkAdminMfa(token);
+          if (!mfa.ok) {
+            if (isMfaSetupPage) return finishAdminAccess(roleRow.role);
+            return redirectToMfaSetup();
+          }
+          return finishAdminAccess(roleRow.role);
         }
-        const mfa = await checkAdminMfa(token);
-        if (!mfa.ok) {
-          if (isMfaSetupPage) return finishAdminAccess(roleRow.role);
-          return redirectToMfaSetup();
+
+        // Allow advisory users (manager/advisor/viewer) to access funding cases and related modules
+        const { data: advisoryRow } = await getAdvisoryRole(user.id);
+        if (advisoryRow?.role) {
+          const mfa = await checkAdminMfa(token);
+          if (!mfa.ok) {
+            if (isMfaSetupPage) return finishAdminAccess(advisoryRow.role);
+            return redirectToMfaSetup();
+          }
+          return finishAdminAccess(advisoryRow.role);
         }
-        finishAdminAccess(roleRow.role);
+
+        if (statusEl) statusEl.textContent = 'ليس لديك صلاحية الوصول الإداري';
       });
     });
   }

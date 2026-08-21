@@ -26,10 +26,21 @@
     closed: 'neutral'
   };
 
+  const DOCUMENT_TYPES = {
+    commercial_register: 'السجل التجاري',
+    financial_statements: 'القوائم المالية',
+    bank_statement: 'كشف الحساب البنكي',
+    id_copy: 'صورة الهوية',
+    project_plan: 'خطة المشروع',
+    other: 'مستند آخر'
+  };
+
   let currentFilters = { page: 1, limit: 20 };
   let statusLabels = {};
   let sourceOptions = [];
   let financingTypeOptions = [];
+  let assignees = [];
+  let kpis = null;
 
   function escapeHtml(text) {
     return String(text)
@@ -58,6 +69,13 @@
     const d = new Date(iso);
     if (isNaN(d.getTime())) return '-';
     return d.toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  function toDateTimeLocal(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 16);
   }
 
   function statusBadge(status) {
@@ -94,6 +112,19 @@
 
   function showError(message) {
     setContent('<div class="fc-empty"><p class="fc-error-text">' + escapeHtml(message) + '</p><button class="ecc-btn ecc-btn--primary" onclick="window.FundingCasesApp.loadList()">إعادة المحاولة</button></div>');
+  }
+
+  function buildKpiCards() {
+    if (!kpis) return '';
+    return `
+      <div class="fc-kpis">
+        <div class="fc-kpi"><div class="fc-kpi__num">${(kpis.total || 0).toLocaleString('ar-SA')}</div><div class="fc-kpi__label">إجمالي الطلبات</div></div>
+        <div class="fc-kpi"><div class="fc-kpi__num">${(kpis.newThisWeek || 0).toLocaleString('ar-SA')}</div><div class="fc-kpi__label">جديد هذا الأسبوع</div></div>
+        <div class="fc-kpi fc-kpi--danger"><div class="fc-kpi__num">${(kpis.overdue || 0).toLocaleString('ar-SA')}</div><div class="fc-kpi__label">متأخر عن المتابعة</div></div>
+        <div class="fc-kpi"><div class="fc-kpi__num">${fmtMoney(kpis.avgAmount)}</div><div class="fc-kpi__label">متوسط المبلغ</div></div>
+        <div class="fc-kpi"><div class="fc-kpi__num">${kpis.conversionRate || 0}%</div><div class="fc-kpi__label">معدل الموافقة</div></div>
+      </div>
+    `;
   }
 
   function buildFilters() {
@@ -192,6 +223,7 @@
         <h1>طلبات التمويل</h1>
         <p>إدارة ومتابعة طلبات التمويل القادمة من الأدوات المختلفة.</p>
       </div>
+      ${buildKpiCards()}
       ${buildFilters()}
       <div class="fc-desktop">${buildListTable(cases)}</div>
       <div class="fc-mobile">${buildListCards(cases)}</div>
@@ -263,6 +295,7 @@
         <div class="fc-timeline-title">${escapeHtml(eventTypeLabel(e.event_type))}</div>
         ${e.from_status && e.to_status ? `<div class="fc-timeline-change">${statusBadge(e.from_status)} → ${statusBadge(e.to_status)}</div>` : ''}
         ${e.note ? `<div class="fc-timeline-note">${escapeHtml(e.note)}</div>` : ''}
+        ${e.notification_sent ? `<div class="fc-timeline-note fc-timeline-note--success">✓ تم إرسال إشعار للعميل</div>` : ''}
       </div>
     `).join('');
   }
@@ -273,7 +306,7 @@
       status_changed: 'تغيير الحالة',
       assigned: 'تعيين مستشار',
       note_added: 'ملاحظة',
-      contact: 'تواصل',
+      contact: 'تواصل / ربط',
       document_requested: 'طلب مستند',
       document_received: 'استلام مستند',
       submitted_to_provider: 'تقديم للجهة',
@@ -286,17 +319,56 @@
     if (!documents.length) return '<p class="fc-muted">لا توجد مستندات.</p>';
     return documents.map(d => `
       <div class="fc-doc">
-        <span>${escapeHtml(d.file_name)}</span>
-        <span class="fc-muted">${(Number(d.file_size) / 1024).toFixed(1)} KB</span>
+        <div>
+          <div>${escapeHtml(d.file_name)}</div>
+          <div class="fc-muted">${(Number(d.file_size) / 1024).toFixed(1)} KB · ${documentTypeLabel(d.document_type)}</div>
+        </div>
+        ${d.signedUrl ? `<a class="ecc-btn ecc-btn--sm" href="${escapeHtml(d.signedUrl)}" target="_blank" rel="noopener" download>تحميل</a>` : ''}
       </div>
     `).join('');
+  }
+
+  function documentTypeLabel(type) {
+    const map = { uploaded: 'مرفق من العميل', required: 'مطلوب', received: 'مستلم من الإدارة' };
+    return map[type] || type;
+  }
+
+  function buildAssigneeOptions(selectedId) {
+    if (!assignees.length) return `<option value="">لا يوجد مسؤولون</option>`;
+    const opts = assignees.map(a => `<option value="${escapeHtml(a.id)}" ${a.id === selectedId ? 'selected' : ''}>${escapeHtml(a.label)}</option>`).join('');
+    return `<option value="">غير معيّن</option>${opts}`;
+  }
+
+  function buildStatusOptions(currentStatus, allowedTransitions) {
+    const allowed = new Set(allowedTransitions || []);
+    return STATUSES.map(s => {
+      const disabled = s !== currentStatus && !allowed.has(s) ? 'disabled' : '';
+      return `<option value="${s}" ${currentStatus === s ? 'selected' : ''} ${disabled}>${escapeHtml(statusLabels.ar?.[s] || s)}</option>`;
+    }).join('');
+  }
+
+  function buildAdvisorySection(c) {
+    if (c.client_id || c.project_id) {
+      return `
+        <div class="fc-advisory-link">
+          <p class="fc-muted">تم الربط بالاستشارات المالية.</p>
+          ${c.client_id ? `<div>عميل: <code dir="ltr">${escapeHtml(c.client_id)}</code></div>` : ''}
+          ${c.project_id ? `<div>مشروع: <code dir="ltr">${escapeHtml(c.project_id)}</code></div>` : ''}
+        </div>
+      `;
+    }
+    return `<button class="ecc-btn ecc-btn--ghost fc-create-advisory" data-id="${c.id}">إنشاء عميل/مشروع استشاري</button>`;
   }
 
   function renderDetail(data) {
     const c = data.case;
     statusLabels = data.statusLabels || statusLabels;
+    const allowedTransitions = data.allowedTransitions || [];
 
-    const statusOptions = STATUSES.map(s => `<option value="${s}" ${c.status === s ? 'selected' : ''}>${escapeHtml(statusLabels.ar?.[s] || s)}</option>`).join('');
+    const statusOptions = buildStatusOptions(c.status, allowedTransitions);
+    const assigneeOptions = buildAssigneeOptions(c.assigned_to);
+    const isOverdue = c.next_action_at && new Date(c.next_action_at) < new Date();
+    const deadlineClass = isOverdue ? 'fc-deadline--overdue' : '';
 
     const html = `
       <div class="fc-detail-header">
@@ -346,26 +418,55 @@
               <select id="fc-detail-status" class="ecc-select">${statusOptions}</select>
             </div>
             <div class="fc-field">
-              <label for="fc-detail-assigned">تعيين إلى (معرّف المستخدم)</label>
-              <input type="text" id="fc-detail-assigned" class="ecc-input" value="${escapeHtml(c.assigned_to || '')}" placeholder="User UUID">
+              <label for="fc-detail-assigned">تعيين إلى</label>
+              <select id="fc-detail-assigned" class="ecc-select">${assigneeOptions}</select>
             </div>
             <div class="fc-field">
               <label for="fc-detail-next">الإجراء التالي</label>
-              <input type="datetime-local" id="fc-detail-next" class="ecc-input" value="${c.next_action_at ? c.next_action_at.slice(0, 16) : ''}">
+              <input type="datetime-local" id="fc-detail-next" class="ecc-input ${deadlineClass}" value="${toDateTimeLocal(c.next_action_at)}">
+            </div>
+            <div class="fc-field">
+              <label for="fc-detail-sla">موعد SLA</label>
+              <input type="datetime-local" id="fc-detail-sla" class="ecc-input" value="${toDateTimeLocal(c.sla_deadline_at)}">
             </div>
             <div class="fc-field">
               <label for="fc-detail-provider">اسم الجهة التمويلية</label>
               <input type="text" id="fc-detail-provider" class="ecc-input" value="${escapeHtml(c.provider_name || '')}">
+            </div>
+            <div class="fc-field">
+              <label for="fc-detail-internal">ملاحظات داخلية</label>
+              <textarea id="fc-detail-internal" class="ecc-textarea" rows="3">${escapeHtml(c.internal_notes || '')}</textarea>
             </div>
             <button class="ecc-btn ecc-btn--primary fc-update" data-id="${c.id}">حفظ التغييرات</button>
 
             <hr class="fc-divider">
 
             <div class="fc-field">
-              <label for="fc-detail-note">إضافة ملاحظة</label>
+              <label for="fc-detail-note">إضافة ملاحظة للعميل/الخط الزمني</label>
               <textarea id="fc-detail-note" class="ecc-textarea" rows="3"></textarea>
             </div>
             <button class="ecc-btn ecc-btn--ghost fc-add-note" data-id="${c.id}">إضافة ملاحظة</button>
+
+            <hr class="fc-divider">
+
+            <h3>المستندات</h3>
+            <div class="fc-field">
+              <label>طلب مستند من العميل</label>
+              <select id="fc-doc-request-type" class="ecc-select">
+                ${Object.entries(DOCUMENT_TYPES).map(([k, v]) => `<option value="${k}">${v}</option>`).join('')}
+              </select>
+              <textarea id="fc-doc-request-note" class="ecc-textarea" rows="2" placeholder="ملاحظة اختيارية..."></textarea>
+              <button class="ecc-btn ecc-btn--ghost fc-request-doc" data-id="${c.id}">طلب المستند</button>
+            </div>
+            <div class="fc-field">
+              <label>رفع مستند من الإدارة</label>
+              <input type="file" id="fc-doc-upload" class="ecc-input" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg">
+              <button class="ecc-btn ecc-btn--ghost fc-upload-doc" data-id="${c.id}">رفع المستند</button>
+            </div>
+
+            <hr class="fc-divider">
+
+            ${buildAdvisorySection(c)}
 
             <hr class="fc-divider">
 
@@ -376,7 +477,7 @@
           </section>
 
           <section class="fc-section">
-            <h2>المستندات</h2>
+            <h2>المستندات المرفقة</h2>
             ${buildDocuments(data.documents)}
           </section>
         </div>
@@ -386,22 +487,36 @@
     bindDetailEvents(c.id);
   }
 
+  async function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result !== 'string') return reject(new Error('Failed to read file'));
+        resolve(result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
   function bindDetailEvents(caseId) {
     document.querySelector('.fc-back')?.addEventListener('click', loadList);
 
     document.querySelector('.fc-update')?.addEventListener('click', async () => {
       const status = document.getElementById('fc-detail-status')?.value;
-      const assigned = document.getElementById('fc-detail-assigned')?.value.trim();
-      const next = document.getElementById('fc-detail-next')?.value;
-      const provider = document.getElementById('fc-detail-provider')?.value.trim();
+      const assigned = document.getElementById('fc-detail-assigned')?.value || null;
+      const next = document.getElementById('fc-detail-next')?.value || null;
+      const sla = document.getElementById('fc-detail-sla')?.value || null;
+      const provider = document.getElementById('fc-detail-provider')?.value.trim() || null;
+      const internal = document.getElementById('fc-detail-internal')?.value.trim() || null;
 
       const updates = { status };
-      if (assigned) updates.assigned_to = assigned;
-      else updates.assigned_to = null;
-      if (next) updates.next_action_at = new Date(next).toISOString();
-      else updates.next_action_at = null;
-      if (provider) updates.provider_name = provider;
-      else updates.provider_name = null;
+      updates.assigned_to = assigned;
+      updates.next_action_at = next ? new Date(next).toISOString() : null;
+      updates.sla_deadline_at = sla ? new Date(sla).toISOString() : null;
+      updates.provider_name = provider;
+      updates.internal_notes = internal;
 
       try {
         await FundingCasesService.update(caseId, updates);
@@ -423,6 +538,43 @@
         showToast(err.message || 'فشل إضافة الملاحظة', 'error');
       }
     });
+
+    document.querySelector('.fc-request-doc')?.addEventListener('click', async () => {
+      const type = document.getElementById('fc-doc-request-type')?.value;
+      const note = document.getElementById('fc-doc-request-note')?.value.trim();
+      try {
+        await FundingCasesService.requestDocument(caseId, type, note);
+        showToast('تم طلب المستند');
+        loadDetail(caseId);
+      } catch (err) {
+        showToast(err.message || 'فشل طلب المستند', 'error');
+      }
+    });
+
+    document.querySelector('.fc-upload-doc')?.addEventListener('click', async () => {
+      const input = document.getElementById('fc-doc-upload');
+      const file = input?.files?.[0];
+      if (!file) return showToast('اختر ملفاً أولاً', 'error');
+      try {
+        const data = await readFileAsBase64(file);
+        await FundingCasesService.uploadDocument(caseId, { name: file.name, type: file.type, data });
+        showToast('تم رفع المستند');
+        input.value = '';
+        loadDetail(caseId);
+      } catch (err) {
+        showToast(err.message || 'فشل رفع المستند', 'error');
+      }
+    });
+
+    document.querySelector('.fc-create-advisory')?.addEventListener('click', async () => {
+      try {
+        await FundingCasesService.linkAdvisory(caseId, { createNew: true });
+        showToast('تم الربط بالاستشارات المالية');
+        loadDetail(caseId);
+      } catch (err) {
+        showToast(err.message || 'فشل الربط', 'error');
+      }
+    });
   }
 
   function showToast(message, type = 'success') {
@@ -439,8 +591,11 @@
   async function loadList() {
     showLoading('جارِ تحميل طلبات التمويل...');
     try {
-      const data = await FundingCasesService.list(currentFilters);
-      // Collect distinct filter options from current page for simplicity.
+      const [data, kpiData] = await Promise.all([
+        FundingCasesService.list(currentFilters),
+        FundingCasesService.getKpis().catch(() => null)
+      ]);
+      kpis = kpiData?.kpis || null;
       sourceOptions = [...new Set((data.cases || []).map(c => c.source).filter(Boolean))];
       financingTypeOptions = [...new Set((data.cases || []).map(c => c.financing_type).filter(Boolean))];
       renderList(data);
@@ -452,6 +607,10 @@
   async function loadDetail(id) {
     showLoading('جارِ تحميل تفاصيل الطلب...');
     try {
+      if (!assignees.length) {
+        const assigneeData = await FundingCasesService.listAssignees().catch(() => ({ assignees: [] }));
+        assignees = assigneeData.assignees || [];
+      }
       const data = await FundingCasesService.detail(id);
       renderDetail(data);
     } catch (err) {
@@ -459,7 +618,13 @@
     }
   }
 
-  function init() {
+  async function init() {
+    try {
+      const assigneeData = await FundingCasesService.listAssignees().catch(() => ({ assignees: [] }));
+      assignees = assigneeData.assignees || [];
+    } catch (e) {
+      assignees = [];
+    }
     loadList();
     if (window.BondsAuth && BondsAuth.getUser) {
       BondsAuth.getUser().then(user => {

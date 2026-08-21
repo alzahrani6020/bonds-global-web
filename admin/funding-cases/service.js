@@ -65,6 +65,28 @@
       const data = await request('funding-cases-add-note', {}, 'POST', { caseId, note });
       if (typeof BondsAdminModuleCache !== 'undefined') BondsAdminModuleCache.invalidate(CACHE_KEY);
       return data;
+    },
+
+    async listAssignees() {
+      return request('funding-cases-assignees');
+    },
+
+    async getKpis() {
+      return request('funding-cases-kpis');
+    },
+
+    async requestDocument(caseId, documentType, note) {
+      return request('funding-cases-request-document', {}, 'POST', { caseId, documentType, note });
+    },
+
+    async uploadDocument(caseId, file) {
+      return request('funding-cases-upload-document', {}, 'POST', { caseId, file });
+    },
+
+    async linkAdvisory(caseId, payload) {
+      const data = await request('funding-cases-link-advisory', {}, 'POST', { caseId, ...payload });
+      if (typeof BondsAdminModuleCache !== 'undefined') BondsAdminModuleCache.invalidate(CACHE_KEY);
+      return data;
     }
   };
 

@@ -71,7 +71,14 @@
 - **النسختان يدويتان** — أي تعديل في ملف عربي يتطلب تعديل الملف الإنجليزي المقابل إن وجد.
 - **صفحات التمويل والاستثمار**: `/funding` و `/en/funding` تستخدمان `styles/funding-hub.css` و `scripts/funding-hub.js`. لا تُضف أرقام تسويقية (مثل "96 دولة" أو "3,000+ شركة") إلا بعد التحقق من مصدر داخلي موثق.
 - **ربط أدوات التمويل**: الأدوات (`funding-readiness`، `funding-sources`، `calculators/loan`، `calculators/roi`) تنقل السياق إلى `/funding-extraction` عبر `scripts/funding-context.js` (query params + sessionStorage). أي تعديل في هذه الأدوات يجب أن يبقى ضمن whitelist الحقول المسموح بنقلها.
-- **إدارة حالات التمويل (Phase 3)**: كل طلب تمويل ناجح يُنشئ `Funding Case` في قاعدة البيانات برقم مرجعي `BF-YYYY-XXXXXX`، ويُعرض الرقم للعميل بعد الإرسال. تُدار الحالات من لوحة الإدارة عبر `/admin/funding-cases/`.
+- **إدارة حالات التمويل (Phase 3+4)**: كل طلب تمويل ناجح يُنشئ `Funding Case` في قاعدة البيانات برقم مرجعي `BF-YYYY-XXXXXX`، ويُعرض الرقم للعميل بعد الإرسال. تُدار الحالات من لوحة الإدارة عبر `/admin/funding-cases/`. في Phase 4 تم إضافة:
+  - ربط الحالة بـ `advisory_clients` / `advisory_projects`.
+  - سير عمل محدد للحالات عبر جدول `funding_case_allowed_transitions`.
+  - إشعارات بريدية للعميل عند تغيير الحالة أو طلب مستندات.
+  - تحميل مستندات من الإدارة وطلبها من العميل.
+  - KPIs في `admin/dashboard.html` و `en/admin/dashboard.html`.
+  - صلاحيات لأدوار `advisory_roles` (manager/advisor/viewer) بجانب `admin_roles`.
+  - تذكيرات يومية عبر GitHub Actions (`.github/workflows/funding-reminders.yml`).
 
 ---
 

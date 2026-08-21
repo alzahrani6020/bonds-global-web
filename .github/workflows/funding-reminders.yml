@@ -1,0 +1,17 @@
+name: Funding Case Reminders
+
+on:
+  schedule:
+    - cron: '0 9 * * *' # Daily at 09:00 UTC
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send funding case reminders
+        run: |
+          curl -fsS -X POST "https://bonds-global.com/api/admin?action=send-funding-reminders" \
+            -H "Content-Type: application/json" \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            -d '{}'
