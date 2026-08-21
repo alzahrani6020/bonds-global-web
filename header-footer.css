@@ -6,11 +6,11 @@
   left: 0;
   right: 0;
   z-index: 1000;
-  background: rgba(7, 11, 20, 0.75);
+  background: rgba(7, 17, 31, 0.97);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-bottom: 1px solid rgba(197, 160, 40, 0.12);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  border-bottom: 1px solid rgba(202, 166, 91, 0.26);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.18);
   transform: translateZ(0);
 }
 
@@ -92,11 +92,11 @@
   height: 56px;
   width: auto;
   object-fit: contain;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(197, 160, 40, 0.25);
-  border-radius: 10px;
-  padding: 4px 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
 }
 
 .brand-text {
@@ -125,7 +125,7 @@
   align-items: center;
   gap: 0.35rem;
   padding: 0.55rem 1rem;
-  border-radius: 999px;
+  border-radius: 3px;
   color: rgba(232, 236, 244, 0.92);
   font-weight: 600;
   font-size: 0.92rem;
@@ -342,10 +342,10 @@ body[dir="ltr"] .dropdown-menu {
   align-items: center;
   justify-content: center;
   padding: 0.55rem 1.15rem;
-  border-radius: 999px;
-  background: rgba(232, 236, 244, 0.95);
-  color: #0a0f1a;
-  border: 1px solid rgba(232, 236, 244, 0.95);
+  border-radius: 3px;
+  background: #caa65b;
+  color: #07111f;
+  border: 1px solid #caa65b;
   font-weight: 700;
   font-size: 0.82rem;
   text-decoration: none;
@@ -354,19 +354,22 @@ body[dir="ltr"] .dropdown-menu {
 }
 
 .btn-header:hover {
-  background: #ffffff;
-  border-color: #ffffff;
-  color: #0a0f1a;
+  background: #dfc17e;
+  border-color: #dfc17e;
+  color: #07111f;
 }
 
 :root[data-theme="dark"] .btn-header {
-  background: rgba(232, 236, 244, 0.95);
-  color: #0a0f1a;
+  background: #caa65b;
+  color: #07111f;
 }
 
 :root[data-theme="dark"] .btn-header:hover {
-  background: #ffffff;
+  background: #dfc17e;
 }
+
+.header-signup,
+#headerSignupBtn { display: none; }
 
 .lang-switch {
   display: inline-flex;

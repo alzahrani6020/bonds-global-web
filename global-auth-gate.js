@@ -75,7 +75,8 @@
   }
 
   function redirectToLogin() {
-    const returnUrl = encodeURIComponent(window.location.href);
+    const returnPath = window.location.pathname + window.location.search + window.location.hash;
+    const returnUrl = encodeURIComponent(returnPath);
     const isEn = path.startsWith('/en/');
     const loginUrl = isEn ? '/en/calculators/auth/?redirect=' + returnUrl : '/calculators/auth/?redirect=' + returnUrl;
     window.location.replace(loginUrl);

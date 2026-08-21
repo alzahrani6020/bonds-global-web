@@ -114,6 +114,10 @@
 
   function getSupabase() {
     if (_supabase) return _supabase;
+    if (typeof window !== 'undefined' && window.__BONDS_SUPABASE_CLIENT__) {
+      _supabase = window.__BONDS_SUPABASE_CLIENT__;
+      return _supabase;
+    }
     if (typeof supabase === 'undefined') {
       console.warn('[BondsAuth] supabase global not available');
       return null;
@@ -133,6 +137,7 @@
         storage: typeof window !== 'undefined' ? window.localStorage : undefined
       }
     });
+    if (typeof window !== 'undefined') window.__BONDS_SUPABASE_CLIENT__ = _supabase;
     return _supabase;
   }
 
@@ -227,9 +232,15 @@
     const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : '');
     const fallback = origin + '/my-bonds/';
     if (fromParam) {
-      const safe = fromParam.startsWith('/') && !fromParam.startsWith('//') ? fromParam : '/my-bonds/';
-      try { sessionStorage.setItem('auth_redirect', safe); } catch(e) {}
-      return origin + safe;
+      try {
+        const target = new URL(fromParam, origin || 'https://bonds-global.com');
+        if (!origin || target.origin === origin) {
+          const safe = target.pathname + target.search + target.hash;
+          try { sessionStorage.setItem('auth_redirect', safe); } catch(e) {}
+          return origin + safe;
+        }
+      } catch(e) {}
+      return fallback;
     }
     try {
       let stored = sessionStorage.getItem('auth_redirect');
@@ -273,7 +284,17 @@
     await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
-    return sb.auth.signInWithPassword({ email, password });
+    const result = await sb.auth.signInWithPassword({ email, password });
+    if (!result.error && result.data?.session) {
+      const { data: persisted } = await sb.auth.getSession();
+      if (!persisted?.session) {
+        await sb.auth.setSession({
+          access_token: result.data.session.access_token,
+          refresh_token: result.data.session.refresh_token
+        });
+      }
+    }
+    return result;
   }
 
   async function signInWithOTP(email, options) {
@@ -764,6 +785,9 @@
     // bfcache restore: fires when user navigates back to this page
     window.addEventListener('pageshow', (e) => {
       if (e.persisted) recoverSession({ force: true });
+    });
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'bonds-auth-token') recoverSession({ force: true });
     });
   }
 

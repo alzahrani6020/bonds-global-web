@@ -15,6 +15,10 @@ function getSupabase() {
     if (unified) return unified;
   }
   if (_supabase) return _supabase;
+  if (typeof window !== 'undefined' && window.__BONDS_SUPABASE_CLIENT__) {
+    _supabase = window.__BONDS_SUPABASE_CLIENT__;
+    return _supabase;
+  }
   if (typeof supabase === 'undefined') {
     console.error('[BondsAuth] Supabase library not loaded');
     return null;
@@ -33,6 +37,7 @@ function getSupabase() {
       storage: typeof window !== 'undefined' ? window.localStorage : undefined
     }
   });
+  if (typeof window !== 'undefined') window.__BONDS_SUPABASE_CLIENT__ = _supabase;
   return _supabase;
 }
 

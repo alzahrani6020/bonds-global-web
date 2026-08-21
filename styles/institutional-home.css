@@ -1,0 +1,87 @@
+/* Institutional homepage — restrained banking visual language. */
+.fi-page {
+  --fi-navy: #0b1f3a; --fi-gold: #a8823d; --fi-ink: #142238;
+  --fi-muted: #5d6878; --fi-line: #d9dee5;
+  background: #f4f6f8; color: var(--fi-ink);
+  font-family: "Vazirmatn", Arial, sans-serif; font-weight: 400;
+}
+html[lang="en"] .fi-page { font-family: Arial, "Helvetica Neue", sans-serif; }
+.fi-page::before { display: none; }
+.fi-page h1, .fi-page h2, .fi-page h3, .fi-page p, .fi-page a, .fi-page button { font-family: inherit; }
+.fi-ticker, .fi-dashboard, .social-feed { display: none; }
+
+.fi-hero {
+  min-height: min(650px, calc(100vh - 72px)); display: grid; align-items: center;
+  padding: clamp(4.5rem, 8vw, 7rem) clamp(1.25rem, 5vw, 5rem);
+  background: #fff; border-bottom: 1px solid var(--fi-line);
+}
+.fi-hero__grid { width: min(1180px, 100%); margin: 0 auto; display: block; }
+.fi-hero__content {
+  width: min(790px, 100%); padding-inline-start: clamp(1.25rem, 2.5vw, 2.25rem);
+  border-inline-start: 5px solid var(--fi-navy);
+}
+.fi-hero__est {
+  display: inline-flex; align-items: center; gap: .8rem; margin-bottom: 1.5rem;
+  color: #765d2d; font-size: .78rem; font-weight: 600; letter-spacing: 0;
+}
+.fi-hero__est span { width: 26px; height: 1px; background: var(--fi-gold); }
+.fi-hero__title {
+  max-width: 790px; margin: 0 0 1.5rem; color: var(--fi-navy);
+  font-size: clamp(2.15rem, 4.6vw, 4.35rem); font-weight: 600;
+  line-height: 1.22; letter-spacing: 0;
+}
+.fi-hero__title em { color: var(--fi-gold); font-style: normal; }
+.fi-hero__subtitle {
+  max-width: 700px; margin-bottom: 2rem; color: var(--fi-muted);
+  font-size: clamp(1rem, 1.35vw, 1.15rem); font-weight: 400; line-height: 1.85;
+}
+.fi-hero__cta { display: flex; flex-wrap: wrap; gap: .75rem; }
+.fi-btn { min-height: 50px; padding: .85rem 1.55rem; border-radius: 2px; font-weight: 600; }
+.fi-btn--primary { background: var(--fi-navy); border-color: var(--fi-navy); color: #fff; }
+.fi-btn--secondary { background: #fff; border-color: #9ca7b5; color: var(--fi-navy); }
+
+.institutional-trust {
+  display: flex; flex-wrap: wrap; margin: 2.5rem 0 0; padding: 1.15rem 0 0;
+  border-top: 1px solid var(--fi-line); list-style: none;
+}
+.institutional-trust li {
+  position: relative; padding-inline: 1.5rem; color: #3f4d60;
+  font-size: .9rem; font-weight: 600;
+}
+.institutional-trust li:first-child { padding-inline-start: 0; }
+.institutional-trust li:not(:last-child)::after {
+  content: ''; position: absolute; inset-inline-end: 0; top: 15%;
+  width: 1px; height: 70%; background: #c4a76d;
+}
+
+.fi-features {
+  padding: clamp(5rem, 9vw, 8rem) clamp(1.25rem, 5vw, 5rem);
+  background: #f4f6f8; color: var(--fi-ink);
+}
+.fi-features__header { width: min(1180px, 100%); margin: 0 auto 3rem; text-align: start; }
+.fi-features__label { color: #765d2d; letter-spacing: 0; font-weight: 600; }
+.fi-features__title, .fi-feature__title { color: var(--fi-navy); font-weight: 600; }
+.fi-features__title em { color: var(--fi-gold); font-style: normal; }
+.fi-features__subtitle, .fi-feature__text { color: var(--fi-muted); }
+.fi-features__grid {
+  width: min(1180px, 100%); margin: 0 auto; grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px; padding: 1px; background: var(--fi-line); border: 1px solid var(--fi-line);
+}
+.fi-feature {
+  min-height: 250px; padding: 2rem; background: #fff; border: 0;
+  border-radius: 0; box-shadow: none; transform: none;
+}
+.fi-feature:hover { transform: none; box-shadow: none; }
+.fi-feature__icon { color: var(--fi-navy); }
+.fi-cta-section { background: var(--fi-navy); border-top: 3px solid var(--fi-gold); }
+
+@media (max-width: 800px) {
+  .fi-hero { min-height: auto; padding-block: 4.5rem; }
+  .fi-hero__est { align-items: flex-start; flex-direction: column; gap: .35rem; }
+  .fi-hero__est span { display: none; }
+  .institutional-trust { display: grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+  .institutional-trust li { padding-inline: 0; }
+  .institutional-trust li::after { display: none; }
+  .fi-features__grid { grid-template-columns: 1fr; }
+}
+

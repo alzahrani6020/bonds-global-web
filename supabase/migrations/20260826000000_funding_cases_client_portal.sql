@@ -49,7 +49,12 @@ CREATE POLICY funding_documents_client_insert ON storage.objects
   FOR INSERT TO authenticated
   WITH CHECK (
     bucket_id = 'funding-documents'
-    AND storage.foldername(name) @> ARRAY['client-uploads']
+    AND (storage.foldername(name))[1] = 'client-uploads'
+    AND EXISTS (
+      SELECT 1 FROM public.funding_cases c
+      WHERE c.id::text = (storage.foldername(name))[2]
+        AND c.user_id = auth.uid()
+    )
   );
 
 -- -----------------------------------------------------------------------------

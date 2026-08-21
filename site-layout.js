@@ -72,7 +72,7 @@
       scenariosEngine: isEn ? 'Scenarios' : 'محرك السيناريوهات',
       fundingSources: isEn ? 'Funding' : 'التمويل',
       contact: isEn ? 'Contact' : 'تواصل معنا',
-      cta: isEn ? 'Start Now' : 'ابدأ الآن',
+      cta: isEn ? 'Book a Consultation' : 'احجز استشارة',
       login: isEn ? 'Login' : 'تسجيل الدخول',
       signup: isEn ? 'Sign Up' : 'تسجيل جديد',
       clientPortal: isEn ? 'Client Portal' : 'بوابة العميل',
@@ -274,7 +274,7 @@
       <a href="${searchHref}" class="header-search" aria-label="${labels.search}" title="${labels.search}">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
       </a>
-      <a href="${clientPortalHref}" class="btn-header" id="headerCtaBtn">${labels.cta}</a>
+      <a href="${contactHref}" class="btn-header" id="headerCtaBtn">${labels.cta}</a>
       <a href="${signupHref}" class="header-signup" id="headerSignupBtn">${labels.signup}</a>
       <a href="${loginHref}" class="header-login" id="headerLoginBtn">${labels.login}</a>
       <div id="authContainer" class="header-account-wrap">
@@ -293,6 +293,7 @@
   function buildFooter(lang, base) {
     const isEn = lang === 'en';
     const langBase = getLangBase(isEn);
+    const homeHref = langBase + 'index.html';
     const env = window.__ENV || {};
     const socialUrls = {
       linkedin: env.SOCIAL_LINKEDIN_URL || 'https://www.linkedin.com/company/bonds-global',
@@ -660,7 +661,7 @@
   function initGlobalAuthGate() {
     if (document.querySelector('script[src*="global-auth-gate.js"]')) return;
     const gateScript = document.createElement('script');
-    gateScript.src = '/global-auth-gate.js?v=3';
+    gateScript.src = '/global-auth-gate.js?v=4';
     gateScript.async = true;
     document.head.appendChild(gateScript);
   }

@@ -8,15 +8,20 @@
   // Sentry error tracking (loads if DSN is available)
   const SENTRY_DSN = window.__ENV?.SENTRY_DSN || 'https://623c9a5455e3452ead250190551e8806@o4511546038681600.ingest.us.sentry.io/4511546102054912';
   if (SENTRY_DSN && typeof window.Sentry === 'undefined') {
-    var s = document.createElement('script');
-    s.src = 'https://js.sentry-cdn.com/' + SENTRY_DSN.split('/').pop() + '.min.js';
-    s.crossOrigin = 'anonymous';
-    s.onload = function() {
-      if (window.Sentry) {
-        window.Sentry.init({ dsn: SENTRY_DSN, environment: 'production' });
+    try {
+      const sentryPublicKey = new URL(SENTRY_DSN).username;
+      if (sentryPublicKey) {
+        const sentryScript = document.createElement('script');
+        sentryScript.src = 'https://js.sentry-cdn.com/' + sentryPublicKey + '.min.js';
+        sentryScript.crossOrigin = 'anonymous';
+        sentryScript.onload = function() {
+          if (window.Sentry) window.Sentry.init({ dsn: SENTRY_DSN, environment: 'production' });
+        };
+        document.head.appendChild(sentryScript);
       }
-    };
-    document.head.appendChild(s);
+    } catch (error) {
+      console.warn('[page-tracker] Invalid Sentry DSN; error tracking is disabled.');
+    }
   }
 
   const TRACK_ENDPOINT = '/api/track';
