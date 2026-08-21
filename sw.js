@@ -42,6 +42,7 @@ const CORE_ASSETS = [
   '/site-layout.js?v=3.2.2',
   '/styles/social-feed.css?v=1',
   '/styles/institutional-home.css?v=3',
+  '/styles/institutional-system.css?v=1',
   '/scripts/social-feed.js?v=1',
   '/auth-guard.js',
   '/calculators/auth-gate.js?v=3',

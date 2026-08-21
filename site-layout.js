@@ -11,6 +11,13 @@
 (function () {
   'use strict';
 
+  if (!document.querySelector('link[href*="institutional-system.css"]')) {
+    const institutionalStyles = document.createElement('link');
+    institutionalStyles.rel = 'stylesheet';
+    institutionalStyles.href = '/styles/institutional-system.css?v=1';
+    document.head.appendChild(institutionalStyles);
+  }
+
   function getDepth() {
     // Keep trailing slash so directory index pages (e.g. /valuation/) get the
     // correct depth and relative paths resolve to the parent directory.
