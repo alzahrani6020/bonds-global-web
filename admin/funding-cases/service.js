@@ -1,9 +1,9 @@
 // Funding Cases admin service
-/* global BondsAdminCache, BondsAuth */
+/* global BondsAdminModuleCache, BondsAuth */
 (function () {
   'use strict';
 
-  const API = '/api/v3/funding-cases';
+  const API = '/api/admin';
   const CACHE_KEY = 'funding_cases_list';
   const CACHE_TTL_MS = 60 * 1000;
 
@@ -46,23 +46,23 @@
         : null;
       if (cached) return cached;
 
-      const data = await request('list', filters);
+      const data = await request('funding-cases-list', filters);
       if (typeof BondsAdminModuleCache !== 'undefined') BondsAdminModuleCache.set(cacheKey, 'default', data);
       return data;
     },
 
     async detail(id) {
-      return request('detail', { id });
+      return request('funding-cases-detail', { id });
     },
 
     async update(id, updates) {
-      const data = await request('update', {}, 'POST', { id, ...updates });
+      const data = await request('funding-cases-update', {}, 'POST', { id, ...updates });
       if (typeof BondsAdminModuleCache !== 'undefined') BondsAdminModuleCache.invalidate(CACHE_KEY);
       return data;
     },
 
     async addNote(caseId, note) {
-      const data = await request('add-note', {}, 'POST', { caseId, note });
+      const data = await request('funding-cases-add-note', {}, 'POST', { caseId, note });
       if (typeof BondsAdminModuleCache !== 'undefined') BondsAdminModuleCache.invalidate(CACHE_KEY);
       return data;
     }
