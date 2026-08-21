@@ -1658,6 +1658,110 @@ async function getExecutiveStats(sb) {
 // ── Funding Cases ───────────────────────────────────────────
 // Logic lives in lib/api/funding-cases-admin.js and is re-exported below.
 
+async function verifyClientToken(req, sb) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  const token = authHeader.slice(7);
+  try {
+    const { data: { user }, error } = await sb.auth.getUser(token);
+    if (error || !user) return null;
+    return user;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function getClientFundingCases(sb, userId) {
+  const { data, error } = await sb
+    .from('funding_cases')
+    .select('id, case_reference, status, source, name, company, email, phone, country, financing_type, amount, purpose_category, sector, readiness_score, next_action_at, sla_deadline_at, created_at, updated_at')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+    .limit(100);
+  if (error) throw new Error(error.message);
+  return { success: true, cases: data || [], statusLabels: FundingCases.FUNDING_STATUS_LABELS };
+}
+
+async function getClientFundingCaseDetail(sb, id, userId) {
+  const { data: caseData, error } = await sb
+    .from('funding_cases')
+    .select('id, case_reference, status, source, name, company, email, phone, country, financing_type, amount, purpose_category, purpose, sector, readiness_score, next_action_at, sla_deadline_at, provider_name, submitted_at, approved_at, declined_at, closed_at, created_at, updated_at')
+    .eq('id', id)
+    .eq('user_id', userId)
+    .single();
+  if (error || !caseData) throw new Error('Funding case not found');
+
+  const [{ data: events }, { data: documents }] = await Promise.all([
+    sb.from('funding_case_events').select('*').eq('case_id', id).order('created_at', { ascending: false }),
+    sb.from('funding_case_documents').select('*').eq('case_id', id).order('created_at', { ascending: false })
+  ]);
+
+  const docsWithUrls = await Promise.all((documents || []).map(async d => {
+    try {
+      const { data: urlData } = await sb.storage
+        .from(d.storage_bucket || 'funding-documents')
+        .createSignedUrl(d.storage_path, 3600);
+      return { ...d, signedUrl: urlData?.signedUrl || null };
+    } catch (e) {
+      return { ...d, signedUrl: null };
+    }
+  }));
+
+  return {
+    success: true,
+    case: caseData,
+    events: events || [],
+    documents: docsWithUrls,
+    statusLabels: FundingCases.FUNDING_STATUS_LABELS
+  };
+}
+
+async function guestLookupFundingCase(sb, payload) {
+  const caseReference = String(payload.caseReference || '').trim().toUpperCase();
+  const email = String(payload.email || '').trim().toLowerCase();
+  const phone = String(payload.phone || '').trim();
+  if (!caseReference || (!email && !phone)) {
+    throw new Error('Case reference and email or phone are required');
+  }
+
+  const { data: caseData, error } = await sb
+    .from('funding_cases')
+    .select('id, case_reference, status, name, company, email, phone, country, financing_type, amount, purpose_category, created_at, updated_at')
+    .eq('case_reference', caseReference)
+    .single();
+  if (error || !caseData) {
+    // Generic error to avoid leaking existence
+    throw new Error('Case not found or details do not match');
+  }
+
+  const normalizedCasePhone = String(caseData.phone || '').replace(/[\s\-()+]/g, '');
+  const normalizedInputPhone = phone.replace(/[\s\-()+]/g, '');
+  const emailMatch = email && caseData.email && caseData.email.toLowerCase() === email;
+  const phoneMatch = phone && normalizedCasePhone && normalizedCasePhone === normalizedInputPhone;
+  if (!emailMatch && !phoneMatch) {
+    throw new Error('Case not found or details do not match');
+  }
+
+  return {
+    success: true,
+    case: {
+      id: caseData.id,
+      case_reference: caseData.case_reference,
+      status: caseData.status,
+      name: caseData.name,
+      company: caseData.company,
+      country: caseData.country,
+      financing_type: caseData.financing_type,
+      amount: caseData.amount,
+      purpose_category: caseData.purpose_category,
+      created_at: caseData.created_at,
+      updated_at: caseData.updated_at
+    },
+    portalLink: `https://bonds-global.com/client/funding-case.html?id=${caseData.id}`,
+    statusLabels: FundingCases.FUNDING_STATUS_LABELS
+  };
+}
+
 // ── Main Handler ────────────────────────────────────────────
 async function handler(req, res) {
   setAllowedOrigin(res, req);
@@ -1671,7 +1775,8 @@ async function handler(req, res) {
   try {
     // Telemetry/read-heavy actions get a higher rate limit so dashboards can auto-refresh.
     const LIVE_ACTIONS = new Set(['online-users', 'page-views', 'user-journey', 'user-activity']);
-    const rateCategory = LIVE_ACTIONS.has(action) ? 'live' : 'strict';
+    const PUBLIC_ACTIONS = new Set(['funding-cases-guest-lookup']);
+    const rateCategory = LIVE_ACTIONS.has(action) ? 'live' : (PUBLIC_ACTIONS.has(action) ? 'public' : 'strict');
     if (await checkRateLimit(rateCategory, req, res)) return;
 
     if (req.method === 'GET') {
@@ -1832,6 +1937,17 @@ async function handler(req, res) {
         const admin = await verifyFundingCaseAccess(req, sb, 'viewer');
         if (!admin) return res.status(403).json({ error: 'Admin or advisory access required' });
         return res.status(200).json(await FundingCases.getFundingCaseKpis(sb));
+      }
+      if (action === 'funding-cases-client-list') {
+        const user = await verifyClientToken(req, sb);
+        if (!user) return res.status(401).json({ error: 'Authentication required' });
+        return res.status(200).json(await getClientFundingCases(sb, user.id));
+      }
+      if (action === 'funding-cases-client-detail') {
+        const user = await verifyClientToken(req, sb);
+        if (!user) return res.status(401).json({ error: 'Authentication required' });
+        if (!req.query?.id) return res.status(400).json({ error: 'Missing id' });
+        return res.status(200).json(await getClientFundingCaseDetail(sb, req.query.id, user.id));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }
@@ -2011,6 +2127,24 @@ async function handler(req, res) {
           if (!admin) return res.status(403).json({ error: 'Admin or cron required' });
         }
         return res.status(200).json(await FundingCases.sendFundingCaseReminders(sb, admin));
+      }
+      if (action === 'funding-cases-client-upload') {
+        const user = await verifyClientToken(req, sb);
+        if (!user) return res.status(401).json({ error: 'Authentication required' });
+        const { caseId, file } = req.body || {};
+        if (!caseId || !file) return res.status(400).json({ error: 'Missing caseId or file' });
+        // Verify ownership
+        const { data: caseRow, error: caseErr } = await sb.from('funding_cases')
+          .select('id')
+          .eq('id', caseId)
+          .eq('user_id', user.id)
+          .single();
+        if (caseErr || !caseRow) return res.status(403).json({ error: 'Case not found' });
+        const result = await FundingCases.clientUploadDocument(sb, caseId, file, { id: user.id, email: user.email });
+        return res.status(200).json(result);
+      }
+      if (action === 'funding-cases-guest-lookup') {
+        return res.status(200).json(await guestLookupFundingCase(sb, req.body || {}));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }

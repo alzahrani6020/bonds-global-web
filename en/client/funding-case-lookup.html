@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Funding Case Lookup — Client Portal | Bonds</title>
+  <meta name="description" content="Look up your funding case by reference number and email or phone." />
+  <meta property="og:title" content="Funding Case Lookup — Client Portal | Bonds" />
+  <meta property="og:description" content="Look up your funding case by reference number and email or phone." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/client/funding-case-lookup.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Funding Case Lookup — Client Portal | Bonds" />
+  <meta name="twitter:description" content="Look up your funding case by reference number and email or phone." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="canonical" href="https://bonds-global.com/en/client/funding-case-lookup.html" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="../../styles/fonts-en.css" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../styles/design-system.css" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.63.0" />
+  <link rel="stylesheet" href="../../styles/my-bonds.css?v=2" />
+  <script src="/api/env"></script>
+  <script src="/lib/bonds-common.js"></script>
+  <style>
+    .fc-lookup-form { display: grid; gap: 1rem; max-width: 520px; margin: 0 auto; }
+    .fc-lookup-form label { font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); }
+    .fc-lookup-form input { padding: 0.9rem 1rem; border-radius: 12px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text); font-family: inherit; }
+    .fc-result { margin-top: 1.5rem; }
+    .fc-result-row { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid rgba(197,160,40,0.08); }
+    .fc-result-row:last-child { border-bottom: none; }
+    .fc-result-label { color: var(--text-secondary); font-size: 0.9rem; }
+    .fc-result-value { color: var(--text); font-weight: 600; font-size: 0.9rem; }
+    .fc-status { display: inline-flex; padding: 0.35rem 0.75rem; border-radius: 999px; font-size: 0.85rem; font-weight: 700; background: rgba(212,168,83,0.12); color: var(--gold-bright); }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="my-bonds-page">
+    <section class="my-bonds-hero">
+      <div class="my-bonds-hero__content">
+        <h1>Funding Case Lookup</h1>
+        <p>Enter your case reference and the email or phone used in the request.</p>
+      </div>
+    </section>
+
+    <section class="my-bonds-container">
+      <div class="bonds-card">
+        <form id="lookupForm" class="fc-lookup-form" autocomplete="off">
+          <div>
+            <label for="ref">Case Reference</label>
+            <input id="ref" name="caseReference" type="text" placeholder="e.g. BF-2026-000123" required />
+          </div>
+          <div>
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" placeholder="Email used in the request" />
+          </div>
+          <div>
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" placeholder="05xxxxxxxx or +966xxxxxxxx" />
+          </div>
+          <p style="font-size:0.8rem;color:var(--text-secondary);margin:0;">You must enter the email or phone that matches the case.</p>
+          <button type="submit" class="bonds-btn bonds-btn-primary">Search</button>
+          <div id="status"></div>
+        </form>
+      </div>
+
+      <div id="result" class="bonds-card fc-result" style="display:none;"></div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script defer src="../../site-layout.js?v=3.2.2"></script>
+  <script>
+    (function() {
+      'use strict';
+      const form = document.getElementById('lookupForm');
+      const statusEl = document.getElementById('status');
+      const resultEl = document.getElementById('result');
+
+      function formatDate(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '—';
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      }
+
+      function formatAmount(amount) {
+        if (amount === null || amount === undefined || amount === '') return '—';
+        return 'SAR ' + Number(amount).toLocaleString('en-US');
+      }
+
+      form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        statusEl.innerHTML = '';
+        resultEl.style.display = 'none';
+
+        const formData = new FormData(form);
+        const body = {
+          caseReference: String(formData.get('caseReference') || '').trim(),
+          email: String(formData.get('email') || '').trim(),
+          phone: String(formData.get('phone') || '').trim()
+        };
+        if (!body.email && !body.phone) {
+          statusEl.innerHTML = '<p style="color:#ef4444;font-size:0.85rem;">Please enter an email or phone.</p>';
+          return;
+        }
+
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Searching...';
+        try {
+          const res = await fetch('/api/admin?action=funding-cases-guest-lookup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(json.error || 'Case not found or details do not match.');
+          const c = json.case;
+          const labels = (json.statusLabels && json.statusLabels.en) || {};
+          resultEl.innerHTML = `
+            <h3 class="my-bonds-section__title" style="margin-bottom:0.75rem;">${BondsCommon.escapeHtml(c.case_reference)}</h3>
+            <div class="fc-result-row"><span class="fc-result-label">Status</span><span class="fc-status">${BondsCommon.escapeHtml(labels[c.status] || c.status)}</span></div>
+            <div class="fc-result-row"><span class="fc-result-label">Name</span><span class="fc-result-value">${BondsCommon.escapeHtml(c.name)}</span></div>
+            <div class="fc-result-row"><span class="fc-result-label">Company</span><span class="fc-result-value">${BondsCommon.escapeHtml(c.company)}</span></div>
+            <div class="fc-result-row"><span class="fc-result-label">Financing Type</span><span class="fc-result-value">${BondsCommon.escapeHtml(c.financing_type || '—')}</span></div>
+            <div class="fc-result-row"><span class="fc-result-label">Amount</span><span class="fc-result-value">${formatAmount(c.amount)}</span></div>
+            <div class="fc-result-row"><span class="fc-result-label">Submitted</span><span class="fc-result-value">${formatDate(c.created_at)}</span></div>
+            <div class="fc-result-row"><span class="fc-result-label">Last Updated</span><span class="fc-result-value">${formatDate(c.updated_at)}</span></div>
+            <p style="margin-top:1rem;font-size:0.85rem;color:var(--text-secondary);">To view full details, documents and upload new files, <a href="/calculators/auth/?redirect=/en/client/funding-cases.html" style="color:var(--gold-bright);">sign in</a> with the account linked to the case.</p>
+          `;
+          resultEl.style.display = 'block';
+        } catch (err) {
+          statusEl.innerHTML = '<p style="color:#ef4444;font-size:0.85rem;">' + BondsCommon.escapeHtml(err.message) + '</p>';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Search';
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

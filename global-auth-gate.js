@@ -18,6 +18,8 @@
     '/en/calculators/auth/',
     '/client/login.html',
     '/en/client/login.html',
+    '/client/funding-case-lookup.html',
+    '/en/client/funding-case-lookup.html',
     '/pro/login.html'
   ];
 

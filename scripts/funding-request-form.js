@@ -218,6 +218,17 @@
     trackFundingEvent('funding_form_prefilled', { source: context.source || 'unknown', lang });
   }
 
+  async function getAuthHeader() {
+    if (!window.BondsAuth || typeof window.BondsAuth.getSession !== 'function') return {};
+    try {
+      const { data: sessionData } = await window.BondsAuth.getSession();
+      const token = sessionData?.session?.access_token;
+      return token ? { Authorization: 'Bearer ' + token } : {};
+    } catch (e) {
+      return {};
+    }
+  }
+
   function getWhatsAppNumber() {
     try {
       return (window.__ENV && window.__ENV.WHATSAPP_NUMBER) || WHATSAPP_FALLBACK;
@@ -595,7 +606,7 @@
         const endpoint = form.dataset.endpoint || '/api/funding-request';
         const response = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
           body: JSON.stringify(body)
         });
 
@@ -762,7 +773,7 @@
         const endpoint = form.dataset.endpoint || '/api/funding-request';
         const response = await fetch(endpoint, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(await getAuthHeader()) },
           body: JSON.stringify(body)
         });
 

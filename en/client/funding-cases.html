@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Funding Cases — Client Portal | Bonds</title>
+  <meta name="description" content="Track your funding requests and upload required documents." />
+  <meta property="og:title" content="Funding Cases — Client Portal | Bonds" />
+  <meta property="og:description" content="Track your funding requests and upload required documents." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/client/funding-cases.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Funding Cases — Client Portal | Bonds" />
+  <meta name="twitter:description" content="Track your funding requests and upload required documents." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="canonical" href="https://bonds-global.com/en/client/funding-cases.html" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="../../styles/fonts-en.css" />
+  <link rel="stylesheet" href="../../styles.css" />
+  <link rel="stylesheet" href="../../styles/design-system.css" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.63.0" />
+  <link rel="stylesheet" href="../../styles/my-bonds.css?v=2" />
+  <script src="/calculators/auth-gate.js?v=3"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.2"></script>
+  <script src="/lib/bonds-common.js"></script>
+  <style>
+    .fc-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      background: rgba(212,168,83,0.12);
+      color: var(--gold-bright);
+      border: 1px solid rgba(212,168,83,0.2);
+    }
+    .fc-status.new { background: rgba(148,163,184,0.12); color: #94a3b8; border-color: rgba(148,163,184,0.2); }
+    .fc-status.approved { background: rgba(34,197,94,0.12); color: #22c55e; border-color: rgba(34,197,94,0.2); }
+    .fc-status.declined { background: rgba(239,68,68,0.12); color: #ef4444; border-color: rgba(239,68,68,0.2); }
+    .fc-status.closed { background: rgba(148,163,184,0.12); color: #94a3b8; border-color: rgba(148,163,184,0.2); }
+    .fc-card__header { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.75rem; }
+    .fc-card__ref { font-family: monospace; font-size: 0.9rem; color: var(--gold-bright); }
+    .fc-card__title { font-size: 1.1rem; font-weight: 700; color: var(--text); margin: 0 0 0.25rem; }
+    .fc-card__meta { font-size: 0.85rem; color: var(--text-secondary); }
+    .fc-card__amount { font-size: 1rem; font-weight: 700; color: var(--text); margin-top: 0.75rem; }
+    .fc-lookup-link { text-align: center; padding: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="my-bonds-page">
+    <section class="my-bonds-hero">
+      <div class="my-bonds-hero__content">
+        <h1>Funding Cases</h1>
+        <p>Track the status of your funding requests and view required documents.</p>
+      </div>
+    </section>
+
+    <section class="my-bonds-container">
+      <div id="loading" class="bonds-card my-bonds-empty">
+        <p>Loading your cases...</p>
+      </div>
+
+      <div id="casesSection" style="display:none;">
+        <div class="my-bonds-section">
+          <h3 class="my-bonds-section__title">My Requests</h3>
+          <div id="casesList" class="my-bonds-grid"></div>
+        </div>
+      </div>
+
+      <div class="bonds-card fc-lookup-link">
+        <p style="margin-bottom:1rem;color:var(--text-secondary);">Have a reference number for a guest submission?</p>
+        <a href="funding-case-lookup.html" class="bonds-btn bonds-btn-secondary">Look up a case by reference</a>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script defer src="../../site-layout.js?v=3.2.2"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const statusClassMap = {
+        new: 'new',
+        initial_review: '',
+        documents_required: '',
+        under_assessment: '',
+        funding_options: '',
+        submitted_to_provider: '',
+        provider_review: '',
+        approved: 'approved',
+        declined: 'declined',
+        on_hold: '',
+        closed: 'closed'
+      };
+
+      function formatDate(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '—';
+        return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      }
+
+      function formatAmount(amount) {
+        if (amount === null || amount === undefined || amount === '') return '—';
+        return 'SAR ' + Number(amount).toLocaleString('en-US');
+      }
+
+      function showError(message) {
+        const container = document.getElementById('loading');
+        container.innerHTML = '<p style="color:#ef4444;">' + BondsCommon.escapeHtml(message) + '</p>';
+      }
+
+      async function apiFetch(url, options) {
+        const { data: sessionData } = await window.BondsAuth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: 'Bearer ' + token } : {})
+        };
+        return fetch(url, { ...(options || {}), headers: { ...headers, ...(options?.headers || {}) } });
+      }
+
+      async function loadCases() {
+        try {
+          const res = await apiFetch('/api/admin?action=funding-cases-client-list');
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            throw new Error(json.error || 'Failed to load cases');
+          }
+          renderCases(json.cases || [], json.statusLabels || {});
+        } catch (err) {
+          showError(err.message);
+        }
+      }
+
+      function renderCases(cases, labels) {
+        document.getElementById('loading').style.display = 'none';
+        const section = document.getElementById('casesSection');
+        const list = document.getElementById('casesList');
+        section.style.display = 'block';
+
+        if (!cases.length) {
+          list.innerHTML = `
+            <div class="bonds-card my-bonds-empty" style="grid-column:1/-1;">
+              <p>No funding cases are linked to your account yet.</p>
+              <a href="../../funding-extraction.html" class="bonds-btn bonds-btn-primary">Submit a new funding request</a>
+            </div>
+          `;
+          return;
+        }
+
+        list.innerHTML = cases.map(function(c) {
+          const statusLabel = (labels.en && labels.en[c.status]) || c.status;
+          const statusClass = statusClassMap[c.status] || '';
+          return `
+            <a href="funding-case.html?id=${encodeURIComponent(c.id)}" class="bonds-card my-bonds-project" style="text-decoration:none;color:inherit;">
+              <div class="fc-card__header">
+                <span class="fc-card__ref">${BondsCommon.escapeHtml(c.case_reference)}</span>
+                <span class="fc-status ${statusClass}">${BondsCommon.escapeHtml(statusLabel)}</span>
+              </div>
+              <h4 class="fc-card__title">${BondsCommon.escapeHtml(c.company || c.name)}</h4>
+              <div class="fc-card__meta">${BondsCommon.escapeHtml(c.financing_type || '—')} · ${BondsCommon.escapeHtml(c.country || '—')}</div>
+              <div class="fc-card__amount">${formatAmount(c.amount)}</div>
+              <div class="fc-card__meta" style="margin-top:0.5rem;">Last updated: ${formatDate(c.updated_at)}</div>
+            </a>
+          `;
+        }).join('');
+      }
+
+      loadCases();
+    })();
+  </script>
+</body>
+</html>

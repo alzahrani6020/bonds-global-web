@@ -630,12 +630,12 @@
   "redirects": [
     {
       "source": "/client",
-      "destination": "/v3/portfolio",
+      "destination": "/client/funding-cases.html",
       "statusCode": 301
     },
     {
       "source": "/client/",
-      "destination": "/v3/portfolio",
+      "destination": "/client/funding-cases.html",
       "statusCode": 301
     },
     {
@@ -660,7 +660,7 @@
     },
     {
       "source": "/client/index.html",
-      "destination": "/v3/portfolio",
+      "destination": "/client/funding-cases.html",
       "statusCode": 301
     },
     {
@@ -690,7 +690,7 @@
     },
     {
       "source": "/client/login.html",
-      "destination": "/calculators/auth/index.html?redirect=/v3/portfolio",
+      "destination": "/calculators/auth/index.html?redirect=/client/funding-cases.html",
       "statusCode": 301
     },
     {
@@ -705,17 +705,17 @@
     },
     {
       "source": "/en/client",
-      "destination": "/en/v3/portfolio",
+      "destination": "/en/client/funding-cases.html",
       "statusCode": 301
     },
     {
       "source": "/en/client/",
-      "destination": "/en/v3/portfolio",
+      "destination": "/en/client/funding-cases.html",
       "statusCode": 301
     },
     {
       "source": "/en/client/index.html",
-      "destination": "/en/v3/portfolio",
+      "destination": "/en/client/funding-cases.html",
       "statusCode": 301
     },
     {

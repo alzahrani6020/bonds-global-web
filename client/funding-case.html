@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>تفاصيل حالة التمويل — بوابة العميل | Bonds</title>
+  <meta name="description" content="تفاصيل حالة طلب التمويل والخط الزمني والمستندات." />
+  <meta property="og:title" content="تفاصيل حالة التمويل — بوابة العميل | Bonds" />
+  <meta property="og:description" content="تفاصيل حالة طلب التمويل والخط الزمني والمستندات." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/client/funding-case.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="تفاصيل حالة التمويل — بوابة العميل | Bonds" />
+  <meta name="twitter:description" content="تفاصيل حالة طلب التمويل والخط الزمني والمستندات." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="canonical" href="https://bonds-global.com/client/funding-case.html" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="../styles/fonts-ar.css" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="../styles/design-system.css" />
+  <link rel="stylesheet" href="../header-footer.css?v=2.63.0" />
+  <link rel="stylesheet" href="../styles/my-bonds.css?v=2" />
+  <script src="/calculators/auth-gate.js?v=3"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.2"></script>
+  <script src="/lib/bonds-common.js"></script>
+  <style>
+    .fc-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .fc-detail-grid .bonds-card { margin: 0; }
+    .fc-detail-grid .bonds-card.full { grid-column: 1 / -1; }
+    .fc-detail-row { display: flex; justify-content: space-between; padding: 0.6rem 0; border-bottom: 1px solid rgba(197,160,40,0.08); font-size: 0.9rem; }
+    .fc-detail-row:last-child { border-bottom: none; }
+    .fc-detail-label { color: var(--text-secondary); }
+    .fc-detail-value { color: var(--text); font-weight: 600; }
+    .fc-status {
+      display: inline-flex; padding: 0.35rem 0.75rem; border-radius: 999px;
+      font-size: 0.85rem; font-weight: 700; background: rgba(212,168,83,0.12); color: var(--gold-bright);
+    }
+    .fc-timeline { display: flex; flex-direction: column; gap: 0.75rem; }
+    .fc-timeline__item { padding: 0.75rem; border-radius: var(--radius); background: rgba(255,255,255,0.03); border: 1px solid rgba(197,160,40,0.08); }
+    .fc-timeline__meta { font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.35rem; }
+    .fc-doc { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; padding: 0.75rem; border-radius: var(--radius); background: rgba(255,255,255,0.03); border: 1px solid rgba(197,160,40,0.08); }
+    .fc-doc a { font-size: 0.85rem; }
+    .fc-upload { display: flex; flex-direction: column; gap: 1rem; }
+    .fc-upload input[type="file"] { color: var(--text); }
+    .fc-empty { color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 1rem; }
+    @media (max-width: 640px) { .fc-detail-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <main class="my-bonds-page">
+    <section class="my-bonds-hero">
+      <div class="my-bonds-hero__content">
+        <h1>تفاصيل حالة التمويل</h1>
+        <p id="caseRef" style="font-family:monospace;color:var(--gold-bright);margin-top:0.5rem;">—</p>
+      </div>
+    </section>
+
+    <section class="my-bonds-container">
+      <div id="loading" class="bonds-card my-bonds-empty"><p>جاري التحميل...</p></div>
+      <div id="content" style="display:none;">
+        <div class="fc-detail-grid">
+          <div class="bonds-card">
+            <h3 class="my-bonds-section__title" style="margin-bottom:0.75rem;">ملخص الحالة</h3>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">الحالة</span>
+              <span id="statusBadge" class="fc-status">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">الاسم</span>
+              <span class="fc-detail-value" id="cName">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">الشركة / المشروع</span>
+              <span class="fc-detail-value" id="cCompany">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">نوع التمويل</span>
+              <span class="fc-detail-value" id="cType">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">المبلغ المطلوب</span>
+              <span class="fc-detail-value" id="cAmount">—</span>
+            </div>
+          </div>
+
+          <div class="bonds-card">
+            <h3 class="my-bonds-section__title" style="margin-bottom:0.75rem;">معلومات التواصل</h3>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">البريد</span>
+              <span class="fc-detail-value" id="cEmail">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">الجوال</span>
+              <span class="fc-detail-value" id="cPhone">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">الدولة</span>
+              <span class="fc-detail-value" id="cCountry">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">تاريخ التقديم</span>
+              <span class="fc-detail-value" id="cCreated">—</span>
+            </div>
+            <div class="fc-detail-row">
+              <span class="fc-detail-label">آخر تحديث</span>
+              <span class="fc-detail-value" id="cUpdated">—</span>
+            </div>
+          </div>
+
+          <div class="bonds-card full">
+            <h3 class="my-bonds-section__title" style="margin-bottom:0.75rem;">الخط الزمني</h3>
+            <div id="timeline" class="fc-timeline"></div>
+          </div>
+
+          <div class="bonds-card full">
+            <h3 class="my-bonds-section__title" style="margin-bottom:0.75rem;">المستندات</h3>
+            <div id="documents"></div>
+          </div>
+
+          <div class="bonds-card full fc-upload">
+            <h3 class="my-bonds-section__title" style="margin-bottom:0.75rem;">رفع مستند جديد</h3>
+            <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;">PDF, Word, Excel أو صور — بحد أقصى 10 ميجابايت للملف.</p>
+            <input type="file" id="docFile" accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg" />
+            <button type="button" id="uploadBtn" class="bonds-btn bonds-btn-primary">رفع المستند</button>
+            <div id="uploadStatus"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script defer src="../site-layout.js?v=3.2.2"></script>
+  <script>
+    (function() {
+      'use strict';
+
+      const params = new URLSearchParams(window.location.search);
+      const caseId = params.get('id');
+      let currentCase = null;
+
+      function formatDate(iso) {
+        if (!iso) return '—';
+        const d = new Date(iso);
+        if (isNaN(d.getTime())) return '—';
+        return d.toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+      }
+
+      function formatAmount(amount) {
+        if (amount === null || amount === undefined || amount === '') return '—';
+        return Number(amount).toLocaleString('ar-SA') + ' ر.س';
+      }
+
+      async function apiFetch(url, options) {
+        const { data: sessionData } = await window.BondsAuth.getSession();
+        const token = sessionData?.session?.access_token;
+        const headers = { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) };
+        return fetch(url, { ...(options || {}), headers: { ...headers, ...(options?.headers || {}) } });
+      }
+
+      async function loadDetail() {
+        if (!caseId) {
+          document.getElementById('loading').innerHTML = '<p style="color:#ef4444;">رقم الحالة مفقود.</p>';
+          return;
+        }
+        try {
+          const res = await apiFetch('/api/admin?action=funding-cases-client-detail&id=' + encodeURIComponent(caseId));
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(json.error || 'فشل تحميل التفاصيل');
+          currentCase = json.case;
+          render(json);
+        } catch (err) {
+          document.getElementById('loading').innerHTML = '<p style="color:#ef4444;">' + BondsCommon.escapeHtml(err.message) + '</p>';
+        }
+      }
+
+      function render(json) {
+        const c = json.case;
+        const labels = (json.statusLabels && json.statusLabels.ar) || {};
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('caseRef').textContent = c.case_reference;
+        document.getElementById('statusBadge').textContent = labels[c.status] || c.status;
+        document.getElementById('cName').textContent = c.name || '—';
+        document.getElementById('cCompany').textContent = c.company || '—';
+        document.getElementById('cType').textContent = c.financing_type || '—';
+        document.getElementById('cAmount').textContent = formatAmount(c.amount);
+        document.getElementById('cEmail').textContent = c.email || '—';
+        document.getElementById('cPhone').textContent = c.phone || '—';
+        document.getElementById('cCountry').textContent = c.country || '—';
+        document.getElementById('cCreated').textContent = formatDate(c.created_at);
+        document.getElementById('cUpdated').textContent = formatDate(c.updated_at);
+
+        const timeline = document.getElementById('timeline');
+        const events = json.events || [];
+        if (!events.length) {
+          timeline.innerHTML = '<div class="fc-empty">لا توجد أحداث مسجلة.</div>';
+        } else {
+          timeline.innerHTML = events.map(function(e) {
+            let title = '';
+            if (e.event_type === 'case_created') title = 'تم إنشاء الطلب';
+            else if (e.event_type === 'status_changed') title = 'تغيير الحالة' + (e.to_status ? ' إلى ' + (labels[e.to_status] || e.to_status) : '');
+            else if (e.event_type === 'document_requested') title = 'طلب مستند';
+            else if (e.event_type === 'document_received') title = 'استلام مستند';
+            else if (e.event_type === 'note_added') title = 'ملاحظة';
+            else title = e.event_type;
+            return `
+              <div class="fc-timeline__item">
+                <div style="font-weight:600;color:var(--text);">${BondsCommon.escapeHtml(title)}</div>
+                ${e.note ? '<div style="color:var(--text-secondary);font-size:0.85rem;margin-top:0.25rem;">' + BondsCommon.escapeHtml(e.note) + '</div>' : ''}
+                <div class="fc-timeline__meta">${formatDate(e.created_at)} · ${BondsCommon.escapeHtml(e.actor_email || 'النظام')}</div>
+              </div>
+            `;
+          }).join('');
+        }
+
+        const docsContainer = document.getElementById('documents');
+        const docs = json.documents || [];
+        if (!docs.length) {
+          docsContainer.innerHTML = '<div class="fc-empty">لا توجد مستندات.</div>';
+        } else {
+          docsContainer.innerHTML = docs.map(function(d) {
+            return `
+              <div class="fc-doc">
+                <span style="font-size:0.9rem;color:var(--text);">${BondsCommon.escapeHtml(d.file_name)}</span>
+                ${d.signedUrl ? '<a href="' + BondsCommon.escapeHtml(d.signedUrl) + '" target="_blank" rel="noopener" class="bonds-btn bonds-btn-secondary" style="padding:0.45rem 0.8rem;font-size:0.8rem;">تحميل</a>' : '<span style="font-size:0.8rem;color:var(--text-secondary);">غير متوفر</span>'}
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      function readFile(file) {
+        return new Promise(function(resolve, reject) {
+          const reader = new FileReader();
+          reader.onload = function() { resolve(reader.result); };
+          reader.onerror = function() { reject(reader.error); };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      document.getElementById('uploadBtn').addEventListener('click', async function() {
+        const input = document.getElementById('docFile');
+        const statusEl = document.getElementById('uploadStatus');
+        statusEl.textContent = '';
+        if (!input.files || !input.files[0]) {
+          statusEl.innerHTML = '<p style="color:#ef4444;font-size:0.85rem;">اختر ملفاً أولاً.</p>';
+          return;
+        }
+        const file = input.files[0];
+        const allowed = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','image/png','image/jpeg','image/jpg'];
+        if (!allowed.includes(file.type)) {
+          statusEl.innerHTML = '<p style="color:#ef4444;font-size:0.85rem;">نوع الملف غير مسموح.</p>';
+          return;
+        }
+        if (file.size > 10 * 1024 * 1024) {
+          statusEl.innerHTML = '<p style="color:#ef4444;font-size:0.85rem;">حجم الملف يتجاوز 10 ميجابايت.</p>';
+          return;
+        }
+        const btn = document.getElementById('uploadBtn');
+        btn.disabled = true;
+        btn.textContent = 'جاري الرفع...';
+        try {
+          const data = await readFile(file);
+          const res = await apiFetch('/api/admin?action=funding-cases-client-upload', {
+            method: 'POST',
+            body: JSON.stringify({ caseId, file: { name: file.name, type: file.type, data } })
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(json.error || 'فشل الرفع');
+          statusEl.innerHTML = '<p style="color:#22c55e;font-size:0.85rem;">تم رفع المستند بنجاح.</p>';
+          input.value = '';
+          await loadDetail();
+        } catch (err) {
+          statusEl.innerHTML = '<p style="color:#ef4444;font-size:0.85rem;">' + BondsCommon.escapeHtml(err.message) + '</p>';
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'رفع المستند';
+        }
+      });
+
+      loadDetail();
+    })();
+  </script>
+</body>
+</html>

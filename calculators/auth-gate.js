@@ -29,7 +29,9 @@
     '/en/calculators/auth/onboarding.html',
     '/en/calculators/auth/profile.html',
     '/en/calculators/auth/account.html',
-    '/en/calculators/auth/subscription.html'
+    '/en/calculators/auth/subscription.html',
+    '/client/funding-case-lookup.html',
+    '/en/client/funding-case-lookup.html'
   ];
 
   if (publicAuthPaths.some(function (p) { return path === p || path.startsWith(p); })) {

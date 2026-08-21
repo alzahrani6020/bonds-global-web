@@ -351,6 +351,20 @@ ${escapeHtml(payload.use_case || '-')}
   }
 }
 
+// ── Optional auth for public funding form ──────────────────
+async function getUserFromToken(req, sb) {
+  const authHeader = req.headers?.authorization;
+  if (!authHeader?.startsWith('Bearer ')) return null;
+  const token = authHeader.slice(7);
+  try {
+    const { data, error } = await sb.auth.getUser(token);
+    if (error || !data?.user) return null;
+    return data.user;
+  } catch (e) {
+    return null;
+  }
+}
+
 // ── Main dispatcher ────────────────────────────────────────
 async function handler(req, res) {
   setAllowedOrigin(res, req);
@@ -371,9 +385,12 @@ async function handler(req, res) {
       return fundingReadinessAction(req, res);
     case 'bank-partner-request':
       return bankPartnerRequestAction(req, res);
-    case 'funding-request':
+    case 'funding-request': {
       if (await checkRateLimit('public', req, res)) return;
-      return handleFundingExtractionRequest(req, res);
+      const sb = getSupabase();
+      const user = await getUserFromToken(req, sb);
+      return handleFundingExtractionRequest(req, res, user);
+    }
     default:
       return res.status(400).json({ error: 'Invalid or missing action' });
   }

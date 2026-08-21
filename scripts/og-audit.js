@@ -9,6 +9,7 @@ const ROOT = path.join(__dirname, '..');
 const PATTERNS = [
   '*.html',
   'en/**/*.html',
+  'client/**/*.html',
   'blog/**/*.html',
   'calculators/**/*.html',
   'sectors/**/*.html',

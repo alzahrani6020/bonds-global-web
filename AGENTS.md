@@ -663,6 +663,28 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **Google Analytics 4**: كود GA4 لا يُحمّل إلا عندما يكون `GA_MEASUREMENT_ID` مضبوطاً في متغيرات البيئة (`GA_MEASUREMENT_ID` أو `NEXT_PUBLIC_GA_MEASUREMENT_ID`). لا يوجد معرّف placeholder في الكود.
 - **WhatsApp**: رقم التواصل عبر WhatsApp ثابت في footer التقارير (`966567566616`).
 
+### 11.16 بوابة العميل — Client Portal (Funding Cases)
+
+تتيح للعملاء متابعة حالات طلبات التمويل ورفع المستندات المطلوبة.
+
+- **الصفحات**:
+  - `/client/funding-cases.html` و `/en/client/funding-cases.html` — قائمة حالات المستخدم المسجل.
+  - `/client/funding-case.html?id=...` و `/en/client/funding-case.html?id=...` — تفاصيل الحالة والخط الزمني والمستندات ورفع مستند جديد.
+  - `/client/funding-case-lookup.html` و `/en/client/funding-case-lookup.html` — بحث ضيف برقم المرجع + البريد/الجوال (لا تتطلب تسجيل دخول).
+- **APIs** (ضمن `api/admin.js`):
+  - `GET /api/admin?action=funding-cases-client-list`
+  - `GET /api/admin?action=funding-cases-client-detail&id=...`
+  - `POST /api/admin?action=funding-cases-client-upload`
+  - `POST /api/admin?action=funding-cases-guest-lookup`
+- **الربط بالمستخدم**:
+  - عند تقديم طلب تمويل من `funding-extraction.html` والمستخدم مسجل الدخول، يُرسل رمز المصادقة ويُخزَّن `user_id` في `funding_cases`.
+  - الطلبات المقدمة كزائر تبقى `user_id = null` ويمكن البحث عنها لاحقاً عبر صفحة الـ lookup.
+- **الأمان**:
+  - RLS policies تسمح للمستخدم المسجل بقراءة حالاته فقط (`user_id = auth.uid()`).
+  - تحميل المستندات من العميل يتم في مجلد `client-uploads/` في bucket `funding-documents`.
+  - lookup الضيف يتطلب تطابق البريد أو الجوال ولا يُعيد سوى ملخص محدود.
+- **الإشعارات**: قوالب `notification_templates` تتضمن الآن رابط `{{portal_link}}` يؤدي إلى صفحة تفاصيل الحالة.
+
 ---
 
 ## 12. تصميم footer التقرير (Report Footer)
