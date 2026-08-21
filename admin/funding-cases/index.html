@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>طلبات التمويل | بوندز</title>
+  <meta name="description" content="إدارة ومتابعة طلبات التمويل والحالات القادمة من أدوات بوندز." />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles/fonts-ar.css" />
+  <link rel="stylesheet" href="/styles.css?v=8" />
+  <link rel="stylesheet" href="/styles/design-system.css?v=8" />
+  <link rel="stylesheet" href="/admin/funding-cases/styles.css?v=1" />
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
+  <script>
+    (function() {
+      if (typeof DOMPurify === 'undefined' || !window.Element) return;
+      const descriptor = Object.getOwnPropertyDescriptor(window.Element.prototype, 'innerHTML');
+      if (!descriptor || typeof descriptor.set !== 'function') return;
+      const originalSet = descriptor.set;
+      descriptor.set = function(html) {
+        if (typeof html === 'string') {
+          html = DOMPurify.sanitize(html, { ADD_ATTR: ['onclick','onsubmit','onchange','oninput'], KEEP_CONTENT: true });
+        }
+        return originalSet.call(this, html);
+      };
+      Object.defineProperty(window.Element.prototype, 'innerHTML', descriptor);
+    })();
+  </script>
+  <script src="/bonds-auth-2026.js?v=3.1.2"></script>
+  <script src="/admin/admin-common.js?v=4"></script>
+  <script src="/admin/module-cache.js?v=1"></script>
+  <script src="/admin/funding-cases/service.js?v=1"></script>
+  <script src="/admin/funding-cases/app.js?v=1"></script>
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
+</head>
+<body>
+  <div class="fc-layout">
+    <aside class="fc-sidebar">
+      <div class="fc-brand">
+        <img src="/assets/bonds-logo-2026-header.webp" alt="بوندز" width="799" height="533" />
+        <span>طلبات التمويل</span>
+      </div>
+      <ul class="fc-nav">
+        <li><a href="#" data-view="list" class="active">قائمة الطلبات</a></li>
+        <li style="margin-top:1.5rem;border-top:1px solid var(--border);padding-top:1rem;"><a href="/admin/dashboard.html">لوحة الإدارة الرئيسية</a></li>
+      </ul>
+      <div class="fc-user" id="fc-user">جارِ التحقق...</div>
+    </aside>
+    <main class="fc-main" id="fc-content">
+      <div class="fc-empty"><div class="fc-spinner"></div><p>جارِ تهيئة الوحدة...</p></div>
+    </main>
+  </div>
+  <script src="/admin/admin-embed.js?v=4"></script>
+  <script src="/admin/admin-accessibility.js"></script>
+  <script src="/admin/admin-sidebar-icons.js"></script>
+  <script src="/components/emoji-icons.js" defer></script>
+  <script src="/components/emoji-renderer.js" defer></script>
+</body>
+</html>

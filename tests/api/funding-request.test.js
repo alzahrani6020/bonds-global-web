@@ -12,12 +12,58 @@ jest.mock('../../lib/api/rate-limit', () => ({
   checkRateLimit: jest.fn(() => Promise.resolve(false))
 }));
 
-jest.mock('../../lib/api/supabase', () => jest.fn(() => ({
-  from: jest.fn(() => ({
-    select: jest.fn(() => ({ eq: jest.fn(() => ({ single: jest.fn(() => Promise.resolve({ data: null, error: null })) })) }))
-  })),
-  auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: null }, error: null })) }
-})));
+function mockCreateSupabase() {
+  const createQuery = (defaultSingle = null) => {
+    const chain = {
+      select: jest.fn(() => chain),
+      eq: jest.fn(() => chain),
+      insert: jest.fn((rows) => {
+        // Return a thenable that also exposes select/single for insert-select chains.
+        const insertChain = {
+          select: jest.fn(() => insertChain),
+          single: jest.fn(() => Promise.resolve({ data: defaultSingle, error: null })),
+          then: (resolve) => resolve({ data: Array.isArray(rows) ? rows : [rows], error: null })
+        };
+        return insertChain;
+      }),
+      update: jest.fn(() => chain),
+      order: jest.fn(() => chain),
+      maybeSingle: jest.fn(() => Promise.resolve({ data: null, error: null })),
+      single: jest.fn(() => Promise.resolve({ data: defaultSingle, error: null }))
+    };
+    return chain;
+  };
+
+  return jest.fn(() => ({
+    from: jest.fn(() => mockCreateQuery({ id: 'case-1', case_reference: 'BF-2026-000001' })),
+    storage: {
+      from: jest.fn(() => ({
+        upload: jest.fn(() => Promise.resolve({ data: {}, error: null }))
+      }))
+    },
+    auth: { getUser: jest.fn(() => Promise.resolve({ data: { user: null }, error: null })) }
+  }));
+}
+
+function mockCreateQuery(defaultSingle) {
+  const chain = {
+    select: jest.fn(() => chain),
+    eq: jest.fn(() => chain),
+    insert: jest.fn((rows) => ({
+      select: jest.fn(() => ({
+        single: jest.fn(() => Promise.resolve({ data: defaultSingle, error: null }))
+      })),
+      then: (resolve) => resolve({ data: Array.isArray(rows) ? rows : [rows], error: null })
+    })),
+    update: jest.fn(() => chain),
+    order: jest.fn(() => chain),
+    maybeSingle: jest.fn(() => Promise.resolve({ data: null, error: null })),
+    single: jest.fn(() => Promise.resolve({ data: defaultSingle, error: null }))
+  };
+  return chain;
+}
+
+jest.mock('../../lib/api/supabase', () => mockCreateSupabase());
 
 const handler = require('../../api/funding');
 
@@ -49,7 +95,7 @@ describe('/api/funding?action=funding-request', () => {
     mockSendEmail.mockClear();
   });
 
-  test('accepts a valid request and sends email', async () => {
+  test('accepts a valid request, creates a case, and sends email', async () => {
     const req = mockReq({
       body: {
         lang: 'ar',
@@ -60,6 +106,7 @@ describe('/api/funding?action=funding-request', () => {
         country: 'السعودية',
         financingType: 'شركات ومؤسسات',
         amount: '500000',
+        purposeCategory: 'توسع',
         purpose: 'توسعة',
         letter: 'تحية طيبة'
       }
@@ -68,6 +115,7 @@ describe('/api/funding?action=funding-request', () => {
     await handler(req, res);
     expect(res.statusCode).toBe(200);
     expect(res._json.success).toBe(true);
+    expect(res._json.caseReference).toBe('BF-2026-000001');
     expect(mockSendEmail).toHaveBeenCalledTimes(1);
     const emailArgs = mockSendEmail.mock.calls[0][0];
     expect(emailArgs.attachments).toEqual([]);
@@ -120,6 +168,7 @@ describe('/api/funding?action=funding-request', () => {
     await handler(req, res);
     expect(res.statusCode).toBe(200);
     expect(res._json.success).toBe(true);
+    expect(res._json.caseReference).toBe('BF-2026-000001');
     const emailArgs = mockSendEmail.mock.calls[0][0];
     expect(emailArgs.attachments.length).toBe(1);
     expect(emailArgs.attachments[0].filename).toBe('plan.pdf');

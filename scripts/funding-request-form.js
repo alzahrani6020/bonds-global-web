@@ -71,6 +71,38 @@
     return false;
   }
 
+  function generateIdempotencyKey() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    return String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+  }
+
+  function renderCaseReference(successCard, reference, lang) {
+    if (!successCard || !reference) return;
+    const container = successCard.querySelector('[data-fr-reference]');
+    if (!container) return;
+    const isEn = lang === 'en';
+    container.style.display = 'block';
+    container.setAttribute('dir', 'ltr');
+    const label = container.querySelector('[data-fr-reference-label]');
+    const value = container.querySelector('[data-fr-reference-value]');
+    if (label) label.textContent = isEn ? 'Your reference number' : 'رقم طلبك';
+    if (value) value.textContent = reference;
+    const copyBtn = container.querySelector('[data-fr-reference-copy]');
+    if (copyBtn) {
+      copyBtn.textContent = isEn ? 'Copy' : 'نسخ';
+      copyBtn.addEventListener('click', function () {
+        if (navigator.clipboard) {
+          navigator.clipboard.writeText(reference).then(function () {
+            copyBtn.textContent = isEn ? 'Copied' : 'تم النسخ';
+            setTimeout(function () { copyBtn.textContent = isEn ? 'Copy' : 'نسخ'; }, 1500);
+          });
+        }
+      });
+    }
+  }
+
   function optionExists(select, value) {
     if (!select || !value) return false;
     for (let i = 0; i < select.options.length; i++) {
@@ -537,6 +569,7 @@
         const formData = new FormData(form);
         const body = {
           lang,
+          idempotencyKey: generateIdempotencyKey(),
           name: String(formData.get('name') || '').trim(),
           company: String(formData.get('company') || '').trim(),
           email: String(formData.get('email') || '').trim(),
@@ -544,11 +577,8 @@
           country: String(formData.get('country') || '').trim(),
           financingType: String(formData.get('financingType') || '').trim(),
           amount: String(formData.get('amount') || '').trim(),
-          purpose: (() => {
-            const category = String(formData.get('purposeCategory') || '').trim();
-            const details = String(formData.get('purpose') || '').trim();
-            return category ? (category + (details ? ' — ' + details : '')) : details;
-          })(),
+          purposeCategory: String(formData.get('purposeCategory') || '').trim(),
+          purpose: String(formData.get('purpose') || '').trim(),
           letter: String(formData.get('letter') || '').trim(),
           website: String(formData.get('website') || '').trim()
         };
@@ -583,6 +613,7 @@
             form.classList.add('is-hidden');
             successCard.classList.add('is-visible');
             if (whatsappBtn) whatsappBtn.href = getWhatsAppLink(lang);
+            renderCaseReference(successCard, result.caseReference, lang);
           } else {
             setStatus('success', result.message || getMessage(form, 'success', isEn ? 'Sent successfully.' : 'تم الإرسال بنجاح.'));
           }
@@ -707,6 +738,7 @@
         const formData = new FormData(form);
         const body = {
           lang,
+          idempotencyKey: generateIdempotencyKey(),
           name: String(formData.get('name') || '').trim(),
           company: String(formData.get('company') || '').trim(),
           email: String(formData.get('email') || '').trim(),
@@ -714,11 +746,8 @@
           country: String(formData.get('country') || '').trim(),
           financingType: String(formData.get('financingType') || '').trim(),
           amount: String(formData.get('amount') || '').trim(),
-          purpose: (() => {
-            const category = String(formData.get('purposeCategory') || '').trim();
-            const details = String(formData.get('purpose') || '').trim();
-            return category ? (category + (details ? ' — ' + details : '')) : details;
-          })(),
+          purposeCategory: String(formData.get('purposeCategory') || '').trim(),
+          purpose: String(formData.get('purpose') || '').trim(),
           letter: String(formData.get('letter') || '').trim(),
           website: String(formData.get('website') || '').trim()
         };
@@ -740,7 +769,11 @@
         const result = await response.json().catch(() => ({}));
 
         if (response.ok && result.success) {
-          setStatus('success', result.message || getMessage(form, 'success', isEn ? 'Sent successfully.' : 'تم الإرسال بنجاح.'));
+          let successMessage = result.message || getMessage(form, 'success', isEn ? 'Sent successfully.' : 'تم الإرسال بنجاح.');
+          if (result.caseReference) {
+            successMessage += '\n' + (isEn ? 'Reference: ' : 'الرقم المرجعي: ') + result.caseReference;
+          }
+          setStatus('success', successMessage);
           clearPrefillBanner(form);
           if (window.BondsFundingContext) window.BondsFundingContext.clear();
           form.reset();

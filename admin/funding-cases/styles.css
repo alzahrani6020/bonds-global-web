@@ -1,0 +1,489 @@
+/* Funding Cases admin module */
+
+.fc-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg, #0a0f1a);
+  color: var(--text, #e8ecf4);
+}
+
+.fc-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: rgba(16, 24, 45, 0.8);
+  border-left: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.fc-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.fc-brand img {
+  width: 40px;
+  height: auto;
+}
+
+.fc-brand span {
+  font-weight: 700;
+  color: var(--gold, #d4a853);
+}
+
+.fc-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.fc-nav a {
+  display: block;
+  padding: 0.75rem 1rem;
+  color: var(--text-secondary, #94a3b8);
+  text-decoration: none;
+  border-radius: 10px;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.fc-nav a:hover,
+.fc-nav a.active {
+  background: rgba(212, 168, 83, 0.1);
+  color: var(--gold, #d4a853);
+}
+
+.fc-user {
+  margin-top: auto;
+  padding-top: 1.5rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+  word-break: break-all;
+}
+
+.fc-main {
+  flex: 1;
+  padding: 1.25rem;
+  overflow-x: hidden;
+}
+
+.fc-header {
+  margin-bottom: 1.5rem;
+}
+
+.fc-header h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.25rem;
+  color: var(--gold, #d4a853);
+}
+
+.fc-header p {
+  color: var(--text-secondary, #94a3b8);
+  margin: 0;
+}
+
+.fc-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.fc-search {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.fc-search .ecc-input {
+  flex: 1;
+}
+
+.fc-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.fc-filters .ecc-select {
+  min-width: 140px;
+  flex: 1;
+}
+
+.fc-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.fc-empty-cell {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary, #94a3b8);
+}
+
+.fc-spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 3px solid rgba(212, 168, 83, 0.2);
+  border-top-color: var(--gold, #d4a853);
+  border-radius: 50%;
+  animation: fc-spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes fc-spin {
+  to { transform: rotate(360deg); }
+}
+
+.fc-error-text {
+  color: #fca5a5;
+  margin-bottom: 1rem;
+}
+
+.fc-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: 12px;
+}
+
+.fc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.fc-table th,
+.fc-table td {
+  padding: 0.875rem 1rem;
+  text-align: right;
+  border-bottom: 1px solid var(--border, rgba(197, 160, 40, 0.1));
+  white-space: nowrap;
+}
+
+.fc-table th {
+  background: rgba(16, 24, 45, 0.6);
+  color: var(--gold, #d4a853);
+  font-weight: 700;
+}
+
+.fc-table tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.fc-table code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85rem;
+}
+
+.fc-desktop {
+  display: none;
+}
+
+.fc-mobile {
+  display: block;
+}
+
+.fc-card {
+  background: rgba(16, 24, 45, 0.6);
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.fc-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.fc-card-header code {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gold, #d4a853);
+}
+
+.fc-card-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fc-card-row:last-child {
+  border-bottom: none;
+}
+
+.fc-card-row span:first-child {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.85rem;
+}
+
+.fc-card-actions {
+  margin-top: 0.75rem;
+}
+
+.fc-card-actions .ecc-btn {
+  width: 100%;
+  min-height: 44px;
+}
+
+.fc-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.fc-page {
+  min-width: 36px;
+  min-height: 36px;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text, #e8ecf4);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.fc-page.is-active,
+.fc-page:hover {
+  background: rgba(212, 168, 83, 0.15);
+  color: var(--gold, #d4a853);
+}
+
+/* Detail */
+.fc-detail-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.fc-detail-header h1 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--gold, #d4a853);
+  margin: 0;
+}
+
+.fc-detail-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1fr;
+}
+
+.fc-section {
+  background: rgba(16, 24, 45, 0.6);
+  border: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.fc-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--gold, #d4a853);
+  margin-bottom: 0.75rem;
+}
+
+.fc-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.fc-field {
+  margin-bottom: 0.75rem;
+}
+
+.fc-field label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0.25rem;
+}
+
+.fc-field > div {
+  font-weight: 500;
+  word-break: break-word;
+}
+
+.fc-box {
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  padding: 0.75rem;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+.fc-divider {
+  border: none;
+  border-top: 1px solid var(--border, rgba(197, 160, 40, 0.15));
+  margin: 1rem 0;
+}
+
+.fc-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.fc-actions .ecc-btn {
+  flex: 1;
+  min-width: 100px;
+  text-align: center;
+  text-decoration: none;
+}
+
+.fc-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.fc-timeline-item {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+  border-right: 3px solid var(--gold, #d4a853);
+}
+
+.fc-timeline-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #94a3b8);
+  margin-bottom: 0.25rem;
+}
+
+.fc-timeline-title {
+  font-weight: 700;
+}
+
+.fc-timeline-change {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+}
+
+.fc-timeline-note {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  white-space: pre-wrap;
+}
+
+.fc-doc {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.fc-muted {
+  color: var(--text-secondary, #94a3b8);
+  font-size: 0.9rem;
+}
+
+.fc-toast {
+  position: fixed;
+  bottom: 1rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100%);
+  background: rgba(20, 83, 45, 0.95);
+  color: #fff;
+  padding: 0.75rem 1.25rem;
+  border-radius: 10px;
+  font-weight: 600;
+  z-index: 1000;
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.fc-toast.is-visible {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.fc-toast--error {
+  background: rgba(127, 29, 29, 0.95);
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+  .fc-main {
+    padding: 1.5rem 2rem;
+  }
+
+  .fc-toolbar {
+    flex-direction: row;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .fc-search {
+    flex: 1;
+    max-width: 420px;
+  }
+
+  .fc-filters {
+    flex-wrap: nowrap;
+  }
+
+  .fc-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+  .fc-desktop {
+    display: block;
+  }
+
+  .fc-mobile {
+    display: none;
+  }
+
+  .fc-detail-grid {
+    grid-template-columns: 1.2fr 0.8fr;
+    align-items: start;
+  }
+
+  .fc-detail-side .fc-sticky {
+    position: sticky;
+    top: 1rem;
+  }
+}
+
+/* Embed mode inside unified admin dashboard */
+.admin-embed .fc-sidebar,
+.admin-embed .fc-nav [href*="dashboard.html"] {
+  display: none !important;
+}
+
+.admin-embed .fc-layout {
+  display: block !important;
+}
+
+.admin-embed .fc-main {
+  width: 100% !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  padding: 1rem !important;
+}
