@@ -107,51 +107,9 @@
   const yearEl = document.getElementById('y');
   if (yearEl) yearEl.textContent = String(new Date().getFullYear());
 
-  /* ---------- Hero particles canvas ---------- */
-  const hero = document.querySelector('.hero');
-  if (hero && !prefersReducedMotion) {
-    const canvas = document.createElement('canvas');
-    canvas.id = 'particlesCanvas';
-    canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;';
-    hero.insertBefore(canvas, hero.firstChild);
-    const ctx = canvas.getContext('2d');
-    const particles = [];
-    const count = window.innerWidth < 768 ? 30 : 60;
-
-    function resizeCanvas() {
-      canvas.width = hero.offsetWidth;
-      canvas.height = hero.offsetHeight;
-    }
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
-
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: 0.3 * (Math.random() - 0.5),
-        vy: 0.3 * (Math.random() - 0.5),
-        size: 2 * Math.random() + 1,
-        color: Math.random() > 0.5 ? 'rgba(212,168,83,' : 'rgba(59,130,246,',
-        opacity: 0.5 * Math.random() + 0.2
-      });
-    }
-
-    (function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(function (p) {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
-        ctx.fillStyle = p.color + p.opacity + ')';
-        ctx.fill();
-      });
-      requestAnimationFrame(draw);
-    })();
-  }
+  /* ---------- Hero particles canvas (disabled for institutional theme) ---------- */
+  // Particles and decorative motion are intentionally disabled to maintain a
+  // flat, banking-grade visual identity. The canvas element is not injected.
 
   /* ---------- Service Worker update notification (zero perf impact) ---------- */
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {

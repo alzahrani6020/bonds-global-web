@@ -1,0 +1,942 @@
+/**
+ * Bonds Global — Institutional Design System
+ * ============================================
+ * A flat, banking-grade visual system applied globally.
+ * Loaded by site-layout.js on every public page.
+ *
+ * Principles:
+ * - Light, neutral backgrounds (#F4F6F8).
+ * - White cards on gray backgrounds.
+ * - Navy (#0B1F3A) for primary actions and headlines.
+ * - Secondary text in #5D6878.
+ * - Borders in #D9DEE5.
+ * - Gold (#A8823D) reserved for <5% of accents.
+ * - Border-radius: 2px–4px.
+ * - No glassmorphism, no glow orbs, no starfields, no pills, no giant gradients.
+ */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* Backgrounds */
+  --bg: #F4F6F8 !important;
+  --bg-secondary: #F4F6F8 !important;
+  --bg-card: #FFFFFF !important;
+  --bg-card-hover: #FFFFFF !important;
+  --bg-dark: #F4F6F8 !important;
+  --bg-elevated: #FFFFFF !important;
+  --bg-white: #FFFFFF !important;
+
+  /* Text */
+  --text: #142238 !important;
+  --text-secondary: #5D6878 !important;
+  --text-muted: #5D6878 !important;
+  --text-inverse: #FFFFFF !important;
+  --white: #FFFFFF !important;
+
+  /* Brand */
+  --navy-950: #0B1F3A !important;
+  --navy-900: #0B1F3A !important;
+  --navy-800: #142238 !important;
+  --navy-700: #1E3A5F !important;
+  --navy-600: #2E4A6F !important;
+  --navy-500: #4A6078 !important;
+
+  --gold: #A8823D !important;
+  --gold-bright: #A8823D !important;
+  --gold-dim: #8A6A2F !important;
+  --gold-400: #A8823D !important;
+  --gold-500: #A8823D !important;
+  --gold-600: #8A6A2F !important;
+  --gold-700: #8A6A2F !important;
+  --gold-light: #F5F0E8 !important;
+  --gold-glow: transparent !important;
+
+  /* Surfaces */
+  --surface: #FFFFFF !important;
+  --surface-raised: #FFFFFF !important;
+  --border: #D9DEE5 !important;
+  --border-light: #D9DEE5 !important;
+  --border-hover: #B0B8C4 !important;
+
+  /* Accents */
+  --accent: #1E3A5F !important;
+  --accent-glow: transparent !important;
+
+  /* Typography */
+  --font: "Vazirmatn", system-ui, sans-serif !important;
+  --font-display: "Vazirmatn", system-ui, sans-serif !important;
+  --font-en: "Inter", Arial, system-ui, sans-serif !important;
+  --font-display-en: "Inter", Arial, system-ui, sans-serif !important;
+
+  /* Spacing / radius */
+  --radius: 4px !important;
+  --radius-sm: 2px !important;
+  --radius-md: 4px !important;
+  --radius-lg: 4px !important;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(20, 34, 56, 0.04) !important;
+  --shadow-md: 0 2px 6px rgba(20, 34, 56, 0.06) !important;
+  --shadow-lg: 0 4px 12px rgba(20, 34, 56, 0.08) !important;
+  --shadow-xl: 0 8px 24px rgba(20, 34, 56, 0.10) !important;
+
+  /* Layout */
+  --header-height: 64px !important;
+  --section-padding-y: 3rem !important;
+  --section-padding-y-sm: 2rem !important;
+  --container-max: 1280px !important;
+  --container-narrow: 960px !important;
+  --container-wide: 1400px !important;
+
+  /* Transitions */
+  --transition: 0.15s ease !important;
+}
+
+html[lang="en"] :root,
+html[lang="en"] {
+  --font: "Inter", Arial, system-ui, sans-serif !important;
+  --font-display: "Inter", Arial, system-ui, sans-serif !important;
+}
+
+/* ---------- Reset decorative backgrounds ---------- */
+body,
+.page-wrapper,
+#app,
+.site-wrapper {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font) !important;
+}
+
+/* Remove glow orbs */
+.glow-orb,
+.glow-orb-1,
+.glow-orb-2,
+.hero__orb,
+.hero__orb--1,
+.hero__orb--2,
+.starfield,
+.stars,
+.stars-bg,
+.space-bg,
+.noise,
+.noise-texture,
+.glass-overlay,
+.gradient-overlay {
+  display: none !important;
+}
+
+/* Remove canvas particles */
+#particlesCanvas,
+.particles-canvas,
+.hero canvas {
+  display: none !important;
+}
+
+/* Remove backdrop-filter / glassmorphism */
+* {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ---------- Typography ---------- */
+h1, h2, h3, h4, h5, h6,
+.hero__title,
+.section__title,
+.page-title,
+.calc-title {
+  color: var(--navy-950) !important;
+  font-family: var(--font-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+  text-transform: none !important;
+}
+
+h1, .hero__title, .page-title {
+  font-size: clamp(1.75rem, 4vw, 3rem) !important;
+  line-height: 1.25 !important;
+}
+
+h2, .section__title {
+  font-size: clamp(1.5rem, 3vw, 2.25rem) !important;
+  line-height: 1.3 !important;
+}
+
+h3 {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem) !important;
+}
+
+p, li, td, th, label, span, div {
+  color: inherit;
+}
+
+.text-muted,
+.text-secondary,
+.hero__desc,
+.section__desc,
+.card__meta {
+  color: var(--text-secondary) !important;
+}
+
+/* Remove gradient text */
+.text-gradient,
+.gradient-text,
+[style*="background-clip: text"],
+[style*="-webkit-background-clip: text"] {
+  background: none !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  color: var(--navy-950) !important;
+}
+
+/* ---------- Header ---------- */
+.main-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: var(--header-height) !important;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.main-header__inner {
+  max-width: var(--container-wide) !important;
+  padding: 0 1.5rem !important;
+  height: var(--header-height) !important;
+}
+
+.main-header .header-brand img,
+.main-header .logo img,
+.site-logo,
+.logo-slot img {
+  height: 36px !important;
+  width: auto !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.brand-name,
+.main-header .logo-text,
+.main-header .brand-text {
+  color: var(--navy-950) !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+}
+
+.brand-tagline {
+  color: var(--text-secondary) !important;
+  font-size: 0.65rem !important;
+}
+
+.main-nav a,
+.main-nav .dropdown-toggle {
+  color: var(--text) !important;
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+}
+
+.main-nav a:hover,
+.main-nav .dropdown-toggle:hover,
+.main-nav a.active,
+.main-nav .dropdown-toggle.active {
+  color: var(--navy-950) !important;
+  background: #F4F6F8 !important;
+}
+
+.main-nav a.nav-highlight,
+.main-nav .cta-button,
+.header-cta {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--navy-950) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.main-nav a.nav-highlight:hover,
+.main-nav .cta-button:hover,
+.header-cta:hover {
+  background: var(--navy-800) !important;
+  color: #FFFFFF !important;
+}
+
+.dropdown-menu {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.dropdown-menu a {
+  color: var(--text) !important;
+}
+
+.dropdown-menu a:hover {
+  background: #F4F6F8 !important;
+  color: var(--navy-950) !important;
+}
+
+/* ---------- Buttons ---------- */
+button,
+.btn,
+.button,
+[type="submit"],
+[type="button"],
+.cta-button,
+.primary-button,
+.secondary-button,
+.action-button,
+.nav-highlight {
+  border-radius: var(--radius-sm) !important;
+  font-weight: 600 !important;
+  font-size: 0.92rem !important;
+  padding: 0.65rem 1.25rem !important;
+  transition: background var(--transition), border-color var(--transition), color var(--transition) !important;
+}
+
+.btn-primary,
+[type="submit"],
+.cta-button,
+.primary-button,
+.action-button,
+button.primary {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--navy-950) !important;
+}
+
+.btn-primary:hover,
+[type="submit"]:hover,
+.cta-button:hover,
+.primary-button:hover,
+.action-button:hover,
+button.primary:hover {
+  background: var(--navy-800) !important;
+  border-color: var(--navy-800) !important;
+}
+
+.btn-secondary,
+.secondary-button,
+button.secondary {
+  background: #FFFFFF !important;
+  color: var(--navy-950) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.btn-secondary:hover,
+.secondary-button:hover,
+button.secondary:hover {
+  background: #F4F6F8 !important;
+  border-color: var(--border-hover) !important;
+}
+
+/* Prevent pill shapes */
+[style*="border-radius: 999px"],
+[style*="border-radius:50%"],
+[style*="border-radius: 50%"] {
+  border-radius: var(--radius-md) !important;
+}
+
+/* ---------- Cards ---------- */
+.card,
+.card--feature,
+.card--stat,
+.feature-card,
+.stat-card,
+.info-card,
+.result-card,
+.calc-card,
+.investment-panel,
+.country-selector-panel,
+.calculator-card,
+.service-card,
+.pricing-card,
+.testimonial-card,
+.team-card,
+.faq-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.card:hover,
+.feature-card:hover,
+.calc-card:hover {
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* ---------- Forms / Inputs ---------- */
+input,
+select,
+textarea,
+.form-control,
+.calc-input,
+.investment-input-group input,
+.investment-input-group select {
+  background: #FFFFFF !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.65rem 0.9rem !important;
+  font-family: var(--font) !important;
+  font-size: 0.95rem !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.form-control:focus {
+  border-color: var(--navy-700) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(11, 31, 58, 0.08) !important;
+}
+
+/* ---------- Hero sections ---------- */
+.hero,
+.page-hero,
+.calc-hero,
+.calc-hero--tall,
+.my-bonds-hero,
+.auth-hero,
+.fi-hero,
+.services-hero,
+.funding-hero {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  padding-top: calc(var(--header-height) + 2rem) !important;
+  padding-bottom: 2rem !important;
+  min-height: auto !important;
+  max-height: 280px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.hero__title,
+.page-hero h1,
+.calc-hero h1,
+.my-bonds-hero h1 {
+  color: var(--navy-950) !important;
+  font-size: clamp(1.75rem, 4vw, 3rem) !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.hero__desc,
+.page-hero p,
+.calc-hero p {
+  color: var(--text-secondary) !important;
+  font-size: 1rem !important;
+  max-width: 720px !important;
+}
+
+.hero__eyebrow,
+.eyebrow {
+  color: var(--gold) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* ---------- Breadcrumbs ---------- */
+.breadcrumbs {
+  background: #F4F6F8 !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.85rem !important;
+}
+
+.breadcrumbs__link {
+  color: var(--text-secondary) !important;
+}
+
+.breadcrumbs__item--current,
+.breadcrumbs__link:hover {
+  color: var(--navy-950) !important;
+}
+
+/* ---------- Sections ---------- */
+section,
+.section,
+.content-section {
+  background: var(--bg) !important;
+  padding: var(--section-padding-y) 0 !important;
+}
+
+section.alternate,
+.section--alt,
+.bg-alt {
+  background: #FFFFFF !important;
+}
+
+/* ---------- Tables ---------- */
+table,
+.data-table,
+.results-table,
+.financial-table {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+}
+
+th,
+.data-table th,
+.results-table th {
+  background: #F4F6F8 !important;
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+td,
+.data-table td,
+.results-table td {
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* ---------- Footer ---------- */
+.footer,
+.site-footer,
+.main-footer {
+  background: #FFFFFF !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+.footer a,
+.site-footer a {
+  color: var(--text) !important;
+}
+
+.footer a:hover {
+  color: var(--navy-950) !important;
+}
+
+/* ---------- Scroll progress bar (keep but neutral) ---------- */
+#scrollProgress {
+  background: var(--navy-950) !important;
+  height: 2px !important;
+}
+
+/* ---------- Auth pages ---------- */
+.auth-layout,
+.auth-page,
+.calculators-auth-page,
+body:has(.auth-layout) {
+  background: #F4F6F8 !important;
+}
+
+.auth-main,
+.auth-card,
+.login-box,
+.login-panel,
+.signup-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.auth-hero,
+.auth-aside,
+.auth-info-panel {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+}
+
+.auth-hero h2,
+.auth-hero p,
+.auth-aside h2,
+.auth-aside p {
+  color: #FFFFFF !important;
+}
+
+.auth-hero .logo img,
+.auth-aside .logo img,
+.auth-card .logo img {
+  height: 40px !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+/* ---------- my-bonds / client portal ---------- */
+.my-bonds-page,
+.client-portal-page,
+.funding-cases-page {
+  background: var(--bg) !important;
+}
+
+.my-bonds-hero,
+.client-hero {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.saved-project-card,
+.case-card,
+.client-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* ---------- Admin pages: preserve function, neutralize decoration ---------- */
+.admin-page,
+.admin-dashboard,
+body:has(.admin-page) {
+  background: #F4F6F8 !important;
+}
+
+.admin-page .card,
+.admin-dashboard .card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+/* ---------- Utility: hide decorative animations ---------- */
+.reveal {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ---------- v3 page header replacement ---------- */
+.v3-page-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 2rem 1.5rem !important;
+  margin-top: var(--header-height) !important;
+}
+
+.v3-page-header h1 {
+  color: var(--navy-950) !important;
+  font-size: 1.75rem !important;
+}
+
+.v3-page-header p {
+  color: var(--text-secondary) !important;
+}
+
+/* ---------- Calculator shared components ---------- */
+.bonds-input,
+.bonds-select,
+.calc-input,
+.calculator input,
+.calculator select,
+.investment-input-group input,
+.investment-input-group select {
+  background: #FFFFFF !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.65rem 0.9rem !important;
+  font-family: var(--font) !important;
+  font-size: 0.95rem !important;
+}
+
+.bonds-input:focus,
+.bonds-select:focus,
+.calc-input:focus,
+.calculator input:focus,
+.calculator select:focus {
+  border-color: var(--navy-700) !important;
+  box-shadow: 0 0 0 2px rgba(11, 31, 58, 0.08) !important;
+}
+
+.bonds-form-group label,
+.calc-input-group label,
+.investment-input-group label,
+.form-group label {
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+}
+
+.bonds-btn,
+.bonds-btn-primary,
+.bonds-btn-secondary,
+.calc-button,
+.calculate-btn,
+.investment-calculator button,
+.calculator button[type="submit"] {
+  border-radius: var(--radius-sm) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  padding: 0.65rem 1.25rem !important;
+  transform: none !important;
+}
+
+.bonds-btn-primary,
+.calc-button,
+.calculate-btn,
+.investment-calculator button.primary,
+.calculator button[type="submit"] {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--navy-950) !important;
+  background-image: none !important;
+}
+
+.bonds-btn-primary:hover,
+.calc-button:hover,
+.calculate-btn:hover {
+  background: var(--navy-800) !important;
+  border-color: var(--navy-800) !important;
+  transform: none !important;
+}
+
+.bonds-btn-secondary,
+.investment-calculator button.secondary {
+  background: #FFFFFF !important;
+  color: var(--navy-950) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.bonds-btn-secondary:hover {
+  background: #F4F6F8 !important;
+  border-color: var(--border-hover) !important;
+}
+
+.bonds-card,
+.calc-card,
+.investment-panel,
+.country-selector-panel,
+.result-panel,
+.calculator-result,
+.calc-result-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.bonds-card:hover,
+.calc-card:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: none !important;
+}
+
+/* Compact calculator hero */
+.calc-hero,
+.calc-hero--tall,
+.page-hero-compact,
+.calculator-hero {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding-top: calc(var(--header-height) + 1.5rem) !important;
+  padding-bottom: 1.5rem !important;
+  min-height: auto !important;
+  max-height: 280px !important;
+}
+
+.calc-hero h1,
+.calc-hero--tall h1,
+.page-hero-compact h1,
+.calculator-hero h1,
+.investment-calculator__header h1 {
+  color: var(--navy-950) !important;
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem) !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.calc-hero p,
+.calc-hero--tall p,
+.page-hero-compact p,
+.calculator-hero p,
+.investment-calculator__header p {
+  color: var(--text-secondary) !important;
+  font-size: 0.95rem !important;
+  max-width: 720px !important;
+}
+
+/* Investment center calculators */
+.investment-calculator {
+  background: var(--bg) !important;
+  padding-top: calc(var(--header-height) + 1rem) !important;
+}
+
+.investment-calculator__header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.investment-calculator__header div[font-size] {
+  font-size: 2rem !important;
+}
+
+/* ---------- Lead capture forms ---------- */
+.lead-form,
+#leadCaptureForm,
+.lead-capture {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 1.5rem !important;
+}
+
+.lead-form h3,
+#leadCaptureForm h3,
+.lead-capture h3 {
+  color: var(--navy-950) !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Result areas ---------- */
+.results-area,
+#resultsArea,
+.results-table-wrap,
+.result-section,
+#result {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 1.5rem !important;
+  margin-top: 1rem !important;
+}
+
+/* ---------- Marketing claims cleanup ---------- */
+/* This does not remove content; it only neutralizes the visual emphasis of
+   unverified numeric claims so they do not dominate an institutional page. */
+.stat-num[data-target="96"],
+.stat-num[data-target="3000"],
+.stat-num[data-target="40"],
+.stat-num[data-target="9500"],
+.stat-num[data-target="15000"],
+.stat-num[data-target="7600"],
+.stat-num[data-target="700"] {
+  color: var(--text-secondary) !important;
+}
+
+/* ---------- Auth page refinements ---------- */
+.auth-hero__logo img,
+.auth-aside .logo img,
+.auth-card .logo img,
+.auth-head img {
+  display: none !important;
+}
+
+.auth-hero h1 em,
+.auth-aside h1 em,
+.auth-hero__title em {
+  color: #FFFFFF !important;
+  font-style: normal !important;
+}
+
+/* ---------- Services CTA section (remove dark gradient) ---------- */
+.cta-section,
+.cta-box,
+.fi-cta-section,
+.fi-cta-box,
+.contact-cta,
+.page-cta {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: var(--text) !important;
+}
+
+.cta-section h2,
+.cta-section h3,
+.cta-box h2,
+.cta-box h3,
+.fi-cta-section h2,
+.fi-cta-section h3 {
+  color: var(--navy-950) !important;
+}
+
+.cta-section p,
+.cta-box p,
+.fi-cta-section p {
+  color: var(--text-secondary) !important;
+}
+
+/* ---------- Hero title highlights (funding page etc.) ---------- */
+.hero__title span,
+.page-hero h1 span,
+.section-hero h1 span,
+h1 span {
+  color: inherit !important;
+}
+
+/* ---------- WhatsApp button: less pill, more institutional ---------- */
+#bonds-chat-launcher,
+.whatsapp-button,
+.chat-launcher,
+.floating-cta {
+  border-radius: var(--radius-md) !important;
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+#bonds-chat-launcher:hover,
+.whatsapp-button:hover {
+  background: var(--navy-800) !important;
+}
+
+/* ---------- Reduce oversized hero spacing on marketing pages ---------- */
+.hero--large,
+.hero--tall,
+.page-hero--large,
+.section-hero {
+  min-height: auto !important;
+  max-height: 380px !important;
+  padding-top: calc(var(--header-height) + 2rem) !important;
+  padding-bottom: 2rem !important;
+}
+
+/* ---------- General image/logo cleanup ---------- */
+img[src*="bonds-logo"],
+.site-logo,
+.header-brand img,
+.footer-logo img {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Prevent dark overlays on sections ---------- */
+.section--dark,
+.section-dark,
+.dark-section,
+.bg-dark,
+.bg-navy,
+.bg-gradient {
+  background: #FFFFFF !important;
+  color: var(--text) !important;
+}
+
+.section--dark h2,
+.section--dark h3,
+.section-dark h2,
+.section-dark h3,
+.bg-dark h2,
+.bg-dark h3 {
+  color: var(--navy-950) !important;
+}
+
+.section--dark p,
+.section-dark p,
+.bg-dark p {
+  color: var(--text-secondary) !important;
+}

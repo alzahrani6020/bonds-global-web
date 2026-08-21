@@ -17,6 +17,12 @@
     institutionalStyles.href = '/styles/institutional-system.css?v=1';
     document.head.appendChild(institutionalStyles);
   }
+  if (!document.querySelector('link[href*="institutional-global.css"]')) {
+    const globalStyles = document.createElement('link');
+    globalStyles.rel = 'stylesheet';
+    globalStyles.href = '/styles/institutional-global.css?v=1';
+    document.head.appendChild(globalStyles);
+  }
 
   function getDepth() {
     // Keep trailing slash so directory index pages (e.g. /valuation/) get the

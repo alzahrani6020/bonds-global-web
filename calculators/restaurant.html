@@ -158,12 +158,6 @@
   </ol>
 </nav>
 
-<nav aria-label="مسار التنقل" class="breadcrumbs">
-  <ol class="breadcrumbs__list">
-    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة المطاعم والمطابخ السحابية</li>
-  </ol>
-</nav>
-
   <!-- Hero -->
   <section class="hero calc-hero--compact">
     <div class="container calc-text-center">
@@ -1229,7 +1223,6 @@
       BondsUI.toast('✅ تم حفظ ' + list.length + ' مكونات وتعديل التكلفة', 'success');
       _calcMemo.clear();
     }
-
 
     function renderDishes() {
       var container = document.getElementById('dishesContainer');
