@@ -660,7 +660,7 @@
   function initGlobalAuthGate() {
     if (document.querySelector('script[src*="global-auth-gate.js"]')) return;
     const gateScript = document.createElement('script');
-    gateScript.src = '/global-auth-gate.js?v=2';
+    gateScript.src = '/global-auth-gate.js?v=3';
     gateScript.async = true;
     document.head.appendChild(gateScript);
   }
@@ -675,19 +675,45 @@
     }
     if (window.BondsAuth && window.BondsAuth.initSiteAuth) {
       runInit();
-      // Retry once after a short delay in case env/session recovery is still in progress
-      setTimeout(runInit, 1200);
+      // Retry a few times in case env/session recovery is still in progress
+      setTimeout(runInit, 800);
+      setTimeout(runInit, 1600);
       return;
     }
-    // Dynamically load the auth script on pages that don't include it directly
-    const authScript = document.createElement('script');
-    authScript.src = '/bonds-auth-2026.js?v=3.0.8';
-    authScript.async = true;
-    authScript.onload = function () {
-      runInit();
-      setTimeout(runInit, 1200);
-    };
-    document.head.appendChild(authScript);
+
+    // Helper: inject a script only if it isn't already present and a test isn't satisfied.
+    function injectScript(src, isReady) {
+      return new Promise((resolve, reject) => {
+        if (isReady && isReady()) return resolve();
+        const bare = src.split('?')[0];
+        if (document.querySelector('script[src*="' + bare + '"]')) return resolve();
+        const s = document.createElement('script');
+        s.src = src;
+        s.async = false; // preserve insertion order for the dependency chain
+        s.onload = () => resolve();
+        s.onerror = () => reject(new Error('Failed to load ' + src));
+        document.head.appendChild(s);
+      });
+    }
+
+    const envReady = () => typeof window.__ENV !== 'undefined' && window.__ENV.SUPABASE_URL && window.__ENV.SUPABASE_ANON_KEY;
+    const supabaseReady = () => typeof supabase !== 'undefined';
+    const authReady = () => typeof window.BondsAuth !== 'undefined' && window.BondsAuth.initSiteAuth;
+
+    // Load env + Supabase library + auth client in order, then initialise the header.
+    injectScript('/api/env?_=' + Date.now(), envReady)
+      .then(() => injectScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js', supabaseReady))
+      .then(() => injectScript('/bonds-auth-2026.js?v=3.1.2', authReady))
+      .then(() => {
+        runInit();
+        // Extra retries because session recovery can race with the first getUser call
+        setTimeout(runInit, 800);
+        setTimeout(runInit, 1600);
+        setTimeout(runInit, 2500);
+      })
+      .catch(err => {
+        console.warn('[site-layout] Could not load auth dependencies:', err);
+      });
   }
 
   if (document.readyState === 'loading') {

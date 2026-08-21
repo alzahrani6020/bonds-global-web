@@ -22,7 +22,6 @@
   ];
 
   // Protected sections/tools that require login.
-  // Keep this list in sync with the routes you want to gate.
   const PROTECTED_PATHS = [
     '/calculators/',
     '/en/calculators/',
@@ -41,7 +40,6 @@
     '/en/advisor/',
     '/wave4/',
     '/en/wave4/',
-    // Standalone calculators/tools
     '/calculator-wizard',
     '/calculator-v2',
     '/en/calculator-wizard',
@@ -64,6 +62,7 @@
   if (isPublicAuthPage() || !isProtectedPage()) return;
 
   const TOKEN_KEY = 'bonds-auth-token';
+  let redirectTimer = null;
 
   function getStoredToken() {
     try {
@@ -80,48 +79,73 @@
     window.location.replace(loginUrl);
   }
 
-  // Fast path: avoid an async round-trip if the token is already in storage.
-  if (getStoredToken()) {
-    // Still verify with BondsAuth in the background, but don't block the page
-    // for the common case where the token is valid.
-    if (window.BondsAuth && typeof window.BondsAuth.getUser === 'function') {
-      window.BondsAuth.getUser().then(function (result) {
-        if (!result || !result.data || !result.data.user) {
-          redirectToLogin();
-        }
-      }).catch(function () {
-        // Network or transient error: don't log the user out immediately.
-        // The next page load or action will re-check.
-      });
+  function cancelPendingRedirect() {
+    if (redirectTimer) {
+      clearTimeout(redirectTimer);
+      redirectTimer = null;
     }
-    return;
+  }
+
+  async function waitForBondsAuth(maxMs) {
+    const start = Date.now();
+    while (Date.now() - start < maxMs) {
+      if (window.BondsAuth && window.BondsAuth.getSession && window.BondsAuth.getUser) {
+        return true;
+      }
+      await new Promise(function (resolve) { setTimeout(resolve, 100); });
+    }
+    return !!(window.BondsAuth && window.BondsAuth.getSession && window.BondsAuth.getUser);
+  }
+
+  async function hasValidSession() {
+    const ok = await waitForBondsAuth(6000);
+    if (!ok) return false;
+
+    const B = window.BondsAuth;
+    try {
+      // Fast path: recover from localStorage first (also refreshes an expired access token)
+      const { data: sessionData } = await B.getSession();
+      if (sessionData?.session?.user) return true;
+
+      // Fallback: validate with the server
+      const { data: userData } = await B.getUser();
+      return !!userData?.user;
+    } catch (e) {
+      return false;
+    }
   }
 
   async function enforce() {
-    let attempts = 0;
-    const maxAttempts = 60; // ~6 seconds
-
-    while (typeof window === 'undefined' || !window.BondsAuth || !window.BondsAuth.getUser) {
-      if (attempts >= maxAttempts) break;
-      await new Promise(function (resolve) { setTimeout(resolve, 100); });
-      attempts++;
-    }
-
-    if (!window.BondsAuth || typeof window.BondsAuth.getUser !== 'function') {
-      // Auth library failed to load; fail closed (redirect to login)
+    const token = getStoredToken();
+    if (!token) {
       redirectToLogin();
       return;
     }
 
-    try {
-      const { data, error } = await window.BondsAuth.getUser();
-      if (error || !data || !data.user) {
-        redirectToLogin();
+    // Try several times: the auth library and session recovery can race on first load.
+    let attempts = 0;
+    const maxAttempts = 4;
+    while (attempts < maxAttempts) {
+      const ok = await hasValidSession();
+      if (ok) {
+        cancelPendingRedirect();
+        return;
       }
-    } catch (e) {
-      redirectToLogin();
+      attempts++;
+      if (attempts < maxAttempts) {
+        await new Promise(function (resolve) { setTimeout(resolve, 800); });
+      }
     }
+
+    redirectToLogin();
   }
+
+  // If another tab/page recovers the session, abort the redirect.
+  window.addEventListener('bonds:session-recovered', function (e) {
+    if (e.detail?.session?.user) {
+      cancelPendingRedirect();
+    }
+  });
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', enforce);

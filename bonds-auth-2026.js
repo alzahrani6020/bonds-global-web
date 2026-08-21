@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.0.8"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.1.2"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';
@@ -8,6 +8,28 @@
   let _supabase = null;
   let _envPromise = null;
   let _supabaseLibPromise = null;
+
+  // If a session was stored under Supabase's default key (e.g. by an older
+  // client or a different login flow), copy it to our unified key so the
+  // header stays logged-in across pages.
+  function migrateLegacySession() {
+    try {
+      if (typeof localStorage === 'undefined') return;
+      const key = 'bonds-auth-token';
+      if (localStorage.getItem(key)) return;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && /^sb-[a-z0-9]+-auth-token$/i.test(k)) {
+          const value = localStorage.getItem(k);
+          if (value) {
+            localStorage.setItem(key, value);
+            break;
+          }
+        }
+      }
+    } catch (e) {}
+  }
+  migrateLegacySession();
 
   function getEnv() {
     if (typeof window !== 'undefined' && window.__ENV) {
@@ -488,11 +510,34 @@
       });
     }
 
-    getUser()
-      .then(({ data: userData, error: userError }) => {
-        if (userError) console.warn('[BondsAuth] getUser error:', userError.message);
+    // 1. Try the fast localStorage session first (avoids a server round-trip
+    // and prevents false "logged out" UI when the network is slow).
+    getSession()
+      .then(({ data: sessionData, error: sessionError }) => {
+        if (sessionError) console.warn('[BondsAuth] getSession error:', sessionError.message);
 
-        render(userData?.user || null, 'getUser');
+        if (sessionData?.session?.user) {
+          render(sessionData.session.user, 'getSession');
+          return;
+        }
+
+        // 2. Fallback to server validation (useful after OAuth/magic-link callbacks).
+        return getUser().then(({ data: userData, error: userError }) => {
+          if (userError) console.warn('[BondsAuth] getUser error:', userError.message);
+
+          render(userData?.user || null, 'getUser');
+
+          // 3. If localStorage still has a session token but getUser returned null,
+          // force a server-side recovery before giving up on this page load.
+          if (!userData?.user) {
+            try {
+              const token = localStorage.getItem('bonds-auth-token');
+              if (token) {
+                setTimeout(() => recoverSession({ force: true }), 0);
+              }
+            } catch (e) {}
+          }
+        });
       })
       .catch(err => {
         console.error('[BondsAuth] initSiteAuth failed:', err);
@@ -508,6 +553,15 @@
         render(session?.user || null, 'onAuthStateChange_' + event);
       });
       _authHeaderListener = listener;
+    }
+
+    // Recover header UI when another tab/page recovers the session after bfcache/focus
+    if (!container.dataset.recoverBound) {
+      container.dataset.recoverBound = '1';
+      window.addEventListener('bonds:session-recovered', (e) => {
+        const user = e.detail?.session?.user || null;
+        render(user, 'bonds:session-recovered');
+      });
     }
 
     // Only add document click listener once
@@ -612,10 +666,32 @@
     if (_recovering) return Promise.resolve();
     _recovering = true;
 
+    async function loadSessionFromRawToken() {
+      try {
+        const raw = localStorage.getItem('bonds-auth-token');
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        const access_token = parsed?.access_token || parsed?.session?.access_token;
+        const refresh_token = parsed?.refresh_token || parsed?.session?.refresh_token;
+        if (!access_token || !refresh_token) return false;
+        const { data, error } = await sb.auth.setSession({ access_token, refresh_token });
+        return !error && !!data?.session;
+      } catch (e) {
+        return false;
+      }
+    }
+
     async function attempt() {
       // 1. getSession refreshes an expired access token from localStorage
       let { data: sessionData, error: sessionError } = await sb.auth.getSession();
-      // 2. If still missing or forced, validate with server
+      // 2. If Supabase didn't find the session in storage, try to feed it the raw token directly
+      if (!sessionData?.session && !sessionError) {
+        const loaded = await loadSessionFromRawToken();
+        if (loaded) {
+          ({ data: sessionData, error: sessionError } = await sb.auth.getSession());
+        }
+      }
+      // 3. If still missing or forced, validate with server
       if ((!sessionData?.session && !sessionError) || force) {
         const userResult = await sb.auth.getUser();
         if (userResult.data?.user && !userResult.error) {
