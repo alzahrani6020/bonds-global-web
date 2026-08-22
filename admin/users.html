@@ -144,9 +144,7 @@
   <script src="/admin/admin-common.js?v=4"></script>
   <script src="/admin/admin-geo.js"></script>
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
-<script defer src="/calculators/auth-gate.js?v=3"></script>
   </head>
 <body>
 
@@ -533,31 +531,35 @@
       if (status) params.set('status', status);
       if (completeness) params.set('completeness', completeness);
       try {
-        const token = await BondsAdminCommon.getAdminToken();
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 15000);
-        const res = await fetch('/api/admin?' + params.toString(), {
-          headers: token ? { 'Authorization': 'Bearer ' + token } : {},
-          signal: controller.signal
+        const res = await window.BondsAuth.authenticatedFetch('/api/admin?' + params.toString(), {
+          method: 'GET',
+          returnTo: location.pathname + location.search
         });
-        clearTimeout(timeoutId);
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        if (res.authError) {
+          lastFetchError = res.authError === 'FORBIDDEN' ? 'لا تملك صلاحية إدارة المستخدمين' : 'انتهت جلسة الدخول';
+          window._usersTotal = 0;
+          return { users: [], total: 0, authError: res.authError };
+        }
+        if (res.offline) {
+          lastFetchError = 'تعذر الاتصال بالإنترنت';
+          window._usersTotal = 0;
+          return { users: [], total: 0, offline: true };
+        }
+        if (res.serverError) {
+          lastFetchError = 'تعذر تحميل بيانات المستخدمين حاليًا';
+          window._usersTotal = 0;
+          return { users: [], total: 0, serverError: true };
+        }
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.error || 'HTTP ' + res.status);
         window._usersTotal = typeof data.total === 'number' ? data.total : (data.recentUsers || []).length;
-        return { users: data.recentUsers || [], total: window._usersTotal };
+        lastFetchError = null;
+        return { users: data.recentUsers || [], total: window._usersTotal, requestId: res.requestId };
       } catch (e) {
         const errEl = document.getElementById('usersError');
         if (errEl) errEl.style.display = 'block';
         console.error('[Users]', e);
         lastFetchError = e.message || 'فشل تحميل المستخدمين';
-        try {
-          if (typeof res !== 'undefined' && res && res.clone) {
-            const clone = res.clone();
-            const errData = await clone.json();
-            if (errData && errData.error) lastFetchError = errData.error;
-          }
-        } catch (_) {}
         window._usersTotal = 0;
         return { users: [], total: 0 };
       }
@@ -574,17 +576,21 @@
       const data = await fetchUsers({ limit: pageSize, offset, search, tier, status, completeness });
       allUsers = data.users || [];
       window._usersTotal = data.total;
+      if (lastFetchError) {
+        const statsContainer = document.getElementById('completenessStats');
+        if (statsContainer) statsContainer.style.display = 'none';
+      }
       renderTable();
     }
 
     async function fetchCompletenessStats() {
       try {
-        const token = await BondsAdminCommon.getAdminToken();
-        const res = await fetch('/api/admin?action=profile-completeness-stats', {
-          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+        const res = await window.BondsAuth.authenticatedFetch('/api/admin?action=profile-completeness-stats', {
+          method: 'GET',
+          returnTo: location.pathname + location.search
         });
-        if (!res.ok) return;
-        const data = await res.json();
+        if (!res.ok || res.authError || res.serverError || res.offline) return;
+        const data = await res.json().catch(() => ({}));
         renderCompletenessStats(data);
       } catch (e) { console.error('[stats]', e); }
     }
@@ -1123,18 +1129,32 @@
       }
     }
 
+    async function adminApiPost(body) {
+      const res = await window.BondsAuth.authenticatedFetch('/api/admin?action=users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+        returnTo: location.pathname + location.search
+      });
+      if (res.authError) {
+        const msg = res.authError === 'FORBIDDEN' ? 'لا تملك صلاحية تنفيذ هذه العملية' : 'انتهت جلسة الدخول';
+        return { success: false, error: msg, authError: res.authError };
+      }
+      if (res.offline) return { success: false, error: 'تعذر الاتصال بالإنترنت' };
+      if (res.serverError) return { success: false, error: 'تعذر تنفيذ العملية حاليًا' };
+      const data = await res.json().catch(() => ({}));
+      return data;
+    }
+
     async function confirmResetPassword() {
       const id = document.getElementById('resetUserId').value;
       const password = document.getElementById('resetPassword').value;
-      if (!password || password.length < 6) BondsAdminCommon.showAdminStatus('usersStatus', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', true); return;
+      if (!password || password.length < 6) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', true);
+        return;
+      }
       try {
-        const token = await BondsAdminCommon.getAdminToken();
-        const res = await fetch('/api/admin?action=users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ action: 'reset-password', id, password })
-        });
-        const data = await res.json();
+        const data = await adminApiPost({ action: 'reset-password', id, password });
         if (data.success) {
           if (confirm('✅ تم تغيير كلمة المرور بنجاح\n\nكلمة المرور الجديدة: ' + password + '\n\nهل تريد نسخها الآن؟')) {
             copyToClipboard(password);
@@ -1161,15 +1181,12 @@
       const tier = document.getElementById('grantTier').value;
       const expiresAt = document.getElementById('grantExpires').value;
       const reason = document.getElementById('grantReason').value;
-      if (expiresAt && new Date(expiresAt) < new Date()) BondsAdminCommon.showAdminStatus('usersStatus', 'تاريخ الانتهاء يجب أن يكون في المستقبل', true); return;
+      if (expiresAt && new Date(expiresAt) < new Date()) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'تاريخ الانتهاء يجب أن يكون في المستقبل', true);
+        return;
+      }
       try {
-        const token = await BondsAdminCommon.getAdminToken();
-        const res = await fetch('/api/admin?action=users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ action: 'grant-access', id, tier, expires_at: expiresAt || null, reason })
-        });
-        const data = await res.json();
+        const data = await adminApiPost({ action: 'grant-access', id, tier, expires_at: expiresAt || null, reason });
         if (data.success) { closeGrantModal(); refreshData(); }
         else BondsAdminCommon.showAdminStatus('usersStatus', data.error || 'فشل منح الوصول', true);
       } catch (e) { BondsAdminCommon.showAdminStatus('usersStatus', 'خطأ في منح الوصول', true); }
@@ -1274,10 +1291,22 @@
       const country = document.getElementById('addCountry').value.trim();
       const isArab = document.getElementById('addCityGroup').style.display !== 'none';
       const city = isArab ? document.getElementById('addCity').value.trim() : document.getElementById('addCityFree').value.trim();
-      if (!email || !password) BondsAdminCommon.showAdminStatus('usersStatus', 'البريد وكلمة المرور مطلوبان', true); return;
-      if (password.length < 6) BondsAdminCommon.showAdminStatus('usersStatus', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', true); return;
-      if (!country) BondsAdminCommon.showAdminStatus('usersStatus', 'اختر الدولة', true); return;
-      if (!city) BondsAdminCommon.showAdminStatus('usersStatus', 'اختر المدينة', true); return;
+      if (!email || !password) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'البريد وكلمة المرور مطلوبان', true);
+        return;
+      }
+      if (password.length < 6) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', true);
+        return;
+      }
+      if (!country) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'اختر الدولة', true);
+        return;
+      }
+      if (!city) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'اختر المدينة', true);
+        return;
+      }
 
       const body = {
         action: 'create',
@@ -1295,13 +1324,7 @@
       };
 
       try {
-        const token = await BondsAdminCommon.getAdminToken();
-        const res = await fetch('/api/admin?action=users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify(body)
-        });
-        const data = await res.json();
+        const data = await adminApiPost(body);
         if (data.success) {
           BondsAdminCommon.showAdminStatus('usersStatus', '✅ تم إنشاء المستخدم بنجاح', false);
           closeAddModal();
@@ -1315,13 +1338,7 @@
     async function deleteUser(id, name) {
       if (!confirm('هل أنت متأكد من حذف ' + name + '؟')) return;
       try {
-        const token = await BondsAdminCommon.getAdminToken();
-        const res = await fetch('/api/admin?action=users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ action: 'delete', id })
-        });
-        const data = await res.json();
+        const data = await adminApiPost({ action: 'delete', id });
         if (data.success) refreshData();
         else BondsAdminCommon.showAdminStatus('usersStatus', data.error || 'فشل الحذف', true);
       } catch (e) { BondsAdminCommon.showAdminStatus('usersStatus', 'خطأ في الحذف', true); }
@@ -1346,6 +1363,10 @@
     }
 
     async function exportExcel() {
+      if (lastFetchError) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'لا يمكن التصدير أثناء فشل تحميل البيانات', true);
+        return;
+      }
       const headers = ['الاسم','البريد','الجوال','الدولة','المدينة','النشاط','الموظفين','الخطة','الحالة','تاريخ التسجيل'];
       const allUsers = await getAllFilteredUsers();
       const rows = allUsers.map(u => [
@@ -1367,6 +1388,10 @@
     }
 
     async function exportIncompleteUsers() {
+      if (lastFetchError) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'لا يمكن التصدير أثناء فشل تحميل البيانات', true);
+        return;
+      }
       const headers = ['Name','Email','Phone','Country','City','Business Type','Employees','Branches','Bio','Needs','Plan','Status','Joined','Completeness'];
       const all = [];
       const pageLimit = 500;
@@ -1406,6 +1431,10 @@
     }
 
     async function exportCSV() {
+      if (lastFetchError) {
+        BondsAdminCommon.showAdminStatus('usersStatus', 'لا يمكن التصدير أثناء فشل تحميل البيانات', true);
+        return;
+      }
       const headers = ['Name','Email','Phone','Country','City','Business Type','Employees','Bio','Needs','Plan','Status','Joined'];
       const allUsers = await getAllFilteredUsers();
       const rows = allUsers.map(u => [

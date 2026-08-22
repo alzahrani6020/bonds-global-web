@@ -165,6 +165,130 @@
     return sb.auth.getSession();
   }
 
+  // ── Authenticated fetch helper ─────────────────────────────
+  function generateRequestId() {
+    return 'req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+  }
+
+  function getDefaultLoginUrl(returnPath) {
+    const isEn = typeof location !== 'undefined' && location.pathname.startsWith('/en/');
+    const base = isEn ? '/en/calculators/auth/index.html' : '/calculators/auth/index.html';
+    const returnTo = encodeURIComponent(returnPath || (typeof location !== 'undefined' ? location.pathname + location.search : '/'));
+    return base + '?redirect=' + returnTo;
+  }
+
+  function clearBondsSession() {
+    try {
+      if (typeof localStorage !== 'undefined') {
+        localStorage.removeItem('bonds-auth-token');
+      }
+    } catch (e) {}
+  }
+
+  async function authenticatedFetch(url, options) {
+    options = options || {};
+    await ensureEnv();
+    const sb = getSupabase();
+    if (!sb) {
+      return { __authError: 'AUTH_REQUIRED', ok: false, status: 0, authError: 'AUTH_REQUIRED' };
+    }
+
+    let sessionData = null;
+    let sessionError = null;
+    try {
+      const result = await sb.auth.getSession();
+      sessionData = result.data;
+      sessionError = result.error;
+    } catch (e) {
+      sessionError = e;
+    }
+
+    if (sessionError || !sessionData?.session) {
+      try {
+        const { data: refreshData, error: refreshError } = await sb.auth.refreshSession();
+        if (!refreshError && refreshData?.session) {
+          sessionData = refreshData;
+        } else {
+          throw new Error('Refresh failed');
+        }
+      } catch (e) {
+        if (options.redirectOnAuth !== false) {
+          clearBondsSession();
+          const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
+          if (typeof window !== 'undefined') window.location.href = loginUrl;
+        }
+        return { __authError: 'AUTH_REQUIRED', ok: false, status: 0, authError: 'AUTH_REQUIRED' };
+      }
+    }
+
+    const token = sessionData.session.access_token;
+    const requestId = options.requestId || generateRequestId();
+    const authHeaders = {
+      'Authorization': 'Bearer ' + token,
+      'X-Request-ID': requestId
+    };
+    if (!options.headers || !options.headers['Content-Type']) {
+      if (options.body && typeof options.body === 'string') {
+        authHeaders['Content-Type'] = 'application/json';
+      }
+    }
+
+    let response;
+    try {
+      response = await fetch(url, {
+        ...options,
+        headers: { ...authHeaders, ...(options.headers || {}) }
+      });
+    } catch (e) {
+      return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId };
+    }
+
+    if (response.status === 401) {
+      let refreshed = false;
+      try {
+        const { data: refreshData, error: refreshError } = await sb.auth.refreshSession();
+        if (!refreshError && refreshData?.session) {
+          authHeaders['Authorization'] = 'Bearer ' + refreshData.session.access_token;
+          refreshed = true;
+          try {
+            response = await fetch(url, {
+              ...options,
+              headers: { ...authHeaders, ...(options.headers || {}) }
+            });
+          } catch (e) {
+            return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId };
+          }
+        }
+      } catch (e) {}
+      if (response.status === 401 || !refreshed) {
+        if (options.redirectOnAuth !== false) {
+          clearBondsSession();
+          const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
+          if (typeof window !== 'undefined') window.location.href = loginUrl;
+        }
+        return { __authError: 'AUTH_REQUIRED', ok: false, status: 401, authError: 'AUTH_REQUIRED', requestId };
+      }
+    }
+
+    if (response.status === 403) {
+      return { __authError: 'FORBIDDEN', ok: false, status: 403, authError: 'FORBIDDEN', requestId };
+    }
+
+    if (response.status >= 500) {
+      return { __serverError: true, ok: false, status: response.status, serverError: true, requestId };
+    }
+
+    return {
+      ok: response.ok,
+      status: response.status,
+      headers: response.headers,
+      requestId: requestId,
+      async json() { return response.json(); },
+      async text() { return response.text(); },
+      async blob() { return response.blob(); }
+    };
+  }
+
   function decodeJwtAal(token) {
     try {
       const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
@@ -810,7 +934,7 @@
 
   // ── Exports ───────────────────────────────────────────────
   window.BondsAuth = {
-    getSupabase, ensureEnv, getUser, getSession, getProfile, updateProfile, getSubscription, getAdminRole,
+    getSupabase, ensureEnv, getUser, getSession, authenticatedFetch, getProfile, updateProfile, getSubscription, getAdminRole,
     signUp, signIn, signInWithOTP, verifyOTP, sendOtpViaProxy, verifyOtpViaProxy, updateUser, signInWithOAuth, resendConfirmation, signOut, checkFeatureAccess,
     getRedirectUrl, clearRedirectUrl,
     normalizePhone, isValidPhone,

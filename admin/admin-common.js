@@ -32,7 +32,11 @@
     }
     if (!token && typeof supabase !== 'undefined' && global.__ENV?.SUPABASE_URL) {
       try {
-        const client = supabase.createClient(global.__ENV.SUPABASE_URL, global.__ENV.SUPABASE_ANON_KEY);
+        // Use the same unified storage key so we share the session with BondsAuth
+        // instead of creating a second, isolated client.
+        const client = supabase.createClient(global.__ENV.SUPABASE_URL, global.__ENV.SUPABASE_ANON_KEY, {
+          auth: { storageKey: 'bonds-auth-token', persistSession: true, autoRefreshToken: true }
+        });
         const { data: { session } } = await client.auth.getSession();
         token = extractToken(session?.access_token);
       } catch (e) {}

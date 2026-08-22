@@ -16,6 +16,16 @@ const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
 if (CONFIGURED_OWNER_EMAIL) OWNER_EMAILS.push(CONFIGURED_OWNER_EMAIL.toLowerCase());
 const OWNER_EMAIL = CONFIGURED_OWNER_EMAIL || OWNER_EMAILS[0];
 
+class HttpError extends Error {
+  constructor(status, message) {
+    super(message);
+    this.status = status;
+  }
+}
+function badRequest(message) { return new HttpError(400, message); }
+function unauthorized(message = 'Unauthorized') { return new HttpError(401, message); }
+function forbidden(message = 'Forbidden') { return new HttpError(403, message); }
+
 function isOwner(email) {
   if (!email) return false;
   return OWNER_EMAILS.includes(email.toLowerCase());
@@ -159,6 +169,29 @@ async function getTargetEmailAndRole(sb, userId) {
   return { email, role };
 }
 
+function generateRequestId() {
+  return 'req_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+}
+
+function hashUserId(userId) {
+  if (!userId) return null;
+  const crypto = require('crypto');
+  return crypto.createHash('sha256').update(userId).digest('hex').slice(0, 16);
+}
+
+function safeAdminLog({ requestId, endpoint, status, authenticated, userId, role, errorCode, duration }) {
+  console.log(JSON.stringify({
+    requestId: requestId || null,
+    endpoint,
+    status,
+    authenticated: !!authenticated,
+    userId: hashUserId(userId),
+    role: role || null,
+    errorCode: errorCode || null,
+    durationMs: duration
+  }));
+}
+
 function assertNotOwner(email, action) {
   if (isOwner(email)) throw new Error(`Cannot ${action} owner account`);
 }
@@ -169,35 +202,35 @@ function assertNotAdmin(role, action) {
 
 async function verifyAdmin(req, sb) {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return null;
+  if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
   const token = authHeader.slice(7);
   const { data: { user }, error } = await sb.auth.getUser(token);
-  if (error || !user) return null;
+  if (error || !user) throw unauthorized('Invalid or expired token');
   // Owner fallback
   if (isOwner(user.email)) {
-    if (!(await checkAdminMfa(req, sb))) return null;
+    if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
     return user;
   }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
-  if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) return null;
-  if (!(await checkAdminMfa(req, sb))) return null;
+  if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) throw forbidden('Admin required');
+  if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
   return user;
 }
 
 async function verifyAdminStrict(req, sb) {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith('Bearer ')) return null;
+  if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
   const token = authHeader.slice(7);
   const { data: { user }, error } = await sb.auth.getUser(token);
-  if (error || !user) return null;
+  if (error || !user) throw unauthorized('Invalid or expired token');
   // Owner fallback — always super_admin
   if (isOwner(user.email)) {
-    if (!(await checkAdminMfa(req, sb))) return null;
+    if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
     return user;
   }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
-  if (!role || !['super_admin', 'admin'].includes(role.role)) return null;
-  if (!(await checkAdminMfa(req, sb))) return null;
+  if (!role || !['super_admin', 'admin'].includes(role.role)) throw forbidden('Admin required');
+  if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
   return user;
 }
 
@@ -1247,29 +1280,65 @@ async function getUsers(sb, params = {}) {
   const search = (params.search || '').trim();
   const tier = params.tier;
   const status = params.status;
-
   const completeness = params.completeness;
+
+  function applyFilters(q, includeCompleteness = true) {
+    let q2 = q;
+    if (includeCompleteness && completeness === 'incomplete') q2 = q2.lt('profile_completeness', 100);
+    else if (includeCompleteness && completeness === 'complete') q2 = q2.eq('profile_completeness', 100);
+    else if (includeCompleteness && completeness === 'partial') q2 = q2.lt('profile_completeness', 100).gt('profile_completeness', 0);
+    if (search) {
+      q2 = q2.or(`email.ilike.%${search}%,restaurant_name.ilike.%${search}%,business_type.ilike.%${search}%`);
+    }
+    if (tier) q2 = q2.eq('tier', tier);
+    if (status) q2 = q2.eq('status', status);
+    return q2;
+  }
 
   async function runQuery(includeCompleteness = true) {
     const selectCols = includeCompleteness
       ? 'id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at, profile_completeness'
       : 'id, restaurant_name, email, phone, country, city, business_type, bio, needs, employee_count, branch_count, tier, tier_expires_at, status, created_at';
     let q = sb.from('profiles').select(selectCols, { count: 'exact' });
-    if (includeCompleteness && completeness === 'incomplete') q = q.lt('profile_completeness', 100);
-    else if (includeCompleteness && completeness === 'complete') q = q.eq('profile_completeness', 100);
-    else if (includeCompleteness && completeness === 'partial') q = q.lt('profile_completeness', 100).gt('profile_completeness', 0);
-    if (search) {
-      q = q.or(`email.ilike.%${search}%,restaurant_name.ilike.%${search}%,business_type.ilike.%${search}%`);
-    }
-    if (tier) q = q.eq('tier', tier);
-    if (status) q = q.eq('status', status);
+    q = applyFilters(q, includeCompleteness);
     return q.order('created_at', { ascending: false }).range(offset, offset + limit - 1);
   }
 
+  async function runCount(includeCompleteness = true) {
+    let q = sb.from('profiles').select('id', { count: 'exact', head: true });
+    q = applyFilters(q, includeCompleteness);
+    const { count, error } = await q;
+    if (error) throw error;
+    return count || 0;
+  }
+
+  let includeCompleteness = true;
   let result = await runQuery(true);
   // Fallback if profile_completeness column is missing (migration not applied)
   if (result.error && /column.*profile_completeness|profile_completeness.*column|schema cache/i.test(result.error.message || '')) {
+    includeCompleteness = false;
     result = await runQuery(false);
+  }
+  // If requested page offset is beyond total rows, return an empty list with the correct total and pagination metadata.
+  const isRangeError = result.error && (
+    result.error.code === 'PGRST103' ||
+    /PGRST103|range not satisfiable|offset.*requested/i.test(result.error.message || '')
+  );
+  if (isRangeError) {
+    const total = await runCount(includeCompleteness);
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    const lastPage = Math.max(0, totalPages - 1);
+    const page = Math.floor(offset / limit) + 1;
+    return {
+      success: true,
+      recentUsers: [],
+      total,
+      page,
+      pageSize: limit,
+      totalPages,
+      pageOutOfRange: offset > 0 && offset >= total,
+      lastValidOffset: lastPage * limit
+    };
   }
   if (result.error) throw result.error;
 
@@ -1330,7 +1399,18 @@ async function getUsers(sb, params = {}) {
     };
   });
 
-  return { success: true, recentUsers: merged, total: count || 0 };
+  const total = count || 0;
+  const totalPages = Math.max(1, Math.ceil(total / limit));
+  return {
+    success: true,
+    recentUsers: merged,
+    total,
+    page: Math.floor(offset / limit) + 1,
+    pageSize: limit,
+    totalPages,
+    pageOutOfRange: false,
+    lastValidOffset: offset
+  };
 }
 
 async function updateUser(sb, body, admin, req) {
@@ -1360,8 +1440,8 @@ async function updateUser(sb, body, admin, req) {
 async function grantAccess(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, tier, expires_at, reason } = body;
-  if (!id) throw new Error('id required');
-  if (!tier || !['free', 'pro', 'enterprise'].includes(tier)) throw new Error('valid tier required');
+  if (!id) throw badRequest('id required');
+  if (!tier || !['free', 'pro', 'enterprise'].includes(tier)) throw badRequest('valid tier required');
 
   const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
   assertNotOwner(targetEmail, 'grant access to');
@@ -1441,7 +1521,8 @@ async function deleteUser(sb, body, admin, req) {
 async function resetPassword(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { id, password } = body;
-  if (!id || !password || password.length < 6) throw new Error('id and password (min 6 chars) required');
+  if (!id) throw badRequest('id required');
+  if (!password || password.length < 6) throw badRequest('id and password (min 6 chars) required');
   const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
   assertNotOwner(targetEmail, 'reset password for');
   assertNotAdmin(targetRole, 'reset password for');
@@ -1454,8 +1535,9 @@ async function resetPassword(sb, body, admin, req) {
 async function createUserAdmin(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
   const { email, password, restaurant_name, phone, country, city, business_type, tier, status, employee_count, branch_count } = body;
-  if (!email || !password) throw new Error('email and password required');
-  if (password.length < 6) throw new Error('Password must be at least 6 characters');
+  if (!email || !password) throw badRequest('email and password required');
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw badRequest('valid email required');
+  if (password.length < 6) throw badRequest('Password must be at least 6 characters');
 
   const { data: authData, error: authError } = await sb.auth.admin.createUser({
     email,
@@ -1570,6 +1652,21 @@ async function getSubscriptions(sb, params = {}) {
 }
 
 // ── Stats ───────────────────────────────────────────────────
+async function safeCount(sb, table) {
+  try {
+    const { count, error } = await sb.from(table).select('*', { count: 'exact', head: true });
+    if (error) throw error;
+    return count || 0;
+  } catch (e) {
+    // Isolate missing or inaccessible tables (e.g. funding_cases not created yet) so
+    // unrelated admin endpoints such as users/stats do not return 500.
+    if (/relation.*does not exist|undefined table|invalid input syntax/i.test(e.message || '')) {
+      return 0;
+    }
+    throw e;
+  }
+}
+
 async function getStats(sb) {
   const totalUsers = await getTotalUsers(sb);
 
@@ -1577,14 +1674,14 @@ async function getStats(sb) {
     { count: proCount },
     { count: enterpriseCount },
     { count: scenariosCount },
-    { count: fundingCasesCount },
+    fundingCasesCount,
     { data: recentSubs },
     { data: profileList }
   ] = await Promise.all([
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro'),
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise'),
     sb.from('scenarios').select('*', { count: 'exact', head: true }),
-    sb.from('funding_cases').select('*', { count: 'exact', head: true }),
+    safeCount(sb, 'funding_cases'),
     sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false }).limit(10),
     sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false }).limit(10)
   ]);
@@ -1837,17 +1934,35 @@ async function handler(req, res) {
         return res.status(200).json({ success: true, id: admin.id, email: admin.email, role });
       }
       if (action === 'users') {
-        const admin = await verifyAdmin(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
-        const params = {
-          limit: req.query?.limit,
-          offset: req.query?.offset,
-          search: req.query?.search,
-          tier: req.query?.tier,
-          status: req.query?.status,
-          completeness: req.query?.completeness
-        };
-        return res.status(200).json(await getUsers(sb, params));
+        const start = Date.now();
+        const requestId = req.headers['x-request-id'] || generateRequestId();
+        try {
+          if (!req.headers.authorization?.startsWith('Bearer ')) {
+            safeAdminLog({ requestId, endpoint: 'users', status: 401, authenticated: false, duration: Date.now() - start });
+            return res.status(401).json({ error: 'Authentication required', code: 'AUTH_REQUIRED', requestId });
+          }
+          const admin = await verifyAdmin(req, sb);
+          if (!admin) {
+            safeAdminLog({ requestId, endpoint: 'users', status: 403, authenticated: true, duration: Date.now() - start });
+            return res.status(403).json({ error: 'Admin required', code: 'FORBIDDEN', requestId });
+          }
+          const role = await getAdminRoleForUser(sb, admin.id);
+          const params = {
+            limit: req.query?.limit,
+            offset: req.query?.offset,
+            search: req.query?.search,
+            tier: req.query?.tier,
+            status: req.query?.status,
+            completeness: req.query?.completeness
+          };
+          const result = await getUsers(sb, params);
+          safeAdminLog({ requestId, endpoint: 'users', status: 200, authenticated: true, userId: admin.id, role, duration: Date.now() - start });
+          return res.status(200).json({ ...result, requestId });
+        } catch (err) {
+          safeAdminLog({ requestId, endpoint: 'users', status: 500, authenticated: true, errorCode: err.code || err.message, duration: Date.now() - start });
+          console.error('[admin/users] error:', err);
+          return res.status(500).json({ error: 'Failed to load users', code: 'SERVER_ERROR', requestId });
+        }
       }
       if (action === 'profile-completeness-stats') {
         const admin = await verifyAdmin(req, sb);
@@ -2161,8 +2276,10 @@ async function handler(req, res) {
     res.status(405).json({ error: 'Method not allowed' });
   } catch (err) {
     console.error('Admin API error:', err);
-    res.status(500).json({ error: err.message });
+    const status = err.status || 500;
+    res.status(status).json({ error: err.message });
   }
 }
 
 module.exports = handler;
+module.exports.getUsers = getUsers;
