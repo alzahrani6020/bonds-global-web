@@ -711,7 +711,7 @@
     // Load env + Supabase library + auth client in order, then initialise the header.
     injectScript('/api/env?_=' + Date.now(), envReady)
       .then(() => injectScript('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js', supabaseReady))
-      .then(() => injectScript('/bonds-auth-2026.js?v=3.1.2', authReady))
+      .then(() => injectScript('/bonds-auth-2026.js?v=3.1.3', authReady))
       .then(() => {
         runInit();
         // Extra retries because session recovery can race with the first getUser call

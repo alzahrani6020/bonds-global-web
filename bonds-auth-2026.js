@@ -1,6 +1,6 @@
 // ===== Bonds Unified Auth System =====
 // Replaces: supabase-client.js + auth-guard.js + admin-auth-v2.js
-// Usage: <script src="/bonds-auth-2026.js?v=3.1.2"></script> (after /api/env and supabase library)
+// Usage: <script src="/bonds-auth-2026.js?v=3.1.3"></script> (after /api/env and supabase library)
 
 (function() {
   'use strict';

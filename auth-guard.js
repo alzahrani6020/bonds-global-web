@@ -7,12 +7,12 @@
 
   function loadBondsAuthScript() {
     return new Promise(function (resolve) {
-      if (document.querySelector('script[src*="bonds-auth-2026.js"]')) {
+      if (document.querySelector('script[src*="bonds-auth-2026"]')) {
         resolve();
         return;
       }
       const script = document.createElement('script');
-      script.src = '/bonds-auth-2026.js?v=3.1.2';
+      script.src = '/bonds-auth-2026.js?v=3.1.3';
       script.async = true;
       script.onload = function () { resolve(); };
       script.onerror = function () { resolve(); };
