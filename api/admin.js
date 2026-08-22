@@ -204,7 +204,15 @@ async function verifyAdmin(req, sb) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
   const token = authHeader.slice(7);
-  const { data: { user }, error } = await sb.auth.getUser(token);
+  let user = null;
+  let error = null;
+  try {
+    const result = await sb.auth.getUser(token);
+    user = result.data?.user;
+    error = result.error;
+  } catch (e) {
+    error = e;
+  }
   if (error || !user) throw unauthorized('Invalid or expired token');
   // Owner fallback
   if (isOwner(user.email)) {
@@ -221,7 +229,15 @@ async function verifyAdminStrict(req, sb) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
   const token = authHeader.slice(7);
-  const { data: { user }, error } = await sb.auth.getUser(token);
+  let user = null;
+  let error = null;
+  try {
+    const result = await sb.auth.getUser(token);
+    user = result.data?.user;
+    error = result.error;
+  } catch (e) {
+    error = e;
+  }
   if (error || !user) throw unauthorized('Invalid or expired token');
   // Owner fallback — always super_admin
   if (isOwner(user.email)) {
@@ -1959,9 +1975,12 @@ async function handler(req, res) {
           safeAdminLog({ requestId, endpoint: 'users', status: 200, authenticated: true, userId: admin.id, role, duration: Date.now() - start });
           return res.status(200).json({ ...result, requestId });
         } catch (err) {
-          safeAdminLog({ requestId, endpoint: 'users', status: 500, authenticated: true, errorCode: err.code || err.message, duration: Date.now() - start });
-          console.error('[admin/users] error:', err);
-          return res.status(500).json({ error: 'Failed to load users', code: 'SERVER_ERROR', requestId });
+          const status = err.status || 500;
+          const code = status === 401 ? 'AUTH_REQUIRED' : status === 403 ? 'FORBIDDEN' : 'SERVER_ERROR';
+          const message = err.message || 'Failed to load users';
+          safeAdminLog({ requestId, endpoint: 'users', status, authenticated: status !== 500, errorCode: err.code || err.message, duration: Date.now() - start });
+          if (status === 500) console.error('[admin/users] error:', err);
+          return res.status(status).json({ error: message, code, requestId });
         }
       }
       if (action === 'profile-completeness-stats') {
