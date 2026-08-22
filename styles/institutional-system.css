@@ -1,16 +1,1723 @@
-/* Institutional UI for authentication and client workspaces. */
-:root{--bank-navy:#0b1f3a;--bank-gold:#a8823d;--bank-bg:#f4f6f8;--bank-line:#d9dee5;--bank-ink:#142238;--bank-muted:#5d6878}
-body:has(.auth-layout){background:var(--bank-bg)!important;color:var(--bank-ink)!important;font-family:"Vazirmatn",Arial,sans-serif!important}
-.auth-layout,.auth-main{background:var(--bank-bg)!important}
-.auth-card{background:#fff!important;border:1px solid var(--bank-line)!important;border-radius:2px!important;box-shadow:0 12px 35px rgba(11,31,58,.08)!important}
-.auth-head h2,.step-title{color:var(--bank-navy)!important;font-weight:600!important}.auth-head p,.auth-trust,.auth-switch,.form-group label,.phone-hint,.step-subtitle{color:var(--bank-muted)!important}
-.form-group input,.phone-prefix{background:#fff!important;border:1px solid #aeb7c3!important;border-radius:2px!important;color:var(--bank-ink)!important}.form-group input:focus{border-color:var(--bank-navy)!important;box-shadow:0 0 0 3px rgba(11,31,58,.08)!important}
-.method-tabs{background:#eef1f4!important;border-color:var(--bank-line)!important;border-radius:2px!important}.method-tab{border-radius:1px!important;color:#495668!important}.method-tab.active,.tab-btn.active,.btn-primary{background:var(--bank-navy)!important;color:#fff!important;border-radius:2px!important}
-.btn,.btn-small{border-radius:2px!important;font-weight:600!important;transform:none!important}.link,.auth-switch button{color:#765d2d!important}
-.auth-hero{background:var(--bank-navy)!important;border:0!important}.auth-hero::before{display:none!important}.auth-hero__logo img{display:none!important}.auth-card .logo img{display:none!important}.auth-hero__logo span,.auth-hero h1{color:#fff!important;font-weight:600!important;letter-spacing:0!important}.auth-hero h1 em{color:#d1b06c!important}.auth-hero__desc,.auth-hero__foot{color:#c8d0dc!important}.auth-hero__feat{color:#fff!important}.auth-hero__feat .ic{border-radius:2px!important;background:transparent!important;border-color:rgba(209,176,108,.55)!important;color:#d1b06c!important}
-.my-bonds-page{background:var(--bank-bg)!important;color:var(--bank-ink)!important;font-family:"Vazirmatn",Arial,sans-serif!important}.my-bonds-hero{background:#fff!important;border-bottom:1px solid var(--bank-line)!important;padding-top:calc(var(--header-height) + 3rem)!important}.my-bonds-hero::before{display:none!important}.my-bonds-hero h1{color:var(--bank-navy)!important;font-weight:600!important}.my-bonds-hero p{color:var(--bank-muted)!important}
-.bonds-card{background:#fff!important;backdrop-filter:none!important;border:1px solid var(--bank-line)!important;border-radius:2px!important;box-shadow:none!important;color:var(--bank-ink)!important;transform:none!important}.bonds-card:hover{border-color:#aeb7c3!important;transform:none!important;box-shadow:none!important}
-.my-bonds-welcome__text h2,.my-bonds-section__title,.my-bonds-project__title,.my-bonds-link__text{color:var(--bank-navy)!important;font-weight:600!important}.my-bonds-welcome__text p,.my-bonds-project__summary,.my-bonds-project__date,.my-bonds-empty{color:var(--bank-muted)!important}.my-bonds-welcome__text strong{color:#765d2d!important}.my-bonds-section__title::before{background:var(--bank-gold)!important;border-radius:0!important}
-.bonds-btn{border-radius:2px!important;transform:none!important;box-shadow:none!important}.bonds-btn-primary{background:var(--bank-navy)!important;color:#fff!important}.bonds-btn-secondary{background:#fff!important;color:var(--bank-navy)!important;border-color:#9ca7b5!important}.my-bonds-link__icon{color:var(--bank-navy)!important}
-.client-welcome{background:var(--bank-bg)!important;color:var(--bank-ink)!important}.client-welcome__card{background:#fff!important;border:1px solid var(--bank-line)!important;border-radius:2px!important;box-shadow:none!important}.client-welcome__logo{max-height:62px!important;width:auto!important;border-radius:0!important}.client-welcome__eyebrow{color:#765d2d!important}.client-welcome__title,.client-welcome__step-title{color:var(--bank-navy)!important;font-weight:600!important}.client-welcome__subtitle,.client-welcome__step-desc{color:var(--bank-muted)!important}.client-welcome__step,.client-welcome__step-num{border-radius:2px!important}.client-welcome__step-num{background:var(--bank-navy)!important;color:#fff!important}
-@media(max-width:900px){.auth-main{padding:1rem!important}.auth-card{box-shadow:none!important}}
+/**
+ * Bonds Global — Unified Institutional Design System
+ * =====================================================
+ * A flat, banking-grade visual system applied across every page.
+ * Loaded via <link> on all HTML pages (public, calculators, admin,
+ * advisor, reports, sectors, blog, v3, client portal, auth).
+ *
+ * Principles:
+ * - Light, neutral backgrounds (#F4F6F8).
+ * - White cards on gray backgrounds.
+ * - Navy (#0B1F3A) for primary actions and headlines.
+ * - Secondary text in #5D6878.
+ * - Borders in #D9DEE5.
+ * - Gold (#A8823D) reserved for <5% of accents.
+ * - Border-radius: 2px–4px.
+ * - No glassmorphism, no glow orbs, no starfields, no pills, no giant gradients.
+ */
+
+/* ---------- Tokens ---------- */
+:root {
+  /* Backgrounds */
+  --bg: #F4F6F8 !important;
+  --bg-secondary: #F4F6F8 !important;
+  --bg-card: #FFFFFF !important;
+  --bg-card-hover: #FFFFFF !important;
+  --bg-dark: #F4F6F8 !important;
+  --bg-elevated: #FFFFFF !important;
+  --bg-white: #FFFFFF !important;
+
+  /* Text */
+  --text: #142238 !important;
+  --text-secondary: #5D6878 !important;
+  --text-muted: #5D6878 !important;
+  --text-inverse: #FFFFFF !important;
+  --white: #FFFFFF !important;
+
+  /* Legacy bank tokens (kept for compatibility with auth pages) */
+  --bank-navy: #0B1F3A;
+  --bank-gold: #A8823D;
+  --bank-bg: #F4F6F8;
+  --bank-line: #D9DEE5;
+  --bank-ink: #142238;
+  --bank-muted: #5D6878;
+
+  /* Brand */
+  --navy-950: #0B1F3A !important;
+  --navy-900: #0B1F3A !important;
+  --navy-800: #142238 !important;
+  --navy-700: #1E3A5F !important;
+  --navy-600: #2E4A6F !important;
+  --navy-500: #4A6078 !important;
+
+  --gold: #A8823D !important;
+  --gold-bright: #A8823D !important;
+  --gold-dim: #8A6A2F !important;
+  --gold-400: #A8823D !important;
+  --gold-500: #A8823D !important;
+  --gold-600: #8A6A2F !important;
+  --gold-700: #8A6A2F !important;
+  --gold-light: #F5F0E8 !important;
+  --gold-glow: transparent !important;
+
+  /* Surfaces */
+  --surface: #FFFFFF !important;
+  --surface-raised: #FFFFFF !important;
+  --border: #D9DEE5 !important;
+  --border-light: #D9DEE5 !important;
+  --border-hover: #B0B8C4 !important;
+
+  /* Accents */
+  --accent: #1E3A5F !important;
+  --accent-glow: transparent !important;
+
+  /* Typography */
+  --font: "Vazirmatn", system-ui, sans-serif !important;
+  --font-display: "Vazirmatn", system-ui, sans-serif !important;
+  --font-en: "Inter", Arial, system-ui, sans-serif !important;
+  --font-display-en: "Inter", Arial, system-ui, sans-serif !important;
+
+  /* Spacing / radius */
+  --radius: 4px !important;
+  --radius-sm: 2px !important;
+  --radius-md: 4px !important;
+  --radius-lg: 4px !important;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(20, 34, 56, 0.04) !important;
+  --shadow-md: 0 2px 6px rgba(20, 34, 56, 0.06) !important;
+  --shadow-lg: 0 4px 12px rgba(20, 34, 56, 0.08) !important;
+  --shadow-xl: 0 8px 24px rgba(20, 34, 56, 0.10) !important;
+
+  /* Layout */
+  --header-height: 64px !important;
+  --section-padding-y: 3rem !important;
+  --section-padding-y-sm: 2rem !important;
+  --container-max: 1280px !important;
+  --container-narrow: 960px !important;
+  --container-wide: 1400px !important;
+
+  /* Transitions */
+  --transition: 0.15s ease !important;
+}
+
+html[lang="en"] :root,
+html[lang="en"] {
+  --font: "Inter", Arial, system-ui, sans-serif !important;
+  --font-display: "Inter", Arial, system-ui, sans-serif !important;
+}
+
+/* ---------- Reset decorative backgrounds ---------- */
+html,
+body,
+.page-wrapper,
+#app,
+.site-wrapper,
+#wrapper,
+.app-shell,
+.app-layout {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  font-family: var(--font) !important;
+}
+
+body:has(.auth-layout),
+body:has(.my-bonds-page),
+body:has(.client-portal-page) {
+  background: var(--bank-bg) !important;
+  color: var(--bank-ink) !important;
+  font-family: "Vazirmatn", Arial, sans-serif !important;
+}
+
+html[lang="en"] body:has(.auth-layout),
+html[lang="en"] body:has(.my-bonds-page),
+html[lang="en"] body:has(.client-portal-page) {
+  font-family: "Inter", Arial, sans-serif !important;
+}
+
+/* Remove glow orbs and canvas particles */
+.glow-orb,
+.glow-orb-1,
+.glow-orb-2,
+.hero__orb,
+.hero__orb--1,
+.hero__orb--2,
+.starfield,
+.stars,
+.stars-bg,
+.space-bg,
+.noise,
+.noise-texture,
+.glass-overlay,
+.gradient-overlay,
+.bg-shine,
+.bg-spotlight,
+.orb,
+.floating-shape {
+  display: none !important;
+}
+
+#particlesCanvas,
+.particles-canvas,
+.hero canvas,
+#starfield,
+.particles {
+  display: none !important;
+}
+
+/* Remove backdrop-filter / glassmorphism */
+* {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* ---------- Typography ---------- */
+/* Scoped headings — keep component-friendly by avoiding !important on element selectors */
+.hero__title,
+.section__title,
+.page-title,
+.calc-title,
+.fi-hero__title,
+.fi-features__title,
+.fi-feature__title {
+  color: var(--navy-950);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+:where(h1), :where(h2), :where(h3), :where(h4), :where(h5), :where(h6) {
+  color: var(--navy-950);
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+:where(h1), .hero__title, .page-title, .fi-hero__title {
+  font-size: clamp(1.75rem, 4vw, 3rem);
+  line-height: 1.25;
+}
+
+:where(h2), .section__title, .fi-features__title {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.3;
+}
+
+:where(h3) {
+  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
+}
+
+/* Baseline hidden attribute (required baseline, low specificity is fine with !important) */
+[hidden] {
+  display: none !important;
+}
+
+.text-muted,
+.text-secondary,
+.hero__desc,
+.section__desc,
+.card__meta,
+.fi-hero__subtitle,
+.fi-feature__text,
+.fi-features__subtitle {
+  color: var(--text-secondary) !important;
+}
+
+/* Remove gradient text */
+.text-gradient,
+.gradient-text,
+[style*="background-clip: text"],
+[style*="-webkit-background-clip: text"] {
+  background: none !important;
+  background-clip: unset !important;
+  -webkit-background-clip: unset !important;
+  -webkit-text-fill-color: unset !important;
+  color: var(--navy-950) !important;
+}
+
+/* ---------- Header ---------- */
+.main-header {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: var(--header-height) !important;
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.main-header__inner {
+  max-width: var(--container-wide) !important;
+  padding: 0 1.5rem !important;
+  height: var(--header-height) !important;
+}
+
+.main-header .header-brand img,
+.main-header .logo img,
+.site-logo,
+.logo-slot img {
+  height: 36px !important;
+  width: auto !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.brand-name,
+.main-header .logo-text,
+.main-header .brand-text {
+  color: var(--navy-950) !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+}
+
+.brand-tagline {
+  color: var(--text-secondary) !important;
+  font-size: 0.65rem !important;
+}
+
+.main-nav a,
+.main-nav .dropdown-toggle {
+  color: var(--text) !important;
+  font-weight: 600 !important;
+  font-size: 0.88rem !important;
+  padding: 0.45rem 0.85rem !important;
+  border-radius: var(--radius-sm) !important;
+  background: transparent !important;
+}
+
+.main-nav a:hover,
+.main-nav .dropdown-toggle:hover,
+.main-nav a.active,
+.main-nav .dropdown-toggle.active {
+  color: var(--navy-950) !important;
+  background: #F4F6F8 !important;
+}
+
+.main-nav a.nav-highlight,
+.main-nav .cta-button,
+.header-cta,
+.btn-header {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--navy-950) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.main-nav a.nav-highlight:hover,
+.main-nav .cta-button:hover,
+.header-cta:hover,
+.btn-header:hover {
+  background: var(--navy-800) !important;
+  color: #FFFFFF !important;
+}
+
+.dropdown-menu,
+.universal-dropdown__menu,
+.nav-dropdown__menu {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.dropdown-menu a,
+.universal-dropdown__menu a,
+.nav-dropdown__menu a {
+  color: var(--text) !important;
+}
+
+.dropdown-menu a:hover,
+.universal-dropdown__menu a:hover,
+.nav-dropdown__menu a:hover {
+  background: #F4F6F8 !important;
+  color: var(--navy-950) !important;
+}
+
+/* ---------- Buttons ----------
+ * Keep element selector as a harmless baseline (no !important) so component
+ * buttons (e.g. .ud-trigger, .ud-search-clear) keep their own styles.
+ * Enforce the design system only via class selectors with !important.
+ */
+/* Zero-specificity element baseline so component buttons keep their styling */
+:where(button) {
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+  font-size: 0.92rem;
+  padding: 0.65rem 1.25rem;
+  transition: background var(--transition), border-color var(--transition), color var(--transition);
+}
+
+.btn,
+.button,
+.cta-button,
+.primary-button,
+.secondary-button,
+.action-button,
+.nav-highlight,
+.fi-btn {
+  border-radius: var(--radius-sm) !important;
+  font-weight: 600 !important;
+  font-size: 0.92rem !important;
+  padding: 0.65rem 1.25rem !important;
+  transition: background var(--transition), border-color var(--transition), color var(--transition) !important;
+}
+
+.btn-primary,
+.cta-button,
+.primary-button,
+.action-button,
+button.primary,
+.fi-btn--primary {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--navy-950) !important;
+  background-image: none !important;
+}
+
+.btn-primary:hover,
+.cta-button:hover,
+.primary-button:hover,
+.action-button:hover,
+button.primary:hover,
+.fi-btn--primary:hover {
+  background: var(--navy-800) !important;
+  border-color: var(--navy-800) !important;
+}
+
+.btn-secondary,
+.secondary-button,
+button.secondary,
+.fi-btn--secondary {
+  background: #FFFFFF !important;
+  color: var(--navy-950) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.btn-secondary:hover,
+.secondary-button:hover,
+button.secondary:hover,
+.fi-btn--secondary:hover {
+  background: #F4F6F8 !important;
+  border-color: var(--border-hover) !important;
+}
+
+/* Prevent pill shapes */
+[style*="border-radius: 999px"],
+[style*="border-radius:50%"],
+[style*="border-radius: 50%"] {
+  border-radius: var(--radius-md) !important;
+}
+
+/* ---------- Cards ---------- */
+.card,
+.card--feature,
+.card--stat,
+.feature-card,
+.stat-card,
+.info-card,
+.result-card,
+.calc-card,
+.investment-panel,
+.country-selector-panel,
+.calculator-card,
+.service-card,
+.pricing-card,
+.testimonial-card,
+.team-card,
+.faq-card,
+.client-card,
+.case-card,
+.report-card,
+.sector-card,
+.blog-card,
+.admin-card,
+.advisor-card,
+.dashboard-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.card:hover,
+.feature-card:hover,
+.calc-card:hover,
+.service-card:hover,
+.report-card:hover,
+.blog-card:hover,
+.sector-card:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: none !important;
+}
+
+/* ---------- Forms / Inputs ----------
+ * Element selectors are baseline only (no !important) so custom components
+ * (e.g. Universal Dropdown search/input, hidden native selects) keep their
+ * own styling. Design-system enforcement is done via class selectors.
+ */
+/* Zero-specificity element baseline so component inputs/selects keep their styling */
+:where(input),
+:where(select),
+:where(textarea) {
+  background: #FFFFFF;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.65rem 0.9rem;
+  font-family: var(--font);
+  font-size: 0.95rem;
+}
+
+:where(input):focus,
+:where(select):focus,
+:where(textarea):focus {
+  border-color: var(--navy-700);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(11, 31, 58, 0.08);
+}
+
+.form-control,
+.calc-input,
+.bonds-input,
+.bonds-select,
+.investment-input-group input,
+.investment-input-group select,
+.calculator input,
+.calculator select,
+.auth-layout input,
+.auth-layout select,
+.my-bonds-page input,
+.my-bonds-page select,
+.admin-page input,
+.admin-page select,
+.advisor-page input,
+.advisor-page select,
+.report-page input,
+.report-page select,
+.sector-page input,
+.sector-page select,
+.blog-page input,
+.blog-page select {
+  background: #FFFFFF !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.65rem 0.9rem !important;
+  font-family: var(--font) !important;
+  font-size: 0.95rem !important;
+}
+
+.form-control:focus,
+.calc-input:focus,
+.bonds-input:focus,
+.bonds-select:focus,
+.investment-input-group input:focus,
+.investment-input-group select:focus,
+.calculator input:focus,
+.calculator select:focus,
+.auth-layout input:focus,
+.auth-layout select:focus,
+.my-bonds-page input:focus,
+.my-bonds-page select:focus,
+.admin-page input:focus,
+.admin-page select:focus,
+.advisor-page input:focus,
+.advisor-page select:focus,
+.report-page input:focus,
+.report-page select:focus,
+.sector-page input:focus,
+.sector-page select:focus,
+.blog-page input:focus,
+.blog-page select:focus {
+  border-color: var(--navy-700) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(11, 31, 58, 0.08) !important;
+}
+
+.form-group label,
+.calc-input-group label,
+.investment-input-group label,
+.bonds-form-group label {
+  color: var(--text-secondary) !important;
+  font-weight: 600 !important;
+  font-size: 0.85rem !important;
+}
+
+/* ---------- Hero sections ---------- */
+.hero,
+.page-hero,
+.calc-hero,
+.calc-hero--tall,
+.my-bonds-hero,
+.auth-hero,
+.fi-hero,
+.services-hero,
+.funding-hero,
+.report-hero,
+.sector-hero,
+.blog-hero,
+.advisor-hero,
+.admin-hero {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+  padding-top: calc(var(--header-height) + 2rem) !important;
+  padding-bottom: 2rem !important;
+  min-height: auto !important;
+  max-height: 320px !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.hero__title,
+.page-hero h1,
+.calc-hero h1,
+.my-bonds-hero h1,
+.fi-hero__title {
+  color: var(--navy-950) !important;
+  font-size: clamp(1.75rem, 4vw, 3rem) !important;
+  margin-bottom: 0.75rem !important;
+}
+
+.hero__desc,
+.page-hero p,
+.calc-hero p,
+.fi-hero__subtitle {
+  color: var(--text-secondary) !important;
+  font-size: 1rem !important;
+  max-width: 720px !important;
+}
+
+.hero__eyebrow,
+.eyebrow,
+.fi-hero__est,
+.section-label {
+  color: var(--gold) !important;
+  font-size: 0.8rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.05em !important;
+}
+
+/* ---------- Breadcrumbs ---------- */
+.breadcrumbs,
+.breadcrumb,
+.breadcrumbs-bar {
+  background: #F4F6F8 !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.85rem !important;
+}
+
+.breadcrumbs__link,
+.breadcrumb a,
+.breadcrumbs a {
+  color: var(--text-secondary) !important;
+}
+
+.breadcrumbs__item--current,
+.breadcrumbs__link:hover,
+.breadcrumb a:hover,
+.breadcrumbs a:hover {
+  color: var(--navy-950) !important;
+}
+
+/* ---------- Sections ----------
+ * Avoid bare `section` so component panels/modals/dropdowns that happen to be
+ * rendered inside a <section> are not forced with background/padding.
+ */
+.section,
+.content-section,
+.fi-features,
+.services-section,
+.calculators-section,
+.funding-section,
+.v3-section,
+.report-section,
+.blog-section,
+.sector-section {
+  background: var(--bg) !important;
+  padding: var(--section-padding-y) 0 !important;
+}
+
+.section--alt,
+.bg-alt,
+.fi-features--alt {
+  background: #FFFFFF !important;
+}
+
+/* ---------- Tables ----------
+ * Bare table/th/td are baseline only (no !important) to avoid breaking
+ * component layouts (e.g. data tables inside dropdowns or admin widgets).
+ * Enforce styling via class selectors.
+ */
+:where(table) {
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  border-collapse: separate;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+:where(th) {
+  background: #F4F6F8;
+  color: var(--navy-950);
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+}
+
+:where(td) {
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+}
+
+.data-table,
+.results-table,
+.financial-table,
+.admin-table,
+.report-table,
+.calculator-table,
+.v3-table {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  border-collapse: separate !important;
+  border-spacing: 0 !important;
+  overflow: hidden !important;
+}
+
+.data-table th,
+.results-table th,
+.admin-table th,
+.report-table th,
+.calculator-table th,
+.v3-table th {
+  background: #F4F6F8 !important;
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.data-table td,
+.results-table td,
+.admin-table td,
+.report-table td,
+.calculator-table td,
+.v3-table td {
+  border-bottom: 1px solid var(--border) !important;
+  color: var(--text) !important;
+}
+
+/* ---------- Footer ---------- */
+.footer,
+.site-footer,
+.main-footer,
+.page-footer {
+  background: #FFFFFF !important;
+  border-top: 1px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+}
+
+.footer a,
+.site-footer a,
+.page-footer a {
+  color: var(--text) !important;
+}
+
+.footer a:hover,
+.site-footer a:hover,
+.page-footer a:hover {
+  color: var(--navy-950) !important;
+}
+
+.footer-title,
+.footer__title,
+.footer h4,
+.footer h3 {
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Scroll progress bar (keep but neutral) ---------- */
+#scrollProgress,
+.scroll-progress {
+  background: var(--navy-950) !important;
+  height: 2px !important;
+}
+
+/* ---------- Auth pages (preserved + refined) ---------- */
+.auth-layout,
+.auth-page,
+.calculators-auth-page,
+body:has(.auth-layout) {
+  background: var(--bank-bg) !important;
+}
+
+.auth-main,
+.auth-card,
+.login-box,
+.login-panel,
+.signup-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.auth-hero,
+.auth-aside,
+.auth-info-panel {
+  background: var(--bank-navy) !important;
+  color: #FFFFFF !important;
+}
+
+.auth-hero h1,
+.auth-hero h2,
+.auth-hero p,
+.auth-aside h1,
+.auth-aside h2,
+.auth-aside p {
+  color: #FFFFFF !important;
+}
+
+.auth-hero .logo img,
+.auth-aside .logo img,
+.auth-card .logo img,
+.auth-head img,
+.auth-hero__logo img {
+  height: 40px !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+}
+
+.auth-head h2,
+.step-title {
+  color: var(--bank-navy) !important;
+  font-weight: 600 !important;
+}
+
+.auth-head p,
+.auth-trust,
+.auth-switch,
+.form-group label,
+.phone-hint,
+.step-subtitle {
+  color: var(--bank-muted) !important;
+}
+
+.method-tabs {
+  background: #EEF1F4 !important;
+  border-color: var(--bank-line) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.method-tab,
+.tab-btn {
+  border-radius: var(--radius-sm) !important;
+  color: #495668 !important;
+}
+
+.method-tab.active,
+.tab-btn.active,
+.btn-primary {
+  background: var(--bank-navy) !important;
+  color: #FFFFFF !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.link,
+.auth-switch button {
+  color: #765D2D !important;
+}
+
+.auth-hero__logo img,
+.auth-aside .logo img,
+.auth-card .logo img,
+.auth-head img {
+  display: none !important;
+}
+
+.auth-hero h1 em,
+.auth-aside h1 em,
+.auth-hero__title em {
+  color: #FFFFFF !important;
+  font-style: normal !important;
+}
+
+/* ---------- my-bonds / client portal ---------- */
+.my-bonds-page,
+.client-portal-page,
+.funding-cases-page {
+  background: var(--bg) !important;
+}
+
+.my-bonds-hero,
+.client-hero {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.saved-project-card,
+.case-card,
+.client-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.my-bonds-welcome__text h2,
+.my-bonds-section__title,
+.my-bonds-project__title,
+.my-bonds-link__text {
+  color: var(--bank-navy) !important;
+  font-weight: 600 !important;
+}
+
+.my-bonds-welcome__text p,
+.my-bonds-project__summary,
+.my-bonds-project__date,
+.my-bonds-empty {
+  color: var(--bank-muted) !important;
+}
+
+.my-bonds-welcome__text strong {
+  color: #765D2D !important;
+}
+
+.my-bonds-section__title::before {
+  background: var(--bank-gold) !important;
+  border-radius: 0 !important;
+}
+
+.bonds-btn,
+.bonds-btn-primary,
+.bonds-btn-secondary {
+  border-radius: var(--radius-sm) !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.bonds-btn-primary {
+  background: var(--bank-navy) !important;
+  color: #FFFFFF !important;
+}
+
+.bonds-btn-secondary {
+  background: #FFFFFF !important;
+  color: var(--bank-navy) !important;
+  border-color: #9CA7B5 !important;
+}
+
+.my-bonds-link__icon {
+  color: var(--bank-navy) !important;
+}
+
+.client-welcome {
+  background: var(--bank-bg) !important;
+  color: var(--bank-ink) !important;
+}
+
+.client-welcome__card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--bank-line) !important;
+  border-radius: var(--radius-sm) !important;
+  box-shadow: none !important;
+}
+
+.client-welcome__logo {
+  max-height: 62px !important;
+  width: auto !important;
+  border-radius: 0 !important;
+}
+
+.client-welcome__eyebrow {
+  color: #765D2D !important;
+}
+
+.client-welcome__title,
+.client-welcome__step-title {
+  color: var(--bank-navy) !important;
+  font-weight: 600 !important;
+}
+
+.client-welcome__subtitle,
+.client-welcome__step-desc {
+  color: var(--bank-muted) !important;
+}
+
+.client-welcome__step,
+.client-welcome__step-num {
+  border-radius: var(--radius-sm) !important;
+}
+
+.client-welcome__step-num {
+  background: var(--bank-navy) !important;
+  color: #FFFFFF !important;
+}
+
+/* ---------- Admin pages ---------- */
+.admin-page,
+.admin-dashboard,
+.admin-body,
+body:has(.admin-page),
+body:has(.admin-dashboard) {
+  background: #F4F6F8 !important;
+}
+
+.admin-page .card,
+.admin-dashboard .card,
+.admin-card,
+.admin-panel,
+.admin-widget,
+.admin-stat {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.admin-sidebar,
+.admin-nav,
+.admin-menu {
+  background: #FFFFFF !important;
+  border-inline-end: 1px solid var(--border) !important;
+}
+
+.admin-sidebar a,
+.admin-nav a,
+.admin-menu a {
+  color: var(--text) !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+.admin-sidebar a:hover,
+.admin-sidebar a.active,
+.admin-nav a:hover,
+.admin-nav a.active,
+.admin-menu a:hover,
+.admin-menu a.active {
+  background: #F4F6F8 !important;
+  color: var(--navy-950) !important;
+}
+
+.admin-page h1,
+.admin-page h2,
+.admin-page h3,
+.admin-dashboard h1,
+.admin-dashboard h2,
+.admin-dashboard h3 {
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+}
+
+.admin-page .btn-primary,
+.admin-dashboard .btn-primary,
+.admin-page button.primary,
+.admin-dashboard button.primary {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--navy-950) !important;
+}
+
+/* ---------- Advisor pages ---------- */
+.advisor-page,
+.advisor-dashboard,
+.advisor-body,
+body:has(.advisor-page) {
+  background: #F4F6F8 !important;
+}
+
+.advisor-page .card,
+.advisor-dashboard .card,
+.advisor-card,
+.advisor-panel,
+.advisor-widget {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.advisor-hero,
+.advisor-page-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.advisor-page h1,
+.advisor-page h2,
+.advisor-page h3,
+.advisor-dashboard h1,
+.advisor-dashboard h2,
+.advisor-dashboard h3 {
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Reports ---------- */
+.report-page,
+.report-body,
+body:has(.report-page) {
+  background: #F4F6F8 !important;
+}
+
+.report-page .card,
+.report-card,
+.report-panel,
+.report-section .card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.report-hero,
+.report-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.report-page h1,
+.report-page h2,
+.report-page h3 {
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Sectors ---------- */
+.sector-page,
+.sector-body,
+body:has(.sector-page) {
+  background: #F4F6F8 !important;
+}
+
+.sector-page .card,
+.sector-card,
+.sector-panel,
+.country-sector-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.sector-hero,
+.sector-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.sector-page h1,
+.sector-page h2,
+.sector-page h3 {
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Blog ---------- */
+.blog-page,
+.blog-body,
+body:has(.blog-page) {
+  background: #F4F6F8 !important;
+}
+
+.blog-page .card,
+.blog-card,
+.article-card,
+.blog-post-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.blog-hero,
+.blog-header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.blog-page h1,
+.blog-page h2,
+.blog-page h3,
+.blog-card h2,
+.blog-card h3 {
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+}
+
+.blog-page p,
+.blog-card p,
+.article-card p,
+.blog-post-card p {
+  color: var(--text-secondary) !important;
+}
+
+/* ---------- v3 intelligence pages ---------- */
+.v3-page,
+.v3-body,
+.v3-app,
+body:has(.v3-page),
+body:has(.v3-app) {
+  background: #F4F6F8 !important;
+}
+
+.v3-page-header,
+.v3-header,
+.v3-hero {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 2rem 1.5rem !important;
+  margin-top: var(--header-height) !important;
+}
+
+.v3-page-header h1,
+.v3-header h1,
+.v3-hero h1 {
+  color: var(--navy-950) !important;
+  font-size: 1.75rem !important;
+  font-weight: 600 !important;
+}
+
+.v3-page-header p,
+.v3-header p,
+.v3-hero p {
+  color: var(--text-secondary) !important;
+}
+
+.v3-page .card,
+.v3-card,
+.v3-panel,
+.v3-widget,
+.v3-result-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+}
+
+.v3-page h2,
+.v3-page h3,
+.v3-card h2,
+.v3-card h3 {
+  color: var(--navy-950) !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Utility: hide decorative animations ---------- */
+.reveal,
+.fade-in,
+.slide-up,
+.slide-in,
+.zoom-in {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+/* ---------- Calculator shared components ---------- */
+.bonds-input,
+.bonds-select,
+.calc-input,
+.calculator input,
+.calculator select,
+.investment-input-group input,
+.investment-input-group select {
+  background: #FFFFFF !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: 0.65rem 0.9rem !important;
+  font-family: var(--font) !important;
+  font-size: 0.95rem !important;
+}
+
+.bonds-input:focus,
+.bonds-select:focus,
+.calc-input:focus,
+.calculator input:focus,
+.calculator select:focus {
+  border-color: var(--navy-700) !important;
+  box-shadow: 0 0 0 2px rgba(11, 31, 58, 0.08) !important;
+}
+
+.bonds-btn,
+.bonds-btn-primary,
+.bonds-btn-secondary,
+.calc-button,
+.calculate-btn,
+.investment-calculator button,
+.calculator button[type="submit"] {
+  border-radius: var(--radius-sm) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  padding: 0.65rem 1.25rem !important;
+  transform: none !important;
+}
+
+.bonds-btn-primary,
+.calc-button,
+.calculate-btn,
+.investment-calculator button.primary,
+.calculator button[type="submit"] {
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  border: 1px solid var(--navy-950) !important;
+  background-image: none !important;
+}
+
+.bonds-btn-primary:hover,
+.calc-button:hover,
+.calculate-btn:hover {
+  background: var(--navy-800) !important;
+  border-color: var(--navy-800) !important;
+  transform: none !important;
+}
+
+.bonds-btn-secondary,
+.investment-calculator button.secondary {
+  background: #FFFFFF !important;
+  color: var(--navy-950) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.bonds-btn-secondary:hover {
+  background: #F4F6F8 !important;
+  border-color: var(--border-hover) !important;
+}
+
+.bonds-card,
+.calc-card,
+.investment-panel,
+.country-selector-panel,
+.result-panel,
+.calculator-result,
+.calc-result-card {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.bonds-card:hover,
+.calc-card:hover {
+  box-shadow: var(--shadow-md) !important;
+  transform: none !important;
+}
+
+/* Compact calculator hero */
+.calc-hero,
+.calc-hero--tall,
+.page-hero-compact,
+.calculator-hero {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding-top: calc(var(--header-height) + 1.5rem) !important;
+  padding-bottom: 1.5rem !important;
+  min-height: auto !important;
+  max-height: 280px !important;
+}
+
+.calc-hero h1,
+.calc-hero--tall h1,
+.page-hero-compact h1,
+.calculator-hero h1,
+.investment-calculator__header h1 {
+  color: var(--navy-950) !important;
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem) !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.calc-hero p,
+.calc-hero--tall p,
+.page-hero-compact p,
+.calculator-hero p,
+.investment-calculator__header p {
+  color: var(--text-secondary) !important;
+  font-size: 0.95rem !important;
+  max-width: 720px !important;
+}
+
+/* Investment center calculators */
+.investment-calculator {
+  background: var(--bg) !important;
+  padding-top: calc(var(--header-height) + 1rem) !important;
+}
+
+.investment-calculator__header {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+  padding: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.investment-calculator__header div[font-size] {
+  font-size: 2rem !important;
+}
+
+/* ---------- Lead capture forms ---------- */
+.lead-form,
+#leadCaptureForm,
+.lead-capture {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 1.5rem !important;
+}
+
+.lead-form h3,
+#leadCaptureForm h3,
+.lead-capture h3 {
+  color: var(--navy-950) !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+}
+
+/* ---------- Result areas ---------- */
+.results-area,
+#resultsArea,
+.results-table-wrap,
+.result-section,
+#result {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+  padding: 1.5rem !important;
+  margin-top: 1rem !important;
+}
+
+/* ---------- Marketing claims cleanup ---------- */
+/* Neutralizes visual emphasis of unverified numeric claims */
+.stat-num[data-target="96"],
+.stat-num[data-target="3000"],
+.stat-num[data-target="40"],
+.stat-num[data-target="9500"],
+.stat-num[data-target="15000"],
+.stat-num[data-target="7600"],
+.stat-num[data-target="700"] {
+  color: var(--text-secondary) !important;
+}
+
+/* ---------- Services CTA section ---------- */
+.cta-section,
+.cta-box,
+.fi-cta-section,
+.fi-cta-box,
+.contact-cta,
+.page-cta,
+.services-cta {
+  background: #FFFFFF !important;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: var(--shadow-sm) !important;
+  color: var(--text) !important;
+}
+
+.cta-section h2,
+.cta-section h3,
+.cta-box h2,
+.cta-box h3,
+.fi-cta-section h2,
+.fi-cta-section h3,
+.contact-cta h2,
+.page-cta h2 {
+  color: var(--navy-950) !important;
+}
+
+.cta-section p,
+.cta-box p,
+.fi-cta-section p,
+.contact-cta p,
+.page-cta p {
+  color: var(--text-secondary) !important;
+}
+
+.fi-cta-section {
+  background: var(--bank-navy) !important;
+  border-top: 3px solid var(--bank-gold) !important;
+}
+
+.fi-cta-section h2,
+.fi-cta-section h3,
+.fi-cta-section p {
+  color: #FFFFFF !important;
+}
+
+/* ---------- Hero title highlights ---------- */
+.hero__title span,
+.page-hero h1 span,
+.section-hero h1 span {
+  color: inherit !important;
+}
+
+/* ---------- WhatsApp button ---------- */
+#bonds-chat-launcher,
+.whatsapp-button,
+.chat-launcher,
+.floating-cta,
+.float-whatsapp {
+  border-radius: var(--radius-md) !important;
+  background: var(--navy-950) !important;
+  color: #FFFFFF !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+#bonds-chat-launcher:hover,
+.whatsapp-button:hover,
+.chat-launcher:hover,
+.floating-cta:hover {
+  background: var(--navy-800) !important;
+}
+
+/* ---------- Reduce oversized hero spacing ---------- */
+.hero--large,
+.hero--tall,
+.page-hero--large,
+.section-hero {
+  min-height: auto !important;
+  max-height: 380px !important;
+  padding-top: calc(var(--header-height) + 2rem) !important;
+  padding-bottom: 2rem !important;
+}
+
+/* ---------- General image/logo cleanup ---------- */
+img[src*="bonds-logo"],
+.site-logo,
+.header-brand img,
+.footer-logo img,
+.brand-logo img {
+  background: transparent !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* ---------- Prevent dark overlays on sections ---------- */
+.section--dark,
+.section-dark,
+.dark-section,
+.bg-dark,
+.bg-navy,
+.bg-gradient,
+.bg-gradient-navy,
+.bg-navy-gradient {
+  background: #FFFFFF !important;
+  color: var(--text) !important;
+}
+
+.section--dark h2,
+.section--dark h3,
+.section-dark h2,
+.section-dark h3,
+.bg-dark h2,
+.bg-dark h3,
+.bg-navy h2,
+.bg-navy h3 {
+  color: var(--navy-950) !important;
+}
+
+.section--dark p,
+.section-dark p,
+.bg-dark p,
+.bg-navy p {
+  color: var(--text-secondary) !important;
+}
+
+/* ---------- Print / template pages ---------- */
+.template-toolbar,
+.print-toolbar,
+.no-print {
+  background: #FFFFFF !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+/* ---------- Tabs ---------- */
+.tabs,
+.tab-bar,
+.tab-list,
+.nav-tabs {
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.tab,
+.tab-btn,
+.nav-tabs a,
+.nav-tabs button {
+  color: var(--text-secondary) !important;
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0 !important;
+}
+
+.tab.active,
+.tab-btn.active,
+.nav-tabs a.active,
+.nav-tabs button.active {
+  color: var(--navy-950) !important;
+  border-color: var(--navy-950) !important;
+  border-bottom-color: #FFFFFF !important;
+}
+
+/* ---------- Alerts / badges ---------- */
+.alert,
+.badge,
+.tag,
+.status-badge,
+.toast {
+  border-radius: var(--radius-sm) !important;
+}
+
+.alert-info,
+.badge-info,
+.status-badge.info {
+  background: #F4F6F8 !important;
+  color: var(--navy-950) !important;
+  border: 1px solid var(--border) !important;
+}
+
+.alert-success,
+.badge-success,
+.status-badge.success {
+  background: #E8F5E9 !important;
+  color: #1B5E20 !important;
+  border: 1px solid #A5D6A7 !important;
+}
+
+.alert-warning,
+.badge-warning,
+.status-badge.warning {
+  background: #FFF8E1 !important;
+  color: #F57F17 !important;
+  border: 1px solid #FFE082 !important;
+}
+
+.alert-danger,
+.badge-danger,
+.status-badge.danger {
+  background: #FFEBEE !important;
+  color: #B71C1C !important;
+  border: 1px solid #EF9A9A !important;
+}
+
+/* ---------- Mobile nav ---------- */
+.nav-toggle span {
+  background: var(--navy-950) !important;
+}
+
+.main-nav.is-open {
+  background: #FFFFFF !important;
+  border-inline-start: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- Responsive adjustments ---------- */
+@media (max-width: 900px) {
+  .auth-main {
+    padding: 1rem !important;
+  }
+  .auth-card {
+    box-shadow: none !important;
+  }
+  .main-header__inner {
+    padding: 0 1rem !important;
+  }
+  .hero,
+  .page-hero,
+  .calc-hero,
+  .my-bonds-hero,
+  .auth-hero,
+  .fi-hero,
+  .services-hero,
+  .funding-hero,
+  .report-hero,
+  .sector-hero,
+  .blog-hero,
+  .advisor-hero,
+  .admin-hero {
+    padding-top: calc(var(--header-height) + 1.5rem) !important;
+    padding-bottom: 1.5rem !important;
+  }
+}
+
+/* ---------- Accessibility contrast fixes ----------
+ * Targeted overrides for elements whose original dark-theme colors fail
+ * against the light institutional background.
+ */
+
+/* Auth help links (gold on light gray fails) */
+.help-box a,
+.help-box a:hover,
+.auth-help a,
+.auth-help a:hover {
+  color: var(--navy-700) !important;
+}
+
+/* Calculator landing detail toggles */
+.detail-toggle,
+.detail-toggle:hover,
+.detail-toggle:focus {
+  color: var(--navy-700) !important;
+}
+
+/* Language switch in light header */
+.lang-switch {
+  color: var(--navy-950) !important;
+  border-color: var(--border) !important;
+}
+.lang-switch:hover,
+.lang-switch:focus {
+  color: var(--navy-700) !important;
+  background: #F4F6F8 !important;
+}
+
+/* Fixed-income landing pages use a dark hero and a transparent header.
+ * Keep the header dark and nav text light so it remains readable over the hero
+ * while the CTA button keeps its institutional white-on-navy treatment. */
+.fi-page .main-header,
+.fi-page #site-header,
+.fi-page .main-header__inner {
+  background: rgba(10, 15, 26, 0.96) !important;
+}
+.fi-page #site-header .main-nav a.active,
+.fi-page #site-header .main-nav .dropdown-toggle.active,
+.fi-page .main-header .main-nav a.active,
+.fi-page .main-header .main-nav .dropdown-toggle.active {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+.fi-page #site-header .btn-header,
+.fi-page #site-header .btn-header:hover,
+.fi-page .main-header .btn-header,
+.fi-page .main-header .btn-header:hover {
+  color: #FFFFFF !important;
+}
+
+/* Error text on light backgrounds */
+.error-message,
+p.error-message,
+.form-error,
+.text-error,
+.error > p,
+.error-state p {
+  color: #B91C1C !important;
+}
+
+/* Inline <strong style="color:var(--gold)"> used in OTP/verify pages */
+#emailHint strong,
+.subtitle strong,
+.otp-hint strong,
+.auth-subtitle strong,
+.verify-otp strong {
+  color: var(--navy-700) !important;
+}

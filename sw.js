@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.87';
+const CACHE_VERSION = 'v3.0.90';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -40,18 +40,18 @@ const CORE_ASSETS = [
   '/header-footer.css?v=2.63.0',
   '/script.js?v=5',
   '/site-layout.js?v=3.2.2',
-  '/styles/social-feed.css?v=1',
+  '/styles/social-feed.css?v=3',
   '/styles/institutional-home.css?v=3',
-  '/styles/institutional-system.css?v=1',
-  '/scripts/social-feed.js?v=1',
+  '/styles/institutional-system.css?v=4',
+  '/scripts/social-feed.js?v=3',
   '/auth-guard.js',
   '/calculators/auth-gate.js?v=3',
   '/global-auth-gate.js?v=4',
   '/bonds-auth-2026.js?v=3.1.3',
   '/supabase-client.js',
-  '/admin/funding-cases/service.js?v=2',
-  '/admin/funding-cases/app.js?v=2',
-  '/admin/funding-cases/styles.css?v=2',
+  '/admin/funding-cases/service.js?v=3',
+  '/admin/funding-cases/app.js?v=3',
+  '/admin/funding-cases/styles.css?v=3',
   '/lib/formatting.js',
   '/assets/bonds-logo-2026-header.webp',
   '/assets/bonds-logo-2026-sm.webp',

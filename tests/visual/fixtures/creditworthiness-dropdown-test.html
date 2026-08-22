@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Creditworthiness Dropdown Regression Test</title>
+  <link rel="stylesheet" href="/styles/fonts-ar.css">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/calculators/shared-calculators.css" />
+  <link rel="stylesheet" href="/styles/design-system.css" />
+  <link rel="stylesheet" href="/calculators/creditworthiness.css" />
+  <link rel="stylesheet" href="/calculators/scenario-cards-shared.css" />
+  <link rel="stylesheet" href="/components/universal-dropdown.css?v=2.51.8" />
+  <link rel="stylesheet" href="/header-footer.css?v=2.63.0" />
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+  <style>
+    body { padding: 2rem; }
+  </style>
+</head>
+<body>
+  <div class="bonds-card cw-card">
+    <div class="bonds-form-row">
+      <div class="bonds-form-group">
+        <label for="country">الدولة</label>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true"
+                data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="50"
+                id="country" class="bonds-input" data-bonds-geo-bind="country" data-bonds-geo-lang="ar">
+          <option value="">اختر الدولة</option>
+        </select>
+      </div>
+      <div class="bonds-form-group">
+        <label for="sector">القطاع</label>
+        <select data-universal-dropdown="true" id="sector" class="bonds-input">
+          <option value="">اختر القطاع</option>
+          <option value="manufacturing">التصنيع</option>
+          <option value="trading">التجارة</option>
+          <option value="services">الخدمات</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <script src="/components/emoji-icons.js" defer></script>
+  <script src="/calculators/shared-geo.js?v=7"></script>
+  <script src="/components/universal-dropdown.js?v=2.51.8"></script>
+  <script src="/components/universal-dropdown-init.js"></script>
+  <script>
+    window.BondsPlatforms = window.BondsPlatforms || {
+      getCountryMeta: function(code) {
+        const map = { SA: { currency: 'SAR' }, AE: { currency: 'AED' }, EG: { currency: 'EGP' } };
+        return map[code] || { currency: 'SAR' };
+      }
+    };
+  </script>
+</body>
+</html>

@@ -23,6 +23,8 @@
   <link rel="manifest" href="/manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="../../../components/universal-dropdown.css" />
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+
   <script src="../../../components/universal-dropdown.js"></script>
   <script src="../../../calculators/shared-geo.js?v=6"></script>
   <script src="../../../calculators/shared-platforms-loader.js?v=2"></script>
@@ -1973,7 +1975,7 @@
       const tbody = document.querySelector('#waterFactoryCompetitorsTable tbody');
       if (tbody) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td>' + brand + '</td><td>' + size + '</td><td>' + price + '</td><td><button type="button" class="btn btn--ghost" onclick="this.closest('tr').remove()" style="font-size:0.75rem;">' + (isAr ? 'حذف' : 'Remove') + '</button></td>';
+        row.innerHTML = '<td>' + brand + '</td><td>' + size + '</td><td>' + price + '</td><td><button type="button" class="btn btn--ghost" onclick="this.closest(&quot;tr&quot;).remove()" style="font-size:0.75rem;">' + (isAr ? 'حذف' : 'Remove') + '</button></td>';
         tbody.appendChild(row);
       }
       brandEl.value = '';
@@ -3122,9 +3124,7 @@
       const headers = [isAr ? 'تكرار' : 'Iteration', ...varNames, 'NPV', 'IRR', 'ROI'];
       const escape = (val) => {
         const s = String(val).replace(/"/g, '""');
-        return /[",
-
-]/.test(s) ? '"' + s + '"' : s;
+        return /[",\n]/.test(s) ? '"' + s + '"' : s;
       };
 
       const rows = mc.samples.map(s => [
@@ -3135,10 +3135,8 @@
         s.roi
       ]);
 
-      const csv = '﻿' + headers.map(escape).join(',') + '
-' +
-        rows.map(r => r.map(escape).join(',')).join('
-');
+      const csv = '\ufeff' + headers.map(escape).join(',') + '\n' +
+        rows.map(r => r.map(escape).join(',')).join('\n');
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);

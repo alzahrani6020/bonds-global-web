@@ -68,8 +68,16 @@ function writePng(png, filePath) {
     });
 
     await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
     await page.context().addInitScript(() => {
       localStorage.setItem('cookies', 'accepted');
+      try {
+        localStorage.removeItem('bonds-auth-token');
+        localStorage.removeItem('bonds-auth-session');
+        localStorage.removeItem('bonds_auth_profile');
+        sessionStorage.removeItem('bonds-auth-token');
+        sessionStorage.removeItem('bonds-auth-session');
+      } catch (e) {}
     });
 
     for (const p of PAGES) {

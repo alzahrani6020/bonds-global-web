@@ -2,7 +2,7 @@
  * Apply enterprise upgrade migrations automatically using Postgres connection.
  *
  * Usage:
- *   DATABASE_URL="postgresql://postgres:PASSWORD@db.hutxsqzplyuqgnghsrcs.supabase.co:5432/postgres" node scripts/apply-enterprise-migrations.js
+ *   DATABASE_URL="postgresql://postgres:PASSWORD@db.xxx.supabase.co:5432/postgres" node scripts/apply-enterprise-migrations.js
  */
 const fs = require('fs');
 const path = require('path');
@@ -12,7 +12,7 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 if (!DATABASE_URL) {
   console.error(" Please set the DATABASE_URL environment variable.");
-  console.error('Example: postgresql://postgres:PASSWORD@db.hutxsqzplyuqgnghsrcs.supabase.co:5432/postgres');
+  console.error('Example: postgresql://postgres:PASSWORD@db.xxx.supabase.co:5432/postgres');
   process.exit(1);
 }
 

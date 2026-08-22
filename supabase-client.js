@@ -10,7 +10,9 @@ function getEnv() {
 function getSupabase() {
   // Prefer the unified auth client so only one Supabase instance manages
   // the shared localStorage session and token refresh timer.
-  if (typeof window !== 'undefined' && window.BondsAuth?.getSupabase) {
+  // Guard against self-reference when this same function is exposed on
+  // window.BondsAuth (e.g. loaded after bonds-auth-2026.js).
+  if (typeof window !== 'undefined' && window.BondsAuth && typeof window.BondsAuth.getSupabase === 'function' && window.BondsAuth.getSupabase !== getSupabase) {
     const unified = window.BondsAuth.getSupabase();
     if (unified) return unified;
   }
@@ -219,8 +221,10 @@ async function checkFeatureAccess(feature) {
   return { allowed, tier, status, limits, reason: allowed ? null : 'tier_limit' };
 }
 
-// Export for global use
+// Export for global use without clobbering an existing BondsAuth object
+// (e.g. bonds-auth-2026.js may have loaded first and provides more methods).
 window.BondsAuth = {
+  ...(typeof window !== 'undefined' && window.BondsAuth ? window.BondsAuth : {}),
   getSupabase, signUp, signIn, signInWithOAuth, signInWithOTP, signOut,
   getUser, getSession, getSubscription, getProfile, checkFeatureAccess,
   getRedirectUrl, clearRedirectUrl, getAuthHeaders, apiFetch

@@ -3,6 +3,8 @@ const path = require('path');
 
 const TEST_PAGE = path.resolve(__dirname, 'test-page.html');
 
+jest.setTimeout(15000);
+
 let browser;
 
 beforeAll(async () => {

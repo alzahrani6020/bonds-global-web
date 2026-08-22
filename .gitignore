@@ -9,8 +9,8 @@ tmp-*
 .tmp-*
 tmp-screenshots/
 tests/visual/snapshots/
-tests/visual/baselines/
 tests/visual/diffs/
+tests/visual/contact-sheet-*.png
 .tmp_*
 screenshots/
 
@@ -18,8 +18,8 @@ screenshots/
 __pycache__/
 *.pyc
 server.log
+*.log
 
-.env*
 .logo_venv/
 
 # Local/temporary development artifacts
@@ -38,6 +38,21 @@ feasibility-study-*.md
 dropdown-test*.png
 dropdown-forced.png
 
-.env*
+# Test/run artifacts
+test-results/
+playwright-report/
+coverage/
+.cache/
+dropdown-inventory.json
+dropdown-inventory.log
 
-.env*
+# Untracked UI investigation artifacts from earlier sessions
+institutional-ui-screenshots/
+INSTITUTIONAL_UI_REPORT.md
+docs/INSTITUTIONAL_UI_DEFECTS.md
+
+# Supabase CLI local temp files (may contain DB passwords/pooler URLs)
+supabase/.temp/
+
+# Local-only helper scripts with hardcoded paths
+start_move.bat
