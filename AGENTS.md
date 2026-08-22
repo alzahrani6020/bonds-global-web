@@ -10,6 +10,7 @@
 - **لا يوجد إطار عمل frontend**: لا React، لا Vue، لا Next.js. الكود هو HTML/CSS/JS vanilla.
 - **الاستضافة**: Vercel. ملف `vercel.json` يحدد الإعدادات.
 - **PWA**: يوجد Service Worker (`sw.js`) يستخدم `CACHE_VERSION`. عند تغيير ملفات CSS/JS الأساسية، يُرفع الرقم يدوياً أو تلقائياً عبر workflow `bump-cache-version.yml` الذي يفحص `CORE_ASSETS` ويرفع النسخة عند الحاجة. يظهر للمستخدم إشعار تحديث خفيف في `script.js` عند توفر نسخة جديدة. أعد تشغيل `scripts/generate-icons.js` إذا تغيّر الشعار.
+- **auth client cache-busting**: ملف `bonds-auth-2026.js` هو عميل المصادقة الموحّد. عند إصلاح عطل مصادقة أو تغيير واجهته، استخدم `scripts/bump-cache-busters.py` لرفع الـ query-string version عبر كل ملفات HTML/JS المنشورة، وأضف قاعدة `no-cache` في `vercel.json` لـ `/bonds-auth-2026.js`، ثم شغّل `scripts/audit-auth-version.js` للتحقق من أن كل المراجع تستخدم النسخة الجديدة. الصفحات الحساسة (مثل `/my-bonds`) تفترض بدفنس أن `window.BondsAuth.authenticatedFetch` قد يكون مفقوداً نتيجة CDN قديم، وتعرض زر تحديث يدوي بدلاً من إرسال طلبات بدون Bearer.
 - **الدستور المعماري**: قبل أي تطوير جديد، راجع `docs/BONDS_CONSTITUTION.md` — وهو المرجع الأعلى لرؤية المنصة ومعماريتها.
 
 ---
@@ -426,6 +427,9 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - `npm run apply:organization-schema` — إضافة JSON-LD `Organization` لجميع الصفحات العامة.
 - `npm run apply:hreflang` — إضافة روابط `hreflang` للصفحات المترجمة (ar ↔ en).
 - `npm run generate:sitemap` — إعادة توليد `sitemap.xml` مع روابط `hreflang` البديلة.
+- `node scripts/bump-cache-busters.py` — رفع query-string version لـ `bonds-auth-2026.js` (وـ `supabase-client.js` و `analytics-tracker.js`) في كل الملفات المنشورة.
+- `node scripts/audit-auth-version.js` — تدقيق أن كل مراجع `bonds-auth-2026.js` تستخدم النسخة المتوقعة الحالية.
+- `tests/my-bonds-cache-regression.test.js` — اختبارات انحدار لسلوك `/my-bonds` عند غياب `authenticatedFetch` (CDN قديم).
 - CI: `.github/workflows/ci.yml` يشغّل كل ما سبق عند كل push/PR.
 - تطبيق migrations تلقائياً: `.github/workflows/apply-migrations.yml` يشغّل `supabase db push --include-all` عند أي تعديل في `supabase/migrations/` على فرع `main`. يتطلب إضافة `SUPABASE_ACCESS_TOKEN` و `SUPABASE_PROJECT_REF` في GitHub Secrets. ملاحظة: `--include-all` ضروري لأن بعض الـ migrations القديمة طُبّقت يدوياً عبر SQL Editor وهي غير مسجلة في remote history. قاعدة: كل ملف migration يجب أن يكون idempotent ويحمل رقم إصدار فريداً (تكرار الإصدار بين ملفين يُسقط `db push` بخطأ `schema_migrations_pkey`).
 - تذكيرات إكمال الملف الشخصي: `.github/workflows/profile-reminders.yml` يشغّل endpoint `/api/admin?action=send-profile-reminders-bulk` يوميًا باستخدام `CRON_SECRET`؛ يتطلب إضافة `CRON_SECRET` في GitHub Secrets.
