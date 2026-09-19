@@ -5,6 +5,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 const getSupabase = require('../lib/api/supabase');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
@@ -1889,8 +1890,19 @@ async function handler(req, res) {
     // Telemetry/read-heavy actions get a higher rate limit so dashboards can auto-refresh.
     const LIVE_ACTIONS = new Set(['online-users', 'page-views', 'user-journey', 'user-activity']);
     const PUBLIC_ACTIONS = new Set(['funding-cases-guest-lookup']);
-    const rateCategory = LIVE_ACTIONS.has(action) ? 'live' : (PUBLIC_ACTIONS.has(action) ? 'public' : 'strict');
-    if (await checkRateLimit(rateCategory, req, res)) return;
+    // Guest lookup applies its own dedicated, fail-closed rate limits inside its handler.
+    const GUEST_LOOKUP_ACTION = 'funding-cases-guest-lookup';
+    let rateCategory;
+    if (action === GUEST_LOOKUP_ACTION) {
+      rateCategory = null;
+    } else if (LIVE_ACTIONS.has(action)) {
+      rateCategory = 'live';
+    } else if (PUBLIC_ACTIONS.has(action)) {
+      rateCategory = 'public';
+    } else {
+      rateCategory = 'strict';
+    }
+    if (rateCategory && await checkRateLimit(rateCategory, req, res)) return;
 
     if (req.method === 'GET') {
       if (action === 'bank-transfers') {
@@ -2278,7 +2290,33 @@ async function handler(req, res) {
         return res.status(200).json(result);
       }
       if (action === 'funding-cases-guest-lookup') {
-        return res.status(200).json(await guestLookupFundingCase(sb, req.body || {}));
+        const body = req.body || {};
+        const caseReference = String(body.caseReference || '').trim();
+
+        // Global endpoint-scoped bucket: no client-IP-derived identity.
+        if (await checkRateLimit('funding_case_guest_lookup_global', req, res, 'funding-case-guest-lookup-global', true)) {
+          return;
+        }
+
+        const hmacSecret = process.env.RATE_LIMIT_HMAC_SECRET;
+        if (!hmacSecret || typeof hmacSecret !== 'string' || hmacSecret.length === 0) {
+          // Mandatory secret missing: fail closed, do not expose configuration state.
+          res.setHeader('Retry-After', '60');
+          res.status(429).json({ error: 'Too many requests. Please try again later.' });
+          return;
+        }
+
+        const perCaseIdentity = crypto
+          .createHmac('sha256', hmacSecret)
+          .update(caseReference)
+          .digest('hex');
+
+        // Per-case bucket keyed by HMAC of normalized case_reference only.
+        if (await checkRateLimit('funding_case_guest_lookup_per_case', req, res, perCaseIdentity, true)) {
+          return;
+        }
+
+        return res.status(200).json(await guestLookupFundingCase(sb, body));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }
