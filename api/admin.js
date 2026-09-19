@@ -2195,7 +2195,7 @@ async function handler(req, res) {
         return res.status(200).json(await sendBulkProfileReminders(sb, admin, req));
       }
       if (action === 'run-migrations') {
-        const cronSecret = req.headers['x-cron-secret'] || req.query?.cronSecret;
+        const cronSecret = req.headers['x-cron-secret'];
         const expectedCronSecret = process.env.CRON_SECRET;
         if (!expectedCronSecret || cronSecret !== expectedCronSecret) {
           return res.status(403).json({ success: false, error: 'Unauthorized' });

@@ -13,7 +13,14 @@ const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
-const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || process.env.SUPABASE_SERVICE_KEY || 'bonds-default-secret';
+const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || '';
+
+function requireUnsubscribeSecret() {
+  if (!UNSUBSCRIBE_SECRET) {
+    throw new Error('UNSUBSCRIBE_SECRET is not configured');
+  }
+  return UNSUBSCRIBE_SECRET;
+}
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
 const crypto = require('crypto');
 
@@ -1044,14 +1051,14 @@ async function logUsageHandler(req, res) {
 function buildTrackClickUrl(targetUrl, email, step) {
   const payload = JSON.stringify({ u: targetUrl, e: email, s: step, t: Date.now() });
   const payloadB64 = Buffer.from(payload).toString('base64url');
-  const token = crypto.createHash('sha256').update(payloadB64 + UNSUBSCRIBE_SECRET).digest('base64url');
+  const token = crypto.createHash('sha256').update(payloadB64 + requireUnsubscribeSecret()).digest('base64url');
   return `${APP_URL}/api/track-click?d=${encodeURIComponent(payloadB64)}&sig=${encodeURIComponent(token)}`;
 }
 
 function buildTrackOpenUrl(email, step) {
   const payload = JSON.stringify({ e: email, s: step, t: Date.now() });
   const payloadB64 = Buffer.from(payload).toString('base64url');
-  const token = crypto.createHash('sha256').update(payloadB64 + UNSUBSCRIBE_SECRET).digest('base64url');
+  const token = crypto.createHash('sha256').update(payloadB64 + requireUnsubscribeSecret()).digest('base64url');
   return `${APP_URL}/api/track-open?d=${encodeURIComponent(payloadB64)}&sig=${encodeURIComponent(token)}`;
 }
 
@@ -1386,8 +1393,8 @@ async function calculatorEmailJourneyHandler(req, res) {
     isAuthorized = true;
   } else {
     const secret = req.query?.secret || req.body?.secret || '';
-    const adminSecret = process.env.CALCULATOR_JOURNEY_SECRET || process.env.ADMIN_API_SECRET || UNSUBSCRIBE_SECRET;
-    if (secret === adminSecret) {
+    const adminSecret = process.env.CALCULATOR_JOURNEY_SECRET || process.env.ADMIN_API_SECRET || '';
+    if (secret && adminSecret && secret === adminSecret) {
       isAuthorized = true;
     } else {
       const user = await resolveAuthUser(req);
@@ -1457,7 +1464,7 @@ async function trackClickHandler(req, res) {
     return res.status(400).json({ error: 'Invalid data' });
   }
 
-  const expectedSig = crypto.createHash('sha256').update(payloadStr + UNSUBSCRIBE_SECRET).digest('base64url');
+  const expectedSig = crypto.createHash('sha256').update(payloadStr + requireUnsubscribeSecret()).digest('base64url');
   if (!sig || sig !== expectedSig) {
     return res.status(403).json({ error: 'Invalid signature' });
   }
@@ -1507,7 +1514,7 @@ async function trackOpenHandler(req, res) {
     return res.status(200).send(TRANSPARENT_GIF);
   }
 
-  const expectedSig = crypto.createHash('sha256').update(payloadStr + UNSUBSCRIBE_SECRET).digest('base64url');
+  const expectedSig = crypto.createHash('sha256').update(payloadStr + requireUnsubscribeSecret()).digest('base64url');
   if (!sig || sig !== expectedSig) {
     res.setHeader('Content-Type', 'image/gif');
     return res.status(200).send(TRANSPARENT_GIF);

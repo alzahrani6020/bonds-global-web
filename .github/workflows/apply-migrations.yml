@@ -8,63 +8,119 @@ on:
   workflow_dispatch:
     inputs:
       migration_file:
-        description: 'Migration file to apply (relative to repo root). Leave empty to apply the latest migration file.'
-        required: false
+        description: 'Migration file to apply (relative to repo root)'
+        required: true
         default: ''
 
 jobs:
   migrate:
-    name: Apply Supabase Migration
+    name: Apply Supabase Migrations
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Determine migration file
-        id: migration
+      - name: Determine migrations
+        id: migrations
+        shell: bash
         run: |
-          if [ -n "${{ github.event.inputs.migration_file }}" ]; then
+          set -euo pipefail
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             MIGRATION_FILE="${{ github.event.inputs.migration_file }}"
+
+            if [ -z "$MIGRATION_FILE" ]; then
+              echo "migration_file is required for manual runs."
+              exit 1
+            fi
+
+            case "$MIGRATION_FILE" in
+              supabase/migrations/*.sql) ;;
+              *)
+                echo "Invalid migration path: $MIGRATION_FILE"
+                exit 1
+                ;;
+            esac
+
+            if [ ! -f "$MIGRATION_FILE" ]; then
+              echo "Migration file not found: $MIGRATION_FILE"
+              exit 1
+            fi
+
+            if [[ "$MIGRATION_FILE" == *_rollback.sql ]]; then
+              echo "Rollback migrations must not be applied by this workflow."
+              exit 1
+            fi
+
+            printf '%s\n' "$MIGRATION_FILE" > /tmp/migrations.txt
           else
-            MIGRATION_FILE=$(ls -1 supabase/migrations/*.sql | sort | tail -n 1)
+            BEFORE="${{ github.event.before }}"
+            AFTER="${{ github.sha }}"
+
+            if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              echo "Cannot determine a safe previous commit for automatic migration detection."
+              exit 1
+            fi
+
+            git diff --diff-filter=A --name-only "$BEFORE" "$AFTER" -- 'supabase/migrations/*.sql' \
+              | grep -v '_rollback\.sql$' \
+              | sort \
+              > /tmp/migrations.txt || true
           fi
 
-          if [ ! -f "$MIGRATION_FILE" ]; then
-            echo "Migration file not found: $MIGRATION_FILE"
-            exit 1
-          fi
+          echo "Migrations selected:"
+          cat /tmp/migrations.txt || true
 
-          echo "file=$MIGRATION_FILE" >> "$GITHUB_OUTPUT"
-          echo "Applying migration: $MIGRATION_FILE"
+          COUNT=$(grep -c . /tmp/migrations.txt || true)
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
 
-      - name: Apply migration via admin endpoint
+      - name: Apply migrations via admin endpoint
+        if: steps.migrations.outputs.count != '0'
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           SITE_URL: ${{ secrets.SITE_URL }}
+        shell: bash
         run: |
-          set -e
-          MIGRATION_FILE="${{ steps.migration.outputs.file }}"
+          set -euo pipefail
 
           if [ -z "$CRON_SECRET" ]; then
-            echo "CRON_SECRET is not set. Cannot apply migration securely."
+            echo "CRON_SECRET is not set."
             exit 1
           fi
+
           if [ -z "$SITE_URL" ]; then
-            echo "SITE_URL is not set. Cannot reach admin endpoint."
+            echo "SITE_URL is not set."
             exit 1
           fi
 
-          echo "Applying migration via ${SITE_URL}/api/admin ..."
-          STATUS_CODE=$(curl -s -o response.json -w "%{http_code}" \
-            -X POST "${SITE_URL}/api/admin?action=run-migrations&cronSecret=${CRON_SECRET}&migration_file=${MIGRATION_FILE}")
+          while IFS= read -r MIGRATION_FILE; do
+            [ -z "$MIGRATION_FILE" ] && continue
 
-          echo "Response status: $STATUS_CODE"
-          cat response.json
+            echo "Applying migration: $MIGRATION_FILE"
 
-          if [ "$STATUS_CODE" != "200" ]; then
-            echo "Migration failed with status $STATUS_CODE"
-            exit 1
-          fi
+            STATUS_CODE=$(curl -sS -o response.json -w "%{http_code}" \
+              -H "X-Cron-Secret: ${CRON_SECRET}" \
+              -G \
+              -X POST \
+              --data-urlencode "action=run-migrations" \
+              --data-urlencode "migration_file=${MIGRATION_FILE}" \
+              "${SITE_URL}/api/admin")
 
-          echo "Migration applied successfully"
+            echo "Response status: $STATUS_CODE"
+            cat response.json
+            echo
+
+            if [ "$STATUS_CODE" != "200" ]; then
+              echo "Migration failed: $MIGRATION_FILE"
+              exit 1
+            fi
+
+            echo "Migration applied successfully: $MIGRATION_FILE"
+          done < /tmp/migrations.txt
+
+      - name: No migrations to apply
+        if: steps.migrations.outputs.count == '0'
+        run: echo "No newly added migration files detected."

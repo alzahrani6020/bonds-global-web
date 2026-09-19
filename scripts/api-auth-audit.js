@@ -25,6 +25,11 @@ const AUTH_PATTERNS = [
   /req\.headers\?.authorization/
 ];
 
+const PUBLIC_ACTION_OVERRIDES = [
+  '/api/admin?action=funding-cases-guest-lookup',
+  '/api/platform?action=contact'
+];
+
 const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/env',
   '/api/advisors',
@@ -137,6 +142,8 @@ function resolveEndpoint(rawPath, rewrites, visited = new Set()) {
 }
 
 function endpointRequiresAuth(endpoint, resolved, rewrites, method = 'GET') {
+  if (PUBLIC_ACTION_OVERRIDES.includes(endpoint)) return false;
+
   const baseEndpoint = endpoint.replace(/\?.*$/, '');
   if (PUBLIC_ENDPOINT_OVERRIDES.includes(baseEndpoint)) return false;
 
