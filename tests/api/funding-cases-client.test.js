@@ -417,6 +417,30 @@ describe('/api/admin funding-cases client portal', () => {
       expect(res._json.error).not.toMatch(/not found/i);
     });
 
+    test('returns 400 for malformed JSON parser errors', async () => {
+      const sb = mockCreateSb();
+      mockGetSupabase.mockReturnValue(sb);
+
+      const req = mockReq({
+        method: 'POST',
+        query: { action: 'funding-cases-guest-lookup' }
+      });
+
+      Object.defineProperty(req, 'body', {
+        get() {
+          const err = new Error('Invalid JSON');
+          err.statusCode = 400;
+          throw err;
+        }
+      });
+
+      const res = mockRes();
+      await handler(req, res);
+
+      expect(res.statusCode).toBe(400);
+      expect(res._json).toEqual({ error: 'Invalid request body' });
+      expect(checkRateLimit).not.toHaveBeenCalled();
+    });
     test('returns 400 when required fields are missing', async () => {
       const sb = mockCreateSb();
       mockGetSupabase.mockReturnValue(sb);

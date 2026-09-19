@@ -2372,10 +2372,13 @@ async function handler(req, res) {
 
           return res.status(200).json(await guestLookupFundingCase(sb, body));
         } catch (err) {
-          console.error('[guest-lookup] unhandled path error:', err);
-          if (err.status === 400 || err.status === 404) {
+          if (err?.status === 400 || err?.status === 404) {
             return res.status(err.status).json({ error: err.message });
           }
+          if (err?.statusCode === 400) {
+            return res.status(400).json({ error: 'Invalid request body' });
+          }
+          console.error('[guest-lookup] unhandled path error:', err);
           return res.status(500).json({ error: 'Unable to process request' });
         }
       }
