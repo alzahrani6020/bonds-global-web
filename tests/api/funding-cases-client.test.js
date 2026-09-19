@@ -329,8 +329,7 @@ describe('/api/admin funding-cases client portal', () => {
       );
     });
 
-    test('returns generic error when contact details do not match', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    test('returns 404 when contact details do not match', async () => {
       const sb = lookupSuccessSb();
       mockGetSupabase.mockReturnValue(sb);
 
@@ -344,13 +343,81 @@ describe('/api/admin funding-cases client portal', () => {
       });
       const res = mockRes();
       await handler(req, res);
-      expect(res.statusCode).toBe(500);
+      expect(res.statusCode).toBe(404);
       expect(res._json.error).toMatch(/Case not found or details do not match/i);
-      errorSpy.mockRestore();
     });
 
-    test('returns error when required fields are missing', async () => {
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    test('returns 404 for nonexistent case reference', async () => {
+      const sb = mockCreateSb({
+        funding_cases: { data: null, error: null }
+      });
+      mockGetSupabase.mockReturnValue(sb);
+
+      const req = mockReq({
+        method: 'POST',
+        query: { action: 'funding-cases-guest-lookup' },
+        body: {
+          caseReference: 'BF-2026-999999',
+          email: 'ali@example.com'
+        }
+      });
+      const res = mockRes();
+      await handler(req, res);
+      expect(res.statusCode).toBe(404);
+      expect(res._json.error).toMatch(/Case not found or details do not match/i);
+    });
+
+    test('nonexistent and mismatch responses are normalized', async () => {
+      const sbSuccess = lookupSuccessSb();
+      const sbMissing = mockCreateSb({
+        funding_cases: { data: null, error: null }
+      });
+
+      const responses = [];
+      for (const { sb, body } of [
+        { sb: sbSuccess, body: { caseReference: 'BF-2026-000001', email: 'wrong@example.com' } },
+        { sb: sbMissing, body: { caseReference: 'BF-2026-999999', email: 'ali@example.com' } }
+      ]) {
+        checkRateLimit.mockClear();
+        checkRateLimit.mockReturnValue(Promise.resolve(false));
+        mockGetSupabase.mockReturnValue(sb);
+        const req = mockReq({
+          method: 'POST',
+          query: { action: 'funding-cases-guest-lookup' },
+          body
+        });
+        const res = mockRes();
+        await handler(req, res);
+        responses.push({ status: res.statusCode, body: res._json });
+      }
+
+      expect(responses[0].status).toBe(404);
+      expect(responses[1].status).toBe(404);
+      expect(responses[0].body).toEqual(responses[1].body);
+    });
+
+    test('multiple-row anomaly returns 500, never 404', async () => {
+      const sb = mockCreateSb({
+        funding_cases: {
+          data: null,
+          error: { message: 'JSON object requested, multiple (or no) rows returned' }
+        }
+      });
+      mockGetSupabase.mockReturnValue(sb);
+
+      const req = mockReq({
+        method: 'POST',
+        query: { action: 'funding-cases-guest-lookup' },
+        body: { caseReference: 'BF-2026-000001', email: 'ali@example.com' }
+      });
+      const res = mockRes();
+      await handler(req, res);
+      expect(res.statusCode).toBe(500);
+      expect(res._json.error).toBe('Unable to process request');
+      expect(res._json.error).not.toMatch(/not found/i);
+    });
+
+    test('returns 400 when required fields are missing', async () => {
       const sb = mockCreateSb();
       mockGetSupabase.mockReturnValue(sb);
 
@@ -361,9 +428,60 @@ describe('/api/admin funding-cases client portal', () => {
       });
       const res = mockRes();
       await handler(req, res);
-      expect(res.statusCode).toBe(500);
+      expect(res.statusCode).toBe(400);
       expect(res._json.error).toMatch(/Case reference and email or phone are required/i);
-      errorSpy.mockRestore();
+    });
+
+    test('returns 400 for empty case reference', async () => {
+      const sb = mockCreateSb();
+      mockGetSupabase.mockReturnValue(sb);
+
+      const req = mockReq({
+        method: 'POST',
+        query: { action: 'funding-cases-guest-lookup' },
+        body: { caseReference: '', email: 'ali@example.com' }
+      });
+      const res = mockRes();
+      await handler(req, res);
+      expect(res.statusCode).toBe(400);
+      expect(res._json.error).toMatch(/Case reference and email or phone are required/i);
+    });
+
+    test('returns 500 generic for database operational failure', async () => {
+      const sb = mockCreateSb({
+        funding_cases: { data: null, error: { code: '57000', message: 'connection failure' } }
+      });
+      mockGetSupabase.mockReturnValue(sb);
+
+      const req = mockReq({
+        method: 'POST',
+        query: { action: 'funding-cases-guest-lookup' },
+        body: { caseReference: 'BF-2026-000001', email: 'ali@example.com' }
+      });
+      const res = mockRes();
+      await handler(req, res);
+      expect(res.statusCode).toBe(500);
+      expect(res._json.error).toBe('Unable to process request');
+      expect(res._json.error).not.toContain('connection failure');
+    });
+
+    test('does not leak raw internal error messages', async () => {
+      const sb = mockCreateSb();
+      sb.from = jest.fn(() => {
+        throw new Error('INTERNAL_SUPABASE_SECRET_TOKEN_LEAK_12345');
+      });
+      mockGetSupabase.mockReturnValue(sb);
+
+      const req = mockReq({
+        method: 'POST',
+        query: { action: 'funding-cases-guest-lookup' },
+        body: { caseReference: 'BF-2026-000001', email: 'ali@example.com' }
+      });
+      const res = mockRes();
+      await handler(req, res);
+      expect(res.statusCode).toBe(500);
+      expect(res._json.error).toBe('Unable to process request');
+      expect(JSON.stringify(res._json)).not.toContain('INTERNAL_SUPABASE_SECRET_TOKEN_LEAK_12345');
     });
 
     test('uses dedicated global and per-case categories', async () => {

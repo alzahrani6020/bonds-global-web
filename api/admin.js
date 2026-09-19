@@ -1835,17 +1835,28 @@ async function guestLookupFundingCase(sb, payload) {
   const email = String(payload.email || '').trim().toLowerCase();
   const phone = String(payload.phone || '').trim();
   if (!caseReference || (!email && !phone)) {
-    throw new Error('Case reference and email or phone are required');
+    throw new HttpError(400, 'Case reference and email or phone are required');
   }
 
   const { data: caseData, error } = await sb
     .from('funding_cases')
     .select('id, case_reference, status, name, company, email, phone, country, financing_type, amount, purpose_category, created_at, updated_at')
     .eq('case_reference', caseReference)
-    .single();
-  if (error || !caseData) {
-    // Generic error to avoid leaking existence
-    throw new Error('Case not found or details do not match');
+    .maybeSingle();
+
+  // .maybeSingle() contract:
+  //   data !== null && error === null  → exactly one matching row found
+  //   data === null && error === null  → zero matching rows (expected absence)
+  //   error !== null                   → operational or data-contract failure
+  if (error) {
+    console.error('[guest-lookup] Supabase operational error:', error);
+    throw new HttpError(500, 'Unable to process request');
+  }
+
+  if (!caseData) {
+    // Expected absence (no matching row) or contact mismatch are normalized
+    // to the same public response to avoid case enumeration.
+    throw new HttpError(404, 'Case not found or details do not match');
   }
 
   const normalizedCasePhone = String(caseData.phone || '').replace(/[\s\-()+]/g, '');
@@ -1853,7 +1864,7 @@ async function guestLookupFundingCase(sb, payload) {
   const emailMatch = email && caseData.email && caseData.email.toLowerCase() === email;
   const phoneMatch = phone && normalizedCasePhone && normalizedCasePhone === normalizedInputPhone;
   if (!emailMatch && !phoneMatch) {
-    throw new Error('Case not found or details do not match');
+    throw new HttpError(404, 'Case not found or details do not match');
   }
 
   return {
@@ -2290,33 +2301,41 @@ async function handler(req, res) {
         return res.status(200).json(result);
       }
       if (action === 'funding-cases-guest-lookup') {
-        const body = req.body || {};
-        const caseReference = String(body.caseReference || '').trim();
+        try {
+          const body = req.body || {};
+          const caseReference = String(body.caseReference || '').trim();
 
-        // Global endpoint-scoped bucket: no client-IP-derived identity.
-        if (await checkRateLimit('funding_case_guest_lookup_global', req, res, 'funding-case-guest-lookup-global', true)) {
-          return;
+          // Global endpoint-scoped bucket: no client-IP-derived identity.
+          if (await checkRateLimit('funding_case_guest_lookup_global', req, res, 'funding-case-guest-lookup-global', true)) {
+            return;
+          }
+
+          const hmacSecret = process.env.RATE_LIMIT_HMAC_SECRET;
+          if (!hmacSecret || typeof hmacSecret !== 'string' || hmacSecret.length === 0) {
+            // Mandatory secret missing: fail closed, do not expose configuration state.
+            res.setHeader('Retry-After', '60');
+            res.status(429).json({ error: 'Too many requests. Please try again later.' });
+            return;
+          }
+
+          const perCaseIdentity = crypto
+            .createHmac('sha256', hmacSecret)
+            .update(caseReference)
+            .digest('hex');
+
+          // Per-case bucket keyed by HMAC of normalized case_reference only.
+          if (await checkRateLimit('funding_case_guest_lookup_per_case', req, res, perCaseIdentity, true)) {
+            return;
+          }
+
+          return res.status(200).json(await guestLookupFundingCase(sb, body));
+        } catch (err) {
+          console.error('[guest-lookup] unhandled path error:', err);
+          if (err.status === 400 || err.status === 404) {
+            return res.status(err.status).json({ error: err.message });
+          }
+          return res.status(500).json({ error: 'Unable to process request' });
         }
-
-        const hmacSecret = process.env.RATE_LIMIT_HMAC_SECRET;
-        if (!hmacSecret || typeof hmacSecret !== 'string' || hmacSecret.length === 0) {
-          // Mandatory secret missing: fail closed, do not expose configuration state.
-          res.setHeader('Retry-After', '60');
-          res.status(429).json({ error: 'Too many requests. Please try again later.' });
-          return;
-        }
-
-        const perCaseIdentity = crypto
-          .createHmac('sha256', hmacSecret)
-          .update(caseReference)
-          .digest('hex');
-
-        // Per-case bucket keyed by HMAC of normalized case_reference only.
-        if (await checkRateLimit('funding_case_guest_lookup_per_case', req, res, perCaseIdentity, true)) {
-          return;
-        }
-
-        return res.status(200).json(await guestLookupFundingCase(sb, body));
       }
       return res.status(400).json({ error: 'Unknown action' });
     }
