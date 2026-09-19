@@ -21,6 +21,7 @@ const AUTH_PATTERNS = [
   /verifyBearerAndUser\b/,
   /verifyAdmin\b/,
   /verifyAdminStrict\b/,
+  /resolveAuthUser\b/,
   /req\.headers\.authorization/,
   /req\.headers\?.authorization/
 ];
@@ -51,7 +52,6 @@ const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/bank-transfer',
   '/api/analyze-feasibility',
   '/api/analyze-feasibility-v2',
-  '/api/send-letter',
   '/api/image-search',
   '/api/market-research'
 ];
