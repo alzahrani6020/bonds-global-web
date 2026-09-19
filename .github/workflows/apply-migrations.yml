@@ -107,6 +107,7 @@ jobs:
               -X POST \
               --data-urlencode "action=run-migrations" \
               --data-urlencode "migration_file=${MIGRATION_FILE}" \
+              --data-urlencode "commit_sha=${GITHUB_SHA}" \
               "${SITE_URL}/api/admin")
 
             echo "Response status: $STATUS_CODE"

@@ -67,33 +67,71 @@ function resolveMigrationDbUrl() {
 }
 
 function validateMigrationPath(inputPath) {
-  if (!inputPath) return null;
-  const normalized = path.normalize(inputPath).replace(/\\/g, '/');
-  if (normalized.includes('..')) {
+  if (!inputPath) {
+    throw new Error('migration_file is required');
+  }
+
+  const normalized = path.posix.normalize(String(inputPath).replace(/\\/g, '/'));
+
+  if (
+    normalized.includes('..') ||
+    !/^supabase\/migrations\/\d{14}_[A-Za-z0-9._-]+\.sql$/.test(normalized)
+  ) {
     throw new Error('Invalid migration file path');
   }
-  if (!normalized.startsWith('supabase/migrations/')) {
-    throw new Error('Migration file must be inside supabase/migrations/');
+
+  if (normalized.endsWith('_rollback.sql')) {
+    throw new Error('Rollback migrations cannot be applied through this endpoint');
   }
-  if (!normalized.endsWith('.sql')) {
-    throw new Error('Migration file must be a .sql file');
-  }
+
   return normalized;
 }
 
-async function applyMigrations(targetFile = null) {
+async function fetchMigrationSql(targetFile, commitSha) {
+  const sha = String(commitSha || '').trim();
+
+  if (!/^[0-9a-f]{40}$/i.test(sha)) {
+    throw new Error('A valid 40-character commit_sha is required');
+  }
+
+  const encodedPath = targetFile
+    .split('/')
+    .map(encodeURIComponent)
+    .join('/');
+
+  const url =
+    `https://raw.githubusercontent.com/alzahrani6020/bonds-global-web/${sha}/${encodedPath}`;
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'User-Agent': 'bonds-global-migration-runner',
+      'Accept': 'text/plain'
+    },
+    signal: AbortSignal.timeout(15000)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Migration source fetch failed: HTTP ${response.status}`);
+  }
+
+  const sql = await response.text();
+
+  if (!sql.trim()) {
+    throw new Error('Migration source is empty');
+  }
+
+  if (Buffer.byteLength(sql, 'utf8') > 1024 * 1024) {
+    throw new Error('Migration source exceeds 1 MiB limit');
+  }
+
+  return sql;
+}
+
+async function applyMigration(targetFile, commitSha) {
   const { Client } = require('pg');
   const connectionString = resolveMigrationDbUrl();
-  const migrationsDir = path.join(process.cwd(), 'supabase', 'migrations');
-
-  const files = targetFile
-    ? [targetFile]
-    : [
-        '20260812000000_social_accounts.sql',
-        '20260812000001_social_posts.sql',
-        '20260812000002_social_scheduled_posts.sql',
-        '20260812000003_social_media_bucket.sql',
-      ];
+  const sql = await fetchMigrationSql(targetFile, commitSha);
 
   const client = new Client({
     connectionString,
@@ -101,22 +139,25 @@ async function applyMigrations(targetFile = null) {
   });
 
   await client.connect();
-  const applied = [];
+
   try {
-    for (const file of files) {
-      const filePath = path.join(process.cwd(), file);
-      if (!fs.existsSync(filePath)) {
-        throw new Error(`Migration file not found: ${filePath}`);
-      }
-      const sql = fs.readFileSync(filePath, 'utf8');
-      await client.query(sql);
-      applied.push(file);
-    }
+    await client.query('BEGIN');
+    await client.query(sql);
+    await client.query('COMMIT');
+  } catch (err) {
+    try {
+      await client.query('ROLLBACK');
+    } catch (_) {}
+    throw err;
   } finally {
     await client.end();
   }
 
-  return { applied, count: applied.length };
+  return {
+    applied: [targetFile],
+    count: 1,
+    commit: commitSha
+  };
 }
 
 function decodeJwtAal(token) {
@@ -2224,7 +2265,8 @@ async function handler(req, res) {
           return res.status(403).json({ success: false, error: 'Unauthorized' });
         }
         const targetFile = validateMigrationPath(req.query?.migration_file || req.body?.migration_file);
-        const result = await applyMigrations(targetFile);
+        const commitSha = req.query?.commit_sha || req.body?.commit_sha;
+        const result = await applyMigration(targetFile, commitSha);
         return res.status(200).json({ success: true, ...result });
       }
       if (action === 'makeOwnerAdmin') {
