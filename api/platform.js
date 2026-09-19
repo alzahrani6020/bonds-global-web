@@ -764,6 +764,11 @@ function escapeHtml(str) {
 async function sendLetterAction(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ ok: false, error: 'Method not allowed' });
 
+  const user = await resolveAuthUser(req);
+  if (!user) {
+    return res.status(401).json({ ok: false, error: 'Authentication required' });
+  }
+
   const { to, subject, body, html, text } = req.body || {};
   const recipient = to && String(to).trim() ? String(to).trim() : process.env.MANAGER_EMAIL;
   if (!recipient || !recipient.includes('@')) {
@@ -2080,7 +2085,7 @@ module.exports = async function handler(req, res) {
     // Letterhead email
     if (pathname === '/api/send-letter' || pathname === '/api/send-letter/') {
       req.query = req.query || {}; req.query.action = 'send-letter';
-      if (await checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('auth', req, res)) return;
       return siteHandler(req, res);
     }
 

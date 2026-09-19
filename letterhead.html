@@ -1080,7 +1080,17 @@
         var html = '<html><body dir="rtl">' + Array.from(document.querySelectorAll('.sheet')).map(function(s){ return '<div style="margin-bottom:40px;">' + s.innerHTML + '</div>'; }).join('') + '</body></html>';
         showToast('⏳ جاري الإرسال...');
         try {
-          var r = await fetch('/api/send-letter', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: to, subject: title, html: html, text: allText.slice(0, 1200) }) });
+          var sessionResult = await window.BondsAuth.getSession();
+          var token = sessionResult?.data?.session?.access_token || '';
+          if (!token) { showToast('⚠️ يجب تسجيل الدخول قبل الإرسال'); return; }
+          var r = await fetch('/api/send-letter', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ to: to, subject: title, html: html, text: allText.slice(0, 1200) })
+          });
           var data = await r.json();
           if (!r.ok) { showToast('⚠️ ' + (data.error || 'فشل الإرسال')); return; }
           var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
