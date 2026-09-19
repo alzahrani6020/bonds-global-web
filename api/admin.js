@@ -2354,6 +2354,7 @@ async function handler(req, res) {
 
           const hmacSecret = process.env.RATE_LIMIT_HMAC_SECRET;
           if (!hmacSecret || typeof hmacSecret !== 'string' || hmacSecret.length === 0) {
+            console.warn('[guest-lookup] RATE_LIMIT_HMAC_SECRET missing or empty');
             // Mandatory secret missing: fail closed, do not expose configuration state.
             res.setHeader('Retry-After', '60');
             res.status(429).json({ error: 'Too many requests. Please try again later.' });
