@@ -20,6 +20,7 @@ function createChain(result = { data: null, error: null }) {
     insert: jest.fn(() => chain),
     update: jest.fn(() => chain),
     eq: jest.fn(() => chain),
+    is: jest.fn(() => chain),
     order: jest.fn(() => chain),
     limit: jest.fn(() => chain),
     single: jest.fn(() => Promise.resolve(result)),
@@ -306,5 +307,137 @@ describe('/api/calculator-leads/retention', () => {
     const res = mockRes();
     await handler(req, res);
     expect(res.statusCode).toBe(401);
+  });
+});
+
+describe('/api/track-click and /api/track-open signatures', () => {
+  const crypto = require('crypto');
+  const oldSecret = process.env.UNSUBSCRIBE_SECRET;
+
+  beforeAll(() => {
+    process.env.UNSUBSCRIBE_SECRET = 'test-unsubscribe-secret';
+  });
+
+  afterAll(() => {
+    if (oldSecret === undefined) delete process.env.UNSUBSCRIBE_SECRET;
+    else process.env.UNSUBSCRIBE_SECRET = oldSecret;
+  });
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    mockFrom.mockImplementation(() => createChain({ data: null, error: null }));
+  });
+
+  function signPayload(d) {
+    return crypto
+      .createHmac('sha256', 'test-unsubscribe-secret')
+      .update(d)
+      .digest('base64url');
+  }
+
+  test('accepts valid track-click HMAC and redirects', async () => {
+    const payload = {
+      u: 'https://bonds-global.com/example',
+      e: 'test@example.com',
+      s: 1,
+      t: Date.now()
+    };
+
+    const d = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const sig = signPayload(d);
+
+    const req = mockReq({
+      method: 'GET',
+      url: `/api/track-click?d=${encodeURIComponent(d)}&sig=${encodeURIComponent(sig)}`,
+      query: { d, sig }
+    });
+
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(302);
+    expect(res.headers.Location).toBe(payload.u);
+  });
+
+  test('rejects invalid track-click signature', async () => {
+    const payload = {
+      u: 'https://bonds-global.com/example',
+      e: 'test@example.com',
+      s: 1,
+      t: Date.now()
+    };
+
+    const d = Buffer.from(JSON.stringify(payload)).toString('base64url');
+
+    const req = mockReq({
+      method: 'GET',
+      url: `/api/track-click?d=${encodeURIComponent(d)}&sig=invalid`,
+      query: { d, sig: 'invalid' }
+    });
+
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(403);
+    expect(res._json.error).toBe('Invalid signature');
+  });
+
+  test('accepts valid track-open HMAC and returns tracking gif', async () => {
+    const payload = {
+      e: 'test@example.com',
+      s: 1,
+      t: Date.now()
+    };
+
+    const d = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const sig = signPayload(d);
+
+    const req = mockReq({
+      method: 'GET',
+      url: `/api/track-open?d=${encodeURIComponent(d)}&sig=${encodeURIComponent(sig)}`,
+      query: { d, sig }
+    });
+
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['Content-Type']).toBe('image/gif');
+    expect(Buffer.isBuffer(res._sent)).toBe(true);
+  });
+
+  test('does not record open when payload is tampered', async () => {
+    const originalPayload = {
+      e: 'test@example.com',
+      s: 1,
+      t: Date.now()
+    };
+
+    const originalD = Buffer.from(JSON.stringify(originalPayload)).toString('base64url');
+    const sig = signPayload(originalD);
+
+    const tamperedPayload = {
+      ...originalPayload,
+      e: 'attacker@example.com'
+    };
+
+    const tamperedD = Buffer.from(JSON.stringify(tamperedPayload)).toString('base64url');
+
+    const req = mockReq({
+      method: 'GET',
+      url: `/api/track-open?d=${encodeURIComponent(tamperedD)}&sig=${encodeURIComponent(sig)}`,
+      query: { d: tamperedD, sig }
+    });
+
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.headers['Content-Type']).toBe('image/gif');
+    expect(mockFrom).not.toHaveBeenCalled();
   });
 });

@@ -1053,17 +1053,34 @@ async function logUsageHandler(req, res) {
   }
 }
 
+function signTrackingPayload(payloadB64) {
+  return crypto
+    .createHmac('sha256', requireUnsubscribeSecret())
+    .update(payloadB64)
+    .digest('base64url');
+}
+
+function trackingSignatureMatches(provided, expected) {
+  if (!provided || !expected) return false;
+
+  const providedBuf = Buffer.from(String(provided));
+  const expectedBuf = Buffer.from(String(expected));
+
+  if (providedBuf.length !== expectedBuf.length) return false;
+
+  return crypto.timingSafeEqual(providedBuf, expectedBuf);
+}
 function buildTrackClickUrl(targetUrl, email, step) {
   const payload = JSON.stringify({ u: targetUrl, e: email, s: step, t: Date.now() });
   const payloadB64 = Buffer.from(payload).toString('base64url');
-  const token = crypto.createHash('sha256').update(payloadB64 + requireUnsubscribeSecret()).digest('base64url');
+  const token = signTrackingPayload(payloadB64);
   return `${APP_URL}/api/track-click?d=${encodeURIComponent(payloadB64)}&sig=${encodeURIComponent(token)}`;
 }
 
 function buildTrackOpenUrl(email, step) {
   const payload = JSON.stringify({ e: email, s: step, t: Date.now() });
   const payloadB64 = Buffer.from(payload).toString('base64url');
-  const token = crypto.createHash('sha256').update(payloadB64 + requireUnsubscribeSecret()).digest('base64url');
+  const token = signTrackingPayload(payloadB64);
   return `${APP_URL}/api/track-open?d=${encodeURIComponent(payloadB64)}&sig=${encodeURIComponent(token)}`;
 }
 
@@ -1469,8 +1486,8 @@ async function trackClickHandler(req, res) {
     return res.status(400).json({ error: 'Invalid data' });
   }
 
-  const expectedSig = crypto.createHash('sha256').update(payloadStr + requireUnsubscribeSecret()).digest('base64url');
-  if (!sig || sig !== expectedSig) {
+  const expectedSig = signTrackingPayload(d);
+  if (!trackingSignatureMatches(sig, expectedSig)) {
     return res.status(403).json({ error: 'Invalid signature' });
   }
 
@@ -1519,8 +1536,8 @@ async function trackOpenHandler(req, res) {
     return res.status(200).send(TRANSPARENT_GIF);
   }
 
-  const expectedSig = crypto.createHash('sha256').update(payloadStr + requireUnsubscribeSecret()).digest('base64url');
-  if (!sig || sig !== expectedSig) {
+  const expectedSig = signTrackingPayload(d);
+  if (!trackingSignatureMatches(sig, expectedSig)) {
     res.setHeader('Content-Type', 'image/gif');
     return res.status(200).send(TRANSPARENT_GIF);
   }
