@@ -42,7 +42,6 @@ const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/contact',
   '/api/nps-submit',
   '/api/nps-check',
-  '/api/send-nps',
   '/api/track',
   '/api/usage',
   '/api/pro',
