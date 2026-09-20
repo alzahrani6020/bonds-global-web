@@ -40,6 +40,8 @@
     '/en/valuation/',
     '/advisor/',
     '/en/advisor/',
+    '/letterhead',
+    '/en/letterhead',
     '/wave4/',
     '/en/wave4/',
     '/calculator-wizard',

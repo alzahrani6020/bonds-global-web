@@ -62,6 +62,47 @@ describe('protected page redirect flow', () => {
     await context.close();
   });
 
+  test('redirects anonymous Arabic letterhead user to login', async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    await context.clearCookies();
+
+    await page.goto('http://localhost:3005/letterhead.html', {
+      waitUntil: 'domcontentloaded',
+      timeout: 20000
+    });
+
+    await page.waitForURL(/\/calculators\/auth\//, { timeout: 10000 });
+
+    const finalUrl = new URL(page.url());
+    expect(finalUrl.pathname).toBe('/calculators/auth/');
+    expect(finalUrl.searchParams.get('redirect')).toBe('/letterhead.html');
+
+    await page.close();
+    await context.close();
+  });
+
+  test('redirects anonymous English letterhead user to English login', async () => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+
+    await context.clearCookies();
+
+    await page.goto('http://localhost:3005/en/letterhead.html', {
+      waitUntil: 'domcontentloaded',
+      timeout: 20000
+    });
+
+    await page.waitForURL(/\/en\/calculators\/auth\//, { timeout: 10000 });
+
+    const finalUrl = new URL(page.url());
+    expect(finalUrl.pathname).toBe('/en/calculators/auth/');
+    expect(finalUrl.searchParams.get('redirect')).toBe('/en/letterhead.html');
+
+    await page.close();
+    await context.close();
+  });
   test('does not redirect public homepage', async () => {
     const context = await browser.newContext();
     const page = await context.newPage();
