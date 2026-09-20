@@ -21,8 +21,10 @@ jest.mock('../../lib/api/supabase', () => jest.fn(() => ({
   }))
 })));
 
+const mockCheckRateLimit = jest.fn(() => Promise.resolve(false));
+
 jest.mock('../../lib/api/rate-limit', () => ({
-  checkRateLimit: jest.fn(() => Promise.resolve(false))
+  checkRateLimit: mockCheckRateLimit
 }));
 
 jest.mock('../../lib/api/auth-helper', () => ({
@@ -191,5 +193,52 @@ describe('funding bank-transfer notification hardening', () => {
 
     expect(res.statusCode).toBe(400);
     expect(res.body).toEqual({ error: 'Invalid phone' });
+  });
+
+  test('applies bank-transfer rate limit category and stops when limited', async () => {
+    mockCheckRateLimit.mockResolvedValueOnce(true);
+
+    const handler = require('../../api/funding');
+
+    const req = {
+      method: 'POST',
+      headers: {},
+      query: { action: 'bank-transfer' },
+      body: {
+        name: 'Rate Limit Test',
+        email: 'rate-limit@example.com',
+        phone: '0555555555',
+        tier: 'pro'
+      }
+    };
+
+    const res = {
+      statusCode: 200,
+      body: null,
+      setHeader() {
+        return this;
+      },
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json(payload) {
+        this.body = payload;
+        return this;
+      },
+      end() {
+        return this;
+      }
+    };
+
+    await handler(req, res);
+
+    expect(mockCheckRateLimit).toHaveBeenCalledWith(
+      'bank_transfer',
+      req,
+      res
+    );
+
+    expect(mockInsert).not.toHaveBeenCalled();
   });
 });
