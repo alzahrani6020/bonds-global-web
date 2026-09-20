@@ -778,21 +778,6 @@
       }
 
       const isMfaSetupPage = location.pathname.includes('/admin/mfa-setup.html');
-      // Hardcoded owner fallbacks (safety net if ADMIN_EMAIL env var is not set)
-      const OWNER_EMAIL_FALLBACKS = ['iiffund.dev@gmail.com'];
-      const configuredOwner = getEnv().ADMIN_EMAIL || '';
-      const ownerEmails = [...OWNER_EMAIL_FALLBACKS];
-      if (configuredOwner) ownerEmails.push(configuredOwner);
-
-      if (ownerEmails.some(e => user.email.toLowerCase() === e.toLowerCase())) {
-        const mfa = await checkAdminMfa(token);
-        if (!mfa.ok) {
-          if (isMfaSetupPage) return finishAdminAccess('super_admin');
-          return redirectToMfaSetup();
-        }
-        finishAdminAccess('super_admin');
-        return;
-      }
 
       getAdminRole(user.id).then(async ({ data: roleRow }) => {
         if (roleRow && ['super_admin','admin','support'].includes(roleRow.role)) {
