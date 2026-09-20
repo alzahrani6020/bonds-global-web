@@ -19,6 +19,7 @@
       --gold: #b8954e;
       --gold-bright: #d4b87a;
       --gold-dim: #8a7340;
+      --gold-accessible: #705a2d;
       --text: #1a1a1a;
       --text-secondary: #555555;
       --text-muted: #888888;
@@ -70,7 +71,8 @@
       font-weight: 600; font-size: 0.86rem;
       transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; font-family: inherit;
     }
-    .sidebar-link:hover, .sidebar-link.active { background: rgba(184,149,78,0.12); color: var(--gold); }
+    .sidebar-link:hover { background: rgba(184,149,78,0.12); color: var(--gold); }
+    .sidebar-link.active { background: rgba(184,149,78,0.12); color: var(--gold-accessible); }
     .sidebar-link svg, .sidebar-link * svg { width: 20px; height: 20px; opacity: 0.75; flex-shrink: 0; pointer-events: none; }
 
     .sidebar-footer { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
