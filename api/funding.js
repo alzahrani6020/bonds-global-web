@@ -53,18 +53,57 @@ async function sendBankTransferNotification(request) {
 async function handleBankTransfer(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, phone, tier } = req.body || {};
-  if (!name || !email || !tier) return res.status(400).json({ error: 'Name, email and tier required' });
-  if (!['pro', 'enterprise'].includes(tier)) return res.status(400).json({ error: 'Invalid tier' });
+  const body = req.body || {};
+  const name = String(body.name || '').trim().slice(0, 120);
+  const email = String(body.email || '').trim().toLowerCase().slice(0, 254);
+  const phone = String(body.phone || '').trim().slice(0, 32);
+  const tier = String(body.tier || '').trim();
+
+  if (!name || !email || !tier) {
+    return res.status(400).json({ error: 'Name, email and tier required' });
+  }
+
+  if (!isValidEmail(email)) {
+    return res.status(400).json({ error: 'Invalid email' });
+  }
+
+  if (phone && !isValidPhone(phone)) {
+    return res.status(400).json({ error: 'Invalid phone' });
+  }
+
+  if (!['pro', 'enterprise'].includes(tier)) {
+    return res.status(400).json({ error: 'Invalid tier' });
+  }
 
   try {
     const sb = getSupabase();
     const amountSar = tier === 'enterprise' ? 212 : 82;
-    const { data, error } = await sb.from('bank_transfer_requests').insert([{ name, email, phone, tier, amount_sar: amountSar }]).select().single();
+
+    const { data, error } = await sb
+      .from('bank_transfer_requests')
+      .insert([{ name, email, phone: phone || null, tier, amount_sar: amountSar }])
+      .select()
+      .single();
+
     if (error) throw error;
-    sendBankTransferNotification({ name, email, phone, tier, amount_sar: amountSar });
-    return res.status(200).json({ success: true, requestId: data.id, message: 'تم استلام طلبك. سنفعل اشتراكك خلال 24 ساعة.' });
-  } catch (err) { console.error(err); return res.status(500).json({ error: 'Failed' }); }
+
+    sendBankTransferNotification({
+      name,
+      email,
+      phone: phone || null,
+      tier,
+      amount_sar: amountSar
+    });
+
+    return res.status(200).json({
+      success: true,
+      requestId: data.id,
+      message: 'تم استلام طلبك. سنفعل اشتراكك خلال 24 ساعة.'
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Failed' });
+  }
 }
 
 // ── Funding Sources ────────────────────────────────────────
@@ -383,7 +422,7 @@ async function handler(req, res) {
 
   switch (action) {
     case 'bank-transfer':
-      if (await checkRateLimit('public', req, res)) return;
+      if (await checkRateLimit('bank_transfer', req, res)) return;
       return handleBankTransfer(req, res);
     case 'sources':
       return handleSources(req, res);

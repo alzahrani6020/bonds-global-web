@@ -77,7 +77,7 @@ describe('funding bank-transfer notification hardening', () => {
       body: {
         name: '<img src=x onerror=alert(1)>',
         email: 'test@example.com',
-        phone: '<b>0555555555</b>',
+        phone: '0555555555',
         tier: 'pro'
       }
     };
@@ -114,6 +114,82 @@ describe('funding bank-transfer notification hardening', () => {
     expect(payload.html).not.toContain('<b>0555555555</b>');
 
     expect(payload.html).toContain('&lt;img src=x onerror=alert(1)&gt;');
-    expect(payload.html).toContain('&lt;b&gt;0555555555&lt;/b&gt;');
+    expect(payload.html).toContain('0555555555');
+  });
+
+  test('rejects invalid email', async () => {
+    const handler = require('../../api/funding');
+
+    const req = {
+      method: 'POST',
+      headers: {},
+      query: { action: 'bank-transfer' },
+      body: {
+        name: 'Test User',
+        email: 'not-an-email',
+        phone: '0555555555',
+        tier: 'pro'
+      }
+    };
+
+    const res = {
+      statusCode: 200,
+      body: null,
+      setHeader() { return this; },
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json(payload) {
+        this.body = payload;
+        return this;
+      },
+      end() {
+        return this;
+      }
+    };
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid email' });
+  });
+
+  test('rejects invalid phone', async () => {
+    const handler = require('../../api/funding');
+
+    const req = {
+      method: 'POST',
+      headers: {},
+      query: { action: 'bank-transfer' },
+      body: {
+        name: 'Test User',
+        email: 'test@example.com',
+        phone: '<b>0555555555</b>',
+        tier: 'pro'
+      }
+    };
+
+    const res = {
+      statusCode: 200,
+      body: null,
+      setHeader() { return this; },
+      status(code) {
+        this.statusCode = code;
+        return this;
+      },
+      json(payload) {
+        this.body = payload;
+        return this;
+      },
+      end() {
+        return this;
+      }
+    };
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(res.body).toEqual({ error: 'Invalid phone' });
   });
 });
