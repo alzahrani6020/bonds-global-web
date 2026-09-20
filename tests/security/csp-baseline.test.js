@@ -57,5 +57,6 @@ describe('CSP security baseline', () => {
     expect(reportOnly.value).toContain("default-src 'self'");
     expect(reportOnly.value).toContain('script-src');
     expect(reportOnly.value).toContain('style-src');
+    expect(reportOnly.value).not.toContain("'unsafe-eval'");
   });
 });
