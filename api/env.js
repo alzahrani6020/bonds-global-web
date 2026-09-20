@@ -36,7 +36,6 @@ async function handler(req, res) {
     SENTRY_DSN: process.env.SENTRY_DSN || '',
     GA_MEASUREMENT_ID: process.env.GA_MEASUREMENT_ID || process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '',
     CALENDLY_URL: process.env.CALENDLY_URL || 'https://calendly.com/iiffund-dev/30min',
-    ADMIN_EMAIL: process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '',
     ADMIN_ENFORCE_MFA: adminEnforceMfa ? 'true' : 'false',
     SOCIAL_INSTAGRAM_URL: process.env.SOCIAL_INSTAGRAM_URL || 'https://instagram.com/bonds.global',
     SOCIAL_YOUTUBE_URL: process.env.SOCIAL_YOUTUBE_URL || 'https://www.youtube.com/@bondsglobal',
