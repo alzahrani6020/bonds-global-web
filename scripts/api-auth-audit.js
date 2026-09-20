@@ -62,8 +62,12 @@ const AUTH_HELPER_PATTERNS = [
   /session\.access_token/
 ];
 
-// Endpoints where GET/HEAD/OPTIONS still require auth (empty by default)
-const AUTH_REQUIRED_READ_ENDPOINTS = [];
+// Endpoints where GET/HEAD/OPTIONS require frontend Authorization
+const AUTH_REQUIRED_READ_ENDPOINTS = [
+  '/api/admin',
+  '/api/calculator-leads',
+  '/api/advisor-dashboard'
+];
 
 const IGNORED_PATHS = [
   'node_modules',
