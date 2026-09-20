@@ -1,26 +1,27 @@
 #!/bin/sh
-# Bonds Global — Pre-commit Audit Hook
-# Runs site audit before every commit. Blocks commit if CRITICAL/HIGH issues found.
+# Bonds Global — Pre-commit Quality Gate
+# Blocks commits when site audit, API auth audit, or critical security regressions fail.
 
 echo ""
-echo "🔍 Bonds Global Pre-commit Audit"
-echo "================================"
+echo "🔍 Bonds Global Pre-commit Quality Gate"
+echo "======================================="
 echo ""
 
-node scripts/site-audit.js
+npm run audit:precommit
 RESULT=$?
 
 if [ $RESULT -ne 0 ]; then
   echo ""
-  echo "❌ Audit FAILED. Commit blocked."
+  echo "❌ Pre-commit quality gate FAILED. Commit blocked."
   echo ""
-  echo "Fix the issues above, then try committing again."
-  echo "To bypass this check (not recommended): git commit --no-verify"
+  echo "Fix the issue above, then try committing again."
+  echo "To bypass this check: git commit --no-verify"
+  echo "Bypassing is not recommended."
   echo ""
   exit 1
 fi
 
 echo ""
-echo "✅ Audit passed. Proceeding with commit..."
+echo "✅ Pre-commit quality gate passed."
 echo ""
 exit 0
