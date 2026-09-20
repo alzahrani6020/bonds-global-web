@@ -898,8 +898,8 @@
         if (view) showView(view);
       });
     }
-    // Refresh when parent dashboard sends session token.
-    window.addEventListener('admin-session-ready', () => {
+    // Refresh when the parent dashboard supplies a short-lived access token.
+    window.addEventListener('admin-token-ready', () => {
       state.role = null;
       showView(VIEWS.DASHBOARD);
     });

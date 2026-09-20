@@ -1076,9 +1076,11 @@
           try {
             const { data: { session } } = await sb.auth.getSession();
             const token = session?.access_token || window.__ADMIN_TOKEN || '';
-            iframe.contentWindow.postMessage({ type: 'admin-token', token }, location.origin);
-            if (session) {
-              iframe.contentWindow.postMessage({ type: 'admin-session', session }, location.origin);
+            if (token) {
+              iframe.contentWindow.postMessage(
+                { type: 'admin-token', token },
+                location.origin
+              );
             }
           } catch (e) {}
         };
@@ -1091,10 +1093,10 @@
             const { data: { session } } = await sb.auth.getSession();
             const token = session?.access_token || window.__ADMIN_TOKEN || '';
             if (token) {
-              currentIframe.contentWindow.postMessage({ type: 'admin-token', token }, location.origin);
-            }
-            if (session) {
-              currentIframe.contentWindow.postMessage({ type: 'admin-session', session }, location.origin);
+              currentIframe.contentWindow.postMessage(
+                { type: 'admin-token', token },
+                location.origin
+              );
             }
           } catch (e) {}
         }, 300000);

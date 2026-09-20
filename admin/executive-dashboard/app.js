@@ -572,15 +572,11 @@
         if (view) showView(view);
       });
     }
-    // Refresh when parent dashboard sends session token.
-    window.addEventListener('admin-session-ready', () => {
-      state.role = null;
-      showView(VIEWS.OVERVIEW);
-    });
+
     // When loaded inside the unified admin iframe, wait for the parent token
     // bridge before hitting Supabase auth (avoids iframe storage issues).
     const inIframe = window.parent !== window;
-    const hasBridge = !!window.__ADMIN_TOKEN || !!window.__ADMIN_SESSION;
+    const hasBridge = !!window.__ADMIN_TOKEN;
     if (inIframe && !hasBridge) {
       let started = false;
       const start = () => {
@@ -591,7 +587,6 @@
         initPolling();
       };
       window.addEventListener('admin-token-ready', start, { once: true });
-      window.addEventListener('admin-session-ready', start, { once: true });
       setTimeout(start, 2500);
     } else {
       showView(VIEWS.OVERVIEW);

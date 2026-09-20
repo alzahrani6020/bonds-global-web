@@ -82,17 +82,14 @@
     setInterval(reportHeight, 2000);
   }
 
-  // Token bridge: receive admin token/session from parent unified dashboard
+  // Token bridge: receive the short-lived admin access token from parent dashboard
   window.addEventListener('message', function (e) {
     if (e.origin !== location.origin) return;
     if (e.data && e.data.type === 'admin-token') {
       window.__ADMIN_TOKEN = e.data.token || '';
       window.dispatchEvent(new Event('admin-token-ready'));
     }
-    if (e.data && e.data.type === 'admin-session') {
-      window.__ADMIN_SESSION = e.data.session || null;
-      window.dispatchEvent(new Event('admin-session-ready'));
-    }
+
   });
 
   // Track admin module views so the journey reflects actual admin sections/pages.

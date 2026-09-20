@@ -73,21 +73,6 @@
       throw new Error('Supabase client error: ' + (e?.message || 'unknown'));
     }
 
-    // Use session bridge from parent dashboard if available (avoids iframe storage issues).
-    const bridgeSession = window.__ADMIN_SESSION;
-    if (bridgeSession && typeof bridgeSession === 'object' && typeof sb.auth.setSession === 'function') {
-      try {
-        const minimalSession = {
-          access_token: bridgeSession.access_token,
-          refresh_token: bridgeSession.refresh_token
-        };
-        await sb.auth.setSession(minimalSession);
-        const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');
-        if (!error && session) return session.user;
-      } catch (e) {
-        console.warn('[ExecutiveService] session bridge failed:', e?.message, e?.stack);
-      }
-    }
 
     try {
       const { data: { session }, error } = await withTimeout(sb.auth.getSession(), 'getSession');

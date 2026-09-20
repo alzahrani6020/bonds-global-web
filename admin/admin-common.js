@@ -23,7 +23,7 @@
   }
 
   async function getAdminToken() {
-    let token = extractToken(global.__ADMIN_TOKEN) || extractToken(global.__ADMIN_SESSION?.access_token);
+    let token = extractToken(global.__ADMIN_TOKEN);
     if (!token && global.BondsAuth?.getSession) {
       try {
         const { data: { session } } = await global.BondsAuth.getSession();
