@@ -1,7 +1,7 @@
 /**
  * Social Media Admin App
  */
-(function () {
+(function (root) {
   'use strict';
 
   const ICONS = {

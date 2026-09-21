@@ -627,8 +627,8 @@
     }
     loadList();
     if (window.BondsAuth && BondsAuth.getUser) {
-      BondsAuth.getUser().then(user => {
-        if (userEl) userEl.textContent = user?.email || 'غير معروف';
+      BondsAuth.getUser().then(({ data }) => {
+        if (userEl) userEl.textContent = data?.user?.email || 'غير معروف';
       });
     }
   }

@@ -48,7 +48,7 @@
   </style>
 <script defer src="/calculators/auth-gate.js?v=3"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
-  <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+
 
 </head>
 <body>
@@ -66,11 +66,11 @@
         <h2>توليد نشرة استثمارية</h2>
         <div class="ii-form">
           <div>
-            <label>معرف المشروع (UUID)</label>
+            <label for="projectId">معرف المشروع (UUID)</label>
             <input type="text" id="projectId" placeholder="Project UUID" />
           </div>
           <div>
-            <label>اللغة</label>
+            <label for="language">اللغة</label>
             <select id="language"><option value="ar">العربية</option><option value="en">English</option></select>
           </div>
         </div>
@@ -178,8 +178,9 @@
         }
       });
 
-      window.supabaseClient.auth.getUser().then(({ data }) => {
-        document.getElementById('ii-user').textContent = data.user ? data.user.email : 'غير مسجل';
+      BondsAuth.getUser().then(({ data }) => {
+        document.getElementById('ii-user').textContent =
+          data?.user?.email || 'غير مسجل';
       });
     })();
   </script>

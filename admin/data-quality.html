@@ -98,19 +98,19 @@
         <div class="grid">
           ${card('ملفات المستخدمين (Profiles)', [
             { label: 'الإجمالي', value: profiles.total, color: 'var(--text)' },
-            { label: 'مكتملة 100%', value: profiles.complete, color: 'var(--success)' },
-            { label: 'جزئية', value: profiles.partial, color: '#b48a00' },
-            { label: 'ناقصة', value: profiles.incomplete, color: 'var(--danger)' }
+            { label: 'مكتملة 100%', value: profiles.complete, color: 'var(--success-text)' },
+            { label: 'جزئية', value: profiles.partial, color: '#7a5d00' },
+            { label: 'ناقصة', value: profiles.incomplete, color: 'var(--danger-text)' }
           ])}
           ${card('العملاء المحتملين (Leads)', [
             { label: 'الإجمالي', value: leads.total, color: 'var(--text)' },
-            { label: 'صالحة', value: leads.valid, color: 'var(--success)' },
-            { label: 'غير صالحة / ناقصة', value: leads.invalid, color: 'var(--danger)' }
+            { label: 'صالحة', value: leads.valid, color: 'var(--success-text)' },
+            { label: 'غير صالحة / ناقصة', value: leads.invalid, color: 'var(--danger-text)' }
           ])}
           ${card('رسائل التواصل (Contact)', [
             { label: 'الإجمالي', value: contacts.total, color: 'var(--text)' },
-            { label: 'صالحة', value: contacts.valid, color: 'var(--success)' },
-            { label: 'غير صالحة / ناقصة', value: contacts.invalid, color: 'var(--danger)' }
+            { label: 'صالحة', value: contacts.valid, color: 'var(--success-text)' },
+            { label: 'غير صالحة / ناقصة', value: contacts.invalid, color: 'var(--danger-text)' }
           ])}
         </div>
         <div class="card">

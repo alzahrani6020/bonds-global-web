@@ -180,7 +180,7 @@ body {
   transform: translateY(-120%); transition: transform 0.3s;
 }
 .toast.show { transform: translateY(0); }
-.toast--error { border-right-color: var(--danger); color: var(--danger); }
+.toast--error { border-right-color: #b91c1c; color: #b91c1c; }
 .toast--success { border-right-color: var(--success); color: var(--success); }
 
 .print-capture {

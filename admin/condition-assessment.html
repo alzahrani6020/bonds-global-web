@@ -51,7 +51,7 @@
     <div id="status" class="status"></div>
 
     <div class="toolbar">
-      <select id="assetClassSelect"><option value="">اختر فئة الأصل</option></select>
+      <select id="assetClassSelect" aria-label="فئة الأصل"><option value="">اختر فئة الأصل</option></select>
       <button id="loadBtn">تحميل</button>
       <button id="saveBtn" disabled>حفظ في قاعدة البيانات</button>
       <button id="resetBtn" class="secondary" disabled>استعادة الافتراضيات</button>
@@ -377,7 +377,7 @@
         const container = document.getElementById('assessmentsContainer');
         const client = getClient();
         if (!client) {
-          container.innerHTML = '<p style="padding:1rem;color:#f87171">عميل Supabase غير متوفر</p>';
+          container.innerHTML = '<p style="padding:1rem;color:#b91c1c">عميل Supabase غير متوفر</p>';
           return;
         }
         container.innerHTML = '<p style="padding:1rem">جارِ التحميل...</p>';
@@ -390,7 +390,7 @@
           if (error) throw error;
           renderAssessments(data || []);
         } catch (err) {
-          container.innerHTML = '<p style="padding:1rem;color:#f87171">فشل التحميل: ' + err.message + '</p>';
+          container.innerHTML = '<p style="padding:1rem;color:#b91c1c">فشل التحميل: ' + err.message + '</p>';
         }
       }
 

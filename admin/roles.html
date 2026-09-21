@@ -79,7 +79,41 @@
       .main-content { margin-right: 80px; }
       .form-row { grid-template-columns: 1fr; }
     }
-  </style>
+
+    /* Mobile admin layout: remove collapsed desktop sidebar from document flow. */
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none !important;
+      }
+
+      .main-content {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        padding: 1rem !important;
+      }
+
+      .page-header,
+      .search-bar,
+      .stats-grid,
+      .filters,
+      .table-card,
+      .table-header,
+      .pagination,
+      .grid-2 {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .table-scroll,
+      .table-card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+    }
+</style>
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
 <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 

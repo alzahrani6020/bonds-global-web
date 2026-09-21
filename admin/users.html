@@ -56,7 +56,7 @@
     .table-header h3 { font-size: 1rem; font-weight: 700; }
     .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 0.5rem; }
     .data-table { width: 100%; min-width: 1200px; border-collapse: collapse; }
-    .data-table th { text-align: right; padding: 0.75rem 0.85rem; font-size: 0.75rem; font-weight: 700; color: var(--gold); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.9); white-space: nowrap; }
+    .data-table th { text-align: right; padding: 0.75rem 0.85rem; font-size: 0.75rem; font-weight: 700; color: #705a2d; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); background: rgba(255,255,255,0.9); white-space: nowrap; }
     .data-table td { padding: 0.65rem 0.85rem; font-size: 0.82rem; color: var(--text-secondary); border-bottom: 1px solid var(--border); word-break: break-word; }
     .data-table tr:hover td { background: rgba(212,168,83,0.05); }
     .user-cell { display: flex; align-items: center; gap: 0.75rem; }
@@ -134,7 +134,46 @@
     }
     .sidebar-nav .sidebar-link { display: flex !important; }
     .sidebar-brand span, .sidebar-link span, .user-info { display: block !important; }
-  </style>
+
+    /* Mobile admin layout: remove collapsed desktop sidebar from document flow. */
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none !important;
+      }
+
+      .main-content {
+        margin-right: 0 !important;
+        margin-left: 0 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        padding: 1rem !important;
+      }
+
+      .page-header,
+      .search-bar,
+      .stats-grid,
+      .filters,
+      .table-card,
+      .table-header,
+      .pagination,
+      .grid-2 {
+        min-width: 0;
+        max-width: 100%;
+      }
+
+      .table-scroll,
+      .table-card {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .table-scroll {
+        width: 100%;
+        max-width: 100%;
+      }
+    }
+</style>
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
