@@ -32,8 +32,8 @@
     "apply:organization-schema": "node scripts/apply-organization-schema.js",
     "apply:hreflang": "node scripts/apply-hreflang.js",
     "test:security:critical": "jest tests/security/admin-auth-unification.test.js tests/security/admin-dashboard-xss.test.js tests/security/admin-owner-server-authority.test.js tests/security/admin-session-bridge.test.js tests/security/csp-baseline.test.js tests/security/public-env-exposure.test.js tests/api/funding-bank-transfer.test.js --runInBand",
-    "audit:precommit": "npm run audit && npm run audit:api && npm run test:security:critical",
-    "test:admin:ui": "jest tests/admin/admin-dashboard-ui.test.js --runInBand"
+    "audit:precommit": "npm run audit && npm run audit:api && npm run test:security:critical && npm run test:admin:ui",
+    "test:admin:ui": "jest tests/admin/admin-modules-ui.test.js --runInBand"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",
