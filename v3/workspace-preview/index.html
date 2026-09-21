@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light" />
+  <title>Bonds Global — Project Workspace Preview</title>
+  <link rel="stylesheet" href="/v3/workspace-preview/workspace.css?v=1" />
+</head>
+<body>
+  <div id="workspace-root" class="workspace-loading">
+    <div class="loading-card">
+      <div class="loading-dot"></div>
+      <strong>Loading Project Workspace…</strong>
+      <span>Read-only preview using the existing ECC portfolio API.</span>
+    </div>
+  </div>
+
+  <!-- Existing auth client only; no new auth flow -->
+  <script src="/supabase-client.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.2"></script>
+  <script src="/v3/workspace-preview/workspace.js?v=1"></script>
+</body>
+</html>
