@@ -60,6 +60,9 @@ async function createPage(viewport = { width: 1280, height: 900 }) {
       },
       getSupabase() {
         return null;
+      },
+      async authenticatedFetch(url, options = {}) {
+        return fetch(url, options);
       }
     };
 
