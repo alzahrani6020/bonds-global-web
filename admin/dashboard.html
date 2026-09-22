@@ -538,12 +538,18 @@
       const overviewEl = document.getElementById('overviewPanel');
       const iframeWrap = document.getElementById('iframeWrap');
 
-      // Resize iframe based on inner page height so the outer dashboard scrolls
+      // Resize only from the currently loaded same-origin admin iframe.
       window.addEventListener('message', (event) => {
-        if (event.data?.type === 'iframe-height' && event.data?.height) {
-          const iframe = iframeWrap?.querySelector('iframe.module-frame');
-          if (iframe) iframe.style.height = event.data.height + 'px';
-        }
+        const iframe = iframeWrap?.querySelector('iframe.module-frame');
+        if (!iframe) return;
+        if (event.origin !== location.origin) return;
+        if (event.source !== iframe.contentWindow) return;
+        if (event.data?.type !== 'iframe-height') return;
+
+        const height = Number(event.data.height);
+        if (!Number.isFinite(height) || height <= 0) return;
+
+        iframe.style.height = Math.min(Math.max(height, 200), 20000) + 'px';
       });
 
       function withTimeout(promise, ms = 8000) {

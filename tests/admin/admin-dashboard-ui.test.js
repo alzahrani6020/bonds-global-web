@@ -184,5 +184,5 @@ describe('admin dashboard UI', () => {
     expect(violations).toEqual([]);
 
     await context.close();
-  }});
+  });
 });

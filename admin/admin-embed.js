@@ -82,14 +82,21 @@
     setInterval(reportHeight, 2000);
   }
 
-  // Token bridge: receive the short-lived admin access token from parent dashboard
+  // Token bridge: only trust the same-origin parent dashboard in embed mode.
   window.addEventListener('message', function (e) {
+    if (!isEmbed) return;
     if (e.origin !== location.origin) return;
-    if (e.data && e.data.type === 'admin-token') {
-      window.__ADMIN_TOKEN = e.data.token || '';
-      window.dispatchEvent(new Event('admin-token-ready'));
-    }
+    if (e.source !== window.parent) return;
+    if (!e.data || e.data.type !== 'admin-token') return;
 
+    const token = typeof e.data.token === 'string'
+      ? e.data.token.trim()
+      : '';
+
+    if (!token || token.length > 8192) return;
+
+    window.__ADMIN_TOKEN = token;
+    window.dispatchEvent(new Event('admin-token-ready'));
   });
 
   // Track admin module views so the journey reflects actual admin sections/pages.

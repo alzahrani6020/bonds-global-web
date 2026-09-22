@@ -58,10 +58,25 @@ describe('admin iframe session bridge hardening', () => {
     const embed = read('admin-embed.js');
 
     expect(embed).toContain(
-      "e.data.type === 'admin-token'"
+      "if (!isEmbed) return;"
     );
     expect(embed).toContain(
-      'window.__ADMIN_TOKEN = e.data.token'
+      "if (e.origin !== location.origin) return;"
+    );
+    expect(embed).toContain(
+      "if (e.source !== window.parent) return;"
+    );
+    expect(embed).toContain(
+      "e.data.type !== 'admin-token'"
+    );
+    expect(embed).toContain(
+      "typeof e.data.token === 'string'"
+    );
+    expect(embed).toContain(
+      'token.length > 8192'
+    );
+    expect(embed).toContain(
+      'window.__ADMIN_TOKEN = token'
     );
     expect(embed).toContain(
       "window.dispatchEvent(new Event('admin-token-ready'))"
