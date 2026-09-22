@@ -985,6 +985,22 @@
     function closeDetailsModal() { document.getElementById('detailsModal').classList.remove('active'); }
 
     // Activity Modal
+    function safeTrackedUrl(value) {
+      try {
+        const url = new URL(String(value || ''), location.origin);
+
+        if (
+          !['http:', 'https:'].includes(url.protocol) ||
+          url.origin !== location.origin
+        ) {
+          return '#';
+        }
+
+        return BondsAdminCommon.escapeHtml(url.href);
+      } catch {
+        return '#';
+      }
+    }
     function formatDateTime(iso) {
       if (!iso) return '—';
       return new Date(iso).toLocaleString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
@@ -1067,7 +1083,7 @@
                         <tr>
                           <td style="direction:ltr;text-align:right;">${formatDateTime(j.enteredAt)}</td>
                           <td>${BondsAdminCommon.escapeHtml(j.section || '-')}</td>
-                          <td><a class="page-link" href="${BondsAdminCommon.escapeHtml(j.url || '#')}" target="_blank" rel="noopener noreferrer" title="${BondsAdminCommon.escapeHtml(j.page || '')}">${BondsAdminCommon.escapeHtml(j.page || '-')}</a></td>
+                          <td><a class="page-link" href="${safeTrackedUrl(j.url)}" target="_blank" rel="noopener noreferrer" title="${BondsAdminCommon.escapeHtml(j.page || '')}">${BondsAdminCommon.escapeHtml(j.page || '-')}</a></td>
                           <td><span class="duration-badge">${formatDuration(j.durationSeconds)}</span></td>
                         </tr>
                       `).join('')}
