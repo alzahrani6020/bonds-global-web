@@ -100,8 +100,8 @@
         return;
       }
       const cards = posts.map(p => `
-        <a class="sm-card" href="${escapeHtml(p.permalink)}" target="_blank" rel="noopener">
-          ${p.mediaUrl ? `<div class="sm-card__media"><img src="${escapeHtml(p.mediaUrl)}" alt="" loading="lazy"/></div>` : ''}
+        <a class="sm-card" href="${escapeHtml(BondsAdminCommon.safeExternalUrl(p.permalink))}" target="_blank" rel="noopener">
+          ${p.mediaUrl ? `<div class="sm-card__media"><img src="${escapeHtml(BondsAdminCommon.safeExternalUrl(p.mediaUrl))}" alt="" loading="lazy"/></div>` : ''}
           <div class="sm-card__body">
             <div class="sm-card__meta">
               <span class="sm-card__platform">${ICONS[p.platform] || ''} ${escapeHtml(LABELS[p.platform] || p.platform)}</span>
@@ -232,7 +232,10 @@
       try {
         const res = await SocialMediaService.uploadMedia(file);
         mediaUrlInput.value = res.url;
-        uploadStatus.innerHTML = '✅ تم الرفع: <a href="' + escapeHtml(res.url) + '" target="_blank" rel="noopener">عرض</a>';
+        const uploadedUrl = BondsAdminCommon.safeExternalUrl(res.url);
+        uploadStatus.innerHTML = uploadedUrl
+          ? '✅ تم الرفع: <a href="' + escapeHtml(uploadedUrl) + '" target="_blank" rel="noopener">عرض</a>'
+          : '✅ تم الرفع';
         document.getElementById('sm-media-type').value = file.type.startsWith('video/') ? 'video' : 'image';
       } catch (e) {
         uploadStatus.textContent = '❌ فشل الرفع: ' + e.message;

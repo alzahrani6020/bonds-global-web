@@ -779,7 +779,13 @@
 
   async function downloadDocument(path) {
     try {
-      const url = await AdvisoryService.getSignedUrl(path);
+      const signedUrl = await AdvisoryService.getSignedUrl(path);
+      const url = BondsAdminCommon.safeExternalUrl(signedUrl);
+
+      if (!url) {
+        throw new Error('Invalid document URL');
+      }
+
       window.open(url, '_blank', 'noopener,noreferrer');
     } catch (err) { toast(err.message, 'error'); }
   }

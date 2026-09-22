@@ -323,7 +323,7 @@
           <div>${escapeHtml(d.file_name)}</div>
           <div class="fc-muted">${(Number(d.file_size) / 1024).toFixed(1)} KB · ${documentTypeLabel(d.document_type)}</div>
         </div>
-        ${d.signedUrl ? `<a class="ecc-btn ecc-btn--sm" href="${escapeHtml(d.signedUrl)}" target="_blank" rel="noopener" download>تحميل</a>` : ''}
+        ${d.signedUrl ? `<a class="ecc-btn ecc-btn--sm" href="${escapeHtml(BondsAdminCommon.safeExternalUrl(d.signedUrl))}" target="_blank" rel="noopener" download>تحميل</a>` : ''}
       </div>
     `).join('');
   }

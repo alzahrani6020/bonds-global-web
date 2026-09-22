@@ -64,6 +64,27 @@
     return String(str ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   }
 
+  function safeExternalUrl(value) {
+    try {
+      const url = new URL(String(value || ''));
+
+      if (url.protocol === 'https:') {
+        return url.toString();
+      }
+
+      if (
+        url.protocol === 'http:' &&
+        (url.hostname === 'localhost' || url.hostname === '127.0.0.1')
+      ) {
+        return url.toString();
+      }
+
+      return '';
+    } catch {
+      return '';
+    }
+  }
+
   function debounce(fn, ms) {
     let t;
     return function (...args) {
@@ -72,5 +93,11 @@
     };
   }
 
-  global.BondsAdminCommon = { getAdminToken, showAdminStatus, escapeHtml, debounce };
+  global.BondsAdminCommon = {
+    getAdminToken,
+    showAdminStatus,
+    escapeHtml,
+    safeExternalUrl,
+    debounce
+  };
 })(window);

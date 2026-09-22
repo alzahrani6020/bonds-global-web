@@ -594,7 +594,7 @@
             <tbody>
               ${docs.map(d => `
                 <tr>
-                  <td><a href="${BondsAdminCommon.escapeHtml(d.public_url || '#')}" target="_blank" rel="noopener">${BondsAdminCommon.escapeHtml(d.file_name)}</a></td>
+                  <td><a href="${BondsAdminCommon.escapeHtml(BondsAdminCommon.safeExternalUrl(d.public_url))}" target="_blank" rel="noopener">${BondsAdminCommon.escapeHtml(d.file_name)}</a></td>
                   <td>${d.file_size ? Math.round(d.file_size / 1024) + ' KB' : '—'}</td>
                   <td>${formatDate(d.created_at)}</td>
                   <td><button class="fa-btn fa-btn-danger fa-btn-sm" data-delete-doc="${d.id}">حذف</button></td>
