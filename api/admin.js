@@ -1678,9 +1678,41 @@ async function handleResetLink(sb, body) {
 
   if (error) throw error;
 
+  const rawResetLink =
+    data.properties?.action_link ||
+    data.properties?.recovery_url ||
+    null;
+
+  let resetLink = null;
+
+  if (rawResetLink) {
+    try {
+      const actionUrl = new URL(rawResetLink);
+      const configuredSupabaseUrl =
+        process.env.NEXT_PUBLIC_SUPABASE_URL ||
+        process.env.SUPABASE_URL ||
+        '';
+
+      const supabaseUrl = new URL(configuredSupabaseUrl);
+
+      if (
+        actionUrl.protocol === 'https:' &&
+        actionUrl.origin === supabaseUrl.origin
+      ) {
+        resetLink = actionUrl.toString();
+      }
+    } catch {
+      resetLink = null;
+    }
+  }
+
+  if (!resetLink) {
+    throw new Error('Invalid recovery link generated');
+  }
+
   return {
     success: true,
-    resetLink: data.properties?.action_link || data.properties?.recovery_url || null
+    resetLink
   };
 }
 
