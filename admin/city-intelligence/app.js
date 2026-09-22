@@ -672,7 +672,7 @@
         <td>${formatNum(r.overall_score, 1)}</td>
         <td>${formatDate(r.created_at)}</td>
         <td>
-          ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" class="ecc-btn ecc-btn--ghost ecc-btn--sm">تحميل PDF</a>` : ''}
+          ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" rel="noopener noreferrer" class="ecc-btn ecc-btn--ghost ecc-btn--sm">تحميل PDF</a>` : ''}
           <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteReport('${r.id}')">حذف</button>
         </td>
       </tr>`).join('');
@@ -783,7 +783,7 @@
           <td>${formatNum(r.overall_score, 1)}</td>
           <td>${formatDate(r.created_at)}</td>
           <td>
-            ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" class="ecc-btn ecc-btn--ghost ecc-btn--sm">تحميل</a>` : ''}
+            ${r.pdf_url ? `<a href="${r.pdf_url}" target="_blank" rel="noopener noreferrer" class="ecc-btn ecc-btn--ghost ecc-btn--sm">تحميل</a>` : ''}
             <button class="ecc-btn ecc-btn--ghost ci-btn-danger ecc-btn--sm" onclick="CityIntelligenceApp.deleteReport('${r.id}')">حذف</button>
           </td>
         </tr>`;

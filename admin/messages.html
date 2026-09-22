@@ -377,7 +377,7 @@
       if (digits.startsWith('05')) digits = '966' + digits.slice(1);
       else if (digits.startsWith('0')) digits = '966' + digits.slice(1);
       const text = 'مرحباً ' + (name || '') + '، شكراً لتواصلك مع بوندز. نحن نراجع طلبك وسنرد عليك قريباً.';
-      window.open('https://wa.me/' + digits + '?text=' + encodeURIComponent(text), '_blank');
+      window.open('https://wa.me/' + digits + '?text=' + encodeURIComponent(text), '_blank', 'noopener,noreferrer');
     }
 
     async function toggleRead(id, currentlyRead) {

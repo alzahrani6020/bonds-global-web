@@ -780,7 +780,7 @@
   async function downloadDocument(path) {
     try {
       const url = await AdvisoryService.getSignedUrl(path);
-      window.open(url, '_blank');
+      window.open(url, '_blank', 'noopener,noreferrer');
     } catch (err) { toast(err.message, 'error'); }
   }
 

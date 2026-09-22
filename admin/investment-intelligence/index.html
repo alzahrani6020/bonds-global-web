@@ -137,7 +137,7 @@
           if (sec.metrics) html += `<div class="ii-metrics">${sec.metrics.map(m => `<div class="ii-metric"><div class="label">${m.label}</div><div class="value">${m.value}</div></div>`).join('')}</div>`;
           html += `</div>`;
         }
-        html += `<div><button class="ii-btn" id="btn-review">مراجعة AI</button> <a class="ii-btn secondary" href="/api/v3/investment-intelligence/memorandum/${memo.id}/html" target="_blank">عرض HTML</a></div>`;
+        html += `<div><button class="ii-btn" id="btn-review">مراجعة AI</button> <a class="ii-btn secondary" href="/api/v3/investment-intelligence/memorandum/${memo.id}/html" target="_blank" rel="noopener noreferrer">عرض HTML</a></div>`;
         html += `</div>`;
         return html;
       }
