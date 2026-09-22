@@ -40,7 +40,11 @@
       try {
         const json = await withTimeout(apiRequest('me', token), 'api:me');
         if (json.success && json.id && json.email) {
-          return { id: json.id, email: json.email };
+          return {
+            id: json.id,
+            email: json.email,
+            adminRole: json.role || null
+          };
         }
       } catch (e) {
         console.warn('[AdvisoryService] API me failed:', e?.message);
@@ -65,17 +69,12 @@
     }
   }
 
-  const OWNER_EMAILS = ['iiffund.dev@gmail.com'];
-
   async function getUserRole() {
     const user = await getSessionUser();
     const sb = getSb();
 
-    // Owner fallback first to avoid depending on admin_roles query.
-    const configuredOwner = window.__ENV?.ADMIN_EMAIL || '';
-    const owners = [...OWNER_EMAILS];
-    if (configuredOwner) owners.push(configuredOwner);
-    if (owners.some(e => user.email.toLowerCase() === e.toLowerCase())) {
+    // Admin authority comes from the server-side /api/admin?action=me result.
+    if (user.adminRole === 'super_admin' || user.adminRole === 'admin') {
       return { role: 'manager', user };
     }
 
@@ -87,16 +86,6 @@
       if (advRole?.role) return { role: advRole.role, user };
     } catch (e) {
       console.warn('[AdvisoryService] advisory_roles check failed:', e.message);
-    }
-
-    try {
-      const { data: adminRole } = await withTimeout(
-        sb.from('admin_roles').select('role').eq('user_id', user.id).maybeSingle(),
-        'admin_roles'
-      );
-      if (adminRole?.role === 'super_admin' || adminRole?.role === 'admin') return { role: 'manager', user };
-    } catch (e) {
-      console.warn('[AdvisoryService] admin_roles check failed:', e.message);
     }
 
     return { role: null, user };
