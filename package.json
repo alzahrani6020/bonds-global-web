@@ -31,7 +31,7 @@
     "apply:structured-data": "node scripts/apply-structured-data.js",
     "apply:organization-schema": "node scripts/apply-organization-schema.js",
     "apply:hreflang": "node scripts/apply-hreflang.js",
-    "test:security:critical": "jest tests/security/admin-auth-unification.test.js tests/security/admin-dashboard-xss.test.js tests/security/admin-owner-server-authority.test.js tests/security/admin-session-bridge.test.js tests/security/admin-iframe-messaging.test.js tests/security/admin-external-navigation.test.js tests/security/admin-dynamic-url-safety.test.js tests/security/admin-reset-link-safety.test.js tests/security/admin-external-url-safety.test.js tests/security/csp-baseline.test.js tests/security/public-env-exposure.test.js tests/api/funding-bank-transfer.test.js --runInBand",
+    "test:security:critical": "jest tests/security/admin-auth-unification.test.js tests/security/admin-dashboard-xss.test.js tests/security/admin-owner-server-authority.test.js tests/security/admin-session-bridge.test.js tests/security/admin-iframe-messaging.test.js tests/security/admin-external-navigation.test.js tests/security/admin-dynamic-url-safety.test.js tests/security/admin-reset-link-safety.test.js tests/security/admin-external-url-safety.test.js tests/security/supabase-migration-uniqueness.test.js tests/security/csp-baseline.test.js tests/security/public-env-exposure.test.js tests/api/funding-bank-transfer.test.js --runInBand",
     "audit:precommit": "npm run audit && npm run audit:api && npm run test:security:critical && npm run test:admin:ui && npm run test:workspace:ui",
     "test:admin:ui": "jest tests/admin/admin-modules-ui.test.js --runInBand",
     "test:workspace:ui": "jest tests/v3/workspace-preview-ui.test.js --runInBand"
