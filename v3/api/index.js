@@ -69,6 +69,7 @@ const { adaptToUcp, adaptFromUcp } = require('../../lib/ucp/adapters');
 const { run: orchestratorRun, buildIntentForm } = require('../../lib/orchestrator/intelligence-orchestrator');
 const { listIntents } = require('../../lib/intent/intent-engine');
 const { setAllowedOrigin } = require('../../lib/api/cors');
+const { resolveOpportunityYear } = require('../lib/opportunity-query');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -358,7 +359,7 @@ async function handleOpportunitiesTop(req, res) {
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '10', 10), 100);
   const requestedYear = url.searchParams.get('year');
   const isLatest = requestedYear === 'latest';
-  const fallbackYear = parseInt(requestedYear || new Date().getFullYear(), 10);
+  const fallbackYear = resolveOpportunityYear(requestedYear);
   const supabase = getSupabaseClient();
 
   function buildOpportunitiesQuery(yearCondition, filters = {}) {
