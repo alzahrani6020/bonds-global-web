@@ -115,6 +115,54 @@ function writePng(png, filePath) {
           if (banner) banner.classList.remove('is-visible');
         });
 
+        if (['index-ar', 'about-ar', 'contact-ar', 'services-ar', 'index-en'].includes(p.name)) {
+          const issues = await page.evaluate(({ viewportWidth, viewportHeight }) => {
+            const problems = [];
+            const root = document.documentElement;
+            if (root.scrollWidth > viewportWidth + 4) {
+              problems.push(`horizontal overflow: ${root.scrollWidth}px > ${viewportWidth}px`);
+            }
+            const logo = document.querySelector('.main-header .header-brand img');
+            if (logo) {
+              const rect = logo.getBoundingClientRect();
+              const style = getComputedStyle(logo);
+              if (!logo.complete || logo.naturalWidth <= 0 || logo.naturalHeight <= 0) problems.push('header logo failed to load');
+              if (rect.width < 40 || rect.height < 24 || style.display === 'none' || style.visibility === 'hidden' || Number(style.opacity) < 0.9) {
+                problems.push(`header logo not visibly rendered (${Math.round(rect.width)}x${Math.round(rect.height)})`);
+              }
+            }
+            const title = document.querySelector('.fi-hero__title, .hero__title, .page-hero__title, main h1');
+            if (title) {
+              const rect = title.getBoundingClientRect();
+              const style = getComputedStyle(title);
+              if (rect.width <= 0 || rect.height <= 0 || rect.right < 0 || rect.left > viewportWidth || style.visibility === 'hidden' || Number(style.opacity) < 0.9) {
+                problems.push('primary hero title is not visible in the viewport');
+              }
+            }
+            const calcToggle = Array.from(document.querySelectorAll('.main-nav .dropdown-toggle'))
+              .find(el => /الحاسبات|Calculators/i.test(el.textContent || ''));
+            if (calcToggle && viewportWidth > 900) {
+              const wrapper = calcToggle.closest('.dropdown');
+              const menu = wrapper && wrapper.querySelector('.dropdown-menu--grouped');
+              if (wrapper && menu) {
+                wrapper.classList.add('is-open');
+                const rect = menu.getBoundingClientRect();
+                const unreadable = Array.from(menu.querySelectorAll('a')).some(link => {
+                  const s = getComputedStyle(link);
+                  return s.display === 'none' || s.visibility === 'hidden' || Number(s.opacity) < 0.9;
+                });
+                if (rect.width > viewportWidth - 16 || rect.height > viewportHeight - 16 || rect.left < 0 || rect.right > viewportWidth) {
+                  problems.push('calculator mega menu exceeds viewport');
+                }
+                if (unreadable) problems.push('calculator mega menu contains unreadable links');
+                wrapper.classList.remove('is-open');
+              }
+            }
+            return problems;
+          }, { viewportWidth: viewport.width, viewportHeight: viewport.height });
+          if (issues.length) throw new Error(`structural visual gate failed: ${issues.join('; ')}`);
+        }
+
         ensureDir(path.dirname(snapshotPath));
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
 

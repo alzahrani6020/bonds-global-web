@@ -11,11 +11,17 @@
 (function () {
   'use strict';
 
-  if (!document.querySelector('link[href*="institutional-system.css"]')) {
-    const institutionalStyles = document.createElement('link');
-    institutionalStyles.rel = 'stylesheet';
-    institutionalStyles.href = '/styles/institutional-system.css?v=5';
-    document.head.appendChild(institutionalStyles);
+  const institutionalHref = '/styles/institutional-system.css?v=6';
+  const institutionalStyles = document.querySelector('link[href*="institutional-system.css"]');
+  if (institutionalStyles) {
+    if (!institutionalStyles.href.includes('institutional-system.css?v=6')) {
+      institutionalStyles.href = institutionalHref;
+    }
+  } else {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = institutionalHref;
+    document.head.appendChild(link);
   }
 
   function getDepth() {
@@ -274,7 +280,7 @@
 <header class="main-header" id="header">
   <div class="main-header__inner">
     <a href="${homeHref}" class="header-brand">
-      <img src="/assets/bonds-logo-2026-v2-sm.webp?v=2026b" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:60px;" />
+      <img class="header-brand__image" src="/assets/bonds-logo-2026-header.webp?v=2026c" alt="${isEn ? 'Bonds' : 'بوندز'}" width="112" height="44" />
     </a>
     <nav class="main-nav" id="mainNav">
       <ul>
@@ -452,7 +458,7 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.65.0';
+    const href = '/header-footer.css?v=2.66.0';
     if (document.querySelector('link[href*="header-footer.css?v=2.65.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
