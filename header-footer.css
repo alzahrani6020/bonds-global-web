@@ -258,11 +258,11 @@ body[dir="ltr"] .dropdown-menu {
   grid-auto-rows: max-content;
   align-items: start;
   gap: 1rem;
-  position: absolute;
-  top: calc(100% + 0.5rem);
-  right: 50%;
-  left: auto;
-  width: min(920px, calc(100vw - 3rem));
+  position: fixed;
+  top: calc(var(--header-height, 64px) + 0.5rem);
+  right: auto;
+  left: 50%;
+  width: min(920px, calc(100vw - 2rem));
   max-width: 920px;
   max-height: min(560px, calc(100vh - 110px));
   margin: 0;
@@ -273,13 +273,13 @@ body[dir="ltr"] .dropdown-menu {
   border: 1px solid #d9dee5;
   border-radius: 8px;
   box-shadow: 0 14px 34px rgba(20, 34, 56, 0.16);
-  transform: translate(50%, -8px);
+  transform: translate(-50%, -8px);
   box-sizing: border-box;
 }
 
 .dropdown:hover > .dropdown-menu--grouped,
 .dropdown.is-open > .dropdown-menu--grouped {
-  transform: translate(50%, 0);
+  transform: translate(-50%, 0);
 }
 
 .dropdown-group {
