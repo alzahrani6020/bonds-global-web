@@ -193,10 +193,9 @@ class OpportunityScoringEngine {
 
     // 6. Rent affordability vs country benchmark
     const marketRent = Number(marketRow.avg_rent_per_sqm);
-    const cityRentValue = Number(city.avg_rent_per_sqm);
     const cityRent = Number.isFinite(marketRent) && marketRent > 0
       ? marketRent
-      : (Number.isFinite(cityRentValue) && cityRentValue > 0 ? cityRentValue : null);
+      : null;
     const benchmarkRentValue = Number(benchmarks.avg_rent_per_sqm);
     const benchmarkRent = Number.isFinite(benchmarkRentValue) && benchmarkRentValue > 0
       ? benchmarkRentValue
@@ -209,7 +208,7 @@ class OpportunityScoringEngine {
       {
         sourceField: Number.isFinite(marketRent) && marketRent > 0
           ? 'avg_rent_per_sqm'
-          : (Number.isFinite(cityRentValue) && cityRentValue > 0 ? 'cities.avg_rent_per_sqm' : null),
+          : null,
         reference: benchmarkRent !== null ? 'country_benchmark' : null
       }
     );
@@ -311,7 +310,7 @@ class OpportunityScoringEngine {
   async _loadCity(cityId) {
     const { data, error } = await this.supabase
       .from('cities')
-      .select('id, code, country_code, population, purchasing_power_index, avg_rent_per_sqm, lat, lng')
+      .select('id, code, country_code, population, purchasing_power_index, lat, lng')
       .eq('id', cityId)
       .single();
     if (error) throw error;
