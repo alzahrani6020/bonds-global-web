@@ -356,8 +356,10 @@ async function handleOpportunitiesTop(req, res) {
   const url = getQuery(req);
   const countryCode = url.searchParams.get('country');
   const activityCode = url.searchParams.get('activity');
-  const minScore = url.searchParams.get('min_score');
-  const limit = Math.min(parseInt(url.searchParams.get('limit') || '10', 10), 100);
+  const minScoreParam = url.searchParams.get('min_score');
+  const minDecisionScore = Number.isFinite(Number(minScoreParam)) ? Number(minScoreParam) : null;
+  const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '10', 10) || 10, 1), 100);
+  const candidateLimit = Math.min(Math.max(limit * 20, 200), 1000);
   const requestedYear = url.searchParams.get('year');
   const isLatest = requestedYear === 'latest';
   const fallbackYear = resolveOpportunityYear(requestedYear);
@@ -377,12 +379,11 @@ async function handleOpportunitiesTop(req, res) {
 
     if (filters.countryCode) q = q.eq('cities.country_code', filters.countryCode);
     if (filters.activityCode) q = q.eq('economic_activities.code', filters.activityCode);
-    if (minScore) q = q.gte('opportunity_score', Number(minScore));
 
     return q
       .order('data_year', { ascending: false })
       .order('opportunity_score', { ascending: false })
-      .limit(limit);
+      .limit(candidateLimit);
   }
 
   async function tryQuery(filters) {
@@ -404,7 +405,18 @@ async function handleOpportunitiesTop(req, res) {
     return sendJson(res, 500, { error: 'Failed to load opportunities' });
   }
 
-  const results = (data || []).map(row => {
+  // For latest/fallback queries, keep only the newest row for each city/activity
+  // before ranking. This prevents older snapshots from competing with current data.
+  const latestRows = [];
+  const seen = new Set();
+  for (const row of data || []) {
+    const key = `${row.city_id || row.cities?.id || 'city'}:${row.activity_id || row.economic_activities?.code || 'activity'}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    latestRows.push(row);
+  }
+
+  const assessed = latestRows.map(row => {
     const reliability = assessOpportunityRow(row);
     return {
       city: row.cities,
@@ -419,7 +431,7 @@ async function handleOpportunitiesTop(req, res) {
       uncertainty: reliability.uncertainty,
       sourceType: reliability.sourceType,
       warnings: reliability.warnings,
-      rank: row.opportunity_rank,
+      rawRank: row.opportunity_rank,
       breakdown: row.opportunity_breakdown,
       marketSize: row.market_size,
       competitorsCount: row.competitors_count,
@@ -427,11 +439,31 @@ async function handleOpportunitiesTop(req, res) {
       growthRate: row.annual_growth_rate,
       confidence: row.confidence,
       avgSalary: row.avg_salary,
-      expectedDemand: row.expected_demand
+      expectedDemand: row.expected_demand,
+      dataYear: row.data_year
     };
   });
 
-  sendJson(res, 200, { opportunities: results, count: results.length });
+  const ranked = assessed
+    .filter(item => minDecisionScore === null || item.decisionScore >= minDecisionScore)
+    .sort((a, b) =>
+      b.decisionScore - a.decisionScore ||
+      b.reliability - a.reliability ||
+      b.rawScore - a.rawScore
+    )
+    .slice(0, limit)
+    .map((item, index) => ({
+      ...item,
+      rank: index + 1,
+      decisionRank: index + 1
+    }));
+
+  sendJson(res, 200, {
+    opportunities: ranked,
+    count: ranked.length,
+    rankingBasis: 'decision_score',
+    minScoreBasis: 'decision_score'
+  });
 }
 
 async function handleCityDetail(req, res, path) {
