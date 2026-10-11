@@ -53,7 +53,10 @@ describe('Opportunity reliability layer', () => {
     });
     expect(result.sourceType).toBe('BENCHMARK');
     expect(result.reliability).toBeLessThanOrEqual(55);
+    expect(result.scoringCoverage).toBeNull();
+    expect(result.scoringCoverageSource).toBe('unknown');
     expect(result.warnings).toContain('estimated_data');
+    expect(result.warnings).toContain('scoring_coverage_unknown');
   });
 
   test('scoring coverage independently reduces reliability when score dimensions are sparse', () => {
@@ -72,4 +75,31 @@ describe('Opportunity reliability layer', () => {
     expect(result.reliability).toBeLessThanOrEqual(35);
     expect(result.warnings).toContain('low_scoring_coverage');
   });
+
+  test('infers scoring coverage from legacy metric breakdown components', () => {
+    const result = assessOpportunityRow({
+      opportunity_score: 85,
+      confidence: 65,
+      opportunity_breakdown: {
+        confidence: 70,
+        growth: 10,
+        perCapitaMarket: 66.7,
+        lowSaturation: 30,
+        laborAvailability: 75,
+        purchasingPower: 72,
+        rentAffordability: 77.8,
+        lowRisk: 50
+      },
+      market_size: 1000000,
+      competitors_count: 20,
+      market_saturation_score: 40,
+      annual_growth_rate: 6,
+      avg_salary: 8000,
+      cities: { population: 1000000 }
+    });
+    expect(result.scoringCoverage).toBe(100);
+    expect(result.scoringCoverageSource).toBe('inferred');
+    expect(result.warnings).not.toContain('scoring_coverage_unknown');
+  });
+
 });
