@@ -1681,20 +1681,24 @@ img[src*="bonds-logo"],
   background: #F4F6F8 !important;
 }
 
-/* Fixed-income landing pages use a dark hero and a transparent header.
- * Keep the header dark and nav text light so it remains readable over the hero
- * while the CTA button keeps its institutional white-on-navy treatment. */
+/* Institutional homepage header follows the unified light navigation system. */
 .fi-page .main-header,
 .fi-page #site-header,
 .fi-page .main-header__inner {
-  background: rgba(10, 15, 26, 0.96) !important;
+  background: #FFFFFF !important;
+}
+.fi-page #site-header .main-nav a,
+.fi-page #site-header .main-nav .dropdown-toggle,
+.fi-page .main-header .main-nav a,
+.fi-page .main-header .main-nav .dropdown-toggle {
+  color: var(--text) !important;
 }
 .fi-page #site-header .main-nav a.active,
 .fi-page #site-header .main-nav .dropdown-toggle.active,
 .fi-page .main-header .main-nav a.active,
 .fi-page .main-header .main-nav .dropdown-toggle.active {
-  color: #FFFFFF !important;
-  background: rgba(255, 255, 255, 0.12) !important;
+  color: var(--navy-950) !important;
+  background: #F4F6F8 !important;
 }
 .fi-page #site-header .btn-header,
 .fi-page #site-header .btn-header:hover,
