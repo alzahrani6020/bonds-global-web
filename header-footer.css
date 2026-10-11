@@ -950,3 +950,67 @@ html[dir="ltr"] .footer-links a:hover {
   .header-brand img { width: 72px !important; max-width: 72px !important; }
   .btn-header { padding-inline: 0.7rem; font-size: 0.74rem; }
 }
+
+
+/* ===== Dropdown default-state visibility fix v2.67.0 =====
+ * Text must be readable before hover. Hover only enhances the item.
+ */
+.main-header .dropdown-menu {
+  background: #ffffff !important;
+  color: #142238 !important;
+  border-color: #d9dee5 !important;
+}
+
+.main-header .dropdown-menu a,
+.main-header .dropdown-menu a:link,
+.main-header .dropdown-menu a:visited,
+.main-header .dropdown-menu button {
+  color: #142238 !important;
+  -webkit-text-fill-color: #142238 !important;
+  background: #ffffff !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  text-shadow: none !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+
+.main-header .dropdown-menu a:hover,
+.main-header .dropdown-menu a:focus-visible,
+.main-header .dropdown-menu a.active,
+.main-header .dropdown-menu button:hover,
+.main-header .dropdown-menu button:focus-visible {
+  color: #0b1f3a !important;
+  -webkit-text-fill-color: #0b1f3a !important;
+  background: #f4f6f8 !important;
+}
+
+.main-header .dropdown-group,
+.main-header .dropdown-group__heading,
+.main-header .dropdown-menu__footer {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.main-header .dropdown-group__heading {
+  color: #765d2d !important;
+  -webkit-text-fill-color: #765d2d !important;
+  background: #ffffff !important;
+}
+
+.main-header .dropdown-menu--grouped a,
+.main-header .dropdown-menu--grouped a:link,
+.main-header .dropdown-menu--grouped a:visited {
+  color: #142238 !important;
+  -webkit-text-fill-color: #142238 !important;
+  background: #ffffff !important;
+}
+
+.main-header .dropdown-menu__footer a,
+.main-header .dropdown-menu__footer a:link,
+.main-header .dropdown-menu__footer a:visited {
+  color: #0b1f3a !important;
+  -webkit-text-fill-color: #0b1f3a !important;
+  background: #f4f6f8 !important;
+  font-weight: 700 !important;
+}

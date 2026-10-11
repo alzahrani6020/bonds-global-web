@@ -458,8 +458,14 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.66.0';
-    if (document.querySelector('link[href*="header-footer.css?v=2.65.0"]')) return;
+    const href = '/header-footer.css?v=2.67.0';
+    const existing = document.querySelector('link[href*="header-footer.css"]');
+    if (existing) {
+      if (!existing.href.includes('header-footer.css?v=2.67.0')) {
+        existing.href = href;
+      }
+      return;
+    }
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
