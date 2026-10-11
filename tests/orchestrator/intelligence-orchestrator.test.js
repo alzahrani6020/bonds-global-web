@@ -19,6 +19,8 @@ describe('Intelligence Orchestrator', () => {
     expect(result.autoPopulate).toBeDefined();
     expect(result.confidence.score).toBeGreaterThan(0);
     expect(result.explanation.language).toBe('ar');
+    expect(result.confidence.decisionIntegrity).toBeDefined();
+    expect(['blocked', 'review_required', 'decision_ready']).toContain(result.confidence.decisionIntegrity.status);
     expect(trace.name).toBe('intelligence-orchestrator');
   });
 
@@ -39,6 +41,19 @@ describe('Intelligence Orchestrator', () => {
       input: 'value my spaceship',
       sector: 'spaceship'
     })).rejects.toThrow('Unknown sector');
+  });
+
+  it('does not recommend proceed when decision-critical engines are not decision-ready', async () => {
+    const { result } = await run({
+      input: 'حلل السوق لفندق',
+      sector: 'hotel',
+      context: 'investment',
+      language: 'ar'
+    });
+    if (result.confidence.decisionIntegrity.status !== 'decision_ready') {
+      expect(result.explanation).toBeDefined();
+      expect(result.confidence.decisionIntegrity.blockedDecisionEngines.length >= 0).toBe(true);
+    }
   });
 
   it('includes engine results', async () => {
