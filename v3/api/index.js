@@ -11,6 +11,7 @@ const { billingRouter } = require('./billing');
 const { dataEngineRouter } = require('./data-engine');
 const { getUserFromToken } = require('../lib/auth');
 const { checkRateLimit } = require('../../lib/api/rate-limit');
+const { assessOpportunityRow } = require('../../lib/truth/opportunity-reliability');
 // AI handlers from the main project are optional; V3 can be deployed standalone.
 // If the files are not available, stub handlers return 503 so the rest of the API works.
 function aiNotAvailable(req, res) {
@@ -403,20 +404,31 @@ async function handleOpportunitiesTop(req, res) {
     return sendJson(res, 500, { error: 'Failed to load opportunities' });
   }
 
-  const results = (data || []).map(row => ({
-    city: row.cities,
-    activity: row.economic_activities,
-    score: row.opportunity_score,
-    rank: row.opportunity_rank,
-    breakdown: row.opportunity_breakdown,
-    marketSize: row.market_size,
-    competitorsCount: row.competitors_count,
-    saturation: row.market_saturation_score,
-    growthRate: row.annual_growth_rate,
-    confidence: row.confidence,
-    avgSalary: row.avg_salary,
-    expectedDemand: row.expected_demand
-  }));
+  const results = (data || []).map(row => {
+    const reliability = assessOpportunityRow(row);
+    return {
+      city: row.cities,
+      activity: row.economic_activities,
+      score: row.opportunity_score,
+      rawScore: reliability.rawPotential,
+      decisionScore: reliability.decisionScore,
+      reliability: reliability.reliability,
+      reliabilityBand: reliability.reliabilityBand,
+      decisionStatus: reliability.decisionStatus,
+      uncertainty: reliability.uncertainty,
+      sourceType: reliability.sourceType,
+      warnings: reliability.warnings,
+      rank: row.opportunity_rank,
+      breakdown: row.opportunity_breakdown,
+      marketSize: row.market_size,
+      competitorsCount: row.competitors_count,
+      saturation: row.market_saturation_score,
+      growthRate: row.annual_growth_rate,
+      confidence: row.confidence,
+      avgSalary: row.avg_salary,
+      expectedDemand: row.expected_demand
+    };
+  });
 
   sendJson(res, 200, { opportunities: results, count: results.length });
 }
