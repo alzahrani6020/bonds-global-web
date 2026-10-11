@@ -14,7 +14,7 @@
   if (!document.querySelector('link[href*="institutional-system.css"]')) {
     const institutionalStyles = document.createElement('link');
     institutionalStyles.rel = 'stylesheet';
-    institutionalStyles.href = '/styles/institutional-system.css?v=4';
+    institutionalStyles.href = '/styles/institutional-system.css?v=5';
     document.head.appendChild(institutionalStyles);
   }
 
@@ -448,8 +448,8 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.63.0';
-    if (document.querySelector('link[href*="header-footer.css?v=2.63.0"]')) return;
+    const href = '/header-footer.css?v=2.64.0';
+    if (document.querySelector('link[href*="header-footer.css?v=2.64.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
@@ -458,37 +458,10 @@
   }
 
   function initThemeToggle() {
-    if (document.getElementById('themeToggle')) return;
-    const headerActions = document.querySelector('.header-actions');
-    if (!headerActions) return;
-
-    const isEn = detectLang() === 'en';
-    const html = document.documentElement;
-    const savedTheme = localStorage.getItem('theme');
-
-    function applyTheme(theme) {
-      // Design tokens: default :root is DARK; light is opt-in via data-theme="light".
-      html.setAttribute('data-theme', theme === 'light' ? 'light' : 'dark');
-    }
-
-    if (savedTheme) applyTheme(savedTheme);
-
-    const btn = document.createElement('button');
-    btn.id = 'themeToggle';
-    btn.className = 'theme-toggle';
-    btn.setAttribute('aria-label', 'Toggle theme');
-    btn.title = isEn ? 'Toggle theme' : 'تبديل الوضع';
-    btn.innerHTML = html.getAttribute('data-theme') !== 'light' ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg>" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#FFD983\" d=\"M30.312.776C32 19 20 32 .776 30.312c8.199 7.717 21.091 7.588 29.107-.429C37.9 21.867 38.03 8.975 30.312.776z\"/><path d=\"M30.705 15.915c-.453.454-.453 1.189 0 1.644.454.453 1.189.453 1.643 0 .454-.455.455-1.19 0-1.644-.453-.454-1.189-.454-1.643 0zm-16.022 14.38c-.682.681-.682 1.783 0 2.465.68.682 1.784.682 2.464 0 .681-.682.681-1.784 0-2.465-.68-.682-1.784-.682-2.464 0zm13.968-2.147c-1.135 1.135-2.974 1.135-4.108 0-1.135-1.135-1.135-2.975 0-4.107 1.135-1.136 2.974-1.136 4.108 0 1.135 1.133 1.135 2.973 0 4.107z\" fill=\"#FFCC4D\"/></svg>";
-
-    btn.addEventListener('click', function () {
-      const isDark = html.getAttribute('data-theme') !== 'light';
-      const next = isDark ? 'light' : 'dark';
-      applyTheme(next);
-      btn.innerHTML = next === 'dark' ? "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2\"/><path d=\"M12 20v2\"/><path d=\"m4.93 4.93 1.41 1.41\"/><path d=\"m17.66 17.66 1.41 1.41\"/><path d=\"M2 12h2\"/><path d=\"M20 12h2\"/><path d=\"m6.34 17.66-1.41 1.41\"/><path d=\"m19.07 4.93-1.41 1.41\"/></svg>" : "<svg aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 36 36\"><path fill=\"#FFD983\" d=\"M30.312.776C32 19 20 32 .776 30.312c8.199 7.717 21.091 7.588 29.107-.429C37.9 21.867 38.03 8.975 30.312.776z\"/><path d=\"M30.705 15.915c-.453.454-.453 1.189 0 1.644.454.453 1.189.453 1.643 0 .454-.455.455-1.19 0-1.644-.453-.454-1.189-.454-1.643 0zm-16.022 14.38c-.682.681-.682 1.783 0 2.465.68.682 1.784.682 2.464 0 .681-.682.681-1.784 0-2.465-.68-.682-1.784-.682-2.464 0zm13.968-2.147c-1.135 1.135-2.974 1.135-4.108 0-1.135-1.135-1.135-2.975 0-4.107 1.135-1.136 2.974-1.136 4.108 0 1.135 1.133 1.135 2.973 0 4.107z\" fill=\"#FFCC4D\"/></svg>";
-      localStorage.setItem('theme', next);
-    });
-
-    headerActions.insertBefore(btn, headerActions.firstChild);
+    // The public institutional interface is intentionally single-theme.
+    // Remove any legacy empty theme control left by older cached layout code.
+    const existing = document.getElementById('themeToggle');
+    if (existing) existing.remove();
   }
 
   function shouldNoPrint() {
