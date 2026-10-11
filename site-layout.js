@@ -280,7 +280,7 @@
 <header class="main-header" id="header">
   <div class="main-header__inner">
     <a href="${homeHref}" class="header-brand">
-      <img class="header-brand__image" src="/assets/bonds-logo.svg?v=2026d" alt="${isEn ? 'Bonds' : 'بوندز'}" width="112" height="44" />
+      <img class="header-brand__image" src="/assets/bonds-logo-2026-header.webp?v=2026e" alt="${isEn ? 'Bonds' : 'بوندز'}" width="112" height="44" />
     </a>
     <nav class="main-nav" id="mainNav">
       <ul>
@@ -458,10 +458,10 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.68.0';
+    const href = '/header-footer.css?v=2.69.0';
     const existing = document.querySelector('link[href*="header-footer.css"]');
     if (existing) {
-      if (!existing.href.includes('header-footer.css?v=2.68.0')) {
+      if (!existing.href.includes('header-footer.css?v=2.69.0')) {
         existing.href = href;
       }
       return;
