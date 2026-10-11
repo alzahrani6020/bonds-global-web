@@ -12,6 +12,8 @@ const BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
 const PAGES = [
   { name: 'index-ar', url: '/' },
   { name: 'services-ar', url: '/services.html' },
+  { name: 'funding-extraction-ar', url: '/funding-extraction.html#funding-request' },
+  { name: 'opportunity-bank-ar', url: '/v3/opportunity-bank.html' },
   { name: 'pricing-root-ar', url: '/pricing.html' },
   { name: 'calculator-ar', url: '/calculator.html' },
   { name: 'manufacturing-ar', url: '/sectors/manufacturing.html' },
