@@ -26,11 +26,11 @@
     header p { margin: 0.5rem 0 0; color: var(--text-secondary); }
     .container { padding: 2rem; max-width: 1400px; margin: 0 auto; }
     .controls {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(180px, 1fr)) auto;
       gap: 1rem;
-      margin-bottom: 2rem;
-      flex-wrap: wrap;
-      align-items: flex-end;
+      margin-bottom: 1.25rem;
+      align-items: end;
     }
     select, input, button {
       padding: 0.75rem 1rem;
@@ -41,7 +41,67 @@
       font-size: 1rem;
       font-family: inherit;
     }
-    select, input { min-width: 200px; }
+    select, input { min-width: 0; width: 100%; }
+    select option { background: #0f1b2d; color: #f8fafc; }
+    .city-picker {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .city-picker-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+    .city-search { max-width: 420px; }
+    .selection-count { color: var(--text-secondary); font-size: 0.9rem; }
+    .catalog-meta { color: var(--text-secondary); font-size: 0.82rem; margin-bottom: 0.75rem; }
+    .selected-cities {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+      min-height: 2rem;
+    }
+    .city-list {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0.55rem;
+      max-height: 360px;
+      overflow: auto;
+      padding-inline-end: 0.25rem;
+    }
+    .city-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.6rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.55rem 0.7rem;
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+    }
+    .city-row:hover { border-color: var(--gold); }
+    .city-row.selected {
+      border-color: var(--gold);
+      background: rgba(212,168,83,0.14);
+    }
+    .city-row-name { font-weight: 700; }
+    .city-row-meta { font-size: 0.72rem; color: var(--text-secondary); }
+    .quality-badge {
+      font-size: 0.68rem;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 0.1rem 0.4rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
     button {
       cursor: pointer;
       font-weight: 700;
@@ -58,7 +118,7 @@
       display: flex;
       flex-wrap: wrap;
       gap: 0.5rem;
-      max-width: 600px;
+      max-width: none;
     }
     .city-chip {
       display: flex;
@@ -146,8 +206,13 @@
       text-decoration: none;
       font-weight: 700;
     }
+    @media (max-width: 1100px) {
+      .controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .city-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     @media (max-width: 768px) {
-      .controls { flex-direction: column; align-items: stretch; }
+      .controls { grid-template-columns: 1fr; }
+      .city-list { grid-template-columns: 1fr; max-height: 420px; }
       select, input, .city-selector { width: 100%; }
     }
   </style>
@@ -229,31 +294,39 @@
 
     <div class="controls">
       <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الدولة</label>
+        <select id="countrySelect"><option value="">اختر الدولة</option></select>
+      </div>
+      <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">كل الأنشطة</option></select>
+        <select id="activitySelect"><option value="">كل الأنشطة</option></select>
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">السنة</label>
-        <select data-universal-dropdown="true" id="yearSelect">
-          <option value="2025" selected>2025</option>
-          <option value="2026">2026</option>
+        <select id="yearSelect">
+          <option value="2026" selected>2026</option>
+          <option value="2025">2025</option>
           <option value="2024">2024</option>
         </select>
       </div>
       <div>
-        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الدولة</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" id="countrySelect"><option value="">كل الدول</option></select>
-      </div>
-      <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">نموذج المشروع (اختياري)</label>
-        <select data-universal-dropdown="true" id="modelSelect"><option value="">بدون نموذج</option></select>
+        <select id="modelSelect"><option value="">بدون نموذج</option></select>
       </div>
       <button id="compareBtn" class="compare-btn">قارن المدن</button>
     </div>
 
-    <div>
-      <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">اختر المدن لهذا النشاط (1–10)</label>
-      <div id="cityChips" class="city-selector">جاري تحميل المدن...</div>
+    <div class="city-picker">
+      <div class="city-picker-head">
+        <div>
+          <strong>اختر المدن للمقارنة</strong>
+          <div id="catalogMeta" class="catalog-meta">يتم تحميل الكتالوج الموحد...</div>
+        </div>
+        <div class="selection-count"><span id="selectedCount">0</span> / 10 مدن مختارة</div>
+      </div>
+      <input id="citySearch" class="city-search" type="search" placeholder="ابحث عن مدينة..." autocomplete="off">
+      <div id="selectedCities" class="selected-cities"></div>
+      <div id="cityList" class="city-list">جاري تحميل المدن...</div>
     </div>
 
     <div id="content" style="margin-top: 2rem;">
@@ -315,150 +388,177 @@
 
     const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
 
+    function selectedActivity() {
+      const code = document.getElementById('activitySelect').value;
+      return activities.find(a => a.code === code) || null;
+    }
+
+    function selectedActivityCodes() {
+      const activity = selectedActivity();
+      return activity ? (activity.aliases || [activity.code]) : [];
+    }
+
     async function init() {
       try {
-        const [citiesData, sectorsData, modelsData] = await Promise.all([
-          fetchJson(API_URL + '/cities?limit=2000'),
-          fetchJson(API_URL + '/sectors'),
+        const [countriesData, activitiesData, modelsData] = await Promise.all([
+          fetchJson(API_URL + '/catalog/countries'),
+          fetchJson(API_URL + '/catalog/activities'),
           fetchJson(API_URL + '/models?limit=500')
         ]);
 
-        cities = (citiesData.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
+        activities = activitiesData.activities || [];
         models = modelsData.models || [];
-        activities = [];
-        (sectorsData.sectors || []).forEach(sector => {
-          (sector.economic_sub_sectors || []).forEach(sub => {
-            (sub.economic_activities || []).forEach(activity => {
-              activities.push(activity);
-            });
-          });
-        });
+
+        const countrySelect = document.getElementById('countrySelect');
+        countrySelect.innerHTML = '<option value="">اختر الدولة</option>' +
+          (countriesData.countries || [])
+            .filter(country => country.recordStatus !== 'no_cities')
+            .map(country => `<option value="${country.code}">${country.name_ar} (${country.cityCount})</option>`)
+            .join('');
+        countrySelect.value = 'SA';
 
         const activitySelect = document.getElementById('activitySelect');
-        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(activitySelect);
         activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
-          activities.map(a => `<option value="${a.code}">${a.name_ar} (${a.code})</option>`).join('');
+          activities
+            .filter(activity => activity.recordStatus === 'complete')
+            .map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`)
+            .join('');
 
         const modelSelect = document.getElementById('modelSelect');
-        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(modelSelect);
-        models.forEach(m => {
-          modelSelect.innerHTML += `<option value="${m.code}">${m.name_ar}</option>`;
-        });
+        modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
+          models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
 
-        populateCountrySelect('SA');
         await updateCityList();
-        if (window.initUniversalDropdowns) {
-          window.initUniversalDropdowns(activitySelect);
-          window.initUniversalDropdowns(modelSelect);
-        }
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
-      }
-    }
-
-    function sortCountryCodes(codes, defaultCode = 'SA') {
-      return codes.slice().sort((a, b) => {
-        if (a === defaultCode) return -1;
-        if (b === defaultCode) return 1;
-        return countryNames[a].localeCompare(countryNames[b], 'ar');
-      });
-    }
-
-    function populateCountrySelect(preferredCode) {
-      const select = document.getElementById('countrySelect');
-      if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(select);
-      let codes = [...new Set(cities.map(c => c.country_code))];
-      // Fallback to all supported countries if the API returned no cities yet
-      if (codes.length === 0) {
-        codes = Object.keys(countryNames);
-      }
-      codes = sortCountryCodes(codes);
-      const targetValue = preferredCode || select.value || 'SA';
-      select.innerHTML = '<option value="">كل الدول</option>' +
-        codes.map(code => `<option value="${code}">${countryNames[code] || code}</option>`).join('');
-      const currentValue = codes.includes(targetValue) ? targetValue : (codes.includes('SA') ? 'SA' : '');
-      if (currentValue) {
-        select.value = currentValue;
-      }
-      if (window.initUniversalDropdowns) {
-        window.initUniversalDropdowns(select);
-        const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
-        if (dd && typeof dd.value !== 'undefined' && currentValue) {
-          try { dd.value = currentValue; } catch (e) {}
-        }
-      }
-      if (currentValue && select.value !== currentValue) {
-        select.value = currentValue;
+        document.getElementById('cityList').innerHTML = `<div class="error">فشل تحميل الكتالوج: ${err.message}</div>`;
       }
     }
 
     async function updateCityList() {
-      const activityCode = document.getElementById('activitySelect').value;
-      const countryCode = document.getElementById('countrySelect').value || 'SA';
-      selectedCities.clear();
-      const chipsEl = document.getElementById('cityChips');
-
-      chipsEl.innerHTML = '<div class="loading">جاري تحميل المدن...</div>';
-      try {
-        let url;
-        let needsActivity = false;
-        if (activityCode) {
-          url = `${API_URL}/cities?include=opportunity&activity=${encodeURIComponent(activityCode)}&limit=2000`;
-          needsActivity = true;
-        } else {
-          url = `${API_URL}/cities?limit=2000`;
-        }
-        const data = await fetchJson(url);
-        cities = (data.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
-        if (needsActivity) {
-          cities = cities.filter(c => c.opportunity != null);
-        }
-        // If the API returned cities but none for the selected country, keep the fallback list visible
-        populateCountrySelect();
-        if (!activityCode && cities.length === 0) {
-          chipsEl.innerHTML = '<div style="color: var(--text-secondary); padding: 1rem 0;">اختر نشاطاً أولاً لعرض بيانات السوق للمدن، أو تأكد من توفر بيانات المدن.</div>';
-          return;
-        }
-        filterAndRenderCities();
-      } catch (err) {
-        chipsEl.innerHTML = `<div class="error">فشل تحميل المدن: ${err.message}</div>`;
-      }
-    }
-
-    function filterAndRenderCities() {
       const countryCode = document.getElementById('countrySelect').value;
-      filteredCities = cities.filter(c => !countryCode || c.country_code === countryCode);
-      renderCityChips();
-    }
+      const year = document.getElementById('yearSelect').value;
+      const activityCodes = selectedActivityCodes();
+      selectedCities.clear();
+      document.getElementById('citySearch').value = '';
 
-    function renderCityChips() {
-      const el = document.getElementById('cityChips');
-      if (filteredCities.length === 0) {
-        el.innerHTML = '<div style="color: var(--text-secondary); padding: 1rem 0;">لا توجد مدينات مطابقة للتصفية المحددة.</div>';
+      const list = document.getElementById('cityList');
+      if (!countryCode) {
+        cities = [];
+        filteredCities = [];
+        list.innerHTML = '<div class="loading">اختر الدولة أولاً</div>';
+        renderSelectedCities();
         return;
       }
-      const uniqueCities = [...new Map(filteredCities.map(c => [c.code, c])).values()];
-      el.innerHTML = uniqueCities.map(c => `
-        <div class="city-chip ${selectedCities.has(c.code) ? 'selected' : ''}" data-code="${c.code}" title="${countryNames[c.country_code] || c.country_code}">
-          ${c.name_ar}
-        </div>
-      `).join('');
 
-      el.querySelectorAll('.city-chip').forEach(chip => {
-        chip.addEventListener('click', () => {
-          const code = chip.dataset.code;
+      list.innerHTML = '<div class="loading">جاري تحميل المدن...</div>';
+      try {
+        let url = `${API_URL}/catalog/cities?country=${encodeURIComponent(countryCode)}&year=${encodeURIComponent(year)}`;
+        if (activityCodes.length) {
+          url += `&activity_codes=${encodeURIComponent(activityCodes.join(','))}`;
+        }
+        const data = await fetchJson(url);
+        cities = data.cities || [];
+        filteredCities = cities.slice();
+        document.getElementById('catalogMeta').textContent =
+          `${data.country?.name_ar || countryNames[countryCode] || countryCode}: ${data.count} مدينة موحدة` +
+          (data.duplicatesCollapsed ? ` — تم دمج ${data.duplicatesCollapsed} سجل مدينة مكرر` : '') +
+          (activityCodes.length ? ' — المعروض فقط المدن التي لديها بيانات لهذا النشاط' : '');
+        renderCityList();
+        renderSelectedCities();
+      } catch (err) {
+        list.innerHTML = `<div class="error">فشل تحميل المدن: ${err.message}</div>`;
+      }
+    }
+
+    function filterCities() {
+      const query = document.getElementById('citySearch').value.trim().toLowerCase();
+      filteredCities = cities.filter(city => {
+        if (!query) return true;
+        return [city.name_ar, city.name_en, city.region, city.code]
+          .filter(Boolean)
+          .some(value => String(value).toLowerCase().includes(query));
+      });
+      renderCityList();
+    }
+
+    function citySelectionCode(city) {
+      return city.comparison_code || city.canonical_code || city.code;
+    }
+
+    function renderCityList() {
+      const el = document.getElementById('cityList');
+      if (!filteredCities.length) {
+        el.innerHTML = '<div class="loading">لا توجد مدن مطابقة للبحث أو لا تتوفر بيانات لهذا النشاط.</div>';
+        return;
+      }
+
+      const sorted = filteredCities.slice().sort((a, b) => {
+        const aComplete = a.recordStatus === 'complete' ? 1 : 0;
+        const bComplete = b.recordStatus === 'complete' ? 1 : 0;
+        if (aComplete !== bComplete) return bComplete - aComplete;
+        const populationDiff = Number(b.population || 0) - Number(a.population || 0);
+        if (populationDiff) return populationDiff;
+        return String(a.name_ar || '').localeCompare(String(b.name_ar || ''), 'ar');
+      });
+
+      el.innerHTML = sorted.map(city => {
+        const code = citySelectionCode(city);
+        const selected = selectedCities.has(code);
+        const limited = city.recordStatus !== 'complete';
+        return `
+          <div class="city-row ${selected ? 'selected' : ''}" data-code="${code}">
+            <div>
+              <div class="city-row-name">${city.name_ar || city.name_en || city.code}</div>
+              <div class="city-row-meta">${city.region || 'المنطقة غير متاحة'}${Number(city.population) > 0 ? ' · ' + formatNumber(city.population) + ' نسمة' : ''}</div>
+            </div>
+            ${limited ? '<span class="quality-badge">بيانات محدودة</span>' : ''}
+          </div>`;
+      }).join('');
+
+      el.querySelectorAll('.city-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const code = row.dataset.code;
           if (selectedCities.has(code)) {
             selectedCities.delete(code);
           } else if (selectedCities.size < 10) {
             selectedCities.add(code);
+          } else {
+            alert('الحد الأقصى 10 مدن للمقارنة');
           }
-          renderCityChips();
+          renderCityList();
+          renderSelectedCities();
+        });
+      });
+    }
+
+    function renderSelectedCities() {
+      const selectedEl = document.getElementById('selectedCities');
+      const countEl = document.getElementById('selectedCount');
+      countEl.textContent = selectedCities.size;
+
+      const selected = cities.filter(city => selectedCities.has(citySelectionCode(city)));
+      if (!selected.length) {
+        selectedEl.innerHTML = '<span class="city-row-meta">لم يتم اختيار مدن بعد.</span>';
+        return;
+      }
+      selectedEl.innerHTML = selected.map(city => `
+        <button type="button" class="city-chip selected" data-remove="${citySelectionCode(city)}">
+          ${city.name_ar || city.name_en} ×
+        </button>
+      `).join('');
+      selectedEl.querySelectorAll('[data-remove]').forEach(button => {
+        button.addEventListener('click', () => {
+          selectedCities.delete(button.dataset.remove);
+          renderCityList();
+          renderSelectedCities();
         });
       });
     }
 
     async function runComparison() {
       const activityCode = document.getElementById('activitySelect').value;
+      const activityCodes = selectedActivityCodes();
       const year = document.getElementById('yearSelect').value;
       const modelCode = document.getElementById('modelSelect').value;
       const btn = document.getElementById('compareBtn');
@@ -473,6 +573,7 @@
         const cityCodes = Array.from(selectedCities).join(',');
         let url = `${API_URL}/compare/cities?cities=${encodeURIComponent(cityCodes)}&year=${year}`;
         if (activityCode) url += `&activity=${encodeURIComponent(activityCode)}`;
+        if (activityCodes.length) url += `&activity_codes=${encodeURIComponent(activityCodes.join(','))}`;
         if (modelCode) url += `&model=${encodeURIComponent(modelCode)}`;
         const data = await fetchJson(url);
         renderComparison(data);
@@ -604,8 +705,10 @@
     }
 
     document.getElementById('compareBtn').addEventListener('click', runComparison);
+    document.getElementById('countrySelect').addEventListener('change', updateCityList);
     document.getElementById('activitySelect').addEventListener('change', updateCityList);
-    document.getElementById('countrySelect').addEventListener('change', filterAndRenderCities);
+    document.getElementById('yearSelect').addEventListener('change', updateCityList);
+    document.getElementById('citySearch').addEventListener('input', filterCities);
 
     init();
   </script>
