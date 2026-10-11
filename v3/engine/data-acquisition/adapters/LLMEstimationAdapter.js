@@ -8,7 +8,7 @@ class LLMEstimationAdapter extends BaseAdapter {
   constructor(config = {}) {
     super({
       sourceId: 'llm_estimation',
-      sourceName: 'تقدير ذكي (LLM)',
+      sourceName: 'تقدير خوارزمي (Inference)',
       ...config
     });
     this.openaiApiKey = config.openaiApiKey || process.env.OPENAI_API_KEY;
@@ -55,7 +55,10 @@ class LLMEstimationAdapter extends BaseAdapter {
             year,
             metricCode,
             ...inferred,
-            source: this.config.sourceId
+            source: this.config.sourceId,
+            sourceType: 'INFERRED',
+            isEstimated: true,
+            actualMethod: 'local_inference'
           });
         }
       }
@@ -82,11 +85,16 @@ class LLMEstimationAdapter extends BaseAdapter {
       valueText: rawItem.valueText !== undefined ? rawItem.valueText : null,
       year: rawItem.year,
       confidence: rawItem.confidence || this.getConfidence(rawItem.metricCode, 'llm'),
-      confidenceReason: rawItem.confidenceReason || 'Estimated by inference engine',
+      confidenceReason: rawItem.confidenceReason || 'Estimated by local inference engine',
       metadata: {
         cityCode: rawItem.cityCode,
         activityCode: rawItem.activityCode,
-        model: this.model
+        model: null,
+        configuredModel: this.model,
+        sourceType: rawItem.sourceType || 'INFERRED',
+        isEstimated: true,
+        actualMethod: rawItem.actualMethod || 'local_inference',
+        llmExecuted: false
       }
     }];
   }

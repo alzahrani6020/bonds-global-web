@@ -1,3 +1,5 @@
+const { assessOpportunityRow } = require('../../lib/truth/opportunity-reliability');
+
 /**
  * Bonds V3 — Golden Opportunity Scoring Engine
  *
@@ -145,26 +147,50 @@ class OpportunityScoringEngine {
       this.weights.rentAffordability * rentScore +
       this.weights.lowRisk * riskScore;
 
-    // Confidence discount: 0 confidence -> 50% of score, 100 confidence -> 100%
-    const confidenceMultiplier = 0.5 + (this._clamp(confidence, 0, 100) / 200);
-    const finalScore = this._clamp(weighted * confidenceMultiplier, 0, 100);
+    // Raw opportunity potential remains independent from evidence strength.
+    // Reliability is assessed separately so weak evidence never masquerades as a
+    // high-confidence decision while the engine's analytical signal is preserved.
+    const rawPotential = this._clamp(weighted, 0, 100);
+    const metricBreakdown = {
+      growth: this._round(growthScore),
+      perCapitaMarket: this._round(perCapitaScore),
+      lowSaturation: this._round(saturationScore),
+      laborAvailability: this._round(laborScore),
+      purchasingPower: this._round(purchasingPowerScore),
+      rentAffordability: this._round(rentScore),
+      lowRisk: this._round(riskScore),
+      confidence,
+      weights: this.weights
+    };
 
-    const classification = this._classify(finalScore);
+    const reliability = assessOpportunityRow({
+      ...marketRow,
+      opportunity_score: rawPotential,
+      opportunity_breakdown: metricBreakdown,
+      cities: city
+    });
 
     return {
-      score: this._round(finalScore),
-      classification,
+      score: this._round(rawPotential),
+      classification: this._classify(rawPotential),
+      decisionScore: reliability.decisionScore,
+      decisionClassification: this._classify(reliability.decisionScore),
+      reliability: reliability.reliability,
+      reliabilityBand: reliability.reliabilityBand,
+      decisionStatus: reliability.decisionStatus,
+      uncertainty: reliability.uncertainty,
       breakdown: {
-        growth: this._round(growthScore),
-        perCapitaMarket: this._round(perCapitaScore),
-        lowSaturation: this._round(saturationScore),
-        laborAvailability: this._round(laborScore),
-        purchasingPower: this._round(purchasingPowerScore),
-        rentAffordability: this._round(rentScore),
-        lowRisk: this._round(riskScore),
-        confidence,
-        confidenceMultiplier: this._round(confidenceMultiplier * 100),
-        weights: this.weights
+        ...metricBreakdown,
+        rawPotential: this._round(rawPotential),
+        reliability: reliability.reliability,
+        reliabilityBand: reliability.reliabilityBand,
+        decisionScore: reliability.decisionScore,
+        decisionStatus: reliability.decisionStatus,
+        coverage: reliability.coverage,
+        sourceType: reliability.sourceType,
+        freshnessDays: reliability.freshnessDays,
+        uncertainty: reliability.uncertainty,
+        warnings: reliability.warnings
       }
     };
   }

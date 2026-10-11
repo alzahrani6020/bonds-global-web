@@ -6,6 +6,7 @@
 const fs = require('fs');
 const path = require('path');
 const BaseAdapter = require('../BaseAdapter');
+const { resolveBenchmarkCity } = require('../city-aliases');
 
 const BENCHMARK_DIR = path.join(__dirname, '..', 'benchmarks');
 
@@ -100,13 +101,17 @@ class BenchmarkAdapter extends BaseAdapter {
   async fetch(options = {}) {
     const { cityCode, activityCode, population = 1000000, year = new Date().getFullYear() } = options;
     const category = getActivityCategory(activityCode);
+    const cityResolution = resolveBenchmarkCity(cityCode);
+    const benchmarkCityCode = cityResolution.benchmarkCode || cityCode;
     const results = [];
 
     for (const metricCode of this.supportedMetrics()) {
-      const value = this._getMetric(metricCode, cityCode, activityCode, category, population);
+      const value = this._getMetric(metricCode, benchmarkCityCode, activityCode, category, population);
       if (value !== null && value !== undefined) {
         results.push({
           cityCode,
+          benchmarkCityCode: cityResolution.benchmarkCode,
+          benchmarkResolution: cityResolution.resolution,
           activityCode,
           year,
           metricCode,
@@ -135,12 +140,16 @@ class BenchmarkAdapter extends BaseAdapter {
       valueText: isText ? rawItem.value : (rawItem.valueText || null),
       year: rawItem.year,
       sourceUrl: 'https://bonds-global.com/methodology',
-      confidence: this.getConfidence(rawItem.metricCode, 'benchmark'),
-      confidenceReason: `Source: ${this.config.sourceName} (activity category: ${getActivityCategory(rawItem.activityCode)})`,
+      confidence: rawItem.benchmarkCityCode ? 65 : 55,
+      confidenceReason: `Source: ${this.config.sourceName}; activity category: ${getActivityCategory(rawItem.activityCode)}; geography: ${rawItem.benchmarkResolution || 'generic'}`,
       metadata: {
         cityCode: rawItem.cityCode,
+        benchmarkCityCode: rawItem.benchmarkCityCode || null,
+        benchmarkResolution: rawItem.benchmarkResolution || 'generic',
         activityCode: rawItem.activityCode,
-        quality: rawItem.quality
+        quality: rawItem.quality,
+        sourceType: 'BENCHMARK',
+        isEstimated: true
       }
     }];
   }

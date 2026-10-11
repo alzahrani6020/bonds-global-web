@@ -319,12 +319,32 @@
       return { high: 'مرتفع', medium: 'متوسط', low: 'منخفض' }[value] || value || '-';
     }
 
-    function getRating(score, risk) {
-      const r = Number(risk) || 50;
-      if (score >= 90 && r < 40) return { label: 'A+', cls: 'a-plus' };
-      if (score >= 75 && r < 55) return { label: 'A', cls: 'a' };
-      if (score >= 55) return { label: 'B', cls: 'b' };
+    function getRating(score, reliability) {
+      const r = Number(reliability) || 0;
+      if (score >= 80 && r >= 80) return { label: 'A+', cls: 'a-plus' };
+      if (score >= 65 && r >= 65) return { label: 'A', cls: 'a' };
+      if (score >= 45 && r >= 45) return { label: 'B', cls: 'b' };
       return { label: 'C', cls: 'c' };
+    }
+
+    function reliabilityLabel(value) {
+      return {
+        verified: 'موثوق',
+        supported: 'مدعوم',
+        indicative: 'استرشادي',
+        exploratory: 'استكشافي',
+        insufficient: 'أدلة غير كافية'
+      }[value] || value || 'غير محدد';
+    }
+
+    function decisionStatusLabel(value) {
+      return {
+        strong: 'فرصة قوية بأدلة قوية',
+        supported: 'فرصة مدعومة',
+        indicative: 'فرصة استرشادية',
+        indicative_only: 'إشارة استرشادية فقط',
+        insufficient_evidence: 'أدلة غير كافية للحكم'
+      }[value] || value || 'غير محدد';
     }
 
     function setReadinessState(state, detail = '') {
@@ -479,8 +499,10 @@
       content.innerHTML = `<div class="grid">${opportunities.map((o, idx) => {
         const city = o.city;
         const activity = o.activity;
-        const score = Number(o.score) || 0;
-        const rating = getRating(score, o.saturation);
+        const rawScore = Number(o.rawScore ?? o.score) || 0;
+        const decisionScore = Number(o.decisionScore ?? o.score) || 0;
+        const reliability = Number(o.reliability) || 0;
+        const rating = getRating(decisionScore, reliability);
         return `
           <div class="card">
             <div class="card-header">
@@ -491,8 +513,8 @@
               <span class="rating ${rating.cls}">${rating.label}</span>
             </div>
             <div class="score-row">
-              <span class="score-value">${score.toFixed(1)}</span>
-              <div class="score-bar"><div class="score-fill" style="width:${Math.min(score,100)}%"></div></div>
+              <span class="score-value">${decisionScore.toFixed(1)}</span>
+              <div class="score-bar"><div class="score-fill" style="width:${Math.min(decisionScore,100)}%"></div></div>
             </div>
             <div class="metrics">
               <div class="metric"><span class="metric-label">الترتيب</span><span class="metric-value">#${o.rank || idx + 1}</span></div>
@@ -503,7 +525,11 @@
               <div class="metric"><span class="metric-label">الطلب</span><span class="metric-value">${demandLabel(o.expectedDemand)}</span></div>
             </div>
             <div class="tags">
-              <span class="tag">ثقة ${Number(o.confidence)?.toFixed(0) || '-'}%</span>
+              <span class="tag">إمكان الفرصة ${rawScore.toFixed(1)}/100</span>
+              <span class="tag">موثوقية الأدلة ${reliability.toFixed(0)}% — ${reliabilityLabel(o.reliabilityBand)}</span>
+              <span class="tag">${decisionStatusLabel(o.decisionStatus)}</span>
+              <span class="tag">نطاق الإمكان ${Number(o.uncertainty?.low ?? rawScore).toFixed(0)}–${Number(o.uncertainty?.high ?? rawScore).toFixed(0)}</span>
+              <span class="tag">ثقة المصدر ${Number(o.confidence)?.toFixed(0) || '-'}%</span>
               <span class="tag">متوسط راتب ${formatNumber(o.avgSalary)} ر.س</span>
             </div>
             <div class="actions">
