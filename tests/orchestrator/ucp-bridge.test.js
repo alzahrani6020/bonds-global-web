@@ -1,4 +1,4 @@
-const { createUcpRunner, mapValuesToUcpInputs, deriveEngineResults } = require('../../lib/orchestrator/ucp-bridge');
+const { createUcpRunner, mapValuesToUcpInputs, buildMappedInputs, deriveEngineResults } = require('../../lib/orchestrator/ucp-bridge');
 
 describe('UCP Bridge', () => {
   test('maps semantic values to UCP inputs', () => {
@@ -34,9 +34,31 @@ describe('UCP Bridge', () => {
   test('flags high risk when DSCR is low', () => {
     const engines = deriveEngineResults({
       confidence: 0.6,
-      outputs: { dscr: { value: 1.1 }, ltv: { value: 85 } }
+      outputs: { dscr: { value: 1.1 }, ltv: { value: 85 } },
+      bridge: { requiredSyntheticInputs: [], validationValid: true }
     });
     expect(engines.risk.risk_grade).toBe('C');
+    expect(engines.risk.decisionEligible).toBe(true);
+  });
+
+  test('tracks computational defaults as assumptions rather than grounded evidence', () => {
+    const mapped = buildMappedInputs({ annual_revenue: 1000000 }, 'restaurant');
+    expect(mapped.inputs.interest_rate).toBe(0.065);
+    expect(mapped.provenance.interest_rate.kind).toBe('assumption');
+    expect(mapped.provenance.interest_rate.grounded).toBe(false);
+    expect(mapped.provenance.revenue.grounded).toBe(true);
+  });
+
+  test('does not invent risk, market, report, or certificate outputs when UCP did not produce them', () => {
+    const engines = deriveEngineResults({
+      confidence: 0.8,
+      outputs: { net_profit: { value: 200000 } },
+      bridge: { requiredSyntheticInputs: [], validationValid: true }
+    });
+    expect(engines.risk.executed).toBe(false);
+    expect(engines.market.executed).toBe(false);
+    expect(engines.report.executed).toBe(false);
+    expect(engines.certificate.executed).toBe(false);
   });
 
   test('runs UCP end-to-end for restaurant feasibility', async () => {
@@ -55,5 +77,7 @@ describe('UCP Bridge', () => {
     expect(result.templateCode).toBeDefined();
     expect(result.outputs.net_profit.value).toBeGreaterThan(0);
     expect(result.engineResults.feasibility.confidence).toBeGreaterThan(0);
+    expect(result.rawConfidence).toBeGreaterThanOrEqual(result.confidence);
+    expect(result.bridge.syntheticInputs.length).toBeGreaterThan(0);
   });
 });
