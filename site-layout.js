@@ -240,7 +240,11 @@
         html = items.map(i => `<a href="${i.href}">${i.label}</a>`).join('');
       }
       if (extraAll) {
-        html += `<div class="dropdown-menu__divider"></div><a href="${extraAll.href}">${extraAll.label}</a>`;
+        if (isGrouped) {
+          html += `<div class="dropdown-menu__footer"><a href="${extraAll.href}">${extraAll.label}</a></div>`;
+        } else {
+          html += `<div class="dropdown-menu__divider"></div><a href="${extraAll.href}">${extraAll.label}</a>`;
+        }
       }
       const cls = isGrouped
         ? 'dropdown-menu dropdown-menu--grouped'
@@ -448,8 +452,8 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.64.0';
-    if (document.querySelector('link[href*="header-footer.css?v=2.64.0"]')) return;
+    const href = '/header-footer.css?v=2.65.0';
+    if (document.querySelector('link[href*="header-footer.css?v=2.65.0"]')) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = href;
