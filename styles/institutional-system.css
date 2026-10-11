@@ -1810,8 +1810,8 @@ p.error-message,
 }
 .hero.v2026 .hero__tagline-en,
 .page-hero.v2026 .page-hero__tagline-en {
-  color: #7A8595 !important;
-  -webkit-text-fill-color: #7A8595 !important;
+  color: var(--text-secondary) !important;
+  -webkit-text-fill-color: var(--text-secondary) !important;
   opacity: 1 !important;
 }
 .hero.v2026 .hero__eyebrow,

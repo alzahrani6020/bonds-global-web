@@ -295,6 +295,25 @@ describe('UniversalDropdown', () => {
     await page.close();
   });
 
+  test('global init/destroy helpers accept a select element as the root', async () => {
+    const page = await pageWithErrors();
+    await page.goto('file://' + TEST_PAGE);
+    await page.waitForTimeout(300);
+
+    const result = await page.evaluate(() => {
+      const select = document.getElementById('countrySelect');
+      window.destroyUniversalDropdowns(select);
+      const destroyed = !select.closest('.ud-dropdown');
+      const created = window.initUniversalDropdowns(select);
+      const reinitialized = !!select.closest('.ud-dropdown');
+      return { destroyed, reinitialized, instances: created.length };
+    });
+
+    expect(result).toEqual({ destroyed: true, reinitialized: true, instances: 1 });
+    expect(page._flushErrors()).toEqual([]);
+    await page.close();
+  });
+
   test('MutationObserver auto-inits dynamically added select', async () => {
     const page = await pageWithErrors();
     await page.goto('file://' + TEST_PAGE);

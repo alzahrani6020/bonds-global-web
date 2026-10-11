@@ -70,10 +70,20 @@
     }
   }
 
+  function getTargetSelects(root = document) {
+    const selects = [];
+    if (root && root.matches && root.matches('select[data-universal-dropdown]')) {
+      selects.push(root);
+    }
+    if (root && root.querySelectorAll) {
+      root.querySelectorAll('select[data-universal-dropdown]').forEach(select => selects.push(select));
+    }
+    return selects;
+  }
+
   function initUniversalDropdowns(root = document) {
-    const selects = root.querySelectorAll ? root.querySelectorAll('select[data-universal-dropdown]') : [];
     const instances = [];
-    selects.forEach(select => {
+    getTargetSelects(root).forEach(select => {
       const inst = initOne(select);
       if (inst) instances.push(inst);
     });
@@ -81,7 +91,7 @@
   }
 
   function destroyUniversalDropdowns(root = document) {
-    root.querySelectorAll('select[data-universal-dropdown]').forEach(select => {
+    getTargetSelects(root).forEach(select => {
       const dd = registry.get(select);
       if (dd) {
         dd.destroy();

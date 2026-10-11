@@ -2,12 +2,13 @@
 /**
  * Bonds Global — Auto-bump sw.js CACHE_VERSION
  *
- * Runs in GitHub Actions after a push to main/master. It compares the
- * files changed in the push against the CORE_ASSETS list defined in sw.js.
- * If any core asset changed, it increments the patch segment of
- * CACHE_VERSION and commits the result.
+ * Compares changed files against CORE_ASSETS in sw.js.
  *
- * This script is intentionally lightweight and has zero runtime impact.
+ * Default mode updates CACHE_VERSION locally.
+ * --check mode is fail-closed and never mutates the repository: when a core
+ * asset changed, sw.js must be part of the same candidate commit/range.
+ *
+ * This keeps verification evidence bound to the exact candidate SHA.
  */
 const fs = require('fs');
 const path = require('path');
@@ -44,9 +45,19 @@ function main() {
   }
 
   const shouldBump = changedFiles.some((file) => isWatchedPath(file, watchedPaths));
+  const checkOnly = process.argv.includes('--check');
 
   if (!shouldBump) {
-    console.log('No core assets changed. CACHE_VERSION not bumped.');
+    console.log('No core assets changed. CACHE_VERSION change not required.');
+    return;
+  }
+
+  if (checkOnly) {
+    if (!changedFiles.includes('sw.js')) {
+      console.error('Core assets changed but sw.js was not updated in the same candidate.');
+      process.exit(1);
+    }
+    console.log('Core assets changed and sw.js is included in the same candidate.');
     return;
   }
 
