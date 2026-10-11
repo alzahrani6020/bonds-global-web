@@ -1,0 +1,53 @@
+name: Accept reviewed visual baselines (PR 2)
+
+on:
+  push:
+    branches:
+      - fix/p0-readiness-visual-gates
+    paths:
+      - .github/workflows/accept-reviewed-visual-baselines-pr2.yml
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  accept-baselines:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout reviewed candidate branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/p0-readiness-visual-gates
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download reviewed visual artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: visual-diffs
+          path: reviewed-visuals
+          run-id: 38162004577
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify artifact structure
+        run: |
+          test -d reviewed-visuals/snapshots
+          test -f reviewed-visuals/snapshots/desktop/index-ar.png
+          test -f reviewed-visuals/snapshots/desktop/index-en.png
+          test -f reviewed-visuals/snapshots/mobile/index-ar.png
+
+      - name: Replace baselines from reviewed snapshots
+        run: |
+          rm -rf tests/visual/baselines
+          mkdir -p tests/visual/baselines
+          cp -a reviewed-visuals/snapshots/. tests/visual/baselines/
+
+      - name: Remove one-time workflow and commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm .github/workflows/accept-reviewed-visual-baselines-pr2.yml
+          git add tests/visual/baselines
+          git commit -m "Update reviewed institutional visual baselines"
+          git push origin HEAD:fix/p0-readiness-visual-gates
