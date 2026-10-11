@@ -963,7 +963,7 @@
   ],
   "git": {
     "deploymentEnabled": {
-      "*": false,
+      "**": false,
       "main": true
     }
   }
