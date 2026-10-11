@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.108';
+const CACHE_VERSION = 'v3.0.112';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -30,16 +30,16 @@ const CORE_ASSETS = [
   '/styles/distressed-recovery-study.css',
   '/components/universal-dropdown.css?v=2.51.8',
   '/components/universal-dropdown.js?v=2.51.8',
-  '/components/universal-dropdown-init.js',
+  '/components/universal-dropdown-init.js?v=2',
   '/components/ecc-icons.js',
   '/styles/funding-hub.css',
   '/scripts/funding-hub.js',
-  '/styles/funding-request-form.css',
+  '/styles/funding-request-form.css?v=2',
   '/scripts/funding-request-form.js',
   '/scripts/funding-context.js',
-  '/header-footer.css?v=2.67.0',
+  '/header-footer.css?v=2.69.0',
   '/script.js?v=5',
-  '/site-layout.js?v=3.2.5',
+  '/site-layout.js?v=3.2.7',
   '/styles/social-feed.css?v=3',
   '/styles/institutional-home.css?v=4',
   '/styles/institutional-system.css?v=6',
@@ -53,7 +53,7 @@ const CORE_ASSETS = [
   '/admin/funding-cases/app.js?v=3',
   '/admin/funding-cases/styles.css?v=3',
   '/lib/formatting.js',
-  '/assets/bonds-logo-2026-header.webp',
+  '/assets/bonds-logo-2026-v2-sm.webp',
   '/assets/bonds-logo-2026-sm.webp',
   '/assets/qr-bonds-global.png',
   '/manifest.json',

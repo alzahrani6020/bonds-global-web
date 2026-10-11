@@ -1,7 +1,9 @@
-name: Bump Service Worker Cache Version
+name: Verify Service Worker Cache Version
 
 on:
   push:
+    branches: [main, master]
+  pull_request:
     branches: [main, master]
 
 concurrency:
@@ -9,42 +11,23 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  bump-cache-version:
+  verify-cache-version:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '24'
 
-      - name: Bump CACHE_VERSION if core assets changed
+      - name: Verify CACHE_VERSION is updated with core assets
         env:
-          GITHUB_EVENT_BEFORE: ${{ github.event.before }}
-          GITHUB_EVENT_AFTER: ${{ github.event.after }}
-        run: node scripts/bump-cache-version.js
-
-      - name: Check if sw.js was modified
-        id: git-check
-        run: |
-          if git diff --quiet -- sw.js; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "changed=true" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Commit and push updated sw.js
-        if: steps.git-check.outputs.changed == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sw.js
-          git commit -m "chore(sw): bump CACHE_VERSION after core asset change [skip ci]"
-          git push
+          GITHUB_EVENT_BEFORE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          GITHUB_EVENT_AFTER: ${{ github.event.pull_request.head.sha || github.event.after }}
+        run: node scripts/bump-cache-version.js --check

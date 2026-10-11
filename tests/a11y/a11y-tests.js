@@ -15,6 +15,8 @@ const PAGES = [
   { name: 'about-ar', url: '/about.html' },
   { name: 'contact-ar', url: '/contact.html' },
   { name: 'services-ar', url: '/services.html' },
+  { name: 'funding-extraction-ar', url: '/funding-extraction.html#funding-request' },
+  { name: 'opportunity-bank-ar', url: '/v3/opportunity-bank.html' },
   { name: 'pricing-root-ar', url: '/pricing.html' },
   { name: 'calculator-ar', url: '/calculator.html' },
   { name: 'manufacturing-ar', url: '/sectors/manufacturing.html' },

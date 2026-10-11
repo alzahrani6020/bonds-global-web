@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl" data-theme="dark">
+<html lang="ar" dir="rtl" data-theme="light">
 <head>
   <link rel="manifest" href="/manifest.json" />
   <meta charset="UTF-8">
@@ -52,7 +52,38 @@
       border-color: var(--gold);
       color: var(--gold);
     }
-    .filter-btn:hover { background: rgba(212,168,83,0.25); }
+    .filter-btn:hover:not(:disabled) { background: rgba(212,168,83,0.25); }
+    .filter-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      background: #EEF1F5;
+      border-color: #D9DEE5;
+      color: #5D6878;
+    }
+    .state-panel {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 2rem;
+      text-align: center;
+      background: #FFFFFF;
+      border: 1px solid #D9DEE5;
+      border-radius: 4px;
+      color: #5D6878;
+    }
+    .state-panel strong {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #0B1F3A;
+      font-size: 1.05rem;
+    }
+    .state-panel.error strong { color: #B42318; }
+    .state-panel button {
+      margin-top: 1rem;
+      min-width: 140px;
+      background: #0B1F3A;
+      border-color: #0B1F3A;
+      color: #FFFFFF;
+    }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; }
     .card {
       background: var(--bg-card);
@@ -152,7 +183,7 @@
 <script src="/api/env" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
-<script defer src="../site-layout.js?v=3.2.2"></script>
+<script defer src="../site-layout.js?v=3.2.5"></script>
   <link rel="canonical" href="https://bonds-global.com/v3/opportunity-bank" />
   <script type="application/ld+json">
   {
@@ -184,7 +215,7 @@
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
-<link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+<link rel="stylesheet" href="/styles/institutional-system.css?v=6">
 
 <script defer src="/calculators/auth-gate.js?v=3"></script>
   
@@ -228,11 +259,11 @@
     <div class="controls">
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الدولة</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="countrySelect"><option value="">كل الدول</option></select>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-loading-text="جاري تحميل الدول..." id="countrySelect" disabled><option value="">جاري تحميل الدول...</option></select>
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activitySelect"><option value="">كل الأنشطة</option></select>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-loading-text="جاري تحميل الأنشطة..." id="activitySelect" disabled><option value="">جاري تحميل الأنشطة...</option></select>
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الحد الأدنى للفرصة</label>
@@ -247,11 +278,11 @@
           <option value="100">100</option>
         </select>
       </div>
-      <button id="filterBtn" class="filter-btn">بحث</button>
+      <button id="filterBtn" class="filter-btn" disabled>بحث</button>
     </div>
 
     <div id="content">
-      <div class="loading">اضغط بحث لعرض الفرص</div>
+      <div class="state-panel" role="status" aria-live="polite"><strong>جاري تجهيز بنك الفرص</strong><span>يتم تحميل الدول والأنشطة والبيانات المرجعية.</span></div>
     </div>
   </div>
 
@@ -296,43 +327,110 @@
       return { label: 'C', cls: 'c' };
     }
 
+    function setReadinessState(state, detail = '') {
+      const countrySelect = document.getElementById('countrySelect');
+      const activitySelect = document.getElementById('activitySelect');
+      const filterBtn = document.getElementById('filterBtn');
+      const content = document.getElementById('content');
+      const ready = state === 'ready';
+
+      countrySelect.disabled = !ready;
+      activitySelect.disabled = !ready;
+      filterBtn.disabled = !ready;
+
+      const panel = document.createElement('div');
+      panel.className = 'state-panel' + (state === 'error' ? ' error' : '');
+      panel.setAttribute('role', state === 'error' ? 'alert' : 'status');
+      panel.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
+
+      const title = document.createElement('strong');
+      const description = document.createElement('span');
+
+      if (state === 'loading') {
+        title.textContent = 'جاري تجهيز بنك الفرص';
+        description.textContent = 'يتم تحميل الدول والأنشطة والبيانات المرجعية.';
+      } else if (state === 'empty') {
+        title.textContent = 'بيانات بنك الفرص غير مكتملة';
+        description.textContent = detail;
+      } else if (state === 'error') {
+        title.textContent = 'تعذر تحميل بيانات بنك الفرص';
+        description.textContent = detail;
+      } else {
+        title.textContent = 'بيانات بنك الفرص جاهزة';
+        description.textContent = 'اختر المعايير ثم اضغط بحث لعرض الفرص.';
+      }
+
+      panel.append(title, description);
+
+      if (state === 'error') {
+        const br = document.createElement('br');
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.id = 'retryInit';
+        retry.textContent = 'إعادة المحاولة';
+        retry.addEventListener('click', init);
+        panel.append(br, retry);
+      }
+
+      content.replaceChildren(panel);
+    }
+
     async function init() {
+      const countrySelect = document.getElementById('countrySelect');
+      const activitySelect = document.getElementById('activitySelect');
+      setReadinessState('loading');
+
       try {
         const [citiesData, sectorsData] = await Promise.all([
           fetchJson(API_URL + '/cities?limit=2000'),
           fetchJson(API_URL + '/sectors')
         ]);
 
-        const countrySelect = document.getElementById('countrySelect');
-        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(countrySelect);
+        if (window.destroyUniversalDropdowns) {
+          window.destroyUniversalDropdowns(countrySelect);
+          window.destroyUniversalDropdowns(activitySelect);
+        }
+
         const countries = [...new Set((citiesData.cities || [])
           .filter(c => MODERN_CITY_CODE.test(c.code))
           .map(c => c.country_code || 'SA'))].sort();
-        countries.forEach(code => {
-          countrySelect.innerHTML += `<option value="${code}">${countryNames[code] || code}</option>`;
-        });
 
         activities = [];
         (sectorsData.sectors || []).forEach(sector => {
           (sector.economic_sub_sectors || []).forEach(sub => {
-            (sub.economic_activities || []).forEach(activity => {
-              activities.push(activity);
-            });
+            (sub.economic_activities || []).forEach(activity => activities.push(activity));
           });
         });
 
-        const activitySelect = document.getElementById('activitySelect');
-        if (window.destroyUniversalDropdowns) window.destroyUniversalDropdowns(activitySelect);
+        countrySelect.innerHTML = '<option value="">كل الدول</option>';
+        countries.forEach(code => {
+          countrySelect.innerHTML += `<option value="${code}">${countryNames[code] || code}</option>`;
+        });
+
+        activitySelect.innerHTML = '<option value="">كل الأنشطة</option>';
         activities.forEach(a => {
           activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar} (${a.code})</option>`;
         });
+
+        if (countries.length === 0 || activities.length === 0) {
+          const missing = [];
+          if (countries.length === 0) missing.push('المدن/الدول');
+          if (activities.length === 0) missing.push('الأنشطة الاقتصادية');
+          setReadinessState('empty', 'لا توجد بيانات مهيأة لـ ' + missing.join(' و ') + '.');
+          return;
+        }
+
+        countrySelect.disabled = false;
+        activitySelect.disabled = false;
 
         if (window.initUniversalDropdowns) {
           window.initUniversalDropdowns(countrySelect);
           window.initUniversalDropdowns(activitySelect);
         }
+
+        setReadinessState('ready');
       } catch (err) {
-        document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
+        setReadinessState('error', err.message || 'حدث خطأ غير متوقع أثناء تحميل البيانات.');
       }
     }
 
@@ -423,7 +521,7 @@
   </script>
   <div id="site-footer"></div>
 <script src="../components/universal-dropdown.js?v=2.51.8"></script>
-<script src="../components/universal-dropdown-init.js"></script>
+<script src="../components/universal-dropdown-init.js?v=2"></script>
   <script src="shared-v3-ui.js" defer></script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>

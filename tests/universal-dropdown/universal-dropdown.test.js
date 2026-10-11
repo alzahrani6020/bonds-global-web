@@ -204,18 +204,30 @@ describe('UniversalDropdown', () => {
   test('multi-select toggles options', async () => {
     const page = await pageWithErrors();
     await page.goto('file://' + TEST_PAGE);
-    await page.waitForTimeout(300);
 
     const wrapper = wrapperBySelectId(page, 'multiSelect');
+    await wrapper.locator('.ud-trigger').waitFor({ state: 'visible' });
     await wrapper.locator('.ud-trigger').click();
-    await wrapper.locator('.ud-item').filter({ hasText: 'خيار 2' }).click();
+
+    const option2 = wrapper.locator('.ud-item[data-value="m2"]');
+    await option2.waitFor({ state: 'visible' });
+    await option2.click();
+    await page.waitForFunction(() =>
+      document.querySelector('#multiSelect option[value="m2"]')?.selected === true
+    );
 
     const selected = await page.evaluate(() =>
       Array.from(document.getElementById('multiSelect').selectedOptions).map(o => o.value)
     );
     expect(selected.sort()).toEqual(['m1', 'm2', 'm3'].sort());
 
-    await wrapper.locator('.ud-item').filter({ hasText: 'خيار 1' }).click();
+    const option1 = wrapper.locator('.ud-item[data-value="m1"]');
+    await option1.waitFor({ state: 'visible' });
+    await option1.click();
+    await page.waitForFunction(() =>
+      document.querySelector('#multiSelect option[value="m1"]')?.selected === false
+    );
+
     const selected2 = await page.evaluate(() =>
       Array.from(document.getElementById('multiSelect').selectedOptions).map(o => o.value)
     );
@@ -291,6 +303,25 @@ describe('UniversalDropdown', () => {
     items = await wrapper.locator('.ud-item').count();
     expect(items).toBe(4);
 
+    expect(page._flushErrors()).toEqual([]);
+    await page.close();
+  });
+
+  test('global init/destroy helpers accept a select element as the root', async () => {
+    const page = await pageWithErrors();
+    await page.goto('file://' + TEST_PAGE);
+    await page.waitForTimeout(300);
+
+    const result = await page.evaluate(() => {
+      const select = document.getElementById('countrySelect');
+      window.destroyUniversalDropdowns(select);
+      const destroyed = !select.closest('.ud-dropdown');
+      const created = window.initUniversalDropdowns(select);
+      const reinitialized = !!select.closest('.ud-dropdown');
+      return { destroyed, reinitialized, instances: created.length };
+    });
+
+    expect(result).toEqual({ destroyed: true, reinitialized: true, instances: 1 });
     expect(page._flushErrors()).toEqual([]);
     await page.close();
   });
