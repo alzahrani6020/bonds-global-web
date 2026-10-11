@@ -110,7 +110,8 @@ class OpportunityScoringEngine {
     const missingComponents = [];
 
     const addComponent = (name, score, metadata = {}) => {
-      if (Number.isFinite(Number(score))) {
+      const hasScore = score !== null && score !== undefined && score !== '' && Number.isFinite(Number(score));
+      if (hasScore) {
         components[name] = {
           score: this._clamp(Number(score), 0, 100),
           weight: this.weights[name],
@@ -247,7 +248,7 @@ class OpportunityScoringEngine {
       effectiveWeights: Object.fromEntries(
         availableEntries.map(([name, component]) => [
           name,
-          availableWeight > 0 ? this._round(component.weight / availableWeight) : 0
+          availableWeight > 0 ? Math.round((component.weight / availableWeight) * 1000) / 1000 : 0
         ])
       ),
       metricCoverage: this._round(metricCoverage * 100),
