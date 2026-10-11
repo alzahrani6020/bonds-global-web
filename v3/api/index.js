@@ -414,6 +414,7 @@ async function handleOpportunitiesTop(req, res) {
       decisionScore: reliability.decisionScore,
       reliability: reliability.reliability,
       reliabilityBand: reliability.reliabilityBand,
+      scoringCoverage: reliability.scoringCoverage,
       decisionStatus: reliability.decisionStatus,
       uncertainty: reliability.uncertainty,
       sourceType: reliability.sourceType,
