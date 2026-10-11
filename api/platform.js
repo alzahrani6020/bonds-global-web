@@ -13,13 +13,12 @@ const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
-const UNSUBSCRIBE_SECRET = process.env.UNSUBSCRIBE_SECRET || '';
-
 function requireUnsubscribeSecret() {
-  if (!UNSUBSCRIBE_SECRET) {
+  const secret = process.env.UNSUBSCRIBE_SECRET || '';
+  if (!secret) {
     throw new Error('UNSUBSCRIBE_SECRET is not configured');
   }
-  return UNSUBSCRIBE_SECRET;
+  return secret;
 }
 const ADMIN_EMAILS = (process.env.ADMIN_EMAILS || '').split(',').map(s => s.trim()).filter(Boolean);
 const crypto = require('crypto');
