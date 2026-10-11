@@ -1086,3 +1086,22 @@ html[dir="rtl"] .main-header .dropdown:hover > .dropdown-menu--grouped,
     max-width: 84px !important;
   }
 }
+
+
+/* Brand asset is a 3:2 lockup; preserve enough height for the B mark. */
+.main-header .header-brand__image,
+.main-header .header-brand img {
+  width: 84px !important;
+  height: 56px !important;
+  max-width: 84px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+}
+@media (max-width: 900px) {
+  .main-header .header-brand__image,
+  .main-header .header-brand img {
+    width: 72px !important;
+    height: 48px !important;
+    max-width: 72px !important;
+  }
+}
