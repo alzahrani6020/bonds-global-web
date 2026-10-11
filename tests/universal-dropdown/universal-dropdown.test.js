@@ -204,18 +204,30 @@ describe('UniversalDropdown', () => {
   test('multi-select toggles options', async () => {
     const page = await pageWithErrors();
     await page.goto('file://' + TEST_PAGE);
-    await page.waitForTimeout(300);
 
     const wrapper = wrapperBySelectId(page, 'multiSelect');
+    await wrapper.locator('.ud-trigger').waitFor({ state: 'visible' });
     await wrapper.locator('.ud-trigger').click();
-    await wrapper.locator('.ud-item').filter({ hasText: 'خيار 2' }).click();
+
+    const option2 = wrapper.locator('.ud-item[data-value="m2"]');
+    await option2.waitFor({ state: 'visible' });
+    await option2.click();
+    await page.waitForFunction(() =>
+      document.querySelector('#multiSelect option[value="m2"]')?.selected === true
+    );
 
     const selected = await page.evaluate(() =>
       Array.from(document.getElementById('multiSelect').selectedOptions).map(o => o.value)
     );
     expect(selected.sort()).toEqual(['m1', 'm2', 'm3'].sort());
 
-    await wrapper.locator('.ud-item').filter({ hasText: 'خيار 1' }).click();
+    const option1 = wrapper.locator('.ud-item[data-value="m1"]');
+    await option1.waitFor({ state: 'visible' });
+    await option1.click();
+    await page.waitForFunction(() =>
+      document.querySelector('#multiSelect option[value="m1"]')?.selected === false
+    );
+
     const selected2 = await page.evaluate(() =>
       Array.from(document.getElementById('multiSelect').selectedOptions).map(o => o.value)
     );
