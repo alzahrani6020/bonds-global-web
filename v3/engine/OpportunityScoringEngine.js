@@ -102,65 +102,166 @@ class OpportunityScoringEngine {
   }
 
   _computeScore(marketRow, city, benchmarks, peers) {
-    const population = Number(city.population) || 1;
-    const purchasingPower = Number(city.purchasing_power_index) || 0;
-    const confidence = Number(marketRow.confidence) || 0;
+    const confidence = Number.isFinite(Number(marketRow.confidence))
+      ? Number(marketRow.confidence)
+      : 0;
+
+    const components = {};
+    const missingComponents = [];
+
+    const addComponent = (name, score, metadata = {}) => {
+      if (Number.isFinite(Number(score))) {
+        components[name] = {
+          score: this._clamp(Number(score), 0, 100),
+          weight: this.weights[name],
+          ...metadata
+        };
+      } else {
+        missingComponents.push(name);
+      }
+    };
 
     // 1. Market growth (0-30% mapped to 0-100)
-    const growth = this._clamp(Number(marketRow.annual_growth_rate) || 0, 0, 30);
-    const growthScore = (growth / 30) * 100;
+    const hasGrowth = marketRow.annual_growth_rate !== null &&
+      marketRow.annual_growth_rate !== undefined &&
+      Number.isFinite(Number(marketRow.annual_growth_rate));
+    addComponent(
+      'growth',
+      hasGrowth
+        ? (this._clamp(Number(marketRow.annual_growth_rate), 0, 30) / 30) * 100
+        : null,
+      { sourceField: 'annual_growth_rate' }
+    );
 
-    // 2. Per-capita market spend relative to peers or fallback benchmark
-    const marketSize = Number(marketRow.market_size) || 0;
-    const perCapitaSpending = Number(marketRow.per_capita_spending) || (marketSize / population);
-    const peerMedian = peers.median || perCapitaSpending || 1;
-    const targetPerCapita = benchmarks.per_capita_market_spend || peerMedian;
-    const perCapitaRatio = targetPerCapita > 0 ? perCapitaSpending / targetPerCapita : 0;
-    const perCapitaScore = this._clamp(perCapitaRatio * 50, 0, 100);
+    // 2. Per-capita market spend relative to benchmark or peer median.
+    const population = Number(city.population);
+    const validPopulation = Number.isFinite(population) && population > 0;
+    const marketSize = Number(marketRow.market_size);
+    const explicitPerCapita = Number(marketRow.per_capita_spending);
+    const perCapitaSpending = Number.isFinite(explicitPerCapita) && explicitPerCapita > 0
+      ? explicitPerCapita
+      : (validPopulation && Number.isFinite(marketSize) && marketSize > 0 ? marketSize / population : null);
+    const benchmarkPerCapita = Number(benchmarks.per_capita_market_spend);
+    const peerMedian = Number(peers.median);
+    const targetPerCapita = Number.isFinite(benchmarkPerCapita) && benchmarkPerCapita > 0
+      ? benchmarkPerCapita
+      : (Number.isFinite(peerMedian) && peerMedian > 0 ? peerMedian : null);
+    addComponent(
+      'perCapitaMarket',
+      perCapitaSpending !== null && targetPerCapita !== null
+        ? this._clamp((perCapitaSpending / targetPerCapita) * 50, 0, 100)
+        : null,
+      {
+        sourceField: Number.isFinite(explicitPerCapita) && explicitPerCapita > 0
+          ? 'per_capita_spending'
+          : 'market_size/population',
+        reference: Number.isFinite(benchmarkPerCapita) && benchmarkPerCapita > 0
+          ? 'country_benchmark'
+          : (Number.isFinite(peerMedian) && peerMedian > 0 ? 'peer_median' : null)
+      }
+    );
 
     // 3. Low saturation
-    const saturation = this._clamp(Number(marketRow.market_saturation_score) || 50, 0, 100);
-    const saturationScore = 100 - saturation;
+    const hasSaturation = marketRow.market_saturation_score !== null &&
+      marketRow.market_saturation_score !== undefined &&
+      Number.isFinite(Number(marketRow.market_saturation_score));
+    addComponent(
+      'lowSaturation',
+      hasSaturation ? 100 - this._clamp(Number(marketRow.market_saturation_score), 0, 100) : null,
+      { sourceField: 'market_saturation_score' }
+    );
 
     // 4. Labor availability
-    const laborScore = this._clamp(Number(marketRow.labor_availability_score) || 50, 0, 100);
+    const hasLabor = marketRow.labor_availability_score !== null &&
+      marketRow.labor_availability_score !== undefined &&
+      Number.isFinite(Number(marketRow.labor_availability_score));
+    addComponent(
+      'laborAvailability',
+      hasLabor ? this._clamp(Number(marketRow.labor_availability_score), 0, 100) : null,
+      { sourceField: 'labor_availability_score' }
+    );
 
     // 5. Purchasing power (scale 0-150)
-    const purchasingPowerScore = this._clamp((purchasingPower / 150) * 100, 0, 100);
+    const purchasingPower = Number(city.purchasing_power_index);
+    addComponent(
+      'purchasingPower',
+      Number.isFinite(purchasingPower) && purchasingPower > 0
+        ? this._clamp((purchasingPower / 150) * 100, 0, 100)
+        : null,
+      { sourceField: 'cities.purchasing_power_index' }
+    );
 
     // 6. Rent affordability vs country benchmark
-    const cityRent = Number(marketRow.avg_rent_per_sqm) || Number(city.avg_rent_per_sqm) || 0;
-    const benchmarkRent = benchmarks.avg_rent_per_sqm || cityRent || 1;
-    const rentRatio = benchmarkRent > 0 ? cityRent / benchmarkRent : 1;
-    const rentScore = this._clamp(100 / Math.max(1, rentRatio), 0, 100);
+    const marketRent = Number(marketRow.avg_rent_per_sqm);
+    const cityRentValue = Number(city.avg_rent_per_sqm);
+    const cityRent = Number.isFinite(marketRent) && marketRent > 0
+      ? marketRent
+      : (Number.isFinite(cityRentValue) && cityRentValue > 0 ? cityRentValue : null);
+    const benchmarkRentValue = Number(benchmarks.avg_rent_per_sqm);
+    const benchmarkRent = Number.isFinite(benchmarkRentValue) && benchmarkRentValue > 0
+      ? benchmarkRentValue
+      : null;
+    addComponent(
+      'rentAffordability',
+      cityRent !== null && benchmarkRent !== null
+        ? this._clamp(100 / Math.max(1, cityRent / benchmarkRent), 0, 100)
+        : null,
+      {
+        sourceField: Number.isFinite(marketRent) && marketRent > 0
+          ? 'avg_rent_per_sqm'
+          : (Number.isFinite(cityRentValue) && cityRentValue > 0 ? 'cities.avg_rent_per_sqm' : null),
+        reference: benchmarkRent !== null ? 'country_benchmark' : null
+      }
+    );
 
     // 7. Low risk
-    const risk = this._clamp(Number(marketRow.risk_score) || 50, 0, 100);
-    const riskScore = 100 - risk;
+    const hasRisk = marketRow.risk_score !== null &&
+      marketRow.risk_score !== undefined &&
+      Number.isFinite(Number(marketRow.risk_score));
+    addComponent(
+      'lowRisk',
+      hasRisk ? 100 - this._clamp(Number(marketRow.risk_score), 0, 100) : null,
+      { sourceField: 'risk_score' }
+    );
 
-    const weighted =
-      this.weights.growth * growthScore +
-      this.weights.perCapitaMarket * perCapitaScore +
-      this.weights.lowSaturation * saturationScore +
-      this.weights.laborAvailability * laborScore +
-      this.weights.purchasingPower * purchasingPowerScore +
-      this.weights.rentAffordability * rentScore +
-      this.weights.lowRisk * riskScore;
+    // Renormalize only across dimensions the engine can actually calculate.
+    // Missing evidence is handled by reliability, not by fabricated neutral scores.
+    const availableEntries = Object.entries(components);
+    const availableWeight = availableEntries.reduce((sum, [, component]) => sum + component.weight, 0);
+    const weighted = availableWeight > 0
+      ? availableEntries.reduce((sum, [, component]) => sum + component.weight * component.score, 0) / availableWeight
+      : 0;
+    const totalWeight = Object.values(this.weights).reduce((sum, weight) => sum + weight, 0);
+    const metricCoverage = totalWeight > 0 ? availableWeight / totalWeight : 0;
 
-    // Raw opportunity potential remains independent from evidence strength.
-    // Reliability is assessed separately so weak evidence never masquerades as a
-    // high-confidence decision while the engine's analytical signal is preserved.
     const rawPotential = this._clamp(weighted, 0, 100);
     const metricBreakdown = {
-      growth: this._round(growthScore),
-      perCapitaMarket: this._round(perCapitaScore),
-      lowSaturation: this._round(saturationScore),
-      laborAvailability: this._round(laborScore),
-      purchasingPower: this._round(purchasingPowerScore),
-      rentAffordability: this._round(rentScore),
-      lowRisk: this._round(riskScore),
+      growth: components.growth ? this._round(components.growth.score) : null,
+      perCapitaMarket: components.perCapitaMarket ? this._round(components.perCapitaMarket.score) : null,
+      lowSaturation: components.lowSaturation ? this._round(components.lowSaturation.score) : null,
+      laborAvailability: components.laborAvailability ? this._round(components.laborAvailability.score) : null,
+      purchasingPower: components.purchasingPower ? this._round(components.purchasingPower.score) : null,
+      rentAffordability: components.rentAffordability ? this._round(components.rentAffordability.score) : null,
+      lowRisk: components.lowRisk ? this._round(components.lowRisk.score) : null,
       confidence,
-      weights: this.weights
+      weights: this.weights,
+      effectiveWeights: Object.fromEntries(
+        availableEntries.map(([name, component]) => [
+          name,
+          availableWeight > 0 ? this._round(component.weight / availableWeight) : 0
+        ])
+      ),
+      metricCoverage: this._round(metricCoverage * 100),
+      missingComponents,
+      componentProvenance: Object.fromEntries(
+        availableEntries.map(([name, component]) => [
+          name,
+          {
+            sourceField: component.sourceField || null,
+            reference: component.reference || null
+          }
+        ])
+      )
     };
 
     const reliability = assessOpportunityRow({
@@ -210,7 +311,7 @@ class OpportunityScoringEngine {
   async _loadCity(cityId) {
     const { data, error } = await this.supabase
       .from('cities')
-      .select('id, code, country_code, population, purchasing_power_index, lat, lng')
+      .select('id, code, country_code, population, purchasing_power_index, avg_rent_per_sqm, lat, lng')
       .eq('id', cityId)
       .single();
     if (error) throw error;
@@ -225,10 +326,12 @@ class OpportunityScoringEngine {
       .single();
     if (cityError || !city) return {};
 
+    if (!city.country_code) return {};
+
     const { data, error } = await this.supabase
       .from('country_benchmarks')
       .select('metric_code, benchmark_value')
-      .eq('country_code', city.country_code || 'SA')
+      .eq('country_code', city.country_code)
       .lte('year', year || new Date().getFullYear())
       .order('year', { ascending: false });
 
@@ -239,7 +342,7 @@ class OpportunityScoringEngine {
 
     const benchmarks = {};
     for (const row of data || []) {
-      if (!benchmarks[row.metric_code]) {
+      if (benchmarks[row.metric_code] === undefined) {
         benchmarks[row.metric_code] = Number(row.benchmark_value);
       }
     }
@@ -261,10 +364,13 @@ class OpportunityScoringEngine {
 
     const values = (data || [])
       .map(row => {
-        const population = Number(row.cities?.population) || 1;
-        return (Number(row.market_size) || 0) / population;
+        const population = Number(row.cities?.population);
+        const marketSize = Number(row.market_size);
+        if (!Number.isFinite(population) || population <= 0) return null;
+        if (!Number.isFinite(marketSize) || marketSize <= 0) return null;
+        return marketSize / population;
       })
-      .filter(v => v > 0)
+      .filter(v => Number.isFinite(v) && v > 0)
       .sort((a, b) => a - b);
 
     if (values.length === 0) return { median: 0, count: 0 };
