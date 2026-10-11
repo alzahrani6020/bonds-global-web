@@ -360,6 +360,7 @@ async function handleCatalogCities(req, res) {
 
       const activityIds = (activityRows || []).map(row => row.id);
       const rawIdToCanonical = new Map();
+      const rawIdToCode = new Map(rawCities.map(city => [city.id, city.code]));
       for (const city of canonicalCities) {
         rawIdToCanonical.set(city.id, city.canonical_code);
         for (const alias of city.aliases || []) rawIdToCanonical.set(alias.id, city.canonical_code);
@@ -393,7 +394,8 @@ async function handleCatalogCities(req, res) {
           const next = {
             dataYear: row.data_year,
             opportunityScore: row.opportunity_score,
-            confidence: row.confidence
+            confidence: row.confidence,
+            comparisonCode: rawIdToCode.get(row.city_id) || canonicalCode
           };
           if (!current || Number(next.confidence || 0) > Number(current.confidence || 0)) {
             availability.set(canonicalCode, next);
@@ -404,12 +406,18 @@ async function handleCatalogCities(req, res) {
           .filter(city => availability.has(city.canonical_code))
           .map(city => ({
             ...city,
+            comparison_code: availability.get(city.canonical_code)?.comparisonCode || city.canonical_code,
             activityAvailability: availability.get(city.canonical_code)
           }));
       } else {
         canonicalCities = [];
       }
     }
+
+    canonicalCities = canonicalCities.map(city => ({
+      ...city,
+      comparison_code: city.comparison_code || city.canonical_code
+    }));
 
     return sendJson(res, 200, {
       cities: canonicalCities,
