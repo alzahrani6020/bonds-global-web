@@ -105,38 +105,10 @@
   50% { transform: translateY(-6px); }
 }
 
-/* Use existing site header; override for dark landing page */
-.fi-page #site-header .main-header,
-.fi-page #site-header.main-header {
-  background: rgba(7, 11, 20, 0.95) !important;
-  border-bottom: 1px solid rgba(212, 168, 83, 0.08) !important;
-}
-
-.fi-page #site-header a:not(.btn-header):not(.header-signup),
-.fi-page #site-header .nav-link,
-.fi-page #site-header .dropdown-toggle {
-  color: #fff !important;
-}
-
-.fi-page #site-header a:not(.btn-header):not(.header-signup):hover,
-.fi-page #site-header .nav-link:hover,
-.fi-page #site-header .dropdown-toggle:hover {
-  color: var(--gold) !important;
-}
-
-.fi-page #site-header .btn-header,
-.fi-page #site-header .btn-header:hover {
-  color: #0a0f1a !important;
-}
-
-.fi-page #site-header .header-signup,
-.fi-page #site-header .header-signup:hover {
-  color: #0a0f1a !important;
-}
-
-.fi-page #site-header .header-brand {
-  filter: brightness(0) invert(1);
-}
+/* Header styling is owned by header-footer.css + institutional-system.css.
+ * Legacy dark-header overrides were removed to prevent white-on-white text
+ * and logo filters on the institutional light header.
+ */
 
 /* Hide live-chat widget on this landing page */
 .fi-page iframe[src*="tawk.to"],
