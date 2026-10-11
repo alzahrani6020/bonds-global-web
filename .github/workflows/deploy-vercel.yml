@@ -1,58 +1,106 @@
 name: Deploy to Vercel
 
-# Disabled: Vercel auto-deploys from GitHub integration
+# Production releases are intentionally manual.
+# Git auto-deploy is disabled in vercel.json so repeated main commits do not
+# exhaust the Vercel daily deployment quota.
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref or exact commit SHA to release'
+        required: true
+        default: 'main'
+        type: string
+
+concurrency:
+  group: vercel-production-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
 
 jobs:
   deploy:
-    if: false
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - name: Checkout
+      - name: Checkout requested release
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Record exact release SHA
+        id: release
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="$(git rev-parse HEAD)"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          echo "Releasing exact commit: $sha"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run Tests
-        run: npm test
+      - name: Release gate
+        run: |
+          npm run audit
+          npm run audit:api
+          npm test -- --runInBand
 
-      - name: Install Vercel CLI
-        run: npm install -g vercel@latest
+      - name: Install pinned Vercel CLI
+        run: npm install --global vercel@56.3.2
 
-      - name: Pull Vercel Environment
-        run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Pull production environment
+        run: vercel pull --yes --environment=production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Build
-        run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Build production artifact
+        run: vercel build --prod
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Deploy (Production)
-        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
-        run: vercel deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Deploy tested artifact to production
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          deployment_url="$(vercel deploy --prebuilt --prod)"
+          echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
+          echo "Production deployment: $deployment_url"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Deploy (Preview)
-        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/master'
-        run: vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Verify production health
+        shell: bash
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const url = process.env.DEPLOYMENT_URL;
+          if (!url || !url.startsWith('https://') || !url.endsWith('.vercel.app')) {
+            throw new Error('Unexpected Vercel deployment URL');
+          }
+          NODE
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 "$DEPLOYMENT_URL/api/v3/health" >/tmp/health.json
+          node -e "const h=require('/tmp/health.json'); if (!h || (h.status && h.status !== 'ok' && h.status !== 'healthy')) process.exit(1)"
+
+      - name: Release summary
+        run: |
+          echo "Commit: ${{ steps.release.outputs.sha }}"
+          echo "Deployment: ${{ steps.deploy.outputs.url }}"
