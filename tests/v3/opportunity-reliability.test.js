@@ -55,8 +55,6 @@ describe('Opportunity reliability layer', () => {
     expect(result.reliability).toBeLessThanOrEqual(55);
     expect(result.warnings).toContain('estimated_data');
   });
-});
-
 
   test('scoring coverage independently reduces reliability when score dimensions are sparse', () => {
     const result = assessOpportunityRow({
@@ -74,3 +72,4 @@ describe('Opportunity reliability layer', () => {
     expect(result.reliability).toBeLessThanOrEqual(35);
     expect(result.warnings).toContain('low_scoring_coverage');
   });
+});
