@@ -110,7 +110,6 @@
       "source": "/api/site/",
       "destination": "/api/platform"
     },
-
     {
       "source": "/api/moyasar-checkout",
       "destination": "/api/payments"
@@ -961,5 +960,11 @@
       "destination": "/distressed-recovery-study",
       "statusCode": 301
     }
-  ]
+  ],
+  "git": {
+    "deploymentEnabled": {
+      "*": false,
+      "main": true
+    }
+  }
 }
