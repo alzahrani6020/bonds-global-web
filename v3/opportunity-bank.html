@@ -338,16 +338,41 @@
       activitySelect.disabled = !ready;
       filterBtn.disabled = !ready;
 
+      const panel = document.createElement('div');
+      panel.className = 'state-panel' + (state === 'error' ? ' error' : '');
+      panel.setAttribute('role', state === 'error' ? 'alert' : 'status');
+      panel.setAttribute('aria-live', state === 'error' ? 'assertive' : 'polite');
+
+      const title = document.createElement('strong');
+      const description = document.createElement('span');
+
       if (state === 'loading') {
-        content.innerHTML = '<div class="state-panel" role="status" aria-live="polite"><strong>جاري تجهيز بنك الفرص</strong><span>يتم تحميل الدول والأنشطة والبيانات المرجعية.</span></div>';
+        title.textContent = 'جاري تجهيز بنك الفرص';
+        description.textContent = 'يتم تحميل الدول والأنشطة والبيانات المرجعية.';
       } else if (state === 'empty') {
-        content.innerHTML = '<div class="state-panel" role="status" aria-live="polite"><strong>بيانات بنك الفرص غير مكتملة</strong><span>' + detail + '</span></div>';
+        title.textContent = 'بيانات بنك الفرص غير مكتملة';
+        description.textContent = detail;
       } else if (state === 'error') {
-        content.innerHTML = '<div class="state-panel error" role="alert"><strong>تعذر تحميل بيانات بنك الفرص</strong><span>' + detail + '</span><br><button type="button" id="retryInit">إعادة المحاولة</button></div>';
-        document.getElementById('retryInit')?.addEventListener('click', init);
-      } else if (state === 'ready') {
-        content.innerHTML = '<div class="state-panel" role="status" aria-live="polite"><strong>بيانات بنك الفرص جاهزة</strong><span>اختر المعايير ثم اضغط بحث لعرض الفرص.</span></div>';
+        title.textContent = 'تعذر تحميل بيانات بنك الفرص';
+        description.textContent = detail;
+      } else {
+        title.textContent = 'بيانات بنك الفرص جاهزة';
+        description.textContent = 'اختر المعايير ثم اضغط بحث لعرض الفرص.';
       }
+
+      panel.append(title, description);
+
+      if (state === 'error') {
+        const br = document.createElement('br');
+        const retry = document.createElement('button');
+        retry.type = 'button';
+        retry.id = 'retryInit';
+        retry.textContent = 'إعادة المحاولة';
+        retry.addEventListener('click', init);
+        panel.append(br, retry);
+      }
+
+      content.replaceChildren(panel);
     }
 
     async function init() {
