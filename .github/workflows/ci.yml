@@ -16,13 +16,24 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
       - name: Install Dependencies
         run: npm install
 
       - name: Install Playwright Browsers
         run: npx playwright install chromium
+
+      - name: Start Local Dev Server
+        run: npm run dev:local &
+
+      - name: Wait for Server
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3005 > /dev/null; then echo "Server ready"; exit 0; fi
+            sleep 1
+          done
+          echo "Server did not start in time" && exit 1
 
       - name: Run Unit Tests
         run: npm test
@@ -38,17 +49,6 @@ jobs:
 
       - name: Run API Auth & Routing Audit
         run: npm run audit:api
-
-      - name: Start Local Dev Server
-        run: npm run dev:local &
-
-      - name: Wait for Server
-        run: |
-          for i in {1..30}; do
-            if curl -s http://localhost:3005 > /dev/null; then echo "Server ready"; exit 0; fi
-            sleep 1
-          done
-          echo "Server did not start in time" && exit 1
 
       - name: Run Accessibility Tests
         run: npm run test:a11y
