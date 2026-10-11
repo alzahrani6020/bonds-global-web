@@ -19,6 +19,9 @@ describe('Opportunity reliability layer', () => {
     expect(result.reliability).toBeLessThan(50);
     expect(result.decisionScore).toBeLessThan(result.rawPotential);
     expect(result.warnings).toContain('zero_breakdown_confidence');
+    expect(result.uncertainty.basis).toBe('decision_score');
+    expect(result.uncertainty.low).toBeLessThanOrEqual(result.decisionScore);
+    expect(result.uncertainty.high).toBeGreaterThanOrEqual(result.decisionScore);
   });
 
   test('blocks decision-grade interpretation when city population is zero', () => {
@@ -53,3 +56,21 @@ describe('Opportunity reliability layer', () => {
     expect(result.warnings).toContain('estimated_data');
   });
 });
+
+
+  test('scoring coverage independently reduces reliability when score dimensions are sparse', () => {
+    const result = assessOpportunityRow({
+      opportunity_score: 80,
+      confidence: 90,
+      opportunity_breakdown: { confidence: 90, metricCoverage: 30 },
+      market_size: 1000000,
+      competitors_count: 20,
+      market_saturation_score: 40,
+      annual_growth_rate: 6,
+      avg_salary: 8000,
+      cities: { population: 1000000 }
+    });
+    expect(result.scoringCoverage).toBe(30);
+    expect(result.reliability).toBeLessThanOrEqual(35);
+    expect(result.warnings).toContain('low_scoring_coverage');
+  });
