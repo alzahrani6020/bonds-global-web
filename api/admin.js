@@ -2349,6 +2349,30 @@ async function addSupportNote(sb, body, admin, req) {
 }
 
 // ── Finance Operations ─────────────────────────────────────
+const FINANCE_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const FINANCE_REFUND_STATUSES = new Set(['requested','approved','processing','completed','rejected','failed']);
+const FINANCE_RECON_SOURCE_TYPES = new Set(['invoice','bank_transfer','subscription','manual']);
+const FINANCE_RECON_STATUSES = new Set(['unmatched','matched','variance','ignored','resolved']);
+const FINANCE_EXCEPTION_SEVERITIES = new Set(['low','medium','high','critical']);
+
+function financeOptionalUuid(value, field) {
+  if (value == null || value === '') return null;
+  const normalized = String(value).trim();
+  if (!FINANCE_UUID_RE.test(normalized)) throw badRequest(field + ' must be a valid UUID');
+  return normalized;
+}
+
+function financeCurrency(value) {
+  const currency = String(value || 'SAR').trim().toUpperCase();
+  if (!/^[A-Z]{3}$/.test(currency)) throw badRequest('currency must be a 3-letter ISO code');
+  return currency;
+}
+
+async function requireFinanceApprover(sb, admin) {
+  const role = await getActorRole(sb, admin);
+  if (role !== 'super_admin') throw forbidden('Super admin required for refund approval');
+}
+
 async function getFinanceOverview(sb) {
   const [
     invoicesRes,
@@ -2412,14 +2436,20 @@ async function getFinanceOverview(sb) {
 
 async function createFinanceRefund(sb, body, admin, req) {
   const amount = Number(body?.amount || 0);
-  if (!(amount > 0)) throw badRequest('positive amount required');
+  if (!Number.isFinite(amount) || !(amount > 0)) throw badRequest('positive amount required');
+  const invoiceId = financeOptionalUuid(body?.invoice_id, 'invoice_id');
+  const userId = financeOptionalUuid(body?.user_id, 'user_id');
+  const externalReference = String(body?.external_reference || '').trim();
+  const reason = String(body?.reason || '').trim();
+  if (!invoiceId && !externalReference) throw badRequest('invoice_id or external_reference required');
+  if (!reason) throw badRequest('reason required');
   const row = {
-    user_id: body?.user_id || null,
-    invoice_id: body?.invoice_id || null,
-    external_reference: body?.external_reference || null,
+    user_id: userId,
+    invoice_id: invoiceId,
+    external_reference: externalReference.slice(0, 200) || null,
     amount,
-    currency: body?.currency || 'SAR',
-    reason: body?.reason || null,
+    currency: financeCurrency(body?.currency),
+    reason: reason.slice(0, 2000),
     status: 'requested',
     requested_by: admin.id
   };
@@ -2430,18 +2460,50 @@ async function createFinanceRefund(sb, body, admin, req) {
 }
 
 async function updateFinanceRefund(sb, body, admin, req) {
-  const id = body?.id;
+  const id = financeOptionalUuid(body?.id, 'id');
   const status = body?.status;
   if (!id || !status) throw badRequest('id and status required');
+  if (!FINANCE_REFUND_STATUSES.has(status)) throw badRequest('invalid refund status');
+
+  const { data: current, error: currentError } = await sb.from('finance_refunds')
+    .select('*').eq('id', id).single();
+  if (currentError) throw currentError;
+
+  const transitions = {
+    requested: new Set(['approved','rejected']),
+    approved: new Set(['processing']),
+    processing: new Set(['completed','failed']),
+    completed: new Set(),
+    rejected: new Set(),
+    failed: new Set()
+  };
+  if (!transitions[current.status]?.has(status)) {
+    throw badRequest('invalid refund status transition');
+  }
+
   const updates = { status, updated_at: new Date().toISOString() };
-  if (status === 'approved') updates.approved_by = admin.id;
-  if (status === 'completed') {
+  if (status === 'approved') {
+    await requireFinanceApprover(sb, admin);
+    if (current.requested_by && current.requested_by === admin.id) {
+      throw forbidden('Refund requester cannot approve the same refund');
+    }
     updates.approved_by = admin.id;
+  }
+  if (status === 'processing') {
+    if (!current.approved_by) throw badRequest('refund must be approved before processing');
+  }
+  if (status === 'completed') {
+    if (!current.approved_by) throw badRequest('refund must be approved before completion');
     updates.completed_at = new Date().toISOString();
   }
+
   const { data, error } = await sb.from('finance_refunds').update(updates).eq('id', id).select().single();
   if (error) throw error;
-  await logAdminAction(sb, admin, 'finance_refund_update', 'finance_refund', id, null, updates, req);
+  await logAdminAction(sb, admin, 'finance_refund_update', 'finance_refund', id, null, {
+    from_status: current.status,
+    to_status: status,
+    approved_by: updates.approved_by || current.approved_by || null
+  }, req);
   return { success: true, refund: data };
 }
 
@@ -2449,16 +2511,23 @@ async function upsertReconciliationItem(sb, body, admin, req) {
   const sourceType = body?.source_type;
   const sourceId = String(body?.source_id || '').trim();
   if (!sourceType || !sourceId) throw badRequest('source_type and source_id required');
+  if (!FINANCE_RECON_SOURCE_TYPES.has(sourceType)) throw badRequest('invalid reconciliation source_type');
+  const reconStatus = body?.status || 'unmatched';
+  if (!FINANCE_RECON_STATUSES.has(reconStatus)) throw badRequest('invalid reconciliation status');
+  const expectedAmount = body?.expected_amount == null ? null : Number(body.expected_amount);
+  const actualAmount = body?.actual_amount == null ? null : Number(body.actual_amount);
+  if (expectedAmount != null && !Number.isFinite(expectedAmount)) throw badRequest('invalid expected_amount');
+  if (actualAmount != null && !Number.isFinite(actualAmount)) throw badRequest('invalid actual_amount');
   const row = {
     source_type: sourceType,
-    source_id: sourceId,
-    expected_amount: body?.expected_amount ?? null,
-    actual_amount: body?.actual_amount ?? null,
-    currency: body?.currency || 'SAR',
-    status: body?.status || 'unmatched',
+    source_id: sourceId.slice(0, 250),
+    expected_amount: expectedAmount,
+    actual_amount: actualAmount,
+    currency: financeCurrency(body?.currency),
+    status: reconStatus,
     notes: body?.notes || null,
-    resolved_by: ['resolved','matched','ignored'].includes(body?.status) ? admin.id : null,
-    resolved_at: ['resolved','matched','ignored'].includes(body?.status) ? new Date().toISOString() : null,
+    resolved_by: ['resolved','matched','ignored'].includes(reconStatus) ? admin.id : null,
+    resolved_at: ['resolved','matched','ignored'].includes(reconStatus) ? new Date().toISOString() : null,
     updated_at: new Date().toISOString()
   };
   const { data, error } = await sb.from('finance_reconciliation_items')
@@ -2472,16 +2541,20 @@ async function createRevenueException(sb, body, admin, req) {
   const category = String(body?.category || '').trim();
   const description = String(body?.description || '').trim();
   if (!category || !description) throw badRequest('category and description required');
+  const severity = body?.severity || 'medium';
+  if (!FINANCE_EXCEPTION_SEVERITIES.has(severity)) throw badRequest('invalid severity');
+  const amountImpact = Number(body?.amount_impact || 0);
+  if (!Number.isFinite(amountImpact)) throw badRequest('invalid amount_impact');
   const row = {
-    user_id: body?.user_id || null,
-    organization_id: body?.organization_id || null,
+    user_id: financeOptionalUuid(body?.user_id, 'user_id'),
+    organization_id: financeOptionalUuid(body?.organization_id, 'organization_id'),
     category: category.slice(0, 120),
     description: description.slice(0, 5000),
-    amount_impact: Number(body?.amount_impact || 0),
-    currency: body?.currency || 'SAR',
-    severity: body?.severity || 'medium',
+    amount_impact: amountImpact,
+    currency: financeCurrency(body?.currency),
+    severity,
     status: 'open',
-    owner_user_id: body?.owner_user_id || admin.id,
+    owner_user_id: financeOptionalUuid(body?.owner_user_id, 'owner_user_id') || admin.id,
     request_id: body?.request_id || null
   };
   const { data, error } = await sb.from('finance_revenue_exceptions').insert([row]).select().single();
