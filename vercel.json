@@ -481,7 +481,7 @@
         },
         {
           "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type,Authorization"
+          "value": "Content-Type,Authorization,X-Request-ID,X-Device-Fingerprint"
         }
       ]
     },
