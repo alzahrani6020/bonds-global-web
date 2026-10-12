@@ -341,6 +341,186 @@ async function verifyFundingCaseAccess(req, sb, minAdvisoryRole = null) {
   return null;
 }
 
+// ── Granular RBAC ───────────────────────────────────────────
+async function resolveAdminPermissions(sb, user) {
+  if (!user) return { role: 'unknown', permissions: [], sources: {} };
+  const role = isOwner(user.email) ? 'super_admin' : await getActorRole(sb, user);
+  const now = new Date().toISOString();
+
+  const [
+    rolePermsRes,
+    overridesRes,
+    tempRes,
+    delegationsRes,
+    breakGlassRes
+  ] = await Promise.all([
+    sb.from('admin_role_permissions').select('permission').eq('role', role),
+    sb.from('admin_user_permission_overrides').select('permission, effect, expires_at').eq('user_id', user.id),
+    sb.from('admin_temporary_access').select('permission, starts_at, expires_at, revoked_at').eq('user_id', user.id).lte('starts_at', now).gt('expires_at', now).is('revoked_at', null),
+    sb.from('admin_delegations').select('permission, starts_at, expires_at, revoked_at').eq('to_user_id', user.id).lte('starts_at', now).gt('expires_at', now).is('revoked_at', null),
+    sb.from('admin_break_glass_access').select('id, starts_at, expires_at, revoked_at').eq('user_id', user.id).lte('starts_at', now).gt('expires_at', now).is('revoked_at', null).limit(1)
+  ]);
+
+  const permissionSet = new Set((rolePermsRes.data || []).map(r => r.permission));
+  const sources = {};
+  for (const p of permissionSet) sources[p] = ['role:' + role];
+
+  for (const row of overridesRes.data || []) {
+    if (row.expires_at && row.expires_at <= now) continue;
+    if (row.effect === 'deny') {
+      permissionSet.delete(row.permission);
+      sources[row.permission] = ['override:deny'];
+    } else {
+      permissionSet.add(row.permission);
+      sources[row.permission] = [...(sources[row.permission] || []), 'override:allow'];
+    }
+  }
+  for (const row of tempRes.data || []) {
+    permissionSet.add(row.permission);
+    sources[row.permission] = [...(sources[row.permission] || []), 'temporary'];
+  }
+  for (const row of delegationsRes.data || []) {
+    permissionSet.add(row.permission);
+    sources[row.permission] = [...(sources[row.permission] || []), 'delegation'];
+  }
+
+  const breakGlass = (breakGlassRes.data || []).length > 0;
+  if (breakGlass && isOwner(user.email)) {
+    const { data: allPerms } = await sb.from('admin_permissions').select('permission');
+    for (const row of allPerms || []) {
+      permissionSet.add(row.permission);
+      sources[row.permission] = [...(sources[row.permission] || []), 'break-glass'];
+    }
+  }
+
+  return { role, permissions: [...permissionSet].sort(), sources, breakGlass };
+}
+
+async function requireAdminPermission(req, sb, permission) {
+  const user = await verifyAdmin(req, sb);
+  const resolved = await resolveAdminPermissions(sb, user);
+  if (!resolved.permissions.includes(permission)) {
+    throw forbidden('Missing permission: ' + permission);
+  }
+  return { user, ...resolved };
+}
+
+async function simulateAdminPermissions(sb, userId) {
+  if (!userId) throw badRequest('user_id required');
+  const { data: authUser, error } = await sb.auth.admin.getUserById(userId);
+  if (error || !authUser?.user) throw notFound('User not found');
+  const user = authUser.user;
+  const resolved = await resolveAdminPermissions(sb, user);
+  return {
+    success: true,
+    user: { id: user.id, email: user.email || '' },
+    ...resolved
+  };
+}
+
+async function getSecurityOperationsOverview(sb) {
+  const now = Date.now();
+  const since24h = new Date(now - 24 * 3600000).toISOString();
+  const [
+    eventsRes,
+    devicesRes,
+    tempRes,
+    delegationsRes,
+    approvalsRes,
+    breakGlassRes
+  ] = await Promise.all([
+    sb.from('admin_security_events').select('*').gte('created_at', since24h).order('created_at', { ascending: false }).limit(1000),
+    sb.from('admin_trusted_devices').select('*').is('revoked_at', null).order('last_seen_at', { ascending: false }).limit(1000),
+    sb.from('admin_temporary_access').select('*').is('revoked_at', null).order('expires_at', { ascending: true }).limit(1000),
+    sb.from('admin_delegations').select('*').is('revoked_at', null).order('expires_at', { ascending: true }).limit(1000),
+    sb.from('admin_approval_requests').select('*').eq('status', 'pending').order('created_at', { ascending: false }).limit(1000),
+    sb.from('admin_break_glass_access').select('*').is('revoked_at', null).order('expires_at', { ascending: true }).limit(100)
+  ]);
+  for (const result of [eventsRes, devicesRes, tempRes, delegationsRes, approvalsRes, breakGlassRes]) {
+    if (result.error) throw result.error;
+  }
+  const events = eventsRes.data || [];
+  return {
+    success: true,
+    summary: {
+      events24h: events.length,
+      highRiskEvents: events.filter(e => ['high','critical'].includes(e.severity) || Number(e.risk_score || 0) >= 70).length,
+      activeTrustedDevices: (devicesRes.data || []).length,
+      temporaryGrants: (tempRes.data || []).filter(x => new Date(x.expires_at).getTime() > now).length,
+      activeDelegations: (delegationsRes.data || []).filter(x => new Date(x.expires_at).getTime() > now).length,
+      pendingApprovals: (approvalsRes.data || []).length,
+      breakGlassActive: (breakGlassRes.data || []).filter(x => new Date(x.expires_at).getTime() > now).length
+    },
+    events,
+    trustedDevices: devicesRes.data || [],
+    temporaryAccess: tempRes.data || [],
+    delegations: delegationsRes.data || [],
+    approvals: approvalsRes.data || [],
+    breakGlass: breakGlassRes.data || []
+  };
+}
+
+async function grantTemporaryPermission(sb, body, admin, req) {
+  if (!isOwner(admin.email)) throw forbidden('Only owner can grant temporary permissions');
+  const userId = body?.user_id;
+  const permission = body?.permission;
+  const reason = String(body?.reason || '').trim();
+  const expiresAt = body?.expires_at;
+  if (!userId || !permission || !reason || !expiresAt) throw badRequest('user_id, permission, reason and expires_at required');
+  if (new Date(expiresAt).getTime() <= Date.now()) throw badRequest('expires_at must be in the future');
+
+  const { data, error } = await sb.from('admin_temporary_access').insert([{
+    user_id: userId,
+    permission,
+    reason,
+    expires_at: expiresAt,
+    granted_by: admin.id
+  }]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'temporary_permission_grant', 'admin_temporary_access', data.id, null, { user_id: userId, permission, expires_at: expiresAt }, req);
+  return { success: true, grant: data };
+}
+
+async function createApprovalRequest(sb, body, admin, req) {
+  const permission = body?.permission;
+  const actionType = String(body?.action_type || '').trim();
+  if (!permission || !actionType) throw badRequest('permission and action_type required');
+  const row = {
+    requested_by: admin.id,
+    permission,
+    action_type: actionType,
+    target_type: body?.target_type || null,
+    target_id: body?.target_id || null,
+    payload: body?.payload && typeof body.payload === 'object' ? body.payload : {},
+    required_approvals: Math.max(1, Math.min(5, Number(body?.required_approvals || 1))),
+    expires_at: body?.expires_at || null
+  };
+  const { data, error } = await sb.from('admin_approval_requests').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'approval_request_create', 'admin_approval_request', data.id, null, { permission, action_type: actionType }, req);
+  return { success: true, approval: data };
+}
+
+async function recordSecurityEvent(sb, admin, req, eventType, severity = 'info', riskScore = 0, details = {}) {
+  try {
+    const ip = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.socket?.remoteAddress || '';
+    const userAgent = req?.headers?.['user-agent'] || '';
+    const requestId = req?.headers?.['x-request-id'] || null;
+    await sb.from('admin_security_events').insert([{
+      user_id: admin?.id || null,
+      event_type: eventType,
+      severity,
+      risk_score: Math.max(0, Math.min(100, Number(riskScore || 0))),
+      ip_address: ip,
+      user_agent: userAgent,
+      request_id: requestId,
+      details: details && typeof details === 'object' ? details : {}
+    }]);
+  } catch (e) {
+    console.warn('[SecurityEvent] failed:', e.message || e);
+  }
+}
+
 // ── Audit logging ───────────────────────────────────────────
 async function getActorRole(sb, admin) {
   if (isOwner(admin.email)) return 'super_admin';
@@ -2809,10 +2989,18 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'temporary-permission-grant') {
+        const access = await requireAdminPermission(req, sb, 'roles.manage');
+        return res.status(200).json(await grantTemporaryPermission(sb, req.body, access.user, req));
+      }
+      if (action === 'approval-request-create') {
+        const access = await requireAdminPermission(req, sb, 'roles.read');
+        return res.status(200).json(await createApprovalRequest(sb, req.body, access.user, req));
+      }
       if (action === 'finance-refund-create') {
-        const admin = await verifyAdminStrict(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await createFinanceRefund(sb, req.body, admin, req));
+        const access = await requireAdminPermission(req, sb, 'billing.refund');
+        await recordSecurityEvent(sb, access.user, req, 'finance_refund_requested', 'high', 70, { amount: Number(req.body?.amount || 0) });
+        return res.status(200).json(await createFinanceRefund(sb, req.body, access.user, req));
       }
       if (action === 'finance-refund-update') {
         const admin = await verifyAdminStrict(req, sb);
@@ -2820,9 +3008,8 @@ async function handler(req, res) {
         return res.status(200).json(await updateFinanceRefund(sb, req.body, admin, req));
       }
       if (action === 'finance-reconciliation-upsert') {
-        const admin = await verifyAdminStrict(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await upsertReconciliationItem(sb, req.body, admin, req));
+        const access = await requireAdminPermission(req, sb, 'billing.reconcile');
+        return res.status(200).json(await upsertReconciliationItem(sb, req.body, access.user, req));
       }
       if (action === 'finance-revenue-exception-create') {
         const admin = await verifyAdminStrict(req, sb);
@@ -2830,9 +3017,8 @@ async function handler(req, res) {
         return res.status(200).json(await createRevenueException(sb, req.body, admin, req));
       }
       if (action === 'support-ticket-create') {
-        const admin = await verifyAdminStrict(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await createSupportTicket(sb, req.body, admin, req));
+        const access = await requireAdminPermission(req, sb, 'support.manage');
+        return res.status(200).json(await createSupportTicket(sb, req.body, access.user, req));
       }
       if (action === 'support-ticket-update') {
         const admin = await verifyAdminStrict(req, sb);
@@ -2845,9 +3031,8 @@ async function handler(req, res) {
         return res.status(200).json(await addSupportNote(sb, req.body, admin, req));
       }
       if (action === 'crm-organization-create') {
-        const admin = await verifyAdminStrict(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await createCrmOrganization(sb, req.body, admin, req));
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await createCrmOrganization(sb, req.body, access.user, req));
       }
       if (action === 'crm-opportunity-create') {
         const admin = await verifyAdminStrict(req, sb);
@@ -2934,14 +3119,20 @@ async function handler(req, res) {
         };
         return res.status(200).json(await getSubscriptions(sb, params));
       }
+      if (action === 'permission-simulator') {
+        const access = await requireAdminPermission(req, sb, 'roles.read');
+        return res.status(200).json(await simulateAdminPermissions(sb, req.query?.user_id));
+      }
+      if (action === 'security-operations-overview') {
+        const access = await requireAdminPermission(req, sb, 'security.read');
+        return res.status(200).json(await getSecurityOperationsOverview(sb));
+      }
       if (action === 'finance-overview') {
-        const admin = await verifyAdminStrict(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const access = await requireAdminPermission(req, sb, 'billing.read');
         return res.status(200).json(await getFinanceOverview(sb));
       }
       if (action === 'support-overview') {
-        const admin = await verifyAdminStrict(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const access = await requireAdminPermission(req, sb, 'support.manage');
         return res.status(200).json(await getSupportOverview(sb));
       }
       if (action === 'support-ticket-detail') {
@@ -2950,8 +3141,7 @@ async function handler(req, res) {
         return res.status(200).json(await getSupportTicketDetail(sb, req.query?.ticket_id));
       }
       if (action === 'crm-overview') {
-        const admin = await verifyAdminStrict(req, sb);
-        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const access = await requireAdminPermission(req, sb, 'crm.read');
         return res.status(200).json(await getCrmOverview(sb));
       }
       if (action === 'analytics') {
