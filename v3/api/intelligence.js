@@ -11,7 +11,7 @@ const {
   createFabric,
   adapt
 } = require('../../lib/enterprise-intelligence');
-const { DecisionMemoryEngine } = require('../../lib/decision-os');
+const { DecisionMemoryEngine, CalibrationEngine } = require('../../lib/decision-os');
 
 function parseBody(req) {
   return new Promise((resolve, reject) => {
@@ -81,7 +81,7 @@ async function intelligenceRouter(req, res, path, supabase, user = null) {
 
       const { data: decision, error: decisionError } = await supabase
         .from('decision_memory')
-        .select('id, created_by, expected_outcome, decision')
+        .select('id, entity_id, created_by, expected_outcome, decision')
         .eq('id', decisionId)
         .single();
 
@@ -97,8 +97,16 @@ async function intelligenceRouter(req, res, path, supabase, user = null) {
         notes: notes || null
       });
 
+      let calibration = null;
+      if (result.status === 'persisted') {
+        calibration = await new CalibrationEngine({ supabase }).analyze({
+          entityId: decision.entity_id || null,
+          limit: 500
+        });
+      }
+
       const status = result.status === 'persisted' ? 201 : 400;
-      return sendJson(res, status, result);
+      return sendJson(res, status, { ...result, calibration });
     }
 
     if (path === '/intelligence/synthesize' && req.method === 'POST') {
