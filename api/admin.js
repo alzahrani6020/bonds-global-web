@@ -385,6 +385,226 @@ async function getAuditLog(sb, opts = {}) {
   return { success: true, logs: data || [], count: count || 0 };
 }
 
+// ── Admin Operating Platform ───────────────────────────────
+const PLATFORM_MODULES = Object.freeze({
+  organizations: { table: 'organizations', read: 'crm.read', write: 'crm.write', order: 'created_at', fields: ['name','legal_name','registration_number','country','city','industry','status','account_owner_id','website','phone','email','metadata'] },
+  opportunities: { table: 'crm_opportunities', read: 'crm.read', write: 'crm.write', order: 'created_at', fields: ['organization_id','user_id','name','stage','value_amount','currency','probability','owner_id','expected_close_date','source','lost_reason','next_action_at','metadata'] },
+  'customer-success': { table: 'customer_success_records', read: 'crm.read', write: 'crm.write', order: 'updated_at', fields: ['user_id','organization_id','health_score','risk_level','renewal_date','owner_id','next_action_at','notes'] },
+  tickets: { table: 'support_tickets', read: 'support.read', write: 'support.write', order: 'created_at', fields: ['ticket_reference','user_id','organization_id','subject','description','status','priority','assigned_to','source','request_id','error_code','sla_deadline_at','resolved_at'] },
+  'ticket-comments': { table: 'support_ticket_comments', read: 'support.read', write: 'support.write', order: 'created_at', fields: ['ticket_id','body','internal','mentions'] },
+  refunds: { table: 'finance_refunds', read: 'finance.read', write: 'finance.refund', order: 'created_at', fields: ['user_id','external_payment_id','amount','currency','reason','status','approved_by','completed_at','metadata'] },
+  reconciliation: { table: 'finance_reconciliation_items', read: 'finance.read', write: 'finance.reconcile', order: 'created_at', fields: ['source_type','source_id','expected_amount','actual_amount','currency','status','owner_id','resolution_note'] },
+  contracts: { table: 'customer_contracts', read: 'finance.read', write: 'finance.reconcile', order: 'created_at', fields: ['organization_id','user_id','contract_number','title','status','value_amount','currency','starts_on','ends_on','renewal_notice_days','owner_id','metadata'] },
+  permissions: { table: 'admin_permissions', read: 'rbac.manage', write: 'rbac.manage', order: 'created_at', fields: ['permission_key','description','risk_level'] },
+  'role-permissions': { table: 'admin_role_permissions', read: 'rbac.manage', write: 'rbac.manage', order: 'created_at', fields: ['role','permission_key'] },
+  'access-grants': { table: 'admin_access_grants', read: 'rbac.manage', write: 'rbac.manage', order: 'created_at', fields: ['user_id','permission_key','starts_at','expires_at','reason','revoked_at'] },
+  approvals: { table: 'admin_approval_requests', read: 'approvals.review', write: 'approvals.review', order: 'created_at', fields: ['action_type','target_type','target_id','payload','risk_level','status','reviewed_by','reviewed_at','expires_at','reason'] },
+  'security-events': { table: 'security_events', read: 'security.read', write: 'security.manage', order: 'created_at', fields: ['user_id','event_type','severity','ip_address','user_agent','device_fingerprint','country','request_id','risk_score','status','details','resolved_at'] },
+  'trusted-devices': { table: 'trusted_admin_devices', read: 'security.read', write: 'security.manage', order: 'trusted_at', fields: ['user_id','device_fingerprint','label','expires_at','revoked_at'] },
+  'break-glass': { table: 'break_glass_events', read: 'security.read', write: 'security.manage', order: 'started_at', fields: ['user_id','reason','expires_at','ended_at','approved_by','request_id'] },
+  'feature-flags': { table: 'feature_flags', read: 'platform.read', write: 'features.manage', order: 'updated_at', fields: ['flag_key','description','enabled','rollout_percent','environments','config'] },
+  'feature-overrides': { table: 'feature_flag_overrides', read: 'platform.read', write: 'features.manage', order: 'created_at', fields: ['flag_key','subject_type','subject_key','enabled','expires_at'] },
+  entitlements: { table: 'entitlements', read: 'platform.read', write: 'features.manage', order: 'updated_at', fields: ['subject_type','subject_key','entitlement_key','value','expires_at'] },
+  tasks: { table: 'admin_tasks', read: 'platform.read', write: 'workflow.manage', order: 'created_at', fields: ['title','description','entity_type','entity_id','status','priority','assigned_to','due_at','completed_at','metadata'] },
+  'workflow-rules': { table: 'workflow_rules', read: 'platform.read', write: 'workflow.manage', order: 'updated_at', fields: ['name','enabled','trigger_type','conditions','actions','schedule'] },
+  'workflow-runs': { table: 'workflow_runs', read: 'platform.read', write: 'workflow.manage', order: 'started_at', fields: ['rule_id','trigger_payload','status','finished_at','error_message','output'] },
+  alerts: { table: 'operational_alerts', read: 'platform.read', write: 'workflow.manage', order: 'created_at', fields: ['category','severity','title','message','entity_type','entity_id','status','owner_id','request_id','acknowledged_at','resolved_at'] },
+  traces: { table: 'admin_request_traces', read: 'platform.read', write: null, order: 'created_at', fields: [] },
+  errors: { table: 'admin_error_events', read: 'platform.read', write: 'incidents.manage', order: 'last_seen_at', fields: ['status','severity','metadata'] },
+  jobs: { table: 'admin_job_runs', read: 'platform.read', write: 'platform.manage', order: 'created_at', fields: ['job_key','status','started_at','finished_at','duration_ms','error_message','metadata'] },
+  incidents: { table: 'incidents', read: 'platform.read', write: 'incidents.manage', order: 'started_at', fields: ['title','severity','status','impact','owner_id','resolved_at','root_cause','resolution','postmortem'] },
+  runbooks: { table: 'runbooks', read: 'platform.read', write: 'incidents.manage', order: 'updated_at', fields: ['name','service','symptoms','steps','rollback_steps','owner_id'] },
+  backups: { table: 'backup_verifications', read: 'platform.read', write: 'platform.manage', order: 'checked_at', fields: ['provider','backup_reference','backup_created_at','verification_status','restore_tested','restore_tested_at','rpo_minutes','rto_minutes','details'] },
+  'recovery-drills': { table: 'recovery_drills', read: 'platform.read', write: 'platform.manage', order: 'created_at', fields: ['name','status','started_at','finished_at','measured_rpo_minutes','measured_rto_minutes','findings'] },
+  integrations: { table: 'integration_health', read: 'platform.read', write: 'platform.manage', order: 'checked_at', fields: ['integration_key','provider','status','last_success_at','last_failure_at','latency_ms','error_code','details','checked_at'] },
+  webhooks: { table: 'webhook_events', read: 'platform.read', write: null, order: 'created_at', fields: [] },
+  'api-key-metadata': { table: 'api_key_metadata', read: 'platform.read', write: 'platform.manage', order: 'created_at', fields: ['name','key_prefix','scopes','owner_id','status','expires_at','last_used_at'] },
+  configuration: { table: 'configuration_snapshots', read: 'platform.read', write: 'platform.manage', order: 'captured_at', fields: ['environment','config_key','value_hash','present','source','captured_at'] },
+  metrics: { table: 'executive_metric_snapshots', read: 'platform.read', write: 'platform.manage', order: 'captured_at', fields: ['metric_key','metric_value','dimension','period_start','period_end','captured_at'] },
+  'ai-usage': { table: 'ai_usage_events', read: 'ai.read', write: null, order: 'created_at', fields: [] },
+  'ai-prompts': { table: 'ai_prompt_versions', read: 'ai.read', write: 'ai.manage', order: 'created_at', fields: ['prompt_key','version','content','model_config','status'] },
+  'data-requests': { table: 'data_governance_requests', read: 'data.read', write: 'data.manage', order: 'created_at', fields: ['user_id','request_type','status','reviewed_by','due_at','completed_at','notes'] },
+  lineage: { table: 'data_lineage_entries', read: 'data.read', write: 'data.manage', order: 'updated_at', fields: ['metric_or_field','source_system','source_object','transformation','refresh_cadence','owner','metadata'] },
+  exports: { table: 'admin_export_jobs', read: 'data.read', write: 'data.manage', order: 'created_at', fields: ['export_type','filters','status','row_count','storage_path','expires_at','error_message','finished_at'] },
+  documents: { table: 'document_records', read: 'documents.read', write: 'documents.manage', order: 'created_at', fields: ['owner_type','owner_id','category','title','current_version','status','expires_at'] },
+  'document-versions': { table: 'document_versions', read: 'documents.read', write: 'documents.manage', order: 'created_at', fields: ['document_id','version','storage_bucket','storage_path','mime_type','file_size','checksum'] }
+});
+
+async function getEffectivePermissions(sb, admin) {
+  if (!admin) return [];
+  if (isOwner(admin.email)) {
+    const { data } = await sb.from('admin_permissions').select('permission_key');
+    return (data || []).map(row => row.permission_key);
+  }
+  const role = await getActorRole(sb, admin);
+  const now = new Date().toISOString();
+  const [{ data: roleRows }, { data: grants }] = await Promise.all([
+    sb.from('admin_role_permissions').select('permission_key').eq('role', role),
+    sb.from('admin_access_grants').select('permission_key, starts_at, expires_at, revoked_at').eq('user_id', admin.id)
+  ]);
+  const set = new Set((roleRows || []).map(row => row.permission_key));
+  (grants || []).forEach(grant => {
+    if (grant.revoked_at) return;
+    if (grant.starts_at && grant.starts_at > now) return;
+    if (grant.expires_at && grant.expires_at <= now) return;
+    set.add(grant.permission_key);
+  });
+  return [...set];
+}
+
+async function requirePlatformPermission(sb, admin, permission) {
+  const perms = await getEffectivePermissions(sb, admin);
+  if (!perms.includes(permission)) throw forbidden('Permission required: ' + permission);
+  return perms;
+}
+
+function sanitizePlatformRecord(config, input) {
+  const record = {};
+  for (const key of config.fields || []) {
+    if (Object.prototype.hasOwnProperty.call(input || {}, key)) record[key] = input[key];
+  }
+  return record;
+}
+
+async function listPlatformModule(sb, moduleName, params = {}) {
+  const config = PLATFORM_MODULES[moduleName];
+  if (!config) throw badRequest('Unknown platform module');
+  const limit = Math.min(Math.max(parseInt(params.limit) || 50, 1), 200);
+  const offset = Math.max(parseInt(params.offset) || 0, 0);
+  let query = sb.from(config.table).select('*', { count: 'exact' });
+  if (params.status) query = query.eq('status', params.status);
+  if (params.user_id && ['tickets','refunds','data-requests'].includes(moduleName)) query = query.eq('user_id', params.user_id);
+  if (config.order) query = query.order(config.order, { ascending: false });
+  const { data, error, count } = await query.range(offset, offset + limit - 1);
+  if (error) throw error;
+  return { success: true, module: moduleName, items: data || [], total: count || 0 };
+}
+
+async function mutatePlatformModule(sb, moduleName, body, admin, req) {
+  const config = PLATFORM_MODULES[moduleName];
+  if (!config || !config.write) throw forbidden('Module is read-only');
+  await requirePlatformPermission(sb, admin, config.write);
+  const operation = body.operation;
+  const record = sanitizePlatformRecord(config, body.record || {});
+  if (!Object.keys(record).length) throw badRequest('No allowed fields supplied');
+
+  if (operation === 'create') {
+    if ('created_by' in (body.record || {})) delete record.created_by;
+    if (['tickets','tasks','workflow-rules','data-requests','exports','documents'].includes(moduleName)) {
+      record.created_by = admin.id;
+    }
+    if (moduleName === 'refunds') record.requested_by = admin.id;
+    const { data, error } = await sb.from(config.table).insert(record).select().single();
+    if (error) throw error;
+    await logAdminAction(sb, admin, 'platform_create', config.table, data?.id || data?.flag_key || null, null, { module: moduleName }, req);
+    return { success: true, item: data };
+  }
+
+  if (operation === 'update') {
+    const id = body.id;
+    const key = body.key;
+    if (!id && !key) throw badRequest('id or key required');
+    record.updated_at = new Date().toISOString();
+    let query = sb.from(config.table).update(record);
+    if (id) query = query.eq('id', id);
+    else if (moduleName === 'feature-flags') query = query.eq('flag_key', key);
+    else if (moduleName === 'integrations') query = query.eq('integration_key', key);
+    else throw badRequest('Key updates are not supported for this module');
+    const { data, error } = await query.select().single();
+    if (error) throw error;
+    await logAdminAction(sb, admin, 'platform_update', config.table, id || key, null, { module: moduleName, fields: Object.keys(record) }, req);
+    return { success: true, item: data };
+  }
+
+  throw badRequest('Unsupported operation');
+}
+
+async function getUser360(sb, userId) {
+  if (!userId) throw badRequest('user_id required');
+
+  const section = async (key, promise) => {
+    try {
+      const result = await promise;
+      if (result.error) throw result.error;
+      return { key, data: result.data ?? null, error: null };
+    } catch (error) {
+      return { key, data: null, error: String(error?.message || error || 'Unavailable').slice(0, 240) };
+    }
+  };
+
+  const results = await Promise.all([
+    section('profile', sb.from('profiles').select('*').eq('id', userId).maybeSingle()),
+    section('subscriptions', sb.from('subscriptions').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(20)),
+    section('presence', sb.from('user_presence').select('*').eq('user_id', userId).order('last_seen_at', { ascending: false }).limit(50)),
+    section('notifications', sb.from('user_notifications').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50)),
+    section('fundingCases', sb.from('funding_cases').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(50)),
+    section('notes', sb.from('user_internal_notes').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(100)),
+    section('tags', sb.from('user_tag_links').select('created_at, admin_tags(id,name,description)').eq('user_id', userId)),
+    section('organizations', sb.from('organization_members').select('*, organizations(*)').eq('user_id', userId)),
+    section('tickets', sb.from('support_tickets').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(100)),
+    section('opportunities', sb.from('crm_opportunities').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(100)),
+    section('contracts', sb.from('customer_contracts').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(100)),
+    section('documents', sb.from('document_records').select('*').eq('owner_type', 'user').eq('owner_id', userId).order('created_at', { ascending: false }).limit(100)),
+    section('audit', sb.from('admin_audit_log').select('*').eq('target_id', userId).order('created_at', { ascending: false }).limit(100))
+  ]);
+
+  const sections = Object.fromEntries(results.map(x => [x.key, x.data]));
+  const errors = results.filter(x => x.error).map(x => ({ section: x.key, message: x.error }));
+  const completeness = Number(sections.profile?.profile_completeness || 0);
+  const activeSub = (sections.subscriptions || []).some(x => ['active','trialing'].includes(x.status));
+  const recentPresence = (sections.presence || [])[0]?.last_seen_at;
+  const activeWithin30d = recentPresence ? (Date.now() - new Date(recentPresence).getTime()) <= 30 * 86400000 : false;
+  const openTickets = (sections.tickets || []).filter(x => !['resolved','closed'].includes(x.status)).length;
+  const healthScore = Math.max(0, Math.min(100,
+    Math.round(completeness * 0.45 + (activeSub ? 25 : 0) + (activeWithin30d ? 20 : 0) + (openTickets === 0 ? 10 : Math.max(0, 10 - openTickets * 2)))
+  ));
+
+  return {
+    success: true,
+    userId,
+    sections,
+    health: {
+      score: healthScore,
+      profileCompleteness: completeness,
+      activeSubscription: activeSub,
+      activeWithin30Days: activeWithin30d,
+      openTickets
+    },
+    errors
+  };
+}
+
+async function getPlatformSummary(sb) {
+  const specs = [
+    ['organizations','organizations', q => q.neq('status','archived')],
+    ['openTickets','support_tickets', q => q.in('status',['open','in_progress','waiting_customer'])],
+    ['urgentTickets','support_tickets', q => q.in('priority',['urgent','critical']).not('status','in','("resolved","closed")')],
+    ['opportunities','crm_opportunities', q => q.not('stage','in','("won","lost")')],
+    ['pendingApprovals','admin_approval_requests', q => q.eq('status','pending')],
+    ['openSecurityEvents','security_events', q => q.in('status',['open','acknowledged'])],
+    ['openTasks','admin_tasks', q => q.in('status',['open','in_progress','blocked'])],
+    ['openAlerts','operational_alerts', q => q.in('status',['open','acknowledged'])],
+    ['openErrors','admin_error_events', q => q.in('status',['open','investigating'])],
+    ['activeIncidents','incidents', q => q.neq('status','resolved')],
+    ['renewals90d','customer_contracts', q => q.in('status',['active','review']).lte('ends_on', new Date(Date.now()+90*86400000).toISOString().slice(0,10)).gte('ends_on', new Date().toISOString().slice(0,10))]
+  ];
+  const counts = {};
+  const errors = [];
+  await Promise.all(specs.map(async ([key, table, apply]) => {
+    try {
+      let q = sb.from(table).select('id', { count: 'exact', head: true });
+      q = apply(q);
+      const { count, error } = await q;
+      if (error) throw error;
+      counts[key] = count || 0;
+    } catch (error) {
+      counts[key] = null;
+      errors.push({ key, message: String(error?.message || error).slice(0, 180) });
+    }
+  }));
+  return { success: true, counts, errors, generatedAt: new Date().toISOString() };
+}
+
 // ── Admin Operations Inbox ─────────────────────────────────
 async function getOperationsOverview(sb) {
   const now = new Date().toISOString();
@@ -2166,6 +2386,43 @@ async function handler(req, res) {
     if (rateCategory && await checkRateLimit(rateCategory, req, res)) return;
 
     if (req.method === 'GET') {
+      if (action === 'user-360') {
+        const admin = await verifyAdmin(req, sb);
+        await requirePlatformPermission(sb, admin, 'users.read');
+        return res.status(200).json(await getUser360(sb, req.query?.user_id));
+      }
+      if (action === 'permission-simulator') {
+        const admin = await verifyAdminStrict(req, sb);
+        await requirePlatformPermission(sb, admin, 'rbac.manage');
+        const targetId = req.query?.user_id;
+        if (!targetId) return res.status(400).json({ error: 'user_id required' });
+        let target = null;
+        try {
+          const { data } = await sb.auth.admin.getUserById(targetId);
+          target = data?.user || null;
+        } catch (e) {}
+        if (!target) return res.status(404).json({ error: 'User not found' });
+        return res.status(200).json({
+          success: true,
+          userId: target.id,
+          email: target.email || '',
+          role: await getActorRole(sb, target),
+          permissions: await getEffectivePermissions(sb, target)
+        });
+      }
+      if (action === 'platform-summary') {
+        const admin = await verifyAdmin(req, sb);
+        await requirePlatformPermission(sb, admin, 'platform.read');
+        return res.status(200).json(await getPlatformSummary(sb));
+      }
+      if (action === 'platform-module') {
+        const admin = await verifyAdmin(req, sb);
+        const moduleName = String(req.query?.module || '');
+        const config = PLATFORM_MODULES[moduleName];
+        if (!config) return res.status(400).json({ error: 'Unknown platform module' });
+        await requirePlatformPermission(sb, admin, config.read);
+        return res.status(200).json(await listPlatformModule(sb, moduleName, req.query || {}));
+      }
       if (action === 'bank-transfers') {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
@@ -2434,6 +2691,11 @@ async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      if (action === 'platform-module') {
+        const admin = await verifyAdminStrict(req, sb);
+        const moduleName = String(req.body?.module || req.query?.module || '');
+        return res.status(200).json(await mutatePlatformModule(sb, moduleName, req.body || {}, admin, req));
+      }
       if (action === 'force-reset') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
