@@ -41,6 +41,9 @@ jobs:
       - name: Run API Auth & Routing Audit
         run: npm run audit:api
 
+      - name: Run Admin Architecture Contract Audit
+        run: npm run audit:admin-contracts
+
       - name: Install Playwright Browser
         run: npx playwright install chromium
 
