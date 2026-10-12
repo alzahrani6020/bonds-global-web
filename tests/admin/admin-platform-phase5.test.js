@@ -164,6 +164,49 @@ describe('admin operating platform phase 5', () => {
     expect(vercel).toContain('X-Device-Fingerprint');
   });
 
+  test('executive analytics expose revenue retention funnel and pipeline metrics', () => {
+    const api = read('api/admin.js');
+    const platform = read('admin/platform-center.html');
+    expect(api).toContain('async function getExecutiveAnalytics');
+    expect(api).toContain("action === 'executive-analytics'");
+    expect(api).toContain('churnRate');
+    expect(api).toContain('retentionRate');
+    expect(api).toContain('weightedPipelineValue');
+    expect(api).toContain('cohorts');
+    expect(platform).toContain("action=executive-analytics");
+    expect(platform).toContain('MRR');
+    expect(platform).toContain('Weighted pipeline');
+  });
+
+  test('platform readiness reports migration state instead of assuming schema exists', () => {
+    const api = read('api/admin.js');
+    const platform = read('admin/platform-center.html');
+    expect(api).toContain('async function getPlatformReadiness');
+    expect(api).toContain("status: ready === tables.length ? 'ready' : ready === 0 ? 'missing' : 'partial'");
+    expect(platform).toContain("action=platform-readiness");
+  });
+
+  test('production release workflow verifies exact SHA and database health', () => {
+    const workflow = read('.github/workflows/deploy-vercel.yml');
+    const health = read('api/health.js');
+    expect(workflow).toContain('Verify production health and exact SHA');
+    expect(workflow).toContain('$DEPLOYMENT_URL/api/health');
+    expect(workflow).toContain("h.checks?.supabase !== 'ok'");
+    expect(workflow).toContain('h.version !== expected');
+    expect(health).toContain("status: healthy ? 'ok' : 'degraded'");
+  });
+
+  test('AI operations record provider model token and latency telemetry', () => {
+    const feasibility = read('api/analyze-feasibility.js');
+    const research = read('api/research.js');
+    expect(feasibility).toContain('usageMetadata');
+    expect(feasibility).toContain("'feasibility_analysis'");
+    expect(feasibility).toContain('ai_usage_events');
+    expect(research).toContain('usageMetadata');
+    expect(research).toContain("'market_research'");
+    expect(research).toContain('ai_usage_events');
+  });
+
   test('dashboard and users UI expose the operating platform and user 360', () => {
     const dashboard = read('admin/dashboard.html');
     const users = read('admin/users.html');
