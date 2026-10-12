@@ -23,6 +23,12 @@ describe('Admin Finance Operations', () => {
     expect(api).toContain("sb.from('subscriptions')");
     expect(api).toContain('async function createFinanceRefund');
     expect(api).toContain('async function upsertReconciliationItem');
+    expect(api).toContain('FINANCE_UUID_RE');
+    expect(api).toContain('requireFinanceApprover');
+    expect(api).toContain('Refund requester cannot approve the same refund');
+    expect(api).toContain('invalid refund status transition');
+    expect(api).toContain('invalid reconciliation source_type');
+    expect(api).toContain('invalid reconciliation status');
     expect(api).toContain('async function createRevenueException');
     expect(api).toContain("'finance_refund_request'");
     expect(api).toContain("'finance_reconciliation_upsert'");
@@ -34,6 +40,10 @@ describe('Admin Finance Operations', () => {
     expect(page).toContain('Finance Operations');
     expect(page).toContain('Reconciliation Exceptions');
     expect(page).toContain('Revenue Exceptions');
+    expect(page).toContain('aria-label="شدة الاستثناء"');
+    expect(page).toContain('refundInvoiceId');
+    expect(page).toContain('refundExternalRef');
+    expect(page).toContain('.muted{color:#475569}');
     expect(dashboard).toContain('/admin/finance.html?embed=1');
   });
 
