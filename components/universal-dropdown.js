@@ -268,11 +268,11 @@
 
       this.menu = document.createElement('div');
       this.menu.className = 'ud-menu';
-      this.menu.setAttribute('role', 'listbox');
       if (this.opts.maxHeight) this.menu.style.maxHeight = this.opts.maxHeight;
 
       this.listEl = document.createElement('ul');
       this.listEl.className = 'ud-list';
+      this.listEl.setAttribute('role', 'listbox');
       this.menu.appendChild(this.listEl);
 
       parent.insertBefore(this.wrapper, select);
@@ -390,7 +390,7 @@
     /* ---------- Rendering ---------- */
     _renderItems() {
       this.listEl.innerHTML = '';
-      this.menu.setAttribute('aria-multiselectable', this.isMultiple ? 'true' : 'false');
+      this.listEl.setAttribute('aria-multiselectable', this.isMultiple ? 'true' : 'false');
       if (this.actionsEl) {
         this.actionsEl.style.display = (this.isMultiple && this.items.length && !this.isLoading) ? 'flex' : 'none';
       }
