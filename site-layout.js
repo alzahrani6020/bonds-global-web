@@ -458,10 +458,10 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.69.0';
+    const href = '/header-footer.css?v=2.70.0';
     const existing = document.querySelector('link[href*="header-footer.css"]');
     if (existing) {
-      if (!existing.href.includes('header-footer.css?v=2.69.0')) {
+      if (!existing.href.includes('header-footer.css?v=2.70.0')) {
         existing.href = href;
       }
       return;
@@ -566,32 +566,95 @@
         });
       }
 
-      // Dropdown toggle handling for touch/mobile and accessibility
+      // Deterministic dropdown handling.
+      // Desktop opens ONLY from the trigger itself; menu hover never opens a closed dropdown.
       const isTouch = window.matchMedia('(pointer: coarse)').matches;
-      document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-        const dropdown = toggle.closest('.dropdown');
+      const dropdownOpenTimers = new WeakMap();
+      const dropdownCloseTimers = new WeakMap();
+
+      function setDropdownOpen(dropdown, open) {
         if (!dropdown) return;
+        const toggle = dropdown.querySelector(':scope > .dropdown-toggle');
+        dropdown.classList.toggle('is-open', open);
+        if (toggle) toggle.setAttribute('aria-expanded', String(open));
+      }
+
+      function closeOtherDropdowns(except) {
+        document.querySelectorAll('.main-header .dropdown.is-open').forEach(d => {
+          if (d !== except) setDropdownOpen(d, false);
+        });
+      }
+
+      document.querySelectorAll('.main-header .dropdown-toggle').forEach(toggle => {
+        const dropdown = toggle.closest('.dropdown');
+        const menu = dropdown && dropdown.querySelector(':scope > .dropdown-menu');
+        if (!dropdown || !menu) return;
+
+        const clearTimer = (map) => {
+          const timer = map.get(dropdown);
+          if (timer) {
+            clearTimeout(timer);
+            map.delete(dropdown);
+          }
+        };
+
+        const scheduleOpen = () => {
+          if (window.innerWidth <= 900 || isTouch) return;
+          clearTimer(dropdownCloseTimers);
+          clearTimer(dropdownOpenTimers);
+          const timer = setTimeout(() => {
+            closeOtherDropdowns(dropdown);
+            setDropdownOpen(dropdown, true);
+            dropdownOpenTimers.delete(dropdown);
+          }, 140);
+          dropdownOpenTimers.set(dropdown, timer);
+        };
+
+        const scheduleClose = () => {
+          if (window.innerWidth <= 900 || isTouch) return;
+          clearTimer(dropdownOpenTimers);
+          clearTimer(dropdownCloseTimers);
+          const timer = setTimeout(() => {
+            setDropdownOpen(dropdown, false);
+            dropdownCloseTimers.delete(dropdown);
+          }, 180);
+          dropdownCloseTimers.set(dropdown, timer);
+        };
+
+        toggle.addEventListener('pointerenter', scheduleOpen);
+        toggle.addEventListener('pointerleave', scheduleClose);
+        menu.addEventListener('pointerenter', () => clearTimer(dropdownCloseTimers));
+        menu.addEventListener('pointerleave', scheduleClose);
 
         toggle.addEventListener('click', function (e) {
-          if (window.innerWidth > 900 && !isTouch) return; // desktop hover handles it
           e.preventDefault();
+          clearTimer(dropdownOpenTimers);
+          clearTimer(dropdownCloseTimers);
           const wasOpen = dropdown.classList.contains('is-open');
-          document.querySelectorAll('.dropdown.is-open').forEach(d => {
-            d.classList.remove('is-open');
-            const t = d.querySelector('.dropdown-toggle');
-            if (t) t.setAttribute('aria-expanded', 'false');
-          });
-          dropdown.classList.toggle('is-open', !wasOpen);
-          toggle.setAttribute('aria-expanded', String(!wasOpen));
+          closeOtherDropdowns(dropdown);
+          setDropdownOpen(dropdown, !wasOpen);
         });
 
-        toggle.addEventListener('mouseenter', function () {
-          if (window.innerWidth <= 900) return;
-          toggle.setAttribute('aria-expanded', 'true');
+        toggle.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            setDropdownOpen(dropdown, false);
+            toggle.focus();
+          } else if ((e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') && !dropdown.classList.contains('is-open')) {
+            e.preventDefault();
+            closeOtherDropdowns(dropdown);
+            setDropdownOpen(dropdown, true);
+            const first = menu.querySelector('a, button');
+            if (first) first.focus();
+          }
         });
-        dropdown.addEventListener('mouseleave', function () {
-          if (window.innerWidth <= 900) return;
-          toggle.setAttribute('aria-expanded', 'false');
+
+        menu.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+            e.preventDefault();
+            setDropdownOpen(dropdown, false);
+            toggle.focus();
+          }
         });
       });
 

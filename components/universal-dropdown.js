@@ -75,7 +75,16 @@
     if (own) return own;
     const closest = select.closest('[data-ud-theme]');
     if (closest) return closest.getAttribute('data-ud-theme');
-    return null;
+
+    const htmlTheme = document.documentElement && document.documentElement.getAttribute('data-theme');
+    if (htmlTheme === 'dark' || htmlTheme === 'light') return htmlTheme;
+
+    const bodyTheme = document.body && document.body.getAttribute('data-theme');
+    if (bodyTheme === 'dark' || bodyTheme === 'light') return bodyTheme;
+
+    // Public institutional pages are light by default. Dark applications opt in
+    // explicitly with data-theme="dark".
+    return 'light';
   }
 
   function normalizeItems(items) {
@@ -259,11 +268,11 @@
 
       this.menu = document.createElement('div');
       this.menu.className = 'ud-menu';
-      this.menu.setAttribute('role', 'listbox');
       if (this.opts.maxHeight) this.menu.style.maxHeight = this.opts.maxHeight;
 
       this.listEl = document.createElement('ul');
       this.listEl.className = 'ud-list';
+      this.listEl.setAttribute('role', 'listbox');
       this.menu.appendChild(this.listEl);
 
       parent.insertBefore(this.wrapper, select);
@@ -381,7 +390,7 @@
     /* ---------- Rendering ---------- */
     _renderItems() {
       this.listEl.innerHTML = '';
-      this.menu.setAttribute('aria-multiselectable', this.isMultiple ? 'true' : 'false');
+      this.listEl.setAttribute('aria-multiselectable', this.isMultiple ? 'true' : 'false');
       if (this.actionsEl) {
         this.actionsEl.style.display = (this.isMultiple && this.items.length && !this.isLoading) ? 'flex' : 'none';
       }
@@ -464,8 +473,7 @@
       const li = document.createElement('li');
       if (item.type === 'group') {
         li.className = 'ud-group-header';
-        li.setAttribute('role', 'group');
-        li.setAttribute('aria-label', item.label);
+        li.setAttribute('role', 'presentation');
         li.setAttribute('data-index', String(dataIndex));
         li.textContent = item.label;
         return li;
@@ -475,9 +483,8 @@
       li.setAttribute('data-value', item.value);
       li.setAttribute('data-index', String(dataIndex));
       if (item.disabled) li.classList.add('ud-disabled');
-      // Ensure readable text regardless of page theme or browser dark mode
-      li.style.color = '#000000';
-      li.style.webkitTextFillColor = '#000000';
+      // Color is controlled by the component theme in universal-dropdown.css.
+      // Do not write inline colors here: inline black text makes dark menus unreadable.
       const iconEl = createIconEl(item.icon, item.label);
       if (iconEl) li.appendChild(iconEl);
       li.appendChild(document.createTextNode(item.label));
