@@ -56,7 +56,7 @@ const categories={
   Customers:['organizations','opportunities','tickets','contracts','documents'],
   Operations:['tasks','approvals','alerts','workflow-rules','workflow-runs'],
   Finance:['refunds','reconciliation','contracts'],
-  Security:['security-events','trusted-devices','break-glass'],
+  Security:['security-events','trusted-devices','session-controls','access-policies','break-glass'],
   Product:['feature-flags','feature-overrides','entitlements','ai-prompts','ai-usage'],
   Platform:['integrations','jobs','errors','traces','incidents','runbooks','backups','recovery-drills','webhooks','configuration'],
   Governance:['permissions','role-permissions','field-permissions','access-grants','data-requests','lineage','exports','document-versions']
@@ -71,7 +71,7 @@ const defs={
  contracts:{title:'Contracts & Renewals',fields:{organization_id:'text',user_id:'text',contract_number:'text',title:'text',status:'text',value_amount:'number',currency:'text',starts_on:'date',ends_on:'date',renewal_notice_days:'number',owner_id:'text'}},
  approvals:{title:'Approval Inbox',fields:{action_type:'text',target_type:'text',target_id:'text',risk_level:'text',status:'text',expires_at:'datetime-local',reason:'textarea',payload:'json'}},
  'security-events':{title:'Security Events',fields:{user_id:'text',event_type:'text',severity:'text',country:'text',request_id:'text',risk_score:'number',status:'text',details:'json'}},
- 'trusted-devices':{title:'Trusted Devices',fields:{user_id:'text',device_fingerprint:'text',label:'text',expires_at:'datetime-local',revoked_at:'datetime-local'}},
+ 'trusted-devices':{title:'Trusted Devices',fields:{user_id:'text',device_fingerprint:'text',label:'text',expires_at:'datetime-local',revoked_at:'datetime-local'}}, 'session-controls':{title:'Session Controls',key:'user_id',fields:{user_id:'text',revoked_before:'datetime-local',reason:'textarea'}}, 'access-policies':{title:'Access Policies',fields:{name:'text',enabled:'boolean',policy_type:'text',value:'text',applies_to_role:'text'}},
  'break-glass':{title:'Break-glass',fields:{user_id:'text',reason:'textarea',expires_at:'datetime-local',ended_at:'datetime-local',approved_by:'text',request_id:'text'}},
  'feature-flags':{title:'Feature Flags',key:'flag_key',fields:{flag_key:'text',description:'textarea',enabled:'boolean',rollout_percent:'number',environments:'json',config:'json'}},
  'feature-overrides':{title:'Feature Overrides',fields:{flag_key:'text',subject_type:'text',subject_key:'text',enabled:'boolean',expires_at:'datetime-local'}},
