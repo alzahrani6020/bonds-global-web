@@ -581,6 +581,16 @@
         else { startOnlinePolling(); startNotifPolling(); }
       });
 
+      window.addEventListener('pagehide', () => {
+        stopOnlinePolling();
+        stopNotifPolling();
+        if (tokenRefreshTimer) {
+          clearInterval(tokenRefreshTimer);
+          tokenRefreshTimer = null;
+        }
+        currentIframe = null;
+      });
+
       async function loadStats() {
         const counts = {
           users: 0,
@@ -594,6 +604,8 @@
           aiReviews: 0,
           fundingCases: 0,
           onlineUsers: 0,
+          _health: null,
+          _operations: null,
           _errors: []
         };
 
@@ -643,6 +655,22 @@
         }
 
         try {
+          counts._health = await withTimeout(apiGet('system-health'), 8000);
+          if (!counts._health?.success) counts._errors.push('system-health');
+        } catch (e) {
+          console.warn('[Dashboard] system health failed:', e);
+          counts._errors.push('system-health');
+        }
+
+        try {
+          counts._operations = await withTimeout(apiGet('operations-overview'), 8000);
+          if (!counts._operations?.success) counts._errors.push('operations-overview');
+        } catch (e) {
+          console.warn('[Dashboard] operations overview failed:', e);
+          counts._errors.push('operations-overview');
+        }
+
+        try {
           const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
           const online = await withTimeout(sb?.from('user_presence')?.select('*', { count: 'exact', head: true })?.gte('last_seen_at', fiveMinutesAgo), 8000);
           if (online && typeof online.count === 'number') counts.onlineUsers = online.count;
@@ -660,12 +688,40 @@
             ⚠️ تعذر تحميل بعض الإحصائيات (${counts._errors.length}). تأكد من الاتصال بـ Supabase أو أعد التحميل.
           </div>` : '';
 
+        const health = counts._health;
+        const healthStatus = health?.overall || 'unknown';
+        const healthLabel = healthStatus === 'healthy' ? 'سليم' : healthStatus === 'degraded' ? 'متدهور' : 'غير معروف';
+        const healthColor = healthStatus === 'healthy' ? 'var(--success)' : healthStatus === 'degraded' ? 'var(--warning)' : 'var(--text-muted)';
+        const dbLatency = health?.services?.database?.latencyMs;
+        const heapPct = health?.services?.runtime?.memory?.heapUtilizationPct;
+        const requestId = health?.requestId || '—';
+        const operations = counts._operations?.queues || {};
+        const opValue = value => Number.isFinite(value) ? value.toLocaleString('ar-SA') : '—';
+
         overviewEl.innerHTML = `
           <div class="page-header">
             <h1>لوحة التحكم الموحدة</h1>
             <p>إدارة جميع وحدات بوندز من مكان واحد</p>
           </div>
           ${statErrors}
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1.25rem;">
+            <div class="stat-card" tabindex="0" aria-label="حالة النظام">
+              <div class="stat-card__num" style="color:${healthColor};font-size:1.15rem;">${healthLabel}</div>
+              <div class="stat-card__label">حالة النظام</div>
+            </div>
+            <div class="stat-card" tabindex="0" aria-label="زمن قاعدة البيانات">
+              <div class="stat-card__num" style="font-size:1.15rem;">${Number.isFinite(dbLatency) ? dbLatency + ' ms' : '—'}</div>
+              <div class="stat-card__label">DB latency</div>
+            </div>
+            <div class="stat-card" tabindex="0" aria-label="استخدام ذاكرة جافاسكربت">
+              <div class="stat-card__num" style="font-size:1.15rem;">${Number.isFinite(heapPct) ? heapPct + '%' : '—'}</div>
+              <div class="stat-card__label">Heap utilization</div>
+            </div>
+            <div class="stat-card" tabindex="0" aria-label="معرف آخر فحص">
+              <div class="stat-card__num" style="font-size:0.78rem;direction:ltr;">${escapeHtml(requestId)}</div>
+              <div class="stat-card__label">Health request ID</div>
+            </div>
+          </div>
           <div class="stats-grid">
             <div class="stat-card" data-target="/admin/users.html?embed=1" data-title="المستخدمين" tabindex="0" role="button" aria-label="عرض المستخدمين"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${counts.users.toLocaleString('ar-SA')}</div><div class="stat-card__label">المستخدمين</div></div>
             <div class="stat-card" data-target="/admin/subscriptions.html?embed=1" data-title="الاشتراكات" tabindex="0" role="button" aria-label="عرض الاشتراكات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${counts.subscriptions.toLocaleString('ar-SA')}</div><div class="stat-card__label">الاشتراكات</div></div>
@@ -678,6 +734,35 @@
             <div class="stat-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص" tabindex="0" role="button" aria-label="عرض طلبات مراجعة AI"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${counts.aiReviews.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
             <div class="stat-card" data-target="/admin/funding-cases/?embed=1" data-title="طلبات التمويل" tabindex="0" role="button" aria-label="عرض طلبات التمويل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">🏦</div></div><div class="stat-card__num">${counts.fundingCases.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات التمويل</div></div>
             <div class="stat-card" data-target="online-users" data-title="المتواجدون" tabindex="0" role="button" aria-label="عرض المتواجدين الآن"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${counts.onlineUsers.toLocaleString('ar-SA')}</div><div class="stat-card__label">متواجدون الآن</div></div>
+          </div>
+
+          <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:1rem;">صندوق العمليات</h2>
+          <div class="modules-grid" style="margin-bottom:1.5rem;">
+            <button class="module-card" data-target="/admin/users.html?embed=1" data-title="ملفات المستخدمين الناقصة">
+              <div class="module-card__icon">🧩</div>
+              <div class="module-card__title">ملفات ناقصة: ${opValue(operations.incompleteProfiles)}</div>
+              <div class="module-card__desc">حسابات تحتاج استكمال بيانات قبل المتابعة</div>
+            </button>
+            <button class="module-card" data-target="/admin/messages.html?embed=1" data-title="الرسائل غير المقروءة">
+              <div class="module-card__icon">📨</div>
+              <div class="module-card__title">رسائل غير مقروءة: ${opValue(operations.unreadMessages)}</div>
+              <div class="module-card__desc">طلبات تواصل تحتاج قراءة أو إسناد</div>
+            </button>
+            <button class="module-card" data-target="/admin/bank-transfers.html?embed=1" data-title="التحويلات البنكية المعلقة">
+              <div class="module-card__icon">💳</div>
+              <div class="module-card__title">تحويلات معلقة: ${opValue(operations.pendingTransfers)}</div>
+              <div class="module-card__desc">عمليات دفع يدوية تحتاج تحققًا</div>
+            </button>
+            <button class="module-card" data-target="/admin/funding-cases/?embed=1" data-title="حالات التمويل المفتوحة">
+              <div class="module-card__icon">🏦</div>
+              <div class="module-card__title">تمويل مفتوح: ${opValue(operations.openFundingCases)}</div>
+              <div class="module-card__desc">حالات لم تصل بعد إلى إغلاق نهائي</div>
+            </button>
+            <button class="module-card" data-target="/admin/funding-cases/?embed=1" data-title="حالات التمويل المتأخرة">
+              <div class="module-card__icon">⏱️</div>
+              <div class="module-card__title">SLA متأخر: ${opValue(operations.overdueFundingCases)}</div>
+              <div class="module-card__desc">حالات تجاوزت موعد الخدمة وتحتاج تصعيدًا</div>
+            </button>
           </div>
 
           <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:1rem;">الوحدات</h2>
