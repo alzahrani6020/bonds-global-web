@@ -629,7 +629,7 @@
   "crons": [
     {
       "path": "/api/admin-workflows-cron",
-      "schedule": "0 * * * *"
+      "schedule": "0 0 * * *"
     },
     {
       "path": "/api/v3/cron/calibrate-competitors",
