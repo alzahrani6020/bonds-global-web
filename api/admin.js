@@ -2725,6 +2725,9 @@ async function handler(req, res) {
 
   const sb = getSupabase();
   const action = req.query?.action || req.body?.action;
+  const handlerStartedAt = Date.now();
+  const handlerRequestId = req.headers['x-request-id'] || generateRequestId();
+  res.setHeader('X-Request-ID', handlerRequestId);
 
   try {
     // Telemetry/read-heavy actions get a higher rate limit so dashboards can auto-refresh.
@@ -3321,7 +3324,25 @@ async function handler(req, res) {
   } catch (err) {
     console.error('Admin API error:', err);
     const status = err.status || 500;
-    res.status(status).json({ error: err.message });
+    await persistAdminTrace(sb, {
+      requestId: handlerRequestId,
+      endpoint: String(action || 'unknown'),
+      method: req.method,
+      statusCode: status,
+      durationMs: Date.now() - handlerStartedAt,
+      errorCode: err.code || err.message || 'ADMIN_API_ERROR'
+    });
+    if (status >= 500) {
+      await persistAdminError(sb, {
+        source: 'api/admin',
+        message: err.message || 'Admin API error',
+        stack: err.stack,
+        requestId: handlerRequestId,
+        severity: 'error',
+        metadata: { action: action || null, method: req.method }
+      });
+    }
+    res.status(status).json({ error: err.message, requestId: handlerRequestId });
   }
 }
 
