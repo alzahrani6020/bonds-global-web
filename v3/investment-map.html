@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
   <link rel="stylesheet" href="../styles/tokens.css">
   <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+  <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8">
 
   <style>
     :root { color-scheme: dark; }
@@ -163,7 +164,19 @@
       .layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
       .sidebar { border-left: none; border-bottom: 1px solid var(--border); max-height: 45vh; }
     }
-  </style>
+  
+    /* Investment map dropdown hardening */
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-trigger,
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-menu,
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-search { background:#111827 !important; color:#f8fafc !important; }
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-item { color:#f8fafc !important; -webkit-text-fill-color:#f8fafc !important; }
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-item:hover,
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-item.ud-highlighted,
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-item.ud-selected {
+      background:#d4a853 !important; color:#111827 !important; -webkit-text-fill-color:#111827 !important;
+    }
+    .sidebar .ud-dropdown[data-ud-theme="dark"] .ud-search input { background:#0f172a !important; color:#f8fafc !important; }
+</style>
 <script src="/api/env" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
@@ -243,17 +256,17 @@
     <aside class="sidebar">
       <div class="control-group">
         <label for="countrySelect">الدولة</label>
-        <select class="form-select" id="countrySelect"><option value="">كل الدول</option></select>
+        <select class="form-select" data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-placeholder="اختر الدولة" id="countrySelect"><option value="">كل الدول</option></select>
       </div>
 
       <div class="control-group">
         <label for="citySelect">المدينة</label>
-        <select class="form-select" id="citySelect"><option value="">اختر مدينة (اختياري)</option></select>
+        <select class="form-select" data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-placeholder="اختر المدينة" id="citySelect"><option value="">اختر مدينة (اختياري)</option></select>
       </div>
 
       <div class="control-group">
         <label for="activitySelect">النشاط الاقتصادي</label>
-        <select class="form-select" id="activitySelect"><option value="">اختر نشاطاً</option></select>
+        <select class="form-select" data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-placeholder="اختر النشاط" id="activitySelect"><option value="">اختر نشاطاً</option></select>
       </div>
 
       <div class="control-group">
@@ -366,51 +379,55 @@
     }
 
     async function initFilters() {
-      const [citiesRes, sectorsRes] = await Promise.all([
-        fetchJson(API_URL + '/cities'),
-        fetchJson(API_URL + '/sectors')
+      const [countriesRes, activitiesRes] = await Promise.all([
+        fetchJson(API_URL + '/catalog/countries'),
+        fetchJson(API_URL + '/catalog/activities')
       ]);
 
-      allCities = citiesRes.cities || [];
-      activities = [];
-      (sectorsRes.sectors || []).forEach(sector => {
-        (sector.economic_sub_sectors || []).forEach(sub => {
-          (sub.economic_activities || []).forEach(a => {
-            activities.push(a);
-          });
-        });
-      });
+      activities = activitiesRes.activities || [];
 
       const countrySelect = document.getElementById('countrySelect');
       const citySelect = document.getElementById('citySelect');
       const activitySelect = document.getElementById('activitySelect');
 
-      const countries = [...new Set(allCities.map(c => c.country_code).filter(Boolean))].sort();
-      populateSelect(countrySelect, countries.map(code => ({ value: code, label: countryNames[code] || code })));
+      const countries = countriesRes.countries || [];
+      populateSelect(countrySelect, countries.map(country => ({
+        value: country.code,
+        label: country.name_ar + ' (' + country.cityCount + ' مدينة)'
+      })));
 
-      function updateCities() {
+      // Use one country at a time. This avoids silently truncating an all-Arab-city
+      // request at the API's 2000-row limit and keeps the map responsive.
+      countrySelect.value = countries.some(c => c.code === 'SA') ? 'SA' : (countries[0]?.code || '');
+
+      async function updateCities() {
         const countryCode = countrySelect.value;
-        const filtered = allCities
-          .filter(c => !countryCode || c.country_code === countryCode)
-          .sort((a, b) => (a.name_ar || '').localeCompare(b.name_ar || '', 'ar'))
-          .map(c => ({ value: c.code, label: c.name_ar || c.name_en || c.code }));
-        populateSelect(citySelect, filtered);
+        if (!countryCode) {
+          allCities = [];
+          populateSelect(citySelect, []);
+          refreshSelect(citySelect);
+          return;
+        }
+        const catalog = await fetchJson(API_URL + '/catalog/cities?country=' + encodeURIComponent(countryCode));
+        allCities = catalog.cities || [];
+        populateSelect(citySelect, allCities.map(c => ({
+          value: c.code,
+          label: (c.name_ar || c.name_en || c.code) + (c.data_available ? '' : ' · كتالوج')
+        })));
         refreshSelect(citySelect);
       }
 
-      const activityLabelMap = {
-        'retail': 'النشاط التجاري',
-        // add more friendly labels here if needed
-      };
       populateSelect(activitySelect, activities.map(a => ({
         value: a.code,
-        label: activityLabelMap[a.code] || a.name_ar || a.name_en || a.code
+        label: a.name_ar || a.name_en || a.code
       })));
 
-      countrySelect.addEventListener('change', updateCities);
-      updateCities();
+      countrySelect.addEventListener('change', async () => {
+        await updateCities();
+        await loadMap();
+      });
 
-      // Ensure Universal Dropdowns are initialized with the populated options
+      // Initialize wrappers after options exist.
       if (window.initUniversalDropdowns) {
         [countrySelect, citySelect, activitySelect].forEach(sel => {
           if (!window.getUniversalDropdown || !window.getUniversalDropdown(sel)) {
@@ -418,9 +435,12 @@
           }
         });
       }
-
-      // Refresh in case UD was already initialized
       [countrySelect, citySelect, activitySelect].forEach(refreshSelect);
+
+      const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
+      if (countryDd?.selectByValue) countryDd.selectByValue(countrySelect.value);
+
+      await updateCities();
     }
 
     async function geocodeCity(city) {
@@ -516,6 +536,12 @@
 
       BondsCommon.showAdminStatus('status', 'جاري تحميل المدن...', false);
       try {
+        const selectedCatalogCity = city ? allCities.find(c => c.code === city) : null;
+        if (selectedCatalogCity && selectedCatalogCity.data_available === false) {
+          await renderMarkers([selectedCatalogCity]);
+          BondsCommon.showAdminStatus('status', 'هذه المدينة موجودة في الكتالوج، ولا توجد لها بيانات سوق موثقة بعد.', false);
+          return;
+        }
         const params = new URLSearchParams({
           include: activity ? 'opportunity' : 'cities',
           year: 'latest'
@@ -528,6 +554,11 @@
         citiesData = res.cities || [];
         const filtered = city ? citiesData.filter(c => c.code === city) : citiesData;
         await renderMarkers(filtered);
+        if (!city) {
+          const catalogTotal = allCities.length;
+          const backed = citiesData.length;
+          BondsCommon.showAdminStatus('status', `يعرض ${backed} مدينة ذات سجلات بيانات من أصل ${catalogTotal} مدينة في كتالوج الدولة. المدن دون بيانات لا تُمنح درجات افتراضية.`, false);
+        }
       } catch (err) {
         BondsCommon.showAdminStatus('status', 'فشل تحميل البيانات: ' + err.message, true);
       }
@@ -605,5 +636,7 @@
   <script src="shared-v3-ui.js" defer></script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>
+<script src="../components/universal-dropdown.js?v=2.51.8"></script>
+<script src="../components/universal-dropdown-init.js"></script>
 </body>
 </html>

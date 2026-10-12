@@ -12,7 +12,7 @@ class UaeStatsAdapter extends BaseAdapter {
       ...config
     });
     this.apiBaseUrl = config.apiBaseUrl || 'https://fcd.gov.ae';
-    this.useFallback = config.useFallback !== false;
+    this.useFallback = config.useFallback === true;
   }
 
   supportedMetrics() {
@@ -68,10 +68,10 @@ class UaeStatsAdapter extends BaseAdapter {
         value: typeof value === 'number' ? value : parseFloat(value),
         valueText: null,
         year,
-        sourceUrl: 'https://fcd.gov.ae',
-        confidence: this.getConfidence(mapping.code, mapping.quality),
-        confidenceReason: `Source: ${this.config.sourceName}`,
-        metadata: { cityCode, originalKey: key }
+        sourceUrl: rawItem.quality === 'fallback' ? null : 'https://fcd.gov.ae',
+        confidence: this.getConfidence(mapping.code, rawItem.quality || mapping.quality),
+        confidenceReason: `Source: ${this.config.sourceName} (${rawItem.quality || mapping.quality})`,
+        metadata: { cityCode, originalKey: key, dataQuality: rawItem.quality || mapping.quality, estimated: rawItem.quality === 'fallback' }
       });
     }
 

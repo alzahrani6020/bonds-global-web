@@ -72,6 +72,7 @@ const { listIntents } = require('../../lib/intent/intent-engine');
 const { setAllowedOrigin } = require('../../lib/api/cors');
 const { resolveOpportunityYear } = require('../lib/opportunity-query');
 const { COUNTRY_NAMES, canonicalizeCities, canonicalizeActivities, buildCountryCatalog } = require('../../lib/catalog/canonical-registry');
+const { ARAB_COUNTRIES_GEO } = require('../master-data/countries-governorates-cities');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -258,6 +259,66 @@ async function handleGeocode(req, res) {
   }
 }
 
+function loadMasterCatalogCities(countryCode = null) {
+  const countries = countryCode
+    ? (ARAB_COUNTRIES_GEO[countryCode] ? [ARAB_COUNTRIES_GEO[countryCode]] : [])
+    : Object.values(ARAB_COUNTRIES_GEO || {});
+
+  const rows = [];
+  for (const country of countries) {
+    for (const governorate of country.governorates || []) {
+      for (const city of governorate.cities || []) {
+        rows.push({
+          id: null,
+          code: city.code,
+          canonical_code: city.code,
+          name_ar: city.name,
+          name_en: city.nameEn,
+          region: governorate.name,
+          region_en: governorate.nameEn,
+          country_code: country.code,
+          population: null,
+          purchasing_power_index: null,
+          lat: null,
+          lng: null,
+          city_types: [],
+          catalog_source: 'arab_master_catalog',
+          data_available: false
+        });
+      }
+    }
+  }
+  return rows;
+}
+
+function mergeMasterAndDatabaseCities(countryCode, databaseRows = []) {
+  const masterRows = loadMasterCatalogCities(countryCode);
+  const byCode = new Map(masterRows.map(row => [row.code, row]));
+
+  for (const row of databaseRows || []) {
+    const current = byCode.get(row.code) || {};
+    byCode.set(row.code, {
+      ...current,
+      ...row,
+      canonical_code: row.code || current.canonical_code,
+      name_ar: row.name_ar || current.name_ar,
+      name_en: row.name_en || current.name_en,
+      region: row.region || current.region,
+      country_code: row.country_code || current.country_code || countryCode,
+      catalog_source: current.code ? 'database+arab_master_catalog' : 'database',
+      data_available: true
+    });
+  }
+
+  return [...byCode.values()].sort((a, b) =>
+    String(a.name_ar || a.name_en || a.code).localeCompare(
+      String(b.name_ar || b.name_en || b.code),
+      'ar',
+      { sensitivity: 'base' }
+    )
+  );
+}
+
 async function loadCatalogCityRows(supabase, countryCode = null) {
   let query = supabase
     .from('cities')
@@ -273,10 +334,32 @@ async function handleCatalogCountries(req, res) {
   try {
     const supabase = getSupabaseClient();
     const rows = await loadCatalogCityRows(supabase);
+    const databaseCounts = {};
+    for (const city of canonicalizeCities(rows)) {
+      databaseCounts[city.country_code] = (databaseCounts[city.country_code] || 0) + 1;
+    }
+    const masterCounts = {};
+    for (const city of loadMasterCatalogCities()) {
+      masterCounts[city.country_code] = (masterCounts[city.country_code] || 0) + 1;
+    }
+
+    const countries = Object.entries(COUNTRY_NAMES).map(([code, names]) => ({
+      code,
+      name_ar: names.ar,
+      name_en: names.en,
+      cityCount: masterCounts[code] || databaseCounts[code] || 0,
+      dataCityCount: databaseCounts[code] || 0,
+      recordStatus: databaseCounts[code] ? 'data_available' : 'catalog_only'
+    })).sort((a, b) => {
+      if (a.code === 'SA') return -1;
+      if (b.code === 'SA') return 1;
+      return a.name_ar.localeCompare(b.name_ar, 'ar');
+    });
+
     return sendJson(res, 200, {
-      countries: buildCountryCatalog(rows),
-      count: Object.keys(COUNTRY_NAMES).length,
-      source: 'canonical_registry'
+      countries,
+      count: countries.length,
+      source: 'arab_master_catalog+canonical_registry'
     });
   } catch (err) {
     console.error('[catalog/countries]', err.message);
@@ -349,9 +432,14 @@ async function handleCatalogCities(req, res) {
   try {
     const supabase = getSupabaseClient();
     const rawCities = await loadCatalogCityRows(supabase, countryCode);
-    let canonicalCities = canonicalizeCities(rawCities);
+    const databaseCities = canonicalizeCities(rawCities).map(city => ({
+      ...city,
+      data_available: true,
+      catalog_source: 'database'
+    }));
+    let catalogCities = mergeMasterAndDatabaseCities(countryCode, databaseCities);
 
-    if (activityCodes.length) {
+    if (activityCodes.length && rawCities.length) {
       const { data: activityRows, error: activityError } = await supabase
         .from('economic_activities')
         .select('id, code')
@@ -361,11 +449,14 @@ async function handleCatalogCities(req, res) {
       const activityIds = (activityRows || []).map(row => row.id);
       const rawIdToCanonical = new Map();
       const rawIdToCode = new Map(rawCities.map(city => [city.id, city.code]));
-      for (const city of canonicalCities) {
-        rawIdToCanonical.set(city.id, city.canonical_code);
-        for (const alias of city.aliases || []) rawIdToCanonical.set(alias.id, city.canonical_code);
+      for (const city of databaseCities) {
+        if (city.id) rawIdToCanonical.set(city.id, city.canonical_code);
+        for (const alias of city.aliases || []) {
+          if (alias.id) rawIdToCanonical.set(alias.id, city.canonical_code);
+        }
       }
 
+      const availability = new Map();
       if (activityIds.length) {
         let marketQuery = supabase
           .from('city_market_data')
@@ -386,7 +477,6 @@ async function handleCatalogCities(req, res) {
           effectiveRows = effectiveRows.filter(row => Number(row.data_year) === latestYear);
         }
 
-        const availability = new Map();
         for (const row of effectiveRows) {
           const canonicalCode = rawIdToCanonical.get(row.city_id);
           if (!canonicalCode) continue;
@@ -401,35 +491,32 @@ async function handleCatalogCities(req, res) {
             availability.set(canonicalCode, next);
           }
         }
-
-        canonicalCities = canonicalCities
-          .filter(city => availability.has(city.canonical_code))
-          .map(city => ({
-            ...city,
-            comparison_code: availability.get(city.canonical_code)?.comparisonCode || city.canonical_code,
-            activityAvailability: availability.get(city.canonical_code)
-          }));
-      } else {
-        canonicalCities = [];
       }
+
+      catalogCities = catalogCities.map(city => ({
+        ...city,
+        comparison_code: availability.get(city.canonical_code)?.comparisonCode || city.canonical_code,
+        activityAvailability: availability.get(city.canonical_code) || null
+      }));
+    } else {
+      catalogCities = catalogCities.map(city => ({
+        ...city,
+        comparison_code: city.comparison_code || city.canonical_code,
+        activityAvailability: null
+      }));
     }
 
-    canonicalCities = canonicalCities.map(city => ({
-      ...city,
-      comparison_code: city.comparison_code || city.canonical_code
-    }));
-
     return sendJson(res, 200, {
-      cities: canonicalCities,
-      count: canonicalCities.length,
+      cities: catalogCities,
+      count: catalogCities.length,
+      dataCount: catalogCities.filter(city => city.data_available).length,
       rawCount: rawCities.length,
-      duplicatesCollapsed: Math.max(0, rawCities.length - canonicalCities.length),
       country: {
         code: countryCode,
         name_ar: COUNTRY_NAMES[countryCode].ar,
         name_en: COUNTRY_NAMES[countryCode].en
       },
-      source: 'canonical_registry'
+      source: 'arab_master_catalog+canonical_registry'
     });
   } catch (err) {
     console.error('[catalog/cities]', err.message);
@@ -752,6 +839,93 @@ async function handleCityIndicators(req, res, path) {
 
   if (error) return sendJson(res, 500, { error: error.message });
   sendJson(res, 200, { indicators: data || null, year: targetYear });
+}
+
+async function handleCityEvidence(req, res, path) {
+  const match = path.match(/^\/cities\/([^\/]+)\/evidence$/);
+  if (!match) return sendJson(res, 404, { error: 'Invalid path' });
+  const cityCode = match[1];
+  const url = getQuery(req);
+  const activityCode = url.searchParams.get('activity');
+  const requestedYear = url.searchParams.get('year') || 'latest';
+  const supabase = getSupabaseClient();
+
+  const { data: city, error: cityError } = await supabase
+    .from('cities')
+    .select('id,code,name_ar,name_en,country_code,region')
+    .eq('code', cityCode)
+    .maybeSingle();
+
+  if (cityError) return sendJson(res, 500, { error: cityError.message });
+  if (!city) {
+    return sendJson(res, 200, {
+      city: null,
+      evidence: [],
+      count: 0,
+      status: 'catalog_only',
+      message: 'No verified database evidence is stored for this catalog city yet.'
+    });
+  }
+
+  let activityId = null;
+  if (activityCode) {
+    const { data: activity, error: activityError } = await supabase
+      .from('economic_activities')
+      .select('id,code,name_ar,name_en')
+      .eq('code', activityCode)
+      .maybeSingle();
+    if (activityError) return sendJson(res, 500, { error: activityError.message });
+    activityId = activity?.id || null;
+  }
+
+  let query = supabase
+    .from('normalized_metrics')
+    .select('metric_code,activity_id,year,value,value_text,source_id,source_name,source_url,confidence,confidence_reason,fetched_at,is_override,metadata')
+    .eq('city_id', city.id)
+    .order('fetched_at', { ascending: false })
+    .limit(300);
+
+  if (/^\d{4}$/.test(requestedYear)) query = query.eq('year', Number(requestedYear));
+
+  const { data: rows, error } = await query;
+  if (error) return sendJson(res, 500, { error: error.message });
+
+  const relevant = (rows || []).filter(row =>
+    row.activity_id == null || (activityId && row.activity_id === activityId)
+  );
+  const latestByMetric = new Map();
+  for (const row of relevant) {
+    const scope = row.activity_id ? 'activity' : 'city';
+    const key = `${scope}:${row.metric_code}`;
+    if (!latestByMetric.has(key)) latestByMetric.set(key, row);
+  }
+
+  const evidence = [...latestByMetric.values()].map(row => {
+    const quality = String(row.metadata?.dataQuality || '').toLowerCase();
+    const method = String(row.metadata?.method || '').toLowerCase();
+    const estimated = row.metadata?.estimated === true ||
+      quality === 'fallback' ||
+      quality === 'estimated' ||
+      method === 'inference' ||
+      row.source_id === 'inference_engine';
+    const verified = !estimated &&
+      Boolean(row.source_url) &&
+      (quality === 'official' || quality === 'open_data' || row.is_override === true);
+
+    return {
+      ...row,
+      evidence_status: verified ? 'verified' : (estimated ? 'estimated' : 'unverified')
+    };
+  });
+
+  return sendJson(res, 200, {
+    city,
+    evidence,
+    count: evidence.length,
+    verifiedCount: evidence.filter(row => row.evidence_status === 'verified').length,
+    estimatedCount: evidence.filter(row => row.evidence_status === 'estimated').length,
+    status: evidence.length ? 'evidence_available' : 'no_evidence'
+  });
 }
 
 async function handleCityMarket(req, res, path) {

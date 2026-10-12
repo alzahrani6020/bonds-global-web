@@ -167,27 +167,49 @@ class GastatAdapter extends BaseAdapter {
   async _fetchPopulationByRegion(cityCode) {
     if (!cityCode) return null;
 
-    const regionMap = {
-      'RUH': 'Ar Riyadh',
-      'JED': 'Makkah Al Mukarramah',
-      'MED': 'Al Madinah Al Munawwarah',
-      'DMM': 'Eastern Region',
-      'DHA': 'Eastern Region',
-      'KHB': 'Eastern Region',
-      'AHB': 'Aseer',
-      'ABH': 'Aseer',
-      'TIF': 'Makkah Al Mukarramah',
-      'TAB': 'Tabuk',
-      'HAIL': 'Hail',
-      'QAS': 'Al Qaseem',
-      'ARA': 'Northern Borders',
-      'JAW': 'Al Jawf',
-      'NAJ': 'Najran',
-      'BAH': 'Al Bahah',
-      'JIZ': 'Jazan'
+    // Canonical city codes use COUNTRY-REGION-CITY (e.g. SA-02-002 = Jeddah).
+    // GASTAT/KAPSARC population endpoint is region-level, so map the canonical
+    // region segment rather than relying on the retired RUH/JED short codes.
+    const canonicalRegionMap = {
+      '01': 'Ar Riyadh',
+      '02': 'Makkah Al Mukarramah',
+      '03': 'Al Madinah Al Munawwarah',
+      '04': 'Al Qaseem',
+      '05': 'Eastern Region',
+      '06': 'Aseer',
+      '07': 'Tabuk',
+      '08': 'Hail',
+      '09': 'Northern Borders',
+      '10': 'Jazan',
+      '11': 'Najran',
+      '12': 'Al Bahah',
+      '13': 'Al Jawf'
+    };
+    const legacyRegionMap = {
+      RUH: 'Ar Riyadh',
+      JED: 'Makkah Al Mukarramah',
+      TIF: 'Makkah Al Mukarramah',
+      MED: 'Al Madinah Al Munawwarah',
+      DMM: 'Eastern Region',
+      DHA: 'Eastern Region',
+      KHB: 'Eastern Region',
+      AHB: 'Aseer',
+      ABH: 'Aseer',
+      TAB: 'Tabuk',
+      HAIL: 'Hail',
+      QAS: 'Al Qaseem',
+      ARA: 'Northern Borders',
+      JAW: 'Al Jawf',
+      NAJ: 'Najran',
+      BAH: 'Al Bahah',
+      JIZ: 'Jazan'
     };
 
-    const regionName = regionMap[cityCode.toUpperCase()];
+    const normalizedCode = String(cityCode).toUpperCase();
+    const canonicalMatch = normalizedCode.match(/^SA-(\d{2})-\d{3}$/);
+    const regionName = canonicalMatch
+      ? canonicalRegionMap[canonicalMatch[1]]
+      : legacyRegionMap[normalizedCode];
     if (!regionName) return null;
 
     const url = `${this.apiBaseUrl}/catalog/datasets/population-by-detailed-age-gender-governorate-nationality-and-region/records?` +
