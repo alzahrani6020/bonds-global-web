@@ -2348,6 +2348,148 @@ async function addSupportNote(sb, body, admin, req) {
   return { success: true, note };
 }
 
+// ── Finance Operations ─────────────────────────────────────
+async function getFinanceOverview(sb) {
+  const [
+    invoicesRes,
+    transfersRes,
+    subscriptionsRes,
+    refundsRes,
+    reconciliationRes,
+    collectionsRes,
+    contractsRes,
+    exceptionsRes
+  ] = await Promise.all([
+    sb.from('moyasar_invoices').select('id, user_id, invoice_id, tier, amount, currency, status, paid_at, created_at, updated_at').order('created_at', { ascending: false }).limit(1000),
+    sb.from('bank_transfer_requests').select('*').order('created_at', { ascending: false }).limit(1000),
+    sb.from('subscriptions').select('*').order('created_at', { ascending: false }).limit(1000),
+    sb.from('finance_refunds').select('*').order('created_at', { ascending: false }).limit(1000),
+    sb.from('finance_reconciliation_items').select('*').order('created_at', { ascending: false }).limit(1000),
+    sb.from('finance_collections').select('*').order('due_date', { ascending: true }).limit(1000),
+    sb.from('finance_contracts').select('*').order('end_date', { ascending: true }).limit(1000),
+    sb.from('finance_revenue_exceptions').select('*').order('created_at', { ascending: false }).limit(1000)
+  ]);
+  for (const result of [invoicesRes, transfersRes, subscriptionsRes, refundsRes, reconciliationRes, collectionsRes, contractsRes, exceptionsRes]) {
+    if (result.error) throw result.error;
+  }
+
+  const invoices = invoicesRes.data || [];
+  const transfers = transfersRes.data || [];
+  const refunds = refundsRes.data || [];
+  const reconciliation = reconciliationRes.data || [];
+  const collections = collectionsRes.data || [];
+  const contracts = contractsRes.data || [];
+  const exceptions = exceptionsRes.data || [];
+  const paidInvoices = invoices.filter(x => x.status === 'paid');
+  const verifiedTransfers = transfers.filter(x => x.status === 'verified');
+  const grossPaid = paidInvoices.reduce((s,x)=>s+Number(x.amount||0),0)
+    + verifiedTransfers.reduce((s,x)=>s+Number(x.amount_sar||0),0);
+  const completedRefunds = refunds.filter(x => x.status === 'completed').reduce((s,x)=>s+Number(x.amount||0),0);
+  const now = Date.now();
+  const due30 = contracts.filter(c => c.end_date && new Date(c.end_date).getTime() >= now && new Date(c.end_date).getTime() <= now + 30*86400000).length;
+
+  return {
+    success: true,
+    summary: {
+      grossPaid,
+      completedRefunds,
+      netCollected: grossPaid - completedRefunds,
+      reconciliationExceptions: reconciliation.filter(x => ['unmatched','variance'].includes(x.status)).length,
+      overdueCollections: collections.filter(x => !['paid','written_off'].includes(x.status) && new Date(x.due_date).getTime() < now).length,
+      contractsExpiring30d: due30,
+      openRevenueExceptions: exceptions.filter(x => x.status !== 'resolved' && x.status !== 'ignored').length
+    },
+    invoices,
+    bankTransfers: transfers,
+    subscriptions: subscriptionsRes.data || [],
+    refunds,
+    reconciliation,
+    collections,
+    contracts,
+    revenueExceptions: exceptions
+  };
+}
+
+async function createFinanceRefund(sb, body, admin, req) {
+  const amount = Number(body?.amount || 0);
+  if (!(amount > 0)) throw badRequest('positive amount required');
+  const row = {
+    user_id: body?.user_id || null,
+    invoice_id: body?.invoice_id || null,
+    external_reference: body?.external_reference || null,
+    amount,
+    currency: body?.currency || 'SAR',
+    reason: body?.reason || null,
+    status: 'requested',
+    requested_by: admin.id
+  };
+  const { data, error } = await sb.from('finance_refunds').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'finance_refund_request', 'finance_refund', data.id, null, { amount, invoice_id: row.invoice_id }, req);
+  return { success: true, refund: data };
+}
+
+async function updateFinanceRefund(sb, body, admin, req) {
+  const id = body?.id;
+  const status = body?.status;
+  if (!id || !status) throw badRequest('id and status required');
+  const updates = { status, updated_at: new Date().toISOString() };
+  if (status === 'approved') updates.approved_by = admin.id;
+  if (status === 'completed') {
+    updates.approved_by = admin.id;
+    updates.completed_at = new Date().toISOString();
+  }
+  const { data, error } = await sb.from('finance_refunds').update(updates).eq('id', id).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'finance_refund_update', 'finance_refund', id, null, updates, req);
+  return { success: true, refund: data };
+}
+
+async function upsertReconciliationItem(sb, body, admin, req) {
+  const sourceType = body?.source_type;
+  const sourceId = String(body?.source_id || '').trim();
+  if (!sourceType || !sourceId) throw badRequest('source_type and source_id required');
+  const row = {
+    source_type: sourceType,
+    source_id: sourceId,
+    expected_amount: body?.expected_amount ?? null,
+    actual_amount: body?.actual_amount ?? null,
+    currency: body?.currency || 'SAR',
+    status: body?.status || 'unmatched',
+    notes: body?.notes || null,
+    resolved_by: ['resolved','matched','ignored'].includes(body?.status) ? admin.id : null,
+    resolved_at: ['resolved','matched','ignored'].includes(body?.status) ? new Date().toISOString() : null,
+    updated_at: new Date().toISOString()
+  };
+  const { data, error } = await sb.from('finance_reconciliation_items')
+    .upsert(row, { onConflict: 'source_type,source_id' }).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'finance_reconciliation_upsert', 'finance_reconciliation', data.id, null, { source_type: sourceType, source_id: sourceId, status: data.status }, req);
+  return { success: true, reconciliation: data };
+}
+
+async function createRevenueException(sb, body, admin, req) {
+  const category = String(body?.category || '').trim();
+  const description = String(body?.description || '').trim();
+  if (!category || !description) throw badRequest('category and description required');
+  const row = {
+    user_id: body?.user_id || null,
+    organization_id: body?.organization_id || null,
+    category: category.slice(0, 120),
+    description: description.slice(0, 5000),
+    amount_impact: Number(body?.amount_impact || 0),
+    currency: body?.currency || 'SAR',
+    severity: body?.severity || 'medium',
+    status: 'open',
+    owner_user_id: body?.owner_user_id || admin.id,
+    request_id: body?.request_id || null
+  };
+  const { data, error } = await sb.from('finance_revenue_exceptions').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'finance_revenue_exception_create', 'finance_revenue_exception', data.id, null, { severity: data.severity, amount_impact: data.amount_impact }, req);
+  return { success: true, exception: data };
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -2667,6 +2809,26 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'finance-refund-create') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await createFinanceRefund(sb, req.body, admin, req));
+      }
+      if (action === 'finance-refund-update') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await updateFinanceRefund(sb, req.body, admin, req));
+      }
+      if (action === 'finance-reconciliation-upsert') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await upsertReconciliationItem(sb, req.body, admin, req));
+      }
+      if (action === 'finance-revenue-exception-create') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await createRevenueException(sb, req.body, admin, req));
+      }
       if (action === 'support-ticket-create') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
@@ -2771,6 +2933,11 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'finance-overview') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getFinanceOverview(sb));
       }
       if (action === 'support-overview') {
         const admin = await verifyAdminStrict(req, sb);
