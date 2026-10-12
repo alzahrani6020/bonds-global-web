@@ -249,3 +249,44 @@ INSERT INTO public.admin_role_permissions (role, permission_key) VALUES
 ('viewer','users.read'),('viewer','crm.read'),('viewer','support.read'),
 ('viewer','platform.read'),('viewer','documents.read')
 ON CONFLICT DO NOTHING;
+
+
+CREATE TABLE IF NOT EXISTS public.admin_field_permissions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  role text NOT NULL,
+  module_key text NOT NULL,
+  field_key text NOT NULL,
+  can_read boolean NOT NULL DEFAULT true,
+  can_write boolean NOT NULL DEFAULT false,
+  mask_strategy text NOT NULL DEFAULT 'none' CHECK (mask_strategy IN ('none','email','phone','partial','hidden')),
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  UNIQUE (role, module_key, field_key)
+);
+
+ALTER TABLE public.admin_field_permissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_field_permissions FORCE ROW LEVEL SECURITY;
+CREATE POLICY admin_platform_read ON public.admin_field_permissions
+  FOR SELECT TO authenticated USING (public.is_admin_platform_user());
+REVOKE ALL ON TABLE public.admin_field_permissions FROM anon;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLE public.admin_field_permissions FROM authenticated;
+GRANT SELECT ON TABLE public.admin_field_permissions TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.admin_field_permissions TO service_role;
+
+INSERT INTO public.admin_permissions (permission_key, description, risk_level) VALUES
+('users.sensitive','Read user internal notes and administrative audit context','high')
+ON CONFLICT (permission_key) DO NOTHING;
+
+INSERT INTO public.admin_role_permissions (role, permission_key) VALUES
+('admin','users.sensitive'),
+('support','users.sensitive')
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.admin_field_permissions (role,module_key,field_key,can_read,can_write,mask_strategy) VALUES
+('viewer','users','email',true,false,'email'),
+('viewer','users','phone',true,false,'phone'),
+('support','users','email',true,false,'none'),
+('support','users','phone',true,false,'none'),
+('admin','users','email',true,true,'none'),
+('admin','users','phone',true,true,'none')
+ON CONFLICT (role,module_key,field_key) DO NOTHING;
