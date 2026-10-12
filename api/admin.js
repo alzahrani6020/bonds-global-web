@@ -454,6 +454,8 @@ async function getOperationsOverview(sb) {
 async function getSystemHealth(sb) {
   const startedAt = Date.now();
   const memory = process.memoryUsage();
+  const heapStats = require('v8').getHeapStatistics();
+  const heapLimit = Number(heapStats.heap_size_limit || 0);
   const mb = value => Math.round((Number(value || 0) / 1024 / 1024) * 10) / 10;
 
   const envChecks = {
@@ -476,7 +478,7 @@ async function getSystemHealth(sb) {
     };
   }
 
-  const heapLimitWarning = memory.heapTotal > 0 && memory.heapUsed / memory.heapTotal >= 0.85;
+  const heapLimitWarning = heapLimit > 0 && memory.heapUsed / heapLimit >= 0.85;
   const runtime = {
     status: heapLimitWarning ? 'degraded' : 'healthy',
     node: process.version,
@@ -484,11 +486,12 @@ async function getSystemHealth(sb) {
     memory: {
       rssMb: mb(memory.rss),
       heapTotalMb: mb(memory.heapTotal),
+      heapLimitMb: mb(heapLimit),
       heapUsedMb: mb(memory.heapUsed),
       externalMb: mb(memory.external),
       arrayBuffersMb: mb(memory.arrayBuffers),
-      heapUtilizationPct: memory.heapTotal
-        ? Math.round((memory.heapUsed / memory.heapTotal) * 1000) / 10
+      heapUtilizationPct: heapLimit
+        ? Math.round((memory.heapUsed / heapLimit) * 1000) / 10
         : null
     }
   };
