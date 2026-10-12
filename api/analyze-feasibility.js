@@ -247,6 +247,7 @@ export default async function handler(request) {
   const fullPrompt = prompt + '\n\n' + text.trim().substring(0, 25000); // Limit to 25K chars
 
   async function callGemini(modelName) {
+    const startedAt = Date.now();
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -255,7 +256,33 @@ export default async function handler(request) {
         generationConfig: { temperature: 0.15, maxOutputTokens: 8192 },
       }),
     });
-    return await res.json();
+    const data = await res.json();
+    data.__bondsModel = modelName;
+    data.__bondsLatencyMs = Date.now() - startedAt;
+    return data;
+  }
+
+  async function recordAiUsage(data, status, errorCode) {
+    try {
+      const usage = data?.usageMetadata || {};
+      await supabaseRequest('/ai_usage_events', {
+        method: 'POST',
+        headers: { Prefer: 'return=minimal' },
+        body: JSON.stringify({
+          user_id: authCheck.user?.id || null,
+          feature_key: 'feasibility_analysis',
+          provider: 'google',
+          model: data?.__bondsModel || 'unknown',
+          input_tokens: usage.promptTokenCount || null,
+          output_tokens: usage.candidatesTokenCount || null,
+          latency_ms: data?.__bondsLatencyMs || null,
+          cost_usd: null,
+          status,
+          error_code: errorCode || null,
+          request_id: request.headers.get('x-request-id') || null
+        })
+      });
+    } catch (e) {}
   }
 
   try {
@@ -267,8 +294,10 @@ export default async function handler(request) {
     }
 
     if (data.error) {
+      await recordAiUsage(data, 'failed', data.error.status || 'GEMINI_ERROR');
       return new Response(JSON.stringify({ error: data.error.message || 'Gemini API error' }), { status: 500, headers: corsHeaders(request) });
     }
+    await recordAiUsage(data, 'succeeded', null);
 
     let responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
