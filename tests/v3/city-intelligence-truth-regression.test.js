@@ -25,6 +25,16 @@ describe('V3 city intelligence catalog and truth regressions', () => {
     expect(page).toContain('data-ud-theme="dark"');
     expect(page).toContain('لا توجد ثلاثة أبعاد مستقلة على الأقل بأدلة مصدرية مثبتة');
     expect(page).toContain('/evidence?year=');
+    expect(page).toContain('id="catalogSummary"');
+    expect(page).not.toContain('أكثر من 1200 مدينة');
+  });
+
+  test('city evidence endpoint is routed before the generic city detail route', () => {
+    const api = read('v3/api/index.js');
+    const evidenceRoute = "if (path.match(/^\\/cities\\/[^\\/]+\\/evidence$/)";
+    const detailRoute = "if (path.match(/^\\/cities\\/[^\\/]+$/)";
+    expect(api).toContain(evidenceRoute);
+    expect(api.indexOf(evidenceRoute)).toBeLessThan(api.indexOf(detailRoute));
   });
 
   test('investment map loads the complete country/city catalog instead of deriving countries from DB rows', () => {
