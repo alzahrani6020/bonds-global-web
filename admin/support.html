@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Support Center — Bonds Global</title>
+<link rel="stylesheet" href="/admin/admin-shared-ux.css">
+<style>
+:root{--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#64748b;--border:#e2e8f0}
+body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1550px;margin:auto;padding:1rem}.top{display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;margin-top:1rem}.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1rem}.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-4{grid-column:span 4}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem}.kpi{border:1px solid var(--border);border-radius:12px;padding:.75rem}.kpi b{display:block;font-size:1.2rem}
+table{width:100%;border-collapse:collapse;font-size:.82rem}th,td{padding:.55rem;border-bottom:1px solid var(--border);text-align:right}.scroll{overflow:auto;max-height:600px}
+.btn{border:0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer;background:#172033;color:white}.btn2{background:#eef2f7;color:#172033}
+input,textarea,select{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:9px;padding:.65rem;margin:.3rem 0 .7rem}.muted{color:var(--muted)}
+.ticket{cursor:pointer}.ticket:hover{background:#f8fafc}.status{display:none;padding:.75rem;border-radius:10px;background:#fee2e2;color:#991b1b;margin-top:.75rem}
+@media(max-width:900px){.span-8,.span-4{grid-column:span 12}}
+</style>
+</head>
+<body>
+<main>
+<div class="top"><div><h1 style="margin:0">Support Center</h1><div class="muted">Tickets · SLA · Escalations · Internal Notes · Mentions</div></div><button class="btn btn2" onclick="loadSupport()">تحديث</button></div>
+<div id="status" class="status"></div>
+<div class="grid">
+<section class="card span-12"><div class="kpis" id="kpis"></div></section>
+<section class="card span-8">
+<h2>التذاكر</h2>
+<div class="scroll"><table><thead><tr><th>الموضوع</th><th>الأولوية</th><th>الحالة</th><th>SLA</th><th>التصعيد</th></tr></thead><tbody id="ticketRows"></tbody></table></div>
+</section>
+<section class="card span-4">
+<h2>تذكرة جديدة</h2>
+<form onsubmit="createTicket(event)">
+<input id="subject" required placeholder="الموضوع">
+<textarea id="description" rows="5" placeholder="الوصف"></textarea>
+<select id="priority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select>
+<input id="requestId" placeholder="Request ID">
+<input id="errorCode" placeholder="Error code">
+<input id="relatedUrl" placeholder="Related URL">
+<button class="btn">إنشاء التذكرة</button>
+</form>
+</section>
+<section class="card span-12" id="detailCard" style="display:none">
+<h2>تفاصيل التذكرة</h2>
+<div id="ticketDetail"></div>
+<textarea id="noteContent" rows="3" placeholder="ملاحظة داخلية"></textarea>
+<button class="btn" onclick="addNote()">إضافة ملاحظة</button>
+</section>
+</div>
+</main>
+<script src="/supabase-client.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script src="/admin/admin-common.js"></script>
+<script>
+let support=null,currentTicketId=null;
+const esc=v=>BondsAdminCommon.escapeHtml(v==null?'':String(v));
+const fmt=v=>v?new Date(v).toLocaleString('ar-SA'):'—';
+function err(msg){const e=document.getElementById('status');e.textContent=msg;e.style.display=msg?'block':'none'}
+async function api(url,options={}){
+ const res=await window.BondsAuth.authenticatedFetch(url,{...options,returnTo:location.pathname+location.search});
+ const data=await res.json().catch(()=>({}));
+ if(!res.ok||!data.success) throw new Error(data.error||('HTTP '+res.status)); return data;
+}
+function render(){
+ const s=support.summary||{};
+ document.getElementById('kpis').innerHTML=[['مفتوحة',s.open||0],['غير مسندة',s.unassigned||0],['SLA Breached',s.breached||0],['Urgent/Critical',s.critical||0],['مُصعّدة',s.escalated||0]].map(x=>'<div class="kpi"><b>'+esc(x[1])+'</b><span class="muted">'+esc(x[0])+'</span></div>').join('');
+ document.getElementById('ticketRows').innerHTML=(support.tickets||[]).map(t=>'<tr class="ticket" onclick="openTicket(\''+esc(t.id)+'\')"><td>'+esc(t.subject)+'</td><td>'+esc(t.priority)+'</td><td>'+esc(t.status)+'</td><td>'+fmt(t.sla_due_at)+'</td><td>'+esc(t.escalation_level||0)+'</td></tr>').join('')||'<tr><td colspan="5">لا توجد تذاكر</td></tr>';
+}
+async function loadSupport(){err('');try{support=await api('/api/admin?action=support-overview');render()}catch(e){err('فشل تحميل مركز الدعم: '+e.message)}}
+async function createTicket(ev){ev.preventDefault();try{
+ await api('/api/admin?action=support-ticket-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:subject.value,description:description.value,priority:priority.value,request_id:requestId.value||null,error_code:errorCode.value||null,related_url:relatedUrl.value||null})});
+ ev.target.reset();await loadSupport();
+}catch(e){err('فشل إنشاء التذكرة: '+e.message)}}
+async function openTicket(id){try{
+ currentTicketId=id;const d=await api('/api/admin?action=support-ticket-detail&ticket_id='+encodeURIComponent(id));
+ document.getElementById('detailCard').style.display='block';
+ const t=d.ticket||{};
+ document.getElementById('ticketDetail').innerHTML='<div><b>'+esc(t.subject)+'</b></div><div class="muted">'+esc(t.description||'')+'</div><div>Priority: '+esc(t.priority)+' · Status: '+esc(t.status)+' · SLA: '+fmt(t.sla_due_at)+'</div><div style="margin-top:.75rem">'+(d.notes||[]).map(n=>'<div style="padding:.5rem;border-top:1px solid #eee">'+esc(n.content)+'<div class="muted">'+fmt(n.created_at)+'</div></div>').join('')+'</div>';
+}catch(e){err('فشل تحميل التذكرة: '+e.message)}}
+async function addNote(){const content=noteContent.value.trim();if(!currentTicketId||!content)return;try{
+ await api('/api/admin?action=support-note-add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket_id:currentTicketId,content,is_internal:true})});
+ noteContent.value='';await openTicket(currentTicketId);
+}catch(e){err('فشل إضافة الملاحظة: '+e.message)}}
+if(window.__ADMIN_ROLE)loadSupport();else window.addEventListener('admin-auth-ready',loadSupport,{once:true});
+</script>
+</body></html>
