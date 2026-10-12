@@ -36,6 +36,8 @@ describe('admin operations reliability', () => {
 
     expect(api).toContain('async function getSystemHealth(sb)');
     expect(api).toContain('process.memoryUsage()');
+    expect(api).toContain("require('v8').getHeapStatistics()");
+    expect(api).toContain('heapLimitMb');
     expect(api).toContain('heapUtilizationPct');
     expect(api).toContain("if (action === 'system-health')");
     expect(api).toContain('requestId');
@@ -49,6 +51,8 @@ describe('admin operations reliability', () => {
     expect(dashboard).toContain('Heap utilization');
     expect(dashboard).toContain('DB latency');
     expect(dashboard).toContain('Health request ID');
+    expect(dashboard).toContain("window.addEventListener('pagehide'");
+    expect(dashboard).toContain('clearInterval(tokenRefreshTimer)');
   });
 
   test('operations inbox aggregates existing action queues without new schema', () => {
