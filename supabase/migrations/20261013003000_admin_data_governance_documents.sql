@@ -9,9 +9,10 @@ CREATE TABLE IF NOT EXISTS public.admin_data_lineage (
   destination text,
   owner_user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   classification text NOT NULL DEFAULT 'internal' CHECK (classification IN ('public','internal','confidential','restricted')),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(metric_or_field,source_table,coalesce(source_column,''))
+  updated_at timestamptz NOT NULL DEFAULT now()
 );
+CREATE UNIQUE INDEX IF NOT EXISTS idx_admin_data_lineage_unique
+  ON public.admin_data_lineage(metric_or_field,source_table,coalesce(source_column,''));
 
 CREATE TABLE IF NOT EXISTS public.admin_retention_policies (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
