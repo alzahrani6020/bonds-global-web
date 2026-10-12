@@ -85,4 +85,62 @@ describe('EnterpriseIntelligenceAdapters', () => {
     expect(typeof engine).toBe('function');
     expect(typeof engine.prototype.calculate).toBe('function');
   });
+
+  test('risk adapter does not invent a default risk grade without evidence', async () => {
+    const result = await adapt('risk', {});
+    expect(result.status).toBe('insufficient_inputs');
+    expect(result.executed).toBe(false);
+    expect(result.output).toBeNull();
+  });
+
+  test('market adapter does not invent demand index when UCP market engine did not execute', async () => {
+    const result = await adapt('market', {
+      ucpResult: {
+        engineResults: {
+          market: {
+            status: 'insufficient_inputs',
+            executed: false,
+            reason: 'no_market_demand_output_from_ucp'
+          }
+        }
+      }
+    });
+    expect(result.status).toBe('insufficient_inputs');
+    expect(result.executed).toBe(false);
+    expect(result.output?.demand_index).toBeUndefined();
+  });
+
+  test('live market adapter exposes source type freshness and live status', async () => {
+    const result = await adapt('live_market', {
+      country: 'SA',
+      city: 'Riyadh',
+      liveDataRecords: [{
+        code: 'inflation_rate',
+        value: 2.2,
+        source: 'GASTAT official',
+        sourceType: 'OFFICIAL_OBSERVED',
+        observedAt: new Date().toISOString(),
+        confidence: 95
+      }]
+    });
+    expect(result.engine).toBe('live_market');
+    expect(result.status).toBe('live');
+    expect(result.output.liveMetricCount).toBe(1);
+  });
+
+  test('simulation adapter executes probabilistic analysis without replacing scenario engine', async () => {
+    const result = await adapt('simulation', {
+      values: {
+        initial_investment: 1000000,
+        annual_revenue: 800000,
+        net_profit: 220000
+      },
+      ucpResult: { confidence: 0.8 },
+      simulationConfig: { iterations: 500, seed: 7 }
+    });
+    expect(result.engine).toBe('simulation');
+    expect(result.status).toBe('computed');
+    expect(result.output.method).toBe('monte_carlo');
+  });
+
 });
