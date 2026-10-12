@@ -102,7 +102,17 @@ let category='Executive',moduleName=null,currentItems=[],editing=null;
 function err(message){const e=document.getElementById('errorBox');e.textContent=message;e.style.display='block'}
 function clearErr(){document.getElementById('errorBox').style.display='none'}
 async function request(url,opts={}){const r=await BondsAuth.authenticatedFetch(url,{...opts,returnTo:location.pathname+location.search});const j=await r.json().catch(()=>({}));if(!r.ok||j.success===false)throw new Error(j.error||('HTTP '+r.status));return j}
-async function loadSummary(){try{const d=await request('/api/admin?action=platform-summary');const labels={organizations:'مؤسسات',openTickets:'تذاكر مفتوحة',urgentTickets:'تذاكر عاجلة',opportunities:'فرص',pendingApprovals:'موافقات',openSecurityEvents:'أحداث أمن',openTasks:'مهام',openAlerts:'تنبيهات',openErrors:'أخطاء',activeIncidents:'حوادث',renewals90d:'تجديد 90 يوم'};document.getElementById('summary').innerHTML=Object.entries(d.counts||{}).map(([k,v])=>'<div class="metric"><strong>'+esc(v??'—')+'</strong><span class="muted">'+esc(labels[k]||k)+'</span></div>').join('')}catch(e){err('فشل ملخص المنصة: '+e.message)}}
+async function loadSummary(){try{const [d,a]=await Promise.all([request('/api/admin?action=platform-summary'),request('/api/admin?action=executive-analytics')]);const labels={organizations:'مؤسسات',openTickets:'تذاكر مفتوحة',urgentTickets:'تذاكر عاجلة',opportunities:'فرص',pendingApprovals:'موافقات',openSecurityEvents:'أحداث أمن',openTasks:'مهام',openAlerts:'تنبيهات',openErrors:'أخطاء',activeIncidents:'حوادث',renewals90d:'تجديد 90 يوم'};const operational=Object.entries(d.counts||{}).map(([k,v])=>'<div class="metric"><strong>'+esc(v??'—')+'</strong><span class="muted">'+esc(labels[k]||k)+'</span></div>').join('');const executive=[
+['MRR',a.financial?.mrr==null?'—':a.financial.mrr+' SAR'],
+['ARR',a.financial?.arr==null?'—':a.financial.arr+' SAR'],
+['Churn',a.financial?.churnRate==null?'—':a.financial.churnRate+'%'],
+['Retention',a.financial?.retentionRate==null?'—':a.financial.retentionRate+'%'],
+['Paid conversion',a.funnel?.paidConversionRate==null?'—':a.funnel.paidConversionRate+'%'],
+['Active 30d',a.funnel?.active30d??'—'],
+['Pipeline',a.pipeline?.value==null?'—':a.pipeline.value+' SAR'],
+['Weighted pipeline',a.pipeline?.weightedValue==null?'—':a.pipeline.weightedValue+' SAR'],
+['Renewal risk',a.customerSuccess?.renewalRisk??'—']
+].map(x=>'<div class="metric"><strong>'+esc(x[1])+'</strong><span class="muted">'+esc(x[0])+'</span></div>').join('');document.getElementById('summary').innerHTML=executive+operational}catch(e){err('فشل ملخص المنصة: '+e.message)}}
 function renderNav(){const el=document.getElementById('categoryNav');el.innerHTML='<div class="brand">Bonds Admin</div>'+Object.keys(categories).map(c=>'<button data-cat="'+esc(c)+'" class="'+(c===category?'active':'')+'">'+esc(c)+'</button>').join('');el.querySelectorAll('button[data-cat]').forEach(b=>b.onclick=()=>{category=b.dataset.cat;moduleName=null;renderNav();renderModules()})}
 function renderModules(){const el=document.getElementById('modules');el.innerHTML=(categories[category]||[]).map(m=>'<button class="module '+(m===moduleName?'active':'')+'" data-module="'+esc(m)+'"><strong>'+esc(defs[m]?.title||m)+'</strong><div class="muted">'+esc(m)+'</div></button>').join('');el.querySelectorAll('[data-module]').forEach(b=>b.onclick=()=>{moduleName=b.dataset.module;renderModules();loadModule()})}
 function stringify(v){if(v==null)return '—';if(typeof v==='object')return JSON.stringify(v);return String(v)}
