@@ -487,3 +487,79 @@ select[data-ud-native]:disabled {
     transition: none !important;
   }
 }
+
+
+/* ===== Contrast hardening v2.52.0 =====
+ * UniversalDropdown must remain readable even when page-wide institutional
+ * button/input rules use !important.
+ */
+.ud-dropdown .ud-trigger,
+.ud-dropdown .ud-trigger-value,
+.ud-dropdown .ud-menu,
+.ud-dropdown .ud-search,
+.ud-dropdown .ud-search input,
+.ud-dropdown .ud-search-clear,
+.ud-dropdown .ud-empty {
+  color: var(--ud-text) !important;
+  -webkit-text-fill-color: var(--ud-text) !important;
+}
+
+.ud-dropdown .ud-menu,
+.ud-dropdown .ud-search {
+  background: var(--ud-bg) !important;
+}
+
+.ud-dropdown .ud-item {
+  color: var(--ud-text) !important;
+  -webkit-text-fill-color: var(--ud-text) !important;
+  background: transparent !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.ud-dropdown .ud-item:hover,
+.ud-dropdown .ud-item:focus,
+.ud-dropdown .ud-item.ud-highlighted,
+.ud-dropdown .ud-item.ud-selected {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  background: var(--ud-border) !important;
+}
+
+.ud-dropdown[data-ud-theme="light"] .ud-trigger,
+.ud-dropdown[data-ud-theme="light"] .ud-trigger-value,
+.ud-dropdown[data-ud-theme="light"] .ud-menu,
+.ud-dropdown[data-ud-theme="light"] .ud-search,
+.ud-dropdown[data-ud-theme="light"] .ud-search input,
+.ud-dropdown[data-ud-theme="light"] .ud-search-clear,
+.ud-dropdown[data-ud-theme="light"] .ud-empty,
+.ud-dropdown[data-ud-theme="light"] .ud-item {
+  color: #142238 !important;
+  -webkit-text-fill-color: #142238 !important;
+}
+
+.ud-dropdown[data-ud-theme="light"] .ud-menu,
+.ud-dropdown[data-ud-theme="light"] .ud-search {
+  background: #ffffff !important;
+}
+
+.ud-dropdown[data-ud-theme="light"] .ud-search input {
+  background: #f8fafc !important;
+  border-color: #d9dee5 !important;
+}
+
+.ud-dropdown[data-ud-theme="light"] .ud-item:hover,
+.ud-dropdown[data-ud-theme="light"] .ud-item:focus,
+.ud-dropdown[data-ud-theme="light"] .ud-item.ud-highlighted,
+.ud-dropdown[data-ud-theme="light"] .ud-item.ud-selected {
+  color: #0b1f3a !important;
+  -webkit-text-fill-color: #0b1f3a !important;
+  background: #f3e4bf !important;
+}
+
+.ud-menu:not(.ud-open) {
+  pointer-events: none !important;
+}
+.ud-menu.ud-open {
+  pointer-events: auto !important;
+}
