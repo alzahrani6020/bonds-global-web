@@ -153,6 +153,17 @@ describe('admin operating platform phase 5', () => {
     expect(api).toContain("includeSensitive: perms.includes('users.sensitive')");
   });
 
+  test('trusted-device policy has a browser device identifier and allowed headers', () => {
+    const auth = read('bonds-auth-2026.js');
+    const vercel = read('vercel.json');
+
+    expect(auth).toContain("function getAdminDeviceFingerprint()");
+    expect(auth).toContain("'bonds_admin_device_id'");
+    expect(auth).toContain("authHeaders['X-Device-Fingerprint']");
+    expect(vercel).toContain('X-Request-ID');
+    expect(vercel).toContain('X-Device-Fingerprint');
+  });
+
   test('dashboard and users UI expose the operating platform and user 360', () => {
     const dashboard = read('admin/dashboard.html');
     const users = read('admin/users.html');
