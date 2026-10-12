@@ -290,3 +290,43 @@ INSERT INTO public.admin_field_permissions (role,module_key,field_key,can_read,c
 ('admin','users','email',true,true,'none'),
 ('admin','users','phone',true,true,'none')
 ON CONFLICT (role,module_key,field_key) DO NOTHING;
+
+
+CREATE TABLE IF NOT EXISTS public.admin_session_controls (
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  revoked_before timestamptz,
+  reason text,
+  updated_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+CREATE TABLE IF NOT EXISTS public.admin_access_policies (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  enabled boolean NOT NULL DEFAULT false,
+  policy_type text NOT NULL CHECK (policy_type IN ('allow_country','deny_country','allow_ip','deny_ip','require_trusted_device')),
+  value text,
+  applies_to_role text,
+  created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.admin_session_controls ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_session_controls FORCE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_access_policies ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.admin_access_policies FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY admin_platform_read ON public.admin_session_controls
+  FOR SELECT TO authenticated USING (public.is_admin_platform_user());
+CREATE POLICY admin_platform_read ON public.admin_access_policies
+  FOR SELECT TO authenticated USING (public.is_admin_platform_user());
+
+REVOKE ALL ON TABLE public.admin_session_controls FROM anon;
+REVOKE ALL ON TABLE public.admin_access_policies FROM anon;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLE public.admin_session_controls FROM authenticated;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLE public.admin_access_policies FROM authenticated;
+GRANT SELECT ON TABLE public.admin_session_controls TO authenticated;
+GRANT SELECT ON TABLE public.admin_access_policies TO authenticated;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.admin_session_controls TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.admin_access_policies TO service_role;
