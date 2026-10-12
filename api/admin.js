@@ -386,9 +386,15 @@ async function getAuditLog(sb, opts = {}) {
 }
 
 // ── Security Center ─────────────────────────────────────────
-async function getSecurityStatus(sb) {
+async function getSecurityStatus(sb, admin) {
   const enforceMfa = await isAdminMfaEnforced(sb);
   const ownerEmail = OWNER_EMAILS.join(', ');
+  const currentAdmin = admin ? {
+    userId: admin.id,
+    email: admin.email || '',
+    role: await getActorRole(sb, admin),
+    isOwner: isOwner(admin.email)
+  } : null;
 
   const { data: roles, error: rolesError } = await sb.from('admin_roles').select('*').order('created_at', { ascending: false });
   if (rolesError) throw rolesError;
@@ -441,7 +447,7 @@ async function getSecurityStatus(sb) {
     .order('created_at', { ascending: false })
     .limit(10);
 
-  return { success: true, ownerEmail, enforceMfa, adminUsers, warnings, recentLogs: recentLogs || [] };
+  return { success: true, ownerEmail, enforceMfa, currentAdmin, adminUsers, warnings, recentLogs: recentLogs || [] };
 }
 
 async function updateSecuritySettings(sb, body, admin, req) {
@@ -449,6 +455,17 @@ async function updateSecuritySettings(sb, body, admin, req) {
   if (!isOwner(admin.email)) throw new Error('Only owner can change security settings');
   const { enforce_mfa } = body;
   const value = enforce_mfa === true || enforce_mfa === 'true' ? 'true' : 'false';
+
+  // Fail closed: never enable the global AAL2 gate unless the owner already has
+  // at least one verified MFA factor. This prevents an accidental admin lockout.
+  if (value === 'true') {
+    const { data: factorData, error: factorError } = await sb.auth.admin.mfa.listFactors({ userId: admin.id });
+    if (factorError) throw factorError;
+    const factors = factorData?.factors || [];
+    if (!factors.some(f => f.status === 'verified')) {
+      throw badRequest('Owner MFA must be verified before enforcement can be enabled');
+    }
+  }
   const { error } = await sb.from('site_settings').upsert({ key: 'admin_enforce_mfa', value, updated_at: new Date().toISOString() });
   if (error) throw error;
   await logAdminAction(sb, admin, 'security_settings_update', 'settings', null, null, { admin_enforce_mfa: value }, req);
@@ -2145,7 +2162,7 @@ async function handler(req, res) {
       if (action === 'security-status') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
-        return res.status(200).json(await getSecurityStatus(sb));
+        return res.status(200).json(await getSecurityStatus(sb, admin));
       }
       if (action === 'funding-cases-list') {
         const admin = await verifyFundingCaseAccess(req, sb, 'viewer');
