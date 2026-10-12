@@ -2856,6 +2856,153 @@ async function updateAdminQueueItem(sb, body, admin, req) {
   return { success: true, alert: data };
 }
 
+// ── Platform Observability / Incidents / Recovery ──────────
+async function getPlatformOverview(sb) {
+  const since24h = new Date(Date.now() - 24 * 3600000).toISOString();
+  const [
+    errorsRes, metricsRes, jobsRes, incidentsRes, backupsRes, drillsRes,
+    integrationsRes, webhooksRes, migrationsRes, releasesRes
+  ] = await Promise.all([
+    sb.from('admin_error_events').select('*').gte('last_seen_at', since24h).order('last_seen_at', { ascending: false }).limit(500),
+    sb.from('admin_request_metrics').select('*').gte('created_at', since24h).order('created_at', { ascending: false }).limit(2000),
+    sb.from('admin_job_runs').select('*').order('created_at', { ascending: false }).limit(500),
+    sb.from('admin_incidents').select('*').order('started_at', { ascending: false }).limit(500),
+    sb.from('admin_backup_checks').select('*').order('verified_at', { ascending: false }).limit(500),
+    sb.from('admin_recovery_drills').select('*').order('created_at', { ascending: false }).limit(500),
+    sb.from('admin_integration_health').select('*').order('checked_at', { ascending: false }).limit(500),
+    sb.from('admin_webhook_deliveries').select('*').order('last_attempt_at', { ascending: false }).limit(500),
+    sb.from('admin_migration_status').select('*').order('migration_name', { ascending: false }).limit(1000),
+    sb.from('admin_release_history').select('*').order('created_at', { ascending: false }).limit(200)
+  ]);
+  for (const r of [errorsRes,metricsRes,jobsRes,incidentsRes,backupsRes,drillsRes,integrationsRes,webhooksRes,migrationsRes,releasesRes]) {
+    if (r.error) throw r.error;
+  }
+  const errors=errorsRes.data||[], metrics=metricsRes.data||[], jobs=jobsRes.data||[], incidents=incidentsRes.data||[];
+  const durations=metrics.map(x=>Number(x.duration_ms||0)).filter(x=>x>=0).sort((a,b)=>a-b);
+  const percentile=(p)=>durations.length?durations[Math.min(durations.length-1,Math.floor(durations.length*p))]:null;
+  const routeAgg={};
+  for(const m of metrics){
+    const key=m.route||'unknown'; const x=routeAgg[key]||(routeAgg[key]={count:0,total:0,max:0,errors:0});
+    x.count++; x.total+=Number(m.duration_ms||0); x.max=Math.max(x.max,Number(m.duration_ms||0)); if(Number(m.status||0)>=500)x.errors++;
+  }
+  const slowRoutes=Object.entries(routeAgg).map(([route,x])=>({route,count:x.count,avgMs:Math.round(x.total/Math.max(1,x.count)),maxMs:x.max,errors:x.errors})).sort((a,b)=>b.avgMs-a.avgMs).slice(0,20);
+  const memory=process.memoryUsage(); const mb=v=>Math.round(Number(v||0)/1024/1024*10)/10;
+  const currentDeployment={
+    provider:'vercel',
+    environment:process.env.VERCEL_ENV||process.env.NODE_ENV||'unknown',
+    commitSha:process.env.VERCEL_GIT_COMMIT_SHA||null,
+    branch:process.env.VERCEL_GIT_COMMIT_REF||null,
+    url:process.env.VERCEL_URL?('https://'+process.env.VERCEL_URL):null,
+    deploymentId:process.env.VERCEL_DEPLOYMENT_ID||null
+  };
+  const configPresence={
+    ADMIN_EMAIL:!!process.env.ADMIN_EMAIL,
+    SUPABASE_URL:!!(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL),
+    SUPABASE_SERVICE_ROLE_KEY:!!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_DB_URL:!!process.env.SUPABASE_DB_URL
+  };
+  return {
+    success:true,
+    generatedAt:new Date().toISOString(),
+    currentDeployment,
+    summary:{
+      errors24h:errors.reduce((s,e)=>s+Number(e.occurrence_count||1),0),
+      openIncidents:incidents.filter(i=>i.status!=='resolved').length,
+      failedJobs:jobs.filter(j=>j.status==='failed'||j.status==='stalled').length,
+      p50Ms:percentile(.50),p95Ms:percentile(.95),
+      heapUsedMb:mb(memory.heapUsed),rssMb:mb(memory.rss),
+      backupUnknown:(backupsRes.data||[]).filter(b=>b.status!=='verified').length,
+      failedRecoveryDrills:(drillsRes.data||[]).filter(d=>d.status==='failed').length,
+      degradedIntegrations:(integrationsRes.data||[]).filter(i=>i.status!=='healthy').length,
+      failedWebhooks:(webhooksRes.data||[]).filter(w=>w.status==='failed').length,
+      migrationsNotApplied:(migrationsRes.data||[]).filter(m=>m.status!=='applied').length
+    },
+    errors,slowRoutes,jobs,incidents,
+    backups:backupsRes.data||[],recoveryDrills:drillsRes.data||[],
+    integrations:integrationsRes.data||[],webhooks:webhooksRes.data||[],
+    migrations:migrationsRes.data||[],releases:releasesRes.data||[],
+    configuration:{presence:configPresence}
+  };
+}
+
+async function recordRequestMetric(sb, req, status, startedAt, userId=null) {
+  try {
+    const mem=process.memoryUsage();
+    await sb.from('admin_request_metrics').insert([{
+      request_id:req.adminRequestId||generateRequestId(),
+      route:'admin:'+String(req.query?.action||req.body?.action||'unknown'),
+      method:req.method||'UNKNOWN',
+      status:Number(status||0),
+      duration_ms:Math.max(0,Date.now()-startedAt),
+      memory_heap_used_mb:Math.round(mem.heapUsed/1024/1024*100)/100,
+      memory_rss_mb:Math.round(mem.rss/1024/1024*100)/100,
+      deployment_sha:process.env.VERCEL_GIT_COMMIT_SHA||null,
+      user_id_hash:hashUserId(userId)
+    }]);
+  } catch(e) { console.warn('[RequestMetric] failed:',e.message||e); }
+}
+
+async function recordErrorEvent(sb, req, err, status=500) {
+  try {
+    const crypto=require('crypto');
+    const message=String(err?.message||'Unknown error').slice(0,1000);
+    const stackHash=crypto.createHash('sha256').update(String(err?.stack||message)).digest('hex').slice(0,24);
+    const route='admin:'+String(req.query?.action||req.body?.action||'unknown');
+    const { data:existing }=await sb.from('admin_error_events').select('id,occurrence_count').eq('stack_hash',stackHash).eq('status','open').limit(1).maybeSingle();
+    if(existing?.id){
+      await sb.from('admin_error_events').update({last_seen_at:new Date().toISOString(),occurrence_count:Number(existing.occurrence_count||1)+1,request_id:req.adminRequestId||null}).eq('id',existing.id);
+    }else{
+      await sb.from('admin_error_events').insert([{
+        request_id:req.adminRequestId||null,source:'api',route,
+        error_code:err?.code||String(status),message,stack_hash:stackHash,
+        severity:status>=500?'error':'warning',
+        deployment_sha:process.env.VERCEL_GIT_COMMIT_SHA||null
+      }]);
+    }
+  }catch(e){console.warn('[ErrorEvent] failed:',e.message||e);}
+}
+
+async function createIncident(sb, body, admin, req) {
+  const title=String(body?.title||'').trim(); if(!title)throw badRequest('title required');
+  const row={title:title.slice(0,300),severity:body?.severity||'medium',status:'open',impact:body?.impact||null,owner_user_id:body?.owner_user_id||admin.id,request_id:body?.request_id||req.adminRequestId||null,deployment_sha:body?.deployment_sha||process.env.VERCEL_GIT_COMMIT_SHA||null,timeline:[{at:new Date().toISOString(),event:'created',actor:admin.email||admin.id}]};
+  const {data,error}=await sb.from('admin_incidents').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'incident_create','incident',data.id,null,{severity:data.severity},req);return{success:true,incident:data};
+}
+
+async function updateIncident(sb, body, admin, req) {
+  const id=body?.id;if(!id)throw badRequest('id required');
+  const {data:current,error:readErr}=await sb.from('admin_incidents').select('*').eq('id',id).single();if(readErr)throw readErr;
+  const timeline=Array.isArray(current.timeline)?current.timeline:[];
+  timeline.push({at:new Date().toISOString(),event:body?.event||body?.status||'updated',actor:admin.email||admin.id});
+  const updates={timeline,updated_at:new Date().toISOString()};
+  for(const k of ['status','severity','impact','root_cause','owner_user_id'])if(body[k]!==undefined)updates[k]=body[k];
+  if(body?.status==='resolved')updates.resolved_at=new Date().toISOString();
+  const {data,error}=await sb.from('admin_incidents').update(updates).eq('id',id).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'incident_update','incident',id,null,updates,req);return{success:true,incident:data};
+}
+
+async function recordBackupCheck(sb, body, admin, req) {
+  if(!body?.provider||!body?.resource||!body?.status)throw badRequest('provider, resource and status required');
+  const row={provider:body.provider,resource:body.resource,backup_reference:body?.backup_reference||null,status:body.status,backup_created_at:body?.backup_created_at||null,verified_by:admin.id,restore_tested:body?.restore_tested===true,restore_tested_at:body?.restore_tested_at||null,rpo_minutes:body?.rpo_minutes??null,evidence:body?.evidence&&typeof body.evidence==='object'?body.evidence:{}};
+  const {data,error}=await sb.from('admin_backup_checks').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'backup_check_record','backup_check',data.id,null,{provider:row.provider,resource:row.resource,status:row.status},req);return{success:true,backup:data};
+}
+
+async function recordConfigSnapshot(sb, body, admin, req) {
+  const environment=body?.environment||'production';
+  const keys=Array.isArray(body?.keys)?body.keys:[];
+  if(!keys.length)throw badRequest('keys required');
+  const crypto=require('crypto'); const rows=[];
+  for(const key of keys.slice(0,200)){
+    const name=String(key||'').trim();if(!name)continue;
+    const value=process.env[name];
+    rows.push({environment,config_key:name,present:value!==undefined&&value!=='',value_hash:value?crypto.createHash('sha256').update(value).digest('hex').slice(0,16):null,source:'runtime'});
+  }
+  const {data,error}=await sb.from('admin_config_snapshots').insert(rows).select();if(error)throw error;
+  await logAdminAction(sb,admin,'config_snapshot_record','configuration',environment,null,{keys:rows.map(r=>r.config_key)},req);
+  return{success:true,snapshots:data||[]};
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -3077,9 +3224,12 @@ async function guestLookupFundingCase(sb, payload) {
 
 // ── Main Handler ────────────────────────────────────────────
 async function handler(req, res) {
+  const handlerStartedAt = Date.now();
+  req.adminRequestId = req.headers['x-request-id'] || generateRequestId();
   setAllowedOrigin(res, req);
+  res.setHeader('X-Request-ID', req.adminRequestId);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Request-ID');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const sb = getSupabase();
@@ -3174,6 +3324,22 @@ async function handler(req, res) {
           role,
           isOwner: isOwner(user.email)
         });
+      }
+      if (action === 'incident-create') {
+        const access = await requireAdminPermission(req, sb, 'incident.manage');
+        return res.status(200).json(await createIncident(sb, req.body, access.user, req));
+      }
+      if (action === 'incident-update') {
+        const access = await requireAdminPermission(req, sb, 'incident.manage');
+        return res.status(200).json(await updateIncident(sb, req.body, access.user, req));
+      }
+      if (action === 'backup-check-record') {
+        const access = await requireAdminPermission(req, sb, 'recovery.manage');
+        return res.status(200).json(await recordBackupCheck(sb, req.body, access.user, req));
+      }
+      if (action === 'config-snapshot-record') {
+        const access = await requireAdminPermission(req, sb, 'configuration.manage');
+        return res.status(200).json(await recordConfigSnapshot(sb, req.body, access.user, req));
       }
       if (action === 'feature-flag-upsert') {
         const access = await requireAdminPermission(req, sb, 'product.flags');
@@ -3328,6 +3494,12 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'platform-overview') {
+        const access = await requireAdminPermission(req, sb, 'observability.read');
+        const result = await getPlatformOverview(sb);
+        await recordRequestMetric(sb, req, 200, handlerStartedAt, access.user.id);
+        return res.status(200).json({ ...result, requestId: req.adminRequestId });
       }
       if (action === 'automation-overview') {
         const access = await requireAdminPermission(req, sb, 'operations.manage');
@@ -3747,7 +3919,9 @@ async function handler(req, res) {
   } catch (err) {
     console.error('Admin API error:', err);
     const status = err.status || 500;
-    res.status(status).json({ error: err.message });
+    await recordErrorEvent(sb, req, err, status);
+    await recordRequestMetric(sb, req, status, handlerStartedAt);
+    res.status(status).json({ error: err.message, requestId: req.adminRequestId });
   }
 }
 
