@@ -263,6 +263,41 @@ async function assertAdminSessionActive(sb, userId, token) {
   }
 }
 
+async function assertAdminAccessPolicy(req, sb, user, role) {
+  const { data: policies } = await sb.from('admin_access_policies')
+    .select('policy_type,value,applies_to_role')
+    .eq('enabled', true);
+  const rules = (policies || []).filter(p => !p.applies_to_role || p.applies_to_role === role);
+  if (!rules.length) return;
+
+  const remoteAddress = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || '';
+  const countryCode = String(req.headers['x-vercel-ip-country'] || '').toUpperCase();
+  const fingerprint = String(req.headers['x-device-fingerprint'] || '');
+
+  const values = type => rules.filter(p => p.policy_type === type).map(p => String(p.value || '')).filter(Boolean);
+  const deniedAddresses = values('deny_ip');
+  const allowedAddresses = values('allow_ip');
+  const deniedCountries = values('deny_country').map(v => v.toUpperCase());
+  const allowedCountries = values('allow_country').map(v => v.toUpperCase());
+
+  if (deniedAddresses.includes(remoteAddress)) throw forbidden('Admin network blocked');
+  if (allowedAddresses.length && !allowedAddresses.includes(remoteAddress)) throw forbidden('Admin network not allowed');
+  if (countryCode && deniedCountries.includes(countryCode)) throw forbidden('Admin country blocked');
+  if (allowedCountries.length && (!countryCode || !allowedCountries.includes(countryCode))) throw forbidden('Admin country not allowed');
+
+  if (rules.some(p => p.policy_type === 'require_trusted_device')) {
+    if (!fingerprint) throw forbidden('Trusted admin device required');
+    const { data: trusted } = await sb.from('trusted_admin_devices')
+      .select('id,expires_at,revoked_at')
+      .eq('user_id', user.id)
+      .eq('device_fingerprint', fingerprint)
+      .maybeSingle();
+    if (!trusted || trusted.revoked_at || (trusted.expires_at && new Date(trusted.expires_at) <= new Date())) {
+      throw forbidden('Trusted admin device required');
+    }
+  }
+}
+
 async function verifyAdmin(req, sb) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
