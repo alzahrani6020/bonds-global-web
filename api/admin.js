@@ -2814,18 +2814,24 @@ function automationOptionalDate(value, field) {
   return new Date(ms).toISOString();
 }
 
-async function getAutomationOverview(sb) {
+async function getAutomationOverview(sb, permissions = []) {
   const now = Date.now();
+  const permissionSet = new Set(permissions);
+  const canFlags = permissionSet.has('product.flags');
+  const canEntitlements = permissionSet.has('entitlements.manage');
+  const canWorkflows = permissionSet.has('workflow.manage');
+  const canOperations = permissionSet.has('operations.manage');
+  const empty = () => Promise.resolve({ data: [], error: null });
   const [flagsRes, rulesRes, entitlementsRes, planEntitlementsRes, workflowsRes, runsRes, tasksRes, alertsRes, overridesRes] = await Promise.all([
-    sb.from('admin_feature_flags').select('*').order('updated_at', { ascending: false }).limit(500),
-    sb.from('admin_feature_flag_rules').select('*').order('priority', { ascending: true }).limit(1000),
-    sb.from('admin_entitlements').select('*').order('key', { ascending: true }).limit(1000),
-    sb.from('admin_plan_entitlements').select('*').order('tier', { ascending: true }).limit(1000),
-    sb.from('admin_workflows').select('*').order('updated_at', { ascending: false }).limit(500),
-    sb.from('admin_workflow_runs').select('*').order('created_at', { ascending: false }).limit(500),
-    sb.from('admin_tasks').select('*').order('created_at', { ascending: false }).limit(1000),
-    sb.from('admin_alerts').select('*').order('created_at', { ascending: false }).limit(1000),
-    sb.from('admin_entitlement_overrides').select('*').is('revoked_at', null).order('created_at', { ascending: false }).limit(1000)
+    canFlags ? sb.from('admin_feature_flags').select('*').order('updated_at', { ascending: false }).limit(500) : empty(),
+    canFlags ? sb.from('admin_feature_flag_rules').select('*').order('priority', { ascending: true }).limit(1000) : empty(),
+    canEntitlements ? sb.from('admin_entitlements').select('*').order('key', { ascending: true }).limit(1000) : empty(),
+    canEntitlements ? sb.from('admin_plan_entitlements').select('*').order('tier', { ascending: true }).limit(1000) : empty(),
+    canWorkflows ? sb.from('admin_workflows').select('*').order('updated_at', { ascending: false }).limit(500) : empty(),
+    canWorkflows ? sb.from('admin_workflow_runs').select('*').order('created_at', { ascending: false }).limit(500) : empty(),
+    canOperations ? sb.from('admin_tasks').select('*').order('created_at', { ascending: false }).limit(1000) : empty(),
+    canOperations ? sb.from('admin_alerts').select('*').order('created_at', { ascending: false }).limit(1000) : empty(),
+    canEntitlements ? sb.from('admin_entitlement_overrides').select('*').is('revoked_at', null).order('created_at', { ascending: false }).limit(1000) : empty()
   ]);
   for (const result of [flagsRes, rulesRes, entitlementsRes, planEntitlementsRes, workflowsRes, runsRes, tasksRes, alertsRes, overridesRes]) {
     if (result.error) throw result.error;
@@ -3586,8 +3592,8 @@ async function handler(req, res) {
         return res.status(200).json(await getSubscriptions(sb, params));
       }
       if (action === 'automation-overview') {
-        await requireAdminPermission(req, sb, 'operations.manage');
-        return res.status(200).json(await getAutomationOverview(sb));
+        const access = await requireAdminPermission(req, sb, 'operations.manage');
+        return res.status(200).json(await getAutomationOverview(sb, access.permissions));
       }
       if (action === 'permission-simulator') {
         await requireAdminPermission(req, sb, 'roles.read');
