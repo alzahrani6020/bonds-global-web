@@ -31,6 +31,11 @@ describe('Admin automation flags and operations',()=>{
   expect(api).toContain("requireAdminPermission(req, sb, 'entitlements.manage')");
   expect(api).toContain("requireAdminPermission(req, sb, 'workflow.manage')");
   expect(api).toContain("requireAdminPermission(req, sb, 'operations.manage')");
+  expect(api).toContain("async function getAutomationOverview(sb, permissions = [])");
+  expect(api).toContain("canFlags ? sb.from('admin_feature_flags')");
+  expect(api).toContain("canEntitlements ? sb.from('admin_entitlement_overrides')");
+  expect(api).toContain("canWorkflows ? sb.from('admin_workflow_runs')");
+  expect(api).toContain("getAutomationOverview(sb, access.permissions)");
  });
  test('admin automation workspace is navigable and escaped',()=>{
   const page=read('admin/automation.html');const dashboard=read('admin/dashboard.html');
