@@ -15,7 +15,7 @@ describe('Admin automation flags and operations',()=>{
   expect(api).toContain("requireAdminPermission(req, sb, 'product.flags')");
   expect(api).toContain('async function upsertFeatureFlagRule');
   expect(api).toContain('FEATURE_FLAG_KEY_RE');
-  expect(api).toContain("target_type IN ('user','tier','organization','country','percentage')");
+  expect(api).toContain("['user','tier','organization','country','percentage'].includes(targetType)");
  });
  test('entitlements workflows and operations queues use granular permissions',()=>{
   const api=read('api/admin.js');
