@@ -143,4 +143,31 @@ describe('EnterpriseIntelligenceAdapters', () => {
     expect(result.output.method).toBe('monte_carlo');
   });
 
+
+  test('unavailable UCP valuation facade is not treated as executed valuation', async () => {
+    const result = await adapt('valuation', {
+      ucpResult: {
+        engineResults: {
+          valuation: { status: 'insufficient_inputs', executed: false, value: null, confidence: null }
+        }
+      }
+    });
+    expect(result.status).toBe('insufficient_inputs');
+    expect(result.executed).toBe(false);
+    expect(result.output).toBeNull();
+  });
+
+  test('unavailable UCP risk facade is not converted into a synthetic grade', async () => {
+    const result = await adapt('risk', {
+      ucpResult: {
+        engineResults: {
+          risk: { status: 'insufficient_inputs', executed: false, risk_grade: null, confidence: null }
+        }
+      }
+    });
+    expect(result.status).toBe('insufficient_inputs');
+    expect(result.executed).toBe(false);
+    expect(result.output).toBeNull();
+  });
+
 });
