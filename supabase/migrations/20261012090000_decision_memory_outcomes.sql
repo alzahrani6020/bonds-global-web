@@ -14,6 +14,17 @@ CREATE TABLE IF NOT EXISTS public.decision_memory (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
+ALTER TABLE public.decision_memory
+  ADD COLUMN IF NOT EXISTS entity_id text,
+  ADD COLUMN IF NOT EXISTS entity_type text DEFAULT 'project',
+  ADD COLUMN IF NOT EXISTS decision_type text DEFAULT 'investment_decision',
+  ADD COLUMN IF NOT EXISTS decision text,
+  ADD COLUMN IF NOT EXISTS inputs jsonb DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS expected_outcome jsonb DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS confidence numeric,
+  ADD COLUMN IF NOT EXISTS created_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS created_at timestamptz DEFAULT now();
+
 CREATE INDEX IF NOT EXISTS idx_decision_memory_entity
   ON public.decision_memory(entity_type, entity_id);
 CREATE INDEX IF NOT EXISTS idx_decision_memory_created_by
@@ -72,6 +83,14 @@ CREATE TABLE IF NOT EXISTS public.decision_outcomes (
   recorded_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   recorded_at timestamptz NOT NULL DEFAULT now()
 );
+
+ALTER TABLE public.decision_outcomes
+  ADD COLUMN IF NOT EXISTS actual_outcome jsonb DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS variance jsonb DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS status text DEFAULT 'recorded',
+  ADD COLUMN IF NOT EXISTS notes text,
+  ADD COLUMN IF NOT EXISTS recorded_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
+  ADD COLUMN IF NOT EXISTS recorded_at timestamptz DEFAULT now();
 
 CREATE INDEX IF NOT EXISTS idx_decision_outcomes_decision
   ON public.decision_outcomes(decision_id, recorded_at DESC);
