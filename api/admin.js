@@ -520,11 +520,10 @@ async function mutatePlatformModule(sb, moduleName, body, admin, req) {
     const id = body.id;
     const key = body.key;
     if (!id && !key) throw badRequest('id or key required');
-    record.updated_at = new Date().toISOString();
+    if (moduleName === 'feature-flags') record.updated_by = admin.id;
     let query = sb.from(config.table).update(record);
     if (id) query = query.eq('id', id);
-    else if (moduleName === 'feature-flags') query = query.eq('flag_key', key);
-    else if (moduleName === 'integrations') query = query.eq('integration_key', key);
+    else if (config.key) query = query.eq(config.key, key);
     else throw badRequest('Key updates are not supported for this module');
     const { data, error } = await query.select().single();
     if (error) throw error;
