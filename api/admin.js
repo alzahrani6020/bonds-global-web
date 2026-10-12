@@ -3084,6 +3084,110 @@ async function createAiPromptVersion(sb, body, admin, req) {
   return{success:true,promptVersion:data};
 }
 
+// ── Data Governance / Document Center ──────────────────────
+function maskEmail(value){const s=String(value||'');const [a,b]=s.split('@');if(!b)return s?'***':'';return (a?String(a[0]||'')+'***':'***')+'@'+b;}
+function maskPhone(value){const s=String(value||'').replace(/\s+/g,'');if(s.length<=4)return s?'****':'';return '*'.repeat(Math.max(4,s.length-4))+s.slice(-4);}
+
+async function getDataGovernanceOverview(sb, access) {
+  const [profilesRes,privacyRes,exportsRes,mergesRes,lineageRes,retentionRes,piiRes,anchorsRes,docsRes]=await Promise.all([
+    sb.from('profiles').select('id,email,phone,restaurant_name,created_at').limit(5000),
+    sb.from('admin_privacy_requests').select('*').order('requested_at',{ascending:false}).limit(500),
+    sb.from('admin_data_exports').select('*').order('created_at',{ascending:false}).limit(500),
+    sb.from('admin_user_merge_requests').select('*').order('created_at',{ascending:false}).limit(500),
+    sb.from('admin_data_lineage').select('*').order('metric_or_field').limit(1000),
+    sb.from('admin_retention_policies').select('*').order('data_category').limit(500),
+    sb.from('admin_pii_field_policies').select('*').order('field_key').limit(500),
+    sb.from('admin_audit_integrity_anchors').select('*').order('generated_at',{ascending:false}).limit(100),
+    sb.from('admin_documents').select('*').order('created_at',{ascending:false}).limit(1000)
+  ]);
+  for(const r of [profilesRes,privacyRes,exportsRes,mergesRes,lineageRes,retentionRes,piiRes,anchorsRes,docsRes])if(r.error)throw r.error;
+  const profiles=profilesRes.data||[];
+  const emailMap=new Map(),phoneMap=new Map();
+  for(const p of profiles){
+    const e=String(p.email||'').trim().toLowerCase();const ph=String(p.phone||'').replace(/\D/g,'');
+    if(e){if(!emailMap.has(e))emailMap.set(e,[]);emailMap.get(e).push(p);}
+    if(ph){if(!phoneMap.has(ph))phoneMap.set(ph,[]);phoneMap.get(ph).push(p);}
+  }
+  const canReadSensitive=access.permissions.includes('users.read_sensitive');
+  const duplicates=[];
+  for(const [value,rows] of emailMap)if(rows.length>1)duplicates.push({type:'email',value:canReadSensitive?value:maskEmail(value),count:rows.length,userIds:rows.map(x=>x.id)});
+  for(const [value,rows] of phoneMap)if(rows.length>1)duplicates.push({type:'phone',value:canReadSensitive?value:maskPhone(value),count:rows.length,userIds:rows.map(x=>x.id)});
+  const docs=docsRes.data||[],now=Date.now();
+  return{success:true,
+    summary:{
+      duplicateGroups:duplicates.length,
+      privacyOpen:(privacyRes.data||[]).filter(x=>!['completed','rejected','cancelled'].includes(x.status)).length,
+      exportsPending:(exportsRes.data||[]).filter(x=>!['completed','failed','expired','rejected'].includes(x.status)).length,
+      mergeRequestsPending:(mergesRes.data||[]).filter(x=>!['completed','failed','cancelled'].includes(x.status)).length,
+      retentionPolicies:(retentionRes.data||[]).filter(x=>x.enabled).length,
+      lineageEntries:(lineageRes.data||[]).length,
+      auditAnchors:(anchorsRes.data||[]).length,
+      documents:docs.length,
+      documentsExpiring30d:docs.filter(d=>d.expires_at&&new Date(d.expires_at).getTime()>=now&&new Date(d.expires_at).getTime()<=now+30*86400000).length
+    },
+    duplicates,privacyRequests:privacyRes.data||[],exports:exportsRes.data||[],mergeRequests:mergesRes.data||[],
+    lineage:lineageRes.data||[],retentionPolicies:retentionRes.data||[],piiPolicies:piiRes.data||[],auditAnchors:anchorsRes.data||[],documents:docs,
+    piiMode:canReadSensitive?'unmasked':'masked'
+  };
+}
+
+async function createPrivacyRequest(sb,body,admin,req){
+  if(!body?.request_type)throw badRequest('request_type required');
+  const row={user_id:body?.user_id||null,request_type:body.request_type,status:'received',identity_verified:body?.identity_verified===true,due_at:body?.due_at||null,handled_by:admin.id,notes:body?.notes||null,evidence:body?.evidence&&typeof body.evidence==='object'?body.evidence:{}};
+  const {data,error}=await sb.from('admin_privacy_requests').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'privacy_request_create','privacy_request',data.id,null,{request_type:data.request_type,user_id:data.user_id},req);return{success:true,privacyRequest:data};
+}
+
+async function createDataExportRequest(sb,body,admin,req){
+  const type=String(body?.export_type||'').trim();if(!type)throw badRequest('export_type required');
+  const row={requested_by:admin.id,subject_user_id:body?.subject_user_id||null,export_type:type,fields:Array.isArray(body?.fields)?body.fields.slice(0,200):[],filters:body?.filters&&typeof body.filters==='object'?body.filters:{},status:'requested',expires_at:body?.expires_at||null,request_id:req.adminRequestId||null};
+  const {data,error}=await sb.from('admin_data_exports').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'data_export_request','data_export',data.id,null,{export_type:type,subject_user_id:row.subject_user_id},req);return{success:true,exportRequest:data};
+}
+
+async function createUserMergeDryRun(sb,body,admin,req){
+  const source=body?.source_user_id,target=body?.target_user_id;if(!source||!target||source===target)throw badRequest('distinct source_user_id and target_user_id required');
+  const tables=[
+    ['profiles','id'],['subscriptions','user_id'],['moyasar_invoices','user_id'],['user_presence','user_id'],
+    ['admin_customer_notes','user_id'],['admin_customer_tags','user_id'],['support_tickets','user_id'],['finance_refunds','user_id']
+  ];
+  const impact={};
+  for(const [table,column] of tables){
+    try{const [{count:sourceCount},{count:targetCount}]=await Promise.all([sb.from(table).select('*',{count:'exact',head:true}).eq(column,source),sb.from(table).select('*',{count:'exact',head:true}).eq(column,target)]);impact[table]={source:sourceCount||0,target:targetCount||0};}
+    catch(e){impact[table]={status:'unknown',error:String(e.message||e).slice(0,160)};}
+  }
+  const dryRun={impact,destructiveExecution:false,requiresApproval:true,generatedAt:new Date().toISOString()};
+  const {data,error}=await sb.from('admin_user_merge_requests').insert([{source_user_id:source,target_user_id:target,status:'review',dry_run:dryRun,requested_by:admin.id}]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'user_merge_dry_run','user_merge_request',data.id,null,{source_user_id:source,target_user_id:target},req);
+  return{success:true,mergeRequest:data};
+}
+
+async function createAuditIntegrityAnchor(sb,admin,req){
+  const crypto=require('crypto');const end=new Date(),start=new Date(end.getTime()-24*3600000);
+  const {data,error}=await sb.from('admin_audit_log').select('id,created_at,actor_id,action,target_type,target_id').gte('created_at',start.toISOString()).lte('created_at',end.toISOString()).order('created_at',{ascending:true}).limit(5000);if(error)throw error;
+  const rows=data||[];const digest=crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex');
+  const {data:anchor,error:aerr}=await sb.from('admin_audit_integrity_anchors').insert([{range_start:start.toISOString(),range_end:end.toISOString(),row_count:rows.length,digest_sha256:digest,generated_by:admin.id}]).select().single();if(aerr)throw aerr;
+  return{success:true,anchor};
+}
+
+async function registerAdminDocument(sb,body,admin,req){
+  if(!body?.entity_type||!body?.entity_id||!body?.document_type||!body?.title)throw badRequest('entity_type, entity_id, document_type and title required');
+  const row={entity_type:body.entity_type,entity_id:String(body.entity_id),document_type:body.document_type,title:String(body.title).slice(0,300),status:body?.status||'active',classification:body?.classification||'confidential',storage_provider:body?.storage_provider||'supabase',storage_path:body?.storage_path||null,mime_type:body?.mime_type||null,size_bytes:body?.size_bytes??null,checksum_sha256:body?.checksum_sha256||null,expires_at:body?.expires_at||null,verification_status:body?.verification_status||'unverified',created_by:admin.id};
+  const {data,error}=await sb.from('admin_documents').insert([row]).select().single();if(error)throw error;
+  if(row.storage_path){const {error:verErr}=await sb.from('admin_document_versions').insert([{document_id:data.id,version:1,storage_path:row.storage_path,mime_type:row.mime_type,size_bytes:row.size_bytes,checksum_sha256:row.checksum_sha256,created_by:admin.id}]);if(verErr)throw verErr;}
+  await logAdminAction(sb,admin,'document_register','admin_document',data.id,null,{entity_type:row.entity_type,entity_id:row.entity_id,document_type:row.document_type},req);return{success:true,document:data};
+}
+
+async function addAdminDocumentVersion(sb,body,admin,req){
+  const id=body?.document_id;if(!id)throw badRequest('document_id required');
+  const {data:versions,error:vErr}=await sb.from('admin_document_versions').select('version').eq('document_id',id).order('version',{ascending:false}).limit(1);if(vErr)throw vErr;
+  const version=Number(versions?.[0]?.version||0)+1;
+  const row={document_id:id,version,storage_path:body?.storage_path||null,mime_type:body?.mime_type||null,size_bytes:body?.size_bytes??null,checksum_sha256:body?.checksum_sha256||null,created_by:admin.id};
+  const {data,error}=await sb.from('admin_document_versions').insert([row]).select().single();if(error)throw error;
+  await sb.from('admin_documents').update({storage_path:row.storage_path,mime_type:row.mime_type,size_bytes:row.size_bytes,checksum_sha256:row.checksum_sha256,status:'active',updated_at:new Date().toISOString()}).eq('id',id);
+  await logAdminAction(sb,admin,'document_version_add','admin_document',id,null,{version},req);return{success:true,version:data};
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -3406,6 +3510,30 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'privacy-request-create') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createPrivacyRequest(sb,req.body,access.user,req));
+      }
+      if (action === 'data-export-request') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createDataExportRequest(sb,req.body,access.user,req));
+      }
+      if (action === 'user-merge-dry-run') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createUserMergeDryRun(sb,req.body,access.user,req));
+      }
+      if (action === 'audit-integrity-anchor') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createAuditIntegrityAnchor(sb,access.user,req));
+      }
+      if (action === 'admin-document-register') {
+        const access = await requireAdminPermission(req, sb, 'documents.manage');
+        return res.status(200).json(await registerAdminDocument(sb,req.body,access.user,req));
+      }
+      if (action === 'admin-document-version-add') {
+        const access = await requireAdminPermission(req, sb, 'documents.manage');
+        return res.status(200).json(await addAdminDocumentVersion(sb,req.body,access.user,req));
+      }
       if (action === 'ai-kill-switch-update') {
         const access = await requireAdminPermission(req, sb, 'ai.operations.manage');
         return res.status(200).json(await setAiKillSwitch(sb, req.body, access.user, req));
@@ -3583,6 +3711,10 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'data-governance-overview') {
+        const access = await requireAdminPermission(req, sb, 'governance.read');
+        return res.status(200).json(await getDataGovernanceOverview(sb, access));
       }
       if (action === 'executive-analytics-v2') {
         const access = await requireAdminPermission(req, sb, 'analytics.executive');
