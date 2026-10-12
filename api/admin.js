@@ -1070,6 +1070,120 @@ async function getExecutiveAnalytics(sb) {
   };
 }
 
+// ── Data Quality & Governed User Merge ─────────────────────
+async function getDuplicateUsers(sb, params = {}) {
+  const limit = Math.min(Math.max(parseInt(params.limit) || 1000, 2), 5000);
+  const { data, error } = await sb.from('profiles')
+    .select('id,email,phone,restaurant_name,created_at,tier,status')
+    .order('created_at', { ascending: true })
+    .limit(limit);
+  if (error) throw error;
+
+  const groups = new Map();
+  const add = (kind, value, row) => {
+    const normalized = String(value || '').trim().toLowerCase().replace(kind === 'phone' ? /[^0-9+]/g : /\s+/g, '');
+    if (!normalized) return;
+    const key = kind + ':' + normalized;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  };
+  for (const row of data || []) {
+    add('email', row.email, row);
+    add('phone', row.phone, row);
+  }
+  const duplicates = [...groups.entries()]
+    .filter(([, rows]) => rows.length > 1)
+    .map(([key, rows]) => ({
+      matchType: key.split(':')[0],
+      matchValue: key.slice(key.indexOf(':') + 1),
+      count: rows.length,
+      users: rows
+    }))
+    .sort((a, b) => b.count - a.count);
+
+  return { success: true, duplicates, scanned: (data || []).length };
+}
+
+async function getUserMergePreview(sb, sourceId, targetId) {
+  if (!sourceId || !targetId || sourceId === targetId) throw badRequest('distinct source_id and target_id required');
+
+  const [sourceResult, targetResult] = await Promise.all([
+    sb.from('profiles').select('*').eq('id', sourceId).maybeSingle(),
+    sb.from('profiles').select('*').eq('id', targetId).maybeSingle()
+  ]);
+  if (sourceResult.error) throw sourceResult.error;
+  if (targetResult.error) throw targetResult.error;
+  if (!sourceResult.data || !targetResult.data) throw badRequest('Source or target profile not found');
+
+  const relations = [
+    ['subscriptions','user_id'],
+    ['user_notifications','user_id'],
+    ['funding_cases','user_id'],
+    ['organization_members','user_id'],
+    ['user_internal_notes','user_id'],
+    ['user_tag_links','user_id'],
+    ['support_tickets','user_id'],
+    ['crm_opportunities','user_id'],
+    ['customer_contracts','user_id'],
+    ['finance_refunds','user_id'],
+    ['security_events','user_id'],
+    ['ai_usage_events','user_id'],
+    ['data_governance_requests','user_id']
+  ];
+
+  const impact = {};
+  const errors = [];
+  await Promise.all(relations.map(async ([table, column]) => {
+    try {
+      const [sourceCount, targetCount] = await Promise.all([
+        sb.from(table).select('*', { count: 'exact', head: true }).eq(column, sourceId),
+        sb.from(table).select('*', { count: 'exact', head: true }).eq(column, targetId)
+      ]);
+      if (sourceCount.error) throw sourceCount.error;
+      if (targetCount.error) throw targetCount.error;
+      impact[table] = { source: sourceCount.count || 0, target: targetCount.count || 0 };
+    } catch (error) {
+      impact[table] = { source: null, target: null };
+      errors.push({ table, message: String(error?.message || error).slice(0, 180) });
+    }
+  }));
+
+  return {
+    success: true,
+    source: sourceResult.data,
+    target: targetResult.data,
+    impact,
+    errors,
+    destructiveExecutionAllowed: false
+  };
+}
+
+async function requestUserMerge(sb, body, admin, req) {
+  await requirePlatformPermission(sb, admin, 'data.manage');
+  const preview = await getUserMergePreview(sb, body.source_id, body.target_id);
+  const { data: approval, error } = await sb.from('admin_approval_requests').insert({
+    action_type: 'merge_users',
+    target_type: 'profile',
+    target_id: body.target_id,
+    payload: {
+      source_id: body.source_id,
+      target_id: body.target_id,
+      impact: preview.impact
+    },
+    risk_level: 'critical',
+    status: 'pending',
+    requested_by: admin.id,
+    reason: body.reason || 'Duplicate user merge',
+    expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+  }).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'user_merge_request', 'profile', body.target_id, null, {
+    source_id: body.source_id,
+    approval_id: approval.id
+  }, req);
+  return { success: true, approval, preview };
+}
+
 // ── Admin Operations Inbox ─────────────────────────────────
 async function getOperationsOverview(sb) {
   const now = new Date().toISOString();
@@ -2887,6 +3001,16 @@ async function handler(req, res) {
           permissions: await getEffectivePermissions(sb, target)
         });
       }
+      if (action === 'duplicate-users') {
+        const admin = await verifyAdminPlatform(req, sb);
+        await requirePlatformPermission(sb, admin, 'data.read');
+        return res.status(200).json(await getDuplicateUsers(sb, req.query || {}));
+      }
+      if (action === 'user-merge-preview') {
+        const admin = await verifyAdminPlatform(req, sb);
+        await requirePlatformPermission(sb, admin, 'data.manage');
+        return res.status(200).json(await getUserMergePreview(sb, req.query?.source_id, req.query?.target_id));
+      }
       if (action === 'executive-analytics') {
         const admin = await verifyAdminPlatform(req, sb);
         await requirePlatformPermission(sb, admin, 'platform.read');
@@ -3175,6 +3299,10 @@ async function handler(req, res) {
     }
 
     if (req.method === 'POST') {
+      if (action === 'user-merge-request') {
+        const admin = await verifyAdminStrict(req, sb);
+        return res.status(200).json(await requestUserMerge(sb, req.body || {}, admin, req));
+      }
       if (action === 'run-workflow') {
         const admin = await verifyAdminPlatform(req, sb);
         await requirePlatformPermission(sb, admin, 'workflow.manage');
