@@ -8,7 +8,9 @@ const {
   SectorDigitalTwinRegistry,
   DecisionRecommendationEngine,
   EvidenceGraphEngine,
-  DecisionMemoryEngine
+  DecisionMemoryEngine,
+  CalibrationEngine,
+  EventMonitorEngine
 } = require('../../lib/decision-os');
 
 describe('Decision Operating System', () => {
@@ -188,4 +190,26 @@ describe('Decision Operating System', () => {
     expect(comparison.metrics.other_metric).toBeUndefined();
     expect(comparison.calibrated).toBe(true);
   });
+
+  test('calibration engine computes bias and error from observed outcomes without mutating models', () => {
+    const engine = new CalibrationEngine();
+    const summary = engine.summarizeComparisons([
+      { metrics: { revenue: { expected: 100, actual: 90 } } },
+      { metrics: { revenue: { expected: 100, actual: 110 } } }
+    ]);
+
+    expect(summary.metrics.revenue.observations).toBe(2);
+    expect(summary.metrics.revenue.signedBias).toBeCloseTo(0, 10);
+    expect(summary.metrics.revenue.meanAbsolutePercentageError).toBeCloseTo(0.1, 10);
+    expect(summary.calibratedMetrics).toBe(1);
+  });
+
+  test('event monitor stays side-effect free unless explicitly requested', async () => {
+    const engine = new EventMonitorEngine({ supabase: {} });
+    const result = await engine.evaluate({});
+    expect(result.executed).toBe(false);
+    expect(result.status).toBe('available_not_requested');
+    expect(result.output.alerts).toEqual([]);
+  });
+
 });
