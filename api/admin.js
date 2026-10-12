@@ -385,6 +385,71 @@ async function getAuditLog(sb, opts = {}) {
   return { success: true, logs: data || [], count: count || 0 };
 }
 
+// ── Admin Operations Inbox ─────────────────────────────────
+async function getOperationsOverview(sb) {
+  const now = new Date().toISOString();
+
+  const checks = [
+    {
+      key: 'incompleteProfiles',
+      run: () => sb.from('profiles').select('id', { count: 'exact', head: true }).lt('profile_completeness', 100)
+    },
+    {
+      key: 'unreadMessages',
+      run: () => sb.from('contact_messages').select('id', { count: 'exact', head: true }).eq('read', false)
+    },
+    {
+      key: 'pendingTransfers',
+      run: () => sb.from('bank_transfer_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')
+    },
+    {
+      key: 'openFundingCases',
+      run: () => sb.from('funding_cases').select('id', { count: 'exact', head: true }).is('closed_at', null)
+    },
+    {
+      key: 'overdueFundingCases',
+      run: () => sb.from('funding_cases').select('id', { count: 'exact', head: true })
+        .is('closed_at', null)
+        .lt('sla_deadline_at', now)
+    }
+  ];
+
+  const results = await Promise.allSettled(checks.map(async ({ key, run }) => {
+    const result = await run();
+    if (result.error) throw result.error;
+    return { key, count: result.count || 0 };
+  }));
+
+  const queues = {
+    incompleteProfiles: null,
+    unreadMessages: null,
+    pendingTransfers: null,
+    openFundingCases: null,
+    overdueFundingCases: null
+  };
+  const errors = [];
+
+  results.forEach((result, index) => {
+    const key = checks[index].key;
+    if (result.status === 'fulfilled') {
+      queues[key] = result.value.count;
+    } else {
+      errors.push({
+        key,
+        message: String(result.reason?.message || result.reason || 'Unavailable').slice(0, 200)
+      });
+    }
+  });
+
+  return {
+    success: true,
+    generatedAt: new Date().toISOString(),
+    status: errors.length ? 'degraded' : 'healthy',
+    queues,
+    errors
+  };
+}
+
 // ── Admin Operations Health ─────────────────────────────────
 async function getSystemHealth(sb) {
   const startedAt = Date.now();
@@ -2265,6 +2330,36 @@ async function handler(req, res) {
         const limit = Math.min(parseInt(req.query?.limit) || 100, 500);
         const offset = parseInt(req.query?.offset) || 0;
         return res.status(200).json(await getAuditLog(sb, { limit, offset }));
+      }
+      if (action === 'operations-overview') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const requestId = req.headers['x-request-id'] || generateRequestId();
+        const startedAt = Date.now();
+        try {
+          const overview = await getOperationsOverview(sb);
+          safeAdminLog({
+            requestId,
+            endpoint: 'operations-overview',
+            status: 200,
+            authenticated: true,
+            userId: admin.id,
+            role: await getActorRole(sb, admin),
+            duration: Date.now() - startedAt
+          });
+          return res.status(200).json({ ...overview, requestId });
+        } catch (err) {
+          safeAdminLog({
+            requestId,
+            endpoint: 'operations-overview',
+            status: 500,
+            authenticated: true,
+            userId: admin.id,
+            errorCode: err?.message || 'OPERATIONS_OVERVIEW_FAILED',
+            duration: Date.now() - startedAt
+          });
+          return res.status(500).json({ success: false, error: 'Operations overview failed', code: 'OPERATIONS_OVERVIEW_FAILED', requestId });
+        }
       }
       if (action === 'system-health') {
         const admin = await verifyAdminStrict(req, sb);
