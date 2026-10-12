@@ -12,7 +12,7 @@ class JordanStatsAdapter extends BaseAdapter {
       ...config
     });
     this.apiBaseUrl = config.apiBaseUrl || 'https://dosweb.dos.gov.jo';
-    this.useFallback = config.useFallback !== false;
+    this.useFallback = config.useFallback === true;
   }
 
   supportedMetrics() {
@@ -68,10 +68,10 @@ class JordanStatsAdapter extends BaseAdapter {
         value: typeof value === 'number' ? value : parseFloat(value),
         valueText: null,
         year,
-        sourceUrl: 'https://dosweb.dos.gov.jo',
+        sourceUrl: rawItem.quality === 'fallback' ? null : 'https://dosweb.dos.gov.jo',
         confidence: this.getConfidence(mapping.code, rawItem.quality || mapping.quality),
         confidenceReason: `Source: ${this.config.sourceName} (${rawItem.quality || mapping.quality})`,
-        metadata: { cityCode, originalKey: key }
+        metadata: { cityCode, originalKey: key, dataQuality: rawItem.quality || mapping.quality, estimated: rawItem.quality === 'fallback' }
       });
     }
 
