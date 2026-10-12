@@ -242,6 +242,27 @@ function assertNotAdmin(role, action) {
   if (role) throw new Error(`Cannot ${action} admin account`);
 }
 
+function getTokenIssuedAt(token) {
+  try {
+    const payload = JSON.parse(Buffer.from(String(token).split('.')[1], 'base64url').toString('utf8'));
+    return payload.iat ? new Date(payload.iat * 1000) : null;
+  } catch (e) {
+    return null;
+  }
+}
+
+async function assertAdminSessionActive(sb, userId, token) {
+  const { data } = await sb.from('admin_session_controls')
+    .select('revoked_before')
+    .eq('user_id', userId)
+    .maybeSingle();
+  if (!data?.revoked_before) return;
+  const issuedAt = getTokenIssuedAt(token);
+  if (!issuedAt || issuedAt <= new Date(data.revoked_before)) {
+    throw unauthorized('Admin session revoked');
+  }
+}
+
 async function verifyAdmin(req, sb) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
