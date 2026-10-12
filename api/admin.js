@@ -172,6 +172,73 @@ function decodeJwtAal(token) {
   }
 }
 
+function decodeJwtPayload(token) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+  } catch (e) {
+    return {};
+  }
+}
+
+async function enforceAdminAccessPolicies(req, sb, user, token, role) {
+  const now = new Date().toISOString();
+  const payload = decodeJwtPayload(token);
+  const sessionId = payload.session_id || payload.sessionId || payload.jti || null;
+
+  let revoked = false;
+  if (sessionId) {
+    const { data } = await sb.from('admin_revoked_sessions')
+      .select('id,expires_at').eq('session_id', sessionId)
+      .order('revoked_at', { ascending: false }).limit(10);
+    revoked = (data || []).some(r => !r.expires_at || r.expires_at > now);
+  }
+  if (!revoked) {
+    const { data } = await sb.from('admin_revoked_sessions')
+      .select('id,session_id,expires_at').eq('user_id', user.id)
+      .order('revoked_at', { ascending: false }).limit(50);
+    revoked = (data || []).some(r => !r.session_id && (!r.expires_at || r.expires_at > now));
+  }
+  if (revoked) throw forbidden('Admin session revoked');
+
+  const { data: policies } = await sb.from('admin_access_policies')
+    .select('*').eq('enabled', true).order('priority', { ascending: true }).limit(100);
+  if (!(policies || []).length) return { sessionId, policy: null };
+
+  const ip = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.socket?.remoteAddress || '';
+  const country = String(req?.headers?.['x-vercel-ip-country'] || req?.headers?.['cf-ipcountry'] || '').toUpperCase();
+  const deviceId = String(req?.headers?.['x-admin-device-id'] || '').trim();
+
+  for (const policy of policies || []) {
+    const applies = Array.isArray(policy.applies_to_roles) ? policy.applies_to_roles : [];
+    if (applies.length && !applies.includes(role)) continue;
+    const deniedCountries = (policy.denied_countries || []).map(x => String(x).toUpperCase());
+    const allowedCountries = (policy.allowed_countries || []).map(x => String(x).toUpperCase());
+    if (country && deniedCountries.includes(country)) throw forbidden('Access denied by country policy');
+    if (allowedCountries.length && (!country || !allowedCountries.includes(country))) throw forbidden('Country not allowed by admin policy');
+    if ((policy.denied_ips || []).includes(ip)) throw forbidden('Access denied by IP policy');
+    if ((policy.allowed_ips || []).length && !(policy.allowed_ips || []).includes(ip)) throw forbidden('IP not allowed by admin policy');
+
+    if (policy.max_session_minutes && payload.iat) {
+      const ageMinutes = (Date.now() / 1000 - Number(payload.iat)) / 60;
+      if (ageMinutes > Number(policy.max_session_minutes)) throw forbidden('Admin session expired by policy');
+    }
+
+    if (policy.require_trusted_device) {
+      if (!deviceId) throw forbidden('Trusted admin device required');
+      const { data: device } = await sb.from('admin_trusted_devices')
+        .select('id,trusted_until,revoked_at')
+        .eq('user_id', user.id).eq('device_fingerprint', deviceId)
+        .maybeSingle();
+      if (!device || device.revoked_at || (device.trusted_until && device.trusted_until <= now)) {
+        throw forbidden('Untrusted admin device');
+      }
+    }
+  }
+  return { sessionId, policy: 'enforced' };
+}
+
 async function isAdminMfaEnforced(sb) {
   try {
     const { data } = await sb.from('site_settings').select('value').eq('key', 'admin_enforce_mfa').single();
@@ -260,11 +327,13 @@ async function verifyAdmin(req, sb) {
   // Owner fallback
   if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+    await enforceAdminAccessPolicies(req, sb, user, token, 'super_admin');
     return user;
   }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) throw forbidden('Admin required');
   if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+  await enforceAdminAccessPolicies(req, sb, user, token, role.role);
   return user;
 }
 
@@ -285,11 +354,13 @@ async function verifyAdminStrict(req, sb) {
   // Owner fallback — always super_admin
   if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+    await enforceAdminAccessPolicies(req, sb, user, token, 'super_admin');
     return user;
   }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin'].includes(role.role)) throw forbidden('Admin required');
   if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+  await enforceAdminAccessPolicies(req, sb, user, token, role.role);
   return user;
 }
 
@@ -3188,6 +3259,154 @@ async function addAdminDocumentVersion(sb,body,admin,req){
   await logAdminAction(sb,admin,'document_version_add','admin_document',id,null,{version},req);return{success:true,version:data};
 }
 
+// ── Control Plane completion ────────────────────────────────
+async function getSecuritySessionsOverview(sb) {
+  const [presenceRes,devicesRes,policiesRes,revokedRes]=await Promise.all([
+    sb.from('user_presence').select('user_id,session_id,country,country_code,city,user_agent,last_seen_at,is_online').order('last_seen_at',{ascending:false}).limit(1000),
+    sb.from('admin_trusted_devices').select('*').order('last_seen_at',{ascending:false}).limit(1000),
+    sb.from('admin_access_policies').select('*').order('priority',{ascending:true}).limit(100),
+    sb.from('admin_revoked_sessions').select('*').order('revoked_at',{ascending:false}).limit(500)
+  ]);
+  for(const r of [presenceRes,devicesRes,policiesRes,revokedRes])if(r.error)throw r.error;
+  return{success:true,sessions:presenceRes.data||[],trustedDevices:devicesRes.data||[],policies:policiesRes.data||[],revokedSessions:revokedRes.data||[]};
+}
+
+async function revokeAdminSession(sb, body, admin, req) {
+  const userId=body?.user_id||null,sessionId=body?.session_id||null,reason=String(body?.reason||'').trim();
+  if((!userId&&!sessionId)||!reason)throw badRequest('user_id or session_id, and reason required');
+  const {data,error}=await sb.from('admin_revoked_sessions').insert([{user_id:userId,session_id:sessionId,reason,revoked_by:admin.id,expires_at:body?.expires_at||null}]).select().single();if(error)throw error;
+  await recordSecurityEvent(sb,admin,req,'admin_session_revoked','high',80,{target_user_id:userId,session_id:sessionId});
+  await logAdminAction(sb,admin,'admin_session_revoke','admin_session',data.id,null,{user_id:userId,session_id:sessionId,reason},req);
+  return{success:true,revocation:data};
+}
+
+async function upsertAdminAccessPolicy(sb, body, admin, req) {
+  const name=String(body?.name||'').trim();if(!name)throw badRequest('name required');
+  const row={name,enabled:body?.enabled===true,priority:Number(body?.priority||100),allowed_countries:Array.isArray(body?.allowed_countries)?body.allowed_countries:[],denied_countries:Array.isArray(body?.denied_countries)?body.denied_countries:[],allowed_ips:Array.isArray(body?.allowed_ips)?body.allowed_ips:[],denied_ips:Array.isArray(body?.denied_ips)?body.denied_ips:[],require_trusted_device:body?.require_trusted_device===true,max_session_minutes:body?.max_session_minutes??null,applies_to_roles:Array.isArray(body?.applies_to_roles)?body.applies_to_roles:['super_admin','admin','support'],updated_by:admin.id,created_by:admin.id,updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('admin_access_policies').upsert(row,{onConflict:'name'}).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'admin_access_policy_upsert','admin_access_policy',data.id,null,{name,enabled:data.enabled},req);return{success:true,policy:data};
+}
+
+async function trustAdminDevice(sb, body, admin, req) {
+  const userId=body?.user_id,device=String(body?.device_fingerprint||'').trim();if(!userId||!device)throw badRequest('user_id and device_fingerprint required');
+  const row={user_id:userId,device_fingerprint:device,label:body?.label||null,trusted_until:body?.trusted_until||null,last_seen_at:new Date().toISOString(),last_ip:req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim()||null,revoked_at:null};
+  const {data,error}=await sb.from('admin_trusted_devices').upsert(row,{onConflict:'user_id,device_fingerprint'}).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'admin_device_trust','admin_device',data.id,null,{user_id:userId,label:row.label,trusted_until:row.trusted_until},req);return{success:true,device:data};
+}
+
+async function evaluateWorkflowConditions(sb, conditions) {
+  const list=Array.isArray(conditions)?conditions:[];
+  for(const c of list){
+    if(!c||c.type==='always')continue;
+    if(c.type==='support_sla_breached'){
+      const {count,error}=await sb.from('support_tickets').select('*',{count:'exact',head:true}).not('status','in','("resolved","closed")').lt('sla_due_at',new Date().toISOString());if(error)throw error;
+      if((count||0)<Number(c.min||1))return false;
+    }else if(c.type==='funding_sla_breached'){
+      const {count,error}=await sb.from('funding_cases').select('*',{count:'exact',head:true}).is('closed_at',null).lt('sla_deadline_at',new Date().toISOString());if(error)throw error;
+      if((count||0)<Number(c.min||1))return false;
+    }else if(c.type==='critical_alerts'){
+      const {count,error}=await sb.from('admin_alerts').select('*',{count:'exact',head:true}).eq('status','open').eq('severity','critical');if(error)throw error;
+      if((count||0)<Number(c.min||1))return false;
+    }else{
+      return false;
+    }
+  }
+  return true;
+}
+
+async function executeWorkflowActions(sb, workflow, runId) {
+  const outputs=[];
+  for(const action of Array.isArray(workflow.actions)?workflow.actions:[]){
+    if(action.type==='create_task'||action.type==='create_reminder'){
+      const {data,error}=await sb.from('admin_tasks').insert([{title:String(action.title||workflow.name).slice(0,300),description:action.description||null,assigned_to:action.assigned_to||null,priority:action.priority||'normal',status:'open',due_at:action.due_at||null,source:'workflow:'+workflow.id,request_id:'workflow_run:'+runId}]).select().single();if(error)throw error;outputs.push({type:action.type,id:data.id});
+    }else if(action.type==='create_alert'){
+      const {data,error}=await sb.from('admin_alerts').insert([{category:action.category||'workflow',title:String(action.title||workflow.name).slice(0,300),message:action.message||null,severity:action.severity||'warning',status:'open',owner_user_id:action.owner_user_id||null,request_id:'workflow_run:'+runId}]).select().single();if(error)throw error;outputs.push({type:'create_alert',id:data.id});
+    }else{
+      outputs.push({type:action.type||'unknown',status:'skipped_unsupported'});
+    }
+  }
+  return outputs;
+}
+
+async function runOperationalSweeps(sb) {
+  const now=new Date().toISOString();let created=0;
+  const {data:support}=await sb.from('support_tickets').select('id,subject,priority,sla_due_at').not('status','in','("resolved","closed")').lt('sla_due_at',now).limit(200);
+  for(const t of support||[]){
+    const entityId=String(t.id);const {data:existing}=await sb.from('admin_alerts').select('id').eq('entity_type','support_ticket').eq('entity_id',entityId).eq('status','open').limit(1);
+    if(!(existing||[]).length){await sb.from('admin_alerts').insert([{category:'sla',title:'Support SLA breached: '+String(t.subject||entityId).slice(0,180),severity:['critical','urgent'].includes(t.priority)?'critical':'high',entity_type:'support_ticket',entity_id:entityId,status:'open'}]);created++;}
+  }
+  const {data:funding}=await sb.from('funding_cases').select('id,case_reference,sla_deadline_at').is('closed_at',null).lt('sla_deadline_at',now).limit(200);
+  for(const c of funding||[]){
+    const entityId=String(c.id);const {data:existing}=await sb.from('admin_alerts').select('id').eq('entity_type','funding_case').eq('entity_id',entityId).eq('status','open').limit(1);
+    if(!(existing||[]).length){await sb.from('admin_alerts').insert([{category:'sla',title:'Funding SLA breached: '+String(c.case_reference||entityId),severity:'high',entity_type:'funding_case',entity_id:entityId,status:'open'}]);created++;}
+  }
+  return{created};
+}
+
+async function runScheduledWorkflows(sb) {
+  const now=Date.now(),nowIso=new Date(now).toISOString();
+  const {data:workflows,error}=await sb.from('admin_workflows').select('*').eq('enabled',true).eq('trigger_type','schedule').limit(200);if(error)throw error;
+  let executed=0,failed=0,skipped=0;const details=[];
+  for(const w of workflows||[]){
+    const interval=Math.max(60,Number(w.trigger_config?.intervalMinutes||60));
+    const {data:state}=await sb.from('admin_workflow_schedule_state').select('*').eq('workflow_id',w.id).maybeSingle();
+    if(state?.next_run_at&&new Date(state.next_run_at).getTime()>now){skipped++;continue;}
+    const {data:run,error:runErr}=await sb.from('admin_workflow_runs').insert([{workflow_id:w.id,status:'running',started_at:nowIso,trigger_payload:{source:'vercel_cron'}}]).select().single();
+    if(runErr){failed++;continue;}
+    try{
+      const conditionsOk=await evaluateWorkflowConditions(sb,w.conditions);
+      const output=conditionsOk?await executeWorkflowActions(sb,w,run.id):[];
+      const status=conditionsOk?'succeeded':'skipped';
+      await sb.from('admin_workflow_runs').update({status,completed_at:new Date().toISOString(),output:{actions:output}}).eq('id',run.id);
+      await sb.from('admin_workflow_schedule_state').upsert({workflow_id:w.id,last_run_at:new Date().toISOString(),next_run_at:new Date(now+interval*60000).toISOString(),last_status:status,updated_at:new Date().toISOString()},{onConflict:'workflow_id'});
+      if(conditionsOk)executed++;else skipped++;details.push({workflowId:w.id,status});
+    }catch(e){
+      failed++;await sb.from('admin_workflow_runs').update({status:'failed',completed_at:new Date().toISOString(),error_code:e.code||'WORKFLOW_FAILED',error_message:String(e.message||e).slice(0,1000)}).eq('id',run.id);
+      await sb.from('admin_workflow_schedule_state').upsert({workflow_id:w.id,last_run_at:new Date().toISOString(),next_run_at:new Date(now+interval*60000).toISOString(),last_status:'failed',updated_at:new Date().toISOString()},{onConflict:'workflow_id'});
+      details.push({workflowId:w.id,status:'failed'});
+    }
+  }
+  const sweeps=await runOperationalSweeps(sb);
+  return{success:true,executed,failed,skipped,sweeps,details};
+}
+
+async function getControlCenterOverview(sb) {
+  const now=new Date().toISOString();
+  const [tasksRes,approvalsRes,alertsRes,reconRes,secRes,fundingRes,supportRes,renewalsRes]=await Promise.all([
+    sb.from('admin_tasks').select('*').not('status','in','("done","cancelled")').order('priority',{ascending:false}).limit(500),
+    sb.from('admin_approval_requests').select('*').eq('status','pending').order('created_at',{ascending:false}).limit(500),
+    sb.from('admin_alerts').select('*').eq('status','open').order('created_at',{ascending:false}).limit(500),
+    sb.from('finance_reconciliation_items').select('*').in('status',['unmatched','variance']).limit(500),
+    sb.from('admin_security_events').select('*').in('severity',['high','critical']).is('acknowledged_at',null).order('created_at',{ascending:false}).limit(500),
+    sb.from('funding_cases').select('id,case_reference,status,sla_deadline_at,assigned_to').is('closed_at',null).order('created_at',{ascending:false}).limit(500),
+    sb.from('support_tickets').select('*').not('status','in','("resolved","closed")').order('created_at',{ascending:false}).limit(500),
+    sb.from('crm_renewals').select('*').in('risk_level',['high','critical']).order('renewal_date',{ascending:true}).limit(500)
+  ]);for(const r of [tasksRes,approvalsRes,alertsRes,reconRes,secRes,fundingRes,supportRes,renewalsRes])if(r.error)throw r.error;
+  const funding=fundingRes.data||[],support=supportRes.data||[];
+  return{success:true,generatedAt:new Date().toISOString(),tasks:tasksRes.data||[],approvals:approvalsRes.data||[],alerts:alertsRes.data||[],paymentExceptions:reconRes.data||[],securityExceptions:secRes.data||[],fundingCases:funding,customerFollowUps:renewalsRes.data||[],slaBreaches:{funding:funding.filter(x=>x.sla_deadline_at&&x.sla_deadline_at<now),support:support.filter(x=>x.sla_due_at&&x.sla_due_at<now)},supportTickets:support};
+}
+
+async function getConfigDrift(sb) {
+  const {data,error}=await sb.from('admin_config_snapshots').select('*').order('captured_at',{ascending:false}).limit(5000);if(error)throw error;
+  const grouped={};
+  for(const row of data||[]){const k=row.config_key;grouped[k]=grouped[k]||{};if(!grouped[k][row.environment])grouped[k][row.environment]=row;}
+  const drift=[];for(const [key,envs] of Object.entries(grouped)){const vals=Object.entries(envs);if(vals.length<2)continue;const hashes=new Set(vals.map(([,r])=>String(r.present)+':'+String(r.value_hash||'')));if(hashes.size>1)drift.push({key,environments:Object.fromEntries(vals.map(([e,r])=>[e,{present:r.present,hash:r.value_hash,capturedAt:r.captured_at}]))});}
+  return{success:true,drift,count:drift.length};
+}
+
+async function createFinanceCollection(sb,body,admin,req){
+  if(!body?.due_date)throw badRequest('due_date required');const row={user_id:body?.user_id||null,organization_id:body?.organization_id||null,amount_due:Number(body?.amount_due||0),currency:body?.currency||'SAR',due_date:body.due_date,status:body?.status||'open',owner_user_id:body?.owner_user_id||admin.id,next_action:body?.next_action||null,next_action_at:body?.next_action_at||null,notes:body?.notes||null};
+  const {data,error}=await sb.from('finance_collections').insert([row]).select().single();if(error)throw error;await logAdminAction(sb,admin,'finance_collection_create','finance_collection',data.id,null,{amount_due:data.amount_due,due_date:data.due_date},req);return{success:true,collection:data};
+}
+async function createFinanceContract(sb,body,admin,req){
+  if(!body?.title)throw badRequest('title required');const row={organization_id:body?.organization_id||null,advisory_client_id:body?.advisory_client_id||null,title:String(body.title).slice(0,300),contract_number:body?.contract_number||null,value_amount:Number(body?.value_amount||0),currency:body?.currency||'SAR',status:body?.status||'draft',start_date:body?.start_date||null,end_date:body?.end_date||null,renewal_notice_days:Number(body?.renewal_notice_days??30),owner_user_id:body?.owner_user_id||admin.id,document_path:body?.document_path||null,metadata:body?.metadata&&typeof body.metadata==='object'?body.metadata:{}};
+  const {data,error}=await sb.from('finance_contracts').insert([row]).select().single();if(error)throw error;await logAdminAction(sb,admin,'finance_contract_create','finance_contract',data.id,null,{title:data.title,value_amount:data.value_amount},req);return{success:true,contract:data};
+}
+async function createCrmRenewal(sb,body,admin,req){
+  if(!body?.renewal_date)throw badRequest('renewal_date required');const row={organization_id:body?.organization_id||null,client_id:body?.client_id||null,subscription_user_id:body?.subscription_user_id||null,renewal_date:body.renewal_date,value_amount:Number(body?.value_amount||0),currency:body?.currency||'SAR',status:body?.status||'upcoming',owner_user_id:body?.owner_user_id||admin.id,risk_level:body?.risk_level||'low',notes:body?.notes||null};
+  const {data,error}=await sb.from('crm_renewals').insert([row]).select().single();if(error)throw error;await logAdminAction(sb,admin,'crm_renewal_create','crm_renewal',data.id,null,{renewal_date:data.renewal_date,risk_level:data.risk_level},req);return{success:true,renewal:data};
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -3510,6 +3729,30 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'admin-session-revoke') {
+        const access=await requireAdminPermission(req,sb,'security.sessions.manage');
+        return res.status(200).json(await revokeAdminSession(sb,req.body,access.user,req));
+      }
+      if (action === 'admin-access-policy-upsert') {
+        const access=await requireAdminPermission(req,sb,'security.policies.manage');
+        return res.status(200).json(await upsertAdminAccessPolicy(sb,req.body,access.user,req));
+      }
+      if (action === 'admin-device-trust') {
+        const access=await requireAdminPermission(req,sb,'security.sessions.manage');
+        return res.status(200).json(await trustAdminDevice(sb,req.body,access.user,req));
+      }
+      if (action === 'finance-collection-create') {
+        const access=await requireAdminPermission(req,sb,'billing.reconcile');
+        return res.status(200).json(await createFinanceCollection(sb,req.body,access.user,req));
+      }
+      if (action === 'finance-contract-create') {
+        const access=await requireAdminPermission(req,sb,'billing.reconcile');
+        return res.status(200).json(await createFinanceContract(sb,req.body,access.user,req));
+      }
+      if (action === 'crm-renewal-create') {
+        const access=await requireAdminPermission(req,sb,'crm.write');
+        return res.status(200).json(await createCrmRenewal(sb,req.body,access.user,req));
+      }
       if (action === 'privacy-request-create') {
         const access = await requireAdminPermission(req, sb, 'governance.manage');
         return res.status(200).json(await createPrivacyRequest(sb,req.body,access.user,req));
@@ -3711,6 +3954,24 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'workflow-cron') {
+        const configured=process.env.CRON_SECRET;
+        if(!configured) return res.status(503).json({error:'CRON_SECRET not configured',requestId:req.adminRequestId});
+        if(req.headers.authorization!=='Bearer '+configured) return res.status(401).json({error:'Cron authorization required',requestId:req.adminRequestId});
+        return res.status(200).json(await runScheduledWorkflows(sb));
+      }
+      if (action === 'control-center-overview') {
+        const access=await requireAdminPermission(req,sb,'operations.manage');
+        return res.status(200).json(await getControlCenterOverview(sb));
+      }
+      if (action === 'security-sessions-overview') {
+        const access=await requireAdminPermission(req,sb,'security.read');
+        return res.status(200).json(await getSecuritySessionsOverview(sb));
+      }
+      if (action === 'config-drift') {
+        const access=await requireAdminPermission(req,sb,'configuration.read');
+        return res.status(200).json(await getConfigDrift(sb));
       }
       if (action === 'data-governance-overview') {
         const access = await requireAdminPermission(req, sb, 'governance.read');
