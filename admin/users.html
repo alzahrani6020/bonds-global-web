@@ -820,6 +820,9 @@
           return btn;
         };
 
+        tdActions.appendChild(makeBtn('btn-edit', 'ملف المستخدم 360°', '360°', () => {
+          location.href = '/admin/user-360.html?embed=1&id=' + encodeURIComponent(u.id);
+        }, 'background:rgba(184,149,78,0.16);color:#7c5f24;'));
         tdActions.appendChild(makeBtn('btn-edit', 'عرض التفاصيل', '👁️', () => showDetailsModal(u)));
         tdActions.appendChild(makeBtn('btn-edit', 'سجل النشاط والتواجد', '🕒', () => showActivityModal(u.id, name), 'background:rgba(34,197,94,0.15);color:#16a34a;'));
         if (isOwner || isAdmin) {
