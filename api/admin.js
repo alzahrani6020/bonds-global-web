@@ -2624,21 +2624,6 @@ async function handler(req, res) {
         await requirePlatformPermission(sb, admin, 'platform.read');
         return res.status(200).json(await getPlatformSummary(sb));
       }
-      if (action === 'run-workflow') {
-        const admin = await verifyAdminStrict(req, sb);
-        await requirePlatformPermission(sb, admin, 'workflow.manage');
-        return res.status(200).json(await executeWorkflowRule(sb, req.body?.rule_id, req.body?.payload || {}, admin, req));
-      }
-      if (action === 'run-operational-sweep') {
-        const cronSecret = req.headers['x-cron-secret'];
-        const expectedCronSecret = process.env.CRON_SECRET;
-        let actor = null;
-        if (!(cronSecret && expectedCronSecret && cronSecret === expectedCronSecret)) {
-          actor = await verifyAdminStrict(req, sb);
-          await requirePlatformPermission(sb, actor, 'workflow.manage');
-        }
-        return res.status(200).json(await runOperationalSweep(sb, actor, req));
-      }
       if (action === 'platform-module') {
         const admin = await verifyAdmin(req, sb);
         const moduleName = String(req.query?.module || '');
