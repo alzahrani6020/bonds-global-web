@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.112';
+const CACHE_VERSION = 'v3.0.113';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -28,8 +28,8 @@ const CORE_ASSETS = [
   '/styles/calculator-landing.css',
   '/styles/manufacturing.css',
   '/styles/distressed-recovery-study.css',
-  '/components/universal-dropdown.css?v=2.51.8',
-  '/components/universal-dropdown.js?v=2.51.8',
+  '/components/universal-dropdown.css?v=2.52.0',
+  '/components/universal-dropdown.js?v=2.52.0',
   '/components/universal-dropdown-init.js?v=2',
   '/components/ecc-icons.js',
   '/styles/funding-hub.css',
@@ -37,9 +37,9 @@ const CORE_ASSETS = [
   '/styles/funding-request-form.css?v=2',
   '/scripts/funding-request-form.js',
   '/scripts/funding-context.js',
-  '/header-footer.css?v=2.69.0',
+  '/header-footer.css?v=2.70.0',
   '/script.js?v=5',
-  '/site-layout.js?v=3.2.7',
+  '/site-layout.js?v=3.2.8',
   '/styles/social-feed.css?v=3',
   '/styles/institutional-home.css?v=4',
   '/styles/institutional-system.css?v=6',
