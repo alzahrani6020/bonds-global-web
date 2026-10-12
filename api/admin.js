@@ -2234,6 +2234,17 @@ async function upsertCrmCustomerSuccess(sb, body, admin, req) {
 }
 
 // ── Support Center ──────────────────────────────────────────
+const SUPPORT_UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+const SUPPORT_PRIORITIES = new Set(['low','normal','high','urgent','critical']);
+const SUPPORT_STATUSES = new Set(['open','in_progress','waiting_customer','resolved','closed']);
+
+function supportOptionalUuid(value, field) {
+  if (value == null || value === '') return null;
+  const normalized = String(value).trim();
+  if (!SUPPORT_UUID_RE.test(normalized)) throw badRequest(field + ' must be a valid UUID');
+  return normalized;
+}
+
 function supportSlaHours(priority) {
   return ({ low: 72, normal: 24, high: 8, urgent: 4, critical: 1 })[priority] || 24;
 }
@@ -2263,16 +2274,19 @@ async function createSupportTicket(sb, body, admin, req) {
   const subject = String(body?.subject || '').trim();
   if (!subject) throw badRequest('subject required');
   const priority = body?.priority || 'normal';
+  if (!SUPPORT_PRIORITIES.has(priority)) throw badRequest('invalid priority');
+  const status = body?.status || 'open';
+  if (!SUPPORT_STATUSES.has(status)) throw badRequest('invalid status');
   const hours = supportSlaHours(priority);
   const slaDueAt = body?.sla_due_at || new Date(Date.now() + hours * 3600000).toISOString();
   const row = {
-    user_id: body?.user_id || null,
-    advisory_client_id: body?.advisory_client_id || null,
+    user_id: supportOptionalUuid(body?.user_id, 'user_id'),
+    advisory_client_id: supportOptionalUuid(body?.advisory_client_id, 'advisory_client_id'),
     subject: subject.slice(0, 300),
     description: String(body?.description || '').slice(0, 10000) || null,
-    status: body?.status || 'open',
+    status,
     priority,
-    assigned_to: body?.assigned_to || null,
+    assigned_to: supportOptionalUuid(body?.assigned_to, 'assigned_to'),
     created_by: admin.id,
     source: body?.source || 'admin',
     request_id: body?.request_id || null,
@@ -2289,9 +2303,26 @@ async function createSupportTicket(sb, body, admin, req) {
 async function updateSupportTicket(sb, body, admin, req) {
   const id = body?.id;
   if (!id) throw badRequest('id required');
-  const allowed = ['status','priority','assigned_to','sla_due_at','request_id','error_code','related_url','escalation_level'];
+  const allowed = ['sla_due_at','request_id','error_code','related_url'];
   const updates = { updated_at: new Date().toISOString() };
   for (const key of allowed) if (body[key] !== undefined) updates[key] = body[key];
+
+  if (body?.status !== undefined) {
+    if (!SUPPORT_STATUSES.has(body.status)) throw badRequest('invalid status');
+    updates.status = body.status;
+  }
+  if (body?.priority !== undefined) {
+    if (!SUPPORT_PRIORITIES.has(body.priority)) throw badRequest('invalid priority');
+    updates.priority = body.priority;
+  }
+  if (body?.assigned_to !== undefined) updates.assigned_to = supportOptionalUuid(body.assigned_to, 'assigned_to');
+  if (body?.escalation_level !== undefined) {
+    const level = Number(body.escalation_level);
+    if (!Number.isInteger(level) || level < 0 || level > 5) throw badRequest('invalid escalation_level');
+    updates.escalation_level = level;
+    if (level > 0) updates.escalated_at = new Date().toISOString();
+    if (level === 0) updates.escalated_at = null;
+  }
 
   if (body?.status === 'resolved' && !body?.resolved_at) updates.resolved_at = new Date().toISOString();
   if (body?.escalate === true) {
@@ -2332,7 +2363,8 @@ async function addSupportNote(sb, body, admin, req) {
   }]).select().single();
   if (error) throw error;
 
-  const mentionIds = [...new Set((Array.isArray(body?.mention_user_ids) ? body.mention_user_ids : []).filter(Boolean))].slice(0, 25);
+  const rawMentionIds = [...new Set((Array.isArray(body?.mention_user_ids) ? body.mention_user_ids : []).filter(Boolean))].slice(0, 25);
+  const mentionIds = rawMentionIds.map(value => supportOptionalUuid(value, 'mention_user_ids'));
   if (mentionIds.length) {
     const { error: mentionError } = await sb.from('support_ticket_mentions').insert(
       mentionIds.map(userId => ({
