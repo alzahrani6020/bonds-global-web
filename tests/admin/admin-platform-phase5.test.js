@@ -112,6 +112,47 @@ describe('admin operating platform phase 5', () => {
     expect(auth).toContain("serverError: true, requestId, retried: canRetryTransient");
   });
 
+  test('workflow mutations are POST-only and platform updates do not assume updated_at', () => {
+    const api = read('api/admin.js');
+    const getStart = api.indexOf("if (req.method === 'GET')");
+    const postStart = api.indexOf("if (req.method === 'POST')");
+    const getBlock = api.slice(getStart, postStart);
+    const postBlock = api.slice(postStart);
+
+    expect(getBlock).not.toContain("action === 'run-workflow'");
+    expect(getBlock).not.toContain("action === 'run-operational-sweep'");
+    expect(postBlock).toContain("action === 'run-workflow'");
+    expect(postBlock).toContain("action === 'run-operational-sweep'");
+    expect(api).not.toContain("record.updated_at = new Date().toISOString()");
+    expect(api).toContain('else if (config.key)');
+  });
+
+  test('settings reads require strict admin authorization', () => {
+    const api = read('api/admin.js');
+    const start = api.indexOf("if (action === 'settings')");
+    const block = api.slice(start, start + 350);
+    expect(block).toContain('verifyAdminStrict(req, sb)');
+  });
+
+  test('session revocation and access policies are enforced by admin verification', () => {
+    const api = read('api/admin.js');
+    expect(api).toContain('async function assertAdminSessionActive');
+    expect(api).toContain('async function assertAdminAccessPolicy');
+    expect(api).toContain('Admin session revoked');
+    expect(api).toContain('require_trusted_device');
+    expect(api).toContain('await assertAdminAccessPolicy');
+  });
+
+  test('field-level permission rules can mask sensitive user fields', () => {
+    const api = read('api/admin.js');
+    const governance = read('supabase/migrations/20261012181000_admin_governance_security_workflow.sql');
+    expect(governance).toContain('public.admin_field_permissions');
+    expect(governance).toContain("'users.sensitive'");
+    expect(api).toContain('async function applyFieldPermissions');
+    expect(api).toContain("mask_strategy");
+    expect(api).toContain("includeSensitive: perms.includes('users.sensitive')");
+  });
+
   test('dashboard and users UI expose the operating platform and user 360', () => {
     const dashboard = read('admin/dashboard.html');
     const users = read('admin/users.html');
