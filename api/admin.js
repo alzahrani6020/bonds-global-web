@@ -315,11 +315,13 @@ async function verifyAdmin(req, sb) {
   await assertAdminSessionActive(sb, user.id, token);
   // Owner fallback
   if (isOwner(user.email)) {
+    await assertAdminAccessPolicy(req, sb, user, 'super_admin');
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
     return user;
   }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) throw forbidden('Admin required');
+  await assertAdminAccessPolicy(req, sb, user, role.role);
   if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
   return user;
 }
