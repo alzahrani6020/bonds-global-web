@@ -528,6 +528,8 @@
     window._usersTotal = 0;
     let currentPage = 1;
     let lastFetchError = null;
+    let usersRequestSeq = 0;
+    let lastAppliedUsersRequest = 0;
     let onlineUserIds = new Set();
     let onlineRefreshTimer = null;
     const pageSize = 10;
@@ -560,10 +562,19 @@
 
     function startOnlineRefresh() {
       if (onlineRefreshTimer) clearInterval(onlineRefreshTimer);
-      onlineRefreshTimer = setInterval(fetchOnlineUserIds, ONLINE_REFRESH_INTERVAL);
+      onlineRefreshTimer = setInterval(() => {
+        if (!document.hidden) fetchOnlineUserIds();
+      }, ONLINE_REFRESH_INTERVAL);
     }
 
-    async function fetchUsers({ limit = 50, offset = 0, search = '', tier = '', status = '', completeness = '' } = {}) {
+    function stopOnlineRefresh() {
+      if (onlineRefreshTimer) {
+        clearInterval(onlineRefreshTimer);
+        onlineRefreshTimer = null;
+      }
+    }
+
+    async function fetchUsers({ limit = 50, offset = 0, search = '', tier = '', status = '', completeness = '', requestSeq = 0 } = {}) {
       const params = new URLSearchParams({ action: 'users', limit: String(limit), offset: String(offset) });
       if (search) params.set('search', search);
       if (tier) params.set('tier', tier);
@@ -591,9 +602,14 @@
         }
         const data = await res.json().catch(() => ({}));
         if (!res.ok || !data.success) throw new Error(data.error || 'HTTP ' + res.status);
+        if (requestSeq && requestSeq < lastAppliedUsersRequest) {
+          return { users: [], total: window._usersTotal, stale: true, requestId: data.requestId || res.requestId };
+        }
+        const errEl = document.getElementById('usersError');
+        if (errEl) errEl.style.display = 'none';
         window._usersTotal = typeof data.total === 'number' ? data.total : (data.recentUsers || []).length;
         lastFetchError = null;
-        return { users: data.recentUsers || [], total: window._usersTotal, requestId: res.requestId };
+        return { users: data.recentUsers || [], total: window._usersTotal, requestId: data.requestId || res.requestId };
       } catch (e) {
         const errEl = document.getElementById('usersError');
         if (errEl) errEl.style.display = 'block';
@@ -612,7 +628,10 @@
       const status = document.getElementById('statusFilter').value;
       const completeness = document.getElementById('completenessFilter').value;
       document.getElementById('usersTable').innerHTML = '<tr><td colspan="11" class="loading">جارِ التحميل...</td></tr>';
-      const data = await fetchUsers({ limit: pageSize, offset, search, tier, status, completeness });
+      const requestSeq = ++usersRequestSeq;
+      const data = await fetchUsers({ limit: pageSize, offset, search, tier, status, completeness, requestSeq });
+      if (data.stale || requestSeq < usersRequestSeq) return;
+      lastAppliedUsersRequest = requestSeq;
       allUsers = data.users || [];
       window._usersTotal = data.total;
       if (lastFetchError) {
@@ -1522,8 +1541,20 @@
 
     document.getElementById('addCountry').addEventListener('change', updateAddCity);
 
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) stopOnlineRefresh();
+      else {
+        fetchOnlineUserIds();
+        startOnlineRefresh();
+      }
+    });
+
+    window.addEventListener('pagehide', stopOnlineRefresh);
+
     window.addEventListener('load', async () => {
       lastFetchError = null;
+      const errEl = document.getElementById('usersError');
+      if (errEl) errEl.style.display = 'none';
       await loadPage(0);
       await fetchOnlineUserIds();
       await fetchCompletenessStats();
