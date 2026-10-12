@@ -131,6 +131,14 @@
       "destination": "/api/payments"
     },
     {
+      "source": "/api/entitlements",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/entitlements/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/nps-check",
       "destination": "/api/platform"
     },
