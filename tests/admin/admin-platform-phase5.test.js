@@ -102,6 +102,16 @@ describe('admin operating platform phase 5', () => {
     expect(api).toContain('errors');
   });
 
+  test('authenticated fetch retries transient failures only for idempotent requests', () => {
+    const auth = read('bonds-auth-2026.js');
+
+    expect(auth).toContain("const requestMethod = String(options.method || 'GET').toUpperCase()");
+    expect(auth).toContain("requestMethod === 'GET' || requestMethod === 'HEAD'");
+    expect(auth).toContain('if (canRetryTransient && response.status >= 500)');
+    expect(auth).toContain("retried: true");
+    expect(auth).toContain("serverError: true, requestId, retried: canRetryTransient");
+  });
+
   test('dashboard and users UI expose the operating platform and user 360', () => {
     const dashboard = read('admin/dashboard.html');
     const users = read('admin/users.html');
