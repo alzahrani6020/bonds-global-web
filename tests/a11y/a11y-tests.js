@@ -48,6 +48,8 @@ const PAGES = [
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+  context.setDefaultTimeout(15000);
+  context.setDefaultNavigationTimeout(15000);
   let totalViolations = 0;
   const reports = [];
 
@@ -56,7 +58,10 @@ const PAGES = [
     const fullUrl = new URL(p.url, BASE_URL).toString();
 
     try {
-      await page.goto(fullUrl, { waitUntil: 'networkidle' });
+      // Do not wait for "networkidle": several production-like pages keep
+      // analytics/presence polling alive, which can stall CI for minutes per page.
+      await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
+      await page.waitForTimeout(350);
       await page.addScriptTag({ content: axeCore.source });
 
       const result = await page.evaluate(async () => {
