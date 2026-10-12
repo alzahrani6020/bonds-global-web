@@ -2670,6 +2670,192 @@ async function createRevenueException(sb, body, admin, req) {
   return { success: true, exception: data };
 }
 
+// ── Feature Flags / Entitlements / Automation ───────────────
+async function getAutomationOverview(sb) {
+  const now = Date.now();
+  const [flagsRes, workflowsRes, runsRes, tasksRes, alertsRes, overridesRes] = await Promise.all([
+    sb.from('admin_feature_flags').select('*').order('updated_at', { ascending: false }).limit(500),
+    sb.from('admin_workflows').select('*').order('updated_at', { ascending: false }).limit(500),
+    sb.from('admin_workflow_runs').select('*').order('created_at', { ascending: false }).limit(500),
+    sb.from('admin_tasks').select('*').order('created_at', { ascending: false }).limit(1000),
+    sb.from('admin_alerts').select('*').order('created_at', { ascending: false }).limit(1000),
+    sb.from('admin_entitlement_overrides').select('*').is('revoked_at', null).order('created_at', { ascending: false }).limit(1000)
+  ]);
+  for (const result of [flagsRes, workflowsRes, runsRes, tasksRes, alertsRes, overridesRes]) {
+    if (result.error) throw result.error;
+  }
+  const tasks = tasksRes.data || [];
+  const alerts = alertsRes.data || [];
+  const runs = runsRes.data || [];
+  return {
+    success: true,
+    flags: flagsRes.data || [],
+    workflows: workflowsRes.data || [],
+    workflowRuns: runs,
+    tasks,
+    alerts,
+    entitlementOverrides: overridesRes.data || [],
+    summary: {
+      enabledFlags: (flagsRes.data || []).filter(f => f.enabled && (!f.expires_at || new Date(f.expires_at).getTime() > now)).length,
+      enabledWorkflows: (workflowsRes.data || []).filter(w => w.enabled).length,
+      failedWorkflowRuns: runs.filter(r => r.status === 'failed').length,
+      openTasks: tasks.filter(t => !['done','cancelled'].includes(t.status)).length,
+      overdueTasks: tasks.filter(t => !['done','cancelled'].includes(t.status) && t.due_at && new Date(t.due_at).getTime() < now).length,
+      criticalAlerts: alerts.filter(a => a.status === 'open' && a.severity === 'critical').length,
+      openAlerts: alerts.filter(a => a.status === 'open').length
+    }
+  };
+}
+
+async function upsertFeatureFlag(sb, body, admin, req) {
+  const key = String(body?.key || '').trim();
+  if (!key) throw badRequest('key required');
+  const { data: current } = await sb.from('admin_feature_flags').select('*').eq('key', key).maybeSingle();
+  const previousState = current ? {
+    enabled: current.enabled,
+    default_variant: current.default_variant,
+    rollout_percentage: current.rollout_percentage,
+    starts_at: current.starts_at,
+    expires_at: current.expires_at
+  } : null;
+  const row = {
+    key,
+    description: body?.description ?? current?.description ?? null,
+    enabled: body?.enabled === true,
+    default_variant: body?.default_variant || current?.default_variant || 'off',
+    rollout_percentage: Math.max(0, Math.min(100, Number(body?.rollout_percentage ?? current?.rollout_percentage ?? 0))),
+    starts_at: body?.starts_at ?? current?.starts_at ?? null,
+    expires_at: body?.expires_at ?? current?.expires_at ?? null,
+    previous_state: previousState,
+    updated_by: admin.id,
+    created_by: current?.created_by || admin.id,
+    updated_at: new Date().toISOString()
+  };
+  const { data, error } = await sb.from('admin_feature_flags').upsert(row, { onConflict: 'key' }).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'feature_flag_upsert', 'feature_flag', data.id, null, { key, enabled: data.enabled, rollout_percentage: data.rollout_percentage }, req);
+  return { success: true, flag: data };
+}
+
+async function rollbackFeatureFlag(sb, body, admin, req) {
+  const key = String(body?.key || '').trim();
+  if (!key) throw badRequest('key required');
+  const { data: current, error } = await sb.from('admin_feature_flags').select('*').eq('key', key).single();
+  if (error) throw error;
+  if (!current?.previous_state) throw badRequest('No previous state available');
+  const previous = current.previous_state;
+  const snapshot = {
+    enabled: current.enabled,
+    default_variant: current.default_variant,
+    rollout_percentage: current.rollout_percentage,
+    starts_at: current.starts_at,
+    expires_at: current.expires_at
+  };
+  const { data, error: updateError } = await sb.from('admin_feature_flags').update({
+    ...previous,
+    previous_state: snapshot,
+    updated_by: admin.id,
+    updated_at: new Date().toISOString()
+  }).eq('id', current.id).select().single();
+  if (updateError) throw updateError;
+  await logAdminAction(sb, admin, 'feature_flag_rollback', 'feature_flag', current.id, null, { key }, req);
+  return { success: true, flag: data };
+}
+
+async function createEntitlementOverride(sb, body, admin, req) {
+  if (!body?.entitlement_key || (!body?.user_id && !body?.organization_id) || !body?.reason) {
+    throw badRequest('entitlement_key, target and reason required');
+  }
+  const row = {
+    user_id: body?.user_id || null,
+    organization_id: body?.organization_id || null,
+    entitlement_key: body.entitlement_key,
+    value: body?.value ?? true,
+    reason: String(body.reason).slice(0, 1000),
+    starts_at: body?.starts_at || new Date().toISOString(),
+    expires_at: body?.expires_at || null,
+    created_by: admin.id
+  };
+  const { data, error } = await sb.from('admin_entitlement_overrides').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'entitlement_override_create', 'entitlement_override', data.id, null, { entitlement_key: data.entitlement_key, user_id: data.user_id, organization_id: data.organization_id, expires_at: data.expires_at }, req);
+  return { success: true, override: data };
+}
+
+async function upsertWorkflow(sb, body, admin, req) {
+  const name = String(body?.name || '').trim();
+  if (!name) throw badRequest('name required');
+  const row = {
+    id: body?.id || undefined,
+    name: name.slice(0, 240),
+    description: body?.description || null,
+    enabled: body?.enabled === true,
+    trigger_type: body?.trigger_type || 'manual',
+    trigger_config: body?.trigger_config && typeof body.trigger_config === 'object' ? body.trigger_config : {},
+    conditions: Array.isArray(body?.conditions) ? body.conditions : [],
+    actions: Array.isArray(body?.actions) ? body.actions : [],
+    version: Math.max(1, Number(body?.version || 1)),
+    updated_by: admin.id,
+    created_by: body?.created_by || admin.id,
+    updated_at: new Date().toISOString()
+  };
+  if (!row.id) delete row.id;
+  const query = row.id
+    ? sb.from('admin_workflows').update(row).eq('id', row.id)
+    : sb.from('admin_workflows').insert([row]);
+  const { data, error } = await query.select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'workflow_upsert', 'admin_workflow', data.id, null, { name: data.name, enabled: data.enabled, trigger_type: data.trigger_type }, req);
+  return { success: true, workflow: data };
+}
+
+async function createAdminTask(sb, body, admin, req) {
+  const title = String(body?.title || '').trim();
+  if (!title) throw badRequest('title required');
+  const row = {
+    title: title.slice(0, 300),
+    description: body?.description || null,
+    entity_type: body?.entity_type || null,
+    entity_id: body?.entity_id || null,
+    assigned_to: body?.assigned_to || null,
+    priority: body?.priority || 'normal',
+    status: body?.status || 'open',
+    due_at: body?.due_at || null,
+    sla_due_at: body?.sla_due_at || null,
+    source: body?.source || 'manual',
+    request_id: body?.request_id || null,
+    created_by: admin.id
+  };
+  const { data, error } = await sb.from('admin_tasks').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'admin_task_create', 'admin_task', data.id, null, { priority: data.priority, assigned_to: data.assigned_to }, req);
+  return { success: true, task: data };
+}
+
+async function updateAdminQueueItem(sb, body, admin, req) {
+  const kind = body?.kind;
+  const id = body?.id;
+  if (!id || !['task','alert'].includes(kind)) throw badRequest('kind and id required');
+  const now = new Date().toISOString();
+  if (kind === 'task') {
+    const updates = { updated_at: now };
+    for (const k of ['status','priority','assigned_to','due_at']) if (body[k] !== undefined) updates[k] = body[k];
+    if (body.status === 'done') updates.completed_at = now;
+    const { data, error } = await sb.from('admin_tasks').update(updates).eq('id', id).select().single();
+    if (error) throw error;
+    await logAdminAction(sb, admin, 'admin_task_update', 'admin_task', id, null, updates, req);
+    return { success: true, task: data };
+  }
+  const updates = { updated_at: now };
+  for (const k of ['status','owner_user_id']) if (body[k] !== undefined) updates[k] = body[k];
+  if (body.status === 'acknowledged') updates.acknowledged_at = now;
+  if (body.status === 'resolved') updates.resolved_at = now;
+  const { data, error } = await sb.from('admin_alerts').update(updates).eq('id', id).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'admin_alert_update', 'admin_alert', id, null, updates, req);
+  return { success: true, alert: data };
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -2989,6 +3175,30 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'feature-flag-upsert') {
+        const access = await requireAdminPermission(req, sb, 'product.flags');
+        return res.status(200).json(await upsertFeatureFlag(sb, req.body, access.user, req));
+      }
+      if (action === 'feature-flag-rollback') {
+        const access = await requireAdminPermission(req, sb, 'product.flags');
+        return res.status(200).json(await rollbackFeatureFlag(sb, req.body, access.user, req));
+      }
+      if (action === 'entitlement-override-create') {
+        const access = await requireAdminPermission(req, sb, 'entitlements.manage');
+        return res.status(200).json(await createEntitlementOverride(sb, req.body, access.user, req));
+      }
+      if (action === 'workflow-upsert') {
+        const access = await requireAdminPermission(req, sb, 'workflow.manage');
+        return res.status(200).json(await upsertWorkflow(sb, req.body, access.user, req));
+      }
+      if (action === 'admin-task-create') {
+        const access = await requireAdminPermission(req, sb, 'operations.manage');
+        return res.status(200).json(await createAdminTask(sb, req.body, access.user, req));
+      }
+      if (action === 'admin-queue-update') {
+        const access = await requireAdminPermission(req, sb, 'operations.manage');
+        return res.status(200).json(await updateAdminQueueItem(sb, req.body, access.user, req));
+      }
       if (action === 'temporary-permission-grant') {
         const access = await requireAdminPermission(req, sb, 'roles.manage');
         return res.status(200).json(await grantTemporaryPermission(sb, req.body, access.user, req));
@@ -3118,6 +3328,10 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'automation-overview') {
+        const access = await requireAdminPermission(req, sb, 'operations.manage');
+        return res.status(200).json(await getAutomationOverview(sb));
       }
       if (action === 'permission-simulator') {
         const access = await requireAdminPermission(req, sb, 'roles.read');
