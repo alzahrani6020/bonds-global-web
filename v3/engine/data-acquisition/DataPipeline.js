@@ -430,7 +430,7 @@ class DataPipeline {
 
     const benchmarks = {};
     for (const row of rows || []) {
-      if (!benchmarks[row.metric_code]) {
+      if (benchmarks[row.metric_code] === undefined) {
         benchmarks[row.metric_code] = Number(row.benchmark_value);
       }
     }
@@ -444,7 +444,8 @@ class DataPipeline {
       .eq('id', cityId)
       .single();
     if (error || !city) throw new Error('City not found');
-    return city.country_code || 'SA';
+    if (!city.country_code) throw new Error('City country_code is missing');
+    return city.country_code;
   }
 }
 

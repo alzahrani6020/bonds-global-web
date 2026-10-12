@@ -41,12 +41,28 @@ describe('EnterpriseIntelligenceRegistry', () => {
     expect(registry.resolveEngines({ intent: 'risk_analysis' })).toEqual(DEFAULT_INTENT_ENGINES.risk_analysis);
   });
 
-  test('falls back to meta engines when intent is missing', () => {
+  test('preserves legacy meta engines and adds decision OS post-processors when intent is missing', () => {
     const registry = new EnterpriseIntelligenceRegistry();
-    registry.register('blind_spot', () => ({}));
-    registry.register('decision_graph', () => ({}));
-    registry.register('recommendation_synthesizer', () => ({}));
-    expect(registry.resolveEngines({})).toEqual(['blind_spot', 'decision_graph', 'recommendation_synthesizer']);
+    [
+      'blind_spot',
+      'decision_graph',
+      'recommendation_synthesizer',
+      'decision_recommendation',
+      'evidence_graph',
+      'decision_memory'
+    ].forEach(code => registry.register(code, () => ({})));
+
+    const resolved = registry.resolveEngines({});
+    expect(resolved).toEqual(expect.arrayContaining([
+      'blind_spot',
+      'decision_graph',
+      'recommendation_synthesizer'
+    ]));
+    expect(resolved).toEqual(expect.arrayContaining([
+      'decision_recommendation',
+      'evidence_graph',
+      'decision_memory'
+    ]));
   });
 
   test('factory creates instance', () => {

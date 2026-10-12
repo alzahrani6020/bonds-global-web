@@ -71,6 +71,7 @@ const { run: orchestratorRun, buildIntentForm } = require('../../lib/orchestrato
 const { listIntents } = require('../../lib/intent/intent-engine');
 const { setAllowedOrigin } = require('../../lib/api/cors');
 const { resolveOpportunityYear } = require('../lib/opportunity-query');
+const { COUNTRY_NAMES, canonicalizeCities, canonicalizeActivities, buildCountryCatalog } = require('../../lib/catalog/canonical-registry');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -254,6 +255,185 @@ async function handleGeocode(req, res) {
   } catch (err) {
     console.error('[geocode] error:', err.message);
     return sendJson(res, 500, { error: err.message });
+  }
+}
+
+async function loadCatalogCityRows(supabase, countryCode = null) {
+  let query = supabase
+    .from('cities')
+    .select('id, code, name_ar, name_en, region, country_code, population, purchasing_power_index, lat, lng, city_types')
+    .limit(2000);
+  if (countryCode) query = query.eq('country_code', countryCode);
+  const { data, error } = await query;
+  if (error) throw error;
+  return data || [];
+}
+
+async function handleCatalogCountries(req, res) {
+  try {
+    const supabase = getSupabaseClient();
+    const rows = await loadCatalogCityRows(supabase);
+    return sendJson(res, 200, {
+      countries: buildCountryCatalog(rows),
+      count: Object.keys(COUNTRY_NAMES).length,
+      source: 'canonical_registry'
+    });
+  } catch (err) {
+    console.error('[catalog/countries]', err.message);
+    return sendJson(res, 500, { error: 'Failed to load country catalog' });
+  }
+}
+
+async function handleCatalogActivities(req, res) {
+  try {
+    const supabase = getSupabaseClient();
+    const { data: sectors, error } = await supabase
+      .from('economic_sectors')
+      .select(`
+        code, name_ar, name_en, is_active,
+        economic_sub_sectors (
+          code, name_ar, name_en, is_active,
+          economic_activities (
+            id, code, name_ar, name_en, is_active, sort_order
+          )
+        )
+      `)
+      .eq('is_active', true)
+      .order('sort_order');
+    if (error) throw error;
+
+    const flat = [];
+    for (const sector of sectors || []) {
+      for (const sub of sector.economic_sub_sectors || []) {
+        if (sub.is_active === false) continue;
+        for (const activity of sub.economic_activities || []) {
+          if (activity.is_active === false) continue;
+          flat.push({
+            ...activity,
+            sector_code: sector.code,
+            sector_name_ar: sector.name_ar,
+            sub_sector_code: sub.code,
+            sub_sector_name_ar: sub.name_ar
+          });
+        }
+      }
+    }
+
+    const activities = canonicalizeActivities(flat);
+    return sendJson(res, 200, {
+      activities,
+      count: activities.length,
+      rawCount: flat.length,
+      duplicatesCollapsed: Math.max(0, flat.length - activities.length),
+      source: 'canonical_registry'
+    });
+  } catch (err) {
+    console.error('[catalog/activities]', err.message);
+    return sendJson(res, 500, { error: 'Failed to load activity catalog' });
+  }
+}
+
+async function handleCatalogCities(req, res) {
+  const url = getQuery(req);
+  const countryCode = url.searchParams.get('country');
+  const activityCodes = (url.searchParams.get('activity_codes') || '')
+    .split(',')
+    .map(v => v.trim())
+    .filter(Boolean);
+  const yearParam = url.searchParams.get('year') || 'latest';
+
+  if (!countryCode || !COUNTRY_NAMES[countryCode]) {
+    return sendJson(res, 400, { error: 'Valid country parameter is required' });
+  }
+
+  try {
+    const supabase = getSupabaseClient();
+    const rawCities = await loadCatalogCityRows(supabase, countryCode);
+    let canonicalCities = canonicalizeCities(rawCities);
+
+    if (activityCodes.length) {
+      const { data: activityRows, error: activityError } = await supabase
+        .from('economic_activities')
+        .select('id, code')
+        .in('code', activityCodes);
+      if (activityError) throw activityError;
+
+      const activityIds = (activityRows || []).map(row => row.id);
+      const rawIdToCanonical = new Map();
+      const rawIdToCode = new Map(rawCities.map(city => [city.id, city.code]));
+      for (const city of canonicalCities) {
+        rawIdToCanonical.set(city.id, city.canonical_code);
+        for (const alias of city.aliases || []) rawIdToCanonical.set(alias.id, city.canonical_code);
+      }
+
+      if (activityIds.length) {
+        let marketQuery = supabase
+          .from('city_market_data')
+          .select('city_id, activity_id, data_year, opportunity_score, confidence')
+          .in('activity_id', activityIds)
+          .in('city_id', rawCities.map(city => city.id));
+
+        if (/^\d{4}$/.test(yearParam)) {
+          marketQuery = marketQuery.eq('data_year', Number(yearParam));
+        }
+
+        const { data: marketRows, error: marketError } = await marketQuery;
+        if (marketError) throw marketError;
+
+        let effectiveRows = marketRows || [];
+        if (yearParam === 'latest' && effectiveRows.length) {
+          const latestYear = Math.max(...effectiveRows.map(row => Number(row.data_year) || 0));
+          effectiveRows = effectiveRows.filter(row => Number(row.data_year) === latestYear);
+        }
+
+        const availability = new Map();
+        for (const row of effectiveRows) {
+          const canonicalCode = rawIdToCanonical.get(row.city_id);
+          if (!canonicalCode) continue;
+          const current = availability.get(canonicalCode);
+          const next = {
+            dataYear: row.data_year,
+            opportunityScore: row.opportunity_score,
+            confidence: row.confidence,
+            comparisonCode: rawIdToCode.get(row.city_id) || canonicalCode
+          };
+          if (!current || Number(next.confidence || 0) > Number(current.confidence || 0)) {
+            availability.set(canonicalCode, next);
+          }
+        }
+
+        canonicalCities = canonicalCities
+          .filter(city => availability.has(city.canonical_code))
+          .map(city => ({
+            ...city,
+            comparison_code: availability.get(city.canonical_code)?.comparisonCode || city.canonical_code,
+            activityAvailability: availability.get(city.canonical_code)
+          }));
+      } else {
+        canonicalCities = [];
+      }
+    }
+
+    canonicalCities = canonicalCities.map(city => ({
+      ...city,
+      comparison_code: city.comparison_code || city.canonical_code
+    }));
+
+    return sendJson(res, 200, {
+      cities: canonicalCities,
+      count: canonicalCities.length,
+      rawCount: rawCities.length,
+      duplicatesCollapsed: Math.max(0, rawCities.length - canonicalCities.length),
+      country: {
+        code: countryCode,
+        name_ar: COUNTRY_NAMES[countryCode].ar,
+        name_en: COUNTRY_NAMES[countryCode].en
+      },
+      source: 'canonical_registry'
+    });
+  } catch (err) {
+    console.error('[catalog/cities]', err.message);
+    return sendJson(res, 500, { error: 'Failed to load city catalog' });
   }
 }
 
@@ -859,6 +1039,9 @@ module.exports = async function handler(req, res) {
   try {
     if (path === '/health' || path === '/') return await handleHealth(req, res);
     if (path === '/sectors' && req.method === 'GET') return await handleSectors(req, res);
+    if (path === '/catalog/countries' && req.method === 'GET') return await handleCatalogCountries(req, res);
+    if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
+    if (path === '/catalog/cities' && req.method === 'GET') return await handleCatalogCities(req, res);
     if (path === '/models' && req.method === 'GET') return await handleModels(req, res);
     if (path.match(/^\/models\/[^\/]+$/) && req.method === 'GET') return await handleModelDetail(req, res, path);
     if (path === '/cities' && req.method === 'GET') return await handleCities(req, res);
@@ -896,7 +1079,8 @@ module.exports = async function handler(req, res) {
     }
     if (path.startsWith('/intelligence')) {
       const supabase = getSupabaseClient();
-      return await intelligenceRouter(req, res, path, supabase);
+      const user = await getUserFromToken(req);
+      return await intelligenceRouter(req, res, path, supabase, user);
     }
     if (path.startsWith('/investment-intelligence')) {
       const supabase = getSupabaseClient();

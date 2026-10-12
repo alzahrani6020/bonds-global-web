@@ -27,14 +27,15 @@ function parseBody(req) {
   });
 }
 
-async function resolveActivity(supabase, activityCode) {
+async function resolveActivities(supabase, activityCodes) {
+  const codes = [...new Set((activityCodes || []).filter(Boolean))];
+  if (!codes.length) return [];
   const { data, error } = await supabase
     .from('economic_activities')
     .select('id, code, name_ar, name_en')
-    .eq('code', activityCode)
-    .single();
-  if (error || !data) throw new Error(`Activity not found: ${activityCode}`);
-  return data;
+    .in('code', codes);
+  if (error) throw error;
+  return data || [];
 }
 
 async function getLatestIndicator(supabase, cityId, year) {
@@ -50,14 +51,16 @@ async function getLatestIndicator(supabase, cityId, year) {
   return data;
 }
 
-async function getLatestMarketData(supabase, cityId, activityId, year) {
+async function getLatestMarketData(supabase, cityId, activityIds, year) {
+  if (!activityIds.length) return null;
   const { data, error } = await supabase
     .from('city_market_data')
     .select('*, economic_activities(code, name_ar, name_en)')
     .eq('city_id', cityId)
-    .eq('activity_id', activityId)
+    .in('activity_id', activityIds)
     .lte('data_year', year)
     .order('data_year', { ascending: false })
+    .order('confidence', { ascending: false })
     .limit(1)
     .maybeSingle();
   if (error) throw error;
@@ -69,6 +72,11 @@ async function handleCompareCities(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   const activityCode = body.activityCode || url.searchParams.get('activity');
+  const activityCodesParam = body.activityCodes || (url.searchParams.get('activity_codes') || '').split(',').filter(Boolean);
+  const activityCodes = [...new Set([
+    ...(Array.isArray(activityCodesParam) ? activityCodesParam : []),
+    ...(activityCode ? [activityCode] : [])
+  ])];
   const year = parseInt(body.year || url.searchParams.get('year') || new Date().getFullYear(), 10);
   const modelCode = body.modelCode || url.searchParams.get('model');
   const cityCodes = body.cityCodes || (url.searchParams.get('cities') || '').split(',').filter(Boolean);
@@ -80,7 +88,9 @@ async function handleCompareCities(req, res) {
   const supabase = getSupabaseClient();
 
   try {
-    const activity = activityCode ? await resolveActivity(supabase, activityCode) : null;
+    const activities = await resolveActivities(supabase, activityCodes);
+    const activityIds = activities.map(activity => activity.id);
+    const activity = activities.find(item => item.code === activityCode) || activities[0] || null;
 
     const { data: cities, error: citiesError } = await supabase
       .from('cities')
@@ -93,7 +103,7 @@ async function handleCompareCities(req, res) {
     for (const city of cities || []) {
       const [indicators, market] = await Promise.all([
         getLatestIndicator(supabase, city.id, year),
-        activity ? getLatestMarketData(supabase, city.id, activity.id, year) : Promise.resolve(null)
+        activityIds.length ? getLatestMarketData(supabase, city.id, activityIds, year) : Promise.resolve(null)
       ]);
 
       const item = {
@@ -125,6 +135,7 @@ async function handleCompareCities(req, res) {
 
     sendJson(res, 200, {
       activity,
+      activityAliases: activities.map(item => item.code),
       year,
       modelCode: modelCode || null,
       count: results.length,

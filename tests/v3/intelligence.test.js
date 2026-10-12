@@ -129,6 +129,22 @@ describe('/api/v3/intelligence', () => {
     expect(Array.isArray(res._json.output.actions)).toBe(true);
   });
 
+
+  test('POST /intelligence/outcomes requires authentication', async () => {
+    const req = mockReq({
+      method: 'POST',
+      url: '/api/v3/intelligence/outcomes',
+      body: {
+        decisionId: '00000000-0000-0000-0000-000000000001',
+        actualOutcome: { revenue: 100 }
+      }
+    });
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.statusCode).toBe(401);
+    expect(res._json.error).toBe('Unauthorized');
+  });
+
   test('unknown intelligence endpoint returns 404', async () => {
     const req = mockReq({ method: 'GET', url: '/api/v3/intelligence/unknown' });
     const res = mockRes();
