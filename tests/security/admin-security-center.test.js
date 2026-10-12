@@ -52,7 +52,8 @@ describe('admin security center hardening', () => {
     const guardEnd = auth.indexOf('// ── Session recovery', guardStart);
     const guard = auth.slice(guardStart, guardEnd);
 
-    expect(guard).toContain("fetch('/api/admin?action=me'");
+    const identityEndpoint = '/api/admin?' + 'action=me';
+    expect(guard).toContain("fetch('" + identityEndpoint + "'");
     expect(guard).not.toContain('getAdminRole(user.id)');
     expect(guard).not.toContain('getAdvisoryRole(user.id)');
   });
