@@ -461,7 +461,7 @@
     const href = '/header-footer.css?v=2.70.0';
     const existing = document.querySelector('link[href*="header-footer.css"]');
     if (existing) {
-      if (!existing.href.includes('header-footer.css?v=2.69.0')) {
+      if (!existing.href.includes('header-footer.css?v=2.70.0')) {
         existing.href = href;
       }
       return;
