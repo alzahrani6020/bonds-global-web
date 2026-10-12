@@ -281,7 +281,7 @@
         container.innerHTML = '<div class="alert alert--success">✅ لا توجد تنبيهات أمنية حرجة.</div>';
         return;
       }
-      container.innerHTML = warnings.map(w => `<div class="alert alert--danger">⚠️ ${w}</div>`).join('');
+      container.innerHTML = warnings.map(w => `<div class="alert alert--danger">⚠️ ${escapeHtml(w)}</div>`).join('');
     }
 
     async function load() {
@@ -347,7 +347,7 @@
         }
       } catch (e) {
         console.error('[SecurityCenter]', e);
-        document.getElementById('alerts').innerHTML = '<div class="alert alert--danger">فشل تحميل بيانات الأمان: ' + e.message + '</div>';
+        document.getElementById('alerts').innerHTML = '<div class="alert alert--danger">فشل تحميل بيانات الأمان: ' + escapeHtml(e.message) + '</div>';
       }
     }
 
@@ -370,8 +370,8 @@
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ enforce_mfa: enable })
         });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.error || ('HTTP ' + res.status));
         BondsAdminCommon.showAdminStatus('securityStatus', enable ? 'تم تفعيل إلزام MFA. سجّل الخروج وأعد الدخول لتطبيقه.' : 'تم تعطيل إلزام MFA.', false);
         load();
       } catch (e) {
