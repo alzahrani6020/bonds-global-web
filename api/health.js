@@ -27,8 +27,9 @@ module.exports = async function handler(req, res) {
 
   const version = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7) : 'dev';
 
-  return res.status(200).json({
-    status: 'ok',
+  const healthy = supabaseStatus === 'ok';
+  return res.status(healthy ? 200 : 503).json({
+    status: healthy ? 'ok' : 'degraded',
     service: 'bonds-global',
     version,
     timestamp: new Date().toISOString(),
