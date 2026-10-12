@@ -1,63 +1,29 @@
-name: Deploy to Vercel
+name: Production Release Verification
 
-# Production releases are intentionally manual.
-# Git auto-deploy is disabled in vercel.json so repeated main commits do not
-# exhaust the Vercel daily deployment quota.
+# Production deployment is handled by Vercel Git Integration.
+# Pushes/merges to main deploy automatically via vercel.json.
+# This workflow remains available as a manual pre-release verification gate
+# and intentionally requires no Vercel access token or project secrets.
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Git ref or exact commit SHA to release'
+        description: 'Git ref or exact commit SHA to verify'
         required: true
         default: 'main'
         type: string
 
 concurrency:
-  group: vercel-production-release
+  group: production-release-verification
   cancel-in-progress: false
 
 permissions:
   contents: read
 
 jobs:
-  preflight:
-    name: 'Batch 1 - Vercel preflight'
+  verify:
+    name: 'Verify release candidate'
     runs-on: ubuntu-24.04
-    environment: production
-    steps:
-      - name: Validate required Vercel secrets
-        shell: bash
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          set -euo pipefail
-          test -n "$VERCEL_TOKEN" || { echo "Missing required secret: VERCEL_TOKEN"; exit 1; }
-          test -n "$VERCEL_ORG_ID" || { echo "Missing required secret: VERCEL_ORG_ID"; exit 1; }
-          test -n "$VERCEL_PROJECT_ID" || { echo "Missing required secret: VERCEL_PROJECT_ID"; exit 1; }
-
-      - name: Verify Vercel token and project access
-        shell: bash
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-        run: |
-          set -euo pipefail
-          curl --fail --silent --show-error \
-            -H "Authorization: Bearer $VERCEL_TOKEN" \
-            https://api.vercel.com/v2/user >/dev/null
-          curl --fail --silent --show-error \
-            -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v9/projects/$VERCEL_PROJECT_ID?teamId=$VERCEL_ORG_ID" >/dev/null
-          echo "Vercel credentials and project access verified."
-
-  deploy:
-    name: 'Batch 2 - Test, build and deploy'
-    needs: preflight
-    runs-on: ubuntu-24.04
-    environment: production
     steps:
       - name: Checkout requested release
         uses: actions/checkout@v4
@@ -73,7 +39,7 @@ jobs:
           set -euo pipefail
           sha="$(git rev-parse HEAD)"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
-          echo "Releasing exact commit: $sha"
+          echo "Verifying exact commit: $sha"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -90,12 +56,18 @@ jobs:
         run: npm run dev:local &
 
       - name: Wait for Server
+        shell: bash
         run: |
+          set -euo pipefail
           for i in {1..30}; do
-            if curl -s http://localhost:3005 > /dev/null; then echo "Server ready"; exit 0; fi
+            if curl -s http://localhost:3005 > /dev/null; then
+              echo "Server ready"
+              exit 0
+            fi
             sleep 1
           done
-          echo "Server did not start in time" && exit 1
+          echo "Server did not start in time"
+          exit 1
 
       - name: Release gate
         run: |
@@ -103,52 +75,7 @@ jobs:
           npm run audit:api
           npm test -- --runInBand
 
-      - name: Install pinned Vercel CLI
-        run: npm install --global vercel@56.3.2
-
-      - name: Pull production environment
-        run: vercel pull --yes --environment=production --token "$VERCEL_TOKEN"
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Build production artifact
-        run: vercel build --prod --token "$VERCEL_TOKEN"
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Deploy tested artifact to production
-        id: deploy
-        shell: bash
-        run: |
-          set -euo pipefail
-          deployment_url="$(vercel deploy --prebuilt --prod --token "$VERCEL_TOKEN")"
-          echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
-          echo "Production deployment: $deployment_url"
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-      - name: Verify production health
-        shell: bash
-        env:
-          DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
-        run: |
-          set -euo pipefail
-          node - <<'NODE'
-          const url = process.env.DEPLOYMENT_URL;
-          if (!url || !url.startsWith('https://') || !url.endsWith('.vercel.app')) {
-            throw new Error('Unexpected Vercel deployment URL');
-          }
-          NODE
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 "$DEPLOYMENT_URL/api/v3/health" >/tmp/health.json
-          node -e "const h=require('/tmp/health.json'); if (!h || (h.status && h.status !== 'ok' && h.status !== 'healthy')) process.exit(1)"
-
       - name: Release summary
         run: |
-          echo "Commit: ${{ steps.release.outputs.sha }}"
-          echo "Deployment: ${{ steps.deploy.outputs.url }}"
+          echo "Verified commit: ${{ steps.release.outputs.sha }}"
+          echo "Production deployment is handled automatically by Vercel Git Integration when main is updated."
