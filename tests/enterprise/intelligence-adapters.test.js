@@ -170,4 +170,21 @@ describe('EnterpriseIntelligenceAdapters', () => {
     expect(result.output).toBeNull();
   });
 
+
+  test('decision graph preserves zero confidence for an unavailable engine', async () => {
+    const result = await adapt('decision_graph', {
+      intent: 'feasibility',
+      engineResults: {
+        feasibility: {
+          confidence: 0,
+          executed: false,
+          status: 'insufficient_inputs'
+        }
+      }
+    });
+    const node = result.output.nodes.find(item => item.id === 'feasibility');
+    expect(node.confidence).toBe(0);
+    expect(node.executed).toBe(false);
+  });
+
 });
