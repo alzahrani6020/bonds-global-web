@@ -26,11 +26,14 @@ class FusionCore {
     // 优先使用手动覆盖值
     const override = metrics.find(m => m.isOverride);
     if (override) {
+      const overrideConfidence = Number.isFinite(Number(override.confidence))
+        ? Math.max(0, Math.min(100, Number(override.confidence)))
+        : 95;
       return {
         value: override.value,
         valueText: override.valueText,
-        confidence: Math.min(override.confidence || 95, 100),
-        sources: [{ sourceId: override.sourceId, confidence: override.confidence }],
+        confidence: overrideConfidence,
+        sources: [{ sourceId: override.sourceId, confidence: overrideConfidence }],
         method: 'override',
         isEstimated: false
       };
@@ -40,7 +43,9 @@ class FusionCore {
     const now = new Date();
     const cutoff = new Date(now.getTime() - this.maxAgeDays * 24 * 60 * 60 * 1000);
     const freshMetrics = metrics.filter(m => {
-      const fetched = m.fetchedAt ? new Date(m.fetchedAt) : now;
+      if (!m.fetchedAt) return true;
+      const fetched = new Date(m.fetchedAt);
+      if (Number.isNaN(fetched.getTime())) return true;
       return fetched >= cutoff;
     });
 
@@ -60,19 +65,38 @@ class FusionCore {
     let weightedSum = 0;
     const sources = [];
 
+    let validCount = 0;
     for (const m of metrics) {
-      const fetched = m.fetchedAt ? new Date(m.fetchedAt) : new Date();
-      const ageYears = (new Date() - fetched) / (365 * 24 * 60 * 60 * 1000);
-      const timeDecay = Math.max(0, ageYears * this.confidenceDecayPerYear);
-      const confidence = Math.max(0, (m.confidence || 50) - timeDecay);
+      const statedConfidence = Number.isFinite(Number(m.confidence)) ? Number(m.confidence) : 50;
+      let timeDecay = 0;
+      let freshnessKnown = false;
+
+      if (m.fetchedAt) {
+        const fetched = new Date(m.fetchedAt);
+        if (!Number.isNaN(fetched.getTime())) {
+          freshnessKnown = true;
+          const ageYears = Math.max(0, (new Date() - fetched) / (365 * 24 * 60 * 60 * 1000));
+          timeDecay = ageYears * this.confidenceDecayPerYear;
+        }
+      }
+
+      // Unknown observation time is not treated as fresh. Keep the measurement
+      // available, but reduce its evidence weight explicitly.
+      const unknownFreshnessPenalty = freshnessKnown ? 0 : 25;
+      const confidence = Math.max(0, statedConfidence - timeDecay - unknownFreshnessPenalty);
       const weight = confidence;
 
       const value = typeof m.value === 'number' ? m.value : parseFloat(m.value);
-      if (isNaN(value)) continue;
+      if (Number.isNaN(value)) continue;
 
       weightedSum += value * weight;
       totalWeight += weight;
-      sources.push({ sourceId: m.sourceId, confidence: Math.round(confidence) });
+      validCount++;
+      sources.push({
+        sourceId: m.sourceId,
+        confidence: Math.round(confidence),
+        freshnessKnown
+      });
     }
 
     if (totalWeight === 0) {
@@ -80,7 +104,7 @@ class FusionCore {
     }
 
     const fusedValue = weightedSum / totalWeight;
-    const avgConfidence = Math.round(totalWeight / metrics.length);
+    const avgConfidence = validCount ? Math.round(totalWeight / validCount) : 0;
 
     return {
       value: fusedValue,
@@ -94,15 +118,17 @@ class FusionCore {
 
   _fuseText(metrics) {
     // 选择置信度最高的文本值
-    const sorted = [...metrics].sort((a, b) => (b.confidence || 0) - (a.confidence || 0));
+    const score = m => Number.isFinite(Number(m.confidence)) ? Number(m.confidence) : 50;
+    const sorted = [...metrics].sort((a, b) => score(b) - score(a));
     const best = sorted[0];
+    const bestConfidence = score(best);
     return {
       value: null,
       valueText: best.valueText || best.value,
-      confidence: best.confidence || 50,
-      sources: sorted.map(m => ({ sourceId: m.sourceId, confidence: m.confidence })),
+      confidence: bestConfidence,
+      sources: sorted.map(m => ({ sourceId: m.sourceId, confidence: score(m) })),
       method: 'best_confidence',
-      isEstimated: (best.confidence || 0) < 70
+      isEstimated: bestConfidence < 70
     };
   }
 }
