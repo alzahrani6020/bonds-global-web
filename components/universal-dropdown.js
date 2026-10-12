@@ -75,7 +75,16 @@
     if (own) return own;
     const closest = select.closest('[data-ud-theme]');
     if (closest) return closest.getAttribute('data-ud-theme');
-    return null;
+
+    const htmlTheme = document.documentElement && document.documentElement.getAttribute('data-theme');
+    if (htmlTheme === 'dark' || htmlTheme === 'light') return htmlTheme;
+
+    const bodyTheme = document.body && document.body.getAttribute('data-theme');
+    if (bodyTheme === 'dark' || bodyTheme === 'light') return bodyTheme;
+
+    // Public institutional pages are light by default. Dark applications opt in
+    // explicitly with data-theme="dark".
+    return 'light';
   }
 
   function normalizeItems(items) {
