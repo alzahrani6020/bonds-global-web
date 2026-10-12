@@ -59,7 +59,7 @@ const categories={
   Security:['security-events','trusted-devices','break-glass'],
   Product:['feature-flags','feature-overrides','entitlements','ai-prompts','ai-usage'],
   Platform:['integrations','jobs','errors','traces','incidents','runbooks','backups','recovery-drills','webhooks','configuration'],
-  Governance:['permissions','role-permissions','access-grants','data-requests','lineage','exports','document-versions']
+  Governance:['permissions','role-permissions','field-permissions','access-grants','data-requests','lineage','exports','document-versions']
 };
 const defs={
  organizations:{title:'الشركات والمؤسسات',fields:{name:'text',legal_name:'text',registration_number:'text',country:'text',city:'text',industry:'text',status:'text',account_owner_id:'text',website:'text',phone:'text',email:'email'}},
@@ -93,7 +93,7 @@ const defs={
  exports:{title:'Export Center',fields:{export_type:'text',filters:'json',status:'text',row_count:'number',storage_path:'text',expires_at:'datetime-local',error_message:'textarea'}},
  documents:{title:'Document Center',fields:{owner_type:'text',owner_id:'text',category:'text',title:'text',current_version:'number',status:'text',expires_at:'datetime-local'}},
  permissions:{title:'Permission Catalog',key:'permission_key',fields:{permission_key:'text',description:'textarea',risk_level:'text'}},
- 'role-permissions':{title:'Role Permissions',fields:{role:'text',permission_key:'text'}},
+ 'role-permissions':{title:'Role Permissions',fields:{role:'text',permission_key:'text'}}, 'field-permissions':{title:'Field Permissions',fields:{role:'text',module_key:'text',field_key:'text',can_read:'boolean',can_write:'boolean',mask_strategy:'text'}},
  'access-grants':{title:'Temporary Access',fields:{user_id:'text',permission_key:'text',starts_at:'datetime-local',expires_at:'datetime-local',reason:'textarea',revoked_at:'datetime-local'}},
  metrics:{title:'Executive Metrics',fields:{metric_key:'text',metric_value:'number',dimension:'json',period_start:'datetime-local',period_end:'datetime-local',captured_at:'datetime-local'}},
  traces:{title:'Request Traces',readonly:true,fields:{}},webhooks:{title:'Webhook Center',readonly:true,fields:{}},'ai-usage':{title:'AI Operations',readonly:true,fields:{}},configuration:{title:'Configuration Drift',fields:{environment:'text',config_key:'text',value_hash:'text',present:'boolean',source:'text',captured_at:'datetime-local'}},'document-versions':{title:'Document Versions',fields:{document_id:'text',version:'number',storage_bucket:'text',storage_path:'text',mime_type:'text',file_size:'number',checksum:'text'}}
