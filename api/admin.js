@@ -1208,6 +1208,51 @@ async function requestUserMerge(sb, body, admin, req) {
   return { success: true, approval, preview };
 }
 
+// ── Platform Migration / Readiness ─────────────────────────
+async function getPlatformReadiness(sb) {
+  const domains = {
+    customers: ['organizations','organization_members','crm_opportunities','customer_success_records'],
+    support: ['support_tickets','support_ticket_comments'],
+    finance: ['finance_refunds','finance_reconciliation_items','customer_contracts'],
+    governance: ['admin_permissions','admin_role_permissions','admin_field_permissions','admin_approval_requests'],
+    security: ['security_events','trusted_admin_devices','admin_session_controls','admin_access_policies'],
+    product: ['feature_flags','feature_flag_overrides','entitlements'],
+    workflow: ['admin_tasks','workflow_rules','workflow_runs','operational_alerts'],
+    observability: ['admin_request_traces','admin_error_events','admin_job_runs','incidents'],
+    recovery: ['runbooks','backup_verifications','recovery_drills','integration_health'],
+    data: ['data_governance_requests','data_lineage_entries','admin_export_jobs','document_records','document_versions'],
+    ai: ['ai_usage_events','ai_prompt_versions']
+  };
+
+  const tableStatus = {};
+  await Promise.all(Object.values(domains).flat().map(async table => {
+    try {
+      const { error } = await sb.from(table).select('*', { count: 'exact', head: true });
+      tableStatus[table] = error ? { status: 'missing', error: String(error.message || error).slice(0, 160) } : { status: 'ready' };
+    } catch (error) {
+      tableStatus[table] = { status: 'missing', error: String(error?.message || error).slice(0, 160) };
+    }
+  }));
+
+  const domainStatus = {};
+  for (const [domain, tables] of Object.entries(domains)) {
+    const ready = tables.filter(table => tableStatus[table]?.status === 'ready').length;
+    domainStatus[domain] = {
+      status: ready === tables.length ? 'ready' : ready === 0 ? 'missing' : 'partial',
+      ready,
+      total: tables.length
+    };
+  }
+
+  return {
+    success: true,
+    generatedAt: new Date().toISOString(),
+    overall: Object.values(domainStatus).every(x => x.status === 'ready') ? 'ready' : 'partial',
+    domains: domainStatus,
+    tables: tableStatus
+  };
+}
+
 // ── Admin Operations Inbox ─────────────────────────────────
 async function getOperationsOverview(sb) {
   const now = new Date().toISOString();
@@ -3024,6 +3069,11 @@ async function handler(req, res) {
           role: await getActorRole(sb, target),
           permissions: await getEffectivePermissions(sb, target)
         });
+      }
+      if (action === 'platform-readiness') {
+        const admin = await verifyAdminPlatform(req, sb);
+        await requirePlatformPermission(sb, admin, 'platform.read');
+        return res.status(200).json(await getPlatformReadiness(sb));
       }
       if (action === 'duplicate-users') {
         const admin = await verifyAdminPlatform(req, sb);
