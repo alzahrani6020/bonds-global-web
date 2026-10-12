@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-ud-theme="light">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin Operating Platform | بوندز</title>
+<link rel="stylesheet" href="/styles/institutional-system.css?v=6">
+<link rel="stylesheet" href="/admin/admin-shared-ux.css?v=1">
+<style>
+body{margin:0;background:#f7f4ee;color:#1f2937;font-family:system-ui,sans-serif}
+.shell{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.nav{background:#fff;border-left:1px solid #e5e7eb;padding:1rem;position:sticky;top:0;height:100vh;overflow:auto}
+.brand{font-weight:900;font-size:1.05rem;margin-bottom:1rem}.nav button{width:100%;text-align:right;border:0;background:transparent;padding:.65rem .7rem;border-radius:9px;cursor:pointer;margin:.15rem 0}
+.nav button.active,.nav button:hover{background:#f3ead8;color:#7c5f24}.content{padding:1.25rem;min-width:0}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;flex-wrap:wrap}.head h1{margin:.1rem 0}.muted{color:#6b7280}
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin:1rem 0}.metric{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:.85rem}.metric strong{font-size:1.35rem;display:block}
+.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.65rem;margin:1rem 0}.module{background:#fff;border:1px solid #e5e7eb;border-radius:11px;padding:.8rem;cursor:pointer;text-align:right}.module.active{border-color:#b8954e;background:#fffaf0}
+.toolbar{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap;margin:.75rem 0}.btn{border:0;border-radius:8px;padding:.55rem .8rem;font-weight:700;cursor:pointer}.primary{background:#b8954e;color:#111}.secondary{background:#e5e7eb}
+.panel{background:#fff;border:1px solid #e5e7eb;border-radius:14px;overflow:auto}.panel table{width:100%;border-collapse:collapse;font-size:.82rem;min-width:800px}th,td{text-align:right;padding:.6rem;border-bottom:1px solid #eee;vertical-align:top}tr[data-id]{cursor:pointer}tr[data-id]:hover{background:#faf7f1}
+.error{display:none;background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:.7rem;border-radius:9px;margin:.7rem 0}
+.drawer{position:fixed;inset:0;background:rgba(0,0,0,.38);display:none;z-index:50}.drawer.open{display:block}.drawer-card{position:absolute;left:0;top:0;bottom:0;width:min(560px,94vw);background:#fff;padding:1rem;overflow:auto;box-shadow:0 0 30px rgba(0,0,0,.2)}
+.field{margin:.65rem 0}.field label{display:block;font-size:.78rem;font-weight:700;margin-bottom:.25rem}.field input,.field textarea,.field select{width:100%;box-sizing:border-box;padding:.65rem;border:1px solid #d1d5db;border-radius:8px;font:inherit}.field textarea{min-height:90px}
+@media(max-width:800px){.shell{grid-template-columns:1fr}.nav{position:static;height:auto;display:flex;overflow:auto;gap:.35rem;border-left:0;border-bottom:1px solid #ddd}.brand{display:none}.nav button{min-width:max-content}.content{padding:.75rem}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="nav" id="categoryNav"></nav>
+  <main class="content">
+    <div class="head"><div><h1>Admin Operating Platform</h1><div class="muted">Executive / Customers / Operations / Finance / Security / Product / Platform / Governance</div></div><button class="btn secondary" id="refreshAll">تحديث</button></div>
+    <div id="errorBox" class="error"></div>
+    <section class="summary" id="summary"></section>
+    <section class="modules" id="modules"></section>
+    <div class="toolbar">
+      <strong id="moduleTitle">—</strong>
+      <span class="muted" id="moduleCount"></span>
+      <button class="btn primary" id="newBtn">إضافة</button>
+      <select id="statusFilter"><option value="">كل الحالات</option><option value="open">open</option><option value="active">active</option><option value="pending">pending</option><option value="resolved">resolved</option><option value="closed">closed</option></select>
+      <button class="btn secondary" id="reloadBtn">تحديث الوحدة</button>
+    </div>
+    <section class="panel"><table><thead id="thead"></thead><tbody id="tbody"><tr><td>اختر وحدة</td></tr></tbody></table></section>
+  </main>
+</div>
+<div class="drawer" id="drawer"><div class="drawer-card">
+  <div class="head"><h2 id="drawerTitle">سجل</h2><button class="btn secondary" id="closeDrawer">إغلاق</button></div>
+  <form id="editor"></form>
+  <button class="btn primary" id="saveBtn">حفظ</button>
+</div></div>
+<script src="/supabase-client.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script src="/admin/admin-common.js?v=2"></script>
+<script>
+(function(){
+'use strict';
+const esc=v=>BondsAdminCommon.escapeHtml(v==null?'':String(v));
+const categories={
+  Executive:['customer-success','metrics'],
+  Customers:['organizations','opportunities','tickets','contracts','documents'],
+  Operations:['tasks','approvals','alerts','workflow-rules','workflow-runs'],
+  Finance:['refunds','reconciliation','contracts'],
+  Security:['security-events','trusted-devices','break-glass'],
+  Product:['feature-flags','feature-overrides','entitlements','ai-prompts','ai-usage'],
+  Platform:['integrations','jobs','errors','traces','incidents','runbooks','backups','recovery-drills','webhooks','configuration'],
+  Governance:['permissions','role-permissions','access-grants','data-requests','lineage','exports','document-versions']
+};
+const defs={
+ organizations:{title:'الشركات والمؤسسات',fields:{name:'text',legal_name:'text',registration_number:'text',country:'text',city:'text',industry:'text',status:'text',account_owner_id:'text',website:'text',phone:'text',email:'email'}},
+ opportunities:{title:'الفرص التجارية',fields:{organization_id:'text',user_id:'text',name:'text',stage:'text',value_amount:'number',currency:'text',probability:'number',owner_id:'text',expected_close_date:'date',source:'text',lost_reason:'text',next_action_at:'datetime-local'}},
+ 'customer-success':{title:'Customer Success',fields:{user_id:'text',organization_id:'text',health_score:'number',risk_level:'text',renewal_date:'date',owner_id:'text',next_action_at:'datetime-local',notes:'textarea'}},
+ tickets:{title:'Support Center',fields:{ticket_reference:'text',user_id:'text',organization_id:'text',subject:'text',description:'textarea',status:'text',priority:'text',assigned_to:'text',source:'text',request_id:'text',error_code:'text',sla_deadline_at:'datetime-local'}},
+ refunds:{title:'Refunds',fields:{user_id:'text',external_payment_id:'text',amount:'number',currency:'text',reason:'textarea',status:'text'}},
+ reconciliation:{title:'Reconciliation',fields:{source_type:'text',source_id:'text',expected_amount:'number',actual_amount:'number',currency:'text',status:'text',owner_id:'text',resolution_note:'textarea'}},
+ contracts:{title:'Contracts & Renewals',fields:{organization_id:'text',user_id:'text',contract_number:'text',title:'text',status:'text',value_amount:'number',currency:'text',starts_on:'date',ends_on:'date',renewal_notice_days:'number',owner_id:'text'}},
+ approvals:{title:'Approval Inbox',fields:{action_type:'text',target_type:'text',target_id:'text',risk_level:'text',status:'text',expires_at:'datetime-local',reason:'textarea',payload:'json'}},
+ 'security-events':{title:'Security Events',fields:{user_id:'text',event_type:'text',severity:'text',country:'text',request_id:'text',risk_score:'number',status:'text',details:'json'}},
+ 'trusted-devices':{title:'Trusted Devices',fields:{user_id:'text',device_fingerprint:'text',label:'text',expires_at:'datetime-local',revoked_at:'datetime-local'}},
+ 'break-glass':{title:'Break-glass',fields:{user_id:'text',reason:'textarea',expires_at:'datetime-local',ended_at:'datetime-local',approved_by:'text',request_id:'text'}},
+ 'feature-flags':{title:'Feature Flags',key:'flag_key',fields:{flag_key:'text',description:'textarea',enabled:'boolean',rollout_percent:'number',environments:'json',config:'json'}},
+ 'feature-overrides':{title:'Feature Overrides',fields:{flag_key:'text',subject_type:'text',subject_key:'text',enabled:'boolean',expires_at:'datetime-local'}},
+ entitlements:{title:'Entitlements',fields:{subject_type:'text',subject_key:'text',entitlement_key:'text',value:'json',expires_at:'datetime-local'}},
+ tasks:{title:'Tasks Queue',fields:{title:'text',description:'textarea',entity_type:'text',entity_id:'text',status:'text',priority:'text',assigned_to:'text',due_at:'datetime-local',completed_at:'datetime-local',metadata:'json'}},
+ 'workflow-rules':{title:'Workflow Builder',fields:{name:'text',enabled:'boolean',trigger_type:'text',conditions:'json',actions:'json',schedule:'text'}},
+ 'workflow-runs':{title:'Workflow Runs',fields:{rule_id:'text',status:'text',error_message:'textarea',output:'json'}},
+ alerts:{title:'Alerts Inbox',fields:{category:'text',severity:'text',title:'text',message:'textarea',entity_type:'text',entity_id:'text',status:'text',owner_id:'text',request_id:'text'}},
+ errors:{title:'Error Inbox',fields:{status:'text',severity:'text',metadata:'json'}},
+ jobs:{title:'Job Monitor',fields:{job_key:'text',status:'text',started_at:'datetime-local',finished_at:'datetime-local',duration_ms:'number',error_message:'textarea',metadata:'json'}},
+ incidents:{title:'Incident Management',fields:{title:'text',severity:'text',status:'text',impact:'textarea',owner_id:'text',resolved_at:'datetime-local',root_cause:'textarea',resolution:'textarea',postmortem:'textarea'}},
+ runbooks:{title:'Runbooks',fields:{name:'text',service:'text',symptoms:'textarea',steps:'json',rollback_steps:'json',owner_id:'text'}},
+ backups:{title:'Backups & Recovery',fields:{provider:'text',backup_reference:'text',backup_created_at:'datetime-local',verification_status:'text',restore_tested:'boolean',restore_tested_at:'datetime-local',rpo_minutes:'number',rto_minutes:'number',details:'json'}},
+ 'recovery-drills':{title:'Recovery Drills',fields:{name:'text',status:'text',started_at:'datetime-local',finished_at:'datetime-local',measured_rpo_minutes:'number',measured_rto_minutes:'number',findings:'textarea'}},
+ integrations:{title:'Integration Health',key:'integration_key',fields:{integration_key:'text',provider:'text',status:'text',last_success_at:'datetime-local',last_failure_at:'datetime-local',latency_ms:'number',error_code:'text',details:'json'}},
+ 'ai-prompts':{title:'AI Prompt Versions',fields:{prompt_key:'text',version:'number',content:'textarea',model_config:'json',status:'text'}},
+ 'data-requests':{title:'Privacy / Data Requests',fields:{user_id:'text',request_type:'text',status:'text',due_at:'datetime-local',completed_at:'datetime-local',notes:'textarea'}},
+ lineage:{title:'Data Lineage',fields:{metric_or_field:'text',source_system:'text',source_object:'text',transformation:'textarea',refresh_cadence:'text',owner:'text',metadata:'json'}},
+ exports:{title:'Export Center',fields:{export_type:'text',filters:'json',status:'text',row_count:'number',storage_path:'text',expires_at:'datetime-local',error_message:'textarea'}},
+ documents:{title:'Document Center',fields:{owner_type:'text',owner_id:'text',category:'text',title:'text',current_version:'number',status:'text',expires_at:'datetime-local'}},
+ permissions:{title:'Permission Catalog',key:'permission_key',fields:{permission_key:'text',description:'textarea',risk_level:'text'}},
+ 'role-permissions':{title:'Role Permissions',fields:{role:'text',permission_key:'text'}},
+ 'access-grants':{title:'Temporary Access',fields:{user_id:'text',permission_key:'text',starts_at:'datetime-local',expires_at:'datetime-local',reason:'textarea',revoked_at:'datetime-local'}},
+ metrics:{title:'Executive Metrics',fields:{metric_key:'text',metric_value:'number',dimension:'json',period_start:'datetime-local',period_end:'datetime-local',captured_at:'datetime-local'}},
+ traces:{title:'Request Traces',readonly:true,fields:{}},webhooks:{title:'Webhook Center',readonly:true,fields:{}},'ai-usage':{title:'AI Operations',readonly:true,fields:{}},configuration:{title:'Configuration Drift',fields:{environment:'text',config_key:'text',value_hash:'text',present:'boolean',source:'text',captured_at:'datetime-local'}},'document-versions':{title:'Document Versions',fields:{document_id:'text',version:'number',storage_bucket:'text',storage_path:'text',mime_type:'text',file_size:'number',checksum:'text'}}
+};
+let category='Executive',moduleName=null,currentItems=[],editing=null;
+function err(message){const e=document.getElementById('errorBox');e.textContent=message;e.style.display='block'}
+function clearErr(){document.getElementById('errorBox').style.display='none'}
+async function request(url,opts={}){const r=await BondsAuth.authenticatedFetch(url,{...opts,returnTo:location.pathname+location.search});const j=await r.json().catch(()=>({}));if(!r.ok||j.success===false)throw new Error(j.error||('HTTP '+r.status));return j}
+async function loadSummary(){try{const d=await request('/api/admin?action=platform-summary');const labels={organizations:'مؤسسات',openTickets:'تذاكر مفتوحة',urgentTickets:'تذاكر عاجلة',opportunities:'فرص',pendingApprovals:'موافقات',openSecurityEvents:'أحداث أمن',openTasks:'مهام',openAlerts:'تنبيهات',openErrors:'أخطاء',activeIncidents:'حوادث',renewals90d:'تجديد 90 يوم'};document.getElementById('summary').innerHTML=Object.entries(d.counts||{}).map(([k,v])=>'<div class="metric"><strong>'+esc(v??'—')+'</strong><span class="muted">'+esc(labels[k]||k)+'</span></div>').join('')}catch(e){err('فشل ملخص المنصة: '+e.message)}}
+function renderNav(){const el=document.getElementById('categoryNav');el.innerHTML='<div class="brand">Bonds Admin</div>'+Object.keys(categories).map(c=>'<button data-cat="'+esc(c)+'" class="'+(c===category?'active':'')+'">'+esc(c)+'</button>').join('');el.querySelectorAll('button[data-cat]').forEach(b=>b.onclick=()=>{category=b.dataset.cat;moduleName=null;renderNav();renderModules()})}
+function renderModules(){const el=document.getElementById('modules');el.innerHTML=(categories[category]||[]).map(m=>'<button class="module '+(m===moduleName?'active':'')+'" data-module="'+esc(m)+'"><strong>'+esc(defs[m]?.title||m)+'</strong><div class="muted">'+esc(m)+'</div></button>').join('');el.querySelectorAll('[data-module]').forEach(b=>b.onclick=()=>{moduleName=b.dataset.module;renderModules();loadModule()})}
+function stringify(v){if(v==null)return '—';if(typeof v==='object')return JSON.stringify(v);return String(v)}
+async function loadModule(){clearErr();if(!moduleName)return;const def=defs[moduleName]||{title:moduleName,readonly:true,fields:{}};document.getElementById('moduleTitle').textContent=def.title;document.getElementById('newBtn').style.display=def.readonly?'none':'inline-block';const status=document.getElementById('statusFilter').value;try{const d=await request('/api/admin?action=platform-module&module='+encodeURIComponent(moduleName)+(status?'&status='+encodeURIComponent(status):''));currentItems=d.items||[];document.getElementById('moduleCount').textContent='('+String(d.total||0)+')';renderTable(def)}catch(e){err('فشل تحميل '+def.title+': '+e.message);document.getElementById('tbody').innerHTML='<tr><td>'+esc(e.message)+'</td></tr>'}}
+function renderTable(def){const keys=[...new Set(currentItems.flatMap(x=>Object.keys(x||{})))].slice(0,8);document.getElementById('thead').innerHTML='<tr>'+keys.map(k=>'<th>'+esc(k)+'</th>').join('')+'</tr>';document.getElementById('tbody').innerHTML=currentItems.length?currentItems.map((x,i)=>'<tr data-i="'+i+'" data-id="'+esc(x.id||'')+'">'+keys.map(k=>'<td>'+esc(stringify(x[k])).slice(0,240)+'</td>').join('')+'</tr>').join(''):'<tr><td>لا توجد بيانات</td></tr>';if(!def.readonly)document.querySelectorAll('#tbody tr[data-i]').forEach(tr=>tr.onclick=()=>openEditor(currentItems[Number(tr.dataset.i)]))}
+function fieldHtml(name,type,value){const val=value==null?'':value;if(type==='boolean')return '<div class="field"><label>'+esc(name)+'</label><select name="'+esc(name)+'"><option value="false" '+(!val?'selected':'')+'>false</option><option value="true" '+(val?'selected':'')+'>true</option></select></div>';if(type==='textarea'||type==='json')return '<div class="field"><label>'+esc(name)+'</label><textarea name="'+esc(name)+'">'+esc(type==='json'&&typeof val==='object'?JSON.stringify(val,null,2):val)+'</textarea></div>';return '<div class="field"><label>'+esc(name)+'</label><input type="'+esc(type)+'" name="'+esc(name)+'" value="'+esc(val)+'"></div>'}
+function openEditor(item=null){const def=defs[moduleName];editing=item;document.getElementById('drawerTitle').textContent=(item?'تعديل: ':'إضافة: ')+def.title;document.getElementById('editor').innerHTML=Object.entries(def.fields||{}).map(([n,t])=>fieldHtml(n,t,item?.[n])).join('');document.getElementById('drawer').classList.add('open')}
+function parseForm(){const def=defs[moduleName];const fd=new FormData(document.getElementById('editor'));const rec={};for(const [name,type] of Object.entries(def.fields||{})){let v=fd.get(name);if(v===''||v==null)continue;if(type==='number')v=Number(v);else if(type==='boolean')v=v==='true';else if(type==='json'){try{v=JSON.parse(v)}catch(e){throw new Error('JSON غير صالح في '+name)}}else if(type==='datetime-local')v=new Date(v).toISOString();rec[name]=v}return rec}
+async function save(){try{const def=defs[moduleName];const record=parseForm();const body={module:moduleName,operation:editing?'update':'create',record};if(editing){if(editing.id)body.id=editing.id;else if(def.key)body.key=editing[def.key]}await request('/api/admin?action=platform-module',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});document.getElementById('drawer').classList.remove('open');editing=null;await Promise.all([loadModule(),loadSummary()])}catch(e){err('فشل الحفظ: '+e.message)}}
+document.getElementById('refreshAll').onclick=()=>Promise.all([loadSummary(),moduleName?loadModule():null]);document.getElementById('reloadBtn').onclick=loadModule;document.getElementById('newBtn').onclick=()=>openEditor();document.getElementById('statusFilter').onchange=()=>moduleName&&loadModule();document.getElementById('closeDrawer').onclick=()=>document.getElementById('drawer').classList.remove('open');document.getElementById('drawer').onclick=e=>{if(e.target.id==='drawer')e.currentTarget.classList.remove('open')};document.getElementById('saveBtn').onclick=e=>{e.preventDefault();save()};
+function init(){renderNav();renderModules();loadSummary()}
+if(window.__ADMIN_ROLE)init();else window.addEventListener('admin-auth-ready',init,{once:true});
+})();
+</script>
+<script src="/admin/admin-embed.js?v=4"></script>
+</body></html>
