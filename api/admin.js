@@ -593,14 +593,14 @@ async function getPlatformSummary(sb) {
   const specs = [
     ['organizations','organizations', q => q.neq('status','archived')],
     ['openTickets','support_tickets', q => q.in('status',['open','in_progress','waiting_customer'])],
-    ['urgentTickets','support_tickets', q => q.in('priority',['urgent','critical']).not('status','in','("resolved","closed")')],
-    ['opportunities','crm_opportunities', q => q.not('stage','in','("won","lost")')],
+    ['urgentTickets','support_tickets', q => q.in('priority',['urgent','critical']).in('status',['open','in_progress','waiting_customer'])],
+    ['opportunities','crm_opportunities', q => q.in('stage',['lead','qualified','proposal','negotiation'])],
     ['pendingApprovals','admin_approval_requests', q => q.eq('status','pending')],
     ['openSecurityEvents','security_events', q => q.in('status',['open','acknowledged'])],
     ['openTasks','admin_tasks', q => q.in('status',['open','in_progress','blocked'])],
     ['openAlerts','operational_alerts', q => q.in('status',['open','acknowledged'])],
     ['openErrors','admin_error_events', q => q.in('status',['open','investigating'])],
-    ['activeIncidents','incidents', q => q.neq('status','resolved')],
+    ['activeIncidents','incidents', q => q.in('status',['investigating','identified','monitoring'])],
     ['renewals90d','customer_contracts', q => q.in('status',['active','review']).lte('ends_on', new Date(Date.now()+90*86400000).toISOString().slice(0,10)).gte('ends_on', new Date().toISOString().slice(0,10))]
   ];
   const counts = {};
