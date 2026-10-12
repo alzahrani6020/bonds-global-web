@@ -468,6 +468,43 @@ async function getEffectivePermissions(sb, admin) {
   return [...set];
 }
 
+function maskFieldValue(value, strategy) {
+  if (value == null) return value;
+  const text = String(value);
+  if (strategy === 'hidden') return null;
+  if (strategy === 'email') {
+    const parts = text.split('@');
+    if (parts.length !== 2) return '***';
+    const local = parts[0];
+    return (local.slice(0, 2) || '*') + '***@' + parts[1];
+  }
+  if (strategy === 'phone') {
+    return text.length <= 4 ? '****' : '*'.repeat(Math.max(0, text.length - 4)) + text.slice(-4);
+  }
+  if (strategy === 'partial') {
+    return text.length <= 4 ? '****' : text.slice(0, 2) + '***' + text.slice(-2);
+  }
+  return value;
+}
+
+async function applyFieldPermissions(sb, admin, moduleKey, item) {
+  if (!item || isOwner(admin?.email)) return item;
+  const role = await getActorRole(sb, admin);
+  const { data } = await sb.from('admin_field_permissions')
+    .select('field_key,can_read,mask_strategy')
+    .eq('role', role)
+    .eq('module_key', moduleKey);
+  if (!data?.length) return item;
+  const output = { ...item };
+  for (const rule of data) {
+    if (!rule.can_read) delete output[rule.field_key];
+    else if (rule.mask_strategy && rule.mask_strategy !== 'none') {
+      output[rule.field_key] = maskFieldValue(output[rule.field_key], rule.mask_strategy);
+    }
+  }
+  return output;
+}
+
 async function requirePlatformPermission(sb, admin, permission) {
   const perms = await getEffectivePermissions(sb, admin);
   if (!perms.includes(permission)) throw forbidden('Permission required: ' + permission);
@@ -538,8 +575,9 @@ async function mutatePlatformModule(sb, moduleName, body, admin, req) {
   throw badRequest('Unsupported operation');
 }
 
-async function getUser360(sb, userId) {
+async function getUser360(sb, userId, options = {}) {
   if (!userId) throw badRequest('user_id required');
+  const includeSensitive = options.includeSensitive === true;
 
   const section = async (key, promise) => {
     try {
@@ -568,6 +606,10 @@ async function getUser360(sb, userId) {
   ]);
 
   const sections = Object.fromEntries(results.map(x => [x.key, x.data]));
+  if (!includeSensitive) {
+    sections.notes = null;
+    sections.audit = null;
+  }
   const errors = results.filter(x => x.error).map(x => ({ section: x.key, message: x.error }));
   const completeness = Number(sections.profile?.profile_completeness || 0);
   const activeSub = (sections.subscriptions || []).some(x => ['active','trialing'].includes(x.status));
@@ -2601,8 +2643,10 @@ async function handler(req, res) {
     if (req.method === 'GET') {
       if (action === 'user-360') {
         const admin = await verifyAdminPlatform(req, sb);
-        await requirePlatformPermission(sb, admin, 'users.read');
-        return res.status(200).json(await getUser360(sb, req.query?.user_id));
+        const perms = await requirePlatformPermission(sb, admin, 'users.read');
+        const result = await getUser360(sb, req.query?.user_id, { includeSensitive: perms.includes('users.sensitive') });
+        if (result.sections?.profile) result.sections.profile = await applyFieldPermissions(sb, admin, 'users', result.sections.profile);
+        return res.status(200).json(result);
       }
       if (action === 'permission-simulator') {
         const admin = await verifyAdminStrict(req, sb);
