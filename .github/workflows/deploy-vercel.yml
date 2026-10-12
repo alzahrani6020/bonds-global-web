@@ -85,10 +85,11 @@ jobs:
           VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
           VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
-      - name: Verify production health
+      - name: Verify production health and exact SHA
         shell: bash
         env:
           DEPLOYMENT_URL: ${{ steps.deploy.outputs.url }}
+          RELEASE_SHA: ${{ steps.release.outputs.sha }}
         run: |
           set -euo pipefail
           node - <<'NODE'
@@ -97,8 +98,16 @@ jobs:
             throw new Error('Unexpected Vercel deployment URL');
           }
           NODE
-          curl --fail --silent --show-error --retry 5 --retry-delay 3 "$DEPLOYMENT_URL/api/v3/health" >/tmp/health.json
-          node -e "const h=require('/tmp/health.json'); if (!h || (h.status && h.status !== 'ok' && h.status !== 'healthy')) process.exit(1)"
+          curl --fail --silent --show-error --retry 5 --retry-delay 3 "$DEPLOYMENT_URL/api/health" >/tmp/health.json
+          node - <<'NODE'
+          const h = require('/tmp/health.json');
+          const expected = String(process.env.RELEASE_SHA || '').slice(0, 7);
+          if (!h || h.status !== 'ok') throw new Error('Production health is not OK');
+          if (h.checks?.supabase !== 'ok') throw new Error('Production Supabase health is not OK');
+          if (!expected || h.version !== expected) {
+            throw new Error(`Production SHA mismatch: expected ${expected}, got ${h.version}`);
+          }
+          NODE
 
       - name: Release summary
         run: |
