@@ -385,6 +385,73 @@ async function getAuditLog(sb, opts = {}) {
   return { success: true, logs: data || [], count: count || 0 };
 }
 
+// ── Admin Operations Health ─────────────────────────────────
+async function getSystemHealth(sb) {
+  const startedAt = Date.now();
+  const memory = process.memoryUsage();
+  const mb = value => Math.round((Number(value || 0) / 1024 / 1024) * 10) / 10;
+
+  const envChecks = {
+    adminEmail: !!process.env.ADMIN_EMAIL,
+    supabaseUrl: !!(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL),
+    supabaseServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+  };
+
+  const dbStarted = Date.now();
+  let database = { status: 'unknown', latencyMs: null, error: null };
+  try {
+    const { error } = await sb.from('profiles').select('id', { count: 'exact', head: true });
+    if (error) throw error;
+    database = { status: 'healthy', latencyMs: Date.now() - dbStarted, error: null };
+  } catch (error) {
+    database = {
+      status: 'degraded',
+      latencyMs: Date.now() - dbStarted,
+      error: String(error?.message || 'Database health check failed').slice(0, 240)
+    };
+  }
+
+  const heapLimitWarning = memory.heapTotal > 0 && memory.heapUsed / memory.heapTotal >= 0.85;
+  const runtime = {
+    status: heapLimitWarning ? 'degraded' : 'healthy',
+    node: process.version,
+    uptimeSeconds: Math.round(process.uptime()),
+    memory: {
+      rssMb: mb(memory.rss),
+      heapTotalMb: mb(memory.heapTotal),
+      heapUsedMb: mb(memory.heapUsed),
+      externalMb: mb(memory.external),
+      arrayBuffersMb: mb(memory.arrayBuffers),
+      heapUtilizationPct: memory.heapTotal
+        ? Math.round((memory.heapUsed / memory.heapTotal) * 1000) / 10
+        : null
+    }
+  };
+
+  const configMissing = Object.entries(envChecks)
+    .filter(([, present]) => !present)
+    .map(([key]) => key);
+
+  return {
+    success: true,
+    checkedAt: new Date().toISOString(),
+    durationMs: Date.now() - startedAt,
+    overall: database.status === 'healthy' && !heapLimitWarning && configMissing.length === 0
+      ? 'healthy'
+      : 'degraded',
+    services: {
+      api: { status: 'healthy' },
+      database,
+      runtime,
+      configuration: {
+        status: configMissing.length ? 'degraded' : 'healthy',
+        checks: envChecks,
+        missing: configMissing
+      }
+    }
+  };
+}
+
 // ── Security Center ─────────────────────────────────────────
 async function getSecurityStatus(sb, admin) {
   const enforceMfa = await isAdminMfaEnforced(sb);
@@ -2198,6 +2265,35 @@ async function handler(req, res) {
         const limit = Math.min(parseInt(req.query?.limit) || 100, 500);
         const offset = parseInt(req.query?.offset) || 0;
         return res.status(200).json(await getAuditLog(sb, { limit, offset }));
+      }
+      if (action === 'system-health') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const requestId = req.headers['x-request-id'] || generateRequestId();
+        try {
+          const health = await getSystemHealth(sb);
+          safeAdminLog({
+            requestId,
+            endpoint: 'system-health',
+            status: 200,
+            authenticated: true,
+            userId: admin.id,
+            role: await getActorRole(sb, admin),
+            duration: health.durationMs
+          });
+          return res.status(200).json({ ...health, requestId });
+        } catch (err) {
+          safeAdminLog({
+            requestId,
+            endpoint: 'system-health',
+            status: 500,
+            authenticated: true,
+            userId: admin.id,
+            errorCode: err?.message || 'SYSTEM_HEALTH_FAILED',
+            duration: 0
+          });
+          return res.status(500).json({ success: false, error: 'System health check failed', code: 'SYSTEM_HEALTH_FAILED', requestId });
+        }
       }
       if (action === 'security-status') {
         const admin = await verifyAdminStrict(req, sb);
