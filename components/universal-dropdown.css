@@ -554,12 +554,14 @@ select[data-ud-native]:disabled {
 .ud-dropdown[data-ud-theme="light"] .ud-item.ud-selected {
   color: #0b1f3a !important;
   -webkit-text-fill-color: #0b1f3a !important;
-  background: #f3e4bf !important;
+  background: #d4a94a !important;
 }
 
 .ud-menu:not(.ud-open) {
+  display: none !important;
   pointer-events: none !important;
 }
 .ud-menu.ud-open {
+  display: block !important;
   pointer-events: auto !important;
 }
