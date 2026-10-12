@@ -267,6 +267,22 @@ async function verifyAdmin(req, sb) {
   return user;
 }
 
+async function verifyAdminPlatform(req, sb) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
+  const token = authHeader.slice(7);
+  const { data: { user }, error } = await sb.auth.getUser(token);
+  if (error || !user) throw unauthorized('Invalid or expired token');
+  if (isOwner(user.email)) {
+    if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+    return user;
+  }
+  const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
+  if (!role || !['super_admin','admin','support','viewer'].includes(role.role)) throw forbidden('Admin platform access required');
+  if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+  return user;
+}
+
 async function verifyAdminStrict(req, sb) {
   const authHeader = req.headers.authorization;
   if (!authHeader?.startsWith('Bearer ')) throw unauthorized('Authorization header required');
