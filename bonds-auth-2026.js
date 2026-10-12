@@ -779,29 +779,33 @@
 
       const isMfaSetupPage = location.pathname.includes('/admin/mfa-setup.html');
 
-      getAdminRole(user.id).then(async ({ data: roleRow }) => {
-        if (roleRow && ['super_admin','admin','support'].includes(roleRow.role)) {
-          const mfa = await checkAdminMfa(token);
-          if (!mfa.ok) {
-            if (isMfaSetupPage) return finishAdminAccess(roleRow.role);
+      (async () => {
+        try {
+          const response = await fetch('/api/admin?action=me', {
+            headers: { 'Authorization': 'Bearer ' + token }
+          });
+          const payload = await response.json().catch(() => ({}));
+
+          if (response.ok && payload?.success && payload?.role) {
+            return finishAdminAccess(payload.role);
+          }
+
+          if (response.status === 403 && /MFA required/i.test(String(payload?.error || ''))) {
+            if (isMfaSetupPage) {
+              // The setup page must remain reachable so an authenticated admin can
+              // establish AAL2. The server still protects all privileged API calls.
+              const fallbackRole = payload?.role || 'viewer';
+              return finishAdminAccess(fallbackRole);
+            }
             return redirectToMfaSetup();
           }
-          return finishAdminAccess(roleRow.role);
-        }
 
-        // Allow advisory users (manager/advisor/viewer) to access funding cases and related modules
-        const { data: advisoryRow } = await getAdvisoryRole(user.id);
-        if (advisoryRow?.role) {
-          const mfa = await checkAdminMfa(token);
-          if (!mfa.ok) {
-            if (isMfaSetupPage) return finishAdminAccess(advisoryRow.role);
-            return redirectToMfaSetup();
-          }
-          return finishAdminAccess(advisoryRow.role);
+          if (statusEl) statusEl.textContent = 'ليس لديك صلاحية الوصول الإداري';
+        } catch (err) {
+          console.warn('[BondsAuth] admin server verification failed:', err);
+          if (statusEl) statusEl.textContent = 'تعذر التحقق من الصلاحيات. أعد المحاولة.';
         }
-
-        if (statusEl) statusEl.textContent = 'ليس لديك صلاحية الوصول الإداري';
-      });
+      })();
     });
   }
 

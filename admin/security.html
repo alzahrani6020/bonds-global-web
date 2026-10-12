@@ -259,11 +259,15 @@
       if (e.data?.type === 'admin-token' && e.data?.token) window.__ADMIN_TOKEN = e.data.token;
     });
 
+    function escapeHtml(value) {
+      return BondsAdminCommon.escapeHtml(value);
+    }
+
     function roleBadge(u) {
       const map = { super_admin: 'badge--super', admin: 'badge--admin', support: 'badge--support', viewer: 'badge--viewer' };
-      const label = u.role === 'super_admin' ? 'Super Admin' : u.role === 'admin' ? 'Admin' : u.role === 'support' ? 'Support' : u.role === 'viewer' ? 'Viewer' : u.role;
+      const label = u.role === 'super_admin' ? 'Super Admin' : u.role === 'admin' ? 'Admin' : u.role === 'support' ? 'Support' : u.role === 'viewer' ? 'Viewer' : (u.role || 'Unknown');
       const ownerBadge = u.is_owner ? ' <span class="badge badge--owner">المالك</span>' : '';
-      return `<span class="badge ${map[u.role] || 'badge--viewer'}">${label}</span>${ownerBadge}`;
+      return `<span class="badge ${map[u.role] || 'badge--viewer'}">${escapeHtml(label)}</span>${ownerBadge}`;
     }
 
     function formatDate(iso) {
@@ -277,7 +281,7 @@
         container.innerHTML = '<div class="alert alert--success">✅ لا توجد تنبيهات أمنية حرجة.</div>';
         return;
       }
-      container.innerHTML = warnings.map(w => `<div class="alert alert--danger">⚠️ ${w}</div>`).join('');
+      container.innerHTML = warnings.map(w => `<div class="alert alert--danger">⚠️ ${escapeHtml(w)}</div>`).join('');
     }
 
     async function load() {
@@ -287,8 +291,8 @@
           headers: token ? { 'Authorization': 'Bearer ' + token } : {}
         });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.error || ('HTTP ' + res.status));
         currentStatus = data;
 
         document.getElementById('ownerEmail').textContent = data.ownerEmail || 'غير مُعرَّف';
@@ -299,7 +303,9 @@
 
         const toggle = document.getElementById('mfaToggle');
         toggle.checked = !!data.enforceMfa;
-        toggle.disabled = window.__ADMIN_ROLE !== 'super_admin';
+        const canManageSecurity = !!data.currentAdmin?.isOwner;
+        toggle.disabled = !canManageSecurity;
+        toggle.setAttribute('aria-disabled', String(!canManageSecurity));
 
         renderAlerts(data.warnings);
 
@@ -310,8 +316,8 @@
           tbody.innerHTML = data.adminUsers.map(u => `
             <tr>
               <td>
-                <div style="font-weight:700;color:var(--text);">${u.name || 'مستخدم'}</div>
-                <div style="font-size:0.75rem;color:var(--text-muted);direction:ltr;text-align:right;">${u.email || u.user_id}</div>
+                <div style="font-weight:700;color:var(--text);">${escapeHtml(u.name || 'مستخدم')}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted);direction:ltr;text-align:right;">${escapeHtml(u.email || u.user_id || '—')}</div>
               </td>
               <td>${roleBadge(u)}</td>
               <td>
@@ -332,23 +338,23 @@
         } else {
           auditTbody.innerHTML = data.recentLogs.map(log => `
             <tr>
-              <td>${formatDate(log.created_at)}</td>
-              <td>${log.actor_email || '—'}</td>
-              <td><code style="font-size:0.78rem;background:rgba(0,0,0,0.04);padding:0.15rem 0.4rem;border-radius:4px;">${log.action || '—'}</code></td>
-              <td>${log.target_type || ''}${log.target_id ? ' — ' + log.target_id : ''}</td>
+              <td>${escapeHtml(formatDate(log.created_at))}</td>
+              <td>${escapeHtml(log.actor_email || '—')}</td>
+              <td><code style="font-size:0.78rem;background:rgba(0,0,0,0.04);padding:0.15rem 0.4rem;border-radius:4px;">${escapeHtml(log.action || '—')}</code></td>
+              <td>${escapeHtml((log.target_type || '') + (log.target_id ? ' — ' + log.target_id : ''))}</td>
             </tr>
           `).join('');
         }
       } catch (e) {
         console.error('[SecurityCenter]', e);
-        document.getElementById('alerts').innerHTML = '<div class="alert alert--danger">فشل تحميل بيانات الأمان: ' + e.message + '</div>';
+        document.getElementById('alerts').innerHTML = '<div class="alert alert--danger">فشل تحميل بيانات الأمان: ' + escapeHtml(e.message) + '</div>';
       }
     }
 
     async function toggleMfa() {
       const toggle = document.getElementById('mfaToggle');
-      if (window.__ADMIN_ROLE !== 'super_admin') {
-        BondsAdminCommon.showAdminStatus('securityStatus', 'فقط المالك يمكنه تغيير هذا الإعداد', true);
+      if (!currentStatus?.currentAdmin?.isOwner) {
+        BondsAdminCommon.showAdminStatus('securityStatus', 'فقط المالك الموثق من الخادم يمكنه تغيير هذا الإعداد', true);
         toggle.checked = !toggle.checked;
         return;
       }
@@ -364,8 +370,8 @@
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
           body: JSON.stringify({ enforce_mfa: enable })
         });
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.success) throw new Error(data.error || ('HTTP ' + res.status));
         BondsAdminCommon.showAdminStatus('securityStatus', enable ? 'تم تفعيل إلزام MFA. سجّل الخروج وأعد الدخول لتطبيقه.' : 'تم تعطيل إلزام MFA.', false);
         load();
       } catch (e) {
@@ -394,10 +400,16 @@
       }
     }
 
-    window.addEventListener('load', async () => {
+    async function initSecurityCenter() {
       await load();
       await loadCurrentMfaStatus();
-    });
+    }
+
+    if (window.__ADMIN_ROLE) {
+      initSecurityCenter();
+    } else {
+      window.addEventListener('admin-auth-ready', initSecurityCenter, { once: true });
+    }
   </script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>

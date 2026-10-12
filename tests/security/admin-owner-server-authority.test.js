@@ -50,7 +50,10 @@ describe('admin owner authority', () => {
 
     expect(adminApi).toContain("if (action === 'me')");
     expect(adminApi).toContain(
-      'const role = await getActorRole(sb, admin)'
+      'const role = await getActorRole(sb, user)'
+    );
+    expect(adminApi).toContain(
+      "return res.status(403).json({ error: 'MFA required', role })"
     );
   });
 });
