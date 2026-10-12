@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>CRM — Bonds Global</title>
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css">
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#64748b;--border:#e2e8f0;--gold:#b8954e}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:1600px;margin:auto;padding:1rem}.top{display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;margin-top:1rem}.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:1rem;min-width:0}
+    .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+    .pipeline{display:grid;grid-template-columns:repeat(6,minmax(180px,1fr));gap:.75rem;overflow:auto}
+    .stage{border:1px solid var(--border);border-radius:12px;padding:.75rem;background:#fafafa}.stage h3{margin:.1rem 0 .6rem;font-size:.9rem}
+    .deal{background:#fff;border:1px solid var(--border);border-radius:10px;padding:.55rem;margin:.45rem 0}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem}.kpi{border:1px solid var(--border);border-radius:12px;padding:.75rem}.kpi b{font-size:1.2rem;display:block}
+    table{width:100%;border-collapse:collapse;font-size:.82rem}th,td{padding:.55rem;border-bottom:1px solid var(--border);text-align:right}.scroll{overflow:auto;max-height:420px}
+    .btn{border:0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer;background:#172033;color:#fff}.btn2{background:#eef2f7;color:#172033}
+    input,select{width:100%;box-sizing:border-box;padding:.65rem;border:1px solid var(--border);border-radius:9px;margin:.3rem 0 .7rem;background:#fff}
+    .forms{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.muted{color:var(--muted)}.status{display:none;padding:.75rem;border-radius:10px;background:#fee2e2;color:#991b1b;margin-top:.75rem}
+    @media(max-width:900px){.span-8,.span-6,.span-4{grid-column:span 12}.forms{grid-template-columns:1fr}.pipeline{grid-template-columns:repeat(6,240px)}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div><h1 style="margin:0">CRM وإدارة الشركات</h1><div class="muted">Organizations · Pipeline · Renewals · Customer Success</div></div>
+    <button class="btn btn2" onclick="loadCrm()">تحديث</button>
+  </div>
+  <div id="status" class="status"></div>
+
+  <div class="grid">
+    <section class="card span-12"><div class="kpis" id="kpis"></div></section>
+
+    <section class="card span-12">
+      <h2>Pipeline</h2>
+      <div id="pipeline" class="pipeline"></div>
+    </section>
+
+    <section class="card span-6">
+      <h2>المؤسسات</h2>
+      <div class="scroll"><table><thead><tr><th>الاسم</th><th>الحالة</th><th>القطاع</th><th>الدولة</th></tr></thead><tbody id="orgRows"></tbody></table></div>
+    </section>
+
+    <section class="card span-6">
+      <h2>التجديدات</h2>
+      <div class="scroll"><table><thead><tr><th>التاريخ</th><th>الحالة</th><th>المخاطر</th><th>القيمة</th></tr></thead><tbody id="renewalRows"></tbody></table></div>
+    </section>
+
+    <section class="card span-6">
+      <h2>Customer Success</h2>
+      <div class="scroll"><table><thead><tr><th>Health</th><th>Risk</th><th>Stage</th><th>المراجعة</th></tr></thead><tbody id="successRows"></tbody></table></div>
+    </section>
+
+    <section class="card span-6">
+      <h2>Decision Makers / Leads</h2>
+      <div class="scroll"><table><thead><tr><th>الاسم</th><th>الشركة</th><th>الحالة</th><th>الدور</th></tr></thead><tbody id="clientRows"></tbody></table></div>
+    </section>
+
+    <section class="card span-12">
+      <h2>إضافة</h2>
+      <div class="forms">
+        <form onsubmit="createOrg(event)">
+          <h3>مؤسسة جديدة</h3>
+          <input id="orgName" required placeholder="اسم المؤسسة">
+          <input id="orgSector" placeholder="القطاع">
+          <input id="orgCountry" placeholder="الدولة">
+          <select id="orgStatus"><option value="prospect">Prospect</option><option value="customer">Customer</option><option value="active">Active</option></select>
+          <button class="btn">إنشاء المؤسسة</button>
+        </form>
+        <form onsubmit="createOpportunity(event)">
+          <h3>فرصة جديدة</h3>
+          <input id="oppTitle" required placeholder="عنوان الفرصة">
+          <select id="oppOrg"><option value="">بدون مؤسسة</option></select>
+          <input id="oppValue" type="number" min="0" step="0.01" placeholder="القيمة">
+          <select id="oppStage"><option value="lead">Lead</option><option value="qualified">Qualified</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option></select>
+          <input id="oppClose" type="date">
+          <button class="btn">إنشاء الفرصة</button>
+        </form>
+      </div>
+    </section>
+  </div>
+</main>
+<script src="/supabase-client.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script src="/admin/admin-common.js"></script>
+<script>
+  let crm=null;
+  const esc=v=>BondsAdminCommon.escapeHtml(v==null?'':String(v));
+  const fmt=v=>v?new Date(v).toLocaleDateString('ar-SA'):'—';
+  function error(msg){const e=document.getElementById('status');e.textContent=msg;e.style.display=msg?'block':'none'}
+  async function api(url,options={}){
+    const res=await window.BondsAuth.authenticatedFetch(url,{...options,returnTo:location.pathname+location.search});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.success) throw new Error(data.error||('HTTP '+res.status));
+    return data;
+  }
+  function render(){
+    const p=crm.pipeline||{}, r=crm.renewalSummary||{}, cs=crm.customerSuccess||{};
+    document.getElementById('kpis').innerHTML=[
+      ['المؤسسات',(crm.organizations||[]).length],['العملاء/Leads',(crm.clients||[]).length],['الفرص',(crm.opportunities||[]).length],
+      ['Pipeline Weighted',Object.values(p).reduce((s,x)=>s+Number(x.weightedValue||0),0).toLocaleString('en-US')+' SAR'],
+      ['تجديدات 30 يوم',r.due30||0],['Customer Success At Risk',cs.atRisk||0]
+    ].map(x=>'<div class="kpi"><b>'+esc(x[1])+'</b><span class="muted">'+esc(x[0])+'</span></div>').join('');
+
+    const stages=['lead','qualified','proposal','negotiation','won','lost'];
+    document.getElementById('pipeline').innerHTML=stages.map(stage=>{
+      const deals=(crm.opportunities||[]).filter(o=>o.stage===stage);
+      return '<div class="stage"><h3>'+esc(stage)+' · '+deals.length+'</h3>'+deals.map(o=>'<div class="deal"><b>'+esc(o.title)+'</b><div class="muted">'+Number(o.value_amount||0).toLocaleString('en-US')+' '+esc(o.currency||'SAR')+' · '+esc(o.probability||0)+'%</div></div>').join('')+'</div>';
+    }).join('');
+
+    document.getElementById('orgRows').innerHTML=(crm.organizations||[]).map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+esc(o.status)+'</td><td>'+esc(o.sector||'—')+'</td><td>'+esc(o.country||'—')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد مؤسسات</td></tr>';
+    document.getElementById('renewalRows').innerHTML=(crm.renewals||[]).map(x=>'<tr><td>'+fmt(x.renewal_date)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.risk_level)+'</td><td>'+Number(x.value_amount||0).toLocaleString('en-US')+' '+esc(x.currency||'SAR')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد تجديدات</td></tr>';
+    document.getElementById('successRows').innerHTML=(crm.customerSuccessRecords||[]).map(x=>'<tr><td>'+esc(x.health_score)+'</td><td>'+esc(x.risk_level)+'</td><td>'+esc(x.lifecycle_stage)+'</td><td>'+fmt(x.next_review_at)+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد سجلات</td></tr>';
+    document.getElementById('clientRows').innerHTML=(crm.clients||[]).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.company_name||'—')+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.relationship_role||(x.is_decision_maker?'Decision Maker':'—'))+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد جهات اتصال</td></tr>';
+
+    const sel=document.getElementById('oppOrg');
+    sel.innerHTML='<option value="">بدون مؤسسة</option>'+(crm.organizations||[]).map(o=>'<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>').join('');
+  }
+  async function loadCrm(){error('');try{crm=await api('/api/admin?action=crm-overview');render()}catch(e){error('فشل تحميل CRM: '+e.message)}}
+  async function createOrg(ev){ev.preventDefault();try{
+    await api('/api/admin?action=crm-organization-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:orgName.value,sector:orgSector.value,country:orgCountry.value,status:orgStatus.value})});
+    ev.target.reset();await loadCrm();
+  }catch(e){error('فشل إنشاء المؤسسة: '+e.message)}}
+  async function createOpportunity(ev){ev.preventDefault();try{
+    await api('/api/admin?action=crm-opportunity-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title:oppTitle.value,organization_id:oppOrg.value||null,value_amount:Number(oppValue.value||0),stage:oppStage.value,expected_close_date:oppClose.value||null})});
+    ev.target.reset();await loadCrm();
+  }catch(e){error('فشل إنشاء الفرصة: '+e.message)}}
+  if(window.__ADMIN_ROLE)loadCrm();else window.addEventListener('admin-auth-ready',loadCrm,{once:true});
+</script>
+</body>
+</html>
