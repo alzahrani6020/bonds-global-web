@@ -21,6 +21,12 @@ describe('Dropdown interaction regression', () => {
     expect(siteLayout).not.toContain("desktop hover handles it");
   });
 
+  test('layout CSS cache guard matches the current header-footer version', () => {
+    expect(siteLayout).toContain("const href = '/header-footer.css?v=2.70.0'");
+    expect(siteLayout).toContain("existing.href.includes('header-footer.css?v=2.70.0')");
+    expect(siteLayout).not.toContain("existing.href.includes('header-footer.css?v=2.69.0')");
+  });
+
   test('universal dropdown has readable explicit colors in both default and light contexts', () => {
     expect(udCss).toContain('Contrast hardening v2.52.0');
     expect(udCss).toMatch(/\.ud-dropdown \.ud-item\s*\{[\s\S]*?color:\s*var\(--ud-text\)\s*!important/);
