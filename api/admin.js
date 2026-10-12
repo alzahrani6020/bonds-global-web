@@ -881,8 +881,19 @@ async function ensureOperationalAlert(sb, input) {
 }
 
 async function runOperationalSweep(sb, actor, req) {
+  const startedAt = Date.now();
   const now = new Date().toISOString();
   const results = { supportSla: 0, fundingSla: 0, expiredApprovals: 0, errors: [] };
+  let jobId = null;
+  try {
+    const { data: job } = await sb.from('admin_job_runs').insert({
+      job_key: 'admin_operational_sweep',
+      status: 'running',
+      started_at: now,
+      metadata: { source: actor?.id ? 'admin' : 'cron' }
+    }).select('id').single();
+    jobId = job?.id || null;
+  } catch (e) {}
 
   try {
     const { data, error } = await sb.from('support_tickets')
@@ -953,8 +964,21 @@ async function runOperationalSweep(sb, actor, req) {
     results.errors.push({ key: 'expired_approvals', message: String(error?.message || error).slice(0, 200) });
   }
 
+  const completedAt = new Date().toISOString();
+  const status = results.errors.length ? 'failed' : 'succeeded';
+  if (jobId) {
+    try {
+      await sb.from('admin_job_runs').update({
+        status,
+        finished_at: completedAt,
+        duration_ms: Date.now() - startedAt,
+        error_message: results.errors.length ? JSON.stringify(results.errors).slice(0, 1000) : null,
+        metadata: { ...results, source: actor?.id ? 'admin' : 'cron' }
+      }).eq('id', jobId);
+    } catch (e) {}
+  }
   if (actor?.id) await logAdminAction(sb, actor, 'operational_sweep', 'system', null, null, results, req);
-  return { success: true, ...results, completedAt: new Date().toISOString() };
+  return { success: results.errors.length === 0, ...results, completedAt, jobId };
 }
 
 // ── Executive Analytics ────────────────────────────────────
