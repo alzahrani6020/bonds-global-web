@@ -2596,7 +2596,7 @@ async function handler(req, res) {
 
     if (req.method === 'GET') {
       if (action === 'user-360') {
-        const admin = await verifyAdmin(req, sb);
+        const admin = await verifyAdminPlatform(req, sb);
         await requirePlatformPermission(sb, admin, 'users.read');
         return res.status(200).json(await getUser360(sb, req.query?.user_id));
       }
@@ -2620,12 +2620,12 @@ async function handler(req, res) {
         });
       }
       if (action === 'platform-summary') {
-        const admin = await verifyAdmin(req, sb);
+        const admin = await verifyAdminPlatform(req, sb);
         await requirePlatformPermission(sb, admin, 'platform.read');
         return res.status(200).json(await getPlatformSummary(sb));
       }
       if (action === 'platform-module') {
-        const admin = await verifyAdmin(req, sb);
+        const admin = await verifyAdminPlatform(req, sb);
         const moduleName = String(req.query?.module || '');
         const config = PLATFORM_MODULES[moduleName];
         if (!config) return res.status(400).json({ error: 'Unknown platform module' });
