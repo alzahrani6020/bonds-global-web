@@ -473,8 +473,7 @@
       const li = document.createElement('li');
       if (item.type === 'group') {
         li.className = 'ud-group-header';
-        li.setAttribute('role', 'group');
-        li.setAttribute('aria-label', item.label);
+        li.setAttribute('role', 'presentation');
         li.setAttribute('data-index', String(dataIndex));
         li.textContent = item.label;
         return li;
@@ -484,9 +483,8 @@
       li.setAttribute('data-value', item.value);
       li.setAttribute('data-index', String(dataIndex));
       if (item.disabled) li.classList.add('ud-disabled');
-      // Ensure readable text regardless of page theme or browser dark mode
-      li.style.color = '#000000';
-      li.style.webkitTextFillColor = '#000000';
+      // Color is controlled by the component theme in universal-dropdown.css.
+      // Do not write inline colors here: inline black text makes dark menus unreadable.
       const iconEl = createIconEl(item.icon, item.label);
       if (iconEl) li.appendChild(iconEl);
       li.appendChild(document.createTextNode(item.label));
