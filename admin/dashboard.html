@@ -594,6 +594,7 @@
           aiReviews: 0,
           fundingCases: 0,
           onlineUsers: 0,
+          _health: null,
           _errors: []
         };
 
@@ -643,6 +644,14 @@
         }
 
         try {
+          counts._health = await withTimeout(apiGet('system-health'), 8000);
+          if (!counts._health?.success) counts._errors.push('system-health');
+        } catch (e) {
+          console.warn('[Dashboard] system health failed:', e);
+          counts._errors.push('system-health');
+        }
+
+        try {
           const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
           const online = await withTimeout(sb?.from('user_presence')?.select('*', { count: 'exact', head: true })?.gte('last_seen_at', fiveMinutesAgo), 8000);
           if (online && typeof online.count === 'number') counts.onlineUsers = online.count;
@@ -660,12 +669,38 @@
             ⚠️ تعذر تحميل بعض الإحصائيات (${counts._errors.length}). تأكد من الاتصال بـ Supabase أو أعد التحميل.
           </div>` : '';
 
+        const health = counts._health;
+        const healthStatus = health?.overall || 'unknown';
+        const healthLabel = healthStatus === 'healthy' ? 'سليم' : healthStatus === 'degraded' ? 'متدهور' : 'غير معروف';
+        const healthColor = healthStatus === 'healthy' ? 'var(--success)' : healthStatus === 'degraded' ? 'var(--warning)' : 'var(--text-muted)';
+        const dbLatency = health?.services?.database?.latencyMs;
+        const heapPct = health?.services?.runtime?.memory?.heapUtilizationPct;
+        const requestId = health?.requestId || '—';
+
         overviewEl.innerHTML = `
           <div class="page-header">
             <h1>لوحة التحكم الموحدة</h1>
             <p>إدارة جميع وحدات بوندز من مكان واحد</p>
           </div>
           ${statErrors}
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:0.75rem;margin-bottom:1.25rem;">
+            <div class="stat-card" tabindex="0" aria-label="حالة النظام">
+              <div class="stat-card__num" style="color:${healthColor};font-size:1.15rem;">${healthLabel}</div>
+              <div class="stat-card__label">حالة النظام</div>
+            </div>
+            <div class="stat-card" tabindex="0" aria-label="زمن قاعدة البيانات">
+              <div class="stat-card__num" style="font-size:1.15rem;">${Number.isFinite(dbLatency) ? dbLatency + ' ms' : '—'}</div>
+              <div class="stat-card__label">DB latency</div>
+            </div>
+            <div class="stat-card" tabindex="0" aria-label="استخدام ذاكرة جافاسكربت">
+              <div class="stat-card__num" style="font-size:1.15rem;">${Number.isFinite(heapPct) ? heapPct + '%' : '—'}</div>
+              <div class="stat-card__label">Heap utilization</div>
+            </div>
+            <div class="stat-card" tabindex="0" aria-label="معرف آخر فحص">
+              <div class="stat-card__num" style="font-size:0.78rem;direction:ltr;">${escapeHtml(requestId)}</div>
+              <div class="stat-card__label">Health request ID</div>
+            </div>
+          </div>
           <div class="stats-grid">
             <div class="stat-card" data-target="/admin/users.html?embed=1" data-title="المستخدمين" tabindex="0" role="button" aria-label="عرض المستخدمين"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${counts.users.toLocaleString('ar-SA')}</div><div class="stat-card__label">المستخدمين</div></div>
             <div class="stat-card" data-target="/admin/subscriptions.html?embed=1" data-title="الاشتراكات" tabindex="0" role="button" aria-label="عرض الاشتراكات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${counts.subscriptions.toLocaleString('ar-SA')}</div><div class="stat-card__label">الاشتراكات</div></div>
