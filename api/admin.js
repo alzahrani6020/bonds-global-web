@@ -1424,16 +1424,41 @@ async function getUsers(sb, params = {}) {
   const roleMap = {};
   (roleList || []).forEach(r => roleMap[r.user_id] = r.role);
 
-  // Fetch auth metadata for the current page in parallel (small N per page)
+  // Avoid an auth-admin N+1 fan-out for every row. Profiles are the canonical
+  // source for list rendering; auth is consulted only when identity fields are missing.
+  // The bounded worker pool protects serverless memory, provider rate limits, and latency.
   const authMap = {};
-  await Promise.all((profileList || []).map(async (p) => {
-    try {
-      const { data } = await sb.auth.admin.getUserById(p.id);
-      if (data?.user) authMap[p.id] = data.user;
-    } catch (e) {}
-  }));
+  const authFallbackQueue = (profileList || []).filter((p) => (
+    !p.email ||
+    !p.restaurant_name ||
+    !p.phone ||
+    !p.country ||
+    !p.city ||
+    !p.business_type
+  ));
+  const AUTH_LOOKUP_CONCURRENCY = 5;
 
-  // Fallback last activity from user_presence when auth last_sign_in_at is null
+  async function authFallbackWorker() {
+    while (authFallbackQueue.length) {
+      const p = authFallbackQueue.shift();
+      if (!p) continue;
+      try {
+        const { data } = await sb.auth.admin.getUserById(p.id);
+        if (data?.user) authMap[p.id] = data.user;
+      } catch (e) {
+        // Degrade gracefully: profile/presence data still produces a usable row.
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from(
+      { length: Math.min(AUTH_LOOKUP_CONCURRENCY, authFallbackQueue.length) },
+      () => authFallbackWorker()
+    )
+  );
+
+  // Last activity comes from presence first; auth metadata is only a fallback.
   const presenceMap = {};
   try {
     const userIds = (profileList || []).map(p => p.id).filter(Boolean);
@@ -1468,7 +1493,7 @@ async function getUsers(sb, params = {}) {
       tier_expires_at: p.tier_expires_at || null,
       status: p.status || 'active',
       created_at: u?.created_at || p.created_at,
-      last_sign_in_at: u?.last_sign_in_at || presenceMap[p.id] || null,
+      last_sign_in_at: presenceMap[p.id] || u?.last_sign_in_at || null,
       profile_completeness: p.profile_completeness ?? 0,
       admin_role: roleMap[p.id] || null
     };
