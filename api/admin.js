@@ -2084,6 +2084,155 @@ async function getSubscriptions(sb, params = {}) {
   };
 }
 
+// ── CRM Operations ──────────────────────────────────────────
+async function getCrmOverview(sb) {
+  const [
+    orgsRes,
+    clientsRes,
+    oppsRes,
+    renewalsRes,
+    successRes
+  ] = await Promise.all([
+    sb.from('crm_organizations').select('*').order('created_at', { ascending: false }).limit(500),
+    sb.from('advisory_clients').select('id, name, email, phone, company_name, status, source, organization_id, is_decision_maker, relationship_role, account_owner, created_at, updated_at').order('created_at', { ascending: false }).limit(1000),
+    sb.from('crm_opportunities').select('*').order('updated_at', { ascending: false }).limit(1000),
+    sb.from('crm_renewals').select('*').order('renewal_date', { ascending: true }).limit(1000),
+    sb.from('crm_customer_success').select('*').order('updated_at', { ascending: false }).limit(1000)
+  ]);
+  for (const result of [orgsRes, clientsRes, oppsRes, renewalsRes, successRes]) {
+    if (result.error) throw result.error;
+  }
+
+  const opportunities = oppsRes.data || [];
+  const pipeline = {};
+  for (const stage of ['lead','qualified','proposal','negotiation','won','lost']) {
+    const rows = opportunities.filter(o => o.stage === stage);
+    pipeline[stage] = {
+      count: rows.length,
+      value: rows.reduce((sum, o) => sum + Number(o.value_amount || 0), 0),
+      weightedValue: rows.reduce((sum, o) => sum + Number(o.value_amount || 0) * Number(o.probability || 0) / 100, 0)
+    };
+  }
+
+  const now = Date.now();
+  const next90 = now + 90 * 86400000;
+  const renewals = renewalsRes.data || [];
+  const renewalSummary = {
+    due30: renewals.filter(r => {
+      const t = new Date(r.renewal_date).getTime();
+      return t >= now && t <= now + 30 * 86400000;
+    }).length,
+    due90: renewals.filter(r => {
+      const t = new Date(r.renewal_date).getTime();
+      return t >= now && t <= next90;
+    }).length,
+    atRisk: renewals.filter(r => ['high','critical'].includes(r.risk_level)).length
+  };
+
+  const success = successRes.data || [];
+  const customerSuccess = {
+    accounts: success.length,
+    averageHealth: success.length
+      ? Math.round(success.reduce((sum, row) => sum + Number(row.health_score || 0), 0) / success.length)
+      : 0,
+    atRisk: success.filter(row => ['high','critical'].includes(row.risk_level) || row.lifecycle_stage === 'at_risk').length
+  };
+
+  return {
+    success: true,
+    organizations: orgsRes.data || [],
+    clients: clientsRes.data || [],
+    opportunities,
+    renewals,
+    customerSuccessRecords: success,
+    pipeline,
+    renewalSummary,
+    customerSuccess
+  };
+}
+
+async function createCrmOrganization(sb, body, admin, req) {
+  const name = String(body?.name || '').trim();
+  if (!name) throw badRequest('name required');
+  const row = {
+    name: name.slice(0, 240),
+    legal_name: body?.legal_name || null,
+    domain: body?.domain || null,
+    country: body?.country || null,
+    city: body?.city || null,
+    sector: body?.sector || null,
+    tax_number: body?.tax_number || null,
+    owner_user_id: body?.owner_user_id || admin.id,
+    status: body?.status || 'prospect',
+    metadata: body?.metadata && typeof body.metadata === 'object' ? body.metadata : {},
+    created_by: admin.id
+  };
+  const { data, error } = await sb.from('crm_organizations').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'crm_organization_create', 'crm_organization', data.id, null, { name: data.name }, req);
+  return { success: true, organization: data };
+}
+
+async function createCrmOpportunity(sb, body, admin, req) {
+  const title = String(body?.title || '').trim();
+  if (!title) throw badRequest('title required');
+  const row = {
+    organization_id: body?.organization_id || null,
+    client_id: body?.client_id || null,
+    title: title.slice(0, 240),
+    stage: body?.stage || 'lead',
+    value_amount: Number(body?.value_amount || 0),
+    currency: String(body?.currency || 'SAR').slice(0, 8),
+    probability: Math.max(0, Math.min(100, Number(body?.probability ?? 10))),
+    expected_close_date: body?.expected_close_date || null,
+    source: body?.source || null,
+    owner_user_id: body?.owner_user_id || admin.id,
+    next_action: body?.next_action || null,
+    next_action_at: body?.next_action_at || null,
+    created_by: admin.id
+  };
+  const { data, error } = await sb.from('crm_opportunities').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'crm_opportunity_create', 'crm_opportunity', data.id, null, { stage: data.stage, value_amount: data.value_amount }, req);
+  return { success: true, opportunity: data };
+}
+
+async function updateCrmOpportunity(sb, body, admin, req) {
+  const id = body?.id;
+  if (!id) throw badRequest('id required');
+  const allowed = ['stage','value_amount','currency','probability','expected_close_date','owner_user_id','next_action','next_action_at','lost_reason'];
+  const updates = { updated_at: new Date().toISOString() };
+  for (const key of allowed) if (body[key] !== undefined) updates[key] = body[key];
+  if (updates.probability !== undefined) updates.probability = Math.max(0, Math.min(100, Number(updates.probability)));
+  const { data, error } = await sb.from('crm_opportunities').update(updates).eq('id', id).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'crm_opportunity_update', 'crm_opportunity', id, null, updates, req);
+  return { success: true, opportunity: data };
+}
+
+async function upsertCrmCustomerSuccess(sb, body, admin, req) {
+  const organizationId = body?.organization_id || null;
+  const clientId = body?.client_id || null;
+  if (!organizationId && !clientId) throw badRequest('organization_id or client_id required');
+  const row = {
+    organization_id: organizationId,
+    client_id: clientId,
+    owner_user_id: body?.owner_user_id || admin.id,
+    health_score: Math.max(0, Math.min(100, Number(body?.health_score ?? 50))),
+    risk_level: body?.risk_level || 'low',
+    lifecycle_stage: body?.lifecycle_stage || 'onboarding',
+    next_review_at: body?.next_review_at || null,
+    success_plan: body?.success_plan && typeof body.success_plan === 'object' ? body.success_plan : {},
+    updated_at: new Date().toISOString()
+  };
+  const { data, error } = await sb.from('crm_customer_success')
+    .upsert(row, { onConflict: 'organization_id,client_id' })
+    .select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'crm_customer_success_update', 'crm_customer_success', data.id, null, { health_score: data.health_score, risk_level: data.risk_level }, req);
+  return { success: true, customerSuccess: data };
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -2403,6 +2552,26 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'crm-organization-create') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await createCrmOrganization(sb, req.body, admin, req));
+      }
+      if (action === 'crm-opportunity-create') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await createCrmOpportunity(sb, req.body, admin, req));
+      }
+      if (action === 'crm-opportunity-update') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await updateCrmOpportunity(sb, req.body, admin, req));
+      }
+      if (action === 'crm-customer-success-upsert') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await upsertCrmCustomerSuccess(sb, req.body, admin, req));
+      }
       if (action === 'user-360-note') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
@@ -2472,6 +2641,11 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'crm-overview') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getCrmOverview(sb));
       }
       if (action === 'analytics') {
         const admin = await verifyAdminStrict(req, sb);
