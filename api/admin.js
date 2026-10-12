@@ -26,6 +26,7 @@ class HttpError extends Error {
 function badRequest(message) { return new HttpError(400, message); }
 function unauthorized(message = 'Unauthorized') { return new HttpError(401, message); }
 function forbidden(message = 'Forbidden') { return new HttpError(403, message); }
+function notFound(message = 'Not found') { return new HttpError(404, message); }
 
 function isOwner(email) {
   if (!email) return false;
