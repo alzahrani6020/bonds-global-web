@@ -2063,6 +2063,83 @@ async function npsHandler(req, res) {
   }
 }
 
+async function entitlementsHandler(req, res) {
+  if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
+  const sb = getSupabase();
+  const user = await resolveAuthUser(req, {});
+  const environment = process.env.VERCEL_ENV || process.env.NODE_ENV || 'production';
+  let profile = null;
+  let organizationIds = [];
+
+  if (user) {
+    const [profileResult, membershipResult] = await Promise.all([
+      sb.from('profiles').select('id,tier,country').eq('id', user.id).maybeSingle(),
+      sb.from('organization_members').select('organization_id').eq('user_id', user.id).eq('relationship_status', 'active')
+    ]);
+    profile = profileResult.data || null;
+    organizationIds = (membershipResult.data || []).map(x => String(x.organization_id));
+  }
+
+  const [{ data: flags, error: flagsError }, { data: overrides }, { data: entitlements }] = await Promise.all([
+    sb.from('feature_flags').select('flag_key,enabled,rollout_percent,environments,config'),
+    sb.from('feature_flag_overrides').select('flag_key,subject_type,subject_key,enabled,expires_at'),
+    sb.from('entitlements').select('subject_type,subject_key,entitlement_key,value,expires_at')
+  ]);
+
+  if (flagsError) return res.status(503).json({ error: 'Feature configuration unavailable' });
+
+  const userId = user?.id ? String(user.id) : null;
+  const tier = profile?.tier ? String(profile.tier) : null;
+  const country = String(profile?.country || req.headers['x-vercel-ip-country'] || '').toUpperCase();
+  const now = new Date();
+  const isActive = row => !row?.expires_at || new Date(row.expires_at) > now;
+  const bucket = (subject, flagKey) => {
+    const input = String(subject || 'anonymous') + ':' + String(flagKey || '');
+    let hash = 2166136261;
+    for (let i = 0; i < input.length; i++) {
+      hash ^= input.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return ((hash >>> 0) % 10000) / 100;
+  };
+
+  const resolvedFlags = {};
+  for (const flag of flags || []) {
+    const envs = Array.isArray(flag.environments) ? flag.environments : [];
+    let enabled = !!flag.enabled && (!envs.length || envs.includes(environment));
+    const rollout = Math.max(0, Math.min(100, Number(flag.rollout_percent || 0)));
+    if (enabled && rollout < 100) enabled = bucket(userId || country || 'anonymous', flag.flag_key) < rollout;
+
+    const activeOverrides = (overrides || []).filter(x => x.flag_key === flag.flag_key && isActive(x));
+    const match =
+      activeOverrides.find(x => userId && x.subject_type === 'user' && String(x.subject_key) === userId) ||
+      activeOverrides.find(x => x.subject_type === 'organization' && organizationIds.includes(String(x.subject_key))) ||
+      activeOverrides.find(x => tier && x.subject_type === 'tier' && String(x.subject_key) === tier) ||
+      activeOverrides.find(x => country && x.subject_type === 'country' && String(x.subject_key).toUpperCase() === country);
+
+    if (match) enabled = !!match.enabled;
+    resolvedFlags[flag.flag_key] = { enabled, config: enabled ? (flag.config || {}) : {} };
+  }
+
+  const resolvedEntitlements = {};
+  for (const item of (entitlements || []).filter(isActive)) {
+    const matches =
+      (userId && item.subject_type === 'user' && String(item.subject_key) === userId) ||
+      (item.subject_type === 'organization' && organizationIds.includes(String(item.subject_key))) ||
+      (tier && item.subject_type === 'tier' && String(item.subject_key) === tier);
+    if (matches) resolvedEntitlements[item.entitlement_key] = item.value;
+  }
+
+  res.setHeader('Cache-Control', user ? 'private, no-store' : 'public, max-age=30, stale-while-revalidate=60');
+  return res.status(200).json({
+    success: true,
+    environment,
+    authenticated: !!user,
+    flags: resolvedFlags,
+    entitlements: resolvedEntitlements
+  });
+}
+
 // ── Main Router ────────────────────────────────────────────
 module.exports = async function handler(req, res) {
   setCors(res, req);
@@ -2180,6 +2257,12 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/email-webhook' || pathname === '/api/email-webhook/') {
       if (await checkRateLimit('webhook', req, res)) return;
       return emailWebhookHandler(req, res);
+    }
+
+    // Runtime feature flags and entitlements
+    if (pathname === '/api/entitlements' || pathname === '/api/entitlements/') {
+      if (await checkRateLimit('public', req, res)) return;
+      return entitlementsHandler(req, res);
     }
 
     // NPS
