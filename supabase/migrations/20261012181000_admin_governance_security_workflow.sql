@@ -229,3 +229,23 @@ BEGIN
     EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE public.%I TO service_role', t);
   END LOOP;
 END $$;
+
+
+-- Default role-to-permission mapping. Fine-grained grants can extend these temporarily.
+INSERT INTO public.admin_role_permissions (role, permission_key)
+SELECT 'super_admin', permission_key FROM public.admin_permissions
+ON CONFLICT DO NOTHING;
+
+INSERT INTO public.admin_role_permissions (role, permission_key) VALUES
+('admin','users.read'),('admin','users.write'),
+('admin','crm.read'),('admin','crm.write'),
+('admin','support.read'),('admin','support.write'),
+('admin','finance.read'),('admin','finance.reconcile'),
+('admin','security.read'),('admin','features.manage'),('admin','workflow.manage'),
+('admin','incidents.manage'),('admin','platform.read'),
+('admin','ai.read'),('admin','data.read'),('admin','documents.read'),('admin','documents.manage'),
+('support','users.read'),('support','crm.read'),('support','support.read'),('support','support.write'),
+('support','platform.read'),('support','documents.read'),
+('viewer','users.read'),('viewer','crm.read'),('viewer','support.read'),
+('viewer','platform.read'),('viewer','documents.read')
+ON CONFLICT DO NOTHING;
