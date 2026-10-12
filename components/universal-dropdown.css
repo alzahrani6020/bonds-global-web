@@ -552,8 +552,8 @@ select[data-ud-native]:disabled {
 .ud-dropdown[data-ud-theme="light"] .ud-item:focus,
 .ud-dropdown[data-ud-theme="light"] .ud-item.ud-highlighted,
 .ud-dropdown[data-ud-theme="light"] .ud-item.ud-selected {
-  color: #0b1f3a !important;
-  -webkit-text-fill-color: #0b1f3a !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
   background: #d4a94a !important;
 }
 
