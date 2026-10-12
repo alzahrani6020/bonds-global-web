@@ -1,0 +1,42 @@
+name: Admin Operations Sweep
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: admin-operations-sweep
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate secret
+        shell: bash
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET is not configured"
+            exit 1
+          fi
+
+      - name: Run operational sweep
+        shell: bash
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          code="$(curl --silent --show-error --output /tmp/sweep.json --write-out '%{http_code}'             --request POST             --header "X-Cron-Secret: $CRON_SECRET"             --header "Content-Type: application/json"             --data '{}'             https://bonds-global.com/api/admin?action=run-operational-sweep)"
+          if [ "$code" -lt 200 ] || [ "$code" -ge 300 ]; then
+            echo "Operational sweep failed with HTTP $code"
+            cat /tmp/sweep.json
+            exit 1
+          fi
+          node -e "const r=require('/tmp/sweep.json'); if (!r.success) process.exit(1)"
