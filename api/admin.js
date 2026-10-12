@@ -385,6 +385,141 @@ async function getAuditLog(sb, opts = {}) {
   return { success: true, logs: data || [], count: count || 0 };
 }
 
+// ── Admin Operations Inbox ─────────────────────────────────
+async function getOperationsOverview(sb) {
+  const now = new Date().toISOString();
+
+  const checks = [
+    {
+      key: 'incompleteProfiles',
+      run: () => sb.from('profiles').select('id', { count: 'exact', head: true }).lt('profile_completeness', 100)
+    },
+    {
+      key: 'unreadMessages',
+      run: () => sb.from('contact_messages').select('id', { count: 'exact', head: true }).eq('read', false)
+    },
+    {
+      key: 'pendingTransfers',
+      run: () => sb.from('bank_transfer_requests').select('id', { count: 'exact', head: true }).eq('status', 'pending')
+    },
+    {
+      key: 'openFundingCases',
+      run: () => sb.from('funding_cases').select('id', { count: 'exact', head: true }).is('closed_at', null)
+    },
+    {
+      key: 'overdueFundingCases',
+      run: () => sb.from('funding_cases').select('id', { count: 'exact', head: true })
+        .is('closed_at', null)
+        .lt('sla_deadline_at', now)
+    }
+  ];
+
+  const results = await Promise.allSettled(checks.map(async ({ key, run }) => {
+    const result = await run();
+    if (result.error) throw result.error;
+    return { key, count: result.count || 0 };
+  }));
+
+  const queues = {
+    incompleteProfiles: null,
+    unreadMessages: null,
+    pendingTransfers: null,
+    openFundingCases: null,
+    overdueFundingCases: null
+  };
+  const errors = [];
+
+  results.forEach((result, index) => {
+    const key = checks[index].key;
+    if (result.status === 'fulfilled') {
+      queues[key] = result.value.count;
+    } else {
+      errors.push({
+        key,
+        message: String(result.reason?.message || result.reason || 'Unavailable').slice(0, 200)
+      });
+    }
+  });
+
+  return {
+    success: true,
+    generatedAt: new Date().toISOString(),
+    status: errors.length ? 'degraded' : 'healthy',
+    queues,
+    errors
+  };
+}
+
+// ── Admin Operations Health ─────────────────────────────────
+async function getSystemHealth(sb) {
+  const startedAt = Date.now();
+  const memory = process.memoryUsage();
+  const heapStats = require('v8').getHeapStatistics();
+  const heapLimit = Number(heapStats.heap_size_limit || 0);
+  const mb = value => Math.round((Number(value || 0) / 1024 / 1024) * 10) / 10;
+
+  const envChecks = {
+    adminEmail: !!process.env.ADMIN_EMAIL,
+    supabaseUrl: !!(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL),
+    supabaseServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+  };
+
+  const dbStarted = Date.now();
+  let database = { status: 'unknown', latencyMs: null, error: null };
+  try {
+    const { error } = await sb.from('profiles').select('id', { count: 'exact', head: true });
+    if (error) throw error;
+    database = { status: 'healthy', latencyMs: Date.now() - dbStarted, error: null };
+  } catch (error) {
+    database = {
+      status: 'degraded',
+      latencyMs: Date.now() - dbStarted,
+      error: String(error?.message || 'Database health check failed').slice(0, 240)
+    };
+  }
+
+  const heapLimitWarning = heapLimit > 0 && memory.heapUsed / heapLimit >= 0.85;
+  const runtime = {
+    status: heapLimitWarning ? 'degraded' : 'healthy',
+    node: process.version,
+    uptimeSeconds: Math.round(process.uptime()),
+    memory: {
+      rssMb: mb(memory.rss),
+      heapTotalMb: mb(memory.heapTotal),
+      heapLimitMb: mb(heapLimit),
+      heapUsedMb: mb(memory.heapUsed),
+      externalMb: mb(memory.external),
+      arrayBuffersMb: mb(memory.arrayBuffers),
+      heapUtilizationPct: heapLimit
+        ? Math.round((memory.heapUsed / heapLimit) * 1000) / 10
+        : null
+    }
+  };
+
+  const configMissing = Object.entries(envChecks)
+    .filter(([, present]) => !present)
+    .map(([key]) => key);
+
+  return {
+    success: true,
+    checkedAt: new Date().toISOString(),
+    durationMs: Date.now() - startedAt,
+    overall: database.status === 'healthy' && !heapLimitWarning && configMissing.length === 0
+      ? 'healthy'
+      : 'degraded',
+    services: {
+      api: { status: 'healthy' },
+      database,
+      runtime,
+      configuration: {
+        status: configMissing.length ? 'degraded' : 'healthy',
+        checks: envChecks,
+        missing: configMissing
+      }
+    }
+  };
+}
+
 // ── Security Center ─────────────────────────────────────────
 async function getSecurityStatus(sb, admin) {
   const enforceMfa = await isAdminMfaEnforced(sb);
@@ -1424,16 +1559,41 @@ async function getUsers(sb, params = {}) {
   const roleMap = {};
   (roleList || []).forEach(r => roleMap[r.user_id] = r.role);
 
-  // Fetch auth metadata for the current page in parallel (small N per page)
+  // Avoid an auth-admin N+1 fan-out for every row. Profiles are the canonical
+  // source for list rendering; auth is consulted only when identity fields are missing.
+  // The bounded worker pool protects serverless memory, provider rate limits, and latency.
   const authMap = {};
-  await Promise.all((profileList || []).map(async (p) => {
-    try {
-      const { data } = await sb.auth.admin.getUserById(p.id);
-      if (data?.user) authMap[p.id] = data.user;
-    } catch (e) {}
-  }));
+  const authFallbackQueue = (profileList || []).filter((p) => (
+    !p.email ||
+    !p.restaurant_name ||
+    !p.phone ||
+    !p.country ||
+    !p.city ||
+    !p.business_type
+  ));
+  const AUTH_LOOKUP_CONCURRENCY = 5;
 
-  // Fallback last activity from user_presence when auth last_sign_in_at is null
+  async function authFallbackWorker() {
+    while (authFallbackQueue.length) {
+      const p = authFallbackQueue.shift();
+      if (!p) continue;
+      try {
+        const { data } = await sb.auth.admin.getUserById(p.id);
+        if (data?.user) authMap[p.id] = data.user;
+      } catch (e) {
+        // Degrade gracefully: profile/presence data still produces a usable row.
+      }
+    }
+  }
+
+  await Promise.all(
+    Array.from(
+      { length: Math.min(AUTH_LOOKUP_CONCURRENCY, authFallbackQueue.length) },
+      () => authFallbackWorker()
+    )
+  );
+
+  // Last activity comes from presence first; auth metadata is only a fallback.
   const presenceMap = {};
   try {
     const userIds = (profileList || []).map(p => p.id).filter(Boolean);
@@ -1468,7 +1628,7 @@ async function getUsers(sb, params = {}) {
       tier_expires_at: p.tier_expires_at || null,
       status: p.status || 'active',
       created_at: u?.created_at || p.created_at,
-      last_sign_in_at: u?.last_sign_in_at || presenceMap[p.id] || null,
+      last_sign_in_at: presenceMap[p.id] || u?.last_sign_in_at || null,
       profile_completeness: p.profile_completeness ?? 0,
       admin_role: roleMap[p.id] || null
     };
@@ -2173,6 +2333,65 @@ async function handler(req, res) {
         const limit = Math.min(parseInt(req.query?.limit) || 100, 500);
         const offset = parseInt(req.query?.offset) || 0;
         return res.status(200).json(await getAuditLog(sb, { limit, offset }));
+      }
+      if (action === 'operations-overview') {
+        const admin = await verifyAdmin(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const requestId = req.headers['x-request-id'] || generateRequestId();
+        const startedAt = Date.now();
+        try {
+          const overview = await getOperationsOverview(sb);
+          safeAdminLog({
+            requestId,
+            endpoint: 'operations-overview',
+            status: 200,
+            authenticated: true,
+            userId: admin.id,
+            role: await getActorRole(sb, admin),
+            duration: Date.now() - startedAt
+          });
+          return res.status(200).json({ ...overview, requestId });
+        } catch (err) {
+          safeAdminLog({
+            requestId,
+            endpoint: 'operations-overview',
+            status: 500,
+            authenticated: true,
+            userId: admin.id,
+            errorCode: err?.message || 'OPERATIONS_OVERVIEW_FAILED',
+            duration: Date.now() - startedAt
+          });
+          return res.status(500).json({ success: false, error: 'Operations overview failed', code: 'OPERATIONS_OVERVIEW_FAILED', requestId });
+        }
+      }
+      if (action === 'system-health') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        const requestId = req.headers['x-request-id'] || generateRequestId();
+        try {
+          const health = await getSystemHealth(sb);
+          safeAdminLog({
+            requestId,
+            endpoint: 'system-health',
+            status: 200,
+            authenticated: true,
+            userId: admin.id,
+            role: await getActorRole(sb, admin),
+            duration: health.durationMs
+          });
+          return res.status(200).json({ ...health, requestId });
+        } catch (err) {
+          safeAdminLog({
+            requestId,
+            endpoint: 'system-health',
+            status: 500,
+            authenticated: true,
+            userId: admin.id,
+            errorCode: err?.message || 'SYSTEM_HEALTH_FAILED',
+            duration: 0
+          });
+          return res.status(500).json({ success: false, error: 'System health check failed', code: 'SYSTEM_HEALTH_FAILED', requestId });
+        }
       }
       if (action === 'security-status') {
         const admin = await verifyAdminStrict(req, sb);
