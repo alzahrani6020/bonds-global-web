@@ -50,4 +50,20 @@ describe('admin operations reliability', () => {
     expect(dashboard).toContain('DB latency');
     expect(dashboard).toContain('Health request ID');
   });
+
+  test('operations inbox aggregates existing action queues without new schema', () => {
+    const api = read('api/admin.js');
+    const dashboard = read('admin/dashboard.html');
+
+    expect(api).toContain('async function getOperationsOverview(sb)');
+    expect(api).toContain("if (action === 'operations-overview')");
+    expect(api).toContain("eq('read', false)");
+    expect(api).toContain("eq('status', 'pending')");
+    expect(api).toContain("lt('profile_completeness', 100)");
+    expect(api).toContain("lt('sla_deadline_at', now)");
+
+    expect(dashboard).toContain("apiGet('operations-overview')");
+    expect(dashboard).toContain('صندوق العمليات');
+    expect(dashboard).toContain('SLA متأخر');
+  });
 });
