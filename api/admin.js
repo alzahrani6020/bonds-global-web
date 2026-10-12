@@ -2233,6 +2233,121 @@ async function upsertCrmCustomerSuccess(sb, body, admin, req) {
   return { success: true, customerSuccess: data };
 }
 
+// ── Support Center ──────────────────────────────────────────
+function supportSlaHours(priority) {
+  return ({ low: 72, normal: 24, high: 8, urgent: 4, critical: 1 })[priority] || 24;
+}
+
+async function getSupportOverview(sb) {
+  const { data: tickets, error } = await sb.from('support_tickets')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(1000);
+  if (error) throw error;
+
+  const rows = tickets || [];
+  const now = Date.now();
+  const open = rows.filter(t => !['resolved','closed'].includes(t.status));
+  const summary = {
+    open: open.length,
+    unassigned: open.filter(t => !t.assigned_to).length,
+    breached: open.filter(t => t.sla_due_at && new Date(t.sla_due_at).getTime() < now).length,
+    critical: open.filter(t => ['urgent','critical'].includes(t.priority)).length,
+    escalated: open.filter(t => Number(t.escalation_level || 0) > 0).length
+  };
+
+  return { success: true, tickets: rows, summary };
+}
+
+async function createSupportTicket(sb, body, admin, req) {
+  const subject = String(body?.subject || '').trim();
+  if (!subject) throw badRequest('subject required');
+  const priority = body?.priority || 'normal';
+  const hours = supportSlaHours(priority);
+  const slaDueAt = body?.sla_due_at || new Date(Date.now() + hours * 3600000).toISOString();
+  const row = {
+    user_id: body?.user_id || null,
+    advisory_client_id: body?.advisory_client_id || null,
+    subject: subject.slice(0, 300),
+    description: String(body?.description || '').slice(0, 10000) || null,
+    status: body?.status || 'open',
+    priority,
+    assigned_to: body?.assigned_to || null,
+    created_by: admin.id,
+    source: body?.source || 'admin',
+    request_id: body?.request_id || null,
+    error_code: body?.error_code || null,
+    related_url: body?.related_url || null,
+    sla_due_at: slaDueAt
+  };
+  const { data, error } = await sb.from('support_tickets').insert([row]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'support_ticket_create', 'support_ticket', data.id, null, { priority, user_id: row.user_id, request_id: row.request_id }, req);
+  return { success: true, ticket: data };
+}
+
+async function updateSupportTicket(sb, body, admin, req) {
+  const id = body?.id;
+  if (!id) throw badRequest('id required');
+  const allowed = ['status','priority','assigned_to','sla_due_at','request_id','error_code','related_url','escalation_level'];
+  const updates = { updated_at: new Date().toISOString() };
+  for (const key of allowed) if (body[key] !== undefined) updates[key] = body[key];
+
+  if (body?.status === 'resolved' && !body?.resolved_at) updates.resolved_at = new Date().toISOString();
+  if (body?.escalate === true) {
+    updates.escalation_level = Math.min(5, Math.max(1, Number(body?.escalation_level || 1)));
+    updates.escalated_at = new Date().toISOString();
+  }
+  if (body?.priority && body?.recalculate_sla === true) {
+    updates.sla_due_at = new Date(Date.now() + supportSlaHours(body.priority) * 3600000).toISOString();
+  }
+
+  const { data, error } = await sb.from('support_tickets').update(updates).eq('id', id).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'support_ticket_update', 'support_ticket', id, null, updates, req);
+  return { success: true, ticket: data };
+}
+
+async function getSupportTicketDetail(sb, ticketId) {
+  if (!ticketId) throw badRequest('ticket_id required');
+  const [{ data: ticket, error }, { data: notes, error: notesError }] = await Promise.all([
+    sb.from('support_tickets').select('*').eq('id', ticketId).single(),
+    sb.from('support_ticket_notes').select('*').eq('ticket_id', ticketId).order('created_at', { ascending: true }).limit(500)
+  ]);
+  if (error) throw error;
+  if (notesError) throw notesError;
+  return { success: true, ticket, notes: notes || [] };
+}
+
+async function addSupportNote(sb, body, admin, req) {
+  const ticketId = body?.ticket_id;
+  const content = String(body?.content || '').trim();
+  if (!ticketId || !content) throw badRequest('ticket_id and content required');
+
+  const { data: note, error } = await sb.from('support_ticket_notes').insert([{
+    ticket_id: ticketId,
+    content: content.slice(0, 10000),
+    is_internal: body?.is_internal !== false,
+    created_by: admin.id
+  }]).select().single();
+  if (error) throw error;
+
+  const mentionIds = [...new Set((Array.isArray(body?.mention_user_ids) ? body.mention_user_ids : []).filter(Boolean))].slice(0, 25);
+  if (mentionIds.length) {
+    const { error: mentionError } = await sb.from('support_ticket_mentions').insert(
+      mentionIds.map(userId => ({
+        ticket_id: ticketId,
+        note_id: note.id,
+        mentioned_user_id: userId
+      }))
+    );
+    if (mentionError) throw mentionError;
+  }
+
+  await logAdminAction(sb, admin, 'support_note_add', 'support_ticket', ticketId, null, { note_id: note.id, mentions: mentionIds }, req);
+  return { success: true, note };
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -2552,6 +2667,21 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'support-ticket-create') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await createSupportTicket(sb, req.body, admin, req));
+      }
+      if (action === 'support-ticket-update') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await updateSupportTicket(sb, req.body, admin, req));
+      }
+      if (action === 'support-note-add') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await addSupportNote(sb, req.body, admin, req));
+      }
       if (action === 'crm-organization-create') {
         const admin = await verifyAdminStrict(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
@@ -2641,6 +2771,16 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'support-overview') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getSupportOverview(sb));
+      }
+      if (action === 'support-ticket-detail') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getSupportTicketDetail(sb, req.query?.ticket_id));
       }
       if (action === 'crm-overview') {
         const admin = await verifyAdminStrict(req, sb);
