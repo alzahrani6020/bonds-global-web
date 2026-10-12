@@ -841,6 +841,93 @@ async function handleCityIndicators(req, res, path) {
   sendJson(res, 200, { indicators: data || null, year: targetYear });
 }
 
+async function handleCityEvidence(req, res, path) {
+  const match = path.match(/^\/cities\/([^\/]+)\/evidence$/);
+  if (!match) return sendJson(res, 404, { error: 'Invalid path' });
+  const cityCode = match[1];
+  const url = getQuery(req);
+  const activityCode = url.searchParams.get('activity');
+  const requestedYear = url.searchParams.get('year') || 'latest';
+  const supabase = getSupabaseClient();
+
+  const { data: city, error: cityError } = await supabase
+    .from('cities')
+    .select('id,code,name_ar,name_en,country_code,region')
+    .eq('code', cityCode)
+    .maybeSingle();
+
+  if (cityError) return sendJson(res, 500, { error: cityError.message });
+  if (!city) {
+    return sendJson(res, 200, {
+      city: null,
+      evidence: [],
+      count: 0,
+      status: 'catalog_only',
+      message: 'No verified database evidence is stored for this catalog city yet.'
+    });
+  }
+
+  let activityId = null;
+  if (activityCode) {
+    const { data: activity, error: activityError } = await supabase
+      .from('economic_activities')
+      .select('id,code,name_ar,name_en')
+      .eq('code', activityCode)
+      .maybeSingle();
+    if (activityError) return sendJson(res, 500, { error: activityError.message });
+    activityId = activity?.id || null;
+  }
+
+  let query = supabase
+    .from('normalized_metrics')
+    .select('metric_code,activity_id,year,value,value_text,source_id,source_name,source_url,confidence,confidence_reason,fetched_at,is_override,metadata')
+    .eq('city_id', city.id)
+    .order('fetched_at', { ascending: false })
+    .limit(300);
+
+  if (/^\d{4}$/.test(requestedYear)) query = query.eq('year', Number(requestedYear));
+
+  const { data: rows, error } = await query;
+  if (error) return sendJson(res, 500, { error: error.message });
+
+  const relevant = (rows || []).filter(row =>
+    row.activity_id == null || (activityId && row.activity_id === activityId)
+  );
+  const latestByMetric = new Map();
+  for (const row of relevant) {
+    const scope = row.activity_id ? 'activity' : 'city';
+    const key = `${scope}:${row.metric_code}`;
+    if (!latestByMetric.has(key)) latestByMetric.set(key, row);
+  }
+
+  const evidence = [...latestByMetric.values()].map(row => {
+    const quality = String(row.metadata?.dataQuality || '').toLowerCase();
+    const method = String(row.metadata?.method || '').toLowerCase();
+    const estimated = row.metadata?.estimated === true ||
+      quality === 'fallback' ||
+      quality === 'estimated' ||
+      method === 'inference' ||
+      row.source_id === 'inference_engine';
+    const verified = !estimated &&
+      Boolean(row.source_url) &&
+      (quality === 'official' || quality === 'open_data' || row.is_override === true);
+
+    return {
+      ...row,
+      evidence_status: verified ? 'verified' : (estimated ? 'estimated' : 'unverified')
+    };
+  });
+
+  return sendJson(res, 200, {
+    city,
+    evidence,
+    count: evidence.length,
+    verifiedCount: evidence.filter(row => row.evidence_status === 'verified').length,
+    estimatedCount: evidence.filter(row => row.evidence_status === 'estimated').length,
+    status: evidence.length ? 'evidence_available' : 'no_evidence'
+  });
+}
+
 async function handleCityMarket(req, res, path) {
   const match = path.match(/^\/cities\/([^\/]+)\/market$/);
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
