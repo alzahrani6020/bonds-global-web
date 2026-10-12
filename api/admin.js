@@ -509,7 +509,11 @@ async function mutatePlatformModule(sb, moduleName, body, admin, req) {
     if (['tickets','tasks','workflow-rules','documents'].includes(moduleName)) {
       record.created_by = admin.id;
     }
-    if (moduleName === 'refunds') record.requested_by = admin.id;
+    if (['refunds','data-requests','exports','approvals'].includes(moduleName)) record.requested_by = admin.id;
+    if (moduleName === 'access-grants') record.granted_by = admin.id;
+    if (moduleName === 'trusted-devices') record.trusted_by = admin.id;
+    if (['feature-overrides','entitlements','ai-prompts'].includes(moduleName)) record.created_by = admin.id;
+    if (moduleName === 'feature-flags') record.updated_by = admin.id;
     const { data, error } = await sb.from(config.table).insert(record).select().single();
     if (error) throw error;
     await logAdminAction(sb, admin, 'platform_create', config.table, data?.id || data?.flag_key || null, null, { module: moduleName }, req);
