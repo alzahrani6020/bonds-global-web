@@ -185,6 +185,23 @@
     } catch (e) {}
   }
 
+  function getAdminDeviceFingerprint() {
+    if (typeof window === 'undefined' || typeof localStorage === 'undefined') return '';
+    try {
+      const key = 'bonds_admin_device_id';
+      let value = localStorage.getItem(key);
+      if (!value) {
+        value = (window.crypto && typeof window.crypto.randomUUID === 'function')
+          ? window.crypto.randomUUID()
+          : 'dev_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 12);
+        localStorage.setItem(key, value);
+      }
+      return value;
+    } catch (e) {
+      return '';
+    }
+  }
+
   async function authenticatedFetch(url, options) {
     options = options || {};
     await ensureEnv();
@@ -227,6 +244,14 @@
       'Authorization': 'Bearer ' + token,
       'X-Request-ID': requestId
     };
+    const isAdminRequest = typeof url === 'string' && (
+      url.startsWith('/api/admin') ||
+      url.startsWith(location?.origin + '/api/admin')
+    );
+    if (isAdminRequest) {
+      const deviceFingerprint = getAdminDeviceFingerprint();
+      if (deviceFingerprint) authHeaders['X-Device-Fingerprint'] = deviceFingerprint;
+    }
     if (!options.headers || !options.headers['Content-Type']) {
       if (options.body && typeof options.body === 'string') {
         authHeaders['Content-Type'] = 'application/json';
