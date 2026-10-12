@@ -506,7 +506,7 @@ async function mutatePlatformModule(sb, moduleName, body, admin, req) {
 
   if (operation === 'create') {
     if ('created_by' in (body.record || {})) delete record.created_by;
-    if (['tickets','tasks','workflow-rules','data-requests','exports','documents'].includes(moduleName)) {
+    if (['tickets','tasks','workflow-rules','documents'].includes(moduleName)) {
       record.created_by = admin.id;
     }
     if (moduleName === 'refunds') record.requested_by = admin.id;
