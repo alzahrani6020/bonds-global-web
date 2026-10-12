@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-ud-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>User 360 | بوندز</title>
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=6">
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=1">
+  <style>
+    body{font-family:system-ui,sans-serif;background:#f7f4ee;color:#1f2937;margin:0}
+    main{max-width:1440px;margin:auto;padding:1.25rem}
+    .head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1rem}
+    .head h1{margin:0}.muted{color:#6b7280}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:1rem;overflow:auto}
+    .card h2{font-size:1rem;margin:.1rem 0 .75rem}.metric{font-size:1.8rem;font-weight:800}
+    .rows{display:grid;gap:.45rem}.row{display:flex;justify-content:space-between;gap:1rem;border-bottom:1px solid #f0f0f0;padding:.45rem 0}
+    table{width:100%;border-collapse:collapse;font-size:.84rem}th,td{text-align:right;border-bottom:1px solid #eee;padding:.55rem;vertical-align:top}
+    .error{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;padding:.75rem;border-radius:10px;margin-bottom:1rem;display:none}
+    .pill{display:inline-block;padding:.15rem .5rem;border-radius:999px;background:#f3f4f6;margin:.1rem}
+    .actions{display:flex;gap:.5rem;flex-wrap:wrap}.btn{border:0;border-radius:9px;padding:.55rem .8rem;cursor:pointer;font-weight:700}
+    .primary{background:#b8954e;color:#111}.secondary{background:#eef2f7;color:#111}
+    @media(max-width:680px){main{padding:.75rem}.grid{grid-template-columns:1fr}.head{display:block}.actions{margin-top:.75rem}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="head">
+    <div>
+      <h1>ملف المستخدم 360°</h1>
+      <div class="muted" id="identity">جارِ التحميل...</div>
+    </div>
+    <div class="actions">
+      <button class="btn secondary" onclick="history.back()">رجوع</button>
+      <button class="btn primary" id="refreshBtn">تحديث</button>
+    </div>
+  </div>
+  <div id="errorBox" class="error"></div>
+  <section class="grid">
+    <article class="card"><h2>Health Score</h2><div class="metric" id="healthScore">—</div><div class="rows" id="healthRows"></div></article>
+    <article class="card"><h2>الملف الشخصي</h2><div class="rows" id="profileRows"></div></article>
+    <article class="card"><h2>المؤسسات</h2><div id="organizations"></div></article>
+    <article class="card"><h2>Tags</h2><div id="tags"></div></article>
+  </section>
+  <section class="grid" style="margin-top:1rem">
+    <article class="card"><h2>الاشتراكات</h2><div id="subscriptions"></div></article>
+    <article class="card"><h2>النشاط والجلسات</h2><div id="presence"></div></article>
+    <article class="card"><h2>الدعم</h2><div id="tickets"></div></article>
+    <article class="card"><h2>الفرص</h2><div id="opportunities"></div></article>
+    <article class="card"><h2>حالات التمويل</h2><div id="fundingCases"></div></article>
+    <article class="card"><h2>العقود</h2><div id="contracts"></div></article>
+    <article class="card"><h2>المستندات</h2><div id="documents"></div></article>
+    <article class="card"><h2>الملاحظات الداخلية</h2><div id="notes"></div></article>
+    <article class="card" style="grid-column:1/-1"><h2>Timeline / Audit</h2><div id="audit"></div></article>
+  </section>
+</main>
+<script src="/supabase-client.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script src="/admin/admin-common.js?v=2"></script>
+<script>
+(function(){
+  'use strict';
+  const q = new URLSearchParams(location.search);
+  const userId = q.get('id') || q.get('user_id');
+  const escapeHtml = value => BondsAdminCommon.escapeHtml(value == null ? '' : String(value));
+  const fmt = value => value ? new Date(value).toLocaleString('ar-SA') : '—';
+
+  function rows(obj, keys) {
+    return keys.map(([label,key]) => '<div class="row"><span class="muted">'+escapeHtml(label)+'</span><strong>'+escapeHtml(obj?.[key] ?? '—')+'</strong></div>').join('');
+  }
+  function table(items, cols) {
+    if (!Array.isArray(items) || !items.length) return '<div class="muted">لا توجد بيانات</div>';
+    return '<table><thead><tr>'+cols.map(c=>'<th>'+escapeHtml(c[0])+'</th>').join('')+'</tr></thead><tbody>'+
+      items.map(item=>'<tr>'+cols.map(c=>'<td>'+escapeHtml(typeof c[1]==='function'?c[1](item):(item?.[c[1]] ?? '—'))+'</td>').join('')+'</tr>').join('')+
+      '</tbody></table>';
+  }
+  function showError(message){
+    const el=document.getElementById('errorBox');
+    el.textContent=message; el.style.display='block';
+  }
+  function clearError(){document.getElementById('errorBox').style.display='none';}
+
+  async function load(){
+    clearError();
+    if(!userId){showError('معرف المستخدم مفقود');return;}
+    const res=await window.BondsAuth.authenticatedFetch('/api/admin?action=user-360&user_id='+encodeURIComponent(userId),{
+      method:'GET',returnTo:location.pathname+location.search
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.success){showError(data.error||('HTTP '+res.status));return;}
+    const s=data.sections||{}, p=s.profile||{}, h=data.health||{};
+    document.getElementById('identity').textContent=(p.restaurant_name||p.full_name||p.email||userId)+' — '+(p.email||'');
+    document.getElementById('healthScore').textContent=String(h.score ?? '—')+'/100';
+    document.getElementById('healthRows').innerHTML=rows(h,[
+      ['اكتمال الملف','profileCompleteness'],['اشتراك فعال','activeSubscription'],
+      ['نشط خلال 30 يوم','activeWithin30Days'],['تذاكر مفتوحة','openTickets']
+    ]);
+    document.getElementById('profileRows').innerHTML=rows(p,[
+      ['الاسم','restaurant_name'],['البريد','email'],['الهاتف','phone'],['الدولة','country'],['المدينة','city'],
+      ['النشاط','business_type'],['الخطة','tier'],['الحالة','status'],['اكتمال الملف','profile_completeness']
+    ]);
+    document.getElementById('organizations').innerHTML=table(s.organizations,[['المؤسسة',x=>x.organizations?.name],['الصفة','title'],['صاحب قرار',x=>x.is_decision_maker?'نعم':'لا']]);
+    document.getElementById('tags').innerHTML=(s.tags||[]).map(x=>'<span class="pill">'+escapeHtml(x.admin_tags?.name||'—')+'</span>').join('')||'<span class="muted">لا توجد Tags</span>';
+    document.getElementById('subscriptions').innerHTML=table(s.subscriptions,[['الخطة','tier'],['الحالة','status'],['البداية',x=>fmt(x.created_at)],['النهاية',x=>fmt(x.current_period_end)]]);
+    document.getElementById('presence').innerHTML=table(s.presence,[['آخر ظهور',x=>fmt(x.last_seen_at)],['الصفحة','page_path'],['الجهاز','device_type']]);
+    document.getElementById('tickets').innerHTML=table(s.tickets,[['الموضوع','subject'],['الأولوية','priority'],['الحالة','status'],['SLA',x=>fmt(x.sla_deadline_at)]]);
+    document.getElementById('opportunities').innerHTML=table(s.opportunities,[['الفرصة','name'],['المرحلة','stage'],['القيمة','value_amount'],['الإغلاق','expected_close_date']]);
+    document.getElementById('fundingCases').innerHTML=table(s.fundingCases,[['المرجع','case_reference'],['الحالة','status'],['المبلغ','amount'],['الإجراء القادم',x=>fmt(x.next_action_at)]]);
+    document.getElementById('contracts').innerHTML=table(s.contracts,[['العقد','title'],['الحالة','status'],['القيمة','value_amount'],['النهاية','ends_on']]);
+    document.getElementById('documents').innerHTML=table(s.documents,[['العنوان','title'],['التصنيف','category'],['الحالة','status'],['الانتهاء',x=>fmt(x.expires_at)]]);
+    document.getElementById('notes').innerHTML=table(s.notes,[['الملاحظة','note'],['الوقت',x=>fmt(x.created_at)]]);
+    document.getElementById('audit').innerHTML=table(s.audit,[['الإجراء','action'],['المنفذ','actor_email'],['الوقت',x=>fmt(x.created_at)],['التفاصيل',x=>JSON.stringify(x.details||{})]]);
+    if(Array.isArray(data.errors)&&data.errors.length){
+      showError('بعض الأقسام غير متاحة: '+data.errors.map(x=>x.section).join('، '));
+    }
+  }
+  document.getElementById('refreshBtn').addEventListener('click',load);
+  if(window.__ADMIN_ROLE) load();
+  else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script>
+<script src="/admin/admin-embed.js?v=4"></script>
+</body>
+</html>
