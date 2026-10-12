@@ -3119,13 +3119,30 @@ async function getExecutiveAnalyticsV2(sb) {
   const aiCost=ai.reduce((s,x)=>s+Number(x.cost_usd||0),0);
   const aiLatency=ai.map(x=>Number(x.latency_ms||0)).filter(Boolean).sort((a,b)=>a-b);
   const aiFailures=ai.filter(x=>x.status!=='success').length;
-  const byModel={};const byFeature={};
-  for(const e of ai){const m=e.model||'unknown';const f=e.feature||'unknown';byModel[m]=(byModel[m]||0)+1;byFeature[f]=(byFeature[f]||0)+1;}
+  const byModel={},byFeature={},costByFeature={},costByModel={},costByUser={};
+  for(const e of ai){
+    const m=e.model||'unknown',f=e.feature||'unknown',cost=Number(e.cost_usd||0);
+    byModel[m]=(byModel[m]||0)+1;byFeature[f]=(byFeature[f]||0)+1;
+    costByFeature[f]=(costByFeature[f]||0)+cost;costByModel[m]=(costByModel[m]||0)+cost;
+    if(e.user_id){const u=hashUserId(e.user_id);costByUser[u]=(costByUser[u]||0)+cost;}
+  }
+
+  const monthlyRevenue={};
+  for(const inv of paidInvoices){
+    const at=inv.paid_at||inv.created_at;const month=String(at||'').slice(0,7);if(!month)continue;
+    monthlyRevenue[month]=(monthlyRevenue[month]||0)+Number(inv.amount||0);
+  }
+  const revenueSeries=Object.entries(monthlyRevenue).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6).map(([month,value])=>({month,value}));
+  let monthlyTrend=0;
+  if(revenueSeries.length>=2) monthlyTrend=(revenueSeries[revenueSeries.length-1].value-revenueSeries[0].value)/(revenueSeries.length-1);
+  const lastRevenue=revenueSeries.length?revenueSeries[revenueSeries.length-1].value:mrr;
+  const forecast90d=Math.max(0,lastRevenue+monthlyTrend)+Math.max(0,lastRevenue+2*monthlyTrend)+Math.max(0,lastRevenue+3*monthlyTrend);
+
   return {success:true,
-    executive:{users:total,activeUsers30d:activeUsers,activatedUsers:activated,mrr,arr,arpu:Math.round(arpu*100)/100,conversionPct:Math.round(conversion*10)/10,churnPct:Math.round(churn*10)/10,pipelineValue,weightedPipeline,renewalRisk,customerHealth:Math.round(avgHealth*10)/10},
+    executive:{users:total,activeUsers30d:activeUsers,activatedUsers:activated,mrr,arr,arpu:Math.round(arpu*100)/100,conversionPct:Math.round(conversion*10)/10,churnPct:Math.round(churn*10)/10,pipelineValue,weightedPipeline,renewalRisk,customerHealth:Math.round(avgHealth*10)/10,revenueForecast90d:Math.round(forecast90d*100)/100,forecastMethod:'linear_paid_invoice_trend',revenueSeries},
     funnel:{registered:total,activated,paid:paidUsers.size,active30d:activeUsers},
     cohorts,
-    ai:{requests:ai.length,costUsd:Math.round(aiCost*1000000)/1000000,failureRatePct:ai.length?Math.round(aiFailures/ai.length*1000)/10:0,p50LatencyMs:aiLatency.length?aiLatency[Math.floor(aiLatency.length*.5)]:null,p95LatencyMs:aiLatency.length?aiLatency[Math.min(aiLatency.length-1,Math.floor(aiLatency.length*.95))]:null,inputTokens:ai.reduce((s,x)=>s+Number(x.input_tokens||0),0),outputTokens:ai.reduce((s,x)=>s+Number(x.output_tokens||0),0),byModel,byFeature},
+    ai:{requests:ai.length,costUsd:Math.round(aiCost*1000000)/1000000,failureRatePct:ai.length?Math.round(aiFailures/ai.length*1000)/10:0,p50LatencyMs:aiLatency.length?aiLatency[Math.floor(aiLatency.length*.5)]:null,p95LatencyMs:aiLatency.length?aiLatency[Math.min(aiLatency.length-1,Math.floor(aiLatency.length*.95))]:null,inputTokens:ai.reduce((s,x)=>s+Number(x.input_tokens||0),0),outputTokens:ai.reduce((s,x)=>s+Number(x.output_tokens||0),0),byModel,byFeature,costByFeature,costByModel,costByUser},
     generatedAt:new Date().toISOString()
   };
 }
