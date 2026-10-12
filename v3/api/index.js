@@ -1079,7 +1079,8 @@ module.exports = async function handler(req, res) {
     }
     if (path.startsWith('/intelligence')) {
       const supabase = getSupabaseClient();
-      return await intelligenceRouter(req, res, path, supabase);
+      const user = await getUserFromToken(req);
+      return await intelligenceRouter(req, res, path, supabase, user);
     }
     if (path.startsWith('/investment-intelligence')) {
       const supabase = getSupabaseClient();

@@ -75,4 +75,14 @@ describe('EnterpriseIntelligenceRunner', () => {
     expect(graph.criticalPath).toContain('start');
     expect(graph.bottleneck).toBeDefined();
   });
+
+  test('aggregate confidence preserves explicit zero instead of converting it to a neutral default', () => {
+    const registry = createDefaultRegistry();
+    const confidence = aggregateConfidence({
+      valuation: { confidence: 0 },
+      risk: { confidence: 0 }
+    }, registry);
+    expect(confidence).toBe(0);
+  });
+
 });
