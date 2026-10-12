@@ -51,6 +51,17 @@ jobs:
       - name: Install Playwright Browser
         run: npx playwright install chromium
 
+      - name: Start Local Dev Server
+        run: npm run dev:local &
+
+      - name: Wait for Server
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3005 > /dev/null; then echo "Server ready"; exit 0; fi
+            sleep 1
+          done
+          echo "Server did not start in time" && exit 1
+
       - name: Release gate
         run: |
           npm run audit
