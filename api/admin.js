@@ -172,6 +172,73 @@ function decodeJwtAal(token) {
   }
 }
 
+function decodeJwtPayload(token) {
+  try {
+    const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+    return JSON.parse(Buffer.from(padded, 'base64').toString('utf8'));
+  } catch (e) {
+    return {};
+  }
+}
+
+async function enforceAdminAccessPolicies(req, sb, user, token, role) {
+  const now = new Date().toISOString();
+  const payload = decodeJwtPayload(token);
+  const sessionId = payload.session_id || payload.sessionId || payload.jti || null;
+
+  let revoked = false;
+  if (sessionId) {
+    const { data } = await sb.from('admin_revoked_sessions')
+      .select('id,expires_at').eq('session_id', sessionId)
+      .order('revoked_at', { ascending: false }).limit(10);
+    revoked = (data || []).some(r => !r.expires_at || r.expires_at > now);
+  }
+  if (!revoked) {
+    const { data } = await sb.from('admin_revoked_sessions')
+      .select('id,session_id,expires_at').eq('user_id', user.id)
+      .order('revoked_at', { ascending: false }).limit(50);
+    revoked = (data || []).some(r => !r.session_id && (!r.expires_at || r.expires_at > now));
+  }
+  if (revoked) throw forbidden('Admin session revoked');
+
+  const { data: policies } = await sb.from('admin_access_policies')
+    .select('*').eq('enabled', true).order('priority', { ascending: true }).limit(100);
+  if (!(policies || []).length) return { sessionId, policy: null };
+
+  const ip = req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim() || req?.socket?.remoteAddress || '';
+  const country = String(req?.headers?.['x-vercel-ip-country'] || req?.headers?.['cf-ipcountry'] || '').toUpperCase();
+  const deviceId = String(req?.headers?.['x-admin-device-id'] || '').trim();
+
+  for (const policy of policies || []) {
+    const applies = Array.isArray(policy.applies_to_roles) ? policy.applies_to_roles : [];
+    if (applies.length && !applies.includes(role)) continue;
+    const deniedCountries = (policy.denied_countries || []).map(x => String(x).toUpperCase());
+    const allowedCountries = (policy.allowed_countries || []).map(x => String(x).toUpperCase());
+    if (country && deniedCountries.includes(country)) throw forbidden('Access denied by country policy');
+    if (allowedCountries.length && (!country || !allowedCountries.includes(country))) throw forbidden('Country not allowed by admin policy');
+    if ((policy.denied_ips || []).includes(ip)) throw forbidden('Access denied by IP policy');
+    if ((policy.allowed_ips || []).length && !(policy.allowed_ips || []).includes(ip)) throw forbidden('IP not allowed by admin policy');
+
+    if (policy.max_session_minutes && payload.iat) {
+      const ageMinutes = (Date.now() / 1000 - Number(payload.iat)) / 60;
+      if (ageMinutes > Number(policy.max_session_minutes)) throw forbidden('Admin session expired by policy');
+    }
+
+    if (policy.require_trusted_device) {
+      if (!deviceId) throw forbidden('Trusted admin device required');
+      const { data: device } = await sb.from('admin_trusted_devices')
+        .select('id,trusted_until,revoked_at')
+        .eq('user_id', user.id).eq('device_fingerprint', deviceId)
+        .maybeSingle();
+      if (!device || device.revoked_at || (device.trusted_until && device.trusted_until <= now)) {
+        throw forbidden('Untrusted admin device');
+      }
+    }
+  }
+  return { sessionId, policy: 'enforced' };
+}
+
 async function isAdminMfaEnforced(sb) {
   try {
     const { data } = await sb.from('site_settings').select('value').eq('key', 'admin_enforce_mfa').single();
@@ -260,11 +327,13 @@ async function verifyAdmin(req, sb) {
   // Owner fallback
   if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+    await enforceAdminAccessPolicies(req, sb, user, token, 'super_admin');
     return user;
   }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin', 'support'].includes(role.role)) throw forbidden('Admin required');
   if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+  await enforceAdminAccessPolicies(req, sb, user, token, role.role);
   return user;
 }
 
@@ -285,11 +354,13 @@ async function verifyAdminStrict(req, sb) {
   // Owner fallback — always super_admin
   if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+    await enforceAdminAccessPolicies(req, sb, user, token, 'super_admin');
     return user;
   }
   const { data: role } = await sb.from('admin_roles').select('role').eq('user_id', user.id).single();
   if (!role || !['super_admin', 'admin'].includes(role.role)) throw forbidden('Admin required');
   if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
+  await enforceAdminAccessPolicies(req, sb, user, token, role.role);
   return user;
 }
 
@@ -660,7 +731,8 @@ async function getSystemHealth(sb) {
   const envChecks = {
     adminEmail: !!process.env.ADMIN_EMAIL,
     supabaseUrl: !!(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL),
-    supabaseServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    supabaseServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    cronSecret: !!process.env.CRON_SECRET
   };
 
   const dbStarted = Date.now();
@@ -3112,6 +3184,503 @@ async function queueWorkflowRun(sb, body, admin, req) {
   return { success: true, run: data };
 }
 
+// ── Platform Observability / Incidents / Recovery ──────────
+async function getPlatformOverview(sb) {
+  const since24h = new Date(Date.now() - 24 * 3600000).toISOString();
+  const [
+    errorsRes, metricsRes, jobsRes, incidentsRes, backupsRes, drillsRes,
+    integrationsRes, webhooksRes, migrationsRes, releasesRes
+  ] = await Promise.all([
+    sb.from('admin_error_events').select('*').gte('last_seen_at', since24h).order('last_seen_at', { ascending: false }).limit(500),
+    sb.from('admin_request_metrics').select('*').gte('created_at', since24h).order('created_at', { ascending: false }).limit(2000),
+    sb.from('admin_job_runs').select('*').order('created_at', { ascending: false }).limit(500),
+    sb.from('admin_incidents').select('*').order('started_at', { ascending: false }).limit(500),
+    sb.from('admin_backup_checks').select('*').order('verified_at', { ascending: false }).limit(500),
+    sb.from('admin_recovery_drills').select('*').order('created_at', { ascending: false }).limit(500),
+    sb.from('admin_integration_health').select('*').order('checked_at', { ascending: false }).limit(500),
+    sb.from('admin_webhook_deliveries').select('*').order('last_attempt_at', { ascending: false }).limit(500),
+    sb.from('admin_migration_status').select('*').order('migration_name', { ascending: false }).limit(1000),
+    sb.from('admin_release_history').select('*').order('created_at', { ascending: false }).limit(200)
+  ]);
+  for (const r of [errorsRes,metricsRes,jobsRes,incidentsRes,backupsRes,drillsRes,integrationsRes,webhooksRes,migrationsRes,releasesRes]) {
+    if (r.error) throw r.error;
+  }
+  const errors=errorsRes.data||[], metrics=metricsRes.data||[], jobs=jobsRes.data||[], incidents=incidentsRes.data||[];
+  const durations=metrics.map(x=>Number(x.duration_ms||0)).filter(x=>x>=0).sort((a,b)=>a-b);
+  const percentile=(p)=>durations.length?durations[Math.min(durations.length-1,Math.floor(durations.length*p))]:null;
+  const routeAgg={};
+  for(const m of metrics){
+    const key=m.route||'unknown'; const x=routeAgg[key]||(routeAgg[key]={count:0,total:0,max:0,errors:0});
+    x.count++; x.total+=Number(m.duration_ms||0); x.max=Math.max(x.max,Number(m.duration_ms||0)); if(Number(m.status||0)>=500)x.errors++;
+  }
+  const slowRoutes=Object.entries(routeAgg).map(([route,x])=>({route,count:x.count,avgMs:Math.round(x.total/Math.max(1,x.count)),maxMs:x.max,errors:x.errors})).sort((a,b)=>b.avgMs-a.avgMs).slice(0,20);
+  const memory=process.memoryUsage(); const mb=v=>Math.round(Number(v||0)/1024/1024*10)/10;
+  const currentDeployment={
+    provider:'vercel',
+    environment:process.env.VERCEL_ENV||process.env.NODE_ENV||'unknown',
+    commitSha:process.env.VERCEL_GIT_COMMIT_SHA||null,
+    branch:process.env.VERCEL_GIT_COMMIT_REF||null,
+    url:process.env.VERCEL_URL?('https://'+process.env.VERCEL_URL):null,
+    deploymentId:process.env.VERCEL_DEPLOYMENT_ID||null
+  };
+  const configPresence={
+    ADMIN_EMAIL:!!process.env.ADMIN_EMAIL,
+    SUPABASE_URL:!!(process.env.SUPABASE_URL||process.env.NEXT_PUBLIC_SUPABASE_URL),
+    SUPABASE_SERVICE_ROLE_KEY:!!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    SUPABASE_DB_URL:!!process.env.SUPABASE_DB_URL
+  };
+  return {
+    success:true,
+    generatedAt:new Date().toISOString(),
+    currentDeployment,
+    summary:{
+      errors24h:errors.reduce((s,e)=>s+Number(e.occurrence_count||1),0),
+      openIncidents:incidents.filter(i=>i.status!=='resolved').length,
+      failedJobs:jobs.filter(j=>j.status==='failed'||j.status==='stalled').length,
+      p50Ms:percentile(.50),p95Ms:percentile(.95),
+      heapUsedMb:mb(memory.heapUsed),rssMb:mb(memory.rss),
+      backupUnknown:(backupsRes.data||[]).filter(b=>b.status!=='verified').length,
+      failedRecoveryDrills:(drillsRes.data||[]).filter(d=>d.status==='failed').length,
+      degradedIntegrations:(integrationsRes.data||[]).filter(i=>i.status!=='healthy').length,
+      failedWebhooks:(webhooksRes.data||[]).filter(w=>w.status==='failed').length,
+      migrationsNotApplied:(migrationsRes.data||[]).filter(m=>m.status!=='applied').length
+    },
+    errors,slowRoutes,jobs,incidents,
+    backups:backupsRes.data||[],recoveryDrills:drillsRes.data||[],
+    integrations:integrationsRes.data||[],webhooks:webhooksRes.data||[],
+    migrations:migrationsRes.data||[],releases:releasesRes.data||[],
+    configuration:{presence:configPresence}
+  };
+}
+
+async function recordRequestMetric(sb, req, status, startedAt, userId=null) {
+  try {
+    const mem=process.memoryUsage();
+    await sb.from('admin_request_metrics').insert([{
+      request_id:req.adminRequestId||generateRequestId(),
+      route:'admin:'+String(req.query?.action||req.body?.action||'unknown'),
+      method:req.method||'UNKNOWN',
+      status:Number(status||0),
+      duration_ms:Math.max(0,Date.now()-startedAt),
+      memory_heap_used_mb:Math.round(mem.heapUsed/1024/1024*100)/100,
+      memory_rss_mb:Math.round(mem.rss/1024/1024*100)/100,
+      deployment_sha:process.env.VERCEL_GIT_COMMIT_SHA||null,
+      user_id_hash:hashUserId(userId)
+    }]);
+  } catch(e) { console.warn('[RequestMetric] failed:',e.message||e); }
+}
+
+async function recordErrorEvent(sb, req, err, status=500) {
+  try {
+    const crypto=require('crypto');
+    const message=String(err?.message||'Unknown error').slice(0,1000);
+    const stackHash=crypto.createHash('sha256').update(String(err?.stack||message)).digest('hex').slice(0,24);
+    const route='admin:'+String(req.query?.action||req.body?.action||'unknown');
+    const { data:existing }=await sb.from('admin_error_events').select('id,occurrence_count').eq('stack_hash',stackHash).eq('status','open').limit(1).maybeSingle();
+    if(existing?.id){
+      await sb.from('admin_error_events').update({last_seen_at:new Date().toISOString(),occurrence_count:Number(existing.occurrence_count||1)+1,request_id:req.adminRequestId||null}).eq('id',existing.id);
+    }else{
+      await sb.from('admin_error_events').insert([{
+        request_id:req.adminRequestId||null,source:'api',route,
+        error_code:err?.code||String(status),message,stack_hash:stackHash,
+        severity:status>=500?'error':'warning',
+        deployment_sha:process.env.VERCEL_GIT_COMMIT_SHA||null
+      }]);
+    }
+  }catch(e){console.warn('[ErrorEvent] failed:',e.message||e);}
+}
+
+async function createIncident(sb, body, admin, req) {
+  const title=String(body?.title||'').trim(); if(!title)throw badRequest('title required');
+  const row={title:title.slice(0,300),severity:body?.severity||'medium',status:'open',impact:body?.impact||null,owner_user_id:body?.owner_user_id||admin.id,request_id:body?.request_id||req.adminRequestId||null,deployment_sha:body?.deployment_sha||process.env.VERCEL_GIT_COMMIT_SHA||null,timeline:[{at:new Date().toISOString(),event:'created',actor:admin.email||admin.id}]};
+  const {data,error}=await sb.from('admin_incidents').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'incident_create','incident',data.id,null,{severity:data.severity},req);return{success:true,incident:data};
+}
+
+async function updateIncident(sb, body, admin, req) {
+  const id=body?.id;if(!id)throw badRequest('id required');
+  const {data:current,error:readErr}=await sb.from('admin_incidents').select('*').eq('id',id).single();if(readErr)throw readErr;
+  const timeline=Array.isArray(current.timeline)?current.timeline:[];
+  timeline.push({at:new Date().toISOString(),event:body?.event||body?.status||'updated',actor:admin.email||admin.id});
+  const updates={timeline,updated_at:new Date().toISOString()};
+  for(const k of ['status','severity','impact','root_cause','owner_user_id'])if(body[k]!==undefined)updates[k]=body[k];
+  if(body?.status==='resolved')updates.resolved_at=new Date().toISOString();
+  const {data,error}=await sb.from('admin_incidents').update(updates).eq('id',id).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'incident_update','incident',id,null,updates,req);return{success:true,incident:data};
+}
+
+async function recordBackupCheck(sb, body, admin, req) {
+  if(!body?.provider||!body?.resource||!body?.status)throw badRequest('provider, resource and status required');
+  const row={provider:body.provider,resource:body.resource,backup_reference:body?.backup_reference||null,status:body.status,backup_created_at:body?.backup_created_at||null,verified_by:admin.id,restore_tested:body?.restore_tested===true,restore_tested_at:body?.restore_tested_at||null,rpo_minutes:body?.rpo_minutes??null,evidence:body?.evidence&&typeof body.evidence==='object'?body.evidence:{}};
+  const {data,error}=await sb.from('admin_backup_checks').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'backup_check_record','backup_check',data.id,null,{provider:row.provider,resource:row.resource,status:row.status},req);return{success:true,backup:data};
+}
+
+async function recordConfigSnapshot(sb, body, admin, req) {
+  const environment=body?.environment||'production';
+  const keys=Array.isArray(body?.keys)?body.keys:[];
+  if(!keys.length)throw badRequest('keys required');
+  const crypto=require('crypto'); const rows=[];
+  for(const key of keys.slice(0,200)){
+    const name=String(key||'').trim();if(!name)continue;
+    const value=process.env[name];
+    rows.push({environment,config_key:name,present:value!==undefined&&value!=='',value_hash:value?crypto.createHash('sha256').update(value).digest('hex').slice(0,16):null,source:'runtime'});
+  }
+  const {data,error}=await sb.from('admin_config_snapshots').insert(rows).select();if(error)throw error;
+  await logAdminAction(sb,admin,'config_snapshot_record','configuration',environment,null,{keys:rows.map(r=>r.config_key)},req);
+  return{success:true,snapshots:data||[]};
+}
+
+// ── Executive Analytics / AI Operations ────────────────────
+async function getExecutiveAnalyticsV2(sb) {
+  const since90=new Date(Date.now()-90*86400000).toISOString();
+  const [profilesRes,subsRes,invoicesRes,presenceRes,oppsRes,renewalsRes,successRes,aiRes]=await Promise.all([
+    sb.from('profiles').select('id,tier,status,created_at,profile_completeness').order('created_at',{ascending:false}).limit(5000),
+    sb.from('subscriptions').select('*').order('created_at',{ascending:false}).limit(5000),
+    sb.from('moyasar_invoices').select('user_id,amount,currency,status,paid_at,created_at').order('created_at',{ascending:false}).limit(5000),
+    sb.from('user_presence').select('user_id,last_seen_at').gte('last_seen_at',since90).order('last_seen_at',{ascending:false}).limit(10000),
+    sb.from('crm_opportunities').select('stage,value_amount,probability,expected_close_date,created_at').limit(5000),
+    sb.from('crm_renewals').select('renewal_date,value_amount,status,risk_level').limit(5000),
+    sb.from('crm_customer_success').select('health_score,risk_level,lifecycle_stage').limit(5000),
+    sb.from('admin_ai_operation_events').select('*').gte('created_at',since90).order('created_at',{ascending:false}).limit(10000)
+  ]);
+  for(const r of [profilesRes,subsRes,invoicesRes,presenceRes,oppsRes,renewalsRes,successRes,aiRes])if(r.error)throw r.error;
+  const profiles=profilesRes.data||[],subs=subsRes.data||[],invoices=invoicesRes.data||[],presence=presenceRes.data||[],opps=oppsRes.data||[],renewals=renewalsRes.data||[],success=successRes.data||[],ai=aiRes.data||[];
+  const prices=await getTierPrices(sb);
+  const paidUsers=new Set(invoices.filter(i=>i.status==='paid').map(i=>i.user_id).filter(Boolean));
+  const activeSubs=subs.filter(s=>['active','trialing'].includes(s.status));
+  const inactiveSubs=subs.filter(s=>['cancelled','canceled','inactive','expired'].includes(s.status));
+  const pro=profiles.filter(p=>p.tier==='pro').length,ent=profiles.filter(p=>p.tier==='enterprise').length;
+  const mrr=pro*prices.pro+ent*prices.enterprise,arr=mrr*12;
+  const total=profiles.length;
+  const activeUsers=new Set(presence.filter(p=>new Date(p.last_seen_at).getTime()>=Date.now()-30*86400000).map(p=>p.user_id)).size;
+  const activated=profiles.filter(p=>Number(p.profile_completeness||0)>=80).length;
+  const conversion=total?paidUsers.size/total*100:0;
+  const churnDenom=activeSubs.length+inactiveSubs.length;
+  const churn=churnDenom?inactiveSubs.length/churnDenom*100:0;
+  const arpu=total?mrr/total:0;
+
+  const cohortMap={};
+  for(const p of profiles){
+    const month=String(p.created_at||'').slice(0,7);if(!month)continue;
+    const c=cohortMap[month]||(cohortMap[month]={registered:0,active30:0,paid:0});
+    c.registered++;if(activeUsers&&presence.some(x=>x.user_id===p.id&&new Date(x.last_seen_at).getTime()>=Date.now()-30*86400000))c.active30++;if(paidUsers.has(p.id))c.paid++;
+  }
+  const cohorts=Object.entries(cohortMap).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,12).map(([month,c])=>({month,...c,retentionPct:c.registered?Math.round(c.active30/c.registered*1000)/10:0,conversionPct:c.registered?Math.round(c.paid/c.registered*1000)/10:0}));
+  const pipelineValue=opps.filter(o=>!['won','lost'].includes(o.stage)).reduce((s,o)=>s+Number(o.value_amount||0),0);
+  const weightedPipeline=opps.filter(o=>!['won','lost'].includes(o.stage)).reduce((s,o)=>s+Number(o.value_amount||0)*Number(o.probability||0)/100,0);
+  const renewalRisk=renewals.filter(r=>['high','critical'].includes(r.risk_level)).reduce((s,r)=>s+Number(r.value_amount||0),0);
+  const avgHealth=success.length?success.reduce((s,x)=>s+Number(x.health_score||0),0)/success.length:0;
+
+  const aiCost=ai.reduce((s,x)=>s+Number(x.cost_usd||0),0);
+  const aiLatency=ai.map(x=>Number(x.latency_ms||0)).filter(Boolean).sort((a,b)=>a-b);
+  const aiFailures=ai.filter(x=>x.status!=='success').length;
+  const byModel={},byFeature={},costByFeature={},costByModel={},costByUser={};
+  for(const e of ai){
+    const m=e.model||'unknown',f=e.feature||'unknown',cost=Number(e.cost_usd||0);
+    byModel[m]=(byModel[m]||0)+1;byFeature[f]=(byFeature[f]||0)+1;
+    costByFeature[f]=(costByFeature[f]||0)+cost;costByModel[m]=(costByModel[m]||0)+cost;
+    if(e.user_id){const u=hashUserId(e.user_id);costByUser[u]=(costByUser[u]||0)+cost;}
+  }
+
+  const monthlyRevenue={};
+  for(const inv of paidInvoices){
+    const at=inv.paid_at||inv.created_at;const month=String(at||'').slice(0,7);if(!month)continue;
+    monthlyRevenue[month]=(monthlyRevenue[month]||0)+Number(inv.amount||0);
+  }
+  const revenueSeries=Object.entries(monthlyRevenue).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6).map(([month,value])=>({month,value}));
+  let monthlyTrend=0;
+  if(revenueSeries.length>=2) monthlyTrend=(revenueSeries[revenueSeries.length-1].value-revenueSeries[0].value)/(revenueSeries.length-1);
+  const lastRevenue=revenueSeries.length?revenueSeries[revenueSeries.length-1].value:mrr;
+  const forecast90d=Math.max(0,lastRevenue+monthlyTrend)+Math.max(0,lastRevenue+2*monthlyTrend)+Math.max(0,lastRevenue+3*monthlyTrend);
+
+  return {success:true,
+    executive:{users:total,activeUsers30d:activeUsers,activatedUsers:activated,mrr,arr,arpu:Math.round(arpu*100)/100,conversionPct:Math.round(conversion*10)/10,churnPct:Math.round(churn*10)/10,pipelineValue,weightedPipeline,renewalRisk,customerHealth:Math.round(avgHealth*10)/10,revenueForecast90d:Math.round(forecast90d*100)/100,forecastMethod:'linear_paid_invoice_trend',revenueSeries},
+    funnel:{registered:total,activated,paid:paidUsers.size,active30d:activeUsers},
+    cohorts,
+    ai:{requests:ai.length,costUsd:Math.round(aiCost*1000000)/1000000,failureRatePct:ai.length?Math.round(aiFailures/ai.length*1000)/10:0,p50LatencyMs:aiLatency.length?aiLatency[Math.floor(aiLatency.length*.5)]:null,p95LatencyMs:aiLatency.length?aiLatency[Math.min(aiLatency.length-1,Math.floor(aiLatency.length*.95))]:null,inputTokens:ai.reduce((s,x)=>s+Number(x.input_tokens||0),0),outputTokens:ai.reduce((s,x)=>s+Number(x.output_tokens||0),0),byModel,byFeature,costByFeature,costByModel,costByUser},
+    generatedAt:new Date().toISOString()
+  };
+}
+
+async function getAiOperations(sb) {
+  const [eventsRes,promptsRes,switchesRes]=await Promise.all([
+    sb.from('admin_ai_operation_events').select('*').order('created_at',{ascending:false}).limit(1000),
+    sb.from('admin_ai_prompt_versions').select('*').order('created_at',{ascending:false}).limit(500),
+    sb.from('admin_ai_kill_switches').select('*').order('updated_at',{ascending:false}).limit(500)
+  ]);for(const r of [eventsRes,promptsRes,switchesRes])if(r.error)throw r.error;
+  return{success:true,events:eventsRes.data||[],promptVersions:promptsRes.data||[],killSwitches:switchesRes.data||[]};
+}
+
+async function setAiKillSwitch(sb, body, admin, req) {
+  const feature=String(body?.feature||'').trim();if(!feature)throw badRequest('feature required');
+  const disabled=body?.disabled===true;const row={feature,disabled,reason:body?.reason||null,disabled_by:disabled?admin.id:null,disabled_at:disabled?new Date().toISOString():null,expires_at:body?.expires_at||null,updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('admin_ai_kill_switches').upsert(row,{onConflict:'feature'}).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'ai_kill_switch_update','ai_feature',feature,null,{disabled,reason:row.reason,expires_at:row.expires_at},req);return{success:true,killSwitch:data};
+}
+
+async function createAiPromptVersion(sb, body, admin, req) {
+  const key=String(body?.prompt_key||'').trim(),content=String(body?.content||'');if(!key||!content)throw badRequest('prompt_key and content required');
+  const crypto=require('crypto');const hash=crypto.createHash('sha256').update(content).digest('hex');
+  const {data:versions}=await sb.from('admin_ai_prompt_versions').select('version').eq('prompt_key',key).order('version',{ascending:false}).limit(1);
+  const version=Number(versions?.[0]?.version||0)+1;
+  const {data,error}=await sb.from('admin_ai_prompt_versions').insert([{prompt_key:key,version,content_hash:hash,status:'draft',notes:body?.notes||null,created_by:admin.id}]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'ai_prompt_version_create','ai_prompt',data.id,null,{prompt_key:key,version,content_hash:hash},req);
+  return{success:true,promptVersion:data};
+}
+
+// ── Data Governance / Document Center ──────────────────────
+function maskEmail(value){const s=String(value||'');const [a,b]=s.split('@');if(!b)return s?'***':'';return (a?String(a[0]||'')+'***':'***')+'@'+b;}
+function maskPhone(value){const s=String(value||'').replace(/\s+/g,'');if(s.length<=4)return s?'****':'';return '*'.repeat(Math.max(4,s.length-4))+s.slice(-4);}
+
+async function getDataGovernanceOverview(sb, access) {
+  const [profilesRes,privacyRes,exportsRes,mergesRes,lineageRes,retentionRes,piiRes,anchorsRes,docsRes]=await Promise.all([
+    sb.from('profiles').select('id,email,phone,restaurant_name,created_at').limit(5000),
+    sb.from('admin_privacy_requests').select('*').order('requested_at',{ascending:false}).limit(500),
+    sb.from('admin_data_exports').select('*').order('created_at',{ascending:false}).limit(500),
+    sb.from('admin_user_merge_requests').select('*').order('created_at',{ascending:false}).limit(500),
+    sb.from('admin_data_lineage').select('*').order('metric_or_field').limit(1000),
+    sb.from('admin_retention_policies').select('*').order('data_category').limit(500),
+    sb.from('admin_pii_field_policies').select('*').order('field_key').limit(500),
+    sb.from('admin_audit_integrity_anchors').select('*').order('generated_at',{ascending:false}).limit(100),
+    sb.from('admin_documents').select('*').order('created_at',{ascending:false}).limit(1000)
+  ]);
+  for(const r of [profilesRes,privacyRes,exportsRes,mergesRes,lineageRes,retentionRes,piiRes,anchorsRes,docsRes])if(r.error)throw r.error;
+  const profiles=profilesRes.data||[];
+  const emailMap=new Map(),phoneMap=new Map();
+  for(const p of profiles){
+    const e=String(p.email||'').trim().toLowerCase();const ph=String(p.phone||'').replace(/\D/g,'');
+    if(e){if(!emailMap.has(e))emailMap.set(e,[]);emailMap.get(e).push(p);}
+    if(ph){if(!phoneMap.has(ph))phoneMap.set(ph,[]);phoneMap.get(ph).push(p);}
+  }
+  const canReadSensitive=access.permissions.includes('users.read_sensitive');
+  const duplicates=[];
+  for(const [value,rows] of emailMap)if(rows.length>1)duplicates.push({type:'email',value:canReadSensitive?value:maskEmail(value),count:rows.length,userIds:rows.map(x=>x.id)});
+  for(const [value,rows] of phoneMap)if(rows.length>1)duplicates.push({type:'phone',value:canReadSensitive?value:maskPhone(value),count:rows.length,userIds:rows.map(x=>x.id)});
+  const docs=docsRes.data||[],now=Date.now();
+  return{success:true,
+    summary:{
+      duplicateGroups:duplicates.length,
+      privacyOpen:(privacyRes.data||[]).filter(x=>!['completed','rejected','cancelled'].includes(x.status)).length,
+      exportsPending:(exportsRes.data||[]).filter(x=>!['completed','failed','expired','rejected'].includes(x.status)).length,
+      mergeRequestsPending:(mergesRes.data||[]).filter(x=>!['completed','failed','cancelled'].includes(x.status)).length,
+      retentionPolicies:(retentionRes.data||[]).filter(x=>x.enabled).length,
+      lineageEntries:(lineageRes.data||[]).length,
+      auditAnchors:(anchorsRes.data||[]).length,
+      documents:docs.length,
+      documentsExpiring30d:docs.filter(d=>d.expires_at&&new Date(d.expires_at).getTime()>=now&&new Date(d.expires_at).getTime()<=now+30*86400000).length
+    },
+    duplicates,privacyRequests:privacyRes.data||[],exports:exportsRes.data||[],mergeRequests:mergesRes.data||[],
+    lineage:lineageRes.data||[],retentionPolicies:retentionRes.data||[],piiPolicies:piiRes.data||[],auditAnchors:anchorsRes.data||[],documents:docs,
+    piiMode:canReadSensitive?'unmasked':'masked'
+  };
+}
+
+async function createPrivacyRequest(sb,body,admin,req){
+  if(!body?.request_type)throw badRequest('request_type required');
+  const row={user_id:body?.user_id||null,request_type:body.request_type,status:'received',identity_verified:body?.identity_verified===true,due_at:body?.due_at||null,handled_by:admin.id,notes:body?.notes||null,evidence:body?.evidence&&typeof body.evidence==='object'?body.evidence:{}};
+  const {data,error}=await sb.from('admin_privacy_requests').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'privacy_request_create','privacy_request',data.id,null,{request_type:data.request_type,user_id:data.user_id},req);return{success:true,privacyRequest:data};
+}
+
+async function createDataExportRequest(sb,body,admin,req){
+  const type=String(body?.export_type||'').trim();if(!type)throw badRequest('export_type required');
+  const row={requested_by:admin.id,subject_user_id:body?.subject_user_id||null,export_type:type,fields:Array.isArray(body?.fields)?body.fields.slice(0,200):[],filters:body?.filters&&typeof body.filters==='object'?body.filters:{},status:'requested',expires_at:body?.expires_at||null,request_id:req.adminRequestId||null};
+  const {data,error}=await sb.from('admin_data_exports').insert([row]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'data_export_request','data_export',data.id,null,{export_type:type,subject_user_id:row.subject_user_id},req);return{success:true,exportRequest:data};
+}
+
+async function createUserMergeDryRun(sb,body,admin,req){
+  const source=body?.source_user_id,target=body?.target_user_id;if(!source||!target||source===target)throw badRequest('distinct source_user_id and target_user_id required');
+  const tables=[
+    ['profiles','id'],['subscriptions','user_id'],['moyasar_invoices','user_id'],['user_presence','user_id'],
+    ['admin_customer_notes','user_id'],['admin_customer_tags','user_id'],['support_tickets','user_id'],['finance_refunds','user_id']
+  ];
+  const impact={};
+  for(const [table,column] of tables){
+    try{const [{count:sourceCount},{count:targetCount}]=await Promise.all([sb.from(table).select('*',{count:'exact',head:true}).eq(column,source),sb.from(table).select('*',{count:'exact',head:true}).eq(column,target)]);impact[table]={source:sourceCount||0,target:targetCount||0};}
+    catch(e){impact[table]={status:'unknown',error:String(e.message||e).slice(0,160)};}
+  }
+  const dryRun={impact,destructiveExecution:false,requiresApproval:true,generatedAt:new Date().toISOString()};
+  const {data,error}=await sb.from('admin_user_merge_requests').insert([{source_user_id:source,target_user_id:target,status:'review',dry_run:dryRun,requested_by:admin.id}]).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'user_merge_dry_run','user_merge_request',data.id,null,{source_user_id:source,target_user_id:target},req);
+  return{success:true,mergeRequest:data};
+}
+
+async function createAuditIntegrityAnchor(sb,admin,req){
+  const crypto=require('crypto');const end=new Date(),start=new Date(end.getTime()-24*3600000);
+  const {data,error}=await sb.from('admin_audit_log').select('id,created_at,actor_id,action,target_type,target_id').gte('created_at',start.toISOString()).lte('created_at',end.toISOString()).order('created_at',{ascending:true}).limit(5000);if(error)throw error;
+  const rows=data||[];const digest=crypto.createHash('sha256').update(JSON.stringify(rows)).digest('hex');
+  const {data:anchor,error:aerr}=await sb.from('admin_audit_integrity_anchors').insert([{range_start:start.toISOString(),range_end:end.toISOString(),row_count:rows.length,digest_sha256:digest,generated_by:admin.id}]).select().single();if(aerr)throw aerr;
+  return{success:true,anchor};
+}
+
+async function registerAdminDocument(sb,body,admin,req){
+  if(!body?.entity_type||!body?.entity_id||!body?.document_type||!body?.title)throw badRequest('entity_type, entity_id, document_type and title required');
+  const row={entity_type:body.entity_type,entity_id:String(body.entity_id),document_type:body.document_type,title:String(body.title).slice(0,300),status:body?.status||'active',classification:body?.classification||'confidential',storage_provider:body?.storage_provider||'supabase',storage_path:body?.storage_path||null,mime_type:body?.mime_type||null,size_bytes:body?.size_bytes??null,checksum_sha256:body?.checksum_sha256||null,expires_at:body?.expires_at||null,verification_status:body?.verification_status||'unverified',created_by:admin.id};
+  const {data,error}=await sb.from('admin_documents').insert([row]).select().single();if(error)throw error;
+  if(row.storage_path){const {error:verErr}=await sb.from('admin_document_versions').insert([{document_id:data.id,version:1,storage_path:row.storage_path,mime_type:row.mime_type,size_bytes:row.size_bytes,checksum_sha256:row.checksum_sha256,created_by:admin.id}]);if(verErr)throw verErr;}
+  await logAdminAction(sb,admin,'document_register','admin_document',data.id,null,{entity_type:row.entity_type,entity_id:row.entity_id,document_type:row.document_type},req);return{success:true,document:data};
+}
+
+async function addAdminDocumentVersion(sb,body,admin,req){
+  const id=body?.document_id;if(!id)throw badRequest('document_id required');
+  const {data:versions,error:vErr}=await sb.from('admin_document_versions').select('version').eq('document_id',id).order('version',{ascending:false}).limit(1);if(vErr)throw vErr;
+  const version=Number(versions?.[0]?.version||0)+1;
+  const row={document_id:id,version,storage_path:body?.storage_path||null,mime_type:body?.mime_type||null,size_bytes:body?.size_bytes??null,checksum_sha256:body?.checksum_sha256||null,created_by:admin.id};
+  const {data,error}=await sb.from('admin_document_versions').insert([row]).select().single();if(error)throw error;
+  await sb.from('admin_documents').update({storage_path:row.storage_path,mime_type:row.mime_type,size_bytes:row.size_bytes,checksum_sha256:row.checksum_sha256,status:'active',updated_at:new Date().toISOString()}).eq('id',id);
+  await logAdminAction(sb,admin,'document_version_add','admin_document',id,null,{version},req);return{success:true,version:data};
+}
+
+// ── Control Plane completion ────────────────────────────────
+async function getSecuritySessionsOverview(sb) {
+  const [presenceRes,devicesRes,policiesRes,revokedRes]=await Promise.all([
+    sb.from('user_presence').select('user_id,session_id,country,country_code,city,user_agent,last_seen_at,is_online').order('last_seen_at',{ascending:false}).limit(1000),
+    sb.from('admin_trusted_devices').select('*').order('last_seen_at',{ascending:false}).limit(1000),
+    sb.from('admin_access_policies').select('*').order('priority',{ascending:true}).limit(100),
+    sb.from('admin_revoked_sessions').select('*').order('revoked_at',{ascending:false}).limit(500)
+  ]);
+  for(const r of [presenceRes,devicesRes,policiesRes,revokedRes])if(r.error)throw r.error;
+  return{success:true,sessions:presenceRes.data||[],trustedDevices:devicesRes.data||[],policies:policiesRes.data||[],revokedSessions:revokedRes.data||[]};
+}
+
+async function revokeAdminSession(sb, body, admin, req) {
+  const userId=body?.user_id||null,sessionId=body?.session_id||null,reason=String(body?.reason||'').trim();
+  if((!userId&&!sessionId)||!reason)throw badRequest('user_id or session_id, and reason required');
+  const {data,error}=await sb.from('admin_revoked_sessions').insert([{user_id:userId,session_id:sessionId,reason,revoked_by:admin.id,expires_at:body?.expires_at||null}]).select().single();if(error)throw error;
+  await recordSecurityEvent(sb,admin,req,'admin_session_revoked','high',80,{target_user_id:userId,session_id:sessionId});
+  await logAdminAction(sb,admin,'admin_session_revoke','admin_session',data.id,null,{user_id:userId,session_id:sessionId,reason},req);
+  return{success:true,revocation:data};
+}
+
+async function upsertAdminAccessPolicy(sb, body, admin, req) {
+  const name=String(body?.name||'').trim();if(!name)throw badRequest('name required');
+  const row={name,enabled:body?.enabled===true,priority:Number(body?.priority||100),allowed_countries:Array.isArray(body?.allowed_countries)?body.allowed_countries:[],denied_countries:Array.isArray(body?.denied_countries)?body.denied_countries:[],allowed_ips:Array.isArray(body?.allowed_ips)?body.allowed_ips:[],denied_ips:Array.isArray(body?.denied_ips)?body.denied_ips:[],require_trusted_device:body?.require_trusted_device===true,max_session_minutes:body?.max_session_minutes??null,applies_to_roles:Array.isArray(body?.applies_to_roles)?body.applies_to_roles:['super_admin','admin','support'],updated_by:admin.id,created_by:admin.id,updated_at:new Date().toISOString()};
+  const {data,error}=await sb.from('admin_access_policies').upsert(row,{onConflict:'name'}).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'admin_access_policy_upsert','admin_access_policy',data.id,null,{name,enabled:data.enabled},req);return{success:true,policy:data};
+}
+
+async function trustAdminDevice(sb, body, admin, req) {
+  const userId=body?.user_id,device=String(body?.device_fingerprint||'').trim();if(!userId||!device)throw badRequest('user_id and device_fingerprint required');
+  const row={user_id:userId,device_fingerprint:device,label:body?.label||null,trusted_until:body?.trusted_until||null,last_seen_at:new Date().toISOString(),last_ip:req?.headers?.['x-forwarded-for']?.split(',')[0]?.trim()||null,revoked_at:null};
+  const {data,error}=await sb.from('admin_trusted_devices').upsert(row,{onConflict:'user_id,device_fingerprint'}).select().single();if(error)throw error;
+  await logAdminAction(sb,admin,'admin_device_trust','admin_device',data.id,null,{user_id:userId,label:row.label,trusted_until:row.trusted_until},req);return{success:true,device:data};
+}
+
+async function evaluateWorkflowConditions(sb, conditions) {
+  const list=Array.isArray(conditions)?conditions:[];
+  for(const c of list){
+    if(!c||c.type==='always')continue;
+    if(c.type==='support_sla_breached'){
+      const {count,error}=await sb.from('support_tickets').select('*',{count:'exact',head:true}).not('status','in','(resolved,closed)').lt('sla_due_at',new Date().toISOString());if(error)throw error;
+      if((count||0)<Number(c.min||1))return false;
+    }else if(c.type==='funding_sla_breached'){
+      const {count,error}=await sb.from('funding_cases').select('*',{count:'exact',head:true}).is('closed_at',null).lt('sla_deadline_at',new Date().toISOString());if(error)throw error;
+      if((count||0)<Number(c.min||1))return false;
+    }else if(c.type==='critical_alerts'){
+      const {count,error}=await sb.from('admin_alerts').select('*',{count:'exact',head:true}).eq('status','open').eq('severity','critical');if(error)throw error;
+      if((count||0)<Number(c.min||1))return false;
+    }else{
+      return false;
+    }
+  }
+  return true;
+}
+
+async function executeWorkflowActions(sb, workflow, runId) {
+  const outputs=[];
+  for(const action of Array.isArray(workflow.actions)?workflow.actions:[]){
+    if(action.type==='create_task'||action.type==='create_reminder'){
+      const {data,error}=await sb.from('admin_tasks').insert([{title:String(action.title||workflow.name).slice(0,300),description:action.description||null,assigned_to:action.assigned_to||null,priority:action.priority||'normal',status:'open',due_at:action.due_at||null,source:'workflow:'+workflow.id,request_id:'workflow_run:'+runId}]).select().single();if(error)throw error;outputs.push({type:action.type,id:data.id});
+    }else if(action.type==='create_alert'){
+      const {data,error}=await sb.from('admin_alerts').insert([{category:action.category||'workflow',title:String(action.title||workflow.name).slice(0,300),message:action.message||null,severity:action.severity||'warning',status:'open',owner_user_id:action.owner_user_id||null,request_id:'workflow_run:'+runId}]).select().single();if(error)throw error;outputs.push({type:'create_alert',id:data.id});
+    }else{
+      outputs.push({type:action.type||'unknown',status:'skipped_unsupported'});
+    }
+  }
+  return outputs;
+}
+
+async function runOperationalSweeps(sb) {
+  const now=new Date().toISOString();let created=0;
+  const {data:support}=await sb.from('support_tickets').select('id,subject,priority,sla_due_at').not('status','in','(resolved,closed)').lt('sla_due_at',now).limit(200);
+  for(const t of support||[]){
+    const entityId=String(t.id);const {data:existing}=await sb.from('admin_alerts').select('id').eq('entity_type','support_ticket').eq('entity_id',entityId).eq('status','open').limit(1);
+    if(!(existing||[]).length){await sb.from('admin_alerts').insert([{category:'sla',title:'Support SLA breached: '+String(t.subject||entityId).slice(0,180),severity:['critical','urgent'].includes(t.priority)?'critical':'high',entity_type:'support_ticket',entity_id:entityId,status:'open'}]);created++;}
+  }
+  const {data:funding}=await sb.from('funding_cases').select('id,case_reference,sla_deadline_at').is('closed_at',null).lt('sla_deadline_at',now).limit(200);
+  for(const c of funding||[]){
+    const entityId=String(c.id);const {data:existing}=await sb.from('admin_alerts').select('id').eq('entity_type','funding_case').eq('entity_id',entityId).eq('status','open').limit(1);
+    if(!(existing||[]).length){await sb.from('admin_alerts').insert([{category:'sla',title:'Funding SLA breached: '+String(c.case_reference||entityId),severity:'high',entity_type:'funding_case',entity_id:entityId,status:'open'}]);created++;}
+  }
+  return{created};
+}
+
+async function runScheduledWorkflows(sb) {
+  const now=Date.now(),nowIso=new Date(now).toISOString();
+  const {data:workflows,error}=await sb.from('admin_workflows').select('*').eq('enabled',true).eq('trigger_type','schedule').limit(200);if(error)throw error;
+  let executed=0,failed=0,skipped=0;const details=[];
+  for(const w of workflows||[]){
+    const interval=Math.max(60,Number(w.trigger_config?.intervalMinutes||60));
+    const {data:state}=await sb.from('admin_workflow_schedule_state').select('*').eq('workflow_id',w.id).maybeSingle();
+    if(state?.next_run_at&&new Date(state.next_run_at).getTime()>now){skipped++;continue;}
+    const {data:run,error:runErr}=await sb.from('admin_workflow_runs').insert([{workflow_id:w.id,status:'running',started_at:nowIso,trigger_payload:{source:'vercel_cron'}}]).select().single();
+    if(runErr){failed++;continue;}
+    try{
+      const conditionsOk=await evaluateWorkflowConditions(sb,w.conditions);
+      const output=conditionsOk?await executeWorkflowActions(sb,w,run.id):[];
+      const status=conditionsOk?'succeeded':'skipped';
+      await sb.from('admin_workflow_runs').update({status,completed_at:new Date().toISOString(),output:{actions:output}}).eq('id',run.id);
+      await sb.from('admin_workflow_schedule_state').upsert({workflow_id:w.id,last_run_at:new Date().toISOString(),next_run_at:new Date(now+interval*60000).toISOString(),last_status:status,updated_at:new Date().toISOString()},{onConflict:'workflow_id'});
+      if(conditionsOk)executed++;else skipped++;details.push({workflowId:w.id,status});
+    }catch(e){
+      failed++;await sb.from('admin_workflow_runs').update({status:'failed',completed_at:new Date().toISOString(),error_code:e.code||'WORKFLOW_FAILED',error_message:String(e.message||e).slice(0,1000)}).eq('id',run.id);
+      await sb.from('admin_workflow_schedule_state').upsert({workflow_id:w.id,last_run_at:new Date().toISOString(),next_run_at:new Date(now+interval*60000).toISOString(),last_status:'failed',updated_at:new Date().toISOString()},{onConflict:'workflow_id'});
+      details.push({workflowId:w.id,status:'failed'});
+    }
+  }
+  const sweeps=await runOperationalSweeps(sb);
+  return{success:true,executed,failed,skipped,sweeps,details};
+}
+
+async function getControlCenterOverview(sb) {
+  const now=new Date().toISOString();
+  const [tasksRes,approvalsRes,alertsRes,reconRes,secRes,fundingRes,supportRes,renewalsRes]=await Promise.all([
+    sb.from('admin_tasks').select('*').not('status','in','(done,cancelled)').order('priority',{ascending:false}).limit(500),
+    sb.from('admin_approval_requests').select('*').eq('status','pending').order('created_at',{ascending:false}).limit(500),
+    sb.from('admin_alerts').select('*').eq('status','open').order('created_at',{ascending:false}).limit(500),
+    sb.from('finance_reconciliation_items').select('*').in('status',['unmatched','variance']).limit(500),
+    sb.from('admin_security_events').select('*').in('severity',['high','critical']).is('acknowledged_at',null).order('created_at',{ascending:false}).limit(500),
+    sb.from('funding_cases').select('id,case_reference,status,sla_deadline_at,assigned_to').is('closed_at',null).order('created_at',{ascending:false}).limit(500),
+    sb.from('support_tickets').select('*').not('status','in','(resolved,closed)').order('created_at',{ascending:false}).limit(500),
+    sb.from('crm_renewals').select('*').in('risk_level',['high','critical']).order('renewal_date',{ascending:true}).limit(500)
+  ]);for(const r of [tasksRes,approvalsRes,alertsRes,reconRes,secRes,fundingRes,supportRes,renewalsRes])if(r.error)throw r.error;
+  const funding=fundingRes.data||[],support=supportRes.data||[];
+  return{success:true,generatedAt:new Date().toISOString(),tasks:tasksRes.data||[],approvals:approvalsRes.data||[],alerts:alertsRes.data||[],paymentExceptions:reconRes.data||[],securityExceptions:secRes.data||[],fundingCases:funding,customerFollowUps:renewalsRes.data||[],slaBreaches:{funding:funding.filter(x=>x.sla_deadline_at&&x.sla_deadline_at<now),support:support.filter(x=>x.sla_due_at&&x.sla_due_at<now)},supportTickets:support};
+}
+
+async function getConfigDrift(sb) {
+  const {data,error}=await sb.from('admin_config_snapshots').select('*').order('captured_at',{ascending:false}).limit(5000);if(error)throw error;
+  const grouped={};
+  for(const row of data||[]){const k=row.config_key;grouped[k]=grouped[k]||{};if(!grouped[k][row.environment])grouped[k][row.environment]=row;}
+  const drift=[];for(const [key,envs] of Object.entries(grouped)){const vals=Object.entries(envs);if(vals.length<2)continue;const hashes=new Set(vals.map(([,r])=>String(r.present)+':'+String(r.value_hash||'')));if(hashes.size>1)drift.push({key,environments:Object.fromEntries(vals.map(([e,r])=>[e,{present:r.present,hash:r.value_hash,capturedAt:r.captured_at}]))});}
+  return{success:true,drift,count:drift.length};
+}
+
+async function createFinanceCollection(sb,body,admin,req){
+  if(!body?.due_date)throw badRequest('due_date required');const row={user_id:body?.user_id||null,organization_id:body?.organization_id||null,amount_due:Number(body?.amount_due||0),currency:body?.currency||'SAR',due_date:body.due_date,status:body?.status||'open',owner_user_id:body?.owner_user_id||admin.id,next_action:body?.next_action||null,next_action_at:body?.next_action_at||null,notes:body?.notes||null};
+  const {data,error}=await sb.from('finance_collections').insert([row]).select().single();if(error)throw error;await logAdminAction(sb,admin,'finance_collection_create','finance_collection',data.id,null,{amount_due:data.amount_due,due_date:data.due_date},req);return{success:true,collection:data};
+}
+async function createFinanceContract(sb,body,admin,req){
+  if(!body?.title)throw badRequest('title required');const row={organization_id:body?.organization_id||null,advisory_client_id:body?.advisory_client_id||null,title:String(body.title).slice(0,300),contract_number:body?.contract_number||null,value_amount:Number(body?.value_amount||0),currency:body?.currency||'SAR',status:body?.status||'draft',start_date:body?.start_date||null,end_date:body?.end_date||null,renewal_notice_days:Number(body?.renewal_notice_days??30),owner_user_id:body?.owner_user_id||admin.id,document_path:body?.document_path||null,metadata:body?.metadata&&typeof body.metadata==='object'?body.metadata:{}};
+  const {data,error}=await sb.from('finance_contracts').insert([row]).select().single();if(error)throw error;await logAdminAction(sb,admin,'finance_contract_create','finance_contract',data.id,null,{title:data.title,value_amount:data.value_amount},req);return{success:true,contract:data};
+}
+async function createCrmRenewal(sb,body,admin,req){
+  if(!body?.renewal_date)throw badRequest('renewal_date required');const row={organization_id:body?.organization_id||null,client_id:body?.client_id||null,subscription_user_id:body?.subscription_user_id||null,renewal_date:body.renewal_date,value_amount:Number(body?.value_amount||0),currency:body?.currency||'SAR',status:body?.status||'upcoming',owner_user_id:body?.owner_user_id||admin.id,risk_level:body?.risk_level||'low',notes:body?.notes||null};
+  const {data,error}=await sb.from('crm_renewals').insert([row]).select().single();if(error)throw error;await logAdminAction(sb,admin,'crm_renewal_create','crm_renewal',data.id,null,{renewal_date:data.renewal_date,risk_level:data.risk_level},req);return{success:true,renewal:data};
+}
+
 // ── Stats ───────────────────────────────────────────────────
 async function safeCount(sb, table) {
   try {
@@ -3333,9 +3902,12 @@ async function guestLookupFundingCase(sb, payload) {
 
 // ── Main Handler ────────────────────────────────────────────
 async function handler(req, res) {
+  const handlerStartedAt = Date.now();
+  req.adminRequestId = req.headers['x-request-id'] || generateRequestId();
   setAllowedOrigin(res, req);
+  res.setHeader('X-Request-ID', req.adminRequestId);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Request-ID');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
   const sb = getSupabase();
@@ -3430,6 +4002,78 @@ async function handler(req, res) {
           role,
           isOwner: isOwner(user.email)
         });
+      }
+      if (action === 'admin-session-revoke') {
+        const access=await requireAdminPermission(req,sb,'security.sessions.manage');
+        return res.status(200).json(await revokeAdminSession(sb,req.body,access.user,req));
+      }
+      if (action === 'admin-access-policy-upsert') {
+        const access=await requireAdminPermission(req,sb,'security.policies.manage');
+        return res.status(200).json(await upsertAdminAccessPolicy(sb,req.body,access.user,req));
+      }
+      if (action === 'admin-device-trust') {
+        const access=await requireAdminPermission(req,sb,'security.sessions.manage');
+        return res.status(200).json(await trustAdminDevice(sb,req.body,access.user,req));
+      }
+      if (action === 'finance-collection-create') {
+        const access=await requireAdminPermission(req,sb,'billing.reconcile');
+        return res.status(200).json(await createFinanceCollection(sb,req.body,access.user,req));
+      }
+      if (action === 'finance-contract-create') {
+        const access=await requireAdminPermission(req,sb,'billing.reconcile');
+        return res.status(200).json(await createFinanceContract(sb,req.body,access.user,req));
+      }
+      if (action === 'crm-renewal-create') {
+        const access=await requireAdminPermission(req,sb,'crm.write');
+        return res.status(200).json(await createCrmRenewal(sb,req.body,access.user,req));
+      }
+      if (action === 'privacy-request-create') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createPrivacyRequest(sb,req.body,access.user,req));
+      }
+      if (action === 'data-export-request') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createDataExportRequest(sb,req.body,access.user,req));
+      }
+      if (action === 'user-merge-dry-run') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createUserMergeDryRun(sb,req.body,access.user,req));
+      }
+      if (action === 'audit-integrity-anchor') {
+        const access = await requireAdminPermission(req, sb, 'governance.manage');
+        return res.status(200).json(await createAuditIntegrityAnchor(sb,access.user,req));
+      }
+      if (action === 'admin-document-register') {
+        const access = await requireAdminPermission(req, sb, 'documents.manage');
+        return res.status(200).json(await registerAdminDocument(sb,req.body,access.user,req));
+      }
+      if (action === 'admin-document-version-add') {
+        const access = await requireAdminPermission(req, sb, 'documents.manage');
+        return res.status(200).json(await addAdminDocumentVersion(sb,req.body,access.user,req));
+      }
+      if (action === 'ai-kill-switch-update') {
+        const access = await requireAdminPermission(req, sb, 'ai.operations.manage');
+        return res.status(200).json(await setAiKillSwitch(sb, req.body, access.user, req));
+      }
+      if (action === 'ai-prompt-version-create') {
+        const access = await requireAdminPermission(req, sb, 'ai.operations.manage');
+        return res.status(200).json(await createAiPromptVersion(sb, req.body, access.user, req));
+      }
+      if (action === 'incident-create') {
+        const access = await requireAdminPermission(req, sb, 'incident.manage');
+        return res.status(200).json(await createIncident(sb, req.body, access.user, req));
+      }
+      if (action === 'incident-update') {
+        const access = await requireAdminPermission(req, sb, 'incident.manage');
+        return res.status(200).json(await updateIncident(sb, req.body, access.user, req));
+      }
+      if (action === 'backup-check-record') {
+        const access = await requireAdminPermission(req, sb, 'recovery.manage');
+        return res.status(200).json(await recordBackupCheck(sb, req.body, access.user, req));
+      }
+      if (action === 'config-snapshot-record') {
+        const access = await requireAdminPermission(req, sb, 'configuration.manage');
+        return res.status(200).json(await recordConfigSnapshot(sb, req.body, access.user, req));
       }
       if (action === 'feature-flag-upsert') {
         const access = await requireAdminPermission(req, sb, 'product.flags');
@@ -3590,6 +4234,42 @@ async function handler(req, res) {
           status: req.query?.status
         };
         return res.status(200).json(await getSubscriptions(sb, params));
+      }
+      if (action === 'workflow-cron') {
+        const configured=process.env.CRON_SECRET;
+        if(!configured) return res.status(503).json({error:'CRON_SECRET not configured',requestId:req.adminRequestId});
+        if(req.headers.authorization!=='Bearer '+configured) return res.status(401).json({error:'Cron authorization required',requestId:req.adminRequestId});
+        return res.status(200).json(await runScheduledWorkflows(sb));
+      }
+      if (action === 'control-center-overview') {
+        const access=await requireAdminPermission(req,sb,'operations.manage');
+        return res.status(200).json(await getControlCenterOverview(sb));
+      }
+      if (action === 'security-sessions-overview') {
+        const access=await requireAdminPermission(req,sb,'security.read');
+        return res.status(200).json(await getSecuritySessionsOverview(sb));
+      }
+      if (action === 'config-drift') {
+        const access=await requireAdminPermission(req,sb,'configuration.read');
+        return res.status(200).json(await getConfigDrift(sb));
+      }
+      if (action === 'data-governance-overview') {
+        const access = await requireAdminPermission(req, sb, 'governance.read');
+        return res.status(200).json(await getDataGovernanceOverview(sb, access));
+      }
+      if (action === 'executive-analytics-v2') {
+        const access = await requireAdminPermission(req, sb, 'analytics.executive');
+        return res.status(200).json(await getExecutiveAnalyticsV2(sb));
+      }
+      if (action === 'ai-operations') {
+        const access = await requireAdminPermission(req, sb, 'ai.operations.read');
+        return res.status(200).json(await getAiOperations(sb));
+      }
+      if (action === 'platform-overview') {
+        const access = await requireAdminPermission(req, sb, 'observability.read');
+        const result = await getPlatformOverview(sb);
+        await recordRequestMetric(sb, req, 200, handlerStartedAt, access.user.id);
+        return res.status(200).json({ ...result, requestId: req.adminRequestId });
       }
       if (action === 'automation-overview') {
         const access = await requireAdminPermission(req, sb, 'operations.manage');
@@ -4008,7 +4688,9 @@ async function handler(req, res) {
   } catch (err) {
     console.error('Admin API error:', err);
     const status = err.status || 500;
-    res.status(status).json({ error: err.message });
+    await recordErrorEvent(sb, req, err, status);
+    await recordRequestMetric(sb, req, status, handlerStartedAt);
+    res.status(status).json({ error: err.message, requestId: req.adminRequestId });
   }
 }
 
