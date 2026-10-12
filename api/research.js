@@ -158,6 +158,7 @@ Rules:
 - Do not include any text outside the JSON block.`;
 
 async function researchCallGemini(modelName, prompt) {
+  const startedAt = Date.now();
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${GEMINI_API_KEY}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -166,7 +167,30 @@ async function researchCallGemini(modelName, prompt) {
       generationConfig: { temperature: 0.2, maxOutputTokens: 4096 },
     }),
   });
-  return await res.json();
+  const data = await res.json();
+  data.__bondsModel = modelName;
+  data.__bondsLatencyMs = Date.now() - startedAt;
+  return data;
+}
+
+async function recordResearchAiUsage(data, status, requestId, errorCode) {
+  try {
+    const usage = data?.usageMetadata || {};
+    const supabase = getSupabase();
+    await supabase.from('ai_usage_events').insert({
+      user_id: null,
+      feature_key: 'market_research',
+      provider: 'google',
+      model: data?.__bondsModel || 'unknown',
+      input_tokens: usage.promptTokenCount || null,
+      output_tokens: usage.candidatesTokenCount || null,
+      latency_ms: data?.__bondsLatencyMs || null,
+      cost_usd: null,
+      status,
+      error_code: errorCode || null,
+      request_id: requestId || null
+    });
+  } catch (e) {}
 }
 
 function researchExtractJson(text) {
@@ -216,9 +240,11 @@ async function marketResearchHandler(req, res) {
     }
 
     if (data.error) {
+      await recordResearchAiUsage(data, 'failed', req.headers['x-request-id'], data.error.status || 'GEMINI_ERROR');
       console.error('[market-research] Gemini error:', data.error);
       return res.status(502).json({ success: false, error: data.error.message || 'Gemini API error' });
     }
+    await recordResearchAiUsage(data, 'succeeded', req.headers['x-request-id'], null);
 
     const responseText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
     const analysis = researchExtractJson(responseText);
