@@ -12,7 +12,7 @@ class QatarPlanningAdapter extends BaseAdapter {
       ...config
     });
     this.apiBaseUrl = config.apiBaseUrl || 'https://www.psa.gov.qa';
-    this.useFallback = config.useFallback !== false;
+    this.useFallback = config.useFallback === true;
   }
 
   supportedMetrics() {
@@ -68,10 +68,10 @@ class QatarPlanningAdapter extends BaseAdapter {
         value: typeof value === 'number' ? value : parseFloat(value),
         valueText: null,
         year,
-        sourceUrl: 'https://www.psa.gov.qa',
-        confidence: this.getConfidence(mapping.code, mapping.quality),
-        confidenceReason: `Source: ${this.config.sourceName}`,
-        metadata: { cityCode, originalKey: key }
+        sourceUrl: rawItem.quality === 'fallback' ? null : 'https://www.psa.gov.qa',
+        confidence: this.getConfidence(mapping.code, rawItem.quality || mapping.quality),
+        confidenceReason: `Source: ${this.config.sourceName} (${rawItem.quality || mapping.quality})`,
+        metadata: { cityCode, originalKey: key, dataQuality: rawItem.quality || mapping.quality, estimated: rawItem.quality === 'fallback' }
       });
     }
 
