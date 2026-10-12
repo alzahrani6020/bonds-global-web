@@ -233,14 +233,36 @@
       }
     }
 
+    const requestMethod = String(options.method || 'GET').toUpperCase();
+    const canRetryTransient = options.retryTransient !== false && (requestMethod === 'GET' || requestMethod === 'HEAD');
+    const doFetch = () => fetch(url, {
+      ...options,
+      headers: { ...authHeaders, ...(options.headers || {}) }
+    });
+
     let response;
     try {
-      response = await fetch(url, {
-        ...options,
-        headers: { ...authHeaders, ...(options.headers || {}) }
-      });
+      response = await doFetch();
     } catch (e) {
-      return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId };
+      if (canRetryTransient) {
+        try {
+          await new Promise(resolve => setTimeout(resolve, 400));
+          response = await doFetch();
+        } catch (retryError) {
+          return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: retryError.message, requestId, retried: true };
+        }
+      } else {
+        return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId, retried: false };
+      }
+    }
+
+    if (canRetryTransient && response.status >= 500) {
+      try {
+        await new Promise(resolve => setTimeout(resolve, 400));
+        response = await doFetch();
+      } catch (retryError) {
+        return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: retryError.message, requestId, retried: true };
+      }
     }
 
     if (response.status === 401) {
@@ -275,7 +297,7 @@
     }
 
     if (response.status >= 500) {
-      return { __serverError: true, ok: false, status: response.status, serverError: true, requestId };
+      return { __serverError: true, ok: false, status: response.status, serverError: true, requestId, retried: canRetryTransient };
     }
 
     return {
