@@ -957,6 +957,119 @@ async function runOperationalSweep(sb, actor, req) {
   return { success: true, ...results, completedAt: new Date().toISOString() };
 }
 
+// ── Executive Analytics ────────────────────────────────────
+async function getExecutiveAnalytics(sb) {
+  const now = new Date();
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 86400000).toISOString();
+  const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString();
+
+  const [
+    profilesResult,
+    subscriptionsResult,
+    opportunitiesResult,
+    successResult,
+    presenceResult
+  ] = await Promise.all([
+    sb.from('profiles').select('id,tier,status,profile_completeness,created_at').gte('created_at', sixMonthsAgo).limit(5000),
+    sb.from('subscriptions').select('user_id,tier,status,created_at,current_period_end,updated_at').limit(5000),
+    sb.from('crm_opportunities').select('stage,value_amount,probability,currency,expected_close_date').limit(5000),
+    sb.from('customer_success_records').select('health_score,risk_level,renewal_date').limit(5000),
+    sb.from('user_presence').select('user_id,last_seen_at').gte('last_seen_at', thirtyDaysAgo).limit(5000)
+  ]);
+
+  const errors = [];
+  for (const [key, result] of Object.entries({
+    profiles: profilesResult,
+    subscriptions: subscriptionsResult,
+    opportunities: opportunitiesResult,
+    customerSuccess: successResult,
+    presence: presenceResult
+  })) {
+    if (result.error) errors.push({ key, message: result.error.message });
+  }
+
+  const profiles = profilesResult.data || [];
+  const subscriptions = subscriptionsResult.data || [];
+  const opportunities = opportunitiesResult.data || [];
+  const customerSuccess = successResult.data || [];
+  const activeUsers30d = new Set((presenceResult.data || []).map(x => x.user_id).filter(Boolean));
+
+  const prices = await getTierPrices(sb);
+  const activeSubs = subscriptions.filter(x => ['active','trialing'].includes(x.status));
+  const mrr = activeSubs.reduce((sum, sub) => {
+    if (sub.tier === 'enterprise') return sum + prices.enterprise;
+    if (sub.tier === 'pro') return sum + prices.pro;
+    return sum;
+  }, 0);
+  const arr = mrr * 12;
+
+  const cancelled30d = subscriptions.filter(x =>
+    ['cancelled','canceled'].includes(String(x.status || '').toLowerCase()) &&
+    x.updated_at && new Date(x.updated_at) >= new Date(thirtyDaysAgo)
+  ).length;
+  const activeBase = Math.max(1, activeSubs.length + cancelled30d);
+  const churnRate = Math.round((cancelled30d / activeBase) * 1000) / 10;
+  const retentionRate = Math.max(0, Math.round((100 - churnRate) * 10) / 10);
+
+  const totalProfiles = profiles.length;
+  const completeProfiles = profiles.filter(x => Number(x.profile_completeness || 0) >= 100).length;
+  const paidProfiles = profiles.filter(x => ['pro','enterprise'].includes(x.tier)).length;
+  const activeProfiles30d = profiles.filter(x => activeUsers30d.has(x.id)).length;
+
+  const openOpportunities = opportunities.filter(x => ['lead','qualified','proposal','negotiation'].includes(x.stage));
+  const pipelineValue = openOpportunities.reduce((sum, x) => sum + Number(x.value_amount || 0), 0);
+  const weightedPipelineValue = openOpportunities.reduce((sum, x) =>
+    sum + Number(x.value_amount || 0) * (Number(x.probability || 0) / 100), 0);
+
+  const renewalRisk = customerSuccess.filter(x => ['high','critical'].includes(x.risk_level)).length;
+  const renewals90d = customerSuccess.filter(x => {
+    if (!x.renewal_date) return false;
+    const renewal = new Date(x.renewal_date);
+    return renewal >= now && renewal <= new Date(now.getTime() + 90 * 86400000);
+  }).length;
+
+  const cohorts = {};
+  profiles.forEach(profile => {
+    if (!profile.created_at) return;
+    const month = profile.created_at.slice(0, 7);
+    if (!cohorts[month]) cohorts[month] = { signups: 0, paid: 0, active30d: 0 };
+    cohorts[month].signups++;
+    if (['pro','enterprise'].includes(profile.tier)) cohorts[month].paid++;
+    if (activeUsers30d.has(profile.id)) cohorts[month].active30d++;
+  });
+
+  return {
+    success: true,
+    generatedAt: new Date().toISOString(),
+    financial: {
+      mrr: Math.round(mrr * 100) / 100,
+      arr: Math.round(arr * 100) / 100,
+      currency: 'SAR',
+      activeSubscriptions: activeSubs.length,
+      cancelled30d,
+      churnRate,
+      retentionRate
+    },
+    funnel: {
+      registered: totalProfiles,
+      profileComplete: completeProfiles,
+      paid: paidProfiles,
+      active30d: activeProfiles30d,
+      paidConversionRate: totalProfiles ? Math.round((paidProfiles / totalProfiles) * 1000) / 10 : 0,
+      activationRate: totalProfiles ? Math.round((activeProfiles30d / totalProfiles) * 1000) / 10 : 0
+    },
+    pipeline: {
+      opportunities: openOpportunities.length,
+      value: Math.round(pipelineValue * 100) / 100,
+      weightedValue: Math.round(weightedPipelineValue * 100) / 100,
+      currency: 'SAR'
+    },
+    customerSuccess: { renewalRisk, renewals90d },
+    cohorts,
+    errors
+  };
+}
+
 // ── Admin Operations Inbox ─────────────────────────────────
 async function getOperationsOverview(sb) {
   const now = new Date().toISOString();
@@ -2773,6 +2886,11 @@ async function handler(req, res) {
           role: await getActorRole(sb, target),
           permissions: await getEffectivePermissions(sb, target)
         });
+      }
+      if (action === 'executive-analytics') {
+        const admin = await verifyAdminPlatform(req, sb);
+        await requirePlatformPermission(sb, admin, 'platform.read');
+        return res.status(200).json(await getExecutiveAnalytics(sb));
       }
       if (action === 'platform-summary') {
         const admin = await verifyAdminPlatform(req, sb);
