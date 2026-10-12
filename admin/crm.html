@@ -18,7 +18,7 @@
     table{width:100%;border-collapse:collapse;font-size:.82rem}th,td{padding:.55rem;border-bottom:1px solid var(--border);text-align:right}.scroll{overflow:auto;max-height:420px}
     .btn{border:0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer;background:#172033;color:#fff}.btn2{background:#eef2f7;color:#172033}
     input,select{width:100%;box-sizing:border-box;padding:.65rem;border:1px solid var(--border);border-radius:9px;margin:.3rem 0 .7rem;background:#fff}
-    .forms{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.muted{color:var(--muted)}.status{display:none;padding:.75rem;border-radius:10px;background:#fee2e2;color:#991b1b;margin-top:.75rem}
+    .forms{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.muted{color:#475569}.status{display:none;padding:.75rem;border-radius:10px;background:#fee2e2;color:#991b1b;margin-top:.75rem}
     @media(max-width:900px){.span-8,.span-6,.span-4{grid-column:span 12}.forms{grid-template-columns:1fr}.pipeline{grid-template-columns:repeat(6,240px)}}
   </style>
 </head>
@@ -66,16 +66,16 @@
           <input id="orgName" required placeholder="اسم المؤسسة">
           <input id="orgSector" placeholder="القطاع">
           <input id="orgCountry" placeholder="الدولة">
-          <select id="orgStatus"><option value="prospect">Prospect</option><option value="customer">Customer</option><option value="active">Active</option></select>
+          <select id="orgStatus" aria-label="حالة المؤسسة"><option value="prospect">Prospect</option><option value="customer">Customer</option><option value="active">Active</option></select>
           <button class="btn">إنشاء المؤسسة</button>
         </form>
         <form onsubmit="createOpportunity(event)">
           <h3>فرصة جديدة</h3>
           <input id="oppTitle" required placeholder="عنوان الفرصة">
-          <select id="oppOrg"><option value="">بدون مؤسسة</option></select>
+          <select id="oppOrg" aria-label="المؤسسة المرتبطة بالفرصة"><option value="">بدون مؤسسة</option></select>
           <input id="oppValue" type="number" min="0" step="0.01" placeholder="القيمة">
-          <select id="oppStage"><option value="lead">Lead</option><option value="qualified">Qualified</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option></select>
-          <input id="oppClose" type="date">
+          <select id="oppStage" aria-label="مرحلة الفرصة"><option value="lead">Lead</option><option value="qualified">Qualified</option><option value="proposal">Proposal</option><option value="negotiation">Negotiation</option></select>
+          <input id="oppClose" type="date" aria-label="تاريخ الإغلاق المتوقع">
           <button class="btn">إنشاء الفرصة</button>
         </form>
       </div>
