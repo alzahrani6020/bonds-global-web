@@ -713,7 +713,8 @@ async function getSystemHealth(sb) {
   const envChecks = {
     adminEmail: !!process.env.ADMIN_EMAIL,
     supabaseUrl: !!(process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL),
-    supabaseServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY
+    supabaseServiceRole: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+    cronSecret: !!process.env.CRON_SECRET
   };
 
   const dbStarted = Date.now();
@@ -3299,7 +3300,7 @@ async function evaluateWorkflowConditions(sb, conditions) {
   for(const c of list){
     if(!c||c.type==='always')continue;
     if(c.type==='support_sla_breached'){
-      const {count,error}=await sb.from('support_tickets').select('*',{count:'exact',head:true}).not('status','in','("resolved","closed")').lt('sla_due_at',new Date().toISOString());if(error)throw error;
+      const {count,error}=await sb.from('support_tickets').select('*',{count:'exact',head:true}).not('status','in','(resolved,closed)').lt('sla_due_at',new Date().toISOString());if(error)throw error;
       if((count||0)<Number(c.min||1))return false;
     }else if(c.type==='funding_sla_breached'){
       const {count,error}=await sb.from('funding_cases').select('*',{count:'exact',head:true}).is('closed_at',null).lt('sla_deadline_at',new Date().toISOString());if(error)throw error;
@@ -3330,7 +3331,7 @@ async function executeWorkflowActions(sb, workflow, runId) {
 
 async function runOperationalSweeps(sb) {
   const now=new Date().toISOString();let created=0;
-  const {data:support}=await sb.from('support_tickets').select('id,subject,priority,sla_due_at').not('status','in','("resolved","closed")').lt('sla_due_at',now).limit(200);
+  const {data:support}=await sb.from('support_tickets').select('id,subject,priority,sla_due_at').not('status','in','(resolved,closed)').lt('sla_due_at',now).limit(200);
   for(const t of support||[]){
     const entityId=String(t.id);const {data:existing}=await sb.from('admin_alerts').select('id').eq('entity_type','support_ticket').eq('entity_id',entityId).eq('status','open').limit(1);
     if(!(existing||[]).length){await sb.from('admin_alerts').insert([{category:'sla',title:'Support SLA breached: '+String(t.subject||entityId).slice(0,180),severity:['critical','urgent'].includes(t.priority)?'critical':'high',entity_type:'support_ticket',entity_id:entityId,status:'open'}]);created++;}
@@ -3373,13 +3374,13 @@ async function runScheduledWorkflows(sb) {
 async function getControlCenterOverview(sb) {
   const now=new Date().toISOString();
   const [tasksRes,approvalsRes,alertsRes,reconRes,secRes,fundingRes,supportRes,renewalsRes]=await Promise.all([
-    sb.from('admin_tasks').select('*').not('status','in','("done","cancelled")').order('priority',{ascending:false}).limit(500),
+    sb.from('admin_tasks').select('*').not('status','in','(done,cancelled)').order('priority',{ascending:false}).limit(500),
     sb.from('admin_approval_requests').select('*').eq('status','pending').order('created_at',{ascending:false}).limit(500),
     sb.from('admin_alerts').select('*').eq('status','open').order('created_at',{ascending:false}).limit(500),
     sb.from('finance_reconciliation_items').select('*').in('status',['unmatched','variance']).limit(500),
     sb.from('admin_security_events').select('*').in('severity',['high','critical']).is('acknowledged_at',null).order('created_at',{ascending:false}).limit(500),
     sb.from('funding_cases').select('id,case_reference,status,sla_deadline_at,assigned_to').is('closed_at',null).order('created_at',{ascending:false}).limit(500),
-    sb.from('support_tickets').select('*').not('status','in','("resolved","closed")').order('created_at',{ascending:false}).limit(500),
+    sb.from('support_tickets').select('*').not('status','in','(resolved,closed)').order('created_at',{ascending:false}).limit(500),
     sb.from('crm_renewals').select('*').in('risk_level',['high','critical']).order('renewal_date',{ascending:true}).limit(500)
   ]);for(const r of [tasksRes,approvalsRes,alertsRes,reconRes,secRes,fundingRes,supportRes,renewalsRes])if(r.error)throw r.error;
   const funding=fundingRes.data||[],support=supportRes.data||[];
