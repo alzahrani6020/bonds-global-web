@@ -26,6 +26,10 @@ describe('Admin Support Center', () => {
     expect(api).toContain('async function createSupportTicket');
     expect(api).toContain('async function updateSupportTicket');
     expect(api).toContain('async function addSupportNote');
+    expect(api).toContain('SUPPORT_UUID_RE');
+    expect(api).toContain("throw badRequest('invalid priority')");
+    expect(api).toContain("throw badRequest('invalid status')");
+    expect(api).toContain("throw badRequest('invalid escalation_level')");
     expect(api).toContain("'support_ticket_create'");
     expect(api).toContain("'support_ticket_update'");
     expect(api).toContain("'support_note_add'");
@@ -38,6 +42,13 @@ describe('Admin Support Center', () => {
     expect(page).toContain('Support Center');
     expect(page).toContain('SLA');
     expect(page).toContain('Escalations');
+    expect(page).toContain('aria-label="أولوية التذكرة"');
+    expect(page).toContain('aria-label="حالة التذكرة"');
+    expect(page).toContain('mentionUserIds');
+    expect(page).toContain('saveTicket');
+    expect(page).toContain('userId');
+    expect(page).toContain('advisoryClientId');
+    expect(page).toContain('.muted{color:#475569}');
     expect(dashboard).toContain('/admin/support.html?embed=1');
   });
 
