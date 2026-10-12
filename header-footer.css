@@ -1105,3 +1105,41 @@ html[dir="rtl"] .main-header .dropdown:hover > .dropdown-menu--grouped,
     max-width: 72px !important;
   }
 }
+
+
+/* ===== Explicit dropdown interaction state v2.70.0 =====
+ * Desktop menus are inert unless JS adds .is-open.
+ * This prevents fixed mega menus from opening/remaining open because the pointer
+ * crosses their visual footprint in the middle of the page.
+ */
+@media (min-width: 901px) {
+  .main-header .dropdown > .dropdown-menu,
+  .main-header .dropdown:hover > .dropdown-menu {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(-8px) !important;
+  }
+
+  .main-header .dropdown.is-open > .dropdown-menu {
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) !important;
+  }
+
+  html[dir="ltr"] .main-header .dropdown > .dropdown-menu--grouped,
+  html[dir="rtl"] .main-header .dropdown > .dropdown-menu--grouped,
+  .main-header .dropdown > .dropdown-menu--grouped,
+  html[dir="ltr"] .main-header .dropdown:hover > .dropdown-menu--grouped,
+  html[dir="rtl"] .main-header .dropdown:hover > .dropdown-menu--grouped,
+  .main-header .dropdown:hover > .dropdown-menu--grouped {
+    transform: translate(-50%, -8px) !important;
+  }
+
+  html[dir="ltr"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
+  html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
+  .main-header .dropdown.is-open > .dropdown-menu--grouped {
+    transform: translate(-50%, 0) !important;
+  }
+}
