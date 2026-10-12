@@ -357,7 +357,24 @@
       .attractiveness-header { flex-direction: column; align-items: flex-start; }
       .attractiveness-score .score-number { font-size: 2.5rem; }
     }
-  </style>
+  
+    /* V3 dropdown readability hardening */
+    .ud-dropdown[data-ud-theme="dark"] .ud-trigger,
+    .ud-dropdown[data-ud-theme="dark"] .ud-menu,
+    .ud-dropdown[data-ud-theme="dark"] .ud-search { background:#111827 !important; color:#f8fafc !important; }
+    .ud-dropdown[data-ud-theme="dark"] .ud-item { color:#f8fafc !important; -webkit-text-fill-color:#f8fafc !important; }
+    .ud-dropdown[data-ud-theme="dark"] .ud-item:hover,
+    .ud-dropdown[data-ud-theme="dark"] .ud-item.ud-highlighted,
+    .ud-dropdown[data-ud-theme="dark"] .ud-item.ud-selected {
+      background:#d4a853 !important; color:#111827 !important; -webkit-text-fill-color:#111827 !important;
+    }
+    .ud-dropdown[data-ud-theme="dark"] .ud-search input { background:#0f172a !important; color:#f8fafc !important; }
+    .data-truth-note { grid-column:1/-1; border-color:rgba(212,168,83,.45); }
+    .data-truth-note strong { color:var(--gold-bright); }
+    .evidence-list { display:grid; gap:.55rem; }
+    .evidence-row { padding:.65rem .75rem; border:1px solid var(--border); border-radius:8px; }
+    .evidence-meta { color:var(--text-secondary); font-size:.78rem; margin-top:.2rem; overflow-wrap:anywhere; }
+</style>
 <script src="/api/env" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
@@ -444,17 +461,17 @@
 
   <div class="container">
     <div class="controls">
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر الدولة" id="countrySelect"><option value="">اختر الدولة</option></select>
-      <select data-universal-dropdown="true" data-ud-placeholder="نوع المدينة" id="cityTypeSelect">
+      <select data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر الدولة" id="countrySelect"><option value="">اختر الدولة</option></select>
+      <select data-universal-dropdown="true" data-ud-theme="dark" data-ud-placeholder="نوع المدينة" id="cityTypeSelect">
         <option value="">كل المدن</option>
         <option value="economic_city,industrial_city,port">مدن اقتصادية وصناعية</option>
         <option value="health_city">مدن صحية</option>
         <option value="media_city">مدن إعلامية</option>
         <option value="free_zone">مناطق حرة</option>
       </select>
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المدينة" id="citySelect"><option value="">اختر المدينة</option></select>
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر النشاط (اختياري)" id="activitySelect"><option value="">اختر النشاط (اختياري)</option></select>
-      <select data-universal-dropdown="true" id="yearSelect">
+      <select data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر المدينة" id="citySelect"><option value="">اختر المدينة</option></select>
+      <select data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر النشاط (اختياري)" id="activitySelect"><option value="">اختر النشاط (اختياري)</option></select>
+      <select data-universal-dropdown="true" data-ud-theme="dark" id="yearSelect">
         <option value="latest" selected>أحدث سنة متاحة</option>
         <option value="2025">2025</option>
         <option value="2024">2024</option>
@@ -480,7 +497,7 @@
   </div>
 
   <div class="footer">
-    Bonds V3 Enterprise — البيانات تقديرية وتخضع للتحقق. آخر تحديث: 2025
+    Bonds V3 Enterprise — لا تُعرض البيانات كتوصية أو حقيقة مثبتة دون مصدر وسنة وثقة قابلة للتتبع.
   </div>
 
   <!-- Feedback Modal -->
@@ -623,30 +640,50 @@
     }
 
     // Compute a unified investment attractiveness index from available indicators + market data
-    function computeAttractiveness(city, indicators, marketItem) {
+    function computeAttractiveness(city, indicators, marketItem, evidenceRows = []) {
       const i = indicators || {};
       const m = marketItem || {};
+      const verifiedCodes = new Set(
+        (evidenceRows || [])
+          .filter(row => row.evidence_status === 'verified')
+          .map(row => row.metric_code)
+      );
 
-      // Sub-scores 0-100
-      const economy = clamp((i.growth_rate || 0) * 8 + 50); // growth matters
-      const realEstate = clamp(100 - ((i.avg_rent_per_sqm || 0) / 300) * 10); // lower rent = higher attractiveness
-      const population = clamp((city.population || 0) / 50000); // larger cities score higher up to a point
-      const infrastructure = clamp((i.business_ease_index || 50));
-      const growth = clamp((i.establishments_count || 0) / 1000 + 40);
+      const dimensions = [];
+      if (Number.isFinite(Number(i.growth_rate)) && verifiedCodes.has('growth_rate')) {
+        dimensions.push(['economy', clamp(Number(i.growth_rate) * 8 + 50)]);
+      }
+      if (Number.isFinite(Number(i.avg_rent_per_sqm)) && verifiedCodes.has('avg_rent_per_sqm')) {
+        dimensions.push(['realEstate', clamp(100 - (Number(i.avg_rent_per_sqm) / 300) * 10)]);
+      }
+      if (Number.isFinite(Number(city.population)) && Number(city.population) > 0 && verifiedCodes.has('population')) {
+        dimensions.push(['population', clamp(Number(city.population) / 50000)]);
+      }
+      if (Number.isFinite(Number(i.business_ease_index)) && verifiedCodes.has('business_ease_index')) {
+        dimensions.push(['infrastructure', clamp(Number(i.business_ease_index))]);
+      }
+      if (Number.isFinite(Number(i.establishments_count)) && verifiedCodes.has('establishments_count')) {
+        dimensions.push(['growth', clamp(Number(i.establishments_count) / 1000 + 40)]);
+      }
 
-      // Market opportunity bonus
-      let opportunityBonus = 0;
-      if (m.opportunity_score) opportunityBonus = m.opportunity_score * 0.15;
+      // Never manufacture a score from defaults. Require at least three independently
+      // evidenced dimensions before displaying the internal composite index.
+      if (dimensions.length < 3) return null;
 
-      const overall = clamp((economy + realEstate + population + infrastructure + growth) / 5 + opportunityBonus);
-
+      const scores = Object.fromEntries(dimensions);
+      let total = dimensions.reduce((sum, [, value]) => sum + value, 0) / dimensions.length;
+      if (Number.isFinite(Number(m.opportunity_score)) && verifiedCodes.has('opportunity_score')) {
+        total += Number(m.opportunity_score) * 0.15;
+      }
+      const overall = clamp(total);
       return {
         overall: Math.round(overall),
-        economy: Math.round(economy),
-        realEstate: Math.round(realEstate),
-        population: Math.round(population),
-        infrastructure: Math.round(infrastructure),
-        growth: Math.round(growth),
+        economy: scores.economy ?? null,
+        realEstate: scores.realEstate ?? null,
+        population: scores.population ?? null,
+        infrastructure: scores.infrastructure ?? null,
+        growth: scores.growth ?? null,
+        dimensionCount: dimensions.length,
         label: overall >= 80 ? 'جذابة جداً' : overall >= 60 ? 'جذابة' : overall >= 40 ? 'متوسطة' : 'ضعيفة'
       };
     }
@@ -660,113 +697,134 @@
       return 'var(--danger)';
     }
 
-    function generateSectorRecommendations(city, indicators, market) {
-      // If market data exists for an activity, use opportunity_score to rank
-      const marketData = (market.marketData || []).filter(m => m.opportunity_score != null);
-      if (marketData.length) {
-        return marketData
-          .sort((a, b) => (b.opportunity_score || 0) - (a.opportunity_score || 0))
-          .slice(0, 5)
-          .map((m, idx) => ({
-            rank: idx + 1,
-            name: m.economic_activities?.name_ar || m.activity_id || 'نشاط',
-            reason: m.opportunity_score >= 80 ? 'فرصة استثمارية مرتفعة' :
-                    m.opportunity_score >= 60 ? 'طلب سوقي جيد' : 'إمكانية نمو متاحة'
-          }));
-      }
+    function generateSectorRecommendations(city, indicators, market, evidenceRows = []) {
+      const verifiedActivityEvidence = new Set(
+        (evidenceRows || [])
+          .filter(row => row.evidence_status === 'verified' && row.activity_id)
+          .map(row => row.metric_code)
+      );
+      const marketData = (market.marketData || [])
+        .filter(m => m.opportunity_score != null)
+        .filter(() => verifiedActivityEvidence.has('opportunity_score'));
 
-      // Fallback recommendations based on city indicators
-      const recs = [];
-      const i = indicators || {};
-      if ((i.avg_rent_per_sqm || 0) < 300) {
-        recs.push({ rank: 1, name: 'المستودعات والخدمات اللوجستية', reason: 'تكلفة إيجار منخفضة نسبياً' });
-      } else {
-        recs.push({ rank: 1, name: 'المكاتب المؤجرة والمساحات التجارية', reason: 'طلب عالٍ على المساحات' });
+      return marketData
+        .sort((a, b) => Number(b.opportunity_score || 0) - Number(a.opportunity_score || 0))
+        .slice(0, 5)
+        .map((m, idx) => ({
+          rank: idx + 1,
+          name: m.economic_activities?.name_ar || m.activity_id || 'نشاط',
+          reason: 'مرتبة من درجة فرصة مرتبطة ببيانات مصدرية قابلة للتتبع'
+        }));
+    }
+
+    function renderEvidence(evidenceData) {
+      const rows = evidenceData?.evidence || [];
+      if (!rows.length) {
+        return '<div class="card data-truth-note"><h3>◉ حالة البيانات</h3><p>لا توجد حالياً أدلة مصدرية مخزنة لهذه المدينة. لن تُعرض درجات أو توصيات تقديرية على أنها حقائق.</p></div>';
       }
-      if ((i.growth_rate || 0) > 4) {
-        recs.push({ rank: 2, name: 'التجزئة والمطاعم', reason: 'نمو اقتصادي قوي يدعم الاستهلاك' });
-      }
-      if ((i.unemployment_rate || 0) < 6) {
-        recs.push({ rank: 3, name: 'الصناعات التحويلية', reason: 'توفر عمالة مؤهلة' });
-      }
-      if (recs.length === 0) {
-        recs.push({ rank: 1, name: 'الخدمات اللوجستية', reason: 'قطاع أساسي مدعوم بالبنية التحتية' });
-        recs.push({ rank: 2, name: 'التجارة الإلكترونية', reason: 'نمو سوقي مستمر' });
-      }
-      return recs;
+      const verified = rows.filter(r => r.evidence_status === 'verified');
+      const estimated = rows.filter(r => r.evidence_status === 'estimated');
+      const unverified = rows.filter(r => r.evidence_status === 'unverified');
+      const latest = rows
+        .map(r => r.fetched_at)
+        .filter(Boolean)
+        .sort()
+        .reverse()[0];
+      const items = rows.slice(0, 12).map(r => {
+        const statusLabel = r.evidence_status === 'verified' ? 'مثبت' : r.evidence_status === 'estimated' ? 'تقديري' : 'غير مثبت';
+        const source = r.source_name || r.source_id || 'مصدر غير مسمى';
+        const sourceLink = r.source_url ? '<a class="map-link" style="padding:.15rem .4rem;font-size:.75rem" href="' + r.source_url + '" target="_blank" rel="noopener">المصدر</a>' : '';
+        return '<div class="evidence-row"><strong>' + metricLabel(r.metric_code) + '</strong> — ' + statusLabel +
+          '<div class="evidence-meta">' + source + ' · سنة ' + (r.year || '—') + ' · ثقة ' + (r.confidence ?? '—') + ' ' + sourceLink + '</div></div>';
+      }).join('');
+      return '<div class="card data-truth-note"><h3>◉ أدلة ومصادر البيانات</h3>' +
+        '<p><strong>' + verified.length + '</strong> مثبت · ' + estimated.length + ' تقديري · ' + unverified.length + ' غير مثبت' +
+        (latest ? ' · آخر جلب: ' + new Date(latest).toLocaleString('ar-SA') : '') + '</p>' +
+        '<div class="evidence-list">' + items + '</div></div>';
     }
 
     const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
     const CITY_ICON = '/assets/icons/city.svg';
     const ACTIVITY_ICON = '/assets/icons/activity.svg';
 
-    async function init() {
+    async function init(initialCountry = 'SA') {
       try {
-        const sectorsData = await fetchJson(API_URL + '/sectors');
-        activities = [];
-        (sectorsData.sectors || []).forEach(sector => {
-          (sector.economic_sub_sectors || []).forEach(sub => {
-            (sub.economic_activities || []).forEach(activity => {
-              activities.push(activity);
-            });
-          });
-        });
+        const [countriesData, activitiesData] = await Promise.all([
+          fetchJson(API_URL + '/catalog/countries'),
+          fetchJson(API_URL + '/catalog/activities')
+        ]);
+        activities = activitiesData.activities || [];
 
         const countrySelect = document.getElementById('countrySelect');
         const cityTypeSelect = document.getElementById('cityTypeSelect');
         const citySelect = document.getElementById('citySelect');
         const activitySelect = document.getElementById('activitySelect');
 
-        // Show all 22 supported countries even if some have no cities in the DB yet
-        // Saudi Arabia is the default/first country across the platform.
-        function sortCountries(codes, defaultCode = 'SA') {
-          return codes.slice().sort((a, b) => {
-            if (a === defaultCode) return -1;
-            if (b === defaultCode) return 1;
-            return countryNames[a].localeCompare(countryNames[b], 'ar');
-          });
-        }
-        const allCountryCodes = sortCountries(Object.keys(countryNames));
-        const countryOptions = allCountryCodes.map(code => ({ value: code, label: countryNames[code], icon: countryFlags[code] }));
-        countrySelect.innerHTML = '<option value="">اختر الدولة</option>' + allCountryCodes.map(code => `<option value="${code}" data-icon="${countryFlags[code]}">${countryNames[code]}</option>`).join('');
-        countrySelect.value = 'SA';
+        const countries = countriesData.countries || [];
+        const countryOptions = countries.map(country => ({
+          value: country.code,
+          label: country.name_ar + ' (' + country.cityCount + ' مدينة)',
+          icon: countryFlags[country.code]
+        }));
+        countrySelect.innerHTML = '<option value="">اختر الدولة</option>' + countries.map(country =>
+          `<option value="${country.code}" data-icon="${countryFlags[country.code] || ''}">${country.name_ar}</option>`
+        ).join('');
+        countrySelect.value = countries.some(c => c.code === initialCountry) ? initialCountry : 'SA';
         const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
-        if (countryDd && countryDd.setOptions) {
+        if (countryDd?.setOptions) {
           countryDd.setOptions(countryOptions);
-          if (countryDd.selectByValue) countryDd.selectByValue('SA');
+          if (countryDd.selectByValue) countryDd.selectByValue(countrySelect.value);
         }
 
         function populateCities() {
-          citySelect.innerHTML = '<option value="">اختر المدينة</option>' + cities.map(c => `<option value="${c.code}" data-icon="${CITY_ICON}">${c.name_ar}</option>`).join('');
+          citySelect.innerHTML = '<option value="">اختر المدينة</option>' + cities.map(c =>
+            `<option value="${c.code}" data-icon="${CITY_ICON}">${c.name_ar || c.name_en || c.code}</option>`
+          ).join('');
           const cityDd = window.getUniversalDropdown && window.getUniversalDropdown(citySelect);
-          if (cityDd && cityDd.setOptions) cityDd.setOptions(cities.map(c => ({ value: c.code, label: c.name_ar, icon: CITY_ICON })));
+          if (cityDd?.setOptions) {
+            cityDd.setOptions(cities.map(c => ({
+              value: c.code,
+              label: (c.name_ar || c.name_en || c.code) + (c.data_available ? '' : ' · كتالوج'),
+              icon: CITY_ICON
+            })));
+          }
         }
 
         async function loadCities() {
           const selectedCountry = countrySelect.value || 'SA';
           const selectedType = cityTypeSelect.value;
-          let url = API_URL + '/cities?limit=2000';
-          if (selectedCountry) url += '&country=' + encodeURIComponent(selectedCountry);
-          if (selectedType) url += '&city_type=' + encodeURIComponent(selectedType);
-          const data = await fetchJson(url);
-          cities = (data.cities || []).filter(c => MODERN_CITY_CODE.test(c.code));
+          let data;
+          if (selectedType) {
+            const url = API_URL + '/cities?limit=2000&country=' + encodeURIComponent(selectedCountry) +
+              '&city_type=' + encodeURIComponent(selectedType);
+            data = await fetchJson(url);
+            cities = (data.cities || []).map(city => ({ ...city, data_available: true }));
+          } else {
+            data = await fetchJson(API_URL + '/catalog/cities?country=' + encodeURIComponent(selectedCountry));
+            cities = data.cities || [];
+          }
           populateCities();
         }
 
         await loadCities();
 
-        const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar, icon: ACTIVITY_ICON }));
-        activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a => `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar}</option>`).join('');
+        const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar || a.name_en || a.code, icon: ACTIVITY_ICON }));
+        activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a =>
+          `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar || a.name_en || a.code}</option>`
+        ).join('');
         const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
-        if (activityDd && activityDd.setOptions) activityDd.setOptions(activityOptions);
+        if (activityDd?.setOptions) activityDd.setOptions(activityOptions);
 
-        countrySelect.addEventListener('change', loadCities);
+        countrySelect.addEventListener('change', async () => {
+          await loadCities();
+          document.getElementById('content').innerHTML = '<div class="loading">اختر مدينة لعرض المؤشرات</div>';
+        });
         cityTypeSelect.addEventListener('change', loadCities);
         citySelect.addEventListener('change', loadCityData);
         activitySelect.addEventListener('change', loadCityData);
         document.getElementById('yearSelect').addEventListener('change', loadCityData);
       } catch (err) {
-        document.getElementById('content').innerHTML = `<div class="error">فشل تحميل البيانات: ${err.message}</div>`;
+        document.getElementById('content').innerHTML = `<div class="error">فشل تحميل الكتالوج: ${err.message}</div>`;
       }
     }
 
@@ -779,64 +837,78 @@
       if (typeof BondsAIChat !== 'undefined' && BondsAIChat.updateContext) {
         BondsAIChat.updateContext({ cityCode, activityCode });
       }
-
       if (!cityCode) {
         content.innerHTML = '<div class="loading">اختر مدينة لعرض المؤشرات</div>';
         return;
       }
 
-      content.innerHTML = '<div class="loading">جاري تحميل المؤشرات...</div>';
+      const catalogCity = cities.find(city => city.code === cityCode);
+      if (catalogCity && catalogCity.data_available === false) {
+        content.innerHTML =
+          '<div class="grid">' +
+          '<div class="card data-truth-note"><h3>⌖ ' + (catalogCity.name_ar || catalogCity.name_en || cityCode) + '</h3>' +
+          '<div class="metric"><span class="metric-label">الدولة</span><span class="metric-value">' + (countryNames[catalogCity.country_code] || catalogCity.country_code) + '</span></div>' +
+          '<div class="metric"><span class="metric-label">المنطقة</span><span class="metric-value">' + (catalogCity.region || '—') + '</span></div>' +
+          '<p><strong>المدينة موجودة في الكتالوج الجغرافي، لكن لا توجد لها حالياً بيانات كمية مصدرية في قاعدة البيانات.</strong></p>' +
+          '<p>لن يعرض النظام أرقاماً أو درجة جاذبية مصطنعة لهذه المدينة. ستظهر المؤشرات عندما تتوفر بيانات قابلة للتتبع إلى مصدر.</p></div></div>';
+        return;
+      }
 
+      content.innerHTML = '<div class="loading">جاري تحميل المؤشرات والمصادر...</div>';
       try {
-        const [detail, indicators, market] = await Promise.all([
-          fetchJson(`${API_URL}/cities/${cityCode}`),
-          fetchJson(`${API_URL}/cities/${cityCode}/indicators?year=${year}`),
+        const [detail, indicators, market, evidence] = await Promise.all([
+          fetchJson(`${API_URL}/cities/${cityCode}?year=${encodeURIComponent(year)}`),
+          fetchJson(`${API_URL}/cities/${cityCode}/indicators?year=${encodeURIComponent(year)}`),
           activityCode
-            ? fetchJson(`${API_URL}/cities/${cityCode}/market?activity=${activityCode}&year=${year}`)
-            : Promise.resolve({ marketData: [] })
+            ? fetchJson(`${API_URL}/cities/${cityCode}/market?activity=${encodeURIComponent(activityCode)}&year=${encodeURIComponent(year)}`)
+            : Promise.resolve({ marketData: [], year }),
+          fetchJson(`${API_URL}/cities/${cityCode}/evidence?year=${encodeURIComponent(year)}${activityCode ? '&activity=' + encodeURIComponent(activityCode) : ''}`)
         ]);
-
-        renderCity(cityCode, detail, indicators, market);
+        renderCity(cityCode, detail, indicators, market, evidence);
         await updateScenarioCard(activityCode);
       } catch (err) {
         content.innerHTML = `<div class="error">فشل تحميل بيانات المدينة: ${err.message}</div>`;
       }
     }
 
-    function renderCity(cityCode, detail, indicatorsData, marketData) {
+    function renderCity(cityCode, detail, indicatorsData, marketData, evidenceData = {}) {
       const city = detail.city;
       const indicators = indicatorsData.indicators || {};
       const market = marketData.marketData || [];
       const marketItem = market[0] || {};
       const dataYear = detail.year || indicatorsData.year || marketData.year || document.getElementById('yearSelect').value;
-      const attractiveness = computeAttractiveness(city, indicators, marketItem);
-      const recommendations = generateSectorRecommendations(city, indicators, marketData);
+      const evidenceRows = evidenceData.evidence || [];
+      const attractiveness = computeAttractiveness(city, indicators, marketItem, evidenceRows);
+      const recommendations = generateSectorRecommendations(city, indicators, marketData, evidenceRows);
 
       const html = `
         <div class="grid">
-          <!-- Unified Investment Attractiveness Index -->
+          ${attractiveness ? `
           <div class="card attractiveness-card">
             <div class="attractiveness-header">
               <div>
-                <h3 style="margin-bottom: 0.25rem;">◎ مؤشر جاذبية الاستثمار — ${city.name_ar}</h3>
-                <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">
-                  درجة موحدة تعكس جاهزية المدينة للاستثمار بناءً على 5 محاور رئيسية.
+                <h3 style="margin-bottom:0.25rem;">◎ مؤشر جاذبية الاستثمار — ${city.name_ar}</h3>
+                <p style="margin:0;color:var(--text-secondary);font-size:.9rem;">
+                  مؤشر تحليلي داخلي محسوب فقط من ${attractiveness.dimensionCount} أبعاد لها أدلة مصدرية مثبتة، وليس رقماً رسمياً.
                 </p>
               </div>
               <div class="attractiveness-score">
-                <div class="score-number">${attractiveness.overall}<span style="font-size:1.2rem; color: var(--text-secondary);">/100</span></div>
+                <div class="score-number">${attractiveness.overall}<span style="font-size:1.2rem;color:var(--text-secondary);">/100</span></div>
                 <div class="score-label">${attractiveness.label}</div>
               </div>
             </div>
-            <div class="attractiveness-bars" style="margin-top: 1.25rem;">
-              ${renderAttrBar('الاقتصاد', attractiveness.economy)}
-              ${renderAttrBar('العقار والتكاليف التشغيلية', attractiveness.realEstate)}
-              ${renderAttrBar('السكان والقوة الشرائية', attractiveness.population)}
-              ${renderAttrBar('البنية التحتية وسهولة الأعمال', attractiveness.infrastructure)}
-              ${renderAttrBar('النمو والتوسع', attractiveness.growth)}
+            <div class="attractiveness-bars" style="margin-top:1.25rem;">
+              ${attractiveness.economy != null ? renderAttrBar('الاقتصاد', attractiveness.economy) : ''}
+              ${attractiveness.realEstate != null ? renderAttrBar('العقار والتكاليف التشغيلية', attractiveness.realEstate) : ''}
+              ${attractiveness.population != null ? renderAttrBar('السكان والقوة الشرائية', attractiveness.population) : ''}
+              ${attractiveness.infrastructure != null ? renderAttrBar('البنية التحتية وسهولة الأعمال', attractiveness.infrastructure) : ''}
+              ${attractiveness.growth != null ? renderAttrBar('النمو والتوسع', attractiveness.growth) : ''}
             </div>
-          </div>
-
+          </div>` : `
+          <div class="card data-truth-note">
+            <h3>◎ مؤشر جاذبية الاستثمار</h3>
+            <p><strong>غير متاح حالياً.</strong> لا توجد ثلاثة أبعاد مستقلة على الأقل بأدلة مصدرية مثبتة. تم إيقاف احتساب الدرجة من القيم الافتراضية.</p>
+          </div>`}
           <div class="card">
             <h3>⌖ معلومات المدينة</h3>
             <div class="metric"><span class="metric-label">المدينة</span><span class="metric-value">${city.name_ar}</span></div>
@@ -873,15 +945,15 @@
               أفضل القطاعات الاستثمارية بناءً على البيانات المتاحة.
             </p>
             <ul class="recommendations-list">
-              ${recommendations.map(r => `
+${recommendations.length ? recommendations.map(r => `
                 <li>
                   <span class="rec-rank">${r.rank}</span>
                   <div>
-                    <div style="font-weight: 700;">${r.name}</div>
-                    <div style="font-size: 0.8rem; color: var(--text-secondary);">${r.reason}</div>
+                    <div style="font-weight:700;">${r.name}</div>
+                    <div style="font-size:.8rem;color:var(--text-secondary);">${r.reason}</div>
                   </div>
                 </li>
-              `).join('')}
+              `).join('') : '<li><div><strong>لا توجد توصيات قطاعية مثبتة لهذه المدينة/النشاط حالياً.</strong><div style="font-size:.8rem;color:var(--text-secondary);">لن يتم توليد توصيات افتراضية عند غياب بيانات سوق موثقة.</div></div></li>'}
             </ul>
           </div>
 
@@ -914,6 +986,7 @@
             ` : '<div class="metric"><span class="metric-label">غير متوفر</span><span class="metric-value">اختر نشاطاً</span></div>'}
           </div>
           ` : ''}
+          ${renderEvidence(evidenceData)}
         </div>
       `;
 
@@ -1173,7 +1246,8 @@
       const preselectCity = params.get('city');
       const preselectActivity = params.get('activity');
 
-      await init();
+      const inferredCountry = preselectCity && /^[A-Z]{2}-/.test(preselectCity) ? preselectCity.slice(0, 2) : 'SA';
+      await init(inferredCountry);
 
       if (preselectCity) {
         const citySelect = document.getElementById('citySelect');
