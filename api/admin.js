@@ -605,6 +605,193 @@ async function getPlatformSummary(sb) {
   return { success: true, counts, errors, generatedAt: new Date().toISOString() };
 }
 
+// ── Safe Workflow & SLA Automation ─────────────────────────
+function getPathValue(input, path) {
+  return String(path || '').split('.').filter(Boolean).reduce((value, key) => (
+    value && Object.prototype.hasOwnProperty.call(value, key) ? value[key] : undefined
+  ), input);
+}
+
+function evaluateWorkflowConditions(conditions, payload) {
+  const rules = Array.isArray(conditions?.all) ? conditions.all : [];
+  return rules.every(rule => {
+    const actual = getPathValue(payload, rule.field);
+    const expected = rule.value;
+    switch (rule.op) {
+      case 'eq': return actual === expected;
+      case 'neq': return actual !== expected;
+      case 'gt': return Number(actual) > Number(expected);
+      case 'gte': return Number(actual) >= Number(expected);
+      case 'lt': return Number(actual) < Number(expected);
+      case 'lte': return Number(actual) <= Number(expected);
+      case 'in': return Array.isArray(expected) && expected.includes(actual);
+      case 'exists': return rule.value === false ? actual == null : actual != null;
+      default: return false;
+    }
+  });
+}
+
+async function executeWorkflowRule(sb, ruleId, triggerPayload, admin, req) {
+  const { data: rule, error } = await sb.from('workflow_rules').select('*').eq('id', ruleId).single();
+  if (error || !rule) throw badRequest('Workflow rule not found');
+  if (!rule.enabled) return { success: true, matched: false, skipped: 'disabled' };
+
+  const runInsert = await sb.from('workflow_runs').insert({
+    rule_id: rule.id,
+    trigger_payload: triggerPayload || {},
+    status: 'running',
+    started_at: new Date().toISOString()
+  }).select().single();
+  if (runInsert.error) throw runInsert.error;
+  const run = runInsert.data;
+
+  try {
+    const matched = evaluateWorkflowConditions(rule.conditions || {}, triggerPayload || {});
+    const outputs = [];
+    if (matched) {
+      for (const action of Array.isArray(rule.actions) ? rule.actions : []) {
+        if (action?.type === 'create_task') {
+          const { data, error: taskError } = await sb.from('admin_tasks').insert({
+            title: String(action.title || rule.name).slice(0, 240),
+            description: action.description || null,
+            entity_type: action.entity_type || triggerPayload?.entity_type || null,
+            entity_id: String(action.entity_id || triggerPayload?.entity_id || ''),
+            status: 'open',
+            priority: action.priority || 'normal',
+            assigned_to: action.assigned_to || null,
+            created_by: admin?.id || null,
+            due_at: action.due_at || null,
+            metadata: { workflow_rule_id: rule.id, workflow_run_id: run.id }
+          }).select().single();
+          if (taskError) throw taskError;
+          outputs.push({ type: 'task', id: data.id });
+        } else if (action?.type === 'create_alert') {
+          const { data, error: alertError } = await sb.from('operational_alerts').insert({
+            category: action.category || 'workflow',
+            severity: action.severity || 'warning',
+            title: String(action.title || rule.name).slice(0, 240),
+            message: action.message || null,
+            entity_type: action.entity_type || triggerPayload?.entity_type || null,
+            entity_id: String(action.entity_id || triggerPayload?.entity_id || ''),
+            status: 'open',
+            owner_id: action.owner_id || null,
+            request_id: req?.headers?.['x-request-id'] || null
+          }).select().single();
+          if (alertError) throw alertError;
+          outputs.push({ type: 'alert', id: data.id });
+        } else {
+          outputs.push({ type: action?.type || 'unknown', skipped: 'unsupported_action' });
+        }
+      }
+    }
+    await sb.from('workflow_runs').update({
+      status: 'succeeded',
+      finished_at: new Date().toISOString(),
+      output: { matched, outputs }
+    }).eq('id', run.id);
+    if (admin) await logAdminAction(sb, admin, 'workflow_run', 'workflow_rule', rule.id, null, { matched, outputCount: outputs.length }, req);
+    return { success: true, matched, runId: run.id, outputs };
+  } catch (error) {
+    await sb.from('workflow_runs').update({
+      status: 'failed',
+      finished_at: new Date().toISOString(),
+      error_message: String(error?.message || error).slice(0, 500)
+    }).eq('id', run.id);
+    throw error;
+  }
+}
+
+async function ensureOperationalAlert(sb, input) {
+  let existing = sb.from('operational_alerts').select('id')
+    .eq('category', input.category)
+    .eq('entity_type', input.entity_type)
+    .eq('entity_id', String(input.entity_id))
+    .in('status', ['open','acknowledged'])
+    .limit(1);
+  const { data } = await existing;
+  if (data?.length) return { created: false, id: data[0].id };
+  const inserted = await sb.from('operational_alerts').insert(input).select('id').single();
+  if (inserted.error) throw inserted.error;
+  return { created: true, id: inserted.data.id };
+}
+
+async function runOperationalSweep(sb, actor, req) {
+  const now = new Date().toISOString();
+  const results = { supportSla: 0, fundingSla: 0, expiredApprovals: 0, errors: [] };
+
+  try {
+    const { data, error } = await sb.from('support_tickets')
+      .select('id,subject,priority,assigned_to,sla_deadline_at')
+      .in('status', ['open','in_progress','waiting_customer'])
+      .lt('sla_deadline_at', now)
+      .limit(100);
+    if (error) throw error;
+    for (const ticket of data || []) {
+      const alert = await ensureOperationalAlert(sb, {
+        category: 'support_sla',
+        severity: ['urgent','critical'].includes(ticket.priority) ? 'critical' : 'high',
+        title: 'Support SLA breached',
+        message: ticket.subject || null,
+        entity_type: 'support_ticket',
+        entity_id: String(ticket.id),
+        status: 'open',
+        owner_id: ticket.assigned_to || null,
+        request_id: req?.headers?.['x-request-id'] || null
+      });
+      if (alert.created) results.supportSla++;
+    }
+  } catch (error) {
+    results.errors.push({ key: 'support_sla', message: String(error?.message || error).slice(0, 200) });
+  }
+
+  try {
+    const { data, error } = await sb.from('funding_cases')
+      .select('id,case_reference,assigned_to,sla_deadline_at')
+      .is('closed_at', null)
+      .lt('sla_deadline_at', now)
+      .limit(100);
+    if (error) throw error;
+    for (const item of data || []) {
+      const alert = await ensureOperationalAlert(sb, {
+        category: 'funding_sla',
+        severity: 'high',
+        title: 'Funding case SLA breached',
+        message: item.case_reference || null,
+        entity_type: 'funding_case',
+        entity_id: String(item.id),
+        status: 'open',
+        owner_id: item.assigned_to || null,
+        request_id: req?.headers?.['x-request-id'] || null
+      });
+      if (alert.created) results.fundingSla++;
+    }
+  } catch (error) {
+    results.errors.push({ key: 'funding_sla', message: String(error?.message || error).slice(0, 200) });
+  }
+
+  try {
+    const { data, error } = await sb.from('admin_approval_requests')
+      .select('id')
+      .eq('status', 'pending')
+      .lt('expires_at', now)
+      .limit(100);
+    if (error) throw error;
+    const ids = (data || []).map(x => x.id);
+    if (ids.length) {
+      const update = await sb.from('admin_approval_requests')
+        .update({ status: 'cancelled', updated_at: now, reason: 'Expired automatically' })
+        .in('id', ids);
+      if (update.error) throw update.error;
+      results.expiredApprovals = ids.length;
+    }
+  } catch (error) {
+    results.errors.push({ key: 'expired_approvals', message: String(error?.message || error).slice(0, 200) });
+  }
+
+  if (actor?.id) await logAdminAction(sb, actor, 'operational_sweep', 'system', null, null, results, req);
+  return { success: true, ...results, completedAt: new Date().toISOString() };
+}
+
 // ── Admin Operations Inbox ─────────────────────────────────
 async function getOperationsOverview(sb) {
   const now = new Date().toISOString();
@@ -735,6 +922,13 @@ async function getSystemHealth(sb) {
         status: configMissing.length ? 'degraded' : 'healthy',
         checks: envChecks,
         missing: configMissing
+      },
+      deployment: {
+        status: 'known',
+        environment: process.env.VERCEL_ENV || process.env.NODE_ENV || 'unknown',
+        gitSha: process.env.VERCEL_GIT_COMMIT_SHA || process.env.GITHUB_SHA || null,
+        gitRef: process.env.VERCEL_GIT_COMMIT_REF || null,
+        url: process.env.VERCEL_URL || null
       }
     }
   };
@@ -2414,6 +2608,21 @@ async function handler(req, res) {
         const admin = await verifyAdmin(req, sb);
         await requirePlatformPermission(sb, admin, 'platform.read');
         return res.status(200).json(await getPlatformSummary(sb));
+      }
+      if (action === 'run-workflow') {
+        const admin = await verifyAdminStrict(req, sb);
+        await requirePlatformPermission(sb, admin, 'workflow.manage');
+        return res.status(200).json(await executeWorkflowRule(sb, req.body?.rule_id, req.body?.payload || {}, admin, req));
+      }
+      if (action === 'run-operational-sweep') {
+        const cronSecret = req.headers['x-cron-secret'];
+        const expectedCronSecret = process.env.CRON_SECRET;
+        let actor = null;
+        if (!(cronSecret && expectedCronSecret && cronSecret === expectedCronSecret)) {
+          actor = await verifyAdminStrict(req, sb);
+          await requirePlatformPermission(sb, actor, 'workflow.manage');
+        }
+        return res.status(200).json(await runOperationalSweep(sb, actor, req));
       }
       if (action === 'platform-module') {
         const admin = await verifyAdmin(req, sb);
