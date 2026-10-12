@@ -12,7 +12,7 @@ main{max-width:1550px;margin:auto;padding:1rem}.top{display:flex;justify-content
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.7rem}.kpi{border:1px solid var(--border);border-radius:12px;padding:.75rem}.kpi b{display:block;font-size:1.2rem}
 table{width:100%;border-collapse:collapse;font-size:.82rem}th,td{padding:.55rem;border-bottom:1px solid var(--border);text-align:right}.scroll{overflow:auto;max-height:600px}
 .btn{border:0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer;background:#172033;color:white}.btn2{background:#eef2f7;color:#172033}
-input,textarea,select{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:9px;padding:.65rem;margin:.3rem 0 .7rem}.muted{color:var(--muted)}
+input,textarea,select{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:9px;padding:.65rem;margin:.3rem 0 .7rem}.muted{color:#475569}
 .ticket{cursor:pointer}.ticket:hover{background:#f8fafc}.status{display:none;padding:.75rem;border-radius:10px;background:#fee2e2;color:#991b1b;margin-top:.75rem}
 @media(max-width:900px){.span-8,.span-4{grid-column:span 12}}
 </style>
@@ -32,7 +32,9 @@ input,textarea,select{width:100%;box-sizing:border-box;border:1px solid var(--bo
 <form onsubmit="createTicket(event)">
 <input id="subject" required placeholder="الموضوع">
 <textarea id="description" rows="5" placeholder="الوصف"></textarea>
-<select id="priority"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select>
+<select id="priority" aria-label="أولوية التذكرة"><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select>
+<input id="userId" placeholder="User ID (اختياري)">
+<input id="advisoryClientId" placeholder="Advisory Client ID (اختياري)">
 <input id="requestId" placeholder="Request ID">
 <input id="errorCode" placeholder="Error code">
 <input id="relatedUrl" placeholder="Related URL">
@@ -42,8 +44,25 @@ input,textarea,select{width:100%;box-sizing:border-box;border:1px solid var(--bo
 <section class="card span-12" id="detailCard" style="display:none">
 <h2>تفاصيل التذكرة</h2>
 <div id="ticketDetail"></div>
+<div class="forms">
+  <select id="detailStatus" aria-label="حالة التذكرة">
+    <option value="open">Open</option><option value="in_progress">In Progress</option><option value="waiting_customer">Waiting Customer</option><option value="resolved">Resolved</option><option value="closed">Closed</option>
+  </select>
+  <select id="detailPriority" aria-label="أولوية التذكرة">
+    <option value="low">Low</option><option value="normal">Normal</option><option value="high">High</option><option value="urgent">Urgent</option><option value="critical">Critical</option>
+  </select>
+  <input id="detailAssignedTo" placeholder="Assigned admin user ID">
+  <select id="detailEscalation" aria-label="مستوى التصعيد">
+    <option value="0">بدون تصعيد</option><option value="1">Level 1</option><option value="2">Level 2</option><option value="3">Level 3</option><option value="4">Level 4</option><option value="5">Level 5</option>
+  </select>
+</div>
+<div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem">
+  <button class="btn" type="button" onclick="saveTicket(false)">حفظ التغييرات</button>
+  <button class="btn" type="button" onclick="saveTicket(true)">تصعيد</button>
+</div>
 <textarea id="noteContent" rows="3" placeholder="ملاحظة داخلية"></textarea>
-<button class="btn" onclick="addNote()">إضافة ملاحظة</button>
+<input id="mentionUserIds" placeholder="Mention user IDs مفصولة بفاصلة">
+<button class="btn" type="button" onclick="addNote()">إضافة ملاحظة</button>
 </section>
 </div>
 </main>
@@ -67,7 +86,7 @@ function render(){
 }
 async function loadSupport(){err('');try{support=await api('/api/admin?action=support-overview');render()}catch(e){err('فشل تحميل مركز الدعم: '+e.message)}}
 async function createTicket(ev){ev.preventDefault();try{
- await api('/api/admin?action=support-ticket-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:subject.value,description:description.value,priority:priority.value,request_id:requestId.value||null,error_code:errorCode.value||null,related_url:relatedUrl.value||null})});
+ await api('/api/admin?action=support-ticket-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject:subject.value,description:description.value,priority:priority.value,user_id:userId.value||null,advisory_client_id:advisoryClientId.value||null,request_id:requestId.value||null,error_code:errorCode.value||null,related_url:relatedUrl.value||null})});
  ev.target.reset();await loadSupport();
 }catch(e){err('فشل إنشاء التذكرة: '+e.message)}}
 async function openTicket(id){try{
@@ -75,10 +94,26 @@ async function openTicket(id){try{
  document.getElementById('detailCard').style.display='block';
  const t=d.ticket||{};
  document.getElementById('ticketDetail').innerHTML='<div><b>'+esc(t.subject)+'</b></div><div class="muted">'+esc(t.description||'')+'</div><div>Priority: '+esc(t.priority)+' · Status: '+esc(t.status)+' · SLA: '+fmt(t.sla_due_at)+'</div><div style="margin-top:.75rem">'+(d.notes||[]).map(n=>'<div style="padding:.5rem;border-top:1px solid #eee">'+esc(n.content)+'<div class="muted">'+fmt(n.created_at)+'</div></div>').join('')+'</div>';
+ document.getElementById('detailStatus').value=t.status||'open';
+ document.getElementById('detailPriority').value=t.priority||'normal';
+ document.getElementById('detailAssignedTo').value=t.assigned_to||'';
+ document.getElementById('detailEscalation').value=String(t.escalation_level||0);
 }catch(e){err('فشل تحميل التذكرة: '+e.message)}}
+async function saveTicket(escalate){if(!currentTicketId)return;try{
+ await api('/api/admin?action=support-ticket-update',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+  id:currentTicketId,
+  status:detailStatus.value,
+  priority:detailPriority.value,
+  assigned_to:detailAssignedTo.value||null,
+  escalation_level:Number(detailEscalation.value||0),
+  escalate:Boolean(escalate)
+ })});
+ await loadSupport();await openTicket(currentTicketId);
+}catch(e){err('فشل تحديث التذكرة: '+e.message)}}
 async function addNote(){const content=noteContent.value.trim();if(!currentTicketId||!content)return;try{
- await api('/api/admin?action=support-note-add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket_id:currentTicketId,content,is_internal:true})});
- noteContent.value='';await openTicket(currentTicketId);
+ const mention_user_ids=mentionUserIds.value.split(/[\s,]+/).map(x=>x.trim()).filter(Boolean);
+ await api('/api/admin?action=support-note-add',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket_id:currentTicketId,content,is_internal:true,mention_user_ids})});
+ noteContent.value='';mentionUserIds.value='';await openTicket(currentTicketId);
 }catch(e){err('فشل إضافة الملاحظة: '+e.message)}}
 if(window.__ADMIN_ROLE)loadSupport();else window.addEventListener('admin-auth-ready',loadSupport,{once:true});
 </script>
