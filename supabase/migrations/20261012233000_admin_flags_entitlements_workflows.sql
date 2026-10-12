@@ -158,3 +158,19 @@ REVOKE ALL ON public.admin_workflows FROM anon, authenticated;
 REVOKE ALL ON public.admin_workflow_runs FROM anon, authenticated;
 REVOKE ALL ON public.admin_tasks FROM anon, authenticated;
 REVOKE ALL ON public.admin_alerts FROM anon, authenticated;
+
+
+INSERT INTO public.admin_permissions(permission, description, risk_level) VALUES
+('product.flags','Manage feature flags','high'),
+('entitlements.manage','Manage entitlements and overrides','high'),
+('workflow.manage','Manage automated workflows','high'),
+('operations.manage','Manage operational tasks and alerts','normal')
+ON CONFLICT (permission) DO NOTHING;
+
+INSERT INTO public.admin_role_permissions(role, permission)
+SELECT role, permission FROM (VALUES
+  ('super_admin','product.flags'),('super_admin','entitlements.manage'),('super_admin','workflow.manage'),('super_admin','operations.manage'),
+  ('admin','product.flags'),('admin','entitlements.manage'),('admin','workflow.manage'),('admin','operations.manage'),
+  ('support','operations.manage')
+) AS x(role, permission)
+ON CONFLICT (role, permission) DO NOTHING;
