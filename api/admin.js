@@ -26,6 +26,7 @@ class HttpError extends Error {
 function badRequest(message) { return new HttpError(400, message); }
 function unauthorized(message = 'Unauthorized') { return new HttpError(401, message); }
 function forbidden(message = 'Forbidden') { return new HttpError(403, message); }
+function notFound(message = 'Not found') { return new HttpError(404, message); }
 
 function isOwner(email) {
   if (!email) return false;
@@ -1893,6 +1894,171 @@ async function handleResetLink(sb, body) {
   };
 }
 
+// ── Users 360 / CRM ────────────────────────────────────────
+async function getUser360(sb, userId) {
+  if (!userId) throw badRequest('user_id required');
+
+  const [
+    profileRes,
+    subscriptionRes,
+    invoicesRes,
+    presenceRes,
+    messagesRes,
+    fundingRes,
+    notesRes,
+    tagsRes,
+    auditRes,
+    advisoryClientRes
+  ] = await Promise.allSettled([
+    sb.from('profiles').select('*').eq('id', userId).single(),
+    sb.from('subscriptions').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(20),
+    sb.from('moyasar_invoices').select('id, invoice_id, tier, amount, currency, status, paid_at, created_at, updated_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(50),
+    sb.from('user_presence').select('session_id, country, country_code, city, page, section, url, user_agent, screen, lang, started_at, last_seen_at, is_online').eq('user_id', userId).order('last_seen_at', { ascending: false }).limit(100),
+    sb.from('contact_messages').select('*').eq('user_id', userId).order('created_at', { ascending: false }).limit(100),
+    sb.from('funding_cases').select('*').eq('client_user_id', userId).order('created_at', { ascending: false }).limit(100),
+    sb.from('admin_customer_notes').select('id, content, created_by, created_at, updated_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(100),
+    sb.from('admin_customer_tags').select('tag, created_by, created_at').eq('user_id', userId).order('created_at', { ascending: false }).limit(100),
+    sb.from('admin_audit_log').select('id, created_at, actor_email, actor_role, action, target_type, target_id, details').eq('target_id', userId).order('created_at', { ascending: false }).limit(100),
+    sb.from('advisory_clients').select('*').eq('auth_user_id', userId).limit(1)
+  ]);
+
+  const settledData = (result, fallback) => (
+    result.status === 'fulfilled' && !result.value?.error ? (result.value?.data ?? fallback) : fallback
+  );
+
+  const profile = settledData(profileRes, null);
+  if (!profile) throw notFound('User not found');
+
+  const advisoryClientRows = settledData(advisoryClientRes, []);
+  const advisoryClient = Array.isArray(advisoryClientRows) ? advisoryClientRows[0] || null : advisoryClientRows;
+  let advisoryProjects = [];
+  let advisoryNotes = [];
+  let advisoryActivity = [];
+  let clientDocuments = [];
+
+  if (advisoryClient?.id) {
+    const extra = await Promise.allSettled([
+      sb.from('advisory_projects').select('*').eq('client_id', advisoryClient.id).order('created_at', { ascending: false }).limit(100),
+      sb.from('advisory_notes').select('*').eq('entity_type', 'client').eq('entity_id', advisoryClient.id).order('created_at', { ascending: false }).limit(100),
+      sb.from('advisory_activity_logs').select('*').eq('entity_type', 'client').eq('entity_id', advisoryClient.id).order('created_at', { ascending: false }).limit(100),
+      sb.from('client_documents').select('id, filename, mime_type, size_bytes, status, created_at, updated_at').eq('client_id', advisoryClient.id).order('created_at', { ascending: false }).limit(100)
+    ]);
+    advisoryProjects = settledData(extra[0], []);
+    advisoryNotes = settledData(extra[1], []);
+    advisoryActivity = settledData(extra[2], []);
+    clientDocuments = settledData(extra[3], []);
+  }
+
+  const subscriptions = settledData(subscriptionRes, []);
+  const invoices = settledData(invoicesRes, []);
+  const sessions = settledData(presenceRes, []);
+  const messages = settledData(messagesRes, []);
+  const fundingCases = settledData(fundingRes, []);
+  const notes = settledData(notesRes, []);
+  const tags = settledData(tagsRes, []);
+  const audit = settledData(auditRes, []);
+
+  const lastSeenAt = sessions[0]?.last_seen_at || null;
+  const paidInvoices = invoices.filter(i => i.status === 'paid');
+  const paidAmount = paidInvoices.reduce((sum, i) => sum + Number(i.amount || 0), 0);
+  const openFunding = fundingCases.filter(c => !c.closed_at).length;
+  const unreadMessages = messages.filter(m => m.read === false).length;
+  const completeness = Number(profile.profile_completeness || 0);
+  const activityScore = lastSeenAt
+    ? Math.max(0, 100 - Math.floor((Date.now() - new Date(lastSeenAt).getTime()) / 86400000) * 3)
+    : 0;
+  const paymentScore = paidInvoices.length ? 100 : (profile.tier && profile.tier !== 'free' ? 60 : 20);
+  const completenessScore = Math.max(0, Math.min(100, completeness));
+  const supportPenalty = Math.min(30, unreadMessages * 5);
+  const fundingBonus = Math.min(10, openFunding * 2);
+  const healthScore = Math.max(0, Math.min(100, Math.round(
+    activityScore * 0.35 +
+    paymentScore * 0.30 +
+    completenessScore * 0.35 -
+    supportPenalty +
+    fundingBonus
+  )));
+
+  const timeline = [];
+  const pushTimeline = (type, at, data = {}) => {
+    if (at) timeline.push({ type, at, data });
+  };
+  pushTimeline('user_created', profile.created_at, { email: profile.email || null });
+  sessions.forEach(s => pushTimeline('session', s.last_seen_at || s.started_at, { page: s.page, city: s.city, online: s.is_online }));
+  subscriptions.forEach(s => pushTimeline('subscription', s.created_at, { tier: s.tier, status: s.status }));
+  invoices.forEach(i => pushTimeline('invoice', i.created_at, { invoiceId: i.invoice_id, status: i.status, amount: i.amount, currency: i.currency }));
+  messages.forEach(m => pushTimeline('message', m.created_at, { subject: m.subject || null, read: m.read }));
+  fundingCases.forEach(c => pushTimeline('funding_case', c.created_at, { id: c.id, status: c.status || null }));
+  notes.forEach(n => pushTimeline('internal_note', n.created_at, { id: n.id }));
+  audit.forEach(a => pushTimeline('admin_action', a.created_at, { action: a.action, actor: a.actor_email }));
+  advisoryActivity.forEach(a => pushTimeline('advisory_activity', a.created_at, { action: a.action }));
+  timeline.sort((a, b) => new Date(b.at) - new Date(a.at));
+
+  return {
+    success: true,
+    profile,
+    health: {
+      score: healthScore,
+      lastSeenAt,
+      completeness: completenessScore,
+      paidInvoices: paidInvoices.length,
+      paidAmount,
+      unreadMessages,
+      openFundingCases: openFunding
+    },
+    subscriptions,
+    invoices,
+    sessions,
+    messages,
+    fundingCases,
+    notes,
+    tags,
+    audit,
+    advisory: {
+      client: advisoryClient,
+      projects: advisoryProjects,
+      notes: advisoryNotes,
+      activity: advisoryActivity,
+      documents: clientDocuments
+    },
+    timeline: timeline.slice(0, 250)
+  };
+}
+
+async function addUser360Note(sb, body, admin, req) {
+  const userId = body?.user_id;
+  const content = String(body?.content || '').trim();
+  if (!userId || !content) throw badRequest('user_id and content required');
+  const { data, error } = await sb.from('admin_customer_notes').insert([{
+    user_id: userId,
+    content: content.slice(0, 5000),
+    created_by: admin.id
+  }]).select().single();
+  if (error) throw error;
+  await logAdminAction(sb, admin, 'customer_note_add', 'user', userId, null, { note_id: data?.id }, req);
+  return { success: true, note: data };
+}
+
+async function setUser360Tags(sb, body, admin, req) {
+  const userId = body?.user_id;
+  if (!userId) throw badRequest('user_id required');
+  const tags = [...new Set((Array.isArray(body?.tags) ? body.tags : [])
+    .map(v => String(v || '').trim().toLowerCase())
+    .filter(Boolean)
+    .map(v => v.slice(0, 64)))].slice(0, 50);
+
+  const { error: deleteError } = await sb.from('admin_customer_tags').delete().eq('user_id', userId);
+  if (deleteError) throw deleteError;
+  if (tags.length) {
+    const { error: insertError } = await sb.from('admin_customer_tags').insert(
+      tags.map(tag => ({ user_id: userId, tag, created_by: admin.id }))
+    );
+    if (insertError) throw insertError;
+  }
+  await logAdminAction(sb, admin, 'customer_tags_update', 'user', userId, null, { tags }, req);
+  return { success: true, tags };
+}
+
 // ── Subscriptions ───────────────────────────────────────────
 async function getSubscriptions(sb, params = {}) {
   const limit = Math.min(parseInt(params.limit) || 50, 500);
@@ -2237,6 +2403,16 @@ async function handler(req, res) {
           isOwner: isOwner(user.email)
         });
       }
+      if (action === 'user-360-note') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await addUser360Note(sb, req.body, admin, req));
+      }
+      if (action === 'user-360-tags') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await setUser360Tags(sb, req.body, admin, req));
+      }
       if (action === 'users') {
         const start = Date.now();
         const requestId = req.headers['x-request-id'] || generateRequestId();
@@ -2280,6 +2456,11 @@ async function handler(req, res) {
         const admin = await verifyAdmin(req, sb);
         if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getDataQualityReport(sb));
+      }
+      if (action === 'user-360') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
+        return res.status(200).json(await getUser360(sb, req.query?.user_id));
       }
       if (action === 'subscriptions') {
         const admin = await verifyAdmin(req, sb);

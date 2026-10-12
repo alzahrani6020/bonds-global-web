@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Users 360 — Bonds Global</title>
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css">
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#64748b;--border:#e2e8f0;--gold:#b8954e;--danger:#b91c1c;--ok:#15803d}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:1500px;margin:auto;padding:1.25rem}
+    .top{display:flex;justify-content:space-between;gap:1rem;align-items:center;flex-wrap:wrap;margin-bottom:1rem}
+    .top h1{margin:0;font-size:1.5rem}.muted{color:var(--muted)}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:1rem;min-width:0}
+    .span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-6{grid-column:span 6}.span-4{grid-column:span 4}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem}
+    .kpi{padding:.85rem;border:1px solid var(--border);border-radius:12px}.kpi b{font-size:1.3rem;display:block}
+    .pill{display:inline-block;padding:.2rem .55rem;border-radius:999px;background:#f1f5f9;margin:.15rem;font-size:.78rem}
+    .btn{border:0;border-radius:10px;padding:.6rem .9rem;font-weight:700;cursor:pointer;background:#172033;color:#fff}
+    .btn-secondary{background:#eef2f7;color:#172033}.btn-danger{background:#fee2e2;color:#991b1b}
+    textarea,input{width:100%;box-sizing:border-box;border:1px solid var(--border);border-radius:10px;padding:.7rem;background:#fff}
+    table{width:100%;border-collapse:collapse;font-size:.82rem}th,td{padding:.55rem;border-bottom:1px solid var(--border);text-align:right;vertical-align:top}
+    .scroll{overflow:auto;max-height:420px}.section-title{font-weight:800;margin:0 0 .75rem}
+    .timeline{display:flex;flex-direction:column;gap:.55rem}.event{border-right:3px solid var(--gold);padding:.45rem .7rem;background:#fafafa;border-radius:8px}
+    .status{padding:.75rem;border-radius:10px;margin:.75rem 0;display:none}.error{display:block;background:#fee2e2;color:#991b1b}
+    @media(max-width:900px){.span-8,.span-6,.span-4{grid-column:span 12}main{padding:.75rem}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="top">
+    <div>
+      <h1>ملف المستخدم 360</h1>
+      <div id="identity" class="muted">جارِ التحميل...</div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+      <button class="btn btn-secondary" onclick="history.back()">رجوع</button>
+      <button class="btn" onclick="loadUser360()">تحديث</button>
+    </div>
+  </div>
+  <div id="status" class="status"></div>
+
+  <div class="grid">
+    <section class="card span-12">
+      <h2 class="section-title">الصحة والملخص التنفيذي</h2>
+      <div class="kpis" id="healthKpis"></div>
+    </section>
+
+    <section class="card span-8">
+      <h2 class="section-title">الملف والـCRM</h2>
+      <div id="profile"></div>
+    </section>
+
+    <section class="card span-4">
+      <h2 class="section-title">Tags</h2>
+      <div id="tags"></div>
+      <input id="tagsInput" placeholder="vip, enterprise, follow-up">
+      <button class="btn" style="margin-top:.5rem" onclick="saveTags()">حفظ الوسوم</button>
+    </section>
+
+    <section class="card span-6">
+      <h2 class="section-title">ملاحظة داخلية</h2>
+      <textarea id="noteInput" rows="4" placeholder="اكتب ملاحظة داخلية..."></textarea>
+      <button class="btn" style="margin-top:.5rem" onclick="addNote()">إضافة الملاحظة</button>
+      <div id="notes" style="margin-top:1rem"></div>
+    </section>
+
+    <section class="card span-6">
+      <h2 class="section-title">Advisory / Company</h2>
+      <div id="advisory"></div>
+    </section>
+
+    <section class="card span-6">
+      <h2 class="section-title">الاشتراكات والفواتير</h2>
+      <div class="scroll"><table><thead><tr><th>النوع</th><th>الحالة</th><th>القيمة</th><th>التاريخ</th></tr></thead><tbody id="billingRows"></tbody></table></div>
+    </section>
+
+    <section class="card span-6">
+      <h2 class="section-title">الرسائل والتمويل</h2>
+      <div id="serviceSummary"></div>
+    </section>
+
+    <section class="card span-6">
+      <h2 class="section-title">الجلسات والنشاط</h2>
+      <div class="scroll"><table><thead><tr><th>آخر نشاط</th><th>المكان</th><th>الصفحة</th><th>الحالة</th></tr></thead><tbody id="sessionRows"></tbody></table></div>
+    </section>
+
+    <section class="card span-6">
+      <h2 class="section-title">المستندات والمشاريع</h2>
+      <div id="documentsProjects"></div>
+    </section>
+
+    <section class="card span-12">
+      <h2 class="section-title">Timeline موحد</h2>
+      <div class="timeline" id="timeline"></div>
+    </section>
+
+    <section class="card span-12">
+      <h2 class="section-title">Audit Log</h2>
+      <div class="scroll"><table><thead><tr><th>الوقت</th><th>الإجراء</th><th>المنفذ</th></tr></thead><tbody id="auditRows"></tbody></table></div>
+    </section>
+  </div>
+</main>
+
+<script src="/supabase-client.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script src="/admin/admin-common.js"></script>
+<script>
+  let user360 = null;
+  const userId = new URLSearchParams(location.search).get('user_id');
+
+  function esc(v){ return BondsAdminCommon.escapeHtml(v == null ? '' : String(v)); }
+  function fmt(v){ if(!v) return '—'; try{return new Date(v).toLocaleString('ar-SA')}catch{return esc(v)} }
+  function setStatus(msg,isError=false){
+    const el=document.getElementById('status');
+    el.textContent=msg||''; el.className='status'+(isError?' error':''); el.style.display=msg?'block':'none';
+  }
+  async function api(url, options={}){
+    const res=await window.BondsAuth.authenticatedFetch(url,{...options,returnTo:location.pathname+location.search});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.success) throw new Error(data.error||('HTTP '+res.status));
+    return data;
+  }
+  function render(){
+    const d=user360,p=d.profile||{},h=d.health||{},a=d.advisory||{};
+    document.getElementById('identity').textContent=(p.restaurant_name||p.full_name||'مستخدم')+' — '+(p.email||p.id||'');
+    document.getElementById('healthKpis').innerHTML=[
+      ['Health Score',h.score??'—'],
+      ['اكتمال الملف',(h.completeness??0)+'%'],
+      ['آخر نشاط',h.lastSeenAt?fmt(h.lastSeenAt):'—'],
+      ['فواتير مدفوعة',h.paidInvoices??0],
+      ['رسائل غير مقروءة',h.unreadMessages??0],
+      ['تمويل مفتوح',h.openFundingCases??0]
+    ].map(x=>'<div class="kpi"><b>'+esc(x[1])+'</b><span class="muted">'+esc(x[0])+'</span></div>').join('');
+
+    document.getElementById('profile').innerHTML =
+      '<div><b>'+esc(p.restaurant_name||p.full_name||'—')+'</b></div>'+
+      '<div class="muted">'+esc(p.email||'—')+' · '+esc(p.phone||'—')+'</div>'+
+      '<div style="margin-top:.5rem">الخطة: <span class="pill">'+esc(p.tier||'free')+'</span> الحالة: <span class="pill">'+esc(p.status||'—')+'</span></div>'+
+      '<div style="margin-top:.5rem">الدولة/المدينة: '+esc(p.country||'—')+' / '+esc(p.city||'—')+'</div>'+
+      '<div>نوع النشاط: '+esc(p.business_type||'—')+'</div>'+
+      '<div>الاحتياجات: '+esc(p.needs||'—')+'</div>';
+
+    const tags=(d.tags||[]).map(x=>x.tag);
+    document.getElementById('tags').innerHTML=tags.length?tags.map(t=>'<span class="pill">'+esc(t)+'</span>').join(''):'<span class="muted">لا توجد وسوم</span>';
+    document.getElementById('tagsInput').value=tags.join(', ');
+
+    document.getElementById('notes').innerHTML=(d.notes||[]).length?(d.notes||[]).map(n=>'<div class="event"><div>'+esc(n.content)+'</div><small class="muted">'+fmt(n.created_at)+'</small></div>').join(''):'<span class="muted">لا توجد ملاحظات</span>';
+
+    const client=a.client;
+    document.getElementById('advisory').innerHTML=client?
+      '<div><b>'+esc(client.company_name||client.name||'عميل استشاري')+'</b></div>'+
+      '<div class="muted">'+esc(client.email||'')+'</div>'+
+      '<div>القطاع: '+esc(client.sector||'—')+'</div>'+
+      '<div>الحالة: <span class="pill">'+esc(client.status||'—')+'</span></div>'+
+      '<div>المشاريع: '+(a.projects||[]).length+'</div>'
+      :'<span class="muted">لا يوجد سجل Advisory مرتبط</span>';
+
+    const billing=[];
+    (d.subscriptions||[]).forEach(x=>billing.push(['اشتراك',x.status||'—',x.tier||'—',x.created_at]));
+    (d.invoices||[]).forEach(x=>billing.push(['فاتورة',x.status||'—',(x.amount??'—')+' '+(x.currency||''),x.created_at]));
+    document.getElementById('billingRows').innerHTML=billing.length?billing.map(r=>'<tr><td>'+esc(r[0])+'</td><td>'+esc(r[1])+'</td><td>'+esc(r[2])+'</td><td>'+fmt(r[3])+'</td></tr>').join(''):'<tr><td colspan="4">لا توجد بيانات</td></tr>';
+
+    document.getElementById('serviceSummary').innerHTML=
+      '<div class="kpis"><div class="kpi"><b>'+(d.messages||[]).length+'</b><span class="muted">رسائل</span></div>'+
+      '<div class="kpi"><b>'+(d.fundingCases||[]).length+'</b><span class="muted">حالات تمويل</span></div></div>';
+
+    document.getElementById('sessionRows').innerHTML=(d.sessions||[]).length?(d.sessions||[]).map(s=>'<tr><td>'+fmt(s.last_seen_at||s.started_at)+'</td><td>'+esc((s.country||'')+' '+(s.city||''))+'</td><td>'+esc(s.page||'—')+'</td><td>'+esc(s.is_online?'متصل':'غير متصل')+'</td></tr>').join(''):'<tr><td colspan="4">لا توجد جلسات</td></tr>';
+
+    document.getElementById('documentsProjects').innerHTML=
+      '<div>المشاريع الاستشارية: <b>'+(a.projects||[]).length+'</b></div>'+
+      '<div>المستندات: <b>'+(a.documents||[]).length+'</b></div>'+
+      '<div>ملاحظات Advisory: <b>'+(a.notes||[]).length+'</b></div>';
+
+    document.getElementById('timeline').innerHTML=(d.timeline||[]).length?(d.timeline||[]).map(e=>'<div class="event"><b>'+esc(e.type)+'</b> <span class="muted">'+fmt(e.at)+'</span></div>').join(''):'<span class="muted">لا توجد أحداث</span>';
+    document.getElementById('auditRows').innerHTML=(d.audit||[]).length?(d.audit||[]).map(a=>'<tr><td>'+fmt(a.created_at)+'</td><td>'+esc(a.action||'—')+'</td><td>'+esc(a.actor_email||a.actor_role||'—')+'</td></tr>').join(''):'<tr><td colspan="3">لا توجد سجلات</td></tr>';
+  }
+  async function loadUser360(){
+    if(!userId){setStatus('user_id مفقود',true);return;}
+    setStatus('');
+    try{user360=await api('/api/admin?action=user-360&user_id='+encodeURIComponent(userId));render();}
+    catch(e){setStatus('فشل تحميل Users 360: '+e.message,true);}
+  }
+  async function addNote(){
+    const content=document.getElementById('noteInput').value.trim();
+    if(!content)return;
+    try{
+      await api('/api/admin?action=user-360-note',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,content})});
+      document.getElementById('noteInput').value=''; await loadUser360();
+    }catch(e){setStatus('فشل إضافة الملاحظة: '+e.message,true);}
+  }
+  async function saveTags(){
+    const tags=document.getElementById('tagsInput').value.split(',').map(x=>x.trim()).filter(Boolean);
+    try{
+      await api('/api/admin?action=user-360-tags',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,tags})});
+      await loadUser360();
+    }catch(e){setStatus('فشل حفظ الوسوم: '+e.message,true);}
+  }
+  if(window.__ADMIN_ROLE) loadUser360();
+  else window.addEventListener('admin-auth-ready',loadUser360,{once:true});
+</script>
+</body>
+</html>

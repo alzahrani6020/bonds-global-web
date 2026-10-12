@@ -820,6 +820,14 @@
           return btn;
         };
 
+        tdActions.appendChild(makeBtn('btn-edit', 'ملف المستخدم 360', '◉', () => {
+          const url = '/admin/user-360.html?user_id=' + encodeURIComponent(u.id) + (new URLSearchParams(location.search).get('embed') === '1' ? '&embed=1' : '');
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ type: 'admin-navigate', target: url, title: 'Users 360' }, location.origin);
+          } else {
+            location.href = url;
+          }
+        }, 'background:rgba(168,85,247,0.15);color:#7e22ce;'));
         tdActions.appendChild(makeBtn('btn-edit', 'عرض التفاصيل', '👁️', () => showDetailsModal(u)));
         tdActions.appendChild(makeBtn('btn-edit', 'سجل النشاط والتواجد', '🕒', () => showActivityModal(u.id, name), 'background:rgba(34,197,94,0.15);color:#16a34a;'));
         if (isOwner || isAdmin) {
