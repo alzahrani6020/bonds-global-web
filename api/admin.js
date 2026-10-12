@@ -435,6 +435,42 @@ async function getActorRole(sb, admin) {
   return 'unknown';
 }
 
+async function persistAdminTrace(sb, trace) {
+  try {
+    await sb.from('admin_request_traces').upsert({
+      request_id: trace.requestId,
+      endpoint: trace.endpoint,
+      method: trace.method || null,
+      status_code: trace.statusCode || null,
+      duration_ms: trace.durationMs || null,
+      user_id: trace.userId || null,
+      error_code: trace.errorCode || null,
+      metadata: trace.metadata || {},
+      created_at: new Date().toISOString()
+    }, { onConflict: 'request_id' });
+  } catch (e) {
+    console.warn('[AdminTrace] failed:', e.message || e);
+  }
+}
+
+async function persistAdminError(sb, errorEvent) {
+  try {
+    await sb.from('admin_error_events').insert({
+      fingerprint: errorEvent.fingerprint || null,
+      source: errorEvent.source || 'api/admin',
+      message: String(errorEvent.message || 'Unknown admin error').slice(0, 1000),
+      stack: errorEvent.stack ? String(errorEvent.stack).slice(0, 5000) : null,
+      severity: errorEvent.severity || 'error',
+      request_id: errorEvent.requestId || null,
+      user_id: errorEvent.userId || null,
+      status: 'open',
+      metadata: errorEvent.metadata || {}
+    });
+  } catch (e) {
+    console.warn('[AdminError] persistence failed:', e.message || e);
+  }
+}
+
 async function logAdminAction(sb, admin, action, targetType, targetId, targetEmail, details, req) {
   try {
     const role = await getActorRole(sb, admin);
