@@ -7,6 +7,10 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/admin-workflows-cron",
+      "destination": "/api/admin?action=workflow-cron"
+    },
+    {
       "source": "/pro",
       "destination": "/pro/index.html"
     },
@@ -623,6 +627,10 @@
     }
   ],
   "crons": [
+    {
+      "path": "/api/admin-workflows-cron",
+      "schedule": "0 * * * *"
+    },
     {
       "path": "/api/v3/cron/calibrate-competitors",
       "schedule": "0 3 * * 0"
