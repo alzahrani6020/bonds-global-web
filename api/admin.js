@@ -277,6 +277,7 @@ async function verifyAdmin(req, sb) {
     error = e;
   }
   if (error || !user) throw unauthorized('Invalid or expired token');
+  await assertAdminSessionActive(sb, user.id, token);
   // Owner fallback
   if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
@@ -294,6 +295,7 @@ async function verifyAdminPlatform(req, sb) {
   const token = authHeader.slice(7);
   const { data: { user }, error } = await sb.auth.getUser(token);
   if (error || !user) throw unauthorized('Invalid or expired token');
+  await assertAdminSessionActive(sb, user.id, token);
   if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
     return user;
@@ -318,6 +320,7 @@ async function verifyAdminStrict(req, sb) {
     error = e;
   }
   if (error || !user) throw unauthorized('Invalid or expired token');
+  await assertAdminSessionActive(sb, user.id, token);
   // Owner fallback — always super_admin
   if (isOwner(user.email)) {
     if (!(await checkAdminMfa(req, sb))) throw forbidden('MFA required');
