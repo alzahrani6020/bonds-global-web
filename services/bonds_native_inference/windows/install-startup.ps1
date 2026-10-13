@@ -75,7 +75,8 @@ $nativeAction = New-ScheduledTaskAction -Execute $psExe -Argument "-NoProfile -E
 $tunnelAction = New-ScheduledTaskAction -Execute $psExe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$tunnelScript`""
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $nativePrincipal = New-ScheduledTaskPrincipal -UserId $identity.Name -LogonType S4U -RunLevel Highest
-$tunnelPrincipal = New-ScheduledTaskPrincipal -UserId "SYSTEM" -LogonType ServiceAccount -RunLevel Highest
+# cloudflared config and credentials are user-scoped; keep the tunnel in that security context.
+$tunnelPrincipal = New-ScheduledTaskPrincipal -UserId $identity.Name -LogonType S4U -RunLevel Highest
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero)
 
 Register-ScheduledTask -TaskName "BondsNativeRuntime" -Action $nativeAction -Trigger $trigger -Principal $nativePrincipal -Settings $settings -Force | Out-Null
@@ -86,7 +87,7 @@ Start-ScheduledTask -TaskName "BondsNativeTunnel"
 
 Write-Host "Installed Bonds Native startup automation."
 Write-Host "Runtime task: BondsNativeRuntime ($($identity.Name), S4U)"
-Write-Host "Tunnel task:  BondsNativeTunnel (SYSTEM)"
+Write-Host "Tunnel task:  BondsNativeTunnel ($($identity.Name), S4U)"
 Write-Host "Python:       $pythonExe"
 Write-Host "State dir:    $stateDir"
 Write-Host "Secrets are read from machine environment and are not stored in Git."
