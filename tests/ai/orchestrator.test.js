@@ -30,6 +30,10 @@ describe('AI Orchestrator', () => {
     jest.resetAllMocks();
     delete process.env.OPENAI_MODEL;
     process.env.OPENAI_API_KEY = 'test-key';
+    process.env.BONDS_AI_PROVIDER = 'openai';
+    process.env.BONDS_OPENAI_FALLBACK = 'true';
+    process.env.BONDS_AI_PROVIDER = 'openai';
+    process.env.BONDS_OPENAI_FALLBACK = 'true';
 
     // Default Supabase mocks
     mockSupabaseClient.from.mockReturnValue(mockSupabaseClient);
@@ -43,6 +47,8 @@ describe('AI Orchestrator', () => {
 
   afterEach(() => {
     global.fetch = undefined;
+    delete process.env.BONDS_AI_PROVIDER;
+    delete process.env.BONDS_OPENAI_FALLBACK;
   });
 
   describe('selectModel', () => {
