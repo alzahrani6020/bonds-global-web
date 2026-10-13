@@ -9,7 +9,7 @@ describe('Dropdown interaction regression', () => {
   const udJs = fs.readFileSync(path.join(root, 'components/universal-dropdown.js'), 'utf8');
 
   test('desktop header dropdowns are opened only by explicit is-open state', () => {
-    expect(headerCss).toContain('Explicit dropdown interaction state v2.70.0');
+    expect(headerCss).toContain('Explicit dropdown interaction state v2.71.0');
     expect(headerCss).not.toContain('.dropdown:hover > .dropdown-menu');
     expect(headerCss).toMatch(/\.main-header \.dropdown > \.dropdown-menu\s*\{[\s\S]*?pointer-events:\s*none\s*!important/);
     expect(headerCss).toMatch(/\.main-header \.dropdown\.is-open > \.dropdown-menu\s*\{[\s\S]*?pointer-events:\s*auto\s*!important/);
