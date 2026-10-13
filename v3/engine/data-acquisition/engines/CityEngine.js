@@ -32,7 +32,8 @@ class CityEngine {
    * @param {Object} options — { cityId, cityCode, countryCode, year }
    */
   async run(options = {}) {
-    const { cityId, cityCode, countryCode, year = new Date().getFullYear() } = options;
+    const { cityId, cityCode, countryCode } = options;
+    const year = options.year == null ? 'latest' : options.year;
 
     if (!cityId || !cityCode) {
       throw new Error('cityId and cityCode are required');
@@ -54,15 +55,28 @@ class CityEngine {
       }));
     }
 
-    // دمج وتحديث Gold layer
-    const fused = await this.pipeline.fuseToGold({ cityId, cityCode, year });
+    let effectiveYear = Number.isInteger(Number(year)) ? Number(year) : null;
+    if (!effectiveYear) {
+      const { data: latestMetric } = await this.pipeline.supabase
+        .from('normalized_metrics')
+        .select('year')
+        .eq('city_id', cityId)
+        .order('year', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      effectiveYear = Number(latestMetric?.year) || new Date().getFullYear();
+    }
+
+    // Fuse the actual observed year, not the literal "latest" request token.
+    const fused = await this.pipeline.fuseToGold({ cityId, cityCode, year: effectiveYear });
 
     return {
       engine: 'CityEngine',
       cityId,
       cityCode,
       countryCode,
-      year,
+      requestedYear: year,
+      year: effectiveYear,
       adapters: results,
       fused
     };
