@@ -1209,6 +1209,136 @@
         });
       }
 
+      function reorganizeAdminSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar || sidebar.dataset.iaOrganized === 'true') return;
+        sidebar.dataset.iaOrganized = 'true';
+
+        const groupConfig = [
+          {
+            label: 'نظرة عامة',
+            items: [
+              ['overview', 'نظرة عامة'],
+              ['/admin/executive-dashboard?embed=1', 'المؤشرات التنفيذية'],
+              ['/admin/executive-ai-analytics.html?embed=1', 'التحليلات التنفيذية والذكاء الاصطناعي'],
+              ['/admin/analytics.html?embed=1', 'التحليلات'],
+              ['online-users', 'المتواجدون الآن'],
+              ['/admin/global-search?embed=1', 'البحث الموحد']
+            ]
+          },
+          {
+            label: 'العملاء والأعمال',
+            items: [
+              ['/admin/users.html?embed=1', 'المستخدمون'],
+              ['/admin/messages.html?embed=1', 'الرسائل'],
+              ['/admin/support.html?embed=1', 'مركز الدعم'],
+              ['/admin/crm.html?embed=1', 'إدارة علاقات العملاء'],
+              ['/admin/funding-cases/?embed=1', 'طلبات التمويل'],
+              ['/admin/financial-advisory?embed=1', 'الاستشارات المالية'],
+              ['/admin/distressed-recovery?embed=1', 'إنقاذ الأصول المتعثرة']
+            ]
+          },
+          {
+            label: 'المالية',
+            items: [
+              ['/admin/finance.html?embed=1', 'العمليات المالية'],
+              ['/admin/subscriptions.html?embed=1', 'الاشتراكات'],
+              ['/admin/bank-transfers.html?embed=1', 'التحويلات البنكية'],
+              ['/admin/conversion-dashboard.html?embed=1', 'تحويل الحاسبات']
+            ]
+          },
+          {
+            label: 'الذكاء والبيانات',
+            items: [
+              ['/admin/city-intelligence/index.html?embed=1', 'ذكاء المدن'],
+              ['/admin/market-intelligence.html?embed=1', 'الذكاء السوقي'],
+              ['/admin/data-quality-center?embed=1', 'مركز جودة البيانات'],
+              ['/admin/data-quality.html?embed=1', 'تقرير جودة البيانات'],
+              ['/admin/data-governance.html?embed=1', 'حوكمة البيانات والوثائق'],
+              ['/admin/ai-business-advisor?embed=1', 'مستشار الأعمال الذكي'],
+              ['/admin/ai-reviews.html?embed=1', 'مراجعات الذكاء الاصطناعي'],
+              ['/admin/risk-intelligence.html?embed=1', 'ذكاء المخاطر'],
+              ['/admin/condition-assessment.html?embed=1', 'تقييم الحالة'],
+              ['/admin/economic-life.html?embed=1', 'العمر الاقتصادي للأصول'],
+              ['/admin/depreciation-factors.html?embed=1', 'عوامل الاستهلاك']
+            ]
+          },
+          {
+            label: 'التشغيل',
+            items: [
+              ['/admin/automation.html?embed=1', 'الأتمتة والمنتج'],
+              ['/admin/platform-operations.html?embed=1', 'عمليات المنصة'],
+              ['/admin/social-media?embed=1', 'التواصل الاجتماعي'],
+              ['/admin/exceptions.html?embed=1', 'الاستثناءات'],
+              ['/admin/settings.html?embed=1', 'الإعدادات']
+            ]
+          },
+          {
+            label: 'الأمن والحوكمة',
+            items: [
+              ['/admin/roles.html?embed=1', 'الصلاحيات والأدوار'],
+              ['/admin/security.html?embed=1', 'الأمان والمصادقة الثنائية'],
+              ['/admin/security-operations.html?embed=1', 'عمليات الأمن'],
+              ['/admin/control-center.html?embed=1', 'مركز التحكم الإداري'],
+              ['/admin/audit-log.html?embed=1', 'سجل المراجعة']
+            ]
+          }
+        ];
+
+        const candidates = Array.from(sidebar.querySelectorAll('.sidebar-link[data-target]'));
+        const byTarget = new Map();
+        for (const link of candidates) {
+          const target = link.dataset.target;
+          if (!target || byTarget.has(target)) continue;
+          byTarget.set(target, link);
+        }
+
+        // Remove the legacy flat/duplicated groups. The links themselves are re-used below.
+        sidebar.querySelectorAll('.nav-group').forEach(group => group.remove());
+
+        const makeOverviewButton = () => {
+          const button = document.createElement('button');
+          button.className = 'sidebar-link active';
+          button.dataset.target = 'overview';
+          button.dataset.title = 'نظرة عامة';
+          button.innerHTML = '<span aria-hidden="true">⌂</span><span>نظرة عامة</span>';
+          return button;
+        };
+
+        const used = new Set();
+        for (const group of groupConfig) {
+          const groupEl = document.createElement('div');
+          groupEl.className = 'nav-group';
+          groupEl.dataset.iaGroup = group.label;
+          const label = document.createElement('div');
+          label.className = 'nav-label';
+          label.textContent = group.label;
+          groupEl.appendChild(label);
+
+          for (const [target, title] of group.items) {
+            let link = target === 'overview' ? makeOverviewButton() : byTarget.get(target);
+            if (!link || used.has(target)) continue;
+            used.add(target);
+            link.dataset.title = title;
+            const textSpan = link.querySelector('span:last-child');
+            if (textSpan) textSpan.textContent = title;
+            groupEl.appendChild(link);
+          }
+          sidebar.appendChild(groupEl);
+        }
+
+        // Anything introduced by a future module is kept visible under Operations
+        // rather than disappearing or creating another unstructured top-level group.
+        const operationsGroup = sidebar.querySelector('[data-ia-group="التشغيل"]');
+        for (const [target, link] of byTarget.entries()) {
+          if (used.has(target)) continue;
+          used.add(target);
+          operationsGroup?.appendChild(link);
+        }
+      }
+
+      reorganizeAdminSidebar();
+
       const sidebarEl = document.getElementById('sidebar');
       sidebarEl.addEventListener('click', (e) => {
         const link = e.target.closest('.sidebar-link');
