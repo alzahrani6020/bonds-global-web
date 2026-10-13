@@ -55,7 +55,7 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
       requestId: req.headers['x-request-id'] || null,
       ...options
     });
-    const status = result.ok ? 200 : (result.executed ? 422 : 503);
+    const status = result.ok ? 200 : (result.httpStatus || (result.executed ? 422 : 503));
     return sendJson(res, status, result);
   }
 
