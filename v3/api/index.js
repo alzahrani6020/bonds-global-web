@@ -904,6 +904,23 @@ async function handleCityEvidence(req, res, path) {
     if (!latestByMetric.has(key)) latestByMetric.set(key, row);
   }
 
+  const freshnessSlaDays = {
+    population: 730,
+    purchasing_power_index: 365,
+    gdp_city: 365,
+    growth_rate: 365,
+    unemployment_rate: 180,
+    inflation_rate: 90,
+    establishments_count: 180,
+    business_ease_index: 365,
+    avg_rent_per_sqm: 90,
+    avg_land_price_per_sqm: 90,
+    warehouse_rent_per_sqm: 90,
+    factory_rent_per_sqm: 90,
+    opportunity_score: 30
+  };
+
+  const nowMs = Date.now();
   const evidence = [...latestByMetric.values()].map(row => {
     const quality = String(row.metadata?.dataQuality || '').toLowerCase();
     const method = String(row.metadata?.method || '').toLowerCase();
@@ -916,9 +933,17 @@ async function handleCityEvidence(req, res, path) {
       Boolean(row.source_url) &&
       (quality === 'official' || quality === 'open_data' || row.is_override === true);
 
+    const slaDays = Number(row.metadata?.freshness_sla_days || freshnessSlaDays[row.metric_code] || 365);
+    const fetchedMs = row.fetched_at ? Date.parse(row.fetched_at) : NaN;
+    const ageDays = Number.isFinite(fetchedMs) ? Math.max(0, Math.floor((nowMs - fetchedMs) / 86400000)) : null;
+    const stale = verified && ageDays != null && ageDays > slaDays;
+
     return {
       ...row,
-      evidence_status: verified ? 'verified' : (estimated ? 'estimated' : 'unverified')
+      freshness_sla_days: slaDays,
+      age_days: ageDays,
+      freshness_status: ageDays == null ? 'unknown' : (stale ? 'stale' : 'fresh'),
+      evidence_status: stale ? 'stale' : (verified ? 'verified' : (estimated ? 'estimated' : 'unverified'))
     };
   });
 
@@ -928,6 +953,7 @@ async function handleCityEvidence(req, res, path) {
     count: evidence.length,
     verifiedCount: evidence.filter(row => row.evidence_status === 'verified').length,
     estimatedCount: evidence.filter(row => row.evidence_status === 'estimated').length,
+    staleCount: evidence.filter(row => row.evidence_status === 'stale').length,
     status: evidence.length ? 'evidence_available' : 'no_evidence'
   });
 }
