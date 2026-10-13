@@ -27,7 +27,7 @@ describe('live source refresh and dynamic years', () => {
     expect(source).toContain("metricCode: 'population_total'");
     expect(source).toContain("metricCode: 'gdp_per_capita_usd'");
     expect(source).toContain("metricCode: 'fdi_net_inflows_pct_gdp'");
-    expect(source).toContain("source_id: 'world_bank'");
+    expect(source).toContain("sourceId: 'world_bank'");
     expect(source).toContain("source_id: 'world_bank_country'");
   });
 
