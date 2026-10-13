@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Know Your Customer (KYC) — Client Portal | Bonds</title>
+  <meta name="description" content="Know Your Customer and due diligence form for Bonds Global clients." />
+  <link rel="canonical" href="https://bonds-global.com/en/client/kyc.html" />
+  <meta property="og:title" content="Know Your Customer (KYC) — Client Portal | Bonds" />
+  <meta property="og:description" content="Know Your Customer and due diligence form for Bonds Global clients." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/client/kyc.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Know Your Customer (KYC) — Client Portal | Bonds" />
+  <meta name="twitter:description" content="Know Your Customer and due diligence form for Bonds Global clients." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="stylesheet" href="/styles/fonts-en.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles/design-system.css" />
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=6" />
+  <script defer src="/calculators/auth-gate.js?v=3"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <style>
+    .kyc-page{max-width:1100px;margin:0 auto;padding:7rem 1rem 4rem}
+    .kyc-hero{margin-bottom:1.5rem}.kyc-hero h1{margin:.25rem 0}.kyc-note{padding:1rem;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);color:var(--text-secondary)}
+    .kyc-progress{display:grid;grid-template-columns:repeat(6,1fr);gap:.45rem;margin:1.5rem 0}.kyc-step-dot{height:6px;border-radius:99px;background:var(--border)}.kyc-step-dot.active{background:var(--gold)}
+    .kyc-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.25rem;margin-bottom:1rem}
+    .kyc-card h2{font-size:1.1rem;margin:0 0 1rem}.kyc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+    .kyc-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}.kyc-field label{display:block;font-weight:700;margin-bottom:.4rem}
+    .kyc-field input,.kyc-field select,.kyc-field textarea{width:100%;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text)}
+    .kyc-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}.kyc-check{display:flex;gap:.55rem;align-items:flex-start;padding:.65rem;border:1px solid var(--border);border-radius:10px}
+    .kyc-check input{margin-top:.2rem}.kyc-nav{display:flex;justify-content:space-between;gap:.75rem;margin-top:1rem}.kyc-nav button{min-width:130px}
+    .kyc-section[hidden]{display:none!important}.kyc-status{margin:1rem 0;padding:.8rem 1rem;border-radius:10px;display:none}.kyc-status.show{display:block}.kyc-status.ok{background:rgba(34,197,94,.12);color:#16a34a}.kyc-status.err{background:rgba(239,68,68,.12);color:#dc2626}
+    .ubo-row{display:grid;grid-template-columns:1.5fr 1fr 1fr .7fr 1.2fr;gap:.5rem;margin-bottom:.6rem}.ubo-row input{width:100%}
+    @media(max-width:800px){.kyc-grid,.kyc-grid-3,.kyc-checks{grid-template-columns:1fr}.kyc-progress{grid-template-columns:repeat(3,1fr)}.ubo-row{grid-template-columns:1fr 1fr}.ubo-row input:last-child{grid-column:1/-1}}
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="kyc-page">
+    <section class="kyc-hero">
+      <div class="hero__eyebrow">Client Portal</div>
+      <h1>Know Your Customer (KYC) & Due Diligence</h1>
+      <p>This form is used to identify the client, understand the relationship, verify ownership and beneficial ownership, source of funds and wealth, and relevant risk factors.</p>
+      <div class="kyc-note">Client information is stored separately from the internal compliance assessment. Clients cannot modify screening results or the internal risk decision.</div>
+    </section>
+
+    <div class="kyc-progress" aria-hidden="true">
+      <span class="kyc-step-dot active"></span><span class="kyc-step-dot"></span><span class="kyc-step-dot"></span><span class="kyc-step-dot"></span><span class="kyc-step-dot"></span><span class="kyc-step-dot"></span>
+    </div>
+    <div id="status" class="kyc-status" role="status"></div>
+
+    <form id="kycForm">
+      <section class="kyc-section" data-step="0">
+        <div class="kyc-card">
+          <h2>1. Client Classification & Core Identity</h2>
+          <div class="kyc-grid">
+            <div class="kyc-field"><label for="clientType">Client type</label><select id="clientType" required>
+              <option value="">Select</option><option value="natural_person">Individual</option><option value="sole_proprietorship">مؤسسة Individualية</option><option value="llc">Limited liability company</option><option value="joint_stock">Joint-stock company</option><option value="simplified_joint_stock">Joint-stock company مبسطة</option><option value="partnership">Partnership</option><option value="waqf_legal_arrangement">Waqf / legal arrangement</option><option value="government">Government / quasi-government entity</option><option value="non_profit">Non-profit organization</option><option value="foreign_entity">Foreign entity</option><option value="other">Other</option>
+            </select></div>
+            <div class="kyc-field"><label for="clientStatus">File status</label><select id="clientStatus"><option value="new">New client</option><option value="periodic_update">Periodic update</option><option value="material_change">Material change</option><option value="edd">Enhanced due diligence</option><option value="risk_reassessment">Risk reassessment</option></select></div>
+            <div class="kyc-field"><label for="legalName">Full name / legal name</label><input id="legalName" required /></div>
+            <div class="kyc-field"><label for="formerName">Former name (if any)</label><input id="formerName" /></div>
+            <div class="kyc-field"><label for="idNumber">ID / residency / commercial registration number</label><input id="idNumber" required /></div>
+            <div class="kyc-field"><label for="unifiedNumber">Unified national number</label><input id="unifiedNumber" /></div>
+            <div class="kyc-field"><label for="birthDate">Date of birth / incorporation</label><input id="birthDate" type="date" /></div>
+            <div class="kyc-field"><label for="nationality">Nationality / country of incorporation</label><input id="nationality" /></div>
+            <div class="kyc-field"><label for="registeredAddress">National / registered address</label><input id="registeredAddress" /></div>
+            <div class="kyc-field"><label for="city">City / headquarters</label><input id="city" /></div>
+            <div class="kyc-field"><label for="phone">Phone</label><input id="phone" type="tel" /></div>
+            <div class="kyc-field"><label for="email">Email</label><input id="email" type="email" /></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kyc-section" data-step="1" hidden>
+        <div class="kyc-card">
+          <h2>2. Business Activity & Purpose of Relationship</h2>
+          <div class="kyc-grid">
+            <div class="kyc-field"><label for="primaryActivity">Primary activity</label><input id="primaryActivity" /></div>
+            <div class="kyc-field"><label for="secondaryActivities">Secondary activities</label><input id="secondaryActivities" /></div>
+            <div class="kyc-field"><label for="productsServices">Main products or services</label><input id="productsServices" /></div>
+            <div class="kyc-field"><label for="yearsBusiness">Years in business</label><input id="yearsBusiness" type="number" min="0" /></div>
+            <div class="kyc-field"><label for="employees">Number of employees</label><input id="employees" type="number" min="0" /></div>
+            <div class="kyc-field"><label for="markets">Main markets / countries</label><input id="markets" /></div>
+          </div>
+          <h3>Purpose of relationship with Bonds</h3>
+          <div class="kyc-checks">
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="financial_advisory">Financial advisory</label>
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="financial_structuring">Financial structuring</label>
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="transaction_review">Transaction / acquisition review</label>
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="valuation">Business or asset valuation</label>
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="restructuring">Restructuring</label>
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="financing">Financing / financing arrangement</label>
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="feasibility">Feasibility study</label>
+            <label class="kyc-check"><input type="checkbox" name="purpose" value="other_advisory">خدمات استشارية Other</label>
+          </div>
+          <div class="kyc-grid" style="margin-top:1rem">
+            <div class="kyc-field"><label for="expectedAnnual">Expected annual transaction value</label><input id="expectedAnnual" /></div>
+            <div class="kyc-field"><label for="expectedTransactions">Expected number of transactions / projects</label><input id="expectedTransactions" type="number" min="0" /></div>
+            <div class="kyc-field"><label for="currencies">Currencies used</label><input id="currencies" /></div>
+            <div class="kyc-field"><label for="relationshipCountries">Countries connected to the relationship</label><input id="relationshipCountries" /></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kyc-section" data-step="2" hidden>
+        <div class="kyc-card">
+          <h2>3. Ownership & Ultimate Beneficial Owner (UBO)</h2>
+          <p>Enter natural persons who directly or indirectly own or control the client. No fixed ownership threshold is hard-coded; applicable Bonds policy and regulatory requirements govern.</p>
+          <div id="uboRows"></div>
+          <button type="button" class="btn btn-outline" id="addUbo">+ Add owner / beneficial owner</button>
+        </div>
+        <div class="kyc-card">
+          <h2>Management & Authorized Persons</h2>
+          <div class="kyc-grid">
+            <div class="kyc-field"><label for="directors">Directors and senior officers</label><textarea id="directors" rows="4" placeholder="اNoسم — المنصب — الجنسية — رقم الهوية"></textarea></div>
+            <div class="kyc-field"><label for="authorizedPersons">Authorized persons and representatives</label><textarea id="authorizedPersons" rows="4" placeholder="اNoسم — الصفة — أساس التفويض — حدود الصNoحية"></textarea></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kyc-section" data-step="3" hidden>
+        <div class="kyc-card">
+          <h2>4. Source of Funds & Wealth</h2>
+          <div class="kyc-field"><label>Source of funds used in the relationship / transaction</label></div>
+          <div class="kyc-checks">
+            <label class="kyc-check"><input type="checkbox" name="fundSource" value="operating_revenue">Operating revenue</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="retained_earnings">Retained earnings</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="capital">Capital</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="bank_financing">Bank financing</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="shareholder_loan">Shareholder / partner loan</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="asset_sale">Asset sale</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="investment">Previous investment</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="inheritance_gift">Inheritance / gift</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="professional_income">Employment / professional income</label><label class="kyc-check"><input type="checkbox" name="fundSource" value="other">Other</label>
+          </div>
+          <div class="kyc-grid" style="margin-top:1rem">
+            <div class="kyc-field"><label for="fundsExplanation">Explain the source of funds and how they were generated</label><textarea id="fundsExplanation" rows="4"></textarea></div>
+            <div class="kyc-field"><label for="wealthExplanation">Explain the source of wealth and when it was accumulated</label><textarea id="wealthExplanation" rows="4"></textarea></div>
+          </div>
+          <div class="kyc-field"><label for="supportingEvidence">Available supporting evidence</label><textarea id="supportingEvidence" rows="3" placeholder="قوائم مالية، كشوف حساب، إقرارات زكاة/ضريبة، عقود بيع، مستندات ملكية..."></textarea></div>
+        </div>
+      </section>
+
+      <section class="kyc-section" data-step="4" hidden>
+        <div class="kyc-card">
+          <h2>5. Disclosures & Risk Factors</h2>
+          <div class="kyc-grid">
+            <div class="kyc-field"><label for="pepStatus">Is any PEP status associated with the client, UBO, director/authorized person, relative, or close associate?</label><select id="pepStatus"><option value="no">No</option><option value="yes">Yes</option><option value="unknown">Not sure</option></select></div>
+            <div class="kyc-field"><label for="pepDetails">تفاصيل PEP عند اNoنطباق</label><textarea id="pepDetails" rows="3"></textarea></div>
+            <div class="kyc-field"><label for="highRiskCountries">هل توجد تعامNoت مع دول عالية المخاطر / خاضعة لعقوبات / مناطق نزاع؟</label><select id="highRiskCountries"><option value="no">No</option><option value="yes">Yes</option><option value="unknown">Not sure</option></select></div>
+            <div class="kyc-field"><label for="geographicDetails">تفاصيل التعرض الجغرافي</label><textarea id="geographicDetails" rows="3"></textarea></div>
+            <div class="kyc-field"><label for="thirdPartyPayments">هل تتوقع مدفوعات من/إلى أطراف ثالثة؟</label><select id="thirdPartyPayments"><option value="no">No</option><option value="yes">Yes</option></select></div>
+            <div class="kyc-field"><label for="thirdPartyDetails">Third-party details / الوسطاء</label><textarea id="thirdPartyDetails" rows="3"></textarea></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="kyc-section" data-step="5" hidden>
+        <div class="kyc-card">
+          <h2>6. المستندات والإقرار</h2>
+          <p>يرجى تجهيز المستندات بحسب طبيعة العميل: هوية/إقامة/جواز، سجل تجاري أو مستند تأسيس، عقد/نظام أساسي، عنوان وطني، هيكل الملكية حتى الشخص الطبيعي، هويات UBO، التفويضات، القوائم المالية، وأدلة مصدر الأموال عند الحاجة.</p>
+          <div class="kyc-field"><label for="documentNotes">مNoحظات على المستندات المتاحة / الناقصة</label><textarea id="documentNotes" rows="4"></textarea></div>
+          <label class="kyc-check" style="margin-top:1rem"><input id="declaration" type="checkbox" required><span>أقر بأن المعلومات المقدمة صحيحة وكاملة حسب علمي، وأنني أفصحت عن المستفيد الحقيقي والغرض من العNoقة ومصدر الأموال والثروة والمعلومات الجوهرية ذات الصلة، وأتعهد بإبNoغ Bonds بأي Material change.</span></label>
+          <label class="kyc-check" style="margin-top:.6rem"><input id="verificationConsent" type="checkbox" required><span>أوافق على التحقق من المعلومات والمستندات من مصادر موثوقة ومستقلة وإجراء فحوص العناية الواجبة وتقييم المخاطر وفق الأنظمة المطبقة ومتطلبات حماية البيانات والسرية.</span></label>
+          <div class="kyc-grid" style="margin-top:1rem">
+            <div class="kyc-field"><label for="signerName">اسم العميل / الممثل</label><input id="signerName" required /></div>
+            <div class="kyc-field"><label for="signerCapacity">الصفة</label><input id="signerCapacity" /></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="kyc-nav">
+        <button type="button" class="btn btn-outline" id="prevBtn" disabled>Previous</button>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button type="button" class="btn btn-outline" id="saveBtn">Save as draft</button>
+          <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
+          <button type="submit" class="btn btn-primary" id="submitBtn" hidden>Submit for review</button>
+        </div>
+      </div>
+    </form>
+  </main>
+  <div id="site-footer"></div>
+
+  <script defer src="/site-layout.js?v=3.4.0"></script>
+  <script>
+  (function(){
+    'use strict';
+    let step=0, currentCase=null, user=null, sb=null;
+    const sections=[...document.querySelectorAll('.kyc-section')];
+    const dots=[...document.querySelectorAll('.kyc-step-dot')];
+    const form=document.getElementById('kycForm');
+    const statusEl=document.getElementById('status');
+
+    function showStatus(msg, ok){
+      statusEl.textContent=msg; statusEl.className='kyc-status show '+(ok?'ok':'err');
+      statusEl.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+    function showStep(){
+      sections.forEach((s,i)=>s.hidden=i!==step); dots.forEach((d,i)=>d.classList.toggle('active',i<=step));
+      document.getElementById('prevBtn').disabled=step===0;
+      document.getElementById('nextBtn').hidden=step===sections.length-1;
+      document.getElementById('submitBtn').hidden=step!==sections.length-1;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+    document.getElementById('prevBtn').onclick=()=>{if(step>0){step--;showStep();}};
+    document.getElementById('nextBtn').onclick=()=>{if(step<sections.length-1){step++;showStep();}};
+
+    function values(name){return [...document.querySelectorAll('input[name="'+name+'"]:checked')].map(x=>x.value);}
+    function uboData(){
+      return [...document.querySelectorAll('.ubo-row')].map(row=>({
+        name:row.querySelector('[data-f="name"]').value.trim(),
+        nationality:row.querySelector('[data-f="nationality"]').value.trim(),
+        id_number:row.querySelector('[data-f="id"]').value.trim(),
+        ownership_percent:row.querySelector('[data-f="ownership"]').value.trim(),
+        means_of_control:row.querySelector('[data-f="control"]').value.trim()
+      })).filter(x=>x.name||x.id_number||x.ownership_percent);
+    }
+    function addUbo(v={}){
+      const row=document.createElement('div'); row.className='ubo-row';
+      row.innerHTML='<input data-f="name" placeholder="اNoسم" value="'+escapeAttr(v.name||'')+'"><input data-f="nationality" placeholder="Nationality" value="'+escapeAttr(v.nationality||'')+'"><input data-f="id" placeholder="ID number" value="'+escapeAttr(v.id_number||'')+'"><input data-f="ownership" placeholder="Ownership %" value="'+escapeAttr(v.ownership_percent||'')+'"><input data-f="control" placeholder="Means of control" value="'+escapeAttr(v.means_of_control||'')+'">';
+      document.getElementById('uboRows').appendChild(row);
+    }
+    function escapeAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+    document.getElementById('addUbo').onclick=()=>addUbo();
+    addUbo();
+
+    function buildPayload(status){
+      const identity={
+        client_status:document.getElementById('clientStatus').value, legal_name:document.getElementById('legalName').value.trim(), former_name:document.getElementById('formerName').value.trim(), id_number:document.getElementById('idNumber').value.trim(), unified_number:document.getElementById('unifiedNumber').value.trim(), birth_or_incorporation_date:document.getElementById('birthDate').value, nationality_or_country:document.getElementById('nationality').value.trim(), registered_address:document.getElementById('registeredAddress').value.trim(), city:document.getElementById('city').value.trim(), phone:document.getElementById('phone').value.trim(), email:document.getElementById('email').value.trim()
+      };
+      const business={
+        primary_activity:document.getElementById('primaryActivity').value.trim(), secondary_activities:document.getElementById('secondaryActivities').value.trim(), products_services:document.getElementById('productsServices').value.trim(), years_in_business:Number(document.getElementById('yearsBusiness').value||0), employees:Number(document.getElementById('employees').value||0), markets_countries:document.getElementById('markets').value.trim(), purposes:values('purpose'), expected_annual_value:document.getElementById('expectedAnnual').value.trim(), expected_transactions:Number(document.getElementById('expectedTransactions').value||0), currencies:document.getElementById('currencies').value.trim(), relationship_countries:document.getElementById('relationshipCountries').value.trim()
+      };
+      const ownership={ubos:uboData(),directors:document.getElementById('directors').value.trim(),authorized_persons:document.getElementById('authorizedPersons').value.trim()};
+      const funds={sources:values('fundSource'),funds_explanation:document.getElementById('fundsExplanation').value.trim(),wealth_explanation:document.getElementById('wealthExplanation').value.trim(),supporting_evidence:document.getElementById('supportingEvidence').value.trim()};
+      const risk={pep_status:document.getElementById('pepStatus').value,pep_details:document.getElementById('pepDetails').value.trim(),high_risk_countries:document.getElementById('highRiskCountries').value,geographic_details:document.getElementById('geographicDetails').value.trim(),third_party_payments:document.getElementById('thirdPartyPayments').value,third_party_details:document.getElementById('thirdPartyDetails').value.trim()};
+      const declarations={declared:document.getElementById('declaration').checked,verification_consent:document.getElementById('verificationConsent').checked,signer_name:document.getElementById('signerName').value.trim(),signer_capacity:document.getElementById('signerCapacity').value.trim(),accepted_at:status==='submitted'?new Date().toISOString():null};
+      return {user_id:user.id,client_id:currentCase?.client_id||null,status,client_type:document.getElementById('clientType').value,identity_data:identity,business_data:business,ownership_data:ownership,funds_data:funds,risk_disclosures:risk,documents:[{notes:document.getElementById('documentNotes').value.trim()}],declarations,submitted_at:status==='submitted'?new Date().toISOString():null};
+    }
+
+    async function save(status){
+      if(!sb||!user) return;
+      const payload=buildPayload(status);
+      let result;
+      if(currentCase?.id) result=await sb.from('client_kyc_cases').update(payload).eq('id',currentCase.id).select().single();
+      else result=await sb.from('client_kyc_cases').insert(payload).select().single();
+      if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return false;}
+      currentCase=result.data; showStatus(status==='submitted'?'تم إرسال نموذج اعرف عميلك للمراجعة.':'تم حفظ المسودة.',true); return true;
+    }
+
+    document.getElementById('saveBtn').onclick=()=>save('draft');
+    form.addEventListener('submit',async function(e){
+      e.preventDefault();
+      if(!form.reportValidity()) return;
+      if(!document.getElementById('declaration').checked||!document.getElementById('verificationConsent').checked){showStatus('يجب الموافقة على الإقرار والموافقة على التحقق قبل الإرسال.',false);return;}
+      await save('submitted');
+    });
+
+    function setVal(id,v){const el=document.getElementById(id);if(el&&v!==undefined&&v!==null)el.value=v;}
+    function checkMany(name,arr){(arr||[]).forEach(v=>{const el=document.querySelector('input[name="'+name+'"][value="'+CSS.escape(v)+'"]');if(el)el.checked=true;});}
+    function hydrate(c){
+      currentCase=c; setVal('clientType',c.client_type); const i=c.identity_data||{},b=c.business_data||{},o=c.ownership_data||{},f=c.funds_data||{},r=c.risk_disclosures||{},d=c.declarations||{};
+      [['clientStatus',i.client_status],['legalName',i.legal_name],['formerName',i.former_name],['idNumber',i.id_number],['unifiedNumber',i.unified_number],['birthDate',i.birth_or_incorporation_date],['nationality',i.nationality_or_country],['registeredAddress',i.registered_address],['city',i.city],['phone',i.phone],['email',i.email],['primaryActivity',b.primary_activity],['secondaryActivities',b.secondary_activities],['productsServices',b.products_services],['yearsBusiness',b.years_in_business],['employees',b.employees],['markets',b.markets_countries],['expectedAnnual',b.expected_annual_value],['expectedTransactions',b.expected_transactions],['currencies',b.currencies],['relationshipCountries',b.relationship_countries],['directors',o.directors],['authorizedPersons',o.authorized_persons],['fundsExplanation',f.funds_explanation],['wealthExplanation',f.wealth_explanation],['supportingEvidence',f.supporting_evidence],['pepStatus',r.pep_status],['pepDetails',r.pep_details],['highRiskCountries',r.high_risk_countries],['geographicDetails',r.geographic_details],['thirdPartyPayments',r.third_party_payments],['thirdPartyDetails',r.third_party_details],['documentNotes',c.documents?.[0]?.notes],['signerName',d.signer_name],['signerCapacity',d.signer_capacity]].forEach(x=>setVal(x[0],x[1]));
+      checkMany('purpose',b.purposes);checkMany('fundSource',f.sources);document.getElementById('declaration').checked=!!d.declared;document.getElementById('verificationConsent').checked=!!d.verification_consent;
+      document.getElementById('uboRows').innerHTML='';(o.ubos&&o.ubos.length?o.ubos:[{}]).forEach(addUbo);
+      if(c.status==='submitted'||c.status==='under_review'||c.status==='approved'){[...form.elements].forEach(el=>{if(el.tagName!=='BUTTON')el.disabled=true;});document.getElementById('saveBtn').hidden=true;document.getElementById('nextBtn').hidden=false;showStatus('تم إرسال هذا الملف للمراجعة وحالته الحالية: '+c.status,true);}
+    }
+
+    async function init(){
+      await window.BondsAuth.ensureEnv();
+      const u=await window.BondsAuth.getUser(); user=u.data?.user;
+      if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
+      sb=window.BondsAuth.getSupabase();
+      if(!sb){showStatus('تعذر تهيئة اNoتصال الآمن.',false);return;}
+      setVal('email',user.email||''); setVal('phone',user.user_metadata?.phone||''); setVal('signerName',user.user_metadata?.full_name||'');
+      const cid=await sb.rpc('get_my_client_id');
+      const existing=await sb.from('client_kyc_cases').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
+      if(existing.data){hydrate(existing.data);} else if(cid.data){currentCase={client_id:cid.data};}
+    }
+    init();
+  })();
+  </script>
+</body>
+</html>
