@@ -63,7 +63,7 @@
     <section class="cf-card">
       <div class="cf-grid">
         <div class="cf-field"><label for="startMonth">Start Month</label><input id="startMonth" type="month" required></div>
-        <div class="cf-field"><label for="openingBalance">Opening Cash Balance</label><input id="openingBalance" type="number" min="0" step="0.01" value="0" required></div>
+        <div class="cf-field"><label for="openingBalance">Opening Cash Balance</label><input id="openingBalance" type="number" step="0.01" value="0" required></div>
         <div class="cf-field"><label for="currency">Currency</label><select id="currency"><option>SAR</option><option>USD</option><option>EUR</option><option>AED</option><option>EGP</option><option>GBP</option></select></div>
         <div class="cf-field"><label for="notes">General Notes</label><input id="notes" placeholder="Optional"></div>
       </div>
@@ -152,7 +152,7 @@
     }
     function rowInput(tr,f){return num(tr.querySelector('[data-f="'+f+'"]').value);}
     function recalc(){
-      let opening=num(openingBalance.value),totalIn=0,totalOut=0,minBal=null,maxBal=null,negativeMonths=0;
+      let opening=num(openingBalance.value),totalIn=0,totalOut=0,minBal=opening,maxBal=opening,negativeMonths=0;
       const rows=[...tbody.querySelectorAll('tr')].map((tr,i)=>{
         const vals={};fields.forEach(f=>vals[f]=rowInput(tr,f));
         const inflows=vals.sales_receipts+vals.receivable_collections+vals.financing_inflows+vals.owner_injections+vals.other_inflows;
@@ -165,11 +165,11 @@
         tr.querySelector('[data-o="net"]').textContent=fmt(net);
         tr.querySelector('[data-o="closing"]').textContent=fmt(closing);
         const obj={month:startMonth.value,opening_balance:opening,...vals,total_inflows:inflows,total_outflows:outflows,net_cash_flow:net,closing_balance:closing};
-        totalIn+=inflows;totalOut+=outflows;minBal=minBal===null?closing:Math.min(minBal,closing);maxBal=maxBal===null?closing:Math.max(maxBal,closing);if(closing<0)negativeMonths++;
+        totalIn+=inflows;totalOut+=outflows;minBal=Math.min(minBal,closing);maxBal=Math.max(maxBal,closing);if(closing<0)negativeMonths++;
         opening=closing;
         return obj;
       });
-      const summary={total_inflows:totalIn,total_outflows:totalOut,net_cash_flow:totalIn-totalOut,closing_balance:opening,minimum_balance:minBal??num(openingBalance.value),maximum_balance:maxBal??num(openingBalance.value),negative_months:negativeMonths,funding_gap:Math.max(0,-(minBal??0))};
+      const summary={total_inflows:totalIn,total_outflows:totalOut,net_cash_flow:totalIn-totalOut,closing_balance:opening,minimum_balance:minBal,maximum_balance:maxBal,negative_months:negativeMonths,funding_gap:Math.max(0,-minBal)};
       document.getElementById('sumInflows').textContent=fmt(summary.total_inflows);
       document.getElementById('sumOutflows').textContent=fmt(summary.total_outflows);
       document.getElementById('sumNet').textContent=fmt(summary.net_cash_flow);
@@ -184,7 +184,6 @@
 
     function validate(calc){
       if(!startMonth.value)return 'Select a start month.';
-      if(num(openingBalance.value)<0)return 'Opening balance cannot be negative.';
       for(let i=0;i<calc.rows.length;i++){
         for(const f of fields){if(calc.rows[i][f]<0)return 'Negative values are not allowed in month '+(i+1)+'.';}
       }
