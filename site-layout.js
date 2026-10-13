@@ -181,6 +181,7 @@
     const fundingReadinessHref = langBase + 'funding-readiness.html';
     const fundingSourcesHref = langBase + 'funding-sources.html';
     const fundingHubHref = langBase + 'funding.html';
+    const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
@@ -301,7 +302,6 @@
       },
     ];
 
-    const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
 
     const aboutDropdown = [
       {
