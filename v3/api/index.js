@@ -869,20 +869,39 @@ async function handleCountryContext(req, res, path) {
     observationRows = [...latestByMetric.values()];
   }
 
-  const metrics = observationRows.map(row => ({
-    metric: row.metric_code,
-    value: Number(row.value),
-    unit: row.unit || null,
-    source: row.source_name || row.source_id,
-    source_url: row.source_url || null,
-    observed_at: row.observed_at || (row.year ? String(row.year) : null),
-    fetched_at: row.fetched_at || null,
-    confidence: row.confidence ?? null,
-    geographic_scope: 'country',
-    country_code: countryCode,
-    year: row.year,
-    metadata: row.metadata || {}
-  }));
+  const countryFreshnessSlaDays = {
+    inflation_rate: 365,
+    interest_rate: 180,
+    economic_growth_rate: 730,
+    unemployment_rate: 730,
+    population_total: 730,
+    gdp_per_capita_usd: 730,
+    fdi_net_inflows_pct_gdp: 730
+  };
+  const nowMs = Date.now();
+
+  const metrics = observationRows.map(row => {
+    const observedMs = row.observed_at ? Date.parse(row.observed_at) : NaN;
+    const ageDays = Number.isFinite(observedMs) ? Math.max(0, Math.floor((nowMs - observedMs) / 86400000)) : null;
+    const freshnessSlaDays = Number(countryFreshnessSlaDays[row.metric_code] || 730);
+    return {
+      metric: row.metric_code,
+      value: Number(row.value),
+      unit: row.unit || null,
+      source: row.source_name || row.source_id,
+      source_url: row.source_url || null,
+      observed_at: row.observed_at || (row.year ? String(row.year) : null),
+      fetched_at: row.fetched_at || null,
+      confidence: row.confidence ?? null,
+      geographic_scope: 'country',
+      country_code: countryCode,
+      year: row.year,
+      age_days: ageDays,
+      freshness_sla_days: freshnessSlaDays,
+      freshness_status: ageDays == null ? 'unknown' : (ageDays > freshnessSlaDays ? 'stale' : 'fresh'),
+      metadata: row.metadata || {}
+    };
+  });
 
   // Keep a sourced interest-rate observation from the legacy market feed when available.
   const { data: legacyRows } = await supabase
@@ -911,7 +930,11 @@ async function handleCountryContext(req, res, path) {
         data_quality_score: interest.data_quality_score ?? null,
         geographic_scope: 'country',
         country_code: countryCode,
-        year: interestYear
+        year: interestYear,
+        age_days: interest.recorded_at ? Math.max(0, Math.floor((nowMs - Date.parse(interest.recorded_at)) / 86400000)) : null,
+        freshness_sla_days: countryFreshnessSlaDays.interest_rate,
+        freshness_status: interest.recorded_at && Number.isFinite(Date.parse(interest.recorded_at)) &&
+          ((nowMs - Date.parse(interest.recorded_at)) / 86400000) > countryFreshnessSlaDays.interest_rate ? 'stale' : 'fresh'
       });
     }
   }
