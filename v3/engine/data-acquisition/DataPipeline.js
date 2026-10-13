@@ -276,7 +276,7 @@ class DataPipeline {
       metric_code: metric.metricCode,
       city_id: cityId || null,
       activity_id: activityId || null,
-      year: year || metric.year || new Date().getFullYear(),
+      year: Number.isInteger(Number(metric.year)) ? Number(metric.year) : (Number.isInteger(Number(year)) ? Number(year) : new Date().getFullYear()),
       value: metric.value,
       value_text: metric.valueText,
       source_id: sourceId,
