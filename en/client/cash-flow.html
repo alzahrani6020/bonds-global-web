@@ -183,10 +183,10 @@
     openingBalance.addEventListener('input',recalc);startMonth.addEventListener('change',recalc);buildRows();
 
     function validate(calc){
-      if(!startMonth.value)return 'حدد Start Month.';
+      if(!startMonth.value)return 'Select a start month.';
       if(num(openingBalance.value)<0)return 'Opening balance cannot be negative.';
       for(let i=0;i<calc.rows.length;i++){
-        for(const f of fields){if(calc.rows[i][f]<0)return 'لا يمكن إدخال قيمة سالبة في Month '+(i+1)+'.';}
+        for(const f of fields){if(calc.rows[i][f]<0)return 'Negative values are not allowed in month '+(i+1)+'.';}
       }
       return '';
     }
@@ -204,7 +204,7 @@
         ? await sb.from('client_cash_flow_reports').update(payload).eq('id',currentReport.id).select().single()
         : await sb.from('client_cash_flow_reports').insert(payload).select().single();
       if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
-      currentReport=result.data;showStatus(status==='submitted'?'تم إرسال Cash Flow Form للمراجعة.':'Draft saved.',true);
+      currentReport=result.data;showStatus(status==='submitted'?'Cash flow form submitted for review.':'Draft saved.',true);
     }
     document.getElementById('saveDraft').onclick=()=>save('draft');
     document.getElementById('submitReport').onclick=()=>save('submitted');
@@ -213,9 +213,9 @@
       const calc=recalc(),cur=document.getElementById('currency').value;
       return {
         lang:'en',title:'Cash Flow Form',subtitle:'Bonds Global',filenameBase:'bonds-cash-flow-'+(startMonth.value||thisMonth()),
-        metadata:[{label:'Start Month',value:startMonth.value},{label:'الرصيد الOpening',value:fmt(openingBalance.value)+' '+cur},{label:'Currency',value:cur}],
+        metadata:[{label:'Start Month',value:startMonth.value},{label:'Opening Balance',value:fmt(openingBalance.value)+' '+cur},{label:'Currency',value:cur}],
         tables:[
-          {title:'التدفقات Monthية',headers:['Month','Opening','مبيعات/تحصيل','Receivables','Financing','Owner Contributions','Other Inflows','Total Inflows','Suppliers','Payroll','Rent','Operating','Debt Service','Tax / Zakat / VAT','CapEx','Dividends / Drawings','Other','Total Outflows','Net Cash Flow','Closing'],rows:calc.rows.map((r,i)=>[monthLabel(startMonth.value,i),fmt(r.opening_balance),fmt(r.sales_receipts),fmt(r.receivable_collections),fmt(r.financing_inflows),fmt(r.owner_injections),fmt(r.other_inflows),fmt(r.total_inflows),fmt(r.supplier_payments),fmt(r.payroll),fmt(r.rent),fmt(r.operating_expenses),fmt(r.debt_service),fmt(r.taxes_zakat_vat),fmt(r.capex),fmt(r.dividends_drawings),fmt(r.other_outflows),fmt(r.total_outflows),fmt(r.net_cash_flow),fmt(r.closing_balance)])},
+          {title:'Monthly Cash Flows',headers:['Month','Opening','Cash Sales / Receipts','Receivables','Financing','Owner Contributions','Other Inflows','Total Inflows','Suppliers','Payroll','Rent','Operating','Debt Service','Tax / Zakat / VAT','CapEx','Dividends / Drawings','Other','Total Outflows','Net Cash Flow','Closing'],rows:calc.rows.map((r,i)=>[monthLabel(startMonth.value,i),fmt(r.opening_balance),fmt(r.sales_receipts),fmt(r.receivable_collections),fmt(r.financing_inflows),fmt(r.owner_injections),fmt(r.other_inflows),fmt(r.total_inflows),fmt(r.supplier_payments),fmt(r.payroll),fmt(r.rent),fmt(r.operating_expenses),fmt(r.debt_service),fmt(r.taxes_zakat_vat),fmt(r.capex),fmt(r.dividends_drawings),fmt(r.other_outflows),fmt(r.total_outflows),fmt(r.net_cash_flow),fmt(r.closing_balance)])},
           {title:'Summary',headers:['Total Inflows','Total Outflows','Net Cash Flow','Closing Balance','Minimum Balance','Maximum Balance','Negative-Balance Months','Funding Gap'],rows:[[fmt(calc.summary.total_inflows),fmt(calc.summary.total_outflows),fmt(calc.summary.net_cash_flow),fmt(calc.summary.closing_balance),fmt(calc.summary.minimum_balance),fmt(calc.summary.maximum_balance),calc.summary.negative_months,fmt(calc.summary.funding_gap)]]}
         ],notes:document.getElementById('notes').value.trim()
       };
