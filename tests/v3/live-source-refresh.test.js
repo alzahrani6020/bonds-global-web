@@ -213,11 +213,12 @@ describe('live source refresh and dynamic years', () => {
 
   test('city evidence freshness is based on observation period, not fetch time', () => {
     const api = read('v3/api/index.js');
-    expect(api).toContain('function observationTimestamp(row)');
-    expect(api).toContain('const observationAgeDays =');
+        expect(api).toContain('const ages = deriveEvidenceAges({');
+    expect(api).toContain('const observationAgeDays = ages.observation_age_days;')
     expect(api).toContain('age_days: observationAgeDays');
     expect(api).toContain('observation_age_days: observationAgeDays');
-    expect(api).toContain('fetched_age_days: fetchedAgeDays');
+    expect(api).toContain('fetched_age_days: ages.retrieval_age_days');
+    expect(api).toContain('freshness_basis: ages.freshness_basis');
     expect(api).toContain("freshness_status: observationAgeDays == null ? 'unknown'");
   });
 

@@ -45,9 +45,12 @@ describe('Business Rules Engine', () => {
       expect(res.passed).toBe(true);
     });
 
-    it('returns unknown rules as passed', () => {
+    it('fails closed for unknown rules', () => {
       const res = rules.evaluate('BR-UNKNOWN-999', {});
-      expect(res.passed).toBe(true);
+      expect(res.passed).toBe(false);
+      expect(res.code).toBe('UNKNOWN_RULE');
+      expect(res.severity).toBe('critical');
+      expect(res.message).toMatch(/fail-closed/i);
     });
   });
 
