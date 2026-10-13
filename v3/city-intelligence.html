@@ -724,6 +724,7 @@
       }
       const verified = rows.filter(r => r.evidence_status === 'verified');
       const estimated = rows.filter(r => r.evidence_status === 'estimated');
+      const stale = rows.filter(r => r.evidence_status === 'stale');
       const unverified = rows.filter(r => r.evidence_status === 'unverified');
       const latest = rows
         .map(r => r.fetched_at)
@@ -731,14 +732,14 @@
         .sort()
         .reverse()[0];
       const items = rows.slice(0, 12).map(r => {
-        const statusLabel = r.evidence_status === 'verified' ? 'مثبت' : r.evidence_status === 'estimated' ? 'تقديري' : 'غير مثبت';
+        const statusLabel = r.evidence_status === 'verified' ? 'مثبت' : r.evidence_status === 'stale' ? 'قديم' : r.evidence_status === 'estimated' ? 'تقديري' : 'غير مثبت';
         const source = r.source_name || r.source_id || 'مصدر غير مسمى';
         const sourceLink = r.source_url ? '<a class="map-link" style="padding:.15rem .4rem;font-size:.75rem" href="' + r.source_url + '" target="_blank" rel="noopener">المصدر</a>' : '';
         return '<div class="evidence-row"><strong>' + metricLabel(r.metric_code) + '</strong> — ' + statusLabel +
-          '<div class="evidence-meta">' + source + ' · سنة ' + (r.year || '—') + ' · ثقة ' + (r.confidence ?? '—') + ' ' + sourceLink + '</div></div>';
+          '<div class="evidence-meta">' + source + ' · سنة ' + (r.year || '—') + ' · ثقة ' + (r.confidence ?? '—') + (r.age_days != null ? ' · عمر البيانات ' + r.age_days + ' يوم' : '') + ' ' + sourceLink + '</div></div>';
       }).join('');
       return '<div class="card data-truth-note"><h3>◉ أدلة ومصادر البيانات</h3>' +
-        '<p><strong>' + verified.length + '</strong> مثبت · ' + estimated.length + ' تقديري · ' + unverified.length + ' غير مثبت' +
+        '<p><strong>' + verified.length + '</strong> مثبت · ' + stale.length + ' قديم · ' + estimated.length + ' تقديري · ' + unverified.length + ' غير مثبت' +
         (latest ? ' · آخر جلب: ' + new Date(latest).toLocaleString('ar-SA') : '') + '</p>' +
         '<div class="evidence-list">' + items + '</div></div>';
     }
