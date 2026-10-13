@@ -95,21 +95,6 @@ class NativeGeneratorConcurrencyTests(unittest.TestCase):
         ng._LLM_KEY = None
         ng._MODEL_CACHE.clear()
 
-    def _run_generate(self, tracker, *, options=None, verified_model=None):
-        fake_module = _fake_llama_module(tracker)
-        verified_model = verified_model or (lambda root: self.model)
-        with (
-            mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
-            mock.patch.object(ng, "gpu_offload_supported", return_value=False),
-            mock.patch.object(ng, "_verified_model", side_effect=verified_model),
-            mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
-        ):
-            return ng.generate(
-                "/tmp",
-                "hello",
-                options={"n_threads": 1, "max_tokens": 8, **(options or {})},
-            )
-
     def test_same_resident_llm_is_single_flight_and_telemetry_is_preserved(self):
         tracker = _Tracker()
         fake_module = _fake_llama_module(tracker)
@@ -117,20 +102,20 @@ class NativeGeneratorConcurrencyTests(unittest.TestCase):
 
         def task():
             start.wait()
-            with (
-                mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
-                mock.patch.object(ng, "gpu_offload_supported", return_value=False),
-                mock.patch.object(ng, "_verified_model", return_value=self.model),
-                mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
-            ):
-                return ng.generate(
-                    "/tmp",
-                    "hello",
-                    options={"n_threads": 1, "max_tokens": 8},
-                )
+            return ng.generate(
+                "/tmp",
+                "hello",
+                options={"n_threads": 1, "max_tokens": 8},
+            )
 
-        with ThreadPoolExecutor(max_workers=5) as pool:
-            results = list(pool.map(lambda _: task(), range(5)))
+        with (
+            mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
+            mock.patch.object(ng, "gpu_offload_supported", return_value=False),
+            mock.patch.object(ng, "_verified_model", return_value=self.model),
+            mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
+        ):
+            with ThreadPoolExecutor(max_workers=5) as pool:
+                results = list(pool.map(lambda _: task(), range(5)))
 
         self.assertEqual(tracker.constructor_calls, 1)
         self.assertEqual(tracker.constructor_max, 1)
@@ -180,20 +165,20 @@ class NativeGeneratorConcurrencyTests(unittest.TestCase):
 
         def task():
             barrier.wait()
-            with (
-                mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
-                mock.patch.object(ng, "gpu_offload_supported", return_value=False),
-                mock.patch.object(ng, "_verified_model", side_effect=verified_model),
-                mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
-            ):
-                return ng.generate(
-                    "/tmp",
-                    "hello",
-                    options={"n_threads": 1, "max_tokens": 8},
-                )
+            return ng.generate(
+                "/tmp",
+                "hello",
+                options={"n_threads": 1, "max_tokens": 8},
+            )
 
-        with ThreadPoolExecutor(max_workers=3) as pool:
-            list(pool.map(lambda _: task(), range(3)))
+        with (
+            mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
+            mock.patch.object(ng, "gpu_offload_supported", return_value=False),
+            mock.patch.object(ng, "_verified_model", side_effect=verified_model),
+            mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
+        ):
+            with ThreadPoolExecutor(max_workers=3) as pool:
+                list(pool.map(lambda _: task(), range(3)))
 
         self.assertEqual(verify_max, 1)
         self.assertEqual(tracker.constructor_calls, 1)
@@ -206,20 +191,20 @@ class NativeGeneratorConcurrencyTests(unittest.TestCase):
 
         def task(n_ctx):
             barrier.wait()
-            with (
-                mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
-                mock.patch.object(ng, "gpu_offload_supported", return_value=False),
-                mock.patch.object(ng, "_verified_model", return_value=self.model),
-                mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
-            ):
-                return ng.generate(
-                    "/tmp",
-                    "hello",
-                    options={"n_threads": 1, "max_tokens": 8, "n_ctx": n_ctx},
-                )
+            return ng.generate(
+                "/tmp",
+                "hello",
+                options={"n_threads": 1, "max_tokens": 8, "n_ctx": n_ctx},
+            )
 
-        with ThreadPoolExecutor(max_workers=2) as pool:
-            results = list(pool.map(task, (1024, 2048)))
+        with (
+            mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
+            mock.patch.object(ng, "gpu_offload_supported", return_value=False),
+            mock.patch.object(ng, "_verified_model", return_value=self.model),
+            mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
+        ):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                results = list(pool.map(task, (1024, 2048)))
 
         self.assertEqual(tracker.constructor_calls, 2)
         self.assertEqual(tracker.constructor_max, 1)
