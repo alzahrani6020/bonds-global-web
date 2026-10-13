@@ -148,6 +148,7 @@
       receivablesAging: isEn ? 'Receivables Aging' : 'أعمار الذمم',
       establishmentInfo: isEn ? 'Establishment Information' : 'معلومات المنشأة',
       payablesAging: isEn ? 'Payables Aging' : 'أعمار الذمم الدائنة',
+      cashFlowForm: isEn ? 'Cash Flow' : 'التدفقات النقدية',
     };
 
     const currentPath = window.location.pathname;
@@ -188,6 +189,7 @@
     const receivablesAgingHref = isEn ? '/en/client/receivables-aging' : '/client/receivables-aging';
     const establishmentInfoHref = isEn ? '/en/client/establishment-information' : '/client/establishment-information';
     const payablesAgingHref = isEn ? '/en/client/payables-aging' : '/client/payables-aging';
+    const cashFlowFormHref = isEn ? '/en/client/cash-flow' : '/client/cash-flow';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
@@ -293,6 +295,7 @@
           { label: labels.receivablesAging, href: receivablesAgingHref },
           { label: labels.establishmentInfo, href: establishmentInfoHref },
           { label: labels.payablesAging, href: payablesAgingHref },
+          { label: labels.cashFlowForm, href: cashFlowFormHref },
         ],
       },
     ];
