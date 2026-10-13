@@ -261,6 +261,8 @@
       },
     ];
 
+    const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
+
     const fundingDropdown = [
       {
         heading: { ar: labels.fundingGroup, en: 'Funding' },
@@ -269,7 +271,7 @@
           { label: labels.fundingExtraction, href: fundingExtractionHref },
           { label: labels.fundingSources, href: fundingSourcesHref },
           { label: labels.fundingReadiness, href: fundingReadinessHref },
-          { label: labels.kyc, href: isEn ? '/en/client/kyc' : '/client/kyc' },
+          { label: labels.kyc, href: kycHref },
         ],
       },
       {
@@ -315,7 +317,7 @@
         items: [
           { label: labels.privacy, href: privacyHref },
           { label: labels.terms, href: termsHref },
-          { label: labels.kyc, href: isEn ? '/en/client/kyc' : '/client/kyc' },
+          { label: labels.kyc, href: kycHref },
         ],
       },
     ];
