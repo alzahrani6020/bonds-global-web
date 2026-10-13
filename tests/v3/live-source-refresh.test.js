@@ -130,6 +130,16 @@ describe('live source refresh and dynamic years', () => {
     expect(api).toContain('targetYear = await resolveLatestSourceBackedCityYear(supabase, city.id)');
   });
 
+  test('latest city endpoints never fall back to modeled legacy rows', () => {
+    const api = read('v3/api/index.js');
+    const occurrences = api.match(/dataStatus: 'no_source_backed_city_data'/g) || [];
+    expect(occurrences.length).toBeGreaterThanOrEqual(3);
+    expect(api).toContain("requestedYear: 'latest'");
+    expect(api).toContain('legacyAvailableYear');
+    expect(api).toContain('marketData: []');
+    expect(api).toContain('indicators: null');
+  });
+
   test('instant auto-fill resolves latest source year before activity engines', () => {
     const api = read('v3/api/data-engine.js');
     expect(api).toContain('const effectiveYear = Number(results.city?.year)');
