@@ -46,6 +46,33 @@ describe('Bonds Truth Contract V2', () => {
     expect(record.freshness_basis).toBe('observation');
   });
 
+  test('estimated legacy year is not promoted to an observation timestamp', () => {
+    const result = assessOpportunityRow({
+      opportunity_score: 80,
+      confidence: 45,
+      population: 1000000,
+      market_size: 100,
+      competitors_count: 10,
+      market_saturation_score: 20,
+      annual_growth_rate: 5,
+      avg_salary: 8000,
+      data_year: 2026,
+      fetched_at: new Date().toISOString(),
+      source_type: 'fallback',
+      is_estimated: true,
+      opportunity_breakdown: {
+        confidence: 45,
+        estimated: true,
+        metricCoverage: 100,
+        source: 'fallback'
+      }
+    });
+
+    expect(result.freshnessBasis).toBe('unknown');
+    expect(result.observationAgeDays).toBeNull();
+    expect(result.retrievalAgeDays).toBe(0);
+  });
+
   test('opportunity reliability does not treat freshly fetched old observations as fresh', () => {
     const common = {
       opportunity_score: 80,
