@@ -13,6 +13,7 @@ const getSupabase = require('../lib/api/supabase');
 const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
+const { CountryIndicatorEngine } = require('../lib/data/country-indicator-engine');
 
 const ALLOWED_ROLES = ['admin', 'editor'];
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
@@ -24,18 +25,7 @@ const SOURCE_START_BUDGET_MS = 60000;
 const TOTAL_TIME_BUDGET_MS = 80000;
 const REPORT_TIMEZONE = 'Asia/Riyadh';
 const REFRESH_CRON_INTERVAL_HOURS = 3;
-const ARAB_COUNTRY_CODES = [
-  'DZ','BH','KM','DJ','EG','IQ','JO','KW','LB','LY','MR','MA',
-  'OM','PS','QA','SA','SO','SD','SY','TN','AE','YE'
-];
-const WORLD_BANK_METRICS = [
-  { metricCode: 'inflation_rate', indicator: 'FP.CPI.TOTL.ZG', unit: '%', confidence: 95 },
-  { metricCode: 'economic_growth_rate', indicator: 'NY.GDP.MKTP.KD.ZG', unit: '%', confidence: 95 },
-  { metricCode: 'unemployment_rate', indicator: 'SL.UEM.TOTL.ZS', unit: '%', confidence: 88, modeledSource: true },
-  { metricCode: 'population_total', indicator: 'SP.POP.TOTL', unit: 'person', confidence: 95 },
-  { metricCode: 'gdp_per_capita_usd', indicator: 'NY.GDP.PCAP.CD', unit: 'USD', confidence: 95 },
-  { metricCode: 'fdi_net_inflows_pct_gdp', indicator: 'BX.KLT.DINV.WD.GD.ZS', unit: '% GDP', confidence: 90 }
-];
+
 
 function cors(res, req) {
   setAllowedOrigin(res, req);
@@ -251,85 +241,6 @@ function isAllowedSourceUrl(urlStr) {
   } catch (err) {
     return false;
   }
-}
-
-async function refreshCountryIndicatorObservations(supabase) {
-  const startedAt = Date.now();
-  const countryList = ARAB_COUNTRY_CODES.join(';');
-  const sourceId = 'world_bank';
-  const sourceName = 'World Bank Open Data';
-  let updated = 0;
-  let failed = 0;
-  const errors = [];
-  const fetchedAt = new Date().toISOString();
-
-  const results = await Promise.allSettled(WORLD_BANK_METRICS.map(async metric => {
-    const url = `https://api.worldbank.org/v2/country/${countryList}/indicator/${metric.indicator}?format=json&mrnev=1&per_page=100`;
-    if (!isAllowedSourceUrl(url)) throw new Error('World Bank URL is not allowed');
-
-    const response = await fetch(url, {
-      headers: { 'Accept': 'application/json', 'User-Agent': 'BondsGlobal-CountryData/1.0' },
-      signal: AbortSignal.timeout(SOURCE_FETCH_TIMEOUT_MS)
-    });
-    if (!response.ok) throw new Error(`World Bank ${metric.indicator}: HTTP ${response.status}`);
-
-    const json = await response.json();
-    const records = Array.isArray(json?.[1]) ? json[1] : [];
-    const rows = records
-      .filter(row => ARAB_COUNTRY_CODES.includes(String(row?.country?.id || '').toUpperCase()))
-      .filter(row => row?.value !== null && row?.value !== undefined && /^\d{4}$/.test(String(row?.date || '')))
-      .map(row => ({
-        country_code: String(row.country.id).toUpperCase(),
-        metric_code: metric.metricCode,
-        year: Number(row.date),
-        value: Number(row.value),
-        unit: metric.unit,
-        source_id: sourceId,
-        source_name: sourceName,
-        source_url: `https://api.worldbank.org/v2/country/${String(row.country.id).toUpperCase()}/indicator/${metric.indicator}?format=json&mrnev=1`,
-        observed_at: `${row.date}-12-31`,
-        fetched_at: fetchedAt,
-        confidence: metric.confidence,
-        geographic_scope: 'country',
-        metadata: {
-          indicator: metric.indicator,
-          indicator_name: row?.indicator?.value || null,
-          source_last_updated: json?.[0]?.lastupdated || null,
-          modeled_source: metric.modeledSource === true,
-          retrieval_mode: 'mrnev=1'
-        },
-        updated_at: fetchedAt
-      }));
-
-    if (!rows.length) return { metric: metric.metricCode, updated: 0 };
-
-    const { error } = await supabase
-      .from('country_indicator_observations')
-      .upsert(rows, { onConflict: 'country_code,metric_code,year,source_id' });
-    if (error) throw error;
-
-    return { metric: metric.metricCode, updated: rows.length };
-  }));
-
-  for (const result of results) {
-    if (result.status === 'fulfilled') {
-      updated += result.value.updated;
-    } else {
-      failed++;
-      errors.push(result.reason?.message || String(result.reason));
-    }
-  }
-
-  return {
-    updated,
-    failed,
-    skipped: 0,
-    errors,
-    total: WORLD_BANK_METRICS.length,
-    observations: updated,
-    countries: ARAB_COUNTRY_CODES.length,
-    elapsedMs: Date.now() - startedAt
-  };
 }
 
 async function refreshSources(supabase) {
@@ -706,7 +617,7 @@ async function handleMarketIntelligenceCron(req, res) {
   try {
     const [marketResult, countryResult] = await Promise.all([
       refreshSources(supabase),
-      refreshCountryIndicatorObservations(supabase)
+      new CountryIndicatorEngine({ timeoutMs: SOURCE_FETCH_TIMEOUT_MS }).refresh(supabase)
     ]);
     const result = {
       updated: Number(marketResult.updated || 0) + Number(countryResult.updated || 0),
