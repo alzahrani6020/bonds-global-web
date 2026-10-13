@@ -717,6 +717,27 @@
         }));
     }
 
+    function renderCountryContext(contextData) {
+      const rows = contextData?.metrics || [];
+      if (!rows.length) return '';
+      const labels = {
+        inflation_rate: 'التضخم',
+        interest_rate: 'سعر الفائدة',
+        economic_growth_rate: 'النمو الاقتصادي'
+      };
+      const body = rows.map(row =>
+        '<div class="metric"><span class="metric-label">' + (labels[row.metric] || row.metric) +
+        ' <small style="color:var(--text-secondary)">(سياق وطني)</small></span><span class="metric-value">' +
+        formatNumber(row.value) + '%</span></div>' +
+        '<div class="evidence-meta">' + (row.source || 'مصدر خارجي') +
+        (row.observed_at ? ' · الفترة ' + row.observed_at : '') +
+        (row.fetched_at ? ' · آخر جلب ' + new Date(row.fetched_at).toLocaleDateString('ar-SA') : '') +
+        '</div>'
+      ).join('');
+      return '<div class="card data-truth-note"><h3>◉ أحدث سياق اقتصادي وطني متاح</h3>' +
+        '<p>هذه القيم على مستوى الدولة وليست قيماً خاصة بالمدينة، وتُعرض للسياق فقط.</p>' + body + '</div>';
+    }
+
     function renderEvidence(evidenceData) {
       const rows = evidenceData?.evidence || [];
       if (!rows.length) {
@@ -853,34 +874,41 @@
 
       const catalogCity = cities.find(city => city.code === cityCode);
       if (catalogCity && catalogCity.data_available === false) {
+        let contextData = { metrics: [] };
+        try {
+          contextData = await fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity.country_code)}/context`);
+        } catch (_) {}
         content.innerHTML =
           '<div class="grid">' +
           '<div class="card data-truth-note"><h3>⌖ ' + (catalogCity.name_ar || catalogCity.name_en || cityCode) + '</h3>' +
           '<div class="metric"><span class="metric-label">الدولة</span><span class="metric-value">' + (countryNames[catalogCity.country_code] || catalogCity.country_code) + '</span></div>' +
           '<div class="metric"><span class="metric-label">المنطقة</span><span class="metric-value">' + (catalogCity.region || '—') + '</span></div>' +
-          '<p><strong>المدينة موجودة في الكتالوج الجغرافي، لكن لا توجد لها حالياً بيانات كمية مصدرية في قاعدة البيانات.</strong></p>' +
-          '<p>لن يعرض النظام أرقاماً أو درجة جاذبية مصطنعة لهذه المدينة. ستظهر المؤشرات عندما تتوفر بيانات قابلة للتتبع إلى مصدر.</p></div></div>';
+          '<p><strong>لا توجد حالياً بيانات كمية موثقة على مستوى هذه المدينة.</strong></p>' +
+          '<p>لن يعرض النظام قيماً مصطنعة. عند توفر بيانات خارجية على مستوى الدولة ستظهر أدناه كسياق وطني واضح.</p></div>' +
+          renderCountryContext(contextData) +
+          '</div>';
         return;
       }
 
       content.innerHTML = '<div class="loading">جاري تحميل المؤشرات والمصادر...</div>';
       try {
-        const [detail, indicators, market, evidence] = await Promise.all([
+        const [detail, indicators, market, evidence, countryContext] = await Promise.all([
           fetchJson(`${API_URL}/cities/${cityCode}?year=${encodeURIComponent(year)}`),
           fetchJson(`${API_URL}/cities/${cityCode}/indicators?year=${encodeURIComponent(year)}`),
           activityCode
             ? fetchJson(`${API_URL}/cities/${cityCode}/market?activity=${encodeURIComponent(activityCode)}&year=${encodeURIComponent(year)}`)
             : Promise.resolve({ marketData: [], year }),
-          fetchJson(`${API_URL}/cities/${cityCode}/evidence?year=${encodeURIComponent(year)}${activityCode ? '&activity=' + encodeURIComponent(activityCode) : ''}`)
+          fetchJson(`${API_URL}/cities/${cityCode}/evidence?year=${encodeURIComponent(year)}${activityCode ? '&activity=' + encodeURIComponent(activityCode) : ''}`),
+          fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity?.country_code || detail?.city?.country_code || 'SA')}/context`).catch(() => ({ metrics: [] }))
         ]);
-        renderCity(cityCode, detail, indicators, market, evidence);
+        renderCity(cityCode, detail, indicators, market, evidence, countryContext);
         await updateScenarioCard(activityCode);
       } catch (err) {
         content.innerHTML = `<div class="error">فشل تحميل بيانات المدينة: ${err.message}</div>`;
       }
     }
 
-    function renderCity(cityCode, detail, indicatorsData, marketData, evidenceData = {}) {
+    function renderCity(cityCode, detail, indicatorsData, marketData, evidenceData = {}, countryContext = {}) {
       const city = detail.city;
       const indicators = indicatorsData.indicators || {};
       const market = marketData.marketData || [];
@@ -1015,6 +1043,7 @@ ${recommendations.length ? recommendations.map(r => `
             ` : '<div class="metric"><span class="metric-label">غير متوفر</span><span class="metric-value">اختر نشاطاً</span></div>'}
           </div>
           ` : ''}
+          ${renderCountryContext(countryContext)}
           ${renderEvidence(evidenceData)}
         </div>
       `;
