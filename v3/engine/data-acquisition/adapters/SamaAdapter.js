@@ -32,10 +32,12 @@ class SamaAdapter extends BaseAdapter {
     let quality = 'unknown';
     const metrics = {};
     const metricQuality = {};
+    let inflation = null;
+    let growth = null;
 
     if (this.tryRealApi) {
       try {
-        const [inflation, growth] = await Promise.allSettled([
+        [inflation, growth] = await Promise.allSettled([
           this._fetchInflation(year, latestRequested),
           this._fetchGrowthRate(year, latestRequested)
         ]);
@@ -66,10 +68,6 @@ class SamaAdapter extends BaseAdapter {
         }
       }
     }
-    // Overall quality reflects how many metrics came from real open data
-    const openDataCount = Object.values(metricQuality).filter(q => q === 'open_data').length;
-    quality = openDataCount >= 2 ? 'open_data' : (openDataCount > 0 ? 'mixed' : 'fallback');
-
     const openDataCount = Object.values(metricQuality).filter(q => q === 'open_data').length;
     const fallbackCount = Object.values(metricQuality).filter(q => q === 'fallback').length;
     quality = fallbackCount ? 'mixed' : (openDataCount ? 'open_data' : 'unknown');
