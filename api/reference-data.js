@@ -24,7 +24,8 @@ const UPSERT_CONCURRENCY = 10;
 const SOURCE_START_BUDGET_MS = 60000;
 const TOTAL_TIME_BUDGET_MS = 80000;
 const REPORT_TIMEZONE = 'Asia/Riyadh';
-const REFRESH_CRON_INTERVAL_HOURS = 3;
+const REFRESH_CRON_UTC_HOUR = 1;
+const REFRESH_CRON_UTC_MINUTE = 15;
 
 
 function cors(res, req) {
@@ -86,10 +87,8 @@ function formatRiyadhTime(date) {
 
 function nextRunRiyadh(now) {
   const next = new Date(now.getTime());
-  next.setUTCMinutes(0, 0, 0);
-  do {
-    next.setUTCHours(next.getUTCHours() + 1);
-  } while (next.getUTCHours() % REFRESH_CRON_INTERVAL_HOURS !== 0);
+  next.setUTCHours(REFRESH_CRON_UTC_HOUR, REFRESH_CRON_UTC_MINUTE, 0, 0);
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
   return next;
 }
 
