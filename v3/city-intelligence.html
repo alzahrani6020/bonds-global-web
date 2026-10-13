@@ -473,8 +473,6 @@
       <select data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-placeholder="اختر النشاط (اختياري)" id="activitySelect"><option value="">اختر النشاط (اختياري)</option></select>
       <select data-universal-dropdown="true" data-ud-theme="dark" id="yearSelect">
         <option value="latest" selected>أحدث سنة متاحة</option>
-        <option value="2025">2025</option>
-        <option value="2024">2024</option>
       </select>
       <a href="/v3/investment-map" class="map-link">▣ الخريطة الاستثمارية</a>
       <a href="/v3/city-comparison" class="map-link"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M3.923 22.923c-.212.511-.798.751-1.308.539-.51-.213-.751-.798-.539-1.308L6.693 9.616c.212-.51.798-.751 1.307-.539.51.213.751.798.539 1.308L3.923 22.923z"/><path fill="#66757F" d="M13.923 22.154c.212.51-.029 1.095-.539 1.308-.51.212-1.095-.028-1.308-.539L7.461 10.385c-.212-.51.029-1.095.539-1.308.51-.212 1.095.029 1.308.539l4.615 12.538zm10.001.769c-.213.511-.799.751-1.309.539-.51-.213-.75-.798-.538-1.308l4.616-12.539c.212-.509.797-.75 1.307-.538.51.213.752.798.539 1.308l-4.615 12.538z"/><path fill="#66757F" d="M33.923 22.154c.212.51-.028 1.095-.538 1.308-.51.212-1.096-.028-1.309-.539l-4.615-12.538c-.213-.51.029-1.095.539-1.308.51-.212 1.095.029 1.307.539l4.616 12.538z"/><path fill="#FFAC33" d="M14.857 22H1.143C.512 22 0 22.511 0 23.143c0 2.524 3.582 4.571 8 4.571s8-2.047 8-4.571c0-.632-.512-1.143-1.143-1.143zM24 34H12c-.552 0-1-.447-1-1 0-2.209 3.134-4 7-4s7 1.791 7 4c0 .553-.447 1-1 1zm10.857-12H21.143c-.632 0-1.143.511-1.143 1.143 0 2.524 3.581 4.571 8 4.571s8-2.047 8-4.571c0-.632-.511-1.143-1.143-1.143z"/><path fill="#FFAC33" d="M19 3c0-.552-.447-1-1-1-.552 0-1 .448-1 1v27c0 .553.448 1 1 1 .553 0 1-.447 1-1V3z"/><circle fill="#FFAC33" cx="18" cy="4" r="2"/><circle fill="#FFAC33" cx="8" cy="10" r="2"/><circle fill="#FFAC33" cx="28" cy="10" r="2"/><path fill="#FFAC33" d="M28 10c0 1.104 0 0-10 0S8 11.104 8 10s3-4 10-4 10 2.896 10 4z"/></svg></span>️ مقارنة المدن</a>
@@ -769,6 +767,40 @@
     const CITY_ICON = '/assets/icons/city.svg';
     const ACTIVITY_ICON = '/assets/icons/activity.svg';
 
+    async function refreshYearOptions({ countryCode, cityCode = '', activityCode = '', preserve = true } = {}) {
+      const select = document.getElementById('yearSelect');
+      const current = preserve ? select.value : 'latest';
+      const params = new URLSearchParams();
+      if (countryCode) params.set('country', countryCode);
+      if (cityCode) params.set('city', cityCode);
+      if (activityCode) params.set('activity', activityCode);
+
+      try {
+        const data = await fetchJson(API_URL + '/catalog/years?' + params.toString());
+        const years = data.years || [];
+        const latestLabel = data.latest ? 'أحدث سنة متاحة (' + data.latest + ')' : 'أحدث سنة متاحة';
+        select.innerHTML = '<option value="latest">' + latestLabel + '</option>' +
+          years.map(year => '<option value="' + year + '">' + year + '</option>').join('');
+
+        const nextValue = current !== 'latest' && years.includes(Number(current)) ? current : 'latest';
+        select.value = nextValue;
+
+        const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
+        if (dd?.setOptions) {
+          dd.setOptions([
+            { value: 'latest', label: latestLabel },
+            ...years.map(year => ({ value: String(year), label: String(year) }))
+          ]);
+          if (dd.selectByValue) dd.selectByValue(nextValue);
+        }
+        return data;
+      } catch (err) {
+        select.innerHTML = '<option value="latest">أحدث سنة متاحة</option>';
+        select.value = 'latest';
+        return { years: [], latest: null, error: err.message };
+      }
+    }
+
     async function init(initialCountry = 'SA') {
       try {
         const [countriesData, activitiesData] = await Promise.all([
@@ -837,6 +869,7 @@
         }
 
         await loadCities();
+        await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
 
         const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar || a.name_en || a.code, icon: ACTIVITY_ICON }));
         activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a =>
@@ -847,11 +880,37 @@
 
         countrySelect.addEventListener('change', async () => {
           await loadCities();
+          await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
           document.getElementById('content').innerHTML = '<div class="loading">اختر مدينة لعرض المؤشرات</div>';
         });
-        cityTypeSelect.addEventListener('change', loadCities);
-        citySelect.addEventListener('change', loadCityData);
-        activitySelect.addEventListener('change', loadCityData);
+        cityTypeSelect.addEventListener('change', async () => {
+          await loadCities();
+          await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
+        });
+        citySelect.addEventListener('change', async () => {
+          await refreshYearOptions({
+            countryCode: countrySelect.value,
+            cityCode: citySelect.value,
+            activityCode: activitySelect.value,
+            preserve: false
+          });
+          await refreshYearOptions({
+          countryCode: document.getElementById('countrySelect').value,
+          cityCode,
+          activityCode,
+          preserve: false
+        });
+        await loadCityData();
+        });
+        activitySelect.addEventListener('change', async () => {
+          await refreshYearOptions({
+            countryCode: countrySelect.value,
+            cityCode: citySelect.value,
+            activityCode: activitySelect.value,
+            preserve: true
+          });
+          await loadCityData();
+        });
         document.getElementById('yearSelect').addEventListener('change', loadCityData);
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل تحميل الكتالوج: ${err.message}</div>`;
@@ -1212,7 +1271,7 @@ ${recommendations.length ? recommendations.map(r => `
 
       try {
         const token = localStorage.getItem('bondsAdminToken');
-        const payload = { cityCode, year: parseInt(year) };
+        const payload = { cityCode, year: /^\d{4}$/.test(year) ? Number(year) : 'latest' };
         if (activityCode) payload.activityCode = activityCode;
 
         const res = await fetchJson(API_URL + '/data/auto-fill', {
@@ -1324,6 +1383,12 @@ ${recommendations.length ? recommendations.map(r => `
         }
       }
       if (preselectCity || preselectActivity) {
+        await refreshYearOptions({
+          countryCode: document.getElementById('countrySelect').value,
+          cityCode: document.getElementById('citySelect').value,
+          activityCode: document.getElementById('activitySelect').value,
+          preserve: false
+        });
         await loadCityData();
       }
 
