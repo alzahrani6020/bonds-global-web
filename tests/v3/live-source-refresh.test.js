@@ -68,7 +68,8 @@ describe('live source refresh and dynamic years', () => {
     const api = read('v3/api/index.js');
     expect(api).toContain('async function handleCatalogYears');
     expect(api).toContain("from('city_indicators').select('year')");
-    expect(api).toContain("from('normalized_metrics').select('year')");
+    expect(api).toContain("from('normalized_metrics')");
+    expect(api).toContain("select('year,source_url,source_id,metadata')");
     expect(api).toContain("from('city_market_data')");
     expect(api).toContain("from('country_indicator_observations')");
     expect(api).toContain("path === '/catalog/years'");
