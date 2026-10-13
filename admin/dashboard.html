@@ -1251,6 +1251,7 @@
             label: 'الذكاء والبيانات',
             items: [
               ['/admin/city-intelligence/index.html?embed=1', 'ذكاء المدن'],
+              ['/admin/data-coverage.html?embed=1', 'مصفوفة تغطية البيانات'],
               ['/admin/market-intelligence.html?embed=1', 'الذكاء السوقي'],
               ['/admin/data-quality-center?embed=1', 'مركز جودة البيانات'],
               ['/admin/data-quality.html?embed=1', 'تقرير جودة البيانات'],
@@ -1317,6 +1318,13 @@
 
           for (const [target, title] of group.items) {
             let link = target === 'overview' ? makeOverviewButton() : byTarget.get(target);
+            if (!link && target === '/admin/data-coverage.html?embed=1') {
+              link = document.createElement('button');
+              link.className = 'sidebar-link';
+              link.dataset.target = target;
+              link.dataset.title = title;
+              link.innerHTML = '<span aria-hidden="true">▦</span><span>' + title + '</span>';
+            }
             if (!link || used.has(target)) continue;
             used.add(target);
             link.dataset.title = title;
