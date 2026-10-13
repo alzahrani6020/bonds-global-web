@@ -1035,9 +1035,6 @@ html[dir="rtl"] .main-header .dropdown-menu--grouped,
 html[dir="ltr"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
 html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
 .main-header .dropdown.is-open > .dropdown-menu--grouped,
-html[dir="ltr"] .main-header .dropdown:hover > .dropdown-menu--grouped,
-html[dir="rtl"] .main-header .dropdown:hover > .dropdown-menu--grouped,
-.main-header .dropdown:hover > .dropdown-menu--grouped {
   transform: translate(-50%, 0);
 }
 
@@ -1116,7 +1113,6 @@ html[dir="rtl"] .main-header .dropdown:hover > .dropdown-menu--grouped,
  */
 @media (min-width: 901px) {
   .main-header .dropdown > .dropdown-menu,
-  .main-header .dropdown:hover > .dropdown-menu {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
@@ -1133,9 +1129,6 @@ html[dir="rtl"] .main-header .dropdown:hover > .dropdown-menu--grouped,
   html[dir="ltr"] .main-header .dropdown > .dropdown-menu--grouped,
   html[dir="rtl"] .main-header .dropdown > .dropdown-menu--grouped,
   .main-header .dropdown > .dropdown-menu--grouped,
-  html[dir="ltr"] .main-header .dropdown:hover > .dropdown-menu--grouped,
-  html[dir="rtl"] .main-header .dropdown:hover > .dropdown-menu--grouped,
-  .main-header .dropdown:hover > .dropdown-menu--grouped {
     transform: translate(-50%, -8px) !important;
   }
 
