@@ -71,4 +71,10 @@ describe('header hover and automated refresh stabilization', () => {
     expect(layout).toContain("const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';");
     expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
   });
+
+  test('funding dropdown exposes KYC intake', () => {
+    const layout = read('site-layout.js');
+    expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
+    expect(layout).toContain('{ label: labels.fundingReadiness, href: fundingReadinessHref },\n          { label: labels.kyc, href: kycHref },');
+  });
 });
