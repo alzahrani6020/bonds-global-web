@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>نموذج التدفقات النقدية — بوابة العميل | Bonds</title>
+  <meta name="description" content="نموذج التدفقات النقدية الشهرية لمدة 12 شهرًا لعملاء Bonds Global." />
+  <link rel="canonical" href="https://bonds-global.com/client/cash-flow.html" />
+  <meta property="og:title" content="نموذج التدفقات النقدية — بوابة العميل | Bonds" />
+  <meta property="og:description" content="نموذج التدفقات النقدية الشهرية لمدة 12 شهرًا لعملاء Bonds Global." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/client/cash-flow.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="نموذج التدفقات النقدية — بوابة العميل | Bonds" />
+  <meta name="twitter:description" content="نموذج التدفقات النقدية الشهرية لمدة 12 شهرًا لعملاء Bonds Global." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles/fonts-ar.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles/design-system.css" />
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=6" />
+  <script defer src="/calculators/auth-gate.js?v=3"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script src="/lib/forms/branded-export.js?v=1"></script>
+  <style>
+    .cf-page{max-width:1440px;margin:0 auto;padding:7rem 1rem 4rem}
+    .cf-hero{margin-bottom:1.25rem}.cf-hero h1{margin:.25rem 0}
+    .cf-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.1rem;margin-bottom:1rem}
+    .cf-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}
+    .cf-field label{display:block;font-weight:700;margin-bottom:.35rem}
+    .cf-field input,.cf-field select,.cf-field textarea{width:100%;padding:.7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text)}
+    .cf-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+    table{width:100%;border-collapse:collapse;min-width:2200px;background:var(--bg-card)}
+    th,td{padding:.45rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+    th{font-size:.72rem;color:var(--text-secondary);background:var(--bg);white-space:nowrap}
+    td input{width:100%;min-width:92px;padding:.45rem;border:1px solid var(--border);border-radius:7px;background:var(--bg);color:var(--text);direction:ltr;text-align:left}
+    td.month{font-weight:700;white-space:nowrap;min-width:100px}.amount{direction:ltr;text-align:left;white-space:nowrap}
+    .summary-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.7rem}
+    .summary-box{padding:.8rem;border:1px solid var(--border);border-radius:12px;background:var(--bg);text-align:center}
+    .summary-box strong{display:block;font-size:1.05rem;margin-top:.25rem}
+    .summary-box.warn strong{color:#dc2626}
+    .cf-actions,.export-actions{display:flex;gap:.65rem;flex-wrap:wrap;justify-content:space-between}.export-actions{margin-top:.85rem;justify-content:flex-start}
+    .cf-status{margin:1rem 0;padding:.8rem 1rem;border-radius:10px;display:none}.cf-status.show{display:block}.cf-status.ok{background:rgba(34,197,94,.12);color:#16a34a}.cf-status.err{background:rgba(239,68,68,.12);color:#dc2626}
+    .legend{font-size:.85rem;color:var(--text-secondary);margin-top:.6rem}
+    @media(max-width:1000px){.cf-grid{grid-template-columns:1fr 1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:600px){.cf-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="cf-page">
+    <section class="cf-hero">
+      <div class="hero__eyebrow">بوابة العميل</div>
+      <h1>نموذج التدفقات النقدية</h1>
+      <p>أدخل التدفقات النقدية الفعلية أو المتوقعة لمدة 12 شهرًا. يتم احتساب صافي التدفق والرصيد الختامي وفجوة التمويل تلقائيًا.</p>
+    </section>
+
+    <div id="status" class="cf-status" role="status"></div>
+
+    <section class="cf-card">
+      <div class="cf-grid">
+        <div class="cf-field"><label for="startMonth">شهر البداية</label><input id="startMonth" type="month" required></div>
+        <div class="cf-field"><label for="openingBalance">الرصيد النقدي الافتتاحي</label><input id="openingBalance" type="number" step="0.01" value="0" required></div>
+        <div class="cf-field"><label for="currency">العملة</label><select id="currency"><option>SAR</option><option>USD</option><option>EUR</option><option>AED</option><option>EGP</option><option>GBP</option></select></div>
+        <div class="cf-field"><label for="notes">ملاحظات عامة</label><input id="notes" placeholder="اختياري"></div>
+      </div>
+    </section>
+
+    <section class="cf-card">
+      <div class="cf-table-wrap">
+        <table aria-label="جدول التدفقات النقدية الشهرية">
+          <thead>
+            <tr>
+              <th>الشهر</th><th>رصيد افتتاحي</th>
+              <th>مبيعات/تحصيل نقدي</th><th>تحصيل ذمم مدينة</th><th>تمويلات داخلة</th><th>ضخ ملاك</th><th>واردات أخرى</th><th>إجمالي الواردات</th>
+              <th>مدفوعات موردين</th><th>رواتب</th><th>إيجارات</th><th>مصروفات تشغيلية</th><th>خدمة الدين</th><th>زكاة/ضريبة/VAT</th><th>CapEx</th><th>توزيعات/مسحوبات</th><th>مصروفات أخرى</th><th>إجمالي المصروفات</th>
+              <th>صافي التدفق</th><th>الرصيد الختامي</th>
+            </tr>
+          </thead>
+          <tbody id="cashRows"></tbody>
+        </table>
+      </div>
+      <div class="legend">جميع المبالغ تُدخل كقيم موجبة. النظام يطرح المصروفات تلقائيًا من الواردات.</div>
+    </section>
+
+    <section class="cf-card">
+      <h2>ملخص التدفقات النقدية</h2>
+      <div class="summary-grid">
+        <div class="summary-box">إجمالي الواردات<strong id="sumInflows">0.00</strong></div>
+        <div class="summary-box">إجمالي المصروفات<strong id="sumOutflows">0.00</strong></div>
+        <div class="summary-box">صافي التدفق<strong id="sumNet">0.00</strong></div>
+        <div class="summary-box">الرصيد الختامي<strong id="sumClosing">0.00</strong></div>
+        <div class="summary-box">أدنى رصيد<strong id="sumMin">0.00</strong></div>
+        <div class="summary-box">أعلى رصيد<strong id="sumMax">0.00</strong></div>
+        <div class="summary-box warn">فجوة التمويل<strong id="sumGap">0.00</strong></div>
+      </div>
+    </section>
+
+    <section class="cf-card">
+      <div class="cf-actions">
+        <button type="button" class="btn btn-outline" id="saveDraft">حفظ كمسودة</button>
+        <button type="button" class="btn btn-primary" id="submitReport">إرسال للمراجعة</button>
+      </div>
+      <div class="export-actions" aria-label="خيارات التصدير">
+        <button type="button" class="btn btn-outline" data-export="print">طباعة</button>
+        <button type="button" class="btn btn-outline" data-export="pdf">PDF</button>
+        <button type="button" class="btn btn-outline" data-export="excel">Excel</button>
+        <button type="button" class="btn btn-outline" data-export="word">Word</button>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script defer src="/site-layout.js?v=3.6.0"></script>
+  <script>
+  (function(){
+    'use strict';
+    let sb=null,user=null,currentReport=null;
+    const tbody=document.getElementById('cashRows');
+    const startMonth=document.getElementById('startMonth');
+    const openingBalance=document.getElementById('openingBalance');
+    const statusEl=document.getElementById('status');
+    const fields=['sales_receipts','receivable_collections','financing_inflows','owner_injections','other_inflows','supplier_payments','payroll','rent','operating_expenses','debt_service','taxes_zakat_vat','capex','dividends_drawings','other_outflows'];
+
+    function thisMonth(){return new Date().toISOString().slice(0,7);}
+    startMonth.value=thisMonth();
+    function num(v){const n=Number(v);return Number.isFinite(n)?n:0;}
+    function fmt(v){return num(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+    function showStatus(msg,ok){statusEl.textContent=msg;statusEl.className='cf-status show '+(ok?'ok':'err');}
+    function monthLabel(base,index){
+      if(!base)return '—';
+      const [y,m]=base.split('-').map(Number);
+      const d=new Date(Date.UTC(y,m-1+index,1));
+      return new Intl.DateTimeFormat('ar-SA',{month:'short',year:'numeric',timeZone:'UTC'}).format(d);
+    }
+    function blankMonth(){const x={};fields.forEach(f=>x[f]=0);return x;}
+    function buildRows(data=[]){
+      tbody.innerHTML='';
+      for(let i=0;i<12;i++){
+        const d=data[i]||blankMonth(),tr=document.createElement('tr');
+        const inputs=fields.map(f=>'<td><input type="number" min="0" step="0.01" data-f="'+f+'" value="'+(d[f]??0)+'"></td>');
+        tr.innerHTML='<td class="month" data-o="month"></td><td class="amount" data-o="opening">0.00</td>'+
+          inputs.slice(0,5).join('')+'<td class="amount" data-o="inflows">0.00</td>'+
+          inputs.slice(5).join('')+'<td class="amount" data-o="outflows">0.00</td>'+
+          '<td class="amount" data-o="net">0.00</td><td class="amount" data-o="closing">0.00</td>';
+        tbody.appendChild(tr);
+        tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',recalc));
+      }
+      recalc();
+    }
+    function rowInput(tr,f){return num(tr.querySelector('[data-f="'+f+'"]').value);}
+    function recalc(){
+      let opening=num(openingBalance.value),totalIn=0,totalOut=0,minBal=opening,maxBal=opening,negativeMonths=0;
+      const rows=[...tbody.querySelectorAll('tr')].map((tr,i)=>{
+        const vals={};fields.forEach(f=>vals[f]=rowInput(tr,f));
+        const inflows=vals.sales_receipts+vals.receivable_collections+vals.financing_inflows+vals.owner_injections+vals.other_inflows;
+        const outflows=vals.supplier_payments+vals.payroll+vals.rent+vals.operating_expenses+vals.debt_service+vals.taxes_zakat_vat+vals.capex+vals.dividends_drawings+vals.other_outflows;
+        const net=inflows-outflows,closing=opening+net;
+        tr.querySelector('[data-o="month"]').textContent=monthLabel(startMonth.value,i);
+        tr.querySelector('[data-o="opening"]').textContent=fmt(opening);
+        tr.querySelector('[data-o="inflows"]').textContent=fmt(inflows);
+        tr.querySelector('[data-o="outflows"]').textContent=fmt(outflows);
+        tr.querySelector('[data-o="net"]').textContent=fmt(net);
+        tr.querySelector('[data-o="closing"]').textContent=fmt(closing);
+        const obj={month:startMonth.value,opening_balance:opening,...vals,total_inflows:inflows,total_outflows:outflows,net_cash_flow:net,closing_balance:closing};
+        totalIn+=inflows;totalOut+=outflows;minBal=Math.min(minBal,closing);maxBal=Math.max(maxBal,closing);if(closing<0)negativeMonths++;
+        opening=closing;
+        return obj;
+      });
+      const summary={total_inflows:totalIn,total_outflows:totalOut,net_cash_flow:totalIn-totalOut,closing_balance:opening,minimum_balance:minBal,maximum_balance:maxBal,negative_months:negativeMonths,funding_gap:Math.max(0,-minBal)};
+      document.getElementById('sumInflows').textContent=fmt(summary.total_inflows);
+      document.getElementById('sumOutflows').textContent=fmt(summary.total_outflows);
+      document.getElementById('sumNet').textContent=fmt(summary.net_cash_flow);
+      document.getElementById('sumClosing').textContent=fmt(summary.closing_balance);
+      document.getElementById('sumMin').textContent=fmt(summary.minimum_balance);
+      document.getElementById('sumMax').textContent=fmt(summary.maximum_balance);
+      document.getElementById('sumGap').textContent=fmt(summary.funding_gap);
+      return {rows,summary};
+    }
+
+    openingBalance.addEventListener('input',recalc);startMonth.addEventListener('change',recalc);buildRows();
+
+    function validate(calc){
+      if(!startMonth.value)return 'حدد شهر البداية.';
+      for(let i=0;i<calc.rows.length;i++){
+        for(const f of fields){if(calc.rows[i][f]<0)return 'لا يمكن إدخال قيمة سالبة في الشهر '+(i+1)+'.';}
+      }
+      return '';
+    }
+    async function save(status){
+      if(!sb||!user){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
+      const calc=recalc(),err=validate(calc);if(err){showStatus(err,false);return;}
+      const payload={
+        user_id:user.id,client_id:currentReport?.client_id||null,status,
+        start_month:startMonth.value+'-01',currency:document.getElementById('currency').value,
+        opening_balance:num(openingBalance.value),months:calc.rows,summary:calc.summary,
+        notes:document.getElementById('notes').value.trim(),
+        submitted_at:status==='submitted'?new Date().toISOString():null
+      };
+      const result=currentReport?.id
+        ? await sb.from('client_cash_flow_reports').update(payload).eq('id',currentReport.id).select().single()
+        : await sb.from('client_cash_flow_reports').insert(payload).select().single();
+      if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return;}
+      currentReport=result.data;showStatus(status==='submitted'?'تم إرسال نموذج التدفقات النقدية للمراجعة.':'تم حفظ المسودة.',true);
+    }
+    document.getElementById('saveDraft').onclick=()=>save('draft');
+    document.getElementById('submitReport').onclick=()=>save('submitted');
+
+    function exportDoc(){
+      const calc=recalc(),cur=document.getElementById('currency').value;
+      return {
+        lang:'ar',title:'نموذج التدفقات النقدية',subtitle:'Bonds Global',filenameBase:'bonds-cash-flow-'+(startMonth.value||thisMonth()),
+        metadata:[{label:'شهر البداية',value:startMonth.value},{label:'الرصيد الافتتاحي',value:fmt(openingBalance.value)+' '+cur},{label:'العملة',value:cur}],
+        tables:[
+          {title:'التدفقات الشهرية',headers:['الشهر','افتتاحي','مبيعات/تحصيل','تحصيل ذمم','تمويلات','ضخ ملاك','واردات أخرى','إجمالي الواردات','موردون','رواتب','إيجار','تشغيل','خدمة دين','ضرائب/زكاة/VAT','CapEx','توزيعات/مسحوبات','أخرى','إجمالي المصروفات','صافي التدفق','ختامي'],rows:calc.rows.map((r,i)=>[monthLabel(startMonth.value,i),fmt(r.opening_balance),fmt(r.sales_receipts),fmt(r.receivable_collections),fmt(r.financing_inflows),fmt(r.owner_injections),fmt(r.other_inflows),fmt(r.total_inflows),fmt(r.supplier_payments),fmt(r.payroll),fmt(r.rent),fmt(r.operating_expenses),fmt(r.debt_service),fmt(r.taxes_zakat_vat),fmt(r.capex),fmt(r.dividends_drawings),fmt(r.other_outflows),fmt(r.total_outflows),fmt(r.net_cash_flow),fmt(r.closing_balance)])},
+          {title:'الملخص',headers:['إجمالي الواردات','إجمالي المصروفات','صافي التدفق','الرصيد الختامي','أدنى رصيد','أعلى رصيد','أشهر الرصيد السالب','فجوة التمويل'],rows:[[fmt(calc.summary.total_inflows),fmt(calc.summary.total_outflows),fmt(calc.summary.net_cash_flow),fmt(calc.summary.closing_balance),fmt(calc.summary.minimum_balance),fmt(calc.summary.maximum_balance),calc.summary.negative_months,fmt(calc.summary.funding_gap)]]}
+        ],notes:document.getElementById('notes').value.trim()
+      };
+    }
+    document.querySelectorAll('[data-export]').forEach(btn=>btn.onclick=async()=>{try{await window.BondsBrandedExport.exportDocument(btn.dataset.export,exportDoc());}catch(e){showStatus('تعذر التصدير: '+e.message,false);}});
+
+    async function init(){
+      await window.BondsAuth.ensureEnv();
+      const u=await window.BondsAuth.getUser();user=u.data?.user;
+      if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
+      sb=window.BondsAuth.getSupabase();if(!sb){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
+      const cid=await sb.rpc('get_my_client_id');
+      const existing=await sb.from('client_cash_flow_reports').select('*').eq('user_id',user.id).in('status',['draft']).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+      if(existing.data){
+        currentReport=existing.data;
+        startMonth.value=(existing.data.start_month||'').slice(0,7)||thisMonth();
+        openingBalance.value=existing.data.opening_balance??0;
+        document.getElementById('currency').value=existing.data.currency||'SAR';
+        document.getElementById('notes').value=existing.data.notes||'';
+        buildRows(existing.data.months||[]);
+        showStatus('تم استعادة آخر مسودة محفوظة.',true);
+      }else if(cid.data){currentReport={client_id:cid.data};}
+    }
+    init();
+  })();
+  </script>
+</body>
+</html>
