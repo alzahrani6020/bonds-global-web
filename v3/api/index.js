@@ -1040,28 +1040,41 @@ async function handleCityDetail(req, res, path) {
 
   let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
 
-  // For "latest", prefer a year backed by observed/official normalized metrics.
-  // Legacy Gold years are only a fallback when no source-backed city observation exists.
+  // "latest" means latest source-backed city observation, never the newest
+  // modeled/legacy Gold row. If no source-backed city observation exists, return
+  // an explicit no-data state and let the UI show sourced national context.
   if (!targetYear) {
     targetYear = await resolveLatestSourceBackedCityYear(supabase, city.id);
     if (!targetYear) {
-      const { data: latestIndicator } = await supabase
-        .from('city_indicators')
-        .select('year')
-        .eq('city_id', city.id)
-        .order('year', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const { data: latestMarket } = await supabase
-        .from('city_market_data')
-        .select('data_year')
-        .eq('city_id', city.id)
-        .order('data_year', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      const indicatorYear = latestIndicator?.year || 0;
-      const marketYear = latestMarket?.data_year || 0;
-      targetYear = Math.max(indicatorYear, marketYear) || new Date().getFullYear();
+      const [{ data: latestIndicator }, { data: latestMarket }] = await Promise.all([
+        supabase
+          .from('city_indicators')
+          .select('year')
+          .eq('city_id', city.id)
+          .order('year', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('city_market_data')
+          .select('data_year')
+          .eq('city_id', city.id)
+          .order('data_year', { ascending: false })
+          .limit(1)
+          .maybeSingle()
+      ]);
+      const legacyAvailableYear = Math.max(
+        Number(latestIndicator?.year || 0),
+        Number(latestMarket?.data_year || 0)
+      ) || null;
+      return sendJson(res, 200, {
+        city,
+        indicators: null,
+        marketData: [],
+        year: null,
+        requestedYear: 'latest',
+        dataStatus: 'no_source_backed_city_data',
+        legacyAvailableYear
+      });
     }
   }
 
@@ -1118,7 +1131,13 @@ async function handleCityIndicators(req, res, path) {
         .order('year', { ascending: false })
         .limit(1)
         .maybeSingle();
-      targetYear = latest?.year || new Date().getFullYear();
+      return sendJson(res, 200, {
+        indicators: null,
+        year: null,
+        requestedYear: 'latest',
+        dataStatus: 'no_source_backed_city_data',
+        legacyAvailableYear: Number(latest?.year) || null
+      });
     }
   }
 
@@ -1269,22 +1288,31 @@ async function handleCityMarket(req, res, path) {
   let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
 
   if (!targetYear) {
-    let q = supabase
-      .from('city_market_data')
-      .select('data_year')
-      .eq('city_id', city.id)
-      .order('data_year', { ascending: false })
-      .limit(1);
-    if (activityCode) {
-      const { data: activity } = await supabase
-        .from('economic_activities')
-        .select('id')
-        .eq('code', activityCode)
-        .single();
-      if (activity) q = q.eq('activity_id', activity.id);
+    targetYear = await resolveLatestSourceBackedCityYear(supabase, city.id);
+    if (!targetYear) {
+      let q = supabase
+        .from('city_market_data')
+        .select('data_year')
+        .eq('city_id', city.id)
+        .order('data_year', { ascending: false })
+        .limit(1);
+      if (activityCode) {
+        const { data: activity } = await supabase
+          .from('economic_activities')
+          .select('id')
+          .eq('code', activityCode)
+          .maybeSingle();
+        if (activity) q = q.eq('activity_id', activity.id);
+      }
+      const { data: latest } = await q.maybeSingle();
+      return sendJson(res, 200, {
+        marketData: [],
+        year: null,
+        requestedYear: 'latest',
+        dataStatus: 'no_source_backed_city_data',
+        legacyAvailableYear: Number(latest?.data_year) || null
+      });
     }
-    const { data: latest } = await q.maybeSingle();
-    targetYear = latest?.data_year || new Date().getFullYear();
   }
 
   let query = supabase
