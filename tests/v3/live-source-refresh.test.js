@@ -64,6 +64,46 @@ describe('live source refresh and dynamic years', () => {
     expect(sama).toContain("sourceQuality === 'fallback' ? null");
   });
 
+  test('SAMA adapter preserves source observation year per metric', async () => {
+    const SamaAdapter = require('../../v3/engine/data-acquisition/adapters/SamaAdapter');
+    const adapter = new SamaAdapter({ tryRealApi: true, useFallback: false });
+    adapter._getJson = async url => {
+      if (url.includes('/inflation-rate/')) {
+        return {
+          results: [{
+            date: '2020-01',
+            indicator: 'Inflation Rate %',
+            inflation_rate_: 0.4
+          }]
+        };
+      }
+      if (url.includes('growth-rates-of-gross-domestic-product')) {
+        return {
+          results: [{
+            date: '2022',
+            economic_activity: 'Crude Petroleum & Natural Gas',
+            growth_rate_on_gdp: 16.08
+          }, {
+            date: '2022',
+            economic_activity: 'Real Estate',
+            growth_rate_on_gdp: 1.27
+          }]
+        };
+      }
+      return { results: [] };
+    };
+
+    const raw = await adapter.fetch({ cityCode: 'SA-01-001', year: 'latest' });
+    const transformed = await adapter.transform(raw[0]);
+    const byCode = Object.fromEntries(transformed.map(metric => [metric.metricCode, metric]));
+
+    expect(raw[0].year).toBe(2022);
+    expect(byCode.inflation_rate.year).toBe(2020);
+    expect(byCode.inflation_rate.metadata.sourcePeriod).toBe('2020-01');
+    expect(byCode.growth_rate.year).toBe(2022);
+    expect(byCode.growth_rate.metadata.sourcePeriod).toBe('2022');
+  });
+
   test('GASTAT adapter preserves source observation year per metric', async () => {
     const GastatAdapter = require('../../v3/engine/data-acquisition/adapters/GastatAdapter');
     const adapter = new GastatAdapter({ tryRealApi: true, useFallback: false });
