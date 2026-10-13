@@ -41,7 +41,9 @@ class GastatAdapter extends BaseAdapter {
     const metricQuality = {};
     const metricScope = {};
     const metricSourceUrl = {};
-    let observedYear = year || new Date().getFullYear();
+    const metricYear = {};
+    const metricMetadata = {};
+    let observedYear = year || null;
 
     if (this.tryRealApi) {
       try {
@@ -52,11 +54,13 @@ class GastatAdapter extends BaseAdapter {
 
         if (labor.status === 'fulfilled' && labor.value && Object.keys(labor.value.metrics || {}).length) {
           Object.assign(metrics, labor.value.metrics);
-          observedYear = labor.value.dataYear || observedYear;
+          observedYear = Math.max(Number(observedYear) || 0, Number(labor.value.dataYear) || 0) || observedYear;
           for (const k of Object.keys(labor.value.metrics)) {
             metricQuality[k] = 'open_data';
             metricScope[k] = 'national';
             metricSourceUrl[k] = 'https://datasource.kapsarc.org/explore/dataset/main-labor-market-indicators/';
+            metricYear[k] = Number(labor.value.metricYears?.[k] || labor.value.dataYear) || null;
+            metricMetadata[k] = labor.value.metricMetadata?.[k] || {};
           }
         }
 
@@ -65,7 +69,14 @@ class GastatAdapter extends BaseAdapter {
           metricQuality.population = 'open_data';
           metricScope.population = 'region';
           metricSourceUrl.population = 'https://datasource.kapsarc.org/explore/dataset/population-by-detailed-age-gender-governorate-nationality-and-region/';
-          if (pop.value.dataYear) observedYear = pop.value.dataYear;
+          if (pop.value.dataYear) {
+            metricYear.population = Number(pop.value.dataYear);
+            metricMetadata.population = {
+              sourceDataset: pop.value.sourceDataset,
+              sourcePeriod: pop.value.sourcePeriod
+            };
+            observedYear = Math.max(Number(observedYear) || 0, Number(pop.value.dataYear) || 0) || observedYear;
+          }
         }
       } catch (err) {
         // A failed public-source request must not silently become an estimate.
@@ -95,11 +106,13 @@ class GastatAdapter extends BaseAdapter {
 
     return [{
       cityCode: cityCode ? cityCode.toUpperCase() : 'UNK',
-      year: observedYear,
+      year: observedYear || year || new Date().getFullYear(),
       metrics,
       metricQuality,
       metricScope,
       metricSourceUrl,
+      metricYear,
+      metricMetadata,
       externalId: `gastat-${cityCode || 'UNK'}-${observedYear}`,
       source: this.config.sourceId,
       quality
@@ -117,7 +130,16 @@ class GastatAdapter extends BaseAdapter {
   }
 
   async transform(rawItem) {
-    const { cityCode, year, metrics, metricQuality = {}, metricScope = {}, metricSourceUrl = {} } = rawItem;
+    const {
+      cityCode,
+      year,
+      metrics,
+      metricQuality = {},
+      metricScope = {},
+      metricSourceUrl = {},
+      metricYear = {},
+      metricMetadata = {}
+    } = rawItem;
     const result = [];
 
     const mappings = {
@@ -138,11 +160,18 @@ class GastatAdapter extends BaseAdapter {
         metricCode: mapping.code,
         value: typeof value === 'number' ? value : parseFloat(value),
         valueText: null,
-        year,
+        year: Number.isInteger(Number(metricYear[key])) ? Number(metricYear[key]) : year,
         sourceUrl: metricSourceUrl[key] || null,
         confidence: this.getConfidence(mapping.code, sourceQuality),
         confidenceReason: `Source: ${this.config.sourceName} (${sourceQuality}; scope=${metricScope[key] || 'unknown'})`,
-        metadata: { cityCode, originalKey: key, dataQuality: sourceQuality, scope: metricScope[key] || 'unknown', estimated: sourceQuality === 'fallback' }
+        metadata: {
+          cityCode,
+          originalKey: key,
+          dataQuality: sourceQuality,
+          scope: metricScope[key] || 'unknown',
+          estimated: sourceQuality === 'fallback',
+          ...metricMetadata[key]
+        }
       });
     }
 
@@ -153,6 +182,8 @@ class GastatAdapter extends BaseAdapter {
 
   async _fetchLaborMarket(year, latestRequested = false) {
     const metrics = {};
+    const metricYears = {};
+    const metricMetadata = {};
     let dataYear = null;
 
     const unemploymentWhere = latestRequested
@@ -163,8 +194,14 @@ class GastatAdapter extends BaseAdapter {
       `&order_by=time_period%20desc,quarter%20desc&limit=1`;
     const unemployment = await this._getJson(unemploymentUrl);
     if (unemployment?.results?.[0]?.indicator_value != null) {
-      metrics.unemployment_rate = parseFloat(unemployment.results[0].indicator_value);
-      dataYear = parseInt(unemployment.results[0].time_period, 10) || dataYear;
+      const row = unemployment.results[0];
+      metrics.unemployment_rate = parseFloat(row.indicator_value);
+      metricYears.unemployment_rate = parseInt(row.time_period, 10) || null;
+      metricMetadata.unemployment_rate = {
+        sourcePeriod: [row.time_period, row.quarter].filter(Boolean).join(' '),
+        sourceDataDescription: row.data_source || null
+      };
+      dataYear = Math.max(Number(dataYear) || 0, Number(metricYears.unemployment_rate) || 0) || dataYear;
     }
 
     const wagesWhere = latestRequested
@@ -175,12 +212,18 @@ class GastatAdapter extends BaseAdapter {
       `&order_by=time_period%20desc,quarter%20desc&limit=1`;
     const wages = await this._getJson(wagesUrl);
     if (wages?.results?.[0]?.indicator_value != null) {
-      const monthlyWage = parseFloat(wages.results[0].indicator_value);
+      const row = wages.results[0];
+      const monthlyWage = parseFloat(row.indicator_value);
       metrics.household_income = Math.round(monthlyWage * 12 * 1.8);
-      dataYear = parseInt(wages.results[0].time_period, 10) || dataYear;
+      metricYears.household_income = parseInt(row.time_period, 10) || null;
+      metricMetadata.household_income = {
+        sourcePeriod: [row.time_period, row.quarter].filter(Boolean).join(' '),
+        sourceDataDescription: row.data_source || null
+      };
+      dataYear = Math.max(Number(dataYear) || 0, Number(metricYears.household_income) || 0) || dataYear;
     }
 
-    return { metrics, dataYear };
+    return { metrics, dataYear, metricYears, metricMetadata };
   }
   async _fetchPopulationByRegion(cityCode) {
     if (!cityCode) return null;

@@ -64,6 +64,95 @@ describe('live source refresh and dynamic years', () => {
     expect(sama).toContain("sourceQuality === 'fallback' ? null");
   });
 
+  test('SAMA adapter preserves source observation year per metric', async () => {
+    const SamaAdapter = require('../../v3/engine/data-acquisition/adapters/SamaAdapter');
+    const adapter = new SamaAdapter({ tryRealApi: true, useFallback: false });
+    adapter._getJson = async url => {
+      if (url.includes('/inflation-rate/')) {
+        return {
+          results: [{
+            date: '2020-01',
+            indicator: 'Inflation Rate %',
+            inflation_rate_: 0.4
+          }]
+        };
+      }
+      if (url.includes('growth-rates-of-gross-domestic-product')) {
+        return {
+          results: [{
+            date: '2022',
+            economic_activity: 'Crude Petroleum & Natural Gas',
+            growth_rate_on_gdp: 16.08
+          }, {
+            date: '2022',
+            economic_activity: 'Real Estate',
+            growth_rate_on_gdp: 1.27
+          }]
+        };
+      }
+      return { results: [] };
+    };
+
+    const raw = await adapter.fetch({ cityCode: 'SA-01-001', year: 'latest' });
+    const transformed = await adapter.transform(raw[0]);
+    const byCode = Object.fromEntries(transformed.map(metric => [metric.metricCode, metric]));
+
+    expect(raw[0].year).toBe(2022);
+    expect(byCode.inflation_rate.year).toBe(2020);
+    expect(byCode.inflation_rate.metadata.sourcePeriod).toBe('2020-01');
+    expect(byCode.inflation_rate.sourceUrl).toContain('/inflation-rate/');
+    expect(byCode.growth_rate.year).toBe(2022);
+    expect(byCode.growth_rate.metadata.sourcePeriod).toBe('2022');
+    expect(byCode.growth_rate.sourceUrl).toContain('/growth-rates-of-gross-domestic-product');
+  });
+
+  test('GASTAT adapter preserves source observation year per metric', async () => {
+    const GastatAdapter = require('../../v3/engine/data-acquisition/adapters/GastatAdapter');
+    const adapter = new GastatAdapter({ tryRealApi: true, useFallback: false });
+    adapter._getJson = async url => {
+      if (url.includes('main-labor-market-indicators') && url.includes('Saudi%20Unemployment')) {
+        return {
+          results: [{
+            time_period: '2020',
+            quarter: 'Q4',
+            gender: 'Total',
+            indicator: 'Saudi Unemployment Rate(15) years and above',
+            data_source: 'Estimated data from : The Gastat LFS',
+            indicator_value: 12.6262206542853
+          }]
+        };
+      }
+      if (url.includes('main-labor-market-indicators') && url.includes('Average%20Monthly%20Wages')) {
+        return {
+          results: [{
+            time_period: '2020',
+            quarter: 'Q4',
+            gender: 'Total',
+            indicator: 'Average Monthly Wages of Paid employees (main job) (+15) years',
+            data_source: 'Estimated data from : The Gastat LFS',
+            indicator_value: 6563.83331535622
+          }]
+        };
+      }
+      if (url.includes('population-by-detailed-age-gender-governorate-nationality-and-region')) {
+        return { results: [{ region: 'Makkah Al Mukarramah', 'sum(population)': 8004517 }] };
+      }
+      return { results: [] };
+    };
+
+    const raw = await adapter.fetch({ cityCode: 'SA-02-002', year: 'latest' });
+    const transformed = await adapter.transform(raw[0]);
+    const byCode = Object.fromEntries(transformed.map(metric => [metric.metricCode, metric]));
+
+    expect(raw[0].year).toBe(2022);
+    expect(byCode.population.year).toBe(2022);
+    expect(byCode.population.metadata.sourcePeriod).toBe('2022 Census');
+    expect(byCode.unemployment_rate.year).toBe(2020);
+    expect(byCode.unemployment_rate.metadata.sourcePeriod).toBe('2020 Q4');
+    expect(byCode.household_income.year).toBe(2020);
+    expect(byCode.household_income.metadata.sourcePeriod).toBe('2020 Q4');
+  });
+
   test('catalog years endpoint is data-driven', () => {
     const api = read('v3/api/index.js');
     expect(api).toContain('async function handleCatalogYears');
@@ -120,6 +209,16 @@ describe('live source refresh and dynamic years', () => {
     const api = read('v3/api/index.js');
     expect(api).not.toContain('Keep a sourced interest-rate observation from the legacy market feed');
     expect(api).not.toContain("from('market_data')\n    .select('interest_rate");
+  });
+
+  test('city evidence freshness is based on observation period, not fetch time', () => {
+    const api = read('v3/api/index.js');
+    expect(api).toContain('function observationTimestamp(row)');
+    expect(api).toContain('const observationAgeDays =');
+    expect(api).toContain('age_days: observationAgeDays');
+    expect(api).toContain('observation_age_days: observationAgeDays');
+    expect(api).toContain('fetched_age_days: fetchedAgeDays');
+    expect(api).toContain("freshness_status: observationAgeDays == null ? 'unknown'");
   });
 
   test('latest city APIs prefer source-backed normalized years over legacy Gold years', () => {
