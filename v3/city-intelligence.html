@@ -718,22 +718,47 @@
     function renderCountryContext(contextData) {
       const rows = contextData?.metrics || [];
       if (!rows.length) return '';
+
       const labels = {
         inflation_rate: 'التضخم',
         interest_rate: 'سعر الفائدة',
-        economic_growth_rate: 'النمو الاقتصادي'
+        economic_growth_rate: 'النمو الاقتصادي',
+        unemployment_rate: 'البطالة',
+        population_total: 'سكان الدولة',
+        gdp_per_capita_usd: 'نصيب الفرد من الناتج المحلي',
+        fdi_net_inflows_pct_gdp: 'الاستثمار الأجنبي المباشر'
       };
-      const body = rows.map(row =>
-        '<div class="metric"><span class="metric-label">' + (labels[row.metric] || row.metric) +
-        ' <small style="color:var(--text-secondary)">(سياق وطني)</small></span><span class="metric-value">' +
-        formatNumber(row.value) + '%</span></div>' +
-        '<div class="evidence-meta">' + (row.source || 'مصدر خارجي') +
-        (row.observed_at ? ' · الفترة ' + row.observed_at : '') +
-        (row.fetched_at ? ' · آخر جلب ' + new Date(row.fetched_at).toLocaleDateString('ar-SA') : '') +
-        '</div>'
-      ).join('');
+
+      const formatContextValue = row => {
+        const value = Number(row.value);
+        if (!Number.isFinite(value)) return 'غير متاح';
+        const unit = String(row.unit || '');
+        if (unit === 'person') return formatNumber(value) + ' نسمة';
+        if (unit === 'USD') return '$' + Number(value).toLocaleString('ar-SA', { maximumFractionDigits: 0 });
+        if (unit === '% GDP') return Number(value).toLocaleString('ar-SA', { maximumFractionDigits: 2 }) + '% من الناتج';
+        if (unit === '%') return Number(value).toLocaleString('ar-SA', { maximumFractionDigits: 2 }) + '%';
+        return formatNumber(value) + (unit ? ' ' + unit : '');
+      };
+
+      const body = rows.map(row => {
+        const sourceLink = row.source_url
+          ? ' · <a class="map-link" style="padding:.1rem .35rem;font-size:.72rem" href="' + row.source_url + '" target="_blank" rel="noopener">المصدر</a>'
+          : '';
+        const modeledNote = row.metadata?.modeled_source === true ? ' · تقدير صادر عن المصدر' : '';
+        return '<div class="metric"><span class="metric-label">' + (labels[row.metric] || row.metric) +
+          ' <small style="color:var(--text-secondary)">(سياق وطني)</small></span><span class="metric-value">' +
+          formatContextValue(row) + '</span></div>' +
+          '<div class="evidence-meta">' + (row.source || 'مصدر خارجي') +
+          (row.year ? ' · سنة ' + row.year : '') +
+          (row.observed_at && !row.year ? ' · الفترة ' + row.observed_at : '') +
+          modeledNote +
+          (row.fetched_at ? ' · آخر جلب ' + new Date(row.fetched_at).toLocaleDateString('ar-SA') : '') +
+          sourceLink + '</div>';
+      }).join('');
+
       return '<div class="card data-truth-note"><h3>◉ أحدث سياق اقتصادي وطني متاح</h3>' +
-        '<p>هذه القيم على مستوى الدولة وليست قيماً خاصة بالمدينة، وتُعرض للسياق فقط.</p>' + body + '</div>';
+        '<p>هذه القيم على مستوى الدولة وليست قيماً خاصة بالمدينة، وتُعرض للسياق فقط. سنة كل مؤشر هي سنة المصدر الفعلية وقد تختلف عن بقية المؤشرات.</p>' +
+        body + '</div>';
     }
 
     function renderEvidence(evidenceData) {
