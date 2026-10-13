@@ -99,6 +99,10 @@
       "destination": "/api/reference-data?__route=market-intelligence"
     },
     {
+      "source": "/api/market-intelligence-cron",
+      "destination": "/api/reference-data?__route=market-intelligence-cron"
+    },
+    {
       "source": "/api/track",
       "destination": "/api/platform"
     },
@@ -650,6 +654,10 @@
     {
       "path": "/api/calculator-leads/retention",
       "schedule": "0 2 * * 0"
+    },
+    {
+      "path": "/api/market-intelligence-cron",
+      "schedule": "15 1 * * *"
     }
   ],
   "redirects": [

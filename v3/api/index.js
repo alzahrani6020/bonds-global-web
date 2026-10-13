@@ -738,6 +738,57 @@ async function handleOpportunitiesTop(req, res) {
   });
 }
 
+async function handleCountryContext(req, res, path) {
+  const match = path.match(/^\/countries\/([^\/]+)\/context$/);
+  if (!match) return sendJson(res, 404, { error: 'Invalid path' });
+  const countryCode = match[1].toUpperCase();
+  if (!COUNTRY_NAMES[countryCode]) return sendJson(res, 404, { error: 'Country not found' });
+
+  const supabase = getSupabaseClient();
+  const { data: rows, error } = await supabase
+    .from('market_data')
+    .select('asset_class,country,region,city,sector,inflation_rate,interest_rate,economic_growth_rate,confidence,data_quality_score,source,recorded_at,updated_at')
+    .eq('country', countryCode)
+    .neq('source', 'BONDS Market Intelligence')
+    .order('updated_at', { ascending: false })
+    .limit(100);
+
+  if (error) return sendJson(res, 500, { error: error.message });
+
+  const pick = (field) => {
+    const row = (rows || []).find(item =>
+      item[field] !== null && item[field] !== undefined &&
+      item.source && item.source !== 'BONDS Market Intelligence'
+    );
+    if (!row) return null;
+    return {
+      metric: field,
+      value: Number(row[field]),
+      source: row.source,
+      observed_at: row.recorded_at || null,
+      fetched_at: row.updated_at || null,
+      confidence: row.confidence ?? null,
+      data_quality_score: row.data_quality_score ?? null,
+      geographic_scope: 'country',
+      country_code: countryCode
+    };
+  };
+
+  const metrics = [
+    pick('inflation_rate'),
+    pick('interest_rate'),
+    pick('economic_growth_rate')
+  ].filter(Boolean);
+
+  return sendJson(res, 200, {
+    country: { code: countryCode, ...COUNTRY_NAMES[countryCode] },
+    metrics,
+    count: metrics.length,
+    scope: 'country',
+    label: 'latest_available_external_context'
+  });
+}
+
 async function handleCityDetail(req, res, path) {
   const match = path.match(/^\/cities\/([^\/]+)$/);
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
