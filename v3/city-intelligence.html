@@ -959,7 +959,8 @@
       if (catalogCity && catalogCity.data_available === false) {
         let contextData = { metrics: [] };
         try {
-          contextData = await fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity.country_code)}/context`);
+          const selectedYear = document.getElementById('yearSelect').value || 'latest';
+          contextData = await fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity.country_code)}/context?year=${encodeURIComponent(selectedYear)}`);
         } catch (_) {}
         content.innerHTML =
           '<div class="grid">' +
@@ -982,7 +983,7 @@
             ? fetchJson(`${API_URL}/cities/${cityCode}/market?activity=${encodeURIComponent(activityCode)}&year=${encodeURIComponent(year)}`)
             : Promise.resolve({ marketData: [], year }),
           fetchJson(`${API_URL}/cities/${cityCode}/evidence?year=${encodeURIComponent(year)}${activityCode ? '&activity=' + encodeURIComponent(activityCode) : ''}`),
-          fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity?.country_code || document.getElementById('countrySelect').value || 'SA')}/context`).catch(() => ({ metrics: [] }))
+          fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity?.country_code || document.getElementById('countrySelect').value || 'SA')}/context?year=${encodeURIComponent(year)}`).catch(() => ({ metrics: [] }))
         ]);
         renderCity(cityCode, detail, indicators, market, evidence, countryContext);
         await updateScenarioCard(activityCode);
@@ -1388,6 +1389,29 @@ ${recommendations.length ? recommendations.map(r => `
       }
     });
 
+    function startLiveYearRefresh() {
+      const intervalMs = 5 * 60 * 1000;
+      window.setInterval(async () => {
+        if (document.hidden) return;
+        const countryCode = document.getElementById('countrySelect').value;
+        const cityCode = document.getElementById('citySelect').value;
+        const activityCode = document.getElementById('activitySelect').value;
+        const yearSelect = document.getElementById('yearSelect');
+        const wasLatest = yearSelect.value === 'latest';
+
+        await refreshYearOptions({
+          countryCode,
+          cityCode,
+          activityCode,
+          preserve: true
+        });
+
+        if (wasLatest && cityCode) {
+          await loadCityData();
+        }
+      }, intervalMs);
+    }
+
     async function boot() {
       const params = new URLSearchParams(window.location.search);
       const preselectCity = params.get('city');
@@ -1430,6 +1454,7 @@ ${recommendations.length ? recommendations.map(r => `
       }
 
       loadAlerts();
+      startLiveYearRefresh();
     }
 
     boot();
