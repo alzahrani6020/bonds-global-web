@@ -1228,6 +1228,27 @@ async function handleCityEvidence(req, res, path) {
   };
 
   const nowMs = Date.now();
+
+  function observationTimestamp(row) {
+    const period = String(row.metadata?.sourcePeriod || '').trim();
+    let match = period.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?$/);
+    if (match) {
+      const year = Number(match[1]);
+      const month = Number(match[2]);
+      const day = match[3] ? Number(match[3]) : 0;
+      if (day) return Date.UTC(year, month - 1, day);
+      return Date.UTC(year, month, 0);
+    }
+
+    match = period.match(/^(\d{4})\s+Q([1-4])$/i);
+    if (match) {
+      return Date.UTC(Number(match[1]), Number(match[2]) * 3, 0);
+    }
+
+    const year = Number(row.year);
+    return Number.isInteger(year) ? Date.UTC(year, 11, 31) : NaN;
+  }
+
   const evidence = [...latestByMetric.values()].map(row => {
     const quality = String(row.metadata?.dataQuality || '').toLowerCase();
     const method = String(row.metadata?.method || '').toLowerCase();
@@ -1242,15 +1263,19 @@ async function handleCityEvidence(req, res, path) {
 
     const slaDays = Number(row.metadata?.freshness_sla_days || freshnessSlaDays[row.metric_code] || 365);
     const fetchedMs = row.fetched_at ? Date.parse(row.fetched_at) : NaN;
-    const ageDays = Number.isFinite(fetchedMs) ? Math.max(0, Math.floor((nowMs - fetchedMs) / 86400000)) : null;
-    const stale = verified && ageDays != null && ageDays > slaDays;
+    const observationMs = observationTimestamp(row);
+    const fetchedAgeDays = Number.isFinite(fetchedMs) ? Math.max(0, Math.floor((nowMs - fetchedMs) / 86400000)) : null;
+    const observationAgeDays = Number.isFinite(observationMs) ? Math.max(0, Math.floor((nowMs - observationMs) / 86400000)) : null;
+    const stale = observationAgeDays != null && observationAgeDays > slaDays;
 
     return {
       ...row,
       freshness_sla_days: slaDays,
-      age_days: ageDays,
-      freshness_status: ageDays == null ? 'unknown' : (stale ? 'stale' : 'fresh'),
-      evidence_status: stale ? 'stale' : (verified ? 'verified' : (estimated ? 'estimated' : 'unverified'))
+      age_days: observationAgeDays,
+      observation_age_days: observationAgeDays,
+      fetched_age_days: fetchedAgeDays,
+      freshness_status: observationAgeDays == null ? 'unknown' : (stale ? 'stale' : 'fresh'),
+      evidence_status: verified ? (stale ? 'stale' : 'verified') : (estimated ? 'estimated' : 'unverified')
     };
   });
 
