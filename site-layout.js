@@ -269,6 +269,7 @@
           { label: labels.fundingExtraction, href: fundingExtractionHref },
           { label: labels.fundingSources, href: fundingSourcesHref },
           { label: labels.fundingReadiness, href: fundingReadinessHref },
+          { label: labels.kyc, href: kycHref },
         ],
       },
       {
