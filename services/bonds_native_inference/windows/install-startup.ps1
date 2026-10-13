@@ -26,7 +26,10 @@ $cloudflaredExe = (Get-Command cloudflared -ErrorAction Stop).Source
 
 $token = [Environment]::GetEnvironmentVariable("BONDS_NATIVE_TOKEN", "Machine")
 if ([string]::IsNullOrWhiteSpace($token)) {
-    throw "Set machine-level BONDS_NATIVE_TOKEN before installing startup automation."
+    $bytes = New-Object byte[] 48
+    [Security.Cryptography.RandomNumberGenerator]::Create().GetBytes($bytes)
+    $token = [Convert]::ToBase64String($bytes)
+    [Environment]::SetEnvironmentVariable("BONDS_NATIVE_TOKEN", $token, "Machine")
 }
 
 [Environment]::SetEnvironmentVariable("BONDS_NATIVE_HOST", "127.0.0.1", "Machine")
