@@ -25,6 +25,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script src="/lib/forms/branded-export.js?v=1"></script>
   <style>
     .kyc-page{max-width:1100px;margin:0 auto;padding:7rem 1rem 4rem}
     .kyc-hero{margin-bottom:1.5rem}.kyc-hero h1{margin:.25rem 0}.kyc-note{padding:1rem;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);color:var(--text-secondary)}
@@ -34,7 +35,7 @@
     .kyc-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}.kyc-field label{display:block;font-weight:700;margin-bottom:.4rem}
     .kyc-field input,.kyc-field select,.kyc-field textarea{width:100%;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text)}
     .kyc-checks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.6rem}.kyc-check{display:flex;gap:.55rem;align-items:flex-start;padding:.65rem;border:1px solid var(--border);border-radius:10px}
-    .kyc-check input{margin-top:.2rem}.kyc-nav{display:flex;justify-content:space-between;gap:.75rem;margin-top:1rem}.kyc-nav button{min-width:130px}
+    .kyc-check input{margin-top:.2rem}.kyc-nav{display:flex;justify-content:space-between;gap:.75rem;margin-top:1rem;flex-wrap:wrap}.kyc-nav button{min-width:130px}.export-actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:1rem}.ubo-remove{min-width:auto!important;padding:.55rem .7rem!important}
     .kyc-section[hidden]{display:none!important}.kyc-status{margin:1rem 0;padding:.8rem 1rem;border-radius:10px;display:none}.kyc-status.show{display:block}.kyc-status.ok{background:rgba(34,197,94,.12);color:#16a34a}.kyc-status.err{background:rgba(239,68,68,.12);color:#dc2626}
     .ubo-row{display:grid;grid-template-columns:1.5fr 1fr 1fr .7fr 1.2fr;gap:.5rem;margin-bottom:.6rem}.ubo-row input{width:100%}
     @media(max-width:800px){.kyc-grid,.kyc-grid-3,.kyc-checks{grid-template-columns:1fr}.kyc-progress{grid-template-columns:repeat(3,1fr)}.ubo-row{grid-template-columns:1fr 1fr}.ubo-row input:last-child{grid-column:1/-1}}
@@ -176,11 +177,17 @@
           <button type="submit" class="btn btn-primary" id="submitBtn" hidden>إرسال للمراجعة</button>
         </div>
       </div>
+      <div class="export-actions" aria-label="خيارات التصدير">
+        <button type="button" class="btn btn-outline" data-export="print">طباعة</button>
+        <button type="button" class="btn btn-outline" data-export="pdf">PDF</button>
+        <button type="button" class="btn btn-outline" data-export="excel">Excel</button>
+        <button type="button" class="btn btn-outline" data-export="word">Word</button>
+      </div>
     </form>
   </main>
   <div id="site-footer"></div>
 
-  <script defer src="/site-layout.js?v=3.5.0"></script>
+  <script defer src="/site-layout.js?v=3.6.0"></script>
   <script>
   (function(){
     'use strict';
@@ -202,7 +209,20 @@
       window.scrollTo({top:0,behavior:'smooth'});
     }
     document.getElementById('prevBtn').onclick=()=>{if(step>0){step--;showStep();}};
-    document.getElementById('nextBtn').onclick=()=>{if(step<sections.length-1){step++;showStep();}};
+    function validateStep(index){
+      const section=sections[index];
+      const controls=[...section.querySelectorAll('input,select,textarea')].filter(el=>!el.disabled);
+      for(const el of controls){
+        if(!el.checkValidity()){el.reportValidity();el.focus();return false;}
+      }
+      if(index===4){
+        if(document.getElementById('pepStatus').value==='yes'&&!document.getElementById('pepDetails').value.trim()){showStatus('أدخل تفاصيل PEP قبل المتابعة.',false);document.getElementById('pepDetails').focus();return false;}
+        if(document.getElementById('highRiskCountries').value==='yes'&&!document.getElementById('geographicDetails').value.trim()){showStatus('أدخل تفاصيل التعرض الجغرافي قبل المتابعة.',false);document.getElementById('geographicDetails').focus();return false;}
+        if(document.getElementById('thirdPartyPayments').value==='yes'&&!document.getElementById('thirdPartyDetails').value.trim()){showStatus('أدخل تفاصيل الأطراف الثالثة قبل المتابعة.',false);document.getElementById('thirdPartyDetails').focus();return false;}
+      }
+      return true;
+    }
+    document.getElementById('nextBtn').onclick=()=>{if(step<sections.length-1&&validateStep(step)){step++;showStep();}};
 
     function values(name){return [...document.querySelectorAll('input[name="'+name+'"]:checked')].map(x=>x.value);}
     function uboData(){
@@ -210,13 +230,14 @@
         name:row.querySelector('[data-f="name"]').value.trim(),
         nationality:row.querySelector('[data-f="nationality"]').value.trim(),
         id_number:row.querySelector('[data-f="id"]').value.trim(),
-        ownership_percent:row.querySelector('[data-f="ownership"]').value.trim(),
+        ownership_percent:Number(row.querySelector('[data-f="ownership"]').value||0),
         means_of_control:row.querySelector('[data-f="control"]').value.trim()
       })).filter(x=>x.name||x.id_number||x.ownership_percent);
     }
     function addUbo(v={}){
       const row=document.createElement('div'); row.className='ubo-row';
-      row.innerHTML='<input data-f="name" placeholder="الاسم" value="'+escapeAttr(v.name||'')+'"><input data-f="nationality" placeholder="الجنسية" value="'+escapeAttr(v.nationality||'')+'"><input data-f="id" placeholder="رقم الهوية" value="'+escapeAttr(v.id_number||'')+'"><input data-f="ownership" placeholder="الملكية %" value="'+escapeAttr(v.ownership_percent||'')+'"><input data-f="control" placeholder="وسيلة السيطرة" value="'+escapeAttr(v.means_of_control||'')+'">';
+      row.innerHTML='<input data-f="name" placeholder="الاسم" value="'+escapeAttr(v.name||'')+'"><input data-f="nationality" placeholder="الجنسية" value="'+escapeAttr(v.nationality||'')+'"><input data-f="id" placeholder="رقم الهوية" value="'+escapeAttr(v.id_number||'')+'"><input data-f="ownership" type="number" min="0" max="100" step="0.01" placeholder="الملكية %" value="'+escapeAttr(v.ownership_percent||'')+'"><input data-f="control" placeholder="وسيلة السيطرة" value="'+escapeAttr(v.means_of_control||'')+'"><button type="button" class="btn btn-outline ubo-remove" aria-label="حذف المستفيد">×</button>';
+      row.querySelector('.ubo-remove').onclick=()=>{row.remove();if(!document.querySelector('.ubo-row'))addUbo();};
       document.getElementById('uboRows').appendChild(row);
     }
     function escapeAttr(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
@@ -250,7 +271,11 @@
     document.getElementById('saveBtn').onclick=()=>save('draft');
     form.addEventListener('submit',async function(e){
       e.preventDefault();
-      if(!form.reportValidity()) return;
+      for(let i=0;i<sections.length;i++){if(!validateStep(i)){step=i;showStep();return;}}
+      const ubos=uboData();
+      for(let i=0;i<ubos.length;i++){
+        if(ubos[i].ownership_percent<0||ubos[i].ownership_percent>100){showStatus('نسبة ملكية المستفيد يجب أن تكون بين 0 و100٪.',false);step=2;showStep();return;}
+      }
       if(!document.getElementById('declaration').checked||!document.getElementById('verificationConsent').checked){showStatus('يجب الموافقة على الإقرار والموافقة على التحقق قبل الإرسال.',false);return;}
       await save('submitted');
     });
@@ -264,6 +289,29 @@
       document.getElementById('uboRows').innerHTML='';(o.ubos&&o.ubos.length?o.ubos:[{}]).forEach(addUbo);
       if(c.status==='submitted'||c.status==='under_review'||c.status==='approved'){[...form.elements].forEach(el=>{if(el.tagName!=='BUTTON')el.disabled=true;});document.getElementById('saveBtn').hidden=true;document.getElementById('nextBtn').hidden=false;showStatus('تم إرسال هذا الملف للمراجعة وحالته الحالية: '+c.status,true);}
     }
+
+    function labelText(id){const el=document.getElementById(id);return el&&el.options?el.options[el.selectedIndex]?.text||el.value:el?.value||'';}
+    function exportDoc(){
+      const p=buildPayload(currentCase?.status||'draft'), i=p.identity_data,b=p.business_data,o=p.ownership_data,f=p.funds_data,r=p.risk_disclosures,d=p.declarations;
+      const uboRows=(o.ubos||[]).map(x=>[x.name,x.nationality,x.id_number,x.ownership_percent?x.ownership_percent+'%':'',x.means_of_control]);
+      return {
+        lang:'ar',title:'اعرف عميلك (KYC) والعناية الواجبة',subtitle:'Bonds Global',filenameBase:'bonds-kyc-'+(i.legal_name||'client'),
+        metadata:[{label:'نوع العميل',value:labelText('clientType')},{label:'حالة الملف',value:labelText('clientStatus')},{label:'الاسم القانوني',value:i.legal_name}],
+        tables:[
+          {title:'الهوية الأساسية',headers:['البيان','القيمة'],rows:[['رقم الهوية/السجل',i.id_number],['الرقم الموحد',i.unified_number],['تاريخ الميلاد/التأسيس',i.birth_or_incorporation_date],['الجنسية/دولة التأسيس',i.nationality_or_country],['العنوان',i.registered_address],['المدينة',i.city],['الهاتف',i.phone],['البريد الإلكتروني',i.email]]},
+          {title:'النشاط والعلاقة',headers:['البيان','القيمة'],rows:[['النشاط الرئيسي',b.primary_activity],['المنتجات/الخدمات',b.products_services],['الأسواق',b.markets_countries],['الغرض',b.purposes.join(', ')],['القيمة السنوية المتوقعة',b.expected_annual_value],['الدول المرتبطة',b.relationship_countries]]},
+          {title:'المستفيد الحقيقي UBO',headers:['الاسم','الجنسية','رقم الهوية','الملكية','وسيلة السيطرة'],rows:uboRows},
+          {title:'مصدر الأموال والثروة',headers:['البيان','القيمة'],rows:[['مصادر الأموال',f.sources.join(', ')],['شرح مصدر الأموال',f.funds_explanation],['شرح مصدر الثروة',f.wealth_explanation],['الأدلة الداعمة',f.supporting_evidence]]},
+          {title:'إفصاحات المخاطر',headers:['البيان','القيمة'],rows:[['PEP',labelText('pepStatus')],['تفاصيل PEP',r.pep_details],['دول عالية المخاطر',labelText('highRiskCountries')],['التعرض الجغرافي',r.geographic_details],['مدفوعات طرف ثالث',labelText('thirdPartyPayments')],['تفاصيل الأطراف الثالثة',r.third_party_details]]},
+          {title:'الإقرار',headers:['الموقع','الصفة','الإقرار','الموافقة على التحقق'],rows:[[d.signer_name,d.signer_capacity,d.declared?'نعم':'لا',d.verification_consent?'نعم':'لا']]}
+        ],
+        notes:document.getElementById('documentNotes').value.trim()
+      };
+    }
+    document.querySelectorAll('[data-export]').forEach(btn=>btn.addEventListener('click',async()=>{
+      try{await window.BondsBrandedExport.exportDocument(btn.dataset.export,exportDoc());}
+      catch(e){showStatus('تعذر التصدير: '+e.message,false);}
+    }));
 
     async function init(){
       await window.BondsAuth.ensureEnv();

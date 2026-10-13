@@ -28,11 +28,11 @@ describe('header hover and automated refresh stabilization', () => {
       'v3/investment-map.html',
       'v3/city-comparison.html',
       'v3/project-readiness.html',
-      'v3/scenarios.html',
-      'contact.html'
+      'v3/scenarios.html'
     ]) {
       expect(read(file)).toContain('site-layout.js?v=3.4.0');
     }
+    expect(read('contact.html')).toContain('site-layout.js?v=3.5.0');
   });
 
   test('market refresh has a daily Vercel cron and bearer-authenticated endpoint', () => {
@@ -72,9 +72,10 @@ describe('header hover and automated refresh stabilization', () => {
     expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
   });
 
-  test('funding dropdown exposes KYC intake', () => {
+  test('funding dropdown exposes a dedicated Forms group', () => {
     const layout = read('site-layout.js');
+    expect(layout).toContain("heading: { ar: 'نماذج', en: 'Forms' }");
     expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
-    expect(layout).toContain('{ label: labels.fundingReadiness, href: fundingReadinessHref },\n          { label: labels.kyc, href: kycHref },');
+    expect(layout).toContain('{ label: labels.receivablesAging, href: receivablesAgingHref }');
   });
 });

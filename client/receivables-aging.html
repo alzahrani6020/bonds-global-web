@@ -24,6 +24,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script src="/lib/forms/branded-export.js?v=1"></script>
   <style>
     .aging-page{max-width:1280px;margin:0 auto;padding:7rem 1rem 4rem}
     .aging-hero{margin-bottom:1.25rem}.aging-hero h1{margin:.25rem 0}
@@ -41,7 +42,7 @@
     .summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.7rem}
     .summary-box{padding:.8rem;border:1px solid var(--border);border-radius:12px;background:var(--bg);text-align:center}
     .summary-box strong{display:block;font-size:1.05rem;margin-top:.25rem}
-    .aging-actions{display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+    .aging-actions{display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap}.export-actions{display:flex;gap:.55rem;flex-wrap:wrap;margin-top:.85rem}
     .aging-status{margin:1rem 0;padding:.8rem 1rem;border-radius:10px;display:none}.aging-status.show{display:block}.aging-status.ok{background:rgba(34,197,94,.12);color:#16a34a}.aging-status.err{background:rgba(239,68,68,.12);color:#dc2626}
     @media(max-width:900px){.aging-grid{grid-template-columns:1fr 1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
     @media(max-width:600px){.aging-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr 1fr}}
@@ -91,7 +92,8 @@
         <div class="summary-box">1–30<strong id="sum30">0.00</strong></div>
         <div class="summary-box">31–60<strong id="sum60">0.00</strong></div>
         <div class="summary-box">61–90<strong id="sum90">0.00</strong></div>
-        <div class="summary-box">91–120 / +120<strong id="sumOver120">0.00</strong></div>
+        <div class="summary-box">91–120<strong id="sum120">0.00</strong></div>
+        <div class="summary-box">أكثر من 120<strong id="sumOver120">0.00</strong></div>
       </div>
     </section>
 
@@ -99,6 +101,12 @@
       <div class="aging-actions">
         <button type="button" class="btn btn-outline" id="saveDraft">حفظ كمسودة</button>
         <button type="button" class="btn btn-primary" id="submitReport">إرسال للمراجعة</button>
+      </div>
+      <div class="export-actions" aria-label="خيارات التصدير">
+        <button type="button" class="btn btn-outline" data-export="print">طباعة</button>
+        <button type="button" class="btn btn-outline" data-export="pdf">PDF</button>
+        <button type="button" class="btn btn-outline" data-export="excel">Excel</button>
+        <button type="button" class="btn btn-outline" data-export="word">Word</button>
       </div>
     </section>
   </main>
@@ -181,7 +189,8 @@
       document.getElementById('sum30').textContent=fmt(sums.b30);
       document.getElementById('sum60').textContent=fmt(sums.b60);
       document.getElementById('sum90').textContent=fmt(sums.b90);
-      document.getElementById('sumOver120').textContent=fmt(sums.b120+sums.over120);
+      document.getElementById('sum120').textContent=fmt(sums.b120);
+      document.getElementById('sumOver120').textContent=fmt(sums.over120);
       return {rows:rows.map(x=>x.obj),summary:sums};
     }
 
@@ -189,11 +198,27 @@
     reportDate.addEventListener('change',recalc); agingBasis.addEventListener('change',recalc);
     addRow();addRow();addRow();
 
+    function validateRows(rows){
+      for(let i=0;i<rows.length;i++){
+        const r=rows[i], n=i+1;
+        if(!r.customer) return 'اسم العميل مطلوب في الصف '+n+'.';
+        if(!r.invoice_no) return 'رقم الفاتورة مطلوب في الصف '+n+'.';
+        if(!r.invoice_date) return 'تاريخ الفاتورة مطلوب في الصف '+n+'.';
+        if(agingBasis.value==='due_date'&&!r.due_date) return 'تاريخ الاستحقاق مطلوب في الصف '+n+'.';
+        if(r.invoice_amount<=0) return 'قيمة الفاتورة يجب أن تكون أكبر من صفر في الصف '+n+'.';
+        if(r.paid_amount<0) return 'المبلغ المسدد لا يمكن أن يكون سالبًا في الصف '+n+'.';
+        if(r.paid_amount>r.invoice_amount) return 'المبلغ المسدد لا يمكن أن يتجاوز قيمة الفاتورة في الصف '+n+'.';
+      }
+      return '';
+    }
+
     async function save(status){
       if(!sb||!user){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
       const calc=recalc();
-      const cleanRows=calc.rows.filter(r=>r.customer||r.invoice_no||r.balance>0);
+      const cleanRows=calc.rows.filter(r=>r.customer||r.invoice_no||r.invoice_amount||r.paid_amount);
       if(status==='submitted'&&cleanRows.length===0){showStatus('أضف ذمة واحدة على الأقل قبل الإرسال.',false);return;}
+      const validationError=validateRows(cleanRows);
+      if(validationError){showStatus(validationError,false);return;}
       const payload={
         user_id:user.id,
         client_id:currentReport?.client_id||null,
@@ -217,6 +242,31 @@
     document.getElementById('saveDraft').onclick=()=>save('draft');
     document.getElementById('submitReport').onclick=()=>save('submitted');
 
+    function exportDoc(){
+      const calc=recalc(), cur=document.getElementById('currency').value;
+      const rows=calc.rows.filter(r=>r.customer||r.invoice_no||r.invoice_amount||r.paid_amount);
+      return {
+        lang:'ar',
+        title:'نموذج أعمار الذمم',
+        subtitle:'Bonds Global',
+        filenameBase:'bonds-receivables-aging-'+(reportDate.value||today()),
+        metadata:[
+          {label:'تاريخ التقرير',value:reportDate.value||today()},
+          {label:'أساس العمر',value:agingBasis.options[agingBasis.selectedIndex].text},
+          {label:'العملة',value:cur}
+        ],
+        tables:[
+          {title:'تفاصيل الذمم',headers:['العميل','رقم الفاتورة','تاريخ الفاتورة','تاريخ الاستحقاق','قيمة الفاتورة','المسدّد','الرصيد','أيام التأخر','غير مستحق','1–30','31–60','61–90','91–120','+120'],rows:rows.map(r=>[r.customer,r.invoice_no,r.invoice_date,r.due_date,fmt(r.invoice_amount),fmt(r.paid_amount),fmt(r.balance),r.days_overdue,fmt(r.current),fmt(r.b30),fmt(r.b60),fmt(r.b90),fmt(r.b120),fmt(r.over120)])},
+          {title:'الملخص',headers:['إجمالي الرصيد','غير مستحق','1–30','31–60','61–90','91–120','أكثر من 120'],rows:[[fmt(calc.summary.total),fmt(calc.summary.current),fmt(calc.summary.b30),fmt(calc.summary.b60),fmt(calc.summary.b90),fmt(calc.summary.b120),fmt(calc.summary.over120)]]}
+        ],
+        notes:document.getElementById('notes').value.trim()
+      };
+    }
+    document.querySelectorAll('[data-export]').forEach(btn=>btn.addEventListener('click',async()=>{
+      try{await window.BondsBrandedExport.exportDocument(btn.dataset.export,exportDoc());}
+      catch(e){showStatus('تعذر التصدير: '+e.message,false);}
+    }));
+
     async function init(){
       await window.BondsAuth.ensureEnv();
       const u=await window.BondsAuth.getUser(); user=u.data?.user;
@@ -224,7 +274,19 @@
       sb=window.BondsAuth.getSupabase();
       if(!sb){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
       const cid=await sb.rpc('get_my_client_id');
-      if(cid.data) currentReport={client_id:cid.data};
+      const existing=await sb.from('client_receivables_aging_reports').select('*').eq('user_id',user.id).in('status',['draft']).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+      if(existing.data){
+        currentReport=existing.data;
+        reportDate.value=existing.data.report_date||today();
+        agingBasis.value=existing.data.aging_basis||'due_date';
+        document.getElementById('currency').value=existing.data.currency||'SAR';
+        document.getElementById('notes').value=existing.data.notes||'';
+        tbody.innerHTML='';
+        (existing.data.rows&&existing.data.rows.length?existing.data.rows:[{}]).forEach(addRow);
+        showStatus('تم استعادة آخر مسودة محفوظة.',true);
+      }else if(cid.data){
+        currentReport={client_id:cid.data};
+      }
     }
     init();
   })();
