@@ -34,6 +34,7 @@ class SamaAdapter extends BaseAdapter {
     const metricQuality = {};
     const metricYear = {};
     const metricMetadata = {};
+    const metricSourceUrl = {};
     let inflation = null;
     let growth = null;
 
@@ -49,6 +50,7 @@ class SamaAdapter extends BaseAdapter {
           metricQuality.inflation_rate = 'open_data';
           metricYear.inflation_rate = Number(inflation.value.dataYear) || null;
           metricMetadata.inflation_rate = { sourcePeriod: inflation.value.sourcePeriod || null };
+          metricSourceUrl.inflation_rate = 'https://datasource.kapsarc.org/explore/dataset/inflation-rate/';
           quality = 'open_data';
         }
         if (growth.status === 'fulfilled' && growth.value != null && (latestRequested || growth.value.dataYear === year)) {
@@ -56,6 +58,7 @@ class SamaAdapter extends BaseAdapter {
           metricQuality.growth_rate = 'open_data';
           metricYear.growth_rate = Number(growth.value.dataYear) || null;
           metricMetadata.growth_rate = { sourcePeriod: growth.value.sourcePeriod || null };
+          metricSourceUrl.growth_rate = 'https://datasource.kapsarc.org/explore/dataset/growth-rates-of-gross-domestic-product-by-kind-of-economic-activity-at-2010-con0/';
           quality = 'open_data';
         }
       } catch (err) {
@@ -90,6 +93,7 @@ class SamaAdapter extends BaseAdapter {
       metricQuality,
       metricYear,
       metricMetadata,
+      metricSourceUrl,
       externalId: `sama-${cityCode || 'UNK'}-${observedYear}`,
       source: this.config.sourceId,
       quality
@@ -105,7 +109,15 @@ class SamaAdapter extends BaseAdapter {
   }
 
   async transform(rawItem) {
-    const { cityCode, year, metrics, metricQuality = {}, metricYear = {}, metricMetadata = {} } = rawItem;
+    const {
+      cityCode,
+      year,
+      metrics,
+      metricQuality = {},
+      metricYear = {},
+      metricMetadata = {},
+      metricSourceUrl = {}
+    } = rawItem;
     const result = [];
 
     const mappings = {
@@ -124,7 +136,7 @@ class SamaAdapter extends BaseAdapter {
         value: typeof value === 'number' ? value : parseFloat(value),
         valueText: null,
         year: Number.isInteger(Number(metricYear[key])) ? Number(metricYear[key]) : year,
-        sourceUrl: sourceQuality === 'fallback' ? null : 'https://datasource.kapsarc.org',
+        sourceUrl: sourceQuality === 'fallback' ? null : (metricSourceUrl[key] || 'https://datasource.kapsarc.org'),
         confidence: this.getConfidence(mapping.code, sourceQuality),
         confidenceReason: `Source: ${this.config.sourceName} (${sourceQuality})`,
         metadata: {
