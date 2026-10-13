@@ -15,10 +15,10 @@
     .wrap{padding:1.25rem;max-width:1500px;margin:auto}.head{display:flex;gap:1rem;justify-content:space-between;align-items:end;flex-wrap:wrap;margin-bottom:1rem}
     h1{margin:.2rem 0}.muted{color:var(--muted)}.filters{display:grid;grid-template-columns:repeat(3,minmax(200px,1fr));gap:.75rem}
     select,button{min-height:44px;border:1px solid var(--line);border-radius:10px;background:#fff;padding:.65rem .8rem;font:inherit}
-    button{background:#0f172a;color:#fff;cursor:pointer}.summary{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:.75rem;margin:1rem 0}
+    button{background:#0f172a;color:#fff;cursor:pointer}.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;margin:1rem 0}
     .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1rem}.num{font-size:1.7rem;font-weight:800}
     .status{display:inline-flex;border-radius:999px;padding:.2rem .55rem;font-size:.78rem;font-weight:700}
-    .verified{background:#dcfce7;color:#166534}.estimated{background:#fef3c7;color:#92400e}.stale{background:#fee2e2;color:#991b1b}.unverified,.missing{background:#e2e8f0;color:#334155}
+    .verified,.fresh{background:#dcfce7;color:#166534}.estimated{background:#fef3c7;color:#92400e}.stale{background:#fee2e2;color:#991b1b}.unverified,.missing{background:#e2e8f0;color:#334155}
     .table-wrap{overflow:auto;background:#fff;border:1px solid var(--line);border-radius:14px}table{border-collapse:collapse;width:100%;min-width:950px}
     th,td{padding:.75rem;border-bottom:1px solid #edf2f7;text-align:right;vertical-align:top}th{background:#0f172a;color:#fff;position:sticky;top:0}
     a{color:#8a6118}.error{border:1px solid #fecaca;background:#fff1f2;color:#991b1b;padding:.8rem;border-radius:10px;display:none;margin-top:.8rem}
@@ -44,6 +44,16 @@
       <div class="card"><div id="citiesCount" class="num">—</div><div class="muted">مدن الكتالوج</div></div>
       <div class="card"><div id="dataCitiesCount" class="num">—</div><div class="muted">مدن لها بيانات</div></div>
       <div class="card"><div id="verifiedMetricsCount" class="num">—</div><div class="muted">مؤشرات مثبتة للمدينة</div></div>
+      <div class="card"><div id="countryMetricsCount" class="num">—</div><div class="muted">مؤشرات وطنية مصدرية</div></div>
+    </section>
+
+    <section class="card" style="margin-bottom:1rem">
+      <h2 style="margin-top:0">أحدث سياق وطني مصدرّي</h2>
+      <div class="muted" style="margin-bottom:.75rem">هذه القيم على مستوى الدولة ولا تُعامل كبيانات مدينة.</div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>المؤشر</th><th>الحالة</th><th>القيمة</th><th>السنة</th><th>العمر</th><th>الثقة</th><th>المصدر</th></tr></thead>
+        <tbody id="countryContextBody"><tr><td colspan="7">جار التحميل…</td></tr></tbody>
+      </table></div>
     </section>
 
     <section class="card" style="margin-bottom:1rem">
@@ -76,7 +86,7 @@
     function clearError(){$('error').style.display='none'}
     function statusBadge(status){
       const s=status||'missing';
-      const labels={verified:'مثبت',estimated:'تقديري',stale:'قديم',unverified:'غير مثبت',data_available:'بيانات متاحة',catalog_only:'كتالوج فقط'};
+      const labels={verified:'مثبت',fresh:'حديث',estimated:'تقديري',stale:'قديم',unverified:'غير مثبت',data_available:'بيانات متاحة',catalog_only:'كتالوج فقط'};
       return '<span class="status '+esc(s)+'">'+esc(labels[s]||s)+'</span>';
     }
     async function loadCountries(){
@@ -88,10 +98,36 @@
       if(countries.some(c=>c.code==='SA')) $('countrySelect').value='SA';
       await loadCities();
     }
+    async function loadCountryContext(){
+      const code=$('countrySelect').value;
+      if(!code){
+        $('countryMetricsCount').textContent='—';
+        $('countryContextBody').innerHTML='<tr><td colspan="7">اختر دولة</td></tr>';
+        return;
+      }
+      try{
+        const data=await getJson(API+'/countries/'+encodeURIComponent(code)+'/context?year=latest');
+        const rows=data.metrics||[];
+        $('countryMetricsCount').textContent=rows.length.toLocaleString('ar-SA');
+        $('countryContextBody').innerHTML=rows.length?rows.map(r=>'<tr>'+
+          '<td>'+esc(r.metric)+'</td>'+
+          '<td>'+statusBadge(r.freshness_status||'unverified')+'</td>'+
+          '<td>'+esc(r.value??'—')+(r.unit?' '+esc(r.unit):'')+'</td>'+
+          '<td>'+esc(r.year||'—')+'</td>'+
+          '<td>'+(r.age_days==null?'—':esc(r.age_days)+' يوم')+'</td>'+
+          '<td>'+esc(r.confidence??'—')+'</td>'+
+          '<td>'+esc(r.source||'—')+(r.source_url?' · <a href="'+esc(r.source_url)+'" target="_blank" rel="noopener">فتح المصدر</a>':'')+'</td>'+
+        '</tr>').join(''):'<tr><td colspan="7">لا توجد مؤشرات وطنية مصدرية مخزنة لهذه الدولة بعد.</td></tr>';
+      }catch(err){
+        $('countryMetricsCount').textContent='—';
+        $('countryContextBody').innerHTML='<tr><td colspan="7">تعذر تحميل السياق الوطني.</td></tr>';
+      }
+    }
+
     async function loadCities(){
       clearError();
       const code=$('countrySelect').value;
-      const data=await getJson(API+'/catalog/cities?country='+encodeURIComponent(code));
+      const [data]=await Promise.all([getJson(API+'/catalog/cities?country='+encodeURIComponent(code)),loadCountryContext()]);
       cities=data.cities||[];
       $('citiesCount').textContent=cities.length.toLocaleString('ar-SA');
       $('dataCitiesCount').textContent=cities.filter(c=>c.data_available).length.toLocaleString('ar-SA');

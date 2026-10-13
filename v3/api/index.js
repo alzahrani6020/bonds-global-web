@@ -420,6 +420,103 @@ async function handleCatalogActivities(req, res) {
   }
 }
 
+async function handleCatalogYears(req, res) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
+  const url = getQuery(req);
+  const countryCode = (url.searchParams.get('country') || '').toUpperCase();
+  const cityCode = url.searchParams.get('city');
+  const activityCode = url.searchParams.get('activity');
+
+  if (countryCode && !COUNTRY_NAMES[countryCode]) {
+    return sendJson(res, 400, { error: 'Invalid country parameter' });
+  }
+
+  try {
+    const supabase = getSupabaseClient();
+    const years = new Set();
+
+    let cityIds = [];
+    if (cityCode) {
+      const { data: city, error } = await supabase
+        .from('cities')
+        .select('id,country_code')
+        .eq('code', cityCode)
+        .maybeSingle();
+      if (error) throw error;
+      if (city?.id) cityIds = [city.id];
+    } else if (countryCode) {
+      const { data: cityRows, error } = await supabase
+        .from('cities')
+        .select('id')
+        .eq('country_code', countryCode)
+        .limit(2000);
+      if (error) throw error;
+      cityIds = (cityRows || []).map(row => row.id);
+    }
+
+    let activityId = null;
+    if (activityCode) {
+      const { data: activity, error } = await supabase
+        .from('economic_activities')
+        .select('id')
+        .eq('code', activityCode)
+        .maybeSingle();
+      if (error) throw error;
+      activityId = activity?.id || null;
+    }
+
+    const tasks = [];
+
+    if (cityIds.length) {
+      tasks.push(
+        supabase.from('city_indicators').select('year').in('city_id', cityIds).limit(5000),
+        supabase.from('normalized_metrics').select('year').in('city_id', cityIds).limit(5000)
+      );
+
+      let marketQuery = supabase
+        .from('city_market_data')
+        .select('data_year')
+        .in('city_id', cityIds)
+        .limit(5000);
+      if (activityId) marketQuery = marketQuery.eq('activity_id', activityId);
+      tasks.push(marketQuery);
+    }
+
+    if (countryCode) {
+      tasks.push(
+        supabase
+          .from('country_indicator_observations')
+          .select('year')
+          .eq('country_code', countryCode)
+          .limit(1000)
+      );
+    }
+
+    const results = await Promise.allSettled(tasks);
+    for (const result of results) {
+      if (result.status !== 'fulfilled' || result.value?.error) continue;
+      for (const row of result.value.data || []) {
+        const value = Number(row.year ?? row.data_year);
+        if (Number.isInteger(value) && value >= 1900 && value <= 2200) years.add(value);
+      }
+    }
+
+    const sorted = [...years].sort((a, b) => b - a);
+    return sendJson(res, 200, {
+      years: sorted,
+      latest: sorted[0] || null,
+      count: sorted.length,
+      country: countryCode || null,
+      city: cityCode || null,
+      activity: activityCode || null,
+      generatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('[catalog/years]', err.message);
+    return sendJson(res, 500, { error: 'Failed to load available years' });
+  }
+}
+
 async function handleCatalogCities(req, res) {
   const url = getQuery(req);
   const countryCode = url.searchParams.get('country');
@@ -739,52 +836,120 @@ async function handleOpportunitiesTop(req, res) {
 }
 
 async function handleCountryContext(req, res, path) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
   const match = path.match(/^\/countries\/([^\/]+)\/context$/);
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
   const countryCode = match[1].toUpperCase();
   if (!COUNTRY_NAMES[countryCode]) return sendJson(res, 404, { error: 'Country not found' });
 
+  const url = getQuery(req);
+  const requestedYear = url.searchParams.get('year') || 'latest';
   const supabase = getSupabaseClient();
-  const { data: rows, error } = await supabase
-    .from('market_data')
-    .select('asset_class,country,region,city,sector,inflation_rate,interest_rate,economic_growth_rate,confidence,data_quality_score,source,recorded_at,updated_at')
-    .eq('country', countryCode)
-    .neq('source', 'BONDS Market Intelligence')
-    .order('updated_at', { ascending: false })
-    .limit(100);
 
-  if (error) return sendJson(res, 500, { error: error.message });
+  let observationRows = [];
+  try {
+    let query = supabase
+      .from('country_indicator_observations')
+      .select('metric_code,year,value,unit,source_id,source_name,source_url,observed_at,fetched_at,confidence,geographic_scope,metadata')
+      .eq('country_code', countryCode)
+      .order('year', { ascending: false })
+      .order('fetched_at', { ascending: false })
+      .limit(200);
 
-  const pick = (field) => {
-    const row = (rows || []).find(item =>
-      item[field] !== null && item[field] !== undefined &&
-      item.source && item.source !== 'BONDS Market Intelligence'
-    );
-    if (!row) return null;
-    return {
-      metric: field,
-      value: Number(row[field]),
-      source: row.source,
-      observed_at: row.recorded_at || null,
-      fetched_at: row.updated_at || null,
-      confidence: row.confidence ?? null,
-      data_quality_score: row.data_quality_score ?? null,
-      geographic_scope: 'country',
-      country_code: countryCode
-    };
+    if (/^\d{4}$/.test(requestedYear)) query = query.eq('year', Number(requestedYear));
+    const { data, error } = await query;
+    if (!error) observationRows = data || [];
+  } catch (_) {
+    observationRows = [];
+  }
+
+  if (requestedYear === 'latest' && observationRows.length) {
+    const latestByMetric = new Map();
+    for (const row of observationRows) {
+      if (!latestByMetric.has(row.metric_code)) latestByMetric.set(row.metric_code, row);
+    }
+    observationRows = [...latestByMetric.values()];
+  }
+
+  const countryFreshnessSlaDays = {
+    inflation_rate: 365,
+    interest_rate: 180,
+    economic_growth_rate: 730,
+    unemployment_rate: 730,
+    population_total: 730,
+    gdp_per_capita_usd: 730,
+    fdi_net_inflows_pct_gdp: 730
   };
+  const nowMs = Date.now();
 
-  const metrics = [
-    pick('inflation_rate'),
-    pick('interest_rate'),
-    pick('economic_growth_rate')
-  ].filter(Boolean);
+  const metrics = observationRows.map(row => {
+    const observedMs = row.observed_at ? Date.parse(row.observed_at) : NaN;
+    const ageDays = Number.isFinite(observedMs) ? Math.max(0, Math.floor((nowMs - observedMs) / 86400000)) : null;
+    const freshnessSlaDays = Number(countryFreshnessSlaDays[row.metric_code] || 730);
+    return {
+      metric: row.metric_code,
+      value: Number(row.value),
+      unit: row.unit || null,
+      source: row.source_name || row.source_id,
+      source_url: row.source_url || null,
+      observed_at: row.observed_at || (row.year ? String(row.year) : null),
+      fetched_at: row.fetched_at || null,
+      confidence: row.confidence ?? null,
+      geographic_scope: 'country',
+      country_code: countryCode,
+      year: row.year,
+      age_days: ageDays,
+      freshness_sla_days: freshnessSlaDays,
+      freshness_status: ageDays == null ? 'unknown' : (ageDays > freshnessSlaDays ? 'stale' : 'fresh'),
+      metadata: row.metadata || {}
+    };
+  });
+
+  // Keep a sourced interest-rate observation from the legacy market feed when available.
+  const { data: legacyRows } = await supabase
+    .from('market_data')
+    .select('interest_rate,source,recorded_at,updated_at,confidence,data_quality_score')
+    .eq('country', countryCode)
+    .not('interest_rate', 'is', null)
+    .neq('source', 'BONDS Market Intelligence')
+    .order('recorded_at', { ascending: false })
+    .order('updated_at', { ascending: false })
+    .limit(1);
+
+  const interest = legacyRows?.[0];
+  if (interest && Number.isFinite(Number(interest.interest_rate))) {
+    const interestYear = Number.parseInt(String(interest.recorded_at || ''), 10) || null;
+    if (requestedYear === 'latest' || !/^\d{4}$/.test(requestedYear) || interestYear === Number(requestedYear)) {
+      metrics.push({
+        metric: 'interest_rate',
+        value: Number(interest.interest_rate),
+        unit: '%',
+        source: interest.source,
+        source_url: null,
+        observed_at: interest.recorded_at || null,
+        fetched_at: interest.updated_at || null,
+        confidence: interest.confidence ?? null,
+        data_quality_score: interest.data_quality_score ?? null,
+        geographic_scope: 'country',
+        country_code: countryCode,
+        year: interestYear,
+        age_days: interest.recorded_at ? Math.max(0, Math.floor((nowMs - Date.parse(interest.recorded_at)) / 86400000)) : null,
+        freshness_sla_days: countryFreshnessSlaDays.interest_rate,
+        freshness_status: interest.recorded_at && Number.isFinite(Date.parse(interest.recorded_at)) &&
+          ((nowMs - Date.parse(interest.recorded_at)) / 86400000) > countryFreshnessSlaDays.interest_rate ? 'stale' : 'fresh'
+      });
+    }
+  }
+
+  metrics.sort((a, b) => String(a.metric).localeCompare(String(b.metric)));
 
   return sendJson(res, 200, {
     country: { code: countryCode, ...COUNTRY_NAMES[countryCode] },
     metrics,
     count: metrics.length,
     scope: 'country',
+    requestedYear,
+    years: [...new Set(metrics.map(row => Number(row.year)).filter(Number.isFinite))].sort((a,b)=>b-a),
     label: 'latest_available_external_context'
   });
 }
@@ -1296,6 +1461,7 @@ module.exports = async function handler(req, res) {
     if (path === '/sectors' && req.method === 'GET') return await handleSectors(req, res);
     if (path === '/catalog/countries' && req.method === 'GET') return await handleCatalogCountries(req, res);
     if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
+    if (path === '/catalog/years' && req.method === 'GET') return await handleCatalogYears(req, res);
     if (path === '/catalog/cities' && req.method === 'GET') return await handleCatalogCities(req, res);
     if (path === '/models' && req.method === 'GET') return await handleModels(req, res);
     if (path.match(/^\/models\/[^\/]+$/) && req.method === 'GET') return await handleModelDetail(req, res, path);

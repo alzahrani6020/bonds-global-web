@@ -12,6 +12,7 @@ const {
 } = require('../engine/data-acquisition/engines');
 const FeedbackEngine = require('../engine/data-acquisition/FeedbackEngine');
 const RegressionEstimator = require('../engine/ml/RegressionEstimator');
+const { CountryIndicatorEngine } = require('../../lib/data/country-indicator-engine');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -69,6 +70,7 @@ async function handleListSources(req, res) {
     { id: 'uae_stats', name: 'المركز الاتحادي للتنافسية والإحصاء (AE)', engine: 'CityEngine', metrics: ['population', 'household_income', 'growth_rate', 'unemployment_rate', 'establishments_count', 'inflation_rate'] },
     { id: 'egypt_capmas', name: 'الجهاز المركزي للإحصاء (EG)', engine: 'CityEngine', metrics: ['population', 'household_income', 'growth_rate', 'unemployment_rate', 'establishments_count', 'inflation_rate'] },
     { id: 'qatar_psa', name: 'هيئة التخطيط والإحصاء (QA)', engine: 'CityEngine', metrics: ['population', 'household_income', 'growth_rate', 'unemployment_rate', 'establishments_count', 'inflation_rate'] },
+    { id: 'world_bank_country', name: 'World Bank Open Data (22 Arab countries)', engine: 'CountryIndicatorEngine', scope: 'country', metrics: ['inflation_rate', 'economic_growth_rate', 'unemployment_rate', 'population_total', 'gdp_per_capita_usd', 'fdi_net_inflows_pct_gdp'] },
     { id: 'manual', name: 'إدخال يدوي', engine: 'all', metrics: ['all'] },
     { id: 'llm_estimation', name: 'تقدير ذكي', engine: 'all', metrics: ['market_size', 'competitors_count', 'expected_demand'] }
   ];
@@ -379,9 +381,28 @@ async function handleAutoFill(req, res) {
   const results = {};
 
   try {
-    // تشغيل جميع المحركات
+    // Update city-level official/open sources first. "latest" is resolved by CityEngine
+    // to the actual observed source year before Gold fusion.
     const cityEngine = new CityEngine(config);
     results.city = await cityEngine.run({ cityId, cityCode, countryCode: city.country_code, year });
+
+    // Instant refresh also updates the latest sourced national context for the
+    // selected city's country. This is stored separately from city facts.
+    try {
+      const countryEngine = new CountryIndicatorEngine();
+      results.countryIndicators = await countryEngine.refresh(supabase, {
+        countryCodes: [city.country_code]
+      });
+    } catch (countryErr) {
+      results.countryIndicators = {
+        updated: 0,
+        failed: 1,
+        errors: [countryErr.message]
+      };
+    }
+
+    const effectiveYear = Number(results.city?.year) ||
+      (Number.isFinite(Number(year)) ? Number(year) : new Date().getFullYear());
 
     if (activityId || activityCode) {
       const engines = [
@@ -393,10 +414,13 @@ async function handleAutoFill(req, res) {
       ];
 
       for (const engine of engines) {
-        const r = await engine.run({ cityId, cityCode, activityId, activityCode, year });
+        const r = await engine.run({ cityId, cityCode, activityId, activityCode, year: effectiveYear });
         results[r.engine] = r;
       }
     }
+
+    results.requestedYear = year;
+    results.effectiveYear = effectiveYear;
 
     sendJson(res, 200, { success: true, results });
   } catch (err) {

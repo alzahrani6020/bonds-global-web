@@ -34,17 +34,19 @@ class GastatAdapter extends BaseAdapter {
   }
 
   async fetch(options = {}) {
-    const { cityCode, year = new Date().getFullYear(), population, purchasingPowerIndex } = options;
+    const { cityCode, population, purchasingPowerIndex } = options;
+    const latestRequested = options.year == null || options.year === 'latest' || !Number.isFinite(Number(options.year));
+    const year = latestRequested ? null : Number(options.year);
     const metrics = {};
     const metricQuality = {};
     const metricScope = {};
     const metricSourceUrl = {};
-    let observedYear = year;
+    let observedYear = year || new Date().getFullYear();
 
     if (this.tryRealApi) {
       try {
         const [labor, pop] = await Promise.allSettled([
-          this._fetchLaborMarket(year),
+          this._fetchLaborMarket(year, latestRequested),
           this._fetchPopulationByRegion(cityCode)
         ]);
 
@@ -72,7 +74,7 @@ class GastatAdapter extends BaseAdapter {
 
     if (!Object.keys(metrics).length) {
       if (!this.useFallback) return [];
-      return this._fallbackData(cityCode, year, 'fallback', population, purchasingPowerIndex);
+      return this._fallbackData(cityCode, year || new Date().getFullYear(), 'fallback', population, purchasingPowerIndex);
     }
 
     if (this.useFallback) {
@@ -149,13 +151,15 @@ class GastatAdapter extends BaseAdapter {
 
   // ── Real data fetchers ────────────────────────────────────
 
-  async _fetchLaborMarket(year) {
+  async _fetchLaborMarket(year, latestRequested = false) {
     const metrics = {};
     let dataYear = null;
 
-    // Unemployment rate: latest Saudi total unemployment rate for the requested year
+    const unemploymentWhere = latestRequested
+      ? "indicator like 'Saudi Unemployment Rate(15) years and above' and gender like 'Total'"
+      : `indicator like 'Saudi Unemployment Rate(15) years and above' and gender like 'Total' and time_period >= '${year}-01-01' and time_period <= '${year}-12-31'`;
     const unemploymentUrl = `${this.apiBaseUrl}/catalog/datasets/main-labor-market-indicators/records?` +
-      `where=${encodeURIComponent(`indicator like 'Saudi Unemployment Rate(15) years and above' and gender like 'Total' and time_period >= '${year}-01-01' and time_period <= '${year}-12-31'`)}` +
+      `where=${encodeURIComponent(unemploymentWhere)}` +
       `&order_by=time_period%20desc,quarter%20desc&limit=1`;
     const unemployment = await this._getJson(unemploymentUrl);
     if (unemployment?.results?.[0]?.indicator_value != null) {
@@ -163,13 +167,14 @@ class GastatAdapter extends BaseAdapter {
       dataYear = parseInt(unemployment.results[0].time_period, 10) || dataYear;
     }
 
-    // Average monthly wages (paid employees, total)
+    const wagesWhere = latestRequested
+      ? "indicator like 'Average Monthly Wages of Paid employees  (main job) (+15) years' and gender like 'Total'"
+      : `indicator like 'Average Monthly Wages of Paid employees  (main job) (+15) years' and gender like 'Total' and time_period >= '${year}-01-01' and time_period <= '${year}-12-31'`;
     const wagesUrl = `${this.apiBaseUrl}/catalog/datasets/main-labor-market-indicators/records?` +
-      `where=${encodeURIComponent(`indicator like 'Average Monthly Wages of Paid employees  (main job) (+15) years' and gender like 'Total' and time_period >= '${year}-01-01' and time_period <= '${year}-12-31'`)}` +
+      `where=${encodeURIComponent(wagesWhere)}` +
       `&order_by=time_period%20desc,quarter%20desc&limit=1`;
     const wages = await this._getJson(wagesUrl);
     if (wages?.results?.[0]?.indicator_value != null) {
-      // Annualize wages to approximate household income (2 earners assumption)
       const monthlyWage = parseFloat(wages.results[0].indicator_value);
       metrics.household_income = Math.round(monthlyWage * 12 * 1.8);
       dataYear = parseInt(wages.results[0].time_period, 10) || dataYear;
@@ -177,7 +182,6 @@ class GastatAdapter extends BaseAdapter {
 
     return { metrics, dataYear };
   }
-
   async _fetchPopulationByRegion(cityCode) {
     if (!cityCode) return null;
 

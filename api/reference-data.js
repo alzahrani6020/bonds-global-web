@@ -13,6 +13,7 @@ const getSupabase = require('../lib/api/supabase');
 const { verifyAdminOrEditor } = require('../lib/api/admin-auth');
 const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
+const { CountryIndicatorEngine } = require('../lib/data/country-indicator-engine');
 
 const ALLOWED_ROLES = ['admin', 'editor'];
 const OUTLOOKS = ['positive', 'neutral', 'negative'];
@@ -23,7 +24,9 @@ const UPSERT_CONCURRENCY = 10;
 const SOURCE_START_BUDGET_MS = 60000;
 const TOTAL_TIME_BUDGET_MS = 80000;
 const REPORT_TIMEZONE = 'Asia/Riyadh';
-const REFRESH_CRON_INTERVAL_HOURS = 3;
+const REFRESH_CRON_UTC_HOUR = 1;
+const REFRESH_CRON_UTC_MINUTE = 15;
+
 
 function cors(res, req) {
   setAllowedOrigin(res, req);
@@ -84,10 +87,8 @@ function formatRiyadhTime(date) {
 
 function nextRunRiyadh(now) {
   const next = new Date(now.getTime());
-  next.setUTCMinutes(0, 0, 0);
-  do {
-    next.setUTCHours(next.getUTCHours() + 1);
-  } while (next.getUTCHours() % REFRESH_CRON_INTERVAL_HOURS !== 0);
+  next.setUTCHours(REFRESH_CRON_UTC_HOUR, REFRESH_CRON_UTC_MINUTE, 0, 0);
+  if (next <= now) next.setUTCDate(next.getUTCDate() + 1);
   return next;
 }
 
@@ -613,7 +614,20 @@ async function handleMarketIntelligenceCron(req, res) {
 
   const supabase = getSupabase();
   try {
-    const result = await refreshSources(supabase);
+    const [marketResult, countryResult] = await Promise.all([
+      refreshSources(supabase),
+      new CountryIndicatorEngine({ timeoutMs: SOURCE_FETCH_TIMEOUT_MS }).refresh(supabase)
+    ]);
+    const result = {
+      updated: Number(marketResult.updated || 0) + Number(countryResult.updated || 0),
+      failed: Number(marketResult.failed || 0) + Number(countryResult.failed || 0),
+      skipped: Number(marketResult.skipped || 0) + Number(countryResult.skipped || 0),
+      total: Number(marketResult.total || 0) + Number(countryResult.total || 0),
+      elapsedMs: Math.max(Number(marketResult.elapsedMs || 0), Number(countryResult.elapsedMs || 0)),
+      errors: [...(marketResult.errors || []), ...(countryResult.errors || [])],
+      market: marketResult,
+      countryIndicators: countryResult
+    };
     const email = await sendRefreshReport(result);
     return res.status(200).json({ success: true, scheduled: true, ...result, email });
   } catch (err) {
