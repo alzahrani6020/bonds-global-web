@@ -63,6 +63,12 @@ describe('V3 city intelligence catalog and truth regressions', () => {
     const source = read('v3/engine/data-acquisition/adapters/GastatAdapter.js');
     expect(source).toContain("normalizedCode.match(/^SA-(\\d{2})-\\d{3}$/)");
     expect(source).toContain("'02': 'Makkah Al Mukarramah'");
-    expect(source).toContain("'12': 'Al Bahah'");
+    expect(source).toContain("'10': 'Al Jawf'");
+    expect(source).toContain("'11': 'Jazan'");
+    expect(source).toContain("'12': 'Najran'");
+    expect(source).toContain("'13': 'Al Bahah'");
+    expect(source).toContain('this.useFallback = config.useFallback === true;');
+    expect(source).toContain("metricScope.population = 'region'");
+    expect(source).toContain("metricScope[k] = 'national'");
   });
 });
