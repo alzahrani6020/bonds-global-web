@@ -18,7 +18,7 @@ class GastatAdapter extends BaseAdapter {
       ...config
     });
     this.apiBaseUrl = config.apiBaseUrl || 'https://datasource.kapsarc.org/api/explore/v2.1';
-    this.useFallback = config.useFallback !== false;
+    this.useFallback = config.useFallback === true;
     this.tryRealApi = config.tryRealApi !== false; // true by default now
   }
 
@@ -35,9 +35,11 @@ class GastatAdapter extends BaseAdapter {
 
   async fetch(options = {}) {
     const { cityCode, year = new Date().getFullYear(), population, purchasingPowerIndex } = options;
-    let quality = 'fallback';
     const metrics = {};
     const metricQuality = {};
+    const metricScope = {};
+    const metricSourceUrl = {};
+    let observedYear = year;
 
     if (this.tryRealApi) {
       try {
@@ -46,45 +48,57 @@ class GastatAdapter extends BaseAdapter {
           this._fetchPopulationByRegion(cityCode)
         ]);
 
-        if (labor.status === 'fulfilled' && labor.value.dataYear === year) {
+        if (labor.status === 'fulfilled' && labor.value && Object.keys(labor.value.metrics || {}).length) {
           Object.assign(metrics, labor.value.metrics);
-          for (const k of Object.keys(labor.value.metrics)) metricQuality[k] = 'open_data';
-          quality = 'open_data';
+          observedYear = labor.value.dataYear || observedYear;
+          for (const k of Object.keys(labor.value.metrics)) {
+            metricQuality[k] = 'open_data';
+            metricScope[k] = 'national';
+            metricSourceUrl[k] = 'https://datasource.kapsarc.org/explore/dataset/main-labor-market-indicators/';
+          }
         }
-        if (pop.status === 'fulfilled' && pop.value != null) {
-          metrics.population = pop.value;
+
+        if (pop.status === 'fulfilled' && pop.value?.value != null) {
+          metrics.population = pop.value.value;
           metricQuality.population = 'open_data';
-          quality = 'open_data';
+          metricScope.population = 'region';
+          metricSourceUrl.population = 'https://datasource.kapsarc.org/explore/dataset/population-by-detailed-age-gender-governorate-nationality-and-region/';
+          if (pop.value.dataYear) observedYear = pop.value.dataYear;
         }
       } catch (err) {
-        // Network or parsing issues: keep fallback
+        // A failed public-source request must not silently become an estimate.
       }
     }
 
-    // If real data didn't cover a metric, fill with fallback estimates
-    if (!Object.keys(metrics).length || !this.tryRealApi) {
-      return this._fallbackData(cityCode, year, quality, population, purchasingPowerIndex);
+    if (!Object.keys(metrics).length) {
+      if (!this.useFallback) return [];
+      return this._fallbackData(cityCode, year, 'fallback', population, purchasingPowerIndex);
     }
 
-    // Merge with fallback for missing metrics
-    const fallback = this._fallbackData(cityCode, year, quality, metrics.population || population, purchasingPowerIndex)[0];
-    for (const key of Object.keys(fallback.metrics)) {
-      if (metrics[key] == null) {
-        metrics[key] = fallback.metrics[key];
-        metricQuality[key] = 'fallback';
+    if (this.useFallback) {
+      const fallback = this._fallbackData(cityCode, year, 'fallback', metrics.population || population, purchasingPowerIndex)[0];
+      for (const key of Object.keys(fallback.metrics)) {
+        if (metrics[key] == null) {
+          metrics[key] = fallback.metrics[key];
+          metricQuality[key] = 'fallback';
+          metricScope[key] = 'model';
+          metricSourceUrl[key] = null;
+        }
       }
     }
 
-    // Overall quality reflects how many metrics came from real open data
     const openDataCount = Object.values(metricQuality).filter(q => q === 'open_data').length;
-    quality = openDataCount >= 3 ? 'open_data' : (openDataCount > 0 ? 'mixed' : 'fallback');
+    const fallbackCount = Object.values(metricQuality).filter(q => q === 'fallback').length;
+    const quality = fallbackCount ? 'mixed' : (openDataCount ? 'open_data' : 'unknown');
 
     return [{
       cityCode: cityCode ? cityCode.toUpperCase() : 'UNK',
-      year,
+      year: observedYear,
       metrics,
       metricQuality,
-      externalId: `gastat-${cityCode || 'UNK'}-${year}`,
+      metricScope,
+      metricSourceUrl,
+      externalId: `gastat-${cityCode || 'UNK'}-${observedYear}`,
       source: this.config.sourceId,
       quality
     }];
@@ -101,7 +115,7 @@ class GastatAdapter extends BaseAdapter {
   }
 
   async transform(rawItem) {
-    const { cityCode, year, metrics, metricQuality = {} } = rawItem;
+    const { cityCode, year, metrics, metricQuality = {}, metricScope = {}, metricSourceUrl = {} } = rawItem;
     const result = [];
 
     const mappings = {
@@ -123,10 +137,10 @@ class GastatAdapter extends BaseAdapter {
         value: typeof value === 'number' ? value : parseFloat(value),
         valueText: null,
         year,
-        sourceUrl: 'https://datasource.kapsarc.org',
+        sourceUrl: metricSourceUrl[key] || null,
         confidence: this.getConfidence(mapping.code, sourceQuality),
-        confidenceReason: `Source: ${this.config.sourceName} (${sourceQuality})`,
-        metadata: { cityCode, originalKey: key, dataQuality: sourceQuality }
+        confidenceReason: `Source: ${this.config.sourceName} (${sourceQuality}; scope=${metricScope[key] || 'unknown'})`,
+        metadata: { cityCode, originalKey: key, dataQuality: sourceQuality, scope: metricScope[key] || 'unknown', estimated: sourceQuality === 'fallback' }
       });
     }
 
@@ -180,10 +194,10 @@ class GastatAdapter extends BaseAdapter {
       '07': 'Tabuk',
       '08': 'Hail',
       '09': 'Northern Borders',
-      '10': 'Jazan',
-      '11': 'Najran',
-      '12': 'Al Bahah',
-      '13': 'Al Jawf'
+      '10': 'Al Jawf',
+      '11': 'Jazan',
+      '12': 'Najran',
+      '13': 'Al Bahah'
     };
     const legacyRegionMap = {
       RUH: 'Ar Riyadh',
@@ -219,7 +233,11 @@ class GastatAdapter extends BaseAdapter {
     const data = await this._getJson(url);
     if (!data?.results?.[0]?.['sum(population)']) return null;
 
-    return Number(data.results[0]['sum(population)']) || null;
+    const value = Number(data.results[0]['sum(population)']) || null;
+    if (value == null) return null;
+    const yearCandidate = data.results[0].year ?? data.results[0].data_year ?? data.results[0].time_period ?? null;
+    const dataYear = Number.parseInt(String(yearCandidate || ''), 10) || null;
+    return { value, dataYear, regionName };
   }
 
   async _getJson(url) {
