@@ -75,6 +75,7 @@ $nativeAction = New-ScheduledTaskAction -Execute $psExe -Argument "-NoProfile -E
 $tunnelAction = New-ScheduledTaskAction -Execute $psExe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$tunnelScript`""
 $trigger = New-ScheduledTaskTrigger -AtStartup
 $nativePrincipal = New-ScheduledTaskPrincipal -UserId $identity.Name -LogonType S4U -RunLevel Highest
+# cloudflared config and credentials are user-scoped; keep the tunnel in that security context.
 $tunnelPrincipal = New-ScheduledTaskPrincipal -UserId $identity.Name -LogonType S4U -RunLevel Highest
 $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RestartCount 999 -RestartInterval (New-TimeSpan -Minutes 1) -ExecutionTimeLimit ([TimeSpan]::Zero)
 
