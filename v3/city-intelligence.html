@@ -899,7 +899,7 @@
             ? fetchJson(`${API_URL}/cities/${cityCode}/market?activity=${encodeURIComponent(activityCode)}&year=${encodeURIComponent(year)}`)
             : Promise.resolve({ marketData: [], year }),
           fetchJson(`${API_URL}/cities/${cityCode}/evidence?year=${encodeURIComponent(year)}${activityCode ? '&activity=' + encodeURIComponent(activityCode) : ''}`),
-          fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity?.country_code || detail?.city?.country_code || 'SA')}/context`).catch(() => ({ metrics: [] }))
+          fetchJson(`${API_URL}/countries/${encodeURIComponent(catalogCity?.country_code || document.getElementById('countrySelect').value || 'SA')}/context`).catch(() => ({ metrics: [] }))
         ]);
         renderCity(cityCode, detail, indicators, market, evidence, countryContext);
         await updateScenarioCard(activityCode);
