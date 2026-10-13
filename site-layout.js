@@ -144,6 +144,7 @@
       governanceGroup: isEn ? 'Governance & Trust' : 'الحوكمة والثقة',
       privacy: isEn ? 'Privacy' : 'الخصوصية',
       terms: isEn ? 'Terms' : 'الشروط والأحكام',
+      kyc: isEn ? 'Know Your Customer (KYC)' : 'اعرف عميلك (KYC)',
     };
 
     const currentPath = window.location.pathname;
@@ -299,6 +300,8 @@
       },
     ];
 
+    const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
+
     const aboutDropdown = [
       {
         heading: { ar: labels.companyGroup, en: 'Company' },
@@ -313,6 +316,7 @@
         items: [
           { label: labels.privacy, href: privacyHref },
           { label: labels.terms, href: termsHref },
+          { label: labels.kyc, href: kycHref },
         ],
       },
     ];
