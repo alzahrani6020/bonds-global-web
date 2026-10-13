@@ -4,6 +4,7 @@ import hashlib
 import importlib.util
 import json
 import os
+import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
@@ -30,6 +31,7 @@ class NativeModel:
 
 _LLM: Any | None = None
 _LLM_KEY: tuple[Any, ...] | None = None
+_LLM_LOCK = threading.Lock()
 _MODEL_CACHE: dict[tuple[str, int, int, str], NativeModel] = {}
 
 
@@ -174,10 +176,10 @@ def generate(
     context: Mapping[str, Any] | None = None,
     options: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
+    request_started = time.perf_counter()
     if importlib.util.find_spec("llama_cpp") is None:
         raise NativeInferenceUnavailable("llama-cpp-python is not installed")
 
-    model = _verified_model(root)
     opts = dict(options or {})
     n_ctx = _positive_int(opts.get("n_ctx") or os.environ.get("BONDS_NATIVE_N_CTX"), 4096)
     n_threads = _positive_int(
@@ -208,20 +210,25 @@ def generate(
     messages = [{"role": "system", "content": system}]
     user_text = str(prompt).strip()
     if context_text and context_text != "{}":
-        user_text = f"Context:\n{context_text}\n\n{user_text}"
+        user_text = f"Context:\\n{context_text}\\n\\n{user_text}"
     messages.append({"role": "user", "content": user_text})
 
-    llm, cache_hit, load_seconds = _resident_llm(
-        model, n_ctx=n_ctx, n_threads=n_threads, n_gpu_layers=n_gpu_layers
-    )
+    lock_wait_started = time.perf_counter()
+    with _LLM_LOCK:
+        lock_wait_seconds = max(0.0, time.perf_counter() - lock_wait_started)
+        model = _verified_model(root)
+        llm, cache_hit, load_seconds = _resident_llm(
+            model, n_ctx=n_ctx, n_threads=n_threads, n_gpu_layers=n_gpu_layers
+        )
 
-    started = time.perf_counter()
-    response = llm.create_chat_completion(
-        messages=messages,
-        max_tokens=max_tokens,
-        temperature=temperature,
-    )
-    generation_seconds = max(0.0, time.perf_counter() - started)
+        generation_started = time.perf_counter()
+        response = llm.create_chat_completion(
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature,
+        )
+        generation_seconds = max(0.0, time.perf_counter() - generation_started)
+
     choices = response.get("choices") or []
     first = choices[0] if choices else {}
     message = first.get("message") or {}
@@ -236,6 +243,7 @@ def generate(
         if completion_tokens is not None and generation_seconds > 0
         else None
     )
+    request_total_seconds = max(0.0, time.perf_counter() - request_started)
     return {
         "text": text,
         "backend": BACKEND,
@@ -250,7 +258,10 @@ def generate(
         "temperature": temperature,
         "finish_reason": first.get("finish_reason"),
         "usage": usage,
+        "completion_tokens": completion_tokens,
         "generation_seconds": generation_seconds,
+        "lock_wait_seconds": lock_wait_seconds,
+        "request_total_seconds": request_total_seconds,
         "tokens_per_second": tokens_per_second,
         "model_resident": True,
         "model_cache_hit": cache_hit,
