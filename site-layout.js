@@ -300,8 +300,6 @@
       },
     ];
 
-    const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
-
     const aboutDropdown = [
       {
         heading: { ar: labels.companyGroup, en: 'Company' },
@@ -316,7 +314,7 @@
         items: [
           { label: labels.privacy, href: privacyHref },
           { label: labels.terms, href: termsHref },
-          { label: labels.kyc, href: kycHref },
+          { label: labels.kyc, href: isEn ? '/en/client/kyc' : '/client/kyc' },
         ],
       },
     ];
