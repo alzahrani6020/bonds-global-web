@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS public.client_cash_flow_reports (
     CHECK (status IN ('draft','submitted','reviewed','archived')),
   start_month date NOT NULL,
   currency text NOT NULL DEFAULT 'SAR',
-  opening_balance numeric NOT NULL DEFAULT 0 CHECK (opening_balance >= 0),
+  opening_balance numeric NOT NULL DEFAULT 0,
   months jsonb NOT NULL DEFAULT '[]'::jsonb,
   summary jsonb NOT NULL DEFAULT '{}'::jsonb,
   notes text,
@@ -67,8 +67,8 @@ DECLARE
   closing numeric;
   total_inflows numeric := 0;
   total_outflows numeric := 0;
-  min_balance numeric := NULL;
-  max_balance numeric := NULL;
+  min_balance numeric := NEW.opening_balance;
+  max_balance numeric := NEW.opening_balance;
   negative_months integer := 0;
   row_obj jsonb;
   sales_receipts numeric;
@@ -92,10 +92,6 @@ BEGIN
 
   IF NEW.months IS NULL OR jsonb_typeof(NEW.months) <> 'array' OR jsonb_array_length(NEW.months) <> 12 THEN
     RAISE EXCEPTION 'months must contain exactly 12 rows';
-  END IF;
-
-  IF NEW.opening_balance < 0 THEN
-    RAISE EXCEPTION 'opening balance cannot be negative';
   END IF;
 
   FOR item IN SELECT value FROM jsonb_array_elements(NEW.months)
@@ -158,8 +154,8 @@ BEGIN
     normalized := normalized || jsonb_build_array(row_obj);
     total_inflows := total_inflows + inflows;
     total_outflows := total_outflows + outflows;
-    min_balance := CASE WHEN min_balance IS NULL THEN closing ELSE LEAST(min_balance, closing) END;
-    max_balance := CASE WHEN max_balance IS NULL THEN closing ELSE GREATEST(max_balance, closing) END;
+    min_balance := LEAST(min_balance, closing);
+    max_balance := GREATEST(max_balance, closing);
     IF closing < 0 THEN negative_months := negative_months + 1; END IF;
 
     opening := closing;
@@ -172,10 +168,10 @@ BEGIN
     'total_outflows', total_outflows,
     'net_cash_flow', total_inflows - total_outflows,
     'closing_balance', opening,
-    'minimum_balance', coalesce(min_balance, NEW.opening_balance),
-    'maximum_balance', coalesce(max_balance, NEW.opening_balance),
+    'minimum_balance', min_balance,
+    'maximum_balance', max_balance,
     'negative_months', negative_months,
-    'funding_gap', GREATEST(0, -coalesce(min_balance,0))
+    'funding_gap', GREATEST(0, -min_balance)
   );
 
   RETURN NEW;
