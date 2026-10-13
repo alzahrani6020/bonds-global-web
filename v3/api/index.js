@@ -421,6 +421,7 @@ async function handleCatalogActivities(req, res) {
 }
 
 async function handleCatalogYears(req, res) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
   const url = getQuery(req);
   const countryCode = (url.searchParams.get('country') || '').toUpperCase();
   const cityCode = url.searchParams.get('city');
@@ -835,6 +836,7 @@ async function handleOpportunitiesTop(req, res) {
 }
 
 async function handleCountryContext(req, res, path) {
+  res.setHeader('Cache-Control', 'no-store, max-age=0');
   const match = path.match(/^\/countries\/([^\/]+)\/context$/);
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
   const countryCode = match[1].toUpperCase();
