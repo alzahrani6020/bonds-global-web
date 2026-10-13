@@ -36,8 +36,8 @@ describe('stabilization phase 2', () => {
     const api = read('v3/api/index.js');
     expect(api).toContain('freshnessSlaDays');
     expect(api).toContain('freshness_sla_days: slaDays');
-    expect(api).toContain("freshness_status: ageDays == null ? 'unknown' : (stale ? 'stale' : 'fresh')");
-    expect(api).toContain("evidence_status: stale ? 'stale'");
+    expect(api).toContain("freshness_status: observationAgeDays == null ? 'unknown' : (stale ? 'stale' : 'fresh')");
+    expect(api).toContain("evidence_status: verified ? (stale ? 'stale' : 'verified')");
     expect(api).toContain('staleCount: evidence.filter');
   });
 
