@@ -28,7 +28,8 @@ describe('header hover and automated refresh stabilization', () => {
       'v3/investment-map.html',
       'v3/city-comparison.html',
       'v3/project-readiness.html',
-      'v3/scenarios.html'
+      'v3/scenarios.html',
+      'contact.html'
     ]) {
       expect(read(file)).toContain('site-layout.js?v=3.4.0');
     }
