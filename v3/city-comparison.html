@@ -304,9 +304,7 @@
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">السنة</label>
         <select id="yearSelect">
-          <option value="2026" selected>2026</option>
-          <option value="2025">2025</option>
-          <option value="2024">2024</option>
+          <option value="latest" selected>أحدث سنة متاحة</option>
         </select>
       </div>
       <div>
@@ -335,7 +333,7 @@
   </div>
 
   <div class="footer">
-    Bonds V3 Enterprise — البيانات تقديرية وتخضع للتحقق.
+    Bonds V3 Enterprise — تعرض السنوات المتاحة من البيانات الفعلية، وتوسم القيم التقديرية بوضوح.
   </div>
 
   <script>
@@ -398,6 +396,36 @@
       return activity ? (activity.aliases || [activity.code]) : [];
     }
 
+    async function refreshComparisonYears({ preserve = true } = {}) {
+      const countryCode = document.getElementById('countrySelect').value;
+      const activityCode = document.getElementById('activitySelect').value;
+      const select = document.getElementById('yearSelect');
+      const current = preserve ? select.value : 'latest';
+
+      if (!countryCode) {
+        select.innerHTML = '<option value="latest">أحدث سنة متاحة</option>';
+        select.value = 'latest';
+        return { years: [], latest: null };
+      }
+
+      const params = new URLSearchParams({ country: countryCode });
+      if (activityCode) params.set('activity', activityCode);
+
+      try {
+        const data = await fetchJson(API_URL + '/catalog/years?' + params.toString());
+        const years = data.years || [];
+        const latestLabel = data.latest ? 'أحدث سنة متاحة (' + data.latest + ')' : 'أحدث سنة متاحة';
+        select.innerHTML = '<option value="latest">' + latestLabel + '</option>' +
+          years.map(year => '<option value="' + year + '">' + year + '</option>').join('');
+        select.value = current !== 'latest' && years.includes(Number(current)) ? current : 'latest';
+        return data;
+      } catch (err) {
+        select.innerHTML = '<option value="latest">أحدث سنة متاحة</option>';
+        select.value = 'latest';
+        return { years: [], latest: null, error: err.message };
+      }
+    }
+
     async function init() {
       try {
         const [countriesData, activitiesData, modelsData] = await Promise.all([
@@ -428,6 +456,7 @@
         modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
           models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
 
+        await refreshComparisonYears({ preserve: false });
         await updateCityList();
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
@@ -705,8 +734,14 @@
     }
 
     document.getElementById('compareBtn').addEventListener('click', runComparison);
-    document.getElementById('countrySelect').addEventListener('change', updateCityList);
-    document.getElementById('activitySelect').addEventListener('change', updateCityList);
+    document.getElementById('countrySelect').addEventListener('change', async () => {
+      await refreshComparisonYears({ preserve: false });
+      await updateCityList();
+    });
+    document.getElementById('activitySelect').addEventListener('change', async () => {
+      await refreshComparisonYears({ preserve: true });
+      await updateCityList();
+    });
     document.getElementById('yearSelect').addEventListener('change', updateCityList);
     document.getElementById('citySearch').addEventListener('input', filterCities);
 
