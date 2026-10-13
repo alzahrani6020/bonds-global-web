@@ -195,6 +195,31 @@ async function sendRefreshReport(result, fatalError) {
   }
 }
 
+function normalizeScheduledSourceUrl(src) {
+  try {
+    const url = new URL(String(src.url || ''));
+    const host = url.hostname.toLowerCase();
+    // World Bank feeds were historically seeded with a fixed 2024 date.
+    // Remove that pin so each automated run requests the latest available observation.
+    if (host === 'api.worldbank.org' || host.endsWith('.worldbank.org')) {
+      url.searchParams.delete('date');
+      url.searchParams.set('per_page', '1');
+    }
+    return url.toString();
+  } catch (_) {
+    return String(src.url || '');
+  }
+}
+
+function inferRecordedAt(rec, fallbackIso) {
+  const candidate = rec?.date ?? rec?.year ?? rec?.period ?? rec?.recorded_at ?? null;
+  if (candidate == null) return fallbackIso.split('T')[0];
+  const text = String(candidate).trim();
+  if (/^\d{4}$/.test(text)) return text + '-12-31';
+  const parsed = Date.parse(text);
+  return Number.isFinite(parsed) ? new Date(parsed).toISOString().split('T')[0] : fallbackIso.split('T')[0];
+}
+
 function isAllowedSourceUrl(urlStr) {
   try {
     const url = new URL(String(urlStr));
@@ -237,10 +262,11 @@ async function refreshSources(supabase) {
       return;
     }
     try {
-      if (!isAllowedSourceUrl(src.url)) {
+      const sourceUrl = normalizeScheduledSourceUrl(src);
+      if (!isAllowedSourceUrl(sourceUrl)) {
         throw new Error('Source URL is not on the allow-list or is private');
       }
-      const res = await fetch(src.url, {
+      const res = await fetch(sourceUrl, {
         method: src.method || 'GET',
         headers: src.headers || {},
         signal: AbortSignal.timeout(SOURCE_FETCH_TIMEOUT_MS)
@@ -260,7 +286,7 @@ async function refreshSources(supabase) {
           city: src.city || '',
           sector: src.sector || '',
           source: src.name,
-          recorded_at: now.split('T')[0]
+          recorded_at: inferRecordedAt(rec, now)
         };
         for (const [destKey, srcPath] of Object.entries(mapping)) {
           const raw = getPath(rec, String(srcPath));
@@ -575,6 +601,27 @@ async function handleMarketIntelligence(req, res) {
   return res.status(405).json({ success: false, error: 'Method not allowed' });
 }
 
+async function handleMarketIntelligenceCron(req, res) {
+  if (req.method !== 'GET') {
+    return res.status(405).json({ success: false, error: 'Method not allowed' });
+  }
+  const authHeader = req.headers?.authorization || '';
+  const secret = process.env.CRON_SECRET;
+  if (!secret || authHeader !== `Bearer ${secret}`) {
+    return res.status(401).json({ success: false, error: 'Unauthorized' });
+  }
+
+  const supabase = getSupabase();
+  try {
+    const result = await refreshSources(supabase);
+    const email = await sendRefreshReport(result);
+    return res.status(200).json({ success: true, scheduled: true, ...result, email });
+  } catch (err) {
+    await sendRefreshReport(null, err.message);
+    return res.status(500).json({ success: false, scheduled: true, error: err.message });
+  }
+}
+
 /* ---------- Main Handler ---------- */
 module.exports = async function handler(req, res) {
   cors(res, req);
@@ -585,6 +632,7 @@ module.exports = async function handler(req, res) {
   if (route === 'depreciation-factors') return handleDepreciationFactors(req, res);
   if (route === 'economic-life') return handleEconomicLife(req, res);
   if (route === 'market-intelligence') return handleMarketIntelligence(req, res);
+  if (route === 'market-intelligence-cron') return handleMarketIntelligenceCron(req, res);
 
   return res.status(404).json({ success: false, error: 'Not found' });
 };
