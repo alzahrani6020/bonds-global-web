@@ -219,6 +219,7 @@ describe('live source refresh and dynamic years', () => {
     expect(api).toContain('observation_age_days: observationAgeDays');
     expect(api).toContain('fetched_age_days: ages.retrieval_age_days');
     expect(api).toContain('freshness_basis: ages.freshness_basis');
+    expect(api).toContain('year: verified ? row.year : null');
     expect(api).toContain("freshness_status: observationAgeDays == null ? 'unknown'");
   });
 
