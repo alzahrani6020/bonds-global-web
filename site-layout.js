@@ -146,6 +146,7 @@
       terms: isEn ? 'Terms' : 'الشروط والأحكام',
       kyc: isEn ? 'Know Your Customer (KYC)' : 'اعرف عميلك (KYC)',
       receivablesAging: isEn ? 'Receivables Aging' : 'أعمار الذمم',
+      establishmentInfo: isEn ? 'Establishment Information' : 'معلومات المنشأة',
     };
 
     const currentPath = window.location.pathname;
@@ -184,6 +185,7 @@
     const fundingHubHref = langBase + 'funding.html';
     const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
     const receivablesAgingHref = isEn ? '/en/client/receivables-aging' : '/client/receivables-aging';
+    const establishmentInfoHref = isEn ? '/en/client/establishment-information' : '/client/establishment-information';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
@@ -287,6 +289,7 @@
         items: [
           { label: labels.kyc, href: kycHref },
           { label: labels.receivablesAging, href: receivablesAgingHref },
+          { label: labels.establishmentInfo, href: establishmentInfoHref },
         ],
       },
     ];
