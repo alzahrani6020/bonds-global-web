@@ -64,4 +64,11 @@ describe('header hover and automated refresh stabilization', () => {
     expect(page).toContain('هذه القيم على مستوى الدولة وليست قيماً خاصة بالمدينة');
     expect(page).toContain('/context');
   });
+
+  test('governance dropdown exposes KYC intake in both languages', () => {
+    const layout = read('site-layout.js');
+    expect(layout).toContain("kyc: isEn ? 'Know Your Customer (KYC)' : 'اعرف عميلك (KYC)'");
+    expect(layout).toContain("const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';");
+    expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
+  });
 });
