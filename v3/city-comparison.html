@@ -414,7 +414,7 @@
       try {
         const data = await fetchJson(API_URL + '/catalog/years?' + params.toString());
         const years = data.years || [];
-        const latestLabel = data.latest ? 'أحدث سنة متاحة (' + data.latest + ')' : 'أحدث سنة متاحة';
+        const latestLabel = data.latest ? ((data.sourceBacked ? 'أحدث سنة مصدرية (' : 'أحدث سنة مسجلة (') + data.latest + ')') : 'أحدث سنة متاحة';
         select.innerHTML = '<option value="latest">' + latestLabel + '</option>' +
           years.map(year => '<option value="' + year + '">' + year + '</option>').join('');
         select.value = current !== 'latest' && years.includes(Number(current)) ? current : 'latest';
