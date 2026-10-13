@@ -1245,7 +1245,10 @@ async function handleCityEvidence(req, res, path) {
     const slaDays = Number(row.metadata?.freshness_sla_days || freshnessSlaDays[row.metric_code] || 365);
     const ages = deriveEvidenceAges({
       ...row,
-      period: row.metadata?.sourcePeriod || row.year,
+      period: row.metadata?.sourcePeriod || (verified ? row.year : null),
+      year: verified ? row.year : null,
+      data_year: verified ? row.data_year : null,
+      observation_year: verified ? row.observation_year : null,
       retrieved_at: row.fetched_at
     }, nowMs);
     const observationAgeDays = ages.observation_age_days;
