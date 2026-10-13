@@ -379,9 +379,13 @@ async function handleAutoFill(req, res) {
   const results = {};
 
   try {
-    // تشغيل جميع المحركات
+    // Update city-level official/open sources first. "latest" is resolved by CityEngine
+    // to the actual observed source year before Gold fusion.
     const cityEngine = new CityEngine(config);
     results.city = await cityEngine.run({ cityId, cityCode, countryCode: city.country_code, year });
+
+    const effectiveYear = Number(results.city?.year) ||
+      (Number.isFinite(Number(year)) ? Number(year) : new Date().getFullYear());
 
     if (activityId || activityCode) {
       const engines = [
@@ -393,10 +397,13 @@ async function handleAutoFill(req, res) {
       ];
 
       for (const engine of engines) {
-        const r = await engine.run({ cityId, cityCode, activityId, activityCode, year });
+        const r = await engine.run({ cityId, cityCode, activityId, activityCode, year: effectiveYear });
         results[r.engine] = r;
       }
     }
+
+    results.requestedYear = year;
+    results.effectiveYear = effectiveYear;
 
     sendJson(res, 200, { success: true, results });
   } catch (err) {
