@@ -507,12 +507,36 @@ async function handleCatalogYears(req, res) {
     }
 
     if (countryCode) {
-      const { data: countryRows } = await supabase
-        .from('country_indicator_observations')
-        .select('year')
-        .eq('country_code', countryCode)
-        .limit(1000);
-      for (const row of countryRows || []) {
+      async function loadCountryYearRows() {
+        const { data } = await supabase
+          .from('country_indicator_observations')
+          .select('year,fetched_at')
+          .eq('country_code', countryCode)
+          .limit(1000);
+        return data || [];
+      }
+
+      let countryRows = await loadCountryYearRows();
+      const newestFetchMs = countryRows
+        .map(row => row.fetched_at ? Date.parse(row.fetched_at) : NaN)
+        .filter(Number.isFinite)
+        .sort((a, b) => b - a)[0] || 0;
+      const cacheAgeMs = newestFetchMs ? Date.now() - newestFetchMs : Infinity;
+
+      if (!countryRows.length || cacheAgeMs > 6 * 60 * 60 * 1000) {
+        try {
+          const engine = new CountryIndicatorEngine({ timeoutMs: 12000 });
+          await engine.refresh(supabase, {
+            countryCodes: [countryCode],
+            runType: 'incremental'
+          });
+          countryRows = await loadCountryYearRows();
+        } catch (refreshErr) {
+          console.warn('[catalog-years refresh]', countryCode, refreshErr.message);
+        }
+      }
+
+      for (const row of countryRows) {
         const year = Number(row.year);
         if (Number.isInteger(year)) sourceYears.add(year);
       }
