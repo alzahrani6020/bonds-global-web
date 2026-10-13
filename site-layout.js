@@ -270,7 +270,6 @@
           { label: labels.fundingExtraction, href: fundingExtractionHref },
           { label: labels.fundingSources, href: fundingSourcesHref },
           { label: labels.fundingReadiness, href: fundingReadinessHref },
-          { label: labels.kyc, href: kycHref },
         ],
       },
       {
@@ -279,6 +278,12 @@
           { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
           { label: labels.projectReadiness, href: isEn ? v3EnglishHubHref + '#project-readiness' : '/v3/project-readiness' },
           { label: labels.opportunityBank, href: isEn ? v3EnglishHubHref + '#opportunity-bank' : '/v3/opportunity-bank' },
+        ],
+      },
+      {
+        heading: { ar: 'نماذج', en: 'Forms' },
+        items: [
+          { label: labels.kyc, href: kycHref },
         ],
       },
     ];
