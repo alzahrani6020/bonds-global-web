@@ -980,42 +980,6 @@ async function handleCountryContext(req, res, path) {
     };
   });
 
-  // Keep a sourced interest-rate observation from the legacy market feed when available.
-  const { data: legacyRows } = await supabase
-    .from('market_data')
-    .select('interest_rate,source,recorded_at,updated_at,confidence,data_quality_score')
-    .eq('country', countryCode)
-    .not('interest_rate', 'is', null)
-    .neq('source', 'BONDS Market Intelligence')
-    .order('recorded_at', { ascending: false })
-    .order('updated_at', { ascending: false })
-    .limit(1);
-
-  const interest = legacyRows?.[0];
-  if (interest && Number.isFinite(Number(interest.interest_rate))) {
-    const interestYear = Number.parseInt(String(interest.recorded_at || ''), 10) || null;
-    if (requestedYear === 'latest' || !/^\d{4}$/.test(requestedYear) || interestYear === Number(requestedYear)) {
-      metrics.push({
-        metric: 'interest_rate',
-        value: Number(interest.interest_rate),
-        unit: '%',
-        source: interest.source,
-        source_url: null,
-        observed_at: interest.recorded_at || null,
-        fetched_at: interest.updated_at || null,
-        confidence: interest.confidence ?? null,
-        data_quality_score: interest.data_quality_score ?? null,
-        geographic_scope: 'country',
-        country_code: countryCode,
-        year: interestYear,
-        age_days: interest.recorded_at ? Math.max(0, Math.floor((nowMs - Date.parse(interest.recorded_at)) / 86400000)) : null,
-        freshness_sla_days: countryFreshnessSlaDays.interest_rate,
-        freshness_status: interest.recorded_at && Number.isFinite(Date.parse(interest.recorded_at)) &&
-          ((nowMs - Date.parse(interest.recorded_at)) / 86400000) > countryFreshnessSlaDays.interest_rate ? 'stale' : 'fresh'
-      });
-    }
-  }
-
   metrics.sort((a, b) => String(a.metric).localeCompare(String(b.metric)));
 
   return sendJson(res, 200, {
@@ -1027,6 +991,32 @@ async function handleCountryContext(req, res, path) {
     years: [...new Set(metrics.map(row => Number(row.year)).filter(Number.isFinite))].sort((a,b)=>b-a),
     label: 'latest_available_external_context'
   });
+}
+
+async function resolveLatestSourceBackedCityYear(supabase, cityId) {
+  const { data: rows, error } = await supabase
+    .from('normalized_metrics')
+    .select('year,source_url,source_id,is_override,metadata')
+    .eq('city_id', cityId)
+    .order('year', { ascending: false })
+    .order('fetched_at', { ascending: false })
+    .limit(500);
+
+  if (error) return null;
+
+  for (const row of rows || []) {
+    const quality = String(row.metadata?.dataQuality || '').toLowerCase();
+    const observed = row.metadata?.observationKind === 'observed' ||
+      row.is_override === true ||
+      (
+        row.metadata?.estimated !== true &&
+        Boolean(row.source_url) &&
+        ['official', 'open_data'].includes(quality)
+      );
+    const year = Number(row.year);
+    if (observed && Number.isInteger(year)) return year;
+  }
+  return null;
 }
 
 async function handleCityDetail(req, res, path) {
@@ -1050,25 +1040,29 @@ async function handleCityDetail(req, res, path) {
 
   let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
 
-  // If no specific year requested, resolve the latest year that has data
+  // For "latest", prefer a year backed by observed/official normalized metrics.
+  // Legacy Gold years are only a fallback when no source-backed city observation exists.
   if (!targetYear) {
-    const { data: latestIndicator } = await supabase
-      .from('city_indicators')
-      .select('year')
-      .eq('city_id', city.id)
-      .order('year', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const { data: latestMarket } = await supabase
-      .from('city_market_data')
-      .select('data_year')
-      .eq('city_id', city.id)
-      .order('data_year', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    const indicatorYear = latestIndicator?.year || 0;
-    const marketYear = latestMarket?.data_year || 0;
-    targetYear = Math.max(indicatorYear, marketYear) || new Date().getFullYear();
+    targetYear = await resolveLatestSourceBackedCityYear(supabase, city.id);
+    if (!targetYear) {
+      const { data: latestIndicator } = await supabase
+        .from('city_indicators')
+        .select('year')
+        .eq('city_id', city.id)
+        .order('year', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const { data: latestMarket } = await supabase
+        .from('city_market_data')
+        .select('data_year')
+        .eq('city_id', city.id)
+        .order('data_year', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const indicatorYear = latestIndicator?.year || 0;
+      const marketYear = latestMarket?.data_year || 0;
+      targetYear = Math.max(indicatorYear, marketYear) || new Date().getFullYear();
+    }
   }
 
   const [{ data: indicators }, { data: marketData }] = await Promise.all([
@@ -1115,14 +1109,17 @@ async function handleCityIndicators(req, res, path) {
   let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
 
   if (!targetYear) {
-    const { data: latest } = await supabase
-      .from('city_indicators')
-      .select('year')
-      .eq('city_id', city.id)
-      .order('year', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-    targetYear = latest?.year || new Date().getFullYear();
+    targetYear = await resolveLatestSourceBackedCityYear(supabase, city.id);
+    if (!targetYear) {
+      const { data: latest } = await supabase
+        .from('city_indicators')
+        .select('year')
+        .eq('city_id', city.id)
+        .order('year', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      targetYear = latest?.year || new Date().getFullYear();
+    }
   }
 
   const { data, error } = await supabase
