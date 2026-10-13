@@ -129,13 +129,42 @@
       factoryEg: isEn ? 'Factory Cost — Egypt' : 'تكلفة المصنع — مصر',
       pricingFeasibilityGroup: isEn ? 'Pricing & Feasibility' : 'التسعير والجدوى',
       financialAnalysisGroup: isEn ? 'Financial Analysis' : 'التحليل المالي',
+      tools: isEn ? 'Tools' : 'الأدوات',
+      aboutGovernance: isEn ? 'About' : 'عن بوندز',
+      advisoryGroup: isEn ? 'Advisory' : 'الاستشارات',
+      financeManagementGroup: isEn ? 'Financial Management' : 'الإدارة المالية',
+      transformationGroup: isEn ? 'Transformation & Risk' : 'التحول والمخاطر',
+      fundingGroup: isEn ? 'Funding' : 'التمويل',
+      investmentGroup: isEn ? 'Investment' : 'الاستثمار',
+      intelligenceGroup: isEn ? 'Cities & Markets' : 'المدن والأسواق',
+      methodologyGroup: isEn ? 'Methodology & Data' : 'المنهجية والبيانات',
+      methodology: isEn ? 'Calculation Methodology' : 'منهجية الحساب',
+      dataMethodology: isEn ? 'Data Sources & Methodology' : 'مصادر ومنهجية البيانات',
+      companyGroup: isEn ? 'Company' : 'الشركة',
+      governanceGroup: isEn ? 'Governance & Trust' : 'الحوكمة والثقة',
+      privacy: isEn ? 'Privacy' : 'الخصوصية',
+      terms: isEn ? 'Terms' : 'الشروط والأحكام',
     };
 
     const currentPath = window.location.pathname;
     const currentSearch = window.location.search || '';
-    const langHref = isEn
-      ? (currentPath.replace(/^\/en\//, '/').replace(/\/$/, '/index.html') || '/index.html') + currentSearch
-      : '/en' + currentPath + currentSearch;
+    function languageSwitchHref() {
+      if (isEn) {
+        if (/^\/en\/v3\/?$/i.test(currentPath)) {
+          const source = new URLSearchParams(currentSearch).get('from');
+          return source && source.startsWith('/v3/') ? source : '/v3/city-intelligence';
+        }
+        const arPath = currentPath === '/en' || currentPath === '/en/'
+          ? '/'
+          : currentPath.replace(/^\/en(?=\/|$)/, '');
+        return (arPath || '/') + currentSearch;
+      }
+      if (/^\/v3\//i.test(currentPath)) {
+        return '/en/v3/?from=' + encodeURIComponent(currentPath + currentSearch);
+      }
+      return '/en' + (currentPath === '/' ? '/index.html' : currentPath) + currentSearch;
+    }
+    const langHref = languageSwitchHref();
     const homeHref = langBase + 'index.html';
     const aboutHref = langBase + 'about.html';
     const caseStudiesHref = langBase + 'case-studies.html';
@@ -158,29 +187,48 @@
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = calcBase + 'break-even.html';
     const sectorsBase = langBase + 'sectors/';
+    const methodologyHref = langBase + 'methodology.html';
+    const dataMethodologyHref = langBase + 'data-methodology.html';
+    const privacyHref = langBase + 'privacy.html';
+    const termsHref = langBase + 'terms.html';
+    const v3EnglishHubHref = '/en/v3/';
 
     const serviceDropdown = [
-      { label: labels.financialAdvisory, href: servicesHref },
-      { label: labels.analysis, href: servicesHref + '#analysis' },
-      { label: labels.cashflow, href: servicesHref + '#cashflow' },
-      { label: labels.budgets, href: servicesHref + '#budgets' },
-      { label: labels.feasibility, href: servicesHref + '#feasibility' },
-      { label: labels.risk, href: servicesHref + '#risk' },
-      { label: labels.strategy, href: servicesHref + '#strategy' },
-      { label: labels.operations, href: servicesHref + '#operations' },
-      { label: labels.research, href: servicesHref + '#research' },
-      { label: labels.projectRescue, href: projectRescueHref },
+      {
+        heading: { ar: labels.advisoryGroup, en: 'Advisory' },
+        items: [
+          { label: labels.financialAdvisory, href: servicesHref },
+          { label: labels.feasibility, href: servicesHref + '#feasibility' },
+          { label: labels.valuation, href: valuationHref },
+          { label: labels.strategy, href: servicesHref + '#strategy' },
+        ],
+      },
+      {
+        heading: { ar: labels.financeManagementGroup, en: 'Financial Management' },
+        items: [
+          { label: labels.analysis, href: servicesHref + '#analysis' },
+          { label: labels.cashflow, href: servicesHref + '#cashflow' },
+          { label: labels.budgets, href: servicesHref + '#budgets' },
+        ],
+      },
+      {
+        heading: { ar: labels.transformationGroup, en: 'Transformation & Risk' },
+        items: [
+          { label: labels.risk, href: servicesHref + '#risk' },
+          { label: labels.operations, href: servicesHref + '#operations' },
+          { label: labels.research, href: servicesHref + '#research' },
+          { label: labels.projectRescue, href: projectRescueHref },
+        ],
+      },
     ];
-
-    // Navigation dropdown data is kept intentionally minimal; deep calculator lists
-    // live on the dedicated calculators landing pages to avoid cognitive overload.
 
     const calcDropdown = [
       {
-        heading: { ar: 'الأدوات الرئيسية', en: 'Main Tools' },
+        heading: { ar: 'التحليل والقرار', en: 'Analysis & Decision' },
         items: [
           { label: labels.investmentCenter, href: calcBase + 'investment-center/index.html' },
           { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
+          { label: labels.realProjectAnalysis, href: calcBase + 'real-project-analysis.html' },
           { label: labels.breakEven, href: calcBreakEven },
         ],
       },
@@ -191,7 +239,6 @@
           { label: labels.loanCalc, href: calcBase + 'loan.html' },
           { label: labels.roiCalc, href: calcBase + 'roi.html' },
           { label: labels.creditworthinessCalc, href: calcBase + 'creditworthiness.html' },
-          { label: labels.realProjectAnalysis, href: calcBase + 'real-project-analysis.html' },
           { label: labels.invoiceCalc, href: calcBase + 'invoice-analyzer.html' },
         ],
       },
@@ -204,31 +251,70 @@
         ],
       },
       {
-        heading: { ar: 'حاسبات متخصصة', en: 'Specialized Calculators' },
+        heading: { ar: 'أدوات قطاعية', en: 'Sector Tools' },
         items: [
           { label: labels.restaurantCalc, href: calcBase + 'restaurant.html' },
           { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
           { label: labels.medicalCalc, href: calcBase + 'medical-viability.html' },
-          { label: labels.valuation, href: langBase + 'valuation/index.html' },
         ],
       },
     ];
 
     const fundingDropdown = [
-      { label: labels.fundingHub, href: fundingHubHref },
-      { label: labels.fundingExtraction, href: fundingExtractionHref },
-      { label: labels.fundingSources, href: fundingSourcesHref },
-      { label: labels.fundingReadiness, href: fundingReadinessHref },
-      { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
+      {
+        heading: { ar: labels.fundingGroup, en: 'Funding' },
+        items: [
+          { label: labels.fundingHub, href: fundingHubHref },
+          { label: labels.fundingExtraction, href: fundingExtractionHref },
+          { label: labels.fundingSources, href: fundingSourcesHref },
+          { label: labels.fundingReadiness, href: fundingReadinessHref },
+        ],
+      },
+      {
+        heading: { ar: labels.investmentGroup, en: 'Investment' },
+        items: [
+          { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
+          { label: labels.projectReadiness, href: isEn ? v3EnglishHubHref + '#project-readiness' : '/v3/project-readiness' },
+          { label: labels.opportunityBank, href: isEn ? v3EnglishHubHref + '#opportunity-bank' : '/v3/opportunity-bank' },
+        ],
+      },
     ];
 
     const intelligenceDropdown = [
-      { label: labels.cityIntelligence, href: '/' + v3Base + 'city-intelligence' },
-      { label: labels.cityComparison, href: '/' + v3Base + 'city-comparison' },
-      { label: labels.investmentMap, href: '/' + v3Base + 'investment-map' },
-      { label: labels.projectReadiness, href: '/' + v3Base + 'project-readiness' },
-      { label: labels.opportunityBank, href: '/' + v3Base + 'opportunity-bank' },
-      { label: labels.scenariosEngine, href: '/' + v3Base + 'scenarios' },
+      {
+        heading: { ar: labels.intelligenceGroup, en: 'Cities & Markets' },
+        items: [
+          { label: labels.cityIntelligence, href: isEn ? v3EnglishHubHref + '#city-intelligence' : '/v3/city-intelligence' },
+          { label: labels.cityComparison, href: isEn ? v3EnglishHubHref + '#city-comparison' : '/v3/city-comparison' },
+          { label: labels.investmentMap, href: isEn ? v3EnglishHubHref + '#investment-map' : '/v3/investment-map' },
+          { label: labels.scenariosEngine, href: isEn ? v3EnglishHubHref + '#scenarios' : '/v3/scenarios' },
+        ],
+      },
+      {
+        heading: { ar: labels.methodologyGroup, en: 'Methodology & Data' },
+        items: [
+          { label: labels.dataMethodology, href: dataMethodologyHref },
+          { label: labels.methodology, href: methodologyHref },
+        ],
+      },
+    ];
+
+    const aboutDropdown = [
+      {
+        heading: { ar: labels.companyGroup, en: 'Company' },
+        items: [
+          { label: labels.about, href: aboutHref },
+          { label: labels.caseStudies, href: caseStudiesHref },
+          { label: labels.contact, href: contactHref },
+        ],
+      },
+      {
+        heading: { ar: labels.governanceGroup, en: 'Governance & Trust' },
+        items: [
+          { label: labels.privacy, href: privacyHref },
+          { label: labels.terms, href: termsHref },
+        ],
+      },
     ];
 
     const caretSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
@@ -262,9 +348,9 @@
       { href: homeHref, label: labels.home },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
       { type: 'dropdown', label: labels.fundingHub, items: fundingDropdown, highlight: true },
-      { type: 'dropdown', label: labels.calculators, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Calculators →' : 'جميع الحاسبات →' } },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
-      { href: contactHref, label: labels.contact },
+      { type: 'dropdown', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
+      { type: 'dropdown', label: labels.aboutGovernance, items: aboutDropdown },
     ];
 
     const navHtml = navItems.map(item => {
@@ -397,6 +483,8 @@
         <a href="${blogHref}">${isEn ? 'Articles' : 'المقالات'}</a>
         <a href="${reportsHref}">${isEn ? 'Guides & Reports' : 'الأدلة والتقارير'}</a>
         <a href="${faqHref}">${isEn ? 'FAQ' : 'الأسئلة الشائعة'}</a>
+        <a href="${langBase + 'data-methodology.html'}">${isEn ? 'Data Sources & Methodology' : 'مصادر ومنهجية البيانات'}</a>
+        <a href="${langBase + 'methodology.html'}">${isEn ? 'Calculation Methodology' : 'منهجية الحساب'}</a>
       </div>
     </div>
     <div>

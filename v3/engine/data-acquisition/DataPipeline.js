@@ -22,7 +22,7 @@ class DataPipeline {
     this.options = {
       batchSize: options.batchSize || 500,
       storeRaw: options.storeRaw !== false,
-      inferMissing: options.inferMissing !== false,
+      inferMissing: options.inferMissing === true,
       useFeedback: options.useFeedback !== false,
       ...options
     };

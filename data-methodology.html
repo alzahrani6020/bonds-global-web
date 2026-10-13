@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>مصادر ومنهجية البيانات | بوندز</title>
+  <meta name="description" content="منهجية بوندز لمصادر البيانات، الحداثة، الثقة، والفصل بين البيانات المرصودة والتقديرات النموذجية." />
+  <link rel="canonical" href="https://bonds-global.com/data-methodology.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="مصادر ومنهجية البيانات | بوندز" />
+  <meta property="og:description" content="منهجية بوندز لمصادر البيانات والحداثة والثقة والفصل بين البيانات المرصودة والتقديرات النموذجية." />
+  <meta property="og:url" content="https://bonds-global.com/data-methodology.html" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="مصادر ومنهجية البيانات | بوندز" />
+  <meta name="twitter:description" content="منهجية بوندز لمصادر البيانات والحداثة والثقة والفصل بين البيانات المرصودة والتقديرات النموذجية." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png" />
+  <link rel="stylesheet" href="/styles.css?v=2026" />
+  <link rel="stylesheet" href="/header-footer.css?v=2.70.0" />
+  <style>
+    body{background:#f6f8fb;color:#0f172a}.methodology-wrap{max-width:1180px;margin:auto;padding:3rem 1.25rem 5rem}
+    .hero-box,.truth-card,.status-card{background:#fff;border:1px solid #dbe3ef;border-radius:18px}
+    .hero-box{padding:2rem;margin-bottom:1.5rem}.hero-box h1{margin:0 0 .75rem;font-size:clamp(1.8rem,4vw,3rem)}
+    .hero-box p{color:#475569;line-height:1.9}.truth-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+    .truth-card,.status-card{padding:1.2rem}.truth-card h2,.status-card h3{margin-top:0}.tag{display:inline-block;border-radius:999px;padding:.25rem .65rem;font-weight:700;font-size:.8rem}
+    .verified{background:#dcfce7;color:#166534}.modeled{background:#fef3c7;color:#92400e}.missing{background:#e2e8f0;color:#334155}.stale{background:#fee2e2;color:#991b1b}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;margin-top:1rem}th,td{padding:.9rem;border-bottom:1px solid #e2e8f0;text-align:right;vertical-align:top}th{background:#0f172a;color:#fff}
+    code{direction:ltr;display:inline-block}.section{margin-top:2rem}.note{border-right:4px solid #d4a853;background:#fff8e8;padding:1rem 1.2rem;border-radius:12px}
+    a{color:#9a6b16}
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main-content" class="methodology-wrap">
+    <section class="hero-box">
+      <h1>مصادر ومنهجية البيانات</h1>
+      <p>هذه الصفحة تشرح كيف تميز بوندز بين البيانات المرصودة من مصادر قابلة للتتبع، والبيانات النموذجية، والبيانات القديمة أو غير المتاحة. الهدف هو منع عرض تقدير داخلي كما لو كان حقيقة رسمية.</p>
+      <p><a href="/methodology.html">منهجية الحسابات المالية</a> · <a href="/v3/city-intelligence">ذكاء المدن</a> · <a href="/v3/investment-map">الخريطة الاستثمارية</a></p>
+    </section>
+
+    <section class="truth-grid">
+      <article class="truth-card"><span class="tag verified">مثبت Verified</span><h2>بيانات مرصودة</h2><p>قيمة لها مصدر قابل للتتبع، تاريخ جلب، سنة/فترة مرجعية، ومستوى جغرافي معروف. لا تُمنح هذه الصفة لمجرد وجود رابط مصدر عام.</p></article>
+      <article class="truth-card"><span class="tag modeled">تقديري Modeled</span><h2>نموذج أو استنتاج</h2><p>قيمة ناتجة عن نموذج، benchmark، inference أو تحويل داخلي. تُعرض بوضوح كتقدير ولا تستبدل القيمة الرسمية المرصودة.</p></article>
+      <article class="truth-card"><span class="tag stale">قديم Stale</span><h2>خارج حداثة المؤشر</h2><p>قد تكون القيمة صحيحة تاريخيًا، لكنها تجاوزت مدة الحداثة المناسبة لنوع المؤشر. مدة الحداثة تختلف بين السكان، التضخم، الأسعار، وغيرها.</p></article>
+      <article class="truth-card"><span class="tag missing">غير متاح Missing</span><h2>لا دليل كافٍ</h2><p>إذا لم توجد بيانات قابلة للتتبع، تعرض المنصة «غير متاح» بدل إنشاء رقم افتراضي أو تحويل فشل الاتصال إلى صفر.</p></article>
+    </section>
+
+    <section class="section status-card">
+      <h2>حقول الإثبات الأساسية</h2>
+      <table>
+        <thead><tr><th>الحقل</th><th>المعنى</th></tr></thead>
+        <tbody>
+          <tr><td><code>source_name / source_url</code></td><td>الجهة أو الصفحة التي يمكن تتبع القيمة إليها.</td></tr>
+          <tr><td><code>observed_at / year</code></td><td>الفترة التي تصفها القيمة، وليست فقط وقت تنزيلها.</td></tr>
+          <tr><td><code>fetched_at</code></td><td>وقت جلب البيانات إلى نظام بوندز.</td></tr>
+          <tr><td><code>geographic_scope</code></td><td>مدينة، منطقة/محافظة، أو دولة. لا يجوز عرض قيمة وطنية على أنها قيمة مدينة دون وسم واضح.</td></tr>
+          <tr><td><code>confidence</code></td><td>درجة الثقة في القياس/الربط وليس ضمانًا لصحة القرار الاستثماري.</td></tr>
+          <tr><td><code>data_quality</code></td><td>مثل official، open_data، estimated، fallback.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section status-card">
+      <h2>سياسة الحداثة Freshness</h2>
+      <p>لا تستخدم بوندز حدًا زمنيًا واحدًا لكل المؤشرات. يجب تحديد <code>freshness_sla_days</code> حسب طبيعة السلسلة: البيانات السكانية تتغير ببطء، بينما الأسعار والأسواق تحتاج تحديثًا أقرب.</p>
+      <div class="note">«مباشر Live» لا يستخدم إلا عندما تكون القيمة آتية من واجهة مصدر حقيقية بتأخير معروف. البيانات الحكومية الدورية توصف بأنها «أحدث إصدار رسمي»، وليس «حية».</div>
+    </section>
+
+    <section class="section status-card">
+      <h2>قواعد درجات الفرص</h2>
+      <p>أي درجة مركبة يجب أن تكون قابلة للتفسير: العوامل، الأوزان، مصدر كل عامل، ونسبة المدخلات التقديرية. إذا كانت الأدلة غير كافية فلا تعرض الدرجة كحقيقة مكتملة.</p>
+      <p>في ذكاء المدن، الاستنتاج الآلي للبيانات المفقودة ليس الوضع الافتراضي؛ يجب تشغيله صراحةً ويظل موسومًا كنموذج.</p>
+    </section>
+
+    <section class="section status-card">
+      <h2>البيانات الجغرافية</h2>
+      <p>تعتمد بوندز معرفات معيارية للكيانات الجغرافية، وتفصل بين المدينة والمنطقة والميناء والمنطقة الاقتصادية والمدينة الصناعية. وجود الكيان في الكتالوج لا يعني تلقائيًا توفر مؤشرات اقتصادية موثقة له.</p>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script defer src="/site-layout.js?v=3.3.0"></script>
+</body>
+</html>

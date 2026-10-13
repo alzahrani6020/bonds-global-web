@@ -2,7 +2,7 @@
  * Bonds Global — Health Check endpoint
  * Returns service status and a lightweight Supabase connectivity check.
  */
-const { createClient } = require('../lib/api/supabase');
+const getSupabase = require('../lib/api/supabase');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -18,7 +18,7 @@ module.exports = async function handler(req, res) {
   let supabaseStatus = 'unknown';
 
   try {
-    const supabase = createClient();
+    const supabase = getSupabase();
     const { error } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).limit(1);
     supabaseStatus = error ? 'error' : 'ok';
   } catch (e) {
@@ -27,8 +27,9 @@ module.exports = async function handler(req, res) {
 
   const version = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7) : 'dev';
 
-  return res.status(200).json({
-    status: 'ok',
+  const healthy = supabaseStatus === 'ok';
+  return res.status(healthy ? 200 : 503).json({
+    status: healthy ? 'ok' : 'degraded',
     service: 'bonds-global',
     version,
     timestamp: new Date().toISOString(),
