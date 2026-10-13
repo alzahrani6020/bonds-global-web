@@ -32,6 +32,8 @@ class SamaAdapter extends BaseAdapter {
     let quality = 'unknown';
     const metrics = {};
     const metricQuality = {};
+    const metricYear = {};
+    const metricMetadata = {};
     let inflation = null;
     let growth = null;
 
@@ -45,11 +47,15 @@ class SamaAdapter extends BaseAdapter {
         if (inflation.status === 'fulfilled' && inflation.value != null && (latestRequested || inflation.value.dataYear === year)) {
           metrics.inflation_rate = inflation.value.value;
           metricQuality.inflation_rate = 'open_data';
+          metricYear.inflation_rate = Number(inflation.value.dataYear) || null;
+          metricMetadata.inflation_rate = { sourcePeriod: inflation.value.sourcePeriod || null };
           quality = 'open_data';
         }
         if (growth.status === 'fulfilled' && growth.value != null && (latestRequested || growth.value.dataYear === year)) {
           metrics.growth_rate = growth.value.value;
           metricQuality.growth_rate = 'open_data';
+          metricYear.growth_rate = Number(growth.value.dataYear) || null;
+          metricMetadata.growth_rate = { sourcePeriod: growth.value.sourcePeriod || null };
           quality = 'open_data';
         }
       } catch (err) {
@@ -82,6 +88,8 @@ class SamaAdapter extends BaseAdapter {
       year: observedYear,
       metrics,
       metricQuality,
+      metricYear,
+      metricMetadata,
       externalId: `sama-${cityCode || 'UNK'}-${observedYear}`,
       source: this.config.sourceId,
       quality
@@ -97,7 +105,7 @@ class SamaAdapter extends BaseAdapter {
   }
 
   async transform(rawItem) {
-    const { cityCode, year, metrics, metricQuality = {} } = rawItem;
+    const { cityCode, year, metrics, metricQuality = {}, metricYear = {}, metricMetadata = {} } = rawItem;
     const result = [];
 
     const mappings = {
@@ -115,11 +123,18 @@ class SamaAdapter extends BaseAdapter {
         metricCode: mapping.code,
         value: typeof value === 'number' ? value : parseFloat(value),
         valueText: null,
-        year,
+        year: Number.isInteger(Number(metricYear[key])) ? Number(metricYear[key]) : year,
         sourceUrl: sourceQuality === 'fallback' ? null : 'https://datasource.kapsarc.org',
         confidence: this.getConfidence(mapping.code, sourceQuality),
         confidenceReason: `Source: ${this.config.sourceName} (${sourceQuality})`,
-        metadata: { cityCode, originalKey: key, dataQuality: sourceQuality, scope: 'national', estimated: sourceQuality === 'fallback' }
+        metadata: {
+          cityCode,
+          originalKey: key,
+          dataQuality: sourceQuality,
+          scope: 'national',
+          estimated: sourceQuality === 'fallback',
+          ...metricMetadata[key]
+        }
       });
     }
 
@@ -140,7 +155,11 @@ class SamaAdapter extends BaseAdapter {
 
     const date = data.results[0].date || '';
     const dataYear = parseInt(date.split('-')[0], 10) || null;
-    return { value: parseFloat(data.results[0].inflation_rate_), dataYear };
+    return {
+      value: parseFloat(data.results[0].inflation_rate_),
+      dataYear,
+      sourcePeriod: date || null
+    };
   }
   async _fetchGrowthRate(year, latestRequested = false) {
     const query = latestRequested
@@ -159,7 +178,11 @@ class SamaAdapter extends BaseAdapter {
     if (!values.length) return null;
 
     const avg = values.reduce((a, b) => a + b, 0) / values.length;
-    return { value: parseFloat(avg.toFixed(2)), dataYear: latestYear || year || null };
+    return {
+      value: parseFloat(avg.toFixed(2)),
+      dataYear: latestYear || year || null,
+      sourcePeriod: latestDate || null
+    };
   }
   async _getJson(url) {
     const controller = new AbortController();
