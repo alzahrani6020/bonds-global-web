@@ -185,6 +185,46 @@ describe('Bonds Intelligence Runtime', () => {
     expect(result.error.code).toBe('UNKNOWN_CAPABILITY');
   });
 
+  test('remote native router sends Cloudflare Access service credentials without changing local auth', async () => {
+    const originalFetch = global.fetch;
+    global.fetch = jest.fn(async () => ({
+      ok: true,
+      status: 200,
+      text: async () => JSON.stringify({ ok: true, runtime: { backend: 'llama_cpp' } })
+    }));
+
+    try {
+      const router = new InferenceRouter({
+        mode: 'REMOTE_BONDS_NATIVE',
+        remoteUrl: 'https://native.bonds-global.com',
+        token: 'native-secret',
+        cfAccessClientId: 'access-client-id',
+        cfAccessClientSecret: 'access-client-secret'
+      });
+      const health = await router.health();
+      expect(health.ok).toBe(true);
+      expect(global.fetch).toHaveBeenCalledWith(
+        'https://native.bonds-global.com/health',
+        expect.objectContaining({
+          method: 'GET',
+          headers: expect.objectContaining({
+            authorization: 'Bearer native-secret',
+            'CF-Access-Client-Id': 'access-client-id',
+            'CF-Access-Client-Secret': 'access-client-secret'
+          })
+        })
+      );
+
+      expect(() => new InferenceRouter({
+        mode: 'REMOTE_BONDS_NATIVE',
+        remoteUrl: 'https://native.bonds-global.com',
+        cfAccessClientId: 'partial-only'
+      })).toThrow(/requires both/);
+    } finally {
+      global.fetch = originalFetch;
+    }
+  });
+
   test('native inference router is provider-independent and handles runtime response', async () => {
     const originalFetch = global.fetch;
     global.fetch = jest.fn(async (url, options) => {
