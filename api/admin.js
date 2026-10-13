@@ -1371,7 +1371,43 @@ async function getMessages(sb, params = {}) {
     }));
   }
 
-  return { success: true, messages, total: count || 0 };
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const startOfTodayIso = startOfToday.toISOString();
+
+  async function countMessages(applyExtraFilter) {
+    let q = sb.from('contact_messages').select('*', { count: 'exact', head: true });
+    if (search) q = q.or(`email.ilike.%${search}%,name.ilike.%${search}%,message.ilike.%${search}%`);
+    if (assignedFilter === 'me' && currentUserId) q = q.eq('assigned_to', currentUserId);
+    else if (assignedFilter === 'unassigned') q = q.is('assigned_to', null);
+    else if (assignedFilter && assignedFilter !== 'all' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(assignedFilter)) q = q.eq('assigned_to', assignedFilter);
+    if (applyExtraFilter === 'unread') q = q.eq('read', false);
+    if (applyExtraFilter === 'today') q = q.gte('created_at', startOfTodayIso);
+    const result = await q;
+    if (result.error) throw result.error;
+    return result.count || 0;
+  }
+
+  let unreadTotal = 0;
+  let todayTotal = 0;
+  try {
+    [unreadTotal, todayTotal] = await Promise.all([
+      countMessages('unread'),
+      countMessages('today')
+    ]);
+  } catch (countError) {
+    // Do not turn a counter failure into a false zero for the whole inbox.
+    unreadTotal = null;
+    todayTotal = null;
+  }
+
+  return {
+    success: true,
+    messages,
+    total: count || 0,
+    unread_total: unreadTotal,
+    today_total: todayTotal
+  };
 }
 
 async function resolveAssignee(sb, identifier) {
@@ -3705,6 +3741,13 @@ async function getStats(sb) {
     { count: enterpriseCount },
     { count: scenariosCount },
     fundingCasesCount,
+    subscriptionsCount,
+    messagesCount,
+    advisoryClientsCount,
+    advisoryProjectsCount,
+    recoveryAssetsCount,
+    citiesCount,
+    aiReviewsCount,
     { data: recentSubs },
     { data: profileList }
   ] = await Promise.all([
@@ -3712,6 +3755,13 @@ async function getStats(sb) {
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise'),
     sb.from('scenarios').select('*', { count: 'exact', head: true }),
     safeCount(sb, 'funding_cases'),
+    safeCount(sb, 'subscriptions'),
+    safeCount(sb, 'contact_messages'),
+    safeCount(sb, 'advisory_clients'),
+    safeCount(sb, 'advisory_projects'),
+    safeCount(sb, 'recovery_assets'),
+    safeCount(sb, 'cities'),
+    safeCount(sb, 'ai_review_requests'),
     sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false }).limit(10),
     sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false }).limit(10)
   ]);
@@ -3738,6 +3788,13 @@ async function getStats(sb) {
       totalUsers, freeUsers, proUsers, enterpriseUsers,
       totalScenarios: scenariosCount || 0,
       fundingCases: fundingCasesCount || 0,
+      subscriptions: subscriptionsCount || 0,
+      messages: messagesCount || 0,
+      advisoryClients: advisoryClientsCount || 0,
+      advisoryProjects: advisoryProjectsCount || 0,
+      recoveryAssets: recoveryAssetsCount || 0,
+      cities: citiesCount || 0,
+      aiReviews: aiReviewsCount || 0,
       monthlyRevenue,
       conversionRate: totalUsers > 0 ? ((proUsers + enterpriseUsers) / totalUsers * 100).toFixed(1) : '0.0',
       arpu: totalUsers > 0 ? (monthlyRevenue / totalUsers).toFixed(2) : '0.00'
@@ -3917,6 +3974,20 @@ async function handler(req, res) {
     // Telemetry/read-heavy actions get a higher rate limit so dashboards can auto-refresh.
     const LIVE_ACTIONS = new Set(['online-users', 'page-views', 'user-journey', 'user-activity']);
     const PUBLIC_ACTIONS = new Set(['funding-cases-guest-lookup']);
+    const ADMIN_READ_ACTIONS = new Set([
+      'bank-transfers', 'settings', 'exceptions', 'stats', 'executive-stats',
+      'messages', 'admin-users', 'sent-messages', 'roles', 'me', 'users',
+      'profile-completeness-stats', 'data-quality-report', 'user-360',
+      'subscriptions', 'control-center-overview', 'security-sessions-overview',
+      'config-drift', 'data-governance-overview', 'executive-analytics-v2',
+      'ai-operations', 'platform-overview', 'automation-overview',
+      'permission-simulator', 'security-operations-overview', 'finance-overview',
+      'support-overview', 'support-ticket-detail', 'crm-overview', 'analytics',
+      'ai-reviews', 'audit-log', 'operations-overview', 'system-health',
+      'security-status', 'funding-cases-list', 'funding-cases-detail',
+      'funding-cases-assignees', 'funding-cases-kpis',
+      'funding-cases-client-list', 'funding-cases-client-detail'
+    ]);
     // Guest lookup applies its own dedicated, fail-closed rate limits inside its handler.
     const GUEST_LOOKUP_ACTION = 'funding-cases-guest-lookup';
     let rateCategory;
@@ -3926,7 +3997,10 @@ async function handler(req, res) {
       rateCategory = 'live';
     } else if (PUBLIC_ACTIONS.has(action)) {
       rateCategory = 'public';
+    } else if (req.method === 'GET' && ADMIN_READ_ACTIONS.has(action)) {
+      rateCategory = 'admin_read';
     } else {
+      // Mutations and unclassified admin operations remain on the strict bucket.
       rateCategory = 'strict';
     }
     if (rateCategory && await checkRateLimit(rateCategory, req, res)) return;
