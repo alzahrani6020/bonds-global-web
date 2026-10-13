@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Receivables Aging Form — Client Portal | Bonds</title>
+  <meta name="description" content="Receivables aging and collection-period analysis form for Bonds Global clients." />
+  <link rel="canonical" href="https://bonds-global.com/en/client/receivables-aging.html" />
+  <meta property="og:title" content="Receivables Aging Form — Client Portal | Bonds" />
+  <meta property="og:description" content="Receivables aging and collection-period analysis form for Bonds Global clients." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/client/receivables-aging.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Receivables Aging Form — Client Portal | Bonds" />
+  <meta name="twitter:description" content="Receivables aging and collection-period analysis form for Bonds Global clients." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles/fonts-ar.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles/design-system.css" />
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=6" />
+  <script defer src="/calculators/auth-gate.js?v=3"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <style>
+    .aging-page{max-width:1280px;margin:0 auto;padding:7rem 1rem 4rem}
+    .aging-hero{margin-bottom:1.25rem}.aging-hero h1{margin:.25rem 0}
+    .aging-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.1rem;margin-bottom:1rem}
+    .aging-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.8rem}
+    .aging-field label{display:block;font-weight:700;margin-bottom:.35rem}
+    .aging-field input,.aging-field select,.aging-field textarea{width:100%;padding:.7rem;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text)}
+    .aging-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:12px}
+    table{width:100%;border-collapse:collapse;min-width:1250px;background:var(--bg-card)}
+    th,td{padding:.6rem;border-bottom:1px solid var(--border);text-align:center;vertical-align:middle}
+    th{font-size:.78rem;color:var(--text-secondary);background:var(--bg)}
+    td input{width:100%;min-width:90px;padding:.5rem;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text)}
+    td input.customer{min-width:160px}
+    .amount{text-align:left;direction:ltr}
+    .summary-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.7rem}
+    .summary-box{padding:.8rem;border:1px solid var(--border);border-radius:12px;background:var(--bg);text-align:center}
+    .summary-box strong{display:block;font-size:1.05rem;margin-top:.25rem}
+    .aging-actions{display:flex;justify-content:space-between;gap:.75rem;flex-wrap:wrap}
+    .aging-status{margin:1rem 0;padding:.8rem 1rem;border-radius:10px;display:none}.aging-status.show{display:block}.aging-status.ok{background:rgba(34,197,94,.12);color:#16a34a}.aging-status.err{background:rgba(239,68,68,.12);color:#dc2626}
+    @media(max-width:900px){.aging-grid{grid-template-columns:1fr 1fr}.summary-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:600px){.aging-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr 1fr}}
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="aging-page">
+    <section class="aging-hero">
+      <div class="hero__eyebrow">Client Portal</div>
+      <h1>Receivables Aging Form</h1>
+      <p>Enter open receivables as of the report date. Outstanding balances are calculated and automatically classified by aging period.</p>
+    </section>
+
+    <div id="status" class="aging-status" role="status"></div>
+
+    <section class="aging-card">
+      <div class="aging-grid">
+        <div class="aging-field"><label for="reportDate">Report Date</label><input id="reportDate" type="date" required></div>
+        <div class="aging-field"><label for="agingBasis">Aging Basis</label><select id="agingBasis"><option value="due_date">Due Date</option><option value="invoice_date">Invoice Date</option></select></div>
+        <div class="aging-field"><label for="currency">Currency</label><select id="currency"><option>SAR</option><option>USD</option><option>EUR</option><option>AED</option><option>EGP</option><option>GBP</option></select></div>
+        <div class="aging-field"><label for="notes">General Notes</label><input id="notes" placeholder="Optional"></div>
+      </div>
+    </section>
+
+    <section class="aging-card">
+      <div class="aging-table-wrap">
+        <table aria-label="Receivables Aging Table">
+          <thead>
+            <tr>
+              <th>Customer</th><th>Invoice No.</th><th>Invoice Date</th><th>Due Date</th>
+              <th>Invoice Amount</th><th>Paid</th><th>Outstanding Balance</th><th>Days Overdue</th>
+              <th>Current</th><th>1–30</th><th>31–60</th><th>61–90</th><th>91–120</th><th>Over 120</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="agingRows"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:.8rem"><button type="button" class="btn btn-outline" id="addRow">+ Add Receivable</button></div>
+    </section>
+
+    <section class="aging-card">
+      <h2>Receivables Aging Summary</h2>
+      <div class="summary-grid">
+        <div class="summary-box">Total Outstanding<strong id="sumTotal">0.00</strong></div>
+        <div class="summary-box">Current<strong id="sumCurrent">0.00</strong></div>
+        <div class="summary-box">1–30<strong id="sum30">0.00</strong></div>
+        <div class="summary-box">31–60<strong id="sum60">0.00</strong></div>
+        <div class="summary-box">61–90<strong id="sum90">0.00</strong></div>
+        <div class="summary-box">91–120 / +120<strong id="sumOver120">0.00</strong></div>
+      </div>
+    </section>
+
+    <section class="aging-card">
+      <div class="aging-actions">
+        <button type="button" class="btn btn-outline" id="saveDraft">Save Draft</button>
+        <button type="button" class="btn btn-primary" id="submitReport">Submit for Review</button>
+      </div>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+
+  <script defer src="/site-layout.js?v=3.5.0"></script>
+  <script>
+  (function(){
+    'use strict';
+    let sb=null,user=null,currentReport=null;
+    const tbody=document.getElementById('agingRows');
+    const reportDate=document.getElementById('reportDate');
+    const agingBasis=document.getElementById('agingBasis');
+    const statusEl=document.getElementById('status');
+
+    function today(){return new Date().toISOString().slice(0,10);}
+    reportDate.value=today();
+
+    function showStatus(msg,ok){
+      statusEl.textContent=msg;
+      statusEl.className='aging-status show '+(ok?'ok':'err');
+    }
+    function num(v){const n=Number(v);return Number.isFinite(n)?n:0;}
+    function daysBetween(a,b){
+      if(!a||!b)return 0;
+      const d1=new Date(a+'T00:00:00Z'), d2=new Date(b+'T00:00:00Z');
+      return Math.floor((d2-d1)/86400000);
+    }
+    function fmt(v){return num(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+    function addRow(data={}){
+      const tr=document.createElement('tr');
+      tr.innerHTML='<td><input class="customer" data-f="customer" placeholder="اسم Customer"></td>'+
+        '<td><input data-f="invoice_no"></td>'+
+        '<td><input type="date" data-f="invoice_date"></td>'+
+        '<td><input type="date" data-f="due_date"></td>'+
+        '<td><input class="amount" type="number" min="0" step="0.01" data-f="invoice_amount"></td>'+
+        '<td><input class="amount" type="number" min="0" step="0.01" data-f="paid_amount"></td>'+
+        '<td class="amount" data-o="balance">0.00</td><td data-o="days">0</td>'+
+        '<td class="amount" data-o="current">0.00</td><td class="amount" data-o="b30">0.00</td>'+
+        '<td class="amount" data-o="b60">0.00</td><td class="amount" data-o="b90">0.00</td>'+
+        '<td class="amount" data-o="b120">0.00</td><td class="amount" data-o="over120">0.00</td>'+
+        '<td><button type="button" class="btn btn-outline" data-remove>×</button></td>';
+      tbody.appendChild(tr);
+      for(const [k,v] of Object.entries(data)){const el=tr.querySelector('[data-f="'+k+'"]');if(el&&v!=null)el.value=v;}
+      tr.querySelectorAll('input').forEach(el=>el.addEventListener('input',recalc));
+      tr.querySelector('[data-remove]').onclick=()=>{tr.remove();recalc();};
+      recalc();
+    }
+
+    function rowObject(tr){
+      const get=f=>tr.querySelector('[data-f="'+f+'"]').value;
+      const invoice=num(get('invoice_amount')), paid=num(get('paid_amount'));
+      const balance=Math.max(0,invoice-paid);
+      const base=agingBasis.value==='invoice_date'?get('invoice_date'):(get('due_date')||get('invoice_date'));
+      const age=daysBetween(base,reportDate.value);
+      let buckets={current:0,b30:0,b60:0,b90:0,b120:0,over120:0};
+      if(balance>0){
+        if(age<=0)buckets.current=balance;
+        else if(age<=30)buckets.b30=balance;
+        else if(age<=60)buckets.b60=balance;
+        else if(age<=90)buckets.b90=balance;
+        else if(age<=120)buckets.b120=balance;
+        else buckets.over120=balance;
+      }
+      return {customer:get('customer').trim(),invoice_no:get('invoice_no').trim(),invoice_date:get('invoice_date'),due_date:get('due_date'),invoice_amount:invoice,paid_amount:paid,balance,days_overdue:Math.max(0,age),...buckets};
+    }
+
+    function recalc(){
+      const rows=[...tbody.querySelectorAll('tr')].map(tr=>({tr,obj:rowObject(tr)}));
+      const sums={total:0,current:0,b30:0,b60:0,b90:0,b120:0,over120:0};
+      rows.forEach(({tr,obj})=>{
+        tr.querySelector('[data-o="balance"]').textContent=fmt(obj.balance);
+        tr.querySelector('[data-o="days"]').textContent=obj.days_overdue;
+        ['current','b30','b60','b90','b120','over120'].forEach(k=>tr.querySelector('[data-o="'+k+'"]').textContent=fmt(obj[k]));
+        sums.total+=obj.balance;['current','b30','b60','b90','b120','over120'].forEach(k=>sums[k]+=obj[k]);
+      });
+      document.getElementById('sumTotal').textContent=fmt(sums.total);
+      document.getElementById('sumCurrent').textContent=fmt(sums.current);
+      document.getElementById('sum30').textContent=fmt(sums.b30);
+      document.getElementById('sum60').textContent=fmt(sums.b60);
+      document.getElementById('sum90').textContent=fmt(sums.b90);
+      document.getElementById('sumOver120').textContent=fmt(sums.b120+sums.over120);
+      return {rows:rows.map(x=>x.obj),summary:sums};
+    }
+
+    document.getElementById('addRow').onclick=()=>addRow();
+    reportDate.addEventListener('change',recalc); agingBasis.addEventListener('change',recalc);
+    addRow();addRow();addRow();
+
+    async function save(status){
+      if(!sb||!user){showStatus('Unable to initialize the secure connection.',false);return;}
+      const calc=recalc();
+      const cleanRows=calc.rows.filter(r=>r.customer||r.invoice_no||r.balance>0);
+      if(status==='submitted'&&cleanRows.length===0){showStatus('Add at least one receivable before submitting.',false);return;}
+      const payload={
+        user_id:user.id,
+        client_id:currentReport?.client_id||null,
+        status,
+        report_date:reportDate.value||today(),
+        aging_basis:agingBasis.value,
+        currency:document.getElementById('currency').value,
+        rows:cleanRows,
+        summary:calc.summary,
+        notes:document.getElementById('notes').value.trim(),
+        submitted_at:status==='submitted'?new Date().toISOString():null
+      };
+      let result;
+      if(currentReport?.id) result=await sb.from('client_receivables_aging_reports').update(payload).eq('id',currentReport.id).select().single();
+      else result=await sb.from('client_receivables_aging_reports').insert(payload).select().single();
+      if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
+      currentReport=result.data;
+      showStatus(status==='submitted'?'تم إرسال Receivables Aging Form للمراجعة.':'Draft saved.',true);
+    }
+
+    document.getElementById('saveDraft').onclick=()=>save('draft');
+    document.getElementById('submitReport').onclick=()=>save('submitted');
+
+    async function init(){
+      await window.BondsAuth.ensureEnv();
+      const u=await window.BondsAuth.getUser(); user=u.data?.user;
+      if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
+      sb=window.BondsAuth.getSupabase();
+      if(!sb){showStatus('Unable to initialize the secure connection.',false);return;}
+      const cid=await sb.rpc('get_my_client_id');
+      if(cid.data) currentReport={client_id:cid.data};
+    }
+    init();
+  })();
+  </script>
+</body>
+</html>
