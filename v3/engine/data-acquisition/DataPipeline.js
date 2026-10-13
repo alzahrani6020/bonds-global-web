@@ -23,6 +23,7 @@ class DataPipeline {
       batchSize: options.batchSize || 500,
       storeRaw: options.storeRaw !== false,
       inferMissing: options.inferMissing === true,
+      persistModeledGold: options.persistModeledGold === true,
       useFeedback: options.useFeedback !== false,
       ...options
     };
@@ -289,6 +290,11 @@ class DataPipeline {
       is_override: metric.isOverride || false,
       metadata: {
         runId,
+        observationKind: (
+          metric.metadata?.estimated === true ||
+          ['estimated', 'fallback'].includes(String(metric.metadata?.dataQuality || '').toLowerCase()) ||
+          sourceId === 'inference_engine'
+        ) ? 'modeled' : 'observed',
         ...metric.metadata
       }
     };
@@ -338,12 +344,14 @@ class DataPipeline {
     let confidences = [];
 
     for (const [metricCode, column] of Object.entries(map)) {
-      if (fused[metricCode] && fused[metricCode].value !== null) {
-        let value = fused[metricCode].value;
-        if (integerColumns.includes(column)) value = Math.round(value);
-        update[column] = value;
-        confidences.push(fused[metricCode].confidence);
-      }
+      const result = fused[metricCode];
+      if (!result || result.value === null) continue;
+      if (result.isEstimated === true && !this.options.persistModeledGold) continue;
+
+      let value = result.value;
+      if (integerColumns.includes(column)) value = Math.round(value);
+      update[column] = value;
+      confidences.push(result.confidence);
     }
 
     update.overall_confidence = confidences.length > 0
@@ -392,16 +400,20 @@ class DataPipeline {
     const update = { city_id: cityId, activity_id: activityId, data_year: year };
     let confidences = [];
 
+    let modeledIncluded = false;
     for (const [metricCode, column] of Object.entries(map)) {
-      if (fused[metricCode]) {
-        if (fused[metricCode].value !== null) {
-          let value = fused[metricCode].value;
-          if (integerColumns.includes(column)) value = Math.round(value);
-          update[column] = value;
-        }
-        if (fused[metricCode].valueText !== null) update[column] = fused[metricCode].valueText;
-        confidences.push(fused[metricCode].confidence);
+      const result = fused[metricCode];
+      if (!result) continue;
+      if (result.isEstimated === true && !this.options.persistModeledGold) continue;
+      if (result.isEstimated === true) modeledIncluded = true;
+
+      if (result.value !== null) {
+        let value = result.value;
+        if (integerColumns.includes(column)) value = Math.round(value);
+        update[column] = value;
       }
+      if (result.valueText !== null) update[column] = result.valueText;
+      confidences.push(result.confidence);
     }
 
     update.confidence = confidences.length > 0
@@ -409,7 +421,7 @@ class DataPipeline {
       : 0;
 
     // Tag the fused row so the UI can show where the consolidated numbers came from.
-    update.source = 'Bonds Data Engine';
+    update.source = modeledIncluded ? 'Bonds Data Engine (mixed)' : 'Bonds Data Engine (observed)';
 
     const { error } = await this.supabase
       .from('city_market_data')
