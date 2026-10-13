@@ -94,6 +94,19 @@ describe('live source refresh and dynamic years', () => {
     expect(comparison).toContain('أحدث سنة مصدرية (');
   });
 
+  test('World Bank refresh retries transient failures with bounded concurrency', () => {
+    const engine = read('lib/data/country-indicator-engine.js');
+    expect(engine).toContain('async fetchMetricWithRetry');
+    expect(engine).toContain('for (let i = 0; i < this.metrics.length; i += 2)');
+    expect(engine).toContain('this.fetchMetricWithRetry(metric, countries, 2)');
+  });
+
+  test('country context retries incomplete source coverage', () => {
+    const api = read('v3/api/index.js');
+    expect(api).toContain('const uniqueMetricCount = new Set(observationRows.map(row => row.metric_code)).size');
+    expect(api).toContain('const incompleteCoverage = uniqueMetricCount < 3');
+  });
+
   test('country context route is wired and self-heals an empty or old source cache', () => {
     const api = read('v3/api/index.js');
     expect(api).toContain("path.match(/^\\/countries\\/[^\\/]+\\/context$/)");
