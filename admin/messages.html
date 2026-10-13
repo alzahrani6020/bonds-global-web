@@ -277,7 +277,10 @@
 
     let msgPageSize = 50;
     let msgCurrentPage = 1;
-    let msgTotal = 0;
+    let msgTotal = null;
+    let msgUnreadTotal = null;
+    let msgTodayTotal = null;
+    let msgLoadState = 'idle';
     let currentMessages = [];
     let msgAssignedFilter = 'all';
     let adminUsers = [];
@@ -299,28 +302,43 @@
     }
 
     async function fetchMessages({ limit = 50, offset = 0, search = '', assigned = 'all' } = {}) {
-      try {
-        const token = await BondsAdminCommon.getAdminToken();
-        const params = new URLSearchParams({ action: 'messages', limit: String(limit), offset: String(offset) });
-        if (search) params.set('search', search);
-        if (assigned && assigned !== 'all') params.set('assigned', assigned);
-        const res = await fetch('/api/admin?' + params.toString(), {
-          headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data.success) throw new Error(data.error);
-        msgTotal = typeof data.total === 'number' ? data.total : (data.messages || []).length;
-        return data.messages || [];
-      } catch (e) {
-        console.error('[Messages] failed to load:', e);
-        msgTotal = 0;
-        const errEl = document.getElementById('messagesError');
-        if (errEl) {
-          errEl.style.display = 'block';
-          errEl.innerHTML = '<span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg></span>️ تعذر تحميل الرسائل: ' + BondsAdminCommon.escapeHtml(e.message || 'خطأ غير معروف');
-        }
-        return [];
+      const token = await BondsAdminCommon.getAdminToken();
+      const params = new URLSearchParams({ action: 'messages', limit: String(limit), offset: String(offset) });
+      if (search) params.set('search', search);
+      if (assigned && assigned !== 'all') params.set('assigned', assigned);
+
+      const res = await fetch('/api/admin?' + params.toString(), {
+        headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+      });
+
+      if (!res.ok) {
+        const retryAfter = Number.parseInt(res.headers.get('Retry-After') || '0', 10);
+        const error = new Error('HTTP ' + res.status);
+        error.status = res.status;
+        error.retryAfter = Number.isFinite(retryAfter) ? retryAfter : 0;
+        throw error;
+      }
+
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'تعذر تحميل الرسائل');
+
+      msgTotal = typeof data.total === 'number' ? data.total : null;
+      msgUnreadTotal = typeof data.unread_total === 'number' ? data.unread_total : null;
+      msgTodayTotal = typeof data.today_total === 'number' ? data.today_total : null;
+      msgLoadState = 'ready';
+      return data.messages || [];
+    }
+
+    function renderMessageLoadError(error) {
+      msgLoadState = 'error';
+      const errEl = document.getElementById('messagesError');
+      if (!errEl) return;
+      errEl.style.display = 'block';
+      if (error?.status === 429) {
+        const seconds = error.retryAfter > 0 ? error.retryAfter : 60;
+        errEl.textContent = 'تم تقييد التحديث مؤقتاً بسبب كثرة الطلبات. أعد المحاولة بعد نحو ' + seconds + ' ثانية.';
+      } else {
+        errEl.textContent = 'تعذر تحميل الرسائل: ' + (error?.message || 'خطأ غير معروف');
       }
     }
 
@@ -331,24 +349,45 @@
     }
 
     async function loadMessagesPage(page) {
-      msgCurrentPage = Math.max(1, page);
-      const offset = (msgCurrentPage - 1) * msgPageSize;
+      const requestedPage = Math.max(1, page);
+      const offset = (requestedPage - 1) * msgPageSize;
       const errEl = document.getElementById('messagesError');
       if (errEl) errEl.style.display = 'none';
-      document.getElementById('messageList').innerHTML = '<div class="loading">جارِ التحميل...</div>';
-      currentMessages = await fetchMessages({ limit: msgPageSize, offset, assigned: msgAssignedFilter });
-      renderMessages();
-      renderPagination();
+
+      const list = document.getElementById('messageList');
+      const previousHtml = list?.innerHTML || '';
+      if (list && !currentMessages.length) list.innerHTML = '<div class="loading">جارِ التحميل...</div>';
+
+      try {
+        const messages = await fetchMessages({ limit: msgPageSize, offset, assigned: msgAssignedFilter });
+        msgCurrentPage = requestedPage;
+        currentMessages = messages;
+        renderMessages();
+        renderPagination();
+      } catch (error) {
+        console.error('[Messages] failed to load:', error);
+        renderMessageLoadError(error);
+        if (list) {
+          if (currentMessages.length) renderMessages();
+          else list.innerHTML = previousHtml && !previousHtml.includes('جارِ التحميل') ?
+            previousHtml :
+            '<div class="loading">تعذر جلب البيانات. لم يتم افتراض أن عدد الرسائل صفر.</div>';
+        }
+        renderPagination();
+      }
     }
 
     function renderPagination() {
-      const totalPages = Math.max(1, Math.ceil(msgTotal / msgPageSize));
+      const totalKnown = typeof msgTotal === 'number';
+      const totalPages = totalKnown ? Math.max(1, Math.ceil(msgTotal / msgPageSize)) : null;
       const info = document.getElementById('messagesPageInfo');
       const prev = document.getElementById('messagesPrevBtn');
       const next = document.getElementById('messagesNextBtn');
-      if (info) info.textContent = 'صفحة ' + msgCurrentPage + ' من ' + totalPages + ' (' + msgTotal + ' رسالة)';
-      if (prev) prev.disabled = msgCurrentPage <= 1;
-      if (next) next.disabled = msgCurrentPage >= totalPages || msgTotal === 0;
+      if (info) info.textContent = totalKnown
+        ? 'صفحة ' + msgCurrentPage + ' من ' + totalPages + ' (' + msgTotal + ' رسالة)'
+        : 'العدد الإجمالي غير متاح حالياً';
+      if (prev) prev.disabled = msgCurrentPage <= 1 || !totalKnown;
+      if (next) next.disabled = !totalKnown || msgCurrentPage >= totalPages || msgTotal === 0;
     }
 
     async function fetchSentMessages() {
@@ -515,11 +554,11 @@
     function renderMessages() {
       const msgs = currentMessages;
       const total = msgTotal;
-      const unread = msgs.filter(m => !m.read).length;
-      const today = msgs.filter(m => new Date(m.date || m.created_at).toDateString() === new Date().toDateString()).length;
-      document.getElementById('totalMessages').textContent = total;
-      document.getElementById('unreadMessages').textContent = unread;
-      document.getElementById('todayMessages').textContent = today;
+      const unread = msgUnreadTotal;
+      const today = msgTodayTotal;
+      document.getElementById('totalMessages').textContent = typeof total === 'number' ? total : '—';
+      document.getElementById('unreadMessages').textContent = typeof unread === 'number' ? unread : '—';
+      document.getElementById('todayMessages').textContent = typeof today === 'number' ? today : '—';
       const container = document.getElementById('messageList');
       container.innerHTML = '';
       if (msgs.length === 0) {
@@ -528,7 +567,10 @@
         empty.textContent = 'لا توجد رسائل واردة';
         container.appendChild(empty);
         const badge = document.getElementById('msgBadge');
-        if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
+        if (badge) {
+          badge.textContent = typeof unread === 'number' ? unread : '';
+          badge.style.display = typeof unread === 'number' && unread > 0 ? 'inline-block' : 'none';
+        }
         return;
       }
       const fragment = document.createDocumentFragment();
@@ -648,7 +690,10 @@
       }
       container.appendChild(fragment);
       const badge = document.getElementById('msgBadge');
-      if (badge) { badge.textContent = unread; badge.style.display = unread > 0 ? 'inline-block' : 'none'; }
+      if (badge) {
+        badge.textContent = typeof unread === 'number' ? unread : '';
+        badge.style.display = typeof unread === 'number' && unread > 0 ? 'inline-block' : 'none';
+      }
     }
 
     async function renderSentMessages() {
