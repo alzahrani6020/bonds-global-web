@@ -59,11 +59,11 @@
         <h2>2. Registrations & Licenses</h2>
         <div class="est-grid">
           <div class="est-field"><label for="vatNumber">Tax / VAT Number</label><input id="vatNumber"></div>
-          <div class="est-field"><label for="zakatTaxStatus">Zakat / Tax Status</label><select id="zakatTaxStatus"><option value="">Select</option><option value="registered">Registered</option><option value="not_registered">غير Registered</option><option value="not_applicable">Not Applicable</option></select></div>
+          <div class="est-field"><label for="zakatTaxStatus">Zakat / Tax Status</label><select id="zakatTaxStatus"><option value="">Select</option><option value="registered">Registered</option><option value="not_registered">Not Registered</option><option value="not_applicable">Not Applicable</option></select></div>
           <div class="est-field"><label for="licenseAuthority">Primary Licensing Authority</label><input id="licenseAuthority"></div>
           <div class="est-field"><label for="licenseNumber">License Number</label><input id="licenseNumber"></div>
           <div class="est-field"><label for="licenseExpiry">License Expiry Date</label><input id="licenseExpiry" type="date"></div>
-          <div class="est-field"><label for="otherRegistrations">تسجيلات / تراخيص Other</label><textarea id="otherRegistrations" rows="3"></textarea></div>
+          <div class="est-field"><label for="otherRegistrations">Other Registrations / Licenses</label><textarea id="otherRegistrations" rows="3"></textarea></div>
         </div>
       </section>
 
@@ -87,7 +87,7 @@
           <div class="est-field"><label for="country">Country</label><input id="country" required></div>
           <div class="est-field"><label for="region">Region / Province</label><input id="region"></div>
           <div class="est-field"><label for="city">City</label><input id="city" required></div>
-          <div class="est-field"><label for="address">العنوان الوطني / الRegistered</label><textarea id="address" rows="3"></textarea></div>
+          <div class="est-field"><label for="address">National / Registered Address</label><textarea id="address" rows="3"></textarea></div>
           <div class="est-field"><label for="phone">Telephone</label><input id="phone" type="tel"></div>
           <div class="est-field"><label for="email">Official Email</label><input id="email" type="email"></div>
         </div>
@@ -166,11 +166,11 @@
       return {lang:'en',title:'Establishment Information Form',subtitle:'Bonds Global',filenameBase:'bonds-establishment-'+(i.legal_name||'client'),
         metadata:[{label:'Legal Name',value:i.legal_name},{label:'CR No.',value:i.cr_number},{label:'Legal Entity Type',value:g('entityType').options[g('entityType').selectedIndex]?.text||''}],
         tables:[
-          {title:'Legal Identity',headers:['Field','Value'],rows:[['Trade Name',i.trade_name],['الرقم الموحد',i.unified_number],['Incorporation Date',i.incorporation_date],['رأس المال',i.capital+' '+i.capital_currency]]},
-          {title:'التسجيلات والتراخيص',headers:['Field','Value'],rows:[['الرقم الضريبي',r.vat_number],['Zakat / Tax Status',r.zakat_tax_status],['Licensing Authority',r.license_authority],['License Number',r.license_number],['License Expiry',r.license_expiry],['تسجيلات Other',r.other_registrations]]},
-          {title:'النشاط والتشغيل',headers:['Field','Value'],rows:[['Primary Activity',o.main_activity],['Secondary Activities',o.secondary_activities],['Products / Services',o.products_services],['Markets',o.markets],['Number of Employees',o.employees],['Number of Branches',o.branches],['Annual Revenue',o.annual_revenue],['Website',o.website]]},
-          {title:'Address & Contact',headers:['Field','Value'],rows:[['Country',c.country],['Region',c.region],['City',c.city],['العنوان',c.address],['Telephone',c.phone],['Email',c.email]]},
-          {title:'الإدارة والممثل الرسمي',headers:['Field','Value'],rows:[['Manager / CEO',m.manager_name],['Job Title',m.manager_title],['Authorized Representative',m.authorized_name],['Representative Capacity',m.authorized_title],['Representative Mobile',m.authorized_phone],['Representative Email',m.authorized_email]]}
+          {title:'Legal Identity',headers:['Field','Value'],rows:[['Trade Name',i.trade_name],['Unified National Number',i.unified_number],['Incorporation Date',i.incorporation_date],['Registered Capital',i.capital+' '+i.capital_currency]]},
+          {title:'Registrations & Licenses',headers:['Field','Value'],rows:[['Tax / VAT Number',r.vat_number],['Zakat / Tax Status',r.zakat_tax_status],['Licensing Authority',r.license_authority],['License Number',r.license_number],['License Expiry',r.license_expiry],['Other Registrations',r.other_registrations]]},
+          {title:'Business Activity & Operations',headers:['Field','Value'],rows:[['Primary Activity',o.main_activity],['Secondary Activities',o.secondary_activities],['Products / Services',o.products_services],['Markets',o.markets],['Number of Employees',o.employees],['Number of Branches',o.branches],['Annual Revenue',o.annual_revenue],['Website',o.website]]},
+          {title:'Address & Contact',headers:['Field','Value'],rows:[['Country',c.country],['Region',c.region],['City',c.city],['Address',c.address],['Telephone',c.phone],['Email',c.email]]},
+          {title:'Management & Authorized Representative',headers:['Field','Value'],rows:[['Manager / CEO',m.manager_name],['Job Title',m.manager_title],['Authorized Representative',m.authorized_name],['Representative Capacity',m.authorized_title],['Representative Mobile',m.authorized_phone],['Representative Email',m.authorized_email]]}
         ],notes:p.notes};
     }
     document.querySelectorAll('[data-export]').forEach(btn=>btn.onclick=async()=>{try{await window.BondsBrandedExport.exportDocument(btn.dataset.export,exportDoc());}catch(e){showStatus('Export failed: '+e.message,false);}});
