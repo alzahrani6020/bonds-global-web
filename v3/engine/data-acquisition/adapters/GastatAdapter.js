@@ -239,9 +239,18 @@ class GastatAdapter extends BaseAdapter {
 
     const value = Number(data.results[0]['sum(population)']) || null;
     if (value == null) return null;
-    const yearCandidate = data.results[0].year ?? data.results[0].data_year ?? data.results[0].time_period ?? null;
-    const dataYear = Number.parseInt(String(yearCandidate || ''), 10) || null;
-    return { value, dataYear, regionName };
+
+    // This public KAPSARC dataset is the Saudi Census 2022 table and its records
+    // do not expose a year field. Preserve the real observation year instead of
+    // stamping the current/requested year on the census value.
+    const dataYear = 2022;
+    return {
+      value,
+      dataYear,
+      regionName,
+      sourceDataset: 'Population by Detailed Age, Gender, Governorate, Nationality and Region',
+      sourcePeriod: '2022 Census'
+    };
   }
 
   async _getJson(url) {

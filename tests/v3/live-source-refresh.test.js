@@ -54,6 +54,8 @@ describe('live source refresh and dynamic years', () => {
     expect(gastat).toContain("options.year === 'latest'");
     expect(gastat).toContain('this._fetchLaborMarket(year, latestRequested)');
     expect(gastat).toContain('this.useFallback = config.useFallback === true');
+    expect(gastat).toContain('const dataYear = 2022;');
+    expect(gastat).toContain("sourcePeriod: '2022 Census'");
 
     expect(sama).toContain("options.year === 'latest'");
     expect(sama).toContain('this._fetchInflation(year, latestRequested)');
@@ -66,10 +68,15 @@ describe('live source refresh and dynamic years', () => {
     const api = read('v3/api/index.js');
     expect(api).toContain('async function handleCatalogYears');
     expect(api).toContain("from('city_indicators').select('year')");
-    expect(api).toContain("from('normalized_metrics').select('year')");
+    expect(api).toContain("from('normalized_metrics')");
+    expect(api).toContain("select('year,source_url,source_id,metadata')");
     expect(api).toContain("from('city_market_data')");
     expect(api).toContain("from('country_indicator_observations')");
     expect(api).toContain("path === '/catalog/years'");
+    expect(api).toContain('sourceYears');
+    expect(api).toContain('legacyYears');
+    expect(api).toContain('sourceBacked: verified.length > 0');
+    expect(api).toContain("new CountryIndicatorEngine({ timeoutMs: 12000 })");
   });
 
   test('city intelligence and comparison contain no hard-coded year choices', () => {
@@ -83,6 +90,17 @@ describe('live source refresh and dynamic years', () => {
     expect(comparison).toContain("API_URL + '/catalog/years?'");
     expect(comparison).not.toMatch(/<option value="202[0-9]"/);
     expect(comparison).toContain('أحدث سنة متاحة');
+    expect(intelligence).toContain('أحدث سنة مصدرية (');
+    expect(comparison).toContain('أحدث سنة مصدرية (');
+  });
+
+  test('country context route is wired and self-heals an empty or old source cache', () => {
+    const api = read('v3/api/index.js');
+    expect(api).toContain("path.match(/^\\/countries\\/[^\\/]+\\/context$/)");
+    expect(api).toContain('return await handleCountryContext(req, res, path)');
+    expect(api).toContain("console.warn('[country-context refresh]'");
+    expect(api).toContain('cacheAgeMs > 6 * 60 * 60 * 1000');
+    expect(api).toContain("countryCodes: [countryCode]");
   });
 
   test('country context preserves country scope, source and freshness', () => {

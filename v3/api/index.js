@@ -73,6 +73,7 @@ const { setAllowedOrigin } = require('../../lib/api/cors');
 const { resolveOpportunityYear } = require('../lib/opportunity-query');
 const { COUNTRY_NAMES, canonicalizeCities, canonicalizeActivities, buildCountryCatalog } = require('../../lib/catalog/canonical-registry');
 const { ARAB_COUNTRIES_GEO } = require('../master-data/countries-governorates-cities');
+const { CountryIndicatorEngine } = require('../../lib/data/country-indicator-engine');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -433,7 +434,8 @@ async function handleCatalogYears(req, res) {
 
   try {
     const supabase = getSupabaseClient();
-    const years = new Set();
+    const sourceYears = new Set();
+    const legacyYears = new Set();
 
     let cityIds = [];
     if (cityCode) {
@@ -465,47 +467,93 @@ async function handleCatalogYears(req, res) {
       activityId = activity?.id || null;
     }
 
-    const tasks = [];
-
     if (cityIds.length) {
-      tasks.push(
+      const [{ data: indicators }, { data: normalized }] = await Promise.all([
         supabase.from('city_indicators').select('year').in('city_id', cityIds).limit(5000),
-        supabase.from('normalized_metrics').select('year').in('city_id', cityIds).limit(5000)
-      );
+        supabase
+          .from('normalized_metrics')
+          .select('year,source_url,source_id,metadata')
+          .in('city_id', cityIds)
+          .limit(5000)
+      ]);
+
+      for (const row of indicators || []) {
+        const year = Number(row.year);
+        if (Number.isInteger(year)) legacyYears.add(year);
+      }
+
+      for (const row of normalized || []) {
+        const year = Number(row.year);
+        if (!Number.isInteger(year)) continue;
+        const quality = String(row.metadata?.dataQuality || '').toLowerCase();
+        const observed = row.metadata?.observationKind === 'observed' ||
+          (row.metadata?.estimated !== true && Boolean(row.source_url) &&
+            ['official', 'open_data'].includes(quality));
+        if (observed) sourceYears.add(year);
+        else legacyYears.add(year);
+      }
 
       let marketQuery = supabase
         .from('city_market_data')
-        .select('data_year')
+        .select('data_year,source')
         .in('city_id', cityIds)
         .limit(5000);
       if (activityId) marketQuery = marketQuery.eq('activity_id', activityId);
-      tasks.push(marketQuery);
-    }
-
-    if (countryCode) {
-      tasks.push(
-        supabase
-          .from('country_indicator_observations')
-          .select('year')
-          .eq('country_code', countryCode)
-          .limit(1000)
-      );
-    }
-
-    const results = await Promise.allSettled(tasks);
-    for (const result of results) {
-      if (result.status !== 'fulfilled' || result.value?.error) continue;
-      for (const row of result.value.data || []) {
-        const value = Number(row.year ?? row.data_year);
-        if (Number.isInteger(value) && value >= 1900 && value <= 2200) years.add(value);
+      const { data: marketRows } = await marketQuery;
+      for (const row of marketRows || []) {
+        const year = Number(row.data_year);
+        if (Number.isInteger(year)) legacyYears.add(year);
       }
     }
 
-    const sorted = [...years].sort((a, b) => b - a);
+    if (countryCode) {
+      async function loadCountryYearRows() {
+        const { data } = await supabase
+          .from('country_indicator_observations')
+          .select('year,fetched_at')
+          .eq('country_code', countryCode)
+          .limit(1000);
+        return data || [];
+      }
+
+      let countryRows = await loadCountryYearRows();
+      const newestFetchMs = countryRows
+        .map(row => row.fetched_at ? Date.parse(row.fetched_at) : NaN)
+        .filter(Number.isFinite)
+        .sort((a, b) => b - a)[0] || 0;
+      const cacheAgeMs = newestFetchMs ? Date.now() - newestFetchMs : Infinity;
+
+      if (!countryRows.length || cacheAgeMs > 6 * 60 * 60 * 1000) {
+        try {
+          const engine = new CountryIndicatorEngine({ timeoutMs: 12000 });
+          await engine.refresh(supabase, {
+            countryCodes: [countryCode],
+            runType: 'incremental'
+          });
+          countryRows = await loadCountryYearRows();
+        } catch (refreshErr) {
+          console.warn('[catalog-years refresh]', countryCode, refreshErr.message);
+        }
+      }
+
+      for (const row of countryRows) {
+        const year = Number(row.year);
+        if (Number.isInteger(year)) sourceYears.add(year);
+      }
+    }
+
+    const verified = [...sourceYears].filter(year => year >= 1900 && year <= 2200).sort((a, b) => b - a);
+    const legacy = [...legacyYears].filter(year => year >= 1900 && year <= 2200).sort((a, b) => b - a);
+    const years = verified.length ? verified : legacy;
+
     return sendJson(res, 200, {
-      years: sorted,
-      latest: sorted[0] || null,
-      count: sorted.length,
+      years,
+      latest: years[0] || null,
+      sourceYears: verified,
+      legacyYears: legacy,
+      sourceBacked: verified.length > 0,
+      fallbackToLegacy: verified.length === 0 && legacy.length > 0,
+      count: years.length,
       country: countryCode || null,
       city: cityCode || null,
       activity: activityCode || null,
@@ -846,21 +894,48 @@ async function handleCountryContext(req, res, path) {
   const requestedYear = url.searchParams.get('year') || 'latest';
   const supabase = getSupabaseClient();
 
-  let observationRows = [];
-  try {
-    let query = supabase
-      .from('country_indicator_observations')
-      .select('metric_code,year,value,unit,source_id,source_name,source_url,observed_at,fetched_at,confidence,geographic_scope,metadata')
-      .eq('country_code', countryCode)
-      .order('year', { ascending: false })
-      .order('fetched_at', { ascending: false })
-      .limit(200);
+  async function loadObservationRows() {
+    try {
+      let query = supabase
+        .from('country_indicator_observations')
+        .select('metric_code,year,value,unit,source_id,source_name,source_url,observed_at,fetched_at,confidence,geographic_scope,metadata')
+        .eq('country_code', countryCode)
+        .order('year', { ascending: false })
+        .order('fetched_at', { ascending: false })
+        .limit(200);
 
-    if (/^\d{4}$/.test(requestedYear)) query = query.eq('year', Number(requestedYear));
-    const { data, error } = await query;
-    if (!error) observationRows = data || [];
-  } catch (_) {
-    observationRows = [];
+      if (/^\d{4}$/.test(requestedYear)) query = query.eq('year', Number(requestedYear));
+      const { data, error } = await query;
+      if (error) return [];
+      return data || [];
+    } catch (_) {
+      return [];
+    }
+  }
+
+  let observationRows = await loadObservationRows();
+
+  // Self-heal an empty/stale latest cache on demand. We use fetched_at for cache
+  // freshness, not observed_at, because some countries' newest official release
+  // is legitimately old and must still be represented as their latest available data.
+  if (requestedYear === 'latest') {
+    const newestFetchMs = observationRows
+      .map(row => row.fetched_at ? Date.parse(row.fetched_at) : NaN)
+      .filter(Number.isFinite)
+      .sort((a, b) => b - a)[0] || 0;
+    const cacheAgeMs = newestFetchMs ? Date.now() - newestFetchMs : Infinity;
+    if (!observationRows.length || cacheAgeMs > 6 * 60 * 60 * 1000) {
+      try {
+        const engine = new CountryIndicatorEngine({ timeoutMs: 12000 });
+        await engine.refresh(supabase, {
+          countryCodes: [countryCode],
+          runType: 'incremental'
+        });
+        observationRows = await loadObservationRows();
+      } catch (refreshErr) {
+        console.warn('[country-context refresh]', countryCode, refreshErr.message);
+      }
+    }
   }
 
   if (requestedYear === 'latest' && observationRows.length) {
@@ -1463,6 +1538,7 @@ module.exports = async function handler(req, res) {
     if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
     if (path === '/catalog/years' && req.method === 'GET') return await handleCatalogYears(req, res);
     if (path === '/catalog/cities' && req.method === 'GET') return await handleCatalogCities(req, res);
+    if (path.match(/^\/countries\/[^\/]+\/context$/) && req.method === 'GET') return await handleCountryContext(req, res, path);
     if (path === '/models' && req.method === 'GET') return await handleModels(req, res);
     if (path.match(/^\/models\/[^\/]+$/) && req.method === 'GET') return await handleModelDetail(req, res, path);
     if (path === '/cities' && req.method === 'GET') return await handleCities(req, res);
