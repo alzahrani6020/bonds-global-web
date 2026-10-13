@@ -22,8 +22,8 @@ describe('Dropdown interaction regression', () => {
   });
 
   test('layout CSS cache guard matches the current header-footer version', () => {
-    expect(siteLayout).toContain("const href = '/header-footer.css?v=2.70.0'");
-    expect(siteLayout).toContain("existing.href.includes('header-footer.css?v=2.70.0')");
+    expect(siteLayout).toContain("const href = '/header-footer.css?v=2.71.0'");
+    expect(siteLayout).toContain("existing.href.includes('header-footer.css?v=2.71.0')");
     expect(siteLayout).not.toContain("existing.href.includes('header-footer.css?v=2.69.0')");
   });
 
