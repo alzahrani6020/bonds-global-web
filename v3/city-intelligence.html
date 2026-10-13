@@ -445,7 +445,7 @@
   <div id="site-header"></div>
   <section class="v3-page-header">
     <h1>◎ ذكاء المدن</h1>
-    <p>مؤشرات اقتصادية وعقارية وسوقية لـ أكثر من 1200 مدينة في 22 دولة عربية — مدعومة بـ Bonds V3 Data Engine</p>
+    <p id="catalogSummary">كتالوج المدن العربية مع فصل واضح بين البيانات المصدرية والنماذج الداخلية.</p>
     <div id="alertBell" class="alert-bell" title="الإنذارات">
       <span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4 2h12l-2 4 4 14H4V2z"/></svg></span>
       <span id="alertCount" class="alert-count hidden">0</span>
@@ -761,6 +761,14 @@
         const activitySelect = document.getElementById('activitySelect');
 
         const countries = countriesData.countries || [];
+        const totalCatalogCities = countries.reduce((sum, country) => sum + Number(country.cityCount || 0), 0);
+        const totalDataCities = countries.reduce((sum, country) => sum + Number(country.dataCityCount || 0), 0);
+        const catalogSummary = document.getElementById('catalogSummary');
+        if (catalogSummary) {
+          catalogSummary.textContent = totalCatalogCities.toLocaleString('ar-SA') +
+            ' مدينة في ' + countries.length + ' دولة عربية · ' +
+            totalDataCities.toLocaleString('ar-SA') + ' مدينة لها سجلات بيانات · الأرقام غير المثبتة تُوسم بوضوح';
+        }
         const countryOptions = countries.map(country => ({
           value: country.code,
           label: country.name_ar + ' (' + country.cityCount + ' مدينة)',
@@ -878,6 +886,25 @@
       const marketItem = market[0] || {};
       const dataYear = detail.year || indicatorsData.year || marketData.year || document.getElementById('yearSelect').value;
       const evidenceRows = evidenceData.evidence || [];
+      const evidenceByMetric = new Map();
+      for (const row of evidenceRows) {
+        if (!evidenceByMetric.has(row.metric_code)) evidenceByMetric.set(row.metric_code, row);
+      }
+      const truthValue = (metricCode, value, suffix = '') => {
+        if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
+          return valueOrMissing(null);
+        }
+        const evidence = evidenceByMetric.get(metricCode);
+        const formatted = formatNumber(value) + (suffix ? ' ' + suffix : '');
+        if (evidence?.evidence_status === 'verified') {
+          return formatted + ' <span class="confidence high">مثبت</span>';
+        }
+        if (evidence?.evidence_status === 'estimated') {
+          return formatted + ' <span class="confidence medium">تقديري</span>';
+        }
+        return formatted + ' <span class="confidence low">غير مثبت</span>';
+      };
+      const modeledMarket = /model|weighted|estimate|inference/i.test(String(marketItem.source || ''));
       const attractiveness = computeAttractiveness(city, indicators, marketItem, evidenceRows);
       const recommendations = generateSectorRecommendations(city, indicators, marketData, evidenceRows);
 
@@ -912,10 +939,10 @@
           <div class="card">
             <h3>⌖ معلومات المدينة</h3>
             <div class="metric"><span class="metric-label">المدينة</span><span class="metric-value">${city.name_ar}</span></div>
-            <div class="metric"><span class="metric-label">السكان</span><span class="metric-value">${valueOrMissing(city.population, 'نسمة')}</span></div>
+            <div class="metric"><span class="metric-label">السكان</span><span class="metric-value">${Number(city.population) > 0 ? truthValue('population', city.population, 'نسمة') : valueOrMissing(null)}</span></div>
             <div class="metric"><span class="metric-label">الدولة</span><span class="metric-value">${countryNames[city.country_code] || city.country_code || '-'}</span></div>
             <div class="metric"><span class="metric-label">المنطقة</span><span class="metric-value">${city.region || '-'}</span></div>
-            <div class="metric"><span class="metric-label">مؤشر القوة الشرائية</span><span class="metric-value">${valueOrMissing(city.purchasing_power_index)}</span></div>
+            <div class="metric"><span class="metric-label">مؤشر القوة الشرائية</span><span class="metric-value">${Number(city.purchasing_power_index) > 0 ? truthValue('purchasing_power_index', city.purchasing_power_index) : valueOrMissing(null)}</span></div>
           </div>
 
           <div class="card">
@@ -923,19 +950,19 @@
               <h3 style="margin: 0;">▤ المؤشرات الاقتصادية ${dataYear && dataYear !== 'latest' ? '(' + dataYear + ')' : ''} ${confidenceBadge(indicators.overall_confidence)}</h3>
               <button class="feedback-btn" onclick="openFeedbackForm('', '', 'population', ${city.population || 'null'})">✏️ صحّح البيانات</button>
             </div>
-            <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${valueOrMissing(indicators.gdp_city, 'ر.س')}</span></div>
-            <div class="metric"><span class="metric-label">معدل النمو الاقتصادي</span><span class="metric-value">${valueOrMissing(indicators.growth_rate, '%')}</span></div>
-            <div class="metric"><span class="metric-label">معدل البطالة</span><span class="metric-value">${valueOrMissing(indicators.unemployment_rate, '%')}</span></div>
-            <div class="metric"><span class="metric-label">عدد المنشآت</span><span class="metric-value">${valueOrMissing(indicators.establishments_count)}</span></div>
-            <div class="metric"><span class="metric-label">معدل التضخم</span><span class="metric-value">${valueOrMissing(indicators.inflation_rate, '%')}</span></div>
+            <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${truthValue('gdp_city', indicators.gdp_city, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">معدل النمو الاقتصادي</span><span class="metric-value">${truthValue('growth_rate', indicators.growth_rate, '%')}</span></div>
+            <div class="metric"><span class="metric-label">معدل البطالة</span><span class="metric-value">${truthValue('unemployment_rate', indicators.unemployment_rate, '%')}</span></div>
+            <div class="metric"><span class="metric-label">عدد المنشآت</span><span class="metric-value">${truthValue('establishments_count', indicators.establishments_count)}</span></div>
+            <div class="metric"><span class="metric-label">معدل التضخم</span><span class="metric-value">${truthValue('inflation_rate', indicators.inflation_rate, '%')}</span></div>
           </div>
 
           <div class="card">
             <h3>▥ المؤشرات العقارية</h3>
-            <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_rent_per_sqm, 'ر.س')}</span></div>
-            <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${valueOrMissing(indicators.avg_land_price_per_sqm, 'ر.س')}</span></div>
-            <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${valueOrMissing(indicators.warehouse_rent_per_sqm, 'ر.س')}</span></div>
-            <div class="metric"><span class="metric-label">إيجار المصانع / م²</span><span class="metric-value">${valueOrMissing(indicators.factory_rent_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${truthValue('avg_rent_per_sqm', indicators.avg_rent_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${truthValue('avg_land_price_per_sqm', indicators.avg_land_price_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${truthValue('warehouse_rent_per_sqm', indicators.warehouse_rent_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">إيجار المصانع / م²</span><span class="metric-value">${truthValue('factory_rent_per_sqm', indicators.factory_rent_per_sqm, 'ر.س')}</span></div>
           </div>
 
           <!-- Sector Recommendations -->
@@ -969,10 +996,11 @@ ${recommendations.length ? recommendations.map(r => `
             <div class="metric"><span class="metric-label">متوسط الراتب</span><span class="metric-value">${valueOrMissing(marketItem.avg_salary, 'ر.س')}</span></div>
             <div class="metric"><span class="metric-label">الطلب المتوقع</span><span class="metric-value">${marketItem.expected_demand === 'high' ? 'مرتفع' : marketItem.expected_demand === 'low' ? 'منخفض' : marketItem.expected_demand ? 'متوسط' : valueOrMissing(null)}</span></div>
             <div class="metric"><span class="metric-label">المصدر</span><span class="metric-value">${marketItem.source || 'تقدير'}</span></div>
+            ${modeledMarket ? '<p class="evidence-meta"><strong>تنبيه:</strong> هذه القيم ناتجة عن نموذج داخلي وليست قراءة سوق حية مباشرة.</p>' : ''}
           </div>
 
           <div class="card">
-            <h3>🌟 مؤشر الفرصة الذهبية</h3>
+            <h3>🌟 مؤشر فرصة داخلي</h3><p class="evidence-meta">درجة تحليلية وليست حقيقة رسمية؛ تُستخدم للمقارنة فقط وتُقيّم وفق مصدر البيانات أعلاه.</p>
             <div class="metric">
               <span class="metric-label">الدرجة</span>
               <span class="metric-value">

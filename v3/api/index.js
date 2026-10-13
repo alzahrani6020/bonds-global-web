@@ -296,6 +296,9 @@ function mergeMasterAndDatabaseCities(countryCode, databaseRows = []) {
   const byCode = new Map(masterRows.map(row => [row.code, row]));
 
   for (const row of databaseRows || []) {
+    for (const aliasCode of row.alias_codes || []) {
+      if (aliasCode && aliasCode !== row.code) byCode.delete(aliasCode);
+    }
     const current = byCode.get(row.code) || {};
     byCode.set(row.code, {
       ...current,
@@ -334,23 +337,24 @@ async function handleCatalogCountries(req, res) {
   try {
     const supabase = getSupabaseClient();
     const rows = await loadCatalogCityRows(supabase);
+    const canonicalDatabaseCities = canonicalizeCities(rows);
     const databaseCounts = {};
-    for (const city of canonicalizeCities(rows)) {
+    for (const city of canonicalDatabaseCities) {
       databaseCounts[city.country_code] = (databaseCounts[city.country_code] || 0) + 1;
     }
-    const masterCounts = {};
-    for (const city of loadMasterCatalogCities()) {
-      masterCounts[city.country_code] = (masterCounts[city.country_code] || 0) + 1;
-    }
 
-    const countries = Object.entries(COUNTRY_NAMES).map(([code, names]) => ({
-      code,
-      name_ar: names.ar,
-      name_en: names.en,
-      cityCount: masterCounts[code] || databaseCounts[code] || 0,
-      dataCityCount: databaseCounts[code] || 0,
-      recordStatus: databaseCounts[code] ? 'data_available' : 'catalog_only'
-    })).sort((a, b) => {
+    const countries = Object.entries(COUNTRY_NAMES).map(([code, names]) => {
+      const countryDbRows = canonicalDatabaseCities.filter(city => city.country_code === code);
+      const mergedCount = mergeMasterAndDatabaseCities(code, countryDbRows).length;
+      return {
+        code,
+        name_ar: names.ar,
+        name_en: names.en,
+        cityCount: mergedCount,
+        dataCityCount: databaseCounts[code] || 0,
+        recordStatus: databaseCounts[code] ? 'data_available' : 'catalog_only'
+      };
+    }).sort((a, b) => {
       if (a.code === 'SA') return -1;
       if (b.code === 'SA') return 1;
       return a.name_ar.localeCompare(b.name_ar, 'ar');
@@ -1222,6 +1226,7 @@ module.exports = async function handler(req, res) {
     if (path === '/geocode' && req.method === 'GET') return await handleGeocode(req, res);
     if (path === '/opportunities/top' && req.method === 'GET') return await handleOpportunitiesTop(req, res);
     if (path.match(/^\/cities\/[^\/]+\/indicators$/) && req.method === 'GET') return await handleCityIndicators(req, res, path);
+    if (path.match(/^\/cities\/[^\/]+\/evidence$/) && req.method === 'GET') return await handleCityEvidence(req, res, path);
     if (path.match(/^\/cities\/[^\/]+\/market$/) && req.method === 'GET') return await handleCityMarket(req, res, path);
     if (path.match(/^\/cities\/[^\/]+$/) && req.method === 'GET') return await handleCityDetail(req, res, path);
     if (path === '/calculate' && req.method === 'POST') return await handleCalculate(req, res);
