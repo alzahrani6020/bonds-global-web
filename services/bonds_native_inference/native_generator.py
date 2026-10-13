@@ -210,7 +210,7 @@ def generate(
     messages = [{"role": "system", "content": system}]
     user_text = str(prompt).strip()
     if context_text and context_text != "{}":
-        user_text = f"Context:\\n{context_text}\\n\\n{user_text}"
+        user_text = f"Context:\n{context_text}\n\n{user_text}"
     messages.append({"role": "user", "content": user_text})
 
     lock_wait_started = time.perf_counter()
