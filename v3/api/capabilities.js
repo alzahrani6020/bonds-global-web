@@ -2,6 +2,7 @@
 
 const { listCapabilities } = require('../../lib/capabilities/bonds-capability-registry');
 const { executeCapability } = require('../../lib/capabilities/governed-executor');
+const { planCapabilities } = require('../../lib/capabilities/capability-planner');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -40,6 +41,13 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
         external_llm_provider_required: false
       }
     });
+  }
+
+  if (path === '/capabilities/plan' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error: 'Invalid JSON body', detail: err.message }); }
+    return sendJson(res, 200, planCapabilities(body));
   }
 
   if (path === '/capabilities/execute' && req.method === 'POST') {
