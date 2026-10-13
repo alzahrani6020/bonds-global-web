@@ -3741,6 +3741,13 @@ async function getStats(sb) {
     { count: enterpriseCount },
     { count: scenariosCount },
     fundingCasesCount,
+    subscriptionsCount,
+    messagesCount,
+    advisoryClientsCount,
+    advisoryProjectsCount,
+    recoveryAssetsCount,
+    citiesCount,
+    aiReviewsCount,
     { data: recentSubs },
     { data: profileList }
   ] = await Promise.all([
@@ -3748,6 +3755,13 @@ async function getStats(sb) {
     sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise'),
     sb.from('scenarios').select('*', { count: 'exact', head: true }),
     safeCount(sb, 'funding_cases'),
+    safeCount(sb, 'subscriptions'),
+    safeCount(sb, 'contact_messages'),
+    safeCount(sb, 'advisory_clients'),
+    safeCount(sb, 'advisory_projects'),
+    safeCount(sb, 'recovery_assets'),
+    safeCount(sb, 'cities'),
+    safeCount(sb, 'ai_review_requests'),
     sb.from('subscriptions').select('user_id, tier, status, current_period_end, created_at').order('created_at', { ascending: false }).limit(10),
     sb.from('profiles').select('id, restaurant_name, email, phone, country, tier, status, created_at').order('created_at', { ascending: false }).limit(10)
   ]);
@@ -3774,6 +3788,13 @@ async function getStats(sb) {
       totalUsers, freeUsers, proUsers, enterpriseUsers,
       totalScenarios: scenariosCount || 0,
       fundingCases: fundingCasesCount || 0,
+      subscriptions: subscriptionsCount || 0,
+      messages: messagesCount || 0,
+      advisoryClients: advisoryClientsCount || 0,
+      advisoryProjects: advisoryProjectsCount || 0,
+      recoveryAssets: recoveryAssetsCount || 0,
+      cities: citiesCount || 0,
+      aiReviews: aiReviewsCount || 0,
       monthlyRevenue,
       conversionRate: totalUsers > 0 ? ((proUsers + enterpriseUsers) / totalUsers * 100).toFixed(1) : '0.0',
       arpu: totalUsers > 0 ? (monthlyRevenue / totalUsers).toFixed(2) : '0.00'
