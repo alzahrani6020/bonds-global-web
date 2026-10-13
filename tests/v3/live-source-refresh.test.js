@@ -54,6 +54,8 @@ describe('live source refresh and dynamic years', () => {
     expect(gastat).toContain("options.year === 'latest'");
     expect(gastat).toContain('this._fetchLaborMarket(year, latestRequested)');
     expect(gastat).toContain('this.useFallback = config.useFallback === true');
+    expect(gastat).toContain('const dataYear = 2022;');
+    expect(gastat).toContain("sourcePeriod: '2022 Census'");
 
     expect(sama).toContain("options.year === 'latest'");
     expect(sama).toContain('this._fetchInflation(year, latestRequested)');
