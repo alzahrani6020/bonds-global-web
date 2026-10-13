@@ -304,7 +304,6 @@
   </style>
   <script>BondsAuth.initAdminGuard();</script>
   <script src="/admin/admin-common.js?v=4"></script>
-<script defer src="/calculators/auth-gate.js?v=3.0.0"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=3.0.0" />
   <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
@@ -627,90 +626,64 @@
 
       async function loadStats() {
         const counts = {
-          users: 0,
-          subscriptions: 0,
-          revenue: 0,
-          messages: 0,
-          advisoryClients: 0,
-          advisoryProjects: 0,
-          recoveryAssets: 0,
-          cities: 0,
-          aiReviews: 0,
-          fundingCases: 0,
-          onlineUsers: 0,
+          users: null,
+          subscriptions: null,
+          revenue: null,
+          messages: null,
+          advisoryClients: null,
+          advisoryProjects: null,
+          recoveryAssets: null,
+          cities: null,
+          aiReviews: null,
+          fundingCases: null,
+          onlineUsers: null,
           _health: null,
           _operations: null,
           _errors: []
         };
 
-        const queries = [
-          { key: 'users', q: sb?.from('profiles')?.select('*', { count: 'exact', head: true }) },
-          { key: 'subscriptions', q: sb?.from('subscriptions')?.select('*', { count: 'exact', head: true }) },
-          { key: 'messages', q: sb?.from('contact_messages')?.select('*', { count: 'exact', head: true }) },
-          { key: 'advisoryClients', q: sb?.from('advisory_clients')?.select('*', { count: 'exact', head: true }) },
-          { key: 'advisoryProjects', q: sb?.from('advisory_projects')?.select('*', { count: 'exact', head: true }) },
-          { key: 'recoveryAssets', q: sb?.from('recovery_assets')?.select('*', { count: 'exact', head: true }) },
-          { key: 'cities', q: sb?.from('cities')?.select('*', { count: 'exact', head: true }) },
-          { key: 'aiReviews', q: sb?.from('ai_review_requests')?.select('*', { count: 'exact', head: true }) },
-          { key: 'fundingCases', q: sb?.from('funding_cases')?.select('*', { count: 'exact', head: true }) }
-        ];
+        const [statsResult, healthResult, operationsResult, onlineResult] = await Promise.allSettled([
+          withTimeout(apiGet('stats'), 8000),
+          withTimeout(apiGet('system-health'), 8000),
+          withTimeout(apiGet('operations-overview'), 8000),
+          withTimeout(apiGet('online-users'), 8000)
+        ]);
 
-        const results = await Promise.allSettled(
-          queries.map(item => withTimeout(item.q, 8000).then(value => ({ key: item.key, value })))
-        );
-
-        results.forEach(result => {
-          if (result.status === 'fulfilled') {
-            const { key, value } = result.value || {};
-            if (value && typeof value.count === 'number') counts[key] = value.count;
-          } else {
-            console.warn('[Dashboard] stat query failed:', result.reason);
-            counts._errors.push(String(result.reason || 'unknown'));
-          }
-        });
-
-        try {
-          const [rev, settings] = await Promise.all([
-            withTimeout(sb?.from('subscriptions')?.select('tier')?.eq('status', 'active'), 8000),
-            withTimeout(apiGet('settings'), 8000)
-          ]);
-          const proPrice = settings?.price_pro_sar || 82;
-          const entPrice = settings?.price_enterprise_sar || 212;
-          if (rev?.data) {
-            counts.revenue = rev.data.reduce((a, r) => {
-              if (r.tier === 'enterprise') return a + entPrice;
-              if (r.tier === 'pro') return a + proPrice;
-              return a;
-            }, 0);
-          }
-        } catch (e) {
-          console.warn('[Dashboard] revenue calc failed:', e);
-          counts._errors.push('revenue');
+        if (statsResult.status === 'fulfilled' && statsResult.value?.success) {
+          const stats = statsResult.value.stats || {};
+          counts.users = Number.isFinite(Number(stats.totalUsers)) ? Number(stats.totalUsers) : null;
+          counts.subscriptions = Number.isFinite(Number(stats.subscriptions)) ? Number(stats.subscriptions) : null;
+          counts.revenue = Number.isFinite(Number(stats.monthlyRevenue)) ? Number(stats.monthlyRevenue) : null;
+          counts.messages = Number.isFinite(Number(stats.messages)) ? Number(stats.messages) : null;
+          counts.advisoryClients = Number.isFinite(Number(stats.advisoryClients)) ? Number(stats.advisoryClients) : null;
+          counts.advisoryProjects = Number.isFinite(Number(stats.advisoryProjects)) ? Number(stats.advisoryProjects) : null;
+          counts.recoveryAssets = Number.isFinite(Number(stats.recoveryAssets)) ? Number(stats.recoveryAssets) : null;
+          counts.cities = Number.isFinite(Number(stats.cities)) ? Number(stats.cities) : null;
+          counts.aiReviews = Number.isFinite(Number(stats.aiReviews)) ? Number(stats.aiReviews) : null;
+          counts.fundingCases = Number.isFinite(Number(stats.fundingCases)) ? Number(stats.fundingCases) : null;
+        } else {
+          counts._errors.push('stats');
         }
 
-        try {
-          counts._health = await withTimeout(apiGet('system-health'), 8000);
-          if (!counts._health?.success) counts._errors.push('system-health');
-        } catch (e) {
-          console.warn('[Dashboard] system health failed:', e);
+        if (healthResult.status === 'fulfilled' && healthResult.value?.success) {
+          counts._health = healthResult.value;
+        } else {
           counts._errors.push('system-health');
         }
 
-        try {
-          counts._operations = await withTimeout(apiGet('operations-overview'), 8000);
-          if (!counts._operations?.success) counts._errors.push('operations-overview');
-        } catch (e) {
-          console.warn('[Dashboard] operations overview failed:', e);
+        if (operationsResult.status === 'fulfilled' && operationsResult.value?.success) {
+          counts._operations = operationsResult.value;
+        } else {
           counts._errors.push('operations-overview');
         }
 
-        try {
-          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
-          const online = await withTimeout(sb?.from('user_presence')?.select('*', { count: 'exact', head: true })?.gte('last_seen_at', fiveMinutesAgo), 8000);
-          if (online && typeof online.count === 'number') counts.onlineUsers = online.count;
-        } catch (e) {
-          console.warn('[Dashboard] online users count failed:', e);
-          counts._errors.push('onlineUsers');
+        if (onlineResult.status === 'fulfilled' && onlineResult.value?.success) {
+          const online = onlineResult.value.online || onlineResult.value.users || onlineResult.value.data || [];
+          counts.onlineUsers = Array.isArray(online)
+            ? online.length
+            : (Number.isFinite(Number(onlineResult.value.count)) ? Number(onlineResult.value.count) : null);
+        } else {
+          counts._errors.push('online-users');
         }
 
         return counts;
@@ -719,7 +692,7 @@
       function renderOverview(counts) {
         const statErrors = counts._errors && counts._errors.length ? `
           <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:1rem;margin-bottom:1.5rem;color:var(--text-secondary);font-size:0.85rem;">
-            ⚠️ تعذر تحميل بعض الإحصائيات (${counts._errors.length}). تأكد من الاتصال بـ Supabase أو أعد التحميل.
+            ⚠️ تعذر تحميل بعض الإحصائيات (${counts._errors.length}). القيم غير المتاحة تظهر بشرطة (—) ولا يتم افتراض أنها صفر.
           </div>` : '';
 
         const health = counts._health;
@@ -731,6 +704,7 @@
         const requestId = health?.requestId || '—';
         const operations = counts._operations?.queues || {};
         const opValue = value => Number.isFinite(value) ? value.toLocaleString('ar-SA') : '—';
+        const statValue = value => Number.isFinite(value) ? value.toLocaleString('ar-SA') : '—';
 
         overviewEl.innerHTML = `
           <div class="page-header">
@@ -757,17 +731,17 @@
             </div>
           </div>
           <div class="stats-grid">
-            <div class="stat-card" data-target="/admin/users.html?embed=1" data-title="المستخدمين" tabindex="0" role="button" aria-label="عرض المستخدمين"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${counts.users.toLocaleString('ar-SA')}</div><div class="stat-card__label">المستخدمين</div></div>
-            <div class="stat-card" data-target="/admin/subscriptions.html?embed=1" data-title="الاشتراكات" tabindex="0" role="button" aria-label="عرض الاشتراكات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${counts.subscriptions.toLocaleString('ar-SA')}</div><div class="stat-card__label">الاشتراكات</div></div>
-            <div class="stat-card" data-target="/admin/executive-dashboard?embed=1" data-title="لوحة المؤشرات التنفيذية" tabindex="0" role="button" aria-label="عرض الإيرادات والمؤشرات التنفيذية"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">💰</div></div><div class="stat-card__num">${counts.revenue.toLocaleString('ar-SA')} ر.س</div><div class="stat-card__label">إيرادات فعالة</div></div>
-            <div class="stat-card" data-target="/admin/messages.html?embed=1" data-title="الرسائل" tabindex="0" role="button" aria-label="عرض الرسائل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">✉️</div></div><div class="stat-card__num">${counts.messages.toLocaleString('ar-SA')}</div><div class="stat-card__label">الرسائل</div></div>
-            <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض عملاء الاستشارات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">📊</div></div><div class="stat-card__num">${counts.advisoryClients.toLocaleString('ar-SA')}</div><div class="stat-card__label">عملاء الاستشارات</div></div>
-            <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض المشاريع الاستشارية"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📁</div></div><div class="stat-card__num">${counts.advisoryProjects.toLocaleString('ar-SA')}</div><div class="stat-card__label">مشاريع استشارية</div></div>
-            <div class="stat-card" data-target="/admin/distressed-recovery?embed=1" data-title="إنقاذ الأصول المتعثرة" tabindex="0" role="button" aria-label="عرض الأصول المتعثرة"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${counts.recoveryAssets.toLocaleString('ar-SA')}</div><div class="stat-card__label">أصول متعثرة</div></div>
-            <div class="stat-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence" tabindex="0" role="button" aria-label="عرض مدن City Intelligence"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${counts.cities.toLocaleString('ar-SA')}</div><div class="stat-card__label">مدن City Intelligence</div></div>
-            <div class="stat-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص" tabindex="0" role="button" aria-label="عرض طلبات مراجعة AI"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${counts.aiReviews.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
-            <div class="stat-card" data-target="/admin/funding-cases/?embed=1" data-title="طلبات التمويل" tabindex="0" role="button" aria-label="عرض طلبات التمويل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">🏦</div></div><div class="stat-card__num">${counts.fundingCases.toLocaleString('ar-SA')}</div><div class="stat-card__label">طلبات التمويل</div></div>
-            <div class="stat-card" data-target="online-users" data-title="المتواجدون" tabindex="0" role="button" aria-label="عرض المتواجدين الآن"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${counts.onlineUsers.toLocaleString('ar-SA')}</div><div class="stat-card__label">متواجدون الآن</div></div>
+            <div class="stat-card" data-target="/admin/users.html?embed=1" data-title="المستخدمين" tabindex="0" role="button" aria-label="عرض المستخدمين"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">👥</div></div><div class="stat-card__num">${statValue(counts.users)}</div><div class="stat-card__label">المستخدمين</div></div>
+            <div class="stat-card" data-target="/admin/subscriptions.html?embed=1" data-title="الاشتراكات" tabindex="0" role="button" aria-label="عرض الاشتراكات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">⭐</div></div><div class="stat-card__num">${statValue(counts.subscriptions)}</div><div class="stat-card__label">الاشتراكات</div></div>
+            <div class="stat-card" data-target="/admin/executive-dashboard?embed=1" data-title="لوحة المؤشرات التنفيذية" tabindex="0" role="button" aria-label="عرض الإيرادات والمؤشرات التنفيذية"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">💰</div></div><div class="stat-card__num">${Number.isFinite(counts.revenue) ? statValue(counts.revenue) + ' ر.س' : '—'}</div><div class="stat-card__label">إيرادات فعالة</div></div>
+            <div class="stat-card" data-target="/admin/messages.html?embed=1" data-title="الرسائل" tabindex="0" role="button" aria-label="عرض الرسائل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">✉️</div></div><div class="stat-card__num">${statValue(counts.messages)}</div><div class="stat-card__label">الرسائل</div></div>
+            <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض عملاء الاستشارات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">📊</div></div><div class="stat-card__num">${statValue(counts.advisoryClients)}</div><div class="stat-card__label">عملاء الاستشارات</div></div>
+            <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض المشاريع الاستشارية"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📁</div></div><div class="stat-card__num">${statValue(counts.advisoryProjects)}</div><div class="stat-card__label">مشاريع استشارية</div></div>
+            <div class="stat-card" data-target="/admin/distressed-recovery?embed=1" data-title="إنقاذ الأصول المتعثرة" tabindex="0" role="button" aria-label="عرض الأصول المتعثرة"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${statValue(counts.recoveryAssets)}</div><div class="stat-card__label">أصول متعثرة</div></div>
+            <div class="stat-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence" tabindex="0" role="button" aria-label="عرض مدن City Intelligence"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${statValue(counts.cities)}</div><div class="stat-card__label">مدن City Intelligence</div></div>
+            <div class="stat-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص" tabindex="0" role="button" aria-label="عرض طلبات مراجعة AI"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${statValue(counts.aiReviews)}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
+            <div class="stat-card" data-target="/admin/funding-cases/?embed=1" data-title="طلبات التمويل" tabindex="0" role="button" aria-label="عرض طلبات التمويل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">🏦</div></div><div class="stat-card__num">${statValue(counts.fundingCases)}</div><div class="stat-card__label">طلبات التمويل</div></div>
+            <div class="stat-card" data-target="online-users" data-title="المتواجدون" tabindex="0" role="button" aria-label="عرض المتواجدين الآن"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${statValue(counts.onlineUsers)}</div><div class="stat-card__label">متواجدون الآن</div></div>
           </div>
 
           <h2 style="font-size:1.1rem;font-weight:800;margin-bottom:1rem;">صندوق العمليات</h2>
