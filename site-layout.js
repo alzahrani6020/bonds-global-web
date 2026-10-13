@@ -145,6 +145,7 @@
       privacy: isEn ? 'Privacy' : 'الخصوصية',
       terms: isEn ? 'Terms' : 'الشروط والأحكام',
       kyc: isEn ? 'Know Your Customer (KYC)' : 'اعرف عميلك (KYC)',
+      receivablesAging: isEn ? 'Receivables Aging' : 'أعمار الذمم',
     };
 
     const currentPath = window.location.pathname;
@@ -182,6 +183,7 @@
     const fundingSourcesHref = langBase + 'funding-sources.html';
     const fundingHubHref = langBase + 'funding.html';
     const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
+    const receivablesAgingHref = isEn ? '/en/client/receivables-aging' : '/client/receivables-aging';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
@@ -284,6 +286,7 @@
         heading: { ar: 'نماذج', en: 'Forms' },
         items: [
           { label: labels.kyc, href: kycHref },
+          { label: labels.receivablesAging, href: receivablesAgingHref },
         ],
       },
     ];
