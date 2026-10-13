@@ -894,13 +894,7 @@
             activityCode: activitySelect.value,
             preserve: false
           });
-          await refreshYearOptions({
-          countryCode: document.getElementById('countrySelect').value,
-          cityCode,
-          activityCode,
-          preserve: false
-        });
-        await loadCityData();
+          await loadCityData();
         });
         activitySelect.addEventListener('change', async () => {
           await refreshYearOptions({
@@ -1289,6 +1283,12 @@ ${recommendations.length ? recommendations.map(r => `
           btn.textContent = '✦ تحديث تلقائي';
         }, 2000);
 
+        await refreshYearOptions({
+          countryCode: document.getElementById('countrySelect').value,
+          cityCode,
+          activityCode,
+          preserve: false
+        });
         await loadCityData();
       } catch (err) {
         btn.disabled = false;
