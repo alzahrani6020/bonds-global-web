@@ -483,6 +483,8 @@
         <a href="${blogHref}">${isEn ? 'Articles' : 'المقالات'}</a>
         <a href="${reportsHref}">${isEn ? 'Guides & Reports' : 'الأدلة والتقارير'}</a>
         <a href="${faqHref}">${isEn ? 'FAQ' : 'الأسئلة الشائعة'}</a>
+        <a href="${langBase + 'data-methodology.html'}">${isEn ? 'Data Sources & Methodology' : 'مصادر ومنهجية البيانات'}</a>
+        <a href="${langBase + 'methodology.html'}">${isEn ? 'Calculation Methodology' : 'منهجية الحساب'}</a>
       </div>
     </div>
     <div>
