@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>نموذج أعمار الذمم الدائنة الدائنة — بوابة المورد | Bonds</title>
-  <meta name="description" content="نموذج أعمار الذمم الدائنة الدائنة وتحليل فترات الاستحقاق للموردين لعملاء Bonds Global." />
+  <title>نموذج أعمار الذمم الدائنة — بوابة العميل | Bonds</title>
+  <meta name="description" content="نموذج أعمار الذمم الدائنة وتحليل فترات الاستحقاق للموردين لعملاء Bonds Global." />
   <link rel="canonical" href="https://bonds-global.com/client/payables-aging.html" />
-  <meta property="og:title" content="نموذج أعمار الذمم الدائنة الدائنة — بوابة المورد | Bonds" />
-  <meta property="og:description" content="نموذج أعمار الذمم الدائنة الدائنة وتحليل فترات الاستحقاق للموردين لعملاء Bonds Global." />
+  <meta property="og:title" content="نموذج أعمار الذمم الدائنة — بوابة العميل | Bonds" />
+  <meta property="og:description" content="نموذج أعمار الذمم الدائنة وتحليل فترات الاستحقاق للموردين لعملاء Bonds Global." />
   <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
   <meta property="og:url" content="https://bonds-global.com/client/payables-aging.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="نموذج أعمار الذمم الدائنة الدائنة — بوابة المورد | Bonds" />
-  <meta name="twitter:description" content="نموذج أعمار الذمم الدائنة الدائنة وتحليل فترات الاستحقاق للموردين لعملاء Bonds Global." />
+  <meta name="twitter:title" content="نموذج أعمار الذمم الدائنة — بوابة العميل | Bonds" />
+  <meta name="twitter:description" content="نموذج أعمار الذمم الدائنة وتحليل فترات الاستحقاق للموردين لعملاء Bonds Global." />
   <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
   <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="/styles/fonts-ar.css" />
@@ -52,7 +52,7 @@
   <div id="site-header"></div>
   <main class="aging-page">
     <section class="aging-hero">
-      <div class="hero__eyebrow">بوابة المورد</div>
+      <div class="hero__eyebrow">بوابة العميل</div>
       <h1>نموذج أعمار الذمم الدائنة</h1>
       <p>أدخل الذمم الدائنة المفتوحة للموردين حتى تاريخ التقرير. يتم احتساب الرصيد القائم وتصنيفه تلقائيًا حسب فترة العمر.</p>
     </section>
@@ -172,7 +172,7 @@
         else if(age<=120)buckets.b120=balance;
         else buckets.over120=balance;
       }
-      return {supplier:get('customer').trim(),invoice_no:get('invoice_no').trim(),invoice_date:get('invoice_date'),due_date:get('due_date'),invoice_amount:invoice,paid_amount:paid,balance,days_overdue:Math.max(0,age),...buckets};
+      return {supplier:get('supplier').trim(),invoice_no:get('invoice_no').trim(),invoice_date:get('invoice_date'),due_date:get('due_date'),invoice_amount:invoice,paid_amount:paid,balance,days_overdue:Math.max(0,age),...buckets};
     }
 
     function recalc(){
