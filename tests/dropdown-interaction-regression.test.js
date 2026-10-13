@@ -10,7 +10,8 @@ describe('Dropdown interaction regression', () => {
 
   test('desktop header dropdowns are opened only by explicit is-open state', () => {
     expect(headerCss).toContain('Explicit dropdown interaction state v2.70.0');
-    expect(headerCss).toMatch(/\.main-header \.dropdown:hover > \.dropdown-menu\s*\{[\s\S]*?pointer-events:\s*none\s*!important/);
+    expect(headerCss).not.toContain('.dropdown:hover > .dropdown-menu');
+    expect(headerCss).toMatch(/\.main-header \.dropdown > \.dropdown-menu\s*\{[\s\S]*?pointer-events:\s*none\s*!important/);
     expect(headerCss).toMatch(/\.main-header \.dropdown\.is-open > \.dropdown-menu\s*\{[\s\S]*?pointer-events:\s*auto\s*!important/);
   });
 
