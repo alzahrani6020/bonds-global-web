@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Data Sources & Methodology | Bonds</title>
+  <meta name="description" content="Bonds methodology for data sources, freshness, confidence and separation of observed versus modeled data." />
+  <link rel="stylesheet" href="/styles.css?v=2026" />
+  <link rel="stylesheet" href="/header-footer.css?v=2.70.0" />
+  <style>
+    body{background:#f6f8fb;color:#0f172a}.methodology-wrap{max-width:1180px;margin:auto;padding:3rem 1.25rem 5rem}
+    .hero-box,.truth-card,.status-card{background:#fff;border:1px solid #dbe3ef;border-radius:18px}
+    .hero-box{padding:2rem;margin-bottom:1.5rem}.hero-box h1{margin:0 0 .75rem;font-size:clamp(1.8rem,4vw,3rem)}
+    .hero-box p{color:#475569;line-height:1.8}.truth-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+    .truth-card,.status-card{padding:1.2rem}.truth-card h2,.status-card h2{margin-top:0}.tag{display:inline-block;border-radius:999px;padding:.25rem .65rem;font-weight:700;font-size:.8rem}
+    .verified{background:#dcfce7;color:#166534}.modeled{background:#fef3c7;color:#92400e}.missing{background:#e2e8f0;color:#334155}.stale{background:#fee2e2;color:#991b1b}
+    table{width:100%;border-collapse:collapse;background:#fff;border-radius:16px;overflow:hidden;margin-top:1rem}th,td{padding:.9rem;border-bottom:1px solid #e2e8f0;text-align:left;vertical-align:top}th{background:#0f172a;color:#fff}
+    code{display:inline-block}.section{margin-top:2rem}.note{border-left:4px solid #d4a853;background:#fff8e8;padding:1rem 1.2rem;border-radius:12px}a{color:#9a6b16}
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main id="main-content" class="methodology-wrap">
+    <section class="hero-box">
+      <h1>Data Sources & Methodology</h1>
+      <p>This page explains how Bonds separates traceable observed data from modeled estimates, stale data and missing evidence. The core rule is simple: an internal estimate must never be presented as an official fact.</p>
+      <p><a href="/en/methodology.html">Calculation methodology</a> · <a href="/en/v3/">Intelligence hub</a></p>
+    </section>
+
+    <section class="truth-grid">
+      <article class="truth-card"><span class="tag verified">Verified</span><h2>Observed data</h2><p>A value with a traceable source, fetch timestamp, reference period and known geographic scope. A generic source URL alone is not sufficient.</p></article>
+      <article class="truth-card"><span class="tag modeled">Modeled</span><h2>Model or inference</h2><p>A value derived from a model, benchmark, inference or internal transformation. It is labeled as an estimate and never replaces an observed official value.</p></article>
+      <article class="truth-card"><span class="tag stale">Stale</span><h2>Outside freshness policy</h2><p>The value may still be historically valid but is older than the accepted freshness window for that metric.</p></article>
+      <article class="truth-card"><span class="tag missing">Missing</span><h2>Insufficient evidence</h2><p>When traceable evidence is unavailable, the platform shows “Unavailable” instead of fabricating a number or converting a read failure into zero.</p></article>
+    </section>
+
+    <section class="section status-card">
+      <h2>Core evidence fields</h2>
+      <table>
+        <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+        <tbody>
+          <tr><td><code>source_name / source_url</code></td><td>The organization or page to which the observation can be traced.</td></tr>
+          <tr><td><code>observed_at / year</code></td><td>The period described by the value, not merely the download time.</td></tr>
+          <tr><td><code>fetched_at</code></td><td>When Bonds retrieved the observation.</td></tr>
+          <tr><td><code>geographic_scope</code></td><td>City, region/governorate or national. National values must not be presented as city-level facts.</td></tr>
+          <tr><td><code>confidence</code></td><td>Confidence in measurement/mapping, not a guarantee of an investment outcome.</td></tr>
+          <tr><td><code>data_quality</code></td><td>Examples: official, open_data, estimated, fallback.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section status-card">
+      <h2>Freshness policy</h2>
+      <p>Bonds does not use one age threshold for every metric. Each series should have a <code>freshness_sla_days</code> appropriate to its behavior: population can remain useful for longer periods, while prices and market indicators may require much faster updates.</p>
+      <div class="note">The label “Live” is reserved for a real source feed with a known delay. Periodic government publications are labeled “Latest official release”, not “Live”.</div>
+    </section>
+
+    <section class="section status-card">
+      <h2>Opportunity scores</h2>
+      <p>Composite scores must be explainable: factors, weights, source for each factor and the share of modeled inputs. If evidence coverage is insufficient, the score should not be presented as a complete fact.</p>
+      <p>Missing-metric inference in the city data pipeline is opt-in rather than the default and remains explicitly marked as modeled.</p>
+    </section>
+
+    <section class="section status-card">
+      <h2>Geographic catalog</h2>
+      <p>Bonds uses canonical geographic identifiers and distinguishes cities, regions, ports, economic zones and industrial cities. Presence in the catalog does not imply that verified economic metrics are currently available.</p>
+    </section>
+  </main>
+  <div id="site-footer"></div>
+  <script defer src="/site-layout.js?v=3.3.0"></script>
+</body>
+</html>
