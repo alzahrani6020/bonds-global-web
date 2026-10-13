@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Establishment Information Form — Client Portal | Bonds</title>
+  <meta name="description" content="Establishment information and business profile form for Bonds Global clients." />
+  <link rel="canonical" href="https://bonds-global.com/en/client/establishment-information.html" />
+  <meta property="og:title" content="Establishment Information Form — Client Portal | Bonds" />
+  <meta property="og:description" content="Establishment information and business profile form for Bonds Global clients." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/en/client/establishment-information.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Establishment Information Form — Client Portal | Bonds" />
+  <meta name="twitter:description" content="Establishment information and business profile form for Bonds Global clients." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles/fonts-ar.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles/design-system.css" />
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=6" />
+  <script defer src="/calculators/auth-gate.js?v=3"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script src="/lib/forms/branded-export.js?v=1"></script>
+  <style>
+    .est-page{max-width:1100px;margin:0 auto;padding:7rem 1rem 4rem}.est-hero{margin-bottom:1.25rem}.est-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;margin-bottom:1rem}.est-card h2{font-size:1.08rem;margin:0 0 1rem}.est-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.est-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}.est-field label{display:block;font-weight:700;margin-bottom:.4rem}.est-field input,.est-field select,.est-field textarea{width:100%;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text)}.est-status{margin:1rem 0;padding:.8rem 1rem;border-radius:10px;display:none}.est-status.show{display:block}.est-status.ok{background:rgba(34,197,94,.12);color:#16a34a}.est-status.err{background:rgba(239,68,68,.12);color:#dc2626}.est-actions,.export-actions{display:flex;gap:.65rem;flex-wrap:wrap;justify-content:space-between}.export-actions{margin-top:.75rem;justify-content:flex-start}.hint{font-size:.82rem;color:var(--text-secondary);margin-top:.3rem}@media(max-width:800px){.est-grid,.est-grid-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="est-page">
+    <section class="est-hero">
+      <div class="hero__eyebrow">Client Portal</div>
+      <h1>Establishment Information Form</h1>
+      <p>This form records the establishment’s core legal, registration, operational, and contact information for the client file and advisory services.</p>
+    </section>
+
+    <div id="status" class="est-status" role="status"></div>
+
+    <form id="estForm">
+      <section class="est-card">
+        <h2>1. Legal Identity</h2>
+        <div class="est-grid">
+          <div class="est-field"><label for="legalName">Legal Name</label><input id="legalName" required></div>
+          <div class="est-field"><label for="tradeName">Trade Name</label><input id="tradeName"></div>
+          <div class="est-field"><label for="entityType">Legal Entity Type</label><select id="entityType" required><option value="">Select</option><option value="sole">Sole Proprietorship</option><option value="llc">Limited Liability Company</option><option value="joint_stock">Joint Stock Company</option><option value="simplified_joint_stock">Simplified Joint Stock Company</option><option value="partnership">Partnership</option><option value="non_profit">Non-Profit</option><option value="foreign">Foreign Entity</option><option value="other">Other</option></select></div>
+          <div class="est-field"><label for="crNumber">Commercial Registration No.</label><input id="crNumber" required></div>
+          <div class="est-field"><label for="unifiedNumber">Unified National Number</label><input id="unifiedNumber"></div>
+          <div class="est-field"><label for="incorporationDate">Incorporation Date</label><input id="incorporationDate" type="date"></div>
+          <div class="est-field"><label for="capital">Registered Capital</label><input id="capital" type="number" min="0" step="0.01"></div>
+          <div class="est-field"><label for="capitalCurrency">Capital Currency</label><select id="capitalCurrency"><option>SAR</option><option>USD</option><option>EUR</option><option>AED</option><option>EGP</option><option>GBP</option></select></div>
+        </div>
+      </section>
+
+      <section class="est-card">
+        <h2>2. Registrations & Licenses</h2>
+        <div class="est-grid">
+          <div class="est-field"><label for="vatNumber">Tax / VAT Number</label><input id="vatNumber"></div>
+          <div class="est-field"><label for="zakatTaxStatus">Zakat / Tax Status</label><select id="zakatTaxStatus"><option value="">Select</option><option value="registered">Registered</option><option value="not_registered">غير Registered</option><option value="not_applicable">Not Applicable</option></select></div>
+          <div class="est-field"><label for="licenseAuthority">Primary Licensing Authority</label><input id="licenseAuthority"></div>
+          <div class="est-field"><label for="licenseNumber">License Number</label><input id="licenseNumber"></div>
+          <div class="est-field"><label for="licenseExpiry">License Expiry Date</label><input id="licenseExpiry" type="date"></div>
+          <div class="est-field"><label for="otherRegistrations">تسجيلات / تراخيص Other</label><textarea id="otherRegistrations" rows="3"></textarea></div>
+        </div>
+      </section>
+
+      <section class="est-card">
+        <h2>3. Business Activity & Operations</h2>
+        <div class="est-grid">
+          <div class="est-field"><label for="mainActivity">Primary Activity</label><input id="mainActivity" required></div>
+          <div class="est-field"><label for="secondaryActivities">Secondary Activities</label><input id="secondaryActivities"></div>
+          <div class="est-field"><label for="productsServices">Main Products / Services</label><textarea id="productsServices" rows="3"></textarea></div>
+          <div class="est-field"><label for="markets">Main Markets / Regions</label><input id="markets"></div>
+          <div class="est-field"><label for="employees">Number of Employees</label><input id="employees" type="number" min="0"></div>
+          <div class="est-field"><label for="branches">Number of Branches</label><input id="branches" type="number" min="0"></div>
+          <div class="est-field"><label for="annualRevenue">Approximate Annual Revenue</label><input id="annualRevenue" type="number" min="0" step="0.01"></div>
+          <div class="est-field"><label for="website">Website</label><input id="website" type="url" placeholder="https://"></div>
+        </div>
+      </section>
+
+      <section class="est-card">
+        <h2>4. Address & Contact Details</h2>
+        <div class="est-grid">
+          <div class="est-field"><label for="country">Country</label><input id="country" required></div>
+          <div class="est-field"><label for="region">Region / Province</label><input id="region"></div>
+          <div class="est-field"><label for="city">City</label><input id="city" required></div>
+          <div class="est-field"><label for="address">العنوان الوطني / الRegistered</label><textarea id="address" rows="3"></textarea></div>
+          <div class="est-field"><label for="phone">Telephone</label><input id="phone" type="tel"></div>
+          <div class="est-field"><label for="email">Official Email</label><input id="email" type="email"></div>
+        </div>
+      </section>
+
+      <section class="est-card">
+        <h2>5. Management & Authorized Representative</h2>
+        <div class="est-grid">
+          <div class="est-field"><label for="managerName">Manager / CEO Name</label><input id="managerName"></div>
+          <div class="est-field"><label for="managerTitle">Job Title</label><input id="managerTitle"></div>
+          <div class="est-field"><label for="authorizedName">Authorized Representative Name</label><input id="authorizedName"></div>
+          <div class="est-field"><label for="authorizedTitle">Representative Capacity</label><input id="authorizedTitle"></div>
+          <div class="est-field"><label for="authorizedPhone">Representative Mobile</label><input id="authorizedPhone" type="tel"></div>
+          <div class="est-field"><label for="authorizedEmail">Representative Email</label><input id="authorizedEmail" type="email"></div>
+        </div>
+      </section>
+
+      <section class="est-card">
+        <h2>6. Additional Information</h2>
+        <div class="est-field"><label for="notes">Notes / Important Establishment Information</label><textarea id="notes" rows="5"></textarea></div>
+      </section>
+
+      <section class="est-card">
+        <div class="est-actions">
+          <button type="button" class="btn btn-outline" id="saveDraft">Save Draft</button>
+          <button type="submit" class="btn btn-primary">Submit for Review</button>
+        </div>
+        <div class="export-actions" aria-label="Export Options">
+          <button type="button" class="btn btn-outline" data-export="print">Print</button>
+          <button type="button" class="btn btn-outline" data-export="pdf">PDF</button>
+          <button type="button" class="btn btn-outline" data-export="excel">Excel</button>
+          <button type="button" class="btn btn-outline" data-export="word">Word</button>
+        </div>
+      </section>
+    </form>
+  </main>
+  <div id="site-footer"></div>
+  <script defer src="/site-layout.js?v=3.6.0"></script>
+  <script>
+  (function(){
+    'use strict';
+    let sb=null,user=null,current=null;
+    const form=document.getElementById('estForm'), statusEl=document.getElementById('status');
+    const g=id=>document.getElementById(id);
+    function showStatus(msg,ok){statusEl.textContent=msg;statusEl.className='est-status show '+(ok?'ok':'err');}
+    function payload(status){
+      return {
+        user_id:user.id,client_id:current?.client_id||null,status,
+        identity_data:{legal_name:g('legalName').value.trim(),trade_name:g('tradeName').value.trim(),entity_type:g('entityType').value,cr_number:g('crNumber').value.trim(),unified_number:g('unifiedNumber').value.trim(),incorporation_date:g('incorporationDate').value,capital:Number(g('capital').value||0),capital_currency:g('capitalCurrency').value},
+        registration_data:{vat_number:g('vatNumber').value.trim(),zakat_tax_status:g('zakatTaxStatus').value,license_authority:g('licenseAuthority').value.trim(),license_number:g('licenseNumber').value.trim(),license_expiry:g('licenseExpiry').value,other_registrations:g('otherRegistrations').value.trim()},
+        operations_data:{main_activity:g('mainActivity').value.trim(),secondary_activities:g('secondaryActivities').value.trim(),products_services:g('productsServices').value.trim(),markets:g('markets').value.trim(),employees:Number(g('employees').value||0),branches:Number(g('branches').value||0),annual_revenue:Number(g('annualRevenue').value||0),website:g('website').value.trim()},
+        contact_data:{country:g('country').value.trim(),region:g('region').value.trim(),city:g('city').value.trim(),address:g('address').value.trim(),phone:g('phone').value.trim(),email:g('email').value.trim()},
+        management_data:{manager_name:g('managerName').value.trim(),manager_title:g('managerTitle').value.trim(),authorized_name:g('authorizedName').value.trim(),authorized_title:g('authorizedTitle').value.trim(),authorized_phone:g('authorizedPhone').value.trim(),authorized_email:g('authorizedEmail').value.trim()},
+        notes:g('notes').value.trim(),submitted_at:status==='submitted'?new Date().toISOString():null
+      };
+    }
+    async function save(status){
+      if(!sb||!user){showStatus('Unable to initialize the secure connection.',false);return;}
+      if(status==='submitted'&&!form.reportValidity())return;
+      const p=payload(status);
+      const result=current?.id
+        ? await sb.from('client_establishment_profiles').update(p).eq('id',current.id).select().single()
+        : await sb.from('client_establishment_profiles').insert(p).select().single();
+      if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
+      current=result.data;showStatus(status==='submitted'?'Establishment information submitted for review.':'Draft saved.',true);
+    }
+    g('saveDraft').onclick=()=>save('draft');
+    form.addEventListener('submit',e=>{e.preventDefault();save('submitted');});
+    function set(id,v){if(v!==undefined&&v!==null)g(id).value=v;}
+    function hydrate(x){
+      current=x;const i=x.identity_data||{},r=x.registration_data||{},o=x.operations_data||{},c=x.contact_data||{},m=x.management_data||{};
+      [['legalName',i.legal_name],['tradeName',i.trade_name],['entityType',i.entity_type],['crNumber',i.cr_number],['unifiedNumber',i.unified_number],['incorporationDate',i.incorporation_date],['capital',i.capital],['capitalCurrency',i.capital_currency],['vatNumber',r.vat_number],['zakatTaxStatus',r.zakat_tax_status],['licenseAuthority',r.license_authority],['licenseNumber',r.license_number],['licenseExpiry',r.license_expiry],['otherRegistrations',r.other_registrations],['mainActivity',o.main_activity],['secondaryActivities',o.secondary_activities],['productsServices',o.products_services],['markets',o.markets],['employees',o.employees],['branches',o.branches],['annualRevenue',o.annual_revenue],['website',o.website],['country',c.country],['region',c.region],['city',c.city],['address',c.address],['phone',c.phone],['email',c.email],['managerName',m.manager_name],['managerTitle',m.manager_title],['authorizedName',m.authorized_name],['authorizedTitle',m.authorized_title],['authorizedPhone',m.authorized_phone],['authorizedEmail',m.authorized_email],['notes',x.notes]].forEach(v=>set(v[0],v[1]));
+    }
+    function exportDoc(){
+      const p=payload(current?.status||'draft'),i=p.identity_data,r=p.registration_data,o=p.operations_data,c=p.contact_data,m=p.management_data;
+      return {lang:'en',title:'Establishment Information Form',subtitle:'Bonds Global',filenameBase:'bonds-establishment-'+(i.legal_name||'client'),
+        metadata:[{label:'Legal Name',value:i.legal_name},{label:'CR No.',value:i.cr_number},{label:'Legal Entity Type',value:g('entityType').options[g('entityType').selectedIndex]?.text||''}],
+        tables:[
+          {title:'Legal Identity',headers:['Field','Value'],rows:[['Trade Name',i.trade_name],['الرقم الموحد',i.unified_number],['Incorporation Date',i.incorporation_date],['رأس المال',i.capital+' '+i.capital_currency]]},
+          {title:'التسجيلات والتراخيص',headers:['Field','Value'],rows:[['الرقم الضريبي',r.vat_number],['Zakat / Tax Status',r.zakat_tax_status],['Licensing Authority',r.license_authority],['License Number',r.license_number],['License Expiry',r.license_expiry],['تسجيلات Other',r.other_registrations]]},
+          {title:'النشاط والتشغيل',headers:['Field','Value'],rows:[['Primary Activity',o.main_activity],['Secondary Activities',o.secondary_activities],['Products / Services',o.products_services],['Markets',o.markets],['Number of Employees',o.employees],['Number of Branches',o.branches],['Annual Revenue',o.annual_revenue],['Website',o.website]]},
+          {title:'Address & Contact',headers:['Field','Value'],rows:[['Country',c.country],['Region',c.region],['City',c.city],['العنوان',c.address],['Telephone',c.phone],['Email',c.email]]},
+          {title:'الإدارة والممثل الرسمي',headers:['Field','Value'],rows:[['Manager / CEO',m.manager_name],['Job Title',m.manager_title],['Authorized Representative',m.authorized_name],['Representative Capacity',m.authorized_title],['Representative Mobile',m.authorized_phone],['Representative Email',m.authorized_email]]}
+        ],notes:p.notes};
+    }
+    document.querySelectorAll('[data-export]').forEach(btn=>btn.onclick=async()=>{try{await window.BondsBrandedExport.exportDocument(btn.dataset.export,exportDoc());}catch(e){showStatus('Export failed: '+e.message,false);}});
+    async function init(){
+      await window.BondsAuth.ensureEnv();const u=await window.BondsAuth.getUser();user=u.data?.user;
+      if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
+      sb=window.BondsAuth.getSupabase();if(!sb){showStatus('Unable to initialize the secure connection.',false);return;}
+      set('email',user.email||'');set('phone',user.user_metadata?.phone||'');
+      const cid=await sb.rpc('get_my_client_id');
+      const existing=await sb.from('client_establishment_profiles').select('*').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+      if(existing.data){hydrate(existing.data);}else if(cid.data){current={client_id:cid.data};}
+    }
+    init();
+  })();
+  </script>
+</body>
+</html>
