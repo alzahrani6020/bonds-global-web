@@ -745,12 +745,17 @@
           ? ' · <a class="map-link" style="padding:.1rem .35rem;font-size:.72rem" href="' + row.source_url + '" target="_blank" rel="noopener">المصدر</a>'
           : '';
         const modeledNote = row.metadata?.modeled_source === true ? ' · تقدير صادر عن المصدر' : '';
+        const freshnessNote = row.freshness_status === 'stale'
+          ? ' · <strong style="color:#b45309">قديم حسب سياسة الحداثة</strong>'
+          : row.freshness_status === 'fresh' ? ' · حديث' : '';
         return '<div class="metric"><span class="metric-label">' + (labels[row.metric] || row.metric) +
           ' <small style="color:var(--text-secondary)">(سياق وطني)</small></span><span class="metric-value">' +
           formatContextValue(row) + '</span></div>' +
           '<div class="evidence-meta">' + (row.source || 'مصدر خارجي') +
           (row.year ? ' · سنة ' + row.year : '') +
           (row.observed_at && !row.year ? ' · الفترة ' + row.observed_at : '') +
+          (row.age_days != null ? ' · عمر ' + row.age_days + ' يوم' : '') +
+          freshnessNote +
           modeledNote +
           (row.fetched_at ? ' · آخر جلب ' + new Date(row.fetched_at).toLocaleDateString('ar-SA') : '') +
           sourceLink + '</div>';
