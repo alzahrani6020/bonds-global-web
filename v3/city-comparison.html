@@ -426,6 +426,13 @@
       }
     }
 
+    function startComparisonYearRefresh() {
+      window.setInterval(async () => {
+        if (document.hidden) return;
+        await refreshComparisonYears({ preserve: true });
+      }, 5 * 60 * 1000);
+    }
+
     async function init() {
       try {
         const [countriesData, activitiesData, modelsData] = await Promise.all([
@@ -458,6 +465,7 @@
 
         await refreshComparisonYears({ preserve: false });
         await updateCityList();
+        startComparisonYearRefresh();
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
         document.getElementById('cityList').innerHTML = `<div class="error">فشل تحميل الكتالوج: ${err.message}</div>`;
