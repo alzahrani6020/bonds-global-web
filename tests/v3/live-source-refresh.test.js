@@ -116,6 +116,20 @@ describe('live source refresh and dynamic years', () => {
     expect(page).toContain('population_total');
   });
 
+  test('country context excludes untrusted legacy market interest rows', () => {
+    const api = read('v3/api/index.js');
+    expect(api).not.toContain('Keep a sourced interest-rate observation from the legacy market feed');
+    expect(api).not.toContain("from('market_data')\n    .select('interest_rate");
+  });
+
+  test('latest city APIs prefer source-backed normalized years over legacy Gold years', () => {
+    const api = read('v3/api/index.js');
+    expect(api).toContain('async function resolveLatestSourceBackedCityYear');
+    expect(api).toContain("from('normalized_metrics')");
+    expect(api).toContain("row.metadata?.observationKind === 'observed'");
+    expect(api).toContain('targetYear = await resolveLatestSourceBackedCityYear(supabase, city.id)');
+  });
+
   test('instant auto-fill resolves latest source year before activity engines', () => {
     const api = read('v3/api/data-engine.js');
     expect(api).toContain('const effectiveYear = Number(results.city?.year)');
