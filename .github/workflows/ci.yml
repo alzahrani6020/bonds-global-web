@@ -32,12 +32,7 @@ jobs:
       - name: Parse Bonds Native PowerShell
         shell: pwsh
         run: |
-          $files = @(
-            "services/bonds_native_inference/windows/install-startup.ps1",
-            "services/bonds_native_inference/windows/run-native.ps1",
-            "services/bonds_native_inference/windows/run-tunnel.ps1",
-            "services/bonds_native_inference/windows/verify-startup.ps1"
-          )
+          $files = Get-ChildItem "services/bonds_native_inference/windows/*.ps1" -File | Select-Object -ExpandProperty FullName
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
