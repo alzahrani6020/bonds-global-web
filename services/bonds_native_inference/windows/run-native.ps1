@@ -59,8 +59,12 @@ try {
 
     Set-Location -LiteralPath $serviceDir
     Write-RuntimeLog "launching server.py on 127.0.0.1:8765"
-    & $pythonExe $serverPath *>> $logPath
-    $exitCode = $LASTEXITCODE
+
+    $stdoutPath = Join-Path $stateDir "native-runtime.stdout.log"
+    $stderrPath = Join-Path $stateDir "native-runtime.stderr.log"
+    $process = Start-Process -FilePath $pythonExe -ArgumentList @($serverPath) -WorkingDirectory $serviceDir -RedirectStandardOutput $stdoutPath -RedirectStandardError $stderrPath -PassThru -Wait
+    $exitCode = $process.ExitCode
+
     Write-RuntimeLog "server.py exited code=$exitCode"
     exit $exitCode
 }
