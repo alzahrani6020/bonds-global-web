@@ -413,7 +413,7 @@ function getProAuthClient() {
   return createClient(url, key);
 }
 
-function setProCors(res) {
+function setProCors(res, req) {
   setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
