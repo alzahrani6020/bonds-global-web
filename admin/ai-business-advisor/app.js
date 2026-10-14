@@ -565,11 +565,20 @@
       const res = await root.AiAnalyzeService.analyze({ type, payload });
       resultEl.innerHTML = '<h3>نتيجة التحليل</h3>' + root.AiAnalyzeService.renderResult(res.result);
       resultEl.style.display = 'block';
-      if (res.usage) {
-        costEl.textContent = `التكلفة: $${res.usage.cost_usd || 0} · النموذج: ${res.result?.guardrails ? 'GPT' : 'n/a'}`;
-      } else {
-        costEl.textContent = '';
+      const providerLabels = {
+        bonds_native: 'Bonds Native',
+        openai_fallback: 'OpenAI (احتياطي)',
+        openai: 'OpenAI',
+        cache: 'ذاكرة مؤقتة'
+      };
+      const providerLabel = providerLabels[res.provider] || 'غير معروف';
+      const modelLabel = res.model || (res.provider === 'bonds_native' ? 'bonds-native' : 'غير معروف');
+      const statusParts = [`المزوّد: ${providerLabel}`, `النموذج: ${modelLabel}`];
+      if (res.usage) statusParts.push(`التكلفة: ${res.usage.cost_usd || 0}`);
+      if (res.inference && Number.isFinite(Number(res.inference.generation_seconds))) {
+        statusParts.push(`زمن التوليد: ${Number(res.inference.generation_seconds).toFixed(2)}ث`);
       }
+      costEl.textContent = statusParts.join(' · ');
     } catch (err) {
       resultEl.innerHTML = `<div class="ai-no-access"><p><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#DD2E44" d="M21.533 18.002L33.768 5.768c.976-.976.976-2.559 0-3.535-.977-.977-2.559-.977-3.535 0L17.998 14.467 5.764 2.233c-.976-.977-2.56-.977-3.535 0-.977.976-.977 2.559 0 3.535l12.234 12.234L2.201 30.265c-.977.977-.977 2.559 0 3.535.488.488 1.128.732 1.768.732s1.28-.244 1.768-.732l12.262-12.263 12.234 12.234c.488.488 1.128.732 1.768.732.64 0 1.279-.244 1.768-.732.976-.977.976-2.559 0-3.535L21.533 18.002z"/></svg> ${BondsAdminCommon.escapeHtml(err.message)}</p></div>`;
       resultEl.style.display = 'block';
