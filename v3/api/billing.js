@@ -5,6 +5,8 @@
 const { getSupabaseClient } = require('../lib/supabase');
 const { getUserFromToken } = require('../lib/auth');
 
+const PUBLIC_APP_URL = process.env.BONDS_PUBLIC_APP_URL || 'https://bonds-global.com';
+
 function getStripe() {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) throw new Error('Stripe not configured');
@@ -42,14 +44,13 @@ function getRawBody(req) {
 }
 
 function priceIdToTier(priceId) {
-  if (priceId === process.env.STRIPE_PRICE_PRO) return 'pro';
-  if (priceId === process.env.STRIPE_PRICE_ENTERPRISE) return 'enterprise';
-  return 'free';
+  if (priceId && process.env.STRIPE_PRICE_PRO && priceId === process.env.STRIPE_PRICE_PRO) return 'pro';
+  if (priceId && process.env.STRIPE_PRICE_ENTERPRISE && priceId === process.env.STRIPE_PRICE_ENTERPRISE) return 'enterprise';
+  return null;
 }
 
-function getBaseUrl(req) {
-  const host = req.headers.host || 'bonds-v3.vercel.app';
-  return `https://${host}`;
+function getBaseUrl() {
+  return PUBLIC_APP_URL.replace(/\/$/, '');
 }
 
 async function handlePlans(req, res) {
@@ -77,25 +78,29 @@ async function handlePlans(req, res) {
 }
 
 async function handleCheckout(req, res) {
+  const user = await getUserFromToken(req);
+  if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+
   const body = await parseBody(req);
-  const { priceId, email } = body;
-
-  if (!priceId || !email) {
-    return sendJson(res, 400, { error: 'priceId and email are required' });
-  }
-
+  const { priceId } = body;
+  const tier = priceIdToTier(priceId);
+  if (!tier) return sendJson(res, 400, { error: 'Invalid or unapproved priceId' });
   if (!process.env.STRIPE_SECRET_KEY) {
-    return sendJson(res, 500, { error: 'Stripe is not configured' });
+    return sendJson(res, 503, { error: 'Stripe is not configured' });
   }
 
-  const baseUrl = getBaseUrl(req);
+  const email = user.email;
+  if (!email) return sendJson(res, 400, { error: 'Authenticated user email is required' });
+  const baseUrl = getBaseUrl();
 
   try {
-    // Find or create customer
     const customers = await getStripe().customers.list({ email, limit: 1 });
     let customer = customers.data[0];
     if (!customer) {
-      customer = await getStripe().customers.create({ email });
+      customer = await getStripe().customers.create({
+        email,
+        metadata: { supabaseUserId: user.id }
+      });
     }
 
     const lineItem = { price: priceId, quantity: 1 };
@@ -103,20 +108,23 @@ async function handleCheckout(req, res) {
       lineItem.tax_rates = [process.env.STRIPE_TAX_RATE_ID];
     }
 
+    const metadata = { supabaseUserId: user.id, price_id: priceId, tier };
     const session = await getStripe().checkout.sessions.create({
       customer: customer.id,
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [lineItem],
+      subscription_data: { trial_period_days: 14, metadata },
       success_url: `${baseUrl}/admin?subscription=success`,
       cancel_url: `${baseUrl}/admin?subscription=canceled`,
-      metadata: { price_id: priceId, tier: priceIdToTier(priceId) }
+      client_reference_id: user.id,
+      metadata
     });
 
     sendJson(res, 200, { url: session.url });
   } catch (err) {
     console.error('[billing/checkout]', err.message);
-    sendJson(res, 500, { error: err.message });
+    sendJson(res, 500, { error: 'Checkout creation failed' });
   }
 }
 
@@ -126,6 +134,10 @@ async function upsertSubscription(supabase, subscription) {
   const status = subscription.status;
   const priceId = subscription.items?.data?.[0]?.price?.id;
   const tier = priceIdToTier(priceId);
+  if (!tier) {
+    console.warn('[billing/webhook] Refusing unapproved Stripe price', priceId || 'missing');
+    return;
+  }
   const currentPeriodStart = new Date(subscription.current_period_start * 1000).toISOString();
   const currentPeriodEnd = new Date(subscription.current_period_end * 1000).toISOString();
 
@@ -139,7 +151,7 @@ async function upsertSubscription(supabase, subscription) {
   const { data: customer } = await getStripe().customers.retrieve(customerId);
   const userEmail = customer?.email;
 
-  let userId = existing?.user_id;
+  let userId = existing?.user_id || subscription.metadata?.supabaseUserId;
 
   if (!userId && userEmail) {
     // Find Supabase user by email
@@ -159,16 +171,31 @@ async function upsertSubscription(supabase, subscription) {
     stripe_subscription_id: stripeSubscriptionId,
     status,
     tier,
+    stripe_price_id: priceId,
+    payment_method: 'stripe',
     current_period_start: currentPeriodStart,
     current_period_end: currentPeriodEnd,
+    cancel_at_period_end: Boolean(subscription.cancel_at_period_end),
     updated_at: new Date().toISOString()
   };
 
+  let writeError;
   if (existing) {
-    await supabase.from('subscriptions').update(payload).eq('id', existing.id);
+    ({ error: writeError } = await supabase.from('subscriptions').update(payload).eq('id', existing.id));
   } else {
-    await supabase.from('subscriptions').insert(payload);
+    ({ error: writeError } = await supabase.from('subscriptions').insert(payload));
   }
+  if (writeError) throw writeError;
+
+  const entitled = status === 'active' || status === 'trialing';
+  const { error: profileError } = await supabase.from('profiles').update({
+    stripe_customer_id: customerId,
+    stripe_subscription_id: stripeSubscriptionId,
+    tier: entitled ? tier : 'free',
+    status: entitled ? status : (status === 'past_due' ? 'past_due' : 'inactive'),
+    updated_at: new Date().toISOString()
+  }).eq('id', userId);
+  if (profileError) throw profileError;
 }
 
 async function handleWebhook(req, res) {
@@ -227,7 +254,7 @@ async function handleSubscription(req, res) {
   }
 
   sendJson(res, 200, {
-    subscription: data || { tier: 'free', status: 'active' }
+    subscription: data || { tier: 'free', status: 'inactive', payment_method: null }
   });
 }
 
