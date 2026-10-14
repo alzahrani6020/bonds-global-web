@@ -16,7 +16,10 @@ describe('Revenue channel integrity', () => {
     expect(admin).toContain("cancel_at_period_end: false");
   });
 
-  test('Moyasar return URLs use the same exact-origin validator as Stripe', () => {
+  test('payment return URLs trust the canonical Bonds origins plus configured app origin only', () => {
+    expect(payments).toContain("'https://bonds-global.com'");
+    expect(payments).toContain("'https://www.bonds-global.com'");
+    expect(payments).toContain('PAYMENT_RETURN_ORIGINS.has(new URL(candidate).origin)');
     expect(payments).toContain('isSafeCheckoutReturnUrl(successUrl)');
     expect(payments).toContain('isSafeCheckoutReturnUrl(cancelUrl)');
     expect(payments).not.toContain('successUrl.startsWith(APP_URL)');

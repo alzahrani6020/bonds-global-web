@@ -66,10 +66,18 @@ function checkoutTierForPrice(priceId) {
   return null;
 }
 
+const PAYMENT_RETURN_ORIGINS = new Set([
+  'https://bonds-global.com',
+  'https://www.bonds-global.com',
+  (() => {
+    try { return new URL(APP_URL).origin; } catch (_) { return null; }
+  })(),
+].filter(Boolean));
+
 function isSafeCheckoutReturnUrl(candidate) {
   if (!candidate) return true;
   try {
-    return new URL(candidate).origin === new URL(APP_URL).origin;
+    return PAYMENT_RETURN_ORIGINS.has(new URL(candidate).origin);
   } catch (_) {
     return false;
   }
