@@ -1,7 +1,7 @@
 param(
     [string]$LocalUrl = "http://127.0.0.1:8765/health",
     [string]$RemoteUrl = "https://native.bonds-global.com/health",
-    [string]$ProductionHealthUrl = "https://bonds-global.com/api/health",
+    [string]$ProductionHealthUrl = "https://bonds-global.com/api/readiness",
     [int]$TimeoutSeconds = 8,
     [int]$Retries = 3,
     [int]$RetryDelaySeconds = 2
@@ -88,7 +88,7 @@ $remoteHealthy = [bool]($remote.ok -and $remote.body -and $remote.body.ok -eq $t
 $productionHealthy = [bool](
     $production.ok -and
     $production.body -and
-    $production.body.status -eq "ok" -and
+    $production.body.status -eq "ready" -and
     $production.body.checks.native -eq "ok" -and
     $production.body.inference.mode -eq "REMOTE_BONDS_NATIVE" -and
     $production.body.inference.provider -eq "BondsNativeProvider" -and
