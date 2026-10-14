@@ -54,6 +54,34 @@
         })
         .then(html => {
           report.innerHTML = html;
+          const manageButton = document.getElementById('manage-subscription');
+          if (manageButton) {
+            manageButton.addEventListener('click', async () => {
+              try {
+                manageButton.disabled = true;
+                manageButton.textContent = 'جاري فتح إدارة الاشتراك...';
+                const response = await fetch('/api/pro', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  credentials: 'same-origin',
+                  body: JSON.stringify({ action: 'portal', session_id: sessionId })
+                });
+                const body = await response.json();
+                if (!response.ok || !body.url) {
+                  throw new Error(body.error || 'تعذر فتح إدارة الاشتراك.');
+                }
+                const portalUrl = new URL(body.url);
+                if (portalUrl.protocol !== 'https:' || !portalUrl.hostname.endsWith('stripe.com')) {
+                  throw new Error('رابط إدارة الاشتراك غير صالح.');
+                }
+                window.location.assign(portalUrl.toString());
+              } catch (error) {
+                manageButton.disabled = false;
+                manageButton.textContent = 'إدارة الاشتراك';
+                alert(error.message || 'تعذر فتح إدارة الاشتراك.');
+              }
+            });
+          }
         })
         .catch(err => {
           report.innerHTML = '<h1>تعذر فتح التقرير</h1><p>' +
