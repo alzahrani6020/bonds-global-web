@@ -44,13 +44,33 @@ document.addEventListener('DOMContentLoaded', () => {
       const plan = btn.dataset.plan;
       const email = prompt('أدخل بريدك الإلكتروني لإرسال رابط الدفع:');
       if (!email || !email.includes('@')) return;
+
+      let project = {};
+      try {
+        project = JSON.parse(localStorage.getItem('bonds_pro_last_input') || '{}');
+      } catch (_) {
+        project = {};
+      }
+      if (!project.sector || !project.activity || !Number.isFinite(Number(project.capital)) || !Number.isFinite(Number(project.revenue))) {
+        project = {
+          sector: document.getElementById('sector')?.value || '',
+          activity: document.getElementById('activity')?.value || '',
+          capital: Number(document.getElementById('capital')?.value),
+          revenue: Number(document.getElementById('revenue')?.value)
+        };
+      }
+      if (!project.sector || !project.activity || !Number.isFinite(project.capital) || project.capital <= 0 || !Number.isFinite(project.revenue) || project.revenue <= 0) {
+        alert('حلّل المشروع أولاً قبل الانتقال إلى الدفع.');
+        return;
+      }
+
       try {
         btn.disabled = true;
         btn.textContent = 'جاري التحويل...';
         const res = await fetch('/api/pro', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'stripe', plan, email })
+          body: JSON.stringify({ action: 'stripe', plan, email, project })
         });
         const data = await res.json();
         if (data.url) window.location.href = data.url;
