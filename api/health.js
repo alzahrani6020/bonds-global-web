@@ -39,13 +39,14 @@ module.exports = async function handler(req, res) {
       const response = await callBondsNative([
         {
           role: 'user',
-          content: 'Return only this JSON object exactly: {"smoke":"ok","language":"en"}'
+          content: 'Return only this JSON object exactly with no extra text: {"smoke":"ok","english":"hello","arabic":"مرحبا"}'
         }
       ]);
       const validPayload = Boolean(
         response.result &&
         response.result.smoke === 'ok' &&
-        response.result.language === 'en'
+        response.result.english === 'hello' &&
+        response.result.arabic === 'مرحبا'
       );
       return res.status(validPayload ? 200 : 500).json({
         status: validPayload ? 'ok' : 'degraded',
