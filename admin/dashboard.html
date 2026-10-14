@@ -253,34 +253,68 @@
       background: rgba(0,0,0,0.05); color: var(--text-muted); border: 1px solid var(--border);
     }
 
-    /* Notification bell */
+    /* Notification center — product-style, compact and actionable */
     .notif-bell {
-      position: relative; background: transparent; border: none; cursor: pointer;
-      color: var(--text-secondary); padding: 0.5rem; border-radius: 10px;
-      display: flex; align-items: center; justify-content: center;
+      position: relative; width: 40px; height: 40px; background: transparent; border: 1px solid transparent;
+      cursor: pointer; color: var(--text-secondary); padding: 0; border-radius: 12px;
+      display: inline-flex; align-items: center; justify-content: center; transition: all 0.18s ease;
     }
-    .notif-bell:hover { background: rgba(0,0,0,0.04); color: var(--gold); }
-    .notif-bell svg { width: 22px; height: 22px; }
+    .notif-bell:hover, .notif-bell[aria-expanded="true"] {
+      background: rgba(184,149,78,0.09); border-color: rgba(184,149,78,0.2); color: var(--gold-accessible);
+    }
+    .notif-bell svg { width: 21px; height: 21px; }
+    .notif-bell.has-new svg { animation: notif-ring 0.45s ease 2; transform-origin: 50% 10%; }
+    @keyframes notif-ring { 0%,100%{transform:rotate(0)} 25%{transform:rotate(10deg)} 75%{transform:rotate(-10deg)} }
     .notif-badge {
-      position: absolute; top: 2px; left: 2px; min-width: 18px; height: 18px;
-      background: var(--danger); color: #fff; font-size: 0.7rem; font-weight: 800;
-      border-radius: 50%; display: none; align-items: center; justify-content: center;
-      padding: 0 4px;
+      position: absolute; top: -3px; left: -4px; min-width: 19px; height: 19px;
+      background: #dc2626; color: #fff; font-size: 0.66rem; font-weight: 900;
+      border-radius: 999px; display: none; align-items: center; justify-content: center;
+      padding: 0 5px; border: 2px solid var(--bg-secondary); line-height: 1;
     }
     .notif-badge.visible { display: flex; }
     .notif-dropdown {
-      position: absolute; top: calc(100% + 0.5rem); left: 0; width: 320px; max-width: 90vw;
-      background: var(--bg-secondary); border: 1px solid var(--border); border-radius: var(--radius);
-      box-shadow: var(--shadow-lg); z-index: 200; display: none; overflow: hidden;
+      position: absolute; top: calc(100% + 0.65rem); left: 0; width: 390px; max-width: min(94vw, 390px);
+      background: rgba(255,255,255,0.98); border: 1px solid rgba(15,23,42,0.1); border-radius: 16px;
+      box-shadow: 0 24px 64px rgba(15,23,42,0.18), 0 2px 8px rgba(15,23,42,0.08);
+      z-index: 300; display: none; overflow: hidden; backdrop-filter: blur(18px);
+      transform-origin: top left; animation: notif-pop 0.16s ease-out;
     }
+    @keyframes notif-pop { from{opacity:0;transform:translateY(-6px) scale(.985)} to{opacity:1;transform:none} }
     .notif-dropdown.open { display: block; }
-    .notif-header { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); font-weight: 800; font-size: 0.9rem; }
-    .notif-list { max-height: 360px; overflow-y: auto; }
-    .notif-item { display: block; padding: 0.75rem 1rem; border-bottom: 1px solid var(--border); color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; }
-    .notif-item:hover { background: rgba(184,149,78,0.08); }
-    .notif-item__title { color: var(--text); font-weight: 700; margin-bottom: 0.15rem; }
-    .notif-item__time { font-size: 0.72rem; color: var(--text-muted); }
-    .notif-empty { padding: 1.25rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+    .notif-header {
+      padding: 0.9rem 1rem; border-bottom: 1px solid var(--border); display:flex; align-items:center;
+      justify-content:space-between; gap:.75rem; background:rgba(248,250,252,.86);
+    }
+    .notif-header__title { display:flex; align-items:center; gap:.55rem; font-weight:900; font-size:.92rem; color:var(--text); }
+    .notif-header__count { font-size:.7rem; font-weight:800; color:var(--gold-accessible); background:rgba(184,149,78,.12); padding:.15rem .45rem; border-radius:999px; }
+    .notif-header__action { border:0; background:transparent; color:var(--gold-accessible); font:inherit; font-size:.76rem; font-weight:800; cursor:pointer; padding:.35rem .45rem; border-radius:8px; }
+    .notif-header__action:hover { background:rgba(184,149,78,.1); }
+    .notif-list { max-height: 430px; overflow-y: auto; overscroll-behavior: contain; }
+    .notif-item {
+      position:relative; display:grid; grid-template-columns:40px minmax(0,1fr) auto; gap:.75rem; align-items:start;
+      padding:.85rem 1rem; border-bottom:1px solid rgba(15,23,42,.06); color:var(--text-secondary);
+      text-decoration:none; font-size:.82rem; transition:background .15s ease; cursor:pointer;
+    }
+    .notif-item:hover { background:rgba(184,149,78,.055); }
+    .notif-item.unread::after { content:''; position:absolute; right:7px; top:50%; width:6px; height:6px; margin-top:-3px; border-radius:50%; background:var(--gold); }
+    .notif-item__icon {
+      width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center;
+      background:#f1f5f9; color:#475569; border:1px solid rgba(15,23,42,.06);
+    }
+    .notif-item__icon svg { width:18px; height:18px; }
+    .notif-item--review .notif-item__icon { background:rgba(59,130,246,.1); color:#2563eb; }
+    .notif-item--message .notif-item__icon { background:rgba(184,149,78,.12); color:var(--gold-accessible); }
+    .notif-item__content { min-width:0; }
+    .notif-item__title { color:var(--text); font-weight:800; margin-bottom:.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .notif-item__body { color:var(--text-secondary); line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+    .notif-item__time { font-size:.7rem; color:var(--text-muted); white-space:nowrap; padding-top:.1rem; }
+    .notif-empty { padding:2.25rem 1.25rem; text-align:center; color:var(--text-muted); font-size:.84rem; }
+    .notif-empty svg { width:32px; height:32px; margin-bottom:.6rem; opacity:.45; }
+    .notif-footer { display:flex; align-items:center; justify-content:center; padding:.7rem; background:rgba(248,250,252,.8); border-top:1px solid var(--border); }
+    .notif-footer button { border:0; background:transparent; color:var(--gold-accessible); font:inherit; font-size:.78rem; font-weight:800; cursor:pointer; }
+    @media (max-width: 520px) {
+      .notif-dropdown { position:fixed; top:68px; left:10px; right:10px; width:auto; max-width:none; }
+    }
 
     /* Mobile card tables */
     .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -539,7 +573,7 @@
             <span class="cmd-palette-kbd">/</span>
           </button>
           <div style="position:relative;">
-            <button class="notif-bell" id="notifBell" aria-label="الإشعارات" aria-haspopup="true">
+            <button class="notif-bell" id="notifBell" aria-label="الإشعارات" aria-haspopup="true" aria-expanded="false">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span class="notif-badge" id="notifBadge">0</span>
             </button>
@@ -1489,71 +1523,183 @@
       const notifBadge = document.getElementById('notifBadge');
       const notifDropdown = document.getElementById('notifDropdown');
       let notifOpen = false;
+      let lastNotifCount = 0;
+      let currentNotifications = [];
+
+      const notifIcons = {
+        message: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg>',
+        ai_review: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="5"/><path d="m9.8 12 1.4 1.4L14.5 10"/></svg>'
+      };
 
       async function loadNotifications() {
         const notifications = [];
+        if (!sb) return;
+
         try {
-          const { data: unread } = await withTimeout(
-            sb.from('user_notifications').select('id,title,message,created_at').eq('read', false).order('created_at', { ascending: false }).limit(10),
+          const result = await withTimeout(
+            sb.from('user_notifications')
+              .select('id,subject,body,read,created_at')
+              .eq('read', false)
+              .order('created_at', { ascending: false })
+              .limit(20),
             5000
           );
-          if (unread) {
-            unread.forEach(n => notifications.push({
-              id: n.id, title: n.title || 'إشعار', body: n.message || '', time: n.created_at,
-              type: 'notification', target: null
-            }));
-          }
-        } catch (e) {}
+          const unread = result?.data || [];
+          unread.forEach(n => notifications.push({
+            id: n.id,
+            title: n.subject || 'إشعار',
+            body: n.body || '',
+            time: n.created_at,
+            type: 'message',
+            unread: true,
+            target: '/admin/messages.html?embed=1'
+          }));
+        } catch (e) {
+          console.warn('[AdminNotifications] user_notifications unavailable:', e?.message || e);
+        }
+
         try {
-          const { data: pending } = await withTimeout(
-            sb.from('ai_review_requests').select('id,status,created_at').eq('status', 'pending_review').order('created_at', { ascending: false }).limit(10),
+          const result = await withTimeout(
+            sb.from('ai_review_requests')
+              .select('id,status,created_at')
+              .eq('status', 'pending_review')
+              .order('created_at', { ascending: false })
+              .limit(10),
             5000
           );
-          if (pending) {
-            pending.forEach(r => notifications.push({
-              id: r.id, title: 'مراجعة AI معلقة', body: 'طلب مراجعة جديد بانتظار التخصيص', time: r.created_at,
-              type: 'ai_review', target: '/admin/ai-reviews.html?embed=1'
-            }));
-          }
-        } catch (e) {}
-        notifications.sort((a, b) => new Date(b.time) - new Date(a.time));
+          const pending = result?.data || [];
+          pending.forEach(r => notifications.push({
+            id: r.id,
+            title: 'مراجعة متخصصة معلقة',
+            body: 'طلب مراجعة جديد بانتظار التخصيص أو اتخاذ إجراء.',
+            time: r.created_at,
+            type: 'ai_review',
+            unread: true,
+            target: '/admin/ai-reviews.html?embed=1'
+          }));
+        } catch (e) {
+          console.warn('[AdminNotifications] review notifications unavailable:', e?.message || e);
+        }
+
+        notifications.sort((a, b) => new Date(b.time || 0) - new Date(a.time || 0));
+        currentNotifications = notifications;
         const count = notifications.length;
-        notifBadge.textContent = count > 99 ? '99+' : count;
+
+        notifBadge.textContent = count > 99 ? '99+' : String(count);
         notifBadge.classList.toggle('visible', count > 0);
+        if (count > lastNotifCount && lastNotifCount !== 0) {
+          notifBell.classList.remove('has-new');
+          void notifBell.offsetWidth;
+          notifBell.classList.add('has-new');
+          setTimeout(() => notifBell.classList.remove('has-new'), 1200);
+        }
+        lastNotifCount = count;
         renderNotificationsDropdown(notifications);
       }
 
+      async function markNotificationRead(item) {
+        if (!sb || item.type !== 'message' || !item.id) return;
+        try {
+          await sb.from('user_notifications').update({ read: true }).eq('id', item.id);
+        } catch (e) {
+          console.warn('[AdminNotifications] mark read failed:', e?.message || e);
+        }
+      }
+
+      async function markAllNotificationsRead() {
+        if (!sb) return;
+        const messageIds = currentNotifications.filter(n => n.type === 'message' && n.id).map(n => n.id);
+        if (messageIds.length) {
+          try {
+            await sb.from('user_notifications').update({ read: true }).in('id', messageIds);
+          } catch (e) {
+            console.warn('[AdminNotifications] mark all read failed:', e?.message || e);
+          }
+        }
+        await loadNotifications();
+      }
+
       function renderNotificationsDropdown(items) {
-        if (items.length === 0) {
-          notifDropdown.innerHTML = '<div class="notif-header">الإشعارات</div><div class="notif-empty">لا توجد إشعارات جديدة</div>';
+        const count = items.length;
+        const header = `
+          <div class="notif-header">
+            <div class="notif-header__title">
+              <span>الإشعارات</span>
+              <span class="notif-header__count">${count ? count + ' جديد' : 'محدّث'}</span>
+            </div>
+            ${count ? '<button class="notif-header__action" id="notifMarkAll" type="button">تحديد الكل كمقروء</button>' : ''}
+          </div>`;
+
+        if (!count) {
+          notifDropdown.innerHTML = header + `
+            <div class="notif-empty">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M10 21h4"/></svg>
+              <div>لا توجد إشعارات تحتاج إلى إجراء الآن</div>
+            </div>`;
           return;
         }
-        notifDropdown.innerHTML = '<div class="notif-header">الإشعارات</div><div class="notif-list">' + items.slice(0, 8).map(n => `
-          <a href="javascript:void(0)" class="notif-item" data-target="${n.target || ''}">
-            <div class="notif-item__title">${n.title}</div>
-            <div>${n.body}</div>
-            <div class="notif-item__time">${timeAgo(n.time)}</div>
-          </a>
-        `).join('') + '</div>';
-        notifDropdown.querySelectorAll('.notif-item').forEach(el => {
-          el.addEventListener('click', () => {
+
+        notifDropdown.innerHTML = header + '<div class="notif-list">' + items.slice(0, 12).map((n, index) => `
+          <button type="button" class="notif-item notif-item--${n.type === 'ai_review' ? 'review' : 'message'} ${n.unread ? 'unread' : ''}" data-notif-index="${index}" style="width:100%;border-top:0;border-left:0;border-right:0;text-align:right;background-color:transparent;font-family:inherit;">
+            <span class="notif-item__icon">${notifIcons[n.type] || notifIcons.message}</span>
+            <span class="notif-item__content">
+              <span class="notif-item__title">${escapeHtml(n.title)}</span>
+              <span class="notif-item__body">${escapeHtml(n.body)}</span>
+            </span>
+            <span class="notif-item__time">${timeAgo(n.time)}</span>
+          </button>
+        `).join('') + `</div>
+          <div class="notif-footer"><button type="button" id="notifViewCenter">فتح مركز الرسائل والإشعارات</button></div>`;
+
+        notifDropdown.querySelectorAll('[data-notif-index]').forEach(el => {
+          el.addEventListener('click', async () => {
+            const item = currentNotifications[Number(el.dataset.notifIndex)];
+            if (!item) return;
+            await markNotificationRead(item);
             notifDropdown.classList.remove('open');
             notifOpen = false;
-            const target = el.dataset.target;
-            if (target) { setActive(target); loadModule(target, 'الإشعارات'); }
+            notifBell.setAttribute('aria-expanded', 'false');
+            if (item.target) {
+              setActive(item.target);
+              loadModule(item.target, item.type === 'ai_review' ? 'مراجعات الذكاء الاصطناعي' : 'الرسائل');
+            }
+            loadNotifications();
           });
+        });
+
+        document.getElementById('notifMarkAll')?.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          await markAllNotificationsRead();
+        });
+        document.getElementById('notifViewCenter')?.addEventListener('click', () => {
+          notifDropdown.classList.remove('open');
+          notifOpen = false;
+          notifBell.setAttribute('aria-expanded', 'false');
+          const target = '/admin/messages.html?embed=1';
+          setActive(target);
+          loadModule(target, 'مركز الرسائل والإشعارات');
         });
       }
 
       notifBell.addEventListener('click', () => {
         notifOpen = !notifOpen;
         notifDropdown.classList.toggle('open', notifOpen);
+        notifBell.setAttribute('aria-expanded', String(notifOpen));
         if (notifOpen) loadNotifications();
       });
       document.addEventListener('click', e => {
         if (!notifBell.contains(e.target) && !notifDropdown.contains(e.target)) {
           notifOpen = false;
           notifDropdown.classList.remove('open');
+          notifBell.setAttribute('aria-expanded', 'false');
+        }
+      });
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && notifOpen) {
+          notifOpen = false;
+          notifDropdown.classList.remove('open');
+          notifBell.setAttribute('aria-expanded', 'false');
+          notifBell.focus();
         }
       });
 
