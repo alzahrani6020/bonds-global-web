@@ -37,6 +37,7 @@ function Invoke-JsonProbe {
                 attempt = $attempt
                 body = $json
                 error = $null
+                error_class = $null
             }
         } catch {
             $status = $null
@@ -44,12 +45,27 @@ function Invoke-JsonProbe {
                 try { $status = [int]$_.Exception.Response.StatusCode } catch { $status = $null }
             }
 
+            $message = [string]$_.Exception.Message
+            $errorClass = "UNREACHABLE"
+            if ($status -eq 530) {
+                $errorClass = "TUNNEL_ORIGIN_FAILURE"
+            } elseif ($status -eq 401 -or $status -eq 403) {
+                $errorClass = "AUTH_FAILURE"
+            } elseif ($message -match "(?i)timed out|timeout|operation has timed out") {
+                $errorClass = "TIMEOUT"
+            } elseif ($status -ge 500 -and $status -lt 600) {
+                $errorClass = "APPLICATION_HEALTH_FAILURE"
+            } elseif ($status) {
+                $errorClass = "HTTP_FAILURE"
+            }
+
             $last = [pscustomobject]@{
                 ok = $false
                 status = $status
                 attempt = $attempt
                 body = $null
-                error = $_.Exception.Message
+                error = $message
+                error_class = $errorClass
             }
 
             if ($attempt -lt $Retries) {
@@ -67,9 +83,9 @@ $local = Invoke-JsonProbe -Uri $LocalUrl -Headers $authHeaders
 $remote = Invoke-JsonProbe -Uri $RemoteUrl -Headers $authHeaders
 $production = Invoke-JsonProbe -Uri $ProductionHealthUrl
 
-$localHealthy = Boolean($local.ok -and $local.body -and $local.body.ok -eq $true -and $local.body.runtime.available -eq $true)
-$remoteHealthy = Boolean($remote.ok -and $remote.body -and $remote.body.ok -eq $true -and $remote.body.runtime.available -eq $true)
-$productionHealthy = Boolean(
+$localHealthy = [bool]($local.ok -and $local.body -and $local.body.ok -eq $true -and $local.body.runtime.available -eq $true)
+$remoteHealthy = [bool]($remote.ok -and $remote.body -and $remote.body.ok -eq $true -and $remote.body.runtime.available -eq $true)
+$productionHealthy = [bool](
     $production.ok -and
     $production.body -and
     $production.body.status -eq "ok" -and
@@ -80,25 +96,28 @@ $productionHealthy = Boolean(
 )
 
 $result = [pscustomobject]@{
-    ok = Boolean($localHealthy -and $remoteHealthy -and $productionHealthy)
+    ok = [bool]($localHealthy -and $remoteHealthy -and $productionHealthy)
     timestamp = (Get-Date).ToUniversalTime().ToString("o")
     checks = [pscustomobject]@{
         local = [pscustomobject]@{
             ok = $localHealthy
             http_status = $local.status
             attempt = $local.attempt
+            error_class = $local.error_class
             error = $local.error
         }
         remote = [pscustomobject]@{
             ok = $remoteHealthy
             http_status = $remote.status
             attempt = $remote.attempt
+            error_class = $remote.error_class
             error = $remote.error
         }
         production = [pscustomobject]@{
             ok = $productionHealthy
             http_status = $production.status
             attempt = $production.attempt
+            error_class = $production.error_class
             error = $production.error
             mode = if ($production.body) { $production.body.inference.mode } else { $null }
             provider = if ($production.body) { $production.body.inference.provider } else { $null }
