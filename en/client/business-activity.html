@@ -203,7 +203,7 @@
       if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
       sb=window.BondsAuth.getSupabase();if(!sb){showStatus('Unable to initialize the secure connection.',false);return;}
       const cid=await sb.rpc('get_my_client_id');
-      const existing=await sb.from('client_business_activity_profiles').select('*').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+      const existing=await sb.from('client_business_activity_profiles').select('*').eq('user_id',user.id).eq('status','draft').order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){hydrate(existing.data);return;}
       if(cid.data)current={client_id:cid.data};
       const est=await sb.from('client_establishment_profiles').select('operations_data,registration_data').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
