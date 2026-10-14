@@ -152,3 +152,16 @@ describe('/api/v3/intelligence', () => {
     expect(res.statusCode).toBe(404);
   });
 });
+
+
+describe('V3 AI chat runtime wiring', () => {
+  test('routes enriched chat through Bonds Native with deterministic fallback', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(path.join(__dirname, '../../v3/api/ai.js'), 'utf8');
+    expect(source).toContain("require('../../lib/ai/inference-router')");
+    expect(source).toContain('generateNativeReply(messages, enrichedContext)');
+    expect(source).toContain("source: aiResult ? 'bonds-native' : 'data-driven-fallback'");
+    expect(source).toContain("provider: aiResult?.provider || 'BondsV3DataEngine'");
+  });
+});
