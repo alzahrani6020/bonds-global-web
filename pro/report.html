@@ -3,6 +3,7 @@
 <head>
   <link rel="manifest" href="/manifest.json" />  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="referrer" content="no-referrer" />
   <title>تقرير Bonds Pro</title>
     <link rel="stylesheet" href="../styles/fonts-ar.css">
   <link rel="stylesheet" href="styles.css" />
@@ -27,6 +28,9 @@
     const params = new URLSearchParams(window.location.search);
     const sessionId = params.get('session_id');
     const report = document.getElementById('report-content');
+    if (sessionId) {
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
 
     if (!sessionId || !sessionId.startsWith('cs_')) {
       report.innerHTML = '<h1>التقرير مدفوع</h1><p>يلزم إتمام الدفع والتحقق منه قبل عرض التقرير.</p><a href="index.html" class="btn btn-primary">العودة للحاسبة</a>';
