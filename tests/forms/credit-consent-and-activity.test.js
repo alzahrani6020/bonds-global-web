@@ -14,10 +14,15 @@ describe('generic credit consent forms',()=>{
     ]){
       const page=read(file);
       expect(page).toContain('data-credit-consent-form');
-      expect(page).toContain('/lib/forms/credit-consent-form.js?v=1');
+      expect(page).toContain('/lib/forms/credit-consent-form.js?v=2');
       expect(page).toContain('/lib/forms/credit-consent-terminology.js?v=1');
       expect(page).toContain('/lib/forms/branded-export.js?v=3');
     }
+  });
+
+  test('uses localized auth routes for Arabic and English pages',()=>{
+    const controller=read('lib/forms/credit-consent-form.js');
+    expect(controller).toContain("const authPath=isEn?'/en/calculators/auth/index.html':'/calculators/auth/index.html'");
   });
 
   test('country selector uses the platform geographic catalog and has a generic fallback',()=>{
