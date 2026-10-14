@@ -14,9 +14,9 @@ describe('Bonds client form quality hardening', () => {
       title: 'اختبار',
       metadata: [{ label: 'العملة', value: 'SAR' }],
       tables: [{ title: 'بيانات', headers: ['أ'], rows: [['1']] }]
-    }, '/assets/bonds-logo-2026.webp?v=2026');
+    }, '/assets/bonds-logo-2026-v2-sm.webp?v=2026f');
     expect(html).toContain('Bonds Global');
-    expect(html).toContain('bonds-logo-2026.webp');
+    expect(html).toContain('bonds-logo-2026-v2-sm.webp');
     expect(html).toContain('<table>');
   });
 
