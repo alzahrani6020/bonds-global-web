@@ -162,6 +162,9 @@ describe('AI Orchestrator', () => {
       expect(res.result.guardrails.ai_overridden).toBe(true);
       expect(res.result.guardrails.computed_verdict).toBe('avoid');
       expect(res.costUsd).toBeGreaterThan(0);
+      expect(res.provider).toBe('openai');
+      expect(res.modelUsed).toBe('gpt-5.5');
+      expect(res.inferenceMetadata).toEqual({ provider: 'openai', model: 'gpt-5.5' });
       expect(global.fetch).toHaveBeenCalled();
       const body = JSON.parse(global.fetch.mock.calls[0][1].body);
       expect(body.model).toBe('gpt-5.5');
