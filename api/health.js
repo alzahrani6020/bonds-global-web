@@ -9,7 +9,6 @@
  */
 const crypto = require('crypto');
 const getSupabase = require('../lib/api/supabase');
-const { getInferenceRouter } = require('../lib/ai/inference-router');
 const { callBondsNative } = require('../lib/ai/orchestrator');
 
 function readSmokeNonce(req) {
@@ -73,9 +72,7 @@ module.exports = async function handler(req, res) {
 
   const started = Date.now();
   let supabaseStatus = 'unknown';
-  let nativeStatus = 'skipped';
   const nativeMode = String(process.env.BONDS_INFERENCE_MODE || '').trim().toUpperCase() || null;
-  let nativeProvider = null;
 
   try {
     const supabase = getSupabase();
@@ -85,46 +82,31 @@ module.exports = async function handler(req, res) {
     supabaseStatus = 'error';
   }
 
-  if (nativeMode === 'REMOTE_BONDS_NATIVE') {
-    try {
-      const nativeHealth = await getInferenceRouter().health();
-      nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
-      nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
-    } catch (_) {
-      nativeStatus = 'error';
-      nativeProvider = 'BondsNativeProvider';
-    }
-  }
-
   const version = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7) : 'dev';
   const coreHealthy = supabaseStatus === 'ok';
-  const nativeRequired = nativeMode === 'REMOTE_BONDS_NATIVE';
-  const nativeReady = !nativeRequired || nativeStatus === 'ok';
-  const platformStatus = coreHealthy ? (nativeReady ? 'ok' : 'degraded') : 'unhealthy';
 
   return res.status(coreHealthy ? 200 : 503).json({
-    status: platformStatus,
+    status: coreHealthy ? 'ok' : 'unhealthy',
     service: 'bonds-global',
     version,
     timestamp: new Date().toISOString(),
     environment: process.env.VERCEL_ENV || 'development',
     checks: {
       supabase: supabaseStatus,
-      native: nativeStatus,
+      native: 'not_checked',
       responseMs: Date.now() - started,
     },
     capabilities: {
       core_platform: coreHealthy ? 'available' : 'unavailable',
-      native_ai: nativeReady ? 'available' : 'degraded',
+      native_ai: 'see_readiness',
     },
     readiness: {
-      strict: coreHealthy && nativeReady,
       endpoint: '/api/readiness',
     },
     inference: {
       mode: nativeMode,
-      provider: nativeProvider,
-      reachable: nativeStatus === 'ok',
+      provider: nativeMode === 'REMOTE_BONDS_NATIVE' ? 'BondsNativeProvider' : null,
+      reachable: null,
     },
   });
 };
