@@ -1,6 +1,11 @@
 /**
- * Bonds Global — Health Check endpoint
- * Returns service status and a lightweight Supabase connectivity check.
+ * Bonds Global — platform health endpoint.
+ *
+ * Liveness/availability semantics:
+ * - Core platform health is determined by Supabase connectivity.
+ * - Native AI is reported as a capability and may be degraded without
+ *   taking the rest of the commercial site offline.
+ * - Strict dependency readiness lives at /api/readiness.
  */
 const crypto = require('crypto');
 const getSupabase = require('../lib/api/supabase');
@@ -69,14 +74,14 @@ module.exports = async function handler(req, res) {
   const started = Date.now();
   let supabaseStatus = 'unknown';
   let nativeStatus = 'skipped';
-  let nativeMode = String(process.env.BONDS_INFERENCE_MODE || '').trim().toUpperCase() || null;
+  const nativeMode = String(process.env.BONDS_INFERENCE_MODE || '').trim().toUpperCase() || null;
   let nativeProvider = null;
 
   try {
     const supabase = getSupabase();
     const { error } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).limit(1);
     supabaseStatus = error ? 'error' : 'ok';
-  } catch (e) {
+  } catch (_) {
     supabaseStatus = 'error';
   }
 
@@ -85,17 +90,20 @@ module.exports = async function handler(req, res) {
       const nativeHealth = await getInferenceRouter().health();
       nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
       nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
-    } catch (e) {
+    } catch (_) {
       nativeStatus = 'error';
       nativeProvider = 'BondsNativeProvider';
     }
   }
 
   const version = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7) : 'dev';
+  const coreHealthy = supabaseStatus === 'ok';
+  const nativeRequired = nativeMode === 'REMOTE_BONDS_NATIVE';
+  const nativeReady = !nativeRequired || nativeStatus === 'ok';
+  const platformStatus = coreHealthy ? (nativeReady ? 'ok' : 'degraded') : 'unhealthy';
 
-  const healthy = supabaseStatus === 'ok' && (nativeMode !== 'REMOTE_BONDS_NATIVE' || nativeStatus === 'ok');
-  return res.status(healthy ? 200 : 503).json({
-    status: healthy ? 'ok' : 'degraded',
+  return res.status(coreHealthy ? 200 : 503).json({
+    status: platformStatus,
     service: 'bonds-global',
     version,
     timestamp: new Date().toISOString(),
@@ -104,6 +112,14 @@ module.exports = async function handler(req, res) {
       supabase: supabaseStatus,
       native: nativeStatus,
       responseMs: Date.now() - started,
+    },
+    capabilities: {
+      core_platform: coreHealthy ? 'available' : 'unavailable',
+      native_ai: nativeReady ? 'available' : 'degraded',
+    },
+    readiness: {
+      strict: coreHealthy && nativeReady,
+      endpoint: '/api/readiness',
     },
     inference: {
       mode: nativeMode,
