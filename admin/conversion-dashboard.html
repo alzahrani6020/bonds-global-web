@@ -92,6 +92,21 @@
     </div>
 
     <div class="cx-card">
+      <h2>مسار الإيراد التجاري (آخر 30 يوم)</h2>
+      <div class="cx-grid">
+        <div class="cx-metric"><div class="cx-metric__value" id="cIntent">—</div><div class="cx-metric__label">نية شراء</div></div>
+        <div class="cx-metric"><div class="cx-metric__value" id="cCheckout">—</div><div class="cx-metric__label">Checkout / فاتورة أُنشئت</div></div>
+        <div class="cx-metric"><div class="cx-metric__value" id="cStarted">—</div><div class="cx-metric__label">اشتراك بدأ/تفعل</div></div>
+        <div class="cx-metric"><div class="cx-metric__value" id="cPaid">—</div><div class="cx-metric__label">دفعات اشتراك ناجحة</div></div>
+        <div class="cx-metric"><div class="cx-metric__value" id="cContact">—</div><div class="cx-metric__label">Leads تواصل محفوظة</div></div>
+        <div class="cx-metric"><div class="cx-metric__value" id="cBook">—</div><div class="cx-metric__label">نقرات حجز</div></div>
+        <div class="cx-metric"><div class="cx-metric__value" id="cBank">—</div><div class="cx-metric__label">تحويلات بنكية مفعلة</div></div>
+        <div class="cx-metric"><div class="cx-metric__value" id="cOneoff">—</div><div class="cx-metric__label">منتجات One-off مُسلّمة</div></div>
+      </div>
+      <p class="cx-note">تجميع منفصل لإشارات الإيراد المؤكدة من السيرفر مع intent من الواجهة.</p>
+    </div>
+
+    <div class="cx-card">
       <h2>حالة الحاسبات</h2>
       <p class="cx-note" id="calcStatusNote" style="margin-bottom:1rem;background:rgba(234,179,8,0.08);border:1px solid rgba(234,179,8,0.25);border-radius:8px;padding:0.75rem 1rem;">
         <span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#FFCC4D" d="M2.653 35C.811 35-.001 33.662.847 32.027L16.456 1.972c.849-1.635 2.238-1.635 3.087 0l15.609 30.056c.85 1.634.037 2.972-1.805 2.972H2.653z"/><path fill="#231F20" d="M15.583 28.953c0-1.333 1.085-2.418 2.419-2.418 1.333 0 2.418 1.085 2.418 2.418 0 1.334-1.086 2.419-2.418 2.419-1.334 0-2.419-1.085-2.419-2.419zm.186-18.293c0-1.302.961-2.108 2.232-2.108 1.241 0 2.233.837 2.233 2.108v11.938c0 1.271-.992 2.108-2.233 2.108-1.271 0-2.232-.807-2.232-2.108V10.66z"/></svg></span>️ يتم توليد هذا الجدول تلقائياً من الملفات الفعلية. لتجديد القائمة شغّل <code>npm run regenerate:calculator-status</code>.
@@ -141,6 +156,14 @@
         <span class="cx-event">calc_guest_continued</span>
         <span class="cx-event">calc_modal_dismissed</span>
         <span class="cx-event">sticky_cta_shown</span>
+        <span class="cx-event">pricing_checkout_intent</span>
+        <span class="cx-event">stripe_checkout_created</span>
+        <span class="cx-event">subscription_started</span>
+        <span class="cx-event">subscription_payment_succeeded</span>
+        <span class="cx-event">contact_lead_created</span>
+        <span class="cx-event">book_clicked</span>
+        <span class="cx-event">bank_transfer_activated</span>
+        <span class="cx-event">oneoff_fulfilled</span>
       </div>
       <p class="cx-note">
         جميع الأحداث تُرسل إلى <code>/api/log-usage</code> مع معرّف الحاسبة والبلد واللغة.
@@ -205,7 +228,17 @@
         document.getElementById('mV3').textContent = m.v3 != null ? m.v3.toLocaleString('ar-SA') : '—';
         document.getElementById('mTime').textContent = m.avgTimeToResult != null ? m.avgTimeToResult.toLocaleString('ar-SA') : '—';
         document.getElementById('mLeads').textContent = (m.emailCaptured != null ? m.emailCaptured.toLocaleString('ar-SA') : '—');
-        var lastEvent = json.events && json.events[0] && json.events[0].created_at;
+        var c = json.commercial || {};
+        document.getElementById('cIntent').textContent = (c.checkoutIntent || 0).toLocaleString('ar-SA');
+        document.getElementById('cCheckout').textContent = (c.checkoutCreated || 0).toLocaleString('ar-SA');
+        document.getElementById('cStarted').textContent = (c.subscriptionStarted || 0).toLocaleString('ar-SA');
+        document.getElementById('cPaid').textContent = (c.paymentSucceeded || 0).toLocaleString('ar-SA');
+        document.getElementById('cContact').textContent = (c.contactLeads || 0).toLocaleString('ar-SA');
+        document.getElementById('cBook').textContent = (c.bookClicks || 0).toLocaleString('ar-SA');
+        document.getElementById('cBank').textContent = (c.bankTransferActivated || 0).toLocaleString('ar-SA');
+        document.getElementById('cOneoff').textContent = (c.oneoffFulfilled || 0).toLocaleString('ar-SA');
+        var allEvents = (json.events || []).concat(json.commercialEvents || []).sort(function(a,b){ return new Date(b.created_at) - new Date(a.created_at); });
+        var lastEvent = allEvents[0] && allEvents[0].created_at;
         document.getElementById('mLastEvent').textContent = lastEvent ? new Date(lastEvent).toLocaleString('ar-SA') : '—';
         document.getElementById('metricsNote').textContent = '✅ تم جلب البيانات بنجاح (آخر 30 يوم). عدد الأحداث: ' + (json.events ? json.events.length : 0).toLocaleString('ar-SA');
 

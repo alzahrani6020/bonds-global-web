@@ -318,6 +318,7 @@
       enterprise: window.__ENV?.STRIPE_PRICE_ENTERPRISE || ''
     };
     async function checkout(tier) {
+      window.BondsCommercialAnalytics?.track('pricing_checkout_intent', { tier: tier, payment_method: 'stripe' });
       const { data: s } = await window.BondsAuth.getSession();
       if (!s?.session) { window.location.href = 'calculators/auth/?redirect=' + encodeURIComponent(location.pathname); return; }
       if (typeof gtag !== 'undefined') gtag('event', 'begin_checkout', { tier: tier });
@@ -348,6 +349,7 @@
     document.getElementById('btnEnterprise')?.addEventListener('click', () => checkout('enterprise'));
 
     window.moyasarCheckout = async function(tier) {
+      window.BondsCommercialAnalytics?.track('pricing_checkout_intent', { tier: tier, payment_method: 'moyasar' });
       const { data: s } = await window.BondsAuth.getSession();
       if (!s?.session) { window.location.href = 'calculators/auth/?redirect=' + encodeURIComponent(location.pathname); return; }
       if (typeof gtag !== 'undefined') gtag('event', 'begin_checkout', { tier: tier, method: 'moyasar' });

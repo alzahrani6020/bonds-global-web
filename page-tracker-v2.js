@@ -25,6 +25,7 @@
   }
 
   const TRACK_ENDPOINT = '/api/track';
+  const COMMERCIAL_ENDPOINT = '/api/log-usage';
   let sessionStart = Date.now();
   let currentPage = location.pathname;
   let sessionSent = false;
@@ -62,6 +63,58 @@
       }
     } catch (e) {}
   }
+
+  function getCommercialSessionId() {
+    try {
+      let sid = sessionStorage.getItem('bonds_session_id');
+      if (!sid) {
+        sid = 'bs_' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-6);
+        sessionStorage.setItem('bonds_session_id', sid);
+      }
+      return sid;
+    } catch (e) { return null; }
+  }
+
+  function trackCommercial(event, properties) {
+    if (navigator.doNotTrack === '1' || window.doNotTrack === '1') return;
+    try {
+      const payload = JSON.stringify({
+        event: event,
+        calculator: 'commercial_funnel',
+        session_id: getCommercialSessionId(),
+        lang: document.documentElement.lang || '',
+        url: location.href,
+        properties: properties || {}
+      });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(COMMERCIAL_ENDPOINT, new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch(COMMERCIAL_ENDPOINT, {
+          method: 'POST',
+          body: payload,
+          headers: { 'Content-Type': 'application/json' },
+          keepalive: true
+        }).catch(function(){});
+      }
+    } catch (e) {}
+  }
+
+  window.BondsCommercialAnalytics = window.BondsCommercialAnalytics || { track: trackCommercial };
+
+  document.addEventListener('click', function (event) {
+    const link = event.target && event.target.closest ? event.target.closest('a[href]') : null;
+    if (!link) return;
+    try {
+      const target = new URL(link.href, location.href);
+      const path = target.pathname.replace(/\/$/, '');
+      if (path === '/book' || path === '/book.html' || path === '/en/book' || path === '/en/book.html' || target.hostname.endsWith('calendly.com')) {
+        trackCommercial('book_clicked', { source: getSection() });
+      }
+      if (target.hostname === 'wa.me' || target.hostname.endsWith('.wa.me')) {
+        trackCommercial('whatsapp_clicked', { source: getSection() });
+      }
+    } catch (e) {}
+  }, true);
 
   // Send page view on load
   function trackPageView() {

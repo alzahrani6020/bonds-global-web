@@ -9,6 +9,7 @@ const { checkRateLimit } = require('../lib/api/rate-limit');
 const { verifyBearer } = require('../lib/api/auth-helper');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const { handleFundingExtractionRequest } = require('../lib/api/funding-request-handler');
+const { logCommercialEvent } = require('../lib/analytics/commercial-events');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 
@@ -93,6 +94,10 @@ async function handleBankTransfer(req, res) {
       phone: phone || null,
       tier,
       amount_sar: amountSar
+    });
+
+    await logCommercialEvent(sb, 'bank_transfer_requested', {
+      properties: { tier, amount_sar: amountSar, payment_method: 'bank_transfer' }
     });
 
     return res.status(200).json({

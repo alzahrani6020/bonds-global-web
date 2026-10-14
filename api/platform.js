@@ -11,6 +11,11 @@ const { verifyBearer, verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
+const {
+  COMMERCIAL_CALCULATOR,
+  PUBLIC_COMMERCIAL_EVENTS,
+  logCommercialEvent
+} = require('../lib/analytics/commercial-events');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
 const PUBLIC_APP_URL = process.env.BONDS_PUBLIC_APP_URL || 'https://bonds-global.com';
@@ -587,6 +592,9 @@ async function proStripe(req, res) {
   }
 
   const session = await stripe.checkout.sessions.create(sessionConfig);
+  await logCommercialEvent(getSupabase(), 'pro_checkout_created', {
+    properties: { plan, payment_method: 'stripe' }
+  });
   return res.status(200).json({ url: session.url });
 }
 
@@ -727,6 +735,17 @@ async function siteContactHandler(req, res) {
     } catch (dbErr) {
       saveError = dbErr.message;
       console.error('[contact] DB error:', dbErr.message);
+    }
+
+    if (savedId) {
+      await logCommercialEvent(getSupabase(), 'contact_lead_created', {
+        properties: {
+          source: payload.source || 'website',
+          service: payload.service || null,
+          validation_status: validationStatus
+        },
+        url: url || null
+      });
     }
 
     // Forward to Formspree for email delivery
@@ -1063,14 +1082,16 @@ async function logUsageHandler(req, res) {
 
       if (error) throw error;
 
-      // Aggregate metrics
+      const calculatorRows = (data || []).filter(row => row.calculator !== COMMERCIAL_CALCULATOR);
+      const commercialEvents = (data || []).filter(row => row.calculator === COMMERCIAL_CALCULATOR);
+
       const metrics = {
         started: 0, completed: 0, saved: 0, exported: 0, v3: 0,
         signup_prompts: 0, signups_confirmed: 0, guests_continued: 0,
         email_captured: 0, totalDuration: 0, durationCount: 0
       };
       const byCalculator = {};
-      (data || []).forEach(row => {
+      calculatorRows.forEach(row => {
         const e = row.event;
         const c = row.calculator || 'unknown';
         if (!byCalculator[c]) byCalculator[c] = { started: 0, completed: 0, saved: 0, exported: 0, v3: 0 };
@@ -1089,6 +1110,12 @@ async function logUsageHandler(req, res) {
         }
       });
 
+      const commercialCounts = {};
+      commercialEvents.forEach(row => {
+        commercialCounts[row.event] = (commercialCounts[row.event] || 0) + 1;
+      });
+      const count = name => commercialCounts[name] || 0;
+
       return res.status(200).json({
         success: true,
         days,
@@ -1104,8 +1131,21 @@ async function logUsageHandler(req, res) {
           emailCaptured: metrics.email_captured,
           avgTimeToResult: metrics.durationCount ? Math.round(metrics.totalDuration / metrics.durationCount) : null
         },
+        commercial: {
+          checkoutIntent: count('pricing_checkout_intent'),
+          checkoutCreated: count('stripe_checkout_created') + count('moyasar_invoice_created') + count('pro_checkout_created') + count('oneoff_checkout_created'),
+          subscriptionStarted: count('subscription_started') + count('subscription_activated'),
+          paymentSucceeded: count('subscription_payment_succeeded'),
+          contactLeads: count('contact_lead_created'),
+          bookClicks: count('book_clicked'),
+          whatsappClicks: count('whatsapp_clicked'),
+          bankTransferRequested: count('bank_transfer_requested'),
+          bankTransferActivated: count('bank_transfer_activated'),
+          oneoffFulfilled: count('oneoff_fulfilled')
+        },
         byCalculator,
-        events: data
+        events: calculatorRows,
+        commercialEvents
       });
     } catch (err) {
       console.error('[log-usage GET] Error:', err);
@@ -1120,6 +1160,14 @@ async function logUsageHandler(req, res) {
     const event = body.event || body.calculator || '';
     const calculator = body.calculator || event;
     if (!calculator) return res.status(400).json({ error: 'calculator required' });
+
+    if (calculator === COMMERCIAL_CALCULATOR) {
+      if (!PUBLIC_COMMERCIAL_EVENTS.has(event)) {
+        return res.status(400).json({ error: 'Unsupported commercial event' });
+      }
+      const propertySize = JSON.stringify(body.properties || {}).length;
+      if (propertySize > 2048) return res.status(413).json({ error: 'Commercial event properties too large' });
+    }
 
     const user = await resolveAuthUser(req);
     const ip = getClientIp(req);
