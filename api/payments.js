@@ -60,6 +60,21 @@ async function checkoutLoadPrices() {
   };
 }
 
+function checkoutTierForPrice(priceId) {
+  if (priceId && process.env.STRIPE_PRICE_PRO && priceId === process.env.STRIPE_PRICE_PRO) return 'pro';
+  if (priceId && process.env.STRIPE_PRICE_ENTERPRISE && priceId === process.env.STRIPE_PRICE_ENTERPRISE) return 'enterprise';
+  return null;
+}
+
+function isSafeCheckoutReturnUrl(candidate) {
+  if (!candidate) return true;
+  try {
+    return new URL(candidate).origin === new URL(APP_URL).origin;
+  } catch (_) {
+    return false;
+  }
+}
+
 async function checkoutHandleCreate(req, res, user) {
   const userId = user.id;
   const userEmail = user.email;
@@ -69,14 +84,15 @@ async function checkoutHandleCreate(req, res, user) {
     return res.status(403).json({ error: 'email does not match authenticated user' });
   }
 
-  if (!priceId || typeof priceId !== 'string' || !priceId.startsWith('price_')) {
-    return res.status(400).json({ error: 'Invalid or missing priceId' });
+  const tier = checkoutTierForPrice(priceId);
+  if (!tier) {
+    return res.status(400).json({ error: 'Invalid or unapproved priceId' });
   }
 
-  if (successUrl && !successUrl.startsWith(APP_URL)) {
+  if (!isSafeCheckoutReturnUrl(successUrl)) {
     return res.status(400).json({ error: 'Invalid successUrl' });
   }
-  if (cancelUrl && !cancelUrl.startsWith(APP_URL)) {
+  if (!isSafeCheckoutReturnUrl(cancelUrl)) {
     return res.status(400).json({ error: 'Invalid cancelUrl' });
   }
 
@@ -90,7 +106,13 @@ async function checkoutHandleCreate(req, res, user) {
   }
 
   const subscriptionData = {
-    metadata: { supabaseUserId: userId, currency: currency || 'SAR', vatPercent: vatPercent || 15 }
+    trial_period_days: 14,
+    metadata: {
+      supabaseUserId: userId,
+      tier,
+      currency: currency || 'SAR',
+      vatPercent: vatPercent || 15
+    }
   };
   if (process.env.STRIPE_TAX_RATE_ID) {
     subscriptionData.default_tax_rates = [process.env.STRIPE_TAX_RATE_ID];
@@ -244,17 +266,34 @@ async function billingHandleLegacyWebhook(req, res) {
         const userId = session.client_reference_id || session.metadata?.supabaseUserId;
         const stripeCustomerId = session.customer;
         const stripeSubscriptionId = session.subscription;
-        if (!userId) break;
+        if (!userId || !stripeSubscriptionId) break;
 
+        const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+        const priceId = subscription.items.data[0]?.price?.id;
+        const tier = billingGetTierFromPriceId(priceId);
+        if (!['pro', 'enterprise'].includes(tier)) {
+          console.error('Refusing entitlement for unapproved Stripe price', priceId || 'missing');
+          break;
+        }
+
+        const status = subscription.status;
         await supabase.from('profiles').update({
           stripe_customer_id: stripeCustomerId,
+          stripe_subscription_id: stripeSubscriptionId,
+          tier,
+          status,
           updated_at: new Date().toISOString(),
         }).eq('id', userId);
 
         await supabase.from('subscriptions').upsert({
           user_id: userId,
-          status: 'trialing',
+          tier,
+          status,
           stripe_subscription_id: stripeSubscriptionId,
+          stripe_price_id: priceId,
+          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          cancel_at_period_end: Boolean(subscription.cancel_at_period_end),
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
         break;

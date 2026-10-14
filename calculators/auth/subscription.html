@@ -162,7 +162,8 @@
 
         var statsHtml = '';
         if(_sub){
-          statsHtml += '<div class="stat-row"><span>حالة الاشتراك</span><span>'+(_sub.status==='active'?'نشط':'غير نشط')+'</span></div>';
+          var statusLabel = _sub.status==='active'?'نشط':(_sub.status==='trialing'?'فترة تجريبية':(_sub.status==='past_due'?'الدفع متعثر':'غير نشط'));
+          statsHtml += '<div class="stat-row"><span>حالة الاشتراك</span><span>'+statusLabel+'</span></div>';
           if(_sub.current_period_end) statsHtml += '<div class="stat-row"><span>ينتهي في</span><span>'+new Date(_sub.current_period_end).toLocaleDateString('ar-SA')+'</span></div>';
           if(_sub.cancel_at_period_end) statsHtml += '<div class="stat-row"><span>التجديد</span><span style="color:#dc2626">سيتم الإلغاء عند التجديد</span></div>';
         } else {
@@ -233,7 +234,7 @@
         } catch(e){ alert('تعذر الاتصال'); }
       };
       window.cancelSub = async function(){
-        if(!confirm('هل أنت متأكد من إلغاء الاشتراك؟ ستبقى مميزاتك حتى نهاية الفترة المدفوعة.'))return;
+        if(!confirm('هل أنت متأكد من إلغاء الاشتراك؟ ستبقى مميزاتك حتى نهاية الفترة الحالية.'))return;
         try {
           var res = await fetch('/api/billing?action=cancel', {
             method: 'POST',
@@ -241,7 +242,7 @@
             body: JSON.stringify({userId: _user.id})
           });
           if(res.ok){
-            alert('تم طلب إلغاء الاشتراك. ستبقى مميزاتك حتى نهاية الفترة المدفوعة.');
+            alert('تم طلب إلغاء الاشتراك. ستبقى مميزاتك حتى نهاية الفترة الحالية.');
             location.reload();
           } else throw new Error('Failed');
         } catch(e){ showError('فشل إلغاء الاشتراك'); }

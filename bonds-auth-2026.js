@@ -557,7 +557,8 @@
       tier = 'free';
     }
     let status = sub?.status || 'inactive';
-    if (status === 'active' && sub?.current_period_end && new Date(sub.current_period_end) < new Date()) {
+    const entitlementStatuses = ['active', 'trialing'];
+    if (entitlementStatuses.includes(status) && sub?.current_period_end && new Date(sub.current_period_end) < new Date()) {
       status = 'inactive';
     }
 
@@ -565,7 +566,7 @@
                    tier === 'pro' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true, paidCalculators: true } :
                    { maxScenarios: 3, pdfExport: false, healthHistory: false, apiAccess: false, paidCalculators: false };
 
-    const allowed = status === 'active' && (limits[feature] === true || limits[feature] > 0);
+    const allowed = entitlementStatuses.includes(status) && (limits[feature] === true || limits[feature] > 0);
     return { allowed, tier, status, limits, reason: allowed ? null : 'tier_limit' };
   }
 
