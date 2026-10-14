@@ -67,12 +67,18 @@ describe('stabilization phase 2', () => {
     expect(coverage).toContain('مصفوفة تغطية البيانات');
   });
 
-  test('health endpoint uses repository Supabase factory and fails degraded', () => {
+  test('health endpoint uses repository Supabase factory and keeps Native readiness separate', () => {
     const health = read('api/health.js');
+    const readiness = read('api/readiness.js');
     expect(health).toContain("const getSupabase = require('../lib/api/supabase')");
     expect(health).toContain('const supabase = getSupabase()');
-    expect(health).toContain("res.status(healthy ? 200 : 503)");
-    expect(health).toContain("status: healthy ? 'ok' : 'degraded'");
+    expect(health).toContain("return res.status(coreHealthy ? 200 : 503)");
+    expect(health).toContain("status: coreHealthy ? 'ok' : 'unhealthy'");
+    expect(health).toContain("native: 'not_checked'");
+    expect(health).toContain("endpoint: '/api/readiness'");
+    expect(health).not.toContain("getInferenceRouter().health()");
+    expect(readiness).toContain("getInferenceRouter().health()");
+    expect(readiness).toContain("return res.status(ready ? 200 : 503)");
     expect(health).not.toContain("const { createClient } = require('../lib/api/supabase')");
   });
 });
