@@ -148,7 +148,9 @@
         _token = sessionData.session.access_token;
         var {data:sub} = await window.BondsAuth.getSubscription(_user.id);
         _sub = sub;
-        _tier = sub?.tier || 'free';
+        var entitled = sub && (sub.status === 'active' || sub.status === 'trialing');
+        if(entitled && sub.current_period_end && new Date(sub.current_period_end) < new Date()) entitled = false;
+        _tier = entitled && (sub.tier === 'pro' || sub.tier === 'enterprise') ? sub.tier : 'free';
         render();
       }
 
@@ -165,6 +167,7 @@
           var statusLabel = _sub.status==='active'?'نشط':(_sub.status==='trialing'?'فترة تجريبية':(_sub.status==='past_due'?'الدفع متعثر':'غير نشط'));
           statsHtml += '<div class="stat-row"><span>حالة الاشتراك</span><span>'+statusLabel+'</span></div>';
           if(_sub.current_period_end) statsHtml += '<div class="stat-row"><span>ينتهي في</span><span>'+new Date(_sub.current_period_end).toLocaleDateString('ar-SA')+'</span></div>';
+          if(_sub.payment_method) statsHtml += '<div class="stat-row"><span>طريقة الدفع</span><span>'+String(_sub.payment_method).replace('bank_transfer','تحويل بنكي').replace('moyasar','Moyasar').replace('stripe','Stripe').replace('manual','يدوي')+'</span></div>';
           if(_sub.cancel_at_period_end) statsHtml += '<div class="stat-row"><span>التجديد</span><span style="color:#dc2626">سيتم الإلغاء عند التجديد</span></div>';
         } else {
           statsHtml += '<div class="stat-row"><span>حالة الاشتراك</span><span>مجاني</span></div>';
@@ -175,9 +178,14 @@
         if(_tier==='free'){
           actions.innerHTML = '<a href="../../pricing.html" class="btn btn-primary">عرض الباقات والأسعار</a>';
         } else {
-          actions.innerHTML = '<button class="btn btn-secondary" onclick="openBilling()">إدارة الفواتير والدفع</button>';
-          if(!_sub?.cancel_at_period_end){
-            actions.innerHTML += '<button class="btn btn-secondary" onclick="cancelSub()" style="color:#dc2626;border-color:#dc2626">إلغاء الاشتراك</button>';
+          var paymentMethod = _sub?.payment_method || 'stripe';
+          if(paymentMethod === 'stripe'){
+            actions.innerHTML = '<button class="btn btn-secondary" onclick="openBilling()">إدارة الفواتير والدفع</button>';
+            if(!_sub?.cancel_at_period_end){
+              actions.innerHTML += '<button class="btn btn-secondary" onclick="cancelSub()" style="color:#dc2626;border-color:#dc2626">إلغاء الاشتراك</button>';
+            }
+          } else {
+            actions.innerHTML = '<a href="../../pricing.html" class="btn btn-secondary">خيارات التجديد والدفع</a>';
           }
         }
 

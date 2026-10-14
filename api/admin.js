@@ -890,10 +890,10 @@ async function updateBankTransfer(sb, body, admin, req) {
   if (!id || !['verified', 'rejected'].includes(action)) throw new Error('Invalid request');
   const { data: request } = await sb.from('bank_transfer_requests').select('*').eq('id', id).single();
   if (!request) throw new Error('Request not found');
-  await sb.from('bank_transfer_requests').update({ status: action, updated_at: new Date().toISOString() }).eq('id', id);
+  if (request.status !== 'pending') throw new Error('Bank transfer request is already resolved');
+
   let affectedUserId = null;
   if (action === 'verified') {
-    // Find user by email (profiles first, then auth fallback)
     let userId = null;
     const { data: profileUsers } = await sb.from('profiles').select('id').eq('email', request.email).limit(1);
     if (profileUsers?.length) {
@@ -903,13 +903,41 @@ async function updateBankTransfer(sb, body, admin, req) {
       const authUser = (authList?.users || []).find(u => u.email === request.email);
       if (authUser) userId = authUser.id;
     }
-    if (userId) {
-      affectedUserId = userId;
-      await sb.from('profiles').update({ tier: request.tier, updated_at: new Date().toISOString() }).eq('id', userId);
-    }
+    if (!userId) throw new Error('No matching user exists for this bank transfer');
+
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+    const { error: subscriptionError } = await sb.from('subscriptions').upsert({
+      user_id: userId,
+      tier: request.tier,
+      status: 'active',
+      payment_method: 'bank_transfer',
+      current_period_start: now.toISOString(),
+      current_period_end: periodEnd.toISOString(),
+      cancel_at_period_end: false,
+      updated_at: now.toISOString(),
+    }, { onConflict: 'user_id' });
+    if (subscriptionError) throw subscriptionError;
+
+    const { error: profileError } = await sb.from('profiles').update({
+      tier: request.tier,
+      status: 'active',
+      updated_at: now.toISOString(),
+    }).eq('id', userId);
+    if (profileError) throw profileError;
+
+    affectedUserId = userId;
   }
+
+  const { error: requestUpdateError } = await sb.from('bank_transfer_requests')
+    .update({ status: action, updated_at: new Date().toISOString() })
+    .eq('id', id);
+  if (requestUpdateError) throw requestUpdateError;
+
   await logAdminAction(sb, admin, 'bank_transfer_' + action, 'bank_transfer', id, request.email, { amount_sar: request.amount_sar, tier: request.tier, affected_user_id: affectedUserId }, req);
-  return { success: true };
+  return { success: true, affectedUserId };
 }
 
 // ── Settings ────────────────────────────────────────────────

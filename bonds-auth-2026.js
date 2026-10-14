@@ -552,14 +552,16 @@
       getSubscription(user.id)
     ]);
 
-    let tier = profile?.tier || sub?.tier || 'free';
-    if (profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
-      tier = 'free';
-    }
-    let status = sub?.status || 'inactive';
     const entitlementStatuses = ['active', 'trialing'];
+    let status = sub?.status || 'inactive';
     if (entitlementStatuses.includes(status) && sub?.current_period_end && new Date(sub.current_period_end) < new Date()) {
       status = 'inactive';
+    }
+    const subscriptionEntitled = entitlementStatuses.includes(status) && ['pro', 'enterprise'].includes(sub?.tier);
+    const hasSubscriptionRecord = Boolean(sub);
+    let tier = subscriptionEntitled ? sub.tier : (hasSubscriptionRecord ? 'free' : (profile?.tier || 'free'));
+    if (!hasSubscriptionRecord && profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+      tier = 'free';
     }
 
     const limits = tier === 'enterprise' ? { maxScenarios: Infinity, pdfExport: true, healthHistory: true, apiAccess: true, webhooks: true, paidCalculators: true } :
