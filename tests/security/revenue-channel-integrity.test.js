@@ -100,3 +100,26 @@ describe('Release completeness payment invariants', () => {
     expect(legacyWebhookScript).not.toContain('bonds-v3.vercel.app');
   });
 });
+
+
+describe('Provisioning and webhook consolidation invariants', () => {
+  const payments = fs.readFileSync(path.join(__dirname, '..', '..', 'api', 'payments.js'), 'utf8');
+  const setupStripe = fs.readFileSync(path.join(__dirname, '..', '..', 'scripts', 'setup-stripe.js'), 'utf8');
+
+  test('V3 webhook alias uses the canonical verified Stripe handler', () => {
+    expect(payments).not.toContain("processStripeWebhook");
+    expect(payments).not.toContain("billingHandleV3Webhook");
+    expect(payments).toContain("action === 'v3-stripe-webhook'");
+    expect(payments).toContain('return billingHandleLegacyWebhook(req, res)');
+  });
+
+  test('Stripe provisioning selects canonical active SAR monthly prices', () => {
+    expect(setupStripe).toContain("active: true");
+    expect(setupStripe).toContain("p.currency === 'sar'");
+    expect(setupStripe).toContain("p.unit_amount === 7100");
+    expect(setupStripe).toContain("p.unit_amount === 18400");
+    expect(setupStripe).toContain("p.recurring?.interval === 'month'");
+    expect(setupStripe).toContain("tr.inclusive === false");
+    expect(setupStripe).toContain("'checkout.session.async_payment_succeeded'");
+  });
+});
