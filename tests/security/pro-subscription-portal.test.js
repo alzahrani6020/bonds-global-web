@@ -1,11 +1,11 @@
-const checkoutRetrieve = jest.fn();
-const subscriptionRetrieve = jest.fn();
-const portalCreate = jest.fn();
+const mockCheckoutRetrieve = jest.fn();
+const mockSubscriptionRetrieve = jest.fn();
+const mockPortalCreate = jest.fn();
 
 jest.mock('stripe', () => jest.fn(() => ({
-  checkout: { sessions: { retrieve: checkoutRetrieve, create: jest.fn() } },
-  subscriptions: { retrieve: subscriptionRetrieve },
-  billingPortal: { sessions: { create: portalCreate } },
+  checkout: { sessions: { retrieve: mockCheckoutRetrieve, create: jest.fn() } },
+  subscriptions: { retrieve: mockSubscriptionRetrieve },
+  billingPortal: { sessions: { create: mockPortalCreate } },
 })));
 
 jest.mock('../../lib/api/rate-limit', () => ({
@@ -55,28 +55,28 @@ describe('Bonds Pro Stripe customer portal', () => {
   });
 
   test('active monthly subscription gets a Stripe billing portal session', async () => {
-    checkoutRetrieve.mockResolvedValue({
+    mockCheckoutRetrieve.mockResolvedValue({
       metadata: { bonds_pro: '1', plan: 'monthly' },
       subscription: 'sub_123',
       customer: 'cus_123',
     });
-    subscriptionRetrieve.mockResolvedValue({ status: 'active' });
-    portalCreate.mockResolvedValue({ url: 'https://billing.stripe.com/p/session/test_123' });
+    mockSubscriptionRetrieve.mockResolvedValue({ status: 'active' });
+    mockPortalCreate.mockResolvedValue({ url: 'https://billing.stripe.com/p/session/test_123' });
 
     const res = response();
     await handler(request({ action: 'portal', session_id: 'cs_test_123' }), res);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.url).toBe('https://billing.stripe.com/p/session/test_123');
-    expect(subscriptionRetrieve).toHaveBeenCalledWith('sub_123');
-    expect(portalCreate).toHaveBeenCalledWith({
+    expect(mockSubscriptionRetrieve).toHaveBeenCalledWith('sub_123');
+    expect(mockPortalCreate).toHaveBeenCalledWith({
       customer: 'cus_123',
       return_url: 'https://bonds-global.com/pro/',
     });
   });
 
   test('one-time report cannot open subscription portal', async () => {
-    checkoutRetrieve.mockResolvedValue({
+    mockCheckoutRetrieve.mockResolvedValue({
       metadata: { bonds_pro: '1', plan: 'single' },
       subscription: null,
       customer: 'cus_123',
@@ -86,21 +86,21 @@ describe('Bonds Pro Stripe customer portal', () => {
     await handler(request({ action: 'portal', session_id: 'cs_test_single' }), res);
 
     expect(res.statusCode).toBe(403);
-    expect(portalCreate).not.toHaveBeenCalled();
+    expect(mockPortalCreate).not.toHaveBeenCalled();
   });
 
   test('inactive monthly subscription cannot open portal', async () => {
-    checkoutRetrieve.mockResolvedValue({
+    mockCheckoutRetrieve.mockResolvedValue({
       metadata: { bonds_pro: '1', plan: 'monthly' },
       subscription: 'sub_inactive',
       customer: 'cus_123',
     });
-    subscriptionRetrieve.mockResolvedValue({ status: 'canceled' });
+    mockSubscriptionRetrieve.mockResolvedValue({ status: 'canceled' });
 
     const res = response();
     await handler(request({ action: 'portal', session_id: 'cs_test_inactive' }), res);
 
     expect(res.statusCode).toBe(402);
-    expect(portalCreate).not.toHaveBeenCalled();
+    expect(mockPortalCreate).not.toHaveBeenCalled();
   });
 });
