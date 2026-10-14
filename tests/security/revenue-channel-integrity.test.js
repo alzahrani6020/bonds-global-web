@@ -31,3 +31,72 @@ describe('Revenue channel integrity', () => {
     expect(pricing).toContain('14 يوم تجربة مجانية عبر البطاقة');
   });
 });
+
+
+describe('Release completeness payment invariants', () => {
+  const payments = fs.readFileSync(path.join(__dirname, '..', '..', 'api', 'payments.js'), 'utf8');
+  const auth = fs.readFileSync(path.join(__dirname, '..', '..', 'bonds-auth-2026.js'), 'utf8');
+  const v3Billing = fs.readFileSync(path.join(__dirname, '..', '..', 'v3', 'api', 'billing.js'), 'utf8');
+  const enPricing = fs.readFileSync(path.join(__dirname, '..', '..', 'en', 'pricing.html'), 'utf8');
+  const arSubscription = fs.readFileSync(path.join(__dirname, '..', '..', 'calculators', 'auth', 'subscription.html'), 'utf8');
+  const enSubscription = fs.readFileSync(path.join(__dirname, '..', '..', 'en', 'calculators', 'auth', 'subscription.html'), 'utf8');
+  const platform = fs.readFileSync(path.join(__dirname, '..', '..', 'api', 'platform.js'), 'utf8');
+  const legacyWebhookScript = fs.readFileSync(path.join(__dirname, '..', '..', 'v3', 'scripts', 'create-stripe-webhook.js'), 'utf8');
+
+  test('one-off payment is fulfilled only after Stripe reports paid and is claimed once', () => {
+    expect(payments).toContain("session.metadata?.type === 'oneoff'");
+    expect(payments).toContain("session.payment_status !== 'paid'");
+    expect(payments).toContain(".eq('status', 'pending')");
+    expect(payments).toContain("oneoff_credits: credits");
+    expect(payments).toContain("stripe_payment_intent_id");
+    expect(payments).toContain("checkout.session.async_payment_succeeded");
+  });
+
+  test('unknown Stripe prices fail closed in legacy and V3 billing', () => {
+    expect(payments).toContain('Refusing paid entitlement for unapproved Stripe price');
+    expect(payments).toContain('Refusing subscription update for unapproved Stripe price');
+    expect(v3Billing).toContain('Invalid or unapproved priceId');
+    expect(v3Billing).toContain('Refusing unapproved Stripe price');
+  });
+
+  test('V3 checkout authenticates user, allowlists price and creates the same 14-day trial', () => {
+    expect(v3Billing).toContain('const user = await getUserFromToken(req)');
+    expect(v3Billing).toContain("if (!user) return sendJson(res, 401");
+    expect(v3Billing).toContain('trial_period_days: 14');
+    expect(v3Billing).toContain('supabaseUserId: user.id');
+    expect(v3Billing).toContain("payment_method: 'stripe'");
+  });
+
+  test('Moyasar payment transition cannot repeatedly extend entitlement', () => {
+    expect(payments).toContain(".neq('status', 'paid')");
+    expect(payments).toContain('normalizeMoyasarInvoiceStatus');
+    expect(payments).toContain('const invoice = await getInvoice(invoiceId)');
+    expect(payments).not.toContain("req.headers['x-moyasar-webhook-secret']");
+  });
+
+  test('subscription rows are authoritative and inactive rows fail closed', () => {
+    expect(auth).toContain('const hasSubscriptionRecord = Boolean(sub)');
+    expect(auth).toContain("hasSubscriptionRecord ? 'free'");
+    expect(arSubscription).toContain("sub.status === 'active' || sub.status === 'trialing'");
+    expect(enSubscription).toContain("sub.status === 'active' || sub.status === 'trialing'");
+  });
+
+  test('English pricing and subscription pages preserve payment semantics', () => {
+    expect(enPricing).toContain('14-day free trial via card');
+    expect(enPricing).toContain('/en/calculators/auth/subscription.html?moyasar=success');
+    expect(arSubscription).toContain("paymentMethod === 'stripe'");
+    expect(enSubscription).toContain("paymentMethod === 'stripe'");
+    expect(enSubscription).toContain("'Trial'");
+  });
+
+  test('customer-facing Pro redirects use canonical public URL', () => {
+    expect(platform).toContain("BONDS_PUBLIC_APP_URL || 'https://bonds-global.com'");
+    expect(platform).toContain('PUBLIC_APP_URL');
+  });
+
+  test('stale V3 webhook provisioning cannot deploy production', () => {
+    expect(legacyWebhookScript).toContain('Deprecated: do not run');
+    expect(legacyWebhookScript).not.toContain("vercel', ['--prod'");
+    expect(legacyWebhookScript).not.toContain('bonds-v3.vercel.app');
+  });
+});
