@@ -22,7 +22,15 @@ describe('generic credit consent forms',()=>{
 
   test('uses localized auth routes for Arabic and English pages',()=>{
     const controller=read('lib/forms/credit-consent-form.js');
+    const gate=read('calculators/auth-gate.js');
     expect(controller).toContain("const authPath=isEn?'/en/calculators/auth/index.html':'/calculators/auth/index.html'");
+    expect(gate).toContain("const authPath = path.startsWith('/en/') ? '/en/calculators/auth/index.html' : '/calculators/auth/index.html'");
+    for(const file of [
+      'client/credit-consent-business.html','client/credit-consent-individual.html',
+      'en/client/credit-consent-business.html','en/client/credit-consent-individual.html'
+    ]){
+      expect(read(file)).toContain('/calculators/auth-gate.js?v=4');
+    }
   });
 
   test('country selector uses the platform geographic catalog and has a generic fallback',()=>{
