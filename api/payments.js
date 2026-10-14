@@ -13,6 +13,7 @@ const { createInvoice, getInvoice, getTierLabel } = require('../lib/api/moyasar-
 const { setAllowedOrigin } = require('../lib/api/cors');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
+const PUBLIC_APP_URL = process.env.BONDS_PUBLIC_APP_URL || 'https://bonds-global.com';
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -132,8 +133,8 @@ async function checkoutHandleCreate(req, res, user) {
     line_items: [{ price: priceId, quantity: 1 }],
     mode: 'subscription',
     subscription_data: subscriptionData,
-    success_url: successUrl || `${APP_URL}/calculators/auth/?success=1`,
-    cancel_url: cancelUrl || `${APP_URL}/pricing.html?canceled=1`,
+    success_url: successUrl || `${PUBLIC_APP_URL}/calculators/auth/?success=1`,
+    cancel_url: cancelUrl || `${PUBLIC_APP_URL}/pricing.html?canceled=1`,
     client_reference_id: userId,
   });
 
@@ -172,8 +173,8 @@ async function checkoutHandleOneoff(req, res, user) {
     mode: 'payment',
     tax_id_collection: { enabled: true },
     metadata: { supabaseUserId: user.id, product, type: 'oneoff' },
-    success_url: `${APP_URL}/calculators/auth/subscription.html?oneoff=success&product=${product}`,
-    cancel_url: `${APP_URL}/pricing.html?canceled=1`,
+    success_url: `${PUBLIC_APP_URL}/calculators/auth/subscription.html?oneoff=success&product=${product}`,
+    cancel_url: `${PUBLIC_APP_URL}/pricing.html?canceled=1`,
     client_reference_id: user.id,
   });
 
@@ -291,11 +292,20 @@ async function fulfillOneoffPurchase(supabase, session) {
 
 // ── Billing (Stripe subscriptions + webhooks) ──────────────
 async function billingHandleCancel(sb, userId) {
-  const { data: sub } = await sb.from('subscriptions').select('stripe_subscription_id').eq('user_id', userId).single();
-  if (sub?.stripe_subscription_id) {
-    await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true });
+  const { data: sub } = await sb.from('subscriptions')
+    .select('stripe_subscription_id, payment_method')
+    .eq('user_id', userId)
+    .single();
+  if (!sub || sub.payment_method !== 'stripe' || !sub.stripe_subscription_id) {
+    const err = new Error('Stripe cancellation is not available for this payment method');
+    err.status = 409;
+    throw err;
   }
-  await sb.from('subscriptions').update({ cancel_at_period_end: true, updated_at: new Date().toISOString() }).eq('user_id', userId);
+  await stripe.subscriptions.update(sub.stripe_subscription_id, { cancel_at_period_end: true });
+  await sb.from('subscriptions').update({
+    cancel_at_period_end: true,
+    updated_at: new Date().toISOString()
+  }).eq('user_id', userId);
   return { success: true };
 }
 
@@ -304,7 +314,7 @@ async function billingHandlePortal(sb, userId) {
   if (!profile?.stripe_customer_id) throw new Error('No Stripe customer found');
   const session = await stripe.billingPortal.sessions.create({
     customer: profile.stripe_customer_id,
-    return_url: `${APP_URL}/calculators/auth/subscription.html`,
+    return_url: `${PUBLIC_APP_URL}/calculators/auth/subscription.html`,
   });
   return { url: session.url };
 }
@@ -652,10 +662,10 @@ async function moyasarCheckoutAction(req, res) {
 
   const safeSuccess = isSafeCheckoutReturnUrl(successUrl) && successUrl
     ? successUrl
-    : `${APP_URL}/calculators/auth/subscription.html?moyasar=success`;
+    : `${PUBLIC_APP_URL}/calculators/auth/subscription.html?moyasar=success`;
   const safeCancel = isSafeCheckoutReturnUrl(cancelUrl) && cancelUrl
     ? cancelUrl
-    : `${APP_URL}/pricing.html?canceled=1`;
+    : `${PUBLIC_APP_URL}/pricing.html?canceled=1`;
 
   try {
     const supabase = getSupabase();
@@ -669,7 +679,7 @@ async function moyasarCheckoutAction(req, res) {
       amount,
       currency: 'SAR',
       description: `${getTierLabel(tier)} — Monthly subscription`,
-      callbackUrl: `${APP_URL}/api/moyasar-webhook`,
+      callbackUrl: `${PUBLIC_APP_URL}/api/moyasar-webhook`,
       metadata: { user_id: user.id, tier, email: user.email },
       successUrl: safeSuccess,
       backUrl: safeCancel,
