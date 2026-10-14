@@ -150,6 +150,8 @@
       payablesAging: isEn ? 'Payables Aging' : 'أعمار الذمم الدائنة',
       cashFlowForm: isEn ? 'Cash Flow' : 'التدفقات النقدية',
       businessActivityInfo: isEn ? 'Business Activity Information' : 'معلومات النشاط',
+      businessCreditConsent: isEn ? 'Business Credit Consent' : 'موافقة الاستعلام الائتماني — منشأة',
+      individualCreditConsent: isEn ? 'Individual Credit Consent' : 'موافقة الاستعلام الائتماني — فرد',
     };
 
     const currentPath = window.location.pathname;
@@ -192,6 +194,8 @@
     const payablesAgingHref = isEn ? '/en/client/payables-aging' : '/client/payables-aging';
     const cashFlowFormHref = isEn ? '/en/client/cash-flow' : '/client/cash-flow';
     const businessActivityInfoHref = isEn ? '/en/client/business-activity' : '/client/business-activity';
+    const businessCreditConsentHref = isEn ? '/en/client/credit-consent-business' : '/client/credit-consent-business';
+    const individualCreditConsentHref = isEn ? '/en/client/credit-consent-individual' : '/client/credit-consent-individual';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
@@ -299,6 +303,8 @@
           { label: labels.payablesAging, href: payablesAgingHref },
           { label: labels.cashFlowForm, href: cashFlowFormHref },
           { label: labels.businessActivityInfo, href: businessActivityInfoHref },
+          { label: labels.businessCreditConsent, href: businessCreditConsentHref },
+          { label: labels.individualCreditConsent, href: individualCreditConsentHref },
         ],
       },
     ];
