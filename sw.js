@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.130';
+const CACHE_VERSION = 'v3.0.131';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -39,7 +39,7 @@ const CORE_ASSETS = [
   '/scripts/funding-context.js',
   '/header-footer.css?v=2.71.0',
   '/script.js?v=5',
-  '/site-layout.js?v=3.7.0',
+  '/site-layout.js?v=3.8.0',
   '/styles/social-feed.css?v=3',
   '/styles/institutional-home.css?v=4',
   '/styles/institutional-system.css?v=6',
@@ -54,6 +54,8 @@ const CORE_ASSETS = [
   '/admin/funding-cases/styles.css?v=3',
   '/lib/formatting.js',
   '/lib/forms/branded-export.js?v=3',
+  '/lib/forms/credit-consent-terminology.js?v=1',
+  '/lib/forms/credit-consent-form.js?v=1',
   '/assets/bonds-logo-2026-v2-sm.webp',
   '/assets/bonds-logo-2026-sm.webp',
   '/assets/qr-bonds-global.png',
@@ -269,6 +271,12 @@ self.addEventListener('fetch', (event) => {
 
   // Skip non-GET, cross-origin and API requests
   if (request.method !== 'GET' || !isSameOrigin(url) || url.pathname.startsWith('/api/')) {
+    return;
+  }
+
+  // Shared navigation is always network-first so newly added form links appear immediately.
+  if (url.pathname === '/site-layout.js') {
+    event.respondWith(networkFirst(request));
     return;
   }
 
