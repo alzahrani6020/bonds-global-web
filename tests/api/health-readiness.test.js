@@ -1,6 +1,7 @@
 const mockSupabaseError = { value: null };
 const mockNativeOk = { value: false };
 const mockNativeHealthCalls = { count: 0 };
+const originalFetch = global.fetch;
 
 jest.mock('../../lib/api/supabase', () => () => ({
   from: () => ({
@@ -42,12 +43,20 @@ function createResponse() {
 
 describe('platform health vs strict readiness', () => {
   beforeEach(() => {
+    global.fetch = jest.fn(async () => ({ ok: true, status: 200 }));
     mockSupabaseError.value = null;
     mockNativeOk.value = false;
     mockNativeHealthCalls.count = 0;
     process.env.BONDS_INFERENCE_MODE = 'REMOTE_BONDS_NATIVE';
     process.env.VERCEL_GIT_COMMIT_SHA = 'abcdef1234567890';
     delete process.env.BONDS_E2E_SMOKE_NONCE;
+    delete process.env.BONDS_AI_PROVIDER;
+    delete process.env.BONDS_OPENAI_FALLBACK;
+    process.env.OPENAI_API_KEY = 'test-key';
+  });
+
+  afterAll(() => {
+    global.fetch = originalFetch;
   });
 
   test('core health stays available without probing Native AI', async () => {
@@ -66,7 +75,25 @@ describe('platform health vs strict readiness', () => {
     expect(mockNativeHealthCalls.count).toBe(0);
   });
 
-  test('strict readiness fails when Native AI is unavailable', async () => {
+  test('strict readiness passes through verified OpenAI fallback when Native AI is unavailable', async () => {
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ready');
+    expect(res.body.checks.supabase).toBe('ok');
+    expect(res.body.checks.native).toBe('error');
+    expect(res.body.checks.fallback).toBe('ok');
+    expect(res.body.inference.provider).toBe('openai_fallback');
+    expect(res.body.inference.native_reachable).toBe(false);
+    expect(mockNativeHealthCalls.count).toBe(1);
+    expect(global.fetch).toHaveBeenCalledWith('https://api.openai.com/v1/models', expect.any(Object));
+  });
+
+  test('strict readiness fails when native-only mode is configured and Native AI is unavailable', async () => {
+    process.env.BONDS_AI_PROVIDER = 'native-only';
     const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
     const res = createResponse();
 
@@ -74,9 +101,9 @@ describe('platform health vs strict readiness', () => {
 
     expect(res.statusCode).toBe(503);
     expect(res.body.status).toBe('not_ready');
-    expect(res.body.checks.supabase).toBe('ok');
     expect(res.body.checks.native).toBe('error');
-    expect(mockNativeHealthCalls.count).toBe(1);
+    expect(res.body.checks.fallback).toBe('skipped');
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 
   test('strict readiness passes when core and Native AI are healthy', async () => {
@@ -88,7 +115,7 @@ describe('platform health vs strict readiness', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe('ready');
-    expect(res.body.inference.reachable).toBe(true);
+    expect(res.body.inference.native_reachable).toBe(true);
     expect(mockNativeHealthCalls.count).toBe(1);
   });
 

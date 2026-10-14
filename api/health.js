@@ -32,6 +32,43 @@ function smokeAuthorized(req) {
   return left.length === right.length && crypto.timingSafeEqual(left, right);
 }
 
+function aiProviderMode() {
+  return String(process.env.BONDS_AI_PROVIDER || 'native-first').trim().toLowerCase();
+}
+
+function openAiFallbackAllowed() {
+  return String(process.env.BONDS_OPENAI_FALLBACK ?? 'true').trim().toLowerCase() !== 'false';
+}
+
+async function probeOpenAI(timeoutMs = 5000) {
+  const apiKey = String(process.env.OPENAI_API_KEY || '').trim();
+  if (!apiKey) return { ok: false, reason: 'not_configured' };
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch('https://api.openai.com/v1/models', {
+      method: 'GET',
+      signal: controller.signal,
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+      },
+    });
+    return {
+      ok: response.ok,
+      status: response.status,
+      reason: response.ok ? null : 'http_error',
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      reason: error && error.name === 'AbortError' ? 'timeout' : 'unreachable',
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
@@ -110,9 +147,32 @@ module.exports = async function handler(req, res) {
       }
     }
 
-    const nativeRequired = nativeMode === 'REMOTE_BONDS_NATIVE';
-    const nativeReady = !nativeRequired || nativeStatus === 'ok';
-    const ready = coreHealthy && nativeReady;
+    const providerMode = aiProviderMode();
+    const nativeRequired = nativeMode === 'REMOTE_BONDS_NATIVE' && providerMode === 'native-only';
+    const nativeReady = nativeMode !== 'REMOTE_BONDS_NATIVE' || nativeStatus === 'ok';
+
+    let fallbackStatus = 'skipped';
+    let fallbackReason = null;
+    let fallbackHttpStatus = null;
+    const fallbackEligible =
+      providerMode !== 'native-only' &&
+      openAiFallbackAllowed() &&
+      nativeMode === 'REMOTE_BONDS_NATIVE' &&
+      nativeStatus !== 'ok';
+
+    if (fallbackEligible) {
+      const fallbackHealth = await probeOpenAI();
+      fallbackStatus = fallbackHealth.ok ? 'ok' : 'error';
+      fallbackReason = fallbackHealth.reason || null;
+      fallbackHttpStatus = fallbackHealth.status || null;
+    }
+
+    const fallbackReady = fallbackStatus === 'ok';
+    const inferenceReady = nativeRequired ? nativeReady : (nativeReady || fallbackReady);
+    const ready = coreHealthy && inferenceReady;
+    const activeProvider = nativeReady
+      ? (nativeProvider || 'BondsNativeProvider')
+      : (fallbackReady ? 'openai_fallback' : null);
 
     return res.status(ready ? 200 : 503).json({
       status: ready ? 'ready' : 'not_ready',
@@ -123,12 +183,17 @@ module.exports = async function handler(req, res) {
       checks: {
         supabase: supabaseStatus,
         native: nativeStatus,
+        fallback: fallbackStatus,
         responseMs: Date.now() - started,
       },
       inference: {
         mode: nativeMode,
-        provider: nativeProvider,
-        reachable: nativeStatus === 'ok',
+        provider: activeProvider,
+        native_provider: nativeProvider,
+        native_reachable: nativeStatus === 'ok',
+        fallback_provider: fallbackEligible ? 'openai' : null,
+        fallback_reason: fallbackReason,
+        fallback_http_status: fallbackHttpStatus,
       },
     });
   }
