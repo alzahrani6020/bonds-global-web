@@ -178,7 +178,7 @@ async function checkoutHandleOneoff(req, res, user) {
   });
 
   const supabase = getSupabase();
-  await supabase.from('oneoff_purchases').insert({
+  const { error: purchaseError } = await supabase.from('oneoff_purchases').insert({
     user_id: user.id,
     product,
     quantity: 1,
@@ -188,6 +188,14 @@ async function checkoutHandleOneoff(req, res, user) {
     stripe_session_id: session.id,
     metadata: { product_name: CHECKOUT_PRODUCT_META[product].name }
   });
+
+  if (purchaseError) {
+    console.error('Failed to persist one-off purchase:', purchaseError);
+    if (stripe.checkout.sessions.expire) {
+      try { await stripe.checkout.sessions.expire(session.id); } catch (_) {}
+    }
+    throw new Error('Unable to initialize purchase');
+  }
 
   return res.status(200).json({ sessionId: session.id, url: session.url });
 }
@@ -215,6 +223,70 @@ async function checkoutHandler(req, res) {
     console.error('Checkout API error:', err);
     return res.status(500).json({ error: err.message });
   }
+}
+
+// ── One-off purchase fulfillment ───────────────────────────
+async function fulfillOneoffPurchase(supabase, session) {
+  if (session?.metadata?.type !== 'oneoff') return false;
+  const product = session.metadata?.product;
+  const userId = session.client_reference_id || session.metadata?.supabaseUserId;
+  if (!userId || !CHECKOUT_PRODUCT_META[product]) {
+    throw new Error('Invalid one-off checkout metadata');
+  }
+  if (session.payment_status !== 'paid') return false;
+
+  const { data: claimed, error: claimError } = await supabase
+    .from('oneoff_purchases')
+    .update({
+      status: 'paid',
+      stripe_payment_intent_id: typeof session.payment_intent === 'string'
+        ? session.payment_intent
+        : session.payment_intent?.id || null,
+      paid_at: new Date().toISOString(),
+    })
+    .eq('stripe_session_id', session.id)
+    .eq('user_id', userId)
+    .eq('product', product)
+    .eq('status', 'pending')
+    .select('id')
+    .maybeSingle();
+
+  if (claimError) throw claimError;
+  if (!claimed) return false;
+
+  const { data: profile, error: profileReadError } = await supabase
+    .from('profiles')
+    .select('oneoff_credits')
+    .eq('id', userId)
+    .single();
+
+  if (profileReadError) {
+    await supabase.from('oneoff_purchases')
+      .update({ status: 'pending', paid_at: null, stripe_payment_intent_id: null })
+      .eq('id', claimed.id);
+    throw profileReadError;
+  }
+
+  const credits = {
+    ai_report: 0,
+    expert_review: 0,
+    approved_report: 0,
+    ...(profile?.oneoff_credits || {})
+  };
+  credits[product] = Number(credits[product] || 0) + 1;
+
+  const { error: creditError } = await supabase.from('profiles').update({
+    oneoff_credits: credits,
+    updated_at: new Date().toISOString(),
+  }).eq('id', userId);
+
+  if (creditError) {
+    await supabase.from('oneoff_purchases')
+      .update({ status: 'pending', paid_at: null, stripe_payment_intent_id: null })
+      .eq('id', claimed.id);
+    throw creditError;
+  }
+  return true;
 }
 
 // ── Billing (Stripe subscriptions + webhooks) ──────────────
@@ -273,6 +345,12 @@ async function billingHandleLegacyWebhook(req, res) {
         const session = event.data.object;
         const userId = session.client_reference_id || session.metadata?.supabaseUserId;
         const stripeCustomerId = session.customer;
+
+        if (session.metadata?.type === 'oneoff') {
+          await fulfillOneoffPurchase(supabase, session);
+          break;
+        }
+
         const stripeSubscriptionId = session.subscription;
         if (!userId || !stripeSubscriptionId) break;
 
@@ -307,6 +385,14 @@ async function billingHandleLegacyWebhook(req, res) {
         break;
       }
 
+      case 'checkout.session.async_payment_succeeded': {
+        const session = event.data.object;
+        if (session.metadata?.type === 'oneoff') {
+          await fulfillOneoffPurchase(supabase, session);
+        }
+        break;
+      }
+
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object;
         const stripeSubscriptionId = invoice.subscription;
@@ -316,6 +402,10 @@ async function billingHandleLegacyWebhook(req, res) {
         const userId = subscription.metadata?.supabaseUserId;
         if (!userId) break;
         const tier = billingGetTierFromPriceId(priceId);
+        if (!tier) {
+          console.error('Refusing paid entitlement for unapproved Stripe price', priceId || 'missing');
+          break;
+        }
 
         await supabase.from('subscriptions').upsert({
           user_id: userId,
@@ -382,6 +472,10 @@ async function billingHandleLegacyWebhook(req, res) {
         if (!userId) break;
         const priceId = subscription.items.data[0]?.price?.id;
         const tier = billingGetTierFromPriceId(priceId);
+        if (!tier) {
+          console.error('Refusing subscription update for unapproved Stripe price', priceId || 'missing');
+          break;
+        }
 
         await supabase.from('subscriptions').update({
           tier: tier,
@@ -486,9 +580,9 @@ async function billingHandler(req, res) {
 function billingGetTierFromPriceId(priceId) {
   const PRO_PRICE = process.env.STRIPE_PRICE_PRO;
   const ENTERPRISE_PRICE = process.env.STRIPE_PRICE_ENTERPRISE;
-  if (priceId === ENTERPRISE_PRICE) return 'enterprise';
-  if (priceId === PRO_PRICE) return 'pro';
-  return 'free';
+  if (priceId && ENTERPRISE_PRICE && priceId === ENTERPRISE_PRICE) return 'enterprise';
+  if (priceId && PRO_PRICE && priceId === PRO_PRICE) return 'pro';
+  return null;
 }
 
 // ── Moyasar ────────────────────────────────────────────────
@@ -502,26 +596,37 @@ async function moyasarGetJsonBody(req) {
   }
 }
 
+function normalizeMoyasarInvoiceStatus(status) {
+  if (status === 'paid') return 'paid';
+  if (status === 'failed') return 'failed';
+  if (status === 'expired') return 'expired';
+  if (status === 'initiated') return 'initiated';
+  return 'pending';
+}
+
 async function moyasarActivateSubscription(supabase, userId, tier) {
   const now = new Date();
   const periodEnd = new Date(now);
   periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-  await supabase.from('subscriptions').upsert({
+  const { error: subError } = await supabase.from('subscriptions').upsert({
     user_id: userId,
     tier,
     status: 'active',
     payment_method: 'moyasar',
     current_period_start: now.toISOString(),
     current_period_end: periodEnd.toISOString(),
+    cancel_at_period_end: false,
     updated_at: now.toISOString(),
   }, { onConflict: 'user_id' });
+  if (subError) throw subError;
 
-  await supabase.from('profiles').update({
+  const { error: profileError } = await supabase.from('profiles').update({
     tier,
     status: 'active',
     updated_at: now.toISOString(),
   }).eq('id', userId);
+  if (profileError) throw profileError;
 }
 
 async function moyasarCheckoutAction(req, res) {
@@ -576,13 +681,14 @@ async function moyasarCheckoutAction(req, res) {
       tier,
       amount,
       currency: 'SAR',
-      status: invoice.status || 'initiated',
+      status: normalizeMoyasarInvoiceStatus(invoice.status || 'initiated'),
       url: invoice.url,
       metadata: invoice.metadata || { user_id: user.id, tier },
     });
 
     if (dbError) {
       console.error('Failed to store moyasar invoice:', dbError);
+      throw new Error('Unable to initialize Moyasar invoice');
     }
 
     res.status(200).json({ invoiceId: invoice.id, url: invoice.url });
@@ -615,7 +721,7 @@ async function moyasarVerifyAction(req, res) {
     const supabase = getSupabase();
     const { data: localInvoice, error: localError } = await supabase
       .from('moyasar_invoices')
-      .select('id, user_id, tier')
+      .select('id, user_id, tier, status')
       .eq('invoice_id', invoiceId)
       .maybeSingle();
 
@@ -625,19 +731,43 @@ async function moyasarVerifyAction(req, res) {
     }
 
     const invoice = await getInvoice(invoiceId);
+    const remoteMetadata = invoice.metadata || {};
+    if (remoteMetadata.user_id && remoteMetadata.user_id !== user.id) {
+      return res.status(403).json({ error: 'Invoice ownership mismatch' });
+    }
+    if (remoteMetadata.tier && remoteMetadata.tier !== localInvoice.tier) {
+      return res.status(409).json({ error: 'Invoice tier mismatch' });
+    }
+    const normalizedStatus = normalizeMoyasarInvoiceStatus(invoice.status);
 
-    await supabase.from('moyasar_invoices').update({
-      status: invoice.status,
-      paid_at: invoice.paid_at ? new Date(invoice.paid_at).toISOString() : null,
-      metadata: invoice.metadata,
-      updated_at: new Date().toISOString(),
-    }).eq('invoice_id', invoiceId);
+    if (normalizedStatus === 'paid' && localInvoice.status !== 'paid') {
+      const { data: claimed, error: claimError } = await supabase.from('moyasar_invoices').update({
+        status: 'paid',
+        paid_at: invoice.paid_at ? new Date(invoice.paid_at).toISOString() : new Date().toISOString(),
+        metadata: invoice.metadata,
+        updated_at: new Date().toISOString(),
+      }).eq('invoice_id', invoiceId).neq('status', 'paid').select('id').maybeSingle();
 
-    if (invoice.status === 'paid') {
-      await moyasarActivateSubscription(supabase, user.id, localInvoice.tier);
+      if (claimError) throw claimError;
+      if (claimed) {
+        try {
+          await moyasarActivateSubscription(supabase, user.id, localInvoice.tier);
+        } catch (activationError) {
+          await supabase.from('moyasar_invoices').update({ status: 'pending', paid_at: null }).eq('id', claimed.id);
+          throw activationError;
+        }
+      }
+    } else if (normalizedStatus !== 'paid') {
+      const { error: updateError } = await supabase.from('moyasar_invoices').update({
+        status: normalizedStatus,
+        paid_at: null,
+        metadata: invoice.metadata,
+        updated_at: new Date().toISOString(),
+      }).eq('invoice_id', invoiceId);
+      if (updateError) throw updateError;
     }
 
-    res.status(200).json({ status: invoice.status, tier: localInvoice.tier });
+    res.status(200).json({ status: normalizedStatus, tier: localInvoice.tier });
   } catch (err) {
     console.error('Moyasar verify error:', err);
     res.status(err.status || 500).json({ error: err.message || 'Verification failed' });
@@ -651,13 +781,6 @@ async function moyasarWebhookAction(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  const webhookToken = process.env.MOYASAR_WEBHOOK_SECRET;
-  const providedToken = req.headers['x-moyasar-webhook-secret'];
-  if (!webhookToken || providedToken !== webhookToken) {
-    console.error('Moyasar webhook unauthorized');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
 
   let payload;
   try {
@@ -674,29 +797,61 @@ async function moyasarWebhookAction(req, res) {
   }
 
   try {
+    const supabase = getSupabase();
+    const { data: localInvoice, error: localError } = await supabase.from('moyasar_invoices')
+      .select('id, user_id, tier, status')
+      .eq('invoice_id', invoiceId)
+      .maybeSingle();
+    if (localError) throw localError;
+    if (!localInvoice) return res.status(404).json({ error: 'Invoice not found' });
+
+    const configuredWebhookSecret = process.env.MOYASAR_WEBHOOK_SECRET;
+    if (payload?.secret_token && configuredWebhookSecret && payload.secret_token !== configuredWebhookSecret) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+
+    // Re-fetch from Moyasar: callback payload is a signal, not the source of truth.
     const invoice = await getInvoice(invoiceId);
     const metadata = invoice.metadata || {};
-    const userId = metadata.user_id;
-    const tier = metadata.tier;
-
-    if (!userId || !tier) {
-      console.error('Moyasar invoice missing metadata:', invoiceId);
-      return res.status(400).json({ error: 'Missing metadata' });
+    if (metadata.user_id && metadata.user_id !== localInvoice.user_id) {
+      return res.status(409).json({ error: 'Invoice ownership mismatch' });
+    }
+    if (metadata.tier && metadata.tier !== localInvoice.tier) {
+      return res.status(409).json({ error: 'Invoice tier mismatch' });
+    }
+    if (!['pro', 'enterprise'].includes(localInvoice.tier)) {
+      return res.status(400).json({ error: 'Invalid invoice tier' });
     }
 
-    const supabase = getSupabase();
-    await supabase.from('moyasar_invoices').update({
-      status: invoice.status,
-      paid_at: invoice.paid_at ? new Date(invoice.paid_at).toISOString() : null,
-      metadata: invoice.metadata,
-      updated_at: new Date().toISOString(),
-    }).eq('invoice_id', invoiceId);
+    const normalizedStatus = normalizeMoyasarInvoiceStatus(invoice.status);
+    if (normalizedStatus === 'paid' && localInvoice.status !== 'paid') {
+      const { data: claimed, error: claimError } = await supabase.from('moyasar_invoices').update({
+        status: 'paid',
+        paid_at: invoice.paid_at ? new Date(invoice.paid_at).toISOString() : new Date().toISOString(),
+        metadata: invoice.metadata,
+        updated_at: new Date().toISOString(),
+      }).eq('invoice_id', invoiceId).neq('status', 'paid').select('id').maybeSingle();
 
-    if (invoice.status === 'paid') {
-      await moyasarActivateSubscription(supabase, userId, tier);
+      if (claimError) throw claimError;
+      if (claimed) {
+        try {
+          await moyasarActivateSubscription(supabase, localInvoice.user_id, localInvoice.tier);
+        } catch (activationError) {
+          await supabase.from('moyasar_invoices').update({ status: 'pending', paid_at: null }).eq('id', claimed.id);
+          throw activationError;
+        }
+      }
+    } else if (normalizedStatus !== 'paid') {
+      const { error: updateError } = await supabase.from('moyasar_invoices').update({
+        status: normalizedStatus,
+        paid_at: null,
+        metadata: invoice.metadata,
+        updated_at: new Date().toISOString(),
+      }).eq('invoice_id', invoiceId);
+      if (updateError) throw updateError;
     }
 
-    res.status(200).json({ received: true, status: invoice.status });
+    res.status(200).json({ received: true, status: normalizedStatus });
   } catch (err) {
     console.error('Moyasar webhook processing error:', err);
     res.status(500).json({ error: 'Webhook processing failed' });
