@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>نموذج معلومات النشاط — بوابة العميل | Bonds</title>
+  <meta name="description" content="نموذج معلومات النشاط التجاري والتشغيلي لعملاء Bonds Global." />
+  <link rel="canonical" href="https://bonds-global.com/client/business-activity.html" />
+  <meta property="og:title" content="نموذج معلومات النشاط — بوابة العميل | Bonds" />
+  <meta property="og:description" content="نموذج معلومات النشاط التجاري والتشغيلي لعملاء Bonds Global." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <meta property="og:url" content="https://bonds-global.com/client/business-activity.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="نموذج معلومات النشاط — بوابة العميل | Bonds" />
+  <meta name="twitter:description" content="نموذج معلومات النشاط التجاري والتشغيلي لعملاء Bonds Global." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp?v=2026" />
+  <link rel="icon" href="/assets/bonds-mark.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/styles/fonts-ar.css" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="/styles/design-system.css" />
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=6" />
+  <script defer src="/calculators/auth-gate.js?v=3"></script>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script src="/lib/forms/branded-export.js?v=1"></script>
+  <style>
+    .act-page{max-width:1120px;margin:0 auto;padding:7rem 1rem 4rem}.act-hero{margin-bottom:1.25rem}
+    .act-card{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;padding:1.2rem;margin-bottom:1rem}.act-card h2{font-size:1.08rem;margin:0 0 1rem}
+    .act-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.act-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem}
+    .act-field label{display:block;font-weight:700;margin-bottom:.4rem}.act-field input,.act-field select,.act-field textarea{width:100%;padding:.75rem;border:1px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text)}
+    .act-status{margin:1rem 0;padding:.8rem 1rem;border-radius:10px;display:none}.act-status.show{display:block}.act-status.ok{background:rgba(34,197,94,.12);color:#16a34a}.act-status.err{background:rgba(239,68,68,.12);color:#dc2626}
+    .act-actions,.export-actions{display:flex;gap:.65rem;flex-wrap:wrap;justify-content:space-between}.export-actions{margin-top:.75rem;justify-content:flex-start}
+    @media(max-width:800px){.act-grid,.act-grid-3{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+  <main class="act-page">
+    <section class="act-hero">
+      <div class="hero__eyebrow">بوابة العميل</div>
+      <h1>نموذج معلومات النشاط</h1>
+      <p>يوثق طبيعة النشاط، نموذج التشغيل، السوق، قنوات البيع، الطاقة التشغيلية، المخاطر وخطط النمو لاستخدامها في التحليل المالي والتمويلي.</p>
+    </section>
+
+    <div id="status" class="act-status" role="status"></div>
+
+    <form id="activityForm">
+      <section class="act-card">
+        <h2>1. تصنيف النشاط</h2>
+        <div class="act-grid">
+          <div class="act-field"><label for="primaryActivity">النشاط الرئيسي</label><input id="primaryActivity" required></div>
+          <div class="act-field"><label for="secondaryActivities">الأنشطة الثانوية</label><input id="secondaryActivities"></div>
+          <div class="act-field"><label for="sector">القطاع</label><input id="sector" required placeholder="مثال: تجارة، صناعة، خدمات، تقنية"></div>
+          <div class="act-field"><label for="subsector">القطاع الفرعي</label><input id="subsector"></div>
+          <div class="act-field"><label for="activityCode">رمز النشاط / ISIC إن وجد</label><input id="activityCode"></div>
+          <div class="act-field"><label for="activityStartDate">تاريخ بدء ممارسة النشاط</label><input id="activityStartDate" type="date"></div>
+          <div class="act-field"><label for="licenseAuthority">جهة ترخيص النشاط</label><input id="licenseAuthority"></div>
+          <div class="act-field"><label for="licenseNumber">رقم ترخيص النشاط</label><input id="licenseNumber"></div>
+        </div>
+      </section>
+
+      <section class="act-card">
+        <h2>2. نموذج التشغيل</h2>
+        <div class="act-grid">
+          <div class="act-field"><label for="businessModel">نموذج العمل</label><textarea id="businessModel" rows="3" required placeholder="كيف تحقق المنشأة الإيرادات وتقدم القيمة للعملاء؟"></textarea></div>
+          <div class="act-field"><label for="productsServices">المنتجات / الخدمات الرئيسية</label><textarea id="productsServices" rows="3" required></textarea></div>
+          <div class="act-field"><label for="deliveryModel">طريقة الإنتاج / تقديم الخدمة</label><textarea id="deliveryModel" rows="3"></textarea></div>
+          <div class="act-field"><label for="operatingLocations">مواقع التشغيل الرئيسية</label><input id="operatingLocations"></div>
+          <div class="act-field"><label for="employees">عدد الموظفين المرتبطين بالنشاط</label><input id="employees" type="number" min="0"></div>
+          <div class="act-field"><label for="shifts">عدد الورديات</label><input id="shifts" type="number" min="0"></div>
+          <div class="act-field"><label for="operatingDays">أيام التشغيل بالأسبوع</label><input id="operatingDays" type="number" min="0" max="7"></div>
+          <div class="act-field"><label for="outsourcing">العمليات المسندة لمتعهدين / أطراف خارجية</label><textarea id="outsourcing" rows="3"></textarea></div>
+        </div>
+      </section>
+
+      <section class="act-card">
+        <h2>3. السوق والعملاء</h2>
+        <div class="act-grid">
+          <div class="act-field"><label for="customerType">نوع العملاء الأساسي</label><select id="customerType" required><option value="">اختر</option><option value="b2b">شركات B2B</option><option value="b2c">أفراد B2C</option><option value="government">جهات حكومية</option><option value="mixed">مختلط</option></select></div>
+          <div class="act-field"><label for="geographicReach">النطاق الجغرافي</label><select id="geographicReach"><option value="">اختر</option><option value="local">محلي</option><option value="regional">إقليمي</option><option value="national">وطني</option><option value="international">دولي</option></select></div>
+          <div class="act-field"><label for="mainMarkets">الأسواق / المناطق الرئيسية</label><input id="mainMarkets"></div>
+          <div class="act-field"><label for="customerConcentration">نسبة أكبر عميل من الإيرادات %</label><input id="customerConcentration" type="number" min="0" max="100" step="0.01"></div>
+          <div class="act-field"><label for="keyCustomers">أهم شرائح / عملاء النشاط</label><textarea id="keyCustomers" rows="3"></textarea></div>
+          <div class="act-field"><label for="competitors">أبرز المنافسين</label><textarea id="competitors" rows="3"></textarea></div>
+          <div class="act-field"><label for="marketPosition">الموقع التنافسي / الميزة التنافسية</label><textarea id="marketPosition" rows="3"></textarea></div>
+          <div class="act-field"><label for="seasonality">الموسمية</label><textarea id="seasonality" rows="3" placeholder="اذكر الأشهر أو المواسم التي يرتفع/ينخفض فيها النشاط"></textarea></div>
+        </div>
+      </section>
+
+      <section class="act-card">
+        <h2>4. البيانات التجارية</h2>
+        <div class="act-grid">
+          <div class="act-field"><label for="salesChannels">قنوات البيع</label><textarea id="salesChannels" rows="3" placeholder="فروع، متجر إلكتروني، موزعون، مشاريع، منصات..."></textarea></div>
+          <div class="act-field"><label for="revenueModel">نموذج الإيرادات</label><textarea id="revenueModel" rows="3" placeholder="بيع مباشر، اشتراك، عمولة، عقد، إيجار..."></textarea></div>
+          <div class="act-field"><label for="paymentTerms">شروط الدفع المعتادة</label><input id="paymentTerms" placeholder="مثال: نقدي / 30 يوم / 60 يوم"></div>
+          <div class="act-field"><label for="annualRevenue">إيرادات النشاط السنوية التقريبية</label><input id="annualRevenue" type="number" min="0" step="0.01"></div>
+          <div class="act-field"><label for="revenueCurrency">عملة الإيرادات</label><select id="revenueCurrency"><option>SAR</option><option>USD</option><option>EUR</option><option>AED</option><option>EGP</option><option>GBP</option></select></div>
+          <div class="act-field"><label for="avgOrderValue">متوسط قيمة الطلب / العقد</label><input id="avgOrderValue" type="number" min="0" step="0.01"></div>
+        </div>
+      </section>
+
+      <section class="act-card">
+        <h2>5. الطاقة التشغيلية</h2>
+        <div class="act-grid">
+          <div class="act-field"><label for="capacityUnit">وحدة قياس الطاقة</label><input id="capacityUnit" placeholder="وحدة/طن/سرير/معاملة/عميل..."></div>
+          <div class="act-field"><label for="installedCapacity">الطاقة القصوى</label><input id="installedCapacity" type="number" min="0" step="0.01"></div>
+          <div class="act-field"><label for="actualOutput">الإنتاج / الخدمة الفعلية</label><input id="actualOutput" type="number" min="0" step="0.01"></div>
+          <div class="act-field"><label for="capacityUtilization">نسبة استغلال الطاقة %</label><input id="capacityUtilization" type="number" min="0" max="100" step="0.01"></div>
+          <div class="act-field"><label for="bottlenecks">القيود / الاختناقات التشغيلية</label><textarea id="bottlenecks" rows="3"></textarea></div>
+          <div class="act-field"><label for="keySuppliers">الموردون / المدخلات الحرجة للنشاط</label><textarea id="keySuppliers" rows="3"></textarea></div>
+        </div>
+      </section>
+
+      <section class="act-card">
+        <h2>6. المخاطر وخطط النمو</h2>
+        <div class="act-grid">
+          <div class="act-field"><label for="keyRisks">أهم مخاطر النشاط</label><textarea id="keyRisks" rows="3"></textarea></div>
+          <div class="act-field"><label for="dependencies">الاعتماد على مورد / عميل / ترخيص / موقع محدد</label><textarea id="dependencies" rows="3"></textarea></div>
+          <div class="act-field"><label for="growthPlans">خطط النمو أو التوسع خلال 12–36 شهرًا</label><textarea id="growthPlans" rows="3"></textarea></div>
+          <div class="act-field"><label for="expectedGrowth">النمو المتوقع في الإيرادات %</label><input id="expectedGrowth" type="number" step="0.01"></div>
+          <div class="act-field"><label for="fundingUse">استخدام التمويل المتوقع للنشاط</label><textarea id="fundingUse" rows="3" placeholder="رأس مال عامل، توسع، معدات، فرع جديد، إعادة تمويل..."></textarea></div>
+          <div class="act-field"><label for="notes">ملاحظات إضافية</label><textarea id="notes" rows="3"></textarea></div>
+        </div>
+      </section>
+
+      <section class="act-card">
+        <div class="act-actions">
+          <button type="button" class="btn btn-outline" id="saveDraft">حفظ كمسودة</button>
+          <button type="submit" class="btn btn-primary">إرسال للمراجعة</button>
+        </div>
+        <div class="export-actions" aria-label="خيارات التصدير">
+          <button type="button" class="btn btn-outline" data-export="print">طباعة</button>
+          <button type="button" class="btn btn-outline" data-export="pdf">PDF</button>
+          <button type="button" class="btn btn-outline" data-export="excel">Excel</button>
+          <button type="button" class="btn btn-outline" data-export="word">Word</button>
+        </div>
+      </section>
+    </form>
+  </main>
+  <div id="site-footer"></div>
+  <script defer src="/site-layout.js?v=3.6.0"></script>
+  <script>
+  (function(){
+    'use strict';
+    let sb=null,user=null,current=null;
+    const form=document.getElementById('activityForm'),statusEl=document.getElementById('status'),g=id=>document.getElementById(id);
+    function showStatus(msg,ok){statusEl.textContent=msg;statusEl.className='act-status show '+(ok?'ok':'err');}
+    function payload(status){
+      return {
+        user_id:user.id,client_id:current?.client_id||null,status,
+        classification_data:{primary_activity:g('primaryActivity').value.trim(),secondary_activities:g('secondaryActivities').value.trim(),sector:g('sector').value.trim(),subsector:g('subsector').value.trim(),activity_code:g('activityCode').value.trim(),activity_start_date:g('activityStartDate').value,license_authority:g('licenseAuthority').value.trim(),license_number:g('licenseNumber').value.trim()},
+        operating_data:{business_model:g('businessModel').value.trim(),products_services:g('productsServices').value.trim(),delivery_model:g('deliveryModel').value.trim(),operating_locations:g('operatingLocations').value.trim(),employees:Number(g('employees').value||0),shifts:Number(g('shifts').value||0),operating_days:Number(g('operatingDays').value||0),outsourcing:g('outsourcing').value.trim()},
+        market_data:{customer_type:g('customerType').value,geographic_reach:g('geographicReach').value,main_markets:g('mainMarkets').value.trim(),customer_concentration:Number(g('customerConcentration').value||0),key_customers:g('keyCustomers').value.trim(),competitors:g('competitors').value.trim(),market_position:g('marketPosition').value.trim(),seasonality:g('seasonality').value.trim()},
+        commercial_data:{sales_channels:g('salesChannels').value.trim(),revenue_model:g('revenueModel').value.trim(),payment_terms:g('paymentTerms').value.trim(),annual_revenue:Number(g('annualRevenue').value||0),revenue_currency:g('revenueCurrency').value,avg_order_value:Number(g('avgOrderValue').value||0)},
+        capacity_data:{capacity_unit:g('capacityUnit').value.trim(),installed_capacity:Number(g('installedCapacity').value||0),actual_output:Number(g('actualOutput').value||0),capacity_utilization:Number(g('capacityUtilization').value||0),bottlenecks:g('bottlenecks').value.trim(),key_suppliers:g('keySuppliers').value.trim()},
+        risk_growth_data:{key_risks:g('keyRisks').value.trim(),dependencies:g('dependencies').value.trim(),growth_plans:g('growthPlans').value.trim(),expected_growth:Number(g('expectedGrowth').value||0),funding_use:g('fundingUse').value.trim()},
+        notes:g('notes').value.trim(),submitted_at:status==='submitted'?new Date().toISOString():null
+      };
+    }
+    function validate(){
+      if(Number(g('customerConcentration').value||0)>100)return 'نسبة تركّز أكبر عميل يجب ألا تتجاوز 100٪.';
+      if(Number(g('capacityUtilization').value||0)>100)return 'نسبة استغلال الطاقة يجب ألا تتجاوز 100٪.';
+      if(Number(g('operatingDays').value||0)>7)return 'أيام التشغيل الأسبوعية يجب ألا تتجاوز 7 أيام.';
+      return '';
+    }
+    async function save(status){
+      if(!sb||!user){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
+      if(status==='submitted'&&!form.reportValidity())return;
+      const err=validate();if(err){showStatus(err,false);return;}
+      const p=payload(status);
+      const result=current?.id
+        ? await sb.from('client_business_activity_profiles').update(p).eq('id',current.id).select().single()
+        : await sb.from('client_business_activity_profiles').insert(p).select().single();
+      if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return;}
+      current=result.data;showStatus(status==='submitted'?'تم إرسال معلومات النشاط للمراجعة.':'تم حفظ المسودة.',true);
+    }
+    g('saveDraft').onclick=()=>save('draft');
+    form.addEventListener('submit',e=>{e.preventDefault();save('submitted');});
+    function set(id,v){if(v!==undefined&&v!==null)g(id).value=v;}
+    function hydrate(x){
+      current=x;const a=x.classification_data||{},o=x.operating_data||{},m=x.market_data||{},c=x.commercial_data||{},p=x.capacity_data||{},r=x.risk_growth_data||{};
+      [['primaryActivity',a.primary_activity],['secondaryActivities',a.secondary_activities],['sector',a.sector],['subsector',a.subsector],['activityCode',a.activity_code],['activityStartDate',a.activity_start_date],['licenseAuthority',a.license_authority],['licenseNumber',a.license_number],['businessModel',o.business_model],['productsServices',o.products_services],['deliveryModel',o.delivery_model],['operatingLocations',o.operating_locations],['employees',o.employees],['shifts',o.shifts],['operatingDays',o.operating_days],['outsourcing',o.outsourcing],['customerType',m.customer_type],['geographicReach',m.geographic_reach],['mainMarkets',m.main_markets],['customerConcentration',m.customer_concentration],['keyCustomers',m.key_customers],['competitors',m.competitors],['marketPosition',m.market_position],['seasonality',m.seasonality],['salesChannels',c.sales_channels],['revenueModel',c.revenue_model],['paymentTerms',c.payment_terms],['annualRevenue',c.annual_revenue],['revenueCurrency',c.revenue_currency],['avgOrderValue',c.avg_order_value],['capacityUnit',p.capacity_unit],['installedCapacity',p.installed_capacity],['actualOutput',p.actual_output],['capacityUtilization',p.capacity_utilization],['bottlenecks',p.bottlenecks],['keySuppliers',p.key_suppliers],['keyRisks',r.key_risks],['dependencies',r.dependencies],['growthPlans',r.growth_plans],['expectedGrowth',r.expected_growth],['fundingUse',r.funding_use],['notes',x.notes]].forEach(v=>set(v[0],v[1]));
+    }
+    function selectText(id){const e=g(id);return e.options[e.selectedIndex]?.text||e.value;}
+    function exportDoc(){
+      const p=payload(current?.status||'draft'),a=p.classification_data,o=p.operating_data,m=p.market_data,c=p.commercial_data,cap=p.capacity_data,r=p.risk_growth_data;
+      return {lang:'ar',title:'نموذج معلومات النشاط',subtitle:'Bonds Global',filenameBase:'bonds-business-activity-'+(a.primary_activity||'activity'),
+        metadata:[{label:'النشاط الرئيسي',value:a.primary_activity},{label:'القطاع',value:a.sector},{label:'نوع العملاء',value:selectText('customerType')}],
+        tables:[
+          {title:'تصنيف النشاط',headers:['البيان','القيمة'],rows:[['الأنشطة الثانوية',a.secondary_activities],['القطاع الفرعي',a.subsector],['رمز النشاط / ISIC',a.activity_code],['تاريخ البدء',a.activity_start_date],['جهة الترخيص',a.license_authority],['رقم الترخيص',a.license_number]]},
+          {title:'نموذج التشغيل',headers:['البيان','القيمة'],rows:[['نموذج العمل',o.business_model],['المنتجات/الخدمات',o.products_services],['طريقة الإنتاج/الخدمة',o.delivery_model],['مواقع التشغيل',o.operating_locations],['الموظفون',o.employees],['الورديات',o.shifts],['أيام التشغيل',o.operating_days],['الإسناد الخارجي',o.outsourcing]]},
+          {title:'السوق والعملاء',headers:['البيان','القيمة'],rows:[['نوع العملاء',selectText('customerType')],['النطاق الجغرافي',selectText('geographicReach')],['الأسواق',m.main_markets],['تركيز أكبر عميل %',m.customer_concentration],['العملاء/الشرائح الرئيسية',m.key_customers],['المنافسون',m.competitors],['الميزة التنافسية',m.market_position],['الموسمية',m.seasonality]]},
+          {title:'البيانات التجارية',headers:['البيان','القيمة'],rows:[['قنوات البيع',c.sales_channels],['نموذج الإيرادات',c.revenue_model],['شروط الدفع',c.payment_terms],['الإيرادات السنوية',c.annual_revenue+' '+c.revenue_currency],['متوسط الطلب/العقد',c.avg_order_value+' '+c.revenue_currency]]},
+          {title:'الطاقة التشغيلية',headers:['البيان','القيمة'],rows:[['وحدة القياس',cap.capacity_unit],['الطاقة القصوى',cap.installed_capacity],['الإنتاج الفعلي',cap.actual_output],['استغلال الطاقة %',cap.capacity_utilization],['الاختناقات',cap.bottlenecks],['الموردون/المدخلات الحرجة',cap.key_suppliers]]},
+          {title:'المخاطر وخطط النمو',headers:['البيان','القيمة'],rows:[['أهم المخاطر',r.key_risks],['الاعتماديات',r.dependencies],['خطط النمو',r.growth_plans],['النمو المتوقع %',r.expected_growth],['استخدام التمويل',r.funding_use]]}
+        ],notes:p.notes};
+    }
+    document.querySelectorAll('[data-export]').forEach(btn=>btn.onclick=async()=>{try{await window.BondsBrandedExport.exportDocument(btn.dataset.export,exportDoc());}catch(e){showStatus('تعذر التصدير: '+e.message,false);}});
+    async function init(){
+      await window.BondsAuth.ensureEnv();const u=await window.BondsAuth.getUser();user=u.data?.user;
+      if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
+      sb=window.BondsAuth.getSupabase();if(!sb){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
+      const cid=await sb.rpc('get_my_client_id');
+      const existing=await sb.from('client_business_activity_profiles').select('*').eq('user_id',user.id).eq('status','draft').order('updated_at',{ascending:false}).limit(1).maybeSingle();
+      if(existing.data){hydrate(existing.data);return;}
+      if(cid.data)current={client_id:cid.data};
+      const est=await sb.from('client_establishment_profiles').select('operations_data,registration_data').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+      if(est.data){
+        const o=est.data.operations_data||{},r=est.data.registration_data||{};
+        set('primaryActivity',o.main_activity);set('secondaryActivities',o.secondary_activities);set('productsServices',o.products_services);set('mainMarkets',o.markets);set('employees',o.employees);set('annualRevenue',o.annual_revenue);set('licenseAuthority',r.license_authority);set('licenseNumber',r.license_number);
+        showStatus('تم تعبئة بعض الحقول تلقائيًا من نموذج معلومات المنشأة، ويمكنك تعديلها.',true);
+      }
+    }
+    init();
+  })();
+  </script>
+</body>
+</html>
