@@ -1015,9 +1015,12 @@ async function deleteException(sb, id, admin, req) {
 async function getAnalytics(sb, admin) {
   if (!admin) throw new Error('Admin required');
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const monthStart = new Date();
+  monthStart.setUTCDate(1);
+  monthStart.setUTCHours(0, 0, 0, 0);
+  const monthStartIso = monthStart.toISOString();
 
   const totalUsers = await getTotalUsers(sb);
-
   const { count: proUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'pro');
   const { count: entUsers } = await sb.from('profiles').select('*', { count: 'exact', head: true }).eq('tier', 'enterprise');
 
@@ -1032,7 +1035,6 @@ async function getAnalytics(sb, admin) {
     dayStats[day] = (dayStats[day] || 0) + 1;
   });
 
-  // Top users
   const topUserIds = Object.entries(userStats).sort((a,b) => b[1] - a[1]).slice(0, 10).map(([id]) => id);
   let topUsers = [];
   if (topUserIds.length) {
@@ -1041,21 +1043,41 @@ async function getAnalytics(sb, admin) {
   }
 
   const { data: pendingTransfers } = await sb.from('bank_transfer_requests').select('*').eq('status', 'pending');
-  const { data: verifiedTransfers } = await sb.from('bank_transfer_requests').select('amount_sar').eq('status', 'verified');
-  const bankRevenue = (verifiedTransfers || []).reduce((sum, t) => sum + (t.amount_sar || 0), 0);
 
-  const { data: activeSubs } = await sb.from('subscriptions').select('status, tier').eq('status', 'active');
+  const { data: verifiedTransfers, error: transferError } = await sb
+    .from('bank_transfer_requests')
+    .select('amount_sar, updated_at, created_at')
+    .eq('status', 'verified')
+    .gte('updated_at', monthStartIso);
+  if (transferError) throw transferError;
+  const bankRevenue = (verifiedTransfers || []).reduce((sum, t) => sum + Number(t.amount_sar || 0), 0);
+
+  const { data: paidInvoices, error: invoiceError } = await sb
+    .from('moyasar_invoices')
+    .select('amount, paid_at')
+    .eq('status', 'paid')
+    .gte('paid_at', monthStartIso);
+  if (invoiceError) throw invoiceError;
+  // Moyasar amounts are persisted in halalas (SAR * 100).
+  const electronicRevenue = (paidInvoices || []).reduce((sum, i) => sum + Number(i.amount || 0) / 100, 0);
+
   const prices = await getTierPrices(sb);
-  const stripeRevenue = (activeSubs || []).reduce((sum, s) => sum + (s.tier === 'enterprise' ? prices.enterprise : s.tier === 'pro' ? prices.pro : 0), 0);
+  const recurringRunRate = (proUsers || 0) * prices.pro + (entUsers || 0) * prices.enterprise;
+  const actualRevenue = electronicRevenue + bankRevenue;
 
   return {
     users: { total: totalUsers, pro: proUsers || 0, enterprise: entUsers || 0, free: Math.max(0, totalUsers - (proUsers || 0) - (entUsers || 0)) },
     usage: { total: usageData?.length || 0, byCalculator: calcStats, byDay: dayStats, topUsers },
-    revenue: { stripe: stripeRevenue, bank: bankRevenue, total: stripeRevenue + bankRevenue },
+    revenue: {
+      electronic: electronicRevenue,
+      bank: bankRevenue,
+      total: actualRevenue,
+      recurringRunRate,
+      basis: 'actual_paid_current_month'
+    },
     pendingTransfers: pendingTransfers?.length || 0,
   };
 }
-
 
 // ── Online Users & Journey ──────────────────────────────────
 async function getOnlineUsers(sb) {
