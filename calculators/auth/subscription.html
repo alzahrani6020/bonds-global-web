@@ -148,7 +148,9 @@
         _token = sessionData.session.access_token;
         var {data:sub} = await window.BondsAuth.getSubscription(_user.id);
         _sub = sub;
-        _tier = sub?.tier || 'free';
+        var entitled = sub && (sub.status === 'active' || sub.status === 'trialing');
+        if(entitled && sub.current_period_end && new Date(sub.current_period_end) < new Date()) entitled = false;
+        _tier = entitled && (sub.tier === 'pro' || sub.tier === 'enterprise') ? sub.tier : 'free';
         render();
       }
 
