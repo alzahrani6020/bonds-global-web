@@ -69,16 +69,28 @@ The current evidence does not justify adding Qwen, a new inference fallback, lla
 
 Revisit the runtime architecture only if canonical-model production measurements show an unacceptable service-level impact from serialized wait time.
 
-## Canonical model gate
+## Canonical production model
 
-The currently validated host model is provisional. Production architecture must not treat it as the canonical Bonds model until the following are defined and recorded:
+The canonical Bonds Native artifact is defined in `canonical-model.json`.
 
-- model source and version;
-- license;
-- provenance;
-- expected SHA-256;
-- provisioning procedure;
-- runtime parameters.
+Current approved artifact:
+
+- source: `lmstudio-community/gemma-4-E4B-it-GGUF`
+- source revision: `99210a71094c6aa8559f764e0cadedd7d89de94d`
+- upstream model: `google/gemma-4-E4B-it`
+- artifact: `gemma-4-E4B-it-Q4_K_M.gguf`
+- SHA-256: `0ffb122c8b6921f13cbc34186e052524d0b5803b17f4867b7197a561400b3770`
+- license: `Apache-2.0`
+- storage: outside Git under the host model store
+- runtime: `n_ctx=4096`, `n_threads=10`, `n_gpu_layers=-1`, `max_tokens=512`, `temperature=0.2`
+
+Provision it on the Windows host with:
+
+```powershell
+.\services\bonds_native_inference\windows\provision-canonical-model.ps1
+```
+
+The provisioning script pins the Hugging Face repository revision and verifies the complete GGUF SHA-256 before writing the sidecar. The startup installer independently verifies the canonical filename and SHA-256 and exports `BONDS_NATIVE_MODEL_SHA256` at machine scope.
 
 Tracking issue: #79.
 

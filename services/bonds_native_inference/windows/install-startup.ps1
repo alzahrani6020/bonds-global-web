@@ -22,6 +22,25 @@ $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..\..\..")).Path
 $model = (Resolve-Path -LiteralPath $ModelPath).Path
 $cfConfig = (Resolve-Path -LiteralPath $CloudflaredConfig).Path
 
+$serviceRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
+$manifestPath = Join-Path $serviceRoot "canonical-model.json"
+$manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+
+if ((Split-Path -Leaf $model) -ne [string]$manifest.artifact) {
+    throw "Configured model is not the canonical Bonds artifact: $($manifest.artifact)"
+}
+
+$actualModelSha = (Get-FileHash -LiteralPath $model -Algorithm SHA256).Hash.ToLowerInvariant()
+$expectedModelSha = ([string]$manifest.sha256).ToLowerInvariant()
+if ($actualModelSha -ne $expectedModelSha) {
+    throw "Canonical GGUF SHA256 mismatch. Expected $expectedModelSha, got $actualModelSha."
+}
+
+$NCtx = [int]$manifest.runtime.n_ctx
+$NThreads = [int]$manifest.runtime.n_threads
+$NGpuLayers = [int]$manifest.runtime.n_gpu_layers
+$MaxTokens = [int]$manifest.runtime.max_tokens
+
 $pythonCommand = Get-Command python -ErrorAction Stop
 $pythonExe = [string]$pythonCommand.Source
 if ([string]::IsNullOrWhiteSpace($pythonExe) -or -not (Test-Path -LiteralPath $pythonExe -PathType Leaf)) {
@@ -54,6 +73,7 @@ $machineValues = @{
     BONDS_NATIVE_HOST = "127.0.0.1"
     BONDS_NATIVE_PORT = "8765"
     BONDS_NATIVE_MODEL_PATH = $model
+    BONDS_NATIVE_MODEL_SHA256 = $expectedModelSha
     BONDS_NATIVE_N_CTX = [string]$NCtx
     BONDS_NATIVE_N_THREADS = [string]$NThreads
     BONDS_NATIVE_N_GPU_LAYERS = [string]$NGpuLayers
@@ -93,4 +113,5 @@ Write-Host "Tunnel task:  BondsNativeTunnel ($($identity.Name), Interactive)"
 Write-Host "Trigger:      At logon"
 Write-Host "Python:       $pythonExe"
 Write-Host "Cloudflared:  $cloudflaredExe"
+Write-Host "Model SHA256: $expectedModelSha"
 Write-Host "State dir:    $stateDir"

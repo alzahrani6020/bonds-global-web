@@ -29,15 +29,10 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Parse Bonds Native PowerShell
+      - name: Validate Bonds Native operations
         shell: pwsh
         run: |
-          $files = @(
-            "services/bonds_native_inference/windows/install-startup.ps1",
-            "services/bonds_native_inference/windows/run-native.ps1",
-            "services/bonds_native_inference/windows/run-tunnel.ps1",
-            "services/bonds_native_inference/windows/verify-startup.ps1"
-          )
+          $files = Get-ChildItem "services/bonds_native_inference/windows/*.ps1" -File | Select-Object -ExpandProperty FullName
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
@@ -46,6 +41,15 @@ jobs:
               $errors | ForEach-Object { Write-Error "${file}: $($_.Message)" }
               exit 1
             }
+          }
+
+          $manifest = Get-Content -LiteralPath "services/bonds_native_inference/canonical-model.json" -Raw | ConvertFrom-Json
+          if ([string]::IsNullOrWhiteSpace([string]$manifest.source_repository)) { throw "canonical model source_repository is required" }
+          if ([string]::IsNullOrWhiteSpace([string]$manifest.source_revision)) { throw "canonical model source_revision is required" }
+          if ([string]::IsNullOrWhiteSpace([string]$manifest.artifact)) { throw "canonical model artifact is required" }
+          if ([string]$manifest.sha256 -notmatch "^[0-9a-f]{64}$") { throw "canonical model sha256 must be 64 lowercase hex characters" }
+          if ([int]$manifest.runtime.n_ctx -le 0 -or [int]$manifest.runtime.n_threads -le 0 -or [int]$manifest.runtime.max_tokens -le 0) {
+            throw "canonical model runtime settings must be positive"
           }
 
       - name: Run Site Audit
