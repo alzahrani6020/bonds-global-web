@@ -11,6 +11,7 @@
  */
 
 const { getSupabaseClient } = require('../lib/supabase');
+const { getInferenceRouter } = require('../../lib/ai/inference-router');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -108,6 +109,54 @@ function buildSystemPrompt(context) {
 - المدينة: ${city} (${country || 'الدولة غير محددة'})
 - النشاط: ${activity}
 ${context?.population != null ? `- عدد السكان: ${formatNumber(context.population)} نسمة\n` : ''}${context?.purchasingPowerIndex != null ? `- مؤشر القوة الشرائية: ${context.purchasingPowerIndex}\n` : ''}${context?.indicators ? `- المؤشرات الاقتصادية متاحة.\n` : ''}${context?.marketData ? `- بيانات السوق لهذا النشاط متاحة.\n` : ''}${context?.comparison ? `- بيانات مقارنة مع مدن أخرى متاحة.\n` : ''}${context?.alerts?.length ? `- إنذارات حديثة متاحة (${context.alerts.length}).\n` : ''}`;
+}
+
+function buildNativeChatPrompt(messages, context) {
+  const system = buildSystemPrompt(context);
+  const evidence = JSON.stringify({
+    cityName: context?.cityName || null,
+    activityName: context?.activityName || null,
+    population: context?.population ?? null,
+    purchasingPowerIndex: context?.purchasingPowerIndex ?? null,
+    indicators: context?.indicators || null,
+    marketData: context?.marketData || null,
+    comparison: context?.comparison || [],
+    alerts: context?.alerts || []
+  });
+  const history = messages.slice(-8).map(m =>
+    `${String(m.role || 'user').toUpperCase()}: ${String(m.content || '').slice(0, 2000)}`
+  ).join('\n\n');
+  return `${system}\n\nبيانات موثقة متاحة بصيغة JSON:\n${evidence}\n\nالمحادثة:\n${history}\n\nأجب فقط على آخر رسالة للمستخدم، ولا تستخدم أي رقم غير موجود في البيانات.`;
+}
+
+async function generateNativeReply(messages, context) {
+  const router = getInferenceRouter({
+    timeoutMs: Number(process.env.BONDS_NATIVE_TIMEOUT_MS || 20000)
+  });
+  const response = await router.generate(buildNativeChatPrompt(messages, context), {
+    temperature: 0.2,
+    max_tokens: 900
+  });
+  if (!response?.ok) {
+    const err = new Error(response?.error?.message || response?.error?.code || 'Bonds Native chat failed');
+    err.code = response?.error?.code || 'BONDS_NATIVE_CHAT_FAILED';
+    throw err;
+  }
+  const runtimeEnvelope = response.result || {};
+  const runtimeResult = runtimeEnvelope.result || runtimeEnvelope;
+  const text = String(runtimeResult.text || '').trim();
+  if (!text) throw new Error('Empty response from Bonds Native');
+  return {
+    reply: text,
+    provider: 'BondsNativeProvider',
+    model: 'bonds-native',
+    inference: {
+      backend: runtimeResult.backend || null,
+      model_sha256: runtimeResult.model_sha256 || null,
+      generation_seconds: runtimeResult.generation_seconds ?? null,
+      tokens_per_second: runtimeResult.tokens_per_second ?? null
+    }
+  };
 }
 
 function generateDataDrivenReply(userMessage, context) {
@@ -314,7 +363,16 @@ async function aiChatHandler(req, res) {
     console.warn('[ai/chat] Context enrichment failed:', err.message);
   }
 
-  const reply = fallbackReply(lastUserText, enrichedContext);
+  let aiResult = null;
+  let nativeError = null;
+  try {
+    aiResult = await generateNativeReply(messages, enrichedContext);
+  } catch (err) {
+    nativeError = err;
+    console.warn('[ai/chat] Bonds Native unavailable, using deterministic data-driven fallback:', err.message);
+  }
+
+  const reply = aiResult?.reply || fallbackReply(lastUserText, enrichedContext);
 
   // Debug: include enrichment summary in response during rollout
   const debugInfo = {
@@ -329,7 +387,11 @@ async function aiChatHandler(req, res) {
 
   sendJson(res, 200, {
     reply,
-    source: 'data-driven',
+    source: aiResult ? 'bonds-native' : 'data-driven-fallback',
+    provider: aiResult?.provider || 'BondsV3DataEngine',
+    model: aiResult?.model || null,
+    inference: aiResult?.inference || null,
+    fallback_reason: nativeError ? (nativeError.code || nativeError.message) : null,
     debug: debugInfo,
     context: {
       cityCode: enrichedContext.cityCode || null,
