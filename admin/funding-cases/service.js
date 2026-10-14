@@ -9,8 +9,8 @@
 
   async function getToken() {
     if (window.BondsAuth && BondsAuth.getSession) {
-      const session = await BondsAuth.getSession();
-      return session?.access_token || '';
+      const result = await BondsAuth.getSession();
+      return result?.data?.session?.access_token || window.__ADMIN_TOKEN || '';
     }
     return window.__ADMIN_TOKEN || '';
   }
