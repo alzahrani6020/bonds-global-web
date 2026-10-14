@@ -2,8 +2,27 @@
  * Bonds Global — Health Check endpoint
  * Returns service status and a lightweight Supabase connectivity check.
  */
+const crypto = require('crypto');
 const getSupabase = require('../lib/api/supabase');
 const { getInferenceRouter } = require('../lib/ai/inference-router');
+const { callBondsNative } = require('../lib/ai/orchestrator');
+
+function readSmokeNonce(req) {
+  try {
+    return new URL(req.url, 'https://bonds-global.com').searchParams.get('native_smoke') || '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function smokeAuthorized(req) {
+  const expected = String(process.env.BONDS_E2E_SMOKE_NONCE || '');
+  const supplied = readSmokeNonce(req);
+  if (!expected || !supplied) return false;
+  const left = Buffer.from(supplied, 'utf8');
+  const right = Buffer.from(expected, 'utf8');
+  return left.length === right.length && crypto.timingSafeEqual(left, right);
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,6 +32,37 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  if (smokeAuthorized(req)) {
+    try {
+      const response = await callBondsNative([
+        {
+          role: 'user',
+          content: 'Return only this JSON object exactly: {"smoke":"ok","language":"en"}'
+        }
+      ]);
+      const validPayload = Boolean(
+        response.result &&
+        response.result.smoke === 'ok' &&
+        response.result.language === 'en'
+      );
+      return res.status(validPayload ? 200 : 500).json({
+        status: validPayload ? 'ok' : 'degraded',
+        smoke: validPayload,
+        provider: response.provider,
+        model_used: response.modelUsed,
+        tokens_input: response.tokensInput,
+        tokens_output: response.tokensOutput,
+        inference: response.inferenceMetadata
+      });
+    } catch (error) {
+      return res.status(500).json({
+        status: 'degraded',
+        smoke: false,
+        error: error.code || error.message || 'native smoke failed'
+      });
+    }
   }
 
   const started = Date.now();
