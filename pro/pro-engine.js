@@ -72,7 +72,13 @@ function aiInsight(result) {
 }
 
 function buildHTMLReport(result, insight) {
-  const fmt = n => typeof n === 'number' ? n.toLocaleString('ar-SA') : n;
+  const escapeHtml = value => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+  const fmt = n => typeof n === 'number' ? n.toLocaleString('ar-SA') : escapeHtml(n);
   const profitClass = result.monthlyProfit >= 0 ? 'positive' : 'negative';
   return `
 <!DOCTYPE html>
@@ -104,7 +110,7 @@ function buildHTMLReport(result, insight) {
 <body>
   <div class="page">
     <h1>تقرير جدوى احترافي</h1>
-    <p class="subtitle">Bonds Pro · ${result.sectorLabel} · ${result.activity}</p>
+    <p class="subtitle">Bonds Pro · ${escapeHtml(result.sectorLabel)} · ${escapeHtml(result.activity)}</p>
     <div class="score">${result.score}<span style="font-size:24px;color:#9ca3af">/100</span></div>
     <div class="score-label">درجة جاهزية المشروع</div>
     <div class="grid">
@@ -113,15 +119,15 @@ function buildHTMLReport(result, insight) {
       <div class="card"><h3>الربح الشهري المتوقع</h3><div class="value ${profitClass}">${fmt(Math.round(result.monthlyProfit))} ر.س</div></div>
       <div class="card"><h3>مدة الاسترداد</h3><div class="value">${result.roiMonths > 0 ? result.roiMonths + ' شهر' : 'غير محدود'}</div></div>
       <div class="card"><h3>الربح السنوي المتوقع</h3><div class="value">${fmt(Math.round(result.annualProfit))} ر.س</div></div>
-      <div class="card"><h3>مخاطر القطاع</h3><div class="value">${result.sectorRisk}</div></div>
+      <div class="card"><h3>مخاطر القطاع</h3><div class="value">${escapeHtml(result.sectorRisk)}</div></div>
     </div>
     <div class="verdict">
-      <h2>${insight.verdict}</h2>
-      <p>${insight.summary}</p>
+      <h2>${escapeHtml(insight.verdict)}</h2>
+      <p>${escapeHtml(insight.summary)}</p>
     </div>
     <h2>التوصيات</h2>
     <ul>
-      ${insight.recommendations.map(r => `<li>${r}</li>`).join('')}
+      ${insight.recommendations.map(r => `<li>${escapeHtml(r)}</li>`).join('')}
     </ul>
     <div class="footer">تم إنشاء هذا التقرير بواسطة Bonds Pro · bonds-global.com</div>
   </div>

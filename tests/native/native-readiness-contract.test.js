@@ -34,7 +34,7 @@ describe('Native readiness probe contract', () => {
   test('probe checks local, remote and production health independently', () => {
     expect(script).toContain('http://127.0.0.1:8765/health');
     expect(script).toContain('https://native.bonds-global.com/health');
-    expect(script).toContain('https://bonds-global.com/api/health');
+    expect(script).toContain('https://bonds-global.com/api/readiness');
   });
 
   test('probe classifies material failure modes', () => {

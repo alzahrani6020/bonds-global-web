@@ -441,49 +441,114 @@ async function proCalculate(req, res) {
 }
 
 async function proReport(req, res) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
   const params = req.method === 'GET' ? (req.query || {}) : (req.body || {});
-  const { sector, activity, capital, revenue, format = 'json' } = params;
-  if (!sector || !activity || !capital || !revenue) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  const sessionId = String(params.session_id || '').trim();
+  const format = params.format || 'json';
+
+  if (!sessionId.startsWith('cs_')) {
+    return res.status(402).json({ error: 'Verified payment session required' });
   }
-  const result = calculateProject({ sector, activity, capital: parseFloat(capital), revenue: parseFloat(revenue) });
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return res.status(503).json({ error: 'Payment verification is unavailable' });
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const metadata = session.metadata || {};
+  const plan = metadata.plan;
+  const isBondsPro = metadata.bonds_pro === '1' && (plan === 'single' || plan === 'monthly');
+
+  let entitlementActive = false;
+  if (isBondsPro && plan === 'single') {
+    entitlementActive = session.status === 'complete' && session.payment_status === 'paid';
+  } else if (isBondsPro && plan === 'monthly' && session.subscription) {
+    const subscription = await stripe.subscriptions.retrieve(session.subscription);
+    entitlementActive = ['active', 'trialing'].includes(subscription.status);
+  }
+
+  if (!entitlementActive) {
+    return res.status(402).json({ error: 'Payment or subscription is not active' });
+  }
+
+  const sector = metadata.sector;
+  const activity = metadata.activity;
+  const capital = Number(metadata.capital);
+  const revenue = Number(metadata.revenue);
+  if (!sector || !activity || !Number.isFinite(capital) || !Number.isFinite(revenue) || capital <= 0 || revenue <= 0) {
+    return res.status(400).json({ error: 'Checkout project data is incomplete' });
+  }
+
+  const result = calculateProject({ sector, activity, capital, revenue });
   const insight = aiInsight(result);
   if (format === 'html') {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     return res.status(200).send(buildHTMLReport(result, insight));
   }
-  res.status(200).json({ result, insight });
+  return res.status(200).json({ result, insight, entitlement: { plan, active: true } });
 }
 
 async function proStripe(req, res) {
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return res.status(503).json({ error: 'Payment checkout is unavailable' });
+  }
+
   const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   const body = req.body || {};
-  const { plan = 'single', email } = body;
-  const priceId = plan === 'monthly' ? process.env.STRIPE_PRICE_ENTERPRISE : process.env.STRIPE_PRICE_PRO;
+  const plan = body.plan === 'monthly' ? 'monthly' : 'single';
+  const email = String(body.email || '').trim();
+  const project = body.project && typeof body.project === 'object' ? body.project : {};
+  const sector = String(project.sector || '').trim().slice(0, 80);
+  const activity = String(project.activity || '').trim().slice(0, 120);
+  const capital = Number(project.capital);
+  const revenue = Number(project.revenue);
+
+  if (!email || !email.includes('@')) {
+    return res.status(400).json({ error: 'Valid email is required' });
+  }
+  if (!sector || !activity || !Number.isFinite(capital) || !Number.isFinite(revenue) || capital <= 0 || revenue <= 0) {
+    return res.status(400).json({ error: 'Complete project data before checkout' });
+  }
+
+  const monthly = plan === 'monthly';
+  const priceId = monthly ? process.env.STRIPE_PRICE_PRO_MONTHLY : process.env.STRIPE_PRICE_PRO_REPORT;
+  const metadata = {
+    bonds_pro: '1',
+    plan,
+    sector,
+    activity,
+    capital: String(capital),
+    revenue: String(revenue)
+  };
 
   const sessionConfig = {
     payment_method_types: ['card'],
-    mode: 'payment',
-    success_url: `${APP_URL}/pro/report.html?paid=1`,
+    mode: monthly ? 'subscription' : 'payment',
+    success_url: `${APP_URL}/pro/report.html?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${APP_URL}/pro/index.html`,
-    customer_email: email || undefined
+    customer_email: email,
+    metadata
   };
+
+  if (monthly) {
+    sessionConfig.subscription_data = { metadata };
+  }
 
   if (priceId) {
     sessionConfig.line_items = [{ price: priceId, quantity: 1 }];
   } else {
-    sessionConfig.line_items = [{
-      price_data: {
-        currency: 'sar',
-        product_data: { name: plan === 'monthly' ? 'Bonds Pro Monthly' : 'Bonds Pro Report' },
-        unit_amount: plan === 'monthly' ? 19900 : 4900
-      },
-      quantity: 1
-    }];
+    const priceData = {
+      currency: 'sar',
+      product_data: { name: monthly ? 'Bonds Pro Monthly' : 'Bonds Pro Report' },
+      unit_amount: monthly ? 19900 : 4900
+    };
+    if (monthly) priceData.recurring = { interval: 'month' };
+    sessionConfig.line_items = [{ price_data: priceData, quantity: 1 }];
   }
 
   const session = await stripe.checkout.sessions.create(sessionConfig);
-  res.status(200).json({ url: session.url });
+  return res.status(200).json({ url: session.url });
 }
 
 async function proAuth(req, res) {

@@ -671,6 +671,26 @@
   ],
   "redirects": [
     {
+      "source": "/calculators",
+      "destination": "/calculators/investment-center",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculators/",
+      "destination": "/calculators/investment-center",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators",
+      "destination": "/en/calculators/investment-center",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculators/",
+      "destination": "/en/calculators/investment-center",
+      "statusCode": 301
+    },
+    {
       "source": "/client",
       "destination": "/client/funding-cases.html",
       "statusCode": 301

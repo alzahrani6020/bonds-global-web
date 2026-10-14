@@ -1,10 +1,14 @@
 /**
- * Bonds Global — Health Check endpoint
- * Returns service status and a lightweight Supabase connectivity check.
+ * Bonds Global — platform health endpoint.
+ *
+ * Liveness/availability semantics:
+ * - Core platform health is determined by Supabase connectivity.
+ * - Native AI is reported as a capability and may be degraded without
+ *   taking the rest of the commercial site offline.
+ * - Strict dependency readiness lives at /api/readiness.
  */
 const crypto = require('crypto');
 const getSupabase = require('../lib/api/supabase');
-const { getInferenceRouter } = require('../lib/ai/inference-router');
 const { callBondsNative } = require('../lib/ai/orchestrator');
 
 function readSmokeNonce(req) {
@@ -68,47 +72,41 @@ module.exports = async function handler(req, res) {
 
   const started = Date.now();
   let supabaseStatus = 'unknown';
-  let nativeStatus = 'skipped';
-  let nativeMode = String(process.env.BONDS_INFERENCE_MODE || '').trim().toUpperCase() || null;
-  let nativeProvider = null;
+  const nativeMode = String(process.env.BONDS_INFERENCE_MODE || '').trim().toUpperCase() || null;
 
   try {
     const supabase = getSupabase();
     const { error } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).limit(1);
     supabaseStatus = error ? 'error' : 'ok';
-  } catch (e) {
+  } catch (_) {
     supabaseStatus = 'error';
   }
 
-  if (nativeMode === 'REMOTE_BONDS_NATIVE') {
-    try {
-      const nativeHealth = await getInferenceRouter().health();
-      nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
-      nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
-    } catch (e) {
-      nativeStatus = 'error';
-      nativeProvider = 'BondsNativeProvider';
-    }
-  }
-
   const version = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7) : 'dev';
+  const coreHealthy = supabaseStatus === 'ok';
 
-  const healthy = supabaseStatus === 'ok' && (nativeMode !== 'REMOTE_BONDS_NATIVE' || nativeStatus === 'ok');
-  return res.status(healthy ? 200 : 503).json({
-    status: healthy ? 'ok' : 'degraded',
+  return res.status(coreHealthy ? 200 : 503).json({
+    status: coreHealthy ? 'ok' : 'unhealthy',
     service: 'bonds-global',
     version,
     timestamp: new Date().toISOString(),
     environment: process.env.VERCEL_ENV || 'development',
     checks: {
       supabase: supabaseStatus,
-      native: nativeStatus,
+      native: 'not_checked',
       responseMs: Date.now() - started,
+    },
+    capabilities: {
+      core_platform: coreHealthy ? 'available' : 'unavailable',
+      native_ai: 'see_readiness',
+    },
+    readiness: {
+      endpoint: '/api/readiness',
     },
     inference: {
       mode: nativeMode,
-      provider: nativeProvider,
-      reachable: nativeStatus === 'ok',
+      provider: nativeMode === 'REMOTE_BONDS_NATIVE' ? 'BondsNativeProvider' : null,
+      reachable: null,
     },
   });
 };
