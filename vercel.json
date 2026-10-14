@@ -512,6 +512,15 @@
       ]
     },
     {
+      "source": "/site-layout.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
       "source": "/bonds-auth-2026.js",
       "headers": [
         {
