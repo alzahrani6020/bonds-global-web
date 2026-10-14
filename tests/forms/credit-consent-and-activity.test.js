@@ -1,0 +1,74 @@
+/**
+ * @jest-environment node
+ */
+const fs=require('fs');
+const path=require('path');
+const ROOT=path.resolve(__dirname,'../..');
+const read=rel=>fs.readFileSync(path.join(ROOT,rel),'utf8');
+
+describe('generic credit consent forms',()=>{
+  test('provides separate business and individual forms in Arabic and English',()=>{
+    for(const file of [
+      'client/credit-consent-business.html','client/credit-consent-individual.html',
+      'en/client/credit-consent-business.html','en/client/credit-consent-individual.html'
+    ]){
+      const page=read(file);
+      expect(page).toContain('data-credit-consent-form');
+      expect(page).toContain('/lib/forms/credit-consent-form.js?v=1');
+      expect(page).toContain('/lib/forms/credit-consent-terminology.js?v=1');
+      expect(page).toContain('/lib/forms/branded-export.js?v=3');
+    }
+  });
+
+  test('country selector uses the platform geographic catalog and has a generic fallback',()=>{
+    const controller=read('lib/forms/credit-consent-form.js');
+    const terminology=read('lib/forms/credit-consent-terminology.js');
+    expect(controller).toContain('window.BondsGeo.getCountries');
+    expect(controller).toContain('BondsCreditConsentTerminology?.consentTitle');
+    expect(terminology).toContain("return lang==='en'?'Credit Information Consent':'نموذج الموافقة على المعلومات الائتمانية'");
+  });
+
+  test('consent language is institution-neutral and records auditable consent details',()=>{
+    const controller=read('lib/forms/credit-consent-form.js');
+    expect(controller).toContain('المصادر المرخصة أو المصرح لها نظامًا');
+    expect(controller).toContain('licensed or legally authorized sources');
+    expect(controller).toContain("consent_text_version:'2026-10'");
+    expect(controller).toContain("consented_at:status==='submitted'");
+    expect(controller).toContain("from('client_credit_consents')");
+  });
+
+  test('credit consent data is protected by authenticated owner-only RLS',()=>{
+    const migration=read('supabase/migrations/20261014033000_client_credit_consents.sql');
+    expect(migration).toContain('ALTER TABLE public.client_credit_consents ENABLE ROW LEVEL SECURITY');
+    expect(migration).toContain('user_id = auth.uid()');
+    expect(migration).toContain("subject_type IN ('business','individual')");
+  });
+
+  test('forms menu exposes both generic consent forms',()=>{
+    const layout=read('site-layout.js');
+    expect(layout).toContain("businessCreditConsent: isEn ? 'Business Credit Consent' : 'موافقة الاستعلام الائتماني — منشأة'");
+    expect(layout).toContain("individualCreditConsent: isEn ? 'Individual Credit Consent' : 'موافقة الاستعلام الائتماني — فرد'");
+    expect(layout).toContain('{ label: labels.businessCreditConsent, href: businessCreditConsentHref }');
+    expect(layout).toContain('{ label: labels.individualCreditConsent, href: individualCreditConsentHref }');
+  });
+});
+
+describe('expanded business activity information',()=>{
+  test('adds workforce premises management stability and financial history',()=>{
+    const page=read('client/business-activity.html');
+    expect(page).toContain('القوى العاملة ومقر النشاط');
+    expect(page).toContain('الموظفون المحليون — حاليًا');
+    expect(page).toContain('استقرار الإدارة');
+    expect(page).toContain('نبذة وتاريخ النشاط');
+    expect(page).toContain('هل تتوفر قوائم مالية؟');
+    expect(page).toContain('مبيعات السنة الماضية');
+  });
+
+  test('stores and exports the added activity information',()=>{
+    const page=read('client/business-activity.html');
+    expect(page).toContain("premises_tenure:g('premisesTenure').value");
+    expect(page).toContain("management_stability:g('managementStability').value");
+    expect(page).toContain("has_financial_statements:g('hasFinancialStatements').value");
+    expect(page).toContain("title:'البيانات المالية التاريخية'");
+  });
+});
