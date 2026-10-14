@@ -25,7 +25,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.1.3"></script>
-  <script src="/lib/forms/branded-export.js?v=2"></script>
+  <script src="/lib/forms/branded-export.js?v=3"></script>
   <style>
     .kyc-page{max-width:1100px;margin:0 auto;padding:7rem 1rem 4rem}
     .kyc-hero{margin-bottom:1.5rem}.kyc-hero h1{margin:.25rem 0}.kyc-note{padding:1rem;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);color:var(--text-secondary)}
@@ -74,7 +74,7 @@
             <div class="kyc-field"><label for="registeredAddress">National / Registered Address</label><input id="registeredAddress" /></div>
             <div class="kyc-field"><label for="city">City / Principal Place of Business</label><input id="city" /></div>
             <div class="kyc-field"><label for="phone">Telephone</label><input id="phone" type="tel" /></div>
-            <div class="kyc-field"><label for="email">Email</label><input id="email" type="email" /></div>
+            <div class="kyc-field"><label for="email">Email</label><input id="email" type="email" placeholder="✉" /></div>
           </div>
         </div>
       </section>
@@ -293,7 +293,7 @@
         lang:'en',title:'Know Your Customer (KYC) & Due Diligence',subtitle:'Bonds Global',filenameBase:'bonds-kyc-'+(i.legal_name||'client'),
         metadata:[{label:'Client Type',value:labelText('clientType')},{label:'Client Status',value:labelText('clientStatus')},{label:'Legal Name',value:i.legal_name}],
         tables:[
-          {title:'Identification',headers:['Field','Value'],rows:[['ID / CR No.',i.id_number],['Unified Number',i.unified_number],['Birth / Incorporation Date',i.birth_or_incorporation_date],['Nationality / Country',i.nationality_or_country],['Address',i.registered_address],['City',i.city],['Telephone',i.phone],['Email',i.email]]},
+          {title:'Identification',headers:['Field','Value'],rows:[['ID / CR No.',i.id_number],['Unified Number',i.unified_number],['Birth / Incorporation Date',i.birth_or_incorporation_date],['Nationality / Country',i.nationality_or_country],['Address',i.registered_address],['City',i.city],['Telephone',i.phone],['Email',i.email?'✉':'']]},
           {title:'Business & Relationship',headers:['Field','Value'],rows:[['Primary Activity',b.primary_activity],['Products / Services',b.products_services],['Markets',b.markets_countries],['Purpose',b.purposes.join(', ')],['Expected Annual Value',b.expected_annual_value],['Relationship Countries',b.relationship_countries]]},
           {title:'Ultimate Beneficial Owners',headers:['Name','Nationality','ID No.','Ownership','Means of Control'],rows:(o.ubos||[]).map(x=>[x.name,x.nationality,x.id_number,x.ownership_percent?x.ownership_percent+'%':'',x.means_of_control])},
           {title:'Source of Funds & Wealth',headers:['Field','Value'],rows:[['Sources',f.sources.join(', ')],['Source of Funds',f.funds_explanation],['Source of Wealth',f.wealth_explanation],['Supporting Evidence',f.supporting_evidence]]},
@@ -314,7 +314,7 @@
       if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
       sb=window.BondsAuth.getSupabase();
       if(!sb){showStatus('تعذر تهيئة اNoتصال الآمن.',false);return;}
-      setVal('email',user.email||''); setVal('phone',user.user_metadata?.phone||''); setVal('signerName',user.user_metadata?.full_name||'');
+      setVal('phone',user.user_metadata?.phone||''); setVal('signerName',user.user_metadata?.full_name||'');
       const cid=await sb.rpc('get_my_client_id');
       const existing=await sb.from('client_kyc_cases').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){hydrate(existing.data);} else if(cid.data){currentCase={client_id:cid.data};}
