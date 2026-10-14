@@ -537,8 +537,12 @@ async function moyasarCheckoutAction(req, res) {
     return res.status(400).json({ error: 'Invalid tier' });
   }
 
-  const safeSuccess = successUrl && successUrl.startsWith(APP_URL) ? successUrl : `${APP_URL}/calculators/auth/subscription.html?moyasar=success`;
-  const safeCancel = cancelUrl && cancelUrl.startsWith(APP_URL) ? cancelUrl : `${APP_URL}/pricing.html?canceled=1`;
+  const safeSuccess = isSafeCheckoutReturnUrl(successUrl) && successUrl
+    ? successUrl
+    : `${APP_URL}/calculators/auth/subscription.html?moyasar=success`;
+  const safeCancel = isSafeCheckoutReturnUrl(cancelUrl) && cancelUrl
+    ? cancelUrl
+    : `${APP_URL}/pricing.html?canceled=1`;
 
   try {
     const supabase = getSupabase();
