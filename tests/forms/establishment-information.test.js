@@ -18,6 +18,15 @@ describe('establishment information form',()=>{
     expect(page).toContain("from('client_establishment_profiles')");
   });
 
+  test('does not auto-fill the signed-in account email',()=>{
+    const ar=read('client/establishment-information.html');
+    const en=read('en/client/establishment-information.html');
+    expect(ar).toContain('id="email" type="email" placeholder="✉"');
+    expect(en).toContain('id="email" type="email" placeholder="✉"');
+    expect(ar).not.toContain("set('email',user.email||'')");
+    expect(en).not.toContain("set('email',user.email||'')");
+  });
+
   test('supports branded print, PDF, Excel, and Word exports',()=>{
     const page=read('client/establishment-information.html');
     for(const f of ['print','pdf','excel','word']){
