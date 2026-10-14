@@ -196,8 +196,10 @@
 
         var statsHtml = '';
         if(_sub){
-          statsHtml += '<div class="stat-row"><span>Status</span><span>'+(_sub.status==='active'?'Active':'Inactive')+'</span></div>';
-          if(_sub.current_period_end) statsHtml += '<div class="stat-row"><span>Renews on</span><span>'+new Date(_sub.current_period_end).toLocaleDateString('en-US')+'</span></div>';
+          var statusLabel = _sub.status==='active'?'Active':(_sub.status==='trialing'?'Trial':(_sub.status==='past_due'?'Past due':'Inactive'));
+          statsHtml += '<div class="stat-row"><span>Status</span><span>'+statusLabel+'</span></div>';
+          if(_sub.current_period_end) statsHtml += '<div class="stat-row"><span>Current period ends</span><span>'+new Date(_sub.current_period_end).toLocaleDateString('en-US')+'</span></div>';
+          if(_sub.payment_method) statsHtml += '<div class="stat-row"><span>Payment method</span><span>'+String(_sub.payment_method).replace('bank_transfer','Bank transfer').replace('moyasar','Moyasar').replace('stripe','Stripe').replace('manual','Manual')+'</span></div>';
           if(_sub.cancel_at_period_end) statsHtml += '<div class="stat-row"><span>Renewal</span><span style="color:#dc2626">Cancels at period end</span></div>';
         } else {
           statsHtml += '<div class="stat-row"><span>Status</span><span>Free</span></div>';
@@ -208,9 +210,14 @@
         if(_tier==='free'){
           actions.innerHTML = '<a href="../../pricing.html" class="btn btn-primary">View Plans & Pricing</a>';
         } else {
-          actions.innerHTML = '<button class="btn btn-secondary" onclick="openBilling()">Manage Billing & Payment</button>';
-          if(!_sub?.cancel_at_period_end){
-            actions.innerHTML += '<button class="btn btn-secondary" onclick="cancelSub()" style="color:#dc2626;border-color:#dc2626">Cancel Subscription</button>';
+          var paymentMethod = _sub?.payment_method || 'stripe';
+          if(paymentMethod === 'stripe'){
+            actions.innerHTML = '<button class="btn btn-secondary" onclick="openBilling()">Manage Billing & Payment</button>';
+            if(!_sub?.cancel_at_period_end){
+              actions.innerHTML += '<button class="btn btn-secondary" onclick="cancelSub()" style="color:#dc2626;border-color:#dc2626">Cancel Subscription</button>';
+            }
+          } else {
+            actions.innerHTML = '<a href="../../pricing.html" class="btn btn-secondary">Renewal & Payment Options</a>';
           }
         }
 
@@ -272,7 +279,7 @@
         } catch(e){ alert('Unable to connect to billing portal'); }
       };
       window.cancelSub = async function(){
-        if(!confirm('Are you sure you want to cancel? You will keep your features until the end of the paid period.'))return;
+        if(!confirm('Are you sure you want to cancel? You will keep your features until the end of the current period.'))return;
         if(!_token) return;
         try {
           var res = await fetch('/api/billing?action=cancel', {
@@ -281,7 +288,7 @@
             body: JSON.stringify({userId: _user.id})
           });
           if(res.ok){
-            alert('Cancellation requested. You will keep your features until the end of the paid period.');
+            alert('Cancellation requested. You will keep your features until the end of the current period.');
             location.reload();
           } else throw new Error('Failed');
         } catch(e){ showError('Cancellation failed. Please try again or contact support.'); }
