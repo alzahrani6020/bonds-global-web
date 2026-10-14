@@ -89,7 +89,7 @@
           <div class="est-field"><label for="city">City</label><input id="city" required></div>
           <div class="est-field"><label for="address">National / Registered Address</label><textarea id="address" rows="3"></textarea></div>
           <div class="est-field"><label for="phone">Telephone</label><input id="phone" type="tel"></div>
-          <div class="est-field"><label for="email">Official Email</label><input id="email" type="email"></div>
+          <div class="est-field"><label for="email">Official Email</label><input id="email" type="email" placeholder="✉"></div>
         </div>
       </section>
 
@@ -178,7 +178,7 @@
       await window.BondsAuth.ensureEnv();const u=await window.BondsAuth.getUser();user=u.data?.user;
       if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
       sb=window.BondsAuth.getSupabase();if(!sb){showStatus('Unable to initialize the secure connection.',false);return;}
-      set('email',user.email||'');set('phone',user.user_metadata?.phone||'');
+      set('phone',user.user_metadata?.phone||'');
       const cid=await sb.rpc('get_my_client_id');
       const existing=await sb.from('client_establishment_profiles').select('*').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){hydrate(existing.data);}else if(cid.data){current={client_id:cid.data};}
