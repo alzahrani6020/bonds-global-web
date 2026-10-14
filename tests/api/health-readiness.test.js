@@ -46,17 +46,19 @@ describe('platform health vs strict readiness', () => {
     delete process.env.BONDS_E2E_SMOKE_NONCE;
   });
 
-  test('core health stays available when Native AI alone is degraded', async () => {
+  test('core health stays available without probing Native AI', async () => {
     const req = { method: 'GET', url: '/api/health' };
     const res = createResponse();
 
     await healthHandler(req, res);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body.status).toBe('degraded');
+    expect(res.body.status).toBe('ok');
+    expect(res.body.checks.native).toBe('not_checked');
     expect(res.body.capabilities.core_platform).toBe('available');
-    expect(res.body.capabilities.native_ai).toBe('degraded');
-    expect(res.body.readiness.strict).toBe(false);
+    expect(res.body.capabilities.native_ai).toBe('see_readiness');
+    expect(res.body.readiness.endpoint).toBe('/api/readiness');
+    expect(res.body.inference.reachable).toBeNull();
   });
 
   test('strict readiness fails when Native AI is unavailable', async () => {
