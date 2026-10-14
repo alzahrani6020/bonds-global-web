@@ -29,7 +29,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: Parse Bonds Native PowerShell
+      - name: Validate Bonds Native operations
         shell: pwsh
         run: |
           $files = Get-ChildItem "services/bonds_native_inference/windows/*.ps1" -File | Select-Object -ExpandProperty FullName
@@ -43,64 +43,11 @@ jobs:
             }
           }
 
-          $manifestPath = "services/bonds_native_inference/canonical-model.json"
-          $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+          $manifest = Get-Content -LiteralPath "services/bonds_native_inference/canonical-model.json" -Raw | ConvertFrom-Json
           if ([string]::IsNullOrWhiteSpace([string]$manifest.source_repository)) { throw "canonical model source_repository is required" }
           if ([string]::IsNullOrWhiteSpace([string]$manifest.source_revision)) { throw "canonical model source_revision is required" }
           if ([string]::IsNullOrWhiteSpace([string]$manifest.artifact)) { throw "canonical model artifact is required" }
-          if ([string]$manifest.sha256 -notmatch '^[0-9a-f]{64}
-      - name: Run Site Audit
-        run: npm run audit
-
-      - name: Run Open Graph Audit
-        run: npm run audit:og
-
-      - name: Run i18n Audit
-        run: npm run audit:i18n
-
-      - name: Run API Auth & Routing Audit
-        run: npm run audit:api
-
-      - name: Run Admin Architecture Contract Audit
-        run: npm run audit:admin-contracts
-
-      - name: Install Playwright Browser
-        run: npx playwright install chromium
-
-      - name: Start Local Dev Server
-        run: npm run dev:local &
-
-      - name: Wait for Server
-        run: |
-          for i in {1..30}; do
-            if curl -s http://localhost:3005 > /dev/null; then echo "Server ready"; exit 0; fi
-            sleep 1
-          done
-          echo "Server did not start in time" && exit 1
-
-      - name: Run Unit and Integration Tests
-        run: npm test
-
-      - name: Run Accessibility Tests
-        run: npm run test:a11y
-
-      - name: Run Mobile Interaction Tests
-        run: npm run test:mobile
-
-      - name: Run Visual Regression Tests
-        run: npm run test:visual
-
-      - name: Upload Visual Artifacts
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: visual-diffs
-          path: |
-            tests/visual/diffs/
-            tests/visual/snapshots/
-          if-no-files-found: ignore
-          retention-days: 1
-) { throw "canonical model sha256 must be 64 lowercase hex characters" }
+          if ([string]$manifest.sha256 -notmatch "^[0-9a-f]{64}$") { throw "canonical model sha256 must be 64 lowercase hex characters" }
           if ([int]$manifest.runtime.n_ctx -le 0 -or [int]$manifest.runtime.n_threads -le 0 -or [int]$manifest.runtime.max_tokens -le 0) {
             throw "canonical model runtime settings must be positive"
           }
