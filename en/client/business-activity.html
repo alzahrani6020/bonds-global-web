@@ -53,7 +53,7 @@
           <div class="act-field"><label for="primaryActivity">Primary Activity</label><input id="primaryActivity" required></div>
           <div class="act-field"><label for="secondaryActivities">Secondary Activities</label><input id="secondaryActivities"></div>
           <div class="act-field"><label for="sector">Sector</label><input id="sector" required placeholder="e.g. Trading, Manufacturing, Services, Technology"></div>
-          <div class="act-field"><label for="subsector">Sector الفرعي</label><input id="subsector"></div>
+          <div class="act-field"><label for="subsector">Subsector</label><input id="subsector"></div>
           <div class="act-field"><label for="activityCode">Activity / ISIC Code (if available)</label><input id="activityCode"></div>
           <div class="act-field"><label for="activityStartDate">Activity Start Date</label><input id="activityStartDate" type="date"></div>
           <div class="act-field"><label for="licenseAuthority">Activity Licensing Authority</label><input id="licenseAuthority"></div>
@@ -189,11 +189,11 @@
       return {lang:'en',title:'Business Activity Information Form',subtitle:'Bonds Global',filenameBase:'bonds-business-activity-'+(a.primary_activity||'activity'),
         metadata:[{label:'Primary Activity',value:a.primary_activity},{label:'Sector',value:a.sector},{label:'Customer Type',value:selectText('customerType')}],
         tables:[
-          {title:'Activity Classification',headers:['Field','Value'],rows:[['Secondary Activities',a.secondary_activities],['Sector الفرعي',a.subsector],['رمز النشاط / ISIC',a.activity_code],['Start Date',a.activity_start_date],['Licensing Authority',a.license_authority],['License Number',a.license_number]]},
-          {title:'نموذج التشغيل',headers:['Field','Value'],rows:[['Business Model',o.business_model],['المنتجات/الخدمات',o.products_services],['Production / Service Delivery',o.delivery_model],['Operating Locations',o.operating_locations],['Employees',o.employees],['Shifts',o.shifts],['Operating Days',o.operating_days],['Outsourcing',o.outsourcing]]},
+          {title:'Activity Classification',headers:['Field','Value'],rows:[['Secondary Activities',a.secondary_activities],['Subsector',a.subsector],['Activity / ISIC Code',a.activity_code],['Start Date',a.activity_start_date],['Licensing Authority',a.license_authority],['License Number',a.license_number]]},
+          {title:'Operating Model',headers:['Field','Value'],rows:[['Business Model',o.business_model],['Products / Services',o.products_services],['Production / Service Delivery',o.delivery_model],['Operating Locations',o.operating_locations],['Employees',o.employees],['Shifts',o.shifts],['Operating Days',o.operating_days],['Outsourcing',o.outsourcing]]},
           {title:'Market & Customers',headers:['Field','Value'],rows:[['Customer Type',selectText('customerType')],['Geographic Reach',selectText('geographicReach')],['Markets',m.main_markets],['Largest Customer Concentration %',m.customer_concentration],['Key Customers / Segments',m.key_customers],['Competitors',m.competitors],['Competitive Advantage',m.market_position],['Seasonality',m.seasonality]]},
-          {title:'Fieldات التجارية',headers:['Field','Value'],rows:[['Sales Channels',c.sales_channels],['Revenue Model',c.revenue_model],['شروط الدفع',c.payment_terms],['Annual Revenue',c.annual_revenue+' '+c.revenue_currency],['Average Order / Contract',c.avg_order_value+' '+c.revenue_currency]]},
-          {title:'Operating Capacity',headers:['Field','Value'],rows:[['وحدة القياس',cap.capacity_unit],['Maximum Capacity',cap.installed_capacity],['Actual Output',cap.actual_output],['Capacity Utilization %',cap.capacity_utilization],['Bottlenecks',cap.bottlenecks],['Critical Suppliers / Inputs',cap.key_suppliers]]},
+          {title:'Commercial Information',headers:['Field','Value'],rows:[['Sales Channels',c.sales_channels],['Revenue Model',c.revenue_model],['Payment Terms',c.payment_terms],['Annual Revenue',c.annual_revenue+' '+c.revenue_currency],['Average Order / Contract',c.avg_order_value+' '+c.revenue_currency]]},
+          {title:'Operating Capacity',headers:['Field','Value'],rows:[['Capacity Unit',cap.capacity_unit],['Maximum Capacity',cap.installed_capacity],['Actual Output',cap.actual_output],['Capacity Utilization %',cap.capacity_utilization],['Bottlenecks',cap.bottlenecks],['Critical Suppliers / Inputs',cap.key_suppliers]]},
           {title:'Risks & Growth Plans',headers:['Field','Value'],rows:[['Key Risks',r.key_risks],['Dependencies',r.dependencies],['Growth Plans',r.growth_plans],['Expected Growth %',r.expected_growth],['Use of Funding',r.funding_use]]}
         ],notes:p.notes};
     }
