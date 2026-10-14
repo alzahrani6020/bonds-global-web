@@ -1237,14 +1237,34 @@ async function getAiReviews(sb, admin, params = {}) {
       ai_requests!inner(
         id, type, payload, model, tokens_input, tokens_output, cost_usd, created_at,
         ai_results(result, risk_score)
-      ),
-      profiles:user_id(email, full_name)
+      )
     `, { count: 'exact' })
     .order('created_at', { ascending: false });
   if (status) query = query.eq('status', status);
   const { data, error, count } = await query.range(offset, offset + limit - 1);
   if (error) throw error;
-  return { data: data || [], total: count || 0 };
+
+  // ai_review_requests.user_id references auth.users, not profiles directly.
+  // Fetch profiles separately instead of relying on a non-existent PostgREST FK.
+  const rows = data || [];
+  const userIds = [...new Set(rows.map(r => r.user_id).filter(Boolean))];
+  let profilesById = new Map();
+  if (userIds.length) {
+    const { data: profiles, error: profilesError } = await sb
+      .from('profiles')
+      .select('id,email,full_name')
+      .in('id', userIds);
+    if (profilesError) {
+      console.warn('[admin.ai-reviews] profiles lookup failed:', profilesError.message);
+    } else {
+      profilesById = new Map((profiles || []).map(p => [p.id, p]));
+    }
+  }
+
+  return {
+    data: rows.map(row => ({ ...row, profiles: profilesById.get(row.user_id) || null })),
+    total: count || 0
+  };
 }
 
 async function updateAiReview(sb, body, admin, req) {
