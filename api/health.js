@@ -1,22 +1,26 @@
 /**
- * Bonds Global — platform health endpoint.
+ * Bonds Global — platform health + strict readiness endpoint.
  *
- * Liveness/availability semantics:
- * - Core platform health is determined by Supabase connectivity.
- * - Native AI is reported as a capability and may be degraded without
- *   taking the rest of the commercial site offline.
- * - Strict dependency readiness lives at /api/readiness.
+ * /api/health checks the commercial core only.
+ * /api/readiness is rewritten to /api/health?strict=1 so strict dependency
+ * readiness does not consume an additional Vercel Serverless Function.
  */
 const crypto = require('crypto');
 const getSupabase = require('../lib/api/supabase');
+const { getInferenceRouter } = require('../lib/ai/inference-router');
 const { callBondsNative } = require('../lib/ai/orchestrator');
 
-function readSmokeNonce(req) {
+function readParam(req, name) {
+  if (req && req.query && req.query[name] != null) return String(req.query[name]);
   try {
-    return new URL(req.url, 'https://bonds-global.com').searchParams.get('native_smoke') || '';
+    return new URL(req.url, 'https://bonds-global.com').searchParams.get(name) || '';
   } catch (_) {
     return '';
   }
+}
+
+function readSmokeNonce(req) {
+  return readParam(req, 'native_smoke');
 }
 
 function smokeAuthorized(req) {
@@ -36,6 +40,11 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
+  }
+
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET, OPTIONS');
+    return res.status(405).json({ status: 'method_not_allowed' });
   }
 
   if (smokeAuthorized(req)) {
@@ -70,6 +79,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
+  const strict = readParam(req, 'strict') === '1';
   const started = Date.now();
   let supabaseStatus = 'unknown';
   const nativeMode = String(process.env.BONDS_INFERENCE_MODE || '').trim().toUpperCase() || null;
@@ -84,6 +94,44 @@ module.exports = async function handler(req, res) {
 
   const version = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7) : 'dev';
   const coreHealthy = supabaseStatus === 'ok';
+
+  if (strict) {
+    let nativeStatus = 'skipped';
+    let nativeProvider = null;
+
+    if (nativeMode === 'REMOTE_BONDS_NATIVE') {
+      try {
+        const nativeHealth = await getInferenceRouter().health();
+        nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
+        nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
+      } catch (_) {
+        nativeStatus = 'error';
+        nativeProvider = 'BondsNativeProvider';
+      }
+    }
+
+    const nativeRequired = nativeMode === 'REMOTE_BONDS_NATIVE';
+    const nativeReady = !nativeRequired || nativeStatus === 'ok';
+    const ready = coreHealthy && nativeReady;
+
+    return res.status(ready ? 200 : 503).json({
+      status: ready ? 'ready' : 'not_ready',
+      service: 'bonds-global',
+      version,
+      timestamp: new Date().toISOString(),
+      environment: process.env.VERCEL_ENV || 'development',
+      checks: {
+        supabase: supabaseStatus,
+        native: nativeStatus,
+        responseMs: Date.now() - started,
+      },
+      inference: {
+        mode: nativeMode,
+        provider: nativeProvider,
+        reachable: nativeStatus === 'ok',
+      },
+    });
+  }
 
   return res.status(coreHealthy ? 200 : 503).json({
     status: coreHealthy ? 'ok' : 'unhealthy',
