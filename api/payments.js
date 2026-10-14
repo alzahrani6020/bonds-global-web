@@ -8,7 +8,6 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const getSupabase = require('../lib/api/supabase');
 const { verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { checkRateLimit } = require('../lib/api/rate-limit');
-const { processStripeWebhook } = require('../v3/api/billing');
 const { createInvoice, getInvoice, getTierLabel } = require('../lib/api/moyasar-helper');
 const { setAllowedOrigin } = require('../lib/api/cors');
 
@@ -518,22 +517,6 @@ async function billingHandleLegacyWebhook(req, res) {
   return res.status(200).json({ received: true });
 }
 
-async function billingHandleV3Webhook(req, res) {
-  const sig = req.headers['stripe-signature'];
-  const rawBody = await getRawBody(req);
-  try {
-    const result = await processStripeWebhook(rawBody, sig);
-    return res.status(200).json(result);
-  } catch (err) {
-    console.error('[v3-stripe-webhook]', err.message);
-    const isSignatureError = err.type === 'StripeSignatureVerificationError' ||
-      (err.message && /signature|Missing signature|webhook secret/i.test(err.message));
-    return res.status(isSignatureError ? 400 : 500).json({
-      error: isSignatureError ? 'Invalid webhook signature' : 'Webhook processing failed'
-    });
-  }
-}
-
 async function billingHandler(req, res) {
   setCors(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -549,7 +532,8 @@ async function billingHandler(req, res) {
 
   if (action === 'v3-stripe-webhook') {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-    return billingHandleV3Webhook(req, res);
+    // V3 is a compatibility alias. Keep a single verified Stripe webhook implementation.
+    return billingHandleLegacyWebhook(req, res);
   }
 
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
