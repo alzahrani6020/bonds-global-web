@@ -11,6 +11,7 @@ const { checkRateLimit } = require('../lib/api/rate-limit');
 const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const FundingCases = require('../lib/api/funding-cases-admin');
+const { logCommercialEvent } = require('../lib/analytics/commercial-events');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -937,6 +938,12 @@ async function updateBankTransfer(sb, body, admin, req) {
   if (requestUpdateError) throw requestUpdateError;
 
   await logAdminAction(sb, admin, 'bank_transfer_' + action, 'bank_transfer', id, request.email, { amount_sar: request.amount_sar, tier: request.tier, affected_user_id: affectedUserId }, req);
+  if (action === 'verified' && affectedUserId) {
+    await logCommercialEvent(sb, 'bank_transfer_activated', {
+      userId: affectedUserId,
+      properties: { tier: request.tier, amount_sar: request.amount_sar, payment_method: 'bank_transfer' }
+    });
+  }
   return { success: true, affectedUserId };
 }
 

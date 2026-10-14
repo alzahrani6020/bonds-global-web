@@ -10,6 +10,7 @@ const { verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { checkRateLimit } = require('../lib/api/rate-limit');
 const { createInvoice, getInvoice, getTierLabel } = require('../lib/api/moyasar-helper');
 const { setAllowedOrigin } = require('../lib/api/cors');
+const { logCommercialEvent } = require('../lib/analytics/commercial-events');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
 const PUBLIC_APP_URL = process.env.BONDS_PUBLIC_APP_URL || 'https://bonds-global.com';
@@ -137,6 +138,11 @@ async function checkoutHandleCreate(req, res, user) {
     client_reference_id: userId,
   });
 
+  await logCommercialEvent(getSupabase(), 'stripe_checkout_created', {
+    userId,
+    properties: { tier, payment_method: 'stripe' }
+  });
+
   return res.status(200).json({ sessionId: session.id, url: session.url });
 }
 
@@ -196,6 +202,11 @@ async function checkoutHandleOneoff(req, res, user) {
     }
     throw new Error('Unable to initialize purchase');
   }
+
+  await logCommercialEvent(supabase, 'oneoff_checkout_created', {
+    userId: user.id,
+    properties: { product, amount_sar: amount / 100, payment_method: 'stripe' }
+  });
 
   return res.status(200).json({ sessionId: session.id, url: session.url });
 }
@@ -286,6 +297,11 @@ async function fulfillOneoffPurchase(supabase, session) {
       .eq('id', claimed.id);
     throw creditError;
   }
+
+  await logCommercialEvent(supabase, 'oneoff_fulfilled', {
+    userId,
+    properties: { product, payment_method: 'stripe' }
+  });
   return true;
 }
 
@@ -338,14 +354,26 @@ async function billingHandleLegacyWebhook(req, res) {
   }
 
   try {
-    await supabase.from('webhook_events').upsert({
-      stripe_event_id: event.id,
-      event_type: event.type,
-      payload: event,
-      processed: false,
-    }, { onConflict: 'stripe_event_id' });
+    const { data: existingWebhook } = await supabase.from('webhook_events')
+      .select('processed')
+      .eq('stripe_event_id', event.id)
+      .maybeSingle();
+
+    if (existingWebhook?.processed) {
+      return res.status(200).json({ received: true, duplicate: true });
+    }
+
+    if (!existingWebhook) {
+      const { error: insertEventError } = await supabase.from('webhook_events').insert([{
+        stripe_event_id: event.id,
+        event_type: event.type,
+        payload: event,
+        processed: false,
+      }]);
+      if (insertEventError && insertEventError.code !== '23505') throw insertEventError;
+    }
   } catch (logErr) {
-    console.error('Failed to log webhook event:', logErr);
+    console.error('Failed to establish webhook idempotency:', logErr);
   }
 
   try {
@@ -391,6 +419,11 @@ async function billingHandleLegacyWebhook(req, res) {
           cancel_at_period_end: Boolean(subscription.cancel_at_period_end),
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
+
+        await logCommercialEvent(supabase, 'subscription_started', {
+          userId,
+          properties: { tier, status, payment_method: 'stripe' }
+        });
         break;
       }
 
@@ -433,6 +466,11 @@ async function billingHandleLegacyWebhook(req, res) {
           stripe_subscription_id: stripeSubscriptionId,
           updated_at: new Date().toISOString(),
         }).eq('id', userId);
+
+        await logCommercialEvent(supabase, 'subscription_payment_succeeded', {
+          userId,
+          properties: { tier, payment_method: 'stripe' }
+        });
         break;
       }
 
@@ -621,6 +659,11 @@ async function moyasarActivateSubscription(supabase, userId, tier) {
     updated_at: now.toISOString(),
   }).eq('id', userId);
   if (profileError) throw profileError;
+
+  await logCommercialEvent(supabase, 'subscription_activated', {
+    userId,
+    properties: { tier, payment_method: 'moyasar' }
+  });
 }
 
 async function moyasarCheckoutAction(req, res) {
@@ -684,6 +727,11 @@ async function moyasarCheckoutAction(req, res) {
       console.error('Failed to store moyasar invoice:', dbError);
       throw new Error('Unable to initialize Moyasar invoice');
     }
+
+    await logCommercialEvent(supabase, 'moyasar_invoice_created', {
+      userId: user.id,
+      properties: { tier, amount_sar: amount / 100, payment_method: 'moyasar' }
+    });
 
     res.status(200).json({ invoiceId: invoice.id, url: invoice.url });
   } catch (err) {
