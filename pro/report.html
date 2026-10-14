@@ -25,27 +25,36 @@
 
   <script>
     const params = new URLSearchParams(window.location.search);
-    let p = {};
-    try {
-      const saved = JSON.parse(localStorage.getItem('bonds_pro_last_input') || '{}');
-      p = Object.assign({}, saved, Object.fromEntries(params));
-    } catch (e) {
-      p = Object.fromEntries(params);
-    }
+    const sessionId = params.get('session_id');
+    const report = document.getElementById('report-content');
 
-    if (!p.sector || !p.activity || !p.capital || !p.revenue) {
-      document.getElementById('report-content').innerHTML = '<h1>بيانات ناقصة</h1><p>يرجى العودة للحاسبة وإدخال بيانات المشروع.</p><a href="index.html" class="btn btn-primary">العودة</a>';
-    } else if (!p.paid) {
-      document.getElementById('report-content').innerHTML = '<h1>التقرير مدفوع</h1><p>يرجى إتمام الدفع لعرض التقرير الكامل.</p><a href="index.html" class="btn btn-primary">العودة للحاسبة</a>';
+    if (!sessionId || !sessionId.startsWith('cs_')) {
+      report.innerHTML = '<h1>التقرير مدفوع</h1><p>يلزم إتمام الدفع والتحقق منه قبل عرض التقرير.</p><a href="index.html" class="btn btn-primary">العودة للحاسبة</a>';
     } else {
-      const qs = new URLSearchParams({ sector: p.sector, activity: p.activity, capital: p.capital, revenue: p.revenue, format: 'html' });
-      fetch('/api/pro?' + qs.toString())
-        .then(r => r.text())
+      const qs = new URLSearchParams({
+        action: 'report',
+        session_id: sessionId,
+        format: 'html'
+      });
+      fetch('/api/pro?' + qs.toString(), { credentials: 'same-origin' })
+        .then(async response => {
+          if (!response.ok) {
+            let message = 'تعذر التحقق من الدفع.';
+            try {
+              const body = await response.json();
+              if (body && body.error) message = body.error;
+            } catch (_) {}
+            throw new Error(message);
+          }
+          return response.text();
+        })
         .then(html => {
-          document.getElementById('report-content').innerHTML = html;
+          report.innerHTML = html;
         })
         .catch(err => {
-          document.getElementById('report-content').innerHTML = '<h1>خطأ</h1><p>' + err.message + '</p>';
+          report.innerHTML = '<h1>تعذر فتح التقرير</h1><p>' +
+            String(err.message || 'Payment verification failed').replace(/[<>&"']/g, '') +
+            '</p><a href="index.html" class="btn btn-primary">العودة</a>';
         });
     }
   </script>
