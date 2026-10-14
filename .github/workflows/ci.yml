@@ -29,6 +29,25 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Parse Bonds Native PowerShell
+        shell: pwsh
+        run: |
+          $files = @(
+            "services/bonds_native_inference/windows/install-startup.ps1",
+            "services/bonds_native_inference/windows/run-native.ps1",
+            "services/bonds_native_inference/windows/run-tunnel.ps1",
+            "services/bonds_native_inference/windows/verify-startup.ps1"
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [System.Management.Automation.Language.Parser]::ParseFile($file, [ref]$tokens, [ref]$errors) | Out-Null
+            if ($errors.Count -gt 0) {
+              $errors | ForEach-Object { Write-Error "$file: $($_.Message)" }
+              exit 1
+            }
+          }
+
       - name: Run Site Audit
         run: npm run audit
 
