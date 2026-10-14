@@ -10,10 +10,33 @@
 
   function getSb() {
     if (_sb) return _sb;
+
+    // Reuse the platform-wide authenticated Supabase client first. This keeps
+    // the advisor module on the same persisted session as the admin dashboard.
+    if (root.BondsAuth && typeof root.BondsAuth.getSupabase === 'function') {
+      _sb = root.BondsAuth.getSupabase();
+      if (_sb) return _sb;
+    }
+    if (root.__BONDS_SUPABASE_CLIENT__) {
+      _sb = root.__BONDS_SUPABASE_CLIENT__;
+      return _sb;
+    }
+
+    // Defensive fallback for standalone loading: use the same storage key as
+    // BondsAuth so an existing session is not split into a second auth context.
     const url = (root.__ENV && root.__ENV.SUPABASE_URL) || '';
     const key = (root.__ENV && root.__ENV.SUPABASE_ANON_KEY) || '';
     if (!url || !key) throw new Error('Supabase env missing');
-    _sb = root.supabase.createClient(url, key, { auth: { persistSession: true, autoRefreshToken: true } });
+    _sb = root.supabase.createClient(url, key, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+        storageKey: 'bonds-auth-token',
+        storage: root.localStorage
+      }
+    });
+    root.__BONDS_SUPABASE_CLIENT__ = _sb;
     return _sb;
   }
 
