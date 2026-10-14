@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.137';
+const CACHE_VERSION = 'v3.0.138';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -274,8 +274,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Shared navigation is always network-first so newly added form links appear immediately.
-  if (url.pathname === '/site-layout.js') {
+  // Critical shared runtime assets are always network-first so instrumentation/navigation updates are immediate.
+  if (url.pathname === '/site-layout.js' || url.pathname === '/page-tracker-v2.js') {
     event.respondWith(networkFirst(request));
     return;
   }

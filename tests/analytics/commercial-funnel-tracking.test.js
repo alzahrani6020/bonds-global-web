@@ -40,7 +40,13 @@ describe('commercial funnel analytics', () => {
     ['cIntent','cCheckout','cStarted','cPaid','cContact','cBook','cBank','cOneoff'].forEach(id=>expect(dashboard).toContain('id="'+id+'"'));
     expect(dashboard).toContain('json.commercial');
   });
-  test('cache version changed', () => {
-    expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.137'");
+  test('tracker bypasses stale static caching in service worker and Vercel', () => {
+    const sw = read('sw.js');
+    const vercel = read('vercel.json');
+    expect(sw).toContain("const CACHE_VERSION = 'v3.0.138'");
+    expect(sw).toContain("url.pathname === '/page-tracker-v2.js'");
+    expect(sw).toContain('networkFirst(request)');
+    expect(vercel).toContain('"/page-tracker-v2.js"');
+    expect(vercel).toContain('"no-cache, no-store, must-revalidate"');
   });
 });
