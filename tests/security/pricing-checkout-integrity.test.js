@@ -65,7 +65,7 @@ jest.mock('../../lib/api/moyasar-helper', () => ({
 const handler = require('../../api/payments');
 
 function request(body) {
-  const req = Readable.from([JSON.stringify(body)]);
+  const req = Readable.from([Buffer.from(JSON.stringify(body), 'utf8')]);
   req.method = 'POST';
   req.url = '/api/create-checkout';
   req.headers = {
