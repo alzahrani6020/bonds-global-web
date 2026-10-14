@@ -1,17 +1,20 @@
 # Bonds Native Inference
 
-## Production state
+## Architecture state
 
-Bonds Native is active in production through the remote Native path:
+Bonds Native is the approved inference path for Bonds analysis.
 
-- Vercel: `BONDS_INFERENCE_MODE=REMOTE_BONDS_NATIVE`
+Production is intended to use:
+
+- `BONDS_INFERENCE_MODE=REMOTE_BONDS_NATIVE`
 - Remote URL: `https://native.bonds-global.com`
-- Production timeout: `120000` ms
 - Provider: `BondsNativeProvider`
 - Windows host runtime: `BondsNativeRuntime`
-- Windows Cloudflare tunnel: `BondsNativeTunnel`
+- Cloudflare tunnel: `bonds-native`
 
-`/api/health` performs a server-to-server Native health probe whenever production is configured for `REMOTE_BONDS_NATIVE`. A healthy production response must include:
+Do not treat this document as proof of live health. Live readiness must be established from runtime probes.
+
+A healthy production response from `/api/health` must include:
 
 ```json
 {
@@ -28,15 +31,31 @@ Bonds Native is active in production through the remote Native path:
 }
 ```
 
+## Readiness verification
+
+Use the read-only readiness probe on the Windows host:
+
+```powershell
+.\services\bonds_native_inference\windows\verify-readiness.ps1
+```
+
+It verifies three independent layers:
+
+1. Local Native health: `http://127.0.0.1:8765/health`
+2. Remote Native path: `https://native.bonds-global.com/health`
+3. Production application health: `https://bonds-global.com/api/health`
+
+The probe does not restart or mutate services. It returns non-zero unless all three layers are healthy and classifies common failures such as tunnel/origin failure, authentication failure, timeout, and application health failure.
+
 ## Windows startup
 
-Install once from an elevated PowerShell window:
+Current `main` behavior registers the Native runtime and tunnel under the current Windows user with an Interactive `AtLogOn` trigger:
 
 ```powershell
 .\services\bonds_native_inference\windows\install-startup.ps1 -ModelPath "<absolute GGUF path>"
 ```
 
-The installer registers both tasks under the current Windows user with an Interactive logon trigger.
+This is the current baseline, not the final no-login target. Migration to boot-level/non-interactive startup must be tested independently before the old tasks are disabled.
 
 Runtime logs are stored under `%ProgramData%\BondsNative`:
 
@@ -47,27 +66,27 @@ Runtime logs are stored under `%ProgramData%\BondsNative`:
 - `cloudflared.stdout.log`
 - `cloudflared.stderr.log`
 
-Verify startup with:
+The existing local startup verifier remains available:
 
 ```powershell
 .\services\bonds_native_inference\windows\verify-startup.ps1
 ```
 
+`verify-startup.ps1` validates local runtime startup only. Use `verify-readiness.ps1` for local + remote + production readiness.
+
 ## Architecture decision
 
-Keep the current `server.py` + `threading.Lock` single-flight runtime.
+Keep the current `server.py` + `threading.Lock` single-flight runtime until measured production evidence justifies a concurrency architecture change.
 
-Measured host behavior showed:
+Measured host behavior previously showed:
 
 - stable model residency after load;
 - no repeated model load during warm/concurrent requests;
-- no crash or OOM in the measured runs;
-- generation throughput remained broadly stable;
-- concurrency cost appeared primarily as lock wait / serialization.
+- no crash or OOM in measured runs;
+- generation throughput broadly stable;
+- concurrency cost primarily visible as lock wait / serialization.
 
-The current evidence does not justify adding Qwen, a new inference fallback, llama-server, Semaphore-based masking, or asyncio workarounds.
-
-Revisit the runtime architecture only if canonical-model production measurements show an unacceptable service-level impact from serialized wait time.
+Do not introduce Qwen, a new inference fallback, llama-server, Semaphore-based masking, asyncio workarounds, queue brokers, or other runtime architecture changes without a measured failure that requires them.
 
 ## Canonical production model
 
@@ -94,13 +113,29 @@ The provisioning script pins the Hugging Face repository revision and verifies t
 
 Tracking issue: #79.
 
+## Configuration policy
+
+Repository examples define safe development defaults only.
+
+For Bonds analysis, the intended policy is:
+
+```text
+BONDS_AI_PROVIDER=native-only
+BONDS_OPENAI_FALLBACK=false
+```
+
+Production configuration must be verified independently; documentation must not be used as evidence that a live environment has a particular value.
+
 ## Validation boundary
 
-Current production evidence proves:
+The following claims require live verification and must not be inferred from task/process state alone:
 
-- Native runtime health on the Windows host;
-- authenticated tunnel reachability;
-- Vercel production-to-Native server-to-server reachability;
-- production `/api/health` and `/api/v3` availability.
+- Windows runtime health;
+- Cloudflare tunnel reachability;
+- Vercel-to-Native reachability;
+- production `/api/health`;
+- authenticated application flow through `POST /api/v3/ai/analyze`.
 
-The authenticated application flow through `POST /api/v3/ai/analyze` remains a user-authenticated application check. It must not be replaced with a public generation endpoint just for diagnostics.
+A scheduled task or process showing `Running` is not equivalent to service readiness.
+
+Do not expose a public generation endpoint solely for diagnostics.
