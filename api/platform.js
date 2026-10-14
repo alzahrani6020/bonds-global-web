@@ -484,9 +484,47 @@ async function proReport(req, res) {
   const insight = aiInsight(result);
   if (format === 'html') {
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    return res.status(200).send(buildHTMLReport(result, insight));
+    const manageSubscription = plan === 'monthly'
+      ? '<div class="no-print" style="margin-top:20px"><button id="manage-subscription" class="btn btn-outline" type="button">إدارة الاشتراك</button></div>'
+      : '';
+    return res.status(200).send(buildHTMLReport(result, insight) + manageSubscription);
   }
-  return res.status(200).json({ result, insight, entitlement: { plan, active: true } });
+  return res.status(200).json({ result, insight, entitlement: { plan, active: true, manageable: plan === 'monthly' } });
+}
+
+async function proPortal(req, res) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST, OPTIONS');
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
+  if (!process.env.STRIPE_SECRET_KEY) {
+    return res.status(503).json({ error: 'Subscription management is unavailable' });
+  }
+
+  const sessionId = String(req.body?.session_id || '').trim();
+  if (!sessionId.startsWith('cs_')) {
+    return res.status(400).json({ error: 'Verified checkout session required' });
+  }
+
+  const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+  const session = await stripe.checkout.sessions.retrieve(sessionId);
+  const metadata = session.metadata || {};
+  if (metadata.bonds_pro !== '1' || metadata.plan !== 'monthly' || !session.subscription || !session.customer) {
+    return res.status(403).json({ error: 'Monthly Bonds Pro subscription required' });
+  }
+
+  const subscription = await stripe.subscriptions.retrieve(session.subscription);
+  if (!['active', 'trialing'].includes(subscription.status)) {
+    return res.status(402).json({ error: 'Subscription is not active' });
+  }
+
+  const customerId = typeof session.customer === 'string' ? session.customer : session.customer.id;
+  const portal = await stripe.billingPortal.sessions.create({
+    customer: customerId,
+    return_url: `${APP_URL}/pro/`
+  });
+
+  return res.status(200).json({ url: portal.url });
 }
 
 async function proStripe(req, res) {
@@ -578,6 +616,7 @@ async function proHandler(req, res) {
       case 'calculate': return await proCalculate(req, res);
       case 'report': return await proReport(req, res);
       case 'stripe': return await proStripe(req, res);
+      case 'portal': return await proPortal(req, res);
       case 'auth': return await proAuth(req, res);
       default: return res.status(404).json({ error: 'Unknown pro action', action, url: req.url });
     }
