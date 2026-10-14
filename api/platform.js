@@ -13,6 +13,7 @@ const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://bonds-global.com';
+const PUBLIC_APP_URL = process.env.BONDS_PUBLIC_APP_URL || 'https://bonds-global.com';
 function requireUnsubscribeSecret() {
   const secret = process.env.UNSUBSCRIBE_SECRET || '';
   if (!secret) {
@@ -521,7 +522,7 @@ async function proPortal(req, res) {
   const customerId = typeof session.customer === 'string' ? session.customer : session.customer.id;
   const portal = await stripe.billingPortal.sessions.create({
     customer: customerId,
-    return_url: `${APP_URL}/pro/`
+    return_url: `${PUBLIC_APP_URL}/pro/`
   });
 
   return res.status(200).json({ url: portal.url });
@@ -563,8 +564,8 @@ async function proStripe(req, res) {
   const sessionConfig = {
     payment_method_types: ['card'],
     mode: monthly ? 'subscription' : 'payment',
-    success_url: `${APP_URL}/pro/report.html?session_id={CHECKOUT_SESSION_ID}`,
-    cancel_url: `${APP_URL}/pro/index.html`,
+    success_url: `${PUBLIC_APP_URL}/pro/report.html?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${PUBLIC_APP_URL}/pro/index.html`,
     customer_email: email,
     metadata
   };
