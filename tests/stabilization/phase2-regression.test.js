@@ -67,18 +67,20 @@ describe('stabilization phase 2', () => {
     expect(coverage).toContain('مصفوفة تغطية البيانات');
   });
 
-  test('health endpoint uses repository Supabase factory and keeps Native readiness separate', () => {
+  test('health endpoint keeps core liveness separate while serving strict readiness in the same function', () => {
     const health = read('api/health.js');
-    const readiness = read('api/readiness.js');
+    const vercel = read('vercel.json');
     expect(health).toContain("const getSupabase = require('../lib/api/supabase')");
     expect(health).toContain('const supabase = getSupabase()');
+    expect(health).toContain("const strict = readParam(req, 'strict') === '1'");
     expect(health).toContain("return res.status(coreHealthy ? 200 : 503)");
     expect(health).toContain("status: coreHealthy ? 'ok' : 'unhealthy'");
     expect(health).toContain("native: 'not_checked'");
     expect(health).toContain("endpoint: '/api/readiness'");
-    expect(health).not.toContain("getInferenceRouter().health()");
-    expect(readiness).toContain("getInferenceRouter().health()");
-    expect(readiness).toContain("return res.status(ready ? 200 : 503)");
+    expect(health).toContain("getInferenceRouter().health()");
+    expect(health).toContain("return res.status(ready ? 200 : 503)");
+    expect(vercel).toContain('"source": "/api/readiness"');
+    expect(vercel).toContain('"destination": "/api/health?strict=1"');
     expect(health).not.toContain("const { createClient } = require('../lib/api/supabase')");
   });
 });

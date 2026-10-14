@@ -7,6 +7,14 @@
   "trailingSlash": false,
   "rewrites": [
     {
+      "source": "/api/readiness",
+      "destination": "/api/health?strict=1"
+    },
+    {
+      "source": "/api/readiness/",
+      "destination": "/api/health?strict=1"
+    },
+    {
       "source": "/api/admin-workflows-cron",
       "destination": "/api/admin?action=workflow-cron"
     },
