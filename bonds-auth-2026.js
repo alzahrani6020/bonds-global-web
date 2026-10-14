@@ -558,8 +558,9 @@
       status = 'inactive';
     }
     const subscriptionEntitled = entitlementStatuses.includes(status) && ['pro', 'enterprise'].includes(sub?.tier);
-    let tier = subscriptionEntitled ? sub.tier : (profile?.tier || 'free');
-    if (!subscriptionEntitled && profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
+    const hasSubscriptionRecord = Boolean(sub);
+    let tier = subscriptionEntitled ? sub.tier : (hasSubscriptionRecord ? 'free' : (profile?.tier || 'free'));
+    if (!hasSubscriptionRecord && profile?.tier_expires_at && new Date(profile.tier_expires_at) < new Date()) {
       tier = 'free';
     }
 
