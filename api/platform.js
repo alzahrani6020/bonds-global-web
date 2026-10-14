@@ -441,6 +441,8 @@ async function proCalculate(req, res) {
 }
 
 async function proReport(req, res) {
+  res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+  res.setHeader('Pragma', 'no-cache');
   const params = req.method === 'GET' ? (req.query || {}) : (req.body || {});
   const sessionId = String(params.session_id || '').trim();
   const format = params.format || 'json';
