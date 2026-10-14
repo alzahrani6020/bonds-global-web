@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { Readable } = require('stream');
 
 const mockCustomersList = jest.fn();
@@ -177,5 +179,32 @@ describe('Pricing Stripe checkout integrity', () => {
     expect(res.statusCode).toBe(400);
     expect(res.body.error).toBe('Invalid successUrl');
     expect(mockCheckoutCreate).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('Subscription trial entitlement contract', () => {
+  const authSource = fs.readFileSync(path.join(__dirname, '..', '..', 'bonds-auth-2026.js'), 'utf8');
+  const paymentsSource = fs.readFileSync(path.join(__dirname, '..', '..', 'api', 'payments.js'), 'utf8');
+  const subscriptionSource = fs.readFileSync(path.join(__dirname, '..', '..', 'calculators', 'auth', 'subscription.html'), 'utf8');
+  const pricingSource = fs.readFileSync(path.join(__dirname, '..', '..', 'pricing.html'), 'utf8');
+
+  test('trialing subscriptions receive paid feature entitlements until period end', () => {
+    expect(authSource).toContain("const entitlementStatuses = ['active', 'trialing']");
+    expect(authSource).toContain('entitlementStatuses.includes(status)');
+  });
+
+  test('checkout completion resolves the Stripe subscription and persists tier/status', () => {
+    expect(paymentsSource).toContain("case 'checkout.session.completed'");
+    expect(paymentsSource).toContain('const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId)');
+    expect(paymentsSource).toContain("if (!['pro', 'enterprise'].includes(tier))");
+    expect(paymentsSource).toContain('stripe_price_id: priceId');
+    expect(paymentsSource).toContain('cancel_at_period_end: Boolean(subscription.cancel_at_period_end)');
+  });
+
+  test('subscription UI identifies trial state and pricing copy limits trial promise to card checkout', () => {
+    expect(subscriptionSource).toContain("?'فترة تجريبية'");
+    expect(pricingSource).toContain('14 يوم تجربة مجانية عبر البطاقة');
+    expect(pricingSource).toContain('وسائل الدفع الأخرى تُفعّل بعد الدفع وفق مسارها');
   });
 });

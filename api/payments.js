@@ -266,17 +266,34 @@ async function billingHandleLegacyWebhook(req, res) {
         const userId = session.client_reference_id || session.metadata?.supabaseUserId;
         const stripeCustomerId = session.customer;
         const stripeSubscriptionId = session.subscription;
-        if (!userId) break;
+        if (!userId || !stripeSubscriptionId) break;
 
+        const subscription = await stripe.subscriptions.retrieve(stripeSubscriptionId);
+        const priceId = subscription.items.data[0]?.price?.id;
+        const tier = billingGetTierFromPriceId(priceId);
+        if (!['pro', 'enterprise'].includes(tier)) {
+          console.error('Refusing entitlement for unapproved Stripe price', priceId || 'missing');
+          break;
+        }
+
+        const status = subscription.status;
         await supabase.from('profiles').update({
           stripe_customer_id: stripeCustomerId,
+          stripe_subscription_id: stripeSubscriptionId,
+          tier,
+          status,
           updated_at: new Date().toISOString(),
         }).eq('id', userId);
 
         await supabase.from('subscriptions').upsert({
           user_id: userId,
-          status: 'trialing',
+          tier,
+          status,
           stripe_subscription_id: stripeSubscriptionId,
+          stripe_price_id: priceId,
+          current_period_start: new Date(subscription.current_period_start * 1000).toISOString(),
+          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          cancel_at_period_end: Boolean(subscription.cancel_at_period_end),
           updated_at: new Date().toISOString(),
         }, { onConflict: 'user_id' });
         break;
