@@ -27,7 +27,11 @@ async function main() {
   try {
     const existingTaxRates = await stripe.taxRates.list({ limit: 100 });
     const saVat = existingTaxRates.data.find(
-      tr => tr.display_name === 'VAT' && tr.percentage === 15 && tr.jurisdiction === 'SA'
+      tr => tr.active !== false &&
+        tr.display_name === 'VAT' &&
+        tr.percentage === 15 &&
+        tr.jurisdiction === 'SA' &&
+        tr.inclusive === false
     );
     if (saVat) {
       console.log("⏭  Tax Rate already exists:", saVat.id);
@@ -56,9 +60,23 @@ async function main() {
     let proPrice;
     if (existingNames.includes('Bonds Pro')) {
       const pro = existingProducts.data.find(p => p.name === 'Bonds Pro');
-      const prices = await stripe.prices.list({ product: pro.id, limit: 1 });
-      proPrice = prices.data[0];
-      console.log("⏭  Product \"Bonds Pro\" already exists — Price:", proPrice.id);
+      const prices = await stripe.prices.list({ product: pro.id, active: true, limit: 100 });
+      proPrice = prices.data.find(p =>
+        p.currency === 'sar' &&
+        p.unit_amount === 7100 &&
+        p.recurring?.interval === 'month'
+      );
+      if (!proPrice) {
+        proPrice = await stripe.prices.create({
+          product: pro.id,
+          unit_amount: 7100,
+          currency: 'sar',
+          recurring: { interval: 'month' },
+        });
+        console.log(" Created missing canonical Bonds Pro price:", proPrice.id);
+      } else {
+        console.log("⏭  Canonical Bonds Pro price exists:", proPrice.id);
+      }
     } else {
       const pro = await stripe.products.create({
         name: 'Bonds Pro',
@@ -78,9 +96,23 @@ async function main() {
     let entPrice;
     if (existingNames.includes('Bonds Enterprise')) {
       const ent = existingProducts.data.find(p => p.name === 'Bonds Enterprise');
-      const prices = await stripe.prices.list({ product: ent.id, limit: 1 });
-      entPrice = prices.data[0];
-      console.log("⏭  Product \"Bonds Enterprise\" already exists — Price:", entPrice.id);
+      const prices = await stripe.prices.list({ product: ent.id, active: true, limit: 100 });
+      entPrice = prices.data.find(p =>
+        p.currency === 'sar' &&
+        p.unit_amount === 18400 &&
+        p.recurring?.interval === 'month'
+      );
+      if (!entPrice) {
+        entPrice = await stripe.prices.create({
+          product: ent.id,
+          unit_amount: 18400,
+          currency: 'sar',
+          recurring: { interval: 'month' },
+        });
+        console.log(" Created missing canonical Bonds Enterprise price:", entPrice.id);
+      } else {
+        console.log("⏭  Canonical Bonds Enterprise price exists:", entPrice.id);
+      }
     } else {
       const ent = await stripe.products.create({
         name: 'Bonds Enterprise',
@@ -111,6 +143,7 @@ async function main() {
         url: WEBHOOK_URL,
         enabled_events: [
           'checkout.session.completed',
+          'checkout.session.async_payment_succeeded',
           'invoice.payment_succeeded',
           'invoice.payment_failed',
           'customer.subscription.updated',
