@@ -89,7 +89,7 @@ async function createProject(req, res, user) {
       annual_profit: annualProfit || 0,
       language: language || 'ar',
       status: 'active',
-      metadata: metadata || null
+      metadata: metadata && typeof metadata === 'object' && !Array.isArray(metadata) ? metadata : {}
     };
 
     const { data: project, error: insertError } = await supabase
