@@ -473,7 +473,7 @@
 <footer class="footer">
   <div class="footer-grid">
     <div class="footer-brand">
-      <img src="/assets/bonds-logo.svg?v=2026d" alt="${isEn ? 'Bonds' : 'بوندز'}" style="height:80px; width:auto; margin-bottom:1rem;" />
+      <img src="/assets/bonds-logo-2026-v2-sm.webp?v=2026f" alt="${isEn ? 'Bonds' : 'بوندز'}" width="180" height="71" style="width:180px; height:auto; max-width:100%; margin-bottom:1rem; object-fit:contain;" />
       <p>${labels.brandDesc}</p>
     </div>
     <div>

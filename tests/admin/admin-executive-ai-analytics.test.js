@@ -19,6 +19,6 @@ describe('Executive analytics and AI operations',()=>{
  });
  test('workspace labels missing AI telemetry as unknown rather than fabricating it',()=>{
   const page=read('admin/executive-ai-analytics.html'),dash=read('admin/dashboard.html');
-  expect(page).toContain('UNKNOWN — لا توجد AI telemetry بعد');expect(page).toContain('BondsAdminCommon.escapeHtml');expect(dash).toContain('/admin/executive-ai-analytics.html?embed=1');
+  expect(page).toContain('UNKNOWN — لا توجد AI telemetry بعد');expect(page).toContain('BondsAdminCommon.escapeHtml');expect(page).toContain("typeof r.json!=='function'");expect(dash).toContain('/admin/executive-ai-analytics.html?embed=1');
  });
 });
