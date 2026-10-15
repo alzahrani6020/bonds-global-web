@@ -14,11 +14,12 @@ test('pricing scroll-to-top handler contains valid JavaScript', () => {
   assert.match(html, /onclick="window\.scrollTo\(\{top:0,behavior:'smooth'\}\)"/);
 });
 
-test('menu matrix validates status and content type before parsing JSON', () => {
+test('menu matrix reads user-scoped scores without missing API route', () => {
   const source = read('calculators/menu-engineering.html');
   const start = source.indexOf('async function loadMatrix()');
-  const segment = source.slice(start, start + 1100);
+  const segment = source.slice(start, start + 1800);
   assert.ok(start >= 0);
-  assert.ok(segment.indexOf('!res.ok') < segment.indexOf('await res.json()'));
-  assert.ok(segment.indexOf("contentType.includes('application/json')") < segment.indexOf('await res.json()'));
+  assert.match(segment, /sb\.from\('menu_engineering_scores'\)/);
+  assert.match(segment, /\.eq\('user_id', currentUser\.id\)/);
+  assert.doesNotMatch(segment, /fetch\(\`\/api\/menu-engineering/);
 });
