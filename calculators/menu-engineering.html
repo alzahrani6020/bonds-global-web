@@ -700,7 +700,7 @@ async function loadMatrix() {
     document.getElementById('matrixContainer').textContent = 'تعذر تحميل تحليل القائمة: ' + error.message;
     return;
   }
-  const data = { stars: [], engines: [], treasures: [], stalled: [], summary: {} };
+  let data = { stars: [], engines: [], treasures: [], stalled: [], summary: {} };
   const groups = { star: 'stars', plowhorse: 'engines', puzzle: 'treasures', dog: 'stalled' };
   for (const row of scores || []) {
     const key = groups[row.category];
