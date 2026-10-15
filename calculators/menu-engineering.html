@@ -691,13 +691,36 @@ const DEMO_ITEMS = {
 };
 
 async function loadMatrix() {
-  const res = await fetch(`/api/menu-engineering?user_id=${currentUser.id}`);
-  const json = await res.json();
-  if (!json.success) {
-    document.getElementById('matrixContainer').innerHTML = '<div class="error">' + BondsCommon.escapeHtml(json.error) + '</div>';
+  // Read user-scoped scores directly through the authenticated Supabase client.
+  // The legacy /api/menu-engineering route is not implemented in this deployment.
+  const { data: scores, error } = await sb.from('menu_engineering_scores')
+    .select('*, menu_item:menu_item_id(name)')
+    .eq('user_id', currentUser.id);
+  if (error) {
+    document.getElementById('matrixContainer').textContent = 'تعذر تحميل تحليل القائمة: ' + error.message;
     return;
   }
-  let data = json.data;
+  let data = { stars: [], engines: [], treasures: [], stalled: [], summary: {} };
+  const groups = { star: 'stars', plowhorse: 'engines', puzzle: 'treasures', dog: 'stalled' };
+  for (const row of scores || []) {
+    const key = groups[row.category];
+    if (key) data[key].push({ ...row,
+      gross_profit: Number(row.gross_profit || 0),
+      profit_margin_pct: Number(row.profit_margin_pct || 0),
+      total_revenue: Number(row.total_revenue || 0),
+      total_cost: Number(row.total_cost || 0),
+      total_sales_count: Number(row.total_sales_count || 0)
+    });
+  }
+  const all = [...data.stars, ...data.engines, ...data.treasures, ...data.stalled];
+  data.summary = {
+    total_items: all.length,
+    total_revenue: all.reduce((n, x) => n + x.total_revenue, 0),
+    total_cost: all.reduce((n, x) => n + x.total_cost, 0),
+    total_profit: all.reduce((n, x) => n + x.gross_profit, 0),
+    avg_margin: all.length ? (all.reduce((n, x) => n + x.profit_margin_pct, 0) / all.length).toFixed(2) : 0
+  };
+  _lastMatrixData = data;
   // If no data, show demo
   _lastMatrixData = data;
   const hasAny = (data.stars?.length||0) + (data.engines?.length||0) + (data.treasures?.length||0) + (data.stalled?.length||0);
