@@ -692,7 +692,16 @@ const DEMO_ITEMS = {
 
 async function loadMatrix() {
   const res = await fetch(`/api/menu-engineering?user_id=${currentUser.id}`);
-  const json = await res.json();
+  const contentType = res.headers.get('content-type') || '';
+  if (!res.ok || !contentType.includes('application/json')) {
+    document.getElementById('matrixContainer').textContent = 'تعذر تحميل تحليل القائمة (HTTP ' + res.status + '). يرجى المحاولة لاحقاً.';
+    return;
+  }
+  let json;
+  try { json = await res.json(); } catch (_) {
+    document.getElementById('matrixContainer').textContent = 'استجابة غير صالحة من خدمة تحليل القائمة.';
+    return;
+  }
   if (!json.success) {
     document.getElementById('matrixContainer').innerHTML = '<div class="error">' + BondsCommon.escapeHtml(json.error) + '</div>';
     return;
