@@ -3440,11 +3440,13 @@ async function getExecutiveAnalyticsV2(sb) {
   for(const r of [profilesRes,subsRes,invoicesRes,presenceRes,oppsRes,renewalsRes,successRes,aiRes])if(r.error)throw r.error;
   const profiles=profilesRes.data||[],subs=subsRes.data||[],invoices=invoicesRes.data||[],presence=presenceRes.data||[],opps=oppsRes.data||[],renewals=renewalsRes.data||[],success=successRes.data||[],ai=aiRes.data||[];
   const prices=await getTierPrices(sb);
-  const paidUsers=new Set(invoices.filter(i=>i.status==='paid').map(i=>i.user_id).filter(Boolean));
+  const paidInvoices=invoices.filter(i=>i.status==='paid');
+  const paidUsers=new Set(paidInvoices.map(i=>i.user_id).filter(Boolean));
   const activeSubs=subs.filter(s=>['active','trialing'].includes(s.status));
   const inactiveSubs=subs.filter(s=>['cancelled','canceled','inactive','expired'].includes(s.status));
   const pro=profiles.filter(p=>p.tier==='pro').length,ent=profiles.filter(p=>p.tier==='enterprise').length;
-  const mrr=pro*prices.pro+ent*prices.enterprise,arr=mrr*12;
+  const paidActiveSubs=activeSubs.filter(s=>paidUsers.has(s.user_id));
+  const mrr=paidActiveSubs.reduce((sum,s)=>sum+(s.tier==='enterprise'?prices.enterprise:s.tier==='pro'?prices.pro:0),0),arr=mrr*12;
   const total=profiles.length;
   const activeUsers=new Set(presence.filter(p=>new Date(p.last_seen_at).getTime()>=Date.now()-30*86400000).map(p=>p.user_id)).size;
   const activated=profiles.filter(p=>Number(p.profile_completeness||0)>=80).length;
@@ -3479,12 +3481,12 @@ async function getExecutiveAnalyticsV2(sb) {
   const monthlyRevenue={};
   for(const inv of paidInvoices){
     const at=inv.paid_at||inv.created_at;const month=String(at||'').slice(0,7);if(!month)continue;
-    monthlyRevenue[month]=(monthlyRevenue[month]||0)+Number(inv.amount||0);
+    monthlyRevenue[month]=(monthlyRevenue[month]||0)+Number(inv.amount||0)/100;
   }
   const revenueSeries=Object.entries(monthlyRevenue).sort((a,b)=>a[0].localeCompare(b[0])).slice(-6).map(([month,value])=>({month,value}));
   let monthlyTrend=0;
   if(revenueSeries.length>=2) monthlyTrend=(revenueSeries[revenueSeries.length-1].value-revenueSeries[0].value)/(revenueSeries.length-1);
-  const lastRevenue=revenueSeries.length?revenueSeries[revenueSeries.length-1].value:mrr;
+  const lastRevenue=revenueSeries.length?revenueSeries[revenueSeries.length-1].value:0;
   const forecast90d=Math.max(0,lastRevenue+monthlyTrend)+Math.max(0,lastRevenue+2*monthlyTrend)+Math.max(0,lastRevenue+3*monthlyTrend);
 
   return {success:true,
