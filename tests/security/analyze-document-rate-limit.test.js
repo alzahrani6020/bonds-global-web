@@ -1,11 +1,13 @@
 const mockCheckRateLimit = jest.fn();
 const mockAnalyzeDocument = jest.fn();
 const mockV3Handler = jest.fn();
+const mockCreateClient = jest.fn();
 
 jest.mock('../../lib/api/rate-limit', () => ({ checkRateLimit: mockCheckRateLimit }));
 jest.mock('../../lib/api/analyze-document', () => mockAnalyzeDocument);
 jest.mock('../../v3/api/index.js', () => mockV3Handler);
 jest.mock('../../lib/api/cors', () => ({ setAllowedOrigin: jest.fn() }));
+jest.mock('@supabase/supabase-js', () => ({ createClient: mockCreateClient }));
 
 const handler = require('../../api/v3/index.js');
 
@@ -100,5 +102,110 @@ describe('document analysis rate-limit routing', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'Method not allowed' });
     expect(mockCheckRateLimit).not.toHaveBeenCalled();
     expect(mockAnalyzeDocument).not.toHaveBeenCalled();
+  });
+});
+
+
+describe('document analysis auth and ownership regression', () => {
+  const originalEnv = process.env;
+  const actualAnalyzeDocument = jest.requireActual('../../lib/api/analyze-document');
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env = {
+      ...originalEnv,
+      NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
+      SUPABASE_SERVICE_KEY: 'test-service-key'
+    };
+  });
+
+  afterAll(() => {
+    process.env = originalEnv;
+  });
+
+  test('missing bearer token remains 401 before document access', async () => {
+    const req = { headers: {}, body: { documentId: 'doc-1' } };
+    const res = createResponse();
+
+    await actualAnalyzeDocument(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
+    expect(mockCreateClient).not.toHaveBeenCalled();
+  });
+
+  test('authenticated non-owner remains 403 before download or parsing', async () => {
+    const download = jest.fn();
+    const update = jest.fn();
+    const maybeSingle = jest.fn().mockResolvedValue({
+      data: {
+        id: 'doc-1',
+        storage_path: 'user-b/doc-1.docx',
+        mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        advisory_clients: { auth_user_id: 'user-b' }
+      },
+      error: null
+    });
+    const selectEq = jest.fn(() => ({ maybeSingle }));
+    const select = jest.fn(() => ({ eq: selectEq }));
+    const sb = {
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'user-a' } }, error: null }) },
+      from: jest.fn(() => ({ select, update })),
+      storage: { from: jest.fn(() => ({ download })) }
+    };
+    mockCreateClient.mockReturnValue(sb);
+
+    const req = {
+      headers: { authorization: 'Bearer valid-token' },
+      body: { documentId: 'doc-1' }
+    };
+    const res = createResponse();
+
+    await actualAnalyzeDocument(req, res);
+
+    expect(res.status).toHaveBeenCalledWith(403);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });
+    expect(download).not.toHaveBeenCalled();
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  test('authenticated owner can continue to the existing document flow', async () => {
+    const fileBlob = { arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(0)) };
+    const download = jest.fn().mockResolvedValue({ data: fileBlob, error: null });
+    const maybeSingle = jest.fn().mockResolvedValue({
+      data: {
+        id: 'doc-1',
+        storage_path: 'user-a/doc-1.png',
+        mime_type: 'image/png',
+        filename: 'doc-1.png',
+        advisory_clients: { auth_user_id: 'user-a' }
+      },
+      error: null
+    });
+    const updateEq = jest.fn().mockResolvedValue({ error: null });
+    const update = jest.fn(() => ({ eq: updateEq }));
+    const sb = {
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'user-a' } }, error: null }) },
+      from: jest.fn(() => ({
+        select: jest.fn(() => ({ eq: jest.fn(() => ({ maybeSingle })) })),
+        update
+      })),
+      storage: { from: jest.fn(() => ({ download })) }
+    };
+    mockCreateClient.mockReturnValue(sb);
+
+    const req = {
+      headers: { authorization: 'Bearer valid-token' },
+      body: { documentId: 'doc-1' }
+    };
+    const res = createResponse();
+
+    await actualAnalyzeDocument(req, res);
+
+    expect(download).toHaveBeenCalledWith('user-a/doc-1.png');
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(updateEq).toHaveBeenCalledWith('id', 'doc-1');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.body).toMatchObject({ success: true });
   });
 });
