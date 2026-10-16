@@ -93,15 +93,38 @@ function generateTotp(secret, now = Date.now()) {
   return String(binary % 1000000).padStart(6, '0');
 }
 
+function resolveSupabaseUrl() {
+  if (cfg.supabaseUrl) {
+    try {
+      const parsed = new URL(cfg.supabaseUrl);
+      if (['http:', 'https:'].includes(parsed.protocol)) return parsed.origin;
+    } catch {}
+  }
+
+  requireEnv('SUPABASE_ANON_KEY', cfg.supabaseAnonKey);
+
+  const parts = String(cfg.supabaseAnonKey).split('.');
+  if (parts.length === 3) {
+    try {
+      const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+      if (payload?.ref && /^[a-z0-9]+$/i.test(payload.ref)) {
+        return `https://${payload.ref}.supabase.co`;
+      }
+    } catch {}
+  }
+
+  throw new Error('SUPABASE_URL is invalid and SUPABASE_ANON_KEY does not expose a project ref');
+}
+
 async function getAuthenticatedToken() {
   for (const [name, value] of [
-    ['SUPABASE_URL', cfg.supabaseUrl],
     ['SUPABASE_ANON_KEY', cfg.supabaseAnonKey],
     ['E2E_ADMIN_EMAIL', cfg.email],
     ['E2E_ADMIN_PASSWORD', cfg.password]
   ]) requireEnv(name, value);
 
-  const supabase = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey, {
+  const supabaseUrl = resolveSupabaseUrl();
+  const supabase = createClient(supabaseUrl, cfg.supabaseAnonKey, {
     auth: {
       persistSession: false,
       autoRefreshToken: false,
