@@ -10,7 +10,6 @@ const cfg = {
   totpSecret: process.env.E2E_ADMIN_TOTP_SECRET || '',
   vercelToken: process.env.VERCEL_TOKEN,
   vercelProjectId: process.env.VERCEL_PROJECT_ID,
-  vercelTeamId: process.env.VERCEL_TEAM_ID,
   expectedSha: process.env.GITHUB_SHA
 };
 
@@ -33,12 +32,10 @@ async function fetchJson(url, options = {}) {
 async function waitForMatchingProduction() {
   requireEnv('VERCEL_TOKEN', cfg.vercelToken);
   requireEnv('VERCEL_PROJECT_ID', cfg.vercelProjectId);
-  requireEnv('VERCEL_TEAM_ID', cfg.vercelTeamId);
   requireEnv('GITHUB_SHA', cfg.expectedSha);
 
   const endpoint = new URL('https://api.vercel.com/v6/deployments');
   endpoint.searchParams.set('projectId', cfg.vercelProjectId);
-  endpoint.searchParams.set('teamId', cfg.vercelTeamId);
   endpoint.searchParams.set('target', 'production');
   endpoint.searchParams.set('limit', '20');
 
