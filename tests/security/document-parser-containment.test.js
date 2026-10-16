@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
+const JSZip = require('jszip');
 
 const {
   MAX_RAW_BYTES,
@@ -157,6 +158,42 @@ describe('document parser containment', () => {
   test('malformed ZIP is rejected safely before Office library parsing', () => {
     expect(() => validateDocumentBuffer(Buffer.from('PK\x03\x04bad'), MIME.docx))
       .toThrow(expect.objectContaining({ code: 'MALFORMED_ARCHIVE' }));
+  });
+
+  test('malformed DOCX XML fails safely inside containment', async () => {
+    const zip = new JSZip();
+    zip.file('[Content_Types].xml', '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>');
+    zip.file('word/document.xml', '<w:document><w:body><w:p>');
+    const buffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+
+    await expect(parseDocument({
+      buffer,
+      mime: MIME.docx,
+      filename: 'malformed.docx'
+    })).rejects.toBeInstanceOf(DocumentParserError);
+  });
+
+  test('malformed XLSX container fails safely inside containment', async () => {
+    const zip = new JSZip();
+    zip.file('[Content_Types].xml', '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"></Types>');
+    zip.file('xl/workbook.xml', '<workbook><sheets><sheet');
+    const buffer = await zip.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' });
+
+    await expect(parseDocument({
+      buffer,
+      mime: MIME.xlsx,
+      filename: 'malformed.xlsx'
+    })).rejects.toBeInstanceOf(DocumentParserError);
+  });
+
+  test('malformed PDF with valid magic fails safely inside containment', async () => {
+    const buffer = Buffer.from('%PDF-1.7\nthis is not a valid PDF object graph\n%%EOF\n', 'utf8');
+
+    await expect(parseDocument({
+      buffer,
+      mime: MIME.pdf,
+      filename: 'malformed.pdf'
+    })).rejects.toBeInstanceOf(DocumentParserError);
   });
 
   test('high compression ratio is rejected before parser extraction', () => {
