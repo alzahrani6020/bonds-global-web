@@ -121,6 +121,25 @@ async function handleCalculateScenarios(req, res) {
         return sendJson(res, 401, { error: 'Authentication required to save scenarios' });
       }
 
+      const userSupabase = getUserSupabaseClient(req);
+
+      if (body.projectId) {
+        const { data: ownedProject, error: projectError } = await userSupabase
+          .from('user_projects')
+          .select('id')
+          .eq('id', body.projectId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (projectError) {
+          console.error('[scenarios project ownership]', projectError.message);
+          return sendJson(res, 500, { error: 'Failed to validate project ownership' });
+        }
+        if (!ownedProject) {
+          return sendJson(res, 404, { error: 'Project not found' });
+        }
+      }
+
       const records = results.scenarios.map(s => ({
         user_id: user.id,
         project_id: body.projectId || null,
@@ -138,7 +157,6 @@ async function handleCalculateScenarios(req, res) {
         is_saved: true
       }));
 
-      const userSupabase = getUserSupabaseClient(req);
       const { data, error } = await userSupabase
         .from('project_scenarios')
         .insert(records)
