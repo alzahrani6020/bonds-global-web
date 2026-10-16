@@ -64,6 +64,37 @@ jobs:
           console.log('SECURITY_METADATA ' + JSON.stringify(metadata));
           NODE
 
+      - name: Review install-time script surface
+        run: node scripts/security/install-script-inventory.js
+
+      - name: Generate CycloneDX SBOM
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm sbom --sbom-format=cyclonedx > sbom.cdx.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const sbom = JSON.parse(fs.readFileSync('sbom.cdx.json', 'utf8'));
+          const lock = fs.readFileSync('package-lock.json');
+          const generatedAt = new Date().toISOString();
+          sbom.metadata = sbom.metadata || {};
+          sbom.metadata.timestamp = sbom.metadata.timestamp || generatedAt;
+          sbom.metadata.properties = Array.isArray(sbom.metadata.properties) ? sbom.metadata.properties : [];
+          sbom.metadata.properties.push(
+            { name: 'bonds-global:git-sha', value: process.env.GITHUB_SHA || 'UNKNOWN' },
+            { name: 'bonds-global:package-lock-sha256', value: crypto.createHash('sha256').update(lock).digest('hex') },
+            { name: 'bonds-global:generated-at', value: generatedAt }
+          );
+          fs.writeFileSync('sbom.cdx.json', JSON.stringify(sbom, null, 2) + '\n');
+          console.log('SBOM_METADATA ' + JSON.stringify({
+            format: sbom.bomFormat,
+            specVersion: sbom.specVersion,
+            gitSha: process.env.GITHUB_SHA || 'UNKNOWN',
+            lockfileSha256: crypto.createHash('sha256').update(lock).digest('hex')
+          }));
+          NODE
+
       - name: Verify critical package policy
         shell: bash
         run: |
@@ -97,6 +128,9 @@ jobs:
       - name: Full dependency audit
         shell: bash
         run: npm audit --json > audit-all.json || true
+
+      - name: Advisory delta gate
+        run: node scripts/security/advisory-delta.js
 
       - name: Production vulnerability gate
         shell: bash
@@ -179,5 +213,10 @@ jobs:
             security-metadata.json
             node-version.txt
             npm-version.txt
+            install-script-inventory.json
+            advisory-delta.json
+            sbom.cdx.json
+            .github/security/advisory-baseline.json
+            .github/security/install-script-baseline.json
           if-no-files-found: warn
           retention-days: 30
