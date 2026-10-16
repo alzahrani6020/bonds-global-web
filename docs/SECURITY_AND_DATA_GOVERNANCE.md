@@ -318,3 +318,61 @@ PR C hardens the repository's CI and dependency evidence without changing runtim
 - The dependency-security workflow emits a CycloneDX SBOM enriched with Git SHA, package-lock SHA256, and generation time.
 - Advisory delta compares root advisories by advisory ID, package, resolved version, dependency path, severity, and prod/dev scope. Known Vercel/`braces` debt remains baseline-reviewed rather than causing every run to fail.
 - The gate fails on new unreviewed High/Critical advisories, new production High/Critical advisories, severity escalation to High/Critical, High/Critical movement into production scope, or explicitly blocked minimum package versions.
+
+
+---
+
+## PR D — Repository Governance
+
+PR D closes the repository-governance gap for the protected `main` branch. The controls below were verified from the GitHub REST API using a repository administrator account after the settings were applied.
+
+### Protected branch baseline
+
+| Control | Verified state |
+|---|---|
+| Protected branch | `main` |
+| Baseline SHA at verification | `7e95d9c0b19bd3c7fff18086f0afdd0fe07f45a3` |
+| Pull request required | Yes |
+| Required approving reviews | `0` |
+| Require branch up to date before merge | Yes (`required_status_checks.strict=true`) |
+| Required check | `test-and-audit` |
+| Required check | `audit` |
+| Required check | `verify-cache-version` |
+| Force pushes | Blocked (`allow_force_pushes.enabled=false`) |
+| Branch deletion | Blocked (`allow_deletions.enabled=false`) |
+| Signed commits | Not required |
+| Linear history | Not required |
+| Conversation resolution | Not required |
+| Branch lock | Disabled |
+| Classic admin enforcement | Disabled (`enforce_admins.enabled=false`) |
+| Repository rulesets | None at verification time (`[]`) |
+
+The three required status checks are GitHub Actions checks associated with app ID `15368`. The latest verification baseline had all relevant checks completed successfully, including `test-and-audit`, `audit`, `verify-cache-version`, `verify`, and `smoke`.
+
+### Emergency / administrator bypass
+
+Classic branch protection is configured with `enforce_admins.enabled=false`. This means repository administrators retain an emergency administrative bypass for classic branch protection. No repository ruleset bypass actors exist because no repository rulesets were configured at verification time.
+
+This bypass is intentionally retained only as an emergency/admin recovery path to reduce self-lockout risk. Normal changes to `main` are expected to flow through pull requests and the required checks above.
+
+### GitHub Production environment
+
+The GitHub environment returned by the API is named `Production` (environment ID `15787250874`).
+
+| Environment control | Verified state |
+|---|---|
+| Required reviewers | None visible in API (`protection_rules=[]`) |
+| Wait timer | None visible in API (`protection_rules=[]`) |
+| Deployment branch policy | None configured (`deployment_branch_policy=null`) |
+| Administrators can bypass environment protection | Yes (`can_admins_bypass=true`) |
+| Additional environment protection rules | None visible in API |
+
+These GitHub Environment settings are repository-governance evidence only. They do **not** attest Vercel project settings such as Root Directory, Install Command, Build Command, Node/npm configuration, Vercel Deployment Protection, or environment-variable scopes.
+
+### Evidence boundaries
+
+- Repository administrator permission was verified locally before reading the protected-branch settings.
+- The protected-branch state above was read from GitHub after the governance controls were applied.
+- Repository rulesets were separately queried and returned an empty list.
+- GitHub `Production` environment state was read separately from the repository environment API.
+- Vercel deployment success is not used as evidence for GitHub repository governance or Vercel project configuration.
