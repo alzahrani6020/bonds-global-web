@@ -253,7 +253,49 @@ Bonds Global يمتلك أساسًا أمنيًا مقبولًا للمرحلة 
 
 | ID | Description | Affected surface | Severity | Reachability | Mitigation / Evidence | Owner | Review date | Status |
 |---|---|---|---|---|---|---|---|---|
-| PARSER-001 | DOCX/PDF/XLSX parsing still runs without generalized worker/process containment | `/api/v3/analyze-document` | High hardening priority | CONFIRMED runtime surface | Rate limiting is enforced before parsing; isolation/timeout/archive bounds remain PR B | Engineering | 2026-10-30 | OPEN |
+| PARSER-001 | User-controlled DOCX/PDF/XLSX parsing requires containment and bounded resources | `/api/v3/analyze-document` | High hardening priority | CONFIRMED runtime surface | PR B adds worker isolation, hard timeout/termination, bounded concurrency, 10 MB raw limit, ZIP decompression/entry/ratio limits, MIME/signature/container validation, and normalized errors. Closure requires PR B CI + post-merge smoke evidence. | Engineering | 2026-10-30 | MITIGATING |
 | DEP-001 | Vercel tooling resolves a `braces 3.0.3` advisory chain in dev/tooling dependencies | CI/build tooling | High advisory / applicability unproven | UNKNOWN | Keep as known debt; do not force downgrade; analyze reachability separately | Engineering | 2026-10-30 | OPEN |
 | CLOUD-001 | Actual Vercel dashboard install/build/root/npm/deployment-protection settings are not verified by repository evidence | Deployment | Unknown | UNKNOWN | Verify through Vercel project settings/connector before baseline PASS | Platform | 2026-10-30 | OPEN |
-| RLS-001 | Production DB policy parity with repository migrations is not proven | Supabase data plane | Unknown | UNKNOWN | Runtime negative tests / production-policy verification required | Engineering | 2026-10-30 | OPEN |
+| RLS-001 | Production DB policy parity with repository migrations is not proven | Supabase data plane | Unknown | UNKNOWN | Repository migration contract now has focused negative coverage for client document/storage ownership; actual production policies still require runtime inspection. | Engineering | 2026-10-30 | OPEN |
+| AUTH-001 | Document analysis may initialize Supabase with `SUPABASE_SERVICE_KEY` when present | `/api/v3/analyze-document` | High if authorization order regresses | CONFIRMED code path; production key selection UNKNOWN | Bearer authentication and explicit advisory-client ownership check precede storage download/parser/update. Production env key selection remains UNKNOWN until environment attestation. | Engineering | 2026-10-30 | OPEN |
+
+
+---
+
+## KNOWN-GOOD-BASELINE-A
+
+This baseline records the immutable post-merge state of PR #133. It is not a claim that later parser/governance work is complete.
+
+| Evidence | Value |
+|---|---|
+| Git SHA | `5ea5ead7281b6fbd5e5e709a05c3548559dbd356` |
+| package-lock SHA256 | `0d1f5495f1a5107a232e64ac35a24e8941d829c6525335b2550e3d170fdef964` |
+| Node | `v24.21.0` |
+| npm | `11.19.0` |
+| Mammoth | `1.13.0` |
+| Sharp | `0.35.5` |
+| XLSX | `0.20.3` from SheetJS CDN with lockfile integrity |
+| pdf-parse | `2.4.5` |
+| Playwright Core | `1.64.1` |
+| Vercel CLI | `56.5.0` |
+| braces | `3.0.3` |
+| Production audit | 0 critical / 0 high / 3 moderate |
+| Full audit | 0 critical / 21 high / 3 moderate; known tooling chain requires reachability review |
+| Post-merge CI | PASS on merge SHA |
+| Dependency Security Triage | PASS on merge SHA |
+| Service Worker verification | PASS on merge SHA |
+| Production Authenticated Smoke | PASS on merge SHA |
+
+Production smoke proves continuity of the surfaces it explicitly exercises. It does not prove parser isolation, RLS production parity, SSRF absence, dependency safety, or Vercel build configuration.
+
+### Document parser containment policy (PR B)
+
+- User-controlled DOCX, PDF, XLS/XLSX, and CSV parsing is delegated to a worker thread rather than executed in the request event loop.
+- Worker parsing has a hard timeout and termination path, bounded concurrency/queueing, and V8 memory resource limits.
+- The existing 10 MB raw upload boundary is preserved.
+- ZIP-based Office containers are checked for entry count, per-entry and total decompressed size, compression ratio, safe paths, supported compression, and expected DOCX/XLSX structure before library parsing.
+- PDF, XLS and CSV signatures/content are checked against the stored MIME before parser selection.
+- Internal parser/storage/update errors are logged server-side and normalized before persistence/API response.
+- The document authorization sequence remains: bearer authentication -> document lookup -> explicit owner check -> storage download -> parser -> metadata update.
+- Repository RLS tests establish migration intent only; actual production policy parity remains UNKNOWN.
+- Production selection of service-role versus anon Supabase key remains UNKNOWN until environment attestation.
