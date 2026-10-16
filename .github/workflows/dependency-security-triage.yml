@@ -84,6 +84,12 @@ jobs:
           }
           NODE
 
+      - name: Run critical security tests
+        run: npm run test:security:critical
+
+      - name: Run API auth audit
+        run: npm run audit:api
+
       - name: Production dependency audit
         shell: bash
         run: npm audit --omit=dev --json > audit-prod.json || true
