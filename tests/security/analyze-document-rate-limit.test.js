@@ -2,7 +2,7 @@ const mockCheckRateLimit = jest.fn();
 const mockAnalyzeDocument = jest.fn();
 const mockV3Handler = jest.fn();
 
-jest.mock('../../lib/api/rate-limit', () => ({ mockCheckRateLimit }));
+jest.mock('../../lib/api/rate-limit', () => ({ checkRateLimit: mockCheckRateLimit }));
 jest.mock('../../lib/api/analyze-document', () => mockAnalyzeDocument);
 jest.mock('../../v3/api/index.js', () => mockV3Handler);
 jest.mock('../../lib/api/cors', () => ({ setAllowedOrigin: jest.fn() }));
