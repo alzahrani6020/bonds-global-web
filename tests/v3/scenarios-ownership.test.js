@@ -15,13 +15,13 @@ function makeChain(result) {
   return chain;
 }
 
-const serviceClient = {
+const mockServiceClient = {
   from: jest.fn(() => makeChain({ data: null, error: null }))
 };
 
 let userProjectResult = { data: { id: 'project-a' }, error: null };
 let insertedRecords = null;
-const userClient = {
+const mockUserClient = {
   from: jest.fn((table) => {
     if (table === 'user_projects') return makeChain(userProjectResult);
     if (table === 'project_scenarios') {
@@ -37,7 +37,7 @@ const userClient = {
 };
 
 jest.mock('../../v3/lib/supabase', () => ({
-  getSupabaseClient: jest.fn(() => serviceClient)
+  getSupabaseClient: jest.fn(() => mockServiceClient)
 }));
 
 jest.mock('../../v3/lib/auth', () => ({
@@ -45,7 +45,7 @@ jest.mock('../../v3/lib/auth', () => ({
 }));
 
 jest.mock('@supabase/supabase-js', () => ({
-  createClient: jest.fn(() => userClient)
+  createClient: jest.fn(() => mockUserClient)
 }));
 
 jest.mock('../../v3/engine/loader', () => ({
