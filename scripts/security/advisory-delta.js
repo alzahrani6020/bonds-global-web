@@ -50,7 +50,7 @@ const current = directAdvisories(fullAudit)
   }))
   .sort((a, b) => [a.id, a.package, a.dependencyPath].join('|').localeCompare([b.id, b.package, b.dependencyPath].join('|')));
 
-const baselineEntries = baseline.entries || [];
+const baselineEntries = (baseline.entries || []).map(item => ({ ...item, id: String(item.id || '').toUpperCase() }));
 const matchedBaseline = new Set();
 const changes = [];
 
