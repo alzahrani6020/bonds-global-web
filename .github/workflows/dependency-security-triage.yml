@@ -75,14 +75,16 @@ jobs:
           node - <<'NODE'
           const fs = require('fs');
           const crypto = require('crypto');
+          const { execSync } = require('child_process');
           const sbom = JSON.parse(fs.readFileSync('sbom.cdx.json', 'utf8'));
           const lock = fs.readFileSync('package-lock.json');
           const generatedAt = new Date().toISOString();
+          const gitSha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
           sbom.metadata = sbom.metadata || {};
           sbom.metadata.timestamp = sbom.metadata.timestamp || generatedAt;
           sbom.metadata.properties = Array.isArray(sbom.metadata.properties) ? sbom.metadata.properties : [];
           sbom.metadata.properties.push(
-            { name: 'bonds-global:git-sha', value: process.env.GITHUB_SHA || 'UNKNOWN' },
+            { name: 'bonds-global:git-sha', value: gitSha },
             { name: 'bonds-global:package-lock-sha256', value: crypto.createHash('sha256').update(lock).digest('hex') },
             { name: 'bonds-global:generated-at', value: generatedAt }
           );
@@ -90,7 +92,7 @@ jobs:
           console.log('SBOM_METADATA ' + JSON.stringify({
             format: sbom.bomFormat,
             specVersion: sbom.specVersion,
-            gitSha: process.env.GITHUB_SHA || 'UNKNOWN',
+            gitSha,
             lockfileSha256: crypto.createHash('sha256').update(lock).digest('hex')
           }));
           NODE
