@@ -318,3 +318,53 @@ PR C hardens the repository's CI and dependency evidence without changing runtim
 - The dependency-security workflow emits a CycloneDX SBOM enriched with Git SHA, package-lock SHA256, and generation time.
 - Advisory delta compares root advisories by advisory ID, package, resolved version, dependency path, severity, and prod/dev scope. Known Vercel/`braces` debt remains baseline-reviewed rather than causing every run to fail.
 - The gate fails on new unreviewed High/Critical advisories, new production High/Critical advisories, severity escalation to High/Critical, High/Critical movement into production scope, or explicitly blocked minimum package versions.
+
+
+---
+
+## Repository Governance Baseline (PR D)
+
+This section records repository-governance controls verified on 16 October 2026 after PR C merged at `7e95d9c0b19bd3c7fff18086f0afdd0fe07f45a3`. The branch-protection and Production-environment values below were verified operationally through GitHub API responses captured from PowerShell; they are not inferred from repository files.
+
+### `main` branch protection
+
+| Control | Verified state |
+|---|---|
+| Protected branch | `main` — enabled |
+| Required status checks | `test-and-audit`, `audit`, `verify-cache-version` |
+| Require branches to be up to date before merging | enabled (`strict=true`) |
+| Pull request requirement | enabled |
+| Required approving reviews | `0` |
+| Force pushes | prohibited |
+| Branch deletion | prohibited |
+| Admin bypass | retained for emergency administration |
+| Rulesets | none; enforcement uses classic branch protection |
+
+The required-check names above are treated as an interface contract with the active GitHub Actions workflows. Renaming or removing one of these checks must be coordinated with branch protection so merges are not unintentionally blocked or weakened.
+
+The zero-approval setting is intentional for the current single-maintainer operating model. It enforces the pull-request path and required automated checks without claiming independent human review. This is weaker than a multi-reviewer governance model and should be revisited before materially increasing production, regulatory, or financial risk.
+
+Admin bypass is retained as an emergency recovery capability. It must not be treated as the normal merge path; any emergency use should be documented with the reason, affected commit/PR, and follow-up verification.
+
+### Production environment
+
+| Control | Verified state |
+|---|---|
+| Environment | `Production` |
+| Admin bypass | `can_admins_bypass=true` |
+| Protection rules | none |
+| Deployment branch policy | none |
+
+The GitHub `Production` environment therefore does **not** currently add reviewer gates or branch/tag deployment restrictions. Repository branch protection and required checks remain the primary GitHub-side merge controls. This statement does not attest Vercel dashboard deployment-protection, project-root, install/build, or runtime environment settings; those remain separately verifiable deployment controls.
+
+### Governance verification boundary
+
+PR D is documentation-only. It records the verified GitHub control state and does not modify application runtime behavior, workflow logic, branch-protection configuration, rulesets, or Production-environment configuration.
+
+Post-merge verification for PR D must confirm:
+
+1. the PR merged through the protected `main` path;
+2. required checks remain `test-and-audit`, `audit`, and `verify-cache-version` with strict/up-to-date enforcement;
+3. force pushes and deletion remain prohibited;
+4. classic branch protection remains active and no conflicting ruleset has appeared;
+5. the `Production` environment still reports `can_admins_bypass=true`, no protection rules, and no deployment branch policy.
