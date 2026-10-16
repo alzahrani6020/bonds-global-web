@@ -524,8 +524,9 @@ async function handleCatalogYears(req, res) {
         .filter(Number.isFinite)
         .sort((a, b) => b - a)[0] || 0;
       const cacheAgeMs = newestFetchMs ? Date.now() - newestFetchMs : Infinity;
+      const uniqueCountryYears = new Set(countryRows.map(row => row.year)).size;
 
-      if (!countryRows.length || cacheAgeMs > 6 * 60 * 60 * 1000) {
+      if (!countryRows.length || uniqueCountryYears === 0 || cacheAgeMs > 6 * 60 * 60 * 1000) {
         try {
           const engine = new CountryIndicatorEngine({ timeoutMs: 12000 });
           await engine.refresh(supabase, {
@@ -926,7 +927,9 @@ async function handleCountryContext(req, res, path) {
       .filter(Number.isFinite)
       .sort((a, b) => b - a)[0] || 0;
     const cacheAgeMs = newestFetchMs ? Date.now() - newestFetchMs : Infinity;
-    if (!observationRows.length || cacheAgeMs > 6 * 60 * 60 * 1000) {
+    const uniqueMetricCount = new Set(observationRows.map(row => row.metric_code)).size;
+    const incompleteCoverage = uniqueMetricCount < 3;
+    if (!observationRows.length || incompleteCoverage || cacheAgeMs > 6 * 60 * 60 * 1000) {
       try {
         const engine = new CountryIndicatorEngine({ timeoutMs: 12000 });
         await engine.refresh(supabase, {
