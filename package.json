@@ -69,9 +69,7 @@
     "path-to-regexp": "^6.3.0",
     "smol-toml": "^1.6.1",
     "tar": "^7.5.20",
-    "undici": "^6.27.0",
-    "braces": "^3.0.4",
-    "sprintf-js": "^1.1.4"
+    "undici": "^6.27.0"
   },
   "engines": {
     "node": "24.x"
