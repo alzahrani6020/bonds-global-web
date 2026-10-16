@@ -30,7 +30,9 @@ jobs:
           node - <<'NODE'
           const fs = require('fs');
           const a = JSON.parse(fs.readFileSync('audit-prod.json', 'utf8'));
-          console.log('PRODUCTION_AUDIT_METADATA ' + JSON.stringify(a.metadata || {}));
+          const meta = a.metadata || {};
+          const counts = meta.vulnerabilities || {};
+          console.log('PRODUCTION_AUDIT_METADATA ' + JSON.stringify(meta));
           for (const [name, v] of Object.entries(a.vulnerabilities || {})) {
             console.log('PROD_VULN ' + JSON.stringify({
               name,
@@ -50,6 +52,10 @@ jobs:
               nodes: v.nodes,
               fixAvailable: v.fixAvailable
             }));
+          }
+          if ((counts.high || 0) > 0 || (counts.critical || 0) > 0) {
+            console.error('Production dependency gate failed: high/critical vulnerabilities present.');
+            process.exit(1);
           }
           NODE
 
