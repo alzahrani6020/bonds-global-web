@@ -44,17 +44,20 @@ jobs:
           const lock = fs.readFileSync('package-lock.json');
           const selected = JSON.parse(fs.readFileSync('dependency-selected.json', 'utf8'));
           const direct = selected.dependencies || {};
+          const lockJson = JSON.parse(lock.toString('utf8'));
+          const lockPackages = lockJson.packages || {};
+          const versionFromLock = name => lockPackages[`node_modules/${name}`]?.version || null;
           const metadata = {
             gitSha: require('child_process').execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim(),
             lockfileSha256: crypto.createHash('sha256').update(lock).digest('hex'),
             node: process.version,
             npm: require('child_process').execSync('npm --version', { encoding: 'utf8' }).trim(),
-            mammoth: direct.mammoth?.version || null,
-            sharp: direct.sharp?.version || null,
-            xlsx: direct.xlsx?.version || null,
-            pdfParse: direct['pdf-parse']?.version || null,
-            vercel: direct.vercel?.version || null,
-            braces: direct.braces?.version || null,
+            mammoth: direct.mammoth?.version || versionFromLock('mammoth'),
+            sharp: direct.sharp?.version || versionFromLock('sharp'),
+            xlsx: direct.xlsx?.version || versionFromLock('xlsx'),
+            pdfParse: direct['pdf-parse']?.version || versionFromLock('pdf-parse'),
+            vercel: direct.vercel?.version || versionFromLock('vercel'),
+            braces: versionFromLock('braces'),
             timestamp: new Date().toISOString()
           };
           fs.writeFileSync('security-metadata.json', JSON.stringify(metadata, null, 2) + '\n');
@@ -76,12 +79,9 @@ jobs:
             console.error('Blocked Mammoth version: resolved version must be >= 1.12.3');
             process.exit(1);
           }
-          try {
-            const sharpVersion = require('sharp/package.json').version;
-            console.log('SHARP_RESOLVED_VERSION ' + sharpVersion);
-          } catch (error) {
-            console.log('SHARP_RESOLVED_VERSION UNKNOWN');
-          }
+          const lock = require('./package-lock.json');
+          const sharpVersion = lock.packages?.['node_modules/sharp']?.version || 'UNKNOWN';
+          console.log('SHARP_RESOLVED_VERSION ' + sharpVersion);
           NODE
 
       - name: Run critical security tests
