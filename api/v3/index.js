@@ -33,6 +33,9 @@ module.exports = async function handler(req, res) {
   if (path === '/analyze-document' || path === '/analyze-document/') {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+    if (await checkRateLimit('document_analysis', req, res, undefined, true)) {
+      return;
+    }
     return require('../../lib/api/analyze-document')(req, res);
   }
 
