@@ -3,7 +3,11 @@ name: Dependency Security Triage
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
 
 permissions:
   contents: read
@@ -23,10 +27,72 @@ jobs:
       - name: Install dependency graph
         run: npm install --ignore-scripts --no-audit
 
-      - name: Production dependency audit
+      - name: Capture dependency evidence
         shell: bash
         run: |
-          npm audit --omit=dev --json > audit-prod.json || true
+          node --version | tee node-version.txt
+          npm --version | tee npm-version.txt
+          npm ls --all --json > dependency-tree.json || true
+          npm ls mammoth sharp xlsx pdf-parse playwright-core playwright vercel braces micromatch fast-glob ts-morph @ts-morph/common stripe @supabase/supabase-js resend nodemailer --all --json > dependency-selected.json || true
+          sha256sum package-lock.json | tee package-lock.sha256
+
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const lock = fs.readFileSync('package-lock.json');
+          const selected = JSON.parse(fs.readFileSync('dependency-selected.json', 'utf8'));
+          const direct = selected.dependencies || {};
+          const metadata = {
+            gitSha: process.env.GITHUB_SHA,
+            lockfileSha256: crypto.createHash('sha256').update(lock).digest('hex'),
+            node: process.version,
+            npm: require('child_process').execSync('npm --version', { encoding: 'utf8' }).trim(),
+            mammoth: direct.mammoth?.version || null,
+            sharp: direct.sharp?.version || null,
+            xlsx: direct.xlsx?.version || null,
+            pdfParse: direct['pdf-parse']?.version || null,
+            vercel: direct.vercel?.version || null,
+            braces: direct.braces?.version || null,
+            timestamp: new Date().toISOString()
+          };
+          fs.writeFileSync('security-metadata.json', JSON.stringify(metadata, null, 2) + '\n');
+          console.log('SECURITY_METADATA ' + JSON.stringify(metadata));
+          NODE
+
+      - name: Verify critical package policy
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const mammothVersion = require('mammoth/package.json').version;
+          const parts = mammothVersion.split('.').map(Number);
+          const minimum = [1, 12, 3];
+          const safe = parts[0] > minimum[0]
+            || (parts[0] === minimum[0] && parts[1] > minimum[1])
+            || (parts[0] === minimum[0] && parts[1] === minimum[1] && parts[2] >= minimum[2]);
+          console.log('MAMMOTH_RESOLVED_VERSION ' + mammothVersion);
+          if (!safe) {
+            console.error('Blocked Mammoth version: resolved version must be >= 1.12.3');
+            process.exit(1);
+          }
+          try {
+            const sharpVersion = require('sharp/package.json').version;
+            console.log('SHARP_RESOLVED_VERSION ' + sharpVersion);
+          } catch (error) {
+            console.log('SHARP_RESOLVED_VERSION UNKNOWN');
+          }
+          NODE
+
+      - name: Production dependency audit
+        shell: bash
+        run: npm audit --omit=dev --json > audit-prod.json || true
+
+      - name: Full dependency audit
+        shell: bash
+        run: npm audit --json > audit-all.json || true
+
+      - name: Production vulnerability gate
+        shell: bash
+        run: |
           node - <<'NODE'
           const fs = require('fs');
           const a = JSON.parse(fs.readFileSync('audit-prod.json', 'utf8'));
@@ -59,12 +125,13 @@ jobs:
           }
           NODE
 
-      - name: Full dependency audit
+      - name: Print full audit metadata
+        if: always()
         shell: bash
         run: |
-          npm audit --json > audit-all.json || true
           node - <<'NODE'
           const fs = require('fs');
+          if (!fs.existsSync('audit-all.json')) process.exit(0);
           const a = JSON.parse(fs.readFileSync('audit-all.json', 'utf8'));
           console.log('FULL_AUDIT_METADATA ' + JSON.stringify(a.metadata || {}));
           for (const [name, v] of Object.entries(a.vulnerabilities || {})) {
@@ -88,3 +155,21 @@ jobs:
             }));
           }
           NODE
+
+      - name: Upload security evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-security-evidence
+          path: |
+            package-lock.json
+            package-lock.sha256
+            dependency-tree.json
+            dependency-selected.json
+            audit-prod.json
+            audit-all.json
+            security-metadata.json
+            node-version.txt
+            npm-version.txt
+          if-no-files-found: warn
+          retention-days: 30
