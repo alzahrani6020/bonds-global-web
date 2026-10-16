@@ -3,7 +3,11 @@ name: Dependency Security Triage
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
+  schedule:
+    - cron: '17 4 * * 1'
 
 permissions:
   contents: read
@@ -14,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -21,12 +27,80 @@ jobs:
           node-version: '24'
 
       - name: Install dependency graph
-        run: npm install --ignore-scripts --no-audit
+        run: npm ci --ignore-scripts --no-audit
+
+      - name: Capture dependency evidence
+        shell: bash
+        run: |
+          node --version | tee node-version.txt
+          npm --version | tee npm-version.txt
+          npm ls --all --json > dependency-tree.json || true
+          npm ls mammoth sharp xlsx pdf-parse playwright-core playwright vercel braces micromatch fast-glob ts-morph @ts-morph/common stripe @supabase/supabase-js resend nodemailer --all --json > dependency-selected.json || true
+          sha256sum package-lock.json | tee package-lock.sha256
+
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const lock = fs.readFileSync('package-lock.json');
+          const selected = JSON.parse(fs.readFileSync('dependency-selected.json', 'utf8'));
+          const direct = selected.dependencies || {};
+          const lockJson = JSON.parse(lock.toString('utf8'));
+          const lockPackages = lockJson.packages || {};
+          const versionFromLock = name => lockPackages[`node_modules/${name}`]?.version || null;
+          const metadata = {
+            gitSha: require('child_process').execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim(),
+            lockfileSha256: crypto.createHash('sha256').update(lock).digest('hex'),
+            node: process.version,
+            npm: require('child_process').execSync('npm --version', { encoding: 'utf8' }).trim(),
+            mammoth: direct.mammoth?.version || versionFromLock('mammoth'),
+            sharp: direct.sharp?.version || versionFromLock('sharp'),
+            xlsx: direct.xlsx?.version || versionFromLock('xlsx'),
+            pdfParse: direct['pdf-parse']?.version || versionFromLock('pdf-parse'),
+            vercel: direct.vercel?.version || versionFromLock('vercel'),
+            braces: versionFromLock('braces'),
+            timestamp: new Date().toISOString()
+          };
+          fs.writeFileSync('security-metadata.json', JSON.stringify(metadata, null, 2) + '\n');
+          console.log('SECURITY_METADATA ' + JSON.stringify(metadata));
+          NODE
+
+      - name: Verify critical package policy
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const mammothVersion = require('mammoth/package.json').version;
+          const parts = mammothVersion.split('.').map(Number);
+          const minimum = [1, 12, 3];
+          const safe = parts[0] > minimum[0]
+            || (parts[0] === minimum[0] && parts[1] > minimum[1])
+            || (parts[0] === minimum[0] && parts[1] === minimum[1] && parts[2] >= minimum[2]);
+          console.log('MAMMOTH_RESOLVED_VERSION ' + mammothVersion);
+          if (!safe) {
+            console.error('Blocked Mammoth version: resolved version must be >= 1.12.3');
+            process.exit(1);
+          }
+          const lock = require('./package-lock.json');
+          const sharpVersion = lock.packages?.['node_modules/sharp']?.version || 'UNKNOWN';
+          console.log('SHARP_RESOLVED_VERSION ' + sharpVersion);
+          NODE
+
+      - name: Run critical security tests
+        run: npm run test:security:critical
+
+      - name: Run API auth audit
+        run: npm run audit:api
 
       - name: Production dependency audit
         shell: bash
+        run: npm audit --omit=dev --json > audit-prod.json || true
+
+      - name: Full dependency audit
+        shell: bash
+        run: npm audit --json > audit-all.json || true
+
+      - name: Production vulnerability gate
+        shell: bash
         run: |
-          npm audit --omit=dev --json > audit-prod.json || true
           node - <<'NODE'
           const fs = require('fs');
           const a = JSON.parse(fs.readFileSync('audit-prod.json', 'utf8'));
@@ -59,12 +133,13 @@ jobs:
           }
           NODE
 
-      - name: Full dependency audit
+      - name: Print full audit metadata
+        if: always()
         shell: bash
         run: |
-          npm audit --json > audit-all.json || true
           node - <<'NODE'
           const fs = require('fs');
+          if (!fs.existsSync('audit-all.json')) process.exit(0);
           const a = JSON.parse(fs.readFileSync('audit-all.json', 'utf8'));
           console.log('FULL_AUDIT_METADATA ' + JSON.stringify(a.metadata || {}));
           for (const [name, v] of Object.entries(a.vulnerabilities || {})) {
@@ -88,3 +163,21 @@ jobs:
             }));
           }
           NODE
+
+      - name: Upload security evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-security-evidence
+          path: |
+            package-lock.json
+            package-lock.sha256
+            dependency-tree.json
+            dependency-selected.json
+            audit-prod.json
+            audit-all.json
+            security-metadata.json
+            node-version.txt
+            npm-version.txt
+          if-no-files-found: warn
+          retention-days: 30
