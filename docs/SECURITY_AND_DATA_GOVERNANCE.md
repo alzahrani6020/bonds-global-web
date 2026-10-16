@@ -253,7 +253,7 @@ Bonds Global يمتلك أساسًا أمنيًا مقبولًا للمرحلة 
 
 | ID | Description | Affected surface | Severity | Reachability | Mitigation / Evidence | Owner | Review date | Status |
 |---|---|---|---|---|---|---|---|---|
-| PARSER-001 | User-controlled DOCX/PDF/XLSX parsing requires containment and bounded resources | `/api/v3/analyze-document` | High hardening priority | CONFIRMED runtime surface | PR B adds worker isolation, hard timeout/termination, bounded concurrency, 10 MB raw limit, ZIP decompression/entry/ratio limits, MIME/signature/container validation, and normalized errors. Closure requires PR B CI + post-merge smoke evidence. | Engineering | 2026-10-30 | MITIGATING |
+| PARSER-001 | User-controlled DOCX/PDF/XLSX parsing requires containment and bounded resources | `/api/v3/analyze-document` | High hardening priority | CONFIRMED runtime surface | CLOSED by PR #134 / merge `19189934485a518b0948128bce913640ac65e85e`: worker isolation, hard timeout/termination, bounded concurrency, 10 MB raw limit, ZIP decompression/entry/ratio limits, signature/container validation, normalized errors; post-merge CI, dependency triage, service-worker verification, and Production Authenticated Smoke all succeeded. | Engineering | 2026-10-30 | CLOSED |
 | DEP-001 | Vercel tooling resolves a `braces 3.0.3` advisory chain in dev/tooling dependencies | CI/build tooling | High advisory / applicability unproven | UNKNOWN | Keep as known debt; do not force downgrade; analyze reachability separately | Engineering | 2026-10-30 | OPEN |
 | CLOUD-001 | Actual Vercel dashboard install/build/root/npm/deployment-protection settings are not verified by repository evidence | Deployment | Unknown | UNKNOWN | Verify through Vercel project settings/connector before baseline PASS | Platform | 2026-10-30 | OPEN |
 | RLS-001 | Production DB policy parity with repository migrations is not proven | Supabase data plane | Unknown | UNKNOWN | Repository migration contract now has focused negative coverage for client document/storage ownership; actual production policies still require runtime inspection. | Engineering | 2026-10-30 | OPEN |
@@ -299,3 +299,22 @@ Production smoke proves continuity of the surfaces it explicitly exercises. It d
 - The document authorization sequence remains: bearer authentication -> document lookup -> explicit owner check -> storage download -> parser -> metadata update.
 - Repository RLS tests establish migration intent only; actual production policy parity remains UNKNOWN.
 - Production selection of service-role versus anon Supabase key remains UNKNOWN until environment attestation.
+
+
+---
+
+## CI / Supply-chain Hardening Policy
+
+PR C hardens the repository's CI and dependency evidence without changing runtime application behavior.
+
+- All active GitHub Actions references are pinned to reviewed full commit SHAs rather than mutable major-version tags.
+- Official `v4` refs were verified before pinning:
+  - `actions/checkout` → `11d5960a326750d5838078e36cf38b85af677262`
+  - `actions/setup-node` → `49933ea5288caeca8642d1e84afbd3f7d6820020`
+  - `actions/upload-artifact` → `ea165f8d65b6e75b540449e92b4886f43607fa02`
+- Every checked-in workflow declares explicit permissions. Workflows that do not need repository access use `permissions: {}`; checkout workflows use `contents: read` unless a narrower job-level declaration already exists.
+- Dependency-security evidence installs with `npm ci --ignore-scripts --no-audit` so lifecycle scripts are not executed while evidence is collected. Normal CI/build uses `npm ci` and may execute only the reviewed lifecycle-script surface recorded in `.github/security/install-script-baseline.json`.
+- The reviewed install-script surface currently contains `@parcel/watcher 2.6.0`, `esbuild 0.27.0`, `fsevents 2.3.3`, and `unrs-resolver 1.12.2`. Any new or version-changed install-script package is reported as unreviewed and fails the security workflow pending review.
+- The dependency-security workflow emits a CycloneDX SBOM enriched with Git SHA, package-lock SHA256, and generation time.
+- Advisory delta compares root advisories by advisory ID, package, resolved version, dependency path, severity, and prod/dev scope. Known Vercel/`braces` debt remains baseline-reviewed rather than causing every run to fail.
+- The gate fails on new unreviewed High/Critical advisories, new production High/Critical advisories, severity escalation to High/Critical, High/Critical movement into production scope, or explicitly blocked minimum package versions.

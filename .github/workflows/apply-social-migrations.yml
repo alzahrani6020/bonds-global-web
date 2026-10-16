@@ -3,6 +3,8 @@ name: Apply Social Migrations
 on:
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   migrate:
     name: Apply Social Migrations via Admin Endpoint

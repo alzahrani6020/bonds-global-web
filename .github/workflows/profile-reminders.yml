@@ -6,6 +6,8 @@ on:
     - cron: '0 8 * * *'
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   reminders:
     name: Send profile completion reminders

@@ -5,6 +5,8 @@ on:
     - cron: '0 9 * * *' # Daily at 09:00 UTC
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   send-reminders:
     runs-on: ubuntu-latest

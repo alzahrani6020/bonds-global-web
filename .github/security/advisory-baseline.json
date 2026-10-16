@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-10-16",
+  "sourceSha": "19189934485a518b0948128bce913640ac65e85e",
+  "entries": [
+    {
+      "id": "GHSA-hp3w-g68c-fv3c",
+      "package": "sprintf-js",
+      "resolvedVersion": "1.0.3",
+      "dependencyPath": "node_modules/sprintf-js",
+      "severity": "moderate",
+      "scope": "prod",
+      "status": "accepted-temporarily",
+      "rationale": "Propagates through Mammoth argparse; parser execution is isolated and resource bounded. Do not downgrade Mammoth to scanner-suggested legacy versions."
+    },
+    {
+      "id": "GHSA-vfj7-8cjw-p6xm",
+      "package": "braces",
+      "resolvedVersion": "3.0.3",
+      "dependencyPath": "node_modules/braces",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "rationale": "Known Vercel tooling dependency debt. Reachability review remains separate; do not force a Vercel downgrade."
+    }
+  ],
+  "minimumVersions": {
+    "mammoth": "1.12.3",
+    "sharp": "0.35.5"
+  }
+}

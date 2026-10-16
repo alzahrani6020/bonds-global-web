@@ -17,12 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: '24'
 
@@ -64,6 +64,39 @@ jobs:
           console.log('SECURITY_METADATA ' + JSON.stringify(metadata));
           NODE
 
+      - name: Review install-time script surface
+        run: node scripts/security/install-script-inventory.js
+
+      - name: Generate CycloneDX SBOM
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm sbom --sbom-format=cyclonedx > sbom.cdx.json
+          node - <<'NODE'
+          const fs = require('fs');
+          const crypto = require('crypto');
+          const { execSync } = require('child_process');
+          const sbom = JSON.parse(fs.readFileSync('sbom.cdx.json', 'utf8'));
+          const lock = fs.readFileSync('package-lock.json');
+          const generatedAt = new Date().toISOString();
+          const gitSha = execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim();
+          sbom.metadata = sbom.metadata || {};
+          sbom.metadata.timestamp = sbom.metadata.timestamp || generatedAt;
+          sbom.metadata.properties = Array.isArray(sbom.metadata.properties) ? sbom.metadata.properties : [];
+          sbom.metadata.properties.push(
+            { name: 'bonds-global:git-sha', value: gitSha },
+            { name: 'bonds-global:package-lock-sha256', value: crypto.createHash('sha256').update(lock).digest('hex') },
+            { name: 'bonds-global:generated-at', value: generatedAt }
+          );
+          fs.writeFileSync('sbom.cdx.json', JSON.stringify(sbom, null, 2) + '\n');
+          console.log('SBOM_METADATA ' + JSON.stringify({
+            format: sbom.bomFormat,
+            specVersion: sbom.specVersion,
+            gitSha,
+            lockfileSha256: crypto.createHash('sha256').update(lock).digest('hex')
+          }));
+          NODE
+
       - name: Verify critical package policy
         shell: bash
         run: |
@@ -97,6 +130,9 @@ jobs:
       - name: Full dependency audit
         shell: bash
         run: npm audit --json > audit-all.json || true
+
+      - name: Advisory delta gate
+        run: node scripts/security/advisory-delta.js
 
       - name: Production vulnerability gate
         shell: bash
@@ -166,7 +202,7 @@ jobs:
 
       - name: Upload security evidence
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: dependency-security-evidence
           path: |
@@ -179,5 +215,10 @@ jobs:
             security-metadata.json
             node-version.txt
             npm-version.txt
+            install-script-inventory.json
+            advisory-delta.json
+            sbom.cdx.json
+            .github/security/advisory-baseline.json
+            .github/security/install-script-baseline.json
           if-no-files-found: warn
           retention-days: 30

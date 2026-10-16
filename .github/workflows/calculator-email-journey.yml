@@ -8,6 +8,8 @@ on:
   #   - cron: '0 9 * * *'
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   journey:
     name: Run calculator lead retargeting email journey
