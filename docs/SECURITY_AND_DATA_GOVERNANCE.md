@@ -393,11 +393,11 @@ The governed acquisition path:
 
 - permits only `http:` and `https:`;
 - rejects URLs containing username/password credentials;
-- rejects loopback, RFC1918, IPv4 link-local, CGNAT, benchmark/reserved destinations, IPv6 loopback/link-local/ULA/multicast, and IPv4-mapped private IPv6 forms;
+- rejects the SSRF-relevant ranges implemented by policy: IPv4 0/8, 10/8, 100.64/10, 127/8, 169.254/16, 172.16/12, 192.168/16, 192.0.0/24 except the explicitly globally-reachable .9/.10 anycast addresses, 192.0.2/24, 192.88.99/24, 198.18/15, 198.51.100/24, 203.0.113/24, and 224/4+; plus IPv6 unspecified/loopback, IPv4-compatible/mapped private forms, fe80::/10 link-local, fc00::/7 unique-local, ff00::/8 multicast, and 2001:db8::/32 documentation space. This is an explicit implemented list, not a claim that every IANA special-purpose prefix is enumerated;
 - resolves DNS before the request and rejects a hostname if any resolved address is forbidden;
 - pins the outbound connection to the validated address set so a second resolver answer cannot redirect the connection into a private address;
 - uses manual redirects, with a default maximum of five, and repeats URL/DNS/private-network validation for every redirect destination;
-- bounds response bytes and request time.
+- enforces a single absolute acquisition deadline across connect, response headers, redirects, and body consumption; slow-drip bodies cannot extend the deadline; and bounds response bytes, destroying a truncated response stream once maxBytes is reached.
 
 ### Browser automation / Playwright
 
