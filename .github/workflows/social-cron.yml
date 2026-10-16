@@ -6,6 +6,8 @@ on:
     - cron: '*/10 * * * *'
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
   publish:
     name: Publish due social media posts
