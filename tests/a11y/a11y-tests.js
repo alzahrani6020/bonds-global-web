@@ -66,13 +66,17 @@ const PAGES = [
 
       const result = await page.evaluate(async () => {
         // eslint-disable-next-line no-undef
-        return await axe.run(document, {
+        const scan = axe.run(document, {
           runOnly: {
             type: 'tag',
             values: ['wcag2a', 'wcag2aa', 'wcag21aa'],
           },
           resultTypes: ['violations'],
         });
+        const watchdog = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('axe scan timed out after 10s')), 10000);
+        });
+        return await Promise.race([scan, watchdog]);
       });
 
       const criticalOrSerious = result.violations.filter(
