@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { execSync } = require('child_process');
 
 const baseline = JSON.parse(fs.readFileSync('.github/security/advisory-baseline.json', 'utf8'));
 const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
@@ -122,7 +123,7 @@ for (const change of changes) {
 
 const report = {
   generatedAt: new Date().toISOString(),
-  gitSha: process.env.GITHUB_SHA || null,
+  gitSha: execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim(),
   baselineSourceSha: baseline.sourceSha || null,
   current,
   changes,
