@@ -46,7 +46,7 @@ describe('client document repository RLS contract', () => {
 
   test('raw upload contract remains private and capped at 10 MB', () => {
     expect(clientSql).toMatch(
-      /'client-documents'[\s\S]*false,[\s\S]*10485760,[\s\S]*allowed_mime_types/i
+      /INSERT INTO storage\.buckets\s*\(id, name, public, file_size_limit, allowed_mime_types\)[\s\S]*VALUES\s*\([\s\S]*'client-documents',[\s\S]*'client-documents',[\s\S]*false,[\s\S]*10485760/i
     );
   });
 
