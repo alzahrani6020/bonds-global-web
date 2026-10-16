@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const vm = require('vm');
 const { createClient } = require('@supabase/supabase-js');
 
 const cfg = {
@@ -25,6 +26,12 @@ async function fetchJson(url, options = {}) {
   let body = null;
   try { body = text ? JSON.parse(text) : null; } catch { body = { raw: text }; }
   return { res, body };
+}
+
+async function fetchText(url, options = {}) {
+  const res = await fetch(url, options);
+  const text = await res.text();
+  return { res, text };
 }
 
 async function waitForMatchingProduction() {
@@ -222,12 +229,136 @@ async function assertAdminRuntime(token) {
   console.log(`AI reviews PASS (rows=${reviews.body.data.length}, total=${reviews.body.total})`);
 }
 
+
+async function assertProductionAssets() {
+  const sw = await fetchText(`${cfg.baseUrl}/sw.js?smoke=${encodeURIComponent(cfg.expectedSha)}`, {
+    headers: { 'Cache-Control': 'no-cache' }
+  });
+  if (!sw.res.ok) throw new Error(`Production sw.js failed: HTTP ${sw.res.status}`);
+  if (!sw.text.includes("const CACHE_VERSION = 'v3.0.142'")) {
+    throw new Error('Production sw.js is not serving CACHE_VERSION v3.0.142');
+  }
+  console.log('Service worker PASS (cache=v3.0.142)');
+}
+
+async function assertFundingCasesRuntime(token) {
+  const asset = await fetchText(
+    `${cfg.baseUrl}/admin/funding-cases/service.js?smoke=${encodeURIComponent(cfg.expectedSha)}`,
+    { headers: { 'Cache-Control': 'no-cache' } }
+  );
+  if (!asset.res.ok) {
+    throw new Error(`Funding Cases service asset failed: HTTP ${asset.res.status}`);
+  }
+
+  const session = { data: { session: { access_token: token } } };
+  let observedAuthorization = '';
+  const bondsAuth = { getSession: async () => session };
+  const sandbox = {
+    window: { BondsAuth: bondsAuth, __ADMIN_TOKEN: '' },
+    BondsAuth: bondsAuth,
+    BondsAdminModuleCache: undefined,
+    URLSearchParams,
+    fetch: async (_url, options = {}) => {
+      observedAuthorization = options?.headers?.Authorization || '';
+      return {
+        ok: true,
+        status: 200,
+        json: async () => ({
+          success: true,
+          cases: [],
+          pagination: { page: 1, limit: 5, total: 0, pages: 0 }
+        })
+      };
+    }
+  };
+  vm.createContext(sandbox);
+  vm.runInContext(asset.text, sandbox, { filename: 'production-funding-cases-service.js' });
+
+  if (!sandbox.window.FundingCasesService?.list) {
+    throw new Error('Production Funding Cases service did not expose list()');
+  }
+  await sandbox.window.FundingCasesService.list({});
+  if (observedAuthorization !== `Bearer ${token}`) {
+    throw new Error('Funding Cases service did not use the authenticated nested session token');
+  }
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    'Cache-Control': 'no-cache',
+    'X-Request-ID': `e2e-funding-${Date.now()}`
+  };
+  const list = await fetchJson(`${cfg.baseUrl}/api/admin?action=funding-cases-list&limit=5`, { headers });
+  if (!list.res.ok) {
+    const error = list.body?.error || list.body?.message || 'unknown error';
+    throw new Error(`Funding Cases API failed: HTTP ${list.res.status} ${error}`);
+  }
+  if (!Array.isArray(list.body?.cases) || typeof list.body?.pagination?.total !== 'number') {
+    throw new Error('Funding Cases API response does not match the expected list contract');
+  }
+
+  console.log(`Funding Cases PASS (cases=${list.body.cases.length}, total=${list.body.pagination.total})`);
+}
+
+async function assertDistressedRecoveryEmbed() {
+  const page = await fetchText(
+    `${cfg.baseUrl}/admin/distressed-recovery/?embed=1&smoke=${encodeURIComponent(cfg.expectedSha)}`,
+    { headers: { 'Cache-Control': 'no-cache' } }
+  );
+  if (!page.res.ok) {
+    throw new Error(`Distressed Recovery page failed: HTTP ${page.res.status}`);
+  }
+
+  const scripts = Array.from(page.text.matchAll(/<script>([\s\S]*?)<\/script>/gi), match => match[1]);
+  const authGateScript = scripts.find(source =>
+    source.includes("authGate.src = '/calculators/auth-gate.js?v=3'")
+  );
+  if (!authGateScript) {
+    throw new Error('Distressed Recovery production page is missing the conditional auth-gate script');
+  }
+
+  function execute({ embedded }) {
+    const appended = [];
+    const selfRef = {};
+    const topRef = embedded ? {} : selfRef;
+    const sandbox = {
+      URLSearchParams,
+      location: { search: '?embed=1' },
+      window: { self: selfRef, top: topRef },
+      document: {
+        createElement: () => ({}),
+        head: { appendChild: node => appended.push(node) }
+      }
+    };
+    vm.createContext(sandbox);
+    vm.runInContext(authGateScript, sandbox, { filename: 'production-distressed-recovery-auth-gate.js' });
+    return appended;
+  }
+
+  const embeddedAppends = execute({ embedded: true });
+  if (embeddedAppends.length !== 0) {
+    throw new Error('Embedded Distressed Recovery unexpectedly injects calculator auth-gate');
+  }
+
+  const standaloneAppends = execute({ embedded: false });
+  if (
+    standaloneAppends.length !== 1 ||
+    standaloneAppends[0]?.src !== '/calculators/auth-gate.js?v=3'
+  ) {
+    throw new Error('Standalone Distressed Recovery does not inject the calculator auth-gate correctly');
+  }
+
+  console.log('Distressed Recovery embed PASS (duplicate auth-gate suppressed)');
+}
+
 async function main() {
   console.log('Starting authenticated Production smoke verification');
   await waitForMatchingProduction();
   await assertHealth();
+  await assertProductionAssets();
   const token = await getAuthenticatedToken();
   await assertAdminRuntime(token);
+  await assertFundingCasesRuntime(token);
+  await assertDistressedRecoveryEmbed();
   console.log('Production authenticated smoke test: PASS');
 }
 
