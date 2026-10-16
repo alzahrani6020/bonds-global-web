@@ -5,10 +5,8 @@
  * /api/readiness is rewritten to /api/health?strict=1 so strict dependency
  * readiness does not consume an additional Vercel Serverless Function.
  */
-const crypto = require('crypto');
 const getSupabase = require('../lib/api/supabase');
 const { getInferenceRouter } = require('../lib/ai/inference-router');
-const { callBondsNative } = require('../lib/ai/orchestrator');
 
 function readParam(req, name) {
   if (req && req.query && req.query[name] != null) return String(req.query[name]);
@@ -17,19 +15,6 @@ function readParam(req, name) {
   } catch (_) {
     return '';
   }
-}
-
-function readSmokeNonce(req) {
-  return readParam(req, 'native_smoke');
-}
-
-function smokeAuthorized(req) {
-  const expected = String(process.env.BONDS_E2E_SMOKE_NONCE || '');
-  const supplied = readSmokeNonce(req);
-  if (!expected || !supplied) return false;
-  const left = Buffer.from(supplied, 'utf8');
-  const right = Buffer.from(expected, 'utf8');
-  return left.length === right.length && crypto.timingSafeEqual(left, right);
 }
 
 function aiProviderMode() {
@@ -82,38 +67,6 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET, OPTIONS');
     return res.status(405).json({ status: 'method_not_allowed' });
-  }
-
-  if (smokeAuthorized(req)) {
-    try {
-      const response = await callBondsNative([
-        {
-          role: 'user',
-          content: 'Return only this JSON object exactly with no extra text: {"smoke":"ok","english":"hello","arabic":"مرحبا"}'
-        }
-      ]);
-      const validPayload = Boolean(
-        response.result &&
-        response.result.smoke === 'ok' &&
-        response.result.english === 'hello' &&
-        response.result.arabic === 'مرحبا'
-      );
-      return res.status(validPayload ? 200 : 500).json({
-        status: validPayload ? 'ok' : 'degraded',
-        smoke: validPayload,
-        provider: response.provider,
-        model_used: response.modelUsed,
-        tokens_input: response.tokensInput,
-        tokens_output: response.tokensOutput,
-        inference: response.inferenceMetadata
-      });
-    } catch (error) {
-      return res.status(500).json({
-        status: 'degraded',
-        smoke: false,
-        error: error.code || error.message || 'native smoke failed'
-      });
-    }
   }
 
   const strict = readParam(req, 'strict') === '1';
