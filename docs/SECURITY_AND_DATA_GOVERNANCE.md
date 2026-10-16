@@ -10,7 +10,7 @@
 |---|---|---|
 | Authentication & Authorization | 🟡 ضعيف | 🔴 عالية |
 | API Input Validation | 🟡 ضعيف | 🔴 عالية |
-| Rate Limiting | 🔴 حرج | 🔴 عالية |
+| Rate Limiting | 🟡 مطبق مركزيًا؛ مسار document analysis تم ربطه بالـlimiter في PR A | 🟠 متوسطة |
 | Database RLS | 🟡 جزئي | 🟠 متوسطة |
 | Secrets Management | 🟡 جزئي | 🔴 عالية |
 | Frontend Security | 🟡 أساسي | 🟠 متوسطة |
@@ -25,7 +25,7 @@
 | المشكلة | المرحلة | المهمة |
 |---|---|---|
 | Owner email مُدمج | Phase 1 | نقل إلى `ADMIN_EMAIL` env var |
-| Rate limiting مفقود | Phase 2 | تطبيق limiter مركزي |
+| Rate limiting | Phase 2 | limiter مركزي موجود؛ يستمر التحقق من تغطية المسارات المكلفة |
 | JWT validation للفوترة | Phase 2 | التحقق من Bearer token |
 | RLS مكررة | Phase 1 | تنظيف policies |
 | Data Governance | Phase 4 | توثيق Retention + Deletion |
@@ -38,7 +38,7 @@
 |---|---|---|
 | Authentication & Authorization | 🟡 متوسط إلى ضعيف | 🔴 عالية |
 | API Input Validation | 🟡 ضعيف | 🔴 عالية |
-| Rate Limiting | 🔴 ضعيف جدًا | 🔴 عالية |
+| Rate Limiting | 🟡 مركزي ومطبق؛ التغطية الخاصة بالمسارات المكلفة تحت اختبار مستمر | 🟠 متوسطة |
 | Database RLS | 🟡 جزئي | 🟠 متوسطة |
 | Secrets Management | 🟡 جزئي | 🔴 عالية |
 | Frontend Security | 🟡 أساسي | 🟠 متوسطة |
@@ -60,7 +60,7 @@ flowchart LR
 
 ### المخاطر الرئيسية
 
-1. **API Abuse**: لا يوجد rate limiting مركزي.
+1. **API Abuse**: يوجد rate limiter مركزي، لكن مسارات المعالجة المكلفة تحتاج حدودًا مناسبة واختبارات سلبية مستمرة.
 2. **Auth Bypass**: بعض APIs تستخدم `userId` فقط بدون JWT.
 3. **Admin Compromise**: owner email مُدمج + x-admin-token ثابت.
 4. **Data Leak**: RLS غير مكتملة على بعض الجداول.
@@ -85,7 +85,7 @@ flowchart LR
 
 | المشكلة | الخطورة | الموقع | الإصلاح |
 |---|---|---|---|
-| لا يوجد rate limiting | 🟡 قيد الإنجاز | `api/*.js` و `v3/api/*.js` | تطبيق limiter مركزي (`lib/api/rate-limit.js`) |
+| تغطية rate limiting للمسارات المكلفة | 🟡 مستمرة | `lib/api/rate-limit.js`, `api/v3/index.js` | limiter مركزي موجود؛ `/api/v3/analyze-document` يمر عبر `document_analysis` قبل parser |
 | Validation يدوي بسيط | 🟠 متوسطة | `api/contact.js`, `api/bank-transfer.js`, `api/pro.js` | استخدام Joi/Zod |
 | CORS مفتوح (`*`) | 🟠 متوسطة | العديد من APIs | تقييد Origins |
 | Stripe webhook لا يتحقق من التوقيع في كل الحالات | 🔴 عالية | `api/webhook.js` | التحقق دائمًا |
@@ -185,7 +185,7 @@ flowchart LR
 - [x] التحقق من JWT في `/api/create-checkout` و `/api/billing`.
 - [x] نقل owner email إلى env var (`ADMIN_EMAIL` / `ADMIN_EMAILS`).
 - [x] تفعيل CSP headers (Report-Only) في `vercel.json`.
-- [x] مراجعة `.gitignore` لمنع رفع `.env*` و `package-lock.json`.
+- [x] إبقاء `.env*` مستبعدة من Git مع اعتماد `package-lock.json` committed ومراجع لإعادة بناء dependency graph.
 
 ### 6.2 إصلاحات قصيرة المدى (أسبوع 3–6)
 
@@ -213,7 +213,7 @@ flowchart LR
 - [x] التحقق من JWT في `/api/create-checkout` و `/api/billing`.
 - [x] نقل owner email إلى env var (`ADMIN_EMAIL` / `ADMIN_EMAILS`).
 - [x] تفعيل CSP headers (Report-Only) في `vercel.json`.
-- [x] مراجعة `.gitignore` لمنع رفع `.env*` و `package-lock.json`.
+- [x] إبقاء `.env*` مستبعدة من Git مع اعتماد `package-lock.json` committed ومراجع لإعادة بناء dependency graph.
 
 ### إصلاحات قصيرة المدى (أسبوع 3–6)
 
@@ -245,3 +245,15 @@ Bonds Global يمتلك أساسًا أمنيًا مقبولًا للمرحلة 
 4. تنظيف RLS.
 
 بعد ذلك، يمكن البدء في بناء **Data Governance Framework** رسمي يتوافق مع PDPL و SAMA Cyber Security Framework.
+
+
+---
+
+## Current Open / Accepted Risks
+
+| ID | Description | Affected surface | Severity | Reachability | Mitigation / Evidence | Owner | Review date | Status |
+|---|---|---|---|---|---|---|---|---|
+| PARSER-001 | DOCX/PDF/XLSX parsing still runs without generalized worker/process containment | `/api/v3/analyze-document` | High hardening priority | CONFIRMED runtime surface | Rate limiting is enforced before parsing; isolation/timeout/archive bounds remain PR B | Engineering | 2026-10-30 | OPEN |
+| DEP-001 | Vercel tooling resolves a `braces 3.0.3` advisory chain in dev/tooling dependencies | CI/build tooling | High advisory / applicability unproven | UNKNOWN | Keep as known debt; do not force downgrade; analyze reachability separately | Engineering | 2026-10-30 | OPEN |
+| CLOUD-001 | Actual Vercel dashboard install/build/root/npm/deployment-protection settings are not verified by repository evidence | Deployment | Unknown | UNKNOWN | Verify through Vercel project settings/connector before baseline PASS | Platform | 2026-10-30 | OPEN |
+| RLS-001 | Production DB policy parity with repository migrations is not proven | Supabase data plane | Unknown | UNKNOWN | Runtime negative tests / production-policy verification required | Engineering | 2026-10-30 | OPEN |
