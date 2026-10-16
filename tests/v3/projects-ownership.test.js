@@ -25,7 +25,7 @@ function projectChain(row) {
 }
 
 let lastProjectChain;
-const serviceClient = {
+const mockServiceClient = {
   from: jest.fn((table) => {
     if (table === 'bonds_projects') {
       lastProjectChain = projectChain();
@@ -36,7 +36,7 @@ const serviceClient = {
 };
 
 jest.mock('../../v3/lib/supabase', () => ({
-  getSupabaseClient: jest.fn(() => serviceClient)
+  getSupabaseClient: jest.fn(() => mockServiceClient)
 }));
 
 jest.mock('../../lib/enterprise-lifecycle', () => ({
