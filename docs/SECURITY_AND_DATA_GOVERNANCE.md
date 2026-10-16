@@ -368,3 +368,59 @@ Post-merge verification for PR D must confirm:
 3. force pushes and deletion remain prohibited;
 4. classic branch protection remains active and no conflicting ruleset has appeared;
 5. the `Production` environment still reports `can_admins_bypass=true`, no protection rules, and no deployment branch policy.
+
+
+---
+
+## PR E — External Attack Surface Review
+
+Baseline reviewed from `main` commit `4223ad3d4f72be14d440009d0fa4ee15ba9a158b`.
+
+### Server-side network surface inventory
+
+| Surface | URL source | Runtime reachability | Controls / conclusion |
+|---|---|---|---|
+| Governed `web_fetch`, `web_crawl`, `web_explore` | USER_CONTROLLED / INDIRECTLY_USER_CONTROLLED | Runtime reachable through authenticated capability execution and automatic research | HTTP(S)-only, embedded credentials rejected, DNS-resolved private/reserved addresses blocked, redirects handled manually and revalidated, response size/time/page budgets enforced. PR E additionally prevents callers from opting into private networks and pins each request to the validated DNS address set to close DNS-rebinding TOCTOU. |
+| Automatic research seed URLs | USER_CONTROLLED / INDIRECTLY_USER_CONTROLLED | Runtime reachable through orchestrator research | Uses the governed acquisition path above; research code does not enable private-network access. |
+| YouTube social publish `mediaUrl` | ADMIN_CONTROLLED | Runtime reachable for authenticated admin/editor publish flows | Before PR E this URL was downloaded with raw `fetch`. PR E routes the download through the SSRF-safe acquisition path, with a 30s timeout, 16 MiB bound, redirect revalidation, and private-network blocking. |
+| Instagram social publish `mediaUrl` | ADMIN_CONTROLLED | Runtime reachable | Bonds sends the URL to the Instagram provider API; the Bonds server does not fetch the remote media bytes on this path. |
+| Pexels / Gemini / World Bank / social provider APIs | STATIC with encoded user query fields | Runtime reachable | Destination host is fixed in code; user input affects query/prompt data, not the network authority. |
+| V3 data-acquisition `HttpClient` | STATIC / CONFIG_CONTROLLED in reviewed adapters | Runtime reachable on admin/data refresh paths | Generic client itself has no SSRF policy; reviewed runtime adapters construct known provider endpoints or configured endpoint lists. No user-controlled URL route into this client was identified in PR E. Treat future reuse with user-controlled URLs as requiring the governed acquisition boundary. |
+
+### Redirect and private-network policy
+
+The governed acquisition path:
+
+- permits only `http:` and `https:`;
+- rejects URLs containing username/password credentials;
+- rejects loopback, RFC1918, IPv4 link-local, CGNAT, benchmark/reserved destinations, IPv6 loopback/link-local/ULA/multicast, and IPv4-mapped private IPv6 forms;
+- resolves DNS before the request and rejects a hostname if any resolved address is forbidden;
+- pins the outbound connection to the validated address set so a second resolver answer cannot redirect the connection into a private address;
+- uses manual redirects, with a default maximum of five, and repeats URL/DNS/private-network validation for every redirect destination;
+- bounds response bytes and request time.
+
+### Browser automation / Playwright
+
+`playwright-core` is a production dependency and `playwright` is a development dependency, but the reviewed browser launches are in repository scripts such as `scripts/html-to-pdf.js` and `scripts/record-cloud-kitchen-video.js`. The PDF script navigates to a local `file://` path derived from CLI arguments; the video script navigates to a fixed local development server URL. No production API/server route importing Playwright or accepting a user-controlled browser-navigation URL was identified.
+
+Classification: **NOT RUNTIME REACHABLE from production request paths**.
+
+### Sharp
+
+`sharp` is imported by `api/og-image.js`, so it is production-runtime reachable. The route constructs a fixed 1200×630 SVG from escaped query text and passes an in-memory SVG buffer to Sharp. It does not fetch a remote image URL and does not decode user-supplied image bytes on this route.
+
+Classification: **RUNTIME REACHABLE / CONTROLLED**.
+
+### braces
+
+`braces@3.0.3` is present as a development-only transitive dependency of `micromatch@4.0.8`. It is not a direct production dependency and no production request path invoking it was identified.
+
+Classification: **NOT RUNTIME REACHABLE**.
+
+### PR E findings and fixes
+
+1. **DNS rebinding / validation-to-connect TOCTOU in governed web acquisition** — the previous flow validated DNS, then called global `fetch`, allowing a second DNS resolution at connect time. PR E pins each outbound request to the address set that passed validation and revalidates each redirect.
+2. **Private-network opt-in exposed through generic capability input** — authenticated callers could supply `allowPrivateNetworks` / `allow_private_networks`. PR E forces these values to false at the governed executor boundary.
+3. **YouTube remote media download bypassed the SSRF-safe acquisition layer** — admin/editor-controlled `mediaUrl` was downloaded using raw `fetch` with automatic redirects. PR E routes it through the same validated, redirect-aware acquisition layer.
+
+The review does not classify dependency presence alone as exploitability. Playwright, Sharp, and braces classifications above are based on traced runtime reachability.
