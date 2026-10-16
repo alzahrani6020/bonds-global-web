@@ -155,12 +155,20 @@ async function getAuthenticatedToken() {
 }
 
 async function assertHealth() {
-  const { res, body } = await fetchJson(`${cfg.baseUrl}/api/v3/health`, {
+  const { res, body } = await fetchJson(`${cfg.baseUrl}/api/health`, {
     headers: { 'Cache-Control': 'no-cache' }
   });
   if (!res.ok) throw new Error(`Production health failed: HTTP ${res.status}`);
   if (body?.status !== 'ok') throw new Error('Production health response is not ok');
-  console.log(`Health PASS (${body.version || 'version unknown'})`);
+
+  const expectedVersion = cfg.expectedSha.slice(0, 7);
+  if (body?.version !== expectedVersion) {
+    throw new Error(
+      `Production domain is serving commit ${body?.version || 'unknown'}, expected ${expectedVersion}`
+    );
+  }
+
+  console.log(`Health PASS (commit=${body.version})`);
 }
 
 async function assertAdminRuntime(token) {
