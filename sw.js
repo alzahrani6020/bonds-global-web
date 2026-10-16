@@ -274,8 +274,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Shared navigation is always network-first so newly added form links appear immediately.
-  if (url.pathname === '/site-layout.js') {
+  // Critical shared runtime assets are always network-first so instrumentation/navigation updates are immediate.
+  if (url.pathname === '/site-layout.js' || url.pathname === '/page-tracker-v2.js') {
     event.respondWith(networkFirst(request));
     return;
   }
