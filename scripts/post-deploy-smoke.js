@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const vm = require('vm');
 const { createClient } = require('@supabase/supabase-js');
+const canonicalModel = require('../services/bonds_native_inference/canonical-model.json');
 
 const cfg = {
   baseUrl: (process.env.PRODUCTION_URL || 'https://bonds-global.com').replace(/\/$/, ''),
@@ -190,6 +191,79 @@ async function assertHealth() {
   console.log(`Health PASS (commit=${body.version})`);
 }
 
+async function assertNativeProductionRuntime() {
+  const readiness = await fetchJson(`${cfg.baseUrl}/api/readiness`, {
+    headers: { 'Cache-Control': 'no-cache' }
+  });
+  if (!readiness.res.ok) {
+    throw new Error(`Production readiness failed: HTTP ${readiness.res.status}`);
+  }
+  if (readiness.body?.status !== 'ready') {
+    throw new Error(`Production readiness is not ready: ${readiness.body?.status || 'missing'}`);
+  }
+  if (readiness.body?.checks?.native !== 'ok') {
+    throw new Error(`Remote Bonds Native health is not ok: ${readiness.body?.checks?.native || 'missing'}`);
+  }
+  if (readiness.body?.inference?.mode !== 'REMOTE_BONDS_NATIVE') {
+    throw new Error(`Unexpected inference mode: ${readiness.body?.inference?.mode || 'missing'}`);
+  }
+  if (readiness.body?.inference?.native_provider !== 'BondsNativeProvider') {
+    throw new Error(`Unexpected Native provider: ${readiness.body?.inference?.native_provider || 'missing'}`);
+  }
+
+  const expectedModelSha = String(canonicalModel.sha256 || '').toLowerCase();
+  if (!/^[a-f0-9]{64}$/.test(expectedModelSha)) {
+    throw new Error('Canonical Bonds Native model SHA is invalid');
+  }
+
+  const probes = [
+    { label: 'Arabic', content: 'أجب بجملة عربية قصيرة تؤكد أن الاتصال يعمل.' },
+    { label: 'English', content: 'Reply with one short sentence confirming the connection works.' }
+  ];
+
+  for (const probe of probes) {
+    const chat = await fetchJson(`${cfg.baseUrl}/api/v3/ai/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        'X-Request-ID': `e2e-native-${probe.label.toLowerCase()}-${Date.now()}`
+      },
+      body: JSON.stringify({
+        messages: [{ role: 'user', content: probe.content }],
+        context: {}
+      })
+    });
+
+    if (!chat.res.ok) {
+      throw new Error(`${probe.label} Native chat failed: HTTP ${chat.res.status}`);
+    }
+    if (chat.body?.source !== 'bonds-native' || chat.body?.provider !== 'BondsNativeProvider') {
+      throw new Error(
+        `${probe.label} chat did not use Bonds Native: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}`
+      );
+    }
+    if (chat.body?.model !== 'bonds-native') {
+      throw new Error(`${probe.label} chat returned unexpected model: ${chat.body?.model || 'missing'}`);
+    }
+    const observedModelSha = String(chat.body?.inference?.model_sha256 || '').toLowerCase();
+    if (observedModelSha !== expectedModelSha) {
+      throw new Error(
+        `${probe.label} Native model SHA mismatch: expected ${expectedModelSha}, got ${observedModelSha || 'missing'}`
+      );
+    }
+    if (!String(chat.body?.reply || '').trim()) {
+      throw new Error(`${probe.label} Native chat returned an empty reply`);
+    }
+
+    console.log(
+      `Bonds Native ${probe.label} PASS (model_sha256=${observedModelSha.slice(0, 12)}..., backend=${chat.body?.inference?.backend || 'unknown'})`
+    );
+  }
+
+  console.log('Remote Bonds Native production caller PASS');
+}
+
 async function assertAdminRuntime(token) {
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -354,6 +428,7 @@ async function main() {
   console.log('Starting authenticated Production smoke verification');
   await waitForMatchingProduction();
   await assertHealth();
+  await assertNativeProductionRuntime();
   await assertProductionAssets();
   const token = await getAuthenticatedToken();
   await assertAdminRuntime(token);
