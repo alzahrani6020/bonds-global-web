@@ -8,8 +8,6 @@ const cfg = {
   email: process.env.E2E_ADMIN_EMAIL,
   password: process.env.E2E_ADMIN_PASSWORD,
   totpSecret: process.env.E2E_ADMIN_TOTP_SECRET || '',
-  vercelToken: process.env.VERCEL_TOKEN,
-  vercelProjectId: process.env.VERCEL_PROJECT_ID,
   expectedSha: process.env.GITHUB_SHA
 };
 
@@ -30,38 +28,32 @@ async function fetchJson(url, options = {}) {
 }
 
 async function waitForMatchingProduction() {
-  requireEnv('VERCEL_TOKEN', cfg.vercelToken);
-  requireEnv('VERCEL_PROJECT_ID', cfg.vercelProjectId);
   requireEnv('GITHUB_SHA', cfg.expectedSha);
-
-  const endpoint = new URL('https://api.vercel.com/v6/deployments');
-  endpoint.searchParams.set('projectId', cfg.vercelProjectId);
-  endpoint.searchParams.set('target', 'production');
-  endpoint.searchParams.set('limit', '20');
+  const expectedVersion = cfg.expectedSha.slice(0, 7);
 
   for (let attempt = 1; attempt <= 60; attempt++) {
-    const { res, body } = await fetchJson(endpoint, {
-      headers: { Authorization: `Bearer ${cfg.vercelToken}` }
-    });
-    if (!res.ok) throw new Error(`Vercel deployment lookup failed: HTTP ${res.status}`);
+    try {
+      const { res, body } = await fetchJson(`${cfg.baseUrl}/api/health`, {
+        headers: { 'Cache-Control': 'no-cache' }
+      });
 
-    const deployments = body?.deployments || [];
-    const match = deployments.find(d => d?.meta?.githubCommitSha === cfg.expectedSha);
-    if (match) {
-      const state = match.readyState || match.state;
-      if (state === 'READY') {
-        console.log(`Vercel deployment READY for commit ${cfg.expectedSha.slice(0, 12)}`);
-        return match;
+      if (res.ok && body?.status === 'ok' && body?.version === expectedVersion) {
+        console.log(`Production deployment READY for commit ${expectedVersion}`);
+        return;
       }
-      if (['ERROR', 'CANCELED'].includes(state)) {
-        throw new Error(`Vercel deployment entered terminal state: ${state}`);
+
+      if (attempt === 60) {
+        const observed = body?.version || `HTTP ${res.status}`;
+        throw new Error(
+          `Timed out waiting for Production commit ${expectedVersion}; observed ${observed}`
+        );
       }
+    } catch (error) {
+      if (attempt === 60) throw error;
     }
 
-    if (attempt < 60) await sleep(10000);
+    await sleep(10000);
   }
-
-  throw new Error(`Timed out waiting for Vercel Production deployment for commit ${cfg.expectedSha}`);
 }
 
 function normalizeBase32(input) {
