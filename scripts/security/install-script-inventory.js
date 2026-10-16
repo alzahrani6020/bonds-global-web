@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const { execSync } = require('child_process');
 
 const lock = JSON.parse(fs.readFileSync('package-lock.json', 'utf8'));
 const baseline = JSON.parse(fs.readFileSync('.github/security/install-script-baseline.json', 'utf8'));
@@ -31,7 +32,7 @@ const missingReviewed = (baseline.packages || []).filter(
 
 const report = {
   generatedAt: new Date().toISOString(),
-  gitSha: process.env.GITHUB_SHA || null,
+  gitSha: execSync('git rev-parse HEAD', { encoding: 'utf8' }).trim(),
   policy: {
     securityWorkflowInstall: 'npm ci --ignore-scripts --no-audit',
     ciBuildInstall: 'npm ci',
