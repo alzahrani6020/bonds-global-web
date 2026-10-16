@@ -19,7 +19,17 @@
   <script src="/admin/distressed-recovery/service.js?v=2"></script>
   <script src="/admin/ai-analyze-service.js?v=1"></script>
   <script src="/admin/distressed-recovery/app.js?v=2"></script>
-<script defer src="/calculators/auth-gate.js?v=3"></script>
+<script>
+    // Embedded admin modules are already protected by the parent admin guard
+    // and RecoveryService.checkAccess(). Avoid a duplicate calculator-auth
+    // redirect racing the persisted Supabase session inside the iframe.
+    if (!(new URLSearchParams(location.search).get('embed') === '1' && window.self !== window.top)) {
+      const authGate = document.createElement('script');
+      authGate.src = '/calculators/auth-gate.js?v=3';
+      authGate.defer = true;
+      document.head.appendChild(authGate);
+    }
+  </script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css" />
   <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
