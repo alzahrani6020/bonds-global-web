@@ -41,6 +41,6 @@ describe('commercial funnel analytics', () => {
     expect(dashboard).toContain('json.commercial');
   });
   test('cache version changed', () => {
-    expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.140'");
+    expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.141'");
   });
 });
