@@ -2,12 +2,23 @@ const mockCheckRateLimit = jest.fn();
 const mockAnalyzeDocument = jest.fn();
 const mockV3Handler = jest.fn();
 const mockCreateClient = jest.fn();
+const mockParseDocument = jest.fn();
+const mockDocumentParserError = class DocumentParserError extends Error {
+  constructor(code) {
+    super('normalized parser error');
+    this.code = code;
+  }
+};
 
 jest.mock('../../lib/api/rate-limit', () => ({ checkRateLimit: mockCheckRateLimit }));
 jest.mock('../../lib/api/analyze-document', () => mockAnalyzeDocument);
 jest.mock('../../v3/api/index.js', () => mockV3Handler);
 jest.mock('../../lib/api/cors', () => ({ setAllowedOrigin: jest.fn() }));
 jest.mock('@supabase/supabase-js', () => ({ createClient: mockCreateClient }));
+jest.mock('../../lib/api/document-parser', () => ({
+  parseDocument: mockParseDocument,
+  DocumentParserError: mockDocumentParserError
+}));
 
 const handler = require('../../api/v3/index.js');
 
@@ -42,6 +53,11 @@ function createRequest(method = 'POST') {
     body: { documentId: 'doc-1' },
     socket: { remoteAddress: '127.0.0.1' }
   };
+}
+
+function arrayBufferOf(bytes) {
+  const value = Buffer.from(bytes);
+  return value.buffer.slice(value.byteOffset, value.byteOffset + value.byteLength);
 }
 
 describe('document analysis rate-limit routing', () => {
@@ -105,13 +121,18 @@ describe('document analysis rate-limit routing', () => {
   });
 });
 
-
-describe('document analysis auth and ownership regression', () => {
+describe('document analysis auth, ownership, and parser error regression', () => {
   const originalEnv = process.env;
   const actualAnalyzeDocument = jest.requireActual('../../lib/api/analyze-document');
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockParseDocument.mockResolvedValue({
+      text: 'parsed',
+      rows: null,
+      summary: 'parsed safely',
+      method: 'local'
+    });
     process.env = {
       ...originalEnv,
       NEXT_PUBLIC_SUPABASE_URL: 'https://example.supabase.co',
@@ -132,6 +153,7 @@ describe('document analysis auth and ownership regression', () => {
     expect(res.status).toHaveBeenCalledWith(401);
     expect(res.json).toHaveBeenCalledWith({ error: 'Unauthorized' });
     expect(mockCreateClient).not.toHaveBeenCalled();
+    expect(mockParseDocument).not.toHaveBeenCalled();
   });
 
   test('authenticated non-owner remains 403 before download or parsing', async () => {
@@ -167,9 +189,58 @@ describe('document analysis auth and ownership regression', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });
     expect(download).not.toHaveBeenCalled();
     expect(update).not.toHaveBeenCalled();
+    expect(mockParseDocument).not.toHaveBeenCalled();
   });
 
-  test('authenticated owner can continue to the existing document flow', async () => {
+  test('authenticated owner reaches parser only after ownership and download succeed', async () => {
+    const fileBlob = { arrayBuffer: jest.fn().mockResolvedValue(arrayBufferOf('PK fixture')) };
+    const download = jest.fn().mockResolvedValue({ data: fileBlob, error: null });
+    const maybeSingle = jest.fn().mockResolvedValue({
+      data: {
+        id: 'doc-1',
+        storage_path: 'user-a/doc-1.docx',
+        mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        filename: 'doc-1.docx',
+        advisory_clients: { auth_user_id: 'user-a' }
+      },
+      error: null
+    });
+    const updateEq = jest.fn().mockResolvedValue({ error: null });
+    const update = jest.fn(() => ({ eq: updateEq }));
+    const sb = {
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'user-a' } }, error: null }) },
+      from: jest.fn(() => ({
+        select: jest.fn(() => ({ eq: jest.fn(() => ({ maybeSingle })) })),
+        update
+      })),
+      storage: { from: jest.fn(() => ({ download })) }
+    };
+    mockCreateClient.mockReturnValue(sb);
+
+    const req = {
+      headers: { authorization: 'Bearer valid-token' },
+      body: { documentId: 'doc-1' }
+    };
+    const res = createResponse();
+
+    await actualAnalyzeDocument(req, res);
+
+    expect(download).toHaveBeenCalledWith('user-a/doc-1.docx');
+    expect(mockParseDocument).toHaveBeenCalledTimes(1);
+    expect(download.mock.invocationCallOrder[0]).toBeLessThan(mockParseDocument.mock.invocationCallOrder[0]);
+    expect(update).toHaveBeenCalledTimes(1);
+    expect(updateEq).toHaveBeenCalledWith('id', 'doc-1');
+    expect(res.status).toHaveBeenCalledWith(200);
+    expect(res.body).toMatchObject({
+      success: true,
+      extracted: {
+        text: 'parsed',
+        summary: 'parsed safely'
+      }
+    });
+  });
+
+  test('authenticated owner image flow remains available without parser invocation', async () => {
     const fileBlob = { arrayBuffer: jest.fn().mockResolvedValue(new ArrayBuffer(0)) };
     const download = jest.fn().mockResolvedValue({ data: fileBlob, error: null });
     const maybeSingle = jest.fn().mockResolvedValue({
@@ -203,9 +274,56 @@ describe('document analysis auth and ownership regression', () => {
     await actualAnalyzeDocument(req, res);
 
     expect(download).toHaveBeenCalledWith('user-a/doc-1.png');
+    expect(mockParseDocument).not.toHaveBeenCalled();
     expect(update).toHaveBeenCalledTimes(1);
     expect(updateEq).toHaveBeenCalledWith('id', 'doc-1');
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.body).toMatchObject({ success: true });
+  });
+
+  test('internal parser failures are normalized before persistence and response', async () => {
+    const fileBlob = { arrayBuffer: jest.fn().mockResolvedValue(arrayBufferOf('fake-docx')) };
+    const download = jest.fn().mockResolvedValue({ data: fileBlob, error: null });
+    const maybeSingle = jest.fn().mockResolvedValue({
+      data: {
+        id: 'doc-1',
+        storage_path: 'user-a/doc-1.docx',
+        mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        filename: 'doc-1.docx',
+        advisory_clients: { auth_user_id: 'user-a' }
+      },
+      error: null
+    });
+    const updateEq = jest.fn().mockResolvedValue({ error: null });
+    const update = jest.fn(() => ({ eq: updateEq }));
+    const sb = {
+      auth: { getUser: jest.fn().mockResolvedValue({ data: { user: { id: 'user-a' } }, error: null }) },
+      from: jest.fn(() => ({
+        select: jest.fn(() => ({ eq: jest.fn(() => ({ maybeSingle })) })),
+        update
+      })),
+      storage: { from: jest.fn(() => ({ download })) }
+    };
+    mockCreateClient.mockReturnValue(sb);
+
+    const internal = new mockDocumentParserError('MALFORMED_ARCHIVE');
+    internal.message = '/tmp/private/customer.docx: XML parser stack detail';
+    mockParseDocument.mockRejectedValueOnce(internal);
+
+    const req = {
+      headers: { authorization: 'Bearer valid-token' },
+      body: { documentId: 'doc-1' }
+    };
+    const res = createResponse();
+
+    await actualAnalyzeDocument(req, res);
+
+    const persisted = update.mock.calls[0][0].extracted_data;
+    expect(persisted.error_code).toBe('MALFORMED_ARCHIVE');
+    expect(persisted.error).toBe('تعذر معالجة الملف بأمان');
+    expect(persisted.summary).toBe('تعذر معالجة الملف بأمان');
+    expect(JSON.stringify(persisted)).not.toContain('/tmp/private');
+    expect(JSON.stringify(res.body)).not.toContain('XML parser stack detail');
+    expect(res.status).toHaveBeenCalledWith(200);
   });
 });
