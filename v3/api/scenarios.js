@@ -238,15 +238,19 @@ async function handleDeleteScenario(req, res, id) {
   }
 
   const supabase = getUserSupabaseClient(req);
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('project_scenarios')
     .delete()
     .eq('id', id)
-    .eq('user_id', user.id);
+    .eq('user_id', user.id)
+    .select('id');
 
   if (error) {
     console.error('[scenarios delete]', error.message);
     return sendJson(res, 500, { error: 'Failed to delete scenario' });
+  }
+  if (!data || data.length === 0) {
+    return sendJson(res, 404, { error: 'Scenario not found' });
   }
 
   sendJson(res, 200, { deleted: true });
