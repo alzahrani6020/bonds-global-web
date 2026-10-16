@@ -1,10 +1,10 @@
-const checkRateLimit = jest.fn();
-const analyzeDocument = jest.fn();
-const v3Handler = jest.fn();
+const mockCheckRateLimit = jest.fn();
+const mockAnalyzeDocument = jest.fn();
+const mockV3Handler = jest.fn();
 
-jest.mock('../../lib/api/rate-limit', () => ({ checkRateLimit }));
-jest.mock('../../lib/api/analyze-document', () => analyzeDocument);
-jest.mock('../../v3/api/index.js', () => v3Handler);
+jest.mock('../../lib/api/rate-limit', () => ({ mockCheckRateLimit }));
+jest.mock('../../lib/api/analyze-document', () => mockAnalyzeDocument);
+jest.mock('../../v3/api/index.js', () => mockV3Handler);
 jest.mock('../../lib/api/cors', () => ({ setAllowedOrigin: jest.fn() }));
 
 const handler = require('../../api/v3/index.js');
@@ -45,8 +45,8 @@ function createRequest(method = 'POST') {
 describe('document analysis rate-limit routing', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    checkRateLimit.mockResolvedValue(false);
-    analyzeDocument.mockResolvedValue(undefined);
+    mockCheckRateLimit.mockResolvedValue(false);
+    mockAnalyzeDocument.mockResolvedValue(undefined);
   });
 
   test('POST passes through the existing document_analysis limiter before the parser', async () => {
@@ -55,16 +55,16 @@ describe('document analysis rate-limit routing', () => {
 
     await handler(req, res);
 
-    expect(checkRateLimit).toHaveBeenCalledTimes(1);
-    expect(checkRateLimit).toHaveBeenCalledWith('document_analysis', req, res, undefined, true);
-    expect(analyzeDocument).toHaveBeenCalledTimes(1);
-    expect(checkRateLimit.mock.invocationCallOrder[0]).toBeLessThan(
-      analyzeDocument.mock.invocationCallOrder[0]
+    expect(mockCheckRateLimit).toHaveBeenCalledTimes(1);
+    expect(mockCheckRateLimit).toHaveBeenCalledWith('document_analysis', req, res, undefined, true);
+    expect(mockAnalyzeDocument).toHaveBeenCalledTimes(1);
+    expect(mockCheckRateLimit.mock.invocationCallOrder[0]).toBeLessThan(
+      mockAnalyzeDocument.mock.invocationCallOrder[0]
     );
   });
 
   test('rate-limit denial returns 429 and parser does not start', async () => {
-    checkRateLimit.mockImplementationOnce(async (_category, _req, res) => {
+    mockCheckRateLimit.mockImplementationOnce(async (_category, _req, res) => {
       res.status(429).json({ error: 'Too many requests. Please try again later.' });
       return true;
     });
@@ -75,7 +75,7 @@ describe('document analysis rate-limit routing', () => {
     await handler(req, res);
 
     expect(res.status).toHaveBeenCalledWith(429);
-    expect(analyzeDocument).not.toHaveBeenCalled();
+    expect(mockAnalyzeDocument).not.toHaveBeenCalled();
   });
 
   test('OPTIONS remains allowed without invoking limiter or parser', async () => {
@@ -86,8 +86,8 @@ describe('document analysis rate-limit routing', () => {
 
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.end).toHaveBeenCalled();
-    expect(checkRateLimit).not.toHaveBeenCalled();
-    expect(analyzeDocument).not.toHaveBeenCalled();
+    expect(mockCheckRateLimit).not.toHaveBeenCalled();
+    expect(mockAnalyzeDocument).not.toHaveBeenCalled();
   });
 
   test.each(['GET', 'PUT', 'DELETE'])('%s remains 405 without invoking parser', async method => {
@@ -98,7 +98,7 @@ describe('document analysis rate-limit routing', () => {
 
     expect(res.status).toHaveBeenCalledWith(405);
     expect(res.json).toHaveBeenCalledWith({ error: 'Method not allowed' });
-    expect(checkRateLimit).not.toHaveBeenCalled();
-    expect(analyzeDocument).not.toHaveBeenCalled();
+    expect(mockCheckRateLimit).not.toHaveBeenCalled();
+    expect(mockAnalyzeDocument).not.toHaveBeenCalled();
   });
 });
