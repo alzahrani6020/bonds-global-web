@@ -8,10 +8,34 @@
  *   DELETE /api/scenarios/:id      → delete a saved scenario
  */
 
+const { createClient } = require('@supabase/supabase-js');
 const { getSupabaseClient } = require('../lib/supabase');
 const { loadProjectModel } = require('../engine/loader');
 const ScenarioEngine = require('../engine/ScenarioEngine');
 const { getUserFromToken } = require('../lib/auth');
+
+function getUserSupabaseClient(req) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_ANON_KEY;
+  const authorization = req.headers.authorization || '';
+
+  if (!url || !key) {
+    throw new Error('Missing Supabase URL or anon key');
+  }
+  if (!/^Bearer\s+\S+/i.test(authorization)) {
+    throw new Error('Missing bearer token');
+  }
+
+  return createClient(url, key, {
+    global: {
+      headers: { Authorization: authorization }
+    },
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
+}
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -114,7 +138,8 @@ async function handleCalculateScenarios(req, res) {
         is_saved: true
       }));
 
-      const { data, error } = await supabase
+      const userSupabase = getUserSupabaseClient(req);
+      const { data, error } = await userSupabase
         .from('project_scenarios')
         .insert(records)
         .select('id, name, created_at');
@@ -143,7 +168,7 @@ async function handleListScenarios(req, res) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = getUserSupabaseClient(req);
   const { data, error } = await supabase
     .from('project_scenarios')
     .select('id, name, description, project_model_code, city_code, created_at, updated_at')
@@ -169,7 +194,7 @@ async function handleGetScenario(req, res, id) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = getUserSupabaseClient(req);
   const { data, error } = await supabase
     .from('project_scenarios')
     .select('*')
@@ -194,7 +219,7 @@ async function handleDeleteScenario(req, res, id) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
-  const supabase = getSupabaseClient();
+  const supabase = getUserSupabaseClient(req);
   const { error } = await supabase
     .from('project_scenarios')
     .delete()
