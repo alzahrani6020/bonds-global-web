@@ -178,9 +178,10 @@ async function auditRuntimePages(candidates) {
 
   const failures = [];
   const loadFailures = [];
-  const CONCURRENCY = 16;
+  const CONCURRENCY = 24;
 
-  async function auditOne(page, rel) {
+  async function auditOne(rel) {
+    const page = await context.newPage();
     try {
       const url = new URL(toUrlPath(rel), BASE_URL).toString();
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3500 });
@@ -198,25 +199,14 @@ async function auditRuntimePages(candidates) {
       }
     } catch (err) {
       loadFailures.push(rel + ': ' + String(err.message || err).slice(0, 220));
-    }
-  }
-
-  let nextIndex = 0;
-  async function worker() {
-    const page = await context.newPage();
-    try {
-      while (nextIndex < candidates.length) {
-        const rel = candidates[nextIndex++];
-        await auditOne(page, rel);
-      }
     } finally {
       await page.close();
     }
   }
 
-  await Promise.all(
-    Array.from({ length: Math.min(CONCURRENCY, candidates.length) }, () => worker())
-  );
+  for (let i = 0; i < candidates.length; i += CONCURRENCY) {
+    await Promise.all(candidates.slice(i, i + CONCURRENCY).map(auditOne));
+  }
 
   await context.close();
   await browser.close();
