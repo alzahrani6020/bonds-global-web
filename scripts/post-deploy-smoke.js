@@ -309,10 +309,10 @@ async function assertProductionAssets() {
     headers: { 'Cache-Control': 'no-cache' }
   });
   if (!sw.res.ok) throw new Error(`Production sw.js failed: HTTP ${sw.res.status}`);
-  if (!sw.text.includes("const CACHE_VERSION = 'v3.0.142'")) {
-    throw new Error('Production sw.js is not serving CACHE_VERSION v3.0.142');
+  if (!sw.text.includes("const CACHE_VERSION = 'v3.0.143'")) {
+    throw new Error('Production sw.js is not serving CACHE_VERSION v3.0.143');
   }
-  console.log('Service worker PASS (cache=v3.0.142)');
+  console.log('Service worker PASS (cache=v3.0.143)');
 }
 
 async function assertFundingCasesRuntime(token) {
