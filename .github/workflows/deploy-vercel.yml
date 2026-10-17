@@ -1,11 +1,6 @@
 name: Production Release
 
 on:
-  workflow_run:
-    workflows:
-      - 'CI — Tests, Audit & Visual Regression'
-    types: [completed]
-    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
@@ -33,9 +28,7 @@ env:
 jobs:
   release:
     name: Stage, verify and promote Production
-    if: >-
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-24.04
     environment: production
     timeout-minutes: 30
