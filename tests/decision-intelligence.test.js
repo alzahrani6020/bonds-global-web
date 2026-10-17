@@ -36,3 +36,15 @@ describe('DecisionIntelligence market semantics', () => {
     expect(result.marketAnalysis.competitionAssessment).toBe('high');
   });
 });
+
+
+describe('DecisionIntelligence decision visuals', () => {
+  test('all verdict states use semantic SVG icons', () => {
+    for (const state of ['proceed', 'mitigate', 'reconsider', 'avoid', 'unknown']) {
+      const icon = DecisionIntelligence.getVerdictColor(state).icon;
+      expect(icon.trim().startsWith('<svg')).toBe(true);
+      expect(icon).not.toBe('!');
+      expect(icon).not.toBe('?');
+    }
+  });
+});

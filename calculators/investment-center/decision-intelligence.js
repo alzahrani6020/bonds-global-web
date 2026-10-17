@@ -306,13 +306,20 @@
     }
   }
 
+  const STATUS_ICONS = Object.freeze({
+    check: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M5 12l4 4L19 6\"/></svg>",
+    warning: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 3 2.5 20h19L12 3Z\"/><path d=\"M12 9v5\"/><path d=\"M12 17h.01\"/></svg>",
+    question: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M9.8 9a2.5 2.5 0 0 1 4.8 1c0 1.8-2.6 2.1-2.6 3.8\"/><path d=\"M12 17h.01\"/></svg>",
+    x: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.5\" stroke-linecap=\"round\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6 6 18\"/></svg>"
+  });
+
   function getVerdictColor(recommendation) {
     switch (recommendation) {
-      case 'proceed': return { bg: '#dcfce7', border: '#86efac', text: '#166534', icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" };
-      case 'mitigate': return { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af', icon: '!' };
-      case 'reconsider': return { bg: '#fef9c3', border: '#fde047', text: '#854d0e', icon: '?' };
-      case 'avoid': return { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b', icon: "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M6 6l12 12M18 6L6 18\"/></svg>" };
-      default: return { bg: '#fef3c7', border: '#fcd34d', text: '#92400e', icon: '!' };
+      case 'proceed': return { bg: '#dcfce7', border: '#86efac', text: '#166534', icon: STATUS_ICONS.check };
+      case 'mitigate': return { bg: '#dbeafe', border: '#93c5fd', text: '#1e40af', icon: STATUS_ICONS.warning };
+      case 'reconsider': return { bg: '#fef9c3', border: '#fde047', text: '#854d0e', icon: STATUS_ICONS.question };
+      case 'avoid': return { bg: '#fee2e2', border: '#fca5a5', text: '#991b1b', icon: STATUS_ICONS.x };
+      default: return { bg: '#fef3c7', border: '#fcd34d', text: '#92400e', icon: STATUS_ICONS.warning };
     }
   }
 
@@ -1398,7 +1405,7 @@
               <span>${t.fieldsZero}: ${dataQuality.zeroOrDefaultFields}</span>
             </div>
             <div class="di-data-quality__check ${dataQuality.rangeIssues === 0 ? 'ok' : ''}">
-              <span class="di-data-quality__icon">${dataQuality.rangeIssues === 0 ? "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"3\" aria-hidden=\"true\"><path d=\"M4 12l6 6 10-14\"/></svg>" : '!'}</span>
+              <span class="di-data-quality__icon">${dataQuality.rangeIssues === 0 ? STATUS_ICONS.check : STATUS_ICONS.warning}</span>
               <span>${t.rangeIssuesLabel}: ${dataQuality.rangeIssues}</span>
             </div>
           </div>
@@ -1557,7 +1564,8 @@
     i18n,
     getLevel,
     getLevelLabel,
-    scoreToColor
+    scoreToColor,
+    getVerdictColor
   };
 
   if (typeof module !== 'undefined' && module.exports) {
