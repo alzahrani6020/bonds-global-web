@@ -1,10 +1,11 @@
 name: Production Authenticated Smoke
 
 on:
-  push:
+  workflow_run:
+    workflows:
+      - 'Production Release'
+    types: [completed]
     branches: [main]
-    paths-ignore:
-      - '**/*.md'
   workflow_dispatch:
 
 concurrency:
@@ -16,14 +17,18 @@ permissions:
 
 jobs:
   smoke:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     environment: production
     timeout-minutes: 15
 
     steps:
-      - name: Checkout
+      - name: Checkout deployed release
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           persist-credentials: false
           fetch-depth: 1
 
@@ -39,7 +44,7 @@ jobs:
         run: npm run test:production-smoke
         env:
           PRODUCTION_URL: https://bonds-global.com
-          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           VERCEL_PROJECT_ID: prj_djffUO1KXbGKtumZBWsziWxqJ6Qk
           VERCEL_TEAM_ID: team_ENxUZq5el15Zn8pi4ahZMXpz
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
