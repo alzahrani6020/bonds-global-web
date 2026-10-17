@@ -43,13 +43,16 @@ describe('Release completeness payment invariants', () => {
   const platform = fs.readFileSync(path.join(__dirname, '..', '..', 'api', 'platform.js'), 'utf8');
   const legacyWebhookScript = fs.readFileSync(path.join(__dirname, '..', '..', 'v3', 'scripts', 'create-stripe-webhook.js'), 'utf8');
 
-  test('one-off payment is fulfilled only after Stripe reports paid and is claimed once', () => {
+  test('one-off payment is fulfilled only after Stripe reports paid through the atomic database RPC', () => {
     expect(payments).toContain("session.metadata?.type === 'oneoff'");
     expect(payments).toContain("session.payment_status !== 'paid'");
-    expect(payments).toContain(".eq('status', 'pending')");
-    expect(payments).toContain("oneoff_credits: credits");
-    expect(payments).toContain("stripe_payment_intent_id");
+    expect(payments).toContain("'fulfill_oneoff_purchase_atomic'");
+    expect(payments).toContain("p_stripe_session_id: session.id");
+    expect(payments).toContain("p_user_id: userId");
+    expect(payments).toContain("p_product: product");
+    expect(payments).toContain("p_payment_intent_id: paymentIntentId");
     expect(payments).toContain("checkout.session.async_payment_succeeded");
+    expect(payments).not.toContain("oneoff_credits: credits");
   });
 
   test('unknown Stripe prices fail closed in legacy and V3 billing', () => {
