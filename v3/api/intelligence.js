@@ -54,10 +54,10 @@ async function intelligenceRouter(req, res, path, supabase, user = null) {
       const fabric = createFabric();
       const result = await run({
         ...body,
-        userId: user?.id || body.userId || null,
+        userId: user?.id || null,
         fabric,
         supabase: supabase || fabric?.supabase || null,
-        persist: body.persist !== false
+        persist: Boolean(user) && body.persist !== false
       });
       return sendJson(res, 200, result);
     }
