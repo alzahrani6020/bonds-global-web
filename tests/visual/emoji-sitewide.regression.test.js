@@ -183,20 +183,12 @@ async function auditRuntimePages(candidates) {
 
   async function worker() {
     const page = await context.newPage();
-    let allowedPath = null;
 
     await page.route('**/*', route => {
       const request = route.request();
-      if (!request.isNavigationRequest() || request.resourceType() !== 'document') {
-        return route.fallback();
+      if (request.isNavigationRequest() && request.resourceType() === 'document') {
+        return route.abort();
       }
-
-      const url = request.url();
-      if (!/^https?:\/\//.test(url)) return route.fallback();
-
-      const pathname = new URL(url).pathname.replace(/\/+$/, '') || '/';
-      if (allowedPath && pathname !== allowedPath) return route.abort();
-
       return route.fallback();
     });
 
@@ -204,10 +196,22 @@ async function auditRuntimePages(candidates) {
       while (nextIndex < candidates.length) {
         const rel = candidates[nextIndex++];
         try {
-          const url = new URL(toUrlPath(rel), BASE_URL).toString();
-          allowedPath = new URL(url).pathname.replace(/\/+$/, '') || '/';
+          const url = new URL(toUrlPath(rel), BASE_URL);
+          const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
+          if (!res.ok) {
+            throw new Error('HTTP ' + res.status + ' while loading ' + url.pathname);
+          }
 
-          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3500 });
+          let html = await res.text();
+          const baseHref = new URL('.', url).toString();
+          const baseTag = '<base href="' + baseHref.replace(/"/g, '&quot;') + '">';
+          if (/<head\b[^>]*>/i.test(html)) {
+            html = html.replace(/<head\b[^>]*>/i, match => match + baseTag);
+          } else {
+            html = baseTag + html;
+          }
+
+          await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 3500 });
           await page.waitForTimeout(40);
 
           failures.push(...await inspectEmojiSizing(page, rel, 'initial'));
