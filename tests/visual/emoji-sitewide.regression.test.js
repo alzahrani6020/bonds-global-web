@@ -58,7 +58,12 @@ function toUrlPath(rel) {
 }
 
 function sourceHasEmojiSurface(source) {
-  return /emoji-renderer\.js/i.test(source) || /\bemoji-icon\b/i.test(source);
+  const visibleHtml = source
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
+
+  return /\bemoji-icon\b/i.test(visibleHtml) ||
+    /[\p{Extended_Pictographic}\p{Emoji_Presentation}]/u.test(visibleHtml);
 }
 
 function validateRendererOrdering(rel, source) {
