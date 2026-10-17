@@ -415,7 +415,16 @@
       const { data, error } = await client.from('recovery_documents')
         .select('*').eq('asset_id', assetId).order('created_at', { ascending: false });
       if (error) throw error;
-      return data || [];
+
+      const documents = data || [];
+      return Promise.all(documents.map(async (doc) => {
+        if (!doc.storage_path) return { ...doc, public_url: null };
+        const { data: signed, error: signedError } = await client.storage
+          .from('recovery-documents')
+          .createSignedUrl(doc.storage_path, 900);
+        if (signedError) throw signedError;
+        return { ...doc, public_url: signed?.signedUrl || null };
+      }));
     },
 
     async uploadDocument(file, meta = {}) {
@@ -426,7 +435,6 @@
       const path = `${meta.asset_id || 'general'}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const { error: upError } = await client.storage.from('recovery-documents').upload(path, file);
       if (upError) throw upError;
-      const { data: urlData } = client.storage.from('recovery-documents').getPublicUrl(path);
       const doc = {
         asset_id: meta.asset_id || null,
         plan_id: meta.plan_id || null,
@@ -434,7 +442,7 @@
         file_type: file.type,
         file_size: file.size,
         storage_path: path,
-        public_url: urlData?.publicUrl || null,
+        public_url: null,
         uploaded_by: userId
       };
       const { data, error } = await client.from('recovery_documents').insert(doc).select().single();
