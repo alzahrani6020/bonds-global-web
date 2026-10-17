@@ -246,57 +246,22 @@ async function fulfillOneoffPurchase(supabase, session) {
   }
   if (session.payment_status !== 'paid') return false;
 
-  const { data: claimed, error: claimError } = await supabase
-    .from('oneoff_purchases')
-    .update({
-      status: 'paid',
-      stripe_payment_intent_id: typeof session.payment_intent === 'string'
-        ? session.payment_intent
-        : session.payment_intent?.id || null,
-      paid_at: new Date().toISOString(),
-    })
-    .eq('stripe_session_id', session.id)
-    .eq('user_id', userId)
-    .eq('product', product)
-    .eq('status', 'pending')
-    .select('id')
-    .maybeSingle();
+  const paymentIntentId = typeof session.payment_intent === 'string'
+    ? session.payment_intent
+    : session.payment_intent?.id || null;
 
-  if (claimError) throw claimError;
-  if (!claimed) return false;
+  const { data: fulfilled, error: fulfillmentError } = await supabase.rpc(
+    'fulfill_oneoff_purchase_atomic',
+    {
+      p_stripe_session_id: session.id,
+      p_user_id: userId,
+      p_product: product,
+      p_payment_intent_id: paymentIntentId,
+    }
+  );
 
-  const { data: profile, error: profileReadError } = await supabase
-    .from('profiles')
-    .select('oneoff_credits')
-    .eq('id', userId)
-    .single();
-
-  if (profileReadError) {
-    await supabase.from('oneoff_purchases')
-      .update({ status: 'pending', paid_at: null, stripe_payment_intent_id: null })
-      .eq('id', claimed.id);
-    throw profileReadError;
-  }
-
-  const credits = {
-    ai_report: 0,
-    expert_review: 0,
-    approved_report: 0,
-    ...(profile?.oneoff_credits || {})
-  };
-  credits[product] = Number(credits[product] || 0) + 1;
-
-  const { error: creditError } = await supabase.from('profiles').update({
-    oneoff_credits: credits,
-    updated_at: new Date().toISOString(),
-  }).eq('id', userId);
-
-  if (creditError) {
-    await supabase.from('oneoff_purchases')
-      .update({ status: 'pending', paid_at: null, stripe_payment_intent_id: null })
-      .eq('id', claimed.id);
-    throw creditError;
-  }
+  if (fulfillmentError) throw fulfillmentError;
+  if (!fulfilled) return false;
 
   await logCommercialEvent(supabase, 'oneoff_fulfilled', {
     userId,
