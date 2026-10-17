@@ -1726,48 +1726,6 @@ async function trackOpenHandler(req, res) {
   return res.status(200).send(TRANSPARENT_GIF);
 }
 
-// ── Resend Email Webhook (bounce / complaint) ──────────────
-async function emailWebhookHandler(req, res) {
-  setAllowedOrigin(res, req);
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
-  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
-
-  try {
-    const body = req.body || {};
-    const type = body.type || '';
-    const email = body.data?.to || body.data?.email || body.email;
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(200).json({ success: true, ignored: true });
-    }
-
-    const supabase = getSupabase();
-    const now = new Date().toISOString();
-    const emailLower = String(email).toLowerCase().trim();
-
-    if (type === 'email.bounced' || type === 'email.delivery_failed' || type === 'bounced') {
-      await supabase.from('calculator_leads')
-        .update({ bounced_at: now })
-        .eq('email', emailLower);
-      console.log('[email-webhook] Bounce recorded for:', emailLower);
-    } else if (type === 'email.complained' || type === 'complained' || type === 'spam') {
-      await supabase.from('calculator_leads')
-        .update({ complained_at: now })
-        .eq('email', emailLower);
-      console.log('[email-webhook] Complaint recorded for:', emailLower);
-    } else {
-      return res.status(200).json({ success: true, ignored: true, type });
-    }
-
-    return res.status(200).json({ success: true });
-  } catch (err) {
-    console.error('[email-webhook] Error:', err);
-    return res.status(500).json({ success: false, error: err.message });
-  }
-}
-
 async function requireAdminAuth(req, res) {
   const user = await resolveAuthUser(req);
   if (!user) return { error: res.status(401).json({ error: 'Authentication required' }) };
@@ -2340,11 +2298,6 @@ module.exports = async function handler(req, res) {
       return trackOpenHandler(req, res);
     }
 
-    // Resend email webhook (bounce / complaint)
-    if (pathname === '/api/email-webhook' || pathname === '/api/email-webhook/') {
-      if (await checkRateLimit('webhook', req, res)) return;
-      return emailWebhookHandler(req, res);
-    }
 
     // NPS
     if (pathname === '/api/nps-check' || pathname === '/api/nps-check/') {
