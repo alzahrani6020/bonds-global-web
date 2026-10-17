@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-ud-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Platform Center | بوندز</title>
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=1">
+  <style>
+    body{margin:0;background:#f5f0e8;color:#1f2937;font-family:system-ui,sans-serif}
+    .wrap{max-width:1400px;margin:0 auto;padding:1.25rem}
+    .head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap;margin-bottom:1rem}
+    h1{margin:.1rem 0;font-size:1.55rem}.muted{color:#6b7280}.actions{display:flex;gap:.5rem;flex-wrap:wrap}
+    button{border:0;border-radius:10px;padding:.65rem .9rem;font-weight:700;cursor:pointer;background:#fff}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem}
+    .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:1rem;min-width:0}
+    .card h2{font-size:1rem;margin:0 0 .7rem}.metric{display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid rgba(0,0,0,.06)}
+    .metric:last-child{border-bottom:0}.metric strong{max-width:58%;overflow-wrap:anywhere;text-align:left}
+    .error{display:none;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;padding:.8rem;border-radius:10px;margin-bottom:1rem}
+    .status{font-size:.85rem}.ok{color:#15803d}.unknown{color:#92400e}
+    pre{white-space:pre-wrap;word-break:break-word;font-size:.75rem;max-height:320px;overflow:auto;background:#fafafa;padding:.75rem;border-radius:10px}
+    @media(max-width:640px){.wrap{padding:.8rem}.grid{grid-template-columns:1fr}}
+  </style>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script>BondsAuth.initAdminGuard();</script>
+  <script src="/admin/admin-common.js?v=4"></script>
+</head>
+<body>
+  <main class="wrap">
+    <div class="head">
+      <div>
+        <h1>مركز تشغيل المنصة</h1>
+        <div class="muted">واجهة قراءة موحدة مبنية على Admin APIs الحالية في main.</div>
+      </div>
+      <div class="actions">
+        <button id="refreshBtn" type="button">تحديث</button>
+        <a href="/admin/dashboard.html" style="text-decoration:none"><button type="button">لوحة التحكم</button></a>
+      </div>
+    </div>
+    <div id="errorBox" class="error"></div>
+    <div id="status" class="status muted">بانتظار التحقق من الجلسة…</div>
+    <section class="grid" id="cards"></section>
+  </main>
+<script>
+(() => {
+  'use strict';
+
+  const endpoints = [
+    ['platform', 'المنصة والمراقبة', '/api/admin?action=platform-overview'],
+    ['executive', 'التحليلات التنفيذية', '/api/admin?action=executive-analytics-v2'],
+    ['crm', 'CRM', '/api/admin?action=crm-overview'],
+    ['support', 'الدعم', '/api/admin?action=support-overview'],
+    ['finance', 'المالية', '/api/admin?action=finance-overview'],
+    ['security', 'الأمن', '/api/admin?action=security-operations-overview'],
+    ['automation', 'الأتمتة', '/api/admin?action=automation-overview'],
+    ['governance', 'حوكمة البيانات', '/api/admin?action=data-governance-overview']
+  ];
+
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+  }[ch]));
+
+  function scalarEntries(value, prefix = '', depth = 0) {
+    if (depth > 2 || value == null) return [];
+    if (Array.isArray(value)) return [[prefix || 'items', value.length]];
+    if (typeof value !== 'object') return [[prefix || 'value', value]];
+    const rows = [];
+    for (const [key, item] of Object.entries(value)) {
+      if (['success','requestId'].includes(key)) continue;
+      const label = prefix ? prefix + '.' + key : key;
+      if (item == null || ['string','number','boolean'].includes(typeof item)) rows.push([label, item]);
+      else if (Array.isArray(item)) rows.push([label, item.length]);
+      else rows.push(...scalarEntries(item, label, depth + 1));
+      if (rows.length >= 12) break;
+    }
+    return rows.slice(0, 12);
+  }
+
+  async function request(url) {
+    const response = await BondsAuth.authenticatedFetch(url, { returnTo: location.pathname + location.search });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok || body.success === false) throw new Error(body.error || ('HTTP ' + response.status));
+    return body;
+  }
+
+  function renderCard(title, result) {
+    const rows = scalarEntries(result);
+    const metrics = rows.length
+      ? rows.map(([key,value]) => '<div class="metric"><span class="muted">'+esc(key)+'</span><strong>'+esc(value ?? '—')+'</strong></div>').join('')
+      : '<div class="muted">لا توجد مؤشرات مختصرة.</div>';
+    return '<article class="card"><h2>'+esc(title)+'</h2>'+metrics+'<details><summary class="muted">البيانات الخام</summary><pre>'+esc(JSON.stringify(result,null,2))+'</pre></details></article>';
+  }
+
+  async function load() {
+    const errorBox = document.getElementById('errorBox');
+    const status = document.getElementById('status');
+    const cards = document.getElementById('cards');
+    errorBox.style.display = 'none';
+    errorBox.textContent = '';
+    status.textContent = 'جارٍ تحميل مؤشرات المنصة…';
+    cards.innerHTML = '';
+
+    const settled = await Promise.all(endpoints.map(async ([key,title,url]) => {
+      try { return { key, title, ok: true, data: await request(url) }; }
+      catch (error) { return { key, title, ok: false, error: error.message }; }
+    }));
+
+    const failures = settled.filter(item => !item.ok);
+    cards.innerHTML = settled.map(item => item.ok
+      ? renderCard(item.title, item.data)
+      : '<article class="card"><h2>'+esc(item.title)+'</h2><div class="unknown">'+esc(item.error)+'</div></article>'
+    ).join('');
+
+    if (failures.length) {
+      errorBox.textContent = 'بعض وحدات المنصة لم تُحمّل: ' + failures.map(x => x.title).join('، ');
+      errorBox.style.display = 'block';
+      status.innerHTML = '<span class="unknown">تحميل جزئي: '+String(settled.length-failures.length)+'/'+String(settled.length)+'</span>';
+    } else {
+      status.innerHTML = '<span class="ok">تم تحميل جميع وحدات المنصة بنجاح.</span>';
+    }
+  }
+
+  document.getElementById('refreshBtn').addEventListener('click', load);
+  if (window.__ADMIN_ROLE) load();
+  else window.addEventListener('admin-auth-ready', load, { once: true });
+})();
+</script>
+<script src="/admin/admin-embed.js?v=4"></script>
+</body>
+</html>
