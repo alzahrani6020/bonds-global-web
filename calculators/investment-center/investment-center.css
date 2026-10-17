@@ -767,6 +767,12 @@
   flex-shrink: 0;
 }
 
+.di-verdict__icon svg {
+  width: 28px;
+  height: 28px;
+  display: block;
+}
+
 .di-verdict__body {
   flex: 1;
 }
@@ -1107,6 +1113,15 @@
 .di-data-quality__icon {
   font-weight: 800;
   font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.di-data-quality__icon svg {
+  width: 1em;
+  height: 1em;
+  display: block;
 }
 
 .di-data-quality__issues {

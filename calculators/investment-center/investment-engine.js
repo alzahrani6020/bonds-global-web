@@ -257,6 +257,9 @@
       profitMargin: parseFloat(profitMargin.toFixed(2)),
       breakEvenUnits: breakEven.units,
       breakEvenRevenue: parseFloat(breakEven.revenue.toFixed(2)),
+      monthlyRevenue: parseFloat(monthlyRevenue.toFixed(2)),
+      monthlyFixedCosts: parseFloat(monthlyFixedCosts.toFixed(2)),
+      monthlyVariableCosts: parseFloat(monthlyVariableCosts.toFixed(2)),
       monthlyNetCashFlow: parseFloat(monthlyNetCashFlow.toFixed(2)),
       totalInvestment,
       projectMonths

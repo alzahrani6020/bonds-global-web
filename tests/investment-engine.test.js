@@ -18,6 +18,9 @@ describe('InvestmentEngine', () => {
   test('calculates basic metrics correctly', () => {
     const result = InvestmentEngine.analyze(baseInputs);
     expect(result.success).toBe(true);
+    expect(result.metrics.monthlyRevenue).toBe(20000);
+    expect(result.metrics.monthlyFixedCosts).toBe(5000);
+    expect(result.metrics.monthlyVariableCosts).toBe(3000);
     expect(result.metrics.monthlyNetCashFlow).toBe(12000);
     expect(result.metrics.roi).toBeGreaterThan(0);
     expect(result.metrics.irr).toBeGreaterThan(0);
