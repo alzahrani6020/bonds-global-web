@@ -178,35 +178,60 @@ async function auditRuntimePages(candidates) {
 
   const failures = [];
   const loadFailures = [];
-  const CONCURRENCY = 24;
+  const CONCURRENCY = 16;
+  let nextIndex = 0;
 
-  async function auditOne(rel) {
+  async function worker() {
     const page = await context.newPage();
-    try {
-      const url = new URL(toUrlPath(rel), BASE_URL).toString();
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3500 });
-      await page.waitForTimeout(40);
+    let allowedPath = null;
 
-      failures.push(...await inspectEmojiSizing(page, rel, 'initial'));
-
-      const clickedExample = await clickFirstVisibleByText(page, /مثال توضيحي|تحميل مثال|Example/i);
-      if (clickedExample) await page.waitForTimeout(40);
-
-      const clickedCalculate = await clickFirstVisibleByText(page, /احسب النتائج|احسب النتيجة|Calculate Results|Calculate Result/i);
-      if (clickedCalculate) {
-        await page.waitForTimeout(100);
-        failures.push(...await inspectEmojiSizing(page, rel, 'after-calculate'));
+    await page.route('**/*', route => {
+      const request = route.request();
+      if (!request.isNavigationRequest() || request.resourceType() !== 'document') {
+        return route.continue();
       }
-    } catch (err) {
-      loadFailures.push(rel + ': ' + String(err.message || err).slice(0, 220));
+
+      const url = request.url();
+      if (!/^https?:\/\//.test(url)) return route.continue();
+
+      const pathname = new URL(url).pathname.replace(/\/+$/, '') || '/';
+      if (allowedPath && pathname !== allowedPath) return route.abort();
+
+      return route.continue();
+    });
+
+    try {
+      while (nextIndex < candidates.length) {
+        const rel = candidates[nextIndex++];
+        try {
+          const url = new URL(toUrlPath(rel), BASE_URL).toString();
+          allowedPath = new URL(url).pathname.replace(/\/+$/, '') || '/';
+
+          await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3500 });
+          await page.waitForTimeout(40);
+
+          failures.push(...await inspectEmojiSizing(page, rel, 'initial'));
+
+          const clickedExample = await clickFirstVisibleByText(page, /مثال توضيحي|تحميل مثال|Example/i);
+          if (clickedExample) await page.waitForTimeout(40);
+
+          const clickedCalculate = await clickFirstVisibleByText(page, /احسب النتائج|احسب النتيجة|Calculate Results|Calculate Result/i);
+          if (clickedCalculate) {
+            await page.waitForTimeout(100);
+            failures.push(...await inspectEmojiSizing(page, rel, 'after-calculate'));
+          }
+        } catch (err) {
+          loadFailures.push(rel + ': ' + String(err.message || err).slice(0, 220));
+        }
+      }
     } finally {
       await page.close();
     }
   }
 
-  for (let i = 0; i < candidates.length; i += CONCURRENCY) {
-    await Promise.all(candidates.slice(i, i + CONCURRENCY).map(auditOne));
-  }
+  await Promise.all(
+    Array.from({ length: Math.min(CONCURRENCY, candidates.length) }, () => worker())
+  );
 
   await context.close();
   await browser.close();
