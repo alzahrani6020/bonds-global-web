@@ -19,7 +19,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('playwright');
 
-jest.setTimeout(15 * 60 * 1000);
+jest.setTimeout(5 * 60 * 1000);
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
@@ -143,7 +143,7 @@ async function clickFirstVisibleByText(page, re) {
   for (let i = 0; i < count; i++) {
     const item = locator.nth(i);
     if (await item.isVisible().catch(() => false)) {
-      await item.click({ timeout: 1500 }).catch(() => {});
+      await item.click({ timeout: 500 }).catch(() => {});
       return true;
     }
   }
@@ -176,23 +176,23 @@ async function auditRuntimePages(candidates) {
 
   const failures = [];
   const loadFailures = [];
-  const CONCURRENCY = 6;
+  const CONCURRENCY = 16;
 
   async function auditOne(rel) {
     const page = await context.newPage();
     try {
       const url = new URL(toUrlPath(rel), BASE_URL).toString();
-      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 7000 });
-      await page.waitForTimeout(80);
+      await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 3500 });
+      await page.waitForTimeout(40);
 
       failures.push(...await inspectEmojiSizing(page, rel, 'initial'));
 
       const clickedExample = await clickFirstVisibleByText(page, /مثال توضيحي|تحميل مثال|Example/i);
-      if (clickedExample) await page.waitForTimeout(80);
+      if (clickedExample) await page.waitForTimeout(40);
 
       const clickedCalculate = await clickFirstVisibleByText(page, /احسب النتائج|احسب النتيجة|Calculate Results|Calculate Result/i);
       if (clickedCalculate) {
-        await page.waitForTimeout(180);
+        await page.waitForTimeout(100);
         failures.push(...await inspectEmojiSizing(page, rel, 'after-calculate'));
       }
     } catch (err) {
@@ -233,6 +233,7 @@ describe('site-wide emoji SVG safety', () => {
       .map(({ rel }) => rel);
 
     expect(candidates.length).toBeGreaterThan(0);
+    console.log('Site-wide emoji runtime candidates: ' + candidates.length + ' / HTML pages: ' + htmlFiles.length);
 
     const available = await serverAvailable();
     if (!available) {
