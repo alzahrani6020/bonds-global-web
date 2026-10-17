@@ -63,6 +63,7 @@ function sourceHasEmojiSurface(source) {
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
 
   return /\bemoji-icon\b/i.test(visibleHtml) ||
+    /<svg\b/i.test(visibleHtml) ||
     /[\p{Extended_Pictographic}\p{Emoji_Presentation}]/u.test(visibleHtml);
 }
 
@@ -350,11 +351,11 @@ describe('site-wide emoji SVG safety', () => {
     }
 
     const exitIntentSource = fs.readFileSync(path.join(ROOT, 'calculators', 'exit-intent.js'), 'utf8');
+    const authModalSource = fs.readFileSync(path.join(ROOT, 'calculators', 'auth-modal.js'), 'utf8');
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
-    const page = await context.newPage();
 
-    try {
+    async function loadFixture(page) {
       await page.setContent(
         '<!doctype html><html lang="ar" dir="rtl"><head>' +
         '<link rel="stylesheet" href="' + BASE_URL + '/styles.css">' +
@@ -362,31 +363,44 @@ describe('site-wide emoji SVG safety', () => {
         '</head><body><main>fixture</main></body></html>',
         { waitUntil: 'load', timeout: 3500 }
       );
+    }
 
-      await page.addScriptTag({ content: exitIntentSource });
-      await page.evaluate(() => {
+    try {
+      const exitPage = await context.newPage();
+      await loadFixture(exitPage);
+      await exitPage.addScriptTag({ content: exitIntentSource });
+      await exitPage.evaluate(() => {
         window._calcCompleted = true;
         document.dispatchEvent(new MouseEvent('mouseout', { clientY: 0, bubbles: true }));
       });
-      await page.waitForTimeout(50);
+      await exitPage.waitForTimeout(50);
 
-      const failures = await inspectInterfaceIconSizing(page, 'calculators/exit-intent.js', 'modal-open');
-      expect(failures).toEqual([]);
-
-      const modalIcon = page.locator('.bonds-exit-modal__icon > svg');
-      expect(await modalIcon.count()).toBe(1);
-      const box = await modalIcon.boundingBox();
-      expect(box.width).toBeLessThanOrEqual(72);
-      expect(box.height).toBeLessThanOrEqual(72);
-
-      const actionIcons = page.locator('.bonds-exit-modal__btn > svg');
-      const count = await actionIcons.count();
-      expect(count).toBeGreaterThan(0);
-      for (let i = 0; i < count; i++) {
-        const actionBox = await actionIcons.nth(i).boundingBox();
-        expect(actionBox.width).toBeLessThanOrEqual(32);
-        expect(actionBox.height).toBeLessThanOrEqual(32);
+      expect(await inspectInterfaceIconSizing(exitPage, 'calculators/exit-intent.js', 'modal-open')).toEqual([]);
+      const exitHero = await exitPage.locator('.bonds-exit-modal__icon > svg').boundingBox();
+      expect(exitHero.width).toBeLessThanOrEqual(72);
+      expect(exitHero.height).toBeLessThanOrEqual(72);
+      const exitButtons = exitPage.locator('.bonds-exit-modal__btn > svg');
+      expect(await exitButtons.count()).toBeGreaterThan(0);
+      for (let i = 0; i < await exitButtons.count(); i++) {
+        const box = await exitButtons.nth(i).boundingBox();
+        expect(box.width).toBeLessThanOrEqual(32);
+        expect(box.height).toBeLessThanOrEqual(32);
       }
+      await exitPage.close();
+
+      const authPage = await context.newPage();
+      await loadFixture(authPage);
+      await authPage.addScriptTag({ content: authModalSource });
+      await authPage.evaluate(() => {
+        window.showAuthModal('save', () => {}, () => {}, { calculator: 'medical-viability' });
+      });
+      await authPage.waitForTimeout(50);
+
+      expect(await inspectInterfaceIconSizing(authPage, 'calculators/auth-modal.js', 'modal-open')).toEqual([]);
+      const authHero = await authPage.locator('.bonds-auth-modal__icon > svg').boundingBox();
+      expect(authHero.width).toBeLessThanOrEqual(72);
+      expect(authHero.height).toBeLessThanOrEqual(72);
+      await authPage.close();
     } finally {
       await context.close();
       await browser.close();
