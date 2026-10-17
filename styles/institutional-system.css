@@ -1873,3 +1873,122 @@ p.error-message,
   .page-hero.v2026 .page-hero__title,
   .fi-page .fi-hero__title { font-size: clamp(1.75rem, 8vw, 2.35rem) !important; }
 }
+
+
+/* ---------- Site-wide icon containment & metric rendering ---------- */
+/*
+ * Inline interface SVGs must never inherit layout-sized SVG rules.
+ * Charts, gauges and logos are intentionally excluded and keep their own sizing.
+ */
+:where(
+  .emoji-icon,
+  .bonds-icon,
+  .bonds-auth-modal__icon,
+  .bonds-exit-modal__icon,
+  .bonds-auth-modal__social,
+  .bonds-exit-modal__social,
+  .bec-smart-alert__icon,
+  .calc-empty-icon-lg,
+  .med-section-title,
+  .status-badge,
+  .toast,
+  .bonds-toast,
+  .notification,
+  .alert-icon
+) > svg,
+:where(
+  button,
+  [role="button"],
+  .btn,
+  .bonds-btn,
+  .ecc-btn,
+  .calc-btn-sm
+) > svg {
+  display: block !important;
+  width: 1em !important;
+  height: 1em !important;
+  max-width: 1em !important;
+  max-height: 1em !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex: 0 0 1em !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none;
+  object-fit: contain;
+}
+
+/* Emoji wrappers are always inline glyphs, including pre-rendered HTML emoji SVGs. */
+.emoji-icon {
+  display: inline-flex !important;
+  width: 1em !important;
+  height: 1em !important;
+  max-width: 1em !important;
+  max-height: 1em !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  vertical-align: -0.15em;
+  flex: 0 0 1em !important;
+  position: relative;
+}
+
+.emoji-icon > svg {
+  width: 1em !important;
+  height: 1em !important;
+  max-width: 1em !important;
+  max-height: 1em !important;
+}
+
+/* Modal hero icons may be larger than inline icons, but remain explicitly bounded. */
+.bonds-auth-modal__icon,
+.bonds-exit-modal__icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem !important;
+  height: 3.5rem !important;
+  max-width: 3.5rem !important;
+  max-height: 3.5rem !important;
+  margin-inline: auto;
+  overflow: hidden;
+  line-height: 1;
+}
+
+.bonds-auth-modal__icon > svg,
+.bonds-exit-modal__icon > svg {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+.bonds-auth-modal__social > svg,
+.bonds-exit-modal__social > svg,
+.bonds-auth-modal__btn > svg,
+.bonds-exit-modal__btn > svg {
+  width: 1.1em !important;
+  height: 1.1em !important;
+  max-width: 1.1em !important;
+  max-height: 1.1em !important;
+  flex: 0 0 1.1em !important;
+}
+
+/* Result numbers use deterministic tabular rendering across engines and dashboards. */
+:where(
+  .score-value .num,
+  .breakdown-item .num,
+  .kpi-card .value,
+  .bec-kpi-card__value,
+  .summary-card .summary-value,
+  .stat-item__num,
+  .ecc-metric__value,
+  .metric-value,
+  .result-value
+) {
+  font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace);
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  letter-spacing: -0.025em;
+  text-shadow: 0 0 12px color-mix(in srgb, currentColor 18%, transparent);
+}
