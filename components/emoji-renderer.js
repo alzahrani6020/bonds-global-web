@@ -8,13 +8,19 @@
 
   const EMOJI_RE = /(?:[\u{1F1E6}-\u{1F1FF}]{2}|[#*0-9][\uFE0E\uFE0F]?\u20E3|(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0E\uFE0F]?[\u{1F3FB}-\u{1F3FF}]?(?:\u200D(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0E\uFE0F]?[\u{1F3FB}-\u{1F3FF}]?)*)/gu;
 
+  const INLINE_SVG_STYLE = 'display:block;width:1em;height:1em;max-width:1em;max-height:1em;min-width:0;min-height:0;position:static;inset:auto;transform:none;flex:0 0 1em;';
+
   function findEmojiSequences(text) {
     EMOJI_RE.lastIndex = 0;
     return String(text || '').match(EMOJI_RE) || [];
   }
 
+  function getInlineSvgStyle() {
+    return INLINE_SVG_STYLE;
+  }
+
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { findEmojiSequences };
+    module.exports = { findEmojiSequences, getInlineSvgStyle };
   }
 
   if (typeof window === 'undefined' || !window.EmojiIcons) return;
@@ -38,8 +44,14 @@
       const span = document.createElement('span');
       span.className = 'emoji-icon';
       span.setAttribute('aria-hidden', 'true');
-      span.style.cssText = 'display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;';
+      span.style.cssText = 'display:inline-flex;width:1em;height:1em;max-width:1em;max-height:1em;overflow:hidden;vertical-align:-0.15em;flex:0 0 1em;position:relative;';
       span.innerHTML = svg;
+      const svgEl = span.querySelector('svg');
+      if (svgEl) {
+        svgEl.style.cssText = getInlineSvgStyle();
+        svgEl.setAttribute('width', '1em');
+        svgEl.setAttribute('height', '1em');
+      }
       frag.appendChild(span);
       last = offset + emoji.length;
     });
