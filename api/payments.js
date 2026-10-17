@@ -354,10 +354,12 @@ async function billingHandleLegacyWebhook(req, res) {
   }
 
   try {
-    const { data: existingWebhook } = await supabase.from('webhook_events')
+    const { data: existingWebhook, error: existingWebhookError } = await supabase.from('webhook_events')
       .select('processed')
       .eq('stripe_event_id', event.id)
       .maybeSingle();
+
+    if (existingWebhookError) throw existingWebhookError;
 
     if (existingWebhook?.processed) {
       return res.status(200).json({ received: true, duplicate: true });
@@ -370,10 +372,18 @@ async function billingHandleLegacyWebhook(req, res) {
         payload: event,
         processed: false,
       }]);
-      if (insertEventError && insertEventError.code !== '23505') throw insertEventError;
+
+      // A unique-key collision means another worker claimed the same delivery
+      // after our read. Fail closed and let Stripe retry; never execute side
+      // effects concurrently without an idempotency claim.
+      if (insertEventError?.code === '23505') {
+        return res.status(503).json({ error: 'Webhook delivery is already being processed', retry: true });
+      }
+      if (insertEventError) throw insertEventError;
     }
   } catch (logErr) {
     console.error('Failed to establish webhook idempotency:', logErr);
+    return res.status(503).json({ error: 'Webhook idempotency unavailable', retry: true });
   }
 
   try {
