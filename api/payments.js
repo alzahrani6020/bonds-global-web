@@ -319,10 +319,12 @@ async function billingHandleLegacyWebhook(req, res) {
   }
 
   try {
-    const { data: existingWebhook } = await supabase.from('webhook_events')
+    const { data: existingWebhook, error: existingWebhookError } = await supabase.from('webhook_events')
       .select('processed')
       .eq('stripe_event_id', event.id)
       .maybeSingle();
+
+    if (existingWebhookError) throw existingWebhookError;
 
     if (existingWebhook?.processed) {
       return res.status(200).json({ received: true, duplicate: true });
@@ -335,10 +337,14 @@ async function billingHandleLegacyWebhook(req, res) {
         payload: event,
         processed: false,
       }]);
-      if (insertEventError && insertEventError.code !== '23505') throw insertEventError;
+      if (insertEventError?.code === '23505') {
+        return res.status(503).json({ error: 'Webhook delivery is already being processed', retry: true });
+      }
+      if (insertEventError) throw insertEventError;
     }
   } catch (logErr) {
     console.error('Failed to establish webhook idempotency:', logErr);
+    return res.status(503).json({ error: 'Webhook idempotency unavailable', retry: true });
   }
 
   try {
@@ -813,7 +819,7 @@ async function moyasarWebhookAction(req, res) {
     if (!localInvoice) return res.status(404).json({ error: 'Invoice not found' });
 
     const configuredWebhookSecret = process.env.MOYASAR_WEBHOOK_SECRET;
-    if (payload?.secret_token && configuredWebhookSecret && payload.secret_token !== configuredWebhookSecret) {
+    if (configuredWebhookSecret && payload?.secret_token !== configuredWebhookSecret) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 

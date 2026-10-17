@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const { getAuthClient } = require('../lib/auth');
 const { getSupabaseClient } = require('../lib/supabase');
 const { sendEmail } = require('../../lib/api/email');
+const { checkRateLimitDistributed } = require('../../lib/api/rate-limit-distributed');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -113,6 +114,27 @@ async function handleSendOtp(req, res) {
   }
 
   const ip = getClientIp(req);
+
+  const distributedIpLimited = await checkRateLimitDistributed(
+    'otp-send-ip',
+    OTP_LIMITS.ip,
+    req,
+    res,
+    ip,
+    false
+  );
+  if (distributedIpLimited === true) return;
+
+  const distributedEmailLimited = await checkRateLimitDistributed(
+    'otp-send-email',
+    OTP_LIMITS.email,
+    req,
+    res,
+    email,
+    false
+  );
+  if (distributedEmailLimited === true) return;
+
   const ipLimit = checkOtpRateLimit('ip', OTP_LIMITS.ip, ip);
   if (ipLimit.limited) {
     res.setHeader('Retry-After', String(ipLimit.retryAfter));
@@ -265,6 +287,46 @@ async function handleVerifyOtp(req, res) {
     return sendJson(res, 400, { error: 'Email and token are required' });
   }
 
+  const ip = getClientIp(req);
+
+  const distributedVerifyIpLimited = await checkRateLimitDistributed(
+    'otp-verify-ip',
+    OTP_LIMITS.ip,
+    req,
+    res,
+    ip,
+    false
+  );
+  if (distributedVerifyIpLimited === true) return;
+
+  const distributedVerifyEmailLimited = await checkRateLimitDistributed(
+    'otp-verify-email',
+    OTP_LIMITS.email,
+    req,
+    res,
+    email,
+    false
+  );
+  if (distributedVerifyEmailLimited === true) return;
+
+  const verifyIpLimit = checkOtpRateLimit('verify-ip', OTP_LIMITS.ip, ip);
+  if (verifyIpLimit.limited) {
+    res.setHeader('Retry-After', String(verifyIpLimit.retryAfter));
+    return sendJson(res, 429, {
+      error: 'Too many verification attempts from this network. Please try again later.',
+      retryAfter: verifyIpLimit.retryAfter
+    });
+  }
+
+  const verifyEmailLimit = checkOtpRateLimit('verify-email', OTP_LIMITS.email, email);
+  if (verifyEmailLimit.limited) {
+    res.setHeader('Retry-After', String(verifyEmailLimit.retryAfter));
+    return sendJson(res, 429, {
+      error: 'Too many verification attempts for this email. Please request a new code later.',
+      retryAfter: verifyEmailLimit.retryAfter
+    });
+  }
+
   try {
     const adminClient = getSupabaseClient();
 
@@ -299,21 +361,21 @@ async function handleVerifyOtp(req, res) {
     delete updatedMetadata.bonds_otp;
     delete updatedMetadata.bonds_otp_expires_at;
 
+    const consumePayload = { user_metadata: updatedMetadata };
+    if (pendingPassword && pendingPassword.length >= 8) {
+      consumePayload.password = pendingPassword;
+    }
+    const { error: consumeError } = await adminClient.auth.admin.updateUserById(user.id, consumePayload);
+    if (consumeError) {
+      console.error('[auth/verify-otp] consume OTP error:', consumeError.message);
+      return sendJson(res, 500, { error: 'Failed to consume verification code' });
+    }
+
     const authClient = getAuthClient();
     let sessionData;
 
     if (pendingPassword && pendingPassword.length >= 8) {
-      // Signup flow: set the user's chosen password and create a session.
-      const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
-        password: pendingPassword,
-        user_metadata: updatedMetadata
-      });
-
-      if (updateError) {
-        console.error('[auth/verify-otp] updateUserById error:', updateError.message);
-        return sendJson(res, 500, { error: updateError.message });
-      }
-
+      // Signup flow: password and OTP consumption were committed above.
       const { data, error: signInError } = await authClient.auth.signInWithPassword({
         email,
         password: pendingPassword
