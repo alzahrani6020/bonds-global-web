@@ -1,0 +1,119 @@
+﻿{
+  "schema_version": 1,
+  "service_code": "web-research",
+  "version": 1,
+  "enabled": true,
+
+  "governance": {
+    "permissions": [
+      "research.web.read"
+    ],
+    "entitlements": [
+      "research.web"
+    ],
+    "feature_flags": [
+      {
+        "key": "service.web-research.enabled",
+        "default_enabled": true
+      }
+    ]
+  },
+
+  "security": {
+    "network_access": "public_only",
+    "privileges": {
+      "service_role": false,
+      "private_network": false,
+      "arbitrary_code": false,
+      "external_write": false,
+      "ai_tool_exposure": false
+    }
+  },
+
+  "limits": {
+    "rate_limit": {
+      "requests_per_minute": 60
+    },
+    "retry": {
+      "max_attempts": 2
+    }
+  },
+
+  "observability": {
+    "health_check": true,
+    "audit": true,
+    "metrics": true
+  },
+
+  "data": {
+    "provenance": true,
+    "quality": true
+  },
+
+  "workflows": {
+    "events": [
+      "research.completed"
+    ]
+  },
+
+  "ai": {
+    "exposed": false
+  },
+
+  "capabilities": [
+    {
+      "action": "web_fetch",
+      "id": "BONDS-CAP-WEB-001",
+      "purpose": "Fetch one public HTTP/HTTPS resource with SSRF protection and evidence hashing.",
+      "side_effect": "network_read",
+      "required": ["url"],
+      "runtime": {
+        "adapter": "web_fetch"
+      }
+    },
+    {
+      "action": "web_crawl",
+      "id": "BONDS-CAP-WEB-002",
+      "purpose": "Run a bounded multi-page crawl with host/depth/page budgets.",
+      "side_effect": "network_read",
+      "required_any": [
+        ["url", "seedUrls", "seed_urls"]
+      ],
+      "runtime": {
+        "adapter": "web_crawl"
+      }
+    },
+    {
+      "action": "web_explore",
+      "id": "BONDS-CAP-WEB-003",
+      "purpose": "Fetch, crawl and extract evidence-bearing content.",
+      "side_effect": "network_read",
+      "required_any": [
+        ["url", "seedUrls", "seed_urls"]
+      ],
+      "runtime": {
+        "adapter": "web_explore"
+      }
+    },
+    {
+      "action": "evidence_verify",
+      "id": "BONDS-CAP-RSCH-001",
+      "purpose": "Verify evidence, independence and contradictions.",
+      "side_effect": "none",
+      "required": ["sources"],
+      "runtime": {
+        "adapter": "evidence_verify"
+      }
+    },
+    {
+      "action": "research_synthesize",
+      "id": "BONDS-CAP-RSCH-002",
+      "purpose": "Synthesize verified research while preserving provenance.",
+      "side_effect": "none",
+      "required": ["sources"],
+      "runtime": {
+        "adapter": "research_synthesize"
+      }
+    }
+  ]
+}

@@ -1,0 +1,84 @@
+﻿{
+  "schema_version": 1,
+  "service_code": "native-inference",
+  "version": 1,
+  "enabled": true,
+
+  "governance": {
+    "permissions": [
+      "ai.native.use"
+    ],
+    "entitlements": [
+      "ai.native"
+    ],
+    "feature_flags": [
+      {
+        "key": "service.native-inference.enabled",
+        "default_enabled": true
+      }
+    ]
+  },
+
+  "security": {
+    "network_access": "runtime_configured",
+    "privileges": {
+      "service_role": false,
+      "private_network": false,
+      "arbitrary_code": false,
+      "external_write": false,
+      "ai_tool_exposure": false
+    }
+  },
+
+  "limits": {
+    "rate_limit": {
+      "requests_per_minute": 30
+    },
+    "retry": {
+      "max_attempts": 1
+    }
+  },
+
+  "observability": {
+    "health_check": true,
+    "audit": true,
+    "metrics": true
+  },
+
+  "data": {
+    "provenance": false,
+    "quality": false
+  },
+
+  "workflows": {
+    "events": [
+      "native-inference.health"
+    ]
+  },
+
+  "ai": {
+    "exposed": false
+  },
+
+  "capabilities": [
+    {
+      "action": "native_generate",
+      "id": "BONDS-CAP-AI-001",
+      "purpose": "Generate text through the configured Bonds Native Inference runtime.",
+      "side_effect": "compute",
+      "required": ["prompt"],
+      "runtime": {
+        "adapter": "native_generate"
+      }
+    },
+    {
+      "action": "native_health",
+      "id": "BONDS-CAP-AI-002",
+      "purpose": "Inspect the configured Bonds Native Inference runtime.",
+      "side_effect": "none",
+      "runtime": {
+        "adapter": "native_health"
+      }
+    }
+  ]
+}

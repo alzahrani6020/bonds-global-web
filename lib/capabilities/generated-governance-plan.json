@@ -1,0 +1,24 @@
+{
+  "permissions": [
+    "ai.native.use",
+    "research.web.read"
+  ],
+  "entitlements": [
+    "ai.native",
+    "research.web"
+  ],
+  "featureFlags": [
+    {
+      "key": "service.native-inference.enabled",
+      "defaultEnabled": true
+    },
+    {
+      "key": "service.web-research.enabled",
+      "defaultEnabled": true
+    }
+  ],
+  "workflowEvents": [
+    "native-inference.health",
+    "research.completed"
+  ]
+}

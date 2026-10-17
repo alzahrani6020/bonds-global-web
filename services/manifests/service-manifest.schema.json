@@ -1,0 +1,178 @@
+﻿{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://bonds-global.com/schemas/service-manifest.schema.json",
+  "title": "Bonds Global Service Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "service_code",
+    "version",
+    "enabled",
+    "governance",
+    "security",
+    "limits",
+    "observability",
+    "data",
+    "workflows",
+    "ai",
+    "capabilities"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "service_code": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(?:[._-][a-z0-9]+)*$"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "enabled": {
+      "type": "boolean"
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "permissions",
+        "entitlements",
+        "feature_flags"
+      ],
+      "properties": {
+        "permissions": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "entitlements": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "feature_flags": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["key", "default_enabled"],
+            "properties": {
+              "key": { "type": "string", "minLength": 1 },
+              "default_enabled": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "security": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "network_access",
+        "privileges"
+      ],
+      "properties": {
+        "network_access": {
+          "enum": [
+            "none",
+            "public_only",
+            "runtime_configured"
+          ]
+        },
+        "privileges": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "service_role",
+            "private_network",
+            "arbitrary_code",
+            "external_write",
+            "ai_tool_exposure"
+          ],
+          "properties": {
+            "service_role": { "type": "boolean" },
+            "private_network": { "type": "boolean" },
+            "arbitrary_code": { "type": "boolean" },
+            "external_write": { "type": "boolean" },
+            "ai_tool_exposure": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rate_limit", "retry"],
+      "properties": {
+        "rate_limit": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["requests_per_minute"],
+          "properties": {
+            "requests_per_minute": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        },
+        "retry": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_attempts"],
+          "properties": {
+            "max_attempts": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10
+            }
+          }
+        }
+      }
+    },
+    "observability": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["health_check", "audit", "metrics"],
+      "properties": {
+        "health_check": { "type": "boolean" },
+        "audit": { "type": "boolean" },
+        "metrics": { "type": "boolean" }
+      }
+    },
+    "data": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["provenance", "quality"],
+      "properties": {
+        "provenance": { "type": "boolean" },
+        "quality": { "type": "boolean" }
+      }
+    },
+    "workflows": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["events"],
+      "properties": {
+        "events": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "ai": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["exposed"],
+      "properties": {
+        "exposed": { "type": "boolean" }
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "minItems": 1
+    }
+  }
+}
