@@ -188,16 +188,16 @@ async function auditRuntimePages(candidates) {
     await page.route('**/*', route => {
       const request = route.request();
       if (!request.isNavigationRequest() || request.resourceType() !== 'document') {
-        return route.continue();
+        return route.fallback();
       }
 
       const url = request.url();
-      if (!/^https?:\/\//.test(url)) return route.continue();
+      if (!/^https?:\/\//.test(url)) return route.fallback();
 
       const pathname = new URL(url).pathname.replace(/\/+$/, '') || '/';
       if (allowedPath && pathname !== allowedPath) return route.abort();
 
-      return route.continue();
+      return route.fallback();
     });
 
     try {
