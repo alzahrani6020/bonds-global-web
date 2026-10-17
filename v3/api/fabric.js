@@ -75,6 +75,20 @@ async function fabricRouter(req, res, path, supabase, user) {
 
     const fetchMatch = path.match(/^\/fabric\/connectors\/([^/]+)\/fetch$/);
     if (fetchMatch && req.method === 'POST') {
+      if (!supabase) return sendJson(res, 503, { error: 'Supabase not available' });
+      const authedUser = user || (await getUserFromToken(req));
+      if (!authedUser) return sendJson(res, 401, { error: 'Unauthorized' });
+
+      const { data: adminRole, error: adminError } = await supabase
+        .from('admin_roles')
+        .select('role')
+        .eq('user_id', authedUser.id)
+        .in('role', ['super_admin', 'admin'])
+        .maybeSingle();
+
+      if (adminError) throw adminError;
+      if (!adminRole) return sendJson(res, 403, { error: 'Admin required' });
+
       const body = await parseBody(req);
       const items = await fabric.connectorRegistry.fetch(fetchMatch[1], body);
       return sendJson(res, 200, { items });
