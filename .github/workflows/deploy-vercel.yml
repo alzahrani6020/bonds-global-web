@@ -82,7 +82,11 @@ jobs:
           npm run test:security:critical
 
       - name: Pull Production environment
-        run: npx --no-install vercel pull --yes --environment=production
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .vercel
+          npx --no-install vercel pull --yes --environment=production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
