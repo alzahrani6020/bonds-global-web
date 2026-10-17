@@ -9,6 +9,7 @@ function walk(dir) {
   });
 }
 
+// Keep this guard aligned with the Vercel Hobby 12-function deployment ceiling.
 describe('Vercel Hobby serverless function budget', () => {
   test('api entry files stay at or below the 12-function deployment limit', () => {
     const apiDir = path.join(process.cwd(), 'api');
