@@ -112,8 +112,12 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          : "${VERCEL_AUTOMATION_BYPASS_SECRET:?Missing VERCEL_AUTOMATION_BYPASS_SECRET in production environment}"
           deployment_url="${{ steps.deploy.outputs.url }}"
-          health_json="$(curl --silent --show-error --fail -H 'Cache-Control: no-cache' "$deployment_url/api/health")"
+          health_json="$(curl --silent --show-error --fail \
+            -H 'Cache-Control: no-cache' \
+            -H "x-vercel-protection-bypass: $VERCEL_AUTOMATION_BYPASS_SECRET" \
+            "$deployment_url/api/health")"
 
           HEALTH_JSON="$health_json" EXPECTED_VERSION="${{ steps.release.outputs.short_sha }}"             node --input-type=module -e '
               const body = JSON.parse(process.env.HEALTH_JSON);
@@ -128,6 +132,7 @@ jobs:
             '
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
 
       - name: Promote tested deployment
         id: promote
