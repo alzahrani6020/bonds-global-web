@@ -1,6 +1,7 @@
 name: Verify Service Worker Cache Version
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, master]
   pull_request:
