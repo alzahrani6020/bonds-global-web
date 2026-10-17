@@ -246,6 +246,12 @@
     return Number.isFinite(n) ? n : (fallback === undefined ? 0 : fallback);
   }
 
+  function toOptionalNumber(value) {
+    if (value === null || value === undefined || (typeof value === 'string' && value.trim() === '')) return null;
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+  }
+
   function isEmpty(value) {
     if (value === null || value === undefined) return true;
     if (typeof value === 'string' && value.trim() === '') return true;
@@ -620,14 +626,14 @@
   // ===== 4. Market Analysis =====
   function analyzeMarket(inputs, engineResult) {
     const t = i18n[lang] || i18n[DEFAULT_LANG];
-    const annualRevenue = toNumber(engineResult.metrics && engineResult.metrics.monthlyNetCashFlow) * 12;
+    const annualRevenue = toNumber(engineResult.metrics && engineResult.metrics.monthlyRevenue) * 12;
     const tam = toNumber(inputs.tam);
     const sam = toNumber(inputs.sam);
     const som = toNumber(inputs.som);
     const marketSize = toNumber(inputs.marketSize);
     const marketGrowthRate = toNumber(inputs.marketGrowthRate);
-    const competitionLevel = toNumber(inputs.competitionLevel);
-    const competitorCount = toNumber(inputs.competitorCount);
+    const competitionLevel = toOptionalNumber(inputs.competitionLevel);
+    const competitorCount = toOptionalNumber(inputs.competitorCount);
     const clv = toNumber(inputs.customerLifetimeValue);
     const cac = toNumber(inputs.customerAcquisitionCost);
 
@@ -639,8 +645,11 @@
     else if (marketGrowthRate < 5) growthPotential = 'low';
 
     let competitionAssessment = 'medium';
-    if (competitionLevel <= 2 || competitorCount <= 3) competitionAssessment = 'low';
-    else if (competitionLevel >= 4 || competitorCount >= 10) competitionAssessment = 'high';
+    if ((competitionLevel !== null && competitionLevel >= 4) || (competitorCount !== null && competitorCount >= 10)) {
+      competitionAssessment = 'high';
+    } else if ((competitionLevel !== null && competitionLevel <= 2) || (competitorCount !== null && competitorCount <= 3)) {
+      competitionAssessment = 'low';
+    }
 
     let unitEconomics = 'neutral';
     if (clv > 0 && cac > 0) {
