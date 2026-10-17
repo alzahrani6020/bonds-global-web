@@ -441,3 +441,51 @@ describe('/api/track-click and /api/track-open signatures', () => {
     expect(mockFrom).not.toHaveBeenCalled();
   });
 });
+
+
+describe('/api/site heartbeat service-role ownership', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('rejects overwriting a session owned by another authenticated user', async () => {
+    mockSupabaseClient.auth.getUser.mockResolvedValue({
+      data: { user: { id: 'user-a', email: 'a@example.com' } },
+      error: null
+    });
+
+    mockFrom.mockImplementation((table) => {
+      if (table === 'user_presence') {
+        const existing = createChain({
+          data: { session_id: 'shared-session', started_at: '2026-01-01T00:00:00Z', user_id: 'user-b' },
+          error: null
+        });
+        return existing;
+      }
+      return createChain({ data: null, error: null });
+    });
+
+    const req = mockReq({
+      url: '/api/site',
+      query: { action: 'heartbeat' },
+      headers: { host: 'localhost', authorization: 'Bearer token-a' },
+      body: { action: 'heartbeat', session_id: 'shared-session', page: '/dashboard' }
+    });
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(403);
+    expect(res._json.error).toMatch(/another user/i);
+  });
+
+  test('heartbeat source scopes existing-session updates by current owner', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(path.join(__dirname, '../../api/platform.js'), 'utf8');
+    expect(source).toContain("select('session_id, started_at, user_id')");
+    expect(source).toContain("existing.user_id !== payload.user_id");
+    expect(source).toContain("updateQuery.eq('user_id', existing.user_id)");
+    expect(source).toContain("leaveQuery.eq('user_id', user.id)");
+  });
+});
