@@ -132,7 +132,7 @@ jobs:
       - name: Promote tested deployment
         id: promote
         if: github.event_name == 'workflow_run' || inputs.promote
-        run: npx --no-install vercel --scope "$VERCEL_ORG_ID" --token "$VERCEL_TOKEN" promote "${{ steps.deploy.outputs.url }}" --yes
+        run: npx --no-install vercel --scope "$VERCEL_ORG_ID" promote "${{ steps.deploy.outputs.url }}" --yes
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
