@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const { getAuthClient } = require('../lib/auth');
 const { getSupabaseClient } = require('../lib/supabase');
 const { sendEmail } = require('../../lib/api/email');
+const { checkRateLimitDistributed } = require('../../lib/api/rate-limit-distributed');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -113,6 +114,27 @@ async function handleSendOtp(req, res) {
   }
 
   const ip = getClientIp(req);
+
+  const distributedIpLimited = await checkRateLimitDistributed(
+    'otp-send-ip',
+    OTP_LIMITS.ip,
+    req,
+    res,
+    ip,
+    false
+  );
+  if (distributedIpLimited === true) return;
+
+  const distributedEmailLimited = await checkRateLimitDistributed(
+    'otp-send-email',
+    OTP_LIMITS.email,
+    req,
+    res,
+    email,
+    false
+  );
+  if (distributedEmailLimited === true) return;
+
   const ipLimit = checkOtpRateLimit('ip', OTP_LIMITS.ip, ip);
   if (ipLimit.limited) {
     res.setHeader('Retry-After', String(ipLimit.retryAfter));
@@ -269,6 +291,29 @@ async function handleVerifyOtp(req, res) {
   // This is still a process-local safety net; the durable limiter is tracked
   // separately and must replace it before full autonomous readiness.
   const ip = getClientIp(req);
+
+  // Verification is a security boundary: use the production distributed
+  // limiter when available, then keep the local limiter as defense in depth.
+  const distributedVerifyIpLimited = await checkRateLimitDistributed(
+    'otp-verify-ip',
+    OTP_LIMITS.ip,
+    req,
+    res,
+    ip,
+    false
+  );
+  if (distributedVerifyIpLimited === true) return;
+
+  const distributedVerifyEmailLimited = await checkRateLimitDistributed(
+    'otp-verify-email',
+    OTP_LIMITS.email,
+    req,
+    res,
+    email,
+    false
+  );
+  if (distributedVerifyEmailLimited === true) return;
+
   const verifyIpLimit = checkOtpRateLimit('verify-ip', OTP_LIMITS.ip, ip);
   if (verifyIpLimit.limited) {
     res.setHeader('Retry-After', String(verifyIpLimit.retryAfter));
