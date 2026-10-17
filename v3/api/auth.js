@@ -265,6 +265,28 @@ async function handleVerifyOtp(req, res) {
     return sendJson(res, 400, { error: 'Email and token are required' });
   }
 
+  // Verification attempts must be throttled independently from OTP issuance.
+  // This is still a process-local safety net; the durable limiter is tracked
+  // separately and must replace it before full autonomous readiness.
+  const ip = getClientIp(req);
+  const verifyIpLimit = checkOtpRateLimit('verify-ip', OTP_LIMITS.ip, ip);
+  if (verifyIpLimit.limited) {
+    res.setHeader('Retry-After', String(verifyIpLimit.retryAfter));
+    return sendJson(res, 429, {
+      error: 'Too many verification attempts from this network. Please try again later.',
+      retryAfter: verifyIpLimit.retryAfter
+    });
+  }
+
+  const verifyEmailLimit = checkOtpRateLimit('verify-email', OTP_LIMITS.email, email);
+  if (verifyEmailLimit.limited) {
+    res.setHeader('Retry-After', String(verifyEmailLimit.retryAfter));
+    return sendJson(res, 429, {
+      error: 'Too many verification attempts for this email. Please request a new code later.',
+      retryAfter: verifyEmailLimit.retryAfter
+    });
+  }
+
   try {
     const adminClient = getSupabaseClient();
 
@@ -299,20 +321,24 @@ async function handleVerifyOtp(req, res) {
     delete updatedMetadata.bonds_otp;
     delete updatedMetadata.bonds_otp_expires_at;
 
+    // Consume the OTP before issuing any session. Fail closed: if session
+    // creation fails after this point, the caller must request a new OTP.
+    const consumePayload = { user_metadata: updatedMetadata };
+    if (pendingPassword && pendingPassword.length >= 8) {
+      consumePayload.password = pendingPassword;
+    }
+    const { error: consumeError } = await adminClient.auth.admin.updateUserById(user.id, consumePayload);
+    if (consumeError) {
+      console.error('[auth/verify-otp] consume OTP error:', consumeError.message);
+      return sendJson(res, 500, { error: 'Failed to consume verification code' });
+    }
+
     const authClient = getAuthClient();
     let sessionData;
 
     if (pendingPassword && pendingPassword.length >= 8) {
-      // Signup flow: set the user's chosen password and create a session.
-      const { error: updateError } = await adminClient.auth.admin.updateUserById(user.id, {
-        password: pendingPassword,
-        user_metadata: updatedMetadata
-      });
-
-      if (updateError) {
-        console.error('[auth/verify-otp] updateUserById error:', updateError.message);
-        return sendJson(res, 500, { error: updateError.message });
-      }
+      // Signup flow: the password and OTP consumption were committed above.
+      const updateError = null;
 
       const { data, error: signInError } = await authClient.auth.signInWithPassword({
         email,
