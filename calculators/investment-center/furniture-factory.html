@@ -2143,9 +2143,10 @@
 
       // Expert mode refinements
       if (currentMode === 'expert') {
-        const expertInvestmentTotal = inputs.landCost + inputs.buildingCost + inputs.renovationCost + inputs.machineryCost + inputs.furnitureCost + inputs.vehiclesCost + inputs.workingCapital + inputs.contingencyReserve + inputs.preOpeningCost + inputs.initialInventoryCost + inputs.permitsAndLicensesCost + inputs.feasibilityStudyCost;
-        if (expertInvestmentTotal > 0) {
-          totalInvestment = expertInvestmentTotal;
+        const expertCoreInvestmentTotal = inputs.landCost + inputs.buildingCost + inputs.renovationCost + inputs.machineryCost + inputs.furnitureCost + inputs.vehiclesCost;
+        const expertSupplementalInvestmentTotal = inputs.workingCapital + inputs.contingencyReserve + inputs.preOpeningCost + inputs.initialInventoryCost + inputs.permitsAndLicensesCost + inputs.feasibilityStudyCost;
+        if (expertCoreInvestmentTotal > 0) {
+          totalInvestment = expertCoreInvestmentTotal + expertSupplementalInvestmentTotal;
         }
 
         monthlyFixed += (inputs.insuranceCostAnnual / 12) + (inputs.licenseRenewalCost / 12) + inputs.softwareSubscriptions + inputs.marketingBudget + inputs.mitigationBudget + inputs.energyCostMonthly + inputs.waterCostMonthly + inputs.wasteDisposalCost + inputs.securityCost + inputs.cleaningCost + inputs.outsourcingCost + inputs.trainingCost;
