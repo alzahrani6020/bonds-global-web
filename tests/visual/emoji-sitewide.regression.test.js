@@ -355,11 +355,14 @@ describe('site-wide emoji SVG safety', () => {
     const browser = await chromium.launch({ headless: true });
     const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
 
-    async function loadFixture(page) {
+    async function loadFixture(page, options = {}) {
+      const externalStyles = options.externalStyles === false
+        ? ''
+        : '<link rel="stylesheet" href="' + BASE_URL + '/styles.css">' +
+          '<link rel="stylesheet" href="' + BASE_URL + '/styles/institutional-system.css?v=4">';
       await page.setContent(
         '<!doctype html><html lang="ar" dir="rtl"><head>' +
-        '<link rel="stylesheet" href="' + BASE_URL + '/styles.css">' +
-        '<link rel="stylesheet" href="' + BASE_URL + '/styles/institutional-system.css?v=4">' +
+        externalStyles +
         '</head><body><main>fixture</main></body></html>',
         { waitUntil: 'load', timeout: 3500 }
       );
@@ -388,6 +391,29 @@ describe('site-wide emoji SVG safety', () => {
       }
       await exitPage.close();
 
+      // Regression for stale/missing shared CSS: the modal scripts themselves must
+      // hard-bound their SVGs so an icon can never fill the dialog while a cached
+      // stylesheet is still being revalidated.
+      const isolatedExitPage = await context.newPage();
+      await loadFixture(isolatedExitPage, { externalStyles: false });
+      await isolatedExitPage.addScriptTag({ content: exitIntentSource });
+      await isolatedExitPage.evaluate(() => {
+        window._calcCompleted = true;
+        document.dispatchEvent(new MouseEvent('mouseout', { clientY: 0, bubbles: true }));
+      });
+      await isolatedExitPage.waitForTimeout(50);
+      const isolatedExitHero = await isolatedExitPage.locator('.bonds-exit-modal__icon > svg').boundingBox();
+      expect(isolatedExitHero.width).toBeLessThanOrEqual(72);
+      expect(isolatedExitHero.height).toBeLessThanOrEqual(72);
+      const isolatedExitButtons = isolatedExitPage.locator('.bonds-exit-modal__btn > svg');
+      expect(await isolatedExitButtons.count()).toBeGreaterThan(0);
+      for (let i = 0; i < await isolatedExitButtons.count(); i++) {
+        const box = await isolatedExitButtons.nth(i).boundingBox();
+        expect(box.width).toBeLessThanOrEqual(32);
+        expect(box.height).toBeLessThanOrEqual(32);
+      }
+      await isolatedExitPage.close();
+
       const authPage = await context.newPage();
       await loadFixture(authPage);
       await authPage.addScriptTag({ content: authModalSource });
@@ -401,6 +427,18 @@ describe('site-wide emoji SVG safety', () => {
       expect(authHero.width).toBeLessThanOrEqual(72);
       expect(authHero.height).toBeLessThanOrEqual(72);
       await authPage.close();
+
+      const isolatedAuthPage = await context.newPage();
+      await loadFixture(isolatedAuthPage, { externalStyles: false });
+      await isolatedAuthPage.addScriptTag({ content: authModalSource });
+      await isolatedAuthPage.evaluate(() => {
+        window.showAuthModal('save', () => {}, () => {}, { calculator: 'medical-viability' });
+      });
+      await isolatedAuthPage.waitForTimeout(50);
+      const isolatedAuthHero = await isolatedAuthPage.locator('.bonds-auth-modal__icon > svg').boundingBox();
+      expect(isolatedAuthHero.width).toBeLessThanOrEqual(72);
+      expect(isolatedAuthHero.height).toBeLessThanOrEqual(72);
+      await isolatedAuthPage.close();
     } finally {
       await context.close();
       await browser.close();
