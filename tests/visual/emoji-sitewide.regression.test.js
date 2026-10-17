@@ -63,6 +63,7 @@ function sourceHasEmojiSurface(source) {
     .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
 
   return /\bemoji-icon\b/i.test(visibleHtml) ||
+    /<svg\b/i.test(visibleHtml) ||
     /[\p{Extended_Pictographic}\p{Emoji_Presentation}]/u.test(visibleHtml);
 }
 
@@ -142,6 +143,65 @@ async function inspectEmojiSizing(page, rel, phase) {
   return issues;
 }
 
+async function inspectInterfaceIconSizing(page, rel, phase) {
+  return page.evaluate(({ rel, phase }) => {
+    const bad = [];
+    const selectors = [
+      '.emoji-icon > svg',
+      'button > svg',
+      '[role="button"] > svg',
+      '.btn > svg',
+      '.bonds-btn > svg',
+      '.ecc-btn > svg',
+      '.calc-btn-sm > svg',
+      '.bonds-auth-modal__icon > svg',
+      '.bonds-exit-modal__icon > svg',
+      '.bonds-auth-modal__social > svg',
+      '.bonds-exit-modal__social > svg',
+      '.bec-smart-alert__icon > svg',
+      '.calc-empty-icon-lg > svg',
+      '.status-badge > svg',
+      '.alert-icon > svg'
+    ];
+
+    const seen = new Set();
+    document.querySelectorAll(selectors.join(',')).forEach((svg, index) => {
+      if (seen.has(svg)) return;
+      seen.add(svg);
+
+      const rect = svg.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
+      const parent = svg.parentElement;
+      const parentRect = parent ? parent.getBoundingClientRect() : null;
+      const isModalHero = parent && (
+        parent.classList.contains('bonds-auth-modal__icon') ||
+        parent.classList.contains('bonds-exit-modal__icon')
+      );
+      const maxSize = isModalHero ? 72 : 96;
+
+      const escapedParent = parentRect &&
+        ((rect.width > parentRect.width + 4 && rect.width > parentRect.width * 1.5) ||
+         (rect.height > parentRect.height + 4 && rect.height > parentRect.height * 1.5));
+
+      if (rect.width > maxSize || rect.height > maxSize || escapedParent) {
+        bad.push({
+          rel,
+          phase,
+          index,
+          width: Math.round(rect.width * 10) / 10,
+          height: Math.round(rect.height * 10) / 10,
+          parentWidth: parentRect ? Math.round(parentRect.width * 10) / 10 : null,
+          parentHeight: parentRect ? Math.round(parentRect.height * 10) / 10 : null,
+          parentClass: parent ? String(parent.className || '').slice(0, 140) : ''
+        });
+      }
+    });
+
+    return bad;
+  }, { rel, phase });
+}
+
 async function clickFirstVisibleByText(page, re) {
   const locator = page.locator('button, [role="button"], input[type="button"]').filter({ hasText: re });
   const count = await locator.count();
@@ -215,6 +275,7 @@ async function auditRuntimePages(candidates) {
           await page.waitForTimeout(20);
 
           failures.push(...await inspectEmojiSizing(page, rel, 'initial'));
+          failures.push(...await inspectInterfaceIconSizing(page, rel, 'initial'));
 
           const clickedExample = await clickFirstVisibleByText(page, /مثال توضيحي|تحميل مثال|Example/i);
           if (clickedExample) await page.waitForTimeout(20);
@@ -223,6 +284,7 @@ async function auditRuntimePages(candidates) {
           if (clickedCalculate) {
             await page.waitForTimeout(40);
             failures.push(...await inspectEmojiSizing(page, rel, 'after-calculate'));
+            failures.push(...await inspectInterfaceIconSizing(page, rel, 'after-calculate'));
           }
         } catch (err) {
           loadFailures.push(rel + ': ' + String(err.message || err).slice(0, 220));
@@ -279,5 +341,69 @@ describe('site-wide emoji SVG safety', () => {
 
     expect(loadFailures).toEqual([]);
     expect(failures).toEqual([]);
+  });
+
+  test('shared calculator modals keep hero and button SVG icons bounded', async () => {
+    const available = await serverAvailable();
+    if (!available) {
+      if (process.env.CI) throw new Error('Local dev server is required for modal SVG audit');
+      return;
+    }
+
+    const exitIntentSource = fs.readFileSync(path.join(ROOT, 'calculators', 'exit-intent.js'), 'utf8');
+    const authModalSource = fs.readFileSync(path.join(ROOT, 'calculators', 'auth-modal.js'), 'utf8');
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+
+    async function loadFixture(page) {
+      await page.setContent(
+        '<!doctype html><html lang="ar" dir="rtl"><head>' +
+        '<link rel="stylesheet" href="' + BASE_URL + '/styles.css">' +
+        '<link rel="stylesheet" href="' + BASE_URL + '/styles/institutional-system.css?v=4">' +
+        '</head><body><main>fixture</main></body></html>',
+        { waitUntil: 'load', timeout: 3500 }
+      );
+    }
+
+    try {
+      const exitPage = await context.newPage();
+      await loadFixture(exitPage);
+      await exitPage.addScriptTag({ content: exitIntentSource });
+      await exitPage.evaluate(() => {
+        window._calcCompleted = true;
+        document.dispatchEvent(new MouseEvent('mouseout', { clientY: 0, bubbles: true }));
+      });
+      await exitPage.waitForTimeout(50);
+
+      expect(await inspectInterfaceIconSizing(exitPage, 'calculators/exit-intent.js', 'modal-open')).toEqual([]);
+      const exitHero = await exitPage.locator('.bonds-exit-modal__icon > svg').boundingBox();
+      expect(exitHero.width).toBeLessThanOrEqual(72);
+      expect(exitHero.height).toBeLessThanOrEqual(72);
+      const exitButtons = exitPage.locator('.bonds-exit-modal__btn > svg');
+      expect(await exitButtons.count()).toBeGreaterThan(0);
+      for (let i = 0; i < await exitButtons.count(); i++) {
+        const box = await exitButtons.nth(i).boundingBox();
+        expect(box.width).toBeLessThanOrEqual(32);
+        expect(box.height).toBeLessThanOrEqual(32);
+      }
+      await exitPage.close();
+
+      const authPage = await context.newPage();
+      await loadFixture(authPage);
+      await authPage.addScriptTag({ content: authModalSource });
+      await authPage.evaluate(() => {
+        window.showAuthModal('save', () => {}, () => {}, { calculator: 'medical-viability' });
+      });
+      await authPage.waitForTimeout(50);
+
+      expect(await inspectInterfaceIconSizing(authPage, 'calculators/auth-modal.js', 'modal-open')).toEqual([]);
+      const authHero = await authPage.locator('.bonds-auth-modal__icon > svg').boundingBox();
+      expect(authHero.width).toBeLessThanOrEqual(72);
+      expect(authHero.height).toBeLessThanOrEqual(72);
+      await authPage.close();
+    } finally {
+      await context.close();
+      await browser.close();
+    }
   });
 });
