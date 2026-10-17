@@ -181,7 +181,10 @@ describe('/api/v3/auth OTP proxy', () => {
     expect(res.statusCode).toBe(200);
     expect(res._json.success).toBe(true);
     expect(res._json.session.access_token).toBe('at-magic');
-    expect(mockUpdateUserById).not.toHaveBeenCalled();
+    expect(mockUpdateUserById).toHaveBeenCalledWith('u1', { user_metadata: {} });
+    for (const [, payload] of mockUpdateUserById.mock.calls) {
+      expect(payload).not.toHaveProperty('password');
+    }
     expect(mockGenerateLink).toHaveBeenCalled();
     expect(mockVerifyOtp).toHaveBeenCalled();
   });
