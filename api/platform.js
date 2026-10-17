@@ -182,9 +182,18 @@ async function upsertPresence(sb, body, ip, geo) {
     last_seen_at: now,
     is_online: true
   };
-  const { data: existing } = await sb.from('user_presence').select('session_id, started_at').eq('session_id', payload.session_id).single();
+  const { data: existing } = await sb.from('user_presence').select('session_id, started_at, user_id').eq('session_id', payload.session_id).single();
   if (existing) {
-    const { error } = await sb.from('user_presence').update(payload).eq('session_id', payload.session_id);
+    if (existing.user_id && existing.user_id !== payload.user_id) {
+      const err = new Error('Session belongs to another user');
+      err.status = 403;
+      throw err;
+    }
+    let updateQuery = sb.from('user_presence').update(payload).eq('session_id', payload.session_id);
+    updateQuery = existing.user_id
+      ? updateQuery.eq('user_id', existing.user_id)
+      : updateQuery.is('user_id', null);
+    const { error } = await updateQuery;
     if (error) throw error;
   } else {
     payload.started_at = body.started_at || now;
@@ -230,7 +239,7 @@ async function heartbeatHandler(req, res) {
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('[heartbeat] error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(err.status || 500).json({ error: err.message });
   }
 }
 
@@ -246,11 +255,13 @@ async function heartbeatLeaveHandler(req, res) {
     const duration = typeof body.duration_seconds === 'number' ? body.duration_seconds : null;
     await upsertPresence(sb, body, ip, geo);
     await insertPageView(sb, body, ip, geo, duration);
-    await sb.from('user_presence').update({ is_online: false }).eq('session_id', body.session_id);
+    let leaveQuery = sb.from('user_presence').update({ is_online: false }).eq('session_id', body.session_id);
+    leaveQuery = user ? leaveQuery.eq('user_id', user.id) : leaveQuery.is('user_id', null);
+    await leaveQuery;
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('[heartbeat leave] error:', err);
-    return res.status(500).json({ error: err.message });
+    return res.status(err.status || 500).json({ error: err.message });
   }
 }
 
