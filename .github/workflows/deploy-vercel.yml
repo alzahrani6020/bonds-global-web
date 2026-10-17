@@ -27,7 +27,8 @@ permissions:
   contents: read
 
 env:
-  VERCEL_PROJECT_ID: prj_djffUO1KXbGKtumZBWsziWxqJ6Qk
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
 
 jobs:
   release:
@@ -85,12 +86,12 @@ jobs:
         run: |
           set -euo pipefail
           rm -rf .vercel
-          npx --no-install vercel pull --yes --environment=production --project "$VERCEL_PROJECT_ID" --team dr-talal
+          npx --no-install vercel pull --yes --environment=production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
       - name: Build Production artifact
-        run: npx --no-install vercel build --prod --project "$VERCEL_PROJECT_ID" --team dr-talal
+        run: npx --no-install vercel build --prod
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
@@ -100,7 +101,7 @@ jobs:
         run: |
           set -euo pipefail
           sha="${{ steps.release.outputs.sha }}"
-          output="$(npx --no-install vercel deploy --prebuilt --prod --skip-domain --yes --project "$VERCEL_PROJECT_ID" --team dr-talal --env "BONDS_RELEASE_SHA=$sha" --meta "githubCommitSha=$sha")"
+          output="$(npx --no-install vercel deploy --prebuilt --prod --skip-domain --yes --env "BONDS_RELEASE_SHA=$sha" --meta "githubCommitSha=$sha")"
           printf '%s\n' "$output"
 
           deployment_url="$(printf '%s\n' "$output" | grep -Eo 'https://[^[:space:]]+\.vercel\.app' | tail -n 1)"
@@ -118,7 +119,7 @@ jobs:
         run: |
           set -euo pipefail
           deployment_url="${{ steps.deploy.outputs.url }}"
-          health_json="$(npx --no-install vercel curl /api/health --deployment "$deployment_url" --team dr-talal -- --silent --show-error --fail)"
+          health_json="$(npx --no-install vercel curl /api/health --deployment "$deployment_url" -- --silent --show-error --fail)"
 
           HEALTH_JSON="$health_json" EXPECTED_VERSION="${{ steps.release.outputs.short_sha }}"             node --input-type=module -e '
               const body = JSON.parse(process.env.HEALTH_JSON);
@@ -137,7 +138,7 @@ jobs:
       - name: Promote tested deployment
         id: promote
         if: github.event_name == 'workflow_run' || inputs.promote
-        run: npx --no-install vercel promote "${{ steps.deploy.outputs.url }}" --yes --project "$VERCEL_PROJECT_ID" --team dr-talal
+        run: npx --no-install vercel promote "${{ steps.deploy.outputs.url }}" --yes
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
