@@ -136,9 +136,10 @@ jobs:
         run: |
           set -euo pipefail
           deployment_url="${{ steps.deploy.outputs.url }}"
+          deployment_host="${deployment_url#https://}"
           deployment_id="$(curl --silent --show-error --fail \
             -H "Authorization: Bearer $VERCEL_TOKEN" \
-            "https://api.vercel.com/v13/deployments/$deployment_url" \
+            "https://api.vercel.com/v13/deployments/$deployment_host?teamId=$VERCEL_ORG_ID" \
             | node --input-type=module -e '
                 let data = "";
                 for await (const chunk of process.stdin) data += chunk;
@@ -151,7 +152,7 @@ jobs:
             --request POST \
             -H "Authorization: Bearer $VERCEL_TOKEN" \
             -H 'Content-Type: application/json' \
-            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/promote/$deployment_id" \
+            "https://api.vercel.com/v10/projects/$VERCEL_PROJECT_ID/promote/$deployment_id?teamId=$VERCEL_ORG_ID" \
             --data '{}'
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
