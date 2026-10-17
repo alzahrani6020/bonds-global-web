@@ -111,6 +111,22 @@
       "destination": "/api/reference-data?__route=market-intelligence-cron"
     },
     {
+      "source": "/api/investment-analysis",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/investment-analysis/",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/clear-user-data",
+      "destination": "/api/platform"
+    },
+    {
+      "source": "/api/clear-user-data/",
+      "destination": "/api/platform"
+    },
+    {
       "source": "/api/track",
       "destination": "/api/platform"
     },
