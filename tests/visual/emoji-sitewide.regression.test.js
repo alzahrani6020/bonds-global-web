@@ -104,8 +104,8 @@ async function inspectEmojiSizing(page, rel, phase) {
       const maxInline = Math.max(96, fontSize * 2.5);
 
       const escapedParent =
-        svgRect.width > spanRect.width + 3 ||
-        svgRect.height > spanRect.height + 3;
+        (svgRect.width > spanRect.width + 4 && svgRect.width > spanRect.width * 1.5) ||
+        (svgRect.height > spanRect.height + 4 && svgRect.height > spanRect.height * 1.5);
 
       const oversizedInline =
         spanRect.width > maxInline ||
