@@ -376,11 +376,11 @@
     },
     {
       "source": "/api/email-webhook",
-      "destination": "/api/platform"
+      "destination": "/api/email-webhook"
     },
     {
       "source": "/api/email-webhook/",
-      "destination": "/api/platform"
+      "destination": "/api/email-webhook"
     },
     {
       "source": "/api/image-search",
