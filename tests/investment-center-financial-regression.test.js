@@ -55,7 +55,8 @@ describe('investment-center end-to-end financial regression', () => {
     const fnSource = extractFunction(page, 'calculateEngineInputs');
     const context = {
       currentMode: 'expert',
-      sectorId: 'water-factory'
+      sectorId: 'water-factory',
+      baseRiskWeight: 1.1
     };
     vm.createContext(context);
     vm.runInContext(fnSource, context);
