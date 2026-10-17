@@ -81,11 +81,12 @@ jobs:
           npm run audit:api
           npm run test:security:critical
 
-      - name: Pull Production environment
+      - name: Link and pull Production environment
         shell: bash
         run: |
           set -euo pipefail
           rm -rf .vercel
+          npx --no-install vercel link --yes --project "$VERCEL_PROJECT_ID"
           npx --no-install vercel pull --yes --environment=production
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
