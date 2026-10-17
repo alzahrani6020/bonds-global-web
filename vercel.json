@@ -375,14 +375,6 @@
       "destination": "/api/platform"
     },
     {
-      "source": "/api/email-webhook",
-      "destination": "/api/platform"
-    },
-    {
-      "source": "/api/email-webhook/",
-      "destination": "/api/platform"
-    },
-    {
       "source": "/api/image-search",
       "destination": "/api/research"
     },
