@@ -43,7 +43,7 @@ describe('commercial funnel analytics', () => {
   test('tracker bypasses stale static caching in service worker and Vercel', () => {
     const sw = read('sw.js');
     const vercel = read('vercel.json');
-    expect(sw).toContain("const CACHE_VERSION = 'v3.0.143'");
+    expect(sw).toContain("const CACHE_VERSION = 'v3.0.144'");
     expect(sw).toContain("url.pathname === '/page-tracker-v2.js'");
     expect(sw).toContain('networkFirst(request)');
     expect(vercel).toContain('"/page-tracker-v2.js"');
