@@ -215,6 +215,8 @@ async function alertsRouter(req, res, path) {
 
   const alertReadMatch = path.match(/^\/alerts\/([^\/]+)\/read$/);
   if (alertReadMatch) {
+    const authError = requireAdmin(req);
+    if (authError) return sendJson(res, 401, authError);
     return handleMarkRead(req, res, alertReadMatch[1]);
   }
 
