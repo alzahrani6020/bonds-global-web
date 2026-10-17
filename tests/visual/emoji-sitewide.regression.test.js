@@ -169,12 +169,9 @@ async function auditRuntimePages(candidates) {
 
   await context.route(/(global-auth-gate|calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
   await context.route('**/*', route => {
-    const request = route.request();
-    const type = request.resourceType();
-    const url = request.url();
+    const url = route.request().url();
     if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(url)) return route.continue();
-    if (['image', 'media', 'font'].includes(type)) return route.abort();
-    return route.continue();
+    return route.abort();
   });
 
   const failures = [];
@@ -248,10 +245,7 @@ describe('site-wide emoji SVG safety', () => {
 
     const { failures, loadFailures } = await auditRuntimePages(candidates);
 
-    if (loadFailures.length) {
-      console.warn('Emoji crawl pages that did not load: ' + loadFailures.length);
-    }
-
+    expect(loadFailures).toEqual([]);
     expect(failures).toEqual([]);
   });
 });
