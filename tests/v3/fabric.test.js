@@ -131,3 +131,18 @@ describe('/api/v3/fabric', () => {
     expect(res._json.valid).toBe(true);
   });
 });
+
+
+describe('Fabric service-role authorization boundary', () => {
+  test('raw connector fetch requires an authenticated admin', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(path.join(__dirname, '../../v3/api/fabric.js'), 'utf8');
+
+    expect(source).toContain("const fetchMatch = path.match(/^\\/fabric\\/connectors\\/([^/]+)\\/fetch$/);");
+    expect(source).toContain("if (!authedUser) return sendJson(res, 401, { error: 'Unauthorized' });");
+    expect(source).toContain(".from('admin_roles')");
+    expect(source).toContain(".in('role', ['super_admin', 'admin'])");
+    expect(source).toContain("if (!adminRole) return sendJson(res, 403, { error: 'Admin required' });");
+  });
+});
