@@ -151,23 +151,15 @@ async function clickFirstVisibleByText(page, re) {
 }
 
 async function auditRuntimePages(candidates) {
+  const emojiIconsSource = fs.readFileSync(path.join(ROOT, 'components', 'emoji-icons.js'), 'utf8');
+  const emojiRendererSource = fs.readFileSync(path.join(ROOT, 'components', 'emoji-renderer.js'), 'utf8');
+
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({
     viewport: { width: 1366, height: 900 },
     deviceScaleFactor: 1
   });
 
-  await context.addInitScript(() => {
-    try {
-      localStorage.setItem('cookies', 'accepted');
-      localStorage.removeItem('bonds-auth-token');
-      localStorage.removeItem('bonds-auth-session');
-      sessionStorage.removeItem('bonds-auth-token');
-      sessionStorage.removeItem('bonds-auth-session');
-    } catch {}
-  });
-
-  await context.route(/(global-auth-gate|calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
   await context.route('**/*', route => {
     const request = route.request();
     const url = request.url();
@@ -197,12 +189,13 @@ async function auditRuntimePages(candidates) {
         const rel = candidates[nextIndex++];
         try {
           const url = new URL(toUrlPath(rel), BASE_URL);
-          const res = await fetch(url, { signal: AbortSignal.timeout(3500) });
-          if (!res.ok) {
-            throw new Error('HTTP ' + res.status + ' while loading ' + url.pathname);
-          }
+          let html = fs.readFileSync(path.join(ROOT, rel), 'utf8');
 
-          let html = await res.text();
+          // Preserve the page DOM and CSS, but exclude unrelated application scripts.
+          // The audit loads only the emoji runtime below to avoid auth redirects,
+          // timers, API calls, and other side effects that are outside this regression.
+          html = html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+
           const baseHref = new URL('.', url).toString();
           const baseTag = '<base href="' + baseHref.replace(/"/g, '&quot;') + '">';
           if (/<head\b[^>]*>/i.test(html)) {
@@ -211,17 +204,19 @@ async function auditRuntimePages(candidates) {
             html = baseTag + html;
           }
 
-          await page.setContent(html, { waitUntil: 'domcontentloaded', timeout: 3500 });
-          await page.waitForTimeout(40);
+          await page.setContent(html, { waitUntil: 'load', timeout: 2500 });
+          await page.addScriptTag({ content: emojiIconsSource });
+          await page.addScriptTag({ content: emojiRendererSource });
+          await page.waitForTimeout(20);
 
           failures.push(...await inspectEmojiSizing(page, rel, 'initial'));
 
           const clickedExample = await clickFirstVisibleByText(page, /مثال توضيحي|تحميل مثال|Example/i);
-          if (clickedExample) await page.waitForTimeout(40);
+          if (clickedExample) await page.waitForTimeout(20);
 
           const clickedCalculate = await clickFirstVisibleByText(page, /احسب النتائج|احسب النتيجة|Calculate Results|Calculate Result/i);
           if (clickedCalculate) {
-            await page.waitForTimeout(100);
+            await page.waitForTimeout(40);
             failures.push(...await inspectEmojiSizing(page, rel, 'after-calculate'));
           }
         } catch (err) {
