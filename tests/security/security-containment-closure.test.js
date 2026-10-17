@@ -68,7 +68,7 @@ describe('security containment closure', () => {
     expect(RELEASE).toMatch(/workflow_run:/);
     expect(RELEASE).toMatch(/conclusion == 'success'/);
     expect(RELEASE).toMatch(/github\.event\.workflow_run\.head_sha/);
-    expect(RELEASE).toMatch(/vercel deploy --prebuilt --prod --skip-domain/);
+    expect(RELEASE).toMatch(/vercel deploy (?:--prebuilt )?--prod --skip-domain/);
     expect(RELEASE).toMatch(/Smoke test staged deployment/);
     expect(RELEASE).toMatch(/vercel promote/);
     expect(RELEASE).toMatch(/Verify Production SHA/);

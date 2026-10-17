@@ -81,21 +81,13 @@ jobs:
           npm run audit:api
           npm run test:security:critical
 
-      - name: Pull Production environment
+      - name: Prepare Vercel project metadata
         shell: bash
         run: |
           set -euo pipefail
           rm -rf .vercel
           mkdir -p .vercel
           printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
-          npx --no-install vercel pull --yes --environment=production
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Production artifact
-        run: npx --no-install vercel build --prod
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
       - name: Stage Production deployment
         id: deploy
@@ -103,7 +95,7 @@ jobs:
         run: |
           set -euo pipefail
           sha="${{ steps.release.outputs.sha }}"
-          output="$(npx --no-install vercel deploy --prebuilt --prod --skip-domain --yes --env "BONDS_RELEASE_SHA=$sha" --meta "githubCommitSha=$sha")"
+          output="$(npx --no-install vercel deploy --prod --skip-domain --yes --env "BONDS_RELEASE_SHA=$sha" --meta "githubCommitSha=$sha")"
           printf '%s\n' "$output"
 
           deployment_url="$(printf '%s\n' "$output" | grep -Eo 'https://[^[:space:]]+\.vercel\.app' | tail -n 1)"
