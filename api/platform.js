@@ -2185,6 +2185,103 @@ async function npsHandler(req, res) {
   }
 }
 
+// ── Consolidated user data routes (Vercel function-budget control) ─────
+async function investmentAnalysisHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  try {
+    const user = await verifyBearerAndUser(req);
+    if (!user) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const supabase = getSupabase();
+
+    if (req.method === 'GET') {
+      const { data, error } = await supabase
+        .from('investment_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return res.status(200).json({ success: true, analyses: data || [] });
+    }
+
+    if (req.method === 'POST') {
+      const body = req.body || {};
+      const { sector, inputs, results, recommendation } = body;
+
+      if (!sector) return res.status(400).json({ success: false, error: 'sector is required' });
+
+      const { data, error } = await supabase
+        .from('investment_analyses')
+        .insert([{
+          user_id: user.id,
+          sector,
+          inputs: inputs || {},
+          results: results || {},
+          recommendation: recommendation || {}
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return res.status(200).json({ success: true, analysis: data });
+    }
+
+    return res.status(405).json({ error: 'Method not allowed' });
+  } catch (err) {
+    console.error('[investment-analysis] Error:', err);
+    return res.status(err.status || 500).json({ success: false, error: err.message || 'Failed' });
+  }
+}
+
+async function clearUserDataHandler(req, res) {
+  setAllowedOrigin(res, req);
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  try {
+    const user = await verifyBearerAndUser(req);
+    if (!user) return res.status(401).json({ success: false, error: 'Unauthorized' });
+
+    const supabase = getSupabase();
+    const tables = [
+      'sales_transactions',
+      'menu_item_ingredients',
+      'menu_items',
+      'menu_ingredients',
+      'platforms'
+    ];
+
+    const results = {};
+    let anyError = null;
+    for (const table of tables) {
+      const { error } = await supabase.from(table).delete().eq('user_id', user.id);
+      results[table] = error ? { error: error.message } : { deleted: true };
+      if (error && !anyError) {
+        anyError = `Failed to clear ${table}: ${error.message}`;
+        console.error(`[clear-user-data] Failed to clear ${table}:`, error);
+      }
+    }
+
+    if (anyError) {
+      return res.status(500).json({ success: false, error: anyError, cleared: results });
+    }
+    return res.status(200).json({ success: true, cleared: results });
+  } catch (err) {
+    console.error('[clear-user-data] Error:', err);
+    const status = err.status || 500;
+    return res.status(status).json({ success: false, error: err.message || 'Failed to clear user data' });
+  }
+}
+
 // ── Main Router ────────────────────────────────────────────
 module.exports = async function handler(req, res) {
   setCors(res, req);
@@ -2298,6 +2395,16 @@ module.exports = async function handler(req, res) {
       return trackOpenHandler(req, res);
     }
 
+
+    // Consolidated user-scoped data endpoints
+    if (pathname === '/api/investment-analysis' || pathname === '/api/investment-analysis/') {
+      if (await checkRateLimit('auth', req, res)) return;
+      return investmentAnalysisHandler(req, res);
+    }
+    if (pathname === '/api/clear-user-data' || pathname === '/api/clear-user-data/') {
+      if (await checkRateLimit('strict', req, res)) return;
+      return clearUserDataHandler(req, res);
+    }
 
     // NPS
     if (pathname === '/api/nps-check' || pathname === '/api/nps-check/') {
