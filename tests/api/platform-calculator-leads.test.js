@@ -489,3 +489,29 @@ describe('/api/site heartbeat service-role ownership', () => {
     expect(source).toContain("leaveQuery.eq('user_id', user.id)");
   });
 });
+
+
+describe('/api/email-webhook service-role boundary', () => {
+  test('uses a dedicated raw-body Resend signature verifier', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const webhookSource = fs.readFileSync(path.join(__dirname, '../../api/email-webhook.mjs'), 'utf8');
+    const platformSource = fs.readFileSync(path.join(__dirname, '../../api/platform.js'), 'utf8');
+    const vercel = JSON.parse(fs.readFileSync(path.join(__dirname, '../../vercel.json'), 'utf8'));
+
+    expect(webhookSource).toContain('await request.text()');
+    expect(webhookSource).toContain('resend.webhooks.verify');
+    expect(webhookSource).toContain("request.headers.get('svix-id')");
+    expect(webhookSource).toContain("request.headers.get('svix-timestamp')");
+    expect(webhookSource).toContain("request.headers.get('svix-signature')");
+    expect(webhookSource).toContain('SUPABASE_SERVICE_ROLE_KEY');
+
+    expect(platformSource).not.toContain('async function emailWebhookHandler');
+    expect(platformSource).not.toContain("return emailWebhookHandler(req, res)");
+
+    const legacyRewrites = (vercel.rewrites || []).filter(
+      (rule) => rule.source === '/api/email-webhook' || rule.source === '/api/email-webhook/'
+    );
+    expect(legacyRewrites).toHaveLength(0);
+  });
+});
