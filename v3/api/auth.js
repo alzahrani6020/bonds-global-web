@@ -338,8 +338,6 @@ async function handleVerifyOtp(req, res) {
 
     if (pendingPassword && pendingPassword.length >= 8) {
       // Signup flow: the password and OTP consumption were committed above.
-      const updateError = null;
-
       const { data, error: signInError } = await authClient.auth.signInWithPassword({
         email,
         password: pendingPassword
