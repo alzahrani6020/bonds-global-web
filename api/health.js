@@ -82,7 +82,8 @@ module.exports = async function handler(req, res) {
     supabaseStatus = 'error';
   }
 
-  const version = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_GIT_COMMIT_SHA.slice(0, 7) : 'dev';
+  const releaseSha = process.env.BONDS_RELEASE_SHA || process.env.VERCEL_GIT_COMMIT_SHA || '';
+  const version = releaseSha ? releaseSha.slice(0, 7) : 'dev';
   const coreHealthy = supabaseStatus === 'ok';
 
   if (strict) {

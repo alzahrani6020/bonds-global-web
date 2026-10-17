@@ -1,34 +1,50 @@
-name: Production Release Verification
+name: Production Release
 
-# Production deployment is handled by Vercel Git Integration.
-# Pushes/merges to main deploy automatically via vercel.json.
-# This workflow remains available as a manual pre-release verification gate
-# and intentionally requires no Vercel access token or project secrets.
 on:
+  workflow_run:
+    workflows:
+      - 'CI — Tests, Audit & Visual Regression'
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       ref:
-        description: 'Git ref or exact commit SHA to verify'
+        description: 'Git ref or exact commit SHA to stage'
         required: true
         default: 'main'
         type: string
+      promote:
+        description: 'Promote the staged deployment to Production'
+        required: true
+        default: false
+        type: boolean
 
 concurrency:
-  group: production-release-verification
+  group: production-release
   cancel-in-progress: false
 
 permissions:
   contents: read
 
+env:
+  VERCEL_ORG_ID: team_ENxUZq5el15Zn8pi4ahZMXpz
+  VERCEL_PROJECT_ID: prj_djffUO1KXbGKtumZBWsziWxqJ6Qk
+
 jobs:
-  verify:
-    name: 'Verify release candidate'
+  release:
+    name: Stage, verify and promote Production
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
     runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 30
+
     steps:
-      - name: Checkout requested release
+      - name: Checkout exact release candidate
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || inputs.ref }}
           persist-credentials: false
           fetch-depth: 1
 
@@ -39,7 +55,16 @@ jobs:
           set -euo pipefail
           sha="$(git rev-parse HEAD)"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"
-          echo "Verifying exact commit: $sha"
+          echo "short_sha=${sha:0:7}" >> "$GITHUB_OUTPUT"
+          echo "Release candidate: $sha"
+
+          if [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            expected="${{ github.event.workflow_run.head_sha }}"
+            [[ "$sha" == "$expected" ]] || {
+              echo "Checked out SHA $sha does not match successful CI SHA $expected"
+              exit 1
+            }
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -49,33 +74,122 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright Browser
-        run: npx playwright install chromium
-
-      - name: Start Local Dev Server
-        run: npm run dev:local &
-
-      - name: Wait for Server
-        shell: bash
-        run: |
-          set -euo pipefail
-          for i in {1..30}; do
-            if curl -s http://localhost:3005 > /dev/null; then
-              echo "Server ready"
-              exit 0
-            fi
-            sleep 1
-          done
-          echo "Server did not start in time"
-          exit 1
-
-      - name: Release gate
+      - name: Manual release gate
+        if: github.event_name == 'workflow_dispatch' && inputs.promote
         run: |
           npm run audit
           npm run audit:api
-          npm test -- --runInBand
+          npm run test:security:critical
+
+      - name: Pull Production environment
+        run: npx --no-install vercel pull --yes --environment=production
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Build Production artifact
+        run: npx --no-install vercel build --prod
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Stage Production deployment
+        id: deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha="${{ steps.release.outputs.sha }}"
+          output="$(npx --no-install vercel deploy --prebuilt --prod --skip-domain --yes             --env "BONDS_RELEASE_SHA=$sha"             --meta "githubCommitSha=$sha")"
+          printf '%s\n' "$output"
+
+          deployment_url="$(printf '%s\n' "$output" | grep -Eo 'https://[^[:space:]]+\.vercel\.app' | tail -n 1)"
+          DEPLOYMENT_URL="$deployment_url" node --input-type=module -e '
+            const value = process.env.DEPLOYMENT_URL;
+            const url = new URL(value);
+            if (url.protocol !== "https:" || !url.hostname.endsWith(".vercel.app")) process.exit(1);
+          '
+          echo "url=$deployment_url" >> "$GITHUB_OUTPUT"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Smoke test staged deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          deployment_url="${{ steps.deploy.outputs.url }}"
+          health_json="$(npx --no-install vercel curl /api/health             --deployment "$deployment_url"             -- --silent --show-error --fail)"
+
+          HEALTH_JSON="$health_json" EXPECTED_VERSION="${{ steps.release.outputs.short_sha }}"             node --input-type=module -e '
+              const body = JSON.parse(process.env.HEALTH_JSON);
+              if (body.status !== "ok") throw new Error("Staged health status is not ok");
+              if (body.version !== process.env.EXPECTED_VERSION) {
+                throw new Error(`Staged SHA mismatch: expected ${process.env.EXPECTED_VERSION}, got ${body.version || "missing"}`);
+              }
+              if (body.environment !== "production") {
+                throw new Error(`Expected production environment, got ${body.environment || "missing"}`);
+              }
+              console.log(`Staged health PASS (commit=${body.version})`);
+            '
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Promote tested deployment
+        id: promote
+        if: github.event_name == 'workflow_run' || inputs.promote
+        run: npx --no-install vercel promote "${{ steps.deploy.outputs.url }}" --yes
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Verify Production SHA
+        if: github.event_name == 'workflow_run' || inputs.promote
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected="${{ steps.release.outputs.short_sha }}"
+
+          for attempt in {1..60}; do
+            health_json="$(curl --silent --show-error --fail               -H 'Cache-Control: no-cache'               "https://bonds-global.com/api/health?release=${{ steps.release.outputs.sha }}" || true)"
+
+            if HEALTH_JSON="$health_json" EXPECTED_VERSION="$expected" node --input-type=module -e '
+              try {
+                const body = JSON.parse(process.env.HEALTH_JSON || "{}");
+                process.exit(body.status === "ok" && body.version === process.env.EXPECTED_VERSION ? 0 : 1);
+              } catch {
+                process.exit(1);
+              }
+            '; then
+              echo "Production SHA verified: $expected"
+              exit 0
+            fi
+
+            sleep 5
+          done
+
+          echo "Production did not converge to expected SHA $expected"
+          exit 1
+
+      - name: Verify webhook method guard
+        if: github.event_name == 'workflow_run' || inputs.promote
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl --silent --show-error             --output /tmp/email-webhook-response             --write-out '%{http_code}'             https://bonds-global.com/api/email-webhook)"
+          if [[ "$status" != "405" ]]; then
+            echo "Expected GET /api/email-webhook to return 405, got $status"
+            cat /tmp/email-webhook-response || true
+            exit 1
+          fi
+          echo "Webhook method guard PASS"
 
       - name: Release summary
+        if: always()
+        shell: bash
         run: |
-          echo "Verified commit: ${{ steps.release.outputs.sha }}"
-          echo "Production deployment is handled automatically by Vercel Git Integration when main is updated."
+          {
+            echo "## Production Release"
+            echo "- Commit: \`${{ steps.release.outputs.sha }}\`"
+            echo "- Staged deployment: ${{ steps.deploy.outputs.url }}"
+            if [[ "${{ github.event_name }}" == "workflow_run" || "${{ inputs.promote }}" == "true" ]]; then
+              echo "- Promotion requested: yes"
+            else
+              echo "- Promotion requested: no (staging verification only)"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
