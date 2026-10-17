@@ -92,6 +92,15 @@ describe('/api/v3/intelligence', () => {
     expect(typeof res._json.confidence).toBe('number');
   });
 
+  test('anonymous intelligence run cannot attribute or persist as an arbitrary user', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(path.join(__dirname, '../../v3/api/intelligence.js'), 'utf8');
+    expect(source).toContain('userId: user?.id || null');
+    expect(source).toContain('persist: Boolean(user) && body.persist !== false');
+    expect(source).not.toContain('user?.id || body.userId');
+  });
+
   test('POST /intelligence/adapt runs a single engine', async () => {
     const req = mockReq({
       method: 'POST',
