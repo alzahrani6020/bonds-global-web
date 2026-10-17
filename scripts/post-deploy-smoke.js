@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const vm = require('vm');
 const { createClient } = require('@supabase/supabase-js');
 const canonicalModel = require('../services/bonds_native_inference/canonical-model.json');
@@ -304,15 +306,24 @@ async function assertAdminRuntime(token) {
 }
 
 
+function getExpectedCacheVersion() {
+  const localSwPath = path.join(__dirname, '..', 'sw.js');
+  const localSw = fs.readFileSync(localSwPath, 'utf8');
+  const match = localSw.match(/const\s+CACHE_VERSION\s*=\s*['"]([^'"]+)['"];/);
+  if (!match) throw new Error('Unable to determine CACHE_VERSION from repository sw.js');
+  return match[1];
+}
+
 async function assertProductionAssets() {
+  const expectedCacheVersion = getExpectedCacheVersion();
   const sw = await fetchText(`${cfg.baseUrl}/sw.js?smoke=${encodeURIComponent(cfg.expectedSha)}`, {
     headers: { 'Cache-Control': 'no-cache' }
   });
   if (!sw.res.ok) throw new Error(`Production sw.js failed: HTTP ${sw.res.status}`);
-  if (!sw.text.includes("const CACHE_VERSION = 'v3.0.143'")) {
-    throw new Error('Production sw.js is not serving CACHE_VERSION v3.0.143');
+  if (!sw.text.includes(`const CACHE_VERSION = '${expectedCacheVersion}'`)) {
+    throw new Error(`Production sw.js is not serving CACHE_VERSION ${expectedCacheVersion}`);
   }
-  console.log('Service worker PASS (cache=v3.0.143)');
+  console.log(`Service worker PASS (cache=${expectedCacheVersion})`);
 }
 
 async function assertFundingCasesRuntime(token) {
