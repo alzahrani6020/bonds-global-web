@@ -858,7 +858,7 @@ async function moyasarWebhookAction(req, res) {
     if (!localInvoice) return res.status(404).json({ error: 'Invoice not found' });
 
     const configuredWebhookSecret = process.env.MOYASAR_WEBHOOK_SECRET;
-    if (payload?.secret_token && configuredWebhookSecret && payload.secret_token !== configuredWebhookSecret) {
+    if (configuredWebhookSecret && payload?.secret_token !== configuredWebhookSecret) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
 
