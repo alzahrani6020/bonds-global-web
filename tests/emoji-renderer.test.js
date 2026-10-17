@@ -17,6 +17,16 @@ describe('emoji renderer Unicode sequence matching', () => {
   test('matches ZWJ and keycap sequences', () => {
     expect(EmojiRenderer.findEmojiSequences('👩‍💻 5️⃣')).toEqual(['👩‍💻', '5️⃣']);
   });
+
+  test('constrains injected SVG dimensions to the inline emoji box', () => {
+    const style = EmojiRenderer.getInlineSvgStyle();
+    expect(style).toContain('width:1em');
+    expect(style).toContain('height:1em');
+    expect(style).toContain('max-width:1em');
+    expect(style).toContain('max-height:1em');
+    expect(style).toContain('transform:none');
+    expect(style).toContain('position:static');
+  });
 });
 
 
