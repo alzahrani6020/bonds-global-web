@@ -17,14 +17,16 @@ jest.mock('../../lib/api/rate-limit', () => ({
   checkRateLimit: jest.fn(() => false)
 }));
 
-const handler = require('../../api/clear-user-data');
+const handler = require('../../api/platform');
 const { verifyBearerAndUser } = require('../../lib/api/auth-helper');
 const { checkRateLimit } = require('../../lib/api/rate-limit');
 
 function mockReq(overrides = {}) {
   return {
     method: 'POST',
-    headers: { authorization: 'Bearer valid-token' },
+    url: '/api/clear-user-data',
+    headers: { authorization: 'Bearer valid-token', host: 'localhost' },
+    query: {},
     body: { userId: 'user-123' },
     ...overrides
   };
