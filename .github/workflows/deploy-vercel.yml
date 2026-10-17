@@ -113,7 +113,7 @@ jobs:
         run: |
           set -euo pipefail
           deployment_url="${{ steps.deploy.outputs.url }}"
-          health_json="$(curl --silent --show-error --fail -H 'Cache-Control: no-cache' "$deployment_url/api/health")"
+          health_json="$(npx --no-install vercel curl "$deployment_url/api/health" -H 'Cache-Control: no-cache')"
 
           HEALTH_JSON="$health_json" EXPECTED_VERSION="${{ steps.release.outputs.short_sha }}"             node --input-type=module -e '
               const body = JSON.parse(process.env.HEALTH_JSON);
