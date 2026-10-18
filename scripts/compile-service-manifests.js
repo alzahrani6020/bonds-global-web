@@ -3,6 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const {
+  getServiceTokenPolicy,
+  isValidMaxTokenAgeSeconds
+} = require('../lib/security/service-token-policies');
+
 const ROOT = path.resolve(__dirname, '..');
 const MANIFEST_DIR = path.join(ROOT, 'services', 'manifests');
 
@@ -336,6 +341,23 @@ function compile(manifests) {
   for (const service of manifests) {
     if (services[service.serviceCode]) {
       fail(`duplicate service_code ${service.serviceCode}`);
+    }
+
+    if (service.security.serviceTokenRequired) {
+      const tokenPolicy =
+        getServiceTokenPolicy(service.serviceCode);
+
+      if (!tokenPolicy) {
+        fail(
+          `${service.serviceCode}: protected service requires a service token policy`
+        );
+      }
+
+      if (!isValidMaxTokenAgeSeconds(tokenPolicy.maxTokenAgeSeconds)) {
+        fail(
+          `${service.serviceCode}: service token policy maxTokenAgeSeconds must be a positive bounded integer`
+        );
+      }
     }
 
     services[service.serviceCode] = {
