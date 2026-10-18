@@ -451,19 +451,12 @@
 
     async function initFilters() {
       try {
-        const [citiesRes, sectorsRes] = await Promise.all([
+        const [citiesRes, activitiesRes] = await Promise.all([
           fetchJson(API_URL + '/cities'),
-          fetchJson(API_URL + '/sectors')
+          fetchJson(API_URL + '/catalog/activities')
         ]);
         allCities = citiesRes.cities || [];
-        allActivities = [];
-        (sectorsRes.sectors || []).forEach(sector => {
-          (sector.economic_sub_sectors || []).forEach(sub => {
-            (sub.economic_activities || []).forEach(activity => {
-              allActivities.push(activity);
-            });
-          });
-        });
+        allActivities = activitiesRes.activities || [];
 
         const cityFilter = document.getElementById('cityFilter');
         allCities.forEach(c => {
@@ -472,7 +465,8 @@
 
         const activityFilter = document.getElementById('activityFilter');
         allActivities.forEach(a => {
-          activityFilter.innerHTML += `<option value="${a.id}">${a.name_ar}</option>`;
+          const aliases = encodeURIComponent(JSON.stringify(a.aliases || [a.code]));
+          activityFilter.innerHTML += `<option value="${a.code}" data-aliases="${aliases}">${a.name_ar}</option>`;
         });
       } catch (err) {
         console.warn('Failed to load filter options:', err.message);
@@ -535,12 +529,24 @@
       const container = document.getElementById('alertsContainer');
       const severity = document.getElementById('severityFilter').value;
       const cityId = document.getElementById('cityFilter').value;
-      const activityId = document.getElementById('activityFilter').value;
+      const activityFilter = document.getElementById('activityFilter');
+      const activityCode = activityFilter.value;
+      const selectedOption = activityFilter.options[activityFilter.selectedIndex];
+      let activityAliases = [];
+      if (activityCode && selectedOption?.dataset.aliases) {
+        try {
+          activityAliases = JSON.parse(decodeURIComponent(selectedOption.dataset.aliases));
+        } catch (_) {
+          activityAliases = [activityCode];
+        }
+      }
 
       let filtered = allAlerts;
       if (severity) filtered = filtered.filter(a => a.severity === severity);
       if (cityId) filtered = filtered.filter(a => a.city_id === cityId);
-      if (activityId) filtered = filtered.filter(a => a.activity_id === activityId);
+      if (activityCode) {
+        filtered = filtered.filter(a => activityAliases.includes(a.activity?.code));
+      }
 
       const deduped = deduplicateAlerts(filtered);
 
