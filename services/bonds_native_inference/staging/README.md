@@ -51,3 +51,9 @@ Because this stage does not modify production, rollback here means stop foregrou
 ## Fail-closed policy
 
 Do not expose staging to network; bind to `127.0.0.1` only. Do not change system PATH, machine-scoped environment variables, service registration, firewall, tunnels, or Vercel from these scripts. Promotion is blocked until contract compatibility and authorization are verified, including converting the old custom `/generate` request/response format to the new engine's API without leaking secrets or raw prompts in logs.
+
+## Single controlled acceptance run
+
+Run on a **separate authorized Windows staging host**, never on the production host. Install the pinned CPU and Vulkan archives, then execute exactly one CPU and one Vulkan run with the same redacted 900-token fixture. Record median latency, tokens/sec and failures. Stop each foreground process and confirm port 18965 is released before switching profiles. If any preflight, hash, model, or readiness check fails, stop and preserve logs; do not retry by changing production settings. **Do not merge or cut over automatically.**
+
+**Current limitation:** the scripts are a manual staging harness, not a supervised Windows service. Durable boot recovery, process-tree cleanup and rollback must be implemented and tested after the A/B selection. No production readiness is asserted.
