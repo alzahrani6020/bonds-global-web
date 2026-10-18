@@ -327,7 +327,13 @@ function loadManifests() {
   });
 }
 
-function compile(manifests) {
+function compile(
+  manifests,
+  {
+    getTokenPolicy = getServiceTokenPolicy,
+    validateMaxTokenAge = isValidMaxTokenAgeSeconds
+  } = {}
+) {
   const services = {};
   const capabilities = {};
 
@@ -345,7 +351,7 @@ function compile(manifests) {
 
     if (service.security.serviceTokenRequired) {
       const tokenPolicy =
-        getServiceTokenPolicy(service.serviceCode);
+        getTokenPolicy(service.serviceCode);
 
       if (!tokenPolicy) {
         fail(
@@ -353,7 +359,7 @@ function compile(manifests) {
         );
       }
 
-      if (!isValidMaxTokenAgeSeconds(tokenPolicy.maxTokenAgeSeconds)) {
+      if (!validateMaxTokenAge(tokenPolicy.maxTokenAgeSeconds)) {
         fail(
           `${service.serviceCode}: service token policy maxTokenAgeSeconds must be a positive bounded integer`
         );
