@@ -11,6 +11,10 @@ const {
 } = require('../../lib/security/service-token-policies');
 
 const {
+  introspectServiceToken
+} = require('../../lib/security/service-token-verifier');
+
+const {
   SERVICES,
   CAPABILITIES
 } = require('../../lib/capabilities/bonds-capability-registry');
@@ -23,21 +27,29 @@ const {
 describe('service token authorization', () => {
   const now = 1_800_000_000;
 
-  test('accepts a valid scoped service token', () => {
+  function verified(claims) {
+    return async () => ({
+      verified: true,
+      claims: {
+        active: true,
+        iss: 'bonds-token-service',
+        exp: now + 300,
+        jti: 'token-123',
+        ...claims
+      }
+    });
+  }
+
+  test('accepts verified claims with exact service identity', () => {
     const result = authorizeServiceToken({
       now,
-      policy: {
-        issuer: 'bonds-token-service',
-        audience: 'research-intelligence',
-        subjectPrefix: 'service:',
-        scopes: ['research:read']
-      },
+      policy: getServiceTokenPolicy('research-intelligence'),
       claims: {
         active: true,
         iss: 'bonds-token-service',
         aud: 'research-intelligence',
-        sub: 'service:research-worker-01',
-        scope: 'research:read crawl:read',
+        sub: 'service:orchestrator',
+        scope: 'research:read',
         exp: now + 300,
         jti: 'token-123'
       }
@@ -47,172 +59,245 @@ describe('service token authorization', () => {
     expect(result.tokenId).toBe('token-123');
   });
 
-  test('denies wrong audience', () => {
+  test('requires iss aud sub exp and jti claims', () => {
     const result = authorizeServiceToken({
       now,
-      policy: {
-        issuer: 'bonds-token-service',
-        audience: 'agent-runtime',
-        scopes: ['agent:execute']
-      },
+      policy: getServiceTokenPolicy('research-intelligence'),
       claims: {
         active: true,
-        iss: 'bonds-token-service',
-        aud: 'orchestrator',
-        scope: 'agent:execute',
-        exp: now + 300
-      }
-    });
-
-    expect(result).toMatchObject({
-      allowed: false,
-      code: 'TOKEN_AUDIENCE_MISMATCH'
-    });
-  });
-
-  test('denies missing scopes', () => {
-    const result = authorizeServiceToken({
-      now,
-      policy: {
-        scopes: ['marketing:write']
-      },
-      claims: {
-        active: true,
-        scope: 'marketing:read',
-        exp: now + 300
+        scope: 'research:read'
       }
     });
 
     expect(result.allowed).toBe(false);
-    expect(result.code).toBe('TOKEN_SCOPE_DENIED');
-    expect(result.missingScopes).toEqual(['marketing:write']);
+    expect(result.code).toBe('TOKEN_REQUIRED_CLAIMS_MISSING');
+    expect(result.missingClaims).toEqual(
+      expect.arrayContaining(['iss', 'aud', 'sub', 'exp', 'jti'])
+    );
   });
 
-  test('denies expired, not-yet-valid and revoked tokens', () => {
+  test('uses bounded clock skew for exp and nbf', () => {
+    const policy = getServiceTokenPolicy('research-intelligence');
+    const base = {
+      active: true,
+      iss: 'bonds-token-service',
+      aud: 'research-intelligence',
+      sub: 'service:orchestrator',
+      scope: 'research:read',
+      jti: 'clock-token'
+    };
+
     expect(authorizeServiceToken({
       now,
-      claims: { exp: now }
+      policy,
+      claims: { ...base, exp: now - 10 }
+    }).allowed).toBe(true);
+
+    expect(authorizeServiceToken({
+      now,
+      policy,
+      claims: { ...base, exp: now - 31 }
     }).code).toBe('TOKEN_EXPIRED');
 
     expect(authorizeServiceToken({
       now,
-      claims: { nbf: now + 1 }
-    }).code).toBe('TOKEN_NOT_YET_VALID');
+      policy,
+      claims: { ...base, exp: now + 300, nbf: now + 20 }
+    }).allowed).toBe(true);
 
     expect(authorizeServiceToken({
       now,
-      claims: { active: false }
-    }).code).toBe('TOKEN_INACTIVE');
+      policy,
+      claims: { ...base, exp: now + 300, nbf: now + 31 }
+    }).code).toBe('TOKEN_NOT_YET_VALID');
   });
 
-  test('denies unexpected service identity', () => {
-    const result = authorizeServiceToken({
+  test('denies wrong audience scope and subject', () => {
+    const policy = getServiceTokenPolicy('research-intelligence');
+    const base = {
+      active: true,
+      iss: 'bonds-token-service',
+      aud: 'research-intelligence',
+      sub: 'service:orchestrator',
+      scope: 'research:read',
+      exp: now + 300,
+      jti: 'identity-token'
+    };
+
+    expect(authorizeServiceToken({
       now,
-      policy: {
-        subjectPrefix: 'service:'
-      },
-      claims: {
-        sub: 'user:123',
-        exp: now + 300
-      }
-    });
+      policy,
+      claims: { ...base, aud: 'orchestrator' }
+    }).code).toBe('TOKEN_AUDIENCE_MISMATCH');
 
-    expect(result.code).toBe('TOKEN_SUBJECT_MISMATCH');
+    expect(authorizeServiceToken({
+      now,
+      policy,
+      claims: { ...base, scope: 'crawl:read' }
+    }).code).toBe('TOKEN_SCOPE_DENIED');
+
+    expect(authorizeServiceToken({
+      now,
+      policy,
+      claims: { ...base, sub: 'service:other' }
+    }).code).toBe('TOKEN_SUBJECT_MISMATCH');
   });
 
-  test('defines least-privilege policies for target engines', () => {
-    expect(getServiceTokenPolicy('research-intelligence')).toMatchObject({
-      audience: 'research-intelligence',
-      scopes: ['research:read']
+  test('does not trust context claims without verifier proof', async () => {
+    const verifier = jest.fn(async ({ token }) => {
+      expect(token).toBeNull();
+      return { verified: false, code: 'TOKEN_MISSING' };
     });
 
-    expect(getServiceTokenPolicy('orchestrator')).toMatchObject({
-      audience: 'orchestrator',
-      scopes: ['orchestrator:dispatch']
-    });
-
-    expect(getServiceTokenPolicy('agent-runtime')).toMatchObject({
-      audience: 'agent-runtime',
-      scopes: ['agent:execute']
-    });
-  });
-  test('governance gateway denies a web-research token with the wrong audience', async () => {
     const result = await evaluateGovernance({
-      service: SERVICES['web-research'],
-      capability: CAPABILITIES.web_fetch,
+      service: SERVICES['research-intelligence'],
+      capability: CAPABILITIES.research_intelligence_verify,
       context: {
-        governance: {
-          enforceServiceToken: true,
-          now,
-          tokenClaims: {
+        auth: {
+          claims: {
             active: true,
             iss: 'bonds-token-service',
-            aud: 'orchestrator',
+            aud: 'research-intelligence',
             sub: 'service:orchestrator',
             scope: 'research:read',
-            exp: now + 300
+            exp: now + 300,
+            jti: 'forged'
           }
-        }
+        },
+        governance: { now }
       },
-      rateLimiter: new MemoryRateLimiter()
+      rateLimiter: new MemoryRateLimiter(),
+      verifyServiceToken: verifier
     });
 
     expect(result).toMatchObject({
       allowed: false,
-      code: 'TOKEN_AUDIENCE_MISMATCH'
+      code: 'TOKEN_MISSING'
     });
+    expect(verifier).toHaveBeenCalledTimes(1);
   });
 
-  test('governance gateway requires crawl scope for crawl capabilities', async () => {
+  test('caller cannot override the service token policy', async () => {
     const result = await evaluateGovernance({
-      service: SERVICES['web-research'],
-      capability: CAPABILITIES.web_crawl,
+      service: {
+        ...SERVICES['web-research'],
+        security: {
+          ...SERVICES['web-research'].security,
+          serviceTokenRequired: true
+        }
+      },
+      capability: CAPABILITIES.web_fetch,
       context: {
+        auth: { serviceToken: 'raw-token-do-not-log' },
         governance: {
-          enforceServiceToken: true,
           now,
-          tokenClaims: {
-            active: true,
-            iss: 'bonds-token-service',
-            aud: 'web-research',
-            sub: 'service:research-intelligence',
-            scope: 'research:read',
-            exp: now + 300
+          serviceTokenPolicy: {
+            issuer: 'attacker',
+            audience: 'evil',
+            allowedSubjects: ['service:attacker'],
+            scopes: []
           }
         }
       },
-      rateLimiter: new MemoryRateLimiter()
+      rateLimiter: new MemoryRateLimiter(),
+      verifyServiceToken: verified({
+        aud: 'evil',
+        sub: 'service:research-intelligence',
+        scope: 'research:read'
+      })
     });
 
     expect(result.allowed).toBe(false);
-    expect(result.code).toBe('TOKEN_SCOPE_DENIED');
-    expect(result.missingScopes).toEqual(['crawl:read']);
+    expect(result.code).toBe('TOKEN_AUDIENCE_MISMATCH');
   });
 
-  test('governance gateway accepts a correctly scoped web-research token', async () => {
+  test('registered research service enforces verifier result automatically', async () => {
     const result = await evaluateGovernance({
-      service: SERVICES['web-research'],
-      capability: CAPABILITIES.web_fetch,
+      service: SERVICES['research-intelligence'],
+      capability: CAPABILITIES.research_intelligence_verify,
       context: {
-        governance: {
-          enforceServiceToken: true,
-          now,
-          tokenClaims: {
-            active: true,
-            iss: 'bonds-token-service',
-            aud: 'web-research',
-            sub: 'service:research-intelligence',
-            scope: 'research:read crawl:read',
-            exp: now + 300,
-            jti: 'research-token-1'
-          }
-        }
+        auth: { serviceToken: 'opaque-token' },
+        governance: { now }
       },
-      rateLimiter: new MemoryRateLimiter()
+      rateLimiter: new MemoryRateLimiter(),
+      verifyServiceToken: verified({
+        aud: 'research-intelligence',
+        sub: 'service:orchestrator',
+        scope: 'research:read'
+      })
     });
 
     expect(result.allowed).toBe(true);
-    expect(result.code).toBeNull();
+    expect(result.serviceToken).toEqual({
+      subject: 'service:orchestrator',
+      tokenId: 'token-123',
+      scopes: ['research:read']
+    });
+    expect(JSON.stringify(result)).not.toContain('opaque-token');
   });
 
+  test('registered orchestrator enforces exact agent-runtime identity', async () => {
+    const denied = await evaluateGovernance({
+      service: SERVICES.orchestrator,
+      capability: CAPABILITIES.orchestrator_run,
+      context: {
+        auth: { serviceToken: 'opaque-token' },
+        governance: { now }
+      },
+      rateLimiter: new MemoryRateLimiter(),
+      verifyServiceToken: verified({
+        aud: 'orchestrator',
+        sub: 'service:research-intelligence',
+        scope: 'orchestrator:dispatch'
+      })
+    });
+
+    expect(denied.code).toBe('TOKEN_SUBJECT_MISMATCH');
+  });
+
+  test('introspection rejects revoked tokens', async () => {
+    const fetchImpl = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        active: false,
+        revoked: true,
+        jti: 'revoked-token'
+      })
+    }));
+
+    const result = await introspectServiceToken({
+      token: 'opaque-token',
+      url: 'http://127.0.0.1:8771/introspect',
+      fetchImpl
+    });
+
+    expect(result).toEqual({
+      verified: false,
+      code: 'TOKEN_INACTIVE'
+    });
+  });
+
+  test('introspection returns only verified claims for active token', async () => {
+    const fetchImpl = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({
+        active: true,
+        iss: 'bonds-token-service',
+        aud: 'research-intelligence',
+        sub: 'service:orchestrator',
+        scope: 'research:read',
+        exp: now + 300,
+        jti: 'live-token'
+      })
+    }));
+
+    const result = await introspectServiceToken({
+      token: 'opaque-token',
+      url: 'http://127.0.0.1:8771/introspect',
+      fetchImpl
+    });
+
+    expect(result.verified).toBe(true);
+    expect(result.claims.jti).toBe('live-token');
+  });
 });
