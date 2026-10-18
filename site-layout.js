@@ -11,6 +11,82 @@
 (function () {
   'use strict';
 
+  const INTERFACE_SVG_SELECTOR = [
+    '.emoji-icon > svg',
+    '.input-label-icon > svg',
+    '.calc-section-title > svg',
+    '.bec-smart-alert__icon > svg',
+    '.bec-share-bar button > svg',
+    '.bec-share-bar .btn > svg',
+    '.header-search > svg',
+    '.header-account > svg',
+    '.dropdown-toggle > svg',
+    '.footer-socials a > svg',
+    '.bonds-chat-launcher > svg',
+    'button > svg',
+    '[role="button"] > svg',
+    '.btn > svg',
+    '.status-badge > svg',
+    '.alert-icon > svg',
+    'svg[aria-hidden="true"]'
+  ].join(',');
+
+  function setSvgImportant(el, property, value) {
+    if (!el || !el.style) return;
+    el.style.setProperty(property, value, 'important');
+  }
+
+  function hardenInterfaceSvg(svg) {
+    if (!svg || !svg.matches || !svg.matches(INTERFACE_SVG_SELECTOR)) return;
+    if (svg.matches('.bonds-auth-modal__icon > svg, .bonds-exit-modal__icon > svg')) return;
+    if (svg.closest(
+      '.chart, .chart-container, .chart-wrap, .gauge, .gauge-container, .score-gauge, ' +
+      '.map, .map-container, .diagram, .illustration, .hero-illustration, .logo, .brand-logo, ' +
+      '.site-logo, .qr-code, [data-chart], [data-gauge], [data-map]'
+    )) return;
+
+    setSvgImportant(svg, 'display', 'block');
+    setSvgImportant(svg, 'width', '1em');
+    setSvgImportant(svg, 'height', '1em');
+    setSvgImportant(svg, 'max-width', '1em');
+    setSvgImportant(svg, 'max-height', '1em');
+    setSvgImportant(svg, 'min-width', '0');
+    setSvgImportant(svg, 'min-height', '0');
+    setSvgImportant(svg, 'flex', '0 0 1em');
+    setSvgImportant(svg, 'position', 'static');
+    setSvgImportant(svg, 'inset', 'auto');
+    setSvgImportant(svg, 'transform', 'none');
+    setSvgImportant(svg, 'object-fit', 'contain');
+    setSvgImportant(svg, 'overflow', 'hidden');
+  }
+
+  function hardenInterfaceSvgs(root) {
+    if (!root) return;
+    if (root.nodeType === 1 && root.matches && root.matches(INTERFACE_SVG_SELECTOR)) {
+      hardenInterfaceSvg(root);
+    }
+    if (root.querySelectorAll) {
+      root.querySelectorAll(INTERFACE_SVG_SELECTOR).forEach(hardenInterfaceSvg);
+    }
+  }
+
+  function installInterfaceSvgGuard() {
+    hardenInterfaceSvgs(document);
+    const target = document.documentElement || document.body;
+    if (!target || typeof MutationObserver === 'undefined') return;
+
+    const observer = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        mutation.addedNodes.forEach(function (node) {
+          if (node.nodeType === 1) hardenInterfaceSvgs(node);
+        });
+      });
+    });
+    observer.observe(target, { childList: true, subtree: true });
+  }
+
+  installInterfaceSvgGuard();
+
   function ensureEmojiRuntime() {
     const rendererPath = '/components/emoji-renderer.js';
     const iconsPath = '/components/emoji-icons.js';
@@ -386,7 +462,7 @@
       },
     ];
 
-    const caretSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
+    const caretSvg = ''; // caret is rendered by header-footer.css ::after; avoid duplicate raw SVG
 
     function buildDropdown(items, extraAll, isLarge) {
       const isGrouped = Array.isArray(items) && items.length > 0 && Array.isArray(items[0].items);

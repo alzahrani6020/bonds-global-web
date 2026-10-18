@@ -362,6 +362,9 @@ describe('site-wide emoji SVG safety', () => {
     expect(siteLayout).toContain("'/components/emoji-icons.js'");
     expect(siteLayout).toContain("'/components/emoji-renderer.js'");
     expect(siteLayout).toContain('ensureEmojiRuntime()');
+    expect(siteLayout).toContain('installInterfaceSvgGuard()');
+    expect(siteLayout).toContain("svg[aria-hidden=\"true\"]");
+    expect(siteLayout).toContain("const caretSvg = '';");
   });
 
   test('all emoji surfaces stay bounded across the site', async () => {
@@ -385,6 +388,58 @@ describe('site-wide emoji SVG safety', () => {
 
     expect(loadFailures).toEqual([]);
     expect(failures).toEqual([]);
+  });
+
+  test('site layout hard-bounds generic interface SVGs against hostile page CSS', async () => {
+    const browser = await chromium.launch({ headless: true });
+    const context = await browser.newContext({ viewport: { width: 1366, height: 900 } });
+    const page = await context.newPage();
+    const siteLayoutSource = fs.readFileSync(path.join(ROOT, 'site-layout.js'), 'utf8');
+
+    try {
+      await page.setContent(
+        '<!doctype html><html lang="ar" dir="rtl"><head><style>' +
+        'svg[aria-hidden="true"],button>svg,.input-label-icon>svg,.calc-section-title>svg{' +
+        'width:100vw!important;height:100vh!important;max-width:none!important;max-height:none!important;' +
+        'position:fixed!important;inset:0!important;transform:scale(3)!important;}' +
+        '</style></head><body>' +
+        '<button id="fixture-btn"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 12h18"/></svg>Button</button>' +
+        '<span class="input-label-icon"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v18"/></svg></span>' +
+        '<h2 class="calc-section-title"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M3 3h18v18H3z"/></svg>Title</h2>' +
+        '</body></html>',
+        { waitUntil: 'load', timeout: 3500 }
+      );
+
+      await page.evaluate(() => {
+        window.BondsAuth = { initSiteAuth: async () => {} };
+      });
+      await page.addScriptTag({ content: siteLayoutSource });
+      await page.waitForTimeout(50);
+
+      const initial = await inspectInterfaceIconSizing(page, 'site-layout.js', 'generic-guard');
+      expect(initial).toEqual([]);
+
+      for (const selector of ['#fixture-btn > svg', '.input-label-icon > svg', '.calc-section-title > svg']) {
+        const box = await page.locator(selector).boundingBox();
+        expect(box.width).toBeLessThanOrEqual(32);
+        expect(box.height).toBeLessThanOrEqual(32);
+      }
+
+      await page.evaluate(() => {
+        const late = document.createElement('button');
+        late.id = 'late-svg-button';
+        late.innerHTML = '<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 12h16"/></svg>Late';
+        document.body.appendChild(late);
+      });
+      await page.waitForTimeout(30);
+
+      const lateBox = await page.locator('#late-svg-button > svg').boundingBox();
+      expect(lateBox.width).toBeLessThanOrEqual(32);
+      expect(lateBox.height).toBeLessThanOrEqual(32);
+    } finally {
+      await context.close();
+      await browser.close();
+    }
   });
 
   test('shared calculator modals keep hero and button SVG icons bounded', async () => {
