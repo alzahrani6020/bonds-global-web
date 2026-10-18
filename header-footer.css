@@ -581,6 +581,7 @@ body[dir="ltr"] .dropdown-menu {
     top: 0;
     right: 0;
     bottom: 0;
+    height: 100dvh;
     width: min(320px, 85vw);
     flex-direction: column;
     align-items: stretch;
@@ -607,6 +608,8 @@ body[dir="ltr"] .dropdown-menu {
     transform: translateX(-100%);
   }
 
+  html[dir="ltr"] .main-nav.is-open,
+  body[dir="ltr"] .main-nav.is-open,
   .main-nav.is-open {
     transform: translateX(0);
     opacity: 1;
@@ -673,6 +676,7 @@ body[dir="ltr"] .dropdown-menu {
 
   .dropdown.is-open > .dropdown-menu--grouped {
     display: block;
+    transform: none;
   }
 
   .dropdown-menu--grouped .dropdown-group__heading {
@@ -1034,6 +1038,7 @@ html[dir="ltr"] .footer-links a:hover {
 
 
 /* ===== Header containment hardening v2.69.0 ===== */
+@media (min-width: 1281px) {
 html[dir="ltr"] .main-header .dropdown-menu--grouped,
 html[dir="rtl"] .main-header .dropdown-menu--grouped,
 .main-header .dropdown-menu--grouped {
@@ -1049,8 +1054,9 @@ html[dir="rtl"] .main-header .dropdown-menu--grouped,
 
 html[dir="ltr"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
 html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
-.main-header .dropdown.is-open > .dropdown-menu--grouped,
+.main-header .dropdown.is-open > .dropdown-menu--grouped {
   transform: translate(-50%, 0);
+}
 }
 
 @media (min-width: 1281px) and (max-width: 1320px) {
@@ -1695,6 +1701,7 @@ body[dir="ltr"] .dropdown-menu {
     top: 0;
     right: 0;
     bottom: 0;
+    height: 100dvh;
     width: min(320px, 85vw);
     flex-direction: column;
     align-items: stretch;
@@ -1721,6 +1728,8 @@ body[dir="ltr"] .dropdown-menu {
     transform: translateX(-100%);
   }
 
+  html[dir="ltr"] .main-nav.is-open,
+  body[dir="ltr"] .main-nav.is-open,
   .main-nav.is-open {
     transform: translateX(0);
     opacity: 1;
@@ -1787,6 +1796,7 @@ body[dir="ltr"] .dropdown-menu {
 
   .dropdown.is-open > .dropdown-menu--grouped {
     display: block;
+    transform: none;
   }
 
   .dropdown-menu--grouped .dropdown-group__heading {
@@ -2148,6 +2158,7 @@ html[dir="ltr"] .footer-links a:hover {
 
 
 /* ===== Header containment hardening v2.69.0 ===== */
+@media (min-width: 1281px) {
 html[dir="ltr"] .main-header .dropdown-menu--grouped,
 html[dir="rtl"] .main-header .dropdown-menu--grouped,
 .main-header .dropdown-menu--grouped {
@@ -2163,8 +2174,9 @@ html[dir="rtl"] .main-header .dropdown-menu--grouped,
 
 html[dir="ltr"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
 html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
-.main-header .dropdown.is-open > .dropdown-menu--grouped,
+.main-header .dropdown.is-open > .dropdown-menu--grouped {
   transform: translate(-50%, 0);
+}
 }
 
 @media (min-width: 1281px) and (max-width: 1320px) {
@@ -2241,7 +2253,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
  * crosses their visual footprint in the middle of the page.
  */
 @media (min-width: 1281px) {
-  .main-header .dropdown > .dropdown-menu,
+  .main-header .dropdown > .dropdown-menu {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
@@ -2257,7 +2269,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
 
   html[dir="ltr"] .main-header .dropdown > .dropdown-menu--grouped,
   html[dir="rtl"] .main-header .dropdown > .dropdown-menu--grouped,
-  .main-header .dropdown > .dropdown-menu--grouped,
+  .main-header .dropdown > .dropdown-menu--grouped {
     transform: translate(-50%, -8px) !important;
   }
 
@@ -2270,6 +2282,17 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
 
 
 /* ===== Responsive authenticated-header collision guard ===== */
+@media (min-width: 1321px) and (max-width: 1440px) {
+  .main-header__inner {
+    gap: 0.5rem;
+  }
+
+  .main-header .main-nav > ul > li > a,
+  .main-header .main-nav > ul > li > .dropdown-toggle {
+    padding-inline: 0.55rem !important;
+  }
+}
+
 #authContainer .bonds-user-menu > span:first-of-type {
   display: inline-block;
   max-width: 8rem;

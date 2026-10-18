@@ -271,7 +271,7 @@
     @media (max-width:768px) {
       .template-page { padding:1.25rem; }
       .field-group.inline,.field-group.inline-3,.cover-meta,.swot-grid,.scenario-grid,.signature-grid { grid-template-columns:1fr; }
-      .template-toolbar { position:relative; }
+      .template-toolbar { position:relative; top:0; }
     }
 /* ===== Inline-style refactor utilities / components ===== */
 

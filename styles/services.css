@@ -229,7 +229,7 @@
   color: var(--gold);
 }
 .why-item__title { font-size: 0.9rem; font-weight: 800; margin-bottom: 0.5rem; }
-.why-item__text { font-size: 0.75rem; color: rgba(255,255,255,0.6); line-height: 1.7; }
+.why-item__text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.7; }
 
 /* ===== CTA ===== */
 .cta-section { background: var(--bg); }

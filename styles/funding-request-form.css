@@ -604,7 +604,7 @@ html[data-theme="light"] .funding-request__card,
   font-family: var(--font-display, var(--font, system-ui));
   font-size: 0.95rem;
   font-weight: 900;
-  color: var(--gold, #d4a853);
+  color: var(--gold-700, #8a6a2f);
   background: rgba(212, 168, 83, 0.1);
   border: 1px solid rgba(212, 168, 83, 0.25);
   border-radius: 50%;
