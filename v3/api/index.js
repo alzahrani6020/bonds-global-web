@@ -586,6 +586,22 @@ async function handleCatalogYears(req, res) {
     if (activityCode) {
       const activitySelection = await resolveActivitySelection(supabase, activityCode);
       activityIds = activitySelection.ids;
+
+      if (!activityIds.length) {
+        return sendJson(res, 200, {
+          years: [],
+          latest: null,
+          sourceYears: [],
+          legacyYears: [],
+          sourceBacked: false,
+          fallbackToLegacy: false,
+          count: 0,
+          country: countryCode || null,
+          city: cityCode || null,
+          activity: activityCode,
+          generatedAt: new Date().toISOString()
+        });
+      }
     }
 
     if (cityIds.length) {
@@ -711,13 +727,12 @@ async function handleCatalogCities(req, res) {
     let catalogCities = mergeMasterAndDatabaseCities(countryCode, databaseCities);
 
     if (activityCodes.length && rawCities.length) {
-      const { data: activityRows, error: activityError } = await supabase
-        .from('economic_activities')
-        .select('id, code')
-        .in('code', activityCodes);
-      if (activityError) throw activityError;
-
-      const activityIds = (activityRows || []).map(row => row.id);
+      const activitySelections = await Promise.all(
+        activityCodes.map(code => resolveActivitySelection(supabase, code))
+      );
+      const activityIds = [...new Set(
+        activitySelections.flatMap(selection => selection.ids || []).filter(Boolean)
+      )];
       const rawIdToCanonical = new Map();
       const rawIdToCode = new Map(rawCities.map(city => [city.id, city.code]));
       for (const city of databaseCities) {
