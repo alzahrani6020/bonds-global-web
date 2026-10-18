@@ -12,11 +12,14 @@ $hash=(Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
 if ($hash -ne $artifact.sha256) { throw "Engine checksum mismatch. Aborting without extraction." }
 if (Test-Path (Join-Path $release 'installed.sha256')) {
   if ((Get-Content (Join-Path $release 'installed.sha256') -Raw).Trim() -ne $hash) {throw 'Existing release marker differs; refuse overwrite'}
+  if (-not (Test-Path (Join-Path $release 'files.sha256.json'))) {throw 'Release inventory missing; refuse reuse'}
   Write-Output "Existing pinned release: $release"; return
 }
 if (@(Get-ChildItem -Force $release).Count -gt 0) {throw 'Release directory is nonempty; refuse overwrite'}
 Expand-Archive -Path $archive -DestinationPath $release
 $exe=Get-ChildItem $release -Filter llama-server.exe -File -Recurse | Select-Object -First 1
 if (-not $exe) {throw 'llama-server.exe missing from verified archive'}
+$inventory=@(Get-ChildItem $release -Recurse -File | ForEach-Object { [ordered]@{path=$_.FullName.Substring($release.Length+1);sha256=(Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()} })
+ConvertTo-Json -InputObject $inventory -Depth 5 | Set-Content (Join-Path $release 'files.sha256.json')
 Set-Content -Path (Join-Path $release 'installed.sha256') -Value $hash -NoNewline
 Write-Output "Verified staged release: $release"
