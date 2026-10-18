@@ -30,9 +30,6 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Validate service manifests and token policies
-        run: npm run services:check
-
       - name: Validate Bonds Native operations
         shell: pwsh
         run: |
@@ -96,6 +93,9 @@ jobs:
 
       - name: Run Visual Regression Tests
         run: npm run test:visual
+
+      - name: Validate service manifests and token policies
+        run: npm run services:check
 
       - name: Upload Visual Artifacts
         if: failure()
