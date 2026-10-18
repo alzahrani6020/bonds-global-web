@@ -42,7 +42,7 @@
 
 .pricing-card__trial {
   font-size: var(--text-xs);
-  color: var(--gold-bright);
+  color: var(--gold-700);
   margin-top: 0.5rem;
 }
 
@@ -55,7 +55,7 @@
   opacity: 0.9;
 }
 .pricing-card--featured .pricing-card__trial {
-  color: var(--gold-bright);
+  color: var(--gold-700);
 }
 
 .pricing-card--featured .feature-list__item {
@@ -67,7 +67,7 @@
 }
 
 .pricing-card__badge--solid {
-  color: var(--bg);
+  color: var(--navy-950);
 }
 
 .pricing-card--featured .feature-list__icon--check {
