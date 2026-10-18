@@ -135,7 +135,11 @@ async function generateNativeReply(messages, context) {
   });
   const response = await router.generate(buildNativeChatPrompt(messages, context), {
     temperature: 0.2,
-    max_tokens: 900
+    // Keep chat output bounded so the single-flight Native runtime cannot spend
+    // the entire production timeout decoding an unnecessarily long response.
+    // 256 tokens is sufficient for the concise decision-support answers this
+    // endpoint requests and stays below the canonical runtime ceiling (512).
+    max_tokens: 256
   });
   if (!response?.ok) {
     const err = new Error(response?.error?.message || response?.error?.code || 'Bonds Native chat failed');
