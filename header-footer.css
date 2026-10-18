@@ -160,6 +160,21 @@
   position: relative;
 }
 
+.main-nav .dropdown-toggle > svg {
+  display: block !important;
+  width: 0.75em !important;
+  height: 0.75em !important;
+  max-width: 0.75em !important;
+  max-height: 0.75em !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  flex: 0 0 0.75em !important;
+  position: static !important;
+  inset: auto !important;
+  transform: none !important;
+  overflow: hidden !important;
+}
+
 .dropdown-toggle::after {
   content: "";
   display: inline-block;
