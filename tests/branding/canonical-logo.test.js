@@ -19,7 +19,10 @@ const LEGACY = [
   '../assets/bonds-logo-2026-sm.webp',
   'assets/bonds-logo-2026.webp',
   '/assets/bonds-logo-2026.webp',
-  '../assets/bonds-logo-2026.webp'
+  '../assets/bonds-logo-2026.webp',
+  'assets/bonds-logo-2026-header.webp',
+  '/assets/bonds-logo-2026-header.webp',
+  '../assets/bonds-logo-2026-header.webp'
 ];
 
 function collectFiles(dir, out = []) {
