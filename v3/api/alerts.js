@@ -55,7 +55,7 @@ async function handleListRules(req, res) {
   const supabase = getSupabaseClient();
   const { data, error } = await supabase
     .from('alert_rules')
-    .select('*, city:city_id(name_ar), activity:activity_id(name_ar)')
+    .select('*, city:city_id(name_ar), activity:activity_id(id,code,name_ar,name_en)')
     .order('created_at', { ascending: false });
 
   if (error) return sendJson(res, 500, { error: error.message });
@@ -147,7 +147,7 @@ async function handleListAlerts(req, res) {
   const supabase = getSupabaseClient();
   let query = supabase
     .from('alerts')
-    .select('*, city:city_id(name_ar), activity:activity_id(name_ar), rule:rule_id(name, description)')
+    .select('*, city:city_id(name_ar), activity:activity_id(id,code,name_ar,name_en), rule:rule_id(name, description)')
     .order('created_at', { ascending: false })
     .limit(limit);
 
