@@ -961,7 +961,9 @@ async function handleOpportunitiesTop(req, res) {
   const latestRows = [];
   const seen = new Set();
   for (const row of data || []) {
-    const key = `${row.city_id || row.cities?.id || 'city'}:${row.activity_id || row.economic_activities?.code || 'activity'}`;
+    const key = activityCode
+      ? `${row.city_id || row.cities?.id || 'city'}:${activitySelection.canonicalCode || activityCode}`
+      : `${row.city_id || row.cities?.id || 'city'}:${row.activity_id || row.economic_activities?.code || 'activity'}`;
     if (seen.has(key)) continue;
     seen.add(key);
     latestRows.push(row);
