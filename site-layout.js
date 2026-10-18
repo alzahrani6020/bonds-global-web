@@ -11,6 +11,44 @@
 (function () {
   'use strict';
 
+  function ensureEmojiRuntime() {
+    const rendererPath = '/components/emoji-renderer.js';
+    const iconsPath = '/components/emoji-icons.js';
+    const hasRendererTag = document.querySelector('script[src*="components/emoji-renderer.js"]');
+    if (hasRendererTag) return;
+
+    function loadRenderer() {
+      if (document.querySelector('script[src*="components/emoji-renderer.js"]')) return;
+      const renderer = document.createElement('script');
+      renderer.src = rendererPath;
+      renderer.async = false;
+      document.head.appendChild(renderer);
+    }
+
+    if (window.EmojiIcons) {
+      loadRenderer();
+      return;
+    }
+
+    const existingIcons = document.querySelector('script[src*="components/emoji-icons.js"]');
+    if (existingIcons) {
+      if (window.EmojiIcons) loadRenderer();
+      else existingIcons.addEventListener('load', loadRenderer, { once: true });
+      return;
+    }
+
+    const icons = document.createElement('script');
+    icons.src = iconsPath;
+    icons.async = false;
+    icons.addEventListener('load', loadRenderer, { once: true });
+    document.head.appendChild(icons);
+  }
+
+  // Site-layout is present across the public application shell. It acts as the
+  // final safety net for pages that contain emoji/icon surfaces but predate the
+  // explicit emoji runtime includes.
+  ensureEmojiRuntime();
+
   const institutionalHref = '/styles/institutional-system.css?v=6';
   const institutionalStyles = document.querySelector('link[href*="institutional-system.css"]');
   if (institutionalStyles) {
