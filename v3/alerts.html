@@ -324,7 +324,7 @@
         <option value="info"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><circle fill="#55ACEE" cx="18" cy="18" r="18"/></svg></span> منخفض</option>
       </select>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cityFilter"><option value="">كل المدن</option></select>
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activityFilter"><option value="">كل الأنشطة</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-results="0" data-ud-virtualize="true" data-ud-virtual-threshold="40" data-ud-search-placeholder="ابحث عن نشاط..." id="activityFilter"><option value="">كل الأنشطة</option></select>
       <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-secondary); font-size: 0.9rem;">
         <input type="checkbox" id="unreadOnly" checked> غير المقروءة فقط
       </label>
@@ -451,19 +451,12 @@
 
     async function initFilters() {
       try {
-        const [citiesRes, sectorsRes] = await Promise.all([
+        const [citiesRes, activitiesRes] = await Promise.all([
           fetchJson(API_URL + '/cities'),
-          fetchJson(API_URL + '/sectors')
+          fetchJson(API_URL + '/catalog/activities')
         ]);
         allCities = citiesRes.cities || [];
-        allActivities = [];
-        (sectorsRes.sectors || []).forEach(sector => {
-          (sector.economic_sub_sectors || []).forEach(sub => {
-            (sub.economic_activities || []).forEach(activity => {
-              allActivities.push(activity);
-            });
-          });
-        });
+        allActivities = activitiesRes.activities || [];
 
         const cityFilter = document.getElementById('cityFilter');
         allCities.forEach(c => {
@@ -472,7 +465,7 @@
 
         const activityFilter = document.getElementById('activityFilter');
         allActivities.forEach(a => {
-          activityFilter.innerHTML += `<option value="${a.id}">${a.name_ar}</option>`;
+          activityFilter.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
         });
       } catch (err) {
         console.warn('Failed to load filter options:', err.message);
@@ -535,12 +528,16 @@
       const container = document.getElementById('alertsContainer');
       const severity = document.getElementById('severityFilter').value;
       const cityId = document.getElementById('cityFilter').value;
-      const activityId = document.getElementById('activityFilter').value;
+      const activityCode = document.getElementById('activityFilter').value;
 
       let filtered = allAlerts;
       if (severity) filtered = filtered.filter(a => a.severity === severity);
       if (cityId) filtered = filtered.filter(a => a.city_id === cityId);
-      if (activityId) filtered = filtered.filter(a => a.activity_id === activityId);
+      if (activityCode) {
+        const selected = allActivities.find(a => a.code === activityCode || (a.aliases || []).includes(activityCode));
+        const aliases = new Set(selected?.aliases?.length ? selected.aliases : [activityCode]);
+        filtered = filtered.filter(a => aliases.has(a.activity?.code));
+      }
 
       const deduped = deduplicateAlerts(filtered);
 
