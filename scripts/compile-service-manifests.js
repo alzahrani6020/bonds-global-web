@@ -129,6 +129,13 @@ function validateManifest(manifest, filename) {
     fail(`${filename}: unsupported network_access`);
   }
 
+  if (
+    manifest.security.service_token_required !== undefined &&
+    typeof manifest.security.service_token_required !== 'boolean'
+  ) {
+    fail(`${filename}: security.service_token_required must be boolean`);
+  }
+
   const privileges = manifest.security.privileges;
 
   if (!privileges || typeof privileges !== 'object') {
@@ -257,6 +264,8 @@ function validateManifest(manifest, filename) {
 
     security: {
       networkAccess: manifest.security.network_access,
+      serviceTokenRequired:
+        manifest.security.service_token_required === true,
       privileges,
       requestedSensitivePrivileges
     },
