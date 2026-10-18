@@ -115,11 +115,32 @@ describe('feasibility unified pipeline', () => {
 
   test('print contract preserves A4 headers and disclaimer', () => {
     expect(css).toContain('@page { size:A4; margin:10mm; }');
-    expect(css).toContain('.template-header-print { display:flex !important;');
-    expect(css).toContain('.disclaimer.no-print { display:block !important;');
+    expect(css).toContain('.template-header-print {');
+    expect(css).toContain('display:flex !important;');
+    expect(css).toContain('.disclaimer.no-print {');
+    expect(css).toContain('display:block !important;');
     expect(ar).toContain('class="template-header-print"');
     expect(en).toContain('class="template-header-print"');
     expect(ar).toMatch(/class="disclaimer no-print"/);
     expect(en).toMatch(/class="disclaimer no-print"/);
+  });
+
+  test('print pagination is flow-based and hides site chrome', () => {
+    expect(css).toContain('#site-header,#site-footer');
+    expect(css).toContain('page-break-after:auto !important;');
+    expect(css).toContain('break-after:auto !important;');
+    expect(css).not.toContain('page-break-after:always;');
+    expect(css).not.toContain('break-after:page;');
+    expect(css).toContain('.cover-page {');
+    expect(css).toContain('height:auto !important;');
+  });
+
+  test('professional PDF expands textarea content before printing and restores it after print', () => {
+    const source = read('calculators/feasibility-export.js');
+    expect(source).toContain("document.querySelectorAll('textarea')");
+    expect(source).toContain("textarea.scrollHeight");
+    expect(source).toContain("textarea.style.height = expandedHeight + 'px'");
+    expect(source).toContain("textarea.style.height = height");
+    expect(source).toContain("textarea.style.overflow = overflow");
   });
 });
