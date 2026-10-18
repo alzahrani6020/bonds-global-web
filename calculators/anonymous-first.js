@@ -52,10 +52,16 @@
     }
   }
 
+  function getAuthUser(result) {
+    if (!result) return null;
+    if (result.data && result.data.user) return result.data.user;
+    return result.user || null;
+  }
+
   function isLoggedIn() {
     return new Promise(function (resolve) {
       if (window.BondsAuth && window.BondsAuth.getUser) {
-        window.BondsAuth.getUser().then(function (d) { resolve(!!(d && d.user)); }).catch(function () { resolve(false); });
+        window.BondsAuth.getUser().then(function (result) { resolve(!!getAuthUser(result)); }).catch(function () { resolve(false); });
       } else resolve(false);
     });
   }
@@ -383,7 +389,7 @@
   function handlePendingAction() {
     if (!window.BondsAuth || !window.BondsAuth.getUser) return;
     window.BondsAuth.getUser().then(function (userData) {
-      if (!userData || !userData.user) return;
+      if (!getAuthUser(userData)) return;
       try {
         var raw = sessionStorage.getItem('bonds_pending_action');
         if (!raw) return;
