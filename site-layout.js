@@ -27,7 +27,8 @@
     '[role="button"] > svg',
     '.btn > svg',
     '.status-badge > svg',
-    '.alert-icon > svg'
+    '.alert-icon > svg',
+    'svg[aria-hidden="true"]'
   ].join(',');
 
   function setSvgImportant(el, property, value) {
@@ -38,6 +39,11 @@
   function hardenInterfaceSvg(svg) {
     if (!svg || !svg.matches || !svg.matches(INTERFACE_SVG_SELECTOR)) return;
     if (svg.matches('.bonds-auth-modal__icon > svg, .bonds-exit-modal__icon > svg')) return;
+    if (svg.closest(
+      '.chart, .chart-container, .chart-wrap, .gauge, .gauge-container, .score-gauge, ' +
+      '.map, .map-container, .diagram, .illustration, .hero-illustration, .logo, .brand-logo, ' +
+      '.site-logo, .qr-code, [data-chart], [data-gauge], [data-map]'
+    )) return;
 
     setSvgImportant(svg, 'display', 'block');
     setSvgImportant(svg, 'width', '1em');
@@ -456,7 +462,7 @@
       },
     ];
 
-    const caretSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>';
+    const caretSvg = ''; // caret is rendered by header-footer.css ::after; avoid duplicate raw SVG
 
     function buildDropdown(items, extraAll, isLarge) {
       const isGrouped = Array.isArray(items) && items.length > 0 && Array.isArray(items[0].items);
