@@ -147,7 +147,7 @@ async function handleListAlerts(req, res) {
   const supabase = getSupabaseClient();
   let query = supabase
     .from('alerts')
-    .select('*, city:city_id(name_ar), activity:activity_id(name_ar), rule:rule_id(name, description)')
+    .select('*, city:city_id(name_ar), activity:activity_id(code, name_ar), rule:rule_id(name, description)')
     .order('created_at', { ascending: false })
     .limit(limit);
 
