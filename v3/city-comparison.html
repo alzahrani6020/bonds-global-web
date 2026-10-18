@@ -455,7 +455,6 @@
         const activitySelect = document.getElementById('activitySelect');
         activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
           activities
-            .filter(activity => activity.recordStatus === 'complete')
             .map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`)
             .join('');
 
