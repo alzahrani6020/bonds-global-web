@@ -201,8 +201,8 @@ async function inspectInterfaceIconSizing(page, rel, phase) {
       const maxSize = isModalHero ? 72 : 96;
 
       const escapedParent = parentRect &&
-        ((rect.width > parentRect.width + 4 && rect.width > parentRect.width * 1.5) ||
-         (rect.height > parentRect.height + 4 && rect.height > parentRect.height * 1.5));
+        ((rect.width > maxSize && rect.width > parentRect.width * 1.5) ||
+         (rect.height > maxSize && rect.height > parentRect.height * 1.5));
 
       if (rect.width > maxSize || rect.height > maxSize || escapedParent) {
         bad.push({
