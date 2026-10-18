@@ -13,7 +13,7 @@ if (-not (Test-Path -LiteralPath $env:BONDS_TOKEN_ADMIN_SECRET_FILE)) {
 }
 
 if ([string]::IsNullOrWhiteSpace($env:BONDS_TOKEN_BUILD_COMMIT)) {
-    Write-Warning "BONDS_TOKEN_BUILD_COMMIT is not set; /health will report build_commit=unknown."
+    throw "BONDS_TOKEN_BUILD_COMMIT is required."
 }
 
 Set-Location $PSScriptRoot
