@@ -366,7 +366,7 @@ body[dir="ltr"] .dropdown-menu {
   background: #f4f6f8 !important;
 }
 
-@media (min-width: 901px) and (max-width: 1180px) {
+@media (min-width: 1281px) and (max-width: 1320px) {
   .dropdown-menu--grouped {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: min(680px, calc(100vw - 2rem));
@@ -567,7 +567,7 @@ body[dir="ltr"] .dropdown-menu {
   transition: transform var(--transition), opacity var(--transition);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1280px) {
   .nav-toggle {
     display: flex;
   }
@@ -944,7 +944,7 @@ html[dir="ltr"] .footer-links a:hover {
   border-color: #9ca7b5 !important;
   background: #f4f6f8 !important;
 }
-@media (max-width: 900px) {
+@media (max-width: 1280px) {
   .main-header__inner { gap: 0.55rem; }
   .header-brand { min-width: 82px; width: 82px; height: 42px; }
   .header-brand__image,
@@ -1053,7 +1053,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
   transform: translate(-50%, 0);
 }
 
-@media (min-width: 901px) and (max-width: 1320px) {
+@media (min-width: 1281px) and (max-width: 1320px) {
   .main-header__inner {
     width: 100%;
     max-width: 100%;
@@ -1111,7 +1111,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
   object-fit: contain !important;
   object-position: center !important;
 }
-@media (max-width: 900px) {
+@media (max-width: 1280px) {
   .main-header .header-brand__image,
   .main-header .header-brand img {
     width: 72px !important;
@@ -1125,7 +1125,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
  * Desktop menus are inert unless JS adds .is-open.
  * Hidden fixed mega menus cannot capture hover/pointer events.
  */
-@media (min-width: 901px) {
+@media (min-width: 1281px) {
   .main-header .dropdown > .dropdown-menu {
     opacity: 0 !important;
     visibility: hidden !important;
@@ -1480,7 +1480,7 @@ body[dir="ltr"] .dropdown-menu {
   background: #f4f6f8 !important;
 }
 
-@media (min-width: 901px) and (max-width: 1180px) {
+@media (min-width: 1281px) and (max-width: 1320px) {
   .dropdown-menu--grouped {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     width: min(680px, calc(100vw - 2rem));
@@ -1681,7 +1681,7 @@ body[dir="ltr"] .dropdown-menu {
   transition: transform var(--transition), opacity var(--transition);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1280px) {
   .nav-toggle {
     display: flex;
   }
@@ -2058,7 +2058,7 @@ html[dir="ltr"] .footer-links a:hover {
   border-color: #9ca7b5 !important;
   background: #f4f6f8 !important;
 }
-@media (max-width: 900px) {
+@media (max-width: 1280px) {
   .main-header__inner { gap: 0.55rem; }
   .header-brand { min-width: 82px; width: 82px; height: 42px; }
   .header-brand__image,
@@ -2167,7 +2167,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
   transform: translate(-50%, 0);
 }
 
-@media (min-width: 901px) and (max-width: 1320px) {
+@media (min-width: 1281px) and (max-width: 1320px) {
   .main-header__inner {
     width: 100%;
     max-width: 100%;
@@ -2225,7 +2225,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
   object-fit: contain !important;
   object-position: center !important;
 }
-@media (max-width: 900px) {
+@media (max-width: 1280px) {
   .main-header .header-brand__image,
   .main-header .header-brand img {
     width: 72px !important;
@@ -2240,7 +2240,7 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
  * This prevents fixed mega menus from opening/remaining open because the pointer
  * crosses their visual footprint in the middle of the page.
  */
-@media (min-width: 901px) {
+@media (min-width: 1281px) {
   .main-header .dropdown > .dropdown-menu,
     opacity: 0 !important;
     visibility: hidden !important;
@@ -2266,4 +2266,15 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
   .main-header .dropdown.is-open > .dropdown-menu--grouped {
     transform: translate(-50%, 0) !important;
   }
+}
+
+
+/* ===== Responsive authenticated-header collision guard ===== */
+#authContainer .bonds-user-menu > span:first-of-type {
+  display: inline-block;
+  max-width: 8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
 }
