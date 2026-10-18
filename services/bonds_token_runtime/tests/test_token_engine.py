@@ -1,3 +1,4 @@
+import hashlib
 import sqlite3
 import tempfile
 import unittest
@@ -84,13 +85,16 @@ class BondsTokenEngineContractTests(unittest.TestCase):
 
     def test_legacy_row_without_temporal_identity_is_inactive(self):
         engine = BondsTokenEngine(self.db)
+        legacy_token = "bonds_legacy"
+        digest = hashlib.sha256(legacy_token.encode()).hexdigest()
+
         with sqlite3.connect(self.db) as db:
             db.execute(
                 "INSERT INTO tokens "
                 "(token_hash,token_type,subject,audience,scopes,expires_at,revoked,issued_at,token_id) "
                 "VALUES (?,?,?,?,?,?,0,NULL,NULL)",
                 (
-                    "not-a-real-token-hash",
+                    digest,
                     "service",
                     "service:legacy",
                     "research-intelligence",
@@ -100,8 +104,7 @@ class BondsTokenEngineContractTests(unittest.TestCase):
             )
             db.commit()
 
-        # Unknown raw token and pre-migration rows both fail closed.
-        self.assertEqual(engine.introspect("bonds_unknown"), {"active": False})
+        self.assertEqual(engine.introspect(legacy_token), {"active": False})
 
 
 if __name__ == "__main__":
