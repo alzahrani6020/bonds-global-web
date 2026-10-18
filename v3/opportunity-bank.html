@@ -401,9 +401,9 @@
       setReadinessState('loading');
 
       try {
-        const [citiesData, sectorsData] = await Promise.all([
+        const [citiesData, activitiesData] = await Promise.all([
           fetchJson(API_URL + '/cities?limit=2000'),
-          fetchJson(API_URL + '/sectors')
+          fetchJson(API_URL + '/catalog/activities')
         ]);
 
         if (window.destroyUniversalDropdowns) {
@@ -415,12 +415,7 @@
           .filter(c => MODERN_CITY_CODE.test(c.code))
           .map(c => c.country_code || 'SA'))].sort();
 
-        activities = [];
-        (sectorsData.sectors || []).forEach(sector => {
-          (sector.economic_sub_sectors || []).forEach(sub => {
-            (sub.economic_activities || []).forEach(activity => activities.push(activity));
-          });
-        });
+        activities = activitiesData.activities || [];
 
         countrySelect.innerHTML = '<option value="">كل الدول</option>';
         countries.forEach(code => {
@@ -429,7 +424,7 @@
 
         activitySelect.innerHTML = '<option value="">كل الأنشطة</option>';
         activities.forEach(a => {
-          activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar} (${a.code})</option>`;
+          activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
         });
 
         if (countries.length === 0 || activities.length === 0) {
