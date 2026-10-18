@@ -292,3 +292,158 @@ COMMENT ON TABLE public.canonical_activity_legacy_aliases IS
   'Backward-compatible resolver from every legacy economic_activities code to one canonical activity.';
 COMMENT ON TABLE public.canonical_activity_sub_sector_map IS
   'Many-to-many applicability between canonical activities and economic sub-sectors.';
+
+-- Keep the canonical layer synchronized for future imports/admin writes. This
+-- makes the fix durable: new legacy rows resolve into an existing canonical
+-- identity instead of creating another user-facing activity.
+CREATE OR REPLACE FUNCTION public.sync_canonical_activity_from_legacy()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $
+DECLARE
+  normalized_ar TEXT;
+  normalized_en TEXT;
+  base_code TEXT;
+  candidate_code TEXT;
+  canonical_id UUID;
+BEGIN
+  normalized_ar := regexp_replace(btrim(COALESCE(NEW.name_ar, '')), '^نشاط[[:space:]]+', '', 'i');
+  normalized_en := regexp_replace(btrim(COALESCE(NEW.name_en, '')), '[[:space:]]+Activity
+, '', 'i');
+
+  IF normalized_ar = '' THEN
+    RETURN NEW;
+  END IF;
+
+  SELECT id
+    INTO canonical_id
+  FROM public.canonical_activities
+  WHERE normalized_name_ar = normalized_ar
+  LIMIT 1;
+
+  IF canonical_id IS NULL THEN
+    base_code := trim(BOTH '_' FROM regexp_replace(
+      lower(normalized_en),
+      '[^a-z0-9]+',
+      '_',
+      'g'
+    ));
+
+    IF base_code = '' THEN
+      base_code := 'activity_' || substr(md5(normalized_ar), 1, 12);
+    END IF;
+
+    candidate_code := base_code;
+
+    IF EXISTS (
+      SELECT 1
+      FROM public.canonical_activities
+      WHERE code = candidate_code
+        AND normalized_name_ar <> normalized_ar
+    ) THEN
+      candidate_code := base_code || '_' || substr(md5(normalized_ar), 1, 8);
+    END IF;
+
+    INSERT INTO public.canonical_activities (
+      code,
+      normalized_name_ar,
+      name_ar,
+      name_en,
+      description,
+      is_active,
+      sort_order
+    )
+    VALUES (
+      candidate_code,
+      normalized_ar,
+      normalized_ar,
+      NULLIF(normalized_en, ''),
+      NEW.description,
+      NEW.is_active,
+      NEW.sort_order
+    )
+    ON CONFLICT (normalized_name_ar) DO UPDATE
+    SET
+      name_en = COALESCE(EXCLUDED.name_en, public.canonical_activities.name_en),
+      description = COALESCE(EXCLUDED.description, public.canonical_activities.description),
+      is_active = EXCLUDED.is_active,
+      sort_order = LEAST(public.canonical_activities.sort_order, EXCLUDED.sort_order),
+      updated_at = NOW()
+    RETURNING id INTO canonical_id;
+  ELSE
+    UPDATE public.canonical_activities
+    SET
+      is_active = (
+        SELECT bool_or(a.is_active)
+        FROM public.economic_activities a
+        WHERE regexp_replace(btrim(a.name_ar), '^نشاط[[:space:]]+', '', 'i') = normalized_ar
+      ),
+      updated_at = NOW()
+    WHERE id = canonical_id;
+  END IF;
+
+  INSERT INTO public.canonical_activity_legacy_aliases (
+    canonical_activity_id,
+    legacy_activity_id,
+    legacy_code,
+    legacy_name_ar,
+    legacy_name_en
+  )
+  VALUES (
+    canonical_id,
+    NEW.id,
+    NEW.code,
+    NEW.name_ar,
+    NEW.name_en
+  )
+  ON CONFLICT (legacy_activity_id) DO UPDATE
+  SET
+    canonical_activity_id = EXCLUDED.canonical_activity_id,
+    legacy_code = EXCLUDED.legacy_code,
+    legacy_name_ar = EXCLUDED.legacy_name_ar,
+    legacy_name_en = EXCLUDED.legacy_name_en;
+
+  IF NEW.sub_sector_id IS NOT NULL THEN
+    INSERT INTO public.canonical_activity_sub_sector_map (
+      canonical_activity_id,
+      sub_sector_id,
+      source_legacy_activity_id,
+      mapping_source,
+      is_primary,
+      is_active
+    )
+    VALUES (
+      canonical_id,
+      NEW.sub_sector_id,
+      NEW.id,
+      'legacy_backfill',
+      false,
+      NEW.is_active
+    )
+    ON CONFLICT (canonical_activity_id, sub_sector_id) DO UPDATE
+    SET
+      is_active = EXCLUDED.is_active,
+      source_legacy_activity_id = COALESCE(
+        public.canonical_activity_sub_sector_map.source_legacy_activity_id,
+        EXCLUDED.source_legacy_activity_id
+      );
+  END IF;
+
+  RETURN NEW;
+END;
+$;
+
+DROP TRIGGER IF EXISTS trg_sync_canonical_activity_from_legacy
+  ON public.economic_activities;
+
+CREATE TRIGGER trg_sync_canonical_activity_from_legacy
+AFTER INSERT OR UPDATE OF code, name_ar, name_en, description, sub_sector_id, is_active, sort_order
+ON public.economic_activities
+FOR EACH ROW
+EXECUTE FUNCTION public.sync_canonical_activity_from_legacy();
+
+COMMENT ON FUNCTION public.sync_canonical_activity_from_legacy() IS
+  'Synchronizes future economic_activities writes into the canonical activity registry without changing legacy foreign keys.';
+
