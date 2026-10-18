@@ -1,0 +1,28 @@
+{
+  "issuer": "bonds-token-service",
+  "serviceTokenTtlSeconds": 3600,
+  "requiredClaims": [
+    "iss",
+    "aud",
+    "sub",
+    "iat",
+    "exp",
+    "jti"
+  ],
+  "introspectionClaims": [
+    "iss",
+    "aud",
+    "sub",
+    "iat",
+    "exp",
+    "jti",
+    "scope",
+    "active",
+    "revoked"
+  ],
+  "invariants": {
+    "serviceTokenLifetimeSeconds": 3600,
+    "legacyTokensWithoutIatOrJtiAreActive": false,
+    "revokedTokensAreActive": false
+  }
+}
