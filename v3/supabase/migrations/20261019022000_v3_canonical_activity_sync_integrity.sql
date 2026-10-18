@@ -12,12 +12,20 @@ DECLARE
   base_code TEXT;
   candidate_code TEXT;
   canonical_id UUID;
+  old_canonical_id UUID;
 BEGIN
   normalized_ar := regexp_replace(btrim(COALESCE(NEW.name_ar, '')), '^نشاط[[:space:]]+', '', 'i');
   normalized_en := regexp_replace(btrim(COALESCE(NEW.name_en, '')), '[[:space:]]+Activity$', '', 'i');
 
   IF normalized_ar = '' THEN
     RETURN NEW;
+  END IF;
+
+  IF TG_OP = 'UPDATE' THEN
+    SELECT canonical_activity_id INTO old_canonical_id
+    FROM public.canonical_activity_legacy_aliases
+    WHERE legacy_activity_id = NEW.id
+    LIMIT 1;
   END IF;
 
   SELECT id INTO canonical_id
@@ -83,11 +91,7 @@ BEGIN
       ),
       updated_at = NOW()
   WHERE ca.id = canonical_id
-     OR (TG_OP = 'UPDATE' AND ca.id IN (
-          SELECT canonical_activity_id
-          FROM public.canonical_activity_legacy_aliases
-          WHERE legacy_activity_id = NEW.id
-        ));
+     OR ca.id = old_canonical_id;
 
   RETURN NEW;
 END;
