@@ -33,6 +33,25 @@
     .bec-ai-result ul { padding-right: 1.25rem; }
     .bec-ai-result li { margin-bottom: 0.35rem; }
     .bec-loading { color: var(--text-secondary, #94a3b8); font-style: italic; }
+    .calc-section-title > svg,
+    .bec-smart-alert__icon > svg,
+    .bec-share-bar button > svg,
+    .bec-share-bar .btn > svg {
+      display: inline-block !important;
+      width: 1em !important;
+      height: 1em !important;
+      max-width: 1em !important;
+      max-height: 1em !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      position: static !important;
+      inset: auto !important;
+      transform: none !important;
+      flex: 0 0 1em !important;
+      object-fit: contain !important;
+      overflow: hidden !important;
+      vertical-align: -0.15em;
+    }
   `;
 
   function addStyles() {
