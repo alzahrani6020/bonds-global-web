@@ -129,7 +129,7 @@
         label: labelFor(el, index),
         value: controlValue(el),
         type: el.type || el.tagName.toLowerCase()
-      })).filter(field => field.value !== '' && field.value !== false);
+      }));
 
       const tables = Array.from(page.querySelectorAll('table')).map(tableModel);
       return {
