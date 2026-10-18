@@ -277,13 +277,28 @@
     const previousTitle = document.title;
     const filename = sanitizeFilename(model.projectName, 'bonds-feasibility-study');
     const root = document.documentElement;
+    const textareaState = Array.from(document.querySelectorAll('textarea')).map(textarea => ({
+      textarea,
+      height: textarea.style.height,
+      overflow: textarea.style.overflow
+    }));
 
     root.classList.add('bonds-professional-print');
     document.title = filename;
 
+    textareaState.forEach(({ textarea }) => {
+      const expandedHeight = Math.max(textarea.scrollHeight || 0, textarea.offsetHeight || 0);
+      if (expandedHeight > 0) textarea.style.height = expandedHeight + 'px';
+      textarea.style.overflow = 'visible';
+    });
+
     const cleanup = () => {
       root.classList.remove('bonds-professional-print');
       document.title = previousTitle;
+      textareaState.forEach(({ textarea, height, overflow }) => {
+        textarea.style.height = height;
+        textarea.style.overflow = overflow;
+      });
     };
 
     try {
