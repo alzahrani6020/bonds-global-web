@@ -8,7 +8,7 @@
 
   const EMOJI_RE = /(?:[\u{1F1E6}-\u{1F1FF}]{2}|[#*0-9][\uFE0E\uFE0F]?\u20E3|(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0E\uFE0F]?[\u{1F3FB}-\u{1F3FF}]?(?:\u200D(?:\p{Extended_Pictographic}|\p{Emoji_Presentation})[\uFE0E\uFE0F]?[\u{1F3FB}-\u{1F3FF}]?)*)/gu;
 
-  const INLINE_SVG_STYLE = 'display:block;width:1em;height:1em;max-width:1em;max-height:1em;min-width:0;min-height:0;position:static;inset:auto;transform:none;flex:0 0 1em;';
+  const INLINE_SVG_STYLE = 'display:block;width:1em;height:1em;max-width:1em;max-height:1em;min-width:0;min-height:0;position:static;inset:auto;transform:none;flex:0 0 1em;overflow:hidden;';
 
   function findEmojiSequences(text) {
     EMOJI_RE.lastIndex = 0;
@@ -17,6 +17,53 @@
 
   function getInlineSvgStyle() {
     return INLINE_SVG_STYLE;
+  }
+
+  function setImportant(el, property, value) {
+    if (!el || !el.style) return;
+    el.style.setProperty(property, value, 'important');
+  }
+
+  function hardenEmojiSpan(span) {
+    if (!span || !span.querySelector) return;
+    setImportant(span, 'display', 'inline-flex');
+    setImportant(span, 'width', '1em');
+    setImportant(span, 'height', '1em');
+    setImportant(span, 'max-width', '1em');
+    setImportant(span, 'max-height', '1em');
+    setImportant(span, 'min-width', '0');
+    setImportant(span, 'min-height', '0');
+    setImportant(span, 'overflow', 'hidden');
+    setImportant(span, 'vertical-align', '-0.15em');
+    setImportant(span, 'flex', '0 0 1em');
+    setImportant(span, 'position', 'relative');
+
+    const svg = span.querySelector('svg');
+    if (!svg) return;
+    setImportant(svg, 'display', 'block');
+    setImportant(svg, 'width', '1em');
+    setImportant(svg, 'height', '1em');
+    setImportant(svg, 'max-width', '1em');
+    setImportant(svg, 'max-height', '1em');
+    setImportant(svg, 'min-width', '0');
+    setImportant(svg, 'min-height', '0');
+    setImportant(svg, 'position', 'static');
+    setImportant(svg, 'inset', 'auto');
+    setImportant(svg, 'transform', 'none');
+    setImportant(svg, 'flex', '0 0 1em');
+    setImportant(svg, 'overflow', 'hidden');
+    svg.setAttribute('width', '1em');
+    svg.setAttribute('height', '1em');
+  }
+
+  function hardenExistingEmoji(root) {
+    if (!root) return;
+    if (root.nodeType === 1 && root.classList && root.classList.contains('emoji-icon')) {
+      hardenEmojiSpan(root);
+    }
+    if (root.querySelectorAll) {
+      root.querySelectorAll('.emoji-icon').forEach(hardenEmojiSpan);
+    }
   }
 
   if (typeof module !== 'undefined' && module.exports) {
@@ -44,14 +91,8 @@
       const span = document.createElement('span');
       span.className = 'emoji-icon';
       span.setAttribute('aria-hidden', 'true');
-      span.style.cssText = 'display:inline-flex;width:1em;height:1em;max-width:1em;max-height:1em;overflow:hidden;vertical-align:-0.15em;flex:0 0 1em;position:relative;';
       span.innerHTML = svg;
-      const svgEl = span.querySelector('svg');
-      if (svgEl) {
-        svgEl.style.cssText = getInlineSvgStyle();
-        svgEl.setAttribute('width', '1em');
-        svgEl.setAttribute('height', '1em');
-      }
+      hardenEmojiSpan(span);
       frag.appendChild(span);
       last = offset + emoji.length;
     });
@@ -76,6 +117,7 @@
 
   function processRoot(root) {
     if (root.nodeType === Node.ELEMENT_NODE && shouldSkip(root)) return;
+    hardenExistingEmoji(root);
     walk(root);
   }
 

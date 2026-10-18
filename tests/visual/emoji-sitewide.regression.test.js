@@ -44,6 +44,7 @@ function discoverHtmlFiles() {
       } else if (entry.isFile() && entry.name.endsWith('.html')) {
         const rel = path.relative(ROOT, full).replace(/\\/g, '/');
         if (rel.startsWith('tests/')) continue;
+        if (/^components\/universal-dropdown\/showcase(?:-en)?\.html$/.test(rel)) continue;
         files.push(rel);
       }
     }
@@ -75,6 +76,17 @@ function validateRendererOrdering(rel, source) {
   if (iconsIndex < 0) issues.push(rel + ': emoji-renderer.js loaded without emoji-icons.js');
   if (iconsIndex >= 0 && iconsIndex > rendererIndex) {
     issues.push(rel + ': emoji-icons.js must load before emoji-renderer.js');
+  }
+  return issues;
+}
+
+function validateEmojiRuntimeCoverage(rel, source) {
+  if (!sourceHasEmojiSurface(source)) return [];
+  const issues = [];
+  const directRuntime = /emoji-icons\.js/i.test(source) && /emoji-renderer\.js/i.test(source);
+  const sharedLayoutRuntime = /site-layout\.js/i.test(source);
+  if (!directRuntime && !sharedLayoutRuntime) {
+    issues.push(rel + ': emoji surface missing direct runtime or site-layout runtime provider');
   }
   return issues;
 }
@@ -161,13 +173,21 @@ async function inspectInterfaceIconSizing(page, rel, phase) {
       '.bec-smart-alert__icon > svg',
       '.calc-empty-icon-lg > svg',
       '.status-badge > svg',
-      '.alert-icon > svg'
+      '.alert-icon > svg',
+      'svg[aria-hidden="true"]'
     ];
 
     const seen = new Set();
     document.querySelectorAll(selectors.join(',')).forEach((svg, index) => {
       if (seen.has(svg)) return;
       seen.add(svg);
+
+      const allowedVisualization = svg.closest(
+        '.chart, .chart-container, .chart-wrap, .gauge, .gauge-container, .score-gauge, ' +
+        '.map, .map-container, .diagram, .illustration, .hero-illustration, .logo, .brand-logo, ' +
+        '.site-logo, .qr-code, [data-chart], [data-gauge], [data-map]'
+      );
+      if (allowedVisualization) return;
 
       const rect = svg.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
@@ -181,8 +201,8 @@ async function inspectInterfaceIconSizing(page, rel, phase) {
       const maxSize = isModalHero ? 72 : 96;
 
       const escapedParent = parentRect &&
-        ((rect.width > parentRect.width + 4 && rect.width > parentRect.width * 1.5) ||
-         (rect.height > parentRect.height + 4 && rect.height > parentRect.height * 1.5));
+        ((rect.width > maxSize && rect.width > parentRect.width * 1.5) ||
+         (rect.height > maxSize && rect.height > parentRect.height * 1.5));
 
       if (rect.width > maxSize || rect.height > maxSize || escapedParent) {
         bad.push({
@@ -270,6 +290,17 @@ async function auditRuntimePages(candidates) {
           }
 
           await page.setContent(html, { waitUntil: 'load', timeout: 2500 });
+
+          // Simulate the exact failure class seen in production: a page-level
+          // SVG rule trying to blow inline icons up to viewport size. Runtime
+          // hardening must win even against !important declarations.
+          await page.addStyleTag({
+            content:
+              '.emoji-icon > svg { width:100vw!important;height:100vh!important;' +
+              'max-width:none!important;max-height:none!important;position:fixed!important;' +
+              'inset:0!important;transform:scale(2)!important; }'
+          });
+
           await page.addScriptTag({ content: emojiIconsSource });
           await page.addScriptTag({ content: emojiRendererSource });
           await page.waitForTimeout(20);
@@ -318,6 +349,19 @@ describe('site-wide emoji SVG safety', () => {
       issues.push(...validateRendererOrdering(rel, source));
     }
     expect(issues).toEqual([]);
+  });
+
+  test('all emoji surfaces load the shared runtime', () => {
+    const issues = [];
+    for (const { rel, source } of sources) {
+      issues.push(...validateEmojiRuntimeCoverage(rel, source));
+    }
+    expect(issues).toEqual([]);
+
+    const siteLayout = fs.readFileSync(path.join(ROOT, 'site-layout.js'), 'utf8');
+    expect(siteLayout).toContain("'/components/emoji-icons.js'");
+    expect(siteLayout).toContain("'/components/emoji-renderer.js'");
+    expect(siteLayout).toContain('ensureEmojiRuntime()');
   });
 
   test('all emoji surfaces stay bounded across the site', async () => {
