@@ -1,19 +1,46 @@
 :root { --gold:#b8954e; --gold-bright:#d4b87a; --bg:#f5f0e8; --bg-card:rgba(255,255,255,0.85); --text:#1a1a1a; --text-secondary:#555555; --border:rgba(0,0,0,0.08); }
     body { background:var(--bg); color:var(--text); font-family:'Vazirmatn',sans-serif; line-height:1.7; }
     @media print {
-      body { background:#fff !important; color:#000 !important; }
-      .no-print,.navbar,.template-toolbar,.footer { display:none !important; }
-      .template-page { page-break-after:always; background:#fff !important; color:#000 !important; box-shadow:none !important; border:none !important; margin:0 !important; padding:2cm !important; max-width:100% !important; }
-      .template-page:last-child { page-break-after:auto; }
+      @page { size:A4; margin:10mm; }
+      html,body { background:#fff !important; color:#000 !important; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .navbar,.template-toolbar,.footer,.table-actions,.gallery-upload-btn,.gallery-compress-info,.remove-img,#becExportHost,.bec-share-bar { display:none !important; }
+      .template-wrapper { max-width:none !important; margin:0 !important; padding:0 !important; }
+      .template-page {
+        page-break-after:always;
+        break-after:page;
+        page-break-inside:auto;
+        break-inside:auto;
+        background:#fff !important;
+        color:#000 !important;
+        box-shadow:none !important;
+        border:none !important;
+        border-radius:0 !important;
+        margin:0 !important;
+        padding:8mm 10mm !important;
+        max-width:none !important;
+        width:auto !important;
+        min-height:0 !important;
+      }
+      .template-page:last-child { page-break-after:auto; break-after:auto; }
+      .template-header-print { display:flex !important; align-items:center !important; }
+      .template-header-print img { height:18mm !important; width:auto !important; max-width:55mm !important; object-fit:contain !important; }
+      .disclaimer.no-print { display:block !important; color:#444 !important; background:#fff !important; border-top:1px solid #bbb !important; margin:8mm 10mm 0 !important; padding:5mm 0 !important; }
       input,textarea,select { border:none !important; border-bottom:1px dotted #666 !important; background:transparent !important; color:#000 !important; }
-      .template-table th,.template-table td { border:1px solid #333 !important; color:#000 !important; }
+      textarea { overflow:visible !important; resize:none !important; }
+      .template-table { width:100% !important; table-layout:auto !important; font-size:8.5pt !important; }
+      .template-table thead { display:table-header-group; }
+      .template-table tr { break-inside:avoid; page-break-inside:avoid; }
+      .template-table th,.template-table td { border:1px solid #333 !important; color:#000 !important; padding:2.2mm 1.8mm !important; }
       .template-table th { background:#f0f0f0 !important; }
+      canvas,img,svg { max-width:100% !important; }
+      canvas { height:auto !important; }
       h2 { color:#000 !important; border-color:#333 !important; }
       .section-number { background:#333 !important; color:#fff !important; }
       .scenario-pessimistic,.scenario-expected,.scenario-optimistic { background:#fff !important; }
-      .swot-box { border:1px solid #333 !important; }
+      .swot-box { border:1px solid #333 !important; break-inside:avoid; }
+      .signature-grid,.dash-kpi-grid,.dash-main-grid,.dash-charts-row,.dash-bottom-grid { break-inside:avoid; }
+      .no-print:not(.disclaimer) { display:none !important; }
     }
-    @page { size:A4; margin:1.5cm; }
 
     .template-toolbar { position:sticky; top:0; z-index:100; background:var(--bg-card); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
     .template-toolbar button { background:var(--gold); color:#f5f0e8; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; }

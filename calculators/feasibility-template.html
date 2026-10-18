@@ -1484,9 +1484,8 @@
   <script src="shared-platforms-loader.js"></script>
   <script src="feasibility-benchmarks.js"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  <script src="feasibility-export.js?v=2"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
 
     // ===== Smart Analysis =====
@@ -2669,288 +2668,10 @@
     });
 
     // ===== Professional PDF Export =====
-    async function generateProfessionalPDF() {
-      if (typeof jspdf === 'undefined' || typeof html2canvas === 'undefined') {
-        alert('جاري تحميل مكتبات PDF... يرجى الانتظار');
-        setTimeout(generateProfessionalPDF, 2000);
-        return;
-      }
-      const { jsPDF } = jspdf;
-      const doc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-      const projectName = document.getElementById('cover-business-name')?.value || 'مشروع غير مسماًّى';
-      const today = new Date().toLocaleDateString('ar-SA');
-      const score = parseInt(document.getElementById('funding-score')?.textContent) || 0;
-
-      // Helper: add Arabic text (RTL support workaround)
-      function addText(text, x, y, options) {
-        doc.setFont('helvetica');
-        doc.text(text, x, y, options || {});
-      }
-
-      // ===== PAGE 1: COVER =====
-      doc.setFillColor(10, 15, 26);
-      doc.rect(0, 0, 210, 297, 'F');
-      // Logo placeholder
-      doc.setTextColor(212, 168, 83);
-      doc.setFontSize(28);
-      addText('BONDS', 105, 80, { align: 'center' });
-      doc.setFontSize(12);
-      addText('Global', 105, 88, { align: 'center' });
-      // Title
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(22);
-      addText('دراسة جدوى عقارية', 105, 120, { align: 'center' });
-      doc.setFontSize(14);
-      addText('Professional Feasibility Study', 105, 130, { align: 'center' });
-      // Project name
-      doc.setTextColor(212, 168, 83);
-      doc.setFontSize(16);
-      addText(projectName, 105, 160, { align: 'center' });
-      // Date
-      doc.setTextColor(200, 200, 200);
-      doc.setFontSize(11);
-      addText('تاريخ الإعداد: ' + today, 105, 180, { align: 'center' });
-      // Stamp
-      if (score >= 70) {
-        doc.setDrawColor(22, 163, 74);
-        doc.setTextColor(22, 163, 74);
-        doc.setLineWidth(1.5);
-        doc.roundedRect(65, 200, 80, 25, 5, 5, 'D');
-        addText('✓ صالح للعرض على الجهات التمويلية', 105, 215, { align: 'center' });
-      }
-      // Footer
-      doc.setTextColor(150, 150, 150);
-      doc.setFontSize(9);
-      addText('هذا التقرير مُعد بواسطة نموذج بوندز — bonds-global.com', 105, 280, { align: 'center' });
-
-      // ===== PAGE 2: TABLE OF CONTENTS =====
-      doc.addPage();
-      doc.setFillColor(250, 250, 250);
-      doc.rect(0, 0, 210, 297, 'F');
-      doc.setTextColor(10, 15, 26);
-      doc.setFontSize(18);
-      addText('فهرس المحتويات', 190, 20, { align: 'right' });
-      doc.setDrawColor(212, 168, 83);
-      doc.setLineWidth(0.5);
-      doc.line(20, 25, 190, 25);
-      const toc = [
-        ['1', 'ملخص تنفيذي'],
-        ['2', 'وصف المشروع والموقع'],
-        ['3', 'التقييم الهندسي والإنشائي'],
-        ['4', 'جدول الكميات والتكاليف'],
-        ['5', 'حاسبة توزيع الأرباح'],
-        ['6', 'معايير التقييم العقاري'],
-        ['7', 'التحليل المالي والسيناريوهات'],
-        ['8', 'مؤشر الجاهزية للتمويل'],
-        ['9', 'التوصية النهائية']
-      ];
-      let y = 40;
-      toc.forEach(([num, title]) => {
-        doc.setTextColor(100, 100, 100);
-        doc.setFontSize(11);
-        addText(num, 20, y);
-        doc.setTextColor(10, 15, 26);
-        addText(title, 190, y, { align: 'right' });
-        doc.setDrawColor(220, 220, 220);
-        doc.line(20, y + 2, 190, y + 2);
-        y += 12;
-      });
-
-      // ===== PAGE 3: EXECUTIVE SUMMARY =====
-      doc.addPage();
-      doc.setFillColor(250, 250, 250);
-      doc.rect(0, 0, 210, 297, 'F');
-      doc.setTextColor(10, 15, 26);
-      doc.setFontSize(16);
-      addText('1. ملخص تنفيذي', 190, 20, { align: 'right' });
-      doc.line(20, 25, 190, 25);
-      doc.setFontSize(11);
-      doc.setTextColor(60, 60, 60);
-      const summaryLines = [
-        'اسم المشروع: ' + projectName,
-        'الموقع: ' + (document.getElementById('ba-location')?.value || 'غير محدد'),
-        'نسبة الإنجاز الحالية: ' + (document.getElementById('ba-completion-now')?.value || '0') + '%',
-        'القيمة السوقية الراهنة: ' + (document.getElementById('ba-current-value')?.value || '0') + ' ريال',
-        'التكلفة التقديرية للإكمال: ' + (document.getElementById('boq-grand-total')?.textContent || '0') + ' ريال',
-        'القيمة البيعية المتوقعة: ' + (document.getElementById('ba-future-value')?.value || '0') + ' ريال',
-        '',
-        'حصة المالك: ' + (document.getElementById('ba-owner-share')?.textContent || '0%'),
-        'حصة الشركة: ' + (document.getElementById('ba-company-share')?.textContent || '0%'),
-        'صافي الربح المتوقع: ' + (document.getElementById('ba-net-profit')?.textContent || '0') + ' ريال',
-        '',
-        'درجة الجاهزية للتمويل: ' + score + '/100'
-      ];
-      y = 40;
-      summaryLines.forEach(line => {
-        addText(line, 190, y, { align: 'right' });
-        y += 7;
-      });
-
-      // ===== PAGE 4: FINANCIAL SCENARIOS =====
-      doc.addPage();
-      doc.setFillColor(250, 250, 250);
-      doc.rect(0, 0, 210, 297, 'F');
-      doc.setTextColor(10, 15, 26);
-      doc.setFontSize(16);
-      addText('2. السيناريوهات المالية', 190, 20, { align: 'right' });
-      doc.line(20, 25, 190, 25);
-      // Table header
-      doc.setFillColor(212, 168, 83);
-      doc.rect(20, 35, 170, 10, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(10);
-      addText('المعيار', 180, 41, { align: 'right' });
-      addText('متشائم', 130, 41, { align: 'center' });
-      addText('متوقع', 90, 41, { align: 'center' });
-      addText('متفائل', 50, 41, { align: 'center' });
-      // Table rows
-      const scenarios = [
-        ['فترة البيع (شهر)', document.getElementById('sale-pess-months')?.value || '-', document.getElementById('sale-exp-months')?.value || '-', document.getElementById('sale-opt-months')?.value || '-'],
-        ['القيمة البيعية (ريال)', document.getElementById('sale-pess-value')?.value || '-', document.getElementById('sale-exp-value')?.value || '-', document.getElementById('sale-opt-value')?.value || '-'],
-        ['صافي الربح (ريال)', document.getElementById('sale-pess-profit')?.value || '-', document.getElementById('sale-exp-profit')?.value || '-', document.getElementById('sale-opt-profit')?.value || '-']
-      ];
-      y = 50;
-      scenarios.forEach(([label, pess, exp, opt]) => {
-        doc.setTextColor(60, 60, 60);
-        addText(label, 180, y, { align: 'right' });
-        addText(pess, 130, y, { align: 'center' });
-        addText(exp, 90, y, { align: 'center' });
-        addText(opt, 50, y, { align: 'center' });
-        doc.setDrawColor(220, 220, 220);
-        doc.line(20, y + 2, 190, y + 2);
-        y += 10;
-      });
-
-      // ===== PAGE 5: FUNDING READINESS =====
-      doc.addPage();
-      doc.setFillColor(250, 250, 250);
-      doc.rect(0, 0, 210, 297, 'F');
-      doc.setTextColor(10, 15, 26);
-      doc.setFontSize(16);
-      addText('3. مؤشر الجاهزية للتمويل', 190, 20, { align: 'right' });
-      doc.line(20, 25, 190, 25);
-      // Score circle
-      doc.setDrawColor(212, 168, 83);
-      doc.setLineWidth(2);
-      doc.circle(105, 70, 25);
-      doc.setTextColor(212, 168, 83);
-      doc.setFontSize(24);
-      addText(score + '', 105, 75, { align: 'center' });
-      doc.setFontSize(10);
-      addText('من 100', 105, 82, { align: 'center' });
-      // Status
-      doc.setFontSize(14);
-      if (score >= 70) {
-        doc.setTextColor(22, 163, 74);
-        addText('✓ جاهز للتمويل', 105, 110, { align: 'center' });
-      } else if (score >= 40) {
-        doc.setTextColor(212, 168, 83);
-        addText('⚠ يحتاج تحسين', 105, 110, { align: 'center' });
-      } else {
-        doc.setTextColor(220, 38, 38);
-        addText('❌ غير جاهز', 105, 110, { align: 'center' });
-      }
-      // Criteria table
-      y = 130;
-      doc.setFillColor(212, 168, 83);
-      doc.rect(20, y, 170, 8, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(9);
-      addText('المعيار', 180, y + 5, { align: 'right' });
-      addText('الوزن', 100, y + 5, { align: 'center' });
-      addText('الحالة', 40, y + 5, { align: 'center' });
-      y += 12;
-      const fsCriteria = [
-        ['صك الملكية', 15, 'fs-deed'],
-        ['رخصة البناء', 15, 'fs-license'],
-        ['التقرير الهندسي', 15, 'fs-engineer'],
-        ['التأمين', 10, 'fs-insurance'],
-        ['التحليل المالي', 15, 'fs-financial'],
-        ['تحليل المخاطر', 15, 'fs-risk'],
-        ['توصية المقيّم', 15, 'fs-appraisal']
-      ];
-      fsCriteria.forEach(([label, weight, id]) => {
-        const checked = document.getElementById(id)?.checked;
-        doc.setTextColor(60, 60, 60);
-        addText(label, 180, y, { align: 'right' });
-        addText(weight + '', 100, y, { align: 'center' });
-        doc.setTextColor(checked ? 22 : 220, checked ? 163 : 38, checked ? 74 : 38);
-        addText(checked ? '✓' : '✗', 40, y, { align: 'center' });
-        doc.setDrawColor(220, 220, 220);
-        doc.line(20, y + 2, 190, y + 2);
-        y += 10;
-      });
-
-      // ===== PAGE 6: DISCLAIMER & SIGNATURE =====
-      doc.addPage();
-      doc.setFillColor(250, 250, 250);
-      doc.rect(0, 0, 210, 297, 'F');
-      doc.setTextColor(100, 100, 100);
-      doc.setFontSize(10);
-      addText('إخلاء مسؤولية:', 190, 30, { align: 'right' });
-      doc.setFontSize(9);
-      const disclaimer = 'هذا التقرير مُعد بواسطة نموذج بوندز كأداة مساعدة فقط. البيانات المُدخلة هي مسؤولية المستخدم. لا يُعتبر هذا التقرير استشارة مالية أو قانونية أو هندسية. يُنصح بمراجعة جهات متخصصة قبل اتخاذ قرارات استثمارية.';
-      const splitDisclaimer = doc.splitTextToSize(disclaimer, 170);
-      addText(splitDisclaimer, 190, 40, { align: 'right' });
-      // Signature boxes
-      doc.setDrawColor(150, 150, 150);
-      doc.setLineWidth(0.5);
-      doc.rect(20, 180, 80, 40);
-      doc.rect(110, 180, 80, 40);
-      doc.setTextColor(60, 60, 60);
-      doc.setFontSize(10);
-      addText('توقيع المقيم / المهندس', 60, 230, { align: 'center' });
-      addText('توقيع المستثمر / المالك', 150, 230, { align: 'center' });
-      doc.setFontSize(8);
-      addText('الاسم: _______________', 60, 240, { align: 'center' });
-      addText('التاريخ: _______________', 60, 248, { align: 'center' });
-      addText('الاسم: _______________', 150, 240, { align: 'center' });
-      addText('التاريخ: _______________', 150, 248, { align: 'center' });
-      // Footer
-      doc.setTextColor(150, 150, 150);
-      doc.setFontSize(8);
-      addText('بوندز — bonds-global.com — ' + today, 105, 285, { align: 'center' });
-
-      // Save
-      doc.save('bonds-feasibility-' + projectName.replace(/\s+/g, '-') + '-' + today.replace(/\//g, '-') + '.pdf');
-    }
+    
 
     // ===== Export to Excel =====
-    function exportToExcel() {
-      if (typeof XLSX === 'undefined') { alert('جاري تحميل مكتبة Excel...'); setTimeout(exportToExcel, 1000); return; }
-      const wb = XLSX.utils.book_new();
-      wb.Props = { Title: 'دراسة جدوى - بوندز', Subject: 'Feasibility Study', Author: 'Bonds Global', CreatedDate: new Date() };
-      const ws1 = XLSX.utils.aoa_to_sheet([
-        ['نموذج دراسة الجدوى المتكامل - بوندز'],
-        [],
-        ['المعلومات العامة'],
-        ['اسم المشروع', document.getElementById('cover-business-name')?.value || ''],
-        ['اسم صاحب النشاط', document.getElementById('cover-owner-name')?.value || ''],
-        ['الشكل القانوني', document.getElementById('cover-legal-form')?.value || ''],
-        ['تاريخ الإعداد', document.getElementById('cover-date')?.value || ''],
-        ['فكرة المشروع', document.getElementById('cover-idea')?.value || ''],
-      ]);
-      XLSX.utils.book_append_sheet(wb, ws1, 'عام');
-      const ws2 = XLSX.utils.aoa_to_sheet([
-        ['التحليل المالي'],
-        ['التكاليف الثابتة/شهر', document.getElementById('total-fixed')?.value || 0],
-        ['التكاليف المتغيرة/شهر', document.getElementById('total-var')?.value || 0],
-        ['الإيرادات/شهر', document.getElementById('total-revenue')?.value || 0],
-        ['صافي الربح/شهر', document.getElementById('net-profit')?.value || 0],
-        ['هامش الربح %', document.getElementById('profit-margin')?.value || 0],
-        ['نقطة التعادل (وحدة)', document.getElementById('break-even-units')?.value || 0],
-        ['رأس المال المستثمر', document.getElementById('capital-invested')?.value || 0],
-        ['ROI %', document.getElementById('roi-percent')?.value || 0],
-        ['فترة الاسترداد (شهر)', document.getElementById('payback-period')?.value || 0],
-        [],
-        ['السيناريوهات'],
-        ['المتشائم', document.getElementById('scenario-pessimistic')?.textContent || 0],
-        ['المتوقع', document.getElementById('scenario-expected')?.textContent || 0],
-        ['المتفائل', document.getElementById('scenario-optimistic')?.textContent || 0],
-      ]);
-      XLSX.utils.book_append_sheet(wb, ws2, 'مالي');
-      XLSX.writeFile(wb, 'bonds-feasibility-study.xlsx');
-    }
+    
 
     // ===== Universal Image Gallery with Auto-Compression =====
     const GALLERY_DB = 'bonds_galleries_v1';
@@ -3817,11 +3538,29 @@
       const file = input.files[0];
       if (!file) return;
       const status = document.getElementById('import-status');
+      const api = window.BondsFeasibilityExport;
+      if (!api) {
+        status.textContent = '❌ تعذر تحميل نظام الاستيراد الموحد. حدّث الصفحة وحاول مرة أخرى.';
+        status.style.color = '#f87171';
+        return;
+      }
+
+      const validation = api.validateImportFile(file);
+      if (!validation.ok) {
+        status.textContent = validation.code === 'FILE_TOO_LARGE'
+          ? '❌ حجم الملف يتجاوز الحد الأقصى 10 MB.'
+          : '❌ لم يتم اختيار ملف صالح.';
+        status.style.color = '#f87171';
+        input.value = '';
+        return;
+      }
+
       status.textContent = 'جاري قراءة الملف...';
       status.style.color = 'var(--gold-bright)';
 
       try {
-        if (file.name.toLowerCase().endsWith('.docx')) {
+        const lowerName = file.name.toLowerCase();
+        if (lowerName.endsWith('.docx')) {
           if (!window.mammoth) {
             status.textContent = '⚠️ مكتبة Word لم تحمل بعد. جرب تحديث الصفحة (Ctrl+F5).';
             status.style.color = '#f87171';
@@ -3830,13 +3569,13 @@
           const arrayBuffer = await file.arrayBuffer();
           const result = await mammoth.extractRawText({ arrayBuffer });
           if (!result.value || result.value.trim().length < 50) {
-            status.textContent = '⚠️ الملف لا يحتوي على نص مقروء (قد يكون صور فقط أو محمي). حوله لـ PDF أو انسخ النص يدوياً.';
+            status.textContent = '⚠️ الملف لا يحتوي على نص مقروء (قد يكون صور فقط أو محمي). حوله إلى PDF أو انسخ النص يدوياً.';
             status.style.color = '#f87171';
             return;
           }
           document.getElementById('feasibility-text').value = result.value;
           status.textContent = '✅ تم استخراج النص من ملف Word (' + result.value.length + ' حرف). اضغط "تحليل وملء القالب".';
-        } else if (file.name.toLowerCase().endsWith('.pdf')) {
+        } else if (lowerName.endsWith('.pdf')) {
           if (!window.pdfjsLib) {
             status.textContent = '⚠️ مكتبة PDF لم تحمل بعد. جرب تحديث الصفحة أو استخدم .docx/.txt';
             status.style.color = '#f87171';
@@ -3844,20 +3583,26 @@
           }
           const arrayBuffer = await file.arrayBuffer();
           const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+          const pageValidation = api.validatePdfPageCount(pdf.numPages);
+          if (!pageValidation.ok) {
+            status.textContent = '❌ عدد صفحات PDF يتجاوز الحد الأقصى 100 صفحة.';
+            status.style.color = '#f87171';
+            return;
+          }
           let extractedText = '';
           for (let i = 1; i <= pdf.numPages; i++) {
             const page = await pdf.getPage(i);
-            const content = await page.getTextContent();
-            extractedText += content.items.map(item => item.str).join(' ') + '\n';
+            const pageContent = await page.getTextContent();
+            extractedText += pageContent.items.map(item => item.str).join(' ') + '\n';
           }
           document.getElementById('feasibility-text').value = extractedText;
           status.textContent = '✅ تم استخراج النص من ملف PDF (' + pdf.numPages + ' صفحات). اضغط "تحليل وملء القالب".';
-        } else if (file.name.toLowerCase().endsWith('.txt')) {
+        } else if (lowerName.endsWith('.txt')) {
           const text = await file.text();
           document.getElementById('feasibility-text').value = text;
           status.textContent = '✅ تم قراءة ملف النص. اضغط "تحليل وملء القالب".';
         } else {
-          status.textContent = '⚠️ يدعم فقط ملفات .docx و .pdf و .txt — اذهب لـ https://convertio.co لتحويل الملف.';
+          status.textContent = '⚠️ يدعم فقط ملفات .docx و .pdf و .txt.';
           status.style.color = '#f87171';
         }
       } catch (e) {
@@ -3869,35 +3614,47 @@
     let _retryTimer = null;
 
     async function analyzeFeasibilityText() {
-      const text = document.getElementById('feasibility-text')?.value?.trim();
+      const rawText = document.getElementById('feasibility-text')?.value?.trim();
       const status = document.getElementById('import-status');
       const btn = document.getElementById('analyze-btn');
+      const api = window.BondsFeasibilityExport;
 
-      if (!text || text.length < 100) {
+      if (!api) {
+        status.textContent = '❌ تعذر تحميل نظام التحليل الموحد. حدّث الصفحة وحاول مرة أخرى.';
+        status.style.color = '#f87171';
+        return;
+      }
+      if (!rawText || rawText.length < 100) {
         status.textContent = '❌ النص قصير جداً (الحد الأدنى 100 حرف).';
         status.style.color = '#f87171';
         return;
       }
 
-      if (_retryTimer) { clearInterval(_retryTimer); _retryTimer = null; }
+      const limited = api.limitAnalysisText(rawText);
+      const truncationNotice = limited.truncated
+        ? '⚠️ النص يتجاوز 25,000 حرف؛ سيتم تحليل أول 25,000 حرف فقط.'
+        : '';
 
+      if (_retryTimer) { clearInterval(_retryTimer); _retryTimer = null; }
       btn.disabled = true;
       btn.textContent = '⏳ جاري التحليل بالذكاء الاصطناعي...';
-      status.textContent = 'جاري إرسال النص للتحليل... قد تستغرق العملية 10-30 ثانية.';
-      status.style.color = 'var(--gold-bright)';
+      status.textContent = truncationNotice || 'جاري إرسال النص للتحليل... قد تستغرق العملية 10-30 ثانية.';
+      status.style.color = truncationNotice ? '#d4b87a' : 'var(--gold-bright)';
 
       try {
+        const headers = await api.getAuthHeaders();
         const res = await fetch('/api/analyze-feasibility-v2?cb=' + Date.now(), {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ text, lang: document.documentElement.lang || 'ar' })
+          headers,
+          body: JSON.stringify({ text: limited.text, lang: document.documentElement.lang || 'ar' })
         });
         const data = await res.json();
 
         if (data.success && data.analysis) {
           window._pendingAnalysis = data.analysis;
           showPreview(data.analysis);
-          status.textContent = '';
+          status.textContent = truncationNotice;
+          status.style.color = truncationNotice ? '#d4b87a' : 'var(--gold-bright)';
         } else {
           const err = data.error || '';
           const retryMatch = err.match(/retry\s+in\s+([\d.]+)s/i);
@@ -3912,13 +3669,11 @@
           } else {
             status.textContent = '⚠️ ' + (err || 'فشل التحليل. حاول مرة أخرى بنص أطول وأكثر تفصيلاً.');
             status.style.color = '#f87171';
-            
           }
         }
       } catch (e) {
         status.textContent = '❌ خطأ في الاتصال: ' + e.message;
         status.style.color = '#f87171';
-        
       } finally {
         if (!_retryTimer) {
           btn.disabled = false;
@@ -4194,14 +3949,7 @@
       }
     }
   </script>
-<script>
-  // Force unregister old service workers to prevent cached API responses
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(regs => {
-      regs.forEach(reg => reg.unregister());
-    });
-  }
-</script>
+
 <script>
 
 </script>
