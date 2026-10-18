@@ -42,7 +42,7 @@ class BondsTokenEngine:
                 db.execute("ALTER TABLE tokens ADD COLUMN token_id TEXT")
             db.commit()
 
-    def issue(self, token_type, subject, audience="bonds", scopes=None, ttl=3600):
+    def issue(self, token_type, subject, audience="bonds", scopes=None, ttl=SERVICE_TOKEN_TTL_SECONDS):
         if not token_type or not subject or not audience:
             raise ValueError("token_type, subject and audience are required")
 
@@ -91,7 +91,7 @@ class BondsTokenEngine:
 
         with closing(sqlite3.connect(self.database)) as db:
             row = db.execute(
-                "SELECT token_type,subject,audience,scopes,expires_at,revoked "
+                "SELECT token_type,subject,audience,scopes,expires_at,revoked,issued_at,token_id "
                 "FROM tokens WHERE token_hash=?",
                 (digest,),
             ).fetchone()
@@ -99,7 +99,19 @@ class BondsTokenEngine:
         if row is None:
             return None
 
-        token_type, subject, stored_audience, scopes_json, expires, revoked = row
+        (
+            token_type,
+            subject,
+            stored_audience,
+            scopes_json,
+            expires,
+            revoked,
+            issued_at,
+            token_id,
+        ) = row
+
+        if issued_at is None or token_id is None:
+            return None
 
         if revoked or expires <= int(time.time()):
             return None
