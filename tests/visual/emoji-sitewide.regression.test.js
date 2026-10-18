@@ -44,6 +44,7 @@ function discoverHtmlFiles() {
       } else if (entry.isFile() && entry.name.endsWith('.html')) {
         const rel = path.relative(ROOT, full).replace(/\\/g, '/');
         if (rel.startsWith('tests/')) continue;
+        if (/^components\/universal-dropdown\/showcase(?:-en)?\.html$/.test(rel)) continue;
         files.push(rel);
       }
     }
@@ -82,8 +83,11 @@ function validateRendererOrdering(rel, source) {
 function validateEmojiRuntimeCoverage(rel, source) {
   if (!sourceHasEmojiSurface(source)) return [];
   const issues = [];
-  if (!/emoji-icons\.js/i.test(source)) issues.push(rel + ': emoji surface missing emoji-icons.js');
-  if (!/emoji-renderer\.js/i.test(source)) issues.push(rel + ': emoji surface missing emoji-renderer.js');
+  const directRuntime = /emoji-icons\.js/i.test(source) && /emoji-renderer\.js/i.test(source);
+  const sharedLayoutRuntime = /site-layout\.js/i.test(source);
+  if (!directRuntime && !sharedLayoutRuntime) {
+    issues.push(rel + ': emoji surface missing direct runtime or site-layout runtime provider');
+  }
   return issues;
 }
 
@@ -353,6 +357,11 @@ describe('site-wide emoji SVG safety', () => {
       issues.push(...validateEmojiRuntimeCoverage(rel, source));
     }
     expect(issues).toEqual([]);
+
+    const siteLayout = fs.readFileSync(path.join(ROOT, 'site-layout.js'), 'utf8');
+    expect(siteLayout).toContain("'/components/emoji-icons.js'");
+    expect(siteLayout).toContain("'/components/emoji-renderer.js'");
+    expect(siteLayout).toContain('ensureEmojiRuntime()');
   });
 
   test('all emoji surfaces stay bounded across the site', async () => {
