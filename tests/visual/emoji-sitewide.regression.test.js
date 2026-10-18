@@ -79,6 +79,14 @@ function validateRendererOrdering(rel, source) {
   return issues;
 }
 
+function validateEmojiRuntimeCoverage(rel, source) {
+  if (!sourceHasEmojiSurface(source)) return [];
+  const issues = [];
+  if (!/emoji-icons\.js/i.test(source)) issues.push(rel + ': emoji surface missing emoji-icons.js');
+  if (!/emoji-renderer\.js/i.test(source)) issues.push(rel + ': emoji surface missing emoji-renderer.js');
+  return issues;
+}
+
 async function serverAvailable() {
   try {
     const res = await fetch(BASE_URL, { signal: AbortSignal.timeout(2000) });
@@ -161,13 +169,21 @@ async function inspectInterfaceIconSizing(page, rel, phase) {
       '.bec-smart-alert__icon > svg',
       '.calc-empty-icon-lg > svg',
       '.status-badge > svg',
-      '.alert-icon > svg'
+      '.alert-icon > svg',
+      'svg[aria-hidden="true"]'
     ];
 
     const seen = new Set();
     document.querySelectorAll(selectors.join(',')).forEach((svg, index) => {
       if (seen.has(svg)) return;
       seen.add(svg);
+
+      const allowedVisualization = svg.closest(
+        '.chart, .chart-container, .chart-wrap, .gauge, .gauge-container, .score-gauge, ' +
+        '.map, .map-container, .diagram, .illustration, .hero-illustration, .logo, .brand-logo, ' +
+        '.site-logo, .qr-code, [data-chart], [data-gauge], [data-map]'
+      );
+      if (allowedVisualization) return;
 
       const rect = svg.getBoundingClientRect();
       if (rect.width === 0 || rect.height === 0) return;
@@ -270,6 +286,17 @@ async function auditRuntimePages(candidates) {
           }
 
           await page.setContent(html, { waitUntil: 'load', timeout: 2500 });
+
+          // Simulate the exact failure class seen in production: a page-level
+          // SVG rule trying to blow inline icons up to viewport size. Runtime
+          // hardening must win even against !important declarations.
+          await page.addStyleTag({
+            content:
+              '.emoji-icon > svg { width:100vw!important;height:100vh!important;' +
+              'max-width:none!important;max-height:none!important;position:fixed!important;' +
+              'inset:0!important;transform:scale(2)!important; }'
+          });
+
           await page.addScriptTag({ content: emojiIconsSource });
           await page.addScriptTag({ content: emojiRendererSource });
           await page.waitForTimeout(20);
@@ -316,6 +343,14 @@ describe('site-wide emoji SVG safety', () => {
     const issues = [];
     for (const { rel, source } of sources) {
       issues.push(...validateRendererOrdering(rel, source));
+    }
+    expect(issues).toEqual([]);
+  });
+
+  test('all emoji surfaces load the shared runtime', () => {
+    const issues = [];
+    for (const { rel, source } of sources) {
+      issues.push(...validateEmojiRuntimeCoverage(rel, source));
     }
     expect(issues).toEqual([]);
   });
