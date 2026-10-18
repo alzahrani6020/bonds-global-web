@@ -16,7 +16,10 @@ describe('V3 canonical activity taxonomy', () => {
     const result = canonicalizeActivities(rows);
     expect(result).toHaveLength(2);
 
-    const security = result.find(row => row.name_ar === 'الأمن والحراسة');
+    const security = result.find(row =>
+      (row.aliases || []).includes('aviation_security_activity') &&
+      (row.aliases || []).includes('mining_security_activity')
+    );
     expect(security).toBeTruthy();
     expect(new Set(security.aliases)).toEqual(new Set([
       'aviation_security_activity',
