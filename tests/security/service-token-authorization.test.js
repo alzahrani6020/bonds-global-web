@@ -107,7 +107,7 @@ describe('service token authorization', () => {
       policy,
       claims: claims({
         iat: now - 330,
-        exp: now + 1
+        exp: now
       })
     }).allowed).toBe(true);
 
