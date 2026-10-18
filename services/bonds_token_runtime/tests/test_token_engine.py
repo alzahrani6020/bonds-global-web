@@ -105,6 +105,9 @@ class BondsTokenEngineContractTests(unittest.TestCase):
             db.commit()
 
         self.assertEqual(engine.introspect(legacy_token), {"active": False})
+        self.assertIsNone(
+            engine.verify(legacy_token, audience="research-intelligence")
+        )
 
 
 if __name__ == "__main__":
