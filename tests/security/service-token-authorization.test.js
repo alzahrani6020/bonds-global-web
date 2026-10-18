@@ -10,6 +10,16 @@ const {
   getServiceTokenPolicy
 } = require('../../lib/security/service-token-policies');
 
+const {
+  SERVICES,
+  CAPABILITIES
+} = require('../../lib/capabilities/bonds-capability-registry');
+
+const {
+  MemoryRateLimiter,
+  evaluateGovernance
+} = require('../../lib/capabilities/governance-gateway');
+
 describe('service token authorization', () => {
   const now = 1_800_000_000;
 
@@ -126,4 +136,57 @@ describe('service token authorization', () => {
       scopes: ['agent:execute']
     });
   });
+  test('governance gateway denies a web-research token with the wrong audience', async () => {
+    const result = await evaluateGovernance({
+      service: SERVICES['web-research'],
+      capability: CAPABILITIES.web_fetch,
+      context: {
+        governance: {
+          enforceServiceToken: true,
+          now,
+          tokenClaims: {
+            active: true,
+            iss: 'bonds-token-service',
+            aud: 'orchestrator',
+            sub: 'service:orchestrator',
+            scope: 'research:read',
+            exp: now + 300
+          }
+        }
+      },
+      rateLimiter: new MemoryRateLimiter()
+    });
+
+    expect(result).toMatchObject({
+      allowed: false,
+      code: 'TOKEN_AUDIENCE_MISMATCH'
+    });
+  });
+
+  test('governance gateway accepts a correctly scoped web-research token', async () => {
+    const result = await evaluateGovernance({
+      service: SERVICES['web-research'],
+      capability: CAPABILITIES.web_fetch,
+      context: {
+        governance: {
+          enforceServiceToken: true,
+          now,
+          tokenClaims: {
+            active: true,
+            iss: 'bonds-token-service',
+            aud: 'web-research',
+            sub: 'service:research-intelligence',
+            scope: 'research:read crawl:read',
+            exp: now + 300,
+            jti: 'research-token-1'
+          }
+        }
+      },
+      rateLimiter: new MemoryRateLimiter()
+    });
+
+    expect(result.allowed).toBe(true);
+    expect(result.code).toBeNull();
+  });
+
 });
