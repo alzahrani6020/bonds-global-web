@@ -163,6 +163,32 @@ describe('service token authorization', () => {
     });
   });
 
+  test('governance gateway requires crawl scope for crawl capabilities', async () => {
+    const result = await evaluateGovernance({
+      service: SERVICES['web-research'],
+      capability: CAPABILITIES.web_crawl,
+      context: {
+        governance: {
+          enforceServiceToken: true,
+          now,
+          tokenClaims: {
+            active: true,
+            iss: 'bonds-token-service',
+            aud: 'web-research',
+            sub: 'service:research-intelligence',
+            scope: 'research:read',
+            exp: now + 300
+          }
+        }
+      },
+      rateLimiter: new MemoryRateLimiter()
+    });
+
+    expect(result.allowed).toBe(false);
+    expect(result.code).toBe('TOKEN_SCOPE_DENIED');
+    expect(result.missingScopes).toEqual(['crawl:read']);
+  });
+
   test('governance gateway accepts a correctly scoped web-research token', async () => {
     const result = await evaluateGovernance({
       service: SERVICES['web-research'],
