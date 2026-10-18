@@ -64,6 +64,8 @@ describe('V3 canonical activity taxonomy', () => {
     expect(api).toContain("query = query.in('activity_id', activitySelection.ids)");
     expect(api).toContain("marketQuery = marketQuery.in('activity_id', activityIds)");
     expect(api).toContain(".in('activity_id', activitySelection.ids)");
+    expect(api).toContain("if (!activityIds.length)");
+    expect(api).toContain("activityCodes.map(code => resolveActivitySelection(supabase, code))");
   });
 
   test('heuristic sector-template taxonomy generation cannot regenerate duplicates', () => {
