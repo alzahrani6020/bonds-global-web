@@ -165,6 +165,88 @@ async function handleSectors(req, res) {
   sendJson(res, 200, { sectors: activeSectors });
 }
 
+async function resolveActivitySelection(supabase, activityCode) {
+  if (!activityCode) {
+    return { canonicalCode: null, canonicalNameAr: null, canonicalNameEn: null, aliases: [], ids: [] };
+  }
+
+  // Prefer the persisted canonical registry. If the additive migration has not
+  // been applied yet, fall back to the legacy activity code so deployments can
+  // roll forward without a flag day.
+  try {
+    let canonical = null;
+
+    const { data: direct, error: directError } = await supabase
+      .from('canonical_activity_catalog')
+      .select('id,code,name_ar,name_en,aliases')
+      .eq('code', activityCode)
+      .maybeSingle();
+
+    if (!directError && direct) {
+      canonical = direct;
+    } else {
+      const { data: alias, error: aliasError } = await supabase
+        .from('canonical_activity_legacy_aliases')
+        .select('canonical_activity_id')
+        .eq('legacy_code', activityCode)
+        .maybeSingle();
+
+      if (!aliasError && alias?.canonical_activity_id) {
+        const { data: aliasedCanonical, error: canonicalError } = await supabase
+          .from('canonical_activity_catalog')
+          .select('id,code,name_ar,name_en,aliases')
+          .eq('id', alias.canonical_activity_id)
+          .maybeSingle();
+        if (!canonicalError && aliasedCanonical) canonical = aliasedCanonical;
+      }
+    }
+
+    if (canonical) {
+      const aliases = [...new Set([...(canonical.aliases || []), activityCode].filter(Boolean))];
+      const { data: legacyRows, error: legacyError } = await supabase
+        .from('economic_activities')
+        .select('id,code')
+        .in('code', aliases);
+
+      if (!legacyError) {
+        return {
+          canonicalCode: canonical.code,
+          canonicalNameAr: canonical.name_ar,
+          canonicalNameEn: canonical.name_en,
+          aliases,
+          ids: (legacyRows || []).map(row => row.id).filter(Boolean)
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('[activity resolver] canonical registry unavailable:', err.message);
+  }
+
+  const { data: legacy, error: legacyError } = await supabase
+    .from('economic_activities')
+    .select('id,code,name_ar,name_en')
+    .eq('code', activityCode)
+    .maybeSingle();
+
+  if (legacyError || !legacy) {
+    return {
+      canonicalCode: activityCode,
+      canonicalNameAr: null,
+      canonicalNameEn: null,
+      aliases: [activityCode],
+      ids: []
+    };
+  }
+
+  return {
+    canonicalCode: legacy.code,
+    canonicalNameAr: legacy.name_ar,
+    canonicalNameEn: legacy.name_en,
+    aliases: [legacy.code],
+    ids: [legacy.id]
+  };
+}
+
 async function handleModelDetail(req, res, path) {
   const match = path.match(/^\/models\/([^\/]+)$/);
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
@@ -215,8 +297,11 @@ async function handleModels(req, res) {
   }
 
   if (activityCode) {
-    const { data: activity } = await supabase.from('economic_activities').select('id').eq('code', activityCode).single();
-    if (activity) query = query.eq('activity_id', activity.id);
+    const activitySelection = await resolveActivitySelection(supabase, activityCode);
+    if (!activitySelection.ids.length) {
+      return sendJson(res, 200, { models: [], city: null, count: 0 });
+    }
+    query = query.in('activity_id', activitySelection.ids);
   }
 
   const { data: models, error } = await query.order('name_ar');
@@ -377,6 +462,45 @@ async function handleCatalogCountries(req, res) {
 async function handleCatalogActivities(req, res) {
   try {
     const supabase = getSupabaseClient();
+
+    // Durable path: canonical identities are persisted in the database and
+    // legacy activity rows are aliases/context, not separate dropdown entries.
+    const { data: canonicalRows, error: canonicalError } = await supabase
+      .from('canonical_activity_catalog')
+      .select('id,code,name_ar,name_en,description,is_active,sort_order,aliases,sector_codes,sub_sector_codes,legacy_count,sub_sector_count')
+      .eq('is_active', true)
+      .order('sort_order')
+      .order('name_ar');
+
+    if (!canonicalError && canonicalRows) {
+      const activities = canonicalRows.map(row => ({
+        id: row.id,
+        code: row.code,
+        canonical_code: row.code,
+        name_ar: row.name_ar,
+        name_en: row.name_en,
+        description: row.description,
+        aliases: row.aliases || [],
+        sector_codes: row.sector_codes || [],
+        sub_sector_codes: row.sub_sector_codes || [],
+        alias_count: Math.max(0, Number(row.legacy_count || 0) - 1),
+        applicability_count: Number(row.sub_sector_count || 0),
+        recordStatus: row.name_ar ? 'complete' : 'incomplete',
+        warnings: row.name_ar ? [] : ['missing_activity_name']
+      }));
+
+      const rawCount = activities.reduce((sum, row) => sum + Math.max(1, Number(row.aliases?.length || 0)), 0);
+      return sendJson(res, 200, {
+        activities,
+        count: activities.length,
+        rawCount,
+        duplicatesCollapsed: Math.max(0, rawCount - activities.length),
+        source: 'canonical_activity_catalog'
+      });
+    }
+
+    // Compatibility fallback for deployments where the additive migration has
+    // not reached the database yet.
     const { data: sectors, error } = await supabase
       .from('economic_sectors')
       .select(`
@@ -415,7 +539,7 @@ async function handleCatalogActivities(req, res) {
       count: activities.length,
       rawCount: flat.length,
       duplicatesCollapsed: Math.max(0, flat.length - activities.length),
-      source: 'canonical_registry'
+      source: 'canonical_registry_fallback'
     });
   } catch (err) {
     console.error('[catalog/activities]', err.message);
@@ -458,15 +582,10 @@ async function handleCatalogYears(req, res) {
       cityIds = (cityRows || []).map(row => row.id);
     }
 
-    let activityId = null;
+    let activityIds = [];
     if (activityCode) {
-      const { data: activity, error } = await supabase
-        .from('economic_activities')
-        .select('id')
-        .eq('code', activityCode)
-        .maybeSingle();
-      if (error) throw error;
-      activityId = activity?.id || null;
+      const activitySelection = await resolveActivitySelection(supabase, activityCode);
+      activityIds = activitySelection.ids;
     }
 
     if (cityIds.length) {
@@ -500,7 +619,7 @@ async function handleCatalogYears(req, res) {
         .select('data_year,source')
         .in('city_id', cityIds)
         .limit(5000);
-      if (activityId) marketQuery = marketQuery.eq('activity_id', activityId);
+      if (activityIds.length) marketQuery = marketQuery.in('activity_id', activityIds);
       const { data: marketRows } = await marketQuery;
       for (const row of marketRows || []) {
         const year = Number(row.data_year);
@@ -709,26 +828,21 @@ async function handleCities(req, res) {
   let enriched = cities || [];
 
   if (include.includes('opportunity') && activityCode) {
-    const { data: activity, error: actError } = await supabase
-      .from('economic_activities')
-      .select('id')
-      .eq('code', activityCode)
-      .single();
+    const activitySelection = await resolveActivitySelection(supabase, activityCode);
 
-    if (!actError && activity) {
-      const activityId = activity.id;
+    if (activitySelection.ids.length) {
       let year = parseInt(url.searchParams.get('year') || new Date().getFullYear(), 10);
 
-      // If year=latest, resolve the most recent data_year for this activity
+      // If year=latest, resolve the most recent data_year across all aliases of
+      // the canonical activity.
       if (url.searchParams.get('year') === 'latest') {
-        const { data: latestRow } = await supabase
+        const { data: latestRows } = await supabase
           .from('city_market_data')
           .select('data_year')
-          .eq('activity_id', activityId)
+          .in('activity_id', activitySelection.ids)
           .order('data_year', { ascending: false })
-          .limit(1)
-          .maybeSingle();
-        year = latestRow?.data_year || new Date().getFullYear();
+          .limit(1);
+        year = latestRows?.[0]?.data_year || new Date().getFullYear();
       }
 
       const cityIds = enriched.map(c => c.id);
@@ -736,12 +850,18 @@ async function handleCities(req, res) {
       const { data: marketRows, error: marketError } = await supabase
         .from('city_market_data')
         .select('city_id, opportunity_score, opportunity_rank, market_size, competitors_count, market_saturation_score, avg_salary, expected_demand, confidence')
-        .eq('activity_id', activityId)
+        .in('activity_id', activitySelection.ids)
         .eq('data_year', year)
         .in('city_id', cityIds);
 
       if (!marketError && marketRows) {
-        const marketMap = new Map(marketRows.map(r => [r.city_id, r]));
+        const marketMap = new Map();
+        for (const row of marketRows) {
+          const existing = marketMap.get(row.city_id);
+          if (!existing || Number(row.confidence || 0) > Number(existing.confidence || 0)) {
+            marketMap.set(row.city_id, row);
+          }
+        }
         enriched = enriched.map(city => {
           const market = marketMap.get(city.id) || null;
           const includeCity = minScore && market
@@ -783,6 +903,18 @@ async function handleOpportunitiesTop(req, res) {
   const isLatest = requestedYear === 'latest';
   const fallbackYear = resolveOpportunityYear(requestedYear);
   const supabase = getSupabaseClient();
+  const activitySelection = activityCode
+    ? await resolveActivitySelection(supabase, activityCode)
+    : { canonicalCode: null, canonicalNameAr: null, canonicalNameEn: null, aliases: [], ids: [] };
+
+  if (activityCode && !activitySelection.ids.length) {
+    return sendJson(res, 200, {
+      opportunities: [],
+      count: 0,
+      rankingBasis: 'decision_score',
+      minScoreBasis: 'decision_score'
+    });
+  }
 
   function buildOpportunitiesQuery(yearCondition, filters = {}) {
     let q = supabase
@@ -797,7 +929,7 @@ async function handleOpportunitiesTop(req, res) {
     }
 
     if (filters.countryCode) q = q.eq('cities.country_code', filters.countryCode);
-    if (filters.activityCode) q = q.eq('economic_activities.code', filters.activityCode);
+    if (filters.activityIds?.length) q = q.in('activity_id', filters.activityIds);
 
     return q
       .order('data_year', { ascending: false })
@@ -817,7 +949,7 @@ async function handleOpportunitiesTop(req, res) {
     return { data, error };
   }
 
-  let { data, error } = await tryQuery({ countryCode, activityCode });
+  let { data, error } = await tryQuery({ countryCode, activityIds: activitySelection.ids });
 
   if (error) {
     console.error('[opportunities/top]', error.message);
@@ -839,7 +971,15 @@ async function handleOpportunitiesTop(req, res) {
     const reliability = assessOpportunityRow(row);
     return {
       city: row.cities,
-      activity: row.economic_activities,
+      activity: activityCode
+        ? {
+            ...(row.economic_activities || {}),
+            code: activitySelection.canonicalCode || activityCode,
+            name_ar: activitySelection.canonicalNameAr || row.economic_activities?.name_ar,
+            name_en: activitySelection.canonicalNameEn || row.economic_activities?.name_en,
+            aliases: activitySelection.aliases
+          }
+        : row.economic_activities,
       score: row.opportunity_score,
       rawScore: reliability.rawPotential,
       decisionScore: reliability.decisionScore,
