@@ -1,8 +1,11 @@
 /**
  * Bonds V3 — Baseline Master Data Generator
  *
- * Reads existing CSVs in master-data/ and generates a baseline chain for any
- * sector that does not yet have sub-sectors. Preserves existing data.
+ * Reads existing CSVs in master-data/ and preserves the curated economic
+ * taxonomy. This script no longer invents sector × template activities.
+ *
+ * Canonical activity identity is governed by the persisted canonical activity
+ * registry; sector applicability is a relationship, not a separate activity.
  *
  * Run: node scripts/generate-master-data.js
  */
@@ -336,123 +339,18 @@ function main() {
   let projectModelRisks = parseCsv(path.join(MASTER_DIR, 'project-model-risks.csv'));
   let regulatoryRequirements = parseCsv(path.join(MASTER_DIR, 'regulatory-requirements.csv'));
 
-  // Find sectors that already have sub-sectors (preserve existing chains)
-  const sectorsWithData = new Set(subSectors.map(s => s.sector_code));
-
-  let sortOrderSub = subSectors.length ? Math.max(...subSectors.map(s => Number(s.sort_order) || 0)) : 0;
-  let sortOrderAct = activities.length ? Math.max(...activities.map(a => Number(a.sort_order) || 0)) : 0;
-  let sortOrderDet = activityDetails.length ? Math.max(...activityDetails.map(d => Number(d.sort_order) || 0)) : 0;
-  let sortOrderReq = regulatoryRequirements.length ? Math.max(...regulatoryRequirements.map(r => Number(r.sort_order) || 0)) : 0;
-
-  const generatedModelCodes = [];
-
-  for (const sector of sectors) {
-    if (sectorsWithData.has(sector.code)) continue;
-
-    const category = detectCategory(sector);
-    const templates = getSubSectorTemplates(category);
-
-    for (const tpl of templates) {
-      sortOrderSub++;
-      const subCode = `${sector.code}_${tpl.code}`;
-      subSectors.push({
-        sector_code: sector.code,
-        code: subCode,
-        name_ar: `${tpl.name_ar} - ${sector.name_ar}`,
-        name_en: `${tpl.name_en} - ${sector.name_en}`,
-        description: `${tpl.name_en} within ${sector.name_en}`,
-        sort_order: sortOrderSub
-      });
-
-      sortOrderAct++;
-      const activityCode = `${subCode}_activity`;
-      activities.push({
-        sub_sector_code: subCode,
-        code: activityCode,
-        name_ar: `نشاط ${tpl.name_ar}`,
-        name_en: `${tpl.name_en} Activity`,
-        description: `Main activity for ${tpl.name_en}`,
-        sort_order: sortOrderAct
-      });
-
-      for (const size of ['small', 'medium', 'large']) {
-        sortOrderDet++;
-        const detailCode = `${activityCode}_${size}`;
-        const sizeNameAr = size === 'small' ? 'صغير' : size === 'medium' ? 'متوسط' : 'كبير';
-        const sizeNameEn = size === 'small' ? 'Small' : size === 'medium' ? 'Medium' : 'Large';
-        activityDetails.push({
-          activity_code: activityCode,
-          code: detailCode,
-          name_ar: `${tpl.name_ar} ${sizeNameAr}`,
-          name_en: `${sizeNameEn} ${tpl.name_en}`,
-          description: `${sizeNameEn} scale operation`,
-          sort_order: sortOrderDet
-        });
-
-        const profile = SIZE_PROFILES[size];
-        const modelCode = `${detailCode}_model`;
-        generatedModelCodes.push(modelCode);
-        projectModels.push({
-          activity_detail_code: detailCode,
-          code: modelCode,
-          name_ar: `نموذج ${tpl.name_ar} ${sizeNameAr}`,
-          name_en: `${sizeNameEn} ${tpl.name_en} Model`,
-          size_category: size,
-          model_type: 'greenfield',
-          capex_min: profile.capex_min,
-          capex_max: profile.capex_max,
-          revenue_min: profile.revenue_min,
-          revenue_max: profile.revenue_max,
-          employee_count_min: profile.employee_count_min,
-          employee_count_max: profile.employee_count_max,
-          typical_roi_months: profile.typical_roi_months,
-          is_published: 'true'
-        });
-
-        // assumptions per model
-        for (const a of STANDARD_ASSUMPTIONS) {
-          let value = a.default_value;
-          if (a.code === 'rent_monthly') value = profile.rent_monthly;
-          else if (a.code === 'salaries_monthly') value = profile.salaries_monthly;
-          else if (a.code === 'marketing_monthly') value = profile.marketing_monthly;
-          else if (a.code === 'utilities_monthly') value = profile.utilities_monthly;
-          else if (a.code === 'insurance_monthly') value = profile.insurance_monthly;
-          projectModelAssumptions.push({
-            model_code: modelCode,
-            assumption_code: a.code,
-            value: value
-          });
-        }
-
-        // risks per model
-        const riskScores = getRiskScores(category, profile);
-        for (const rf of STANDARD_RISKS) {
-          projectModelRisks.push({
-            model_code: modelCode,
-            risk_factor_code: rf.code,
-            score: riskScores[rf.code]
-          });
-        }
-
-        // regulatory only for medium size
-        if (size === 'medium') {
-          const regs = getRegulatoryTemplates(category);
-          for (const reg of regs) {
-            sortOrderReq++;
-            regulatoryRequirements.push({
-              activity_detail_code: detailCode,
-              requirement_name_ar: reg.requirement_name_ar,
-              requirement_name_en: reg.requirement_name_en,
-              issuing_authority: reg.issuing_authority,
-              estimated_cost: reg.estimated_cost,
-              mandatory: reg.mandatory ? 'true' : 'false',
-              sort_order: sortOrderReq
-            });
-          }
-        }
-      }
-    }
-  }
+  // IMPORTANT: taxonomy generation is intentionally disabled.
+  //
+  // Older revisions created `sector_code + template_code + _activity` rows.
+  // That multiplied generic activities (security, maintenance, consulting,
+  // cleaning, software, etc.) across sectors and produced semantic duplicates.
+  //
+  // Sectors, sub-sectors, activities, activity details and project models are
+  // now curated master data. This generator may maintain shared lookup data,
+  // but it must never manufacture taxonomy identities from regex categories.
+  console.log(
+    'Taxonomy generation skipped: using curated sectors/sub-sectors/activities and existing model variants.'
+  );
 
   // Merge standard assumptions/risk factors with existing
   financialAssumptions = mergeByCode(financialAssumptions, STANDARD_ASSUMPTIONS);
