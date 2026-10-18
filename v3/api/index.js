@@ -122,6 +122,34 @@ async function handleHealth(req, res) {
   sendJson(res, 200, { status: 'ok', version: 'v3.0.0-alpha' });
 }
 
+async function resolveActivityAliases(supabase, activityCode) {
+  if (!activityCode) return [];
+  const { data: rows, error } = await supabase
+    .from('economic_activities')
+    .select('id,code,name_ar,name_en,is_active,sort_order')
+    .eq('is_active', true)
+    .order('sort_order');
+  if (error) throw error;
+
+  const catalog = canonicalizeActivities(rows || []);
+  const canonical = catalog.find(activity =>
+    activity.code === activityCode || (activity.aliases || []).includes(activityCode)
+  );
+  return canonical?.aliases?.length ? canonical.aliases : [activityCode];
+}
+
+async function resolveActivityIds(supabase, activityCode) {
+  const aliases = await resolveActivityAliases(supabase, activityCode);
+  if (!aliases.length) return [];
+  const { data, error } = await supabase
+    .from('economic_activities')
+    .select('id,code')
+    .in('code', aliases);
+  if (error) throw error;
+  return (data || []).map(row => row.id);
+}
+
+
 async function handleSectors(req, res) {
   const supabase = getSupabaseClient();
 
@@ -215,8 +243,8 @@ async function handleModels(req, res) {
   }
 
   if (activityCode) {
-    const { data: activity } = await supabase.from('economic_activities').select('id').eq('code', activityCode).single();
-    if (activity) query = query.eq('activity_id', activity.id);
+    const activityIds = await resolveActivityIds(supabase, activityCode);
+    if (activityIds.length) query = query.in('activity_id', activityIds);
   }
 
   const { data: models, error } = await query.order('name_ar');
@@ -458,15 +486,9 @@ async function handleCatalogYears(req, res) {
       cityIds = (cityRows || []).map(row => row.id);
     }
 
-    let activityId = null;
+    let activityIds = [];
     if (activityCode) {
-      const { data: activity, error } = await supabase
-        .from('economic_activities')
-        .select('id')
-        .eq('code', activityCode)
-        .maybeSingle();
-      if (error) throw error;
-      activityId = activity?.id || null;
+      activityIds = await resolveActivityIds(supabase, activityCode);
     }
 
     if (cityIds.length) {
@@ -500,7 +522,7 @@ async function handleCatalogYears(req, res) {
         .select('data_year,source')
         .in('city_id', cityIds)
         .limit(5000);
-      if (activityId) marketQuery = marketQuery.eq('activity_id', activityId);
+      if (activityIds.length) marketQuery = marketQuery.in('activity_id', activityIds);
       const { data: marketRows } = await marketQuery;
       for (const row of marketRows || []) {
         const year = Number(row.data_year);
@@ -709,14 +731,9 @@ async function handleCities(req, res) {
   let enriched = cities || [];
 
   if (include.includes('opportunity') && activityCode) {
-    const { data: activity, error: actError } = await supabase
-      .from('economic_activities')
-      .select('id')
-      .eq('code', activityCode)
-      .single();
+    const activityIds = await resolveActivityIds(supabase, activityCode);
 
-    if (!actError && activity) {
-      const activityId = activity.id;
+    if (activityIds.length) {
       let year = parseInt(url.searchParams.get('year') || new Date().getFullYear(), 10);
 
       // If year=latest, resolve the most recent data_year for this activity
@@ -724,7 +741,7 @@ async function handleCities(req, res) {
         const { data: latestRow } = await supabase
           .from('city_market_data')
           .select('data_year')
-          .eq('activity_id', activityId)
+          .in('activity_id', activityIds)
           .order('data_year', { ascending: false })
           .limit(1)
           .maybeSingle();
@@ -736,7 +753,7 @@ async function handleCities(req, res) {
       const { data: marketRows, error: marketError } = await supabase
         .from('city_market_data')
         .select('city_id, opportunity_score, opportunity_rank, market_size, competitors_count, market_saturation_score, avg_salary, expected_demand, confidence')
-        .eq('activity_id', activityId)
+        .in('activity_id', activityIds)
         .eq('data_year', year)
         .in('city_id', cityIds);
 
@@ -797,7 +814,7 @@ async function handleOpportunitiesTop(req, res) {
     }
 
     if (filters.countryCode) q = q.eq('cities.country_code', filters.countryCode);
-    if (filters.activityCode) q = q.eq('economic_activities.code', filters.activityCode);
+    if (filters.activityCodes?.length) q = q.in('economic_activities.code', filters.activityCodes);
 
     return q
       .order('data_year', { ascending: false })
@@ -817,7 +834,8 @@ async function handleOpportunitiesTop(req, res) {
     return { data, error };
   }
 
-  let { data, error } = await tryQuery({ countryCode, activityCode });
+  const activityCodes = activityCode ? await resolveActivityAliases(supabase, activityCode) : [];
+  let { data, error } = await tryQuery({ countryCode, activityCodes });
 
   if (error) {
     console.error('[opportunities/top]', error.message);
@@ -1183,15 +1201,13 @@ async function handleCityEvidence(req, res, path) {
     });
   }
 
-  let activityId = null;
+  let activityIds = [];
   if (activityCode) {
-    const { data: activity, error: activityError } = await supabase
-      .from('economic_activities')
-      .select('id,code,name_ar,name_en')
-      .eq('code', activityCode)
-      .maybeSingle();
-    if (activityError) return sendJson(res, 500, { error: activityError.message });
-    activityId = activity?.id || null;
+    try {
+      activityIds = await resolveActivityIds(supabase, activityCode);
+    } catch (activityError) {
+      return sendJson(res, 500, { error: activityError.message });
+    }
   }
 
   let query = supabase
@@ -1207,7 +1223,7 @@ async function handleCityEvidence(req, res, path) {
   if (error) return sendJson(res, 500, { error: error.message });
 
   const relevant = (rows || []).filter(row =>
-    row.activity_id == null || (activityId && row.activity_id === activityId)
+    row.activity_id == null || (activityIds.length && activityIds.includes(row.activity_id))
   );
   const latestByMetric = new Map();
   for (const row of relevant) {
@@ -1314,12 +1330,8 @@ async function handleCityMarket(req, res, path) {
         .order('data_year', { ascending: false })
         .limit(1);
       if (activityCode) {
-        const { data: activity } = await supabase
-          .from('economic_activities')
-          .select('id')
-          .eq('code', activityCode)
-          .maybeSingle();
-        if (activity) q = q.eq('activity_id', activity.id);
+        const activityIds = await resolveActivityIds(supabase, activityCode);
+        if (activityIds.length) q = q.in('activity_id', activityIds);
       }
       const { data: latest } = await q.maybeSingle();
       return sendJson(res, 200, {
@@ -1339,12 +1351,8 @@ async function handleCityMarket(req, res, path) {
     .eq('data_year', targetYear);
 
   if (activityCode) {
-    const { data: activity } = await supabase
-      .from('economic_activities')
-      .select('id')
-      .eq('code', activityCode)
-      .single();
-    if (activity) query = query.eq('activity_id', activity.id);
+    const activityIds = await resolveActivityIds(supabase, activityCode);
+    if (activityIds.length) query = query.in('activity_id', activityIds);
   }
 
   const { data, error } = await query;
