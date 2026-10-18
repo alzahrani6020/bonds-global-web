@@ -53,6 +53,10 @@ jobs:
             throw "canonical model runtime settings must be positive"
           }
 
+      - name: Validate 8771 service-token contract
+        working-directory: services/bonds_token_runtime
+        run: python3 -m unittest discover -s tests -p "test_*.py"
+
       - name: Run Site Audit
         run: npm run audit
 
