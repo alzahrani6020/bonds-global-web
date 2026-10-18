@@ -301,7 +301,7 @@ RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
-AS $
+AS $sync$
 DECLARE
   normalized_ar TEXT;
   normalized_en TEXT;
@@ -310,8 +310,7 @@ DECLARE
   canonical_id UUID;
 BEGIN
   normalized_ar := regexp_replace(btrim(COALESCE(NEW.name_ar, '')), '^نشاط[[:space:]]+', '', 'i');
-  normalized_en := regexp_replace(btrim(COALESCE(NEW.name_en, '')), '[[:space:]]+Activity
-, '', 'i');
+  normalized_en := regexp_replace(btrim(COALESCE(NEW.name_en, '')), '[[:space:]]+Activity$', '', 'i');
 
   IF normalized_ar = '' THEN
     RETURN NEW;
@@ -347,22 +346,11 @@ BEGIN
     END IF;
 
     INSERT INTO public.canonical_activities (
-      code,
-      normalized_name_ar,
-      name_ar,
-      name_en,
-      description,
-      is_active,
-      sort_order
+      code, normalized_name_ar, name_ar, name_en, description, is_active, sort_order
     )
     VALUES (
-      candidate_code,
-      normalized_ar,
-      normalized_ar,
-      NULLIF(normalized_en, ''),
-      NEW.description,
-      NEW.is_active,
-      NEW.sort_order
+      candidate_code, normalized_ar, normalized_ar, NULLIF(normalized_en, ''),
+      NEW.description, NEW.is_active, NEW.sort_order
     )
     ON CONFLICT (normalized_name_ar) DO UPDATE
     SET
@@ -385,19 +373,9 @@ BEGIN
   END IF;
 
   INSERT INTO public.canonical_activity_legacy_aliases (
-    canonical_activity_id,
-    legacy_activity_id,
-    legacy_code,
-    legacy_name_ar,
-    legacy_name_en
+    canonical_activity_id, legacy_activity_id, legacy_code, legacy_name_ar, legacy_name_en
   )
-  VALUES (
-    canonical_id,
-    NEW.id,
-    NEW.code,
-    NEW.name_ar,
-    NEW.name_en
-  )
+  VALUES (canonical_id, NEW.id, NEW.code, NEW.name_ar, NEW.name_en)
   ON CONFLICT (legacy_activity_id) DO UPDATE
   SET
     canonical_activity_id = EXCLUDED.canonical_activity_id,
@@ -407,21 +385,9 @@ BEGIN
 
   IF NEW.sub_sector_id IS NOT NULL THEN
     INSERT INTO public.canonical_activity_sub_sector_map (
-      canonical_activity_id,
-      sub_sector_id,
-      source_legacy_activity_id,
-      mapping_source,
-      is_primary,
-      is_active
+      canonical_activity_id, sub_sector_id, source_legacy_activity_id, mapping_source, is_primary, is_active
     )
-    VALUES (
-      canonical_id,
-      NEW.sub_sector_id,
-      NEW.id,
-      'legacy_backfill',
-      false,
-      NEW.is_active
-    )
+    VALUES (canonical_id, NEW.sub_sector_id, NEW.id, 'legacy_backfill', false, NEW.is_active)
     ON CONFLICT (canonical_activity_id, sub_sector_id) DO UPDATE
     SET
       is_active = EXCLUDED.is_active,
@@ -433,8 +399,7 @@ BEGIN
 
   RETURN NEW;
 END;
-$;
-
+$sync$;
 DROP TRIGGER IF EXISTS trg_sync_canonical_activity_from_legacy
   ON public.economic_activities;
 
