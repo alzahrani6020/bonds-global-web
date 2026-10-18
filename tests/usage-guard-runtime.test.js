@@ -70,6 +70,24 @@ async function settle(page) {
   });
 }
 
+async function dismissExitPrompt(page) {
+  // Pricing's initial validation already sets _calcCompleted. Exercise the
+  // real exit-intent trigger before later pointer movements can open its modal.
+  const { width } = page.viewportSize();
+  await page.mouse.move(width / 2, 100);
+  await page.mouse.move(width / 2, -1);
+  const overlay = page.locator('.bonds-exit-overlay');
+  await page.locator('.bonds-exit-overlay.active').waitFor({ state: 'visible' });
+  expect(await overlay.count()).toBe(1);
+  const close = overlay.locator('[data-action="close"]');
+  await close.evaluate(button => button.addEventListener('click', event => {
+    window.__usageExitCloseTrusted = event.isTrusted;
+  }, { once: true }));
+  await close.click();
+  expect(await page.evaluate(() => window.__usageExitCloseTrusted)).toBe(true);
+  await overlay.waitFor({ state: 'detached' });
+}
+
 async function openPricing({ lang, width, server }) {
   const context = await browser.newContext({ viewport: { width, height: HEIGHT }, reducedMotion: 'reduce', serviceWorkers: 'block' });
   await context.addInitScript(installFixture, { tier: server.tier });
@@ -125,6 +143,7 @@ async function openPricing({ lang, width, server }) {
     // calculateAll with empty inputs, showing a 3000ms validation toast. Let its
     // own removal finish; do not hide it or mock toast/calculation behavior.
     await page.waitForFunction(() => !document.querySelector('#bonds-toast-container > div'));
+    await dismissExitPrompt(page);
     expect(await page.locator('#bonds-usage-banner').count()).toBe(0);
     return { context, page, release, isCheck, errors, requests };
   } catch (error) {
