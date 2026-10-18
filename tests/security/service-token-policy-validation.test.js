@@ -14,6 +14,10 @@ const {
   isValidMaxTokenAgeSeconds
 } = require('../../lib/security/service-token-policies');
 
+const ISSUER_CONTRACT = require(
+  '../../services/bonds_token_runtime/contract.json'
+);
+
 describe('protected service token policy compilation', () => {
   const validPolicy = Object.freeze({
     issuer: 'bonds-token-service',
@@ -78,6 +82,9 @@ describe('protected service token policy compilation', () => {
     expect(() => compile(loadManifests())).not.toThrow();
 
     expect(SERVICE_TOKEN_TTL_SECONDS).toBe(3600);
+    expect(ISSUER_CONTRACT.serviceTokenTtlSeconds)
+      .toBe(SERVICE_TOKEN_TTL_SECONDS);
+    expect(ISSUER_CONTRACT.issuer).toBe('bonds-token-service');
     expect(SERVICE_TOKEN_TTL_SECONDS)
       .toBeLessThanOrEqual(MAX_SERVICE_TOKEN_AGE_SECONDS);
 
