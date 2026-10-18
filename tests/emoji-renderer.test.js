@@ -26,6 +26,20 @@ describe('emoji renderer Unicode sequence matching', () => {
     expect(style).toContain('max-height:1em');
     expect(style).toContain('transform:none');
     expect(style).toContain('position:static');
+    expect(style).toContain('overflow:hidden');
+  });
+});
+
+describe('emoji renderer service-worker policy', () => {
+  test('serves shared emoji runtime network-first', () => {
+    const sw = fs.readFileSync(path.resolve(__dirname, '..', 'sw.js'), 'utf8');
+    expect(sw).toContain("url.pathname === '/components/emoji-icons.js'");
+    expect(sw).toContain("url.pathname === '/components/emoji-renderer.js'");
+    const criticalBlock = sw.slice(
+      sw.indexOf("url.pathname === '/site-layout.js'"),
+      sw.indexOf('// Pages: network-first')
+    );
+    expect(criticalBlock).toContain('networkFirst(request)');
   });
 });
 
