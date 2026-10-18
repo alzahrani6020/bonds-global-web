@@ -9,6 +9,7 @@ const {
 
 const {
   MAX_SERVICE_TOKEN_AGE_SECONDS,
+  SERVICE_TOKEN_POLICIES,
   isValidMaxTokenAgeSeconds
 } = require('../../lib/security/service-token-policies');
 
@@ -57,6 +58,19 @@ describe('protected service token policy compilation', () => {
         audience: serviceCode
       })
     })).not.toThrow();
+  });
+
+  test('every protected service has a policy with matching audience', () => {
+    const protectedServices = loadManifests()
+      .filter(service => service.security.serviceTokenRequired);
+
+    expect(protectedServices.length).toBeGreaterThan(0);
+
+    for (const service of protectedServices) {
+      const policy = SERVICE_TOKEN_POLICIES[service.serviceCode];
+      expect(policy).toBeDefined();
+      expect(policy.audience).toBe(service.serviceCode);
+    }
   });
 
   test('current production policies fail closed while contract TTL is unknown', () => {
