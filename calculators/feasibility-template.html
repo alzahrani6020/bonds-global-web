@@ -1563,7 +1563,7 @@
       document.getElementById('bm-salary').textContent = hrTotal > 0 && revenue > 0 ? ((hrTotal / revenue) * 100).toFixed(1) + '%' : '-';
       document.getElementById('bm-salary-status').innerHTML = hrTotal > 0 && revenue > 0 && hrTotal / revenue < 0.3 ? '<span class="text-green">✅</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-payback').textContent = payback > 0 ? payback.toFixed(1) + ' شهر' : '-';
-      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= class="text-green" 18 ? '<span>✅</span>' : payback > 0 && payback <= class="text-gold" 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
+      document.getElementById('bm-payback-status').innerHTML = payback > 0 && payback <= 18 ? '<span>✅</span>' : payback > 0 && payback <= 36 ? '<span>⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-roi').textContent = roi.toFixed(1) + '%';
       document.getElementById('bm-roi-status').innerHTML = roi >= 20 ? '<span class="text-green">✅</span>' : roi >= 10 ? '<span class="text-gold">⚠️</span>' : '<span class="text-red">❌</span>';
       document.getElementById('bm-be').textContent = totalQty > 0 ? ((beUnits / totalQty) * 100).toFixed(0) + '%' : '-';
