@@ -1,15 +1,33 @@
 {
   "permissions": [
+    "agent.runtime.execute",
     "ai.native.use",
+    "orchestrator.execute",
+    "research.intelligence.execute",
     "research.web.read"
   ],
   "entitlements": [
+    "agent.runtime",
     "ai.native",
+    "orchestrator",
+    "research.intelligence",
     "research.web"
   ],
   "featureFlags": [
     {
+      "key": "service.agent-runtime.enabled",
+      "defaultEnabled": false
+    },
+    {
       "key": "service.native-inference.enabled",
+      "defaultEnabled": true
+    },
+    {
+      "key": "service.orchestrator.enabled",
+      "defaultEnabled": true
+    },
+    {
+      "key": "service.research-intelligence.enabled",
       "defaultEnabled": true
     },
     {
@@ -18,7 +36,10 @@
     }
   ],
   "workflowEvents": [
+    "agent.runtime.completed",
     "native-inference.health",
-    "research.completed"
+    "orchestrator.completed",
+    "research.completed",
+    "research.intelligence.completed"
   ]
 }
