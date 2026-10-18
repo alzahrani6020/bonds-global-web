@@ -20,6 +20,15 @@ $release=Join-Path $Root ("releases/" + $manifest.engine.version + "-" + $Profil
 $marker=Join-Path $release 'installed.sha256'
 if (-not (Test-Path $marker)) {throw 'Pinned engine release missing; run install-engine.ps1'}
 if ((Get-Content $marker -Raw).Trim() -ne $manifest.engine.artifacts.$Profile.sha256) {throw 'Pinned engine marker mismatch'}
+# Verify every extracted executable/DLL against an authenticated file inventory, not just the archive marker.
+$inventoryPath=Join-Path $release 'files.sha256.json'
+if (-not (Test-Path $inventoryPath)) {throw 'Release file inventory missing; reinstall release'}
+$inventory=Get-Content $inventoryPath -Raw | ConvertFrom-Json
+foreach ($entry in $inventory) {
+  $target=Join-Path $release $entry.path
+  if (-not (Test-Path $target -PathType Leaf)) {throw "Missing release file: $($entry.path)"}
+  if ((Get-FileHash $target -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.sha256) {throw "Release file modified: $($entry.path)"}
+}
 $exe=Get-ChildItem $release -Filter llama-server.exe -Recurse -File | Select-Object -First 1
 if (-not $exe) {throw 'llama-server.exe missing'}
 $occupied=Get-NetTCPConnection -LocalPort $Port -State Listen -ErrorAction SilentlyContinue
