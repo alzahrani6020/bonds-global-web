@@ -468,7 +468,6 @@ async function handleCatalogActivities(req, res) {
     const { data: canonicalRows, error: canonicalError } = await supabase
       .from('canonical_activity_catalog')
       .select('id,code,name_ar,name_en,description,is_active,sort_order,aliases,sector_codes,sub_sector_codes,legacy_count,sub_sector_count')
-      .eq('is_active', true)
       .order('sort_order')
       .order('name_ar');
 
@@ -485,7 +484,8 @@ async function handleCatalogActivities(req, res) {
         sub_sector_codes: row.sub_sector_codes || [],
         alias_count: Math.max(0, Number(row.legacy_count || 0) - 1),
         applicability_count: Number(row.sub_sector_count || 0),
-        recordStatus: row.name_ar ? 'complete' : 'incomplete',
+        is_active: row.is_active !== false,
+        recordStatus: row.is_active === false ? 'inactive' : (row.name_ar ? 'complete' : 'incomplete'),
         warnings: row.name_ar ? [] : ['missing_activity_name']
       }));
 
