@@ -9,6 +9,7 @@ const {
 
 const {
   MAX_SERVICE_TOKEN_AGE_SECONDS,
+  SERVICE_TOKEN_TTL_SECONDS,
   SERVICE_TOKEN_POLICIES,
   isValidMaxTokenAgeSeconds
 } = require('../../lib/security/service-token-policies');
@@ -73,10 +74,27 @@ describe('protected service token policy compilation', () => {
     }
   });
 
-  test('current production policies fail closed while contract TTL is unknown', () => {
-    expect(() => compile(loadManifests())).toThrow(
-      /maxTokenAgeSeconds must be a positive bounded integer/
-    );
+  test('current production policies compile with the verified token TTL contract', () => {
+    expect(() => compile(loadManifests())).not.toThrow();
+
+    expect(SERVICE_TOKEN_TTL_SECONDS).toBe(3600);
+    expect(SERVICE_TOKEN_TTL_SECONDS)
+      .toBeLessThanOrEqual(MAX_SERVICE_TOKEN_AGE_SECONDS);
+
+    expect(
+      SERVICE_TOKEN_POLICIES['research-intelligence']
+        .maxTokenAgeSeconds
+    ).toBe(SERVICE_TOKEN_TTL_SECONDS);
+
+    expect(
+      SERVICE_TOKEN_POLICIES.orchestrator
+        .maxTokenAgeSeconds
+    ).toBe(SERVICE_TOKEN_TTL_SECONDS);
+
+    expect(
+      SERVICE_TOKEN_POLICIES['agent-runtime']
+        .maxTokenAgeSeconds
+    ).toBe(SERVICE_TOKEN_TTL_SECONDS);
   });
 
   test('internal max age bound rejects values above the ceiling', () => {
