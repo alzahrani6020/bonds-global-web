@@ -11,6 +11,8 @@
 (function () {
   'use strict';
 
+  const NAV_COLLAPSE_WIDTH = 1280;
+
   const INTERFACE_SVG_SELECTOR = [
     '.emoji-icon > svg',
     '.input-label-icon > svg',
@@ -832,7 +834,7 @@
         };
 
         const scheduleOpen = () => {
-          if (window.innerWidth <= 900 || isTouch) return;
+          if (window.innerWidth <= NAV_COLLAPSE_WIDTH || isTouch) return;
           clearTimer(dropdownCloseTimers);
           clearTimer(dropdownOpenTimers);
           const timer = setTimeout(() => {
@@ -844,7 +846,7 @@
         };
 
         const scheduleClose = () => {
-          if (window.innerWidth <= 900 || isTouch) return;
+          if (window.innerWidth <= NAV_COLLAPSE_WIDTH || isTouch) return;
           clearTimer(dropdownOpenTimers);
           clearTimer(dropdownCloseTimers);
           const timer = setTimeout(() => {
