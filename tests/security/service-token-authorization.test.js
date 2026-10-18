@@ -405,8 +405,55 @@ describe('service token authorization', () => {
         requiredScopes: ['research:read'],
         grantedScopes: ['research:read']
       });
+      expect(result).not.toHaveProperty('serviceToken');
       expect(JSON.stringify(result.audit))
         .not.toContain('raw-token-do-not-log');
+    } finally {
+      dateSpy.mockRestore();
+      jest.dontMock('../../lib/security/service-token-policies');
+      jest.resetModules();
+    }
+  });
+
+  test('audit scope parsing matches authorization for scopes string', async () => {
+    jest.resetModules();
+    jest.doMock('../../lib/security/service-token-policies', () => ({
+      getServiceTokenPolicy: () => policy
+    }));
+
+    const isolatedGateway =
+      require('../../lib/capabilities/governance-gateway');
+
+    const dateSpy =
+      jest.spyOn(Date, 'now').mockReturnValue(now * 1000);
+
+    try {
+      const result =
+        await isolatedGateway.evaluateGovernance({
+          service: SERVICES['research-intelligence'],
+          capability:
+            CAPABILITIES.research_intelligence_verify,
+          context: {
+            auth: { serviceToken: 'opaque-token' }
+          },
+          rateLimiter:
+            new isolatedGateway.MemoryRateLimiter(),
+          verifyServiceToken: async () => ({
+            verified: true,
+            claims: {
+              ...claims({
+                iat: now + 31
+              }),
+              scope: undefined,
+              scopes: 'research:read extra:scope'
+            }
+          })
+        });
+
+      expect(result.audit.grantedScopes).toEqual([
+        'research:read',
+        'extra:scope'
+      ]);
     } finally {
       dateSpy.mockRestore();
       jest.dontMock('../../lib/security/service-token-policies');
