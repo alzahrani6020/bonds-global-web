@@ -224,25 +224,30 @@ async function assertNativeProductionRuntime() {
   ];
 
   for (const probe of probes) {
+    const requestId = `e2e-native-${probe.label.toLowerCase()}-${Date.now()}`;
+    const startedAt = Date.now();
     const chat = await fetchJson(`${cfg.baseUrl}/api/v3/ai/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'X-Request-ID': `e2e-native-${probe.label.toLowerCase()}-${Date.now()}`
+        'X-Request-ID': requestId
       },
       body: JSON.stringify({
         messages: [{ role: 'user', content: probe.content }],
         context: {}
       })
     });
+    const elapsedMs = Date.now() - startedAt;
 
     if (!chat.res.ok) {
-      throw new Error(`${probe.label} Native chat failed: HTTP ${chat.res.status}`);
+      throw new Error(
+        `${probe.label} Native chat failed: HTTP ${chat.res.status}, elapsed_ms=${elapsedMs}, request_id=${requestId}, body=${JSON.stringify(chat.body)}`
+      );
     }
     if (chat.body?.source !== 'bonds-native' || chat.body?.provider !== 'BondsNativeProvider') {
       throw new Error(
-        `${probe.label} chat did not use Bonds Native: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}`
+        `${probe.label} chat did not use Bonds Native: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}, debug=${JSON.stringify(chat.body?.debug || null)}`
       );
     }
     if (chat.body?.model !== 'bonds-native') {
