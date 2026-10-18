@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "stage": "candidate-not-production",
+  "engine": {
+    "version": "b11669",
+    "source": "https://github.com/ggml-org/llama.cpp/releases/tag/b11669",
+    "artifacts": {
+      "cpu": {
+        "filename": "llama-b11669-bin-win-cpu-x64.zip",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-win-cpu-x64.zip",
+        "sha256": "37b3efcf962847ca869745fd4ccf7f5e7e8dacfeff9fa3523b4ca8cdc66d632b"
+      },
+      "vulkan": {
+        "filename": "llama-b11669-bin-win-vulkan-x64.zip",
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b11669/llama-b11669-bin-win-vulkan-x64.zip",
+        "sha256": "2c07574e7bde71321cb785282b20cc821e951132149eeceeea32ddebdbf0598e"
+      }
+    }
+  },
+  "model": {
+    "filename": "gemma-4-E4B-it-Q4_K_M.gguf",
+    "sha256": "0ffb122c8b6921f13cbc34186e052524d0b5803b17f4867b7197a561400b3770"
+  },
+  "profiles": {
+    "cpu": {
+      "gpu_layers": 0
+    },
+    "vulkan": {
+      "gpu_layers": 0,
+      "requires_tuning": true
+    }
+  },
+  "defaults": {
+    "host": "127.0.0.1",
+    "port": 18965,
+    "ctx_size": 4096,
+    "threads": 10,
+    "parallel": 1,
+    "max_predict": 900,
+    "temperature": 0.2
+  }
+}
