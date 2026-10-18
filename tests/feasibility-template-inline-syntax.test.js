@@ -5,7 +5,8 @@ const root = path.resolve(__dirname, '..');
 
 function inlineScripts(rel) {
   const html = fs.readFileSync(path.join(root, rel), 'utf8');
-  return [...html.matchAll(/<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>/gi)]
+  const scriptPattern = new RegExp('<script(?![^>]*\\bsrc=)[^>]*>([\\s\\S]*?)<\\/script>', 'gi');
+  return [...html.matchAll(scriptPattern)]
     .map((match, index) => ({
       index,
       code: match[1],
@@ -26,7 +27,7 @@ describe.each([
 
   test('benchmark expressions do not contain injected class attributes', () => {
     const html = fs.readFileSync(path.join(root, rel), 'utf8');
-    expect(html).not.toMatch(/payback\\s*<=\\s*class=/);
+    expect(html).not.toMatch(/payback\s*<=\s*class=/);
     expect(html).toContain('payback > 0 && payback <= 18');
     expect(html).toContain('payback > 0 && payback <= 36');
   });
