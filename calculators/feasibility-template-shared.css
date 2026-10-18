@@ -105,7 +105,7 @@
       .no-print:not(.disclaimer) { display:none !important; }
     }
 
-    .template-toolbar { position:sticky; top:0; z-index:100; background:var(--bg-card); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
+    .template-toolbar { position:sticky; top:var(--header-height, 64px); z-index:100; background:var(--bg-card); backdrop-filter:blur(10px); border-bottom:1px solid var(--border); padding:0.75rem 1.5rem; display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
     .template-toolbar button { background:var(--gold); color:#f5f0e8; border:none; padding:0.6rem 1.2rem; border-radius:8px; font-weight:700; font-family:inherit; cursor:pointer; transition:all 0.2s; }
     .template-toolbar button:hover { background:var(--gold-bright); transform:translateY(-1px); }
     .template-toolbar .btn-ghost { background:transparent; color:var(--gold); border:1px solid var(--gold); }
@@ -271,7 +271,7 @@
     @media (max-width:768px) {
       .template-page { padding:1.25rem; }
       .field-group.inline,.field-group.inline-3,.cover-meta,.swot-grid,.scenario-grid,.signature-grid { grid-template-columns:1fr; }
-      .template-toolbar { position:relative; }
+      .template-toolbar { position:relative; top:0; }
     }
 /* ===== Inline-style refactor utilities / components ===== */
 

@@ -263,9 +263,9 @@
 }
 
 /* ----- Scenario labels ----- */
-.scenario-label--pessimistic { color: #dc2626; }
+.scenario-label--pessimistic { color: #b91c1c; }
 .scenario-label--expected { color: var(--gold); }
-.scenario-label--optimistic { color: #16a34a; }
+.scenario-label--optimistic { color: #166534; }
 .scenario-profit-label {
   font-size: 0.8rem;
   color: var(--text-muted);
