@@ -47,9 +47,19 @@
     if (document.getElementById('bonds-usage-banner')) return;
     const div = document.createElement('div');
     div.id = 'bonds-usage-banner';
-    div.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:rgba(212,168,83,0.12);border-bottom:1px solid var(--gold);color:var(--gold);text-align:center;padding:0.6rem;font-size:0.85rem;font-weight:700;';
-    div.innerHTML = msg + ' <a href="/pricing.html" style="color:#f0c96a;text-decoration:underline;">ترقية الاشتراك</a>';
-    document.body.appendChild(div);
+    div.setAttribute('role', 'status');
+    div.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:0.5rem;box-sizing:border-box;width:100%;grid-column:1/-1;background:var(--bg-elevated,#fff);border-bottom:1px solid var(--gold);color:var(--text,#0B1F3A);text-align:center;padding:0.75rem 1rem;font-size:0.85rem;font-weight:700;';
+    div.innerHTML = msg + ' <a href="/pricing.html" style="color:inherit;text-decoration:underline;">ترقية الاشتراك</a>';
+    const icon = div.querySelector('svg');
+    if (icon) icon.style.cssText = 'width:1.25rem;height:1.25rem;flex-shrink:0;';
+
+    // Reserve normal-flow space before calculator content, including late checks.
+    const anchor = document.querySelector('.breadcrumbs') || document.getElementById('site-header');
+    if (anchor) {
+      anchor.insertAdjacentElement('afterend', div);
+    } else {
+      (document.querySelector('main') || document.body).prepend(div);
+    }
   }
 
   async function init() {
