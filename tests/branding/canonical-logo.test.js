@@ -50,5 +50,16 @@ describe('canonical Bonds logo', () => {
 
   test('canonical current interface logo exists', () => {
     expect(fs.existsSync(path.join(ROOT, 'assets', 'bonds-logo-2026-v2-sm.webp'))).toBe(true);
+    expect(fs.existsSync(path.join(ROOT, 'assets', 'bonds-logo-2026-v2.webp'))).toBe(true);
+  });
+
+  test('legacy lobby logo files are deleted from the repository', () => {
+    for (const file of [
+      'bonds-logo-2026-sm.webp',
+      'bonds-logo-2026.webp',
+      'bonds-logo-2026-header.webp'
+    ]) {
+      expect(fs.existsSync(path.join(ROOT, 'assets', file))).toBe(false);
+    }
   });
 });
