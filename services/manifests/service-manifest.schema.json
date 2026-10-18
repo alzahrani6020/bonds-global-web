@@ -81,6 +81,9 @@
             "runtime_configured"
           ]
         },
+        "service_token_required": {
+          "type": "boolean"
+        },
         "privileges": {
           "type": "object",
           "additionalProperties": false,

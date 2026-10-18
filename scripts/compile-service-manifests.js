@@ -3,6 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 
+const {
+  getServiceTokenPolicy,
+  isValidMaxTokenAgeSeconds
+} = require('../lib/security/service-token-policies');
+
 const ROOT = path.resolve(__dirname, '..');
 const MANIFEST_DIR = path.join(ROOT, 'services', 'manifests');
 
@@ -127,6 +132,13 @@ function validateManifest(manifest, filename) {
 
   if (!NETWORK_ACCESS.has(manifest.security.network_access)) {
     fail(`${filename}: unsupported network_access`);
+  }
+
+  if (
+    manifest.security.service_token_required !== undefined &&
+    typeof manifest.security.service_token_required !== 'boolean'
+  ) {
+    fail(`${filename}: security.service_token_required must be boolean`);
   }
 
   const privileges = manifest.security.privileges;
@@ -257,6 +269,8 @@ function validateManifest(manifest, filename) {
 
     security: {
       networkAccess: manifest.security.network_access,
+      serviceTokenRequired:
+        manifest.security.service_token_required === true,
       privileges,
       requestedSensitivePrivileges
     },
@@ -313,7 +327,13 @@ function loadManifests() {
   });
 }
 
-function compile(manifests) {
+function compile(
+  manifests,
+  {
+    getTokenPolicy = getServiceTokenPolicy,
+    validateMaxTokenAge = isValidMaxTokenAgeSeconds
+  } = {}
+) {
   const services = {};
   const capabilities = {};
 
@@ -327,6 +347,23 @@ function compile(manifests) {
   for (const service of manifests) {
     if (services[service.serviceCode]) {
       fail(`duplicate service_code ${service.serviceCode}`);
+    }
+
+    if (service.security.serviceTokenRequired) {
+      const tokenPolicy =
+        getTokenPolicy(service.serviceCode);
+
+      if (!tokenPolicy) {
+        fail(
+          `${service.serviceCode}: protected service requires a service token policy`
+        );
+      }
+
+      if (!validateMaxTokenAge(tokenPolicy.maxTokenAgeSeconds)) {
+        fail(
+          `${service.serviceCode}: service token policy maxTokenAgeSeconds must be a positive bounded integer`
+        );
+      }
     }
 
     services[service.serviceCode] = {

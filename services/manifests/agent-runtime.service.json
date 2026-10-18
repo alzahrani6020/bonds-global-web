@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "service_code": "agent-runtime",
+  "version": 1,
+  "enabled": false,
+  "governance": {
+    "permissions": ["agent.runtime.execute"],
+    "entitlements": ["agent.runtime"],
+    "feature_flags": [
+      {
+        "key": "service.agent-runtime.enabled",
+        "default_enabled": false
+      }
+    ]
+  },
+  "security": {
+    "network_access": "runtime_configured",
+    "service_token_required": true,
+    "privileges": {
+      "service_role": false,
+      "private_network": false,
+      "arbitrary_code": false,
+      "external_write": false,
+      "ai_tool_exposure": false
+    }
+  },
+  "limits": {
+    "rate_limit": { "requests_per_minute": 30 },
+    "retry": { "max_attempts": 0 }
+  },
+  "observability": {
+    "health_check": true,
+    "audit": true,
+    "metrics": true
+  },
+  "data": {
+    "provenance": true,
+    "quality": true
+  },
+  "workflows": {
+    "events": ["agent.runtime.completed"]
+  },
+  "ai": { "exposed": false },
+  "capabilities": [
+    {
+      "action": "agent_execute",
+      "id": "BONDS-CAP-AGENT-001",
+      "purpose": "Reserved governed execution boundary for the Bonds agent runtime.",
+      "side_effect": "compute",
+      "required": ["task"],
+      "runtime": { "adapter": "agent_execute" }
+    }
+  ]
+}

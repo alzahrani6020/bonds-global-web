@@ -39,6 +39,32 @@ describe(
         expect(
           SERVICES['native-inference']
         ).toBeDefined();
+
+        expect(
+          SERVICES['research-intelligence']
+        ).toBeDefined();
+
+        expect(
+          SERVICES.orchestrator
+        ).toBeDefined();
+
+        expect(
+          SERVICES['agent-runtime']
+        ).toBeDefined();
+
+        expect(
+          SERVICES['research-intelligence']
+            .security.serviceTokenRequired
+        ).toBe(true);
+
+        expect(
+          SERVICES.orchestrator
+            .security.serviceTokenRequired
+        ).toBe(true);
+
+        expect(
+          SERVICES['agent-runtime'].enabled
+        ).toBe(false);
       }
     );
 
@@ -49,9 +75,13 @@ describe(
         expect(
           Object.keys(CAPABILITIES).sort()
         ).toEqual([
+          'agent_execute',
           'evidence_verify',
           'native_generate',
           'native_health',
+          'orchestrator_run',
+          'research_intelligence_synthesize',
+          'research_intelligence_verify',
           'research_synthesize',
           'web_crawl',
           'web_explore',
@@ -134,8 +164,13 @@ describe(
         expect(
           GOVERNANCE.featureFlags
             .map(flag => flag.key)
-        ).toContain(
-          'service.web-research.enabled'
+        ).toEqual(
+          expect.arrayContaining([
+            'service.web-research.enabled',
+            'service.research-intelligence.enabled',
+            'service.orchestrator.enabled',
+            'service.agent-runtime.enabled'
+          ])
         );
       }
     );

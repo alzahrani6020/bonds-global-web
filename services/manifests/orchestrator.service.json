@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "service_code": "orchestrator",
+  "version": 1,
+  "enabled": true,
+  "governance": {
+    "permissions": ["orchestrator.execute"],
+    "entitlements": ["orchestrator"],
+    "feature_flags": [
+      {
+        "key": "service.orchestrator.enabled",
+        "default_enabled": true
+      }
+    ]
+  },
+  "security": {
+    "network_access": "runtime_configured",
+    "service_token_required": true,
+    "privileges": {
+      "service_role": false,
+      "private_network": false,
+      "arbitrary_code": false,
+      "external_write": false,
+      "ai_tool_exposure": false
+    }
+  },
+  "limits": {
+    "rate_limit": { "requests_per_minute": 30 },
+    "retry": { "max_attempts": 1 }
+  },
+  "observability": {
+    "health_check": true,
+    "audit": true,
+    "metrics": true
+  },
+  "data": {
+    "provenance": true,
+    "quality": true
+  },
+  "workflows": {
+    "events": ["orchestrator.completed"]
+  },
+  "ai": { "exposed": false },
+  "capabilities": [
+    {
+      "action": "orchestrator_run",
+      "id": "BONDS-CAP-ORCH-001",
+      "purpose": "Execute the Bonds intelligence orchestrator through the governed capability boundary.",
+      "side_effect": "compute",
+      "required": ["request"],
+      "runtime": { "adapter": "orchestrator_run" }
+    }
+  ]
+}

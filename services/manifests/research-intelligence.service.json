@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "service_code": "research-intelligence",
+  "version": 1,
+  "enabled": true,
+  "governance": {
+    "permissions": ["research.intelligence.execute"],
+    "entitlements": ["research.intelligence"],
+    "feature_flags": [
+      {
+        "key": "service.research-intelligence.enabled",
+        "default_enabled": true
+      }
+    ]
+  },
+  "security": {
+    "network_access": "none",
+    "service_token_required": true,
+    "privileges": {
+      "service_role": false,
+      "private_network": false,
+      "arbitrary_code": false,
+      "external_write": false,
+      "ai_tool_exposure": false
+    }
+  },
+  "limits": {
+    "rate_limit": { "requests_per_minute": 60 },
+    "retry": { "max_attempts": 1 }
+  },
+  "observability": {
+    "health_check": true,
+    "audit": true,
+    "metrics": true
+  },
+  "data": {
+    "provenance": true,
+    "quality": true
+  },
+  "workflows": {
+    "events": ["research.intelligence.completed"]
+  },
+  "ai": { "exposed": false },
+  "capabilities": [
+    {
+      "action": "research_intelligence_verify",
+      "id": "BONDS-CAP-RI-001",
+      "purpose": "Verify structured research evidence through the Bonds research intelligence engine.",
+      "side_effect": "none",
+      "required": ["sources"],
+      "runtime": { "adapter": "research_intelligence_verify" }
+    },
+    {
+      "action": "research_intelligence_synthesize",
+      "id": "BONDS-CAP-RI-002",
+      "purpose": "Synthesize verified research while preserving provenance and uncertainty.",
+      "side_effect": "none",
+      "required": ["sources"],
+      "runtime": { "adapter": "research_intelligence_synthesize" }
+    }
+  ]
+}

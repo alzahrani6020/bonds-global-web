@@ -94,6 +94,9 @@ jobs:
       - name: Run Visual Regression Tests
         run: npm run test:visual
 
+      - name: Validate service manifests and token policies
+        run: npm run services:check
+
       - name: Upload Visual Artifacts
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
