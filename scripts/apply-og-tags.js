@@ -7,7 +7,7 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const DOMAIN = process.env.DOMAIN || 'https://bonds-global.com';
-const DEFAULT_IMAGE = `${DOMAIN}/assets/bonds-logo-2026.webp`;
+const DEFAULT_IMAGE = `${DOMAIN}/assets/bonds-logo-2026-v2.webp`;
 
 function ogImageUrl(title, description, lang) {
   const t = encodeURIComponent(title).replace(/%20/g, '+');

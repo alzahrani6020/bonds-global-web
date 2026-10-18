@@ -1866,13 +1866,13 @@ function generatePage(sector, lang) {
   <meta name="description" content="${isAr ? 'حاسبة استثمارية لتحليل جدوى المشاريع في قطاع ' + sector.title : 'Investment calculator for analyzing project feasibility in the ' + title}" />
   <meta property="og:title" content="${pageTitle}" />
   <meta property="og:description" content="${isAr ? 'احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة.' : 'Calculate ROI, IRR, NPV, payback, break-even, and risk score.'}" />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp" />
   <meta property="og:url" content="https://bonds-global.com/${isAr ? '' : 'en/'}calculators/investment-center/${sector.id}.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="${pageTitle}" />
   <meta name="twitter:description" content="${isAr ? 'احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة.' : 'Calculate ROI, IRR, NPV, payback, break-even, and risk score.'}" />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026.webp" />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp" />
   <link rel="canonical" href="https://bonds-global.com/${isAr ? '' : 'en/'}calculators/investment-center/${sector.id}.html" />
   <link href="https://fonts.googleapis.com/css2?family=${isAr ? 'Vazirmatn' : 'Inter'}:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="${isAr ? '../../' : '../../../'}styles.css" />

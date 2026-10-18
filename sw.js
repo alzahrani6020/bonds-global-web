@@ -57,7 +57,7 @@ const CORE_ASSETS = [
   '/lib/forms/credit-consent-terminology.js?v=1',
   '/lib/forms/credit-consent-form.js?v=2',
   '/assets/bonds-logo-2026-v2-sm.webp',
-  '/assets/bonds-logo-2026-sm.webp',
+  '/assets/bonds-logo-2026-v2-sm.webp',
   '/assets/qr-bonds-global.png',
   '/manifest.json',
   '/calculator-wizard.html',
