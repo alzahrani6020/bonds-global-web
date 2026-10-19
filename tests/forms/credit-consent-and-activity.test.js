@@ -66,6 +66,8 @@ describe('generic credit consent forms',()=>{
     const controller=read('lib/forms/credit-consent-form.js');
     expect(controller).toContain('funding_case_id:fundingCase?.id||null');
     expect(controller).toContain("existingQuery=existingQuery.eq('funding_case_id',fundingCase.id)");
+    expect(controller).toContain("syncSubmission(sb,fundingCase,subjectType==='business'?'credit_business':'credit_individual'");
+    expect(migration).toContain('add column if not exists notes text');
   });
 });
 
