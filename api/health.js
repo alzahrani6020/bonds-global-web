@@ -30,7 +30,8 @@ function sleep(ms) {
 }
 
 async function probeNativeHealth(attempts = 3) {
-  const configuredDelays = String(process.env.BONDS_NATIVE_HEALTH_RETRY_DELAYS_MS || '0,500,1500')
+  const healthTimeoutMs = Math.max(500, Number(process.env.BONDS_NATIVE_HEALTH_TIMEOUT_MS || 3000));
+  const configuredDelays = String(process.env.BONDS_NATIVE_HEALTH_RETRY_DELAYS_MS || '0,300,700')
     .split(',')
     .map(value => Math.max(0, Number(value) || 0));
   const retryDelaysMs = configuredDelays.length ? configuredDelays : [0, 500, 1500];
@@ -43,7 +44,7 @@ async function probeNativeHealth(attempts = 3) {
 
     const startedAt = Date.now();
     try {
-      const response = await getInferenceRouter().health();
+      const response = await getInferenceRouter({ timeoutMs: healthTimeoutMs }).health();
       lastResponse = response;
       diagnostics.push({
         attempt: index + 1,
