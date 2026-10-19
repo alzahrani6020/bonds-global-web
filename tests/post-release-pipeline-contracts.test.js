@@ -26,6 +26,14 @@ describe('post-release pipeline contracts', () => {
     expect(workflow).toContain('Refusing to promote stale release candidate.');
   });
 
+  test('CI has a bounded runtime for hung browser suites', () => {
+    const workflow = fs.readFileSync(
+      path.resolve(__dirname, '../.github/workflows/ci.yml'),
+      'utf8'
+    );
+
+    expect(workflow).toContain('timeout-minutes: 15');
+  });
   test('existing forward migrations are immutable after merge', () => {
     const workflow = fs.readFileSync(
       path.resolve(__dirname, '../.github/workflows/apply-migrations.yml'),
