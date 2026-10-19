@@ -21,6 +21,8 @@ describe('V3 opportunity bank investment taxonomy pilot', () => {
     expect(page).toContain("sector: sectorSelect.value");
     expect(page).toContain("include: 'activities'");
     expect(page).toContain("activitySelect.disabled = true");
+    expect(page).toContain("_universalDropdown");
+    expect(page).toContain("instance.refresh()");
   });
 
   test('sector selection is sent to opportunity ranking API', () => {
