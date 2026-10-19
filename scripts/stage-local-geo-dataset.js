@@ -128,6 +128,7 @@ async function main() {
       quality_gates: gates.rows,
       status: blocked ? 'failed' : 'passed'
     }, null, 2));
+    console.log('GEO_RUN_ID=' + runId);
 
     if (blocked) process.exitCode = 2;
   } catch (err) {
