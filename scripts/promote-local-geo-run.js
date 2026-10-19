@@ -89,6 +89,23 @@ async function main() {
         matched++;
       }
 
+      await client.query(
+        `insert into public.geo_place_source_links(
+           place_id,source_code,source_id,source_updated_at,confidence,metadata
+         ) values($1,$2,$3,$4,$5,$6::jsonb)
+         on conflict(source_code,source_id) do update set
+           place_id=excluded.place_id,
+           source_updated_at=excluded.source_updated_at,
+           confidence=greatest(public.geo_place_source_links.confidence,excluded.confidence),
+           metadata=public.geo_place_source_links.metadata || excluded.metadata,
+           updated_at=now()`,
+        [
+          canonicalId,row.source_code,row.source_id,row.source_updated_at,
+          Math.round(Number(row.overall_score || 50)),
+          JSON.stringify({ ingestion_run_id: RUN_ID, raw_place_id: row.raw_place_id })
+        ]
+      );
+
       const aliases = Array.isArray(row.aliases) ? row.aliases : [];
       for (const alias of aliases) {
         if (!alias || !alias.alias) continue;
