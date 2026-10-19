@@ -240,6 +240,37 @@ create unique index if not exists uq_client_credit_consents_case_subject_draft
   on public.client_credit_consents(funding_case_id,subject_type)
   where funding_case_id is not null and status = 'draft';
 
+-- Prevent duplicate drafts caused by concurrent saves outside a funding-case context.
+create unique index if not exists uq_client_business_activity_user_draft
+  on public.client_business_activity_profiles(user_id)
+  where status = 'draft';
+
+create unique index if not exists uq_client_cash_flow_user_standalone_draft
+  on public.client_cash_flow_reports(user_id)
+  where funding_case_id is null and status = 'draft';
+
+create unique index if not exists uq_client_receivables_user_standalone_draft
+  on public.client_receivables_aging_reports(user_id)
+  where funding_case_id is null and status = 'draft';
+
+create unique index if not exists uq_client_payables_user_standalone_draft
+  on public.client_payables_aging_reports(user_id)
+  where funding_case_id is null and status = 'draft';
+
+create unique index if not exists uq_client_credit_consents_user_subject_standalone_draft
+  on public.client_credit_consents(user_id,subject_type)
+  where funding_case_id is null and status = 'draft';
+
+-- Match the existing "latest updated draft" read patterns.
+create index if not exists idx_cash_flow_user_updated
+  on public.client_cash_flow_reports(user_id, updated_at desc);
+
+create index if not exists idx_receivables_aging_user_updated
+  on public.client_receivables_aging_reports(user_id, updated_at desc);
+
+create index if not exists idx_payables_aging_user_updated
+  on public.client_payables_aging_reports(user_id, updated_at desc);
+
 -- Tighten case-specific form writes so a funding_case_id can only reference the signed-in user's case.
 drop policy if exists cash_flow_insert_own on public.client_cash_flow_reports;
 create policy cash_flow_insert_own on public.client_cash_flow_reports
