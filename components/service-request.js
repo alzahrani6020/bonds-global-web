@@ -10,6 +10,8 @@ const T=lang==='ar'?{
 const params=new URLSearchParams(location.search);
 const serviceCode=params.get('service')||'';
 let detail=null;
+let formTouched=false;
+let submitted=false;
 function text(row,ar='name_ar',en='name_en'){return lang==='ar'?(row?.[ar]||row?.[en]||''):(row?.[en]||row?.[ar]||'')}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function json(url,opts){const r=await fetch(url,opts);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'HTTP '+r.status);return d}
@@ -53,6 +55,25 @@ function render(){
  $('#srFormTitle').textContent=form?text(form):T.form;
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
 }
+function track(event,properties={}){
+ try{
+  fetch('/api/log-usage',{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   credentials:'same-origin',
+   keepalive:true,
+   body:JSON.stringify({
+    event,
+    calculator:'service_request',
+    country:params.get('country')||null,
+    lang,
+    action:'service',
+    properties:{service_code:serviceCode,sector_code:params.get('sector')||null,activity_code:params.get('activity')||null,...properties},
+    url:location.href
+   })
+  }).catch(()=>{});
+ }catch(_){}
+}
 function collectValues(){
  const values={};const form=$('#srRequestForm');
  form.querySelectorAll('[name]').forEach(el=>{
@@ -87,6 +108,8 @@ async function submit(e){
     source:'service_request_page'
   };
   const d=await json('/api/v3/services/requests',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
+  submitted=true;
+  track('service_converted',{request_reference:d.request.request_reference});
   showStatus(T.sent+' — '+d.request.request_reference,true);
   $('#srSubmit').disabled=true;
   $('#srSuccessLink').href=lang==='ar'?'/my-bonds/':'/en/my-bonds/';$('#srSuccessLink').hidden=false;
@@ -97,8 +120,16 @@ async function init(){
  $('#srLoading').textContent=T.loading;
  try{
   detail=await json('/api/v3/services/'+encodeURIComponent(serviceCode)+'?'+contextQuery());
-  $('#srLoading').hidden=true;$('#srContent').hidden=false;render();$('#srRequestForm').addEventListener('submit',submit);
+  $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
+  const requestForm=$('#srRequestForm');
+  requestForm.addEventListener('submit',submit);
+  requestForm.addEventListener('input',()=>{formTouched=true},{passive:true});
+  requestForm.addEventListener('change',()=>{formTouched=true},{passive:true});
+  track('service_request_viewed',{delivery_type:detail.service?.delivery_type||null});
  }catch(err){showStatus(T.failed+': '+err.message,false)}
 }
+window.addEventListener('pagehide',()=>{
+ if(formTouched && !submitted) track('form_abandoned',{form_version:detail?.form?.version||null});
+},{capture:true});
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
