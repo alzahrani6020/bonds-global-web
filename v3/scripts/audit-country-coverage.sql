@@ -46,10 +46,13 @@ macro_stats as (
 market_stats as (
   select c.country_code,
          count(*) as market_rows,
+         count(*) filter (where cmd.currency_code = p.currency_code) as market_local_currency_rows,
+         count(*) filter (where cmd.currency_code is not null and cmd.currency_code <> p.currency_code) as market_foreign_source_currency_rows,
          count(*) filter (where cmd.currency_code is null) as market_currency_unknown,
          string_agg(distinct coalesce(cmd.currency_code, 'UNKNOWN'), ',' order by coalesce(cmd.currency_code, 'UNKNOWN')) as market_currencies
   from public.city_market_data cmd
   join public.cities c on c.id = cmd.city_id
+  join public.country_profiles p on p.country_code = c.country_code
   group by c.country_code
 ),
 indicator_stats as (
@@ -83,6 +86,8 @@ select
   mac.oldest_metric_year,
   mac.newest_metric_year,
   coalesce(mk.market_rows, 0) as market_rows,
+  coalesce(mk.market_local_currency_rows, 0) as market_local_currency_rows,
+  coalesce(mk.market_foreign_source_currency_rows, 0) as market_foreign_source_currency_rows,
   coalesce(mk.market_currency_unknown, 0) as market_currency_unknown,
   mk.market_currencies,
   coalesce(ind.indicator_rows, 0) as indicator_rows,
