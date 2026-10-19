@@ -492,7 +492,7 @@
         .filter(activity => activity.country?.availability_status !== 'unavailable');
 
       activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
-        activities.map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`).join('');
+        activities.map(activity => `<option value="${activity.code}">${window.BondsCountryContext?.formatActivityLabel(activity) || activity.name_ar}</option>`).join('');
       if (activities.some(activity => activity.code === current)) activitySelect.value = current;
     }
 
