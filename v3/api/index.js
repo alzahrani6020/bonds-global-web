@@ -77,6 +77,7 @@ const { COUNTRY_NAMES, canonicalizeCities, canonicalizeActivities, buildCountryC
 const { ARAB_COUNTRIES_GEO } = require('../master-data/countries-governorates-cities');
 const { CountryIndicatorEngine } = require('../../lib/data/country-indicator-engine');
 const { servicesRouter } = require('./services');
+const { calculateSiteIntelligence } = require('../../lib/geo/local-intelligence');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -1242,6 +1243,73 @@ async function handleCatalogCities(req, res) {
   }
 }
 
+async function handleGeoSiteIntelligence(req, res) {
+  const url = getQuery(req);
+  const code = (url.searchParams.get('code') || '').trim();
+  const lat = Number(url.searchParams.get('lat'));
+  const lng = Number(url.searchParams.get('lng'));
+  const country = (url.searchParams.get('country') || '').trim().toUpperCase() || null;
+  const supabase = getSupabaseClient();
+
+  try {
+    let place = null;
+
+    if (code) {
+      const { data, error } = await supabase
+        .from('geo_places')
+        .select('id,canonical_code,country_code,name_ar,name_en,place_type,lat,lng,population,elevation_m,source_code,confidence')
+        .eq('canonical_code', code)
+        .eq('is_active', true)
+        .maybeSingle();
+      if (error) throw error;
+      place = data || null;
+    } else if (Number.isFinite(lat) && Number.isFinite(lng)) {
+      const { data, error } = await supabase.rpc('geo_nearest_place', {
+        p_lat: lat,
+        p_lng: lng,
+        p_country_code: country,
+        p_limit: 1
+      });
+      if (error) throw error;
+      const nearest = data?.[0] || null;
+      if (nearest?.id) {
+        const { data: full, error: fullError } = await supabase
+          .from('geo_places')
+          .select('id,canonical_code,country_code,name_ar,name_en,place_type,lat,lng,population,elevation_m,source_code,confidence')
+          .eq('id', nearest.id)
+          .maybeSingle();
+        if (fullError) throw fullError;
+        place = full ? { ...full, distance_m: nearest.distance_m } : null;
+      }
+    } else {
+      return sendJson(res, 400, { error: 'code or valid lat/lng is required' });
+    }
+
+    if (!place) return sendJson(res, 404, { error: 'Geo place not found' });
+
+    const { data: features, error: featureError } = await supabase
+      .from('geo_place_features')
+      .select('*')
+      .eq('place_id', place.id)
+      .maybeSingle();
+    if (featureError) throw featureError;
+
+    const result = calculateSiteIntelligence(place, features || {});
+    if (place.distance_m !== undefined) result.distance_m = Number(place.distance_m);
+    result.place = {
+      name_ar: place.name_ar || null,
+      name_en: place.name_en || null,
+      source_code: place.source_code || null,
+      confidence: place.confidence ?? null
+    };
+
+    return sendJson(res, 200, result);
+  } catch (err) {
+    console.error('[geo/site-intelligence]', err.message);
+    return sendJson(res, 500, { error: 'Failed to calculate local geo intelligence' });
+  }
+}
+
 async function handleCities(req, res) {
   const url = getQuery(req);
   const include = url.searchParams.get('include') || '';
@@ -2286,6 +2354,7 @@ module.exports = async function handler(req, res) {
     if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
     if (path === '/catalog/years' && req.method === 'GET') return await handleCatalogYears(req, res);
     if (path === '/catalog/cities' && req.method === 'GET') return await handleCatalogCities(req, res);
+    if (path === '/geo/site-intelligence' && req.method === 'GET') return await handleGeoSiteIntelligence(req, res);
     if (path.startsWith('/services')) {
       const supabase = getSupabaseClient();
       const user = await getUserFromToken(req);
