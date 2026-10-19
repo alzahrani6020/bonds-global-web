@@ -900,7 +900,7 @@
           if (activityDd?.setOptions) {
             activityDd.setOptions(activities.map(a => ({
               value: a.code,
-              label: a.name_ar || a.name_en || a.code,
+              label: window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar || a.name_en || a.code,
               icon: ACTIVITY_ICON
             })));
           }
