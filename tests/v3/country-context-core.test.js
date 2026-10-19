@@ -107,7 +107,10 @@ describe('V3 country context core', () => {
       'v3/alerts.html'
     ]) {
       const source = read(screen);
-      expect(source).toContain('/catalog/activities');
+      const usesCountryAwareActivityCatalog =
+        source.includes('/catalog/activities') ||
+        (source.includes('/investment-taxonomy') && source.includes("include: 'activities'"));
+      expect(usesCountryAwareActivityCatalog).toBe(true);
       expect(source).toContain('country');
     }
   });
