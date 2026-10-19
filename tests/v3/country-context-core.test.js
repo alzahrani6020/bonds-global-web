@@ -125,6 +125,16 @@ describe('V3 country context core', () => {
     expect(comparison).toContain('filter(model => model.localized === true)');
   });
 
+  test('alerts are scoped at the API by selected country', () => {
+    const alertsApi = read('v3/api/alerts.js');
+    const alertsPage = read('v3/alerts.html');
+
+    expect(alertsApi).toContain("url.searchParams.get('country')");
+    expect(alertsApi).toContain('city:city_id!inner');
+    expect(alertsApi).toContain("query.eq('city.country_code', countryCode)");
+    expect(alertsPage).toContain("params.set('country', countryCode)");
+  });
+
   test('data source registry is activated from a real existing source', () => {
     const migration = read('v3/supabase/migrations/20261019031000_v3_country_context_hardening.sql');
 
