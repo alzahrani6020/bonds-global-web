@@ -64,20 +64,23 @@ const PAGES = [
       await page.waitForTimeout(350);
       await page.addScriptTag({ content: axeCore.source });
 
-      const result = await page.evaluate(async () => {
+      // Keep the watchdog in the Node runner, not inside page.evaluate().
+      // A navigation destroys the page execution context (and any in-page timer),
+      // so the host must remain able to abort the scan deterministically.
+      const scan = page.evaluate(async () => {
         // eslint-disable-next-line no-undef
-        const scan = axe.run(document, {
+        return await axe.run(document, {
           runOnly: {
             type: 'tag',
             values: ['wcag2a', 'wcag2aa', 'wcag21aa'],
           },
           resultTypes: ['violations'],
         });
-        const watchdog = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('axe scan timed out after 10s')), 10000);
-        });
-        return await Promise.race([scan, watchdog]);
       });
+      const watchdog = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('axe scan timed out after 10s')), 10000);
+      });
+      const result = await Promise.race([scan, watchdog]);
 
       const criticalOrSerious = result.violations.filter(
         (v) => v.impact === 'critical' || v.impact === 'serious'
@@ -103,11 +106,20 @@ const PAGES = [
       console.error(` ${p.name}: ${err.message}`);
       totalViolations++;
     } finally {
-      await page.close();
+      // A page that is mid-navigation can also stall close(). Bound cleanup so
+      // one unstable page cannot consume the entire 15-minute CI job.
+      await Promise.race([
+        page.close({ runBeforeUnload: false }).catch(() => undefined),
+        new Promise((resolve) => setTimeout(resolve, 1000)),
+      ]);
     }
   }
 
-  await browser.close();
+  // Bound final cleanup as a last-resort guard against orphaned page activity.
+  await Promise.race([
+    browser.close().catch(() => undefined),
+    new Promise((resolve) => setTimeout(resolve, 2000)),
+  ]);
 
   if (totalViolations) {
     console.error(`\n ${totalViolations} critical/serious accessibility violation(s) found.`);
