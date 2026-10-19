@@ -326,7 +326,8 @@
         <option value="info"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><circle fill="#55ACEE" cx="18" cy="18" r="18"/></svg></span> منخفض</option>
       </select>
       <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="cityFilter"><option value="">كل المدن</option></select>
-      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activityFilter"><option value="">كل الأنشطة</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="sectorFilter"><option value="">كل القطاعات</option></select>
+      <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="activityFilter" disabled><option value="">اختر القطاع أولاً</option></select>
       <label style="display: inline-flex; align-items: center; gap: 0.4rem; color: var(--text-secondary); font-size: 0.9rem;">
         <input type="checkbox" id="unreadOnly" checked> غير المقروءة فقط
       </label>
@@ -347,6 +348,8 @@
     let allAlerts = [];
     let allCities = [];
     let allActivities = [];
+    let taxonomySectors = [];
+    let sectorActivityAliases = new Set();
 
     const METRIC_LABELS_AR = {
       gdp_city: 'الناتج المحلي الإجمالي للمدينة',
@@ -452,43 +455,126 @@
       return `${direction} ${metric} بنسبة ${percent} قد يؤثر على قرار الاستثمار في ${city}. راجع التوقعات قبل اتخاذ القرار النهائي.`;
     }
 
+    function refreshDropdown(select) {
+      if (!window.getUniversalDropdown) return;
+      const dd = window.getUniversalDropdown(select);
+      if (dd && typeof dd.refresh === 'function') dd.refresh();
+    }
+
+    function populateSimpleSelect(select, placeholder, rows, getValue, getLabel) {
+      select.innerHTML = `<option value="">${placeholder}</option>`;
+      rows.forEach(row => {
+        const option = document.createElement('option');
+        option.value = getValue(row);
+        option.textContent = getLabel(row);
+        select.appendChild(option);
+      });
+      refreshDropdown(select);
+    }
+
+    async function loadSectorActivities() {
+      const countryCode = document.getElementById('countryFilter').value;
+      const sectorCode = document.getElementById('sectorFilter').value;
+      const activityFilter = document.getElementById('activityFilter');
+
+      allActivities = [];
+      sectorActivityAliases = new Set();
+      activityFilter.value = '';
+
+      if (!sectorCode) {
+        activityFilter.innerHTML = '<option value="">اختر القطاع أولاً</option>';
+        activityFilter.disabled = true;
+        refreshDropdown(activityFilter);
+        renderAlertsList();
+        return;
+      }
+
+      activityFilter.innerHTML = '<option value="">جاري تحميل أنشطة القطاع...</option>';
+      activityFilter.disabled = true;
+      refreshDropdown(activityFilter);
+
+      const params = new URLSearchParams({
+        depth: 'sector',
+        sector: sectorCode,
+        include: 'activities'
+      });
+      if (countryCode) params.set('country', countryCode);
+
+      const data = await fetchJson(API_URL + '/investment-taxonomy?' + params.toString());
+      allActivities = (data.activities || [])
+        .filter(activity => activity.country?.availability_status !== 'unavailable');
+
+      activityFilter.innerHTML = '<option value="">كل أنشطة القطاع</option>';
+      allActivities.forEach(activity => {
+        const aliases = [...new Set([...(activity.aliases || []), activity.code].filter(Boolean))];
+        aliases.forEach(alias => sectorActivityAliases.add(alias));
+
+        const option = document.createElement('option');
+        option.value = activity.code;
+        option.dataset.aliases = encodeURIComponent(JSON.stringify(aliases));
+        option.textContent = window.BondsCountryContext?.formatActivityLabel(activity) || activity.name_ar || activity.name_en || activity.code;
+        activityFilter.appendChild(option);
+      });
+
+      activityFilter.disabled = allActivities.length === 0;
+      refreshDropdown(activityFilter);
+      renderAlertsList();
+    }
+
+    async function loadCountryCities() {
+      const selectedCountry = document.getElementById('countryFilter').value;
+      const cityFilter = document.getElementById('cityFilter');
+      const citiesRes = await fetchJson(
+        API_URL + '/cities' + (selectedCountry ? '?country=' + encodeURIComponent(selectedCountry) : '')
+      );
+      allCities = citiesRes.cities || [];
+      populateSimpleSelect(
+        cityFilter,
+        'كل المدن',
+        allCities,
+        city => city.id,
+        city => city.name_ar || city.name_en || city.code
+      );
+    }
+
     async function initFilters() {
       try {
-        const countriesRes = await fetchJson(API_URL + '/catalog/countries');
+        const [countriesRes, taxonomyRes] = await Promise.all([
+          fetchJson(API_URL + '/catalog/countries'),
+          fetchJson(API_URL + '/investment-taxonomy?depth=sector')
+        ]);
         const countryRows = countriesRes.countries || [];
+        taxonomySectors = taxonomyRes.sectors || [];
         const storedCountry = window.BondsCountryContext?.getSelected('SA') || 'SA';
 
         const countryFilter = document.getElementById('countryFilter');
-        countryFilter.innerHTML = '<option value="">كل الدول</option>';
-        countryRows.forEach(country => {
-          countryFilter.innerHTML += `<option value="${country.code}">${country.name_ar}</option>`;
-        });
+        const sectorFilter = document.getElementById('sectorFilter');
+        const activityFilter = document.getElementById('activityFilter');
+
+        populateSimpleSelect(
+          countryFilter,
+          'كل الدول',
+          countryRows,
+          country => country.code,
+          country => country.name_ar || country.name_en || country.code
+        );
         if (countryRows.some(country => country.code === storedCountry)) {
           countryFilter.value = storedCountry;
         }
 
-        const selectedCountry = countryFilter.value;
-        const [citiesRes, activitiesRes] = await Promise.all([
-          fetchJson(API_URL + '/cities' + (selectedCountry ? '?country=' + encodeURIComponent(selectedCountry) : '')),
-          fetchJson(API_URL + '/catalog/activities' + (selectedCountry ? '?country=' + encodeURIComponent(selectedCountry) : ''))
-        ]);
-        allCities = citiesRes.cities || [];
-        allActivities = activitiesRes.activities || [];
+        populateSimpleSelect(
+          sectorFilter,
+          'كل القطاعات',
+          taxonomySectors,
+          sector => sector.code,
+          sector => sector.name_ar || sector.name_en || sector.code
+        );
 
-        const cityFilter = document.getElementById('cityFilter');
-        cityFilter.innerHTML = '<option value="">كل المدن</option>';
-        allCities.forEach(c => {
-          cityFilter.innerHTML += `<option value="${c.id}">${c.name_ar}</option>`;
-        });
+        activityFilter.innerHTML = '<option value="">اختر القطاع أولاً</option>';
+        activityFilter.disabled = true;
+        refreshDropdown(activityFilter);
 
-        const activityFilter = document.getElementById('activityFilter');
-        activityFilter.innerHTML = '<option value="">كل الأنشطة</option>';
-        allActivities
-          .filter(a => a.country?.availability_status !== 'unavailable')
-          .forEach(a => {
-          const aliases = encodeURIComponent(JSON.stringify(a.aliases || [a.code]));
-          activityFilter.innerHTML += `<option value="${a.code}" data-aliases="${aliases}">${window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar}</option>`;
-        });
+        await loadCountryCities();
       } catch (err) {
         console.warn('Failed to load filter options:', err.message);
       }
@@ -554,6 +640,7 @@
       const countryCode = document.getElementById('countryFilter').value;
       const severity = document.getElementById('severityFilter').value;
       const cityId = document.getElementById('cityFilter').value;
+      const sectorCode = document.getElementById('sectorFilter').value;
       const activityFilter = document.getElementById('activityFilter');
       const activityCode = activityFilter.value;
       const selectedOption = activityFilter.options[activityFilter.selectedIndex];
@@ -572,6 +659,8 @@
       if (cityId) filtered = filtered.filter(a => a.city_id === cityId);
       if (activityCode) {
         filtered = filtered.filter(a => activityAliases.includes(a.activity?.code));
+      } else if (sectorCode && sectorActivityAliases.size) {
+        filtered = filtered.filter(a => sectorActivityAliases.has(a.activity?.code));
       }
 
       const deduped = deduplicateAlerts(filtered);
@@ -647,11 +736,21 @@
     document.getElementById('countryFilter').addEventListener('change', async () => {
       const countryCode = document.getElementById('countryFilter').value;
       if (countryCode) window.BondsCountryContext?.setSelected(countryCode);
-      await initFilters();
+      await loadCountryCities();
+      if (document.getElementById('sectorFilter').value) {
+        await loadSectorActivities();
+      } else {
+        sectorActivityAliases = new Set();
+        const activityFilter = document.getElementById('activityFilter');
+        activityFilter.innerHTML = '<option value="">اختر القطاع أولاً</option>';
+        activityFilter.disabled = true;
+        refreshDropdown(activityFilter);
+      }
       await loadAlerts();
     });
     document.getElementById('severityFilter').addEventListener('change', renderAlertsList);
     document.getElementById('cityFilter').addEventListener('change', renderAlertsList);
+    document.getElementById('sectorFilter').addEventListener('change', loadSectorActivities);
     document.getElementById('activityFilter').addEventListener('change', renderAlertsList);
     document.getElementById('unreadOnly').addEventListener('change', loadAlerts);
     document.getElementById('refreshBtn').addEventListener('click', loadAlerts);
