@@ -251,7 +251,7 @@
       let existingQuery=sb.from('client_business_activity_profiles').select('*').eq('user_id',user.id);
       if(!fundingCase) existingQuery=existingQuery.eq('status','draft');
       const existing=await existingQuery.order('updated_at',{ascending:false}).limit(1).maybeSingle();
-      if(existing.data){hydrate(existing.data);if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'activity',existing.data);return;}
+      if(existing.data){hydrate(existing.data);window.BondsFundingCaseContext.lockSubmittedForm(form,existing.data.status);if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'activity',existing.data);return;}
       if(fundingCase||cid.data)current={client_id:fundingCase?.client_id||cid.data||null};
       const est=await sb.from('client_establishment_profiles').select('operations_data,registration_data').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(est.data){
