@@ -31,11 +31,19 @@ describe('business activity information form',()=>{
     expect(page).toContain('BondsBrandedExport.exportDocument');
   });
 
-  test('Arabic and English counterparts exist and funding journey exposes form',()=>{
-    expect(read('client/business-activity.html')).toContain('lang="ar" dir="rtl"');
-    expect(read('en/client/business-activity.html')).toContain('lang="en" dir="ltr"');
-    expect(read('funding-extraction.html')).toContain('href="/client/business-activity"');
-    expect(read('en/funding-extraction.html')).toContain('href="/en/client/business-activity"');
+  test('Arabic and English counterparts bind business activity to funding case context',()=>{
+    const ar=read('client/business-activity.html');
+    const en=read('en/client/business-activity.html');
+    expect(ar).toContain('lang="ar" dir="rtl"');
+    expect(en).toContain('lang="en" dir="ltr"');
+    for(const page of [ar,en]){
+      expect(page).toContain('/lib/forms/funding-case-context.js?v=1');
+      expect(page).toContain('funding_case_id:fundingCase?.id||null');
+      expect(page).toContain("existingQuery=existingQuery.eq('funding_case_id',fundingCase.id)");
+    }
+    const migration=read('supabase/migrations/20261019064000_funding_file_case_architecture.sql');
+    expect(migration).toContain("'/client/business-activity'");
+    expect(migration).toContain("'/en/client/business-activity'");
   });
 
   test('database uses authenticated owner-only RLS',()=>{
