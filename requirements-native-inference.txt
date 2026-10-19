@@ -1,1 +1,2 @@
 llama-cpp-python>=0.3.16,<0.4
+pywin32>=312,<313; platform_system == "Windows"
