@@ -31,13 +31,11 @@ describe('business activity information form',()=>{
     expect(page).toContain('BondsBrandedExport.exportDocument');
   });
 
-  test('Arabic and English counterparts exist and menu exposes form',()=>{
+  test('Arabic and English counterparts exist and funding journey exposes form',()=>{
     expect(read('client/business-activity.html')).toContain('lang="ar" dir="rtl"');
     expect(read('en/client/business-activity.html')).toContain('lang="en" dir="ltr"');
-    const layout=read('site-layout.js');
-    expect(layout).toContain("businessActivityInfo: isEn ? 'Business Activity Information' : 'معلومات النشاط'");
-    expect(layout).toContain("const businessActivityInfoHref = isEn ? '/en/client/business-activity' : '/client/business-activity';");
-    expect(layout).toContain('{ label: labels.businessActivityInfo, href: businessActivityInfoHref }');
+    expect(read('funding-extraction.html')).toContain('href="/client/business-activity"');
+    expect(read('en/funding-extraction.html')).toContain('href="/en/client/business-activity"');
   });
 
   test('database uses authenticated owner-only RLS',()=>{
