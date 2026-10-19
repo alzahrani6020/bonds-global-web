@@ -238,6 +238,7 @@
       else result=await sb.from('client_payables_aging_reports').insert(payload).select().single();
       if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return;}
       currentReport=result.data;
+      if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'payables',currentReport);}catch(e){showStatus('تعذر ربط النموذج بملف التمويل: '+e.message,false);return;}}
       showStatus(status==='submitted'?'تم إرسال نموذج أعمار الذمم الدائنة للمراجعة.':'تم حفظ المسودة.',true);
     }
 
@@ -282,6 +283,7 @@
       const existing=await existingQuery.order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){
         currentReport=existing.data;
+        if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'payables',existing.data);
         reportDate.value=existing.data.report_date||today();
         agingBasis.value=existing.data.aging_basis||'due_date';
         document.getElementById('currency').value=existing.data.currency||'SAR';
