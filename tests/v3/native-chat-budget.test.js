@@ -8,12 +8,9 @@ describe('Bonds Native chat generation budget', () => {
   );
 
   test('keeps native chat output below the canonical runtime ceiling', () => {
-    const match = source.match(/router\.generate\([\s\S]*?max_tokens:\s*(\d+)/);
-    expect(match).not.toBeNull();
-
-    const maxTokens = Number(match[1]);
-    expect(maxTokens).toBe(48);
-    expect(maxTokens).toBeLessThanOrEqual(512);
+    expect(source).toContain('Math.max(4, Math.min(48, Math.floor(parsed)))');
+    expect(source).toContain('max_tokens: maxTokens');
+    expect(source).not.toMatch(/Math\.min\((?:49|[5-9]\d|\d{3,})\b/);
   });
 
   test('does not restore the previous 900-token chat budget', () => {
