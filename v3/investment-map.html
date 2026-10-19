@@ -265,8 +265,13 @@
       </div>
 
       <div class="control-group">
+        <label for="sectorSelect">القطاع الاستثماري</label>
+        <select class="form-select" data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-placeholder="اختر القطاع" id="sectorSelect"><option value="">اختر القطاع</option></select>
+      </div>
+
+      <div class="control-group">
         <label for="activitySelect">النشاط الاقتصادي</label>
-        <select class="form-select" data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-placeholder="اختر النشاط" id="activitySelect"><option value="">اختر نشاطاً</option></select>
+        <select class="form-select" data-universal-dropdown="true" data-ud-theme="dark" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-placeholder="اختر النشاط" id="activitySelect" disabled><option value="">اختر القطاع أولاً</option></select>
       </div>
 
       <div class="control-group">
@@ -304,6 +309,7 @@
     };
     let map, markersLayer;
     let activities = [];
+    let taxonomySectors = [];
     let allCities = [];
     let citiesData = [];
     let countryProfiles = new Map();
@@ -388,22 +394,28 @@
     }
 
     async function initFilters() {
-      const [countriesRes, activitiesRes] = await Promise.all([
+      const [countriesRes, taxonomyRes] = await Promise.all([
         fetchJson(API_URL + '/catalog/countries'),
-        fetchJson(API_URL + '/catalog/activities')
+        fetchJson(API_URL + '/investment-taxonomy?depth=sector')
       ]);
-
-      activities = activitiesRes.activities || [];
 
       const countrySelect = document.getElementById('countrySelect');
       const citySelect = document.getElementById('citySelect');
+      const sectorSelect = document.getElementById('sectorSelect');
       const activitySelect = document.getElementById('activitySelect');
 
       const countries = countriesRes.countries || [];
+      taxonomySectors = taxonomyRes.sectors || [];
       countryProfiles = new Map(countries.map(country => [country.code, country]));
+
       populateSelect(countrySelect, countries.map(country => ({
         value: country.code,
         label: country.name_ar + ' (' + country.cityCount + ' مدينة)'
+      })));
+
+      populateSelect(sectorSelect, taxonomySectors.map(sector => ({
+        value: sector.code,
+        label: sector.name_ar || sector.name_en || sector.code
       })));
 
       // The selected country is a platform context, shared with calculators and
@@ -416,16 +428,36 @@
 
       async function updateActivities() {
         const countryCode = countrySelect.value;
-        const activityUrl = countryCode
-          ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countryCode)
-          : API_URL + '/catalog/activities';
-        const data = await fetchJson(activityUrl);
+        const sectorCode = sectorSelect.value;
+
+        if (!sectorCode) {
+          activities = [];
+          populateSelect(activitySelect, []);
+          activitySelect.disabled = true;
+          refreshSelect(activitySelect);
+          return;
+        }
+
+        activitySelect.disabled = true;
+        refreshSelect(activitySelect);
+
+        const params = new URLSearchParams({
+          depth: 'sector',
+          sector: sectorCode,
+          include: 'activities'
+        });
+        if (countryCode) params.set('country', countryCode);
+
+        const data = await fetchJson(API_URL + '/investment-taxonomy?' + params.toString());
         activities = (data.activities || [])
           .filter(activity => activity.country?.availability_status !== 'unavailable');
+
         populateSelect(activitySelect, activities.map(a => ({
           value: a.code,
           label: window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar || a.name_en || a.code
         })));
+
+        activitySelect.disabled = activities.length === 0;
         refreshSelect(activitySelect);
       }
 
@@ -446,7 +478,7 @@
         refreshSelect(citySelect);
       }
 
-      await updateActivities();
+      await updateCities();
 
       countrySelect.addEventListener('change', async () => {
         selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
@@ -456,19 +488,28 @@
         });
         citySelect.value = '';
         activitySelect.value = '';
-        await Promise.all([updateCities(), updateActivities()]);
+        await Promise.all([
+          updateCities(),
+          sectorSelect.value ? updateActivities() : Promise.resolve()
+        ]);
         await loadMap();
+      });
+
+      sectorSelect.addEventListener('change', async () => {
+        activitySelect.value = '';
+        await updateActivities();
+        updateChatContext();
       });
 
       // Initialize wrappers after options exist.
       if (window.initUniversalDropdowns) {
-        [countrySelect, citySelect, activitySelect].forEach(sel => {
+        [countrySelect, citySelect, sectorSelect, activitySelect].forEach(sel => {
           if (!window.getUniversalDropdown || !window.getUniversalDropdown(sel)) {
             window.initUniversalDropdowns(sel.parentElement || document);
           }
         });
       }
-      [countrySelect, citySelect, activitySelect].forEach(refreshSelect);
+      [countrySelect, citySelect, sectorSelect, activitySelect].forEach(refreshSelect);
 
       const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
       if (countryDd?.selectByValue) countryDd.selectByValue(countrySelect.value);
@@ -477,91 +518,8 @@
         currency_symbol: selectedCountryProfile?.currency_symbol || null
       });
 
-      await updateCities();
-    }
-
-    async function geocodeCity(city) {
-      try {
-        const q = `${city.name_ar || city.name_en || city.code}, ${countryNames[city.country_code] || city.country_code}`;
-        const res = await fetch(`${API_URL}/geocode?q=${encodeURIComponent(q)}`);
-        if (!res.ok) throw new Error(`Geocode API ${res.status}`);
-        const data = await res.json();
-        if (data && data.lat && data.lng) return { lat: data.lat, lng: data.lng };
-      } catch (e) {
-        console.warn('Geocoding failed for', city.code, e.message);
-      }
-      return null;
-    }
-
-    async function renderMarkers(cities) {
-      markersLayer.clearLayers();
-      // debug: renderMarkers received cities.length
-      if (!cities.length) {
-        BondsCommon.showAdminStatus('status', 'لا توجد مدن تطابق الفلاتر.', true);
-        return;
-      }
-
-      // Geocode cities missing coordinates
-      const missing = cities.filter(c => !c.lat || !c.lng);
-      if (missing.length) BondsCommon.showAdminStatus('status', `جاري تحديد إحداثيات ${missing.length} مدينة...`, false);
-      const enriched = await Promise.all(cities.map(async city => {
-        if (city.lat && city.lng) return city;
-        const coords = await geocodeCity(city);
-        if (coords) return { ...city, lat: coords.lat, lng: coords.lng };
-        return city;
-      }));
-
-      const valid = enriched.filter(c => c.lat && c.lng);
-      // debug: valid cities with lat/lng
-      if (valid.length === 0) {
-        BondsCommon.showAdminStatus('status', 'المدن المختارة لا تحتوي على إحداثيات جغرافية.', true);
-        return;
-      }
-
-      const bounds = L.latLngBounds();
-      valid.forEach(city => {
-        const hasOpportunity = city.opportunity && city.opportunity.score !== null;
-        const score = hasOpportunity ? city.opportunity.score : null;
-        const cls = hasOpportunity ? classify(score) : null;
-        const color = hasOpportunity ? {
-          hot: '#f0c96a',
-          good: '#22c55e',
-          fair: '#f59e0b',
-          weak: '#ef4444'
-        }[cls] : '#94a3b8';
-
-        const icon = L.divIcon({
-          className: 'custom-marker',
-          html: `<div style="
-            width: 24px; height: 24px; border-radius: 50%;
-            background: ${color}; border: 2px solid #0a0f1a;
-            box-shadow: 0 0 8px ${color}80;
-          "></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 12]
-        });
-
-        const marker = L.marker([city.lat, city.lng], { icon }).addTo(markersLayer);
-        const popupContent = hasOpportunity ? `
-          <div class="popup-title">${city.name_ar || city.name_en || city.code || 'مدينة'}</div>
-          <div class="popup-metric"><span>الدرجة:</span><strong>${score.toFixed(1)} / 100</strong></div>
-          <div class="popup-metric"><span>التصنيف:</span><strong>${classificationLabel(cls)}</strong></div>
-          <div class="popup-metric"><span>الترتيب:</span><strong>${city.opportunity.rank || '-'}</strong></div>
-          <div class="popup-metric"><span>حجم السوق:</span><span>${formatMarketMoney(city.opportunity.marketSize, city.opportunity.currencyCode)}</span></div>
-          <div class="popup-metric"><span>المنافسين:</span><span>${formatNumber(city.opportunity.competitorsCount)}</span></div>
-          <div class="popup-metric"><span>التشبع:</span><span>${city.opportunity.saturation}%</span></div>
-          <a class="popup-link" href="/v3/city-intelligence?city=${city.code}&activity=${document.getElementById('activitySelect').value}" target="_blank">عرض ذكاء المدينة →</a>
-        ` : `
-          <div class="popup-title">${city.name_ar || city.name_en || city.code || 'مدينة'}</div>
-          <div class="popup-metric"><span>الدولة:</span><strong>${countryNames[city.country_code] || city.country_code}</strong></div>
-          <div class="popup-metric"><span>السكان:</span><strong>${formatNumber(city.population)}</strong></div>
-          <a class="popup-link" href="/v3/city-intelligence?city=${city.code}" target="_blank">عرض ذكاء المدينة →</a>
-        `;
-        marker.bindPopup(popupContent);
-        bounds.extend([city.lat, city.lng]);
-      });
-
-      map.fitBounds(bounds, { padding: [40, 40], maxZoom: 10 });
+      activitySelect.disabled = true;
+      refreshSelect(activitySelect);
     }
 
     async function loadMap() {
