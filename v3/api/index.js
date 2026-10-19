@@ -247,18 +247,50 @@ async function resolveActivitySelection(supabase, activityCode) {
   };
 }
 
+async function loadCountryProfile(supabase, countryCode) {
+  if (!countryCode) return null;
+  const code = String(countryCode).toUpperCase();
+  const { data, error } = await supabase
+    .from('country_profiles')
+    .select('country_code,name_ar,name_en,currency_code,currency_symbol,locale_ar,locale_en,default_language,timezone,is_supported,is_active,fallback_policy,metadata')
+    .eq('country_code', code)
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
+async function loadCountryModelOverride(supabase, projectModelId, countryCode) {
+  if (!projectModelId || !countryCode) return null;
+  const { data, error } = await supabase
+    .from('country_model_overrides')
+    .select('*')
+    .eq('project_model_id', projectModelId)
+    .eq('country_code', String(countryCode).toUpperCase())
+    .maybeSingle();
+  if (error) throw error;
+  return data || null;
+}
+
 async function handleModelDetail(req, res, path) {
   const match = path.match(/^\/models\/([^\/]+)$/);
   if (!match) return sendJson(res, 404, { error: 'Invalid path' });
   const modelCode = match[1];
+  const url = getQuery(req);
+  const countryCode = (url.searchParams.get('country') || '').toUpperCase() || null;
+  const cityCode = url.searchParams.get('city') || null;
+
+  if (countryCode && !COUNTRY_NAMES[countryCode]) {
+    return sendJson(res, 400, { error: 'Invalid country parameter' });
+  }
 
   try {
     const supabase = getSupabaseClient();
-    const modelData = await loadProjectModel(supabase, modelCode, null);
+    const modelData = await loadProjectModel(supabase, modelCode, cityCode, countryCode);
     sendJson(res, 200, {
       model: modelData.projectModel,
       assumptions: modelData.assumptions,
-      risks: modelData.risks
+      risks: modelData.risks,
+      countryContext: modelData.countryContext || null
     });
   } catch (err) {
     console.error('[model detail]', err.message);
@@ -272,6 +304,11 @@ async function handleModels(req, res) {
   const subSectorCode = url.searchParams.get('sub_sector');
   const activityCode = url.searchParams.get('activity');
   const cityCode = url.searchParams.get('city');
+  const countryCode = (url.searchParams.get('country') || '').toUpperCase() || null;
+
+  if (countryCode && !COUNTRY_NAMES[countryCode]) {
+    return sendJson(res, 400, { error: 'Invalid country parameter' });
+  }
 
   const supabase = getSupabaseClient();
 
@@ -317,7 +354,44 @@ async function handleModels(req, res) {
     city = data;
   }
 
-  sendJson(res, 200, { models, city, count: models?.length || 0 });
+  let countryProfile = null;
+  let localizedModels = models || [];
+
+  if (countryCode) {
+    countryProfile = await loadCountryProfile(supabase, countryCode);
+    const modelIds = localizedModels.map(model => model.id).filter(Boolean);
+    let overrides = [];
+    if (modelIds.length) {
+      const { data, error: overridesError } = await supabase
+        .from('country_model_overrides')
+        .select('*')
+        .eq('country_code', countryCode)
+        .in('project_model_id', modelIds);
+      if (overridesError) throw overridesError;
+      overrides = data || [];
+    }
+    const byModel = new Map(overrides.map(row => [row.project_model_id, row]));
+
+    localizedModels = localizedModels.map(model => {
+      const override = byModel.get(model.id) || null;
+      return {
+        ...model,
+        country_code: countryCode,
+        country_currency: countryProfile?.currency_code || null,
+        country_model_status: override?.status || 'unverified',
+        localized: Boolean(override && ['estimated', 'verified'].includes(override.status)),
+        base_currency: model.default_currency,
+        country_override: override
+      };
+    });
+  }
+
+  sendJson(res, 200, {
+    models: localizedModels,
+    city,
+    country: countryProfile,
+    count: localizedModels.length
+  });
 }
 
 async function handleGeocode(req, res) {
@@ -431,13 +505,27 @@ async function handleCatalogCountries(req, res) {
       databaseCounts[city.country_code] = (databaseCounts[city.country_code] || 0) + 1;
     }
 
+    const { data: profileRows, error: profileError } = await supabase
+      .from('country_profiles')
+      .select('country_code,currency_code,currency_symbol,locale_ar,locale_en,timezone,fallback_policy,is_supported,is_active');
+    if (profileError) throw profileError;
+    const profilesByCode = new Map((profileRows || []).map(row => [row.country_code, row]));
+
     const countries = Object.entries(COUNTRY_NAMES).map(([code, names]) => {
       const countryDbRows = canonicalDatabaseCities.filter(city => city.country_code === code);
       const mergedCount = mergeMasterAndDatabaseCities(code, countryDbRows).length;
+      const profile = profilesByCode.get(code) || null;
       return {
         code,
         name_ar: names.ar,
         name_en: names.en,
+        currency_code: profile?.currency_code || null,
+        currency_symbol: profile?.currency_symbol || null,
+        locale_ar: profile?.locale_ar || `ar-${code}`,
+        locale_en: profile?.locale_en || `en-${code}`,
+        timezone: profile?.timezone || null,
+        fallback_policy: profile?.fallback_policy || 'no_cross_country_fallback',
+        is_supported: profile?.is_supported !== false,
         cityCount: mergedCount,
         dataCityCount: databaseCounts[code] || 0,
         recordStatus: databaseCounts[code] ? 'data_available' : 'catalog_only'
@@ -460,6 +548,13 @@ async function handleCatalogCountries(req, res) {
 }
 
 async function handleCatalogActivities(req, res) {
+  const url = getQuery(req);
+  const countryCode = (url.searchParams.get('country') || '').toUpperCase() || null;
+
+  if (countryCode && !COUNTRY_NAMES[countryCode]) {
+    return sendJson(res, 400, { error: 'Invalid country parameter' });
+  }
+
   try {
     const supabase = getSupabaseClient();
 
@@ -472,6 +567,18 @@ async function handleCatalogActivities(req, res) {
       .order('name_ar');
 
     if (!canonicalError && canonicalRows) {
+      let countryCoverage = new Map();
+      let countryProfile = null;
+      if (countryCode) {
+        countryProfile = await loadCountryProfile(supabase, countryCode);
+        const { data: coverageRows, error: coverageError } = await supabase
+          .from('canonical_activity_country')
+          .select('canonical_activity_id,availability_status,classification_system,classification_code,classification_label,regulatory_status,source,source_url,confidence')
+          .eq('country_code', countryCode);
+        if (coverageError) throw coverageError;
+        countryCoverage = new Map((coverageRows || []).map(row => [row.canonical_activity_id, row]));
+      }
+
       const activities = canonicalRows.map(row => ({
         id: row.id,
         code: row.code,
@@ -486,7 +593,15 @@ async function handleCatalogActivities(req, res) {
         applicability_count: Number(row.sub_sector_count || 0),
         is_active: row.is_active !== false,
         recordStatus: row.is_active === false ? 'inactive' : (row.name_ar ? 'complete' : 'incomplete'),
-        warnings: row.name_ar ? [] : ['missing_activity_name']
+        warnings: row.name_ar ? [] : ['missing_activity_name'],
+        country: countryCode ? {
+          code: countryCode,
+          currency_code: countryProfile?.currency_code || null,
+          ...(countryCoverage.get(row.id) || {
+            availability_status: 'unknown',
+            regulatory_status: 'unknown'
+          })
+        } : null
       }));
 
       const rawCount = activities.reduce((sum, row) => sum + Math.max(1, Number(row.aliases?.length || 0)), 0);
@@ -495,6 +610,7 @@ async function handleCatalogActivities(req, res) {
         count: activities.length,
         rawCount,
         duplicatesCollapsed: Math.max(0, rawCount - activities.length),
+        country: countryCode || null,
         source: 'canonical_activity_catalog'
       });
     }
@@ -864,7 +980,7 @@ async function handleCities(req, res) {
 
       const { data: marketRows, error: marketError } = await supabase
         .from('city_market_data')
-        .select('city_id, opportunity_score, opportunity_rank, market_size, competitors_count, market_saturation_score, avg_salary, expected_demand, confidence')
+        .select('city_id, opportunity_score, opportunity_rank, market_size, competitors_count, market_saturation_score, avg_salary, expected_demand, confidence, currency_code')
         .in('activity_id', activitySelection.ids)
         .eq('data_year', year)
         .in('city_id', cityIds);
@@ -894,7 +1010,8 @@ async function handleCities(req, res) {
                   saturation: market.market_saturation_score,
                   avgSalary: market.avg_salary,
                   expectedDemand: market.expected_demand,
-                  confidence: market.confidence
+                  confidence: market.confidence,
+                  currencyCode: market.currency_code || null
                 }
               : null
           };
@@ -1016,6 +1133,7 @@ async function handleOpportunitiesTop(req, res) {
       growthRate: row.annual_growth_rate,
       confidence: row.confidence,
       avgSalary: row.avg_salary,
+      currencyCode: row.currency_code || null,
       expectedDemand: row.expected_demand,
       dataYear: row.data_year
     };
@@ -1053,6 +1171,14 @@ async function handleCountryContext(req, res, path) {
   const url = getQuery(req);
   const requestedYear = url.searchParams.get('year') || 'latest';
   const supabase = getSupabaseClient();
+
+  const countryProfile = await loadCountryProfile(supabase, countryCode);
+  const [{ count: activityCount }, { count: localizedActivityCount }, { count: modelOverrideCount }, { count: regulationCount }] = await Promise.all([
+    supabase.from('canonical_activity_country').select('*', { count: 'exact', head: true }).eq('country_code', countryCode),
+    supabase.from('canonical_activity_country').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).neq('availability_status', 'unknown'),
+    supabase.from('country_model_overrides').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).in('status', ['estimated','verified']),
+    supabase.from('country_regulatory_requirements').select('*', { count: 'exact', head: true }).eq('country_code', countryCode)
+  ]);
 
   async function loadObservationRows() {
     try {
@@ -1145,7 +1271,17 @@ async function handleCountryContext(req, res, path) {
   metrics.sort((a, b) => String(a.metric).localeCompare(String(b.metric)));
 
   return sendJson(res, 200, {
-    country: { code: countryCode, ...COUNTRY_NAMES[countryCode] },
+    country: {
+      code: countryCode,
+      ...COUNTRY_NAMES[countryCode],
+      ...(countryProfile || {})
+    },
+    coverage: {
+      canonical_activities: activityCount || 0,
+      localized_activities: localizedActivityCount || 0,
+      localized_models: modelOverrideCount || 0,
+      regulations: regulationCount || 0
+    },
     metrics,
     count: metrics.length,
     scope: 'country',
@@ -1606,7 +1742,12 @@ async function handleWave4Run(req, res) {
 
 async function handleCalculate(req, res) {
   const body = await parseBody(req);
-  const { projectModelCode, cityCode, assumptions: customAssumptions = {}, projectionYears = 5 } = body;
+  const { projectModelCode, cityCode, countryCode: requestedCountryCode, assumptions: customAssumptions = {}, projectionYears = 5 } = body;
+  const countryCode = requestedCountryCode ? String(requestedCountryCode).toUpperCase() : null;
+
+  if (countryCode && !COUNTRY_NAMES[countryCode]) {
+    return sendJson(res, 400, { error: 'Invalid countryCode' });
+  }
 
   if (!projectModelCode) {
     return sendJson(res, 400, { error: 'projectModelCode is required' });
@@ -1614,7 +1755,21 @@ async function handleCalculate(req, res) {
 
   try {
     const supabase = getSupabaseClient();
-    const modelData = await loadProjectModel(supabase, projectModelCode, cityCode);
+    const modelData = await loadProjectModel(supabase, projectModelCode, cityCode, countryCode);
+
+    // An explicit country request must never calculate using another country's
+    // financial baseline. Missing localization is a data-coverage state, not a
+    // reason to silently reuse the Saudi SAR model.
+    if (countryCode && modelData.countryContext?.localized !== true) {
+      return sendJson(res, 422, {
+        error: 'Country financial model is not localized',
+        code: 'COUNTRY_MODEL_UNVERIFIED',
+        countryCode,
+        projectModelCode,
+        countryContext: modelData.countryContext || null
+      });
+    }
+
     const result = calculate(modelData, {
       revenue: customAssumptions.revenue,
       capex: customAssumptions.capex,
@@ -1632,7 +1787,11 @@ async function handleCalculate(req, res) {
       ...result,
       recommendation,
       ai,
-      marketData: modelData.marketData || null
+      marketData: modelData.marketData || null,
+      countryContext: modelData.countryContext || null,
+      warnings: modelData.countryContext?.localized === false
+        ? ['country_financial_model_unverified']
+        : []
     });
   } catch (err) {
     console.error('[calculate]', err.message);

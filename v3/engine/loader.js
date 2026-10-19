@@ -18,7 +18,7 @@ function createSupabaseClient() {
   return createClient(url, key);
 }
 
-async function loadProjectModel(supabase, projectModelCode, cityCode = null) {
+async function loadProjectModel(supabase, projectModelCode, cityCode = null, countryCode = null) {
   // Load project model
   const { data: projectModel, error: modelError } = await supabase
     .from('project_models')
@@ -111,6 +111,12 @@ async function loadProjectModel(supabase, projectModelCode, cityCode = null) {
 
     if (cityError) throw cityError;
 
+    if (countryCode && city?.country_code && city.country_code !== countryCode) {
+      throw new Error(`City ${cityCode} does not belong to country ${countryCode}`);
+    }
+
+    if (!countryCode && city?.country_code) countryCode = city.country_code;
+
     // Load country-specific benchmarks for adjustment engine
     const currentYear = new Date().getFullYear();
     if (city && city.country_code) {
@@ -173,6 +179,53 @@ async function loadProjectModel(supabase, projectModelCode, cityCode = null) {
     }
   }
 
+  let countryContext = null;
+  if (countryCode) {
+    const [{ data: profile, error: profileError }, { data: override, error: overrideError }] = await Promise.all([
+      supabase
+        .from('country_profiles')
+        .select('country_code,name_ar,name_en,currency_code,currency_symbol,locale_ar,locale_en,timezone,fallback_policy')
+        .eq('country_code', countryCode)
+        .maybeSingle(),
+      supabase
+        .from('country_model_overrides')
+        .select('*')
+        .eq('project_model_id', projectModel.id)
+        .eq('country_code', countryCode)
+        .maybeSingle()
+    ]);
+
+    if (profileError) throw profileError;
+    if (overrideError) throw overrideError;
+
+    const localized = Boolean(override && ['estimated', 'verified'].includes(override.status));
+    const baseCurrency = projectModel.default_currency;
+
+    if (localized) {
+      const numericFields = [
+        'capex_min','capex_max','revenue_min','revenue_max',
+        'land_cost_min','land_cost_avg','land_cost_max',
+        'construction_cost_per_sqm',
+        'equipment_cost_min','equipment_cost_avg','equipment_cost_max',
+        'monthly_operation_cost_min','monthly_operation_cost_avg','monthly_operation_cost_max'
+      ];
+      for (const field of numericFields) {
+        if (override[field] !== null && override[field] !== undefined) {
+          projectModel[field] = override[field];
+        }
+      }
+      if (override.currency_code) projectModel.default_currency = override.currency_code;
+    }
+
+    countryContext = {
+      ...(profile || { country_code: countryCode }),
+      model_status: override?.status || 'unverified',
+      localized,
+      base_currency: baseCurrency,
+      override: override || null
+    };
+  }
+
   return {
     projectModel,
     assumptions: normalizedAssumptions,
@@ -181,7 +234,8 @@ async function loadProjectModel(supabase, projectModelCode, cityCode = null) {
     cityIndicators,
     cityRiskAdjustments,
     city,
-    countryBenchmarks
+    countryBenchmarks,
+    countryContext
   };
 }
 

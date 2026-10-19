@@ -161,7 +161,8 @@ async function main() {
           avg_salary: avgSalary,
           opportunity_score: opportunityScore,
           source: 'economic_model_population_weighted',
-          confidence: 50
+          confidence: 50,
+          currency_code: 'SAR'
         });
 
         updated++;
@@ -189,11 +190,11 @@ async function main() {
       await client.query(`
         INSERT INTO public.city_market_data (
           city_id, activity_id, data_year, market_size, competitors_count,
-          market_saturation_score, avg_salary, opportunity_score, source, confidence,
+          market_saturation_score, avg_salary, opportunity_score, source, confidence, currency_code,
           created_at, updated_at
         )
         SELECT x.city_id, x.activity_id, x.data_year, x.market_size, x.competitors_count,
-               x.market_saturation_score, x.avg_salary, x.opportunity_score, x.source, x.confidence,
+               x.market_saturation_score, x.avg_salary, x.opportunity_score, x.source, x.confidence, x.currency_code,
                NOW(), NOW()
         FROM jsonb_to_recordset($1::jsonb) AS x(
           city_id uuid,
@@ -205,7 +206,8 @@ async function main() {
           avg_salary numeric,
           opportunity_score numeric,
           source text,
-          confidence numeric
+          confidence numeric,
+          currency_code text
         )
         ON CONFLICT (city_id, activity_id, data_year) DO UPDATE SET
           market_size = EXCLUDED.market_size,

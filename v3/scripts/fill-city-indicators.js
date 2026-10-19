@@ -51,7 +51,8 @@ async function main() {
         AVG(ci.factory_rent_per_sqm) AS factory_rent_per_sqm,
         AVG(ci.new_licenses_count) AS new_licenses_count,
         AVG(ci.investment_volume) AS investment_volume,
-        AVG(ci.saturation_index) AS saturation_index
+        AVG(ci.saturation_index) AS saturation_index,
+        mode() WITHIN GROUP (ORDER BY ci.currency_code) AS currency_code
       FROM public.city_indicators ci
       JOIN public.cities c ON c.id = ci.city_id
       WHERE ci.year = $1
@@ -60,29 +61,12 @@ async function main() {
 
     const avgByCountry = new Map(countryAvgs.map(r => [r.country_code, r]));
 
-    // Fallback global average
-    const globalAvg = {
-      gdp_city: median(countryAvgs.map(r => r.gdp_city)),
-      growth_rate: median(countryAvgs.map(r => r.growth_rate)),
-      unemployment_rate: median(countryAvgs.map(r => r.unemployment_rate)),
-      establishments_count: median(countryAvgs.map(r => r.establishments_count)),
-      inflation_rate: median(countryAvgs.map(r => r.inflation_rate)),
-      business_ease_index: median(countryAvgs.map(r => r.business_ease_index)),
-      avg_rent_per_sqm: median(countryAvgs.map(r => r.avg_rent_per_sqm)),
-      avg_land_price_per_sqm: median(countryAvgs.map(r => r.avg_land_price_per_sqm)),
-      warehouse_rent_per_sqm: median(countryAvgs.map(r => r.warehouse_rent_per_sqm)),
-      factory_rent_per_sqm: median(countryAvgs.map(r => r.factory_rent_per_sqm)),
-      new_licenses_count: median(countryAvgs.map(r => r.new_licenses_count)),
-      investment_volume: median(countryAvgs.map(r => r.investment_volume)),
-      saturation_index: median(countryAvgs.map(r => r.saturation_index))
-    };
-
     let inserted = 0;
     let skipped = 0;
 
     for (const city of missingCities) {
-      const base = avgByCountry.get(city.country_code) || globalAvg;
-      if (!base.growth_rate) {
+      const base = avgByCountry.get(city.country_code);
+      if (!base || !base.growth_rate) {
         skipped++;
         continue;
       }
@@ -97,10 +81,11 @@ async function main() {
       const avgPop = Number(popStats[0].avg_pop) || 1000000;
       const popRatio = (Number(city.population) || avgPop) / avgPop;
 
-      const gdpCity = scale(base.gdp_city, popRatio, 0.7);
+      const currencyCode = base.currency_code || null;
+      const gdpCity = currencyCode ? scale(base.gdp_city, popRatio, 0.7) : null;
       const establishmentsCount = Math.round(scale(base.establishments_count, popRatio, 0.8));
       const newLicensesCount = Math.round(scale(base.new_licenses_count, popRatio, 0.8));
-      const investmentVolume = scale(base.investment_volume, popRatio, 0.7);
+      const investmentVolume = currencyCode ? scale(base.investment_volume, popRatio, 0.7) : null;
 
       await client.query(`
         INSERT INTO public.city_indicators (
@@ -108,8 +93,8 @@ async function main() {
           establishments_count, inflation_rate, business_ease_index,
           avg_rent_per_sqm, avg_land_price_per_sqm, warehouse_rent_per_sqm,
           factory_rent_per_sqm, new_licenses_count, investment_volume,
-          saturation_index, overall_confidence, metadata, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, NOW())
+          saturation_index, overall_confidence, currency_code, metadata, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW())
         ON CONFLICT (city_id, year) DO UPDATE SET
           gdp_city = EXCLUDED.gdp_city,
           growth_rate = EXCLUDED.growth_rate,
@@ -121,6 +106,7 @@ async function main() {
           avg_land_price_per_sqm = EXCLUDED.avg_land_price_per_sqm,
           warehouse_rent_per_sqm = EXCLUDED.warehouse_rent_per_sqm,
           factory_rent_per_sqm = EXCLUDED.factory_rent_per_sqm,
+          currency_code = EXCLUDED.currency_code,
           new_licenses_count = EXCLUDED.new_licenses_count,
           investment_volume = EXCLUDED.investment_volume,
           saturation_index = EXCLUDED.saturation_index,
@@ -136,14 +122,15 @@ async function main() {
         establishmentsCount,
         base.inflation_rate,
         base.business_ease_index,
-        base.avg_rent_per_sqm,
-        base.avg_land_price_per_sqm,
-        base.warehouse_rent_per_sqm,
-        base.factory_rent_per_sqm,
+        currencyCode ? base.avg_rent_per_sqm : null,
+        currencyCode ? base.avg_land_price_per_sqm : null,
+        currencyCode ? base.warehouse_rent_per_sqm : null,
+        currencyCode ? base.factory_rent_per_sqm : null,
         newLicensesCount,
         investmentVolume,
         base.saturation_index,
         30,
+        currencyCode,
         JSON.stringify({ source: 'country_average_estimate', estimated: true })
       ]);
 

@@ -279,6 +279,7 @@
   }
 }</script>
 
+  <script src="/v3/country-context.js"></script>
   <link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/city-comparison" />
 </head>
 <body>
@@ -348,6 +349,8 @@
     let filteredCities = [];
     let activities = [];
     let models = [];
+    let countryProfiles = new Map();
+    let selectedCountryProfile = null;
     let selectedCities = new Set();
 
     async function fetchJson(url, options = {}) {
@@ -365,9 +368,13 @@
       return Number(num).toLocaleString('ar-SA');
     }
 
-    function formatMoney(num) {
-      if (!Number.isFinite(num)) return '-';
-      return formatNumber(num) + ' ر.س';
+    function formatMoney(num, currencyCode = null, profile = selectedCountryProfile) {
+      if (!Number.isFinite(Number(num))) return '-';
+      if (!currencyCode) return formatNumber(Number(num)) + ' · العملة غير موثقة';
+      if (window.BondsCountryContext) {
+        return window.BondsCountryContext.formatCurrency(Number(num), currencyCode, profile);
+      }
+      return formatNumber(Number(num)) + ' ' + currencyCode;
     }
 
     function percent(num) {
@@ -435,32 +442,33 @@
 
     async function init() {
       try {
-        const [countriesData, activitiesData, modelsData] = await Promise.all([
+        const [countriesData, activitiesData] = await Promise.all([
           fetchJson(API_URL + '/catalog/countries'),
-          fetchJson(API_URL + '/catalog/activities'),
-          fetchJson(API_URL + '/models?limit=500')
+          fetchJson(API_URL + '/catalog/activities')
         ]);
 
         activities = activitiesData.activities || [];
-        models = modelsData.models || [];
 
         const countrySelect = document.getElementById('countrySelect');
+        const countryRows = (countriesData.countries || [])
+          .filter(country => country.recordStatus !== 'no_cities');
+        countryProfiles = new Map(countryRows.map(country => [country.code, country]));
         countrySelect.innerHTML = '<option value="">اختر الدولة</option>' +
-          (countriesData.countries || [])
-            .filter(country => country.recordStatus !== 'no_cities')
+          countryRows
             .map(country => `<option value="${country.code}">${country.name_ar} (${country.cityCount})</option>`)
             .join('');
-        countrySelect.value = 'SA';
+        const storedCountry = window.BondsCountryContext?.getSelected('SA') || 'SA';
+        countrySelect.value = countryRows.some(country => country.code === storedCountry)
+          ? storedCountry
+          : (countryRows[0]?.code || '');
+        selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
+        window.BondsCountryContext?.setSelected(countrySelect.value, {
+          currency_code: selectedCountryProfile?.currency_code || null,
+          currency_symbol: selectedCountryProfile?.currency_symbol || null
+        });
 
-        const activitySelect = document.getElementById('activitySelect');
-        activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
-          activities
-            .map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`)
-            .join('');
-
-        const modelSelect = document.getElementById('modelSelect');
-        modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
-          models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
+        await loadCountryActivities();
+        await loadCountryModels();
 
         await refreshComparisonYears({ preserve: false });
         await updateCityList();
@@ -468,6 +476,43 @@
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
         document.getElementById('cityList').innerHTML = `<div class="error">فشل تحميل الكتالوج: ${err.message}</div>`;
+      }
+    }
+
+    async function loadCountryActivities() {
+      const countryCode = document.getElementById('countrySelect').value;
+      const activitySelect = document.getElementById('activitySelect');
+      const current = activitySelect.value;
+
+      const url = countryCode
+        ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countryCode)
+        : API_URL + '/catalog/activities';
+      const data = await fetchJson(url);
+      activities = (data.activities || [])
+        .filter(activity => activity.country?.availability_status !== 'unavailable');
+
+      activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
+        activities.map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`).join('');
+      if (activities.some(activity => activity.code === current)) activitySelect.value = current;
+    }
+
+    async function loadCountryModels() {
+      const countryCode = document.getElementById('countrySelect').value;
+      const modelSelect = document.getElementById('modelSelect');
+      models = [];
+
+      if (!countryCode) {
+        modelSelect.innerHTML = '<option value="">بدون نموذج</option>';
+        return;
+      }
+
+      const data = await fetchJson(API_URL + '/models?limit=500&country=' + encodeURIComponent(countryCode));
+      models = (data.models || []).filter(model => model.localized === true);
+      modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
+        models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
+
+      if (!models.length) {
+        modelSelect.innerHTML = '<option value="">لا توجد نماذج مالية محلية موثقة لهذه الدولة</option>';
       }
     }
 
@@ -664,7 +709,7 @@
           <div class="summary-card">
             <h4>🏠 أقل إيجار</h4>
             <div class="value">${cheapest.city.name_ar}</div>
-            <div class="city">${formatMoney(cheapest.market?.avg_rent_per_sqm)} / م²</div>
+            <div class="city">${formatMoney(cheapest.market?.avg_rent_per_sqm, cheapest.market?.currency_code)} / م²</div>
           </div>`;
       }
       if (best.avg_salary) {
@@ -673,7 +718,7 @@
           <div class="summary-card">
             <h4>👷 أقل تكلفة عمالة</h4>
             <div class="value">${cheapestLabor.city.name_ar}</div>
-            <div class="city">${formatMoney(cheapestLabor.market?.avg_salary)} / شهر</div>
+            <div class="city">${formatMoney(cheapestLabor.market?.avg_salary, cheapestLabor.market?.currency_code)} / شهر</div>
           </div>`;
       }
       if (best.market_size) {
@@ -682,7 +727,7 @@
           <div class="summary-card">
             <h4><span class="v3-icon" aria-hidden="true">▤</span> أكبر سوق</h4>
             <div class="value">${biggest.city.name_ar}</div>
-            <div class="city">${formatMoney(biggest.market?.market_size)}</div>
+            <div class="city">${formatMoney(biggest.market?.market_size, biggest.market?.currency_code)}</div>
           </div>`;
       }
       summaryHtml += '</div>';
@@ -695,7 +740,7 @@
         items.forEach((item, idx) => {
           const value = source === 'market' ? item.market?.[key] : item.indicators?.[key];
           const cls = b ? (idx === b.best ? 'best' : idx === b.worst ? 'worst' : '') : '';
-          const display = formatter(value);
+          const display = formatter(value, item);
           rows += `<td class="${cls}">${display}</td>`;
         });
         rows += '</tr>';
@@ -704,14 +749,14 @@
       rows += `<tr><td>المدينة</td>${items.map(i => `<td><strong>${i.city.name_ar}</strong><br><small style="color:var(--text-secondary)">${countryNames[i.city.country_code] || i.city.country_code}</small></td>`).join('')}</tr>`;
       rows += `<tr><td>السكان</td>${items.map(i => `<td>${formatNumber(i.city.population)}</td>`).join('')}</tr>`;
       addRow('درجة الفرصة', v => Number(v)?.toFixed(1) || '-', 'opportunity_score');
-      addRow('حجم السوق', formatMoney, 'market_size');
+      addRow('حجم السوق', (v, item) => formatMoney(v, item.market?.currency_code), 'market_size');
       addRow('النمو السنوي', percent, 'annual_growth_rate');
       addRow('عدد المنافسين', v => Number(v)?.toLocaleString('ar-SA') || '-', 'competitors_count');
       addRow('مؤشر التشبع', v => Number(v)?.toFixed(0) + '%' || '-', 'market_saturation_score');
       addRow('الطلب المتوقع', v => demandLabel(v), 'expected_demand');
-      addRow('متوسط الراتب', formatMoney, 'avg_salary');
-      addRow('متوسط الإيجار / م²', formatMoney, 'avg_rent_per_sqm');
-      addRow('GDP المدينة', formatMoney, 'gdp_city', 'indicators');
+      addRow('متوسط الراتب', (v, item) => formatMoney(v, item.market?.currency_code), 'avg_salary');
+      addRow('متوسط الإيجار / م²', (v, item) => formatMoney(v, item.market?.currency_code), 'avg_rent_per_sqm');
+      addRow('GDP المدينة', (v, item) => formatMoney(v, item.indicators?.currency_code), 'gdp_city', 'indicators');
       addRow('معدل النمو', percent, 'growth_rate', 'indicators');
       addRow('معدل البطالة', percent, 'unemployment_rate', 'indicators');
       addRow('مؤشر المخاطر', v => Number(v)?.toFixed(0) || '-', 'risk_score');
@@ -719,7 +764,7 @@
       if (items[0].financial) {
         rows += `<tr><td>ROI</td>${items.map(i => `<td>${i.financial.roi !== null ? percent(i.financial.roi) : '-'}</td>`).join('')}</tr>`;
         rows += `<tr><td>IRR</td>${items.map(i => `<td>${i.financial.irr !== null ? percent(i.financial.irr) : '-'}</td>`).join('')}</tr>`;
-        rows += `<tr><td>NPV</td>${items.map(i => `<td>${formatMoney(i.financial.npv)}</td>`).join('')}</tr>`;
+        rows += `<tr><td>NPV</td>${items.map(i => `<td>${formatMoney(i.financial.npv, i.financial.currency)}</td>`).join('')}</tr>`;
         rows += `<tr><td>فترة الاسترداد (شهر)</td>${items.map(i => `<td>${i.financial.paybackMonths !== null ? i.financial.paybackMonths.toFixed(1) : '-'}</td>`).join('')}</tr>`;
       }
 
@@ -742,6 +787,13 @@
 
     document.getElementById('compareBtn').addEventListener('click', runComparison);
     document.getElementById('countrySelect').addEventListener('change', async () => {
+      const countryCode = document.getElementById('countrySelect').value;
+      selectedCountryProfile = countryProfiles.get(countryCode) || null;
+      window.BondsCountryContext?.setSelected(countryCode, {
+        currency_code: selectedCountryProfile?.currency_code || null,
+        currency_symbol: selectedCountryProfile?.currency_symbol || null
+      });
+      await Promise.all([loadCountryActivities(), loadCountryModels()]);
       await refreshComparisonYears({ preserve: false });
       await updateCityList();
     });

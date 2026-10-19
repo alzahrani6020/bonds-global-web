@@ -115,17 +115,24 @@ async function handleCompareCities(req, res) {
 
       if (modelCode) {
         try {
-          const modelData = await loadProjectModel(supabase, modelCode, city.code);
-          const calc = calculate(modelData);
-          item.financial = {
-            roi: calc.summary?.roi ?? null,
-            irr: calc.summary?.irr ?? null,
-            npv: calc.summary?.npv ?? null,
-            paybackMonths: calc.summary?.paybackMonths ?? null,
-            breakEven: calc.summary?.breakEven ?? null,
-            riskScore: calc.risk?.score ?? null
-          };
+          const modelData = await loadProjectModel(supabase, modelCode, city.code, city.country_code);
+          if (modelData.countryContext?.localized === true) {
+            const calc = calculate(modelData);
+            item.financial = {
+              roi: calc.summary?.roi ?? null,
+              irr: calc.summary?.irr ?? null,
+              npv: calc.summary?.npv ?? null,
+              paybackMonths: calc.summary?.paybackMonths ?? null,
+              breakEven: calc.summary?.breakEven ?? null,
+              riskScore: calc.risk?.score ?? null,
+              currency: modelData.projectModel?.default_currency || modelData.countryContext?.currency_code || null
+            };
+            item.financial_status = modelData.countryContext?.model_status || 'localized';
+          } else {
+            item.financial_status = 'country_model_unverified';
+          }
         } catch (err) {
+          item.financial_status = 'calculation_failed';
           console.warn(`[compare] Financial calc failed for ${city.code}:`, err.message);
         }
       }

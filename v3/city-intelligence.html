@@ -438,6 +438,7 @@
   }
 }</script>
 
+  <script src="/v3/country-context.js"></script>
   <link rel="alternate" hreflang="ar" href="https://bonds-global.com/v3/city-intelligence" />
 </head>
 <body>
@@ -550,6 +551,8 @@
     };
     let cities = [];
     let activities = [];
+    let countryProfiles = new Map();
+    let selectedCountryProfile = null;
 
     // Friendly Arabic labels for technical metric codes used inside insights / scenarios
     const METRIC_LABELS_AR = {
@@ -631,10 +634,21 @@
     }
 
     function valueOrMissing(value, suffix = '') {
-      if (value === null || value === undefined || value === '' || Number.isNaN(value)) {
+      if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
         return '<span class="missing-badge">غير متوفر حالياً</span>';
       }
-      return formatNumber(value) + (suffix ? ' ' + suffix : '');
+      return formatNumber(Number(value)) + (suffix ? ' ' + suffix : '');
+    }
+
+    function moneyOrMissing(value, currencyCode = null, profile = selectedCountryProfile) {
+      if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
+        return '<span class="missing-badge">غير متوفر حالياً</span>';
+      }
+      if (!currencyCode) {
+        return formatNumber(Number(value)) + ' <span class="confidence low">العملة غير موثقة</span>';
+      }
+      return window.BondsCountryContext?.formatCurrency(Number(value), currencyCode, profile) ||
+        (formatNumber(Number(value)) + ' ' + currencyCode);
     }
 
     // Compute a unified investment attractiveness index from available indicators + market data
@@ -845,6 +859,7 @@
         const activitySelect = document.getElementById('activitySelect');
 
         const countries = countriesData.countries || [];
+        countryProfiles = new Map(countries.map(country => [country.code, country]));
         const totalCatalogCities = countries.reduce((sum, country) => sum + Number(country.cityCount || 0), 0);
         const totalDataCities = countries.reduce((sum, country) => sum + Number(country.dataCityCount || 0), 0);
         const catalogSummary = document.getElementById('catalogSummary');
@@ -862,10 +877,33 @@
           `<option value="${country.code}" data-icon="${countryFlags[country.code] || ''}">${country.name_ar}</option>`
         ).join('');
         countrySelect.value = countries.some(c => c.code === initialCountry) ? initialCountry : 'SA';
+        selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
         const countryDd = window.getUniversalDropdown && window.getUniversalDropdown(countrySelect);
         if (countryDd?.setOptions) {
           countryDd.setOptions(countryOptions);
           if (countryDd.selectByValue) countryDd.selectByValue(countrySelect.value);
+        }
+
+        async function loadActivities() {
+          const selectedCountry = countrySelect.value;
+          const url = selectedCountry
+            ? API_URL + '/catalog/activities?country=' + encodeURIComponent(selectedCountry)
+            : API_URL + '/catalog/activities';
+          const data = await fetchJson(url);
+          activities = (data.activities || [])
+            .filter(activity => activity.country?.availability_status !== 'unavailable');
+
+          activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a =>
+            `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar || a.name_en || a.code}</option>`
+          ).join('');
+          const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
+          if (activityDd?.setOptions) {
+            activityDd.setOptions(activities.map(a => ({
+              value: a.code,
+              label: a.name_ar || a.name_en || a.code,
+              icon: ACTIVITY_ICON
+            })));
+          }
         }
 
         function populateCities() {
@@ -901,15 +939,17 @@
         await loadCities();
         await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
 
-        const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar || a.name_en || a.code, icon: ACTIVITY_ICON }));
-        activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a =>
-          `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar || a.name_en || a.code}</option>`
-        ).join('');
-        const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
-        if (activityDd?.setOptions) activityDd.setOptions(activityOptions);
+        await loadActivities();
 
         countrySelect.addEventListener('change', async () => {
-          await loadCities();
+          selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
+          window.BondsCountryContext?.setSelected(countrySelect.value, {
+            currency_code: selectedCountryProfile?.currency_code || null,
+            currency_symbol: selectedCountryProfile?.currency_symbol || null
+          });
+          citySelect.value = '';
+          activitySelect.value = '';
+          await Promise.all([loadCities(), loadActivities()]);
           await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
           document.getElementById('content').innerHTML = '<div class="loading">اختر مدينة لعرض المؤشرات</div>';
         });
@@ -1003,12 +1043,13 @@
       for (const row of evidenceRows) {
         if (!evidenceByMetric.has(row.metric_code)) evidenceByMetric.set(row.metric_code, row);
       }
-      const truthValue = (metricCode, value, suffix = '') => {
-        if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
-          return valueOrMissing(null);
-        }
+      const activeCountryProfile = countryContext?.country?.currency_code
+        ? countryContext.country
+        : (countryProfiles.get(city.country_code) || selectedCountryProfile);
+      selectedCountryProfile = activeCountryProfile || selectedCountryProfile;
+
+      const evidenceDecorated = (metricCode, formatted) => {
         const evidence = evidenceByMetric.get(metricCode);
-        const formatted = formatNumber(value) + (suffix ? ' ' + suffix : '');
         if (evidence?.evidence_status === 'verified') {
           return formatted + ' <span class="confidence high">مثبت</span>';
         }
@@ -1016,6 +1057,20 @@
           return formatted + ' <span class="confidence medium">تقديري</span>';
         }
         return formatted + ' <span class="confidence low">غير مثبت</span>';
+      };
+
+      const truthValue = (metricCode, value, suffix = '') => {
+        if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
+          return valueOrMissing(null);
+        }
+        return evidenceDecorated(metricCode, formatNumber(Number(value)) + (suffix ? ' ' + suffix : ''));
+      };
+
+      const moneyTruthValue = (metricCode, value, currencyCode = null) => {
+        if (value === null || value === undefined || value === '' || Number.isNaN(Number(value))) {
+          return valueOrMissing(null);
+        }
+        return evidenceDecorated(metricCode, moneyOrMissing(value, currencyCode, activeCountryProfile));
       };
       const modeledMarket = /model|weighted|estimate|inference/i.test(String(marketItem.source || ''));
       const attractiveness = computeAttractiveness(city, indicators, marketItem, evidenceRows);
@@ -1063,7 +1118,7 @@
               <h3 style="margin: 0;">▤ المؤشرات الاقتصادية ${dataYear && dataYear !== 'latest' ? '(' + dataYear + ')' : ''} ${confidenceBadge(indicators.overall_confidence)}</h3>
               <button class="feedback-btn" onclick="openFeedbackForm('', '', 'population', ${city.population || 'null'})">✏️ صحّح البيانات</button>
             </div>
-            <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${truthValue('gdp_city', indicators.gdp_city, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">الناتج المحلي للمدينة</span><span class="metric-value">${moneyTruthValue('gdp_city', indicators.gdp_city, indicators.currency_code)}</span></div>
             <div class="metric"><span class="metric-label">معدل النمو الاقتصادي</span><span class="metric-value">${truthValue('growth_rate', indicators.growth_rate, '%')}</span></div>
             <div class="metric"><span class="metric-label">معدل البطالة</span><span class="metric-value">${truthValue('unemployment_rate', indicators.unemployment_rate, '%')}</span></div>
             <div class="metric"><span class="metric-label">عدد المنشآت</span><span class="metric-value">${truthValue('establishments_count', indicators.establishments_count)}</span></div>
@@ -1072,10 +1127,10 @@
 
           <div class="card">
             <h3>▥ المؤشرات العقارية</h3>
-            <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${truthValue('avg_rent_per_sqm', indicators.avg_rent_per_sqm, 'ر.س')}</span></div>
-            <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${truthValue('avg_land_price_per_sqm', indicators.avg_land_price_per_sqm, 'ر.س')}</span></div>
-            <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${truthValue('warehouse_rent_per_sqm', indicators.warehouse_rent_per_sqm, 'ر.س')}</span></div>
-            <div class="metric"><span class="metric-label">إيجار المصانع / م²</span><span class="metric-value">${truthValue('factory_rent_per_sqm', indicators.factory_rent_per_sqm, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">متوسط الإيجار / م²</span><span class="metric-value">${moneyTruthValue('avg_rent_per_sqm', indicators.avg_rent_per_sqm, indicators.currency_code)}</span></div>
+            <div class="metric"><span class="metric-label">متوسط سعر الأرض / م²</span><span class="metric-value">${moneyTruthValue('avg_land_price_per_sqm', indicators.avg_land_price_per_sqm, indicators.currency_code)}</span></div>
+            <div class="metric"><span class="metric-label">إيجار المستودعات / م²</span><span class="metric-value">${moneyTruthValue('warehouse_rent_per_sqm', indicators.warehouse_rent_per_sqm, indicators.currency_code)}</span></div>
+            <div class="metric"><span class="metric-label">إيجار المصانع / م²</span><span class="metric-value">${moneyTruthValue('factory_rent_per_sqm', indicators.factory_rent_per_sqm, indicators.currency_code)}</span></div>
           </div>
 
           <!-- Sector Recommendations -->
@@ -1103,10 +1158,10 @@ ${recommendations.length ? recommendations.map(r => `
               <h3 style="margin: 0;">◎ بيانات السوق — ${marketItem.economic_activities?.name_ar || ''} ${confidenceBadge(marketItem.confidence)}</h3>
               <button class="feedback-btn" onclick="openFeedbackForm('${marketItem.economic_activities?.code || ''}', '${marketItem.economic_activities?.name_ar || ''}', 'market_size', ${marketItem.market_size || 'null'})">✏️ صحّح البيانات</button>
             </div>
-            <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${valueOrMissing(marketItem.market_size, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${moneyOrMissing(marketItem.market_size, marketItem.currency_code, activeCountryProfile)}</span></div>
             <div class="metric"><span class="metric-label">عدد المنافسين</span><span class="metric-value">${valueOrMissing(marketItem.competitors_count)}</span></div>
             <div class="metric"><span class="metric-label">مؤشر التشبع</span><span class="metric-value">${valueOrMissing(marketItem.market_saturation_score, '%')}</span></div>
-            <div class="metric"><span class="metric-label">متوسط الراتب</span><span class="metric-value">${valueOrMissing(marketItem.avg_salary, 'ر.س')}</span></div>
+            <div class="metric"><span class="metric-label">متوسط الراتب</span><span class="metric-value">${moneyOrMissing(marketItem.avg_salary, marketItem.currency_code, activeCountryProfile)}</span></div>
             <div class="metric"><span class="metric-label">الطلب المتوقع</span><span class="metric-value">${marketItem.expected_demand === 'high' ? 'مرتفع' : marketItem.expected_demand === 'low' ? 'منخفض' : marketItem.expected_demand ? 'متوسط' : valueOrMissing(null)}</span></div>
             <div class="metric"><span class="metric-label">المصدر</span><span class="metric-value">${marketItem.source || 'تقدير'}</span></div>
             ${modeledMarket ? '<p class="evidence-meta"><strong>تنبيه:</strong> هذه القيم ناتجة عن نموذج داخلي وليست قراءة سوق حية مباشرة.</p>' : ''}
@@ -1417,8 +1472,13 @@ ${recommendations.length ? recommendations.map(r => `
       const preselectCity = params.get('city');
       const preselectActivity = params.get('activity');
 
-      const inferredCountry = preselectCity && /^[A-Z]{2}-/.test(preselectCity) ? preselectCity.slice(0, 2) : 'SA';
+      const requestedCountry = (params.get('country') || '').toUpperCase();
+      const inferredCountry = requestedCountry ||
+        (preselectCity && /^[A-Z]{2}-/.test(preselectCity) ? preselectCity.slice(0, 2) : '') ||
+        window.BondsCountryContext?.getSelected('SA') ||
+        'SA';
       await init(inferredCountry);
+      window.BondsCountryContext?.setSelected(document.getElementById('countrySelect').value);
 
       if (preselectCity) {
         const citySelect = document.getElementById('citySelect');
