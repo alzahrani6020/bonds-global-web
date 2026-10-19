@@ -127,7 +127,7 @@ jobs:
               console.log(`Staged health PASS (commit=${body.version})`);
             '
 
-          layout_js="$(npx --no-install vercel curl \"$deployment_url/site-layout.js?tools-smoke=${{ steps.release.outputs.sha }}\" -H 'Cache-Control: no-cache')"
+          layout_js="$(npx --no-install vercel curl "$deployment_url/site-layout.js?tools-smoke=${{ steps.release.outputs.sha }}" -H 'Cache-Control: no-cache')"
           printf '%s' "$layout_js" | grep -F "navId: 'tools'" >/dev/null || {
             echo "Staged site-layout.js is missing the stable tools navigation selector"
             exit 1
@@ -142,15 +142,15 @@ jobs:
             "/en/calculator-wizard.html" \
             "/calculators/medical-viability.html" \
             "/en/calculators/medical-viability.html"; do
-            body="$(npx --no-install vercel curl \"$deployment_url$path\" -H 'Cache-Control: no-cache')"
+            body="$(npx --no-install vercel curl "$deployment_url$path" -H 'Cache-Control: no-cache')"
             [[ -n "$body" ]] || {
               echo "Staged tools route returned an empty body: $path"
               exit 1
             }
           done
 
-          ar_catalog="$(npx --no-install vercel curl \"$deployment_url/calculators/investment-center/index.html\" -H 'Cache-Control: no-cache')"
-          en_catalog="$(npx --no-install vercel curl \"$deployment_url/en/calculators/investment-center/index.html\" -H 'Cache-Control: no-cache')"
+          ar_catalog="$(npx --no-install vercel curl "$deployment_url/calculators/investment-center/index.html" -H 'Cache-Control: no-cache')"
+          en_catalog="$(npx --no-install vercel curl "$deployment_url/en/calculators/investment-center/index.html" -H 'Cache-Control: no-cache')"
           printf '%s' "$ar_catalog" | grep -F "INVESTMENT-TOOLS-GENERATED:START" >/dev/null || {
             echo "Arabic staged investment catalog is missing generated tools marker"
             exit 1
