@@ -256,7 +256,7 @@
       const funds={sources:values('fundSource'),funds_explanation:document.getElementById('fundsExplanation').value.trim(),wealth_explanation:document.getElementById('wealthExplanation').value.trim(),supporting_evidence:document.getElementById('supportingEvidence').value.trim()};
       const risk={pep_status:document.getElementById('pepStatus').value,pep_details:document.getElementById('pepDetails').value.trim(),high_risk_countries:document.getElementById('highRiskCountries').value,geographic_details:document.getElementById('geographicDetails').value.trim(),third_party_payments:document.getElementById('thirdPartyPayments').value,third_party_details:document.getElementById('thirdPartyDetails').value.trim()};
       const declarations={declared:document.getElementById('declaration').checked,verification_consent:document.getElementById('verificationConsent').checked,signer_name:document.getElementById('signerName').value.trim(),signer_capacity:document.getElementById('signerCapacity').value.trim(),accepted_at:status==='submitted'?new Date().toISOString():null};
-      return {user_id:user.id,client_id:currentCase?.client_id||fundingCase?.client_id||null,funding_case_id:fundingCase?.id||null,status,client_type:document.getElementById('clientType').value,identity_data:identity,business_data:business,ownership_data:ownership,funds_data:funds,risk_disclosures:risk,documents:[{notes:document.getElementById('documentNotes').value.trim()}],declarations,submitted_at:status==='submitted'?new Date().toISOString():null};
+      return {user_id:user.id,client_id:currentCase?.client_id||fundingCase?.client_id||null,status,client_type:document.getElementById('clientType').value,identity_data:identity,business_data:business,ownership_data:ownership,funds_data:funds,risk_disclosures:risk,documents:[{notes:document.getElementById('documentNotes').value.trim()}],declarations,submitted_at:status==='submitted'?new Date().toISOString():null};
     }
 
     async function save(status){
@@ -266,7 +266,9 @@
       if(currentCase?.id) result=await sb.from('client_kyc_cases').update(payload).eq('id',currentCase.id).select().single();
       else result=await sb.from('client_kyc_cases').insert(payload).select().single();
       if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return false;}
-      currentCase=result.data; showStatus(status==='submitted'?'تم إرسال نموذج اعرف عميلك للمراجعة.':'تم حفظ المسودة.',true); return true;
+      currentCase=result.data;
+       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'kyc',currentCase);}catch(e){showStatus('تعذر ربط النموذج بملف التمويل: '+e.message,false);return false;}}
+       showStatus(status==='submitted'?'تم إرسال نموذج اعرف عميلك للمراجعة.':'تم حفظ المسودة.',true); return true;
     }
 
     document.getElementById('saveBtn').onclick=()=>save('draft');
@@ -323,10 +325,9 @@
       setVal('phone',user.user_metadata?.phone||''); setVal('signerName',user.user_metadata?.full_name||'');
       fundingCase=await window.BondsFundingCaseContext.resolve(sb,user);
       const cid=await sb.rpc('get_my_client_id');
-      let existingQuery=sb.from('client_kyc_cases').select('*').eq('user_id',user.id);
-      if(fundingCase) existingQuery=existingQuery.eq('funding_case_id',fundingCase.id);
-      const existing=await existingQuery.order('created_at',{ascending:false}).limit(1).maybeSingle();
-      if(existing.data){hydrate(existing.data);} else if(fundingCase||cid.data){currentCase={client_id:fundingCase?.client_id||cid.data||null,funding_case_id:fundingCase?.id||null};}
+      const existing=await sb.from('client_kyc_cases').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
+      if(existing.data){hydrate(existing.data);if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'kyc',existing.data);}
+      else if(fundingCase||cid.data){currentCase={client_id:fundingCase?.client_id||cid.data||null};}
     }
     init();
   })();
