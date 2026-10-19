@@ -300,6 +300,7 @@
     };
     const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
     let activities = [];
+    let countryProfiles = new Map();
 
     async function fetchJson(url, options = {}) {
       const res = await fetch(url, options);
@@ -401,31 +402,37 @@
       setReadinessState('loading');
 
       try {
-        const [citiesData, activitiesData] = await Promise.all([
-          fetchJson(API_URL + '/cities?limit=2000'),
-          fetchJson(API_URL + '/catalog/activities')
-        ]);
+        const countriesData = await fetchJson(API_URL + '/catalog/countries');
 
         if (window.destroyUniversalDropdowns) {
           window.destroyUniversalDropdowns(countrySelect);
           window.destroyUniversalDropdowns(activitySelect);
         }
 
-        const countries = [...new Set((citiesData.cities || [])
-          .filter(c => MODERN_CITY_CODE.test(c.code))
-          .map(c => c.country_code || 'SA'))].sort();
-
-        activities = activitiesData.activities || [];
+        const countryRows = (countriesData.countries || []).filter(c => c.is_supported !== false);
+        const countries = countryRows.map(c => c.code);
+        countryProfiles = new Map(countryRows.map(c => [c.code, c]));
 
         countrySelect.innerHTML = '<option value="">كل الدول</option>';
-        countries.forEach(code => {
-          countrySelect.innerHTML += `<option value="${code}">${countryNames[code] || code}</option>`;
+        countryRows.forEach(country => {
+          countrySelect.innerHTML += `<option value="${country.code}">${country.name_ar}</option>`;
         });
 
+        const storedCountry = window.BondsCountryContext?.getSelected('SA') || 'SA';
+        if (countries.includes(storedCountry)) countrySelect.value = storedCountry;
+
+        const activityUrl = countrySelect.value
+          ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countrySelect.value)
+          : API_URL + '/catalog/activities';
+        const activitiesData = await fetchJson(activityUrl);
+        activities = activitiesData.activities || [];
+
         activitySelect.innerHTML = '<option value="">كل الأنشطة</option>';
-        activities.forEach(a => {
-          activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
-        });
+        activities
+          .filter(a => a.country?.availability_status !== 'unavailable')
+          .forEach(a => {
+            activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
+          });
 
         if (countries.length === 0 || activities.length === 0) {
           const missing = [];
@@ -443,11 +450,47 @@
           window.initUniversalDropdowns(activitySelect);
         }
 
+        if (countrySelect.value) {
+          const profile = countryProfiles.get(countrySelect.value);
+          window.BondsCountryContext?.setSelected(countrySelect.value, {
+            currency_code: profile?.currency_code || null,
+            currency_symbol: profile?.currency_symbol || null
+          });
+        }
+
         setReadinessState('ready');
       } catch (err) {
         setReadinessState('error', err.message || 'حدث خطأ غير متوقع أثناء تحميل البيانات.');
       }
     }
+
+    document.getElementById('countrySelect').addEventListener('change', async () => {
+      const countrySelect = document.getElementById('countrySelect');
+      const activitySelect = document.getElementById('activitySelect');
+      const profile = countryProfiles.get(countrySelect.value) || null;
+      if (countrySelect.value) {
+        window.BondsCountryContext?.setSelected(countrySelect.value, {
+          currency_code: profile?.currency_code || null,
+          currency_symbol: profile?.currency_symbol || null
+        });
+      }
+
+      try {
+        const url = countrySelect.value
+          ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countrySelect.value)
+          : API_URL + '/catalog/activities';
+        const data = await fetchJson(url);
+        activities = data.activities || [];
+        activitySelect.innerHTML = '<option value="">كل الأنشطة</option>';
+        activities
+          .filter(a => a.country?.availability_status !== 'unavailable')
+          .forEach(a => {
+            activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
+          });
+      } catch (err) {
+        console.warn('Failed to refresh activities for country:', err.message);
+      }
+    });
 
     async function loadOpportunities() {
       const country = document.getElementById('countrySelect').value;
@@ -513,7 +556,7 @@
             </div>
             <div class="metrics">
               <div class="metric"><span class="metric-label">الترتيب</span><span class="metric-value">#${o.rank || idx + 1}</span></div>
-              <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${formatNumber(o.marketSize)} ر.س</span></div>
+              <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${window.BondsCountryContext?.formatMoney(o.marketSize, countryProfiles.get(city?.country_code)) || formatNumber(o.marketSize)}</span></div>
               <div class="metric"><span class="metric-label">المنافسون</span><span class="metric-value">${formatNumber(o.competitorsCount)}</span></div>
               <div class="metric"><span class="metric-label">التشبع</span><span class="metric-value">${Number(o.saturation)?.toFixed(0) || '-'}%</span></div>
               <div class="metric"><span class="metric-label">النمو</span><span class="metric-value">${Number(o.growthRate)?.toFixed(1) || '-'}%</span></div>
