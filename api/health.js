@@ -25,6 +25,54 @@ function openAiFallbackAllowed() {
   return String(process.env.BONDS_OPENAI_FALLBACK ?? 'true').trim().toLowerCase() !== 'false';
 }
 
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function probeNativeHealth(attempts = 3) {
+  const retryDelaysMs = [0, 500, 1500];
+  let lastResponse = null;
+  const diagnostics = [];
+
+  for (let index = 0; index < attempts; index++) {
+    const delayMs = retryDelaysMs[index] || 0;
+    if (delayMs > 0) await sleep(delayMs);
+
+    const startedAt = Date.now();
+    try {
+      const response = await getInferenceRouter().health();
+      lastResponse = response;
+      diagnostics.push({
+        attempt: index + 1,
+        ok: response?.ok === true,
+        code: response?.error?.code || null,
+        status: response?.error?.status || null,
+        elapsed_ms: response?.error?.elapsed_ms ?? response?.meta?.elapsed_ms ?? (Date.now() - startedAt),
+      });
+      if (response?.ok === true) {
+        return { response, attempts: index + 1, diagnostics };
+      }
+    } catch (error) {
+      lastResponse = {
+        ok: false,
+        error: {
+          code: 'NATIVE_HEALTH_EXCEPTION',
+          elapsed_ms: Date.now() - startedAt,
+        },
+      };
+      diagnostics.push({
+        attempt: index + 1,
+        ok: false,
+        code: 'NATIVE_HEALTH_EXCEPTION',
+        status: null,
+        elapsed_ms: Date.now() - startedAt,
+      });
+    }
+  }
+
+  return { response: lastResponse, attempts, diagnostics };
+}
+
 async function probeOpenAI(timeoutMs = 5000) {
   const apiKey = String(process.env.OPENAI_API_KEY || '').trim();
   if (!apiKey) return { ok: false, reason: 'not_configured' };
@@ -89,16 +137,22 @@ module.exports = async function handler(req, res) {
   if (strict) {
     let nativeStatus = 'skipped';
     let nativeProvider = null;
+    let nativeProbeAttempts = 0;
+    let nativeRetryRecovered = false;
+    let nativeErrorCode = null;
+    let nativeHttpStatus = null;
+    let nativeElapsedMs = null;
 
     if (nativeMode === 'REMOTE_BONDS_NATIVE') {
-      try {
-        const nativeHealth = await getInferenceRouter().health();
-        nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
-        nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
-      } catch (_) {
-        nativeStatus = 'error';
-        nativeProvider = 'BondsNativeProvider';
-      }
+      const nativeProbe = await probeNativeHealth();
+      const nativeHealth = nativeProbe.response || {};
+      nativeProbeAttempts = nativeProbe.attempts;
+      nativeRetryRecovered = nativeHealth.ok === true && nativeProbeAttempts > 1;
+      nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
+      nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
+      nativeErrorCode = nativeHealth.error?.code || null;
+      nativeHttpStatus = nativeHealth.error?.status || null;
+      nativeElapsedMs = nativeHealth.error?.elapsed_ms ?? nativeHealth.meta?.elapsed_ms ?? null;
     }
 
     const providerMode = aiProviderMode();
@@ -145,6 +199,11 @@ module.exports = async function handler(req, res) {
         provider: activeProvider,
         native_provider: nativeProvider,
         native_reachable: nativeStatus === 'ok',
+        native_probe_attempts: nativeProbeAttempts,
+        native_retry_recovered: nativeRetryRecovered,
+        native_error_code: nativeErrorCode,
+        native_http_status: nativeHttpStatus,
+        native_elapsed_ms: nativeElapsedMs,
         fallback_provider: fallbackEligible ? 'openai' : null,
         fallback_reason: fallbackReason,
         fallback_http_status: fallbackHttpStatus,
