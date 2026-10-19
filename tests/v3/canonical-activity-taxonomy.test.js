@@ -49,7 +49,10 @@ describe('V3 canonical activity taxonomy', () => {
     const intelligence = read('v3/city-intelligence.html');
     const investmentMap = read('v3/investment-map.html');
 
-    for (const source of [opportunityBank, alerts, comparison, intelligence, investmentMap]) {
+    expect(opportunityBank).toContain('/investment-taxonomy');
+    expect(opportunityBank).toContain("include: 'activities'");
+
+    for (const source of [alerts, comparison, intelligence, investmentMap]) {
       expect(source).toContain('/catalog/activities');
     }
 
