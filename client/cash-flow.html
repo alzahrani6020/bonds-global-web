@@ -204,7 +204,9 @@
         ? await sb.from('client_cash_flow_reports').update(payload).eq('id',currentReport.id).select().single()
         : await sb.from('client_cash_flow_reports').insert(payload).select().single();
       if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return;}
-      currentReport=result.data;showStatus(status==='submitted'?'تم إرسال نموذج التدفقات النقدية للمراجعة.':'تم حفظ المسودة.',true);
+      currentReport=result.data;
+       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'cash_flow',currentReport);}catch(e){showStatus('تعذر ربط النموذج بملف التمويل: '+e.message,false);return;}}
+       showStatus(status==='submitted'?'تم إرسال نموذج التدفقات النقدية للمراجعة.':'تم حفظ المسودة.',true);
     }
     document.getElementById('saveDraft').onclick=()=>save('draft');
     document.getElementById('submitReport').onclick=()=>save('submitted');
@@ -234,6 +236,7 @@
       const existing=await existingQuery.order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){
         currentReport=existing.data;
+        if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'cash_flow',existing.data);
         startMonth.value=(existing.data.start_month||'').slice(0,7)||thisMonth();
         openingBalance.value=existing.data.opening_balance??0;
         document.getElementById('currency').value=existing.data.currency||'SAR';
