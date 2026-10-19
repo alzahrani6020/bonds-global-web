@@ -183,35 +183,57 @@ async function handleInvestmentTaxonomy(req, res) {
   }
 
   const supabase = getSupabaseClient();
-  let sectorsQuery = supabase
-    .from('canonical_investment_sectors')
-    .select('id,code,name_ar,name_en,description,sort_order')
-    .eq('is_active', true)
-    .order('sort_order');
-  if (sectorCode) sectorsQuery = sectorsQuery.eq('code', sectorCode);
-
-  const { data: sectors, error: sectorsError } = await sectorsQuery;
-  if (sectorsError) {
-    console.error('[investment-taxonomy/sectors]', sectorsError.message);
-    return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
-  }
-
-  const sectorIds = (sectors || []).map(row => row.id);
+  let sectors = [];
   let subsectors = [];
-  if (sectorIds.length) {
-    let subsectorsQuery = supabase
-      .from('canonical_investment_subsectors')
-      .select('id,sector_id,code,name_ar,name_en,description,sort_order')
-      .eq('is_active', true)
-      .order('sort_order');
-    if (sectorCode) subsectorsQuery = subsectorsQuery.in('sector_id', sectorIds);
-    const result = await subsectorsQuery;
-    if (result.error) {
-      console.error('[investment-taxonomy/subsectors]', result.error.message);
+
+  if (!sectorCode) {
+    const [sectorsResult, subsectorsResult] = await Promise.all([
+      supabase
+        .from('canonical_investment_sectors')
+        .select('id,code,name_ar,name_en,description,sort_order')
+        .eq('is_active', true)
+        .order('sort_order'),
+      supabase
+        .from('canonical_investment_subsectors')
+        .select('id,sector_id,code,name_ar,name_en,description,sort_order')
+        .eq('is_active', true)
+        .order('sort_order')
+    ]);
+    if (sectorsResult.error || subsectorsResult.error) {
+      console.error('[investment-taxonomy/summary]', sectorsResult.error?.message || subsectorsResult.error?.message);
       return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
     }
-    subsectors = result.data || [];
+    sectors = sectorsResult.data || [];
+    subsectors = subsectorsResult.data || [];
+  } else {
+    const sectorsResult = await supabase
+      .from('canonical_investment_sectors')
+      .select('id,code,name_ar,name_en,description,sort_order')
+      .eq('is_active', true)
+      .eq('code', sectorCode)
+      .order('sort_order');
+    if (sectorsResult.error) {
+      console.error('[investment-taxonomy/sectors]', sectorsResult.error.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
+    }
+    sectors = sectorsResult.data || [];
+    const filteredSectorIds = sectors.map(row => row.id);
+    if (filteredSectorIds.length) {
+      const subsectorsResult = await supabase
+        .from('canonical_investment_subsectors')
+        .select('id,sector_id,code,name_ar,name_en,description,sort_order')
+        .eq('is_active', true)
+        .in('sector_id', filteredSectorIds)
+        .order('sort_order');
+      if (subsectorsResult.error) {
+        console.error('[investment-taxonomy/subsectors]', subsectorsResult.error.message);
+        return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
+      }
+      subsectors = subsectorsResult.data || [];
+    }
   }
+
+  const sectorIds = sectors.map(row => row.id);
 
   let activities = [];
   if (includeActivities && sectorIds.length) {
