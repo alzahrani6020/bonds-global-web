@@ -20,8 +20,7 @@ describe('V3 city intelligence catalog and truth regressions', () => {
   test('city intelligence loads canonical catalogs and explicitly pins readable dark dropdowns', () => {
     const page = read('v3/city-intelligence.html');
     expect(page).toContain("/catalog/countries");
-    expect(page).toContain("/investment-taxonomy");
-    expect(page).toContain("include: 'activities'");
+    expect(page).toContain("/catalog/activities");
     expect(page).toContain("/catalog/cities?country=");
     expect(page).toContain('data-ud-theme="dark"');
     expect(page).toContain('لا توجد ثلاثة أبعاد مستقلة على الأقل بأدلة مصدرية مثبتة');
@@ -41,7 +40,8 @@ describe('V3 city intelligence catalog and truth regressions', () => {
   test('investment map loads the complete country/city catalog instead of deriving countries from DB rows', () => {
     const page = read('v3/investment-map.html');
     expect(page).toContain("/catalog/countries");
-    expect(page).toContain("/catalog/activities");
+    expect(page).toContain("/investment-taxonomy");
+    expect(page).toContain("include: 'activities'");
     expect(page).toContain("/catalog/cities?country=");
     expect(page).toContain('data-ud-theme="dark"');
     expect(page).toContain('المدن دون بيانات لا تُمنح درجات افتراضية');
