@@ -173,7 +173,8 @@ async function handleCities(req, res) {
   if (req.method === 'POST') {
     const body = await parseBody(req);
     const {
-      code, name_ar, name_en, region, region_code,
+      code, name_ar, name_en, country_code, region, region_code,
+      admin_level_2, locality_type,
       population, avg_household_income, purchasing_power_index,
       gdp_city, growth_rate, unemployment_rate,
       establishments_count, inflation_rate, business_ease_index
@@ -186,7 +187,9 @@ async function handleCities(req, res) {
     const { data, error } = await supabase
       .from('cities')
       .upsert({
-        code, name_ar, name_en, region, region_code,
+        code, name_ar, name_en, country_code: country_code || null, region, region_code,
+        admin_level_2: admin_level_2 || null,
+        locality_type: locality_type || 'city',
         population, avg_household_income, purchasing_power_index,
         gdp_city, growth_rate, unemployment_rate,
         establishments_count, inflation_rate, business_ease_index
