@@ -34,11 +34,22 @@ describe('Bonds Native boot service contract', () => {
     expect(tunnelInstaller).toContain('sc.exe failure cloudflared');
   });
 
+  test('cloudflared prepare mode is non-mutating', () => {
+    const prepareIndex = tunnelInstaller.indexOf('if (-not $Activate)');
+    const installIndex = tunnelInstaller.indexOf('service install');
+    const envMutationIndex = tunnelInstaller.indexOf('[Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_EXE"');
+    expect(prepareIndex).toBeGreaterThan(-1);
+    expect(installIndex).toBeGreaterThan(prepareIndex);
+    expect(envMutationIndex).toBeGreaterThan(installIndex);
+    expect(tunnelInstaller).toContain('Active tunnel, Windows service, and machine environment were not changed');
+  });
+
   test('tunnel cutover verifies remote health before disabling the legacy task', () => {
     const probeIndex = tunnelInstaller.indexOf('if (-not $healthy)');
     const disableIndex = tunnelInstaller.indexOf('Disable-ScheduledTask -TaskName "BondsNativeTunnel"');
     expect(probeIndex).toBeGreaterThan(-1);
     expect(disableIndex).toBeGreaterThan(probeIndex);
     expect(tunnelInstaller).toContain('legacy task was restored');
+    expect(tunnelInstaller).toContain('Stop-Service -Name "cloudflared" -Force');
   });
 });
