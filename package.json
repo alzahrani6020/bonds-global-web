@@ -39,7 +39,9 @@
     "test:production-smoke": "node scripts/post-deploy-smoke.js",
     "services:compile": "node scripts/compile-service-manifests.js",
     "services:check": "node scripts/compile-service-manifests.js --check",
-    "test:service-manifests": "jest tests/security/service-manifest-registration.test.js --runInBand"
+    "test:service-manifests": "jest tests/security/service-manifest-registration.test.js --runInBand",
+    "audit:tools": "node scripts/validate-tools-registry.js",
+    "generate:tools": "node scripts/generate-tools-registry.js"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",

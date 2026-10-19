@@ -1,0 +1,1730 @@
+{
+  "schemaVersion": 1,
+  "baselineCommit": "68bc35b6432a6617ece2c44782cde640765ba33b",
+  "generatedAt": "2026-10-19",
+  "menuGroups": [
+    {
+      "id": "analysis-decision",
+      "labels": {
+        "ar": "التحليل والقرار",
+        "en": "Analysis & Decision"
+      },
+      "order": 1,
+      "items": [
+        "investment-center",
+        "project-wizard",
+        "real-project-analysis",
+        "break-even"
+      ]
+    },
+    {
+      "id": "financial-analysis",
+      "labels": {
+        "ar": "التحليل المالي",
+        "en": "Financial Analysis"
+      },
+      "order": 2,
+      "items": [
+        "cash-flow",
+        "loan",
+        "roi",
+        "creditworthiness",
+        "invoice-analyzer"
+      ]
+    },
+    {
+      "id": "pricing-feasibility",
+      "labels": {
+        "ar": "التسعير والجدوى",
+        "en": "Pricing & Feasibility"
+      },
+      "order": 3,
+      "items": [
+        "pricing",
+        "feasibility-template",
+        "manufacturing-feasibility"
+      ]
+    },
+    {
+      "id": "sector-tools",
+      "labels": {
+        "ar": "أدوات قطاعية",
+        "en": "Sector Tools"
+      },
+      "order": 4,
+      "items": [
+        "restaurant",
+        "menu-engineering",
+        "medical-viability"
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "id": "investment-center",
+      "type": "hub",
+      "category": "analysis-decision",
+      "labels": {
+        "ar": "مركز الحاسبات الاستثمارية",
+        "en": "Investment Center"
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/index.html",
+        "en": "/en/calculators/investment-center/index.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 1
+      },
+      "sourceBinding": {
+        "labelKey": "investmentCenter",
+        "hrefExpression": "calcBase + 'investment-center/index.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "project-wizard",
+      "type": "calculator",
+      "category": "analysis-decision",
+      "labels": {
+        "ar": "معالج جدوى المشاريع",
+        "en": "Project Feasibility Wizard"
+      },
+      "routes": {
+        "ar": "/calculator-wizard.html",
+        "en": "/en/calculator-wizard.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 2
+      },
+      "sourceBinding": {
+        "labelKey": "projectWizard",
+        "hrefExpression": "langBase + 'calculator-wizard.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "real-project-analysis",
+      "type": "calculator",
+      "category": "analysis-decision",
+      "labels": {
+        "ar": "تحليل المشروع الحقيقي",
+        "en": "Real Project Analysis"
+      },
+      "routes": {
+        "ar": "/calculators/real-project-analysis.html",
+        "en": "/en/calculators/real-project-analysis.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 3
+      },
+      "sourceBinding": {
+        "labelKey": "realProjectAnalysis",
+        "hrefExpression": "calcBase + 'real-project-analysis.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "break-even",
+      "type": "calculator",
+      "category": "analysis-decision",
+      "labels": {
+        "ar": "نقطة التعادل",
+        "en": "Break-Even"
+      },
+      "routes": {
+        "ar": "/calculators/break-even.html",
+        "en": "/en/calculators/break-even.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 4
+      },
+      "sourceBinding": {
+        "labelKey": "breakEven",
+        "hrefExpression": "calcBreakEven"
+      },
+      "active": true
+    },
+    {
+      "id": "cash-flow",
+      "type": "calculator",
+      "category": "financial-analysis",
+      "labels": {
+        "ar": "تدفق النقد",
+        "en": "Cash Flow"
+      },
+      "routes": {
+        "ar": "/calculators/cash-flow.html",
+        "en": "/en/calculators/cash-flow.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 5
+      },
+      "sourceBinding": {
+        "labelKey": "cashFlowCalc",
+        "hrefExpression": "calcBase + 'cash-flow.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "loan",
+      "type": "calculator",
+      "category": "financial-analysis",
+      "labels": {
+        "ar": "القرض والتمويل",
+        "en": "Loan & Finance"
+      },
+      "routes": {
+        "ar": "/calculators/loan.html",
+        "en": "/en/calculators/loan.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 6
+      },
+      "sourceBinding": {
+        "labelKey": "loanCalc",
+        "hrefExpression": "calcBase + 'loan.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "roi",
+      "type": "calculator",
+      "category": "financial-analysis",
+      "labels": {
+        "ar": "عائد الاستثمار",
+        "en": "ROI Calculator"
+      },
+      "routes": {
+        "ar": "/calculators/roi.html",
+        "en": "/en/calculators/roi.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 7
+      },
+      "sourceBinding": {
+        "labelKey": "roiCalc",
+        "hrefExpression": "calcBase + 'roi.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "creditworthiness",
+      "type": "calculator",
+      "category": "financial-analysis",
+      "labels": {
+        "ar": "تقييم الجدارة الائتمانية",
+        "en": "Credit Rating"
+      },
+      "routes": {
+        "ar": "/calculators/creditworthiness.html",
+        "en": "/en/calculators/creditworthiness.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 8
+      },
+      "sourceBinding": {
+        "labelKey": "creditworthinessCalc",
+        "hrefExpression": "calcBase + 'creditworthiness.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "invoice-analyzer",
+      "type": "calculator",
+      "category": "financial-analysis",
+      "labels": {
+        "ar": "تحليل الفواتير",
+        "en": "Invoice Analyzer"
+      },
+      "routes": {
+        "ar": "/calculators/invoice-analyzer.html",
+        "en": "/en/calculators/invoice-analyzer.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 9
+      },
+      "sourceBinding": {
+        "labelKey": "invoiceCalc",
+        "hrefExpression": "calcBase + 'invoice-analyzer.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "pricing",
+      "type": "calculator",
+      "category": "pricing-feasibility",
+      "labels": {
+        "ar": "تسعير المنتج",
+        "en": "Pricing"
+      },
+      "routes": {
+        "ar": "/calculators/pricing.html",
+        "en": "/en/calculators/pricing.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 10
+      },
+      "sourceBinding": {
+        "labelKey": "pricingCalc",
+        "hrefExpression": "calcBase + 'pricing.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "feasibility-template",
+      "type": "calculator",
+      "category": "pricing-feasibility",
+      "labels": {
+        "ar": "نموذج دراسة الجدوى",
+        "en": "Feasibility Template"
+      },
+      "routes": {
+        "ar": "/calculators/feasibility-template.html",
+        "en": "/en/calculators/feasibility-template.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 11
+      },
+      "sourceBinding": {
+        "labelKey": "templateCalc",
+        "hrefExpression": "calcBase + 'feasibility-template.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "manufacturing-feasibility",
+      "type": "calculator",
+      "category": "pricing-feasibility",
+      "labels": {
+        "ar": "الجدوى المالية للمصنع",
+        "en": "Manufacturing Feasibility"
+      },
+      "routes": {
+        "ar": "/calculators/manufacturing-feasibility.html",
+        "en": "/en/calculators/manufacturing-feasibility.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 12
+      },
+      "sourceBinding": {
+        "labelKey": "manufacturingFeasibilityCalc",
+        "hrefExpression": "calcBase + 'manufacturing-feasibility.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "restaurant",
+      "type": "calculator",
+      "category": "sector-tools",
+      "labels": {
+        "ar": "المطاعم والسحابي",
+        "en": "Restaurants & Cloud"
+      },
+      "routes": {
+        "ar": "/calculators/restaurant.html",
+        "en": "/en/calculators/restaurant.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 13
+      },
+      "sourceBinding": {
+        "labelKey": "restaurantCalc",
+        "hrefExpression": "calcBase + 'restaurant.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "menu-engineering",
+      "type": "calculator",
+      "category": "sector-tools",
+      "labels": {
+        "ar": "هندسة المنيو",
+        "en": "Menu Engineering"
+      },
+      "routes": {
+        "ar": "/calculators/menu-engineering.html",
+        "en": "/en/calculators/menu-engineering.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 14
+      },
+      "sourceBinding": {
+        "labelKey": "menuEngCalc",
+        "hrefExpression": "calcBase + 'menu-engineering.html'"
+      },
+      "active": true
+    },
+    {
+      "id": "medical-viability",
+      "type": "calculator",
+      "category": "sector-tools",
+      "labels": {
+        "ar": "الجدوى الطبية",
+        "en": "Medical Viability"
+      },
+      "routes": {
+        "ar": "/calculators/medical-viability.html",
+        "en": "/en/calculators/medical-viability.html"
+      },
+      "menu": {
+        "visible": true,
+        "order": 15
+      },
+      "sourceBinding": {
+        "labelKey": "medicalCalc",
+        "hrefExpression": "calcBase + 'medical-viability.html'"
+      },
+      "active": true
+    }
+  ],
+  "sectorGroups": [
+    {
+      "id": "medical",
+      "labels": {
+        "ar": "الصحة والطب",
+        "en": "Health & Medical"
+      },
+      "descriptions": {
+        "ar": "عيادات، مستشفيات، صيدليات، مختبرات ومراكز طبية.",
+        "en": "Clinics, hospitals, pharmacies, labs, and medical centers."
+      },
+      "order": 1
+    },
+    {
+      "id": "real-estate",
+      "labels": {
+        "ar": "العقار والإنشاءات",
+        "en": "Real Estate & Construction"
+      },
+      "descriptions": {
+        "ar": "تطوير عقاري، مقاولات، بناء وتشطيب.",
+        "en": "Property development, contracting, building, and finishing."
+      },
+      "order": 2
+    },
+    {
+      "id": "industrial",
+      "labels": {
+        "ar": "الصناعة",
+        "en": "Industry"
+      },
+      "descriptions": {
+        "ar": "مصانع الأغذية، البلاستيك، الأثاث، الكيماويات والتعبئة.",
+        "en": "Food, plastic, furniture, chemicals, textiles, and packaging factories."
+      },
+      "order": 3
+    },
+    {
+      "id": "restaurants",
+      "labels": {
+        "ar": "المطاعم والضيافة",
+        "en": "Restaurants & Hospitality"
+      },
+      "descriptions": {
+        "ar": "مطاعم، مقاهي، فنادق، منتجعات وخدمات سياحية.",
+        "en": "Restaurants, cafés, hotels, resorts, and tourism services."
+      },
+      "order": 4
+    },
+    {
+      "id": "education",
+      "labels": {
+        "ar": "التعليم والتقنية",
+        "en": "Education & Technology"
+      },
+      "descriptions": {
+        "ar": "مدارس، جامعات، مراكز تدريب وشركات تقنية.",
+        "en": "Schools, universities, training centers, and tech companies."
+      },
+      "order": 5
+    },
+    {
+      "id": "commerce",
+      "labels": {
+        "ar": "التجارة واللوجستيات",
+        "en": "Commerce & Logistics"
+      },
+      "descriptions": {
+        "ar": "تجارة عامة، تجزئة، نقل، تخزين وزراعة.",
+        "en": "General trade, retail, transport, warehousing, and agriculture."
+      },
+      "order": 6
+    }
+  ],
+  "sectors": [
+    {
+      "id": "medical",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "🏥",
+      "labels": {
+        "ar": "المنشآت الطبية",
+        "en": "Medical Facilities"
+      },
+      "descriptions": {
+        "ar": "تقييم عام للقطاع الطبي.",
+        "en": "General medical sector evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/medical.html",
+        "en": "/en/calculators/investment-center/medical.html"
+      },
+      "order": 1,
+      "active": true
+    },
+    {
+      "id": "hospital",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "🏥",
+      "labels": {
+        "ar": "مستشفى",
+        "en": "Hospital"
+      },
+      "descriptions": {
+        "ar": "مستشفى متعدد الأقسام والتخصصات.",
+        "en": "Multi-department and specialty hospital."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/hospital.html",
+        "en": "/en/calculators/investment-center/hospital.html"
+      },
+      "order": 2,
+      "active": true
+    },
+    {
+      "id": "medical-complex",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "🏨",
+      "labels": {
+        "ar": "مجمع طبي",
+        "en": "Medical Complex"
+      },
+      "descriptions": {
+        "ar": "مجمع يضم عيادات متعددة التخصصات.",
+        "en": "Complex with multiple specialty clinics."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/medical-complex.html",
+        "en": "/en/calculators/investment-center/medical-complex.html"
+      },
+      "order": 3,
+      "active": true
+    },
+    {
+      "id": "dental-clinic",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "🦷",
+      "labels": {
+        "ar": "عيادة أسنان",
+        "en": "Dental Clinic"
+      },
+      "descriptions": {
+        "ar": "عيادة أسنان متخصصة.",
+        "en": "Specialized dental clinic."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/dental-clinic.html",
+        "en": "/en/calculators/investment-center/dental-clinic.html"
+      },
+      "order": 4,
+      "active": true
+    },
+    {
+      "id": "radiology-center",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "🩻",
+      "labels": {
+        "ar": "مركز أشعة",
+        "en": "Radiology Center"
+      },
+      "descriptions": {
+        "ar": "مركز تشخيصي للأشعة والتصوير الطبي.",
+        "en": "Diagnostic radiology and medical imaging center."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/radiology-center.html",
+        "en": "/en/calculators/investment-center/radiology-center.html"
+      },
+      "order": 5,
+      "active": true
+    },
+    {
+      "id": "medical-lab",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "🧪",
+      "labels": {
+        "ar": "مختبر طبي",
+        "en": "Medical Laboratory"
+      },
+      "descriptions": {
+        "ar": "مختبر تحاليل طبية.",
+        "en": "Medical analysis laboratory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/medical-lab.html",
+        "en": "/en/calculators/investment-center/medical-lab.html"
+      },
+      "order": 6,
+      "active": true
+    },
+    {
+      "id": "physiotherapy-center",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "💆",
+      "labels": {
+        "ar": "مركز علاج طبيعي",
+        "en": "Physiotherapy Center"
+      },
+      "descriptions": {
+        "ar": "مركز علاج طبيعي وتأهيل.",
+        "en": "Physiotherapy and rehabilitation center."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/physiotherapy-center.html",
+        "en": "/en/calculators/investment-center/physiotherapy-center.html"
+      },
+      "order": 7,
+      "active": true
+    },
+    {
+      "id": "pharmacy",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "💊",
+      "labels": {
+        "ar": "صيدلية",
+        "en": "Pharmacy"
+      },
+      "descriptions": {
+        "ar": "صيدلية تجزئة أدوية.",
+        "en": "Retail pharmacy."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/pharmacy.html",
+        "en": "/en/calculators/investment-center/pharmacy.html"
+      },
+      "order": 8,
+      "active": true
+    },
+    {
+      "id": "optical-center",
+      "type": "sector-calculator",
+      "category": "medical",
+      "icon": "👓",
+      "labels": {
+        "ar": "مركز بصريات",
+        "en": "Optical Center"
+      },
+      "descriptions": {
+        "ar": "محل نظارات وعدسات طبية.",
+        "en": "Optical shop and prescription lenses."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/optical-center.html",
+        "en": "/en/calculators/investment-center/optical-center.html"
+      },
+      "order": 9,
+      "active": true
+    },
+    {
+      "id": "real-estate",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏢",
+      "labels": {
+        "ar": "الاستثمار العقاري",
+        "en": "Real Estate Investment"
+      },
+      "descriptions": {
+        "ar": "تقييم عام للقطاع العقاري.",
+        "en": "General real estate sector evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/real-estate.html",
+        "en": "/en/calculators/investment-center/real-estate.html"
+      },
+      "order": 1,
+      "active": true
+    },
+    {
+      "id": "land-development",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏞️",
+      "labels": {
+        "ar": "تطوير أرض",
+        "en": "Land Development"
+      },
+      "descriptions": {
+        "ar": "تطوير أرض سكنية أو تجارية.",
+        "en": "Residential or commercial land development."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/land-development.html",
+        "en": "/en/calculators/investment-center/land-development.html"
+      },
+      "order": 2,
+      "active": true
+    },
+    {
+      "id": "villa-construction",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏡",
+      "labels": {
+        "ar": "بناء فلل للبيع",
+        "en": "Villa Construction"
+      },
+      "descriptions": {
+        "ar": "بناء وبيع فلل سكنية.",
+        "en": "Build and sell residential villas."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/villa-construction.html",
+        "en": "/en/calculators/investment-center/villa-construction.html"
+      },
+      "order": 3,
+      "active": true
+    },
+    {
+      "id": "residential-building",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏢",
+      "labels": {
+        "ar": "بناء عمائر سكنية",
+        "en": "Residential Building"
+      },
+      "descriptions": {
+        "ar": "بناء عماره سكنية للبيع.",
+        "en": "Build residential apartments for sale."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/residential-building.html",
+        "en": "/en/calculators/investment-center/residential-building.html"
+      },
+      "order": 4,
+      "active": true
+    },
+    {
+      "id": "commercial-complex",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏬",
+      "labels": {
+        "ar": "مجمع تجاري",
+        "en": "Commercial Complex"
+      },
+      "descriptions": {
+        "ar": "مجمع تجاري للإيجار.",
+        "en": "Commercial complex for rent."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/commercial-complex.html",
+        "en": "/en/calculators/investment-center/commercial-complex.html"
+      },
+      "order": 5,
+      "active": true
+    },
+    {
+      "id": "commercial-mall",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🛍️",
+      "labels": {
+        "ar": "مول تجاري",
+        "en": "Commercial Mall"
+      },
+      "descriptions": {
+        "ar": "مول تجاري كبير.",
+        "en": "Large commercial mall."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/commercial-mall.html",
+        "en": "/en/calculators/investment-center/commercial-mall.html"
+      },
+      "order": 6,
+      "active": true
+    },
+    {
+      "id": "hotel-apartments",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏨",
+      "labels": {
+        "ar": "شقق فندقية",
+        "en": "Hotel Apartments"
+      },
+      "descriptions": {
+        "ar": "شقق فندقية مفروشة.",
+        "en": "Furnished hotel apartments."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/hotel-apartments.html",
+        "en": "/en/calculators/investment-center/hotel-apartments.html"
+      },
+      "order": 7,
+      "active": true
+    },
+    {
+      "id": "warehouses",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏭",
+      "labels": {
+        "ar": "مستودعات",
+        "en": "Warehouses"
+      },
+      "descriptions": {
+        "ar": "مستودعات للإيجار.",
+        "en": "Warehouses for rent."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/warehouses.html",
+        "en": "/en/calculators/investment-center/warehouses.html"
+      },
+      "order": 8,
+      "active": true
+    },
+    {
+      "id": "property-rehabilitation",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🔧",
+      "labels": {
+        "ar": "إعادة تأهيل عقار متعثر",
+        "en": "Property Rehabilitation"
+      },
+      "descriptions": {
+        "ar": "شراء وإعادة تأهيل عقار للبيع.",
+        "en": "Buy and rehabilitate a distressed property for sale."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/property-rehabilitation.html",
+        "en": "/en/calculators/investment-center/property-rehabilitation.html"
+      },
+      "order": 9,
+      "active": true
+    },
+    {
+      "id": "buy-to-rent",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏠",
+      "labels": {
+        "ar": "شراء عقار وتأجيره",
+        "en": "Buy-to-Rent"
+      },
+      "descriptions": {
+        "ar": "شراء عقار جاهز وتأجيره.",
+        "en": "Buy a ready property and rent it out."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/buy-to-rent.html",
+        "en": "/en/calculators/investment-center/buy-to-rent.html"
+      },
+      "order": 10,
+      "active": true
+    },
+    {
+      "id": "quick-real-estate",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "⚡",
+      "labels": {
+        "ar": "الاستثمار العقاري السريع",
+        "en": "Quick Real Estate"
+      },
+      "descriptions": {
+        "ar": "تقييم سريع لعائد الاستثمار العقاري.",
+        "en": "Quick real estate investment return evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/quick-real-estate.html",
+        "en": "/en/calculators/investment-center/quick-real-estate.html"
+      },
+      "order": 11,
+      "active": true
+    },
+    {
+      "id": "construction",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏗️",
+      "labels": {
+        "ar": "المقاولات",
+        "en": "Construction"
+      },
+      "descriptions": {
+        "ar": "تقييم عام لمشاريع المقاولات.",
+        "en": "General construction projects evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/construction.html",
+        "en": "/en/calculators/investment-center/construction.html"
+      },
+      "order": 12,
+      "active": true
+    },
+    {
+      "id": "construction-profitability",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🏗️",
+      "labels": {
+        "ar": "ربحية مشروع مقاولات",
+        "en": "Construction Profitability"
+      },
+      "descriptions": {
+        "ar": "تحليل ربحية العقود الإنشائية.",
+        "en": "Analyze construction contract profitability."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/construction-profitability.html",
+        "en": "/en/calculators/investment-center/construction-profitability.html"
+      },
+      "order": 13,
+      "active": true
+    },
+    {
+      "id": "tender-pricing",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "📋",
+      "labels": {
+        "ar": "تسعير المناقصات",
+        "en": "Tender Pricing"
+      },
+      "descriptions": {
+        "ar": "تسعير المناقصات بدقة.",
+        "en": "Accurate tender pricing."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/tender-pricing.html",
+        "en": "/en/calculators/investment-center/tender-pricing.html"
+      },
+      "order": 14,
+      "active": true
+    },
+    {
+      "id": "contractor-cashflow",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "💵",
+      "labels": {
+        "ar": "التدفق النقدي للمقاولين",
+        "en": "Contractor Cash Flow"
+      },
+      "descriptions": {
+        "ar": "توقع التدفقات النقدية.",
+        "en": "Forecast cash flows."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/contractor-cashflow.html",
+        "en": "/en/calculators/investment-center/contractor-cashflow.html"
+      },
+      "order": 15,
+      "active": true
+    },
+    {
+      "id": "concrete-structure-cost",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🧱",
+      "labels": {
+        "ar": "تكلفة الهيكل الخرساني",
+        "en": "Concrete Structure Cost"
+      },
+      "descriptions": {
+        "ar": "تكلفة الهيكل الإنشائي.",
+        "en": "Concrete structure cost estimation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/concrete-structure-cost.html",
+        "en": "/en/calculators/investment-center/concrete-structure-cost.html"
+      },
+      "order": 16,
+      "active": true
+    },
+    {
+      "id": "finishing-cost",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "🎨",
+      "labels": {
+        "ar": "تكلفة التشطيب",
+        "en": "Finishing Cost"
+      },
+      "descriptions": {
+        "ar": "تقدير تكاليف التشطيب.",
+        "en": "Finishing cost estimation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/finishing-cost.html",
+        "en": "/en/calculators/investment-center/finishing-cost.html"
+      },
+      "order": 17,
+      "active": true
+    },
+    {
+      "id": "distressed-project-evaluation",
+      "type": "sector-calculator",
+      "category": "real-estate",
+      "icon": "⚠️",
+      "labels": {
+        "ar": "تقييم مشروع متعثر",
+        "en": "Distressed Project Evaluation"
+      },
+      "descriptions": {
+        "ar": "جدوى استكمال مشروع متعثر.",
+        "en": "Feasibility of completing a distressed project."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/distressed-project-evaluation.html",
+        "en": "/en/calculators/investment-center/distressed-project-evaluation.html"
+      },
+      "order": 18,
+      "active": true
+    },
+    {
+      "id": "industrial",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "🏭",
+      "labels": {
+        "ar": "الاستثمار الصناعي",
+        "en": "Industrial Investment"
+      },
+      "descriptions": {
+        "ar": "تقييم عام للقطاع الصناعي.",
+        "en": "General industrial sector evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/industrial.html",
+        "en": "/en/calculators/investment-center/industrial.html"
+      },
+      "order": 1,
+      "active": true
+    },
+    {
+      "id": "food-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "🍞",
+      "labels": {
+        "ar": "مصنع أغذية",
+        "en": "Food Factory"
+      },
+      "descriptions": {
+        "ar": "منتجات غذائية.",
+        "en": "Food products factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/food-factory.html",
+        "en": "/en/calculators/investment-center/food-factory.html"
+      },
+      "order": 2,
+      "active": true
+    },
+    {
+      "id": "water-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "💧",
+      "labels": {
+        "ar": "مصنع مياه",
+        "en": "Water Factory"
+      },
+      "descriptions": {
+        "ar": "تعبئة مياه شرب.",
+        "en": "Drinking water bottling factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/water-factory.html",
+        "en": "/en/calculators/investment-center/water-factory.html"
+      },
+      "order": 3,
+      "active": true
+    },
+    {
+      "id": "plastic-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "🧴",
+      "labels": {
+        "ar": "مصنع بلاستيك",
+        "en": "Plastic Factory"
+      },
+      "descriptions": {
+        "ar": "منتجات بلاستيكية.",
+        "en": "Plastic products factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/plastic-factory.html",
+        "en": "/en/calculators/investment-center/plastic-factory.html"
+      },
+      "order": 4,
+      "active": true
+    },
+    {
+      "id": "building-materials-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "🧱",
+      "labels": {
+        "ar": "مصنع مواد بناء",
+        "en": "Building Materials Factory"
+      },
+      "descriptions": {
+        "ar": "مواد بناء وتشييد.",
+        "en": "Construction materials factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/building-materials-factory.html",
+        "en": "/en/calculators/investment-center/building-materials-factory.html"
+      },
+      "order": 5,
+      "active": true
+    },
+    {
+      "id": "furniture-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "🛋️",
+      "labels": {
+        "ar": "مصنع أثاث",
+        "en": "Furniture Factory"
+      },
+      "descriptions": {
+        "ar": "أثاث منزلي ومكتبي.",
+        "en": "Home and office furniture factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/furniture-factory.html",
+        "en": "/en/calculators/investment-center/furniture-factory.html"
+      },
+      "order": 6,
+      "active": true
+    },
+    {
+      "id": "textiles-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "🧵",
+      "labels": {
+        "ar": "مصنع منسوجات",
+        "en": "Textiles Factory"
+      },
+      "descriptions": {
+        "ar": "منسوجات وأقمشة.",
+        "en": "Textiles and fabrics factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/textiles-factory.html",
+        "en": "/en/calculators/investment-center/textiles-factory.html"
+      },
+      "order": 7,
+      "active": true
+    },
+    {
+      "id": "chemicals-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "⚗️",
+      "labels": {
+        "ar": "مصنع كيماويات",
+        "en": "Chemicals Factory"
+      },
+      "descriptions": {
+        "ar": "منتجات كيماوية.",
+        "en": "Chemical products factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/chemicals-factory.html",
+        "en": "/en/calculators/investment-center/chemicals-factory.html"
+      },
+      "order": 8,
+      "active": true
+    },
+    {
+      "id": "packaging-factory",
+      "type": "sector-calculator",
+      "category": "industrial",
+      "icon": "📦",
+      "labels": {
+        "ar": "مصنع تعبئة وتغليف",
+        "en": "Packaging Factory"
+      },
+      "descriptions": {
+        "ar": "تعبئة وتغليف.",
+        "en": "Packaging factory."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/packaging-factory.html",
+        "en": "/en/calculators/investment-center/packaging-factory.html"
+      },
+      "order": 9,
+      "active": true
+    },
+    {
+      "id": "restaurants",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "🍽️",
+      "labels": {
+        "ar": "قطاع المطاعم",
+        "en": "Restaurant Sector"
+      },
+      "descriptions": {
+        "ar": "تقييم عام للمطاعم والمقاهي.",
+        "en": "General restaurants and cafés evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/restaurants.html",
+        "en": "/en/calculators/investment-center/restaurants.html"
+      },
+      "order": 1,
+      "active": true
+    },
+    {
+      "id": "restaurant",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "🍽️",
+      "labels": {
+        "ar": "مطعم",
+        "en": "Restaurant"
+      },
+      "descriptions": {
+        "ar": "مطعم جديد.",
+        "en": "New restaurant."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/restaurant.html",
+        "en": "/en/calculators/investment-center/restaurant.html"
+      },
+      "order": 2,
+      "active": true
+    },
+    {
+      "id": "coffee-shop",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "☕",
+      "labels": {
+        "ar": "كوفي شوب",
+        "en": "Coffee Shop"
+      },
+      "descriptions": {
+        "ar": "كوفي شوب.",
+        "en": "Coffee shop."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/coffee-shop.html",
+        "en": "/en/calculators/investment-center/coffee-shop.html"
+      },
+      "order": 3,
+      "active": true
+    },
+    {
+      "id": "cloud-kitchen",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "☁️",
+      "labels": {
+        "ar": "مطبخ سحابي",
+        "en": "Cloud Kitchen"
+      },
+      "descriptions": {
+        "ar": "مطبخ سحابي للتوصيل.",
+        "en": "Delivery-only cloud kitchen."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/cloud-kitchen.html",
+        "en": "/en/calculators/investment-center/cloud-kitchen.html"
+      },
+      "order": 4,
+      "active": true
+    },
+    {
+      "id": "food-truck",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "🚚",
+      "labels": {
+        "ar": "فود ترك",
+        "en": "Food Truck"
+      },
+      "descriptions": {
+        "ar": "عربة طعام متنقلة.",
+        "en": "Mobile food truck."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/food-truck.html",
+        "en": "/en/calculators/investment-center/food-truck.html"
+      },
+      "order": 5,
+      "active": true
+    },
+    {
+      "id": "fast-food-restaurant",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "🍔",
+      "labels": {
+        "ar": "مطعم وجبات سريعة",
+        "en": "Fast Food Restaurant"
+      },
+      "descriptions": {
+        "ar": "وجبات سريعة.",
+        "en": "Fast food restaurant."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/fast-food-restaurant.html",
+        "en": "/en/calculators/investment-center/fast-food-restaurant.html"
+      },
+      "order": 6,
+      "active": true
+    },
+    {
+      "id": "fine-dining-restaurant",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "🍷",
+      "labels": {
+        "ar": "مطعم فاخر",
+        "en": "Fine Dining Restaurant"
+      },
+      "descriptions": {
+        "ar": "مطعم فاخر وخدمة راقية.",
+        "en": "Fine dining and premium service."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/fine-dining-restaurant.html",
+        "en": "/en/calculators/investment-center/fine-dining-restaurant.html"
+      },
+      "order": 7,
+      "active": true
+    },
+    {
+      "id": "hotel",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "🏨",
+      "labels": {
+        "ar": "فندق",
+        "en": "Hotel"
+      },
+      "descriptions": {
+        "ar": "فندق جديد.",
+        "en": "New hotel."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/hotel.html",
+        "en": "/en/calculators/investment-center/hotel.html"
+      },
+      "order": 8,
+      "active": true
+    },
+    {
+      "id": "tourist-resort",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "🏖️",
+      "labels": {
+        "ar": "منتجع سياحي",
+        "en": "Tourist Resort"
+      },
+      "descriptions": {
+        "ar": "منتجع سياحي متكامل.",
+        "en": "Comprehensive tourist resort."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/tourist-resort.html",
+        "en": "/en/calculators/investment-center/tourist-resort.html"
+      },
+      "order": 9,
+      "active": true
+    },
+    {
+      "id": "tourist-camp",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "⛺",
+      "labels": {
+        "ar": "مخيم سياحي",
+        "en": "Tourist Camp"
+      },
+      "descriptions": {
+        "ar": "مخيم سياحي.",
+        "en": "Tourist camp."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/tourist-camp.html",
+        "en": "/en/calculators/investment-center/tourist-camp.html"
+      },
+      "order": 10,
+      "active": true
+    },
+    {
+      "id": "tourism-company",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "✈️",
+      "labels": {
+        "ar": "شركة سياحة",
+        "en": "Tourism Company"
+      },
+      "descriptions": {
+        "ar": "شركة سياحة وسفر.",
+        "en": "Travel and tourism company."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/tourism-company.html",
+        "en": "/en/calculators/investment-center/tourism-company.html"
+      },
+      "order": 11,
+      "active": true
+    },
+    {
+      "id": "tourism",
+      "type": "sector-calculator",
+      "category": "restaurants",
+      "icon": "✈️",
+      "labels": {
+        "ar": "القطاع السياحي",
+        "en": "Tourism Sector"
+      },
+      "descriptions": {
+        "ar": "تقييم عام للقطاع السياحي.",
+        "en": "General tourism sector evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/tourism.html",
+        "en": "/en/calculators/investment-center/tourism.html"
+      },
+      "order": 12,
+      "active": true
+    },
+    {
+      "id": "education",
+      "type": "sector-calculator",
+      "category": "education",
+      "icon": "🎓",
+      "labels": {
+        "ar": "القطاع التعليمي",
+        "en": "Education Sector"
+      },
+      "descriptions": {
+        "ar": "تقييم عام للقطاع التعليمي.",
+        "en": "General education sector evaluation."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/education.html",
+        "en": "/en/calculators/investment-center/education.html"
+      },
+      "order": 1,
+      "active": true
+    },
+    {
+      "id": "private-school",
+      "type": "sector-calculator",
+      "category": "education",
+      "icon": "🏫",
+      "labels": {
+        "ar": "مدرسة أهلية",
+        "en": "Private School"
+      },
+      "descriptions": {
+        "ar": "مدرسة أهلية أو خاصة.",
+        "en": "Private school."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/private-school.html",
+        "en": "/en/calculators/investment-center/private-school.html"
+      },
+      "order": 2,
+      "active": true
+    },
+    {
+      "id": "nursery",
+      "type": "sector-calculator",
+      "category": "education",
+      "icon": "🧸",
+      "labels": {
+        "ar": "حضانة",
+        "en": "Nursery"
+      },
+      "descriptions": {
+        "ar": "حضانة أطفال.",
+        "en": "Children nursery."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/nursery.html",
+        "en": "/en/calculators/investment-center/nursery.html"
+      },
+      "order": 3,
+      "active": true
+    },
+    {
+      "id": "private-university",
+      "type": "sector-calculator",
+      "category": "education",
+      "icon": "🎓",
+      "labels": {
+        "ar": "جامعة خاصة",
+        "en": "Private University"
+      },
+      "descriptions": {
+        "ar": "جامعة خاصة.",
+        "en": "Private university."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/private-university.html",
+        "en": "/en/calculators/investment-center/private-university.html"
+      },
+      "order": 4,
+      "active": true
+    },
+    {
+      "id": "training-center",
+      "type": "sector-calculator",
+      "category": "education",
+      "icon": "📚",
+      "labels": {
+        "ar": "مركز تدريب",
+        "en": "Training Center"
+      },
+      "descriptions": {
+        "ar": "تدريب مهني وأكاديمي.",
+        "en": "Vocational and academic training."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/training-center.html",
+        "en": "/en/calculators/investment-center/training-center.html"
+      },
+      "order": 5,
+      "active": true
+    },
+    {
+      "id": "e-learning-platform",
+      "type": "sector-calculator",
+      "category": "education",
+      "icon": "💻",
+      "labels": {
+        "ar": "منصة تعليم إلكتروني",
+        "en": "E-Learning Platform"
+      },
+      "descriptions": {
+        "ar": "تعليم إلكتروني.",
+        "en": "E-learning platform."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/e-learning-platform.html",
+        "en": "/en/calculators/investment-center/e-learning-platform.html"
+      },
+      "order": 6,
+      "active": true
+    },
+    {
+      "id": "technology",
+      "type": "sector-calculator",
+      "category": "education",
+      "icon": "💻",
+      "labels": {
+        "ar": "القطاع التقني",
+        "en": "Technology Sector"
+      },
+      "descriptions": {
+        "ar": "شركات برمجة، SaaS، وتطبيقات.",
+        "en": "Software companies, SaaS, and applications."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/technology.html",
+        "en": "/en/calculators/investment-center/technology.html"
+      },
+      "order": 7,
+      "active": true
+    },
+    {
+      "id": "commercial",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🤝",
+      "labels": {
+        "ar": "القطاع التجاري",
+        "en": "Commercial Sector"
+      },
+      "descriptions": {
+        "ar": "وكالات تجارية، استيراد وتصدير، وتجارة عامة.",
+        "en": "Trading agencies, import/export, and general trade."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/commercial.html",
+        "en": "/en/calculators/investment-center/commercial.html"
+      },
+      "order": 1,
+      "active": true
+    },
+    {
+      "id": "retail",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🛒",
+      "labels": {
+        "ar": "قطاع التجزئة",
+        "en": "Retail Sector"
+      },
+      "descriptions": {
+        "ar": "محلات تجزئة، سوبرماركت، ومتاجر إلكترونية.",
+        "en": "Retail stores, supermarkets, and e-commerce."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/retail.html",
+        "en": "/en/calculators/investment-center/retail.html"
+      },
+      "order": 2,
+      "active": true
+    },
+    {
+      "id": "logistics",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🚛",
+      "labels": {
+        "ar": "القطاع اللوجستي",
+        "en": "Logistics Sector"
+      },
+      "descriptions": {
+        "ar": "نقل، تخزين، توصيل، وإدارة سلاسل الإمداد.",
+        "en": "Transportation, warehousing, delivery, and supply chain."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/logistics.html",
+        "en": "/en/calculators/investment-center/logistics.html"
+      },
+      "order": 3,
+      "active": true
+    },
+    {
+      "id": "shipping-company",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🚢",
+      "labels": {
+        "ar": "شركة شحن",
+        "en": "Shipping Company"
+      },
+      "descriptions": {
+        "ar": "شحن محلي ودولي.",
+        "en": "Local and international shipping."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/shipping-company.html",
+        "en": "/en/calculators/investment-center/shipping-company.html"
+      },
+      "order": 4,
+      "active": true
+    },
+    {
+      "id": "transport-fleet",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🚛",
+      "labels": {
+        "ar": "أسطول نقل",
+        "en": "Transport Fleet"
+      },
+      "descriptions": {
+        "ar": "امتلاك وتشغيل أسطول نقل.",
+        "en": "Own and operate a transport fleet."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/transport-fleet.html",
+        "en": "/en/calculators/investment-center/transport-fleet.html"
+      },
+      "order": 5,
+      "active": true
+    },
+    {
+      "id": "distribution-center",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🏭",
+      "labels": {
+        "ar": "مركز توزيع",
+        "en": "Distribution Center"
+      },
+      "descriptions": {
+        "ar": "توزيع وفرز الطلبات.",
+        "en": "Order sorting and distribution."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/distribution-center.html",
+        "en": "/en/calculators/investment-center/distribution-center.html"
+      },
+      "order": 6,
+      "active": true
+    },
+    {
+      "id": "last-mile-delivery",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🛵",
+      "labels": {
+        "ar": "خدمات الميل الأخير",
+        "en": "Last-Mile Delivery"
+      },
+      "descriptions": {
+        "ar": "توصيل الطلبات للميل الأخير.",
+        "en": "Last-mile delivery service."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/last-mile-delivery.html",
+        "en": "/en/calculators/investment-center/last-mile-delivery.html"
+      },
+      "order": 7,
+      "active": true
+    },
+    {
+      "id": "agriculture",
+      "type": "sector-calculator",
+      "category": "commerce",
+      "icon": "🌾",
+      "labels": {
+        "ar": "القطاع الزراعي",
+        "en": "Agriculture Sector"
+      },
+      "descriptions": {
+        "ar": "مزارع، مزارع دواجن، وإنتاج غذائي.",
+        "en": "Farms, poultry farms, and food production."
+      },
+      "routes": {
+        "ar": "/calculators/investment-center/agriculture.html",
+        "en": "/en/calculators/investment-center/agriculture.html"
+      },
+      "order": 8,
+      "active": true
+    }
+  ]
+}

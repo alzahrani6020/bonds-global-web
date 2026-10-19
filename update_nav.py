@@ -1,3 +1,5 @@
+raise SystemExit("Deprecated: navigation is canonicalized by data/tools-registry.json. Do not run this legacy script.")
+
 import os
 import re
 
