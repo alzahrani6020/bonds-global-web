@@ -94,6 +94,15 @@
     return formatCurrency(value, profile?.currency_code, profile, lang);
   }
 
+  function formatActivityLabel(activity, lang = 'ar') {
+    const label = activity?.name_ar || activity?.name_en || activity?.code || '-';
+    const status = activity?.country?.availability_status;
+    if (status === 'unknown') {
+      return label + (lang === 'en' ? ' · Local status unverified' : ' · الحالة المحلية غير موثقة');
+    }
+    return label;
+  }
+
   window.BondsCountryContext = {
     STORAGE_KEY,
     getSelected: getStored,
@@ -102,6 +111,7 @@
     getProfile,
     bindSelect,
     formatCurrency,
-    formatMoney
+    formatMoney,
+    formatActivityLabel
   };
 })();
