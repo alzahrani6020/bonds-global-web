@@ -152,6 +152,22 @@ describe('V3 country context core', () => {
     expect(alertsPage).toContain("params.set('country', countryCode)");
   });
 
+  test('country context exposes operational coverage gaps without inventing localization', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain('activities_unknown');
+    expect(api).toContain('activities_sourced');
+    expect(api).toContain('models_estimated');
+    expect(api).toContain('models_verified');
+    expect(api).toContain('models_unverified');
+    expect(api).toContain('regulations_verified');
+    expect(api).toContain('macro_metrics');
+    expect(api).toContain('activity_country_verification');
+    expect(api).toContain('financial_model_localization');
+    expect(api).toContain('country_regulations');
+    expect(api).toContain('macro_indicator_coverage');
+  });
+
   test('data source registry is activated from a real existing source', () => {
     const migration = read('v3/supabase/migrations/20261019031000_v3_country_context_hardening.sql');
 
