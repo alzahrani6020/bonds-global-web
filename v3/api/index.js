@@ -1754,6 +1754,20 @@ async function handleCalculate(req, res) {
   try {
     const supabase = getSupabaseClient();
     const modelData = await loadProjectModel(supabase, projectModelCode, cityCode, countryCode);
+
+    // An explicit country request must never calculate using another country's
+    // financial baseline. Missing localization is a data-coverage state, not a
+    // reason to silently reuse the Saudi SAR model.
+    if (countryCode && modelData.countryContext?.localized !== true) {
+      return sendJson(res, 422, {
+        error: 'Country financial model is not localized',
+        code: 'COUNTRY_MODEL_UNVERIFIED',
+        countryCode,
+        projectModelCode,
+        countryContext: modelData.countryContext || null
+      });
+    }
+
     const result = calculate(modelData, {
       revenue: customAssumptions.revenue,
       capex: customAssumptions.capex,
