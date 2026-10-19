@@ -565,6 +565,180 @@ async function handleSourceQualityAlerts(req, res) {
   }
 }
 
+
+async function handleServiceAdmin(req, res, code) {
+  const supabase = getSupabaseClient();
+
+  if (req.method === 'GET') {
+    const { data, error } = await supabase
+      .from('service_catalog')
+      .select('*')
+      .order('sort_order');
+    if (error) return sendJson(res, 500, { error: error.message });
+    return sendJson(res, 200, { services: data || [] });
+  }
+
+  if (req.method === 'POST' || (req.method === 'PUT' && code)) {
+    const body = await parseBody(req);
+    const row = {
+      code: code || body.code,
+      category_code: body.category_code || null,
+      name_ar: body.name_ar,
+      name_en: body.name_en,
+      short_description_ar: body.short_description_ar || null,
+      short_description_en: body.short_description_en || null,
+      delivery_type: body.delivery_type || 'advisory',
+      status: body.status || 'draft',
+      is_active: body.is_active !== false,
+      sort_order: Number(body.sort_order || 0),
+      default_route_ar: body.default_route_ar || null,
+      default_route_en: body.default_route_en || null,
+      metadata: body.metadata || {},
+      updated_at: new Date().toISOString()
+    };
+    if (!row.code || !row.name_ar || !row.name_en) return sendJson(res, 400, { error: 'code, name_ar and name_en are required' });
+
+    let result;
+    if (req.method === 'POST') {
+      result = await supabase.from('service_catalog').upsert(row, { onConflict: 'code' }).select().single();
+    } else {
+      delete row.code;
+      result = await supabase.from('service_catalog').update(row).eq('code', code).select().single();
+    }
+    if (result.error) return sendJson(res, 400, { error: result.error.message });
+    const service = result.data;
+
+    async function replaceMap(table, rows) {
+      await supabase.from(table).delete().eq('service_id', service.id);
+      if (rows.length) {
+        const { error } = await supabase.from(table).insert(rows);
+        if (error) throw error;
+      }
+    }
+
+    try {
+      if (Array.isArray(body.countries)) {
+        await replaceMap('service_country_map', body.countries.map(x => ({
+          service_id: service.id,
+          country_code: typeof x === 'string' ? x : x.country_code,
+          availability_status: typeof x === 'string' ? 'available' : (x.availability_status || 'available'),
+          availability_reason_ar: typeof x === 'string' ? null : (x.availability_reason_ar || null),
+          availability_reason_en: typeof x === 'string' ? null : (x.availability_reason_en || null),
+          priority: typeof x === 'string' ? 100 : Number(x.priority || 100)
+        })));
+      }
+      if (Array.isArray(body.sectors)) {
+        await replaceMap('service_sector_map', body.sectors.map(x => ({
+          service_id: service.id,
+          sector_code: typeof x === 'string' ? x : x.sector_code,
+          priority: typeof x === 'string' ? 100 : Number(x.priority || 100)
+        })));
+      }
+      if (Array.isArray(body.activities)) {
+        const codes = body.activities.map(x => typeof x === 'string' ? x : x.code).filter(Boolean);
+        const { data: acts, error } = codes.length
+          ? await supabase.from('canonical_activities').select('id,code').in('code', codes)
+          : { data: [], error: null };
+        if (error) throw error;
+        await replaceMap('service_activity_map', (acts || []).map(a => ({
+          service_id: service.id, canonical_activity_id: a.id, priority: 100
+        })));
+      }
+      if (Array.isArray(body.capabilities)) {
+        await replaceMap('service_capability_map', body.capabilities.filter(x => x.capability_code).map(x => ({
+          service_id: service.id,
+          capability_code: x.capability_code,
+          engine_route: x.engine_route || null,
+          run_order: Number(x.run_order || 100),
+          is_required: x.is_required === true
+        })));
+      }
+    } catch (mapErr) {
+      return sendJson(res, 400, { error: mapErr.message, service });
+    }
+    return sendJson(res, req.method === 'POST' ? 201 : 200, { service });
+  }
+
+  if (req.method === 'DELETE' && code) {
+    const { error } = await supabase.from('service_catalog').update({ is_active: false, status: 'archived', updated_at: new Date().toISOString() }).eq('code', code);
+    if (error) return sendJson(res, 400, { error: error.message });
+    return sendJson(res, 200, { archived: true });
+  }
+
+  return sendJson(res, 405, { error: 'Method not allowed' });
+}
+
+async function handleServiceFormsAdmin(req, res, serviceCode, formId, fieldId) {
+  const supabase = getSupabaseClient();
+  const { data: service, error: serviceError } = await supabase.from('service_catalog').select('id').eq('code', serviceCode).maybeSingle();
+  if (serviceError || !service) return sendJson(res, 404, { error: 'Service not found' });
+
+  if (!formId) {
+    if (req.method === 'GET') {
+      const { data, error } = await supabase.from('service_form_definitions').select('*').eq('service_id', service.id).order('created_at');
+      if (error) return sendJson(res, 500, { error: error.message });
+      return sendJson(res, 200, { forms: data || [] });
+    }
+    if (req.method === 'POST') {
+      const body = await parseBody(req);
+      const { data, error } = await supabase.from('service_form_definitions').insert({
+        service_id: service.id,
+        code: body.code,
+        name_ar: body.name_ar,
+        name_en: body.name_en,
+        country_code: body.country_code || null,
+        sector_code: body.sector_code || null,
+        version: Number(body.version || 1),
+        status: body.status || 'draft',
+        is_active: body.is_active !== false,
+        conditions: body.conditions || {},
+        metadata: body.metadata || {}
+      }).select().single();
+      if (error) return sendJson(res, 400, { error: error.message });
+      return sendJson(res, 201, { form: data });
+    }
+  }
+
+  if (formId && !fieldId) {
+    if (req.method === 'GET') {
+      const [{ data: form, error: formError }, { data: fields, error: fieldsError }] = await Promise.all([
+        supabase.from('service_form_definitions').select('*').eq('id', formId).eq('service_id', service.id).maybeSingle(),
+        supabase.from('service_form_fields').select('*').eq('form_id', formId).order('sort_order')
+      ]);
+      if (formError || fieldsError || !form) return sendJson(res, 404, { error: 'Form not found' });
+      return sendJson(res, 200, { form, fields: fields || [] });
+    }
+    if (req.method === 'POST') {
+      const body = await parseBody(req);
+      const { data, error } = await supabase.from('service_form_fields').insert({
+        form_id: formId,
+        field_key: body.field_key,
+        label_ar: body.label_ar,
+        label_en: body.label_en || body.label_ar,
+        field_type: body.field_type || 'text',
+        is_required: body.is_required === true,
+        sort_order: Number(body.sort_order || 0),
+        placeholder_ar: body.placeholder_ar || null,
+        placeholder_en: body.placeholder_en || null,
+        options: body.options || [],
+        validation: body.validation || {},
+        conditions: body.conditions || {},
+        metadata: body.metadata || {}
+      }).select().single();
+      if (error) return sendJson(res, 400, { error: error.message });
+      return sendJson(res, 201, { field: data });
+    }
+  }
+
+  if (fieldId && req.method === 'DELETE') {
+    const { error } = await supabase.from('service_form_fields').delete().eq('id', fieldId).eq('form_id', formId);
+    if (error) return sendJson(res, 400, { error: error.message });
+    return sendJson(res, 200, { deleted: true });
+  }
+
+  return sendJson(res, 405, { error: 'Method not allowed' });
+}
+
 async function adminRouter(req, res, path) {
   const parts = path.split('/').filter(Boolean);
   const resource = parts[1]; // after 'admin'
@@ -583,6 +757,11 @@ async function adminRouter(req, res, path) {
     if (resource === 'reference') return await handleReferenceData(req, res);
     if (resource === 'competitor-calibration') return await handleCompetitorCalibration(req, res, path);
     if (resource === 'source-quality-alerts') return await handleSourceQualityAlerts(req, res);
+    if (resource === 'services') {
+      const serviceCode = parts[2];
+      if (parts[3] === 'forms') return await handleServiceFormsAdmin(req, res, serviceCode, parts[4], parts[5]);
+      return await handleServiceAdmin(req, res, serviceCode);
+    }
 
     const masterTypes = ['sectors', 'sub-sectors', 'activities', 'activity-details', 'assumptions', 'risk-factors'];
     if (masterTypes.includes(resource)) {
