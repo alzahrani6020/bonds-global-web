@@ -10,6 +10,24 @@
   }[lang];
 
   function label(row) { return lang === 'en' ? (row.name_en || row.name_ar || row.code) : (row.name_ar || row.name_en || row.code); }
+  function track(event, properties={}) {
+    fetch('/api/log-usage', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      keepalive:true,
+      body:JSON.stringify({
+        event,
+        calculator:'service_discovery',
+        country:q('#bondsCountry')?.value || null,
+        lang,
+        action:'service',
+        properties,
+        url:window.location.href
+      })
+    }).catch(()=>{});
+  }
+
   async function json(url) {
     const r = await fetch(url, { credentials: 'same-origin' });
     if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -92,6 +110,13 @@
   function start() {
     const serviceCode=q('#bondsService').value;
     if (!serviceCode) { q('#bondsService').focus(); return; }
+    track('service_started',{
+      service_code:serviceCode,
+      region:q('#bondsRegion').value || null,
+      locality:q('#bondsLocality').value || null,
+      sector_code:q('#bondsSector').value || null,
+      activity_code:q('#bondsActivity').value || null
+    });
     if (serviceCode === 'custom_review') {
       window.location.href = lang === 'en' ? '/en/contact.html?intent=custom-service' : '/contact.html?intent=custom-service';
       return;
@@ -145,7 +170,13 @@
     q('#bondsRegion').addEventListener('change',onRegion);
     q('#bondsSector').addEventListener('change',onSector);
     q('#bondsActivity').addEventListener('change',loadServices);
+    q('#bondsService').addEventListener('change',()=>track('service_selected',{
+      service_code:q('#bondsService').value || null,
+      sector_code:q('#bondsSector').value || null,
+      activity_code:q('#bondsActivity').value || null
+    }));
     q('#bondsServiceStart').addEventListener('click',start);
+    track('service_viewed',{surface:'header_discovery'});
     loadCountries().catch(err => { console.error('[service-discovery]',err); wrap.classList.add('is-degraded'); });
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(inject,0));
