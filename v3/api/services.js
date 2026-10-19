@@ -227,7 +227,7 @@ async function handleCreateServiceRequest(req, res, supabase, user) {
         organization_id: client.organization_id || null,
         client_id: client.id,
         title: service.name_ar,
-        stage: 'new',
+        stage: 'lead',
         probability: 10,
         source: 'service_request',
         service_request_id: requestRowOut.id,
