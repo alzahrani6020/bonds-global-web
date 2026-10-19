@@ -497,14 +497,15 @@
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
       { type: 'dropdown', label: labels.fundingHub, items: fundingDropdown, highlight: true },
       { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
-      { type: 'dropdown', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
+      { type: 'dropdown', navId: 'tools', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
       { type: 'dropdown', label: labels.aboutGovernance, items: aboutDropdown },
     ];
 
     const navHtml = navItems.map(item => {
       if (item.type === 'dropdown') {
         const highlightClass = item.highlight ? ' nav-highlight' : '';
-        return `<li class="dropdown"><button type="button" class="dropdown-toggle${highlightClass}" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
+        const navIdAttr = item.navId ? ` data-nav-id="${item.navId}"` : '';
+        return `<li class="dropdown"${navIdAttr}><button type="button" class="dropdown-toggle${highlightClass}" aria-expanded="false" aria-haspopup="true">${item.label} ${caretSvg}</button>${buildDropdown(item.items, item.all, item.isLarge)}</li>`;
       }
       const highlightClass = item.highlight ? ' nav-highlight' : '';
       return `<li><a href="${item.href}" data-nav="${item.href}" class="${highlightClass}">${item.label}</a></li>`;
