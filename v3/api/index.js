@@ -169,6 +169,8 @@ async function handleInvestmentTaxonomy(req, res) {
   const url = getQuery(req);
   const countryCode = (url.searchParams.get('country') || '').toUpperCase() || null;
   const sectorCode = url.searchParams.get('sector') || null;
+  const depth = url.searchParams.get('depth') || 'subsector';
+  const includeSubsectors = depth !== 'sector';
   const include = new Set(
     (url.searchParams.get('include') || '')
       .split(',')
@@ -193,12 +195,15 @@ async function handleInvestmentTaxonomy(req, res) {
         .select('id,code,name_ar,name_en,description,sort_order')
         .eq('is_active', true)
         .order('sort_order'),
-      supabase
-        .from('canonical_investment_subsectors')
-        .select('id,sector_id,code,name_ar,name_en,description,sort_order')
-        .eq('is_active', true)
-        .order('sort_order')
+      includeSubsectors
+        ? supabase
+            .from('canonical_investment_subsectors')
+            .select('id,sector_id,code,name_ar,name_en,description,sort_order')
+            .eq('is_active', true)
+            .order('sort_order')
+        : Promise.resolve({ data: [], error: null })
     ]);
+
     if (sectorsResult.error || subsectorsResult.error) {
       console.error('[investment-taxonomy/summary]', sectorsResult.error?.message || subsectorsResult.error?.message);
       return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
@@ -212,19 +217,23 @@ async function handleInvestmentTaxonomy(req, res) {
       .eq('is_active', true)
       .eq('code', sectorCode)
       .order('sort_order');
+
     if (sectorsResult.error) {
       console.error('[investment-taxonomy/sectors]', sectorsResult.error.message);
       return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
     }
+
     sectors = sectorsResult.data || [];
     const filteredSectorIds = sectors.map(row => row.id);
-    if (filteredSectorIds.length) {
+
+    if (includeSubsectors && filteredSectorIds.length) {
       const subsectorsResult = await supabase
         .from('canonical_investment_subsectors')
         .select('id,sector_id,code,name_ar,name_en,description,sort_order')
         .eq('is_active', true)
         .in('sector_id', filteredSectorIds)
         .order('sort_order');
+
       if (subsectorsResult.error) {
         console.error('[investment-taxonomy/subsectors]', subsectorsResult.error.message);
         return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
@@ -234,13 +243,14 @@ async function handleInvestmentTaxonomy(req, res) {
   }
 
   const sectorIds = sectors.map(row => row.id);
-
   let activities = [];
+
   if (includeActivities && sectorIds.length) {
     let sectorMapQuery = supabase
       .from('canonical_activity_investment_sectors')
       .select('canonical_activity_id,sector_id,is_primary,confidence')
       .eq('is_primary', true);
+
     if (sectorCode) sectorMapQuery = sectorMapQuery.in('sector_id', sectorIds);
 
     const { data: sectorMappings, error: sectorMapError } = await sectorMapQuery;
@@ -252,40 +262,51 @@ async function handleInvestmentTaxonomy(req, res) {
     const activityIds = [...new Set((sectorMappings || []).map(row => row.canonical_activity_id))];
     let activityRows = [];
     let subsectorMappings = [];
+    let businessFormEligibility = [];
+    let countryActivityRows = [];
+
     if (activityIds.length) {
-      const [activitiesResult, subsectorMapResult] = await Promise.all([
+      const [activitiesResult, subsectorMapResult, businessFormsResult, countryActivitiesResult] = await Promise.all([
         supabase
           .from('canonical_activities')
           .select('id,code,name_ar,name_en,description,sort_order')
           .in('id', activityIds)
           .eq('is_active', true)
           .order('sort_order'),
-        supabase
-          .from('canonical_activity_investment_subsectors')
-          .select('canonical_activity_id,subsector_id,is_primary,confidence')
-          .in('canonical_activity_id', activityIds)
-          .eq('is_primary', true)
+        includeSubsectors
+          ? supabase
+              .from('canonical_activity_investment_subsectors')
+              .select('canonical_activity_id,subsector_id,is_primary,confidence')
+              .in('canonical_activity_id', activityIds)
+              .eq('is_primary', true)
+          : Promise.resolve({ data: [], error: null }),
+        countryCode
+          ? supabase
+              .from('canonical_activity_business_forms')
+              .select('canonical_activity_id,business_form_code,country_code,verification_status,confidence')
+              .eq('country_code', countryCode)
+              .in('canonical_activity_id', activityIds)
+          : Promise.resolve({ data: [], error: null }),
+        countryCode
+          ? supabase
+              .from('canonical_activity_country')
+              .select('canonical_activity_id,country_code,availability_status,regulatory_status,classification_system,classification_code,classification_label,source,source_url,confidence,metadata')
+              .eq('country_code', countryCode)
+              .in('canonical_activity_id', activityIds)
+          : Promise.resolve({ data: [], error: null })
       ]);
-      if (activitiesResult.error || subsectorMapResult.error) {
-        console.error('[investment-taxonomy/activities]', activitiesResult.error?.message || subsectorMapResult.error?.message);
+
+      const failed = [activitiesResult, subsectorMapResult, businessFormsResult, countryActivitiesResult]
+        .find(result => result.error);
+      if (failed?.error) {
+        console.error('[investment-taxonomy/activities]', failed.error.message);
         return sendJson(res, 500, { error: 'Failed to load investment taxonomy activities' });
       }
+
       activityRows = activitiesResult.data || [];
       subsectorMappings = subsectorMapResult.data || [];
-    }
-
-    let businessFormEligibility = [];
-    if (countryCode && activityIds.length) {
-      const { data, error } = await supabase
-        .from('canonical_activity_business_forms')
-        .select('canonical_activity_id,business_form_code,country_code,verification_status,confidence')
-        .eq('country_code', countryCode)
-        .in('canonical_activity_id', activityIds);
-      if (error) {
-        console.error('[investment-taxonomy/business-forms]', error.message);
-        return sendJson(res, 500, { error: 'Failed to load country business-form eligibility' });
-      }
-      businessFormEligibility = data || [];
+      businessFormEligibility = businessFormsResult.data || [];
+      countryActivityRows = countryActivitiesResult.data || [];
     }
 
     const primarySectorByActivity = new Map(
@@ -299,11 +320,15 @@ async function handleInvestmentTaxonomy(req, res) {
       if (!eligibilityByActivity.has(row.canonical_activity_id)) eligibilityByActivity.set(row.canonical_activity_id, []);
       eligibilityByActivity.get(row.canonical_activity_id).push(row);
     }
+    const countryByActivity = new Map(
+      countryActivityRows.map(row => [row.canonical_activity_id, row])
+    );
 
     activities = activityRows.map(activity => ({
       ...activity,
       primary_sector: primarySectorByActivity.get(activity.id) || null,
       primary_subsector: primarySubsectorByActivity.get(activity.id) || null,
+      country: countryByActivity.get(activity.id) || null,
       business_forms: eligibilityByActivity.get(activity.id) || []
     }));
   }
@@ -311,17 +336,20 @@ async function handleInvestmentTaxonomy(req, res) {
   let projectSizes = [];
   let businessForms = [];
   let opportunityTypes = [];
+
   if (includeDimensions) {
     const [sizesResult, formsResult, opportunityTypesResult] = await Promise.all([
       supabase.from('investment_project_sizes').select('code,name_ar,name_en,sort_order').order('sort_order'),
       supabase.from('investment_business_forms').select('code,name_ar,name_en,sort_order').order('sort_order'),
       supabase.from('investment_opportunity_types').select('code,name_ar,name_en,sort_order').order('sort_order')
     ]);
+
     const failed = [sizesResult, formsResult, opportunityTypesResult].find(result => result.error);
     if (failed?.error) {
       console.error('[investment-taxonomy/dimensions]', failed.error.message);
       return sendJson(res, 500, { error: 'Failed to load investment taxonomy dimensions' });
     }
+
     projectSizes = sizesResult.data || [];
     businessForms = formsResult.data || [];
     opportunityTypes = opportunityTypesResult.data || [];
@@ -338,13 +366,15 @@ async function handleInvestmentTaxonomy(req, res) {
     taxonomy_version: 'v3-canonical-investment-1',
     country_code: countryCode,
     sector_filter: sectorCode,
+    depth,
     included: {
+      subsectors: includeSubsectors,
       activities: includeActivities,
       dimensions: includeDimensions
     },
     sectors: (sectors || []).map(sector => ({
       ...sector,
-      subsectors: subsectorsBySector.get(sector.id) || []
+      subsectors: includeSubsectors ? (subsectorsBySector.get(sector.id) || []) : []
     })),
     activities,
     project_sizes: projectSizes,
