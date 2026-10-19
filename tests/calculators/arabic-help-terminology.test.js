@@ -18,6 +18,17 @@ describe('Arabic break-even help terminology', () => {
     expect(printBlock).not.toContain('break-even-help.js');
   });
 
+  test('keeps embedded report markup from terminating the main script', () => {
+    const exportStart = page.indexOf('function downloadExecutiveHtml()');
+    const renderCashStart = page.indexOf('function renderCash', exportStart);
+    expect(exportStart).toBeGreaterThan(-1);
+    expect(renderCashStart).toBeGreaterThan(exportStart);
+
+    const exportBlock = page.slice(exportStart, renderCashStart);
+    expect(exportBlock).not.toContain('src="break-even-help.js?v=1"></script>');
+    expect(exportBlock).toContain('src="break-even-help.js?v=1"><\\/script>');
+  });
+
   test('explains key English financial terms in Arabic', () => {
     expect(help).toContain("['VAT', 'ضريبة القيمة المضافة']");
     expect(help).toContain("['Final', 'نهائي']");

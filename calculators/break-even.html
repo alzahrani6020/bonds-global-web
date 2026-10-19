@@ -599,7 +599,7 @@ button,input,select,textarea{font-family:inherit}
 @media(max-width:900px){.sens-row{grid-template-columns:100px 1fr 180px}}
 @media(max-width:680px){.sens-row{grid-template-columns:1fr}.sens-val{grid-template-columns:1fr 1fr}.meta-strip .field label small{display:none}}
 
-</style><body>${pages}  <script defer src="break-even-help.js?v=1"></script>
+</style><body>${pages}  <script defer src="break-even-help.js?v=1"><\/script>
 </body></html>`;const blob=new Blob([html],{type:'text/html;charset=utf-8'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`Bonds_Global_Executive_${($('projectName').value||'Project').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.html`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url)}
 function renderCash(m){ const dso=value('dso'), dio=value('dio'), dpo=value('dpo'), cash=value('cash'); const arBase=$('arBasis').value==='net'?m.net:m.discSales; const ar=arBase*dso/30; const inv=(m.vc*m.q)*dio/30; const ap=(m.vc*m.q)*dpo/30; const w=ar+inv-ap; const burn=Math.max(0,-m.op); const runway=burn>0?cash/burn:Infinity; $('ccc').textContent=fmt(dso+dio-dpo)+' يوم'; $('wcr').textContent=money(w); $('burn').textContent=money(burn); $('runway').textContent=isFinite(runway)?fmt(runway)+' شهر':'غير محدود تشغيليًا'; }
 function renderFinance(m){ const L=value('loan'), n=Math.max(1,value('months')), r=value('annualRate')/100/12, extra=value('financeFees'); let pay=0;if(L>0){pay=r===0?L/n:L*r/(1-Math.pow(1+r,-n))} const i1=L*r, p1=Math.max(0,pay-i1), ds=pay+extra; const cashProxy=Math.max(0,m.cm*m.q-m.fc); const dscr=ds>0?cashProxy/ds:null; $('payment').textContent=money(pay); $('interest1').textContent=money(i1); $('principal1').textContent=money(p1); $('dscr').textContent=dscr===null?'—':fmt(dscr)+'×'; }
@@ -854,5 +854,6 @@ renderManagement(); previousPeriod=$('period').value; if(expiryState.price)$('ex
 
 recalc();
 </script>
+<script defer src="break-even-help.js?v=1"></script>
 </body>
 </html>
