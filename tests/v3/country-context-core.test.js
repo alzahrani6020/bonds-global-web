@@ -112,6 +112,22 @@ describe('V3 country context core', () => {
     }
   });
 
+  test('market screens disclose when source currency differs from selected country currency', () => {
+    const context = read('v3/country-context.js');
+    expect(context).toContain('formatProvenanceMoney');
+    expect(context).toContain('عملة المصدر');
+    expect(context).toContain('وليست العملة المحلية');
+
+    for (const screen of [
+      'v3/city-intelligence.html',
+      'v3/city-comparison.html',
+      'v3/investment-map.html',
+      'v3/opportunity-bank.html'
+    ]) {
+      expect(read(screen)).toContain('formatProvenanceMoney');
+    }
+  });
+
   test('main market screens respect source currency provenance instead of relabeling values', () => {
     const context = read('v3/country-context.js');
     const map = read('v3/investment-map.html');
