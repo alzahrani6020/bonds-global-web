@@ -31,6 +31,9 @@ describe('Dynamic service orchestration layer', () => {
     expect(api).toContain("from('service_catalog')");
     expect(api).toContain("from('service_capability_map')");
     expect(api).toContain("from('service_requests')");
+    expect(api).toContain("from('service_procedures')");
+    expect(api).toContain("from('service_pricing')");
+    expect(api).toContain("from('service_form_fields')");
     expect(api).toContain("from('crm_opportunities')");
     expect(api).toContain("stage: 'lead'");
     expect(api).not.toContain("stage: 'new'");
@@ -46,6 +49,19 @@ describe('Dynamic service orchestration layer', () => {
     expect(page).toContain('إدارة الخدمات');
     expect(page).toContain('النماذج الديناميكية');
     expect(page).toContain('المحركات المرتبطة');
+    expect(page).toContain('إجراءات الخدمة');
+    expect(page).toContain('تسعير الخدمة');
+    expect(page).toContain('طلبات الخدمات');
+  });
+
+  test('unified service request page renders dynamic service data', () => {
+    const page = read('service-request.html');
+    const component = read('components/service-request.js');
+    expect(page).toContain('srDynamicFields');
+    expect(page).toContain('srProcedures');
+    expect(component).toContain('/api/v3/services/');
+    expect(component).toContain('/api/v3/services/requests');
+    expect(component).toContain('Authorization');
   });
 
   test('Vercel serves the service manager before the admin catch-all', () => {
