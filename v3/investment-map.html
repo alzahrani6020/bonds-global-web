@@ -322,6 +322,13 @@
       return num.toLocaleString('ar-SA');
     }
 
+    function formatMarketMoney(value, currencyCode) {
+      if (value === null || value === undefined || !Number.isFinite(Number(value))) return '-';
+      if (!currencyCode) return formatNumber(Number(value)) + ' · العملة غير موثقة';
+      return window.BondsCountryContext?.formatCurrency(Number(value), currencyCode, selectedCountryProfile) ||
+        (formatNumber(Number(value)) + ' ' + currencyCode);
+    }
+
     function classify(score) {
       if (score >= 80) return 'hot';
       if (score >= 60) return 'good';
@@ -540,7 +547,7 @@
           <div class="popup-metric"><span>الدرجة:</span><strong>${score.toFixed(1)} / 100</strong></div>
           <div class="popup-metric"><span>التصنيف:</span><strong>${classificationLabel(cls)}</strong></div>
           <div class="popup-metric"><span>الترتيب:</span><strong>${city.opportunity.rank || '-'}</strong></div>
-          <div class="popup-metric"><span>حجم السوق:</span><span>${window.BondsCountryContext?.formatMoney(city.opportunity.marketSize, selectedCountryProfile) || formatNumber(city.opportunity.marketSize)}</span></div>
+          <div class="popup-metric"><span>حجم السوق:</span><span>${formatMarketMoney(city.opportunity.marketSize, city.opportunity.currencyCode)}</span></div>
           <div class="popup-metric"><span>المنافسين:</span><span>${formatNumber(city.opportunity.competitorsCount)}</span></div>
           <div class="popup-metric"><span>التشبع:</span><span>${city.opportunity.saturation}%</span></div>
           <a class="popup-link" href="/v3/city-intelligence?city=${city.code}&activity=${document.getElementById('activitySelect').value}" target="_blank">عرض ذكاء المدينة →</a>
