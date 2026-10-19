@@ -299,8 +299,12 @@
         <select id="countrySelect"><option value="">اختر الدولة</option></select>
       </div>
       <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">القطاع</label>
+        <select id="sectorSelect"><option value="">اختر القطاع</option></select>
+      </div>
+      <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
-        <select id="activitySelect"><option value="">كل الأنشطة</option></select>
+        <select id="activitySelect" disabled><option value="">اختر القطاع أولاً</option></select>
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">السنة</label>
@@ -310,7 +314,7 @@
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">نموذج المشروع (اختياري)</label>
-        <select id="modelSelect"><option value="">بدون نموذج</option></select>
+        <select id="modelSelect" disabled><option value="">اختر النشاط أولاً</option></select>
       </div>
       <button id="compareBtn" class="compare-btn">قارن المدن</button>
     </div>
@@ -348,6 +352,7 @@
     let cities = [];
     let filteredCities = [];
     let activities = [];
+    let taxonomySectors = [];
     let models = [];
     let countryProfiles = new Map();
     let selectedCountryProfile = null;
@@ -442,21 +447,35 @@
 
     async function init() {
       try {
-        const [countriesData, activitiesData] = await Promise.all([
+        const [countriesData, taxonomyData] = await Promise.all([
           fetchJson(API_URL + '/catalog/countries'),
-          fetchJson(API_URL + '/catalog/activities')
+          fetchJson(API_URL + '/investment-taxonomy?depth=sector')
         ]);
 
-        activities = activitiesData.activities || [];
-
         const countrySelect = document.getElementById('countrySelect');
+        const sectorSelect = document.getElementById('sectorSelect');
+        const activitySelect = document.getElementById('activitySelect');
+        const modelSelect = document.getElementById('modelSelect');
         const countryRows = (countriesData.countries || [])
           .filter(country => country.recordStatus !== 'no_cities');
+        taxonomySectors = taxonomyData.sectors || [];
+
         countryProfiles = new Map(countryRows.map(country => [country.code, country]));
         countrySelect.innerHTML = '<option value="">اختر الدولة</option>' +
           countryRows
             .map(country => `<option value="${country.code}">${country.name_ar} (${country.cityCount})</option>`)
             .join('');
+
+        sectorSelect.innerHTML = '<option value="">اختر القطاع</option>' +
+          taxonomySectors
+            .map(sector => `<option value="${sector.code}">${sector.name_ar || sector.name_en || sector.code}</option>`)
+            .join('');
+
+        activitySelect.innerHTML = '<option value="">اختر القطاع أولاً</option>';
+        activitySelect.disabled = true;
+        modelSelect.innerHTML = '<option value="">اختر النشاط أولاً</option>';
+        modelSelect.disabled = true;
+
         const storedCountry = window.BondsCountryContext?.getSelected('SA') || 'SA';
         countrySelect.value = countryRows.some(country => country.code === storedCountry)
           ? storedCountry
@@ -466,9 +485,6 @@
           currency_code: selectedCountryProfile?.currency_code || null,
           currency_symbol: selectedCountryProfile?.currency_symbol || null
         });
-
-        await loadCountryActivities();
-        await loadCountryModels();
 
         await refreshComparisonYears({ preserve: false });
         await updateCityList();
@@ -481,33 +497,61 @@
 
     async function loadCountryActivities() {
       const countryCode = document.getElementById('countrySelect').value;
+      const sectorCode = document.getElementById('sectorSelect').value;
       const activitySelect = document.getElementById('activitySelect');
       const current = activitySelect.value;
 
-      const url = countryCode
-        ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countryCode)
-        : API_URL + '/catalog/activities';
-      const data = await fetchJson(url);
+      activities = [];
+
+      if (!sectorCode) {
+        activitySelect.innerHTML = '<option value="">اختر القطاع أولاً</option>';
+        activitySelect.disabled = true;
+        return;
+      }
+
+      activitySelect.innerHTML = '<option value="">جاري تحميل أنشطة القطاع...</option>';
+      activitySelect.disabled = true;
+
+      const params = new URLSearchParams({
+        depth: 'sector',
+        sector: sectorCode,
+        include: 'activities'
+      });
+      if (countryCode) params.set('country', countryCode);
+
+      const data = await fetchJson(API_URL + '/investment-taxonomy?' + params.toString());
       activities = (data.activities || [])
         .filter(activity => activity.country?.availability_status !== 'unavailable');
 
-      activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
+      activitySelect.innerHTML = '<option value="">كل أنشطة القطاع</option>' +
         activities.map(activity => `<option value="${activity.code}">${window.BondsCountryContext?.formatActivityLabel(activity) || activity.name_ar}</option>`).join('');
+
+      activitySelect.disabled = activities.length === 0;
       if (activities.some(activity => activity.code === current)) activitySelect.value = current;
     }
 
     async function loadCountryModels() {
       const countryCode = document.getElementById('countrySelect').value;
+      const activityCode = document.getElementById('activitySelect').value;
       const modelSelect = document.getElementById('modelSelect');
       models = [];
 
-      if (!countryCode) {
-        modelSelect.innerHTML = '<option value="">بدون نموذج</option>';
+      if (!countryCode || !activityCode) {
+        modelSelect.innerHTML = '<option value="">اختر النشاط أولاً</option>';
+        modelSelect.disabled = true;
         return;
       }
 
-      const data = await fetchJson(API_URL + '/models?limit=500&country=' + encodeURIComponent(countryCode));
+      modelSelect.innerHTML = '<option value="">جاري تحميل النماذج المحلية...</option>';
+      modelSelect.disabled = true;
+
+      const params = new URLSearchParams({
+        country: countryCode,
+        activity: activityCode
+      });
+      const data = await fetchJson(API_URL + '/models?' + params.toString());
       models = (data.models || []).filter(model => model.localized === true);
+
       modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
         models.map(model => {
           const statusLabel = model.country_model_status === 'verified'
@@ -517,8 +561,12 @@
         }).join('');
 
       if (!models.length) {
-        modelSelect.innerHTML = '<option value="">لا توجد نماذج مالية محلية موثقة لهذه الدولة</option>';
+        modelSelect.innerHTML = '<option value="">لا توجد نماذج مالية محلية لهذا النشاط</option>';
+        modelSelect.disabled = true;
+        return;
       }
+
+      modelSelect.disabled = false;
     }
 
     async function updateCityList() {
@@ -798,13 +846,33 @@
         currency_code: selectedCountryProfile?.currency_code || null,
         currency_symbol: selectedCountryProfile?.currency_symbol || null
       });
-      await Promise.all([loadCountryActivities(), loadCountryModels()]);
+
+      document.getElementById('activitySelect').value = '';
+      document.getElementById('modelSelect').value = '';
+
+      if (document.getElementById('sectorSelect').value) {
+        await loadCountryActivities();
+      } else {
+        activities = [];
+        const activitySelect = document.getElementById('activitySelect');
+        activitySelect.innerHTML = '<option value="">اختر القطاع أولاً</option>';
+        activitySelect.disabled = true;
+      }
+
+      await loadCountryModels();
+      await refreshComparisonYears({ preserve: false });
+      await updateCityList();
+    });
+    document.getElementById('sectorSelect').addEventListener('change', async () => {
+      document.getElementById('activitySelect').value = '';
+      await loadCountryActivities();
+      await loadCountryModels();
       await refreshComparisonYears({ preserve: false });
       await updateCityList();
     });
     document.getElementById('activitySelect').addEventListener('change', async () => {
       await refreshComparisonYears({ preserve: true });
-      await updateCityList();
+      await Promise.all([loadCountryModels(), updateCityList()]);
     });
     document.getElementById('yearSelect').addEventListener('change', updateCityList);
     document.getElementById('citySearch').addEventListener('input', filterCities);
