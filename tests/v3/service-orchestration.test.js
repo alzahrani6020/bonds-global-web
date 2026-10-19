@@ -12,6 +12,9 @@ describe('Dynamic service orchestration layer', () => {
     expect(component).toContain('/api/v3/investment-taxonomy?country=');
     expect(component).toContain('/api/v3/services/catalog?');
     expect(component).toContain('bonds_service_intent');
+    expect(component).toContain('localityLabel');
+    expect(component).toContain("village:'قرية'");
+    expect(component).toContain("hijra:'هجرة'");
     expect(component).toContain("service:serviceCode");
   });
 
@@ -52,6 +55,9 @@ describe('Dynamic service orchestration layer', () => {
     expect(page).toContain('إجراءات الخدمة');
     expect(page).toContain('تسعير الخدمة');
     expect(page).toContain('طلبات الخدمات');
+    const adminApi = read('v3/api/admin.js');
+    expect(adminApi).toContain("event:'service_completed'");
+    expect(adminApi).toContain("from('nps_surveys')");
   });
 
   test('unified service request page renders dynamic service data', () => {
@@ -62,6 +68,8 @@ describe('Dynamic service orchestration layer', () => {
     expect(component).toContain('/api/v3/services/');
     expect(component).toContain('/api/v3/services/requests');
     expect(component).toContain('Authorization');
+    expect(component).toContain('form_abandoned');
+    expect(component).toContain('service_converted');
   });
 
   test('Vercel serves the service manager before the admin catch-all', () => {
