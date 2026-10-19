@@ -67,21 +67,18 @@ alter table public.funding_file_stages enable row level security;
 alter table public.funding_file_requirements enable row level security;
 alter table public.funding_case_submissions enable row level security;
 
-drop policy if exists funding_file_stages_read_active on public.funding_file_stages;
 create policy funding_file_stages_read_active
   on public.funding_file_stages
   for select
   to anon, authenticated
   using (is_active = true);
 
-drop policy if exists funding_file_requirements_read_active on public.funding_file_requirements;
 create policy funding_file_requirements_read_active
   on public.funding_file_requirements
   for select
   to anon, authenticated
   using (is_active = true);
 
-drop policy if exists funding_case_submissions_select_own on public.funding_case_submissions;
 create policy funding_case_submissions_select_own
   on public.funding_case_submissions
   for select
@@ -94,7 +91,6 @@ create policy funding_case_submissions_select_own
     )
   );
 
-drop policy if exists funding_case_submissions_insert_own on public.funding_case_submissions;
 create policy funding_case_submissions_insert_own
   on public.funding_case_submissions
   for insert
@@ -107,7 +103,6 @@ create policy funding_case_submissions_insert_own
     )
   );
 
-drop policy if exists funding_case_submissions_update_own on public.funding_case_submissions;
 create policy funding_case_submissions_update_own
   on public.funding_case_submissions
   for update
@@ -138,7 +133,7 @@ returns trigger
 language plpgsql
 security invoker
 set search_path = public
-as $
+as $$
 declare
   v_requirement public.funding_file_requirements%rowtype;
   v_case_owner uuid;
@@ -201,10 +196,8 @@ begin
   new.submitted_at := v_source_submitted_at;
   return new;
 end;
-$;
+$$;
 
-drop trigger if exists trg_validate_funding_case_submission_source
-  on public.funding_case_submissions;
 create trigger trg_validate_funding_case_submission_source
 before insert or update on public.funding_case_submissions
 for each row execute function public.validate_funding_case_submission_source();
@@ -215,7 +208,7 @@ returns trigger
 language plpgsql
 security invoker
 set search_path = public
-as $
+as $$
 begin
   update public.funding_case_submissions s
   set status = new.status,
@@ -228,39 +221,32 @@ begin
 
   return new;
 end;
-$;
+$$;
 
-drop trigger if exists trg_propagate_funding_kyc_state on public.client_kyc_cases;
 create trigger trg_propagate_funding_kyc_state
 after update of status, submitted_at on public.client_kyc_cases
 for each row execute function public.propagate_funding_submission_source_state();
 
-drop trigger if exists trg_propagate_funding_establishment_state on public.client_establishment_profiles;
 create trigger trg_propagate_funding_establishment_state
 after update of status, submitted_at on public.client_establishment_profiles
 for each row execute function public.propagate_funding_submission_source_state();
 
-drop trigger if exists trg_propagate_funding_activity_state on public.client_business_activity_profiles;
 create trigger trg_propagate_funding_activity_state
 after update of status, submitted_at on public.client_business_activity_profiles
 for each row execute function public.propagate_funding_submission_source_state();
 
-drop trigger if exists trg_propagate_funding_cash_flow_state on public.client_cash_flow_reports;
 create trigger trg_propagate_funding_cash_flow_state
 after update of status, submitted_at on public.client_cash_flow_reports
 for each row execute function public.propagate_funding_submission_source_state();
 
-drop trigger if exists trg_propagate_funding_receivables_state on public.client_receivables_aging_reports;
 create trigger trg_propagate_funding_receivables_state
 after update of status, submitted_at on public.client_receivables_aging_reports
 for each row execute function public.propagate_funding_submission_source_state();
 
-drop trigger if exists trg_propagate_funding_payables_state on public.client_payables_aging_reports;
 create trigger trg_propagate_funding_payables_state
 after update of status, submitted_at on public.client_payables_aging_reports
 for each row execute function public.propagate_funding_submission_source_state();
 
-drop trigger if exists trg_propagate_funding_credit_state on public.client_credit_consents;
 create trigger trg_propagate_funding_credit_state
 after update of status, submitted_at on public.client_credit_consents
 for each row execute function public.propagate_funding_submission_source_state();
@@ -276,17 +262,14 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_touch_funding_file_stages on public.funding_file_stages;
 create trigger trg_touch_funding_file_stages
 before update on public.funding_file_stages
 for each row execute function public.touch_funding_file_updated_at();
 
-drop trigger if exists trg_touch_funding_file_requirements on public.funding_file_requirements;
 create trigger trg_touch_funding_file_requirements
 before update on public.funding_file_requirements
 for each row execute function public.touch_funding_file_updated_at();
 
-drop trigger if exists trg_touch_funding_case_submissions on public.funding_case_submissions;
 create trigger trg_touch_funding_case_submissions
 before update on public.funding_case_submissions
 for each row execute function public.touch_funding_file_updated_at();
@@ -406,9 +389,8 @@ create index if not exists idx_payables_aging_user_updated
   on public.client_payables_aging_reports(user_id, updated_at desc);
 
 -- Tighten case-specific form writes so a funding_case_id can only reference the signed-in user's case.
-drop policy if exists cash_flow_insert_own on public.client_cash_flow_reports;
-create policy cash_flow_insert_own on public.client_cash_flow_reports
-for insert to authenticated
+alter policy cash_flow_insert_own on public.client_cash_flow_reports
+to authenticated
 with check (
   user_id = auth.uid()
   and (funding_case_id is null or exists (
@@ -417,9 +399,8 @@ with check (
   ))
 );
 
-drop policy if exists cash_flow_update_own on public.client_cash_flow_reports;
-create policy cash_flow_update_own on public.client_cash_flow_reports
-for update to authenticated
+alter policy cash_flow_update_own on public.client_cash_flow_reports
+to authenticated
 using (user_id = auth.uid() and status = 'draft')
 with check (
   user_id = auth.uid()
@@ -430,9 +411,8 @@ with check (
   ))
 );
 
-drop policy if exists receivables_aging_insert_own on public.client_receivables_aging_reports;
-create policy receivables_aging_insert_own on public.client_receivables_aging_reports
-for insert to authenticated
+alter policy receivables_aging_insert_own on public.client_receivables_aging_reports
+to authenticated
 with check (
   user_id = auth.uid()
   and (funding_case_id is null or exists (
@@ -441,9 +421,8 @@ with check (
   ))
 );
 
-drop policy if exists receivables_aging_update_own on public.client_receivables_aging_reports;
-create policy receivables_aging_update_own on public.client_receivables_aging_reports
-for update to authenticated
+alter policy receivables_aging_update_own on public.client_receivables_aging_reports
+to authenticated
 using (user_id = auth.uid() and status = 'draft')
 with check (
   user_id = auth.uid()
@@ -454,9 +433,8 @@ with check (
   ))
 );
 
-drop policy if exists payables_aging_insert_own on public.client_payables_aging_reports;
-create policy payables_aging_insert_own on public.client_payables_aging_reports
-for insert to authenticated
+alter policy payables_aging_insert_own on public.client_payables_aging_reports
+to authenticated
 with check (
   user_id = auth.uid()
   and (funding_case_id is null or exists (
@@ -465,9 +443,8 @@ with check (
   ))
 );
 
-drop policy if exists payables_aging_update_own on public.client_payables_aging_reports;
-create policy payables_aging_update_own on public.client_payables_aging_reports
-for update to authenticated
+alter policy payables_aging_update_own on public.client_payables_aging_reports
+to authenticated
 using (user_id = auth.uid() and status = 'draft')
 with check (
   user_id = auth.uid()
@@ -478,9 +455,8 @@ with check (
   ))
 );
 
-drop policy if exists credit_consents_insert_own on public.client_credit_consents;
-create policy credit_consents_insert_own on public.client_credit_consents
-for insert to authenticated
+alter policy credit_consents_insert_own on public.client_credit_consents
+to authenticated
 with check (
   user_id = auth.uid()
   and (funding_case_id is null or exists (
@@ -489,9 +465,8 @@ with check (
   ))
 );
 
-drop policy if exists credit_consents_update_own on public.client_credit_consents;
-create policy credit_consents_update_own on public.client_credit_consents
-for update to authenticated
+alter policy credit_consents_update_own on public.client_credit_consents
+to authenticated
 using (user_id = auth.uid() and status = 'draft')
 with check (
   user_id = auth.uid()
