@@ -236,6 +236,7 @@
       const existing=await existingQuery.order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){
         currentReport=existing.data;
+        window.BondsFundingCaseContext.lockSubmittedForm(document.querySelector('.cf-page'),existing.data.status);
         if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'cash_flow',existing.data);
         startMonth.value=(existing.data.start_month||'').slice(0,7)||thisMonth();
         openingBalance.value=existing.data.opening_balance??0;
