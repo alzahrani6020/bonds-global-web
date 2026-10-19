@@ -863,6 +863,27 @@ async function handleServiceRequestsAdmin(req,res,requestId,subresource,subId){
     if(body.status==='completed')patch.completed_at=new Date().toISOString();
     const {data,error}=await supabase.from('service_requests').update(patch).eq('id',requestId).select().single();
     if(error)return sendJson(res,400,{error:error.message});
+    if(body.status==='completed'){
+      await supabase.from('calculator_events').insert({
+        event:'service_completed',
+        calculator:'service_orchestration',
+        country:data.country_code||null,
+        user_id:data.user_id||null,
+        action:'complete',
+        properties:{service_request_id:data.id,service_id:data.service_id,sector_code:data.sector_code||null}
+      });
+      const {count}=await supabase.from('nps_surveys')
+        .select('*',{count:'exact',head:true})
+        .eq('service_request_id',data.id)
+        .eq('user_id',data.user_id);
+      if(!count){
+        await supabase.from('nps_surveys').insert({
+          user_id:data.user_id,
+          service_request_id:data.id,
+          status:'pending'
+        });
+      }
+    }
     return sendJson(res,200,{request:data});
   }
 
