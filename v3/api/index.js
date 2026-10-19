@@ -268,11 +268,11 @@ async function handleInvestmentTaxonomy(req, res) {
     if (activityIds.length) {
       const [activitiesResult, subsectorMapResult, businessFormsResult, countryActivitiesResult] = await Promise.all([
         supabase
-          .from('canonical_activities')
-          .select('id,code,name_ar,name_en,description,sort_order')
+          .from('canonical_activity_catalog')
+          .select('id,code,name_ar,name_en,description,is_active,sort_order,aliases')
           .in('id', activityIds)
-          .eq('is_active', true)
-          .order('sort_order'),
+          .order('sort_order')
+          .order('name_ar'),
         includeSubsectors
           ? supabase
               .from('canonical_activity_investment_subsectors')
