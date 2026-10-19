@@ -15,6 +15,7 @@ describe('V3 investment taxonomy API', () => {
     expect(api).toContain(".from('canonical_investment_subsectors')");
     expect(api).toContain(".from('canonical_activity_investment_sectors')");
     expect(api).toContain(".from('canonical_activity_investment_subsectors')");
+    expect(api).toContain(".from('canonical_activity_catalog')");
   });
 
   test('country business-form eligibility is country-scoped and preserves verification status', () => {
@@ -38,6 +39,17 @@ describe('V3 investment taxonomy API', () => {
     expect(api).toContain("const includeSubsectors = depth !== 'sector'");
     expect(api).toContain("Cache-Control");
     expect(api).toContain("stale-while-revalidate=3600");
+  });
+
+  test('opportunity sector filtering is canonical, batched and deduplicated', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain('async function resolveInvestmentSectorSelection');
+    expect(api).toContain("const sectorCode = url.searchParams.get('sector')");
+    expect(api).toContain(".from('canonical_activity_legacy_aliases')");
+    expect(api).toContain('filteredActivityIds');
+    expect(api).toContain('sectorSelection.canonicalByLegacyId.get(row.activity_id)');
+    expect(api).toContain('_sectorCanonical: sectorCanonical');
   });
 
   test('taxonomy returns the cross-cutting dimensions explicitly when requested', () => {
