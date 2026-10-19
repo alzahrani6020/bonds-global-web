@@ -15,6 +15,7 @@ describe('Break-even institutional shell', () => {
     expect(page).toContain('assets/bonds-mark.svg');
     expect(page).toContain('class="break-even-landing__visual"');
     expect(page).toContain('class="break-even-finance-card"');
+    expect(page).toContain('/assets/break-even-hero-approved.webp?v=1');
     expect(page).toContain('حاسبة مالية متقدمة');
     expect(page).toContain('id="contextProjectName"');
     expect(page).toContain('id="contextScenarioPreset"');
