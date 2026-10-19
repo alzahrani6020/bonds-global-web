@@ -18,8 +18,8 @@ function run(script, args = []) {
 }
 
 const staged = run('stage-local-geo-dataset.js', [dataset]);
-const parsed = JSON.parse(staged.slice(staged.lastIndexOf('{')));
-const runId = parsed.run_id;
+const runMatch = staged.match(/GEO_RUN_ID=([0-9a-f-]{36})/i);
+const runId = runMatch && runMatch[1];
 if (!runId) throw new Error('Staging did not return run_id');
 run('reconcile-local-geo-run.js', [runId]);
 run('promote-local-geo-run.js', [runId]);
