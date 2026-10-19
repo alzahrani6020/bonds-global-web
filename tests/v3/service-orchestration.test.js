@@ -17,6 +17,12 @@ describe('Dynamic service orchestration layer', () => {
     expect(component).toContain("village:'قرية'");
     expect(component).toContain("hijra:'هجرة'");
     expect(component).toContain("service:serviceCode");
+    expect(component).toContain('UniversalDropdown.fromSelect');
+    expect(component).toContain('regionSearch');
+    expect(component).toContain('localitySearch');
+    expect(component).toContain("const PROPOSE_SECTOR = '__propose_sector__'");
+    expect(component).toContain("const PROPOSE_ACTIVITY = '__propose_activity__'");
+    expect(component).toContain("from('taxonomy_proposals')");
   });
 
   test('site navigation separates services, sectors, tools and knowledge', () => {
