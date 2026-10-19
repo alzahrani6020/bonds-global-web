@@ -41,7 +41,10 @@
     "services:check": "node scripts/compile-service-manifests.js --check",
     "test:service-manifests": "jest tests/security/service-manifest-registration.test.js --runInBand",
     "audit:tools": "node scripts/validate-tools-registry.js",
-    "generate:tools": "node scripts/generate-tools-registry.js"
+    "generate:tools": "node scripts/generate-tools-registry.js",
+    "geo:build-local": "node scripts/build-local-geo-dataset.js",
+    "geo:load-local": "node scripts/load-local-geo-dataset.js",
+    "geo:test-local": "jest tests/v3/local-geo-intelligence.test.js tests/v3/local-geo-foundation-contract.test.js --runInBand"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",
