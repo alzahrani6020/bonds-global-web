@@ -2115,7 +2115,8 @@ module.exports = async function handler(req, res) {
 
   try {
     if (path === '/health' || path === '/') return await handleHealth(req, res);
-    if (path === '/sectors' && req.method === 'GET') return await handleSectors(req, res);\n    if (path === '/investment-taxonomy' && req.method === 'GET') return await handleInvestmentTaxonomy(req, res);
+    if (path === '/sectors' && req.method === 'GET') return await handleSectors(req, res);
+    if (path === '/investment-taxonomy' && req.method === 'GET') return await handleInvestmentTaxonomy(req, res);
     if (path === '/catalog/countries' && req.method === 'GET') return await handleCatalogCountries(req, res);
     if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
     if (path === '/catalog/years' && req.method === 'GET') return await handleCatalogYears(req, res);
