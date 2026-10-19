@@ -16,6 +16,9 @@ describe('Break-even institutional shell', () => {
     expect(page).toContain('class="break-even-landing__visual"');
     expect(page).toContain('class="break-even-finance-card"');
     expect(page).toContain('حاسبة مالية متقدمة');
+    expect(page).toContain('id="contextProjectName"');
+    expect(page).toContain('id="contextScenarioPreset"');
+    expect(page).toContain('function syncContextRibbon()');
   });
 
   test('shows Saudi calculation timestamp and preserves engine version', () => {
