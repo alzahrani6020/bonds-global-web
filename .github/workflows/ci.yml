@@ -34,7 +34,7 @@ jobs:
       - name: Validate Bonds Native operations
         shell: pwsh
         run: |
-          $files = Get-ChildItem "services/bonds_native_inference/windows/*.ps1" -File | Select-Object -ExpandProperty FullName
+          $files = Get-ChildItem "services/bonds_native_inference" -Recurse -Filter "*.ps1" -File | Select-Object -ExpandProperty FullName
           foreach ($file in $files) {
             $tokens = $null
             $errors = $null
