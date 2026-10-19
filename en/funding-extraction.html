@@ -187,51 +187,21 @@
         <span class="section__eyebrow">Funding File</span>
         <h2 class="section__title">Complete Your Funding File in One Place</h2>
         <p style="max-width:760px;margin:0 auto;color:var(--text-secondary);line-height:1.9;">
-          These forms are part of the funding extraction journey. Start with business information, then financial data, then credit consents before file review and submission.
+          Requirements and stages are loaded from the funding-file registry. When you open a specific funding case, each item is tracked against that case only.
         </p>
         <div class="funding-file-summary">
           <div class="funding-file-summary__row">
             <strong>File status</strong>
-            <span data-funding-file-summary>Sign in to view your funding file completion status.</span>
+            <span data-funding-file-summary>Loading funding requirements…</span>
           </div>
           <div class="funding-file-summary__track">
             <span class="funding-file-summary__fill" data-funding-file-progress role="progressbar" aria-label="Funding file completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></span>
           </div>
         </div>
       </div>
-      <div class="grid-3">
-        <div class="card reveal">
-          <div style="font-family:var(--font-display);font-size:var(--text-sm);font-weight:800;color:var(--gold-500);margin-bottom:var(--space-2);">STAGE 01</div>
-          <h3 class="card__title">Client &amp; Business Information</h3>
-          <p class="card__text">Identify the client, establishment, and business activity before building the financial file.</p>
-          <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="kyc" href="/en/client/kyc"><span>Know Your Customer (KYC)</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="establishment" href="/en/client/establishment-information"><span>Establishment Information</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="activity" href="/en/client/business-activity"><span>Business Activity Information</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-          </div>
-        </div>
-        <div class="card reveal reveal-delay-1">
-          <div style="font-family:var(--font-display);font-size:var(--text-sm);font-weight:800;color:var(--gold-500);margin-bottom:var(--space-2);">STAGE 02</div>
-          <h3 class="card__title">Financial Data</h3>
-          <p class="card__text">Complete the information used to assess liquidity, collections, and obligations.</p>
-          <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="cash_flow" href="/en/client/cash-flow"><span>Cash Flow</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="receivables" href="/en/client/receivables-aging"><span>Receivables Aging</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="payables" href="/en/client/payables-aging"><span>Payables Aging</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-          </div>
-        </div>
-        <div class="card reveal reveal-delay-2">
-          <div style="font-family:var(--font-display);font-size:var(--text-sm);font-weight:800;color:var(--gold-500);margin-bottom:var(--space-2);">STAGE 03</div>
-          <h3 class="card__title">Credit Consents</h3>
-          <p class="card__text">Complete the consents required to review credit information within the agreed service scope.</p>
-          <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="credit_business" href="/en/client/credit-consent-business"><span>Business Credit Consent</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="credit_individual" href="/en/client/credit-consent-individual"><span>Individual Credit Consent</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
-          </div>
-        </div>
-      </div>
+      <div class="grid-3" data-funding-file-grid></div>
       <div style="display:flex;justify-content:center;margin-top:2rem;">
-        <a href="#funding-request" class="fi-btn fi-btn--primary">Continue to Funding Request →</a>
+        <a href="#funding-request" class="fi-btn fi-btn--primary" data-funding-file-action>Start a Funding Request →</a>
       </div>
     </div>
   </section>
@@ -647,6 +617,7 @@
   <script src="/components/emoji-renderer.js" defer></script>
   <script src="../scripts/funding-context.js" defer></script>
   <script src="../scripts/funding-request-form.js?v=3" defer></script>
+  <script src="/lib/forms/funding-case-context.js?v=1"></script>
   <script src="../scripts/funding-file-status.js?v=1" defer></script>
 </body>
 </html>
