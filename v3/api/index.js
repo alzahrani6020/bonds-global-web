@@ -834,6 +834,7 @@ async function handleCatalogCountries(req, res) {
         code,
         name_ar: names.ar,
         name_en: names.en,
+        flag: ARAB_COUNTRIES_GEO[code]?.flag || null,
         currency_code: profile?.currency_code || null,
         currency_symbol: profile?.currency_symbol || null,
         locale_ar: profile?.locale_ar || `ar-${code}`,

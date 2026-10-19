@@ -22,11 +22,20 @@ describe('Dynamic service orchestration layer', () => {
     expect(component).toContain('localitySearch');
     expect(component).toContain("const PROPOSE_SECTOR = '__propose_sector__'");
     expect(component).toContain("const PROPOSE_ACTIVITY = '__propose_activity__'");
-    expect(component).toContain("from('taxonomy_proposals')");
+    expect(component).toContain("let table='taxonomy_proposals'");
+    expect(component).toContain("from(table).insert(row)");
+    expect(component).toContain("'geography_proposals'");
+    expect(component).toContain("const PROPOSE_REGION = '__propose_region__'");
+    expect(component).toContain("const PROPOSE_LOCALITY = '__propose_locality__'");
+    expect(component).toContain("hamlet:'نجع / تجمع صغير'");
+    expect(component).toContain("oasis:'واحة'");
+    expect(component).toContain("enhance('bondsCountry', t.countrySearch, false, 0)");
   });
 
   test('site navigation separates services, sectors, tools and knowledge', () => {
     const layout = read('site-layout.js');
+    const api = read('v3/api/index.js');
+    expect(api).toContain("flag: ARAB_COUNTRIES_GEO[code]?.flag || null");
     expect(layout).toContain("sectors: isEn ? 'Sectors' : 'القطاعات'");
     expect(layout).toContain("knowledge: isEn ? 'Knowledge' : 'المعرفة'");
     expect(layout).toContain("label: labels.services");
