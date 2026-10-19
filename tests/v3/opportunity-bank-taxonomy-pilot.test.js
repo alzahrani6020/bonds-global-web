@@ -12,6 +12,7 @@ describe('V3 opportunity bank investment taxonomy pilot', () => {
     expect(page).toContain("/investment-taxonomy?depth=sector");
     expect(page).toContain("const [countriesData, taxonomyData] = await Promise.all");
     expect(page).not.toContain("API_URL + '/catalog/activities?country='");
+    expect(page).not.toContain("API_URL + '/models'");
   });
 
   test('activities are loaded lazily only after a sector is selected', () => {
