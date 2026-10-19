@@ -28,6 +28,9 @@ describe('Client taxonomy selectors and proposal queue', () => {
     expect(component).toContain('__propose_activity__');
     expect(component).toContain("status:'pending'");
     expect(component).toContain(".from('taxonomy_proposals').insert");
+    expect(component).toContain('setSelection');
+    expect(component).toContain('Never write the internal canonical code');
+    expect(component).not.toContain('if(codeField && code) codeField.value=code;');
   });
 
   test('user proposals are isolated from canonical taxonomy and protected by RLS', () => {
