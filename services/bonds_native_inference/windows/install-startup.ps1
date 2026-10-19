@@ -7,7 +7,8 @@ param(
     [int]$NCtx = 4096,
     [int]$NThreads = 10,
     [int]$NGpuLayers = -1,
-    [int]$MaxTokens = 512
+    [int]$MaxTokens = 512,
+    [switch]$EnableWatchdog
 )
 
 $ErrorActionPreference = "Stop"
@@ -93,9 +94,11 @@ foreach ($entry in $machineValues.GetEnumerator()) {
 $psExe = "$env:SystemRoot\System32\WindowsPowerShell\v1.0\powershell.exe"
 $nativeScript = Join-Path $PSScriptRoot "run-native.ps1"
 $tunnelScript = Join-Path $PSScriptRoot "run-tunnel.ps1"
+$watchdogScript = Join-Path $PSScriptRoot "watchdog.ps1"
 
 $nativeAction = New-ScheduledTaskAction -Execute $psExe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$nativeScript`""
 $tunnelAction = New-ScheduledTaskAction -Execute $psExe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$tunnelScript`""
+$watchdogAction = New-ScheduledTaskAction -Execute $psExe -Argument "-NoProfile -ExecutionPolicy Bypass -File `"$watchdogScript`""
 
 $logonTrigger = New-ScheduledTaskTrigger -AtLogOn -User $identity.Name
 $interactivePrincipal = New-ScheduledTaskPrincipal -UserId $identity.Name -LogonType Interactive -RunLevel Highest
@@ -103,13 +106,20 @@ $settings = New-ScheduledTaskSettingsSet -StartWhenAvailable -RestartCount 999 -
 
 Register-ScheduledTask -TaskName "BondsNativeRuntime" -Action $nativeAction -Trigger $logonTrigger -Principal $interactivePrincipal -Settings $settings -Force | Out-Null
 Register-ScheduledTask -TaskName "BondsNativeTunnel" -Action $tunnelAction -Trigger $logonTrigger -Principal $interactivePrincipal -Settings $settings -Force | Out-Null
+if ($EnableWatchdog) {
+    Register-ScheduledTask -TaskName "BondsNativeWatchdog" -Action $watchdogAction -Trigger $logonTrigger -Principal $interactivePrincipal -Settings $settings -Force | Out-Null
+}
 
 Start-ScheduledTask -TaskName "BondsNativeRuntime"
 Start-ScheduledTask -TaskName "BondsNativeTunnel"
+if ($EnableWatchdog) {
+    Start-ScheduledTask -TaskName "BondsNativeWatchdog"
+}
 
 Write-Host "Installed Bonds Native startup automation."
 Write-Host "Runtime task: BondsNativeRuntime ($($identity.Name), Interactive)"
 Write-Host "Tunnel task:  BondsNativeTunnel ($($identity.Name), Interactive)"
+Write-Host "Watchdog:     $(if ($EnableWatchdog) { 'enabled' } else { 'disabled (opt-in with -EnableWatchdog)' })"
 Write-Host "Trigger:      At logon"
 Write-Host "Python:       $pythonExe"
 Write-Host "Cloudflared:  $cloudflaredExe"
