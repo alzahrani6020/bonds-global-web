@@ -140,8 +140,8 @@
       activity_code:q('#bondsActivity').value || null,
       service_code:serviceCode
     }));
-    const base=(lang==='en' ? service?.default_route_en : service?.default_route_ar) || (lang==='en'?'/en/services':'/services');
-    window.location.href = base + (base.includes('?') ? '&' : '?') + params.toString();
+    const requestPage=lang==='en'?'/en/service-request.html':'/service-request.html';
+    window.location.href = requestPage + '?' + params.toString();
   }
   function q(s){ return document.querySelector(s); }
   function inject() {
