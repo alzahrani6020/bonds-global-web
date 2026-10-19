@@ -980,7 +980,7 @@ async function handleCities(req, res) {
 
       const { data: marketRows, error: marketError } = await supabase
         .from('city_market_data')
-        .select('city_id, opportunity_score, opportunity_rank, market_size, competitors_count, market_saturation_score, avg_salary, expected_demand, confidence')
+        .select('city_id, opportunity_score, opportunity_rank, market_size, competitors_count, market_saturation_score, avg_salary, expected_demand, confidence, currency_code')
         .in('activity_id', activitySelection.ids)
         .eq('data_year', year)
         .in('city_id', cityIds);
@@ -1010,7 +1010,8 @@ async function handleCities(req, res) {
                   saturation: market.market_saturation_score,
                   avgSalary: market.avg_salary,
                   expectedDemand: market.expected_demand,
-                  confidence: market.confidence
+                  confidence: market.confidence,
+                  currencyCode: market.currency_code || null
                 }
               : null
           };
@@ -1132,6 +1133,7 @@ async function handleOpportunitiesTop(req, res) {
       growthRate: row.annual_growth_rate,
       confidence: row.confidence,
       avgSalary: row.avg_salary,
+      currencyCode: row.currency_code || null,
       expectedDemand: row.expected_demand,
       dataYear: row.data_year
     };
