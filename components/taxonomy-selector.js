@@ -24,6 +24,7 @@
 
   let sectorDD=null, activityDD=null, countryDD=null;
   let sectors=[], activities=[];
+  let initPromise=null;
   const byId=id=>document.getElementById(id);
 
   function option(value,label,code,status){
@@ -142,9 +143,8 @@
     activitySel.onchange=()=>{
       syncDataset(activitySel);
       if(activitySel.dataset.canonicalCode==='__propose_activity__'){openProposal('activity'); return;}
-      const code=activitySel.dataset.canonicalCode;
-      const codeField=byId('activityCode');
-      if(codeField && code) codeField.value=code;
+      // Canonical activity identity is stored separately in dataset.
+      // Never write the internal canonical code into the user's ISIC/activity-code field.
     };
     syncDataset(activitySel);
   }
@@ -216,18 +216,59 @@
   }
 
   async function init(){
+    if(initPromise) return initPromise;
+    initPromise=(async()=>{
+      const country=byId('country'), sector=byId('sector'), activity=byId('primaryActivity');
+      if(!country||!sector||!activity) return;
+      try{
+        await loadCountries();
+        await loadTaxonomy();
+      }catch(err){
+        console.warn('[taxonomy selector]',err.message);
+        throw err;
+      }
+    })();
+    return initPromise;
+  }
+
+  function selectByCanonicalOrLabel(select, canonicalCode, legacyLabel){
+    if(!select) return false;
+    const opts=Array.from(select.options||[]);
+    let found=null;
+    if(canonicalCode) found=opts.find(o=>o.dataset?.code===canonicalCode);
+    if(!found && legacyLabel) found=opts.find(o=>o.value===legacyLabel || o.textContent===legacyLabel);
+    if(!found) return false;
+    select.value=found.value;
+    syncDataset(select);
+    return true;
+  }
+
+  async function setSelection(selection={}){
+    await init();
     const country=byId('country'), sector=byId('sector'), activity=byId('primaryActivity');
-    if(!country||!sector||!activity) return;
-    try{
-      await loadCountries();
+    const wantedCountry=(selection.country_code||selection.countryCode||'').toUpperCase();
+    if(wantedCountry && Array.from(country.options).some(o=>o.value===wantedCountry) && country.value!==wantedCountry){
+      country.value=wantedCountry;
+      syncDataset(country);
+      try{localStorage.setItem('bonds_selected_country',wantedCountry);}catch(_){}
       await loadTaxonomy();
-    }catch(err){
-      console.warn('[taxonomy selector]',err.message);
     }
+    selectByCanonicalOrLabel(sector,selection.sector_code||selection.sectorCode,selection.sector||selection.sector_label);
+    sectorDD?.refresh?.();
+    await loadActivitiesForSector();
+    selectByCanonicalOrLabel(activity,selection.canonical_activity_code||selection.activityCode,selection.primary_activity||selection.activity||selection.activity_label);
+    activityDD?.refresh?.();
+    return {
+      country_code:selectedCountry(),
+      sector_code:selectedSectorCode(),
+      canonical_activity_code:activity?.dataset?.canonicalCode||''
+    };
   }
 
   window.BondsTaxonomySelector={
     init,
+    ready:()=>init(),
+    setSelection,
     getCountryCode:selectedCountry,
     getSectorCode:selectedSectorCode,
     getActivityCode:()=>byId('primaryActivity')?.dataset?.canonicalCode||'',
@@ -235,6 +276,6 @@
     getActivityLabel:()=>byId('primaryActivity')?.dataset?.selectedLabel||byId('primaryActivity')?.value||''
   };
 
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init);
-  else init();
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>{init().catch(()=>{});});
+  else init().catch(()=>{});
 })();
