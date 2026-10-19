@@ -159,6 +159,9 @@ button,input,select,textarea{font-family:inherit}
 .workspace-toolbar{top:74px}.workspace-toolbar .workspace-title{display:flex;flex-direction:column;gap:2px}.workspace-toolbar .workspace-title b{font-size:14px;color:#173653}.workspace-toolbar .workspace-title small{font-size:10px;color:#738196}
 .auth-gate-note{max-width:1540px;margin:10px auto 0;padding:0 22px}.auth-gate-note__inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;border:1px solid #ead8b9;border-radius:12px;background:#fffaf1;color:#77531e;font-size:12px}
 .auth-gate-note__inner a{color:#163a63;font-weight:700}
+.app.is-auth-locked{position:relative;max-height:720px;overflow:hidden;pointer-events:none;user-select:none;filter:blur(1.6px);opacity:.38}
+.workspace-login-gate{max-width:760px;margin:20px auto;padding:24px;border:1px solid #dfc89b;border-radius:18px;background:#fffaf1;text-align:center;box-shadow:0 12px 30px rgba(16,32,51,.06)}
+.workspace-login-gate h2{margin:0 0 8px;color:#173653;font-size:20px}.workspace-login-gate p{margin:0 auto 16px;max-width:620px;color:#6d604a;font-size:13px;line-height:1.8}.workspace-login-gate a{display:inline-flex;text-decoration:none}
 .report-page{position:relative;overflow:hidden;padding:30mm 12mm 26mm!important;min-height:257mm}
 .report-page:before{content:"";position:absolute;inset:29% 19% 24%;background:url('/assets/bonds-logo-icon-only.webp') center/contain no-repeat;opacity:.035;pointer-events:none;z-index:0}
 .report-page>*{position:relative;z-index:1}
@@ -193,7 +196,7 @@ button,input,select,textarea{font-family:inherit}
     <h1 id="breakEvenPageTitle">حاسبة نقطة التعادل المتقدمة</h1>
     <p>حلّل السعر والتكلفة وهامش المساهمة ونقطة التعادل والربحية والسيولة والسيناريوهات ضمن مساحة قرار مالية مترابطة من بوندز.</p>
     <div class="break-even-landing__actions">
-      <a class="btn primary" href="#workspaceStart">ابدأ الحساب ←</a>
+      <a class="btn primary" href="#workspaceStart" id="heroStartBtn">ابدأ الحساب ←</a>
       <button class="btn" type="button" id="heroHelpBtn">كيف تستخدم الحاسبة؟</button>
     </div>
   </div>
@@ -211,13 +214,18 @@ button,input,select,textarea{font-family:inherit}
     </div>
   </div>
 </div>
-<div class="auth-gate-note" id="authGateNote" hidden>
+<div class="auth-gate-note" id="authGateNote">
   <div class="auth-gate-note__inner">
-    <span>يمكنك تجربة الحساب مباشرة. الحفظ وإدارة المشاريع والمخرجات الرسمية تتطلب تسجيل الدخول.</span>
+    <span id="authGateText">جارٍ التحقق من تسجيل الدخول قبل فتح مساحة القرار.</span>
     <a href="/calculators/auth/?redirect=%2Fcalculators%2Fbreak-even">تسجيل الدخول</a>
   </div>
 </div>
-<div class="app" id="workspaceStart">
+<div class="workspace-login-gate" id="workspaceLoginGate">
+  <h2>سجّل الدخول لاستخدام محرك نقطة التعادل</h2>
+  <p>يرتبط الحساب بالمستخدم والمشروع والسيناريو ومعرّف العملية، ويحافظ على اتساق الحفظ والتقارير والمخرجات الرسمية.</p>
+  <a class="btn primary" href="/calculators/auth/?redirect=%2Fcalculators%2Fbreak-even">تسجيل الدخول والمتابعة</a>
+</div>
+<div class="app is-auth-locked" id="workspaceStart" aria-hidden="true">
 <header class="workspace-toolbar">
   <div class="workspace-title"><b>مساحة قرار نقطة التعادل</b><small>واجهة العمل v3.2 • المحرك المالي v3.1.2</small></div>
   <div class="actions"><button class="btn help-trigger" id="helpBtn">كيف تستخدم الحاسبة؟</button><div class="more-wrap"><button class="btn ghost compact-action" id="moreBtn" aria-expanded="false">المزيد</button><div class="more-menu" id="moreMenu" hidden><button type="button" id="manageBtn">المشاريع والنسخ</button><button type="button" id="importQuickBtn">استيراد نموذج</button><button type="button" id="lockBtnTop">قفل واعتماد النسخة</button><button type="button" id="versionInfoBtn">معلومات الإصدار</button><button type="button" id="resetBtn">استعادة الأصل</button></div></div><button class="btn" id="saveBtn">حفظ السيناريو</button><div class="export-wrap"><button class="btn" id="exportMenuBtn" aria-expanded="false">تصدير ▾</button><div class="export-menu" id="exportMenu" hidden><button type="button" id="xlsxBtn">Excel (.xlsx)</button><button type="button" id="csvBtn">CSV (بيانات جدولية)</button><button type="button" id="jsonBtn">JSON (بيانات تقنية) — متقدم</button><button type="button" id="decisionPackBtnMenu">حزمة القرار JSON (بيانات تقنية) — متقدم</button></div></div><button class="btn" id="reportBtn">تقرير تنفيذي</button><button class="btn primary" id="printBtn">طباعة</button></div>
@@ -669,7 +677,7 @@ function scenarioFrom(m,kind){let q=m.q,vc=m.vc,comm=m.comm,fc=m.fc;if(kind==='d
 function renderStress(m){const arr=[['Base',m],['Downside',scenarioFrom(m,'down')],['Severe',scenarioFrom(m,'severe')]];$('stressCards').innerHTML=arr.map(([n,x])=>`<div class="scenario-card"><span class="tiny muted">${n}</span><b>${money(x.op)}</b><div class="tiny muted">CM ${money(x.cm)} • كمية ${fmt(x.q)}</div></div>`).join('')}
 function renderConfidence(){const sc=dataConfidence();$('confidenceBadge').textContent=`الثقة ${sc}%`;$('confidenceBar').style.width=sc+'%';$('confidenceText').textContent=sc>=80?'المدخلات الأساسية موثقة بدرجة جيدة.':sc>=60?'يوجد اعتماد متوسط على افتراضات غير مؤكدة.':'النتيجة تعتمد بدرجة مرتفعة على افتراضات؛ لا تعتمد التقرير كنهائي قبل التوثيق.'}
 function renderExplain(m){const rows=[['صافي الإيراد',`(${fmt(m.economicPrice)} × ${fmt(m.q)}) × (1-${pct(m.disc*100)}) × (1-${pct(m.comm*100)}) = ${money(m.net)}`],['هامش المساهمة',`${money(m.unitNet)} - ${money(m.vc)} = ${money(m.cm)} / وحدة`],['الربح التشغيلي',`${money(m.cm)} × ${fmt(m.q)} - ${money(m.fc)}${m.appliedStepCost?` - ${money(m.appliedStepCost)} Step Cost`:''} = ${money(m.op)}`],['نقطة التعادل',m.cm>EPS?`CEILING((${money(m.fc)}${m.capacity>0&&m.bep>m.capacity&&m.stepCost>0?` + ${money(m.stepCost)} تكلفة قفزة`:''}) ÷ ${money(m.cm)}) = ${fmt(m.bep)} وحدة`:'غير معرفة لأن هامش المساهمة غير موجب.']];$('explainGrid').innerHTML=rows.map(([n,f])=>`<div class="explain-item"><b>${n}</b><code>${f}</code></div>`).join('')}
-function reportHeader(title,page){return `<div class="letterhead-head"><div class="letterhead-brand"><img src="/assets/bonds-logo-2026-v2.webp" alt="BONDS"></div><div class="letterhead-contact"><span><b>السعودية - جدة</b><br>+966 567 566 616<br>info@bonds.sa</span><span><b>مصر - الجيزة</b><br>+20 100 606 3557<br>info@bonds.sa</span></div></div><div class="letterhead-content-start"><div class="report-kicker">Bonds Global | Break-even Analysis</div><div class="report-title">${title}</div><div class="report-meta"><span class="badge">${esc($('projectName').value)}</span><span class="badge">${esc($('scenarioName').value)}</span><span class="badge">${periodLabel()}</span><span class="badge">آخر تحديث: ${esc(formatSaudiDateTime(lastCalculationUpdatedAt))}</span><span class="badge">Calculation ID: ${esc(calcId.slice(0,18))}</span><span class="badge">Engine v${APP_META.appVersion}</span></div></div>`}
+function reportHeader(title,page){return `<div class="letterhead-head"><div class="letterhead-brand"><img src="https://bonds-global.com/assets/bonds-logo-2026-v2.webp" alt="BONDS"></div><div class="letterhead-contact"><span><b>السعودية - جدة</b><br>+966 567 566 616<br>info@bonds.sa</span><span><b>مصر - الجيزة</b><br>+20 100 606 3557<br>info@bonds.sa</span></div></div><div class="letterhead-content-start"><div class="report-kicker">Bonds Global | Break-even Analysis</div><div class="report-title">${title}</div><div class="report-meta"><span class="badge">${esc($('projectName').value)}</span><span class="badge">${esc($('scenarioName').value)}</span><span class="badge">${periodLabel()}</span><span class="badge">آخر تحديث: ${esc(formatSaudiDateTime(lastCalculationUpdatedAt))}</span><span class="badge">Calculation ID: ${esc(calcId.slice(0,18))}</span><span class="badge">Engine v${APP_META.appVersion}</span></div></div>`}
 function reportFooter(page){return `<div class="letterhead-foot"><div class="letterhead-foot__values"><span>www.bonds.sa</span><span>السجل التجاري 39733</span><span>الرقم الضريبي 310224728600003</span><span>رخصة النشاط 357359</span></div><div class="letterhead-foot__principles"><span>استثمر بذكاء</span><span>حلّل بعمق</span><span>قرر بثقة</span><span>حقق النمو</span></div><div class="letterhead-foot__page">صفحة ${page} من 4</div></div>`}
 function buildExecutiveReport(m){const v=validateInputs(),ready=decisionReadiness(m),draft=v.errors.length||dataConfidence()<80||ready.score<80;const status=draft?'DRAFT':'FINAL';const threshold=isFinite(m.bePrice)?Math.ceil(m.bePrice*100)/100:null;const stressD=scenarioFrom(m,'down');const stressS=scenarioFrom(m,'severe');
  $('reportPage1').innerHTML=reportHeader('الملخص التنفيذي',1)+`<div class="report-grid"><div class="report-box"><span>النتيجة التشغيلية</span><b>${money(m.op)}</b></div><div class="report-box"><span>هامش المساهمة للوحدة</span><b>${money(m.cm)}</b></div><div class="report-box"><span>نقطة التعادل</span><b>${m.bep!==null?fmt(m.bep)+' وحدة':'غير متاح'}</b></div><div class="report-box"><span>مؤشر المتانة</span><b>${Math.round(health(m))}/100</b></div></div><div class="report-callout"><b>${esc($('diagnosisTitle').textContent)}</b><div>${esc($('diagnosisText').textContent)}</div></div><div class="report-section"><h2>الإجراء الأول</h2><p>${esc($('nextAction').textContent)}</p></div><div class="report-section"><h2>حالة التقرير</h2><p><b>${status}</b> • ثقة البيانات ${dataConfidence()}% • ${v.errors.length?'توجد أخطاء تحقق':'اجتاز التحقق الأساسي'}</p></div>`+reportFooter(1);
@@ -954,18 +962,31 @@ $('importQuickBtn')?.addEventListener('click',()=>{document.querySelector('.tab[
 renderManagement(); previousPeriod=$('period').value; if(expiryState.price)$('expiryPrice').value=expiryState.price;if(expiryState.vc)$('expiryVC').value=expiryState.vc;if(expiryState.comm)$('expiryComm').value=expiryState.comm;syncScenarioComposer();updatePeriodUI();renderAssumptionExpiry();
 
 $('heroHelpBtn')?.addEventListener('click',()=>$('helpBtn')?.click());
+$('heroStartBtn')?.addEventListener('click',async e=>{
+  if(breakEvenAuthChecked&&breakEvenAuthUser)return;
+  e.preventDefault();
+  const user=await resolveBreakEvenAuth();
+  if(user)$('workspaceStart')?.scrollIntoView({behavior:'smooth',block:'start'});
+  else redirectToBreakEvenLogin();
+});
 
 let breakEvenAuthUser=null;
 let breakEvenAuthChecked=false;
 function updateBreakEvenAuthUI(user){
   breakEvenAuthUser=user||null;
   breakEvenAuthChecked=true;
-  const badge=$('calcAuthState'),note=$('authGateNote');
+  const badge=$('calcAuthState'),note=$('authGateNote'),gate=$('workspaceLoginGate'),app=$('workspaceStart'),gateText=$('authGateText');
   if(badge){
     badge.className='auth-context '+(user?'is-authenticated':'is-guest');
-    badge.textContent=user?'مسجل الدخول — المخرجات والحفظ متاحة':'زائر — الحفظ والمخرجات تتطلب تسجيل الدخول';
+    badge.textContent=user?'مسجل الدخول — مساحة القرار مرتبطة بحسابك':'تسجيل الدخول مطلوب لاستخدام مساحة القرار';
   }
   if(note)note.hidden=!!user;
+  if(gate)gate.hidden=!!user;
+  if(gateText&&!user)gateText.textContent='يلزم تسجيل الدخول لاستخدام محرك نقطة التعادل وحفظ سياق القرار والمخرجات.';
+  if(app){
+    app.classList.toggle('is-auth-locked',!user);
+    app.setAttribute('aria-hidden',user?'false':'true');
+  }
 }
 async function resolveBreakEvenAuth(){
   const started=Date.now();
@@ -983,7 +1004,6 @@ function redirectToBreakEvenLogin(){
   location.href='/calculators/auth/?redirect='+encodeURIComponent(returnTo);
 }
 const protectedActionIds=new Set(['saveBtn','xlsxBtn','csvBtn','jsonBtn','decisionPackBtnMenu','decisionPackBtn','reportBtn','printBtn','lockBtnTop','finalizeBtn','newVersionBtn','createProjectBtn','saveProjectBtn','manageBtn','importQuickBtn']);
-let authReplayTarget=null;
 document.addEventListener('click',async e=>{
   const target=e.target.closest&&e.target.closest('button,a');
   if(!target||!protectedActionIds.has(target.id)||target.dataset.authBypass==='1')return;
