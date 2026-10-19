@@ -57,12 +57,13 @@ describe('generic credit consent forms',()=>{
     expect(migration).toContain("subject_type IN ('business','individual')");
   });
 
-  test('forms menu exposes both generic consent forms',()=>{
-    const layout=read('site-layout.js');
-    expect(layout).toContain("businessCreditConsent: isEn ? 'Business Credit Consent' : 'موافقة الاستعلام الائتماني — منشأة'");
-    expect(layout).toContain("individualCreditConsent: isEn ? 'Individual Credit Consent' : 'موافقة الاستعلام الائتماني — فرد'");
-    expect(layout).toContain('{ label: labels.businessCreditConsent, href: businessCreditConsentHref }');
-    expect(layout).toContain('{ label: labels.individualCreditConsent, href: individualCreditConsentHref }');
+  test('funding journey exposes both generic consent forms',()=>{
+    const ar=read('funding-extraction.html');
+    const en=read('en/funding-extraction.html');
+    expect(ar).toContain('href="/client/credit-consent-business"');
+    expect(ar).toContain('href="/client/credit-consent-individual"');
+    expect(en).toContain('href="/en/client/credit-consent-business"');
+    expect(en).toContain('href="/en/client/credit-consent-individual"');
   });
 });
 
