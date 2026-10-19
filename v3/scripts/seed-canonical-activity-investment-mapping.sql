@@ -129,12 +129,12 @@ insert into public.canonical_activity_business_forms(
 select
   ca.id,
   'productive_family',
-  null,
+  'SA',
   'unverified',
-  'Bonds V3 taxonomy candidate',
+  'Bonds V3 Saudi taxonomy candidate',
   70,
   jsonb_build_object(
-    'scope','cross_country_candidate',
+    'scope','saudi_candidate',
     'requires_country_regulatory_verification',true
   )
 from productive_family_candidates p
