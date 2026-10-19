@@ -31,23 +31,31 @@ async function listPublishedServices(supabase, filters = {}) {
     intersect((data || []).map(row => row.service_id));
   }
 
-  if (filters.country) {
+  const allServiceIds=(services||[]).map(row=>row.id);
+
+  if (filters.country && allServiceIds.length) {
     const { data, error: mapError } = await supabase
       .from('service_country_map')
-      .select('service_id,availability_status,availability_reason_ar,availability_reason_en,priority')
+      .select('service_id,country_code,availability_status')
       .eq('country_code', filters.country)
-      .neq('availability_status', 'unavailable');
+      .in('service_id', allServiceIds);
     if (mapError) throw mapError;
-    if ((data || []).length) intersect(data.map(row => row.service_id));
+    const unavailable=new Set((data||[]).filter(row=>row.availability_status==='unavailable').map(row=>row.service_id));
+    allowed=new Set([...allowed].filter(id=>!unavailable.has(id)));
   }
 
-  if (filters.sector) {
-    const { data, error: mapError } = await supabase.from('service_sector_map').select('service_id').eq('sector_code', filters.sector);
+  if (filters.sector && allServiceIds.length) {
+    const { data, error: mapError } = await supabase
+      .from('service_sector_map')
+      .select('service_id,sector_code')
+      .in('service_id', allServiceIds);
     if (mapError) throw mapError;
-    if ((data || []).length) intersect(data.map(row => row.service_id));
+    const mapped=new Set((data||[]).map(row=>row.service_id));
+    const matching=new Set((data||[]).filter(row=>row.sector_code===filters.sector).map(row=>row.service_id));
+    allowed=new Set([...allowed].filter(id=>!mapped.has(id)||matching.has(id)));
   }
 
-  if (filters.activity) {
+  if (filters.activity && allServiceIds.length) {
     const { data: activity, error: activityError } = await supabase
       .from('canonical_activities')
       .select('id')
@@ -57,10 +65,12 @@ async function listPublishedServices(supabase, filters = {}) {
     if (activity?.id) {
       const { data, error: mapError } = await supabase
         .from('service_activity_map')
-        .select('service_id')
-        .eq('canonical_activity_id', activity.id);
+        .select('service_id,canonical_activity_id')
+        .in('service_id', allServiceIds);
       if (mapError) throw mapError;
-      if ((data || []).length) intersect(data.map(row => row.service_id));
+      const mapped=new Set((data||[]).map(row=>row.service_id));
+      const matching=new Set((data||[]).filter(row=>row.canonical_activity_id===activity.id).map(row=>row.service_id));
+      allowed=new Set([...allowed].filter(id=>!mapped.has(id)||matching.has(id)));
     }
   }
 
@@ -94,7 +104,13 @@ async function listPublishedServices(supabase, filters = {}) {
     ...row,
     goals: goals.get(row.id) || [],
     capabilities: caps.get(row.id) || [],
-    country: country.get(row.id) || null
+    country: country.get(row.id) || (filters.country ? {
+      country_code: filters.country,
+      availability_status: 'unknown',
+      availability_reason_ar: null,
+      availability_reason_en: null,
+      priority: 100
+    } : null)
   }));
 }
 
