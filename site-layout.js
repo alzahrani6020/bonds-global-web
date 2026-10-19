@@ -268,6 +268,10 @@
       businessActivityInfo: isEn ? 'Business Activity Information' : 'معلومات النشاط',
       businessCreditConsent: isEn ? 'Business Credit Consent' : 'موافقة الاستعلام الائتماني — منشأة',
       individualCreditConsent: isEn ? 'Individual Credit Consent' : 'موافقة الاستعلام الائتماني — فرد',
+      fundingFileGroup: isEn ? 'Funding File' : 'ملف التمويل',
+      fundingRequirements: isEn ? 'Requirements & Forms' : 'المتطلبات والنماذج',
+      fundingCases: isEn ? 'Funding Cases' : 'حالات التمويل',
+      clientPortalNav: isEn ? 'Client Portal' : 'بوابة العميل',
     };
 
     const currentPath = window.location.pathname;
@@ -312,6 +316,8 @@
     const businessActivityInfoHref = isEn ? '/en/client/business-activity' : '/client/business-activity';
     const businessCreditConsentHref = isEn ? '/en/client/credit-consent-business' : '/client/credit-consent-business';
     const individualCreditConsentHref = isEn ? '/en/client/credit-consent-individual' : '/client/credit-consent-individual';
+    const fundingCasesHref = isEn ? '/en/client/funding-cases' : '/client/funding-cases';
+    const fundingRequirementsHref = fundingExtractionHref + '#funding-file';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
@@ -409,6 +415,14 @@
           { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
           { label: labels.projectReadiness, href: isEn ? v3EnglishHubHref + '#project-readiness' : '/v3/project-readiness' },
           { label: labels.opportunityBank, href: isEn ? v3EnglishHubHref + '#opportunity-bank' : '/v3/opportunity-bank' },
+        ],
+      },
+      {
+        heading: { ar: labels.fundingFileGroup, en: 'Funding File' },
+        items: [
+          { label: labels.fundingCases, href: fundingCasesHref },
+          { label: labels.fundingRequirements, href: fundingRequirementsHref },
+          { label: labels.clientPortalNav, href: clientPortalHref },
         ],
       },
     ];
