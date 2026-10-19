@@ -75,6 +75,15 @@ if ($LASTEXITCODE -ne 0) {
     throw "cloudflared ingress validation failed for the service config."
 }
 
+if (-not $Activate) {
+    Write-Host "Prepared cloudflared service payload only. Active tunnel, Windows service, and machine environment were not changed."
+    Write-Host "Run again with -Activate to install/configure the service and perform a health-checked cutover."
+    exit 0
+}
+
+$legacyExe = [Environment]::GetEnvironmentVariable("BONDS_CLOUDFLARED_EXE", "Machine")
+$legacyConfig = [Environment]::GetEnvironmentVariable("BONDS_CLOUDFLARED_CONFIG", "Machine")
+
 $existing = Get-Service -Name "cloudflared" -ErrorAction SilentlyContinue
 if (-not $existing) {
     & $exeDest service install
@@ -88,15 +97,6 @@ $binPath = "$q$exeDest$q --config=$q$configDest$q tunnel run"
 & sc.exe config cloudflared binPath= $binPath start= auto | Out-Null
 & sc.exe failure cloudflared reset= 86400 actions= restart/5000/restart/10000/restart/30000 | Out-Null
 & sc.exe failureflag cloudflared 1 | Out-Null
-
-[Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_EXE", $exeDest, "Machine")
-[Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_CONFIG", $configDest, "Machine")
-
-if (-not $Activate) {
-    Write-Host "Prepared cloudflared Windows service. Existing tunnel path was not changed."
-    Write-Host "Run again with -Activate to start the service and health-check cutover."
-    exit 0
-}
 
 $token = [Environment]::GetEnvironmentVariable("BONDS_NATIVE_TOKEN", "Machine")
 if ([string]::IsNullOrWhiteSpace($token)) {
@@ -131,6 +131,13 @@ while ((Get-Date) -lt $deadline) {
     Start-Sleep -Seconds 2
 }
 if (-not $healthy) {
+    Stop-Service -Name "cloudflared" -Force -ErrorAction SilentlyContinue
+    if ($null -ne $legacyExe) {
+        [Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_EXE", $legacyExe, "Machine")
+    }
+    if ($null -ne $legacyConfig) {
+        [Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_CONFIG", $legacyConfig, "Machine")
+    }
     throw "cloudflared Windows service started but remote Native health did not become ready. Legacy tunnel was left untouched."
 }
 
@@ -141,11 +148,21 @@ if ($legacyTask) {
     Start-Sleep -Seconds 5
 
     if (-not (Test-RemoteHealth)) {
+        Stop-Service -Name "cloudflared" -Force -ErrorAction SilentlyContinue
+        if ($null -ne $legacyExe) {
+            [Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_EXE", $legacyExe, "Machine")
+        }
+        if ($null -ne $legacyConfig) {
+            [Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_CONFIG", $legacyConfig, "Machine")
+        }
         Enable-ScheduledTask -TaskName "BondsNativeTunnel" | Out-Null
         Start-ScheduledTask -TaskName "BondsNativeTunnel"
         throw "Remote health failed after legacy tunnel shutdown; legacy task was restored."
     }
 }
+
+[Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_EXE", $exeDest, "Machine")
+[Environment]::SetEnvironmentVariable("BONDS_CLOUDFLARED_CONFIG", $configDest, "Machine")
 
 if ($CleanupLegacyProcesses) {
     $servicePid = (Get-CimInstance Win32_Service -Filter "Name='cloudflared'").ProcessId
