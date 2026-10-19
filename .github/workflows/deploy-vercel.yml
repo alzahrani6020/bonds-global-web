@@ -134,14 +134,14 @@ jobs:
           }
 
           for path in \
-            "/calculators/investment-center/index.html" \
-            "/en/calculators/investment-center/index.html" \
-            "/calculators/cash-flow.html" \
-            "/en/calculators/cash-flow.html" \
-            "/calculator-wizard.html" \
-            "/en/calculator-wizard.html" \
-            "/calculators/medical-viability.html" \
-            "/en/calculators/medical-viability.html"; do
+            "/calculators/investment-center" \
+            "/en/calculators/investment-center" \
+            "/calculators/cash-flow" \
+            "/en/calculators/cash-flow" \
+            "/calculator-wizard" \
+            "/en/calculator-wizard" \
+            "/calculators/medical-viability" \
+            "/en/calculators/medical-viability"; do
             body="$(npx --no-install vercel curl "$deployment_url$path" -H 'Cache-Control: no-cache')"
             [[ -n "$body" ]] || {
               echo "Staged tools route returned an empty body: $path"
@@ -149,8 +149,8 @@ jobs:
             }
           done
 
-          ar_catalog="$(npx --no-install vercel curl "$deployment_url/calculators/investment-center/index.html" -H 'Cache-Control: no-cache')"
-          en_catalog="$(npx --no-install vercel curl "$deployment_url/en/calculators/investment-center/index.html" -H 'Cache-Control: no-cache')"
+          ar_catalog="$(npx --no-install vercel curl "$deployment_url/calculators/investment-center" -H 'Cache-Control: no-cache')"
+          en_catalog="$(npx --no-install vercel curl "$deployment_url/en/calculators/investment-center" -H 'Cache-Control: no-cache')"
           printf '%s' "$ar_catalog" | grep -F "INVESTMENT-TOOLS-GENERATED:START" >/dev/null || {
             echo "Arabic staged investment catalog is missing generated tools marker"
             exit 1
