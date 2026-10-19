@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="../styles.css" />
   <link rel="stylesheet" href="../styles/page-redesign-2026.css?v=1" />
   <link rel="stylesheet" href="../styles/funding-request-form.css?v=2" />
+  <link rel="stylesheet" href="../styles/funding-file-status.css?v=1" />
   <link rel="stylesheet" href="/styles/institutional-system.css?v=6">
 
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
@@ -180,7 +181,7 @@
 
 
   <!-- Funding File Journey -->
-  <section class="section" id="funding-file" style="background: var(--cream-100);">
+  <section class="section" id="funding-file" style="background: var(--cream-100);" data-funding-file>
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">Funding File</span>
@@ -188,6 +189,15 @@
         <p style="max-width:760px;margin:0 auto;color:var(--text-secondary);line-height:1.9;">
           These forms are part of the funding extraction journey. Start with business information, then financial data, then credit consents before file review and submission.
         </p>
+        <div class="funding-file-summary">
+          <div class="funding-file-summary__row">
+            <strong>File status</strong>
+            <span data-funding-file-summary>Sign in to view your funding file completion status.</span>
+          </div>
+          <div class="funding-file-summary__track">
+            <span class="funding-file-summary__fill" data-funding-file-progress role="progressbar" aria-label="Funding file completion" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></span>
+          </div>
+        </div>
       </div>
       <div class="grid-3">
         <div class="card reveal">
@@ -195,9 +205,9 @@
           <h3 class="card__title">Client &amp; Business Information</h3>
           <p class="card__text">Identify the client, establishment, and business activity before building the financial file.</p>
           <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary" href="/en/client/kyc">Know Your Customer (KYC)</a>
-            <a class="fi-btn fi-btn--secondary" href="/en/client/establishment-information">Establishment Information</a>
-            <a class="fi-btn fi-btn--secondary" href="/en/client/business-activity">Business Activity Information</a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="kyc" href="/en/client/kyc"><span>Know Your Customer (KYC)</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="establishment" href="/en/client/establishment-information"><span>Establishment Information</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="activity" href="/en/client/business-activity"><span>Business Activity Information</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
@@ -205,9 +215,9 @@
           <h3 class="card__title">Financial Data</h3>
           <p class="card__text">Complete the information used to assess liquidity, collections, and obligations.</p>
           <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary" href="/en/client/cash-flow">Cash Flow</a>
-            <a class="fi-btn fi-btn--secondary" href="/en/client/receivables-aging">Receivables Aging</a>
-            <a class="fi-btn fi-btn--secondary" href="/en/client/payables-aging">Payables Aging</a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="cash_flow" href="/en/client/cash-flow"><span>Cash Flow</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="receivables" href="/en/client/receivables-aging"><span>Receivables Aging</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="payables" href="/en/client/payables-aging"><span>Payables Aging</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
           </div>
         </div>
         <div class="card reveal reveal-delay-2">
@@ -215,8 +225,8 @@
           <h3 class="card__title">Credit Consents</h3>
           <p class="card__text">Complete the consents required to review credit information within the agreed service scope.</p>
           <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary" href="/en/client/credit-consent-business">Business Credit Consent</a>
-            <a class="fi-btn fi-btn--secondary" href="/en/client/credit-consent-individual">Individual Credit Consent</a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="credit_business" href="/en/client/credit-consent-business"><span>Business Credit Consent</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="credit_individual" href="/en/client/credit-consent-individual"><span>Individual Credit Consent</span><span class="funding-file-status is-empty" data-funding-file-status>Not started</span></a>
           </div>
         </div>
       </div>
@@ -637,5 +647,6 @@
   <script src="/components/emoji-renderer.js" defer></script>
   <script src="../scripts/funding-context.js" defer></script>
   <script src="../scripts/funding-request-form.js?v=3" defer></script>
+  <script src="../scripts/funding-file-status.js?v=1" defer></script>
 </body>
 </html>
