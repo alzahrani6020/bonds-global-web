@@ -407,6 +407,21 @@
         : (countries[0]?.code || '');
       selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
 
+      async function updateActivities() {
+        const countryCode = countrySelect.value;
+        const activityUrl = countryCode
+          ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countryCode)
+          : API_URL + '/catalog/activities';
+        const data = await fetchJson(activityUrl);
+        activities = (data.activities || [])
+          .filter(activity => activity.country?.availability_status !== 'unavailable');
+        populateSelect(activitySelect, activities.map(a => ({
+          value: a.code,
+          label: a.name_ar || a.name_en || a.code
+        })));
+        refreshSelect(activitySelect);
+      }
+
       async function updateCities() {
         const countryCode = countrySelect.value;
         if (!countryCode) {
@@ -424,10 +439,7 @@
         refreshSelect(citySelect);
       }
 
-      populateSelect(activitySelect, activities.map(a => ({
-        value: a.code,
-        label: a.name_ar || a.name_en || a.code
-      })));
+      await updateActivities();
 
       countrySelect.addEventListener('change', async () => {
         selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
@@ -436,7 +448,8 @@
           currency_symbol: selectedCountryProfile?.currency_symbol || null
         });
         citySelect.value = '';
-        await updateCities();
+        activitySelect.value = '';
+        await Promise.all([updateCities(), updateActivities()]);
         await loadMap();
       });
 
