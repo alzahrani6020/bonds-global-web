@@ -82,6 +82,22 @@ describe('V3 country context core', () => {
     }
   });
 
+  test('unknown country activity coverage is disclosed instead of presented as locally verified', () => {
+    const context = read('v3/country-context.js');
+    expect(context).toContain('formatActivityLabel');
+    expect(context).toContain('الحالة المحلية غير موثقة');
+
+    for (const screen of [
+      'v3/city-intelligence.html',
+      'v3/city-comparison.html',
+      'v3/investment-map.html',
+      'v3/opportunity-bank.html',
+      'v3/alerts.html'
+    ]) {
+      expect(read(screen)).toContain('formatActivityLabel');
+    }
+  });
+
   test('country-aware screens refresh activity availability for the selected market', () => {
     for (const screen of [
       'v3/city-intelligence.html',
