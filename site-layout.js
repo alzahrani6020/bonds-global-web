@@ -140,19 +140,45 @@
     document.head.appendChild(link);
   }
 
+  const universalCss = document.querySelector('link[href*="universal-dropdown.css"]');
+  if (!universalCss) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/components/universal-dropdown.css?v=2';
+    document.head.appendChild(link);
+  }
+
   const discoveryCss = document.querySelector('link[href*="service-discovery.css"]');
   if (!discoveryCss) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/components/service-discovery.css?v=1';
+    link.href = '/components/service-discovery.css?v=2';
     document.head.appendChild(link);
   }
-  if (!document.querySelector('script[src*="service-discovery.js"]')) {
-    const script = document.createElement('script');
-    script.src = '/components/service-discovery.js?v=1';
-    script.defer = true;
-    document.head.appendChild(script);
+
+  function ensureServiceDiscoveryRuntime() {
+    const loadDiscovery = () => {
+      if (document.querySelector('script[src*="service-discovery.js"]')) return;
+      const script = document.createElement('script');
+      script.src = '/components/service-discovery.js?v=2';
+      script.async = false;
+      document.head.appendChild(script);
+    };
+
+    if (window.UniversalDropdown || document.querySelector('script[src*="universal-dropdown.js"]')) {
+      loadDiscovery();
+      return;
+    }
+
+    const dropdown = document.createElement('script');
+    dropdown.src = '/components/universal-dropdown.js?v=2';
+    dropdown.async = false;
+    dropdown.addEventListener('load', loadDiscovery, { once: true });
+    dropdown.addEventListener('error', loadDiscovery, { once: true });
+    document.head.appendChild(dropdown);
   }
+
+  ensureServiceDiscoveryRuntime();
 
   function getDepth() {
     // Keep trailing slash so directory index pages (e.g. /valuation/) get the
