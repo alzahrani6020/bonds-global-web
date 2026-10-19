@@ -487,7 +487,7 @@
           .filter(a => a.country?.availability_status !== 'unavailable')
           .forEach(a => {
           const aliases = encodeURIComponent(JSON.stringify(a.aliases || [a.code]));
-          activityFilter.innerHTML += `<option value="${a.code}" data-aliases="${aliases}">${a.name_ar}</option>`;
+          activityFilter.innerHTML += `<option value="${a.code}" data-aliases="${aliases}">${window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar}</option>`;
         });
       } catch (err) {
         console.warn('Failed to load filter options:', err.message);
