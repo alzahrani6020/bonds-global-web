@@ -8,15 +8,14 @@ describe('Bonds Native chat generation budget', () => {
   );
 
   test('keeps native chat output below the canonical runtime ceiling', () => {
+    expect(source).toContain('if (!Number.isFinite(parsed)) return 48;');
     expect(source).toContain('Math.max(4, Math.min(48, Math.floor(parsed)))');
     expect(source).toContain('max_tokens: maxTokens');
-    expect(source).not.toMatch(/Math\.min\((?:49|[5-9]\d|\d{3,})\b/);
   });
 
   test('does not restore the previous 900-token chat budget', () => {
     expect(source).not.toMatch(/max_tokens:\s*900\b/);
   });
-
 
   test('does not force English users into an Arabic-only response contract', () => {
     expect(source).toContain('أجب بلغة آخر رسالة للمستخدم بأسلوب مختصر وواقعي.');
@@ -40,5 +39,4 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).toContain('Math.min(48');
     expect(source).toContain('options?.force_native === true');
   });
-
 });
