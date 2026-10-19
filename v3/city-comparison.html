@@ -465,12 +465,7 @@
           currency_symbol: selectedCountryProfile?.currency_symbol || null
         });
 
-        const activitySelect = document.getElementById('activitySelect');
-        activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
-          activities
-            .map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`)
-            .join('');
-
+        await loadCountryActivities();
         await loadCountryModels();
 
         await refreshComparisonYears({ preserve: false });
@@ -480,6 +475,23 @@
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
         document.getElementById('cityList').innerHTML = `<div class="error">فشل تحميل الكتالوج: ${err.message}</div>`;
       }
+    }
+
+    async function loadCountryActivities() {
+      const countryCode = document.getElementById('countrySelect').value;
+      const activitySelect = document.getElementById('activitySelect');
+      const current = activitySelect.value;
+
+      const url = countryCode
+        ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countryCode)
+        : API_URL + '/catalog/activities';
+      const data = await fetchJson(url);
+      activities = (data.activities || [])
+        .filter(activity => activity.country?.availability_status !== 'unavailable');
+
+      activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
+        activities.map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`).join('');
+      if (activities.some(activity => activity.code === current)) activitySelect.value = current;
     }
 
     async function loadCountryModels() {
@@ -779,7 +791,7 @@
         currency_code: selectedCountryProfile?.currency_code || null,
         currency_symbol: selectedCountryProfile?.currency_symbol || null
       });
-      await loadCountryModels();
+      await Promise.all([loadCountryActivities(), loadCountryModels()]);
       await refreshComparisonYears({ preserve: false });
       await updateCityList();
     });
