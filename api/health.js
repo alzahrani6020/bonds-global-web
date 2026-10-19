@@ -30,7 +30,10 @@ function sleep(ms) {
 }
 
 async function probeNativeHealth(attempts = 3) {
-  const retryDelaysMs = [0, 500, 1500];
+  const configuredDelays = String(process.env.BONDS_NATIVE_HEALTH_RETRY_DELAYS_MS || '0,500,1500')
+    .split(',')
+    .map(value => Math.max(0, Number(value) || 0));
+  const retryDelaysMs = configuredDelays.length ? configuredDelays : [0, 500, 1500];
   let lastResponse = null;
   const diagnostics = [];
 
