@@ -125,7 +125,9 @@
     const params=new URLSearchParams({
       country:q('#bondsCountry').value || '',
       region:q('#bondsRegion').value || '',
+      region_name:selectedText(q('#bondsRegion')),
       locality:q('#bondsLocality').value || '',
+      locality_name:selectedText(q('#bondsLocality')),
       sector:q('#bondsSector').value || '',
       activity:q('#bondsActivity').value || '',
       service:serviceCode
