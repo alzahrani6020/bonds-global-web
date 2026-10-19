@@ -25,6 +25,7 @@
   <script src="/api/env"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script src="/lib/forms/funding-case-context.js?v=1"></script>
   <script src="/lib/forms/branded-export.js?v=3"></script>
   <style>
     .kyc-page{max-width:1100px;margin:0 auto;padding:7rem 1rem 4rem}
@@ -191,7 +192,7 @@
   <script>
   (function(){
     'use strict';
-    let step=0, currentCase=null, user=null, sb=null;
+    let step=0, currentCase=null, fundingCase=null, user=null, sb=null;
     const sections=[...document.querySelectorAll('.kyc-section')];
     const dots=[...document.querySelectorAll('.kyc-step-dot')];
     const form=document.getElementById('kycForm');
@@ -255,7 +256,7 @@
       const funds={sources:values('fundSource'),funds_explanation:document.getElementById('fundsExplanation').value.trim(),wealth_explanation:document.getElementById('wealthExplanation').value.trim(),supporting_evidence:document.getElementById('supportingEvidence').value.trim()};
       const risk={pep_status:document.getElementById('pepStatus').value,pep_details:document.getElementById('pepDetails').value.trim(),high_risk_countries:document.getElementById('highRiskCountries').value,geographic_details:document.getElementById('geographicDetails').value.trim(),third_party_payments:document.getElementById('thirdPartyPayments').value,third_party_details:document.getElementById('thirdPartyDetails').value.trim()};
       const declarations={declared:document.getElementById('declaration').checked,verification_consent:document.getElementById('verificationConsent').checked,signer_name:document.getElementById('signerName').value.trim(),signer_capacity:document.getElementById('signerCapacity').value.trim(),accepted_at:status==='submitted'?new Date().toISOString():null};
-      return {user_id:user.id,client_id:currentCase?.client_id||null,status,client_type:document.getElementById('clientType').value,identity_data:identity,business_data:business,ownership_data:ownership,funds_data:funds,risk_disclosures:risk,documents:[{notes:document.getElementById('documentNotes').value.trim()}],declarations,submitted_at:status==='submitted'?new Date().toISOString():null};
+      return {user_id:user.id,client_id:currentCase?.client_id||fundingCase?.client_id||null,status,client_type:document.getElementById('clientType').value,identity_data:identity,business_data:business,ownership_data:ownership,funds_data:funds,risk_disclosures:risk,documents:[{notes:document.getElementById('documentNotes').value.trim()}],declarations,submitted_at:status==='submitted'?new Date().toISOString():null};
     }
 
     async function save(status){
@@ -265,7 +266,9 @@
       if(currentCase?.id) result=await sb.from('client_kyc_cases').update(payload).eq('id',currentCase.id).select().single();
       else result=await sb.from('client_kyc_cases').insert(payload).select().single();
       if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return false;}
-      currentCase=result.data; showStatus(status==='submitted'?'تم إرسال نموذج اعرف عميلك للمراجعة.':'تم حفظ المسودة.',true); return true;
+      currentCase=result.data;
+       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'kyc',currentCase);}catch(e){showStatus('تعذر ربط النموذج بملف التمويل: '+e.message,false);return false;}}
+       showStatus(status==='submitted'?'تم إرسال نموذج اعرف عميلك للمراجعة.':'تم حفظ المسودة.',true); return true;
     }
 
     document.getElementById('saveBtn').onclick=()=>save('draft');
@@ -320,9 +323,11 @@
       sb=window.BondsAuth.getSupabase();
       if(!sb){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
       setVal('phone',user.user_metadata?.phone||''); setVal('signerName',user.user_metadata?.full_name||'');
+      fundingCase=await window.BondsFundingCaseContext.resolve(sb,user);
       const cid=await sb.rpc('get_my_client_id');
       const existing=await sb.from('client_kyc_cases').select('*').eq('user_id',user.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
-      if(existing.data){hydrate(existing.data);} else if(cid.data){currentCase={client_id:cid.data};}
+      if(existing.data){hydrate(existing.data);if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'kyc',existing.data);}
+      else if(fundingCase||cid.data){currentCase={client_id:fundingCase?.client_id||cid.data||null};}
     }
     init();
   })();

@@ -57,12 +57,17 @@ describe('generic credit consent forms',()=>{
     expect(migration).toContain("subject_type IN ('business','individual')");
   });
 
-  test('forms menu exposes both generic consent forms',()=>{
-    const layout=read('site-layout.js');
-    expect(layout).toContain("businessCreditConsent: isEn ? 'Business Credit Consent' : 'موافقة الاستعلام الائتماني — منشأة'");
-    expect(layout).toContain("individualCreditConsent: isEn ? 'Individual Credit Consent' : 'موافقة الاستعلام الائتماني — فرد'");
-    expect(layout).toContain('{ label: labels.businessCreditConsent, href: businessCreditConsentHref }');
-    expect(layout).toContain('{ label: labels.individualCreditConsent, href: individualCreditConsentHref }');
+  test('funding registry exposes both consent requirements and controller binds them to a case',()=>{
+    const migration=read('supabase/migrations/20261019064000_funding_file_case_architecture.sql');
+    expect(migration).toContain("'credit_business'");
+    expect(migration).toContain("'credit_individual'");
+    expect(migration).toContain("'/client/credit-consent-business'");
+    expect(migration).toContain("'/en/client/credit-consent-individual'");
+    const controller=read('lib/forms/credit-consent-form.js');
+    expect(controller).toContain('funding_case_id:fundingCase?.id||null');
+    expect(controller).toContain("existingQuery=existingQuery.eq('funding_case_id',fundingCase.id)");
+    expect(controller).toContain("syncSubmission(sb,fundingCase,subjectType==='business'?'credit_business':'credit_individual'");
+    expect(migration).toContain('add column if not exists notes text');
   });
 });
 

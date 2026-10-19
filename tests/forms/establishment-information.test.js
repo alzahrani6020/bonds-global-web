@@ -40,10 +40,10 @@ describe('establishment information form',()=>{
     expect(read('en/client/establishment-information.html')).toContain('lang="en" dir="ltr"');
   });
 
-  test('forms menu exposes establishment information',()=>{
-    const layout=read('site-layout.js');
-    expect(layout).toContain("establishmentInfo: isEn ? 'Establishment Information' : 'معلومات المنشأة'");
-    expect(layout).toContain("const establishmentInfoHref = isEn ? '/en/client/establishment-information' : '/client/establishment-information';");
-    expect(layout).toContain('{ label: labels.establishmentInfo, href: establishmentInfoHref }');
+  test('funding registry exposes establishment information',()=>{
+    const migration=read('supabase/migrations/20261019064000_funding_file_case_architecture.sql');
+    expect(migration).toContain("'establishment'");
+    expect(migration).toContain("'/client/establishment-information'");
+    expect(migration).toContain("'/en/client/establishment-information'");
   });
 });
