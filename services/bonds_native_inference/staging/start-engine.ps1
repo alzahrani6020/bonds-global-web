@@ -66,6 +66,17 @@ foreach ($entry in $inventory) {
     }
 }
 
+$expectedPaths = @($inventory | ForEach-Object { [string]$_.path })
+$currentPaths = @(
+    Get-ChildItem $release -Recurse -File |
+        Where-Object { $_.FullName -ne $marker -and $_.FullName -ne $inventoryPath } |
+        ForEach-Object { $_.FullName.Substring($release.Length + 1) }
+)
+$unexpected = @($currentPaths | Where-Object { $_ -notin $expectedPaths })
+if ($unexpected.Count -gt 0) {
+    throw "Unexpected release file(s): $($unexpected -join ', ')"
+}
+
 $exe = Get-ChildItem $release -Filter llama-server.exe -Recurse -File | Select-Object -First 1
 if (-not $exe) {
     throw 'llama-server.exe missing.'
@@ -79,7 +90,7 @@ if ($occupied) {
 $logDir = Join-Path $Root 'logs'
 New-Item -ItemType Directory -Force $logDir | Out-Null
 
-$args = @(
+$engineArgs = @(
     '--host', '127.0.0.1',
     '--port', [string]$Port,
     '--model', $realModel,
@@ -91,7 +102,7 @@ $args = @(
 )
 
 Write-Output "STAGING ONLY: loopback $Port, profile=$Profile gpu_layers=$effectiveGpuLayers"
-& $exe.FullName @args 2>&1 | Tee-Object -FilePath (Join-Path $logDir ("llama-" + $Profile + ".log")) -Append
+& $exe.FullName @engineArgs 2>&1 | Tee-Object -FilePath (Join-Path $logDir ("llama-" + $Profile + ".log")) -Append
 
 if ($LASTEXITCODE -ne 0) {
     throw "llama-server failed with exit code $LASTEXITCODE"
