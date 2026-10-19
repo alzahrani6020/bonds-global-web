@@ -412,6 +412,11 @@
       content.replaceChildren(panel);
     }
 
+    function syncUniversalDropdown(select) {
+      const instance = select?.parentElement?._universalDropdown;
+      if (instance && typeof instance.refresh === 'function') instance.refresh();
+    }
+
     function setActivityOptions(rows) {
       const activitySelect = document.getElementById('activitySelect');
       const visible = (rows || []).filter(a => a.country?.availability_status !== 'unavailable');
@@ -422,6 +427,7 @@
       });
 
       activitySelect.disabled = visible.length === 0;
+      syncUniversalDropdown(activitySelect);
       return visible.length;
     }
 
@@ -434,11 +440,13 @@
         activities = [];
         activitySelect.innerHTML = '<option value="">اختر القطاع أولًا</option>';
         activitySelect.disabled = true;
+        syncUniversalDropdown(activitySelect);
         return;
       }
 
       activitySelect.disabled = true;
       activitySelect.innerHTML = '<option value="">جاري تحميل أنشطة القطاع...</option>';
+      syncUniversalDropdown(activitySelect);
 
       const params = new URLSearchParams({
         depth: 'sector',
@@ -455,6 +463,7 @@
         activities = [];
         activitySelect.innerHTML = '<option value="">تعذر تحميل أنشطة القطاع</option>';
         activitySelect.disabled = true;
+        syncUniversalDropdown(activitySelect);
         console.warn('Failed to refresh sector activities:', err.message);
       }
     }
