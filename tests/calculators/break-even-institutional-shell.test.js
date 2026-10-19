@@ -13,6 +13,9 @@ describe('Break-even institutional shell', () => {
     expect(page).toContain('href="/calculator.html">الحاسبات</a>');
     expect(page).toContain('<script defer src="../site-layout.js?v=3.2.2"></script>');
     expect(page).toContain('assets/bonds-mark.svg');
+    expect(page).toContain('class="break-even-landing__visual"');
+    expect(page).toContain('class="break-even-finance-card"');
+    expect(page).toContain('حاسبة مالية متقدمة');
   });
 
   test('shows Saudi calculation timestamp and preserves engine version', () => {
