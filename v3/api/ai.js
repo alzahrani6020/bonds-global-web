@@ -129,20 +129,33 @@ function buildNativeChatPrompt(messages, context) {
   return `${system}\n\nبيانات موثقة متاحة بصيغة JSON:\n${evidence}\n\nالمحادثة:\n${history}\n\nأجب فقط على آخر رسالة للمستخدم، ولا تستخدم أي رقم غير موجود في البيانات.`;
 }
 
-async function generateNativeReply(messages, context) {
+function clampNativeChatMaxTokens(value) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 48;
+  return Math.max(4, Math.min(48, Math.floor(parsed)));
+}
+
+function nativeChatTimeoutMs() {
+  const configured = Number(process.env.BONDS_NATIVE_CHAT_TIMEOUT_MS || 45000);
+  if (!Number.isFinite(configured)) return 45000;
+  return Math.max(5000, Math.min(60000, Math.floor(configured)));
+}
+
+async function generateNativeReply(messages, context, options = {}) {
   const router = getInferenceRouter({
-    timeoutMs: Number(process.env.BONDS_NATIVE_TIMEOUT_MS || 20000)
+    // Chat must finish comfortably before the synchronous edge ceiling.
+    // Long-running analysis belongs on a separate async path, not this request.
+    timeoutMs: nativeChatTimeoutMs()
   });
+  const maxTokens = clampNativeChatMaxTokens(options.maxTokens);
   const response = await router.generate(buildNativeChatPrompt(messages, context), {
     temperature: 0.2,
-    // Production measurement at 96 tokens reached ~115s, leaving less than
-    // five seconds before the 120s authenticated-smoke gate. Halve the decode
-    // ceiling to restore operational headroom without changing timeout policy.
-    max_tokens: 48
+    max_tokens: maxTokens
   });
   if (!response?.ok) {
     const err = new Error(response?.error?.message || response?.error?.code || 'Bonds Native chat failed');
     err.code = response?.error?.code || 'BONDS_NATIVE_CHAT_FAILED';
+    err.elapsedMs = response?.error?.elapsed_ms ?? null;
     throw err;
   }
   const runtimeEnvelope = response.result || {};
@@ -157,7 +170,15 @@ async function generateNativeReply(messages, context) {
       backend: runtimeResult.backend || null,
       model_sha256: runtimeResult.model_sha256 || null,
       generation_seconds: runtimeResult.generation_seconds ?? null,
-      tokens_per_second: runtimeResult.tokens_per_second ?? null
+      request_total_seconds: runtimeResult.request_total_seconds ?? null,
+      lock_wait_seconds: runtimeResult.lock_wait_seconds ?? null,
+      model_load_seconds: runtimeResult.model_load_seconds ?? null,
+      model_cache_hit: runtimeResult.model_cache_hit ?? null,
+      n_gpu_layers: runtimeResult.n_gpu_layers ?? null,
+      completion_tokens: runtimeResult.completion_tokens ?? null,
+      tokens_per_second: runtimeResult.tokens_per_second ?? null,
+      request_elapsed_ms: response?.meta?.elapsed_ms ?? null,
+      max_tokens: maxTokens
     }
   };
 }
@@ -350,7 +371,7 @@ async function aiChatHandler(req, res) {
     return sendJson(res, 400, { error: 'Invalid JSON body' });
   }
 
-  const { messages = [], context = {} } = body;
+  const { messages = [], context = {}, options = {} } = body;
   if (!Array.isArray(messages) || messages.length === 0) {
     return sendJson(res, 400, { error: 'messages array is required' });
   }
@@ -366,10 +387,43 @@ async function aiChatHandler(req, res) {
     console.warn('[ai/chat] Context enrichment failed:', err.message);
   }
 
+  // Structured investment questions already have deterministic, sourced answers.
+  // Serve those first instead of blocking every chat request on a slow single-flight LLM.
+  const forceNative = options?.force_native === true;
+  const deterministicReply = forceNative ? null : generateDataDrivenReply(lastUserText, enrichedContext);
+  if (deterministicReply) {
+    return sendJson(res, 200, {
+      reply: deterministicReply,
+      source: 'data-driven',
+      provider: 'BondsV3DataEngine',
+      model: null,
+      inference: null,
+      fallback_reason: null,
+      debug: {
+        input: lastUser?.content,
+        cityName: enrichedContext.cityName || null,
+        activityName: enrichedContext.activityName || null,
+        hasMarketData: !!enrichedContext.marketData,
+        hasIndicators: !!enrichedContext.indicators,
+        comparisonCount: (enrichedContext.comparison || []).length,
+        alertCount: (enrichedContext.alerts || []).length,
+        native_attempted: false
+      },
+      context: {
+        cityCode: enrichedContext.cityCode || null,
+        activityCode: enrichedContext.activityCode || null,
+        cityName: enrichedContext.cityName || null,
+        activityName: enrichedContext.activityName || null
+      }
+    });
+  }
+
   let aiResult = null;
   let nativeError = null;
   try {
-    aiResult = await generateNativeReply(messages, enrichedContext);
+    aiResult = await generateNativeReply(messages, enrichedContext, {
+      maxTokens: options?.max_tokens
+    });
   } catch (err) {
     nativeError = err;
     console.warn('[ai/chat] Bonds Native unavailable, using deterministic data-driven fallback:', err.message);
@@ -385,7 +439,9 @@ async function aiChatHandler(req, res) {
     hasMarketData: !!enrichedContext.marketData,
     hasIndicators: !!enrichedContext.indicators,
     comparisonCount: (enrichedContext.comparison || []).length,
-    alertCount: (enrichedContext.alerts || []).length
+    alertCount: (enrichedContext.alerts || []).length,
+    native_attempted: true,
+    native_elapsed_ms: nativeError?.elapsedMs ?? aiResult?.inference?.request_elapsed_ms ?? null
   };
 
   sendJson(res, 200, {
