@@ -28,6 +28,7 @@
           <label>القطاعات — أكواد مفصولة بفاصلة</label><input name="sectors" placeholder="health,industry,technology">
           <label>الأنشطة — أكواد Canonical مفصولة بفاصلة</label><input name="activities" placeholder="pharmacy,restaurant">
           <label>المحركات المرتبطة — سطر لكل محرك: code|route|required</label><textarea name="capabilities" placeholder="funding_engine|/api/funding|true"></textarea>
+          <label>إجراءات الخدمة — سطر لكل إجراء: العنوان|النوع|الظهور</label><textarea name="procedures" placeholder="تقييم الحالة المالية|automated|public&#10;مراجعة واعتماد|approval|client"></textarea>
           <div class="actions"><button type="submit">حفظ الخدمة</button><button type="button" class="secondary" id="newService">خدمة جديدة</button><button type="button" class="danger" id="archiveService">أرشفة</button></div>
         </form>
       </div>
@@ -69,10 +70,25 @@ function message(t,ok=true){const e=$('#msg');e.textContent=t;e.className='msg s
 async function api(url,opts={}){const r=await fetch(url,{...opts,headers:{...headers(),...(opts.headers||{})}});const d=await r.json();if(!r.ok)throw new Error(d.error||'فشل الطلب');return d}
 function csv(v){return String(v||'').split(',').map(x=>x.trim()).filter(Boolean)}
 function caps(v){return String(v||'').split('\n').map((line,i)=>{const [capability_code,engine_route,req]=line.split('|').map(x=>(x||'').trim());return capability_code?{capability_code,engine_route:engine_route||null,is_required:req==='true',run_order:(i+1)*10}:null}).filter(Boolean)}
-function formData(){const f=new FormData($('#serviceForm'));const o=Object.fromEntries(f);o.sort_order=Number(o.sort_order||0);o.countries=csv(o.countries);o.sectors=csv(o.sectors);o.activities=csv(o.activities);o.capabilities=caps(o.capabilities);return o}
+function procedures(v){return String(v||'').split('\n').map((line,i)=>{const [title_ar,procedure_type,visibility]=line.split('|').map(x=>(x||'').trim());return title_ar?{title_ar,procedure_type:procedure_type||'manual',visibility:visibility||'public',sort_order:(i+1)*10}:null}).filter(Boolean)}
+function formData(){const f=new FormData($('#serviceForm'));const o=Object.fromEntries(f);o.sort_order=Number(o.sort_order||0);o.countries=csv(o.countries);o.sectors=csv(o.sectors);o.activities=csv(o.activities);o.capabilities=caps(o.capabilities);o.procedures=procedures(o.procedures);return o}
 async function load(){if(!token){token=prompt('Admin Token')||'';if(!token)return;localStorage.setItem('bondsAdminToken',token)}try{const d=await api(API);services=d.services||[];render()}catch(e){message(e.message,false)}}
 function render(){const el=$('#servicesList');el.innerHTML=services.map(s=>'<div class="service-item '+(current?.code===s.code?'active':'')+'" data-code="'+s.code+'"><strong>'+s.name_ar+'</strong><div class="muted">'+s.code+' · '+s.status+' · '+s.delivery_type+'</div></div>').join('');el.querySelectorAll('[data-code]').forEach(x=>x.onclick=()=>select(x.dataset.code))}
-async function select(code){current=services.find(x=>x.code===code);currentForm=null;const f=$('#serviceForm');for(const k of ['code','category_code','name_ar','name_en','short_description_ar','delivery_type','status','default_route_ar','sort_order']) if(f.elements[k]) f.elements[k].value=current[k]??'';f.elements.code.readOnly=true;$('#formsCard').hidden=false;render();await loadForms()}
+async function select(code){
+  try{
+    const d=await api(API+'/'+code);
+    current=d.service;currentForm=null;
+    const f=$('#serviceForm');
+    for(const k of ['code','category_code','name_ar','name_en','short_description_ar','delivery_type','status','default_route_ar','sort_order']) if(f.elements[k]) f.elements[k].value=current[k]??'';
+    f.elements.countries.value=(d.countries||[]).map(x=>x.country_code).join(',');
+    f.elements.sectors.value=(d.sectors||[]).map(x=>x.sector_code).join(',');
+    f.elements.activities.value=(d.activities||[]).map(x=>x.code).filter(Boolean).join(',');
+    f.elements.capabilities.value=(d.capabilities||[]).map(x=>[x.capability_code,x.engine_route||'',x.is_required?'true':'false'].join('|')).join('\n');
+    f.elements.procedures.value=(d.procedures||[]).map(x=>[x.title_ar,x.procedure_type||'manual',x.visibility||'public'].join('|')).join('\n');
+    f.elements.code.readOnly=true;
+    $('#formsCard').hidden=false;render();await loadForms();
+  }catch(e){message(e.message,false)}
+}
 function reset(){current=null;currentForm=null;$('#serviceForm').reset();$('#serviceForm').elements.code.readOnly=false;$('#formsCard').hidden=true;render()}
 $('#newService').onclick=reset;
 $('#archiveService').onclick=async()=>{if(!current||!confirm('أرشفة الخدمة؟'))return;try{await api(API+'/'+current.code,{method:'DELETE'});message('تمت الأرشفة');reset();load()}catch(e){message(e.message,false)}}
