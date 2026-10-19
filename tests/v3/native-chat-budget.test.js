@@ -19,4 +19,10 @@ describe('Bonds Native chat generation budget', () => {
   test('does not restore the previous 900-token chat budget', () => {
     expect(source).not.toMatch(/max_tokens:\s*900\b/);
   });
+
+
+  test('does not force English users into an Arabic-only response contract', () => {
+    expect(source).toContain('أجب بلغة آخر رسالة للمستخدم بأسلوب مختصر وواقعي.');
+    expect(source).not.toContain('أجب بالعربية الفصحى بأسلوب مختصر وواقعي.');
+  });
 });
