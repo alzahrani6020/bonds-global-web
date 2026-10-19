@@ -1173,11 +1173,26 @@ async function handleCountryContext(req, res, path) {
   const supabase = getSupabaseClient();
 
   const countryProfile = await loadCountryProfile(supabase, countryCode);
-  const [{ count: activityCount }, { count: localizedActivityCount }, { count: modelOverrideCount }, { count: regulationCount }] = await Promise.all([
+  const [
+    { count: activityCount },
+    { count: localizedActivityCount },
+    { count: unknownActivityCount },
+    { count: sourcedActivityCount },
+    { count: estimatedModelCount },
+    { count: verifiedModelCount },
+    { count: unverifiedModelCount },
+    { count: regulationCount },
+    { count: verifiedRegulationCount }
+  ] = await Promise.all([
     supabase.from('canonical_activity_country').select('*', { count: 'exact', head: true }).eq('country_code', countryCode),
     supabase.from('canonical_activity_country').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).neq('availability_status', 'unknown'),
-    supabase.from('country_model_overrides').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).in('status', ['estimated','verified']),
-    supabase.from('country_regulatory_requirements').select('*', { count: 'exact', head: true }).eq('country_code', countryCode)
+    supabase.from('canonical_activity_country').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).eq('availability_status', 'unknown'),
+    supabase.from('canonical_activity_country').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).not('source', 'is', null),
+    supabase.from('country_model_overrides').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).eq('status', 'estimated'),
+    supabase.from('country_model_overrides').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).eq('status', 'verified'),
+    supabase.from('country_model_overrides').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).eq('status', 'unverified'),
+    supabase.from('country_regulatory_requirements').select('*', { count: 'exact', head: true }).eq('country_code', countryCode),
+    supabase.from('country_regulatory_requirements').select('*', { count: 'exact', head: true }).eq('country_code', countryCode).eq('verification_status', 'verified')
   ]);
 
   async function loadObservationRows() {
@@ -1279,8 +1294,21 @@ async function handleCountryContext(req, res, path) {
     coverage: {
       canonical_activities: activityCount || 0,
       localized_activities: localizedActivityCount || 0,
-      localized_models: modelOverrideCount || 0,
-      regulations: regulationCount || 0
+      activities_unknown: unknownActivityCount || 0,
+      activities_sourced: sourcedActivityCount || 0,
+      localized_models: (estimatedModelCount || 0) + (verifiedModelCount || 0),
+      models_estimated: estimatedModelCount || 0,
+      models_verified: verifiedModelCount || 0,
+      models_unverified: unverifiedModelCount || 0,
+      regulations: regulationCount || 0,
+      regulations_verified: verifiedRegulationCount || 0,
+      macro_metrics: metrics.length,
+      gaps: [
+        ...(unknownActivityCount ? ['activity_country_verification'] : []),
+        ...(unverifiedModelCount ? ['financial_model_localization'] : []),
+        ...(!regulationCount ? ['country_regulations'] : []),
+        ...(metrics.length < 6 ? ['macro_indicator_coverage'] : [])
+      ]
     },
     metrics,
     count: metrics.length,
