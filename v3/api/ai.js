@@ -96,7 +96,7 @@ function buildSystemPrompt(context) {
   const activity = context?.activityName || context?.activityCode || 'غير محدد';
   const country = context?.countryCode || '';
 
-  return `أنت "مساعد بوندز"، محلل استثماري يعتمد على البيانات فقط. أجب بالعربية الفصحى بأسلوب مختصر وواقعي.
+  return `أنت "مساعد بوندز"، محلل استثماري يعتمد على البيانات فقط. أجب بلغة آخر رسالة للمستخدم بأسلوب مختصر وواقعي.
 
 قواعدك الصارمة:
 - استند إلى البيانات المذكورة فقط. لا تخترع أرقام ولا تبالغ.
