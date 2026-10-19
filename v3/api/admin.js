@@ -570,6 +570,38 @@ async function handleServiceAdmin(req, res, code) {
   const supabase = getSupabaseClient();
 
   if (req.method === 'GET') {
+    if (code) {
+      const { data: service, error } = await supabase
+        .from('service_catalog')
+        .select('*')
+        .eq('code', code)
+        .maybeSingle();
+      if (error || !service) return sendJson(res, 404, { error: 'Service not found' });
+
+      const [countriesRes,sectorsRes,activitiesRes,capabilitiesRes,proceduresRes] = await Promise.all([
+        supabase.from('service_country_map').select('country_code,availability_status,availability_reason_ar,availability_reason_en,priority').eq('service_id',service.id).order('priority'),
+        supabase.from('service_sector_map').select('sector_code,priority').eq('service_id',service.id).order('priority'),
+        supabase.from('service_activity_map').select('canonical_activity_id,priority,canonical_activities(code,name_ar,name_en)').eq('service_id',service.id).order('priority'),
+        supabase.from('service_capability_map').select('capability_code,engine_route,run_order,is_required,metadata').eq('service_id',service.id).order('run_order'),
+        supabase.from('service_procedures').select('*').eq('service_id',service.id).order('sort_order')
+      ]);
+      const failed=[countriesRes,sectorsRes,activitiesRes,capabilitiesRes,proceduresRes].find(x=>x.error);
+      if(failed?.error) return sendJson(res,500,{error:failed.error.message});
+      return sendJson(res,200,{
+        service,
+        countries:countriesRes.data||[],
+        sectors:sectorsRes.data||[],
+        activities:(activitiesRes.data||[]).map(row=>({
+          ...row,
+          code:row.canonical_activities?.code||null,
+          name_ar:row.canonical_activities?.name_ar||null,
+          name_en:row.canonical_activities?.name_en||null
+        })),
+        capabilities:capabilitiesRes.data||[],
+        procedures:proceduresRes.data||[]
+      });
+    }
+
     const { data, error } = await supabase
       .from('service_catalog')
       .select('*')
@@ -651,6 +683,25 @@ async function handleServiceAdmin(req, res, code) {
           engine_route: x.engine_route || null,
           run_order: Number(x.run_order || 100),
           is_required: x.is_required === true
+        })));
+      }
+      if (Array.isArray(body.procedures)) {
+        await replaceMap('service_procedures', body.procedures.filter(x => x.title_ar).map((x,index) => ({
+          service_id: service.id,
+          country_code: x.country_code || null,
+          sector_code: x.sector_code || null,
+          canonical_activity_id: x.canonical_activity_id || null,
+          title_ar: x.title_ar,
+          title_en: x.title_en || null,
+          description_ar: x.description_ar || null,
+          description_en: x.description_en || null,
+          procedure_type: x.procedure_type || 'manual',
+          visibility: x.visibility || 'public',
+          capability_code: x.capability_code || null,
+          sort_order: Number(x.sort_order ?? ((index+1)*10)),
+          is_required: x.is_required !== false,
+          conditions: x.conditions || {},
+          metadata: x.metadata || {}
         })));
       }
     } catch (mapErr) {
