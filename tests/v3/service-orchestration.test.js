@@ -7,10 +7,11 @@ const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
 describe('Dynamic service orchestration layer', () => {
   test('public service discovery is driven by canonical country, taxonomy and service APIs', () => {
     const component = read('components/service-discovery.js');
-    expect(component).toContain('/api/v3/catalog/countries');
-    expect(component).toContain('/api/v3/catalog/cities?country=');
-    expect(component).toContain('/api/v3/investment-taxonomy?country=');
-    expect(component).toContain('/api/v3/services/catalog?');
+    expect(component).toContain("const API = '/api/v3'");
+    expect(component).toContain("API + '/catalog/countries'");
+    expect(component).toContain("API + '/catalog/cities?country='");
+    expect(component).toContain("API + '/investment-taxonomy?country='");
+    expect(component).toContain("API + '/services/catalog?'");
     expect(component).toContain('bonds_service_intent');
     expect(component).toContain('localityLabel');
     expect(component).toContain("village:'قرية'");
