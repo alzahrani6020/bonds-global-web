@@ -82,6 +82,20 @@ describe('V3 country context core', () => {
     }
   });
 
+  test('country-aware screens refresh activity availability for the selected market', () => {
+    for (const screen of [
+      'v3/city-intelligence.html',
+      'v3/city-comparison.html',
+      'v3/investment-map.html',
+      'v3/opportunity-bank.html',
+      'v3/alerts.html'
+    ]) {
+      const source = read(screen);
+      expect(source).toContain('/catalog/activities');
+      expect(source).toContain('country');
+    }
+  });
+
   test('main market screens use selected-country currency instead of hardcoded SAR', () => {
     const map = read('v3/investment-map.html');
     const comparison = read('v3/city-comparison.html');
