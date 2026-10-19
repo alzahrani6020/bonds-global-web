@@ -136,7 +136,7 @@
     function showStatus(msg,ok){statusEl.textContent=msg;statusEl.className='est-status show '+(ok?'ok':'err');}
     function payload(status){
       return {
-        user_id:user.id,client_id:current?.client_id||fundingCase?.client_id||null,funding_case_id:fundingCase?.id||null,status,
+        user_id:user.id,client_id:current?.client_id||fundingCase?.client_id||null,status,
         identity_data:{legal_name:g('legalName').value.trim(),trade_name:g('tradeName').value.trim(),entity_type:g('entityType').value,cr_number:g('crNumber').value.trim(),unified_number:g('unifiedNumber').value.trim(),incorporation_date:g('incorporationDate').value,capital:Number(g('capital').value||0),capital_currency:g('capitalCurrency').value},
         registration_data:{vat_number:g('vatNumber').value.trim(),zakat_tax_status:g('zakatTaxStatus').value,license_authority:g('licenseAuthority').value.trim(),license_number:g('licenseNumber').value.trim(),license_expiry:g('licenseExpiry').value,other_registrations:g('otherRegistrations').value.trim()},
         operations_data:{main_activity:g('mainActivity').value.trim(),secondary_activities:g('secondaryActivities').value.trim(),products_services:g('productsServices').value.trim(),markets:g('markets').value.trim(),employees:Number(g('employees').value||0),branches:Number(g('branches').value||0),annual_revenue:Number(g('annualRevenue').value||0),website:g('website').value.trim()},
@@ -153,7 +153,9 @@
         ? await sb.from('client_establishment_profiles').update(p).eq('id',current.id).select().single()
         : await sb.from('client_establishment_profiles').insert(p).select().single();
       if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
-      current=result.data;showStatus(status==='submitted'?'Establishment information submitted for review.':'Draft saved.',true);
+      current=result.data;
+       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'establishment',current);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return;}}
+       showStatus(status==='submitted'?'Establishment information submitted for review.':'Draft saved.',true);
     }
     g('saveDraft').onclick=()=>save('draft');
     form.addEventListener('submit',e=>{e.preventDefault();save('submitted');});
@@ -182,10 +184,9 @@
       set('phone',user.user_metadata?.phone||'');
       fundingCase=await window.BondsFundingCaseContext.resolve(sb,user);
       const cid=await sb.rpc('get_my_client_id');
-      let existingQuery=sb.from('client_establishment_profiles').select('*').eq('user_id',user.id);
-      if(fundingCase) existingQuery=existingQuery.eq('funding_case_id',fundingCase.id);
-      const existing=await existingQuery.order('updated_at',{ascending:false}).limit(1).maybeSingle();
-      if(existing.data){hydrate(existing.data);}else if(fundingCase||cid.data){current={client_id:fundingCase?.client_id||cid.data||null,funding_case_id:fundingCase?.id||null};}
+      const existing=await sb.from('client_establishment_profiles').select('*').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
+      if(existing.data){hydrate(existing.data);if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'establishment',existing.data);}
+      else if(fundingCase||cid.data){current={client_id:fundingCase?.client_id||cid.data||null};}
     }
     init();
   })();
