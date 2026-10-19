@@ -569,7 +569,7 @@
               <span class="tag">نطاق القرار ${Number(o.uncertainty?.low ?? decisionScore).toFixed(0)}–${Number(o.uncertainty?.high ?? decisionScore).toFixed(0)}</span>
               <span class="tag">تغطية أبعاد التقييم ${o.scoringCoverage == null ? 'غير متاحة' : Number(o.scoringCoverage).toFixed(0) + '%'}</span>
               <span class="tag">ثقة المصدر ${Number(o.confidence)?.toFixed(0) || '-'}%</span>
-              <span class="tag">متوسط راتب ${formatNumber(o.avgSalary)} ر.س</span>
+              <span class="tag">متوسط راتب ${window.BondsCountryContext?.formatMoney(o.avgSalary, countryProfiles.get(city?.country_code)) || formatNumber(o.avgSalary)}</span>
             </div>
             <div class="actions">
               <a href="/v3/city-intelligence?city=${city?.code || ''}&activity=${activity?.code || ''}" class="primary">تحليل المدينة</a>
