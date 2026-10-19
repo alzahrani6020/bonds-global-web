@@ -72,10 +72,20 @@ describe('header hover and automated refresh stabilization', () => {
     expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
   });
 
-  test('funding dropdown no longer exposes a separate Forms group', () => {
+  test('funding dropdown exposes one organized funding-file entry point instead of raw form links', () => {
     const layout = read('site-layout.js');
     expect(layout).not.toContain("heading: { ar: 'نماذج', en: 'Forms' }");
+    expect(layout).toContain("fundingFileGroup: isEn ? 'Funding File' : 'ملف التمويل'");
+    expect(layout).toContain("fundingRequirements: isEn ? 'Requirements & Forms' : 'المتطلبات والنماذج'");
+    expect(layout).toContain("fundingCases: isEn ? 'Funding Cases' : 'حالات التمويل'");
+    expect(layout).toContain("const fundingCasesHref = isEn ? '/en/client/funding-cases' : '/client/funding-cases';");
+    expect(layout).toContain("const fundingRequirementsHref = fundingExtractionHref + '#funding-file';");
+    expect(layout).toContain('{ label: labels.fundingCases, href: fundingCasesHref }');
+    expect(layout).toContain('{ label: labels.fundingRequirements, href: fundingRequirementsHref }');
+    expect(layout).toContain('{ label: labels.clientPortalNav, href: clientPortalHref }');
+    expect(read('funding-extraction.html')).toContain('id="funding-file"');
     expect(read('funding-extraction.html')).toContain('data-funding-file-grid');
+    expect(read('en/funding-extraction.html')).toContain('id="funding-file"');
     expect(read('en/funding-extraction.html')).toContain('data-funding-file-grid');
   });
 });
