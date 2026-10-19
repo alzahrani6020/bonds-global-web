@@ -12,7 +12,7 @@ describe('Bonds Native chat generation budget', () => {
     expect(match).not.toBeNull();
 
     const maxTokens = Number(match[1]);
-    expect(maxTokens).toBe(256);
+    expect(maxTokens).toBe(96);
     expect(maxTokens).toBeLessThanOrEqual(512);
   });
 
