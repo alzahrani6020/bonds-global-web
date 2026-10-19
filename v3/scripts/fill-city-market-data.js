@@ -78,7 +78,8 @@ async function main() {
           AVG(m.monthly_operation_cost_min) AS monthly_operation_cost_min,
           AVG(m.monthly_operation_cost_avg) AS monthly_operation_cost_avg,
           AVG(m.monthly_operation_cost_max) AS monthly_operation_cost_max,
-          mode() WITHIN GROUP (ORDER BY m.expected_demand) AS expected_demand
+          mode() WITHIN GROUP (ORDER BY m.expected_demand) AS expected_demand,
+          mode() WITHIN GROUP (ORDER BY m.currency_code) AS currency_code
         FROM public.city_market_data m
         JOIN public.cities c ON c.id = m.city_id
         WHERE m.activity_id = $1 AND m.data_year = $2
@@ -86,7 +87,6 @@ async function main() {
       `, [activity.id, year]);
 
       const avgByCountry = new Map(countryAvgs.map(r => [r.country_code, r]));
-      const globalAvg = aggregateGlobal(countryAvgs);
 
       // Find modern cities missing this activity
       const { rows: missing } = await client.query(`
@@ -102,8 +102,8 @@ async function main() {
 
       let inserted = 0;
       for (const city of missing) {
-        const base = avgByCountry.get(city.country_code) || globalAvg;
-        if (!base.opportunity_score) {
+        const base = avgByCountry.get(city.country_code);
+        if (!base || !base.opportunity_score || !base.currency_code) {
           skippedTotal++;
           continue;
         }
@@ -126,10 +126,10 @@ async function main() {
             warehouse_rent_per_sqm, factory_rent_per_sqm, construction_cost_per_sqm,
             equipment_cost_min, equipment_cost_avg, equipment_cost_max,
             monthly_operation_cost_min, monthly_operation_cost_avg, monthly_operation_cost_max,
-            created_at, updated_at
+            currency_code, created_at, updated_at
           ) VALUES (
             $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-            $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, NOW(), NOW()
+            $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, NOW(), NOW()
           )
           ON CONFLICT (city_id, activity_id, data_year) DO UPDATE SET
             competitors_count = EXCLUDED.competitors_count,
@@ -163,6 +163,7 @@ async function main() {
             monthly_operation_cost_min = EXCLUDED.monthly_operation_cost_min,
             monthly_operation_cost_avg = EXCLUDED.monthly_operation_cost_avg,
             monthly_operation_cost_max = EXCLUDED.monthly_operation_cost_max,
+            currency_code = EXCLUDED.currency_code,
             updated_at = NOW()
         `, [
           city.id, activity.id, year,
@@ -196,7 +197,8 @@ async function main() {
           base.equipment_cost_max,
           base.monthly_operation_cost_min,
           base.monthly_operation_cost_avg,
-          base.monthly_operation_cost_max
+          base.monthly_operation_cost_max,
+          base.currency_code
         ]);
         inserted++;
       }
@@ -212,24 +214,6 @@ async function main() {
   } finally {
     await client.end();
   }
-}
-
-function aggregateGlobal(countryAvgs) {
-  const out = {};
-  for (const key of Object.keys(countryAvgs[0] || {})) {
-    if (key === 'country_code' || key === 'expected_demand') continue;
-    out[key] = median(countryAvgs.map(r => r[key]));
-  }
-  const demands = countryAvgs.map(r => r.expected_demand).filter(Boolean);
-  out.expected_demand = demands.sort((a, b) => demands.filter(v => v === a).length - demands.filter(v => v === b).length).pop() || 'medium';
-  return out;
-}
-
-function median(arr) {
-  const values = arr.filter(v => v != null).map(Number).sort((a, b) => a - b);
-  if (values.length === 0) return 0;
-  const mid = Math.floor(values.length / 2);
-  return values.length % 2 === 0 ? (values[mid - 1] + values[mid]) / 2 : values[mid];
 }
 
 function scale(baseValue, ratio, elasticity = 1) {
