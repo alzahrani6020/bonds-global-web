@@ -133,6 +133,7 @@ async function main() {
               opportunity_score = $5,
               source = 'key_city_economic_model',
               confidence = 65,
+              currency_code = 'SAR',
               updated_at = NOW()
           WHERE city_id = $6 AND activity_id = $7 AND data_year = $8
         `, [marketSize, competitorsCount, saturationScore, avgSalary, opportunityScore, city.id, activity.id, year]);
