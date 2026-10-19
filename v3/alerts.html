@@ -499,8 +499,11 @@
 
       try {
         const unreadOnly = document.getElementById('unreadOnly').checked;
-        const url = `${API_URL}/alerts?limit=100${unreadOnly ? '&unread_only=true' : ''}`;
-        const data = await fetchJson(url);
+        const countryCode = document.getElementById('countryFilter').value;
+        const params = new URLSearchParams({ limit: '100' });
+        if (unreadOnly) params.set('unread_only', 'true');
+        if (countryCode) params.set('country', countryCode);
+        const data = await fetchJson(`${API_URL}/alerts?${params.toString()}`);
         allAlerts = data.alerts || [];
         renderPage();
       } catch (err) {
