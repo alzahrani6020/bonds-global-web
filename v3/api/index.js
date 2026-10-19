@@ -1865,15 +1865,14 @@ async function handleCityEvidence(req, res, path) {
     });
   }
 
-  let activityId = null;
+  let activityIds = [];
   if (activityCode) {
-    const { data: activity, error: activityError } = await supabase
-      .from('economic_activities')
-      .select('id,code,name_ar,name_en')
-      .eq('code', activityCode)
-      .maybeSingle();
-    if (activityError) return sendJson(res, 500, { error: activityError.message });
-    activityId = activity?.id || null;
+    try {
+      const activitySelection = await resolveActivitySelection(supabase, activityCode);
+      activityIds = activitySelection.ids;
+    } catch (activityError) {
+      return sendJson(res, 500, { error: activityError.message });
+    }
   }
 
   let query = supabase
@@ -1889,7 +1888,7 @@ async function handleCityEvidence(req, res, path) {
   if (error) return sendJson(res, 500, { error: error.message });
 
   const relevant = (rows || []).filter(row =>
-    row.activity_id == null || (activityId && row.activity_id === activityId)
+    row.activity_id == null || (activityIds.length && activityIds.includes(row.activity_id))
   );
   const latestByMetric = new Map();
   for (const row of relevant) {
@@ -1996,12 +1995,8 @@ async function handleCityMarket(req, res, path) {
         .order('data_year', { ascending: false })
         .limit(1);
       if (activityCode) {
-        const { data: activity } = await supabase
-          .from('economic_activities')
-          .select('id')
-          .eq('code', activityCode)
-          .maybeSingle();
-        if (activity) q = q.eq('activity_id', activity.id);
+        const activitySelection = await resolveActivitySelection(supabase, activityCode);
+        if (activitySelection.ids.length) q = q.in('activity_id', activitySelection.ids);
       }
       const { data: latest } = await q.maybeSingle();
       return sendJson(res, 200, {
@@ -2021,12 +2016,11 @@ async function handleCityMarket(req, res, path) {
     .eq('data_year', targetYear);
 
   if (activityCode) {
-    const { data: activity } = await supabase
-      .from('economic_activities')
-      .select('id')
-      .eq('code', activityCode)
-      .single();
-    if (activity) query = query.eq('activity_id', activity.id);
+    const activitySelection = await resolveActivitySelection(supabase, activityCode);
+    if (!activitySelection.ids.length) {
+      return sendJson(res, 200, { marketData: [], year: targetYear });
+    }
+    query = query.in('activity_id', activitySelection.ids);
   }
 
   const { data, error } = await query;
