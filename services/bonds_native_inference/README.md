@@ -185,7 +185,7 @@ Then perform the health-checked cutover:
 .\services\bonds_native_inference\windows\install-cloudflared-service.ps1 -Activate
 ```
 
-The installer copies the executable, config, and tunnel credential into `%ProgramData%\BondsNative\cloudflared\`, validates ingress, configures Automatic startup and SCM recovery, confirms remote Native health, and only then disables the legacy `BondsNativeTunnel` task.
+Prepare mode copies the executable, config, and tunnel credential into `%ProgramData%\BondsNative\cloudflared\` and validates ingress only; it does not install/start the Windows service or change the active machine environment. With `-Activate`, the installer configures Automatic startup and SCM recovery, confirms remote Native health, and only then disables the legacy `BondsNativeTunnel` task.
 
 Legacy duplicate `cloudflared` processes are not killed by default. After service health is verified, they can be removed explicitly with:
 
