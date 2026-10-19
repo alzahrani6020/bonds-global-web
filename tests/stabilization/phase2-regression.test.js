@@ -12,7 +12,7 @@ describe('stabilization phase 2', () => {
     const layout = read('site-layout.js');
     expect(layout).toContain("tools: isEn ? 'Tools' : 'الأدوات'");
     expect(layout).toContain("aboutGovernance: isEn ? 'About' : 'عن بوندز'");
-    expect(layout).toContain("heading: { ar: labels.advisoryGroup");
+    expect(layout).toContain("heading: { ar: 'الاستشارات المالية', en: 'Financial Advisory' }");
     expect(layout).toContain("heading: { ar: labels.fundingGroup");
     expect(layout).toContain("heading: { ar: labels.intelligenceGroup");
     expect(layout).toContain("return '/en/v3/?from=' + encodeURIComponent");
