@@ -92,7 +92,7 @@ $productionHealthy = [bool](
     $production.body.checks.native -eq "ok" -and
     $production.body.inference.mode -eq "REMOTE_BONDS_NATIVE" -and
     $production.body.inference.provider -eq "BondsNativeProvider" -and
-    $production.body.inference.reachable -eq $true
+    $production.body.inference.native_reachable -eq $true
 )
 
 $result = [pscustomobject]@{
@@ -121,7 +121,7 @@ $result = [pscustomobject]@{
             error = $production.error
             mode = if ($production.body) { $production.body.inference.mode } else { $null }
             provider = if ($production.body) { $production.body.inference.provider } else { $null }
-            reachable = if ($production.body) { $production.body.inference.reachable } else { $false }
+            reachable = if ($production.body) { $production.body.inference.native_reachable } else { $false }
         }
     }
 }
