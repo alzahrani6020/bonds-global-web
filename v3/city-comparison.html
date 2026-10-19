@@ -509,7 +509,12 @@
       const data = await fetchJson(API_URL + '/models?limit=500&country=' + encodeURIComponent(countryCode));
       models = (data.models || []).filter(model => model.localized === true);
       modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
-        models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
+        models.map(model => {
+          const statusLabel = model.country_model_status === 'verified'
+            ? 'موثق'
+            : (model.country_model_status === 'estimated' ? 'تقديري' : 'غير موثق');
+          return `<option value="${model.code}">${model.name_ar} · ${statusLabel}</option>`;
+        }).join('');
 
       if (!models.length) {
         modelSelect.innerHTML = '<option value="">لا توجد نماذج مالية محلية موثقة لهذه الدولة</option>';
