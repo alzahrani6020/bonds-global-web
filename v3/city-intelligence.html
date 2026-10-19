@@ -909,6 +909,8 @@
         if (activityDd?.setOptions) activityDd.setOptions(activityOptions);
 
         countrySelect.addEventListener('change', async () => {
+          window.BondsCountryContext?.setSelected(countrySelect.value);
+          citySelect.value = '';
           await loadCities();
           await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
           document.getElementById('content').innerHTML = '<div class="loading">اختر مدينة لعرض المؤشرات</div>';
@@ -1417,8 +1419,13 @@ ${recommendations.length ? recommendations.map(r => `
       const preselectCity = params.get('city');
       const preselectActivity = params.get('activity');
 
-      const inferredCountry = preselectCity && /^[A-Z]{2}-/.test(preselectCity) ? preselectCity.slice(0, 2) : 'SA';
+      const requestedCountry = (params.get('country') || '').toUpperCase();
+      const inferredCountry = requestedCountry ||
+        (preselectCity && /^[A-Z]{2}-/.test(preselectCity) ? preselectCity.slice(0, 2) : '') ||
+        window.BondsCountryContext?.getSelected('SA') ||
+        'SA';
       await init(inferredCountry);
+      window.BondsCountryContext?.setSelected(document.getElementById('countrySelect').value);
 
       if (preselectCity) {
         const citySelect = document.getElementById('citySelect');
