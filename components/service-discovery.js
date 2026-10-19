@@ -63,11 +63,20 @@
     state.activities = taxData.activities || [];
     const regions = [...new Map(state.cities.filter(x=>x.region).map(x => [x.region, { code:x.region, name_ar:x.region, name_en:x.region_en || x.region }])).values()];
     options(q('#bondsRegion'), regions, 'code', label, t.region);
-    options(q('#bondsLocality'), state.cities, 'code', label, t.locality);
+    options(q('#bondsLocality'), state.cities, 'code', localityLabel, t.locality);
     options(q('#bondsSector'), state.sectors, 'code', label, t.sector);
     options(q('#bondsActivity'), state.activities, 'code', activityLabel, t.activity);
     await loadServices();
   }
+  function localityLabel(row) {
+    const types = lang === 'ar'
+      ? { city:'مدينة', town:'بلدة', village:'قرية', hijra:'هجرة', district:'حي / منطقة', other:'أخرى' }
+      : { city:'City', town:'Town', village:'Village', hijra:'Hijra', district:'District', other:'Other' };
+    const base = label(row);
+    const type = row.locality_type && types[row.locality_type] ? types[row.locality_type] : '';
+    return type ? base + ' — ' + type : base;
+  }
+
   function activityLabel(row) {
     let suffix = '';
     const status = row.country?.availability_status;
@@ -79,7 +88,7 @@
   function onRegion() {
     const region = q('#bondsRegion').value;
     const rows = region ? state.cities.filter(x => x.region === region) : state.cities;
-    options(q('#bondsLocality'), rows, 'code', label, t.locality);
+    options(q('#bondsLocality'), rows, 'code', localityLabel, t.locality);
   }
   async function onSector() {
     const country = q('#bondsCountry').value;
