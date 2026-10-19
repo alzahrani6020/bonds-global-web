@@ -1,0 +1,63 @@
+const fs = require('fs');
+const path = require('path');
+
+const root = path.resolve(__dirname, '../..');
+const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
+
+describe('V3 investment taxonomy API', () => {
+  test('canonical taxonomy endpoint is additive and keeps legacy sectors endpoint', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain('async function handleInvestmentTaxonomy');
+    expect(api).toContain("path === '/investment-taxonomy'");
+    expect(api).toContain("path === '/sectors'");
+    expect(api).toContain(".from('canonical_investment_sectors')");
+    expect(api).toContain(".from('canonical_investment_subsectors')");
+    expect(api).toContain(".from('canonical_activity_investment_sectors')");
+    expect(api).toContain(".from('canonical_activity_investment_subsectors')");
+    expect(api).toContain(".from('canonical_activity_catalog')");
+  });
+
+  test('country business-form eligibility is country-scoped and preserves verification status', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain(".from('canonical_activity_business_forms')");
+    expect(api).toContain(".eq('country_code', countryCode)");
+    expect(api).toContain(".from('canonical_activity_country')");
+    expect(api).toContain('country: countryByActivity.get(activity.id) || null');
+    expect(api).toContain('verification_status');
+    expect(api).toContain('business_forms: eligibilityByActivity.get(activity.id) || []');
+  });
+
+  test('taxonomy is lazy and cacheable by default', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain("const includeActivities = include.has('activities') || include.has('all')");
+    expect(api).toContain("const includeDimensions = include.has('dimensions') || include.has('all')");
+    expect(api).toContain("url.searchParams.get('sector')");
+    expect(api).toContain("url.searchParams.get('depth') || 'subsector'");
+    expect(api).toContain("const includeSubsectors = depth !== 'sector'");
+    expect(api).toContain("Cache-Control");
+    expect(api).toContain("stale-while-revalidate=3600");
+  });
+
+  test('opportunity sector filtering is canonical, batched and deduplicated', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain('async function resolveInvestmentSectorSelection');
+    expect(api).toContain("const sectorCode = url.searchParams.get('sector')");
+    expect(api).toContain(".from('canonical_activity_legacy_aliases')");
+    expect(api).toContain('filteredActivityIds');
+    expect(api).toContain('sectorSelection.canonicalByLegacyId.get(row.activity_id)');
+    expect(api).toContain('_sectorCanonical: sectorCanonical');
+  });
+
+  test('taxonomy returns the cross-cutting dimensions explicitly when requested', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain(".from('investment_project_sizes')");
+    expect(api).toContain(".from('investment_business_forms')");
+    expect(api).toContain(".from('investment_opportunity_types')");
+    expect(api).toContain("taxonomy_version: 'v3-canonical-investment-1'");
+  });
+});

@@ -165,6 +165,232 @@ async function handleSectors(req, res) {
   sendJson(res, 200, { sectors: activeSectors });
 }
 
+async function handleInvestmentTaxonomy(req, res) {
+  const url = getQuery(req);
+  const countryCode = (url.searchParams.get('country') || '').toUpperCase() || null;
+  const sectorCode = url.searchParams.get('sector') || null;
+  const depth = url.searchParams.get('depth') || 'subsector';
+  const includeSubsectors = depth !== 'sector';
+  const include = new Set(
+    (url.searchParams.get('include') || '')
+      .split(',')
+      .map(value => value.trim())
+      .filter(Boolean)
+  );
+  const includeActivities = include.has('activities') || include.has('all');
+  const includeDimensions = include.has('dimensions') || include.has('all');
+
+  if (countryCode && !COUNTRY_NAMES[countryCode]) {
+    return sendJson(res, 400, { error: 'Invalid country parameter' });
+  }
+
+  const supabase = getSupabaseClient();
+  let sectors = [];
+  let subsectors = [];
+
+  if (!sectorCode) {
+    const [sectorsResult, subsectorsResult] = await Promise.all([
+      supabase
+        .from('canonical_investment_sectors')
+        .select('id,code,name_ar,name_en,description,sort_order')
+        .eq('is_active', true)
+        .order('sort_order'),
+      includeSubsectors
+        ? supabase
+            .from('canonical_investment_subsectors')
+            .select('id,sector_id,code,name_ar,name_en,description,sort_order')
+            .eq('is_active', true)
+            .order('sort_order')
+        : Promise.resolve({ data: [], error: null })
+    ]);
+
+    if (sectorsResult.error || subsectorsResult.error) {
+      console.error('[investment-taxonomy/summary]', sectorsResult.error?.message || subsectorsResult.error?.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
+    }
+    sectors = sectorsResult.data || [];
+    subsectors = subsectorsResult.data || [];
+  } else {
+    const sectorsResult = await supabase
+      .from('canonical_investment_sectors')
+      .select('id,code,name_ar,name_en,description,sort_order')
+      .eq('is_active', true)
+      .eq('code', sectorCode)
+      .order('sort_order');
+
+    if (sectorsResult.error) {
+      console.error('[investment-taxonomy/sectors]', sectorsResult.error.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
+    }
+
+    sectors = sectorsResult.data || [];
+    const filteredSectorIds = sectors.map(row => row.id);
+
+    if (includeSubsectors && filteredSectorIds.length) {
+      const subsectorsResult = await supabase
+        .from('canonical_investment_subsectors')
+        .select('id,sector_id,code,name_ar,name_en,description,sort_order')
+        .eq('is_active', true)
+        .in('sector_id', filteredSectorIds)
+        .order('sort_order');
+
+      if (subsectorsResult.error) {
+        console.error('[investment-taxonomy/subsectors]', subsectorsResult.error.message);
+        return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
+      }
+      subsectors = subsectorsResult.data || [];
+    }
+  }
+
+  const sectorIds = sectors.map(row => row.id);
+  let activities = [];
+
+  if (includeActivities && sectorIds.length) {
+    let sectorMapQuery = supabase
+      .from('canonical_activity_investment_sectors')
+      .select('canonical_activity_id,sector_id,is_primary,confidence')
+      .eq('is_primary', true);
+
+    if (sectorCode) sectorMapQuery = sectorMapQuery.in('sector_id', sectorIds);
+
+    const { data: sectorMappings, error: sectorMapError } = await sectorMapQuery;
+    if (sectorMapError) {
+      console.error('[investment-taxonomy/activity-sectors]', sectorMapError.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy activities' });
+    }
+
+    const activityIds = [...new Set((sectorMappings || []).map(row => row.canonical_activity_id))];
+    let activityRows = [];
+    let subsectorMappings = [];
+    let businessFormEligibility = [];
+    let countryActivityRows = [];
+
+    if (activityIds.length) {
+      const [activitiesResult, subsectorMapResult, businessFormsResult, countryActivitiesResult] = await Promise.all([
+        supabase
+          .from('canonical_activity_catalog')
+          .select('id,code,name_ar,name_en,description,is_active,sort_order,aliases')
+          .in('id', activityIds)
+          .order('sort_order')
+          .order('name_ar'),
+        includeSubsectors
+          ? supabase
+              .from('canonical_activity_investment_subsectors')
+              .select('canonical_activity_id,subsector_id,is_primary,confidence')
+              .in('canonical_activity_id', activityIds)
+              .eq('is_primary', true)
+          : Promise.resolve({ data: [], error: null }),
+        countryCode
+          ? supabase
+              .from('canonical_activity_business_forms')
+              .select('canonical_activity_id,business_form_code,country_code,verification_status,confidence')
+              .eq('country_code', countryCode)
+              .in('canonical_activity_id', activityIds)
+          : Promise.resolve({ data: [], error: null }),
+        countryCode
+          ? supabase
+              .from('canonical_activity_country')
+              .select('canonical_activity_id,country_code,availability_status,regulatory_status,classification_system,classification_code,classification_label,source,source_url,confidence,metadata')
+              .eq('country_code', countryCode)
+              .in('canonical_activity_id', activityIds)
+          : Promise.resolve({ data: [], error: null })
+      ]);
+
+      const failed = [activitiesResult, subsectorMapResult, businessFormsResult, countryActivitiesResult]
+        .find(result => result.error);
+      if (failed?.error) {
+        console.error('[investment-taxonomy/activities]', failed.error.message);
+        return sendJson(res, 500, { error: 'Failed to load investment taxonomy activities' });
+      }
+
+      activityRows = activitiesResult.data || [];
+      subsectorMappings = subsectorMapResult.data || [];
+      businessFormEligibility = businessFormsResult.data || [];
+      countryActivityRows = countryActivitiesResult.data || [];
+    }
+
+    const primarySectorByActivity = new Map(
+      (sectorMappings || []).map(row => [row.canonical_activity_id, row])
+    );
+    const primarySubsectorByActivity = new Map(
+      subsectorMappings.map(row => [row.canonical_activity_id, row])
+    );
+    const eligibilityByActivity = new Map();
+    for (const row of businessFormEligibility) {
+      if (!eligibilityByActivity.has(row.canonical_activity_id)) eligibilityByActivity.set(row.canonical_activity_id, []);
+      eligibilityByActivity.get(row.canonical_activity_id).push(row);
+    }
+    const countryByActivity = new Map(
+      countryActivityRows.map(row => [row.canonical_activity_id, row])
+    );
+
+    activities = activityRows.map(activity => ({
+      ...activity,
+      primary_sector: primarySectorByActivity.get(activity.id) || null,
+      primary_subsector: primarySubsectorByActivity.get(activity.id) || null,
+      country: countryByActivity.get(activity.id) || null,
+      business_forms: eligibilityByActivity.get(activity.id) || []
+    }));
+  }
+
+  let projectSizes = [];
+  let businessForms = [];
+  let opportunityTypes = [];
+
+  if (includeDimensions) {
+    const [sizesResult, formsResult, opportunityTypesResult] = await Promise.all([
+      supabase.from('investment_project_sizes').select('code,name_ar,name_en,sort_order').order('sort_order'),
+      supabase.from('investment_business_forms').select('code,name_ar,name_en,sort_order').order('sort_order'),
+      supabase.from('investment_opportunity_types').select('code,name_ar,name_en,sort_order').order('sort_order')
+    ]);
+
+    const failed = [sizesResult, formsResult, opportunityTypesResult].find(result => result.error);
+    if (failed?.error) {
+      console.error('[investment-taxonomy/dimensions]', failed.error.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy dimensions' });
+    }
+
+    projectSizes = sizesResult.data || [];
+    businessForms = formsResult.data || [];
+    opportunityTypes = opportunityTypesResult.data || [];
+  }
+
+  const subsectorsBySector = new Map();
+  for (const row of subsectors) {
+    if (!subsectorsBySector.has(row.sector_id)) subsectorsBySector.set(row.sector_id, []);
+    subsectorsBySector.get(row.sector_id).push(row);
+  }
+
+  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
+  return sendJson(res, 200, {
+    taxonomy_version: 'v3-canonical-investment-1',
+    country_code: countryCode,
+    sector_filter: sectorCode,
+    depth,
+    included: {
+      subsectors: includeSubsectors,
+      activities: includeActivities,
+      dimensions: includeDimensions
+    },
+    sectors: (sectors || []).map(sector => ({
+      ...sector,
+      subsectors: includeSubsectors ? (subsectorsBySector.get(sector.id) || []) : []
+    })),
+    activities,
+    project_sizes: projectSizes,
+    business_forms: businessForms,
+    opportunity_types: opportunityTypes,
+    counts: {
+      sectors: (sectors || []).length,
+      subsectors: subsectors.length,
+      activities: activities.length,
+      project_sizes: projectSizes.length,
+      business_forms: businessForms.length,
+      opportunity_types: opportunityTypes.length
+    }
+  });
+}
+
 async function resolveActivitySelection(supabase, activityCode) {
   if (!activityCode) {
     return { canonicalCode: null, canonicalNameAr: null, canonicalNameEn: null, aliases: [], ids: [] };
@@ -244,6 +470,90 @@ async function resolveActivitySelection(supabase, activityCode) {
     canonicalNameEn: legacy.name_en,
     aliases: [legacy.code],
     ids: [legacy.id]
+  };
+}
+
+async function resolveInvestmentSectorSelection(supabase, sectorCode) {
+  if (!sectorCode) {
+    return {
+      sector: null,
+      canonicalActivityIds: [],
+      legacyIds: [],
+      canonicalByLegacyId: new Map()
+    };
+  }
+
+  const { data: sector, error: sectorError } = await supabase
+    .from('canonical_investment_sectors')
+    .select('id,code,name_ar,name_en')
+    .eq('code', sectorCode)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (sectorError) throw sectorError;
+  if (!sector) {
+    return {
+      sector: null,
+      canonicalActivityIds: [],
+      legacyIds: [],
+      canonicalByLegacyId: new Map()
+    };
+  }
+
+  const { data: mappingRows, error: mappingError } = await supabase
+    .from('canonical_activity_investment_sectors')
+    .select('canonical_activity_id')
+    .eq('sector_id', sector.id)
+    .eq('is_primary', true);
+
+  if (mappingError) throw mappingError;
+
+  const canonicalActivityIds = [...new Set(
+    (mappingRows || []).map(row => row.canonical_activity_id).filter(Boolean)
+  )];
+
+  if (!canonicalActivityIds.length) {
+    return {
+      sector,
+      canonicalActivityIds: [],
+      legacyIds: [],
+      canonicalByLegacyId: new Map()
+    };
+  }
+
+  const [aliasesResult, catalogResult] = await Promise.all([
+    supabase
+      .from('canonical_activity_legacy_aliases')
+      .select('canonical_activity_id,legacy_activity_id')
+      .in('canonical_activity_id', canonicalActivityIds),
+    supabase
+      .from('canonical_activity_catalog')
+      .select('id,code,name_ar,name_en,aliases')
+      .in('id', canonicalActivityIds)
+  ]);
+
+  if (aliasesResult.error || catalogResult.error) {
+    throw aliasesResult.error || catalogResult.error;
+  }
+
+  const canonicalById = new Map(
+    (catalogResult.data || []).map(row => [row.id, row])
+  );
+  const canonicalByLegacyId = new Map();
+  const legacyIds = [];
+
+  for (const row of aliasesResult.data || []) {
+    if (!row.legacy_activity_id) continue;
+    legacyIds.push(row.legacy_activity_id);
+    const canonical = canonicalById.get(row.canonical_activity_id);
+    if (canonical) canonicalByLegacyId.set(row.legacy_activity_id, canonical);
+  }
+
+  return {
+    sector,
+    canonicalActivityIds,
+    legacyIds: [...new Set(legacyIds)],
+    canonicalByLegacyId
   };
 }
 
@@ -1026,6 +1336,7 @@ async function handleCities(req, res) {
 async function handleOpportunitiesTop(req, res) {
   const url = getQuery(req);
   const countryCode = url.searchParams.get('country');
+  const sectorCode = url.searchParams.get('sector');
   const activityCode = url.searchParams.get('activity');
   const minScoreParam = url.searchParams.get('min_score');
   const minDecisionScore = Number.isFinite(Number(minScoreParam)) ? Number(minScoreParam) : null;
@@ -1035,9 +1346,14 @@ async function handleOpportunitiesTop(req, res) {
   const isLatest = requestedYear === 'latest';
   const fallbackYear = resolveOpportunityYear(requestedYear);
   const supabase = getSupabaseClient();
-  const activitySelection = activityCode
-    ? await resolveActivitySelection(supabase, activityCode)
-    : { canonicalCode: null, canonicalNameAr: null, canonicalNameEn: null, aliases: [], ids: [] };
+  const [activitySelection, sectorSelection] = await Promise.all([
+    activityCode
+      ? resolveActivitySelection(supabase, activityCode)
+      : Promise.resolve({ canonicalCode: null, canonicalNameAr: null, canonicalNameEn: null, aliases: [], ids: [] }),
+    sectorCode
+      ? resolveInvestmentSectorSelection(supabase, sectorCode)
+      : Promise.resolve({ sector: null, canonicalActivityIds: [], legacyIds: [], canonicalByLegacyId: new Map() })
+  ]);
 
   if (activityCode && !activitySelection.ids.length) {
     return sendJson(res, 200, {
@@ -1046,6 +1362,41 @@ async function handleOpportunitiesTop(req, res) {
       rankingBasis: 'decision_score',
       minScoreBasis: 'decision_score'
     });
+  }
+
+  if (sectorCode && !sectorSelection.sector) {
+    return sendJson(res, 200, {
+      opportunities: [],
+      count: 0,
+      rankingBasis: 'decision_score',
+      minScoreBasis: 'decision_score'
+    });
+  }
+
+  let filteredActivityIds = [];
+  if (activityCode && sectorCode) {
+    const sectorIds = new Set(sectorSelection.legacyIds);
+    filteredActivityIds = activitySelection.ids.filter(id => sectorIds.has(id));
+    if (!filteredActivityIds.length) {
+      return sendJson(res, 200, {
+        opportunities: [],
+        count: 0,
+        rankingBasis: 'decision_score',
+        minScoreBasis: 'decision_score'
+      });
+    }
+  } else if (activityCode) {
+    filteredActivityIds = activitySelection.ids;
+  } else if (sectorCode) {
+    filteredActivityIds = sectorSelection.legacyIds;
+    if (!filteredActivityIds.length) {
+      return sendJson(res, 200, {
+        opportunities: [],
+        count: 0,
+        rankingBasis: 'decision_score',
+        minScoreBasis: 'decision_score'
+      });
+    }
   }
 
   function buildOpportunitiesQuery(yearCondition, filters = {}) {
@@ -1081,7 +1432,7 @@ async function handleOpportunitiesTop(req, res) {
     return { data, error };
   }
 
-  let { data, error } = await tryQuery({ countryCode, activityIds: activitySelection.ids });
+  let { data, error } = await tryQuery({ countryCode, activityIds: filteredActivityIds });
 
   if (error) {
     console.error('[opportunities/top]', error.message);
@@ -1093,12 +1444,14 @@ async function handleOpportunitiesTop(req, res) {
   const latestRows = [];
   const seen = new Set();
   for (const row of data || []) {
-    const key = activityCode
-      ? `${row.city_id || row.cities?.id || 'city'}:${activitySelection.canonicalCode || activityCode}`
-      : `${row.city_id || row.cities?.id || 'city'}:${row.activity_id || row.economic_activities?.code || 'activity'}`;
+    const sectorCanonical = sectorSelection.canonicalByLegacyId.get(row.activity_id) || null;
+    const activityIdentity = activityCode
+      ? (activitySelection.canonicalCode || activityCode)
+      : (sectorCanonical?.code || row.economic_activities?.code || row.activity_id || 'activity');
+    const key = `${row.city_id || row.cities?.id || 'city'}:${activityIdentity}`;
     if (seen.has(key)) continue;
     seen.add(key);
-    latestRows.push(row);
+    latestRows.push({ ...row, _sectorCanonical: sectorCanonical });
   }
 
   const assessed = latestRows.map(row => {
@@ -1113,7 +1466,15 @@ async function handleOpportunitiesTop(req, res) {
             name_en: activitySelection.canonicalNameEn || row.economic_activities?.name_en,
             aliases: activitySelection.aliases
           }
-        : row.economic_activities,
+        : row._sectorCanonical
+          ? {
+              ...(row.economic_activities || {}),
+              code: row._sectorCanonical.code,
+              name_ar: row._sectorCanonical.name_ar || row.economic_activities?.name_ar,
+              name_en: row._sectorCanonical.name_en || row.economic_activities?.name_en,
+              aliases: row._sectorCanonical.aliases || []
+            }
+          : row.economic_activities,
       score: row.opportunity_score,
       rawScore: reliability.rawPotential,
       decisionScore: reliability.decisionScore,
@@ -1920,6 +2281,7 @@ module.exports = async function handler(req, res) {
   try {
     if (path === '/health' || path === '/') return await handleHealth(req, res);
     if (path === '/sectors' && req.method === 'GET') return await handleSectors(req, res);
+    if (path === '/investment-taxonomy' && req.method === 'GET') return await handleInvestmentTaxonomy(req, res);
     if (path === '/catalog/countries' && req.method === 'GET') return await handleCatalogCountries(req, res);
     if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
     if (path === '/catalog/years' && req.method === 'GET') return await handleCatalogYears(req, res);
