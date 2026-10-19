@@ -424,7 +424,7 @@
           .filter(activity => activity.country?.availability_status !== 'unavailable');
         populateSelect(activitySelect, activities.map(a => ({
           value: a.code,
-          label: a.name_ar || a.name_en || a.code
+          label: window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar || a.name_en || a.code
         })));
         refreshSelect(activitySelect);
       }
