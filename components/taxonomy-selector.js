@@ -201,6 +201,7 @@
       user_id:user.id,
       country_code:selectedCountry()||null,
       proposal_type:type,
+      status:'pending',
       proposed_name_ar:byId('proposalNameAr').value.trim(),
       proposed_name_en:byId('proposalNameEn').value.trim()||null,
       parent_sector_code:type==='activity'?(selectedSectorCode()||null):null,
