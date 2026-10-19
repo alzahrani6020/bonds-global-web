@@ -238,6 +238,7 @@
       else result=await sb.from('client_receivables_aging_reports').insert(payload).select().single();
       if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
       currentReport=result.data;
+      if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'receivables',currentReport);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return;}}
       showStatus(status==='submitted'?'تم إرسال Receivables Aging Form للمراجعة.':'Draft saved.',true);
     }
 
@@ -276,6 +277,7 @@
       const existing=await existingQuery.order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){
         currentReport=existing.data;
+        if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'receivables',existing.data);
         reportDate.value=existing.data.report_date||today();
         agingBasis.value=existing.data.aging_basis||'due_date';
         document.getElementById('currency').value=existing.data.currency||'SAR';
