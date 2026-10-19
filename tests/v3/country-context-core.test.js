@@ -82,6 +82,22 @@ describe('V3 country context core', () => {
     }
   });
 
+  test('unknown country activity coverage is disclosed instead of presented as locally verified', () => {
+    const context = read('v3/country-context.js');
+    expect(context).toContain('formatActivityLabel');
+    expect(context).toContain('الحالة المحلية غير موثقة');
+
+    for (const screen of [
+      'v3/city-intelligence.html',
+      'v3/city-comparison.html',
+      'v3/investment-map.html',
+      'v3/opportunity-bank.html',
+      'v3/alerts.html'
+    ]) {
+      expect(read(screen)).toContain('formatActivityLabel');
+    }
+  });
+
   test('country-aware screens refresh activity availability for the selected market', () => {
     for (const screen of [
       'v3/city-intelligence.html',
@@ -93,6 +109,22 @@ describe('V3 country context core', () => {
       const source = read(screen);
       expect(source).toContain('/catalog/activities');
       expect(source).toContain('country');
+    }
+  });
+
+  test('market screens disclose when source currency differs from selected country currency', () => {
+    const context = read('v3/country-context.js');
+    expect(context).toContain('formatProvenanceMoney');
+    expect(context).toContain('عملة المصدر');
+    expect(context).toContain('وليست العملة المحلية');
+
+    for (const screen of [
+      'v3/city-intelligence.html',
+      'v3/city-comparison.html',
+      'v3/investment-map.html',
+      'v3/opportunity-bank.html'
+    ]) {
+      expect(read(screen)).toContain('formatProvenanceMoney');
     }
   });
 
@@ -130,6 +162,15 @@ describe('V3 country context core', () => {
     expect(activityEnrichment).toContain("currency_code: 'SAR'");
   });
 
+  test('localized model choices disclose estimated versus verified status', () => {
+    const comparison = read('v3/city-comparison.html');
+
+    expect(comparison).toContain("model.country_model_status === 'verified'");
+    expect(comparison).toContain("model.country_model_status === 'estimated'");
+    expect(comparison).toContain("'موثق'");
+    expect(comparison).toContain("'تقديري'");
+  });
+
   test('explicit country financial calculations never fall back to an unverified model', () => {
     const api = read('v3/api/index.js');
     const compare = read('v3/api/compare.js');
@@ -150,6 +191,22 @@ describe('V3 country context core', () => {
     expect(alertsApi).toContain('city:city_id!inner');
     expect(alertsApi).toContain("query.eq('city.country_code', countryCode)");
     expect(alertsPage).toContain("params.set('country', countryCode)");
+  });
+
+  test('country context exposes operational coverage gaps without inventing localization', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain('activities_unknown');
+    expect(api).toContain('activities_sourced');
+    expect(api).toContain('models_estimated');
+    expect(api).toContain('models_verified');
+    expect(api).toContain('models_unverified');
+    expect(api).toContain('regulations_verified');
+    expect(api).toContain('macro_metrics');
+    expect(api).toContain('activity_country_verification');
+    expect(api).toContain('financial_model_localization');
+    expect(api).toContain('country_regulations');
+    expect(api).toContain('macro_indicator_coverage');
   });
 
   test('data source registry is activated from a real existing source', () => {

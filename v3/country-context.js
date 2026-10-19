@@ -94,6 +94,25 @@
     return formatCurrency(value, profile?.currency_code, profile, lang);
   }
 
+  function formatProvenanceMoney(value, currencyCode, profile, lang = 'ar') {
+    const formatted = formatCurrency(value, currencyCode, profile, lang);
+    const sourceCurrency = normalize(currencyCode);
+    const localCurrency = normalize(profile?.currency_code);
+    if (!sourceCurrency || !localCurrency || sourceCurrency === localCurrency) return formatted;
+    return formatted + (lang === 'en'
+      ? ' · source currency ' + sourceCurrency + ', not local ' + localCurrency
+      : ' · عملة المصدر ' + sourceCurrency + ' وليست العملة المحلية ' + localCurrency);
+  }
+
+  function formatActivityLabel(activity, lang = 'ar') {
+    const label = activity?.name_ar || activity?.name_en || activity?.code || '-';
+    const status = activity?.country?.availability_status;
+    if (status === 'unknown') {
+      return label + (lang === 'en' ? ' · Local status unverified' : ' · الحالة المحلية غير موثقة');
+    }
+    return label;
+  }
+
   window.BondsCountryContext = {
     STORAGE_KEY,
     getSelected: getStored,
@@ -102,6 +121,8 @@
     getProfile,
     bindSelect,
     formatCurrency,
-    formatMoney
+    formatMoney,
+    formatProvenanceMoney,
+    formatActivityLabel
   };
 })();

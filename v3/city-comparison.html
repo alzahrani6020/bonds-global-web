@@ -372,7 +372,7 @@
       if (!Number.isFinite(Number(num))) return '-';
       if (!currencyCode) return formatNumber(Number(num)) + ' · العملة غير موثقة';
       if (window.BondsCountryContext) {
-        return window.BondsCountryContext.formatCurrency(Number(num), currencyCode, profile);
+        return window.BondsCountryContext.formatProvenanceMoney(Number(num), currencyCode, profile);
       }
       return formatNumber(Number(num)) + ' ' + currencyCode;
     }
@@ -492,7 +492,7 @@
         .filter(activity => activity.country?.availability_status !== 'unavailable');
 
       activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
-        activities.map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`).join('');
+        activities.map(activity => `<option value="${activity.code}">${window.BondsCountryContext?.formatActivityLabel(activity) || activity.name_ar}</option>`).join('');
       if (activities.some(activity => activity.code === current)) activitySelect.value = current;
     }
 
@@ -509,7 +509,12 @@
       const data = await fetchJson(API_URL + '/models?limit=500&country=' + encodeURIComponent(countryCode));
       models = (data.models || []).filter(model => model.localized === true);
       modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
-        models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
+        models.map(model => {
+          const statusLabel = model.country_model_status === 'verified'
+            ? 'موثق'
+            : (model.country_model_status === 'estimated' ? 'تقديري' : 'غير موثق');
+          return `<option value="${model.code}">${model.name_ar} · ${statusLabel}</option>`;
+        }).join('');
 
       if (!models.length) {
         modelSelect.innerHTML = '<option value="">لا توجد نماذج مالية محلية موثقة لهذه الدولة</option>';

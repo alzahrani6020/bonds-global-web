@@ -647,7 +647,7 @@
       if (!currencyCode) {
         return formatNumber(Number(value)) + ' <span class="confidence low">العملة غير موثقة</span>';
       }
-      return window.BondsCountryContext?.formatCurrency(Number(value), currencyCode, profile) ||
+      return window.BondsCountryContext?.formatProvenanceMoney(Number(value), currencyCode, profile) ||
         (formatNumber(Number(value)) + ' ' + currencyCode);
     }
 
@@ -900,7 +900,7 @@
           if (activityDd?.setOptions) {
             activityDd.setOptions(activities.map(a => ({
               value: a.code,
-              label: a.name_ar || a.name_en || a.code,
+              label: window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar || a.name_en || a.code,
               icon: ACTIVITY_ICON
             })));
           }
