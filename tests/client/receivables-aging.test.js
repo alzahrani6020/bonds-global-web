@@ -24,10 +24,10 @@ describe('receivables aging form', () => {
     expect(read('en/client/receivables-aging.html')).toContain('lang="en" dir="ltr"');
   });
 
-  test('forms dropdown exposes receivables aging', () => {
-    const layout = read('site-layout.js');
-    expect(layout).toContain("receivablesAging: isEn ? 'Receivables Aging' : 'أعمار الذمم'");
-    expect(layout).toContain("const receivablesAgingHref = isEn ? '/en/client/receivables-aging' : '/client/receivables-aging';");
-    expect(layout).toContain('{ label: labels.receivablesAging, href: receivablesAgingHref }');
+  test('funding registry exposes receivables aging', () => {
+    const migration = read('supabase/migrations/20261019064000_funding_file_case_architecture.sql');
+    expect(migration).toContain("'receivables'");
+    expect(migration).toContain("'/client/receivables-aging'");
+    expect(migration).toContain("'/en/client/receivables-aging'");
   });
 });

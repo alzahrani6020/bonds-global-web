@@ -411,19 +411,6 @@
           { label: labels.opportunityBank, href: isEn ? v3EnglishHubHref + '#opportunity-bank' : '/v3/opportunity-bank' },
         ],
       },
-      {
-        heading: { ar: 'نماذج', en: 'Forms' },
-        items: [
-          { label: labels.kyc, href: kycHref },
-          { label: labels.receivablesAging, href: receivablesAgingHref },
-          { label: labels.establishmentInfo, href: establishmentInfoHref },
-          { label: labels.payablesAging, href: payablesAgingHref },
-          { label: labels.cashFlowForm, href: cashFlowFormHref },
-          { label: labels.businessActivityInfo, href: businessActivityInfoHref },
-          { label: labels.businessCreditConsent, href: businessCreditConsentHref },
-          { label: labels.individualCreditConsent, href: individualCreditConsentHref },
-        ],
-      },
     ];
 
     const intelligenceDropdown = [

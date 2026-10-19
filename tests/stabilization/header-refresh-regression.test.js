@@ -72,10 +72,10 @@ describe('header hover and automated refresh stabilization', () => {
     expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
   });
 
-  test('funding dropdown exposes a dedicated Forms group', () => {
+  test('funding dropdown no longer exposes a separate Forms group', () => {
     const layout = read('site-layout.js');
-    expect(layout).toContain("heading: { ar: 'نماذج', en: 'Forms' }");
-    expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
-    expect(layout).toContain('{ label: labels.receivablesAging, href: receivablesAgingHref }');
+    expect(layout).not.toContain("heading: { ar: 'نماذج', en: 'Forms' }");
+    expect(read('funding-extraction.html')).toContain('data-funding-file-grid');
+    expect(read('en/funding-extraction.html')).toContain('data-funding-file-grid');
   });
 });

@@ -1,0 +1,68 @@
+.funding-file-summary{
+  max-width:760px;
+  margin:1.25rem auto 0;
+  padding:1rem 1.1rem;
+  background:var(--surface);
+  border:1px solid var(--border-light);
+  border-radius:var(--radius-lg);
+}
+.funding-file-summary__row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  color:var(--text-secondary);
+  font-size:var(--text-sm);
+}
+.funding-file-summary__track{
+  height:8px;
+  margin-top:.7rem;
+  background:var(--border-light);
+  border-radius:999px;
+  overflow:hidden;
+}
+.funding-file-summary__fill{
+  display:block;
+  width:0;
+  height:100%;
+  background:var(--gold-500);
+  border-radius:inherit;
+  transition:width .25s ease;
+}
+.funding-file-link{
+  display:flex !important;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  text-align:inherit;
+}
+.funding-file-status{
+  flex:0 0 auto;
+  padding:.18rem .5rem;
+  border-radius:999px;
+  font-size:.72rem;
+  font-weight:800;
+  line-height:1.4;
+  border:1px solid var(--border-light);
+  background:var(--surface);
+  color:var(--text-secondary);
+}
+.funding-file-status.is-complete{
+  border-color:rgba(35,128,74,.28);
+  background:rgba(35,128,74,.08);
+  color:#237f4a;
+}
+.funding-file-status.is-pending{
+  border-color:rgba(180,132,40,.3);
+  background:rgba(180,132,40,.09);
+  color:#8c651c;
+}
+.funding-file-status.is-error{
+  border-color:rgba(176,55,55,.28);
+  background:rgba(176,55,55,.08);
+  color:#a13737;
+}
+@media (max-width:720px){
+  .funding-file-summary__row{align-items:flex-start;flex-direction:column;gap:.35rem}
+  .funding-file-link{width:100%}
+}
