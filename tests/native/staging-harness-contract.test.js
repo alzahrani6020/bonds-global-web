@@ -25,6 +25,7 @@ describe('Bonds Native staging harness contract', () => {
     expect(start).toContain('canonical.runtime.n_ctx');
     expect(start).toContain('canonical.runtime.n_threads');
     expect(start).toContain('canonical.runtime.temperature');
+    expect(start).toContain('Unexpected release file(s):');
   });
 
   test('stays loopback-only and rejects production ports', () => {
