@@ -277,6 +277,7 @@
       const existing=await existingQuery.order('updated_at',{ascending:false}).limit(1).maybeSingle();
       if(existing.data){
         currentReport=existing.data;
+        window.BondsFundingCaseContext.lockSubmittedForm(document.querySelector('.aging-page'),existing.data.status);
         if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'payables',existing.data);
         reportDate.value=existing.data.report_date||today();
         agingBasis.value=existing.data.aging_basis||'due_date';
