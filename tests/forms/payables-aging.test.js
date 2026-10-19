@@ -32,10 +32,10 @@ describe('payables aging form',()=>{
     expect(migration).toContain("NEW.summary := jsonb_build_object");
   });
 
-  test('forms menu exposes payables aging in both languages',()=>{
-    const layout=read('site-layout.js');
-    expect(layout).toContain("payablesAging: isEn ? 'Payables Aging' : 'أعمار الذمم الدائنة'");
-    expect(layout).toContain("const payablesAgingHref = isEn ? '/en/client/payables-aging' : '/client/payables-aging';");
-    expect(layout).toContain('{ label: labels.payablesAging, href: payablesAgingHref }');
+  test('funding registry exposes payables aging in both languages',()=>{
+    const migration=read('supabase/migrations/20261019064000_funding_file_case_architecture.sql');
+    expect(migration).toContain("'payables'");
+    expect(migration).toContain("'/client/payables-aging'");
+    expect(migration).toContain("'/en/client/payables-aging'");
   });
 });

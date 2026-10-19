@@ -37,10 +37,10 @@ describe('cash flow client form',()=>{
     expect(read('en/client/cash-flow.html')).toContain('lang="en" dir="ltr"');
   });
 
-  test('forms menu exposes cash flow form',()=>{
-    const layout=read('site-layout.js');
-    expect(layout).toContain("cashFlowForm: isEn ? 'Cash Flow' : 'التدفقات النقدية'");
-    expect(layout).toContain("const cashFlowFormHref = isEn ? '/en/client/cash-flow' : '/client/cash-flow';");
-    expect(layout).toContain('{ label: labels.cashFlowForm, href: cashFlowFormHref }');
+  test('funding registry exposes cash flow form',()=>{
+    const migration=read('supabase/migrations/20261019064000_funding_file_case_architecture.sql');
+    expect(migration).toContain("'cash_flow'");
+    expect(migration).toContain("'/client/cash-flow'");
+    expect(migration).toContain("'/en/client/cash-flow'");
   });
 });
