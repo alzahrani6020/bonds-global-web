@@ -39,14 +39,26 @@ async function main() {
 
     for (const raw of rawRes.rows) {
       const sourceMatch = await client.query(
-        `select id,canonical_code,country_code,name_ar,name_en,canonical_name,lat,lng,source_code,source_id
-         from public.geo_places
-         where source_code=$1 and source_id=$2 and is_active=true
+        `select p.id,p.canonical_code,p.country_code,p.name_ar,p.name_en,p.canonical_name,
+                p.lat,p.lng,l.source_code,l.source_id
+         from public.geo_place_source_links l
+         join public.geo_places p on p.id=l.place_id
+         where l.source_code=$1 and l.source_id=$2 and p.is_active=true
          limit 1`,
         [raw.source_code, raw.source_id]
       );
 
       let candidates = sourceMatch.rows;
+      if (!candidates.length) {
+        const primarySourceMatch = await client.query(
+          `select id,canonical_code,country_code,name_ar,name_en,canonical_name,lat,lng,source_code,source_id
+           from public.geo_places
+           where source_code=$1 and source_id=$2 and is_active=true
+           limit 1`,
+          [raw.source_code, raw.source_id]
+        );
+        candidates = primarySourceMatch.rows;
+      }
       if (!candidates.length) {
         const nameCandidates = await client.query(
           `select id,canonical_code,country_code,name_ar,name_en,canonical_name,lat,lng,source_code,source_id
