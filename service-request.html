@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>طلب خدمة | بوندز</title>
+<meta name="description" content="ابدأ طلب خدمة في بوندز حسب الدولة والقطاع والنشاط والخدمة المطلوبة.">
+<meta property="og:title" content="طلب خدمة | بوندز">
+<meta property="og:description" content="ابدأ طلب خدمة في بوندز حسب الدولة والقطاع والنشاط والخدمة المطلوبة.">
+<meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2-sm.webp">
+<meta property="og:url" content="https://bonds-global.com/service-request.html">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="طلب خدمة | بوندز">
+<meta name="twitter:description" content="ابدأ طلب خدمة في بوندز حسب الدولة والقطاع والنشاط والخدمة المطلوبة.">
+<meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2-sm.webp">
+<link rel="canonical" href="https://bonds-global.com/service-request.html">
+<meta name="robots" content="noindex,follow">
+<link rel="stylesheet" href="/styles/fonts-ar.css">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/styles/page-shared.css">
+<link rel="stylesheet" href="/styles/institutional-system.css?v=6">
+<link rel="stylesheet" href="/components/service-request.css?v=1">
+<script src="/api/env" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
+<script defer src="/site-layout.js?v=3.8.0"></script>
+<script defer src="/components/service-request.js?v=1"></script>
+</head>
+<body>
+<div id="site-header"></div>
+<main class="service-request-page">
+  <div id="srStatus" class="sr-status"></div>
+  <div id="srLoading" class="sr-card">جاري التحميل...</div>
+  <div id="srContent" hidden>
+    <section class="sr-hero">
+      <div>
+        <div class="sr-eyebrow">طلب خدمة</div>
+        <h1 id="srTitle"></h1>
+        <p id="srDesc" class="sr-desc"></p>
+        <div class="sr-badges"><span id="srDelivery" class="sr-badge"></span><span id="srAvailability" class="sr-badge"></span></div>
+        <div id="srAvailabilityWarning" class="sr-warning" hidden></div>
+      </div>
+      <a id="srDetails" class="sr-secondary" hidden>تفاصيل الخدمة</a>
+    </section>
+    <div class="sr-grid">
+      <div>
+        <section class="sr-card"><h2>الإجراءات</h2><div id="srProcedures"></div></section>
+        <section class="sr-card">
+          <h2 id="srFormTitle">بيانات الطلب</h2>
+          <form id="srRequestForm">
+            <div id="srDynamicFields" class="sr-form-grid"></div>
+            <div class="sr-actions">
+              <button id="srSubmit" class="sr-primary" type="submit">إرسال طلب الخدمة</button>
+              <a id="srSuccessLink" class="sr-secondary" hidden>الانتقال إلى مساحتي</a>
+            </div>
+          </form>
+        </section>
+      </div>
+      <aside>
+        <section class="sr-card"><h2>التسعير</h2><div id="srPricing"></div></section>
+        <section class="sr-card"><h2>المتطلبات</h2><div id="srRequirements"></div></section>
+        <section class="sr-card"><h2>المخرجات</h2><div id="srDeliverables"></div></section>
+        <section class="sr-card"><h2>خدمات مرتبطة</h2><div id="srDependencies"></div></section>
+      </aside>
+    </div>
+  </div>
+</main>
+<div id="site-footer"></div>
+</body>
+</html>

@@ -173,7 +173,8 @@ async function handleCities(req, res) {
   if (req.method === 'POST') {
     const body = await parseBody(req);
     const {
-      code, name_ar, name_en, region, region_code,
+      code, name_ar, name_en, country_code, region, region_code,
+      admin_level_2, locality_type,
       population, avg_household_income, purchasing_power_index,
       gdp_city, growth_rate, unemployment_rate,
       establishments_count, inflation_rate, business_ease_index
@@ -186,7 +187,9 @@ async function handleCities(req, res) {
     const { data, error } = await supabase
       .from('cities')
       .upsert({
-        code, name_ar, name_en, region, region_code,
+        code, name_ar, name_en, country_code: country_code || null, region, region_code,
+        admin_level_2: admin_level_2 || null,
+        locality_type: locality_type || 'city',
         population, avg_household_income, purchasing_power_index,
         gdp_city, growth_rate, unemployment_rate,
         establishments_count, inflation_rate, business_ease_index
@@ -565,6 +568,358 @@ async function handleSourceQualityAlerts(req, res) {
   }
 }
 
+
+async function handleServiceAdmin(req, res, code) {
+  const supabase = getSupabaseClient();
+
+  if (req.method === 'GET') {
+    if (code) {
+      const { data: service, error } = await supabase
+        .from('service_catalog')
+        .select('*')
+        .eq('code', code)
+        .maybeSingle();
+      if (error || !service) return sendJson(res, 404, { error: 'Service not found' });
+
+      const [countriesRes,sectorsRes,activitiesRes,capabilitiesRes,proceduresRes] = await Promise.all([
+        supabase.from('service_country_map').select('country_code,availability_status,availability_reason_ar,availability_reason_en,priority').eq('service_id',service.id).order('priority'),
+        supabase.from('service_sector_map').select('sector_code,priority').eq('service_id',service.id).order('priority'),
+        supabase.from('service_activity_map').select('canonical_activity_id,priority,canonical_activities(code,name_ar,name_en)').eq('service_id',service.id).order('priority'),
+        supabase.from('service_capability_map').select('capability_code,engine_route,run_order,is_required,metadata').eq('service_id',service.id).order('run_order'),
+        supabase.from('service_procedures').select('*').eq('service_id',service.id).order('sort_order')
+      ]);
+      const failed=[countriesRes,sectorsRes,activitiesRes,capabilitiesRes,proceduresRes].find(x=>x.error);
+      if(failed?.error) return sendJson(res,500,{error:failed.error.message});
+      return sendJson(res,200,{
+        service,
+        countries:countriesRes.data||[],
+        sectors:sectorsRes.data||[],
+        activities:(activitiesRes.data||[]).map(row=>({
+          ...row,
+          code:row.canonical_activities?.code||null,
+          name_ar:row.canonical_activities?.name_ar||null,
+          name_en:row.canonical_activities?.name_en||null
+        })),
+        capabilities:capabilitiesRes.data||[],
+        procedures:proceduresRes.data||[]
+      });
+    }
+
+    const { data, error } = await supabase
+      .from('service_catalog')
+      .select('*')
+      .order('sort_order');
+    if (error) return sendJson(res, 500, { error: error.message });
+    return sendJson(res, 200, { services: data || [] });
+  }
+
+  if (req.method === 'POST' || (req.method === 'PUT' && code)) {
+    const body = await parseBody(req);
+    const row = {
+      code: code || body.code,
+      category_code: body.category_code || null,
+      name_ar: body.name_ar,
+      name_en: body.name_en,
+      short_description_ar: body.short_description_ar || null,
+      short_description_en: body.short_description_en || null,
+      delivery_type: body.delivery_type || 'advisory',
+      status: body.status || 'draft',
+      is_active: body.is_active !== false,
+      sort_order: Number(body.sort_order || 0),
+      default_route_ar: body.default_route_ar || null,
+      default_route_en: body.default_route_en || null,
+      metadata: body.metadata || {},
+      updated_at: new Date().toISOString()
+    };
+    if (!row.code || !row.name_ar || !row.name_en) return sendJson(res, 400, { error: 'code, name_ar and name_en are required' });
+
+    let result;
+    if (req.method === 'POST') {
+      result = await supabase.from('service_catalog').upsert(row, { onConflict: 'code' }).select().single();
+    } else {
+      delete row.code;
+      result = await supabase.from('service_catalog').update(row).eq('code', code).select().single();
+    }
+    if (result.error) return sendJson(res, 400, { error: result.error.message });
+    const service = result.data;
+
+    async function replaceMap(table, rows) {
+      await supabase.from(table).delete().eq('service_id', service.id);
+      if (rows.length) {
+        const { error } = await supabase.from(table).insert(rows);
+        if (error) throw error;
+      }
+    }
+
+    try {
+      if (Array.isArray(body.countries)) {
+        await replaceMap('service_country_map', body.countries.map(x => ({
+          service_id: service.id,
+          country_code: typeof x === 'string' ? x : x.country_code,
+          availability_status: typeof x === 'string' ? 'available' : (x.availability_status || 'available'),
+          availability_reason_ar: typeof x === 'string' ? null : (x.availability_reason_ar || null),
+          availability_reason_en: typeof x === 'string' ? null : (x.availability_reason_en || null),
+          priority: typeof x === 'string' ? 100 : Number(x.priority || 100)
+        })));
+      }
+      if (Array.isArray(body.sectors)) {
+        await replaceMap('service_sector_map', body.sectors.map(x => ({
+          service_id: service.id,
+          sector_code: typeof x === 'string' ? x : x.sector_code,
+          priority: typeof x === 'string' ? 100 : Number(x.priority || 100)
+        })));
+      }
+      if (Array.isArray(body.activities)) {
+        const codes = body.activities.map(x => typeof x === 'string' ? x : x.code).filter(Boolean);
+        const { data: acts, error } = codes.length
+          ? await supabase.from('canonical_activities').select('id,code').in('code', codes)
+          : { data: [], error: null };
+        if (error) throw error;
+        await replaceMap('service_activity_map', (acts || []).map(a => ({
+          service_id: service.id, canonical_activity_id: a.id, priority: 100
+        })));
+      }
+      if (Array.isArray(body.capabilities)) {
+        await replaceMap('service_capability_map', body.capabilities.filter(x => x.capability_code).map(x => ({
+          service_id: service.id,
+          capability_code: x.capability_code,
+          engine_route: x.engine_route || null,
+          run_order: Number(x.run_order || 100),
+          is_required: x.is_required === true
+        })));
+      }
+      if (Array.isArray(body.procedures)) {
+        await replaceMap('service_procedures', body.procedures.filter(x => x.title_ar).map((x,index) => ({
+          service_id: service.id,
+          country_code: x.country_code || null,
+          sector_code: x.sector_code || null,
+          canonical_activity_id: x.canonical_activity_id || null,
+          title_ar: x.title_ar,
+          title_en: x.title_en || null,
+          description_ar: x.description_ar || null,
+          description_en: x.description_en || null,
+          procedure_type: x.procedure_type || 'manual',
+          visibility: x.visibility || 'public',
+          capability_code: x.capability_code || null,
+          sort_order: Number(x.sort_order ?? ((index+1)*10)),
+          is_required: x.is_required !== false,
+          conditions: x.conditions || {},
+          metadata: x.metadata || {}
+        })));
+      }
+    } catch (mapErr) {
+      return sendJson(res, 400, { error: mapErr.message, service });
+    }
+    return sendJson(res, req.method === 'POST' ? 201 : 200, { service });
+  }
+
+  if (req.method === 'DELETE' && code) {
+    const { error } = await supabase.from('service_catalog').update({ is_active: false, status: 'archived', updated_at: new Date().toISOString() }).eq('code', code);
+    if (error) return sendJson(res, 400, { error: error.message });
+    return sendJson(res, 200, { archived: true });
+  }
+
+  return sendJson(res, 405, { error: 'Method not allowed' });
+}
+
+async function handleServiceFormsAdmin(req, res, serviceCode, formId, fieldId) {
+  const supabase = getSupabaseClient();
+  const { data: service, error: serviceError } = await supabase.from('service_catalog').select('id').eq('code', serviceCode).maybeSingle();
+  if (serviceError || !service) return sendJson(res, 404, { error: 'Service not found' });
+
+  if (!formId) {
+    if (req.method === 'GET') {
+      const { data, error } = await supabase.from('service_form_definitions').select('*').eq('service_id', service.id).order('created_at');
+      if (error) return sendJson(res, 500, { error: error.message });
+      return sendJson(res, 200, { forms: data || [] });
+    }
+    if (req.method === 'POST') {
+      const body = await parseBody(req);
+      const { data, error } = await supabase.from('service_form_definitions').insert({
+        service_id: service.id,
+        code: body.code,
+        name_ar: body.name_ar,
+        name_en: body.name_en,
+        country_code: body.country_code || null,
+        sector_code: body.sector_code || null,
+        version: Number(body.version || 1),
+        status: body.status || 'draft',
+        is_active: body.is_active !== false,
+        conditions: body.conditions || {},
+        metadata: body.metadata || {}
+      }).select().single();
+      if (error) return sendJson(res, 400, { error: error.message });
+      return sendJson(res, 201, { form: data });
+    }
+  }
+
+  if (formId && !fieldId) {
+    if (req.method === 'GET') {
+      const [{ data: form, error: formError }, { data: fields, error: fieldsError }] = await Promise.all([
+        supabase.from('service_form_definitions').select('*').eq('id', formId).eq('service_id', service.id).maybeSingle(),
+        supabase.from('service_form_fields').select('*').eq('form_id', formId).order('sort_order')
+      ]);
+      if (formError || fieldsError || !form) return sendJson(res, 404, { error: 'Form not found' });
+      return sendJson(res, 200, { form, fields: fields || [] });
+    }
+    if (req.method === 'POST') {
+      const body = await parseBody(req);
+      const { data, error } = await supabase.from('service_form_fields').insert({
+        form_id: formId,
+        field_key: body.field_key,
+        label_ar: body.label_ar,
+        label_en: body.label_en || body.label_ar,
+        field_type: body.field_type || 'text',
+        is_required: body.is_required === true,
+        sort_order: Number(body.sort_order || 0),
+        placeholder_ar: body.placeholder_ar || null,
+        placeholder_en: body.placeholder_en || null,
+        options: body.options || [],
+        validation: body.validation || {},
+        conditions: body.conditions || {},
+        metadata: body.metadata || {}
+      }).select().single();
+      if (error) return sendJson(res, 400, { error: error.message });
+      return sendJson(res, 201, { field: data });
+    }
+  }
+
+  if (fieldId && req.method === 'DELETE') {
+    const { error } = await supabase.from('service_form_fields').delete().eq('id', fieldId).eq('form_id', formId);
+    if (error) return sendJson(res, 400, { error: error.message });
+    return sendJson(res, 200, { deleted: true });
+  }
+
+  return sendJson(res, 405, { error: 'Method not allowed' });
+}
+
+
+async function handleServicePricingAdmin(req, res, serviceCode, pricingId) {
+  const supabase = getSupabaseClient();
+  const { data: service, error: serviceError } = await supabase.from('service_catalog').select('id').eq('code',serviceCode).maybeSingle();
+  if(serviceError || !service) return sendJson(res,404,{error:'Service not found'});
+
+  if(req.method==='GET'){
+    const {data,error}=await supabase.from('service_pricing').select('*').eq('service_id',service.id).order('created_at',{ascending:false});
+    if(error)return sendJson(res,500,{error:error.message});
+    return sendJson(res,200,{pricing:data||[]});
+  }
+  if(req.method==='POST'){
+    const body=await parseBody(req);
+    const {data,error}=await supabase.from('service_pricing').insert({
+      service_id:service.id,
+      country_code:body.country_code||null,
+      sector_code:body.sector_code||null,
+      pricing_type:body.pricing_type||'quote',
+      currency_code:body.currency_code||null,
+      amount:body.amount===''||body.amount==null?null:Number(body.amount),
+      min_amount:body.min_amount===''||body.min_amount==null?null:Number(body.min_amount),
+      max_amount:body.max_amount===''||body.max_amount==null?null:Number(body.max_amount),
+      conditions:body.conditions||{},
+      is_active:body.is_active!==false,
+      valid_from:body.valid_from||null,
+      valid_to:body.valid_to||null,
+      metadata:body.metadata||{}
+    }).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,201,{pricing:data});
+  }
+  if(req.method==='DELETE' && pricingId){
+    const {error}=await supabase.from('service_pricing').delete().eq('id',pricingId).eq('service_id',service.id);
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,200,{deleted:true});
+  }
+  return sendJson(res,405,{error:'Method not allowed'});
+}
+
+async function handleServiceRequestsAdmin(req,res,requestId,subresource,subId){
+  const supabase=getSupabaseClient();
+
+  if(!requestId && req.method==='GET'){
+    const {data,error}=await supabase
+      .from('service_requests')
+      .select('id,request_reference,user_id,client_id,service_id,country_code,region_name,locality_name,sector_code,status,crm_opportunity_id,funding_case_id,valuation_id,submitted_at,created_at,service_catalog(code,name_ar,name_en)')
+      .order('created_at',{ascending:false})
+      .limit(200);
+    if(error)return sendJson(res,500,{error:error.message});
+    return sendJson(res,200,{requests:data||[]});
+  }
+
+  if(requestId && !subresource && req.method==='GET'){
+    const [{data:request,error},{data:values,error:valuesError},{data:quotes,error:quotesError}]=await Promise.all([
+      supabase.from('service_requests').select('*,service_catalog(code,name_ar,name_en)').eq('id',requestId).maybeSingle(),
+      supabase.from('service_request_values').select('*').eq('service_request_id',requestId).order('created_at'),
+      supabase.from('service_quotes').select('*').eq('service_request_id',requestId).order('created_at',{ascending:false})
+    ]);
+    if(error||valuesError||quotesError||!request)return sendJson(res,404,{error:'Service request not found'});
+    return sendJson(res,200,{request,values:values||[],quotes:quotes||[]});
+  }
+
+  if(requestId && !subresource && req.method==='PUT'){
+    const body=await parseBody(req);
+    const allowed=['triage','in_progress','awaiting_client','awaiting_approval','completed','cancelled'];
+    if(!allowed.includes(body.status))return sendJson(res,400,{error:'Invalid status'});
+    const patch={status:body.status,updated_at:new Date().toISOString()};
+    if(body.status==='completed')patch.completed_at=new Date().toISOString();
+    const {data,error}=await supabase.from('service_requests').update(patch).eq('id',requestId).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    if(body.status==='completed'){
+      await supabase.from('calculator_events').insert({
+        event:'service_completed',
+        calculator:'service_orchestration',
+        country:data.country_code||null,
+        user_id:data.user_id||null,
+        action:'complete',
+        properties:{service_request_id:data.id,service_id:data.service_id,sector_code:data.sector_code||null}
+      });
+      const {count}=await supabase.from('nps_surveys')
+        .select('*',{count:'exact',head:true})
+        .eq('service_request_id',data.id)
+        .eq('user_id',data.user_id);
+      if(!count){
+        await supabase.from('nps_surveys').insert({
+          user_id:data.user_id,
+          service_request_id:data.id,
+          status:'pending'
+        });
+      }
+    }
+    return sendJson(res,200,{request:data});
+  }
+
+  if(requestId && subresource==='quotes' && req.method==='POST'){
+    const body=await parseBody(req);
+    const {data:request}=await supabase.from('service_requests').select('id').eq('id',requestId).maybeSingle();
+    if(!request)return sendJson(res,404,{error:'Service request not found'});
+    const {data,error}=await supabase.from('service_quotes').insert({
+      service_request_id:requestId,
+      status:body.status||'draft',
+      currency_code:body.currency_code||null,
+      subtotal:body.subtotal==null?null:Number(body.subtotal),
+      tax_amount:body.tax_amount==null?null:Number(body.tax_amount),
+      total_amount:body.total_amount==null?null:Number(body.total_amount),
+      valid_until:body.valid_until||null,
+      terms:body.terms||{}
+    }).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,201,{quote:data});
+  }
+
+  if(requestId && subresource==='quotes' && subId && req.method==='PUT'){
+    const body=await parseBody(req);
+    const patch={};
+    for(const key of ['status','currency_code','valid_until','finance_contract_id']) if(body[key]!==undefined) patch[key]=body[key];
+    for(const key of ['subtotal','tax_amount','total_amount']) if(body[key]!==undefined) patch[key]=body[key]==null?null:Number(body[key]);
+    if(body.terms!==undefined)patch.terms=body.terms;
+    patch.updated_at=new Date().toISOString();
+    const {data,error}=await supabase.from('service_quotes').update(patch).eq('id',subId).eq('service_request_id',requestId).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,200,{quote:data});
+  }
+
+  return sendJson(res,405,{error:'Method not allowed'});
+}
+
 async function adminRouter(req, res, path) {
   const parts = path.split('/').filter(Boolean);
   const resource = parts[1]; // after 'admin'
@@ -583,6 +938,15 @@ async function adminRouter(req, res, path) {
     if (resource === 'reference') return await handleReferenceData(req, res);
     if (resource === 'competitor-calibration') return await handleCompetitorCalibration(req, res, path);
     if (resource === 'source-quality-alerts') return await handleSourceQualityAlerts(req, res);
+    if (resource === 'services') {
+      const serviceCode = parts[2];
+      if (parts[3] === 'forms') return await handleServiceFormsAdmin(req, res, serviceCode, parts[4], parts[5]);
+      if (parts[3] === 'pricing') return await handleServicePricingAdmin(req, res, serviceCode, parts[4]);
+      return await handleServiceAdmin(req, res, serviceCode);
+    }
+    if (resource === 'service-requests') {
+      return await handleServiceRequestsAdmin(req,res,parts[2],parts[3],parts[4]);
+    }
 
     const masterTypes = ['sectors', 'sub-sectors', 'activities', 'activity-details', 'assumptions', 'risk-factors'];
     if (masterTypes.includes(resource)) {

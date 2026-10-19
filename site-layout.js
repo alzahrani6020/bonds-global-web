@@ -140,6 +140,20 @@
     document.head.appendChild(link);
   }
 
+  const discoveryCss = document.querySelector('link[href*="service-discovery.css"]');
+  if (!discoveryCss) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = '/components/service-discovery.css?v=1';
+    document.head.appendChild(link);
+  }
+  if (!document.querySelector('script[src*="service-discovery.js"]')) {
+    const script = document.createElement('script');
+    script.src = '/components/service-discovery.js?v=1';
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
   function getDepth() {
     // Keep trailing slash so directory index pages (e.g. /valuation/) get the
     // correct depth and relative paths resolve to the parent directory.
@@ -187,7 +201,9 @@
     const labels = {
       home: isEn ? 'Home' : 'الرئيسية',
       about: isEn ? 'About' : 'من نحن',
-      services: isEn ? 'Services' : 'خدماتنا',
+      services: isEn ? 'Services' : 'الخدمات',
+      sectors: isEn ? 'Sectors' : 'القطاعات',
+      knowledge: isEn ? 'Knowledge' : 'المعرفة',
       financialAdvisory: isEn ? 'Financial Advisory' : 'الاستشارات المالية',
       guides: isEn ? 'Guides' : 'الأدلة',
       calculators: isEn ? 'Calculators' : 'الحاسبات',
@@ -333,29 +349,35 @@
 
     const serviceDropdown = [
       {
-        heading: { ar: labels.advisoryGroup, en: 'Advisory' },
-        items: [
-          { label: labels.financialAdvisory, href: servicesHref },
-          { label: labels.feasibility, href: servicesHref + '#feasibility' },
-          { label: labels.valuation, href: valuationHref },
-          { label: labels.strategy, href: servicesHref + '#strategy' },
-        ],
-      },
-      {
-        heading: { ar: labels.financeManagementGroup, en: 'Financial Management' },
+        heading: { ar: 'الاستشارات المالية', en: 'Financial Advisory' },
         items: [
           { label: labels.analysis, href: servicesHref + '#analysis' },
           { label: labels.cashflow, href: servicesHref + '#cashflow' },
           { label: labels.budgets, href: servicesHref + '#budgets' },
+          { label: labels.strategy, href: servicesHref + '#strategy' },
         ],
       },
       {
-        heading: { ar: labels.transformationGroup, en: 'Transformation & Risk' },
+        heading: { ar: 'الدراسات والتقييم', en: 'Studies & Valuation' },
         items: [
+          { label: labels.feasibility, href: servicesHref + '#feasibility' },
+          { label: labels.valuation, href: valuationHref },
           { label: labels.risk, href: servicesHref + '#risk' },
+        ],
+      },
+      {
+        heading: { ar: 'التمويل وإعادة الهيكلة', en: 'Funding & Restructuring' },
+        items: [
+          { label: labels.fundingExtraction, href: fundingExtractionHref },
+          { label: labels.fundingReadiness, href: fundingReadinessHref },
+          { label: labels.projectRescue, href: projectRescueHref },
+        ],
+      },
+      {
+        heading: { ar: 'الأعمال والسوق', en: 'Business & Market' },
+        items: [
           { label: labels.operations, href: servicesHref + '#operations' },
           { label: labels.research, href: servicesHref + '#research' },
-          { label: labels.projectRescue, href: projectRescueHref },
         ],
       },
     ];
@@ -496,9 +518,9 @@
     const navItems = [
       { href: homeHref, label: labels.home },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
-      { type: 'dropdown', label: labels.fundingHub, items: fundingDropdown, highlight: true },
-      { type: 'dropdown', label: labels.intelligence, items: intelligenceDropdown },
+      { href: servicesHref + '#sectors', label: labels.sectors },
       { type: 'dropdown', navId: 'tools', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
+      { type: 'dropdown', label: labels.knowledge, items: intelligenceDropdown },
       { type: 'dropdown', label: labels.aboutGovernance, items: aboutDropdown },
     ];
 

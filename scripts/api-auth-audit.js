@@ -44,6 +44,7 @@ const PUBLIC_ENDPOINT_OVERRIDES = [
   '/api/nps-check',
   '/api/track',
   '/api/usage',
+  '/api/log-usage',
   '/api/pro',
   '/api/funding-sources',
   '/api/funding-readiness',

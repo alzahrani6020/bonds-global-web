@@ -76,6 +76,7 @@ const { resolveOpportunityYear } = require('../lib/opportunity-query');
 const { COUNTRY_NAMES, canonicalizeCities, canonicalizeActivities, buildCountryCatalog } = require('../../lib/catalog/canonical-registry');
 const { ARAB_COUNTRIES_GEO } = require('../master-data/countries-governorates-cities');
 const { CountryIndicatorEngine } = require('../../lib/data/country-indicator-engine');
+const { servicesRouter } = require('./services');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -748,6 +749,8 @@ function loadMasterCatalogCities(countryCode = null) {
           name_en: city.nameEn,
           region: governorate.name,
           region_en: governorate.nameEn,
+          admin_level_2: null,
+          locality_type: 'city',
           country_code: country.code,
           population: null,
           purchasing_power_index: null,
@@ -779,6 +782,8 @@ function mergeMasterAndDatabaseCities(countryCode, databaseRows = []) {
       name_ar: row.name_ar || current.name_ar,
       name_en: row.name_en || current.name_en,
       region: row.region || current.region,
+      admin_level_2: row.admin_level_2 || current.admin_level_2 || null,
+      locality_type: row.locality_type || current.locality_type || 'city',
       country_code: row.country_code || current.country_code || countryCode,
       catalog_source: current.code ? 'database+arab_master_catalog' : 'database',
       data_available: true
@@ -797,7 +802,7 @@ function mergeMasterAndDatabaseCities(countryCode, databaseRows = []) {
 async function loadCatalogCityRows(supabase, countryCode = null) {
   let query = supabase
     .from('cities')
-    .select('id, code, name_ar, name_en, region, country_code, population, purchasing_power_index, lat, lng, city_types')
+    .select('id, code, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types')
     .limit(2000);
   if (countryCode) query = query.eq('country_code', countryCode);
   const { data, error } = await query;
@@ -1248,7 +1253,7 @@ async function handleCities(req, res) {
 
   const cityTypeParam = url.searchParams.get('city_type');
 
-  let selectFields = 'id, code, name_ar, name_en, region, country_code, population, purchasing_power_index, lat, lng, city_types';
+  let selectFields = 'id, code, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types';
   let query = supabase.from('cities').select(selectFields);
 
   if (countryCode) query = query.eq('country_code', countryCode);
@@ -2280,6 +2285,11 @@ module.exports = async function handler(req, res) {
     if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
     if (path === '/catalog/years' && req.method === 'GET') return await handleCatalogYears(req, res);
     if (path === '/catalog/cities' && req.method === 'GET') return await handleCatalogCities(req, res);
+    if (path.startsWith('/services')) {
+      const supabase = getSupabaseClient();
+      const user = await getUserFromToken(req);
+      return await servicesRouter(req, res, path, supabase, user);
+    }
     if (path.match(/^\/countries\/[^\/]+\/context$/) && req.method === 'GET') return await handleCountryContext(req, res, path);
     if (path === '/models' && req.method === 'GET') return await handleModels(req, res);
     if (path.match(/^\/models\/[^\/]+$/) && req.method === 'GET') return await handleModelDetail(req, res, path);
