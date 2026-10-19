@@ -96,21 +96,38 @@ describe('V3 country context core', () => {
     }
   });
 
-  test('main market screens use selected-country currency instead of hardcoded SAR', () => {
+  test('main market screens respect source currency provenance instead of relabeling values', () => {
+    const context = read('v3/country-context.js');
     const map = read('v3/investment-map.html');
     const comparison = read('v3/city-comparison.html');
     const bank = read('v3/opportunity-bank.html');
     const intelligence = read('v3/city-intelligence.html');
 
-    expect(map).toContain('BondsCountryContext?.formatMoney');
-    expect(comparison).toContain('BondsCountryContext.formatMoney');
-    expect(bank).toContain('BondsCountryContext?.formatMoney');
-    expect(intelligence).toContain('moneyTruthValue');
-    expect(intelligence).toContain('moneyOrMissing');
+    expect(context).toContain('formatCurrency');
+    expect(map).toContain('formatMarketMoney');
+    expect(comparison).toContain('currency_code');
+    expect(bank).toContain('formatOpportunityMoney');
+    expect(intelligence).toContain('currency_code');
+    expect(intelligence).toContain('العملة غير موثقة');
 
     expect(map).not.toContain(' ر.س</span>');
     expect(comparison).not.toContain(" + ' ر.س'");
     expect(bank).not.toContain(' ر.س</span>');
+  });
+
+  test('monetary data carries explicit currency provenance and generators do not cross countries', () => {
+    const migration = read('v3/supabase/migrations/20261019032000_v3_monetary_currency_provenance.sql');
+    const marketFill = read('v3/scripts/fill-city-market-data.js');
+    const indicatorFill = read('v3/scripts/fill-city-indicators.js');
+    const activityEnrichment = read('v3/scripts/enrich-all-activities-market-data.js');
+
+    expect(migration).toContain('ADD COLUMN IF NOT EXISTS currency_code');
+    expect(migration).toContain("source IN (");
+    expect(migration).toContain("'economic_model_population_weighted'");
+    expect(marketFill).not.toContain('|| globalAvg');
+    expect(indicatorFill).not.toContain('|| globalAvg');
+    expect(marketFill).toContain('base.currency_code');
+    expect(activityEnrichment).toContain("currency_code: 'SAR'");
   });
 
   test('explicit country financial calculations never fall back to an unverified model', () => {
