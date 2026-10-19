@@ -71,4 +71,12 @@ describe('Governed geo ingestion architecture', () => {
     expect(spatialName.decision).toBe('auto_match');
     expect(spatialName.matchType).toBe('name_and_distance');
   });
+  test('rollback never deletes existing canonical places and is provenance-aware', () => {
+    const rollback = read('scripts/rollback-local-geo-run.js');
+    expect(rollback).toContain("row.action !== 'created_canonical'");
+    expect(rollback).toContain('blocked_due_to_later_provenance');
+    expect(rollback).toContain('set is_active=false');
+    expect(rollback).not.toMatch(/delete from public\.geo_places/i);
+  });
+
 });
