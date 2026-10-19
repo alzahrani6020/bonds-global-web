@@ -28,16 +28,6 @@ create table if not exists public.funding_file_requirements (
   completion_statuses text[] not null default array['submitted','reviewed','under_review','approved']::text[],
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  constraint funding_file_requirements_source_table_check
-    check (source_table in (
-      'client_kyc_cases',
-      'client_establishment_profiles',
-      'client_business_activity_profiles',
-      'client_cash_flow_reports',
-      'client_receivables_aging_reports',
-      'client_payables_aging_reports',
-      'client_credit_consents'
-    )),
   constraint funding_file_requirements_subject_type_check
     check (
       (source_table = 'client_credit_consents' and subject_type in ('business','individual'))
@@ -221,7 +211,9 @@ alter table public.client_business_activity_profiles add column if not exists fu
 alter table public.client_cash_flow_reports add column if not exists funding_case_id uuid references public.funding_cases(id) on delete set null;
 alter table public.client_receivables_aging_reports add column if not exists funding_case_id uuid references public.funding_cases(id) on delete set null;
 alter table public.client_payables_aging_reports add column if not exists funding_case_id uuid references public.funding_cases(id) on delete set null;
-alter table public.client_credit_consents add column if not exists funding_case_id uuid references public.funding_cases(id) on delete set null;
+alter table public.client_credit_consents
+  add column if not exists funding_case_id uuid references public.funding_cases(id) on delete set null,
+  add column if not exists notes text;
 
 create index if not exists idx_client_kyc_cases_funding_case on public.client_kyc_cases(funding_case_id, updated_at desc);
 create index if not exists idx_client_establishment_profiles_funding_case on public.client_establishment_profiles(funding_case_id, updated_at desc);
