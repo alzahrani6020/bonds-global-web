@@ -71,13 +71,13 @@
     return countries.find(c => c.code === next) || null;
   }
 
-  function formatMoney(value, profile, lang = 'ar') {
+  function formatCurrency(value, currencyCode, profile, lang = 'ar') {
     const num = Number(value);
     if (!Number.isFinite(num)) return '-';
     const locale = lang === 'en'
       ? (profile?.locale_en || 'en')
       : (profile?.locale_ar || 'ar');
-    const currency = profile?.currency_code;
+    const currency = normalize(currencyCode);
     if (!currency) return num.toLocaleString(locale);
     try {
       return new Intl.NumberFormat(locale, {
@@ -86,8 +86,12 @@
         maximumFractionDigits: 2
       }).format(num);
     } catch (_) {
-      return num.toLocaleString(locale) + ' ' + (profile?.currency_symbol || currency);
+      return num.toLocaleString(locale) + ' ' + currency;
     }
+  }
+
+  function formatMoney(value, profile, lang = 'ar') {
+    return formatCurrency(value, profile?.currency_code, profile, lang);
   }
 
   window.BondsCountryContext = {
@@ -97,6 +101,7 @@
     loadCountries,
     getProfile,
     bindSelect,
+    formatCurrency,
     formatMoney
   };
 })();
