@@ -89,15 +89,20 @@ module.exports = async function handler(req, res) {
   if (strict) {
     let nativeStatus = 'skipped';
     let nativeProvider = null;
+    let nativeHttpStatus = null;
+    let nativeErrorCode = null;
 
     if (nativeMode === 'REMOTE_BONDS_NATIVE') {
       try {
         const nativeHealth = await getInferenceRouter().health();
         nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
         nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
-      } catch (_) {
+        nativeHttpStatus = nativeHealth?.error?.status ?? null;
+        nativeErrorCode = nativeHealth?.error?.code ?? null;
+      } catch (error) {
         nativeStatus = 'error';
         nativeProvider = 'BondsNativeProvider';
+        nativeErrorCode = error?.code || 'NATIVE_HEALTH_EXCEPTION';
       }
     }
 
@@ -145,6 +150,8 @@ module.exports = async function handler(req, res) {
         provider: activeProvider,
         native_provider: nativeProvider,
         native_reachable: nativeStatus === 'ok',
+        native_http_status: nativeHttpStatus,
+        native_error_code: nativeErrorCode,
         fallback_provider: fallbackEligible ? 'openai' : null,
         fallback_reason: fallbackReason,
         fallback_http_status: fallbackHttpStatus,
