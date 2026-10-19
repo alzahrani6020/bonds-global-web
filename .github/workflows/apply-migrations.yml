@@ -68,65 +68,7 @@ jobs:
               exit 1
             fi
 
-            MUTATED_MIGRATIONS="$(git diff --diff-filter=MD --name-only "$BEFORE" "$AFTER" -- 'supabase/migrations/*.sql' \
-              | grep -v '_rollback\.sql
-          fi
-
-          echo "Migrations selected:"
-          cat /tmp/migrations.txt || true
-
-          COUNT=$(grep -c . /tmp/migrations.txt || true)
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-
-      - name: Apply migrations via admin endpoint
-        if: steps.migrations.outputs.count != '0'
-        env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          SITE_URL: ${{ secrets.SITE_URL }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [ -z "$CRON_SECRET" ]; then
-            echo "CRON_SECRET is not set."
-            exit 1
-          fi
-
-          if [ -z "$SITE_URL" ]; then
-            echo "SITE_URL is not set."
-            exit 1
-          fi
-
-          while IFS= read -r MIGRATION_FILE; do
-            [ -z "$MIGRATION_FILE" ] && continue
-
-            echo "Applying migration: $MIGRATION_FILE"
-
-            STATUS_CODE=$(curl -sS -o response.json -w "%{http_code}" \
-              -H "X-Cron-Secret: ${CRON_SECRET}" \
-              -G \
-              -X POST \
-              --data-urlencode "action=run-migrations" \
-              --data-urlencode "migration_file=${MIGRATION_FILE}" \
-              --data-urlencode "commit_sha=${GITHUB_SHA}" \
-              "${SITE_URL}/api/admin")
-
-            echo "Response status: $STATUS_CODE"
-            cat response.json
-            echo
-
-            if [ "$STATUS_CODE" != "200" ]; then
-              echo "Migration failed: $MIGRATION_FILE"
-              exit 1
-            fi
-
-            echo "Migration applied successfully: $MIGRATION_FILE"
-          done < /tmp/migrations.txt
-
-      - name: No migrations to apply
-        if: steps.migrations.outputs.count == '0'
-        run: echo "No newly added migration files detected."
- || true)"
+            MUTATED_MIGRATIONS="$(git diff --diff-filter=MD --name-only "$BEFORE" "$AFTER" -- 'supabase/migrations/*.sql' | awk '!/_rollback[.]sql$/')"
 
             if [ -n "$MUTATED_MIGRATIONS" ]; then
               echo "Existing forward migration files are immutable once merged."
@@ -134,66 +76,8 @@ jobs:
               printf '%s\n' "$MUTATED_MIGRATIONS"
               exit 1
             fi
-
             git diff --diff-filter=A --name-only "$BEFORE" "$AFTER" -- 'supabase/migrations/*.sql' \
-              | grep -v '_rollback\.sql
-          fi
-
-          echo "Migrations selected:"
-          cat /tmp/migrations.txt || true
-
-          COUNT=$(grep -c . /tmp/migrations.txt || true)
-          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
-
-      - name: Apply migrations via admin endpoint
-        if: steps.migrations.outputs.count != '0'
-        env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          SITE_URL: ${{ secrets.SITE_URL }}
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if [ -z "$CRON_SECRET" ]; then
-            echo "CRON_SECRET is not set."
-            exit 1
-          fi
-
-          if [ -z "$SITE_URL" ]; then
-            echo "SITE_URL is not set."
-            exit 1
-          fi
-
-          while IFS= read -r MIGRATION_FILE; do
-            [ -z "$MIGRATION_FILE" ] && continue
-
-            echo "Applying migration: $MIGRATION_FILE"
-
-            STATUS_CODE=$(curl -sS -o response.json -w "%{http_code}" \
-              -H "X-Cron-Secret: ${CRON_SECRET}" \
-              -G \
-              -X POST \
-              --data-urlencode "action=run-migrations" \
-              --data-urlencode "migration_file=${MIGRATION_FILE}" \
-              --data-urlencode "commit_sha=${GITHUB_SHA}" \
-              "${SITE_URL}/api/admin")
-
-            echo "Response status: $STATUS_CODE"
-            cat response.json
-            echo
-
-            if [ "$STATUS_CODE" != "200" ]; then
-              echo "Migration failed: $MIGRATION_FILE"
-              exit 1
-            fi
-
-            echo "Migration applied successfully: $MIGRATION_FILE"
-          done < /tmp/migrations.txt
-
-      - name: No migrations to apply
-        if: steps.migrations.outputs.count == '0'
-        run: echo "No newly added migration files detected."
- \
+              | grep -v '_rollback\.sql$' \
               | sort \
               > /tmp/migrations.txt || true
           fi
