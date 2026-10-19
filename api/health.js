@@ -4,6 +4,7 @@
  * /api/health checks the commercial core only.
  * /api/readiness is rewritten to /api/health?strict=1 so strict dependency
  * readiness does not consume an additional Vercel Serverless Function.
+ * Native diagnostics intentionally expose status/code only, never credentials.
  */
 const getSupabase = require('../lib/api/supabase');
 const { getInferenceRouter } = require('../lib/ai/inference-router');
