@@ -143,15 +143,21 @@ async function handleListAlerts(req, res) {
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '50', 10), 100);
   const cityId = url.searchParams.get('city');
   const activityId = url.searchParams.get('activity');
+  const countryCode = (url.searchParams.get('country') || '').toUpperCase() || null;
 
   const supabase = getSupabaseClient();
+  const cityRelation = countryCode
+    ? 'city:city_id!inner(name_ar,country_code)'
+    : 'city:city_id(name_ar,country_code)';
+
   let query = supabase
     .from('alerts')
-    .select('*, city:city_id(name_ar,country_code), activity:activity_id(id,code,name_ar,name_en), rule:rule_id(name, description)')
+    .select(`*, ${cityRelation}, activity:activity_id(id,code,name_ar,name_en), rule:rule_id(name, description)`)
     .order('created_at', { ascending: false })
     .limit(limit);
 
   if (unreadOnly) query = query.eq('is_read', false);
+  if (countryCode) query = query.eq('city.country_code', countryCode);
   if (cityId) query = query.eq('city_id', cityId);
   if (activityId) query = query.eq('activity_id', activityId);
 
