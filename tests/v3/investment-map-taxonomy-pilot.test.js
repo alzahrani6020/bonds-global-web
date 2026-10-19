@@ -12,6 +12,7 @@ describe('V3 investment map taxonomy pilot', () => {
     expect(page).toContain("/investment-taxonomy?depth=sector");
     expect(page).toContain("const [countriesRes, taxonomyRes] = await Promise.all");
     expect(page).not.toContain("fetchJson(API_URL + '/catalog/activities')");
+    expect(page).not.toContain("API_URL + '/models'");
   });
 
   test('activities load only after selecting a sector and remain country-scoped', () => {
