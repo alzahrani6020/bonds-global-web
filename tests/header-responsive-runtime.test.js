@@ -272,6 +272,43 @@ describe('parsed authenticated header responsive behavior', () => {
     }
   }, 30000);
 
+  test.each(['ar', 'en'])('%s tools mega menu is addressable and bounded at true desktop width', async lang => {
+    const fixture = await openFixture({ lang, width: 1440 });
+    const { page } = fixture;
+    try {
+      const tools = page.locator('[data-nav-id="tools"]');
+      expect(await tools.count()).toBe(1);
+
+      const toggle = tools.locator(':scope > .dropdown-toggle');
+      const menu = tools.locator(':scope > .dropdown-menu--grouped');
+      expect(await menu.isVisible()).toBe(false);
+
+      await toggle.hover();
+      await menu.waitFor({ state: 'visible' });
+      expect(await toggle.getAttribute('aria-expanded')).toBe('true');
+      expect(await menu.locator('.dropdown-group').count()).toBe(4);
+      expect(await menu.locator('.dropdown-group a').count()).toBe(15);
+
+      const box = await menu.boundingBox();
+      expect(box).not.toBeNull();
+      expect(box.x).toBeGreaterThanOrEqual(-1);
+      expect(box.x + box.width).toBeLessThanOrEqual(1441);
+      expect(box.y).toBeGreaterThanOrEqual(-1);
+      expect(box.y + box.height).toBeLessThanOrEqual(901);
+
+      const footer = menu.locator('.dropdown-menu__footer a');
+      expect(await footer.count()).toBe(1);
+      expect(await footer.getAttribute('href')).toContain('calculators/investment-center/index.html');
+
+      await toggle.press('Escape');
+      await menu.waitFor({ state: 'hidden' });
+      expect(await toggle.getAttribute('aria-expanded')).toBe('false');
+      expect(fixture.errors).toEqual([]);
+    } finally {
+      await fixture.context.close();
+    }
+  }, 30000);
+
   test.each(['ar', 'en'])('%s feasibility toolbar stays below the header and in mobile flow', async lang => {
     const fixture = await openFixture({ lang, width: 1281, homepage: false, toolbar: true });
     const { page } = fixture;
