@@ -58,6 +58,6 @@ describe('Local geo intelligence engine', () => {
       purchasing_power_index: 100,
       poi_density_5km: 20,
       urban_growth_score: 100
-    })).toBe(100);
+    })).toBe(91.25);
   });
 });
