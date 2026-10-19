@@ -647,7 +647,7 @@
       if (!currencyCode) {
         return formatNumber(Number(value)) + ' <span class="confidence low">العملة غير موثقة</span>';
       }
-      return window.BondsCountryContext?.formatCurrency(Number(value), currencyCode, profile) ||
+      return window.BondsCountryContext?.formatProvenanceMoney(Number(value), currencyCode, profile) ||
         (formatNumber(Number(value)) + ' ' + currencyCode);
     }
 
