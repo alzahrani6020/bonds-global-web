@@ -120,6 +120,7 @@
   }
   function q(s){ return document.querySelector(s); }
   function inject() {
+    if (/^\/v3\/admin(?:\/|$)/.test(window.location.pathname)) return;
     if (document.querySelector('.bonds-service-discovery')) return;
     const header=document.querySelector('.main-header');
     if(!header) return;
