@@ -82,14 +82,33 @@ describe('V3 country context core', () => {
     }
   });
 
-  test('investment and comparison screens do not hardcode SAR for market values', () => {
+  test('main market screens use selected-country currency instead of hardcoded SAR', () => {
     const map = read('v3/investment-map.html');
     const comparison = read('v3/city-comparison.html');
     const bank = read('v3/opportunity-bank.html');
+    const intelligence = read('v3/city-intelligence.html');
 
     expect(map).toContain('BondsCountryContext?.formatMoney');
     expect(comparison).toContain('BondsCountryContext.formatMoney');
     expect(bank).toContain('BondsCountryContext?.formatMoney');
+    expect(intelligence).toContain('moneyTruthValue');
+    expect(intelligence).toContain('moneyOrMissing');
+
+    expect(map).not.toContain(' ر.س</span>');
+    expect(comparison).not.toContain(" + ' ر.س'");
+    expect(bank).not.toContain(' ر.س</span>');
+  });
+
+  test('explicit country financial calculations never fall back to an unverified model', () => {
+    const api = read('v3/api/index.js');
+    const compare = read('v3/api/compare.js');
+    const comparison = read('v3/city-comparison.html');
+
+    expect(api).toContain('COUNTRY_MODEL_UNVERIFIED');
+    expect(api).toContain('Country financial model is not localized');
+    expect(compare).toContain("financial_status = 'country_model_unverified'");
+    expect(compare).toContain('loadProjectModel(supabase, modelCode, city.code, city.country_code)');
+    expect(comparison).toContain('filter(model => model.localized === true)');
   });
 
   test('data source registry is activated from a real existing source', () => {
