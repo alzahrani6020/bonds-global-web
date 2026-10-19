@@ -165,8 +165,15 @@
       document.head.appendChild(script);
     };
 
-    if (window.UniversalDropdown || document.querySelector('script[src*="universal-dropdown.js"]')) {
+    if (window.UniversalDropdown) {
       loadDiscovery();
+      return;
+    }
+
+    const existingDropdown = document.querySelector('script[src*="universal-dropdown.js"]');
+    if (existingDropdown) {
+      existingDropdown.addEventListener('load', loadDiscovery, { once:true });
+      existingDropdown.addEventListener('error', loadDiscovery, { once:true });
       return;
     }
 
