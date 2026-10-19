@@ -81,7 +81,13 @@
     root = root || document;
     if (!root.querySelectorAll) return;
 
-    var candidates = root.querySelectorAll('summary, button, h2, h3, h4, [role="button"]');
+    var selector = 'summary, button, h2, h3, h4, [role="button"]';
+    var candidates = [];
+    if (root.matches && root.matches(selector)) candidates.push(root);
+    root.querySelectorAll(selector).forEach(function(node) {
+      candidates.push(node);
+    });
+
     candidates.forEach(function(node) {
       var original = normalizeQuestion(node.textContent);
       if (!Object.prototype.hasOwnProperty.call(faqCopy, original)) return;
