@@ -131,7 +131,7 @@ button,input,select,textarea{font-family:inherit}
 <body>
 <div class="app">
 <header class="topbar">
-  <div class="brand"><div class="mark"></div><div><h1>Bonds Global - Financial Decision Engine</h1><small>Break-even Decision Workspace v3.1.1</small></div></div>
+  <div class="brand"><div class="mark"></div><div><h1>Bonds Global - Financial Decision Engine</h1><small>Break-even Decision Workspace v3.1.2</small></div></div>
   <div class="actions"><button class="btn help-trigger" id="helpBtn">كيف تستخدم الحاسبة؟</button><div class="more-wrap"><button class="btn ghost compact-action" id="moreBtn" aria-expanded="false">المزيد</button><div class="more-menu" id="moreMenu" hidden><button type="button" id="manageBtn">المشاريع والنسخ</button><button type="button" id="importQuickBtn">استيراد نموذج</button><button type="button" id="lockBtnTop">قفل واعتماد النسخة</button><button type="button" id="versionInfoBtn">معلومات الإصدار</button><button type="button" id="resetBtn">استعادة الأصل</button></div></div><button class="btn" id="saveBtn">حفظ السيناريو</button><div class="export-wrap"><button class="btn" id="exportMenuBtn" aria-expanded="false">تصدير ▾</button><div class="export-menu" id="exportMenu" hidden><button type="button" id="xlsxBtn">Excel (.xlsx)</button><button type="button" id="csvBtn">CSV (بيانات جدولية)</button><button type="button" id="jsonBtn">JSON (بيانات تقنية) — متقدم</button><button type="button" id="decisionPackBtnMenu">حزمة القرار JSON (بيانات تقنية) — متقدم</button></div></div><button class="btn" id="reportBtn">تقرير تنفيذي</button><button class="btn primary" id="printBtn">طباعة</button></div>
 </header>
 <div class="layout">
@@ -346,8 +346,8 @@ button,input,select,textarea{font-family:inherit}
       <details><summary>VAT</summary><p>VAT (ضريبة القيمة المضافة) مفصول عن الربح التشغيلي. إذا كان السعر شامل VAT (ضريبة القيمة المضافة)، يفصل مكون VAT من السعر أولًا لأغراض التحليل الاقتصادي. لا يعامل VAT (ضريبة القيمة المضافة) كنسبة من صافي الربح.</p></details>
       <details><summary>الزكاة وضريبة الدخل</summary><p>لا يتم احتسابهما تلقائيًا في هذا النموذج الأولي؛ يتطلبان وحدة مستقلة وبيانات عن الوعاء وهيكل الملكية والحالة النظامية. هذا يمنع إعطاء دقة زائفة.</p></details>
       <details><summary>سياسة التقريب</summary><p>الحسابات الداخلية تحتفظ بالدقة. القيم الدنيا اللازمة لتحقيق حد مالي تستخدم التقريب إلى الأعلى عند عرضها كقيمة قابلة للتطبيق؛ والكميات غير القابلة للتجزئة تستخدم CEILING.</p></details>
-      <details><summary>قيود CVP</summary><p>يفترض النموذج ثبات السعر والتكلفة المتغيرة والتكاليف الثابتة ضمن النطاق التشغيلي ذي الصلة. يدعم v3.1.1 قيد طاقة مبسطًا وStep Cost واحدًا، وليس جدول تكاليف متدرج كاملًا.</p></details><details><summary>Target Solver</summary><p>يحل هدف الربح ضمن حد سعر وحد كمية/طاقة. إذا لم يمكن بلوغ الهدف ضمن القيود، يعرض Not Feasible بدل اقتراح كمية أو سعر غير واقعي.</p></details><details><summary>Data Confidence</summary><p>درجة الثقة تصف توثيق المدخلات ولا تقيس احتمال نجاح المشروع. يجب فصلها عن مؤشر المتانة التشغيلية.</p></details>
-      <div class="footer-note">Workspace v3.1.1 - واجهة تشغيلية مرجعية وليست نظامًا ضريبيًا أو زكويًا. جميع توصيات القرار تعرض أثرًا حسابيًا ولا تمثل توصية استثمارية ملزمة.</div>
+      <details><summary>قيود CVP</summary><p>يفترض النموذج ثبات السعر والتكلفة المتغيرة والتكاليف الثابتة ضمن النطاق التشغيلي ذي الصلة. يدعم v3.1.2 قيد طاقة مبسطًا وStep Cost واحدًا، وليس جدول تكاليف متدرج كاملًا.</p></details><details><summary>Target Solver</summary><p>يحل هدف الربح ضمن حد سعر وحد كمية/طاقة. إذا لم يمكن بلوغ الهدف ضمن القيود، يعرض Not Feasible بدل اقتراح كمية أو سعر غير واقعي.</p></details><details><summary>Data Confidence</summary><p>درجة الثقة تصف توثيق المدخلات ولا تقيس احتمال نجاح المشروع. يجب فصلها عن مؤشر المتانة التشغيلية.</p></details>
+      <div class="footer-note">Workspace v3.1.2 - واجهة تشغيلية مرجعية وليست نظامًا ضريبيًا أو زكويًا. جميع توصيات القرار تعرض أثرًا حسابيًا ولا تمثل توصية استثمارية ملزمة.</div>
     </div>
   </section>
 </main>
@@ -360,7 +360,7 @@ button,input,select,textarea{font-family:inherit}
   </section>
   <section class="card"><h3>أفضل إجراء الآن</h3><div id="nextAction" class="muted" style="font-size:13px"></div></section>
   <section class="card"><h3>جاهزية القرار</h3><div style="display:flex;align-items:end;justify-content:space-between;gap:10px"><b id="sidebarReadiness" style="font-size:26px">—</b><span class="badge" id="sidebarReadinessState">—</span></div><div class="tiny muted" id="sidebarReadinessHint" style="margin-top:6px"></div></section>
-  <section class="card context-card"><h3>سياق الحساب</h3><div class="context-badges"><span class="badge" id="periodBadge">شهري</span><span class="badge">منتج واحد</span><span class="badge" id="vatBadge">VAT منفصل</span><span class="badge">محرك v3.1.1</span></div><div class="calc-id-row"><div><div class="tiny muted">معرّف الحساب <span class="latin-note">Calculation ID</span></div><div class="calc-id-short" id="calcId">—</div></div><button class="copy-id" id="copyCalcIdBtn" type="button" title="نسخ معرّف الحساب">نسخ</button></div><button class="show-id" id="showCalcIdBtn" type="button">عرض التفاصيل</button><div class="save-state" id="autosaveState">—</div></section>
+  <section class="card context-card"><h3>سياق الحساب</h3><div class="context-badges"><span class="badge" id="periodBadge">شهري</span><span class="badge">منتج واحد</span><span class="badge" id="vatBadge">VAT منفصل</span><span class="badge">محرك v3.1.2</span></div><div class="calc-id-row"><div><div class="tiny muted">معرّف الحساب <span class="latin-note">Calculation ID</span></div><div class="calc-id-short" id="calcId">—</div></div><button class="copy-id" id="copyCalcIdBtn" type="button" title="نسخ معرّف الحساب">نسخ</button></div><button class="show-id" id="showCalcIdBtn" type="button">عرض التفاصيل</button><div class="save-state" id="autosaveState">—</div></section>
 </aside>
 </div>
 </div>
@@ -759,7 +759,7 @@ function exportCurrentCsv(){
     ['الميتاداتا','السيناريو',$('scenarioName').value,''],
     ['الميتاداتا','ثقة البيانات',dataConfidence(),'%'],
     ['الميتاداتا','تاريخ التصدير',new Date().toISOString(),''],
-    ['الميتاداتا','الإصدار','Workspace v3.1.1','']
+    ['الميتاداتا','الإصدار','Workspace v3.1.2','']
   ];
   const csv='\uFEFF'+rows.map(r=>r.map(csvCell).join(',')).join('\r\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
