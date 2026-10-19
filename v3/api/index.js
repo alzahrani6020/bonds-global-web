@@ -76,6 +76,7 @@ const { resolveOpportunityYear } = require('../lib/opportunity-query');
 const { COUNTRY_NAMES, canonicalizeCities, canonicalizeActivities, buildCountryCatalog } = require('../../lib/catalog/canonical-registry');
 const { ARAB_COUNTRIES_GEO } = require('../master-data/countries-governorates-cities');
 const { CountryIndicatorEngine } = require('../../lib/data/country-indicator-engine');
+const { servicesRouter } = require('./services');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
@@ -2280,6 +2281,11 @@ module.exports = async function handler(req, res) {
     if (path === '/catalog/activities' && req.method === 'GET') return await handleCatalogActivities(req, res);
     if (path === '/catalog/years' && req.method === 'GET') return await handleCatalogYears(req, res);
     if (path === '/catalog/cities' && req.method === 'GET') return await handleCatalogCities(req, res);
+    if (path.startsWith('/services')) {
+      const supabase = getSupabaseClient();
+      const user = await getUserFromToken(req);
+      return await servicesRouter(req, res, path, supabase, user);
+    }
     if (path.match(/^\/countries\/[^\/]+\/context$/) && req.method === 'GET') return await handleCountryContext(req, res, path);
     if (path === '/models' && req.method === 'GET') return await handleModels(req, res);
     if (path.match(/^\/models\/[^\/]+$/) && req.method === 'GET') return await handleModelDetail(req, res, path);
