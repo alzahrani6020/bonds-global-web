@@ -240,7 +240,7 @@ async function assertNativeProductionRuntime() {
           // Smoke validates the Native execution path and canonical model identity.
           // It intentionally does not benchmark a full conversational decode.
           force_native: true,
-          max_tokens: 12
+          max_tokens: 8
         }
       })
     });
