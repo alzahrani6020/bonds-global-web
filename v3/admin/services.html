@@ -33,6 +33,20 @@
         </form>
       </div>
 
+      <div class="card" id="pricingCard" hidden>
+        <h2>تسعير الخدمة</h2>
+        <form id="pricingForm" class="field-form">
+          <div><label>نوع التسعير</label><select name="pricing_type"><option value="quote">حسب عرض سعر</option><option value="fixed">ثابت</option><option value="starting_from">يبدأ من</option><option value="tiered">شرائح</option></select></div>
+          <div><label>العملة</label><input name="currency_code" placeholder="SAR"></div>
+          <div><label>الدولة (اختياري)</label><input name="country_code" placeholder="SA"></div>
+          <div><label>القطاع (اختياري)</label><input name="sector_code"></div>
+          <div><label>المبلغ</label><input type="number" step="0.01" name="amount"></div>
+          <div><label>الحد الأدنى</label><input type="number" step="0.01" name="min_amount"></div>
+          <div style="align-self:end"><button type="submit">إضافة تسعير</button></div>
+        </form>
+        <div id="pricingList" style="margin-top:12px"></div>
+      </div>
+
       <div class="card" id="formsCard" hidden>
         <h2>النماذج الديناميكية</h2>
         <form id="formDefForm" class="field-form">
@@ -57,6 +71,10 @@
 
     <div>
       <div class="card"><h2>الخدمات الحالية</h2><div id="servicesList" class="service-list"></div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 style="margin:0">طلبات الخدمات</h2><button type="button" class="secondary" id="refreshRequests">تحديث</button></div>
+        <div id="requestsList" class="service-list" style="margin-top:12px"></div>
+      </div>
       <div class="card"><h3>ملاحظة تشغيلية</h3><p class="muted">لا تضف حقول التمويل أو متطلبات دولة بعينها الآن إلا عند الحاجة. البنية تسمح بإضافتها لاحقًا حسب الدولة والقطاع والنشاط بدون تعديل برمجي.</p></div>
     </div>
   </div>
@@ -86,18 +104,59 @@ async function select(code){
     f.elements.capabilities.value=(d.capabilities||[]).map(x=>[x.capability_code,x.engine_route||'',x.is_required?'true':'false'].join('|')).join('\n');
     f.elements.procedures.value=(d.procedures||[]).map(x=>[x.title_ar,x.procedure_type||'manual',x.visibility||'public'].join('|')).join('\n');
     f.elements.code.readOnly=true;
-    $('#formsCard').hidden=false;render();await loadForms();
+    $('#formsCard').hidden=false;$('#pricingCard').hidden=false;render();await Promise.all([loadForms(),loadPricing()]);
   }catch(e){message(e.message,false)}
 }
-function reset(){current=null;currentForm=null;$('#serviceForm').reset();$('#serviceForm').elements.code.readOnly=false;$('#formsCard').hidden=true;render()}
+function reset(){current=null;currentForm=null;$('#serviceForm').reset();$('#serviceForm').elements.code.readOnly=false;$('#formsCard').hidden=true;$('#pricingCard').hidden=true;render()}
 $('#newService').onclick=reset;
 $('#archiveService').onclick=async()=>{if(!current||!confirm('أرشفة الخدمة؟'))return;try{await api(API+'/'+current.code,{method:'DELETE'});message('تمت الأرشفة');reset();load()}catch(e){message(e.message,false)}}
 $('#serviceForm').onsubmit=async e=>{e.preventDefault();try{const body=formData();const url=current?API+'/'+current.code:API;await api(url,{method:current?'PUT':'POST',body:JSON.stringify(body)});message('تم حفظ الخدمة');await load();if(body.code)select(body.code)}catch(err){message(err.message,false)}}
+async function loadPricing(){
+  if(!current)return;
+  const d=await api(API+'/'+current.code+'/pricing');
+  const rows=d.pricing||[];
+  $('#pricingList').innerHTML=rows.length?'<table><thead><tr><th>النوع</th><th>النطاق</th><th>القيمة</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+x.pricing_type+'</td><td>'+[x.country_code,x.sector_code].filter(Boolean).join(' / ')+'</td><td>'+([x.amount,x.min_amount].find(v=>v!=null)??'')+' '+(x.currency_code||'')+'</td><td><button type="button" class="danger" data-price-del="'+x.id+'">حذف</button></td></tr>').join('')+'</tbody></table>':'<div class="muted">لا يوجد تسعير محدد؛ ستظهر الخدمة حسب عرض سعر.</div>';
+  document.querySelectorAll('[data-price-del]').forEach(b=>b.onclick=()=>deletePricing(b.dataset.priceDel));
+}
+$('#pricingForm').onsubmit=async e=>{
+  e.preventDefault();if(!current)return;
+  const o=Object.fromEntries(new FormData(e.target));
+  try{await api(API+'/'+current.code+'/pricing',{method:'POST',body:JSON.stringify(o)});message('تمت إضافة التسعير');e.target.reset();loadPricing()}catch(err){message(err.message,false)}
+}
+async function deletePricing(id){if(!confirm('حذف التسعير؟'))return;try{await api(API+'/'+current.code+'/pricing/'+id,{method:'DELETE'});loadPricing()}catch(err){message(err.message,false)}}
+
+async function loadRequests(){
+  try{
+    const d=await api('/api/v3/admin/service-requests');
+    const rows=d.requests||[];
+    $('#requestsList').innerHTML=rows.length?rows.map(r=>'<div class="service-item" data-request="'+r.id+'"><strong>'+(r.service_catalog?.name_ar||r.request_reference)+'</strong><div class="muted">'+r.request_reference+' · '+r.status+' · '+(r.country_code||'')+' · '+(r.sector_code||'')+'</div></div>').join(''):'<div class="muted">لا توجد طلبات خدمات حتى الآن.</div>';
+    document.querySelectorAll('[data-request]').forEach(x=>x.onclick=()=>openRequest(x.dataset.request));
+  }catch(e){message(e.message,false)}
+}
+async function openRequest(id){
+  try{
+    const d=await api('/api/v3/admin/service-requests/'+id);
+    const r=d.request;
+    const quote=(d.quotes||[])[0];
+    const action=prompt('الحالة الحالية: '+r.status+'\nاكتب حالة جديدة أو اتركها فارغة لإنشاء/عرض عرض سعر:\ntriage / in_progress / awaiting_client / awaiting_approval / completed / cancelled','');
+    if(action){
+      await api('/api/v3/admin/service-requests/'+id,{method:'PUT',body:JSON.stringify({status:action})});message('تم تحديث حالة الطلب');return loadRequests();
+    }
+    const total=prompt('قيمة عرض السعر الإجمالية'+(quote?' (الحالي '+(quote.total_amount||'')+')':''),'');
+    if(total!==null && total!==''){
+      const currency=prompt('العملة','SAR')||'SAR';
+      await api('/api/v3/admin/service-requests/'+id+'/quotes',{method:'POST',body:JSON.stringify({status:'sent',currency_code:currency,total_amount:Number(total)})});
+      message('تم إنشاء عرض السعر');loadRequests();
+    }
+  }catch(e){message(e.message,false)}
+}
+$('#refreshRequests').onclick=loadRequests;
+
 async function loadForms(){if(!current)return;const d=await api(API+'/'+current.code+'/forms');const forms=d.forms||[];$('#formsList').innerHTML=forms.map(f=>'<button type="button" class="secondary" data-form="'+f.id+'">'+f.name_ar+' · v'+f.version+'</button>').join(' ')||'<p class="muted">لا توجد نماذج بعد.</p>';document.querySelectorAll('[data-form]').forEach(b=>b.onclick=()=>openForm(b.dataset.form))}
 $('#formDefForm').onsubmit=async e=>{e.preventDefault();if(!current)return;const o=Object.fromEntries(new FormData(e.target));o.name_en=o.name_ar;try{await api(API+'/'+current.code+'/forms',{method:'POST',body:JSON.stringify(o)});message('تمت إضافة النموذج');e.target.reset();loadForms()}catch(err){message(err.message,false)}}
 async function openForm(id){currentForm=id;const d=await api(API+'/'+current.code+'/forms/'+id);$('#fieldBuilder').hidden=false;$('#fieldsTable').innerHTML=(d.fields||[]).map(x=>'<tr><td>'+x.label_ar+'</td><td>'+x.field_type+'</td><td>'+(x.is_required?'نعم':'لا')+'</td><td><button class="danger" type="button" data-del="'+x.id+'">حذف</button></td></tr>').join('');document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteField(b.dataset.del))}
 $('#fieldForm').onsubmit=async e=>{e.preventDefault();if(!current||!currentForm)return;const o=Object.fromEntries(new FormData(e.target));o.label_en=o.label_ar;o.is_required=e.target.elements.is_required.checked;o.sort_order=Number(o.sort_order||0);try{await api(API+'/'+current.code+'/forms/'+currentForm,{method:'POST',body:JSON.stringify(o)});message('تمت إضافة الحقل');e.target.reset();openForm(currentForm)}catch(err){message(err.message,false)}}
 async function deleteField(id){if(!confirm('حذف الحقل؟'))return;try{await api(API+'/'+current.code+'/forms/'+currentForm+'/'+id,{method:'DELETE'});openForm(currentForm)}catch(err){message(err.message,false)}}
-load();
+load();loadRequests();
 </script>
 </body></html>
