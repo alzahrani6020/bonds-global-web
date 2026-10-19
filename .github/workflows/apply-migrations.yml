@@ -68,6 +68,14 @@ jobs:
               exit 1
             fi
 
+            MUTATED_MIGRATIONS="$(git diff --diff-filter=MD --name-only "$BEFORE" "$AFTER" -- 'supabase/migrations/*.sql' | awk '!/_rollback[.]sql$/')"
+
+            if [ -n "$MUTATED_MIGRATIONS" ]; then
+              echo "Existing forward migration files are immutable once merged."
+              echo "Create a new recovery migration instead of modifying or deleting:"
+              printf '%s\n' "$MUTATED_MIGRATIONS"
+              exit 1
+            fi
             git diff --diff-filter=A --name-only "$BEFORE" "$AFTER" -- 'supabase/migrations/*.sql' \
               | grep -v '_rollback\.sql$' \
               | sort \
