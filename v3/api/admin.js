@@ -790,6 +790,112 @@ async function handleServiceFormsAdmin(req, res, serviceCode, formId, fieldId) {
   return sendJson(res, 405, { error: 'Method not allowed' });
 }
 
+
+async function handleServicePricingAdmin(req, res, serviceCode, pricingId) {
+  const supabase = getSupabaseClient();
+  const { data: service, error: serviceError } = await supabase.from('service_catalog').select('id').eq('code',serviceCode).maybeSingle();
+  if(serviceError || !service) return sendJson(res,404,{error:'Service not found'});
+
+  if(req.method==='GET'){
+    const {data,error}=await supabase.from('service_pricing').select('*').eq('service_id',service.id).order('created_at',{ascending:false});
+    if(error)return sendJson(res,500,{error:error.message});
+    return sendJson(res,200,{pricing:data||[]});
+  }
+  if(req.method==='POST'){
+    const body=await parseBody(req);
+    const {data,error}=await supabase.from('service_pricing').insert({
+      service_id:service.id,
+      country_code:body.country_code||null,
+      sector_code:body.sector_code||null,
+      pricing_type:body.pricing_type||'quote',
+      currency_code:body.currency_code||null,
+      amount:body.amount===''||body.amount==null?null:Number(body.amount),
+      min_amount:body.min_amount===''||body.min_amount==null?null:Number(body.min_amount),
+      max_amount:body.max_amount===''||body.max_amount==null?null:Number(body.max_amount),
+      conditions:body.conditions||{},
+      is_active:body.is_active!==false,
+      valid_from:body.valid_from||null,
+      valid_to:body.valid_to||null,
+      metadata:body.metadata||{}
+    }).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,201,{pricing:data});
+  }
+  if(req.method==='DELETE' && pricingId){
+    const {error}=await supabase.from('service_pricing').delete().eq('id',pricingId).eq('service_id',service.id);
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,200,{deleted:true});
+  }
+  return sendJson(res,405,{error:'Method not allowed'});
+}
+
+async function handleServiceRequestsAdmin(req,res,requestId,subresource,subId){
+  const supabase=getSupabaseClient();
+
+  if(!requestId && req.method==='GET'){
+    const {data,error}=await supabase
+      .from('service_requests')
+      .select('id,request_reference,user_id,client_id,service_id,country_code,region_name,locality_name,sector_code,status,crm_opportunity_id,funding_case_id,valuation_id,submitted_at,created_at,service_catalog(code,name_ar,name_en)')
+      .order('created_at',{ascending:false})
+      .limit(200);
+    if(error)return sendJson(res,500,{error:error.message});
+    return sendJson(res,200,{requests:data||[]});
+  }
+
+  if(requestId && !subresource && req.method==='GET'){
+    const [{data:request,error},{data:values,error:valuesError},{data:quotes,error:quotesError}]=await Promise.all([
+      supabase.from('service_requests').select('*,service_catalog(code,name_ar,name_en)').eq('id',requestId).maybeSingle(),
+      supabase.from('service_request_values').select('*').eq('service_request_id',requestId).order('created_at'),
+      supabase.from('service_quotes').select('*').eq('service_request_id',requestId).order('created_at',{ascending:false})
+    ]);
+    if(error||valuesError||quotesError||!request)return sendJson(res,404,{error:'Service request not found'});
+    return sendJson(res,200,{request,values:values||[],quotes:quotes||[]});
+  }
+
+  if(requestId && !subresource && req.method==='PUT'){
+    const body=await parseBody(req);
+    const allowed=['triage','in_progress','awaiting_client','awaiting_approval','completed','cancelled'];
+    if(!allowed.includes(body.status))return sendJson(res,400,{error:'Invalid status'});
+    const patch={status:body.status,updated_at:new Date().toISOString()};
+    if(body.status==='completed')patch.completed_at=new Date().toISOString();
+    const {data,error}=await supabase.from('service_requests').update(patch).eq('id',requestId).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,200,{request:data});
+  }
+
+  if(requestId && subresource==='quotes' && req.method==='POST'){
+    const body=await parseBody(req);
+    const {data:request}=await supabase.from('service_requests').select('id').eq('id',requestId).maybeSingle();
+    if(!request)return sendJson(res,404,{error:'Service request not found'});
+    const {data,error}=await supabase.from('service_quotes').insert({
+      service_request_id:requestId,
+      status:body.status||'draft',
+      currency_code:body.currency_code||null,
+      subtotal:body.subtotal==null?null:Number(body.subtotal),
+      tax_amount:body.tax_amount==null?null:Number(body.tax_amount),
+      total_amount:body.total_amount==null?null:Number(body.total_amount),
+      valid_until:body.valid_until||null,
+      terms:body.terms||{}
+    }).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,201,{quote:data});
+  }
+
+  if(requestId && subresource==='quotes' && subId && req.method==='PUT'){
+    const body=await parseBody(req);
+    const patch={};
+    for(const key of ['status','currency_code','valid_until','finance_contract_id']) if(body[key]!==undefined) patch[key]=body[key];
+    for(const key of ['subtotal','tax_amount','total_amount']) if(body[key]!==undefined) patch[key]=body[key]==null?null:Number(body[key]);
+    if(body.terms!==undefined)patch.terms=body.terms;
+    patch.updated_at=new Date().toISOString();
+    const {data,error}=await supabase.from('service_quotes').update(patch).eq('id',subId).eq('service_request_id',requestId).select().single();
+    if(error)return sendJson(res,400,{error:error.message});
+    return sendJson(res,200,{quote:data});
+  }
+
+  return sendJson(res,405,{error:'Method not allowed'});
+}
+
 async function adminRouter(req, res, path) {
   const parts = path.split('/').filter(Boolean);
   const resource = parts[1]; // after 'admin'
@@ -811,7 +917,11 @@ async function adminRouter(req, res, path) {
     if (resource === 'services') {
       const serviceCode = parts[2];
       if (parts[3] === 'forms') return await handleServiceFormsAdmin(req, res, serviceCode, parts[4], parts[5]);
+      if (parts[3] === 'pricing') return await handleServicePricingAdmin(req, res, serviceCode, parts[4]);
       return await handleServiceAdmin(req, res, serviceCode);
+    }
+    if (resource === 'service-requests') {
+      return await handleServiceRequestsAdmin(req,res,parts[2],parts[3],parts[4]);
     }
 
     const masterTypes = ['sectors', 'sub-sectors', 'activities', 'activity-details', 'assumptions', 'risk-factors'];
