@@ -372,7 +372,7 @@
       if (!Number.isFinite(Number(num))) return '-';
       if (!currencyCode) return formatNumber(Number(num)) + ' · العملة غير موثقة';
       if (window.BondsCountryContext) {
-        return window.BondsCountryContext.formatCurrency(Number(num), currencyCode, profile);
+        return window.BondsCountryContext.formatProvenanceMoney(Number(num), currencyCode, profile);
       }
       return formatNumber(Number(num)) + ' ' + currencyCode;
     }
