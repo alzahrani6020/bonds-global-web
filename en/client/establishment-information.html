@@ -185,7 +185,7 @@
       fundingCase=await window.BondsFundingCaseContext.resolve(sb,user);
       const cid=await sb.rpc('get_my_client_id');
       const existing=await sb.from('client_establishment_profiles').select('*').eq('user_id',user.id).order('updated_at',{ascending:false}).limit(1).maybeSingle();
-      if(existing.data){hydrate(existing.data);if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'establishment',existing.data);}
+      if(existing.data){hydrate(existing.data);window.BondsFundingCaseContext.lockSubmittedForm(form,existing.data.status);if(fundingCase)await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'establishment',existing.data);}
       else if(fundingCase||cid.data){current={client_id:fundingCase?.client_id||cid.data||null};}
     }
     init();
