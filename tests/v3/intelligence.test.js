@@ -164,12 +164,14 @@ describe('/api/v3/intelligence', () => {
 
 
 describe('V3 AI chat runtime wiring', () => {
-  test('routes enriched chat through Bonds Native with deterministic fallback', () => {
+  test('routes sourced chat deterministically and reserves Bonds Native for generative requests', () => {
     const fs = require('fs');
     const path = require('path');
     const source = fs.readFileSync(path.join(__dirname, '../../v3/api/ai.js'), 'utf8');
     expect(source).toContain("require('../../lib/ai/inference-router')");
-    expect(source).toContain('generateNativeReply(messages, enrichedContext)');
+    expect(source).toContain('const deterministicReply = forceNative ? null : generateDataDrivenReply');
+    expect(source).toContain("source: 'data-driven'");
+    expect(source).toContain('generateNativeReply(messages, enrichedContext, {');
     expect(source).toContain("source: aiResult ? 'bonds-native' : 'data-driven-fallback'");
     expect(source).toContain("provider: aiResult?.provider || 'BondsV3DataEngine'");
   });
