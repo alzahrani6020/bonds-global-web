@@ -317,11 +317,11 @@
     const businessCreditConsentHref = isEn ? '/en/client/credit-consent-business' : '/client/credit-consent-business';
     const individualCreditConsentHref = isEn ? '/en/client/credit-consent-individual' : '/client/credit-consent-individual';
     const fundingCasesHref = isEn ? '/en/client/funding-cases' : '/client/funding-cases';
+    const fundingExtractionHref = langBase + 'funding-extraction.html';
     const fundingRequirementsHref = fundingExtractionHref + '#funding-file';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
-    const fundingExtractionHref = langBase + 'funding-extraction.html';
     const calcBase = langBase + 'calculators/';
     const calcBreakEven = calcBase + 'break-even.html';
     const sectorsBase = langBase + 'sectors/';
