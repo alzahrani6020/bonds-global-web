@@ -22,7 +22,7 @@ describe('Dynamic service orchestration layer', () => {
     expect(component).toContain('localitySearch');
     expect(component).toContain("const PROPOSE_SECTOR = '__propose_sector__'");
     expect(component).toContain("const PROPOSE_ACTIVITY = '__propose_activity__'");
-    expect(component).toContain("from('taxonomy_proposals')");
+    expect(component).toContain("let table='taxonomy_proposals'");
     expect(component).toContain("from(table).insert(row)");
     expect(component).toContain("'geography_proposals'");
     expect(component).toContain("const PROPOSE_REGION = '__propose_region__'");
