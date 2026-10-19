@@ -22,6 +22,8 @@ describe('V3 investment taxonomy API', () => {
 
     expect(api).toContain(".from('canonical_activity_business_forms')");
     expect(api).toContain(".eq('country_code', countryCode)");
+    expect(api).toContain(".from('canonical_activity_country')");
+    expect(api).toContain('country: countryByActivity.get(activity.id) || null');
     expect(api).toContain('verification_status');
     expect(api).toContain('business_forms: eligibilityByActivity.get(activity.id) || []');
   });
@@ -32,6 +34,8 @@ describe('V3 investment taxonomy API', () => {
     expect(api).toContain("const includeActivities = include.has('activities') || include.has('all')");
     expect(api).toContain("const includeDimensions = include.has('dimensions') || include.has('all')");
     expect(api).toContain("url.searchParams.get('sector')");
+    expect(api).toContain("url.searchParams.get('depth') || 'subsector'");
+    expect(api).toContain("const includeSubsectors = depth !== 'sector'");
     expect(api).toContain("Cache-Control");
     expect(api).toContain("stale-while-revalidate=3600");
   });
