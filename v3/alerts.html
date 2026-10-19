@@ -317,6 +317,7 @@
     </div>
 
     <div class="filters">
+      <select data-universal-dropdown="true" data-ud-search="true" id="countryFilter"><option value="">كل الدول</option></select>
       <select data-universal-dropdown="true" id="severityFilter">
         <option value="">كل مستويات الخطورة</option>
         <option value="critical"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><circle fill="#DD2E44" cx="18" cy="18" r="18"/></svg></span> حرج</option>
@@ -365,7 +366,8 @@
       avg_salary: 'متوسط الراتب',
       labor_availability_score: 'درجة توفر العمالة',
       specialists_count: 'عدد المتخصصين',
-      saudization_rate: 'معدل السعودة',
+      saudization_rate: 'معدل التوطين (حقل سعودي قديم)',
+      labor_localization_rate: 'معدل توطين العمالة',
       market_size: 'حجم السوق',
       annual_growth_rate: 'معدل النمو السنوي',
       per_capita_spending: 'المصروف الفردي',
@@ -451,20 +453,37 @@
 
     async function initFilters() {
       try {
+        const countriesRes = await fetchJson(API_URL + '/catalog/countries');
+        const countryRows = countriesRes.countries || [];
+        const storedCountry = window.BondsCountryContext?.getSelected('SA') || 'SA';
+
+        const countryFilter = document.getElementById('countryFilter');
+        countryRows.forEach(country => {
+          countryFilter.innerHTML += `<option value="${country.code}">${country.name_ar}</option>`;
+        });
+        if (countryRows.some(country => country.code === storedCountry)) {
+          countryFilter.value = storedCountry;
+        }
+
+        const selectedCountry = countryFilter.value;
         const [citiesRes, activitiesRes] = await Promise.all([
-          fetchJson(API_URL + '/cities'),
-          fetchJson(API_URL + '/catalog/activities')
+          fetchJson(API_URL + '/cities' + (selectedCountry ? '?country=' + encodeURIComponent(selectedCountry) : '')),
+          fetchJson(API_URL + '/catalog/activities' + (selectedCountry ? '?country=' + encodeURIComponent(selectedCountry) : ''))
         ]);
         allCities = citiesRes.cities || [];
         allActivities = activitiesRes.activities || [];
 
         const cityFilter = document.getElementById('cityFilter');
+        cityFilter.innerHTML = '<option value="">كل المدن</option>';
         allCities.forEach(c => {
           cityFilter.innerHTML += `<option value="${c.id}">${c.name_ar}</option>`;
         });
 
         const activityFilter = document.getElementById('activityFilter');
-        allActivities.forEach(a => {
+        activityFilter.innerHTML = '<option value="">كل الأنشطة</option>';
+        allActivities
+          .filter(a => a.country?.availability_status !== 'unavailable')
+          .forEach(a => {
           const aliases = encodeURIComponent(JSON.stringify(a.aliases || [a.code]));
           activityFilter.innerHTML += `<option value="${a.code}" data-aliases="${aliases}">${a.name_ar}</option>`;
         });
@@ -527,6 +546,7 @@
 
     function renderAlertsList() {
       const container = document.getElementById('alertsContainer');
+      const countryCode = document.getElementById('countryFilter').value;
       const severity = document.getElementById('severityFilter').value;
       const cityId = document.getElementById('cityFilter').value;
       const activityFilter = document.getElementById('activityFilter');
@@ -542,6 +562,7 @@
       }
 
       let filtered = allAlerts;
+      if (countryCode) filtered = filtered.filter(a => a.city?.country_code === countryCode);
       if (severity) filtered = filtered.filter(a => a.severity === severity);
       if (cityId) filtered = filtered.filter(a => a.city_id === cityId);
       if (activityCode) {
@@ -618,6 +639,12 @@
       `;
     }
 
+    document.getElementById('countryFilter').addEventListener('change', async () => {
+      const countryCode = document.getElementById('countryFilter').value;
+      if (countryCode) window.BondsCountryContext?.setSelected(countryCode);
+      await initFilters();
+      await loadAlerts();
+    });
     document.getElementById('severityFilter').addEventListener('change', renderAlertsList);
     document.getElementById('cityFilter').addEventListener('change', renderAlertsList);
     document.getElementById('activityFilter').addEventListener('change', renderAlertsList);
