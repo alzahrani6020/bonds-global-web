@@ -12,8 +12,8 @@ describe('Bonds Native watchdog contract', () => {
   test('watchdog is explicit opt-in and not registered by default', () => {
     expect(install).toContain('[switch]$EnableWatchdog');
     expect(install).toContain('if ($EnableWatchdog)');
-    expect(install).toContain('Register-ScheduledTask -TaskName "BondsNativeWatchdog"');
-    expect(install).not.toMatch(/Register-ScheduledTask -TaskName "BondsNativeWatchdog"[\s\S]*?Start-ScheduledTask -TaskName "BondsNativeWatchdog"[\s\S]*?Write-Host "Installed/s);
+    expect(install).toContain('if ($EnableWatchdog) {\n    Register-ScheduledTask -TaskName "BondsNativeWatchdog"');
+    expect(install).toContain('if ($EnableWatchdog) {\n    Start-ScheduledTask -TaskName "BondsNativeWatchdog"');
   });
 
   test('watchdog uses failure threshold and restart cooldown safeguards', () => {
