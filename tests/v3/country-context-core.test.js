@@ -162,6 +162,15 @@ describe('V3 country context core', () => {
     expect(activityEnrichment).toContain("currency_code: 'SAR'");
   });
 
+  test('localized model choices disclose estimated versus verified status', () => {
+    const comparison = read('v3/city-comparison.html');
+
+    expect(comparison).toContain("model.country_model_status === 'verified'");
+    expect(comparison).toContain("model.country_model_status === 'estimated'");
+    expect(comparison).toContain("'موثق'");
+    expect(comparison).toContain("'تقديري'");
+  });
+
   test('explicit country financial calculations never fall back to an unverified model', () => {
     const api = read('v3/api/index.js');
     const compare = read('v3/api/compare.js');
