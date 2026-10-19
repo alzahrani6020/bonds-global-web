@@ -316,6 +316,14 @@
       return Number(num).toLocaleString('ar-SA');
     }
 
+    function formatOpportunityMoney(value, currencyCode, city) {
+      if (value === null || value === undefined || !Number.isFinite(Number(value))) return '-';
+      const profile = countryProfiles.get(city?.country_code) || null;
+      if (!currencyCode) return formatNumber(Number(value)) + ' · العملة غير موثقة';
+      return window.BondsCountryContext?.formatCurrency(Number(value), currencyCode, profile) ||
+        (formatNumber(Number(value)) + ' ' + currencyCode);
+    }
+
     function demandLabel(value) {
       return { high: 'مرتفع', medium: 'متوسط', low: 'منخفض' }[value] || value || '-';
     }
@@ -556,7 +564,7 @@
             </div>
             <div class="metrics">
               <div class="metric"><span class="metric-label">الترتيب</span><span class="metric-value">#${o.rank || idx + 1}</span></div>
-              <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${window.BondsCountryContext?.formatMoney(o.marketSize, countryProfiles.get(city?.country_code)) || formatNumber(o.marketSize)}</span></div>
+              <div class="metric"><span class="metric-label">حجم السوق</span><span class="metric-value">${formatOpportunityMoney(o.marketSize, o.currencyCode, city)}</span></div>
               <div class="metric"><span class="metric-label">المنافسون</span><span class="metric-value">${formatNumber(o.competitorsCount)}</span></div>
               <div class="metric"><span class="metric-label">التشبع</span><span class="metric-value">${Number(o.saturation)?.toFixed(0) || '-'}%</span></div>
               <div class="metric"><span class="metric-label">النمو</span><span class="metric-value">${Number(o.growthRate)?.toFixed(1) || '-'}%</span></div>
@@ -569,7 +577,7 @@
               <span class="tag">نطاق القرار ${Number(o.uncertainty?.low ?? decisionScore).toFixed(0)}–${Number(o.uncertainty?.high ?? decisionScore).toFixed(0)}</span>
               <span class="tag">تغطية أبعاد التقييم ${o.scoringCoverage == null ? 'غير متاحة' : Number(o.scoringCoverage).toFixed(0) + '%'}</span>
               <span class="tag">ثقة المصدر ${Number(o.confidence)?.toFixed(0) || '-'}%</span>
-              <span class="tag">متوسط راتب ${window.BondsCountryContext?.formatMoney(o.avgSalary, countryProfiles.get(city?.country_code)) || formatNumber(o.avgSalary)}</span>
+              <span class="tag">متوسط راتب ${formatOpportunityMoney(o.avgSalary, o.currencyCode, city)}</span>
             </div>
             <div class="actions">
               <a href="/v3/city-intelligence?city=${city?.code || ''}&activity=${activity?.code || ''}" class="primary">تحليل المدينة</a>
