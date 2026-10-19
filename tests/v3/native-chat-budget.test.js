@@ -23,7 +23,7 @@ describe('Bonds Native chat generation budget', () => {
   });
 
   test('bounds synchronous Native chat below the edge timeout ceiling', () => {
-    expect(source).toContain('BONDS_NATIVE_CHAT_TIMEOUT_MS || 45000');
+    expect(source).toContain('BONDS_NATIVE_CHAT_TIMEOUT_MS || 60000');
     expect(source).toContain('Math.min(60000');
     expect(source).not.toContain('timeoutMs: Number(process.env.BONDS_NATIVE_TIMEOUT_MS || 20000)');
   });

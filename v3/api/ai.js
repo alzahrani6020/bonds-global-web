@@ -148,8 +148,8 @@ function clampNativeChatMaxTokens(value) {
 }
 
 function nativeChatTimeoutMs() {
-  const configured = Number(process.env.BONDS_NATIVE_CHAT_TIMEOUT_MS || 45000);
-  if (!Number.isFinite(configured)) return 45000;
+  const configured = Number(process.env.BONDS_NATIVE_CHAT_TIMEOUT_MS || 60000);
+  if (!Number.isFinite(configured)) return 60000;
   return Math.max(5000, Math.min(60000, Math.floor(configured)));
 }
 
