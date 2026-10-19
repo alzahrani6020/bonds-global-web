@@ -79,7 +79,7 @@ async function listPublishedServices(supabase, filters = {}) {
   if (!ids.length) return [];
 
   const [capRes, goalRes, countryRes] = await Promise.all([
-    supabase.from('service_capability_map').select('service_id,capability_code,engine_route,run_order,is_required').in('service_id', ids).order('run_order'),
+    supabase.from('service_capability_map').select('service_id,capability_code,run_order,is_required').in('service_id', ids).order('run_order'),
     supabase.from('service_goal_map').select('service_id,goal_code,priority').in('service_id', ids),
     filters.country
       ? supabase.from('service_country_map').select('service_id,country_code,availability_status,availability_reason_ar,availability_reason_en,priority').eq('country_code', filters.country).in('service_id', ids)
@@ -318,7 +318,7 @@ async function handleServiceDetail(req, res, supabase, code) {
   }
 
   const [capRes,procRes,reqRes,delRes,depRes,formRes,pricingRes,countryRes] = await Promise.all([
-    supabase.from('service_capability_map').select('capability_code,engine_route,run_order,is_required,metadata').eq('service_id',service.id).order('run_order'),
+    supabase.from('service_capability_map').select('capability_code,run_order,is_required').eq('service_id',service.id).order('run_order'),
     supabase.from('service_procedures').select('id,country_code,sector_code,canonical_activity_id,title_ar,title_en,description_ar,description_en,procedure_type,visibility,capability_code,sort_order,is_required,conditions,metadata').eq('service_id',service.id).eq('visibility','public').order('sort_order'),
     supabase.from('service_requirements').select('id,country_code,sector_code,requirement_type,label_ar,label_en,is_required,sort_order,conditions,metadata').eq('service_id',service.id).order('sort_order'),
     supabase.from('service_deliverables').select('id,code,name_ar,name_en,deliverable_type,sort_order,metadata').eq('service_id',service.id).order('sort_order'),
