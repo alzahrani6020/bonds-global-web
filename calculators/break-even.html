@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Bonds Global - Break-even Decision Workspace v3.1.1</title>
+<title>Bonds Global - Break-even Decision Workspace v3.1.2</title>
 <meta name="description" content="حاسبة نقطة التعادل المتقدمة من بوندز: حلّل هامش المساهمة، نقطة التعادل، الربحية، السيولة، التمويل والسيناريوهات لدعم القرار المالي." />
 <meta property="og:title" content="حاسبة نقطة التعادل المتقدمة | بوندز" />
 <meta property="og:description" content="محرك قرار مالي لتحليل نقطة التعادل وهامش المساهمة والربحية والسيولة والسيناريوهات." />
@@ -390,7 +390,7 @@ button,input,select,textarea{font-family:inherit}
 const APP_META=Object.freeze({
   product:'Bonds Global - Financial Decision Engine',
   baselineVersion:'3.0',
-  appVersion:'3.1.1',
+  appVersion:'3.1.2',
   modelSchemaVersion:1,
   compatibility:['3.0'],
   status:'WORKING',
@@ -428,6 +428,12 @@ let calcId=localStorage.getItem(CALC_ID_KEY)||((crypto.randomUUID&&crypto.random
 localStorage.setItem(CALC_ID_KEY,calcId);
 let saved=JSON.parse(localStorage.getItem('bondsBreakEvenSavedScenarios')||'[]');
 const EPS=1e-9;
+function breakEvenUnits(cm,fc,capacity,stepCost){
+  if(cm<=EPS)return null;
+  let units=Math.ceil(fc/cm);
+  if(capacity>0&&units>capacity&&stepCost>0)units=Math.ceil((fc+stepCost)/cm);
+  return units;
+}
 function value(id){return Number($(id).value||0)}
 function snapshot(){
   const state={};
@@ -453,7 +459,7 @@ function customPeriodDays(){if($('period').value!=='custom'||!$('periodStart').v
 function updatePeriodUI(){const v=$('period').value,label=periodLabel(v),unit=periodUnit(v),days=customPeriodDays();$('periodCustom')?.classList.toggle('show',v==='custom');$('periodContext').textContent=`الفترة: ${label}${days?` • ${days} يوم`:''}`;$('periodHint').textContent=v==='custom'?(days?`فترة مخصصة مدتها ${days} يومًا. تأكد أن جميع المدخلات تخص هذه المدة.`:'حدد تاريخ البداية والنهاية؛ لن يحول النظام القيم دون مدة واضحة.'):`${label} — يجب أن تكون الكمية والتكاليف والنتائج كلها لنفس الفترة.`;$('operatingPeriodHint').textContent=`المدخلات القابلة للتعديل — ${label}.`;$('qtyPeriodUnit').textContent=`وحدة / ${unit}`;$('fixedPeriodUnit').textContent=`ر.س / ${unit}`;$('capacityPeriodUnit').textContent=`وحدة / ${unit}، 0 = غير محددة`;$('heroPeriodLabel').textContent=`النتيجة التشغيلية — ${label}`;$('periodConsistency').textContent='جميع القيم للفترة نفسها';}
 let previousPeriod='monthly';
 function maybeConvertPeriod(oldV,newV){const a=periodFactor(oldV),b=periodFactor(newV);if(!a||!b||Math.abs(a-b)<1e-12)return;const ok=confirm(`تم تغيير الفترة من ${periodLabel(oldV)} إلى ${periodLabel(newV)}.\n\nموافق = تحويل الكمية والتكاليف الثابتة والطاقة والربح المستهدف خطيًا.\nإلغاء = الاحتفاظ بالأرقام كما هي مع تغيير معنى الفترة فقط.`);if(!ok)return;const ratio=b/a;['qty','fixedCost','capacity','targetProfit'].forEach(id=>{const el=$(id);if(el&&el.value!=='')el.value=String(Math.round((Number(el.value)||0)*ratio*100)/100)});}
-function calcFromValues(o){const p=Number(o.p||0),q=Number(o.q||0),vc=Number(o.vc||0),fc=Number(o.fc||0),comm=Number(o.comm||0),disc=Number(o.disc||0),vat=Number(o.vat||0),vatMode=o.vatMode||'exclusive',capacity=Number(o.capacity||0),stepCost=Number(o.stepCost||0);const economicPrice=vatMode==='inclusive'?p/(1+vat):p;const net=economicPrice*q*(1-disc)*(1-comm);const unitNet=q>0?net/q:economicPrice*(1-disc)*(1-comm);const cm=unitNet-vc;const appliedStepCost=capacity>0&&q>capacity?stepCost:0;const op=cm*q-fc-appliedStepCost;const bep=cm>EPS?Math.ceil(fc/cm):null;const mos=bep!==null&&q>0?((q-bep)/q)*100:null;return {op,cm,bep,mos}}
+function calcFromValues(o){const p=Number(o.p||0),q=Number(o.q||0),vc=Number(o.vc||0),fc=Number(o.fc||0),comm=Number(o.comm||0),disc=Number(o.disc||0),vat=Number(o.vat||0),vatMode=o.vatMode||'exclusive',capacity=Number(o.capacity||0),stepCost=Number(o.stepCost||0);const economicPrice=vatMode==='inclusive'?p/(1+vat):p;const net=economicPrice*q*(1-disc)*(1-comm);const unitNet=q>0?net/q:economicPrice*(1-disc)*(1-comm);const cm=unitNet-vc;const appliedStepCost=capacity>0&&q>capacity?stepCost:0;const op=cm*q-fc-appliedStepCost;const bep=breakEvenUnits(cm,fc,capacity,stepCost);const mos=bep!==null&&q>0?((q-bep)/q)*100:null;return {op,cm,bep,mos}}
 function modelFromState(st){return calcFromValues({p:st.price,q:st.qty,vc:st.varCost,fc:st.fixedCost,comm:Number(st.commission||0)/100,disc:Number(st.discount||0)/100,vat:Number(st.vatRate||0)/100,vatMode:st.vatMode,capacity:st.capacity,stepCost:st.stepCost})}
 const ACTION_META_KEY='bondsBreakEvenActionMeta_v29';let actionMeta=JSON.parse(localStorage.getItem(ACTION_META_KEY)||'{}');
 const EXPIRY_KEY='bondsBreakEvenExpiry_v29';let expiryState=JSON.parse(localStorage.getItem(EXPIRY_KEY)||'{}');
@@ -485,8 +491,8 @@ function model(){
   const den=(1-disc)*(1-comm);
   const enteredPriceFactor=vatMode==='inclusive'?(1+vat):1;
   const priceFloor=den>0?(vc/den)*enteredPriceFactor:Infinity;
-  const bePrice=q>0&&den>0?((fc/q+vc)/den)*enteredPriceFactor:Infinity;
-  const bep=cm>EPS?Math.ceil(fc/cm):null; const mos=bep!==null&&q>0?((q-bep)/q)*100:null;
+  const bePrice=q>0&&den>0?((((fc+appliedStepCost)/q)+vc)/den)*enteredPriceFactor:Infinity;
+  const bep=breakEvenUnits(cm,fc,capacity,stepCost); const mos=bep!==null&&q>0?((q-bep)/q)*100:null;
   const status=cm<-EPS?'critical':Math.abs(cm)<=EPS?'zero':op<-EPS?'loss':'profit';
   return {p,q,vc,fc,comm,disc,vat,vatMode,economicPrice,gross,discSales,fee,net,unitNet,cm,op,priceFloor,bePrice,bep,mos,status,capacity,stepCost,appliedStepCost};
 }
@@ -547,21 +553,23 @@ function renderSensitivity(m){
 function solveTarget(m){
  const target=value('targetProfit'), maxP=value('maxPrice'), userMaxQ=value('maxQty'), cap=userMaxQ>0?userMaxQ:(m.capacity>0?m.capacity:Infinity); const den=(1-m.disc)*(1-m.comm); const factor=m.vatMode==='inclusive'?(1+m.vat):1;
  if(den<=EPS)return {feasible:false,reason:'لا يوجد صافي إيراد للوحدة بعد الخصم والعمولة.'};
- const qCandidate=Math.max(1,Math.ceil((m.fc+target)/Math.max(m.cm,EPS)));
+ let qCandidate=Math.max(1,Math.ceil((m.fc+target)/Math.max(m.cm,EPS)));
+ if(m.capacity>0&&qCandidate>m.capacity&&m.stepCost>0)qCandidate=Math.max(1,Math.ceil((m.fc+m.stepCost+target)/Math.max(m.cm,EPS)));
  let chosenQ=isFinite(cap)?Math.max(1,Math.floor(cap)):Math.max(m.q,1);
- const economicNeeded=(m.fc+target)/(chosenQ*den)+m.vc/den; const enteredPrice=economicNeeded*factor;
+ const chosenStepCost=m.capacity>0&&chosenQ>m.capacity?m.stepCost:0;
+ const economicNeeded=(m.fc+chosenStepCost+target)/(chosenQ*den)+m.vc/den; const enteredPrice=economicNeeded*factor;
  const feasiblePrice=maxP<=0||enteredPrice<=maxP+EPS; const feasibleQty=!isFinite(cap)||qCandidate<=cap;
  if(m.cm>EPS&&feasibleQty){return {feasible:true,mode:'quantity',q:qCandidate,p:m.p,profit:target,reason:'يمكن الوصول للهدف عبر الكمية ضمن القيود الحالية.'}}
  if(feasiblePrice){return {feasible:true,mode:'price',q:chosenQ,p:enteredPrice,profit:target,reason:'يمكن الوصول للهدف برفع السعر ضمن حد السعر المحدد.'}}
  return {feasible:false,q:chosenQ,p:enteredPrice,reason:`الهدف غير قابل للتحقيق ضمن القيود الحالية. السعر المطلوب تقريبًا ${money(enteredPrice)} عند ${fmt(chosenQ)} وحدة.`}
 }
 function renderSolver(m){solverCandidate=solveTarget(m);const s=solverCandidate; $('solverStatus').textContent=s.feasible?'Feasible':'Not Feasible'; $('solverStatus').style.color=s.feasible?'var(--good)':'var(--bad)'; if(s.feasible){$('solverResult').innerHTML=`<b>${s.mode==='quantity'?'حل بالكمية':'حل بالسعر'}</b><br>${s.mode==='quantity'?`الكمية المقترحة: <b>${fmt(s.q)}</b> وحدة عند السعر الحالي.`:`السعر المقترح: <b>${money(Math.ceil(s.p*100)/100)}</b> عند كمية ${fmt(s.q)}.`}<br><span class="tiny muted">${esc(s.reason)}</span>`}else{$('solverResult').innerHTML=`<b>غير قابل للتحقيق ضمن القيود</b><br><span class="tiny muted">${esc(s.reason)}</span>`}}
-function scenarioFrom(m,kind){let q=m.q,vc=m.vc,comm=m.comm,fc=m.fc;if(kind==='down'){q*=1-value('stressQty')/100;vc*=1+value('stressCost')/100;comm=Math.min(.9999,comm+value('stressComm')/100);fc*=1+value('stressFixed')/100}else if(kind==='severe'){q*=1-2*value('stressQty')/100;vc*=1+2*value('stressCost')/100;comm=Math.min(.9999,comm+2*value('stressComm')/100);fc*=1+2*value('stressFixed')/100}q=Math.max(0,q);const ep=m.economicPrice,net=ep*q*(1-m.disc)*(1-comm),cm=(q>0?net/q:ep*(1-m.disc)*(1-comm))-vc,op=cm*q-fc;return {q,vc,comm,fc,cm,op}}
+function scenarioFrom(m,kind){let q=m.q,vc=m.vc,comm=m.comm,fc=m.fc;if(kind==='down'){q*=1-value('stressQty')/100;vc*=1+value('stressCost')/100;comm=Math.min(.9999,comm+value('stressComm')/100);fc*=1+value('stressFixed')/100}else if(kind==='severe'){q*=1-2*value('stressQty')/100;vc*=1+2*value('stressCost')/100;comm=Math.min(.9999,comm+2*value('stressComm')/100);fc*=1+2*value('stressFixed')/100}q=Math.max(0,q);const ep=m.economicPrice,net=ep*q*(1-m.disc)*(1-comm),cm=(q>0?net/q:ep*(1-m.disc)*(1-comm))-vc,appliedStepCost=m.capacity>0&&q>m.capacity?m.stepCost:0,op=cm*q-fc-appliedStepCost;return {q,vc,comm,fc,cm,op,appliedStepCost}}
 function renderStress(m){const arr=[['Base',m],['Downside',scenarioFrom(m,'down')],['Severe',scenarioFrom(m,'severe')]];$('stressCards').innerHTML=arr.map(([n,x])=>`<div class="scenario-card"><span class="tiny muted">${n}</span><b>${money(x.op)}</b><div class="tiny muted">CM ${money(x.cm)} • كمية ${fmt(x.q)}</div></div>`).join('')}
 function renderConfidence(){const sc=dataConfidence();$('confidenceBadge').textContent=`الثقة ${sc}%`;$('confidenceBar').style.width=sc+'%';$('confidenceText').textContent=sc>=80?'المدخلات الأساسية موثقة بدرجة جيدة.':sc>=60?'يوجد اعتماد متوسط على افتراضات غير مؤكدة.':'النتيجة تعتمد بدرجة مرتفعة على افتراضات؛ لا تعتمد التقرير كنهائي قبل التوثيق.'}
-function renderExplain(m){const rows=[['صافي الإيراد',`(${fmt(m.economicPrice)} × ${fmt(m.q)}) × (1-${pct(m.disc*100)}) × (1-${pct(m.comm*100)}) = ${money(m.net)}`],['هامش المساهمة',`${money(m.unitNet)} - ${money(m.vc)} = ${money(m.cm)} / وحدة`],['الربح التشغيلي',`${money(m.cm)} × ${fmt(m.q)} - ${money(m.fc)}${m.appliedStepCost?` - ${money(m.appliedStepCost)} Step Cost`:''} = ${money(m.op)}`],['نقطة التعادل',m.cm>EPS?`CEILING(${money(m.fc)} ÷ ${money(m.cm)}) = ${fmt(m.bep)} وحدة`:'غير معرفة لأن هامش المساهمة غير موجب.']];$('explainGrid').innerHTML=rows.map(([n,f])=>`<div class="explain-item"><b>${n}</b><code>${f}</code></div>`).join('')}
+function renderExplain(m){const rows=[['صافي الإيراد',`(${fmt(m.economicPrice)} × ${fmt(m.q)}) × (1-${pct(m.disc*100)}) × (1-${pct(m.comm*100)}) = ${money(m.net)}`],['هامش المساهمة',`${money(m.unitNet)} - ${money(m.vc)} = ${money(m.cm)} / وحدة`],['الربح التشغيلي',`${money(m.cm)} × ${fmt(m.q)} - ${money(m.fc)}${m.appliedStepCost?` - ${money(m.appliedStepCost)} Step Cost`:''} = ${money(m.op)}`],['نقطة التعادل',m.cm>EPS?`CEILING((${money(m.fc)}${m.capacity>0&&m.bep>m.capacity&&m.stepCost>0?` + ${money(m.stepCost)} تكلفة قفزة`:''}) ÷ ${money(m.cm)}) = ${fmt(m.bep)} وحدة`:'غير معرفة لأن هامش المساهمة غير موجب.']];$('explainGrid').innerHTML=rows.map(([n,f])=>`<div class="explain-item"><b>${n}</b><code>${f}</code></div>`).join('')}
 function reportHeader(title,page){return `<div class="report-kicker">Bonds Global | Break-even Analysis</div><div class="report-title">${title}</div><div class="report-meta"><span class="badge">${esc($('projectName').value)}</span><span class="badge">${esc($('scenarioName').value)}</span><span class="badge">${periodLabel()}</span><span class="badge">Calculation ID: ${esc(calcId.slice(0,18))}</span></div>`}
-function reportFooter(page){return `<div class="report-footer"><span>محرك v3.1.1 • ${new Date().toLocaleDateString('ar-SA')}</span><span>صفحة ${page} من 4</span></div>`}
+function reportFooter(page){return `<div class="report-footer"><span>محرك v${APP_META.appVersion} • ${new Date().toLocaleDateString('ar-SA')}</span><span>صفحة ${page} من 4</span></div>`}
 function buildExecutiveReport(m){const v=validateInputs(),ready=decisionReadiness(m),draft=v.errors.length||dataConfidence()<80||ready.score<80;const status=draft?'DRAFT':'FINAL';const threshold=isFinite(m.bePrice)?Math.ceil(m.bePrice*100)/100:null;const stressD=scenarioFrom(m,'down');const stressS=scenarioFrom(m,'severe');
  $('reportPage1').innerHTML=reportHeader('الملخص التنفيذي',1)+`<div class="report-grid"><div class="report-box"><span>النتيجة التشغيلية</span><b>${money(m.op)}</b></div><div class="report-box"><span>هامش المساهمة للوحدة</span><b>${money(m.cm)}</b></div><div class="report-box"><span>نقطة التعادل</span><b>${m.bep!==null?fmt(m.bep)+' وحدة':'غير متاح'}</b></div><div class="report-box"><span>مؤشر المتانة</span><b>${Math.round(health(m))}/100</b></div></div><div class="report-callout"><b>${esc($('diagnosisTitle').textContent)}</b><div>${esc($('diagnosisText').textContent)}</div></div><div class="report-section"><h2>الإجراء الأول</h2><p>${esc($('nextAction').textContent)}</p></div><div class="report-section"><h2>حالة التقرير</h2><p><b>${status}</b> • ثقة البيانات ${dataConfidence()}% • ${v.errors.length?'توجد أخطاء تحقق':'اجتاز التحقق الأساسي'}</p></div>`+reportFooter(1);
  $('reportPage2').innerHTML=reportHeader('اقتصاديات الوحدة والتعادل',2)+`<table class="report-table"><tr><th>البند</th><th>القيمة</th></tr><tr><td>السعر الحالي</td><td>${money(m.p)}</td></tr><tr><td>الإيراد الصافي للوحدة</td><td>${money(m.unitNet)}</td></tr><tr><td>التكلفة المتغيرة</td><td>${money(m.vc)}</td></tr><tr><td>هامش المساهمة</td><td>${money(m.cm)}</td></tr><tr><td>سعر تغطية المتغير</td><td>${money(Math.ceil(m.priceFloor*100)/100)}</td></tr><tr><td>سعر التعادل عند الكمية الحالية</td><td>${threshold===null?'—':money(threshold)}</td></tr><tr><td>الطاقة القصوى</td><td>${m.capacity>0?fmt(m.capacity)+' وحدة':'غير محددة'}</td></tr></table><div class="report-section"><h2>قابلية التعادل</h2><p>${m.bep!==null&&m.capacity>0&&m.bep>m.capacity?'نقطة التعادل تتجاوز الطاقة القصوى؛ الحجم وحده غير كافٍ.':m.bep!==null?'نقطة التعادل قابلة للاختبار ضمن القيود المعروضة.':'لا توجد كمية موجبة تحقق التعادل قبل إصلاح اقتصاديات الوحدة.'}</p></div>`+reportFooter(2);
