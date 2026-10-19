@@ -135,11 +135,10 @@ async function generateNativeReply(messages, context) {
   });
   const response = await router.generate(buildNativeChatPrompt(messages, context), {
     temperature: 0.2,
-    // Keep chat output bounded to the measured production latency envelope.
-    // The current Native runtime can decode near ~1.23 token/s, so 256 tokens
-    // can overrun the 120s authenticated-smoke gate. 96 leaves headroom for
-    // prompt evaluation while preserving concise decision-support responses.
-    max_tokens: 96
+    // Production measurement at 96 tokens reached ~115s, leaving less than
+    // five seconds before the 120s authenticated-smoke gate. Halve the decode
+    // ceiling to restore operational headroom without changing timeout policy.
+    max_tokens: 48
   });
   if (!response?.ok) {
     const err = new Error(response?.error?.message || response?.error?.code || 'Bonds Native chat failed');
