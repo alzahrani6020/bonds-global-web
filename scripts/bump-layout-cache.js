@@ -1,3 +1,6 @@
+console.error('Deprecated: layout cache versions are enforced by sw.js + scripts/bump-cache-version.js. Do not run scripts/bump-layout-cache.js.');
+process.exit(1);
+
 const fs = require('fs');
 const path = require('path');
 

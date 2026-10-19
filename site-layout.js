@@ -223,23 +223,23 @@
       investmentOpportunities: isEn ? 'Investment Opportunities' : 'فرص استثمارية',
       fundingSources: isEn ? 'Funding Sources' : 'مصادر التمويل',
       fundingReadiness: isEn ? 'Funding Readiness' : 'جاهزية التمويل',
-      breakEven: isEn ? 'Break-Even' : 'نقطة التعادل',
-      projectWizard: isEn ? 'Project Feasibility Wizard' : 'معالج جدوى المشاريع',
-      investmentCenter: isEn ? 'Investment Center' : 'مركز الحاسبات الاستثمارية',
-      cashFlowCalc: isEn ? 'Cash Flow' : 'تدفق النقد',
-      pricingCalc: isEn ? 'Pricing' : 'تسعير المنتج',
-      loanCalc: isEn ? 'Loan & Finance' : 'القرض والتمويل',
-      roiCalc: isEn ? 'ROI Calculator' : 'عائد الاستثمار',
-      restaurantCalc: isEn ? 'Restaurants & Cloud' : 'المطاعم والسحابي',
-      menuEngCalc: isEn ? 'Menu Engineering' : 'هندسة المنيو',
+      breakEven: isEn ? "Break-Even" : "نقطة التعادل",
+      projectWizard: isEn ? "Project Feasibility Wizard" : "معالج جدوى المشاريع",
+      investmentCenter: isEn ? "Investment Center" : "مركز الحاسبات الاستثمارية",
+      cashFlowCalc: isEn ? "Cash Flow" : "تدفق النقد",
+      pricingCalc: isEn ? "Pricing" : "تسعير المنتج",
+      loanCalc: isEn ? "Loan & Finance" : "القرض والتمويل",
+      roiCalc: isEn ? "ROI Calculator" : "عائد الاستثمار",
+      restaurantCalc: isEn ? "Restaurants & Cloud" : "المطاعم والسحابي",
+      menuEngCalc: isEn ? "Menu Engineering" : "هندسة المنيو",
       feasibilityCalc: isEn ? 'Restaurant Viability' : 'الجدوى المالية للمطعم',
-      medicalCalc: isEn ? 'Medical Viability' : 'الجدوى الطبية',
-      invoiceCalc: isEn ? 'Invoice Analyzer' : 'تحليل الفواتير',
-      templateCalc: isEn ? 'Feasibility Template' : 'نموذج دراسة الجدوى',
-      manufacturingFeasibilityCalc: isEn ? 'Manufacturing Feasibility' : 'الجدوى المالية للمصنع',
+      medicalCalc: isEn ? "Medical Viability" : "الجدوى الطبية",
+      invoiceCalc: isEn ? "Invoice Analyzer" : "تحليل الفواتير",
+      templateCalc: isEn ? "Feasibility Template" : "نموذج دراسة الجدوى",
+      manufacturingFeasibilityCalc: isEn ? "Manufacturing Feasibility" : "الجدوى المالية للمصنع",
       valuation: isEn ? 'Valuation' : 'التقييم',
-      creditworthinessCalc: isEn ? 'Credit Rating' : 'تقييم الجدارة الائتمانية',
-      realProjectAnalysis: isEn ? 'Real Project Analysis' : 'تحليل المشروع الحقيقي',
+      creditworthinessCalc: isEn ? "Credit Rating" : "تقييم الجدارة الائتمانية",
+      realProjectAnalysis: isEn ? "Real Project Analysis" : "تحليل المشروع الحقيقي",
       search: isEn ? 'Search' : 'بحث',
       factorySa: isEn ? 'Factory Cost — Saudi' : 'تكلفة المصنع — السعودية',
       factoryEg: isEn ? 'Factory Cost — Egypt' : 'تكلفة المصنع — مصر',
@@ -354,9 +354,10 @@
       },
     ];
 
+    // TOOLS-GENERATED:START
     const calcDropdown = [
       {
-        heading: { ar: 'التحليل والقرار', en: 'Analysis & Decision' },
+        heading: { ar: "التحليل والقرار", en: "Analysis & Decision" },
         items: [
           { label: labels.investmentCenter, href: calcBase + 'investment-center/index.html' },
           { label: labels.projectWizard, href: langBase + 'calculator-wizard.html' },
@@ -365,7 +366,7 @@
         ],
       },
       {
-        heading: { ar: labels.financialAnalysisGroup, en: 'Financial Analysis' },
+        heading: { ar: "التحليل المالي", en: "Financial Analysis" },
         items: [
           { label: labels.cashFlowCalc, href: calcBase + 'cash-flow.html' },
           { label: labels.loanCalc, href: calcBase + 'loan.html' },
@@ -375,7 +376,7 @@
         ],
       },
       {
-        heading: { ar: labels.pricingFeasibilityGroup, en: 'Pricing & Feasibility' },
+        heading: { ar: "التسعير والجدوى", en: "Pricing & Feasibility" },
         items: [
           { label: labels.pricingCalc, href: calcBase + 'pricing.html' },
           { label: labels.templateCalc, href: calcBase + 'feasibility-template.html' },
@@ -383,7 +384,7 @@
         ],
       },
       {
-        heading: { ar: 'أدوات قطاعية', en: 'Sector Tools' },
+        heading: { ar: "أدوات قطاعية", en: "Sector Tools" },
         items: [
           { label: labels.restaurantCalc, href: calcBase + 'restaurant.html' },
           { label: labels.menuEngCalc, href: calcBase + 'menu-engineering.html' },
@@ -391,7 +392,7 @@
         ],
       },
     ];
-
+    // TOOLS-GENERATED:END
     const fundingDropdown = [
       {
         heading: { ar: labels.fundingGroup, en: 'Funding' },

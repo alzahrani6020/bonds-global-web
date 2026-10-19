@@ -60,6 +60,12 @@ jobs:
       - name: Run Site Audit
         run: npm run audit
 
+      - name: Generate and validate Tools Registry
+        run: |
+          npm run generate:tools
+          git diff --exit-code
+          npm run audit:tools
+
       - name: Run Open Graph Audit
         run: npm run audit:og
 
