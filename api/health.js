@@ -89,15 +89,31 @@ module.exports = async function handler(req, res) {
   if (strict) {
     let nativeStatus = 'skipped';
     let nativeProvider = null;
+    let nativeDiagnostic = null;
 
     if (nativeMode === 'REMOTE_BONDS_NATIVE') {
       try {
         const nativeHealth = await getInferenceRouter().health();
         nativeStatus = nativeHealth.ok === true ? 'ok' : 'error';
         nativeProvider = nativeHealth.provider || 'BondsNativeProvider';
-      } catch (_) {
+        if (nativeStatus !== 'ok') {
+          const nativeError = nativeHealth && nativeHealth.error ? nativeHealth.error : {};
+          nativeDiagnostic = {
+            code: nativeError.code || 'NATIVE_HEALTH_FAILED',
+            http_status: Number.isFinite(Number(nativeError.status)) ? Number(nativeError.status) : null,
+            executed: nativeHealth.executed === true,
+            elapsed_ms: Number.isFinite(Number(nativeError.elapsed_ms)) ? Number(nativeError.elapsed_ms) : null,
+          };
+        }
+      } catch (error) {
         nativeStatus = 'error';
         nativeProvider = 'BondsNativeProvider';
+        nativeDiagnostic = {
+          code: (error && (error.code || error.name)) || 'NATIVE_HEALTH_EXCEPTION',
+          http_status: Number.isFinite(Number(error && error.status)) ? Number(error.status) : null,
+          executed: false,
+          elapsed_ms: null,
+        };
       }
     }
 
@@ -148,6 +164,7 @@ module.exports = async function handler(req, res) {
         fallback_provider: fallbackEligible ? 'openai' : null,
         fallback_reason: fallbackReason,
         fallback_http_status: fallbackHttpStatus,
+        native_diagnostic: nativeDiagnostic,
       },
     });
   }
