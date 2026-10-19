@@ -156,12 +156,24 @@ button,input,select,textarea{font-family:inherit}
 .break-even-landing p{max-width:760px;margin:0 auto;color:#607183;font-family:"Vazirmatn","Segoe UI",Tahoma,Arial,sans-serif;font-size:15.5px;font-weight:400;line-height:1.85}
 .break-even-landing__actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:22px}
 .break-even-landing__actions a,.break-even-landing__actions button{min-width:168px;text-decoration:none}
-.calc-context-bar{max-width:1540px;margin:18px auto 0;padding:0 22px}
-.calc-context-bar__inner{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:12px 16px;border:1px solid #dfe6ed;border-radius:14px;background:#fff;box-shadow:0 4px 14px rgba(16,32,51,.035)}
-.calc-context-bar__group{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.calc-context-bar__item{font-size:12px;color:#607183}
-.calc-context-bar__item b{color:#193a5c}.auth-context{display:inline-flex;align-items:center;gap:6px;padding:5px 9px;border:1px solid #e1e6eb;border-radius:999px;background:#f8fafc;font-size:11px;color:#607183}
+.calc-context-bar{margin:0;background:#fff;border-top:1px solid #e2e8ef;border-bottom:1px solid #e1e7ed;box-shadow:0 8px 22px rgba(16,32,51,.04)}
+.calc-context-bar__inner{max-width:1540px;margin:auto;display:grid;grid-template-columns:1.3fr .9fr 1fr 1fr;align-items:stretch;direction:rtl}
+.calc-context-segment{min-height:74px;padding:13px 18px;display:flex;align-items:center;gap:11px;border-inline-start:1px solid #edf0f3;background:#fff}
+.calc-context-segment:first-child{border-inline-start:0}
+.calc-context-icon{width:34px;height:34px;display:grid;place-items:center;color:#c28d2f;flex:0 0 auto}
+.calc-context-icon svg{width:24px;height:24px;stroke:currentColor}
+.calc-context-content{min-width:0;display:flex;flex-direction:column;gap:2px}
+.calc-context-label{font-size:10px;color:#728095}
+.calc-context-value{font-size:12px;font-weight:700;color:#173653;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calc-context-sub{font-size:10px;color:#718095;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.calc-context-engine{justify-content:center;text-align:center}.calc-context-engine .calc-context-content{align-items:center}
+.engine-pill{display:inline-flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid #dfe6ed;border-radius:999px;background:#f8fafc;color:#173653;font-size:11px;font-weight:700}
+.auth-context{display:inline-flex;align-items:center;gap:6px;padding:3px 7px;border:1px solid #e1e6eb;border-radius:999px;background:#f8fafc;font-size:9.5px;color:#607183}
 .auth-context.is-authenticated{border-color:#cfe5db;background:#f3faf7;color:#24735b}.auth-context.is-guest{border-color:#ecdcbf;background:#fffaf1;color:#8c621d}
-.workspace-toolbar{top:74px}.workspace-toolbar .workspace-title{display:flex;flex-direction:column;gap:2px}.workspace-toolbar .workspace-title b{font-size:14px;color:#173653}.workspace-toolbar .workspace-title small{font-size:10px;color:#738196}
+.context-scenario-select{min-width:126px;border:1px solid #dce3ea;background:#fff;color:#173653;border-radius:9px;padding:7px 28px 7px 9px;font-weight:700;font-size:11px}
+.workspace-toolbar{top:74px;margin:0 0 12px;padding:9px 4px 10px;background:transparent;border-bottom:0;backdrop-filter:none}
+.workspace-toolbar .workspace-title{display:none}.workspace-toolbar .actions{width:100%;justify-content:flex-start}.workspace-toolbar .btn{padding:7px 10px;font-size:11px}
+.app{margin-top:0;padding-top:12px}
 .auth-gate-note{max-width:1540px;margin:10px auto 0;padding:0 22px}.auth-gate-note__inner{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;border:1px solid #ead8b9;border-radius:12px;background:#fffaf1;color:#77531e;font-size:12px}
 .auth-gate-note__inner a{color:#163a63;font-weight:700}
 .app.is-auth-locked{position:relative;max-height:720px;overflow:hidden;pointer-events:none;user-select:none;filter:blur(1.6px);opacity:.38}
@@ -177,9 +189,9 @@ button,input,select,textarea{font-family:inherit}
 .letterhead-foot{position:absolute!important;left:0;right:0;bottom:0;min-height:21mm;background:#06182d;color:#fff;padding:4mm 10mm;display:flex;align-items:center;justify-content:space-between;gap:8mm;font-size:7.4pt}
 .letterhead-foot__values{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.letterhead-foot__values span{white-space:nowrap}.letterhead-foot__principles{display:flex;align-items:center;gap:8px;color:#e1c071;font-weight:700}.letterhead-foot__page{color:#d7e0ea;white-space:nowrap}
 .report-kicker{margin-top:0}
-@media(max-width:1180px){.break-even-landing__inner{grid-template-columns:minmax(0,1fr) minmax(500px,1.6fr);grid-template-areas:"copy visual";min-height:360px}.break-even-landing:before{background-size:320px}.break-even-finance-card{max-width:320px}}
-@media(max-width:900px){.break-even-landing__inner{display:block;min-height:0;padding:46px 18px 40px}.break-even-landing__visual{display:none}.break-even-landing:before{background-position:5% 55%;background-size:280px}.calc-context-bar__inner{align-items:flex-start}.workspace-toolbar{top:64px}}
-@media(max-width:680px){.break-even-breadcrumbs{padding:11px 14px}.break-even-breadcrumbs ol{font-size:11px}.break-even-landing__inner{padding:36px 14px 32px}.break-even-landing h1{font-size:34px}.break-even-landing p{font-size:14px}.calc-context-bar{padding:0 10px}.auth-gate-note{padding:0 10px}.workspace-toolbar{top:60px}}
+@media(max-width:1180px){.break-even-landing__inner{grid-template-columns:minmax(0,1fr) minmax(500px,1.6fr);grid-template-areas:"copy visual";min-height:360px}.break-even-landing:before{background-size:320px}.break-even-finance-card{max-width:320px}.calc-context-bar__inner{grid-template-columns:1.2fr .9fr 1fr 1fr}}
+@media(max-width:900px){.break-even-landing__inner{display:block;min-height:0;padding:46px 18px 40px}.break-even-landing__visual{display:none}.break-even-landing:before{background-position:5% 55%;background-size:280px}.calc-context-bar__inner{grid-template-columns:1fr 1fr}.calc-context-segment:nth-child(3){border-top:1px solid #edf0f3}.calc-context-segment:nth-child(4){border-top:1px solid #edf0f3}.workspace-toolbar{top:64px}}
+@media(max-width:680px){.break-even-breadcrumbs{padding:11px 14px}.break-even-breadcrumbs ol{font-size:11px}.break-even-landing__inner{padding:36px 14px 32px}.break-even-landing h1{font-size:34px}.break-even-landing p{font-size:14px}.calc-context-bar__inner{grid-template-columns:1fr}.calc-context-segment{min-height:62px;border-inline-start:0!important;border-top:1px solid #edf0f3}.calc-context-segment:first-child{border-top:0}.calc-context-engine{justify-content:flex-start;text-align:right}.calc-context-engine .calc-context-content{align-items:flex-start}.auth-gate-note{padding:0 10px}.workspace-toolbar{top:60px}}
 @media print{
   #site-header,#site-footer,.break-even-breadcrumbs,.break-even-landing,.calc-context-bar,.auth-gate-note{display:none!important}
   .letterhead-head{display:grid!important}.letterhead-foot{display:flex!important}
@@ -247,14 +259,33 @@ button,input,select,textarea{font-family:inherit}
 </section>
 <div class="calc-context-bar" aria-label="سياق الحساب">
   <div class="calc-context-bar__inner">
-    <div class="calc-context-bar__group">
-      <span class="calc-context-bar__item"><b>نقطة التعادل</b></span>
-      <span class="calc-context-bar__item">محرك v3.1.2</span>
-      <span class="calc-context-bar__item" id="calcLastUpdated">آخر تحديث: —</span>
+    <div class="calc-context-segment">
+      <span class="calc-context-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></span>
+      <div class="calc-context-content">
+        <span class="calc-context-label">آخر تحديث للحساب</span>
+        <span class="calc-context-value" id="calcLastUpdated">—</span>
+        <span class="calc-context-sub">توقيت السعودية</span>
+      </div>
     </div>
-    <div class="calc-context-bar__group">
-      <span id="calcAuthState" class="auth-context is-guest">التحقق من تسجيل الدخول…</span>
-      <span class="calc-context-bar__item">توقيت السعودية</span>
+    <div class="calc-context-segment calc-context-engine">
+      <div class="calc-context-content">
+        <span class="engine-pill">محرك الحساب v3.1.2</span>
+        <span id="calcAuthState" class="auth-context is-guest">التحقق من تسجيل الدخول…</span>
+      </div>
+    </div>
+    <div class="calc-context-segment">
+      <span class="calc-context-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 7h6l2 2h10v10H3z"/><path d="M3 7V5h7l2 2"/></svg></span>
+      <div class="calc-context-content">
+        <span class="calc-context-label">المشروع الحالي</span>
+        <span class="calc-context-value" id="contextProjectName">مشروع تجريبي</span>
+      </div>
+    </div>
+    <div class="calc-context-segment">
+      <span class="calc-context-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg></span>
+      <div class="calc-context-content">
+        <span class="calc-context-label">السيناريو</span>
+        <select id="contextScenarioPreset" class="context-scenario-select" aria-label="السيناريو في شريط السياق"></select>
+      </div>
     </div>
   </div>
 </div>
@@ -563,7 +594,7 @@ function formatSaudiDateTime(date){
 function markCalculationUpdated(){
   lastCalculationUpdatedAt=new Date();
   const el=$('calcLastUpdated');
-  if(el)el.textContent='آخر تحديث: '+formatSaudiDateTime(lastCalculationUpdatedAt);
+  if(el)el.textContent=formatSaudiDateTime(lastCalculationUpdatedAt);
 }
 const ids=['projectName','scenarioName','scenarioPreset','scenarioCustomName','period','periodStart','periodEnd','currency','price','qty','varCost','fixedCost','commission','discount','vatRate','vatMode','capacity','stepCost','dso','dio','dpo','cash','arBasis','loan','annualRate','months','financeFees','targetProfit','maxPrice','maxQty','minMos','stressQty','stressCost','stressComm','stressFixed'];
 const coreRequired=['price','qty','varCost','fixedCost','commission'];
@@ -1006,6 +1037,29 @@ $('importQuickBtn')?.addEventListener('click',()=>{document.querySelector('.tab[
 renderManagement(); previousPeriod=$('period').value; if(expiryState.price)$('expiryPrice').value=expiryState.price;if(expiryState.vc)$('expiryVC').value=expiryState.vc;if(expiryState.comm)$('expiryComm').value=expiryState.comm;syncScenarioComposer();updatePeriodUI();renderAssumptionExpiry();
 
 $('heroHelpBtn')?.addEventListener('click',()=>$('helpBtn')?.click());
+
+function syncContextRibbon(){
+  const project=$('contextProjectName'),projectInput=$('projectName');
+  if(project&&projectInput)project.textContent=projectInput.value.trim()||'مشروع بدون اسم';
+  const mirror=$('contextScenarioPreset'),source=$('scenarioPreset');
+  if(mirror&&source){
+    if(!mirror.options.length){
+      mirror.innerHTML=Array.from(source.options).map(o=>`<option value="${esc(o.value)}">${esc(o.textContent)}</option>`).join('');
+    }
+    mirror.value=source.value;
+  }
+}
+$('projectName')?.addEventListener('input',syncContextRibbon);
+$('scenarioPreset')?.addEventListener('change',syncContextRibbon);
+$('contextScenarioPreset')?.addEventListener('change',e=>{
+  const source=$('scenarioPreset');
+  if(!source)return;
+  source.value=e.target.value;
+  source.dispatchEvent(new Event('change',{bubbles:true}));
+  syncContextRibbon();
+});
+syncContextRibbon();
+
 $('heroStartBtn')?.addEventListener('click',async e=>{
   if(breakEvenAuthChecked&&breakEvenAuthUser)return;
   e.preventDefault();
