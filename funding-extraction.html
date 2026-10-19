@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="styles/page-redesign-2026.css?v=1" />
   <link rel="stylesheet" href="styles/funding-request-form.css?v=2" />
+  <link rel="stylesheet" href="styles/funding-file-status.css?v=1" />
   <link rel="stylesheet" href="/styles/institutional-system.css?v=6">
 
   <link rel="icon" href="assets/bonds-mark.svg" type="image/svg+xml" />
@@ -180,7 +181,7 @@
 
 
   <!-- Funding File Journey -->
-  <section class="section" id="funding-file" style="background: var(--cream-100);">
+  <section class="section" id="funding-file" style="background: var(--cream-100);" data-funding-file>
     <div class="container">
       <div class="section-header reveal">
         <span class="section__eyebrow">ملف التمويل</span>
@@ -188,6 +189,15 @@
         <p style="max-width:760px;margin:0 auto;color:var(--text-secondary);line-height:1.9;">
           هذه النماذج جزء من رحلة استخراج التمويل. ابدأ ببيانات المنشأة، ثم البيانات المالية، ثم الموافقات الائتمانية قبل مراجعة الملف والتقديم.
         </p>
+        <div class="funding-file-summary">
+          <div class="funding-file-summary__row">
+            <strong>حالة الملف</strong>
+            <span data-funding-file-summary>سجّل الدخول لعرض حالة اكتمال ملفك التمويلي.</span>
+          </div>
+          <div class="funding-file-summary__track">
+            <span class="funding-file-summary__fill" data-funding-file-progress role="progressbar" aria-label="اكتمال ملف التمويل" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></span>
+          </div>
+        </div>
       </div>
       <div class="grid-3">
         <div class="card reveal">
@@ -195,9 +205,9 @@
           <h3 class="card__title">بيانات العميل والمنشأة</h3>
           <p class="card__text">تعريف العميل والمنشأة وطبيعة النشاط قبل بناء الملف المالي.</p>
           <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary" href="/client/kyc">اعرف عميلك (KYC)</a>
-            <a class="fi-btn fi-btn--secondary" href="/client/establishment-information">معلومات المنشأة</a>
-            <a class="fi-btn fi-btn--secondary" href="/client/business-activity">معلومات النشاط</a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="kyc" href="/client/kyc"><span>اعرف عميلك (KYC)</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="establishment" href="/client/establishment-information"><span>معلومات المنشأة</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="activity" href="/client/business-activity"><span>معلومات النشاط</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
           </div>
         </div>
         <div class="card reveal reveal-delay-1">
@@ -205,9 +215,9 @@
           <h3 class="card__title">البيانات المالية</h3>
           <p class="card__text">استكمال المعلومات التي تدعم تقييم السيولة والتحصيل والالتزامات.</p>
           <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary" href="/client/cash-flow">التدفقات النقدية</a>
-            <a class="fi-btn fi-btn--secondary" href="/client/receivables-aging">أعمار الذمم المدينة</a>
-            <a class="fi-btn fi-btn--secondary" href="/client/payables-aging">أعمار الذمم الدائنة</a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="cash_flow" href="/client/cash-flow"><span>التدفقات النقدية</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="receivables" href="/client/receivables-aging"><span>أعمار الذمم المدينة</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="payables" href="/client/payables-aging"><span>أعمار الذمم الدائنة</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
           </div>
         </div>
         <div class="card reveal reveal-delay-2">
@@ -215,8 +225,8 @@
           <h3 class="card__title">الموافقات الائتمانية</h3>
           <p class="card__text">استكمال الموافقات المطلوبة لمراجعة المعلومات الائتمانية ضمن نطاق الخدمة.</p>
           <div style="display:grid;gap:.65rem;margin-top:1.25rem;">
-            <a class="fi-btn fi-btn--secondary" href="/client/credit-consent-business">موافقة ائتمانية — منشأة</a>
-            <a class="fi-btn fi-btn--secondary" href="/client/credit-consent-individual">موافقة ائتمانية — فرد</a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="credit_business" href="/client/credit-consent-business"><span>موافقة ائتمانية — منشأة</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
+            <a class="fi-btn fi-btn--secondary funding-file-link" data-funding-file-item="credit_individual" href="/client/credit-consent-individual"><span>موافقة ائتمانية — فرد</span><span class="funding-file-status is-empty" data-funding-file-status>لم يبدأ</span></a>
           </div>
         </div>
       </div>
@@ -635,6 +645,7 @@
   <script defer src="page-tracker-v2.js"></script>
   <script src="scripts/funding-context.js" defer></script>
   <script src="scripts/funding-request-form.js?v=3" defer></script>
+  <script src="scripts/funding-file-status.js?v=1" defer></script>
   <script src="/components/emoji-icons.js" defer></script>
   <script src="/components/emoji-renderer.js" defer></script>
 </body>
