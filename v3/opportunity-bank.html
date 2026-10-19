@@ -494,7 +494,7 @@
         activities
           .filter(a => a.country?.availability_status !== 'unavailable')
           .forEach(a => {
-            activitySelect.innerHTML += `<option value="${a.code}">${a.name_ar}</option>`;
+            activitySelect.innerHTML += `<option value="${a.code}">${window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar}</option>`;
           });
       } catch (err) {
         console.warn('Failed to refresh activities for country:', err.message);
