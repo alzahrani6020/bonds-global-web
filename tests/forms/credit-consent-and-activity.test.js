@@ -57,13 +57,15 @@ describe('generic credit consent forms',()=>{
     expect(migration).toContain("subject_type IN ('business','individual')");
   });
 
-  test('funding journey exposes both generic consent forms',()=>{
-    const ar=read('funding-extraction.html');
-    const en=read('en/funding-extraction.html');
-    expect(ar).toContain('href="/client/credit-consent-business"');
-    expect(ar).toContain('href="/client/credit-consent-individual"');
-    expect(en).toContain('href="/en/client/credit-consent-business"');
-    expect(en).toContain('href="/en/client/credit-consent-individual"');
+  test('funding registry exposes both consent requirements and controller binds them to a case',()=>{
+    const migration=read('supabase/migrations/20261019064000_funding_file_case_architecture.sql');
+    expect(migration).toContain("'credit_business'");
+    expect(migration).toContain("'credit_individual'");
+    expect(migration).toContain("'/client/credit-consent-business'");
+    expect(migration).toContain("'/en/client/credit-consent-individual'");
+    const controller=read('lib/forms/credit-consent-form.js');
+    expect(controller).toContain('funding_case_id:fundingCase?.id||null');
+    expect(controller).toContain("existingQuery=existingQuery.eq('funding_case_id',fundingCase.id)");
   });
 });
 
