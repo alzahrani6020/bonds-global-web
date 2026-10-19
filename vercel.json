@@ -475,10 +475,6 @@
       "destination": "/v3/admin/services.html"
     },
     {
-      "source": "/v3/admin/services.html",
-      "destination": "/v3/admin/services.html"
-    },
-    {
       "source": "/v3/admin/(.*)",
       "destination": "/v3/admin/index.html"
     },
