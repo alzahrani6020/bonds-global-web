@@ -33,6 +33,7 @@ describe('post-release pipeline contracts', () => {
     );
 
     expect(workflow).toContain('timeout-minutes: 15');
+    expect(workflow).toContain('${{ github.workflow }}-${{ github.ref }}-bounded-v2');
   });
   test('existing forward migrations are immutable after merge', () => {
     const workflow = fs.readFileSync(
