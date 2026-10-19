@@ -58,14 +58,16 @@ describe('V3 canonical activity taxonomy', () => {
     expect(alerts).toContain('/investment-taxonomy');
     expect(alerts).toContain("include: 'activities'");
 
-    for (const source of [comparison, intelligence]) {
-      expect(source).toContain('/catalog/activities');
-    }
+    expect(comparison).toContain('/investment-taxonomy');
+    expect(comparison).toContain("include: 'activities'");
+
+    expect(intelligence).toContain('/catalog/activities');
 
     expect(opportunityBank).not.toContain("fetchJson(API_URL + '/sectors')");
     expect(investmentMap).not.toContain("fetchJson(API_URL + '/catalog/activities')");
     expect(alerts).not.toContain("fetchJson(API_URL + '/catalog/activities')");
     expect(alerts).not.toContain("fetchJson(API_URL + '/sectors')");
+    expect(comparison).not.toContain("fetchJson(API_URL + '/catalog/activities')");
     expect(comparison).not.toContain(".filter(activity => activity.recordStatus === 'complete')");
   });
 
