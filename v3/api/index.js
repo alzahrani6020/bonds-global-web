@@ -168,112 +168,173 @@ async function handleSectors(req, res) {
 async function handleInvestmentTaxonomy(req, res) {
   const url = getQuery(req);
   const countryCode = (url.searchParams.get('country') || '').toUpperCase() || null;
+  const sectorCode = url.searchParams.get('sector') || null;
+  const include = new Set(
+    (url.searchParams.get('include') || '')
+      .split(',')
+      .map(value => value.trim())
+      .filter(Boolean)
+  );
+  const includeActivities = include.has('activities') || include.has('all');
+  const includeDimensions = include.has('dimensions') || include.has('all');
 
   if (countryCode && !COUNTRY_NAMES[countryCode]) {
     return sendJson(res, 400, { error: 'Invalid country parameter' });
   }
 
   const supabase = getSupabaseClient();
+  let sectorsQuery = supabase
+    .from('canonical_investment_sectors')
+    .select('id,code,name_ar,name_en,description,sort_order')
+    .eq('is_active', true)
+    .order('sort_order');
+  if (sectorCode) sectorsQuery = sectorsQuery.eq('code', sectorCode);
 
-  const [
-    sectorsResult,
-    subsectorsResult,
-    activitiesResult,
-    sectorMapResult,
-    subsectorMapResult,
-    sizesResult,
-    formsResult,
-    opportunityTypesResult
-  ] = await Promise.all([
-    supabase.from('canonical_investment_sectors').select('id,code,name_ar,name_en,description,sort_order,metadata').eq('is_active', true).order('sort_order'),
-    supabase.from('canonical_investment_subsectors').select('id,sector_id,code,name_ar,name_en,description,sort_order,metadata').eq('is_active', true).order('sort_order'),
-    supabase.from('canonical_activities').select('id,code,name_ar,name_en,description,sort_order').eq('is_active', true).order('sort_order'),
-    supabase.from('canonical_activity_investment_sectors').select('canonical_activity_id,sector_id,is_primary,confidence,source,metadata'),
-    supabase.from('canonical_activity_investment_subsectors').select('canonical_activity_id,subsector_id,is_primary,confidence,source,metadata'),
-    supabase.from('investment_project_sizes').select('code,name_ar,name_en,sort_order,metadata').order('sort_order'),
-    supabase.from('investment_business_forms').select('code,name_ar,name_en,sort_order,metadata').order('sort_order'),
-    supabase.from('investment_opportunity_types').select('code,name_ar,name_en,sort_order,metadata').order('sort_order')
-  ]);
-
-  const failed = [
-    sectorsResult,
-    subsectorsResult,
-    activitiesResult,
-    sectorMapResult,
-    subsectorMapResult,
-    sizesResult,
-    formsResult,
-    opportunityTypesResult
-  ].find(result => result.error);
-
-  if (failed?.error) {
-    console.error('[investment-taxonomy]', failed.error.message);
+  const { data: sectors, error: sectorsError } = await sectorsQuery;
+  if (sectorsError) {
+    console.error('[investment-taxonomy/sectors]', sectorsError.message);
     return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
   }
 
-  let businessFormEligibility = [];
-  if (countryCode) {
-    const { data, error } = await supabase
-      .from('canonical_activity_business_forms')
-      .select('canonical_activity_id,business_form_code,country_code,verification_status,source,source_url,confidence,metadata')
-      .eq('country_code', countryCode);
-
-    if (error) {
-      console.error('[investment-taxonomy/business-forms]', error.message);
-      return sendJson(res, 500, { error: 'Failed to load country business-form eligibility' });
+  const sectorIds = (sectors || []).map(row => row.id);
+  let subsectors = [];
+  if (sectorIds.length) {
+    let subsectorsQuery = supabase
+      .from('canonical_investment_subsectors')
+      .select('id,sector_id,code,name_ar,name_en,description,sort_order')
+      .eq('is_active', true)
+      .order('sort_order');
+    if (sectorCode) subsectorsQuery = subsectorsQuery.in('sector_id', sectorIds);
+    const result = await subsectorsQuery;
+    if (result.error) {
+      console.error('[investment-taxonomy/subsectors]', result.error.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy' });
     }
-    businessFormEligibility = data || [];
+    subsectors = result.data || [];
+  }
+
+  let activities = [];
+  if (includeActivities && sectorIds.length) {
+    let sectorMapQuery = supabase
+      .from('canonical_activity_investment_sectors')
+      .select('canonical_activity_id,sector_id,is_primary,confidence')
+      .eq('is_primary', true);
+    if (sectorCode) sectorMapQuery = sectorMapQuery.in('sector_id', sectorIds);
+
+    const { data: sectorMappings, error: sectorMapError } = await sectorMapQuery;
+    if (sectorMapError) {
+      console.error('[investment-taxonomy/activity-sectors]', sectorMapError.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy activities' });
+    }
+
+    const activityIds = [...new Set((sectorMappings || []).map(row => row.canonical_activity_id))];
+    let activityRows = [];
+    let subsectorMappings = [];
+    if (activityIds.length) {
+      const [activitiesResult, subsectorMapResult] = await Promise.all([
+        supabase
+          .from('canonical_activities')
+          .select('id,code,name_ar,name_en,description,sort_order')
+          .in('id', activityIds)
+          .eq('is_active', true)
+          .order('sort_order'),
+        supabase
+          .from('canonical_activity_investment_subsectors')
+          .select('canonical_activity_id,subsector_id,is_primary,confidence')
+          .in('canonical_activity_id', activityIds)
+          .eq('is_primary', true)
+      ]);
+      if (activitiesResult.error || subsectorMapResult.error) {
+        console.error('[investment-taxonomy/activities]', activitiesResult.error?.message || subsectorMapResult.error?.message);
+        return sendJson(res, 500, { error: 'Failed to load investment taxonomy activities' });
+      }
+      activityRows = activitiesResult.data || [];
+      subsectorMappings = subsectorMapResult.data || [];
+    }
+
+    let businessFormEligibility = [];
+    if (countryCode && activityIds.length) {
+      const { data, error } = await supabase
+        .from('canonical_activity_business_forms')
+        .select('canonical_activity_id,business_form_code,country_code,verification_status,confidence')
+        .eq('country_code', countryCode)
+        .in('canonical_activity_id', activityIds);
+      if (error) {
+        console.error('[investment-taxonomy/business-forms]', error.message);
+        return sendJson(res, 500, { error: 'Failed to load country business-form eligibility' });
+      }
+      businessFormEligibility = data || [];
+    }
+
+    const primarySectorByActivity = new Map(
+      (sectorMappings || []).map(row => [row.canonical_activity_id, row])
+    );
+    const primarySubsectorByActivity = new Map(
+      subsectorMappings.map(row => [row.canonical_activity_id, row])
+    );
+    const eligibilityByActivity = new Map();
+    for (const row of businessFormEligibility) {
+      if (!eligibilityByActivity.has(row.canonical_activity_id)) eligibilityByActivity.set(row.canonical_activity_id, []);
+      eligibilityByActivity.get(row.canonical_activity_id).push(row);
+    }
+
+    activities = activityRows.map(activity => ({
+      ...activity,
+      primary_sector: primarySectorByActivity.get(activity.id) || null,
+      primary_subsector: primarySubsectorByActivity.get(activity.id) || null,
+      business_forms: eligibilityByActivity.get(activity.id) || []
+    }));
+  }
+
+  let projectSizes = [];
+  let businessForms = [];
+  let opportunityTypes = [];
+  if (includeDimensions) {
+    const [sizesResult, formsResult, opportunityTypesResult] = await Promise.all([
+      supabase.from('investment_project_sizes').select('code,name_ar,name_en,sort_order').order('sort_order'),
+      supabase.from('investment_business_forms').select('code,name_ar,name_en,sort_order').order('sort_order'),
+      supabase.from('investment_opportunity_types').select('code,name_ar,name_en,sort_order').order('sort_order')
+    ]);
+    const failed = [sizesResult, formsResult, opportunityTypesResult].find(result => result.error);
+    if (failed?.error) {
+      console.error('[investment-taxonomy/dimensions]', failed.error.message);
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy dimensions' });
+    }
+    projectSizes = sizesResult.data || [];
+    businessForms = formsResult.data || [];
+    opportunityTypes = opportunityTypesResult.data || [];
   }
 
   const subsectorsBySector = new Map();
-  for (const row of subsectorsResult.data || []) {
+  for (const row of subsectors) {
     if (!subsectorsBySector.has(row.sector_id)) subsectorsBySector.set(row.sector_id, []);
     subsectorsBySector.get(row.sector_id).push(row);
   }
 
-  const primarySectorByActivity = new Map(
-    (sectorMapResult.data || [])
-      .filter(row => row.is_primary)
-      .map(row => [row.canonical_activity_id, row])
-  );
-  const primarySubsectorByActivity = new Map(
-    (subsectorMapResult.data || [])
-      .filter(row => row.is_primary)
-      .map(row => [row.canonical_activity_id, row])
-  );
-  const eligibilityByActivity = new Map();
-  for (const row of businessFormEligibility) {
-    if (!eligibilityByActivity.has(row.canonical_activity_id)) eligibilityByActivity.set(row.canonical_activity_id, []);
-    eligibilityByActivity.get(row.canonical_activity_id).push(row);
-  }
-
-  const activities = (activitiesResult.data || []).map(activity => ({
-    ...activity,
-    primary_sector: primarySectorByActivity.get(activity.id) || null,
-    primary_subsector: primarySubsectorByActivity.get(activity.id) || null,
-    business_forms: eligibilityByActivity.get(activity.id) || []
-  }));
-
-  const sectors = (sectorsResult.data || []).map(sector => ({
-    ...sector,
-    subsectors: subsectorsBySector.get(sector.id) || []
-  }));
-
+  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
   return sendJson(res, 200, {
     taxonomy_version: 'v3-canonical-investment-1',
     country_code: countryCode,
-    sectors,
+    sector_filter: sectorCode,
+    included: {
+      activities: includeActivities,
+      dimensions: includeDimensions
+    },
+    sectors: (sectors || []).map(sector => ({
+      ...sector,
+      subsectors: subsectorsBySector.get(sector.id) || []
+    })),
     activities,
-    project_sizes: sizesResult.data || [],
-    business_forms: formsResult.data || [],
-    opportunity_types: opportunityTypesResult.data || [],
+    project_sizes: projectSizes,
+    business_forms: businessForms,
+    opportunity_types: opportunityTypes,
     counts: {
-      sectors: sectors.length,
-      subsectors: (subsectorsResult.data || []).length,
+      sectors: (sectors || []).length,
+      subsectors: subsectors.length,
       activities: activities.length,
-      project_sizes: (sizesResult.data || []).length,
-      business_forms: (formsResult.data || []).length,
-      opportunity_types: (opportunityTypesResult.data || []).length
+      project_sizes: projectSizes.length,
+      business_forms: businessForms.length,
+      opportunity_types: opportunityTypes.length
     }
   });
 }
