@@ -26,7 +26,17 @@ describe('V3 investment taxonomy API', () => {
     expect(api).toContain('business_forms: eligibilityByActivity.get(activity.id) || []');
   });
 
-  test('taxonomy returns the cross-cutting dimensions explicitly', () => {
+  test('taxonomy is lazy and cacheable by default', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain("const includeActivities = include.has('activities') || include.has('all')");
+    expect(api).toContain("const includeDimensions = include.has('dimensions') || include.has('all')");
+    expect(api).toContain("url.searchParams.get('sector')");
+    expect(api).toContain("Cache-Control");
+    expect(api).toContain("stale-while-revalidate=3600");
+  });
+
+  test('taxonomy returns the cross-cutting dimensions explicitly when requested', () => {
     const api = read('v3/api/index.js');
 
     expect(api).toContain(".from('investment_project_sizes')");
