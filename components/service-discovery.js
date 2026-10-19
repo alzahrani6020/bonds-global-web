@@ -4,6 +4,8 @@
   const API = '/api/v3';
   const PROPOSE_SECTOR = '__propose_sector__';
   const PROPOSE_ACTIVITY = '__propose_activity__';
+  const PROPOSE_REGION = '__propose_region__';
+  const PROPOSE_LOCALITY = '__propose_locality__';
   const state = { countries: [], cities: [], sectors: [], activities: [], services: [] };
   const dropdowns = {};
   const lang = (document.documentElement.lang || 'ar').toLowerCase().startsWith('en') ? 'en' : 'ar';
@@ -14,10 +16,14 @@
       custom:'خدمة مخصصة / مراجعة', countrySearch:'ابحث عن دولة...', regionSearch:'ابحث عن منطقة أو محافظة...',
       localitySearch:'ابحث عن مدينة أو موقع...', sectorSearch:'ابحث عن قطاع...', activitySearch:'ابحث عن نشاط...',
       serviceSearch:'ابحث عن خدمة...', addSector:'+ إضافة قطاع جديد', addActivity:'+ إضافة نشاط جديد',
-      addSectorTitle:'اقتراح قطاع جديد', addActivityTitle:'اقتراح نشاط جديد', arName:'الاسم بالعربية',
+      addRegion:'+ إضافة منطقة / محافظة', addLocality:'+ إضافة مدينة / قرية / هجرة / نجع / واحة',
+      addSectorTitle:'اقتراح قطاع جديد', addActivityTitle:'اقتراح نشاط جديد',
+      addRegionTitle:'اقتراح منطقة / محافظة جديدة', addLocalityTitle:'اقتراح موقع جغرافي جديد',
+      localityType:'نوع الموقع', arName:'الاسم بالعربية',
       enName:'الاسم بالإنجليزية (اختياري)', description:'وصف مختصر (اختياري)', send:'إرسال المقترح',
       cancel:'إلغاء', pending:'سيُراجع الاقتراح قبل اعتماده في التصنيف الرسمي.',
-      saved:'تم إرسال المقترح للمراجعة.', failed:'تعذر إرسال المقترح.', login:'يلزم تسجيل الدخول لإرسال المقترح.'
+      saved:'تم إرسال المقترح للمراجعة.', failed:'تعذر إرسال المقترح.', login:'يلزم تسجيل الدخول لإرسال المقترح.',
+      localityTypes:{city:'مدينة',town:'بلدة',village:'قرية',hijra:'هجرة',hamlet:'نجع / تجمع صغير',oasis:'واحة',district:'حي / منطقة',settlement:'تجمع سكاني',other:'أخرى'}
     },
     en: {
       title:'Choose your path and start', country:'Country', region:'Region / Province', locality:'Location',
@@ -25,10 +31,14 @@
       custom:'Custom service / review', countrySearch:'Search countries...', regionSearch:'Search regions or provinces...',
       localitySearch:'Search cities or locations...', sectorSearch:'Search sectors...', activitySearch:'Search activities...',
       serviceSearch:'Search services...', addSector:'+ Add new sector', addActivity:'+ Add new activity',
-      addSectorTitle:'Propose a new sector', addActivityTitle:'Propose a new activity', arName:'Arabic name',
+      addRegion:'+ Add region / governorate', addLocality:'+ Add city / village / hijra / hamlet / oasis',
+      addSectorTitle:'Propose a new sector', addActivityTitle:'Propose a new activity',
+      addRegionTitle:'Propose a new region / governorate', addLocalityTitle:'Propose a new locality',
+      localityType:'Locality type', arName:'Arabic name',
       enName:'English name (optional)', description:'Short description (optional)', send:'Submit proposal',
       cancel:'Cancel', pending:'The proposal will be reviewed before entering the canonical taxonomy.',
-      saved:'Proposal submitted for review.', failed:'Could not submit proposal.', login:'Sign in is required to submit a proposal.'
+      saved:'Proposal submitted for review.', failed:'Could not submit proposal.', login:'Sign in is required to submit a proposal.',
+      localityTypes:{city:'City',town:'Town',village:'Village',hijra:'Hijra',hamlet:'Hamlet',oasis:'Oasis',district:'District',settlement:'Settlement',other:'Other'}
     }
   }[lang];
 
@@ -52,7 +62,7 @@
     return r.json();
   }
 
-  function setOptions(el, rows, valueKey, labelFn, first, extras=[]) {
+  function setOptions(el, rows, valueKey, labelFn, first, extras=[], iconFn=null) {
     const current = el.value;
     el.innerHTML = '';
     const firstOption = document.createElement('option');
@@ -64,6 +74,8 @@
       const option = document.createElement('option');
       option.value = String(row[valueKey] || '');
       option.textContent = labelFn(row);
+      const icon = iconFn ? iconFn(row) : row.icon;
+      if (icon) option.dataset.icon = icon;
       el.appendChild(option);
     });
 
@@ -84,7 +96,7 @@
     }
   }
 
-  function enhance(id, searchPlaceholder, virtualize=false) {
+  function enhance(id, searchPlaceholder, virtualize=false, maxResults=null) {
     const el = q('#' + id);
     if (!el || !window.UniversalDropdown) return null;
     destroyDropdown(id);
@@ -95,7 +107,7 @@
       sort:false,
       deduplicate:true,
       removeEmpty:false,
-      maxResults:virtualize ? 0 : 20,
+      maxResults:maxResults !== null ? maxResults : (virtualize ? 0 : 20),
       debounce:80,
       virtualize,
       virtualThreshold:40
@@ -104,7 +116,7 @@
   }
 
   function enhanceAll() {
-    enhance('bondsCountry', t.countrySearch);
+    enhance('bondsCountry', t.countrySearch, false, 0);
     enhance('bondsRegion', t.regionSearch);
     enhance('bondsLocality', t.localitySearch, true);
     enhance('bondsSector', t.sectorSearch, true);
@@ -113,9 +125,7 @@
   }
 
   function localityLabel(row) {
-    const types = lang === 'ar'
-      ? { city:'مدينة', town:'بلدة', village:'قرية', hijra:'هجرة', district:'حي / منطقة', other:'أخرى' }
-      : { city:'City', town:'Town', village:'Village', hijra:'Hijra', district:'District', other:'Other' };
+    const types = t.localityTypes;
     const base = label(row);
     const type = row.locality_type && types[row.locality_type] ? types[row.locality_type] : '';
     return type ? base + ' — ' + type : base;
@@ -133,10 +143,10 @@
   async function loadCountries() {
     const data = await json(API + '/catalog/countries');
     state.countries = data.countries || [];
-    setOptions(q('#bondsCountry'), state.countries, 'code', label, t.country);
+    setOptions(q('#bondsCountry'), state.countries, 'code', label, t.country, [], row => row.flag || null);
     const saved = localStorage.getItem('bonds_selected_country') || 'SA';
     if (state.countries.some(x => x.code === saved)) q('#bondsCountry').value = saved;
-    enhance('bondsCountry', t.countrySearch);
+    enhance('bondsCountry', t.countrySearch, false, 0);
     await onCountry();
   }
 
@@ -156,8 +166,8 @@
       state.cities.filter(x=>x.region).map(x => [x.region, { code:x.region, name_ar:x.region, name_en:x.region_en || x.region }])
     ).values()];
 
-    setOptions(q('#bondsRegion'), regions, 'code', label, t.region);
-    setOptions(q('#bondsLocality'), state.cities, 'code', localityLabel, t.locality);
+    setOptions(q('#bondsRegion'), regions, 'code', label, t.region, [{value:PROPOSE_REGION,label:t.addRegion}]);
+    setOptions(q('#bondsLocality'), state.cities, 'code', localityLabel, t.locality, [{value:PROPOSE_LOCALITY,label:t.addLocality}]);
     setOptions(q('#bondsSector'), state.sectors, 'code', label, t.sector, [{value:PROPOSE_SECTOR,label:t.addSector}]);
     setOptions(q('#bondsActivity'), state.activities, 'code', activityLabel, t.activity, [{value:PROPOSE_ACTIVITY,label:t.addActivity}]);
 
@@ -170,9 +180,21 @@
 
   function onRegion() {
     const region = q('#bondsRegion').value;
+    if (region === PROPOSE_REGION) {
+      openGeographyProposal('region');
+      resetSelection('bondsRegion');
+      return;
+    }
     const rows = region ? state.cities.filter(x => x.region === region) : state.cities;
-    setOptions(q('#bondsLocality'), rows, 'code', localityLabel, t.locality);
+    setOptions(q('#bondsLocality'), rows, 'code', localityLabel, t.locality, [{value:PROPOSE_LOCALITY,label:t.addLocality}]);
     enhance('bondsLocality', t.localitySearch, true);
+  }
+
+  function onLocality() {
+    if (q('#bondsLocality').value === PROPOSE_LOCALITY) {
+      openGeographyProposal('locality');
+      resetSelection('bondsLocality');
+    }
   }
 
   async function onSector() {
@@ -239,6 +261,7 @@
       '<h3 id="sdProposalTitle"></h3><p class="sd-proposal-note">'+t.pending+'</p>' +
       '<form id="sdProposalForm"><input type="hidden" id="sdProposalType">' +
       '<label>'+t.arName+'<input id="sdProposalNameAr" required maxlength="160"></label>' +
+      '<label id="sdProposalLocalityTypeWrap" hidden>'+t.localityType+'<select id="sdProposalLocalityType"></select></label>' +
       '<label>'+t.enName+'<input id="sdProposalNameEn" maxlength="160"></label>' +
       '<label>'+t.description+'<textarea id="sdProposalDescription" maxlength="1000" rows="3"></textarea></label>' +
       '<div class="sd-proposal-actions"><button type="button" class="sd-secondary" id="sdProposalCancel">'+t.cancel+'</button>' +
@@ -248,6 +271,13 @@
     q('#sdProposalCancel').addEventListener('click', closeProposal);
     modal.addEventListener('click', e=>{ if(e.target===modal) closeProposal(); });
     q('#sdProposalForm').addEventListener('submit', submitProposal);
+    const localityType = q('#sdProposalLocalityType');
+    Object.entries(t.localityTypes).forEach(([value,label]) => {
+      const option=document.createElement('option');
+      option.value=value;
+      option.textContent=label;
+      localityType.appendChild(option);
+    });
     return modal;
   }
 
@@ -258,6 +288,20 @@
     q('#sdProposalNameAr').value='';
     q('#sdProposalNameEn').value='';
     q('#sdProposalDescription').value='';
+    q('#sdProposalLocalityTypeWrap').hidden=true;
+    modal.hidden=false;
+    setTimeout(()=>q('#sdProposalNameAr').focus(),0);
+  }
+
+  function openGeographyProposal(type) {
+    const modal=ensureProposalModal();
+    q('#sdProposalType').value='geo:' + type;
+    q('#sdProposalTitle').textContent=type==='region' ? t.addRegionTitle : t.addLocalityTitle;
+    q('#sdProposalNameAr').value='';
+    q('#sdProposalNameEn').value='';
+    q('#sdProposalDescription').value='';
+    q('#sdProposalLocalityTypeWrap').hidden=type!=='locality';
+    q('#sdProposalLocalityType').value='city';
     modal.hidden=false;
     setTimeout(()=>q('#sdProposalNameAr').focus(),0);
   }
@@ -279,18 +323,37 @@
     }
 
     const type=q('#sdProposalType').value;
-    const row={
-      user_id:user.id,
-      country_code:q('#bondsCountry').value || null,
-      proposal_type:type,
-      status:'pending',
-      proposed_name_ar:q('#sdProposalNameAr').value.trim(),
-      proposed_name_en:q('#sdProposalNameEn').value.trim() || null,
-      parent_sector_code:type==='activity' ? (q('#bondsSector').value || null) : null,
-      description:q('#sdProposalDescription').value.trim() || null,
-      metadata:{source:'service_discovery',language:lang}
-    };
-    const {error}=await sb.from('taxonomy_proposals').insert(row);
+    let table='taxonomy_proposals';
+    let row;
+    if(type.startsWith('geo:')) {
+      const proposalType=type.slice(4);
+      table='geography_proposals';
+      row={
+        user_id:user.id,
+        country_code:q('#bondsCountry').value || null,
+        proposal_type:proposalType,
+        locality_type:proposalType==='locality' ? q('#sdProposalLocalityType').value : null,
+        parent_region:proposalType==='locality' ? (q('#bondsRegion').value || null) : null,
+        status:'pending',
+        proposed_name_ar:q('#sdProposalNameAr').value.trim(),
+        proposed_name_en:q('#sdProposalNameEn').value.trim() || null,
+        description:q('#sdProposalDescription').value.trim() || null,
+        metadata:{source:'service_discovery',language:lang}
+      };
+    } else {
+      row={
+        user_id:user.id,
+        country_code:q('#bondsCountry').value || null,
+        proposal_type:type,
+        status:'pending',
+        proposed_name_ar:q('#sdProposalNameAr').value.trim(),
+        proposed_name_en:q('#sdProposalNameEn').value.trim() || null,
+        parent_sector_code:type==='activity' ? (q('#bondsSector').value || null) : null,
+        description:q('#sdProposalDescription').value.trim() || null,
+        metadata:{source:'service_discovery',language:lang}
+      };
+    }
+    const {error}=await sb.from(table).insert(row);
     if(error) {
       console.error('[service discovery taxonomy proposal]',error);
       window.alert(t.failed);
@@ -298,7 +361,7 @@
     }
     closeProposal();
     window.alert(t.saved);
-    track('taxonomy_proposal_submitted',{proposal_type:type});
+    track(type.startsWith('geo:') ? 'geography_proposal_submitted' : 'taxonomy_proposal_submitted',{proposal_type:type});
   }
 
   function start() {
@@ -361,6 +424,7 @@
     header.insertAdjacentElement('afterend',wrap);
     q('#bondsCountry').addEventListener('change',onCountry);
     q('#bondsRegion').addEventListener('change',onRegion);
+    q('#bondsLocality').addEventListener('change',onLocality);
     q('#bondsSector').addEventListener('change',onSector);
     q('#bondsActivity').addEventListener('change',onActivity);
     q('#bondsService').addEventListener('change',()=>track('service_selected',{
