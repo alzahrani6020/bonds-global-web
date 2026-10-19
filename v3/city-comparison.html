@@ -440,14 +440,12 @@
 
     async function init() {
       try {
-        const [countriesData, activitiesData, modelsData] = await Promise.all([
+        const [countriesData, activitiesData] = await Promise.all([
           fetchJson(API_URL + '/catalog/countries'),
-          fetchJson(API_URL + '/catalog/activities'),
-          fetchJson(API_URL + '/models?limit=500')
+          fetchJson(API_URL + '/catalog/activities')
         ]);
 
         activities = activitiesData.activities || [];
-        models = modelsData.models || [];
 
         const countrySelect = document.getElementById('countrySelect');
         const countryRows = (countriesData.countries || [])
@@ -473,9 +471,7 @@
             .map(activity => `<option value="${activity.code}">${activity.name_ar}</option>`)
             .join('');
 
-        const modelSelect = document.getElementById('modelSelect');
-        modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
-          models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
+        await loadCountryModels();
 
         await refreshComparisonYears({ preserve: false });
         await updateCityList();
@@ -483,6 +479,26 @@
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
         document.getElementById('cityList').innerHTML = `<div class="error">فشل تحميل الكتالوج: ${err.message}</div>`;
+      }
+    }
+
+    async function loadCountryModels() {
+      const countryCode = document.getElementById('countrySelect').value;
+      const modelSelect = document.getElementById('modelSelect');
+      models = [];
+
+      if (!countryCode) {
+        modelSelect.innerHTML = '<option value="">بدون نموذج</option>';
+        return;
+      }
+
+      const data = await fetchJson(API_URL + '/models?limit=500&country=' + encodeURIComponent(countryCode));
+      models = (data.models || []).filter(model => model.localized === true);
+      modelSelect.innerHTML = '<option value="">بدون نموذج</option>' +
+        models.map(model => `<option value="${model.code}">${model.name_ar}</option>`).join('');
+
+      if (!models.length) {
+        modelSelect.innerHTML = '<option value="">لا توجد نماذج مالية محلية موثقة لهذه الدولة</option>';
       }
     }
 
@@ -763,6 +779,7 @@
         currency_code: selectedCountryProfile?.currency_code || null,
         currency_symbol: selectedCountryProfile?.currency_symbol || null
       });
+      await loadCountryModels();
       await refreshComparisonYears({ preserve: false });
       await updateCityList();
     });
