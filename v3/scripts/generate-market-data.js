@@ -72,9 +72,9 @@ for (const c of cities) {
 
     sql += `INSERT INTO public.city_market_data (\n`;
     sql += `  city_id, activity_id, competitors_count, avg_market_share, avg_rent_per_sqm,\n`;
-    sql += `  avg_land_price_per_sqm, avg_salary, labor_availability_score, market_saturation_score, data_year, source\n`;
+    sql += `  avg_land_price_per_sqm, avg_salary, labor_availability_score, market_saturation_score, data_year, source, currency_code\n`;
     sql += `)\n`;
-    sql += `SELECT c.id, a.id, ${competitors}, ${avgMarketShare}, ${avgRent}, ${avgLandPrice}, ${avgSalary}, ${laborAvailability}, ${marketSaturation}, 2025, 'Bonds market dataset'\n`;
+    sql += `SELECT c.id, a.id, ${competitors}, ${avgMarketShare}, ${avgRent}, ${avgLandPrice}, ${avgSalary}, ${laborAvailability}, ${marketSaturation}, 2025, 'Bonds market dataset', 'SAR'\n`;
     sql += `FROM public.cities c\n`;
     sql += `CROSS JOIN public.economic_activities a\n`;
     sql += `WHERE c.code = '${c.code}' AND a.code = '${a.code}'\n`;
