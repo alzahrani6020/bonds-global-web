@@ -73,7 +73,7 @@ class BondsNativeRuntimeService(win32serviceutil.ServiceFramework):
         servicemanager.LogInfoMsg(f"{SERVICE_NAME} stopped")
 
     def _run_child(self) -> int | None:
-        repo_root = Path(_machine_value("BONDS_NATIVE_REPO_ROOT"))
+        runtime_root = Path(_machine_value("BONDS_NATIVE_RUNTIME_ROOT"))
         python_exe = Path(_machine_value("BONDS_PYTHON_EXE", sys.executable))
         state_dir = Path(
             _machine_value(
@@ -82,13 +82,13 @@ class BondsNativeRuntimeService(win32serviceutil.ServiceFramework):
             )
         )
 
-        if not repo_root.is_dir():
-            raise RuntimeError(f"BONDS_NATIVE_REPO_ROOT is invalid: {repo_root}")
+        if not runtime_root.is_dir():
+            raise RuntimeError(f"BONDS_NATIVE_RUNTIME_ROOT is invalid: {runtime_root}")
         if not python_exe.is_file():
             raise RuntimeError(f"BONDS_PYTHON_EXE is invalid: {python_exe}")
 
-        service_dir = repo_root / "services" / "bonds_native_inference"
-        server_path = service_dir / "server.py"
+        service_dir = runtime_root
+        server_path = runtime_root / "server.py"
         if not server_path.is_file():
             raise RuntimeError(f"Native server not found: {server_path}")
 
