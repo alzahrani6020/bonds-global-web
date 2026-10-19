@@ -235,7 +235,13 @@ async function assertNativeProductionRuntime() {
       },
       body: JSON.stringify({
         messages: [{ role: 'user', content: probe.content }],
-        context: {}
+        context: {},
+        options: {
+          // Smoke validates the Native execution path and canonical model identity.
+          // It intentionally does not benchmark a full conversational decode.
+          force_native: true,
+          max_tokens: 12
+        }
       })
     });
     const elapsedMs = Date.now() - startedAt;
@@ -264,7 +270,7 @@ async function assertNativeProductionRuntime() {
     }
 
     console.log(
-      `Bonds Native ${probe.label} PASS (model_sha256=${observedModelSha.slice(0, 12)}..., backend=${chat.body?.inference?.backend || 'unknown'})`
+      `Bonds Native ${probe.label} PASS (model_sha256=${observedModelSha.slice(0, 12)}..., backend=${chat.body?.inference?.backend || 'unknown'}, elapsed_ms=${elapsedMs}, native_ms=${chat.body?.inference?.request_elapsed_ms ?? 'unknown'})`
     );
   }
 
