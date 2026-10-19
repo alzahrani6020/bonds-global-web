@@ -39,4 +39,13 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).toContain('Math.min(48');
     expect(source).toContain('options?.force_native === true');
   });
+
+  test('keeps native prompt prefill compact for synchronous chat', () => {
+    expect(source).toContain("messages.slice(-4)");
+    expect(source).toContain("slice(0, 1000)");
+    expect(source).toContain("VERIFIED_BONDS_DATA=");
+    expect(source).toContain("native_generator already supplies the invariant system contract");
+    expect(source).not.toContain("${system}\\n\\nبيانات موثقة متاحة بصيغة JSON:");
+  });
+
 });

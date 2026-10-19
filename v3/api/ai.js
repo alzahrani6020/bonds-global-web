@@ -112,21 +112,33 @@ ${context?.population != null ? `- عدد السكان: ${formatNumber(context.p
 }
 
 function buildNativeChatPrompt(messages, context) {
-  const system = buildSystemPrompt(context);
-  const evidence = JSON.stringify({
-    cityName: context?.cityName || null,
-    activityName: context?.activityName || null,
-    population: context?.population ?? null,
-    purchasingPowerIndex: context?.purchasingPowerIndex ?? null,
-    indicators: context?.indicators || null,
-    marketData: context?.marketData || null,
-    comparison: context?.comparison || [],
-    alerts: context?.alerts || []
-  });
-  const history = messages.slice(-8).map(m =>
-    `${String(m.role || 'user').toUpperCase()}: ${String(m.content || '').slice(0, 2000)}`
-  ).join('\n\n');
-  return `${system}\n\nبيانات موثقة متاحة بصيغة JSON:\n${evidence}\n\nالمحادثة:\n${history}\n\nأجب فقط على آخر رسالة للمستخدم، ولا تستخدم أي رقم غير موجود في البيانات.`;
+  const evidence = {
+    cityName: context?.cityName || undefined,
+    activityName: context?.activityName || undefined,
+    population: context?.population ?? undefined,
+    purchasingPowerIndex: context?.purchasingPowerIndex ?? undefined,
+    indicators: context?.indicators || undefined,
+    marketData: context?.marketData || undefined,
+    comparison: context?.comparison?.length ? context.comparison.slice(0, 5) : undefined,
+    alerts: context?.alerts?.length ? context.alerts.slice(0, 3) : undefined
+  };
+  const compactEvidence = Object.fromEntries(
+    Object.entries(evidence).filter(([, value]) => value !== undefined)
+  );
+  const history = messages.slice(-4).map(m =>
+    `${String(m.role || 'user').toUpperCase()}: ${String(m.content || '').slice(0, 1000)}`
+  ).join('\n');
+
+  // native_generator already supplies the invariant system contract. Do not
+  // duplicate a long system prompt here: on the current GGUF runtime, prompt
+  // prefill is a material part of end-to-end latency.
+  const evidenceBlock = Object.keys(compactEvidence).length
+    ? `VERIFIED_BONDS_DATA=${JSON.stringify(compactEvidence)}\n`
+    : '';
+  const evidenceRule = evidenceBlock
+    ? 'Use only VERIFIED_BONDS_DATA for factual numbers; say data is unavailable if missing.\n'
+    : '';
+  return `${evidenceBlock}${evidenceRule}${history}`;
 }
 
 function clampNativeChatMaxTokens(value) {
