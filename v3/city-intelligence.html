@@ -879,6 +879,28 @@
           if (countryDd.selectByValue) countryDd.selectByValue(countrySelect.value);
         }
 
+        async function loadActivities() {
+          const selectedCountry = countrySelect.value;
+          const url = selectedCountry
+            ? API_URL + '/catalog/activities?country=' + encodeURIComponent(selectedCountry)
+            : API_URL + '/catalog/activities';
+          const data = await fetchJson(url);
+          activities = (data.activities || [])
+            .filter(activity => activity.country?.availability_status !== 'unavailable');
+
+          activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a =>
+            `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar || a.name_en || a.code}</option>`
+          ).join('');
+          const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
+          if (activityDd?.setOptions) {
+            activityDd.setOptions(activities.map(a => ({
+              value: a.code,
+              label: a.name_ar || a.name_en || a.code,
+              icon: ACTIVITY_ICON
+            })));
+          }
+        }
+
         function populateCities() {
           citySelect.innerHTML = '<option value="">اختر المدينة</option>' + cities.map(c =>
             `<option value="${c.code}" data-icon="${CITY_ICON}">${c.name_ar || c.name_en || c.code}</option>`
@@ -912,12 +934,7 @@
         await loadCities();
         await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
 
-        const activityOptions = activities.map(a => ({ value: a.code, label: a.name_ar || a.name_en || a.code, icon: ACTIVITY_ICON }));
-        activitySelect.innerHTML = '<option value="">اختر النشاط (اختياري)</option>' + activities.map(a =>
-          `<option value="${a.code}" data-icon="${ACTIVITY_ICON}">${a.name_ar || a.name_en || a.code}</option>`
-        ).join('');
-        const activityDd = window.getUniversalDropdown && window.getUniversalDropdown(activitySelect);
-        if (activityDd?.setOptions) activityDd.setOptions(activityOptions);
+        await loadActivities();
 
         countrySelect.addEventListener('change', async () => {
           selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
@@ -926,7 +943,8 @@
             currency_symbol: selectedCountryProfile?.currency_symbol || null
           });
           citySelect.value = '';
-          await loadCities();
+          activitySelect.value = '';
+          await Promise.all([loadCities(), loadActivities()]);
           await refreshYearOptions({ countryCode: countrySelect.value, preserve: false });
           document.getElementById('content').innerHTML = '<div class="loading">اختر مدينة لعرض المؤشرات</div>';
         });
