@@ -139,3 +139,78 @@ The following claims require live verification and must not be inferred from tas
 A scheduled task or process showing `Running` is not equivalent to service readiness.
 
 Do not expose a public generation endpoint solely for diagnostics.
+
+## Boot-level Windows services
+
+The legacy `install-startup.ps1` path remains available for rollback and existing hosts, but the durable no-login target is Windows Service Control Manager (SCM).
+
+Install the native service dependency first:
+
+```powershell
+python -m pip install -r .\requirements-native-inference.txt
+```
+
+Prepare the runtime service without changing the active runtime:
+
+```powershell
+.\services\bonds_native_inference\windows\install-runtime-service.ps1 -ModelPath "C:\ProgramData\BondsNative\models\gemma-4-E4B-it-Q4_K_M.gguf"
+```
+
+Activate only after preparation:
+
+```powershell
+.\services\bonds_native_inference\windows\install-runtime-service.ps1 -ModelPath "C:\ProgramData\BondsNative\models\gemma-4-E4B-it-Q4_K_M.gguf" -Activate
+```
+
+The installer:
+
+- verifies the canonical filename and SHA-256;
+- stages runtime code under `%ProgramData%\BondsNative\runtime\` so service execution is not tied to a Git checkout or interactive user profile;
+- installs `BondsNativeRuntimeService` with Automatic startup;
+- configures SCM recovery restarts;
+- probes authenticated local health before disabling the legacy `BondsNativeRuntime` scheduled task;
+- restores the legacy task automatically if cutover health fails.
+
+### Cloudflare Tunnel service
+
+For locally-managed tunnels, prepare the official `cloudflared` Windows service without changing the active tunnel:
+
+```powershell
+.\services\bonds_native_inference\windows\install-cloudflared-service.ps1
+```
+
+Then perform the health-checked cutover:
+
+```powershell
+.\services\bonds_native_inference\windows\install-cloudflared-service.ps1 -Activate
+```
+
+The installer copies the executable, config, and tunnel credential into `%ProgramData%\BondsNative\cloudflared\`, validates ingress, configures Automatic startup and SCM recovery, confirms remote Native health, and only then disables the legacy `BondsNativeTunnel` task.
+
+Legacy duplicate `cloudflared` processes are not killed by default. After service health is verified, they can be removed explicitly with:
+
+```powershell
+.\services\bonds_native_inference\windows\install-cloudflared-service.ps1 -Activate -CleanupLegacyProcesses
+```
+
+## Hardware-independent Native nodes
+
+Production routing supports an ordered set of Native nodes. The first healthy node is primary; later nodes are standby targets.
+
+Preferred configuration:
+
+```text
+BONDS_INFERENCE_MODE=REMOTE_BONDS_NATIVE
+BONDS_NATIVE_REMOTE_URLS=https://native-a.bonds-global.com,https://native-b.bonds-global.com
+```
+
+`BONDS_NATIVE_NODES` is accepted as an alias. The historical `BONDS_NATIVE_REMOTE_URL` remains supported for single-node compatibility.
+
+The router:
+
+- fails over on connection/timeout failures and server-side 5xx failures;
+- does not fail over on authentication or client request errors;
+- opens a per-node circuit after repeated failures and temporarily bypasses the unhealthy node;
+- preserves node order, enabling Primary/Standby operation before any Active/Active rollout.
+
+For a hardware migration, never shut down the old node first. Provision the replacement node with the canonical artifact, verify model SHA-256, local health, remote tunnel health, and production readiness, add it to `BONDS_NATIVE_REMOTE_URLS`, then move primary order only after verification. The old node may remain as standby until the new host has completed a burn-in period.
