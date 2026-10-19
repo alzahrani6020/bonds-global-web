@@ -255,7 +255,7 @@ async function auditRuntimePages(candidates) {
 
   const failures = [];
   const loadFailures = [];
-  const CONCURRENCY = 16;
+  const CONCURRENCY = 8;
   let nextIndex = 0;
 
   async function worker() {
@@ -289,7 +289,19 @@ async function auditRuntimePages(candidates) {
             html = baseTag + html;
           }
 
-          await page.setContent(html, { waitUntil: 'load', timeout: 2500 });
+          let setContentError = null;
+          for (let attempt = 1; attempt <= 2; attempt++) {
+            try {
+              await page.setContent(html, { waitUntil: 'load', timeout: 7500 });
+              setContentError = null;
+              break;
+            } catch (err) {
+              setContentError = err;
+              if (attempt === 2 || err?.name !== 'TimeoutError') throw err;
+              await page.waitForTimeout(100);
+            }
+          }
+          if (setContentError) throw setContentError;
 
           // Simulate the exact failure class seen in production: a page-level
           // SVG rule trying to blow inline icons up to viewport size. Runtime
