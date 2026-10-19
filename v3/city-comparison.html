@@ -348,6 +348,8 @@
     let filteredCities = [];
     let activities = [];
     let models = [];
+    let countryProfiles = new Map();
+    let selectedCountryProfile = null;
     let selectedCities = new Set();
 
     async function fetchJson(url, options = {}) {
@@ -366,8 +368,11 @@
     }
 
     function formatMoney(num) {
-      if (!Number.isFinite(num)) return '-';
-      return formatNumber(num) + ' ر.س';
+      if (!Number.isFinite(Number(num))) return '-';
+      if (window.BondsCountryContext && selectedCountryProfile) {
+        return window.BondsCountryContext.formatMoney(Number(num), selectedCountryProfile);
+      }
+      return formatNumber(Number(num));
     }
 
     function percent(num) {
@@ -445,12 +450,22 @@
         models = modelsData.models || [];
 
         const countrySelect = document.getElementById('countrySelect');
+        const countryRows = (countriesData.countries || [])
+          .filter(country => country.recordStatus !== 'no_cities');
+        countryProfiles = new Map(countryRows.map(country => [country.code, country]));
         countrySelect.innerHTML = '<option value="">اختر الدولة</option>' +
-          (countriesData.countries || [])
-            .filter(country => country.recordStatus !== 'no_cities')
+          countryRows
             .map(country => `<option value="${country.code}">${country.name_ar} (${country.cityCount})</option>`)
             .join('');
-        countrySelect.value = 'SA';
+        const storedCountry = window.BondsCountryContext?.getSelected('SA') || 'SA';
+        countrySelect.value = countryRows.some(country => country.code === storedCountry)
+          ? storedCountry
+          : (countryRows[0]?.code || '');
+        selectedCountryProfile = countryProfiles.get(countrySelect.value) || null;
+        window.BondsCountryContext?.setSelected(countrySelect.value, {
+          currency_code: selectedCountryProfile?.currency_code || null,
+          currency_symbol: selectedCountryProfile?.currency_symbol || null
+        });
 
         const activitySelect = document.getElementById('activitySelect');
         activitySelect.innerHTML = '<option value="">كل الأنشطة</option>' +
@@ -742,6 +757,12 @@
 
     document.getElementById('compareBtn').addEventListener('click', runComparison);
     document.getElementById('countrySelect').addEventListener('change', async () => {
+      const countryCode = document.getElementById('countrySelect').value;
+      selectedCountryProfile = countryProfiles.get(countryCode) || null;
+      window.BondsCountryContext?.setSelected(countryCode, {
+        currency_code: selectedCountryProfile?.currency_code || null,
+        currency_symbol: selectedCountryProfile?.currency_symbol || null
+      });
       await refreshComparisonYears({ preserve: false });
       await updateCityList();
     });
