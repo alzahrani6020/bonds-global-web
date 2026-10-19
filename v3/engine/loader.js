@@ -199,6 +199,7 @@ async function loadProjectModel(supabase, projectModelCode, cityCode = null, cou
     if (overrideError) throw overrideError;
 
     const localized = Boolean(override && ['estimated', 'verified'].includes(override.status));
+    const baseCurrency = projectModel.default_currency;
 
     if (localized) {
       const numericFields = [
@@ -220,7 +221,7 @@ async function loadProjectModel(supabase, projectModelCode, cityCode = null, cou
       ...(profile || { country_code: countryCode }),
       model_status: override?.status || 'unverified',
       localized,
-      base_currency: projectModel.default_currency,
+      base_currency: baseCurrency,
       override: override || null
     };
   }
