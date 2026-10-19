@@ -263,8 +263,12 @@
         <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-loading-text="جاري تحميل الدول..." id="countrySelect" disabled><option value="">جاري تحميل الدول...</option></select>
       </div>
       <div>
+        <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">القطاع</label>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-loading-text="جاري تحميل القطاعات..." id="sectorSelect" disabled><option value="">جاري تحميل القطاعات...</option></select>
+      </div>
+      <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">النشاط</label>
-        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-loading-text="جاري تحميل الأنشطة..." id="activitySelect" disabled><option value="">جاري تحميل الأنشطة...</option></select>
+        <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-loading-text="اختر القطاع أولًا" id="activitySelect" disabled><option value="">اختر القطاع أولًا</option></select>
       </div>
       <div>
         <label style="display:block; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.25rem;">الحد الأدنى لدرجة القرار</label>
@@ -301,6 +305,7 @@
     };
     const MODERN_CITY_CODE = /^[A-Z]{2}-\d{2}-\d{3}$/;
     let activities = [];
+    let taxonomySectors = [];
     let countryProfiles = new Map();
 
     async function fetchJson(url, options = {}) {
@@ -359,13 +364,15 @@
 
     function setReadinessState(state, detail = '') {
       const countrySelect = document.getElementById('countrySelect');
+      const sectorSelect = document.getElementById('sectorSelect');
       const activitySelect = document.getElementById('activitySelect');
       const filterBtn = document.getElementById('filterBtn');
       const content = document.getElementById('content');
       const ready = state === 'ready';
 
       countrySelect.disabled = !ready;
-      activitySelect.disabled = !ready;
+      sectorSelect.disabled = !ready;
+      activitySelect.disabled = !ready || !sectorSelect.value;
       filterBtn.disabled = !ready;
 
       const panel = document.createElement('div');
@@ -405,57 +412,106 @@
       content.replaceChildren(panel);
     }
 
+    function setActivityOptions(rows) {
+      const activitySelect = document.getElementById('activitySelect');
+      const visible = (rows || []).filter(a => a.country?.availability_status !== 'unavailable');
+
+      activitySelect.innerHTML = '<option value="">كل أنشطة القطاع</option>';
+      visible.forEach(a => {
+        activitySelect.innerHTML += `<option value="${a.code}">${window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar}</option>`;
+      });
+
+      activitySelect.disabled = visible.length === 0;
+      return visible.length;
+    }
+
+    async function refreshSectorActivities() {
+      const countrySelect = document.getElementById('countrySelect');
+      const sectorSelect = document.getElementById('sectorSelect');
+      const activitySelect = document.getElementById('activitySelect');
+
+      if (!sectorSelect.value) {
+        activities = [];
+        activitySelect.innerHTML = '<option value="">اختر القطاع أولًا</option>';
+        activitySelect.disabled = true;
+        return;
+      }
+
+      activitySelect.disabled = true;
+      activitySelect.innerHTML = '<option value="">جاري تحميل أنشطة القطاع...</option>';
+
+      const params = new URLSearchParams({
+        depth: 'sector',
+        sector: sectorSelect.value,
+        include: 'activities'
+      });
+      if (countrySelect.value) params.set('country', countrySelect.value);
+
+      try {
+        const data = await fetchJson(API_URL + '/investment-taxonomy?' + params.toString());
+        activities = data.activities || [];
+        setActivityOptions(activities);
+      } catch (err) {
+        activities = [];
+        activitySelect.innerHTML = '<option value="">تعذر تحميل أنشطة القطاع</option>';
+        activitySelect.disabled = true;
+        console.warn('Failed to refresh sector activities:', err.message);
+      }
+    }
+
     async function init() {
       const countrySelect = document.getElementById('countrySelect');
+      const sectorSelect = document.getElementById('sectorSelect');
       const activitySelect = document.getElementById('activitySelect');
       setReadinessState('loading');
 
       try {
-        const countriesData = await fetchJson(API_URL + '/catalog/countries');
+        const [countriesData, taxonomyData] = await Promise.all([
+          fetchJson(API_URL + '/catalog/countries'),
+          fetchJson(API_URL + '/investment-taxonomy?depth=sector')
+        ]);
 
         if (window.destroyUniversalDropdowns) {
           window.destroyUniversalDropdowns(countrySelect);
+          window.destroyUniversalDropdowns(sectorSelect);
           window.destroyUniversalDropdowns(activitySelect);
         }
 
         const countryRows = (countriesData.countries || []).filter(c => c.is_supported !== false);
         const countries = countryRows.map(c => c.code);
         countryProfiles = new Map(countryRows.map(c => [c.code, c]));
+        taxonomySectors = taxonomyData.sectors || [];
 
         countrySelect.innerHTML = '<option value="">كل الدول</option>';
         countryRows.forEach(country => {
           countrySelect.innerHTML += `<option value="${country.code}">${country.name_ar}</option>`;
         });
 
+        sectorSelect.innerHTML = '<option value="">كل القطاعات</option>';
+        taxonomySectors.forEach(sector => {
+          sectorSelect.innerHTML += `<option value="${sector.code}">${sector.name_ar}</option>`;
+        });
+
+        activitySelect.innerHTML = '<option value="">اختر القطاع أولًا</option>';
+        activitySelect.disabled = true;
+
         const storedCountry = window.BondsCountryContext?.getSelected('SA') || 'SA';
         if (countries.includes(storedCountry)) countrySelect.value = storedCountry;
 
-        const activityUrl = countrySelect.value
-          ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countrySelect.value)
-          : API_URL + '/catalog/activities';
-        const activitiesData = await fetchJson(activityUrl);
-        activities = activitiesData.activities || [];
-
-        activitySelect.innerHTML = '<option value="">كل الأنشطة</option>';
-        activities
-          .filter(a => a.country?.availability_status !== 'unavailable')
-          .forEach(a => {
-            activitySelect.innerHTML += `<option value="${a.code}">${window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar}</option>`;
-          });
-
-        if (countries.length === 0 || activities.length === 0) {
+        if (countries.length === 0 || taxonomySectors.length === 0) {
           const missing = [];
-          if (countries.length === 0) missing.push('المدن/الدول');
-          if (activities.length === 0) missing.push('الأنشطة الاقتصادية');
+          if (countries.length === 0) missing.push('الدول');
+          if (taxonomySectors.length === 0) missing.push('القطاعات الاستثمارية');
           setReadinessState('empty', 'لا توجد بيانات مهيأة لـ ' + missing.join(' و ') + '.');
           return;
         }
 
         countrySelect.disabled = false;
-        activitySelect.disabled = false;
+        sectorSelect.disabled = false;
 
         if (window.initUniversalDropdowns) {
           window.initUniversalDropdowns(countrySelect);
+          window.initUniversalDropdowns(sectorSelect);
           window.initUniversalDropdowns(activitySelect);
         }
 
@@ -475,8 +531,8 @@
 
     document.getElementById('countrySelect').addEventListener('change', async () => {
       const countrySelect = document.getElementById('countrySelect');
-      const activitySelect = document.getElementById('activitySelect');
       const profile = countryProfiles.get(countrySelect.value) || null;
+
       if (countrySelect.value) {
         window.BondsCountryContext?.setSelected(countrySelect.value, {
           currency_code: profile?.currency_code || null,
@@ -484,31 +540,23 @@
         });
       }
 
-      try {
-        const url = countrySelect.value
-          ? API_URL + '/catalog/activities?country=' + encodeURIComponent(countrySelect.value)
-          : API_URL + '/catalog/activities';
-        const data = await fetchJson(url);
-        activities = data.activities || [];
-        activitySelect.innerHTML = '<option value="">كل الأنشطة</option>';
-        activities
-          .filter(a => a.country?.availability_status !== 'unavailable')
-          .forEach(a => {
-            activitySelect.innerHTML += `<option value="${a.code}">${window.BondsCountryContext?.formatActivityLabel(a) || a.name_ar}</option>`;
-          });
-      } catch (err) {
-        console.warn('Failed to refresh activities for country:', err.message);
+      if (document.getElementById('sectorSelect').value) {
+        await refreshSectorActivities();
       }
     });
 
+    document.getElementById('sectorSelect').addEventListener('change', refreshSectorActivities);
+
     async function loadOpportunities() {
       const country = document.getElementById('countrySelect').value;
+      const sector = document.getElementById('sectorSelect').value;
       const activity = document.getElementById('activitySelect').value;
       const minScore = document.getElementById('minScore').value;
       const limit = document.getElementById('limitSelect').value;
 
       const params = new URLSearchParams();
       if (country) params.set('country', country);
+      if (sector) params.set('sector', sector);
       if (activity) params.set('activity', activity);
       if (minScore) params.set('min_score', minScore);
       params.set('limit', limit);
