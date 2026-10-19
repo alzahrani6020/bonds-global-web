@@ -192,8 +192,11 @@
             <div><label>الكود</label><input name="code" required></div>
             <div><label>الاسم بالعربي</label><input name="name_ar" required></div>
             <div><label>الاسم بالإنجليزي</label><input name="name_en" required></div>
-            <div><label>المنطقة</label><input name="region"></div>
+            <div><label>الدولة</label><input name="country_code" placeholder="SA"></div>
+            <div><label>المنطقة / المحافظة</label><input name="region"></div>
             <div><label>كود المنطقة</label><input name="region_code"></div>
+            <div><label>المستوى الإداري الثاني</label><input name="admin_level_2" placeholder="مركز / ولاية / إقليم فرعي"></div>
+            <div><label>نوع الموقع المحلي</label><select data-universal-dropdown="true" name="locality_type"><option value="city">مدينة</option><option value="town">بلدة</option><option value="village">قرية</option><option value="hijra">هجرة</option><option value="district">حي / منطقة محلية</option><option value="other">أخرى</option></select></div>
             <div><label>السكان</label><input name="population" type="number"></div>
             <div><label>متوسط دخل الأسرة</label><input name="avg_household_income" type="number"></div>
             <div><label>مؤشر القوة الشرائية</label><input name="purchasing_power_index" type="number" step="0.01"></div>
