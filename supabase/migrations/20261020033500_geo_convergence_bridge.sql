@@ -28,8 +28,9 @@ begin
   end if;
 end $$;
 
-create unique index if not exists uq_cities_geo_place_id
-  on public.cities(geo_place_id) where geo_place_id is not null;
+drop index if exists public.uq_cities_geo_place_id;
+create index if not exists idx_cities_geo_place_id
+  on public.cities(geo_place_id);
 create index if not exists idx_service_requests_geo_place_id on public.service_requests(geo_place_id);
 create index if not exists idx_bonds_projects_geo_place_id on public.bonds_projects(geo_place_id);
 
