@@ -1,0 +1,324 @@
+name: GeoNames existing-only stage reconcile one-shot
+
+on:
+  push:
+    branches:
+      - ops/geonames-stage-reconcile-20261021-v2
+    paths:
+      - .github/workflows/geonames-existing-only-stage-reconcile-once.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: geonames-governed-ingestion
+  cancel-in-progress: false
+
+jobs:
+  stage-reconcile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SITE_URL: ${{ secrets.SITE_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+      RUN_ID: bb780042-0d81-40f4-8a8a-debb8f2ff2b1
+      MIGRATION_FILE: supabase/migrations/20261020223000_geonames_existing_only_stage_reconcile.sql
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ops/geonames-stage-reconcile-20261021-v2
+          persist-credentials: true
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SITE_URL:-}" || { echo "SITE_URL secret is required"; exit 1; }
+          test -n "${CRON_SECRET:-}" || { echo "CRON_SECRET secret is required"; exit 1; }
+          test -s artifacts/geo/production-city-admin1-map-2026-10-20.json
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit
+
+      - name: Download official GeoNames dumps
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .tmp-geo
+          for file in allCountries.zip alternateNamesV2.zip admin1CodesASCII.txt; do
+            curl --fail --location --retry 4 --retry-all-errors --connect-timeout 30 --max-time 1800               --output ".tmp-geo/$file" "https://download.geonames.org/export/dump/$file"
+            test -s ".tmp-geo/$file"
+          done
+          unzip -p .tmp-geo/allCountries.zip allCountries.txt > .tmp-geo/allCountries.txt
+          unzip -p .tmp-geo/alternateNamesV2.zip alternateNamesV2.txt > .tmp-geo/alternateNames.txt
+
+      - name: Build canonical Arab locality dataset
+        run: npm run geo:build-local
+
+      - name: Generate existing-only stage and reconcile SQL
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const readline = require('readline');
+          const { normalizeKey, normalizeText } = require('./lib/geo/normalization');
+
+          const runId = process.env.RUN_ID;
+          const migrationFile = process.env.MIGRATION_FILE;
+          const cityMap = JSON.parse(fs.readFileSync('artifacts/geo/production-city-admin1-map-2026-10-20.json','utf8'));
+          const cities = cityMap.rows || [];
+
+          const keysByCountry = new Map();
+          for (const city of cities) {
+            const cc = String(city.country_code || '').toUpperCase();
+            if (!keysByCountry.has(cc)) keysByCountry.set(cc,new Set());
+            for (const value of [city.name_ar,city.name_en,city.canonical_name]) {
+              const key = normalizeKey(value);
+              if (key) keysByCountry.get(cc).add(key);
+            }
+          }
+
+          const lower = v => String(v || '').toLowerCase();
+          const providerCode = row => {
+            const cc = String(row.country_code || '').toUpperCase();
+            const a1 = String(row.metadata?.admin1_code || '').trim();
+            if (!cc || !a1) return null;
+            return a1.includes('.') ? a1.toUpperCase() : cc + '.' + a1;
+          };
+          const exactMatches = row => {
+            const pc = providerCode(row);
+            if (!pc) return [];
+            const preferred = row.name_ar || row.name_en || '';
+            return cities.filter(city =>
+              String(city.country_code || '').toUpperCase() === String(row.country_code || '').toUpperCase() &&
+              city.geonames_admin1_code === pc &&
+              (
+                lower(city.name_ar) === lower(row.name_ar) ||
+                lower(city.name_en) === lower(row.name_en) ||
+                lower(city.canonical_name) === lower(preferred)
+              )
+            );
+          };
+
+          const candidates = [];
+          const rl = readline.createInterface({
+            input: fs.createReadStream('.tmp-geo/arab-localities.ndjson'),
+            crlfDelay: Infinity
+          });
+
+          (async () => {
+            for await (const line of rl) {
+              if (!line.trim()) continue;
+              const row = JSON.parse(line);
+              const cc = String(row.country_code || '').toUpperCase();
+              const wanted = keysByCountry.get(cc);
+              if (!wanted) continue;
+              const keys = [row.name_ar,row.name_en,row.canonical_name,...(row.aliases || []).map(a=>a?.alias)]
+                .map(normalizeKey).filter(Boolean);
+              if (!keys.some(k => wanted.has(k))) continue;
+              const exact = exactMatches(row);
+              candidates.push({ row, exact });
+            }
+
+            const provisionalCount = new Map();
+            for (const c of candidates) {
+              if (c.exact.length === 1) {
+                const id = c.exact[0].geo_place_id;
+                provisionalCount.set(id,(provisionalCount.get(id)||0)+1);
+              }
+            }
+
+            let autoMatch = 0;
+            let review = 0;
+            for (const c of candidates) {
+              if (c.exact.length === 1 && provisionalCount.get(c.exact[0].geo_place_id) === 1) {
+                c.decision='auto_match';
+                c.canonical_place_id=c.exact[0].geo_place_id;
+                c.reason={reason:'exact_name_admin1_identity_one_to_one',provider_admin1_code:providerCode(c.row)};
+                autoMatch++;
+              } else {
+                c.decision='review';
+                c.canonical_place_id=c.exact.length===1 ? c.exact[0].geo_place_id : null;
+                c.reason={
+                  reason: c.exact.length > 1 ? 'multiple_canonical_candidates' :
+                    (c.exact.length === 1 ? 'multiple_raw_candidates_for_canonical' : 'no_deterministic_existing_match'),
+                  provider_admin1_code:providerCode(c.row),
+                  canonical_candidate_count:c.exact.length
+                };
+                review++;
+              }
+            }
+
+            const q = s => "'" + String(s ?? '').replace(/'/g,"''") + "'";
+            const n = v => Number.isFinite(Number(v)) ? String(Number(v)) : 'null';
+            const j = v => q(JSON.stringify(v));
+            const dateExpr = v => v ? q(v) + '::date::timestamptz' : 'null';
+
+            const sql=[];
+            sql.push("do $$ begin if not exists (select 1 from geo_ingest.runs where id="+q(runId)+"::uuid and metrics->>'mode'='existing_only') then raise exception 'existing-only run not found'; end if; end $$;");
+            sql.push("delete from geo_ingest.match_candidates where run_id="+q(runId)+"::uuid;");
+            sql.push("delete from geo_ingest.raw_places where run_id="+q(runId)+"::uuid;");
+
+            const chunks=[];
+            for(let i=0;i<candidates.length;i+=200) chunks.push(candidates.slice(i,i+200));
+            for(const chunk of chunks){
+              const values=chunk.map(({row}) => {
+                const errors=[];
+                if(!row.source_id) errors.push('missing_source_id');
+                if(!row.country_code) errors.push('missing_country_code');
+                if(!row.name_ar&&!row.name_en&&!row.canonical_name) errors.push('missing_name');
+                if(!Number.isFinite(Number(row.lat))||!Number.isFinite(Number(row.lng))) errors.push('missing_coordinates');
+                return '('+[
+                  q(runId)+'::uuid',
+                  q('geonames'),
+                  q(String(row.source_id)),
+                  q(String(row.country_code).toUpperCase()),
+                  row.name_ar?q(row.name_ar):'null',
+                  row.name_en?q(row.name_en):'null',
+                  q(normalizeText(row.name_ar)),
+                  q(normalizeText(row.name_en)),
+                  q(row.place_type||'other'),
+                  row.metadata?.admin1_code?q(row.metadata.admin1_code):'null',
+                  row.metadata?.admin2_code?q(row.metadata.admin2_code):'null',
+                  row.metadata?.admin3_code?q(row.metadata.admin3_code):'null',
+                  row.metadata?.admin4_code?q(row.metadata.admin4_code):'null',
+                  n(row.lat),n(row.lng),n(row.population),n(row.elevation_m),
+                  dateExpr(row.source_updated_at),
+                  "'[]'::jsonb",
+                  j({candidate_subset:true,artifact_run_id:39506516877,source_canonical_code:row.canonical_code})+'::jsonb',
+                  q(errors.length?'invalid':'valid'),
+                  j(errors)+'::jsonb'
+                ].join(',')+')';
+              }).join(',\n');
+              sql.push(`insert into geo_ingest.raw_places(
+                run_id,source_code,source_id,country_code,name_ar,name_en,
+                normalized_name_ar,normalized_name_en,place_type,
+                admin1_code,admin2_code,admin3_code,admin4_code,
+                lat,lng,population,elevation_m,source_updated_at,aliases,raw_payload,
+                validation_status,validation_errors
+              ) values\n${values}
+              on conflict(run_id,source_code,source_id) do nothing;`);
+            }
+
+            sql.push("update geo_ingest.runs set stage='validation' where id="+q(runId)+"::uuid;");
+            sql.push("select geo_ingest.refresh_run_metrics("+q(runId)+"::uuid);");
+            sql.push("select * from geo_ingest.evaluate_quality_gates("+q(runId)+"::uuid);");
+
+            const matchValues=candidates.map(c => '('+[
+              q(String(c.row.source_id)),
+              c.canonical_place_id ? q(c.canonical_place_id)+'::uuid' : 'null',
+              q(c.decision),
+              q(c.decision==='auto_match'?'exact_name':'ambiguous'),
+              c.decision==='auto_match'?'96':'50',
+              c.decision==='auto_match'?'100':'null',
+              j(c.reason)+'::jsonb'
+            ].join(',')+')').join(',\n');
+
+            sql.push(`with v(source_id,canonical_place_id,decision,match_type,overall_score,admin_score,reason) as (
+              values
+              ${matchValues}
+            )
+            insert into geo_ingest.match_candidates(
+              run_id,raw_place_id,canonical_place_id,match_type,
+              name_score,distance_m,admin_score,overall_score,decision,reason
+            )
+            select
+              r.run_id,r.id,v.canonical_place_id,v.match_type,
+              case when v.decision='auto_match' then 82 else 50 end,
+              null,v.admin_score,v.overall_score,v.decision,v.reason
+            from v
+            join geo_ingest.raw_places r
+              on r.run_id=${q(runId)}::uuid and r.source_code='geonames' and r.source_id=v.source_id;`);
+
+            sql.push(`update geo_ingest.runs
+              set stage='promotion',
+                  status=case when ${review}>0 then 'blocked' else 'passed' end,
+                  matched_count=${autoMatch},
+                  new_count=0,
+                  review_count=${review},
+                  metrics=metrics || jsonb_build_object(
+                    'mode','existing_only',
+                    'candidate_rows',${candidates.length},
+                    'matched_count',${autoMatch},
+                    'new_count',0,
+                    'review_count',${review},
+                    'promotion_allowed',false
+                  )
+              where id=${q(runId)}::uuid;`);
+            sql.push(`update geo_ingest.source_snapshots s
+              set status='validated'
+              from geo_ingest.runs r
+              where r.id=${q(runId)}::uuid and s.id=r.snapshot_id;`);
+
+            fs.mkdirSync('supabase/migrations',{recursive:true});
+            const sqlText=sql.join('\n\n')+'\n';
+            fs.writeFileSync(migrationFile,sqlText);
+            const report={
+              run_id:runId,
+              production_city_count:cities.length,
+              source_rows:228963,
+              candidate_rows:candidates.length,
+              auto_match:autoMatch,
+              review,
+              new_canonical:0,
+              promotion_allowed:false,
+              migration_bytes:Buffer.byteLength(sqlText)
+            };
+            fs.writeFileSync('.tmp-geo/existing-only-reconcile-report.json',JSON.stringify(report,null,2));
+            console.log(JSON.stringify(report,null,2));
+          })().catch(err=>{console.error(err);process.exit(1);});
+          NODE
+
+      - name: Enforce no-promotion SQL contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s "$MIGRATION_FILE"
+          BYTES="$(wc -c < "$MIGRATION_FILE")"
+          test "$BYTES" -lt 1048576 || { echo "Migration exceeds 1 MiB admin endpoint limit"; exit 1; }
+          if grep -Eiq '(insert|update|delete)[[:space:]]+.*public\.geo_places|geo_ingest\.promotions|GEO_PROMOTE|created_canonical|new_canonical[^_]' "$MIGRATION_FILE"; then
+            echo "Unsafe promotion/canonical mutation detected"
+            exit 1
+          fi
+
+      - name: Commit generated staging migration
+        id: commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "bonds-geo-ops"
+          git config user.email "geo-ops@bonds-global.com"
+          git add "$MIGRATION_FILE"
+          git commit -m "ops: stage GeoNames existing-only reconciliation evidence"
+          git push origin HEAD:ops/geonames-stage-reconcile-20261021-v2
+          SHA="$(git rev-parse HEAD)"
+          echo "sha=$SHA" >> "$GITHUB_OUTPUT"
+
+      - name: Apply staging migration via existing admin channel
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS_CODE="$(curl -sS -o .tmp-geo/apply-response.json -w "%{http_code}"             -H "X-Cron-Secret: ${CRON_SECRET}"             -G -X POST             --data-urlencode "action=run-migrations"             --data-urlencode "migration_file=${MIGRATION_FILE}"             --data-urlencode "commit_sha=${{ steps.commit.outputs.sha }}"             "${SITE_URL%/}/api/admin")"
+          cat .tmp-geo/apply-response.json
+          echo
+          test "$STATUS_CODE" = "200"
+
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: geonames-existing-only-stage-reconcile-${{ github.run_id }}
+          path: |
+            .tmp-geo/existing-only-reconcile-report.json
+            .tmp-geo/apply-response.json
+            ${{ env.MIGRATION_FILE }}
+          if-no-files-found: warn
+          retention-days: 30
