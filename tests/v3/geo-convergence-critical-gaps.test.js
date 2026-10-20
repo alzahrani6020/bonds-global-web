@@ -42,7 +42,7 @@ describe('Geo convergence critical gaps', () => {
     const promote = read('scripts/promote-local-geo-run.js');
     expect(promote).toContain('Promotion blocked: unresolved review candidates remain');
     expect(promote).toContain('Promotion blocked: canonical admin hierarchy is not ready for');
-    expect(promote).toContain('Promotion blocked: unresolved admin1 mapping for');
+    expect(promote).toContain('Promotion blocked: unresolved provider ADM1 source mapping for');
     expect(promote).toContain('public.geo_admin_areas');
     expect(promote).toContain('admin1For(row)');
     expect(promote).toContain("row.decision === 'new_canonical'");
