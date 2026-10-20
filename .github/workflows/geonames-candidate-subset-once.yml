@@ -1,0 +1,156 @@
+name: GeoNames candidate subset one-shot
+
+on:
+  push:
+    branches:
+      - ops/geonames-stage-reconcile-20261021-v2
+    paths:
+      - .github/workflows/geonames-candidate-subset-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SITE_URL: ${{ secrets.SITE_URL }}
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ops/geonames-stage-reconcile-20261021-v2
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${SITE_URL:-}" || { echo "SITE_URL secret is required"; exit 1; }
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit
+
+      - name: Download official GeoNames dumps
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .tmp-geo
+          for file in allCountries.zip alternateNamesV2.zip admin1CodesASCII.txt; do
+            curl --fail --location --retry 4 --retry-all-errors --connect-timeout 30 --max-time 1800               --output ".tmp-geo/$file" "https://download.geonames.org/export/dump/$file"
+            test -s ".tmp-geo/$file"
+          done
+          unzip -tq .tmp-geo/allCountries.zip
+          unzip -tq .tmp-geo/alternateNamesV2.zip
+          unzip -p .tmp-geo/allCountries.zip allCountries.txt > .tmp-geo/allCountries.txt
+          unzip -p .tmp-geo/alternateNamesV2.zip alternateNamesV2.txt > .tmp-geo/alternateNames.txt
+
+      - name: Build canonical Arab locality dataset
+        run: npm run geo:build-local
+
+      - name: Fetch current production cities
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3             --output .tmp-geo/current-cities.json             "${SITE_URL%/}/api/v3/cities?limit=2000"
+          test -s .tmp-geo/current-cities.json
+
+      - name: Filter exact-name GeoNames candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          node <<'NODE'
+          const fs = require('fs');
+          const readline = require('readline');
+          const { normalizeKey } = require('./lib/geo/normalization');
+
+          const payload = JSON.parse(fs.readFileSync('.tmp-geo/current-cities.json', 'utf8'));
+          const cities = Array.isArray(payload.cities) ? payload.cities : [];
+          const keysByCountry = new Map();
+          const cityKeys = new Map();
+
+          for (const city of cities) {
+            const cc = String(city.country_code || '').toUpperCase();
+            if (!cc) continue;
+            const keys = [city.name_ar, city.name_en].map(normalizeKey).filter(Boolean);
+            if (!keysByCountry.has(cc)) keysByCountry.set(cc, new Set());
+            for (const key of keys) {
+              keysByCountry.get(cc).add(key);
+              const k = cc + ':' + key;
+              if (!cityKeys.has(k)) cityKeys.set(k, []);
+              cityKeys.get(k).push({ code: city.code, name_ar: city.name_ar, name_en: city.name_en, region: city.region });
+            }
+          }
+
+          const input = fs.createReadStream('.tmp-geo/arab-localities.ndjson');
+          const out = fs.createWriteStream('.tmp-geo/geonames-candidates.ndjson');
+          const rl = readline.createInterface({ input, crlfDelay: Infinity });
+          let sourceRows = 0, candidateRows = 0;
+          const byCountry = {};
+          const candidateKeyCounts = new Map();
+
+          (async () => {
+            for await (const line of rl) {
+              if (!line.trim()) continue;
+              sourceRows++;
+              const row = JSON.parse(line);
+              const cc = String(row.country_code || '').toUpperCase();
+              const wanted = keysByCountry.get(cc);
+              if (!wanted) continue;
+              const rowKeys = [row.name_ar, row.name_en, row.canonical_name, ...(row.aliases || []).map(a => a && a.alias)]
+                .map(normalizeKey).filter(Boolean);
+              const matchedKeys = [...new Set(rowKeys.filter(k => wanted.has(k)))];
+              if (!matchedKeys.length) continue;
+              row._candidate_match_keys = matchedKeys;
+              row._candidate_city_refs = matchedKeys.flatMap(k => cityKeys.get(cc + ':' + k) || []);
+              out.write(JSON.stringify(row) + '\n');
+              candidateRows++;
+              byCountry[cc] = (byCountry[cc] || 0) + 1;
+              for (const key of matchedKeys) {
+                const id = cc + ':' + key;
+                candidateKeyCounts.set(id, (candidateKeyCounts.get(id) || 0) + 1);
+              }
+            }
+            out.end();
+            const ambiguousKeys = [...candidateKeyCounts.entries()]
+              .filter(([,n]) => n > 1)
+              .sort((a,b) => b[1]-a[1])
+              .map(([key,count]) => ({ key, count, cities: cityKeys.get(key) || [] }));
+            const report = {
+              production_city_count: cities.length,
+              source_rows: sourceRows,
+              candidate_rows: candidateRows,
+              countries: byCountry,
+              unique_match_keys: candidateKeyCounts.size,
+              ambiguous_source_keys: ambiguousKeys.length,
+              ambiguous_examples: ambiguousKeys.slice(0,100)
+            };
+            fs.writeFileSync('.tmp-geo/geonames-candidate-report.json', JSON.stringify(report, null, 2));
+            console.log(JSON.stringify(report, null, 2));
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+
+      - name: Hash evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          sha256sum .tmp-geo/geonames-candidates.ndjson > .tmp-geo/geonames-candidates.sha256
+          wc -l .tmp-geo/geonames-candidates.ndjson > .tmp-geo/geonames-candidates.wc
+
+      - name: Upload candidate review artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: geonames-candidate-subset-${{ github.run_id }}
+          path: |
+            .tmp-geo/geonames-candidates.ndjson
+            .tmp-geo/geonames-candidate-report.json
+            .tmp-geo/geonames-candidates.sha256
+            .tmp-geo/geonames-candidates.wc
+          if-no-files-found: error
+          retention-days: 30
