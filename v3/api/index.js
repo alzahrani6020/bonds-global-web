@@ -10,6 +10,7 @@ const { projectsRouter } = require('./projects');
 const { billingRouter } = require('./billing');
 const { dataEngineRouter } = require('./data-engine');
 const { getUserFromToken } = require('../lib/auth');
+const { requireAdminAccess, constantTimeEqual } = require('../lib/admin-access');
 const { checkRateLimit } = require('../../lib/api/rate-limit');
 const { assessOpportunityRow } = require('../../lib/truth/opportunity-reliability');
 const { deriveEvidenceAges } = require('../../lib/truth/evidence-record');
@@ -2314,24 +2315,20 @@ async function handleCalculate(req, res) {
   }
 }
 
-function requireCronOrAdmin(req) {
-  const authHeader = req.headers.authorization || '';
+async function requireCronOrAdmin(req) {
+  const authHeader = String(req.headers.authorization || '');
   const cronSecret = process.env.CRON_SECRET;
-  const adminToken = req.headers['x-admin-token'];
-  const expectedAdmin = process.env.ADMIN_TOKEN;
 
-  if (cronSecret && authHeader === `Bearer ${cronSecret}`) return null;
-  if (expectedAdmin && adminToken && adminToken === expectedAdmin) return null;
-
-  if (!cronSecret && !expectedAdmin) {
-    return { error: 'No cron or admin auth configured' };
+  if (cronSecret && constantTimeEqual(authHeader, `Bearer ${cronSecret}`)) {
+    return null;
   }
-  return { error: 'Unauthorized' };
+
+  return (await requireAdminAccess(req)) ? null : { error: 'Unauthorized' };
 }
 
 async function handleCronCalibrate(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
-  const authError = requireCronOrAdmin(req);
+  const authError = await requireCronOrAdmin(req);
   if (authError) return sendJson(res, 401, authError);
 
   const body = await parseBody(req);
@@ -2354,7 +2351,7 @@ async function handleCronCalibrate(req, res) {
 
 async function handleCronCheckQuality(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
-  const authError = requireCronOrAdmin(req);
+  const authError = await requireCronOrAdmin(req);
   if (authError) return sendJson(res, 401, authError);
 
   const url = getQuery(req);
