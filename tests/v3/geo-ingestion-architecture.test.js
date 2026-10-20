@@ -21,6 +21,7 @@ describe('Governed geo ingestion architecture', () => {
     expect(stage).not.toContain('insert into public.geo_places');
     expect(promote).toContain('insert into public.geo_places');
     expect(promote).toContain('geo_place_source_links');
+    expect(promote).toContain("alias.language || 'und'");
     expect(legacy).toContain('ingest-local-geo-dataset.js');
     expect(legacy).not.toContain('insert into public.geo_places');
   });
