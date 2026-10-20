@@ -208,6 +208,14 @@ async function main() {
         matched++;
       }
 
+      const sourceLinkBefore = await client.query(
+        `select place_id,source_updated_at,confidence,metadata
+         from public.geo_place_source_links
+         where source_code=$1 and source_id=$2
+         for update`,
+        [row.source_code,row.source_id]
+      );
+
       await client.query(
         `insert into public.geo_place_source_links(
            place_id,source_code,source_id,source_updated_at,confidence,metadata
@@ -225,16 +233,28 @@ async function main() {
         ]
       );
 
+      promotionReason.rollback_guard = {
+        ...(promotionReason.rollback_guard || {}),
+        source_link_previous: sourceLinkBefore.rows[0] || null
+      };
+
+      const insertedAliases = [];
       const aliases = Array.isArray(row.aliases) ? row.aliases : [];
       for (const alias of aliases) {
         if (!alias || !alias.alias) continue;
-        await client.query(
+        const aliasLanguage = alias.language || 'und';
+        const insertedAlias = await client.query(
           `insert into public.geo_place_aliases(place_id,alias,language,alias_type,source_code)
            values($1,$2,$3,$4,$5)
-           on conflict(place_id,alias,language) do nothing`,
-          [canonicalId,alias.alias,alias.language || 'und',alias.alias_type || 'source',row.source_code]
+           on conflict(place_id,alias,language) do nothing
+           returning id`,
+          [canonicalId,alias.alias,aliasLanguage,alias.alias_type || 'source',row.source_code]
         );
+        if (insertedAlias.rows.length) {
+          insertedAliases.push({ alias: alias.alias, language: aliasLanguage });
+        }
       }
+      promotionReason.rollback_guard.inserted_aliases = insertedAliases;
 
       await client.query(
         `insert into geo_ingest.promotions(
