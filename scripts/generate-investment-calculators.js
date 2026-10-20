@@ -1756,6 +1756,21 @@ function generatePage(sector, lang) {
     isAr ? 'مراجعة الافتراضات وعوامل النجاح.' : 'Review assumptions and success factors.'
   ];
 
+  // Keep runtime metadata language-neutral. Labels/options are rendered at build time,
+  // so generated English pages must not carry Arabic presentation strings in JS payloads.
+  const toRuntimeField = (field) => {
+    let defaultValue = field.default;
+    if (!isAr && field.type === 'select' && Array.isArray(field.optionsAr) && Array.isArray(field.optionsEn)) {
+      const defaultIndex = field.optionsAr.indexOf(field.default);
+      if (defaultIndex >= 0 && field.optionsEn[defaultIndex] !== undefined) {
+        defaultValue = field.optionsEn[defaultIndex];
+      }
+    }
+    return { name: field.name, type: field.type, default: defaultValue };
+  };
+  const runtimeSectorFields = sector.fields.map(toRuntimeField);
+  const runtimeExpertFields = expertStages.flatMap(s => s.fields).map(toRuntimeField);
+
   const sectionTitles = {
     ar: {
       production: '🏭 الإنتاج والتشغيل',
@@ -1857,7 +1872,7 @@ function generatePage(sector, lang) {
             <span class="stage-nav__label">${t}</span>
           </button>`).join('');
 
-  return `<!DOCTYPE html>
+  let html = `<!DOCTYPE html>
 <html lang="${lang}" dir="${dir}" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
@@ -2397,6 +2412,7 @@ function generatePage(sector, lang) {
       BondsCountrySelector.init({ select: '#country' });
     }
 
+    /* WATER_FACTORY_RUNTIME_START */
     const WATER_FACTORY_MARKET_FIELDS = sectorId === 'water-factory' ? ['bottleCostPerUnit', 'capCostPerUnit', 'labelCostPerUnit', 'cartonCostPerBottle', 'shrinkCostPerBottle', 'electricityRatePerKwh', 'waterRatePerM3', 'shiftCostPerWorker', 'workersPerShift', 'buildingCostPerM2', 'bottlePrice', 'marketingCostPerCustomer', 'monthlyNewCustomers', 'logisticsCostPerBottle', 'maintenanceRate', 'monthlySalaries'] : [];
     const defaultFieldValues = {};
     WATER_FACTORY_MARKET_FIELDS.forEach(field => {
@@ -2422,6 +2438,7 @@ function generatePage(sector, lang) {
         renderCountryInfo();
       }, 0);
     }
+    /* WATER_FACTORY_RUNTIME_END */
 
     let currentMode = 'basic';
     let currentStage = 1;
@@ -2458,6 +2475,7 @@ function generatePage(sector, lang) {
       if (expertEl) expertEl.value = value;
     }
 
+    /* WATER_FACTORY_RUNTIME_START */
     const FACTORY_TEMPLATES = {
       small: {
         dailyProduction: 5000,
@@ -2810,6 +2828,8 @@ function generatePage(sector, lang) {
       }
     }
 
+    /* WATER_FACTORY_RUNTIME_END */
+
     function syncField(basicId, expertId, direction) {
       const basicEl = document.getElementById(basicId);
       const expertEl = document.getElementById(expertId);
@@ -2826,7 +2846,7 @@ function generatePage(sector, lang) {
       currentMode = mode;
       const direction = mode === 'expert' ? 'toExpert' : 'toBasic';
 
-      const fields = ${JSON.stringify(sector.fields)};
+      const fields = ${JSON.stringify(runtimeSectorFields)};
       fields.forEach(f => syncField(f.name, 'expert_basic_' + f.name, direction));
       syncField('analysisDuration', 'expert_basic_analysisDuration', direction);
       syncField('discountRate', 'expert_basic_discountRate', direction);
@@ -2877,7 +2897,7 @@ function generatePage(sector, lang) {
 
     function mapInputs() {
       const inputs = {};
-      const fields = ${JSON.stringify(sector.fields)};
+      const fields = ${JSON.stringify(runtimeSectorFields)};
       const basicPrefix = currentMode === 'expert' ? 'expert_basic_' : '';
       fields.forEach(f => {
         const el = document.getElementById(basicPrefix + f.name);
@@ -2900,7 +2920,7 @@ function generatePage(sector, lang) {
 
       const expertFieldNames = ${JSON.stringify(expertStages.flatMap(s => s.fields.map(f => f.name)))};
       expertFieldNames.forEach(name => {
-        const fieldMeta = ${JSON.stringify(expertStages.flatMap(s => s.fields))}.find(f => f.name === name);
+        const fieldMeta = ${JSON.stringify(runtimeExpertFields)}.find(f => f.name === name);
         if (fieldMeta && (fieldMeta.type === 'text' || fieldMeta.type === 'textarea' || fieldMeta.type === 'select')) {
           inputs[name] = getText('expert_' + name);
         } else {
@@ -4804,6 +4824,15 @@ function generatePage(sector, lang) {
   </script>
 </body>
 </html>`;
+
+  if (sector.id !== 'water-factory') {
+    html = html.replace(
+      /\s*\/\* WATER_FACTORY_RUNTIME_START \*\/[\s\S]*?\/\* WATER_FACTORY_RUNTIME_END \*\/\s*/g,
+      '\n'
+    );
+  }
+
+  return html;
 }
 
 function main() {
@@ -4822,7 +4851,11 @@ function main() {
 
   for (const sector of sectorsEn) {
     if (sector.id === 'cloud-kitchen') { skipped.push(sector.id); continue; }
-    fs.writeFileSync(path.join(enDir, `${sector.id}.html`), generatePage(sector, 'en'), 'utf8');
+    const output = generatePage(sector, 'en');
+    if (sector.id !== 'water-factory' && /WaterFactoryData|waterFactoryCountryInfo|wfCompetitor|water bottling factories/i.test(output)) {
+      throw new Error(`Water-factory runtime leaked into English sector page: ${sector.id}`);
+    }
+    fs.writeFileSync(path.join(enDir, `${sector.id}.html`), output, 'utf8');
   }
 
   console.log(`Generated ${sectorsAr.length - 1} Arabic and ${sectorsEn.length - 1} English sector calculators. Skipped custom page(s): ${[...new Set(skipped)].join(', ')}.`);

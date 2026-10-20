@@ -29,7 +29,7 @@ const ADMIN1_FILE = process.argv[2] || path.join(GEO_DIR, 'admin1CodesASCII.txt'
 const ALT_FILE = path.join(GEO_DIR, 'alternateNames.txt');
 const REVIEW_FILE = path.join(GEO_DIR, 'geonames-admin1-review.json');
 const APPLY = process.env.GEO_ADMIN1_APPLY === '1';
-const SOURCE_CODE = process.env.GEO_ADMIN1_SOURCE_CODE || 'geonames';
+const SOURCE_CODE = 'geonames';
 
 const ARAB_CODES = new Set([
   'DZ','BH','KM','DJ','EG','IQ','JO','KW','LB','LY','MR',
@@ -216,6 +216,29 @@ async function main() {
     }
 
     await client.query('begin');
+    await client.query(
+      `insert into public.geo_data_sources(
+        code,name,source_type,license,attribution,
+        commercial_use_allowed,runtime_api_required,api_key_required,
+        refresh_interval,metadata
+      ) values(
+        'geonames','GeoNames','download','CC BY 4.0','GeoNames',
+        true,false,false,'monthly',
+        '{"mode":"offline_dump","canonical_provider_code":"geonames"}'::jsonb
+      )
+      on conflict(code) do update set
+        name=excluded.name,
+        source_type=excluded.source_type,
+        license=excluded.license,
+        attribution=excluded.attribution,
+        commercial_use_allowed=excluded.commercial_use_allowed,
+        runtime_api_required=false,
+        api_key_required=false,
+        refresh_interval=excluded.refresh_interval,
+        metadata=public.geo_data_sources.metadata || excluded.metadata,
+        updated_at=now()`
+    );
+
     for (const { source, outcome } of matched) {
       await client.query(
         `insert into public.geo_admin_area_source_links(
