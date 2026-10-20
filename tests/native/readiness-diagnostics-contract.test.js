@@ -7,7 +7,9 @@ describe('Readiness native diagnostics contract', () => {
 
   test('exposes safe native failure classification fields', () => {
     expect(source).toContain('native_diagnostic: nativeDiagnostic');
-    expect(source).toContain("code: nativeError.code || 'NATIVE_HEALTH_FAILED'");
+    expect(source).toContain("nativeError.code || nativeError.name || 'NATIVE_HEALTH_FAILED'");
+    expect(source).toContain('attempts: nativeProbe.attempts');
+    expect(source).toContain('retry_recovered: nativeProbe.recovered === true');
     expect(source).toContain('http_status:');
     expect(source).toContain('executed: nativeHealth.executed === true');
     expect(source).toContain('elapsed_ms:');
