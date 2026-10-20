@@ -2227,7 +2227,11 @@ async function handleWave4Intent(req, res) {
     sendJson(res, 200, { ...result, trace });
   } catch (err) {
     console.error('[wave4/intent]', err.message);
-    sendJson(res, 400, { error: err.message });
+    sendJson(res, err.status || 400, {
+      error: err.message,
+      code: err.code || undefined,
+      requiredTier: err.requiredTier || undefined
+    });
   }
 }
 
@@ -2243,7 +2247,11 @@ async function handleWave4Run(req, res) {
     sendJson(res, 200, { ...result, trace });
   } catch (err) {
     console.error('[wave4/run]', err.message);
-    sendJson(res, 400, { error: err.message });
+    sendJson(res, err.status || 400, {
+      error: err.message,
+      code: err.code || undefined,
+      requiredTier: err.requiredTier || undefined
+    });
   }
 }
 
