@@ -54,11 +54,29 @@ jobs:
       - name: Build canonical Arab locality dataset
         run: npm run geo:build-local
 
-      - name: Fetch current production cities
+      - name: Fetch all current production cities by country
         shell: bash
         run: |
           set -euo pipefail
-          curl --fail --location --retry 3             --output .tmp-geo/current-cities.json             "${SITE_URL%/}/api/v3/cities?limit=2000"
+          node <<'NODE'
+          const fs = require('fs');
+          const { execFileSync } = require('child_process');
+          const countries = ['AE','BH','DJ','DZ','EG','IQ','JO','KM','KW','LB','LY','MA','MR','OM','PS','QA','SA','SD','SO','SY','TN','YE'];
+          const base = String(process.env.SITE_URL || '').replace(/\/$/, '');
+          const all = [];
+          for (const cc of countries) {
+            const out = '.tmp-geo/cities-' + cc + '.json';
+            execFileSync('curl', [
+              '--fail','--location','--retry','3',
+              '--output', out,
+              base + '/api/v3/cities?country=' + cc + '&limit=2000'
+            ], { stdio: 'inherit' });
+            const payload = JSON.parse(fs.readFileSync(out, 'utf8'));
+            for (const city of (payload.cities || [])) all.push(city);
+          }
+          fs.writeFileSync('.tmp-geo/current-cities.json', JSON.stringify({ cities: all }));
+          console.log(JSON.stringify({ city_count: all.length, country_count: new Set(all.map(x => x.country_code)).size }));
+          NODE
           test -s .tmp-geo/current-cities.json
 
       - name: Filter exact-name GeoNames candidates
