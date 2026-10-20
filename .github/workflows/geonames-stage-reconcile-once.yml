@@ -1,4 +1,4 @@
-name: GeoNames stage reconcile one-shot
+name: GeoNames build artifact one-shot
 
 on:
   push:
@@ -10,19 +10,10 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: geonames-governed-ingestion
-  cancel-in-progress: false
-
 jobs:
-  execute:
+  build:
     runs-on: ubuntu-latest
-    environment: production
     timeout-minutes: 60
-    env:
-      DATABASE_URL: ${{ secrets.GEO_DATABASE_URL }}
-      PGSSLMODE: require
-      GEO_SOURCE_CODE: geonames
 
     steps:
       - uses: actions/checkout@v5
@@ -34,12 +25,6 @@ jobs:
         with:
           node-version: '24'
           cache: npm
-
-      - name: Preflight
-        shell: bash
-        run: |
-          set -euo pipefail
-          test -n "${DATABASE_URL:-}" || { echo "GEO_DATABASE_URL secret is required"; exit 1; }
 
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit
@@ -61,42 +46,22 @@ jobs:
       - name: Build canonical Arab locality dataset
         run: npm run geo:build-local
 
-      - name: Verify ADM1 source links
+      - name: Hash evidence
         shell: bash
-        env:
-          GEO_ADMIN1_APPLY: '1'
         run: |
           set -euo pipefail
-          node scripts/link-local-geonames-admin1.js
-          test -s .tmp-geo/geonames-admin1-review.json
+          sha256sum .tmp-geo/arab-localities.ndjson > .tmp-geo/arab-localities.sha256
+          wc -l .tmp-geo/arab-localities.ndjson > .tmp-geo/arab-localities.wc
 
-      - name: Stage and reconcile only
-        id: stage
-        shell: bash
-        env:
-          GEO_STAGE_APPLY: '1'
-          GEO_RECONCILE_APPLY: '1'
-        run: |
-          set -euo pipefail
-          node scripts/stage-local-geo-dataset.js | tee .tmp-geo/stage.log
-          RUN_ID="$(sed -n 's/^GEO_RUN_ID=//p' .tmp-geo/stage.log | tail -1)"
-          [[ "$RUN_ID" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo "Missing run id"; exit 1; }
-          printf 'run_id=%s\n' "$RUN_ID" >> "$GITHUB_OUTPUT"
-          node scripts/reconcile-local-geo-run.js "$RUN_ID" | tee .tmp-geo/reconcile.log
-          echo "Staged and reconciled run: $RUN_ID"
-          echo "Promotion is intentionally NOT automatic."
-
-      - name: Upload review evidence
-        if: always()
+      - name: Upload source-derived review artifact
         uses: actions/upload-artifact@v5
         with:
-          name: geonames-stage-reconcile-once-${{ github.run_id }}
+          name: geonames-arab-localities-${{ github.run_id }}
           path: |
+            .tmp-geo/arab-localities.ndjson
             .tmp-geo/arab-localities-manifest.json
-            .tmp-geo/geonames-admin1-review.json
-            .tmp-geo/stage.log
-            .tmp-geo/reconcile.log
-          if-no-files-found: warn
+            .tmp-geo/arab-localities.sha256
+            .tmp-geo/arab-localities.wc
+            .tmp-geo/admin1CodesASCII.txt
+          if-no-files-found: error
           retention-days: 30
-
-# trigger second push
