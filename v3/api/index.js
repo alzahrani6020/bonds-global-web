@@ -804,6 +804,7 @@ async function loadCatalogCityRows(supabase, countryCode = null) {
   let legacyQuery = supabase
     .from('cities')
     .select('id, code, geo_place_id, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types')
+    .eq('is_active', true)
     .limit(2000);
   if (countryCode) legacyQuery = legacyQuery.eq('country_code', countryCode);
 
@@ -1386,7 +1387,7 @@ async function handleCities(req, res) {
   const cityTypeParam = url.searchParams.get('city_type');
 
   let selectFields = 'id, code, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types';
-  let query = supabase.from('cities').select(selectFields);
+  let query = supabase.from('cities').select(selectFields).eq('is_active', true);
 
   if (countryCode) query = query.eq('country_code', countryCode);
   if (cityTypeParam) {
