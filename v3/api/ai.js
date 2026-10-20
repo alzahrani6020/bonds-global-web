@@ -12,6 +12,7 @@
 
 const { getSupabaseClient } = require('../lib/supabase');
 const { getInferenceRouter } = require('../../lib/ai/inference-router');
+const { getUserFromToken } = require('../lib/auth');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -402,6 +403,17 @@ async function aiChatHandler(req, res) {
   // Structured investment questions already have deterministic, sourced answers.
   // Serve those first instead of blocking every chat request on a slow single-flight LLM.
   const forceNative = options?.force_native === true;
+  let authenticatedUser = null;
+  try {
+    authenticatedUser = await getUserFromToken(req);
+  } catch (_error) {
+    authenticatedUser = null;
+  }
+
+  if (forceNative && !authenticatedUser) {
+    return sendJson(res, 401, { error: 'Authentication required for Native AI execution' });
+  }
+
   const deterministicReply = forceNative ? null : generateDataDrivenReply(lastUserText, enrichedContext);
   if (deterministicReply) {
     return sendJson(res, 200, {
@@ -432,13 +444,20 @@ async function aiChatHandler(req, res) {
 
   let aiResult = null;
   let nativeError = null;
-  try {
-    aiResult = await generateNativeReply(messages, enrichedContext, {
-      maxTokens: options?.max_tokens
+
+  if (authenticatedUser) {
+    try {
+      aiResult = await generateNativeReply(messages, enrichedContext, {
+        maxTokens: options?.max_tokens
+      });
+    } catch (err) {
+      nativeError = err;
+      console.warn('[ai/chat] Bonds Native unavailable, using deterministic data-driven fallback:', err.message);
+    }
+  } else {
+    nativeError = Object.assign(new Error('Authentication required for Native AI execution'), {
+      code: 'NATIVE_AUTH_REQUIRED'
     });
-  } catch (err) {
-    nativeError = err;
-    console.warn('[ai/chat] Bonds Native unavailable, using deterministic data-driven fallback:', err.message);
   }
 
   const reply = aiResult?.reply || fallbackReply(lastUserText, enrichedContext);
