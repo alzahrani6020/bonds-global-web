@@ -497,7 +497,7 @@ var COUNTRIES_DATA = {
     currency: 'OMR',
     currencySymbol: 'ر.ع',
     currencySymbolEn: 'OMR',
-    vatRate: 0,
+    vatRate: 5,
     lastUpdated: "2026-05-26",
     marketInsights: {
       avgOrderValue: 8,
