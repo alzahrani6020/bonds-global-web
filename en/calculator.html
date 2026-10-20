@@ -1005,6 +1005,10 @@
       url.searchParams.set('q', inputs.qty);
       url.searchParams.set('pf', inputs.platformFeePct);
       url.searchParams.set('cd', inputs.campaignDiscountPct);
+      url.searchParams.set('vat', inputs.vatRate);
+      url.searchParams.set('it', inputs.incomeTaxRate);
+      url.searchParams.set('zr', inputs.zakatRate);
+      url.searchParams.set('zb', inputs.zakatBase);
       document.getElementById('shareLink').value = url.toString();
     }
 
@@ -1319,7 +1323,9 @@
       document.getElementById('quantity').value = '';
       document.getElementById('platformFee').value = '0';
       document.getElementById('campaignDiscount').value = '0';
-      document.getElementById('incomeTaxRate').value = '15';
+      document.getElementById('vatRate').value = '15';
+      document.getElementById('incomeTaxRate').value = '0';
+      document.getElementById('zakatBase').value = '0';
       document.getElementById('zakatRate').value = '2.5';
       document.querySelectorAll('.fixed-detail, .var-detail').forEach(function(input) { input.value = ''; });
       document.getElementById('resUnits').textContent = '—';
@@ -1330,6 +1336,7 @@
       document.getElementById('resTotalDeductions').textContent = '—';
       document.getElementById('resProfit').textContent = '—';
       document.getElementById('resTax').textContent = '—';
+      document.getElementById('resVat').textContent = '—';
       document.getElementById('resProfitAfterTax').textContent = '—';
       document.getElementById('resZakat').textContent = '—';
       document.getElementById('resNetProfit').textContent = '—';
@@ -1362,18 +1369,26 @@
       var q = url.searchParams.get('q');
       var pf = url.searchParams.get('pf');
       var cd = url.searchParams.get('cd');
+      var vat = url.searchParams.get('vat');
+      var it = url.searchParams.get('it');
+      var zr = url.searchParams.get('zr');
+      var zb = url.searchParams.get('zb');
       if (f) document.getElementById('fixedCost').value = f;
       if (p) document.getElementById('unitPrice').value = p;
       if (v) document.getElementById('varCost').value = v;
       if (q) document.getElementById('quantity').value = q;
       if (pf) document.getElementById('platformFee').value = pf;
       if (cd) document.getElementById('campaignDiscount').value = cd;
+      if (vat) document.getElementById('vatRate').value = vat;
+      if (it) document.getElementById('incomeTaxRate').value = it;
+      if (zr) document.getElementById('zakatRate').value = zr;
+      if (zb) document.getElementById('zakatBase').value = zb;
       if (p) calculateAll();
     }
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['fixedCost', 'unitPrice', 'varCost', 'quantity', 'platformFee', 'campaignDiscount', 'taxRate', 'zakatRate'].forEach(function(id) {
+    ['fixedCost', 'unitPrice', 'varCost', 'quantity', 'platformFee', 'campaignDiscount', 'vatRate', 'incomeTaxRate', 'zakatRate', 'zakatBase'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         var inputs = getInputs();
         if (inputs.price > 0) {
