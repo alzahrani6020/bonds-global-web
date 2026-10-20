@@ -126,4 +126,9 @@ describe('Geo convergence critical gaps', () => {
     expect(api).toContain('geo_available: Boolean(city.geo_place_id)');
   });
 
+  test('geo quality flags unresolved service-request names even without a locality code', () => {
+    const migration = read('supabase/migrations/20261020033500_geo_convergence_bridge.sql');
+    expect(migration).toContain('(sr.locality_code is not null or sr.locality_name is not null)');
+  });
+
 });
