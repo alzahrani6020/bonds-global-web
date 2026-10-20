@@ -25,6 +25,20 @@ describe('Governed geo ingestion architecture', () => {
     expect(legacy).not.toContain('insert into public.geo_places');
   });
 
+  test('requires explicit write opt-in for ADM1 linking and promotion', () => {
+    const linkAdmin1 = read('scripts/link-local-geonames-admin1.js');
+    const promote = read('scripts/promote-local-geo-run.js');
+    const ingest = read('scripts/ingest-local-geo-dataset.js');
+
+    expect(linkAdmin1).toContain("process.env.GEO_ADMIN1_APPLY === '1'");
+    expect(linkAdmin1).toContain("status: 'planned_only'");
+    expect(linkAdmin1).toContain("blocked_reason: 'unresolved_admin1_rows'");
+    expect(linkAdmin1).toContain("nextval('public.geo_admin_area_source_links_id_seq')");
+    expect(promote).toContain("process.env.GEO_PROMOTE_APPLY === '1'");
+    expect(promote).toContain('Promotion requires GEO_PROMOTE_APPLY=1');
+    expect(ingest).toContain('GEO_ADMIN1_APPLY=1 and GEO_PROMOTE_APPLY=1');
+  });
+
   test('requires quality gates before promotion', () => {
     const migration = read('supabase/migrations/20261020031000_geo_ingestion_architecture.sql');
     const promote = read('scripts/promote-local-geo-run.js');
