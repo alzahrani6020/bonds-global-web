@@ -26,6 +26,9 @@ async function main() {
        where run_id=$1 and decision='review'`,
       [RUN_ID]
     );
+    if (Number(unresolved.rows[0]?.n || 0) > 0) {
+      throw new Error('Promotion blocked: unresolved review candidates remain');
+    }
 
     const rows = await client.query(
       `select
