@@ -42,8 +42,9 @@ describe('GeoNames ADM1 provider source links', () => {
     const csv = read('artifacts/geo/adm1-confirmed-source-links-2026-10-20.csv');
     const stagingSql = read('artifacts/geo/adm1-staging-import-rollback.sql');
 
-    expect(script).toContain("GEO_ADMIN1_SOURCE_CODE || 'geonames'");
+    expect(script).toContain("const SOURCE_CODE = 'geonames'");
     expect(script).toContain('source_admin_code: sourceCode');
+    expect(script).not.toContain('GEO_ADMIN1_SOURCE_CODE');
     expect(script).not.toContain("GEO_ADMIN1_SOURCE_CODE || 'geonames_dump'");
     expect(script).not.toContain('source_admin_code: sourceCode.slice(dot + 1)');
 
@@ -62,6 +63,9 @@ describe('GeoNames ADM1 provider source links', () => {
 
     expect(stagingSql).toContain("where l.source_code='geonames'");
     expect(stagingSql).toContain("'geonames',");
+    expect(script).toContain('insert into public.geo_data_sources');
+    expect(script).toContain("'geonames','GeoNames','download'");
+    expect(script).toContain('canonical_provider_code');
   });
 
   test('promotion resolves ADM1 by provider link instead of assuming internal indexes equal provider codes', () => {
