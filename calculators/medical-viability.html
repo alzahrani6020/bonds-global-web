@@ -286,8 +286,9 @@
     };
 
     const TAX_FIELDS = [
-      { id: 'vVatRate', label: 'نسبة الضريبة (%)', value: 0, min: 0, max: 100, abbr: 'مثل VAT 15% — تُخصم من الإيراد الإجمالي' },
-      { id: 'vZakatRate', label: 'نسبة الزكاة (%)', value: 0, min: 0, max: 100, abbr: 'تُحسب على الربح الشهري (مثل 2.5%)' }
+      { id: 'vVatRate', label: 'ضريبة القيمة المضافة VAT (%)', value: 0, min: 0, max: 100, abbr: 'تُعرض منفصلة عن الربح ولا تُعامل كضريبة على الربح' },
+      { id: 'vZakatRate', label: 'نسبة الزكاة السنوية (%)', value: 0, min: 0, max: 100, abbr: 'تُحسب مرة واحدة في نهاية السنة من وعاء زكوي سنوي صريح' },
+      { id: 'vAnnualZakatBase', label: 'الوعاء الزكوي السنوي التقديري', value: 0, min: 0, abbr: 'أدخل الوعاء الزكوي السنوي؛ اتركه 0 لعدم احتساب الزكاة تلقائيًا' }
     ];
 
     const SERVICE_MIX_FIELDS = [
@@ -367,6 +368,7 @@
       options.monthlyGrowthPct = getVal('vMonthlyGrowth');
       options.vatRate = getVal('vVatRate');
       options.zakatRate = getVal('vZakatRate');
+      options.annualZakatBase = getVal('vAnnualZakatBase');
       options.extraServiceRevenue = getVal('vExtraServiceRevenue');
       options.extraServiceCost = getVal('vExtraServiceCost');
       options.wasteAndIncidentalsPct = getVal('wasteAndIncidentalsPct');
@@ -402,6 +404,7 @@
         monthlyGrowthPct: options.monthlyGrowthPct || 0,
         vatRate: options.vatRate || 0,
         zakatRate: options.zakatRate || 0,
+        annualZakatBase: options.annualZakatBase || 0,
         extraServiceRevenue: options.extraServiceRevenue || 0,
         extraServiceCost: options.extraServiceCost || 0,
         wasteAndIncidentalsPct: options.wasteAndIncidentalsPct || 0
@@ -487,7 +490,7 @@
           <div class="kpi-card"><div class="icon">📉</div><div class="value">${r.deductionAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الاستقطاعات/شهر</div><div class="sub">تأمين، خصم، ضريبة</div></div>
           ${extraMetrics}
           ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon">🏛️</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الضريبة/شهر</div></div>` : ''}
-          ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الزكاة/شهر</div></div>` : ''}
+          ${r.annualZakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.annualZakatAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الزكاة السنوية/نهاية السنة</div></div>` : ''}
           ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon">🧬</div><div class="value">${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س</div><div class="label">خدمات إضافية/شهر</div></div>` : ''}
           ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon">⚠️</div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('ar-SA')} ر.س</div><div class="label">الهدر والنثريات/شهر</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
         </div>
@@ -533,7 +536,7 @@
           <p>• الصافي بعد الاستقطاعات: ${r.netRevenue.toLocaleString('ar-SA')} ر.س/شهر</p>
           ${extraSummary}
           <p>• نمو شهري افتراضي: ${r.monthlyGrowthPct || 0}%</p>
-          ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ الضريبة والزكاة:</strong></p><p>• ضريبة: ${r.vatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.vatRate}%) | زكاة: ${r.zakatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.zakatRate}%)</p>` : ''}
+          ${r.vatAmount > 0 || r.annualZakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ VAT والزكاة السنوية:</strong></p><p>• VAT معروض منفصلًا: ${r.vatAmount.toLocaleString('ar-SA')} ر.س/شهر (${r.vatRate}%) | زكاة سنوية: ${r.annualZakatAmount.toLocaleString('ar-SA')} ر.س/سنة (${r.zakatRate}%)</p>` : ''}
           ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong>🧬 مزيج الخدمات:</strong></p><p>• إيرادات إضافية: ${r.extraServiceRevenue.toLocaleString('ar-SA')} ر.س/شهر | تكلفتها: ${r.extraServiceCost.toLocaleString('ar-SA')} ر.س/شهر | مساهمتها: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('ar-SA')} ر.س/شهر</p>` : ''}
           <p style="margin-top:0.5rem;"><strong>📉 التكاليف:</strong></p>
           <p>• ثابتة: ${r.monthlyFixed.toLocaleString('ar-SA')} ر.س | متغيرة: ${r.monthlyVariable.toLocaleString('ar-SA')} ر.س | الهدر والنثريات: ${r.wasteAndIncidentalsAmount.toLocaleString('ar-SA')} ر.س | الإجمالي: ${r.monthlyTotal.toLocaleString('ar-SA')} ر.س</p>
@@ -667,7 +670,7 @@
       if (config) {
         allFields = allFields.concat(config.setupFields || [], config.monthlyFields || [], config.variableFields || []);
       }
-      allFields.push({ id: 'rUnitPrice' }, { id: 'rDailyUnits' }, { id: 'rWorkDays' }, { id: 'vMonthlyGrowth' }, { id: 'vVatRate' }, { id: 'vZakatRate' }, { id: 'vExtraServiceRevenue' }, { id: 'vExtraServiceCost' }, { id: 'wasteAndIncidentalsPct' });
+      allFields.push({ id: 'rUnitPrice' }, { id: 'rDailyUnits' }, { id: 'rWorkDays' }, { id: 'vMonthlyGrowth' }, { id: 'vVatRate' }, { id: 'vZakatRate' }, { id: 'vAnnualZakatBase' }, { id: 'vExtraServiceRevenue' }, { id: 'vExtraServiceCost' }, { id: 'wasteAndIncidentalsPct' });
       allFields.forEach(function(f) {
         var val = i.setup ? i.setup[f.id] : (i.monthly ? i.monthly[f.id] : (i.revenue ? i.revenue[f.id] : (i.options ? i.options[f.id] : undefined)));
         if (val === undefined && i.options) {
@@ -788,7 +791,9 @@
         ['التكاليف المتغيرة/شهر', r.monthlyVariable],
         ['الربح الشهري', r.monthlyProfit],
         ['الضريبة/شهر', r.vatAmount],
-        ['الزكاة/شهر', r.zakatAmount],
+        ['الزكاة السنوية/نهاية السنة', r.annualZakatAmount],
+        ['الربح السنوي قبل الزكاة', r.yearlyProfitBeforeZakat],
+        ['الربح السنوي بعد الزكاة', r.yearlyProfit],
         ['إيرادات خدمات إضافية/شهر', r.extraServiceRevenue],
         ['تكلفة خدمات إضافية/شهر', r.extraServiceCost],
         ['هامش الربح %', r.profitMargin.toFixed(2)],
@@ -801,10 +806,10 @@
       ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
       XLSX.utils.book_append_sheet(wb, ws, 'النتائج');
 
-      const projRows = [['الشهر', 'الوحدات', 'الإيراد الإجمالي', 'الاستقطاعات', 'الضريبة', 'الزكاة', 'الإيراد الصافي', 'التكلفة المتغيرة', 'الربح']];
-      r.monthlyProjections.forEach(function(p) { projRows.push([p.month, Math.round(p.units), Math.round(p.grossRevenue), Math.round(p.deduction), Math.round(p.vatAmount), Math.round(p.zakatAmount), Math.round(p.netRevenue), Math.round(p.variableCost), Math.round(p.profit)]); });
+      const projRows = [['الشهر', 'الوحدات', 'الإيراد الإجمالي', 'الاستقطاعات', 'VAT', 'الإيراد الصافي', 'التكلفة المتغيرة', 'الربح التشغيلي قبل الزكاة السنوية']];
+      r.monthlyProjections.forEach(function(p) { projRows.push([p.month, Math.round(p.units), Math.round(p.grossRevenue), Math.round(p.deduction), Math.round(p.vatAmount), Math.round(p.netRevenue), Math.round(p.variableCost), Math.round(p.profit)]); });
       const projWs = XLSX.utils.aoa_to_sheet(projRows);
-      projWs['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 18 }, { wch: 16 }];
+      projWs['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 18 }, { wch: 24 }];
       XLSX.utils.book_append_sheet(wb, projWs, 'الأشهر');
 
       const sensRows = [['التغير', 'وحدة/يوم', 'الربح الشهري', 'الربح السنوي']];
