@@ -35,6 +35,18 @@ describe('post-release pipeline contracts', () => {
     expect(workflow).toContain('timeout-minutes: 15');
     expect(workflow).toContain('${{ github.workflow }}-${{ github.ref }}-bounded-v2');
   });
+  test('authenticated production smoke sends bearer auth to Native chat probes', () => {
+    const smoke = fs.readFileSync(
+      path.resolve(__dirname, '../scripts/post-deploy-smoke.js'),
+      'utf8'
+    );
+
+    expect(smoke).toContain('async function assertNativeProductionRuntime(token)');
+    expect(smoke).toContain('Authorization: `Bearer ${token}`');
+    expect(smoke).toContain('const token = await getAuthenticatedToken();');
+    expect(smoke).toContain('await assertNativeProductionRuntime(token);');
+  });
+
   test('existing forward migrations are immutable after merge', () => {
     const workflow = fs.readFileSync(
       path.resolve(__dirname, '../.github/workflows/apply-migrations.yml'),
