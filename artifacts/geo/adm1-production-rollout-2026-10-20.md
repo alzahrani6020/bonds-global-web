@@ -13,20 +13,22 @@ GeoNames ADM1 source identity is now linked to canonical Bonds ADM1 records usin
 - Strict confirmed: **232**
 - Safe alias/transliteration batch: **44**
 - Externally verified alias batch: **4**
-- **Total production links: 280**
+- Additional externally verified semantic links: **3**
+- Duplicate-keeper links: **3**
+- **Total production links: 286**
 
 ### Remaining unlinked
 
-- Manual / structural review: **49**
-- Confirmed remaining-manual rows accidentally linked: **0**
+- Manual / structural review after follow-up verification: **43**
+- Current residual queue rows linked accidentally: **0**
 
 ## Integrity verification
 
 Post-rollout production checks:
 
-- distinct linked admin areas: **280**
-- distinct GeoNames admin codes: **280**
-- distinct GeoNames IDs: **280**
+- distinct linked admin areas: **286**
+- distinct GeoNames admin codes: **286**
+- distinct GeoNames IDs: **286**
 - orphan source links: **0**
 - country/admin-level scope mismatches: **0**
 - duplicate GeoNames links to the same canonical admin area: **0**
