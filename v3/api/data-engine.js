@@ -1,6 +1,7 @@
 /**
  * Data Engine API — نقاط نهاية منصة جمع البيانات.
  */
+const crypto = require('crypto');
 const { getSupabaseClient } = require('../lib/supabase');
 const {
   CityEngine,
@@ -53,12 +54,59 @@ async function resolveActivity(supabase, activityCode) {
   return data;
 }
 
-function requireAdminToken(req) {
-  const token = req.headers['x-admin-token'];
-  if (!token || token !== process.env.ADMIN_TOKEN) {
-    return false;
+function constantTimeEqual(actual, expected) {
+  const a = Buffer.from(String(actual || ''), 'utf8');
+  const b = Buffer.from(String(expected || ''), 'utf8');
+  return a.length === b.length && crypto.timingSafeEqual(a, b);
+}
+
+function configuredOwnerEmails() {
+  return String(process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
+    .split(',')
+    .map(value => value.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+async function requireAdminAccess(req) {
+  const authorization = String(req.headers.authorization || '');
+  const bearer = authorization.replace(/^Bearer\s+/i, '').trim();
+
+  if (bearer) {
+    try {
+      const supabase = getSupabaseClient();
+      const { data, error } = await supabase.auth.getUser(bearer);
+      const user = data?.user || null;
+
+      if (!error && user) {
+        const owner = configuredOwnerEmails().includes(String(user.email || '').toLowerCase());
+        if (owner) return true;
+
+        const { data: role, error: roleError } = await supabase
+          .from('admin_roles')
+          .select('role')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (!roleError && role && ['super_admin', 'admin'].includes(role.role)) {
+          return true;
+        }
+      }
+    } catch (_error) {
+      // Fall through to the explicitly transitional legacy token path.
+    }
   }
-  return true;
+
+  const legacyAllowed =
+    String(process.env.V3_ADMIN_ALLOW_LEGACY_TOKEN ?? 'true').toLowerCase() !== 'false';
+  const supplied = req.headers['x-admin-token'];
+  const expected = process.env.ADMIN_TOKEN;
+
+  return Boolean(
+    legacyAllowed &&
+    expected &&
+    supplied &&
+    constantTimeEqual(supplied, expected)
+  );
 }
 
 // ===== Handlers =====
@@ -78,7 +126,7 @@ async function handleListSources(req, res) {
 }
 
 async function handleFetchSource(req, res, path) {
-  if (!requireAdminToken(req)) {
+  if (!(await requireAdminAccess(req))) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
@@ -247,7 +295,7 @@ async function handleGetIndicators(req, res) {
 }
 
 async function handleSubmitFeedback(req, res) {
-  if (!requireAdminToken(req)) {
+  if (!(await requireAdminAccess(req))) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
@@ -356,7 +404,7 @@ async function handleFeedbackAccuracy(req, res) {
 }
 
 async function handleAutoFill(req, res) {
-  if (!requireAdminToken(req)) {
+  if (!(await requireAdminAccess(req))) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
@@ -430,7 +478,7 @@ async function handleAutoFill(req, res) {
 }
 
 async function handleTrainML(req, res) {
-  if (!requireAdminToken(req)) {
+  if (!(await requireAdminAccess(req))) {
     return sendJson(res, 401, { error: 'Unauthorized' });
   }
 
