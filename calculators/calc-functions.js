@@ -44,22 +44,35 @@
  * @param {number} variableCostPerUnit
  * @param {number} sellingPrice
  * @param {number} quantity         – expected monthly quantity
- * @param {number} [taxRate=0]      – tax % (e.g. 15 for VAT)
- * @param {number} [zakatRate=0]    – zakat % (e.g. 2.5)
- * @param {Object} [options]        – { platformFeePct, campaignDiscountPct, fixedCostBreakdown, variableCostBreakdown }
+ * @param {number} [incomeTaxRate=0] – estimated income/corporate tax % on positive accounting profit.
+ *                                      This parameter is NOT VAT.
+ * @param {number} [zakatRate=0]    – zakat % applied only when options.zakatBase is explicitly supplied.
+ * @param {Object} [options]        – {
+ *   platformFeePct, campaignDiscountPct, fixedCostBreakdown, variableCostBreakdown,
+ *   vatRate, inputVatCredit, zakatBase
+ * }
+ *
+ * Fiscal-model boundary:
+ * - VAT is an indirect tax on taxable supplies, not a tax on profit. We expose output VAT
+ *   separately and never deduct it from operating profit in this profitability model.
+ * - Income/corporate tax is an estimate on positive accounting profit.
+ * - Zakat is never inferred from profit. It is calculated only from an explicit zakat base.
  */
-function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quantity, taxRate, zakatRate, options) {
+function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quantity, incomeTaxRate, zakatRate, options) {
   fixedCosts = fixedCosts || 0;
   variableCostPerUnit = variableCostPerUnit || 0;
   sellingPrice = sellingPrice || 0;
   quantity = quantity || 0;
-  taxRate = (taxRate !== undefined && taxRate !== null) ? taxRate : 0;
+  incomeTaxRate = (incomeTaxRate !== undefined && incomeTaxRate !== null) ? incomeTaxRate : 0;
   zakatRate = (zakatRate !== undefined && zakatRate !== null) ? zakatRate : 0;
   options = options || {};
 
   var platformFeePct = options.platformFeePct || 0;
   var campaignDiscountPct = options.campaignDiscountPct || 0;
   var wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || options.contingencyPct || 0;
+  var vatRate = (options.vatRate !== undefined && options.vatRate !== null) ? options.vatRate : 0;
+  var inputVatCredit = Math.max(0, options.inputVatCredit || 0);
+  var zakatBase = Math.max(0, options.zakatBase || 0);
   var totalDeductionPct = platformFeePct + campaignDiscountPct;
   var effectivePrice = sellingPrice * (1 - totalDeductionPct / 100);
 
@@ -87,12 +100,20 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
   var totalCost = fixedCosts + (adjustedVariableCostPerUnit * quantity);
   var profit = revenue - totalCost;
 
-  var taxAmount = profit > 0 ? profit * (taxRate / 100) : 0;
-  var profitAfterTax = profit - taxAmount;
-  var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
-  var netProfit = profitAfterTax - zakatAmount;
+  // VAT is calculated on customer consideration after customer discount, before platform fees.
+  // It is intentionally kept outside profitability because VAT payable also depends on eligible input VAT.
+  var vatTaxableRevenue = quantity * sellingPrice * (1 - campaignDiscountPct / 100);
+  var outputVatAmount = vatRate > 0 ? vatTaxableRevenue * (vatRate / 100) : 0;
+  var estimatedVatPayable = Math.max(0, outputVatAmount - inputVatCredit);
 
-  // Standard profit margin is based on gross (listed) revenue, not net revenue after fees
+  var incomeTaxAmount = profit > 0 ? profit * (incomeTaxRate / 100) : 0;
+  var profitAfterIncomeTax = profit - incomeTaxAmount;
+
+  var zakatCalculated = zakatBase > 0 && zakatRate > 0;
+  var zakatAmount = zakatCalculated ? zakatBase * (zakatRate / 100) : 0;
+  var netProfit = profitAfterIncomeTax - zakatAmount;
+
+  // Standard profit margin is based on gross (listed) revenue, not VAT-inclusive collections.
   var profitMargin = grossRevenue > 0 ? (netProfit / grossRevenue) * 100 : 0;
   var roi = totalCost > 0 ? (netProfit / totalCost) * 100 : 0;
 
@@ -107,8 +128,17 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
     campaignDiscountAmount,
     totalCost,
     profit,
-    taxAmount,
-    profitAfterTax,
+    vatRate,
+    vatTaxableRevenue,
+    outputVatAmount,
+    inputVatCredit,
+    estimatedVatPayable,
+    incomeTaxRate,
+    incomeTaxAmount,
+    profitAfterIncomeTax,
+    zakatRate,
+    zakatBase,
+    zakatCalculated,
     zakatAmount,
     netProfit,
     profitMargin,
@@ -117,7 +147,10 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
     wasteAndIncidentalsAmountPerUnit,
     adjustedVariableCostPerUnit,
     fixedCostBreakdown: options.fixedCostBreakdown || null,
-    variableCostBreakdown: options.variableCostBreakdown || null
+    variableCostBreakdown: options.variableCostBreakdown || null,
+    // Backward-compatible aliases. These now mean income tax, never VAT.
+    taxAmount: incomeTaxAmount,
+    profitAfterTax: profitAfterIncomeTax
   };
 }
 
@@ -127,7 +160,7 @@ function calculateBreakEven(fixedCosts, variableCostPerUnit, sellingPrice, quant
  * @param {number} fixedCosts       – monthly fixed costs
  * @param {number} variableCostPerUnit
  * @param {number} quantity         – expected monthly quantity
- * @param {Object} [options]        – { platformFeePct, campaignDiscountPct, wasteAndIncidentalsPct, taxRate, zakatRate }
+ * @param {Object} [options]        – { platformFeePct, campaignDiscountPct, wasteAndIncidentalsPct, incomeTaxRate, zakatRate, zakatBase }
  */
 function calculatePriceTargets(fixedCosts, variableCostPerUnit, quantity, options) {
   fixedCosts = fixedCosts || 0;
@@ -138,8 +171,11 @@ function calculatePriceTargets(fixedCosts, variableCostPerUnit, quantity, option
   var platformFeePct = options.platformFeePct || 0;
   var campaignDiscountPct = options.campaignDiscountPct || 0;
   var wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || 0;
-  var taxRate = (options.taxRate !== undefined && options.taxRate !== null) ? options.taxRate : 0;
+  var incomeTaxRate = (options.incomeTaxRate !== undefined && options.incomeTaxRate !== null)
+    ? options.incomeTaxRate
+    : ((options.taxRate !== undefined && options.taxRate !== null) ? options.taxRate : 0);
   var zakatRate = (options.zakatRate !== undefined && options.zakatRate !== null) ? options.zakatRate : 0;
+  var zakatBase = Math.max(0, options.zakatBase || 0);
   var totalDeductionPct = platformFeePct + campaignDiscountPct;
   var adjustedVariableCostPerUnit = variableCostPerUnit * (1 + wasteAndIncidentalsPct / 100);
 
@@ -160,10 +196,9 @@ function calculatePriceTargets(fixedCosts, variableCostPerUnit, quantity, option
     var revenue = quantity * effectivePrice;
     var totalCost = fixedCosts + adjustedVariableCostPerUnit * quantity;
     var profit = revenue - totalCost;
-    var taxAmount = profit > 0 ? profit * (taxRate / 100) : 0;
-    var profitAfterTax = profit - taxAmount;
-    var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
-    return profitAfterTax - zakatAmount;
+    var incomeTaxAmount = profit > 0 ? profit * (incomeTaxRate / 100) : 0;
+    var zakatAmount = (zakatBase > 0 && zakatRate > 0) ? zakatBase * (zakatRate / 100) : 0;
+    return profit - incomeTaxAmount - zakatAmount;
   }
 
   // Find price that yields a specific net profit margin on gross revenue
@@ -309,17 +344,23 @@ function calculateDTI(installment, monthlyIncome) {
  * @param {number} directCost       – materials + labour per unit
  * @param {number} overheadCost     – indirect cost per unit
  * @param {number} desiredMargin    – target profit margin % (e.g. 25)
- * @param {number} [taxRate=0]      – tax % on profit
- * @param {number} [zakatRate=0]    – zakat % on profit after tax
+ * @param {number} [incomeTaxRate=0] – estimated income/corporate tax % on positive profit. NOT VAT.
+ * @param {number} [zakatRate=0]    – zakat % applied only when options.zakatBasePerUnit is explicitly supplied.
  * @param {number} [volume=0]       – expected monthly sales volume
  * @param {number} [monthlyFixed=0] – monthly fixed costs
- * @param {Object} [options]        – { platformFeePct, deliveryCostPerUnit, packagingCostPerUnit, cacPerUnit }
+ * @param {Object} [options]        – {
+ *   platformFeePct, paymentGatewayFeePct, deliveryCostPerUnit, packagingCostPerUnit,
+ *   cacPerUnit, vatRate, zakatBasePerUnit
+ * }
+ *
+ * VAT is added to the customer price as a separate indirect-tax amount and is never
+ * calculated from profit. Zakat is not inferred from per-unit profit.
  */
-function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zakatRate, volume, monthlyFixed, options) {
+function calculatePricing(directCost, overheadCost, desiredMargin, incomeTaxRate, zakatRate, volume, monthlyFixed, options) {
   directCost = directCost || 0;
   overheadCost = overheadCost || 0;
   desiredMargin = desiredMargin || 0;
-  taxRate = taxRate || 0;
+  incomeTaxRate = incomeTaxRate || 0;
   zakatRate = zakatRate || 0;
   volume = volume || 0;
   monthlyFixed = monthlyFixed || 0;
@@ -331,6 +372,8 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
   var packagingCostPerUnit = options.packagingCostPerUnit || 0;
   var cacPerUnit = options.cacPerUnit || 0;
   var wasteAndIncidentalsPct = options.wasteAndIncidentalsPct || options.contingencyPct || 0;
+  var vatRate = (options.vatRate !== undefined && options.vatRate !== null) ? options.vatRate : 0;
+  var zakatBasePerUnit = Math.max(0, options.zakatBasePerUnit || 0);
 
   var costPerUnit = directCost + overheadCost;
   var baseTotalCostPerUnit = costPerUnit + deliveryCostPerUnit + packagingCostPerUnit + cacPerUnit;
@@ -343,23 +386,30 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
   }
 
   var totalDeductionPct = platformFeePct + paymentGatewayFeePct;
-  var priceBeforeTax = 0;
+  var priceBeforeVat = 0;
   if (totalDeductionPct < 100) {
-    priceBeforeTax = priceBeforeFees / (1 - (totalDeductionPct / 100));
+    priceBeforeVat = priceBeforeFees / (1 - (totalDeductionPct / 100));
   }
 
-  var platformFeeAmount = priceBeforeTax * (platformFeePct / 100);
-  var paymentGatewayAmount = priceBeforeTax * (paymentGatewayFeePct / 100);
-  var netRevenuePerUnit = priceBeforeTax - platformFeeAmount - paymentGatewayAmount;
-  var profitBeforeTax = netRevenuePerUnit - totalCostPerUnit;
-  var taxAmount = profitBeforeTax > 0 ? profitBeforeTax * (taxRate / 100) : 0;
-  var profitAfterTax = profitBeforeTax - taxAmount;
-  var zakatAmount = profitAfterTax > 0 ? profitAfterTax * (zakatRate / 100) : 0;
-  var netProfitPerUnit = profitAfterTax - zakatAmount;
+  var platformFeeAmount = priceBeforeVat * (platformFeePct / 100);
+  var paymentGatewayAmount = priceBeforeVat * (paymentGatewayFeePct / 100);
+  var netRevenuePerUnit = priceBeforeVat - platformFeeAmount - paymentGatewayAmount;
+  var profitBeforeIncomeTax = netRevenuePerUnit - totalCostPerUnit;
+  var incomeTaxAmount = profitBeforeIncomeTax > 0 ? profitBeforeIncomeTax * (incomeTaxRate / 100) : 0;
+  var profitAfterIncomeTax = profitBeforeIncomeTax - incomeTaxAmount;
+
+  var zakatCalculated = zakatBasePerUnit > 0 && zakatRate > 0;
+  var zakatAmount = zakatCalculated ? zakatBasePerUnit * (zakatRate / 100) : 0;
+  var netProfitPerUnit = profitAfterIncomeTax - zakatAmount;
+
+  var outputVatPerUnit = vatRate > 0 ? priceBeforeVat * (vatRate / 100) : 0;
+  var priceIncludingVat = priceBeforeVat + outputVatPerUnit;
+
   var monthlyProfit = netProfitPerUnit * volume;
-  var actualMargin = priceBeforeTax > 0 ? (netProfitPerUnit / priceBeforeTax) * 100 : 0;
+  var actualMargin = priceBeforeVat > 0 ? (netProfitPerUnit / priceBeforeVat) * 100 : 0;
   var netRequiredPerUnit = totalCostPerUnit + (volume > 0 ? monthlyFixed / volume : 0);
-  var breakEvenPrice = totalDeductionPct < 100 ? netRequiredPerUnit / (1 - totalDeductionPct / 100) : 0;
+  var breakEvenPriceBeforeVat = totalDeductionPct < 100 ? netRequiredPerUnit / (1 - totalDeductionPct / 100) : 0;
+  var breakEvenPriceIncludingVat = breakEvenPriceBeforeVat * (1 + vatRate / 100);
 
   return {
     costPerUnit,
@@ -371,7 +421,10 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
     contingencyAmount: wasteAndIncidentalsAmount,
     totalCostPerUnit,
     priceBeforeFees,
-    priceBeforeTax,
+    priceBeforeVat,
+    outputVatPerUnit,
+    priceIncludingVat,
+    vatRate,
     platformFeePct,
     platformFeeAmount,
     paymentGatewayFeePct,
@@ -379,15 +432,26 @@ function calculatePricing(directCost, overheadCost, desiredMargin, taxRate, zaka
     deliveryCostPerUnit,
     packagingCostPerUnit,
     cacPerUnit,
-    profitBeforeTax,
-    taxAmount,
-    profitAfterTax,
+    incomeTaxRate,
+    profitBeforeIncomeTax,
+    incomeTaxAmount,
+    profitAfterIncomeTax,
+    zakatRate,
+    zakatBasePerUnit,
+    zakatCalculated,
     zakatAmount,
     netProfitPerUnit,
     monthlyProfit,
     actualMargin,
-    breakEvenPrice,
-    monthlyFixed
+    breakEvenPriceBeforeVat,
+    breakEvenPriceIncludingVat,
+    monthlyFixed,
+    // Backward-compatible aliases. "Tax" now means income/corporate tax, never VAT.
+    priceBeforeTax: priceBeforeVat,
+    profitBeforeTax: profitBeforeIncomeTax,
+    taxAmount: incomeTaxAmount,
+    profitAfterTax: profitAfterIncomeTax,
+    breakEvenPrice: breakEvenPriceBeforeVat
   };
 }
 
