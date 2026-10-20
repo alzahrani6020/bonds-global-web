@@ -11,9 +11,10 @@
  * Optional:
  *   .tmp-geo/alternateNames.txt
  *
- * The script inserts only deterministic one-to-one matches. Ambiguous or
- * unresolved rows are written to .tmp-geo/geonames-admin1-review.json and
- * cause a non-zero exit so ingestion remains fail-closed.
+ * The script plans deterministic one-to-one matches by default. It writes to
+ * public.geo_admin_area_source_links only when GEO_ADMIN1_APPLY=1 is set.
+ * Ambiguous or unresolved rows block all writes and are written to
+ * .tmp-geo/geonames-admin1-review.json so ingestion remains fail-closed.
  */
 
 const fs = require('fs');
@@ -27,6 +28,8 @@ const GEO_DIR = path.join(ROOT, '.tmp-geo');
 const ADMIN1_FILE = process.argv[2] || path.join(GEO_DIR, 'admin1CodesASCII.txt');
 const ALT_FILE = path.join(GEO_DIR, 'alternateNames.txt');
 const REVIEW_FILE = path.join(GEO_DIR, 'geonames-admin1-review.json');
+const APPLY = process.env.GEO_ADMIN1_APPLY === '1';
+const SOURCE_CODE = process.env.GEO_ADMIN1_SOURCE_CODE || 'geonames_dump';
 
 const ARAB_CODES = new Set([
   'DZ','BH','KM','DJ','EG','IQ','JO','KW','LB','LY','MR',
@@ -170,13 +173,58 @@ async function main() {
       matched.push({ source, outcome });
     }
 
+    fs.mkdirSync(GEO_DIR, { recursive: true });
+    fs.writeFileSync(REVIEW_FILE, JSON.stringify({
+      generated_at: new Date().toISOString(),
+      source: ADMIN1_FILE,
+      source_code: SOURCE_CODE,
+      apply_requested: APPLY,
+      matched: matched.length,
+      unresolved: review.length,
+      review
+    }, null, 2) + '\n');
+
+    if (review.length) {
+      console.log(JSON.stringify({
+        source_rows: sourceRows.length,
+        matched: matched.length,
+        unresolved: review.length,
+        applied: 0,
+        apply_requested: APPLY,
+        blocked_reason: 'unresolved_admin1_rows',
+        review_file: REVIEW_FILE,
+        runtime_api_required: false,
+        api_key_required: false
+      }, null, 2));
+      process.exitCode = 3;
+      return;
+    }
+
+    if (!APPLY) {
+      console.log(JSON.stringify({
+        source_rows: sourceRows.length,
+        matched: matched.length,
+        unresolved: 0,
+        applied: 0,
+        apply_requested: false,
+        status: 'planned_only',
+        review_file: REVIEW_FILE,
+        runtime_api_required: false,
+        api_key_required: false
+      }, null, 2));
+      return;
+    }
+
     await client.query('begin');
     for (const { source, outcome } of matched) {
       await client.query(
         `insert into public.geo_admin_area_source_links(
-          admin_area_id,source_code,country_code,admin_level,
+          id,admin_area_id,source_code,country_code,admin_level,
           source_admin_code,source_id,confidence,metadata
-        ) values($1,'geonames_dump',$2,1,$3,$4,$5,$6::jsonb)
+        ) values(
+          nextval('public.geo_admin_area_source_links_id_seq'),
+          $1,$2,$3,1,$4,$5,$6,$7::jsonb
+        )
         on conflict(source_code,country_code,admin_level,source_admin_code)
         do update set
           admin_area_id=excluded.admin_area_id,
@@ -186,6 +234,7 @@ async function main() {
           updated_at=now()`,
         [
           outcome.admin_area_id,
+          SOURCE_CODE,
           source.country_code,
           source.source_admin_code,
           source.source_id,
@@ -202,25 +251,16 @@ async function main() {
     }
     await client.query('commit');
 
-    fs.mkdirSync(GEO_DIR, { recursive: true });
-    fs.writeFileSync(REVIEW_FILE, JSON.stringify({
-      generated_at: new Date().toISOString(),
-      source: ADMIN1_FILE,
-      matched: matched.length,
-      unresolved: review.length,
-      review
-    }, null, 2) + '\n');
-
     console.log(JSON.stringify({
       source_rows: sourceRows.length,
       matched: matched.length,
-      unresolved: review.length,
+      unresolved: 0,
+      applied: matched.length,
+      apply_requested: true,
       review_file: REVIEW_FILE,
       runtime_api_required: false,
       api_key_required: false
     }, null, 2));
-
-    if (review.length) process.exitCode = 3;
   } catch (err) {
     try { await client.query('rollback'); } catch (_) {}
     throw err;
