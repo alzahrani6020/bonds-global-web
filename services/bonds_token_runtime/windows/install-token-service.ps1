@@ -105,6 +105,19 @@ if (-not $Activate) {
 
 $listener = Get-NetTCPConnection -LocalPort 8771 -State Listen -ErrorAction SilentlyContinue | Select-Object -First 1
 $legacyPid = if ($listener) { [int]$listener.OwningProcess } else { 0 }
+$legacyWasBondsRuntime = $false
+
+if ($legacyPid -gt 0) {
+    $legacyProcess = Get-CimInstance Win32_Process -Filter "ProcessId = $legacyPid" -ErrorAction SilentlyContinue
+    $legacyCommandLine = [string]$legacyProcess.CommandLine
+    $legacyWasBondsRuntime =
+        $legacyCommandLine -match "bonds_security\.server" -or
+        $legacyCommandLine -match [Regex]::Escape($stateDir)
+
+    if (-not $legacyWasBondsRuntime) {
+        throw "Port 8771 is owned by an unexpected process. Refusing to stop PID $legacyPid."
+    }
+}
 
 try {
     if ($legacyPid -gt 0) {
@@ -132,5 +145,31 @@ try {
 }
 catch {
     Stop-Service -Name "BondsTokenRuntimeService" -Force -ErrorAction SilentlyContinue
-    throw "Token runtime service cutover failed. Manual legacy process restart may be required. $($_.Exception.Message)"
+
+    if ($legacyPid -gt 0 -and $legacyWasBondsRuntime) {
+        try {
+            Start-Process -FilePath $pythonExe -ArgumentList @("-m", "bonds_security.server") -WorkingDirectory $runtimeDir -WindowStyle Hidden | Out-Null
+
+            $rollbackDeadline = (Get-Date).AddSeconds(20)
+            $rollbackHealthy = $false
+            while ((Get-Date) -lt $rollbackDeadline) {
+                if (Test-Health) {
+                    $rollbackHealthy = $true
+                    break
+                }
+                Start-Sleep -Seconds 1
+            }
+
+            if (-not $rollbackHealthy) {
+                throw "Legacy runtime restart did not become healthy."
+            }
+        }
+        catch {
+            throw "Token runtime service cutover failed and automatic legacy rollback also failed. $($_.Exception.Message)"
+        }
+
+        throw "Token runtime service cutover failed and the legacy runtime was restored. $($_.Exception.Message)"
+    }
+
+    throw "Token runtime service cutover failed. No legacy Bonds runtime was active before cutover. $($_.Exception.Message)"
 }
