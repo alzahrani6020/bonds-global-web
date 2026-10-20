@@ -204,7 +204,7 @@ async function main() {
           `insert into public.geo_place_aliases(place_id,alias,language,alias_type,source_code)
            values($1,$2,$3,$4,$5)
            on conflict(place_id,alias,language) do nothing`,
-          [canonicalId,alias.alias,alias.language || null,alias.alias_type || 'source',row.source_code]
+          [canonicalId,alias.alias,alias.language || 'und',alias.alias_type || 'source',row.source_code]
         );
       }
 
