@@ -29,7 +29,7 @@ const ADMIN1_FILE = process.argv[2] || path.join(GEO_DIR, 'admin1CodesASCII.txt'
 const ALT_FILE = path.join(GEO_DIR, 'alternateNames.txt');
 const REVIEW_FILE = path.join(GEO_DIR, 'geonames-admin1-review.json');
 const APPLY = process.env.GEO_ADMIN1_APPLY === '1';
-const SOURCE_CODE = process.env.GEO_ADMIN1_SOURCE_CODE || 'geonames_dump';
+const SOURCE_CODE = process.env.GEO_ADMIN1_SOURCE_CODE || 'geonames';
 
 const ARAB_CODES = new Set([
   'DZ','BH','KM','DJ','EG','IQ','JO','KW','LB','LY','MR',
@@ -67,7 +67,7 @@ async function readAdmin1Rows() {
     if (!ARAB_CODES.has(countryCode)) continue;
     rows.push({
       country_code: countryCode,
-      source_admin_code: sourceCode.slice(dot + 1),
+      source_admin_code: sourceCode,
       source_full_code: sourceCode,
       name: p[1] || null,
       ascii_name: p[2] || null,
