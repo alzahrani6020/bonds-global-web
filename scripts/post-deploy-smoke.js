@@ -193,7 +193,7 @@ async function assertHealth() {
   console.log(`Health PASS (commit=${body.version})`);
 }
 
-async function assertNativeProductionRuntime() {
+async function assertNativeProductionRuntime(token) {
   let readiness = null;
   const readinessDelaysMs = [0, 1000, 2500];
 
@@ -247,7 +247,8 @@ async function assertNativeProductionRuntime() {
       headers: {
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache',
-        'X-Request-ID': requestId
+        'X-Request-ID': requestId,
+        Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({
         messages: [{ role: 'user', content: probe.content }],
@@ -466,9 +467,9 @@ async function main() {
   console.log('Starting authenticated Production smoke verification');
   await waitForMatchingProduction();
   await assertHealth();
-  await assertNativeProductionRuntime();
-  await assertProductionAssets();
   const token = await getAuthenticatedToken();
+  await assertNativeProductionRuntime(token);
+  await assertProductionAssets();
   await assertAdminRuntime(token);
   await assertFundingCasesRuntime(token);
   await assertDistressedRecoveryEmbed();
