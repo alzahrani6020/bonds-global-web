@@ -1,6 +1,6 @@
 # ADM1 bidirectional gap analysis — 2026-10-20
 
-After removing 232 strict matches and 34 high-confidence alias-review pairs, these are the remaining source/internal gaps.
+After removing 232 strict matches and 48 high-confidence alias-review pairs, 49 GeoNames rows remain unresolved.
 
 | Country | GeoNames unresolved | Supabase unresolved | Delta |
 |---|---:|---:|---:|
@@ -8,14 +8,14 @@ After removing 232 strict matches and 34 high-confidence alias-review pairs, the
 | DZ | 16 | 6 | 10 |
 | IQ | 2 | 2 | 0 |
 | KW | 1 | 1 | 0 |
-| LY | 16 | 9 | 7 |
+| LY | 11 | 4 | 7 |
 | MR | 1 | 0 | 1 |
 | OM | 3 | 6 | -3 |
 | PS | 2 | 13 | -11 |
 | QA | 1 | 1 | 0 |
-| SO | 10 | 5 | 5 |
+| SO | 8 | 3 | 5 |
 | TN | 2 | 2 | 0 |
-| YE | 8 | 7 | 1 |
+| YE | 1 | 0 | 1 |
 
 ## Detailed country gaps
 ### BH
@@ -39,9 +39,9 @@ GeoNames: KW.02:Al Asimah
 Supabase: BG-ADM1-KW-01:Capital Governorate
 
 ### LY
-GeoNames: LY.70:Darnah; LY.69:Banghazi; LY.66:Al Marj; LY.65:Al Kufrah; LY.76:Surt; LY.74:Nalut; LY.72:Misratah; LY.68:Az Zawiyah; LY.78:Wadi ash Shati'; LY.64:Al Jufrah; LY.67:An Nuqat al Khams; LY.79:Al Butnan; LY.80:Jabal al Gharbi; LY.82:Al Marqab; LY.83:Al Wahat; LY.84:Wadi al Hayat
+GeoNames: LY.66:Al Marj; LY.76:Surt; LY.74:Nalut; LY.78:Wadi ash Shati'; LY.64:Al Jufrah; LY.67:An Nuqat al Khams; LY.79:Al Butnan; LY.80:Jabal al Gharbi; LY.82:Al Marqab; LY.83:Al Wahat; LY.84:Wadi al Hayat
 
-Supabase: BG-ADM1-LY-02:Benghazi; BG-ADM1-LY-03:Misrata; BG-ADM1-LY-04:Zawiya; BG-ADM1-LY-06:Derna; BG-ADM1-LY-07:Bayda; BG-ADM1-LY-08:Al Khums; BG-ADM1-LY-13:Kufra; BG-ADM1-LY-14:Ubari; BG-ADM1-LY-15:Tarhuna
+Supabase: BG-ADM1-LY-07:Bayda; BG-ADM1-LY-08:Al Khums; BG-ADM1-LY-14:Ubari; BG-ADM1-LY-15:Tarhuna
 
 ### MR
 GeoNames: MR.11:Tiris Zemmour
@@ -64,9 +64,9 @@ GeoNames: QA.04:Al Khor
 Supabase: BG-ADM1-QA-04:Al Khor and Al Thakhira Municipality
 
 ### SO
-GeoNames: SO.20:Woqooyi Galbeed; SO.18:Nugaal; SO.09:Lower Juba; SO.08:Middle Juba; SO.07:Hiiraan; SO.05:Galguduud; SO.04:Bay; SO.03:Bari; SO.01:Bakool; SO.21:Awdal
+GeoNames: SO.20:Woqooyi Galbeed; SO.09:Lower Juba; SO.08:Middle Juba; SO.05:Galguduud; SO.04:Bay; SO.03:Bari; SO.01:Bakool; SO.21:Awdal
 
-Supabase: BG-ADM1-SO-02:Puntland; BG-ADM1-SO-03:Somaliland; BG-ADM1-SO-07:Hiran Region; BG-ADM1-SO-08:Bay and Bakool; BG-ADM1-SO-10:Nugal Region
+Supabase: BG-ADM1-SO-02:Puntland; BG-ADM1-SO-03:Somaliland; BG-ADM1-SO-08:Bay and Bakool
 
 ### TN
 GeoNames: TN.29:Gabes Governorate; TN.02:Kasserine Governorate
@@ -74,9 +74,9 @@ GeoNames: TN.29:Gabes Governorate; TN.02:Kasserine Governorate
 Supabase: BG-ADM1-TN-13:Kasserine Governorate; BG-ADM1-TN-15:Kasserine Governorate
 
 ### YE
-GeoNames: YE.25:Ta'izz; YE.15:Sa'dah; YE.04:Muhafazat Hadramaout; YE.08:Al Hudaydah; YE.18:Ad Dali'; YE.19:Omran; YE.26:Amanat Alasimah; YE.28:Soqatra
+GeoNames: YE.26:Amanat Alasimah
 
-Supabase: BG-ADM1-YE-03:Hodeidah Governorate; BG-ADM1-YE-05:Taiz Governorate; BG-ADM1-YE-06:Hadramaut Governorate; BG-ADM1-YE-09:Amran Governorate; BG-ADM1-YE-14:Saada Governorate; BG-ADM1-YE-17:Al Dhale Governorate; BG-ADM1-YE-20:Socotra Governorate
+Supabase: none
 
 
 No production writes were executed.
