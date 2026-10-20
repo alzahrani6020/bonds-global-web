@@ -1,0 +1,100 @@
+name: GeoNames stage reconcile one-shot
+
+on:
+  push:
+    branches:
+      - ops/geonames-stage-reconcile-20261021
+    paths:
+      - .github/workflows/geonames-stage-reconcile-once.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geonames-governed-ingestion
+  cancel-in-progress: false
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 60
+    env:
+      DATABASE_URL: ${{ secrets.GEO_DATABASE_URL }}
+      PGSSLMODE: require
+      GEO_SOURCE_CODE: geonames
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ops/geonames-stage-reconcile-20261021
+          persist-credentials: false
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DATABASE_URL:-}" || { echo "GEO_DATABASE_URL secret is required"; exit 1; }
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit
+
+      - name: Download official GeoNames dumps
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .tmp-geo
+          for file in allCountries.zip alternateNamesV2.zip admin1CodesASCII.txt; do
+            curl --fail --location --retry 4 --retry-all-errors --connect-timeout 30 --max-time 1800               --output ".tmp-geo/$file" "https://download.geonames.org/export/dump/$file"
+            test -s ".tmp-geo/$file"
+          done
+          unzip -tq .tmp-geo/allCountries.zip
+          unzip -tq .tmp-geo/alternateNamesV2.zip
+          unzip -p .tmp-geo/allCountries.zip allCountries.txt > .tmp-geo/allCountries.txt
+          unzip -p .tmp-geo/alternateNamesV2.zip alternateNamesV2.txt > .tmp-geo/alternateNames.txt
+
+      - name: Build canonical Arab locality dataset
+        run: npm run geo:build-local
+
+      - name: Verify ADM1 source links
+        shell: bash
+        env:
+          GEO_ADMIN1_APPLY: '1'
+        run: |
+          set -euo pipefail
+          node scripts/link-local-geonames-admin1.js
+          test -s .tmp-geo/geonames-admin1-review.json
+
+      - name: Stage and reconcile only
+        id: stage
+        shell: bash
+        env:
+          GEO_STAGE_APPLY: '1'
+          GEO_RECONCILE_APPLY: '1'
+        run: |
+          set -euo pipefail
+          node scripts/stage-local-geo-dataset.js | tee .tmp-geo/stage.log
+          RUN_ID="$(sed -n 's/^GEO_RUN_ID=//p' .tmp-geo/stage.log | tail -1)"
+          [[ "$RUN_ID" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo "Missing run id"; exit 1; }
+          printf 'run_id=%s\n' "$RUN_ID" >> "$GITHUB_OUTPUT"
+          node scripts/reconcile-local-geo-run.js "$RUN_ID" | tee .tmp-geo/reconcile.log
+          echo "Staged and reconciled run: $RUN_ID"
+          echo "Promotion is intentionally NOT automatic."
+
+      - name: Upload review evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: geonames-stage-reconcile-once-${{ github.run_id }}
+          path: |
+            .tmp-geo/arab-localities-manifest.json
+            .tmp-geo/geonames-admin1-review.json
+            .tmp-geo/stage.log
+            .tmp-geo/reconcile.log
+          if-no-files-found: warn
+          retention-days: 30
