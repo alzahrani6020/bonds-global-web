@@ -10,7 +10,7 @@ const { normalizeText } = require('../lib/geo/normalization');
 
 const ROOT = path.join(__dirname, '..');
 const INPUT = process.argv[2] || path.join(ROOT, '.tmp-geo', 'arab-localities.ndjson');
-const SOURCE_CODE = process.env.GEO_SOURCE_CODE || 'geonames_dump';
+const SOURCE_CODE = process.env.GEO_SOURCE_CODE || 'geonames';
 const DATASET_VERSION = process.env.GEO_DATASET_VERSION || path.basename(INPUT) + ':' + new Date().toISOString().slice(0,10);
 const APPLY = process.env.GEO_STAGE_APPLY === '1';
 

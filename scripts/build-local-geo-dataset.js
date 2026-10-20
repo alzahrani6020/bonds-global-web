@@ -159,7 +159,7 @@ async function main() {
       lng: row.lng,
       population: row.population,
       elevation_m: Number.isFinite(row.elevation_m) ? row.elevation_m : null,
-      source_code: 'geonames_dump',
+      source_code: 'geonames',
       source_id: row.geonameid,
       source_updated_at: row.modified_on || null,
       confidence: nameAr ? 88 : 80,
