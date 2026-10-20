@@ -11,9 +11,11 @@
 const { Client } = require('pg');
 
 const RUN_ID = process.argv[2];
+const APPLY = process.env.GEO_ROLLBACK_APPLY === '1';
 
 async function main() {
   if (!RUN_ID) throw new Error('Usage: node scripts/rollback-local-geo-run.js <run_id>');
+  if (!APPLY) throw new Error('Rollback requires GEO_ROLLBACK_APPLY=1');
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
 
   const client = new Client({
