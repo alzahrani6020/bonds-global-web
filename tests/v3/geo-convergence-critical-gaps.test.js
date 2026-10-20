@@ -67,4 +67,13 @@ describe('Geo convergence critical gaps', () => {
     expect(api).toContain("if (!countryCode) return legacyRows || []");
   });
 
+  test('database boundary rebuilds geo snapshots and rejects inconsistent references', () => {
+    const migration = read('supabase/migrations/20261020033500_geo_convergence_bridge.sql');
+    expect(migration).toContain('private.enforce_service_request_geo');
+    expect(migration).toContain("raise exception 'geo_place_id country mismatch'");
+    expect(migration).toContain('private.enforce_project_geo');
+    expect(migration).toContain("raise exception 'city_id and geo_place_id mismatch'");
+    expect(migration).toContain("new.geo_snapshot := jsonb_strip_nulls");
+  });
+
 });
