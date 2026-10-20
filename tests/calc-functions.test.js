@@ -65,26 +65,38 @@ describe('calculateBreakEven', () => {
     expect(r.profit).toBe(-5000);
   });
 
-  test('Saudi-specific: VAT 15% + Zakat 2.5%', () => {
-    const r = calculateBreakEven(10000, 300, 500, 200, 15, 2.5);
-    // profit = 200*500 - (10000 + 300*200) = 100000 - 70000 = 30000
+  test('VAT is reported on sales and never deducted as a profit tax', () => {
+    const r = calculateBreakEven(10000, 300, 500, 200, 0, 2.5, { vatRate: 15 });
+    // accounting profit = 100000 - 70000 = 30000
     expect(r.profit).toBe(30000);
-    // tax = 30000 * 0.15 = 4500
-    expect(r.taxAmount).toBeCloseTo(4500, 5);
-    // profit after tax = 25500
-    expect(r.profitAfterTax).toBeCloseTo(25500, 5);
-    // zakat = 25500 * 0.025 = 637.5
-    expect(r.zakatAmount).toBeCloseTo(637.5, 5);
-    // net profit = 24862.5
-    expect(r.netProfit).toBeCloseTo(24862.5, 5);
+    // output VAT = taxable sales 100000 * 15%
+    expect(r.outputVatAmount).toBeCloseTo(15000, 5);
+    expect(r.incomeTaxAmount).toBe(0);
+    // Zakat is not inferred from profit when no explicit Zakat base is supplied.
+    expect(r.zakatCalculated).toBe(false);
+    expect(r.zakatAmount).toBe(0);
+    expect(r.netProfit).toBe(30000);
   });
 
-  test('no tax or zakat applied on zero/negative profit', () => {
-    const r = calculateBreakEven(10000, 500, 400, 10, 15, 2.5);
+  test('income tax and Zakat use separate explicit bases', () => {
+    const r = calculateBreakEven(10000, 300, 500, 200, 20, 2.5, {
+      vatRate: 15,
+      zakatBase: 40000
+    });
+    expect(r.profit).toBe(30000);
+    expect(r.incomeTaxAmount).toBeCloseTo(6000, 5);
+    expect(r.profitAfterIncomeTax).toBeCloseTo(24000, 5);
+    expect(r.zakatCalculated).toBe(true);
+    expect(r.zakatAmount).toBeCloseTo(1000, 5);
+    expect(r.netProfit).toBeCloseTo(23000, 5);
+  });
+
+  test('no income tax on loss; explicit Zakat base remains independent of profit', () => {
+    const r = calculateBreakEven(10000, 500, 400, 10, 20, 2.5, { zakatBase: 10000 });
     expect(r.profit).toBeLessThan(0);
-    expect(r.taxAmount).toBe(0);
-    expect(r.zakatAmount).toBe(0);
-    expect(r.netProfit).toBe(r.profit);
+    expect(r.incomeTaxAmount).toBe(0);
+    expect(r.zakatAmount).toBeCloseTo(250, 5);
+    expect(r.netProfit).toBeCloseTo(r.profit - 250, 5);
   });
 
   test('handles very large numbers', () => {
@@ -236,44 +248,53 @@ describe('calculateDTI', () => {
 // ============================================================================
 
 describe('calculatePricing', () => {
-  test('basic pricing (example from HTML)', () => {
-    const r = calculatePricing(150, 50, 25, 15, 2.5, 500, 20000);
+  test('basic pricing keeps VAT separate from profit', () => {
+    const r = calculatePricing(150, 50, 25, 0, 2.5, 500, 20000, { vatRate: 15 });
     expect(r.costPerUnit).toBe(200);
-    expect(r.priceBeforeTax).toBeCloseTo(266.67, 2); // 200 / (1 - 0.25)
-    expect(r.profitBeforeTax).toBeCloseTo(66.67, 2);
-    expect(r.taxAmount).toBeCloseTo(10, 1);          // 66.67 * 0.15
-    expect(r.zakatAmount).toBeCloseTo(1.42, 2);      // (66.67-10) * 0.025
+    expect(r.priceBeforeVat).toBeCloseTo(266.67, 2); // 200 / (1 - 0.25)
+    expect(r.profitBeforeIncomeTax).toBeCloseTo(66.67, 2);
+    expect(r.outputVatPerUnit).toBeCloseTo(40, 2);   // 266.67 * 15%
+    expect(r.priceIncludingVat).toBeCloseTo(306.67, 2);
+    expect(r.incomeTaxAmount).toBe(0);
+    expect(r.zakatCalculated).toBe(false);
+    expect(r.zakatAmount).toBe(0);
     expect(r.monthlyProfit).toBeCloseTo(r.netProfitPerUnit * 500, 1);
     expect(r.actualMargin).toBeGreaterThan(0);
-    expect(r.breakEvenPrice).toBeCloseTo(240, 1);    // 200 + 20000/500
+    expect(r.breakEvenPriceBeforeVat).toBeCloseTo(240, 1);
+    expect(r.breakEvenPriceIncludingVat).toBeCloseTo(276, 1);
   });
 
-  test('margin >= 100 returns zero priceBeforeTax', () => {
+  test('margin >= 100 returns zero priceBeforeVat', () => {
     const r = calculatePricing(100, 0, 100, 15, 2.5, 100, 0);
-    expect(r.priceBeforeTax).toBe(0);
-    expect(r.profitBeforeTax).toBe(-100); // 0 - 100
+    expect(r.priceBeforeVat).toBe(0);
+    expect(r.profitBeforeIncomeTax).toBe(-100); // 0 - 100
   });
 
   test('zero costs and margin', () => {
     const r = calculatePricing(0, 0, 0, 0, 0, 0, 0);
     expect(r.costPerUnit).toBe(0);
-    expect(r.priceBeforeTax).toBe(0); // 0 / 1 = 0
+    expect(r.priceBeforeVat).toBe(0); // 0 / 1 = 0
     expect(r.netProfitPerUnit).toBe(0);
   });
 
-  test('no tax or zakat when profitBeforeTax <= 0', () => {
+  test('no income tax or Zakat without explicit Zakat base when profit <= 0', () => {
     const r = calculatePricing(200, 100, 0, 15, 2.5, 10, 0);
     // priceBeforeTax = 300 / 1 = 300, profitBeforeTax = 0
-    expect(r.taxAmount).toBe(0);
+    expect(r.incomeTaxAmount).toBe(0);
     expect(r.zakatAmount).toBe(0);
   });
 
-  test('Saudi-specific defaults: 15% VAT + 2.5% Zakat', () => {
-    const r = calculatePricing(100, 50, 30, 15, 2.5, 1000, 10000);
+  test('VAT, income tax, and Zakat remain independent in pricing', () => {
+    const r = calculatePricing(100, 50, 30, 20, 2.5, 1000, 10000, {
+      vatRate: 15,
+      zakatBasePerUnit: 40
+    });
     expect(r.costPerUnit).toBe(150);
-    expect(r.priceBeforeTax).toBeCloseTo(214.29, 2);
-    expect(r.taxAmount).toBeCloseTo(9.64, 2);     // (214.29-150)*0.15
-    expect(r.zakatAmount).toBeCloseTo(1.37, 2);   // profitAfterTax * 0.025
+    expect(r.priceBeforeVat).toBeCloseTo(214.29, 2);
+    expect(r.outputVatPerUnit).toBeCloseTo(32.14, 2);
+    expect(r.incomeTaxAmount).toBeCloseTo(12.86, 2); // (214.29-150)*20%
+    expect(r.zakatAmount).toBeCloseTo(1, 2);         // explicit base 40*2.5%
+    expect(r.netProfitPerUnit).toBeCloseTo(50.43, 2);
   });
 
   test('breakEvenPrice with zero volume equals costPerUnit', () => {
@@ -283,7 +304,7 @@ describe('calculatePricing', () => {
 
   test('negative margin still computes', () => {
     const r = calculatePricing(100, 0, -10, 0, 0, 10, 0);
-    expect(r.priceBeforeTax).toBeCloseTo(90.91, 2); // 100 / 1.1
+    expect(r.priceBeforeVat).toBeCloseTo(90.91, 2); // 100 / 1.1
   });
 
   test('platform fee, delivery, packaging and CAC increase required price', () => {
@@ -291,9 +312,9 @@ describe('calculatePricing', () => {
     const full = calculatePricing(150, 50, 25, 15, 2.5, 500, 20000, { platformFeePct: 20, deliveryCostPerUnit: 5, packagingCostPerUnit: 3, cacPerUnit: 2 });
     expect(full.totalCostPerUnit).toBe(210); // 200 + 5 + 3 + 2
     expect(full.priceBeforeFees).toBeCloseTo(280, 2); // 210 / 0.75
-    expect(full.priceBeforeTax).toBeCloseTo(350, 2); // 280 / 0.8
+    expect(full.priceBeforeVat).toBeCloseTo(350, 2); // 280 / 0.8
     expect(full.platformFeeAmount).toBeCloseTo(70, 2); // 350 * 0.2
-    expect(full.priceBeforeTax).toBeGreaterThan(base.priceBeforeTax);
+    expect(full.priceBeforeVat).toBeGreaterThan(base.priceBeforeVat);
   });
 
   test('all per-unit costs are included in break-even price', () => {
@@ -312,7 +333,7 @@ describe('calculatePricing', () => {
     const without = calculatePricing(100, 50, 25, 0, 0, 100, 0, { platformFeePct: 10 });
     const withGateway = calculatePricing(100, 50, 25, 0, 0, 100, 0, { platformFeePct: 10, paymentGatewayFeePct: 2.5 });
     expect(withGateway.platformFeePct + withGateway.paymentGatewayFeePct).toBeCloseTo(12.5, 2);
-    expect(withGateway.priceBeforeTax).toBeGreaterThan(without.priceBeforeTax);
+    expect(withGateway.priceBeforeVat).toBeGreaterThan(without.priceBeforeVat);
     expect(withGateway.breakEvenPrice).toBeGreaterThan(without.breakEvenPrice);
     expect(withGateway.paymentGatewayAmount).toBeGreaterThan(0);
   });
@@ -322,7 +343,7 @@ describe('calculatePricing', () => {
     const withIncidentals = calculatePricing(150, 50, 25, 0, 0, 100, 0, { wasteAndIncidentalsPct: 10 });
     expect(withIncidentals.wasteAndIncidentalsAmount).toBeCloseTo(20, 2);
     expect(withIncidentals.totalCostPerUnit).toBeCloseTo(220, 2);
-    expect(withIncidentals.priceBeforeTax).toBeGreaterThan(without.priceBeforeTax);
+    expect(withIncidentals.priceBeforeVat).toBeGreaterThan(without.priceBeforeVat);
     expect(withIncidentals.breakEvenPrice).toBeGreaterThan(without.breakEvenPrice);
   });
 });
