@@ -1,0 +1,47 @@
+-- READ-ONLY validation for high-confidence alias review candidates.
+with candidate(admin_area_id,source_code,country_code,admin_level,source_admin_code,source_id) as (
+values
+('34b44b78-0a04-40b4-9c0c-1b1f4273ffe7'::uuid,'geonames','EG',1::smallint,'EG.22','352603'),
+('24b57f32-1c32-4ebe-865d-2111c62b0363'::uuid,'geonames','EG',1::smallint,'EG.18','359171'),
+('52e9d56f-2825-4408-9873-55bce0ca246c'::uuid,'geonames','EG',1::smallint,'EG.17','359781'),
+('132f52ca-5084-43fd-9336-300a4919346d'::uuid,'geonames','IQ',1::smallint,'IQ.18','91695'),
+('c9f0e6ab-4d95-4a15-b1dc-6be7c1cdcff3'::uuid,'geonames','IQ',1::smallint,'IQ.04','99022'),
+('6d1d8e2d-75d2-43f6-817e-33b9896cdfde'::uuid,'geonames','JO',1::smallint,'JO.12','250199'),
+('5162fdaa-cab5-432f-bc5d-e691454ca229'::uuid,'geonames','KW',1::smallint,'KW.05','285798'),
+('bc1cdc53-687e-4765-8061-0b8e0e823236'::uuid,'geonames','KW',1::smallint,'KW.07','285816'),
+('2a6cb010-8da8-4570-8dd0-e5351efff241'::uuid,'geonames','KW',1::smallint,'KW.04','285841'),
+('c80a15b0-f8a3-492c-92da-6eeb26ca1673'::uuid,'geonames','KW',1::smallint,'KW.09','7733358'),
+('ab2e94bc-97a5-4f7d-bf28-d13bf10fed92'::uuid,'geonames','LB',1::smallint,'LB.09','278297'),
+('18a0921f-6399-442f-849c-522197ab2bcf'::uuid,'geonames','LY',1::smallint,'LY.81','7602690'),
+('a6bd42ca-f396-46c7-be60-26abb4d5ca70'::uuid,'geonames','MA',1::smallint,'MA.07','11281880'),
+('42305e99-f901-4270-832a-092e279247d6'::uuid,'geonames','MR',1::smallint,'MR.01','2379025'),
+('f863bc32-9121-4606-a147-9dc6e39ea8e5'::uuid,'geonames','MR',1::smallint,'MR.13','11496391'),
+('a7b86351-8c6e-4576-bae4-e278362115ee'::uuid,'geonames','MR',1::smallint,'MR.14','11496392'),
+('53b3b2d0-9451-43b2-ad0e-716805fbb06f'::uuid,'geonames','MR',1::smallint,'MR.15','11496393'),
+('a864df35-e15e-4d3a-8a94-b39facb9ffc0'::uuid,'geonames','QA',1::smallint,'QA.08','389462'),
+('af4d7ef2-7931-43dc-a0c9-a8391e40f572'::uuid,'geonames','QA',1::smallint,'QA.06','389469'),
+('4ace6dda-2a10-4362-87a8-c8e9d0b44796'::uuid,'geonames','QA',1::smallint,'QA.01','389470'),
+('e39c1680-bc32-4462-a30d-c9c123b2af79'::uuid,'geonames','SA',1::smallint,'SA.14','104514'),
+('fd7570d7-66ab-4e82-b392-47cbb2e24c34'::uuid,'geonames','SA',1::smallint,'SA.08','108933'),
+('815a65f5-00bc-4eff-8a2e-c2b70196333a'::uuid,'geonames','SA',1::smallint,'SA.05','109224'),
+('933b280a-8529-434f-a0fd-d077d4c61c73'::uuid,'geonames','SA',1::smallint,'SA.02','109954'),
+('a913834b-bb9e-4cb7-81d4-bbf566334701'::uuid,'geonames','SD',1::smallint,'SD.38','408648'),
+('76144380-0f80-4e52-ad37-3bcc318b0892'::uuid,'geonames','SD',1::smallint,'SD.47','408658'),
+('7fa0b506-80c5-4055-9eb6-210f7cfb0da4'::uuid,'geonames','SD',1::smallint,'SD.49','408660'),
+('7e950eaa-8c34-4108-b483-38e25e507fe6'::uuid,'geonames','SD',1::smallint,'SD.50','408661'),
+('9b282faa-c094-402a-8037-c46a5b1ac9f0'::uuid,'geonames','SD',1::smallint,'SD.55','408666'),
+('2a992744-e7b0-4644-804d-cbc475c7bbaa'::uuid,'geonames','SD',1::smallint,'SD.60','8394435'),
+('543c8437-d652-4792-899a-c94a7cbd29ff'::uuid,'geonames','SO',1::smallint,'SO.14','51966'),
+('5510ff8d-39fd-4fbb-9842-6ec5ceba829e'::uuid,'geonames','SO',1::smallint,'SO.13','51967'),
+('fb1395eb-98f1-47e0-b282-1021a2c41a5f'::uuid,'geonames','SY',1::smallint,'SY.05','172410'),
+('0f72b9f2-1b2d-4f71-9e2e-4a8f181fdcf6'::uuid,'geonames','TN',1::smallint,'TN.14','2473637')
+)
+select
+ count(*) as candidate_rows,
+ count(*) filter (where a.id is not null) as valid_admin_areas,
+ count(distinct c.admin_area_id) as distinct_admin_areas,
+ count(distinct c.source_admin_code) as distinct_source_admin_codes,
+ count(distinct c.source_id) as distinct_source_ids,
+ count(*) filter (where exists(select 1 from public.geo_admin_area_source_links l where l.source_code=c.source_code and l.country_code=c.country_code and l.admin_level=c.admin_level and l.source_admin_code=c.source_admin_code)) as admin_code_collisions,
+ count(*) filter (where exists(select 1 from public.geo_admin_area_source_links l where l.source_code=c.source_code and l.source_id=c.source_id)) as source_id_collisions
+from candidate c left join public.geo_admin_areas a on a.id=c.admin_area_id and a.country_code=c.country_code and a.admin_level=1;
