@@ -47,6 +47,34 @@ describe('post-release pipeline contracts', () => {
     expect(smoke).toContain('await assertNativeProductionRuntime(token);');
   });
 
+  test('service-token governance reuses the existing fail-closed verifier', () => {
+    const verifier = fs.readFileSync(
+      path.resolve(__dirname, '../lib/security/service-token-verifier.js'),
+      'utf8'
+    );
+    const gateway = fs.readFileSync(
+      path.resolve(__dirname, '../lib/capabilities/governance-gateway.js'),
+      'utf8'
+    );
+    const executor = fs.readFileSync(
+      path.resolve(__dirname, '../lib/capabilities/governed-executor.js'),
+      'utf8'
+    );
+    const httpRouter = fs.readFileSync(
+      path.resolve(__dirname, '../v3/api/capabilities.js'),
+      'utf8'
+    );
+
+    expect(verifier).toContain('BONDS_TOKEN_INTROSPECTION_URL');
+    expect(verifier).toContain('TOKEN_VERIFIER_UNCONFIGURED');
+    expect(verifier).toContain('TOKEN_INTROSPECTION_FAILED');
+    expect(gateway).toContain('context.auth?.serviceToken');
+    expect(gateway).toContain('authorizeServiceToken');
+    expect(executor).toContain('evaluateGovernance');
+    expect(httpRouter).toContain('if (!user) return sendJson(res, 401');
+    expect(httpRouter).not.toContain('serviceToken: req.headers.authorization');
+  });
+
   test('existing forward migrations are immutable after merge', () => {
     const workflow = fs.readFileSync(
       path.resolve(__dirname, '../.github/workflows/apply-migrations.yml'),
