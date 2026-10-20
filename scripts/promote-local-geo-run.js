@@ -2,6 +2,7 @@
 'use strict';
 
 const { Client } = require('pg');
+const { randomUUID } = require('crypto');
 
 const RUN_ID = process.argv[2];
 
@@ -26,6 +27,9 @@ async function main() {
        where run_id=$1 and decision='review'`,
       [RUN_ID]
     );
+    if (Number(unresolved.rows[0]?.n || 0) > 0) {
+      throw new Error('Promotion blocked: unresolved review candidates remain');
+    }
 
     const rows = await client.query(
       `select
@@ -42,6 +46,58 @@ async function main() {
       [RUN_ID]
     );
 
+    const newRows = rows.rows.filter(row => row.decision === 'new_canonical');
+    const newCountries = [...new Set(newRows.map(row => row.country_code).filter(Boolean))];
+
+    const admin1Map = new Map();
+    const admin1For = row => {
+      if (!row?.country_code || !row?.source_code || !row?.admin1_code) return null;
+      const direct = admin1Map.get(row.country_code + ':' + row.source_code + ':' + row.admin1_code);
+      if (direct) return direct;
+      return admin1Map.get(
+        row.country_code + ':' + row.source_code + ':' + row.country_code + '.' + row.admin1_code
+      ) || null;
+    };
+
+    if (newCountries.length) {
+      const adminReadiness = await client.query(
+        `select id,country_code,source_code,source_id,admin_level
+         from public.geo_admin_areas
+         where country_code = any($1::text[])
+           and is_active=true
+           and admin_level=1`,
+        [newCountries]
+      );
+
+      for (const area of adminReadiness.rows) {
+        if (!area.source_code || !area.source_id) continue;
+        admin1Map.set(
+          area.country_code + ':' + area.source_code + ':' + area.source_id,
+          area.id
+        );
+      }
+
+      const countriesWithAdmin1 = new Set(adminReadiness.rows.map(row => row.country_code));
+      const missingCountries = newCountries.filter(code => !countriesWithAdmin1.has(code));
+      if (missingCountries.length) {
+        throw new Error(
+          'Promotion blocked: canonical admin hierarchy is not ready for ' + missingCountries.join(', ')
+        );
+      }
+
+      const unresolvedAdmin = newRows.filter(row => !admin1For(row));
+      if (unresolvedAdmin.length) {
+        const sample = unresolvedAdmin
+          .slice(0, 10)
+          .map(row => row.country_code + ':' + (row.admin1_code || 'missing'))
+          .join(', ');
+        throw new Error(
+          'Promotion blocked: unresolved admin1 mapping for ' +
+          unresolvedAdmin.length + ' candidates. Sample: ' + sample
+        );
+      }
+    }
+
     let matched = 0;
     let created = 0;
 
@@ -52,14 +108,16 @@ async function main() {
       let action = 'matched_existing';
 
       if (row.decision === 'new_canonical') {
+        const canonicalCode = 'BG-' + row.country_code + '-' +
+          randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase();
         const inserted = await client.query(
           `insert into public.geo_places(
-            canonical_code,country_code,name_ar,name_en,canonical_name,place_type,
+            canonical_code,country_code,admin1_id,name_ar,name_en,canonical_name,place_type,
             lat,lng,population,elevation_m,source_code,source_id,source_updated_at,
             confidence,is_canonical,is_active,metadata
           ) values(
-            $1,$2,$3,$4,coalesce($3,$4,$1),$5,$6,$7,$8,$9,$10,$11,$12,
-            least(100,greatest(0,$13::int)),true,true,$14::jsonb
+            $1,$2,$3,$4,$5,coalesce($4,$5,$1),$6,$7,$8,$9,$10,$11,$12,$13,
+            least(100,greatest(0,$14::int)),true,true,$15::jsonb
           )
           on conflict(source_code,source_id) do update set
             name_ar=coalesce(excluded.name_ar,public.geo_places.name_ar),
@@ -75,17 +133,41 @@ async function main() {
             updated_at=now()
           returning id`,
           [
-            'SRC-' + row.source_code + '-' + row.source_id,
-            row.country_code,row.name_ar,row.name_en,row.place_type || 'other',
+            canonicalCode,
+            row.country_code,admin1For(row),row.name_ar,row.name_en,row.place_type || 'other',
             row.lat,row.lng,row.population,row.elevation_m,row.source_code,row.source_id,
             row.source_updated_at,row.overall_score,
-            JSON.stringify({ ingestion_run_id: RUN_ID, raw_place_id: row.raw_place_id })
+            JSON.stringify({
+              ingestion_run_id: RUN_ID,
+              raw_place_id: row.raw_place_id,
+              raw_admin1_code: row.admin1_code
+            })
           ]
         );
         canonicalId = inserted.rows[0].id;
         action = 'created_canonical';
         created++;
       } else {
+        await client.query(
+          `update public.geo_places
+           set name_ar=coalesce(name_ar,$2),
+               name_en=coalesce(name_en,$3),
+               population=coalesce(population,$4),
+               elevation_m=coalesce(elevation_m,$5),
+               lat=case when lat is null and lng is null and $6::double precision is not null and $7::double precision is not null then $6 else lat end,
+               lng=case when lat is null and lng is null and $6::double precision is not null and $7::double precision is not null then $7 else lng end,
+               confidence=greatest(confidence,least(100,greatest(0,$8::int))),
+               metadata=metadata || jsonb_build_object(
+                 'last_enrichment_source',$9::text,
+                 'last_enrichment_run_id',$10::text
+               ),
+               updated_at=now()
+           where id=$1`,
+          [
+            canonicalId,row.name_ar,row.name_en,row.population,row.elevation_m,
+            row.lat,row.lng,row.overall_score,row.source_code,RUN_ID
+          ]
+        );
         matched++;
       }
 

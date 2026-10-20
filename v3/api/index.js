@@ -801,14 +801,78 @@ function mergeMasterAndDatabaseCities(countryCode, databaseRows = []) {
 }
 
 async function loadCatalogCityRows(supabase, countryCode = null) {
-  let query = supabase
+  let legacyQuery = supabase
     .from('cities')
-    .select('id, code, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types')
+    .select('id, code, geo_place_id, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types')
+    .eq('is_active', true)
     .limit(2000);
-  if (countryCode) query = query.eq('country_code', countryCode);
-  const { data, error } = await query;
-  if (error) throw error;
-  return data || [];
+  if (countryCode) legacyQuery = legacyQuery.eq('country_code', countryCode);
+
+  const { data: legacyRows, error: legacyError } = await legacyQuery;
+  if (legacyError) throw legacyError;
+
+  // Country listing is intentionally cheap. Canonical supplemental places are
+  // loaded only after a country is selected, avoiding a full-world place scan.
+  if (!countryCode) return legacyRows || [];
+
+  const pageSize = 1000;
+  const geoRows = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data: page, error: geoError } = await supabase
+      .from('geo_places')
+      .select('id,canonical_code,country_code,admin1_id,admin2_id,name_ar,name_en,place_type,lat,lng,population,confidence')
+      .eq('country_code', countryCode)
+      .eq('is_active', true)
+      .eq('is_canonical', true)
+      .range(from, from + pageSize - 1);
+    if (geoError) throw geoError;
+    geoRows.push(...(page || []));
+    if (!page || page.length < pageSize) break;
+    if (geoRows.length >= 20000) {
+      console.warn('[catalog/cities] canonical geo page cap reached for', countryCode);
+      break;
+    }
+  }
+
+  const linkedGeoIds = new Set((legacyRows || []).map(row => row.geo_place_id).filter(Boolean));
+  const supplemental = geoRows.filter(row => !linkedGeoIds.has(row.id));
+
+  const adminIds = [...new Set(supplemental.flatMap(row => [row.admin1_id, row.admin2_id]).filter(Boolean))];
+  let adminById = new Map();
+  if (adminIds.length) {
+    const { data: adminRows, error: adminError } = await supabase
+      .from('geo_admin_areas')
+      .select('id,name_ar,name_en,admin_level')
+      .in('id', adminIds);
+    if (adminError) throw adminError;
+    adminById = new Map((adminRows || []).map(row => [row.id, row]));
+  }
+
+  const geoCatalogRows = supplemental.map(place => {
+    const admin1 = adminById.get(place.admin1_id) || null;
+    const admin2 = adminById.get(place.admin2_id) || null;
+    return {
+      id: place.id,
+      code: place.canonical_code,
+      geo_place_id: place.id,
+      name_ar: place.name_ar,
+      name_en: place.name_en,
+      region: admin1?.name_ar || admin1?.name_en || null,
+      region_en: admin1?.name_en || admin1?.name_ar || null,
+      admin_level_2: admin2?.name_ar || admin2?.name_en || null,
+      locality_type: place.place_type || 'other',
+      country_code: place.country_code,
+      population: place.population,
+      purchasing_power_index: null,
+      lat: place.lat,
+      lng: place.lng,
+      city_types: [],
+      geo_confidence: place.confidence,
+      catalog_source: 'geo_places'
+    };
+  });
+
+  return [...(legacyRows || []), ...geoCatalogRows];
 }
 
 async function handleCatalogCountries(req, res) {
@@ -1154,8 +1218,11 @@ async function handleCatalogCities(req, res) {
     const rawCities = await loadCatalogCityRows(supabase, countryCode);
     const databaseCities = canonicalizeCities(rawCities).map(city => ({
       ...city,
-      data_available: true,
-      catalog_source: 'database'
+      // A canonical geo record is discoverable geography, not proof that
+      // city-level market/evidence data exists. Keep these concepts separate.
+      data_available: city.catalog_source === 'geo_places' ? false : true,
+      geo_available: Boolean(city.geo_place_id),
+      catalog_source: city.catalog_source || 'database'
     }));
     let catalogCities = mergeMasterAndDatabaseCities(countryCode, databaseCities);
 
@@ -1323,7 +1390,7 @@ async function handleCities(req, res) {
   const cityTypeParam = url.searchParams.get('city_type');
 
   let selectFields = 'id, code, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types';
-  let query = supabase.from('cities').select(selectFields);
+  let query = supabase.from('cities').select(selectFields).eq('is_active', true);
 
   if (countryCode) query = query.eq('country_code', countryCode);
   if (cityTypeParam) {

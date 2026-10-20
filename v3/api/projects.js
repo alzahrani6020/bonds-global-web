@@ -1,4 +1,5 @@
 const { getSupabaseClient } = require('../lib/supabase');
+const { resolveGeoContext } = require('../../lib/geo/resolve-context');
 const { LifecycleEngine } = require('../../lib/enterprise-lifecycle');
 const { getUserRole, can } = require('../../lib/ecc/role-guard');
 // Note: project write/delete authorization is enforced by Supabase RLS (user_id scoped).
@@ -30,7 +31,7 @@ async function listProjects(req, res, user) {
     .from('bonds_projects')
     .select(`
       id, name, project_number, sector, sub_sector, activity,
-      city_id, currency, status, capital, revenue, annual_profit,
+      city_id, geo_place_id, geo_snapshot, currency, status, capital, revenue, annual_profit,
       language, metadata, created_at, updated_at
     `)
     .eq('user_id', user.id)
@@ -40,15 +41,33 @@ async function listProjects(req, res, user) {
   sendJson(res, 200, { projects: data });
 }
 
-async function resolveCityId(supabase, cityCode) {
-  if (!cityCode) return null;
-  const { data, error } = await supabase
+async function resolveCityContext(supabase, cityCode) {
+  if (!cityCode) return { cityId: null, geoPlaceId: null, geoSnapshot: {} };
+
+  const { data: city, error } = await supabase
     .from('cities')
-    .select('id')
+    .select('id,code,country_code,name_ar,name_en,geo_place_id')
     .eq('code', cityCode)
-    .single();
-  if (error || !data) return null;
-  return data.id;
+    .maybeSingle();
+  if (error) throw error;
+
+  let geo = { place: null, snapshot: {} };
+  try {
+    geo = await resolveGeoContext(supabase, {
+      canonicalCode: cityCode,
+      cityCode,
+      countryCode: city?.country_code || null,
+      localityName: city?.name_ar || city?.name_en || null
+    });
+  } catch (geoError) {
+    console.warn('[projects/create] geo resolve failed:', geoError.message);
+  }
+
+  return {
+    cityId: city?.id || null,
+    geoPlaceId: geo.place?.id || city?.geo_place_id || null,
+    geoSnapshot: geo.snapshot || {}
+  };
 }
 
 async function createProject(req, res, user) {
@@ -74,7 +93,7 @@ async function createProject(req, res, user) {
   }
 
   try {
-    const cityId = await resolveCityId(supabase, cityCode);
+    const cityContext = await resolveCityContext(supabase, cityCode);
 
     const insertPayload = {
       project_number: 'PRJ-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
@@ -82,7 +101,9 @@ async function createProject(req, res, user) {
       name,
       sector,
       activity: activity || sector,
-      city_id: cityId,
+      city_id: cityContext.cityId,
+      geo_place_id: cityContext.geoPlaceId,
+      geo_snapshot: cityContext.geoSnapshot,
       currency: currency || 'SAR',
       capital: capital || 0,
       revenue: revenue || 0,
@@ -130,7 +151,7 @@ async function getProject(req, res, user, projectId) {
     .from('bonds_projects')
     .select(`
       id, name, project_number, sector, sub_sector, activity,
-      city_id, currency, status, capital, revenue, annual_profit,
+      city_id, geo_place_id, geo_snapshot, currency, status, capital, revenue, annual_profit,
       language, metadata, created_at, updated_at
     `)
     .eq('id', projectId)

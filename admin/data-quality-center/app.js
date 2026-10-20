@@ -37,7 +37,7 @@
         byType[i.check_type] = (byType[i.check_type] || 0) + 1;
         bySeverity[i.severity] = (bySeverity[i.severity] || 0) + 1;
       });
-      const typeLabels = { duplicate: 'مكرر', missing: 'ناقص', broken_relation: 'علاقة مكسورة', orphan_file: 'ملف بدون سجل', incomplete: 'غير مكتمل', invalid: 'غير صالح' };
+      const typeLabels = { duplicate: 'مكرر', missing: 'ناقص', broken_relation: 'علاقة مكسورة', orphan_file: 'ملف بدون سجل', incomplete: 'غير مكتمل', invalid: 'غير صالح', geo_integrity: 'سلامة الجغرافيا' };
       setContent(`
         <div class="ai-grid">
           <div class="ai-card"><h3>إجمالي المشاكل</h3><div class="ai-value">${counts.total.toLocaleString('ar-SA')}</div></div>
@@ -79,6 +79,7 @@
               <option value="missing" ${_filters.type === 'missing' ? 'selected' : ''}>ناقص</option>
               <option value="broken_relation" ${_filters.type === 'broken_relation' ? 'selected' : ''}>علاقة مكسورة</option>
               <option value="incomplete" ${_filters.type === 'incomplete' ? 'selected' : ''}>غير مكتمل</option>
+              <option value="geo_integrity" ${_filters.type === 'geo_integrity' ? 'selected' : ''}>سلامة الجغرافيا</option>
             </select>
           </div>
           <div class="ai-form-group"><label>الخطورة</label>
