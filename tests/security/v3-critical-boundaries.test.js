@@ -18,21 +18,21 @@ describe('V3 critical control-plane boundaries', () => {
     }
   });
 
-  test('V3 admin prefers unified bearer sessions and constant-time legacy comparison', () => {
+  test('V3 admin prefers unified bearer sessions and constant-time static-token comparison', () => {
+    const helper = read('v3/lib/admin-access.js');
     const api = read('v3/api/admin.js');
     const index = read('v3/admin/index.html');
-    expect(api).toContain('supabase.auth.getUser(bearer)');
-    expect(api).toContain('crypto.timingSafeEqual');
-    expect(api).toContain('V3_ADMIN_ALLOW_LEGACY_TOKEN');
-    expect(index).toContain("Authorization: 'Bearer ' + bearerToken");
+    expect(helper).toContain('supabase.auth.getUser(bearer)');
+    expect(helper).toContain('crypto.timingSafeEqual');
+    expect(helper).toContain('admin_roles');
+    expect(helper).toContain("legacyFlagEnv = 'V3_ADMIN_ALLOW_LEGACY_TOKEN'");
+    expect(api).toContain("require('../lib/admin-access')");
+    expect(index).toContain("headers.Authorization = 'Bearer ' + bearerToken");
   });
 
-  test('privileged V3 data-engine actions accept the same unified admin bearer session', () => {
+  test('privileged V3 data-engine actions use the same unified admin access policy', () => {
     const source = read('v3/api/data-engine.js');
-    expect(source).toContain('async function requireAdminAccess(req)');
-    expect(source).toContain('supabase.auth.getUser(bearer)');
-    expect(source).toContain('admin_roles');
-    expect(source).toContain('crypto.timingSafeEqual');
+    expect(source).toContain("require('../lib/admin-access')");
     expect(source).toContain('await requireAdminAccess(req)');
   });
 
@@ -43,6 +43,17 @@ describe('V3 critical control-plane boundaries', () => {
     expect(api).toContain("status: 'pending'");
     expect(api).not.toContain("supabase.from('metric_feedback').insert({\n      metric_code: body.metric_code");
     expect(feedback).toContain(".in('source', ['admin', 'audit', 'external'])");
+  });
+
+  test('all privileged V3 admin mutation surfaces share the centralized policy', () => {
+    for (const file of [
+      'v3/api/alerts.js',
+      'v3/api/sector-data.js',
+      'v3/api/water-factory-data.js',
+      'v3/api/index.js'
+    ]) {
+      expect(read(file)).toContain("require('../lib/admin-access')");
+    }
   });
 
   test('V3 admin dynamic service views escape database-backed text', () => {
