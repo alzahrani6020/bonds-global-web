@@ -12,6 +12,7 @@ const ROOT = path.join(__dirname, '..');
 const INPUT = process.argv[2] || path.join(ROOT, '.tmp-geo', 'arab-localities.ndjson');
 const SOURCE_CODE = process.env.GEO_SOURCE_CODE || 'geonames_dump';
 const DATASET_VERSION = process.env.GEO_DATASET_VERSION || path.basename(INPUT) + ':' + new Date().toISOString().slice(0,10);
+const APPLY = process.env.GEO_STAGE_APPLY === '1';
 
 async function sha256(filePath) {
   return new Promise((resolve, reject) => {
@@ -23,11 +24,48 @@ async function sha256(filePath) {
   });
 }
 
+async function inspectDataset() {
+  const rl = readline.createInterface({
+    input: fs.createReadStream(INPUT),
+    crlfDelay: Infinity
+  });
+  let rows = 0;
+  let invalid = 0;
+  for await (const line of rl) {
+    if (!line.trim()) continue;
+    rows++;
+    const row = JSON.parse(line);
+    const errors = [];
+    if (!row.source_id) errors.push('missing_source_id');
+    if (!row.country_code) errors.push('missing_country_code');
+    if (!row.name_ar && !row.name_en && !row.canonical_name) errors.push('missing_name');
+    if (!Number.isFinite(Number(row.lat)) || !Number.isFinite(Number(row.lng))) errors.push('missing_coordinates');
+    if (errors.length) invalid++;
+  }
+  return { rows, invalid };
+}
+
 async function main() {
-  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
   if (!fs.existsSync(INPUT)) throw new Error('Dataset not found: ' + INPUT);
 
   const checksum = await sha256(INPUT);
+  const inspection = await inspectDataset();
+
+  if (!APPLY) {
+    console.log(JSON.stringify({
+      input: INPUT,
+      source_code: SOURCE_CODE,
+      dataset_version: DATASET_VERSION,
+      checksum_sha256: checksum,
+      rows: inspection.rows,
+      invalid_rows: inspection.invalid,
+      applied: false,
+      status: 'planned_only'
+    }, null, 2));
+    return;
+  }
+
+  if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required when GEO_STAGE_APPLY=1');
   const client = new Client({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.PGSSLMODE === 'disable' ? false : { rejectUnauthorized: false }

@@ -25,6 +25,27 @@ describe('Governed geo ingestion architecture', () => {
     expect(legacy).not.toContain('insert into public.geo_places');
   });
 
+  test('requires explicit write opt-in for staging, reconciliation, ADM1 linking and promotion', () => {
+    const linkAdmin1 = read('scripts/link-local-geonames-admin1.js');
+    const promote = read('scripts/promote-local-geo-run.js');
+    const reconcile = read('scripts/reconcile-local-geo-run.js');
+    const ingest = read('scripts/ingest-local-geo-dataset.js');
+
+    const stage = read('scripts/stage-local-geo-dataset.js');
+    expect(stage).toContain("process.env.GEO_STAGE_APPLY === '1'");
+    expect(stage).toContain("status: 'planned_only'");
+    expect(stage).toContain("DATABASE_URL is required when GEO_STAGE_APPLY=1");
+    expect(reconcile).toContain("process.env.GEO_RECONCILE_APPLY === '1'");
+    expect(reconcile).toContain('Reconciliation requires GEO_RECONCILE_APPLY=1');
+    expect(linkAdmin1).toContain("process.env.GEO_ADMIN1_APPLY === '1'");
+    expect(linkAdmin1).toContain("status: 'planned_only'");
+    expect(linkAdmin1).toContain("blocked_reason: 'unresolved_admin1_rows'");
+    expect(linkAdmin1).toContain("nextval('public.geo_admin_area_source_links_id_seq')");
+    expect(promote).toContain("process.env.GEO_PROMOTE_APPLY === '1'");
+    expect(promote).toContain('Promotion requires GEO_PROMOTE_APPLY=1');
+    expect(ingest).toContain('GEO_ADMIN1_APPLY=1, GEO_STAGE_APPLY=1, GEO_RECONCILE_APPLY=1 and GEO_PROMOTE_APPLY=1');
+  });
+
   test('requires quality gates before promotion', () => {
     const migration = read('supabase/migrations/20261020031000_geo_ingestion_architecture.sql');
     const promote = read('scripts/promote-local-geo-run.js');
@@ -71,8 +92,10 @@ describe('Governed geo ingestion architecture', () => {
     expect(spatialName.decision).toBe('auto_match');
     expect(spatialName.matchType).toBe('name_and_distance');
   });
-  test('rollback never deletes existing canonical places and is provenance-aware', () => {
+  test('rollback requires explicit write opt-in and never deletes existing canonical places', () => {
     const rollback = read('scripts/rollback-local-geo-run.js');
+    expect(rollback).toContain("process.env.GEO_ROLLBACK_APPLY === '1'");
+    expect(rollback).toContain('Rollback requires GEO_ROLLBACK_APPLY=1');
     expect(rollback).toContain("row.action !== 'created_canonical'");
     expect(rollback).toContain('blocked_due_to_later_provenance');
     expect(rollback).toContain('set is_active=false');

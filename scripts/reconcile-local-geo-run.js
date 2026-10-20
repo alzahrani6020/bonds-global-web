@@ -5,9 +5,11 @@ const { Client } = require('pg');
 const { scoreCandidate } = require('../lib/geo/normalization');
 
 const RUN_ID = process.argv[2];
+const APPLY = process.env.GEO_RECONCILE_APPLY === '1';
 
 async function main() {
   if (!RUN_ID) throw new Error('Usage: node scripts/reconcile-local-geo-run.js <run_id>');
+  if (!APPLY) throw new Error('Reconciliation requires GEO_RECONCILE_APPLY=1');
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
 
   const client = new Client({

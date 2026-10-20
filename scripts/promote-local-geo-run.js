@@ -5,10 +5,12 @@ const { Client } = require('pg');
 const { randomUUID } = require('crypto');
 
 const RUN_ID = process.argv[2];
+const APPLY = process.env.GEO_PROMOTE_APPLY === '1';
 
 async function main() {
   if (!RUN_ID) throw new Error('Usage: node scripts/promote-local-geo-run.js <run_id>');
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
+  if (!APPLY) throw new Error('Promotion requires GEO_PROMOTE_APPLY=1');
 
   const client = new Client({
     connectionString: process.env.DATABASE_URL,

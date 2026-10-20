@@ -6,6 +6,10 @@ const path = require('path');
 
 const dataset = process.argv[2] || path.join(__dirname, '..', '.tmp-geo', 'arab-localities.ndjson');
 
+if (process.env.GEO_ADMIN1_APPLY !== '1' || process.env.GEO_STAGE_APPLY !== '1' || process.env.GEO_RECONCILE_APPLY !== '1' || process.env.GEO_PROMOTE_APPLY !== '1') {
+  throw new Error('Full geo ingestion requires GEO_ADMIN1_APPLY=1, GEO_STAGE_APPLY=1, GEO_RECONCILE_APPLY=1 and GEO_PROMOTE_APPLY=1');
+}
+
 function run(script, args = []) {
   const result = spawnSync(process.execPath, [path.join(__dirname, script), ...args], {
     env: process.env,
