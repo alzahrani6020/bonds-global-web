@@ -484,17 +484,11 @@
 
   <script>
     const API_URL = '/api/v3';
-    let token = localStorage.getItem('bondsAdminToken') || '';
+    let token = sessionStorage.getItem('bondsAdminToken') || '';
     let refData = {};
 
-    // Auto-login from URL token
-    const urlParams = new URLSearchParams(window.location.search);
-    const urlToken = urlParams.get('token');
-    if (urlToken) {
-      token = urlToken.trim();
-      localStorage.setItem('bondsAdminToken', token);
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
+    // Never accept admin credentials from the URL. Query-string secrets can
+    // leak through browser history, screenshots, analytics, and referrers.
 
     function getHeaders() {
       return {
@@ -538,7 +532,7 @@
 
     function login() {
       token = document.getElementById('loginToken').value.trim();
-      localStorage.setItem('bondsAdminToken', token);
+      sessionStorage.setItem('bondsAdminToken', token);
       init();
     }
 
