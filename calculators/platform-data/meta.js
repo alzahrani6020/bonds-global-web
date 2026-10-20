@@ -141,7 +141,7 @@
     "currency": "OMR",
     "currencySymbol": "ر.ع",
     "currencySymbolEn": "OMR",
-    "vatRate": 0,
+    "vatRate": 5,
     "marketInsights": {
       "avgOrderValue": 8,
       "peakHours": "12:30–14:00 و 19:30–22:00",
