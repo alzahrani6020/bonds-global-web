@@ -13,6 +13,25 @@ const { Client } = require('pg');
 const RUN_ID = process.argv[2];
 const APPLY = process.env.GEO_ROLLBACK_APPLY === '1';
 
+function stableJson(value) {
+  if (Array.isArray(value)) return '[' + value.map(stableJson).join(',') + ']';
+  if (value && typeof value === 'object') {
+    return '{' + Object.keys(value).sort().map(key =>
+      JSON.stringify(key) + ':' + stableJson(value[key])
+    ).join(',') + '}';
+  }
+  return JSON.stringify(value);
+}
+
+function canonicalStateMatches(current, expected) {
+  if (!current || !expected) return false;
+  const fields = [
+    'name_ar','name_en','population','elevation_m',
+    'lat','lng','confidence','metadata'
+  ];
+  return fields.every(field => stableJson(current[field] ?? null) === stableJson(expected[field] ?? null));
+}
+
 async function main() {
   if (!RUN_ID) throw new Error('Usage: node scripts/rollback-local-geo-run.js <run_id>');
   if (!APPLY) throw new Error('Rollback requires GEO_ROLLBACK_APPLY=1');
@@ -76,8 +95,7 @@ async function main() {
            for update`,
           [row.canonical_place_id]
         );
-        if (!current.rows[0] ||
-            JSON.stringify(current.rows[0]) !== JSON.stringify(promotedState)) {
+        if (!canonicalStateMatches(current.rows[0], promotedState)) {
           blocked++;
           continue;
         }
