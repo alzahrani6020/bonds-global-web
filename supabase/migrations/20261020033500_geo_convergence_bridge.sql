@@ -9,7 +9,7 @@ alter table public.service_requests add column if not exists geo_snapshot jsonb 
 alter table public.bonds_projects add column if not exists geo_place_id uuid;
 alter table public.bonds_projects add column if not exists geo_snapshot jsonb not null default '{}'::jsonb;
 
-do $$
+do $do$
 begin
   if not exists (select 1 from pg_constraint where conname='cities_geo_place_id_fkey') then
     alter table public.cities
@@ -26,7 +26,7 @@ begin
       add constraint bonds_projects_geo_place_id_fkey
       foreign key (geo_place_id) references public.geo_places(id) on delete set null;
   end if;
-end $$;
+end $do$;
 
 drop index if exists public.uq_cities_geo_place_id;
 create index if not exists idx_cities_geo_place_id
@@ -60,7 +60,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path=''
-as $$
+as $func$
 declare
   v_geo_id uuid;
   v_place_type text;
@@ -170,7 +170,7 @@ begin
 
   return null;
 end;
-$$;
+$func$;
 
 revoke all on function private.sync_city_to_geo_place() from public,anon,authenticated;
 grant execute on function private.sync_city_to_geo_place() to service_role;
@@ -209,7 +209,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path=''
-as $
+as $func$
 declare
   v_place public.geo_places%rowtype;
 begin
@@ -268,7 +268,7 @@ begin
 
   return new;
 end;
-$;
+$func$;
 
 revoke all on function private.enforce_service_request_geo() from public,anon,authenticated;
 grant execute on function private.enforce_service_request_geo() to service_role;
@@ -284,7 +284,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path=''
-as $
+as $func$
 declare
   v_city_geo uuid;
   v_place public.geo_places%rowtype;
@@ -330,7 +330,7 @@ begin
 
   return new;
 end;
-$;
+$func$;
 
 revoke all on function private.enforce_project_geo() from public,anon,authenticated;
 grant execute on function private.enforce_project_geo() to service_role;
@@ -347,7 +347,7 @@ returns bigint
 language plpgsql
 security definer
 set search_path to 'public','auth'
-as $
+as $func$
 declare
   v_count bigint := 0;
 begin
@@ -427,7 +427,7 @@ begin
   get diagnostics v_count = row_count;
   return v_count;
 end;
-$;
+$func$;
 
 revoke all on function public.dq_find_geo_integrity() from public,anon,authenticated;
 grant execute on function public.dq_find_geo_integrity() to service_role;
@@ -437,7 +437,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path to 'public','auth'
-as $
+as $func$
 declare
   v_dup bigint;
   v_miss bigint;
@@ -465,6 +465,6 @@ begin
     'geo_integrity',v_geo
   );
 end;
-$;
+$func$;
 
 commit;
