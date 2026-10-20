@@ -466,6 +466,56 @@ where gp.id=c.place_id
   and c.adm1_matches=1
   and gp.admin1_id is null;
 
+-- Third deterministic bridge: some legacy supplemental rows use a parent
+-- city name in cities.region (e.g. ports/free zones). Resolve that parent city
+-- to ADM1 only when all same-country linked matches agree on one ADM1.
+with linked_place_names as (
+  select
+    c.country_code,
+    private.normalize_geo_admin_name(c.name_ar) as norm_ar,
+    lower(nullif(btrim(c.name_en),'')) as norm_en,
+    gp.admin1_id
+  from public.cities c
+  join public.geo_places gp on gp.id=c.geo_place_id
+  where gp.admin1_id is not null
+    and coalesce(c.is_active,true)=true
+),
+candidates as (
+  select
+    target_gp.id as place_id,
+    min(lp.admin1_id::text)::uuid as admin1_id,
+    count(distinct lp.admin1_id) as adm1_matches
+  from public.cities target_c
+  join public.geo_places target_gp on target_gp.id=target_c.geo_place_id
+  join linked_place_names lp
+    on lp.country_code=target_c.country_code
+   and (
+     (
+       private.normalize_geo_admin_name(target_c.region) is not null
+       and lp.norm_ar=private.normalize_geo_admin_name(target_c.region)
+     )
+     or
+     (
+       nullif(btrim(target_c.region),'') is not null
+       and lp.norm_en=lower(btrim(target_c.region))
+     )
+   )
+  where target_gp.admin1_id is null
+    and coalesce(target_c.is_active,true)=true
+  group by target_gp.id
+)
+update public.geo_places gp
+set admin1_id=c.admin1_id,
+    metadata=gp.metadata || jsonb_build_object(
+      'admin1_resolution','unique_parent_place_region',
+      'admin1_resolved_at',now()
+    ),
+    updated_at=now()
+from candidates c
+where gp.id=c.place_id
+  and c.adm1_matches=1
+  and gp.admin1_id is null;
+
 alter table public.data_quality_issues
   drop constraint if exists data_quality_issues_check_type_check;
 alter table public.data_quality_issues
