@@ -733,11 +733,11 @@
       let input;
       if (type === 'select') {
         const options = opts.options || [];
-        input = `<select data-universal-dropdown="true" name="${name}">${options.map(o => `<option value="${o.value}">${o.label}</option>`).join('')}</select>`;
+        input = `<select data-universal-dropdown="true" name="${esc(name)}">${options.map(o => `<option value="${esc(o.value)}">${esc(o.label)}</option>`).join('')}</select>`;
       } else {
-        input = `<input name="${name}" type="${type}" ${opts.required ? 'required' : ''} ${opts.step ? `step="${opts.step}"` : ''} ${opts.value !== undefined ? `value="${opts.value}"` : ''}>`;
+        input = `<input name="${esc(name)}" type="${esc(type)}" ${opts.required ? 'required' : ''} ${opts.step ? `step="${esc(opts.step)}"` : ''} ${opts.value !== undefined ? `value="${esc(opts.value)}"` : ''}>`;
       }
-      return `<div><label>${label}</label>${input}</div>`;
+      return `<div><label>${esc(label)}</label>${input}</div>`;
     }
 
     function renderMasterForm() {
@@ -926,8 +926,8 @@
             <td>${esc(m.source_id)}</td>
             <td>${esc(m.metric_code)}</td>
             <td>${m.is_override ? 'يدوي' : 'تلقائي'}</td>
-            <td>${m.value !== null ? m.value.toLocaleString() : m.value_text || '-'}</td>
-            <td>${m.confidence}%</td>
+            <td>${m.value !== null ? m.value.toLocaleString() : esc(m.value_text || '-')}</td>
+            <td>${esc(m.confidence)}%</td>
             <td>${new Date(m.fetched_at).toLocaleDateString('ar-SA')}</td>
           </tr>
         `).join('');
