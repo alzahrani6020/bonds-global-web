@@ -801,14 +801,66 @@ function mergeMasterAndDatabaseCities(countryCode, databaseRows = []) {
 }
 
 async function loadCatalogCityRows(supabase, countryCode = null) {
-  let query = supabase
+  let legacyQuery = supabase
     .from('cities')
-    .select('id, code, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types')
+    .select('id, code, geo_place_id, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types')
     .limit(2000);
-  if (countryCode) query = query.eq('country_code', countryCode);
-  const { data, error } = await query;
-  if (error) throw error;
-  return data || [];
+  if (countryCode) legacyQuery = legacyQuery.eq('country_code', countryCode);
+
+  let geoQuery = supabase
+    .from('geo_places')
+    .select('id,canonical_code,country_code,admin1_id,admin2_id,name_ar,name_en,place_type,lat,lng,population,confidence')
+    .eq('is_active', true)
+    .eq('is_canonical', true)
+    .limit(4000);
+  if (countryCode) geoQuery = geoQuery.eq('country_code', countryCode);
+
+  const [{ data: legacyRows, error: legacyError }, { data: geoRows, error: geoError }] = await Promise.all([
+    legacyQuery,
+    geoQuery
+  ]);
+  if (legacyError) throw legacyError;
+  if (geoError) throw geoError;
+
+  const linkedGeoIds = new Set((legacyRows || []).map(row => row.geo_place_id).filter(Boolean));
+  const supplemental = (geoRows || []).filter(row => !linkedGeoIds.has(row.id));
+
+  const adminIds = [...new Set(supplemental.flatMap(row => [row.admin1_id, row.admin2_id]).filter(Boolean))];
+  let adminById = new Map();
+  if (adminIds.length) {
+    const { data: adminRows, error: adminError } = await supabase
+      .from('geo_admin_areas')
+      .select('id,name_ar,name_en,admin_level')
+      .in('id', adminIds);
+    if (adminError) throw adminError;
+    adminById = new Map((adminRows || []).map(row => [row.id, row]));
+  }
+
+  const geoCatalogRows = supplemental.map(place => {
+    const admin1 = adminById.get(place.admin1_id) || null;
+    const admin2 = adminById.get(place.admin2_id) || null;
+    return {
+      id: place.id,
+      code: place.canonical_code,
+      geo_place_id: place.id,
+      name_ar: place.name_ar,
+      name_en: place.name_en,
+      region: admin1?.name_ar || admin1?.name_en || null,
+      region_en: admin1?.name_en || admin1?.name_ar || null,
+      admin_level_2: admin2?.name_ar || admin2?.name_en || null,
+      locality_type: place.place_type || 'other',
+      country_code: place.country_code,
+      population: place.population,
+      purchasing_power_index: null,
+      lat: place.lat,
+      lng: place.lng,
+      city_types: [],
+      geo_confidence: place.confidence,
+      catalog_source: 'geo_places'
+    };
+  });
+
+  return [...(legacyRows || []), ...geoCatalogRows];
 }
 
 async function handleCatalogCountries(req, res) {
