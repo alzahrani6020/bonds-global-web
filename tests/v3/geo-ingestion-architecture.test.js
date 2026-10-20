@@ -123,7 +123,9 @@ describe('Governed geo ingestion architecture', () => {
     expect(rollback).toContain('guard?.previous_state');
     expect(rollback).toContain('guard?.promoted_state');
     expect(rollback).toContain('id>$2');
-    expect(rollback).toContain('JSON.stringify(current.rows[0]) !== JSON.stringify(promotedState)');
+    expect(rollback).toContain('canonicalStateMatches(current.rows[0], promotedState)');
+    expect(rollback).toContain('function stableJson(value)');
+    expect(rollback).toContain('Object.keys(value).sort()');
     expect(rollback).toContain('restored_existing_places');
     expect(rollback).toContain('source_link_previous');
     expect(rollback).toContain('inserted_aliases');
