@@ -84,3 +84,83 @@ describe('BondsFiscal Saudi Arabia', () => {
     expect(r.annualZakatAmount).toBe(0);
   });
 });
+
+
+describe('BondsFiscal verified GCC profiles', () => {
+  test('UAE applies 0% up to AED 375,000 and 9% above', () => {
+    const r = Fiscal.calculate({
+      countryCode: 'AE',
+      companyType: 'foreign_100',
+      annualTaxableIncome: 1000000
+    });
+    expect(r.mode).toBe('automatic');
+    expect(r.zeroRateThreshold).toBe(375000);
+    expect(r.taxableIncomeAtZeroRate).toBe(375000);
+    expect(r.taxableIncomeAtStandardRate).toBe(625000);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(56250, 5);
+    expect(r.annualZakatAmount).toBe(0);
+  });
+
+  test('Qatar mixed ownership taxes only the non-Qatari share at 10%', () => {
+    const r = Fiscal.calculate({
+      countryCode: 'QA',
+      companyType: 'mixed',
+      foreignOwnershipPct: 40,
+      annualTaxableIncome: 1000000
+    });
+    expect(r.mode).toBe('automatic');
+    expect(r.localOwnershipPct).toBe(60);
+    expect(r.foreignOwnershipPct).toBe(40);
+    expect(r.taxableForeignShare).toBeCloseTo(400000, 5);
+    expect(r.corporateIncomeTaxRate).toBe(10);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(40000, 5);
+  });
+
+  test('Qatar 100% local ownership is exempt in the simplified ownership model', () => {
+    const r = Fiscal.calculate({
+      countryCode: 'QA',
+      companyType: 'local_100',
+      annualTaxableIncome: 1000000
+    });
+    expect(r.annualIncomeTaxAmount).toBe(0);
+  });
+
+  test('Oman applies 15% standard corporate income tax', () => {
+    const r = Fiscal.calculate({
+      countryCode: 'OM',
+      companyType: 'local_100',
+      annualTaxableIncome: 1000000
+    });
+    expect(r.mode).toBe('automatic');
+    expect(r.corporateIncomeTaxRate).toBe(15);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(150000, 5);
+  });
+
+  test('Oman applies 3% only when small-enterprise eligibility is explicitly selected', () => {
+    const r = Fiscal.calculate({
+      countryCode: 'OM',
+      companyType: 'local_100',
+      annualTaxableIncome: 100000,
+      smallEnterprise: true
+    });
+    expect(r.corporateIncomeTaxRate).toBe(3);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(3000, 5);
+  });
+
+  test('Oman oil or gas exploration profile uses 55%', () => {
+    const r = Fiscal.calculate({
+      countryCode: 'OM',
+      companyType: 'foreign_100',
+      annualTaxableIncome: 1000000,
+      activityType: 'oil_hydrocarbon'
+    });
+    expect(r.corporateIncomeTaxRate).toBe(55);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(550000, 5);
+  });
+
+  test('profiles expose verified VAT metadata where confirmed', () => {
+    expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
+    expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
+    expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
+  });
+});
