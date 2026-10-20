@@ -75,6 +75,22 @@ describe('post-release pipeline contracts', () => {
     expect(httpRouter).not.toContain('serviceToken: req.headers.authorization');
   });
 
+  test('dedicated service token is passed to governed execution without reusing user bearer', () => {
+    const router = fs.readFileSync(path.resolve(__dirname, '../v3/api/capabilities.js'), 'utf8');
+    expect(router).toContain("req.headers['x-bonds-service-token']");
+    expect(router).toContain('serviceToken: serviceToken || options.auth?.serviceToken || null');
+    expect(router).not.toContain('serviceToken: req.headers.authorization');
+  });
+
+  test('token runtime readiness is opt-in, HTTPS only and fails closed when configured', () => {
+    const health = fs.readFileSync(path.resolve(__dirname, '../api/health.js'), 'utf8');
+    expect(health).toContain('BONDS_TOKEN_RUNTIME_HEALTH_URL');
+    expect(health).toContain("target.protocol !== 'https:'");
+    expect(health).toContain("redirect: 'error'");
+    expect(health).toContain("token_runtime: tokenRuntime.status");
+    expect(health).toContain("(!tokenRuntime.required || tokenRuntime.status === 'ok')");
+  });
+
   test('existing forward migrations are immutable after merge', () => {
     const workflow = fs.readFileSync(
       path.resolve(__dirname, '../.github/workflows/apply-migrations.yml'),

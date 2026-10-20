@@ -58,10 +58,20 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
     const action = String(body.action || '').trim();
     if (!action) return sendJson(res, 400, { error: 'action is required' });
 
+    // A user Bearer token is not a service token. Only the dedicated credential
+    // is passed to the existing governed verifier (which fails closed).
+    const serviceTokenHeader = req.headers['x-bonds-service-token'];
+    const serviceToken = typeof serviceTokenHeader === 'string' && serviceTokenHeader.trim()
+      ? serviceTokenHeader.trim()
+      : null;
     const result = await executeCapability(action, body.input || {}, {
+      ...options,
       userId: user.id,
       requestId: req.headers['x-request-id'] || null,
-      ...options
+      auth: {
+        ...(options.auth || {}),
+        serviceToken: serviceToken || options.auth?.serviceToken || null
+      }
     });
     const status = result.ok ? 200 : (result.httpStatus || (result.executed ? 422 : 503));
     return sendJson(res, status, result);
