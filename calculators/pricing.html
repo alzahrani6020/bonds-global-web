@@ -768,9 +768,6 @@
         var meta = BondsPlatforms.getCountryMeta(code);
         if (meta) {
           document.getElementById('vatRate').value = meta.vatRate || 0;
-          var companyTypeEl = document.getElementById('companyType');
-          if (companyTypeEl && code !== 'SA' && companyTypeEl.value === 'saudi_100') companyTypeEl.value = 'local_100';
-          document.getElementById('zakatRate').value = isGcc(code) ? 2.5 : 0;
         }
       }
       onFiscalProfileChange();
@@ -824,6 +821,11 @@
         financialYearDays: inputs.financialYearDays,
         annualTaxableIncome: inputs.annualTaxableIncome,
         annualZakatBase: inputs.annualZakatBase,
+        companyType: inputs.companyType,
+        foreignOwnershipPct: inputs.foreignOwnershipPct,
+        financialYearDays: inputs.financialYearDays,
+        annualTaxableIncome: inputs.annualTaxableIncome,
+        manualCorporateTaxRate: inputs.manualCorporateTaxRate,
         corporateIncomeTaxRate: inputs.manualCorporateTaxRate
       }) : null;
       result.fiscal = fiscal;
@@ -1162,8 +1164,11 @@
       url.searchParams.set('o', inputs.overhead);
       url.searchParams.set('m', inputs.margin);
       url.searchParams.set('t', inputs.vatRate);
+      url.searchParams.set('ct', inputs.companyType);
+      url.searchParams.set('fo', inputs.foreignOwnershipPct);
+      url.searchParams.set('fy', inputs.financialYearDays);
+      url.searchParams.set('ati', inputs.annualTaxableIncome);
       url.searchParams.set('it', inputs.manualCorporateTaxRate);
-      url.searchParams.set('z', r.effectiveZakatRate || 0);
       url.searchParams.set('zb', inputs.annualZakatBase);
       url.searchParams.set('v', inputs.volume);
       url.searchParams.set('p', inputs.platformFeePct);
@@ -1294,9 +1299,15 @@
       if (i.margin !== undefined) document.getElementById('desiredMargin').value = i.margin;
       if (i.vatRate !== undefined) document.getElementById('vatRate').value = i.vatRate;
       else if (i.taxRate !== undefined) document.getElementById('vatRate').value = i.taxRate;
-      if (i.manualCorporateTaxRate !== undefined) document.getElementById('incomeTaxRate').value = i.manualCorporateTaxRate;
-      if (i.effectiveZakatRate !== undefined) document.getElementById('zakatRate').value = i.effectiveZakatRate;
+      if (i.manualCorporateTaxRate !== undefined) document.getElementById('manualCorporateTaxRate').value = i.manualCorporateTaxRate;
+      if (i.financialYearDays !== undefined) document.getElementById('financialYearDays').value = i.financialYearDays;
       if (i.annualZakatBase !== undefined) document.getElementById('annualZakatBase').value = i.annualZakatBase;
+      if (i.companyType !== undefined) document.getElementById('companyType').value = i.companyType;
+      if (i.foreignOwnershipPct !== undefined) document.getElementById('foreignOwnershipPct').value = i.foreignOwnershipPct;
+      if (i.financialYearDays !== undefined) document.getElementById('financialYearDays').value = i.financialYearDays;
+      if (i.annualTaxableIncome !== undefined) document.getElementById('annualTaxableIncome').value = i.annualTaxableIncome;
+      if (i.manualCorporateTaxRate !== undefined) document.getElementById('manualCorporateTaxRate').value = i.manualCorporateTaxRate;
+      onFiscalProfileChange();
       if (i.volume !== undefined) document.getElementById('monthlyVolume').value = i.volume;
       if (i.monthlyFixed !== undefined) document.getElementById('monthlyFixed').value = i.monthlyFixed;
       if (data.mode === 'price' && data.inputs && data.inputs.targetPrice !== undefined) {
@@ -1468,10 +1479,18 @@
       if (m) document.getElementById('desiredMargin').value = m;
       if (t) document.getElementById('vatRate').value = t;
       var it = url.searchParams.get('it');
+      var ct = url.searchParams.get('ct');
+      var fo = url.searchParams.get('fo');
+      var fy = url.searchParams.get('fy');
+      var ati = url.searchParams.get('ati');
       var zb = url.searchParams.get('zb');
-      if (it) document.getElementById('incomeTaxRate').value = it;
-      if (z) document.getElementById('zakatRate').value = z;
+      if (ct) document.getElementById('companyType').value = ct;
+      if (fo) document.getElementById('foreignOwnershipPct').value = fo;
+      if (fy) document.getElementById('financialYearDays').value = fy;
+      if (ati) document.getElementById('annualTaxableIncome').value = ati;
+      if (it) document.getElementById('manualCorporateTaxRate').value = it;
       if (zb) document.getElementById('annualZakatBase').value = zb;
+      onFiscalProfileChange();
       if (v) document.getElementById('monthlyVolume').value = v;
       if (p) document.getElementById('platformFee').value = p;
       if (pg) document.getElementById('paymentGatewayFee').value = pg;
