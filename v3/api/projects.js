@@ -151,7 +151,7 @@ async function getProject(req, res, user, projectId) {
     .from('bonds_projects')
     .select(`
       id, name, project_number, sector, sub_sector, activity,
-      city_id, currency, status, capital, revenue, annual_profit,
+      city_id, geo_place_id, geo_snapshot, currency, status, capital, revenue, annual_profit,
       language, metadata, created_at, updated_at
     `)
     .eq('id', projectId)
