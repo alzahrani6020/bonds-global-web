@@ -26,6 +26,20 @@ describe('GeoNames governed ingestion contract', () => {
     expect(workflow).toContain('GEO_DATABASE_URL');
   });
 
+  test('database connection can fall back to masked Vercel Production env without logging secrets', () => {
+    const workflow = read('.github/workflows/geonames-governed-ingestion.yml');
+
+    expect(workflow).toContain('VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}');
+    expect(workflow).toContain('VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}');
+    expect(workflow).toContain('VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}');
+    expect(workflow).toContain('vercel pull --yes --environment=production');
+    expect(workflow).toContain('SUPABASE_DB_URL');
+    expect(workflow).toContain('::add-mask::');
+    expect(workflow).toContain('DATABASE_URL<<__GEO_DB_URL__');
+    expect(workflow).toContain('rm -rf .vercel');
+    expect(workflow).not.toContain('cat .vercel/.env.production.local');
+  });
+
   test('promotion and rollback remain guarded by explicit apply flags', () => {
     const workflow = read('.github/workflows/geonames-governed-ingestion.yml');
 

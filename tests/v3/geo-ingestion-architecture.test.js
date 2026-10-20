@@ -109,6 +109,26 @@ describe('Governed geo ingestion architecture', () => {
     expect(promote).not.toContain("row.source_code + ':' + row.country_code + ':' + row.admin1_code");
   });
 
+  test('matched-existing promotion is fully guarded for reversible enrichment', () => {
+    const promote = read('scripts/promote-local-geo-run.js');
+    const rollback = read('scripts/rollback-local-geo-run.js');
+
+    expect(promote).toContain('previous_state');
+    expect(promote).toContain('promoted_state');
+    expect(promote).toContain('source_link_previous');
+    expect(promote).toContain('inserted_aliases');
+    expect(promote).toContain('for update');
+
+    expect(rollback).toContain("row.action === 'matched_existing'");
+    expect(rollback).toContain('guard?.previous_state');
+    expect(rollback).toContain('guard?.promoted_state');
+    expect(rollback).toContain('id>$2');
+    expect(rollback).toContain('JSON.stringify(current.rows[0]) !== JSON.stringify(promotedState)');
+    expect(rollback).toContain('restored_existing_places');
+    expect(rollback).toContain('source_link_previous');
+    expect(rollback).toContain('inserted_aliases');
+  });
+
   test('rollback requires explicit write opt-in and never deletes existing canonical places', () => {
     const rollback = read('scripts/rollback-local-geo-run.js');
     expect(rollback).toContain("process.env.GEO_ROLLBACK_APPLY === '1'");
