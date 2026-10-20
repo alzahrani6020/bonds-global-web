@@ -1,0 +1,104 @@
+name: GeoNames hourly source refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: geonames-source-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore previous source fingerprints
+        uses: actions/cache/restore@v4
+        with:
+          path: .tmp-geo/source-fingerprints.txt
+          key: geonames-fingerprints-${{ github.run_id }}
+          restore-keys: |
+            geonames-fingerprints-
+      - name: Check official GeoNames source changes
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .tmp-geo
+          : > .tmp-geo/current-fingerprints.txt
+          for file in allCountries.zip alternateNamesV2.zip admin1CodesASCII.txt; do
+            url="https://download.geonames.org/export/dump/$file"
+            headers=$(curl --fail --silent --show-error --location --head --retry 3 --max-time 90 "$url")
+            etag=$(printf '%s\n' "$headers" | tr -d '\r' | grep -i '^etag:' | tail -1 || true)
+            modified=$(printf '%s\n' "$headers" | tr -d '\r' | grep -i '^last-modified:' | tail -1 || true)
+            size=$(printf '%s\n' "$headers" | tr -d '\r' | grep -i '^content-length:' | tail -1 || true)
+            if [ -z "$etag$modified$size" ]; then
+              echo "Missing reliable source metadata for $file" >&2
+              exit 1
+            fi
+            printf '%s|%s|%s|%s\n' "$file" "$etag" "$modified" "$size" >> .tmp-geo/current-fingerprints.txt
+          done
+          if [ -f .tmp-geo/source-fingerprints.txt ] && cmp -s .tmp-geo/source-fingerprints.txt .tmp-geo/current-fingerprints.txt; then
+            echo 'changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download official dumps
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          for file in allCountries.zip alternateNamesV2.zip admin1CodesASCII.txt; do
+            curl --fail --location --retry 4 --retry-all-errors --connect-timeout 30 --max-time 1800 \
+              --output ".tmp-geo/$file" "https://download.geonames.org/export/dump/$file"
+            test -s ".tmp-geo/$file"
+          done
+          unzip -tq .tmp-geo/allCountries.zip
+          unzip -tq .tmp-geo/alternateNamesV2.zip
+          unzip -p .tmp-geo/allCountries.zip allCountries.txt > .tmp-geo/allCountries.txt
+          unzip -p .tmp-geo/alternateNamesV2.zip alternateNamesV2.txt > .tmp-geo/alternateNames.txt
+          test -s .tmp-geo/allCountries.txt
+          test -s .tmp-geo/alternateNames.txt
+          test -s .tmp-geo/admin1CodesASCII.txt
+      - uses: actions/setup-node@v4
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Build Arab localities without database writes
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          npm ci
+          npm run geo:build-local
+          test -s .tmp-geo/arab-localities.ndjson
+          test -s .tmp-geo/arab-localities-manifest.json
+          node -e "const fs=require('fs');const lines=fs.readFileSync('.tmp-geo/admin1CodesASCII.txt','utf8').trim().split(/\r?\n/);if(!lines.some(x=>x.startsWith('SA.'))||!lines.some(x=>x.startsWith('EG.')))process.exit(1);console.log('ADM1 lines:',lines.length)"
+      - name: Upload manifest for review
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: geonames-manifest-${{ github.run_id }}
+          path: |
+            .tmp-geo/arab-localities-manifest.json
+            .tmp-geo/current-fingerprints.txt
+          retention-days: 30
+      - name: Save verified source fingerprints
+        if: steps.changes.outputs.changed == 'true'
+        shell: bash
+        run: cp .tmp-geo/current-fingerprints.txt .tmp-geo/source-fingerprints.txt
+      - uses: actions/cache/save@v4
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          path: .tmp-geo/source-fingerprints.txt
+          key: geonames-fingerprints-${{ github.run_id }}
+
+# This workflow deliberately does not access DATABASE_URL, stage, link ADM1,
+# reconcile or promote. Production ingestion requires a separate gated workflow.
