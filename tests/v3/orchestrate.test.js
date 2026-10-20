@@ -108,6 +108,7 @@ describe('/api/v3/orchestrate', () => {
     expect(res._json.confidence).toBeDefined();
     expect(res._json.explanation).toBeDefined();
     expect(res._json.ucp).toBeDefined();
+    expect(res._json.form.userTier).toBe('free');
   });
 
   test('OPTIONS request returns 204', async () => {
