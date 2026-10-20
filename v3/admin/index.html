@@ -504,9 +504,10 @@
     }
 
     function getHeaders() {
-      return bearerToken
-        ? { 'Content-Type': 'application/json', Authorization: 'Bearer ' + bearerToken }
-        : { 'Content-Type': 'application/json', 'x-admin-token': token };
+      const headers = { 'Content-Type': 'application/json' };
+      if (bearerToken) headers.Authorization = 'Bearer ' + bearerToken;
+      if (token) headers['x-admin-token'] = token;
+      return headers;
     }
 
     const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
