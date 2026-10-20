@@ -1908,8 +1908,7 @@ function syncField(basicId, expertId, direction) {
       const headers = [isAr ? 'تكرار' : 'Iteration', ...varNames, 'NPV', 'IRR', 'ROI'];
       const escape = (val) => {
         const s = String(val).replace(/"/g, '""');
-        return /[",
-]/.test(s) ? '"' + s + '"' : s;
+        return /[",\n\r]/.test(s) ? '"' + s + '"' : s;
       };
 
       const rows = mc.samples.map(s => [
@@ -1920,10 +1919,8 @@ function syncField(basicId, expertId, direction) {
         s.roi
       ]);
 
-      const csv = '﻿' + headers.map(escape).join(',') + '
-' +
-        rows.map(r => r.map(escape).join(',')).join('
-');
+      const csv = '﻿' + headers.map(escape).join(',') + '\n' +
+        rows.map(r => r.map(escape).join(',')).join('\n');
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
