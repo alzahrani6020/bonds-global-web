@@ -4,6 +4,8 @@
  * Returns editable market/regulatory/competitor data for the water factory calculator.
  */
 
+const { requireAdminAccess } = require('../lib/admin-access');
+
 function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -47,9 +49,11 @@ async function waterFactoryDataRouter(req, res, path, supabase) {
 
     if (req.method === 'POST' && path === '/water-factory-data') {
       // Admin/service-role updates only — protected by x-admin-token or auth
-      const adminToken = req.headers['x-admin-token'] || '';
-      const expectedToken = process.env.ADMIN_API_TOKEN || '';
-      if (!expectedToken || adminToken !== expectedToken) {
+      const admin = await requireAdminAccess(req, {
+        staticTokenEnv: 'ADMIN_API_TOKEN',
+        legacyFlagEnv: 'V3_ADMIN_ALLOW_ADMIN_API_TOKEN'
+      });
+      if (!admin) {
         return sendJson(res, 401, { error: 'Unauthorized' });
       }
 

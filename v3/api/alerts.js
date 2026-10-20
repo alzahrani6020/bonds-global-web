@@ -6,6 +6,7 @@
  */
 
 const { getSupabaseClient } = require('../lib/supabase');
+const { requireAdminAccess, constantTimeEqual } = require('../lib/admin-access');
 const AlertEngine = require('../engine/AlertEngine');
 
 function sendJson(res, status, data) {
@@ -28,25 +29,19 @@ function parseBody(req) {
   });
 }
 
-function requireAdmin(req) {
-  const token = req.headers['x-admin-token'];
-  const expected = process.env.ADMIN_TOKEN;
-  if (!expected) return { error: 'ADMIN_TOKEN not configured' };
-  if (!token || token !== expected) return { error: 'Unauthorized' };
-  return null;
+async function requireAdmin(req) {
+  return (await requireAdminAccess(req)) ? null : { error: 'Unauthorized' };
 }
 
-function requireCronOrAdmin(req) {
-  const authHeader = req.headers.authorization || '';
+async function requireCronOrAdmin(req) {
+  const authHeader = String(req.headers.authorization || '');
   const cronSecret = process.env.CRON_SECRET;
-  const adminToken = req.headers['x-admin-token'];
-  const expectedAdmin = process.env.ADMIN_TOKEN;
 
-  if (cronSecret && authHeader === `Bearer ${cronSecret}`) return null;
-  if (expectedAdmin && adminToken && adminToken === expectedAdmin) return null;
+  if (cronSecret && constantTimeEqual(authHeader, `Bearer ${cronSecret}`)) {
+    return null;
+  }
 
-  if (!cronSecret && !expectedAdmin) return { error: 'No cron or admin auth configured' };
-  return { error: 'Unauthorized' };
+  return (await requireAdminAccess(req)) ? null : { error: 'Unauthorized' };
 }
 
 // ===== Alert Rules =====
@@ -186,30 +181,30 @@ async function handleMarkRead(req, res, id) {
 async function alertsRouter(req, res, path) {
   // Admin routes
   if (path === '/admin/alert-rules' && req.method === 'GET') {
-    const authError = requireAdmin(req);
+    const authError = await requireAdmin(req);
     if (authError) return sendJson(res, 401, authError);
     return handleListRules(req, res);
   }
   if (path === '/admin/alert-rules' && req.method === 'POST') {
-    const authError = requireAdmin(req);
+    const authError = await requireAdmin(req);
     if (authError) return sendJson(res, 401, authError);
     return handleCreateRule(req, res);
   }
 
   const ruleUpdateMatch = path.match(/^\/admin\/alert-rules\/([^\/]+)$/);
   if (ruleUpdateMatch && (req.method === 'PUT' || req.method === 'PATCH')) {
-    const authError = requireAdmin(req);
+    const authError = await requireAdmin(req);
     if (authError) return sendJson(res, 401, authError);
     return handleUpdateRule(req, res, ruleUpdateMatch[1]);
   }
   if (ruleUpdateMatch && req.method === 'DELETE') {
-    const authError = requireAdmin(req);
+    const authError = await requireAdmin(req);
     if (authError) return sendJson(res, 401, authError);
     return handleDeleteRule(req, res, ruleUpdateMatch[1]);
   }
 
   if (path === '/admin/alerts/evaluate' && req.method === 'POST') {
-    const authError = requireCronOrAdmin(req);
+    const authError = await requireCronOrAdmin(req);
     if (authError) return sendJson(res, 401, authError);
     return handleEvaluate(req, res);
   }
@@ -221,7 +216,7 @@ async function alertsRouter(req, res, path) {
 
   const alertReadMatch = path.match(/^\/alerts\/([^\/]+)\/read$/);
   if (alertReadMatch) {
-    const authError = requireAdmin(req);
+    const authError = await requireAdmin(req);
     if (authError) return sendJson(res, 401, authError);
     return handleMarkRead(req, res, alertReadMatch[1]);
   }

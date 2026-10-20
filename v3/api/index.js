@@ -10,6 +10,7 @@ const { projectsRouter } = require('./projects');
 const { billingRouter } = require('./billing');
 const { dataEngineRouter } = require('./data-engine');
 const { getUserFromToken } = require('../lib/auth');
+const { requireAdminAccess, constantTimeEqual } = require('../lib/admin-access');
 const { checkRateLimit } = require('../../lib/api/rate-limit');
 const { assessOpportunityRow } = require('../../lib/truth/opportunity-reliability');
 const { deriveEvidenceAges } = require('../../lib/truth/evidence-record');
@@ -93,6 +94,48 @@ function getCategory(path) {
   if (path === '/ai/chat') return 'ai';
   if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence') || path.startsWith('/capabilities') || path.startsWith('/enterprise-lifecycle') || path.startsWith('/ecc') || path === '/water-factory-data' || path === '/sector-data') return 'compute';
   return 'public';
+}
+
+async function resolveRequestTier(req) {
+  let user = null;
+  try {
+    user = await getUserFromToken(req);
+  } catch (_error) {
+    return { user: null, userTier: 'free' };
+  }
+
+  if (!user) return { user: null, userTier: 'free' };
+
+  try {
+    const supabase = getSupabaseClient();
+    const [{ data: profile }, { data: adminRole }] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('tier,status')
+        .eq('id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('admin_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle()
+    ]);
+
+    if (adminRole && ['super_admin', 'admin'].includes(adminRole.role)) {
+      return { user, userTier: 'enterprise' };
+    }
+
+    const tier = String(profile?.tier || 'free').toLowerCase();
+    const status = String(profile?.status || '').toLowerCase();
+    const entitled = status === 'active' || status === 'trialing';
+
+    return {
+      user,
+      userTier: entitled && ['pro', 'enterprise'].includes(tier) ? tier : 'free'
+    };
+  } catch (_error) {
+    return { user, userTier: 'free' };
+  }
 }
 
 function sendJson(res, status, data) {
@@ -2244,11 +2287,19 @@ async function handleWave4Intent(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
   try {
     const body = await parseBody(req);
+    const entitlement = await resolveRequestTier(req);
+    body.userTier = entitlement.userTier;
+    body.userId = entitlement.user?.id || null;
+    body.requestId = req.headers['x-request-id'] || body.requestId || null;
     const { result, trace } = await buildIntentForm(body);
     sendJson(res, 200, { ...result, trace });
   } catch (err) {
     console.error('[wave4/intent]', err.message);
-    sendJson(res, 400, { error: err.message });
+    sendJson(res, err.status || 400, {
+      error: err.message,
+      code: err.code || undefined,
+      requiredTier: err.requiredTier || undefined
+    });
   }
 }
 
@@ -2256,11 +2307,19 @@ async function handleWave4Run(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
   try {
     const body = await parseBody(req);
+    const entitlement = await resolveRequestTier(req);
+    body.userTier = entitlement.userTier;
+    body.userId = entitlement.user?.id || null;
+    body.requestId = req.headers['x-request-id'] || body.requestId || null;
     const { result, trace } = await orchestratorRun(body);
     sendJson(res, 200, { ...result, trace });
   } catch (err) {
     console.error('[wave4/run]', err.message);
-    sendJson(res, 400, { error: err.message });
+    sendJson(res, err.status || 400, {
+      error: err.message,
+      code: err.code || undefined,
+      requiredTier: err.requiredTier || undefined
+    });
   }
 }
 
@@ -2323,24 +2382,20 @@ async function handleCalculate(req, res) {
   }
 }
 
-function requireCronOrAdmin(req) {
-  const authHeader = req.headers.authorization || '';
+async function requireCronOrAdmin(req) {
+  const authHeader = String(req.headers.authorization || '');
   const cronSecret = process.env.CRON_SECRET;
-  const adminToken = req.headers['x-admin-token'];
-  const expectedAdmin = process.env.ADMIN_TOKEN;
 
-  if (cronSecret && authHeader === `Bearer ${cronSecret}`) return null;
-  if (expectedAdmin && adminToken && adminToken === expectedAdmin) return null;
-
-  if (!cronSecret && !expectedAdmin) {
-    return { error: 'No cron or admin auth configured' };
+  if (cronSecret && constantTimeEqual(authHeader, `Bearer ${cronSecret}`)) {
+    return null;
   }
-  return { error: 'Unauthorized' };
+
+  return (await requireAdminAccess(req)) ? null : { error: 'Unauthorized' };
 }
 
 async function handleCronCalibrate(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
-  const authError = requireCronOrAdmin(req);
+  const authError = await requireCronOrAdmin(req);
   if (authError) return sendJson(res, 401, authError);
 
   const body = await parseBody(req);
@@ -2363,7 +2418,7 @@ async function handleCronCalibrate(req, res) {
 
 async function handleCronCheckQuality(req, res) {
   if (req.method !== 'POST' && req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
-  const authError = requireCronOrAdmin(req);
+  const authError = await requireCronOrAdmin(req);
   if (authError) return sendJson(res, 401, authError);
 
   const url = getQuery(req);
