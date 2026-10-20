@@ -79,4 +79,16 @@ describe('Geo convergence critical gaps', () => {
     expect(migration).toContain("new.geo_snapshot := jsonb_strip_nulls");
   });
 
+  test('existing data quality center detects geo integrity failures', () => {
+    const migration = read('supabase/migrations/20261020033500_geo_convergence_bridge.sql');
+    const app = read('admin/data-quality-center/app.js');
+    expect(migration).toContain('public.dq_find_geo_integrity');
+    expect(migration).toContain("'geo_integrity','city'");
+    expect(migration).toContain("'geo_integrity','service_request'");
+    expect(migration).toContain("'geo_integrity','geo_ingest_run'");
+    expect(migration).toContain("'geo_integrity',v_geo");
+    expect(app).toContain("geo_integrity: 'سلامة الجغرافيا'");
+    expect(app).toContain('value="geo_integrity"');
+  });
+
 });
