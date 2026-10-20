@@ -79,11 +79,20 @@ function Assert-AbsentRuntime {
 }
 
 function Read-ServiceEnvironment {
-    $values = @(Get-ItemPropertyValue -LiteralPath $serviceRegistry -Name "Environment" -ErrorAction Stop)
+    # Get-ItemPropertyValue emits REG_MULTI_SZ as one pipeline object. Wrapping
+    # that command in @() nests the array and can join all entries into one value.
+    $key = Get-Item -LiteralPath $serviceRegistry -ErrorAction Stop
+    try {
+        Assert-Acceptance ($key.GetValueKind("Environment") -eq
+            [Microsoft.Win32.RegistryValueKind]::MultiString) "SERVICE_ENVIRONMENT_NOT_MULTISTRING"
+        $values = $key.GetValue("Environment", $null,
+            [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+        Assert-Acceptance ($values -is [string[]] -and $values.Count -gt 0) "SERVICE_ENVIRONMENT_INVALID"
+    } finally { $key.Dispose() }
     $map = @{}
     foreach ($entry in $values) {
         $parts = ([string]$entry) -split "=", 2
-        Assert-Acceptance ($parts.Count -eq 2) "MALFORMED_SERVICE_ENVIRONMENT"
+        Assert-Acceptance ($parts.Count -eq 2 -and -not [string]::IsNullOrWhiteSpace($parts[0])) "MALFORMED_SERVICE_ENVIRONMENT"
         Assert-Acceptance (-not $map.ContainsKey($parts[0])) "DUPLICATE_SERVICE_ENVIRONMENT"
         $map[$parts[0]] = $parts[1]
     }
@@ -112,11 +121,11 @@ function Assert-OwnedService {
     $configuration = Read-ServiceEnvironment
     foreach ($name in @("BONDS_TOKEN_DB", "BONDS_TOKEN_ADMIN_SECRET_FILE", "BONDS_TOKEN_CHANNEL_SECRET_FILE",
         "BONDS_TOKEN_RUNTIME_ROOT", "BONDS_TOKEN_STATE_DIR", "BONDS_TOKEN_PYTHON_EXE", "BONDS_TOKEN_PORT")) {
-        Assert-Acceptance ($configuration[$name] -ceq $expectedServiceEnvironment[$name]) "SERVICE_OWNERSHIP_MISMATCH"
+        Assert-Acceptance ($configuration[$name] -ceq $expectedServiceEnvironment[$name]) ("SERVICE_OWNERSHIP_MISMATCH_" + $name)
     }
     $registration = Get-ServiceRegistration
     Assert-Acceptance ($registration.python_class -ceq
-        ([IO.Path]::ChangeExtension($serviceHost, $null) + ".BondsTokenRuntimeService")) "SERVICE_CLASS_MISMATCH"
+        ([IO.Path]::ChangeExtension($serviceHost, [System.Management.Automation.Language.NullString]::Value) + ".BondsTokenRuntimeService")) "SERVICE_CLASS_MISMATCH"
 }
 
 function Wait-ServiceState([string]$State) {
@@ -703,12 +712,18 @@ try {
     try {
         if ($machineConfigured) {
             foreach ($name in $originalMachineEnvironment.Keys) {
-                [Environment]::SetEnvironmentVariable($name, $originalMachineEnvironment[$name], "Machine")
+                if ($null -eq $originalMachineEnvironment[$name]) {
+                    # PowerShell converts an ordinary $null string argument to
+                    # empty; .NET 9+ preserves empty environment variables.
+                    [Environment]::SetEnvironmentVariable($name, [System.Management.Automation.Language.NullString]::Value, "Machine")
+                } else {
+                    [Environment]::SetEnvironmentVariable($name, $originalMachineEnvironment[$name], "Machine")
+                }
             }
         }
         foreach ($name in $originalMachineEnvironment.Keys) {
             Assert-Acceptance ([Environment]::GetEnvironmentVariable($name, "Machine") -ceq
-                $originalMachineEnvironment[$name]) "MACHINE_ENVIRONMENT_NOT_RESTORED"
+                $originalMachineEnvironment[$name]) ("MACHINE_ENVIRONMENT_NOT_RESTORED_" + $name)
         }
         $script:report.cleanup.machine_environment_restored = $true
     } catch { $cleanupFailures.Add((Get-SafeFailure $_)) }

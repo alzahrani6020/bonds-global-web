@@ -84,7 +84,15 @@ function Read-EnvironmentMap([string[]]$Values) {
     $result = @{}
     foreach ($value in $Values) {
         $parts = $value -split '=', 2
-        if ($parts.Count -eq 2) { $result[$parts[0]] = $parts[1] }
+        if ($parts.Count -ne 2 -or [string]::IsNullOrWhiteSpace($parts[0]) -or
+            $parts[0] -cne $parts[0].Trim() -or $parts[0] -match '[\x00-\x1f\x7f]' -or
+            $value.IndexOf([char]0) -ge 0) {
+            throw "The previous service environment contains a malformed entry; reversible cutover is unavailable."
+        }
+        if ($result.ContainsKey($parts[0])) {
+            throw "The previous service environment contains a duplicate name; refusing ambiguous launch configuration."
+        }
+        $result[$parts[0]] = $parts[1]
     }
     return $result
 }
@@ -375,7 +383,16 @@ runpy.run_module('bonds_security.server', run_name='__main__')
     } finally { Pop-Location }
 } finally {
     foreach ($name in $priorProcessEnvironment.Keys) {
-        [Environment]::SetEnvironmentVariable($name, $priorProcessEnvironment[$name], "Process")
+        if ($null -eq $priorProcessEnvironment[$name]) {
+            # PowerShell converts ordinary $null to an empty .NET string here.
+            # Preserve absence instead of leaving a newly empty environment entry.
+            [Environment]::SetEnvironmentVariable($name, [System.Management.Automation.Language.NullString]::Value, "Process")
+        } else {
+            [Environment]::SetEnvironmentVariable($name, $priorProcessEnvironment[$name], "Process")
+        }
+        if ([Environment]::GetEnvironmentVariable($name, "Process") -cne $priorProcessEnvironment[$name]) {
+            throw "Runtime preflight could not restore a process environment entry to its previous value or absence."
+        }
     }
 }
 
@@ -403,7 +420,7 @@ if ($existing) {
     $previousImagePath = [string](Get-ItemPropertyValue -Path $serviceRegistryPath -Name "ImagePath" -ErrorAction Stop)
     Assert-NoCacheLaunchOptions $previousImagePath
     $previousPythonClass = [string](Get-Item -LiteralPath "$serviceRegistryPath\PythonClass" -ErrorAction Stop).GetValue("")
-    $expectedPythonClass = [IO.Path]::ChangeExtension($serviceHost, $null) + ".BondsTokenRuntimeService"
+    $expectedPythonClass = [IO.Path]::ChangeExtension($serviceHost, [System.Management.Automation.Language.NullString]::Value) + ".BondsTokenRuntimeService"
     if ([string]::IsNullOrWhiteSpace($previousImagePath) -or $previousPythonClass -ne $expectedPythonClass) {
         throw "The existing service registration does not identify this runtime wrapper; refusing to rewrite its launch configuration."
     }
@@ -413,7 +430,21 @@ if ($existing) {
         throw "The current startup baseline cannot be restored before monitored startup. Disabled or inconsistent startup modes require a separate approved host procedure."
     }
     $activationStartup = $previousStartup
-    $previousEnvironment = @(Get-ItemPropertyValue -Path $serviceRegistryPath -Name "Environment" -ErrorAction Stop)
+    $environmentKey = Get-Item -LiteralPath $serviceRegistryPath -ErrorAction Stop
+    try {
+        if ($environmentKey.GetValueKind("Environment") -ne [Microsoft.Win32.RegistryValueKind]::MultiString) {
+            throw "The previous service environment is not REG_MULTI_SZ; its launch configuration is unproved."
+        }
+        # Get-ItemPropertyValue emits REG_MULTI_SZ as one pipeline object; @()
+        # would nest that string[] and join its entries when converted to string.
+        $storedEnvironment = $environmentKey.GetValue("Environment", $null, [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames)
+        if ($storedEnvironment -isnot [string[]]) {
+            throw "The previous service environment did not return a native string array; refusing cutover."
+        }
+        $previousEnvironment = [string[]]$storedEnvironment
+    } finally {
+        $environmentKey.Dispose()
+    }
     $previousConfig = Read-EnvironmentMap $previousEnvironment
     Assert-CacheConfiguration $previousConfig
     foreach ($name in @("BONDS_TOKEN_DB", "BONDS_TOKEN_ADMIN_SECRET_FILE", "BONDS_TOKEN_BUILD_COMMIT", "BONDS_TOKEN_RUNTIME_ROOT", "BONDS_TOKEN_STATE_DIR", "BONDS_TOKEN_PYTHON_EXE", "BONDS_TOKEN_PORT")) {
