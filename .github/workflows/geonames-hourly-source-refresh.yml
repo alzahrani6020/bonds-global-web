@@ -98,6 +98,7 @@ jobs:
           path: |
             .tmp-geo/arab-localities-manifest.json
             .tmp-geo/current-fingerprints.txt
+            .tmp-geo/admin1CodesASCII.txt
           retention-days: 30
       - name: Save verified source fingerprints
         if: steps.changes.outputs.changed == 'true'
