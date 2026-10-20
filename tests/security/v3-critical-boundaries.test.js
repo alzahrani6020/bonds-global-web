@@ -81,10 +81,12 @@ describe('V3 critical control-plane boundaries', () => {
 
   test('token service cutover refuses unknown listeners and restores known runtime', () => {
     const source = read('services/bonds_token_runtime/windows/install-token-service.ps1');
-    expect(source).toContain('Refusing to stop PID');
+    expect(source).toContain('Port 8771 is not exclusively owned by the managed loopback service.');
     expect(source).toContain('bonds_security\\.server');
-    expect(source).toContain('runtime-rollback-snapshot');
-    expect(source).toContain('No previous runtime snapshot is available for safe rollback.');
-    expect(source).toContain('Start-Process -FilePath $pythonExe');
+    expect(source).toContain('runtime-rollback-');
+    expect(source).toContain('Previous source is incomplete; rollback is unavailable.');
+    expect(source).toContain('Set-ServiceEnvironment $previousEnvironment');
+    expect(source).toContain('Keep the same database, including revocations committed after backup.');
+    expect(source).not.toContain('Stop-Process');
   });
 });

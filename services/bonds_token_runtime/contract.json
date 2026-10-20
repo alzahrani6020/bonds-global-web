@@ -1,5 +1,7 @@
 {
   "issuer": "bonds-token-service",
+  "contractVersion": 1,
+  "schemaVersion": 2,
   "serviceTokenTtlSeconds": 3600,
   "requiredClaims": [
     "iss",
@@ -18,7 +20,8 @@
     "jti",
     "scope",
     "active",
-    "revoked"
+    "revoked",
+    "token_type"
   ],
   "invariants": {
     "serviceTokenLifetimeSeconds": 3600,

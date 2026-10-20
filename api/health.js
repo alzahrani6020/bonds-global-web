@@ -7,6 +7,15 @@
  */
 const getSupabase = require('../lib/api/supabase');
 const { getInferenceRouter } = require('../lib/ai/inference-router');
+const tokenContract = require('../services/bonds_token_runtime/contract.json');
+const { probeUserGovernanceReadiness } = require('../lib/capabilities/user-governance-context');
+const {
+  resolveTokenRuntimeChannel,
+  resolveRuntimeIdentityExpectation,
+  matchesRuntimeIdentity,
+  requestTokenRuntime,
+  readIntrospectionClaims
+} = require('../lib/security/service-token-verifier');
 
 function readParam(req, name) {
   if (req && req.query && req.query[name] != null) return String(req.query[name]);
@@ -70,33 +79,67 @@ async function probeNativeHealth(attempts = 3) {
   };
 }
 
-async function probeTokenRuntime() {
-  const configured = String(process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL || '').trim();
-  if (!configured) return { status: 'not_configured', required: false };
-  let target;
-  try {
-    target = new URL(configured);
-    if (target.protocol !== 'https:' || target.username || target.password ||
-        target.search || target.hash || target.pathname !== '/health') {
-      return { status: 'invalid_configuration', required: true };
-    }
-  } catch (_) {
-    return { status: 'invalid_configuration', required: true };
+async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
+  const healthChannel = resolveTokenRuntimeChannel({
+    url: String(process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL || '').trim(),
+    path: '/health'
+  });
+  const introspectionChannel = resolveTokenRuntimeChannel();
+  const configurationFailure = [healthChannel, introspectionChannel].find(channel => !channel.ok);
+  if (configurationFailure) {
+    return {
+      status: configurationFailure.code.endsWith('UNCONFIGURED') ? 'not_configured' : 'invalid_configuration',
+      required: true,
+      code: configurationFailure.code
+    };
   }
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 2000);
-  try {
-    const response = await fetch(target.toString(), {
-      method: 'GET', signal: controller.signal, redirect: 'error'
-    });
-    if (!response.ok) return { status: 'error', required: true };
-    const payload = await response.json();
-    return { status: payload && payload.status === 'ok' ? 'ok' : 'error', required: true };
-  } catch (_) {
-    return { status: 'unreachable', required: true };
-  } finally {
-    clearTimeout(timer);
+
+  const identity = resolveRuntimeIdentityExpectation();
+  if (!identity.ok) {
+    return { status: identity.code.endsWith('UNCONFIGURED') ? 'not_configured' : 'invalid_configuration', required: true, code: identity.code };
   }
+  const expectedBuild = identity.buildCommit;
+  if (healthChannel.origin !== introspectionChannel.origin) {
+    return { status: 'invalid_configuration', required: true, code: 'TOKEN_RUNTIME_INVALID_CONFIGURATION' };
+  }
+
+  const health = await requestTokenRuntime({ channel: healthChannel, method: 'GET', fetchImpl });
+  if (!health.ok) {
+    return { status: 'unreachable', required: true, code: health.code };
+  }
+  const payload = health.payload;
+  if (!matchesRuntimeIdentity(payload, expectedBuild)) {
+    return { status: 'contract_mismatch', required: true, code: 'TOKEN_RUNTIME_CONTRACT_MISMATCH' };
+  }
+
+  // A read-only, unissued token verifies the introspection contract. The second
+  // request proves the same endpoint rejects a caller without channel auth.
+  const body = { token: 'bonds_readiness_probe_never_issued' };
+  const [authorized, unauthenticated] = await Promise.all([
+    requestTokenRuntime({ channel: introspectionChannel, body, fetchImpl }),
+    requestTokenRuntime({
+      channel: { ...introspectionChannel, headers: { accept: 'application/json' } },
+      body,
+      fetchImpl
+    })
+  ]);
+  if (!authorized.ok) return { status: 'unreachable', required: true, code: authorized.code };
+  const claims = readIntrospectionClaims(authorized.payload);
+  if (!matchesRuntimeIdentity(authorized.payload.runtime, expectedBuild) || !claims || claims.active !== false) {
+    return { status: 'contract_mismatch', required: true, code: 'TOKEN_RUNTIME_INTROSPECTION_CONTRACT_MISMATCH' };
+  }
+  if (unauthenticated.code !== 'TOKEN_CHANNEL_REJECTED') {
+    return {
+      status: 'channel_unverified', required: true,
+      code: unauthenticated.ok ? 'TOKEN_CHANNEL_AUTH_NOT_ENFORCED' : 'TOKEN_CHANNEL_PROTECTION_UNVERIFIED'
+    };
+  }
+
+  return {
+    status: 'ok', required: true, code: null,
+    build_commit: expectedBuild, contract_version: tokenContract.contractVersion,
+    schema_version: tokenContract.schemaVersion, channel_auth: 'verified'
+  };
 }
 
 async function probeOpenAI(timeoutMs = 5000) {
@@ -133,6 +176,7 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
@@ -161,11 +205,15 @@ module.exports = async function handler(req, res) {
   const coreHealthy = supabaseStatus === 'ok';
 
   if (strict) {
-    let nativeStatus = 'skipped';
+    const nativeModeConfigured = ['LOCAL_NATIVE', 'REMOTE_BONDS_NATIVE'].includes(nativeMode);
+    let nativeStatus = nativeMode ? 'invalid_configuration' : 'not_configured';
     let nativeProvider = null;
-    let nativeDiagnostic = null;
+    let nativeDiagnostic = nativeModeConfigured ? null : {
+      code: nativeMode ? 'NATIVE_MODE_INVALID' : 'NATIVE_MODE_UNCONFIGURED',
+      executed: false, attempts: 0, retry_recovered: false
+    };
 
-    if (nativeMode === 'REMOTE_BONDS_NATIVE') {
+    if (nativeModeConfigured) {
       const nativeProbe = await probeNativeHealth();
       const nativeHealth = nativeProbe.health || {};
       const nativeError = nativeHealth.error || nativeProbe.error || {};
@@ -187,8 +235,8 @@ module.exports = async function handler(req, res) {
     }
 
     const providerMode = aiProviderMode();
-    const nativeRequired = nativeMode === 'REMOTE_BONDS_NATIVE' && providerMode === 'native-only';
-    const nativeReady = nativeMode !== 'REMOTE_BONDS_NATIVE' || nativeStatus === 'ok';
+    const nativeRequired = providerMode === 'native-only';
+    const nativeReady = nativeModeConfigured && nativeStatus === 'ok';
 
     let fallbackStatus = 'skipped';
     let fallbackReason = null;
@@ -196,7 +244,7 @@ module.exports = async function handler(req, res) {
     const fallbackEligible =
       providerMode !== 'native-only' &&
       openAiFallbackAllowed() &&
-      nativeMode === 'REMOTE_BONDS_NATIVE' &&
+      nativeModeConfigured &&
       nativeStatus !== 'ok';
 
     if (fallbackEligible) {
@@ -207,9 +255,11 @@ module.exports = async function handler(req, res) {
     }
 
     const fallbackReady = fallbackStatus === 'ok';
-    const inferenceReady = nativeRequired ? nativeReady : (nativeReady || fallbackReady);
-    const tokenRuntime = await probeTokenRuntime();
-    const ready = coreHealthy && inferenceReady && (!tokenRuntime.required || tokenRuntime.status === 'ok');
+    const inferenceReady = nativeModeConfigured && (nativeRequired ? nativeReady : (nativeReady || fallbackReady));
+    const [tokenRuntime, userGovernance] = await Promise.all([
+      probeTokenRuntime(), probeUserGovernanceReadiness()
+    ]);
+    const ready = coreHealthy && inferenceReady && tokenRuntime.status === 'ok' && userGovernance.status === 'ok';
     const activeProvider = nativeReady
       ? (nativeProvider || 'BondsNativeProvider')
       : (fallbackReady ? 'openai_fallback' : null);
@@ -225,8 +275,11 @@ module.exports = async function handler(req, res) {
         native: nativeStatus,
         fallback: fallbackStatus,
         token_runtime: tokenRuntime.status,
+        user_governance: userGovernance.status,
         responseMs: Date.now() - started,
       },
+      token_runtime: tokenRuntime,
+      user_governance: userGovernance,
       inference: {
         mode: nativeMode,
         provider: activeProvider,
@@ -265,3 +318,6 @@ module.exports = async function handler(req, res) {
     },
   });
 };
+
+// Reused by the isolated acceptance harness without substituting runtime calls.
+module.exports.probeTokenRuntime = probeTokenRuntime;

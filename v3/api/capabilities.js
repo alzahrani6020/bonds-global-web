@@ -1,8 +1,9 @@
 'use strict';
 
-const { listCapabilities } = require('../../lib/capabilities/bonds-capability-registry');
+const { listCapabilities, validateCapabilityInput, getService } = require('../../lib/capabilities/bonds-capability-registry');
 const { executeCapability } = require('../../lib/capabilities/governed-executor');
 const { planCapabilities } = require('../../lib/capabilities/capability-planner');
+const { resolveUserGovernanceContext } = require('../../lib/capabilities/user-governance-context');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -55,8 +56,33 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
     try { body = await parseBody(req); }
     catch (err) { return sendJson(res, 400, { error: 'Invalid JSON body', detail: err.message }); }
 
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return sendJson(res, 400, { error: 'Invalid request body' });
+    }
     const action = String(body.action || '').trim();
     if (!action) return sendJson(res, 400, { error: 'action is required' });
+
+    const input = body.input || {};
+    const validation = validateCapabilityInput(action, input);
+    if (!validation.valid) {
+      const result = await executeCapability(action, input);
+      return sendJson(res, result.httpStatus, result);
+    }
+    const { supabase, ...executionOptions } = options;
+    const authorization = await resolveUserGovernanceContext({
+      user,
+      service: getService(validation.spec.serviceCode),
+      supabase
+    });
+    if (!authorization.ok) {
+      return sendJson(res, authorization.httpStatus, {
+        ok: false,
+        executed: false,
+        action,
+        error: { code: authorization.code },
+        httpStatus: authorization.httpStatus
+      });
+    }
 
     // A user Bearer token is not a service token. Only the dedicated credential
     // is passed to the existing governed verifier (which fails closed).
@@ -64,13 +90,13 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
     const serviceToken = typeof serviceTokenHeader === 'string' && serviceTokenHeader.trim()
       ? serviceTokenHeader.trim()
       : null;
-    const result = await executeCapability(action, body.input || {}, {
-      ...options,
-      userId: user.id,
+    const result = await executeCapability(action, input, {
+      ...executionOptions,
+      ...authorization.context,
       requestId: req.headers['x-request-id'] || null,
       auth: {
-        ...(options.auth || {}),
-        serviceToken: serviceToken || options.auth?.serviceToken || null
+        ...(executionOptions.auth || {}),
+        serviceToken: serviceToken || executionOptions.auth?.serviceToken || null
       }
     });
     const status = result.ok ? 200 : (result.httpStatus || (result.executed ? 422 : 503));

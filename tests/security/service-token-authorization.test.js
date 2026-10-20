@@ -462,38 +462,53 @@ describe('service token authorization', () => {
   });
 
   test('introspection rejects revoked tokens', async () => {
+    const runtime = {
+      status: 'ok', service: 'bonds-token-service', issuer: 'bonds-token-service',
+      contract_version: 1, schema_version: 2, service_token_ttl_seconds: 3600,
+      build_commit: 'a'.repeat(40), channel_auth: 'required'
+    };
     const fetchImpl = jest.fn(async () => ({
       ok: true,
       json: async () => ({
-        active: false,
-        revoked: true,
-        jti: 'revoked-token'
+        runtime,
+        claims: { active: false, revoked: true, jti: 'revoked-token' }
       })
     }));
 
     const result = await introspectServiceToken({
       token: 'opaque-token',
-      url: 'http://127.0.0.1:8771/introspect',
+      url: 'https://runtime.example.test/introspect',
+      channelSecret: 'isolated-verifier-channel-credential-123456789',
+      expectedBuildCommit: runtime.build_commit,
       fetchImpl
     });
 
     expect(result).toEqual({
       verified: false,
-      code: 'TOKEN_INACTIVE'
+      code: 'TOKEN_INACTIVE',
+      httpStatus: 403
     });
   });
 
   test('introspection returns only verified claims for active token', async () => {
+    const runtime = {
+      status: 'ok', service: 'bonds-token-service', issuer: 'bonds-token-service',
+      contract_version: 1, schema_version: 2, service_token_ttl_seconds: 3600,
+      build_commit: 'a'.repeat(40), channel_auth: 'required'
+    };
     const fetchImpl = jest.fn(async () => ({
       ok: true,
-      json: async () => claims({
-        jti: 'live-token'
+      json: async () => ({
+        runtime,
+        claims: claims({ jti: 'live-token', revoked: false, token_type: 'service' })
       })
     }));
 
     const result = await introspectServiceToken({
       token: 'opaque-token',
-      url: 'http://127.0.0.1:8771/introspect',
+      url: 'https://runtime.example.test/introspect',
+      channelSecret: 'isolated-verifier-channel-credential-123456789',
+      expectedBuildCommit: runtime.build_commit,
       fetchImpl
     });
 

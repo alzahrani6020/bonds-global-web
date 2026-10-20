@@ -31,6 +31,15 @@ jest.mock('../../lib/ai/inference-router', () => ({
 const { fetchUrl, crawl } = require('../../lib/intelligence/web-acquisition');
 const { executeCapability } = require('../../lib/capabilities/governed-executor');
 
+const authorizedContext = {
+  actor: { id: 'user-1' },
+  userId: 'user-1',
+  governance: {
+    permissions: ['research.web.read'],
+    entitlements: ['research.web']
+  }
+};
+
 describe('governed network capabilities', () => {
   beforeEach(() => jest.clearAllMocks());
 
@@ -38,7 +47,7 @@ describe('governed network capabilities', () => {
     await executeCapability('web_fetch', {
       url: 'http://127.0.0.1/',
       options: { allowPrivateNetworks: true }
-    }, { userId: 'user-1' });
+    }, authorizedContext);
 
     expect(fetchUrl).toHaveBeenCalledWith(
       'http://127.0.0.1/',
@@ -51,7 +60,7 @@ describe('governed network capabilities', () => {
       seedUrls: ['http://127.0.0.1/'],
       allowPrivateNetworks: true,
       allow_private_networks: true
-    }, { userId: 'user-1' });
+    }, authorizedContext);
 
     expect(crawl).toHaveBeenCalledWith(expect.objectContaining({
       allowPrivateNetworks: false,
