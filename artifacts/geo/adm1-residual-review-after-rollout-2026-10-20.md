@@ -1,33 +1,12 @@
-# ADM1 residual review queue — after production linking
+# ADM1 residual queue — final
 
-Current production GeoNames ADM1 links: **286**.
+There are **no unaccounted GeoNames ADM1 rows**.
 
-Remaining source records without a GeoNames ADM1 link: **43**.
+Two source rows remain deliberately unlinked:
 
-## By country
-- DZ: 15
-- IQ: 2
-- LY: 11
-- MR: 1
-- OM: 2
-- PS: 2
-- SO: 8
-- TN: 1
-- YE: 1
+- PS.GZ / 281132 / Gaza Strip — `EXCLUDED_GRANULARITY`
+- PS.WE / 285153 / West Bank — `EXCLUDED_GRANULARITY`
 
-## By triage
-- GRANULARITY_MISMATCH: 2
-- INTERNAL_DUPLICATE: 3
-- LEGACY_STRUCTURE_MISMATCH: 2
-- MANUAL_REVIEW: 2
-- SOURCE_ONLY_OR_DB_MISSING: 34
+Both are recorded as explicit source-level exclusions in `geo_data_sources.metadata.adm1_reconciliation`.
 
-## Already resolved from the previous 49-row manual queue
-- BH.16 → Capital Governorate
-- KW.02 → Capital Governorate
-- QA.04 → Al Khor and Al Thakhira Municipality (corrected stale fuzzy candidate)
-- DZ.42 → canonical El Bayadh keeper
-- TN.02 → canonical Kasserine keeper
-- OM.03 → canonical Al Wusta keeper
-
-No row in this residual queue should be auto-linked using fuzzy similarity alone.
+Final accounting: **327 linked + 2 excluded = 329/329 source rows accounted**.
