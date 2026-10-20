@@ -37,6 +37,33 @@ describe('GeoNames ADM1 provider source links', () => {
     expect(script).toContain("process.env.GEO_ADMIN1_APPLY === '1'");
   });
 
+  test('GeoNames source identity contract uses canonical provider and full ADM1 code', () => {
+    const script = read('scripts/link-local-geonames-admin1.js');
+    const csv = read('artifacts/geo/adm1-confirmed-source-links-2026-10-20.csv');
+    const stagingSql = read('artifacts/geo/adm1-staging-import-rollback.sql');
+
+    expect(script).toContain("GEO_ADMIN1_SOURCE_CODE || 'geonames'");
+    expect(script).toContain('source_admin_code: sourceCode');
+    expect(script).not.toContain("GEO_ADMIN1_SOURCE_CODE || 'geonames_dump'");
+    expect(script).not.toContain('source_admin_code: sourceCode.slice(dot + 1)');
+
+    const csvLines = csv.trim().split('\n');
+    const header = csvLines[0].split(',');
+    const sourceCodeIndex = header.indexOf('source_code');
+    const sourceAdminCodeIndex = header.indexOf('source_admin_code');
+    expect(sourceCodeIndex).toBeGreaterThanOrEqual(0);
+    expect(sourceAdminCodeIndex).toBeGreaterThanOrEqual(0);
+
+    for (const line of csvLines.slice(1)) {
+      const cols = line.split(',');
+      expect(cols[sourceCodeIndex]).toBe('geonames');
+      expect(cols[sourceAdminCodeIndex]).toMatch(/^[A-Z]{2}\.[A-Za-z0-9]+$/);
+    }
+
+    expect(stagingSql).toContain("where l.source_code='geonames'");
+    expect(stagingSql).toContain("'geonames',");
+  });
+
   test('promotion resolves ADM1 by provider link instead of assuming internal indexes equal provider codes', () => {
     const promote = read('scripts/promote-local-geo-run.js');
     expect(promote).toContain('public.geo_admin_area_source_links');
