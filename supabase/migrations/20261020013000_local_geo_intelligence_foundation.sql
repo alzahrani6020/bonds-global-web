@@ -250,7 +250,8 @@ insert into public.geo_data_sources
   (code,name,source_type,license,attribution,commercial_use_allowed,runtime_api_required,api_key_required,refresh_interval,metadata)
 values
   ('bonds_legacy','Bonds existing geographic catalog','internal',null,'Bonds Global',true,false,false,'internal','{"runtime":"local"}'::jsonb),
-  ('geonames_dump','GeoNames downloadable dump','download','CC BY 4.0','GeoNames',true,false,false,'monthly','{"mode":"offline_dump"}'::jsonb),
+  ('geonames','GeoNames','download','CC BY 4.0','GeoNames',true,false,false,'monthly','{"mode":"offline_dump","canonical_provider_code":"geonames"}'::jsonb),
+  ('geonames_dump','GeoNames downloadable dump (legacy source code)','download','CC BY 4.0','GeoNames',true,false,false,'monthly','{"mode":"offline_dump","legacy_provider_code":true,"canonical_provider_code":"geonames"}'::jsonb),
   ('osm_pbf','OpenStreetMap PBF extract','download','ODbL 1.0','OpenStreetMap contributors',true,false,false,'weekly','{"mode":"offline_pbf"}'::jsonb),
   ('geoboundaries','geoBoundaries open dataset','download','CC BY 4.0','geoBoundaries',true,false,false,'quarterly','{"mode":"offline_dataset"}'::jsonb),
   ('dem_open','Open elevation DEM datasets','open_data',null,null,true,false,false,'yearly','{"mode":"offline_raster"}'::jsonb),
