@@ -805,6 +805,7 @@
       document.getElementById('adjustedNetProfitGroup').classList.toggle('calc-hidden', hideSaudiZakat);
 
       var activityEl = document.getElementById('activityType');
+      var previousActivity = activityEl.value;
       if (code === 'SA') {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option><option value="natural_gas">استثمار الغاز الطبيعي</option><option value="oil_hydrocarbon">إنتاج الزيت والمواد الهيدروكربونية</option>';
       } else if (code === 'OM') {
@@ -813,6 +814,9 @@
       } else {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option>';
       }
+
+      var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
+      if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
       document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
