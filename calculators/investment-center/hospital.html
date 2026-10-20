@@ -1,100 +1,35 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl" data-theme="dark">
-<head>  <meta charset="UTF-8" />
+<head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>حاسبة جدوى مستشفى | بوندز</title>
   <meta name="description" content="حاسبة استثمارية لتحليل جدوى المشاريع في قطاع حاسبة جدوى مستشفى" />
   <meta property="og:title" content="حاسبة جدوى مستشفى | بوندز" />
   <meta property="og:description" content="احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة." />
-  <meta property="og:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%AC%D8%AF%D9%88%D9%89+%D9%85%D8%B3%D8%AA%D8%B4%D9%81%D9%89+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%A7%D8%AD%D8%B3%D8%A8+ROI%D8%8C+IRR%D8%8C+NPV%D8%8C+%D9%81%D8%AA%D8%B1%D8%A9+%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%B1%D8%AF%D8%A7%D8%AF%D8%8C+%D9%86%D9%82%D8%B7%D8%A9+%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D8%AF%D9%84%D8%8C+%D9%88%D8%AF%D8%B1%D8%AC%D8%A9+%D8%A7%D9%84%D9%85%D8%AE%D8%A7%D8%B7%D8%B1%D8%A9.&amp;lang=ar" />
-  <meta property="og:image:alt" content="حاسبة جدوى مستشفى | بوندز" />
-  <meta property="og:url" content="https://bonds-global.com/calculators/investment-center/hospital" />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp" />
+  <meta property="og:url" content="https://bonds-global.com/calculators/investment-center/hospital.html" />
   <meta property="og:type" content="website" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="حاسبة جدوى مستشفى | بوندز" />
   <meta name="twitter:description" content="احسب ROI، IRR، NPV، فترة الاسترداد، نقطة التعادل، ودرجة المخاطرة." />
-  <meta name="twitter:image" content="https://bonds-global.com/api/og-image?title=%D8%AD%D8%A7%D8%B3%D8%A8%D8%A9+%D8%AC%D8%AF%D9%88%D9%89+%D9%85%D8%B3%D8%AA%D8%B4%D9%81%D9%89+%7C+%D8%A8%D9%88%D9%86%D8%AF%D8%B2&amp;description=%D8%A7%D8%AD%D8%B3%D8%A8+ROI%D8%8C+IRR%D8%8C+NPV%D8%8C+%D9%81%D8%AA%D8%B1%D8%A9+%D8%A7%D9%84%D8%A7%D8%B3%D8%AA%D8%B1%D8%AF%D8%A7%D8%AF%D8%8C+%D9%86%D9%82%D8%B7%D8%A9+%D8%A7%D9%84%D8%AA%D8%B9%D8%A7%D8%AF%D9%84%D8%8C+%D9%88%D8%AF%D8%B1%D8%AC%D8%A9+%D8%A7%D9%84%D9%85%D8%AE%D8%A7%D8%B7%D8%B1%D8%A9.&amp;lang=ar" />
-  <link rel="canonical" href="https://bonds-global.com/calculators/investment-center/hospital" />
-    <link rel="stylesheet" href="../../styles/fonts-ar.css">
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp" />
+  <link rel="canonical" href="https://bonds-global.com/calculators/investment-center/hospital.html" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="../../styles.css" />
-  <link rel="stylesheet" href="../../header-footer.css?v=2.63.0" />
+  <link rel="stylesheet" href="../../header-footer.css?v=2.54.0" />
   <link rel="stylesheet" href="./investment-center.css?v=2" />
   <link rel="icon" type="image/svg+xml" href="../../assets/bonds-mark.svg" />
-  <link rel="manifest" href="/manifest.json" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="../../components/universal-dropdown.css" />
-  <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
-
   <script src="../../components/universal-dropdown.js"></script>
   <script src="../../calculators/shared-geo.js?v=6"></script>
-  <script src="../../calculators/shared-platforms-loader.js?v=2"></script>
+  <script src="../../calculators/shared-platforms.js?v=2"></script>
   <script src="../../calculators/shared-country-selector.js?v=3"></script>
-<script defer src="/calculators/auth-gate.js?v=2"></script><script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    {
-      "@type": "ListItem",
-      "position": 1,
-      "name": "الرئيسية",
-      "item": "https://bonds-global.com/"
-    },
-    {
-      "@type": "ListItem",
-      "position": 2,
-      "name": "الحاسبات",
-      "item": "https://bonds-global.com/calculator.html"
-    },
-    {
-      "@type": "ListItem",
-      "position": 3,
-      "name": "مركز الاستثمار",
-      "item": "https://bonds-global.com/calculators/investment-center/index.html"
-    },
-    {
-      "@type": "ListItem",
-      "position": 4,
-      "name": "حاسبة جدوى مستشفى",
-      "item": "https://bonds-global.com/calculators/investment-center/hospital.html"
-    }
-  ]
-}
-</script>
-
-  <script type="application/ld+json">{
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "حاسبة جدوى مستشفى",
-  "description": "حاسبة استثمارية لتحليل جدوى المشاريع في قطاع حاسبة جدوى مستشفى",
-  "url": "https://bonds-global.com/calculators/investment-center/hospital",
-  "applicationCategory": "FinanceApplication",
-  "operatingSystem": "Any",
-  "browserRequirements": "Requires JavaScript. Requires HTML5.",
-  "inLanguage": "ar",
-  "provider": {
-    "@type": "Organization",
-    "name": "Bonds Global",
-    "url": "https://bonds-global.com"
-  },
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "SAR"
-  }
-}</script>
-
-  <link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculators/investment-center/hospital" />
-  <link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculators/investment-center/hospital" />
+  
 </head>
 <body>
   <div id="site-header"></div>
-
-<nav aria-label="مسار التنقل" class="breadcrumbs">
-  <ol class="breadcrumbs__list">
-    <li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/">الرئيسية</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculator.html">الحاسبات</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item"><a class="breadcrumbs__link" href="/calculators/investment-center/index.html">مركز الاستثمار</a></li><li class="breadcrumbs__sep" aria-hidden="true"><</li><li class="breadcrumbs__item breadcrumbs__item--current" aria-current="page">حاسبة جدوى مستشفى</li>
-  </ol>
-</nav>
 
   <main class="investment-calculator">
     <div class="investment-calculator__header">
@@ -109,9 +44,6 @@
         <label for="country">اختر الدولة</label>
         <select id="country" data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-remove-empty="true"></select>
         <small style="display:block;margin-top:0.5rem;color:var(--text-secondary);">ستتغير رموز العملة فقط؛ الأرقام تبقى كما أدخلتها.</small>
-        <button type="button" class="bonds-btn bonds-btn-secondary" onclick="BondsProfileAutofill.fillFromUserProfile()" style="margin-top: 0.75rem;">
-          👤 ملء من ملفي الشخصي
-        </button>
       </div>
     </div>
 
@@ -124,6 +56,7 @@
       <div class="investment-form">
         <div class="investment-panel">
           <h2>بيانات المشروع</h2>
+          
           
           <div class="investment-input-group">
             <label for="numberOfBeds">عدد الأسرّة</label>
@@ -704,6 +637,8 @@
         </div>
       </div>
 
+      
+
       <div class="recommendation-bar" id="recommendationBar">
         <div class="recommendation-bar__label">التوصية الاستثمارية</div>
         <div class="recommendation-bar__decision" id="recommendationDecision">--</div>
@@ -713,6 +648,116 @@
         <h3>أسباب القرار</h3>
         <ul id="recommendationReasons"></ul>
       </div>
+
+      
+      <div class="generic-risk-analysis" style="background: rgba(16,24,45,0.5); border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem; margin: 1.5rem 0;">
+        <h3 style="margin-top: 0; color: var(--gold);">تحليل المخاطر المتقدم</h3>
+        <p style="font-size: 0.8rem; color: var(--text-secondary);">محاكاة مونت كارلو والبحث عن الهدف وتحليل الحساسية وخيارات الاستثمار الحقيقية.</p>
+        <div id="sectorAnomalyList" style="margin-bottom: 1rem;"></div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">تحليل الحساسية (Tornado Chart)</h4>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">اختر حتى 5 متغيرات ونسبة التقلب لرسم تأثير كل متغير على NPV.</p>
+          <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
+            <div style="flex: 2; min-width: 200px;">
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">المتغيرات</label>
+              <select id="sectorTornadoFields" multiple style="width: 100%; min-height: 100px; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);"><option value="numberOfBeds">عدد الأسرّة</option><option value="avgDailyRevenuePerBed">متوسط الإيراد اليومي للسرير (ر.س)</option><option value="constructionAndEquipmentCost">تكلفة البناء والتجهيزات (ر.س)</option></select>
+            </div>
+            <div style="flex: 1; min-width: 140px;">
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">نسبة التقلب (±%)</label>
+              <input type="range" id="sectorTornadoRange" min="10" max="50" value="20" style="width: 100%;" oninput="document.getElementById('sectorTornadoRangeValue').textContent = this.value + '%'" />
+              <div id="sectorTornadoRangeValue" style="font-size: 0.8rem; color: var(--text-secondary);">20%</div>
+            </div>
+            <button type="button" class="btn btn--primary" onclick="runSectorTornado()" style="white-space: nowrap;">ارسم</button>
+          </div>
+          <div style="height: 260px; position: relative;">
+            <canvas id="sectorTornadoChart"></canvas>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">محاكاة مونت كارلو</h4>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">500 سيناريو عشوائي للمتغيرات الرئيسية.</p>
+          <div class="monte-carlo-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 0.75rem; margin-bottom: 0.75rem;">
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>نسبة النجاح</strong><br><span id="sectorMcSuccessRate">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>NPV متوسط</strong><br><span id="sectorMcMeanNpv">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>VaR 95%</strong><br><span id="sectorMcVar95">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>CVaR 95%</strong><br><span id="sectorMcCvar95">--</span></div>
+          </div>
+          <div style="height: 220px; position: relative;">
+            <canvas id="sectorMonteCarloChart"></canvas>
+          </div>
+          <button type="button" class="btn btn--secondary" onclick="runSectorMonteCarlo()" style="margin-top: 0.75rem;">تشغيل المحاكاة</button>
+          <button type="button" class="btn btn--secondary" onclick="exportSectorMonteCarloCsv()" style="margin-top: 0.75rem; margin-right: 0.5rem;">تصدير CSV</button>
+        </div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="color: var(--gold);">خيارات الاستثمار الحقيقية (Real Options)</h4>
+          <p style="font-size: 0.8rem; color: var(--text-secondary);">قيّم قيمة المرونة الاستراتيجية: التوسعة، التأجيل، أو التخلي.</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+            <div>
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">نوع الخيار</label>
+              <select id="realOptionType" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);">
+                <option value="expand">توسعة</option>
+                <option value="defer">تأجيل</option>
+                <option value="abandon">تخلي</option>
+              </select>
+            </div>
+            <div>
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">التقلب السنوي σ (%)</label>
+              <input type="number" id="realOptionVolatility" value="30" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);" />
+            </div>
+            <div>
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">المدة (سنوات)</label>
+              <input type="number" id="realOptionTime" value="2" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);" />
+            </div>
+            <div>
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">معدل خالٍ من المخاطر r (%)</label>
+              <input type="number" id="realOptionRate" value="5" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);" />
+            </div>
+            <div>
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">سعر التنفيذ / التكلفة (ر.س)</label>
+              <input type="number" id="realOptionStrike" value="0" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);" />
+            </div>
+          </div>
+          <button type="button" class="btn btn--primary" onclick="runRealOption()" style="margin-bottom: 1rem;">احسب قيمة الخيار</button>
+          <div class="real-option-result" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>قيمة الخيار</strong><br><span id="realOptionValue">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>القيمة الجوهرية</strong><br><span id="realOptionIntrinsic">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>القيمة الزمنية</strong><br><span id="realOptionTimeValue">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>التوصية</strong><br><span id="realOptionRecommendation">--</span></div>
+          </div>
+        </div>
+
+        <div>
+          <h4 style="color: var(--gold);">البحث عن الهدف (Goal Seek)</h4>
+          <div style="display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap; margin-bottom: 1rem;">
+            <div style="flex: 1; min-width: 200px;">
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">المتغير</label>
+              <select id="sectorGoalSeekField" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);"><option value="numberOfBeds">عدد الأسرّة</option><option value="avgDailyRevenuePerBed">متوسط الإيراد اليومي للسرير (ر.س)</option><option value="constructionAndEquipmentCost">تكلفة البناء والتجهيزات (ر.س)</option></select>
+            </div>
+            <div style="flex: 1; min-width: 140px;">
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">المؤشر المستهدف</label>
+              <select id="sectorGoalSeekMetric" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);">
+                <option value="npv">NPV</option>
+                <option value="irr">IRR</option>
+                <option value="roi">ROI</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 140px;">
+              <label style="font-size: 0.85rem; color: var(--text-secondary); display: block; margin-bottom: 0.25rem;">القيمة المستهدفة</label>
+              <input type="number" id="sectorGoalSeekValue" value="0" style="width: 100%; padding: 0.75rem; border-radius: 8px; border: 1px solid var(--border); background: rgba(255,255,255,0.03); color: var(--text);" />
+            </div>
+            <button type="button" class="btn btn--primary" onclick="runSectorGoalSeek()" style="white-space: nowrap;">احسب</button>
+          </div>
+          <div class="goal-seek-result" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>القيمة المطلوبة</strong><br><span id="sectorGsRequiredValue">--</span></div>
+            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>المؤشر عند القيمة</strong><br><span id="sectorGsMetricAtValue">--</span></div>
+          </div>
+        </div>
+      </div>
+
+      
 
       <!-- Decision Intelligence Layer -->
       <div id="decisionIntelligencePanel" class="decision-intelligence hidden">
@@ -770,147 +815,23 @@
           </div>
         </div>
       </div>
-
-      <!-- Pro-Forma Financial Statements -->
-      <div class="pro-forma-statements" style="margin: 1.5rem 0;">
-        <h3>القوائم المالية التقديرية (Pro-Forma)</h3>
-        <div class="pro-forma-summary" style="background: rgba(212,168,83,0.08); border: 1px solid rgba(212,168,83,0.2); border-radius: 12px; padding: 1rem 1.25rem; margin-bottom: 1rem;">
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem;">
-            <div><strong>إجمالي الإيرادات</strong><br><span id="pfTotalRevenue">--</span></div>
-            <div><strong>صافي الربح</strong><br><span id="pfTotalNetIncome">--</span></div>
-            <div><strong>NPV</strong><br><span id="pfNpv">--</span></div>
-            <div><strong>IRR</strong><br><span id="pfIrr">--</span></div>
-            <div><strong>التمويل المطلوب</strong><br><span id="pfFundingGap">--</span></div>
-            <div><strong>التوسعات الرأسمالية</strong><br><span id="pfStepCapex">--</span></div>
-          </div>
-        </div>
-
-        <div id="capacityExpansionsPanel" style="margin-bottom: 1rem; display: none;">
-          <h4 style="color: var(--gold);">جدول التوسعات الرأسمالية</h4>
-          <div style="overflow-x: auto;">
-            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-              <thead>
-                <tr style="border-bottom: 1px solid var(--border);">
-                  <th style="text-align: right; padding: 0.5rem;">الشهر</th>
-                  <th style="text-align: center; padding: 0.5rem;">الطاقة الجديدة</th>
-                  <th style="text-align: center; padding: 0.5rem;">التكلفة</th>
-                </tr>
-              </thead>
-              <tbody id="capacityExpansionsBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="color: var(--gold);">منحنى التدفق النقدي التراكمي (J-Curve)</h4>
-          <div style="height: 280px; position: relative;">
-            <canvas id="proFormaCashCurveChart"></canvas>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="color: var(--gold);">تحليل الحساسية على NPV/IRR</h4>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">تأثير تغير السعر والحجم على قيمة المشروع.</p>
-          <div style="height: 260px; position: relative;">
-            <canvas id="proFormaSensitivityChart"></canvas>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="color: var(--gold);">محاكاة مونت كارلو للمخاطر</h4>
-          <p style="font-size: 0.8rem; color: var(--text-secondary);">1000 سيناريو عشوائي للسعر والتكلفة والحجم.</p>
-          <div class="monte-carlo-summary" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>نسبة النجاح (NPV&gt;0)</strong><br><span id="mcSuccessRate">--</span></div>
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>متوسط NPV</strong><br><span id="mcMeanNpv">--</span></div>
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>وسيط NPV</strong><br><span id="mcMedianNpv">--</span></div>
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>P5 - P95 NPV</strong><br><span id="mcNpvRange">--</span></div>
-          </div>
-          <div class="monte-carlo-risk" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>VaR 95% (خسارة قصوى)</strong><br><span id="mcVar95">--</span></div>
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>CVaR 95% (متوسط الذيل)</strong><br><span id="mcCvar95">--</span></div>
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>VaR 99% (خسارة قصوى)</strong><br><span id="mcVar99">--</span></div>
-            <div style="background: rgba(16,24,45,0.6); border: 1px solid var(--border); border-radius: 10px; padding: 0.75rem;"><strong>CVaR 99% (متوسط الذيل)</strong><br><span id="mcCvar99">--</span></div>
-          </div>
-          <div style="height: 260px; position: relative;">
-            <canvas id="monteCarloHistogramChart"></canvas>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="color: var(--gold);">قائمة الدخل السنوية</h4>
-          <div style="overflow-x: auto;">
-            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-              <thead>
-                <tr style="border-bottom: 1px solid var(--border);">
-                  <th style="text-align: right; padding: 0.5rem;">البند</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 1</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 2</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 3</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 4</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 5</th>
-                </tr>
-              </thead>
-              <tbody id="proFormaIncomeBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="color: var(--gold);">قائمة التدفقات النقدية السنوية</h4>
-          <div style="overflow-x: auto;">
-            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-              <thead>
-                <tr style="border-bottom: 1px solid var(--border);">
-                  <th style="text-align: right; padding: 0.5rem;">البند</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 1</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 2</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 3</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 4</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 5</th>
-                </tr>
-              </thead>
-              <tbody id="proFormaCashflowBody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <h4 style="color: var(--gold);">الميزانية العمومية السنوية</h4>
-          <div style="overflow-x: auto;">
-            <table class="pro-forma-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
-              <thead>
-                <tr style="border-bottom: 1px solid var(--border);">
-                  <th style="text-align: right; padding: 0.5rem;">البند</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 1</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 2</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 3</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 4</th>
-                  <th style="text-align: center; padding: 0.5rem;">السنة 5</th>
-                </tr>
-              </thead>
-              <tbody id="proFormaBalanceBody"></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
     </div>
   </main>
 
   <div id="site-footer"></div>
 
-  <script src="/api/env" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
-  <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
-  <script defer src="../../site-layout.js?v=3.2.2"></script>
-  <script defer src="../../page-tracker-v2.js"></script>
+  <script src="../../site-layout.js?v=2.54.0"></script>
+  <script src="../../page-tracker-v2.js"></script>
   <script src="./investment-engine.js?v=2"></script>
   <script src="./investment-validator.js?v=2"></script>
-    <script src="./pro-forma-engine.js?v=1"></script>
+  <script src="./pro-forma-engine.js?v=1"></script>
   <script src="./investment-risk-engine.js?v=1"></script>
-  <script src="./pro-forma-renderer.js?v=1"></script>
-  <script src="./profile-autofill.js?v=1"></script>
-<script src="./decision-intelligence.js?v=2"></script>
+  <script src="./real-options-engine.js?v=1"></script>
+  <script src="./decision-intelligence.js?v=2"></script>
   <script src="../../calculators/shared-export.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+  
   <script>
     const sectorId = 'hospital';
     const baseRiskWeight = 1.3;
@@ -920,8 +841,7 @@
     if (window.BondsCountrySelector) {
       BondsCountrySelector.init({ select: '#country' });
     }
-
-    let currentMode = 'basic';
+let currentMode = 'basic';
     let currentStage = 1;
     let lastValidationValid = false;
 
@@ -942,7 +862,20 @@
       return n.toLocaleString(isAr ? 'ar-SA' : 'en-US');
     }
 
-    function syncField(basicId, expertId, direction) {
+    function toggleSection(sectionId) {
+      const content = document.getElementById(sectionId);
+      if (!content) return;
+      const section = content.closest('.input-section');
+      if (section) section.classList.toggle('collapsed');
+    }
+
+    function setFieldValue(name, value) {
+      const basicEl = document.getElementById(name);
+      const expertEl = document.getElementById('expert_basic_' + name);
+      if (basicEl) basicEl.value = value;
+      if (expertEl) expertEl.value = value;
+    }
+function syncField(basicId, expertId, direction) {
       const basicEl = document.getElementById(basicId);
       const expertEl = document.getElementById(expertId);
       if (!basicEl || !expertEl) return;
@@ -958,7 +891,7 @@
       currentMode = mode;
       const direction = mode === 'expert' ? 'toExpert' : 'toBasic';
 
-      const fields = [{"name":"numberOfBeds","label":"عدد الأسرّة","type":"number","default":50},{"name":"avgDailyRevenuePerBed","label":"متوسط الإيراد اليومي للسرير (ر.س)","type":"number","default":3500},{"name":"constructionAndEquipmentCost","label":"تكلفة البناء والتجهيزات (ر.س)","type":"number","default":25000000},{"name":"monthlySalaries","label":"الرواتب الشهرية للكوادر (ر.س)","type":"number","default":450000},{"name":"monthlyUtilities","label":"الخدمات والصيانة الشهرية (ر.س)","type":"number","default":120000},{"name":"medicalSuppliesRate","label":"نسبة المواد الطبية من الإيرادات (%)","type":"number","default":28}];
+      const fields = [{"name":"numberOfBeds","type":"number","default":50},{"name":"avgDailyRevenuePerBed","type":"number","default":3500},{"name":"constructionAndEquipmentCost","type":"number","default":25000000},{"name":"monthlySalaries","type":"number","default":450000},{"name":"monthlyUtilities","type":"number","default":120000},{"name":"medicalSuppliesRate","type":"number","default":28}];
       fields.forEach(f => syncField(f.name, 'expert_basic_' + f.name, direction));
       syncField('analysisDuration', 'expert_basic_analysisDuration', direction);
       syncField('discountRate', 'expert_basic_discountRate', direction);
@@ -1009,15 +942,30 @@
 
     function mapInputs() {
       const inputs = {};
-      const fields = [{"name":"numberOfBeds","label":"عدد الأسرّة","type":"number","default":50},{"name":"avgDailyRevenuePerBed","label":"متوسط الإيراد اليومي للسرير (ر.س)","type":"number","default":3500},{"name":"constructionAndEquipmentCost","label":"تكلفة البناء والتجهيزات (ر.س)","type":"number","default":25000000},{"name":"monthlySalaries","label":"الرواتب الشهرية للكوادر (ر.س)","type":"number","default":450000},{"name":"monthlyUtilities","label":"الخدمات والصيانة الشهرية (ر.س)","type":"number","default":120000},{"name":"medicalSuppliesRate","label":"نسبة المواد الطبية من الإيرادات (%)","type":"number","default":28}];
+      const fields = [{"name":"numberOfBeds","type":"number","default":50},{"name":"avgDailyRevenuePerBed","type":"number","default":3500},{"name":"constructionAndEquipmentCost","type":"number","default":25000000},{"name":"monthlySalaries","type":"number","default":450000},{"name":"monthlyUtilities","type":"number","default":120000},{"name":"medicalSuppliesRate","type":"number","default":28}];
       const basicPrefix = currentMode === 'expert' ? 'expert_basic_' : '';
-      fields.forEach(f => inputs[f.name] = getValue(basicPrefix + f.name));
-      inputs.analysisDuration = getValue(basicPrefix + 'analysisDuration');
-      inputs.discountRate = getValue(basicPrefix + 'discountRate') / 100;
+      fields.forEach(f => {
+        const el = document.getElementById(basicPrefix + f.name);
+        if (!el) {
+          // Hidden field in basic mode — fall back to default value
+          if (f.type === 'select' || f.type === 'text' || f.type === 'textarea') {
+            inputs[f.name] = (f.default !== undefined && f.default !== null) ? String(f.default) : '';
+          } else {
+            const numericDefault = parseFloat(f.default);
+            inputs[f.name] = Number.isFinite(numericDefault) ? numericDefault : 0;
+          }
+        } else if (f.type === 'select' || f.type === 'text' || f.type === 'textarea') {
+          inputs[f.name] = getText(basicPrefix + f.name);
+        } else {
+          inputs[f.name] = getValue(basicPrefix + f.name);
+        }
+      });
+      inputs.analysisDuration = getValue(basicPrefix + 'analysisDuration') || 60;
+      inputs.discountRate = (getValue(basicPrefix + 'discountRate') || 10) / 100;
 
       const expertFieldNames = ["projectName","projectOwner","projectLocation","legalStructure","startMonth","projectPhase","projectDurationYears","regulatoryApprovalsNeeded","projectManagerExperience","environmentalImpact","tam","sam","som","competitorCount","avgCompetitorPrice","marketEntryBarrier","customerAcquisitionCost","customerLifetimeValue","digitalAdBudget","brandAwareness","marketGrowthRate","seasonalFactor","churnRate","repeatPurchaseRate","onlineVsOfflineRatio","operatingDaysPerMonth","operatingHoursPerDay","shiftCount","capacityUtilizationTarget","employeeProductivityIndex","maintenanceCostRate","insuranceCostAnnual","licenseRenewalCost","softwareSubscriptions","marketingBudget","salesCommissionRate","energyCostMonthly","waterCostMonthly","wasteDisposalCost","securityCost","cleaningCost","outsourcingCost","trainingCost","landCost","buildingCost","renovationCost","machineryCost","furnitureCost","vehiclesCost","workingCapital","contingencyReserve","salvageValue","assetLifeYears","preOpeningCost","initialInventoryCost","permitsAndLicensesCost","feasibilityStudyCost","equityAmount","loanAmount","interestRate","loanTermYears","gracePeriodMonths","requiredRoi","minDscr","balloonPayment","earlyRepaymentPenalty","collateralValue","debtServiceStartMonth","marketRiskScore","operationalRiskScore","financialRiskScore","regulatoryRiskScore","technologyRiskScore","reputationRiskScore","mitigationBudget","supplyChainRiskScore","competitionRiskScore","currencyRiskScore","geopoliticalRiskScore","keyAssumptions","sensitivityCase","successFactors","exitStrategy"];
       expertFieldNames.forEach(name => {
-        const fieldMeta = [{"name":"projectName","labelAr":"اسم المشروع","labelEn":"Project Name","type":"text","default":""},{"name":"projectOwner","labelAr":"اسم المالك / الجهة المنفذة","labelEn":"Project Owner / Entity","type":"text","default":""},{"name":"projectLocation","labelAr":"موقع المشروع","labelEn":"Project Location","type":"text","default":""},{"name":"legalStructure","labelAr":"الشكل القانوني","labelEn":"Legal Structure","type":"select","optionsAr":["شركة ذات مسؤولية محدودة","شركة مساهمة","مؤسسة فردية","شركة تضامن","فرع"],"optionsEn":["LLC","Joint Stock","Sole Proprietorship","Partnership","Branch"],"default":""},{"name":"startMonth","labelAr":"شهر البدء المتوقع","labelEn":"Expected Start Month","type":"number","default":1},{"name":"projectPhase","labelAr":"مرحلة المشروع","labelEn":"Project Phase","type":"select","optionsAr":["فكرة","دراسة جدوى","تأسيس","تشغيل","توسع"],"optionsEn":["Idea","Feasibility","Establishment","Operation","Expansion"],"default":"تأسيس"},{"name":"projectDurationYears","labelAr":"مدة المشروع (سنوات)","labelEn":"Project Duration (Years)","type":"number","default":5},{"name":"regulatoryApprovalsNeeded","labelAr":"عدد التراخيص المطلوبة","labelEn":"Required Regulatory Approvals","type":"number","default":3},{"name":"projectManagerExperience","labelAr":"خبرة مدير المشروع (سنوات)","labelEn":"Project Manager Experience (Years)","type":"number","default":5},{"name":"environmentalImpact","labelAr":"التأثير البيئي (1 = منخفض، 5 = عالٍ)","labelEn":"Environmental Impact (1 = low, 5 = high)","type":"number","default":2},{"name":"tam","labelAr":"إجمالي السوق المتاح (TAM) سنويًا (ر.س)","labelEn":"Total Addressable Market (TAM) Annual (SAR)","type":"number","default":0},{"name":"sam","labelAr":"السوق الموجه (SAM) سنويًا (ر.س)","labelEn":"Serviceable Addressable Market (SAM) Annual (SAR)","type":"number","default":0},{"name":"som","labelAr":"السوق الم obtainable (SOM) سنويًا (ر.س)","labelEn":"Serviceable Obtainable Market (SOM) Annual (SAR)","type":"number","default":0},{"name":"competitorCount","labelAr":"عدد المنافسين المباشرين","labelEn":"Number of Direct Competitors","type":"number","default":5},{"name":"avgCompetitorPrice","labelAr":"متوسط سعر المنافس (ر.س)","labelEn":"Average Competitor Price (SAR)","type":"number","default":0},{"name":"marketEntryBarrier","labelAr":"حاجز دخول السوق (1 = منخفض، 5 = مرتفع)","labelEn":"Market Entry Barrier (1 = low, 5 = high)","type":"number","default":3},{"name":"customerAcquisitionCost","labelAr":"تكلفة اكتساب العميل (ر.س)","labelEn":"Customer Acquisition Cost (SAR)","type":"number","default":0},{"name":"customerLifetimeValue","labelAr":"قيمة العميل مدى الحياة (ر.س)","labelEn":"Customer Lifetime Value (SAR)","type":"number","default":0},{"name":"digitalAdBudget","labelAr":"الميزانية الشهرية للإعلانات الرقمية (ر.س)","labelEn":"Monthly Digital Ad Budget (SAR)","type":"number","default":0},{"name":"brandAwareness","labelAr":"مستوى الوعي بالعلامة التجارية (%)","labelEn":"Brand Awareness Level (%)","type":"number","default":0},{"name":"marketGrowthRate","labelAr":"معدل نمو السوق السنوي (%)","labelEn":"Annual Market Growth Rate (%)","type":"number","default":5},{"name":"seasonalFactor","labelAr":"معامل الموسمية (0.5 = منخفضة، 1.5 = مرتفعة)","labelEn":"Seasonality Factor (0.5 = low, 1.5 = high)","type":"number","default":1},{"name":"churnRate","labelAr":"معدل تسرب العملاء الشهري (%)","labelEn":"Monthly Customer Churn Rate (%)","type":"number","default":5},{"name":"repeatPurchaseRate","labelAr":"معدل إعادة الشراء الشهري (%)","labelEn":"Monthly Repeat Purchase Rate (%)","type":"number","default":20},{"name":"onlineVsOfflineRatio","labelAr":"نسبة المبيعات الرقمية (%)","labelEn":"Online Sales Ratio (%)","type":"number","default":30},{"name":"operatingDaysPerMonth","labelAr":"أيام التشغيل الشهرية","labelEn":"Operating Days per Month","type":"number","default":26},{"name":"operatingHoursPerDay","labelAr":"ساعات التشغيل اليومية","labelEn":"Operating Hours per Day","type":"number","default":10},{"name":"shiftCount","labelAr":"عدد الورديات","labelEn":"Number of Shifts","type":"number","default":1},{"name":"capacityUtilizationTarget","labelAr":"مستهدف استغلال الطاقة (%)","labelEn":"Capacity Utilization Target (%)","type":"number","default":75},{"name":"employeeProductivityIndex","labelAr":"مؤشر إنتاجية الموظف (1 = منخفض، 5 = مرتفع)","labelEn":"Employee Productivity Index (1 = low, 5 = high)","type":"number","default":3},{"name":"maintenanceCostRate","labelAr":"نسبة الصيانة من الإيرادات (%)","labelEn":"Maintenance Cost Ratio (%)","type":"number","default":3},{"name":"insuranceCostAnnual","labelAr":"تكلفة التأمين السنوية (ر.س)","labelEn":"Annual Insurance Cost (SAR)","type":"number","default":0},{"name":"licenseRenewalCost","labelAr":"تكلفة تجديد الترخيص السنوية (ر.س)","labelEn":"Annual License Renewal Cost (SAR)","type":"number","default":0},{"name":"softwareSubscriptions","labelAr":"اشتراكات البرامج الشهرية (ر.س)","labelEn":"Monthly Software Subscriptions (SAR)","type":"number","default":0},{"name":"marketingBudget","labelAr":"الميزانية الشهرية للتسويق (ر.س)","labelEn":"Monthly Marketing Budget (SAR)","type":"number","default":0},{"name":"salesCommissionRate","labelAr":"نسبة عمولة المبيعات (%)","labelEn":"Sales Commission Rate (%)","type":"number","default":0},{"name":"energyCostMonthly","labelAr":"تكلفة الطاقة الشهرية (ر.س)","labelEn":"Monthly Energy Cost (SAR)","type":"number","default":0},{"name":"waterCostMonthly","labelAr":"تكلفة المياه الشهرية (ر.س)","labelEn":"Monthly Water Cost (SAR)","type":"number","default":0},{"name":"wasteDisposalCost","labelAr":"تكلفة التخلص من النفايات الشهرية (ر.س)","labelEn":"Monthly Waste Disposal Cost (SAR)","type":"number","default":0},{"name":"securityCost","labelAr":"تكلفة الأمن الشهرية (ر.س)","labelEn":"Monthly Security Cost (SAR)","type":"number","default":0},{"name":"cleaningCost","labelAr":"تكلفة النظافة الشهرية (ر.س)","labelEn":"Monthly Cleaning Cost (SAR)","type":"number","default":0},{"name":"outsourcingCost","labelAr":"تكلفة الاستعانة بمصادر خارجية شهرية (ر.س)","labelEn":"Monthly Outsourcing Cost (SAR)","type":"number","default":0},{"name":"trainingCost","labelAr":"تكلفة التدريب الشهرية (ر.س)","labelEn":"Monthly Training Cost (SAR)","type":"number","default":0},{"name":"landCost","labelAr":"تكلفة الأرض (ر.س)","labelEn":"Land Cost (SAR)","type":"number","default":0},{"name":"buildingCost","labelAr":"تكلفة البناء (ر.س)","labelEn":"Building Cost (SAR)","type":"number","default":0},{"name":"renovationCost","labelAr":"تكلفة التجديد والتجهيز (ر.س)","labelEn":"Renovation & Setup Cost (SAR)","type":"number","default":0},{"name":"machineryCost","labelAr":"تكلفة الآلات والمعدات (ر.س)","labelEn":"Machinery & Equipment Cost (SAR)","type":"number","default":0},{"name":"furnitureCost","labelAr":"تكلفة الأثاث والتجهيزات المكتبية (ر.س)","labelEn":"Furniture & Office Equipment Cost (SAR)","type":"number","default":0},{"name":"vehiclesCost","labelAr":"تكلفة المركبات (ر.س)","labelEn":"Vehicles Cost (SAR)","type":"number","default":0},{"name":"workingCapital","labelAr":"رأس المال العامل (ر.س)","labelEn":"Working Capital (SAR)","type":"number","default":0},{"name":"contingencyReserve","labelAr":"احتياطي الطوارئ (ر.س)","labelEn":"Contingency Reserve (SAR)","type":"number","default":0},{"name":"salvageValue","labelAr":"القيمة المتبقية للأصول (ر.س)","labelEn":"Asset Salvage Value (SAR)","type":"number","default":0},{"name":"assetLifeYears","labelAr":"العمر الافتراضي للأصول (سنة)","labelEn":"Asset Life (Years)","type":"number","default":10},{"name":"preOpeningCost","labelAr":"تكلفة ما قبل الافتتاح (ر.س)","labelEn":"Pre-Opening Cost (SAR)","type":"number","default":0},{"name":"initialInventoryCost","labelAr":"تكلفة المخزون الافتتاحي (ر.س)","labelEn":"Initial Inventory Cost (SAR)","type":"number","default":0},{"name":"permitsAndLicensesCost","labelAr":"تكلفة التراخيص والموافقات (ر.س)","labelEn":"Permits & Licenses Cost (SAR)","type":"number","default":0},{"name":"feasibilityStudyCost","labelAr":"تكلفة دراسة الجدوى (ر.س)","labelEn":"Feasibility Study Cost (SAR)","type":"number","default":0},{"name":"equityAmount","labelAr":"مبلغ رأس المال الملكي (ر.س)","labelEn":"Equity Amount (SAR)","type":"number","default":0},{"name":"loanAmount","labelAr":"مبلغ القرض (ر.س)","labelEn":"Loan Amount (SAR)","type":"number","default":0},{"name":"interestRate","labelAr":"معدل الفائدة السنوي (%)","labelEn":"Annual Interest Rate (%)","type":"number","default":0},{"name":"loanTermYears","labelAr":"مدة القرض (سنة)","labelEn":"Loan Term (Years)","type":"number","default":0},{"name":"gracePeriodMonths","labelAr":"فترة السماح (شهر)","labelEn":"Grace Period (Months)","type":"number","default":0},{"name":"requiredRoi","labelAr":"العائد المطلوب سنويًا (%)","labelEn":"Required Annual ROI (%)","type":"number","default":15},{"name":"minDscr","labelAr":"الحد الأدنى لمعدل تغطية خدمة الدين","labelEn":"Minimum DSCR","type":"number","default":1.25},{"name":"balloonPayment","labelAr":"دفعة بالونية نهائية (ر.س)","labelEn":"Balloon Payment (SAR)","type":"number","default":0},{"name":"earlyRepaymentPenalty","labelAr":"عقوبة السداد المبكر (%)","labelEn":"Early Repayment Penalty (%)","type":"number","default":0},{"name":"collateralValue","labelAr":"قيمة الضمانات (ر.س)","labelEn":"Collateral Value (SAR)","type":"number","default":0},{"name":"debtServiceStartMonth","labelAr":"شهر بدء سداد القرض","labelEn":"Debt Service Start Month","type":"number","default":1},{"name":"marketRiskScore","labelAr":"مخاطر السوق (1 = منخفضة، 5 = مرتفعة)","labelEn":"Market Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"operationalRiskScore","labelAr":"المخاطر التشغيلية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Operational Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"financialRiskScore","labelAr":"المخاطر المالية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Financial Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"regulatoryRiskScore","labelAr":"المخاطر التنظيمية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Regulatory Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"technologyRiskScore","labelAr":"مخاطر التقنية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Technology Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"reputationRiskScore","labelAr":"مخاطر السمعة (1 = منخفضة، 5 = مرتفعة)","labelEn":"Reputation Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"mitigationBudget","labelAr":"ميزانية التخفيف من المخاطر الشهرية (ر.س)","labelEn":"Monthly Risk Mitigation Budget (SAR)","type":"number","default":0},{"name":"supplyChainRiskScore","labelAr":"مخاطر سلسلة التوريد (1 = منخفضة، 5 = مرتفعة)","labelEn":"Supply Chain Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"competitionRiskScore","labelAr":"مخاطر المنافسة (1 = منخفضة، 5 = مرتفعة)","labelEn":"Competition Risk (1 = low, 5 = high)","type":"number","default":3},{"name":"currencyRiskScore","labelAr":"مخاطر العملة (1 = منخفضة، 5 = مرتفعة)","labelEn":"Currency Risk (1 = low, 5 = high)","type":"number","default":2},{"name":"geopoliticalRiskScore","labelAr":"المخاطر الجيوسياسية (1 = منخفضة، 5 = مرتفعة)","labelEn":"Geopolitical Risk (1 = low, 5 = high)","type":"number","default":2},{"name":"keyAssumptions","labelAr":"الافتراضات الرئيسية","labelEn":"Key Assumptions","type":"textarea","default":""},{"name":"sensitivityCase","labelAr":"سيناريو الحساسية","labelEn":"Sensitivity Case","type":"select","optionsAr":["أساسي","تفاؤل","تشاؤم"],"optionsEn":["Base","Optimistic","Pessimistic"],"default":"أساسي"},{"name":"successFactors","labelAr":"عوامل النجاح الرئيسية","labelEn":"Key Success Factors","type":"textarea","default":""},{"name":"exitStrategy","labelAr":"استراتيجية الخروج","labelEn":"Exit Strategy","type":"select","optionsAr":["بيع","الاكتتاب","الاحتفاظ بالملكية","الاندماج","تصفية"],"optionsEn":["Sale","IPO","Retain Ownership","Merger","Liquidation"],"default":"الاحتفاظ بالملكية"}].find(f => f.name === name);
+        const fieldMeta = [{"name":"projectName","type":"text","default":""},{"name":"projectOwner","type":"text","default":""},{"name":"projectLocation","type":"text","default":""},{"name":"legalStructure","type":"select","default":""},{"name":"startMonth","type":"number","default":1},{"name":"projectPhase","type":"select","default":"تأسيس"},{"name":"projectDurationYears","type":"number","default":5},{"name":"regulatoryApprovalsNeeded","type":"number","default":3},{"name":"projectManagerExperience","type":"number","default":5},{"name":"environmentalImpact","type":"number","default":2},{"name":"tam","type":"number","default":0},{"name":"sam","type":"number","default":0},{"name":"som","type":"number","default":0},{"name":"competitorCount","type":"number","default":5},{"name":"avgCompetitorPrice","type":"number","default":0},{"name":"marketEntryBarrier","type":"number","default":3},{"name":"customerAcquisitionCost","type":"number","default":0},{"name":"customerLifetimeValue","type":"number","default":0},{"name":"digitalAdBudget","type":"number","default":0},{"name":"brandAwareness","type":"number","default":0},{"name":"marketGrowthRate","type":"number","default":5},{"name":"seasonalFactor","type":"number","default":1},{"name":"churnRate","type":"number","default":5},{"name":"repeatPurchaseRate","type":"number","default":20},{"name":"onlineVsOfflineRatio","type":"number","default":30},{"name":"operatingDaysPerMonth","type":"number","default":26},{"name":"operatingHoursPerDay","type":"number","default":10},{"name":"shiftCount","type":"number","default":1},{"name":"capacityUtilizationTarget","type":"number","default":75},{"name":"employeeProductivityIndex","type":"number","default":3},{"name":"maintenanceCostRate","type":"number","default":3},{"name":"insuranceCostAnnual","type":"number","default":0},{"name":"licenseRenewalCost","type":"number","default":0},{"name":"softwareSubscriptions","type":"number","default":0},{"name":"marketingBudget","type":"number","default":0},{"name":"salesCommissionRate","type":"number","default":0},{"name":"energyCostMonthly","type":"number","default":0},{"name":"waterCostMonthly","type":"number","default":0},{"name":"wasteDisposalCost","type":"number","default":0},{"name":"securityCost","type":"number","default":0},{"name":"cleaningCost","type":"number","default":0},{"name":"outsourcingCost","type":"number","default":0},{"name":"trainingCost","type":"number","default":0},{"name":"landCost","type":"number","default":0},{"name":"buildingCost","type":"number","default":0},{"name":"renovationCost","type":"number","default":0},{"name":"machineryCost","type":"number","default":0},{"name":"furnitureCost","type":"number","default":0},{"name":"vehiclesCost","type":"number","default":0},{"name":"workingCapital","type":"number","default":0},{"name":"contingencyReserve","type":"number","default":0},{"name":"salvageValue","type":"number","default":0},{"name":"assetLifeYears","type":"number","default":10},{"name":"preOpeningCost","type":"number","default":0},{"name":"initialInventoryCost","type":"number","default":0},{"name":"permitsAndLicensesCost","type":"number","default":0},{"name":"feasibilityStudyCost","type":"number","default":0},{"name":"equityAmount","type":"number","default":0},{"name":"loanAmount","type":"number","default":0},{"name":"interestRate","type":"number","default":0},{"name":"loanTermYears","type":"number","default":0},{"name":"gracePeriodMonths","type":"number","default":0},{"name":"requiredRoi","type":"number","default":15},{"name":"minDscr","type":"number","default":1.25},{"name":"balloonPayment","type":"number","default":0},{"name":"earlyRepaymentPenalty","type":"number","default":0},{"name":"collateralValue","type":"number","default":0},{"name":"debtServiceStartMonth","type":"number","default":1},{"name":"marketRiskScore","type":"number","default":3},{"name":"operationalRiskScore","type":"number","default":3},{"name":"financialRiskScore","type":"number","default":3},{"name":"regulatoryRiskScore","type":"number","default":3},{"name":"technologyRiskScore","type":"number","default":3},{"name":"reputationRiskScore","type":"number","default":3},{"name":"mitigationBudget","type":"number","default":0},{"name":"supplyChainRiskScore","type":"number","default":3},{"name":"competitionRiskScore","type":"number","default":3},{"name":"currencyRiskScore","type":"number","default":2},{"name":"geopoliticalRiskScore","type":"number","default":2},{"name":"keyAssumptions","type":"textarea","default":""},{"name":"sensitivityCase","type":"select","default":"أساسي"},{"name":"successFactors","type":"textarea","default":""},{"name":"exitStrategy","type":"select","default":"الاحتفاظ بالملكية"}].find(f => f.name === name);
         if (fieldMeta && (fieldMeta.type === 'text' || fieldMeta.type === 'textarea' || fieldMeta.type === 'select')) {
           inputs[name] = getText('expert_' + name);
         } else {
@@ -1282,14 +1230,82 @@
           unitPrice = inputs.unitPrice;
           unitVariableCost = inputs.rawMaterialCostPerUnit;
           break;
-        case 'water-factory':
-          totalInvestment = inputs.factoryCost;
-          monthlyRevenue = inputs.dailyProduction * inputs.bottlePrice * 30;
-          monthlyFixed = inputs.monthlySalaries + inputs.monthlyUtilities;
-          monthlyVariable = inputs.dailyProduction * inputs.rawMaterialCostPerBottle * 30;
-          unitPrice = inputs.bottlePrice;
-          unitVariableCost = inputs.rawMaterialCostPerBottle;
+        case 'water-factory': {
+          var maxDailyProduction = inputs.dailyProduction || 0;
+          var initialUtil = inputs.initialCapacityUtilization || 60;
+          var growthRate = inputs.monthlyGrowthRate || 0;
+          var months = 12;
+          var initialDaily = maxDailyProduction * (initialUtil / 100);
+          var growthFactor = 1 + (growthRate / 100);
+          var costInflationMonthly = Math.pow(1 + ((inputs.annualCostInflation || 0) / 100), 1 / 12);
+          var priceInflationMonthly = Math.pow(1 + ((inputs.annualPriceIncrease || 0) / 100), 1 / 12);
+
+          var directRate = (inputs.directSalesRate || 0) / 100;
+          var distRate = (inputs.distributorSalesRate || 0) / 100;
+          var platformRate = (inputs.platformSalesRate || 0) / 100;
+          var distDiscount = (inputs.distributorDiscountRate || 0) / 100;
+          var platformCommission = (inputs.platformCommissionRate || 0) / 100;
+          var baseNetPrice = inputs.bottlePrice * (directRate + distRate * (1 - distDiscount) + platformRate * (1 - platformCommission));
+
+          var materialCostPerBottle = (inputs.bottleCostPerUnit || 0) + (inputs.capCostPerUnit || 0) + (inputs.labelCostPerUnit || 0);
+          var baseVariableCostPerBottle = materialCostPerBottle + (inputs.cartonCostPerBottle || 0) + (inputs.shrinkCostPerBottle || 0);
+
+          var bottlesPerTrip = inputs.bottlesPerDeliveryTrip || 0;
+          var tripCost = (inputs.avgDeliveryDistanceKm || 0) * (inputs.deliveryCostPerKm || 0);
+          var autoLogisticsCost = bottlesPerTrip > 0 ? tripCost / bottlesPerTrip : 0;
+          var logisticsCostPerBottle = autoLogisticsCost > 0 ? autoLogisticsCost : (inputs.logisticsCostPerBottle || 0);
+
+          var variableCostPerBottle = baseVariableCostPerBottle + logisticsCostPerBottle;
+
+          var totalDaily = 0;
+          var totalRevenue = 0;
+          var totalVariable = 0;
+          for (var m = 0; m < months; m++) {
+            var daily = initialDaily * Math.pow(growthFactor, m);
+            if (daily > maxDailyProduction) daily = maxDailyProduction;
+            var effectiveDaily = daily * (1 - (inputs.wastageRate || 0) / 100);
+            var priceMultiplier = Math.pow(priceInflationMonthly, m);
+            var costMultiplier = Math.pow(costInflationMonthly, m);
+            totalDaily += daily;
+            totalRevenue += effectiveDaily * baseNetPrice * priceMultiplier * 30;
+            totalVariable += effectiveDaily * variableCostPerBottle * costMultiplier * 30;
+          }
+          var avgDailyProduction = totalDaily / months;
+          var effectiveDailyProduction = avgDailyProduction * (1 - (inputs.wastageRate || 0) / 100);
+          monthlyRevenue = totalRevenue / months;
+          monthlyVariable = totalVariable / months;
+
+          var buildingCost = (inputs.warehouseAreaM2 || 0) * (inputs.buildingCostPerM2 || 0);
+          var rawMaterialInventory = avgDailyProduction * variableCostPerBottle * (inputs.rawMaterialInventoryDays || 0);
+          totalInvestment = (inputs.factoryCost || 0) + buildingCost + rawMaterialInventory;
+
+          var autoSalaries = (inputs.shiftCount || 0) * (inputs.workersPerShift || 0) * (inputs.shiftCostPerWorker || 0) * (inputs.monthlyWorkingDays || 0);
+          var monthlySalaries = autoSalaries > 0 ? autoSalaries : (inputs.monthlySalaries || 0);
+
+          var equityRatio = Math.min(100, Math.max(0, inputs.equityRatio || 0));
+          var loanAmount = totalInvestment * (1 - equityRatio / 100);
+          var monthlyInterest = (inputs.loanInterestRate || 0) / 100 / 12;
+          var loanMonths = (inputs.loanTermYears || 0) * 12;
+          var monthlyInstallment = 0;
+          if (loanAmount > 0 && loanMonths > 0) {
+            if (monthlyInterest > 0) {
+              monthlyInstallment = loanAmount * (monthlyInterest * Math.pow(1 + monthlyInterest, loanMonths)) / (Math.pow(1 + monthlyInterest, loanMonths) - 1);
+            } else {
+              monthlyInstallment = loanAmount / loanMonths;
+            }
+          }
+
+          var electricityMonthly = (effectiveDailyProduction * 30 / 1000) * (inputs.kWhPerThousandBottles || 0) * (inputs.electricityRatePerKwh || 0);
+          var waterMonthly = (effectiveDailyProduction * 30 / 1000) * (inputs.waterM3PerThousandBottles || 0) * (inputs.waterRatePerM3 || 0);
+          var maintenanceMonthly = (inputs.factoryCost || 0) * ((inputs.maintenanceRate || 0) / 100) / 12;
+          var marketingMonthly = (inputs.monthlyNewCustomers || 0) * (inputs.marketingCostPerCustomer || 0);
+
+          monthlyFixed = monthlySalaries + electricityMonthly + waterMonthly + (inputs.labCostMonthly || 0) + (inputs.monthlyLicenseInsurance || 0) + maintenanceMonthly + marketingMonthly + monthlyInstallment;
+
+          unitPrice = baseNetPrice;
+          unitVariableCost = variableCostPerBottle;
           break;
+        }
         case 'plastic-factory':
           totalInvestment = inputs.factoryCost;
           monthlyRevenue = inputs.monthlyCapacity * inputs.pricePerKg;
@@ -1613,6 +1629,18 @@
 
     function calculate() {
       const inputs = mapInputs();
+
+      if (sectorId === 'water-factory') {
+        const channelSum = (inputs.directSalesRate || 0) + (inputs.distributorSalesRate || 0) + (inputs.platformSalesRate || 0);
+        if (Math.abs(channelSum - 100) > 0.01) {
+          const msg = isAr
+            ? 'مجموع قنوات البيع يجب أن يساوي 100% (المباشرة + الموزعين + المنصات).'
+            : 'Sales channel ratios must sum to 100% (direct + distributors + platforms).';
+          alert(msg);
+          return;
+        }
+      }
+
       const engineInputs = calculateEngineInputs(inputs);
 
       if (window.InvestmentValidator && window.InvestmentValidator.validate) {
@@ -1651,6 +1679,16 @@
       const reasonsList = document.getElementById('recommendationReasons');
       reasonsList.innerHTML = rec.reasons.map(r => `<li>${r}</li>`).join('');
 
+      // Pro-Forma advanced analysis for supported sectors
+      if (isProFormaSector(sectorId)) {
+        if (sectorId === 'water-factory') {
+          renderWaterFactoryAdvanced(inputs, engineInputs, result);
+        } else {
+          renderGenericProFormaAdvanced(inputs, engineInputs, result);
+        }
+        renderExecutiveSummary(inputs, engineInputs, result);
+      }
+
       // Decision Intelligence Layer
       if (window.DecisionIntelligence && window.DecisionIntelligence.analyze) {
         const diResult = window.DecisionIntelligence.analyze(inputs, result, isAr ? 'ar' : 'en');
@@ -1660,13 +1698,1069 @@
         renderDecisionIntelligence(diResult);
       }
 
-      // Pro-Forma Financial Statements
-      if (window.ProFormaRenderer && window.ProFormaRenderer.render) {
-        window.ProFormaRenderer.render(inputs, { sector: sectorId, isAr, formatNumber });
-      }
-
       document.getElementById('resultsSection').classList.remove('hidden');
       window._lastResult = result;
+
+      renderSectorAnomalies(inputs, result);
+    }
+
+    function runGoalSeek() {
+      if (!window.ProFormaEngine || !window.ProFormaEngine.goalSeek) return;
+      const inputs = mapInputs();
+      const fieldEl = document.getElementById('goalSeekField');
+      const field = fieldEl ? fieldEl.value : 'bottlePrice';
+
+      const bounds = {
+        bottlePrice: { min: 0.1, max: 10 },
+        bottleCostPerUnit: { min: 0.01, max: 5 },
+        dailyProduction: { min: 1000, max: 200000 }
+      };
+      const bound = bounds[field] || { min: 0, max: 1000 };
+
+      const result = window.ProFormaEngine.goalSeek(inputs, field, 'npv', 0, bound.min, bound.max, { sector: 'water-factory' });
+
+      const currency = isAr ? 'ر.س' : 'SAR';
+      const valueEl = document.getElementById('gsRequiredValue');
+      const npvEl = document.getElementById('gsNpvAtValue');
+
+      if (valueEl) {
+        if (result.found) {
+          let displayValue = formatNumber(result.value);
+          if (field === 'bottlePrice' || field === 'bottleCostPerUnit') displayValue += ' ' + currency;
+          if (field === 'dailyProduction') displayValue += ' ' + (isAr ? 'عبوة/يوم' : 'bottles/day');
+          valueEl.textContent = displayValue;
+          valueEl.style.color = '#4ade80';
+        } else {
+          valueEl.textContent = isAr ? 'لا يوجد حل ضمن النطاق' : 'No solution in range';
+          valueEl.style.color = '#f87171';
+        }
+      }
+
+      if (npvEl && result.found) {
+        const pf = window.ProFormaEngine.buildProFormaStatements({ ...inputs, [field]: result.value }, 60, { sector: 'water-factory' });
+        npvEl.textContent = formatNumber(pf.summary.npv) + ' ' + currency;
+        npvEl.style.color = pf.summary.npv >= 0 ? '#4ade80' : '#f87171';
+      }
+    }
+
+    function analyzeSectorInputs(rawInputs) {
+      const engineInputs = calculateEngineInputs(rawInputs);
+      let result = isAr ? window.InvestmentEngine.analyze(engineInputs) : window.InvestmentEngine.analyzeEn(engineInputs);
+      if (window.InvestmentRiskEngine && window.InvestmentRiskEngine.applyWorkingCapital) {
+        result = window.InvestmentRiskEngine.applyWorkingCapital(engineInputs, result, sectorId);
+      }
+      return result;
+    }
+
+    function getMonteCarloVariables(inputs) {
+      // Sector-aware mappings for top sectors
+      const sectorMappings = {
+        'water-factory': [
+          { field: 'bottlePrice', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 },
+          { field: 'dailyProduction', type: 'triangular', minFactor: 0.7, maxFactor: 1.3 },
+          { field: 'bottleCostPerUnit', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 }
+        ],
+        'industrial': [
+          { field: 'unitPrice', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 },
+          { field: 'monthlyCapacity', type: 'triangular', minFactor: 0.7, maxFactor: 1.3 },
+          { field: 'rawMaterialCost', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 }
+        ],
+        'real-estate': [
+          { field: 'unitPrice', type: 'triangular', minFactor: 0.75, maxFactor: 1.25 },
+          { field: 'unitsCount', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 },
+          { field: 'constructionCost', type: 'triangular', minFactor: 0.85, maxFactor: 1.15 }
+        ],
+        'tourism': [
+          { field: 'avgDailyRate', type: 'triangular', minFactor: 0.75, maxFactor: 1.25 },
+          { field: 'occupancyRate', type: 'triangular', minFactor: 0.7, maxFactor: 1.1, capMax: 100 },
+          { field: 'setupCost', type: 'triangular', minFactor: 0.85, maxFactor: 1.15 }
+        ],
+        'restaurants': [
+          { field: 'avgTicket', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 },
+          { field: 'dailyCustomers', type: 'triangular', minFactor: 0.7, maxFactor: 1.3 },
+          { field: 'foodCostRate', type: 'triangular', minFactor: 0.85, maxFactor: 1.15, capMax: 100 }
+        ],
+        'technology': [
+          { field: 'subscriptionPrice', type: 'triangular', minFactor: 0.75, maxFactor: 1.25 },
+          { field: 'subscribers', type: 'triangular', minFactor: 0.6, maxFactor: 1.4 },
+          { field: 'developmentCost', type: 'triangular', minFactor: 0.85, maxFactor: 1.15 }
+        ],
+        'retail': [
+          { field: 'dailySales', type: 'triangular', minFactor: 0.7, maxFactor: 1.3 },
+          { field: 'profitMargin', type: 'triangular', minFactor: 0.75, maxFactor: 1.25, capMax: 100 },
+          { field: 'inventoryCost', type: 'triangular', minFactor: 0.85, maxFactor: 1.15 }
+        ],
+        'medical': [
+          { field: 'avgDailyRevenue', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 },
+          { field: 'materialCostRate', type: 'triangular', minFactor: 0.85, maxFactor: 1.15, capMax: 100 },
+          { field: 'equipmentCost', type: 'triangular', minFactor: 0.85, maxFactor: 1.15 }
+        ],
+        'logistics': [
+          { field: 'revenuePerTrip', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 },
+          { field: 'monthlyTrips', type: 'triangular', minFactor: 0.7, maxFactor: 1.3 },
+          { field: 'fuelMaintenance', type: 'triangular', minFactor: 0.85, maxFactor: 1.15 }
+        ],
+        'agriculture': [
+          { field: 'pricePerKg', type: 'triangular', minFactor: 0.75, maxFactor: 1.25 },
+          { field: 'yieldPerHectare', type: 'triangular', minFactor: 0.7, maxFactor: 1.3 },
+          { field: 'operationalCostPerKg', type: 'triangular', minFactor: 0.8, maxFactor: 1.2 }
+        ]
+      };
+
+      const mapping = sectorMappings[sectorId];
+      if (mapping) {
+        const variables = [];
+        mapping.forEach(m => {
+          const value = toNumber(inputs[m.field]);
+          if (value > 0) {
+            let min = value * m.minFactor;
+            let max = value * m.maxFactor;
+            if (m.capMax !== undefined) {
+              min = Math.min(min, m.capMax);
+              max = Math.min(max, m.capMax);
+            }
+            variables.push({ field: m.field, type: m.type, min, max, mode: value });
+          }
+        });
+        if (variables.length > 0) return variables;
+      }
+
+      // Fallback heuristic: pick numeric fields that look like price, volume, or cost drivers
+      const pricePatterns = /price|cost|ticket|fee|rate|revenue|earning|profit|margin/i;
+      const volumePatterns = /capacity|units|customers|subscribers|seats|production|sales|trips|yield|area|count|size/i;
+      const allNumericFields = Object.keys(inputs).filter(k => typeof inputs[k] === 'number' && Number.isFinite(inputs[k]) && inputs[k] > 0);
+      const candidates = allNumericFields.filter(k => pricePatterns.test(k) || volumePatterns.test(k));
+      const priceField = candidates.find(k => /price|ticket|fee|rate/i.test(k)) || candidates[0];
+      const volumeField = candidates.find(k => /capacity|units|customers|subscribers|seats|production|sales|trips|yield|area|count|size/i.test(k) && k !== priceField) || candidates[1];
+      const costField = candidates.find(k => /cost|expense|maintenance|salaries|rent/i.test(k) && k !== priceField && k !== volumeField) || candidates[2];
+
+      const variables = [];
+      if (priceField) variables.push({ field: priceField, type: 'triangular', min: inputs[priceField] * 0.8, max: inputs[priceField] * 1.2, mode: inputs[priceField] });
+      if (volumeField) variables.push({ field: volumeField, type: 'triangular', min: inputs[volumeField] * 0.7, max: inputs[volumeField] * 1.3, mode: inputs[volumeField] });
+      if (costField) variables.push({ field: costField, type: 'triangular', min: inputs[costField] * 0.8, max: inputs[costField] * 1.2, mode: inputs[costField] });
+      return variables;
+    }
+
+    function runSectorMonteCarlo() {
+      if (!window.InvestmentRiskEngine || !window.InvestmentRiskEngine.runMonteCarlo) return;
+      const inputs = mapInputs();
+      const variables = getMonteCarloVariables(inputs);
+      if (variables.length === 0) {
+        alert(isAr ? 'لا توجد متغيرات رقمية مناسبة للمحاكاة.' : 'No suitable numeric variables for simulation.');
+        return;
+      }
+      const mc = window.InvestmentRiskEngine.runMonteCarlo(inputs, variables, 500, analyzeSectorInputs);
+      window._lastSectorMonteCarlo = mc;
+      const currency = isAr ? 'ر.س' : 'SAR';
+
+      const successEl = document.getElementById('sectorMcSuccessRate');
+      if (successEl) successEl.textContent = (mc.successRate * 100).toFixed(1) + '%';
+      const meanEl = document.getElementById('sectorMcMeanNpv');
+      if (meanEl) meanEl.textContent = formatNumber(mc.npv.mean) + ' ' + currency;
+      const varEl = document.getElementById('sectorMcVar95');
+      if (varEl) {
+        varEl.textContent = formatNumber(mc.risk.var95) + ' ' + currency;
+        varEl.style.color = mc.risk.var95 < 0 ? '#f87171' : '#4ade80';
+      }
+      const cvarEl = document.getElementById('sectorMcCvar95');
+      if (cvarEl) {
+        cvarEl.textContent = formatNumber(mc.risk.cvar95) + ' ' + currency;
+        cvarEl.style.color = mc.risk.cvar95 < 0 ? '#f87171' : '#4ade80';
+      }
+
+      const canvas = document.getElementById('sectorMonteCarloChart');
+      if (canvas && typeof Chart !== 'undefined') {
+        const ctx = canvas.getContext('2d');
+        if (window._sectorMonteCarloChart) window._sectorMonteCarloChart.destroy();
+        window._sectorMonteCarloChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: mc.histogram.labels,
+            datasets: [{
+              label: isAr ? 'توزيع NPV' : 'NPV Distribution',
+              data: mc.histogram.counts,
+              backgroundColor: 'rgba(212,168,83,0.7)',
+              borderColor: '#d4a853',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { ticks: { color: '#94a3b8', maxTicksLimit: 8 } },
+              y: { ticks: { color: '#94a3b8' } }
+            }
+          }
+        });
+      }
+    }
+
+    function exportSectorMonteCarloCsv() {
+      const mc = window._lastSectorMonteCarlo;
+      if (!mc || !mc.samples || mc.samples.length === 0) {
+        alert(isAr ? 'يرجى تشغيل المحاكاة أولاً.' : 'Please run the simulation first.');
+        return;
+      }
+
+      const varNames = mc.variables.map(v => v.field);
+      const headers = [isAr ? 'تكرار' : 'Iteration', ...varNames, 'NPV', 'IRR', 'ROI'];
+      const escape = (val) => {
+        const s = String(val).replace(/"/g, '""');
+        return /[",
+]/.test(s) ? '"' + s + '"' : s;
+      };
+
+      const rows = mc.samples.map(s => [
+        s.iteration,
+        ...varNames.map(name => s.variables[name]),
+        s.npv,
+        s.irr,
+        s.roi
+      ]);
+
+      const csv = '﻿' + headers.map(escape).join(',') + '
+' +
+        rows.map(r => r.map(escape).join(',')).join('
+');
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (isAr ? 'محاكاة_مونت_كارلو' : 'monte_carlo_simulation') + '_' + sectorId + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function renderSectorAnomalies(inputs, result) {
+      if (!window.InvestmentRiskEngine || !window.InvestmentRiskEngine.detectAnomalies) return;
+      const container = document.getElementById('sectorAnomalyList');
+      if (!container) return;
+      const warnings = window.InvestmentRiskEngine.detectAnomalies(inputs, result, isAr ? 'ar' : 'en');
+      if (warnings.length === 0) {
+        container.innerHTML = '';
+        return;
+      }
+      container.innerHTML = '<div style="background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);border-radius:8px;padding:0.75rem;">' +
+        '<strong style="color:#f87171;display:block;margin-bottom:0.5rem;">' + (isAr ? '⚠️ تنبيهات الشذوذ' : '⚠️ Anomaly Alerts') + '</strong>' +
+        '<ul style="margin:0;padding-' + (isAr ? 'right' : 'left') + ':1.25rem;color:#fca5a5;font-size:0.85rem;">' +
+        warnings.map(w => '<li>' + w.message + '</li>').join('') +
+        '</ul></div>';
+    }
+
+    function runSectorGoalSeek() {
+      if (!window.InvestmentRiskEngine || !window.InvestmentRiskEngine.goalSeek) return;
+      const inputs = mapInputs();
+      const fieldEl = document.getElementById('sectorGoalSeekField');
+      const metricEl = document.getElementById('sectorGoalSeekMetric');
+      const valueEl = document.getElementById('sectorGoalSeekValue');
+      if (!fieldEl || !metricEl || !valueEl) return;
+
+      const field = fieldEl.value;
+      const metric = metricEl.value;
+      const targetValue = toNumber(valueEl.value, 0);
+      const currentValue = toNumber(inputs[field], 1);
+      const min = Math.max(0, currentValue * 0.1);
+      const max = currentValue * 5;
+
+      const result = window.InvestmentRiskEngine.goalSeek(inputs, field, metric, targetValue, min, max, analyzeSectorInputs);
+      const valueDisplay = document.getElementById('sectorGsRequiredValue');
+      const metricDisplay = document.getElementById('sectorGsMetricAtValue');
+      const currency = isAr ? 'ر.س' : 'SAR';
+
+      if (valueDisplay) {
+        if (result.found) {
+          valueDisplay.textContent = formatNumber(result.value);
+          valueDisplay.style.color = '#4ade80';
+        } else {
+          valueDisplay.textContent = isAr ? 'لا يوجد حل' : 'No solution';
+          valueDisplay.style.color = '#f87171';
+        }
+      }
+
+      if (metricDisplay && result.found) {
+        const check = analyzeSectorInputs({ ...inputs, [field]: result.value });
+        const val = check.metrics[metric];
+        const suffix = metric === 'irr' || metric === 'roi' ? '%' : ' ' + currency;
+        metricDisplay.textContent = formatNumber(val) + suffix;
+        metricDisplay.style.color = metric === 'paybackMonths' ? 'inherit' : (val >= targetValue ? '#4ade80' : '#f87171');
+      }
+    }
+
+    function runSectorTornado() {
+      const canvas = document.getElementById('sectorTornadoChart');
+      if (!canvas || typeof Chart === 'undefined') return;
+      const select = document.getElementById('sectorTornadoFields');
+      const range = toNumber(document.getElementById('sectorTornadoRange').value, 20) / 100;
+      if (!select || !select.options) return;
+
+      const selected = Array.from(select.options).filter(o => o.selected).map(o => o.value);
+      if (selected.length === 0) {
+        alert(isAr ? 'يرجى اختيار متغير واحد على الأقل.' : 'Please select at least one variable.');
+        return;
+      }
+      if (selected.length > 5) {
+        alert(isAr ? 'يمكن اختيار 5 متغيرات كحد أقصى.' : 'Maximum 5 variables allowed.');
+        return;
+      }
+
+      const inputs = mapInputs();
+      const baseResult = analyzeSectorInputs(inputs);
+      const baseNpv = baseResult.metrics.npv;
+      const impacts = selected.map(field => {
+        const baseVal = toNumber(inputs[field], 1);
+        const up = analyzeSectorInputs({ ...inputs, [field]: baseVal * (1 + range) }).metrics.npv;
+        const down = analyzeSectorInputs({ ...inputs, [field]: baseVal * (1 - range) }).metrics.npv;
+        return { field, label: field, up: up - baseNpv, down: down - baseNpv, span: Math.abs(up - down) };
+      }).sort((a, b) => b.span - a.span);
+
+      const ctx = canvas.getContext('2d');
+      if (window._sectorTornadoChart) window._sectorTornadoChart.destroy();
+      window._sectorTornadoChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: impacts.map(i => i.label),
+          datasets: [
+            { label: isAr ? 'تأثير +' : 'Upside', data: impacts.map(i => i.up), backgroundColor: '#4ade80' },
+            { label: isAr ? 'تأثير −' : 'Downside', data: impacts.map(i => i.down), backgroundColor: '#f87171' }
+          ]
+        },
+        options: {
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#e8ecf4' } } },
+          scales: {
+            x: { ticks: { color: '#94a3b8' }, title: { display: true, text: isAr ? 'تغير NPV' : 'NPV Change', color: '#e8ecf4' } },
+            y: { ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    function runRealOption() {
+      if (!window.RealOptionsEngine || !window.RealOptionsEngine.priceRealOption) {
+        alert(isAr ? 'محرك خيارات الاستثمار غير متوفر.' : 'Real options engine is not available.');
+        return;
+      }
+      const result = window._lastResult;
+      if (!result || !result.metrics) {
+        alert(isAr ? 'يرجى تشغيل التحليل المالي أولاً.' : 'Please run the financial analysis first.');
+        return;
+      }
+      const npv = result.metrics.npv;
+      const totalInvestment = result.metrics.totalInvestment || 0;
+      const type = document.getElementById('realOptionType').value;
+      const volatility = toNumber(document.getElementById('realOptionVolatility').value, 30) / 100;
+      const time = toNumber(document.getElementById('realOptionTime').value, 2);
+      const rate = toNumber(document.getElementById('realOptionRate').value, 5) / 100;
+      const strikeInput = toNumber(document.getElementById('realOptionStrike').value, 0);
+
+      let strike = strikeInput;
+      if (strike <= 0) {
+        if (type === 'expand') strike = totalInvestment * 0.3;
+        else if (type === 'abandon') strike = totalInvestment * 0.5;
+        else strike = totalInvestment * 0.1;
+      }
+
+      const ro = window.RealOptionsEngine.priceRealOption({
+        s0: npv,
+        strike: strike,
+        volatility: volatility,
+        riskFreeRate: rate,
+        timeToExpiry: time,
+        optionType: type,
+        optionMultiplier: 1.5,
+        salvageValue: strike
+      });
+
+      const currency = isAr ? 'ر.س' : 'SAR';
+      const valueEl = document.getElementById('realOptionValue');
+      if (valueEl) valueEl.textContent = formatNumber(ro.optionValue) + ' ' + currency;
+      const intrinsicEl = document.getElementById('realOptionIntrinsic');
+      if (intrinsicEl) intrinsicEl.textContent = formatNumber(ro.intrinsicValue) + ' ' + currency;
+      const timeEl = document.getElementById('realOptionTimeValue');
+      if (timeEl) timeEl.textContent = formatNumber(ro.timeValue) + ' ' + currency;
+      const recEl = document.getElementById('realOptionRecommendation');
+      if (recEl) recEl.textContent = ro.recommendation.action;
+    }
+
+    function pmt(rate, nper, pv) {
+      if (rate === 0) return pv / nper;
+      return pv * (rate * Math.pow(1 + rate, nper)) / (Math.pow(1 + rate, nper) - 1);
+    }
+
+    function computeWaterFactoryFinancing(inputs, totalInvestment) {
+      const equityRatio = Math.min(100, Math.max(0, inputs.equityRatio || 0));
+      const equity = totalInvestment * (equityRatio / 100);
+      const loanAmount = totalInvestment - equity;
+      const monthlyInterest = (inputs.loanInterestRate || 0) / 100 / 12;
+      const loanMonths = Math.max(0, (inputs.loanTermYears || 0) * 12);
+      const monthlyInstallment = loanAmount > 0 && loanMonths > 0 ? pmt(monthlyInterest, loanMonths, loanAmount) : 0;
+      return { equity, loanAmount, monthlyInstallment };
+    }
+
+    function renderWaterFactoryFinancing(inputs, engineInputs) {
+      const financing = computeWaterFactoryFinancing(inputs, engineInputs.totalInvestment);
+      const totalEl = document.getElementById('wfTotalInvestment');
+      if (totalEl) totalEl.textContent = formatNumber(engineInputs.totalInvestment) + ' ' + (isAr ? 'ر.س' : 'SAR');
+      const equityEl = document.getElementById('wfEquity');
+      if (equityEl) equityEl.textContent = formatNumber(financing.equity) + ' ' + (isAr ? 'ر.س' : 'SAR');
+      const loanEl = document.getElementById('wfLoanAmount');
+      if (loanEl) loanEl.textContent = formatNumber(financing.loanAmount) + ' ' + (isAr ? 'ر.س' : 'SAR');
+      const instEl = document.getElementById('wfMonthlyInstallment');
+      if (instEl) instEl.textContent = formatNumber(financing.monthlyInstallment) + ' ' + (isAr ? 'ر.س' : 'SAR');
+    }
+
+    function runSensitivityAnalysis(inputs) {
+      const base = calculateEngineInputs(inputs);
+      const vars = [
+        { key: 'bottlePrice', label: isAr ? 'سعر بيع العبوة' : 'Bottle price' },
+        { key: 'bottleCostPerUnit', label: isAr ? 'تكلفة الزجاجة' : 'Bottle cost' },
+        { key: 'dailyProduction', label: isAr ? 'الإنتاج اليومي' : 'Daily production' }
+      ];
+      const steps = [-0.2, -0.1, 0, 0.1, 0.2];
+      const rows = vars.map(v => {
+        const baseVal = inputs[v.key] || 0;
+        return {
+          label: v.label,
+          values: steps.map(s => {
+            const modified = { ...inputs, [v.key]: baseVal * (1 + s) };
+            const res = calculateEngineInputs(modified);
+            const engine = isAr ? window.InvestmentEngine : window.InvestmentEngine;
+            const analysis = engine ? engine.analyze(res) : null;
+            return analysis && analysis.success ? { npv: analysis.metrics.npv, roi: analysis.metrics.roi } : { npv: 0, roi: 0 };
+          })
+        };
+      });
+      return rows;
+    }
+
+    function renderSensitivityTable(rows) {
+      const tbody = document.getElementById('sensitivityTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = rows.map(r => {
+        return '<tr style="border-bottom: 1px solid rgba(197,160,40,0.1);">' +
+          '<td style="padding: 0.5rem;">' + r.label + '</td>' +
+          r.values.map(v => '<td style="text-align: center; padding: 0.5rem;">NPV: ' + formatNumber(v.npv) + '<br>ROI: ' + formatNumber(v.roi) + '%</td>').join('') +
+          '</tr>';
+      }).join('');
+    }
+
+    function runCashFlowProjection(inputs) {
+      const maxDaily = inputs.dailyProduction || 0;
+      const initialUtil = inputs.initialCapacityUtilization || 60;
+      const growthRate = inputs.monthlyGrowthRate || 0;
+      const growthFactor = 1 + (growthRate / 100);
+      const initialDaily = maxDaily * (initialUtil / 100);
+      const wastage = (inputs.wastageRate || 0) / 100;
+      const costInflationMonthly = Math.pow(1 + ((inputs.annualCostInflation || 0) / 100), 1 / 12);
+      const priceInflationMonthly = Math.pow(1 + ((inputs.annualPriceIncrease || 0) / 100), 1 / 12);
+
+      const directRate = (inputs.directSalesRate || 0) / 100;
+      const distRate = (inputs.distributorSalesRate || 0) / 100;
+      const platformRate = (inputs.platformSalesRate || 0) / 100;
+      const distDiscount = (inputs.distributorDiscountRate || 0) / 100;
+      const platformCommission = (inputs.platformCommissionRate || 0) / 100;
+      const avgNetPrice = inputs.bottlePrice * (directRate + distRate * (1 - distDiscount) + platformRate * (1 - platformCommission));
+
+      const materialCostPerBottle = (inputs.bottleCostPerUnit || 0) + (inputs.capCostPerUnit || 0) + (inputs.labelCostPerUnit || 0);
+      const baseVariableCostPerBottle = materialCostPerBottle + (inputs.cartonCostPerBottle || 0) + (inputs.shrinkCostPerBottle || 0);
+      const bottlesPerTrip = inputs.bottlesPerDeliveryTrip || 0;
+      const tripCost = (inputs.avgDeliveryDistanceKm || 0) * (inputs.deliveryCostPerKm || 0);
+      const autoLogisticsCost = bottlesPerTrip > 0 ? tripCost / bottlesPerTrip : 0;
+      const logisticsCostPerBottle = autoLogisticsCost > 0 ? autoLogisticsCost : (inputs.logisticsCostPerBottle || 0);
+      const variableCostPerBottle = baseVariableCostPerBottle + logisticsCostPerBottle;
+
+      const engineBase = calculateEngineInputs(inputs);
+      const monthlyFixedBase = engineBase.monthlyFixedCosts;
+
+      const rows = [];
+      let cumulative = -engineBase.totalInvestment;
+      for (let m = 0; m < 12; m++) {
+        const daily = Math.min(maxDaily, initialDaily * Math.pow(growthFactor, m));
+        const effectiveDaily = daily * (1 - wastage);
+        const priceMultiplier = Math.pow(priceInflationMonthly, m);
+        const costMultiplier = Math.pow(costInflationMonthly, m);
+        const revenue = effectiveDaily * avgNetPrice * priceMultiplier * 30;
+        const variableCost = effectiveDaily * variableCostPerBottle * costMultiplier * 30;
+        const monthlyFixed = monthlyFixedBase * costMultiplier;
+        const netCashFlow = revenue - monthlyFixed - variableCost;
+        cumulative += netCashFlow;
+        rows.push({ month: m + 1, revenue, costs: monthlyFixed + variableCost, netCashFlow, cumulative });
+      }
+      return rows;
+    }
+
+    function renderCashFlowTable(rows) {
+      const tbody = document.getElementById('cashflowTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = rows.map(r => {
+        const cumulativeClass = r.cumulative >= 0 ? 'style="color: #4ade80;"' : 'style="color: #f87171;"';
+        return '<tr style="border-bottom: 1px solid rgba(197,160,40,0.1);">' +
+          '<td style="padding: 0.5rem;">' + r.month + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(r.revenue) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(r.costs) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(r.netCashFlow) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;" ' + cumulativeClass + '>' + formatNumber(r.cumulative) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function renderExecutiveSummary(inputs, engineInputs, result) {
+      const textEl = document.getElementById('executiveSummaryText');
+      const invEl = document.getElementById('esTotalInvestment');
+      const profitEl = document.getElementById('esMonthlyProfit');
+      const beEl = document.getElementById('esBreakEven');
+      const cfEl = document.getElementById('esAnnualCashFlow');
+      if (!textEl) return;
+
+      const m = result.metrics;
+      const monthlyProfit = engineInputs.monthlyRevenue - engineInputs.monthlyFixedCosts - engineInputs.monthlyVariableCosts;
+      const annualCashFlow = monthlyProfit * 12;
+      const currency = isAr ? 'ر.س' : 'SAR';
+
+      if (invEl) invEl.textContent = formatNumber(engineInputs.totalInvestment) + ' ' + currency;
+      if (profitEl) profitEl.textContent = formatNumber(monthlyProfit) + ' ' + currency;
+      if (beEl) beEl.textContent = formatNumber(m.breakEvenUnits) + ' ' + (isAr ? 'عبوة' : 'bottles');
+      if (cfEl) cfEl.textContent = formatNumber(annualCashFlow) + ' ' + currency;
+
+      const decision = m.roi >= 20 && m.paybackMonths <= 36
+        ? (isAr ? 'موصى به' : 'Recommended')
+        : (m.roi >= 10 && m.paybackMonths <= 60
+          ? (isAr ? 'يحتاج مراجعة' : 'Needs review')
+          : (isAr ? 'غير موصى به' : 'Not recommended'));
+
+      const summaryAr = 'بناءً على المدخلات، يتطلب المشروع استثماراً أولياً قدره <strong>' + formatNumber(engineInputs.totalInvestment) + ' ر.س</strong>، ويحقق ربحاً شهرياً متوسطاً قدره <strong>' + formatNumber(monthlyProfit) + ' ر.س</strong>. معدل العائد على الاستثمار <strong>' + formatNumber(m.roi) + '%</strong> وفترة الاسترداد <strong>' + formatNumber(m.paybackMonths) + ' شهر</strong>. التوصية العامة: <strong>' + decision + '</strong>.';
+      const summaryEn = 'Based on the inputs, the project requires an initial investment of <strong>' + formatNumber(engineInputs.totalInvestment) + ' SAR</strong>, and generates an average monthly profit of <strong>' + formatNumber(monthlyProfit) + ' SAR</strong>. The return on investment is <strong>' + formatNumber(m.roi) + '%</strong> with a payback period of <strong>' + formatNumber(m.paybackMonths) + ' months</strong>. Overall recommendation: <strong>' + decision + '</strong>.';
+
+      textEl.innerHTML = isAr ? summaryAr : summaryEn;
+    }
+
+    function isProFormaSector(id) {
+      return ['water-factory', 'industrial', 'food-factory', 'real-estate', 'restaurants', 'technology'].includes(id);
+    }
+
+    function renderWaterFactoryAdvanced(inputs, engineInputs, result) {
+      renderWaterFactoryFinancing(inputs, engineInputs);
+      const sensitivityRows = runSensitivityAnalysis(inputs);
+      renderSensitivityTable(sensitivityRows);
+      const cashFlowRows = runCashFlowProjection(inputs);
+      renderCashFlowTable(cashFlowRows);
+      renderProFormaStatements(inputs, 'water-factory');
+      renderWaterFactoryKPIs(inputs, engineInputs);
+      renderBottleSizeComparison(inputs, engineInputs);
+      renderRiskAnalysis(inputs);
+    }
+
+    function renderGenericProFormaAdvanced(inputs, engineInputs, result) {
+      // Hide water-factory-specific sections
+      const kpiSection = document.querySelector('.kpi-summary');
+      if (kpiSection) kpiSection.style.display = 'none';
+      const bottleSection = document.querySelector('.bottle-size-comparison');
+      if (bottleSection) bottleSection.style.display = 'none';
+
+      renderProFormaStatements(inputs, sectorId);
+    }
+
+    function getProFormaMonteCarloVariables(inputs, sector) {
+      if (sector === 'water-factory') {
+        return [
+          { name: 'bottlePrice', field: 'bottlePrice', type: 'triangular', min: inputs.bottlePrice * 0.8, max: inputs.bottlePrice * 1.2, mode: inputs.bottlePrice },
+          { name: 'dailyProduction', field: 'dailyProduction', type: 'triangular', min: inputs.dailyProduction * 0.8, max: inputs.dailyProduction * 1.2, mode: inputs.dailyProduction },
+          { name: 'bottleCost', field: 'bottleCostPerUnit', type: 'triangular', min: inputs.bottleCostPerUnit * 0.8, max: inputs.bottleCostPerUnit * 1.2, mode: inputs.bottleCostPerUnit }
+        ];
+      }
+      const priceField = inputs.unitPrice ? 'unitPrice' : (inputs.avgTicket ? 'avgTicket' : (inputs.subscriptionPrice ? 'subscriptionPrice' : 'unitPrice'));
+      const volumeField = inputs.monthlyCapacity ? 'monthlyCapacity' : (inputs.dailyCustomers ? 'dailyCustomers' : (inputs.subscribers ? 'subscribers' : 'monthlyCapacity'));
+      const costField = inputs.rawMaterialCostPerUnit ? 'rawMaterialCostPerUnit' : (inputs.rawMaterialCost ? 'rawMaterialCost' : (inputs.foodCostRate ? 'foodCostRate' : 'rawMaterialCostPerUnit'));
+      return [
+        { name: priceField, field: priceField, type: 'triangular', min: inputs[priceField] * 0.8, max: inputs[priceField] * 1.2, mode: inputs[priceField] },
+        { name: volumeField, field: volumeField, type: 'triangular', min: inputs[volumeField] * 0.7, max: inputs[volumeField] * 1.3, mode: inputs[volumeField] },
+        { name: costField, field: costField, type: 'triangular', min: inputs[costField] * 0.8, max: inputs[costField] * 1.2, mode: inputs[costField] }
+      ].filter(v => inputs[v.field] > 0);
+    }
+
+    function getProFormaSensitivityConfig(inputs, sector) {
+      if (sector === 'water-factory') {
+        return { priceField: 'bottlePrice', volumeField: 'dailyProduction', priceLabel: isAr ? 'سعر البيع' : 'Price', volumeLabel: isAr ? 'حجم الإنتاج' : 'Volume' };
+      }
+      if (sector === 'real-estate') {
+        return { priceField: 'unitPrice', volumeField: 'unitsCount', priceLabel: isAr ? 'سعر الوحدة' : 'Unit Price', volumeLabel: isAr ? 'عدد الوحدات' : 'Units' };
+      }
+      if (sector === 'restaurants') {
+        return { priceField: 'avgTicket', volumeField: 'dailyCustomers', priceLabel: isAr ? 'متوسط الفاتورة' : 'Avg Ticket', volumeLabel: isAr ? 'العملاء اليوميين' : 'Daily Customers' };
+      }
+      if (sector === 'technology') {
+        return { priceField: 'subscriptionPrice', volumeField: 'subscribers', priceLabel: isAr ? 'سعر الاشتراك' : 'Subscription Price', volumeLabel: isAr ? 'المشتركين' : 'Subscribers' };
+      }
+      // industrial / food-factory / default
+      return { priceField: 'unitPrice', volumeField: 'monthlyCapacity', priceLabel: isAr ? 'سعر الوحدة' : 'Unit Price', volumeLabel: isAr ? 'الطاقة الشهرية' : 'Monthly Capacity' };
+    }
+
+    function renderProFormaStatements(inputs, sectorOverride) {
+      if (!window.ProFormaEngine || !window.ProFormaEngine.buildProFormaStatements) return;
+      const pfSector = sectorOverride || 'water-factory';
+      const projectionMonths = inputs.analysisDuration || inputs.projectMonths || 60;
+      const pf = window.ProFormaEngine.buildProFormaStatements(inputs, projectionMonths, { sector: pfSector });
+
+      const currency = isAr ? 'ر.س' : 'SAR';
+      const revenueEl = document.getElementById('pfTotalRevenue');
+      if (revenueEl) revenueEl.textContent = formatNumber(pf.summary.totalRevenue) + ' ' + currency;
+      const netIncomeEl = document.getElementById('pfTotalNetIncome');
+      if (netIncomeEl) netIncomeEl.textContent = formatNumber(pf.summary.totalNetIncome) + ' ' + currency;
+      const npvEl = document.getElementById('pfNpv');
+      if (npvEl) {
+        npvEl.textContent = formatNumber(pf.summary.npv) + ' ' + currency;
+        npvEl.style.color = pf.summary.npv >= 0 ? '#4ade80' : '#f87171';
+      }
+      const irrEl = document.getElementById('pfIrr');
+      if (irrEl) irrEl.textContent = formatNumber(pf.summary.irr) + '%';
+
+      const gapEl = document.getElementById('pfFundingGap');
+      if (gapEl) {
+        if (pf.summary.fundingGap > 0) {
+          gapEl.textContent = formatNumber(pf.summary.fundingGap) + ' ' + currency + (isAr ? ' (يحتاج تمويلاً إضافياً)' : ' (additional funding needed)');
+          gapEl.style.color = '#f87171';
+        } else {
+          gapEl.textContent = isAr ? 'لا يوجد عجز نقدي' : 'No cash deficit';
+          gapEl.style.color = '#4ade80';
+        }
+      }
+
+      const stepCapexEl = document.getElementById('pfStepCapex');
+      if (stepCapexEl) stepCapexEl.textContent = formatNumber(pf.summary.stepCapexTotal || 0) + ' ' + currency;
+
+      const expansionsPanel = document.getElementById('capacityExpansionsPanel');
+      const expansionsBody = document.getElementById('capacityExpansionsBody');
+      if (expansionsPanel && expansionsBody) {
+        if (pf.capacityHistory && pf.capacityHistory.length > 0) {
+          expansionsPanel.style.display = 'block';
+          expansionsBody.innerHTML = pf.capacityHistory.map(e =>
+            '<tr style="border-bottom: 1px solid rgba(197,160,40,0.1);"><td style="padding: 0.5rem;">' + e.month + '</td><td style="text-align: center; padding: 0.5rem;">' + formatNumber(e.newCapacity) + '</td><td style="text-align: center; padding: 0.5rem;">' + formatNumber(e.cost) + ' ' + currency + '</td></tr>'
+          ).join('');
+        } else {
+          expansionsPanel.style.display = 'none';
+        }
+      }
+
+      renderProFormaCashCurve(pf.cashFlow);
+
+      function renderProFormaCashCurve(rows) {
+        const canvas = document.getElementById('proFormaCashCurveChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        const ctx = canvas.getContext('2d');
+        if (window._proFormaCashCurveChart) {
+          window._proFormaCashCurveChart.destroy();
+        }
+        const labels = rows.map(r => isAr ? 'ش ' + r.month : 'M' + r.month);
+        const data = rows.map(r => r.cashBalance);
+        const pointColors = data.map(v => v < 0 ? '#f87171' : '#4ade80');
+        window._proFormaCashCurveChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              label: isAr ? 'الرصيد النقدي التراكمي' : 'Cumulative Cash Balance',
+              data: data,
+              borderColor: '#d4a853',
+              backgroundColor: 'rgba(212,168,83,0.15)',
+              fill: true,
+              tension: 0.3,
+              pointBackgroundColor: pointColors,
+              pointRadius: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    return formatNumber(context.parsed.y) + ' ' + currency;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: { ticks: { color: '#94a3b8', maxTicksLimit: 12 } },
+              y: { ticks: { color: '#94a3b8', callback: function(v) { return formatNumber(v); } } }
+            }
+          }
+        });
+      }
+
+      renderProFormaSensitivity(inputs, pfSector);
+      renderMonteCarlo(inputs, pfSector);
+
+      function renderMonteCarlo(baseInputs, mcSector) {
+        if (!window.ProFormaEngine || !window.ProFormaEngine.runMonteCarlo) return;
+        const variables = getProFormaMonteCarloVariables(baseInputs, mcSector);
+        const mc = window.ProFormaEngine.runMonteCarlo(baseInputs, variables, 1000, { sector: mcSector });
+
+        const successEl = document.getElementById('mcSuccessRate');
+        if (successEl) successEl.textContent = (mc.successRate * 100).toFixed(1) + '%';
+        const meanEl = document.getElementById('mcMeanNpv');
+        if (meanEl) meanEl.textContent = formatNumber(mc.npv.mean) + ' ' + currency;
+        const medianEl = document.getElementById('mcMedianNpv');
+        if (medianEl) medianEl.textContent = formatNumber(mc.npv.median) + ' ' + currency;
+        const rangeEl = document.getElementById('mcNpvRange');
+        if (rangeEl) rangeEl.textContent = formatNumber(mc.npv.p5) + ' - ' + formatNumber(mc.npv.p95) + ' ' + currency;
+
+        const var95El = document.getElementById('mcVar95');
+        if (var95El) {
+          var95El.textContent = formatNumber(mc.risk.var95) + ' ' + currency;
+          var95El.style.color = mc.risk.var95 < 0 ? '#f87171' : '#4ade80';
+        }
+        const cvar95El = document.getElementById('mcCvar95');
+        if (cvar95El) {
+          cvar95El.textContent = formatNumber(mc.risk.cvar95) + ' ' + currency;
+          cvar95El.style.color = mc.risk.cvar95 < 0 ? '#f87171' : '#4ade80';
+        }
+        const var99El = document.getElementById('mcVar99');
+        if (var99El) {
+          var99El.textContent = formatNumber(mc.risk.var99) + ' ' + currency;
+          var99El.style.color = mc.risk.var99 < 0 ? '#f87171' : '#4ade80';
+        }
+        const cvar99El = document.getElementById('mcCvar99');
+        if (cvar99El) {
+          cvar99El.textContent = formatNumber(mc.risk.cvar99) + ' ' + currency;
+          cvar99El.style.color = mc.risk.cvar99 < 0 ? '#f87171' : '#4ade80';
+        }
+
+        const canvas = document.getElementById('monteCarloHistogramChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        const ctx = canvas.getContext('2d');
+        if (window._monteCarloHistogramChart) window._monteCarloHistogramChart.destroy();
+        window._monteCarloHistogramChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: mc.histogram.labels,
+            datasets: [{
+              label: isAr ? 'توزيع NPV' : 'NPV Distribution',
+              data: mc.histogram.counts,
+              backgroundColor: 'rgba(212,168,83,0.7)',
+              borderColor: '#d4a853',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                callbacks: {
+                  title: function(items) { return isAr ? 'فئة NPV' : 'NPV Range'; }
+                }
+              }
+            },
+            scales: {
+              x: { ticks: { color: '#94a3b8', maxTicksLimit: 8 } },
+              y: { ticks: { color: '#94a3b8' }, title: { display: true, text: isAr ? 'عدد السيناريوهات' : 'Scenarios', color: '#e8ecf4' } }
+            }
+          }
+        });
+      }
+
+      function renderProFormaSensitivity(baseInputs, sensSector) {
+        if (!window.ProFormaEngine || !window.ProFormaEngine.buildProFormaStatements) return;
+        const canvas = document.getElementById('proFormaSensitivityChart');
+        if (!canvas || typeof Chart === 'undefined') return;
+        const ctx = canvas.getContext('2d');
+        if (window._proFormaSensitivityChart) {
+          window._proFormaSensitivityChart.destroy();
+        }
+
+        const sensConfig = getProFormaSensitivityConfig(baseInputs, sensSector);
+        const variants = [-20, -10, 0, 10, 20];
+        const priceScenarios = variants.map(pct => {
+          const copy = { ...baseInputs, [sensConfig.priceField]: baseInputs[sensConfig.priceField] * (1 + pct / 100) };
+          const pf = window.ProFormaEngine.buildProFormaStatements(copy, 60, { sector: sensSector });
+          return { label: (pct > 0 ? '+' : '') + pct + '%', npv: pf.summary.npv, irr: pf.summary.irr };
+        });
+        const volumeScenarios = variants.map(pct => {
+          const copy = { ...baseInputs, [sensConfig.volumeField]: baseInputs[sensConfig.volumeField] * (1 + pct / 100) };
+          const pf = window.ProFormaEngine.buildProFormaStatements(copy, 60, { sector: sensSector });
+          return { label: (pct > 0 ? '+' : '') + pct + '%', npv: pf.summary.npv, irr: pf.summary.irr };
+        });
+
+        const labels = variants.map(pct => (pct > 0 ? '+' : '') + pct + '%');
+        window._proFormaSensitivityChart = new Chart(ctx, {
+          type: 'bar',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: (isAr ? 'NPV - ' : 'NPV - ') + sensConfig.priceLabel,
+                data: priceScenarios.map(s => s.npv),
+                backgroundColor: 'rgba(212,168,83,0.7)',
+                yAxisID: 'y'
+              },
+              {
+                label: (isAr ? 'NPV - ' : 'NPV - ') + sensConfig.volumeLabel,
+                data: volumeScenarios.map(s => s.npv),
+                backgroundColor: 'rgba(59,130,246,0.7)',
+                yAxisID: 'y'
+              },
+              {
+                label: (isAr ? 'IRR - ' : 'IRR - ') + sensConfig.priceLabel,
+                data: priceScenarios.map(s => s.irr),
+                type: 'line',
+                borderColor: '#f87171',
+                borderWidth: 2,
+                pointBackgroundColor: '#f87171',
+                yAxisID: 'y1'
+              },
+              {
+                label: (isAr ? 'IRR - ' : 'IRR - ') + sensConfig.volumeLabel,
+                data: volumeScenarios.map(s => s.irr),
+                type: 'line',
+                borderColor: '#4ade80',
+                borderWidth: 2,
+                pointBackgroundColor: '#4ade80',
+                yAxisID: 'y1'
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#e8ecf4' } } },
+            scales: {
+              x: { ticks: { color: '#94a3b8' } },
+              y: {
+                type: 'linear',
+                display: true,
+                position: 'left',
+                title: { display: true, text: 'NPV', color: '#e8ecf4' },
+                ticks: { color: '#94a3b8' }
+              },
+              y1: {
+                type: 'linear',
+                display: true,
+                position: 'right',
+                title: { display: true, text: 'IRR %', color: '#e8ecf4' },
+                ticks: { color: '#94a3b8' },
+                grid: { drawOnChartArea: false }
+              }
+            }
+          }
+        });
+      }
+
+      // Aggregate by year
+      function aggregateByYear(rows, keys) {
+        const years = {};
+        rows.forEach(r => {
+          const year = Math.ceil(r.month / 12);
+          if (!years[year]) years[year] = {};
+          keys.forEach(k => {
+            years[year][k] = (years[year][k] || 0) + r[k];
+          });
+        });
+        return years;
+      }
+
+      const incomeYears = aggregateByYear(pf.incomeStatement, ['revenue', 'cogs', 'grossProfit', 'opex', 'ebitda', 'depreciation', 'ebit', 'interestExpense', 'tax', 'netIncome']);
+      const cashYears = aggregateByYear(pf.cashFlow, ['operatingCashFlow', 'investingCashFlow', 'financingCashFlow', 'netCashFlow']);
+      const bsLastMonthByYear = {};
+      pf.balanceSheet.forEach(r => {
+        const year = Math.ceil(r.month / 12);
+        bsLastMonthByYear[year] = r;
+      });
+
+      const labels = {
+        ar: {
+          revenue: 'الإيرادات', cogs: 'تكلفة البضاعة المباعة', grossProfit: 'إجمالي الربح',
+          opex: 'المصاريف التشغيلية', ebitda: 'EBITDA', depreciation: 'الإهلاك',
+          ebit: 'EBIT', interestExpense: 'مصاريف الفائدة', tax: 'الضريبة', netIncome: 'صافي الربح',
+          operatingCashFlow: 'التدفق النقدي التشغيلي', investingCashFlow: 'التدفق الاستثماري',
+          financingCashFlow: 'التدفق التمويلي', netCashFlow: 'صافي التدفق النقدي',
+          cash: 'النقد', accountsReceivable: 'الذمم المدينة', inventory: 'المخزون',
+          netFixedAssets: 'الأصول الثابتة الصافية', totalAssets: 'إجمالي الأصول',
+          accountsPayable: 'الذمم الدائنة', totalDebt: 'إجمالي الديون', totalEquity: 'حقوق الملكية'
+        },
+        en: {
+          revenue: 'Revenue', cogs: 'COGS', grossProfit: 'Gross Profit',
+          opex: 'Operating Expenses', ebitda: 'EBITDA', depreciation: 'Depreciation',
+          ebit: 'EBIT', interestExpense: 'Interest Expense', tax: 'Tax', netIncome: 'Net Income',
+          operatingCashFlow: 'Operating Cash Flow', investingCashFlow: 'Investing Cash Flow',
+          financingCashFlow: 'Financing Cash Flow', netCashFlow: 'Net Cash Flow',
+          cash: 'Cash', accountsReceivable: 'Accounts Receivable', inventory: 'Inventory',
+          netFixedAssets: 'Net Fixed Assets', totalAssets: 'Total Assets',
+          accountsPayable: 'Accounts Payable', totalDebt: 'Total Debt', totalEquity: 'Total Equity'
+        }
+      };
+      const t = isAr ? labels.ar : labels.en;
+
+      function renderYearlyTable(tbodyId, rowsByYear, keys) {
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
+        tbody.innerHTML = keys.map(k => {
+          const cells = [1, 2, 3, 4, 5].map(y => {
+            const val = rowsByYear[y] ? rowsByYear[y][k] : 0;
+            return '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(val) + '</td>';
+          }).join('');
+          return '<tr style="border-bottom: 1px solid rgba(197,160,40,0.1);"><td style="padding: 0.5rem;">' + t[k] + '</td>' + cells + '</tr>';
+        }).join('');
+      }
+
+      renderYearlyTable('proFormaIncomeBody', incomeYears, ['revenue', 'cogs', 'grossProfit', 'opex', 'ebitda', 'depreciation', 'ebit', 'interestExpense', 'tax', 'netIncome']);
+      renderYearlyTable('proFormaCashflowBody', cashYears, ['operatingCashFlow', 'investingCashFlow', 'financingCashFlow', 'netCashFlow']);
+      renderYearlyTable('proFormaBalanceBody', bsLastMonthByYear, ['cash', 'accountsReceivable', 'inventory', 'netFixedAssets', 'totalAssets', 'accountsPayable', 'totalDebt', 'totalEquity']);
+    }
+
+    function renderWaterFactoryKPIs(inputs, engineInputs) {
+      const effectiveDaily = engineInputs.monthlyRevenue / (engineInputs.unitPrice * 30);
+      const monthlyUnits = effectiveDaily * 30;
+      const costPer1000 = monthlyUnits > 0 ? (engineInputs.monthlyFixedCosts + engineInputs.monthlyVariableCosts) / (monthlyUnits / 1000) : 0;
+      const totalWorkers = (inputs.shiftCount || 0) * (inputs.workersPerShift || 0);
+      const workerProductivity = totalWorkers > 0 && (inputs.operatingHoursPerDay || 0) > 0 ? (monthlyUnits / totalWorkers) / (inputs.operatingHoursPerDay * 30) : 0;
+
+      const costEl = document.getElementById('wfKpiCostPer1000');
+      if (costEl) costEl.textContent = formatNumber(costPer1000) + ' ' + (isAr ? 'ر.س' : 'SAR');
+      const prodEl = document.getElementById('wfKpiWorkerProductivity');
+      if (prodEl) prodEl.textContent = formatNumber(workerProductivity) + ' ' + (isAr ? 'عبوة/عامل/ساعة' : 'bottles/worker/hour');
+      const wastageEl = document.getElementById('wfKpiWastage');
+      if (wastageEl) wastageEl.textContent = formatNumber(inputs.wastageRate || 0) + '%';
+      const unitsEl = document.getElementById('wfKpiMonthlyUnits');
+      if (unitsEl) unitsEl.textContent = formatNumber(monthlyUnits);
+    }
+
+    function renderBottleSizeComparison(inputs, engineInputs) {
+      const tbody = document.getElementById('bottleSizeTableBody');
+      if (!tbody) return;
+      const sizes = [
+        { nameAr: '330 مل', nameEn: '330 ml', priceFactor: 0.67, costFactor: 0.6 },
+        { nameAr: '500 مل', nameEn: '500 ml', priceFactor: 1.0, costFactor: 1.0 },
+        { nameAr: '1.5 لتر', nameEn: '1.5 L', priceFactor: 2.0, costFactor: 1.7 },
+        { nameAr: '19 لتر (5 جالون)', nameEn: '19 L (5 gallon)', priceFactor: 16.67, costFactor: 12.0 }
+      ];
+      const dailyVolume = engineInputs.monthlyRevenue / (engineInputs.unitPrice * 30);
+      tbody.innerHTML = sizes.map(s => {
+        const sizePrice = inputs.bottlePrice * s.priceFactor;
+        const sizeCost = engineInputs.unitVariableCost * s.costFactor;
+        const sizeRevenue = dailyVolume * sizePrice * 30;
+        const sizeVariableCost = dailyVolume * sizeCost * 30;
+        const margin = sizePrice - sizeCost;
+        const name = isAr ? s.nameAr : s.nameEn;
+        return '<tr style="border-bottom: 1px solid rgba(197,160,40,0.1);">' +
+          '<td style="padding: 0.5rem;">' + name + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(sizePrice) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(sizeCost) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(margin) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(sizeRevenue) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(sizeVariableCost) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function renderRiskAnalysis(inputs) {
+      const tbody = document.getElementById('riskTableBody');
+      if (!tbody) return;
+      const risks = [
+        { name: inputs.risk1Name || (isAr ? 'المخاطرة الأولى' : 'Risk 1'), prob: inputs.risk1Probability || 0, impact: inputs.risk1Impact || 0 },
+        { name: inputs.risk2Name || (isAr ? 'المخاطرة الثانية' : 'Risk 2'), prob: inputs.risk2Probability || 0, impact: inputs.risk2Impact || 0 },
+        { name: inputs.risk3Name || (isAr ? 'المخاطرة الثالثة' : 'Risk 3'), prob: inputs.risk3Probability || 0, impact: inputs.risk3Impact || 0 }
+      ];
+      tbody.innerHTML = risks.map(r => {
+        const expectedCost = r.prob / 100 * r.impact;
+        return '<tr style="border-bottom: 1px solid rgba(197,160,40,0.1);">' +
+          '<td style="padding: 0.5rem;">' + r.name + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(r.prob) + '%</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(r.impact) + '</td>' +
+          '<td style="text-align: center; padding: 0.5rem;">' + formatNumber(expectedCost) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+
+    function exportWaterFactoryReport(type) {
+      const result = window._lastResult;
+      if (!result) {
+        alert(isAr ? 'يرجى حساب النتائج أولاً.' : 'Please calculate results first.');
+        return;
+      }
+      if (type === 'pdf' && window.jsPDF) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ direction: isAr ? 'rtl' : 'ltr' });
+        doc.text(isAr ? 'تقرير مصنع مياه' : 'Water Factory Report', 10, 10);
+        doc.text('ROI: ' + result.metrics.roi + '%', 10, 20);
+        doc.text('NPV: ' + result.metrics.npv, 10, 30);
+        doc.save('water-factory-report.pdf');
+      } else if (type === 'excel' && window.XLSX) {
+        const wb = window.XLSX.utils.book_new();
+        const wsData = [
+          [isAr ? 'المؤشر' : 'Metric', isAr ? 'القيمة' : 'Value'],
+          ['ROI', result.metrics.roi],
+          ['NPV', result.metrics.npv],
+          ['IRR', result.metrics.irr],
+          ['Payback', result.metrics.paybackMonths]
+        ];
+        const ws = window.XLSX.utils.aoa_to_sheet(wsData);
+        window.XLSX.utils.book_append_sheet(wb, ws, 'Report');
+        window.XLSX.writeFile(wb, 'water-factory-report.xlsx');
+      } else {
+        alert(isAr ? 'مكتبة التصدير غير متوفرة.' : 'Export library not available.');
+      }
+    }
+
+    const scenarioPresets = {
+      pessimistic: {
+        initialCapacityUtilization: 40,
+        monthlyGrowthRate: 2,
+        wastageRate: 5,
+        bottlePrice: 1.3,
+        bottleCostPerUnit: 0.28,
+        directSalesRate: 20,
+        distributorSalesRate: 60,
+        distributorDiscountRate: 25,
+        platformSalesRate: 20,
+        platformCommissionRate: 18
+      },
+      expected: {
+        initialCapacityUtilization: 60,
+        monthlyGrowthRate: 5,
+        wastageRate: 2,
+        bottlePrice: 1.5,
+        bottleCostPerUnit: 0.25,
+        directSalesRate: 30,
+        distributorSalesRate: 50,
+        distributorDiscountRate: 20,
+        platformSalesRate: 20,
+        platformCommissionRate: 15
+      },
+      optimistic: {
+        initialCapacityUtilization: 85,
+        monthlyGrowthRate: 8,
+        wastageRate: 1,
+        bottlePrice: 1.7,
+        bottleCostPerUnit: 0.22,
+        directSalesRate: 40,
+        distributorSalesRate: 45,
+        distributorDiscountRate: 18,
+        platformSalesRate: 15,
+        platformCommissionRate: 12
+      }
+    };
+
+    function loadScenario(name) {
+      const preset = scenarioPresets[name];
+      if (!preset) return;
+      Object.keys(preset).forEach(key => {
+        const basicEl = document.getElementById(key);
+        const expertEl = document.getElementById('expert_basic_' + key);
+        const value = preset[key];
+        if (basicEl) basicEl.value = value;
+        if (expertEl) expertEl.value = value;
+      });
+      calculate();
     }
 
     function renderDecisionIntelligence(di) {
@@ -1680,7 +2774,7 @@
       window.DecisionIntelligence.renderConfidenceBreakdown('diConfidenceBreakdown', conf);
 
       window.DecisionIntelligence.renderDecisionPanel('diVerdict', di.recommendation);
-      window.DecisionIntelligence.renderSummary('diSummary', di.dataQuality, di.riskAnalysis, di.financingAnalysis, di.marketAnalysis, di.cashFlowAnalysis);
+      window.DecisionIntelligence.renderSummary('diSummary', di.dataQuality, di.riskAnalysis, di.financingAnalysis, di.marketAnalysis, di.cashFlowAnalysis, di.altmanZScore);
       window.DecisionIntelligence.renderDataQuality('diDataQuality', di.dataQuality);
       window.DecisionIntelligence.renderMarketScores('diMarketScores', di.marketAnalysis);
       window.DecisionIntelligence.renderList('diRiskList', di.riskAnalysis.categories || [], 'risk');
