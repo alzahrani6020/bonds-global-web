@@ -1,5 +1,6 @@
 const mockSupabaseError = { value: null };
 const mockNativeOk = { value: false };
+const mockNativeSequence = { values: [] };
 const mockNativeHealthCalls = { count: 0 };
 const originalFetch = global.fetch;
 
@@ -15,9 +16,11 @@ jest.mock('../../lib/ai/inference-router', () => ({
   getInferenceRouter: () => ({
     health: async () => {
       mockNativeHealthCalls.count += 1;
+      const ok = mockNativeSequence.values.length ? mockNativeSequence.values.shift() : mockNativeOk.value;
       return {
-        ok: mockNativeOk.value,
+        ok,
         provider: 'BondsNativeProvider',
+        ...(ok ? { meta: { elapsed_ms: 7 } } : { error: { code: 'NATIVE_RUNTIME_UNAVAILABLE', elapsed_ms: 7 } }),
       };
     },
   }),
@@ -46,7 +49,9 @@ describe('platform health vs strict readiness', () => {
     global.fetch = jest.fn(async () => ({ ok: true, status: 200 }));
     mockSupabaseError.value = null;
     mockNativeOk.value = false;
+    mockNativeSequence.values = [];
     mockNativeHealthCalls.count = 0;
+    process.env.BONDS_NATIVE_HEALTH_RETRY_DELAYS_MS = '0,0,0';
     process.env.BONDS_INFERENCE_MODE = 'REMOTE_BONDS_NATIVE';
     process.env.VERCEL_GIT_COMMIT_SHA = 'abcdef1234567890';
     delete process.env.BONDS_E2E_SMOKE_NONCE;
@@ -57,6 +62,7 @@ describe('platform health vs strict readiness', () => {
 
   afterAll(() => {
     global.fetch = originalFetch;
+    delete process.env.BONDS_NATIVE_HEALTH_RETRY_DELAYS_MS;
   });
 
   test('core health stays available without probing Native AI', async () => {
@@ -88,7 +94,9 @@ describe('platform health vs strict readiness', () => {
     expect(res.body.checks.fallback).toBe('ok');
     expect(res.body.inference.provider).toBe('openai_fallback');
     expect(res.body.inference.native_reachable).toBe(false);
-    expect(mockNativeHealthCalls.count).toBe(1);
+    expect(mockNativeHealthCalls.count).toBe(3);
+    expect(res.body.inference.native_diagnostic.attempts).toBe(3);
+    expect(res.body.inference.native_diagnostic.code).toBe('NATIVE_RUNTIME_UNAVAILABLE');
     expect(global.fetch).toHaveBeenCalledWith('https://api.openai.com/v1/models', expect.any(Object));
   });
 
@@ -103,6 +111,8 @@ describe('platform health vs strict readiness', () => {
     expect(res.body.status).toBe('not_ready');
     expect(res.body.checks.native).toBe('error');
     expect(res.body.checks.fallback).toBe('skipped');
+    expect(mockNativeHealthCalls.count).toBe(3);
+    expect(res.body.inference.native_diagnostic.attempts).toBe(3);
     expect(global.fetch).not.toHaveBeenCalled();
   });
 
@@ -116,7 +126,26 @@ describe('platform health vs strict readiness', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe('ready');
     expect(res.body.inference.native_reachable).toBe(true);
+    expect(res.body.inference.native_diagnostic.attempts).toBe(1);
+    expect(res.body.inference.native_diagnostic.retry_recovered).toBe(false);
     expect(mockNativeHealthCalls.count).toBe(1);
+  });
+
+  test('strict readiness recovers from a transient Native health flap', async () => {
+    mockNativeSequence.values = [false, false, true];
+    process.env.BONDS_AI_PROVIDER = 'native-only';
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ready');
+    expect(res.body.checks.native).toBe('ok');
+    expect(res.body.inference.native_reachable).toBe(true);
+    expect(res.body.inference.native_diagnostic.attempts).toBe(3);
+    expect(res.body.inference.native_diagnostic.retry_recovered).toBe(true);
+    expect(mockNativeHealthCalls.count).toBe(3);
   });
 
   test('core health fails when Supabase is unavailable', async () => {

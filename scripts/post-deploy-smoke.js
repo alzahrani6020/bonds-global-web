@@ -194,17 +194,33 @@ async function assertHealth() {
 }
 
 async function assertNativeProductionRuntime() {
-  const readiness = await fetchJson(`${cfg.baseUrl}/api/readiness`, {
-    headers: { 'Cache-Control': 'no-cache' }
-  });
-  if (!readiness.res.ok) {
-    throw new Error(`Production readiness failed: HTTP ${readiness.res.status}`);
+  let readiness = null;
+  const readinessDelaysMs = [0, 1000, 2500];
+
+  for (let attempt = 1; attempt <= readinessDelaysMs.length; attempt++) {
+    const delayMs = readinessDelaysMs[attempt - 1];
+    if (delayMs) await sleep(delayMs);
+
+    readiness = await fetchJson(`${cfg.baseUrl}/api/readiness`, {
+      headers: { 'Cache-Control': 'no-cache' }
+    });
+
+    const nativeOk =
+      readiness.res.ok &&
+      readiness.body?.status === 'ready' &&
+      readiness.body?.checks?.native === 'ok';
+
+    if (nativeOk) break;
+  }
+
+  if (!readiness?.res?.ok) {
+    throw new Error(`Production readiness failed after retries: HTTP ${readiness?.res?.status || 'unknown'}, native_code=${readiness?.body?.inference?.native_diagnostic?.code || 'missing'}`);
   }
   if (readiness.body?.status !== 'ready') {
-    throw new Error(`Production readiness is not ready: ${readiness.body?.status || 'missing'}`);
+    throw new Error(`Production readiness is not ready after retries: ${readiness.body?.status || 'missing'}, native_code=${readiness.body?.inference?.native_diagnostic?.code || 'missing'}`);
   }
   if (readiness.body?.checks?.native !== 'ok') {
-    throw new Error(`Remote Bonds Native health is not ok: ${readiness.body?.checks?.native || 'missing'}`);
+    throw new Error(`Remote Bonds Native health is not ok after retries: ${readiness.body?.checks?.native || 'missing'}, code=${readiness.body?.inference?.native_diagnostic?.code || 'missing'}, upstream_status=${readiness.body?.inference?.native_diagnostic?.http_status ?? 'missing'}`);
   }
   if (readiness.body?.inference?.mode !== 'REMOTE_BONDS_NATIVE') {
     throw new Error(`Unexpected inference mode: ${readiness.body?.inference?.mode || 'missing'}`);
