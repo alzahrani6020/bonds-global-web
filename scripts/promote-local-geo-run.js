@@ -42,6 +42,27 @@ async function main() {
       [RUN_ID]
     );
 
+    const newCountries = [...new Set(
+      rows.rows.filter(row => row.decision === 'new_canonical').map(row => row.country_code).filter(Boolean)
+    )];
+
+    if (newCountries.length) {
+      const adminReadiness = await client.query(
+        `select country_code,count(*)::int as n
+         from public.geo_admin_areas
+         where country_code = any($1::text[]) and is_active=true
+         group by country_code`,
+        [newCountries]
+      );
+      const ready = new Map(adminReadiness.rows.map(row => [row.country_code, Number(row.n || 0)]));
+      const missing = newCountries.filter(code => !ready.get(code));
+      if (missing.length) {
+        throw new Error(
+          'Promotion blocked: canonical admin hierarchy is not ready for ' + missing.join(', ')
+        );
+      }
+    }
+
     let matched = 0;
     let created = 0;
 
