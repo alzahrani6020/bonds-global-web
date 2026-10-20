@@ -36,6 +36,15 @@ describe('V3 critical control-plane boundaries', () => {
     expect(source).toContain('await requireAdminAccess(req)');
   });
 
+  test('public feedback is quarantined and cannot directly train correction factors', () => {
+    const api = read('v3/api/data-engine.js');
+    const feedback = read('v3/engine/data-acquisition/FeedbackEngine.js');
+    expect(api).toContain("supabase.from('data_feedback').insert");
+    expect(api).toContain("status: 'pending'");
+    expect(api).not.toContain("supabase.from('metric_feedback').insert({\n      metric_code: body.metric_code");
+    expect(feedback).toContain(".in('source', ['admin', 'audit', 'external'])");
+  });
+
   test('V3 admin dynamic service views escape database-backed text', () => {
     const services = read('v3/admin/services.html');
     const index = read('v3/admin/index.html');
