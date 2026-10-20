@@ -105,4 +105,11 @@ describe('Geo convergence critical gaps', () => {
     expect(migration).toContain("l.source_code='bonds_legacy'");
   });
 
+  test('legacy alias updates cannot overwrite canonical place facts', () => {
+    const migration = read('supabase/migrations/20261020033500_geo_convergence_bridge.sql');
+    expect(migration).toContain('v_is_alias boolean := false');
+    expect(migration).toContain('if not coalesce(v_is_alias,false) then');
+    expect(migration).toContain("'last_legacy_alias_code',new.code");
+  });
+
 });
