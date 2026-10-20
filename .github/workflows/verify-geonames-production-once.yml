@@ -1,0 +1,136 @@
+name: Verify GeoNames production markers
+
+on:
+  push:
+    branches:
+      - ops/verify-geonames-production-20261021
+    paths:
+      - .github/workflows/verify-geonames-production-once.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ops/verify-geonames-production-20261021
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Verify public APIs and map markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .tmp-geo
+          node <<'NODE'
+          const fs = require('fs');
+          const { chromium } = require('playwright');
+
+          const base = 'https://bonds-global.com';
+          const countries = ['SA','EG','AE','JO','TN'];
+          const api = {};
+
+          async function fetchCountry(cc) {
+            const res = await fetch(base + '/api/v3/cities?country=' + cc + '&limit=2000', {
+              headers: { 'accept': 'application/json' }
+            });
+            if (!res.ok) throw new Error('API ' + cc + ' returned HTTP ' + res.status);
+            const body = await res.json();
+            const cities = Array.isArray(body.cities) ? body.cities : [];
+            const withCoords = cities.filter(c =>
+              Number.isFinite(Number(c.lat)) && Number.isFinite(Number(c.lng))
+            );
+            return {
+              total: cities.length,
+              with_coords: withCoords.length,
+              sample: withCoords.slice(0,5).map(c => ({
+                code:c.code,name_ar:c.name_ar,name_en:c.name_en,lat:c.lat,lng:c.lng
+              }))
+            };
+          }
+
+          (async () => {
+            for (const cc of countries) api[cc] = await fetchCountry(cc);
+            if (api.SA.with_coords < 1 || api.EG.with_coords < 1 || api.AE.with_coords < 1) {
+              throw new Error('Expected coordinate coverage missing from primary countries');
+            }
+
+            const browser = await chromium.launch({ headless:true });
+            const page = await browser.newPage({ viewport:{ width:1440,height:1000 } });
+            const consoleErrors = [];
+            page.on('console', msg => {
+              if (msg.type() === 'error') consoleErrors.push(msg.text());
+            });
+            page.on('pageerror', err => consoleErrors.push(String(err.message || err)));
+
+            let mapUrl = base + '/v3/investment-map';
+            let response = await page.goto(mapUrl, { waitUntil:'domcontentloaded', timeout:60000 });
+            if (!response || response.status() >= 400) {
+              mapUrl = base + '/v3/investment-map.html';
+              response = await page.goto(mapUrl, { waitUntil:'domcontentloaded', timeout:60000 });
+            }
+            if (!response || response.status() >= 400) {
+              throw new Error('Investment map page unavailable');
+            }
+
+            await page.waitForSelector('#map', { timeout:30000 });
+            await page.waitForFunction(
+              () => document.querySelectorAll('.leaflet-marker-icon').length > 0,
+              { timeout:60000 }
+            );
+
+            const sa = await page.evaluate(() => ({
+              selected_country: document.getElementById('countrySelect')?.value || null,
+              marker_count: document.querySelectorAll('.leaflet-marker-icon').length,
+              status: document.getElementById('status')?.textContent?.trim() || ''
+            }));
+            await page.screenshot({ path:'.tmp-geo/investment-map-sa.png', fullPage:true });
+
+            await page.evaluate(() => {
+              const el = document.getElementById('countrySelect');
+              el.value = 'EG';
+              el.dispatchEvent(new Event('change', { bubbles:true }));
+            });
+            await page.waitForTimeout(4000);
+            await page.waitForFunction(
+              () => document.getElementById('countrySelect')?.value === 'EG' &&
+                    document.querySelectorAll('.leaflet-marker-icon').length > 0,
+              { timeout:60000 }
+            );
+            const eg = await page.evaluate(() => ({
+              selected_country: document.getElementById('countrySelect')?.value || null,
+              marker_count: document.querySelectorAll('.leaflet-marker-icon').length,
+              status: document.getElementById('status')?.textContent?.trim() || ''
+            }));
+            await page.screenshot({ path:'.tmp-geo/investment-map-eg.png', fullPage:true });
+
+            const report = { api, map_url:mapUrl, sa, eg, console_errors:consoleErrors.slice(0,20) };
+            fs.writeFileSync('.tmp-geo/production-verification.json', JSON.stringify(report,null,2));
+            console.log(JSON.stringify(report,null,2));
+
+            if (sa.marker_count < 1) throw new Error('Saudi map has no markers');
+            if (eg.marker_count < 1) throw new Error('Egypt map has no markers');
+
+            await browser.close();
+          })().catch(err => { console.error(err); process.exit(1); });
+          NODE
+      - name: Upload verification evidence
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: geonames-production-verification-${{ github.run_id }}
+          path: |
+            .tmp-geo/production-verification.json
+            .tmp-geo/investment-map-sa.png
+            .tmp-geo/investment-map-eg.png
+          if-no-files-found: warn
+          retention-days: 30
