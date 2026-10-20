@@ -172,7 +172,7 @@
             <input type="number" id="zakatRate" placeholder="e.g., 2.5" min="0" max="100" value="2.5" />
           </div>
           <div class="calc-input-group">
-            <label>Estimated Zakat Base <abbr title="Enter the Zakat base from your Zakat model if known. Leave 0 to avoid automatic Zakat calculation.">ⓘ</abbr></label>
+            <label>Estimated Annual Zakat Base <abbr title="Used once at year-end to estimate annual Zakat. Zakat is not deducted from monthly profit.">ⓘ</abbr></label>
             <input type="number" id="zakatBase" placeholder="0" min="0" value="0" />
           </div>
           <button onclick="calculateAll()" class="btn btn-primary btn-block">Calculate Results</button>
@@ -230,11 +230,11 @@
                 <span id="resProfitAfterTax" class="result-row__value">—</span>
               </div>
               <div class="result-row">
-                <span class="result-row__label">Zakat (explicit base)</span>
+                <span class="result-row__label">Annual Zakat at Year-End</span>
                 <span id="resZakat" class="result-row__value">—</span>
               </div>
               <div class="result-row">
-                <span class="result-row__label">Net Profit after Direct Tax / Zakat</span>
+                <span class="result-row__label">Monthly Profit after Income / Corporate Tax</span>
                 <span id="resNetProfit" class="result-row__value">—</span>
               </div>
               <div class="result-row">
@@ -552,7 +552,7 @@
         fixedCostBreakdown: inputs.fixedCostBreakdown,
         variableCostBreakdown: inputs.variableCostBreakdown,
         vatRate: inputs.vatRate,
-        zakatBase: inputs.zakatBase
+        annualZakatBase: inputs.zakatBase
       };
       var result = calculateBreakEven(inputs.fixed, inputs.varCost, inputs.price, inputs.qty, inputs.incomeTaxRate, inputs.zakatRate, options);
       _calcMemo.set(memoKey, result);
@@ -614,7 +614,7 @@
       }
 
       if (r.profitAfterIncomeTax > 0 && inputs.zakatRate > 0 && r.zakatCalculated) {
-        zakatEl.textContent = formatNumberAR(r.zakatAmount) + ' SAR (' + inputs.zakatRate.toFixed(1) + '%)';
+        zakatEl.textContent = formatNumberAR(r.annualZakatAmount) + ' SAR (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
         zakatEl.textContent = '0 SAR';
@@ -702,7 +702,7 @@
       document.getElementById('leadCalcData').value = JSON.stringify({
         date: new Date().toLocaleString('en-US'),
         fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: inputs.qty,
-        vatRate: inputs.vatRate, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, zakatBase: inputs.zakatBase,
+        vatRate: inputs.vatRate, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, annualZakatBase: inputs.zakatBase,
         platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct,
         breakEven: r.breakEvenUnits, revenue: r.revenue, totalCost: r.totalCost,
         netProfit: r.netProfit, margin: r.profitMargin, roi: r.roi
@@ -835,7 +835,8 @@
         ['Net Profit (before tax)', r.profit],
         ['Tax', r.incomeTaxAmount],
         ['Profit After Tax', r.profitAfterIncomeTax],
-        ['Zakat', r.zakatAmount],
+        ['Annual Zakat (year-end)', r.annualZakatAmount],
+        ['Annual Profit after Zakat', r.annualProfitAfterZakat],
         ['Final Net Profit', r.netProfit],
         ['Profit Margin (%)', r.profitMargin.toFixed(2) + '%'],
         ['Return on Cost (%)', r.roi.toFixed(2) + '%']
