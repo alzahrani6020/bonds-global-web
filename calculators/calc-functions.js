@@ -939,7 +939,12 @@ function calculateMedicalViability(setupCosts, monthlyCosts, revenue, options) {
   function calcSensitivity(deltaPct) {
     const dUnits = dailyUnits * (1 + deltaPct / 100);
     const agg = aggregate(dUnits);
-    return { deltaPct, dailyUnits: dUnits, monthlyProfit: agg.profit, yearlyProfit: agg.yearlyProfit };
+    return {
+      deltaPct,
+      dailyUnits: dUnits,
+      monthlyProfit: agg.profit,
+      yearlyProfit: agg.yearlyProfitBeforeZakat - annualZakatAmount
+    };
   }
 
   const sensitivity = {
