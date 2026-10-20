@@ -84,6 +84,25 @@ describe('/api/v3/orchestrate', () => {
     expect(Array.isArray(res._json.form.fields)).toBe(true);
   });
 
+  test('anonymous caller cannot self-claim pro tier for a pro intent', async () => {
+    const req = mockReq({
+      method: 'POST',
+      url: '/api/v3/orchestrate',
+      body: {
+        input: 'أريد طلب تمويل لمشروع في الرياض',
+        sector: 'restaurant',
+        country: 'SA',
+        language: 'ar',
+        userTier: 'enterprise'
+      }
+    });
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.statusCode).toBe(403);
+    expect(res._json.code).toBe('ENTITLEMENT_REQUIRED');
+    expect(res._json.requiredTier).toBe('pro');
+  });
+
   test('POST /orchestrate runs full pipeline', async () => {
     const req = mockReq({
       method: 'POST',
