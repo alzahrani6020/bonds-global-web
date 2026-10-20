@@ -807,23 +807,34 @@ async function loadCatalogCityRows(supabase, countryCode = null) {
     .limit(2000);
   if (countryCode) legacyQuery = legacyQuery.eq('country_code', countryCode);
 
-  let geoQuery = supabase
-    .from('geo_places')
-    .select('id,canonical_code,country_code,admin1_id,admin2_id,name_ar,name_en,place_type,lat,lng,population,confidence')
-    .eq('is_active', true)
-    .eq('is_canonical', true)
-    .limit(4000);
-  if (countryCode) geoQuery = geoQuery.eq('country_code', countryCode);
-
-  const [{ data: legacyRows, error: legacyError }, { data: geoRows, error: geoError }] = await Promise.all([
-    legacyQuery,
-    geoQuery
-  ]);
+  const { data: legacyRows, error: legacyError } = await legacyQuery;
   if (legacyError) throw legacyError;
-  if (geoError) throw geoError;
+
+  // Country listing is intentionally cheap. Canonical supplemental places are
+  // loaded only after a country is selected, avoiding a full-world place scan.
+  if (!countryCode) return legacyRows || [];
+
+  const pageSize = 1000;
+  const geoRows = [];
+  for (let from = 0; ; from += pageSize) {
+    const { data: page, error: geoError } = await supabase
+      .from('geo_places')
+      .select('id,canonical_code,country_code,admin1_id,admin2_id,name_ar,name_en,place_type,lat,lng,population,confidence')
+      .eq('country_code', countryCode)
+      .eq('is_active', true)
+      .eq('is_canonical', true)
+      .range(from, from + pageSize - 1);
+    if (geoError) throw geoError;
+    geoRows.push(...(page || []));
+    if (!page || page.length < pageSize) break;
+    if (geoRows.length >= 20000) {
+      console.warn('[catalog/cities] canonical geo page cap reached for', countryCode);
+      break;
+    }
+  }
 
   const linkedGeoIds = new Set((legacyRows || []).map(row => row.geo_place_id).filter(Boolean));
-  const supplemental = (geoRows || []).filter(row => !linkedGeoIds.has(row.id));
+  const supplemental = geoRows.filter(row => !linkedGeoIds.has(row.id));
 
   const adminIds = [...new Set(supplemental.flatMap(row => [row.admin1_id, row.admin2_id]).filter(Boolean))];
   let adminById = new Map();
