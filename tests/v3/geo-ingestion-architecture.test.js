@@ -93,6 +93,22 @@ describe('Governed geo ingestion architecture', () => {
     expect(spatialName.decision).toBe('auto_match');
     expect(spatialName.matchType).toBe('name_and_distance');
   });
+  test('exact-name coordinate enrichment requires deterministic provider ADM1 identity', () => {
+    const reconcile = read('scripts/reconcile-local-geo-run.js');
+    const promote = read('scripts/promote-local-geo-run.js');
+
+    expect(reconcile).toContain('providerAdmin1Code');
+    expect(reconcile).toContain('source_admin_code=$3');
+    expect(reconcile).toContain("reason: 'exact_name_admin1_identity'");
+    expect(reconcile).toContain("decision = 'auto_match'");
+    expect(reconcile).toContain('chosen.canonical.admin1_id === mappedAdmin1Id');
+    expect(reconcile).toContain('adminScore = 100');
+
+    expect(promote).toContain('admin1MapKey');
+    expect(promote).toContain("country + '.' + code");
+    expect(promote).not.toContain("row.source_code + ':' + row.country_code + ':' + row.admin1_code");
+  });
+
   test('rollback requires explicit write opt-in and never deletes existing canonical places', () => {
     const rollback = read('scripts/rollback-local-geo-run.js');
     expect(rollback).toContain("process.env.GEO_ROLLBACK_APPLY === '1'");
