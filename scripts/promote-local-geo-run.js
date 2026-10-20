@@ -2,6 +2,7 @@
 'use strict';
 
 const { Client } = require('pg');
+const { randomUUID } = require('crypto');
 
 const RUN_ID = process.argv[2];
 
@@ -107,6 +108,8 @@ async function main() {
       let action = 'matched_existing';
 
       if (row.decision === 'new_canonical') {
+        const canonicalCode = 'BG-' + row.country_code + '-' +
+          randomUUID().replace(/-/g, '').slice(0, 12).toUpperCase();
         const inserted = await client.query(
           `insert into public.geo_places(
             canonical_code,country_code,admin1_id,name_ar,name_en,canonical_name,place_type,
@@ -130,7 +133,7 @@ async function main() {
             updated_at=now()
           returning id`,
           [
-            'SRC-' + row.source_code + '-' + row.source_id,
+            canonicalCode,
             row.country_code,admin1For(row),row.name_ar,row.name_en,row.place_type || 'other',
             row.lat,row.lng,row.population,row.elevation_m,row.source_code,row.source_id,
             row.source_updated_at,row.overall_score,
