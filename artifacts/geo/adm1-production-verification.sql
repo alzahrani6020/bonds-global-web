@@ -1,12 +1,9 @@
--- ADM1 production verification — read only
+-- GeoNames ADM1 final production verification — read only
 select
-  count(*)::int as total_links,
+  count(*)::int as geonames_links,
   count(distinct admin_area_id)::int as linked_admin_areas,
-  count(distinct source_admin_code)::int as distinct_admin_codes,
-  count(distinct source_id)::int as distinct_source_ids,
-  count(*) filter (where metadata->>'rollout'='adm1-strict-2026-10-20')::int as strict_batch,
-  count(*) filter (where metadata->>'rollout'='adm1-alias-safe-2026-10-20')::int as safe_alias_batch,
-  count(*) filter (where metadata->>'rollout'='adm1-external-alias-2026-10-20')::int as externally_verified_alias_batch
+  count(distinct source_admin_code)::int as distinct_source_admin_codes,
+  count(distinct source_id)::int as distinct_source_ids
 from public.geo_admin_area_source_links
 where source_code='geonames';
 
@@ -32,5 +29,4 @@ from (
 select
   (select count(*) from public.geo_admin_areas where admin_level=1)::int as adm1_rows,
   (select count(*) from public.geo_places)::int as geo_places,
-  (select count(*) from public.geo_data_sources where code='geonames')::int as canonical_provider,
-  (select count(*) from public.geo_data_sources where code='geonames_dump')::int as legacy_provider;
+  (select metadata->'adm1_reconciliation' from public.geo_data_sources where code='geonames') as reconciliation_metadata;
