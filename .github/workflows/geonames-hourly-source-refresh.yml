@@ -2,6 +2,12 @@ name: GeoNames hourly source refresh
 
 on:
   workflow_dispatch:
+    inputs:
+      force_rebuild:
+        description: 'Force rebuild even when GeoNames source fingerprints are unchanged'
+        required: false
+        type: boolean
+        default: false
   schedule:
     - cron: '17 * * * *'
 
@@ -44,7 +50,10 @@ jobs:
             fi
             printf '%s|%s|%s|%s\n' "$file" "$etag" "$modified" "$size" >> .tmp-geo/current-fingerprints.txt
           done
-          if [ -f .tmp-geo/source-fingerprints.txt ] && cmp -s .tmp-geo/source-fingerprints.txt .tmp-geo/current-fingerprints.txt; then
+          if [ "${{ inputs.force_rebuild || false }}" = 'true' ]; then
+            echo 'Force rebuild requested for manual workflow dispatch'
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+          elif [ -f .tmp-geo/source-fingerprints.txt ] && cmp -s .tmp-geo/source-fingerprints.txt .tmp-geo/current-fingerprints.txt; then
             echo 'changed=false' >> "$GITHUB_OUTPUT"
           else
             echo 'changed=true' >> "$GITHUB_OUTPUT"
