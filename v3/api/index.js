@@ -95,6 +95,48 @@ function getCategory(path) {
   return 'public';
 }
 
+async function resolveRequestTier(req) {
+  let user = null;
+  try {
+    user = await getUserFromToken(req);
+  } catch (_error) {
+    return { user: null, userTier: 'free' };
+  }
+
+  if (!user) return { user: null, userTier: 'free' };
+
+  try {
+    const supabase = getSupabaseClient();
+    const [{ data: profile }, { data: adminRole }] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('tier,status')
+        .eq('id', user.id)
+        .maybeSingle(),
+      supabase
+        .from('admin_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .maybeSingle()
+    ]);
+
+    if (adminRole && ['super_admin', 'admin'].includes(adminRole.role)) {
+      return { user, userTier: 'enterprise' };
+    }
+
+    const tier = String(profile?.tier || 'free').toLowerCase();
+    const status = String(profile?.status || '').toLowerCase();
+    const entitled = status === 'active' || status === 'trialing';
+
+    return {
+      user,
+      userTier: entitled && ['pro', 'enterprise'].includes(tier) ? tier : 'free'
+    };
+  } catch (_error) {
+    return { user, userTier: 'free' };
+  }
+}
+
 function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -2177,6 +2219,10 @@ async function handleWave4Intent(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
   try {
     const body = await parseBody(req);
+    const entitlement = await resolveRequestTier(req);
+    body.userTier = entitlement.userTier;
+    body.userId = entitlement.user?.id || null;
+    body.requestId = req.headers['x-request-id'] || body.requestId || null;
     const { result, trace } = await buildIntentForm(body);
     sendJson(res, 200, { ...result, trace });
   } catch (err) {
@@ -2189,6 +2235,10 @@ async function handleWave4Run(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
   try {
     const body = await parseBody(req);
+    const entitlement = await resolveRequestTier(req);
+    body.userTier = entitlement.userTier;
+    body.userId = entitlement.user?.id || null;
+    body.requestId = req.headers['x-request-id'] || body.requestId || null;
     const { result, trace } = await orchestratorRun(body);
     sendJson(res, 200, { ...result, trace });
   } catch (err) {
