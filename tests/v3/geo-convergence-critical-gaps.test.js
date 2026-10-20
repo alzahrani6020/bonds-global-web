@@ -120,4 +120,10 @@ describe('Geo convergence critical gaps', () => {
     expect(promote).toContain('geo_place_source_links');
   });
 
+  test('geo discoverability is not mislabeled as city evidence availability', () => {
+    const api = read('v3/api/index.js');
+    expect(api).toContain("data_available: city.catalog_source === 'geo_places' ? false : true");
+    expect(api).toContain('geo_available: Boolean(city.geo_place_id)');
+  });
+
 });
