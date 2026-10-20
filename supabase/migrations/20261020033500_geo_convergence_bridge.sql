@@ -72,10 +72,19 @@ begin
   end;
 
   select gp.id into v_geo_id
-  from public.geo_places gp
-  where gp.source_code='bonds_legacy'
-    and gp.source_id=new.id::text
+  from public.geo_place_source_links l
+  join public.geo_places gp on gp.id=l.place_id
+  where l.source_code='bonds_legacy'
+    and l.source_id=new.id::text
   limit 1;
+
+  if v_geo_id is null then
+    select gp.id into v_geo_id
+    from public.geo_places gp
+    where gp.source_code='bonds_legacy'
+      and gp.source_id=new.id::text
+    limit 1;
+  end if;
 
   if v_geo_id is null then
     select gp.id into v_geo_id
