@@ -113,6 +113,102 @@
     };
   }
 
+
+  function calculateUae(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var threshold = 375000;
+    var taxableAboveThreshold = Math.max(0, annualTaxableIncome - threshold);
+    var annualIncomeTaxAmount = taxableAboveThreshold * 0.09;
+
+    return {
+      countryCode: 'AE',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      corporateIncomeTaxRate: 9,
+      zeroRateThreshold: threshold,
+      taxableIncomeAtZeroRate: Math.min(annualTaxableIncome, threshold),
+      taxableIncomeAtStandardRate: taxableAboveThreshold,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'UAE standard corporate tax: 0% up to AED 375,000 of taxable income and 9% above the threshold.',
+        'Qualifying Free Zone Person rules are not modeled automatically in this calculator.',
+        'VAT remains separate from corporate income tax.'
+      ]
+    };
+  }
+
+  function calculateQatar(input) {
+    input = input || {};
+    var companyType = input.companyType || 'local_100';
+    var foreignPct;
+    if (companyType === 'local_100') foreignPct = 0;
+    else if (companyType === 'foreign_100') foreignPct = 100;
+    else foreignPct = clampPct(input.foreignOwnershipPct);
+
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var taxableForeignShare = annualTaxableIncome * foreignPct / 100;
+    var annualIncomeTaxAmount = taxableForeignShare * 0.10;
+
+    return {
+      countryCode: 'QA',
+      mode: 'automatic',
+      companyType: companyType,
+      localOwnershipPct: 100 - foreignPct,
+      foreignOwnershipPct: foreignPct,
+      annualTaxableIncome: annualTaxableIncome,
+      taxableForeignShare: taxableForeignShare,
+      corporateIncomeTaxRate: 10,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Qatar standard income tax is 10% of taxable income.',
+        'For resident legal persons, the model exempts the profit share attributable to Qatari ownership and taxes the non-Qatari share.',
+        'Oil, gas, petrochemical and agreement-specific cases may be subject to special rates and are not reduced to a single automatic rate here.'
+      ]
+    };
+  }
+
+  function calculateOman(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    var smallEnterprise = input.smallEnterprise === true;
+    var corporateIncomeTaxRate = 15;
+
+    if (activityType === 'oil_hydrocarbon' || activityType === 'natural_gas') {
+      corporateIncomeTaxRate = 55;
+    } else if (smallEnterprise) {
+      corporateIncomeTaxRate = 3;
+    }
+
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+    return {
+      countryCode: 'OM',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      smallEnterprise: smallEnterprise,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Oman standard income tax is 15% of net taxable income.',
+        'The 3% small-enterprise rate is applied only when the user explicitly selects the small-enterprise profile; statutory eligibility conditions must be satisfied.',
+        'Oil and gas exploration is modeled at 55%, subject to the applicable concession framework.',
+        'VAT remains separate from income tax.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -138,7 +234,11 @@
   function calculate(input) {
     input = input || {};
     var code = String(input.countryCode || 'SA').toUpperCase();
-    return code === 'SA' ? calculateSaudi(input) : calculateManual(input);
+    if (code === 'SA') return calculateSaudi(input);
+    if (code === 'AE') return calculateUae(input);
+    if (code === 'QA') return calculateQatar(input);
+    if (code === 'OM') return calculateOman(input);
+    return calculateManual(input);
   }
 
   function getProfile(code) {
@@ -149,8 +249,46 @@
         automatic: true,
         companyTypes: ['saudi_100', 'mixed', 'foreign_100'],
         standardCorporateIncomeTaxRate: 20,
+        standardVatRate: 15,
+        ownershipAffectsTax: true,
         zakatSupported: true,
         zakatRateMethod: 'base components: 2.5% x fiscalYearDays / 354; adjusted net profit: 2.5%'
+      };
+    }
+    if (code === 'AE') {
+      return {
+        code: 'AE',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 9,
+        zeroRateThreshold: 375000,
+        standardVatRate: 5,
+        ownershipAffectsTax: false,
+        zakatSupported: false
+      };
+    }
+    if (code === 'QA') {
+      return {
+        code: 'QA',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 10,
+        standardVatRate: null,
+        ownershipAffectsTax: true,
+        zakatSupported: false
+      };
+    }
+    if (code === 'OM') {
+      return {
+        code: 'OM',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 15,
+        smallEnterpriseCorporateIncomeTaxRate: 3,
+        oilGasCorporateIncomeTaxRate: 55,
+        standardVatRate: 5,
+        ownershipAffectsTax: false,
+        zakatSupported: false
       };
     }
     return {
@@ -164,6 +302,9 @@
   return {
     calculate: calculate,
     calculateSaudi: calculateSaudi,
+    calculateUae: calculateUae,
+    calculateQatar: calculateQatar,
+    calculateOman: calculateOman,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,

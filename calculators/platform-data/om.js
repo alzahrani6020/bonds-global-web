@@ -13,7 +13,7 @@
   "currency": "OMR",
   "currencySymbol": "ر.ع",
   "currencySymbolEn": "OMR",
-  "vatRate": 0,
+  "vatRate": 5,
   "platforms": [
     {
       "id": "plat_talabat",

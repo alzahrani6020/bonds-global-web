@@ -211,7 +211,7 @@
             <label for="foreignOwnershipPct">نسبة الملكية الأجنبية (%)</label>
             <input type="number" id="foreignOwnershipPct" min="0" max="100" value="50" oninput="onFiscalProfileChange()" />
           </div>
-          <div class="calc-input-group">
+          <div class="calc-input-group" id="financialYearDaysGroup">
             <label for="financialYearDays">عدد أيام السنة المالية <abbr title="في السعودية تُستخدم الأيام الفعلية لاحتساب معدل الزكاة على مكونات الوعاء الخاضعة لمعادلة الأيام.">ⓘ</abbr></label>
             <input type="number" id="financialYearDays" min="1" max="550" value="354" oninput="onFiscalProfileChange()" />
           </div>
@@ -225,6 +225,13 @@
               <option value="standard">نشاط عادي</option>
               <option value="natural_gas">استثمار الغاز الطبيعي</option>
               <option value="oil_hydrocarbon">إنتاج الزيت والمواد الهيدروكربونية</option>
+            </select>
+          </div>
+          <div class="calc-input-group calc-hidden" id="smallEnterpriseGroup">
+            <label for="smallEnterprise">أهلية المنشأة الصغيرة في عُمان <abbr title="اختر نعم فقط إذا كانت المنشأة تستوفي جميع شروط المعدل المخفض نظامًا.">ⓘ</abbr></label>
+            <select id="smallEnterprise" class="bonds-input" onchange="onFiscalProfileChange()">
+              <option value="0">لا / المعدل القياسي</option>
+              <option value="1">نعم، تستوفي الشروط النظامية</option>
             </select>
           </div>
           <div class="calc-input-group calc-hidden" id="capitalInvestmentGroup">
@@ -762,33 +769,86 @@
 
     function onFiscalProfileChange() {
       var code = getCountryCode();
-      var profile = window.BondsFiscal ? BondsFiscal.getProfile(code) : { automatic:false };
-      var companyType = document.getElementById('companyType').value;
+      var profile = window.BondsFiscal ? BondsFiscal.getProfile(code) : { automatic:false, ownershipAffectsTax:false };
+      var companyTypeEl = document.getElementById('companyType');
+      var previousType = companyTypeEl.value;
+
+      var labels = code === 'SA'
+        ? [
+            { value:'saudi_100', label:'شركة سعودية 100%' },
+            { value:'mixed', label:'شركة سعودية / أجنبية' },
+            { value:'foreign_100', label:'شركة أجنبية 100%' }
+          ]
+        : [
+            { value:'local_100', label:'شركة محلية 100%' },
+            { value:'mixed', label:'شركة محلية / أجنبية' },
+            { value:'foreign_100', label:'شركة أجنبية 100%' }
+          ];
+
+      companyTypeEl.innerHTML = '';
+      labels.forEach(function(item) {
+        var opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        companyTypeEl.appendChild(opt);
+      });
+      if (labels.some(function(item) { return item.value === previousType; })) companyTypeEl.value = previousType;
+      else companyTypeEl.value = code === 'SA' ? 'saudi_100' : 'local_100';
+
+      var companyType = companyTypeEl.value;
       var mixed = companyType === 'mixed';
-      document.getElementById('foreignOwnershipGroup').classList.toggle('calc-hidden', !mixed);
+      document.getElementById('foreignOwnershipGroup').classList.toggle('calc-hidden', !(mixed && profile.ownershipAffectsTax));
+      document.getElementById('financialYearDaysGroup').classList.toggle('calc-hidden', code !== 'SA');
+
       var hideSaudiZakat = code !== 'SA' || companyType === 'foreign_100';
       document.getElementById('annualZakatBaseGroup').classList.toggle('calc-hidden', hideSaudiZakat);
       document.getElementById('adjustedNetProfitGroup').classList.toggle('calc-hidden', hideSaudiZakat);
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA');
-      document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || document.getElementById('activityType').value !== 'oil_hydrocarbon');
-      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
+
+      var activityEl = document.getElementById('activityType');
+      var previousActivity = activityEl.value;
       if (code === 'SA') {
-        document.getElementById('manualCorporateTaxRate').value = '20';
+        activityEl.innerHTML = '<option value="standard">نشاط عادي</option><option value="natural_gas">استثمار الغاز الطبيعي</option><option value="oil_hydrocarbon">إنتاج الزيت والمواد الهيدروكربونية</option>';
+      } else if (code === 'OM') {
+        activityEl.innerHTML = '<option value="standard">نشاط عادي</option><option value="oil_hydrocarbon">استكشاف النفط والغاز</option>';
+        if (activityEl.value === 'natural_gas') activityEl.value = 'oil_hydrocarbon';
+      } else {
+        activityEl.innerHTML = '<option value="standard">نشاط عادي</option>';
+      }
+
+      var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
+      if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
+
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM');
+      document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
+      document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
+      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
+
+      if (code === 'SA') {
         document.getElementById('fiscalProfileHint').textContent =
-          'السعودية: 20% على الدخل الخاضع العائد للحصة الأجنبية، والزكاة على الحصة السعودية/المؤهلة وفق الوعاء وعدد أيام السنة المالية.';
+          'السعودية: ضريبة الدخل على الحصة الأجنبية، والزكاة على الحصة السعودية/المؤهلة وفق الوعاء وعدد أيام السنة المالية.';
+      } else if (code === 'AE') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'الإمارات: 0% حتى 375,000 درهم من الدخل الخاضع، و9% على ما يزيد؛ حالات المناطق الحرة المؤهلة تحتاج معالجة خاصة.';
+      } else if (code === 'QA') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'قطر: 10% على الدخل الخاضع، مع إعفاء مبسط لنسبة الملكية القطرية في الشخص الاعتباري المقيم؛ قطاعات النفط والغاز لها أحكام خاصة.';
+      } else if (code === 'OM') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'عُمان: 15% قياسي، 3% للمنشأة الصغيرة عند استيفاء الشروط، و55% لاستكشاف النفط والغاز؛ VAT القياسي 5%.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
-          'هذه الدولة تعمل مؤقتًا بوضع ضريبي يدوي حتى يتم اعتماد ملفها النظامي الموثق؛ لا يتم افتراض معدل تلقائي.';
+          'هذه الدولة تعمل بوضع ضريبي يدوي حتى اعتماد ملفها النظامي الموثق؛ لا يتم افتراض معدل تلقائي.';
       }
     }
 
     function onCountryChange() {
       var code = getCountryCode();
-      if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
+      var fiscalProfile = window.BondsFiscal ? BondsFiscal.getProfile(code) : null;
+      if (fiscalProfile && fiscalProfile.standardVatRate !== null && fiscalProfile.standardVatRate !== undefined) {
+        document.getElementById('vatRate').value = fiscalProfile.standardVatRate;
+      } else if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
         var meta = BondsPlatforms.getCountryMeta(code);
-        if (meta) {
-          document.getElementById('vatRate').value = meta.vatRate || 0;
-        }
+        if (meta) document.getElementById('vatRate').value = meta.vatRate || 0;
       }
       onFiscalProfileChange();
       populatePlatforms();
@@ -808,6 +868,7 @@
         financialYearDays: parseFloat(document.getElementById('financialYearDays').value) || 354,
         annualTaxableIncome: parseFloat(document.getElementById('annualTaxableIncome').value) || 0,
         activityType: document.getElementById('activityType').value || 'standard',
+        smallEnterprise: document.getElementById('smallEnterprise').value === '1',
         capitalInvestmentSar: parseFloat(document.getElementById('capitalInvestmentSar').value) || 0,
         manualCorporateTaxRate: parseFloat(document.getElementById('manualCorporateTaxRate').value) || 0,
         annualZakatBase: parseFloat(document.getElementById('annualZakatBase').value) || 0,
@@ -844,14 +905,10 @@
         financialYearDays: inputs.financialYearDays,
         annualTaxableIncome: inputs.annualTaxableIncome,
         annualZakatBase: inputs.annualZakatBase,
-        companyType: inputs.companyType,
-        foreignOwnershipPct: inputs.foreignOwnershipPct,
-        financialYearDays: inputs.financialYearDays,
-        annualTaxableIncome: inputs.annualTaxableIncome,
         activityType: inputs.activityType,
+        smallEnterprise: inputs.smallEnterprise,
         capitalInvestmentSar: inputs.capitalInvestmentSar,
         adjustedNetProfit: inputs.adjustedNetProfit,
-        manualCorporateTaxRate: inputs.manualCorporateTaxRate,
         corporateIncomeTaxRate: inputs.manualCorporateTaxRate
       }) : null;
       result.fiscal = fiscal;
@@ -1550,7 +1607,7 @@
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'companyType', 'foreignOwnershipPct', 'financialYearDays', 'annualTaxableIncome', 'activityType', 'capitalInvestmentSar', 'manualCorporateTaxRate', 'annualZakatBase', 'adjustedNetProfit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'companyType', 'foreignOwnershipPct', 'financialYearDays', 'annualTaxableIncome', 'activityType', 'smallEnterprise', 'capitalInvestmentSar', 'manualCorporateTaxRate', 'annualZakatBase', 'adjustedNetProfit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         if (currentPricingMode === 'price' && document.getElementById('targetPrice').value === '') return;
         var inputs = getInputs();

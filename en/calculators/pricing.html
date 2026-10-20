@@ -208,7 +208,7 @@
             <label for="foreignOwnershipPct">Foreign Ownership (%)</label>
             <input type="number" id="foreignOwnershipPct" min="0" max="100" value="50" oninput="onFiscalProfileChange()" />
           </div>
-          <div class="calc-input-group">
+          <div class="calc-input-group" id="financialYearDaysGroup">
             <label for="financialYearDays">Financial-Year Days <abbr title="Saudi Zakat uses actual fiscal-year days for day-based Zakat components.">ⓘ</abbr></label>
             <input type="number" id="financialYearDays" min="1" max="550" value="354" oninput="onFiscalProfileChange()" />
           </div>
@@ -222,6 +222,13 @@
               <option value="standard">Standard activity</option>
               <option value="natural_gas">Natural gas investment</option>
               <option value="oil_hydrocarbon">Oil & hydrocarbon production</option>
+            </select>
+          </div>
+          <div class="calc-input-group calc-hidden" id="smallEnterpriseGroup">
+            <label for="smallEnterprise">Oman Small-Enterprise Eligibility <abbr title="Select Yes only if all statutory conditions for the reduced rate are satisfied.">ⓘ</abbr></label>
+            <select id="smallEnterprise" class="bonds-input" onchange="onFiscalProfileChange()">
+              <option value="0">No / standard rate</option>
+              <option value="1">Yes, statutory conditions satisfied</option>
             </select>
           </div>
           <div class="calc-input-group calc-hidden" id="capitalInvestmentGroup">
@@ -774,33 +781,86 @@
 
     function onFiscalProfileChange() {
       var code = getCountryCode();
-      var profile = window.BondsFiscal ? BondsFiscal.getProfile(code) : { automatic:false };
-      var companyType = document.getElementById('companyType').value;
+      var profile = window.BondsFiscal ? BondsFiscal.getProfile(code) : { automatic:false, ownershipAffectsTax:false };
+      var companyTypeEl = document.getElementById('companyType');
+      var previousType = companyTypeEl.value;
+
+      var labels = code === 'SA'
+        ? [
+            { value:'saudi_100', label:'100% Saudi-owned company' },
+            { value:'mixed', label:'Saudi / Foreign joint ownership' },
+            { value:'foreign_100', label:'100% Foreign-owned company' }
+          ]
+        : [
+            { value:'local_100', label:'100% Local-owned company' },
+            { value:'mixed', label:'Local / Foreign joint ownership' },
+            { value:'foreign_100', label:'100% Foreign-owned company' }
+          ];
+
+      companyTypeEl.innerHTML = '';
+      labels.forEach(function(item) {
+        var opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        companyTypeEl.appendChild(opt);
+      });
+      if (labels.some(function(item) { return item.value === previousType; })) companyTypeEl.value = previousType;
+      else companyTypeEl.value = code === 'SA' ? 'saudi_100' : 'local_100';
+
+      var companyType = companyTypeEl.value;
       var mixed = companyType === 'mixed';
-      document.getElementById('foreignOwnershipGroup').classList.toggle('calc-hidden', !mixed);
+      document.getElementById('foreignOwnershipGroup').classList.toggle('calc-hidden', !(mixed && profile.ownershipAffectsTax));
+      document.getElementById('financialYearDaysGroup').classList.toggle('calc-hidden', code !== 'SA');
+
       var hideSaudiZakat = code !== 'SA' || companyType === 'foreign_100';
       document.getElementById('annualZakatBaseGroup').classList.toggle('calc-hidden', hideSaudiZakat);
       document.getElementById('adjustedNetProfitGroup').classList.toggle('calc-hidden', hideSaudiZakat);
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA');
-      document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || document.getElementById('activityType').value !== 'oil_hydrocarbon');
-      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
+
+      var activityEl = document.getElementById('activityType');
+      var previousActivity = activityEl.value;
       if (code === 'SA') {
-        document.getElementById('manualCorporateTaxRate').value = '20';
+        activityEl.innerHTML = '<option value="standard">Standard activity</option><option value="natural_gas">Natural gas investment</option><option value="oil_hydrocarbon">Oil & hydrocarbon production</option>';
+      } else if (code === 'OM') {
+        activityEl.innerHTML = '<option value="standard">Standard activity</option><option value="oil_hydrocarbon">Oil & gas exploration</option>';
+        if (activityEl.value === 'natural_gas') activityEl.value = 'oil_hydrocarbon';
+      } else {
+        activityEl.innerHTML = '<option value="standard">Standard activity</option>';
+      }
+
+      var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
+      if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
+
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM');
+      document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
+      document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
+      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
+
+      if (code === 'SA') {
         document.getElementById('fiscalProfileHint').textContent =
-          'Saudi Arabia: 20% income tax on taxable income attributable to the foreign share; Zakat on the Saudi/eligible share using the explicit Zakat base and fiscal-year days.';
+          'Saudi Arabia: income tax applies to the foreign share, while Zakat applies to the Saudi/eligible share using the explicit Zakat base and fiscal-year days.';
+      } else if (code === 'AE') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'UAE: 0% on taxable income up to AED 375,000 and 9% above it; Qualifying Free Zone Person cases require separate treatment.';
+      } else if (code === 'QA') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Qatar: 10% standard income tax, with the resident legal-person profit share attributable to Qatari ownership exempted in this simplified ownership model; oil and gas cases have special rules.';
+      } else if (code === 'OM') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Oman: 15% standard, 3% for eligible small enterprises, and 55% for oil/gas exploration; standard VAT is 5%.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
-          'This country is temporarily in manual tax mode until a verified local fiscal profile is added; no automatic corporate-tax rate is assumed.';
+          'This country remains in manual tax mode until a verified local fiscal profile is approved; no automatic tax rate is assumed.';
       }
     }
 
     function onCountryChange() {
       var code = getCountryCode();
-      if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
+      var fiscalProfile = window.BondsFiscal ? BondsFiscal.getProfile(code) : null;
+      if (fiscalProfile && fiscalProfile.standardVatRate !== null && fiscalProfile.standardVatRate !== undefined) {
+        document.getElementById('vatRate').value = fiscalProfile.standardVatRate;
+      } else if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
         var meta = BondsPlatforms.getCountryMeta(code);
-        if (meta) {
-          document.getElementById('vatRate').value = meta.vatRate || 0;
-        }
+        if (meta) document.getElementById('vatRate').value = meta.vatRate || 0;
       }
       onFiscalProfileChange();
       populatePlatforms();
@@ -820,6 +880,7 @@
         financialYearDays: parseFloat(document.getElementById('financialYearDays').value) || 354,
         annualTaxableIncome: parseFloat(document.getElementById('annualTaxableIncome').value) || 0,
         activityType: document.getElementById('activityType').value || 'standard',
+        smallEnterprise: document.getElementById('smallEnterprise').value === '1',
         capitalInvestmentSar: parseFloat(document.getElementById('capitalInvestmentSar').value) || 0,
         manualCorporateTaxRate: parseFloat(document.getElementById('manualCorporateTaxRate').value) || 0,
         annualZakatBase: parseFloat(document.getElementById('annualZakatBase').value) || 0,
@@ -856,14 +917,10 @@
         financialYearDays: inputs.financialYearDays,
         annualTaxableIncome: inputs.annualTaxableIncome,
         annualZakatBase: inputs.annualZakatBase,
-        companyType: inputs.companyType,
-        foreignOwnershipPct: inputs.foreignOwnershipPct,
-        financialYearDays: inputs.financialYearDays,
-        annualTaxableIncome: inputs.annualTaxableIncome,
         activityType: inputs.activityType,
+        smallEnterprise: inputs.smallEnterprise,
         capitalInvestmentSar: inputs.capitalInvestmentSar,
         adjustedNetProfit: inputs.adjustedNetProfit,
-        manualCorporateTaxRate: inputs.manualCorporateTaxRate,
         corporateIncomeTaxRate: inputs.manualCorporateTaxRate
       }) : null;
       result.fiscal = fiscal;
@@ -1566,7 +1623,7 @@
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'companyType', 'foreignOwnershipPct', 'financialYearDays', 'annualTaxableIncome', 'activityType', 'capitalInvestmentSar', 'manualCorporateTaxRate', 'annualZakatBase', 'adjustedNetProfit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'companyType', 'foreignOwnershipPct', 'financialYearDays', 'annualTaxableIncome', 'activityType', 'smallEnterprise', 'capitalInvestmentSar', 'manualCorporateTaxRate', 'annualZakatBase', 'adjustedNetProfit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         if (currentPricingMode === 'price' && document.getElementById('targetPrice').value === '') return;
         var inputs = getInputs();
