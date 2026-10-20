@@ -92,7 +92,7 @@
 </div>
 <script>
 const API='/api/v3/admin/services';
-let token=localStorage.getItem('bondsAdminToken')||'', services=[], current=null, currentForm=null;
+let token=sessionStorage.getItem('bondsAdminToken')||'', services=[], current=null, currentForm=null;
 const $=s=>document.querySelector(s);
 function headers(){return {'Content-Type':'application/json','x-admin-token':token}}
 function message(t,ok=true){const e=$('#msg');e.textContent=t;e.className='msg show '+(ok?'ok':'err');setTimeout(()=>e.className='msg',4000)}
