@@ -5,8 +5,8 @@
  * Used by the CMS admin UI.
  */
 
-const crypto = require('crypto');
 const { getSupabaseClient } = require('../lib/supabase');
+const { requireAdminAccess } = require('../lib/admin-access');
 const { calibrateCompetitorCounts } = require('../engine/data-acquisition/CompetitorCalibration');
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
 
@@ -30,63 +30,8 @@ function parseBody(req) {
   });
 }
 
-function constantTimeEqual(actual, expected) {
-  const a = Buffer.from(String(actual || ''), 'utf8');
-  const b = Buffer.from(String(expected || ''), 'utf8');
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-function configuredOwnerEmails() {
-  return String(process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
-    .split(',')
-    .map(value => value.trim().toLowerCase())
-    .filter(Boolean);
-}
-
 async function requireAdmin(req) {
-  const authorization = String(req.headers.authorization || '');
-  const bearer = authorization.replace(/^Bearer\s+/i, '').trim();
-
-  if (bearer) {
-    try {
-      const supabase = getSupabaseClient();
-      const { data, error } = await supabase.auth.getUser(bearer);
-      const user = data?.user || null;
-
-      if (!error && user) {
-        const owner = configuredOwnerEmails().includes(String(user.email || '').toLowerCase());
-        if (owner) return null;
-
-        const { data: role, error: roleError } = await supabase
-          .from('admin_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (!roleError && role && ['super_admin', 'admin'].includes(role.role)) {
-          return null;
-        }
-      }
-    } catch (_error) {
-      // Fall through to the transitional legacy token path below.
-    }
-  }
-
-  const legacyAllowed =
-    String(process.env.V3_ADMIN_ALLOW_LEGACY_TOKEN ?? 'true').toLowerCase() !== 'false';
-  const supplied = req.headers['x-admin-token'];
-  const expected = process.env.ADMIN_TOKEN;
-
-  if (
-    legacyAllowed &&
-    expected &&
-    supplied &&
-    constantTimeEqual(supplied, expected)
-  ) {
-    return null;
-  }
-
-  return { error: 'Unauthorized' };
+  return (await requireAdminAccess(req)) ? null : { error: 'Unauthorized' };
 }
 
 async function handleModels(req, res) {
