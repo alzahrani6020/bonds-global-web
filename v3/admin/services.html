@@ -97,7 +97,7 @@ let token=sessionStorage.getItem('bondsAdminToken')||'', bearerToken='', service
 const $=s=>document.querySelector(s);
 const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 async function refreshAdminSession(){try{if(window.BondsAuth?.getSession){const {data}=await window.BondsAuth.getSession();bearerToken=data?.session?.access_token||''}}catch(_e){bearerToken=''}return bearerToken}
-function headers(){return bearerToken?{'Content-Type':'application/json','Authorization':'Bearer '+bearerToken}:{'Content-Type':'application/json','x-admin-token':token}}
+function headers(){const h={'Content-Type':'application/json'};if(bearerToken)h.Authorization='Bearer '+bearerToken;if(token)h['x-admin-token']=token;return h}
 function message(t,ok=true){const e=$('#msg');e.textContent=t;e.className='msg show '+(ok?'ok':'err');setTimeout(()=>e.className='msg',4000)}
 async function api(url,opts={}){const r=await fetch(url,{...opts,headers:{...headers(),...(opts.headers||{})}});const d=await r.json();if(!r.ok)throw new Error(d.error||'فشل الطلب');return d}
 function csv(v){return String(v||'').split(',').map(x=>x.trim()).filter(Boolean)}
