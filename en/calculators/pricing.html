@@ -38,6 +38,7 @@
 
   <script src="../../calculators/shared-utils.js"></script>
   <script src="../../calculators/calc-functions.js"></script>
+  <script src="../../calculators/fiscal-profiles.js"></script>
   <script src="../../calculators/shared-platforms-loader.js"></script>
 
   <script src="../../calculators/db-client.js"></script>
@@ -196,17 +197,50 @@
             <input type="number" id="vatRate" placeholder="e.g. 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label for="incomeTaxRate">Estimated Income / Corporate Tax (%) <abbr title="Simplified estimate on positive accounting profit. This is not VAT. Leave 0 if not applicable or unknown.">ⓘ</abbr></label>
-            <input type="number" id="incomeTaxRate" placeholder="e.g. 0" min="0" max="100" value="0" />
+            <label for="companyType">Company Ownership Type</label>
+            <select id="companyType" class="bonds-input" onchange="onFiscalProfileChange()">
+              <option value="saudi_100">100% Saudi-owned company</option>
+              <option value="mixed">Saudi / Foreign joint ownership</option>
+              <option value="foreign_100">100% Foreign-owned company</option>
+            </select>
+          </div>
+          <div class="calc-input-group calc-hidden" id="foreignOwnershipGroup">
+            <label for="foreignOwnershipPct">Foreign Ownership (%)</label>
+            <input type="number" id="foreignOwnershipPct" min="0" max="100" value="50" oninput="onFiscalProfileChange()" />
           </div>
           <div class="calc-input-group">
-            <label for="zakatRate">Zakat Rate (%) <abbr title="Never applied to profit automatically; used only with an explicit Zakat base.">ⓘ</abbr></label>
-            <input type="number" id="zakatRate" placeholder="e.g. 2.5" min="0" max="100" value="2.5" />
+            <label for="financialYearDays">Financial-Year Days <abbr title="Saudi Zakat uses actual fiscal-year days for day-based Zakat components.">ⓘ</abbr></label>
+            <input type="number" id="financialYearDays" min="1" max="550" value="354" oninput="onFiscalProfileChange()" />
           </div>
           <div class="calc-input-group">
-            <label for="zakatBasePerUnit">Estimated Zakat Base per Unit <abbr title="Optional scenario input only. Leave 0 to avoid automatic Zakat calculation.">ⓘ</abbr></label>
-            <input type="number" id="zakatBasePerUnit" placeholder="0" min="0" value="0" />
+            <label for="annualTaxableIncome">Annual Taxable Income <abbr title="Do not assume this equals accounting profit; enter the taxable income/base from the tax computation.">ⓘ</abbr></label>
+            <input type="number" id="annualTaxableIncome" min="0" value="0" />
           </div>
+          <div class="calc-input-group" id="activityTypeGroup">
+            <label for="activityType">Income-Tax Activity Type</label>
+            <select id="activityType" class="bonds-input" onchange="onFiscalProfileChange()">
+              <option value="standard">Standard activity</option>
+              <option value="natural_gas">Natural gas investment</option>
+              <option value="oil_hydrocarbon">Oil & hydrocarbon production</option>
+            </select>
+          </div>
+          <div class="calc-input-group calc-hidden" id="capitalInvestmentGroup">
+            <label for="capitalInvestmentSar">Total Capital Investment in Saudi Arabia (SAR)</label>
+            <input type="number" id="capitalInvestmentSar" min="0" value="0" />
+          </div>
+          <div class="calc-input-group" id="manualTaxRateGroup">
+            <label for="manualCorporateTaxRate">Local Corporate Income Tax Rate (%) <abbr title="Used for countries whose automatic fiscal profile has not yet been verified.">ⓘ</abbr></label>
+            <input type="number" id="manualCorporateTaxRate" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group" id="annualZakatBaseGroup">
+            <label for="annualZakatBase">Annual Zakat Base <abbr title="Independent input from the Zakat-base computation; it is not inferred from accounting profit.">ⓘ</abbr></label>
+            <input type="number" id="annualZakatBase" placeholder="0" min="0" value="0" />
+          </div>
+          <div class="calc-input-group" id="adjustedNetProfitGroup">
+            <label for="adjustedNetProfit">Adjusted Net Profit Included in Zakat Base <abbr title="Separated because adjusted net profit is subject to 2.5%, while the other Zakat-base components use the fiscal-day formula.">ⓘ</abbr></label>
+            <input type="number" id="adjustedNetProfit" placeholder="0" min="0" value="0" />
+          </div>
+          <small class="calc-hint" id="fiscalProfileHint">Saudi Arabia: Zakat and income-tax shares are separated by ownership.</small>
           <div class="calc-input-group">
             <label for="monthlyVolume">Target Monthly Sales Volume <abbr title="Number of units you expect to sell monthly; used to calculate monthly profit and minimum break-even price">ⓘ</abbr></label>
             <input type="number" id="monthlyVolume" placeholder="e.g. 500" min="0" />
@@ -295,11 +329,11 @@
                 <span id="resProfitBeforeTax" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
-                <span class="calc-result-row__label">Estimated Income / Corporate Tax</span>
+                <span class="calc-result-row__label">Annual Income / Corporate Tax</span>
                 <span id="resTax" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
-                <span class="calc-result-row__label">Zakat (explicit base)</span>
+                <span class="calc-result-row__label">Annual Zakat at Year-End</span>
                 <span id="resZakat" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
@@ -737,15 +771,38 @@
       calculateAll();
     }
 
+
+    function onFiscalProfileChange() {
+      var code = getCountryCode();
+      var profile = window.BondsFiscal ? BondsFiscal.getProfile(code) : { automatic:false };
+      var companyType = document.getElementById('companyType').value;
+      var mixed = companyType === 'mixed';
+      document.getElementById('foreignOwnershipGroup').classList.toggle('calc-hidden', !mixed);
+      var hideSaudiZakat = code !== 'SA' || companyType === 'foreign_100';
+      document.getElementById('annualZakatBaseGroup').classList.toggle('calc-hidden', hideSaudiZakat);
+      document.getElementById('adjustedNetProfitGroup').classList.toggle('calc-hidden', hideSaudiZakat);
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA');
+      document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || document.getElementById('activityType').value !== 'oil_hydrocarbon');
+      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
+      if (code === 'SA') {
+        document.getElementById('manualCorporateTaxRate').value = '20';
+        document.getElementById('fiscalProfileHint').textContent =
+          'Saudi Arabia: 20% income tax on taxable income attributable to the foreign share; Zakat on the Saudi/eligible share using the explicit Zakat base and fiscal-year days.';
+      } else {
+        document.getElementById('fiscalProfileHint').textContent =
+          'This country is temporarily in manual tax mode until a verified local fiscal profile is added; no automatic corporate-tax rate is assumed.';
+      }
+    }
+
     function onCountryChange() {
       var code = getCountryCode();
       if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
         var meta = BondsPlatforms.getCountryMeta(code);
         if (meta) {
           document.getElementById('vatRate').value = meta.vatRate || 0;
-          document.getElementById('zakatRate').value = isGcc(code) ? 2.5 : 0;
         }
       }
+      onFiscalProfileChange();
       populatePlatforms();
       onPlatformChange();
       updateExampleCurrency();
@@ -757,9 +814,16 @@
         overhead: parseFloat(document.getElementById('overheadCost').value) || 0,
         margin: parseFloat(document.getElementById('desiredMargin').value) || 0,
         vatRate: parseFloat(document.getElementById('vatRate').value) || 0,
-        incomeTaxRate: parseFloat(document.getElementById('incomeTaxRate').value) || 0,
-        zakatRate: parseFloat(document.getElementById('zakatRate').value) || 0,
-        zakatBasePerUnit: parseFloat(document.getElementById('zakatBasePerUnit').value) || 0,
+        countryCode: getCountryCode(),
+        companyType: document.getElementById('companyType').value || 'saudi_100',
+        foreignOwnershipPct: parseFloat(document.getElementById('foreignOwnershipPct').value) || 0,
+        financialYearDays: parseFloat(document.getElementById('financialYearDays').value) || 354,
+        annualTaxableIncome: parseFloat(document.getElementById('annualTaxableIncome').value) || 0,
+        activityType: document.getElementById('activityType').value || 'standard',
+        capitalInvestmentSar: parseFloat(document.getElementById('capitalInvestmentSar').value) || 0,
+        manualCorporateTaxRate: parseFloat(document.getElementById('manualCorporateTaxRate').value) || 0,
+        annualZakatBase: parseFloat(document.getElementById('annualZakatBase').value) || 0,
+        adjustedNetProfit: parseFloat(document.getElementById('adjustedNetProfit').value) || 0,
         volume: parseFloat(document.getElementById('monthlyVolume').value) || 0,
         monthlyFixed: parseFloat(document.getElementById('monthlyFixed').value) || 0,
         platformFeePct: parseFloat(document.getElementById('platformFee').value) || 0,
@@ -782,10 +846,33 @@
         packagingCostPerUnit: inputs.packagingCostPerUnit,
         cacPerUnit: inputs.cacPerUnit,
         wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
-        vatRate: inputs.vatRate,
-        zakatBasePerUnit: inputs.zakatBasePerUnit
+        vatRate: inputs.vatRate
       };
-      var result = calculatePricing(inputs.direct, inputs.overhead, inputs.margin, inputs.incomeTaxRate, inputs.zakatRate, inputs.volume, inputs.monthlyFixed, options);
+      var result = calculatePricing(inputs.direct, inputs.overhead, inputs.margin, 0, 0, inputs.volume, inputs.monthlyFixed, options);
+      var fiscal = window.BondsFiscal ? BondsFiscal.calculate({
+        countryCode: inputs.countryCode,
+        companyType: inputs.companyType,
+        foreignOwnershipPct: inputs.foreignOwnershipPct,
+        financialYearDays: inputs.financialYearDays,
+        annualTaxableIncome: inputs.annualTaxableIncome,
+        annualZakatBase: inputs.annualZakatBase,
+        companyType: inputs.companyType,
+        foreignOwnershipPct: inputs.foreignOwnershipPct,
+        financialYearDays: inputs.financialYearDays,
+        annualTaxableIncome: inputs.annualTaxableIncome,
+        activityType: inputs.activityType,
+        capitalInvestmentSar: inputs.capitalInvestmentSar,
+        adjustedNetProfit: inputs.adjustedNetProfit,
+        manualCorporateTaxRate: inputs.manualCorporateTaxRate,
+        corporateIncomeTaxRate: inputs.manualCorporateTaxRate
+      }) : null;
+      result.fiscal = fiscal;
+      if (fiscal) {
+        result.annualIncomeTaxAmount = fiscal.annualIncomeTaxAmount || 0;
+        result.annualZakatAmount = fiscal.annualZakatAmount || 0;
+        result.effectiveZakatRate = fiscal.effectiveZakatRate || 0;
+        result.corporateIncomeTaxRate = fiscal.corporateIncomeTaxRate || 0;
+      }
       _calcMemo.set(memoKey, result);
       return result;
     }
@@ -806,22 +893,14 @@
       profitBeforeTaxEl.style.color = r.profitBeforeIncomeTax >= 0 ? '#16a34a' : '#dc2626';
 
       var taxEl = document.getElementById('resTax');
-      if (r.profitBeforeIncomeTax > 0 && inputs.incomeTaxRate > 0) {
-        taxEl.textContent = formatCurrency(r.incomeTaxAmount) + ' (' + inputs.incomeTaxRate.toFixed(1) + '%)';
-        taxEl.style.color = '#dc2626';
-      } else {
-        taxEl.textContent = formatCurrency(0);
-        taxEl.style.color = 'var(--text)';
-      }
+      taxEl.textContent = formatCurrency(r.annualIncomeTaxAmount || 0) + ' / year' +
+        (r.corporateIncomeTaxRate ? ' (' + Number(r.corporateIncomeTaxRate).toFixed(2) + '%)' : '');
+      taxEl.style.color = (r.annualIncomeTaxAmount || 0) > 0 ? '#dc2626' : 'var(--text)';
 
       var zakatEl = document.getElementById('resZakat');
-      if (r.profitAfterIncomeTax > 0 && inputs.zakatRate > 0 && r.zakatCalculated) {
-        zakatEl.textContent = formatCurrency(r.zakatAmount) + ' (' + inputs.zakatRate.toFixed(1) + '%)';
-        zakatEl.style.color = '#dc2626';
-      } else {
-        zakatEl.textContent = formatCurrency(0);
-        zakatEl.style.color = 'var(--text)';
-      }
+      zakatEl.textContent = formatCurrency(r.annualZakatAmount || 0) + ' / year' +
+        (r.effectiveZakatRate ? ' (' + Number(r.effectiveZakatRate).toFixed(4) + '%)' : '');
+      zakatEl.style.color = (r.annualZakatAmount || 0) > 0 ? '#dc2626' : 'var(--text)';
 
       var profitPerUnitEl = document.getElementById('resProfitPerUnit');
       if (r.netProfitPerUnit > 0) {
@@ -870,9 +949,9 @@
       stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '6' : '5') + ':</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatCurrency(r.priceBeforeVat) + '</strong></div>';
       stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '7' : '6') + ':</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeVat) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatCurrency(r.platformFeeAmount) + '</strong></div>';
       stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '8' : '7') + ':</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeVat) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatCurrency(r.profitBeforeIncomeTax) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '9' : '8') + ':</strong> Tax = ' + formatNumberAR(r.profitBeforeIncomeTax) + ' × ' + inputs.incomeTaxRate + '% = <strong>' + formatCurrency(r.incomeTaxAmount) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '10' : '9') + ':</strong> Zakat = ' + formatNumberAR(r.profitAfterIncomeTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatCurrency(r.zakatAmount) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '11' : '10') + ':</strong> Net Profit = ' + formatNumberAR(r.profitAfterIncomeTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '9' : '8') + ':</strong> Tax = ' + formatNumberAR(r.profitBeforeIncomeTax) + ' × ' + inputs.manualCorporateTaxRate + '% = <strong>' + formatCurrency(r.incomeTaxAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '10' : '9') + ':</strong> Zakat = ' + formatNumberAR(r.profitAfterIncomeTax) + ' × ' + r.effectiveZakatRate || 0 + '% = <strong>' + formatCurrency(r.annualZakatAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '11' : '10') + ':</strong> Net Profit = ' + formatNumberAR(r.profitAfterIncomeTax) + ' − ' + formatNumberAR(r.annualZakatAmount) + ' = <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong></div>';
       stepsArea.innerHTML = stepsHTML;
 
       if (inputs.margin >= 100) {
@@ -910,7 +989,7 @@
       document.getElementById('leadCalcData').value = JSON.stringify({
         date: new Date().toLocaleString('en-US'),
         direct: inputs.direct, overhead: inputs.overhead, margin: inputs.margin,
-        incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, volume: inputs.volume,
+        incomeTaxRate: inputs.manualCorporateTaxRate, zakatRate: r.effectiveZakatRate || 0, volume: inputs.volume,
         platformFeePct: inputs.platformFeePct, packagingCostPerUnit: inputs.packagingCostPerUnit,
         deliveryCostPerUnit: inputs.deliveryCostPerUnit, cacPerUnit: inputs.cacPerUnit,
         wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct, wasteAndIncidentalsAmount: r.wasteAndIncidentalsAmount,
@@ -1003,9 +1082,9 @@
           <tr><td>Payment Gateway Fee Amount</td><td class="num">${formatCurrency(r.paymentGatewayAmount)}</td></tr>
           <tr><td>Selling Price before Tax</td><td class="num">${formatCurrency(r.priceBeforeVat)}</td></tr>
           <tr><td>Profit before Tax</td><td class="num">${formatCurrency(r.profitBeforeIncomeTax)}</td></tr>
-          <tr><td>Tax (${inputs.incomeTaxRate}%)</td><td class="num">${formatCurrency(r.incomeTaxAmount)}</td></tr>
+          <tr><td>Tax (${inputs.manualCorporateTaxRate}%)</td><td class="num">${formatCurrency(r.incomeTaxAmount)}</td></tr>
           <tr><td>Profit after Tax</td><td class="num">${formatCurrency(r.profitAfterIncomeTax)}</td></tr>
-          <tr><td>Zakat (${inputs.zakatRate}%)</td><td class="num">${formatCurrency(r.zakatAmount)}</td></tr>
+          <tr><td>Annual Zakat at Year-End (${r.effectiveZakatRate || 0}%)</td><td class="num">${formatCurrency(r.annualZakatAmount)}</td></tr>
           <tr><td>Net Profit per Unit</td><td class="num">${formatCurrency(r.netProfitPerUnit)}</td></tr>
           <tr><td>Monthly Sales Volume</td><td class="num">${inputs.volume.toLocaleString('en-US')} units</td></tr>
           <tr><td>Target Monthly Profit</td><td class="num">${formatCurrency(r.monthlyProfit)}</td></tr>
@@ -1043,8 +1122,8 @@
         ['Payment Gateway Fee (%)', inputs.paymentGatewayFeePct.toFixed(1) + '%'],
         ['Desired Profit Margin (%)', inputs.margin + '%'],
         ...(currentPricingMode === 'price' ? [['Target Platform Selling Price', parseFloat(document.getElementById('targetPrice').value) || 0]] : []),
-        ['Tax Rate (%)', inputs.incomeTaxRate + '%'],
-        ['Zakat Rate (%)', inputs.zakatRate + '%'],
+        ['Tax Rate (%)', inputs.manualCorporateTaxRate + '%'],
+        ['Zakat Rate (%)', r.effectiveZakatRate || 0 + '%'],
         ['Target Sales Volume', inputs.volume],
         ['', ''],
         ['Base Cost per Unit', r.costPerUnit.toFixed(2)],
@@ -1057,7 +1136,7 @@
         ['Profit before Tax', r.profitBeforeIncomeTax.toFixed(2)],
         ['Tax', r.incomeTaxAmount.toFixed(2)],
         ['Profit after Tax', r.profitAfterIncomeTax.toFixed(2)],
-        ['Zakat', r.zakatAmount.toFixed(2)],
+        ['Zakat', r.annualZakatAmount.toFixed(2)],
         ['Net Profit (per unit)', r.netProfitPerUnit.toFixed(2)],
         ['Target Monthly Profit', r.monthlyProfit.toFixed(2)],
         ['Actual Profit Margin (%)', r.actualMargin.toFixed(2) + '%'],
@@ -1123,9 +1202,15 @@
       url.searchParams.set('o', inputs.overhead);
       url.searchParams.set('m', inputs.margin);
       url.searchParams.set('t', inputs.vatRate);
-      url.searchParams.set('it', inputs.incomeTaxRate);
-      url.searchParams.set('z', inputs.zakatRate);
-      url.searchParams.set('zb', inputs.zakatBasePerUnit);
+      url.searchParams.set('ct', inputs.companyType);
+      url.searchParams.set('fo', inputs.foreignOwnershipPct);
+      url.searchParams.set('fy', inputs.financialYearDays);
+      url.searchParams.set('ati', inputs.annualTaxableIncome);
+      url.searchParams.set('act', inputs.activityType);
+      url.searchParams.set('cap', inputs.capitalInvestmentSar);
+      url.searchParams.set('anp', inputs.adjustedNetProfit);
+      url.searchParams.set('it', inputs.manualCorporateTaxRate);
+      url.searchParams.set('zb', inputs.annualZakatBase);
       url.searchParams.set('v', inputs.volume);
       url.searchParams.set('mf', inputs.monthlyFixed);
       url.searchParams.set('p', inputs.platformFeePct);
@@ -1169,8 +1254,8 @@
           breakEvenPrice: r.breakEvenPrice,
           platformFeePct: inputs.platformFeePct,
           paymentGatewayFeePct: inputs.paymentGatewayFeePct,
-          incomeTaxRate: inputs.incomeTaxRate,
-          zakatRate: inputs.zakatRate
+          incomeTaxRate: inputs.manualCorporateTaxRate,
+          zakatRate: r.effectiveZakatRate || 0
         });
       }
 
@@ -1200,8 +1285,8 @@
             ['Platform Fee (%)', inputs.platformFeePct],
             ['Payment Gateway Fee (%)', inputs.paymentGatewayFeePct],
             ['Desired Profit Margin (%)', inputs.margin],
-            ['Tax Rate (%)', inputs.incomeTaxRate],
-            ['Zakat Rate (%)', inputs.zakatRate],
+            ['Tax Rate (%)', inputs.manualCorporateTaxRate],
+            ['Zakat Rate (%)', r.effectiveZakatRate || 0],
             ['Target Monthly Sales Volume', inputs.volume],
             ['Monthly Fixed Costs', inputs.monthlyFixed],
             ['', ''],
@@ -1210,7 +1295,7 @@
             ['Profit before Tax', r.profitBeforeIncomeTax],
             ['Tax', r.incomeTaxAmount],
             ['Profit after Tax', r.profitAfterIncomeTax],
-            ['Zakat', r.zakatAmount],
+            ['Zakat', r.annualZakatAmount],
             ['Net Profit per Unit', r.netProfitPerUnit],
             ['Target Monthly Profit', r.monthlyProfit],
             ['Actual Profit Margin (%)', r.actualMargin],
@@ -1226,8 +1311,8 @@
             platform_fee_pct: inputs.platformFeePct,
             payment_gateway_fee_pct: inputs.paymentGatewayFeePct,
             desired_margin_pct: inputs.margin,
-            tax_rate_pct: inputs.incomeTaxRate,
-            zakat_rate_pct: inputs.zakatRate,
+            tax_rate_pct: inputs.manualCorporateTaxRate,
+            zakat_rate_pct: r.effectiveZakatRate || 0,
             monthly_volume: inputs.volume,
             monthly_fixed: inputs.monthlyFixed,
             result_price_before_tax: r.priceBeforeVat,
@@ -1256,9 +1341,18 @@
       if (i.margin !== undefined) document.getElementById('desiredMargin').value = i.margin;
       if (i.vatRate !== undefined) document.getElementById('vatRate').value = i.vatRate;
       else if (i.taxRate !== undefined) document.getElementById('vatRate').value = i.taxRate;
-      if (i.incomeTaxRate !== undefined) document.getElementById('incomeTaxRate').value = i.incomeTaxRate;
-      if (i.zakatRate !== undefined) document.getElementById('zakatRate').value = i.zakatRate;
-      if (i.zakatBasePerUnit !== undefined) document.getElementById('zakatBasePerUnit').value = i.zakatBasePerUnit;
+      if (i.manualCorporateTaxRate !== undefined) document.getElementById('manualCorporateTaxRate').value = i.manualCorporateTaxRate;
+      if (i.financialYearDays !== undefined) document.getElementById('financialYearDays').value = i.financialYearDays;
+      if (i.annualZakatBase !== undefined) document.getElementById('annualZakatBase').value = i.annualZakatBase;
+      if (i.companyType !== undefined) document.getElementById('companyType').value = i.companyType;
+      if (i.foreignOwnershipPct !== undefined) document.getElementById('foreignOwnershipPct').value = i.foreignOwnershipPct;
+      if (i.financialYearDays !== undefined) document.getElementById('financialYearDays').value = i.financialYearDays;
+      if (i.annualTaxableIncome !== undefined) document.getElementById('annualTaxableIncome').value = i.annualTaxableIncome;
+      if (i.activityType !== undefined) document.getElementById('activityType').value = i.activityType;
+      if (i.capitalInvestmentSar !== undefined) document.getElementById('capitalInvestmentSar').value = i.capitalInvestmentSar;
+      if (i.adjustedNetProfit !== undefined) document.getElementById('adjustedNetProfit').value = i.adjustedNetProfit;
+      if (i.manualCorporateTaxRate !== undefined) document.getElementById('manualCorporateTaxRate').value = i.manualCorporateTaxRate;
+      onFiscalProfileChange();
       if (i.volume !== undefined) document.getElementById('monthlyVolume').value = i.volume;
       if (i.monthlyFixed !== undefined) document.getElementById('monthlyFixed').value = i.monthlyFixed;
       if (data.mode === 'price' && data.inputs && data.inputs.targetPrice !== undefined) {
@@ -1345,9 +1439,16 @@
       document.getElementById('paymentGatewayPreset').value = '1.5';
       document.getElementById('desiredMargin').value = '25';
       document.getElementById('vatRate').value = '15';
-      document.getElementById('incomeTaxRate').value = '0';
-      document.getElementById('zakatBasePerUnit').value = '0';
-      document.getElementById('zakatRate').value = '2.5';
+      document.getElementById('companyType').value = 'saudi_100';
+      document.getElementById('foreignOwnershipPct').value = '50';
+      document.getElementById('financialYearDays').value = '354';
+      document.getElementById('annualTaxableIncome').value = '0';
+      document.getElementById('activityType').value = 'standard';
+      document.getElementById('capitalInvestmentSar').value = '0';
+      document.getElementById('manualCorporateTaxRate').value = '20';
+      document.getElementById('annualZakatBase').value = '0';
+      document.getElementById('adjustedNetProfit').value = '0';
+      onFiscalProfileChange();
       document.getElementById('monthlyVolume').value = '500';
       document.getElementById('monthlyFixed').value = '0';
       calculateAll();
@@ -1363,9 +1464,9 @@
       document.getElementById('overheadCost').value = '';
       document.getElementById('desiredMargin').value = '25';
       document.getElementById('vatRate').value = '15';
-      document.getElementById('incomeTaxRate').value = '0';
-      document.getElementById('zakatBasePerUnit').value = '0';
-      document.getElementById('zakatRate').value = '2.5';
+      document.getElementById('annualTaxableIncome').value = '0';
+      document.getElementById('annualZakatBase').value = '0';
+      document.getElementById('financialYearDays').value = '354';
       document.getElementById('monthlyVolume').value = '';
       document.getElementById('monthlyFixed').value = '0';
       document.getElementById('platformFee').value = '0';
@@ -1424,10 +1525,24 @@
       if (m) document.getElementById('desiredMargin').value = m;
       if (t) document.getElementById('vatRate').value = t;
       var it = url.searchParams.get('it');
+      var ct = url.searchParams.get('ct');
+      var fo = url.searchParams.get('fo');
+      var fy = url.searchParams.get('fy');
+      var ati = url.searchParams.get('ati');
+      var act = url.searchParams.get('act');
+      var cap = url.searchParams.get('cap');
+      var anp = url.searchParams.get('anp');
       var zb = url.searchParams.get('zb');
-      if (it) document.getElementById('incomeTaxRate').value = it;
-      if (z) document.getElementById('zakatRate').value = z;
-      if (zb) document.getElementById('zakatBasePerUnit').value = zb;
+      if (ct) document.getElementById('companyType').value = ct;
+      if (fo) document.getElementById('foreignOwnershipPct').value = fo;
+      if (fy) document.getElementById('financialYearDays').value = fy;
+      if (ati) document.getElementById('annualTaxableIncome').value = ati;
+      if (act) document.getElementById('activityType').value = act;
+      if (cap) document.getElementById('capitalInvestmentSar').value = cap;
+      if (anp) document.getElementById('adjustedNetProfit').value = anp;
+      if (it) document.getElementById('manualCorporateTaxRate').value = it;
+      if (zb) document.getElementById('annualZakatBase').value = zb;
+      onFiscalProfileChange();
       if (v) document.getElementById('monthlyVolume').value = v;
       if (mf) document.getElementById('monthlyFixed').value = mf;
       if (p) document.getElementById('platformFee').value = p;
@@ -1451,7 +1566,7 @@
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'incomeTaxRate', 'zakatRate', 'zakatBasePerUnit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'companyType', 'foreignOwnershipPct', 'financialYearDays', 'annualTaxableIncome', 'activityType', 'capitalInvestmentSar', 'manualCorporateTaxRate', 'annualZakatBase', 'adjustedNetProfit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         if (currentPricingMode === 'price' && document.getElementById('targetPrice').value === '') return;
         var inputs = getInputs();
@@ -1538,7 +1653,7 @@
     function storeCurrentInputs() {
       try {
         var payload = {};
-        ['country','platformSelect','sectorPreset','directCost','overheadCost','wasteAndIncidentalsPct','monthlyFixed','desiredMargin','targetPrice','vatRate','incomeTaxRate','zakatRate','zakatBasePerUnit','monthlyVolume','platformFee','paymentGatewayFee','packagingCost','deliveryCost','cac'].forEach(function(id) {
+        ['country','platformSelect','sectorPreset','directCost','overheadCost','wasteAndIncidentalsPct','monthlyFixed','desiredMargin','targetPrice','vatRate','incomeTaxRate','zakatRate','annualZakatBase','monthlyVolume','platformFee','paymentGatewayFee','packagingCost','deliveryCost','cac'].forEach(function(id) {
           var el = document.getElementById(id);
           payload[id] = el ? el.value : '';
         });

@@ -78,25 +78,29 @@ describe('calculateBreakEven', () => {
     expect(r.netProfit).toBe(30000);
   });
 
-  test('income tax and Zakat use separate explicit bases', () => {
+  test('income tax and annual year-end Zakat use separate explicit bases', () => {
     const r = calculateBreakEven(10000, 300, 500, 200, 20, 2.5, {
       vatRate: 15,
-      zakatBase: 40000
+      annualZakatBase: 40000
     });
     expect(r.profit).toBe(30000);
     expect(r.incomeTaxAmount).toBeCloseTo(6000, 5);
     expect(r.profitAfterIncomeTax).toBeCloseTo(24000, 5);
     expect(r.zakatCalculated).toBe(true);
-    expect(r.zakatAmount).toBeCloseTo(1000, 5);
-    expect(r.netProfit).toBeCloseTo(23000, 5);
+    expect(r.annualZakatAmount).toBeCloseTo(1000, 5);
+    // Monthly profit is not reduced by an annual Zakat liability.
+    expect(r.netProfit).toBeCloseTo(24000, 5);
+    expect(r.annualProfitBeforeZakat).toBeCloseTo(288000, 5);
+    expect(r.annualProfitAfterZakat).toBeCloseTo(287000, 5);
   });
 
-  test('no income tax on loss; explicit Zakat base remains independent of profit', () => {
-    const r = calculateBreakEven(10000, 500, 400, 10, 20, 2.5, { zakatBase: 10000 });
+  test('annual Zakat remains independent of monthly loss and is applied only at year-end', () => {
+    const r = calculateBreakEven(10000, 500, 400, 10, 20, 2.5, { annualZakatBase: 10000 });
     expect(r.profit).toBeLessThan(0);
     expect(r.incomeTaxAmount).toBe(0);
-    expect(r.zakatAmount).toBeCloseTo(250, 5);
-    expect(r.netProfit).toBeCloseTo(r.profit - 250, 5);
+    expect(r.annualZakatAmount).toBeCloseTo(250, 5);
+    expect(r.netProfit).toBeCloseTo(r.profit, 5);
+    expect(r.annualProfitAfterZakat).toBeCloseTo(r.profit * 12 - 250, 5);
   });
 
   test('handles very large numbers', () => {
@@ -284,17 +288,20 @@ describe('calculatePricing', () => {
     expect(r.zakatAmount).toBe(0);
   });
 
-  test('VAT, income tax, and Zakat remain independent in pricing', () => {
+  test('VAT, income tax, and annual year-end Zakat remain independent in pricing', () => {
     const r = calculatePricing(100, 50, 30, 20, 2.5, 1000, 10000, {
       vatRate: 15,
-      zakatBasePerUnit: 40
+      annualZakatBase: 480000
     });
     expect(r.costPerUnit).toBe(150);
     expect(r.priceBeforeVat).toBeCloseTo(214.29, 2);
     expect(r.outputVatPerUnit).toBeCloseTo(32.14, 2);
     expect(r.incomeTaxAmount).toBeCloseTo(12.86, 2); // (214.29-150)*20%
-    expect(r.zakatAmount).toBeCloseTo(1, 2);         // explicit base 40*2.5%
-    expect(r.netProfitPerUnit).toBeCloseTo(50.43, 2);
+    expect(r.annualZakatAmount).toBeCloseTo(12000, 2);
+    // Annual Zakat is not deducted from per-unit or monthly operating profit.
+    expect(r.netProfitPerUnit).toBeCloseTo(51.43, 2);
+    expect(r.monthlyProfit).toBeCloseTo(r.netProfitPerUnit * 1000, 2);
+    expect(r.annualProfitAfterZakat).toBeCloseTo(r.monthlyProfit * 12 - 12000, 2);
   });
 
   test('breakEvenPrice with zero volume equals costPerUnit', () => {
@@ -947,15 +954,24 @@ describe('calculateMedicalViability', () => {
     expect(r.sensitivity.plus20.monthlyProfit).toBeGreaterThan(r.monthlyProfit);
   });
 
-  test('vat and zakat reduce profit', () => {
+  test('medical VAT is separate from profit and Zakat is annual at year-end', () => {
     const revenue = { unitPrice: 100, dailyUnits: 30, workDays: 26 };
     const monthly = { rent: 10000, salaries: 0, utilities: 0, ads: 0, misc: 0 };
     const baseOptions = { activity: 'pharmacy', cogsRatio: 40, expiryLossPct: 0, insurancePct: 0, discountPct: 0 };
     const base = calculateMedicalViability({}, monthly, revenue, baseOptions);
-    const taxed = calculateMedicalViability({}, monthly, revenue, { ...baseOptions, vatRate: 15, zakatRate: 2.5 });
+    const taxed = calculateMedicalViability({}, monthly, revenue, {
+      ...baseOptions,
+      vatRate: 15,
+      zakatRate: 2.5,
+      annualZakatBase: 200000
+    });
     expect(taxed.vatAmount).toBeGreaterThan(0);
-    expect(taxed.zakatAmount).toBeGreaterThan(0);
-    expect(taxed.monthlyProfit).toBeLessThan(base.monthlyProfit);
+    // VAT display does not alter operating profit in this profitability model.
+    expect(taxed.monthlyProfit).toBeCloseTo(base.monthlyProfit, 5);
+    expect(taxed.zakatAmount).toBe(0);
+    expect(taxed.annualZakatAmount).toBeCloseTo(5000, 5);
+    expect(taxed.yearlyProfit).toBeCloseTo(taxed.yearlyProfitBeforeZakat - 5000, 5);
+    expect(taxed.monthlyProjections.every(p => p.zakatAmount === 0)).toBe(true);
   });
 
   test('service mix increases profit when contribution is positive', () => {
