@@ -112,4 +112,12 @@ describe('Geo convergence critical gaps', () => {
     expect(migration).toContain("'last_legacy_alias_code',new.code");
   });
 
+  test('new canonical geo identity is provider-independent', () => {
+    const promote = read('scripts/promote-local-geo-run.js');
+    expect(promote).toContain("const { randomUUID } = require('crypto')");
+    expect(promote).toContain("'BG-' + row.country_code");
+    expect(promote).not.toContain("'SRC-' + row.source_code + '-' + row.source_id");
+    expect(promote).toContain('geo_place_source_links');
+  });
+
 });
