@@ -915,7 +915,29 @@ async function loadCatalogCityRows(supabase, countryCode = null) {
     };
   });
 
-  return [...(legacyRows || []), ...geoCatalogRows];
+  const geoById = new Map(geoRows.map(place => [place.id, place]));
+  const enrichedLegacyRows = (legacyRows || []).map(row => {
+    const place = row.geo_place_id ? geoById.get(row.geo_place_id) : null;
+    if (!place) return row;
+
+    const rowHasCoords =
+      row.lat !== null && row.lat !== undefined &&
+      row.lng !== null && row.lng !== undefined;
+    const placeHasCoords =
+      place.lat !== null && place.lat !== undefined &&
+      place.lng !== null && place.lng !== undefined;
+
+    if (rowHasCoords || !placeHasCoords) return row;
+    return {
+      ...row,
+      lat: place.lat,
+      lng: place.lng,
+      geo_confidence: place.confidence,
+      coordinate_source: 'geo_places'
+    };
+  });
+
+  return [...enrichedLegacyRows, ...geoCatalogRows];
 }
 
 async function handleCatalogCountries(req, res) {
@@ -1420,6 +1442,47 @@ async function handleGeoSiteIntelligence(req, res) {
   }
 }
 
+
+async function enrichCitiesWithGeoCoordinates(supabase, rows = []) {
+  const linkedIds = [...new Set((rows || []).map(row => row.geo_place_id).filter(Boolean))];
+  if (!linkedIds.length) return rows || [];
+
+  const { data: places, error } = await supabase
+    .from('geo_places')
+    .select('id,lat,lng,confidence,source_code,source_updated_at')
+    .in('id', linkedIds);
+
+  if (error) {
+    console.warn('[geo-coordinate-fallback]', error.message);
+    return rows || [];
+  }
+
+  const byId = new Map((places || []).map(place => [place.id, place]));
+  return (rows || []).map(row => {
+    const place = byId.get(row.geo_place_id);
+    if (!place) return row;
+
+    const rowHasCoords =
+      row.lat !== null && row.lat !== undefined &&
+      row.lng !== null && row.lng !== undefined;
+
+    const placeHasCoords =
+      place.lat !== null && place.lat !== undefined &&
+      place.lng !== null && place.lng !== undefined;
+
+    if (rowHasCoords || !placeHasCoords) return row;
+
+    return {
+      ...row,
+      lat: place.lat,
+      lng: place.lng,
+      geo_confidence: place.confidence,
+      coordinate_source: place.source_code || 'geo_places',
+      coordinate_source_updated_at: place.source_updated_at || null
+    };
+  });
+}
+
 async function handleCities(req, res) {
   const url = getQuery(req);
   const include = url.searchParams.get('include') || '';
@@ -1432,7 +1495,7 @@ async function handleCities(req, res) {
 
   const cityTypeParam = url.searchParams.get('city_type');
 
-  let selectFields = 'id, code, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types';
+  let selectFields = 'id, code, geo_place_id, name_ar, name_en, region, admin_level_2, locality_type, country_code, population, purchasing_power_index, lat, lng, city_types';
   let query = supabase.from('cities').select(selectFields).eq('is_active', true);
 
   if (countryCode) query = query.eq('country_code', countryCode);
@@ -1450,7 +1513,7 @@ async function handleCities(req, res) {
     return sendJson(res, 500, { error: 'Failed to load cities' });
   }
 
-  let enriched = cities || [];
+  let enriched = await enrichCitiesWithGeoCoordinates(supabase, cities || []);
 
   if (include.includes('opportunity') && activityCode) {
     const activitySelection = await resolveActivitySelection(supabase, activityCode);
@@ -1638,10 +1701,16 @@ async function handleOpportunitiesTop(req, res) {
     latestRows.push({ ...row, _sectorCanonical: sectorCanonical });
   }
 
+  const opportunityCities = await enrichCitiesWithGeoCoordinates(
+    supabase,
+    latestRows.map(row => row.cities).filter(Boolean)
+  );
+  const opportunityCityById = new Map(opportunityCities.map(city => [city.id, city]));
+
   const assessed = latestRows.map(row => {
     const reliability = assessOpportunityRow(row);
     return {
-      city: row.cities,
+      city: opportunityCityById.get(row.cities?.id) || row.cities,
       activity: activityCode
         ? {
             ...(row.economic_activities || {}),
