@@ -124,6 +124,7 @@ async function main() {
     for (const row of rows.rows) {
       let canonicalId = row.canonical_place_id;
       let action = 'matched_existing';
+      let promotionReason = row.reason || {};
 
       if (row.decision === 'new_canonical') {
         const canonicalCode = 'BG-' + row.country_code + '-' +
@@ -166,7 +167,16 @@ async function main() {
         action = 'created_canonical';
         created++;
       } else {
-        await client.query(
+        const before = await client.query(
+          `select name_ar,name_en,population,elevation_m,lat,lng,confidence,metadata
+           from public.geo_places
+           where id=$1
+           for update`,
+          [canonicalId]
+        );
+        if (!before.rows[0]) throw new Error('Canonical place not found for matched_existing promotion');
+
+        const updated = await client.query(
           `update public.geo_places
            set name_ar=coalesce(name_ar,$2),
                name_en=coalesce(name_en,$3),
@@ -180,14 +190,31 @@ async function main() {
                  'last_enrichment_run_id',$10::text
                ),
                updated_at=now()
-           where id=$1`,
+           where id=$1
+           returning name_ar,name_en,population,elevation_m,lat,lng,confidence,metadata`,
           [
             canonicalId,row.name_ar,row.name_en,row.population,row.elevation_m,
             row.lat,row.lng,row.overall_score,row.source_code,RUN_ID
           ]
         );
+
+        promotionReason = {
+          ...(row.reason || {}),
+          rollback_guard: {
+            previous_state: before.rows[0],
+            promoted_state: updated.rows[0]
+          }
+        };
         matched++;
       }
+
+      const sourceLinkBefore = await client.query(
+        `select place_id,source_updated_at,confidence,metadata
+         from public.geo_place_source_links
+         where source_code=$1 and source_id=$2
+         for update`,
+        [row.source_code,row.source_id]
+      );
 
       await client.query(
         `insert into public.geo_place_source_links(
@@ -206,23 +233,35 @@ async function main() {
         ]
       );
 
+      promotionReason.rollback_guard = {
+        ...(promotionReason.rollback_guard || {}),
+        source_link_previous: sourceLinkBefore.rows[0] || null
+      };
+
+      const insertedAliases = [];
       const aliases = Array.isArray(row.aliases) ? row.aliases : [];
       for (const alias of aliases) {
         if (!alias || !alias.alias) continue;
-        await client.query(
+        const aliasLanguage = alias.language || 'und';
+        const insertedAlias = await client.query(
           `insert into public.geo_place_aliases(place_id,alias,language,alias_type,source_code)
            values($1,$2,$3,$4,$5)
-           on conflict(place_id,alias,language) do nothing`,
-          [canonicalId,alias.alias,alias.language || 'und',alias.alias_type || 'source',row.source_code]
+           on conflict(place_id,alias,language) do nothing
+           returning id`,
+          [canonicalId,alias.alias,aliasLanguage,alias.alias_type || 'source',row.source_code]
         );
+        if (insertedAlias.rows.length) {
+          insertedAliases.push({ alias: alias.alias, language: aliasLanguage });
+        }
       }
+      promotionReason.rollback_guard.inserted_aliases = insertedAliases;
 
       await client.query(
         `insert into geo_ingest.promotions(
           run_id,raw_place_id,canonical_place_id,action,decision_score,reason
         ) values($1,$2,$3,$4,$5,$6::jsonb)
         on conflict(run_id,raw_place_id) do nothing`,
-        [RUN_ID,row.raw_place_id,canonicalId,action,row.overall_score,JSON.stringify(row.reason || {})]
+        [RUN_ID,row.raw_place_id,canonicalId,action,row.overall_score,JSON.stringify(promotionReason)]
       );
     }
 
