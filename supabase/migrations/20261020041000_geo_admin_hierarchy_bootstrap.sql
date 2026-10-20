@@ -416,6 +416,14 @@ where gp.id=c.place_id
   and c.matches=1
   and gp.admin1_id is null;
 
+alter table public.data_quality_issues
+  drop constraint if exists data_quality_issues_check_type_check;
+alter table public.data_quality_issues
+  add constraint data_quality_issues_check_type_check
+  check (check_type in (
+    'duplicate','missing','broken_relation','orphan_file','incomplete','invalid','geo_integrity'
+  ));
+
 create or replace function public.dq_find_geo_admin_hierarchy()
 returns bigint
 language plpgsql
