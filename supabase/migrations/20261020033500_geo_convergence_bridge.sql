@@ -404,7 +404,7 @@ begin
            'locality_code',sr.locality_code
          )
   from public.service_requests sr
-  where sr.locality_code is not null
+  where (sr.locality_code is not null or sr.locality_name is not null)
     and sr.geo_place_id is null
     and sr.status not in ('cancelled')
 
