@@ -17,9 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 55
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Restore previous source fingerprints
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .tmp-geo/source-fingerprints.txt
           key: geonames-fingerprints-${{ github.run_id }}
@@ -66,10 +66,10 @@ jobs:
           test -s .tmp-geo/allCountries.txt
           test -s .tmp-geo/alternateNames.txt
           test -s .tmp-geo/admin1CodesASCII.txt
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         if: steps.changes.outputs.changed == 'true'
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
       - name: Build Arab localities without database writes
         if: steps.changes.outputs.changed == 'true'
@@ -83,7 +83,7 @@ jobs:
           node -e "const fs=require('fs');const lines=fs.readFileSync('.tmp-geo/admin1CodesASCII.txt','utf8').trim().split(/\r?\n/);if(!lines.some(x=>x.startsWith('SA.'))||!lines.some(x=>x.startsWith('EG.')))process.exit(1);console.log('ADM1 lines:',lines.length)"
       - name: Upload manifest for review
         if: steps.changes.outputs.changed == 'true'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: geonames-manifest-${{ github.run_id }}
           path: |
@@ -94,7 +94,7 @@ jobs:
         if: steps.changes.outputs.changed == 'true'
         shell: bash
         run: cp .tmp-geo/current-fingerprints.txt .tmp-geo/source-fingerprints.txt
-      - uses: actions/cache/save@v4
+      - uses: actions/cache/save@v5
         if: steps.changes.outputs.changed == 'true'
         with:
           path: .tmp-geo/source-fingerprints.txt
