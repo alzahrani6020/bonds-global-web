@@ -107,6 +107,26 @@ async function main() {
         action = 'created_canonical';
         created++;
       } else {
+        await client.query(
+          `update public.geo_places
+           set name_ar=coalesce(name_ar,$2),
+               name_en=coalesce(name_en,$3),
+               population=coalesce(population,$4),
+               elevation_m=coalesce(elevation_m,$5),
+               lat=case when lat is null and lng is null and $6::double precision is not null and $7::double precision is not null then $6 else lat end,
+               lng=case when lat is null and lng is null and $6::double precision is not null and $7::double precision is not null then $7 else lng end,
+               confidence=greatest(confidence,least(100,greatest(0,$8::int))),
+               metadata=metadata || jsonb_build_object(
+                 'last_enrichment_source',$9::text,
+                 'last_enrichment_run_id',$10::text
+               ),
+               updated_at=now()
+           where id=$1`,
+          [
+            canonicalId,row.name_ar,row.name_en,row.population,row.elevation_m,
+            row.lat,row.lng,row.overall_score,row.source_code,RUN_ID
+          ]
+        );
         matched++;
       }
 
