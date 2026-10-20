@@ -338,15 +338,31 @@ async function handleSubmitFeedback(req, res) {
   }
 }
 
-// Public feedback submission (no admin token) with basic validation
+// Public corrections are quarantined in the review queue. They must never be
+// written directly into metric_feedback because that table feeds automatic
+// correction factors used by inference.
 async function handleSubmitPublicFeedback(req, res) {
   const body = await parseBody(req);
-  const config = getSupabaseConfig();
   const supabase = getSupabaseClient();
 
-  // Required fields
   if (!body.city_code || !body.metric_code || body.suggested_value === undefined) {
     return sendJson(res, 400, { error: 'city_code, metric_code and suggested_value are required' });
+  }
+
+  const suggestedValue = Number(body.suggested_value);
+  const currentValue = body.current_value === undefined || body.current_value === null || body.current_value === ''
+    ? null
+    : Number(body.current_value);
+  const year = Number(body.year || new Date().getFullYear());
+
+  if (!Number.isFinite(suggestedValue)) {
+    return sendJson(res, 400, { error: 'suggested_value must be a finite number' });
+  }
+  if (currentValue !== null && !Number.isFinite(currentValue)) {
+    return sendJson(res, 400, { error: 'current_value must be a finite number when provided' });
+  }
+  if (!Number.isInteger(year) || year < 1900 || year > new Date().getFullYear() + 1) {
+    return sendJson(res, 400, { error: 'year is invalid' });
   }
 
   try {
@@ -357,22 +373,24 @@ async function handleSubmitPublicFeedback(req, res) {
       activityId = activity.id;
     }
 
-    const year = body.year || new Date().getFullYear();
-
-    const { error } = await supabase.from('metric_feedback').insert({
-      metric_code: body.metric_code,
+    const { error } = await supabase.from('data_feedback').insert({
       city_id: city.id,
       activity_id: activityId,
       year,
-      estimated_value: body.current_value || null,
-      actual_value: body.suggested_value,
-      source: 'user',
-      confidence: body.confidence || 80,
-      notes: body.reason || null
+      metric_code: String(body.metric_code).slice(0, 120),
+      current_value: currentValue,
+      suggested_value: suggestedValue,
+      reason: body.reason ? String(body.reason).slice(0, 2000) : null,
+      source_url: body.source_url ? String(body.source_url).slice(0, 2000) : null,
+      status: 'pending'
     });
 
     if (error) throw error;
-    sendJson(res, 200, { success: true, message: 'شكراً لك، تم استلام التصحيح وسيتم مراجعته.' });
+    sendJson(res, 200, {
+      success: true,
+      status: 'pending',
+      message: 'شكراً لك، تم استلام التصحيح وسيتم مراجعته قبل استخدامه في النماذج.'
+    });
   } catch (err) {
     console.error('[data-engine public feedback]', err.message);
     sendJson(res, 500, { error: err.message });
