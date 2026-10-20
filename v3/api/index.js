@@ -1218,7 +1218,10 @@ async function handleCatalogCities(req, res) {
     const rawCities = await loadCatalogCityRows(supabase, countryCode);
     const databaseCities = canonicalizeCities(rawCities).map(city => ({
       ...city,
-      data_available: true,
+      // A canonical geo record is discoverable geography, not proof that
+      // city-level market/evidence data exists. Keep these concepts separate.
+      data_available: city.catalog_source === 'geo_places' ? false : true,
+      geo_available: Boolean(city.geo_place_id),
       catalog_source: city.catalog_source || 'database'
     }));
     let catalogCities = mergeMasterAndDatabaseCities(countryCode, databaseCities);
