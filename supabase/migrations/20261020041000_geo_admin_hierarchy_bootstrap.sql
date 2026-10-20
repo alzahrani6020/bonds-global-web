@@ -416,6 +416,56 @@ where gp.id=c.place_id
   and c.matches=1
   and gp.admin1_id is null;
 
+-- Second deterministic bridge: if an unlinked legacy place has the same
+-- normalized Arabic or English name as already-linked places in the same
+-- country, inherit ADM1 only when all matching references agree on one ADM1.
+with linked_names as (
+  select
+    c.country_code,
+    private.normalize_geo_admin_name(c.name_ar) as norm_ar,
+    lower(nullif(btrim(c.name_en),'')) as norm_en,
+    gp.admin1_id
+  from public.cities c
+  join public.geo_places gp on gp.id=c.geo_place_id
+  where gp.admin1_id is not null
+    and coalesce(c.is_active,true)=true
+),
+candidates as (
+  select
+    target_gp.id as place_id,
+    min(ln.admin1_id::text)::uuid as admin1_id,
+    count(distinct ln.admin1_id) as adm1_matches
+  from public.cities target_c
+  join public.geo_places target_gp on target_gp.id=target_c.geo_place_id
+  join linked_names ln
+    on ln.country_code=target_c.country_code
+   and (
+     (
+       private.normalize_geo_admin_name(target_c.name_ar) is not null
+       and ln.norm_ar=private.normalize_geo_admin_name(target_c.name_ar)
+     )
+     or
+     (
+       nullif(btrim(target_c.name_en),'') is not null
+       and ln.norm_en=lower(btrim(target_c.name_en))
+     )
+   )
+  where target_gp.admin1_id is null
+    and coalesce(target_c.is_active,true)=true
+  group by target_gp.id
+)
+update public.geo_places gp
+set admin1_id=c.admin1_id,
+    metadata=gp.metadata || jsonb_build_object(
+      'admin1_resolution','unique_same_country_place_name',
+      'admin1_resolved_at',now()
+    ),
+    updated_at=now()
+from candidates c
+where gp.id=c.place_id
+  and c.adm1_matches=1
+  and gp.admin1_id is null;
+
 alter table public.data_quality_issues
   drop constraint if exists data_quality_issues_check_type_check;
 alter table public.data_quality_issues
