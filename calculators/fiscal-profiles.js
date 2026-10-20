@@ -1,16 +1,17 @@
 /**
  * Bonds Global — Fiscal Profiles
  *
- * Purpose:
- * - Keep indirect tax (VAT/GST), corporate income tax, and Zakat separate.
- * - Provide a country-specific fiscal layer without hard-coding one global tax rule.
- * - Saudi Arabia is the first verified automatic profile.
- *
- * IMPORTANT:
- * This calculator is an estimation aid, not a tax return engine.
- * Taxable income and Zakat base remain explicit accounting inputs.
+ * Country-specific fiscal estimation layer.
+ * Taxable income and Zakat bases are explicit accounting inputs; this file does not
+ * attempt to derive a tax return or a Zakat base from accounting profit.
  */
-(function (global) {
+(function (root, factory) {
+  if (typeof module === 'object' && module.exports) {
+    module.exports = factory();
+  } else {
+    root.BondsFiscal = factory();
+  }
+}(typeof self !== 'undefined' ? self : this, function () {
   'use strict';
 
   function clampPct(value) {
@@ -30,58 +31,84 @@
     return n;
   }
 
-  function saudiEffectiveZakatRate(financialYearDays) {
+  function saudiDayBasedZakatRate(financialYearDays) {
     return 2.5 * normalizeDays(financialYearDays) / 354;
   }
 
   function resolveSaudiOwnership(companyType, foreignOwnershipPct) {
-    if (companyType === 'saudi_100') {
-      return { saudiPct: 100, foreignPct: 0 };
-    }
-    if (companyType === 'foreign_100') {
-      return { saudiPct: 0, foreignPct: 100 };
-    }
+    if (companyType === 'saudi_100') return { saudiPct: 100, foreignPct: 0 };
+    if (companyType === 'foreign_100') return { saudiPct: 0, foreignPct: 100 };
     var foreignPct = clampPct(foreignOwnershipPct);
     return { saudiPct: 100 - foreignPct, foreignPct: foreignPct };
   }
 
+  function saudiCorporateIncomeTaxRate(activityType, capitalInvestmentSar) {
+    if (activityType === 'natural_gas') return 20;
+    if (activityType !== 'oil_hydrocarbon') return 20;
+
+    var capital = money(capitalInvestmentSar);
+    if (capital > 375000000000) return 50;
+    if (capital > 300000000000) return 65;
+    if (capital > 225000000000) return 75;
+    return 85;
+  }
+
   function calculateSaudi(input) {
     input = input || {};
-    var ownership = resolveSaudiOwnership(input.companyType || 'saudi_100', input.foreignOwnershipPct);
+    var companyType = input.companyType || 'saudi_100';
+    var ownership = resolveSaudiOwnership(companyType, input.foreignOwnershipPct);
     var financialYearDays = normalizeDays(input.financialYearDays);
-    var effectiveZakatRate = saudiEffectiveZakatRate(financialYearDays);
+    var dayBasedZakatRate = saudiDayBasedZakatRate(financialYearDays);
+
     var annualTaxableIncome = money(input.annualTaxableIncome);
     var annualZakatBase = money(input.annualZakatBase);
+    var adjustedNetProfit = Math.min(annualZakatBase, money(input.adjustedNetProfit));
+    var zakatBaseExcludingAdjustedProfit = Math.max(0, annualZakatBase - adjustedNetProfit);
 
-    // Standard Saudi income-tax rate for the non-Saudi share of a resident capital company.
-    // Sector-specific regimes (for example certain oil/hydrocarbon activities) are intentionally excluded.
-    var corporateIncomeTaxRate = 20;
+    var activityType = input.activityType || 'standard';
+    var corporateIncomeTaxRate = saudiCorporateIncomeTaxRate(activityType, input.capitalInvestmentSar);
     var foreignTaxableIncome = annualTaxableIncome * ownership.foreignPct / 100;
     var annualIncomeTaxAmount = foreignTaxableIncome * corporateIncomeTaxRate / 100;
 
-    var zakatEligibleBase = annualZakatBase * ownership.saudiPct / 100;
-    var annualZakatAmount = zakatEligibleBase * effectiveZakatRate / 100;
+    var eligibleShare = ownership.saudiPct / 100;
+    var eligibleBaseExcludingAdjustedProfit = zakatBaseExcludingAdjustedProfit * eligibleShare;
+    var eligibleAdjustedNetProfit = adjustedNetProfit * eligibleShare;
+
+    // ZATCA treatment:
+    // - Zakat-base components other than adjusted net profit use the day-based rate.
+    // - Adjusted net profit is subject to 2.5%.
+    var zakatOnBaseComponents = eligibleBaseExcludingAdjustedProfit * dayBasedZakatRate / 100;
+    var zakatOnAdjustedNetProfit = eligibleAdjustedNetProfit * 2.5 / 100;
+    var annualZakatAmount = zakatOnBaseComponents + zakatOnAdjustedNetProfit;
 
     return {
       countryCode: 'SA',
       mode: 'automatic',
-      companyType: input.companyType || 'saudi_100',
+      companyType: companyType,
       saudiOwnershipPct: ownership.saudiPct,
       foreignOwnershipPct: ownership.foreignPct,
       financialYearDays: financialYearDays,
-      effectiveZakatRate: effectiveZakatRate,
+      dayBasedZakatRate: dayBasedZakatRate,
+      effectiveZakatRate: annualZakatBase > 0 ? annualZakatAmount / (annualZakatBase * eligibleShare || 1) * 100 : 0,
       annualTaxableIncome: annualTaxableIncome,
       foreignTaxableIncome: foreignTaxableIncome,
+      activityType: activityType,
+      capitalInvestmentSar: money(input.capitalInvestmentSar),
       corporateIncomeTaxRate: corporateIncomeTaxRate,
       annualIncomeTaxAmount: annualIncomeTaxAmount,
       annualZakatBase: annualZakatBase,
-      zakatEligibleBase: zakatEligibleBase,
+      adjustedNetProfit: adjustedNetProfit,
+      zakatBaseExcludingAdjustedProfit: zakatBaseExcludingAdjustedProfit,
+      zakatEligibleBase: annualZakatBase * eligibleShare,
+      zakatOnBaseComponents: zakatOnBaseComponents,
+      zakatOnAdjustedNetProfit: zakatOnAdjustedNetProfit,
       annualZakatAmount: annualZakatAmount,
       annualFiscalCharges: annualIncomeTaxAmount + annualZakatAmount,
       notes: [
         'Income tax and Zakat use separate bases.',
-        'Saudi/GCC-eligible ownership is modeled for Zakat; non-Saudi ownership is modeled for income tax.',
-        'Taxable income and Zakat base must be supplied from the accounting/tax model.'
+        'Income tax applies to taxable income attributable to the non-Saudi share.',
+        'Zakat is allocated to the Saudi/eligible ownership share.',
+        'Adjusted net profit is kept separate from the day-based Zakat component.'
       ]
     };
   }
@@ -90,6 +117,7 @@
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
     var annualTaxableIncome = money(input.annualTaxableIncome);
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
     return {
       countryCode: String(input.countryCode || '').toUpperCase(),
       mode: 'manual',
@@ -97,12 +125,12 @@
       foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
       corporateIncomeTaxRate: corporateIncomeTaxRate,
       annualTaxableIncome: annualTaxableIncome,
-      annualIncomeTaxAmount: annualTaxableIncome * corporateIncomeTaxRate / 100,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
       annualZakatAmount: 0,
-      annualFiscalCharges: annualTaxableIncome * corporateIncomeTaxRate / 100,
+      annualFiscalCharges: annualIncomeTaxAmount,
       notes: [
-        'No automatic country income-tax profile is verified for this country yet.',
-        'Use the current local corporate-tax rate and taxable-income base from the applicable jurisdiction.'
+        'Automatic corporate-tax rules are not verified for this country yet.',
+        'The local tax rate and taxable-income base must be entered manually.'
       ]
     };
   }
@@ -120,9 +148,9 @@
         code: 'SA',
         automatic: true,
         companyTypes: ['saudi_100', 'mixed', 'foreign_100'],
-        corporateIncomeTaxRate: 20,
+        standardCorporateIncomeTaxRate: 20,
         zakatSupported: true,
-        zakatRateMethod: '2.5% x financialYearDays / 354'
+        zakatRateMethod: 'base components: 2.5% x fiscalYearDays / 354; adjusted net profit: 2.5%'
       };
     }
     return {
@@ -133,11 +161,12 @@
     };
   }
 
-  global.BondsFiscal = {
+  return {
     calculate: calculate,
     calculateSaudi: calculateSaudi,
     calculateManual: calculateManual,
     getProfile: getProfile,
-    saudiEffectiveZakatRate: saudiEffectiveZakatRate
+    saudiDayBasedZakatRate: saudiDayBasedZakatRate,
+    saudiCorporateIncomeTaxRate: saudiCorporateIncomeTaxRate
   };
-})(window);
+}));
