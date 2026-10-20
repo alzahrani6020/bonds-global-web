@@ -89,8 +89,10 @@ describe('Governed geo ingestion architecture', () => {
     expect(spatialName.decision).toBe('auto_match');
     expect(spatialName.matchType).toBe('name_and_distance');
   });
-  test('rollback never deletes existing canonical places and is provenance-aware', () => {
+  test('rollback requires explicit write opt-in and never deletes existing canonical places', () => {
     const rollback = read('scripts/rollback-local-geo-run.js');
+    expect(rollback).toContain("process.env.GEO_ROLLBACK_APPLY === '1'");
+    expect(rollback).toContain('Rollback requires GEO_ROLLBACK_APPLY=1');
     expect(rollback).toContain("row.action !== 'created_canonical'");
     expect(rollback).toContain('blocked_due_to_later_provenance');
     expect(rollback).toContain('set is_active=false');
