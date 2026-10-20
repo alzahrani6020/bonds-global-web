@@ -30,7 +30,11 @@ describe('GeoNames ADM1 provider source links', () => {
     expect(script).toContain("matches.length === 1");
     expect(script).toContain("status: matches.length ? 'ambiguous' : 'unresolved'");
     expect(script).toContain('geonames-admin1-review.json');
-    expect(script).toContain('if (review.length) process.exitCode = 3');
+    expect(script).toContain('if (review.length) {');
+    expect(script).toContain("blocked_reason: 'unresolved_admin1_rows'");
+    expect(script).toContain('applied: 0');
+    expect(script).toContain('process.exitCode = 3');
+    expect(script).toContain("process.env.GEO_ADMIN1_APPLY === '1'");
   });
 
   test('promotion resolves ADM1 by provider link instead of assuming internal indexes equal provider codes', () => {
