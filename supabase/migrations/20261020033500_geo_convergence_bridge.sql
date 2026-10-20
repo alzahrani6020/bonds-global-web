@@ -314,4 +314,130 @@ before insert or update of city_id,geo_place_id
 on public.bonds_projects
 for each row execute function private.enforce_project_geo();
 
+
+create or replace function public.dq_find_geo_integrity()
+returns bigint
+language plpgsql
+security definer
+set search_path to 'public','auth'
+as $
+declare
+  v_count bigint := 0;
+begin
+  insert into public.data_quality_issues(
+    check_type,entity_type,entity_id,field_name,severity,message,metadata
+  )
+  select 'geo_integrity','city',c.id,'geo_place_id','critical',
+         'المدينة غير مرتبطة بالسجل الجغرافي المرجعي',
+         jsonb_build_object('city_code',c.code,'country_code',c.country_code)
+  from public.cities c
+  where coalesce(c.is_active,true)=true and c.geo_place_id is null
+
+  union all
+
+  select 'geo_integrity','city',c.id,'geo_place_id','high',
+         'رمز المدينة لا يطابق الرمز الجغرافي المرجعي المرتبط',
+         jsonb_build_object('city_code',c.code,'canonical_geo_code',gp.canonical_code)
+  from public.cities c
+  join public.geo_places gp on gp.id=c.geo_place_id
+  where c.code is distinct from gp.canonical_code
+
+  union all
+
+  select 'geo_integrity','geo_place',gp.id,'location','critical',
+         'السجل الجغرافي يحتوي إحداثياً جزئياً فقط',
+         jsonb_build_object('canonical_geo_code',gp.canonical_code,'lat',gp.lat,'lng',gp.lng)
+  from public.geo_places gp
+  where gp.is_active=true
+    and ((gp.lat is null and gp.lng is not null) or (gp.lat is not null and gp.lng is null))
+
+  union all
+
+  select 'geo_integrity','geo_place',gp.id,'source_link','high',
+         'السجل الجغرافي القديم لا يحتوي رابط provenance مطابقاً',
+         jsonb_build_object('canonical_geo_code',gp.canonical_code,'source_id',gp.source_id)
+  from public.geo_places gp
+  where gp.is_active=true
+    and gp.source_code='bonds_legacy'
+    and not exists (
+      select 1
+      from public.geo_place_source_links l
+      where l.place_id=gp.id
+        and l.source_code='bonds_legacy'
+        and l.source_id=gp.source_id
+    )
+
+  union all
+
+  select 'geo_integrity','service_request',sr.id,'geo_place_id','medium',
+         'طلب الخدمة يحتوي موقعاً محلياً غير مربوط بهوية جغرافية canonical',
+         jsonb_build_object(
+           'request_reference',sr.request_reference,
+           'country_code',sr.country_code,
+           'locality_code',sr.locality_code
+         )
+  from public.service_requests sr
+  where sr.locality_code is not null
+    and sr.geo_place_id is null
+    and sr.status not in ('cancelled')
+
+  union all
+
+  select 'geo_integrity','bonds_project',p.id,'geo_place_id','high',
+         'المشروع مرتبط بمدينة قديمة دون هوية جغرافية canonical',
+         jsonb_build_object('project_number',p.project_number,'city_id',p.city_id)
+  from public.bonds_projects p
+  where p.city_id is not null and p.geo_place_id is null
+
+  union all
+
+  select 'geo_integrity','geo_ingest_run',r.id,'status','high',
+         'تشغيل الاستيعاب الجغرافي متوقف أو فاشل ويحتاج مراجعة',
+         jsonb_build_object('status',r.status,'stage',r.stage,'metrics',r.metrics)
+  from geo_ingest.runs r
+  where r.status in ('failed','blocked');
+
+  get diagnostics v_count = row_count;
+  return v_count;
+end;
+$;
+
+revoke all on function public.dq_find_geo_integrity() from public,anon,authenticated;
+grant execute on function public.dq_find_geo_integrity() to service_role;
+
+create or replace function public.dq_run_all_checks()
+returns jsonb
+language plpgsql
+security definer
+set search_path to 'public','auth'
+as $
+declare
+  v_dup bigint;
+  v_miss bigint;
+  v_broken bigint;
+  v_incomp bigint;
+  v_geo bigint;
+begin
+  if coalesce(current_setting('request.jwt.claims', true)::jsonb ->> 'role','') <> 'service_role'
+     and not public.is_advisory_manager() then
+    raise exception 'Not authorized' using errcode='42501';
+  end if;
+
+  perform public.clear_data_quality_issues();
+  v_dup := public.dq_find_duplicate_clients();
+  v_miss := public.dq_find_missing_fields();
+  v_broken := public.dq_find_broken_relations();
+  v_incomp := public.dq_find_incomplete_projects();
+  v_geo := public.dq_find_geo_integrity();
+
+  return jsonb_build_object(
+    'duplicates',v_dup,
+    'missing_fields',v_miss,
+    'broken_relations',v_broken,
+    'incomplete_projects',v_incomp,
+    'geo_integrity',v_geo
+  );
+end;
+$;
+
 commit;
