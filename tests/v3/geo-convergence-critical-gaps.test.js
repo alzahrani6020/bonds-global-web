@@ -38,11 +38,13 @@ describe('Geo convergence critical gaps', () => {
     expect(resolver).toContain("resolved_from: 'canonical_code'");
     expect(resolver).toContain("resolved_from: 'cities.geo_place_id'");
   });
-  test('promotion is fail-closed on unresolved review or missing admin hierarchy', () => {
+  test('promotion is fail-closed on unresolved review or incomplete admin hierarchy', () => {
     const promote = read('scripts/promote-local-geo-run.js');
     expect(promote).toContain('Promotion blocked: unresolved review candidates remain');
     expect(promote).toContain('Promotion blocked: canonical admin hierarchy is not ready for');
+    expect(promote).toContain('Promotion blocked: unresolved admin1 mapping for');
     expect(promote).toContain('public.geo_admin_areas');
+    expect(promote).toContain('admin1For(row)');
     expect(promote).toContain("row.decision === 'new_canonical'");
   });
 
