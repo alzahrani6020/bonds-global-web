@@ -70,6 +70,35 @@ async function probeNativeHealth(attempts = 3) {
   };
 }
 
+async function probeTokenRuntime() {
+  const configured = String(process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL || '').trim();
+  if (!configured) return { status: 'not_configured', required: false };
+  let target;
+  try {
+    target = new URL(configured);
+    if (target.protocol !== 'https:' || target.username || target.password ||
+        target.search || target.hash || target.pathname !== '/health') {
+      return { status: 'invalid_configuration', required: true };
+    }
+  } catch (_) {
+    return { status: 'invalid_configuration', required: true };
+  }
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2000);
+  try {
+    const response = await fetch(target.toString(), {
+      method: 'GET', signal: controller.signal, redirect: 'error'
+    });
+    if (!response.ok) return { status: 'error', required: true };
+    const payload = await response.json();
+    return { status: payload && payload.status === 'ok' ? 'ok' : 'error', required: true };
+  } catch (_) {
+    return { status: 'unreachable', required: true };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function probeOpenAI(timeoutMs = 5000) {
   const apiKey = String(process.env.OPENAI_API_KEY || '').trim();
   if (!apiKey) return { ok: false, reason: 'not_configured' };
@@ -179,7 +208,8 @@ module.exports = async function handler(req, res) {
 
     const fallbackReady = fallbackStatus === 'ok';
     const inferenceReady = nativeRequired ? nativeReady : (nativeReady || fallbackReady);
-    const ready = coreHealthy && inferenceReady;
+    const tokenRuntime = await probeTokenRuntime();
+    const ready = coreHealthy && inferenceReady && (!tokenRuntime.required || tokenRuntime.status === 'ok');
     const activeProvider = nativeReady
       ? (nativeProvider || 'BondsNativeProvider')
       : (fallbackReady ? 'openai_fallback' : null);
@@ -194,6 +224,7 @@ module.exports = async function handler(req, res) {
         supabase: supabaseStatus,
         native: nativeStatus,
         fallback: fallbackStatus,
+        token_runtime: tokenRuntime.status,
         responseMs: Date.now() - started,
       },
       inference: {
