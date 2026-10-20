@@ -160,12 +160,20 @@
             <input type="number" id="wasteAndIncidentalsPct" placeholder="e.g., 5" min="0" max="100" value="0" />
           </div>
           <div class="calc-input-group">
-            <label>Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
-            <input type="number" id="taxRate" placeholder="e.g., 15" min="0" max="100" value="15" />
+            <label>VAT Rate (%) <abbr title="Indirect tax on taxable sales. It is not calculated from profit and is not deducted from operating profit here.">ⓘ</abbr></label>
+            <input type="number" id="vatRate" placeholder="e.g., 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label>Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
+            <label>Estimated Income / Corporate Tax (%) <abbr title="Simplified estimate on positive accounting profit only. This is not VAT. Leave 0 if not applicable or unknown.">ⓘ</abbr></label>
+            <input type="number" id="incomeTaxRate" placeholder="e.g., 0" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label>Zakat Rate (%) <abbr title="Applied only to an explicit Zakat base. Profit is not assumed to be the Zakat base.">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="e.g., 2.5" min="0" max="100" value="2.5" />
+          </div>
+          <div class="calc-input-group">
+            <label>Estimated Zakat Base <abbr title="Enter the Zakat base from your Zakat model if known. Leave 0 to avoid automatic Zakat calculation.">ⓘ</abbr></label>
+            <input type="number" id="zakatBase" placeholder="0" min="0" value="0" />
           </div>
           <button onclick="calculateAll()" class="btn btn-primary btn-block">Calculate Results</button>
           <button onclick="loadExample()" class="btn btn-outline btn-block mt-3"><span class="calc-example-icon" aria-hidden="true">#</span> Try an Example</button>
@@ -210,19 +218,23 @@
                 <span id="resProfit" class="result-row__value">—</span>
               </div>
               <div class="result-row">
-                <span class="result-row__label">Tax</span>
+                <span class="result-row__label">Estimated Income / Corporate Tax</span>
                 <span id="resTax" class="result-row__value">—</span>
               </div>
               <div class="result-row">
-                <span class="result-row__label">Profit After Tax</span>
+                <span class="result-row__label">Output VAT on Sales (display only)</span>
+                <span id="resVat" class="result-row__value">—</span>
+              </div>
+              <div class="result-row">
+                <span class="result-row__label">Profit After Income / Corporate Tax</span>
                 <span id="resProfitAfterTax" class="result-row__value">—</span>
               </div>
               <div class="result-row">
-                <span class="result-row__label">Zakat</span>
+                <span class="result-row__label">Zakat (explicit base)</span>
                 <span id="resZakat" class="result-row__value">—</span>
               </div>
               <div class="result-row">
-                <span class="result-row__label">Final Net Profit</span>
+                <span class="result-row__label">Net Profit after Direct Tax / Zakat</span>
                 <span id="resNetProfit" class="result-row__value">—</span>
               </div>
               <div class="result-row">
@@ -505,8 +517,10 @@
     }
 
     function getInputs() {
-      var taxEl = document.getElementById('taxRate');
+      var vatEl = document.getElementById('vatRate');
+      var incomeTaxEl = document.getElementById('incomeTaxRate');
       var zakatEl = document.getElementById('zakatRate');
+      var zakatBaseEl = document.getElementById('zakatBase');
       var platformFeeEl = document.getElementById('platformFee');
       var campaignDiscountEl = document.getElementById('campaignDiscount');
       var wasteAndIncidentalsEl = document.getElementById('wasteAndIncidentalsPct');
@@ -515,8 +529,10 @@
         price: parseFloat(document.getElementById('unitPrice').value) || 0,
         varCost: parseFloat(document.getElementById('varCost').value) || 0,
         qty: parseFloat(document.getElementById('quantity').value) || 0,
-        taxRate: taxEl ? (parseFloat(taxEl.value) || 0) : 0,
+        vatRate: vatEl ? (parseFloat(vatEl.value) || 0) : 0,
+        incomeTaxRate: incomeTaxEl ? (parseFloat(incomeTaxEl.value) || 0) : 0,
         zakatRate: zakatEl ? (parseFloat(zakatEl.value) || 0) : 0,
+        zakatBase: zakatBaseEl ? (parseFloat(zakatBaseEl.value) || 0) : 0,
         platformFeePct: platformFeeEl ? (parseFloat(platformFeeEl.value) || 0) : 0,
         campaignDiscountPct: campaignDiscountEl ? (parseFloat(campaignDiscountEl.value) || 0) : 0,
         wasteAndIncidentalsPct: wasteAndIncidentalsEl ? (parseFloat(wasteAndIncidentalsEl.value) || 0) : 0,
@@ -534,9 +550,11 @@
         campaignDiscountPct: inputs.campaignDiscountPct,
         wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
         fixedCostBreakdown: inputs.fixedCostBreakdown,
-        variableCostBreakdown: inputs.variableCostBreakdown
+        variableCostBreakdown: inputs.variableCostBreakdown,
+        vatRate: inputs.vatRate,
+        zakatBase: inputs.zakatBase
       };
-      var result = calculateBreakEven(inputs.fixed, inputs.varCost, inputs.price, inputs.qty, inputs.taxRate, inputs.zakatRate, options);
+      var result = calculateBreakEven(inputs.fixed, inputs.varCost, inputs.price, inputs.qty, inputs.incomeTaxRate, inputs.zakatRate, options);
       _calcMemo.set(memoKey, result);
       return result;
     }
@@ -572,26 +590,30 @@
       var zakatEl = document.getElementById('resZakat');
       var netProfitEl = document.getElementById('resNetProfit');
 
-      if (r.profit > 0 && inputs.taxRate > 0) {
-        taxEl.textContent = formatNumberAR(r.taxAmount) + ' SAR (' + inputs.taxRate.toFixed(1) + '%)';
+      var vatEl = document.getElementById('resVat');
+      vatEl.textContent = formatNumberAR(r.outputVatAmount || 0) + ' SAR (' + inputs.vatRate.toFixed(1) + '%)';
+      vatEl.style.color = 'var(--text)';
+
+      if (r.profit > 0 && inputs.incomeTaxRate > 0) {
+        taxEl.textContent = formatNumberAR(r.incomeTaxAmount) + ' SAR (' + inputs.incomeTaxRate.toFixed(1) + '%)';
         taxEl.style.color = '#dc2626';
       } else {
         taxEl.textContent = '0 SAR';
         taxEl.style.color = 'var(--text)';
       }
 
-      if (r.profitAfterTax > 0) {
-        profitAfterTaxEl.textContent = formatNumberAR(r.profitAfterTax) + ' SAR';
+      if (r.profitAfterIncomeTax > 0) {
+        profitAfterTaxEl.textContent = formatNumberAR(r.profitAfterIncomeTax) + ' SAR';
         profitAfterTaxEl.style.color = '#16a34a';
-      } else if (r.profitAfterTax < 0) {
-        profitAfterTaxEl.textContent = formatNumberAR(Math.abs(r.profitAfterTax)) + ' SAR (Loss)';
+      } else if (r.profitAfterIncomeTax < 0) {
+        profitAfterTaxEl.textContent = formatNumberAR(Math.abs(r.profitAfterIncomeTax)) + ' SAR (Loss)';
         profitAfterTaxEl.style.color = '#dc2626';
       } else {
         profitAfterTaxEl.textContent = '0 SAR';
         profitAfterTaxEl.style.color = 'var(--text)';
       }
 
-      if (r.profitAfterTax > 0 && inputs.zakatRate > 0) {
+      if (r.profitAfterIncomeTax > 0 && inputs.zakatRate > 0 && r.zakatCalculated) {
         zakatEl.textContent = formatNumberAR(r.zakatAmount) + ' SAR (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
@@ -680,7 +702,7 @@
       document.getElementById('leadCalcData').value = JSON.stringify({
         date: new Date().toLocaleString('en-US'),
         fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: inputs.qty,
-        taxRate: inputs.taxRate, zakatRate: inputs.zakatRate,
+        vatRate: inputs.vatRate, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, zakatBase: inputs.zakatBase,
         platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct,
         breakEven: r.breakEvenUnits, revenue: r.revenue, totalCost: r.totalCost,
         netProfit: r.netProfit, margin: r.profitMargin, roi: r.roi
@@ -788,8 +810,8 @@
         return;
       }
       var r = calculate(inputs);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       var wb = XLSX.utils.book_new();
       wb.Props = { Title: 'Break-Even Report', Subject: 'Bonds Global', Author: 'bonds-global.com' };
@@ -802,7 +824,7 @@
         ['Expected Quantity', inputs.qty],
         ['Platform Fee (%)', inputs.platformFeePct + '%'],
         ['Campaign Discount (%)', inputs.campaignDiscountPct + '%'],
-        ['Tax Rate (%)', inputs.taxRate + '%'],
+        ['Tax Rate (%)', inputs.incomeTaxRate + '%'],
         ['Zakat Rate (%)', inputs.zakatRate + '%'],
         ['Break-Even (units)', r.breakEvenUnits < 0 ? 'Not achievable' : r.breakEvenUnits],
         ['Break-Even (amount)', r.breakEvenAmount < 0 ? 'Not achievable' : r.breakEvenAmount],
@@ -811,8 +833,8 @@
         ['Total Fees & Discounts', (r.platformFeeAmount || 0) + (r.campaignDiscountAmount || 0)],
         ['Total Costs', r.totalCost],
         ['Net Profit (before tax)', r.profit],
-        ['Tax', r.taxAmount],
-        ['Profit After Tax', r.profitAfterTax],
+        ['Tax', r.incomeTaxAmount],
+        ['Profit After Tax', r.profitAfterIncomeTax],
         ['Zakat', r.zakatAmount],
         ['Final Net Profit', r.netProfit],
         ['Profit Margin (%)', r.profitMargin.toFixed(2) + '%'],
@@ -847,7 +869,7 @@
         var row = [newPrice + ' SAR'];
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           row.push(res.netProfit);
         });
         sensData.push(row);
@@ -862,8 +884,8 @@
     function updateScenarios(inputs, r) {
       var pessimisticQty = Math.round(inputs.qty * 0.8);
       var optimisticQty = Math.round(inputs.qty * 1.2);
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: pessimisticQty, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: optimisticQty, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       document.getElementById('pessimisticProfit').textContent = formatNumberAR(p.netProfit) + ' SAR';
       document.getElementById('pessimisticProfit').style.color = p.netProfit >= 0 ? '#16a34a' : '#dc2626';
@@ -919,7 +941,7 @@
         row.innerHTML = '<th>' + formatNumberAR(newPrice) + ' SAR</th>';
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           var cell = document.createElement('td');
           cell.textContent = formatNumberAR(res.netProfit);
           cell.className = res.netProfit >= 0 ? 'positive' : 'negative';
@@ -1009,8 +1031,8 @@
       }
       var r = calculate(inputs);
       await loadChartJS();
-      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
-      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var p = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 0.8), incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+      var o = calculate({ fixed: inputs.fixed, price: inputs.price, varCost: inputs.varCost, qty: Math.round(inputs.qty * 1.2), incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
 
       var resUnits = r.breakEvenUnits < 0 ? 'N/A' : formatNumber(r.breakEvenUnits) + ' units';
       var resAmount = r.breakEvenAmount < 0 ? 'N/A' : formatNumber(r.breakEvenAmount) + ' SAR';
@@ -1058,7 +1080,7 @@
           ['Expected Quantity', parseFloat(inputs.qty).toLocaleString('en-US') + ' units'],
           ['Platform Fee (%)', inputs.platformFeePct + '%'],
           ['Campaign Discount (%)', inputs.campaignDiscountPct + '%'],
-          ['Tax Rate (%)', inputs.taxRate + '%'],
+          ['Tax Rate (%)', inputs.incomeTaxRate + '%'],
           ['Zakat Rate (%)', inputs.zakatRate + '%']
         ],
         theme: 'striped',
@@ -1202,7 +1224,7 @@
         var row = [formatNumber(newPrice) + ' SAR'];
         qtyChanges.forEach(function(qc) {
           var newQty = Math.round(inputs.qty * qc);
-          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
+          var res = calculate({ fixed: inputs.fixed, price: newPrice, varCost: inputs.varCost, qty: newQty, incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, platformFeePct: inputs.platformFeePct, campaignDiscountPct: inputs.campaignDiscountPct });
           row.push(formatNumber(res.netProfit));
         });
         sensBody.push(row);
@@ -1297,7 +1319,7 @@
       document.getElementById('quantity').value = '';
       document.getElementById('platformFee').value = '0';
       document.getElementById('campaignDiscount').value = '0';
-      document.getElementById('taxRate').value = '15';
+      document.getElementById('incomeTaxRate').value = '15';
       document.getElementById('zakatRate').value = '2.5';
       document.querySelectorAll('.fixed-detail, .var-detail').forEach(function(input) { input.value = ''; });
       document.getElementById('resUnits').textContent = '—';
