@@ -1,5 +1,7 @@
 'use strict';
 
+const { resolveGeoContext } = require('../../lib/geo/resolve-context');
+
 function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -210,6 +212,18 @@ async function handleCreateServiceRequest(req, res, supabase, user) {
     .is('deleted_at', null)
     .maybeSingle();
 
+  let geoContext = { place: null, snapshot: {} };
+  try {
+    geoContext = await resolveGeoContext(supabase, {
+      canonicalCode: body.canonical_geo_code || null,
+      localityCode: body.locality_code || null,
+      localityName: body.locality_name || null,
+      countryCode: body.country_code || null
+    });
+  } catch (geoError) {
+    console.warn('[services/requests] geo resolve failed:', geoError.message);
+  }
+
   const requestRow = {
     user_id: user.id,
     client_id: client?.id || null,
@@ -221,6 +235,8 @@ async function handleCreateServiceRequest(req, res, supabase, user) {
     region_name: body.region_name || null,
     locality_code: body.locality_code || null,
     locality_name: body.locality_name || null,
+    geo_place_id: geoContext.place?.id || null,
+    geo_snapshot: geoContext.snapshot || {},
     sector_code: body.sector_code || null,
     canonical_activity_id: canonicalActivityId,
     status: 'submitted',
@@ -231,7 +247,7 @@ async function handleCreateServiceRequest(req, res, supabase, user) {
   const { data: requestRowOut, error: requestError } = await supabase
     .from('service_requests')
     .insert(requestRow)
-    .select('id,request_reference,status,created_at')
+    .select('id,request_reference,status,geo_place_id,geo_snapshot,created_at')
     .single();
   if (requestError) return sendJson(res, 400, { error: requestError.message });
 
@@ -255,7 +271,13 @@ async function handleCreateServiceRequest(req, res, supabase, user) {
     lang:body.lang || null,
     user_id:user.id,
     action:'request',
-    properties:{service_code:serviceCode,sector_code:body.sector_code||null,activity_code:body.activity_code||null},
+    properties:{
+      service_code:serviceCode,
+      sector_code:body.sector_code||null,
+      activity_code:body.activity_code||null,
+      geo_place_id:geoContext.place?.id||null,
+      canonical_geo_code:geoContext.snapshot?.canonical_geo_code||null
+    },
     url:body.url || null
   });
 
