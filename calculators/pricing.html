@@ -1412,8 +1412,8 @@
       if (o) document.getElementById('overheadCost').value = o;
       if (m) document.getElementById('desiredMargin').value = m;
       if (t) document.getElementById('vatRate').value = t;
-      var it = params.get('it');
-      var zb = params.get('zb');
+      var it = url.searchParams.get('it');
+      var zb = url.searchParams.get('zb');
       if (it) document.getElementById('incomeTaxRate').value = it;
       if (z) document.getElementById('zakatRate').value = z;
       if (zb) document.getElementById('zakatBasePerUnit').value = zb;
