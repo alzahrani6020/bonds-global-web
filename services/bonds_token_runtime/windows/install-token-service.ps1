@@ -51,6 +51,22 @@ if ($port -ne "8771") {
     throw "Bonds Token Runtime contract requires port 8771."
 }
 
+$rollbackSnapshotDir = Join-Path $stateDir "runtime-rollback-snapshot"
+if (Test-Path -LiteralPath $rollbackSnapshotDir) {
+    Remove-Item -LiteralPath $rollbackSnapshotDir -Recurse -Force
+}
+$hadPreviousRuntime = Test-Path -LiteralPath (Join-Path $runtimeDir "bonds_security") -PathType Container
+if ($hadPreviousRuntime) {
+    New-Item -ItemType Directory -Force -Path $rollbackSnapshotDir | Out-Null
+    Copy-Item -LiteralPath (Join-Path $runtimeDir "bonds_security") -Destination (Join-Path $rollbackSnapshotDir "bonds_security") -Recurse -Force
+    foreach ($snapshotFile in @("contract.json","token_service.py")) {
+        $snapshotSource = Join-Path $runtimeDir $snapshotFile
+        if (Test-Path -LiteralPath $snapshotSource -PathType Leaf) {
+            Copy-Item -LiteralPath $snapshotSource -Destination (Join-Path $rollbackSnapshotDir $snapshotFile) -Force
+        }
+    }
+}
+
 $pkgSource = Join-Path $sourceRoot "bonds_security"
 $pkgDest = Join-Path $runtimeDir "bonds_security"
 New-Item -ItemType Directory -Force -Path $pkgDest | Out-Null
@@ -141,6 +157,9 @@ try {
         throw "BondsTokenRuntimeService did not become healthy before timeout."
     }
 
+    if (Test-Path -LiteralPath $rollbackSnapshotDir) {
+        Remove-Item -LiteralPath $rollbackSnapshotDir -Recurse -Force -ErrorAction SilentlyContinue
+    }
     Write-Host "BondsTokenRuntimeService is healthy and configured for Windows boot."
 }
 catch {
@@ -148,6 +167,19 @@ catch {
 
     if ($legacyPid -gt 0 -and $legacyWasBondsRuntime) {
         try {
+            if (-not $hadPreviousRuntime -or -not (Test-Path -LiteralPath (Join-Path $rollbackSnapshotDir "bonds_security") -PathType Container)) {
+                throw "No previous runtime snapshot is available for safe rollback."
+            }
+
+            Remove-Item -LiteralPath (Join-Path $runtimeDir "bonds_security") -Recurse -Force -ErrorAction SilentlyContinue
+            Copy-Item -LiteralPath (Join-Path $rollbackSnapshotDir "bonds_security") -Destination (Join-Path $runtimeDir "bonds_security") -Recurse -Force
+            foreach ($snapshotFile in @("contract.json","token_service.py")) {
+                $snapshotSource = Join-Path $rollbackSnapshotDir $snapshotFile
+                if (Test-Path -LiteralPath $snapshotSource -PathType Leaf) {
+                    Copy-Item -LiteralPath $snapshotSource -Destination (Join-Path $runtimeDir $snapshotFile) -Force
+                }
+            }
+
             Start-Process -FilePath $pythonExe -ArgumentList @("-m", "bonds_security.server") -WorkingDirectory $runtimeDir -WindowStyle Hidden | Out-Null
 
             $rollbackDeadline = (Get-Date).AddSeconds(20)
@@ -168,7 +200,8 @@ catch {
             throw "Token runtime service cutover failed and automatic legacy rollback also failed. $($_.Exception.Message)"
         }
 
-        throw "Token runtime service cutover failed and the legacy runtime was restored. $($_.Exception.Message)"
+        Remove-Item -LiteralPath $rollbackSnapshotDir -Recurse -Force -ErrorAction SilentlyContinue
+        throw "Token runtime service cutover failed and the previous runtime snapshot was restored. $($_.Exception.Message)"
     }
 
     throw "Token runtime service cutover failed. No legacy Bonds runtime was active before cutover. $($_.Exception.Message)"
