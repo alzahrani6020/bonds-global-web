@@ -1207,7 +1207,7 @@ async function handleCatalogCities(req, res) {
     const databaseCities = canonicalizeCities(rawCities).map(city => ({
       ...city,
       data_available: true,
-      catalog_source: 'database'
+      catalog_source: city.catalog_source || 'database'
     }));
     let catalogCities = mergeMasterAndDatabaseCities(countryCode, databaseCities);
 
