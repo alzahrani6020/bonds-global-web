@@ -97,4 +97,12 @@ describe('Geo convergence critical gaps', () => {
     expect(activeFilters).toBeGreaterThanOrEqual(2);
   });
 
+  test('legacy aliases can converge onto one canonical place through provenance links', () => {
+    const migration = read('supabase/migrations/20261020033500_geo_convergence_bridge.sql');
+    expect(migration).toContain('create index if not exists idx_cities_geo_place_id');
+    expect(migration).not.toContain('create unique index if not exists uq_cities_geo_place_id');
+    expect(migration).toContain('from public.geo_place_source_links l');
+    expect(migration).toContain("l.source_code='bonds_legacy'");
+  });
+
 });
