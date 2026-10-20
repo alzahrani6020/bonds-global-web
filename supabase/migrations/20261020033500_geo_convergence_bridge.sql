@@ -176,4 +176,142 @@ join public.geo_places gp on gp.id=c.geo_place_id
 where p.city_id=c.id
   and p.geo_place_id is null;
 
+
+create or replace function private.enforce_service_request_geo()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $
+declare
+  v_place public.geo_places%rowtype;
+begin
+  if new.geo_place_id is null and new.locality_code is not null then
+    select gp.* into v_place
+    from public.geo_places gp
+    where gp.canonical_code=new.locality_code and gp.is_active=true
+    limit 1;
+
+    if v_place.id is null then
+      select gp.* into v_place
+      from public.cities c
+      join public.geo_places gp on gp.id=c.geo_place_id
+      where c.code=new.locality_code and gp.is_active=true
+      limit 1;
+    end if;
+
+    if v_place.id is not null then
+      new.geo_place_id := v_place.id;
+    end if;
+  end if;
+
+  if new.geo_place_id is null then
+    new.geo_snapshot := '{}'::jsonb;
+    return new;
+  end if;
+
+  if v_place.id is null then
+    select gp.* into v_place
+    from public.geo_places gp
+    where gp.id=new.geo_place_id and gp.is_active=true;
+  end if;
+
+  if v_place.id is null then
+    raise exception 'Invalid or inactive geo_place_id';
+  end if;
+
+  if new.country_code is not null and upper(new.country_code) <> v_place.country_code then
+    raise exception 'geo_place_id country mismatch';
+  end if;
+
+  new.country_code := coalesce(new.country_code,v_place.country_code);
+  new.geo_snapshot := jsonb_strip_nulls(jsonb_build_object(
+    'geo_place_id',v_place.id,
+    'canonical_geo_code',v_place.canonical_code,
+    'country_code',v_place.country_code,
+    'name_ar',v_place.name_ar,
+    'name_en',v_place.name_en,
+    'place_type',v_place.place_type,
+    'lat',v_place.lat,
+    'lng',v_place.lng,
+    'confidence',v_place.confidence,
+    'source_code',v_place.source_code,
+    'captured_at',now()
+  ));
+
+  return new;
+end;
+$;
+
+revoke all on function private.enforce_service_request_geo() from public,anon,authenticated;
+grant execute on function private.enforce_service_request_geo() to service_role;
+
+drop trigger if exists trg_service_requests_enforce_geo on public.service_requests;
+create trigger trg_service_requests_enforce_geo
+before insert or update of geo_place_id,locality_code,country_code
+on public.service_requests
+for each row execute function private.enforce_service_request_geo();
+
+create or replace function private.enforce_project_geo()
+returns trigger
+language plpgsql
+security definer
+set search_path=''
+as $
+declare
+  v_city_geo uuid;
+  v_place public.geo_places%rowtype;
+begin
+  if new.city_id is not null then
+    select c.geo_place_id into v_city_geo
+    from public.cities c
+    where c.id=new.city_id;
+
+    if v_city_geo is not null and new.geo_place_id is null then
+      new.geo_place_id := v_city_geo;
+    elsif v_city_geo is not null and new.geo_place_id is not null and v_city_geo <> new.geo_place_id then
+      raise exception 'city_id and geo_place_id mismatch';
+    end if;
+  end if;
+
+  if new.geo_place_id is null then
+    new.geo_snapshot := '{}'::jsonb;
+    return new;
+  end if;
+
+  select gp.* into v_place
+  from public.geo_places gp
+  where gp.id=new.geo_place_id and gp.is_active=true;
+
+  if v_place.id is null then
+    raise exception 'Invalid or inactive geo_place_id';
+  end if;
+
+  new.geo_snapshot := jsonb_strip_nulls(jsonb_build_object(
+    'geo_place_id',v_place.id,
+    'canonical_geo_code',v_place.canonical_code,
+    'country_code',v_place.country_code,
+    'name_ar',v_place.name_ar,
+    'name_en',v_place.name_en,
+    'place_type',v_place.place_type,
+    'lat',v_place.lat,
+    'lng',v_place.lng,
+    'confidence',v_place.confidence,
+    'source_code',v_place.source_code,
+    'captured_at',now()
+  ));
+
+  return new;
+end;
+$;
+
+revoke all on function private.enforce_project_geo() from public,anon,authenticated;
+grant execute on function private.enforce_project_geo() to service_role;
+
+drop trigger if exists trg_bonds_projects_enforce_geo on public.bonds_projects;
+create trigger trg_bonds_projects_enforce_geo
+before insert or update of city_id,geo_place_id
+on public.bonds_projects
+for each row execute function private.enforce_project_geo();
+
 commit;
