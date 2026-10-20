@@ -192,12 +192,20 @@
             <small class="calc-hint" id="targetPriceHint">The equivalent margin will be calculated automatically</small>
           </div>
           <div class="calc-input-group">
-            <label for="taxRate">Tax Rate (%) <abbr title="Value Added Tax (VAT) rate — applied only on positive profit">ⓘ</abbr></label>
-            <input type="number" id="taxRate" placeholder="e.g. 15" min="0" max="100" value="15" />
+            <label for="vatRate">VAT Rate (%) <abbr title="Indirect tax added to taxable sales. It is not calculated from profit.">ⓘ</abbr></label>
+            <input type="number" id="vatRate" placeholder="e.g. 15" min="0" max="100" value="15" />
           </div>
           <div class="calc-input-group">
-            <label for="zakatRate">Zakat Rate (%) <abbr title="Annual Zakat rate due — applied only on positive profit">ⓘ</abbr></label>
+            <label for="incomeTaxRate">Estimated Income / Corporate Tax (%) <abbr title="Simplified estimate on positive accounting profit. This is not VAT. Leave 0 if not applicable or unknown.">ⓘ</abbr></label>
+            <input type="number" id="incomeTaxRate" placeholder="e.g. 0" min="0" max="100" value="0" />
+          </div>
+          <div class="calc-input-group">
+            <label for="zakatRate">Zakat Rate (%) <abbr title="Never applied to profit automatically; used only with an explicit Zakat base.">ⓘ</abbr></label>
             <input type="number" id="zakatRate" placeholder="e.g. 2.5" min="0" max="100" value="2.5" />
+          </div>
+          <div class="calc-input-group">
+            <label for="zakatBasePerUnit">Estimated Zakat Base per Unit <abbr title="Optional scenario input only. Leave 0 to avoid automatic Zakat calculation.">ⓘ</abbr></label>
+            <input type="number" id="zakatBasePerUnit" placeholder="0" min="0" value="0" />
           </div>
           <div class="calc-input-group">
             <label for="monthlyVolume">Target Monthly Sales Volume <abbr title="Number of units you expect to sell monthly; used to calculate monthly profit and minimum break-even price">ⓘ</abbr></label>
@@ -263,8 +271,16 @@
                 <span id="resPriceBeforeFees" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
-                <span class="calc-result-row__label">Selling Price before Tax (Platform Price)</span>
+                <span class="calc-result-row__label">Selling Price before VAT (Platform Price)</span>
                 <span id="resPriceBeforeTax" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">VAT per Unit</span>
+                <span id="resVatPerUnit" class="calc-result-row__value">—</span>
+              </div>
+              <div class="calc-result-row">
+                <span class="calc-result-row__label">Customer Price incl. VAT</span>
+                <span id="resPriceIncludingVat" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
                 <span class="calc-result-row__label">Platform Fee</span>
@@ -275,15 +291,15 @@
                 <span id="resPaymentGateway" class="calc-result-row__value calc-result-row__value--danger">—</span>
               </div>
               <div class="calc-result-row">
-                <span class="calc-result-row__label">Profit before Tax (per unit)</span>
+                <span class="calc-result-row__label">Profit before Income / Corporate Tax (per unit)</span>
                 <span id="resProfitBeforeTax" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
-                <span class="calc-result-row__label">Tax</span>
+                <span class="calc-result-row__label">Estimated Income / Corporate Tax</span>
                 <span id="resTax" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
-                <span class="calc-result-row__label">Zakat</span>
+                <span class="calc-result-row__label">Zakat (explicit base)</span>
                 <span id="resZakat" class="calc-result-row__value">—</span>
               </div>
               <div class="calc-result-row">
@@ -574,7 +590,7 @@
         if (!(parseFloat(tpInput.value) > 0)) {
           if (currentInputs.direct > 0 && currentInputs.margin > 0 && currentInputs.margin < 100) {
             var r = calculate(currentInputs);
-            tpInput.value = r.priceBeforeTax.toFixed(2);
+            tpInput.value = r.priceBeforeVat.toFixed(2);
           }
         }
       } else {
@@ -625,7 +641,7 @@
     function computeTargetPriceFromInputs(inputs) {
       if (inputs.direct <= 0 || inputs.margin <= 0 || inputs.margin >= 100) return null;
       var r = calculate(inputs);
-      return r ? r.priceBeforeTax : null;
+      return r ? r.priceBeforeVat : null;
     }
 
     var sectorPresets = {
@@ -726,7 +742,7 @@
       if (typeof BondsPlatforms !== 'undefined' && BondsPlatforms.getCountryMeta) {
         var meta = BondsPlatforms.getCountryMeta(code);
         if (meta) {
-          document.getElementById('taxRate').value = meta.vatRate || 0;
+          document.getElementById('vatRate').value = meta.vatRate || 0;
           document.getElementById('zakatRate').value = isGcc(code) ? 2.5 : 0;
         }
       }
@@ -740,8 +756,10 @@
         direct: parseFloat(document.getElementById('directCost').value) || 0,
         overhead: parseFloat(document.getElementById('overheadCost').value) || 0,
         margin: parseFloat(document.getElementById('desiredMargin').value) || 0,
-        taxRate: parseFloat(document.getElementById('taxRate').value) || 0,
+        vatRate: parseFloat(document.getElementById('vatRate').value) || 0,
+        incomeTaxRate: parseFloat(document.getElementById('incomeTaxRate').value) || 0,
         zakatRate: parseFloat(document.getElementById('zakatRate').value) || 0,
+        zakatBasePerUnit: parseFloat(document.getElementById('zakatBasePerUnit').value) || 0,
         volume: parseFloat(document.getElementById('monthlyVolume').value) || 0,
         monthlyFixed: parseFloat(document.getElementById('monthlyFixed').value) || 0,
         platformFeePct: parseFloat(document.getElementById('platformFee').value) || 0,
@@ -763,9 +781,11 @@
         deliveryCostPerUnit: inputs.deliveryCostPerUnit,
         packagingCostPerUnit: inputs.packagingCostPerUnit,
         cacPerUnit: inputs.cacPerUnit,
-        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct
+        wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
+        vatRate: inputs.vatRate,
+        zakatBasePerUnit: inputs.zakatBasePerUnit
       };
-      var result = calculatePricing(inputs.direct, inputs.overhead, inputs.margin, inputs.taxRate, inputs.zakatRate, inputs.volume, inputs.monthlyFixed, options);
+      var result = calculatePricing(inputs.direct, inputs.overhead, inputs.margin, inputs.incomeTaxRate, inputs.zakatRate, inputs.volume, inputs.monthlyFixed, options);
       _calcMemo.set(memoKey, result);
       return result;
     }
@@ -775,17 +795,19 @@
       document.getElementById('resTotalCostPerUnit').textContent = formatCurrency(r.totalCostPerUnit);
       document.getElementById('resWasteAndIncidentals').textContent = formatCurrency(r.wasteAndIncidentalsAmount) + ' (' + inputs.wasteAndIncidentalsPct.toFixed(1) + '%)';
       document.getElementById('resPriceBeforeFees').textContent = formatCurrency(r.priceBeforeFees);
-      document.getElementById('resPriceBeforeTax').textContent = formatCurrency(r.priceBeforeTax);
+      document.getElementById('resPriceBeforeTax').textContent = formatCurrency(r.priceBeforeVat);
+      document.getElementById('resVatPerUnit').textContent = formatCurrency(r.outputVatPerUnit) + ' (' + inputs.vatRate.toFixed(1) + '%)';
+      document.getElementById('resPriceIncludingVat').textContent = formatCurrency(r.priceIncludingVat);
       document.getElementById('resPlatformFee').textContent = formatCurrency(r.platformFeeAmount) + ' (' + inputs.platformFeePct.toFixed(1) + '%)';
       document.getElementById('resPaymentGateway').textContent = formatCurrency(r.paymentGatewayAmount) + ' (' + inputs.paymentGatewayFeePct.toFixed(1) + '%)';
 
       var profitBeforeTaxEl = document.getElementById('resProfitBeforeTax');
-      profitBeforeTaxEl.textContent = formatCurrency(r.profitBeforeTax);
-      profitBeforeTaxEl.style.color = r.profitBeforeTax >= 0 ? '#16a34a' : '#dc2626';
+      profitBeforeTaxEl.textContent = formatCurrency(r.profitBeforeIncomeTax);
+      profitBeforeTaxEl.style.color = r.profitBeforeIncomeTax >= 0 ? '#16a34a' : '#dc2626';
 
       var taxEl = document.getElementById('resTax');
-      if (r.profitBeforeTax > 0 && inputs.taxRate > 0) {
-        taxEl.textContent = formatCurrency(r.taxAmount) + ' (' + inputs.taxRate.toFixed(1) + '%)';
+      if (r.profitBeforeIncomeTax > 0 && inputs.incomeTaxRate > 0) {
+        taxEl.textContent = formatCurrency(r.incomeTaxAmount) + ' (' + inputs.incomeTaxRate.toFixed(1) + '%)';
         taxEl.style.color = '#dc2626';
       } else {
         taxEl.textContent = formatCurrency(0);
@@ -793,7 +815,7 @@
       }
 
       var zakatEl = document.getElementById('resZakat');
-      if (r.profitAfterTax > 0 && inputs.zakatRate > 0) {
+      if (r.profitAfterIncomeTax > 0 && inputs.zakatRate > 0 && r.zakatCalculated) {
         zakatEl.textContent = formatCurrency(r.zakatAmount) + ' (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
@@ -845,20 +867,20 @@
       }
       stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '4' : '3') + ':</strong> Total Cost per Unit = <strong>' + formatCurrency(r.totalCostPerUnit) + '</strong></div>';
       stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '5' : '4') + ':</strong> Selling Price before Fees = ' + formatNumberAR(r.totalCostPerUnit) + ' ÷ (1 − ' + inputs.margin + '%) = <strong>' + formatCurrency(r.priceBeforeFees) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '6' : '5') + ':</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatCurrency(r.priceBeforeTax) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '7' : '6') + ':</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeTax) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatCurrency(r.platformFeeAmount) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '8' : '7') + ':</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeTax) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatCurrency(r.profitBeforeTax) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '9' : '8') + ':</strong> Tax = ' + formatNumberAR(r.profitBeforeTax) + ' × ' + inputs.taxRate + '% = <strong>' + formatCurrency(r.taxAmount) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '10' : '9') + ':</strong> Zakat = ' + formatNumberAR(r.profitAfterTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatCurrency(r.zakatAmount) + '</strong></div>';
-      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '11' : '10') + ':</strong> Net Profit = ' + formatNumberAR(r.profitAfterTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '6' : '5') + ':</strong> Platform Selling Price = ' + formatNumberAR(r.priceBeforeFees) + ' ÷ (1 − ' + inputs.platformFeePct + '%) = <strong>' + formatCurrency(r.priceBeforeVat) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '7' : '6') + ':</strong> Platform Fee = ' + formatNumberAR(r.priceBeforeVat) + ' × ' + inputs.platformFeePct + '% = <strong>' + formatCurrency(r.platformFeeAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '8' : '7') + ':</strong> Profit before Tax = ' + formatNumberAR(r.priceBeforeVat) + ' − ' + formatNumberAR(r.platformFeeAmount) + ' − ' + formatNumberAR(r.totalCostPerUnit) + ' = <strong>' + formatCurrency(r.profitBeforeIncomeTax) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '9' : '8') + ':</strong> Tax = ' + formatNumberAR(r.profitBeforeIncomeTax) + ' × ' + inputs.incomeTaxRate + '% = <strong>' + formatCurrency(r.incomeTaxAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '10' : '9') + ':</strong> Zakat = ' + formatNumberAR(r.profitAfterIncomeTax) + ' × ' + inputs.zakatRate + '% = <strong>' + formatCurrency(r.zakatAmount) + '</strong></div>';
+      stepsHTML += '<div class="calc-step-row"><strong>Step ' + (inputs.wasteAndIncidentalsPct > 0 ? '11' : '10') + ':</strong> Net Profit = ' + formatNumberAR(r.profitAfterIncomeTax) + ' − ' + formatNumberAR(r.zakatAmount) + ' = <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong></div>';
       stepsArea.innerHTML = stepsHTML;
 
       if (inputs.margin >= 100) {
         analysisText.innerHTML = '<strong style="color:#dc2626">Warning:</strong> Desired profit margin is 100% or more — the price is mathematically infinite. Reduce the margin to less than 100%.';
       } else if (r.actualMargin < inputs.margin * 0.5) {
-        analysisText.innerHTML = 'Platform fee, tax, and zakat consume a large portion of your profit margin. The actual margin (' + r.actualMargin.toFixed(1) + '%) is much lower than the target (' + inputs.margin + '%). Consider increasing the margin or reviewing your cost structure.';
+        analysisText.innerHTML = 'Platform fees, estimated income/corporate tax, and Zakat (when an explicit base is supplied) reduce the profit margin. VAT is shown separately and is not treated as a profit tax. The actual margin (' + r.actualMargin.toFixed(1) + '%) is much lower than the target (' + inputs.margin + '%). Consider increasing the margin or reviewing your cost structure.';
       } else {
-        analysisText.innerHTML = 'Each unit sold on the platform at <strong>' + formatCurrency(r.priceBeforeTax) + '</strong> generates a net profit of <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong>. When selling <strong>' + formatNumberAR(inputs.volume) + '</strong> units per month, the net monthly profit = <strong>' + formatCurrency(r.monthlyProfit) + '</strong>.';
+        analysisText.innerHTML = 'Each unit sold on the platform at <strong>' + formatCurrency(r.priceBeforeVat) + '</strong> generates a net profit of <strong>' + formatCurrency(r.netProfitPerUnit) + '</strong>. When selling <strong>' + formatNumberAR(inputs.volume) + '</strong> units per month, the net monthly profit = <strong>' + formatCurrency(r.monthlyProfit) + '</strong>.';
       }
       if (currentPricingMode === 'price') {
         analysisText.innerHTML = '<span style="color:var(--gold-bright)">Target margin (' + inputs.margin.toFixed(1) + '%) was derived from the target selling price.</span><br><br>' + analysisText.innerHTML;
@@ -888,12 +910,12 @@
       document.getElementById('leadCalcData').value = JSON.stringify({
         date: new Date().toLocaleString('en-US'),
         direct: inputs.direct, overhead: inputs.overhead, margin: inputs.margin,
-        taxRate: inputs.taxRate, zakatRate: inputs.zakatRate, volume: inputs.volume,
+        incomeTaxRate: inputs.incomeTaxRate, zakatRate: inputs.zakatRate, volume: inputs.volume,
         platformFeePct: inputs.platformFeePct, packagingCostPerUnit: inputs.packagingCostPerUnit,
         deliveryCostPerUnit: inputs.deliveryCostPerUnit, cacPerUnit: inputs.cacPerUnit,
         wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct, wasteAndIncidentalsAmount: r.wasteAndIncidentalsAmount,
         costPerUnit: r.costPerUnit, totalCostPerUnit: r.totalCostPerUnit,
-        priceBeforeFees: r.priceBeforeFees, priceBeforeTax: r.priceBeforeTax,
+        priceBeforeFees: r.priceBeforeFees, priceBeforeTax: r.priceBeforeVat,
         platformFeeAmount: r.platformFeeAmount,
         netProfitPerUnit: r.netProfitPerUnit, monthlyProfit: r.monthlyProfit,
         actualMargin: r.actualMargin
@@ -909,7 +931,7 @@
           labels: ['Total Cost', 'Platform Selling Price', 'Net Profit'],
           datasets: [{
             label: 'Amount (' + getCurrencySymbol() + ')',
-            data: [r.totalCostPerUnit, r.priceBeforeTax, r.netProfitPerUnit],
+            data: [r.totalCostPerUnit, r.priceBeforeVat, r.netProfitPerUnit],
             backgroundColor: ['#dc2626', '#3b82f6', '#16a34a'],
             borderRadius: 8,
             borderSkipped: false
@@ -952,7 +974,7 @@
           <div class="metric-item"><div class="label">Total Cost per Unit</div><div class="value">${formatCurrency(r.totalCostPerUnit)}</div></div>
           <div class="metric-item"><div class="label">Waste &amp; Expected Incidentals (${inputs.wasteAndIncidentalsPct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.wasteAndIncidentalsAmount)}</div></div>
           <div class="metric-item"><div class="label">Selling Price before Fees</div><div class="value">${formatCurrency(r.priceBeforeFees)}</div></div>
-          <div class="metric-item"><div class="label">Selling Price before Tax</div><div class="value">${formatCurrency(r.priceBeforeTax)}</div></div>
+          <div class="metric-item"><div class="label">Selling Price before Tax</div><div class="value">${formatCurrency(r.priceBeforeVat)}</div></div>
           <div class="metric-item"><div class="label">Platform Fee (${inputs.platformFeePct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.platformFeeAmount)}</div></div>
           <div class="metric-item"><div class="label">Payment Gateway Fee (${inputs.paymentGatewayFeePct.toFixed(1)}%)</div><div class="value">${formatCurrency(r.paymentGatewayAmount)}</div></div>
           <div class="metric-item"><div class="label">Net Profit (per unit)</div><div class="value">${formatCurrency(r.netProfitPerUnit)}</div></div>
@@ -979,10 +1001,10 @@
           <tr><td>Selling Price before Fees</td><td class="num">${formatCurrency(r.priceBeforeFees)}</td></tr>
           <tr><td>Platform Fee Amount</td><td class="num">${formatCurrency(r.platformFeeAmount)}</td></tr>
           <tr><td>Payment Gateway Fee Amount</td><td class="num">${formatCurrency(r.paymentGatewayAmount)}</td></tr>
-          <tr><td>Selling Price before Tax</td><td class="num">${formatCurrency(r.priceBeforeTax)}</td></tr>
-          <tr><td>Profit before Tax</td><td class="num">${formatCurrency(r.profitBeforeTax)}</td></tr>
-          <tr><td>Tax (${inputs.taxRate}%)</td><td class="num">${formatCurrency(r.taxAmount)}</td></tr>
-          <tr><td>Profit after Tax</td><td class="num">${formatCurrency(r.profitAfterTax)}</td></tr>
+          <tr><td>Selling Price before Tax</td><td class="num">${formatCurrency(r.priceBeforeVat)}</td></tr>
+          <tr><td>Profit before Tax</td><td class="num">${formatCurrency(r.profitBeforeIncomeTax)}</td></tr>
+          <tr><td>Tax (${inputs.incomeTaxRate}%)</td><td class="num">${formatCurrency(r.incomeTaxAmount)}</td></tr>
+          <tr><td>Profit after Tax</td><td class="num">${formatCurrency(r.profitAfterIncomeTax)}</td></tr>
           <tr><td>Zakat (${inputs.zakatRate}%)</td><td class="num">${formatCurrency(r.zakatAmount)}</td></tr>
           <tr><td>Net Profit per Unit</td><td class="num">${formatCurrency(r.netProfitPerUnit)}</td></tr>
           <tr><td>Monthly Sales Volume</td><td class="num">${inputs.volume.toLocaleString('en-US')} units</td></tr>
@@ -1021,7 +1043,7 @@
         ['Payment Gateway Fee (%)', inputs.paymentGatewayFeePct.toFixed(1) + '%'],
         ['Desired Profit Margin (%)', inputs.margin + '%'],
         ...(currentPricingMode === 'price' ? [['Target Platform Selling Price', parseFloat(document.getElementById('targetPrice').value) || 0]] : []),
-        ['Tax Rate (%)', inputs.taxRate + '%'],
+        ['Tax Rate (%)', inputs.incomeTaxRate + '%'],
         ['Zakat Rate (%)', inputs.zakatRate + '%'],
         ['Target Sales Volume', inputs.volume],
         ['', ''],
@@ -1029,12 +1051,12 @@
         ['Total Cost per Unit', r.totalCostPerUnit.toFixed(2)],
         ['Waste & Expected Incidentals', r.wasteAndIncidentalsAmount.toFixed(2)],
         ['Selling Price before Fees', r.priceBeforeFees.toFixed(2)],
-        ['Selling Price before Tax', r.priceBeforeTax.toFixed(2)],
+        ['Selling Price before Tax', r.priceBeforeVat.toFixed(2)],
         ['Platform Fee', r.platformFeeAmount.toFixed(2)],
         ['Payment Gateway Fee', r.paymentGatewayAmount.toFixed(2)],
-        ['Profit before Tax', r.profitBeforeTax.toFixed(2)],
-        ['Tax', r.taxAmount.toFixed(2)],
-        ['Profit after Tax', r.profitAfterTax.toFixed(2)],
+        ['Profit before Tax', r.profitBeforeIncomeTax.toFixed(2)],
+        ['Tax', r.incomeTaxAmount.toFixed(2)],
+        ['Profit after Tax', r.profitAfterIncomeTax.toFixed(2)],
         ['Zakat', r.zakatAmount.toFixed(2)],
         ['Net Profit (per unit)', r.netProfitPerUnit.toFixed(2)],
         ['Target Monthly Profit', r.monthlyProfit.toFixed(2)],
@@ -1057,7 +1079,7 @@
           cacPerUnit: inputs.cacPerUnit, platformFeePct: inputs.platformFeePct,
           paymentGatewayFeePct: inputs.paymentGatewayFeePct,
           wasteAndIncidentalsPct: inputs.wasteAndIncidentalsPct,
-          price: r.priceBeforeTax, netProfit: r.netProfitPerUnit
+          price: r.priceBeforeVat, netProfit: r.netProfitPerUnit
         });
         if (history.length > 50) history.pop();
         dbSet('pricingHistory_en', history).then(renderHistory);
@@ -1100,8 +1122,10 @@
       url.searchParams.set('d', inputs.direct);
       url.searchParams.set('o', inputs.overhead);
       url.searchParams.set('m', inputs.margin);
-      url.searchParams.set('t', inputs.taxRate);
+      url.searchParams.set('t', inputs.vatRate);
+      url.searchParams.set('it', inputs.incomeTaxRate);
       url.searchParams.set('z', inputs.zakatRate);
+      url.searchParams.set('zb', inputs.zakatBasePerUnit);
       url.searchParams.set('v', inputs.volume);
       url.searchParams.set('mf', inputs.monthlyFixed);
       url.searchParams.set('p', inputs.platformFeePct);
@@ -1127,25 +1151,25 @@
     function updateSharedEnhancements(r, inputs) {
       if (window.BondsEnhancements) {
         window.BondsEnhancements.updateKpiCards({
-          becKpiPrice: { text: formatCurrency(r.priceBeforeTax), color: r.priceBeforeTax > 0 ? '#3b82f6' : '#94a3b8' },
+          becKpiPrice: { text: formatCurrency(r.priceBeforeVat), color: r.priceBeforeVat > 0 ? '#3b82f6' : '#94a3b8' },
           becKpiNetProfit: { text: formatCurrency(r.netProfitPerUnit), color: r.netProfitPerUnit >= 0 ? '#16a34a' : '#dc2626' },
           becKpiMonthlyProfit: { text: formatCurrency(r.monthlyProfit), color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
           becKpiActualMargin: { text: r.actualMargin.toFixed(1) + '%', color: r.actualMargin >= 20 ? '#16a34a' : (r.actualMargin >= 10 ? '#f59e0b' : '#dc2626') },
-          becKpiBreakEven: { text: formatCurrency(r.breakEvenPrice), color: r.breakEvenPrice > 0 && r.breakEvenPrice <= r.priceBeforeTax ? '#16a34a' : '#f59e0b' },
+          becKpiBreakEven: { text: formatCurrency(r.breakEvenPrice), color: r.breakEvenPrice > 0 && r.breakEvenPrice <= r.priceBeforeVat ? '#16a34a' : '#f59e0b' },
           becKpiTotalCost: { text: formatCurrency(r.totalCostPerUnit), color: '#94a3b8' }
         });
         window.BondsEnhancements.updateSmartAlerts({
           profitMargin: r.actualMargin,
-          revenue: r.priceBeforeTax * (inputs.volume || 0),
+          revenue: r.priceBeforeVat * (inputs.volume || 0),
           fixedCosts: inputs.monthlyFixed,
           netProfitPerUnit: r.netProfitPerUnit,
           monthlyProfit: r.monthlyProfit,
           totalCostPerUnit: r.totalCostPerUnit,
-          priceBeforeTax: r.priceBeforeTax,
+          priceBeforeTax: r.priceBeforeVat,
           breakEvenPrice: r.breakEvenPrice,
           platformFeePct: inputs.platformFeePct,
           paymentGatewayFeePct: inputs.paymentGatewayFeePct,
-          taxRate: inputs.taxRate,
+          incomeTaxRate: inputs.incomeTaxRate,
           zakatRate: inputs.zakatRate
         });
       }
@@ -1158,7 +1182,7 @@
           inputs: inputs,
           mode: currentPricingMode,
           kpis: [
-            { label: 'Selling Price', value: formatCurrency(r.priceBeforeTax), color: '#3b82f6' },
+            { label: 'Selling Price', value: formatCurrency(r.priceBeforeVat), color: '#3b82f6' },
             { label: 'Net Profit / Unit', value: formatCurrency(r.netProfitPerUnit), color: r.netProfitPerUnit >= 0 ? '#16a34a' : '#dc2626' },
             { label: 'Monthly Profit', value: formatCurrency(r.monthlyProfit), color: r.monthlyProfit >= 0 ? '#16a34a' : '#dc2626' },
             { label: 'Actual Margin', value: r.actualMargin.toFixed(1) + '%', color: r.actualMargin >= 20 ? '#16a34a' : (r.actualMargin >= 10 ? '#f59e0b' : '#dc2626') },
@@ -1176,16 +1200,16 @@
             ['Platform Fee (%)', inputs.platformFeePct],
             ['Payment Gateway Fee (%)', inputs.paymentGatewayFeePct],
             ['Desired Profit Margin (%)', inputs.margin],
-            ['Tax Rate (%)', inputs.taxRate],
+            ['Tax Rate (%)', inputs.incomeTaxRate],
             ['Zakat Rate (%)', inputs.zakatRate],
             ['Target Monthly Sales Volume', inputs.volume],
             ['Monthly Fixed Costs', inputs.monthlyFixed],
             ['', ''],
-            ['Platform Selling Price', r.priceBeforeTax],
+            ['Platform Selling Price', r.priceBeforeVat],
             ['Total Cost per Unit', r.totalCostPerUnit],
-            ['Profit before Tax', r.profitBeforeTax],
-            ['Tax', r.taxAmount],
-            ['Profit after Tax', r.profitAfterTax],
+            ['Profit before Tax', r.profitBeforeIncomeTax],
+            ['Tax', r.incomeTaxAmount],
+            ['Profit after Tax', r.profitAfterIncomeTax],
             ['Zakat', r.zakatAmount],
             ['Net Profit per Unit', r.netProfitPerUnit],
             ['Target Monthly Profit', r.monthlyProfit],
@@ -1202,11 +1226,11 @@
             platform_fee_pct: inputs.platformFeePct,
             payment_gateway_fee_pct: inputs.paymentGatewayFeePct,
             desired_margin_pct: inputs.margin,
-            tax_rate_pct: inputs.taxRate,
+            tax_rate_pct: inputs.incomeTaxRate,
             zakat_rate_pct: inputs.zakatRate,
             monthly_volume: inputs.volume,
             monthly_fixed: inputs.monthlyFixed,
-            result_price_before_tax: r.priceBeforeTax,
+            result_price_before_tax: r.priceBeforeVat,
             result_total_cost_per_unit: r.totalCostPerUnit,
             result_net_profit_per_unit: r.netProfitPerUnit,
             result_monthly_profit: r.monthlyProfit,
@@ -1230,8 +1254,11 @@
       if (i.platformFeePct !== undefined) document.getElementById('platformFee').value = i.platformFeePct;
       if (i.paymentGatewayFeePct !== undefined) document.getElementById('paymentGatewayFee').value = i.paymentGatewayFeePct;
       if (i.margin !== undefined) document.getElementById('desiredMargin').value = i.margin;
-      if (i.taxRate !== undefined) document.getElementById('taxRate').value = i.taxRate;
+      if (i.vatRate !== undefined) document.getElementById('vatRate').value = i.vatRate;
+      else if (i.taxRate !== undefined) document.getElementById('vatRate').value = i.taxRate;
+      if (i.incomeTaxRate !== undefined) document.getElementById('incomeTaxRate').value = i.incomeTaxRate;
       if (i.zakatRate !== undefined) document.getElementById('zakatRate').value = i.zakatRate;
+      if (i.zakatBasePerUnit !== undefined) document.getElementById('zakatBasePerUnit').value = i.zakatBasePerUnit;
       if (i.volume !== undefined) document.getElementById('monthlyVolume').value = i.volume;
       if (i.monthlyFixed !== undefined) document.getElementById('monthlyFixed').value = i.monthlyFixed;
       if (data.mode === 'price' && data.inputs && data.inputs.targetPrice !== undefined) {
@@ -1317,7 +1344,9 @@
       document.getElementById('paymentGatewayFee').value = '1.5';
       document.getElementById('paymentGatewayPreset').value = '1.5';
       document.getElementById('desiredMargin').value = '25';
-      document.getElementById('taxRate').value = '15';
+      document.getElementById('vatRate').value = '15';
+      document.getElementById('incomeTaxRate').value = '0';
+      document.getElementById('zakatBasePerUnit').value = '0';
       document.getElementById('zakatRate').value = '2.5';
       document.getElementById('monthlyVolume').value = '500';
       document.getElementById('monthlyFixed').value = '0';
@@ -1333,7 +1362,9 @@
       document.getElementById('directCost').value = '';
       document.getElementById('overheadCost').value = '';
       document.getElementById('desiredMargin').value = '25';
-      document.getElementById('taxRate').value = '15';
+      document.getElementById('vatRate').value = '15';
+      document.getElementById('incomeTaxRate').value = '0';
+      document.getElementById('zakatBasePerUnit').value = '0';
       document.getElementById('zakatRate').value = '2.5';
       document.getElementById('monthlyVolume').value = '';
       document.getElementById('monthlyFixed').value = '0';
@@ -1349,6 +1380,8 @@
       document.getElementById('resWasteAndIncidentals').textContent = '—';
       document.getElementById('resPriceBeforeFees').textContent = '—';
       document.getElementById('resPriceBeforeTax').textContent = '—';
+      document.getElementById('resVatPerUnit').textContent = '—';
+      document.getElementById('resPriceIncludingVat').textContent = '—';
       document.getElementById('resPlatformFee').textContent = '—';
       document.getElementById('resPaymentGateway').textContent = '—';
       document.getElementById('resProfitBeforeTax').textContent = '—';
@@ -1389,8 +1422,12 @@
       if (d) document.getElementById('directCost').value = d;
       if (o) document.getElementById('overheadCost').value = o;
       if (m) document.getElementById('desiredMargin').value = m;
-      if (t) document.getElementById('taxRate').value = t;
+      if (t) document.getElementById('vatRate').value = t;
+      var it = url.searchParams.get('it');
+      var zb = url.searchParams.get('zb');
+      if (it) document.getElementById('incomeTaxRate').value = it;
       if (z) document.getElementById('zakatRate').value = z;
+      if (zb) document.getElementById('zakatBasePerUnit').value = zb;
       if (v) document.getElementById('monthlyVolume').value = v;
       if (mf) document.getElementById('monthlyFixed').value = mf;
       if (p) document.getElementById('platformFee').value = p;
@@ -1414,7 +1451,7 @@
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'incomeTaxRate', 'zakatRate', 'zakatBasePerUnit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         if (currentPricingMode === 'price' && document.getElementById('targetPrice').value === '') return;
         var inputs = getInputs();
@@ -1501,7 +1538,7 @@
     function storeCurrentInputs() {
       try {
         var payload = {};
-        ['country','platformSelect','sectorPreset','directCost','overheadCost','wasteAndIncidentalsPct','monthlyFixed','desiredMargin','targetPrice','taxRate','zakatRate','monthlyVolume','platformFee','paymentGatewayFee','packagingCost','deliveryCost','cac'].forEach(function(id) {
+        ['country','platformSelect','sectorPreset','directCost','overheadCost','wasteAndIncidentalsPct','monthlyFixed','desiredMargin','targetPrice','vatRate','incomeTaxRate','zakatRate','zakatBasePerUnit','monthlyVolume','platformFee','paymentGatewayFee','packagingCost','deliveryCost','cac'].forEach(function(id) {
           var el = document.getElementById(id);
           payload[id] = el ? el.value : '';
         });
@@ -1569,7 +1606,7 @@
         var last = window._lastPricingResult;
         var volume = parseFloat(document.getElementById('monthlyVolume')?.value) || 0;
         var monthlyProfit = last && last.r ? (last.r.netProfitPerUnit || 0) * volume : 0;
-        var price = last && last.r ? (last.r.priceBeforeTax || 0) : 0;
+        var price = last && last.r ? (last.r.priceBeforeVat || 0) : 0;
         var sectorSelect = document.getElementById('sectorPreset');
         var sectorName = sectorSelect?.options?.[sectorSelect.selectedIndex]?.text || 'E-commerce';
         var payload = {
