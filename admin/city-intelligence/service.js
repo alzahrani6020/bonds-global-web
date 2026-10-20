@@ -121,10 +121,15 @@
     async deleteCity(id) {
       await ensureAuth();
       const client = getClient();
-      await logAction('حذف مدينة', { city_id: id }, id);
-      const { error } = await client.from('cities').delete().eq('id', id);
+      const { data, error } = await client
+        .from('cities')
+        .update({ is_active: false, status: 'inactive', updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select('id')
+        .single();
       if (error) throw error;
-      return true;
+      await logAction('تعطيل مدينة', { city_id: id, soft_delete: true }, id);
+      return Boolean(data?.id);
     },
 
     // Districts
