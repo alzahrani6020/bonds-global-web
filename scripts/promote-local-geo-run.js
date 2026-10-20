@@ -7,6 +7,19 @@ const { randomUUID } = require('crypto');
 const RUN_ID = process.argv[2];
 const APPLY = process.env.GEO_PROMOTE_APPLY === '1';
 
+function providerAdmin1Code(countryCode, admin1Code) {
+  const country = String(countryCode || '').trim().toUpperCase();
+  const code = String(admin1Code || '').trim();
+  if (!country || !code) return null;
+  return code.includes('.') ? code.toUpperCase() : country + '.' + code;
+}
+
+function admin1MapKey(sourceCode, countryCode, admin1Code) {
+  const providerCode = providerAdmin1Code(countryCode, admin1Code);
+  if (!sourceCode || !countryCode || !providerCode) return null;
+  return sourceCode + ':' + String(countryCode).toUpperCase() + ':' + providerCode;
+}
+
 async function main() {
   if (!RUN_ID) throw new Error('Usage: node scripts/promote-local-geo-run.js <run_id>');
   if (!process.env.DATABASE_URL) throw new Error('DATABASE_URL is required');
@@ -53,10 +66,8 @@ async function main() {
 
     const admin1Map = new Map();
     const admin1For = row => {
-      if (!row?.country_code || !row?.source_code || !row?.admin1_code) return null;
-      return admin1Map.get(
-        row.source_code + ':' + row.country_code + ':' + row.admin1_code
-      ) || null;
+      const key = admin1MapKey(row?.source_code, row?.country_code, row?.admin1_code);
+      return key ? (admin1Map.get(key) || null) : null;
     };
 
     if (newCountries.length) {
@@ -88,10 +99,8 @@ async function main() {
       );
 
       for (const link of sourceLinks.rows) {
-        admin1Map.set(
-          link.source_code + ':' + link.country_code + ':' + link.source_admin_code,
-          link.admin_area_id
-        );
+        const key = admin1MapKey(link.source_code, link.country_code, link.source_admin_code);
+        if (key) admin1Map.set(key, link.admin_area_id);
       }
 
       const unresolvedAdmin = newRows.filter(row => !admin1For(row));

@@ -51,11 +51,10 @@ jobs:
           node-version: '24'
           cache: npm
 
-      - name: Preflight
+      - name: Validate requested action
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${DATABASE_URL:-}" || { echo "GEO_DATABASE_URL secret is required"; exit 1; }
           case "${{ inputs.action }}" in
             stage_reconcile) ;;
             promote)
@@ -71,6 +70,57 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --ignore-scripts --no-audit
+
+      - name: Resolve Production database connection
+        shell: bash
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${DATABASE_URL:-}" ]; then
+            echo "Using configured GEO_DATABASE_URL."
+            exit 0
+          fi
+
+          test -n "${VERCEL_TOKEN:-}" || { echo "VERCEL_TOKEN is required when GEO_DATABASE_URL is absent"; exit 1; }
+          test -n "${VERCEL_PROJECT_ID:-}" || { echo "VERCEL_PROJECT_ID is required when GEO_DATABASE_URL is absent"; exit 1; }
+          test -n "${VERCEL_ORG_ID:-}" || { echo "VERCEL_ORG_ID is required when GEO_DATABASE_URL is absent"; exit 1; }
+
+          rm -rf .vercel
+          mkdir -p .vercel
+          printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
+
+          npx --no-install vercel pull --yes --environment=production
+
+          env_file=".vercel/.env.production.local"
+          test -s "$env_file" || { echo "Vercel Production env file was not created"; exit 1; }
+
+          set +u
+          set -a
+          . "$env_file"
+          set +a
+          set -u
+
+          test -n "${SUPABASE_DB_URL:-}" || { echo "SUPABASE_DB_URL is missing from Vercel Production"; exit 1; }
+          echo "::add-mask::$SUPABASE_DB_URL"
+
+          {
+            echo 'DATABASE_URL<<__GEO_DB_URL__'
+            printf '%s\n' "$SUPABASE_DB_URL"
+            echo '__GEO_DB_URL__'
+          } >> "$GITHUB_ENV"
+
+          rm -rf .vercel
+          unset SUPABASE_DB_URL
+
+      - name: Verify database connection is available
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${DATABASE_URL:-}" || { echo "Production database connection could not be resolved"; exit 1; }
 
       - name: Download official GeoNames dumps
         if: inputs.action == 'stage_reconcile'
