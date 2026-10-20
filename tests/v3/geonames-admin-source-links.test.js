@@ -71,7 +71,10 @@ describe('GeoNames ADM1 provider source links', () => {
   test('promotion resolves ADM1 by provider link instead of assuming internal indexes equal provider codes', () => {
     const promote = read('scripts/promote-local-geo-run.js');
     expect(promote).toContain('public.geo_admin_area_source_links');
-    expect(promote).toContain("row.source_code + ':' + row.country_code + ':' + row.admin1_code");
+    expect(promote).toContain('admin1MapKey');
+    expect(promote).toContain('providerAdmin1Code');
+    expect(promote).toContain("country + '.' + code");
+    expect(promote).not.toContain("row.source_code + ':' + row.country_code + ':' + row.admin1_code");
     expect(promote).toContain('Promotion blocked: unresolved provider ADM1 source mapping for');
     expect(promote).not.toContain("area.country_code + ':' + area.source_code + ':' + area.source_id");
   });
