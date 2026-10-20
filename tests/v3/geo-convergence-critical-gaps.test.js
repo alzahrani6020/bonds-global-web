@@ -91,4 +91,10 @@ describe('Geo convergence critical gaps', () => {
     expect(app).toContain('value="geo_integrity"');
   });
 
+  test('soft-disabled cities are excluded from public catalog APIs', () => {
+    const api = read('v3/api/index.js');
+    const activeFilters = (api.match(/\.eq\('is_active', true\)/g) || []).length;
+    expect(activeFilters).toBeGreaterThanOrEqual(2);
+  });
+
 });
