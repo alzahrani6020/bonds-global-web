@@ -1,0 +1,40 @@
+name: GeoNames stage reconcile dispatcher
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/geonames-stage-reconcile.trigger
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Validate one-shot marker
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected='STAGE_RECONCILE_ONCE_2026-10-21'
+          actual="$(tr -d '\r\n' < .github/geonames-stage-reconcile.trigger)"
+          [ "$actual" = "$expected" ] || { echo "Unexpected GeoNames trigger marker"; exit 1; }
+
+      - name: Dispatch governed stage reconcile
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          curl --silent --show-error --fail-with-body             --request POST             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/vnd.github+json"             -H "X-GitHub-Api-Version: 2022-11-28"             "$GITHUB_API_URL/repos/$GITHUB_REPOSITORY/actions/workflows/geonames-governed-ingestion.yml/dispatches"             --data '{"ref":"main","inputs":{"action":"stage_reconcile","run_id":"","confirmation":""}}'
+          echo "Dispatched GeoNames governed ingestion with action=stage_reconcile only."
