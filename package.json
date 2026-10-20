@@ -44,7 +44,12 @@
     "generate:tools": "node scripts/generate-tools-registry.js",
     "geo:build-local": "node scripts/build-local-geo-dataset.js",
     "geo:load-local": "node scripts/load-local-geo-dataset.js",
-    "geo:test-local": "jest tests/v3/local-geo-intelligence.test.js tests/v3/local-geo-foundation-contract.test.js --runInBand"
+    "geo:test-local": "jest tests/v3/local-geo-intelligence.test.js tests/v3/local-geo-foundation-contract.test.js tests/v3/geo-ingestion-architecture.test.js --runInBand",
+    "geo:stage-local": "node scripts/stage-local-geo-dataset.js",
+    "geo:reconcile-local": "node scripts/reconcile-local-geo-run.js",
+    "geo:promote-local": "node scripts/promote-local-geo-run.js",
+    "geo:ingest-local": "node scripts/ingest-local-geo-dataset.js",
+    "geo:rollback-local": "node scripts/rollback-local-geo-run.js"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",
