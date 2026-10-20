@@ -34,7 +34,21 @@ values
 ('543c8437-d652-4792-899a-c94a7cbd29ff'::uuid,'geonames','SO',1::smallint,'SO.14','51966'),
 ('5510ff8d-39fd-4fbb-9842-6ec5ceba829e'::uuid,'geonames','SO',1::smallint,'SO.13','51967'),
 ('fb1395eb-98f1-47e0-b282-1021a2c41a5f'::uuid,'geonames','SY',1::smallint,'SY.05','172410'),
-('0f72b9f2-1b2d-4f71-9e2e-4a8f181fdcf6'::uuid,'geonames','TN',1::smallint,'TN.14','2473637')
+('0f72b9f2-1b2d-4f71-9e2e-4a8f181fdcf6'::uuid,'geonames','TN',1::smallint,'TN.14','2473637'),
+('519aec6c-7c21-4e12-9865-429f8e9471cd'::uuid,'geonames','LY',1::smallint,'LY.70','87204'),
+('5b04a981-c309-4ee3-a274-320bbca858c2'::uuid,'geonames','LY',1::smallint,'LY.69','88318'),
+('ebad63b9-928b-4435-9283-70c27ec23d7d'::uuid,'geonames','LY',1::smallint,'LY.72','2214845'),
+('47f566f3-62ae-4c33-97c1-016ffae05cc5'::uuid,'geonames','LY',1::smallint,'LY.68','2218972'),
+('6842fc2e-f181-4345-81b3-ab9e32a93ee3'::uuid,'geonames','LY',1::smallint,'LY.65','88932'),
+('16746237-d7e0-45d9-8a1f-e0d44b4241f9'::uuid,'geonames','SO',1::smallint,'SO.18','53477'),
+('3e003d31-47bf-4636-8f9f-3d8c73df8cd1'::uuid,'geonames','SO',1::smallint,'SO.07','57060'),
+('f879bdeb-e3a1-4273-a562-f76baa8a3aa5'::uuid,'geonames','YE',1::smallint,'YE.25','70222'),
+('39f552ee-2222-4a56-878c-60b04e3e91ca'::uuid,'geonames','YE',1::smallint,'YE.15','71333'),
+('752b7ba2-6edc-49b5-9086-a4dd5d5cd528'::uuid,'geonames','YE',1::smallint,'YE.04','75411'),
+('ddc0542b-22ed-4937-927e-156add8c395c'::uuid,'geonames','YE',1::smallint,'YE.08','79416'),
+('c85ee543-82b2-455b-8206-da4cf2b5db23'::uuid,'geonames','YE',1::smallint,'YE.18','6201193'),
+('641ab4a3-d01f-4897-b025-3f3a6f72f0c5'::uuid,'geonames','YE',1::smallint,'YE.19','6201194'),
+('f073e1df-49e9-4d42-9bb9-cac828777409'::uuid,'geonames','YE',1::smallint,'YE.28','9645387')
 )
 select
  count(*) as candidate_rows,
@@ -44,4 +58,5 @@ select
  count(distinct c.source_id) as distinct_source_ids,
  count(*) filter (where exists(select 1 from public.geo_admin_area_source_links l where l.source_code=c.source_code and l.country_code=c.country_code and l.admin_level=c.admin_level and l.source_admin_code=c.source_admin_code)) as admin_code_collisions,
  count(*) filter (where exists(select 1 from public.geo_admin_area_source_links l where l.source_code=c.source_code and l.source_id=c.source_id)) as source_id_collisions
-from candidate c left join public.geo_admin_areas a on a.id=c.admin_area_id and a.country_code=c.country_code and a.admin_level=1;
+from candidate c
+left join public.geo_admin_areas a on a.id=c.admin_area_id and a.country_code=c.country_code and a.admin_level=1;
