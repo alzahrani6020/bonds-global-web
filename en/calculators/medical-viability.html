@@ -286,8 +286,9 @@
     };
 
     const TAX_FIELDS = [
-      { id: 'vVatRate', label: 'Tax Rate (%)', value: 0, min: 0, max: 100, abbr: 'e.g. VAT 15% — deducted from gross revenue' },
-      { id: 'vZakatRate', label: 'Zakat Rate (%)', value: 0, min: 0, max: 100, abbr: 'Applied to monthly profit (e.g. 2.5%)' }
+      { id: 'vVatRate', label: 'VAT Rate (%)', value: 0, min: 0, max: 100, abbr: 'Displayed separately from profit; VAT is not treated as a profit tax' },
+      { id: 'vZakatRate', label: 'Annual Zakat Rate (%)', value: 0, min: 0, max: 100, abbr: 'Calculated once at year-end from an explicit annual Zakat base' },
+      { id: 'vAnnualZakatBase', label: 'Estimated Annual Zakat Base', value: 0, min: 0, abbr: 'Enter the annual Zakat base; leave 0 to avoid automatic Zakat calculation' }
     ];
 
     const SERVICE_MIX_FIELDS = [
@@ -359,6 +360,7 @@
       options.monthlyGrowthPct = getVal('vMonthlyGrowth');
       options.vatRate = getVal('vVatRate');
       options.zakatRate = getVal('vZakatRate');
+      options.annualZakatBase = getVal('vAnnualZakatBase');
       options.extraServiceRevenue = getVal('vExtraServiceRevenue');
       options.extraServiceCost = getVal('vExtraServiceCost');
       return { activity, config, setup, monthly, revenue, options };
@@ -391,6 +393,7 @@
         monthlyGrowthPct: options.monthlyGrowthPct || 0,
         vatRate: options.vatRate || 0,
         zakatRate: options.zakatRate || 0,
+        annualZakatBase: options.annualZakatBase || 0,
         extraServiceRevenue: options.extraServiceRevenue || 0,
         extraServiceCost: options.extraServiceCost || 0,
         wasteAndIncidentalsPct: options.wasteAndIncidentalsPct || 0
@@ -476,7 +479,7 @@
           <div class="kpi-card"><div class="icon">📉</div><div class="value">${r.deductionAmount.toLocaleString('en-US')} SAR</div><div class="label">Deductions / Month</div><div class="sub">Insurance, discounts, tax</div></div>
           ${extraMetrics}
           ${r.vatAmount > 0 ? `<div class="kpi-card"><div class="icon">🏛️</div><div class="value" style="color:#ef4444">${r.vatAmount.toLocaleString('en-US')} SAR</div><div class="label">Tax / Month</div></div>` : ''}
-          ${r.zakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.zakatAmount.toLocaleString('en-US')} SAR</div><div class="label">Zakat / Month</div></div>` : ''}
+          ${r.annualZakatAmount > 0 ? `<div class="kpi-card"><div class="icon">🕌</div><div class="value" style="color:#ef4444">${r.annualZakatAmount.toLocaleString('en-US')} SAR</div><div class="label">Annual Zakat / Year-End</div></div>` : ''}
           ${r.extraServiceRevenue > 0 ? `<div class="kpi-card"><div class="icon">🧬</div><div class="value">${r.extraServiceRevenue.toLocaleString('en-US')} SAR</div><div class="label">Additional Services / Month</div></div>` : ''}
           ${r.wasteAndIncidentalsAmount > 0 ? `<div class="kpi-card"><div class="icon">⚠️</div><div class="value" style="color:#ef4444">${r.wasteAndIncidentalsAmount.toLocaleString('en-US')} SAR</div><div class="label">Waste &amp; Incidentals / Month</div><div class="sub">${r.wasteAndIncidentalsPct.toFixed(1)}%</div></div>` : ''}
         </div>
@@ -522,7 +525,7 @@
           <p>• Net after deductions: ${r.netRevenue.toLocaleString('en-US')} SAR/month</p>
           ${extraSummary}
           <p>• Assumed monthly growth: ${r.monthlyGrowthPct || 0}%</p>
-          ${r.vatAmount > 0 || r.zakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ Tax & Zakat:</strong></p><p>• Tax: ${r.vatAmount.toLocaleString('en-US')} SAR/month (${r.vatRate}%) | Zakat: ${r.zakatAmount.toLocaleString('en-US')} SAR/month (${r.zakatRate}%)</p>` : ''}
+          ${r.vatAmount > 0 || r.annualZakatAmount > 0 ? `<p style="margin-top:0.5rem;"><strong>🏛️ VAT & Annual Zakat:</strong></p><p>• VAT shown separately: ${r.vatAmount.toLocaleString('en-US')} SAR/month (${r.vatRate}%) | Annual Zakat: ${r.annualZakatAmount.toLocaleString('en-US')} SAR/year (${r.zakatRate}%)</p>` : ''}
           ${r.extraServiceRevenue > 0 || r.extraServiceCost > 0 ? `<p style="margin-top:0.5rem;"><strong>🧬 Service Mix:</strong></p><p>• Additional revenue: ${r.extraServiceRevenue.toLocaleString('en-US')} SAR/month | Cost: ${r.extraServiceCost.toLocaleString('en-US')} SAR/month | Contribution: ${(r.extraServiceRevenue - r.extraServiceCost).toLocaleString('en-US')} SAR/month</p>` : ''}
           <p style="margin-top:0.5rem;"><strong>📉 Costs:</strong></p>
           <p>• Fixed: ${r.monthlyFixed.toLocaleString('en-US')} SAR | Variable: ${r.monthlyVariable.toLocaleString('en-US')} SAR | Waste &amp; Incidentals: ${r.wasteAndIncidentalsAmount.toLocaleString('en-US')} SAR | Total: ${r.monthlyTotal.toLocaleString('en-US')} SAR</p>
@@ -656,7 +659,7 @@
       if (config) {
         allFields = allFields.concat(config.setupFields || [], config.monthlyFields || [], config.variableFields || []);
       }
-      allFields.push({ id: 'rUnitPrice' }, { id: 'rDailyUnits' }, { id: 'rWorkDays' }, { id: 'vMonthlyGrowth' }, { id: 'vVatRate' }, { id: 'vZakatRate' }, { id: 'vExtraServiceRevenue' }, { id: 'vExtraServiceCost' }, { id: 'wasteAndIncidentalsPct' });
+      allFields.push({ id: 'rUnitPrice' }, { id: 'rDailyUnits' }, { id: 'rWorkDays' }, { id: 'vMonthlyGrowth' }, { id: 'vVatRate' }, { id: 'vZakatRate' }, { id: 'vAnnualZakatBase' }, { id: 'vExtraServiceRevenue' }, { id: 'vExtraServiceCost' }, { id: 'wasteAndIncidentalsPct' });
       allFields.forEach(function(f) {
         var val = i.setup ? i.setup[f.id] : (i.monthly ? i.monthly[f.id] : (i.revenue ? i.revenue[f.id] : (i.options ? i.options[f.id] : undefined)));
         if (val === undefined && i.options) {
@@ -777,7 +780,9 @@
         ['Variable Costs / Month', r.monthlyVariable],
         ['Monthly Profit', r.monthlyProfit],
         ['Tax / Month', r.vatAmount],
-        ['Zakat / Month', r.zakatAmount],
+        ['Annual Zakat / Year-End', r.annualZakatAmount],
+        ['Annual Profit before Zakat', r.yearlyProfitBeforeZakat],
+        ['Annual Profit after Zakat', r.yearlyProfit],
         ['Additional Services Revenue / Month', r.extraServiceRevenue],
         ['Additional Services Cost / Month', r.extraServiceCost],
         ['Profit Margin %', r.profitMargin.toFixed(2)],
@@ -790,10 +795,10 @@
       ws['!cols'] = [{ wch: 32 }, { wch: 18 }];
       XLSX.utils.book_append_sheet(wb, ws, 'Results');
 
-      const projRows = [['Month', 'Units', 'Gross Revenue', 'Deductions', 'Tax', 'Zakat', 'Net Revenue', 'Variable Cost', 'Profit']];
-      r.monthlyProjections.forEach(function(p) { projRows.push([p.month, Math.round(p.units), Math.round(p.grossRevenue), Math.round(p.deduction), Math.round(p.vatAmount), Math.round(p.zakatAmount), Math.round(p.netRevenue), Math.round(p.variableCost), Math.round(p.profit)]); });
+      const projRows = [['Month', 'Units', 'Gross Revenue', 'Deductions', 'VAT', 'Net Revenue', 'Variable Cost', 'Operating Profit before Annual Zakat']];
+      r.monthlyProjections.forEach(function(p) { projRows.push([p.month, Math.round(p.units), Math.round(p.grossRevenue), Math.round(p.deduction), Math.round(p.vatAmount), Math.round(p.netRevenue), Math.round(p.variableCost), Math.round(p.profit)]); });
       const projWs = XLSX.utils.aoa_to_sheet(projRows);
-      projWs['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }, { wch: 18 }, { wch: 16 }];
+      projWs['!cols'] = [{ wch: 8 }, { wch: 12 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 16 }, { wch: 18 }, { wch: 28 }];
       XLSX.utils.book_append_sheet(wb, projWs, 'Monthly');
 
       const sensRows = [['Change', 'Units / Day', 'Monthly Profit', 'Yearly Profit']];
