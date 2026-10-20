@@ -83,7 +83,7 @@ const { calculateSiteIntelligence } = require('../../lib/geo/local-intelligence'
 function setCors(res, req) {
   setAllowedOrigin(res, req);
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-admin-token');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-admin-token,x-bonds-service-token');
 }
 
 function getCategory(path) {

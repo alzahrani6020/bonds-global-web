@@ -91,6 +91,11 @@ describe('post-release pipeline contracts', () => {
     expect(health).toContain("(!tokenRuntime.required || tokenRuntime.status === 'ok')");
   });
 
+  test('capability service token header is permitted by V3 CORS preflight', () => {
+    const api = fs.readFileSync(path.resolve(__dirname, '../v3/api/index.js'), 'utf8');
+    expect(api).toContain('Content-Type,Authorization,x-admin-token,x-bonds-service-token');
+  });
+
   test('existing forward migrations are immutable after merge', () => {
     const workflow = fs.readFileSync(
       path.resolve(__dirname, '../.github/workflows/apply-migrations.yml'),
