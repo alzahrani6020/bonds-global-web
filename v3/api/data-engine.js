@@ -1,8 +1,8 @@
 /**
  * Data Engine API — نقاط نهاية منصة جمع البيانات.
  */
-const crypto = require('crypto');
 const { getSupabaseClient } = require('../lib/supabase');
+const { requireAdminAccess } = require('../lib/admin-access');
 const {
   CityEngine,
   RealEstateEngine,
@@ -52,61 +52,6 @@ async function resolveActivity(supabase, activityCode) {
   const { data, error } = await supabase.from('economic_activities').select('id, code').eq('code', activityCode).single();
   if (error || !data) throw new Error(`Activity not found: ${activityCode}`);
   return data;
-}
-
-function constantTimeEqual(actual, expected) {
-  const a = Buffer.from(String(actual || ''), 'utf8');
-  const b = Buffer.from(String(expected || ''), 'utf8');
-  return a.length === b.length && crypto.timingSafeEqual(a, b);
-}
-
-function configuredOwnerEmails() {
-  return String(process.env.ADMIN_EMAILS || process.env.ADMIN_EMAIL || '')
-    .split(',')
-    .map(value => value.trim().toLowerCase())
-    .filter(Boolean);
-}
-
-async function requireAdminAccess(req) {
-  const authorization = String(req.headers.authorization || '');
-  const bearer = authorization.replace(/^Bearer\s+/i, '').trim();
-
-  if (bearer) {
-    try {
-      const supabase = getSupabaseClient();
-      const { data, error } = await supabase.auth.getUser(bearer);
-      const user = data?.user || null;
-
-      if (!error && user) {
-        const owner = configuredOwnerEmails().includes(String(user.email || '').toLowerCase());
-        if (owner) return true;
-
-        const { data: role, error: roleError } = await supabase
-          .from('admin_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .maybeSingle();
-
-        if (!roleError && role && ['super_admin', 'admin'].includes(role.role)) {
-          return true;
-        }
-      }
-    } catch (_error) {
-      // Fall through to the explicitly transitional legacy token path.
-    }
-  }
-
-  const legacyAllowed =
-    String(process.env.V3_ADMIN_ALLOW_LEGACY_TOKEN ?? 'true').toLowerCase() !== 'false';
-  const supplied = req.headers['x-admin-token'];
-  const expected = process.env.ADMIN_TOKEN;
-
-  return Boolean(
-    legacyAllowed &&
-    expected &&
-    supplied &&
-    constantTimeEqual(supplied, expected)
-  );
 }
 
 // ===== Handlers =====
