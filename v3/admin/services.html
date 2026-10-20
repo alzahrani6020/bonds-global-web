@@ -95,6 +95,7 @@
 const API='/api/v3/admin/services';
 let token=sessionStorage.getItem('bondsAdminToken')||'', bearerToken='', services=[], current=null, currentForm=null;
 const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 async function refreshAdminSession(){try{if(window.BondsAuth?.getSession){const {data}=await window.BondsAuth.getSession();bearerToken=data?.session?.access_token||''}}catch(_e){bearerToken=''}return bearerToken}
 function headers(){return bearerToken?{'Content-Type':'application/json','Authorization':'Bearer '+bearerToken}:{'Content-Type':'application/json','x-admin-token':token}}
 function message(t,ok=true){const e=$('#msg');e.textContent=t;e.className='msg show '+(ok?'ok':'err');setTimeout(()=>e.className='msg',4000)}
@@ -104,7 +105,7 @@ function caps(v){return String(v||'').split('\n').map((line,i)=>{const [capabili
 function procedures(v){return String(v||'').split('\n').map((line,i)=>{const [title_ar,procedure_type,visibility]=line.split('|').map(x=>(x||'').trim());return title_ar?{title_ar,procedure_type:procedure_type||'manual',visibility:visibility||'public',sort_order:(i+1)*10}:null}).filter(Boolean)}
 function formData(){const f=new FormData($('#serviceForm'));const o=Object.fromEntries(f);o.sort_order=Number(o.sort_order||0);o.countries=csv(o.countries);o.sectors=csv(o.sectors);o.activities=csv(o.activities);o.capabilities=caps(o.capabilities);o.procedures=procedures(o.procedures);return o}
 async function load(){if(!token){token=prompt('Admin Token')||'';if(!token)return;localStorage.setItem('bondsAdminToken',token)}try{const d=await api(API);services=d.services||[];render()}catch(e){message(e.message,false)}}
-function render(){const el=$('#servicesList');el.innerHTML=services.map(s=>'<div class="service-item '+(current?.code===s.code?'active':'')+'" data-code="'+s.code+'"><strong>'+s.name_ar+'</strong><div class="muted">'+s.code+' · '+s.status+' · '+s.delivery_type+'</div></div>').join('');el.querySelectorAll('[data-code]').forEach(x=>x.onclick=()=>select(x.dataset.code))}
+function render(){const el=$('#servicesList');el.innerHTML=services.map(s=>'<div class="service-item '+(current?.code===s.code?'active':'')+'" data-code="'+esc(s.code)+'"><strong>'+esc(s.name_ar)+'</strong><div class="muted">'+esc(s.code)+' · '+esc(s.status)+' · '+esc(s.delivery_type)+'</div></div>').join('');el.querySelectorAll('[data-code]').forEach(x=>x.onclick=()=>select(x.dataset.code))}
 async function select(code){
   try{
     const d=await api(API+'/'+code);
@@ -128,7 +129,7 @@ async function loadPricing(){
   if(!current)return;
   const d=await api(API+'/'+current.code+'/pricing');
   const rows=d.pricing||[];
-  $('#pricingList').innerHTML=rows.length?'<table><thead><tr><th>النوع</th><th>النطاق</th><th>القيمة</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+x.pricing_type+'</td><td>'+[x.country_code,x.sector_code].filter(Boolean).join(' / ')+'</td><td>'+([x.amount,x.min_amount].find(v=>v!=null)??'')+' '+(x.currency_code||'')+'</td><td><button type="button" class="danger" data-price-del="'+x.id+'">حذف</button></td></tr>').join('')+'</tbody></table>':'<div class="muted">لا يوجد تسعير محدد؛ ستظهر الخدمة حسب عرض سعر.</div>';
+  $('#pricingList').innerHTML=rows.length?'<table><thead><tr><th>النوع</th><th>النطاق</th><th>القيمة</th><th></th></tr></thead><tbody>'+rows.map(x=>'<tr><td>'+esc(x.pricing_type)+'</td><td>'+esc([x.country_code,x.sector_code].filter(Boolean).join(' / '))+'</td><td>'+esc(([x.amount,x.min_amount].find(v=>v!=null)??'')+' '+(x.currency_code||''))+'</td><td><button type="button" class="danger" data-price-del="'+esc(x.id)+'">حذف</button></td></tr>').join('')+'</tbody></table>':'<div class="muted">لا يوجد تسعير محدد؛ ستظهر الخدمة حسب عرض سعر.</div>';
   document.querySelectorAll('[data-price-del]').forEach(b=>b.onclick=()=>deletePricing(b.dataset.priceDel));
 }
 $('#pricingForm').onsubmit=async e=>{
@@ -142,7 +143,7 @@ async function loadRequests(){
   try{
     const d=await api('/api/v3/admin/service-requests');
     const rows=d.requests||[];
-    $('#requestsList').innerHTML=rows.length?rows.map(r=>'<div class="service-item" data-request="'+r.id+'"><strong>'+(r.service_catalog?.name_ar||r.request_reference)+'</strong><div class="muted">'+r.request_reference+' · '+r.status+' · '+(r.country_code||'')+' · '+(r.sector_code||'')+'</div></div>').join(''):'<div class="muted">لا توجد طلبات خدمات حتى الآن.</div>';
+    $('#requestsList').innerHTML=rows.length?rows.map(r=>'<div class="service-item" data-request="'+esc(r.id)+'"><strong>'+esc(r.service_catalog?.name_ar||r.request_reference)+'</strong><div class="muted">'+esc(r.request_reference)+' · '+esc(r.status)+' · '+esc(r.country_code||'')+' · '+esc(r.sector_code||'')+'</div></div>').join(''):'<div class="muted">لا توجد طلبات خدمات حتى الآن.</div>';
     document.querySelectorAll('[data-request]').forEach(x=>x.onclick=()=>openRequest(x.dataset.request));
   }catch(e){message(e.message,false)}
 }
@@ -165,9 +166,9 @@ async function openRequest(id){
 }
 $('#refreshRequests').onclick=loadRequests;
 
-async function loadForms(){if(!current)return;const d=await api(API+'/'+current.code+'/forms');const forms=d.forms||[];$('#formsList').innerHTML=forms.map(f=>'<button type="button" class="secondary" data-form="'+f.id+'">'+f.name_ar+' · v'+f.version+'</button>').join(' ')||'<p class="muted">لا توجد نماذج بعد.</p>';document.querySelectorAll('[data-form]').forEach(b=>b.onclick=()=>openForm(b.dataset.form))}
+async function loadForms(){if(!current)return;const d=await api(API+'/'+current.code+'/forms');const forms=d.forms||[];$('#formsList').innerHTML=forms.map(f=>'<button type="button" class="secondary" data-form="'+esc(f.id)+'">'+esc(f.name_ar)+' · v'+esc(f.version)+'</button>').join(' ')||'<p class="muted">لا توجد نماذج بعد.</p>';document.querySelectorAll('[data-form]').forEach(b=>b.onclick=()=>openForm(b.dataset.form))}
 $('#formDefForm').onsubmit=async e=>{e.preventDefault();if(!current)return;const o=Object.fromEntries(new FormData(e.target));o.name_en=o.name_ar;try{await api(API+'/'+current.code+'/forms',{method:'POST',body:JSON.stringify(o)});message('تمت إضافة النموذج');e.target.reset();loadForms()}catch(err){message(err.message,false)}}
-async function openForm(id){currentForm=id;const d=await api(API+'/'+current.code+'/forms/'+id);$('#fieldBuilder').hidden=false;$('#fieldsTable').innerHTML=(d.fields||[]).map(x=>'<tr><td>'+x.label_ar+'</td><td>'+x.field_type+'</td><td>'+(x.is_required?'نعم':'لا')+'</td><td><button class="danger" type="button" data-del="'+x.id+'">حذف</button></td></tr>').join('');document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteField(b.dataset.del))}
+async function openForm(id){currentForm=id;const d=await api(API+'/'+current.code+'/forms/'+id);$('#fieldBuilder').hidden=false;$('#fieldsTable').innerHTML=(d.fields||[]).map(x=>'<tr><td>'+esc(x.label_ar)+'</td><td>'+esc(x.field_type)+'</td><td>'+(x.is_required?'نعم':'لا')+'</td><td><button class="danger" type="button" data-del="'+esc(x.id)+'">حذف</button></td></tr>').join('');document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>deleteField(b.dataset.del))}
 $('#fieldForm').onsubmit=async e=>{e.preventDefault();if(!current||!currentForm)return;const o=Object.fromEntries(new FormData(e.target));o.label_en=o.label_ar;o.is_required=e.target.elements.is_required.checked;o.sort_order=Number(o.sort_order||0);try{await api(API+'/'+current.code+'/forms/'+currentForm,{method:'POST',body:JSON.stringify(o)});message('تمت إضافة الحقل');e.target.reset();openForm(currentForm)}catch(err){message(err.message,false)}}
 async function deleteField(id){if(!confirm('حذف الحقل؟'))return;try{await api(API+'/'+current.code+'/forms/'+currentForm+'/'+id,{method:'DELETE'});openForm(currentForm)}catch(err){message(err.message,false)}}
 window.addEventListener('DOMContentLoaded',async()=>{await load();if(bearerToken||token)await loadRequests()},{once:true});
