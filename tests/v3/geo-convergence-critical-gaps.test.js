@@ -45,4 +45,26 @@ describe('Geo convergence critical gaps', () => {
     expect(promote).toContain("row.decision === 'new_canonical'");
   });
 
+  test('matched source enrichment fills missing canonical facts without overwriting curated values', () => {
+    const promote = read('scripts/promote-local-geo-run.js');
+    expect(promote).toContain('population=coalesce(population,$4)');
+    expect(promote).toContain('elevation_m=coalesce(elevation_m,$5)');
+    expect(promote).toContain('case when lat is null and lng is null');
+    expect(promote).toContain('last_enrichment_source');
+  });
+
+  test('city administration uses soft disable so canonical identity is not orphaned', () => {
+    const service = read('admin/city-intelligence/service.js');
+    expect(service).toContain("update({ is_active: false, status: 'inactive'");
+    expect(service).not.toContain("from('cities').delete().eq('id', id)");
+  });
+
+  test('existing city catalog can surface canonical supplemental places without a second UI stack', () => {
+    const api = read('v3/api/index.js');
+    expect(api).toContain(".from('geo_places')");
+    expect(api).toContain("catalog_source: 'geo_places'");
+    expect(api).toContain('linkedGeoIds');
+    expect(api).toContain("if (!countryCode) return legacyRows || []");
+  });
+
 });
