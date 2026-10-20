@@ -1,80 +1,83 @@
-# ADM1 production rollout — 2026-10-20
+# ADM1 production rollout — final — 2026-10-20
 
-## Production result
+## Source accounting
 
-GeoNames ADM1 source identity is now linked to canonical Bonds ADM1 records using the canonical provider contract:
+- GeoNames ADM1 source rows: **329**
+- Production GeoNames links: **327**
+- Explicit granularity exclusions: **2**
+- Unaccounted rows: **0**
+- Reconciliation coverage: **329/329 accounted**
 
-- source_code: `geonames`
-- source_admin_code: full provider code such as `AE.07`
-- source_id: GeoNames geoname_id
+## Production geography
 
-### Linked rows
+- Canonical ADM1 rows: **355**
+- Canonical geo_places: **1,362**
+- GeoNames-linked ADM1 rows: **327**
+- Link orphans: **0**
+- Country/admin-level scope mismatches: **0**
+- Duplicate GeoNames links to the same internal admin area: **0**
 
-- Strict confirmed: **232**
-- Safe alias/transliteration batch: **44**
-- Externally verified alias batch: **4**
-- Additional externally verified semantic links: **3**
-- Duplicate-keeper links: **3**
-- **Total production links: 286**
+## Rollout classes
 
-### Remaining unlinked
+Production links were introduced in controlled batches:
 
-- Manual / structural review after follow-up verification: **43**
-- Current residual queue rows linked accidentally: **0**
+- strict normalized-name matches
+- mechanically safe transliteration/article/directional/translation aliases
+- externally verified semantic aliases
+- duplicate-keeper selections
+- new current canonical ADM1 additions
+- Oman split-governorate mappings
+- Libya GeoNames ADM1 parallel model
+- Somalia GeoNames region parallel model
+- Algeria GeoNames 58-wilaya source model, explicitly marked stale against the current official 69-wilaya model
 
-## Integrity verification
+## Explicitly excluded source rows
 
-Post-rollout production checks:
+### PS.GZ — Gaza Strip — GeoNames 281132
+No direct source link was created. GeoNames models this as a broad ADM1 territorial unit while Bonds stores individual Palestinian governorates.
 
-- distinct linked admin areas: **286**
-- distinct GeoNames admin codes: **286**
-- distinct GeoNames IDs: **286**
-- orphan source links: **0**
-- country/admin-level scope mismatches: **0**
-- duplicate GeoNames links to the same canonical admin area: **0**
-- canonical ADM1 rows remain: **319**
-- canonical geo_places remain: **1,362**
+### PS.WE — West Bank — GeoNames 285153
+No direct source link was created for the same granularity reason.
 
-## Provider compatibility
+The two exclusions are recorded in `public.geo_data_sources.metadata.adm1_reconciliation`.
 
-- canonical provider `geonames`: present
-- legacy provider `geonames_dump`: retained
-- runtime ADM1 linker is fixed to `source_code=geonames`
-- runtime linker upserts the canonical GeoNames provider inside the same write transaction
+## New canonical ADM1 rows added during remediation
 
-## Staging validation
+Current/additive rows were introduced only when the existing internal model lacked a source-level unit and the addition passed rollback simulation and in-transaction assertions.
 
-Isolated Supabase staging project used for rollout validation:
+Notable additions include:
+- Halabja Governorate
+- Tiris Zemmour Region
+- Gabes Governorate
+- Amanat Alasimah
+- 11 Libya GeoNames ADM1 units as a parallel source model
+- 8 Somalia GeoNames regions as a parallel source model
+- 13 Algeria GeoNames 58-model wilayas marked `stale_vs_official_69=true`
 
-- project: `bonds-global-adm1-staging`
-- project ref: `gjwppwtgsecwmqlsmbmq`
-- copied ADM1 rows: **319 / 22 countries**
-- strict preflight: **232/232 valid**
-- strict missing rows: **0**
-- strict collisions: **0**
-- rollback test: **232 inserted, then 0 after rollback**
-- committed staging test: **232**
-- idempotency test: second run remained **232**
-- production-state simulation: provider recreated + **232** links + **0** orphan rows, then rolled back
+## Place hierarchy corrections
 
-## Alias rollout policy
+The following existing place identities were retained and only `admin1_id` was corrected:
+- Halabja → Halabja Governorate
+- Zouerate → Tiris Zemmour
+- Gabes → Gabes Governorate
+- Sanaa → Amanat Alasimah
 
-The 48 high-confidence alias candidates were deliberately split:
+## Legacy coexistence
 
-- 44 mechanically safe aliases:
-  - TRANSLITERATION
-  - ARTICLE_VARIANT
-  - DIRECTIONAL_VARIANT
-  - TRANSLATION_VARIANT
-  - ARTICLE_TRANSLITERATION
-- 4 semantic/name-form aliases were held until independent verification:
-  - LB.09 / GeoNames 278297
-  - QA.01 / GeoNames 389470
-  - QA.06 / GeoNames 389469
-  - QA.08 / GeoNames 389462
+The rollout deliberately did **not** delete legacy canonical rows in cases where cleanup has wider downstream implications.
 
-Those four were verified against current GeoNames ADM1 records; the Lebanese mapping was additionally cross-checked against an official Lebanese government directory before rollout.
+Examples:
+- Libya: Bayda / Al Khums / Ubari / Tarhuna remain for later cleanup.
+- Somalia: Puntland / Somaliland / Bay and Bakool remain as macro-region records.
+- Oman: legacy combined Ash Sharqiyah / Al Batinah rows remain alongside split governorates.
+- Duplicate legacy rows in Algeria, Iraq, Oman, and Tunisia remain for a separate canonical-cleanup migration even where GeoNames source links now point to selected keepers.
 
-## Safety boundary
+## Safety controls
 
-No automatic link was created for the remaining 49 rows. These require canonical-data remediation, duplicate cleanup, administrative-granularity decisions, or explicit missing-area additions rather than fuzzy matching.
+Every production mutation batch used:
+1. read-only preflight,
+2. rollback simulation for new matching/remediation logic,
+3. in-transaction assertions,
+4. post-commit verification.
+
+The runtime ingestion pipeline is additionally fail-closed and requires explicit write opt-ins.
