@@ -52,30 +52,20 @@ async function main() {
     const admin1Map = new Map();
     const admin1For = row => {
       if (!row?.country_code || !row?.source_code || !row?.admin1_code) return null;
-      const direct = admin1Map.get(row.country_code + ':' + row.source_code + ':' + row.admin1_code);
-      if (direct) return direct;
       return admin1Map.get(
-        row.country_code + ':' + row.source_code + ':' + row.country_code + '.' + row.admin1_code
+        row.source_code + ':' + row.country_code + ':' + row.admin1_code
       ) || null;
     };
 
     if (newCountries.length) {
       const adminReadiness = await client.query(
-        `select id,country_code,source_code,source_id,admin_level
+        `select id,country_code
          from public.geo_admin_areas
          where country_code = any($1::text[])
            and is_active=true
            and admin_level=1`,
         [newCountries]
       );
-
-      for (const area of adminReadiness.rows) {
-        if (!area.source_code || !area.source_id) continue;
-        admin1Map.set(
-          area.country_code + ':' + area.source_code + ':' + area.source_id,
-          area.id
-        );
-      }
 
       const countriesWithAdmin1 = new Set(adminReadiness.rows.map(row => row.country_code));
       const missingCountries = newCountries.filter(code => !countriesWithAdmin1.has(code));
@@ -85,14 +75,31 @@ async function main() {
         );
       }
 
+      const sourceCodes = [...new Set(newRows.map(row => row.source_code).filter(Boolean))];
+      const sourceLinks = await client.query(
+        `select admin_area_id,source_code,country_code,source_admin_code
+         from public.geo_admin_area_source_links
+         where source_code = any($1::text[])
+           and country_code = any($2::text[])
+           and admin_level=1`,
+        [sourceCodes,newCountries]
+      );
+
+      for (const link of sourceLinks.rows) {
+        admin1Map.set(
+          link.source_code + ':' + link.country_code + ':' + link.source_admin_code,
+          link.admin_area_id
+        );
+      }
+
       const unresolvedAdmin = newRows.filter(row => !admin1For(row));
       if (unresolvedAdmin.length) {
         const sample = unresolvedAdmin
           .slice(0, 10)
-          .map(row => row.country_code + ':' + (row.admin1_code || 'missing'))
+          .map(row => row.source_code + ':' + row.country_code + ':' + (row.admin1_code || 'missing'))
           .join(', ');
         throw new Error(
-          'Promotion blocked: unresolved admin1 mapping for ' +
+          'Promotion blocked: unresolved provider ADM1 source mapping for ' +
           unresolvedAdmin.length + ' candidates. Sample: ' + sample
         );
       }
