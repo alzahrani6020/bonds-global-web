@@ -815,8 +815,8 @@
       }
 
       var zakatEl = document.getElementById('resZakat');
-      if (r.profitAfterIncomeTax > 0 && inputs.zakatRate > 0 && r.zakatCalculated) {
-        zakatEl.textContent = formatCurrency(r.annualZakatAmount) + ' (' + inputs.zakatRate.toFixed(1) + '%)';
+      if (inputs.zakatRate > 0 && r.zakatCalculated) {
+        zakatEl.textContent = formatCurrency(r.annualZakatAmount) + ' / year (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
         zakatEl.textContent = formatCurrency(0);
