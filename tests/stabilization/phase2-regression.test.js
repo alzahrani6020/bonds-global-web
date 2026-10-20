@@ -77,7 +77,8 @@ describe('stabilization phase 2', () => {
     expect(health).toContain("status: coreHealthy ? 'ok' : 'unhealthy'");
     expect(health).toContain("native: 'not_checked'");
     expect(health).toContain("endpoint: '/api/readiness'");
-    expect(health).toContain("getInferenceRouter().health()");
+    expect(health).toContain("async function probeNativeHealth");
+    expect(health).toContain("getInferenceRouter({ timeoutMs }).health()");
     expect(health).toContain("return res.status(ready ? 200 : 503)");
     expect(vercel).toContain('"source": "/api/readiness"');
     expect(vercel).toContain('"destination": "/api/health?strict=1"');
