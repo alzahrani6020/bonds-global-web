@@ -14,6 +14,9 @@ describe('Local geo intelligence foundation contract', () => {
     expect(migration).toContain('using gist(location)');
     expect(migration).toContain('runtime_api_required=false');
     expect(migration).toContain('api_key_required=false');
+    expect(migration).toContain("('geonames','GeoNames','download'");
+    expect(migration).toContain('canonical_provider_code');
+    expect(migration).toContain("('geonames_dump','GeoNames downloadable dump (legacy source code)'");
     expect(migration).toContain('revoke all on public.geo_places from anon, authenticated');
   });
 
