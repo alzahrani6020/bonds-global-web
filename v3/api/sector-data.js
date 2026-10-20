@@ -4,6 +4,8 @@
  * POST /api/v3/sector-data  (admin token required)
  */
 
+const { requireAdminAccess } = require('../lib/admin-access');
+
 function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -58,9 +60,11 @@ async function sectorDataRouter(req, res, path, supabase) {
     }
 
     if (req.method === 'POST' && path === '/sector-data') {
-      const adminToken = req.headers['x-admin-token'] || '';
-      const expectedToken = process.env.ADMIN_API_TOKEN || '';
-      if (!expectedToken || adminToken !== expectedToken) {
+      const admin = await requireAdminAccess(req, {
+        staticTokenEnv: 'ADMIN_API_TOKEN',
+        legacyFlagEnv: 'V3_ADMIN_ALLOW_ADMIN_API_TOKEN'
+      });
+      if (!admin) {
         return sendJson(res, 401, { error: 'Unauthorized' });
       }
 

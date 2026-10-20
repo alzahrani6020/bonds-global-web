@@ -6,6 +6,7 @@
  */
 
 const { getSupabaseClient } = require('../lib/supabase');
+const { requireAdminAccess } = require('../lib/admin-access');
 const { calibrateCompetitorCounts } = require('../engine/data-acquisition/CompetitorCalibration');
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
 
@@ -29,19 +30,8 @@ function parseBody(req) {
   });
 }
 
-function requireAdmin(req) {
-  const token = req.headers['x-admin-token'];
-  const expected = process.env.ADMIN_TOKEN;
-
-  if (!expected) {
-    return { error: 'ADMIN_TOKEN not configured on server' };
-  }
-
-  if (!token || token !== expected) {
-    return { error: 'Unauthorized' };
-  }
-
-  return null;
+async function requireAdmin(req) {
+  return (await requireAdminAccess(req)) ? null : { error: 'Unauthorized' };
 }
 
 async function handleModels(req, res) {
@@ -925,7 +915,7 @@ async function adminRouter(req, res, path) {
   const resource = parts[1]; // after 'admin'
   const identifier = parts[2];
 
-  const authError = requireAdmin(req);
+  const authError = await requireAdmin(req);
   if (authError) return sendJson(res, 401, authError);
 
   try {

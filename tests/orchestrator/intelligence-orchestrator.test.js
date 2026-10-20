@@ -48,7 +48,8 @@ describe('Intelligence Orchestrator', () => {
       input: 'حلل السوق لفندق',
       sector: 'hotel',
       context: 'investment',
-      language: 'ar'
+      language: 'ar',
+      userTier: 'pro'
     });
     if (result.confidence.decisionIntegrity.status !== 'decision_ready') {
       expect(result.explanation).toBeDefined();

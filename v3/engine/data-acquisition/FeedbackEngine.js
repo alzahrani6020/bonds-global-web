@@ -51,7 +51,8 @@ class FeedbackEngine {
     let query = this.supabase
       .from('metric_feedback')
       .select('estimated_value, actual_value, confidence')
-      .eq('metric_code', metricCode);
+      .eq('metric_code', metricCode)
+      .in('source', ['admin', 'audit', 'external']);
 
     if (context.cityId) query = query.eq('city_id', context.cityId);
     if (context.activityId) query = query.eq('activity_id', context.activityId);
