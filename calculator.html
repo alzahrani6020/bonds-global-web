@@ -650,7 +650,7 @@
         profitAfterTaxEl.style.color = 'var(--text)';
       }
 
-      if (r.profitAfterIncomeTax > 0 && inputs.zakatRate > 0 && r.zakatCalculated) {
+      if (inputs.zakatRate > 0 && r.zakatCalculated) {
         zakatEl.textContent = formatNumberAR(r.annualZakatAmount) + ' ر.س (' + inputs.zakatRate.toFixed(1) + '%)';
         zakatEl.style.color = '#dc2626';
       } else {
