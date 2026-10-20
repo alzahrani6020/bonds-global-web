@@ -74,7 +74,7 @@ describe('BondsFiscal Saudi Arabia', () => {
 
   test('unverified country uses manual corporate-tax rate and does not invent Zakat', () => {
     const r = Fiscal.calculate({
-      countryCode: 'AE',
+      countryCode: 'XX',
       companyType: 'foreign_100',
       annualTaxableIncome: 1000000,
       corporateIncomeTaxRate: 9
