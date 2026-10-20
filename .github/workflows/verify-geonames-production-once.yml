@@ -46,7 +46,11 @@ jobs:
             try { body = JSON.parse(text); } catch { body = null; }
             if (!res.ok || !body) throw new Error('API ' + cc + ' HTTP ' + res.status + ' body=' + text.slice(0,160));
             const cities = Array.isArray(body.cities) ? body.cities : [];
-            const withCoords = cities.filter(c => Number.isFinite(Number(c.lat)) && Number.isFinite(Number(c.lng)));
+            const withCoords = cities.filter(c =>
+              c.lat !== null && c.lat !== undefined &&
+              c.lng !== null && c.lng !== undefined &&
+              Number.isFinite(Number(c.lat)) && Number.isFinite(Number(c.lng))
+            );
             return {
               http_status:res.status,total:cities.length,with_coords:withCoords.length,
               sample:withCoords.slice(0,5).map(c=>({code:c.code,name_ar:c.name_ar,name_en:c.name_en,lat:c.lat,lng:c.lng}))
@@ -89,6 +93,9 @@ jobs:
 
             const browser=await chromium.launch({headless:true});
             const page=await browser.newPage({viewport:{width:1440,height:1000}});
+            await page.route('**/calculators/auth-gate.js*', route =>
+              route.fulfill({ status:200, contentType:'application/javascript', body:'/* smoke-test auth redirect bypass */' })
+            );
             const consoleErrors=[];
             page.on('console',m=>{if(m.type()==='error') consoleErrors.push(m.text())});
             page.on('pageerror',e=>consoleErrors.push(String(e.message||e)));
