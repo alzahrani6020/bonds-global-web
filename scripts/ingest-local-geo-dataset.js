@@ -17,6 +17,9 @@ function run(script, args = []) {
   return result.stdout;
 }
 
+// Provider administrative identities must be linked before any place promotion.
+run('link-local-geonames-admin1.js');
+
 const staged = run('stage-local-geo-dataset.js', [dataset]);
 const runMatch = staged.match(/GEO_RUN_ID=([0-9a-f-]{36})/i);
 const runId = runMatch && runMatch[1];
