@@ -2711,7 +2711,7 @@ function generatePage(sector, lang) {
       const tbody = document.querySelector('#waterFactoryCompetitorsTable tbody');
       if (tbody) {
         const row = document.createElement('tr');
-        row.innerHTML = '<td>' + brand + '</td><td>' + size + '</td><td>' + price + '</td><td><button type="button" class="btn btn--ghost" onclick="this.closest(\'tr\').remove()" style="font-size:0.75rem;">' + (isAr ? 'حذف' : 'Remove') + '</button></td>';
+        row.innerHTML = '<td>' + brand + '</td><td>' + size + '</td><td>' + price + '</td><td><button type="button" class="btn btn--ghost" onclick="this.closest(\\'tr\\').remove()" style="font-size:0.75rem;">' + (isAr ? 'حذف' : 'Remove') + '</button></td>';
         tbody.appendChild(row);
       }
       brandEl.value = '';
@@ -3863,7 +3863,7 @@ function generatePage(sector, lang) {
       const headers = [isAr ? 'تكرار' : 'Iteration', ...varNames, 'NPV', 'IRR', 'ROI'];
       const escape = (val) => {
         const s = String(val).replace(/"/g, '""');
-        return /[",\n\r]/.test(s) ? '"' + s + '"' : s;
+        return /[",\\n\\r]/.test(s) ? '"' + s + '"' : s;
       };
 
       const rows = mc.samples.map(s => [
@@ -3874,8 +3874,8 @@ function generatePage(sector, lang) {
         s.roi
       ]);
 
-      const csv = '\uFEFF' + headers.map(escape).join(',') + '\n' +
-        rows.map(r => r.map(escape).join(',')).join('\n');
+      const csv = '\uFEFF' + headers.map(escape).join(',') + '\\n' +
+        rows.map(r => r.map(escape).join(',')).join('\\n');
 
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
