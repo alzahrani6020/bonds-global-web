@@ -64,6 +64,7 @@ as $$
 declare
   v_geo_id uuid;
   v_place_type text;
+  v_is_alias boolean := false;
 begin
   v_place_type := case
     when new.locality_type in ('city','town','village','hijra','hamlet','oasis','district','settlement')
@@ -113,24 +114,40 @@ begin
     )
     returning id into v_geo_id;
   else
-    update public.geo_places gp
-    set country_code=new.country_code,
-        name_ar=coalesce(new.name_ar,gp.name_ar),
-        name_en=coalesce(new.name_en,gp.name_en),
-        canonical_name=coalesce(new.name_ar,new.name_en,gp.canonical_name,new.code),
-        place_type=v_place_type,
-        lat=coalesce(new.lat::double precision,gp.lat),
-        lng=coalesce(new.lng::double precision,gp.lng),
-        population=coalesce(new.population::bigint,gp.population),
-        is_active=coalesce(new.is_active,gp.is_active),
-        metadata=gp.metadata || jsonb_build_object(
-          'legacy_city_id',new.id,
-          'legacy_region',new.region,
-          'legacy_admin_level_2',new.admin_level_2,
-          'managed_bridge','cities'
-        ),
-        updated_at=now()
+    select gp.canonical_code is distinct from new.code
+    into v_is_alias
+    from public.geo_places gp
     where gp.id=v_geo_id;
+
+    if not coalesce(v_is_alias,false) then
+      update public.geo_places gp
+      set country_code=new.country_code,
+          name_ar=coalesce(new.name_ar,gp.name_ar),
+          name_en=coalesce(new.name_en,gp.name_en),
+          canonical_name=coalesce(new.name_ar,new.name_en,gp.canonical_name,new.code),
+          place_type=v_place_type,
+          lat=coalesce(new.lat::double precision,gp.lat),
+          lng=coalesce(new.lng::double precision,gp.lng),
+          population=coalesce(new.population::bigint,gp.population),
+          is_active=coalesce(new.is_active,gp.is_active),
+          metadata=gp.metadata || jsonb_build_object(
+            'legacy_city_id',new.id,
+            'legacy_region',new.region,
+            'legacy_admin_level_2',new.admin_level_2,
+            'managed_bridge','cities'
+          ),
+          updated_at=now()
+      where gp.id=v_geo_id;
+    else
+      update public.geo_places gp
+      set metadata=gp.metadata || jsonb_build_object(
+            'last_legacy_alias_id',new.id,
+            'last_legacy_alias_code',new.code,
+            'managed_bridge','cities'
+          ),
+          updated_at=now()
+      where gp.id=v_geo_id;
+    end if;
   end if;
 
   update public.cities
