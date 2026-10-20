@@ -485,16 +485,28 @@
   <script>
     const API_URL = '/api/v3';
     let token = sessionStorage.getItem('bondsAdminToken') || '';
+    let bearerToken = '';
     let refData = {};
 
     // Never accept admin credentials from the URL. Query-string secrets can
     // leak through browser history, screenshots, analytics, and referrers.
 
+    async function refreshAdminSession() {
+      try {
+        if (window.BondsAuth?.getSession) {
+          const { data } = await window.BondsAuth.getSession();
+          bearerToken = data?.session?.access_token || '';
+        }
+      } catch (_error) {
+        bearerToken = '';
+      }
+      return bearerToken;
+    }
+
     function getHeaders() {
-      return {
-        'Content-Type': 'application/json',
-        'x-admin-token': token
-      };
+      return bearerToken
+        ? { 'Content-Type': 'application/json', Authorization: 'Bearer ' + bearerToken }
+        : { 'Content-Type': 'application/json', 'x-admin-token': token };
     }
 
     const METRIC_LABELS_AR = {
@@ -566,7 +578,8 @@
     }
 
     async function init() {
-      if (!token) return;
+      await refreshAdminSession();
+      if (!bearerToken && !token) return;
 
       try {
         const ref = await fetchJson(API_URL + '/admin/reference', { headers: getHeaders() });
@@ -1320,7 +1333,7 @@
       }
     }
 
-    if (token) init();
+    window.addEventListener('DOMContentLoaded', () => init(), { once: true });
   </script>
   <div id="site-footer"></div>
 <script src="../../components/universal-dropdown.js?v=2.51.8"></script>
