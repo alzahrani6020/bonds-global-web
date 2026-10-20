@@ -1122,8 +1122,10 @@
       url.searchParams.set('d', inputs.direct);
       url.searchParams.set('o', inputs.overhead);
       url.searchParams.set('m', inputs.margin);
-      url.searchParams.set('t', inputs.incomeTaxRate);
+      url.searchParams.set('t', inputs.vatRate);
+      url.searchParams.set('it', inputs.incomeTaxRate);
       url.searchParams.set('z', inputs.zakatRate);
+      url.searchParams.set('zb', inputs.zakatBasePerUnit);
       url.searchParams.set('v', inputs.volume);
       url.searchParams.set('mf', inputs.monthlyFixed);
       url.searchParams.set('p', inputs.platformFeePct);
@@ -1252,8 +1254,11 @@
       if (i.platformFeePct !== undefined) document.getElementById('platformFee').value = i.platformFeePct;
       if (i.paymentGatewayFeePct !== undefined) document.getElementById('paymentGatewayFee').value = i.paymentGatewayFeePct;
       if (i.margin !== undefined) document.getElementById('desiredMargin').value = i.margin;
-      if (i.taxRate !== undefined) document.getElementById('taxRate').value = i.taxRate;
+      if (i.vatRate !== undefined) document.getElementById('vatRate').value = i.vatRate;
+      else if (i.taxRate !== undefined) document.getElementById('vatRate').value = i.taxRate;
+      if (i.incomeTaxRate !== undefined) document.getElementById('incomeTaxRate').value = i.incomeTaxRate;
       if (i.zakatRate !== undefined) document.getElementById('zakatRate').value = i.zakatRate;
+      if (i.zakatBasePerUnit !== undefined) document.getElementById('zakatBasePerUnit').value = i.zakatBasePerUnit;
       if (i.volume !== undefined) document.getElementById('monthlyVolume').value = i.volume;
       if (i.monthlyFixed !== undefined) document.getElementById('monthlyFixed').value = i.monthlyFixed;
       if (data.mode === 'price' && data.inputs && data.inputs.targetPrice !== undefined) {
@@ -1339,7 +1344,9 @@
       document.getElementById('paymentGatewayFee').value = '1.5';
       document.getElementById('paymentGatewayPreset').value = '1.5';
       document.getElementById('desiredMargin').value = '25';
-      document.getElementById('taxRate').value = '15';
+      document.getElementById('vatRate').value = '15';
+      document.getElementById('incomeTaxRate').value = '0';
+      document.getElementById('zakatBasePerUnit').value = '0';
       document.getElementById('zakatRate').value = '2.5';
       document.getElementById('monthlyVolume').value = '500';
       document.getElementById('monthlyFixed').value = '0';
@@ -1355,7 +1362,9 @@
       document.getElementById('directCost').value = '';
       document.getElementById('overheadCost').value = '';
       document.getElementById('desiredMargin').value = '25';
-      document.getElementById('taxRate').value = '15';
+      document.getElementById('vatRate').value = '15';
+      document.getElementById('incomeTaxRate').value = '0';
+      document.getElementById('zakatBasePerUnit').value = '0';
       document.getElementById('zakatRate').value = '2.5';
       document.getElementById('monthlyVolume').value = '';
       document.getElementById('monthlyFixed').value = '0';
@@ -1371,6 +1380,8 @@
       document.getElementById('resWasteAndIncidentals').textContent = '—';
       document.getElementById('resPriceBeforeFees').textContent = '—';
       document.getElementById('resPriceBeforeTax').textContent = '—';
+      document.getElementById('resVatPerUnit').textContent = '—';
+      document.getElementById('resPriceIncludingVat').textContent = '—';
       document.getElementById('resPlatformFee').textContent = '—';
       document.getElementById('resPaymentGateway').textContent = '—';
       document.getElementById('resProfitBeforeTax').textContent = '—';
@@ -1411,8 +1422,12 @@
       if (d) document.getElementById('directCost').value = d;
       if (o) document.getElementById('overheadCost').value = o;
       if (m) document.getElementById('desiredMargin').value = m;
-      if (t) document.getElementById('taxRate').value = t;
+      if (t) document.getElementById('vatRate').value = t;
+      var it = params.get('it');
+      var zb = params.get('zb');
+      if (it) document.getElementById('incomeTaxRate').value = it;
       if (z) document.getElementById('zakatRate').value = z;
+      if (zb) document.getElementById('zakatBasePerUnit').value = zb;
       if (v) document.getElementById('monthlyVolume').value = v;
       if (mf) document.getElementById('monthlyFixed').value = mf;
       if (p) document.getElementById('platformFee').value = p;
@@ -1436,7 +1451,7 @@
 
     // Auto-save inputs with debounce
     var debouncedCalc = debounce(calculateAll, 300);
-    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'taxRate', 'zakatRate', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
+    ['directCost', 'overheadCost', 'wasteAndIncidentalsPct', 'desiredMargin', 'targetPrice', 'vatRate', 'incomeTaxRate', 'zakatRate', 'zakatBasePerUnit', 'monthlyVolume', 'monthlyFixed', 'platformFee', 'paymentGatewayFee', 'packagingCost', 'deliveryCost', 'cac'].forEach(function(id) {
       document.getElementById(id).addEventListener('input', function() {
         if (currentPricingMode === 'price' && document.getElementById('targetPrice').value === '') return;
         var inputs = getInputs();
@@ -1523,7 +1538,7 @@
     function storeCurrentInputs() {
       try {
         var payload = {};
-        ['country','platformSelect','sectorPreset','directCost','overheadCost','wasteAndIncidentalsPct','monthlyFixed','desiredMargin','targetPrice','taxRate','zakatRate','monthlyVolume','platformFee','paymentGatewayFee','packagingCost','deliveryCost','cac'].forEach(function(id) {
+        ['country','platformSelect','sectorPreset','directCost','overheadCost','wasteAndIncidentalsPct','monthlyFixed','desiredMargin','targetPrice','vatRate','incomeTaxRate','zakatRate','zakatBasePerUnit','monthlyVolume','platformFee','paymentGatewayFee','packagingCost','deliveryCost','cac'].forEach(function(id) {
           var el = document.getElementById(id);
           payload[id] = el ? el.value : '';
         });
