@@ -27,6 +27,15 @@ describe('V3 critical control-plane boundaries', () => {
     expect(index).toContain("Authorization: 'Bearer ' + bearerToken");
   });
 
+  test('privileged V3 data-engine actions accept the same unified admin bearer session', () => {
+    const source = read('v3/api/data-engine.js');
+    expect(source).toContain('async function requireAdminAccess(req)');
+    expect(source).toContain('supabase.auth.getUser(bearer)');
+    expect(source).toContain('admin_roles');
+    expect(source).toContain('crypto.timingSafeEqual');
+    expect(source).toContain('await requireAdminAccess(req)');
+  });
+
   test('V3 admin dynamic service views escape database-backed text', () => {
     const services = read('v3/admin/services.html');
     const index = read('v3/admin/index.html');
@@ -54,7 +63,8 @@ describe('V3 critical control-plane boundaries', () => {
     const source = read('services/bonds_token_runtime/windows/install-token-service.ps1');
     expect(source).toContain('Refusing to stop PID');
     expect(source).toContain('bonds_security\\.server');
-    expect(source).toContain('automatic legacy rollback');
+    expect(source).toContain('runtime-rollback-snapshot');
+    expect(source).toContain('No previous runtime snapshot is available for safe rollback.');
     expect(source).toContain('Start-Process -FilePath $pythonExe');
   });
 });
