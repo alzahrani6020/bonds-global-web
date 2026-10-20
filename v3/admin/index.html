@@ -509,6 +509,11 @@
         : { 'Content-Type': 'application/json', 'x-admin-token': token };
     }
 
+    const esc = value => String(value ?? '').replace(/[&<>"']/g, ch => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+    const attr = value => encodeURIComponent(String(value ?? ''));
+
     const METRIC_LABELS_AR = {
       gdp_city: 'الناتج المحلي الإجمالي للمدينة',
       growth_rate: 'معدل النمو الاقتصادي',
@@ -615,7 +620,7 @@
 
     function populateSelect(id, items, valueKey, labelKey) {
       const select = document.getElementById(id);
-      select.innerHTML = items.map(i => `<option value="${i[valueKey]}">${i[labelKey]}</option>`).join('');
+      select.innerHTML = items.map(i => `<option value="${esc(i[valueKey])}">${esc(i[labelKey])}</option>`).join('');
     }
 
     async function loadModels() {
@@ -624,9 +629,9 @@
         const tbody = document.getElementById('modelsTable');
         tbody.innerHTML = data.models.map(m => `
           <tr>
-            <td>${m.code}</td>
-            <td>${m.name_ar}</td>
-            <td>${m.activity?.name_ar || ''}</td>
+            <td>${esc(m.code)}</td>
+            <td>${esc(m.name_ar)}</td>
+            <td>${esc(m.activity?.name_ar || '')}</td>
             <td>${m.is_published ? 'منشور' : 'مسودة'}</td>
           </tr>
         `).join('');
@@ -662,8 +667,8 @@
         const tbody = document.getElementById('citiesTable');
         tbody.innerHTML = data.cities.map(c => `
           <tr>
-            <td>${c.code}</td>
-            <td>${c.name_ar}</td>
+            <td>${esc(c.code)}</td>
+            <td>${esc(c.name_ar)}</td>
             <td>${c.population?.toLocaleString() || ''}</td>
           </tr>
         `).join('');
@@ -830,24 +835,24 @@
 
       if (type === 'sectors') {
         headers = ['الكود', 'الاسم', 'المخاطرة', 'الترتيب'];
-        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.risk_category}</td><td>${i.sort_order}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+        rows = items.map(i => `<tr><td>${esc(i.code)}</td><td>${esc(i.name_ar)}</td><td>${esc(i.risk_category)}</td><td>${esc(i.sort_order)}</td><td><button class="secondary" onclick="deleteMasterData(decodeURIComponent('${attr(i.code)}'))">حذف</button></td></tr>`).join('');
       } else if (type === 'sub-sectors') {
         headers = ['الكود', 'الاسم', 'القطاع'];
-        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.sector?.name_ar || ''}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+        rows = items.map(i => `<tr><td>${esc(i.code)}</td><td>${esc(i.name_ar)}</td><td>${esc(i.sector?.name_ar || '')}</td><td><button class="secondary" onclick="deleteMasterData(decodeURIComponent('${attr(i.code)}'))">حذف</button></td></tr>`).join('');
       } else if (type === 'activities') {
         headers = ['الكود', 'الاسم', 'النشاط الفرعي'];
-        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.sub_sector?.name_ar || ''}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+        rows = items.map(i => `<tr><td>${esc(i.code)}</td><td>${esc(i.name_ar)}</td><td>${esc(i.sub_sector?.name_ar || '')}</td><td><button class="secondary" onclick="deleteMasterData(decodeURIComponent('${attr(i.code)}'))">حذف</button></td></tr>`).join('');
       } else if (type === 'activity-details') {
         headers = ['الكود', 'الاسم', 'النشاط'];
-        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.activity?.name_ar || ''}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+        rows = items.map(i => `<tr><td>${esc(i.code)}</td><td>${esc(i.name_ar)}</td><td>${esc(i.activity?.name_ar || '')}</td><td><button class="secondary" onclick="deleteMasterData(decodeURIComponent('${attr(i.code)}'))">حذف</button></td></tr>`).join('');
       } else if (type === 'assumptions') {
         headers = ['الكود', 'الاسم', 'الفئة', 'الوحدة'];
-        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.category}</td><td>${i.unit_type}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+        rows = items.map(i => `<tr><td>${esc(i.code)}</td><td>${esc(i.name_ar)}</td><td>${esc(i.category)}</td><td>${esc(i.unit_type)}</td><td><button class="secondary" onclick="deleteMasterData(decodeURIComponent('${attr(i.code)}'))">حذف</button></td></tr>`).join('');
       } else if (type === 'risk-factors') {
         headers = ['الكود', 'الاسم', 'الفئة', 'الدرجة'];
-        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td>${i.category}</td><td>${i.default_score}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+        rows = items.map(i => `<tr><td>${esc(i.code)}</td><td>${esc(i.name_ar)}</td><td>${esc(i.category)}</td><td>${esc(i.default_score)}</td><td><button class="secondary" onclick="deleteMasterData(decodeURIComponent('${attr(i.code)}'))">حذف</button></td></tr>`).join('');
       } else {
-        rows = items.map(i => `<tr><td>${i.code}</td><td>${i.name_ar}</td><td><button class="secondary" onclick="deleteMasterData('${i.code}')">حذف</button></td></tr>`).join('');
+        rows = items.map(i => `<tr><td>${esc(i.code)}</td><td>${esc(i.name_ar)}</td><td><button class="secondary" onclick="deleteMasterData(decodeURIComponent('${attr(i.code)}'))">حذف</button></td></tr>`).join('');
       }
 
       const thead = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '<th></th></tr>';
@@ -905,11 +910,11 @@
         const tbody = document.getElementById('dataSourcesTable');
         tbody.innerHTML = (sourcesData.sources || []).map(s => `
           <tr>
-            <td>${s.engine === 'all' ? 'جميع المحركات' : s.engine}</td>
-            <td>${s.name}</td>
+            <td>${esc(s.engine === 'all' ? 'جميع المحركات' : s.engine)}</td>
+            <td>${esc(s.name)}</td>
             <td>جاهز</td>
             <td>-</td>
-            <td><button class="secondary" onclick="runEngineFetch('${s.id}')">تشغيل</button></td>
+            <td><button class="secondary" onclick="runEngineFetch(decodeURIComponent('${attr(s.id)}'))">تشغيل</button></td>
           </tr>
         `).join('');
 
@@ -917,8 +922,8 @@
         const runsTbody = document.getElementById('dataRunsTable');
         runsTbody.innerHTML = (runsData.metrics || []).slice(0, 20).map(m => `
           <tr>
-            <td>${m.source_id}</td>
-            <td>${m.metric_code}</td>
+            <td>${esc(m.source_id)}</td>
+            <td>${esc(m.metric_code)}</td>
             <td>${m.is_override ? 'يدوي' : 'تلقائي'}</td>
             <td>${m.value !== null ? m.value.toLocaleString() : m.value_text || '-'}</td>
             <td>${m.confidence}%</td>
@@ -969,7 +974,7 @@
         resultDiv.innerHTML = '<p class="message success">✓ تم التحديث التلقائي بنجاح</p>';
         loadDataSources();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + esc(err.message) + '</p>';
       }
     }
 
@@ -992,7 +997,7 @@
         });
         resultDiv.innerHTML = '<p class="message success">✓ تم تحليل السوق بنجاح</p>';
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + esc(err.message) + '</p>';
       }
     }
 
@@ -1015,7 +1020,7 @@
         resultDiv.innerHTML = '<p class="message success">✓ تم جلب مؤشرات المدينة بنجاح</p>';
         loadCities();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + esc(err.message) + '</p>';
       }
     }
 
@@ -1045,7 +1050,7 @@
         form.reset();
         loadFeedbackAccuracy();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + esc(err.message) + '</p>';
       }
     }
 
@@ -1055,7 +1060,7 @@
         const tbody = document.getElementById('feedbackAccuracyTable');
         tbody.innerHTML = (data.summary || []).map(s => `
           <tr>
-            <td>${s.metric_code}</td>
+            <td>${esc(s.metric_code)}</td>
             <td>${s.feedback_count}</td>
             <td>${s.mean_percentage_error ? s.mean_percentage_error.toFixed(1) + '%' : '-'}</td>
             <td>${s.actual_avg ? s.actual_avg.toLocaleString('ar-SA') : '-'}</td>
@@ -1083,7 +1088,7 @@
         resultDiv.innerHTML = '<p class="message success">✓ تم تدريب ' + (data.trained?.length || 0) + ' نموذجاً</p>';
         loadMLModels();
       } catch (err) {
-        resultDiv.innerHTML = '<p class="message error">✕ ' + err.message + '</p>';
+        resultDiv.innerHTML = '<p class="message error">✕ ' + esc(err.message) + '</p>';
       }
     }
 
@@ -1095,9 +1100,9 @@
         const tbody = document.getElementById('mlModelsTable');
         tbody.innerHTML = (data.models || []).map(m => `
           <tr>
-            <td>${m.metricCode}</td>
-            <td>${(m.featureKeys || []).join(', ')}</td>
-            <td>${m.countryCode || 'كل الدول'}</td>
+            <td>${esc(m.metricCode)}</td>
+            <td>${esc((m.featureKeys || []).join(', '))}</td>
+            <td>${esc(m.countryCode || 'كل الدول')}</td>
             <td>${m.rSquared.toFixed(3)}</td>
             <td>${m.rmse != null ? m.rmse.toLocaleString('ar-SA', { maximumFractionDigits: 0 }) : '-'}</td>
             <td>${m.mape != null ? m.mape.toFixed(1) + '%' : '-'}</td>
@@ -1119,13 +1124,13 @@
         const data = await fetchJson(`${API_URL}/admin/competitor-calibration?activity_code=${activityCode}&year=${year}`, { headers: getHeaders() });
         const tbody = document.getElementById('calibrationTable');
         tbody.innerHTML = (data.calibrations || []).map(c => `
-          <tr data-city-id="${c.city_id}" data-activity-id="${c.activity_id}" data-year="${c.year}">
-            <td>${c.city?.name_ar || c.city?.code || ''}</td>
+          <tr data-city-id="${esc(c.city_id)}" data-activity-id="${esc(c.activity_id)}" data-year="${esc(c.year)}">
+            <td>${esc(c.city?.name_ar || c.city?.code || '')}</td>
             <td>${c.raw_value != null ? c.raw_value.toLocaleString('ar-SA') : '-'}</td>
-            <td><input type="number" class="calib-value" value="${c.calibrated_value}" style="width: 100px;"></td>
+            <td><input type="number" class="calib-value" value="${esc(c.calibrated_value)}" style="width: 100px;"></td>
             <td>${c.factor != null ? c.factor.toFixed(2) : '-'}</td>
-            <td><input type="text" class="calib-source" value="${c.source || ''}" style="width: 120px;"></td>
-            <td><input type="text" class="calib-notes" value="${c.notes || ''}" style="width: 200px;"></td>
+            <td><input type="text" class="calib-source" value="${esc(c.source || '')}" style="width: 120px;"></td>
+            <td><input type="text" class="calib-notes" value="${esc(c.notes || '')}" style="width: 200px;"></td>
             <td><button onclick="saveCalibrationRow(this)">حفظ</button></td>
           </tr>
         `).join('') || '<tr><td colspan="7">لا توجد بيانات معايرة</td></tr>';
@@ -1172,7 +1177,7 @@
         resultDiv.innerHTML = `<p class="message success">✓ تمت المعايرة: ${data.result.upserted.length} مدن</p>`;
         loadCalibration();
       } catch (err) {
-        resultDiv.innerHTML = `<p class="message error">✕ ${err.message}</p>`;
+        resultDiv.innerHTML = `<p class="message error">✕ ${esc(err.message)}</p>`;
       }
     }
 
@@ -1190,10 +1195,10 @@
         }
         container.innerHTML = alerts.map(a => `
           <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : 'var(--gold)'};">
-            <strong>${a.severity === 'critical' ? '!!' : '!'} ${a.sourceId} — ${a.metricCode}</strong>
-            <p>${a.message}</p>
+            <strong>${a.severity === 'critical' ? '!!' : '!'} ${esc(a.sourceId)} — ${esc(a.metricCode)}</strong>
+            <p>${esc(a.message)}</p>
             <p>النجاح: ${a.successes}/${a.attempts} (${a.successRate}%)</p>
-            ${a.failures.length ? '<details><summary>تفاصيل الفشل</summary><ul>' + a.failures.map(f => `<li>${f.cityName || f.cityCode} (${f.activityName || f.activityCode}): ${f.failureReason || 'فشل'}</li>`).join('') + '</ul></details>' : ''}
+            ${a.failures.length ? '<details><summary>تفاصيل الفشل</summary><ul>' + a.failures.map(f => `<li>${esc(f.cityName || f.cityCode)} (${esc(f.activityName || f.activityCode)}): ${esc(f.failureReason || 'فشل')}</li>`).join('') + '</ul></details>' : ''}
           </div>
         `).join('');
       } catch (err) {
@@ -1216,15 +1221,15 @@
         const severityLabels = { info: 'معلومة', warning: 'تحذير', critical: 'حرج' };
         tbody.innerHTML = rules.map(r => `
           <tr>
-            <td>${r.name}</td>
-            <td>${metricLabel(r.metric_code)}</td>
-            <td>${r.city?.name_ar || '-'} ${r.activity?.name_ar ? ' / ' + r.activity.name_ar : ''}</td>
+            <td>${esc(r.name)}</td>
+            <td>${esc(metricLabel(r.metric_code))}</td>
+            <td>${esc(r.city?.name_ar || '-')} ${esc(r.activity?.name_ar ? ' / ' + r.activity.name_ar : '')}</td>
             <td>${r.threshold_type === 'relative' ? r.threshold_value * 100 + '%' : r.threshold_value}</td>
-            <td>${severityLabels[r.severity] || r.severity}</td>
+            <td>${esc(severityLabels[r.severity] || r.severity)}</td>
             <td>${r.is_active ? 'مفعل' : 'معطل'}</td>
             <td>
-              <button class="secondary" onclick="toggleAlertRule('${r.id}', ${!r.is_active})">${r.is_active ? 'تعطيل' : 'تفعيل'}</button>
-              <button class="secondary" style="border-color: var(--danger); color: var(--danger);" onclick="deleteAlertRule('${r.id}')">حذف</button>
+              <button class="secondary" onclick="toggleAlertRule(decodeURIComponent('${attr(r.id)}'), ${!r.is_active})">${r.is_active ? 'تعطيل' : 'تفعيل'}</button>
+              <button class="secondary" style="border-color: var(--danger); color: var(--danger);" onclick="deleteAlertRule(decodeURIComponent('${attr(r.id)}'))">حذف</button>
             </td>
           </tr>
         `).join('');
@@ -1293,7 +1298,7 @@
         resultDiv.innerHTML = `<p class="message success">✓ تم تقييم القواعد: ${data.evaluated} إنذار جديد</p>`;
         loadAlertsHistory();
       } catch (err) {
-        resultDiv.innerHTML = `<p class="message error">✕ ${err.message}</p>`;
+        resultDiv.innerHTML = `<p class="message error">✕ ${esc(err.message)}</p>`;
       }
     }
 
@@ -1309,11 +1314,11 @@
         }
         container.innerHTML = alerts.map(a => `
           <div class="card" style="border-right: 4px solid ${a.severity === 'critical' ? 'var(--danger)' : a.severity === 'warning' ? 'var(--gold)' : 'var(--success)'};">
-            <strong>${a.severity === 'critical' ? '!!' : a.severity === 'warning' ? '!' : 'i'} ${metricLabel(a.metric_code)}</strong>
-            <p>${a.message}</p>
-            ${a.insight ? `<p style="font-size: 0.85rem; color: var(--gold-bright); margin: 0.5rem 0;">✦ ${a.insight}</p>` : ''}
-            <p style="font-size: 0.8rem; color: var(--text-secondary);">تم الاكتشاف: ${new Date(a.created_at).toLocaleString('ar-SA')} — ${a.city?.name_ar || ''} ${a.activity?.name_ar ? ' / ' + a.activity.name_ar : ''}</p>
-            ${!a.is_read ? `<button class="secondary" onclick="markAlertRead('${a.id}')">تعليم كمقروء</button>` : ''}
+            <strong>${a.severity === 'critical' ? '!!' : a.severity === 'warning' ? '!' : 'i'} ${esc(metricLabel(a.metric_code))}</strong>
+            <p>${esc(a.message)}</p>
+            ${a.insight ? `<p style="font-size: 0.85rem; color: var(--gold-bright); margin: 0.5rem 0;">✦ ${esc(a.insight)}</p>` : ''}
+            <p style="font-size: 0.8rem; color: var(--text-secondary);">تم الاكتشاف: ${new Date(a.created_at).toLocaleString('ar-SA')} — ${esc(a.city?.name_ar || '')} ${esc(a.activity?.name_ar ? ' / ' + a.activity.name_ar : '')}</p>
+            ${!a.is_read ? `<button class="secondary" onclick="markAlertRead(decodeURIComponent('${attr(a.id)}'))">تعليم كمقروء</button>` : ''}
           </div>
         `).join('');
       } catch (err) {
