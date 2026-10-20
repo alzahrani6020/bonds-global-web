@@ -1,9 +1,9 @@
 # ADM1 remaining manual review — 2026-10-20
 
-After separating 232 strict matches and 34 high-confidence alias-review candidates, 63 GeoNames ADM1 rows remain unresolved.
+After separating 232 strict matches and 48 high-confidence alias-review candidates, 49 GeoNames ADM1 rows remain unresolved.
 
 ## Remaining by triage
-- SOURCE_ONLY_OR_DB_MISSING: 48
+- SOURCE_ONLY_OR_DB_MISSING: 34
 - INTERNAL_DUPLICATE: 6
 - MANUAL_REVIEW: 5
 - LEGACY_STRUCTURE_MISMATCH: 2
@@ -14,13 +14,13 @@ After separating 232 strict matches and 34 high-confidence alias-review candidat
 - DZ: 16
 - IQ: 2
 - KW: 1
-- LY: 16
+- LY: 11
 - MR: 1
 - OM: 3
 - PS: 2
 - QA: 1
-- SO: 10
+- SO: 8
 - TN: 2
-- YE: 8
+- YE: 1
 
 These rows must not be promoted automatically. They require evidence for missing internal ADM1 rows, legacy-structure differences, duplicate cleanup, or granularity reconciliation.
