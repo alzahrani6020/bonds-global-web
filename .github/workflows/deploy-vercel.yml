@@ -127,6 +127,26 @@ jobs:
               console.log(`Staged health PASS (commit=${body.version})`);
             '
 
+          readiness_json="$(npx --no-install vercel curl "$deployment_url/api/readiness" -H 'Cache-Control: no-cache')"
+          READINESS_JSON="$readiness_json" EXPECTED_VERSION="${{ steps.release.outputs.short_sha }}" node --input-type=module -e '
+            import { createRequire } from "node:module";
+            const require = createRequire(import.meta.url);
+            const contract = require("./services/bonds_token_runtime/contract.json");
+            const body = JSON.parse(process.env.READINESS_JSON);
+            const runtime = body.token_runtime;
+            if (body.version !== process.env.EXPECTED_VERSION || body.environment !== "production" ||
+                body.status !== "ready" || body.checks?.supabase !== "ok" ||
+                body.checks?.user_governance !== "ok" || body.user_governance?.status !== "ok" ||
+                body.checks?.token_runtime !== "ok" || runtime?.required !== true ||
+                runtime.status !== "ok" || runtime.channel_auth !== "verified" ||
+                runtime.contract_version !== contract.contractVersion ||
+                runtime.schema_version !== contract.schemaVersion ||
+                !/^[0-9a-f]{40}$/.test(runtime.build_commit || "")) {
+              throw new Error("Staged integrated readiness is unproved; production promotion is blocked.");
+            }
+            console.log(`Staged channel and runtime contract PASS (runtime=${runtime.build_commit}); capability token acceptance remains a separate production check.`);
+          '
+
           layout_js="$(npx --no-install vercel curl "$deployment_url/site-layout.js?tools-smoke=${{ steps.release.outputs.sha }}" -H 'Cache-Control: no-cache')"
           printf '%s' "$layout_js" | grep -F "navId: 'tools'" >/dev/null || {
             echo "Staged site-layout.js is missing the stable tools navigation selector"

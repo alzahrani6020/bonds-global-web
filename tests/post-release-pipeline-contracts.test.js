@@ -78,27 +78,18 @@ describe('post-release pipeline contracts', () => {
   test('dedicated service token is passed to governed execution without reusing user bearer', () => {
     const router = fs.readFileSync(path.resolve(__dirname, '../v3/api/capabilities.js'), 'utf8');
     expect(router).toContain("req.headers['x-bonds-service-token']");
-    expect(router).toContain('serviceToken: serviceToken || options.auth?.serviceToken || null');
+    expect(router).not.toContain('serviceToken: body.');
     expect(router).not.toContain('serviceToken: req.headers.authorization');
   });
 
-  test('token runtime readiness is opt-in, HTTPS only and fails closed when configured', () => {
+  test('strict readiness requires the existing runtime contract and channel verification', () => {
     const health = fs.readFileSync(path.resolve(__dirname, '../api/health.js'), 'utf8');
     expect(health).toContain('BONDS_TOKEN_RUNTIME_HEALTH_URL');
-    expect(health).toContain("target.protocol !== 'https:'");
-    expect(health).toContain("redirect: 'error'");
-    expect(health).toContain('BONDS_TOKEN_CHANNEL_SECRET');
-    expect(health).toContain("'X-Bonds-Channel': channelSecret");
-    expect(health).toContain("status: 'invalid_channel_configuration'");
-    expect(health).toContain('BONDS_CF_ACCESS_CLIENT_ID');
-    expect(health).toContain('BONDS_CF_ACCESS_CLIENT_SECRET');
-    expect(health).toContain("'CF-Access-Client-Id': cfAccessClientId");
-    expect(health).toContain("'CF-Access-Client-Secret': cfAccessClientSecret");
-    expect(health).toContain("status: 'invalid_access_configuration'");
+    expect(health).toContain('resolveRuntimeIdentityExpectation');
+    expect(health).toContain("require('../services/bonds_token_runtime/contract.json')");
     expect(health).toContain("token_runtime: tokenRuntime.status");
-    expect(health).toContain("token_runtime_channel_configured: tokenRuntime.channel_configured ?? null");
-    expect(health).toContain("token_runtime_access_configured: tokenRuntime.access_configured ?? null");
-    expect(health).toContain("(!tokenRuntime.required || tokenRuntime.status === 'ok')");
+    expect(health).toContain("coreHealthy && inferenceReady && tokenRuntime.status === 'ok'");
+    expect(health).not.toContain('!tokenRuntime.required');
   });
 
   test('capability service token header is permitted by V3 CORS preflight', () => {

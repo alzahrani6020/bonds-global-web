@@ -1,0 +1,10 @@
+{
+  "source_repository": "https://github.com/alzahrani6020/bonds-global-web",
+  "source_commit": "f9bb67a286b3de2990cc5e1f4a12a5a286f5bb24",
+  "source_path": "services/bonds_token_runtime/bonds_security/server.py",
+  "source_sha256": "b602c0835b12fa5df2ad36d82976ebf169bf43ba2fda9f2e71cd0e0b498fde0a",
+  "engine_path": "services/bonds_token_runtime/bonds_security/token_engine.py",
+  "engine_sha256": "49c0cb3f76b37e051e4dd3d54087b59b68fa9911e0d15c950a405e56f5b28369",
+  "fixture_file": "previous-token-runtime-server.py.txt",
+  "purpose": "Exact prior committed server used only inside a temporary loopback package for fail-closed code rollback acceptance. The prior server is not a deployable rollback target."
+}

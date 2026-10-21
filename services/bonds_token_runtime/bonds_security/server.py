@@ -1,6 +1,7 @@
 import hmac
 import json
 import os
+import re
 import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -16,16 +17,46 @@ from bonds_security.token_engine import (
 )
 
 HOST = "127.0.0.1"
-PORT = int(os.environ.get("BONDS_TOKEN_PORT", "8771"))
-DB = os.environ["BONDS_TOKEN_DB"]
-SECRET_FILE = os.environ["BONDS_TOKEN_ADMIN_SECRET_FILE"]
-BUILD_COMMIT = os.environ.get("BONDS_TOKEN_BUILD_COMMIT", "unknown")
+TOKEN_CONTRACT_VERSION = 1
 
-engine = BondsTokenEngine(DB)
-admin_secret = Path(SECRET_FILE).read_text(encoding="utf-8").strip()
 
-if not admin_secret:
-    raise RuntimeError("empty admin secret")
+def load_configuration():
+    """Validate the existing runtime's configuration before opening its store."""
+    required = (
+        "BONDS_TOKEN_DB",
+        "BONDS_TOKEN_ADMIN_SECRET_FILE",
+        "BONDS_TOKEN_CHANNEL_SECRET_FILE",
+        "BONDS_TOKEN_BUILD_COMMIT",
+    )
+    missing = [name for name in required if not os.environ.get(name, "").strip()]
+    if missing:
+        raise RuntimeError(f"Missing token runtime configuration: {', '.join(missing)}")
+
+    admin_secret = Path(os.environ["BONDS_TOKEN_ADMIN_SECRET_FILE"]).read_text(encoding="utf-8").strip()
+    channel_secret = Path(os.environ["BONDS_TOKEN_CHANNEL_SECRET_FILE"]).read_text(encoding="utf-8").strip()
+    if not admin_secret:
+        raise RuntimeError("empty admin secret")
+    if not 32 <= len(channel_secret) <= 4096 or not all(33 <= ord(char) <= 126 for char in channel_secret):
+        raise RuntimeError("channel secret must contain 32 to 4096 printable ASCII characters without whitespace")
+    if channel_secret.startswith("bonds_") or re.fullmatch(r"[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", channel_secret):
+        raise RuntimeError("channel secret must not be a service token or user-session JWT")
+    if hmac.compare_digest(channel_secret.encode("utf-8"), admin_secret.encode("utf-8")):
+        raise RuntimeError("channel secret must differ from admin secret")
+
+    build_commit = os.environ["BONDS_TOKEN_BUILD_COMMIT"]
+    if not re.fullmatch(r"[0-9a-fA-F]{40}", build_commit):
+        raise RuntimeError("BONDS_TOKEN_BUILD_COMMIT must be an exact 40-character Git SHA")
+    port = int(os.environ.get("BONDS_TOKEN_PORT", "8771"))
+    if not 1 <= port <= 65535:
+        raise RuntimeError("invalid BONDS_TOKEN_PORT")
+
+    return {
+        "database": os.environ["BONDS_TOKEN_DB"],
+        "admin_secret": admin_secret,
+        "channel_secret": channel_secret,
+        "build_commit": build_commit.lower(),
+        "port": port,
+    }
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -43,9 +74,11 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(raw)
 
-    def authorized(self):
-        supplied = self.headers.get("X-Bonds-Admin", "")
-        return hmac.compare_digest(supplied, admin_secret)
+    def authorized(self, header, secret):
+        supplied = self.headers.get_all(header, [])
+        return len(supplied) == 1 and hmac.compare_digest(
+            supplied[0].encode("utf-8"), secret.encode("utf-8")
+        )
 
     def read_json(self):
         length = int(self.headers.get("Content-Length", "0"))
@@ -53,22 +86,35 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError("invalid body size")
         return json.loads(self.rfile.read(length).decode("utf-8"))
 
+    def runtime_identity(self):
+        return {
+            "service": TOKEN_ISSUER,
+            "issuer": TOKEN_ISSUER,
+            "status": "ok",
+            "version": "1.0",
+            "build_commit": self.server.config["build_commit"],
+            "contract_version": TOKEN_CONTRACT_VERSION,
+            "schema_version": TOKEN_SCHEMA_VERSION,
+            "service_token_ttl_seconds": SERVICE_TOKEN_TTL_SECONDS,
+            "channel_auth": "required",
+        }
+
     def do_GET(self):
         if self.path == "/health":
-            self.send_json(200, {
-                "service": TOKEN_ISSUER,
-                "status": "ok",
-                "version": "1.0",
-                "build_commit": BUILD_COMMIT,
-                "schema_version": TOKEN_SCHEMA_VERSION,
-                "service_token_ttl_seconds": SERVICE_TOKEN_TTL_SECONDS,
-            })
+            if not self.authorized("X-Bonds-Channel", self.server.config["channel_secret"]):
+                self.send_json(401, {"error": "unauthorized"})
+                return
+            self.send_json(200, self.runtime_identity())
             return
 
         self.send_json(404, {"error": "not_found"})
 
     def do_POST(self):
-        if self.path != "/introspect" and not self.authorized():
+        if self.path == "/introspect":
+            authorized = self.authorized("X-Bonds-Channel", self.server.config["channel_secret"])
+        else:
+            authorized = self.authorized("X-Bonds-Admin", self.server.config["admin_secret"])
+        if not authorized:
             self.send_json(401, {"error": "unauthorized"})
             return
 
@@ -76,7 +122,7 @@ class Handler(BaseHTTPRequestHandler):
             data = self.read_json()
 
             if self.path == "/issue":
-                token = engine.issue(
+                token = self.server.engine.issue(
                     token_type=data["token_type"],
                     subject=data["subject"],
                     audience=data.get("audience", "bonds"),
@@ -91,12 +137,13 @@ class Handler(BaseHTTPRequestHandler):
 
             if self.path == "/introspect":
                 self.send_json(200, {
-                    "claims": engine.introspect(data["token"]),
+                    "runtime": self.runtime_identity(),
+                    "claims": self.server.engine.introspect(data["token"]),
                 })
                 return
 
             if self.path == "/verify":
-                result = engine.verify(
+                result = self.server.engine.verify(
                     token=data["token"],
                     audience=data.get("audience", "bonds"),
                     required_scope=data.get("required_scope"),
@@ -109,7 +156,7 @@ class Handler(BaseHTTPRequestHandler):
 
             if self.path == "/revoke":
                 self.send_json(200, {
-                    "revoked": bool(engine.revoke(data["token"])),
+                    "revoked": bool(self.server.engine.revoke(data["token"])),
                 })
                 return
 
@@ -123,10 +170,19 @@ class Handler(BaseHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server = ThreadingHTTPServer((HOST, PORT), Handler)
+    config = load_configuration()
+    if sys.argv[1:] == ["--check-config"]:
+        print("BONDS_TOKEN_CONFIG_VALID", flush=True)
+        sys.exit(0)
+    if sys.argv[1:]:
+        raise RuntimeError("Unsupported token runtime arguments")
+    server = ThreadingHTTPServer((HOST, config["port"]), Handler)
+    server.config = config
+    server.engine = BondsTokenEngine(config["database"])
     print(
-        f"BONDS_TOKEN_SERVICE_READY http://{HOST}:{PORT} "
-        f"build={BUILD_COMMIT} schema={TOKEN_SCHEMA_VERSION}",
+        f"BONDS_TOKEN_SERVICE_READY http://{HOST}:{config['port']} "
+        f"build={config['build_commit']} schema={TOKEN_SCHEMA_VERSION} "
+        f"contract={TOKEN_CONTRACT_VERSION}",
         flush=True,
     )
     server.serve_forever()

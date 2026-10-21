@@ -75,6 +75,7 @@ class BondsTokenRuntimeService(win32serviceutil.ServiceFramework):
         required = (
             "BONDS_TOKEN_DB",
             "BONDS_TOKEN_ADMIN_SECRET_FILE",
+            "BONDS_TOKEN_CHANNEL_SECRET_FILE",
             "BONDS_TOKEN_BUILD_COMMIT",
             "BONDS_TOKEN_RUNTIME_ROOT",
         )
@@ -87,9 +88,21 @@ class BondsTokenRuntimeService(win32serviceutil.ServiceFramework):
         if not python_exe.is_file():
             raise RuntimeError(f"Invalid BONDS_TOKEN_PYTHON_EXE: {python_exe}")
 
-        secret_file = Path(_value("BONDS_TOKEN_ADMIN_SECRET_FILE"))
-        if not secret_file.is_file():
-            raise RuntimeError(f"Admin secret file missing: {secret_file}")
+        for name in ("BONDS_TOKEN_ADMIN_SECRET_FILE", "BONDS_TOKEN_CHANNEL_SECRET_FILE"):
+            if not Path(_value(name)).is_file():
+                raise RuntimeError(f"Missing token runtime secret file: {name}")
+
+        # The same validator used by direct startup runs before DB/log creation.
+        checked = subprocess.run(
+            [str(python_exe), "-m", "bonds_security.server", "--check-config"],
+            cwd=str(runtime_root),
+            env=os.environ.copy(),
+            capture_output=True,
+            timeout=15,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
+        )
+        if checked.returncode != 0:
+            raise RuntimeError("Invalid token runtime configuration; startup refused")
 
         db_path = Path(_value("BONDS_TOKEN_DB"))
         db_path.parent.mkdir(parents=True, exist_ok=True)
@@ -123,4 +136,4 @@ class BondsTokenRuntimeService(win32serviceutil.ServiceFramework):
 
 
 if __name__ == "__main__":
-    win32serviceutil.HandleCommandLine(BondsTokenRuntimeService)
+    sys.exit(win32serviceutil.HandleCommandLine(BondsTokenRuntimeService))

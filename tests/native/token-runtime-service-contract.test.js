@@ -13,13 +13,13 @@ describe('Bonds token runtime Windows service', () => {
   test('uses SCM Automatic startup and recovery', () => {
     expect(installer).toContain('BondsTokenRuntimeService');
     expect(installer).toContain('--startup auto');
-    expect(installer).toContain('sc.exe failure BondsTokenRuntimeService');
+    expect(installer).toContain('sc.exe failure $serviceName');
     expect(service).toContain('win32serviceutil.ServiceFramework');
     expect(service).toContain('CREATE_NO_WINDOW');
   });
 
   test('preserves the existing admin secret', () => {
-    expect(installer).toContain('Refusing to generate or rotate the admin secret');
+    expect(installer).toContain('No credentials will be generated or rotated.');
     expect(installer).not.toContain('RandomNumberGenerator');
   });
 

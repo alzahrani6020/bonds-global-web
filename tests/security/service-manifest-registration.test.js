@@ -212,7 +212,7 @@ describe(
 
 
     test(
-      'permissions can be enforced by gateway',
+      'permissions are enforced by gateway',
       async () => {
         const service =
           SERVICES['web-research'];
@@ -225,9 +225,11 @@ describe(
             service,
             capability,
             context: {
+              actor: { id: 'permission-test' },
+              userId: 'permission-test',
               governance: {
-                enforcePermissions: true,
-                permissions: []
+                permissions: [],
+                entitlements: ['research.web']
               }
             },
             rateLimiter:
@@ -244,7 +246,7 @@ describe(
 
 
     test(
-      'entitlements can be enforced by gateway',
+      'entitlements are enforced by gateway',
       async () => {
         const service =
           SERVICES['web-research'];
@@ -257,8 +259,10 @@ describe(
             service,
             capability,
             context: {
+              actor: { id: 'entitlement-test' },
+              userId: 'entitlement-test',
               governance: {
-                enforceEntitlements: true,
+                permissions: ['research.web.read'],
                 entitlements: []
               }
             },
@@ -327,6 +331,11 @@ describe(
         const context = {
           actor: {
             id: 'rate-test'
+          },
+          userId: 'rate-test',
+          governance: {
+            permissions: ['research.web.read'],
+            entitlements: ['research.web']
           }
         };
 
