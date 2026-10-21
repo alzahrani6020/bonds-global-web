@@ -83,11 +83,24 @@ async function probeTokenRuntime() {
   } catch (_) {
     return { status: 'invalid_configuration', required: true };
   }
+  const cfAccessClientId = String(process.env.BONDS_CF_ACCESS_CLIENT_ID || '').trim();
+  const cfAccessClientSecret = String(process.env.BONDS_CF_ACCESS_CLIENT_SECRET || '').trim();
+  if (Boolean(cfAccessClientId) !== Boolean(cfAccessClientSecret)) {
+    return { status: 'invalid_access_configuration', required: true };
+  }
+  const accessHeaders = cfAccessClientId ? {
+    'CF-Access-Client-Id': cfAccessClientId,
+    'CF-Access-Client-Secret': cfAccessClientSecret,
+  } : {};
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2000);
   try {
     const response = await fetch(target.toString(), {
-      method: 'GET', signal: controller.signal, redirect: 'error'
+      method: 'GET',
+      signal: controller.signal,
+      redirect: 'error',
+      headers: accessHeaders,
     });
     if (!response.ok) {
       return {
