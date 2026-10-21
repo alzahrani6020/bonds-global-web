@@ -1056,7 +1056,7 @@
             </svg>
           </div>
           <h2>Hidden Costs Analysis</h2>
-          <p>تحليل التكاليف الخفية</p>
+          <p>Identify and quantify hidden operating costs</p>
         </div>
 
         <div class="hca-inputs-grid">
@@ -1360,16 +1360,16 @@
       currentMode = mode;
       const direction = mode === 'expert' ? 'toExpert' : 'toBasic';
 
-      const fields = [{"name":"dailyOrders","label":"عدد الطلبات اليومية","type":"number","default":120},{"name":"avgTicketValue","label":"متوسط قيمة الطلب (ر.س)","type":"number","default":55},{"name":"setupCost","label":"تكلفة التجهيز والتأسيس (ر.س)","type":"number","default":250000},{"name":"platformCommissionRate","label":"نسبة عمولة المنصات (%)","type":"number","default":25},{"name":"foodCostRate","label":"نسبة تكلفة الطعام (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"الإيجار + الرواتب الشهرية (ر.س)","type":"number","default":32000},{"name":"platformSetupFee","label":"رسوم تأسيس المنصة والجهاز (ر.س)","type":"number","default":1000},{"name":"vatOnCommissionRate","label":"ضريبة القيمة المضافة على العمولة (%)","type":"number","default":15},{"name":"paymentGatewayPct","label":"رسوم بوابة الدفع الإلكتروني (%)","type":"number","default":1.75},{"name":"paymentGatewayFixed","label":"رسوم بوابة الدفع الثابتة/طلب (ر.س)","type":"number","default":0},{"name":"marketingFeeRate","label":"نسبة التسويق والإعلان داخل التطبيق (%)","type":"number","default":0},{"name":"promoDiscountRate","label":"نسبة تحمل خصومات العروض (%)","type":"number","default":0},
-{"name":"freeDeliveryThreshold","label":"سعر حد التوصيل المجاني (ر.س)","type":"number","default":0},
-{"name":"deliveryFeePerOrder","label":"رسوم التوصيل التي يتحملها المطعم/طلب (ر.س)","type":"number","default":15},
-{"name":"packagingCostPerOrder","label":"تكلفة التغليف/طلب (ر.س)","type":"number","default":3},
-{"name":"refundDisputeRate","label":"نسبة الطلبات المتنازع عليها/المستردة (%)","type":"number","default":2},
-{"name":"refundLossPerOrder","label":"خسارة المطعم/طلب مسترد (ر.س)","type":"number","default":20},
-{"name":"cancelledOrderRate","label":"نسبة الطلبات الملغاة بعد التحضير (%)","type":"number","default":1},
-{"name":"cancelledOrderLossPerOrder","label":"خسارة الطلب الملغى (ر.س)","type":"number","default":15},
-{"name":"settlementDelayDays","label":"أيام تأخير تحويل أموال التطبيق","type":"number","default":14},
-{"name":"targetProfitMargin","label":"هامش الربح المستهدف (%)","type":"number","default":15}];
+      const fields = [{"name":"dailyOrders","label":"Daily orders","type":"number","default":120},{"name":"avgTicketValue","label":"Average order value (SAR)","type":"number","default":55},{"name":"setupCost","label":"Setup and establishment cost (SAR)","type":"number","default":250000},{"name":"platformCommissionRate","label":"Platform commission rate (%)","type":"number","default":25},{"name":"foodCostRate","label":"Food cost rate (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"Monthly rent + salaries (SAR)","type":"number","default":32000},{"name":"platformSetupFee","label":"Platform and device setup fee (SAR)","type":"number","default":1000},{"name":"vatOnCommissionRate","label":"VAT on commission (%)","type":"number","default":15},{"name":"paymentGatewayPct","label":"Payment gateway fee (%)","type":"number","default":1.75},{"name":"paymentGatewayFixed","label":"Fixed payment gateway fee per order (SAR)","type":"number","default":0},{"name":"marketingFeeRate","label":"In-app marketing and advertising rate (%)","type":"number","default":0},{"name":"promoDiscountRate","label":"Promotional discount share (%)","type":"number","default":0},
+{"name":"freeDeliveryThreshold","label":"Free-delivery threshold (SAR)","type":"number","default":0},
+{"name":"deliveryFeePerOrder","label":"Restaurant delivery fee per order (SAR)","type":"number","default":15},
+{"name":"packagingCostPerOrder","label":"Packaging cost per order (SAR)","type":"number","default":3},
+{"name":"refundDisputeRate","label":"Disputed/refunded orders rate (%)","type":"number","default":2},
+{"name":"refundLossPerOrder","label":"Loss per refunded order (SAR)","type":"number","default":20},
+{"name":"cancelledOrderRate","label":"Post-preparation cancellation rate (%)","type":"number","default":1},
+{"name":"cancelledOrderLossPerOrder","label":"Loss per cancelled order (SAR)","type":"number","default":15},
+{"name":"settlementDelayDays","label":"Platform settlement delay (days)","type":"number","default":14},
+{"name":"targetProfitMargin","label":"Target profit margin (%)","type":"number","default":15}];
       fields.forEach(f => syncField(f.name, 'expert_basic_' + f.name, direction));
       syncField('analysisDuration', 'expert_basic_analysisDuration', direction);
       syncField('discountRate', 'expert_basic_discountRate', direction);
@@ -1422,16 +1422,16 @@
 
     function mapInputs() {
       const inputs = {};
-      const fields = [{"name":"dailyOrders","label":"عدد الطلبات اليومية","type":"number","default":120},{"name":"avgTicketValue","label":"متوسط قيمة الطلب (ر.س)","type":"number","default":55},{"name":"setupCost","label":"تكلفة التجهيز والتأسيس (ر.س)","type":"number","default":250000},{"name":"platformCommissionRate","label":"نسبة عمولة المنصات (%)","type":"number","default":25},{"name":"foodCostRate","label":"نسبة تكلفة الطعام (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"الإيجار + الرواتب الشهرية (ر.س)","type":"number","default":32000},{"name":"platformSetupFee","label":"رسوم تأسيس المنصة والجهاز (ر.س)","type":"number","default":1000},{"name":"vatOnCommissionRate","label":"ضريبة القيمة المضافة على العمولة (%)","type":"number","default":15},{"name":"paymentGatewayPct","label":"رسوم بوابة الدفع الإلكتروني (%)","type":"number","default":1.75},{"name":"paymentGatewayFixed","label":"رسوم بوابة الدفع الثابتة/طلب (ر.س)","type":"number","default":0},{"name":"marketingFeeRate","label":"نسبة التسويق والإعلان داخل التطبيق (%)","type":"number","default":0},{"name":"promoDiscountRate","label":"نسبة تحمل خصومات العروض (%)","type":"number","default":0},
-{"name":"freeDeliveryThreshold","label":"سعر حد التوصيل المجاني (ر.س)","type":"number","default":0},
-{"name":"deliveryFeePerOrder","label":"رسوم التوصيل التي يتحملها المطعم/طلب (ر.س)","type":"number","default":15},
-{"name":"packagingCostPerOrder","label":"تكلفة التغليف/طلب (ر.س)","type":"number","default":3},
-{"name":"refundDisputeRate","label":"نسبة الطلبات المتنازع عليها/المستردة (%)","type":"number","default":2},
-{"name":"refundLossPerOrder","label":"خسارة المطعم/طلب مسترد (ر.س)","type":"number","default":20},
-{"name":"cancelledOrderRate","label":"نسبة الطلبات الملغاة بعد التحضير (%)","type":"number","default":1},
-{"name":"cancelledOrderLossPerOrder","label":"خسارة الطلب الملغى (ر.س)","type":"number","default":15},
-{"name":"settlementDelayDays","label":"أيام تأخير تحويل أموال التطبيق","type":"number","default":14},
-{"name":"targetProfitMargin","label":"هامش الربح المستهدف (%)","type":"number","default":15}];
+      const fields = [{"name":"dailyOrders","label":"Daily orders","type":"number","default":120},{"name":"avgTicketValue","label":"Average order value (SAR)","type":"number","default":55},{"name":"setupCost","label":"Setup and establishment cost (SAR)","type":"number","default":250000},{"name":"platformCommissionRate","label":"Platform commission rate (%)","type":"number","default":25},{"name":"foodCostRate","label":"Food cost rate (%)","type":"number","default":35},{"name":"monthlyRentSalaries","label":"Monthly rent + salaries (SAR)","type":"number","default":32000},{"name":"platformSetupFee","label":"Platform and device setup fee (SAR)","type":"number","default":1000},{"name":"vatOnCommissionRate","label":"VAT on commission (%)","type":"number","default":15},{"name":"paymentGatewayPct","label":"Payment gateway fee (%)","type":"number","default":1.75},{"name":"paymentGatewayFixed","label":"Fixed payment gateway fee per order (SAR)","type":"number","default":0},{"name":"marketingFeeRate","label":"In-app marketing and advertising rate (%)","type":"number","default":0},{"name":"promoDiscountRate","label":"Promotional discount share (%)","type":"number","default":0},
+{"name":"freeDeliveryThreshold","label":"Free-delivery threshold (SAR)","type":"number","default":0},
+{"name":"deliveryFeePerOrder","label":"Restaurant delivery fee per order (SAR)","type":"number","default":15},
+{"name":"packagingCostPerOrder","label":"Packaging cost per order (SAR)","type":"number","default":3},
+{"name":"refundDisputeRate","label":"Disputed/refunded orders rate (%)","type":"number","default":2},
+{"name":"refundLossPerOrder","label":"Loss per refunded order (SAR)","type":"number","default":20},
+{"name":"cancelledOrderRate","label":"Post-preparation cancellation rate (%)","type":"number","default":1},
+{"name":"cancelledOrderLossPerOrder","label":"Loss per cancelled order (SAR)","type":"number","default":15},
+{"name":"settlementDelayDays","label":"Platform settlement delay (days)","type":"number","default":14},
+{"name":"targetProfitMargin","label":"Target profit margin (%)","type":"number","default":15}];
       const basicPrefix = currentMode === 'expert' ? 'expert_basic_' : '';
       fields.forEach(f => inputs[f.name] = getValue(basicPrefix + f.name));
       inputs.analysisDuration = getValue(basicPrefix + 'analysisDuration');

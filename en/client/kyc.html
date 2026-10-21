@@ -316,7 +316,7 @@
       const u=await window.BondsAuth.getUser(); user=u.data?.user;
       if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname);return;}
       sb=window.BondsAuth.getSupabase();
-      if(!sb){showStatus('تعذر تهيئة اNoتصال الآمن.',false);return;}
+      if(!sb){showStatus('Unable to initialize the secure connection.',false);return;}
       setVal('phone',user.user_metadata?.phone||''); setVal('signerName',user.user_metadata?.full_name||'');
       fundingCase=await window.BondsFundingCaseContext.resolve(sb,user);
       const cid=await sb.rpc('get_my_client_id');
