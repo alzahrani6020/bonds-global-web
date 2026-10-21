@@ -61,3 +61,6 @@ start_move.bat
 
 # Local workspace preview backups
 v3/workspace-preview-backup-*
+
+# Local duplicate-scan inventory; may contain absolute workstation paths
+/tools/duplicates.json
