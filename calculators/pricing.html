@@ -219,6 +219,10 @@
             <label for="annualTaxableIncome">الدخل السنوي الخاضع للضريبة <abbr title="ليس الربح المحاسبي تلقائيًا؛ أدخل الوعاء/الدخل الخاضع وفق الإقرار الضريبي.">ⓘ</abbr></label>
             <input type="number" id="annualTaxableIncome" min="0" value="0" />
           </div>
+          <div class="calc-input-group calc-hidden" id="annualRevenueGroup">
+            <label for="annualRevenue">الإيراد السنوي <abbr title="يُستخدم فقط عندما يفرض النظام حدًا أدنى للضريبة أو وعاءً قائمًا على رقم الأعمال/الإيراد.">ⓘ</abbr></label>
+            <input type="number" id="annualRevenue" min="0" value="0" />
+          </div>
           <div class="calc-input-group" id="activityTypeGroup">
             <label for="activityType">نوع النشاط لأغراض ضريبة الدخل</label>
             <select id="activityType" class="bonds-input" onchange="onFiscalProfileChange()">
@@ -799,6 +803,7 @@
       var mixed = companyType === 'mixed';
       document.getElementById('foreignOwnershipGroup').classList.toggle('calc-hidden', !(mixed && profile.ownershipAffectsTax));
       document.getElementById('financialYearDaysGroup').classList.toggle('calc-hidden', code !== 'SA');
+      document.getElementById('annualRevenueGroup').classList.toggle('calc-hidden', !profile.annualRevenueRequired && code !== 'SD');
 
       var hideSaudiZakat = code !== 'SA' || companyType === 'foreign_100';
       document.getElementById('annualZakatBaseGroup').classList.toggle('calc-hidden', hideSaudiZakat);
@@ -917,6 +922,7 @@
         foreignOwnershipPct: parseFloat(document.getElementById('foreignOwnershipPct').value) || 0,
         financialYearDays: parseFloat(document.getElementById('financialYearDays').value) || 354,
         annualTaxableIncome: parseFloat(document.getElementById('annualTaxableIncome').value) || 0,
+        annualRevenue: parseFloat(document.getElementById('annualRevenue').value) || 0,
         activityType: document.getElementById('activityType').value || 'standard',
         smallEnterprise: document.getElementById('smallEnterprise').value === '1',
         capitalInvestmentSar: parseFloat(document.getElementById('capitalInvestmentSar').value) || 0,
@@ -954,6 +960,7 @@
         foreignOwnershipPct: inputs.foreignOwnershipPct,
         financialYearDays: inputs.financialYearDays,
         annualTaxableIncome: inputs.annualTaxableIncome,
+        annualRevenue: inputs.annualRevenue,
         annualZakatBase: inputs.annualZakatBase,
         activityType: inputs.activityType,
         smallEnterprise: inputs.smallEnterprise,
