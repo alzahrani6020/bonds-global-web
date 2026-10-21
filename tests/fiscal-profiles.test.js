@@ -256,6 +256,21 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(financial.corporateIncomeTaxRate).toBe(40);
   });
 
+
+  test('Iraq applies 15% standard and 35% only to the foreign-oil-contract profile', () => {
+    const standard = Fiscal.calculate({ countryCode: 'IQ', annualTaxableIncome: 1000000, activityType: 'standard' });
+    expect(standard.corporateIncomeTaxRate).toBe(15);
+    expect(standard.annualIncomeTaxAmount).toBeCloseTo(150000, 5);
+    const oil = Fiscal.calculate({ countryCode: 'IQ', annualTaxableIncome: 1000000, activityType: 'foreign_oil_contract' });
+    expect(oil.corporateIncomeTaxRate).toBe(35);
+  });
+
+  test('Algeria applies 19%, 23%, and 26% IBS activity profiles', () => {
+    expect(Fiscal.calculate({ countryCode: 'DZ', annualTaxableIncome: 1000000, activityType: 'production_goods' }).corporateIncomeTaxRate).toBe(19);
+    expect(Fiscal.calculate({ countryCode: 'DZ', annualTaxableIncome: 1000000, activityType: 'construction_tourism' }).corporateIncomeTaxRate).toBe(23);
+    expect(Fiscal.calculate({ countryCode: 'DZ', annualTaxableIncome: 1000000, activityType: 'other' }).corporateIncomeTaxRate).toBe(26);
+  });
+
   test('profiles expose verified VAT metadata where confirmed', () => {
     expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
@@ -264,6 +279,8 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(Fiscal.getProfile('TR').standardVatRate).toBe(20);
     expect(Fiscal.getProfile('JO').standardVatRate).toBe(16);
     expect(Fiscal.getProfile('MA').standardVatRate).toBe(20);
+    expect(Fiscal.getProfile('DZ').standardVatRate).toBe(19);
+    expect(Fiscal.getProfile('IQ').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('KW').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
   });
