@@ -149,13 +149,19 @@ async function probeTokenRuntime() {
     return {
       status: payload && payload.status === 'ok' ? 'ok' : 'error',
       required: true,
+      channel_configured: true,
       access_configured: Boolean(cfAccessClientId && cfAccessClientSecret),
       http_status: response.status,
       reported_status: typeof payload?.status === 'string' ? payload.status : null,
       service: typeof payload?.service === 'string' ? payload.service : null,
     };
   } catch (_) {
-    return { status: 'unreachable', required: true };
+    return {
+      status: 'unreachable',
+      required: true,
+      channel_configured: true,
+      access_configured: Boolean(cfAccessClientId && cfAccessClientSecret),
+    };
   } finally {
     clearTimeout(timer);
   }
