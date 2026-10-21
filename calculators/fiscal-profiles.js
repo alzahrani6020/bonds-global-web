@@ -209,6 +209,66 @@
     };
   }
 
+  function calculateBahrain(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    var corporateIncomeTaxRate = activityType === 'oil_hydrocarbon' || activityType === 'natural_gas' ? 46 : 0;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+
+    return {
+      countryCode: 'BH',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Bahrain generally applies 0% corporate income tax outside the oil and gas sector.',
+        'Oil and gas sector profits are modeled at 46%.',
+        'Bahrain Pillar Two / DMTT obligations for qualifying multinational groups are not calculated from this taxable-income input.',
+        'VAT remains separate from corporate income tax.'
+      ]
+    };
+  }
+
+  function calculateKuwait(input) {
+    input = input || {};
+    var companyType = input.companyType || 'local_100';
+    var foreignPct;
+    if (companyType === 'local_100') foreignPct = 0;
+    else if (companyType === 'foreign_100') foreignPct = 100;
+    else foreignPct = clampPct(input.foreignOwnershipPct);
+
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var taxableForeignShare = annualTaxableIncome * foreignPct / 100;
+    var annualIncomeTaxAmount = taxableForeignShare * 0.15;
+
+    return {
+      countryCode: 'KW',
+      mode: 'automatic',
+      companyType: companyType,
+      localOwnershipPct: 100 - foreignPct,
+      foreignOwnershipPct: foreignPct,
+      annualTaxableIncome: annualTaxableIncome,
+      taxableForeignShare: taxableForeignShare,
+      corporateIncomeTaxRate: 15,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Kuwait income tax is modeled at 15% on taxable income attributable to the foreign corporate share.',
+        'This simplified profile does not automatically calculate Kuwait Zakat, National Labour Support Tax, or other local-company levies.',
+        'Kuwait DMTT for qualifying multinational groups applies under separate Pillar Two rules from fiscal years beginning on or after 1 January 2025 and is not calculated from this taxable-income input.',
+        'No VAT rate is asserted by this fiscal profile.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -238,6 +298,8 @@
     if (code === 'AE') return calculateUae(input);
     if (code === 'QA') return calculateQatar(input);
     if (code === 'OM') return calculateOman(input);
+    if (code === 'BH') return calculateBahrain(input);
+    if (code === 'KW') return calculateKuwait(input);
     return calculateManual(input);
   }
 
@@ -291,6 +353,31 @@
         zakatSupported: false
       };
     }
+    if (code === 'BH') {
+      return {
+        code: 'BH',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 0,
+        oilGasCorporateIncomeTaxRate: 46,
+        standardVatRate: 10,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        dmttModeled: false
+      };
+    }
+    if (code === 'KW') {
+      return {
+        code: 'KW',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 15,
+        standardVatRate: null,
+        ownershipAffectsTax: true,
+        zakatSupported: false,
+        dmttModeled: false
+      };
+    }
     return {
       code: code,
       automatic: false,
@@ -305,6 +392,8 @@
     calculateUae: calculateUae,
     calculateQatar: calculateQatar,
     calculateOman: calculateOman,
+    calculateBahrain: calculateBahrain,
+    calculateKuwait: calculateKuwait,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,
