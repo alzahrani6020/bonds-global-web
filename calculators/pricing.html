@@ -816,6 +816,10 @@
         if (activityEl.value === 'natural_gas') activityEl.value = 'oil_hydrocarbon';
       } else if (code === 'TR') {
         activityEl.innerHTML = '<option value="standard">شركة عادية</option><option value="financial_special">بنوك / مؤسسات مالية وتأمين / جهات ومشاريع مشمولة بمعدل 30%</option>';
+      } else if (code === 'JO') {
+        activityEl.innerHTML = '<option value="standard">نشاط عادي / تجاري / خدمي</option><option value="industrial">قطاع صناعي</option><option value="regulated_special">اتصالات / كهرباء / تعدين أساسي / تأمين / وساطة ومالية / تأجير تمويلي</option><option value="bank">بنك</option>';
+      } else if (code === 'MA') {
+        activityEl.innerHTML = '<option value="standard">شركة عادية</option><option value="financial_special">مؤسسة ائتمان أو جهة مماثلة / بنك المغرب / CDG / تأمين أو إعادة تأمين</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option>';
       }
@@ -823,7 +827,7 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
       document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
@@ -852,6 +856,12 @@
       } else if (code === 'TR') {
         document.getElementById('fiscalProfileHint').textContent =
           'تركيا 2026: 25% للشركات عمومًا و30% للبنوك والمؤسسات المالية/التأمين والجهات والمشاريع المشمولة نظامًا؛ VAT العام 20%. المعدلات المخفضة النظامية الأخرى لا تُطبق تلقائيًا.';
+      } else if (code === 'JO') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'الأردن: 20% لمعظم الأشخاص الاعتباريين، 14% للصناعة، 24% لقطاعات نظامية محددة، و35% للبنوك؛ ضريبة المبيعات العامة 16%. المساهمة الوطنية والأنظمة الخاصة لا تُحسب آليًا هنا.';
+      } else if (code === 'MA') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'المغرب 2026: 20% لصافي الربح الضريبي الأقل من 100 مليون درهم و35% عند 100 مليون درهم فأكثر؛ 40% للمؤسسات المالية/التأمين المحددة. VAT العام 20%. قواعد الاستمرارية والأنظمة الخاصة لا تُستنتج آليًا.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'هذه الدولة تعمل بوضع ضريبي يدوي حتى اعتماد ملفها النظامي الموثق؛ لا يتم افتراض معدل تلقائي.';
