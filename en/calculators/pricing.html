@@ -838,6 +838,8 @@
         activityEl.innerHTML = '<option value="production_goods">Production of goods</option><option value="construction_tourism">Construction / public works / hydraulics / qualifying tourism or thermal activity</option><option value="other">Other activities</option>';
       } else if (code === 'PS') {
         activityEl.innerHTML = '<option value="standard">Standard legal person</option><option value="telecom_monopoly">Telecommunications / concession or monopoly in the Palestinian market</option>';
+      } else if (code === 'TN') {
+        activityEl.innerHTML = '<option value="standard">Standard company — general rate</option><option value="special_review">Special sector / case requiring manual review</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">Standard activity</option>';
       }
@@ -845,10 +847,10 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ' && code !== 'PS');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ' && code !== 'PS' && code !== 'TN');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
-      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
+      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic && !(code === 'TN' && activityEl.value === 'special_review'));
 
       if (code === 'SA') {
         document.getElementById('fiscalProfileHint').textContent =
@@ -892,6 +894,9 @@
       } else if (code === 'PS') {
         document.getElementById('fiscalProfileHint').textContent =
           'Palestine: 15% for legal persons and 20% for telecommunications companies and companies holding a concession or monopoly in the Palestinian market. VAT is not automatically asserted in this profile.';
+      } else if (code === 'TN') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Tunisia: 25% is the published general corporate rate for standard companies. Special sectors, reduced regimes and minimum-tax rules require separate review; the 2026 Finance Law also adds a 4% profit-based contribution for specified sectors, so those cases switch to manual review.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'This country remains in manual tax mode until a verified local fiscal profile is approved; no automatic tax rate is assumed.';
