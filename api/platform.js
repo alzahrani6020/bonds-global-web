@@ -197,8 +197,32 @@ async function upsertPresence(sb, body, ip, geo) {
     if (error) throw error;
   } else {
     payload.started_at = body.started_at || now;
-    const { error } = await sb.from('user_presence').insert([payload]);
-    if (error) throw error;
+    const { error: insertError } = await sb.from('user_presence').insert([payload]);
+    if (insertError && insertError.code !== '23505') throw insertError;
+
+    // Another heartbeat/leave request can win the insert race for the same
+    // session_id between the SELECT above and this INSERT. Treat that unique
+    // conflict as a concurrent upsert, while preserving the ownership check.
+    if (insertError?.code === '23505') {
+      const { data: raced, error: readError } = await sb
+        .from('user_presence')
+        .select('session_id, user_id')
+        .eq('session_id', payload.session_id)
+        .single();
+      if (readError) throw readError;
+      if (raced?.user_id && raced.user_id !== payload.user_id) {
+        const err = new Error('Session belongs to another user');
+        err.status = 403;
+        throw err;
+      }
+
+      let updateQuery = sb.from('user_presence').update(payload).eq('session_id', payload.session_id);
+      updateQuery = raced?.user_id
+        ? updateQuery.eq('user_id', raced.user_id)
+        : updateQuery.is('user_id', null);
+      const { error: updateError } = await updateQuery;
+      if (updateError) throw updateError;
+    }
   }
 }
 
