@@ -32,7 +32,7 @@ describe('GeoNames governed ingestion contract', () => {
     expect(workflow).toContain('VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}');
     expect(workflow).toContain('VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}');
     expect(workflow).toContain('VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}');
-    expect(workflow).toContain('vercel pull --yes --environment=production');
+    expect(workflow).toContain('vercel pull --yes --environment=production --scope "$VERCEL_ORG_ID"');
     expect(workflow).toContain('SUPABASE_DB_URL');
     expect(workflow).toContain('::add-mask::');
     expect(workflow).toContain('DATABASE_URL<<__GEO_DB_URL__');
@@ -47,5 +47,21 @@ describe('GeoNames governed ingestion contract', () => {
     expect(workflow).toContain("GEO_ROLLBACK_APPLY: '1'");
     expect(workflow).toContain("GEO_STAGE_APPLY: '1'");
     expect(workflow).toContain("GEO_RECONCILE_APPLY: '1'");
+  });
+
+  test('safe candidate subset is mandatory before staging', () => {
+    const workflow = read('.github/workflows/geonames-governed-ingestion.yml');
+    const filter = read('scripts/filter-geonames-safe-candidates.js');
+
+    expect(workflow).toContain('filter-geonames-safe-candidates.js');
+    expect(workflow).toContain('--max-rows 5000');
+    expect(workflow).toContain('test "$SAFE_ROWS" -gt 0');
+    expect(workflow).toContain('test "$SAFE_ROWS" -le 5000');
+    expect(workflow).toContain('test "$SAFE_ROWS" -lt "$SOURCE_ROWS"');
+    expect(workflow).toContain('sha256sum .tmp-geo/geonames-safe-candidates.ndjson > .tmp-geo/geonames-safe-candidates.sha256');
+    expect(workflow).toContain('stage-local-geo-dataset.js .tmp-geo/geonames-safe-candidates.ndjson');
+    expect(workflow).not.toContain('node scripts/stage-local-geo-dataset.js | tee .tmp-geo/stage.log');
+    expect(filter).toContain('direct canonical names only; unique source key; unique production city');
+    expect(filter).not.toContain('row.aliases');
   });
 });
