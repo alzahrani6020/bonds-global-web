@@ -70,6 +70,11 @@ async function probeNativeHealth(attempts = 3) {
   };
 }
 
+function getTokenRuntimeAuthorization() {
+  const value = String(process.env.BONDS_TOKEN_RUNTIME_AUTHORIZATION || '').trim();
+  return value || null;
+}
+
 async function probeTokenRuntime() {
   const configured = String(process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL || '').trim();
   if (!configured) return { status: 'not_configured', required: false };
@@ -86,8 +91,10 @@ async function probeTokenRuntime() {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2000);
   try {
+    const authorization = getTokenRuntimeAuthorization();
+    const headers = authorization ? { Authorization: authorization } : {};
     const response = await fetch(target.toString(), {
-      method: 'GET', signal: controller.signal, redirect: 'error'
+      method: 'GET', headers, signal: controller.signal, redirect: 'error'
     });
     if (!response.ok) {
       return {
