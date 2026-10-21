@@ -814,6 +814,8 @@
       } else if (code === 'BH') {
         activityEl.innerHTML = '<option value="standard">نشاط غير نفطي / غازي</option><option value="oil_hydrocarbon">قطاع النفط والغاز</option>';
         if (activityEl.value === 'natural_gas') activityEl.value = 'oil_hydrocarbon';
+      } else if (code === 'TR') {
+        activityEl.innerHTML = '<option value="standard">شركة عادية</option><option value="financial_special">بنوك / مؤسسات مالية وتأمين / جهات ومشاريع مشمولة بمعدل 30%</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option>';
       }
@@ -821,7 +823,7 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
       document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
@@ -844,6 +846,12 @@
       } else if (code === 'KW') {
         document.getElementById('fiscalProfileHint').textContent =
           'الكويت: 15% على الدخل الخاضع المنسوب للحصة الأجنبية في هذا النموذج المبسط. الزكاة ودعم العمالة وDMTT للمجموعات المؤهلة تبقى حسابات مستقلة غير مدرجة آليًا.';
+      } else if (code === 'EG') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'مصر: 22.5% ضريبة دخل قياسية للأشخاص الاعتبارية وVAT عام 14%. نظام التسهيلات المبسط القائم على رقم الأعمال حتى 20 مليون جنيه لا يُحسب من دخل خاضع للضريبة، لذلك يبقى خارج هذا الملف.';
+      } else if (code === 'TR') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'تركيا 2026: 25% للشركات عمومًا و30% للبنوك والمؤسسات المالية/التأمين والجهات والمشاريع المشمولة نظامًا؛ VAT العام 20%. المعدلات المخفضة النظامية الأخرى لا تُطبق تلقائيًا.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'هذه الدولة تعمل بوضع ضريبي يدوي حتى اعتماد ملفها النظامي الموثق؛ لا يتم افتراض معدل تلقائي.';

@@ -201,10 +201,46 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(local.annualIncomeTaxAmount).toBe(0);
   });
 
+
+  test('Egypt applies the 22.5% standard legal-person income-tax rate', () => {
+    const r = Fiscal.calculate({
+      countryCode: 'EG',
+      companyType: 'local_100',
+      annualTaxableIncome: 1000000
+    });
+    expect(r.mode).toBe('automatic');
+    expect(r.corporateIncomeTaxRate).toBe(22.5);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(225000, 5);
+    expect(r.annualZakatAmount).toBe(0);
+  });
+
+  test('Türkiye applies 25% standard and 30% only to the explicit special-sector profile', () => {
+    const standard = Fiscal.calculate({
+      countryCode: 'TR',
+      companyType: 'local_100',
+      annualTaxableIncome: 1000000,
+      activityType: 'standard'
+    });
+    expect(standard.mode).toBe('automatic');
+    expect(standard.corporateIncomeTaxRate).toBe(25);
+    expect(standard.annualIncomeTaxAmount).toBeCloseTo(250000, 5);
+
+    const special = Fiscal.calculate({
+      countryCode: 'TR',
+      companyType: 'local_100',
+      annualTaxableIncome: 1000000,
+      activityType: 'financial_special'
+    });
+    expect(special.corporateIncomeTaxRate).toBe(30);
+    expect(special.annualIncomeTaxAmount).toBeCloseTo(300000, 5);
+  });
+
   test('profiles expose verified VAT metadata where confirmed', () => {
     expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('BH').standardVatRate).toBe(10);
+    expect(Fiscal.getProfile('EG').standardVatRate).toBe(14);
+    expect(Fiscal.getProfile('TR').standardVatRate).toBe(20);
     expect(Fiscal.getProfile('KW').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
   });
