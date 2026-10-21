@@ -213,11 +213,17 @@ async function assertNativeProductionRuntime(token) {
     if (nativeOk) break;
   }
 
+  const readinessSummary = JSON.stringify({
+    status: readiness?.body?.status || null,
+    checks: readiness?.body?.checks || null,
+    inference: readiness?.body?.inference || null
+  });
+
   if (!readiness?.res?.ok) {
-    throw new Error(`Production readiness failed after retries: HTTP ${readiness?.res?.status || 'unknown'}, native_code=${readiness?.body?.inference?.native_diagnostic?.code || 'missing'}`);
+    throw new Error(`Production readiness failed after retries: HTTP ${readiness?.res?.status || 'unknown'}, readiness=${readinessSummary}`);
   }
   if (readiness.body?.status !== 'ready') {
-    throw new Error(`Production readiness is not ready after retries: ${readiness.body?.status || 'missing'}, native_code=${readiness.body?.inference?.native_diagnostic?.code || 'missing'}`);
+    throw new Error(`Production readiness is not ready after retries: ${readiness.body?.status || 'missing'}, readiness=${readinessSummary}`);
   }
   if (readiness.body?.checks?.native !== 'ok') {
     throw new Error(`Remote Bonds Native health is not ok after retries: ${readiness.body?.checks?.native || 'missing'}, code=${readiness.body?.inference?.native_diagnostic?.code || 'missing'}, upstream_status=${readiness.body?.inference?.native_diagnostic?.http_status ?? 'missing'}`);
