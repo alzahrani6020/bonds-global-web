@@ -299,6 +299,63 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(special.corporateIncomeTaxRate).toBe(35);
   });
 
+
+  test('Sudan applies sector rates and communications uses gross income', () => {
+    expect(Fiscal.calculate({ countryCode: 'SD', annualTaxableIncome: 1000000, activityType: 'standard_company' }).corporateIncomeTaxRate).toBe(15);
+    expect(Fiscal.calculate({ countryCode: 'SD', annualTaxableIncome: 1000000, activityType: 'industrial' }).corporateIncomeTaxRate).toBe(10);
+    expect(Fiscal.calculate({ countryCode: 'SD', annualTaxableIncome: 1000000, activityType: 'agriculture' }).corporateIncomeTaxRate).toBe(0);
+    expect(Fiscal.calculate({ countryCode: 'SD', annualTaxableIncome: 1000000, activityType: 'oil_gas' }).corporateIncomeTaxRate).toBe(35);
+    const telecom = Fiscal.calculate({ countryCode: 'SD', annualTaxableIncome: 1000000, annualRevenue: 2000000, activityType: 'communications' });
+    expect(telecom.taxBaseType).toBe('gross_income');
+    expect(telecom.annualIncomeTaxAmount).toBeCloseTo(100000, 5);
+  });
+
+  test('Yemen applies verified standard and special-sector rates', () => {
+    expect(Fiscal.calculate({ countryCode: 'YE', annualTaxableIncome: 1000000, activityType: 'standard' }).corporateIncomeTaxRate).toBe(20);
+    expect(Fiscal.calculate({ countryCode: 'YE', annualTaxableIncome: 1000000, activityType: 'oil_mining_concession' }).corporateIncomeTaxRate).toBe(35);
+    expect(Fiscal.calculate({ countryCode: 'YE', annualTaxableIncome: 1000000, activityType: 'mobile' }).corporateIncomeTaxRate).toBe(50);
+    expect(Fiscal.calculate({ countryCode: 'YE', annualTaxableIncome: 1000000, activityType: 'international_telecom_tobacco' }).corporateIncomeTaxRate).toBe(35);
+    expect(Fiscal.calculate({ countryCode: 'YE', annualTaxableIncome: 1000000, activityType: 'special_review', corporateIncomeTaxRate: 12 }).mode).toBe('manual');
+  });
+
+  test('Djibouti applies 25% profit tax subject to turnover minimum', () => {
+    const profitDriven = Fiscal.calculate({ countryCode: 'DJ', annualTaxableIncome: 1000000, annualRevenue: 5000000 });
+    expect(profitDriven.corporateIncomeTaxRate).toBe(25);
+    expect(profitDriven.annualIncomeTaxAmount).toBeCloseTo(250000, 5);
+    const minimumDriven = Fiscal.calculate({ countryCode: 'DJ', annualTaxableIncome: 100000, annualRevenue: 20000000 });
+    expect(minimumDriven.annualIncomeTaxAmount).toBeCloseTo(200000, 5);
+  });
+
+  test('Somalia automates only the verified large-business profile', () => {
+    const large = Fiscal.calculate({ countryCode: 'SO', annualTaxableIncome: 1000000, activityType: 'large_business' });
+    expect(large.mode).toBe('automatic');
+    expect(large.corporateIncomeTaxRate).toBe(15);
+    const other = Fiscal.calculate({ countryCode: 'SO', annualTaxableIncome: 1000000, activityType: 'special_review', corporateIncomeTaxRate: 7 });
+    expect(other.mode).toBe('manual');
+    expect(other.corporateIncomeTaxRate).toBe(7);
+  });
+
+  test('Mauritania applies profit tax against regime turnover minimum', () => {
+    const normal = Fiscal.calculate({ countryCode: 'MR', annualTaxableIncome: 1000000, annualRevenue: 5000000, activityType: 'normal' });
+    expect(normal.corporateIncomeTaxRate).toBe(25);
+    expect(normal.annualIncomeTaxAmount).toBeCloseTo(250000, 5);
+    const intermediate = Fiscal.calculate({ countryCode: 'MR', annualTaxableIncome: 100000, annualRevenue: 10000000, activityType: 'intermediate' });
+    expect(intermediate.annualIncomeTaxAmount).toBeCloseTo(250000, 5);
+  });
+
+  test('Comoros applies 35% profit tax subject to 1.5% turnover minimum', () => {
+    const r = Fiscal.calculate({ countryCode: 'KM', annualTaxableIncome: 100000, annualRevenue: 5000000, activityType: 'standard_private' });
+    expect(r.corporateIncomeTaxRate).toBe(35);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(75000, 5);
+  });
+
+  test('Syria and Libya remain explicit manual profiles rather than inferred rates', () => {
+    expect(Fiscal.getProfile('SY').automatic).toBe(false);
+    expect(Fiscal.getProfile('LY').automatic).toBe(false);
+    expect(Fiscal.calculate({ countryCode: 'SY', annualTaxableIncome: 1000000, corporateIncomeTaxRate: 18 }).mode).toBe('manual');
+    expect(Fiscal.calculate({ countryCode: 'LY', annualTaxableIncome: 1000000, corporateIncomeTaxRate: 20 }).mode).toBe('manual');
+  });
+
   test('profiles expose verified VAT metadata where confirmed', () => {
     expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
@@ -312,6 +369,14 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(Fiscal.getProfile('LB').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('PS').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('TN').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('SD').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('YE').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('DJ').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('SO').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('MR').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('KM').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('SY').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('LY').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('KW').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
   });
