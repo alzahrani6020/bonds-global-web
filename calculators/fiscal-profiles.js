@@ -269,6 +269,58 @@
     };
   }
 
+  function calculateEgypt(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var corporateIncomeTaxRate = 22.5;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+
+    return {
+      countryCode: 'EG',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Egypt standard corporate income tax for legal persons is modeled at 22.5% of taxable income.',
+        'The simplified turnover-based regime available to qualifying businesses with annual turnover not exceeding EGP 20 million is not modeled because it uses turnover rather than this taxable-income input.',
+        'Sector-specific and special-regime cases require separate treatment and are not reduced to this standard profile.',
+        'VAT remains separate from corporate income tax.'
+      ]
+    };
+  }
+
+  function calculateTurkey(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    var corporateIncomeTaxRate = activityType === 'financial_special' ? 30 : 25;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+
+    return {
+      countryCode: 'TR',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Türkiye 2026 standard corporate income tax is modeled at 25%.',
+        'The 30% profile is limited to specified banks, financial/leasing/payment/e-money/FX/asset-management/capital-market/insurance/reinsurance/pension institutions and covered PPP/BOT project companies.',
+        'Other statutory reduced rates, including qualifying export, manufacturing and eligible first-public-offering cases, are not automatically modeled in this calculator.',
+        'VAT remains separate from corporate income tax.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -300,6 +352,8 @@
     if (code === 'OM') return calculateOman(input);
     if (code === 'BH') return calculateBahrain(input);
     if (code === 'KW') return calculateKuwait(input);
+    if (code === 'EG') return calculateEgypt(input);
+    if (code === 'TR') return calculateTurkey(input);
     return calculateManual(input);
   }
 
@@ -378,6 +432,31 @@
         dmttModeled: false
       };
     }
+    if (code === 'EG') {
+      return {
+        code: 'EG',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 22.5,
+        standardVatRate: 14,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        simplifiedTurnoverRegimeModeled: false
+      };
+    }
+    if (code === 'TR') {
+      return {
+        code: 'TR',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 25,
+        specialCorporateIncomeTaxRate: 30,
+        standardVatRate: 20,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        reducedRateProfilesModeled: false
+      };
+    }
     return {
       code: code,
       automatic: false,
@@ -394,6 +473,8 @@
     calculateOman: calculateOman,
     calculateBahrain: calculateBahrain,
     calculateKuwait: calculateKuwait,
+    calculateEgypt: calculateEgypt,
+    calculateTurkey: calculateTurkey,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,
