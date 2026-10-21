@@ -106,6 +106,7 @@ async function probeTokenRuntime() {
       return {
         status: 'error',
         required: true,
+        access_configured: Boolean(cfAccessClientId && cfAccessClientSecret),
         http_status: response.status,
         reported_status: null,
         service: null,
@@ -119,6 +120,7 @@ async function probeTokenRuntime() {
       return {
         status: 'invalid_response',
         required: true,
+        access_configured: Boolean(cfAccessClientId && cfAccessClientSecret),
         http_status: response.status,
         reported_status: null,
         service: null,
@@ -128,6 +130,7 @@ async function probeTokenRuntime() {
     return {
       status: payload && payload.status === 'ok' ? 'ok' : 'error',
       required: true,
+      access_configured: Boolean(cfAccessClientId && cfAccessClientSecret),
       http_status: response.status,
       reported_status: typeof payload?.status === 'string' ? payload.status : null,
       service: typeof payload?.service === 'string' ? payload.service : null,
@@ -265,6 +268,7 @@ module.exports = async function handler(req, res) {
         native: nativeStatus,
         fallback: fallbackStatus,
         token_runtime: tokenRuntime.status,
+        token_runtime_access_configured: tokenRuntime.access_configured ?? null,
         token_runtime_http_status: tokenRuntime.http_status ?? null,
         token_runtime_reported_status: tokenRuntime.reported_status ?? null,
         token_runtime_service: tokenRuntime.service ?? null,
