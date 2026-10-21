@@ -148,6 +148,36 @@ describe('platform health vs strict readiness', () => {
     expect(mockNativeHealthCalls.count).toBe(3);
   });
 
+
+  test('strict readiness forwards optional token-runtime Authorization without weakening readiness', async () => {
+    mockNativeOk.value = true;
+    process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL = 'https://token-runtime.example/health';
+    process.env.BONDS_TOKEN_RUNTIME_AUTHORIZATION = 'Bearer test-upstream-secret';
+
+    global.fetch = jest.fn(async (url, options = {}) => {
+      if (url === 'https://token-runtime.example/health') {
+        expect(options.headers).toEqual({ Authorization: 'Bearer test-upstream-secret' });
+        return {
+          ok: true,
+          status: 200,
+          json: async () => ({ status: 'ok', service: 'bonds-token-service' })
+        };
+      }
+      return { ok: true, status: 200 };
+    });
+
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.checks.token_runtime).toBe('ok');
+
+    delete process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL;
+    delete process.env.BONDS_TOKEN_RUNTIME_AUTHORIZATION;
+  });
+
   test('core health fails when Supabase is unavailable', async () => {
     mockSupabaseError.value = new Error('db unavailable');
     mockNativeOk.value = true;
