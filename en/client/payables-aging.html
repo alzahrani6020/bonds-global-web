@@ -239,7 +239,7 @@
       if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
       currentReport=result.data;
       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'payables',currentReport);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return;}}
-      showStatus(status==='submitted'?'تم إرسال Payables Aging Form للمراجعة.':'Draft saved.',true);
+      showStatus(status==='submitted'?'Payables Aging Form submitted for review.':'Draft saved.',true);
     }
 
     document.getElementById('saveDraft').onclick=()=>save('draft');
