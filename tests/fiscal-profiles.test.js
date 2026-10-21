@@ -271,6 +271,22 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(Fiscal.calculate({ countryCode: 'DZ', annualTaxableIncome: 1000000, activityType: 'other' }).corporateIncomeTaxRate).toBe(26);
   });
 
+
+  test('Lebanon applies the 15% capital-company income-tax profile', () => {
+    const r = Fiscal.calculate({ countryCode: 'LB', annualTaxableIncome: 1000000 });
+    expect(r.mode).toBe('automatic');
+    expect(r.corporateIncomeTaxRate).toBe(15);
+    expect(r.annualIncomeTaxAmount).toBeCloseTo(150000, 5);
+  });
+
+  test('Palestine applies 15% standard and 20% telecom/monopoly profiles', () => {
+    const standard = Fiscal.calculate({ countryCode: 'PS', annualTaxableIncome: 1000000, activityType: 'standard' });
+    expect(standard.corporateIncomeTaxRate).toBe(15);
+    expect(standard.annualIncomeTaxAmount).toBeCloseTo(150000, 5);
+    const special = Fiscal.calculate({ countryCode: 'PS', annualTaxableIncome: 1000000, activityType: 'telecom_monopoly' });
+    expect(special.corporateIncomeTaxRate).toBe(20);
+  });
+
   test('profiles expose verified VAT metadata where confirmed', () => {
     expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
@@ -281,6 +297,8 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(Fiscal.getProfile('MA').standardVatRate).toBe(20);
     expect(Fiscal.getProfile('DZ').standardVatRate).toBe(19);
     expect(Fiscal.getProfile('IQ').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('LB').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('PS').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('KW').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
   });
