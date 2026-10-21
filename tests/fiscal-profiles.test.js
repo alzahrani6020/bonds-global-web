@@ -287,6 +287,18 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(special.corporateIncomeTaxRate).toBe(20);
   });
 
+
+  test('Tunisia applies 25% only to the standard automatic profile', () => {
+    const standard = Fiscal.calculate({ countryCode: 'TN', annualTaxableIncome: 1000000, activityType: 'standard' });
+    expect(standard.mode).toBe('automatic');
+    expect(standard.corporateIncomeTaxRate).toBe(25);
+    expect(standard.annualIncomeTaxAmount).toBeCloseTo(250000, 5);
+
+    const special = Fiscal.calculate({ countryCode: 'TN', annualTaxableIncome: 1000000, activityType: 'special_review', corporateIncomeTaxRate: 35 });
+    expect(special.mode).toBe('manual');
+    expect(special.corporateIncomeTaxRate).toBe(35);
+  });
+
   test('profiles expose verified VAT metadata where confirmed', () => {
     expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
@@ -299,6 +311,7 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(Fiscal.getProfile('IQ').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('LB').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('PS').standardVatRate).toBeNull();
+    expect(Fiscal.getProfile('TN').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('KW').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
   });
