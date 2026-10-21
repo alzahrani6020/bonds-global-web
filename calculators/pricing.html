@@ -219,6 +219,10 @@
             <label for="annualTaxableIncome">الدخل السنوي الخاضع للضريبة <abbr title="ليس الربح المحاسبي تلقائيًا؛ أدخل الوعاء/الدخل الخاضع وفق الإقرار الضريبي.">ⓘ</abbr></label>
             <input type="number" id="annualTaxableIncome" min="0" value="0" />
           </div>
+          <div class="calc-input-group calc-hidden" id="annualRevenueGroup">
+            <label for="annualRevenue">الإيراد السنوي <abbr title="يُستخدم فقط عندما يفرض النظام حدًا أدنى للضريبة أو وعاءً قائمًا على رقم الأعمال/الإيراد.">ⓘ</abbr></label>
+            <input type="number" id="annualRevenue" min="0" value="0" />
+          </div>
           <div class="calc-input-group" id="activityTypeGroup">
             <label for="activityType">نوع النشاط لأغراض ضريبة الدخل</label>
             <select id="activityType" class="bonds-input" onchange="onFiscalProfileChange()">
@@ -799,6 +803,7 @@
       var mixed = companyType === 'mixed';
       document.getElementById('foreignOwnershipGroup').classList.toggle('calc-hidden', !(mixed && profile.ownershipAffectsTax));
       document.getElementById('financialYearDaysGroup').classList.toggle('calc-hidden', code !== 'SA');
+      document.getElementById('annualRevenueGroup').classList.toggle('calc-hidden', !profile.annualRevenueRequired && code !== 'SD');
 
       var hideSaudiZakat = code !== 'SA' || companyType === 'foreign_100';
       document.getElementById('annualZakatBaseGroup').classList.toggle('calc-hidden', hideSaudiZakat);
@@ -811,6 +816,33 @@
       } else if (code === 'OM') {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option><option value="oil_hydrocarbon">استكشاف النفط والغاز</option>';
         if (activityEl.value === 'natural_gas') activityEl.value = 'oil_hydrocarbon';
+      } else if (code === 'BH') {
+        activityEl.innerHTML = '<option value="standard">نشاط غير نفطي / غازي</option><option value="oil_hydrocarbon">قطاع النفط والغاز</option>';
+        if (activityEl.value === 'natural_gas') activityEl.value = 'oil_hydrocarbon';
+      } else if (code === 'TR') {
+        activityEl.innerHTML = '<option value="standard">شركة عادية</option><option value="financial_special">بنوك / مؤسسات مالية وتأمين / جهات ومشاريع مشمولة بمعدل 30%</option>';
+      } else if (code === 'JO') {
+        activityEl.innerHTML = '<option value="standard">نشاط عادي / تجاري / خدمي</option><option value="industrial">قطاع صناعي</option><option value="regulated_special">اتصالات / كهرباء / تعدين أساسي / تأمين / وساطة ومالية / تأجير تمويلي</option><option value="bank">بنك</option>';
+      } else if (code === 'MA') {
+        activityEl.innerHTML = '<option value="standard">شركة عادية</option><option value="financial_special">مؤسسة ائتمان أو جهة مماثلة / بنك المغرب / CDG / تأمين أو إعادة تأمين</option>';
+      } else if (code === 'IQ') {
+        activityEl.innerHTML = '<option value="standard">نشاط شركة عادي</option><option value="foreign_oil_contract">شركة نفط أجنبية / مقاول مشمول بقانون 19 لسنة 2010</option>';
+      } else if (code === 'DZ') {
+        activityEl.innerHTML = '<option value="production_goods">إنتاج السلع</option><option value="construction_tourism">بناء / أشغال عمومية / ري / سياحة أو حمامات مؤهلة</option><option value="other">أنشطة أخرى</option>';
+      } else if (code === 'PS') {
+        activityEl.innerHTML = '<option value="standard">شخص معنوي عادي</option><option value="telecom_monopoly">اتصالات / امتياز أو احتكار في السوق الفلسطيني</option>';
+      } else if (code === 'TN') {
+        activityEl.innerHTML = '<option value="standard">شركة عادية — النسبة العامة</option><option value="special_review">قطاع خاص / حالة تحتاج مراجعة يدوية</option>';
+      } else if (code === 'SD') {
+        activityEl.innerHTML = '<option value="standard_company">شركة عادية</option><option value="industrial">شركة صناعية</option><option value="agriculture">شركة زراعية</option><option value="oil_gas">نفط وغاز وخدمات بترولية</option><option value="tobacco">تبغ</option><option value="bank">بنك</option><option value="communications">اتصالات — 5% من الإيراد الإجمالي</option>';
+      } else if (code === 'YE') {
+        activityEl.innerHTML = '<option value="standard">شركة عادية</option><option value="oil_mining_concession">نفط / غاز / تعدين / امتياز</option><option value="mobile">هاتف نقال</option><option value="international_telecom_tobacco">اتصالات دولية / سجائر</option><option value="special_review">اتفاقية أو مشروع استثماري / منشأة صغيرة — مراجعة يدوية</option>';
+      } else if (code === 'SO') {
+        activityEl.innerHTML = '<option value="large_business">منشأة كبيرة — مبيعات فوق 50 ألف دولار</option><option value="special_review">صغيرة / متوسطة / غير مقيمة — مراجعة يدوية</option>';
+      } else if (code === 'MR') {
+        activityEl.innerHTML = '<option value="normal">النظام العادي</option><option value="intermediate">النظام المتوسط</option><option value="special_review">نقل / صيد / نظام خاص — مراجعة يدوية</option>';
+      } else if (code === 'KM') {
+        activityEl.innerHTML = '<option value="standard_private">شركة خاصة عادية</option><option value="special_review">شركة عامة / حسابات خارج جزر القمر / حالة خاصة — مراجعة يدوية</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option>';
       }
@@ -818,10 +850,15 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ' && code !== 'PS' && code !== 'TN' && code !== 'SD' && code !== 'YE' && code !== 'SO' && code !== 'MR' && code !== 'KM');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
-      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
+      var activityNeedsManual = (code === 'TN' && activityEl.value === 'special_review') ||
+        (code === 'YE' && activityEl.value === 'special_review') ||
+        (code === 'SO' && activityEl.value !== 'large_business') ||
+        (code === 'MR' && activityEl.value === 'special_review') ||
+        (code === 'KM' && activityEl.value === 'special_review');
+      document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic && !activityNeedsManual);
 
       if (code === 'SA') {
         document.getElementById('fiscalProfileHint').textContent =
@@ -835,6 +872,63 @@
       } else if (code === 'OM') {
         document.getElementById('fiscalProfileHint').textContent =
           'عُمان: 15% قياسي، 3% للمنشأة الصغيرة عند استيفاء الشروط، و55% لاستكشاف النفط والغاز؛ VAT القياسي 5%.';
+      } else if (code === 'BH') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'البحرين: 0% ضريبة دخل شركات للأنشطة غير النفطية/الغازية، و46% لقطاع النفط والغاز؛ VAT القياسي 10%. ضريبة DMTT للمجموعات المؤهلة لا تُحسب آليًا هنا.';
+      } else if (code === 'KW') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'الكويت: 15% على الدخل الخاضع المنسوب للحصة الأجنبية في هذا النموذج المبسط. الزكاة ودعم العمالة وDMTT للمجموعات المؤهلة تبقى حسابات مستقلة غير مدرجة آليًا.';
+      } else if (code === 'EG') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'مصر: 22.5% ضريبة دخل قياسية للأشخاص الاعتبارية وVAT عام 14%. نظام التسهيلات المبسط القائم على رقم الأعمال حتى 20 مليون جنيه لا يُحسب من دخل خاضع للضريبة، لذلك يبقى خارج هذا الملف.';
+      } else if (code === 'TR') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'تركيا 2026: 25% للشركات عمومًا و30% للبنوك والمؤسسات المالية/التأمين والجهات والمشاريع المشمولة نظامًا؛ VAT العام 20%. المعدلات المخفضة النظامية الأخرى لا تُطبق تلقائيًا.';
+      } else if (code === 'JO') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'الأردن: 20% لمعظم الأشخاص الاعتباريين، 14% للصناعة، 24% لقطاعات نظامية محددة، و35% للبنوك؛ ضريبة المبيعات العامة 16%. المساهمة الوطنية والأنظمة الخاصة لا تُحسب آليًا هنا.';
+      } else if (code === 'MA') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'المغرب 2026: 20% لصافي الربح الضريبي الأقل من 100 مليون درهم و35% عند 100 مليون درهم فأكثر؛ 40% للمؤسسات المالية/التأمين المحددة. VAT العام 20%. قواعد الاستمرارية والأنظمة الخاصة لا تُستنتج آليًا.';
+      } else if (code === 'IQ') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'العراق: 15% لباقي أنشطة الشركات، و35% فقط للحالات المشمولة بقانون شركات النفط الأجنبية رقم 19 لسنة 2010. لا يتم افتراض VAT عام في هذا الملف.';
+      } else if (code === 'DZ') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'الجزائر: 19% لإنتاج السلع، 23% للبناء/الأشغال/الري والسياحة المؤهلة، و26% للأنشطة الأخرى؛ VAT العادي 19%. المعدل المخفض لإعادة الاستثمار والحالات المختلطة لا تُطبق آليًا.';
+      } else if (code === 'LB') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'لبنان: 15% على شركات الأموال الخاضعة لطريقة الربح الحقيقي في هذا الملف المبسط. VAT لا يُملأ تلقائيًا لأن المصدر المنشور المتاح للآلة لا يُعامل كمرجع حديث بما يكفي.';
+      } else if (code === 'PS') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'فلسطين: 15% للأشخاص المعنويين، و20% لشركات الاتصالات والشركات ذات الامتياز أو الاحتكار في السوق الفلسطيني. VAT لا يُفترض تلقائيًا في هذا الملف.';
+      } else if (code === 'TN') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'تونس: 25% هي النسبة العامة المنشورة للشركات العادية. القطاعات الخاصة والأنظمة المخفضة والحد الأدنى للضريبة تحتاج مراجعة منفصلة؛ وقانون مالية 2026 أضاف مساهمة 4% على أرباح قطاعات محددة، لذلك تُحوّل هذه الحالات للوضع اليدوي.';
+      } else if (code === 'SD') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'السودان: 15% للشركات العادية، 10% للصناعة، 0% للزراعة، 35% للنفط والغاز وخدماته، 30% للتبغ والبنوك؛ الاتصالات 5% من الإيراد الإجمالي.';
+      } else if (code === 'YE') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'اليمن: 20% للشركات العادية؛ 35% للنفط/الغاز/التعدين والامتيازات، 50% للهاتف النقال، و35% للاتصالات الدولية والسجائر. الاتفاقيات والمشروعات الاستثمارية والمنشآت الصغيرة تحتاج مراجعة يدوية.';
+      } else if (code === 'DJ') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'جيبوتي: 25% من صافي الربح الخاضع، مع حد أدنى 1% من رقم الأعمال وبحد أدنى 120,000 فرنك جيبوتي؛ تستخدم الحاسبة الأكبر منهما.';
+      } else if (code === 'SO') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'الصومال: 15% من الربح للمنشآت الكبيرة ذات المبيعات فوق 50 ألف دولار وفق إرشاد قانون ضريبة الدخل 2025؛ الصغيرة والمتوسطة وغير المقيمة تحتاج مراجعة يدوية.';
+      } else if (code === 'MR') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'موريتانيا: 25% من الربح، مع حد أدنى على رقم الأعمال 2% للنظام العادي و2.5% للمتوسط؛ النظام العادي لديه حد أدنى 100,000 أوقية جديدة.';
+      } else if (code === 'KM') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'جزر القمر: 35% للشركة الخاصة العادية، مع حد أدنى 1.5% من رقم الأعمال. الشركات العامة والحالات الخاصة تحتاج مراجعة يدوية.';
+      } else if (code === 'SY') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'سوريا: أبقيت الحاسبة على الوضع اليدوي؛ توجد مرحلة انتقال/تحديث ضريبي، ولم أعتمد معدل شركات تلقائيًا دون نص رسمي حديث مفهرس يثبت النسبة الحالية.';
+      } else if (code === 'LY') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'ليبيا: قانون ضريبة الدخل رقم 7 لسنة 2010 مثبت لدى مصلحة الضرائب، لكن النسخة الرسمية المفهرسة المتاحة لم تعرض معدل الشركات بشكل يسمح باعتماده آليًا؛ يبقى الإدخال يدويًا.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'هذه الدولة تعمل بوضع ضريبي يدوي حتى اعتماد ملفها النظامي الموثق؛ لا يتم افتراض معدل تلقائي.';
@@ -867,6 +961,7 @@
         foreignOwnershipPct: parseFloat(document.getElementById('foreignOwnershipPct').value) || 0,
         financialYearDays: parseFloat(document.getElementById('financialYearDays').value) || 354,
         annualTaxableIncome: parseFloat(document.getElementById('annualTaxableIncome').value) || 0,
+        annualRevenue: parseFloat(document.getElementById('annualRevenue').value) || 0,
         activityType: document.getElementById('activityType').value || 'standard',
         smallEnterprise: document.getElementById('smallEnterprise').value === '1',
         capitalInvestmentSar: parseFloat(document.getElementById('capitalInvestmentSar').value) || 0,
@@ -904,6 +999,7 @@
         foreignOwnershipPct: inputs.foreignOwnershipPct,
         financialYearDays: inputs.financialYearDays,
         annualTaxableIncome: inputs.annualTaxableIncome,
+        annualRevenue: inputs.annualRevenue,
         annualZakatBase: inputs.annualZakatBase,
         activityType: inputs.activityType,
         smallEnterprise: inputs.smallEnterprise,
