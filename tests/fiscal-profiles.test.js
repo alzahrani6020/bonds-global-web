@@ -235,12 +235,35 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(special.annualIncomeTaxAmount).toBeCloseTo(300000, 5);
   });
 
+
+  test('Jordan applies verified sector-specific legal-person income-tax rates', () => {
+    expect(Fiscal.calculate({ countryCode: 'JO', annualTaxableIncome: 1000000, activityType: 'standard' }).corporateIncomeTaxRate).toBe(20);
+    expect(Fiscal.calculate({ countryCode: 'JO', annualTaxableIncome: 1000000, activityType: 'industrial' }).corporateIncomeTaxRate).toBe(14);
+    expect(Fiscal.calculate({ countryCode: 'JO', annualTaxableIncome: 1000000, activityType: 'regulated_special' }).corporateIncomeTaxRate).toBe(24);
+    expect(Fiscal.calculate({ countryCode: 'JO', annualTaxableIncome: 1000000, activityType: 'bank' }).corporateIncomeTaxRate).toBe(35);
+  });
+
+  test('Morocco 2026 applies 20%, 35% threshold and 40% financial-special profiles', () => {
+    const standard = Fiscal.calculate({ countryCode: 'MA', annualTaxableIncome: 50000000, activityType: 'standard' });
+    expect(standard.mode).toBe('automatic');
+    expect(standard.corporateIncomeTaxRate).toBe(20);
+    expect(standard.annualIncomeTaxAmount).toBeCloseTo(10000000, 5);
+
+    const highProfit = Fiscal.calculate({ countryCode: 'MA', annualTaxableIncome: 100000000, activityType: 'standard' });
+    expect(highProfit.corporateIncomeTaxRate).toBe(35);
+
+    const financial = Fiscal.calculate({ countryCode: 'MA', annualTaxableIncome: 1000000, activityType: 'financial_special' });
+    expect(financial.corporateIncomeTaxRate).toBe(40);
+  });
+
   test('profiles expose verified VAT metadata where confirmed', () => {
     expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('BH').standardVatRate).toBe(10);
     expect(Fiscal.getProfile('EG').standardVatRate).toBe(14);
     expect(Fiscal.getProfile('TR').standardVatRate).toBe(20);
+    expect(Fiscal.getProfile('JO').standardVatRate).toBe(16);
+    expect(Fiscal.getProfile('MA').standardVatRate).toBe(20);
     expect(Fiscal.getProfile('KW').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
   });
