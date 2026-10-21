@@ -87,6 +87,11 @@ describe('post-release pipeline contracts', () => {
     expect(health).toContain('BONDS_TOKEN_RUNTIME_HEALTH_URL');
     expect(health).toContain("target.protocol !== 'https:'");
     expect(health).toContain("redirect: 'error'");
+    expect(health).toContain('BONDS_CF_ACCESS_CLIENT_ID');
+    expect(health).toContain('BONDS_CF_ACCESS_CLIENT_SECRET');
+    expect(health).toContain("'CF-Access-Client-Id': cfAccessClientId");
+    expect(health).toContain("'CF-Access-Client-Secret': cfAccessClientSecret");
+    expect(health).toContain("status: 'invalid_access_configuration'");
     expect(health).toContain("token_runtime: tokenRuntime.status");
     expect(health).toContain("(!tokenRuntime.required || tokenRuntime.status === 'ok')");
   });
