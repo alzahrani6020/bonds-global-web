@@ -2,10 +2,12 @@
 
 > منصة ذكاء اقتصادي لدراسة جدوى المشاريع الاستثمارية في السعودية والمنطقة.
 
-## الروابط المباشرة
+## حالة النشر الحالية
 
-- **API**: https://bonds-v3.vercel.app/api/health
-- **CMS**: https://bonds-v3.vercel.app/admin
+الإنتاج الحالي لا يستخدم مشروع Vercel مستقل لـ V3. تطبيق V3 يعمل ضمن مشروع `bonds-global-web` من جذر المستودع، وتُدار مساراته بواسطة `/vercel.json` الرئيسي. راجع `docs/DEPLOYMENT_TOPOLOGY.md`.
+
+- **Production V3 routes**: `/v3/*` و `/api/v3/*` ضمن `bonds-global.com`
+- ملف `v3/vercel.json` مخصص لتشغيل/نشر V3 بشكل مستقل فقط عند ربطه صراحةً بمشروع Vercel مستقل.
 
 ## الهيكل
 
@@ -116,10 +118,7 @@ node scripts/dev-server.js
 
 ## النشر
 
-```bash
-cd bonds-v3
-npx vercel --prod
-```
+النشر الإنتاجي الحالي يتم من **جذر المستودع** عبر مشروع Vercel `bonds-global-web`. لا تنفّذ `vercel --prod` من داخل `v3/` على افتراض أنه نفس هدف الإنتاج؛ النشر المستقل لـ V3 يتطلب مشروع Vercel مستقلًا وموافقة إصدار منفصلة.
 
 ## متغيرات البيئة
 
