@@ -443,6 +443,58 @@
     };
   }
 
+
+  function calculateLebanon(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var corporateIncomeTaxRate = 15;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+
+    return {
+      countryCode: 'LB',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Lebanon capital companies subject to the real-profit method are modeled at a 15% proportional income-tax rate.',
+        'Partnership, individual, withholding, dividend, sector-specific and exceptional treatments are outside this simplified corporate profile.',
+        'VAT is intentionally not auto-filled here because the Ministry portal page currently exposed to this calculator is not treated as sufficiently current for an automatic rate.'
+      ]
+    };
+  }
+
+  function calculatePalestine(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    var corporateIncomeTaxRate = activityType === 'telecom_monopoly' ? 20 : 15;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+
+    return {
+      countryCode: 'PS',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Palestine corporate income tax is modeled at 15% for legal persons.',
+        'Telecommunications companies and companies holding a concession or monopoly in the Palestinian market are modeled at 20%.',
+        'Life-insurance premium taxation, withholding taxes and other special rules are not reduced to this taxable-income profile.',
+        'VAT is intentionally not asserted by this fiscal profile.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -480,6 +532,8 @@
     if (code === 'MA') return calculateMorocco(input);
     if (code === 'IQ') return calculateIraq(input);
     if (code === 'DZ') return calculateAlgeria(input);
+    if (code === 'LB') return calculateLebanon(input);
+    if (code === 'PS') return calculatePalestine(input);
     return calculateManual(input);
   }
 
@@ -640,6 +694,30 @@
         zakatSupported: false
       };
     }
+
+    if (code === 'LB') {
+      return {
+        code: 'LB',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 15,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false
+      };
+    }
+    if (code === 'PS') {
+      return {
+        code: 'PS',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 15,
+        telecomMonopolyCorporateIncomeTaxRate: 20,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false
+      };
+    }
     return {
       code: code,
       automatic: false,
@@ -662,6 +740,8 @@
     calculateMorocco: calculateMorocco,
     calculateIraq: calculateIraq,
     calculateAlgeria: calculateAlgeria,
+    calculateLebanon: calculateLebanon,
+    calculatePalestine: calculatePalestine,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,
