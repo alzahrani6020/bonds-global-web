@@ -158,9 +158,54 @@ describe('BondsFiscal verified GCC profiles', () => {
     expect(r.annualIncomeTaxAmount).toBeCloseTo(550000, 5);
   });
 
+
+  test('Bahrain applies 0% outside oil and gas and 46% to oil/gas activity', () => {
+    const standard = Fiscal.calculate({
+      countryCode: 'BH',
+      companyType: 'foreign_100',
+      annualTaxableIncome: 1000000,
+      activityType: 'standard'
+    });
+    expect(standard.mode).toBe('automatic');
+    expect(standard.corporateIncomeTaxRate).toBe(0);
+    expect(standard.annualIncomeTaxAmount).toBe(0);
+
+    const oilGas = Fiscal.calculate({
+      countryCode: 'BH',
+      companyType: 'foreign_100',
+      annualTaxableIncome: 1000000,
+      activityType: 'oil_hydrocarbon'
+    });
+    expect(oilGas.corporateIncomeTaxRate).toBe(46);
+    expect(oilGas.annualIncomeTaxAmount).toBeCloseTo(460000, 5);
+  });
+
+  test('Kuwait applies 15% only to the taxable foreign corporate share in the simplified profile', () => {
+    const mixed = Fiscal.calculate({
+      countryCode: 'KW',
+      companyType: 'mixed',
+      foreignOwnershipPct: 40,
+      annualTaxableIncome: 1000000
+    });
+    expect(mixed.mode).toBe('automatic');
+    expect(mixed.localOwnershipPct).toBe(60);
+    expect(mixed.taxableForeignShare).toBeCloseTo(400000, 5);
+    expect(mixed.corporateIncomeTaxRate).toBe(15);
+    expect(mixed.annualIncomeTaxAmount).toBeCloseTo(60000, 5);
+
+    const local = Fiscal.calculate({
+      countryCode: 'KW',
+      companyType: 'local_100',
+      annualTaxableIncome: 1000000
+    });
+    expect(local.annualIncomeTaxAmount).toBe(0);
+  });
+
   test('profiles expose verified VAT metadata where confirmed', () => {
     expect(Fiscal.getProfile('AE').standardVatRate).toBe(5);
     expect(Fiscal.getProfile('OM').standardVatRate).toBe(5);
+    expect(Fiscal.getProfile('BH').standardVatRate).toBe(10);
+    expect(Fiscal.getProfile('KW').standardVatRate).toBeNull();
     expect(Fiscal.getProfile('QA').standardVatRate).toBeNull();
   });
 });
