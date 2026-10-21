@@ -89,9 +89,36 @@ async function probeTokenRuntime() {
     const response = await fetch(target.toString(), {
       method: 'GET', signal: controller.signal, redirect: 'error'
     });
-    if (!response.ok) return { status: 'error', required: true };
-    const payload = await response.json();
-    return { status: payload && payload.status === 'ok' ? 'ok' : 'error', required: true };
+    if (!response.ok) {
+      return {
+        status: 'error',
+        required: true,
+        http_status: response.status,
+        reported_status: null,
+        service: null,
+      };
+    }
+
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch (_) {
+      return {
+        status: 'invalid_response',
+        required: true,
+        http_status: response.status,
+        reported_status: null,
+        service: null,
+      };
+    }
+
+    return {
+      status: payload && payload.status === 'ok' ? 'ok' : 'error',
+      required: true,
+      http_status: response.status,
+      reported_status: typeof payload?.status === 'string' ? payload.status : null,
+      service: typeof payload?.service === 'string' ? payload.service : null,
+    };
   } catch (_) {
     return { status: 'unreachable', required: true };
   } finally {
@@ -225,6 +252,9 @@ module.exports = async function handler(req, res) {
         native: nativeStatus,
         fallback: fallbackStatus,
         token_runtime: tokenRuntime.status,
+        token_runtime_http_status: tokenRuntime.http_status ?? null,
+        token_runtime_reported_status: tokenRuntime.reported_status ?? null,
+        token_runtime_service: tokenRuntime.service ?? null,
         responseMs: Date.now() - started,
       },
       inference: {
