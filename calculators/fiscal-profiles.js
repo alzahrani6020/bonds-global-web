@@ -495,6 +495,36 @@
     };
   }
 
+
+  function calculateTunisia(input) {
+    input = input || {};
+    var activityType = input.activityType || 'standard';
+    if (activityType === 'special_review') return calculateManual(input);
+
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var corporateIncomeTaxRate = 25;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+
+    return {
+      countryCode: 'TN',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Tunisia standard corporate income tax is modeled at the Ministry of Finance published general rate of 25%.',
+        'Special-sector rates, reduced regimes and minimum-tax rules are not inferred automatically.',
+        'The 2026 Finance Law adds a 4% profit-based contribution for specified banks, financial institutions, insurers/reinsurers, telecom network operators and car dealers; those cases must use manual review.',
+        'VAT remains separate from corporate income tax.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -534,6 +564,7 @@
     if (code === 'DZ') return calculateAlgeria(input);
     if (code === 'LB') return calculateLebanon(input);
     if (code === 'PS') return calculatePalestine(input);
+    if (code === 'TN') return calculateTunisia(input);
     return calculateManual(input);
   }
 
@@ -718,6 +749,19 @@
         zakatSupported: false
       };
     }
+    if (code === 'TN') {
+      return {
+        code: 'TN',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 25,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        specialSectorManualReview: true,
+        financeLaw2026ContributionModeled: false
+      };
+    }
     return {
       code: code,
       automatic: false,
@@ -742,6 +786,7 @@
     calculateAlgeria: calculateAlgeria,
     calculateLebanon: calculateLebanon,
     calculatePalestine: calculatePalestine,
+    calculateTunisia: calculateTunisia,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,
