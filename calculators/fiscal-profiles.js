@@ -385,6 +385,64 @@
     };
   }
 
+
+  function calculateIraq(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    var corporateIncomeTaxRate = activityType === 'foreign_oil_contract' ? 35 : 15;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+
+    return {
+      countryCode: 'IQ',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Iraq corporate income tax is modeled at 15% for ordinary company activities.',
+        'The 35% profile is limited to foreign oil companies and related subcontracting cases covered by Law No. 19 of 2010.',
+        'Other sector-specific, investment, exemption and regional treatments require separate review.',
+        'No general VAT rate is asserted by this fiscal profile.'
+      ]
+    };
+  }
+
+  function calculateAlgeria(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'other';
+    var corporateIncomeTaxRate = 26;
+
+    if (activityType === 'production_goods') corporateIncomeTaxRate = 19;
+    else if (activityType === 'construction_tourism') corporateIncomeTaxRate = 23;
+
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+    return {
+      countryCode: 'DZ',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Algeria IBS is modeled at 19% for production of goods, 23% for construction/public works/hydraulics and qualifying tourism/thermal activities, and 26% for other activities.',
+        'The 10% reinvested-profit rate and tobacco-specific additional taxes are not applied automatically.',
+        'Where multiple activities are carried on, the statutory allocation by turnover share is not inferred automatically by this calculator.',
+        'VAT remains separate from corporate income tax.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -420,6 +478,8 @@
     if (code === 'TR') return calculateTurkey(input);
     if (code === 'JO') return calculateJordan(input);
     if (code === 'MA') return calculateMorocco(input);
+    if (code === 'IQ') return calculateIraq(input);
+    if (code === 'DZ') return calculateAlgeria(input);
     return calculateManual(input);
   }
 
@@ -554,6 +614,32 @@
         continuityRuleModeled: false
       };
     }
+
+    if (code === 'IQ') {
+      return {
+        code: 'IQ',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 15,
+        foreignOilCorporateIncomeTaxRate: 35,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false
+      };
+    }
+    if (code === 'DZ') {
+      return {
+        code: 'DZ',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        productionCorporateIncomeTaxRate: 19,
+        constructionTourismCorporateIncomeTaxRate: 23,
+        standardCorporateIncomeTaxRate: 26,
+        standardVatRate: 19,
+        ownershipAffectsTax: false,
+        zakatSupported: false
+      };
+    }
     return {
       code: code,
       automatic: false,
@@ -574,6 +660,8 @@
     calculateTurkey: calculateTurkey,
     calculateJordan: calculateJordan,
     calculateMorocco: calculateMorocco,
+    calculateIraq: calculateIraq,
+    calculateAlgeria: calculateAlgeria,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,
