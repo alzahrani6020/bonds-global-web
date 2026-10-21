@@ -820,6 +820,10 @@
         activityEl.innerHTML = '<option value="standard">نشاط عادي / تجاري / خدمي</option><option value="industrial">قطاع صناعي</option><option value="regulated_special">اتصالات / كهرباء / تعدين أساسي / تأمين / وساطة ومالية / تأجير تمويلي</option><option value="bank">بنك</option>';
       } else if (code === 'MA') {
         activityEl.innerHTML = '<option value="standard">شركة عادية</option><option value="financial_special">مؤسسة ائتمان أو جهة مماثلة / بنك المغرب / CDG / تأمين أو إعادة تأمين</option>';
+      } else if (code === 'IQ') {
+        activityEl.innerHTML = '<option value="standard">نشاط شركة عادي</option><option value="foreign_oil_contract">شركة نفط أجنبية / مقاول مشمول بقانون 19 لسنة 2010</option>';
+      } else if (code === 'DZ') {
+        activityEl.innerHTML = '<option value="production_goods">إنتاج السلع</option><option value="construction_tourism">بناء / أشغال عمومية / ري / سياحة أو حمامات مؤهلة</option><option value="other">أنشطة أخرى</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option>';
       }
@@ -827,7 +831,7 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
       document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
@@ -862,6 +866,12 @@
       } else if (code === 'MA') {
         document.getElementById('fiscalProfileHint').textContent =
           'المغرب 2026: 20% لصافي الربح الضريبي الأقل من 100 مليون درهم و35% عند 100 مليون درهم فأكثر؛ 40% للمؤسسات المالية/التأمين المحددة. VAT العام 20%. قواعد الاستمرارية والأنظمة الخاصة لا تُستنتج آليًا.';
+      } else if (code === 'IQ') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'العراق: 15% لباقي أنشطة الشركات، و35% فقط للحالات المشمولة بقانون شركات النفط الأجنبية رقم 19 لسنة 2010. لا يتم افتراض VAT عام في هذا الملف.';
+      } else if (code === 'DZ') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'الجزائر: 19% لإنتاج السلع، 23% للبناء/الأشغال/الري والسياحة المؤهلة، و26% للأنشطة الأخرى؛ VAT العادي 19%. المعدل المخفض لإعادة الاستثمار والحالات المختلطة لا تُطبق آليًا.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'هذه الدولة تعمل بوضع ضريبي يدوي حتى اعتماد ملفها النظامي الموثق؛ لا يتم افتراض معدل تلقائي.';

@@ -832,6 +832,10 @@
         activityEl.innerHTML = '<option value="standard">Standard / commercial / service activity</option><option value="industrial">Industrial sector</option><option value="regulated_special">Telecom / electricity / basic mining / insurance / financial intermediation / finance / leasing</option><option value="bank">Bank</option>';
       } else if (code === 'MA') {
         activityEl.innerHTML = '<option value="standard">Standard company</option><option value="financial_special">Credit institution or assimilated body / Bank Al-Maghrib / CDG / insurance or reinsurance</option>';
+      } else if (code === 'IQ') {
+        activityEl.innerHTML = '<option value="standard">Standard company activity</option><option value="foreign_oil_contract">Foreign oil company / contractor covered by Law No. 19 of 2010</option>';
+      } else if (code === 'DZ') {
+        activityEl.innerHTML = '<option value="production_goods">Production of goods</option><option value="construction_tourism">Construction / public works / hydraulics / qualifying tourism or thermal activity</option><option value="other">Other activities</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">Standard activity</option>';
       }
@@ -839,7 +843,7 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
       document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
@@ -874,6 +878,12 @@
       } else if (code === 'MA') {
         document.getElementById('fiscalProfileHint').textContent =
           'Morocco 2026: 20% below MAD 100m net taxable profit and 35% at or above MAD 100m; 40% for specified financial/insurance institutions. General VAT is 20%. Continuity and special-regime rules are not inferred automatically.';
+      } else if (code === 'IQ') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Iraq: 15% for ordinary company activities and 35% only for cases covered by the foreign oil-company Law No. 19 of 2010. No general VAT rate is asserted in this profile.';
+      } else if (code === 'DZ') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Algeria: 19% for production of goods, 23% for construction/public works/hydraulics and qualifying tourism activities, and 26% for other activities; standard VAT is 19%. Reinvestment and mixed-activity rules are not auto-applied.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'This country remains in manual tax mode until a verified local fiscal profile is approved; no automatic tax rate is assumed.';
