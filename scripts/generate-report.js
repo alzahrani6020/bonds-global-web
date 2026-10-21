@@ -7,7 +7,9 @@ const path = require('path');
   const page = await browser.newPage();
   
   const htmlPath = path.resolve(__dirname, '..', 'calculators', 'feasibility-template.html');
-  const outputPath = process.env.FEASIBILITY_PDF_OUTPUT\n    ? path.resolve(process.env.FEASIBILITY_PDF_OUTPUT)\n    : path.resolve(__dirname, '..', 'calculators', 'feasibility-report.pdf');
+  const outputPath = process.env.FEASIBILITY_PDF_OUTPUT
+    ? path.resolve(process.env.FEASIBILITY_PDF_OUTPUT)
+    : path.resolve(__dirname, '..', 'calculators', 'feasibility-report.pdf');
   
   // Load the original HTML directly (let JS run)
   await page.goto('file://' + htmlPath, { waitUntil: 'networkidle', timeout: 120000 });
