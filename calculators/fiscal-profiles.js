@@ -525,6 +525,214 @@
     };
   }
 
+
+  function calculateSudan(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var annualRevenue = money(input.annualRevenue);
+    var activityType = input.activityType || 'standard_company';
+    var corporateIncomeTaxRate = 15;
+    var taxBase = annualTaxableIncome;
+    var taxBaseType = 'taxable_income';
+
+    if (activityType === 'industrial') corporateIncomeTaxRate = 10;
+    else if (activityType === 'agriculture') corporateIncomeTaxRate = 0;
+    else if (activityType === 'oil_gas') corporateIncomeTaxRate = 35;
+    else if (activityType === 'tobacco') corporateIncomeTaxRate = 30;
+    else if (activityType === 'bank') corporateIncomeTaxRate = 30;
+    else if (activityType === 'communications') {
+      corporateIncomeTaxRate = 5;
+      taxBase = annualRevenue;
+      taxBaseType = 'gross_income';
+    }
+
+    var annualIncomeTaxAmount = taxBase * corporateIncomeTaxRate / 100;
+    return {
+      countryCode: 'SD',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      annualRevenue: annualRevenue,
+      activityType: activityType,
+      taxBaseType: taxBaseType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Sudan rates are modeled from Schedule III of the official Income Tax Act published by the Taxation Chamber.',
+        'Standard companies are modeled at 15%, industrial companies at 10%, agricultural companies at 0%, petroleum/gas and petroleum services at 35%, tobacco at 30%, and banks at 30%.',
+        'Communications companies are taxed at 5% of gross income; this profile therefore uses annual revenue rather than taxable income for that activity.',
+        'Other special regimes and amendments requiring facts not collected by this calculator require separate review.'
+      ]
+    };
+  }
+
+  function calculateYemen(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    if (activityType === 'special_review') return calculateManual(input);
+
+    var corporateIncomeTaxRate = 20;
+    if (activityType === 'oil_mining_concession') corporateIncomeTaxRate = 35;
+    else if (activityType === 'mobile') corporateIncomeTaxRate = 50;
+    else if (activityType === 'international_telecom_tobacco') corporateIncomeTaxRate = 35;
+
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+    return {
+      countryCode: 'YE',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Yemen standard legal-person income tax is modeled at 20%.',
+        'Oil, gas, mining and concession-company cases are modeled at 35%; mobile operators at 50%; international telecommunications and cigarette production/import at 35%.',
+        'Agreement-specific rates, qualifying investment-project rates, and small/micro-enterprise regimes require manual review.',
+        'No general sales-tax/VAT rate is asserted by this profile.'
+      ]
+    };
+  }
+
+  function calculateDjibouti(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var annualRevenue = money(input.annualRevenue);
+    var profitTax = annualTaxableIncome * 0.25;
+    var minimumTax = Math.max(annualRevenue * 0.01, 120000);
+    var annualIncomeTaxAmount = Math.max(profitTax, minimumTax);
+
+    return {
+      countryCode: 'DJ',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      annualRevenue: annualRevenue,
+      corporateIncomeTaxRate: 25,
+      minimumTaxRateOnTurnover: 1,
+      minimumTaxFloorDjf: 120000,
+      profitBasedTaxAmount: profitTax,
+      minimumTaxAmount: minimumTax,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Djibouti IBP is modeled at 25% of net taxable profit.',
+        'The minimum tax is modeled as 1% of annual turnover with a DJF 120,000 floor.',
+        'The calculator uses the greater of the profit-based tax and the minimum tax.',
+        'Special regimes and exemptions require separate review.'
+      ]
+    };
+  }
+
+  function calculateSomalia(input) {
+    input = input || {};
+    var activityType = input.activityType || 'large_business';
+    if (activityType !== 'large_business') return calculateManual(input);
+
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var corporateIncomeTaxRate = 15;
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+    return {
+      countryCode: 'SO',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Somalia large businesses with sales above USD 50,000 are modeled at 15% of profit under the 2025 Income Tax Law guidance.',
+        'Small businesses, medium businesses and non-resident companies use different bases/rates and are routed to manual review because the generic calculator does not collect the required USD sales/base information.',
+        'No VAT rate is asserted by this fiscal profile.'
+      ]
+    };
+  }
+
+  function calculateMauritania(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var annualRevenue = money(input.annualRevenue);
+    var activityType = input.activityType || 'normal';
+    if (activityType === 'special_review') return calculateManual(input);
+
+    var turnoverRate = activityType === 'intermediate' ? 2.5 : 2;
+    var profitTax = annualTaxableIncome * 0.25;
+    var turnoverMinimum = annualRevenue * turnoverRate / 100;
+    var statutoryFloor = activityType === 'normal' ? 100000 : 0;
+    var annualIncomeTaxAmount = Math.max(profitTax, turnoverMinimum, statutoryFloor);
+
+    return {
+      countryCode: 'MR',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      annualRevenue: annualRevenue,
+      activityType: activityType,
+      corporateIncomeTaxRate: 25,
+      minimumTaxRateOnTurnover: turnoverRate,
+      minimumTaxFloorMru: statutoryFloor,
+      profitBasedTaxAmount: profitTax,
+      turnoverMinimumTaxAmount: turnoverMinimum,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Mauritania corporate income tax is modeled at 25% of net taxable profit.',
+        'Normal-regime taxpayers use a 2% turnover minimum and a MRU 100,000 minimum perception; intermediate-regime taxpayers use a 2.5% turnover minimum.',
+        'The calculator applies the greatest applicable amount for the selected regime.',
+        'Transport, fisheries and other special regimes require manual review.'
+      ]
+    };
+  }
+
+  function calculateComoros(input) {
+    input = input || {};
+    var activityType = input.activityType || 'standard_private';
+    if (activityType === 'special_review') return calculateManual(input);
+
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var annualRevenue = money(input.annualRevenue);
+    var profitTax = annualTaxableIncome * 0.35;
+    var minimumTax = annualRevenue * 0.015;
+    var annualIncomeTaxAmount = Math.max(profitTax, minimumTax);
+
+    return {
+      countryCode: 'KM',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      annualRevenue: annualRevenue,
+      activityType: activityType,
+      corporateIncomeTaxRate: 35,
+      minimumTaxRateOnTurnover: 1.5,
+      profitBasedTaxAmount: profitTax,
+      minimumTaxAmount: minimumTax,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Comoros standard private-company corporate income tax is modeled at 35% of taxable profit.',
+        'The minimum corporate tax is modeled at 1.5% of annual turnover.',
+        'Specified public-sector companies and entities keeping accounts outside Comoros can be subject to different rules and are routed to manual review.',
+        'No VAT rate is asserted by this fiscal profile.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -565,6 +773,12 @@
     if (code === 'LB') return calculateLebanon(input);
     if (code === 'PS') return calculatePalestine(input);
     if (code === 'TN') return calculateTunisia(input);
+    if (code === 'SD') return calculateSudan(input);
+    if (code === 'YE') return calculateYemen(input);
+    if (code === 'DJ') return calculateDjibouti(input);
+    if (code === 'SO') return calculateSomalia(input);
+    if (code === 'MR') return calculateMauritania(input);
+    if (code === 'KM') return calculateComoros(input);
     return calculateManual(input);
   }
 
@@ -762,6 +976,114 @@
         financeLaw2026ContributionModeled: false
       };
     }
+
+    if (code === 'SD') {
+      return {
+        code: 'SD',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 15,
+        industrialCorporateIncomeTaxRate: 10,
+        agriculturalCorporateIncomeTaxRate: 0,
+        petroleumCorporateIncomeTaxRate: 35,
+        tobaccoCorporateIncomeTaxRate: 30,
+        bankCorporateIncomeTaxRate: 30,
+        communicationsGrossIncomeTaxRate: 5,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false
+      };
+    }
+    if (code === 'YE') {
+      return {
+        code: 'YE',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 20,
+        oilMiningCorporateIncomeTaxRate: 35,
+        mobileCorporateIncomeTaxRate: 50,
+        internationalTelecomTobaccoCorporateIncomeTaxRate: 35,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false
+      };
+    }
+    if (code === 'DJ') {
+      return {
+        code: 'DJ',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 25,
+        minimumTaxRateOnTurnover: 1,
+        minimumTaxFloorDjf: 120000,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        annualRevenueRequired: true
+      };
+    }
+    if (code === 'SO') {
+      return {
+        code: 'SO',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        largeBusinessCorporateIncomeTaxRate: 15,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        partialAutomaticProfile: true
+      };
+    }
+    if (code === 'MR') {
+      return {
+        code: 'MR',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 25,
+        normalMinimumTaxRateOnTurnover: 2,
+        intermediateMinimumTaxRateOnTurnover: 2.5,
+        normalMinimumTaxFloorMru: 100000,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        annualRevenueRequired: true
+      };
+    }
+    if (code === 'KM') {
+      return {
+        code: 'KM',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 35,
+        minimumTaxRateOnTurnover: 1.5,
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        annualRevenueRequired: true
+      };
+    }
+    if (code === 'SY') {
+      return {
+        code: 'SY',
+        automatic: false,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        manualReason: 'Current official sources confirm a tax-law transition, but a current official indexed source with exact company rates was not available for safe automatic calculation.'
+      };
+    }
+    if (code === 'LY') {
+      return {
+        code: 'LY',
+        automatic: false,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardVatRate: null,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        manualReason: 'Law No. 7 of 2010 is identified by the Libya Tax Authority, but the exact corporate rate was not exposed in the official indexed text used for this calculator.'
+      };
+    }
     return {
       code: code,
       automatic: false,
@@ -787,6 +1109,12 @@
     calculateLebanon: calculateLebanon,
     calculatePalestine: calculatePalestine,
     calculateTunisia: calculateTunisia,
+    calculateSudan: calculateSudan,
+    calculateYemen: calculateYemen,
+    calculateDjibouti: calculateDjibouti,
+    calculateSomalia: calculateSomalia,
+    calculateMauritania: calculateMauritania,
+    calculateComoros: calculateComoros,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,
