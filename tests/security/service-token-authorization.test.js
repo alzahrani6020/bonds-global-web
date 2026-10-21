@@ -461,6 +461,31 @@ describe('service token authorization', () => {
     }
   });
 
+
+  test('introspection forwards optional token-runtime Authorization header', async () => {
+    process.env.BONDS_TOKEN_RUNTIME_AUTHORIZATION = 'Basic dGVzdDp0ZXN0';
+    const fetchImpl = jest.fn(async (_url, options = {}) => {
+      expect(options.headers.Authorization).toBe('Basic dGVzdDp0ZXN0');
+      return {
+        ok: true,
+        json: async () => claims({ jti: 'auth-header-token' })
+      };
+    });
+
+    try {
+      const result = await introspectServiceToken({
+        token: 'opaque-token',
+        url: 'https://token-runtime.example/introspect',
+        fetchImpl
+      });
+
+      expect(result.verified).toBe(true);
+      expect(result.claims.jti).toBe('auth-header-token');
+    } finally {
+      delete process.env.BONDS_TOKEN_RUNTIME_AUTHORIZATION;
+    }
+  });
+
   test('introspection rejects revoked tokens', async () => {
     const fetchImpl = jest.fn(async () => ({
       ok: true,
