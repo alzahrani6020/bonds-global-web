@@ -93,7 +93,7 @@ jobs:
           mkdir -p .vercel
           printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
 
-          npx --no-install vercel pull --yes --environment=production
+          npx --no-install vercel pull --yes --environment=production --scope "$VERCEL_ORG_ID"
 
           env_file=".vercel/.env.production.local"
           test -s "$env_file" || { echo "Vercel Production env file was not created"; exit 1; }
@@ -141,6 +141,39 @@ jobs:
         if: inputs.action == 'stage_reconcile'
         run: npm run geo:build-local
 
+      - name: Fetch current production cities
+        if: inputs.action == 'stage_reconcile'
+        shell: bash
+        env:
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: |
+          set -euo pipefail
+          test -n "${SITE_URL:-}" || { echo "SITE_URL secret is required"; exit 1; }
+          curl --fail --location --retry 3 \
+            --output .tmp-geo/current-cities.json \
+            "${SITE_URL%/}/api/v3/cities?limit=2000"
+          test -s .tmp-geo/current-cities.json
+
+      - name: Build safe canonical-city candidate subset
+        if: inputs.action == 'stage_reconcile'
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/filter-geonames-safe-candidates.js \
+            --cities .tmp-geo/current-cities.json \
+            --source .tmp-geo/arab-localities.ndjson \
+            --output .tmp-geo/geonames-safe-candidates.ndjson \
+            --report .tmp-geo/geonames-safe-candidate-report.json \
+            --max-rows 5000
+
+          SAFE_ROWS="$(wc -l < .tmp-geo/geonames-safe-candidates.ndjson)"
+          SOURCE_ROWS="$(wc -l < .tmp-geo/arab-localities.ndjson)"
+
+          test "$SAFE_ROWS" -gt 0
+          test "$SAFE_ROWS" -le 5000
+          test "$SAFE_ROWS" -lt "$SOURCE_ROWS"
+
+          sha256sum .tmp-geo/geonames-safe-candidates.ndjson > .tmp-geo/geonames-safe-candidates.sha256
       - name: Verify ADM1 source links
         if: inputs.action == 'stage_reconcile'
         shell: bash
@@ -160,7 +193,7 @@ jobs:
           GEO_RECONCILE_APPLY: '1'
         run: |
           set -euo pipefail
-          node scripts/stage-local-geo-dataset.js | tee .tmp-geo/stage.log
+          node scripts/stage-local-geo-dataset.js .tmp-geo/geonames-safe-candidates.ndjson | tee .tmp-geo/stage.log
           RUN_ID="$(sed -n 's/^GEO_RUN_ID=//p' .tmp-geo/stage.log | tail -1)"
           [[ "$RUN_ID" =~ ^[0-9a-fA-F-]{36}$ ]] || { echo "Missing run id"; exit 1; }
           printf 'run_id=%s\n' "$RUN_ID" >> "$GITHUB_OUTPUT"
@@ -188,6 +221,8 @@ jobs:
           path: |
             .tmp-geo/arab-localities-manifest.json
             .tmp-geo/geonames-admin1-review.json
+            .tmp-geo/geonames-safe-candidate-report.json
+            .tmp-geo/geonames-safe-candidates.sha256
             .tmp-geo/stage.log
             .tmp-geo/reconcile.log
           if-no-files-found: warn
