@@ -93,6 +93,7 @@ describe('post-release pipeline contracts', () => {
     expect(health).toContain("'CF-Access-Client-Secret': cfAccessClientSecret");
     expect(health).toContain("status: 'invalid_access_configuration'");
     expect(health).toContain("token_runtime: tokenRuntime.status");
+    expect(health).toContain("token_runtime_access_configured: tokenRuntime.access_configured ?? null");
     expect(health).toContain("(!tokenRuntime.required || tokenRuntime.status === 'ok')");
   });
 
