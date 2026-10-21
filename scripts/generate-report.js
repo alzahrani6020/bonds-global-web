@@ -1,16 +1,16 @@
-const puppeteer = require('puppeteer');
+const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 
 (async () => {
-  const browser = await puppeteer.launch({ headless: 'new' });
+  const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
   
   const htmlPath = path.resolve(__dirname, '..', 'calculators', 'feasibility-template.html');
-  const outputPath = path.resolve(__dirname, '..', 'calculators', 'feasibility-report.pdf');
+  const outputPath = process.env.FEASIBILITY_PDF_OUTPUT\n    ? path.resolve(process.env.FEASIBILITY_PDF_OUTPUT)\n    : path.resolve(__dirname, '..', 'calculators', 'feasibility-report.pdf');
   
   // Load the original HTML directly (let JS run)
-  await page.goto('file://' + htmlPath, { waitUntil: 'networkidle0', timeout: 120000 });
+  await page.goto('file://' + htmlPath, { waitUntil: 'networkidle', timeout: 120000 });
   
   // Wait for all calculations to complete
   await new Promise(r => setTimeout(r, 5000));
