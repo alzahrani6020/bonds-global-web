@@ -828,6 +828,10 @@
         if (activityEl.value === 'natural_gas') activityEl.value = 'oil_hydrocarbon';
       } else if (code === 'TR') {
         activityEl.innerHTML = '<option value="standard">Standard company</option><option value="financial_special">Banks / financial, insurance and other entities/projects subject to the 30% rate</option>';
+      } else if (code === 'JO') {
+        activityEl.innerHTML = '<option value="standard">Standard / commercial / service activity</option><option value="industrial">Industrial sector</option><option value="regulated_special">Telecom / electricity / basic mining / insurance / financial intermediation / finance / leasing</option><option value="bank">Bank</option>';
+      } else if (code === 'MA') {
+        activityEl.innerHTML = '<option value="standard">Standard company</option><option value="financial_special">Credit institution or assimilated body / Bank Al-Maghrib / CDG / insurance or reinsurance</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">Standard activity</option>';
       }
@@ -835,7 +839,7 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
       document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
@@ -864,6 +868,12 @@
       } else if (code === 'TR') {
         document.getElementById('fiscalProfileHint').textContent =
           'Türkiye 2026: 25% standard corporate tax and 30% for specified banks, financial/insurance institutions and covered entities/projects; general VAT is 20%. Other statutory reduced rates are not applied automatically.';
+      } else if (code === 'JO') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Jordan: 20% for most legal persons, 14% for industry, 24% for specified regulated sectors, and 35% for banks; general sales tax is 16%. National Contribution and special regimes are not calculated automatically.';
+      } else if (code === 'MA') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Morocco 2026: 20% below MAD 100m net taxable profit and 35% at or above MAD 100m; 40% for specified financial/insurance institutions. General VAT is 20%. Continuity and special-regime rules are not inferred automatically.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'This country remains in manual tax mode until a verified local fiscal profile is approved; no automatic tax rate is assumed.';

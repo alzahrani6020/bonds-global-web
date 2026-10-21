@@ -321,6 +321,70 @@
     };
   }
 
+
+  function calculateJordan(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    var corporateIncomeTaxRate = 20;
+
+    if (activityType === 'industrial') corporateIncomeTaxRate = 14;
+    else if (activityType === 'regulated_special') corporateIncomeTaxRate = 24;
+    else if (activityType === 'bank') corporateIncomeTaxRate = 35;
+
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+    return {
+      countryCode: 'JO',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Jordan income tax is modeled at 20% for standard legal persons, 14% for the industrial sector, 24% for specified regulated sectors, and 35% for banks.',
+        'The separate National Contribution is not calculated automatically by this simplified taxable-income profile.',
+        'Development-zone, Aqaba, incentive and other special regimes require separate treatment.',
+        'General sales tax remains separate from income tax.'
+      ]
+    };
+  }
+
+  function calculateMorocco(input) {
+    input = input || {};
+    var annualTaxableIncome = money(input.annualTaxableIncome);
+    var activityType = input.activityType || 'standard';
+    var threshold = 100000000;
+    var corporateIncomeTaxRate;
+
+    if (activityType === 'financial_special') corporateIncomeTaxRate = 40;
+    else corporateIncomeTaxRate = annualTaxableIncome >= threshold ? 35 : 20;
+
+    var annualIncomeTaxAmount = annualTaxableIncome * corporateIncomeTaxRate / 100;
+    return {
+      countryCode: 'MA',
+      mode: 'automatic',
+      companyType: input.companyType || 'local_100',
+      foreignOwnershipPct: clampPct(input.foreignOwnershipPct),
+      annualTaxableIncome: annualTaxableIncome,
+      activityType: activityType,
+      corporateIncomeTaxRate: corporateIncomeTaxRate,
+      highProfitThresholdMad: threshold,
+      annualIncomeTaxAmount: annualIncomeTaxAmount,
+      annualZakatAmount: 0,
+      annualFiscalCharges: annualIncomeTaxAmount,
+      notes: [
+        'Morocco 2026 corporate tax is modeled at 20% below MAD 100 million of net taxable profit and 35% at or above MAD 100 million.',
+        'Credit institutions and assimilated bodies, Bank Al-Maghrib, CDG, and insurance/reinsurance companies are modeled at 40%.',
+        'The statutory continuity rule affecting a return from the 35% bracket to 20%, and other special regimes, are not inferred automatically.',
+        'VAT remains separate from corporate income tax.'
+      ]
+    };
+  }
+
   function calculateManual(input) {
     input = input || {};
     var corporateIncomeTaxRate = clampPct(input.corporateIncomeTaxRate);
@@ -354,6 +418,8 @@
     if (code === 'KW') return calculateKuwait(input);
     if (code === 'EG') return calculateEgypt(input);
     if (code === 'TR') return calculateTurkey(input);
+    if (code === 'JO') return calculateJordan(input);
+    if (code === 'MA') return calculateMorocco(input);
     return calculateManual(input);
   }
 
@@ -457,6 +523,37 @@
         reducedRateProfilesModeled: false
       };
     }
+
+    if (code === 'JO') {
+      return {
+        code: 'JO',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 20,
+        industrialCorporateIncomeTaxRate: 14,
+        regulatedCorporateIncomeTaxRate: 24,
+        bankCorporateIncomeTaxRate: 35,
+        standardVatRate: 16,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        nationalContributionModeled: false
+      };
+    }
+    if (code === 'MA') {
+      return {
+        code: 'MA',
+        automatic: true,
+        companyTypes: ['local_100', 'mixed', 'foreign_100'],
+        standardCorporateIncomeTaxRate: 20,
+        highProfitCorporateIncomeTaxRate: 35,
+        highProfitThresholdMad: 100000000,
+        financialCorporateIncomeTaxRate: 40,
+        standardVatRate: 20,
+        ownershipAffectsTax: false,
+        zakatSupported: false,
+        continuityRuleModeled: false
+      };
+    }
     return {
       code: code,
       automatic: false,
@@ -475,6 +572,8 @@
     calculateKuwait: calculateKuwait,
     calculateEgypt: calculateEgypt,
     calculateTurkey: calculateTurkey,
+    calculateJordan: calculateJordan,
+    calculateMorocco: calculateMorocco,
     calculateManual: calculateManual,
     getProfile: getProfile,
     saudiDayBasedZakatRate: saudiDayBasedZakatRate,
