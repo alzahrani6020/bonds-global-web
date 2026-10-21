@@ -836,6 +836,8 @@
         activityEl.innerHTML = '<option value="standard">Standard company activity</option><option value="foreign_oil_contract">Foreign oil company / contractor covered by Law No. 19 of 2010</option>';
       } else if (code === 'DZ') {
         activityEl.innerHTML = '<option value="production_goods">Production of goods</option><option value="construction_tourism">Construction / public works / hydraulics / qualifying tourism or thermal activity</option><option value="other">Other activities</option>';
+      } else if (code === 'PS') {
+        activityEl.innerHTML = '<option value="standard">Standard legal person</option><option value="telecom_monopoly">Telecommunications / concession or monopoly in the Palestinian market</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">Standard activity</option>';
       }
@@ -843,7 +845,7 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ' && code !== 'PS');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
       document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
@@ -884,6 +886,12 @@
       } else if (code === 'DZ') {
         document.getElementById('fiscalProfileHint').textContent =
           'Algeria: 19% for production of goods, 23% for construction/public works/hydraulics and qualifying tourism activities, and 26% for other activities; standard VAT is 19%. Reinvestment and mixed-activity rules are not auto-applied.';
+      } else if (code === 'LB') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Lebanon: this simplified profile applies 15% to capital companies under the real-profit method. VAT is not auto-filled because the ministry page currently exposed to the calculator is not treated as sufficiently current.';
+      } else if (code === 'PS') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'Palestine: 15% for legal persons and 20% for telecommunications companies and companies holding a concession or monopoly in the Palestinian market. VAT is not automatically asserted in this profile.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'This country remains in manual tax mode until a verified local fiscal profile is approved; no automatic tax rate is assumed.';
