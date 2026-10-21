@@ -83,15 +83,32 @@ async function probeTokenRuntime() {
   } catch (_) {
     return { status: 'invalid_configuration', required: true };
   }
+  const channelSecret = String(process.env.BONDS_TOKEN_CHANNEL_SECRET || '').trim();
+  if (!channelSecret) {
+    return {
+      status: 'invalid_channel_configuration',
+      required: true,
+      channel_configured: false,
+    };
+  }
+
   const cfAccessClientId = String(process.env.BONDS_CF_ACCESS_CLIENT_ID || '').trim();
   const cfAccessClientSecret = String(process.env.BONDS_CF_ACCESS_CLIENT_SECRET || '').trim();
   if (Boolean(cfAccessClientId) !== Boolean(cfAccessClientSecret)) {
-    return { status: 'invalid_access_configuration', required: true };
+    return {
+      status: 'invalid_access_configuration',
+      required: true,
+      channel_configured: true,
+    };
   }
-  const accessHeaders = cfAccessClientId ? {
-    'CF-Access-Client-Id': cfAccessClientId,
-    'CF-Access-Client-Secret': cfAccessClientSecret,
-  } : {};
+
+  const accessHeaders = {
+    'X-Bonds-Channel': channelSecret,
+    ...(cfAccessClientId ? {
+      'CF-Access-Client-Id': cfAccessClientId,
+      'CF-Access-Client-Secret': cfAccessClientSecret,
+    } : {}),
+  };
 
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2000);
@@ -106,6 +123,7 @@ async function probeTokenRuntime() {
       return {
         status: 'error',
         required: true,
+        channel_configured: true,
         access_configured: Boolean(cfAccessClientId && cfAccessClientSecret),
         http_status: response.status,
         reported_status: null,
@@ -120,6 +138,7 @@ async function probeTokenRuntime() {
       return {
         status: 'invalid_response',
         required: true,
+        channel_configured: true,
         access_configured: Boolean(cfAccessClientId && cfAccessClientSecret),
         http_status: response.status,
         reported_status: null,
@@ -268,6 +287,7 @@ module.exports = async function handler(req, res) {
         native: nativeStatus,
         fallback: fallbackStatus,
         token_runtime: tokenRuntime.status,
+        token_runtime_channel_configured: tokenRuntime.channel_configured ?? null,
         token_runtime_access_configured: tokenRuntime.access_configured ?? null,
         token_runtime_http_status: tokenRuntime.http_status ?? null,
         token_runtime_reported_status: tokenRuntime.reported_status ?? null,
