@@ -824,6 +824,8 @@
         activityEl.innerHTML = '<option value="standard">نشاط شركة عادي</option><option value="foreign_oil_contract">شركة نفط أجنبية / مقاول مشمول بقانون 19 لسنة 2010</option>';
       } else if (code === 'DZ') {
         activityEl.innerHTML = '<option value="production_goods">إنتاج السلع</option><option value="construction_tourism">بناء / أشغال عمومية / ري / سياحة أو حمامات مؤهلة</option><option value="other">أنشطة أخرى</option>';
+      } else if (code === 'PS') {
+        activityEl.innerHTML = '<option value="standard">شخص معنوي عادي</option><option value="telecom_monopoly">اتصالات / امتياز أو احتكار في السوق الفلسطيني</option>';
       } else {
         activityEl.innerHTML = '<option value="standard">نشاط عادي</option>';
       }
@@ -831,7 +833,7 @@
       var activityValues = Array.prototype.map.call(activityEl.options, function(opt) { return opt.value; });
       if (activityValues.indexOf(previousActivity) !== -1) activityEl.value = previousActivity;
 
-      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ');
+      document.getElementById('activityTypeGroup').classList.toggle('calc-hidden', code !== 'SA' && code !== 'OM' && code !== 'BH' && code !== 'TR' && code !== 'JO' && code !== 'MA' && code !== 'IQ' && code !== 'DZ' && code !== 'PS');
       document.getElementById('capitalInvestmentGroup').classList.toggle('calc-hidden', code !== 'SA' || activityEl.value !== 'oil_hydrocarbon');
       document.getElementById('smallEnterpriseGroup').classList.toggle('calc-hidden', code !== 'OM' || activityEl.value !== 'standard');
       document.getElementById('manualTaxRateGroup').classList.toggle('calc-hidden', !!profile.automatic);
@@ -872,6 +874,12 @@
       } else if (code === 'DZ') {
         document.getElementById('fiscalProfileHint').textContent =
           'الجزائر: 19% لإنتاج السلع، 23% للبناء/الأشغال/الري والسياحة المؤهلة، و26% للأنشطة الأخرى؛ VAT العادي 19%. المعدل المخفض لإعادة الاستثمار والحالات المختلطة لا تُطبق آليًا.';
+      } else if (code === 'LB') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'لبنان: 15% على شركات الأموال الخاضعة لطريقة الربح الحقيقي في هذا الملف المبسط. VAT لا يُملأ تلقائيًا لأن المصدر المنشور المتاح للآلة لا يُعامل كمرجع حديث بما يكفي.';
+      } else if (code === 'PS') {
+        document.getElementById('fiscalProfileHint').textContent =
+          'فلسطين: 15% للأشخاص المعنويين، و20% لشركات الاتصالات والشركات ذات الامتياز أو الاحتكار في السوق الفلسطيني. VAT لا يُفترض تلقائيًا في هذا الملف.';
       } else {
         document.getElementById('fiscalProfileHint').textContent =
           'هذه الدولة تعمل بوضع ضريبي يدوي حتى اعتماد ملفها النظامي الموثق؛ لا يتم افتراض معدل تلقائي.';
