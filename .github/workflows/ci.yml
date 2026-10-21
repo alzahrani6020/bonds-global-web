@@ -82,6 +82,9 @@ jobs:
       - name: Install Playwright Browser
         run: npx playwright install chromium
 
+      - name: Verify feasibility PDF generation
+        run: npm run verify:feasibility-pdf
+
       - name: Start Local Dev Server
         run: npm run dev:local &
 
