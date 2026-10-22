@@ -158,14 +158,19 @@ function validateManifest(manifest, filename) {
 
   const limits = manifest.limits || {};
 
-  const rpm = limits.rate_limit?.requests_per_minute;
-  if (!Number.isInteger(rpm) || rpm < 1) {
-    fail(`${filename}: requests_per_minute must be positive`);
+  const rpmValue = limits.rate_limit?.requests_per_minute;
+  const rpm = rpmValue === undefined ? null : rpmValue;
+  if (rpm !== null && (!Number.isInteger(rpm) || rpm < 1)) {
+    fail(`${filename}: requests_per_minute must be positive when configured`);
   }
 
-  const maxAttempts = limits.retry?.max_attempts;
-  if (!Number.isInteger(maxAttempts) || maxAttempts < 0 || maxAttempts > 10) {
-    fail(`${filename}: retry.max_attempts is invalid`);
+  const maxAttemptsValue = limits.retry?.max_attempts;
+  const maxAttempts = maxAttemptsValue === undefined ? null : maxAttemptsValue;
+  if (
+    maxAttempts !== null &&
+    (!Number.isInteger(maxAttempts) || maxAttempts < 0 || maxAttempts > 10)
+  ) {
+    fail(`${filename}: retry.max_attempts is invalid when configured`);
   }
 
   if (!Array.isArray(manifest.capabilities) || manifest.capabilities.length === 0) {
