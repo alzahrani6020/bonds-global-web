@@ -26,6 +26,21 @@ describe('Dynamic Form Engine', () => {
     expect(form.fields.some(f => f.name === 'country')).toBe(true);
   });
 
+  it('uses intent engines for feasibility orchestration', () => {
+    const form = buildForm({ sector: 'company', intent: 'feasibility', language: 'en' });
+    expect(form.requiredEngines).toEqual(['feasibility', 'market', 'risk', 'knowledge']);
+  });
+
+  it('uses intent engines for risk analysis orchestration', () => {
+    const form = buildForm({ sector: 'company', intent: 'risk_analysis', language: 'en' });
+    expect(form.requiredEngines).toEqual(['risk', 'market', 'knowledge']);
+  });
+
+  it('falls back to sector default engines when intent is not registered', () => {
+    const form = buildForm({ sector: 'company', intent: 'unregistered_intent', language: 'en' });
+    expect(form.requiredEngines).toEqual(['valuation', 'financing', 'risk']);
+  });
+
   it('sorts required fields first', () => {
     const form = buildForm({ sector: 'hotel', intent: 'feasibility', language: 'en' });
     const firstRequiredIndex = form.fields.findIndex(f => f.required);
