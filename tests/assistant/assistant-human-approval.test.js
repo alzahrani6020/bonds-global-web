@@ -26,6 +26,17 @@ describe('Human Approval Queue',()=>{
     expect(dq.state.eq).toContainEqual(['permission','assistant.human_approval']);expect(dq.state.eq).toContainEqual(['status','pending']);expect(dq.state.update.status).toBe('approved');expect(dq.state.update.approvals[0].reviewer_user_id).toBe('admin-1');expect(out.execution_authorized).toBe(false);
   });
   test('admin queue is scoped to assistant approval permission and pending by default',async()=>{const q0=query({data:[],error:null});await listHumanApprovalQueue({supabase:{from:jest.fn(()=>q0.q)}});expect(q0.state.eq).toContainEqual(['permission','assistant.human_approval']);expect(q0.state.eq).toContainEqual(['status','pending']);});
+  test('admin queue exposes exact action snapshot while public view keeps reviewer note private',async()=>{
+    const row={id:'a1',requested_by:'u1',permission:'assistant.human_approval',workflow_key:'wf-1',boundary:'project:p-1',workflow_version:4,action_type:'form_submit',target_id:'wf-1',action_fingerprint:'a'.repeat(64),risk:'high',status:'pending',payload:{action_id:'act-1',action_target:'funding',action_snapshot:{id:'act-1',type:'form_submit',input:{amount:100}}},approvals:[{reviewer_user_id:'admin-1',note:'internal note'}]};
+    const q0=query({data:[row],error:null});
+    const queue=await listHumanApprovalQueue({supabase:{from:jest.fn(()=>q0.q)}});
+    expect(queue.items[0].action_snapshot).toEqual(row.payload.action_snapshot);
+    const {publicApproval}=require('../../lib/assistant/human-approval');
+    const publicView=publicApproval(row);
+    expect(publicView).not.toHaveProperty('action_snapshot');
+    expect(publicView).not.toHaveProperty('decision_note');
+    expect(JSON.stringify(publicView)).not.toContain('internal note');
+  });
   test('public approval never exposes internal reviewer note',()=>{
     const {publicApproval}=require('../../lib/assistant/human-approval');
     const out=publicApproval({
