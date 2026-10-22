@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-ud-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assistant Operations | بوندز</title>
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=1">
+  <style>
+    body{margin:0;background:#f5f0e8;color:#1f2937;font-family:system-ui,sans-serif}
+    .wrap{max-width:1450px;margin:auto;padding:1.25rem}.head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap}
+    .actions{display:flex;gap:.5rem;flex-wrap:wrap}.btn{border:1px solid rgba(0,0,0,.12);background:#fff;border-radius:10px;padding:.65rem .9rem;font-weight:700;cursor:pointer;text-decoration:none;color:inherit}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:.9rem;margin-top:1rem}.card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:1rem;min-width:0}
+    .s12{grid-column:span 12}.s6{grid-column:span 6}.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:.65rem}.kpi{border:1px solid #e5e7eb;border-radius:12px;padding:.75rem}.kpi b{display:block;font-size:1.2rem}
+    .muted{color:#6b7280}.ok{color:#15803d}.warn{color:#92400e}.bad{color:#b91c1c}.error{display:none;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;padding:.8rem;border-radius:10px;margin-top:1rem}
+    table{width:100%;border-collapse:collapse}th,td{padding:.55rem;border-bottom:1px solid #e5e7eb;text-align:right;font-size:.88rem}
+    @media(max-width:850px){.s6{grid-column:span 12}.wrap{padding:.8rem}}
+  </style>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script>BondsAuth.initAdminGuard();</script>
+  <script src="/admin/admin-common.js?v=4"></script>
+</head>
+<body>
+<main class="wrap">
+  <div class="head">
+    <div><h1 style="margin:.1rem 0">عمليات مساعد بوندز</h1><div class="muted">لوحة قراءة تشغيلية · لا تنفذ إجراءات ولا تغيّر الصلاحيات</div></div>
+    <div class="actions">
+      <select id="windowHours" class="btn" aria-label="نافذة القياس"><option value="1">1 ساعة</option><option value="24" selected>24 ساعة</option><option value="72">72 ساعة</option><option value="168">7 أيام</option></select>
+      <button class="btn" id="refreshBtn" type="button">تحديث</button>
+      <a class="btn" href="/admin/platform-center.html">مركز المنصة</a>
+    </div>
+  </div>
+  <div id="errorBox" class="error"></div>
+  <div id="status" class="muted" style="margin-top:.7rem">بانتظار التحقق من الجلسة…</div>
+  <section class="grid">
+    <article class="card s12"><h2>نشاط المساعد</h2><div id="activity" class="kpis"></div></article>
+    <article class="card s6"><h2>الطوابير البشرية</h2><div id="queues"></div></article>
+    <article class="card s6"><h2>السلامة</h2><div id="safety"></div></article>
+    <article class="card s12"><h2>سلامة القياس</h2><div id="telemetry"></div></article>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict';
+  const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  const fmt=v=>v?new Date(v).toLocaleString('ar-SA'):'—';
+  const n=v=>Number(v||0).toLocaleString('ar-SA');
+
+  async function request(){
+    const hours=document.getElementById('windowHours').value;
+    const response=await BondsAuth.authenticatedFetch('/api/v3/admin/assistant-operations?window_hours='+encodeURIComponent(hours),{returnTo:location.pathname});
+    const body=await response.json().catch(()=>({}));
+    if(!response.ok||body.success!==true)throw new Error(body.error||('HTTP '+response.status));
+    return body.assistant_operations;
+  }
+
+  function kpi(label,value,note=''){
+    return '<div class="kpi"><b>'+esc(value)+'</b><span class="muted">'+esc(label)+'</span>'+(note?'<small class="muted" style="display:block">'+esc(note)+'</small>':'')+'</div>';
+  }
+
+  function render(d){
+    const a=d.activity||{},q=d.queues||{},s=d.safety||{},em=s.emergency_mode||{},alerts=s.anomaly_alerts||{};
+    activity.innerHTML=[
+      kpi('إجمالي الأحداث',n(a.total_events),a.truncated?'القراءة وصلت للسقف':''),
+      kpi('بدأ التنفيذ',n(a.execution_started)),
+      kpi('نجح التنفيذ',n(a.execution_succeeded)),
+      kpi('فشل التنفيذ',n(a.execution_failed)),
+      kpi('رُفض التنفيذ',n(a.execution_denied)),
+      kpi('إجمالي الرفض',n(a.denied_total)),
+      kpi('إعادة/Replay',n(a.replay_total)),
+      kpi('كتابة غير مؤكدة',n(a.write_uncertain)),
+      kpi('نسبة نجاح التنفيذ',a.success_rate==null?'—':(a.success_rate*100).toFixed(1)+'%'),
+      kpi('آخر حدث',fmt(a.last_event_at))
+    ].join('');
+
+    const inbox=q.agent_inbox||{},approval=q.human_approvals||{};
+    queues.innerHTML='<table><tbody>'+
+      '<tr><th>Agent Inbox النشط</th><td>'+n(inbox.active_total)+'</td></tr>'+
+      '<tr><th>حرج</th><td>'+n(inbox.critical_priority)+'</td></tr>'+
+      '<tr><th>عالي</th><td>'+n(inbox.high_priority)+'</td></tr>'+
+      '<tr><th>موافقات بشرية معلقة</th><td>'+n(approval.pending_total)+'</td></tr>'+
+      '<tr><th>موافقات حرجة</th><td>'+n(approval.critical_risk)+'</td></tr>'+
+      '<tr><th>موافقات عالية المخاطر</th><td>'+n(approval.high_risk)+'</td></tr>'+
+      '</tbody></table>';
+
+    const modeClass=em.disabled?'bad':'ok';
+    safety.innerHTML='<table><tbody>'+
+      '<tr><th>وضع المساعد</th><td class="'+modeClass+'">'+esc(em.mode||'unknown')+'</td></tr>'+
+      '<tr><th>Kill/Read-only فعال</th><td>'+esc(em.disabled?'نعم':'لا')+'</td></tr>'+
+      '<tr><th>انتهاء الوضع</th><td>'+fmt(em.expires_at)+'</td></tr>'+
+      '<tr><th>تنبيهات شذوذ نشطة</th><td>'+n(alerts.active_total)+'</td></tr>'+
+      '<tr><th>Critical</th><td>'+n(alerts.by_severity?.critical)+'</td></tr>'+
+      '<tr><th>High</th><td>'+n(alerts.by_severity?.high)+'</td></tr>'+
+      '</tbody></table>';
+
+    const sh=d.shadow_authorization||{},p=d.policy||{};
+    telemetry.innerHTML=
+      '<div><b>Shadow Authorization:</b> '+esc(sh.telemetry_persistence||'unknown')+
+      ' · drift metric '+esc(sh.drift_metric_available?'available':'غير متاح بعد')+'</div>'+
+      '<div class="muted" style="margin-top:.45rem">السياسة: قراءة فقط = '+esc(p.read_only===true?'نعم':'لا')+
+      ' · معرفات المستخدم الخام = '+esc(p.raw_user_identifiers===true?'مسموحة':'غير معروضة')+
+      ' · أسرار = '+esc(p.secrets_exposed===true?'معروضة':'غير معروضة')+
+      ' · Execution authority = '+esc(p.execution_authorized===true?'نعم':'لا')+'</div>'+
+      '<div class="muted" style="margin-top:.45rem">نافذة القياس: '+esc(d.window_hours)+' ساعة · آخر تحديث: '+fmt(d.generated_at)+'</div>';
+  }
+
+  async function load(){
+    errorBox.style.display='none';status.textContent='جارٍ تحميل مؤشرات المساعد…';
+    try{const data=await request();render(data);status.innerHTML='<span class="ok">تم تحميل المؤشرات التشغيلية.</span>';}
+    catch(err){errorBox.textContent='فشل التحميل: '+err.message;errorBox.style.display='block';status.textContent='تعذر تحميل المؤشرات.';}
+  }
+  refreshBtn.addEventListener('click',load);windowHours.addEventListener('change',load);
+  if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script>
+<script src="/admin/admin-embed.js?v=4"></script>
+</body>
+</html>
