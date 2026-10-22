@@ -918,10 +918,11 @@
     "shadow_authorization",
     "operational_dashboard",
     "assistant_control_center",
-    "user_control_center"
+    "user_control_center",
+    "audit_search"
   ],
   "next": [
-    "audit_search"
+    "operational_replay"
   ],
   "deferred": [
     "action_tokens",
@@ -938,8 +939,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/user-control-center",
-    "change": "User Control Center implemented_base as a user-scoped session privacy surface. It reuses the existing authenticated Assistant notifications API, lets the user disable structured Assistant session context and clear session-scoped context boundaries, and makes the chat widget omit assistantState while that preference is disabled. No database migration, parallel authorization API, token/provider/model/context-size/throughput/compute control was introduced. Next: audit_search."
+    "branch": "feat/assistant-audit-search",
+    "change": "Audit Search implemented_base as an admin-only read-only search over immutable assistant_action_audit. It reuses ai.operations.read and /api/admin, supports bounded server-side filters/pagination, returns opaque subject_ref instead of raw user identity, and omits session_id, metadata and idempotency material. No migration or parallel authorization plane. Next: operational_replay."
   },
   "production_rollout": {
     "status": "complete",
