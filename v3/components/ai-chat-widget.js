@@ -9,6 +9,7 @@
 (function (window) {
   const API_URL = '/api/v3/ai/chat';
   const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
+  const ASSISTANT_PLAN_URL = '/api/v3/assistant/plan';
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -160,6 +161,41 @@
       font-size: 0.8rem;
       padding: 0.25rem 0.5rem;
     }
+    .bonds-ai-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 0 1rem 0.65rem;
+    }
+    .bonds-ai-action-card {
+      border: 1px solid rgba(197,160,40,0.2);
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      padding: 0.7rem;
+      color: #e8ecf4;
+    }
+    .bonds-ai-action-card strong {
+      display: block;
+      margin-bottom: 0.35rem;
+      color: #f0c96a;
+      font-size: 0.86rem;
+    }
+    .bonds-ai-action-card small {
+      display: block;
+      color: #94a3b8;
+      margin-bottom: 0.55rem;
+      line-height: 1.4;
+    }
+    .bonds-ai-action-card button {
+      background: rgba(212,168,83,0.14);
+      border: 1px solid rgba(197,160,40,0.3);
+      color: #f0c96a;
+      border-radius: 8px;
+      padding: 0.45rem 0.7rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .bonds-ai-action-card button:disabled { opacity: 0.5; cursor: not-allowed; }
   `;
 
   function injectStyles() {
@@ -182,6 +218,7 @@
           <button class="bonds-ai-chat-close" aria-label="إغلاق">×</button>
         </div>
         <div class="bonds-ai-chat-messages"></div>
+        <div class="bonds-ai-actions"></div>
         <div class="bonds-ai-suggestions"></div>
         <div class="bonds-ai-chat-input">
           <input type="text" placeholder="اسأل عن فرصة أو مدينة..." autocomplete="off">
@@ -204,6 +241,7 @@
     const windowEl = root.querySelector('.bonds-ai-chat-window');
     const closeBtn = root.querySelector('.bonds-ai-chat-close');
     const messagesEl = root.querySelector('.bonds-ai-chat-messages');
+    const actionsEl = root.querySelector('.bonds-ai-actions');
     const suggestionsEl = root.querySelector('.bonds-ai-suggestions');
     const input = root.querySelector('.bonds-ai-chat-input input');
     const sendBtn = root.querySelector('.bonds-ai-chat-input button');
@@ -294,6 +332,147 @@
       }
     }
 
+    function languageCode() {
+      return document.documentElement.lang === 'en' ? 'en' : 'ar';
+    }
+
+    function safeInternalRoute(route) {
+      return typeof route === 'string' &&
+        route.startsWith('/') &&
+        !route.startsWith('//') &&
+        !route.includes('\\');
+    }
+
+    async function requestGovernedPlan(action) {
+      const body = {
+        type: action.type,
+        target: action.target || undefined,
+        form: (action.type === 'form_find' || action.type === 'form_load')
+          ? action.target
+          : undefined,
+        language: languageCode()
+      };
+
+      const res = await fetch(ASSISTANT_PLAN_URL, {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok || data.status === 'denied') {
+        const code = data?.context?.code || data?.error || 'ASSISTANT_ACTION_DENIED';
+        throw new Error(code);
+      }
+      return data;
+    }
+
+    function actionLabel(action) {
+      if (action.type === 'site_navigate') return languageCode() === 'en' ? 'Open destination' : 'فتح الوجهة';
+      if (action.type === 'form_find') return languageCode() === 'en' ? 'Find form' : 'العثور على النموذج';
+      if (action.type === 'form_load') return languageCode() === 'en' ? 'Open form' : 'فتح النموذج';
+      return languageCode() === 'en' ? 'Review action' : 'مراجعة الإجراء';
+    }
+
+    function actionTitle(action) {
+      if (action.type === 'site_navigate') return languageCode() === 'en' ? 'Navigation' : 'تنقل معتمد';
+      if (action.type === 'form_find' || action.type === 'form_load') return languageCode() === 'en' ? 'Registered form' : 'نموذج مسجل';
+      return languageCode() === 'en' ? 'Assistant action' : 'إجراء المساعد';
+    }
+
+    async function executeStructuredAction(action, button) {
+      if (!action || action.status === 'denied') return;
+      if (action.requires_confirmation) {
+        addAssistantMessage(
+          languageCode() === 'en'
+            ? 'This action requires confirmation and is not executable in the current phase.'
+            : 'هذا الإجراء يحتاج تأكيدًا، ولن يُنفذ قبل إضافة محرك التأكيد.',
+          true
+        );
+        return;
+      }
+
+      if (button) button.disabled = true;
+      try {
+        if (action.type === 'site_navigate') {
+          const plan = await requestGovernedPlan(action);
+          const route = plan?.context?.navigation?.route;
+          if (!safeInternalRoute(route)) throw new Error('UNSAFE_NAVIGATION_ROUTE');
+          window.location.assign(route);
+          return;
+        }
+
+        if (action.type === 'form_find' || action.type === 'form_load') {
+          const plan = await requestGovernedPlan(action);
+          renderStructuredEnvelope(plan, { appendReply: true });
+          if (action.type === 'form_load') {
+            const navTarget = plan?.context?.form?.navigation_target;
+            if (navTarget) {
+              renderActionCards([{
+                id: action.id + '-navigate',
+                type: 'site_navigate',
+                capability: 'site_navigate',
+                target: navTarget,
+                risk: 'low',
+                requires_confirmation: false,
+                status: 'ready'
+              }]);
+            }
+          }
+          return;
+        }
+
+        addAssistantMessage(
+          languageCode() === 'en'
+            ? 'This action is not executable in the current widget phase.'
+            : 'هذا الإجراء غير قابل للتنفيذ في مرحلة الواجهة الحالية.',
+          true
+        );
+      } catch (err) {
+        console.error('[BondsAssistantAction]', err);
+        addAssistantMessage(
+          languageCode() === 'en'
+            ? 'The governed action could not be completed.'
+            : 'تعذر تنفيذ الإجراء عبر المسار المحكوم.',
+          true
+        );
+      } finally {
+        if (button) button.disabled = false;
+      }
+    }
+
+    function renderActionCards(actions = []) {
+      actionsEl.innerHTML = '';
+      actions
+        .filter(action => action && action.status !== 'denied')
+        .forEach(action => {
+          const card = document.createElement('div');
+          card.className = 'bonds-ai-action-card';
+          card.dataset.actionId = String(action.id || '');
+
+          const title = document.createElement('strong');
+          title.textContent = actionTitle(action);
+
+          const detail = document.createElement('small');
+          detail.textContent = String(action.target || action.capability || action.type || '');
+
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.textContent = actionLabel(action);
+          button.addEventListener('click', () => executeStructuredAction(action, button));
+
+          card.appendChild(title);
+          card.appendChild(detail);
+          card.appendChild(button);
+          actionsEl.appendChild(card);
+        });
+    }
+
+    function renderStructuredEnvelope(envelope, { appendReply = false } = {}) {
+      if (!envelope || typeof envelope !== 'object') return;
+      if (appendReply && envelope.reply) addAssistantMessage(envelope.reply);
+      renderActionCards(Array.isArray(envelope.actions) ? envelope.actions : []);
+    }
+
     function renderSuggestions() {
       if (context.mode === 'project' && context.projectId) {
         const defaults = [
@@ -357,6 +536,9 @@
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
         addAssistantMessage(data.reply, data.source === 'fallback');
+        if (Array.isArray(data.actions) || Array.isArray(data.ui)) {
+          renderStructuredEnvelope(data);
+        }
       } catch (err) {
         console.error('[BondsAIChat]', err);
         addAssistantMessage('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.', true);
@@ -373,6 +555,9 @@
     });
 
     window.BondsAIChat.updateContext = updateContext;
+    window.BondsAssistant = window.BondsAssistant || {};
+    window.BondsAssistant.execute = executeStructuredAction;
+    window.BondsAssistant.renderEnvelope = envelope => renderStructuredEnvelope(envelope, { appendReply: true });
   }
 
   window.BondsAIChat = window.BondsAIChat || {};
