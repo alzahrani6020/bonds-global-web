@@ -3,21 +3,34 @@
   "project": "BONDS Dual-Core Self-Evolving Intelligence System",
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
-  "current_phase": "phase0-persistent-project-memory",
-  "current_workstream": "p0.3-durable-checkpoint-and-recovery",
-  "status": "in_progress",
-  "baseline_main_sha": "10a980372a167d6e8c95a0417a7f5bcada938092",
+  "current_phase": "phase1-dual-core-foundation",
+  "current_workstream": "phase1-bootstrap",
+  "status": "ready",
+  "baseline_main_sha": "365af487f08d87fb02953824f11c6af8c4755cb3",
   "last_completed": [
     "p0.1-canonical-project-memory",
-    "p0.2-persistent-checkpoint-library"
-  ],
-  "currently_working_on": [
+    "p0.2-persistent-checkpoint-library",
     "p0.3-local-sqlite-checkpoint-store",
     "p0.3-remote-checkpoint-metadata",
-    "p0.3-recovery-precedence"
+    "p0.3-recovery-precedence",
+    "p0.3-supabase-migration-verified"
   ],
-  "next_action": "validate P0.3 in CI, then merge, apply and verify the Supabase checkpoint migration, update state to phase1-ready",
+  "currently_working_on": [],
+  "next_action": "start Phase 1: Dynamic Intelligence Bus, shared event taxonomy, Evolution state machine, Runtime Capability Profiler, Resource Scheduler, and Core A/Core B priority arbitration",
   "blocked": [],
+  "verification": {
+    "pr_425_merge_sha": "10a980372a167d6e8c95a0417a7f5bcada938092",
+    "pr_427_merge_sha": "365af487f08d87fb02953824f11c6af8c4755cb3",
+    "supabase_project": "hutxsqzplyuqgnghsrcs",
+    "evolution_checkpoints_rls_enabled": true,
+    "anon_select": false,
+    "authenticated_select": false,
+    "service_role_access": true,
+    "evolution_save_checkpoint_security_definer": false,
+    "anon_execute": false,
+    "authenticated_execute": false,
+    "service_execute": true
+  },
   "approved_architecture": {
     "dual_core": true,
     "operational_core": true,
@@ -37,5 +50,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p0.3-candidate"
+  "updated_by": "phase0-closeout"
 }
