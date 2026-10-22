@@ -85,8 +85,8 @@ describe('assistant persistent write idempotency', () => {
     expect(source).toContain('requestIdempotencyClaim(planned, idempotencyKey)');
     expect(source).toContain("claim.state === 'replay_succeeded'");
     expect(source).toContain('adapter.saveDraft({ idempotency_key:idempotencyKey })');
-    expect(source).toMatch(/requestIdempotencyResolve\\(\\s*planned,\\s*idempotencyKey,\\s*'succeeded',\\s*result\\s*\\)/s);
-    expect(source).toMatch(/requestIdempotencyResolve\\(\\s*planned,\\s*idempotencyKey,\\s*'uncertain',\\s*null\\s*\\)/s);
+    expect(source).toMatch(/requestIdempotencyResolve\(\s*planned,\s*idempotencyKey,\s*'succeeded',\s*result\s*\)/s);
+    expect(source).toMatch(/requestIdempotencyResolve\(\s*planned,\s*idempotencyKey,\s*'uncertain',\s*null\s*\)/s);
     expect(source).not.toContain('ASSISTANT_IDEMPOTENCY_PREFIX');
     expect(source).not.toContain("status:'failed'");
   });
