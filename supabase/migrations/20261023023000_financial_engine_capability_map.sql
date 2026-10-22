@@ -11,6 +11,7 @@ with mappings(service_code, capability_code, run_order, is_required) as (
     ('financial_analysis','financial_analysis_run',10,true),
     ('cashflow_management','cash_flow_analysis_run',10,true),
     ('funding_readiness','funding_readiness_run',10,true),
+    ('funding_readiness','creditworthiness_run',20,false),
     ('feasibility_studies','feasibility_run',10,true),
     ('asset_company_valuation','valuation_run',10,true),
     ('risk_analysis','risk_analysis_run',10,true),
