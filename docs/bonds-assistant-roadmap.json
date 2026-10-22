@@ -557,7 +557,7 @@
       "id": 88,
       "title": "Draft Center",
       "phase": "phase2",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": 89,
@@ -899,10 +899,11 @@
     "persistent_workflow_state",
     "document_assistant_classification_extraction",
     "document_to_workflow",
-    "event_driven_assistant"
+    "event_driven_assistant",
+    "notifications"
   ],
   "next": [
-    "notifications"
+    "draft_center"
   ],
   "deferred": [
     "action_tokens",
@@ -919,8 +920,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-notifications",
-    "change": "Event-Driven Assistant is complete in production on SHA 2b9e6819fa4ff5e41c0444c853c68dfdb7c0d5cc. Started Notifications as structured event-derived notices with bilingual copy, priority, registered logical actions only, no free-form URLs, and explicit auto_execute=false / authorization_granted=false."
+    "branch": "feat/assistant-draft-center-reconciled",
+    "change": "Structured Notifications and Event-Driven Assistant V1 are production-verified on current main SHA 8341099ec9734da14812ef996bfe730633d3ba3d. Draft Center started as a read-only unified view over existing owned form draft tables, using schema-aware per-source selects, exact user ownership filters, no parallel draft store, no submit path, and no execution authorization."
   },
   "production_rollout": {
     "status": "complete",
