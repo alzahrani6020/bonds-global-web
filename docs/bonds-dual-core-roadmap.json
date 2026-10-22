@@ -1,0 +1,67 @@
+{
+  "schema_version": 1,
+  "name": "bonds-dual-core-self-evolving-intelligence-system",
+  "source_of_truth": "docs/BONDS_DUAL_CORE_MASTER_ARCHITECTURE.md",
+  "bootstrap": "docs/PROJECT_BOOTSTRAP.md",
+  "status": "in_progress",
+  "current_phase": "phase0-persistent-project-memory",
+  "phases": [
+    {
+      "id": "phase0",
+      "title": "Persistent Project Memory",
+      "status": "in_progress",
+      "items": [
+        {
+          "id": "p0.1",
+          "title": "Canonical project memory files",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p0.2",
+          "title": "Persistent checkpoint library",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p0.3",
+          "title": "Local SQLite + remote checkpoint metadata",
+          "status": "planned"
+        }
+      ]
+    },
+    {
+      "id": "phase1",
+      "title": "Dual-Core Foundation",
+      "status": "planned"
+    },
+    {
+      "id": "phase2",
+      "title": "Learning Foundation",
+      "status": "planned"
+    },
+    {
+      "id": "phase3",
+      "title": "Candidate Engineering",
+      "status": "planned"
+    },
+    {
+      "id": "phase4",
+      "title": "Approval & Integration",
+      "status": "planned"
+    },
+    {
+      "id": "phase5",
+      "title": "CI / Release",
+      "status": "planned"
+    },
+    {
+      "id": "phase6",
+      "title": "Self-Training",
+      "status": "planned"
+    },
+    {
+      "id": "phase7",
+      "title": "Control Center",
+      "status": "planned"
+    }
+  ]
+}
