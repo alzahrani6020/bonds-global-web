@@ -12,6 +12,7 @@ const { prepareConfirmation, resolveConfirmation } = require('../../lib/assistan
 const { claimAssistantAction, resolveAssistantAction } = require('../../lib/assistant/idempotency');
 const { getSupabaseClient } = require('../lib/supabase');
 const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
+const { buildDocumentAssistantView, normalizeDocumentExtraction } = require('../../lib/assistant/document-intelligence');
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 
 function sendJson(res, status, body) {
@@ -289,6 +290,71 @@ async function assistantRouter(req, res, path, user) {
         'WORKFLOW_VERSION_REQUIRED'
       ].includes(err.message);
       return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/documents/analyze' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    const documentId = typeof body.document_id === 'string' ? body.document_id.trim() : '';
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(documentId)) {
+      return sendJson(res, 422, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'DOCUMENT_ID_INVALID'
+      });
+    }
+
+    const supabase = getSupabaseClient();
+    const { data, error } = await supabase.rpc('assistant_get_client_document', {
+      p_user_id:user.id,
+      p_document_id:documentId
+    });
+
+    if (error) {
+      return sendJson(res, 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'DOCUMENT_LOOKUP_FAILED'
+      });
+    }
+
+    const document = Array.isArray(data) ? data[0] : data;
+    if (!document) {
+      return sendJson(res, 404, {
+        protocol:PROTOCOL,
+        status:'not_found',
+        error:'DOCUMENT_NOT_FOUND'
+      });
+    }
+
+    try {
+      const view = buildDocumentAssistantView(document);
+      let extraction = null;
+      const existing = document.extracted_data;
+      if (existing && typeof existing === 'object' && !Array.isArray(existing) &&
+          typeof existing.document_type === 'string' && Array.isArray(existing.fields)) {
+        extraction = normalizeDocumentExtraction({
+          documentId:document.id,
+          documentType:existing.document_type,
+          fields:existing.fields
+        });
+      }
+
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        document:view,
+        extraction
+      });
+    } catch (err) {
+      return sendJson(res, 422, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
