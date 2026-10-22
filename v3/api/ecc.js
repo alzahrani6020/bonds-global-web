@@ -12,6 +12,7 @@
 const { aggregateProjectStatus, aggregatePortfolioStatus, generateNotifications, executiveSearch } = require('../../lib/ecc');
 const { analyze } = require('../../lib/ai/orchestrator');
 const { buildPrompt } = require('../../lib/ai/prompts');
+const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
 
 function parseBody(req) {
   return new Promise((resolve, reject) => {
@@ -143,7 +144,7 @@ async function handleAdvisor(req, res, path, supabase, user) {
 
   try {
     const body = await parseBody(req);
-    const { projectId, message, history = [] } = body;
+    const { projectId, message, history = [], assistantState = null } = body;
     if (!projectId) return sendJson(res, 400, { error: 'projectId is required' });
     if (!message) return sendJson(res, 400, { error: 'message is required' });
 
@@ -151,6 +152,9 @@ async function handleAdvisor(req, res, path, supabase, user) {
       projectId,
       supabase,
       userId: user?.id
+    });
+    const safeAssistantState = sanitizeAssistantState(assistantState, {
+      expectedBoundary: `project:${String(projectId).trim()}`
     });
 
     let aiResult;
@@ -161,6 +165,7 @@ async function handleAdvisor(req, res, path, supabase, user) {
         type: 'ecc_advisor',
         payload: {
           context: buildAdvisorContext(status),
+          assistantState: conversationalStateView(safeAssistantState),
           userMessage: message,
           history: history.slice(-6)
         }

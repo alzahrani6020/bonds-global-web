@@ -203,7 +203,7 @@
       "id": 29,
       "title": "UI Action Bus",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 30,
@@ -515,7 +515,7 @@
       "id": 81,
       "title": "Cross-Page State",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 82,
@@ -575,13 +575,13 @@
       "id": 91,
       "title": "Assistant State Store",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 92,
       "title": "Structured Conversation State",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 93,
@@ -593,7 +593,7 @@
       "id": 94,
       "title": "Context Boundary",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 95,
@@ -866,10 +866,14 @@
     "calculation_authority_separation",
     "calculator_orchestration",
     "chat_widget_action_renderer",
-    "ui_action_bus"
+    "ui_action_bus",
+    "assistant_context_state",
+    "cross_page_state",
+    "assistant_state_store",
+    "structured_conversation_state",
+    "context_boundary"
   ],
   "next": [
-    "assistant_context_state",
     "prefill_provenance",
     "confirmation_engine",
     "save_draft"
@@ -889,7 +893,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-chat-widget-actions",
-    "change": "Connected the AI chat widget to BONDS_ASSISTANT_PROTOCOL_V1 structured actions. The widget renders governed action cards and re-plans site navigation through /assistant/plan before following registry-resolved internal routes; confirmation-required actions remain non-executable."
+    "branch": "feat/bonds-assistant-context-state",
+    "change": "Added session-scoped structured assistant context state with explicit project/city boundaries, cross-page persistence, bounded fields, and boundary resets. AI envelope context is not silently promoted into confirmed_facts."
   }
 }
