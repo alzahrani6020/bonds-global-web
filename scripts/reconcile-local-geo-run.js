@@ -2,7 +2,7 @@
 'use strict';
 
 const { Client } = require('pg');
-const { scoreCandidate } = require('../lib/geo/normalization');
+const { scoreCandidate, normalizeKey } = require('../lib/geo/normalization');
 
 const RUN_ID = process.argv[2];
 const APPLY = process.env.GEO_RECONCILE_APPLY === '1';
@@ -84,6 +84,42 @@ async function main() {
         }
       }
 
+      let safeCandidate = null;
+      const safeCandidateCityCode = raw.raw_payload?._candidate_city_code || raw.raw_payload?.candidate_city_code || null;
+      if (!candidates.length && safeCandidateCityCode) {
+        const safeTarget = await client.query(
+          `select
+             p.id,p.canonical_code,p.country_code,p.admin1_id,p.name_ar,p.name_en,p.canonical_name,
+             p.lat,p.lng,p.source_code,p.source_id,
+             c.code as city_code,c.name_ar as city_name_ar,c.name_en as city_name_en
+           from public.cities c
+           join public.geo_places p on p.id=c.geo_place_id
+           where c.code=$1 and c.country_code=$2
+             and c.is_active=true and p.is_active=true
+           limit 2`,
+          [safeCandidateCityCode, raw.country_code]
+        );
+
+        if (safeTarget.rows.length === 1) {
+          const target = safeTarget.rows[0];
+          const rawKeys = [...new Set(
+            [raw.name_ar, raw.name_en]
+              .map(normalizeKey)
+              .filter(Boolean)
+          )];
+          const targetKeys = [...new Set(
+            [target.city_name_ar, target.city_name_en]
+              .map(normalizeKey)
+              .filter(Boolean)
+          )];
+
+          if (rawKeys.some(key => targetKeys.includes(key))) {
+            safeCandidate = target;
+            candidates = [target];
+          }
+        }
+      }
+
       if (!candidates.length) {
         const nameCandidates = await client.query(
           `select id,canonical_code,country_code,admin1_id,name_ar,name_en,canonical_name,lat,lng,source_code,source_id
@@ -114,7 +150,17 @@ async function main() {
       let reason;
       let adminScore = null;
 
-      if (!chosen) {
+      if (safeCandidate) {
+        decision = 'auto_match';
+        matchType = 'safe_candidate_city_code';
+        overallScore = 99;
+        canonicalId = safeCandidate.id;
+        matched++;
+        reason = {
+          reason: 'safe_candidate_city_code',
+          city_code: safeCandidateCityCode
+        };
+      } else if (!chosen) {
         decision = 'new_canonical';
         matchType = 'new_place';
         overallScore = 90;
