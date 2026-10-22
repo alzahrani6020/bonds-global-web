@@ -212,8 +212,64 @@ async function generateNativeReply(messages, context, options = {}) {
   };
 }
 
+function generateServiceDrivenReply(userMessage, context) {
+  const serviceCode = String(context?.serviceCode || '').trim();
+  if (!serviceCode) return null;
+
+  const msg = String(userMessage || '').toLowerCase();
+  const serviceName = context?.serviceName || serviceCode;
+  const requirements = Array.isArray(context?.serviceRequirements) ? context.serviceRequirements : [];
+  const deliverables = Array.isArray(context?.serviceDeliverables) ? context.serviceDeliverables : [];
+  const capabilities = Array.isArray(context?.serviceCapabilities) ? context.serviceCapabilities : [];
+  const dependencies = Array.isArray(context?.serviceDependencies) ? context.serviceDependencies : [];
+
+  if (msg.includes('متطلبات') || msg.includes('المطلوب') || msg.includes('مستند') || msg.includes('وثائق')) {
+    if (!requirements.length) {
+      return `لا توجد متطلبات منشورة حالياً لخدمة "${serviceName}" في سجل خدمات بوندز. يمكنني متابعة الخدمة معك وتحديد البيانات الناقصة عند توفرها.`;
+    }
+    const lines = requirements.slice(0, 12).map((row, index) =>
+      `${index + 1}. ${row.label}${row.required ? ' — مطلوب' : ' — اختياري'}`
+    );
+    return `المتطلبات المسجلة لخدمة "${serviceName}":\n${lines.join('\n')}`;
+  }
+
+  if (msg.includes('مخرجات') || msg.includes('نتيجة الخدمة') || msg.includes('ماذا سأحصل')) {
+    if (!deliverables.length) {
+      return `لا توجد مخرجات منشورة حالياً لخدمة "${serviceName}" في سجل الخدمات.`;
+    }
+    return `المخرجات المسجلة لخدمة "${serviceName}":\n${deliverables.slice(0, 12).map((item, index) => `${index + 1}. ${item}`).join('\n')}`;
+  }
+
+  if (msg.includes('قدرات') || msg.includes('أدوات') || msg.includes('ماذا تستطيع') || msg.includes('ما الذي تستطيع')) {
+    if (!capabilities.length) {
+      return `لا توجد قدرات تشغيلية منشورة حالياً لخدمة "${serviceName}". يمكنني الاستمرار في الإرشاد وجمع البيانات المطلوبة دون ادعاء تنفيذ غير متاح.`;
+    }
+    const readable = capabilities.slice(0, 15).map(code => String(code).replace(/[_-]+/g, ' '));
+    return `القدرات التشغيلية المسجلة لخدمة "${serviceName}":\n${readable.map((item, index) => `${index + 1}. ${item}`).join('\n')}`;
+  }
+
+  if (msg.includes('اعتماد') || msg.includes('تعتمد') || msg.includes('خدمات أخرى')) {
+    if (!dependencies.length) {
+      return `لا توجد خدمات سابقة إلزامية مسجلة حالياً لخدمة "${serviceName}".`;
+    }
+    return `الخدمات المرتبطة أو السابقة لخدمة "${serviceName}":\n${dependencies.slice(0, 12).map((item, index) => `${index + 1}. ${item}`).join('\n')}`;
+  }
+
+  if (msg.includes('الخطوة التالية') || msg.includes('ابدأ') || msg.includes('نبدأ')) {
+    const required = requirements.filter(row => row.required).slice(0, 6);
+    if (required.length) {
+      return `الخطوة التالية لخدمة "${serviceName}" هي تجهيز البيانات المطلوبة أولاً:\n${required.map((row, index) => `${index + 1}. ${row.label}`).join('\n')}`;
+    }
+    return `يمكننا البدء بخدمة "${serviceName}" الآن. أخبرني بهدفك والبيانات المتوفرة لديك، وسأحدد الخطوة التالية وفق القدرات المسجلة للخدمة.`;
+  }
+
+  return null;
+}
+
 function generateDataDrivenReply(userMessage, context) {
   const msg = (userMessage || '').toLowerCase();
+  const serviceReply = generateServiceDrivenReply(userMessage, context);
+  if (serviceReply) return serviceReply;
   const city = context?.cityName || context?.cityCode || 'المدينة المختارة';
   const activity = context?.activityName || context?.activityCode || 'النشاط المختار';
   const m = context?.marketData || {};
@@ -224,6 +280,10 @@ function generateDataDrivenReply(userMessage, context) {
 
   // Greeting / general
   if (msg.match(/^(مرحبا|مرحباً|هلا|أهلا|السلام|سلام|مساعد|من أنت|ما هي|ما هو)/)) {
+    if (context?.serviceCode) {
+      const service = context.serviceName || context.serviceCode;
+      return `مرحباً! أنا مساعد بوندز. أنت ضمن خدمة "${service}". أستطيع توضيح المتطلبات والمخرجات والقدرات المسجلة والخطوة التالية، أو مساعدتك في البيانات والتحليل المرتبط بالخدمة.`;
+    }
     return `مرحباً! أنا مساعد بوندز. أساعدك في تحليل الفرص الاستثمارية في المدن العربية بناءً على بيانات Bonds V3 Data Engine. اختر مدينة ونشاطاً، ثم اسألني عن التقييم، المخاطر، المقارنات، أو حجم السوق.`;
   }
 
