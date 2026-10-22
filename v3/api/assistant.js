@@ -9,6 +9,8 @@ const contract = require('../../lib/assistant/assistant-protocol.contract.json')
 const navigation = require('../../lib/assistant/navigation-registry.json');
 const forms = require('../../lib/assistant/form-registry.json');
 const { prepareConfirmation, resolveConfirmation } = require('../../lib/assistant/confirmation-engine');
+const { claimAssistantAction, resolveAssistantAction } = require('../../lib/assistant/idempotency');
+const { getSupabaseClient } = require('../lib/supabase');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -89,6 +91,72 @@ async function assistantRouter(req, res, path, user) {
       });
     } catch (err) {
       return sendJson(res, 409, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/idempotency/claim' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const idempotency = await claimAssistantAction({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        action:body.action,
+        idempotencyKey:body.idempotency_key
+      });
+      const conflict = ['in_progress', 'uncertain', 'key_conflict'].includes(idempotency.state);
+      return sendJson(res, conflict ? 409 : 200, {
+        protocol:PROTOCOL,
+        status: conflict ? 'denied' : 'ready',
+        idempotency
+      });
+    } catch (err) {
+      const clientError = [
+        'INVALID_IDEMPOTENCY_KEY',
+        'IDEMPOTENCY_USER_REQUIRED',
+        'IDEMPOTENCY_ACTION_NOT_SUPPORTED'
+      ].includes(err.message);
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/idempotency/resolve' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const idempotency = await resolveAssistantAction({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        action:body.action,
+        idempotencyKey:body.idempotency_key,
+        status:body.status,
+        result:body.result
+      });
+      const conflict = ['missing', 'key_conflict', 'uncertain'].includes(idempotency.state);
+      return sendJson(res, conflict ? 409 : 200, {
+        protocol:PROTOCOL,
+        status: conflict ? 'denied' : 'completed',
+        idempotency
+      });
+    } catch (err) {
+      const clientError = [
+        'INVALID_IDEMPOTENCY_KEY',
+        'IDEMPOTENCY_USER_REQUIRED',
+        'INVALID_IDEMPOTENCY_STATUS'
+      ].includes(err.message);
+      return sendJson(res, clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
