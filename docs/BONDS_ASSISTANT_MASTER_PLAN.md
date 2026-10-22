@@ -1,0 +1,634 @@
+# BONDS Assistant — Master Plan
+
+> **Canonical project memory for the BONDS conversational assistant architecture.**
+>
+> Repository: `alzahrani6020/bonds-global-web`  
+> Baseline main SHA at creation: `20c3c990b30f2a9ceaac0e6b2d8157a236c9fb51`  
+> Created: 2026-10-22  
+> Language of record: Arabic  
+> Status: PLANNED / LIVING DOCUMENT
+
+## 1. Purpose
+
+هذا الملف هو المرجع المعماري الدائم لمشروع **BONDS Assistant**. يجب الرجوع إليه قبل بدء أو استئناف أي عمل متعلق بالشات، الذكاء الاصطناعي، القدرات، النماذج، التنقل، التوكنات، الأتمتة أو رحلات المستخدم.
+
+الهدف النهائي هو تحويل الشات من واجهة سؤال وجواب إلى **طبقة تشغيل محادثية للموقع** تعمل وفق المسار:
+
+```text
+User Goal
+  -> Intent
+  -> Plan
+  -> Authorization
+  -> Structured Action
+  -> Capability
+  -> Service Token when required
+  -> Execution
+  -> Verification
+  -> UI Update
+  -> Audit Receipt
+```
+
+## 2. الحقائق المؤكدة عند إنشاء الخطة
+
+- يوجد `v3/components/ai-chat-widget.js` ويعمل كشات داخل الموقع.
+- يوجد `v3/api/ai.js` للمحادثة والاستدلال.
+- يوجد `lib/ai/inference-router.js` و`lib/ai/orchestrator.js`.
+- يوجد Capability Registry وPlanner وGovernance Gateway وGoverned Executor وRuntime Adapters.
+- يوجد `lib/forms/dynamic-form-engine.js`.
+- توجد بنية Funding File تشمل المراحل والمتطلبات وsubmissions والمسارات العربية والإنجليزية.
+- يوجد Service Token Broker بواجهات `/broker/issue`, `/broker/revoke`, `/introspect`.
+- Broker-issued Service Tokens أحادية الاستخدام عند introspection.
+- Runtime contract الحالي: contract v2 / schema v3.
+- Service Token TTL الحالي ثابت 3600 ثانية.
+- User Session منفصل عن Service Token.
+- آخر تغيير provider-agnostic لا يربط authorization بمزود AI أو model أو compute ceiling.
+- Chat API الحالي ما زال يحتوي قيودًا مستقلة: rate limit لكل IP، output clamp محلي، timeout محلي. هذه ليست جزءًا من Capability Governance ويجب مراجعتها عند بناء Assistant V1.
+
+## 3. مبادئ لا يجب كسرها
+
+1. **التوكن يحدد من يستطيع الفعل، لا مدى قوة الذكاء الاصطناعي.**
+2. لا يوضع model/provider/context/throughput/compute داخل authorization token.
+3. لا ينفذ النص الحر ككود أو رابط أو أمر مباشر.
+4. التنفيذ يتم فقط من خلال capabilities مسجلة وعقود structured actions.
+5. لا يسمح للـAI باختراع URL أو DOM selector أو SQL أو JavaScript للتنفيذ.
+6. أي فعل حساس يمر عبر governance وconfirmation المناسب.
+7. أي معلومة مستنتجة من AI لا تتحول إلى حقيقة محفوظة قبل التأكيد.
+8. الحسابات المالية تنفذها المحركات/الحاسبات، والـAI يفسر النتائج.
+9. البيانات الحساسة لا تُرسل إلى مزود خارجي إلا وفق سياسة بيانات واضحة.
+10. يجب أن يبقى النظام قابلًا للعمل في degraded mode حتى لو تعطل AI.
+11. لا يتم تغيير Service Token Runtime الحالي بلا حاجة عملية واختبارات قبول كاملة.
+12. لا يتم إزالة أو إضعاف audience/scope/revocation/replay protections.
+13. كل تغيير معماري يجب أن يكون versioned ومختبرًا وقابلًا للتراجع.
+14. المستودع هو مصدر الحقيقة لهذه الخطة، وليس ذاكرة المحادثة وحدها.
+
+---
+
+# 4. جميع الاقتراحات المعمارية والتنفيذية
+
+## A. طبقة المساعد والبروتوكول
+
+### 1. BONDS Assistant V1
+إنشاء طبقة مساعد مركزية للموقع تكون نقطة الدخول الموحدة للطلبات المحادثية والإجراءات.
+
+### 2. Assistant API
+إنشاء نقطة دخول موحدة مثل `/api/v3/assistant`.
+
+### 3. BONDS_ASSISTANT_PROTOCOL_V1
+عقد موحد بين الشات والواجهة والقدرات والخدمات.
+
+### 4. Structured Response Contract
+الرد يدعم `reply`, `actions`, `cards`, `forms`, `confirmations`, `navigation`, `suggestions`, `status`.
+
+### 5. Structured Actions
+كل إجراء يعبّر عنه بكائن منظم، لا بنص حر.
+
+### 6. أوضاع تشغيل المساعد
+دعم أوضاع مثل `assist`, `guide`, `execute`.
+
+### 7. فصل الفهم عن التنفيذ
+النموذج يفهم ويقترح، والمنظومة تتحقق ثم تنفذ.
+
+### 8. فصل التخطيط عن التنفيذ
+الخطة لا تنفذ تلقائيًا؛ كل خطوة تمر على governance.
+
+### 9. Intent Confidence Engine
+قياس ثقة فهم النية وعدم تنفيذ الأفعال الحساسة عند الغموض.
+
+### 10. Plan Optimizer
+اختيار أقصر وأوضح مسار لإنجاز هدف المستخدم.
+
+### 11. Deterministic Planner
+عندما تكون القواعد واضحة من النظام، تستخدم قواعد حتمية بدل AI.
+
+### 12. Missing-Data Resolver
+البحث عن البيانات الناقصة في profile/project/funding/document قبل سؤال المستخدم.
+
+### 13. Explain-Then-Act
+عرض ما سيقوم به المساعد قبل سلسلة الأفعال المهمة.
+
+### 14. Dry Run / Simulation
+معاينة ما سيحدث بدون تنفيذ فعلي.
+
+### 15. Preview Before Execute
+إظهار نطاق التغيير قبل الإجراءات المؤثرة.
+
+### 16. Before/After Diff
+عرض القيم السابقة والجديدة قبل حفظ تعديل حساس.
+
+### 17. Action Receipts
+إيصال نتيجة لكل إجراء مهم مع رقم مرجعي ووقت ونتيجة.
+
+### 18. Explainability Log
+تسجيل القرار التشغيلي والقواعد والمصادر دون تخزين chain-of-thought.
+
+### 19. Permission Explainability
+تفسير سبب المنع واقتراح البديل الممكن.
+
+### 20. Error Taxonomy
+أخطاء موحدة مثل `AI_UNAVAILABLE`, `CAPABILITY_DENIED`, `FORM_NOT_FOUND`, `RESOURCE_NOT_OWNED`, `TOKEN_BROKER_FAILED`, `VALIDATION_FAILED`, `CONFIRMATION_REQUIRED`.
+
+---
+
+## B. سجل القدرات وتنفيذ الأدوات
+
+### 21. Capability Registry مركزي
+كل قدرة تسجل بمدخلاتها ومخرجاتها وخطورتها ونسختها ومتطلبات الصلاحية.
+
+### 22. Capability Discovery
+إرجاع القدرات المتاحة ديناميكيًا حسب المستخدم والحالة.
+
+### 23. Capability Attestation
+كل خدمة تعلن رسميًا ما تدعمه وما لا تدعمه.
+
+### 24. Capability Versioning
+دعم نسخ مثل `form_load@1` و`form_load@2`.
+
+### 25. Capability Bundles
+تجميع scopes/قدرات منطقية عند الحاجة بدون إخفاء الصلاحيات الدقيقة داخليًا.
+
+### 26. منع القدرات الشبحية
+أي capability غير مفعلة لا تظهر للمخطط.
+
+### 27. Tool Sandboxing
+لا تنفذ الأدوات إلا الأفعال المسجلة والمعتمدة.
+
+### 28. Tool Output Validation
+فحص نتائج الأدوات مقابل schema قبل استهلاكها.
+
+### 29. UI Action Bus
+بوابة واحدة مثل `BondsAssistant.execute(action)` لتنفيذ أوامر الواجهة.
+
+### 30. Safe Retry Policy
+إعادة المحاولة للقراءة فقط افتراضيًا؛ writes تحتاج idempotency.
+
+---
+
+## C. القدرات الأولية المقترحة
+
+### 31. site_navigate
+انتقال إلى destination مسجل.
+
+### 32. section_open
+فتح قسم أو تبويب معروف.
+
+### 33. form_find
+العثور على النموذج المناسب.
+
+### 34. form_load
+تحميل schema النموذج.
+
+### 35. form_prefill
+اقتراح/ملء القيم المسموح بها.
+
+### 36. form_validate
+التحقق من صحة واكتمال النموذج.
+
+### 37. form_save_draft
+حفظ مسودة دون إرسال نهائي.
+
+### 38. form_submit
+إرسال نهائي مع confirmation مرتفع.
+
+### 39. project_status
+قراءة حالة المشروع.
+
+### 40. project_update
+تحديث مشروع ضمن صلاحيات واضحة.
+
+### 41. funding_status
+قراءة حالة ملف التمويل.
+
+### 42. funding_next_step
+تحديد الخطوة التالية.
+
+### 43. funding_next_requirements
+إرجاع المكتمل والناقص والمتطلب التالي.
+
+### 44. document_find
+العثور على المستند المطلوب.
+
+### 45. document_attach
+ربط مستند بمورد مسموح.
+
+### 46. calculator_open
+فتح الحاسبة المناسبة.
+
+### 47. calculator_run
+تشغيل محرك الحساب الفعلي.
+
+### 48. help_explain
+شرح الحقل أو المرحلة أو المتطلب.
+
+### 49. service_discover
+إظهار الخدمات المتاحة للمخطط.
+
+### 50. request_create
+إنشاء طلب أو مسودة طلب وفق الحوكمة.
+
+### 51. external_send
+إرسال خارجي حساس ويحتاج تأكيدًا قويًا.
+
+### 52. consent_accept
+اعتماد موافقة قانونية ضمن flow صريح.
+
+### 53. payment_action
+قدرة مستقبلية شديدة الحساسية لا تفعل إلا بعد ضوابط إضافية.
+
+---
+
+## D. التنقل وخريطة الموقع
+
+### 54. Navigation Registry
+إنشاء `navigation-registry.json` للمسارات المعتمدة.
+
+### 55. عدم السماح بروابط من اختراع النموذج
+الـAI يعيد target key فقط.
+
+### 56. دعم العربية والإنجليزية في نفس destination
+العقد منطقي، والواجهة تحل المسار حسب اللغة.
+
+### 57. Deep Links
+فتح الصفحة والسجل والتبويب الصحيح.
+
+### 58. UI Highlighting
+تمييز عنصر مسجل بالمعرف بدل selector حر.
+
+### 59. Semantic Site Search
+فهم سؤال المستخدم عن مكان الخدمة حتى لو لم يعرف اسم الصفحة.
+
+### 60. Semantic Site Index
+فهرس دلالي للصفحات والنماذج والخدمات والقدرات.
+
+### 61. Self-Healing Registry
+كشف destinations المكسورة أو التي تغيرت.
+
+### 62. Registry Validation in CI
+فشل CI إذا كانت route/form/capability غير صالحة.
+
+### 63. Link Verification
+اختبار destinations المسجلة آليًا.
+
+---
+
+## E. النماذج
+
+### 64. Form Registry
+إنشاء سجل مركزي لكل النماذج ومساراتها ونسخها وصلاحياتها.
+
+### 65. Inline Forms
+عرض نماذج صغيرة داخل الشات.
+
+### 66. Progressive Forms
+جمع البيانات تدريجيًا بدل نموذج ضخم مرة واحدة.
+
+### 67. Form Copilot
+شرح الحقول والمطلوب ومساعدة المستخدم على التصحيح.
+
+### 68. Prefill
+ملء البيانات الموجودة مسبقًا.
+
+### 69. Provenance لكل قيمة
+تسجيل المصدر: profile/project/funding_case/document/calculator/conversation/ai_inference.
+
+### 70. Suggested vs Confirmed
+فصل القيم المقترحة عن القيم المؤكدة.
+
+### 71. Confidence للقيم المستنتجة
+إضافة درجة ثقة عندما تكون القيمة مستنبطة.
+
+### 72. Consistency Validation
+منع التعارض الصامت بين قيمة جديدة وقيمة موثوقة.
+
+### 73. Draft-first Editing
+الحفظ كمسودة افتراضيًا قبل الإرسال النهائي.
+
+### 74. Form Schema Versioning
+ربط الرحلات الطويلة بنسخة النموذج المناسبة.
+
+### 75. Backward Compatibility
+الطلبات القديمة لا تتعطل بعد تحديث schema.
+
+---
+
+## F. رحلة التمويل والمشروع
+
+### 76. User Journey Engine
+تمثيل الرحلة كمراحل واضحة.
+
+### 77. Next-Step Engine
+تحديد ما أنجز وما ينقص وما التالي.
+
+### 78. Funding File Integration
+الاعتماد على stages/requirements/submissions الحالية بدل التخمين.
+
+### 79. Goal Graph
+تمثيل الهدف الرئيسي والأهداف الفرعية والاعتماديات.
+
+### 80. Task Graph
+تمثيل التنفيذ كمهام مترابطة بدل مجرد history رسائل.
+
+### 81. Cross-Page State
+الحفاظ على المهمة أثناء التنقل بين الصفحات.
+
+### 82. Task Resume
+استئناف المهمة لاحقًا.
+
+### 83. Cancelable Workflows
+إيقاف ما لم ينفذ بعد.
+
+### 84. Pause/Resume Workflows
+إيقاف مؤقت واستكمال لاحق.
+
+### 85. Workflow Versioning
+تثبيت نسخة الرحلة المستخدمة.
+
+### 86. State Machine للمسارات الحساسة
+حالات مثل draft/ready/confirmed/submitted/completed/failed.
+
+### 87. Agent Inbox
+إظهار ما ينتظر من المستخدم.
+
+### 88. Draft Center
+مكان موحد للمسودات قبل الإرسال.
+
+### 89. Notification Engine
+تنبيه المستخدم بالحالة أو النقص أو الحاجة للتأكيد.
+
+### 90. Event-Driven Assistant
+الاستجابة لأحداث مثل form_saved/document_uploaded/case_status_changed/page_changed.
+
+---
+
+## G. سياق المحادثة والبيانات
+
+### 91. Assistant State Store
+تخزين goal/current_stage/open_tasks/required_data/confirmed_facts/pending_confirmation.
+
+### 92. Structured Conversation State
+عدم الاعتماد على transcript وحده.
+
+### 93. Context Summarization
+تلخيص history الطويل إلى state موثوق.
+
+### 94. Context Boundary
+إغلاق سياق المشروع السابق عند الانتقال لمشروع آخر.
+
+### 95. Identity Graph
+ربط user/establishment/project/funding_case/documents/forms/conversations.
+
+### 96. Digital Twin تشغيلي
+نموذج حالة شامل للمستخدم ومشاريعه ونواقصه؛ يؤجل لمرحلة لاحقة.
+
+### 97. Context Firewall
+كل خدمة ترى الحد الأدنى اللازم من بيانات المستخدم.
+
+### 98. Data Classification
+تصنيف البيانات public/internal/confidential/restricted.
+
+### 99. PII Redaction
+إخفاء البيانات الحساسة قبل إرسالها لمزود خارجي عند الحاجة.
+
+### 100. Provider Trust Policy
+ربط تصنيف البيانات بالمزود المسموح.
+
+### 101. Privacy Controls
+تمكين المستخدم من التحكم في بعض أوجه استخدام بياناته.
+
+### 102. Data Retention Policies
+سياسات منفصلة للمحادثات والتدقيق والتوكنات والمستندات.
+
+---
+
+## H. المستندات والحسابات
+
+### 103. Document Assistant
+تحديد المطلوب وسبب الحاجة ومكان الرفع.
+
+### 104. Document Classification
+تصنيف المستند المرفوع.
+
+### 105. Document Field Extraction
+استخراج الحقول المنظمة مع provenance.
+
+### 106. Document-to-Workflow
+استخدام المستند لتعبئة نموذج وتحديث المتطلب واقتراح التالي.
+
+### 107. Prompt Injection Firewall
+محتوى PDF/ويب/API يعتبر بيانات لا أوامر تنفيذ.
+
+### 108. Calculation Authority Separation
+الحاسبات تنفذ الحساب، والـAI يفسر فقط.
+
+### 109. Calculator Orchestration
+تشغيل الحاسبات المناسبة تلقائيًا حسب الطلب.
+
+### 110. Evidence Binding
+ربط النتائج والأرقام بالمصدر الحقيقي.
+
+---
+
+## I. التوكنات والأمان
+
+### 111. Action Token
+نوع توكن مستقبلي لفعل واحد محدد ومورد محدد.
+
+### 112. Workflow Token
+توكن مرتبط برحلة متعددة الخطوات.
+
+### 113. Confirmation Token
+توكن قصير جدًا لتأكيد فعل حساس بنفس payload.
+
+### 114. Resource-Bound Token
+ربط التوكن بمشروع/مستند/ملف تمويل محدد.
+
+### 115. Token Exchange
+`Session -> Action -> Service -> Provider Credential`.
+
+### 116. Delegation Chain
+تتبع User -> Assistant -> Orchestrator -> Service.
+
+### 117. Token Lineage
+parent/child relationships بين التوكنات.
+
+### 118. Token Families
+إلغاء عائلة كاملة عند الحاجة.
+
+### 119. Revocation Epoch
+إبطال جيل كامل من التوكنات وفق نطاق معين.
+
+### 120. Proof-of-Possession
+ربط التوكن بالجلسة/الطلب للأفعال الحساسة مستقبلًا.
+
+### 121. Asymmetric Signing / JWKS
+تطوير مستقبلي؛ ليس أولوية V1.
+
+### 122. KMS/HSM
+تخزين مفاتيح خاص عالي الحماية؛ مؤجل.
+
+### 123. Credential Vault
+حفظ أسرار مزودي API بعيدًا عن العميل وإعطاء الخدمات وصولًا مؤقتًا.
+
+---
+
+# 5. اقتراحات تشغيلية إضافية مرتبطة بالخطة
+
+هذه عناصر داعمة وردت ضمن النقاش ويجب عدم فقدها حتى وإن كانت مدمجة مع الاقتراحات أعلاه:
+
+- Per-service key isolation.
+- Key rotation with overlap.
+- Environment binding بين Production/Staging.
+- Tenant isolation عند تعدد الشركات.
+- Region binding إذا تطلبت إقامة البيانات.
+- Risk-based authorization.
+- Dynamic confirmation حسب المخاطر.
+- Idempotency ledger.
+- Replay protection على مستوى الأفعال.
+- Undo/compensating actions.
+- Human escalation.
+- Human approval queue.
+- Employee assistant mode.
+- Emergency kill switch لكل capability.
+- Read-only emergency mode.
+- Anomaly detection.
+- Token introspection cache آمن عند الحاجة.
+- Policy-as-Code.
+- Policy simulation.
+- Shadow authorization.
+- Operational dashboard.
+- Assistant Control Center.
+- User Control Center.
+- Audit search.
+- Operational replay لأغراض debugging.
+- Cost governance منفصل عن authorization.
+- Per-task budget.
+- Latency-aware routing.
+- Streaming.
+- Parallel tool execution للأعمال المستقلة.
+- Multi-agent داخلي في مرحلة لاحقة.
+- Verifier/Critic للمهام الحساسة.
+- Multi-model consensus فقط للحالات الحرجة.
+- Voice layer مستقبلًا.
+- Multimodal layer مستقبلًا.
+- Accessibility.
+- Synthetic production journeys.
+- Golden conversations.
+- Assistant evaluations.
+- Red-team scenarios.
+- End-to-end CI journeys.
+- Outcome analytics.
+- Journey analytics.
+- Conversion metrics.
+
+---
+
+# 6. ترتيب التنفيذ الموصى به
+
+## Phase 1 — Assistant V1
+1. `BONDS_ASSISTANT_PROTOCOL_V1`
+2. `/api/v3/assistant`
+3. `navigation-registry.json`
+4. `form-registry.json`
+5. Structured Actions
+6. `site_navigate`
+7. `form_find`
+8. `form_load`
+9. `funding_status`
+10. `funding_next_step`
+11. `project_status`
+12. Calculator capabilities
+13. تحديث chat widget لعرض actions/cards/forms
+14. Context state
+15. Prefill + provenance
+16. Confirmation engine
+17. Save draft
+18. Idempotency
+19. Audit trail
+20. End-to-end tests
+21. Security/red-team tests
+22. Production rollout
+
+## Phase 2 — Workflow & Documents
+- Persistent workflow state.
+- Document assistant/classification/extraction.
+- Document-to-workflow.
+- Event-driven assistant.
+- Notifications.
+- Draft center.
+- Agent inbox.
+- Human escalation.
+
+## Phase 3 — Advanced Authorization
+- Action Tokens.
+- Workflow Tokens.
+- Confirmation Tokens.
+- Resource binding.
+- Token Exchange.
+- Delegation/lineage.
+- Token families.
+
+## Phase 4 — Advanced Platform
+- Asymmetric signing/JWKS.
+- KMS/HSM.
+- Digital Twin.
+- Multi-agent.
+- Voice.
+- Multimodal.
+- Advanced distributed token infrastructure.
+
+---
+
+# 7. ما لا ينفذ في V1
+
+لا يبدأ V1 بـ:
+- HSM/KMS.
+- full JWT/JWKS migration.
+- full multi-agent autonomy.
+- generalized Digital Twin.
+- generalized token family infrastructure.
+- voice/multimodal execution.
+- direct DOM control.
+- arbitrary URLs.
+- arbitrary JavaScript.
+- arbitrary SQL.
+- AI-generated financial calculations بدون calculator engine.
+
+---
+
+# 8. الحالة التنفيذية الحالية
+
+- Assistant V1: **PLANNED**
+- Structured action protocol: **NOT IMPLEMENTED**
+- Navigation registry: **NOT IMPLEMENTED**
+- Form registry: **NOT IMPLEMENTED**
+- Funding next-step capability: **NOT IMPLEMENTED**
+- Action token: **NOT IMPLEMENTED**
+- Workflow token: **NOT IMPLEMENTED**
+- Confirmation token: **NOT IMPLEMENTED**
+- Token exchange: **NOT IMPLEMENTED**
+- Service token broker: **IMPLEMENTED / PRODUCTION**
+- Capability governance: **IMPLEMENTED**
+- Dynamic form engine: **IMPLEMENTED**
+- Funding file architecture: **IMPLEMENTED**
+- AI chat widget: **IMPLEMENTED**
+- Native inference routing: **IMPLEMENTED**
+- Provider-agnostic onboarding contract: **IMPLEMENTED**
+
+---
+
+# 9. تعليمات الاستئناف في أي محادثة جديدة
+
+استخدم النص التالي:
+
+> راجع `docs/BONDS_ASSISTANT_MASTER_PLAN.md` و`docs/bonds-assistant-roadmap.json` من مستودع `alzahrani6020/bonds-global-web`، تحقق من حالة `main` الحالية، ثم أكمل من أول عنصر غير منفذ حسب الأولوية. لا تعُد من الصفر، ولا تغيّر المبادئ الأمنية أو قرارات الفصل بين authorization والأداء إلا بدليل تقني واضح.
+
+---
+
+# 10. قاعدة تحديث هذا المستند
+
+بعد كل PR متعلق بالمساعد:
+1. تحديث `completed`.
+2. تحديث `current_phase`.
+3. تحديث `next`.
+4. تسجيل PR/SHA.
+5. تحديث أي قرار معماري تغير.
+6. عدم حذف الاقتراحات القديمة؛ إن ألغيت توسم `rejected` مع السبب.
