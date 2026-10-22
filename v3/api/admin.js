@@ -6,7 +6,12 @@
  */
 
 const { getSupabaseClient } = require('../lib/supabase');
-const { requireAdminAccess } = require('../lib/admin-access');
+const { requireAdminAccess, requireAgentInboxAccess } = require('../lib/admin-access');
+const {
+  listAgentInbox,
+  updateAgentInboxItem,
+  listAgentAssignees
+} = require('../../lib/assistant/agent-inbox-queue');
 const { calibrateCompetitorCounts } = require('../engine/data-acquisition/CompetitorCalibration');
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
 
@@ -910,10 +915,77 @@ async function handleServiceRequestsAdmin(req,res,requestId,subresource,subId){
   return sendJson(res,405,{error:'Method not allowed'});
 }
 
+
+async function handleAgentInboxAdmin(req, res, parts, access) {
+  const supabase = getSupabaseClient();
+  const itemId = parts[2] || null;
+  const subresource = parts[3] || null;
+
+  if (!itemId && req.method === 'GET') {
+    const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
+    try {
+      const inbox = await listAgentInbox({
+        supabase,
+        status:url.searchParams.get('status'),
+        priority:url.searchParams.get('priority'),
+        assignedTo:url.searchParams.get('assigned_to'),
+        limit:url.searchParams.get('limit') || 50
+      });
+      return sendJson(res, 200, {
+        success:true,
+        role:access.role,
+        agent_inbox:inbox
+      });
+    } catch (err) {
+      return sendJson(res, 503, { success:false, error:err.message });
+    }
+  }
+
+  if (itemId === 'assignees' && req.method === 'GET') {
+    try {
+      const assignees = await listAgentAssignees({ supabase });
+      return sendJson(res, 200, { success:true, assignees });
+    } catch (err) {
+      return sendJson(res, 503, { success:false, error:err.message });
+    }
+  }
+
+  if (itemId && !subresource && req.method === 'PATCH') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { success:false, error:'Invalid JSON body' }); }
+
+    try {
+      const item = await updateAgentInboxItem({
+        supabase,
+        itemId,
+        actorUserId:access.user?.id || null,
+        assignedTo:Object.prototype.hasOwnProperty.call(body, 'assigned_to') ? body.assigned_to : undefined,
+        status:Object.prototype.hasOwnProperty.call(body, 'status') ? body.status : undefined,
+        resolutionNote:body.resolution_note
+      });
+      return sendJson(res, 200, { success:true, item });
+    } catch (err) {
+      const status = err.message === 'AGENT_INBOX_NOT_FOUND' ? 404
+        : ['AGENT_INBOX_ITEM_REQUIRED','AGENT_INBOX_STATUS_INVALID'].includes(err.message) ? 422
+        : 503;
+      return sendJson(res, status, { success:false, error:err.message });
+    }
+  }
+
+  return sendJson(res, 405, { success:false, error:'Method not allowed' });
+}
+
 async function adminRouter(req, res, path) {
   const parts = path.split('/').filter(Boolean);
   const resource = parts[1]; // after 'admin'
   const identifier = parts[2];
+
+  if (resource === 'agent-inbox') {
+    const access = await requireAgentInboxAccess(req);
+    if (!access) return sendJson(res, 401, { error:'Unauthorized' });
+    return handleAgentInboxAdmin(req, res, parts, access);
+  }
 
   const authError = await requireAdmin(req);
   if (authError) return sendJson(res, 401, authError);

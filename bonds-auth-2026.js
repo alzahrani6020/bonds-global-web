@@ -532,9 +532,9 @@
 
   // ── Feature access ────────────────────────────────────────
   const ROLE_PERMISSIONS = {
-    super_admin: ['users', 'subscriptions', 'messages', 'roles', 'analytics', 'users_write', 'export'],
-    admin: ['users', 'subscriptions', 'messages', 'analytics', 'users_write', 'export'],
-    support: ['users', 'messages', 'analytics'],
+    super_admin: ['users', 'subscriptions', 'messages', 'roles', 'analytics', 'users_write', 'export', 'agent_inbox'],
+    admin: ['users', 'subscriptions', 'messages', 'analytics', 'users_write', 'export', 'agent_inbox'],
+    support: ['users', 'messages', 'analytics', 'agent_inbox'],
     viewer: ['analytics']
   };
 

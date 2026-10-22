@@ -903,7 +903,8 @@
     "notifications",
     "assistant_notifications",
     "draft_center",
-    "agent_inbox"
+    "agent_inbox",
+    "assistant_user_inbox"
   ],
   "next": [
     "sensitive_workflow_state_machine"

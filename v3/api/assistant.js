@@ -19,6 +19,7 @@ const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
 const { listOwnedDrafts } = require('../../lib/assistant/draft-center');
 const { buildAgentInbox } = require('../../lib/assistant/agent-inbox');
 const { transitionSensitiveWorkflowState } = require('../../lib/assistant/sensitive-workflow-state-machine');
+const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxItem } = require('../../lib/assistant/agent-inbox-queue');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -547,6 +548,26 @@ async function assistantRouter(req, res, path, user) {
         notifications:persistenceNotifications
       });
 
+      let agentInboxResult = { queued:false, skipped:true };
+      try {
+        const agentInboxItem = deriveAgentInboxItem({
+          event:result.event,
+          workflow:result.workflow,
+          userId:user.id
+        });
+        const sourceOwned = await verifyAgentInboxItemOwnership({
+          supabase,
+          userId:user.id,
+          event:result.event,
+          item:agentInboxItem
+        });
+        agentInboxResult = sourceOwned
+          ? await enqueueAgentInboxItem({ supabase, item:agentInboxItem })
+          : { queued:false, skipped:true, reason:'source_not_owned_or_not_reviewable' };
+      } catch (agentInboxError) {
+        console.warn('[assistant-agent-inbox]', agentInboxError.message);
+      }
+
       await appendAssistantAuditBestEffort({
         supabase,
         userId:user.id,
@@ -560,7 +581,8 @@ async function assistantRouter(req, res, path, user) {
           event_type:result.event?.type || null,
           workflow_key:body.workflow_key || null,
           workflow_version:result.workflow?.version ?? null,
-          notifications_persisted:persistence.persisted
+          notifications_persisted:persistence.persisted,
+          agent_inbox_queued:Boolean(agentInboxResult.queued)
         }
       });
       return sendJson(res, 200, {
