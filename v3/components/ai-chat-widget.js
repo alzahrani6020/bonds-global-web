@@ -496,7 +496,8 @@
         form: ['form_find', 'form_load', 'form_save_draft'].includes(action.type)
           ? action.target
           : undefined,
-        language: languageCode()
+        language: languageCode(),
+        boundary: contextBoundaryKey()
       };
 
       const res = await fetch(ASSISTANT_PLAN_URL, {
@@ -595,7 +596,8 @@
         headers:await getAuthHeaders(),
         body:JSON.stringify({
           action,
-          idempotency_key:idempotencyKey
+          idempotency_key:idempotencyKey,
+          boundary: contextBoundaryKey()
         })
       });
       const data = await res.json();
@@ -614,7 +616,8 @@
           action,
           idempotency_key:idempotencyKey,
           status,
-          result
+          result,
+          boundary: contextBoundaryKey()
         })
       });
       const data = await res.json();
