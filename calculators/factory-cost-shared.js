@@ -64,6 +64,41 @@
     return cities;
   }
 
+  function normalizeCityName(value) {
+    return String(value || '')
+      .toLowerCase()
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f\u064B-\u065F\u0670\u0640]/g, '')
+      .replace(/[أإآٱ]/g, 'ا')
+      .replace(/ى/g, 'ي')
+      .replace(/ة/g, 'ه')
+      .replace(/[^a-z0-9ء-ي]+/g, '');
+  }
+
+  function mergeConfiguredWithLive(countryCode, configuredCities) {
+    const merged = Object.assign({}, configuredCities || {});
+    const liveCities = getCountryCities(countryCode);
+    if (!liveCities) return merged;
+
+    const configuredNames = new Set();
+    Object.keys(merged).forEach(code => {
+      const city = merged[code] || {};
+      const normalized = normalizeCityName(city.name || city.nameAr || city.nameEn || code);
+      if (normalized) configuredNames.add(normalized);
+    });
+
+    Object.keys(liveCities).forEach(code => {
+      const city = liveCities[code] || {};
+      const normalized = normalizeCityName(city.name || city.nameAr || city.nameEn || code);
+      if (!normalized || !configuredNames.has(normalized)) {
+        merged[code] = city;
+        if (normalized) configuredNames.add(normalized);
+      }
+    });
+
+    return merged;
+  }
+
   function populateCitySelect(countryCode, selectId, selected, rateOverrides) {
     const select = document.getElementById(selectId);
     if (!select) return;
@@ -84,7 +119,8 @@
     getCountryCities,
     populateCitySelect,
     DEFAULT_COUNTRY_BASE_RENT,
-    ensureData
+    ensureData,
+    mergeConfiguredWithLive
   };
 })();
 
@@ -228,6 +264,7 @@
   }
 
   let _config = null;
+  let _cityData = null;
   let _costPieChart = null;
   let _scenarioBarChart = null;
 
@@ -240,14 +277,20 @@
     return (LABELS[lang] && LABELS[lang][key]) || key;
   }
 
+  function getEffectiveCities() {
+    if (_cityData && Object.keys(_cityData).length) return _cityData;
+    if (_config && _config.cities) return _config.cities;
+    if (_config && _config.countryCode && window.FactoryCostShared) {
+      return window.FactoryCostShared.getCountryCities(_config.countryCode);
+    }
+    return null;
+  }
+
   function populateCitySelect() {
     const select = getEl('city');
     if (!select) return;
 
-    let cities = _config.cities;
-    if (!cities && _config.countryCode && window.FactoryCostShared) {
-      cities = window.FactoryCostShared.getCountryCities(_config.countryCode);
-    }
+    const cities = getEffectiveCities();
     if (!cities) return;
 
     const currentValue = select.value;
@@ -283,10 +326,7 @@
   }
 
   function getCityData(cityKey) {
-    let cities = _config.cities;
-    if (!cities && _config.countryCode && window.FactoryCostShared) {
-      cities = window.FactoryCostShared.getCountryCities(_config.countryCode);
-    }
+    const cities = getEffectiveCities();
     return cities ? cities[cityKey] : null;
   }
 
@@ -599,8 +639,29 @@
       countryCode: null
     }, config);
 
+    _cityData = Object.assign({}, _config.cities || {});
     populateCitySelect();
     bindEvents();
+
+    const liveCountryCode = _config.countryCode;
+    if (
+      liveCountryCode &&
+      window.BondsGeo &&
+      typeof window.BondsGeo.ensureCountry === 'function' &&
+      window.FactoryCostShared &&
+      typeof window.FactoryCostShared.mergeConfiguredWithLive === 'function'
+    ) {
+      window.BondsGeo.ensureCountry(liveCountryCode).then(function () {
+        if (!_config || _config.countryCode !== liveCountryCode) return;
+        _cityData = window.FactoryCostShared.mergeConfiguredWithLive(
+          liveCountryCode,
+          _config.cities
+        );
+        populateCitySelect();
+      }).catch(function (err) {
+        console.warn('[FactoryCost] live geography unavailable; using configured cities', err);
+      });
+    }
 
     // Run calculation if area has a value
     if (getNum('area') > 0) {

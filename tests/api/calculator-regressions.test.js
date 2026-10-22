@@ -34,3 +34,13 @@ test('calculator geography prefers the live production catalog and keeps static 
   assert.match(source, /return loadCountryChunk\(upper\)/);
   assert.match(source, /newly promoted\/added cities appear automatically/);
 });
+
+
+test('factory cost calculator merges live geography with configured city pricing', () => {
+  const page = read('calculators/factory-cost.html');
+  const shared = read('calculators/factory-cost-shared.js');
+  assert.match(page, /shared-geo\.js\?v=8/);
+  assert.match(shared, /mergeConfiguredWithLive/);
+  assert.match(shared, /window\.BondsGeo\.ensureCountry\(liveCountryCode\)/);
+  assert.match(shared, /live geography unavailable; using configured cities/);
+});
