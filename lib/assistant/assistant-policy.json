@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "policy_id": "bonds-assistant-action-policy",
+  "policy_version": 1,
+  "purpose": "Deterministic policy rules for validating and classifying BONDS Assistant structured actions.",
+  "rules": [
+    {
+      "id": "allow_registered_action_types_only",
+      "effect": "deny",
+      "code": "UNSUPPORTED_ACTION_TYPE"
+    },
+    {
+      "id": "allow_registered_risks_only",
+      "effect": "deny",
+      "code": "INVALID_ACTION_RISK"
+    },
+    {
+      "id": "forbid_executable_payload_fields",
+      "effect": "deny",
+      "code": "FORBIDDEN_EXECUTION_FIELD"
+    },
+    {
+      "id": "high_risk_requires_confirmation",
+      "effect": "require_confirmation"
+    },
+    {
+      "id": "explicit_confirmation_is_preserved",
+      "effect": "require_confirmation"
+    }
+  ],
+  "invariants": {
+    "deterministic": true,
+    "default_effect": "allow_plan_only",
+    "execution_authorized": false,
+    "auto_execute": false,
+    "authorization_source": false,
+    "model_generated_policy": false
+  }
+}

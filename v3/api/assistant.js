@@ -35,6 +35,7 @@ const {
   markAssistantNotificationRead
 } = require('../../lib/assistant/notification-store');
 const { getCachedIntrospection } = require('../../lib/assistant/safe-introspection-cache');
+const { publicAssistantPolicyDescriptor } = require('../../lib/assistant/policy-engine');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -108,6 +109,14 @@ async function assistantRouter(req, res, path, user) {
       reply:'مساعد بوندز جاهز.',
       context:{ protocol:PROTOCOL, execution:'plan_only' }
     }));
+  }
+
+  if (path === '/assistant/policy' && req.method === 'GET') {
+    return sendJson(res, 200, {
+      protocol:PROTOCOL,
+      status:'completed',
+      policy:publicAssistantPolicyDescriptor()
+    });
   }
 
   if (path === '/assistant/introspection' && req.method === 'GET') {
