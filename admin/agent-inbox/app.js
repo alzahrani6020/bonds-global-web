@@ -38,8 +38,8 @@
       '<p>'+esc(item.summary_ar||'لا يوجد وصف إضافي')+'</p>'+
       '<div class="agent-meta"><span>الحدث: '+esc(item.event_type||'-')+'</span><span>المورد: '+esc(item.resource_id||'-')+'</span><span>'+esc(fmt(item.created_at))+'</span></div>'+
       '<div class="agent-actions">'+
-        '<select class="agent-assignee">'+assigneeOptions(item.assigned_to)+'</select>'+
-        '<select class="agent-status">'+['open','assigned','in_review','waiting_user','resolved','dismissed'].map(s=>'<option value="'+s+'" '+(s===item.status?'selected':'')+'>'+esc(labelStatus(s))+'</option>').join('')+'</select>'+
+        '<select class="agent-assignee" aria-label="تعيين الموظف المسؤول">'+assigneeOptions(item.assigned_to)+'</select>'+
+        '<select class="agent-status" aria-label="تغيير حالة المعالجة">'+['open','assigned','in_review','waiting_user','resolved','dismissed'].map(s=>'<option value="'+s+'" '+(s===item.status?'selected':'')+'>'+esc(labelStatus(s))+'</option>').join('')+'</select>'+
         '<input class="agent-note" type="text" placeholder="ملاحظة الحل عند الإغلاق">'+
         '<button class="agent-save">حفظ</button>'+
       '</div></article>';
