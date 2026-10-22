@@ -64,6 +64,7 @@ const { fabricRouter } = require('./fabric');
 const { intelligenceRouter } = require('./intelligence');
 const { investmentIntelligenceRouter } = require('./investment-intelligence');
 const { capabilitiesRouter } = require('./capabilities');
+const { assistantRouter } = require('./assistant');
 const { waterFactoryDataRouter } = require('./water-factory-data');
 const { sectorDataRouter } = require('./sector-data');
 const { enterpriseLifecycleRouter } = require('./enterprise-lifecycle');
@@ -92,6 +93,7 @@ function getCategory(path) {
   if (path.startsWith('/auth')) return 'auth';
   if (path.startsWith('/admin') || path.startsWith('/cron')) return 'strict';
   if (path === '/ai/chat') return 'ai';
+  if (path === '/assistant' || path.startsWith('/assistant/')) return 'compute';
   if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence') || path.startsWith('/capabilities') || path.startsWith('/enterprise-lifecycle') || path.startsWith('/ecc') || path === '/water-factory-data' || path === '/sector-data') return 'compute';
   return 'public';
 }
@@ -2598,6 +2600,10 @@ module.exports = async function handler(req, res) {
       const user = await getUserFromToken(req);
       if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
       return await investmentIntelligenceRouter(req, res, path, supabase, user);
+    }
+    if (path.startsWith('/assistant')) {
+      const user = await getUserFromToken(req);
+      return await assistantRouter(req, res, path, user);
     }
     if (path.startsWith('/capabilities')) {
       const user = await getUserFromToken(req);
