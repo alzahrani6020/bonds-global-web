@@ -557,7 +557,7 @@
       "id": 88,
       "title": "Draft Center",
       "phase": "phase2",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": 89,
@@ -921,8 +921,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-notifications-complete",
-    "change": "Notifications closed at implemented_base with durable user-scoped storage, deterministic deduplication, unread/read lifecycle, authenticated list/read API, replay-safe persistence, bilingual widget inbox, governed logical actions only, and no direct browser table access. Next: Draft Center."
+    "branch": "feat/assistant-draft-center-current-main",
+    "change": "Persistent Assistant Notifications are complete on main d1b6d68a851e82829dbac2f1837753d89c964910. Draft Center is active as a read-only unified view over existing owned form drafts using schema-aware source selects and canonical form-registry navigation targets, with no parallel draft store, submit path, write authority, or execution authorization."
   },
   "production_rollout": {
     "status": "complete",
