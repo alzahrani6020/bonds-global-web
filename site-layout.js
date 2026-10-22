@@ -156,6 +156,37 @@
     document.head.appendChild(link);
   }
 
+  function ensureGlobalAssistantRuntime() {
+    if (location.pathname.startsWith('/admin') || shouldNoPrint()) return;
+
+    const mountAssistant = () => {
+      if (!window.BondsAIChat || typeof window.BondsAIChat.mount !== 'function') return false;
+      window.BondsAIChat.mount({
+        mode: 'city',
+        global: true,
+        pagePath: window.location.pathname,
+        pageTitle: document.title || null
+      });
+      const whatsapp = document.getElementById('bonds-chat-launcher');
+      if (whatsapp) whatsapp.remove();
+      return true;
+    };
+
+    if (mountAssistant()) return;
+
+    const existing = document.querySelector('script[src*="/v3/components/ai-chat-widget.js"]');
+    if (existing) {
+      existing.addEventListener('load', mountAssistant, { once:true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-1';
+    script.async = false;
+    script.addEventListener('load', mountAssistant, { once:true });
+    document.head.appendChild(script);
+  }
+
   function ensureServiceDiscoveryRuntime() {
     const loadDiscovery = () => {
       if (document.querySelector('script[src*="service-discovery.js"]')) return;
@@ -1006,6 +1037,7 @@
 
     initAuthHeader();
     initGlobalAuthGate();
+    ensureGlobalAssistantRuntime();
 
     initThemeToggle();
   }
