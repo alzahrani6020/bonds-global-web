@@ -5,8 +5,8 @@
   "baseline_main_sha": "20c3c990b30f2a9ceaac0e6b2d8157a236c9fb51",
   "created_at": "2026-10-22",
   "language": "ar",
-  "status": "in_progress",
-  "current_phase": "assistant-v1",
+  "status": "assistant_v1_complete",
+  "current_phase": "phase2-workflow-documents",
   "source_of_truth": "docs/BONDS_ASSISTANT_MASTER_PLAN.md",
   "immutable_principles": [
     "authorization_constrains_who_not_ai_compute_capacity",
@@ -893,10 +893,12 @@
     "e2e_tests",
     "end_to_end_assistant_journey_tests",
     "security_red_team_tests",
-    "assistant_red_team_scenarios"
+    "assistant_red_team_scenarios",
+    "production_rollout",
+    "assistant_v1_production_acceptance"
   ],
   "next": [
-    "production_rollout"
+    "workflow_documents_phase2"
   ],
   "deferred": [
     "action_tokens",
@@ -913,7 +915,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "test/bonds-assistant-security-red-team",
-    "change": "Added Assistant V1 security red-team scenarios for forbidden executable fields, invented routes/forms, confirmation tampering, idempotency replay abuse, audit data minimization, unauthenticated access and unknown-route fail-closed behavior. Production rollout remains gated on full CI PASS."
+    "branch": "docs/bonds-assistant-v1-production-acceptance",
+    "change": "Production rollout verified on Vercel for commit 73198471595d4948d5e9db00f5f857b61b2ff61c. Production readiness returned ready with Supabase, native inference, token runtime and user governance healthy; unauthenticated Assistant access failed closed with HTTP 401; no recent runtime errors were found. Assistant V1 is complete and the next phase is Workflow & Documents."
   }
 }
