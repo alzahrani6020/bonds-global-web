@@ -1,6 +1,7 @@
 -- Recovery rollout for Assistant Phase 2 Human Approval Queue.
 -- Idempotent replay of the merged schema because production migration dispatch did not run.
 -- Additive only; no destructive statements.
+-- Triggered through GitHub Contents API so push workflows execute on main.
 
 ALTER TABLE public.admin_approval_requests
   ADD COLUMN IF NOT EXISTS request_key text,
