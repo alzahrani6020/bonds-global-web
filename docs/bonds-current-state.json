@@ -4,15 +4,19 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase0-persistent-project-memory",
-  "current_workstream": "canonical-memory-and-checkpoint-foundation",
+  "current_workstream": "p0.3-durable-checkpoint-and-recovery",
   "status": "in_progress",
-  "baseline_main_sha": "128a4ac0cbda4703f02d72dbbb1557f05d006a8b",
-  "last_completed": [],
-  "currently_working_on": [
+  "baseline_main_sha": "10a980372a167d6e8c95a0417a7f5bcada938092",
+  "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library"
   ],
-  "next_action": "complete CI validation for phase0 candidate, then implement p0.3 local SQLite and remote checkpoint metadata",
+  "currently_working_on": [
+    "p0.3-local-sqlite-checkpoint-store",
+    "p0.3-remote-checkpoint-metadata",
+    "p0.3-recovery-precedence"
+  ],
+  "next_action": "validate P0.3 in CI, then merge, apply and verify the Supabase checkpoint migration, update state to phase1-ready",
   "blocked": [],
   "approved_architecture": {
     "dual_core": true,
@@ -30,7 +34,8 @@
     "verify current main SHA",
     "never repeat completed work",
     "resume current_workstream",
-    "do not use a dirty working tree as candidate base"
+    "do not use a dirty working tree as candidate base",
+    "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "phase0-candidate"
+  "updated_by": "p0.3-candidate"
 }
