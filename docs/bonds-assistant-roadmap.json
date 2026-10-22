@@ -907,6 +907,6 @@
   "last_update": {
     "date": "2026-10-22",
     "branch": "feat/bonds-assistant-idempotency-v2",
-    "change": "Added Assistant V1 write idempotency for form_save_draft with a session-scoped ledger, deterministic action identity by context boundary/form revision, in-flight duplicate suppression, completed-result replay, failed retry handling, and explicit form-dirty invalidation. Idempotency is not authorization and does not issue tokens."
+    "change": "Added persistent server-side Assistant V1 write idempotency for form_save_draft using a Supabase ledger and atomic claim/resolve RPCs. The client hashes the exact form snapshot, claims before writing, reuses verified completed results, and blocks in-progress or uncertain replay after network ambiguity. Idempotency remains separate from authorization and tokens."
   }
 }
