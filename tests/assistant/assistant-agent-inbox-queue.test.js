@@ -2,6 +2,7 @@
 
 const {
   deriveAgentInboxItem,
+  verifyAgentInboxItemOwnership,
   enqueueAgentInboxItem,
   listAgentInbox,
   updateAgentInboxItem,
@@ -64,6 +65,48 @@ describe('Assistant Agent Inbox', () => {
       priority:'high',
       item_key:'review:funding.case-2:funding_case_review_required:case-2'
     });
+  });
+
+
+  test('verifies document ownership through advisory client relation', async () => {
+    const q={
+      select:jest.fn().mockReturnThis(),
+      eq:jest.fn().mockReturnThis(),
+      maybeSingle:jest.fn().mockResolvedValue({ data:{ id:'doc-1' }, error:null })
+    };
+    const supabase={ from:jest.fn(()=>q) };
+
+    const owned=await verifyAgentInboxItemOwnership({
+      supabase,
+      userId:'user-1',
+      event:{ type:'document_analyzed', resource_id:'doc-1' },
+      item:{ item_key:'review:wf-1:document_conflict:doc-1' }
+    });
+
+    expect(supabase.from).toHaveBeenCalledWith('client_documents');
+    expect(q.eq.mock.calls).toContainEqual(['id','doc-1']);
+    expect(q.eq.mock.calls).toContainEqual(['advisory_clients.auth_user_id','user-1']);
+    expect(owned).toBe(true);
+  });
+
+  test('verifies funding case ownership before staff queue creation', async () => {
+    const q={
+      select:jest.fn().mockReturnThis(),
+      eq:jest.fn().mockReturnThis(),
+      maybeSingle:jest.fn().mockResolvedValue({ data:null, error:null })
+    };
+    const supabase={ from:jest.fn(()=>q) };
+
+    const owned=await verifyAgentInboxItemOwnership({
+      supabase,
+      userId:'user-1',
+      event:{ type:'funding_case_status_changed', resource_id:'case-other' },
+      item:{ item_key:'review:wf-1:funding_case_review_required:case-other' }
+    });
+
+    expect(supabase.from).toHaveBeenCalledWith('funding_cases');
+    expect(q.eq.mock.calls).toContainEqual(['user_id','user-1']);
+    expect(owned).toBe(false);
   });
 
   test('enqueue is idempotent on item_key', async () => {
