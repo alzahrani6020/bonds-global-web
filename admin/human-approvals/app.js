@@ -15,6 +15,7 @@
       '<p>الهدف: '+esc(item.action_target||'-')+'</p>'+
       '<div class="approval-meta"><span>Workflow: '+esc(item.workflow_key)+'</span><span>Version: '+esc(item.workflow_version)+'</span><span>'+esc(fmt(item.requested_at))+'</span></div>'+
       '<code class="approval-fingerprint">'+esc(item.action_fingerprint)+'</code>'+
+      (item.action_snapshot?'<details><summary>تفاصيل الإجراء</summary><pre class="approval-snapshot">'+esc(JSON.stringify(item.action_snapshot,null,2))+'</pre></details>':'')+
       (pending?'<div class="approval-actions"><input class="approval-note" type="text" aria-label="ملاحظة قرار الموافقة" placeholder="ملاحظة القرار"><button class="approval-approve" type="button">موافقة</button><button class="approval-reject" type="button">رفض</button></div>':'<p>الحالة: '+esc(item.status)+'</p>')+
       '</article>';
   }
