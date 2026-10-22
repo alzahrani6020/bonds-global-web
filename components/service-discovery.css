@@ -1,3 +1,52 @@
 .bonds-service-discovery{background:#fff;border-bottom:1px solid #e5e7eb;box-shadow:0 8px 24px rgba(15,35,64,.06);position:relative;z-index:30}.bonds-service-discovery__inner{max-width:1480px;margin:0 auto;padding:14px 24px}.bonds-service-discovery__title{display:block;color:#0d2343;font-size:15px;margin-bottom:9px}.bonds-service-discovery__grid{display:grid;grid-template-columns:repeat(6,minmax(120px,1fr)) auto;gap:8px;align-items:end}.bonds-service-discovery label{display:flex;flex-direction:column;gap:4px;min-width:0}.bonds-service-discovery label span{font-size:11px;color:#687386;font-weight:700}.bonds-service-discovery select{width:100%;min-width:0;height:42px;border:1px solid #d9dee7;border-radius:8px;background:#fff;color:#0d2343;padding:0 10px;font:inherit}.bonds-service-discovery button{height:42px;border:0;border-radius:8px;background:#b58a35;color:#fff;padding:0 18px;font-weight:800;white-space:nowrap;cursor:pointer}.bonds-service-discovery button:hover{filter:brightness(.96)}.bonds-service-discovery.is-degraded{display:none}@media(max-width:1180px){.bonds-service-discovery__grid{grid-template-columns:repeat(3,1fr)}.bonds-service-discovery button{width:100%}}@media(max-width:720px){.bonds-service-discovery__inner{padding:10px 12px}.bonds-service-discovery__grid{grid-template-columns:1fr 1fr}.bonds-service-discovery__title{font-size:14px}.bonds-service-discovery button{grid-column:1/-1}}@media(max-width:480px){.bonds-service-discovery__grid{grid-template-columns:1fr}}
 .bonds-service-discovery .ud-dropdown{width:100%;min-width:0}.bonds-service-discovery .ud-trigger{height:42px;border-radius:8px;border:1px solid #d9dee7;background:#fff;color:#0d2343}.bonds-service-discovery .ud-search input{font:inherit}.sd-proposal-modal{position:fixed;inset:0;background:rgba(15,35,64,.45);display:grid;place-items:center;padding:16px;z-index:10000}.sd-proposal-modal[hidden]{display:none}.sd-proposal-dialog{width:min(520px,100%);background:#fff;border:1px solid #e5e7eb;border-radius:14px;padding:20px;box-shadow:0 24px 70px rgba(15,35,64,.25);position:relative;color:#0d2343}.sd-proposal-dialog h3{margin:0 0 8px}.sd-proposal-note{margin:0 0 14px;color:#687386;font-size:14px}.sd-proposal-dialog label{display:grid;gap:6px;margin:10px 0;font-weight:700}.sd-proposal-dialog input,.sd-proposal-dialog textarea{width:100%;box-sizing:border-box;border:1px solid #d9dee7;border-radius:8px;padding:10px;font:inherit}.sd-proposal-close{position:absolute;top:10px;inset-inline-end:10px;background:transparent!important;color:#687386!important;padding:0!important;width:34px;height:34px}.sd-proposal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:14px}.sd-proposal-actions .sd-secondary{background:#eef2f7;color:#0d2343}
 .sd-proposal-dialog select{width:100%;box-sizing:border-box;border:1px solid #d9dee7;border-radius:8px;padding:10px;background:#fff;color:#0d2343;font:inherit}.bonds-service-discovery .ud-icon{width:24px;height:18px;object-fit:cover;flex:0 0 24px;border-radius:2px;overflow:hidden}
+
+
+/* Hierarchical service picker */
+.bonds-service-field{position:relative}
+.sd-native-service-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.sd-service-picker{position:relative;width:100%}
+.bonds-service-discovery .sd-service-trigger{width:100%;height:42px;border:1px solid #d9dee7!important;border-radius:8px!important;background:#fff!important;color:#0d2343!important;padding:0 12px!important;font-weight:600!important;display:flex;align-items:center;justify-content:space-between;gap:8px;box-shadow:none!important;filter:none!important}
+.sd-service-trigger span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start}
+.sd-service-trigger b{font-size:15px;color:#8a6a2d}
+.sd-service-panel{display:none;position:absolute;top:calc(100% + 8px);inset-inline-end:0;width:min(980px,calc(100vw - 48px));background:#fff;border:1px solid #d9dee7;border-radius:12px;box-shadow:0 22px 60px rgba(15,35,64,.18);z-index:10020;overflow:hidden}
+.sd-service-picker.is-open .sd-service-panel{display:block}
+.sd-service-search{padding:12px;border-bottom:1px solid #edf0f4;background:#fbfcfe}
+.sd-service-search input{width:100%;height:42px;box-sizing:border-box;border:1px solid #d9dee7;border-radius:8px;padding:0 12px;font:inherit;color:#0d2343;background:#fff;outline:none}
+.sd-service-search input:focus{border-color:#b58a35;box-shadow:0 0 0 3px rgba(181,138,53,.12)}
+.sd-service-columns{display:grid;grid-template-columns:minmax(180px,.9fr) minmax(220px,1fr) minmax(280px,1.25fr);min-height:320px;max-height:470px}
+.sd-service-column{overflow:auto;padding:10px;border-inline-end:1px solid #edf0f4}
+.sd-service-column:last-child{border-inline-end:0}
+.sd-column-title{font-size:11px;font-weight:800;color:#7a8494;padding:6px 8px 9px;position:sticky;top:0;background:#fff;z-index:1}
+.bonds-service-discovery .sd-service-column button,
+.bonds-service-discovery .sd-service-result,
+.bonds-service-discovery .sd-mobile-item,
+.bonds-service-discovery .sd-back,
+.bonds-service-discovery .sd-custom-service{height:auto!important;min-height:40px;width:100%;border:0!important;border-radius:8px!important;background:transparent!important;color:#0d2343!important;padding:9px 10px!important;font-weight:600!important;display:flex;align-items:center;justify-content:space-between;gap:10px;text-align:start;white-space:normal!important;filter:none!important}
+.bonds-service-discovery .sd-service-column button:hover,
+.bonds-service-discovery .sd-service-column button.is-active,
+.bonds-service-discovery .sd-service-result:hover,
+.bonds-service-discovery .sd-mobile-item:hover{background:#f4f6f9!important}
+.bonds-service-discovery .sd-service-column button.is-active{color:#8a661f!important;box-shadow:inset 3px 0 0 #b58a35}
+[dir="rtl"] .bonds-service-discovery .sd-service-column button.is-active{box-shadow:inset -3px 0 0 #b58a35}
+.sd-service-column button b{color:#9aa3af;font-size:16px}
+.sd-service-results{max-height:430px;overflow:auto;padding:8px}
+.bonds-service-discovery .sd-service-result{display:grid!important;justify-content:stretch!important;gap:3px!important}
+.sd-service-result strong{font-size:13px}
+.sd-service-result small{font-size:11px;color:#7a8494;font-weight:500}
+.sd-service-empty{padding:28px;text-align:center;color:#7a8494}
+.bonds-service-discovery .sd-custom-service{border-top:1px solid #edf0f4!important;border-radius:0!important;padding:11px 14px!important;color:#8a661f!important;background:#fff!important;justify-content:flex-start!important}
+.sd-mobile-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-bottom:1px solid #edf0f4}
+.sd-mobile-head strong{font-size:13px;color:#0d2343}
+.bonds-service-discovery .sd-back{width:auto!important;padding:6px 8px!important;color:#8a661f!important}
+.sd-mobile-list{padding:8px;max-height:56vh;overflow:auto}
+.sd-mobile-item small{color:#8a661f;font-weight:700}
+@media(max-width:1180px){
+  .sd-service-panel{inset-inline-end:auto;inset-inline-start:0;width:min(900px,calc(100vw - 32px))}
+}
+@media(max-width:720px){
+  .sd-service-panel{position:fixed;inset:72px 12px auto 12px;width:auto;max-height:calc(100vh - 92px);border-radius:12px}
+  .sd-service-columns{display:block;min-height:0}
+  .sd-service-search{padding:10px}
+}
