@@ -29,15 +29,34 @@ Repository and public copy must not turn the Egyptian company registration into 
 - Arabic registered name: `مؤسسة نيو بوندز`
 - Jurisdiction: Kingdom of Saudi Arabia
 - Unified National Number: `7042125869`
+- Commercial registration number: `4030582355`
 - Entity type: `مؤسسة`
-- Certificate issue date: `15/10/2024`
-- Issuing authority: Ministry of Commerce
+- Register type: `سجل فرعي`
+- Commercial-registration date: `15/10/2024`
+- Annual-confirmation date shown: `15/10/2025`
+- Approved business-address city/description: `جدة حي المروة عبد الرحمن الخزاعي`
+- Total capital shown: SAR 5,000
+- Registered owner/manager shown: `طلال بن حسن بن محمد الزهراني`
+- Source platform: Saudi Business Center / Ministry-integrated commercial-register view
+- Status shown in the supplied Saudi Business Center snapshot: **`معلق` (suspended)**
 
-### UNKNOWN from the supplied New Bonds certificate
+### Activity evidence from the supplied snapshot
+
+The snapshot visibly lists four wholesale telecom/electronics activities:
+
+- `465201` — wholesale of telecommunications equipment parts/electronic components;
+- `465203` — wholesale of telephones and communications equipment;
+- `465207` — wholesale of cameras and accessories;
+- `465211` — wholesale of mobile-phone accessories.
+
+The page also states `+ 52 نشاطاً آخر`, but those additional activities are not expanded in the saved snapshot. Therefore, the snapshot does **not** establish that financial or management consulting is a registered Saudi activity.
+
+### UNKNOWN / unresolved for New Bonds
 
 - official English legal name;
-- registered/legal address;
-- registered activities;
+- full list of the 52 additional activities;
+- whether any consulting activity is included among those additional activities;
+- reason for and current resolution status of the displayed `معلق` status;
 - professional consulting-license number or scope;
 - CMA, SAMA, or other financial-regulatory authorization.
 
@@ -71,13 +90,16 @@ Common ownership alone does not establish the exact legal capacity of representa
 2. The owner-declared representative relationship may be described internally, but public legal copy should avoid “registered branch”, “legal representative office”, or equivalent terminology without official support.
 3. Use exact Egyptian legal names from the Egyptian documents.
 4. Use the exact Arabic registered Saudi name `مؤسسة نيو بوندز`; do not invent an official English legal name.
-5. Do not claim CMA/SAMA or securities/investment-advisory authorization without regulator evidence.
-6. Financial and management consulting descriptions must remain within the supported non-securities scope unless additional licensing evidence is recorded.
+5. Do not present `مؤسسة نيو بوندز` as an active Saudi consulting registration while the supplied Saudi Business Center snapshot displays its status as `معلق`.
+6. Do not claim that `مؤسسة نيو بوندز` is registered for financial/management consulting unless the full official activity list or license proves that scope.
+7. Do not claim CMA/SAMA or securities/investment-advisory authorization without regulator evidence.
+8. Financial and management consulting descriptions must remain within the supported Egyptian non-securities scope unless additional Saudi licensing evidence is recorded.
 
 ## Outstanding evidence before full closure of Issue #332
 
 - official document linking `مكتب ثقة الذهبية للخدمات العامة` to the Egyptian Bonds company in a defined legal representative/agency capacity;
-- Saudi registered-address and activity evidence for `مؤسسة نيو بوندز`;
+- clarification/resolution evidence for the Saudi Business Center status shown as `معلق`;
+- full official activity list for `مؤسسة نيو بوندز`, including any consulting activity if claimed;
 - professional consulting-license evidence if applicable;
 - CMA/SAMA/other regulator authorization if regulated investment/securities advisory is offered;
 - approved legal review of Privacy/Terms entity attribution, governing-law/contact-address language, and liability provisions.
