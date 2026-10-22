@@ -157,6 +157,19 @@
        if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'establishment',current);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return;}}
        showStatus(status==='submitted'?'Establishment information submitted for review.':'Draft saved.',true);
     }
+    window.BondsAssistantFormAdapter={
+      form_code:'establishment',
+      async saveDraft(){
+        const before=current;
+        if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){
+          return {ok:false,code:'FORM_NOT_EDITABLE',record_id:before.id||null,status:before.status};
+        }
+        await save('draft');
+        const saved=current;
+        const ok=!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
+        return {ok,code:ok?'DRAFT_SAVED':'DRAFT_NOT_VERIFIED',record_id:saved?.id||null,status:saved?.status||null};
+      }
+    };
     g('saveDraft').onclick=()=>save('draft');
     form.addEventListener('submit',e=>{e.preventDefault();save('submitted');});
     function set(id,v){if(v!==undefined&&v!==null)g(id).value=v;}
