@@ -40,7 +40,7 @@ describe('Human Approval Queue',()=>{
       action_fingerprint:'a'.repeat(64),
       risk:'high',
       status:'approved',
-      decision_note:'internal staff-only note'
+      approvals:[{reviewer_user_id:'admin-1',decision:'approved',note:'internal staff-only note',reviewed_at:'2026-10-22T16:00:00Z'}]
     });
     expect(out).not.toHaveProperty('decision_note');
     expect(JSON.stringify(out)).not.toContain('internal staff-only note');
