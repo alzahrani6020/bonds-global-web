@@ -215,7 +215,7 @@
       "id": 31,
       "title": "site_navigate",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 32,
@@ -227,13 +227,13 @@
       "id": 33,
       "title": "form_find",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 34,
       "title": "form_load",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 35,
@@ -263,7 +263,7 @@
       "id": 39,
       "title": "project_status",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 40,
@@ -275,19 +275,19 @@
       "id": 41,
       "title": "funding_status",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 42,
       "title": "funding_next_step",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 43,
       "title": "funding_next_requirements",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 44,
@@ -853,15 +853,21 @@
     "assistant_api",
     "navigation_registry",
     "form_registry",
-    "structured_actions"
-  ],
-  "next": [
+    "structured_actions",
     "site_navigate_capability",
     "form_find_capability",
     "form_load_capability",
     "funding_status_capability",
     "funding_next_step_capability",
+    "funding_next_requirements_capability",
     "project_status_capability"
+  ],
+  "next": [
+    "calculator_capabilities",
+    "chat_widget_action_renderer",
+    "assistant_context_state",
+    "prefill_provenance",
+    "confirmation_engine"
   ],
   "deferred": [
     "action_tokens",
@@ -878,7 +884,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-protocol-v1",
-    "change": "Assistant protocol v1 foundation: protocol contract, structured actions, authenticated planning API, navigation registry and form registry."
+    "branch": "feat/bonds-assistant-read-capabilities",
+    "change": "Registered and implemented governed read capabilities for navigation, forms, funding state/next requirements and project status."
   }
 }
