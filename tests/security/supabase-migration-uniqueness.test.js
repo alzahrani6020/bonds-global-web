@@ -12,6 +12,10 @@ const LEGACY_DUPLICATES = {
   '20260731000000': [
     '20260731000000_admin_audit_log.sql',
     '20260731000000_soft_lead_contact_validation.sql'
+  ],
+  '20261022180000': [
+    '20261022180000_assistant_agent_inbox.sql',
+    '20261022180000_assistant_sensitive_workflow_state_machine.sql'
   ]
 };
 
