@@ -909,7 +909,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-audit-trail",
-    "change": "Added Assistant V1 immutable server-side action audit trail covering planning, confirmation, idempotency claim/replay, write success and uncertain outcomes. Audit metadata is bounded, idempotency keys are hashed, direct client mutations are revoked, and audit logging is observability-only rather than authorization or AI/API capability gating."
+    "branch": "test/bonds-assistant-e2e-journeys",
+    "change": "Started Assistant V1 end-to-end journey coverage for governed planning, exact-action confirmation, durable idempotency, replay protection, authenticated access and fail-closed denial paths. Completion remains pending CI PASS."
   }
 }
