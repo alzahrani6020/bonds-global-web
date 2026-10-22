@@ -27,4 +27,23 @@ describe('Human Approval Queue',()=>{
     expect(dq.state.eq).toContainEqual(['permission','assistant.human_approval']);expect(dq.state.eq).toContainEqual(['status','pending']);expect(dq.state.update.status).toBe('approved');expect(dq.state.update.approvals[0].reviewer_user_id).toBe('admin-1');expect(out.execution_authorized).toBe(false);
   });
   test('admin queue is scoped to assistant approval permission and pending by default',async()=>{const q0=query({data:[],error:null});await listHumanApprovalQueue({supabase:{from:jest.fn(()=>q0.q)}});expect(q0.state.eq).toContainEqual(['permission','assistant.human_approval']);expect(q0.state.eq).toContainEqual(['status','pending']);});
+  test('public approval never exposes internal reviewer note',()=>{
+    const {publicApproval}=require('../../lib/assistant/human-approval');
+    const out=publicApproval({
+      id:'a1',
+      workflow_key:'wf-1',
+      boundary:'project:p-1',
+      workflow_version:4,
+      action_id:'act-1',
+      action_type:'form_submit',
+      action_target:'funding',
+      action_fingerprint:'a'.repeat(64),
+      risk:'high',
+      status:'approved',
+      decision_note:'internal staff-only note'
+    });
+    expect(out).not.toHaveProperty('decision_note');
+    expect(JSON.stringify(out)).not.toContain('internal staff-only note');
+  });
+
 });
