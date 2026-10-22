@@ -1,49 +1,52 @@
 -- Assistant Phase 2: Human Approval Queue.
--- Human approval is durable review evidence only. It never grants execution authority.
+-- Reuse the existing admin_approval_requests control-plane table.
+-- Human approval is evidence only and never grants execution authority.
 
-CREATE TABLE IF NOT EXISTS public.assistant_human_approvals (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  request_key text NOT NULL UNIQUE,
-  user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  workflow_key text NOT NULL,
-  boundary text NOT NULL,
-  workflow_version bigint NOT NULL CHECK (workflow_version > 0),
-  action_id text NOT NULL,
-  action_type text NOT NULL,
-  action_target text,
-  action_fingerprint text NOT NULL CHECK (action_fingerprint ~ '^[a-f0-9]{64}$'),
-  risk text NOT NULL CHECK (risk IN ('high','critical')),
-  status text NOT NULL DEFAULT 'pending'
-    CHECK (status IN ('pending','approved','rejected','cancelled')),
-  action_snapshot jsonb NOT NULL DEFAULT '{}',
-  requested_at timestamptz NOT NULL DEFAULT now(),
-  reviewed_by uuid REFERENCES auth.users(id) ON DELETE SET NULL,
-  reviewed_at timestamptz,
-  decision_note text,
-  metadata jsonb NOT NULL DEFAULT '{}',
-  created_at timestamptz NOT NULL DEFAULT now(),
-  updated_at timestamptz NOT NULL DEFAULT now(),
-  CHECK (char_length(request_key) BETWEEN 1 AND 220),
-  CHECK (char_length(boundary) BETWEEN 1 AND 500)
-);
+ALTER TABLE public.admin_approval_requests
+  ADD COLUMN IF NOT EXISTS request_key text,
+  ADD COLUMN IF NOT EXISTS workflow_key text,
+  ADD COLUMN IF NOT EXISTS boundary text,
+  ADD COLUMN IF NOT EXISTS workflow_version bigint,
+  ADD COLUMN IF NOT EXISTS action_fingerprint text,
+  ADD COLUMN IF NOT EXISTS risk text;
 
-CREATE INDEX IF NOT EXISTS idx_assistant_human_approvals_queue
-  ON public.assistant_human_approvals (status, risk, requested_at DESC);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_admin_approval_requests_request_key
+  ON public.admin_approval_requests (request_key)
+  WHERE request_key IS NOT NULL;
 
-CREATE INDEX IF NOT EXISTS idx_assistant_human_approvals_user
-  ON public.assistant_human_approvals (user_id, requested_at DESC);
+CREATE INDEX IF NOT EXISTS idx_admin_approval_requests_assistant_queue
+  ON public.admin_approval_requests (permission, status, risk, created_at DESC);
 
-ALTER TABLE public.assistant_human_approvals ENABLE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname='admin_approval_requests_assistant_risk_check'
+      AND conrelid='public.admin_approval_requests'::regclass
+  ) THEN
+    ALTER TABLE public.admin_approval_requests
+      ADD CONSTRAINT admin_approval_requests_assistant_risk_check
+      CHECK (risk IS NULL OR risk IN ('high','critical'));
+  END IF;
 
-REVOKE ALL ON public.assistant_human_approvals FROM PUBLIC, anon, authenticated, service_role;
-GRANT SELECT, INSERT, UPDATE ON public.assistant_human_approvals TO service_role;
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conname='admin_approval_requests_action_fingerprint_check'
+      AND conrelid='public.admin_approval_requests'::regclass
+  ) THEN
+    ALTER TABLE public.admin_approval_requests
+      ADD CONSTRAINT admin_approval_requests_action_fingerprint_check
+      CHECK (action_fingerprint IS NULL OR action_fingerprint ~ '^[a-f0-9]{64}$');
+  END IF;
+END $$;
 
-COMMENT ON TABLE public.assistant_human_approvals IS
-  'Human approval evidence for sensitive Assistant actions. Server-side only; approval does not authorize execution.';
+REVOKE ALL ON public.admin_approval_requests FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.admin_approval_requests TO service_role;
 
 INSERT INTO public.admin_permissions(permission, description, risk_level) VALUES
-('human_approval.read','Read Assistant Human Approval Queue','sensitive'),
-('human_approval.decide','Approve or reject Assistant Human Approval requests','sensitive')
+('assistant.human_approval','Assistant sensitive action approval request','critical'),
+('human_approval.read','Read Assistant Human Approval Queue','high'),
+('human_approval.decide','Approve or reject Assistant Human Approval requests','critical')
 ON CONFLICT (permission) DO NOTHING;
 
 INSERT INTO public.admin_role_permissions(role, permission)
@@ -54,3 +57,8 @@ SELECT role, permission FROM (VALUES
   ('admin','human_approval.decide')
 ) AS x(role, permission)
 ON CONFLICT (role, permission) DO NOTHING;
+
+COMMENT ON COLUMN public.admin_approval_requests.request_key IS
+  'Optional idempotency key for governed approval workflows; Assistant uses an opaque hash.';
+COMMENT ON COLUMN public.admin_approval_requests.action_fingerprint IS
+  'Exact sensitive action fingerprint. Approval never grants execution authority.';
