@@ -74,6 +74,8 @@ async function assertAssistantProduction({
   for (const [path, method] of [
     ['/assistant', 'GET'],
     ['/assistant/plan', 'POST'],
+    ['/assistant/workflows/transition', 'POST'],
+    ['/assistant/escalations', 'POST'],
     ['/capabilities/execute', 'POST']
   ]) {
     const denied = await request(path, { method, authenticated: false,
