@@ -120,6 +120,31 @@
       "runtime": {
         "adapter": "assistant_project_status"
       }
+    },
+    {
+      "action": "calculator_open",
+      "id": "BONDS-CAP-ASST-008",
+      "purpose": "Resolve a registered BONDS calculator destination without accepting arbitrary URLs.",
+      "side_effect": "none",
+      "required": [
+        "calculator"
+      ],
+      "runtime": {
+        "adapter": "assistant_calculator_open"
+      }
+    },
+    {
+      "action": "calculator_run",
+      "id": "BONDS-CAP-ASST-009",
+      "purpose": "Execute a registered deterministic BONDS UCP calculation profile; template selection is registry-controlled.",
+      "side_effect": "compute",
+      "required": [
+        "calculator",
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "assistant_calculator_run"
+      }
     }
   ]
 }
