@@ -13,6 +13,7 @@ const { claimAssistantAction, resolveAssistantAction } = require('../../lib/assi
 const { getSupabaseClient } = require('../lib/supabase');
 const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
+const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -289,6 +290,59 @@ async function assistantRouter(req, res, path, user) {
         'WORKFLOW_VERSION_REQUIRED'
       ].includes(err.message);
       return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/documents/find' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const documents = await findOwnedDocuments({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        projectId:body.project_id || null,
+        limit:body.limit
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        documents
+      });
+    } catch (err) {
+      const clientError = ['DOCUMENT_USER_REQUIRED'].includes(err.message);
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/documents/read' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const document = await loadOwnedDocument({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        documentId:body.document_id
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:document ? 'completed' : 'not_found',
+        document
+      });
+    } catch (err) {
+      const clientError = ['DOCUMENT_ID_REQUIRED','DOCUMENT_USER_REQUIRED'].includes(err.message);
+      return sendJson(res, clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
