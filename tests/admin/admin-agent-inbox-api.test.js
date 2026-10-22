@@ -11,7 +11,7 @@ jest.mock('../../v3/lib/admin-access', () => ({
   requireAgentInboxAccess:(req)=>mockAccess(req)
 }));
 
-jest.mock('../../lib/assistant/agent-inbox', () => ({
+jest.mock('../../lib/assistant/agent-inbox-queue', () => ({
   listAgentInbox:(args)=>mockList(args),
   updateAgentInboxItem:(args)=>mockUpdate(args),
   listAgentAssignees:(args)=>mockAssignees(args)
