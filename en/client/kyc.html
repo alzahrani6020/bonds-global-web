@@ -258,7 +258,7 @@
     }
 
     async function save(status){
-      if(!sb||!user) return;
+      if(!sb||!user) return false;
       const payload=buildPayload(status);
       let result;
       if(currentCase?.id) result=await sb.from('client_kyc_cases').update(payload).eq('id',currentCase.id).select().single();
@@ -269,6 +269,19 @@
        showStatus(status==='submitted'?'Your KYC form has been submitted for review.':'Draft saved.',true); return true;
     }
 
+    window.BondsAssistantFormAdapter={
+      form_code:'kyc',
+      async saveDraft(){
+        const before=currentCase;
+        if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){
+          return {ok:false,code:'FORM_NOT_EDITABLE',record_id:before.id||null,status:before.status};
+        }
+        const saveOk=await save('draft');
+        const saved=currentCase;
+        const ok=saveOk===true&&!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
+        return {ok,code:ok?'DRAFT_SAVED':'DRAFT_NOT_VERIFIED',record_id:saved?.id||null,status:saved?.status||null};
+      }
+    };
     document.getElementById('saveBtn').onclick=()=>save('draft');
     form.addEventListener('submit',async function(e){
       e.preventDefault();
