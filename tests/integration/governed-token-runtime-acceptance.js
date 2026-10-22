@@ -458,7 +458,7 @@ async function workerMain() {
         'with sqlite3.connect(sys.argv[1]) as db:',
         '    rows=db.execute("SELECT issued_by, revoked, consumed_at FROM tokens WHERE issued_by=?", ("broker",)).fetchall()',
         'print(json.dumps(rows))'
-      ].join('\\n'), database]).trim();
+      ].join('\n'), database]).trim();
       const rows = JSON.parse(brokerRows);
       assert.ok(rows.length >= 1);
       const latest = rows[rows.length - 1];
