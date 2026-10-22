@@ -88,7 +88,7 @@ describe('GeoNames governed ingestion contract', () => {
     expect(reconcile).toContain('join public.geo_places p on p.id=c.geo_place_id');
     expect(reconcile).toContain('c.code=$1 and c.country_code=$2');
     expect(reconcile).toContain('rawKeys.some(key => targetKeys.includes(key))');
-    expect(reconcile).toContain("matchType = 'safe_candidate_city_code'");
+    expect(reconcile).toContain("matchType = 'exact_name'");
     expect(reconcile).toContain("reason: 'safe_candidate_city_code'");
   });
 });
