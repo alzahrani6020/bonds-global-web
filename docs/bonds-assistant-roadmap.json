@@ -65,7 +65,7 @@
       "id": 6,
       "title": "Assistant operating modes",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 7,
@@ -907,10 +907,11 @@
     "sensitive_workflow_state_machine",
     "assistant_user_inbox",
     "human_escalation",
-    "human_approval_queue"
+    "human_approval_queue",
+    "employee_assistant_mode"
   ],
   "next": [
-    "employee_assistant_mode"
+    "emergency_kill_switch"
   ],
   "deferred": [
     "action_tokens",
@@ -927,8 +928,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-human-approval-queue",
-    "change": "Human Approval Queue implemented_base with durable server-side sensitive-action approval requests, exact workflow/boundary/version/action fingerprint binding, bearer-attributed admin decisions, support exclusion from decision authority, user status visibility, admin UI, and explicit no-execution semantics. Next: employee_assistant_mode."
+    "branch": "feat/assistant-employee-mode",
+    "change": "Employee Assistant Mode implemented_base with authenticated role-derived customer/employee operating mode, bounded operational workspace counts, support exclusion from human approval decisions, and explicit no-permission-escalation/no-execution semantics. Next: emergency_kill_switch."
   },
   "production_rollout": {
     "status": "complete",
