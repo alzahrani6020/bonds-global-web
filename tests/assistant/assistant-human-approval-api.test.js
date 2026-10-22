@@ -1,4 +1,9 @@
 /** @jest-environment node */
+jest.mock('../../lib/assistant/emergency-kill-switch',()=>({
+  featureForAssistantMutation:()=>null,
+  assertAssistantMutationEnabled:jest.fn()
+}));
+
 const {EventEmitter}=require('events');
 const mockRequest=jest.fn(),mockList=jest.fn(),mockAudit=jest.fn();
 jest.mock('../../lib/assistant/human-approval',()=>({requestHumanApproval:(args)=>mockRequest(args),listUserHumanApprovals:(args)=>mockList(args)}));
