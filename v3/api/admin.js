@@ -16,6 +16,7 @@ const { listHumanApprovalQueue, decideHumanApproval } = require('../../lib/assis
 const { calibrateCompetitorCounts } = require('../engine/data-acquisition/CompetitorCalibration');
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
 const { scanAssistantAnomalies } = require('../../lib/assistant/anomaly-detection');
+const { buildAssistantOperationalDashboard } = require('../../lib/assistant/operational-dashboard');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -566,6 +567,32 @@ async function handleSourceQualityAlerts(req, res) {
 }
 
 
+async function handleAssistantOperations(req, res) {
+  if (req.method !== 'GET') {
+    return sendJson(res, 405, { success:false, error:'Method not allowed' });
+  }
+
+  const supabase = getSupabaseClient();
+  const url = new URL(req.url || '/api/v3/admin/assistant-operations', 'http://localhost');
+  const windowHours = url.searchParams.get('window_hours') || 24;
+
+  try {
+    const dashboard = await buildAssistantOperationalDashboard({
+      supabase,
+      windowHours
+    });
+    return sendJson(res, 200, {
+      success:true,
+      assistant_operations:dashboard
+    });
+  } catch (err) {
+    return sendJson(res, 503, {
+      success:false,
+      error:String(err?.message || 'ASSISTANT_OPERATIONAL_DASHBOARD_FAILED')
+    });
+  }
+}
+
 async function handleAssistantAnomalies(req, res) {
   const supabase = getSupabaseClient();
   const url = new URL(req.url || '/api/v3/admin/assistant-anomalies', 'http://localhost');
@@ -1081,6 +1108,7 @@ async function adminRouter(req, res, path) {
     if (resource === 'competitor-calibration') return await handleCompetitorCalibration(req, res, path);
     if (resource === 'source-quality-alerts') return await handleSourceQualityAlerts(req, res);
     if (resource === 'assistant-anomalies') return await handleAssistantAnomalies(req, res);
+    if (resource === 'assistant-operations') return await handleAssistantOperations(req, res);
     if (resource === 'services') {
       const serviceCode = parts[2];
       if (parts[3] === 'forms') return await handleServiceFormsAdmin(req, res, serviceCode, parts[4], parts[5]);
