@@ -15,7 +15,7 @@ function getQuery(req) {
 async function listPublishedServices(supabase, filters = {}) {
   const { data: services, error } = await supabase
     .from('service_catalog')
-    .select('id,code,category_code,name_ar,name_en,short_description_ar,short_description_en,delivery_type,sort_order,default_route_ar,default_route_en,metadata')
+    .select('id,code,category_code,group_code,name_ar,name_en,short_description_ar,short_description_en,delivery_type,sort_order,default_route_ar,default_route_en,metadata')
     .eq('status', 'published')
     .eq('is_active', true)
     .order('sort_order');
@@ -127,7 +127,38 @@ async function handleServiceCatalog(req, res, supabase) {
   };
   try {
     const services = await listPublishedServices(supabase, filters);
-    return sendJson(res, 200, { services, filters, count: services.length });
+    const serviceGroupCodes = [...new Set(services.map(row => row.group_code).filter(Boolean))];
+    const serviceCategoryCodes = [...new Set(services.map(row => row.category_code).filter(Boolean))];
+
+    const [groupsRes, categoriesRes] = await Promise.all([
+      serviceGroupCodes.length
+        ? supabase
+            .from('service_groups')
+            .select('code,category_code,name_ar,name_en,description_ar,description_en,sort_order,metadata')
+            .in('code', serviceGroupCodes)
+            .eq('is_active', true)
+            .order('sort_order')
+        : Promise.resolve({ data: [], error: null }),
+      serviceCategoryCodes.length
+        ? supabase
+            .from('service_categories')
+            .select('code,name_ar,name_en,description,sort_order,metadata')
+            .in('code', serviceCategoryCodes)
+            .eq('is_active', true)
+            .order('sort_order')
+        : Promise.resolve({ data: [], error: null })
+    ]);
+
+    const hierarchyError = groupsRes.error || categoriesRes.error;
+    if (hierarchyError) throw hierarchyError;
+
+    return sendJson(res, 200, {
+      services,
+      groups: groupsRes.data || [],
+      categories: categoriesRes.data || [],
+      filters,
+      count: services.length
+    });
   } catch (err) {
     console.error('[services/catalog]', err.message);
     return sendJson(res, 500, { error: 'Failed to load services' });
