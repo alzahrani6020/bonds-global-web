@@ -23,6 +23,7 @@ const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxIt
 const { createHumanEscalation, listUserHumanEscalations } = require('../../lib/assistant/human-escalation');
 const { requestHumanApproval, listUserHumanApprovals, listHumanApprovalQueue } = require('../../lib/assistant/human-approval');
 const { resolveEmployeeAssistantMode, buildEmployeeAssistantWorkspace } = require('../../lib/assistant/employee-assistant-mode');
+const { featureForAssistantMutation, assertAssistantMutationEnabled } = require('../../lib/assistant/emergency-kill-switch');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -57,6 +58,29 @@ function parseBody(req) {
 
 async function assistantRouter(req, res, path, user) {
   if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+
+  const mutationFeature = featureForAssistantMutation(path, req.method);
+  if (mutationFeature) {
+    try {
+      await assertAssistantMutationEnabled({
+        supabase:getSupabaseClient(),
+        feature:mutationFeature
+      });
+    } catch (err) {
+      const disabled = err.code === 'ASSISTANT_FEATURE_DISABLED';
+      return sendJson(res, 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:disabled ? 'ASSISTANT_FEATURE_DISABLED' : 'ASSISTANT_KILL_SWITCH_UNAVAILABLE',
+        feature:disabled ? err.feature : mutationFeature,
+        expires_at:disabled ? (err.expires_at || null) : null,
+        policy:{
+          execution_authorized:false,
+          auto_execute:false
+        }
+      });
+    }
+  }
 
   if (path === '/assistant/contract' && req.method === 'GET') {
     return sendJson(res, 200, contract);
