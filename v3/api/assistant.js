@@ -18,6 +18,7 @@ const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workfl
 const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
 const { listOwnedDrafts } = require('../../lib/assistant/draft-center');
 const { buildAgentInbox } = require('../../lib/assistant/agent-inbox');
+const { transitionSensitiveWorkflowState } = require('../../lib/assistant/sensitive-workflow-state-machine');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -326,6 +327,48 @@ async function assistantRouter(req, res, path, user) {
     } catch (err) {
       const clientError = err.message === 'INVALID_WORKFLOW_KEY';
       return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/workflows/transition' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const result = await transitionSensitiveWorkflowState({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        workflowKey:body.workflow_key,
+        toState:body.to_state,
+        expectedVersion:body.expected_version,
+        boundary:body.boundary,
+        reason:body.reason
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        ...result
+      });
+    } catch (err) {
+      const conflict = [
+        'WORKFLOW_VERSION_CONFLICT',
+        'SENSITIVE_WORKFLOW_BOUNDARY_CONFLICT',
+        'SENSITIVE_WORKFLOW_STATUS_BLOCKED'
+      ].includes(err.message);
+      const notFound = err.message === 'WORKFLOW_NOT_FOUND';
+      const clientError = [
+        'INVALID_SENSITIVE_WORKFLOW_STATE',
+        'SENSITIVE_WORKFLOW_TRANSITION_NOT_ALLOWED',
+        'SENSITIVE_WORKFLOW_VERSION_REQUIRED',
+        'SENSITIVE_WORKFLOW_USER_REQUIRED',
+        'INVALID_WORKFLOW_KEY'
+      ].includes(err.message);
+      return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
