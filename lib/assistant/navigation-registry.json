@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "registry": "bonds-navigation",
+  "destinations": {
+    "funding": {
+      "routes": {
+        "ar": "/funding",
+        "en": "/en/funding"
+      },
+      "kind": "page",
+      "risk": "low"
+    },
+    "funding_readiness": {
+      "routes": {
+        "ar": "/funding-readiness",
+        "en": "/en/funding-readiness"
+      },
+      "kind": "page",
+      "risk": "low"
+    },
+    "funding_sources": {
+      "routes": {
+        "ar": "/funding-sources",
+        "en": "/en/funding-sources"
+      },
+      "kind": "page",
+      "risk": "low"
+    },
+    "client_dashboard": {
+      "routes": {
+        "ar": "/client",
+        "en": "/en/client"
+      },
+      "kind": "page",
+      "risk": "low",
+      "auth_required": true
+    },
+    "funding_cases": {
+      "routes": {
+        "ar": "/client/funding-cases",
+        "en": "/en/client/funding-cases"
+      },
+      "kind": "page",
+      "risk": "low",
+      "auth_required": true
+    },
+    "kyc": {
+      "routes": {
+        "ar": "/client/kyc",
+        "en": "/en/client/kyc"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    },
+    "establishment_information": {
+      "routes": {
+        "ar": "/client/establishment-information",
+        "en": "/en/client/establishment-information"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    },
+    "business_activity": {
+      "routes": {
+        "ar": "/client/business-activity",
+        "en": "/en/client/business-activity"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    },
+    "cash_flow": {
+      "routes": {
+        "ar": "/client/cash-flow",
+        "en": "/en/client/cash-flow"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    },
+    "receivables_aging": {
+      "routes": {
+        "ar": "/client/receivables-aging",
+        "en": "/en/client/receivables-aging"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    },
+    "payables_aging": {
+      "routes": {
+        "ar": "/client/payables-aging",
+        "en": "/en/client/payables-aging"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    },
+    "credit_consent_business": {
+      "routes": {
+        "ar": "/client/credit-consent-business",
+        "en": "/en/client/credit-consent-business"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    },
+    "credit_consent_individual": {
+      "routes": {
+        "ar": "/client/credit-consent-individual",
+        "en": "/en/client/credit-consent-individual"
+      },
+      "kind": "form",
+      "risk": "low",
+      "auth_required": true
+    }
+  }
+}
