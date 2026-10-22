@@ -3,7 +3,6 @@ const {EventEmitter}=require('events');
 
 const mockGuard=jest.fn();
 const mockEmergencyMode=jest.fn();
-const mockEmergencyMode=jest.fn();
 jest.mock('../../lib/assistant/emergency-kill-switch',()=>{
   const actual=jest.requireActual('../../lib/assistant/emergency-kill-switch');
   return {
