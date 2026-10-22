@@ -68,7 +68,7 @@ describe('BONDS Assistant context state', () => {
     expect(source).toContain('window.BondsAssistant.getState = () => sanitizeAssistantContextState');
     expect(source).toContain('window.BondsAssistant.updateState = patch => patchAssistantContextState(patch);');
     expect(source).toContain('window.BondsAssistant.clearState = () =>');
-    expect(source).not.toMatch(/eval\\s*\\(/);
-    expect(source).not.toMatch(/new\\s+Function\\s*\\(/);
+    expect(source).not.toMatch(/eval\s*\(/);
+    expect(source).not.toMatch(/new\s+Function\s*\(/);
   });
 });
