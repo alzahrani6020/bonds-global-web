@@ -904,7 +904,8 @@
     "assistant_notifications",
     "draft_center",
     "agent_inbox",
-    "sensitive_workflow_state_machine"
+    "sensitive_workflow_state_machine",
+    "assistant_user_inbox"
   ],
   "next": [
     "human_escalation"
