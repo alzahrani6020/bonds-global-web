@@ -36,6 +36,7 @@ const {
 } = require('../../lib/assistant/notification-store');
 const { getCachedIntrospection } = require('../../lib/assistant/safe-introspection-cache');
 const { publicAssistantPolicyDescriptor } = require('../../lib/assistant/policy-engine');
+const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -117,6 +118,44 @@ async function assistantRouter(req, res, path, user) {
       status:'completed',
       policy:publicAssistantPolicyDescriptor()
     });
+  }
+
+  if (path === '/assistant/policy/simulate' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (_err) {
+      return sendJson(res, 400, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'INVALID_JSON_BODY'
+      });
+    }
+
+    try {
+      const simulation=simulateAssistantPolicy(body);
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        simulation
+      });
+    } catch (err) {
+      const code=String(err?.message || 'POLICY_SIMULATION_FAILED');
+      const clientError=[
+        'POLICY_SIMULATION_ACTION_REQUIRED',
+        'POLICY_SIMULATION_LIMIT_EXCEEDED'
+      ].includes(code);
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:clientError ? code : 'POLICY_SIMULATION_FAILED',
+        policy:{
+          simulation_only:true,
+          authorization_source:false,
+          execution_authorized:false,
+          auto_execute:false
+        }
+      });
+    }
   }
 
   if (path === '/assistant/introspection' && req.method === 'GET') {
