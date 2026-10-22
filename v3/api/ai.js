@@ -122,6 +122,10 @@ function buildNativeChatPrompt(messages, context, assistantState = null) {
     serviceCode: context?.serviceCode || undefined,
     serviceName: context?.serviceName || undefined,
     serviceDeliveryType: context?.serviceDeliveryType || undefined,
+    serviceCapabilities: context?.serviceCapabilities?.length ? context.serviceCapabilities.slice(0, 50) : undefined,
+    serviceRequirements: context?.serviceRequirements?.length ? context.serviceRequirements.slice(0, 50) : undefined,
+    serviceDeliverables: context?.serviceDeliverables?.length ? context.serviceDeliverables.slice(0, 30) : undefined,
+    serviceDependencies: context?.serviceDependencies?.length ? context.serviceDependencies.slice(0, 30) : undefined,
     population: context?.population ?? undefined,
     purchasingPowerIndex: context?.purchasingPowerIndex ?? undefined,
     indicators: context?.indicators || undefined,
@@ -552,11 +556,16 @@ async function enrichContext(context, userMessage) {
   const currentYear = new Date().getFullYear();
   let enriched = { ...context };
 
+  delete enriched.serviceCapabilities;
+  delete enriched.serviceRequirements;
+  delete enriched.serviceDeliverables;
+  delete enriched.serviceDependencies;
+
   const requestedServiceCode = String(context?.serviceCode || '').trim().slice(0, 100);
   if (requestedServiceCode) {
     const { data: service, error: serviceError } = await supabase
       .from('service_catalog')
-      .select('code,name_ar,name_en,delivery_type,default_route_ar,default_route_en,status,is_active')
+      .select('id,code,name_ar,name_en,delivery_type,default_route_ar,default_route_en,status,is_active')
       .eq('code', requestedServiceCode)
       .eq('status', 'published')
       .eq('is_active', true)
@@ -568,11 +577,73 @@ async function enrichContext(context, userMessage) {
       enriched.serviceNameEn = service.name_en || service.name_ar || service.code;
       enriched.serviceDeliveryType = service.delivery_type || null;
       enriched.serviceRoute = service.default_route_ar || service.default_route_en || null;
+
+      const [capabilityResult, requirementResult, deliverableResult, dependencyResult] = await Promise.all([
+        supabase
+          .from('service_capability_map')
+          .select('capability_code,run_order,is_required')
+          .eq('service_id', service.id)
+          .order('run_order'),
+        supabase
+          .from('service_requirements')
+          .select('requirement_type,label_ar,label_en,is_required,sort_order')
+          .eq('service_id', service.id)
+          .order('sort_order'),
+        supabase
+          .from('service_deliverables')
+          .select('code,name_ar,name_en,sort_order')
+          .eq('service_id', service.id)
+          .order('sort_order'),
+        supabase
+          .from('service_dependencies')
+          .select('depends_on_service_id')
+          .eq('service_id', service.id)
+      ]);
+
+      enriched.serviceCapabilities = (capabilityResult.data || [])
+        .map(row => row.capability_code)
+        .filter(Boolean)
+        .slice(0, 50);
+
+      enriched.serviceRequirements = (requirementResult.data || [])
+        .map(row => ({
+          type: row.requirement_type || null,
+          label: row.label_ar || row.label_en || null,
+          required: row.is_required === true
+        }))
+        .filter(row => row.label)
+        .slice(0, 50);
+
+      enriched.serviceDeliverables = (deliverableResult.data || [])
+        .map(row => row.name_ar || row.name_en || row.code)
+        .filter(Boolean)
+        .slice(0, 30);
+
+      const dependencyIds = (dependencyResult.data || [])
+        .map(row => row.depends_on_service_id)
+        .filter(Boolean)
+        .slice(0, 30);
+      if (dependencyIds.length) {
+        const { data: dependencyServices } = await supabase
+          .from('service_catalog')
+          .select('id,code')
+          .in('id', dependencyIds);
+        enriched.serviceDependencies = (dependencyServices || [])
+          .map(row => row.code)
+          .filter(Boolean)
+          .slice(0, 30);
+      } else {
+        enriched.serviceDependencies = [];
+      }
     } else {
       delete enriched.serviceName;
       delete enriched.serviceNameEn;
       delete enriched.serviceDeliveryType;
       delete enriched.serviceRoute;
+      enriched.serviceCapabilities = [];
+      enriched.serviceRequirements = [];
+      enriched.serviceDeliverables = [];
+      enriched.serviceDependencies = [];
     }
   }
 
