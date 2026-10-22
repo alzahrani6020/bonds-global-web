@@ -13,6 +13,7 @@ const allowed = new Set([
   'scripts/generate-report.js',
   'scripts/generate-feasibility-pdf.js',
   'scripts/verify-generated-pdf-references.js',
+  'calculator-wizard.js', // client-side jsPDF download filename; does not reference a repository binary
 ]);
 
 const ignoredDirs = new Set([
