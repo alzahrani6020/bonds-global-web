@@ -14,6 +14,9 @@
   const ASSISTANT_CONFIRMATION_RESOLVE_URL = '/api/v3/assistant/confirmation/resolve';
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
+  const ASSISTANT_IDEMPOTENCY_VERSION = 1;
+  const ASSISTANT_IDEMPOTENCY_PREFIX = 'bonds.assistant.idempotency.v1:';
+  const ASSISTANT_IDEMPOTENCY_IN_FLIGHT_TTL_MS = 120000;
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -276,6 +279,86 @@
       return ASSISTANT_STATE_PREFIX + encodeURIComponent(boundary);
     }
 
+    function idempotencyStorageKey(formCode, boundary = contextBoundaryKey()) {
+      return ASSISTANT_IDEMPOTENCY_PREFIX +
+        encodeURIComponent(boundary) + ':' +
+        encodeURIComponent(String(formCode || ''));
+    }
+
+    function idempotencyActionKey(formCode, revision = formRevision, boundary = contextBoundaryKey()) {
+      return [
+        'v' + ASSISTANT_IDEMPOTENCY_VERSION,
+        boundary,
+        'form_save_draft',
+        String(formCode || ''),
+        'rev:' + String(revision)
+      ].join('|');
+    }
+
+    function sanitizeIdempotencyResult(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+      return {
+        ok: value.ok === true,
+        code: String(value.code || '').slice(0, 100),
+        record_id: value.record_id == null ? null : String(value.record_id).slice(0, 100),
+        status: value.status == null ? null : String(value.status).slice(0, 50)
+      };
+    }
+
+    function loadIdempotencyRecord(formCode, boundary = contextBoundaryKey()) {
+      try {
+        const raw = window.sessionStorage?.getItem(idempotencyStorageKey(formCode, boundary));
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (
+          !parsed ||
+          parsed.version !== ASSISTANT_IDEMPOTENCY_VERSION ||
+          parsed.boundary !== boundary ||
+          parsed.form_code !== String(formCode || '')
+        ) return null;
+        return {
+          version: ASSISTANT_IDEMPOTENCY_VERSION,
+          key: String(parsed.key || ''),
+          boundary,
+          form_code: String(formCode || ''),
+          revision: Number.isFinite(Number(parsed.revision)) ? Number(parsed.revision) : 0,
+          status: ['in_flight', 'completed', 'failed'].includes(parsed.status) ? parsed.status : 'failed',
+          result: sanitizeIdempotencyResult(parsed.result),
+          updated_at: typeof parsed.updated_at === 'string' ? parsed.updated_at : null
+        };
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function saveIdempotencyRecord(record) {
+      const sanitized = {
+        version: ASSISTANT_IDEMPOTENCY_VERSION,
+        key: String(record?.key || ''),
+        boundary: String(record?.boundary || contextBoundaryKey()),
+        form_code: String(record?.form_code || ''),
+        revision: Number.isFinite(Number(record?.revision)) ? Number(record.revision) : 0,
+        status: ['in_flight', 'completed', 'failed'].includes(record?.status) ? record.status : 'failed',
+        result: sanitizeIdempotencyResult(record?.result),
+        updated_at: new Date().toISOString()
+      };
+      try {
+        window.sessionStorage?.setItem(
+          idempotencyStorageKey(sanitized.form_code, sanitized.boundary),
+          JSON.stringify(sanitized)
+        );
+      } catch (err) {
+        // Best-effort persistence; in-memory execution still remains guarded by the UI.
+      }
+      return sanitized;
+    }
+
+    function isFreshInFlight(record) {
+      if (!record || record.status !== 'in_flight' || !record.updated_at) return false;
+      const age = Date.now() - Date.parse(record.updated_at);
+      return Number.isFinite(age) && age >= 0 && age < ASSISTANT_IDEMPOTENCY_IN_FLIGHT_TTL_MS;
+    }
+
     function createAssistantContextState(boundary = contextBoundaryKey()) {
       return {
         version: ASSISTANT_STATE_VERSION,
@@ -384,6 +467,12 @@
     }
 
     let assistantContextState = loadAssistantContextState();
+    let formRevision = 0;
+
+    function markFormDirty(event) {
+      if (event?.target && root.contains(event.target)) return;
+      formRevision += 1;
+    }
 
     function resetVisibleConversationForBoundary() {
       state.messages = [];
@@ -399,9 +488,13 @@
 
       if (previousBoundary !== nextBoundary) {
         assistantContextState = loadAssistantContextState(nextBoundary);
+        formRevision = 0;
         resetVisibleConversationForBoundary();
       }
     }
+
+    document.addEventListener('input', markFormDirty, true);
+    document.addEventListener('change', markFormDirty, true);
 
     const state = {
       messages: [],
@@ -670,30 +763,92 @@
             throw new Error('DRAFT_ADAPTER_NOT_AVAILABLE');
           }
 
-          const result = await adapter.saveDraft();
+          const boundary = contextBoundaryKey();
+          const key = idempotencyActionKey(planned.target, formRevision, boundary);
+          const existing = loadIdempotencyRecord(planned.target, boundary);
+
           if (
-            !result ||
-            result.ok !== true ||
-            !result.record_id ||
-            result.status !== 'draft'
+            existing &&
+            existing.key === key &&
+            existing.status === 'completed' &&
+            existing.result?.ok === true &&
+            existing.result?.record_id &&
+            existing.result?.status === 'draft'
           ) {
-            throw new Error('DRAFT_VERIFICATION_FAILED');
+            patchAssistantContextState({
+              last_action:{
+                id:String(action.id || ''),
+                type:'form_save_draft',
+                target:String(planned.target || ''),
+                status:'replayed'
+              }
+            });
+            addAssistantMessage(
+              languageCode() === 'en'
+                ? 'This draft was already saved. The verified result was reused.'
+                : 'تم حفظ هذه المسودة مسبقًا. أُعيد استخدام النتيجة المتحقق منها.'
+            );
+            return;
           }
 
-          patchAssistantContextState({
-            last_action:{
-              id:String(action.id || ''),
-              type:'form_save_draft',
-              target:String(planned.target || ''),
-              status:'completed'
-            }
+          if (existing && existing.key === key && isFreshInFlight(existing)) {
+            addAssistantMessage(
+              languageCode() === 'en'
+                ? 'The same draft save is already in progress.'
+                : 'عملية حفظ المسودة نفسها قيد التنفيذ بالفعل.'
+            );
+            return;
+          }
+
+          let idempotencyRecord = saveIdempotencyRecord({
+            version:ASSISTANT_IDEMPOTENCY_VERSION,
+            key,
+            boundary,
+            form_code:String(planned.target || ''),
+            revision:formRevision,
+            status:'in_flight',
+            result:null
           });
-          addAssistantMessage(
-            languageCode() === 'en'
-              ? 'Draft saved and verified.'
-              : 'تم حفظ المسودة والتحقق منها.'
-          );
-          return;
+
+          try {
+            const result = await adapter.saveDraft({ idempotency_key:key });
+            if (
+              !result ||
+              result.ok !== true ||
+              !result.record_id ||
+              result.status !== 'draft'
+            ) {
+              throw new Error('DRAFT_VERIFICATION_FAILED');
+            }
+
+            idempotencyRecord = saveIdempotencyRecord({
+              ...idempotencyRecord,
+              status:'completed',
+              result
+            });
+
+            patchAssistantContextState({
+              last_action:{
+                id:String(action.id || ''),
+                type:'form_save_draft',
+                target:String(planned.target || ''),
+                status:'completed'
+              }
+            });
+            addAssistantMessage(
+              languageCode() === 'en'
+                ? 'Draft saved and verified.'
+                : 'تم حفظ المسودة والتحقق منها.'
+            );
+            return;
+          } catch (err) {
+            saveIdempotencyRecord({
+              ...idempotencyRecord,
+              status:'failed',
+              result:{ ok:false, code:String(err?.message || 'DRAFT_SAVE_FAILED'), record_id:null, status:null }
+            });
+            throw err;
+          }
         }
 
         if (action.type === 'form_find' || action.type === 'form_load') {
@@ -891,6 +1046,7 @@
       contextBoundaryKey()
     );
     window.BondsAssistant.updateState = patch => patchAssistantContextState(patch);
+    window.BondsAssistant.markFormDirty = () => { formRevision += 1; return formRevision; };
     window.BondsAssistant.clearState = () => {
       const boundary = contextBoundaryKey();
       try {
