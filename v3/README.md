@@ -94,10 +94,10 @@ bonds-v3/
 | `/api/cities/:code/market` | GET | بيانات السوق للمدينة |
 | `/api/admin/*` | Various | إدارة البيانات |
 
-### مثال حساب
+### مثال حساب على الإنتاج الحالي
 
 ```bash
-curl -X POST https://bonds-v3.vercel.app/api/calculate \
+curl -X POST https://bonds-global.com/api/v3/calculate \
   -H "Content-Type: application/json" \
   -d '{
     "projectModelCode": "burger_restaurant_small",
@@ -159,11 +159,11 @@ OPENAI_MODEL=gpt-4o-mini # اختياري
 - `ManualAdapter` — إدخال يدوي من فريق بوندز.
 - `LLMEstimationAdapter` — تقدير ذكي للفجوات.
 
-### Public City Intelligence
+### Public City Intelligence على الإنتاج الحالي
 صفحة عمومية لعرض مؤشرات المدن:
 
 ```
-https://bonds-v3.vercel.app/city-intelligence
+https://bonds-global.com/v3/city-intelligence
 ```
 
 APIs متاحة للجميع:
