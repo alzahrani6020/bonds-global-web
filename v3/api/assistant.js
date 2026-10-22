@@ -34,6 +34,7 @@ const {
   listAssistantNotifications,
   markAssistantNotificationRead
 } = require('../../lib/assistant/notification-store');
+const { getCachedIntrospection } = require('../../lib/assistant/safe-introspection-cache');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -107,6 +108,44 @@ async function assistantRouter(req, res, path, user) {
       reply:'مساعد بوندز جاهز.',
       context:{ protocol:PROTOCOL, execution:'plan_only' }
     }));
+  }
+
+  if (path === '/assistant/introspection' && req.method === 'GET') {
+    try {
+      const introspection = await getCachedIntrospection({
+        loader:async()=>({
+          protocol:contract.protocol || PROTOCOL,
+          protocol_version:Number(contract.version || 1),
+          navigation_schema_version:Number(navigation.schema_version || 1),
+          form_schema_version:Number(forms.schema_version || 1),
+          navigation_targets:Object.keys(navigation.destinations || {}).length,
+          registered_forms:Object.keys(forms.forms || {}).length,
+          action_types:Array.isArray(contract.action?.allowed_types)
+            ? contract.action.allowed_types
+            : [],
+          emergency_mode:await getAssistantEmergencyModeState({
+            supabase:getSupabaseClient()
+          })
+        })
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        introspection
+      });
+    } catch (_err) {
+      return sendJson(res, 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'ASSISTANT_INTROSPECTION_UNAVAILABLE',
+        policy:{
+          informational_only:true,
+          authorization_source:false,
+          execution_authorized:false,
+          auto_execute:false
+        }
+      });
+    }
   }
 
   if (path === '/assistant/emergency-mode' && req.method === 'GET') {
