@@ -6,6 +6,8 @@ describe('Assistant User Control Center',()=>{
   const page=fs.readFileSync(path.join(process.cwd(),'calculators','auth','assistant-control.html'),'utf8');
   const widget=fs.readFileSync(path.join(process.cwd(),'v3','components','ai-chat-widget.js'),'utf8');
   const profile=fs.readFileSync(path.join(process.cwd(),'calculators','auth','profile.html'),'utf8');
+  const enPage=fs.readFileSync(path.join(process.cwd(),'en','calculators','auth','assistant-control.html'),'utf8');
+  const enProfile=fs.readFileSync(path.join(process.cwd(),'en','calculators','auth','profile.html'),'utf8');
 
   test('keeps context preference session-scoped and provides explicit clearing',()=>{
     expect(page).toContain("const CONTEXT_PREF_KEY='bonds.assistant.context.enabled.v1'");
@@ -38,8 +40,11 @@ describe('Assistant User Control Center',()=>{
     expect(page).not.toContain('computeLimit');
   });
 
-  test('is reachable from the existing user profile',()=>{
+  test('is reachable from both existing user profiles',()=>{
     expect(profile).toContain('href="./assistant-control.html"');
     expect(profile).toContain('مركز تحكم المساعد');
+    expect(enProfile).toContain('href="./assistant-control.html"');
+    expect(enProfile).toContain('Assistant Control Center');
+    expect(enPage).toContain("const CONTEXT_PREF_KEY='bonds.assistant.context.enabled.v1'");
   });
 });
