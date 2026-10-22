@@ -551,7 +551,7 @@
       "id": 87,
       "title": "Agent Inbox",
       "phase": "phase2",
-      "status": "in_progress"
+      "status": "implemented_base"
     },
     {
       "id": 88,
@@ -902,10 +902,12 @@
     "event_driven_assistant",
     "notifications",
     "assistant_notifications",
-    "draft_center"
+    "draft_center",
+    "agent_inbox",
+    "assistant_user_inbox"
   ],
   "next": [
-    "agent_inbox"
+    "human_escalation"
   ],
   "deferred": [
     "action_tokens",
@@ -923,7 +925,7 @@
   "last_update": {
     "date": "2026-10-22",
     "branch": "feat/assistant-agent-inbox",
-    "change": "Draft Center is production-verified on main 087c9b788df27da980f0738580120c1fe2bd3418. Started Agent Inbox as a read-only user-scoped aggregation of active/paused workflow requirements, pending confirmations, open tasks, owned editable drafts, and unread notification context; no parallel store, no submit/write path, and no execution authorization."
+    "change": "Agent Inbox closed at implemented_base. Existing authenticated user-facing /assistant/inbox is preserved as Assistant User Inbox. The official Agent Inbox is now a separate durable employee/admin operational review queue with server-side storage, source-ownership verification, semantic deduplication, scoped owner/super_admin/admin/support access, approved-assignee validation, lifecycle management, and admin UI. No assistant execution authority is granted. Next: Human Escalation."
   },
   "production_rollout": {
     "status": "complete",
