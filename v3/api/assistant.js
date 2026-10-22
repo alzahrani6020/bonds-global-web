@@ -38,6 +38,8 @@ const { getCachedIntrospection } = require('../../lib/assistant/safe-introspecti
 const { publicAssistantPolicyDescriptor } = require('../../lib/assistant/policy-engine');
 const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
 const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
+const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
+const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -135,6 +137,17 @@ async function assistantRouter(req, res, path, user) {
         ...result.body
       });
     } catch(err) {
+      await publishAssistantOutcomeBestEffort({
+        supabase:getSupabaseClient(),
+        type:DUAL_CORE_EVENT_TYPES.CAPABILITY_FAILED,
+        userId:user.id,
+        metadata:{
+          service_code:serviceCode,
+          error_code:'ASSISTANT_SERVICE_EXECUTION_FAILED',
+          source:'assistant',
+          http_status:503
+        }
+      });
       return sendJson(res,503,{
         protocol:PROTOCOL,
         status:'denied',
@@ -148,7 +161,19 @@ async function assistantRouter(req, res, path, user) {
     const serviceCode=decodeURIComponent(path.split('/').pop());
     try {
       const resolved=await loadExecutionProfile(getSupabaseClient(),serviceCode);
-      if(!resolved) return sendJson(res,404,{ protocol:PROTOCOL,status:'not_found',service_code:serviceCode });
+      if(!resolved) {
+        await publishAssistantOutcomeBestEffort({
+          supabase:getSupabaseClient(),
+          type:DUAL_CORE_EVENT_TYPES.CAPABILITY_MISSING,
+          userId:user.id,
+          metadata:{
+            service_code:serviceCode,
+            source:'assistant',
+            http_status:404
+          }
+        });
+        return sendJson(res,404,{ protocol:PROTOCOL,status:'not_found',service_code:serviceCode });
+      }
       return sendJson(res,200,{
         protocol:PROTOCOL,
         status:'completed',

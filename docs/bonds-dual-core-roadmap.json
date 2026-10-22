@@ -36,31 +36,41 @@
         {
           "id": "p1.1",
           "title": "Shared event taxonomy",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p1.2",
           "title": "Dynamic Intelligence Bus",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p1.3",
           "title": "Evolution state machine",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p1.4",
           "title": "Runtime Capability Profiler",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p1.5",
           "title": "Resource Scheduler",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p1.6",
           "title": "Core A/Core B priority arbitration",
+          "status": "completed"
+        },
+        {
+          "id": "p1.7",
+          "title": "Assistant/Core A outcome bridge",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p1.8",
+          "title": "Core B learning consumer",
           "status": "implemented_candidate"
         }
       ]
