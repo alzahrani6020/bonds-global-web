@@ -930,7 +930,7 @@
   "last_update": {
     "date": "2026-10-22",
     "branch": "feat/assistant-emergency-kill-switch",
-    "change": "Emergency Kill Switch implemented_base by reusing admin_ai_kill_switches, enforcing a global assistant switch plus bounded per-mutation feature switches before any Assistant state-changing route, honoring expiry, failing closed on control-plane lookup failure, preserving read-only routes, and exposing no execution authority. Next: read_only_emergency_mode."
+    "change": "Emergency Kill Switch implemented_base by reusing the existing audited admin_ai_kill_switches control plane and ai.operations.manage administration path, enforcing a global assistant switch plus bounded per-mutation runtime guards before Assistant state-changing routes, honoring expiry, failing closed on control-plane lookup failure, preserving read-only routes, and exposing no execution authority. Next: read_only_emergency_mode."
   },
   "production_rollout": {
     "status": "complete",
