@@ -262,7 +262,7 @@ function New-TestToken {
         token_type = "service"; subject = "service:orchestrator"; audience = "research-intelligence"
         scopes = @("research:read"); ttl = 3600
     }
-    Assert-Acceptance ($response.status -eq 200 -and $response.body.token -cmatch '^bonds_') "TOKEN_ISSUE_FAILED"
+    Assert-Acceptance ($response.status -eq 200 -and $response.body.token -cmatch '^bonds_' "TOKEN_ISSUE_FAILED"
     return [string]$response.body.token
 }
 
@@ -561,7 +561,7 @@ try {
         Assert-Acceptance ((Send-Runtime "/broker/issue" "Channel" @{ audience = "research-intelligence" }).status -eq 401) "CHANNEL_IS_BROKER_CREDENTIAL"
         $brokerIssued = Send-Runtime "/broker/issue" "Broker" @{ audience = "research-intelligence" }
         Assert-Acceptance ($brokerIssued.status -eq 200 -and $brokerIssued.body.one_time -eq $true -and
-            $brokerIssued.body.token -cmatch '^bonds_') "BROKER_TOKEN_ISSUE_FAILED"
+            $brokerIssued.body.token -cmatch '^bonds_' "BROKER_TOKEN_ISSUE_FAILED"
         $brokerFirst = Send-Runtime "/introspect" "Channel" @{ token = [string]$brokerIssued.body.token }
         $brokerSecond = Send-Runtime "/introspect" "Channel" @{ token = [string]$brokerIssued.body.token }
         Assert-Acceptance ($brokerFirst.body.claims.active -eq $true -and
@@ -828,7 +828,7 @@ function New-TestToken {
         token_type = "service"; subject = "service:orchestrator"; audience = "research-intelligence"
         scopes = @("research:read"); ttl = 3600
     }
-    Assert-Acceptance ($response.status -eq 200 -and $response.body.token -cmatch '^bonds_') "TOKEN_ISSUE_FAILED"
+    Assert-Acceptance ($response.status -eq 200 -and $response.body.token -cmatch '^bonds_' "TOKEN_ISSUE_FAILED"
     return [string]$response.body.token
 }
 
