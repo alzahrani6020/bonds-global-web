@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "registry": "bonds-forms",
+  "forms": {
+    "kyc": {
+      "navigation_target": "kyc",
+      "data_scope": "account",
+      "funding_requirement": "kyc",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    },
+    "establishment": {
+      "navigation_target": "establishment_information",
+      "data_scope": "account",
+      "funding_requirement": "establishment",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    },
+    "activity": {
+      "navigation_target": "business_activity",
+      "data_scope": "account",
+      "funding_requirement": "activity",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    },
+    "cash_flow": {
+      "navigation_target": "cash_flow",
+      "data_scope": "case",
+      "funding_requirement": "cash_flow",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    },
+    "receivables": {
+      "navigation_target": "receivables_aging",
+      "data_scope": "case",
+      "funding_requirement": "receivables",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    },
+    "payables": {
+      "navigation_target": "payables_aging",
+      "data_scope": "case",
+      "funding_requirement": "payables",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    },
+    "credit_business": {
+      "navigation_target": "credit_consent_business",
+      "data_scope": "case",
+      "funding_requirement": "credit_business",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    },
+    "credit_individual": {
+      "navigation_target": "credit_consent_individual",
+      "data_scope": "case",
+      "funding_requirement": "credit_individual",
+      "risk": {
+        "load": "low",
+        "save_draft": "medium",
+        "submit": "high"
+      }
+    }
+  }
+}
