@@ -20,6 +20,7 @@
   const ASSISTANT_NOTIFICATION_READ_URL = '/api/v3/assistant/notifications/read';
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
+  const ASSISTANT_CONTEXT_PREFERENCE_KEY = 'bonds.assistant.context.enabled.v1';
   const SERVICE_ASSISTANT_CONTEXT_KEY = 'bonds_service_assistant_context_v1';
 
   async function getAuthHeaders() {
@@ -837,7 +838,16 @@
       };
     }
 
+    function assistantContextEnabled() {
+      try {
+        return window.sessionStorage?.getItem(ASSISTANT_CONTEXT_PREFERENCE_KEY) !== '0';
+      } catch (err) {
+        return true;
+      }
+    }
+
     function loadAssistantContextState(boundary = contextBoundaryKey()) {
+      if (!assistantContextEnabled()) return createAssistantContextState(boundary);
       try {
         const raw = window.sessionStorage?.getItem(assistantStateStorageKey(boundary));
         if (!raw) return createAssistantContextState(boundary);
@@ -848,6 +858,16 @@
     }
 
     function saveAssistantContextState() {
+      if (!assistantContextEnabled()) {
+        const boundary = contextBoundaryKey();
+        try {
+          window.sessionStorage?.removeItem(assistantStateStorageKey(boundary));
+        } catch (err) {
+          // Ignore unavailable session storage.
+        }
+        assistantContextState = createAssistantContextState(boundary);
+        return assistantContextState;
+      }
       assistantContextState.updated_at = new Date().toISOString();
       assistantContextState = sanitizeAssistantContextState(
         assistantContextState,
@@ -1710,10 +1730,9 @@
 
       const isProjectMode = context.mode === 'project' && context.projectId;
       const url = isProjectMode ? ECC_ADVISOR_URL : API_URL;
-      const structuredState = sanitizeAssistantContextState(
-        assistantContextState,
-        contextBoundaryKey()
-      );
+      const structuredState = assistantContextEnabled()
+        ? sanitizeAssistantContextState(assistantContextState, contextBoundaryKey())
+        : null;
       const payload = isProjectMode
         ? {
             projectId: context.projectId,
@@ -1772,11 +1791,13 @@
     window.BondsAssistant = window.BondsAssistant || {};
     window.BondsAssistant.execute = executeStructuredAction;
     window.BondsAssistant.renderEnvelope = envelope => renderStructuredEnvelope(envelope, { appendReply: true });
-    window.BondsAssistant.getState = () => sanitizeAssistantContextState(
-      assistantContextState,
-      contextBoundaryKey()
-    );
-    window.BondsAssistant.updateState = patch => patchAssistantContextState(patch);
+    window.BondsAssistant.getState = () => assistantContextEnabled()
+      ? sanitizeAssistantContextState(assistantContextState, contextBoundaryKey())
+      : null;
+    window.BondsAssistant.updateState = patch => assistantContextEnabled()
+      ? patchAssistantContextState(patch)
+      : createAssistantContextState(contextBoundaryKey());
+    window.BondsAssistant.isContextEnabled = assistantContextEnabled;
     window.BondsAssistant.refreshNotifications = refreshNotifications;
     window.BondsAssistant.markNotificationRead = markNotificationRead;
     window.BondsAssistant.clearState = () => {
