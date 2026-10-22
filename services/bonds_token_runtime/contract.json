@@ -1,7 +1,7 @@
 {
   "issuer": "bonds-token-service",
-  "contractVersion": 1,
-  "schemaVersion": 2,
+  "contractVersion": 2,
+  "schemaVersion": 3,
   "serviceTokenTtlSeconds": 3600,
   "requiredClaims": [
     "iss",
@@ -23,9 +23,18 @@
     "revoked",
     "token_type"
   ],
+  "broker": {
+    "auth": "required",
+    "mode": "one_time_service_tokens",
+    "issuePath": "/broker/issue",
+    "revokePath": "/broker/revoke"
+  },
   "invariants": {
     "serviceTokenLifetimeSeconds": 3600,
     "legacyTokensWithoutIatOrJtiAreActive": false,
-    "revokedTokensAreActive": false
+    "revokedTokensAreActive": false,
+    "brokerIssuedTokensAreSingleUse": true,
+    "adminCredentialAcceptedByBroker": false,
+    "channelCredentialAcceptedByBroker": false
   }
 }
