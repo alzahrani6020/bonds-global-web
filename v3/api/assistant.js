@@ -92,6 +92,31 @@ async function assistantRouter(req, res, path, user) {
     }
   }
 
+  if (path === '/assistant/emergency-mode' && req.method === 'GET') {
+    try {
+      const emergencyMode = await getAssistantEmergencyMode({
+        supabase:getSupabaseClient()
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        emergency_mode:emergencyMode
+      });
+    } catch (err) {
+      return sendJson(res, 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'ASSISTANT_KILL_SWITCH_UNAVAILABLE',
+        emergency_mode:{
+          mode:'unknown',
+          read_only:true,
+          execution_authorized:false,
+          auto_execute:false
+        }
+      });
+    }
+  }
+
   if (path === '/assistant/contract' && req.method === 'GET') {
     return sendJson(res, 200, contract);
   }
