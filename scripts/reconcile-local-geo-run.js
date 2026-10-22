@@ -152,7 +152,7 @@ async function main() {
 
       if (safeCandidate) {
         decision = 'auto_match';
-        matchType = 'safe_candidate_city_code';
+        matchType = 'exact_name';
         overallScore = 99;
         canonicalId = safeCandidate.id;
         matched++;
