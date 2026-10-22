@@ -1,0 +1,11 @@
+:root{--agent-gold:#b8954e;--agent-border:rgba(15,23,42,.12);--agent-card:#fff;--agent-bg:#f6f3ed;--agent-text:#172033;--agent-muted:#667085}
+*{box-sizing:border-box}body{margin:0;background:var(--agent-bg);color:var(--agent-text);font-family:Vazirmatn,system-ui,sans-serif}
+.agent-shell{max-width:1400px;margin:auto;padding:28px}.agent-header{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.agent-header h1{margin:0;font-size:28px}.agent-header p{margin:4px 0;color:var(--agent-muted)}
+.agent-toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}.agent-toolbar select{min-width:180px;padding:10px;border:1px solid var(--agent-border);border-radius:10px;background:#fff}
+.agent-grid{display:grid;gap:12px}.agent-card{background:var(--agent-card);border:1px solid var(--agent-border);border-right:5px solid #94a3b8;border-radius:14px;padding:16px;box-shadow:0 6px 20px rgba(15,23,42,.04)}
+.agent-card--critical{border-right-color:#dc2626}.agent-card--high{border-right-color:#ea580c}.agent-card--medium{border-right-color:#ca8a04}.agent-card--low{border-right-color:#16a34a}
+.agent-card__head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.agent-card__head strong{display:block;font-size:17px}.agent-card__head small{color:var(--agent-muted)}
+.agent-badges{display:flex;gap:6px}.agent-badges span{background:#f3f4f6;padding:4px 8px;border-radius:999px;font-size:12px}.agent-meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--agent-muted);font-size:13px}
+.agent-actions{display:grid;grid-template-columns:180px 180px 1fr auto;gap:8px;margin-top:14px}.agent-actions select,.agent-actions input{padding:9px;border:1px solid var(--agent-border);border-radius:9px}.agent-actions button{padding:9px 18px;border:0;border-radius:9px;background:var(--agent-gold);font-weight:700;cursor:pointer}
+.agent-loading,.agent-empty,.agent-error{background:#fff;border:1px solid var(--agent-border);border-radius:14px;padding:28px;text-align:center}.agent-error{color:#b91c1c}
+@media(max-width:760px){.agent-shell{padding:16px}.agent-header{align-items:flex-start;flex-direction:column}.agent-actions{grid-template-columns:1fr}.agent-card__head{flex-direction:column}}
