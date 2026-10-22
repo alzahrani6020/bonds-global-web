@@ -17,31 +17,53 @@ from bonds_security.token_engine import (
 )
 
 HOST = "127.0.0.1"
-TOKEN_CONTRACT_VERSION = 1
+TOKEN_CONTRACT_VERSION = 2
+
+BROKER_POLICIES = {
+    "research-intelligence": {
+        "subject": "service:orchestrator",
+        "scopes": ["research:read"],
+    },
+    "orchestrator": {
+        "subject": "service:agent-runtime",
+        "scopes": ["orchestrator:dispatch"],
+    },
+    "agent-runtime": {
+        "subject": "service:orchestrator",
+        "scopes": ["agent:execute"],
+    },
+}
+
+
+def _read_secret(path, name):
+    value = Path(path).read_text(encoding="utf-8").strip()
+    if not 32 <= len(value) <= 4096 or not all(33 <= ord(char) <= 126 for char in value):
+        raise RuntimeError(f"{name} must contain 32 to 4096 printable ASCII characters without whitespace")
+    if value.startswith("bonds_") or re.fullmatch(r"[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", value):
+        raise RuntimeError(f"{name} must not be a service token or user-session JWT")
+    return value
 
 
 def load_configuration():
-    """Validate the existing runtime's configuration before opening its store."""
+    """Validate the runtime configuration before opening its store."""
     required = (
         "BONDS_TOKEN_DB",
         "BONDS_TOKEN_ADMIN_SECRET_FILE",
         "BONDS_TOKEN_CHANNEL_SECRET_FILE",
+        "BONDS_TOKEN_BROKER_SECRET_FILE",
         "BONDS_TOKEN_BUILD_COMMIT",
     )
     missing = [name for name in required if not os.environ.get(name, "").strip()]
     if missing:
         raise RuntimeError(f"Missing token runtime configuration: {', '.join(missing)}")
 
-    admin_secret = Path(os.environ["BONDS_TOKEN_ADMIN_SECRET_FILE"]).read_text(encoding="utf-8").strip()
-    channel_secret = Path(os.environ["BONDS_TOKEN_CHANNEL_SECRET_FILE"]).read_text(encoding="utf-8").strip()
-    if not admin_secret:
-        raise RuntimeError("empty admin secret")
-    if not 32 <= len(channel_secret) <= 4096 or not all(33 <= ord(char) <= 126 for char in channel_secret):
-        raise RuntimeError("channel secret must contain 32 to 4096 printable ASCII characters without whitespace")
-    if channel_secret.startswith("bonds_") or re.fullmatch(r"[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+", channel_secret):
-        raise RuntimeError("channel secret must not be a service token or user-session JWT")
-    if hmac.compare_digest(channel_secret.encode("utf-8"), admin_secret.encode("utf-8")):
-        raise RuntimeError("channel secret must differ from admin secret")
+    admin_secret = _read_secret(os.environ["BONDS_TOKEN_ADMIN_SECRET_FILE"], "admin secret")
+    channel_secret = _read_secret(os.environ["BONDS_TOKEN_CHANNEL_SECRET_FILE"], "channel secret")
+    broker_secret = _read_secret(os.environ["BONDS_TOKEN_BROKER_SECRET_FILE"], "broker secret")
+
+    values = [admin_secret, channel_secret, broker_secret]
+    if len({value.encode("utf-8") for value in values}) != 3:
+        raise RuntimeError("admin, channel and broker secrets must be distinct")
 
     build_commit = os.environ["BONDS_TOKEN_BUILD_COMMIT"]
     if not re.fullmatch(r"[0-9a-fA-F]{40}", build_commit):
@@ -54,13 +76,14 @@ def load_configuration():
         "database": os.environ["BONDS_TOKEN_DB"],
         "admin_secret": admin_secret,
         "channel_secret": channel_secret,
+        "broker_secret": broker_secret,
         "build_commit": build_commit.lower(),
         "port": port,
     }
 
 
 class Handler(BaseHTTPRequestHandler):
-    server_version = "BondsTokenService/1.0"
+    server_version = "BondsTokenService/2.0"
 
     def log_message(self, fmt, *args):
         return
@@ -91,12 +114,14 @@ class Handler(BaseHTTPRequestHandler):
             "service": TOKEN_ISSUER,
             "issuer": TOKEN_ISSUER,
             "status": "ok",
-            "version": "1.0",
+            "version": "2.0",
             "build_commit": self.server.config["build_commit"],
             "contract_version": TOKEN_CONTRACT_VERSION,
             "schema_version": TOKEN_SCHEMA_VERSION,
             "service_token_ttl_seconds": SERVICE_TOKEN_TTL_SECONDS,
             "channel_auth": "required",
+            "broker_auth": "required",
+            "broker_mode": "one_time_service_tokens",
         }
 
     def do_GET(self):
@@ -112,6 +137,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path == "/introspect":
             authorized = self.authorized("X-Bonds-Channel", self.server.config["channel_secret"])
+        elif self.path in ("/broker/issue", "/broker/revoke"):
+            authorized = self.authorized("X-Bonds-Broker", self.server.config["broker_secret"])
         else:
             authorized = self.authorized("X-Bonds-Admin", self.server.config["admin_secret"])
         if not authorized:
@@ -128,17 +155,40 @@ class Handler(BaseHTTPRequestHandler):
                     audience=data.get("audience", "bonds"),
                     scopes=data.get("scopes", []),
                     ttl=int(data.get("ttl", SERVICE_TOKEN_TTL_SECONDS)),
+                    issued_by="admin",
+                )
+                self.send_json(200, {"status": "issued", "token": token})
+                return
+
+            if self.path == "/broker/issue":
+                audience = str(data.get("audience", "")).strip()
+                policy = BROKER_POLICIES.get(audience)
+                if policy is None:
+                    self.send_json(403, {"error": "broker_policy_denied"})
+                    return
+                token = self.server.engine.issue(
+                    token_type="service",
+                    subject=policy["subject"],
+                    audience=audience,
+                    scopes=policy["scopes"],
+                    ttl=SERVICE_TOKEN_TTL_SECONDS,
+                    issued_by="broker",
                 )
                 self.send_json(200, {
                     "status": "issued",
                     "token": token,
+                    "audience": audience,
+                    "one_time": True,
                 })
                 return
 
             if self.path == "/introspect":
                 self.send_json(200, {
                     "runtime": self.runtime_identity(),
-                    "claims": self.server.engine.introspect(data["token"]),
+                    "claims": self.server.engine.introspect(
+                        data["token"],
+                        consume_broker=True,
+                    ),
                 })
                 return
 
@@ -148,15 +198,21 @@ class Handler(BaseHTTPRequestHandler):
                     audience=data.get("audience", "bonds"),
                     required_scope=data.get("required_scope"),
                 )
-                self.send_json(200, {
-                    "valid": result is not None,
-                    "claims": result,
-                })
+                self.send_json(200, {"valid": result is not None, "claims": result})
                 return
 
             if self.path == "/revoke":
                 self.send_json(200, {
                     "revoked": bool(self.server.engine.revoke(data["token"])),
+                })
+                return
+
+            if self.path == "/broker/revoke":
+                self.send_json(200, {
+                    "revoked": bool(self.server.engine.revoke(
+                        data["token"],
+                        issued_by="broker",
+                    )),
                 })
                 return
 
