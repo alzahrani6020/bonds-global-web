@@ -152,7 +152,7 @@
   if (!discoveryCss) {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = '/components/service-discovery.css?v=3';
+    link.href = '/components/service-discovery.css?v=4';
     document.head.appendChild(link);
   }
 
@@ -160,7 +160,7 @@
     const loadDiscovery = () => {
       if (document.querySelector('script[src*="service-discovery.js"]')) return;
       const script = document.createElement('script');
-      script.src = '/components/service-discovery.js?v=3';
+      script.src = '/components/service-discovery.js?v=4';
       script.async = false;
       document.head.appendChild(script);
     };
