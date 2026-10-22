@@ -5,6 +5,7 @@ const mockApply=jest.fn();
 const mockPersist=jest.fn();
 const mockAudit=jest.fn();
 const mockDerive=jest.fn();
+const mockVerifyOwnership=jest.fn();
 const mockEnqueue=jest.fn();
 const mockSupabase={ from:jest.fn(), rpc:jest.fn() };
 
@@ -24,6 +25,7 @@ jest.mock('../../lib/assistant/audit-trail',()=>({
 }));
 jest.mock('../../lib/assistant/agent-inbox-queue',()=>({
   deriveAgentInboxItem:(args)=>mockDerive(args),
+  verifyAgentInboxItemOwnership:(args)=>mockVerifyOwnership(args),
   enqueueAgentInboxItem:(args)=>mockEnqueue(args)
 }));
 jest.mock('../../v3/lib/supabase',()=>({
@@ -75,6 +77,7 @@ describe('Assistant event to Agent Inbox integration',()=>{
     mockDerive.mockReturnValue({
       item_key:'review:wf-1:document_conflict:doc-1'
     });
+    mockVerifyOwnership.mockResolvedValue(true);
     mockEnqueue.mockResolvedValue({queued:true,skipped:false,item:{id:'i-1'}});
   });
 
@@ -95,12 +98,39 @@ describe('Assistant event to Agent Inbox integration',()=>{
       userId:'user-1',
       workflow:expect.objectContaining({workflow_key:'wf-1'})
     }));
+    expect(mockVerifyOwnership).toHaveBeenCalledWith(expect.objectContaining({
+      supabase:mockSupabase,
+      userId:'user-1',
+      event:expect.objectContaining({ resource_id:'doc-1' })
+    }));
     expect(mockEnqueue).toHaveBeenCalledWith({
       supabase:mockSupabase,
       item:{item_key:'review:wf-1:document_conflict:doc-1'}
     });
     expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({
       metadata:expect.objectContaining({agent_inbox_queued:true})
+    }));
+  });
+
+
+  test('does not queue a review event for a resource the user does not own',async()=>{
+    mockVerifyOwnership.mockResolvedValue(false);
+
+    const out=await call({
+      workflow_key:'wf-1',
+      event:{
+        id:'evt-review-1',
+        type:'document_analyzed',
+        boundary:'project:p-1',
+        resource_id:'doc-1',
+        data:{conflict:true}
+      }
+    });
+
+    expect(out.statusCode).toBe(200);
+    expect(mockEnqueue).not.toHaveBeenCalled();
+    expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({
+      metadata:expect.objectContaining({agent_inbox_queued:false})
     }));
   });
 
