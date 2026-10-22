@@ -82,7 +82,7 @@ describe('assistant outcome bridge', () => {
     expect(event.metadata.project_id).toBeUndefined();
   });
 
-  test('is best-effort and never throws into Core A', async () => {
+  test('is best-effort and never throws into Core A when learning is unavailable', async () => {
     const supabase={
       from:jest.fn(()=>({
         insert:()=>({
@@ -90,13 +90,18 @@ describe('assistant outcome bridge', () => {
             single:async()=>({data:null,error:{message:'db unavailable'}})
           })
         })
-      }))
+      })),
+      rpc:jest.fn().mockResolvedValue({data:null,error:{message:'proposal store unavailable'}})
     };
     await expect(publishAssistantOutcomeBestEffort({
       supabase,
       type:EVENT_TYPES.CAPABILITY_FAILED,
       metadata:{service_code:'svc-1'}
-    })).resolves.toEqual(expect.objectContaining({ok:false}));
+    })).resolves.toEqual(expect.objectContaining({
+      ok:true,
+      learned:false,
+      aggregated:false
+    }));
   });
   test('keeps learning success when proposal aggregation is unavailable', async () => {
     const inserts=[];
