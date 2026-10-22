@@ -305,13 +305,13 @@
       "id": 46,
       "title": "calculator_open",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 47,
       "title": "calculator_run",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 48,
@@ -677,13 +677,13 @@
       "id": 108,
       "title": "Calculation Authority Separation",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 109,
       "title": "Calculator Orchestration",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 110,
@@ -860,14 +860,18 @@
     "funding_status_capability",
     "funding_next_step_capability",
     "funding_next_requirements_capability",
-    "project_status_capability"
+    "project_status_capability",
+    "calculator_open_capability",
+    "calculator_run_capability",
+    "calculation_authority_separation",
+    "calculator_orchestration"
   ],
   "next": [
-    "calculator_capabilities",
     "chat_widget_action_renderer",
     "assistant_context_state",
     "prefill_provenance",
-    "confirmation_engine"
+    "confirmation_engine",
+    "save_draft"
   ],
   "deferred": [
     "action_tokens",
@@ -884,7 +888,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-read-capabilities",
-    "change": "Registered and implemented governed read capabilities for navigation, forms, funding state/next requirements and project status."
+    "branch": "feat/bonds-assistant-calculator-capabilities",
+    "change": "Added governed calculator_open and calculator_run capabilities. calculator_run uses registry-bound deterministic UCP templates; model-supplied template selection is rejected."
   }
 }
