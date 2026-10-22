@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Assistant Control Center — Bonds Global</title>
+<link rel="stylesheet" href="/admin/admin-shared-ux.css?v=1">
+<style>
+body{margin:0;background:#f6f7fb;color:#172033;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1250px;margin:auto;padding:1rem}.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;margin-top:1rem}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:1rem}.s12{grid-column:span 12}.s6{grid-column:span 6}
+.btn{border:0;border-radius:10px;padding:.65rem .9rem;font-weight:700;cursor:pointer;background:#172033;color:#fff}.btn2{background:#eef2f7;color:#172033}.danger{background:#991b1b}.warn{background:#92400e}
+input,textarea,select{width:100%;box-sizing:border-box;padding:.65rem;border:1px solid #cbd5e1;border-radius:9px;margin:.3rem 0 .7rem}
+.status{display:none;padding:.75rem;border-radius:10px;margin-top:.8rem}.err{background:#fee2e2;color:#991b1b}.okbox{background:#dcfce7;color:#166534}
+.mode{font-size:1.35rem;font-weight:800}.pill{display:inline-block;padding:.25rem .55rem;border-radius:999px;background:#e2e8f0;font-size:.8rem}
+.muted{color:#64748b}.notice{background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:.8rem}
+table{width:100%;border-collapse:collapse}th,td{padding:.55rem;border-bottom:1px solid #e2e8f0;text-align:right}
+@media(max-width:850px){.s6{grid-column:span 12}}
+</style>
+<script src="/api/env"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script>BondsAuth.initAdminGuard();</script>
+<script src="/admin/admin-common.js?v=4"></script>
+<script src="/admin/assistant-control-center.js?v=1"></script>
+</head>
+<body><main>
+<div style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap">
+  <div><h1 style="margin:.1rem 0">مركز التحكم بالمساعد</h1><div class="muted">Normal · Read-only Emergency · Full Stop</div></div>
+  <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+    <button class="btn btn2" id="refreshBtn" type="button">تحديث</button>
+    <a href="/admin/assistant-operations.html"><button class="btn btn2" type="button">عمليات المساعد</button></a>
+    <a href="/admin/platform-center.html"><button class="btn btn2" type="button">مركز المنصة</button></a>
+  </div>
+</div>
+<div id="status" class="status"></div>
+
+<section class="grid">
+  <article class="card s6">
+    <h2>الحالة الحالية</h2>
+    <div id="mode" class="mode">جارٍ التحميل…</div>
+    <table style="margin-top:.7rem"><tbody>
+      <tr><th>Feature الفعالة</th><td id="feature">—</td></tr>
+      <tr><th>الانتهاء</th><td id="expiry">—</td></tr>
+      <tr><th>السبب الإداري</th><td id="reason">—</td></tr>
+    </tbody></table>
+  </article>
+
+  <article class="card s6">
+    <h2>حدود التحكم</h2>
+    <div class="notice">
+      هذا المركز يغيّر فقط مفاتيح تشغيل المساعد الحالية عبر المسار الإداري المدقق.
+      لا يغيّر التوكن أو مزود AI/API أو الموديل أو السياق أو حدود الأداء.
+    </div>
+    <div style="margin-top:.8rem">
+      <span class="pill">permission: ai.operations.manage</span>
+      <span class="pill">audit logged</span>
+      <span class="pill">no new authorization layer</span>
+    </div>
+  </article>
+
+  <article class="card s12">
+    <h2>تغيير وضع المساعد</h2>
+    <label for="targetMode">الوضع المطلوب</label>
+    <select id="targetMode">
+      <option value="normal">Normal — تشغيل طبيعي</option>
+      <option value="read_only_emergency">Read-only Emergency — قراءة/بحث/تخطيط فقط</option>
+      <option value="full_stop">Full Stop — إيقاف عمليات المساعد المتغيرة للحالة</option>
+    </select>
+
+    <label for="reasonInput">السبب الإداري</label>
+    <textarea id="reasonInput" rows="3" placeholder="مطلوب عند Read-only أو Full Stop"></textarea>
+
+    <label for="expiryInput">انتهاء تلقائي اختياري</label>
+    <input id="expiryInput" type="datetime-local">
+
+    <div class="notice">
+      للتأكيد اكتب: <b id="phraseLabel">NORMAL</b>
+    </div>
+    <input id="confirmInput" autocomplete="off" placeholder="اكتب عبارة التأكيد كما هي">
+
+    <button id="applyBtn" class="btn" type="button">تطبيق الوضع</button>
+  </article>
+</section>
+</main>
+
+<script>
+(()=>{
+'use strict';
+const Control=window.BondsAssistantControlCenter;
+let rows=[];
+
+const esc=v=>BondsAdminCommon.escapeHtml(v==null?'':String(v));
+const fmt=v=>v?new Date(v).toLocaleString('ar-SA'):'—';
+
+function show(message,ok=false){
+  const el=document.getElementById('status');
+  el.textContent=message;el.className='status '+(ok?'okbox':'err');el.style.display=message?'block':'none';
+}
+
+async function api(url,options={}){
+  const response=await BondsAuth.authenticatedFetch(url,{...options,returnTo:location.pathname+location.search});
+  const body=await response.json().catch(()=>({}));
+  if(!response.ok||body.success!==true)throw new Error(body.error||('HTTP '+response.status));
+  return body;
+}
+
+function activeRows(all){
+  return (Array.isArray(all)?all:[]).filter(x=>x&&(
+    x.feature===Control.FEATURES.global||x.feature===Control.FEATURES.readOnly
+  ));
+}
+
+function render(){
+  const state=Control.deriveMode(rows);
+  const labels={
+    normal:'NORMAL — تشغيل طبيعي',
+    read_only_emergency:'READ-ONLY EMERGENCY',
+    full_stop:'FULL STOP'
+  };
+  document.getElementById('mode').textContent=labels[state.mode]||state.mode;
+  document.getElementById('feature').textContent=state.feature||'—';
+  document.getElementById('expiry').textContent=fmt(state.expires_at);
+  document.getElementById('reason').textContent=state.reason||'—';
+}
+
+async function load(){
+  show('');
+  try{
+    const data=await api('/api/admin?action=ai-operations');
+    rows=activeRows(data.killSwitches);
+    render();
+  }catch(err){
+    show('فشل تحميل حالة المساعد: '+err.message);
+  }
+}
+
+function updatePhrase(){
+  const phrase=Control.requiredPhrase(document.getElementById('targetMode').value);
+  document.getElementById('phraseLabel').textContent=phrase;
+  document.getElementById('confirmInput').value='';
+}
+
+async function apply(){
+  show('');
+  const mode=document.getElementById('targetMode').value;
+  const expected=Control.requiredPhrase(mode);
+  if(document.getElementById('confirmInput').value.trim()!==expected){
+    show('عبارة التأكيد غير مطابقة.');return;
+  }
+
+  let ops;
+  try{
+    ops=Control.buildTransition(mode,{
+      reason:document.getElementById('reasonInput').value,
+      expiresAt:document.getElementById('expiryInput').value||null
+    });
+  }catch(err){
+    show(err.message==='REASON_REQUIRED'
+      ?'السبب الإداري مطلوب ويجب ألا يقل عن 8 أحرف.'
+      :err.message==='EXPIRY_MUST_BE_FUTURE'
+        ?'وقت الانتهاء يجب أن يكون في المستقبل.'
+        :'بيانات التحكم غير صالحة.');
+    return;
+  }
+
+  const human={
+    normal:'NORMAL',
+    read_only_emergency:'READ-ONLY EMERGENCY',
+    full_stop:'FULL STOP'
+  }[mode]||mode;
+
+  if(!window.confirm('تأكيد تغيير وضع المساعد إلى '+human+'؟'))return;
+
+  const btn=document.getElementById('applyBtn');
+  btn.disabled=true;
+  try{
+    for(const op of ops){
+      await api('/api/admin?action=ai-kill-switch-update',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(op)
+      });
+    }
+    await load();
+    document.getElementById('confirmInput').value='';
+    show('تم تطبيق الوضع والتحقق من الحالة الحالية.',true);
+  }catch(err){
+    await load().catch(()=>{});
+    show('تعذر إكمال الانتقال بالكامل. الحالة الحالية أُعيد تحميلها. '+err.message);
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+document.getElementById('targetMode').addEventListener('change',updatePhrase);
+document.getElementById('refreshBtn').addEventListener('click',load);
+document.getElementById('applyBtn').addEventListener('click',apply);
+updatePhrase();
+if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script>
+<script src="/admin/admin-embed.js?v=4"></script>
+</body></html>
