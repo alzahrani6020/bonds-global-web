@@ -19,6 +19,7 @@ const runtimeDirectory = path.join(repository, 'services/bonds_token_runtime');
 const sourcePaths = [
   'api/health.js',
   'lib/security/service-token-verifier.js',
+  'lib/security/service-token-broker.js',
   'lib/security/service-token-authorization.js',
   'lib/security/service-token-policies.js',
   'lib/capabilities/bonds-capability-registry.js',
@@ -36,6 +37,7 @@ const sourcePaths = [
   'tests/integration/governed-token-runtime-acceptance.js',
   'tests/integration/governed-token-runtime.test.js',
   'tests/integration/fixtures/previous-token-runtime-server.py.txt',
+  'tests/integration/fixtures/previous-token-runtime-engine.py.txt',
   'tests/integration/fixtures/previous-token-runtime-manifest.json'
 ];
 
@@ -54,11 +56,11 @@ function createPreviousRuntime(directory) {
   const manifest = JSON.parse(fs.readFileSync(path.join(fixtures, 'previous-token-runtime-manifest.json'), 'utf8'));
   assert.match(manifest.source_commit, /^[a-f0-9]{40}$/);
   assert.equal(manifest.fixture_file, 'previous-token-runtime-server.py.txt');
-  assert.equal(manifest.engine_path, 'services/bonds_token_runtime/bonds_security/token_engine.py');
+  assert.equal(manifest.engine_fixture_file, 'previous-token-runtime-engine.py.txt');
   const server = fs.readFileSync(path.join(fixtures, manifest.fixture_file));
-  const engine = fs.readFileSync(path.join(repository, manifest.engine_path));
+  const engine = fs.readFileSync(path.join(fixtures, manifest.engine_fixture_file));
   assert.equal(digest(server), manifest.source_sha256, 'Previous server must be the exact recorded committed source');
-  assert.equal(digest(engine), manifest.engine_sha256, 'Code rollback requires the unchanged token engine; review compatibility if it changes');
+  assert.equal(digest(engine), manifest.engine_sha256, 'Previous engine fixture must match the recorded committed source');
   const previousDirectory = path.join(directory, 'previous-runtime');
   const packageDirectory = path.join(previousDirectory, 'bonds_security');
   fs.mkdirSync(packageDirectory, { recursive: true, mode: 0o700 });
@@ -122,7 +124,7 @@ async function launch() {
   let cleanupComplete = false;
   try {
     fs.chmodSync(directory, 0o700);
-    for (const name of ['admin.secret', 'channel.secret']) {
+    for (const name of ['admin.secret', 'channel.secret', 'broker.secret']) {
       fs.writeFileSync(path.join(directory, name), crypto.randomBytes(32).toString('hex'), { mode: 0o600 });
     }
     createCertificate(directory);
@@ -202,6 +204,7 @@ async function workerMain() {
   const database = path.join(directory, 'tokens.sqlite');
   const adminSecret = fs.readFileSync(path.join(directory, 'admin.secret'), 'utf8');
   const channelSecret = fs.readFileSync(path.join(directory, 'channel.secret'), 'utf8');
+  const brokerSecret = fs.readFileSync(path.join(directory, 'broker.secret'), 'utf8');
   const hashes = sourceHashes();
   const report = {
     status: 'RUNNING', kind: 'isolated_runtime_acceptance',
@@ -236,6 +239,7 @@ async function workerMain() {
     BONDS_TOKEN_DB: database,
     BONDS_TOKEN_ADMIN_SECRET_FILE: path.join(directory, 'admin.secret'),
     BONDS_TOKEN_CHANNEL_SECRET_FILE: path.join(directory, 'channel.secret'),
+    BONDS_TOKEN_BROKER_SECRET_FILE: path.join(directory, 'broker.secret'),
     BONDS_TOKEN_BUILD_COMMIT: buildCommit
   };
   async function stopRuntime() {
@@ -353,8 +357,10 @@ async function workerMain() {
     const origin = `https://127.0.0.1:${port}`;
     process.env.BONDS_TOKEN_INTROSPECTION_URL = `${origin}/introspect`;
     process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL = `${origin}/health`;
+    process.env.BONDS_TOKEN_BROKER_URL = `${origin}/broker/issue`;
     process.env.BONDS_TOKEN_EXPECTED_BUILD_COMMIT = buildCommit;
     process.env.BONDS_TOKEN_CHANNEL_SECRET = channelSecret;
+    process.env.BONDS_TOKEN_BROKER_SECRET = brokerSecret;
     report.transport = { bind_address: '127.0.0.1', tls_port: port, production_port_used: false,
       tls_trust: 'Ephemeral CA supplied to a fresh Node process through NODE_EXTRA_CA_CERTS' };
 
@@ -444,8 +450,22 @@ async function workerMain() {
       denied(await execute(validToken, { session: 'fixture-disabled-session' }), 403, 'USER_DISABLED'));
     await check('Missing entitlement catalog fails closed as unavailable', async () =>
       denied(await execute(validToken, { session: 'fixture-missing-catalog-session' }), 503, 'ENTITLEMENT_CATALOG_UNAVAILABLE'));
-    await check('User session is never substituted for the missing service token', async () =>
-      denied(await execute(null), 403, 'TOKEN_MISSING'));
+    await check('Authorized user automatically receives a one-time broker token and executes without a token header', async () => {
+      const response = await execute(null);
+      const acceptedResult = accepted(response);
+      const brokerRows = command(python, ['-c', [
+        'import json, sqlite3, sys',
+        'with sqlite3.connect(sys.argv[1]) as db:',
+        '    rows=db.execute("SELECT issued_by, revoked, consumed_at FROM tokens WHERE issued_by=?", ("broker",)).fetchall()',
+        'print(json.dumps(rows))'
+      ].join('\n'), database]).trim();
+      const rows = JSON.parse(brokerRows);
+      assert.ok(rows.length >= 1);
+      const latest = rows[rows.length - 1];
+      assert.deepEqual(latest.slice(0, 2), ['broker', 1]);
+      assert.equal(Number.isInteger(latest[2]), true);
+      return { ...acceptedResult, automatic_service_token: true, one_time_consumed: true };
+    });
     await check('Channel credential cannot be used as a service token', async () =>
       denied(await execute(channelSecret), 503, 'TOKEN_CREDENTIALS_NOT_SEPARATE'));
     await check('Forged caller permission, entitlement, actor and tier context cannot grant access', async () =>
@@ -457,7 +477,15 @@ async function workerMain() {
       }
       assert.equal((await jsonRequest('/health')).status, 401);
       assert.equal((await jsonRequest('/issue', { headers: { 'X-Bonds-Channel': channelSecret }, body: {} })).status, 401);
-      return { http_status: 401, credentials_separate: true };
+      assert.equal((await jsonRequest('/broker/issue', {
+        headers: { 'X-Bonds-Admin': adminSecret },
+        body: { audience: 'research-intelligence' }
+      })).status, 401);
+      assert.equal((await jsonRequest('/broker/issue', {
+        headers: { 'X-Bonds-Channel': channelSecret },
+        body: { audience: 'research-intelligence' }
+      })).status, 401);
+      return { http_status: 401, credentials_separate: true, broker_separate: true };
     });
     const wrongScopeToken = await issue({ scopes: ['orchestrator:dispatch'] });
     await check('Wrong-scope service token is rejected by actual policy', async () =>

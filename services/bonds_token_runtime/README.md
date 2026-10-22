@@ -7,7 +7,7 @@ This directory is the durable source for the localhost token issuer/introspectio
 - Bind: `127.0.0.1`
 - Default port: `8771`
 - Issuer: `bonds-token-service`
-- Channel contract version: `1`; token schema version: `2`
+- Channel/broker contract version: `2`; token schema version: `3`
 - Service-token TTL: exactly `3600` seconds
 - Required consumer claims: `iss`, `aud`, `sub`, `iat`, `exp`, `jti`
 - Service tokens with another TTL are rejected.
@@ -21,8 +21,9 @@ The credentials have separate purposes:
 | --- | --- | --- |
 | `POST /issue`, `POST /revoke`, `POST /verify` | `X-Bonds-Admin` | Token administration on the host |
 | `POST /introspect`, `GET /health` | `X-Bonds-Channel` | Authenticate the verifier/readiness channel |
+| `POST /broker/issue`, `POST /broker/revoke` | `X-Bonds-Broker` | Automatic policy-bound issuance for governed server execution |
 
-An admin credential does not authorize introspection or readiness. A channel credential does not authorize issuance, revocation, or administrative verification. Duplicate credential headers are rejected. User-session Bearer tokens and the service token being inspected cannot substitute for either credential.
+Admin, channel and broker credentials are distinct and cannot substitute for one another. The broker caller supplies only an allow-listed audience; subject, scopes and the fixed 3600-second TTL come from runtime policy. Broker-issued tokens are atomically consumed on their first authenticated introspection and are inactive on replay. Duplicate credential headers are rejected. User-session Bearer tokens and the service token being inspected cannot substitute for any runtime credential.
 
 Every authenticated introspection response has the envelope `{ "runtime": { ... }, "claims": { ... } }`. `runtime` carries the same service/issuer, status, build SHA, contract/schema versions, TTL and channel-auth policy as `/health`; the existing claims remain unchanged. Consumers must validate that identity and their expected build on every introspection before accepting claims. A claims-only response from an older runtime cannot satisfy this contract, even if an earlier readiness probe succeeded.
 
@@ -35,9 +36,10 @@ Required environment variables:
 - `BONDS_TOKEN_DB`: path to the SQLite database.
 - `BONDS_TOKEN_ADMIN_SECRET_FILE`: path to the admin-secret file.
 - `BONDS_TOKEN_CHANNEL_SECRET_FILE`: path to the separate channel-secret file.
+- `BONDS_TOKEN_BROKER_SECRET_FILE`: path to the separate automatic-broker secret file.
 - `BONDS_TOKEN_BUILD_COMMIT`: exact 40-hex Git commit of the reviewed deployed source. Readiness reports the lowercase SHA. Missing, shortened, or placeholder identities prevent startup.
 
-The channel secret must contain 32–4096 printable ASCII characters without whitespace. It must differ from the admin secret and must not have a `bonds_` service-token prefix or three-segment JWT shape. Secret files are read on process startup; they must already exist and be readable by the runtime service account. The runtime and installer do not generate or rotate credentials.
+The channel and broker secrets must each contain 32–4096 printable ASCII characters without whitespace. Admin, channel and broker secrets must all differ and must not have a `bonds_` service-token prefix or three-segment JWT shape. Secret files are read on process startup; they must already exist and be readable by the runtime service account. The runtime and installer do not generate or rotate credentials.
 
 Optional:
 
@@ -73,7 +75,7 @@ Both direct startup and the Windows service wrapper use the same validator. Inva
 
 ## Coordinated client/runtime rollout
 
-This release changes the wire contract: unauthenticated `/introspect` and `/health` requests now return `401`. An older verifier that sends no channel credential will fail against this runtime. Update the existing runtime and server-side verifier together within the approved rollout procedure.
+This release changes the wire contract to contract v2/schema v3 and adds the protected one-time broker. Update the runtime, verifier build pin and server-side broker configuration through one coordinated rollout; a mixed old/new pair must fail closed rather than silently bypass token governance.
 
 The verifier receives the matching channel credential as server-side `BONDS_TOKEN_CHANNEL_SECRET`, and pins the runtime identity through `BONDS_TOKEN_EXPECTED_BUILD_COMMIT`. The inspected service token remains a separate request-body value. Keep the user's session in the existing user-authentication flow; never publish either runtime credential to browser or Native client code.
 
@@ -86,11 +88,13 @@ The existing web deployment requires these server-side settings:
 | `BONDS_TOKEN_INTROSPECTION_URL` | HTTPS URL with the exact `/introspect` path |
 | `BONDS_TOKEN_RUNTIME_HEALTH_URL` | HTTPS URL with the exact `/health` path, on the same origin |
 | `BONDS_TOKEN_CHANNEL_SECRET` | The separately provisioned channel credential matching the runtime file |
+| `BONDS_TOKEN_BROKER_URL` | HTTPS URL on the same runtime origin with the exact `/broker/issue` path |
+| `BONDS_TOKEN_BROKER_SECRET` | Server-only broker credential matching the runtime broker file |
 | `BONDS_TOKEN_EXPECTED_BUILD_COMMIT` | Exact lowercase 40-hex SHA of the verified runtime source |
 
 Both URLs reject embedded credentials, query strings, fragments and redirects. Provision credentials through the existing secret-management channel; do not put them in a URL, browser configuration, logs or a review comment. If `BONDS_TOKEN_ISSUER` is present it must remain `bonds-token-service`.
 
-For Capability API requests, the user's existing authenticated session stays in `Authorization`, and the issued service token stays in `X-Bonds-Service-Token`. The server adds `X-Bonds-Channel` only when contacting the runtime. No request-body role, subscription tier, user ID or governance array supplies authority. Runtime/configuration failures return `503`; denied user/token authorization returns `403`.
+For Capability API requests, the user's existing authenticated session stays in `Authorization`. After server-side user governance succeeds, the Capability API automatically requests a one-time service token when the target service requires one and no controlled explicit service token was supplied. The server never returns the broker credential or issued token to the browser. Controlled `X-Bonds-Service-Token` input remains supported for operations/backward compatibility. The server adds `X-Bonds-Channel` only when introspecting the service token and `X-Bonds-Broker` only when using broker endpoints. No request-body role, subscription tier, user ID or governance array supplies authority. Runtime/configuration failures return `503`; denied user/token authorization returns `403`.
 
 ## Existing user governance prerequisites
 
@@ -104,7 +108,7 @@ Strict `/api/readiness` requires both authenticated runtime identity/contract ch
 
 State is stored in SQLite at `BONDS_TOKEN_DB`.
 
-Startup creates the `tokens` table if absent. Existing pre-hardening databases are migrated additively by adding nullable `issued_at` and `token_id` columns when missing. Existing rows are not assigned invented temporal identity; rows without those fields fail closed during introspection.
+Startup creates the `tokens` table if absent. Existing databases are migrated additively by adding `issued_at`, `token_id`, `issued_by` and `consumed_at` columns when missing. Existing rows are not assigned invented temporal identity; rows without those fields fail closed during introspection.
 
 Issued-token state and revocation state are therefore persisted in the database rather than process memory.
 

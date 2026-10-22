@@ -120,7 +120,8 @@ function Assert-OwnedService {
     Assert-Acceptance ((Get-ServiceSnapshot).exists) "OWNED_SERVICE_MISSING"
     $configuration = Read-ServiceEnvironment
     foreach ($name in @("BONDS_TOKEN_DB", "BONDS_TOKEN_ADMIN_SECRET_FILE", "BONDS_TOKEN_CHANNEL_SECRET_FILE",
-        "BONDS_TOKEN_RUNTIME_ROOT", "BONDS_TOKEN_STATE_DIR", "BONDS_TOKEN_PYTHON_EXE", "BONDS_TOKEN_PORT")) {
+        "BONDS_TOKEN_BROKER_SECRET_FILE", "BONDS_TOKEN_RUNTIME_ROOT", "BONDS_TOKEN_STATE_DIR",
+        "BONDS_TOKEN_PYTHON_EXE", "BONDS_TOKEN_PORT")) {
         Assert-Acceptance ($configuration[$name] -ceq $expectedServiceEnvironment[$name]) ("SERVICE_OWNERSHIP_MISMATCH_" + $name)
     }
     $registration = Get-ServiceRegistration
@@ -211,13 +212,14 @@ function Invoke-Installer([string]$Path, [scriptblock]$OnTick = $null) {
 }
 
 function Send-Runtime([string]$Route, [string]$Credential = "Channel", $Body = $null) {
-    Assert-Acceptance ($Route -cmatch '^/(health|issue|introspect|revoke|verify)$') "INVALID_TEST_ROUTE"
+    Assert-Acceptance ($Route -cmatch '^/(health|issue|introspect|revoke|verify|broker/issue|broker/revoke)$') "INVALID_TEST_ROUTE"
     $method = if ($null -eq $Body) { [Net.Http.HttpMethod]::Get } else { [Net.Http.HttpMethod]::Post }
     $request = [Net.Http.HttpRequestMessage]::new($method, "http://127.0.0.1:8771$Route")
     $response = $null
     try {
         if ($Credential -ceq "Channel") { $request.Headers.Add("X-Bonds-Channel", $channelSecret) }
         elseif ($Credential -ceq "Admin") { $request.Headers.Add("X-Bonds-Admin", $adminSecret) }
+        elseif ($Credential -ceq "Broker") { $request.Headers.Add("X-Bonds-Broker", $brokerSecret) }
         else { Assert-Acceptance ($Credential -ceq "None") "INVALID_TEST_CREDENTIAL_KIND" }
         if ($null -ne $Body) {
             $request.Content = [Net.Http.StringContent]::new(
@@ -235,9 +237,11 @@ function Send-Runtime([string]$Route, [string]$Credential = "Channel", $Body = $
 function Assert-Identity($Identity, [string]$Build, [string]$Status = "ok") {
     Assert-Acceptance ($null -ne $Identity -and $Identity.status -ceq $Status -and
         $Identity.service -ceq "bonds-token-service" -and $Identity.issuer -ceq "bonds-token-service" -and
-        $Identity.version -ceq "1.0" -and $Identity.build_commit -ceq $Build -and
-        $Identity.contract_version -eq 1 -and $Identity.schema_version -eq 2 -and
-        $Identity.service_token_ttl_seconds -eq 3600 -and $Identity.channel_auth -ceq "required") "RUNTIME_IDENTITY_MISMATCH"
+        $Identity.version -ceq "2.0" -and $Identity.build_commit -ceq $Build -and
+        $Identity.contract_version -eq 2 -and $Identity.schema_version -eq 3 -and
+        $Identity.service_token_ttl_seconds -eq 3600 -and $Identity.channel_auth -ceq "required" -and
+        $Identity.broker_auth -ceq "required" -and
+        $Identity.broker_mode -ceq "one_time_service_tokens") "RUNTIME_IDENTITY_MISMATCH"
 }
 
 function Wait-Healthy([string]$Build) {
@@ -425,9 +429,11 @@ $candidateCheckout = Join-Path $temporaryDirectory "candidate-checkout"
 $database = Join-Path $temporaryDirectory "tokens.sqlite3"
 $adminFile = Join-Path $temporaryDirectory "admin.secret"
 $channelFile = Join-Path $temporaryDirectory "channel.secret"
+$brokerFile = Join-Path $temporaryDirectory "broker.secret"
 $machineChanges = @{
     BONDS_TOKEN_DB = $database; BONDS_TOKEN_ADMIN_SECRET_FILE = $adminFile
-    BONDS_TOKEN_CHANNEL_SECRET_FILE = $channelFile; BONDS_TOKEN_BUILD_COMMIT = $originalBuild
+    BONDS_TOKEN_CHANNEL_SECRET_FILE = $channelFile; BONDS_TOKEN_BROKER_SECRET_FILE = $brokerFile
+    BONDS_TOKEN_BUILD_COMMIT = $originalBuild
     BONDS_TOKEN_PORT = "8771"; BONDS_TOKEN_PYTHON_EXE = $pythonExe
 }
 $originalMachineEnvironment = @{}
@@ -458,6 +464,7 @@ $activationAttempted = $false
 $failure = $null
 $adminSecret = $null
 $channelSecret = $null
+$brokerSecret = $null
 $validToken = $null
 $revokedToken = $null
 $cutoverToken = $null
@@ -469,9 +476,12 @@ try {
     Set-PrivateDirectoryAcl $temporaryDirectory
     $adminSecret = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).ToLowerInvariant()
     $channelSecret = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).ToLowerInvariant()
-    Assert-Acceptance ($adminSecret -cne $channelSecret) "TEST_SECRETS_NOT_DISTINCT"
+    $brokerSecret = [Convert]::ToHexString([Security.Cryptography.RandomNumberGenerator]::GetBytes(32)).ToLowerInvariant()
+    Assert-Acceptance ($adminSecret -cne $channelSecret -and $adminSecret -cne $brokerSecret -and
+        $channelSecret -cne $brokerSecret) "TEST_SECRETS_NOT_DISTINCT"
     [IO.File]::WriteAllText($adminFile, $adminSecret, [Text.UTF8Encoding]::new($false))
     [IO.File]::WriteAllText($channelFile, $channelSecret, [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText($brokerFile, $brokerSecret, [Text.UTF8Encoding]::new($false))
     $emptyGitConfig = Join-Path $temporaryDirectory "empty-git-config"
     [IO.File]::WriteAllText($emptyGitConfig, "", [Text.UTF8Encoding]::new($false))
     $emptyHooks = Join-Path $temporaryDirectory "empty-git-hooks"
@@ -547,6 +557,15 @@ try {
         Assert-Acceptance ((Send-Runtime "/health" "None").status -eq 401) "HEALTH_CHANNEL_NOT_PROTECTED"
         Assert-Acceptance ((Send-Runtime "/introspect" "None" @{ token = "isolated-unknown" }).status -eq 401) "INTROSPECTION_NOT_PROTECTED"
         Assert-Acceptance ((Send-Runtime "/introspect" "Admin" @{ token = "isolated-unknown" }).status -eq 401) "ADMIN_IS_CHANNEL_CREDENTIAL"
+        Assert-Acceptance ((Send-Runtime "/broker/issue" "Admin" @{ audience = "research-intelligence" }).status -eq 401) "ADMIN_IS_BROKER_CREDENTIAL"
+        Assert-Acceptance ((Send-Runtime "/broker/issue" "Channel" @{ audience = "research-intelligence" }).status -eq 401) "CHANNEL_IS_BROKER_CREDENTIAL"
+        $brokerIssued = Send-Runtime "/broker/issue" "Broker" @{ audience = "research-intelligence" }
+        Assert-Acceptance ($brokerIssued.status -eq 200 -and $brokerIssued.body.one_time -eq $true -and
+            $brokerIssued.body.token -cmatch '^bonds_') "BROKER_TOKEN_ISSUE_FAILED"
+        $brokerFirst = Send-Runtime "/introspect" "Channel" @{ token = [string]$brokerIssued.body.token }
+        $brokerSecond = Send-Runtime "/introspect" "Channel" @{ token = [string]$brokerIssued.body.token }
+        Assert-Acceptance ($brokerFirst.body.claims.active -eq $true -and
+            $brokerSecond.body.claims.active -eq $false -and $brokerSecond.body.claims.revoked -eq $true) "BROKER_TOKEN_NOT_SINGLE_USE"
         $script:validToken = New-TestToken
         $script:revokedToken = New-TestToken
         $script:cutoverToken = New-TestToken
@@ -555,8 +574,9 @@ try {
         Assert-Token $revokedToken $false $true
         Assert-Token $cutoverToken $true $false
         $summary = Get-DatabaseSummary $database
-        Assert-Acceptance ($summary.integrity -ceq "ok" -and $summary.token_count -eq 3 -and $summary.revoked_count -eq 1) "INITIAL_DATABASE_STATE"
-        return @{ channel_protected = $true; valid_token_active = $true; revoked_token_inactive = $true; database = $summary }
+        Assert-Acceptance ($summary.integrity -ceq "ok" -and $summary.token_count -eq 4 -and $summary.revoked_count -eq 2) "INITIAL_DATABASE_STATE"
+        return @{ channel_protected = $true; broker_protected = $true; broker_single_use = $true
+            valid_token_active = $true; revoked_token_inactive = $true; database = $summary }
     }
     Invoke-Case "actual_scm_restart_preserves_valid_and_revoked_tokens" {
         Assert-OwnedService
@@ -620,7 +640,7 @@ try {
                 $backup = Join-Path $newSnapshots[0].FullName "tokens.sqlite3.backup"
                 Assert-Acceptance (Test-Path -LiteralPath $backup -PathType Leaf) "ROLLBACK_DATABASE_BACKUP_MISSING"
                 $summary = Get-DatabaseSummary $backup
-                Assert-Acceptance ($summary.integrity -ceq "ok" -and $summary.token_count -eq 3 -and $summary.revoked_count -eq 1) "ROLLBACK_BACKUP_BASELINE"
+                Assert-Acceptance ($summary.integrity -ceq "ok" -and $summary.token_count -eq 4 -and $summary.revoked_count -eq 2) "ROLLBACK_BACKUP_BASELINE"
                 $script:candidateObservation.backup_summary = $summary
                 Revoke-TestToken $cutoverToken
                 Assert-Token $cutoverToken $false $true $brokenBuild "no"
@@ -661,7 +681,7 @@ try {
         Assert-Token $revokedToken $false $true
         Assert-Token $cutoverToken $false $true
         $summary = Get-DatabaseSummary $database
-        Assert-Acceptance ($summary.integrity -ceq "ok" -and $summary.token_count -eq 3 -and $summary.revoked_count -eq 2) "RECOVERED_DATABASE_STATE"
+        Assert-Acceptance ($summary.integrity -ceq "ok" -and $summary.token_count -eq 4 -and $summary.revoked_count -eq 3) "RECOVERED_DATABASE_STATE"
         Assert-Acceptance ((Get-FileHash -LiteralPath $database -Algorithm SHA256).Hash.ToLowerInvariant() -ceq
             $script:candidateObservation.database_sha256_after_revoke) "ROLLBACK_REPLACED_CURRENT_DATABASE"
         [Environment]::SetEnvironmentVariable("BONDS_TOKEN_BUILD_COMMIT", $originalBuild, "Machine")
@@ -744,6 +764,7 @@ try {
     } catch { $cleanupFailures.Add((Get-SafeFailure $_)) }
     $adminSecret = $null
     $channelSecret = $null
+    $brokerSecret = $null
     $validToken = $null
     $revokedToken = $null
     $cutoverToken = $null

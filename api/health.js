@@ -16,6 +16,7 @@ const {
   requestTokenRuntime,
   readIntrospectionClaims
 } = require('../lib/security/service-token-verifier');
+const { resolveBrokerChannel } = require('../lib/security/service-token-broker');
 
 function readParam(req, name) {
   if (req && req.query && req.query[name] != null) return String(req.query[name]);
@@ -85,7 +86,8 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
     path: '/health'
   });
   const introspectionChannel = resolveTokenRuntimeChannel();
-  const configurationFailure = [healthChannel, introspectionChannel].find(channel => !channel.ok);
+  const brokerChannel = resolveBrokerChannel();
+  const configurationFailure = [healthChannel, introspectionChannel, brokerChannel].find(channel => !channel.ok);
   if (configurationFailure) {
     return {
       status: configurationFailure.code.endsWith('UNCONFIGURED') ? 'not_configured' : 'invalid_configuration',
@@ -99,7 +101,10 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
     return { status: identity.code.endsWith('UNCONFIGURED') ? 'not_configured' : 'invalid_configuration', required: true, code: identity.code };
   }
   const expectedBuild = identity.buildCommit;
-  if (healthChannel.origin !== introspectionChannel.origin) {
+  if (
+    healthChannel.origin !== introspectionChannel.origin ||
+    brokerChannel.origin !== introspectionChannel.origin
+  ) {
     return { status: 'invalid_configuration', required: true, code: 'TOKEN_RUNTIME_INVALID_CONFIGURATION' };
   }
 
@@ -138,7 +143,9 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
   return {
     status: 'ok', required: true, code: null,
     build_commit: expectedBuild, contract_version: tokenContract.contractVersion,
-    schema_version: tokenContract.schemaVersion, channel_auth: 'verified'
+    schema_version: tokenContract.schemaVersion,
+    channel_auth: 'verified',
+    broker_auth: 'configured'
   };
 }
 

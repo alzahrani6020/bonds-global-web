@@ -26,10 +26,13 @@ class TokenRuntimeHTTPTests(unittest.TestCase):
         self.database = self.root / "tokens.sqlite3"
         self.admin = secrets.token_urlsafe(48)
         self.channel = secrets.token_urlsafe(48)
+        self.broker = secrets.token_urlsafe(48)
         self.admin_file = self.root / "admin.secret"
         self.channel_file = self.root / "channel.secret"
+        self.broker_file = self.root / "broker.secret"
         self.admin_file.write_text(self.admin, encoding="utf-8")
         self.channel_file.write_text(self.channel, encoding="utf-8")
+        self.broker_file.write_text(self.broker, encoding="utf-8")
         self.environment = {
             name: value for name, value in os.environ.items()
             if not name.startswith("BONDS_TOKEN_")
@@ -38,6 +41,7 @@ class TokenRuntimeHTTPTests(unittest.TestCase):
             "BONDS_TOKEN_DB": str(self.database),
             "BONDS_TOKEN_ADMIN_SECRET_FILE": str(self.admin_file),
             "BONDS_TOKEN_CHANNEL_SECRET_FILE": str(self.channel_file),
+            "BONDS_TOKEN_BROKER_SECRET_FILE": str(self.broker_file),
             "BONDS_TOKEN_BUILD_COMMIT": BUILD_COMMIT,
             "PYTHONDONTWRITEBYTECODE": "1",
         })
@@ -128,6 +132,8 @@ class TokenRuntimeHTTPTests(unittest.TestCase):
         self.assertEqual(result["schema_version"], contract["schemaVersion"])
         self.assertEqual(result["service_token_ttl_seconds"], contract["serviceTokenTtlSeconds"])
         self.assertEqual(result["channel_auth"], "required")
+        self.assertEqual(result["broker_auth"], "required")
+        self.assertEqual(result["broker_mode"], "one_time_service_tokens")
         self.assertEqual(result["build_commit"], BUILD_COMMIT)
 
     def test_introspection_rejects_user_service_and_admin_credentials(self):
@@ -139,6 +145,7 @@ class TokenRuntimeHTTPTests(unittest.TestCase):
             {"Authorization": "Bearer " + token},
             {"X-Bonds-Channel": token},
             {"X-Bonds-Admin": self.admin},
+            {"X-Bonds-Broker": self.broker},
             {"X-Bonds-Channel": self.admin},
         )
         for headers in rejected:
@@ -183,9 +190,58 @@ class TokenRuntimeHTTPTests(unittest.TestCase):
             ("GET", "/health", "X-Bonds-Channel", self.channel),
             ("POST", "/introspect", "X-Bonds-Channel", self.channel),
             ("POST", "/issue", "X-Bonds-Admin", self.admin),
+            ("POST", "/broker/issue", "X-Bonds-Broker", self.broker),
         ):
             status, _ = self.request(method, path, {}, [(header, credential), (header, credential)])
             self.assertEqual(status, 401)
+
+    def test_broker_issues_policy_bound_single_use_tokens(self):
+        self.start()
+        status, result = self.request("POST", "/broker/issue", {
+            "audience": "research-intelligence",
+            "subject": "attacker-controlled",
+            "scopes": ["admin:*"],
+            "ttl": 86400,
+        }, {"X-Bonds-Broker": self.broker})
+        self.assertEqual(status, 200)
+        self.assertEqual(result["audience"], "research-intelligence")
+        self.assertTrue(result["one_time"])
+        token = result["token"]
+
+        first = self.introspect(token)
+        self.assertTrue(first["active"])
+        self.assertEqual(first["sub"], "service:orchestrator")
+        self.assertEqual(first["scope"], ["research:read"])
+        self.assertEqual(first["exp"] - first["iat"], 3600)
+
+        second = self.introspect(token)
+        self.assertFalse(second["active"])
+        self.assertTrue(second["revoked"])
+
+    def test_broker_rejects_unknown_audience_and_other_credentials(self):
+        self.start()
+        status, result = self.request("POST", "/broker/issue", {
+            "audience": "unknown-service",
+        }, {"X-Bonds-Broker": self.broker})
+        self.assertEqual((status, result), (403, {"error": "broker_policy_denied"}))
+
+        for headers in (
+            {"X-Bonds-Admin": self.admin},
+            {"X-Bonds-Channel": self.channel},
+            {},
+        ):
+            status, result = self.request("POST", "/broker/issue", {
+                "audience": "research-intelligence",
+            }, headers)
+            self.assertEqual((status, result), (401, {"error": "unauthorized"}))
+
+    def test_broker_cannot_use_admin_endpoints(self):
+        self.start()
+        for path in ("/issue", "/verify", "/revoke"):
+            status, result = self.request("POST", path, {"token": "bonds_placeholder"}, {
+                "X-Bonds-Broker": self.broker,
+            })
+            self.assertEqual((status, result), (401, {"error": "unauthorized"}))
 
     def test_tokens_and_revocation_survive_real_process_restarts(self):
         self.start()
@@ -239,7 +295,7 @@ class TokenRuntimeHTTPTests(unittest.TestCase):
             self.assertFalse(self.database.exists())
 
         self.channel_file.write_text(self.channel, encoding="utf-8")
-        for name in ("BONDS_TOKEN_CHANNEL_SECRET_FILE", "BONDS_TOKEN_BUILD_COMMIT"):
+        for name in ("BONDS_TOKEN_CHANNEL_SECRET_FILE", "BONDS_TOKEN_BROKER_SECRET_FILE", "BONDS_TOKEN_BUILD_COMMIT"):
             invalid_environment = {key: value for key, value in self.environment.items() if key != name}
             checked = subprocess.run(
                 [sys.executable, "-m", "bonds_security.server"],
