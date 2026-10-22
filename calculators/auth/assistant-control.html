@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مركز تحكم المستخدم بالمساعد — بوندز</title>
+<link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+<style>
+body{margin:0;background:#f5f0e8;color:#172033;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:1050px;margin:auto;padding:1.2rem}.head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;margin-top:1rem}.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:1rem}
+.s12{grid-column:span 12}.s6{grid-column:span 6}.muted{color:#64748b}.btn{border:0;border-radius:10px;padding:.65rem .9rem;font-weight:700;cursor:pointer;background:#082446;color:#fff;text-decoration:none;display:inline-block}
+.btn2{background:#eef2f7;color:#172033}.danger{background:#991b1b}.notice{padding:.75rem;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa}
+.status{display:none;margin-top:.8rem;padding:.75rem;border-radius:10px}.ok{background:#dcfce7;color:#166534}.err{background:#fee2e2;color:#991b1b}
+.switch{display:flex;gap:.7rem;align-items:center}.switch input{width:1.2rem;height:1.2rem}.boundary{padding:.55rem .65rem;border-bottom:1px solid #e5e7eb;overflow-wrap:anywhere}
+.notification{border:1px solid #e2e8f0;border-radius:12px;padding:.75rem;margin:.65rem 0}.notification.unread{border-color:#d4a853;background:#fffbeb}
+.actions{display:flex;gap:.5rem;flex-wrap:wrap}@media(max-width:800px){.s6{grid-column:span 12}}
+</style>
+<script src="/api/env"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+</head>
+<body><main>
+<div class="head">
+  <div><h1 style="margin:.1rem 0">مركز تحكم المستخدم بالمساعد</h1><div class="muted">تحكم في سياق جلسة المساعد وإشعاراتك دون تغيير التوكن أو مزود AI/API أو الموديل.</div></div>
+  <div class="actions"><a class="btn btn2" href="/calculators/auth/profile.html">الملف الشخصي</a><a class="btn btn2" href="/privacy.html">الخصوصية</a></div>
+</div>
+<div id="status" class="status"></div>
+<section class="grid">
+  <article class="card s6">
+    <h2>سياق جلسة المساعد</h2>
+    <label class="switch"><input id="contextEnabled" type="checkbox"><strong>السماح باستخدام السياق المنظم داخل هذه الجلسة</strong></label>
+    <p class="muted">هذا الإعداد خاص بالجلسة الحالية. عند إيقافه لا يرسل الشات assistantState المنظم، وتُمسح حالات السياق المحفوظة في sessionStorage.</p>
+    <div class="notice">لا يشمل هذا التحكم سجل التدقيق الإلزامي أو بيانات الحساب أو المستندات أو سياسات الاحتفاظ النظامية.</div>
+    <div style="margin-top:.8rem"><button id="clearContextBtn" class="btn danger" type="button">مسح سياق المساعد في هذه الجلسة</button></div>
+  </article>
+  <article class="card s6">
+    <h2>الحالات الموجودة في الجلسة</h2>
+    <div id="contextSummary" class="muted">جارٍ الفحص…</div>
+  </article>
+  <article class="card s12">
+    <div class="head"><div><h2 style="margin:.1rem 0">إشعارات المساعد</h2><div class="muted">تُقرأ من API المستخدم الحالي فقط.</div></div><button id="refreshNotificationsBtn" class="btn btn2" type="button">تحديث</button></div>
+    <div id="notifications" class="muted" style="margin-top:.8rem">جارٍ التحميل…</div>
+  </article>
+</section>
+</main>
+<script>
+(()=>{
+'use strict';
+const STATE_PREFIX='bonds.assistant.state.v1:';
+const CONTEXT_PREF_KEY='bonds.assistant.context.enabled.v1';
+
+function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+function show(message,ok=true){const el=document.getElementById('status');el.textContent=message;el.className='status '+(ok?'ok':'err');el.style.display=message?'block':'none';}
+function contextEnabled(){try{return window.sessionStorage.getItem(CONTEXT_PREF_KEY)!=='0';}catch{return true;}}
+function setContextEnabled(enabled){try{window.sessionStorage.setItem(CONTEXT_PREF_KEY,enabled?'1':'0');}catch{} if(!enabled)clearAllContext();}
+function contextKeys(){const out=[];try{for(let i=0;i<window.sessionStorage.length;i++){const key=window.sessionStorage.key(i);if(key&&key.startsWith(STATE_PREFIX))out.push(key);}}catch{}return out;}
+function clearAllContext(){for(const key of contextKeys()){try{window.sessionStorage.removeItem(key);}catch{}}renderContextSummary();}
+function renderContextSummary(){
+  const keys=contextKeys();
+  if(!keys.length){contextSummary.textContent='لا توجد حالات سياق محفوظة في هذه الجلسة.';return;}
+  contextSummary.innerHTML=keys.map(key=>'<div class="boundary">'+esc(key.slice(STATE_PREFIX.length))+'</div>').join('');
+}
+async function authFetch(url,options={}){
+  const response=await BondsAuth.authenticatedFetch(url,{...options,returnTo:location.pathname});
+  const body=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(body.error||('HTTP '+response.status));
+  return body;
+}
+async function requireUser(){
+  const result=await BondsAuth.getSession();
+  const session=result?.data?.session;
+  if(!session?.user){location.replace('/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname));return false;}
+  return true;
+}
+async function loadNotifications(){
+  notifications.textContent='جارٍ تحميل الإشعارات…';
+  try{
+    const body=await authFetch('/api/v3/assistant/notifications?limit=25');
+    const items=Array.isArray(body.notifications)?body.notifications:[];
+    if(!items.length){notifications.textContent='لا توجد إشعارات للمساعد.';return;}
+    notifications.innerHTML=items.map(item=>{
+      const title=item.title_ar||item.title_en||'إشعار المساعد';
+      const message=item.message_ar||item.message_en||'';
+      return '<div class="notification '+(item.read?'':'unread')+'" data-notification-id="'+esc(item.id)+'"><strong>'+esc(title)+'</strong><p>'+esc(message)+'</p>'+(item.read?'':'<button class="btn btn2 mark-read" type="button">تحديد كمقروء</button>')+'</div>';
+    }).join('');
+    notifications.querySelectorAll('.mark-read').forEach(btn=>btn.addEventListener('click',async()=>{
+      const card=btn.closest('[data-notification-id]');const id=card?.dataset.notificationId;if(!id)return;
+      btn.disabled=true;
+      try{await authFetch('/api/v3/assistant/notifications/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notification_id:id})});await loadNotifications();}
+      catch(err){show('تعذر تحديث الإشعار: '+err.message,false);btn.disabled=false;}
+    }));
+  }catch(err){notifications.textContent='تعذر تحميل الإشعارات.';show('فشل تحميل إشعارات المساعد: '+err.message,false);}
+}
+contextEnabledEl=document.getElementById('contextEnabled');
+contextEnabledEl.checked=contextEnabled();
+contextEnabledEl.addEventListener('change',()=>{setContextEnabled(contextEnabledEl.checked);show(contextEnabledEl.checked?'تم تفعيل سياق الجلسة.':'تم إيقاف سياق الجلسة ومسح حالاته.',true);});
+clearContextBtn.addEventListener('click',()=>{if(!window.confirm('مسح كل سياق المساعد المحفوظ في هذه الجلسة؟'))return;clearAllContext();show('تم مسح سياق المساعد في هذه الجلسة.',true);});
+refreshNotificationsBtn.addEventListener('click',loadNotifications);
+renderContextSummary();
+requireUser().then(ok=>{if(ok)loadNotifications();}).catch(err=>show('تعذر التحقق من الجلسة: '+err.message,false));
+})();
+</script>
+</body></html>
