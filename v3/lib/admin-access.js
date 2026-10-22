@@ -112,15 +112,6 @@ async function requireHumanApprovalAccess(req) {
   return getBearerAdmin(req);
 }
 
-async function requireAssistantKillSwitchAccess(req) {
-  // Emergency controls require attributable highest-privilege human identity.
-  // Preserve the existing ai.operations.manage boundary: owner/super_admin only.
-  // Admin, Support and legacy/static admin tokens are intentionally excluded.
-  const access = await getBearerAdmin(req);
-  if (!access || !['owner','super_admin'].includes(access.role)) return null;
-  return access;
-}
-
 async function requireAgentInboxAccess(req, options = {}) {
   const bearerAgent = await getBearerAgentInboxUser(req);
   if (bearerAgent) return bearerAgent;
@@ -151,6 +142,5 @@ module.exports = {
   requireAdminAccess,
   getBearerAgentInboxUser,
   requireAgentInboxAccess,
-  requireHumanApprovalAccess,
-  requireAssistantKillSwitchAccess
+  requireHumanApprovalAccess
 };
