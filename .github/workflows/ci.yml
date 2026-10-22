@@ -85,6 +85,9 @@ jobs:
       - name: Verify feasibility PDF generation
         run: npm run verify:feasibility-pdf
 
+      - name: Audit generated PDF references
+        run: npm run audit:generated-pdfs
+
       - name: Start Local Dev Server
         run: npm run dev:local &
 
