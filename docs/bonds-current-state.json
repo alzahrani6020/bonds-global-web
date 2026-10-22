@@ -4,18 +4,16 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase1-dual-core-foundation",
-  "current_workstream": "phase1-foundation-candidate",
+  "current_workstream": "p1.7-assistant-outcome-bridge",
   "status": "in_progress",
-  "baseline_main_sha": "da1c4f6ac97663892a7a4b198b3b205752ede65f",
+  "baseline_main_sha": "96e3c3b01a24db6133cc7588256c749d8370b90b",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
     "p0.3-local-sqlite-checkpoint-store",
     "p0.3-remote-checkpoint-metadata",
     "p0.3-recovery-precedence",
-    "p0.3-supabase-migration-verified"
-  ],
-  "currently_working_on": [
+    "p0.3-supabase-migration-verified",
     "p1.1-event-taxonomy",
     "p1.2-dynamic-intelligence-bus",
     "p1.3-evolution-state-machine",
@@ -23,10 +21,15 @@
     "p1.5-resource-scheduler",
     "p1.6-core-priority-arbitration"
   ],
-  "next_action": "validate Phase 1 foundation candidate in CI; after merge, integrate Core A assistant outcome events and Core B consumers without bypassing capability governance",
+  "currently_working_on": [
+    "p1.7-assistant-outcome-bridge",
+    "p1.8-core-b-learning-consumer"
+  ],
+  "next_action": "validate Assistant/Core A outcome bridge in CI; after merge, expand outcome coverage to workflow/document/intent signals and add durable evolution proposal aggregation",
   "blocked": [],
   "verification": {
-    "phase0_closeout_merge_sha": "da1c4f6ac97663892a7a4b198b3b205752ede65f"
+    "phase0_closeout_merge_sha": "da1c4f6ac97663892a7a4b198b3b205752ede65f",
+    "phase1_foundation_merge_sha": "96e3c3b01a24db6133cc7588256c749d8370b90b"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -47,5 +50,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "phase1-foundation-candidate"
+  "updated_by": "p1.7-candidate"
 }
