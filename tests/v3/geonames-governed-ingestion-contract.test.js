@@ -32,7 +32,8 @@ describe('GeoNames governed ingestion contract', () => {
     expect(workflow).toContain('VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}');
     expect(workflow).toContain('VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}');
     expect(workflow).toContain('VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}');
-    expect(workflow).toContain('vercel pull --yes --environment=production --scope "$VERCEL_ORG_ID"');
+    expect(workflow).toContain('vercel pull --yes --environment=production');
+    expect(workflow).not.toContain('--scope "$VERCEL_ORG_ID"');
     expect(workflow).toContain('SUPABASE_DB_URL');
     expect(workflow).toContain('::add-mask::');
     expect(workflow).toContain('DATABASE_URL<<__GEO_DB_URL__');
