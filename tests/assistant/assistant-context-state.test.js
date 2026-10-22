@@ -14,6 +14,8 @@ describe('BONDS Assistant context state', () => {
     expect(source).toContain('window.sessionStorage?.setItem');
     expect(source).toContain('window.sessionStorage?.removeItem');
     expect(source).not.toContain('window.localStorage');
+    expect(source).toContain("const ASSISTANT_CONTEXT_PREFERENCE_KEY = 'bonds.assistant.context.enabled.v1';");
+    expect(source).toContain("window.sessionStorage?.getItem(ASSISTANT_CONTEXT_PREFERENCE_KEY) !== '0'");
   });
 
   test('defines project and city boundaries explicitly', () => {
@@ -50,7 +52,9 @@ describe('BONDS Assistant context state', () => {
   });
 
   test('passes only sanitized assistant state into chat payloads', () => {
-    expect(source).toContain('const structuredState = sanitizeAssistantContextState(');
+    expect(source).toContain('const structuredState = assistantContextEnabled()');
+    expect(source).toContain('? sanitizeAssistantContextState(assistantContextState, contextBoundaryKey())');
+    expect(source).toContain(': null;');
     expect(source).toContain('assistantState: structuredState');
     expect(source).not.toContain('assistantState: assistantContextState');
   });
