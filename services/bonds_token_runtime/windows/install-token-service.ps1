@@ -43,6 +43,7 @@ Assert-FullyQualifiedPath $pythonExe "Selected Python interpreter"
 $db = [Environment]::GetEnvironmentVariable("BONDS_TOKEN_DB", "Machine")
 $secret = [Environment]::GetEnvironmentVariable("BONDS_TOKEN_ADMIN_SECRET_FILE", "Machine")
 $channelFile = [Environment]::GetEnvironmentVariable("BONDS_TOKEN_CHANNEL_SECRET_FILE", "Machine")
+$brokerFile = [Environment]::GetEnvironmentVariable("BONDS_TOKEN_BROKER_SECRET_FILE", "Machine")
 $build = [Environment]::GetEnvironmentVariable("BONDS_TOKEN_BUILD_COMMIT", "Machine")
 $port = [Environment]::GetEnvironmentVariable("BONDS_TOKEN_PORT", "Machine")
 if ([string]::IsNullOrWhiteSpace($db)) {
@@ -51,9 +52,10 @@ if ([string]::IsNullOrWhiteSpace($db)) {
 Assert-FullyQualifiedPath $db "BONDS_TOKEN_DB"
 Assert-FullyQualifiedPath $secret "BONDS_TOKEN_ADMIN_SECRET_FILE"
 Assert-FullyQualifiedPath $channelFile "BONDS_TOKEN_CHANNEL_SECRET_FILE"
-foreach ($path in @($secret, $channelFile)) {
+Assert-FullyQualifiedPath $brokerFile "BONDS_TOKEN_BROKER_SECRET_FILE"
+foreach ($path in @($secret, $channelFile, $brokerFile)) {
     if ([string]::IsNullOrWhiteSpace($path) -or -not (Test-Path -LiteralPath $path -PathType Leaf)) {
-        throw "Existing machine-level admin and channel secret files are required. No credentials will be generated or rotated."
+        throw "Existing machine-level admin, channel and broker secret files are required. No credentials will be generated or rotated."
     }
 }
 if ($build -cnotmatch '^[0-9a-fA-F]{40}$') {
@@ -73,6 +75,7 @@ $serviceEnvironment = @(
     "BONDS_TOKEN_DB=$db",
     "BONDS_TOKEN_ADMIN_SECRET_FILE=$secret",
     "BONDS_TOKEN_CHANNEL_SECRET_FILE=$channelFile",
+    "BONDS_TOKEN_BROKER_SECRET_FILE=$brokerFile",
     "BONDS_TOKEN_BUILD_COMMIT=$build",
     "BONDS_TOKEN_PORT=8771",
     "BONDS_TOKEN_RUNTIME_ROOT=$runtimeDir",
@@ -317,15 +320,26 @@ function Get-Health([string]$SecretPath) {
     return Invoke-RestMethod -Uri "http://127.0.0.1:8771/health" -Headers $headers -TimeoutSec 5 -MaximumRedirection 0
 }
 
-function Test-Health([string]$ExpectedBuild, [string]$SecretPath, [bool]$RequireChannelContract = $true) {
+function Test-Health(
+    [string]$ExpectedBuild,
+    [string]$SecretPath,
+    [bool]$RequireChannelContract = $true,
+    [int]$ExpectedContractVersion = 1,
+    [int]$ExpectedSchemaVersion = 2,
+    [bool]$RequireBrokerContract = $false
+) {
     try {
         $health = Get-Health $SecretPath
         $valid = ($health.status -ceq "ok" -and $health.service -ceq "bonds-token-service" -and
-            $health.build_commit -ceq $ExpectedBuild -and $health.schema_version -eq 2 -and
+            $health.build_commit -ceq $ExpectedBuild -and $health.schema_version -eq $ExpectedSchemaVersion -and
             $health.service_token_ttl_seconds -eq 3600)
         if ($RequireChannelContract) {
             $valid = ($valid -and $health.issuer -ceq "bonds-token-service" -and
-                $health.contract_version -eq 1 -and $health.channel_auth -ceq "required")
+                $health.contract_version -eq $ExpectedContractVersion -and $health.channel_auth -ceq "required")
+        }
+        if ($RequireBrokerContract) {
+            $valid = ($valid -and $health.broker_auth -ceq "required" -and
+                $health.broker_mode -ceq "one_time_service_tokens")
         }
         return $valid
     } catch { return $false }
@@ -401,6 +415,9 @@ $wasRunning = $existing -and $existing.Status -eq "Running"
 $previousEnvironment = @()
 $previousConfig = @{}
 $previousRequiresChannel = $false
+$previousRequiresBroker = $false
+$previousContractVersion = 1
+$previousSchemaVersion = 2
 $previousBuild = ""
 $previousImagePath = ""
 $previousPythonClass = ""
@@ -468,6 +485,12 @@ if ($existing) {
         [IO.Path]::GetFullPath($previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE) -ne [IO.Path]::GetFullPath($channelFile)) {
         throw "An existing channel credential path must remain unchanged; credential rotation is outside this rollout."
     }
+    if (-not [string]::IsNullOrWhiteSpace($previousConfig.BONDS_TOKEN_BROKER_SECRET_FILE)) {
+        Assert-FullyQualifiedPath $previousConfig.BONDS_TOKEN_BROKER_SECRET_FILE "Previous BONDS_TOKEN_BROKER_SECRET_FILE"
+        if ([IO.Path]::GetFullPath($previousConfig.BONDS_TOKEN_BROKER_SECRET_FILE) -ne [IO.Path]::GetFullPath($brokerFile)) {
+            throw "An existing broker credential path must remain unchanged; credential rotation is outside this rollout."
+        }
+    }
     if (-not (Test-Path -LiteralPath $db -PathType Leaf) -or
         -not (Test-Path -LiteralPath $previousConfig.BONDS_TOKEN_ADMIN_SECRET_FILE -PathType Leaf)) {
         throw "The previous service store or secret file is unavailable; refusing cutover."
@@ -494,7 +517,13 @@ if ($listeners.Count -gt 0) {
     }
     $previousHealth = Get-Health $previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE
     $previousRequiresChannel = $previousHealth.channel_auth -ceq "required"
-    if (-not (Test-Health $previousBuild $previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE $previousRequiresChannel)) {
+    $previousRequiresBroker = $previousHealth.broker_auth -ceq "required"
+    if ($null -ne $previousHealth.contract_version) { $previousContractVersion = [int]$previousHealth.contract_version }
+    if ($null -ne $previousHealth.schema_version) { $previousSchemaVersion = [int]$previousHealth.schema_version }
+    if ($previousContractVersion -notin @(1, 2) -or $previousSchemaVersion -notin @(2, 3)) {
+        throw "The previous runtime contract/schema is not a supported recovery baseline."
+    }
+    if (-not (Test-Health $previousBuild $previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE $previousRequiresChannel $previousContractVersion $previousSchemaVersion $previousRequiresBroker)) {
         throw "The currently running service does not match its recorded identity and contract; refusing cutover."
     }
 } elseif ($wasRunning) {
@@ -561,7 +590,7 @@ try {
     if ($wasRunning) {
         $currentListeners = @(Get-TokenListeners)
         if ($currentListeners.Count -ne 1 -or $currentListeners[0].OwningProcess -ne $listeners[0].OwningProcess -or
-            -not (Test-Health $previousBuild $previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE $previousRequiresChannel)) {
+            -not (Test-Health $previousBuild $previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE $previousRequiresChannel $previousContractVersion $previousSchemaVersion $previousRequiresBroker)) {
             throw "The previous service changed after preflight; cutover was cancelled."
         }
     }
@@ -608,7 +637,7 @@ try {
     $deadline = (Get-Date).AddSeconds([Math]::Max(15, $HealthTimeoutSeconds))
     $healthy = $false
     while ((Get-Date) -lt $deadline) {
-        if (Test-Health $build $channelFile) { $healthy = $true; break }
+        if (Test-Health $build $channelFile $true 2 3 $true) { $healthy = $true; break }
         Start-Sleep -Seconds 1
     }
     if (-not $healthy) { throw "The new service did not pass authenticated identity/contract readiness." }
@@ -637,7 +666,7 @@ try {
                 $deadline = (Get-Date).AddSeconds([Math]::Max(15, $HealthTimeoutSeconds))
                 $recovered = $false
                 while ((Get-Date) -lt $deadline) {
-                    if (Test-Health $previousBuild $previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE $previousRequiresChannel) { $recovered = $true; break }
+                    if (Test-Health $previousBuild $previousConfig.BONDS_TOKEN_CHANNEL_SECRET_FILE $previousRequiresChannel $previousContractVersion $previousSchemaVersion $previousRequiresBroker) { $recovered = $true; break }
                     Start-Sleep -Seconds 1
                 }
                 if (-not $recovered) { throw "The restored runtime did not pass its previous identity/contract check." }
