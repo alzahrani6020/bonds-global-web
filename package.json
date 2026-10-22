@@ -52,7 +52,8 @@
     "geo:ingest-local": "node scripts/ingest-local-geo-dataset.js",
     "geo:rollback-local": "node scripts/rollback-local-geo-run.js",
     "generate:feasibility-pdf": "node scripts/generate-report.js",
-    "verify:feasibility-pdf": "node scripts/verify-feasibility-pdf-generation.js"
+    "verify:feasibility-pdf": "node scripts/verify-feasibility-pdf-generation.js",
+    "audit:generated-pdfs": "node scripts/verify-generated-pdf-references.js"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",
