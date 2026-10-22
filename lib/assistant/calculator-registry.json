@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "registry": "bonds-calculators",
+  "calculators": {
+    "break_even": {
+      "navigation_target": "calculator_break_even",
+      "runnable": false,
+      "engine": "page"
+    },
+    "loan": {
+      "navigation_target": "calculator_loan",
+      "runnable": false,
+      "engine": "page"
+    },
+    "roi": {
+      "navigation_target": "calculator_roi",
+      "runnable": false,
+      "engine": "page"
+    },
+    "cash_flow": {
+      "navigation_target": "calculator_cash_flow",
+      "runnable": false,
+      "engine": "page"
+    },
+    "feasibility": {
+      "navigation_target": "calculator_feasibility",
+      "runnable": false,
+      "engine": "page"
+    },
+    "restaurant": {
+      "navigation_target": "calculator_restaurant",
+      "runnable": false,
+      "engine": "page"
+    },
+    "company_feasibility": {
+      "navigation_target": "calculator_feasibility",
+      "runnable": true,
+      "engine": "ucp",
+      "template_code": "tmp_company_default"
+    },
+    "factory_feasibility": {
+      "navigation_target": "calculator_feasibility",
+      "runnable": true,
+      "engine": "ucp",
+      "template_code": "tmp_factory_default"
+    },
+    "retail_feasibility": {
+      "navigation_target": "calculator_feasibility",
+      "runnable": true,
+      "engine": "ucp",
+      "template_code": "tmp_retail_default"
+    },
+    "restaurant_feasibility": {
+      "navigation_target": "calculator_restaurant",
+      "runnable": true,
+      "engine": "ucp",
+      "template_code": "tmp_restaurant_default"
+    }
+  }
+}
