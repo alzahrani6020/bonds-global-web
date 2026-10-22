@@ -864,10 +864,11 @@
     "calculator_open_capability",
     "calculator_run_capability",
     "calculation_authority_separation",
-    "calculator_orchestration"
+    "calculator_orchestration",
+    "chat_widget_action_renderer",
+    "ui_action_bus"
   ],
   "next": [
-    "chat_widget_action_renderer",
     "assistant_context_state",
     "prefill_provenance",
     "confirmation_engine",
@@ -888,7 +889,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-calculator-capabilities",
-    "change": "Added governed calculator_open and calculator_run capabilities. calculator_run uses registry-bound deterministic UCP templates; model-supplied template selection is rejected."
+    "branch": "feat/bonds-assistant-chat-widget-actions",
+    "change": "Connected the AI chat widget to BONDS_ASSISTANT_PROTOCOL_V1 structured actions. The widget renders governed action cards and re-plans site navigation through /assistant/plan before following registry-resolved internal routes; confirmation-required actions remain non-executable."
   }
 }
