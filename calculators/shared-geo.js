@@ -24,12 +24,14 @@
   const DEFAULT_COUNTRY = 'SA';
   const GEO_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 1 week
   const BACKGROUND_LOAD_CONCURRENCY = 6;
+  const LIVE_CITIES_API = '/api/v3/catalog/cities';
 
   let _cachedData = null;
   let _activeCountry = detectCountry();
   let _ensureMasterPromise = null;
   let _loadAllPromise = null;
   const _countryPromises = {};
+  const _liveCountryPromises = {};
 
   function getBasePath() {
     if (!window.location || !window.location.pathname) return '';
@@ -191,17 +193,95 @@
     return _countryPromises[upper];
   }
 
+  function buildLiveCountry(code, payload) {
+    const upper = String(code).toUpperCase();
+    const rows = Array.isArray(payload && payload.cities) ? payload.cities : [];
+    const countryMeta = getData()[upper] || getMeta()[upper] || {};
+    const groups = new Map();
+
+    rows.forEach(function (row) {
+      const regionAr = row.region || row.admin_level_1 || row.admin_level_2 || '';
+      const regionEn = row.region_en || row.admin_level_1_en || regionAr || '';
+      const regionKey = String(regionAr || regionEn || '__other__');
+      if (!groups.has(regionKey)) {
+        groups.set(regionKey, {
+          name: regionAr || (getLang() === 'ar' ? 'أخرى' : 'Other'),
+          nameEn: regionEn || regionAr || 'Other',
+          cities: []
+        });
+      }
+      groups.get(regionKey).cities.push({
+        code: row.code || row.canonical_code,
+        name: row.name_ar || row.name_en || row.code,
+        nameEn: row.name_en || row.name_ar || row.code,
+        localityType: row.locality_type || 'city',
+        lat: row.lat,
+        lng: row.lng,
+        population: row.population,
+        geoPlaceId: row.geo_place_id || null,
+        catalogSource: row.catalog_source || 'database'
+      });
+    });
+
+    return {
+      ...countryMeta,
+      code: upper,
+      name: countryMeta.name || payload?.country?.name_ar || payload?.country?.name_en || upper,
+      nameEn: countryMeta.nameEn || payload?.country?.name_en || payload?.country?.name_ar || upper,
+      governorates: Array.from(groups.values()).map(function (gov) {
+        gov.cities.sort(function (a, b) {
+          return String(a.name || a.nameEn || a.code).localeCompare(
+            String(b.name || b.nameEn || b.code), 'ar', { sensitivity: 'base' }
+          );
+        });
+        return gov;
+      }),
+      liveCatalog: true
+    };
+  }
+
+  function loadLiveCountry(code) {
+    const upper = String(code).toUpperCase();
+    if (_liveCountryPromises[upper]) return _liveCountryPromises[upper];
+
+    _liveCountryPromises[upper] = fetch(
+      LIVE_CITIES_API + '?country=' + encodeURIComponent(upper),
+      { credentials: 'same-origin', cache: 'no-store' }
+    ).then(function (response) {
+      if (!response.ok) throw new Error('Live geo API HTTP ' + response.status);
+      return response.json();
+    }).then(function (payload) {
+      const liveCountry = buildLiveCountry(upper, payload);
+      if (!liveCountry.governorates.length) throw new Error('Live geo API returned no cities for ' + upper);
+      window.BondsGeoCountryData = window.BondsGeoCountryData || {};
+      window.BondsGeoCountryData[upper] = liveCountry;
+      _cachedData = Object.assign({}, getData(), { [upper]: liveCountry });
+      dispatchCountryLoaded(upper);
+      return liveCountry;
+    }).catch(function (err) {
+      delete _liveCountryPromises[upper];
+      throw err;
+    });
+
+    return _liveCountryPromises[upper];
+  }
+
   function ensureCountry(code) {
     const upper = String(code || _activeCountry).toUpperCase();
-    const data = getData();
-    if (data[upper] && hasGovernorates(data[upper])) {
-      return Promise.resolve(data[upper]);
-    }
-    if (window.BondsGeoCountryData && window.BondsGeoCountryData[upper]) {
-      refreshCachedData();
-      return Promise.resolve(window.BondsGeoCountryData[upper]);
-    }
-    return loadCountryChunk(upper);
+
+    // Production database is authoritative. Static chunks are only a resilience
+    // fallback, so newly promoted/added cities appear automatically without a
+    // repository update.
+    return loadLiveCountry(upper).catch(function (liveErr) {
+      console.warn('[BondsGeo] live catalog unavailable, using static fallback', liveErr);
+      const data = getData();
+      if (data[upper] && hasGovernorates(data[upper])) return data[upper];
+      if (window.BondsGeoCountryData && window.BondsGeoCountryData[upper]) {
+        refreshCachedData();
+        return window.BondsGeoCountryData[upper];
+      }
+      return loadCountryChunk(upper);
+    });
   }
 
   function promisePool(items, fn, concurrency) {
