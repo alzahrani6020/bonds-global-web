@@ -8,6 +8,7 @@
  */
 (function (window) {
   const API_URL = '/api/v3/ai/chat';
+  const SERVICE_DETAIL_API = '/api/v3/services/';
   const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
   const ASSISTANT_PLAN_URL = '/api/v3/assistant/plan';
   const ASSISTANT_CONFIRMATION_PREPARE_URL = '/api/v3/assistant/confirmation/prepare';
@@ -738,6 +739,8 @@
       modelCode: options.modelCode || null,
       calculationResult: options.calculationResult || null,
       projectId: options.projectId || null,
+      pagePath: options.pagePath || window.location.pathname || '/',
+      pageTitle: options.pageTitle || document.title || null,
       mode: options.mode || 'city'
     };
 
@@ -903,6 +906,57 @@
       return activitySelect ? activitySelect.options[activitySelect.selectedIndex]?.text : null;
     }
 
+    let loadedServiceProfileCode = null;
+
+    function compactServiceProfile(data) {
+      const service = data?.service || {};
+      return {
+        serviceCode: service.code || context.serviceCode || null,
+        serviceName: service.name_ar || service.name_en || context.serviceName || null,
+        serviceNameEn: service.name_en || service.name_ar || null,
+        serviceDeliveryType: service.delivery_type || null,
+        serviceCapabilities: Array.isArray(data?.capabilities)
+          ? data.capabilities.map(row => row.capability_code).filter(Boolean).slice(0, 50)
+          : [],
+        serviceRequirements: Array.isArray(data?.requirements)
+          ? data.requirements.map(row => ({
+              type: row.requirement_type || null,
+              label: row.label_ar || row.label_en || null,
+              required: row.is_required === true
+            })).filter(row => row.label).slice(0, 50)
+          : [],
+        serviceDeliverables: Array.isArray(data?.deliverables)
+          ? data.deliverables.map(row => row.name_ar || row.name_en || row.code).filter(Boolean).slice(0, 30)
+          : [],
+        serviceDependencies: Array.isArray(data?.dependencies)
+          ? data.dependencies.map(row => row?.service?.code).filter(Boolean).slice(0, 30)
+          : []
+      };
+    }
+
+    async function loadVerifiedServiceProfile() {
+      const serviceCode = String(context.serviceCode || '').trim();
+      if (!serviceCode || loadedServiceProfileCode === serviceCode) return;
+      const params = new URLSearchParams();
+      if (context.countryCode) params.set('country', context.countryCode);
+      if (context.sectorCode) params.set('sector', context.sectorCode);
+      if (context.activityCode) params.set('activity', context.activityCode);
+      const suffix = params.toString() ? '?' + params.toString() : '';
+      try {
+        const res = await fetch(SERVICE_DETAIL_API + encodeURIComponent(serviceCode) + suffix, {
+          headers: await getAuthHeaders(),
+          credentials: 'same-origin',
+          cache: 'no-store'
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        updateContext(compactServiceProfile(data));
+        loadedServiceProfileCode = serviceCode;
+      } catch (err) {
+        console.warn('[BondsAssistantServiceContext]', err);
+      }
+    }
+
     function refreshContext() {
       const bridge = readServiceAssistantContext();
       if (Object.keys(bridge).length) {
@@ -912,6 +966,8 @@
           activityCode: context.activityCode || bridge.activityCode || null
         });
       }
+      context.pagePath = window.location.pathname || context.pagePath || '/';
+      context.pageTitle = document.title || context.pageTitle || null;
       context.cityName = getCityName() || context.localityName || context.cityName || null;
       context.activityName = getActivityName() || context.activityName || null;
     }
@@ -1011,15 +1067,20 @@
       }
     }
 
-    function toggleOpen() {
+    async function toggleOpen() {
       state.isOpen = !state.isOpen;
       windowEl.classList.toggle('open', state.isOpen);
       if (state.isOpen && state.messages.length === 0) {
         refreshContext();
+        await loadVerifiedServiceProfile();
         if (options.home === true) {
           root.classList.remove('conversation-started');
         } else if (context.mode === 'project' && context.projectId) {
           addAssistantMessage('مرحباً! أنا مستشار بوندز التنفيذي. أسألني عن مشروعك: أين وصلنا؟ ما الذي ينقص؟ ما الخطوة التالية؟');
+          renderSuggestions();
+        } else if (context.serviceCode) {
+          const service = context.serviceName || context.serviceCode;
+          addAssistantMessage(`مرحباً! أنا مساعد بوندز. أنت الآن ضمن خدمة "${service}". أستطيع مساعدتك في المتطلبات، البيانات والمستندات المطلوبة، القدرات المتاحة، والخطوة التالية.`);
           renderSuggestions();
         } else {
           const city = context.cityName || context.cityCode || 'مدينة محددة';
@@ -1547,6 +1608,26 @@
         return;
       }
 
+      if (context.serviceCode) {
+        const service = context.serviceName || context.serviceCode;
+        const defaults = [
+          `ما متطلبات خدمة ${service}؟`,
+          'ما البيانات أو المستندات الناقصة؟',
+          'ما القدرات والأدوات المتاحة لهذه الخدمة؟',
+          'ما الخطوة التالية؟'
+        ];
+        const suggestions = options.suggestions || defaults;
+        suggestionsEl.innerHTML = '';
+        suggestions.forEach(text => {
+          const chip = document.createElement('button');
+          chip.className = 'bonds-ai-suggestion';
+          chip.textContent = text;
+          chip.addEventListener('click', () => sendMessage(text));
+          suggestionsEl.appendChild(chip);
+        });
+        return;
+      }
+
       const city = context.cityName || context.cityCode || 'هذه المدينة';
       const activity = context.activityName || context.activityCode || 'هذا النشاط';
       const defaults = [
@@ -1569,6 +1650,7 @@
     async function sendMessage(text) {
       if (!text.trim() || state.isLoading) return;
       refreshContext();
+      await loadVerifiedServiceProfile();
       if (options.home === true) {
         root.classList.add('conversation-started');
       }
