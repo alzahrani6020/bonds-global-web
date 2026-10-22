@@ -12,6 +12,8 @@
   const ASSISTANT_PLAN_URL = '/api/v3/assistant/plan';
   const ASSISTANT_CONFIRMATION_PREPARE_URL = '/api/v3/assistant/confirmation/prepare';
   const ASSISTANT_CONFIRMATION_RESOLVE_URL = '/api/v3/assistant/confirmation/resolve';
+  const ASSISTANT_IDEMPOTENCY_CLAIM_URL = '/api/v3/assistant/idempotency/claim';
+  const ASSISTANT_IDEMPOTENCY_RESOLVE_URL = '/api/v3/assistant/idempotency/resolve';
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
 
@@ -542,6 +544,84 @@
       return data.confirmation;
     }
 
+    function stableFormSnapshot(form) {
+      const entries = [];
+      const data = new FormData(form);
+      data.forEach((value, name) => {
+        let normalized;
+        if (typeof File !== 'undefined' && value instanceof File) {
+          normalized = {
+            file_name:String(value.name || ''),
+            size:Number(value.size || 0),
+            type:String(value.type || ''),
+            last_modified:Number(value.lastModified || 0)
+          };
+        } else {
+          normalized = String(value);
+        }
+        entries.push([String(name), normalized]);
+      });
+      entries.sort((a, b) => {
+        const byName = a[0].localeCompare(b[0]);
+        if (byName) return byName;
+        return JSON.stringify(a[1]).localeCompare(JSON.stringify(b[1]));
+      });
+      return entries;
+    }
+
+    async function draftIdempotencyKey(formCode, boundary = contextBoundaryKey()) {
+      const form = document.querySelector('form');
+      if (!form) throw new Error('IDEMPOTENCY_FORM_UNAVAILABLE');
+      if (!window.crypto?.subtle || typeof TextEncoder === 'undefined') {
+        throw new Error('IDEMPOTENCY_CRYPTO_UNAVAILABLE');
+      }
+      const snapshot = JSON.stringify({
+        version:1,
+        boundary:String(boundary || ''),
+        action_type:'form_save_draft',
+        form_code:String(formCode || ''),
+        form:stableFormSnapshot(form)
+      });
+      const bytes = new TextEncoder().encode(snapshot);
+      const digest = await window.crypto.subtle.digest('SHA-256', bytes);
+      return Array.from(new Uint8Array(digest))
+        .map(byte => byte.toString(16).padStart(2, '0'))
+        .join('');
+    }
+
+    async function requestIdempotencyClaim(action, idempotencyKey) {
+      const res = await fetch(ASSISTANT_IDEMPOTENCY_CLAIM_URL, {
+        method:'POST',
+        headers:await getAuthHeaders(),
+        body:JSON.stringify({
+          action,
+          idempotency_key:idempotencyKey
+        })
+      });
+      const data = await res.json();
+      const state = data?.idempotency?.state || data?.error || 'IDEMPOTENCY_CLAIM_FAILED';
+      if (!res.ok && !['in_progress', 'uncertain', 'key_conflict'].includes(state)) {
+        throw new Error(state);
+      }
+      return data.idempotency || { state };
+    }
+
+    async function requestIdempotencyResolve(action, idempotencyKey, status, result) {
+      const res = await fetch(ASSISTANT_IDEMPOTENCY_RESOLVE_URL, {
+        method:'POST',
+        headers:await getAuthHeaders(),
+        body:JSON.stringify({
+          action,
+          idempotency_key:idempotencyKey,
+          status,
+          result
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.idempotency?.state || data?.error || 'IDEMPOTENCY_RESOLVE_FAILED');
+      return data.idempotency;
+    }
+
     function confirmationStateSummary(confirmation) {
       if (!confirmation || typeof confirmation !== 'object') return null;
       return {
@@ -670,30 +750,95 @@
             throw new Error('DRAFT_ADAPTER_NOT_AVAILABLE');
           }
 
-          const result = await adapter.saveDraft();
+          const idempotencyKey = await draftIdempotencyKey(
+            planned.target,
+            contextBoundaryKey()
+          );
+          const claim = await requestIdempotencyClaim(planned, idempotencyKey);
+
           if (
-            !result ||
-            result.ok !== true ||
-            !result.record_id ||
-            result.status !== 'draft'
+            claim.state === 'replay_succeeded' &&
+            claim.result?.ok === true &&
+            claim.result?.record_id &&
+            claim.result?.status === 'draft'
           ) {
-            throw new Error('DRAFT_VERIFICATION_FAILED');
+            patchAssistantContextState({
+              last_action:{
+                id:String(action.id || ''),
+                type:'form_save_draft',
+                target:String(planned.target || ''),
+                status:'replayed'
+              }
+            });
+            addAssistantMessage(
+              languageCode() === 'en'
+                ? 'This exact draft was already saved. The verified result was reused.'
+                : 'تم حفظ هذه المسودة نفسها مسبقًا. أُعيد استخدام النتيجة المتحقق منها.'
+            );
+            return;
           }
 
-          patchAssistantContextState({
-            last_action:{
-              id:String(action.id || ''),
-              type:'form_save_draft',
-              target:String(planned.target || ''),
-              status:'completed'
+          if (claim.state !== 'claimed') {
+            const code = claim.state === 'uncertain'
+              ? 'IDEMPOTENCY_UNCERTAIN'
+              : claim.state === 'in_progress'
+                ? 'IDEMPOTENCY_IN_PROGRESS'
+                : 'IDEMPOTENCY_KEY_CONFLICT';
+            throw new Error(code);
+          }
+
+          try {
+            const result = await adapter.saveDraft({ idempotency_key:idempotencyKey });
+            if (
+              !result ||
+              result.ok !== true ||
+              !result.record_id ||
+              result.status !== 'draft'
+            ) {
+              throw new Error('DRAFT_VERIFICATION_FAILED');
             }
-          });
-          addAssistantMessage(
-            languageCode() === 'en'
-              ? 'Draft saved and verified.'
-              : 'تم حفظ المسودة والتحقق منها.'
-          );
-          return;
+
+            const resolved = await requestIdempotencyResolve(
+              planned,
+              idempotencyKey,
+              'succeeded',
+              result
+            );
+            if (
+              !resolved ||
+              !['resolved_succeeded', 'replay_succeeded'].includes(resolved.state)
+            ) {
+              throw new Error('IDEMPOTENCY_RESOLVE_NOT_VERIFIED');
+            }
+
+            patchAssistantContextState({
+              last_action:{
+                id:String(action.id || ''),
+                type:'form_save_draft',
+                target:String(planned.target || ''),
+                status:'completed'
+              }
+            });
+            addAssistantMessage(
+              languageCode() === 'en'
+                ? 'Draft saved and verified.'
+                : 'تم حفظ المسودة والتحقق منها.'
+            );
+            return;
+          } catch (err) {
+            try {
+              await requestIdempotencyResolve(
+                planned,
+                idempotencyKey,
+                'uncertain',
+                null
+              );
+            } catch (_) {
+              // If resolve itself is unreachable, the server ledger remains
+              // started, which intentionally blocks replay of the same write.
+            }
+            throw err;
+          }
         }
 
         if (action.type === 'form_find' || action.type === 'form_load') {
