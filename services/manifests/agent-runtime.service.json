@@ -24,10 +24,6 @@
       "ai_tool_exposure": false
     }
   },
-  "limits": {
-    "rate_limit": { "requests_per_minute": 30 },
-    "retry": { "max_attempts": 0 }
-  },
   "observability": {
     "health_check": true,
     "audit": true,

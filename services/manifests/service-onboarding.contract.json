@@ -1,0 +1,46 @@
+{
+  "contract_version": 1,
+  "name": "provider-agnostic-service-onboarding",
+  "purpose": "Register governed AI and API services without coupling authorization to provider choice or performance ceilings.",
+  "security": {
+    "authorization_required": true,
+    "service_identity_required": true,
+    "audience_binding_required_for_service_tokens": true,
+    "scope_validation_required_for_service_tokens": true,
+    "revocation_supported": true,
+    "broker_one_time_tokens_supported": true
+  },
+  "performance": {
+    "provider_binding_required": false,
+    "model_binding_required": false,
+    "endpoint_binding_required": false,
+    "requests_per_minute_required": false,
+    "concurrency_limit_required": false,
+    "context_window_limit_required": false,
+    "payload_size_policy_required": false,
+    "retry_limit_required": false,
+    "token_authorization_must_not_define_compute_capacity": true
+  },
+  "onboarding": {
+    "required": [
+      "service_code",
+      "governance",
+      "security",
+      "observability",
+      "data",
+      "workflows",
+      "ai",
+      "capabilities"
+    ],
+    "optional_operational_tuning": [
+      "limits.rate_limit.requests_per_minute",
+      "limits.retry.max_attempts"
+    ]
+  },
+  "principles": [
+    "Authorization constrains who may invoke a service, not how capable the service may be.",
+    "Service tokens express identity, audience and scopes; they do not encode model, provider, throughput, context or compute ceilings.",
+    "Operational limits are opt-in per service and may be implemented outside the authorization layer.",
+    "Provider, model and endpoint selection remain runtime-configurable."
+  ]
+}
