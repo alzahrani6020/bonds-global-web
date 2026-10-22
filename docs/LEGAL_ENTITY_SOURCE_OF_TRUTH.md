@@ -66,6 +66,20 @@ The page also states `+ 52 نشاطاً آخر`, but those additional activities
 
 The supplied Ministry of Commerce documents identify `مكتب ثقة الذهبية للخدمات العامة` as a Saudi individual-establishment/branch record in Jeddah and identify Talal bin Hassan bin Mohammed Alzahrani in the registration/management data.
 
+## Saudi entity — Sado Golden
+
+### FACT — HIGH confidence
+
+The supplied Ministry of Commerce and Investment registration certificate identifies `مكتب سدو الذهبية للخدمات التجارية` as a Saudi registered establishment in Jeddah.
+
+The certificate records an activity scope that expressly includes consulting in public administration, financial management, marketing management, human-resources management, and production/operations management.
+
+### Compliance significance
+
+This is direct Saudi evidence for a registered activity scope covering management consulting and financial-management consulting for this establishment.
+
+It does not by itself establish CMA/SAMA/securities investment-advisory authorization, and it does not establish that this establishment is legally the same entity as `مؤسسة نيو بوندز` or the Egyptian Bonds company.
+
 ## Owner declaration regarding representation
 
 ### OWNER DECLARATION — MEDIUM confidence for operational relationship; not independent legal proof
@@ -100,6 +114,6 @@ Common ownership alone does not establish the exact legal capacity of representa
 - official document linking `مكتب ثقة الذهبية للخدمات العامة` to the Egyptian Bonds company in a defined legal representative/agency capacity;
 - clarification/resolution evidence for the Saudi Business Center status shown as `معلق`;
 - full official activity list for `مؤسسة نيو بوندز`, including any consulting activity if claimed;
-- professional consulting-license evidence if applicable;
+- confirmation of the current legal/operational relationship between `مكتب سدو الذهبية للخدمات التجارية`, `مؤسسة نيو بوندز`, and the Egyptian Bonds company if public copy is to consolidate them under one legal statement;
 - CMA/SAMA/other regulator authorization if regulated investment/securities advisory is offered;
 - approved legal review of Privacy/Terms entity attribution, governing-law/contact-address language, and liability provisions.
