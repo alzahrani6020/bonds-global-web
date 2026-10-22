@@ -6,7 +6,7 @@ const { EventEmitter } = require('events');
 
 const mockRpc = jest.fn();
 jest.mock('../../v3/lib/supabase', () => ({
-  getSupabaseClient: () => ({ mockRpc })
+  getSupabaseClient: () => ({ rpc: mockRpc })
 }));
 
 const { assistantRouter } = require('../../v3/api/assistant');
