@@ -464,8 +464,9 @@ describe('service token authorization', () => {
   test('introspection rejects revoked tokens', async () => {
     const runtime = {
       status: 'ok', service: 'bonds-token-service', issuer: 'bonds-token-service',
-      contract_version: 1, schema_version: 2, service_token_ttl_seconds: 3600,
-      build_commit: 'a'.repeat(40), channel_auth: 'required'
+      contract_version: 2, schema_version: 3, service_token_ttl_seconds: 3600,
+      build_commit: 'a'.repeat(40), channel_auth: 'required',
+      broker_auth: 'required', broker_mode: 'one_time_service_tokens'
     };
     const fetchImpl = jest.fn(async () => ({
       ok: true,
@@ -493,8 +494,9 @@ describe('service token authorization', () => {
   test('introspection returns only verified claims for active token', async () => {
     const runtime = {
       status: 'ok', service: 'bonds-token-service', issuer: 'bonds-token-service',
-      contract_version: 1, schema_version: 2, service_token_ttl_seconds: 3600,
-      build_commit: 'a'.repeat(40), channel_auth: 'required'
+      contract_version: 2, schema_version: 3, service_token_ttl_seconds: 3600,
+      build_commit: 'a'.repeat(40), channel_auth: 'required',
+      broker_auth: 'required', broker_mode: 'one_time_service_tokens'
     };
     const fetchImpl = jest.fn(async () => ({
       ok: true,
