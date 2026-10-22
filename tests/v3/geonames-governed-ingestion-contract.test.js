@@ -53,6 +53,9 @@ describe('GeoNames governed ingestion contract', () => {
     const workflow = read('.github/workflows/geonames-governed-ingestion.yml');
     const filter = read('scripts/filter-geonames-safe-candidates.js');
 
+    expect(workflow).toContain('export-production-cities-for-geonames.js');
+    expect(workflow).toContain('--output .tmp-geo/current-cities.json');
+    expect(workflow).not.toContain('/api/v3/cities?limit=2000');
     expect(workflow).toContain('filter-geonames-safe-candidates.js');
     expect(workflow).toContain('--max-rows 5000');
     expect(workflow).toContain('test "$SAFE_ROWS" -gt 0');
@@ -63,5 +66,17 @@ describe('GeoNames governed ingestion contract', () => {
     expect(workflow).not.toContain('node scripts/stage-local-geo-dataset.js | tee .tmp-geo/stage.log');
     expect(filter).toContain('direct canonical names only; unique source key; unique production city');
     expect(filter).not.toContain('row.aliases');
+  });
+
+  test('production city export is read-only and uncapped by the public API', () => {
+    const exporter = read('scripts/export-production-cities-for-geonames.js');
+
+    expect(exporter).toContain("await client.query('begin read only')");
+    expect(exporter).toContain('from public.cities');
+    expect(exporter).toContain('where is_active = true');
+    expect(exporter).not.toContain('.limit(');
+    expect(exporter).not.toContain('insert into');
+    expect(exporter).not.toContain('update ');
+    expect(exporter).not.toContain('delete from');
   });
 });
