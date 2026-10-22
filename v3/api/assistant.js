@@ -293,27 +293,12 @@ async function assistantRouter(req, res, path, user) {
         throw new Error('SENSITIVE_STATE_DIRECT_WRITE_FORBIDDEN');
       }
 
-      const supabase = getSupabaseClient();
-      const current = await loadWorkflowState({
-        supabase,
-        userId:user.id,
-        workflowKey:body.workflow_key
-      });
-      const state = (
-        current?.state?.sensitive_state &&
-        body.state &&
-        typeof body.state === 'object' &&
-        !Array.isArray(body.state)
-      )
-        ? { ...body.state, sensitive_state:current.state.sensitive_state }
-        : body.state;
-
       const workflow = await saveWorkflowState({
-        supabase,
+        supabase:getSupabaseClient(),
         userId:user.id,
         workflowKey:body.workflow_key,
         boundary:body.boundary,
-        state,
+        state:body.state,
         status:body.status,
         expectedVersion:body.expected_version
       });
