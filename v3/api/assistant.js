@@ -17,6 +17,7 @@ const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/d
 const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
 const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
 const { listOwnedDrafts } = require('../../lib/assistant/draft-center');
+const { buildAgentInbox } = require('../../lib/assistant/agent-inbox');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -547,6 +548,27 @@ async function assistantRouter(req, res, path, user) {
         'WORKFLOW_EVENT_STATUS_BLOCKED'
       ].includes(err.message);
       return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/inbox' && req.method === 'GET') {
+    try {
+      const agentInbox = await buildAgentInbox({
+        supabase:getSupabaseClient(),
+        userId:user.id
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        agent_inbox:agentInbox
+      });
+    } catch (err) {
+      const clientError = err.message === 'AGENT_INBOX_USER_REQUIRED';
+      return sendJson(res, clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
