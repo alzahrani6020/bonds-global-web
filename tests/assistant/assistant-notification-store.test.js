@@ -56,7 +56,8 @@ describe('assistant durable notification store', () => {
         event_id:'e-1'
       })],
       expect.objectContaining({
-        onConflict:'user_id,notification_id'
+        onConflict:'user_id,notification_id',
+        ignoreDuplicates:true
       })
     );
   });
