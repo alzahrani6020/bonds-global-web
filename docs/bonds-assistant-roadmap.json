@@ -1,0 +1,873 @@
+{
+  "schema_version": 1,
+  "name": "bonds-assistant-roadmap",
+  "repository": "alzahrani6020/bonds-global-web",
+  "baseline_main_sha": "20c3c990b30f2a9ceaac0e6b2d8157a236c9fb51",
+  "created_at": "2026-10-22",
+  "language": "ar",
+  "status": "planned",
+  "current_phase": "assistant-v1",
+  "source_of_truth": "docs/BONDS_ASSISTANT_MASTER_PLAN.md",
+  "immutable_principles": [
+    "authorization_constrains_who_not_ai_compute_capacity",
+    "no_arbitrary_model_generated_execution",
+    "structured_actions_only",
+    "sensitive_actions_require_governance_and_confirmation",
+    "ai_inference_must_not_silently_become_confirmed_business_data",
+    "financial_calculations_use_deterministic_calculators",
+    "service_token_security_invariants_must_not_be_weakened"
+  ],
+  "existing_foundations": {
+    "ai_chat_widget": "implemented",
+    "inference_router": "implemented",
+    "ai_orchestrator": "implemented",
+    "capability_registry": "implemented",
+    "capability_planner": "implemented",
+    "governance_gateway": "implemented",
+    "governed_executor": "implemented",
+    "dynamic_form_engine": "implemented",
+    "funding_file_architecture": "implemented",
+    "service_token_broker": "implemented_production",
+    "provider_agnostic_onboarding": "implemented_production"
+  },
+  "proposals": [
+    {
+      "id": 1,
+      "title": "BONDS Assistant V1",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 2,
+      "title": "Assistant API /api/v3/assistant",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 3,
+      "title": "BONDS_ASSISTANT_PROTOCOL_V1",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 4,
+      "title": "Structured Response Contract",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 5,
+      "title": "Structured Actions",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 6,
+      "title": "Assistant operating modes",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 7,
+      "title": "Separate understanding from execution",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 8,
+      "title": "Separate planning from execution",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 9,
+      "title": "Intent Confidence Engine",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 10,
+      "title": "Plan Optimizer",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 11,
+      "title": "Deterministic Planner",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 12,
+      "title": "Missing-Data Resolver",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 13,
+      "title": "Explain-Then-Act",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 14,
+      "title": "Dry Run / Simulation",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 15,
+      "title": "Preview Before Execute",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 16,
+      "title": "Before/After Diff",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 17,
+      "title": "Action Receipts",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 18,
+      "title": "Explainability Log",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 19,
+      "title": "Permission Explainability",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 20,
+      "title": "Error Taxonomy",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 21,
+      "title": "Central Capability Registry",
+      "phase": "foundation",
+      "status": "implemented_base_extend"
+    },
+    {
+      "id": 22,
+      "title": "Capability Discovery",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 23,
+      "title": "Capability Attestation",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 24,
+      "title": "Capability Versioning",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 25,
+      "title": "Capability Bundles",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 26,
+      "title": "No ghost capabilities",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 27,
+      "title": "Tool Sandboxing",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 28,
+      "title": "Tool Output Validation",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 29,
+      "title": "UI Action Bus",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 30,
+      "title": "Safe Retry Policy",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 31,
+      "title": "site_navigate",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 32,
+      "title": "section_open",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 33,
+      "title": "form_find",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 34,
+      "title": "form_load",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 35,
+      "title": "form_prefill",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 36,
+      "title": "form_validate",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 37,
+      "title": "form_save_draft",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 38,
+      "title": "form_submit",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 39,
+      "title": "project_status",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 40,
+      "title": "project_update",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 41,
+      "title": "funding_status",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 42,
+      "title": "funding_next_step",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 43,
+      "title": "funding_next_requirements",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 44,
+      "title": "document_find",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 45,
+      "title": "document_attach",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 46,
+      "title": "calculator_open",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 47,
+      "title": "calculator_run",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 48,
+      "title": "help_explain",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 49,
+      "title": "service_discover",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 50,
+      "title": "request_create",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 51,
+      "title": "external_send",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 52,
+      "title": "consent_accept",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 53,
+      "title": "payment_action",
+      "phase": "phase4",
+      "status": "deferred"
+    },
+    {
+      "id": 54,
+      "title": "Navigation Registry",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 55,
+      "title": "Disallow model-invented URLs",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 56,
+      "title": "Bilingual route resolution",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 57,
+      "title": "Deep Links",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 58,
+      "title": "UI Highlighting",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 59,
+      "title": "Semantic Site Search",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 60,
+      "title": "Semantic Site Index",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 61,
+      "title": "Self-Healing Registry",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 62,
+      "title": "Registry Validation in CI",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 63,
+      "title": "Link Verification",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 64,
+      "title": "Form Registry",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 65,
+      "title": "Inline Forms",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 66,
+      "title": "Progressive Forms",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 67,
+      "title": "Form Copilot",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 68,
+      "title": "Prefill",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 69,
+      "title": "Field Provenance",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 70,
+      "title": "Suggested vs Confirmed values",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 71,
+      "title": "Confidence for inferred values",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 72,
+      "title": "Consistency Validation",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 73,
+      "title": "Draft-first Editing",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 74,
+      "title": "Form Schema Versioning",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 75,
+      "title": "Backward Compatibility",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 76,
+      "title": "User Journey Engine",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 77,
+      "title": "Next-Step Engine",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 78,
+      "title": "Funding File Integration",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 79,
+      "title": "Goal Graph",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 80,
+      "title": "Task Graph",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 81,
+      "title": "Cross-Page State",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 82,
+      "title": "Task Resume",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 83,
+      "title": "Cancelable Workflows",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 84,
+      "title": "Pause/Resume Workflows",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 85,
+      "title": "Workflow Versioning",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 86,
+      "title": "Sensitive Workflow State Machine",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 87,
+      "title": "Agent Inbox",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 88,
+      "title": "Draft Center",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 89,
+      "title": "Notification Engine",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 90,
+      "title": "Event-Driven Assistant",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 91,
+      "title": "Assistant State Store",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 92,
+      "title": "Structured Conversation State",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 93,
+      "title": "Context Summarization",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 94,
+      "title": "Context Boundary",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 95,
+      "title": "Identity Graph",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 96,
+      "title": "Operational Digital Twin",
+      "phase": "phase4",
+      "status": "deferred"
+    },
+    {
+      "id": 97,
+      "title": "Context Firewall",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 98,
+      "title": "Data Classification",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 99,
+      "title": "PII Redaction",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 100,
+      "title": "Provider Trust Policy",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 101,
+      "title": "Privacy Controls",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 102,
+      "title": "Data Retention Policies",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 103,
+      "title": "Document Assistant",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 104,
+      "title": "Document Classification",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 105,
+      "title": "Document Field Extraction",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 106,
+      "title": "Document-to-Workflow",
+      "phase": "phase2",
+      "status": "planned"
+    },
+    {
+      "id": 107,
+      "title": "Prompt Injection Firewall",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 108,
+      "title": "Calculation Authority Separation",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 109,
+      "title": "Calculator Orchestration",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 110,
+      "title": "Evidence Binding",
+      "phase": "phase1",
+      "status": "planned"
+    },
+    {
+      "id": 111,
+      "title": "Action Token",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 112,
+      "title": "Workflow Token",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 113,
+      "title": "Confirmation Token",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 114,
+      "title": "Resource-Bound Token",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 115,
+      "title": "Token Exchange",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 116,
+      "title": "Delegation Chain",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 117,
+      "title": "Token Lineage",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 118,
+      "title": "Token Families",
+      "phase": "phase3",
+      "status": "deferred"
+    },
+    {
+      "id": 119,
+      "title": "Revocation Epoch",
+      "phase": "phase4",
+      "status": "deferred"
+    },
+    {
+      "id": 120,
+      "title": "Proof-of-Possession",
+      "phase": "phase4",
+      "status": "deferred"
+    },
+    {
+      "id": 121,
+      "title": "Asymmetric Signing / JWKS",
+      "phase": "phase4",
+      "status": "deferred"
+    },
+    {
+      "id": 122,
+      "title": "KMS/HSM",
+      "phase": "phase4",
+      "status": "deferred"
+    },
+    {
+      "id": 123,
+      "title": "Credential Vault",
+      "phase": "phase3",
+      "status": "deferred"
+    }
+  ],
+  "supporting_workstreams": [
+    "per_service_key_isolation",
+    "key_rotation_with_overlap",
+    "environment_binding",
+    "tenant_isolation",
+    "region_binding_optional",
+    "risk_based_authorization",
+    "dynamic_confirmation",
+    "idempotency_ledger",
+    "action_replay_protection",
+    "undo_compensating_actions",
+    "human_escalation",
+    "human_approval_queue",
+    "employee_assistant_mode",
+    "emergency_kill_switch",
+    "read_only_emergency_mode",
+    "anomaly_detection",
+    "safe_introspection_cache",
+    "policy_as_code",
+    "policy_simulation",
+    "shadow_authorization",
+    "operational_dashboard",
+    "assistant_control_center",
+    "user_control_center",
+    "audit_search",
+    "operational_replay",
+    "cost_governance_separate_from_auth",
+    "per_task_budget",
+    "latency_aware_routing",
+    "streaming",
+    "parallel_tool_execution",
+    "multi_agent_later",
+    "critic_verifier_for_sensitive_tasks",
+    "multi_model_consensus_only_for_critical_tasks",
+    "voice_later",
+    "multimodal_later",
+    "accessibility",
+    "synthetic_production_journeys",
+    "golden_conversations",
+    "assistant_evaluations",
+    "red_team_scenarios",
+    "end_to_end_ci_journeys",
+    "outcome_analytics",
+    "journey_analytics",
+    "conversion_metrics"
+  ],
+  "phase1_order": [
+    "assistant_protocol",
+    "assistant_api",
+    "navigation_registry",
+    "form_registry",
+    "structured_actions",
+    "site_navigate",
+    "form_find",
+    "form_load",
+    "funding_status",
+    "funding_next_step",
+    "project_status",
+    "calculator_capabilities",
+    "chat_widget_action_renderer",
+    "context_state",
+    "prefill_provenance",
+    "confirmation_engine",
+    "save_draft",
+    "idempotency",
+    "audit_trail",
+    "e2e_tests",
+    "security_red_team_tests",
+    "production_rollout"
+  ],
+  "completed": [
+    "service_token_broker",
+    "single_use_broker_tokens",
+    "capability_governance_base",
+    "dynamic_form_engine",
+    "funding_file_architecture",
+    "ai_chat_widget_base",
+    "native_inference_router",
+    "provider_agnostic_service_onboarding"
+  ],
+  "next": [
+    "BONDS_ASSISTANT_PROTOCOL_V1",
+    "/api/v3/assistant",
+    "navigation-registry.json",
+    "form-registry.json",
+    "structured-actions"
+  ],
+  "deferred": [
+    "action_tokens",
+    "workflow_tokens",
+    "confirmation_tokens",
+    "token_exchange",
+    "jwks",
+    "kms_hsm",
+    "full_multi_agent",
+    "operational_digital_twin",
+    "voice",
+    "multimodal"
+  ],
+  "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر."
+}
