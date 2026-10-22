@@ -425,6 +425,27 @@ async function assistantRouter(req, res, path, user) {
     }
   }
 
+  if (path === '/assistant/drafts' && req.method === 'GET') {
+    try {
+      const result = await listOwnedDrafts({
+        supabase:getSupabaseClient(),
+        userId:user.id
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        draft_center:result
+      });
+    } catch (err) {
+      const clientError = err.message === 'DRAFT_CENTER_USER_REQUIRED';
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
   if (path === '/assistant/plan' && req.method === 'POST') {
     let body;
     try { body = await parseBody(req); }
