@@ -6,14 +6,13 @@
  */
 
 const { getSupabaseClient } = require('../lib/supabase');
-const { requireAdminAccess, requireAgentInboxAccess, requireHumanApprovalAccess, requireAssistantKillSwitchAccess } = require('../lib/admin-access');
+const { requireAdminAccess, requireAgentInboxAccess, requireHumanApprovalAccess } = require('../lib/admin-access');
 const {
   listAgentInbox,
   updateAgentInboxItem,
   listAgentAssignees
 } = require('../../lib/assistant/agent-inbox-queue');
 const { listHumanApprovalQueue, decideHumanApproval } = require('../../lib/assistant/human-approval');
-const { listAssistantKillSwitches, setAssistantKillSwitch } = require('../../lib/assistant/emergency-kill-switch');
 const { calibrateCompetitorCounts } = require('../engine/data-acquisition/CompetitorCalibration');
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
 
@@ -963,52 +962,6 @@ async function handleHumanApprovalsAdmin(req,res,parts,access){
   return sendJson(res,405,{success:false,error:'Method not allowed'});
 }
 
-async function handleAssistantKillSwitchAdmin(req,res,access){
-  const supabase=getSupabaseClient();
-
-  if(req.method==='GET'){
-    try{
-      const switches=await listAssistantKillSwitches({supabase});
-      return sendJson(res,200,{success:true,role:access.role,assistant_kill_switches:switches});
-    }catch(err){
-      return sendJson(res,503,{success:false,error:err.message});
-    }
-  }
-
-  if(req.method==='POST'){
-    let body;
-    try{body=await parseBody(req);}
-    catch(_err){return sendJson(res,400,{success:false,error:'Invalid JSON body'});}
-
-    try{
-      const killSwitch=await setAssistantKillSwitch({
-        supabase,
-        feature:body.feature,
-        disabled:body.disabled,
-        reason:body.reason,
-        expiresAt:body.expires_at,
-        actorUserId:access.user?.id||null
-      });
-      return sendJson(res,200,{
-        success:true,
-        kill_switch:killSwitch,
-        execution_authorized:false
-      });
-    }catch(err){
-      const clientError=[
-        'ASSISTANT_KILL_SWITCH_FEATURE_INVALID',
-        'ASSISTANT_KILL_SWITCH_EXPIRY_INVALID',
-        'ASSISTANT_KILL_SWITCH_EXPIRY_NOT_FUTURE',
-        'ASSISTANT_KILL_SWITCH_DISABLED_REQUIRED',
-        'ASSISTANT_KILL_SWITCH_ACTOR_REQUIRED'
-      ].includes(err.message);
-      return sendJson(res,clientError?422:503,{success:false,error:err.message});
-    }
-  }
-
-  return sendJson(res,405,{success:false,error:'Method not allowed'});
-}
-
 async function handleAgentInboxAdmin(req, res, parts, access) {
   const supabase = getSupabaseClient();
   const itemId = parts[2] || null;
@@ -1078,12 +1031,6 @@ async function adminRouter(req, res, path) {
     const access=await requireHumanApprovalAccess(req);
     if(!access)return sendJson(res,401,{error:'Unauthorized'});
     return handleHumanApprovalsAdmin(req,res,parts,access);
-  }
-
-  if (resource === 'assistant-kill-switches') {
-    const access=await requireAssistantKillSwitchAccess(req);
-    if(!access)return sendJson(res,401,{error:'Unauthorized'});
-    return handleAssistantKillSwitchAdmin(req,res,access);
   }
 
   if (resource === 'agent-inbox') {
