@@ -60,15 +60,16 @@ describe('Supabase migration integrity', () => {
     expect(unexpected).toEqual([]);
   });
 
-  test('known legacy duplicate timestamps remain unchanged', () => {
+  test('known legacy duplicate timestamps may be resolved but never expand', () => {
     const files = fs.readdirSync(MIGRATIONS_DIR);
 
-    for (const [timestamp, expectedFiles] of Object.entries(LEGACY_DUPLICATES)) {
+    for (const [timestamp, allowedFiles] of Object.entries(LEGACY_DUPLICATES)) {
       const actual = files
         .filter(name => name.startsWith(`${timestamp}_`) && name.endsWith('.sql'))
         .sort();
+      const allowed = new Set(allowedFiles);
 
-      expect(actual).toEqual([...expectedFiles].sort());
+      expect(actual.every(name => allowed.has(name))).toBe(true);
     }
   });
 
