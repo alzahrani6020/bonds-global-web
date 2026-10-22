@@ -18,7 +18,7 @@ const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workfl
 const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
 const { listOwnedDrafts } = require('../../lib/assistant/draft-center');
 const { buildAgentInbox } = require('../../lib/assistant/agent-inbox');
-const { deriveAgentInboxItem, enqueueAgentInboxItem } = require('../../lib/assistant/agent-inbox-queue');
+const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxItem } = require('../../lib/assistant/agent-inbox-queue');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -503,10 +503,15 @@ async function assistantRouter(req, res, path, user) {
           workflow:result.workflow,
           userId:user.id
         });
-        agentInboxResult = await enqueueAgentInboxItem({
+        const sourceOwned = await verifyAgentInboxItemOwnership({
           supabase,
+          userId:user.id,
+          event:result.event,
           item:agentInboxItem
         });
+        agentInboxResult = sourceOwned
+          ? await enqueueAgentInboxItem({ supabase, item:agentInboxItem })
+          : { queued:false, skipped:true, reason:'source_not_owned_or_not_reviewable' };
       } catch (agentInboxError) {
         console.warn('[assistant-agent-inbox]', agentInboxError.message);
       }
