@@ -886,10 +886,13 @@
     "idempotency",
     "idempotency_ledger",
     "action_replay_protection",
-    "safe_retry_policy"
+    "safe_retry_policy",
+    "audit_trail",
+    "assistant_action_audit",
+    "immutable_action_log"
   ],
   "next": [
-    "audit_trail"
+    "end_to_end_assistant_journey_tests"
   ],
   "deferred": [
     "action_tokens",
@@ -906,7 +909,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-idempotency-v2",
-    "change": "Added persistent server-side Assistant V1 write idempotency for form_save_draft using a Supabase ledger and atomic claim/resolve RPCs. The client hashes the exact form snapshot, claims before writing, reuses verified completed results, and blocks in-progress or uncertain replay after network ambiguity. Idempotency remains separate from authorization and tokens."
+    "branch": "feat/bonds-assistant-audit-trail",
+    "change": "Added Assistant V1 immutable server-side action audit trail covering planning, confirmation, idempotency claim/replay, write success and uncertain outcomes. Audit metadata is bounded, idempotency keys are hashed, direct client mutations are revoked, and audit logging is observability-only rather than authorization or AI/API capability gating."
   }
 }
