@@ -612,7 +612,8 @@ parent/child relationships بين التوكنات.
 - Event-Driven Assistant: **IMPLEMENTED_BASE / API ACCEPTANCE COVERED** — explicit event registry, stable event IDs, bounded replay protection, exact workflow boundary enforcement, suggestion-only reactions, immutable audit lifecycle, and duplicate-notification suppression.
 - Notifications: **IMPLEMENTED_BASE / API + DURABLE INBOX COVERED** — durable user-scoped storage, deterministic deduplication, unread/read lifecycle, authenticated retrieval, replay-safe persistence, bilingual widget inbox, and governed logical actions only.
 - Draft Center: **IMPLEMENTED_BASE / API ACCEPTANCE COVERED** — authenticated read-only unified view over owned editable drafts, schema-verified source selects, exact ownership/status/subject filtering, canonical form-registry navigation, partial-source tolerance, and explicit no-submit/no-write/no-execution policy.
-- العنصر التالي الرسمي: **Agent Inbox**.
+- Agent Inbox: **IMPLEMENTED_BASE / API ACCEPTANCE COVERED / PRODUCTION VERIFIED** — user-scoped read-only aggregation of active/paused workflow requirements, pending confirmations, open tasks, owned editable drafts, and unread notification context with no confirmation-payload exposure and no execution authority.
+- العنصر التالي الرسمي: **Sensitive Workflow State Machine**.
 - Action token: **NOT IMPLEMENTED**
 - Workflow token: **NOT IMPLEMENTED**
 - Confirmation token: **NOT IMPLEMENTED**
