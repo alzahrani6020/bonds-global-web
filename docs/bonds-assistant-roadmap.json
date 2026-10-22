@@ -665,7 +665,7 @@
       "id": 106,
       "title": "Document-to-Workflow",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 107,
@@ -896,10 +896,11 @@
     "assistant_red_team_scenarios",
     "production_rollout",
     "assistant_v1_production_acceptance",
-    "persistent_workflow_state"
+    "persistent_workflow_state",
+    "document_assistant_classification_extraction"
   ],
   "next": [
-    "document_assistant_classification_extraction"
+    "document_to_workflow"
   ],
   "deferred": [
     "action_tokens",
@@ -916,8 +917,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-document-intelligence",
-    "change": "Phase 2 document intelligence started on production-ready workflow state. Added governed owner-bound document reads, deterministic classification, deterministic field extraction with provenance, and prompt-injection boundary marking document content as data only. Completion remains gated on CI PASS and merge."
+    "branch": "feat/assistant-document-to-workflow",
+    "change": "Phase 2 document intelligence is complete in production on SHA 7243c8455ce3d7c7032afb5a914907878b9a68d4. Started Document-to-Workflow with suggestion-only mapping from owned document classification to funding requirements, completion-aware filtering, project-boundary checks, and explicit auto-write prohibition."
   },
   "production_rollout": {
     "status": "complete",

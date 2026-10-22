@@ -14,6 +14,7 @@ const { getSupabaseClient } = require('../lib/supabase');
 const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
+const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -343,6 +344,37 @@ async function assistantRouter(req, res, path, user) {
     } catch (err) {
       const clientError = ['DOCUMENT_ID_REQUIRED','DOCUMENT_USER_REQUIRED'].includes(err.message);
       return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/documents/workflow-suggestions' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const result = await suggestDocumentWorkflow({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        documentId:body.document_id,
+        caseId:body.case_id
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:result ? 'completed' : 'not_found',
+        workflow:result
+      });
+    } catch (err) {
+      const conflict = err.message === 'DOCUMENT_CASE_PROJECT_CONFLICT';
+      const clientError = [
+        'DOCUMENT_ID_REQUIRED','DOCUMENT_USER_REQUIRED',
+        'FUNDING_CASE_ID_REQUIRED','WORKFLOW_USER_REQUIRED'
+      ].includes(err.message);
+      return sendJson(res, conflict ? 409 : clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
