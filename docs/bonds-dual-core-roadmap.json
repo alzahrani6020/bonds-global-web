@@ -66,11 +66,16 @@
         {
           "id": "p1.7",
           "title": "Assistant/Core A outcome bridge",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p1.8",
           "title": "Core B learning consumer",
+          "status": "completed"
+        },
+        {
+          "id": "p1.9",
+          "title": "Durable evolution proposal aggregation",
           "status": "implemented_candidate"
         }
       ]
