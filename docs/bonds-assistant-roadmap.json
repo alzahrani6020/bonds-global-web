@@ -911,10 +911,11 @@
     "employee_assistant_mode",
     "emergency_kill_switch",
     "read_only_emergency_mode",
-    "anomaly_detection"
+    "anomaly_detection",
+    "safe_introspection_cache"
   ],
   "next": [
-    "safe_introspection_cache"
+    "policy_as_code"
   ],
   "deferred": [
     "action_tokens",
@@ -931,8 +932,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-anomaly-detection",
-    "change": "Anomaly Detection implemented_base with deterministic rules over immutable assistant_action_audit data, bounded admin scan/persist endpoints, privacy-preserving subject references, best-effort deduplication into existing admin_alerts, and explicit no-auto-block/no-execution/no-AI-scoring semantics. Next: safe_introspection_cache."
+    "branch": "feat/assistant-safe-introspection-cache",
+    "change": "Safe Introspection Cache implemented_base as a bounded in-memory informational cache for non-sensitive Assistant introspection only. It caches protocol/registry counts, action types, and bounded emergency-mode status for a short TTL; it is never an authorization or execution source, stores no user/session data or secrets, and does not alter kill-switch enforcement. Next: policy_as_code."
   },
   "production_rollout": {
     "status": "complete",
