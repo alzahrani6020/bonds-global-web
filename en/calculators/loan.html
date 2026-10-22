@@ -1115,7 +1115,7 @@
       }
       if (r.schedule.length > 13) {
         var last = r.schedule[r.schedule.length - 1];
-        rows += '<tr style="background:#e8f0fe;"><td style="padding:6px; border:1px solid #ddd; font-size:12px; font-weight:bold;">' + last.period + ' ' + freqLabel + ' (الأخير)</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.installment) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.principal) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.interest) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.balance) + '</td></tr>';
+        rows += '<tr style="background:#e8f0fe;"><td style="padding:6px; border:1px solid #ddd; font-size:12px; font-weight:bold;">' + last.period + ' ' + freqLabel + ' (last)</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.installment) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.principal) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.interest) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(last.balance) + '</td></tr>';
       }
       rows += '<tr style="background:rgba(212,168,83,0.15); font-weight:bold;"><td style="padding:6px; border:1px solid #ddd; font-size:12px;">Total</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(r.installment * r.totalPayments) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(r.totalPrincipalPaid) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">' + formatNumber(r.totalInterestPaid) + '</td><td style="padding:6px; border:1px solid #ddd; font-size:12px;">—</td></tr>';
 
@@ -1127,7 +1127,7 @@
 
       var printWindow = window.open('', '_blank');
       if (!printWindow) {
-        BondsUI.toast('⚠️ تم حظر النافذة المنبثقة. يرجى السماح بالنوافذ المنبثقة لهذا الموقع.', 'warning');
+        BondsUI.toast('⚠️ Popup blocked. Please allow popups for this site.', 'warning');
         return;
       }
 
@@ -1136,22 +1136,22 @@
         \u003Chtml dir="ltr">
         \u003Chead>
           <meta charset="UTF-8">
-          <title>تقرير القرض والتمويل - بوندز</title>
+          <title>Loan and Financing Report - Bonds</title>
           
         \u003C/head>
         \u003Cbody>
           <div class="header">
-            <h1>بوندز</h1>
-            <p style="font-size:16px; font-weight:700; color:#444; margin:4px 0;">للاستشارات المالية</p>
-            <p>تقرير القرض والتمويل</p>
-            <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('ar-SA')}</p>
+            <h1>Bonds</h1>
+            <p style="font-size:16px; font-weight:700; color:#444; margin:4px 0;">Financial Advisory</p>
+            <p>Loan and Financing Report</p>
+            <p style="color:#999; font-size:12px;">${new Date().toLocaleDateString('en-SA')}</p>
           </div>
-          <h3>بيانات الإدخال</h3>
+          <h3>Input Data</h3>
           <table>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">Loan Amount</td><td>${formatNumber(inputs.loanAmount)} SAR</td></tr>
             <tr><td style="font-weight:bold;">Down Payment</td><td>${formatNumber(inputs.downPayment)} SAR</td></tr>
-            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">Interest Rate السنوية</td><td>${inputs.interestRate}%</td></tr>
-            <tr><td style="font-weight:bold;">مدة القرض (شهر)</td><td>${inputs.loanTerm}</td></tr>
+            <tr style="background:#f5f5f5;"><td style="font-weight:bold;">Annual Interest Rate</td><td>${inputs.interestRate}%</td></tr>
+            <tr><td style="font-weight:bold;">Loan Term (months)</td><td>${inputs.loanTerm}</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">Payment Frequency</td><td>${inputs.frequency === 'monthly' ? 'Monthly' : 'Quarterly'}</td></tr>
             <tr><td style="font-weight:bold;">Interest Method</td><td>${inputs.interestMethod === 'fixed' ? 'Fixed (flat)' : 'Declining balance'}</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">Borrower Type</td><td>${inputs.borrowerType === 'company' ? 'Company' : 'Individual'}</td></tr>
@@ -1173,8 +1173,8 @@
             <tr><td style="font-weight:bold;">Total Amount Paid</td><td>${formatNumber(r.totalPaid)} SAR</td></tr>
             <tr style="background:#f5f5f5;"><td style="font-weight:bold;">Effective Annual Rate</td><td>${(r.ear * 100).toFixed(2)}%</td></tr>
           </table>
-          <h3>الرسوم البيانية</h3>
-          ${img1 ? '<img class="chart-img" src="' + img1 + '" alt="أصل الدين مقابل Interest" style="max-width:300px; margin:15px auto; display:block;"  loading="lazy" decoding="async" />' : ''}
+          <h3>Charts</h3>
+          ${img1 ? '<img class="chart-img" src="' + img1 + '" alt="Principal vs Interest" style="max-width:300px; margin:15px auto; display:block;"  loading="lazy" decoding="async" />' : ''}
           ${img2 ? '<img class="chart-img" src="' + img2 + '" alt="Remaining Balance"  loading="lazy" decoding="async" />' : ''}
           <h3>Amortization Schedule</h3>
           <table>
