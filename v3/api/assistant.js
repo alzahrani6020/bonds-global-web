@@ -11,6 +11,7 @@ const forms = require('../../lib/assistant/form-registry.json');
 const { prepareConfirmation, resolveConfirmation } = require('../../lib/assistant/confirmation-engine');
 const { claimAssistantAction, resolveAssistantAction } = require('../../lib/assistant/idempotency');
 const { getSupabaseClient } = require('../lib/supabase');
+const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -63,6 +64,16 @@ async function assistantRouter(req, res, path, user) {
 
     try {
       const confirmation = prepareConfirmation(body.action, { language:body.language });
+      await appendAssistantAuditBestEffort({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        action:body.action,
+        eventType:'confirmation_prepared',
+        outcome:confirmation.status,
+        sessionId:body.session_id,
+        boundary:body.boundary,
+        metadata:{ confirmation_status:confirmation.status }
+      });
       return sendJson(res, 200, {
         protocol:PROTOCOL,
         status:confirmation.required ? 'needs_confirmation' : 'ready',
@@ -84,6 +95,16 @@ async function assistantRouter(req, res, path, user) {
 
     try {
       const confirmation = resolveConfirmation(body.action, body.confirmation, body.decision);
+      await appendAssistantAuditBestEffort({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        action:body.action,
+        eventType:'confirmation_resolved',
+        outcome:confirmation.status,
+        sessionId:body.session_id,
+        boundary:body.boundary,
+        metadata:{ decision:body.decision, confirmation_status:confirmation.status }
+      });
       return sendJson(res, 200, {
         protocol:PROTOCOL,
         status:confirmation.status === 'confirmed' ? 'completed' : 'denied',
@@ -111,6 +132,16 @@ async function assistantRouter(req, res, path, user) {
         idempotencyKey:body.idempotency_key
       });
       const conflict = ['in_progress', 'uncertain', 'key_conflict'].includes(idempotency.state);
+      await appendAssistantAuditBestEffort({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        action:body.action,
+        eventType:idempotency.state === 'replay_succeeded' ? 'replayed' : 'idempotency_claimed',
+        outcome:idempotency.state,
+        idempotencyKey:body.idempotency_key,
+        sessionId:body.session_id,
+        boundary:body.boundary
+      });
       return sendJson(res, conflict ? 409 : 200, {
         protocol:PROTOCOL,
         status: conflict ? 'denied' : 'ready',
@@ -145,6 +176,21 @@ async function assistantRouter(req, res, path, user) {
         result:body.result
       });
       const conflict = ['missing', 'key_conflict', 'uncertain'].includes(idempotency.state);
+      const auditEvent = body.status === 'succeeded'
+        ? 'write_succeeded'
+        : 'write_uncertain';
+      await appendAssistantAuditBestEffort({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        action:body.action,
+        eventType:auditEvent,
+        outcome:idempotency.state,
+        idempotencyKey:body.idempotency_key,
+        resourceId:body.result?.record_id,
+        sessionId:body.session_id,
+        boundary:body.boundary,
+        metadata:{ requested_status:body.status }
+      });
       return sendJson(res, conflict ? 409 : 200, {
         protocol:PROTOCOL,
         status: conflict ? 'denied' : 'completed',
@@ -174,6 +220,23 @@ async function assistantRouter(req, res, path, user) {
       target:body.target,
       form:body.form,
       language:body.language
+    });
+    const plannedAction = Array.isArray(result.actions) ? result.actions[0] : {
+      id:null,
+      type:body.type || 'unknown',
+      target:body.target || body.form || null,
+      risk:null,
+      requires_confirmation:false
+    };
+    await appendAssistantAuditBestEffort({
+      supabase:getSupabaseClient(),
+      userId:user.id,
+      action:plannedAction,
+      eventType:result.status === 'denied' ? 'denied' : 'planned',
+      outcome:result.status,
+      sessionId:body.session_id,
+      boundary:body.boundary,
+      metadata:{ code:result.context?.code || null }
     });
     return sendJson(res, result.status === 'denied' ? 422 : 200, result);
   }
