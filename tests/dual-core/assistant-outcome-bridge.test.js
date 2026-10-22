@@ -98,4 +98,26 @@ describe('assistant outcome bridge', () => {
       metadata:{service_code:'svc-1'}
     })).resolves.toEqual(expect.objectContaining({ok:false}));
   });
+  test('keeps learning success when proposal aggregation is unavailable', async () => {
+    const inserts=[];
+    const supabase={
+      from:jest.fn(()=>({
+        insert:row=>{
+          inserts.push(row);
+          return { select:()=>({ single:async()=>({data:{id:'x',...row},error:null}) }) };
+        }
+      })),
+      rpc:jest.fn().mockResolvedValue({data:null,error:{message:'proposal store unavailable'}})
+    };
+    const result=await publishAssistantOutcomeBestEffort({
+      supabase,
+      type:EVENT_TYPES.CAPABILITY_FAILED,
+      metadata:{service_code:'svc-3'}
+    });
+    expect(result.ok).toBe(true);
+    expect(result.learned).toBe(true);
+    expect(result.aggregated).toBe(false);
+    expect(inserts).toHaveLength(1);
+  });
+
 });
