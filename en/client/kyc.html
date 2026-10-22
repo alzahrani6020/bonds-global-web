@@ -258,7 +258,7 @@
     }
 
     async function save(status){
-      if(!sb||!user) return;
+      if(!sb||!user) return false;
       const payload=buildPayload(status);
       let result;
       if(currentCase?.id) result=await sb.from('client_kyc_cases').update(payload).eq('id',currentCase.id).select().single();
@@ -276,9 +276,9 @@
         if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){
           return {ok:false,code:'FORM_NOT_EDITABLE',record_id:before.id||null,status:before.status};
         }
-        await save('draft');
+        const saveOk=await save('draft');
         const saved=currentCase;
-        const ok=!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
+        const ok=saveOk===true&&!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
         return {ok,code:ok?'DRAFT_SAVED':'DRAFT_NOT_VERIFIED',record_id:saved?.id||null,status:saved?.status||null};
       }
     };
