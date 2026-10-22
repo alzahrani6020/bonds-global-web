@@ -685,7 +685,6 @@ async function assistantRouter(req, res, path, user) {
         expectedVersion:body.expected_version,
         reasonCode:body.reason_code,
         summary:body.summary,
-        priority:body.priority,
         idempotencyKey:body.idempotency_key
       });
 
@@ -738,7 +737,6 @@ async function assistantRouter(req, res, path, user) {
         'HUMAN_ESCALATION_VERSION_REQUIRED',
         'HUMAN_ESCALATION_IDEMPOTENCY_KEY_INVALID',
         'HUMAN_ESCALATION_REASON_INVALID',
-        'HUMAN_ESCALATION_PRIORITY_INVALID',
         'INVALID_WORKFLOW_KEY'
       ].includes(err.message);
 
