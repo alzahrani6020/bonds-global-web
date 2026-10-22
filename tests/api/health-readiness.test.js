@@ -92,6 +92,8 @@ describe('platform health vs strict readiness', () => {
     process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL = 'https://runtime.example.test/health';
     process.env.BONDS_TOKEN_INTROSPECTION_URL = 'https://runtime.example.test/introspect';
     process.env.BONDS_TOKEN_CHANNEL_SECRET = channelSecret;
+    process.env.BONDS_TOKEN_BROKER_URL = 'https://runtime.example.test/broker/issue';
+    process.env.BONDS_TOKEN_BROKER_SECRET = 'isolated-broker-credential-12345678901234567890';
     process.env.BONDS_TOKEN_EXPECTED_BUILD_COMMIT = runtimeBuild;
     delete process.env.BONDS_TOKEN_ISSUER;
     delete process.env.BONDS_TOKEN_INTROSPECTION_TIMEOUT_MS;
@@ -173,7 +175,8 @@ describe('platform health vs strict readiness', () => {
     expect(res.body.inference.native_diagnostic.retry_recovered).toBe(false);
     expect(mockNativeHealthCalls.count).toBe(1);
     expect(res.body.token_runtime).toMatchObject({
-      required: true, status: 'ok', build_commit: runtimeBuild, channel_auth: 'verified'
+      required: true, status: 'ok', build_commit: runtimeBuild,
+      channel_auth: 'verified', broker_auth: 'configured'
     });
   });
 
@@ -240,7 +243,8 @@ describe('platform health vs strict readiness', () => {
 
   test.each([
     'BONDS_TOKEN_RUNTIME_HEALTH_URL', 'BONDS_TOKEN_INTROSPECTION_URL',
-    'BONDS_TOKEN_CHANNEL_SECRET', 'BONDS_TOKEN_EXPECTED_BUILD_COMMIT'
+    'BONDS_TOKEN_CHANNEL_SECRET', 'BONDS_TOKEN_BROKER_URL',
+    'BONDS_TOKEN_BROKER_SECRET', 'BONDS_TOKEN_EXPECTED_BUILD_COMMIT'
   ])('missing %s is not reported as ready', async key => {
     delete process.env[key];
     mockNativeOk.value = true;
@@ -293,6 +297,9 @@ describe('platform health vs strict readiness', () => {
     ['BONDS_TOKEN_RUNTIME_HEALTH_URL', 'https://runtime.example.test/health#fragment'],
     ['BONDS_TOKEN_RUNTIME_HEALTH_URL', 'https://runtime.example.test/status'],
     ['BONDS_TOKEN_INTROSPECTION_URL', 'https://other.example.test/introspect'],
+    ['BONDS_TOKEN_BROKER_URL', 'https://other.example.test/broker/issue'],
+    ['BONDS_TOKEN_BROKER_URL', 'http://runtime.example.test/broker/issue'],
+    ['BONDS_TOKEN_BROKER_URL', 'https://runtime.example.test/broker/wrong'],
     ['BONDS_TOKEN_EXPECTED_BUILD_COMMIT', 'unknown']
   ])('invalid runtime configuration is rejected before a request: %s', async (key, value) => {
     process.env[key] = value;
