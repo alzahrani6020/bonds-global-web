@@ -16,6 +16,12 @@ const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../
 const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
 const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
 const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
+const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
+const {
+  persistAssistantNotifications,
+  listAssistantNotifications,
+  markAssistantNotificationRead
+} = require('../../lib/assistant/notification-store');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -61,6 +67,61 @@ async function assistantRouter(req, res, path, user) {
       context:{ protocol:PROTOCOL, execution:'plan_only' }
     }));
   }
+  if (path === '/assistant/notifications' && req.method === 'GET') {
+    try {
+      const requestUrl = new URL(req.url || '/api/v3/assistant/notifications', 'http://localhost');
+      const unreadOnly = ['1','true','yes'].includes(
+        String(requestUrl.searchParams.get('unread') || '').toLowerCase()
+      );
+      const limit = requestUrl.searchParams.get('limit') || 25;
+      const notifications = await listAssistantNotifications({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        unreadOnly,
+        limit
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        notifications,
+        unread_count:notifications.filter(item => !item.read).length
+      });
+    } catch (err) {
+      return sendJson(res, 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/notifications/read' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const notification = await markAssistantNotificationRead({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        notificationId:body.notification_id
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        notification
+      });
+    } catch (err) {
+      const clientError = err.message === 'INVALID_NOTIFICATION_ID';
+      const notFound = err.message === 'NOTIFICATION_NOT_FOUND';
+      return sendJson(res, clientError ? 422 : notFound ? 404 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
   if (path === '/assistant/confirmation/prepare' && req.method === 'POST') {
     let body;
     try { body = await parseBody(req); }
@@ -417,6 +478,21 @@ async function assistantRouter(req, res, path, user) {
         event:body.event,
         expectedVersion:body.expected_version
       });
+
+      const persistenceNotifications = result.replayed
+        ? notificationsFromAssistantEvent({
+            event:result.event,
+            workflow:result.workflow,
+            suggestions:[]
+          })
+        : result.notifications;
+
+      const persistence = await persistAssistantNotifications({
+        supabase,
+        userId:user.id,
+        notifications:persistenceNotifications
+      });
+
       await appendAssistantAuditBestEffort({
         supabase,
         userId:user.id,
@@ -429,7 +505,8 @@ async function assistantRouter(req, res, path, user) {
         metadata:{
           event_type:result.event?.type || null,
           workflow_key:body.workflow_key || null,
-          workflow_version:result.workflow?.version ?? null
+          workflow_version:result.workflow?.version ?? null,
+          notifications_persisted:persistence.persisted
         }
       });
       return sendJson(res, 200, {
