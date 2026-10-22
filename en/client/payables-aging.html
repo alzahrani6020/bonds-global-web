@@ -214,12 +214,12 @@
     }
 
     async function save(status){
-      if(!sb||!user){showStatus('Unable to initialize the secure connection.',false);return;}
+      if(!sb||!user){showStatus('Unable to initialize the secure connection.',false);return false;}
       const calc=recalc();
       const cleanRows=calc.rows.filter(r=>r.supplier||r.invoice_no||r.invoice_amount||r.paid_amount);
-      if(status==='submitted'&&cleanRows.length===0){showStatus('Add at least one receivable before submitting.',false);return;}
+      if(status==='submitted'&&cleanRows.length===0){showStatus('Add at least one receivable before submitting.',false);return false;}
       const validationError=validateRows(cleanRows);
-      if(validationError){showStatus(validationError,false);return;}
+      if(validationError){showStatus(validationError,false);return false;}
       const payload={
         user_id:user.id,
         client_id:currentReport?.client_id||fundingCase?.client_id||null,
@@ -236,10 +236,11 @@
       let result;
       if(currentReport?.id) result=await sb.from('client_payables_aging_reports').update(payload).eq('id',currentReport.id).select().single();
       else result=await sb.from('client_payables_aging_reports').insert(payload).select().single();
-      if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
+      if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return false;}
       currentReport=result.data;
-      if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'payables',currentReport);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return;}}
+      if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'payables',currentReport);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return false;}}
       showStatus(status==='submitted'?'Payables Aging Form submitted for review.':'Draft saved.',true);
+    return true;
     }
 
     window.BondsAssistantFormAdapter={
@@ -249,9 +250,9 @@
         if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){
           return {ok:false,code:'FORM_NOT_EDITABLE',record_id:before.id||null,status:before.status};
         }
-        await save('draft');
+        const saveOk=await save('draft');
         const saved=currentReport;
-        const ok=!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
+        const ok=saveOk===true&&!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
         return {ok,code:ok?'DRAFT_SAVED':'DRAFT_NOT_VERIFIED',record_id:saved?.id||null,status:saved?.status||null};
       }
     };
