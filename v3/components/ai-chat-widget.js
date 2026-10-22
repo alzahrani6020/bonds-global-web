@@ -491,7 +491,7 @@
       const body = {
         type: action.type,
         target: action.target || undefined,
-        form: (action.type === 'form_find' || action.type === 'form_load')
+        form: ['form_find', 'form_load', 'form_save_draft'].includes(action.type)
           ? action.target
           : undefined,
         language: languageCode()
@@ -514,12 +514,13 @@
       if (action.type === 'site_navigate') return languageCode() === 'en' ? 'Open destination' : 'فتح الوجهة';
       if (action.type === 'form_find') return languageCode() === 'en' ? 'Find form' : 'العثور على النموذج';
       if (action.type === 'form_load') return languageCode() === 'en' ? 'Open form' : 'فتح النموذج';
+      if (action.type === 'form_save_draft') return languageCode() === 'en' ? 'Save draft' : 'حفظ المسودة';
       return languageCode() === 'en' ? 'Review action' : 'مراجعة الإجراء';
     }
 
     function actionTitle(action) {
       if (action.type === 'site_navigate') return languageCode() === 'en' ? 'Navigation' : 'تنقل معتمد';
-      if (action.type === 'form_find' || action.type === 'form_load') return languageCode() === 'en' ? 'Registered form' : 'نموذج مسجل';
+      if (action.type === 'form_find' || action.type === 'form_load' || action.type === 'form_save_draft') return languageCode() === 'en' ? 'Registered form' : 'نموذج مسجل';
       return languageCode() === 'en' ? 'Assistant action' : 'إجراء المساعد';
     }
 
@@ -652,6 +653,46 @@
           const route = plan?.context?.navigation?.route;
           if (!safeInternalRoute(route)) throw new Error('UNSAFE_NAVIGATION_ROUTE');
           window.location.assign(route);
+          return;
+        }
+
+        if (action.type === 'form_save_draft') {
+          const plan = await requestGovernedPlan(action);
+          const planned = Array.isArray(plan?.actions)
+            ? plan.actions.find(item => item?.type === 'form_save_draft')
+            : null;
+          if (!planned || planned.target !== action.target) {
+            throw new Error('DRAFT_PLAN_MISMATCH');
+          }
+
+          const adapter = window.BondsAssistantFormAdapter;
+          if (!adapter || adapter.form_code !== planned.target || typeof adapter.saveDraft !== 'function') {
+            throw new Error('DRAFT_ADAPTER_NOT_AVAILABLE');
+          }
+
+          const result = await adapter.saveDraft();
+          if (
+            !result ||
+            result.ok !== true ||
+            !result.record_id ||
+            result.status !== 'draft'
+          ) {
+            throw new Error('DRAFT_VERIFICATION_FAILED');
+          }
+
+          patchAssistantContextState({
+            last_action:{
+              id:String(action.id || ''),
+              type:'form_save_draft',
+              target:String(planned.target || ''),
+              status:'completed'
+            }
+          });
+          addAssistantMessage(
+            languageCode() === 'en'
+              ? 'Draft saved and verified.'
+              : 'تم حفظ المسودة والتحقق منها.'
+          );
           return;
         }
 
