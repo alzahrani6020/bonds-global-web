@@ -18,6 +18,7 @@
   const ASSISTANT_NOTIFICATION_READ_URL = '/api/v3/assistant/notifications/read';
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
+  const SERVICE_ASSISTANT_CONTEXT_KEY = 'bonds_service_assistant_context_v1';
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -704,9 +705,36 @@
     const homePromptButtons = root.querySelectorAll('[data-assistant-prompt]');
     const homeFocusButton = root.querySelector('[data-assistant-focus]');
 
+    function readServiceAssistantContext() {
+      try {
+        const raw = window.sessionStorage?.getItem(SERVICE_ASSISTANT_CONTEXT_KEY);
+        if (!raw) return {};
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.version !== 1 || parsed.source !== 'service_discovery') return {};
+        return {
+          serviceCode: typeof parsed.serviceCode === 'string' ? parsed.serviceCode.slice(0, 100) : null,
+          serviceName: typeof parsed.serviceName === 'string' ? parsed.serviceName.slice(0, 200) : null,
+          countryCode: typeof parsed.countryCode === 'string' ? parsed.countryCode.slice(0, 20) : null,
+          regionCode: typeof parsed.regionCode === 'string' ? parsed.regionCode.slice(0, 100) : null,
+          regionName: typeof parsed.regionName === 'string' ? parsed.regionName.slice(0, 200) : null,
+          localityCode: typeof parsed.localityCode === 'string' ? parsed.localityCode.slice(0, 100) : null,
+          localityName: typeof parsed.localityName === 'string' ? parsed.localityName.slice(0, 200) : null,
+          sectorCode: typeof parsed.sectorCode === 'string' ? parsed.sectorCode.slice(0, 100) : null,
+          sectorName: typeof parsed.sectorName === 'string' ? parsed.sectorName.slice(0, 200) : null,
+          activityCode: typeof parsed.activityCode === 'string' ? parsed.activityCode.slice(0, 100) : null,
+          activityName: typeof parsed.activityName === 'string' ? parsed.activityName.slice(0, 200) : null,
+          language: parsed.language === 'en' ? 'en' : 'ar'
+        };
+      } catch (_) {
+        return {};
+      }
+    }
+
+    const serviceContext = readServiceAssistantContext();
     let context = {
-      cityCode: options.cityCode || null,
-      activityCode: options.activityCode || null,
+      ...serviceContext,
+      cityCode: options.cityCode || serviceContext.localityCode || null,
+      activityCode: options.activityCode || serviceContext.activityCode || null,
       modelCode: options.modelCode || null,
       calculationResult: options.calculationResult || null,
       projectId: options.projectId || null,
@@ -723,7 +751,9 @@
       const city = String(value.cityCode || 'none').trim();
       const activity = String(value.activityCode || 'none').trim();
       const model = String(value.modelCode || 'none').trim();
-      return `city:${city}|activity:${activity}|model:${model}`;
+      const service = String(value.serviceCode || '').trim();
+      const base = `city:${city}|activity:${activity}|model:${model}`;
+      return service ? `${base}|service:${service}` : base;
     }
 
     function assistantStateStorageKey(boundary = contextBoundaryKey()) {
@@ -874,8 +904,16 @@
     }
 
     function refreshContext() {
-      context.cityName = getCityName();
-      context.activityName = getActivityName();
+      const bridge = readServiceAssistantContext();
+      if (Object.keys(bridge).length) {
+        updateContext({
+          ...bridge,
+          cityCode: context.cityCode || bridge.localityCode || null,
+          activityCode: context.activityCode || bridge.activityCode || null
+        });
+      }
+      context.cityName = getCityName() || context.localityName || context.cityName || null;
+      context.activityName = getActivityName() || context.activityName || null;
     }
 
     function notificationText(notification, field) {
