@@ -23,3 +23,14 @@ test('menu matrix reads user-scoped scores without missing API route', () => {
   assert.match(segment, /\.eq\('user_id', currentUser\.id\)/);
   assert.doesNotMatch(segment, /fetch\(\`\/api\/menu-engineering/);
 });
+
+
+test('calculator geography prefers the live production catalog and keeps static fallback', () => {
+  const source = read('calculators/shared-geo.js');
+  assert.match(source, /const LIVE_CITIES_API = '\/api\/v3\/catalog\/cities'/);
+  assert.match(source, /fetch\(\s*LIVE_CITIES_API \+ '\?country='/);
+  assert.match(source, /cache: 'no-store'/);
+  assert.match(source, /return loadLiveCountry\(upper\)\.catch/);
+  assert.match(source, /return loadCountryChunk\(upper\)/);
+  assert.match(source, /newly promoted\/added cities appear automatically/);
+});
