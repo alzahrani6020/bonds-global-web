@@ -110,5 +110,41 @@ class BondsTokenEngineContractTests(unittest.TestCase):
         )
 
 
+    def test_broker_token_is_consumed_exactly_once(self):
+        engine = BondsTokenEngine(self.db)
+        token = engine.issue(
+            token_type="service",
+            subject="service:orchestrator",
+            audience="research-intelligence",
+            scopes=["research:read"],
+            ttl=SERVICE_TOKEN_TTL_SECONDS,
+            issued_by="broker",
+        )
+
+        first = engine.introspect(token, consume_broker=True)
+        self.assertTrue(first["active"])
+        self.assertFalse(first["revoked"])
+
+        second = engine.introspect(token, consume_broker=True)
+        self.assertFalse(second["active"])
+        self.assertTrue(second["revoked"])
+
+        with sqlite3.connect(self.db) as db:
+            revoked, consumed_at, issued_by = db.execute(
+                "SELECT revoked, consumed_at, issued_by FROM tokens WHERE token_hash=?",
+                (hashlib.sha256(token.encode()).hexdigest(),),
+            ).fetchone()
+        self.assertEqual(revoked, 1)
+        self.assertIsInstance(consumed_at, int)
+        self.assertEqual(issued_by, "broker")
+
+    def test_admin_token_remains_reusable_during_introspection(self):
+        engine = BondsTokenEngine(self.db)
+        token = self.issue_service_token(engine)
+        self.assertTrue(engine.introspect(token, consume_broker=True)["active"])
+        self.assertTrue(engine.introspect(token, consume_broker=True)["active"])
+
+
+
 if __name__ == "__main__":
     unittest.main()
