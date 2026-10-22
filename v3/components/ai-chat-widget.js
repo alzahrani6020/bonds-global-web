@@ -14,6 +14,8 @@
   const ASSISTANT_CONFIRMATION_RESOLVE_URL = '/api/v3/assistant/confirmation/resolve';
   const ASSISTANT_IDEMPOTENCY_CLAIM_URL = '/api/v3/assistant/idempotency/claim';
   const ASSISTANT_IDEMPOTENCY_RESOLVE_URL = '/api/v3/assistant/idempotency/resolve';
+  const ASSISTANT_NOTIFICATIONS_URL = '/api/v3/assistant/notifications';
+  const ASSISTANT_NOTIFICATION_READ_URL = '/api/v3/assistant/notifications/read';
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
 
@@ -52,6 +54,64 @@
       transition: transform 0.2s;
     }
     .bonds-ai-chat-toggle:hover { transform: scale(1.05); }
+    .bonds-ai-notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    }
+    .bonds-ai-notification-badge.visible { display: flex; }
+    .bonds-ai-notifications {
+      display: none;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 1px solid rgba(197,160,40,0.15);
+      background: rgba(255,255,255,0.02);
+    }
+    .bonds-ai-notifications.visible { display: block; }
+    .bonds-ai-notification-card {
+      border: 1px solid rgba(197,160,40,0.2);
+      border-radius: 10px;
+      padding: 0.55rem 0.65rem;
+      margin-bottom: 0.5rem;
+      background: rgba(255,255,255,0.04);
+      color: #e8ecf4;
+    }
+    .bonds-ai-notification-card:last-child { margin-bottom: 0; }
+    .bonds-ai-notification-card strong {
+      display: block;
+      color: #f0c96a;
+      font-size: 0.82rem;
+      margin-bottom: 0.2rem;
+    }
+    .bonds-ai-notification-card small {
+      display: block;
+      color: #cbd5e1;
+      line-height: 1.45;
+      margin-bottom: 0.45rem;
+    }
+    .bonds-ai-notification-card button {
+      margin-inline-end: 0.35rem;
+      background: rgba(212,168,83,0.14);
+      border: 1px solid rgba(197,160,40,0.3);
+      color: #f0c96a;
+      border-radius: 7px;
+      padding: 0.3rem 0.55rem;
+      cursor: pointer;
+      font-size: 0.74rem;
+    }
     .bonds-ai-chat-window {
       position: fixed;
       bottom: 90px;
@@ -214,7 +274,7 @@
 
   function createWidgetHTML() {
     return `
-      <button class="bonds-ai-chat-toggle" aria-label="فتح المساعد الذكي"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><ellipse fill="#F4900C" cx="33.5" cy="14.5" rx="2.5" ry="3.5"/><ellipse fill="#F4900C" cx="2.5" cy="14.5" rx="2.5" ry="3.5"/><path fill="#FFAC33" d="M34 19c0 .553-.447 1-1 1h-3c-.553 0-1-.447-1-1v-9c0-.552.447-1 1-1h3c.553 0 1 .448 1 1v9zM7 19c0 .553-.448 1-1 1H3c-.552 0-1-.447-1-1v-9c0-.552.448-1 1-1h3c.552 0 1 .448 1 1v9z"/><path fill="#FFCC4D" d="M28 5c0 2.761-4.478 4-10 4C12.477 9 8 7.761 8 5s4.477-5 10-5c5.522 0 10 2.239 10 5z"/><path fill="#F4900C" d="M25 4.083C25 5.694 21.865 7 18 7c-3.866 0-7-1.306-7-2.917 0-1.611 3.134-2.917 7-2.917 3.865 0 7 1.306 7 2.917z"/><path fill="#269" d="M30 5.5C30 6.881 28.881 7 27.5 7h-19C7.119 7 6 6.881 6 5.5S7.119 3 8.5 3h19C28.881 3 30 4.119 30 5.5z"/><path fill="#55ACEE" d="M30 6H6c-1.104 0-2 .896-2 2v26h28V8c0-1.104-.896-2-2-2z"/><path fill="#3B88C3" d="M35 33v-1c0-1.104-.896-2-2-2H22.071l-3.364 3.364c-.391.391-1.023.391-1.414 0L13.929 30H3c-1.104 0-2 .896-2 2v1c0 1.104-.104 2 1 2h32c1.104 0 1-.896 1-2z"/><circle fill="#FFF" cx="24.5" cy="14.5" r="4.5"/><circle fill="#DD2E44" cx="24.5" cy="14.5" r="2.721"/><circle fill="#FFF" cx="11.5" cy="14.5" r="4.5"/><path fill="#F5F8FA" d="M29 25.5c0 1.381-1.119 2.5-2.5 2.5h-17C8.119 28 7 26.881 7 25.5S8.119 23 9.5 23h17c1.381 0 2.5 1.119 2.5 2.5z"/><path fill="#CCD6DD" d="M17 23h2v5h-2zm-5 0h2v5h-2zm10 0h2v5h-2zM7 25.5c0 1.21.859 2.218 2 2.45v-4.9c-1.141.232-2 1.24-2 2.45zm20-2.45v4.899c1.141-.232 2-1.24 2-2.45s-.859-2.217-2-2.449z"/><circle fill="#DD2E44" cx="11.5" cy="14.5" r="2.721"/></svg></button>
+      <button class="bonds-ai-chat-toggle" aria-label="فتح المساعد الذكي"><span class="bonds-ai-notification-badge" aria-label="إشعارات غير مقروءة"></span><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><ellipse fill="#F4900C" cx="33.5" cy="14.5" rx="2.5" ry="3.5"/><ellipse fill="#F4900C" cx="2.5" cy="14.5" rx="2.5" ry="3.5"/><path fill="#FFAC33" d="M34 19c0 .553-.447 1-1 1h-3c-.553 0-1-.447-1-1v-9c0-.552.447-1 1-1h3c.553 0 1 .448 1 1v9zM7 19c0 .553-.448 1-1 1H3c-.552 0-1-.447-1-1v-9c0-.552.448-1 1-1h3c.552 0 1 .448 1 1v9z"/><path fill="#FFCC4D" d="M28 5c0 2.761-4.478 4-10 4C12.477 9 8 7.761 8 5s4.477-5 10-5c5.522 0 10 2.239 10 5z"/><path fill="#F4900C" d="M25 4.083C25 5.694 21.865 7 18 7c-3.866 0-7-1.306-7-2.917 0-1.611 3.134-2.917 7-2.917 3.865 0 7 1.306 7 2.917z"/><path fill="#269" d="M30 5.5C30 6.881 28.881 7 27.5 7h-19C7.119 7 6 6.881 6 5.5S7.119 3 8.5 3h19C28.881 3 30 4.119 30 5.5z"/><path fill="#55ACEE" d="M30 6H6c-1.104 0-2 .896-2 2v26h28V8c0-1.104-.896-2-2-2z"/><path fill="#3B88C3" d="M35 33v-1c0-1.104-.896-2-2-2H22.071l-3.364 3.364c-.391.391-1.023.391-1.414 0L13.929 30H3c-1.104 0-2 .896-2 2v1c0 1.104-.104 2 1 2h32c1.104 0 1-.896 1-2z"/><circle fill="#FFF" cx="24.5" cy="14.5" r="4.5"/><circle fill="#DD2E44" cx="24.5" cy="14.5" r="2.721"/><circle fill="#FFF" cx="11.5" cy="14.5" r="4.5"/><path fill="#F5F8FA" d="M29 25.5c0 1.381-1.119 2.5-2.5 2.5h-17C8.119 28 7 26.881 7 25.5S8.119 23 9.5 23h17c1.381 0 2.5 1.119 2.5 2.5z"/><path fill="#CCD6DD" d="M17 23h2v5h-2zm-5 0h2v5h-2zm10 0h2v5h-2zM7 25.5c0 1.21.859 2.218 2 2.45v-4.9c-1.141.232-2 1.24-2 2.45zm20-2.45v4.899c1.141-.232 2-1.24 2-2.45s-.859-2.217-2-2.449z"/><circle fill="#DD2E44" cx="11.5" cy="14.5" r="2.721"/></svg></button>
       <div class="bonds-ai-chat-window" role="dialog" aria-label="مساعد بوندز الذكي">
         <div class="bonds-ai-chat-header">
           <div>
@@ -223,6 +283,7 @@
           </div>
           <button class="bonds-ai-chat-close" aria-label="إغلاق">×</button>
         </div>
+        <div class="bonds-ai-notifications" aria-live="polite"></div>
         <div class="bonds-ai-chat-messages"></div>
         <div class="bonds-ai-actions"></div>
         <div class="bonds-ai-suggestions"></div>
@@ -246,6 +307,8 @@
     const toggle = root.querySelector('.bonds-ai-chat-toggle');
     const windowEl = root.querySelector('.bonds-ai-chat-window');
     const closeBtn = root.querySelector('.bonds-ai-chat-close');
+    const notificationsEl = root.querySelector('.bonds-ai-notifications');
+    const notificationBadge = root.querySelector('.bonds-ai-notification-badge');
     const messagesEl = root.querySelector('.bonds-ai-chat-messages');
     const actionsEl = root.querySelector('.bonds-ai-actions');
     const suggestionsEl = root.querySelector('.bonds-ai-suggestions');
@@ -426,6 +489,101 @@
       context.activityName = getActivityName();
     }
 
+    function notificationText(notification, field) {
+      const lang = languageCode();
+      const preferred = lang === 'en' ? notification[field + '_en'] : notification[field + '_ar'];
+      const fallback = lang === 'en' ? notification[field + '_ar'] : notification[field + '_en'];
+      return String(preferred || fallback || '');
+    }
+
+    function updateNotificationBadge(count) {
+      const safeCount = Math.max(0, Number(count) || 0);
+      notificationBadge.textContent = safeCount > 99 ? '99+' : String(safeCount);
+      notificationBadge.classList.toggle('visible', safeCount > 0);
+    }
+
+    async function markNotificationRead(notificationId) {
+      const res = await fetch(ASSISTANT_NOTIFICATION_READ_URL, {
+        method:'POST',
+        headers:await getAuthHeaders(),
+        body:JSON.stringify({ notification_id:notificationId })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'NOTIFICATION_READ_FAILED');
+      return data.notification;
+    }
+
+    function renderNotifications(notifications = []) {
+      notificationsEl.innerHTML = '';
+      const unread = (notifications || []).filter(item => item && !item.read);
+      updateNotificationBadge(unread.length);
+      notificationsEl.classList.toggle('visible', unread.length > 0);
+
+      unread.forEach(notification => {
+        const card = document.createElement('div');
+        card.className = 'bonds-ai-notification-card';
+        card.dataset.notificationId = String(notification.id || '');
+
+        const title = document.createElement('strong');
+        title.textContent = notificationText(notification, 'title');
+
+        const message = document.createElement('small');
+        message.textContent = notificationText(notification, 'message');
+
+        const readButton = document.createElement('button');
+        readButton.type = 'button';
+        readButton.textContent = languageCode() === 'en' ? 'Mark read' : 'تمت القراءة';
+        readButton.addEventListener('click', async () => {
+          readButton.disabled = true;
+          try {
+            await markNotificationRead(notification.id);
+            await refreshNotifications();
+          } catch (err) {
+            console.error('[BondsAssistantNotifications]', err);
+            readButton.disabled = false;
+          }
+        });
+
+        card.appendChild(title);
+        card.appendChild(message);
+
+        if (notification.action && notification.action.type) {
+          const actionButton = document.createElement('button');
+          actionButton.type = 'button';
+          actionButton.textContent = languageCode() === 'en' ? 'Open' : 'فتح';
+          actionButton.addEventListener('click', () => executeStructuredAction({
+            id:'notification-' + String(notification.id || ''),
+            type:String(notification.action.type || ''),
+            capability:String(notification.action.type || ''),
+            target:notification.action.target == null ? null : String(notification.action.target),
+            risk:'low',
+            requires_confirmation:false,
+            status:'ready'
+          }, actionButton));
+          card.appendChild(actionButton);
+        }
+
+        card.appendChild(readButton);
+        notificationsEl.appendChild(card);
+      });
+    }
+
+    async function refreshNotifications() {
+      try {
+        const res = await fetch(ASSISTANT_NOTIFICATIONS_URL + '?unread=1&limit=25', {
+          method:'GET',
+          headers:await getAuthHeaders()
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'NOTIFICATION_LIST_FAILED');
+        renderNotifications(Array.isArray(data.notifications) ? data.notifications : []);
+        return data.notifications || [];
+      } catch (err) {
+        console.error('[BondsAssistantNotifications]', err);
+        return [];
+      }
+    }
+
     function toggleOpen() {
       state.isOpen = !state.isOpen;
       windowEl.classList.toggle('open', state.isOpen);
@@ -440,7 +598,10 @@
         }
         renderSuggestions();
       }
-      if (state.isOpen) input.focus();
+      if (state.isOpen) {
+        refreshNotifications();
+        input.focus();
+      }
     }
 
     function addMessage(role, text, isError = false) {
@@ -1039,6 +1200,8 @@
       contextBoundaryKey()
     );
     window.BondsAssistant.updateState = patch => patchAssistantContextState(patch);
+    window.BondsAssistant.refreshNotifications = refreshNotifications;
+    window.BondsAssistant.markNotificationRead = markNotificationRead;
     window.BondsAssistant.clearState = () => {
       const boundary = contextBoundaryKey();
       try {

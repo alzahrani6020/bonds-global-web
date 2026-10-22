@@ -4,6 +4,8 @@ const { EventEmitter } = require('events');
 
 const mockApplyAssistantEvent = jest.fn();
 const mockAppendAudit = jest.fn();
+const mockPersistNotifications = jest.fn();
+const mockNotificationsFromEvent = jest.fn();
 const mockSupabase = { rpc:jest.fn() };
 
 jest.mock('../../lib/assistant/event-driven', () => ({
@@ -12,6 +14,16 @@ jest.mock('../../lib/assistant/event-driven', () => ({
 
 jest.mock('../../lib/assistant/audit-trail', () => ({
   appendAssistantAuditBestEffort:(args) => mockAppendAudit(args)
+}));
+
+jest.mock('../../lib/assistant/notification-store', () => ({
+  persistAssistantNotifications:(args) => mockPersistNotifications(args),
+  listAssistantNotifications:jest.fn(),
+  markAssistantNotificationRead:jest.fn()
+}));
+
+jest.mock('../../lib/assistant/notification-engine', () => ({
+  notificationsFromAssistantEvent:(args) => mockNotificationsFromEvent(args)
 }));
 
 jest.mock('../../v3/lib/supabase', () => ({
@@ -49,6 +61,8 @@ describe('event-driven assistant API lifecycle', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     mockAppendAudit.mockResolvedValue({ ok:true });
+    mockPersistNotifications.mockResolvedValue({ persisted:1 });
+    mockNotificationsFromEvent.mockReturnValue([{ id:'notification-replay' }]);
   });
 
   test('records received then applied for a new event', async () => {
@@ -78,6 +92,10 @@ describe('event-driven assistant API lifecycle', () => {
       workflowKey:'wf-1',
       expectedVersion:1
     }));
+    expect(mockPersistNotifications).toHaveBeenCalledWith(expect.objectContaining({
+      userId:'user-1',
+      notifications:[]
+    }));
     expect(mockAppendAudit.mock.calls.map(call => call[0].eventType)).toEqual([
       'event_received',
       'event_applied'
@@ -105,6 +123,12 @@ describe('event-driven assistant API lifecycle', () => {
     expect(out.body.notifications).toEqual([]);
     expect(out.body.execution_triggered).toBe(false);
     expect(out.body.authorization.granted).toBe(false);
+    expect(mockNotificationsFromEvent).toHaveBeenCalledWith(expect.objectContaining({
+      event:expect.objectContaining({ id:'evt-1' })
+    }));
+    expect(mockPersistNotifications).toHaveBeenCalledWith(expect.objectContaining({
+      notifications:[{ id:'notification-replay' }]
+    }));
     expect(mockAppendAudit.mock.calls.map(call => call[0].eventType)).toEqual([
       'event_received',
       'event_replayed'
