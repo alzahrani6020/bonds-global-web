@@ -912,10 +912,11 @@
     "emergency_kill_switch",
     "read_only_emergency_mode",
     "anomaly_detection",
-    "safe_introspection_cache"
+    "safe_introspection_cache",
+    "policy_as_code"
   ],
   "next": [
-    "policy_as_code"
+    "policy_simulation"
   ],
   "deferred": [
     "action_tokens",
@@ -931,9 +932,9 @@
   ],
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
-    "date": "2026-10-22",
-    "branch": "feat/assistant-safe-introspection-cache",
-    "change": "Safe Introspection Cache implemented_base as a bounded in-memory informational cache for non-sensitive Assistant introspection only. It caches protocol/registry counts, action types, and bounded emergency-mode status for a short TTL; it is never an authorization or execution source, stores no user/session data or secrets, and does not alter kill-switch enforcement. Next: policy_as_code."
+    "date": "2026-10-23",
+    "branch": "feat/assistant-policy-as-code",
+    "change": "Policy as Code implemented_base with a versioned declarative Assistant action policy and deterministic evaluator integrated into protocol normalization. Existing behavior is preserved: registered action types/risks only, recursive executable-field denial, and confirmation for explicit/high/critical risk. Public policy descriptor is read-only and grants no execution authority. Next: policy_simulation."
   },
   "production_rollout": {
     "status": "complete",
