@@ -7,6 +7,15 @@ const {
   assertAssistantMutationEnabled
 }=require('../../lib/assistant/emergency-kill-switch');
 
+function singleQuery(result){
+  const q={
+    select:jest.fn().mockReturnThis(),
+    eq:jest.fn().mockReturnThis(),
+    maybeSingle:jest.fn().mockResolvedValue(result)
+  };
+  return q;
+}
+
 function query(result){
   const state={features:null};
   const q={
@@ -104,6 +113,38 @@ describe('Assistant Emergency Kill Switch',()=>{
       disabled:false,
       mode:'normal'
     }));
+  });
+
+  test('global assistant switch exposes read-only emergency mode without internal reason',async()=>{
+    const q=singleQuery({
+      data:{feature:'assistant',disabled:true,expires_at:'2099-01-01T00:00:00Z',updated_at:'2026-10-22T00:00:00Z'},
+      error:null
+    });
+    const state=await getAssistantEmergencyMode({
+      supabase:{from:jest.fn(()=>q)},
+      nowMs:Date.parse('2026-10-22T00:00:00Z')
+    });
+    expect(state).toEqual({
+      mode:'read_only',
+      read_only:true,
+      expires_at:'2099-01-01T00:00:00Z',
+      execution_authorized:false,
+      auto_execute:false
+    });
+    expect(q.eq).toHaveBeenCalledWith('feature','assistant');
+  });
+
+  test('inactive global assistant switch reports normal mode',async()=>{
+    const q=singleQuery({data:{feature:'assistant',disabled:false,expires_at:null},error:null});
+    await expect(getAssistantEmergencyMode({
+      supabase:{from:jest.fn(()=>q)}
+    })).resolves.toEqual({
+      mode:'normal',
+      read_only:false,
+      expires_at:null,
+      execution_authorized:false,
+      auto_execute:false
+    });
   });
 
   test('control-plane lookup failure fails closed for mutations',async()=>{
