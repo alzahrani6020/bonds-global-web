@@ -9,6 +9,7 @@ const getSupabase = require('../lib/api/supabase');
 const { getInferenceRouter } = require('../lib/ai/inference-router');
 const tokenContract = require('../services/bonds_token_runtime/contract.json');
 const { probeUserGovernanceReadiness } = require('../lib/capabilities/user-governance-context');
+const { probeAssistantReadiness } = require('../lib/assistant/production-readiness');
 const {
   resolveTokenRuntimeChannel,
   resolveRuntimeIdentityExpectation,
@@ -263,10 +264,11 @@ module.exports = async function handler(req, res) {
 
     const fallbackReady = fallbackStatus === 'ok';
     const inferenceReady = nativeModeConfigured && (nativeRequired ? nativeReady : (nativeReady || fallbackReady));
-    const [tokenRuntime, userGovernance] = await Promise.all([
-      probeTokenRuntime(), probeUserGovernanceReadiness()
+    const [tokenRuntime, userGovernance, assistant] = await Promise.all([
+      probeTokenRuntime(), probeUserGovernanceReadiness(), probeAssistantReadiness()
     ]);
-    const ready = coreHealthy && inferenceReady && tokenRuntime.status === 'ok' && userGovernance.status === 'ok';
+    const ready = coreHealthy && inferenceReady && tokenRuntime.status === 'ok' &&
+      userGovernance.status === 'ok' && assistant.status === 'ok';
     const activeProvider = nativeReady
       ? (nativeProvider || 'BondsNativeProvider')
       : (fallbackReady ? 'openai_fallback' : null);
@@ -283,10 +285,12 @@ module.exports = async function handler(req, res) {
         fallback: fallbackStatus,
         token_runtime: tokenRuntime.status,
         user_governance: userGovernance.status,
+        assistant: assistant.status,
         responseMs: Date.now() - started,
       },
       token_runtime: tokenRuntime,
       user_governance: userGovernance,
+      assistant,
       inference: {
         mode: nativeMode,
         provider: activeProvider,

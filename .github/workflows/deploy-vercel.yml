@@ -137,6 +137,8 @@ jobs:
             if (body.version !== process.env.EXPECTED_VERSION || body.environment !== "production" ||
                 body.status !== "ready" || body.checks?.supabase !== "ok" ||
                 body.checks?.user_governance !== "ok" || body.user_governance?.status !== "ok" ||
+                body.checks?.assistant !== "ok" || body.assistant?.status !== "ok" ||
+                body.assistant?.schema_version !== 1 ||
                 body.checks?.token_runtime !== "ok" || runtime?.required !== true ||
                 runtime.status !== "ok" || runtime.channel_auth !== "verified" ||
                 runtime.broker_auth !== "configured" ||
