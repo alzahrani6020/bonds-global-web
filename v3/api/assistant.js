@@ -15,6 +15,7 @@ const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-tr
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
 const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
+const { suggestFromAssistantEvent } = require('../../lib/assistant/event-driven');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -375,6 +376,31 @@ async function assistantRouter(req, res, path, user) {
         'FUNDING_CASE_ID_REQUIRED','WORKFLOW_USER_REQUIRED'
       ].includes(err.message);
       return sendJson(res, conflict ? 409 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/events/suggest' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const suggestion = suggestFromAssistantEvent(body.event);
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        suggestion
+      });
+    } catch (err) {
+      const clientError = [
+        'ASSISTANT_EVENT_INVALID',
+        'ASSISTANT_EVENT_TYPE_NOT_ALLOWED'
+      ].includes(err.message);
+      return sendJson(res, clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
