@@ -15,7 +15,8 @@ const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-tr
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
 const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
-const { applyAssistantEvent } = require('../../lib/assistant/event-driven');\nconst { listOwnedDrafts } = require('../../lib/assistant/draft-center');
+const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
+const { listOwnedDrafts } = require('../../lib/assistant/draft-center');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
