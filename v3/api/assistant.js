@@ -19,9 +19,10 @@ const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
 const { listOwnedDrafts } = require('../../lib/assistant/draft-center');
 const { buildAgentInbox } = require('../../lib/assistant/agent-inbox');
 const { transitionSensitiveWorkflowState } = require('../../lib/assistant/sensitive-workflow-state-machine');
-const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxItem } = require('../../lib/assistant/agent-inbox-queue');
+const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxItem, listAgentInbox } = require('../../lib/assistant/agent-inbox-queue');
 const { createHumanEscalation, listUserHumanEscalations } = require('../../lib/assistant/human-escalation');
-const { requestHumanApproval, listUserHumanApprovals } = require('../../lib/assistant/human-approval');
+const { requestHumanApproval, listUserHumanApprovals, listHumanApprovalQueue } = require('../../lib/assistant/human-approval');
+const { resolveEmployeeAssistantMode, buildEmployeeAssistantWorkspace } = require('../../lib/assistant/employee-assistant-mode');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -72,6 +73,51 @@ async function assistantRouter(req, res, path, user) {
       reply:'مساعد بوندز جاهز.',
       context:{ protocol:PROTOCOL, execution:'plan_only' }
     }));
+  }
+
+  if (path === '/assistant/mode' && req.method === 'GET') {
+    try {
+      const mode = await resolveEmployeeAssistantMode({
+        supabase:getSupabaseClient(),
+        user
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        assistant_mode:mode
+      });
+    } catch (err) {
+      const clientError = err.message === 'EMPLOYEE_ASSISTANT_USER_REQUIRED';
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/employee/workspace' && req.method === 'GET') {
+    try {
+      const workspace = await buildEmployeeAssistantWorkspace({
+        supabase:getSupabaseClient(),
+        user,
+        listAgentInbox,
+        listHumanApprovalQueue
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        employee_assistant:workspace
+      });
+    } catch (err) {
+      const forbidden = err.message === 'EMPLOYEE_ASSISTANT_ACCESS_DENIED';
+      const clientError = err.message === 'EMPLOYEE_ASSISTANT_USER_REQUIRED';
+      return sendJson(res, forbidden ? 403 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
   }
   if (path === '/assistant/notifications' && req.method === 'GET') {
     try {
