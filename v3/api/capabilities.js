@@ -4,6 +4,10 @@ const { listCapabilities, validateCapabilityInput, getService } = require('../..
 const { executeCapability } = require('../../lib/capabilities/governed-executor');
 const { planCapabilities } = require('../../lib/capabilities/capability-planner');
 const { resolveUserGovernanceContext } = require('../../lib/capabilities/user-governance-context');
+const {
+  issueBrokerServiceToken,
+  revokeBrokerServiceToken
+} = require('../../lib/security/service-token-broker');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -38,6 +42,7 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
       capabilities: listCapabilities(),
       execution: {
         governed: true,
+        automatic_service_tokens: true,
         native_inference_modes: ['LOCAL_NATIVE', 'REMOTE_BONDS_NATIVE'],
         external_llm_provider_required: false
       }
@@ -68,10 +73,12 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
       const result = await executeCapability(action, input);
       return sendJson(res, result.httpStatus, result);
     }
+
+    const service = getService(validation.spec.serviceCode);
     const { supabase, ...executionOptions } = options;
     const authorization = await resolveUserGovernanceContext({
       user,
-      service: getService(validation.spec.serviceCode),
+      service,
       supabase
     });
     if (!authorization.ok) {
@@ -84,21 +91,53 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
       });
     }
 
-    // A user Bearer token is not a service token. Only the dedicated credential
-    // is passed to the existing governed verifier (which fails closed).
     const serviceTokenHeader = req.headers['x-bonds-service-token'];
-    const serviceToken = typeof serviceTokenHeader === 'string' && serviceTokenHeader.trim()
+    let serviceToken = typeof serviceTokenHeader === 'string' && serviceTokenHeader.trim()
       ? serviceTokenHeader.trim()
       : null;
-    const result = await executeCapability(action, input, {
-      ...executionOptions,
-      ...authorization.context,
-      requestId: req.headers['x-request-id'] || null,
-      auth: {
-        ...(executionOptions.auth || {}),
-        serviceToken: serviceToken || executionOptions.auth?.serviceToken || null
+    let brokerIssued = false;
+
+    if (service?.serviceTokenRequired === true && !serviceToken) {
+      const issued = await issueBrokerServiceToken({
+        audience: validation.spec.serviceCode,
+        fetchImpl: executionOptions.fetchImpl || global.fetch
+      });
+      if (!issued.ok) {
+        return sendJson(res, issued.httpStatus || 503, {
+          ok: false,
+          executed: false,
+          action,
+          error: { code: issued.code || 'TOKEN_BROKER_FAILED' },
+          httpStatus: issued.httpStatus || 503
+        });
       }
-    });
+      serviceToken = issued.token;
+      brokerIssued = true;
+    }
+
+    let result;
+    try {
+      result = await executeCapability(action, input, {
+        ...executionOptions,
+        ...authorization.context,
+        requestId: req.headers['x-request-id'] || null,
+        auth: {
+          ...(executionOptions.auth || {}),
+          serviceToken: serviceToken || executionOptions.auth?.serviceToken || null
+        }
+      });
+    } finally {
+      if (brokerIssued && serviceToken) {
+        // Successful verification consumes broker-issued tokens atomically.
+        // This best-effort revoke covers failures that occur before introspection.
+        await revokeBrokerServiceToken({
+          token: serviceToken,
+          fetchImpl: executionOptions.fetchImpl || global.fetch
+        }).catch(() => null);
+        serviceToken = null;
+      }
+    }
+
     const status = result.ok ? 200 : (result.httpStatus || (result.executed ? 422 : 503));
     return sendJson(res, status, result);
   }
