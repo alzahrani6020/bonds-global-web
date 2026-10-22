@@ -545,13 +545,13 @@
       "id": 86,
       "title": "Sensitive Workflow State Machine",
       "phase": "phase2",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": 87,
       "title": "Agent Inbox",
       "phase": "phase2",
-      "status": "in_progress"
+      "status": "implemented_base"
     },
     {
       "id": 88,
@@ -902,10 +902,11 @@
     "event_driven_assistant",
     "notifications",
     "assistant_notifications",
-    "draft_center"
+    "draft_center",
+    "agent_inbox"
   ],
   "next": [
-    "agent_inbox"
+    "sensitive_workflow_state_machine"
   ],
   "deferred": [
     "action_tokens",
@@ -922,8 +923,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-agent-inbox",
-    "change": "Draft Center is production-verified on main 087c9b788df27da980f0738580120c1fe2bd3418. Started Agent Inbox as a read-only user-scoped aggregation of active/paused workflow requirements, pending confirmations, open tasks, owned editable drafts, and unread notification context; no parallel store, no submit/write path, and no execution authorization."
+    "branch": "feat/assistant-sensitive-workflow-state-machine",
+    "change": "Agent Inbox is merged and production-verified on main 14c9bb1a2b38f963e779844725d6e2a40b906e37. Started Sensitive Workflow State Machine on the existing persistent workflow store with bounded draft/ready/confirmed/submitted/completed/failed transitions, optimistic versioning, exact boundary enforcement, replay safety, and explicit no-business-execution/no-authorization policy."
   },
   "production_rollout": {
     "status": "complete",
