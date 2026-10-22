@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "service_code": "financial-engine",
+  "version": 1,
+  "enabled": true,
+  "governance": {
+    "permissions": [],
+    "entitlements": [],
+    "feature_flags": []
+  },
+  "security": {
+    "network_access": "none",
+    "service_token_required": false,
+    "privileges": {
+      "service_role": false,
+      "private_network": false,
+      "arbitrary_code": false,
+      "external_write": false,
+      "ai_tool_exposure": false
+    }
+  },
+  "observability": {
+    "health_check": true,
+    "audit": true,
+    "metrics": true
+  },
+  "data": {
+    "provenance": true,
+    "quality": true
+  },
+  "workflows": {
+    "events": []
+  },
+  "ai": {
+    "exposed": false
+  },
+  "capabilities": [
+    {
+      "action": "financial_analysis_run",
+      "id": "BONDS-CAP-FIN-001",
+      "purpose": "Run deterministic financial statement and ratio analysis.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "financial_analysis_engine"
+      }
+    },
+    {
+      "action": "cash_flow_analysis_run",
+      "id": "BONDS-CAP-FIN-002",
+      "purpose": "Run deterministic cash-flow projection and liquidity analysis.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "cash_flow_analysis_engine"
+      }
+    },
+    {
+      "action": "funding_readiness_run",
+      "id": "BONDS-CAP-FIN-003",
+      "purpose": "Assess deterministic funding readiness and debt service capacity.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "funding_readiness_engine"
+      }
+    },
+    {
+      "action": "creditworthiness_run",
+      "id": "BONDS-CAP-FIN-004",
+      "purpose": "Run deterministic creditworthiness scoring and risk banding.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "creditworthiness_engine"
+      }
+    },
+    {
+      "action": "feasibility_run",
+      "id": "BONDS-CAP-FIN-005",
+      "purpose": "Run deterministic feasibility metrics including NPV, IRR and payback.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "feasibility_engine"
+      }
+    },
+    {
+      "action": "valuation_run",
+      "id": "BONDS-CAP-FIN-006",
+      "purpose": "Run deterministic DCF valuation and equity value computation.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "valuation_engine"
+      }
+    },
+    {
+      "action": "risk_analysis_run",
+      "id": "BONDS-CAP-FIN-007",
+      "purpose": "Run deterministic financial risk scoring across liquidity, leverage and debt service.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "risk_analysis_engine"
+      }
+    },
+    {
+      "action": "scenario_forecast_run",
+      "id": "BONDS-CAP-FIN-008",
+      "purpose": "Run deterministic forecasting and Monte Carlo scenario analysis.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "scenario_forecast_engine"
+      }
+    }
+  ]
+}
