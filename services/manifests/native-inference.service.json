@@ -30,15 +30,6 @@
     }
   },
 
-  "limits": {
-    "rate_limit": {
-      "requests_per_minute": 30
-    },
-    "retry": {
-      "max_attempts": 1
-    }
-  },
-
   "observability": {
     "health_check": true,
     "audit": true,
