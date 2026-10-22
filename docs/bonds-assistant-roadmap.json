@@ -545,7 +545,7 @@
       "id": 86,
       "title": "Sensitive Workflow State Machine",
       "phase": "phase2",
-      "status": "in_progress"
+      "status": "implemented_base"
     },
     {
       "id": 87,
@@ -903,10 +903,11 @@
     "notifications",
     "assistant_notifications",
     "draft_center",
-    "agent_inbox"
+    "agent_inbox",
+    "sensitive_workflow_state_machine"
   ],
   "next": [
-    "sensitive_workflow_state_machine"
+    "human_escalation"
   ],
   "deferred": [
     "action_tokens",
@@ -923,8 +924,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-sensitive-workflow-state-machine",
-    "change": "Agent Inbox is merged and production-verified on main 14c9bb1a2b38f963e779844725d6e2a40b906e37. Started Sensitive Workflow State Machine on the existing persistent workflow store with bounded draft/ready/confirmed/submitted/completed/failed transitions, optimistic versioning, exact boundary enforcement, replay safety, and explicit no-business-execution/no-authorization policy."
+    "branch": "docs/close-proposal-86",
+    "change": "Proposal #86 Sensitive Workflow State Machine production verified on main 162123d1d7f21a873fb211f01a0870f83965c922. Supabase production migration applied and verified; Vercel production READY; /api/readiness ready with assistant=ok and token_runtime=ok; runtime error scan clean. Next official Phase 2 workstream: human_escalation."
   },
   "production_rollout": {
     "status": "complete",
