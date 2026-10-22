@@ -557,7 +557,7 @@
       "id": 88,
       "title": "Draft Center",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 89,
@@ -901,10 +901,11 @@
     "document_to_workflow",
     "event_driven_assistant",
     "notifications",
-    "assistant_notifications"
+    "assistant_notifications",
+    "draft_center"
   ],
   "next": [
-    "draft_center"
+    "agent_inbox"
   ],
   "deferred": [
     "action_tokens",
@@ -921,8 +922,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-notifications-complete",
-    "change": "Notifications closed at implemented_base with durable user-scoped storage, deterministic deduplication, unread/read lifecycle, authenticated list/read API, replay-safe persistence, bilingual widget inbox, governed logical actions only, and no direct browser table access. Next: Draft Center."
+    "branch": "feat/assistant-draft-center-current-main",
+    "change": "Draft Center closed at implemented_base as an authenticated, read-only unified view over the existing owned editable draft sources. Production schema columns were verified for all sources; exact user/status/subject filtering, canonical form-registry navigation, partial-source tolerance, and explicit no-submit/no-write/no-execution policy are covered. Next: Agent Inbox."
   },
   "production_rollout": {
     "status": "complete",
