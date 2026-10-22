@@ -60,29 +60,6 @@ function parseBody(req) {
 async function assistantRouter(req, res, path, user) {
   if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
 
-  const guardedFeature=featureForAssistantMutation(path,req.method);
-  if(guardedFeature){
-    try{
-      await assertAssistantMutationEnabled({
-        supabase:getSupabaseClient(),
-        feature:guardedFeature
-      });
-    }catch(err){
-      const disabled=err.message==='ASSISTANT_FEATURE_DISABLED';
-      return sendJson(res,disabled?503:503,{
-        protocol:PROTOCOL,
-        status:'denied',
-        error:err.message,
-        emergency_control:disabled?{
-          active:true,
-          feature:err.feature||guardedFeature,
-          expires_at:err.expires_at||null,
-          execution_authorized:false
-        }:undefined
-      });
-    }
-  }
-
   const mutationFeature = featureForAssistantMutation(path, req.method);
   if (mutationFeature) {
     try {
