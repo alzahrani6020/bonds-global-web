@@ -596,11 +596,18 @@ parent/child relationships بين التوكنات.
 
 # 8. الحالة التنفيذية الحالية
 
-- Assistant V1: **PLANNED**
-- Structured action protocol: **NOT IMPLEMENTED**
-- Navigation registry: **NOT IMPLEMENTED**
-- Form registry: **NOT IMPLEMENTED**
-- Funding next-step capability: **NOT IMPLEMENTED**
+- Assistant V1: **IN PROGRESS**
+- Structured action protocol: **IMPLEMENTED BASE**
+- Assistant API: **IMPLEMENTED BASE**
+- Navigation registry: **IMPLEMENTED BASE**
+- Form registry: **IMPLEMENTED BASE**
+- Governed assistant read capabilities: **IMPLEMENTED BASE**
+- Funding next-step capability: **IMPLEMENTED BASE**
+- Chat widget structured action renderer: **IMPLEMENTED BASE — PR #356**
+- UI Action Bus: **IMPLEMENTED BASE — capability-governed execution only**
+- Confirmation engine: **NOT IMPLEMENTED**
+- Context state: **NOT IMPLEMENTED**
+- Prefill + provenance: **NOT IMPLEMENTED**
 - Action token: **NOT IMPLEMENTED**
 - Workflow token: **NOT IMPLEMENTED**
 - Confirmation token: **NOT IMPLEMENTED**
@@ -609,7 +616,7 @@ parent/child relationships بين التوكنات.
 - Capability governance: **IMPLEMENTED**
 - Dynamic form engine: **IMPLEMENTED**
 - Funding file architecture: **IMPLEMENTED**
-- AI chat widget: **IMPLEMENTED**
+- AI chat widget base: **IMPLEMENTED**
 - Native inference routing: **IMPLEMENTED**
 - Provider-agnostic onboarding contract: **IMPLEMENTED**
 
