@@ -2,11 +2,13 @@
 const {EventEmitter}=require('events');
 
 const mockGuard=jest.fn();
+const mockEmergencyMode=jest.fn();
 jest.mock('../../lib/assistant/emergency-kill-switch',()=>{
   const actual=jest.requireActual('../../lib/assistant/emergency-kill-switch');
   return {
     ...actual,
-    assertAssistantMutationEnabled:(args)=>mockGuard(args)
+    assertAssistantMutationEnabled:(args)=>mockGuard(args),
+    getAssistantEmergencyModeState:(args)=>mockEmergencyMode(args)
   };
 });
 const mockSupabase={from:jest.fn()};
@@ -36,7 +38,17 @@ function call(method,path,user={id:'u1'}){
 }
 
 describe('Assistant Emergency Kill Switch API guard',()=>{
-  beforeEach(()=>jest.clearAllMocks());
+  beforeEach(()=>{
+    jest.clearAllMocks();
+    mockEmergencyMode.mockResolvedValue({
+      feature:'assistant.read_only',
+      disabled:false,
+      mode:'normal',
+      expires_at:null,
+      execution_authorized:false,
+      auto_execute:false
+    });
+  });
 
   test('blocks a state-changing route before route execution',async()=>{
     const err=new Error('ASSISTANT_FEATURE_DISABLED');
@@ -60,6 +72,47 @@ describe('Assistant Emergency Kill Switch API guard',()=>{
     }));
     expect(out.body).not.toHaveProperty('reason');
     expect(out.body.policy.execution_authorized).toBe(false);
+  });
+
+
+  test('read-only emergency mode blocks mutation with dedicated public code',async()=>{
+    const err=new Error('ASSISTANT_READ_ONLY_MODE');
+    err.code='ASSISTANT_READ_ONLY_MODE';
+    err.feature='assistant.read_only';
+    err.mode='read_only_emergency';
+    err.expires_at='2099-01-01T00:00:00Z';
+    mockGuard.mockRejectedValue(err);
+
+    const out=await call('POST','/assistant/workflows/status');
+
+    expect(out.statusCode).toBe(503);
+    expect(out.body).toEqual(expect.objectContaining({
+      status:'denied',
+      error:'ASSISTANT_READ_ONLY_MODE',
+      feature:'assistant.read_only',
+      mode:'read_only_emergency',
+      expires_at:'2099-01-01T00:00:00Z'
+    }));
+    expect(out.body).not.toHaveProperty('reason');
+    expect(out.body.policy.execution_authorized).toBe(false);
+  });
+
+  test('exposes emergency mode status through a read-only route',async()=>{
+    mockEmergencyMode.mockResolvedValue({
+      feature:'assistant.read_only',
+      disabled:true,
+      mode:'read_only_emergency',
+      expires_at:null,
+      execution_authorized:false,
+      auto_execute:false
+    });
+
+    const out=await call('GET','/assistant/emergency-mode');
+
+    expect(out.statusCode).toBe(200);
+    expect(out.body.emergency_mode.mode).toBe('read_only_emergency');
+    expect(mockGuard).not.toHaveBeenCalled();
+    expect(mockEmergencyMode).toHaveBeenCalledWith({supabase:mockSupabase});
   });
 
   test('read-only routes do not consult the kill switch',async()=>{
