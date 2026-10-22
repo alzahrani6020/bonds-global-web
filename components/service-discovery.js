@@ -368,6 +368,27 @@
     track(type.startsWith('geo:') ? 'geography_proposal_submitted' : 'taxonomy_proposal_submitted',{proposal_type:type});
   }
 
+  function safeInternalRoute(route) {
+    if (typeof route !== 'string') return null;
+    const trimmed = route.trim();
+    if (!trimmed || !trimmed.startsWith('/') || trimmed.startsWith('//')) return null;
+    try {
+      const url = new URL(trimmed, window.location.origin);
+      if (url.origin !== window.location.origin) return null;
+      return url.pathname + url.search + url.hash;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  function selectedServiceRoute(serviceCode) {
+    const service = state.services.find(row => row.code === serviceCode);
+    if (!service) return null;
+    const preferred = lang === 'en' ? service.default_route_en : service.default_route_ar;
+    const fallback = lang === 'en' ? service.default_route_ar : service.default_route_en;
+    return safeInternalRoute(preferred) || safeInternalRoute(fallback);
+  }
+
   function start() {
     const serviceCode=q('#bondsService').value;
     if (!serviceCode) { dropdowns.bondsService?.open?.(); q('#bondsService').focus(); return; }
@@ -382,17 +403,8 @@
       window.location.href = lang === 'en' ? '/en/contact.html?intent=custom-service' : '/contact.html?intent=custom-service';
       return;
     }
-    const params=new URLSearchParams({
-      country:q('#bondsCountry').value || '',
-      region:q('#bondsRegion').value || '',
-      region_name:selectedText(q('#bondsRegion')),
-      locality:q('#bondsLocality').value || '',
-      locality_name:selectedText(q('#bondsLocality')),
-      sector:q('#bondsSector').value || '',
-      activity:q('#bondsActivity').value || '',
-      service:serviceCode
-    });
-    sessionStorage.setItem('bonds_service_intent', JSON.stringify({
+
+    const intent = {
       country_code:q('#bondsCountry').value || null,
       region_code:q('#bondsRegion').value || null,
       region_name:selectedText(q('#bondsRegion')),
@@ -401,7 +413,29 @@
       sector_code:q('#bondsSector').value || null,
       activity_code:q('#bondsActivity').value || null,
       service_code:serviceCode
-    }));
+    };
+    sessionStorage.setItem('bonds_service_intent', JSON.stringify(intent));
+
+    const directRoute = selectedServiceRoute(serviceCode);
+    if (directRoute) {
+      track('service_direct_route',{
+        service_code:serviceCode,
+        route:directRoute
+      });
+      window.location.href=directRoute;
+      return;
+    }
+
+    const params=new URLSearchParams({
+      country:intent.country_code || '',
+      region:intent.region_code || '',
+      region_name:intent.region_name || '',
+      locality:intent.locality_code || '',
+      locality_name:intent.locality_name || '',
+      sector:intent.sector_code || '',
+      activity:intent.activity_code || '',
+      service:serviceCode
+    });
     window.location.href=(lang==='en'?'/en/service-request.html':'/service-request.html')+'?'+params.toString();
   }
 
