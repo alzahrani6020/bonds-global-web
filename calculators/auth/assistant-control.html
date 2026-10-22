@@ -50,16 +50,21 @@ main{max-width:1050px;margin:auto;padding:1.2rem}.head{display:flex;justify-cont
 const STATE_PREFIX='bonds.assistant.state.v1:';
 const CONTEXT_PREF_KEY='bonds.assistant.context.enabled.v1';
 
+const statusEl=document.getElementById('status');
+const const contextSummaryEl=document.getElementById('contextSummary');
+const clearContextBtnEl=document.getElementById('clearContextBtn');
+const notificationsEl=document.getElementById('notifications');
+const refreshNotificationsBtnEl=document.getElementById('refreshNotificationsBtn');
 function esc(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
-function show(message,ok=true){const el=document.getElementById('status');el.textContent=message;el.className='status '+(ok?'ok':'err');el.style.display=message?'block':'none';}
+function show(message,ok=true){statusEl.textContent=message;statusEl.className='status '+(ok?'ok':'err');statusEl.style.display=message?'block':'none';}
 function contextEnabled(){try{return window.sessionStorage.getItem(CONTEXT_PREF_KEY)!=='0';}catch{return true;}}
 function setContextEnabled(enabled){try{window.sessionStorage.setItem(CONTEXT_PREF_KEY,enabled?'1':'0');}catch{} if(!enabled)clearAllContext();}
 function contextKeys(){const out=[];try{for(let i=0;i<window.sessionStorage.length;i++){const key=window.sessionStorage.key(i);if(key&&key.startsWith(STATE_PREFIX))out.push(key);}}catch{}return out;}
 function clearAllContext(){for(const key of contextKeys()){try{window.sessionStorage.removeItem(key);}catch{}}renderContextSummary();}
 function renderContextSummary(){
   const keys=contextKeys();
-  if(!keys.length){contextSummary.textContent='لا توجد حالات سياق محفوظة في هذه الجلسة.';return;}
-  contextSummary.innerHTML=keys.map(key=>'<div class="boundary">'+esc(key.slice(STATE_PREFIX.length))+'</div>').join('');
+  if(!keys.length){contextSummaryEl.textContent='لا توجد حالات سياق محفوظة في هذه الجلسة.';return;}
+  contextSummaryEl.innerHTML=keys.map(key=>'<div class="boundary">'+esc(key.slice(STATE_PREFIX.length))+'</div>').join('');
 }
 async function authFetch(url,options={}){
   const response=await BondsAuth.authenticatedFetch(url,{...options,returnTo:location.pathname});
@@ -74,29 +79,29 @@ async function requireUser(){
   return true;
 }
 async function loadNotifications(){
-  notifications.textContent='جارٍ تحميل الإشعارات…';
+  notificationsEl.textContent='جارٍ تحميل الإشعارات…';
   try{
     const body=await authFetch('/api/v3/assistant/notifications?limit=25');
     const items=Array.isArray(body.notifications)?body.notifications:[];
-    if(!items.length){notifications.textContent='لا توجد إشعارات للمساعد.';return;}
-    notifications.innerHTML=items.map(item=>{
+    if(!items.length){notificationsEl.textContent='لا توجد إشعارات للمساعد.';return;}
+    notificationsEl.innerHTML=items.map(item=>{
       const title=item.title_ar||item.title_en||'إشعار المساعد';
       const message=item.message_ar||item.message_en||'';
       return '<div class="notification '+(item.read?'':'unread')+'" data-notification-id="'+esc(item.id)+'"><strong>'+esc(title)+'</strong><p>'+esc(message)+'</p>'+(item.read?'':'<button class="btn btn2 mark-read" type="button">تحديد كمقروء</button>')+'</div>';
     }).join('');
-    notifications.querySelectorAll('.mark-read').forEach(btn=>btn.addEventListener('click',async()=>{
+    notificationsEl.querySelectorAll('.mark-read').forEach(btn=>btn.addEventListener('click',async()=>{
       const card=btn.closest('[data-notification-id]');const id=card?.dataset.notificationId;if(!id)return;
       btn.disabled=true;
       try{await authFetch('/api/v3/assistant/notifications/read',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({notification_id:id})});await loadNotifications();}
       catch(err){show('تعذر تحديث الإشعار: '+err.message,false);btn.disabled=false;}
     }));
-  }catch(err){notifications.textContent='تعذر تحميل الإشعارات.';show('فشل تحميل إشعارات المساعد: '+err.message,false);}
+  }catch(err){notificationsEl.textContent='تعذر تحميل الإشعارات.';show('فشل تحميل إشعارات المساعد: '+err.message,false);}
 }
 contextEnabledEl=document.getElementById('contextEnabled');
 contextEnabledEl.checked=contextEnabled();
 contextEnabledEl.addEventListener('change',()=>{setContextEnabled(contextEnabledEl.checked);show(contextEnabledEl.checked?'تم تفعيل سياق الجلسة.':'تم إيقاف سياق الجلسة ومسح حالاته.',true);});
-clearContextBtn.addEventListener('click',()=>{if(!window.confirm('مسح كل سياق المساعد المحفوظ في هذه الجلسة؟'))return;clearAllContext();show('تم مسح سياق المساعد في هذه الجلسة.',true);});
-refreshNotificationsBtn.addEventListener('click',loadNotifications);
+clearContextBtnEl.addEventListener('click',()=>{if(!window.confirm('مسح كل سياق المساعد المحفوظ في هذه الجلسة؟'))return;clearAllContext();show('تم مسح سياق المساعد في هذه الجلسة.',true);});
+refreshNotificationsBtnEl.addEventListener('click',loadNotifications);
 renderContextSummary();
 requireUser().then(ok=>{if(ok)loadNotifications();}).catch(err=>show('تعذر التحقق من الجلسة: '+err.message,false));
 })();
