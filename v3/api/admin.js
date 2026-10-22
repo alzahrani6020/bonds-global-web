@@ -6,12 +6,13 @@
  */
 
 const { getSupabaseClient } = require('../lib/supabase');
-const { requireAdminAccess, requireAgentInboxAccess } = require('../lib/admin-access');
+const { requireAdminAccess, requireAgentInboxAccess, requireHumanApprovalAccess } = require('../lib/admin-access');
 const {
   listAgentInbox,
   updateAgentInboxItem,
   listAgentAssignees
 } = require('../../lib/assistant/agent-inbox-queue');
+const { listHumanApprovalQueue, decideHumanApproval } = require('../../lib/assistant/human-approval');
 const { calibrateCompetitorCounts } = require('../engine/data-acquisition/CompetitorCalibration');
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
 
@@ -916,6 +917,51 @@ async function handleServiceRequestsAdmin(req,res,requestId,subresource,subId){
 }
 
 
+
+async function handleHumanApprovalsAdmin(req,res,parts,access){
+  const supabase=getSupabaseClient();
+  const approvalId=parts[2]||null;
+  const subresource=parts[3]||null;
+
+  if(!approvalId && req.method==='GET'){
+    const url=new URL(req.url,`http://${req.headers.host||'localhost'}`);
+    try{
+      const queue=await listHumanApprovalQueue({
+        supabase,
+        status:url.searchParams.get('status')||'pending',
+        risk:url.searchParams.get('risk'),
+        limit:url.searchParams.get('limit')||100
+      });
+      return sendJson(res,200,{success:true,role:access.role,human_approval_queue:queue});
+    }catch(err){
+      return sendJson(res,503,{success:false,error:err.message});
+    }
+  }
+
+  if(approvalId && subresource==='decision' && req.method==='POST'){
+    let body;
+    try{body=await parseBody(req);}
+    catch(_err){return sendJson(res,400,{success:false,error:'Invalid JSON body'});}
+    try{
+      const result=await decideHumanApproval({
+        supabase,
+        approvalId,
+        reviewerUserId:access.user?.id||null,
+        decision:body.decision,
+        note:body.note
+      });
+      return sendJson(res,200,{success:true,...result});
+    }catch(err){
+      const status=err.message==='HUMAN_APPROVAL_NOT_FOUND_OR_DECIDED'?409
+        : ['HUMAN_APPROVAL_ID_REQUIRED','HUMAN_APPROVAL_REVIEWER_REQUIRED','HUMAN_APPROVAL_DECISION_INVALID'].includes(err.message)?422
+        : 503;
+      return sendJson(res,status,{success:false,error:err.message});
+    }
+  }
+
+  return sendJson(res,405,{success:false,error:'Method not allowed'});
+}
+
 async function handleAgentInboxAdmin(req, res, parts, access) {
   const supabase = getSupabaseClient();
   const itemId = parts[2] || null;
@@ -980,6 +1026,12 @@ async function adminRouter(req, res, path) {
   const parts = path.split('/').filter(Boolean);
   const resource = parts[1]; // after 'admin'
   const identifier = parts[2];
+
+  if (resource === 'human-approvals') {
+    const access=await requireHumanApprovalAccess(req);
+    if(!access)return sendJson(res,401,{error:'Unauthorized'});
+    return handleHumanApprovalsAdmin(req,res,parts,access);
+  }
 
   if (resource === 'agent-inbox') {
     const access = await requireAgentInboxAccess(req);

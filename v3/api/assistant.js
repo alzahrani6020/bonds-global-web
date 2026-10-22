@@ -21,6 +21,7 @@ const { buildAgentInbox } = require('../../lib/assistant/agent-inbox');
 const { transitionSensitiveWorkflowState } = require('../../lib/assistant/sensitive-workflow-state-machine');
 const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxItem } = require('../../lib/assistant/agent-inbox-queue');
 const { createHumanEscalation, listUserHumanEscalations } = require('../../lib/assistant/human-escalation');
+const { requestHumanApproval, listUserHumanApprovals } = require('../../lib/assistant/human-approval');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -626,6 +627,87 @@ async function assistantRouter(req, res, path, user) {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
+      });
+    }
+  }
+
+
+  if (path === '/assistant/approvals' && req.method === 'GET') {
+    try {
+      const requestUrl=new URL(req.url||'/api/v3/assistant/approvals','http://localhost');
+      const approvals=await listUserHumanApprovals({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        limit:requestUrl.searchParams.get('limit')||25
+      });
+      return sendJson(res,200,{
+        protocol:PROTOCOL,
+        status:'completed',
+        human_approvals:approvals,
+        policy:{execution_authorized:false,auto_execute:false}
+      });
+    } catch (err) {
+      const clientError=err.message==='HUMAN_APPROVAL_USER_REQUIRED';
+      return sendJson(res,clientError?422:503,{
+        protocol:PROTOCOL,status:'denied',error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/approvals' && req.method === 'POST') {
+    let body;
+    try { body=await parseBody(req); }
+    catch (err) { return sendJson(res,400,{error:'Invalid JSON body',detail:err.message}); }
+    const supabase=getSupabaseClient();
+    const auditAction=body.action||{
+      id:body.idempotency_key||null,
+      type:'human_approval_request',
+      target:body.workflow_key||null,
+      risk:'high',
+      requires_confirmation:true
+    };
+    try {
+      const result=await requestHumanApproval({
+        supabase,
+        userId:user.id,
+        workflowKey:body.workflow_key,
+        boundary:body.boundary,
+        expectedVersion:body.expected_version,
+        action:body.action,
+        idempotencyKey:body.idempotency_key
+      });
+      await appendAssistantAuditBestEffort({
+        supabase,userId:user.id,action:auditAction,
+        eventType:result.replayed?'replayed':'write_succeeded',
+        outcome:result.replayed?'human_approval_replayed':'human_approval_requested',
+        idempotencyKey:body.idempotency_key,
+        boundary:body.boundary,
+        resourceId:result.approval?.id||null,
+        metadata:{workflow_key:body.workflow_key||null,human_approval:true,execution_authorized:false}
+      });
+      return sendJson(res,200,{protocol:PROTOCOL,status:'completed',...result});
+    } catch (err) {
+      await appendAssistantAuditBestEffort({
+        supabase,userId:user.id,action:auditAction,
+        eventType:'denied',outcome:err.message,
+        idempotencyKey:body.idempotency_key,boundary:body.boundary,
+        metadata:{workflow_key:body.workflow_key||null,human_approval:true}
+      });
+      const conflict=[
+        'WORKFLOW_VERSION_CONFLICT',
+        'HUMAN_APPROVAL_BOUNDARY_CONFLICT',
+        'HUMAN_APPROVAL_WORKFLOW_STATUS_BLOCKED',
+        'HUMAN_APPROVAL_IDEMPOTENCY_CONFLICT'
+      ].includes(err.message);
+      const notFound=err.message==='WORKFLOW_NOT_FOUND';
+      const clientError=[
+        'HUMAN_APPROVAL_USER_REQUIRED','HUMAN_APPROVAL_BOUNDARY_REQUIRED',
+        'HUMAN_APPROVAL_VERSION_REQUIRED','HUMAN_APPROVAL_IDEMPOTENCY_KEY_INVALID',
+        'HUMAN_APPROVAL_CONFIRMATION_REQUIRED','HUMAN_APPROVAL_RISK_NOT_ELIGIBLE',
+        'INVALID_WORKFLOW_KEY','INVALID_ASSISTANT_ACTION'
+      ].includes(err.message);
+      return sendJson(res,conflict?409:notFound?404:clientError?422:503,{
+        protocol:PROTOCOL,status:'denied',error:err.message
       });
     }
   }
