@@ -23,6 +23,8 @@ describe('BONDS global service assistant', () => {
   test('chat is page-aware and loads verified service profile', () => {
     expect(widget).toContain("const SERVICE_DETAIL_API = '/api/v3/services/';");
     expect(widget).toContain('pagePath: options.pagePath || window.location.pathname');
+    expect(widget).toContain("const SERVICE_CATALOG_API = '/api/v3/services/catalog';");
+    expect(widget).toContain('async function resolveServiceContextFromPage()');
     expect(widget).toContain('async function loadVerifiedServiceProfile()');
     expect(widget).toContain('updateContext(compactServiceProfile(data));');
     expect(widget).toContain("context.pagePath = window.location.pathname");
@@ -33,6 +35,7 @@ describe('BONDS global service assistant', () => {
     expect(widget).toContain('ما متطلبات خدمة ${service}؟');
     expect(widget).toContain('ما البيانات أو المستندات الناقصة؟');
     expect(widget).toContain('ما القدرات والأدوات المتاحة لهذه الخدمة؟');
+    expect(widget).toContain('التواصل مع مستشار بشري');
   });
 
   test('server discards client capability arrays and reloads them from service tables', () => {
@@ -42,6 +45,14 @@ describe('BONDS global service assistant', () => {
     expect(aiApi).toContain(".from('service_deliverables')");
     expect(aiApi).toContain(".from('service_dependencies')");
     expect(aiApi).toContain('enriched.serviceCapabilities =');
+  });
+
+  test('server provides deterministic service answers before requiring native AI', () => {
+    expect(aiApi).toContain('function generateServiceDrivenReply(userMessage, context)');
+    expect(aiApi).toContain("msg.includes('متطلبات')");
+    expect(aiApi).toContain("msg.includes('مخرجات')");
+    expect(aiApi).toContain("msg.includes('قدرات')");
+    expect(aiApi).toContain("msg.includes('الخطوة التالية')");
   });
 
   test('verified service execution context is supplied to native AI evidence', () => {
