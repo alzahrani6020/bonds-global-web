@@ -551,7 +551,7 @@
       "id": 87,
       "title": "Agent Inbox",
       "phase": "phase2",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": 88,
@@ -922,8 +922,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-draft-center-current-main",
-    "change": "Draft Center closed at implemented_base as an authenticated, read-only unified view over the existing owned editable draft sources. Production schema columns were verified for all sources; exact user/status/subject filtering, canonical form-registry navigation, partial-source tolerance, and explicit no-submit/no-write/no-execution policy are covered. Next: Agent Inbox."
+    "branch": "feat/assistant-agent-inbox",
+    "change": "Draft Center is production-verified on main 087c9b788df27da980f0738580120c1fe2bd3418. Started Agent Inbox as a read-only user-scoped aggregation of active/paused workflow requirements, pending confirmations, open tasks, owned editable drafts, and unread notification context; no parallel store, no submit/write path, and no execution authorization."
   },
   "production_rollout": {
     "status": "complete",
