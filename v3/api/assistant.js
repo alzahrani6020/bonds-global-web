@@ -284,12 +284,36 @@ async function assistantRouter(req, res, path, user) {
     catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
 
     try {
+      if (
+        body.state &&
+        typeof body.state === 'object' &&
+        !Array.isArray(body.state) &&
+        Object.prototype.hasOwnProperty.call(body.state, 'sensitive_state')
+      ) {
+        throw new Error('SENSITIVE_STATE_DIRECT_WRITE_FORBIDDEN');
+      }
+
+      const supabase = getSupabaseClient();
+      const current = await loadWorkflowState({
+        supabase,
+        userId:user.id,
+        workflowKey:body.workflow_key
+      });
+      const state = (
+        current?.state?.sensitive_state &&
+        body.state &&
+        typeof body.state === 'object' &&
+        !Array.isArray(body.state)
+      )
+        ? { ...body.state, sensitive_state:current.state.sensitive_state }
+        : body.state;
+
       const workflow = await saveWorkflowState({
-        supabase:getSupabaseClient(),
+        supabase,
         userId:user.id,
         workflowKey:body.workflow_key,
         boundary:body.boundary,
-        state:body.state,
+        state,
         status:body.status,
         expectedVersion:body.expected_version
       });
@@ -298,7 +322,7 @@ async function assistantRouter(req, res, path, user) {
       const conflict = ['WORKFLOW_VERSION_CONFLICT','WORKFLOW_BOUNDARY_CONFLICT'].includes(err.message);
       const clientError = [
         'INVALID_WORKFLOW_KEY','INVALID_WORKFLOW_STATUS','INVALID_WORKFLOW_VERSION',
-        'WORKFLOW_BOUNDARY_REQUIRED','WORKFLOW_STATE_INVALID'
+        'WORKFLOW_BOUNDARY_REQUIRED','WORKFLOW_STATE_INVALID','SENSITIVE_STATE_DIRECT_WRITE_FORBIDDEN'
       ].includes(err.message);
       return sendJson(res, conflict ? 409 : clientError ? 422 : 503, {
         protocol:PROTOCOL,
