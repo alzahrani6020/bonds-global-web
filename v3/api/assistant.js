@@ -36,6 +36,7 @@ const {
 } = require('../../lib/assistant/notification-store');
 const { getCachedIntrospection } = require('../../lib/assistant/safe-introspection-cache');
 const { publicAssistantPolicyDescriptor } = require('../../lib/assistant/policy-engine');
+const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
 const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
 
 function sendJson(res, status, body) {
@@ -110,6 +111,63 @@ async function assistantRouter(req, res, path, user) {
       reply:'مساعد بوندز جاهز.',
       context:{ protocol:PROTOCOL, execution:'plan_only' }
     }));
+  }
+
+  if (path === '/assistant/services/execute' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    const serviceCode=String(body.service_code || '').trim();
+    if(!serviceCode) return sendJson(res,400,{ error:'service_code is required' });
+
+    try {
+      const result=await executeService({
+        req,
+        user,
+        supabase:getSupabaseClient(),
+        serviceCode,
+        body:{ ...body, source:body.source || 'assistant' }
+      });
+      return sendJson(res,result.httpStatus,{
+        protocol:PROTOCOL,
+        status:result.body?.ok ? 'completed' : 'denied',
+        ...result.body
+      });
+    } catch(err) {
+      return sendJson(res,503,{
+        protocol:PROTOCOL,
+        status:'denied',
+        service_code:serviceCode,
+        error:{ code:'ASSISTANT_SERVICE_EXECUTION_FAILED', message:err.message }
+      });
+    }
+  }
+
+  if (path.match(/^\/assistant\/services\/[^/]+$/) && req.method === 'GET') {
+    const serviceCode=decodeURIComponent(path.split('/').pop());
+    try {
+      const resolved=await loadExecutionProfile(getSupabaseClient(),serviceCode);
+      if(!resolved) return sendJson(res,404,{ protocol:PROTOCOL,status:'not_found',service_code:serviceCode });
+      return sendJson(res,200,{
+        protocol:PROTOCOL,
+        status:'completed',
+        service:{
+          code:resolved.service.code,
+          name_ar:resolved.service.name_ar,
+          name_en:resolved.service.name_en
+        },
+        execution:resolved.profile,
+        capabilities:resolved.capabilities
+      });
+    } catch(err) {
+      return sendJson(res,503,{
+        protocol:PROTOCOL,
+        status:'denied',
+        service_code:serviceCode,
+        error:err.message
+      });
+    }
   }
 
   if (path === '/assistant/policy' && req.method === 'GET') {

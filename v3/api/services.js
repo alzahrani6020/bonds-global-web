@@ -1,6 +1,7 @@
 'use strict';
 
 const { resolveGeoContext } = require('../../lib/geo/resolve-context');
+const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -199,6 +200,85 @@ async function handleServicePackages(req, res, supabase) {
   return sendJson(res, 200, {
     packages: (packages || []).map(pkg => ({ ...pkg, items: items.filter(item => item.package_id === pkg.id) }))
   });
+}
+
+async function parseJsonBody(req) {
+  return new Promise((resolve, reject) => {
+    let raw = '';
+    req.on('data', chunk => {
+      raw += chunk;
+      if (raw.length > 1_048_576) {
+        reject(new Error('request body too large'));
+        req.destroy();
+      }
+    });
+    req.on('end', () => {
+      try { resolve(raw ? JSON.parse(raw) : {}); }
+      catch (err) { reject(err); }
+    });
+    req.on('error', reject);
+  });
+}
+
+async function handleServiceExecute(req, res, supabase, user) {
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+
+  let body;
+  try {
+    body = await parseJsonBody(req);
+  } catch (err) {
+    return sendJson(res, 400, { error: 'Invalid JSON body', detail: err.message });
+  }
+
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return sendJson(res, 400, { error: 'Invalid request body' });
+  }
+
+  const serviceCode = String(body.service_code || '').trim();
+  if (!serviceCode) return sendJson(res, 400, { error: 'service_code is required' });
+
+  try {
+    const result = await executeService({
+      req,
+      user,
+      supabase,
+      serviceCode,
+      body
+    });
+    return sendJson(res, result.httpStatus, result.body);
+  } catch (err) {
+    console.error('[services/execute]', err.message);
+    return sendJson(res, 500, {
+      ok: false,
+      executed: false,
+      service_code: serviceCode,
+      error: { code: 'SERVICE_EXECUTION_FAILED', message: err.message }
+    });
+  }
+}
+
+async function handleServiceExecutionProfile(req, res, supabase, user, code) {
+  if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
+  if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+
+  try {
+    const resolved = await loadExecutionProfile(supabase, code);
+    if (!resolved) return sendJson(res, 404, { error: 'Service not found' });
+    return sendJson(res, 200, {
+      service: {
+        code: resolved.service.code,
+        name_ar: resolved.service.name_ar,
+        name_en: resolved.service.name_en,
+        category_code: resolved.service.category_code,
+        group_code: resolved.service.group_code
+      },
+      execution: resolved.profile,
+      capabilities: resolved.capabilities
+    });
+  } catch (err) {
+    console.error('[services/execution-profile]', err.message);
+    return sendJson(res, 500, { error: 'Failed to load service execution profile' });
+  }
 }
 
 async function handleCreateServiceRequest(req, res, supabase, user) {
@@ -438,7 +518,10 @@ async function servicesRouter(req, res, path, supabase, user) {
   if (path === '/services' || path === '/services/catalog') return handleServiceCatalog(req, res, supabase);
   if (path === '/services/goals') return handleServiceGoals(req, res, supabase);
   if (path === '/services/packages') return handleServicePackages(req, res, supabase);
+  if (path === '/services/execute') return handleServiceExecute(req, res, supabase, user);
   if (path === '/services/requests') return handleCreateServiceRequest(req, res, supabase, user);
+  const executionMatch=path.match(/^\/services\/([^/]+)\/execution$/);
+  if (executionMatch) return handleServiceExecutionProfile(req,res,supabase,user,decodeURIComponent(executionMatch[1]));
   const detailMatch=path.match(/^\/services\/([^/]+)$/);
   if (detailMatch) return handleServiceDetail(req,res,supabase,decodeURIComponent(detailMatch[1]));
   return sendJson(res, 404, { error: 'Service resource not found' });
