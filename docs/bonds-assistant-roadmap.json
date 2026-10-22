@@ -569,7 +569,7 @@
       "id": 90,
       "title": "Event-Driven Assistant",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 91,
@@ -897,10 +897,11 @@
     "production_rollout",
     "assistant_v1_production_acceptance",
     "persistent_workflow_state",
-    "document_assistant_classification_extraction"
+    "document_assistant_classification_extraction",
+    "document_to_workflow"
   ],
   "next": [
-    "document_to_workflow"
+    "event_driven_assistant"
   ],
   "deferred": [
     "action_tokens",
@@ -917,8 +918,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-document-to-workflow",
-    "change": "Phase 2 document intelligence is complete in production on SHA 7243c8455ce3d7c7032afb5a914907878b9a68d4. Started Document-to-Workflow with suggestion-only mapping from owned document classification to funding requirements, completion-aware filtering, project-boundary checks, and explicit auto-write prohibition."
+    "branch": "feat/assistant-event-driven",
+    "change": "Document-to-Workflow is complete in production on SHA fdb8fcac8f41164cbf49349bc7d7212db57918c2. Started Event-Driven Assistant with an allowlisted event gateway, exact workflow-boundary enforcement, bounded scalar payloads, forbidden execution-field rejection, deterministic state patches, suggestion-only follow-ups, and explicit execution_authorized=false."
   },
   "production_rollout": {
     "status": "complete",

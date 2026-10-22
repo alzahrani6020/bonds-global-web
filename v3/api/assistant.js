@@ -15,6 +15,7 @@ const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-tr
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
 const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
+const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -375,6 +376,48 @@ async function assistantRouter(req, res, path, user) {
         'FUNDING_CASE_ID_REQUIRED','WORKFLOW_USER_REQUIRED'
       ].includes(err.message);
       return sendJson(res, conflict ? 409 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/events/apply' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const result = await applyAssistantEvent({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        workflowKey:body.workflow_key,
+        event:body.event,
+        expectedVersion:body.expected_version
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        ...result
+      });
+    } catch (err) {
+      const conflict = [
+        'ASSISTANT_EVENT_BOUNDARY_CONFLICT',
+        'WORKFLOW_VERSION_CONFLICT'
+      ].includes(err.message);
+      const notFound = err.message === 'WORKFLOW_NOT_FOUND';
+      const clientError = [
+        'INVALID_ASSISTANT_EVENT',
+        'FORBIDDEN_EVENT_FIELD',
+        'ASSISTANT_EVENT_NOT_ALLOWED',
+        'ASSISTANT_EVENT_BOUNDARY_REQUIRED',
+        'WORKFLOW_USER_REQUIRED',
+        'INVALID_WORKFLOW_KEY',
+        'INVALID_WORKFLOW_VERSION',
+        'WORKFLOW_EVENT_STATUS_BLOCKED'
+      ].includes(err.message);
+      return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
