@@ -1,6 +1,11 @@
 /** @jest-environment node */
 
 const { EventEmitter }=require('events');
+
+jest.mock('../../lib/assistant/emergency-kill-switch',()=>({
+  featureForAssistantMutation:()=>null,
+  assertAssistantMutationEnabled:jest.fn()
+}));
 const mockSave=jest.fn();
 
 jest.mock('../../lib/assistant/workflow-state',()=>({
