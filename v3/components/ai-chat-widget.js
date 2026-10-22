@@ -9,6 +9,7 @@
 (function (window) {
   const API_URL = '/api/v3/ai/chat';
   const SERVICE_DETAIL_API = '/api/v3/services/';
+  const SERVICE_CATALOG_API = '/api/v3/services/catalog';
   const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
   const ASSISTANT_PLAN_URL = '/api/v3/assistant/plan';
   const ASSISTANT_CONFIRMATION_PREPARE_URL = '/api/v3/assistant/confirmation/prepare';
@@ -585,6 +586,17 @@
       max-height: 18px !important;
       transform: rotate(180deg);
     }
+    .bonds-ai-human-link {
+      display: block;
+      margin: 8px 16px 0;
+      text-align: center;
+      font-size: 0.78rem;
+      text-decoration: none;
+      color: inherit;
+      opacity: 0.78;
+    }
+    .bonds-ai-human-link:hover { opacity: 1; text-decoration: underline; }
+
     #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-disclaimer {
       display: block;
       padding: 0 12px 9px;
@@ -677,6 +689,7 @@
           <input type="text" placeholder="اكتب سؤالك هنا..." autocomplete="off">
           <button aria-label="إرسال"><span class="bonds-ai-send-label">إرسال</span><svg class="bonds-ai-send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
         </div>
+        <a class="bonds-ai-human-link" href="https://wa.me/966567566616?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A8%D9%88%D9%86%D8%AF%D8%B2%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%AA%D8%AD%D8%AF%D8%AB%20%D9%85%D8%B9%20%D9%85%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1." target="_blank" rel="noopener noreferrer">التواصل مع مستشار بشري</a>
         <small class="bonds-ai-home-disclaimer">مساعد بوندز قد يخطئ؛ راجع المعلومات المهمة قبل اتخاذ القرار.</small>
       </div>
     `;
@@ -934,7 +947,44 @@
       };
     }
 
+    function routeIdentity(route) {
+      try {
+        const url = new URL(route || '/', window.location.origin);
+        return url.pathname + (url.hash || '');
+      } catch (_) {
+        return String(route || '').trim();
+      }
+    }
+
+    async function resolveServiceContextFromPage() {
+      if (context.serviceCode) return;
+      try {
+        const res = await fetch(SERVICE_CATALOG_API, {
+          headers: await getAuthHeaders(),
+          credentials: 'same-origin',
+          cache: 'no-store'
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const current = routeIdentity(window.location.pathname + window.location.hash);
+        const service = (data.services || []).find(row =>
+          [row.default_route_ar, row.default_route_en]
+            .filter(Boolean)
+            .some(route => routeIdentity(route) === current)
+        );
+        if (!service) return;
+        updateContext({
+          serviceCode: service.code || null,
+          serviceName: service.name_ar || service.name_en || service.code || null,
+          serviceNameEn: service.name_en || service.name_ar || null
+        });
+      } catch (err) {
+        console.warn('[BondsAssistantPageServiceResolution]', err);
+      }
+    }
+
     async function loadVerifiedServiceProfile() {
+      await resolveServiceContextFromPage();
       const serviceCode = String(context.serviceCode || '').trim();
       if (!serviceCode || loadedServiceProfileCode === serviceCode) return;
       const params = new URLSearchParams();
