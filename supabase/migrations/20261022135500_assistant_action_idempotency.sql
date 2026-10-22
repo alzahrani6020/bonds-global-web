@@ -186,3 +186,6 @@ $$;
 
 REVOKE ALL ON FUNCTION public.assistant_claim_idempotency(uuid,text,text,text,text) FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.assistant_resolve_idempotency(uuid,text,text,text,jsonb) FROM PUBLIC, anon, authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.assistant_action_idempotency TO service_role;
+GRANT EXECUTE ON FUNCTION public.assistant_claim_idempotency(uuid,text,text,text,text) TO service_role;
+GRANT EXECUTE ON FUNCTION public.assistant_resolve_idempotency(uuid,text,text,text,jsonb) TO service_role;
