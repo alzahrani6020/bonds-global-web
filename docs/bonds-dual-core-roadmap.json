@@ -14,17 +14,17 @@
         {
           "id": "p0.1",
           "title": "Canonical project memory files",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p0.2",
           "title": "Persistent checkpoint library",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p0.3",
           "title": "Local SQLite + remote checkpoint metadata",
-          "status": "planned"
+          "status": "implemented_candidate"
         }
       ]
     },
