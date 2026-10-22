@@ -915,10 +915,11 @@
     "safe_introspection_cache",
     "policy_as_code",
     "policy_simulation",
-    "shadow_authorization"
+    "shadow_authorization",
+    "operational_dashboard"
   ],
   "next": [
-    "operational_dashboard"
+    "assistant_control_center"
   ],
   "deferred": [
     "action_tokens",
@@ -935,8 +936,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-shadow-authorization",
-    "change": "Shadow Authorization implemented_base beside production governance. It projects manifest/user-governance authorization as would_allow/would_deny/not_evaluated, compares with the actual evaluateGovernance outcome, reports bounded drift, and never changes the production decision. Token verification, feature flags, and rate-limit dimensions are deliberately not re-executed in shadow mode, preventing token/rate-limit side effects. Next: operational_dashboard."
+    "branch": "feat/assistant-operational-dashboard",
+    "change": "Operational Dashboard implemented_base as an admin-only read-only Assistant operations view. It aggregates bounded assistant audit activity, active Agent Inbox and Human Approval queues, persisted anomaly alerts, and public emergency-mode state without exposing raw user identifiers, audit metadata, secrets, or kill-switch reasons. It explicitly marks Shadow Authorization drift telemetry unavailable until persistence exists. Integrated into Platform Center. Next: assistant_control_center."
   },
   "production_rollout": {
     "status": "complete",
