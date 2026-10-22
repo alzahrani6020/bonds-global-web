@@ -31,7 +31,39 @@
     {
       "id": "phase1",
       "title": "Dual-Core Foundation",
-      "status": "ready"
+      "status": "in_progress",
+      "items": [
+        {
+          "id": "p1.1",
+          "title": "Shared event taxonomy",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p1.2",
+          "title": "Dynamic Intelligence Bus",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p1.3",
+          "title": "Evolution state machine",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p1.4",
+          "title": "Runtime Capability Profiler",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p1.5",
+          "title": "Resource Scheduler",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p1.6",
+          "title": "Core A/Core B priority arbitration",
+          "status": "implemented_candidate"
+        }
+      ]
     },
     {
       "id": "phase2",
