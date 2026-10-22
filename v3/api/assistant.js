@@ -388,13 +388,49 @@ async function assistantRouter(req, res, path, user) {
     try { body = await parseBody(req); }
     catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
 
+    const supabase = getSupabaseClient();
+    const eventAuditAction = {
+      id:body.event?.id || null,
+      type:'assistant_event',
+      target:body.workflow_key || null,
+      risk:'low',
+      requires_confirmation:false
+    };
+
+    await appendAssistantAuditBestEffort({
+      supabase,
+      userId:user.id,
+      action:eventAuditAction,
+      eventType:'event_received',
+      outcome:body.event?.type || 'unknown',
+      sessionId:body.session_id,
+      boundary:body.event?.boundary,
+      resourceId:body.event?.resource_id,
+      metadata:{ workflow_key:body.workflow_key || null }
+    });
+
     try {
       const result = await applyAssistantEvent({
-        supabase:getSupabaseClient(),
+        supabase,
         userId:user.id,
         workflowKey:body.workflow_key,
         event:body.event,
         expectedVersion:body.expected_version
+      });
+      await appendAssistantAuditBestEffort({
+        supabase,
+        userId:user.id,
+        action:eventAuditAction,
+        eventType:result.replayed ? 'event_replayed' : 'event_applied',
+        outcome:result.replayed ? 'replayed' : 'applied',
+        sessionId:body.session_id,
+        boundary:result.event?.boundary,
+        resourceId:result.event?.resource_id,
+        metadata:{
+          event_type:result.event?.type || null,
+          workflow_key:body.workflow_key || null,
+          workflow_version:result.workflow?.version ?? null
+        }
       });
       return sendJson(res, 200, {
         protocol:PROTOCOL,
@@ -402,6 +438,20 @@ async function assistantRouter(req, res, path, user) {
         ...result
       });
     } catch (err) {
+      await appendAssistantAuditBestEffort({
+        supabase,
+        userId:user.id,
+        action:eventAuditAction,
+        eventType:'event_denied',
+        outcome:err.message,
+        sessionId:body.session_id,
+        boundary:body.event?.boundary,
+        resourceId:body.event?.resource_id,
+        metadata:{
+          event_type:body.event?.type || null,
+          workflow_key:body.workflow_key || null
+        }
+      });
       const conflict = [
         'ASSISTANT_EVENT_BOUNDARY_CONFLICT',
         'WORKFLOW_VERSION_CONFLICT'
@@ -410,6 +460,7 @@ async function assistantRouter(req, res, path, user) {
       const clientError = [
         'INVALID_ASSISTANT_EVENT',
         'FORBIDDEN_EVENT_FIELD',
+        'ASSISTANT_EVENT_ID_REQUIRED',
         'ASSISTANT_EVENT_NOT_ALLOWED',
         'ASSISTANT_EVENT_BOUNDARY_REQUIRED',
         'WORKFLOW_USER_REQUIRED',
