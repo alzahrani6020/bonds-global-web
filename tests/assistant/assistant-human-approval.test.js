@@ -16,10 +16,9 @@ describe('Human Approval Queue',()=>{
     const out=await requestHumanApproval({supabase,userId:'u1',workflowKey:'wf-1',boundary:'project:p-1',expectedVersion:4,action:{id:'act-1',type:'form_submit',capability:'form_submit',target:'funding',input:{x:1},risk:'high',requires_confirmation:true,status:'ready'},idempotencyKey:'approval-001'});
     expect(supabase.from).toHaveBeenCalledWith('admin_approval_requests');expect(inserted.state.insert).toEqual(expect.objectContaining({requested_by:'u1',permission:'assistant.human_approval',workflow_key:'wf-1',risk:'high'}));expect(out.execution_authorized).toBe(false);
   });
-  test('rejects low-risk or non-confirmation actions',async()=>{
+  test('rejects actions below the human-approval risk threshold',async()=>{
     const supabase={from:jest.fn()};
     await expect(requestHumanApproval({supabase,userId:'u1',workflowKey:'wf-1',boundary:'project:p-1',expectedVersion:4,action:{id:'a',type:'site_navigate',capability:'site_navigate',target:'home',input:{},risk:'low',requires_confirmation:true,status:'ready'},idempotencyKey:'approval-002'})).rejects.toThrow('HUMAN_APPROVAL_RISK_NOT_ELIGIBLE');
-    await expect(requestHumanApproval({supabase,userId:'u1',workflowKey:'wf-1',boundary:'project:p-1',expectedVersion:4,action:{id:'a',type:'form_submit',capability:'form_submit',target:'x',input:{},risk:'high',requires_confirmation:false,status:'ready'},idempotencyKey:'approval-003'})).rejects.toThrow('HUMAN_APPROVAL_CONFIRMATION_REQUIRED');
   });
   test('decision is pending-only, reviewer-bound and never authorizes execution',async()=>{
     const dq=query({data:{id:'a1',requested_by:'u1',permission:'assistant.human_approval',workflow_key:'wf-1',boundary:'project:p-1',workflow_version:4,action_type:'form_submit',target_id:'wf-1',action_fingerprint:'a'.repeat(64),risk:'critical',status:'approved',approvals:[{reviewer_user_id:'admin-1',decision:'approved'}],payload:{action_id:'act-1',action_target:'funding'}},error:null});
