@@ -23,7 +23,11 @@ const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxIt
 const { createHumanEscalation, listUserHumanEscalations } = require('../../lib/assistant/human-escalation');
 const { requestHumanApproval, listUserHumanApprovals, listHumanApprovalQueue } = require('../../lib/assistant/human-approval');
 const { resolveEmployeeAssistantMode, buildEmployeeAssistantWorkspace } = require('../../lib/assistant/employee-assistant-mode');
-const { featureForAssistantMutation, assertAssistantMutationEnabled } = require('../../lib/assistant/emergency-kill-switch');
+const {
+  featureForAssistantMutation,
+  assertAssistantMutationEnabled,
+  getAssistantEmergencyModeState
+} = require('../../lib/assistant/emergency-kill-switch');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -67,13 +71,19 @@ async function assistantRouter(req, res, path, user) {
         feature:mutationFeature
       });
     } catch (err) {
+      const readOnly = err.code === 'ASSISTANT_READ_ONLY_MODE';
       const disabled = err.code === 'ASSISTANT_FEATURE_DISABLED';
       return sendJson(res, 503, {
         protocol:PROTOCOL,
         status:'denied',
-        error:disabled ? 'ASSISTANT_FEATURE_DISABLED' : 'ASSISTANT_KILL_SWITCH_UNAVAILABLE',
-        feature:disabled ? err.feature : mutationFeature,
-        expires_at:disabled ? (err.expires_at || null) : null,
+        error:readOnly
+          ? 'ASSISTANT_READ_ONLY_MODE'
+          : disabled
+            ? 'ASSISTANT_FEATURE_DISABLED'
+            : 'ASSISTANT_KILL_SWITCH_UNAVAILABLE',
+        feature:(readOnly || disabled) ? err.feature : mutationFeature,
+        mode:readOnly ? 'read_only_emergency' : undefined,
+        expires_at:(readOnly || disabled) ? (err.expires_at || null) : null,
         policy:{
           execution_authorized:false,
           auto_execute:false
@@ -97,6 +107,29 @@ async function assistantRouter(req, res, path, user) {
       reply:'مساعد بوندز جاهز.',
       context:{ protocol:PROTOCOL, execution:'plan_only' }
     }));
+  }
+
+  if (path === '/assistant/emergency-mode' && req.method === 'GET') {
+    try {
+      const emergencyMode = await getAssistantEmergencyModeState({
+        supabase:getSupabaseClient()
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        emergency_mode:emergencyMode
+      });
+    } catch (err) {
+      return sendJson(res, 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'ASSISTANT_EMERGENCY_MODE_UNAVAILABLE',
+        policy:{
+          execution_authorized:false,
+          auto_execute:false
+        }
+      });
+    }
   }
 
   if (path === '/assistant/mode' && req.method === 'GET') {

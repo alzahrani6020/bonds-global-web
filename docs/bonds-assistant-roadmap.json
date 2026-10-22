@@ -909,10 +909,11 @@
     "human_escalation",
     "human_approval_queue",
     "employee_assistant_mode",
-    "emergency_kill_switch"
+    "emergency_kill_switch",
+    "read_only_emergency_mode"
   ],
   "next": [
-    "read_only_emergency_mode"
+    "anomaly_detection"
   ],
   "deferred": [
     "action_tokens",
@@ -929,8 +930,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-emergency-kill-switch",
-    "change": "Emergency Kill Switch implemented_base by reusing the existing audited admin_ai_kill_switches control plane and ai.operations.manage administration path, enforcing global/per-mutation runtime guards before Assistant state changes, preserving read-only routes, failing closed on control-plane lookup failure, and keeping legacy E2E/red-team suites isolated from the new control-plane dependency while dedicated kill-switch tests cover enforcement. Next: read_only_emergency_mode."
+    "branch": "feat/assistant-read-only-emergency-mode",
+    "change": "Read-only Emergency Mode implemented_base by reusing admin_ai_kill_switches with the assistant.read_only feature key. Active read-only mode blocks every registered Assistant state-changing route before body processing while preserving read/planning routes, exposes a bounded read-only status endpoint without administrative reason text, honors expiry, fails closed on control-plane lookup failure for mutations, and does not change token architecture, AI/API providers, models, context, throughput, or database schema. Next: anomaly_detection."
   },
   "production_rollout": {
     "status": "complete",

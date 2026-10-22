@@ -3,6 +3,7 @@ const {
   featureForAssistantMutation,
   switchIsActive,
   getAssistantKillSwitchState,
+  getAssistantEmergencyModeState,
   assertAssistantMutationEnabled
 }=require('../../lib/assistant/emergency-kill-switch');
 
@@ -39,7 +40,7 @@ describe('Assistant Emergency Kill Switch',()=>{
       supabase:{from:jest.fn(()=>q0.q)},
       feature:'assistant.workflows.transition'
     });
-    expect(q0.state.features).toEqual(['assistant','assistant.workflows.transition']);
+    expect(q0.state.features).toEqual(['assistant','assistant.read_only','assistant.workflows.transition']);
     expect(state).toEqual(expect.objectContaining({blocked:true,feature:'assistant',execution_authorized:false}));
     expect(state).not.toHaveProperty('reason');
   });
@@ -56,6 +57,53 @@ describe('Assistant Emergency Kill Switch',()=>{
       code:'ASSISTANT_FEATURE_DISABLED',
       feature:'assistant.events.apply'
     });
+  });
+
+
+  test('read-only emergency mode blocks mutations but reports a bounded public state',async()=>{
+    const q0=query({data:[
+      {feature:'assistant.read_only',disabled:true,reason:'do not expose',expires_at:'2099-01-01T00:00:00Z'}
+    ],error:null});
+
+    await expect(assertAssistantMutationEnabled({
+      supabase:{from:jest.fn(()=>q0.q)},
+      feature:'assistant.events.apply',
+      nowMs:Date.parse('2026-10-22T00:00:00Z')
+    })).rejects.toMatchObject({
+      code:'ASSISTANT_READ_ONLY_MODE',
+      feature:'assistant.read_only',
+      mode:'read_only_emergency'
+    });
+
+    expect(q0.state.features).toEqual([
+      'assistant',
+      'assistant.read_only',
+      'assistant.events.apply'
+    ]);
+  });
+
+  test('emergency mode status exposes normal/read-only/disabled without reason text',async()=>{
+    const readOnly=query({data:[
+      {feature:'assistant.read_only',disabled:true,reason:'internal',expires_at:null}
+    ],error:null});
+    const state=await getAssistantEmergencyModeState({
+      supabase:{from:jest.fn(()=>readOnly.q)}
+    });
+    expect(state).toEqual(expect.objectContaining({
+      feature:'assistant.read_only',
+      disabled:true,
+      mode:'read_only_emergency',
+      execution_authorized:false
+    }));
+    expect(state).not.toHaveProperty('reason');
+
+    const normal=query({data:[],error:null});
+    await expect(getAssistantEmergencyModeState({
+      supabase:{from:jest.fn(()=>normal.q)}
+    })).resolves.toEqual(expect.objectContaining({
+      disabled:false,
+      mode:'normal'
+    }));
   });
 
   test('control-plane lookup failure fails closed for mutations',async()=>{
