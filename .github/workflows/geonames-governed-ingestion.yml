@@ -93,7 +93,7 @@ jobs:
           mkdir -p .vercel
           printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
 
-          npx --no-install vercel pull --yes --environment=production --scope "$VERCEL_ORG_ID"
+          npx --no-install vercel pull --yes --environment=production
 
           env_file=".vercel/.env.production.local"
           test -s "$env_file" || { echo "Vercel Production env file was not created"; exit 1; }
