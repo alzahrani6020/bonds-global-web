@@ -917,10 +917,11 @@
     "policy_simulation",
     "shadow_authorization",
     "operational_dashboard",
-    "assistant_control_center"
+    "assistant_control_center",
+    "user_control_center"
   ],
   "next": [
-    "user_control_center"
+    "audit_search"
   ],
   "deferred": [
     "action_tokens",
@@ -937,8 +938,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-control-center",
-    "change": "Assistant Control Center implemented_base as an admin UI over the existing audited AI kill-switch control plane. It exposes explicit Normal, Read-only Emergency, and Full Stop transitions using only assistant/assistant.read_only features, requires typed confirmation plus browser confirmation, preserves safe transition ordering, and reuses ai.operations.read/manage permissions and existing audit logging. No new authorization API or token/provider/model controls were introduced. Next: user_control_center."
+    "branch": "feat/user-control-center",
+    "change": "User Control Center implemented_base as a user-scoped session privacy surface. It reuses the existing authenticated Assistant notifications API, lets the user disable structured Assistant session context and clear session-scoped context boundaries, and makes the chat widget omit assistantState while that preference is disabled. No database migration, parallel authorization API, token/provider/model/context-size/throughput/compute control was introduced. Next: audit_search."
   },
   "production_rollout": {
     "status": "complete",
