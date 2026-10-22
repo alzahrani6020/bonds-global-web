@@ -605,7 +605,11 @@ parent/child relationships بين التوكنات.
 - E2E journeys: **PASS / MERGED** عبر PR #372، SHA `8a97097df16130cb1b3d20e8597f98d97cbba787`.
 - Security Red Team: **PASS / MERGED** عبر PR #373؛ Accessibility نجحت في أحدث attempt، وجميع البوابات الثلاث ناجحة.
 - Production rollout: **PASS / COMPLETE**. Production على SHA `6313b460aaec33e21378f40d5a33cc493e3268b0`; `/api/readiness` = `ready` مع `assistant=ok` و`schema_version=1`; Production Authenticated Smoke = PASS; سجل التدقيق أثبت 9 أحداث session و`execution_started=1` و`execution_succeeded=1` لنفس marker.
-- تفاصيل القبول وحدود الدليل والتراجع: `docs/BONDS_ASSISTANT_PRODUCTION_ROLLOUT.md`. المرحلة التالية الرسمية: **Phase 2 — Workflow & Documents**.
+- تفاصيل القبول وحدود الدليل والتراجع: `docs/BONDS_ASSISTANT_PRODUCTION_ROLLOUT.md`. المرحلة الحالية الرسمية: **Phase 2 — Workflow & Documents**.
+- Persistent workflow state: **IMPLEMENTED_BASE / MERGED**.
+- Document assistant / classification / extraction: **IMPLEMENTED_BASE / MERGED**.
+- Document-to-Workflow: **IMPLEMENTED_BASE / API ACCEPTANCE COVERED** — owned document + owned funding case binding, completion-aware requirement suggestions, project-boundary conflict rejection, suggestion-only policy, and explicit no-auto-write behavior.
+- العنصر التالي الرسمي: **Event-Driven Assistant**.
 - Action token: **NOT IMPLEMENTED**
 - Workflow token: **NOT IMPLEMENTED**
 - Confirmation token: **NOT IMPLEMENTED**
