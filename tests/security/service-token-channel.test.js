@@ -9,8 +9,9 @@ const token = 'bonds_service_isolated_acceptance_token';
 const runtimeBuild = 'a'.repeat(40);
 const runtimeIdentity = {
   status: 'ok', service: 'bonds-token-service', issuer: 'bonds-token-service',
-  contract_version: 1, schema_version: 2, service_token_ttl_seconds: 3600,
-  build_commit: runtimeBuild, channel_auth: 'required'
+  contract_version: 2, schema_version: 3, service_token_ttl_seconds: 3600,
+  build_commit: runtimeBuild, channel_auth: 'required',
+  broker_auth: 'required', broker_mode: 'one_time_service_tokens'
 };
 const activeClaims = {
   active: true, revoked: false, token_type: 'service',
@@ -135,7 +136,11 @@ describe('protected service token introspection channel', () => {
   test.each([
     undefined, { ...runtimeIdentity, build_commit: 'b'.repeat(40) },
     { ...runtimeIdentity, service: 'other-runtime' },
-    { ...runtimeIdentity, contract_version: 2 }, { ...runtimeIdentity, channel_auth: 'optional' }
+    { ...runtimeIdentity, contract_version: 1 },
+    { ...runtimeIdentity, schema_version: 2 },
+    { ...runtimeIdentity, channel_auth: 'optional' },
+    { ...runtimeIdentity, broker_auth: 'optional' },
+    { ...runtimeIdentity, broker_mode: 'reusable' }
   ])('claims from an old or different runtime cannot execute (%#)', async runtime => {
     expect(await verify({ fetchImpl: async () => ({ ok: true, json: async () => ({ runtime, claims: activeClaims }) }) }))
       .toEqual({ verified: false, code: 'TOKEN_RUNTIME_CONTRACT_MISMATCH', httpStatus: 503 });
