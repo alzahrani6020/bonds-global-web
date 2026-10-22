@@ -97,7 +97,7 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
       : null;
     let brokerIssued = false;
 
-    if (service?.serviceTokenRequired === true && !serviceToken) {
+    if (service?.security?.serviceTokenRequired === true && !serviceToken) {
       const issued = await issueBrokerServiceToken({
         audience: validation.spec.serviceCode,
         fetchImpl: executionOptions.fetchImpl || global.fetch
