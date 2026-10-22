@@ -2,6 +2,11 @@
 'use strict';
 
 const { EventEmitter } = require('events');
+
+jest.mock('../../lib/assistant/emergency-kill-switch',()=>({
+  featureForAssistantMutation:()=>null,
+  assertAssistantMutationEnabled:jest.fn()
+}));
 const mockDb = { rpc: jest.fn(), from: jest.fn() };
 jest.mock('../../v3/lib/supabase', () => ({ getSupabaseClient: () => mockDb }));
 

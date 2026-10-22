@@ -4,6 +4,11 @@
 'use strict';
 
 const { EventEmitter } = require('events');
+
+jest.mock('../../lib/assistant/emergency-kill-switch',()=>({
+  featureForAssistantMutation:()=>null,
+  assertAssistantMutationEnabled:jest.fn()
+}));
 const {
   normalizeAction,
   planRegisteredAction
