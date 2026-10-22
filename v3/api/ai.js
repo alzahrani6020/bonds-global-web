@@ -122,6 +122,10 @@ function buildNativeChatPrompt(messages, context, assistantState = null) {
     serviceCode: context?.serviceCode || undefined,
     serviceName: context?.serviceName || undefined,
     serviceDeliveryType: context?.serviceDeliveryType || undefined,
+    serviceCapabilities: context?.serviceCapabilities?.length ? context.serviceCapabilities.slice(0, 50) : undefined,
+    serviceRequirements: context?.serviceRequirements?.length ? context.serviceRequirements.slice(0, 50) : undefined,
+    serviceDeliverables: context?.serviceDeliverables?.length ? context.serviceDeliverables.slice(0, 30) : undefined,
+    serviceDependencies: context?.serviceDependencies?.length ? context.serviceDependencies.slice(0, 30) : undefined,
     population: context?.population ?? undefined,
     purchasingPowerIndex: context?.purchasingPowerIndex ?? undefined,
     indicators: context?.indicators || undefined,
@@ -208,8 +212,64 @@ async function generateNativeReply(messages, context, options = {}) {
   };
 }
 
+function generateServiceDrivenReply(userMessage, context) {
+  const serviceCode = String(context?.serviceCode || '').trim();
+  if (!serviceCode) return null;
+
+  const msg = String(userMessage || '').toLowerCase();
+  const serviceName = context?.serviceName || serviceCode;
+  const requirements = Array.isArray(context?.serviceRequirements) ? context.serviceRequirements : [];
+  const deliverables = Array.isArray(context?.serviceDeliverables) ? context.serviceDeliverables : [];
+  const capabilities = Array.isArray(context?.serviceCapabilities) ? context.serviceCapabilities : [];
+  const dependencies = Array.isArray(context?.serviceDependencies) ? context.serviceDependencies : [];
+
+  if (msg.includes('متطلبات') || msg.includes('المطلوب') || msg.includes('مستند') || msg.includes('وثائق')) {
+    if (!requirements.length) {
+      return `لا توجد متطلبات منشورة حالياً لخدمة "${serviceName}" في سجل خدمات بوندز. يمكنني متابعة الخدمة معك وتحديد البيانات الناقصة عند توفرها.`;
+    }
+    const lines = requirements.slice(0, 12).map((row, index) =>
+      `${index + 1}. ${row.label}${row.required ? ' — مطلوب' : ' — اختياري'}`
+    );
+    return `المتطلبات المسجلة لخدمة "${serviceName}":\n${lines.join('\n')}`;
+  }
+
+  if (msg.includes('مخرجات') || msg.includes('نتيجة الخدمة') || msg.includes('ماذا سأحصل')) {
+    if (!deliverables.length) {
+      return `لا توجد مخرجات منشورة حالياً لخدمة "${serviceName}" في سجل الخدمات.`;
+    }
+    return `المخرجات المسجلة لخدمة "${serviceName}":\n${deliverables.slice(0, 12).map((item, index) => `${index + 1}. ${item}`).join('\n')}`;
+  }
+
+  if (msg.includes('قدرات') || msg.includes('أدوات') || msg.includes('ماذا تستطيع') || msg.includes('ما الذي تستطيع')) {
+    if (!capabilities.length) {
+      return `لا توجد قدرات تشغيلية منشورة حالياً لخدمة "${serviceName}". يمكنني الاستمرار في الإرشاد وجمع البيانات المطلوبة دون ادعاء تنفيذ غير متاح.`;
+    }
+    const readable = capabilities.slice(0, 15).map(code => String(code).replace(/[_-]+/g, ' '));
+    return `القدرات التشغيلية المسجلة لخدمة "${serviceName}":\n${readable.map((item, index) => `${index + 1}. ${item}`).join('\n')}`;
+  }
+
+  if (msg.includes('اعتماد') || msg.includes('تعتمد') || msg.includes('خدمات أخرى')) {
+    if (!dependencies.length) {
+      return `لا توجد خدمات سابقة إلزامية مسجلة حالياً لخدمة "${serviceName}".`;
+    }
+    return `الخدمات المرتبطة أو السابقة لخدمة "${serviceName}":\n${dependencies.slice(0, 12).map((item, index) => `${index + 1}. ${item}`).join('\n')}`;
+  }
+
+  if (msg.includes('الخطوة التالية') || msg.includes('ابدأ') || msg.includes('نبدأ')) {
+    const required = requirements.filter(row => row.required).slice(0, 6);
+    if (required.length) {
+      return `الخطوة التالية لخدمة "${serviceName}" هي تجهيز البيانات المطلوبة أولاً:\n${required.map((row, index) => `${index + 1}. ${row.label}`).join('\n')}`;
+    }
+    return `يمكننا البدء بخدمة "${serviceName}" الآن. أخبرني بهدفك والبيانات المتوفرة لديك، وسأحدد الخطوة التالية وفق القدرات المسجلة للخدمة.`;
+  }
+
+  return null;
+}
+
 function generateDataDrivenReply(userMessage, context) {
   const msg = (userMessage || '').toLowerCase();
+  const serviceReply = generateServiceDrivenReply(userMessage, context);
+  if (serviceReply) return serviceReply;
   const city = context?.cityName || context?.cityCode || 'المدينة المختارة';
   const activity = context?.activityName || context?.activityCode || 'النشاط المختار';
   const m = context?.marketData || {};
@@ -220,6 +280,10 @@ function generateDataDrivenReply(userMessage, context) {
 
   // Greeting / general
   if (msg.match(/^(مرحبا|مرحباً|هلا|أهلا|السلام|سلام|مساعد|من أنت|ما هي|ما هو)/)) {
+    if (context?.serviceCode) {
+      const service = context.serviceName || context.serviceCode;
+      return `مرحباً! أنا مساعد بوندز. أنت ضمن خدمة "${service}". أستطيع توضيح المتطلبات والمخرجات والقدرات المسجلة والخطوة التالية، أو مساعدتك في البيانات والتحليل المرتبط بالخدمة.`;
+    }
     return `مرحباً! أنا مساعد بوندز. أساعدك في تحليل الفرص الاستثمارية في المدن العربية بناءً على بيانات Bonds V3 Data Engine. اختر مدينة ونشاطاً، ثم اسألني عن التقييم، المخاطر، المقارنات، أو حجم السوق.`;
   }
 
@@ -552,11 +616,16 @@ async function enrichContext(context, userMessage) {
   const currentYear = new Date().getFullYear();
   let enriched = { ...context };
 
+  delete enriched.serviceCapabilities;
+  delete enriched.serviceRequirements;
+  delete enriched.serviceDeliverables;
+  delete enriched.serviceDependencies;
+
   const requestedServiceCode = String(context?.serviceCode || '').trim().slice(0, 100);
   if (requestedServiceCode) {
     const { data: service, error: serviceError } = await supabase
       .from('service_catalog')
-      .select('code,name_ar,name_en,delivery_type,default_route_ar,default_route_en,status,is_active')
+      .select('id,code,name_ar,name_en,delivery_type,default_route_ar,default_route_en,status,is_active')
       .eq('code', requestedServiceCode)
       .eq('status', 'published')
       .eq('is_active', true)
@@ -568,11 +637,73 @@ async function enrichContext(context, userMessage) {
       enriched.serviceNameEn = service.name_en || service.name_ar || service.code;
       enriched.serviceDeliveryType = service.delivery_type || null;
       enriched.serviceRoute = service.default_route_ar || service.default_route_en || null;
+
+      const [capabilityResult, requirementResult, deliverableResult, dependencyResult] = await Promise.all([
+        supabase
+          .from('service_capability_map')
+          .select('capability_code,run_order,is_required')
+          .eq('service_id', service.id)
+          .order('run_order'),
+        supabase
+          .from('service_requirements')
+          .select('requirement_type,label_ar,label_en,is_required,sort_order')
+          .eq('service_id', service.id)
+          .order('sort_order'),
+        supabase
+          .from('service_deliverables')
+          .select('code,name_ar,name_en,sort_order')
+          .eq('service_id', service.id)
+          .order('sort_order'),
+        supabase
+          .from('service_dependencies')
+          .select('depends_on_service_id')
+          .eq('service_id', service.id)
+      ]);
+
+      enriched.serviceCapabilities = (capabilityResult.data || [])
+        .map(row => row.capability_code)
+        .filter(Boolean)
+        .slice(0, 50);
+
+      enriched.serviceRequirements = (requirementResult.data || [])
+        .map(row => ({
+          type: row.requirement_type || null,
+          label: row.label_ar || row.label_en || null,
+          required: row.is_required === true
+        }))
+        .filter(row => row.label)
+        .slice(0, 50);
+
+      enriched.serviceDeliverables = (deliverableResult.data || [])
+        .map(row => row.name_ar || row.name_en || row.code)
+        .filter(Boolean)
+        .slice(0, 30);
+
+      const dependencyIds = (dependencyResult.data || [])
+        .map(row => row.depends_on_service_id)
+        .filter(Boolean)
+        .slice(0, 30);
+      if (dependencyIds.length) {
+        const { data: dependencyServices } = await supabase
+          .from('service_catalog')
+          .select('id,code')
+          .in('id', dependencyIds);
+        enriched.serviceDependencies = (dependencyServices || [])
+          .map(row => row.code)
+          .filter(Boolean)
+          .slice(0, 30);
+      } else {
+        enriched.serviceDependencies = [];
+      }
     } else {
       delete enriched.serviceName;
       delete enriched.serviceNameEn;
       delete enriched.serviceDeliveryType;
       delete enriched.serviceRoute;
+      enriched.serviceCapabilities = [];
+      enriched.serviceRequirements = [];
+      enriched.serviceDeliverables = [];
+      enriched.serviceDependencies = [];
     }
   }
 
