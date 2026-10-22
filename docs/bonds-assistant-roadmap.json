@@ -557,7 +557,7 @@
       "id": 88,
       "title": "Draft Center",
       "phase": "phase2",
-      "status": "in_progress"
+      "status": "implemented_base"
     },
     {
       "id": 89,
@@ -901,10 +901,11 @@
     "document_to_workflow",
     "event_driven_assistant",
     "notifications",
-    "assistant_notifications"
+    "assistant_notifications",
+    "draft_center"
   ],
   "next": [
-    "draft_center"
+    "agent_inbox"
   ],
   "deferred": [
     "action_tokens",
@@ -922,7 +923,7 @@
   "last_update": {
     "date": "2026-10-22",
     "branch": "feat/assistant-draft-center-current-main",
-    "change": "Persistent Assistant Notifications are complete on main d1b6d68a851e82829dbac2f1837753d89c964910. Draft Center is active as a read-only unified view over existing owned form drafts using schema-aware source selects and canonical form-registry navigation targets, with no parallel draft store, submit path, write authority, or execution authorization."
+    "change": "Draft Center closed at implemented_base as an authenticated, read-only unified view over the existing owned editable draft sources. Production schema columns were verified for all sources; exact user/status/subject filtering, canonical form-registry navigation, partial-source tolerance, and explicit no-submit/no-write/no-execution policy are covered. Next: Agent Inbox."
   },
   "production_rollout": {
     "status": "complete",
