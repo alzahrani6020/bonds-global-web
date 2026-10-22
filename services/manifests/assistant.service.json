@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "assistant",
-  "version": 1,
+  "version": 2,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -30,6 +30,7 @@
   },
   "workflows": {
     "events": [
+      "assistant.calculate.completed",
       "assistant.read.completed"
     ]
   },
