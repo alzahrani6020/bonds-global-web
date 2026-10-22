@@ -8,6 +8,7 @@ const {
 const contract = require('../../lib/assistant/assistant-protocol.contract.json');
 const navigation = require('../../lib/assistant/navigation-registry.json');
 const forms = require('../../lib/assistant/form-registry.json');
+const { prepareConfirmation, resolveConfirmation } = require('../../lib/assistant/confirmation-engine');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -53,6 +54,48 @@ async function assistantRouter(req, res, path, user) {
       context:{ protocol:PROTOCOL, execution:'plan_only' }
     }));
   }
+  if (path === '/assistant/confirmation/prepare' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const confirmation = prepareConfirmation(body.action, { language:body.language });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:confirmation.required ? 'needs_confirmation' : 'ready',
+        confirmation
+      });
+    } catch (err) {
+      return sendJson(res, 422, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/confirmation/resolve' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const confirmation = resolveConfirmation(body.action, body.confirmation, body.decision);
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:confirmation.status === 'confirmed' ? 'completed' : 'denied',
+        confirmation
+      });
+    } catch (err) {
+      return sendJson(res, 409, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
   if (path === '/assistant/plan' && req.method === 'POST') {
     let body;
     try { body = await parseBody(req); }

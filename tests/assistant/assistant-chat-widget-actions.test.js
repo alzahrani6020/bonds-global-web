@@ -41,9 +41,12 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain("!route.includes('\\\\')");
   });
 
-  test('does not execute confirmation-required actions', () => {
+  test('routes confirmation-required actions through the confirmation engine before execution', () => {
     expect(source).toContain('if (action.requires_confirmation)');
-    expect(source).toContain('هذا الإجراء يحتاج تأكيدًا');
+    expect(source).toContain('const confirmation = await requestConfirmation(action);');
+    expect(source).toContain('renderConfirmationCard(action, confirmation);');
+    expect(source).toContain("'confirmed_pending_governance'");
+    expect(source).toContain('Sensitive execution still requires the governed execution layer.');
   });
 
   test('exposes one governed UI action bus', () => {

@@ -875,10 +875,12 @@
     "prefill_provenance",
     "prefill_metadata",
     "suggested_confirmed_values",
-    "inferred_value_confidence"
+    "inferred_value_confidence",
+    "confirmation_engine",
+    "confirmation_intent_gate",
+    "exact_action_confirmation"
   ],
   "next": [
-    "confirmation_engine",
     "save_draft"
   ],
   "deferred": [
@@ -896,7 +898,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-prefill-provenance",
-    "change": "Added governed prefill provenance metadata using approved source classes, suggested/confirmed state, bounded confidence, explicit user confirmation for AI-inferred values, and optional dynamic-form integration. This is the provenance/prefill foundation; form_prefill execution remains a separate capability."
+    "branch": "feat/bonds-assistant-confirmation-engine",
+    "change": "Added Phase 1 confirmation intent engine with exact-action fingerprinting, payload-change detection, prepare/resolve API routes, and widget Confirm/Cancel handling. Confirmation records user intent only and explicitly does not authorize execution. Proposal 113 Confirmation Token remains deferred to Phase 3."
   }
 }
