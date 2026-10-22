@@ -191,8 +191,8 @@
       return '';
     }
     async function save(status){
-      if(!sb||!user){showStatus('تعذر تهيئة الاتصال الآمن.',false);return;}
-      const calc=recalc(),err=validate(calc);if(err){showStatus(err,false);return;}
+      if(!sb||!user){showStatus('تعذر تهيئة الاتصال الآمن.',false);return false;}
+      const calc=recalc(),err=validate(calc);if(err){showStatus(err,false);return false;}
       const payload={
         user_id:user.id,client_id:currentReport?.client_id||fundingCase?.client_id||null,funding_case_id:fundingCase?.id||null,status,
         start_month:startMonth.value+'-01',currency:document.getElementById('currency').value,
@@ -203,11 +203,25 @@
       const result=currentReport?.id
         ? await sb.from('client_cash_flow_reports').update(payload).eq('id',currentReport.id).select().single()
         : await sb.from('client_cash_flow_reports').insert(payload).select().single();
-      if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return;}
+      if(result.error){showStatus('تعذر حفظ النموذج: '+result.error.message,false);return false;}
       currentReport=result.data;
-       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'cash_flow',currentReport);}catch(e){showStatus('تعذر ربط النموذج بملف التمويل: '+e.message,false);return;}}
+       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'cash_flow',currentReport);}catch(e){showStatus('تعذر ربط النموذج بملف التمويل: '+e.message,false);return false;}}
        showStatus(status==='submitted'?'تم إرسال نموذج التدفقات النقدية للمراجعة.':'تم حفظ المسودة.',true);
+    return true;
     }
+    window.BondsAssistantFormAdapter={
+      form_code:'cash_flow',
+      async saveDraft(){
+        const before=currentReport;
+        if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){
+          return {ok:false,code:'FORM_NOT_EDITABLE',record_id:before.id||null,status:before.status};
+        }
+        const saveOk=await save('draft');
+        const saved=currentReport;
+        const ok=saveOk===true&&!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
+        return {ok,code:ok?'DRAFT_SAVED':'DRAFT_NOT_VERIFIED',record_id:saved?.id||null,status:saved?.status||null};
+      }
+    };
     document.getElementById('saveDraft').onclick=()=>save('draft');
     document.getElementById('submitReport').onclick=()=>save('submitted');
 

@@ -251,7 +251,7 @@
       "id": 37,
       "title": "form_save_draft",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 38,
@@ -467,7 +467,7 @@
       "id": 73,
       "title": "Draft-first Editing",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 74,
@@ -878,10 +878,14 @@
     "inferred_value_confidence",
     "confirmation_engine",
     "confirmation_intent_gate",
-    "exact_action_confirmation"
+    "exact_action_confirmation",
+    "save_draft",
+    "form_save_draft",
+    "verified_form_draft_adapter",
+    "draft_first_editing"
   ],
   "next": [
-    "save_draft"
+    "idempotency"
   ],
   "deferred": [
     "action_tokens",
@@ -898,7 +902,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-confirmation-engine",
-    "change": "Added Phase 1 confirmation intent engine with exact-action fingerprinting, payload-change detection, prepare/resolve API routes, and widget Confirm/Cancel handling. Confirmation records user intent only and explicitly does not authorize execution. Proposal 113 Confirmation Token remains deferred to Phase 3."
+    "branch": "feat/bonds-assistant-save-draft",
+    "change": "Added governed form_save_draft planning and exact registered page adapters for all current form-registry entries. Draft execution reuses existing authenticated Supabase/RLS form save logic, rejects non-editable submitted records, and reports success only after a returned persisted record has record_id and status=draft. No generic AI-selected database writer was added."
   }
 }

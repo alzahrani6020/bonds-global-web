@@ -146,17 +146,31 @@
       };
     }
     async function save(status){
-      if(!sb||!user){showStatus('Unable to initialize the secure connection.',false);return;}
-      if(status==='submitted'&&!form.reportValidity())return;
+      if(!sb||!user){showStatus('Unable to initialize the secure connection.',false);return false;}
+      if(status==='submitted'&&!form.reportValidity())return false;
       const p=payload(status);
       const result=current?.id
         ? await sb.from('client_establishment_profiles').update(p).eq('id',current.id).select().single()
         : await sb.from('client_establishment_profiles').insert(p).select().single();
-      if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return;}
+      if(result.error){showStatus('Unable to save the form: '+result.error.message,false);return false;}
       current=result.data;
-       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'establishment',current);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return;}}
+       if(fundingCase){try{await window.BondsFundingCaseContext.syncSubmission(sb,fundingCase,'establishment',current);}catch(e){showStatus('Unable to link this form to the funding case: '+e.message,false);return false;}}
        showStatus(status==='submitted'?'Establishment information submitted for review.':'Draft saved.',true);
+    return true;
     }
+    window.BondsAssistantFormAdapter={
+      form_code:'establishment',
+      async saveDraft(){
+        const before=current;
+        if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){
+          return {ok:false,code:'FORM_NOT_EDITABLE',record_id:before.id||null,status:before.status};
+        }
+        const saveOk=await save('draft');
+        const saved=current;
+        const ok=saveOk===true&&!!(saved&&saved!==before&&saved.id&&saved.status==='draft');
+        return {ok,code:ok?'DRAFT_SAVED':'DRAFT_NOT_VERIFIED',record_id:saved?.id||null,status:saved?.status||null};
+      }
+    };
     g('saveDraft').onclick=()=>save('draft');
     form.addEventListener('submit',e=>{e.preventDefault();save('submitted');});
     function set(id,v){if(v!==undefined&&v!==null)g(id).value=v;}
