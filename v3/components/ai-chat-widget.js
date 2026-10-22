@@ -10,6 +10,8 @@
   const API_URL = '/api/v3/ai/chat';
   const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
   const ASSISTANT_PLAN_URL = '/api/v3/assistant/plan';
+  const ASSISTANT_STATE_VERSION = 1;
+  const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -255,8 +257,148 @@
       mode: options.mode || 'city'
     };
 
+    function contextBoundaryKey(value = context) {
+      const mode = value.mode === 'project' ? 'project' : 'city';
+      if (mode === 'project') {
+        const projectId = String(value.projectId || '').trim();
+        return projectId ? `project:${projectId}` : 'project:unbound';
+      }
+
+      const city = String(value.cityCode || 'none').trim();
+      const activity = String(value.activityCode || 'none').trim();
+      const model = String(value.modelCode || 'none').trim();
+      return `city:${city}|activity:${activity}|model:${model}`;
+    }
+
+    function assistantStateStorageKey(boundary = contextBoundaryKey()) {
+      return ASSISTANT_STATE_PREFIX + encodeURIComponent(boundary);
+    }
+
+    function createAssistantContextState(boundary = contextBoundaryKey()) {
+      return {
+        version: ASSISTANT_STATE_VERSION,
+        boundary,
+        goal: null,
+        current_stage: null,
+        open_tasks: [],
+        required_data: [],
+        confirmed_facts: {},
+        pending_confirmation: null,
+        last_action: null,
+        updated_at: null
+      };
+    }
+
+    function sanitizeStringArray(value) {
+      if (!Array.isArray(value)) return [];
+      return value
+        .filter(item => typeof item === 'string' && item.trim())
+        .map(item => item.trim())
+        .slice(0, 50);
+    }
+
+    function sanitizePlainObject(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+      const result = {};
+      Object.entries(value).slice(0, 100).forEach(([key, item]) => {
+        if (
+          typeof key === 'string' &&
+          key.length <= 100 &&
+          (item === null || ['string', 'number', 'boolean'].includes(typeof item))
+        ) {
+          result[key] = item;
+        }
+      });
+      return result;
+    }
+
+    function sanitizeAssistantContextState(value, boundary = contextBoundaryKey()) {
+      const base = createAssistantContextState(boundary);
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return base;
+      if (value.boundary && value.boundary !== boundary) return base;
+
+      return {
+        version: ASSISTANT_STATE_VERSION,
+        boundary,
+        goal: typeof value.goal === 'string' ? value.goal.slice(0, 500) : null,
+        current_stage: typeof value.current_stage === 'string' ? value.current_stage.slice(0, 200) : null,
+        open_tasks: sanitizeStringArray(value.open_tasks),
+        required_data: sanitizeStringArray(value.required_data),
+        confirmed_facts: sanitizePlainObject(value.confirmed_facts),
+        pending_confirmation: value.pending_confirmation && typeof value.pending_confirmation === 'object'
+          ? sanitizePlainObject(value.pending_confirmation)
+          : null,
+        last_action: value.last_action && typeof value.last_action === 'object'
+          ? sanitizePlainObject(value.last_action)
+          : null,
+        updated_at: typeof value.updated_at === 'string' ? value.updated_at : null
+      };
+    }
+
+    function loadAssistantContextState(boundary = contextBoundaryKey()) {
+      try {
+        const raw = window.sessionStorage?.getItem(assistantStateStorageKey(boundary));
+        if (!raw) return createAssistantContextState(boundary);
+        return sanitizeAssistantContextState(JSON.parse(raw), boundary);
+      } catch (err) {
+        return createAssistantContextState(boundary);
+      }
+    }
+
+    function saveAssistantContextState() {
+      assistantContextState.updated_at = new Date().toISOString();
+      assistantContextState = sanitizeAssistantContextState(
+        assistantContextState,
+        assistantContextState.boundary
+      );
+      try {
+        window.sessionStorage?.setItem(
+          assistantStateStorageKey(assistantContextState.boundary),
+          JSON.stringify(assistantContextState)
+        );
+      } catch (err) {
+        // Session persistence is best-effort; the current page state remains usable.
+      }
+      return assistantContextState;
+    }
+
+    function replaceAssistantContextState(nextState) {
+      assistantContextState = sanitizeAssistantContextState(
+        nextState,
+        contextBoundaryKey()
+      );
+      return saveAssistantContextState();
+    }
+
+    function patchAssistantContextState(patch = {}) {
+      if (!patch || typeof patch !== 'object' || Array.isArray(patch)) {
+        return assistantContextState;
+      }
+      return replaceAssistantContextState({
+        ...assistantContextState,
+        ...patch,
+        boundary: contextBoundaryKey()
+      });
+    }
+
+    let assistantContextState = loadAssistantContextState();
+
+    function resetVisibleConversationForBoundary() {
+      state.messages = [];
+      messagesEl.innerHTML = '';
+      actionsEl.innerHTML = '';
+      suggestionsEl.innerHTML = '';
+    }
+
     function updateContext(newContext) {
+      const previousBoundary = contextBoundaryKey(context);
       context = { ...context, ...newContext };
+      const nextBoundary = contextBoundaryKey(context);
+
+      if (previousBoundary !== nextBoundary) {
+        assistantContextState = loadAssistantContextState(nextBoundary);
+        resetVisibleConversationForBoundary();
+      }
     }
 
     const state = {
@@ -470,7 +612,27 @@
     function renderStructuredEnvelope(envelope, { appendReply = false } = {}) {
       if (!envelope || typeof envelope !== 'object') return;
       if (appendReply && envelope.reply) addAssistantMessage(envelope.reply);
-      renderActionCards(Array.isArray(envelope.actions) ? envelope.actions : []);
+
+      const actions = Array.isArray(envelope.actions) ? envelope.actions : [];
+      const firstAction = actions.find(action => action && action.status !== 'denied') || null;
+      if (firstAction) {
+        patchAssistantContextState({
+          last_action: {
+            id: String(firstAction.id || ''),
+            type: String(firstAction.type || ''),
+            target: firstAction.target == null ? null : String(firstAction.target),
+            status: String(firstAction.status || 'ready')
+          }
+        });
+      }
+
+      if (typeof envelope.context?.current_stage === 'string') {
+        patchAssistantContextState({
+          current_stage: envelope.context.current_stage
+        });
+      }
+
+      renderActionCards(actions);
     }
 
     function renderSuggestions() {
@@ -521,9 +683,22 @@
 
       const isProjectMode = context.mode === 'project' && context.projectId;
       const url = isProjectMode ? ECC_ADVISOR_URL : API_URL;
+      const structuredState = sanitizeAssistantContextState(
+        assistantContextState,
+        contextBoundaryKey()
+      );
       const payload = isProjectMode
-        ? { projectId: context.projectId, message: text, history: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6) }
-        : { messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6), context };
+        ? {
+            projectId: context.projectId,
+            message: text,
+            history: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6),
+            assistantState: structuredState
+          }
+        : {
+            messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6),
+            context,
+            assistantState: structuredState
+          };
 
       try {
         const res = await fetch(url, {
@@ -558,6 +733,21 @@
     window.BondsAssistant = window.BondsAssistant || {};
     window.BondsAssistant.execute = executeStructuredAction;
     window.BondsAssistant.renderEnvelope = envelope => renderStructuredEnvelope(envelope, { appendReply: true });
+    window.BondsAssistant.getState = () => sanitizeAssistantContextState(
+      assistantContextState,
+      contextBoundaryKey()
+    );
+    window.BondsAssistant.updateState = patch => patchAssistantContextState(patch);
+    window.BondsAssistant.clearState = () => {
+      const boundary = contextBoundaryKey();
+      try {
+        window.sessionStorage?.removeItem(assistantStateStorageKey(boundary));
+      } catch (err) {
+        // Ignore unavailable session storage.
+      }
+      assistantContextState = createAssistantContextState(boundary);
+      return assistantContextState;
+    };
   }
 
   window.BondsAIChat = window.BondsAIChat || {};
