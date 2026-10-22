@@ -1,0 +1,82 @@
+/**
+ * @jest-environment node
+ */
+
+const fs = require('fs');
+const path = require('path');
+const {
+  actionFingerprint,
+  prepareConfirmation,
+  resolveConfirmation
+} = require('../../lib/assistant/confirmation-engine');
+
+describe('assistant confirmation engine', () => {
+  const highRiskAction = {
+    id:'action-900',
+    type:'form_submit',
+    capability:'form_submit',
+    target:'kyc',
+    input:{ record_id:'r-1', nested:{ b:2, a:1 } },
+    risk:'high',
+    requires_confirmation:true,
+    status:'ready'
+  };
+
+  test('requires explicit confirmation for high-risk actions', () => {
+    const confirmation = prepareConfirmation(highRiskAction, { language:'en' });
+    expect(confirmation).toMatchObject({
+      required:true,
+      status:'pending',
+      action_id:'action-900',
+      risk:'high',
+      execution_authorized:false
+    });
+    expect(confirmation.action_fingerprint).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  test('fingerprint is stable for semantically identical input key order', () => {
+    const reordered = {
+      ...highRiskAction,
+      input:{ nested:{ a:1, b:2 }, record_id:'r-1' }
+    };
+    expect(actionFingerprint(reordered)).toBe(actionFingerprint(highRiskAction));
+  });
+
+  test('rejects confirmation when action payload changes', () => {
+    const confirmation = prepareConfirmation(highRiskAction);
+    expect(() => resolveConfirmation(
+      { ...highRiskAction, input:{ record_id:'r-2' } },
+      confirmation,
+      'confirm'
+    )).toThrow('CONFIRMATION_PAYLOAD_CHANGED');
+  });
+
+  test('records explicit user decision without granting execution authorization', () => {
+    const confirmation = prepareConfirmation(highRiskAction);
+    const resolved = resolveConfirmation(highRiskAction, confirmation, 'confirm');
+    expect(resolved.status).toBe('confirmed');
+    expect(resolved.decision).toBe('confirm');
+    expect(resolved.execution_authorized).toBe(false);
+    expect(resolved.resolved_at).toBeTruthy();
+  });
+
+  test('records cancellation and does not authorize execution', () => {
+    const confirmation = prepareConfirmation(highRiskAction);
+    const resolved = resolveConfirmation(highRiskAction, confirmation, 'cancel');
+    expect(resolved.status).toBe('cancelled');
+    expect(resolved.execution_authorized).toBe(false);
+  });
+
+  test('assistant API exposes prepare and resolve routes without issuing tokens', () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'v3', 'api', 'assistant.js'),
+      'utf8'
+    );
+    expect(source).toContain("'/assistant/confirmation/prepare'");
+    expect(source).toContain("'/assistant/confirmation/resolve'");
+    expect(source).toContain('prepareConfirmation(body.action');
+    expect(source).toContain('resolveConfirmation(body.action, body.confirmation, body.decision');
+    expect(source).not.toContain('confirmation_token');
+    expect(source).not.toContain('ConfirmationToken');
+  });
+});
