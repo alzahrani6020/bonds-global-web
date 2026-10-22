@@ -563,7 +563,7 @@
       "id": 89,
       "title": "Notification Engine",
       "phase": "phase2",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": 90,
@@ -898,10 +898,11 @@
     "assistant_v1_production_acceptance",
     "persistent_workflow_state",
     "document_assistant_classification_extraction",
-    "document_to_workflow"
+    "document_to_workflow",
+    "event_driven_assistant"
   ],
   "next": [
-    "event_driven_assistant"
+    "notifications"
   ],
   "deferred": [
     "action_tokens",
@@ -918,8 +919,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "test/complete-document-to-workflow",
-    "change": "Document-to-Workflow is now closed at implemented_base with API acceptance coverage for authentication, ownership, project-boundary conflict handling, completion-aware suggestion-only mapping, and explicit no-auto-write behavior. Next: event_driven_assistant."
+    "branch": "feat/assistant-notifications-v2",
+    "change": "Event-Driven Assistant is implemented on main. Started structured notifications on latest main with bilingual event-derived notices, deterministic IDs, bounded priorities, registered logical actions only, no free-form URLs, informational_only=true, auto_execute=false, and authorization_granted=false."
   },
   "production_rollout": {
     "status": "complete",
