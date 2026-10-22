@@ -141,17 +141,13 @@ jobs:
         if: inputs.action == 'stage_reconcile'
         run: npm run geo:build-local
 
-      - name: Fetch current production cities
+      - name: Export current production cities
         if: inputs.action == 'stage_reconcile'
         shell: bash
-        env:
-          SITE_URL: ${{ secrets.SITE_URL }}
         run: |
           set -euo pipefail
-          test -n "${SITE_URL:-}" || { echo "SITE_URL secret is required"; exit 1; }
-          curl --fail --location --retry 3 \
-            --output .tmp-geo/current-cities.json \
-            "${SITE_URL%/}/api/v3/cities?limit=2000"
+          node scripts/export-production-cities-for-geonames.js \
+            --output .tmp-geo/current-cities.json
           test -s .tmp-geo/current-cities.json
 
       - name: Build safe canonical-city candidate subset
