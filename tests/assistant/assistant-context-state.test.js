@@ -70,8 +70,9 @@ describe('BONDS Assistant context state', () => {
   });
 
   test('exposes bounded state access without executable code paths', () => {
-    expect(source).toContain('window.BondsAssistant.getState = () => sanitizeAssistantContextState');
-    expect(source).toContain('window.BondsAssistant.updateState = patch => patchAssistantContextState(patch);');
+    expect(source).toContain('window.BondsAssistant.getState = () => assistantContextEnabled()');
+    expect(source).toContain('window.BondsAssistant.updateState = patch => assistantContextEnabled()');
+    expect(source).toContain('window.BondsAssistant.isContextEnabled = assistantContextEnabled;');
     expect(source).toContain('window.BondsAssistant.clearState = () =>');
     expect(source).not.toMatch(/eval\s*\(/);
     expect(source).not.toMatch(/new\s+Function\s*\(/);
