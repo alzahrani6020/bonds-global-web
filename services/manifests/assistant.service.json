@@ -1,0 +1,125 @@
+{
+  "schema_version": 1,
+  "service_code": "assistant",
+  "version": 1,
+  "enabled": true,
+  "governance": {
+    "permissions": [],
+    "entitlements": [],
+    "feature_flags": []
+  },
+  "security": {
+    "network_access": "none",
+    "service_token_required": false,
+    "privileges": {
+      "service_role": false,
+      "private_network": false,
+      "arbitrary_code": false,
+      "external_write": false,
+      "ai_tool_exposure": false
+    }
+  },
+  "observability": {
+    "health_check": true,
+    "audit": true,
+    "metrics": true
+  },
+  "data": {
+    "provenance": true,
+    "quality": true
+  },
+  "workflows": {
+    "events": [
+      "assistant.read.completed"
+    ]
+  },
+  "ai": {
+    "exposed": false
+  },
+  "capabilities": [
+    {
+      "action": "site_navigate",
+      "id": "BONDS-CAP-ASST-001",
+      "purpose": "Resolve a registered BONDS navigation target without accepting arbitrary model-generated URLs.",
+      "side_effect": "none",
+      "required": [
+        "target"
+      ],
+      "runtime": {
+        "adapter": "assistant_site_navigate"
+      }
+    },
+    {
+      "action": "form_find",
+      "id": "BONDS-CAP-ASST-002",
+      "purpose": "Find a registered BONDS form by logical form code.",
+      "side_effect": "none",
+      "required": [
+        "form"
+      ],
+      "runtime": {
+        "adapter": "assistant_form_find"
+      }
+    },
+    {
+      "action": "form_load",
+      "id": "BONDS-CAP-ASST-003",
+      "purpose": "Load registered form metadata and its governed navigation target.",
+      "side_effect": "none",
+      "required": [
+        "form"
+      ],
+      "runtime": {
+        "adapter": "assistant_form_load"
+      }
+    },
+    {
+      "action": "funding_status",
+      "id": "BONDS-CAP-ASST-004",
+      "purpose": "Read the signed-in user's funding case and completion state.",
+      "side_effect": "database_read",
+      "required": [
+        "case_id"
+      ],
+      "runtime": {
+        "adapter": "assistant_funding_status"
+      }
+    },
+    {
+      "action": "funding_next_step",
+      "id": "BONDS-CAP-ASST-005",
+      "purpose": "Resolve the next required step for the signed-in user's funding case.",
+      "side_effect": "database_read",
+      "required": [
+        "case_id"
+      ],
+      "runtime": {
+        "adapter": "assistant_funding_next_step"
+      }
+    },
+    {
+      "action": "funding_next_requirements",
+      "id": "BONDS-CAP-ASST-006",
+      "purpose": "List completed and missing requirements for the signed-in user's funding case.",
+      "side_effect": "database_read",
+      "required": [
+        "case_id"
+      ],
+      "runtime": {
+        "adapter": "assistant_funding_next_requirements"
+      }
+    },
+    {
+      "action": "project_status",
+      "id": "BONDS-CAP-ASST-007",
+      "purpose": "Read a project owned by the signed-in user.",
+      "side_effect": "database_read",
+      "required": [
+        "project_id"
+      ],
+      "runtime": {
+        "adapter": "assistant_project_status"
+      }
+    }
+  ]
+}
