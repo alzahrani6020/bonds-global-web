@@ -3,11 +3,13 @@ const {EventEmitter}=require('events');
 
 const mockGuard=jest.fn();
 const mockEmergencyMode=jest.fn();
+const mockEmergencyMode=jest.fn();
 jest.mock('../../lib/assistant/emergency-kill-switch',()=>{
   const actual=jest.requireActual('../../lib/assistant/emergency-kill-switch');
   return {
     ...actual,
     assertAssistantMutationEnabled:(args)=>mockGuard(args),
+    getAssistantEmergencyMode:(args)=>mockEmergencyMode(args),
     getAssistantEmergencyModeState:(args)=>mockEmergencyMode(args)
   };
 });
@@ -113,6 +115,36 @@ describe('Assistant Emergency Kill Switch API guard',()=>{
     expect(out.body.emergency_mode.mode).toBe('read_only_emergency');
     expect(mockGuard).not.toHaveBeenCalled();
     expect(mockEmergencyMode).toHaveBeenCalledWith({supabase:mockSupabase});
+  });
+
+  test('reports read-only emergency mode from the global assistant switch',async()=>{
+    mockEmergencyMode.mockResolvedValue({
+      mode:'read_only',
+      read_only:true,
+      expires_at:'2099-01-01T00:00:00Z',
+      execution_authorized:false,
+      auto_execute:false
+    });
+    const out=await call('GET','/assistant/emergency-mode');
+    expect(out.statusCode).toBe(200);
+    expect(out.body.emergency_mode).toEqual(expect.objectContaining({
+      mode:'read_only',
+      read_only:true,
+      execution_authorized:false
+    }));
+    expect(mockGuard).not.toHaveBeenCalled();
+  });
+
+  test('global switch denial explicitly identifies read-only emergency mode',async()=>{
+    const err=new Error('ASSISTANT_FEATURE_DISABLED');
+    err.code='ASSISTANT_FEATURE_DISABLED';
+    err.feature='assistant';
+    err.expires_at=null;
+    mockGuard.mockRejectedValue(err);
+    const out=await call('POST','/assistant/workflows/status');
+    expect(out.statusCode).toBe(503);
+    expect(out.body.emergency_mode).toBe('read_only');
+    expect(out.body.policy.execution_authorized).toBe(false);
   });
 
   test('read-only routes do not consult the kill switch',async()=>{
