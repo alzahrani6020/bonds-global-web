@@ -6,7 +6,7 @@
   const PROPOSE_ACTIVITY = '__propose_activity__';
   const PROPOSE_REGION = '__propose_region__';
   const PROPOSE_LOCALITY = '__propose_locality__';
-  const state = { countries: [], cities: [], sectors: [], activities: [], services: [] };
+  const state = { countries: [], cities: [], sectors: [], activities: [], services: [], serviceGroups: [], serviceCategories: [], activeServiceCategory: null, activeServiceGroup: null, servicePickerLevel: 'categories' };
   const dropdowns = {};
   const lang = (document.documentElement.lang || 'ar').toLowerCase().startsWith('en') ? 'en' : 'ar';
   const t = {
@@ -23,6 +23,7 @@
       enName:'الاسم بالإنجليزية (اختياري)', description:'وصف مختصر (اختياري)', send:'إرسال المقترح',
       cancel:'إلغاء', pending:'سيُراجع الاقتراح قبل اعتماده في التصنيف الرسمي.',
       saved:'تم إرسال المقترح للمراجعة.', failed:'تعذر إرسال المقترح.', login:'يلزم تسجيل الدخول لإرسال المقترح.',
+      allServices:'كل الخدمات', back:'رجوع', noResults:'لا توجد خدمات مطابقة', chooseService:'اختر الخدمة',
       localityTypes:{city:'مدينة',town:'بلدة',village:'قرية',hijra:'هجرة',hamlet:'نجع / تجمع صغير',oasis:'واحة',district:'حي / منطقة',settlement:'تجمع سكاني',other:'أخرى'}
     },
     en: {
@@ -38,6 +39,7 @@
       enName:'English name (optional)', description:'Short description (optional)', send:'Submit proposal',
       cancel:'Cancel', pending:'The proposal will be reviewed before entering the canonical taxonomy.',
       saved:'Proposal submitted for review.', failed:'Could not submit proposal.', login:'Sign in is required to submit a proposal.',
+      allServices:'All services', back:'Back', noResults:'No matching services', chooseService:'Choose service',
       localityTypes:{city:'City',town:'Town',village:'Village',hijra:'Hijra',hamlet:'Hamlet',oasis:'Oasis',district:'District',settlement:'Settlement',other:'Other'}
     }
   }[lang];
@@ -125,7 +127,6 @@
     enhance('bondsLocality', t.localitySearch, true);
     enhance('bondsSector', t.sectorSearch, true);
     enhance('bondsActivity', t.activitySearch, true);
-    enhance('bondsService', t.serviceSearch);
   }
 
   function localityLabel(row) {
@@ -232,6 +233,174 @@
     await loadServices();
   }
 
+  function serviceCategory(code) {
+    return state.serviceCategories.find(row => row.code === code) || null;
+  }
+
+  function serviceGroup(code) {
+    return state.serviceGroups.find(row => row.code === code) || null;
+  }
+
+  function serviceBreadcrumb(service) {
+    const category = serviceCategory(service.category_code);
+    const group = serviceGroup(service.group_code);
+    return [category ? label(category) : '', group ? label(group) : '', label(service)].filter(Boolean).join(' › ');
+  }
+
+  function serviceSearchText(service) {
+    const category = serviceCategory(service.category_code);
+    const group = serviceGroup(service.group_code);
+    return [
+      service.code, service.name_ar, service.name_en,
+      service.short_description_ar, service.short_description_en,
+      category?.name_ar, category?.name_en,
+      group?.name_ar, group?.name_en
+    ].filter(Boolean).join(' ').toLowerCase();
+  }
+
+  function isMobileServicePicker() {
+    return window.matchMedia('(max-width: 720px)').matches;
+  }
+
+  function pickFirstServiceBranch() {
+    const categories = state.serviceCategories.filter(category =>
+      state.services.some(service => service.category_code === category.code)
+    );
+    if (!state.activeServiceCategory || !categories.some(row => row.code === state.activeServiceCategory)) {
+      state.activeServiceCategory = categories[0]?.code || null;
+    }
+    const groups = state.serviceGroups.filter(group =>
+      group.category_code === state.activeServiceCategory &&
+      state.services.some(service => service.group_code === group.code)
+    );
+    if (!state.activeServiceGroup || !groups.some(row => row.code === state.activeServiceGroup)) {
+      state.activeServiceGroup = groups[0]?.code || null;
+    }
+  }
+
+  function selectService(serviceCode) {
+    const el = q('#bondsService');
+    if (!el) return;
+    el.value = serviceCode;
+    const selected = state.services.find(row => row.code === serviceCode);
+    q('#bondsServiceTriggerText').textContent = selected ? label(selected) : t.custom;
+    q('#bondsServicePicker')?.classList.remove('is-open');
+    q('#bondsServiceTrigger')?.setAttribute('aria-expanded', 'false');
+    track('service_selected', {
+      service_code:serviceCode,
+      category_code:selected?.category_code || null,
+      group_code:selected?.group_code || null,
+      sector_code:q('#bondsSector').value || null,
+      activity_code:q('#bondsActivity').value || null
+    });
+  }
+
+  function renderServicePicker() {
+    const picker=q('#bondsServicePicker');
+    const body=q('#bondsServicePickerBody');
+    if (!picker || !body) return;
+    pickFirstServiceBranch();
+
+    const query=(q('#bondsServiceSearch')?.value || '').trim().toLowerCase();
+    if (query) {
+      const matches=state.services.filter(service => serviceSearchText(service).includes(query));
+      body.innerHTML='<div class="sd-service-results">' +
+        (matches.length ? matches.map(service =>
+          '<button type="button" class="sd-service-result" data-service-code="'+service.code+'">' +
+            '<strong>'+label(service)+'</strong><small>'+serviceBreadcrumb(service)+'</small>' +
+          '</button>'
+        ).join('') : '<div class="sd-service-empty">'+t.noResults+'</div>') +
+        '</div>';
+      body.querySelectorAll('[data-service-code]').forEach(btn => btn.addEventListener('click',()=>selectService(btn.dataset.serviceCode)));
+      return;
+    }
+
+    const categories=state.serviceCategories.filter(category =>
+      state.services.some(service => service.category_code === category.code)
+    );
+    const groups=state.serviceGroups.filter(group =>
+      group.category_code === state.activeServiceCategory &&
+      state.services.some(service => service.group_code === group.code)
+    );
+    const services=state.services.filter(service => service.group_code === state.activeServiceGroup);
+
+    if (isMobileServicePicker()) {
+      const level=state.servicePickerLevel;
+      let rows=[];
+      let heading=t.chooseService;
+      if (level === 'categories') {
+        rows=categories.map(row=>({type:'category',code:row.code,title:label(row),meta:state.services.filter(s=>s.category_code===row.code).length}));
+        heading=t.allServices;
+      } else if (level === 'groups') {
+        rows=groups.map(row=>({type:'group',code:row.code,title:label(row),meta:state.services.filter(s=>s.group_code===row.code).length}));
+        heading=label(serviceCategory(state.activeServiceCategory)||{});
+      } else {
+        rows=services.map(row=>({type:'service',code:row.code,title:label(row),meta:''}));
+        heading=label(serviceGroup(state.activeServiceGroup)||{});
+      }
+      body.innerHTML='<div class="sd-mobile-head">' +
+        (level!=='categories' ? '<button type="button" class="sd-back">‹ '+t.back+'</button>' : '<span></span>') +
+        '<strong>'+heading+'</strong></div>' +
+        '<div class="sd-mobile-list">' +
+        rows.map(row=>'<button type="button" class="sd-mobile-item" data-'+row.type+'-code="'+row.code+'"><span>'+row.title+'</span>' +
+          (row.type!=='service' ? '<small>'+row.meta+' ›</small>' : '')+'</button>').join('') +
+        '</div>';
+      body.querySelector('.sd-back')?.addEventListener('click',()=>{
+        state.servicePickerLevel=level==='services'?'groups':'categories';
+        renderServicePicker();
+      });
+      body.querySelectorAll('[data-category-code]').forEach(btn=>btn.addEventListener('click',()=>{
+        state.activeServiceCategory=btn.dataset.categoryCode; state.activeServiceGroup=null; state.servicePickerLevel='groups'; pickFirstServiceBranch(); renderServicePicker();
+      }));
+      body.querySelectorAll('[data-group-code]').forEach(btn=>btn.addEventListener('click',()=>{
+        state.activeServiceGroup=btn.dataset.groupCode; state.servicePickerLevel='services'; renderServicePicker();
+      }));
+      body.querySelectorAll('[data-service-code]').forEach(btn=>btn.addEventListener('click',()=>selectService(btn.dataset.serviceCode)));
+      return;
+    }
+
+    body.innerHTML=
+      '<div class="sd-service-columns">' +
+        '<div class="sd-service-column sd-categories"><div class="sd-column-title">'+t.allServices+'</div>' +
+          categories.map(row=>'<button type="button" class="'+(row.code===state.activeServiceCategory?'is-active':'')+'" data-category-code="'+row.code+'"><span>'+label(row)+'</span><b>›</b></button>').join('') +
+        '</div>' +
+        '<div class="sd-service-column sd-groups"><div class="sd-column-title">'+(label(serviceCategory(state.activeServiceCategory)||{}))+'</div>' +
+          groups.map(row=>'<button type="button" class="'+(row.code===state.activeServiceGroup?'is-active':'')+'" data-group-code="'+row.code+'"><span>'+label(row)+'</span><b>›</b></button>').join('') +
+        '</div>' +
+        '<div class="sd-service-column sd-services"><div class="sd-column-title">'+(label(serviceGroup(state.activeServiceGroup)||{}))+'</div>' +
+          services.map(row=>'<button type="button" data-service-code="'+row.code+'"><span>'+label(row)+'</span></button>').join('') +
+        '</div>' +
+      '</div>';
+
+    body.querySelectorAll('[data-category-code]').forEach(btn=>{
+      const activate=()=>{ state.activeServiceCategory=btn.dataset.categoryCode; state.activeServiceGroup=null; pickFirstServiceBranch(); renderServicePicker(); };
+      btn.addEventListener('mouseenter',activate);
+      btn.addEventListener('click',activate);
+    });
+    body.querySelectorAll('[data-group-code]').forEach(btn=>{
+      const activate=()=>{ state.activeServiceGroup=btn.dataset.groupCode; renderServicePicker(); };
+      btn.addEventListener('mouseenter',activate);
+      btn.addEventListener('click',activate);
+    });
+    body.querySelectorAll('[data-service-code]').forEach(btn=>btn.addEventListener('click',()=>selectService(btn.dataset.serviceCode)));
+  }
+
+  function openServicePicker() {
+    const picker=q('#bondsServicePicker');
+    if (!picker) return;
+    state.servicePickerLevel='categories';
+    pickFirstServiceBranch();
+    picker.classList.add('is-open');
+    q('#bondsServiceTrigger')?.setAttribute('aria-expanded','true');
+    renderServicePicker();
+    setTimeout(()=>q('#bondsServiceSearch')?.focus(),0);
+  }
+
+  function closeServicePicker() {
+    q('#bondsServicePicker')?.classList.remove('is-open');
+    q('#bondsServiceTrigger')?.setAttribute('aria-expanded','false');
+  }
+
   async function loadServices() {
     const params = new URLSearchParams();
     const country=q('#bondsCountry').value, sector=q('#bondsSector').value, activity=q('#bondsActivity').value;
@@ -240,8 +409,15 @@
     if(activity && activity !== PROPOSE_ACTIVITY) params.set('activity',activity);
     const data = await json(API + '/services/catalog?' + params.toString());
     state.services = data.services || [];
+    state.serviceGroups = data.groups || [];
+    state.serviceCategories = data.categories || [];
     setOptions(q('#bondsService'), state.services, 'code', label, t.service, [{value:'custom_review',label:t.custom}]);
-    enhance('bondsService', t.serviceSearch);
+    state.activeServiceCategory=null;
+    state.activeServiceGroup=null;
+    pickFirstServiceBranch();
+    const selected=state.services.find(row=>row.code===q('#bondsService').value);
+    q('#bondsServiceTriggerText').textContent=selected ? label(selected) : t.chooseService;
+    renderServicePicker();
   }
 
   function resetSelection(id) {
@@ -391,7 +567,7 @@
 
   function start() {
     const serviceCode=q('#bondsService').value;
-    if (!serviceCode) { dropdowns.bondsService?.open?.(); q('#bondsService').focus(); return; }
+    if (!serviceCode) { openServicePicker(); return; }
     track('service_started',{
       service_code:serviceCode,
       region:q('#bondsRegion').value || null,
@@ -477,7 +653,17 @@
       '<label><span>'+t.locality+'</span><select id="bondsLocality"></select></label>' +
       '<label><span>'+t.sector+'</span><select id="bondsSector"></select></label>' +
       '<label><span>'+t.activity+'</span><select id="bondsActivity"></select></label>' +
-      '<label><span>'+t.service+'</span><select id="bondsService"></select></label>' +
+      '<label class="bonds-service-field"><span>'+t.service+'</span>' +
+      '<select id="bondsService" class="sd-native-service-select" aria-hidden="true" tabindex="-1"></select>' +
+      '<div class="sd-service-picker" id="bondsServicePicker">' +
+        '<button type="button" class="sd-service-trigger" id="bondsServiceTrigger" aria-haspopup="dialog" aria-expanded="false">' +
+          '<span id="bondsServiceTriggerText">'+t.chooseService+'</span><b>⌄</b></button>' +
+        '<div class="sd-service-panel" role="dialog" aria-label="'+t.service+'">' +
+          '<div class="sd-service-search"><input id="bondsServiceSearch" type="search" autocomplete="off" placeholder="'+t.serviceSearch+'"></div>' +
+          '<div id="bondsServicePickerBody"></div>' +
+          '<button type="button" class="sd-custom-service" id="bondsCustomService">'+t.custom+'</button>' +
+        '</div>' +
+      '</div></label>' +
       '<button type="button" id="bondsServiceStart">'+t.start+' ←</button></div></div>';
 
     header.insertAdjacentElement('afterend',wrap);
@@ -486,11 +672,19 @@
     q('#bondsLocality').addEventListener('change',onLocality);
     q('#bondsSector').addEventListener('change',onSector);
     q('#bondsActivity').addEventListener('change',onActivity);
-    q('#bondsService').addEventListener('change',()=>track('service_selected',{
-      service_code:q('#bondsService').value || null,
-      sector_code:q('#bondsSector').value || null,
-      activity_code:q('#bondsActivity').value || null
-    }));
+    q('#bondsServiceTrigger').addEventListener('click',e=>{
+      e.preventDefault();
+      const open=q('#bondsServicePicker').classList.contains('is-open');
+      if(open) closeServicePicker(); else openServicePicker();
+    });
+    q('#bondsServiceSearch').addEventListener('input',renderServicePicker);
+    q('#bondsCustomService').addEventListener('click',()=>selectService('custom_review'));
+    document.addEventListener('click',e=>{
+      const picker=q('#bondsServicePicker');
+      if(picker?.classList.contains('is-open') && !picker.contains(e.target)) closeServicePicker();
+    });
+    document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeServicePicker(); });
+    window.addEventListener('resize',()=>{ if(q('#bondsServicePicker')?.classList.contains('is-open')) renderServicePicker(); });
     q('#bondsServiceStart').addEventListener('click',start);
 
     track('service_viewed',{surface:'header_discovery'});
