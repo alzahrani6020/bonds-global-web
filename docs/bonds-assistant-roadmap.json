@@ -5,7 +5,7 @@
   "baseline_main_sha": "20c3c990b30f2a9ceaac0e6b2d8157a236c9fb51",
   "created_at": "2026-10-22",
   "language": "ar",
-  "status": "assistant_v1_complete",
+  "status": "in_progress",
   "current_phase": "phase2-workflow-documents",
   "source_of_truth": "docs/BONDS_ASSISTANT_MASTER_PLAN.md",
   "immutable_principles": [
@@ -898,7 +898,7 @@
     "assistant_v1_production_acceptance"
   ],
   "next": [
-    "workflow_documents_phase2"
+    "persistent_workflow_state"
   ],
   "deferred": [
     "action_tokens",
@@ -915,8 +915,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "docs/bonds-assistant-v1-rollout-complete",
-    "change": "Assistant V1 production rollout completed on main SHA 6313b460aaec33e21378f40d5a33cc493e3268b0. Apply Supabase Migrations, CI, Production Release and Production Authenticated Smoke all passed. Production readiness reports assistant=ok schema_version=1. Persistent audit verification found 9 marker-correlated session events plus execution_started=1 and execution_succeeded=1 for the same smoke marker. V1 is complete; next phase is Workflow & Documents."
+    "branch": "feat/assistant-persistent-workflow-state-v2",
+    "change": "Started Phase 2 with persistent workflow state on latest main: server-side owned workflow records, bounded Assistant state, optimistic versioning, boundary protection, and active/paused/completed/cancelled lifecycle. Completion remains gated on CI PASS, migration validation, and merge."
   },
   "production_rollout": {
     "status": "complete",
@@ -944,5 +944,15 @@
     "audit_session_event_count": 9,
     "execution_started_count": 1,
     "execution_succeeded_count": 1
-  }
+  },
+  "phase2_order": [
+    "persistent_workflow_state",
+    "document_assistant_classification_extraction",
+    "document_to_workflow",
+    "event_driven_assistant",
+    "notifications",
+    "draft_center",
+    "agent_inbox",
+    "human_escalation"
+  ]
 }
