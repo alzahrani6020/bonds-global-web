@@ -96,11 +96,35 @@ describe('assistant audit trail', () => {
       "'idempotency_claimed'",
       "'replayed'",
       "'write_succeeded'",
-      "'write_uncertain'"
+      "'write_uncertain'",
+      "'event_received'",
+      "'event_applied'",
+      "'event_replayed'",
+      "'event_denied'"
     ]) {
       expect(source).toContain(event);
     }
     expect(source).toContain('appendAssistantAuditBestEffort');
+  });
+
+
+  test('event audit migration extends vocabulary without changing client write access', () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'supabase', 'migrations', '20261022164500_assistant_event_audit_lifecycle.sql'),
+      'utf8'
+    );
+    for (const event of [
+      "'event_received'",
+      "'event_applied'",
+      "'event_replayed'",
+      "'event_denied'"
+    ]) {
+      expect(source).toContain(event);
+    }
+    expect(source).toContain('DROP CONSTRAINT IF EXISTS assistant_action_audit_event_type_check');
+    expect(source).toContain('ADD CONSTRAINT assistant_action_audit_event_type_check');
+    expect(source).not.toMatch(/GRANT\s+(INSERT|UPDATE|DELETE)/i);
+    expect(source).not.toMatch(/CREATE\s+POLICY/i);
   });
 
   test('governed assistant capabilities persist execution lifecycle without payloads or tokens', () => {
