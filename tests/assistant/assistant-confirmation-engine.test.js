@@ -34,6 +34,24 @@ describe('assistant confirmation engine', () => {
     expect(confirmation.action_fingerprint).toMatch(/^[0-9a-f]{64}$/);
   });
 
+  test('medium risk does not require confirmation unless the normalized action explicitly requests it', () => {
+    const confirmation = prepareConfirmation({
+      id:'action-200',
+      type:'form_save_draft',
+      capability:'form_save_draft',
+      target:'kyc',
+      input:{},
+      risk:'medium',
+      requires_confirmation:false,
+      status:'ready'
+    });
+    expect(confirmation).toMatchObject({
+      required:false,
+      status:'not_required',
+      execution_authorized:false
+    });
+  });
+
   test('fingerprint is stable for semantically identical input key order', () => {
     const reordered = {
       ...highRiskAction,
