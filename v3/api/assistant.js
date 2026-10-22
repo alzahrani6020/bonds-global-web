@@ -12,6 +12,7 @@ const { prepareConfirmation, resolveConfirmation } = require('../../lib/assistan
 const { claimAssistantAction, resolveAssistantAction } = require('../../lib/assistant/idempotency');
 const { getSupabaseClient } = require('../lib/supabase');
 const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
+const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -203,6 +204,91 @@ async function assistantRouter(req, res, path, user) {
         'INVALID_IDEMPOTENCY_STATUS'
       ].includes(err.message);
       return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/workflows/save' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const workflow = await saveWorkflowState({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        workflowKey:body.workflow_key,
+        boundary:body.boundary,
+        state:body.state,
+        status:body.status,
+        expectedVersion:body.expected_version
+      });
+      return sendJson(res, 200, { protocol:PROTOCOL, status:'completed', workflow });
+    } catch (err) {
+      const conflict = ['WORKFLOW_VERSION_CONFLICT','WORKFLOW_BOUNDARY_CONFLICT'].includes(err.message);
+      const clientError = [
+        'INVALID_WORKFLOW_KEY','INVALID_WORKFLOW_STATUS','INVALID_WORKFLOW_VERSION',
+        'WORKFLOW_BOUNDARY_REQUIRED','WORKFLOW_STATE_INVALID'
+      ].includes(err.message);
+      return sendJson(res, conflict ? 409 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/workflows/load' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const workflow = await loadWorkflowState({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        workflowKey:body.workflow_key
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:workflow ? 'completed' : 'not_found',
+        workflow
+      });
+    } catch (err) {
+      const clientError = err.message === 'INVALID_WORKFLOW_KEY';
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/workflows/status' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const workflow = await setWorkflowStatus({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        workflowKey:body.workflow_key,
+        status:body.status,
+        expectedVersion:body.expected_version
+      });
+      return sendJson(res, 200, { protocol:PROTOCOL, status:'completed', workflow });
+    } catch (err) {
+      const conflict = err.message === 'WORKFLOW_VERSION_CONFLICT';
+      const notFound = err.message === 'WORKFLOW_NOT_FOUND';
+      const clientError = [
+        'INVALID_WORKFLOW_KEY','INVALID_WORKFLOW_STATUS','INVALID_WORKFLOW_VERSION',
+        'WORKFLOW_VERSION_REQUIRED'
+      ].includes(err.message);
+      return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
