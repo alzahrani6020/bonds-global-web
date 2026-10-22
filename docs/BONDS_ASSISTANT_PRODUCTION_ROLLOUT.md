@@ -1,6 +1,6 @@
 # إطلاق BONDS Assistant V1 على الإنتاج
 
-الحالة: **IN_PROGRESS — لا يُغلق production_rollout قبل تحقق جميع بوابات القبول أدناه.**
+الحالة: **PASS — اكتملت جميع بوابات قبول production_rollout بتاريخ 2026-10-22.**
 
 المرجعان الرسميان هما `BONDS_ASSISTANT_MASTER_PLAN.md` و`bonds-assistant-roadmap.json`.
 هذا الملف يوثق إجراء الإطلاق والدليل التشغيلي فقط.
@@ -92,6 +92,17 @@
 
 ## سجل الإثبات النهائي
 
-يُملأ بعد التنفيذ الفعلي: PR الإصلاح، SHA الدمج، تشغيل migration، تشغيل release، تشغيل smoke،
-نتيجة readiness، marker وcounts الخاصة بـAudit. حتى ذلك الوقت تبقى المهمة `production_rollout`
-ضمن `next` ولا تضاف إلى `completed`.
+- PR الإصلاح: #375
+- SHA الإنتاج: `6313b460aaec33e21378f40d5a33cc493e3268b0`
+- Apply Supabase Migrations: run `39776756331` — PASS
+- CI — Tests, Audit & Visual Regression: run `39776756323` — PASS
+- Production Release: run `39777448567` — PASS
+- Production Authenticated Smoke: run `39777715213` — PASS
+- Production `/api/health`: `status=ok`, `version=6313b46`, `environment=production`
+- Production `/api/readiness`: `status=ready`, `checks.assistant=ok`, `assistant.schema_version=1`
+- Supabase `assistant_rollout_readiness()`: `ready=true` وجميع الشروط التسعة = true
+- Smoke marker: `assistant-smoke-6313b460aaec-0591d62a-f97e-4bec-9046-37e100058327`
+- Audit المرتبط بـ`session_id`: 9 أحداث
+- Audit المرتبط بـ`metadata.request_id`: `execution_started=1`, `execution_succeeded=1`
+
+النتيجة النهائية: `production_rollout = PASS`، واكتمل BONDS Assistant V1. المرحلة التالية هي Phase 2 — Workflow & Documents.
