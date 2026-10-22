@@ -71,10 +71,15 @@ describe('assistant audit trail', () => {
       'utf8'
     );
     expect(source).toContain('CREATE TABLE IF NOT EXISTS public.assistant_action_audit');
-    expect(source).toContain('REVOKE ALL ON public.assistant_action_audit FROM anon, authenticated');
+    expect(source).toContain('REVOKE ALL ON public.assistant_action_audit FROM PUBLIC, anon, authenticated, service_role');
     expect(source).toContain('CREATE OR REPLACE FUNCTION public.assistant_append_action_audit');
     expect(source).toContain('SECURITY DEFINER');
     expect(source).toContain('SET search_path = public, pg_temp');
+    expect(source).toContain('GRANT EXECUTE ON FUNCTION public.assistant_append_action_audit');
+    expect(source).toContain('TO service_role');
+    expect(source).toContain('CREATE OR REPLACE FUNCTION public.reject_assistant_action_audit_mutation');
+    expect(source).toContain('BEFORE UPDATE OR DELETE ON public.assistant_action_audit');
+    expect(source).toContain("RAISE EXCEPTION 'ASSISTANT_AUDIT_IMMUTABLE'");
     expect(source).not.toMatch(/CREATE POLICY[\s\S]*FOR (INSERT|UPDATE|DELETE)/i);
   });
 
@@ -96,6 +101,26 @@ describe('assistant audit trail', () => {
       expect(source).toContain(event);
     }
     expect(source).toContain('appendAssistantAuditBestEffort');
+  });
+
+  test('governed assistant capabilities persist execution lifecycle without payloads or tokens', () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'v3', 'api', 'capabilities.js'),
+      'utf8'
+    );
+    for (const event of [
+      "'execution_started'",
+      "'execution_succeeded'",
+      "'execution_failed'",
+      "'execution_denied'"
+    ]) {
+      expect(source).toContain(event);
+    }
+    expect(source).toContain("service?.serviceCode === 'assistant'");
+    expect(source).toContain('appendAssistantAuditBestEffort');
+    expect(source).toContain('request_id:event?.requestId || requestId');
+    expect(source).not.toContain('serviceToken:event');
+    expect(source).not.toContain('input:event');
   });
 
   test('audit trail is observability, not token, AI, or API capability gating', () => {

@@ -892,7 +892,7 @@
     "immutable_action_log"
   ],
   "next": [
-    "end_to_end_assistant_journey_tests"
+    "e2e_tests"
   ],
   "deferred": [
     "action_tokens",
@@ -909,7 +909,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-audit-trail",
+    "branch": "feat/bonds-assistant-audit-trail-v2",
     "change": "Added Assistant V1 immutable server-side action audit trail covering planning, confirmation, idempotency claim/replay, write success and uncertain outcomes. Audit metadata is bounded, idempotency keys are hashed, direct client mutations are revoked, and audit logging is observability-only rather than authorization or AI/API capability gating."
   }
 }

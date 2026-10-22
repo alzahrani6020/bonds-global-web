@@ -8,6 +8,7 @@ const {
   issueBrokerServiceToken,
   revokeBrokerServiceToken
 } = require('../../lib/security/service-token-broker');
+const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -115,12 +116,56 @@ async function capabilitiesRouter(req, res, path, user, options = {}) {
       brokerIssued = true;
     }
 
+    const requestId = req.headers['x-request-id'] || null;
+    const auditDb = supabase || require('../lib/supabase').getSupabaseClient();
+    const auditStatusMap = {
+      started: 'execution_started',
+      succeeded: 'execution_succeeded',
+      failed: 'execution_failed',
+      denied: 'execution_denied'
+    };
+    const existingAudit = authorization.context.governance?.audit;
+    const persistentAssistantAudit = service?.serviceCode === 'assistant'
+      ? async event => {
+          if (typeof existingAudit === 'function') {
+            await existingAudit(event);
+          }
+          const eventType = auditStatusMap[event?.status];
+          if (!eventType) return;
+          await appendAssistantAuditBestEffort({
+            supabase:auditDb,
+            userId:user.id,
+            action:{
+              id:validation.spec.id || null,
+              type:action,
+              target:null,
+              risk:null,
+              requires_confirmation:false
+            },
+            eventType,
+            outcome:event?.status || null,
+            sessionId:null,
+            boundary:null,
+            metadata:{
+              service:event?.service || service.serviceCode,
+              capability:event?.capability || action,
+              request_id:event?.requestId || requestId,
+              code:event?.detail?.code || null
+            }
+          });
+        }
+      : existingAudit;
+
     let result;
     try {
       result = await executeCapability(action, input, {
         ...executionOptions,
         ...authorization.context,
-        requestId: req.headers['x-request-id'] || null,
+        requestId,
+        governance:{
+          ...authorization.context.governance,
+          audit:persistentAssistantAudit
+        },
         auth: {
           ...(executionOptions.auth || {}),
           serviceToken: serviceToken || executionOptions.auth?.serviceToken || null
