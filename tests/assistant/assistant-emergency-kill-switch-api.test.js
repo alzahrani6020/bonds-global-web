@@ -134,7 +134,7 @@ describe('Assistant Emergency Kill Switch API guard',()=>{
     expect(mockGuard).not.toHaveBeenCalled();
   });
 
-  test('global switch denial explicitly identifies read-only emergency mode',async()=>{
+  test('global kill switch remains distinct from read-only emergency mode',async()=>{
     const err=new Error('ASSISTANT_FEATURE_DISABLED');
     err.code='ASSISTANT_FEATURE_DISABLED';
     err.feature='assistant';
@@ -142,7 +142,9 @@ describe('Assistant Emergency Kill Switch API guard',()=>{
     mockGuard.mockRejectedValue(err);
     const out=await call('POST','/assistant/workflows/status');
     expect(out.statusCode).toBe(503);
-    expect(out.body.emergency_mode).toBe('read_only');
+    expect(out.body.error).toBe('ASSISTANT_FEATURE_DISABLED');
+    expect(out.body.feature).toBe('assistant');
+    expect(out.body.mode).toBeUndefined();
     expect(out.body.policy.execution_authorized).toBe(false);
   });
 
