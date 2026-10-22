@@ -97,6 +97,23 @@ describe('assistant draft center', () => {
     }
   });
 
+  test('uses canonical logical navigation targets from the form registry', () => {
+    const cases = [
+      ['kyc','kyc'],
+      ['establishment','establishment_information'],
+      ['activity','business_activity'],
+      ['cash_flow','cash_flow'],
+      ['receivables','receivables_aging'],
+      ['payables','payables_aging'],
+      ['credit_business','credit_consent_business'],
+      ['credit_individual','credit_consent_individual']
+    ];
+    for (const [form_code,navigation_target] of cases) {
+      const source = DRAFT_SOURCES.find(x => x.form_code === form_code);
+      expect(normalizeDraftRow(source,{ id:'d-1', status:'draft' }).navigation_target).toBe(navigation_target);
+    }
+  });
+
   test('normalizes editable drafts as read-only center entries', () => {
     const item = normalizeDraftRow(
       { form_code:'kyc', table:'client_kyc_cases' },
