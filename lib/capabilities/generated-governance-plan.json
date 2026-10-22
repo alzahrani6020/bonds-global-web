@@ -37,6 +37,7 @@
   ],
   "workflowEvents": [
     "agent.runtime.completed",
+    "assistant.calculate.completed",
     "assistant.read.completed",
     "native-inference.health",
     "orchestrator.completed",

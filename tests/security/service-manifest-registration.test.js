@@ -76,6 +76,8 @@ describe(
           Object.keys(CAPABILITIES).sort()
         ).toEqual([
           'agent_execute',
+          'calculator_open',
+          'calculator_run',
           'evidence_verify',
           'form_find',
           'form_load',

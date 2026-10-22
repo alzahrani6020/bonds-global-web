@@ -115,6 +115,54 @@
       "kind": "form",
       "risk": "low",
       "auth_required": true
+    },
+    "calculator_break_even": {
+      "routes": {
+        "ar": "/calculators/break-even",
+        "en": "/en/calculators/break-even"
+      },
+      "kind": "calculator",
+      "risk": "low"
+    },
+    "calculator_loan": {
+      "routes": {
+        "ar": "/calculators/loan",
+        "en": "/en/calculators/loan"
+      },
+      "kind": "calculator",
+      "risk": "low"
+    },
+    "calculator_roi": {
+      "routes": {
+        "ar": "/calculators/roi",
+        "en": "/en/calculators/roi"
+      },
+      "kind": "calculator",
+      "risk": "low"
+    },
+    "calculator_cash_flow": {
+      "routes": {
+        "ar": "/calculators/cash-flow",
+        "en": "/en/calculators/cash-flow"
+      },
+      "kind": "calculator",
+      "risk": "low"
+    },
+    "calculator_feasibility": {
+      "routes": {
+        "ar": "/calculators/feasibility",
+        "en": "/en/calculators/feasibility"
+      },
+      "kind": "calculator",
+      "risk": "low"
+    },
+    "calculator_restaurant": {
+      "routes": {
+        "ar": "/calculators/restaurant",
+        "en": "/en/calculators/restaurant"
+      },
+      "kind": "calculator",
+      "risk": "low"
     }
   }
 }
