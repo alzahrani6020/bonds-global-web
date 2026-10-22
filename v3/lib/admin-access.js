@@ -112,6 +112,12 @@ async function requireHumanApprovalAccess(req) {
   return getBearerAdmin(req);
 }
 
+async function requireAssistantKillSwitchAccess(req) {
+  // Emergency controls must always be attributable to a bearer admin identity.
+  // Legacy/static admin tokens and Support are intentionally excluded.
+  return getBearerAdmin(req);
+}
+
 async function requireAgentInboxAccess(req, options = {}) {
   const bearerAgent = await getBearerAgentInboxUser(req);
   if (bearerAgent) return bearerAgent;
@@ -142,5 +148,6 @@ module.exports = {
   requireAdminAccess,
   getBearerAgentInboxUser,
   requireAgentInboxAccess,
-  requireHumanApprovalAccess
+  requireHumanApprovalAccess,
+  requireAssistantKillSwitchAccess
 };
