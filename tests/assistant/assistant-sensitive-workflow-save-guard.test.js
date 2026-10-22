@@ -2,11 +2,10 @@
 
 const { EventEmitter }=require('events');
 const mockSave=jest.fn();
-const mockLoad=jest.fn();
 
 jest.mock('../../lib/assistant/workflow-state',()=>({
   saveWorkflowState:(args)=>mockSave(args),
-  loadWorkflowState:(args)=>mockLoad(args),
+  loadWorkflowState:jest.fn(),
   setWorkflowStatus:jest.fn()
 }));
 jest.mock('../../v3/lib/supabase',()=>({
@@ -41,13 +40,12 @@ function call(body){
 describe('sensitive state direct-save guard',()=>{
   beforeEach(()=>{
     jest.clearAllMocks();
-    mockLoad.mockResolvedValue(null);
     mockSave.mockResolvedValue({
       workflow_key:'wf-1',
       boundary:'project:p-1',
       status:'active',
-      version:1,
-      state:{ boundary:'project:p-1' }
+      version:2,
+      state:{ boundary:'project:p-1', goal:'Updated goal' }
     });
   });
 
@@ -63,51 +61,38 @@ describe('sensitive state direct-save guard',()=>{
     });
     expect(out.statusCode).toBe(422);
     expect(out.body.error).toBe('SENSITIVE_STATE_DIRECT_WRITE_FORBIDDEN');
-    expect(mockLoad).not.toHaveBeenCalled();
     expect(mockSave).not.toHaveBeenCalled();
   });
 
-  test('preserves an existing sensitive state when saving ordinary context',async()=>{
-    mockLoad.mockResolvedValueOnce({
-      workflow_key:'wf-1',
-      boundary:'project:p-1',
-      status:'active',
-      version:4,
-      state:{
-        boundary:'project:p-1',
-        sensitive_state:'confirmed'
-      }
-    });
-    mockSave.mockResolvedValueOnce({
-      workflow_key:'wf-1',
-      boundary:'project:p-1',
-      status:'active',
-      version:5,
-      state:{
-        boundary:'project:p-1',
-        goal:'Updated goal',
-        sensitive_state:'confirmed'
-      }
-    });
-
+  test('ordinary context saves retain the original one-save API contract',async()=>{
     const out=await call({
       workflow_key:'wf-1',
       boundary:'project:p-1',
       status:'active',
-      expected_version:4,
+      expected_version:1,
       state:{
         boundary:'project:p-1',
         goal:'Updated goal'
       }
     });
-
     expect(out.statusCode).toBe(200);
+    expect(mockSave).toHaveBeenCalledTimes(1);
     expect(mockSave).toHaveBeenCalledWith(expect.objectContaining({
-      expectedVersion:4,
-      state:expect.objectContaining({
-        goal:'Updated goal',
-        sensitive_state:'confirmed'
-      })
+      userId:'user-1',
+      expectedVersion:1,
+      state:expect.objectContaining({ goal:'Updated goal' })
     }));
+  });
+
+  test('optimistic version conflict remains a 409',async()=>{
+    mockSave.mockRejectedValueOnce(new Error('WORKFLOW_VERSION_CONFLICT'));
+    const out=await call({
+      workflow_key:'wf-1',
+      boundary:'project:p-1',
+      expected_version:1,
+      state:{ boundary:'project:p-1' }
+    });
+    expect(out.statusCode).toBe(409);
+    expect(out.body.error).toBe('WORKFLOW_VERSION_CONFLICT');
   });
 });
