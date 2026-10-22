@@ -1,0 +1,88 @@
+{
+  "protocol": "BONDS_ASSISTANT_PROTOCOL_V1",
+  "version": 1,
+  "purpose": "Structured, governed assistant actions for BONDS without model-generated arbitrary execution.",
+  "response": {
+    "required": [
+      "protocol",
+      "status",
+      "reply",
+      "actions",
+      "ui",
+      "context"
+    ],
+    "status": [
+      "ready",
+      "needs_input",
+      "needs_confirmation",
+      "completed",
+      "denied",
+      "error"
+    ]
+  },
+  "action": {
+    "required": [
+      "id",
+      "type",
+      "capability",
+      "risk",
+      "requires_confirmation",
+      "status"
+    ],
+    "allowed_types": [
+      "site_navigate",
+      "section_open",
+      "form_find",
+      "form_load",
+      "form_prefill",
+      "form_validate",
+      "form_save_draft",
+      "form_submit",
+      "project_status",
+      "project_update",
+      "funding_status",
+      "funding_next_step",
+      "funding_next_requirements",
+      "document_find",
+      "document_attach",
+      "calculator_open",
+      "calculator_run",
+      "help_explain",
+      "service_discover",
+      "request_create",
+      "external_send",
+      "consent_accept",
+      "payment_action"
+    ],
+    "risks": [
+      "low",
+      "medium",
+      "high",
+      "critical"
+    ],
+    "statuses": [
+      "planned",
+      "ready",
+      "blocked",
+      "completed",
+      "failed"
+    ],
+    "forbidden_fields": [
+      "url",
+      "href",
+      "javascript",
+      "script",
+      "selector",
+      "sql",
+      "raw_sql",
+      "code"
+    ]
+  },
+  "invariants": [
+    "Model output never directly supplies executable URLs, JavaScript, DOM selectors or SQL.",
+    "Navigation and forms resolve only through registered logical keys.",
+    "Sensitive actions require governance and confirmation before execution.",
+    "Authorization scopes do not encode model, provider, throughput, context or compute ceilings.",
+    "AI-inferred business values are suggestions until confirmed or sourced from authoritative system data."
+  ]
+}
