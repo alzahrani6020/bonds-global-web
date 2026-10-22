@@ -67,6 +67,19 @@ describe('assistant confirmation engine', () => {
     expect(resolved.execution_authorized).toBe(false);
   });
 
+  test('widget prepares and resolves confirmation without treating it as execution authorization', () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'v3', 'components', 'ai-chat-widget.js'),
+      'utf8'
+    );
+    expect(source).toContain('ASSISTANT_CONFIRMATION_PREPARE_URL');
+    expect(source).toContain('ASSISTANT_CONFIRMATION_RESOLVE_URL');
+    expect(source).toContain('pending_confirmation: confirmationStateSummary(confirmation)');
+    expect(source).toContain("status: resolved.status === 'confirmed'");
+    expect(source).toContain("'confirmed_pending_governance'");
+    expect(source).toContain('Sensitive execution still requires the governed execution layer.');
+  });
+
   test('assistant API exposes prepare and resolve routes without issuing tokens', () => {
     const source = fs.readFileSync(
       path.join(__dirname, '..', '..', 'v3', 'api', 'assistant.js'),
