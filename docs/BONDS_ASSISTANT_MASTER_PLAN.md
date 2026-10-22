@@ -6,7 +6,7 @@
 > Baseline main SHA at creation: `20c3c990b30f2a9ceaac0e6b2d8157a236c9fb51`  
 > Created: 2026-10-22  
 > Language of record: Arabic  
-> Status: IN_PROGRESS / PRODUCTION_ROLLOUT
+> Status: PHASE_1_COMPLETE / PHASE_2_WORKFLOW_DOCUMENTS
 
 ## 1. Purpose
 
@@ -596,16 +596,16 @@ parent/child relationships بين التوكنات.
 
 # 8. الحالة التنفيذية الحالية
 
-- آخر `main` متحقق منه عند بدء الإطلاق: `73198471595d4948d5e9db00f5f857b61b2ff61c`، دمج PR #373.
-- Assistant V1: **IMPLEMENTED / PRODUCTION ACCEPTANCE IN PROGRESS**.
+- آخر `main` متحقق منه لقبول Assistant V1 في الإنتاج: `6313b460aaec33e21378f40d5a33cc493e3268b0`، دمج PR #375.
+- Assistant V1: **IMPLEMENTED / PRODUCTION ACCEPTANCE PASS**.
 - Structured action protocol / Assistant API / Navigation registry / Form registry: **MERGED**.
 - قدرات القراءة والتمويل والمشروع والحاسبات، وعارض الشات والسياق وprovenance وconfirmation وحفظ المسودة: **MERGED**؛ انظر قائمة `completed` في الخارطة.
 - Durable idempotency: **MERGED** عبر PR #367.
-- Audit implementation: **MERGED** عبر #369 و#371، لكن تقوية قاعدة الإنتاج في #371 لم تُطبق؛ رفض workflow تعديل ملف ترحيل سبق دمجه. هذا تصحيح للحالة التشغيلية، لا إعادة تنفيذ المرحلة.
+- Audit implementation: **MERGED / PRODUCTION VERIFIED** عبر #369 و#371 و#375؛ forward-only recovery migration مطبقة، وقيود الأحداث وRLS ومنع التعديل المباشر وimmutable trigger متحققة على Production.
 - E2E journeys: **PASS / MERGED** عبر PR #372، SHA `8a97097df16130cb1b3d20e8597f98d97cbba787`.
 - Security Red Team: **PASS / MERGED** عبر PR #373؛ Accessibility نجحت في أحدث attempt، وجميع البوابات الثلاث ناجحة.
-- Production rollout: **IN_PROGRESS**. ترحيل جديد يصلح constraint أحداث التنفيذ وصلاحيات الجدول وTrigger، وفحص جاهزية مرتبط بقاعدة البيانات، وقبول Assistant باستخدام جلسة smoke الحالية.
-- تفاصيل القبول وحدود الدليل والتراجع: `docs/BONDS_ASSISTANT_PRODUCTION_ROLLOUT.md`.
+- Production rollout: **PASS / COMPLETE**. Production على SHA `6313b460aaec33e21378f40d5a33cc493e3268b0`; `/api/readiness` = `ready` مع `assistant=ok` و`schema_version=1`; Production Authenticated Smoke = PASS; سجل التدقيق أثبت 9 أحداث session و`execution_started=1` و`execution_succeeded=1` لنفس marker.
+- تفاصيل القبول وحدود الدليل والتراجع: `docs/BONDS_ASSISTANT_PRODUCTION_ROLLOUT.md`. المرحلة التالية الرسمية: **Phase 2 — Workflow & Documents**.
 - Action token: **NOT IMPLEMENTED**
 - Workflow token: **NOT IMPLEMENTED**
 - Confirmation token: **NOT IMPLEMENTED**
