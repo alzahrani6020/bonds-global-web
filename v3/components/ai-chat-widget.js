@@ -9,6 +9,9 @@
 (function (window) {
   const API_URL = '/api/v3/ai/chat';
   const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
+  const ASSISTANT_PLAN_URL = '/api/v3/assistant/plan';
+  const CAPABILITY_EXECUTE_URL = '/api/v3/capabilities/execute';
+  const ASSISTANT_PROTOCOL = 'BONDS_ASSISTANT_PROTOCOL_V1';
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -127,6 +130,51 @@
       transition: background 0.2s;
     }
     .bonds-ai-suggestion:hover { background: rgba(212,168,83,0.2); }
+    .bonds-ai-action-card {
+      align-self: stretch;
+      background: rgba(212,168,83,0.08);
+      border: 1px solid rgba(197,160,40,0.24);
+      border-radius: 12px;
+      padding: 0.75rem;
+      display: flex;
+      gap: 0.65rem;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .bonds-ai-action-copy {
+      min-width: 0;
+      color: #e8ecf4;
+      font-size: 0.82rem;
+      line-height: 1.4;
+    }
+    .bonds-ai-action-copy small {
+      display: block;
+      margin-top: 0.2rem;
+      color: #94a3b8;
+      overflow-wrap: anywhere;
+    }
+    .bonds-ai-action-button {
+      flex: 0 0 auto;
+      background: #d4a853;
+      color: #0a0f1a;
+      border: 0;
+      border-radius: 9px;
+      padding: 0.45rem 0.7rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .bonds-ai-action-button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .bonds-ai-action-card.done {
+      border-color: rgba(34,197,94,0.3);
+      background: rgba(34,197,94,0.08);
+    }
+    .bonds-ai-action-card.error {
+      border-color: rgba(239,68,68,0.3);
+      background: rgba(239,68,68,0.08);
+    }
     .bonds-ai-chat-input {
       display: flex;
       gap: 0.5rem;
@@ -276,6 +324,151 @@
       addMessage('user', text);
     }
 
+    function assistantLanguage() {
+      const lang = String(document.documentElement.lang || '').toLowerCase();
+      return lang.startsWith('en') ? 'en' : 'ar';
+    }
+
+    function actionLabel(action) {
+      const labels = {
+        site_navigate: 'انتقال',
+        form_find: 'العثور على النموذج',
+        form_load: 'فتح النموذج',
+        funding_status: 'عرض حالة التمويل',
+        funding_next_step: 'عرض الخطوة التالية',
+        funding_next_requirements: 'عرض المتطلبات',
+        project_status: 'عرض حالة المشروع'
+      };
+      return labels[action.type] || 'تنفيذ الإجراء';
+    }
+
+    function actionDescription(action) {
+      const target = action.target ? ` · ${action.target}` : '';
+      return `${action.type || action.capability || 'action'}${target}`;
+    }
+
+    function capabilityInput(action) {
+      const input = {
+        ...(action.input && typeof action.input === 'object' ? action.input : {})
+      };
+      const language = assistantLanguage();
+
+      if (action.type === 'site_navigate') {
+        input.target = action.target;
+        input.language = language;
+      } else if (action.type === 'form_find' || action.type === 'form_load') {
+        input.form = action.target;
+        input.language = language;
+      }
+
+      return input;
+    }
+
+    async function postAssistantJson(url, payload) {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        const code = data?.error?.code || data?.error || 'ASSISTANT_REQUEST_FAILED';
+        throw new Error(String(code));
+      }
+      return data;
+    }
+
+    async function executeStructuredAction(action, card, button) {
+      if (!action || action.requires_confirmation === true) return;
+
+      button.disabled = true;
+      try {
+        const data = await postAssistantJson(CAPABILITY_EXECUTE_URL, {
+          action: action.capability || action.type,
+          input: capabilityInput(action)
+        });
+
+        if (!data.ok || data.executed !== true) {
+          throw new Error(data?.error?.code || 'CAPABILITY_NOT_EXECUTED');
+        }
+
+        card.classList.add('done');
+        button.textContent = 'تم';
+
+        if (action.type === 'site_navigate' && data.result?.route) {
+          window.location.assign(data.result.route);
+          return;
+        }
+
+        if (action.type === 'form_load' && data.result?.navigation?.route) {
+          window.location.assign(data.result.navigation.route);
+          return;
+        }
+      } catch (err) {
+        console.error('[BondsAIChat action]', err);
+        card.classList.add('error');
+        button.textContent = 'تعذر التنفيذ';
+      }
+    }
+
+    function renderActionCard(action) {
+      const card = document.createElement('div');
+      card.className = 'bonds-ai-action-card';
+      card.dataset.actionId = action.id || '';
+
+      const copy = document.createElement('div');
+      copy.className = 'bonds-ai-action-copy';
+      const title = document.createElement('strong');
+      title.textContent = actionLabel(action);
+      const meta = document.createElement('small');
+      meta.textContent = actionDescription(action);
+      copy.appendChild(title);
+      copy.appendChild(meta);
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'bonds-ai-action-button';
+      button.textContent = action.requires_confirmation === true
+        ? 'يتطلب تأكيداً'
+        : actionLabel(action);
+      button.disabled = action.requires_confirmation === true || action.status === 'blocked';
+
+      if (!button.disabled) {
+        button.addEventListener('click', () =>
+          executeStructuredAction(action, card, button)
+        );
+      }
+
+      card.appendChild(copy);
+      card.appendChild(button);
+      messagesEl.appendChild(card);
+    }
+
+    function renderAssistantEnvelope(envelope) {
+      if (!envelope || envelope.protocol !== ASSISTANT_PROTOCOL) {
+        throw new Error('INVALID_ASSISTANT_PROTOCOL');
+      }
+
+      if (envelope.reply) addAssistantMessage(envelope.reply);
+
+      const actions = Array.isArray(envelope.actions) ? envelope.actions : [];
+      actions.forEach(renderActionCard);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      return envelope;
+    }
+
+    async function planAction(spec = {}) {
+      const payload = {
+        type: spec.type,
+        target: spec.target,
+        form: spec.form,
+        language: spec.language || assistantLanguage()
+      };
+
+      const envelope = await postAssistantJson(ASSISTANT_PLAN_URL, payload);
+      return renderAssistantEnvelope(envelope);
+    }
+
     function setLoading(loading) {
       state.isLoading = loading;
       sendBtn.disabled = loading;
@@ -356,7 +549,11 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
-        addAssistantMessage(data.reply, data.source === 'fallback');
+        if (data.protocol === ASSISTANT_PROTOCOL) {
+          renderAssistantEnvelope(data);
+        } else {
+          addAssistantMessage(data.reply, data.source === 'fallback');
+        }
       } catch (err) {
         console.error('[BondsAIChat]', err);
         addAssistantMessage('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.', true);
@@ -373,6 +570,8 @@
     });
 
     window.BondsAIChat.updateContext = updateContext;
+    window.BondsAIChat.planAction = planAction;
+    window.BondsAIChat.renderEnvelope = renderAssistantEnvelope;
   }
 
   window.BondsAIChat = window.BondsAIChat || {};
