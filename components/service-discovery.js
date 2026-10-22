@@ -404,6 +404,7 @@
       return;
     }
 
+    const selectedService = state.services.find(row => row.code === serviceCode) || null;
     const intent = {
       country_code:q('#bondsCountry').value || null,
       region_code:q('#bondsRegion').value || null,
@@ -411,10 +412,30 @@
       locality_code:q('#bondsLocality').value || null,
       locality_name:selectedText(q('#bondsLocality')),
       sector_code:q('#bondsSector').value || null,
+      sector_name:selectedText(q('#bondsSector')),
       activity_code:q('#bondsActivity').value || null,
-      service_code:serviceCode
+      activity_name:selectedText(q('#bondsActivity')),
+      service_code:serviceCode,
+      service_name:selectedService ? label(selectedService) : selectedText(q('#bondsService')),
+      language:lang
     };
     sessionStorage.setItem('bonds_service_intent', JSON.stringify(intent));
+    sessionStorage.setItem('bonds_service_assistant_context_v1', JSON.stringify({
+      version:1,
+      serviceCode:intent.service_code,
+      serviceName:intent.service_name || null,
+      countryCode:intent.country_code,
+      regionCode:intent.region_code,
+      regionName:intent.region_name || null,
+      localityCode:intent.locality_code,
+      localityName:intent.locality_name || null,
+      sectorCode:intent.sector_code,
+      sectorName:intent.sector_name || null,
+      activityCode:intent.activity_code,
+      activityName:intent.activity_name || null,
+      language:intent.language,
+      source:'service_discovery'
+    }));
 
     const directRoute = selectedServiceRoute(serviceCode);
     if (directRoute) {
