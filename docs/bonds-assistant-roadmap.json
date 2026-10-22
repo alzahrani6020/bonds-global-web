@@ -647,19 +647,19 @@
       "id": 103,
       "title": "Document Assistant",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 104,
       "title": "Document Classification",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 105,
       "title": "Document Field Extraction",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 106,
@@ -895,10 +895,11 @@
     "security_red_team_tests",
     "assistant_red_team_scenarios",
     "production_rollout",
-    "assistant_v1_production_acceptance"
+    "assistant_v1_production_acceptance",
+    "persistent_workflow_state"
   ],
   "next": [
-    "persistent_workflow_state"
+    "document_assistant_classification_extraction"
   ],
   "deferred": [
     "action_tokens",
@@ -915,8 +916,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-persistent-workflow-state-v2",
-    "change": "Started Phase 2 with persistent workflow state on latest main: server-side owned workflow records, bounded Assistant state, optimistic versioning, boundary protection, and active/paused/completed/cancelled lifecycle. Completion remains gated on CI PASS, migration validation, and merge."
+    "branch": "feat/assistant-document-intelligence",
+    "change": "Phase 2 document intelligence started on production-ready workflow state. Added governed owner-bound document reads, deterministic classification, deterministic field extraction with provenance, and prompt-injection boundary marking document content as data only. Completion remains gated on CI PASS and merge."
   },
   "production_rollout": {
     "status": "complete",
