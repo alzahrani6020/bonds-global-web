@@ -54,6 +54,29 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('window.BondsAssistant.renderEnvelope');
   });
 
+
+  test('renders persistent notification inbox through governed assistant endpoints', () => {
+    expect(source).toContain("const ASSISTANT_NOTIFICATIONS_URL = '/api/v3/assistant/notifications';");
+    expect(source).toContain("const ASSISTANT_NOTIFICATION_READ_URL = '/api/v3/assistant/notifications/read';");
+    expect(source).toContain('async function refreshNotifications()');
+    expect(source).toContain('async function markNotificationRead(notificationId)');
+    expect(source).toContain("notificationBadge.classList.toggle('visible', safeCount > 0)");
+    expect(source).toContain('window.BondsAssistant.refreshNotifications = refreshNotifications;');
+    expect(source).toContain('window.BondsAssistant.markNotificationRead = markNotificationRead;');
+  });
+
+  test('notification actions still use the governed action bus and never direct URLs', () => {
+    const start = source.indexOf('function renderNotifications');
+    const end = source.indexOf('async function refreshNotifications', start);
+    const notificationSource = source.slice(start, end);
+
+    expect(notificationSource).toContain('executeStructuredAction({');
+    expect(notificationSource).not.toContain('window.location.assign(notification');
+    expect(notificationSource).not.toContain('window.open(notification');
+    expect(notificationSource).not.toContain('notification.action.url');
+    expect(notificationSource).not.toContain('notification.action.href');
+  });
+
   test('does not add arbitrary URL, selector, script or SQL execution paths', () => {
     expect(source).not.toMatch(/action\.input\.(url|selector|script|javascript|sql)/i);
     expect(source).not.toMatch(/eval\s*\(/);
