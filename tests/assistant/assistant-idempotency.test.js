@@ -1,119 +1,93 @@
 /**
  * @jest-environment node
  */
+'use strict';
 
 const fs = require('fs');
 const path = require('path');
 const {
-  idempotencyFingerprint,
-  beginIdempotentAction,
-  completeIdempotentAction,
-  failIdempotentAction,
-  isTerminalIdempotencyRecord
+  normalizeIdempotencyKey,
+  sanitizeResult,
+  normalizeClaimState
 } = require('../../lib/assistant/idempotency');
 
-describe('assistant write idempotency', () => {
-  const request = {
-    boundary:'project:p-1',
-    actionType:'form_save_draft',
-    target:'kyc',
-    revision:3,
-    input:{ form:'kyc' }
-  };
-
-  test('fingerprint is stable for equivalent input ordering', () => {
-    const a = idempotencyFingerprint({
-      ...request,
-      input:{ form:'kyc', nested:{ b:2, a:1 } }
-    });
-    const b = idempotencyFingerprint({
-      ...request,
-      input:{ nested:{ a:1, b:2 }, form:'kyc' }
-    });
-    expect(a).toBe(b);
-    expect(a).toMatch(/^[0-9a-f]{64}$/);
+describe('assistant persistent write idempotency', () => {
+  test('accepts only a 64-char lowercase hex idempotency key', () => {
+    const key = 'a'.repeat(64);
+    expect(normalizeIdempotencyKey(key.toUpperCase())).toBe(key);
+    expect(() => normalizeIdempotencyKey('short')).toThrow('INVALID_IDEMPOTENCY_KEY');
   });
 
-  test('same completed write is replayed rather than executed again', () => {
-    const started = beginIdempotentAction(null, request);
-    expect(started.decision).toBe('execute');
-
-    const completed = completeIdempotentAction(started.record, {
+  test('sanitizes stored write results to verification fields only', () => {
+    expect(sanitizeResult({
       ok:true,
+      code:'DRAFT_SAVED',
+      record_id:'r-1',
+      status:'draft',
+      secret:'must-not-persist'
+    })).toEqual({
+      ok:true,
+      code:'DRAFT_SAVED',
       record_id:'r-1',
       status:'draft'
     });
-    const retried = beginIdempotentAction(completed, request);
-
-    expect(retried.decision).toBe('replay');
-    expect(retried.record.result.record_id).toBe('r-1');
   });
 
-  test('same in-flight write is blocked', () => {
-    const started = beginIdempotentAction(null, request);
-    const duplicate = beginIdempotentAction(started.record, request);
-    expect(duplicate.decision).toBe('in_flight');
-  });
-
-  test('new form revision creates a new idempotency identity', () => {
-    const started = beginIdempotentAction(null, request);
-    const changed = beginIdempotentAction(started.record, {
-      ...request,
-      revision:4
+  test('normalizes supported persistent claim states', () => {
+    expect(normalizeClaimState({
+      state:'replay_succeeded',
+      status:'succeeded',
+      result:{ ok:true, record_id:'r-1', status:'draft' }
+    })).toMatchObject({
+      state:'replay_succeeded',
+      result:{ ok:true, record_id:'r-1', status:'draft' }
     });
-    expect(changed.decision).toBe('execute');
-    expect(changed.key).not.toBe(started.key);
+    expect(() => normalizeClaimState({ state:'unknown' }))
+      .toThrow('IDEMPOTENCY_LEDGER_RESPONSE_INVALID');
   });
 
-  test('failed records are terminal evidence but can be retried explicitly', () => {
-    const started = beginIdempotentAction(null, request);
-    const failed = failIdempotentAction(started.record, { code:'NETWORK_FAILURE' });
-    expect(isTerminalIdempotencyRecord(failed)).toBe(true);
-
-    const retry = beginIdempotentAction(failed, request);
-    expect(retry.decision).toBe('execute');
+  test('migration creates a server-only durable ledger and atomic claim/resolve RPCs', () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'supabase', 'migrations', '20261022135500_assistant_action_idempotency.sql'),
+      'utf8'
+    );
+    expect(source).toContain('CREATE TABLE IF NOT EXISTS public.assistant_action_idempotency');
+    expect(source).toContain('UNIQUE (user_id, idempotency_key)');
+    expect(source).toContain("CHECK (status IN ('started','succeeded','uncertain'))");
+    expect(source).toContain('CREATE OR REPLACE FUNCTION public.assistant_claim_idempotency');
+    expect(source).toContain('ON CONFLICT (user_id, idempotency_key) DO NOTHING');
+    expect(source).toContain('CREATE OR REPLACE FUNCTION public.assistant_resolve_idempotency');
+    expect(source).toContain('REVOKE ALL ON public.assistant_action_idempotency FROM anon, authenticated');
+    expect(source).toContain('REVOKE ALL ON FUNCTION public.assistant_claim_idempotency');
   });
 
-  test('widget guards form_save_draft with a session-scoped ledger', () => {
+  test('assistant API exposes authenticated claim and resolve endpoints', () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'v3', 'api', 'assistant.js'),
+      'utf8'
+    );
+    expect(source).toContain("path === '/assistant/idempotency/claim'");
+    expect(source).toContain("path === '/assistant/idempotency/resolve'");
+    expect(source).toContain('claimAssistantAction');
+    expect(source).toContain('resolveAssistantAction');
+    expect(source).toContain('user.id');
+  });
+
+  test('widget uses payload hashing plus server claim before draft write', () => {
     const source = fs.readFileSync(
       path.join(__dirname, '..', '..', 'v3', 'components', 'ai-chat-widget.js'),
       'utf8'
     );
-
-    expect(source).toContain("const ASSISTANT_IDEMPOTENCY_PREFIX = 'bonds.assistant.idempotency.v1:';");
-    expect(source).toContain('idempotencyActionKey(planned.target, formRevision, boundary)');
-    expect(source).toContain("existing.status === 'completed'");
-    expect(source).toContain('isFreshInFlight(existing)');
-    expect(source).toContain("status:'in_flight'");
-    expect(source).toContain("status:'completed'");
-    expect(source).toContain("status:'failed'");
-    expect(source).toContain("status:'replayed'");
-    expect(source).toContain("adapter.saveDraft({ idempotency_key:key })");
-  });
-
-  test('widget invalidates the write identity when form data changes', () => {
-    const source = fs.readFileSync(
-      path.join(__dirname, '..', '..', 'v3', 'components', 'ai-chat-widget.js'),
-      'utf8'
-    );
-    expect(source).toContain("document.addEventListener('input', markFormDirty, true);");
-    expect(source).toContain("document.addEventListener('change', markFormDirty, true);");
-    expect(source).toContain('formRevision += 1;');
-    expect(source).toContain('window.BondsAssistant.markFormDirty');
-  });
-
-  test('idempotency is not treated as authorization', () => {
-    const widget = fs.readFileSync(
-      path.join(__dirname, '..', '..', 'v3', 'components', 'ai-chat-widget.js'),
-      'utf8'
-    );
-    const helper = fs.readFileSync(
-      path.join(__dirname, '..', '..', 'lib', 'assistant', 'idempotency.js'),
-      'utf8'
-    );
-
-    expect(widget).not.toContain('idempotency_authorized');
-    expect(helper).not.toContain('authorization');
-    expect(helper).not.toContain('token');
+    expect(source).toContain('ASSISTANT_IDEMPOTENCY_CLAIM_URL');
+    expect(source).toContain('ASSISTANT_IDEMPOTENCY_RESOLVE_URL');
+    expect(source).toContain('crypto.subtle.digest');
+    expect(source).toContain('new FormData(form)');
+    expect(source).toContain('requestIdempotencyClaim(planned, idempotencyKey)');
+    expect(source).toContain("claim.state === 'replay_succeeded'");
+    expect(source).toContain('adapter.saveDraft({ idempotency_key:idempotencyKey })');
+    expect(source).toContain("requestIdempotencyResolve(planned, idempotencyKey, 'succeeded', result)");
+    expect(source).toContain("requestIdempotencyResolve(planned, idempotencyKey, 'uncertain', null)");
+    expect(source).not.toContain('ASSISTANT_IDEMPOTENCY_PREFIX');
+    expect(source).not.toContain("status:'failed'");
   });
 });
