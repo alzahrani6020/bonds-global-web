@@ -58,7 +58,11 @@
 
   async function json(url) {
     const r = await fetch(url, { credentials:'same-origin', cache:'no-store' });
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+    if (!r.ok) {
+      const err = new Error('HTTP ' + r.status);
+      err.status = r.status;
+      throw err;
+    }
     return r.json();
   }
 
@@ -437,7 +441,14 @@
     track('service_viewed',{surface:'header_discovery'});
     loadCountries()
       .then(()=>{ enhanceAll(); })
-      .catch(err => { console.error('[service-discovery]',err); wrap.classList.add('is-degraded'); });
+      .catch(err => {
+        if (err && err.status === 429) {
+          console.warn('[service-discovery] rate limited; continuing in degraded mode');
+        } else {
+          console.error('[service-discovery]',err);
+        }
+        wrap.classList.add('is-degraded');
+      });
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',()=>setTimeout(inject,0));
