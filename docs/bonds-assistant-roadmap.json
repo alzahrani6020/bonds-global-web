@@ -918,8 +918,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-event-driven",
-    "change": "Document-to-Workflow is complete in production on SHA fdb8fcac8f41164cbf49349bc7d7212db57918c2. Started Event-Driven Assistant with an allowlisted event gateway, exact workflow-boundary enforcement, bounded scalar payloads, forbidden execution-field rejection, deterministic state patches, suggestion-only follow-ups, and explicit execution_authorized=false."
+    "branch": "test/complete-document-to-workflow",
+    "change": "Document-to-Workflow is now closed at implemented_base with API acceptance coverage for authentication, ownership, project-boundary conflict handling, completion-aware suggestion-only mapping, and explicit no-auto-write behavior. Next: event_driven_assistant."
   },
   "production_rollout": {
     "status": "complete",
