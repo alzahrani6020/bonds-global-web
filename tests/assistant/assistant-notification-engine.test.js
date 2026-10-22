@@ -81,6 +81,23 @@ describe('assistant structured notifications', () => {
     })).toEqual([]);
   });
 
+
+  test('durable notification migration is server-only with RLS enabled', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(
+      path.join(__dirname, '..', '..', 'supabase', 'migrations', '20261022173000_assistant_notifications.sql'),
+      'utf8'
+    );
+
+    expect(source).toContain('CREATE TABLE IF NOT EXISTS public.assistant_notifications');
+    expect(source).toContain('ALTER TABLE public.assistant_notifications ENABLE ROW LEVEL SECURITY');
+    expect(source).toContain('REVOKE ALL ON public.assistant_notifications FROM PUBLIC, anon, authenticated, service_role');
+    expect(source).toContain('GRANT SELECT, INSERT, UPDATE ON public.assistant_notifications TO service_role');
+    expect(source).not.toMatch(/GRANT\s+.*TO\s+(anon|authenticated)/i);
+    expect(source).not.toMatch(/CREATE\s+POLICY/i);
+  });
+
   test('document analysis warns that extracted data remains uncommitted', () => {
     const [notification] = notificationsFromAssistantEvent({
       workflow,
