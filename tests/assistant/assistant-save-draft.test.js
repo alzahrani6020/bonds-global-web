@@ -75,6 +75,8 @@ describe('assistant governed save draft', () => {
     expect(source).toContain('window.BondsAssistantFormAdapter');
     expect(source).toContain(formCode);
     expect(source).toContain('FORM_NOT_EDITABLE');
+    expect(source).toContain("const saveOk=await save('draft');");
+    expect(source).toContain('saveOk===true');
     expect(source).toContain("saved.status==='draft'");
     expect(source).toContain('saved!==before');
   });
@@ -87,6 +89,9 @@ describe('assistant governed save draft', () => {
     expect(source).toContain('window.BondsAssistantFormAdapter');
     expect(source).toContain("subjectType==='business'?'credit_business':'credit_individual'");
     expect(source).toContain('FORM_NOT_EDITABLE');
+    expect(source).toContain("const saveOk=await save('draft');");
+    expect(source).toContain('saveOk===true');
+    expect(source).toContain("showStatus(status==='submitted'?T.submitted:T.saved,true);\n    return true;");
     expect(source).toContain("saved.status==='draft'");
     expect(source).toContain('saved!==before');
   });
