@@ -24,7 +24,6 @@ const { createHumanEscalation, listUserHumanEscalations } = require('../../lib/a
 const { requestHumanApproval, listUserHumanApprovals, listHumanApprovalQueue } = require('../../lib/assistant/human-approval');
 const { resolveEmployeeAssistantMode, buildEmployeeAssistantWorkspace } = require('../../lib/assistant/employee-assistant-mode');
 const { featureForAssistantMutation, assertAssistantMutationEnabled } = require('../../lib/assistant/emergency-kill-switch');
-const { featureForAssistantMutation, assertAssistantMutationEnabled } = require('../../lib/assistant/emergency-kill-switch');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
