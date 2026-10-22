@@ -6,16 +6,22 @@ const { EventEmitter } = require('events');
 
 const queryCalls = [];
 function makeQuery(rows = [], error = null) {
-  const state = { table:null, filters:[], statusFilters:[], subject:null, order:null, limit:null };
+  const state = { table:null, filters:[], statusFilters:[], subject:null, order:null, limit:null, recorded:false };
+  const record = () => {
+    if (!state.recorded) {
+      state.recorded = true;
+      queryCalls.push(state);
+    }
+  };
   const q = {
     select(){ return q; },
     eq(key,value){ state.filters.push([key,value]); if (key === 'subject_type') state.subject=value; return q; },
     in(key,value){ state.statusFilters.push([key,value]); return q; },
     order(key,opts){ state.order=[key,opts]; return q; },
-    limit(value){
-      state.limit=value;
-      queryCalls.push(state);
-      return Promise.resolve({ data:rows, error });
+    limit(value){ state.limit=value; return q; },
+    then(resolve,reject){
+      record();
+      return Promise.resolve({ data:rows, error }).then(resolve,reject);
     }
   };
   return { q, state };
