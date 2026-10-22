@@ -9,8 +9,9 @@ const runtimeBuild = 'a'.repeat(40);
 const channelSecret = 'isolated-health-channel-credential-123456789';
 const runtimeIdentity = {
   status: 'ok', service: 'bonds-token-service', issuer: 'bonds-token-service',
-  contract_version: 1, schema_version: 2, service_token_ttl_seconds: 3600,
-  build_commit: runtimeBuild, channel_auth: 'required'
+  contract_version: 2, schema_version: 3, service_token_ttl_seconds: 3600,
+  build_commit: runtimeBuild, channel_auth: 'required',
+  broker_auth: 'required', broker_mode: 'one_time_service_tokens'
 };
 
 function runtimeFetch(url, options) {
@@ -268,9 +269,9 @@ describe('platform health vs strict readiness', () => {
 
   test.each([
     ['service', 'unrelated-service'], ['issuer', 'unrelated-issuer'],
-    ['schema_version', 1], ['schema_version', '2'], ['contract_version', 2],
+    ['schema_version', 2], ['schema_version', '3'], ['contract_version', 1],
     ['service_token_ttl_seconds', 7200], ['build_commit', 'b'.repeat(40)],
-    ['build_commit', 'unknown'], ['channel_auth', 'optional']
+    ['build_commit', 'unknown'], ['channel_auth', 'optional'], ['broker_auth', 'optional'], ['broker_mode', 'reusable']
   ])('runtime identity rejects mismatched %s = %s', async (key, value) => {
     global.fetch = jest.fn(async () => ({
       ok: true, status: 200, json: async () => ({ ...runtimeIdentity, [key]: value })
