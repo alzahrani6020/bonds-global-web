@@ -116,10 +116,11 @@ describe('Assistant Emergency Kill Switch API guard',()=>{
     expect(mockEmergencyMode).toHaveBeenCalledWith({supabase:mockSupabase});
   });
 
-  test('reports read-only emergency mode from the global assistant switch',async()=>{
+  test('reports the global assistant switch as fully disabled',async()=>{
     mockEmergencyMode.mockResolvedValue({
-      mode:'read_only',
-      read_only:true,
+      feature:'assistant',
+      disabled:true,
+      mode:'disabled',
       expires_at:'2099-01-01T00:00:00Z',
       execution_authorized:false,
       auto_execute:false
@@ -127,8 +128,9 @@ describe('Assistant Emergency Kill Switch API guard',()=>{
     const out=await call('GET','/assistant/emergency-mode');
     expect(out.statusCode).toBe(200);
     expect(out.body.emergency_mode).toEqual(expect.objectContaining({
-      mode:'read_only',
-      read_only:true,
+      feature:'assistant',
+      disabled:true,
+      mode:'disabled',
       execution_authorized:false
     }));
     expect(mockGuard).not.toHaveBeenCalled();
