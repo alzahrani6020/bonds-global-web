@@ -19,6 +19,9 @@ describe('Unified service execution layer', () => {
     expect(router).toContain("from('service_capability_map')");
     expect(router).toContain("SERVICE_EXECUTION_NOT_AUTOMATED");
     expect(router).toContain("orchestrator_run");
+    expect(router).toContain("calculator_open");
+    expect(router).toContain("calculator_run");
+    expect(router).toContain("SERVICE_CALCULATOR_NOT_REGISTERED");
     expect(router).toContain('issueBrokerServiceToken');
     expect(router).toContain('revokeBrokerServiceToken');
     expect(router).toContain('executeCapability');
@@ -27,7 +30,20 @@ describe('Unified service execution layer', () => {
   test('registered calculators are resolved centrally', () => {
     const registry = read('lib/services/service-tool-registry.js');
     expect(registry).toContain("require('../../data/tools-registry.json')");
+    expect(registry).toContain('ASSISTANT_CALCULATOR_BY_TOOL');
+    expect(registry).toContain("'break-even': 'break_even'");
+    expect(registry).toContain("'cash-flow': 'cash_flow'");
+    expect(registry).toContain("creditworthiness: 'creditworthiness'");
     expect(registry).toContain('toolById');
+  });
+
+  test('creditworthiness is registered as a governed assistant calculator destination', () => {
+    const calculators = read('lib/assistant/calculator-registry.json');
+    const navigation = read('lib/assistant/navigation-registry.json');
+    expect(calculators).toContain('"creditworthiness"');
+    expect(calculators).toContain('"calculator_creditworthiness"');
+    expect(navigation).toContain('"calculator_creditworthiness"');
+    expect(navigation).toContain('/calculators/creditworthiness');
   });
 
   test('assistant delegates service execution to the same router', () => {

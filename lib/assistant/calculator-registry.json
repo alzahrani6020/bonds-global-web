@@ -55,6 +55,11 @@
       "runnable": true,
       "engine": "ucp",
       "template_code": "tmp_restaurant_default"
+    },
+    "creditworthiness": {
+      "navigation_target": "calculator_creditworthiness",
+      "runnable": false,
+      "engine": "page"
     }
   }
 }

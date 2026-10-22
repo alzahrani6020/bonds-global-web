@@ -163,6 +163,14 @@
       },
       "kind": "calculator",
       "risk": "low"
+    },
+    "calculator_creditworthiness": {
+      "routes": {
+        "ar": "/calculators/creditworthiness",
+        "en": "/en/calculators/creditworthiness"
+      },
+      "kind": "calculator",
+      "risk": "low"
     }
   }
 }
