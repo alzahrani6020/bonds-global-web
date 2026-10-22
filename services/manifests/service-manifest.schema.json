@@ -11,7 +11,6 @@
     "enabled",
     "governance",
     "security",
-    "limits",
     "observability",
     "data",
     "workflows",
@@ -107,12 +106,11 @@
     "limits": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["rate_limit", "retry"],
+      "description": "Optional operational tuning only. Omit limits to avoid imposing an application-level throughput or retry ceiling.",
       "properties": {
         "rate_limit": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["requests_per_minute"],
           "properties": {
             "requests_per_minute": {
               "type": "integer",
@@ -123,7 +121,6 @@
         "retry": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["max_attempts"],
           "properties": {
             "max_attempts": {
               "type": "integer",
