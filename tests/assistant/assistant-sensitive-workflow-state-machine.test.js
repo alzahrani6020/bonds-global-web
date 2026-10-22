@@ -125,6 +125,33 @@ describe('sensitive workflow state machine',()=>{
     })).rejects.toThrow('SENSITIVE_WORKFLOW_STATUS_BLOCKED');
   });
 
+  test('sensitive completion also closes the generic workflow lifecycle',async()=>{
+    mockLoadWorkflowState.mockResolvedValueOnce({
+      workflow_key:'wf-1',
+      boundary:'project:p-1',
+      status:'active',
+      version:8,
+      state:{
+        boundary:'project:p-1',
+        sensitive_state:'submitted'
+      }
+    });
+
+    await transitionSensitiveWorkflowState({
+      supabase:{ rpc:jest.fn() },
+      userId:'user-1',
+      workflowKey:'wf-1',
+      toState:'completed',
+      expectedVersion:8
+    });
+
+    expect(mockSaveWorkflowState).toHaveBeenCalledWith(expect.objectContaining({
+      status:'completed',
+      expectedVersion:8,
+      state:expect.objectContaining({ sensitive_state:'completed' })
+    }));
+  });
+
   test('state transition metadata never grants business execution',async()=>{
     const out=await transitionSensitiveWorkflowState({
       supabase:{ rpc:jest.fn() },
