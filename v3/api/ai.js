@@ -97,6 +97,7 @@ function buildSystemPrompt(context) {
   const city = context?.cityName || context?.cityCode || 'غير محدد';
   const activity = context?.activityName || context?.activityCode || 'غير محدد';
   const country = context?.countryCode || '';
+  const service = context?.serviceName || context?.serviceCode || 'غير محدد';
 
   return `أنت "مساعد بوندز"، محلل استثماري يعتمد على البيانات فقط. أجب بلغة آخر رسالة للمستخدم بأسلوب مختصر وواقعي.
 
@@ -110,6 +111,7 @@ function buildSystemPrompt(context) {
 السياق المتاح:
 - المدينة: ${city} (${country || 'الدولة غير محددة'})
 - النشاط: ${activity}
+- الخدمة المطلوبة: ${service}
 ${context?.population != null ? `- عدد السكان: ${formatNumber(context.population)} نسمة\n` : ''}${context?.purchasingPowerIndex != null ? `- مؤشر القوة الشرائية: ${context.purchasingPowerIndex}\n` : ''}${context?.indicators ? `- المؤشرات الاقتصادية متاحة.\n` : ''}${context?.marketData ? `- بيانات السوق لهذا النشاط متاحة.\n` : ''}${context?.comparison ? `- بيانات مقارنة مع مدن أخرى متاحة.\n` : ''}${context?.alerts?.length ? `- إنذارات حديثة متاحة (${context.alerts.length}).\n` : ''}`;
 }
 
@@ -117,6 +119,9 @@ function buildNativeChatPrompt(messages, context, assistantState = null) {
   const evidence = {
     cityName: context?.cityName || undefined,
     activityName: context?.activityName || undefined,
+    serviceCode: context?.serviceCode || undefined,
+    serviceName: context?.serviceName || undefined,
+    serviceDeliveryType: context?.serviceDeliveryType || undefined,
     population: context?.population ?? undefined,
     purchasingPowerIndex: context?.purchasingPowerIndex ?? undefined,
     indicators: context?.indicators || undefined,
@@ -396,7 +401,9 @@ async function aiChatHandler(req, res) {
     return sendJson(res, 400, { error: 'messages array is required' });
   }
 
-  const expectedAssistantBoundary = `city:${String(context.cityCode || 'none').trim()}|activity:${String(context.activityCode || 'none').trim()}|model:${String(context.modelCode || 'none').trim()}`;
+  const baseAssistantBoundary = `city:${String(context.cityCode || 'none').trim()}|activity:${String(context.activityCode || 'none').trim()}|model:${String(context.modelCode || 'none').trim()}`;
+  const serviceBoundary = String(context.serviceCode || '').trim();
+  const expectedAssistantBoundary = serviceBoundary ? `${baseAssistantBoundary}|service:${serviceBoundary}` : baseAssistantBoundary;
   const safeAssistantState = sanitizeAssistantState(assistantState, {
     expectedBoundary: expectedAssistantBoundary
   });
@@ -450,7 +457,9 @@ async function aiChatHandler(req, res) {
         cityCode: enrichedContext.cityCode || null,
         activityCode: enrichedContext.activityCode || null,
         cityName: enrichedContext.cityName || null,
-        activityName: enrichedContext.activityName || null
+        activityName: enrichedContext.activityName || null,
+        serviceCode: enrichedContext.serviceCode || null,
+        serviceName: enrichedContext.serviceName || null
       }
     });
   }
@@ -501,7 +510,9 @@ async function aiChatHandler(req, res) {
       cityCode: enrichedContext.cityCode || null,
       activityCode: enrichedContext.activityCode || null,
       cityName: enrichedContext.cityName || null,
-      activityName: enrichedContext.activityName || null
+      activityName: enrichedContext.activityName || null,
+      serviceCode: enrichedContext.serviceCode || null,
+      serviceName: enrichedContext.serviceName || null
     }
   });
 }
@@ -539,22 +550,47 @@ async function resolveActivityAndCityFromMessage(message, context, supabase) {
 async function enrichContext(context, userMessage) {
   const supabase = getSupabaseClient();
   const currentYear = new Date().getFullYear();
+  let enriched = { ...context };
 
-  await resolveActivityAndCityFromMessage(userMessage, context, supabase);
+  const requestedServiceCode = String(context?.serviceCode || '').trim().slice(0, 100);
+  if (requestedServiceCode) {
+    const { data: service, error: serviceError } = await supabase
+      .from('service_catalog')
+      .select('code,name_ar,name_en,delivery_type,default_route_ar,default_route_en,status,is_active')
+      .eq('code', requestedServiceCode)
+      .eq('status', 'published')
+      .eq('is_active', true)
+      .maybeSingle();
 
-  if (!context.cityCode) return context;
+    if (!serviceError && service) {
+      enriched.serviceCode = service.code;
+      enriched.serviceName = service.name_ar || service.name_en || service.code;
+      enriched.serviceNameEn = service.name_en || service.name_ar || service.code;
+      enriched.serviceDeliveryType = service.delivery_type || null;
+      enriched.serviceRoute = service.default_route_ar || service.default_route_en || null;
+    } else {
+      delete enriched.serviceName;
+      delete enriched.serviceNameEn;
+      delete enriched.serviceDeliveryType;
+      delete enriched.serviceRoute;
+    }
+  }
+
+  await resolveActivityAndCityFromMessage(userMessage, enriched, supabase);
+
+  if (!enriched.cityCode) return enriched;
 
   // City basic info
   const { data: city } = await supabase
     .from('cities')
     .select('id, code, name_ar, name_en, country_code, population, purchasing_power_index')
-    .eq('code', context.cityCode)
+    .eq('code', enriched.cityCode)
     .single();
 
-  if (!city) return context;
+  if (!city) return enriched;
 
-  const enriched = {
-    ...context,
+  enriched = {
+    ...enriched,
     cityName: city.name_ar,
     cityNameEn: city.name_en,
     countryCode: city.country_code,
@@ -572,12 +608,12 @@ async function enrichContext(context, userMessage) {
 
   if (indicators) enriched.indicators = indicators;
 
-  if (context.activityCode) {
+  if (enriched.activityCode) {
     // Activity info
     const { data: activity } = await supabase
       .from('economic_activities')
       .select('id, name_ar, code')
-      .eq('code', context.activityCode)
+      .eq('code', enriched.activityCode)
       .single();
 
     if (activity) {
