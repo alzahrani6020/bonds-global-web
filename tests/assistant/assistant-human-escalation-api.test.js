@@ -80,6 +80,7 @@ describe('human escalation API',()=>{
       reasonCode:'needs_expert_review',
       idempotencyKey:'request-0001'
     }));
+    expect(mockCreate.mock.calls[0][0]).not.toHaveProperty('priority');
     expect(out.body.authorization.granted).toBe(false);
     expect(out.body.execution_triggered).toBe(false);
     expect(mockAudit).toHaveBeenCalledWith(expect.objectContaining({
