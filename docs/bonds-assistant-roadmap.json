@@ -914,10 +914,11 @@
     "anomaly_detection",
     "safe_introspection_cache",
     "policy_as_code",
-    "policy_simulation"
+    "policy_simulation",
+    "shadow_authorization"
   ],
   "next": [
-    "shadow_authorization"
+    "operational_dashboard"
   ],
   "deferred": [
     "action_tokens",
@@ -934,8 +935,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-policy-simulation",
-    "change": "Policy Simulation implemented_base as a deterministic read-only dry-run over the versioned Assistant policy. It returns allow/deny/confirmation outcomes and matched rules without DB writes, tool invocation, authorization grants, or execution. Simulation results do not echo arbitrary action payload data and batches are bounded. Next: shadow_authorization."
+    "branch": "feat/assistant-shadow-authorization",
+    "change": "Shadow Authorization implemented_base beside production governance. It projects manifest/user-governance authorization as would_allow/would_deny/not_evaluated, compares with the actual evaluateGovernance outcome, reports bounded drift, and never changes the production decision. Token verification, feature flags, and rate-limit dimensions are deliberately not re-executed in shadow mode, preventing token/rate-limit side effects. Next: operational_dashboard."
   },
   "production_rollout": {
     "status": "complete",
