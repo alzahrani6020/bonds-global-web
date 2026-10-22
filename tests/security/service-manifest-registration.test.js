@@ -41,6 +41,10 @@ describe(
         ).toBeDefined();
 
         expect(
+          SERVICES['financial-engine']
+        ).toBeDefined();
+
+        expect(
           SERVICES['research-intelligence']
         ).toBeDefined();
 
@@ -78,11 +82,16 @@ describe(
           'agent_execute',
           'calculator_open',
           'calculator_run',
+          'cash_flow_analysis_run',
+          'creditworthiness_run',
           'evidence_verify',
+          'feasibility_run',
+          'financial_analysis_run',
           'form_find',
           'form_load',
           'funding_next_requirements',
           'funding_next_step',
+          'funding_readiness_run',
           'funding_status',
           'native_generate',
           'native_health',
@@ -91,7 +100,10 @@ describe(
           'research_intelligence_synthesize',
           'research_intelligence_verify',
           'research_synthesize',
+          'risk_analysis_run',
+          'scenario_forecast_run',
           'site_navigate',
+          'valuation_run',
           'web_crawl',
           'web_explore',
           'web_fetch'
