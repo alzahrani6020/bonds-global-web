@@ -15,7 +15,7 @@ const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-tr
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
 const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
-const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
+const { applyAssistantEvent } = require('../../lib/assistant/event-driven');\nconst { listOwnedDrafts } = require('../../lib/assistant/draft-center');
 
 function sendJson(res, status, body) {
   res.statusCode = status;
@@ -469,6 +469,27 @@ async function assistantRouter(req, res, path, user) {
         'WORKFLOW_EVENT_STATUS_BLOCKED'
       ].includes(err.message);
       return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/drafts' && req.method === 'GET') {
+    try {
+      const result = await listOwnedDrafts({
+        supabase:getSupabaseClient(),
+        userId:user.id
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        draft_center:result
+      });
+    } catch (err) {
+      const clientError = err.message === 'DRAFT_CENTER_USER_REQUIRED';
+      return sendJson(res, clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
