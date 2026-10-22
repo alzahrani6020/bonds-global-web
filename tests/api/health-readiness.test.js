@@ -3,6 +3,7 @@ const mockNativeOk = { value: false };
 const mockNativeSequence = { values: [] };
 const mockNativeHealthCalls = { count: 0 };
 const mockUserGovernance = { value: { status: 'ok', code: null }, calls: 0 };
+const mockAssistantReadiness = { value: { status: 'ok', code: null, schema_version: 1 }, calls: 0 };
 const originalFetch = global.fetch;
 const originalEnv = { ...process.env };
 const runtimeBuild = 'a'.repeat(40);
@@ -59,6 +60,13 @@ jest.mock('../../lib/capabilities/user-governance-context', () => ({
   }
 }));
 
+jest.mock('../../lib/assistant/production-readiness', () => ({
+  probeAssistantReadiness: async () => {
+    mockAssistantReadiness.calls += 1;
+    return mockAssistantReadiness.value;
+  }
+}));
+
 const healthHandler = require('../../api/health');
 
 function createResponse() {
@@ -82,6 +90,8 @@ describe('platform health vs strict readiness', () => {
     mockNativeHealthCalls.count = 0;
     mockUserGovernance.value = { status: 'ok', code: null };
     mockUserGovernance.calls = 0;
+    mockAssistantReadiness.value = { status: 'ok', code: null, schema_version: 1 };
+    mockAssistantReadiness.calls = 0;
     process.env.BONDS_NATIVE_HEALTH_RETRY_DELAYS_MS = '0,0,0';
     process.env.BONDS_INFERENCE_MODE = 'REMOTE_BONDS_NATIVE';
     process.env.VERCEL_GIT_COMMIT_SHA = 'abcdef1234567890';
@@ -109,6 +119,7 @@ describe('platform health vs strict readiness', () => {
 
   test('core health stays available without probing Native AI', async () => {
     delete process.env.BONDS_TOKEN_CHANNEL_SECRET;
+    mockAssistantReadiness.value = { status: 'unavailable', code: 'ASSISTANT_READINESS_UNAVAILABLE' };
     const req = { method: 'GET', url: '/api/health', query: {} };
     const res = createResponse();
 
@@ -124,6 +135,7 @@ describe('platform health vs strict readiness', () => {
     expect(mockNativeHealthCalls.count).toBe(0);
     expect(global.fetch).not.toHaveBeenCalled();
     expect(mockUserGovernance.calls).toBe(0);
+    expect(mockAssistantReadiness.calls).toBe(0);
   });
 
   test('strict readiness passes through verified OpenAI fallback when Native AI is unavailable', async () => {
@@ -170,6 +182,9 @@ describe('platform health vs strict readiness', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe('ready');
+    expect(res.body.checks.assistant).toBe('ok');
+    expect(res.body.assistant).toEqual({ status: 'ok', code: null, schema_version: 1 });
+    expect(mockAssistantReadiness.calls).toBe(1);
     expect(res.body.inference.native_reachable).toBe(true);
     expect(res.body.inference.native_diagnostic.attempts).toBe(1);
     expect(res.body.inference.native_diagnostic.retry_recovered).toBe(false);
@@ -269,6 +284,28 @@ describe('platform health vs strict readiness', () => {
     expect(res.body.status).toBe('not_ready');
     expect(res.body.user_governance).toEqual(governance);
     expect(res.body.checks.user_governance).toBe(governance.status);
+  });
+
+  test.each([
+    { status: 'not_configured', code: 'ASSISTANT_DATABASE_UNCONFIGURED' },
+    { status: 'unavailable', code: 'ASSISTANT_READINESS_UNAVAILABLE' },
+    { status: 'invalid_contract', code: 'ASSISTANT_READINESS_CONTRACT_INVALID' },
+    { status: 'not_ready', code: 'ASSISTANT_DATABASE_NOT_READY' }
+  ])('an unverified Assistant database cannot pass readiness: %j', async assistant => {
+    mockNativeOk.value = true;
+    mockAssistantReadiness.value = assistant;
+    const res = createResponse();
+
+    await healthHandler({ method: 'GET', query: { strict: '1' } }, res);
+
+    expect(res.statusCode).toBe(503);
+    expect(res.body.status).toBe('not_ready');
+    expect(res.body.checks.supabase).toBe('ok');
+    expect(res.body.checks.token_runtime).toBe('ok');
+    expect(res.body.checks.user_governance).toBe('ok');
+    expect(res.body.assistant).toEqual(assistant);
+    expect(res.body.checks.assistant).toBe(assistant.status);
+    expect(mockAssistantReadiness.calls).toBe(1);
   });
 
   test.each([

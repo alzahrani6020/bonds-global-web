@@ -6,7 +6,7 @@
 > Baseline main SHA at creation: `20c3c990b30f2a9ceaac0e6b2d8157a236c9fb51`  
 > Created: 2026-10-22  
 > Language of record: Arabic  
-> Status: PLANNED / LIVING DOCUMENT
+> Status: IN_PROGRESS / PRODUCTION_ROLLOUT
 
 ## 1. Purpose
 
@@ -596,11 +596,16 @@ parent/child relationships بين التوكنات.
 
 # 8. الحالة التنفيذية الحالية
 
-- Assistant V1: **PLANNED**
-- Structured action protocol: **NOT IMPLEMENTED**
-- Navigation registry: **NOT IMPLEMENTED**
-- Form registry: **NOT IMPLEMENTED**
-- Funding next-step capability: **NOT IMPLEMENTED**
+- آخر `main` متحقق منه عند بدء الإطلاق: `73198471595d4948d5e9db00f5f857b61b2ff61c`، دمج PR #373.
+- Assistant V1: **IMPLEMENTED / PRODUCTION ACCEPTANCE IN PROGRESS**.
+- Structured action protocol / Assistant API / Navigation registry / Form registry: **MERGED**.
+- قدرات القراءة والتمويل والمشروع والحاسبات، وعارض الشات والسياق وprovenance وconfirmation وحفظ المسودة: **MERGED**؛ انظر قائمة `completed` في الخارطة.
+- Durable idempotency: **MERGED** عبر PR #367.
+- Audit implementation: **MERGED** عبر #369 و#371، لكن تقوية قاعدة الإنتاج في #371 لم تُطبق؛ رفض workflow تعديل ملف ترحيل سبق دمجه. هذا تصحيح للحالة التشغيلية، لا إعادة تنفيذ المرحلة.
+- E2E journeys: **PASS / MERGED** عبر PR #372، SHA `8a97097df16130cb1b3d20e8597f98d97cbba787`.
+- Security Red Team: **PASS / MERGED** عبر PR #373؛ Accessibility نجحت في أحدث attempt، وجميع البوابات الثلاث ناجحة.
+- Production rollout: **IN_PROGRESS**. ترحيل جديد يصلح constraint أحداث التنفيذ وصلاحيات الجدول وTrigger، وفحص جاهزية مرتبط بقاعدة البيانات، وقبول Assistant باستخدام جلسة smoke الحالية.
+- تفاصيل القبول وحدود الدليل والتراجع: `docs/BONDS_ASSISTANT_PRODUCTION_ROLLOUT.md`.
 - Action token: **NOT IMPLEMENTED**
 - Workflow token: **NOT IMPLEMENTED**
 - Confirmation token: **NOT IMPLEMENTED**

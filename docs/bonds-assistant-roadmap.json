@@ -913,7 +913,24 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "test/bonds-assistant-security-red-team",
-    "change": "Added Assistant V1 security red-team scenarios for forbidden executable fields, invented routes/forms, confirmation tampering, idempotency replay abuse, audit data minimization, unauthenticated access and unknown-route fail-closed behavior. Production rollout remains gated on full CI PASS."
+    "branch": "fix/bonds-assistant-production-rollout",
+    "change": "Verified Red Team merged. Preparing forward-only recovery for unapplied Audit DB hardening, strict Assistant schema readiness and authenticated production acceptance. Rollout remains pending real migration, release, smoke and persistent-audit evidence."
+  },
+  "production_rollout": {
+    "status": "in_progress",
+    "baseline_main_sha": "73198471595d4948d5e9db00f5f857b61b2ff61c",
+    "runbook": "docs/BONDS_ASSISTANT_PRODUCTION_ROLLOUT.md",
+    "recovery_migration": "supabase/migrations/20261022120521_assistant_audit_rollout_recovery.sql",
+    "required_evidence": [
+      "ci_pass",
+      "forward_migration_pass",
+      "assistant_database_readiness",
+      "exact_production_sha",
+      "authenticated_assistant_smoke",
+      "persistent_audit_events"
+    ],
+    "verified_red_team_pr": 373,
+    "verified_red_team_ci": "https://github.com/alzahrani6020/bonds-global-web/actions/runs/39772888099",
+    "production_verification": "pending"
   }
 }
