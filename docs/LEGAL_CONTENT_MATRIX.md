@@ -13,6 +13,11 @@ This document is an inventory and review aid only. It does not amend, replace, i
 
 No standalone Refund Policy, Cookie Policy, or Liability Policy page is currently present in the repository.
 
+The shared site layout links Privacy and Terms consistently by language:
+- Arabic: `/privacy.html`, `/terms.html`
+- English: `/en/privacy.html`, `/en/terms.html`
+
+
 ## Clause matrix
 
 | Topic | Current location | Assessment |
