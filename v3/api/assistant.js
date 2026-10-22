@@ -20,6 +20,7 @@ const { listOwnedDrafts } = require('../../lib/assistant/draft-center');
 const { buildAgentInbox } = require('../../lib/assistant/agent-inbox');
 const { transitionSensitiveWorkflowState } = require('../../lib/assistant/sensitive-workflow-state-machine');
 const { deriveAgentInboxItem, verifyAgentInboxItemOwnership, enqueueAgentInboxItem } = require('../../lib/assistant/agent-inbox-queue');
+const { createHumanEscalation, listUserHumanEscalations } = require('../../lib/assistant/human-escalation');
 const { notificationsFromAssistantEvent } = require('../../lib/assistant/notification-engine');
 const {
   persistAssistantNotifications,
@@ -621,6 +622,126 @@ async function assistantRouter(req, res, path, user) {
         'INVALID_WORKFLOW_VERSION',
         'WORKFLOW_EVENT_STATUS_BLOCKED'
       ].includes(err.message);
+      return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/escalations' && req.method === 'GET') {
+    try {
+      const requestUrl = new URL(req.url || '/api/v3/assistant/escalations', 'http://localhost');
+      const activeOnly = ['1','true','yes'].includes(
+        String(requestUrl.searchParams.get('active') || '').toLowerCase()
+      );
+      const escalations = await listUserHumanEscalations({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        activeOnly,
+        limit:requestUrl.searchParams.get('limit') || 25
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        human_escalations:escalations,
+        policy:{
+          human_review_only:true,
+          execution_authorized:false,
+          auto_execute:false
+        }
+      });
+    } catch (err) {
+      const clientError = err.message === 'HUMAN_ESCALATION_USER_REQUIRED';
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/escalations' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    const supabase = getSupabaseClient();
+    const auditAction = {
+      id:body.idempotency_key || null,
+      type:'human_escalation',
+      target:body.workflow_key || null,
+      risk:'medium',
+      requires_confirmation:false
+    };
+
+    try {
+      const result = await createHumanEscalation({
+        supabase,
+        userId:user.id,
+        workflowKey:body.workflow_key,
+        boundary:body.boundary,
+        expectedVersion:body.expected_version,
+        reasonCode:body.reason_code,
+        summary:body.summary,
+        priority:body.priority,
+        idempotencyKey:body.idempotency_key
+      });
+
+      await appendAssistantAuditBestEffort({
+        supabase,
+        userId:user.id,
+        action:auditAction,
+        eventType:result.replayed ? 'replayed' : 'write_succeeded',
+        outcome:result.replayed ? 'human_escalation_replayed' : 'human_escalation_queued',
+        idempotencyKey:body.idempotency_key,
+        boundary:body.boundary,
+        resourceId:result.escalation?.id || null,
+        metadata:{
+          workflow_key:body.workflow_key || null,
+          reason_code:body.reason_code || null,
+          human_review_only:true,
+          execution_triggered:false
+        }
+      });
+
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:'completed',
+        ...result
+      });
+    } catch (err) {
+      await appendAssistantAuditBestEffort({
+        supabase,
+        userId:user.id,
+        action:auditAction,
+        eventType:'denied',
+        outcome:err.message,
+        idempotencyKey:body.idempotency_key,
+        boundary:body.boundary,
+        metadata:{
+          workflow_key:body.workflow_key || null,
+          reason_code:body.reason_code || null
+        }
+      });
+
+      const conflict = [
+        'WORKFLOW_VERSION_CONFLICT',
+        'HUMAN_ESCALATION_BOUNDARY_CONFLICT',
+        'HUMAN_ESCALATION_WORKFLOW_STATUS_BLOCKED'
+      ].includes(err.message);
+      const notFound = err.message === 'WORKFLOW_NOT_FOUND';
+      const clientError = [
+        'HUMAN_ESCALATION_USER_REQUIRED',
+        'HUMAN_ESCALATION_BOUNDARY_REQUIRED',
+        'HUMAN_ESCALATION_VERSION_REQUIRED',
+        'HUMAN_ESCALATION_IDEMPOTENCY_KEY_INVALID',
+        'HUMAN_ESCALATION_REASON_INVALID',
+        'HUMAN_ESCALATION_PRIORITY_INVALID',
+        'INVALID_WORKFLOW_KEY'
+      ].includes(err.message);
+
       return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
