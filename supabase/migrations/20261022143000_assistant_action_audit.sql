@@ -22,7 +22,11 @@ CREATE TABLE IF NOT EXISTS public.assistant_action_audit (
         'write_succeeded',
         'write_uncertain',
         'denied',
-        'failed'
+        'failed',
+        'execution_started',
+        'execution_succeeded',
+        'execution_failed',
+        'execution_denied'
       )
     ),
     outcome text,
@@ -45,7 +49,7 @@ CREATE INDEX IF NOT EXISTS idx_assistant_action_audit_action
 ALTER TABLE public.assistant_action_audit ENABLE ROW LEVEL SECURITY;
 
 -- No direct client inserts/updates/deletes. Server-side service role owns writes.
-REVOKE ALL ON public.assistant_action_audit FROM anon, authenticated;
+REVOKE ALL ON public.assistant_action_audit FROM PUBLIC, anon, authenticated, service_role;
 
 CREATE OR REPLACE FUNCTION public.assistant_append_action_audit(
     p_user_id uuid,
@@ -117,3 +121,24 @@ $$;
 REVOKE ALL ON FUNCTION public.assistant_append_action_audit(
   uuid,text,text,text,text,text,text,text,text,boolean,text,text,jsonb
 ) FROM PUBLIC, anon, authenticated;
+
+GRANT EXECUTE ON FUNCTION public.assistant_append_action_audit(
+  uuid,text,text,text,text,text,text,text,text,boolean,text,text,jsonb
+) TO service_role;
+
+CREATE OR REPLACE FUNCTION public.reject_assistant_action_audit_mutation()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public, pg_temp
+AS $
+BEGIN
+  RAISE EXCEPTION 'ASSISTANT_AUDIT_IMMUTABLE';
+END;
+$;
+
+DROP TRIGGER IF EXISTS trg_assistant_action_audit_immutable
+  ON public.assistant_action_audit;
+
+CREATE TRIGGER trg_assistant_action_audit_immutable
+BEFORE UPDATE OR DELETE ON public.assistant_action_audit
+FOR EACH ROW EXECUTE FUNCTION public.reject_assistant_action_audit_mutation();
