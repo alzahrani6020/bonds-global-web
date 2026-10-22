@@ -905,10 +905,11 @@
     "draft_center",
     "agent_inbox",
     "sensitive_workflow_state_machine",
-    "assistant_user_inbox"
+    "assistant_user_inbox",
+    "human_escalation"
   ],
   "next": [
-    "human_escalation"
+    "human_approval_queue"
   ],
   "deferred": [
     "action_tokens",
@@ -925,8 +926,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "docs/close-proposal-86",
-    "change": "Proposal #86 Sensitive Workflow State Machine production verified on main 162123d1d7f21a873fb211f01a0870f83965c922. Supabase production migration applied and verified; Vercel production READY; /api/readiness ready with assistant=ok and token_runtime=ok; runtime error scan clean. Next official Phase 2 workstream: human_escalation."
+    "branch": "feat/assistant-human-escalation",
+    "change": "Human Escalation implemented_base as an authenticated user-to-human review bridge into the operational Agent Inbox. Escalations are workflow/boundary/version bound, idempotent, reason-bounded, server-prioritized, auditable, user-visible, and never grant assistant execution authority. Next: human_approval_queue."
   },
   "production_rollout": {
     "status": "complete",
