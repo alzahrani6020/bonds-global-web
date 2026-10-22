@@ -437,25 +437,25 @@
       "id": 68,
       "title": "Prefill",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 69,
       "title": "Field Provenance",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 70,
       "title": "Suggested vs Confirmed values",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 71,
       "title": "Confidence for inferred values",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 72,
@@ -871,10 +871,13 @@
     "cross_page_state",
     "assistant_state_store",
     "structured_conversation_state",
-    "context_boundary"
+    "context_boundary",
+    "prefill_provenance",
+    "prefill_metadata",
+    "suggested_confirmed_values",
+    "inferred_value_confidence"
   ],
   "next": [
-    "prefill_provenance",
     "confirmation_engine",
     "save_draft"
   ],
@@ -893,7 +896,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-context-state",
-    "change": "Added session-scoped structured assistant context state with explicit project/city boundaries, cross-page persistence, bounded fields, and boundary resets. AI envelope context is not silently promoted into confirmed_facts."
+    "branch": "feat/bonds-assistant-prefill-provenance",
+    "change": "Added governed prefill provenance metadata using approved source classes, suggested/confirmed state, bounded confidence, explicit user confirmation for AI-inferred values, and optional dynamic-form integration. This is the provenance/prefill foundation; form_prefill execution remains a separate capability."
   }
 }
