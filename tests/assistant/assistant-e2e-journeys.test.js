@@ -4,9 +4,9 @@
 
 const { EventEmitter } = require('events');
 
-const rpc = jest.fn();
+const mockRpc = jest.fn();
 jest.mock('../../v3/lib/supabase', () => ({
-  getSupabaseClient: () => ({ rpc })
+  getSupabaseClient: () => ({ mockRpc })
 }));
 
 const { assistantRouter } = require('../../v3/api/assistant');
@@ -48,8 +48,8 @@ describe('BONDS Assistant V1 end-to-end governed journeys', () => {
   beforeEach(() => {
     ledger.clear();
     auditEvents.length = 0;
-    rpc.mockReset();
-    rpc.mockImplementation(async (name, payload) => {
+    mockRpc.mockReset();
+    mockRpc.mockImplementation(async (name, payload) => {
       if (name === 'assistant_append_action_audit') {
         auditEvents.push(payload);
         return { data:`audit-${auditEvents.length}`, error:null };
@@ -272,7 +272,7 @@ describe('BONDS Assistant V1 end-to-end governed journeys', () => {
 
     expect(response.statusCode).toBe(401);
     expect(response.body).toEqual({ error:'Unauthorized' });
-    expect(rpc).not.toHaveBeenCalled();
+    expect(mockRpc).not.toHaveBeenCalled();
   });
 
   test('planner denies unregistered forms without attempting execution', async () => {
