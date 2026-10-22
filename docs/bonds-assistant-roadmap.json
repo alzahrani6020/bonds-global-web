@@ -209,7 +209,7 @@
       "id": 30,
       "title": "Safe Retry Policy",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 31,
@@ -882,10 +882,14 @@
     "save_draft",
     "form_save_draft",
     "verified_form_draft_adapter",
-    "draft_first_editing"
+    "draft_first_editing",
+    "idempotency",
+    "idempotency_ledger",
+    "action_replay_protection",
+    "safe_retry_policy"
   ],
   "next": [
-    "idempotency"
+    "audit_trail"
   ],
   "deferred": [
     "action_tokens",
@@ -902,7 +906,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-save-draft",
-    "change": "Added governed form_save_draft planning and exact registered page adapters for all current form-registry entries. Draft execution reuses existing authenticated Supabase/RLS form save logic, rejects non-editable submitted records, and reports success only after a returned persisted record has record_id and status=draft. No generic AI-selected database writer was added."
+    "branch": "feat/bonds-assistant-idempotency-v2",
+    "change": "Added persistent server-side Assistant V1 write idempotency for form_save_draft using a Supabase ledger and atomic claim/resolve RPCs. The client hashes the exact form snapshot, claims before writing, reuses verified completed results, and blocks in-progress or uncertain replay after network ambiguity. Idempotency remains separate from authorization and tokens."
   }
 }
