@@ -15,6 +15,7 @@ const {
 const { listHumanApprovalQueue, decideHumanApproval } = require('../../lib/assistant/human-approval');
 const { calibrateCompetitorCounts } = require('../engine/data-acquisition/CompetitorCalibration');
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
+const { scanAssistantAnomalies } = require('../../lib/assistant/anomaly-detection');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -565,6 +566,33 @@ async function handleSourceQualityAlerts(req, res) {
 }
 
 
+async function handleAssistantAnomalies(req, res) {
+  const supabase = getSupabaseClient();
+  const url = new URL(req.url || '/api/v3/admin/assistant-anomalies', 'http://localhost');
+  const lookbackMinutes = url.searchParams.get('lookback_minutes') || 15;
+
+  if (!['GET','POST'].includes(req.method)) {
+    return sendJson(res, 405, { error:'Method not allowed' });
+  }
+
+  try {
+    const scan = await scanAssistantAnomalies({
+      supabase,
+      lookbackMinutes,
+      persist:req.method === 'POST'
+    });
+    return sendJson(res, 200, {
+      success:true,
+      anomaly_detection:scan
+    });
+  } catch (err) {
+    return sendJson(res, 503, {
+      success:false,
+      error:String(err?.message || 'ANOMALY_SCAN_FAILED')
+    });
+  }
+}
+
 async function handleServiceAdmin(req, res, code) {
   const supabase = getSupabaseClient();
 
@@ -1052,6 +1080,7 @@ async function adminRouter(req, res, path) {
     if (resource === 'reference') return await handleReferenceData(req, res);
     if (resource === 'competitor-calibration') return await handleCompetitorCalibration(req, res, path);
     if (resource === 'source-quality-alerts') return await handleSourceQualityAlerts(req, res);
+    if (resource === 'assistant-anomalies') return await handleAssistantAnomalies(req, res);
     if (resource === 'services') {
       const serviceCode = parts[2];
       if (parts[3] === 'forms') return await handleServiceFormsAdmin(req, res, serviceCode, parts[4], parts[5]);

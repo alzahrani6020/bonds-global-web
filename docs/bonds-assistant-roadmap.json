@@ -910,10 +910,11 @@
     "human_approval_queue",
     "employee_assistant_mode",
     "emergency_kill_switch",
-    "read_only_emergency_mode"
+    "read_only_emergency_mode",
+    "anomaly_detection"
   ],
   "next": [
-    "anomaly_detection"
+    "safe_introspection_cache"
   ],
   "deferred": [
     "action_tokens",
@@ -930,8 +931,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/assistant-read-only-emergency-mode",
-    "change": "Read-only Emergency Mode implemented_base by reusing admin_ai_kill_switches with the assistant.read_only feature key. Active read-only mode blocks every registered Assistant state-changing route before body processing while preserving read/planning routes, exposes a bounded read-only status endpoint without administrative reason text, honors expiry, fails closed on control-plane lookup failure for mutations, and does not change token architecture, AI/API providers, models, context, throughput, or database schema. Next: anomaly_detection."
+    "branch": "feat/assistant-anomaly-detection",
+    "change": "Anomaly Detection implemented_base with deterministic rules over immutable assistant_action_audit data, bounded admin scan/persist endpoints, privacy-preserving subject references, best-effort deduplication into existing admin_alerts, and explicit no-auto-block/no-execution/no-AI-scoring semantics. Next: safe_introspection_cache."
   },
   "production_rollout": {
     "status": "complete",
