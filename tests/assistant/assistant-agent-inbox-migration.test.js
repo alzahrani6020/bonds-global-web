@@ -5,7 +5,7 @@ const path=require('path');
 describe('Agent Inbox migration security',()=>{
   test('queue is server-only with RLS and no browser grants',()=>{
     const source=fs.readFileSync(
-      path.join(__dirname,'..','..','supabase','migrations','20261022180000_assistant_agent_inbox.sql'),
+      path.join(__dirname,'..','..','supabase','migrations','20261022180500_assistant_agent_inbox.sql'),
       'utf8'
     );
     expect(source).toContain('ALTER TABLE public.assistant_agent_inbox ENABLE ROW LEVEL SECURITY');
