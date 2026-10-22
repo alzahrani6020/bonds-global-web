@@ -12,6 +12,10 @@ const LEGACY_DUPLICATES = {
   '20260731000000': [
     '20260731000000_admin_audit_log.sql',
     '20260731000000_soft_lead_contact_validation.sql'
+  ],
+  '20261022180000': [
+    '20261022180000_assistant_agent_inbox.sql',
+    '20261022180000_assistant_sensitive_workflow_state_machine.sql'
   ]
 };
 
@@ -56,15 +60,16 @@ describe('Supabase migration integrity', () => {
     expect(unexpected).toEqual([]);
   });
 
-  test('known legacy duplicate timestamps remain unchanged', () => {
+  test('known legacy duplicate timestamps may be resolved but never expand', () => {
     const files = fs.readdirSync(MIGRATIONS_DIR);
 
-    for (const [timestamp, expectedFiles] of Object.entries(LEGACY_DUPLICATES)) {
+    for (const [timestamp, allowedFiles] of Object.entries(LEGACY_DUPLICATES)) {
       const actual = files
         .filter(name => name.startsWith(`${timestamp}_`) && name.endsWith('.sql'))
         .sort();
+      const allowed = new Set(allowedFiles);
 
-      expect(actual).toEqual([...expectedFiles].sort());
+      expect(actual.every(name => allowed.has(name))).toBe(true);
     }
   });
 

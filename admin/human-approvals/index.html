@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>طابور الموافقات البشرية | بوندز</title>
+  <link rel="stylesheet" href="/styles/fonts-ar.css">
+  <link rel="stylesheet" href="/admin/human-approvals/styles.css?v=1">
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script>BondsAuth.initAdminGuard();</script>
+</head>
+<body>
+  <main class="approval-shell">
+    <header class="approval-header">
+      <div><h1>طابور الموافقات البشرية</h1><p>قرارات بشرية موثقة للإجراءات الحساسة. الموافقة لا تنفذ الإجراء تلقائيًا.</p></div>
+      <div id="approval-role"></div>
+    </header>
+    <section class="approval-toolbar" aria-label="مرشحات الموافقات">
+      <select id="approval-status" aria-label="تصفية حسب حالة الموافقة">
+        <option value="pending">بانتظار القرار</option>
+        <option value="approved">موافق عليه</option>
+        <option value="rejected">مرفوض</option>
+        <option value="cancelled">ملغى</option>
+      </select>
+      <select id="approval-risk" aria-label="تصفية حسب مستوى المخاطر">
+        <option value="">كل المخاطر</option><option value="critical">حرج</option><option value="high">عالٍ</option>
+      </select>
+      <button id="approval-refresh" type="button">تحديث</button>
+    </section>
+    <section id="approval-root" class="approval-grid" aria-live="polite"></section>
+  </main>
+  <script src="/admin/human-approvals/service.js?v=1"></script>
+  <script src="/admin/human-approvals/app.js?v=1"></script>
+</body>
+</html>

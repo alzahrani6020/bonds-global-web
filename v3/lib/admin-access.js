@@ -106,6 +106,12 @@ async function getBearerAgentInboxUser(req) {
   return null;
 }
 
+async function requireHumanApprovalAccess(req) {
+  // Human approval decisions require an attributable bearer identity.
+  // Legacy/static admin tokens are intentionally not accepted here.
+  return getBearerAdmin(req);
+}
+
 async function requireAgentInboxAccess(req, options = {}) {
   const bearerAgent = await getBearerAgentInboxUser(req);
   if (bearerAgent) return bearerAgent;
@@ -135,5 +141,6 @@ module.exports = {
   getBearerAdmin,
   requireAdminAccess,
   getBearerAgentInboxUser,
-  requireAgentInboxAccess
+  requireAgentInboxAccess,
+  requireHumanApprovalAccess
 };
