@@ -23,6 +23,7 @@ function checkpoint(overrides = {}) {
     candidate_sha: null,
     current_stage: 'checkpoint-foundation',
     current_step: 'unit-tests',
+    metadata: { worker: { id: 'local-1', attempt: 1 } },
     ...overrides
   };
 }
@@ -41,11 +42,20 @@ describe('persistent project memory', () => {
     expect(loaded.base_sha).toBe(SHA_A);
   });
 
-  test('detects checkpoint corruption', () => {
+  test('detects top-level checkpoint corruption', () => {
     const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bonds-memory-'));
     const file = path.join(dir, 'state.json');
     const record = saveCheckpoint(file, checkpoint());
     record.current_stage = 'tampered';
+    fs.writeFileSync(file, JSON.stringify(record));
+    expect(() => loadCheckpoint(file)).toThrow('PROJECT_MEMORY_INTEGRITY_FAILED');
+  });
+
+  test('detects nested checkpoint corruption', () => {
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'bonds-memory-'));
+    const file = path.join(dir, 'state.json');
+    const record = saveCheckpoint(file, checkpoint());
+    record.metadata.worker.attempt = 999;
     fs.writeFileSync(file, JSON.stringify(record));
     expect(() => loadCheckpoint(file)).toThrow('PROJECT_MEMORY_INTEGRITY_FAILED');
   });
