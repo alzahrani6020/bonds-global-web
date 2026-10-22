@@ -64,3 +64,7 @@ v3/workspace-preview-backup-*
 
 # Local duplicate-scan inventory; may contain absolute workstation paths
 /tools/duplicates.json
+# Generated feasibility PDFs — reproducible from source; do not commit binaries
+/calculators/feasibility-report.pdf
+/reports/food-manufacturing-jeddah-feasibility.pdf
+

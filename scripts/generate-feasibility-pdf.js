@@ -3,7 +3,9 @@ const path = require('path');
 
 (async () => {
   const file = path.resolve(__dirname, '../reports/food-manufacturing-jeddah-feasibility.html');
-  const out = path.resolve(__dirname, '../reports/food-manufacturing-jeddah-feasibility.pdf');
+  const out = process.env.FOOD_MANUFACTURING_PDF_OUTPUT
+    ? path.resolve(process.env.FOOD_MANUFACTURING_PDF_OUTPUT)
+    : path.resolve(__dirname, '../reports/food-manufacturing-jeddah-feasibility.pdf');
 
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage();
