@@ -203,7 +203,7 @@
       "id": 29,
       "title": "UI Action Bus",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 30,
@@ -860,11 +860,12 @@
     "funding_status_capability",
     "funding_next_step_capability",
     "funding_next_requirements_capability",
-    "project_status_capability"
+    "project_status_capability",
+    "chat_widget_action_renderer",
+    "ui_action_bus_base"
   ],
   "next": [
     "calculator_capabilities",
-    "chat_widget_action_renderer",
     "assistant_context_state",
     "prefill_provenance",
     "confirmation_engine"
@@ -884,7 +885,7 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-22",
-    "branch": "feat/bonds-assistant-read-capabilities",
-    "change": "Registered and implemented governed read capabilities for navigation, forms, funding state/next requirements and project status."
+    "branch": "feat/bonds-assistant-chat-actions",
+    "change": "Chat widget now consumes BONDS_ASSISTANT_PROTOCOL_V1 envelopes, renders governed action cards and executes eligible actions only through the Capability Registry endpoint; confirmation-required actions remain blocked."
   }
 }
