@@ -1,6 +1,8 @@
 /** @jest-environment node */
 const {
   featureForAssistantMutation,
+  normalizeAssistantFeature,
+  normalizeExpiry,
   switchIsActive,
   getAssistantKillSwitchState,
   assertAssistantMutationEnabled
@@ -22,6 +24,18 @@ describe('Assistant Emergency Kill Switch',()=>{
     expect(featureForAssistantMutation('/assistant/approvals','GET')).toBeNull();
     expect(featureForAssistantMutation('/assistant/documents/read','POST')).toBeNull();
     expect(featureForAssistantMutation('/assistant/plan','POST')).toBeNull();
+  });
+
+  test('administrative feature names are bounded to registered Assistant mutations',()=>{
+    expect(normalizeAssistantFeature('assistant')).toBe('assistant');
+    expect(normalizeAssistantFeature('assistant.events.apply')).toBe('assistant.events.apply');
+    expect(()=>normalizeAssistantFeature('assistant.arbitrary.future.power')).toThrow('ASSISTANT_KILL_SWITCH_FEATURE_INVALID');
+  });
+
+  test('administrative expiry must be a valid future timestamp',()=>{
+    expect(normalizeExpiry('2099-01-01T00:00:00Z')).toBe('2099-01-01T00:00:00.000Z');
+    expect(()=>normalizeExpiry('not-a-date')).toThrow('ASSISTANT_KILL_SWITCH_EXPIRY_INVALID');
+    expect(()=>normalizeExpiry('2020-01-01T00:00:00Z')).toThrow('ASSISTANT_KILL_SWITCH_EXPIRY_NOT_FUTURE');
   });
 
   test('expired switches do not block and invalid expiries fail safe',()=>{
