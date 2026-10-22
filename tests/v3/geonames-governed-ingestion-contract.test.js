@@ -80,4 +80,15 @@ describe('GeoNames governed ingestion contract', () => {
     expect(exporter).not.toContain('update ');
     expect(exporter).not.toContain('delete from');
   });
+
+  test('reconcile consumes the safe candidate city code and revalidates normalized names', () => {
+    const reconcile = read('scripts/reconcile-local-geo-run.js');
+
+    expect(reconcile).toContain("raw.raw_payload?._candidate_city_code || raw.raw_payload?.candidate_city_code");
+    expect(reconcile).toContain('join public.geo_places p on p.id=c.geo_place_id');
+    expect(reconcile).toContain('c.code=$1 and c.country_code=$2');
+    expect(reconcile).toContain('rawKeys.some(key => targetKeys.includes(key))');
+    expect(reconcile).toContain("matchType = 'safe_candidate_city_code'");
+    expect(reconcile).toContain("reason: 'safe_candidate_city_code'");
+  });
 });
