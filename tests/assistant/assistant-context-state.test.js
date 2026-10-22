@@ -18,7 +18,8 @@ describe('BONDS Assistant context state', () => {
 
   test('defines project and city boundaries explicitly', () => {
     expect(source).toContain("return projectId ? `project:${projectId}` : 'project:unbound';");
-    expect(source).toContain('return `city:${city}|activity:${activity}|model:${model}`;');
+    expect(source).toContain('const base = `city:${city}|activity:${activity}|model:${model}`;');
+    expect(source).toContain('return service ? `${base}|service:${service}` : base;');
     expect(source).toContain('const previousBoundary = contextBoundaryKey(context);');
     expect(source).toContain('const nextBoundary = contextBoundaryKey(context);');
     expect(source).toContain('if (previousBoundary !== nextBoundary)');
