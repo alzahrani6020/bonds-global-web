@@ -10,6 +10,8 @@
   const API_URL = '/api/v3/ai/chat';
   const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
   const ASSISTANT_PLAN_URL = '/api/v3/assistant/plan';
+  const ASSISTANT_CONFIRMATION_PREPARE_URL = '/api/v3/assistant/confirmation/prepare';
+  const ASSISTANT_CONFIRMATION_RESOLVE_URL = '/api/v3/assistant/confirmation/resolve';
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
 
@@ -521,15 +523,125 @@
       return languageCode() === 'en' ? 'Assistant action' : 'إجراء المساعد';
     }
 
+    async function requestConfirmation(action, confirmation = null, decision = null) {
+      const url = confirmation
+        ? ASSISTANT_CONFIRMATION_RESOLVE_URL
+        : ASSISTANT_CONFIRMATION_PREPARE_URL;
+      const body = confirmation
+        ? { action, confirmation, decision }
+        : { action, language: languageCode() };
+
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'CONFIRMATION_FAILED');
+      return data.confirmation;
+    }
+
+    function confirmationStateSummary(confirmation) {
+      if (!confirmation || typeof confirmation !== 'object') return null;
+      return {
+        version: confirmation.version ?? null,
+        required: confirmation.required === true,
+        status: String(confirmation.status || ''),
+        action_id: String(confirmation.action_id || ''),
+        action_fingerprint: String(confirmation.action_fingerprint || ''),
+        risk: String(confirmation.risk || ''),
+        prompt: String(confirmation.prompt || ''),
+        execution_authorized: confirmation.execution_authorized === true
+      };
+    }
+
+    function renderConfirmationCard(action, confirmation) {
+      actionsEl.innerHTML = '';
+      const card = document.createElement('div');
+      card.className = 'bonds-ai-action-card';
+      card.dataset.actionId = String(action.id || '');
+
+      const title = document.createElement('strong');
+      title.textContent = languageCode() === 'en' ? 'Confirmation required' : 'التأكيد مطلوب';
+
+      const detail = document.createElement('small');
+      detail.textContent = confirmation.prompt || actionTitle(action);
+
+      const confirmButton = document.createElement('button');
+      confirmButton.type = 'button';
+      confirmButton.textContent = languageCode() === 'en' ? 'Confirm' : 'تأكيد';
+
+      const cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.textContent = languageCode() === 'en' ? 'Cancel' : 'إلغاء';
+
+      async function resolve(decision) {
+        confirmButton.disabled = true;
+        cancelButton.disabled = true;
+        try {
+          const resolved = await requestConfirmation(action, confirmation, decision);
+          patchAssistantContextState({
+            pending_confirmation: null,
+            last_action: {
+              id: String(action.id || ''),
+              type: String(action.type || ''),
+              target: action.target == null ? null : String(action.target),
+              status: resolved.status === 'confirmed'
+                ? 'confirmed_pending_governance'
+                : 'cancelled'
+            }
+          });
+          actionsEl.innerHTML = '';
+          addAssistantMessage(
+            resolved.status === 'confirmed'
+              ? (languageCode() === 'en'
+                  ? 'Confirmation recorded. Sensitive execution still requires the governed execution layer.'
+                  : 'تم تسجيل التأكيد. التنفيذ الحساس ما زال خاضعًا لطبقة التنفيذ المحكوم.')
+              : (languageCode() === 'en' ? 'Action cancelled.' : 'تم إلغاء الإجراء.')
+          );
+        } catch (err) {
+          console.error('[BondsAssistantConfirmation]', err);
+          confirmButton.disabled = false;
+          cancelButton.disabled = false;
+          addAssistantMessage(
+            languageCode() === 'en'
+              ? 'Confirmation could not be recorded.'
+              : 'تعذر تسجيل التأكيد.',
+            true
+          );
+        }
+      }
+
+      confirmButton.addEventListener('click', () => resolve('confirm'));
+      cancelButton.addEventListener('click', () => resolve('cancel'));
+
+      card.appendChild(title);
+      card.appendChild(detail);
+      card.appendChild(confirmButton);
+      card.appendChild(cancelButton);
+      actionsEl.appendChild(card);
+    }
+
     async function executeStructuredAction(action, button) {
       if (!action || action.status === 'denied') return;
       if (action.requires_confirmation) {
-        addAssistantMessage(
-          languageCode() === 'en'
-            ? 'This action requires confirmation and is not executable in the current phase.'
-            : 'هذا الإجراء يحتاج تأكيدًا، ولن يُنفذ قبل إضافة محرك التأكيد.',
-          true
-        );
+        if (button) button.disabled = true;
+        try {
+          const confirmation = await requestConfirmation(action);
+          patchAssistantContextState({
+            pending_confirmation: confirmationStateSummary(confirmation)
+          });
+          renderConfirmationCard(action, confirmation);
+        } catch (err) {
+          console.error('[BondsAssistantConfirmation]', err);
+          if (button) button.disabled = false;
+          addAssistantMessage(
+            languageCode() === 'en'
+              ? 'The confirmation request could not be prepared.'
+              : 'تعذر تجهيز طلب التأكيد.',
+            true
+          );
+        }
         return;
       }
 
