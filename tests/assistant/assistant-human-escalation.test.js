@@ -11,6 +11,8 @@ jest.mock('../../lib/assistant/agent-inbox-queue',()=>({
 }));
 
 const {
+  HUMAN_ESCALATION_PRIORITY_BY_REASON,
+  priorityForReason,
   escalationItemKey,
   createHumanEscalation,
   listUserHumanEscalations
@@ -41,6 +43,13 @@ describe('human escalation bridge',()=>{
       version:4
     });
     mockEnqueue.mockResolvedValue({queued:true,skipped:false,item:{id:'partial'}});
+  });
+
+  test('derives queue priority from bounded reason, not caller input',()=>{
+    expect(HUMAN_ESCALATION_PRIORITY_BY_REASON.user_requested).toBe('medium');
+    expect(priorityForReason('data_conflict')).toBe('critical');
+    expect(priorityForReason('assistant_blocked')).toBe('high');
+    expect(()=>priorityForReason('arbitrary')).toThrow('HUMAN_ESCALATION_REASON_INVALID');
   });
 
   test('derives a bounded opaque idempotent queue key',()=>{
@@ -83,7 +92,6 @@ describe('human escalation bridge',()=>{
       expectedVersion:4,
       reasonCode:'needs_expert_review',
       summary:'Needs specialist review',
-      priority:'high',
       idempotencyKey:'request-0001'
     });
 
@@ -114,7 +122,7 @@ describe('human escalation bridge',()=>{
 
     const out=await createHumanEscalation({
       supabase,userId:'user-1',workflowKey:'wf-1',boundary:'project:p-1',
-      expectedVersion:4,reasonCode:'user_requested',priority:'high',
+      expectedVersion:4,reasonCode:'user_requested',
       idempotencyKey:'request-0002'
     });
 
