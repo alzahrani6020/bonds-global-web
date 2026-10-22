@@ -913,10 +913,11 @@
     "read_only_emergency_mode",
     "anomaly_detection",
     "safe_introspection_cache",
-    "policy_as_code"
+    "policy_as_code",
+    "policy_simulation"
   ],
   "next": [
-    "policy_simulation"
+    "shadow_authorization"
   ],
   "deferred": [
     "action_tokens",
@@ -933,8 +934,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-policy-as-code",
-    "change": "Policy as Code implemented_base with a versioned declarative Assistant action policy and deterministic evaluator integrated into protocol normalization. Existing behavior is preserved: registered action types/risks only, recursive executable-field denial, and confirmation for explicit/high/critical risk. Public policy descriptor is read-only and grants no execution authority. Next: policy_simulation."
+    "branch": "feat/assistant-policy-simulation",
+    "change": "Policy Simulation implemented_base as a deterministic read-only dry-run over the versioned Assistant policy. It returns allow/deny/confirmation outcomes and matched rules without DB writes, tool invocation, authorization grants, or execution. Simulation results do not echo arbitrary action payload data and batches are bounded. Next: shadow_authorization."
   },
   "production_rollout": {
     "status": "complete",
