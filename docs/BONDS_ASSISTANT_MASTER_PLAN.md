@@ -610,8 +610,8 @@ parent/child relationships بين التوكنات.
 - Document assistant / classification / extraction: **IMPLEMENTED_BASE / MERGED**.
 - Document-to-Workflow: **IMPLEMENTED_BASE / API ACCEPTANCE COVERED** — owned document + owned funding case binding, completion-aware requirement suggestions, project-boundary conflict rejection, suggestion-only policy, and explicit no-auto-write behavior.
 - Event-Driven Assistant: **IMPLEMENTED_BASE / API ACCEPTANCE COVERED** — explicit event registry, stable event IDs, bounded replay protection, exact workflow boundary enforcement, suggestion-only reactions, immutable audit lifecycle, and duplicate-notification suppression.
-- Notifications: **IMPLEMENTED_BASE / IN PROGRESS** — event-derived notices are integrated into the event pipeline.
-- العنصر التالي الرسمي بعد إغلاق Notifications: **Draft Center**.
+- Notifications: **IMPLEMENTED_BASE / API + DURABLE INBOX COVERED** — durable user-scoped storage, deterministic deduplication, unread/read lifecycle, authenticated retrieval, replay-safe persistence, bilingual widget inbox, and governed logical actions only.
+- العنصر التالي الرسمي: **Draft Center**.
 - Action token: **NOT IMPLEMENTED**
 - Workflow token: **NOT IMPLEMENTED**
 - Confirmation token: **NOT IMPLEMENTED**
