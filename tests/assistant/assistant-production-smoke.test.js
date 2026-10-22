@@ -119,7 +119,7 @@ describe('Assistant production acceptance', () => {
       .every(([, payload]) => payload.p_status === 'uncertain' && payload.p_result === null)).toBe(true);
     expect(requests.every(({ url }) => new URL(url).pathname.startsWith('/api/v3/assistant') ||
       new URL(url).pathname === '/api/v3/capabilities/execute')).toBe(true);
-    expect(requests.slice(0, 3).every(({ options }) => !options.headers.Authorization)).toBe(true);
+    expect(requests.slice(0, 5).every(({ options }) => !options.headers.Authorization)).toBe(true);
     expect(requests.every(({ options }) => options.redirect === 'error')).toBe(true);
     expect(JSON.stringify(log.mock.calls)).not.toContain(TOKEN);
     expect(JSON.stringify(auditEvents)).not.toContain(TOKEN);

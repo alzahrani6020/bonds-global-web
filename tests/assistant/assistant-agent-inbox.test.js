@@ -2,6 +2,7 @@
 
 const mockListOwnedDrafts = jest.fn();
 const mockListNotifications = jest.fn();
+const mockListHumanEscalations = jest.fn();
 
 jest.mock('../../lib/assistant/draft-center', () => ({
   listOwnedDrafts:(args) => mockListOwnedDrafts(args)
@@ -9,11 +10,15 @@ jest.mock('../../lib/assistant/draft-center', () => ({
 jest.mock('../../lib/assistant/notification-store', () => ({
   listAssistantNotifications:(args) => mockListNotifications(args)
 }));
+jest.mock('../../lib/assistant/human-escalation', () => ({
+  listUserHumanEscalations:(args) => mockListHumanEscalations(args)
+}));
 
 const {
   workflowInboxItems,
   listWorkflowInboxItems,
   unreadNotificationSignals,
+  humanEscalationInboxItems,
   buildAgentInbox
 } = require('../../lib/assistant/agent-inbox');
 
@@ -39,6 +44,7 @@ describe('assistant agent inbox', () => {
       policy:{ read_only:true, write_allowed:false, submit_allowed:false, execution_authorized:false }
     });
     mockListNotifications.mockResolvedValue([]);
+    mockListHumanEscalations.mockResolvedValue([]);
   });
 
   test('derives only user-waiting workflow items and never exposes confirmation payload', () => {
@@ -94,6 +100,23 @@ describe('assistant agent inbox', () => {
     expect(signals).toHaveLength(1);
     expect(signals[0].action.execution_authorized).toBe(false);
     expect(signals[0].informational_only).toBe(true);
+  });
+
+  test('human escalation items are waiting on staff and never authorize execution', () => {
+    const items=humanEscalationInboxItems([{
+      id:'e-1',
+      workflow_key:'wf-1',
+      boundary:'project:p-1',
+      reason_code:'human_escalation_needs_expert_review',
+      priority:'high',
+      status:'in_review',
+      title_ar:'طلب مراجعة بشرية'
+    }]);
+    expect(items).toHaveLength(1);
+    expect(items[0].type).toBe('human_escalation');
+    expect(items[0].waiting_on_user).toBe(false);
+    expect(items[0].waiting_on_human).toBe(true);
+    expect(items[0].execution_authorized).toBe(false);
   });
 
   test('combines workflows, drafts and unread notification context without write authority', async () => {
