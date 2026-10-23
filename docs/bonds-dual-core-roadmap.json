@@ -118,6 +118,11 @@
         {
           "id": "p2.6",
           "title": "Control Center evolution review UI",
+          "status": "completed"
+        },
+        {
+          "id": "p2.7",
+          "title": "High/critical evolution proposals to Agent Inbox",
           "status": "implemented_candidate"
         }
       ]
