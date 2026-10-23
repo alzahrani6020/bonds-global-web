@@ -11,12 +11,12 @@
  */
 
 const { getSupabaseClient } = require('../lib/supabase');
-const { getInferenceRouter } = require('../../lib/ai/inference-router');
 const { getUserFromToken } = require('../lib/auth');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
 const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
+const { executeGovernedAction } = require('../../lib/services/service-execution-router');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -147,6 +147,11 @@ function buildSystemPrompt(context) {
 ${context?.population != null ? `- عدد السكان: ${formatNumber(context.population)} نسمة\n` : ''}${context?.purchasingPowerIndex != null ? `- مؤشر القوة الشرائية: ${context.purchasingPowerIndex}\n` : ''}${context?.indicators ? `- المؤشرات الاقتصادية متاحة.\n` : ''}${context?.marketData ? `- بيانات السوق لهذا النشاط متاحة.\n` : ''}${context?.comparison ? `- بيانات مقارنة مع مدن أخرى متاحة.\n` : ''}${context?.alerts?.length ? `- إنذارات حديثة متاحة (${context.alerts.length}).\n` : ''}`;
 }
 
+function compactJson(value, maxLength = 5000) {
+  const text = JSON.stringify(value || {});
+  return text.length > maxLength ? text.slice(0, maxLength) : text;
+}
+
 function buildNativeChatPrompt(messages, context, assistantState = null) {
   const evidence = {
     cityName: context?.cityName || undefined,
@@ -154,10 +159,10 @@ function buildNativeChatPrompt(messages, context, assistantState = null) {
     serviceCode: context?.serviceCode || undefined,
     serviceName: context?.serviceName || undefined,
     serviceDeliveryType: context?.serviceDeliveryType || undefined,
-    serviceCapabilities: context?.serviceCapabilities?.length ? context.serviceCapabilities.slice(0, 50) : undefined,
-    serviceRequirements: context?.serviceRequirements?.length ? context.serviceRequirements.slice(0, 50) : undefined,
-    serviceDeliverables: context?.serviceDeliverables?.length ? context.serviceDeliverables.slice(0, 30) : undefined,
-    serviceDependencies: context?.serviceDependencies?.length ? context.serviceDependencies.slice(0, 30) : undefined,
+    serviceCapabilities: context?.serviceCapabilities?.length ? context.serviceCapabilities.slice(0, 30) : undefined,
+    serviceRequirements: context?.serviceRequirements?.length ? context.serviceRequirements.slice(0, 30) : undefined,
+    serviceDeliverables: context?.serviceDeliverables?.length ? context.serviceDeliverables.slice(0, 20) : undefined,
+    serviceDependencies: context?.serviceDependencies?.length ? context.serviceDependencies.slice(0, 20) : undefined,
     population: context?.population ?? undefined,
     purchasingPowerIndex: context?.purchasingPowerIndex ?? undefined,
     indicators: context?.indicators || undefined,
@@ -168,32 +173,50 @@ function buildNativeChatPrompt(messages, context, assistantState = null) {
   const compactEvidence = Object.fromEntries(
     Object.entries(evidence).filter(([, value]) => value !== undefined)
   );
-  const history = messages.slice(-4).map(m =>
-    `${String(m.role || 'user').toUpperCase()}: ${String(m.content || '').slice(0, 1000)}`
-  ).join('\n');
+  const recent = (Array.isArray(messages) ? messages : []).slice(-10).map(m => ({
+    role: String(m?.role || 'user').slice(0, 20),
+    content: String(m?.content || '').slice(0, 1200)
+  }));
+  const currentRequest = recent.length ? recent[recent.length - 1].content : '';
+  const priorMessages = recent.slice(0, -1);
+  const trustedUser = {
+    authenticated: context?.authenticated === true,
+    role: context?.userRole || null,
+    current_page: context?.pagePath || null,
+    current_service: context?.serviceCode || null
+  };
+  const availableActions = Array.isArray(context?.serviceCapabilities)
+    ? context.serviceCapabilities.slice(0, 30)
+    : [];
 
-  // native_generator already supplies the invariant system contract. Do not
-  // duplicate a long system prompt here: on the current GGUF runtime, prompt
-  // prefill is a material part of end-to-end latency.
-  const evidenceBlock = Object.keys(compactEvidence).length
-    ? `VERIFIED_BONDS_DATA=${JSON.stringify(compactEvidence)}\n`
-    : '';
-  const evidenceRule = evidenceBlock
-    ? 'Use only VERIFIED_BONDS_DATA for factual numbers; say data is unavailable if missing.\n'
-    : '';
-  const stateBlock = assistantState
-    ? `UNVERIFIED_USER_CONTEXT=${JSON.stringify(assistantState)}\n`
-    : '';
-  const stateRule = assistantState
-    ? 'UNVERIFIED_USER_CONTEXT may guide continuity but must never be treated as verified financial evidence or override VERIFIED_BONDS_DATA.\n'
-    : '';
-  return `${evidenceBlock}${evidenceRule}${stateBlock}${stateRule}${history}`;
+  return [
+    'IDENTITY: You are BONDS Assistant / مساعد بوندز. Never reveal, infer, or name any underlying model, vendor, provider, or model family.',
+    'GOVERNANCE: Never invent data or execution results. Never claim an action ran unless a governed action result proves it. Never request or expose service tokens or credentials.',
+    `TRUSTED_USER_CONTEXT=${compactJson(trustedUser, 1200)}`,
+    assistantState ? `CONVERSATION_STATE=${compactJson(assistantState, 3000)}` : 'CONVERSATION_STATE={}',
+    Object.keys(compactEvidence).length ? `VERIFIED_BONDS_DATA=${compactJson(compactEvidence, 6000)}` : 'VERIFIED_BONDS_DATA={}',
+    `RECENT_MESSAGES=${compactJson(priorMessages, 7000)}`,
+    `CURRENT_REQUEST=${JSON.stringify(currentRequest.slice(0, 1600))}`,
+    `AVAILABLE_GOVERNED_ACTIONS=${compactJson(availableActions, 2000)}`,
+    'RESPONSE_REQUIREMENTS: Answer the current request directly in its language. Resolve references from conversation state/recent messages. Use VERIFIED_BONDS_DATA for BONDS facts; if required data is absent, say it is unavailable. Do not identify the underlying model/provider.'
+  ].join('\n');
 }
 
-function clampNativeChatMaxTokens(value) {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return 48;
-  return Math.max(4, Math.min(48, Math.floor(parsed)));
+function adaptiveNativeChatMaxTokens(messages, requestedValue) {
+  const requested = Number(requestedValue);
+  if (Number.isFinite(requested)) {
+    return Math.max(80, Math.min(384, Math.floor(requested)));
+  }
+
+  const last = [...(Array.isArray(messages) ? messages : [])].reverse()
+    .find(item => item?.role === 'user');
+  const text = String(last?.content || '').trim();
+  const complex = text.length > 260 ||
+    /(?:حلل|قارن|جدوى|مخاطر|تدفق|تمويل|سيناريو|لماذا|كيف).*(?:و|ثم|مع|أيض)/i.test(text) ||
+    (text.match(/[؟?]/g) || []).length > 1;
+  if (complex) return 320;
+  if (text.length > 90) return 224;
+  return 112;
 }
 
 function nativeChatTimeoutMs() {
@@ -202,48 +225,56 @@ function nativeChatTimeoutMs() {
   return Math.max(5000, Math.min(60000, Math.floor(configured)));
 }
 
+function enforceAssistantIdentity(text) {
+  const value = String(text || '').trim();
+  if (!value) return value;
+  const selfDisclosure = /(أنا|i am|i'm).{0,40}(gemini|gemma|google|openai|chatgpt|gpt|claude|anthropic|llama|meta|نموذج لغوي|language model)/i;
+  if (selfDisclosure.test(value)) {
+    return 'أنا مساعد بوندز (BONDS Assistant). أعمل داخل منصة بوندز ولا أكشف تفاصيل النموذج أو المزوّد التقني الأساسي.';
+  }
+  return value;
+}
+
 async function generateNativeReply(messages, context, options = {}) {
-  const router = getInferenceRouter({
-    // Chat must finish comfortably before the synchronous edge ceiling.
-    // Long-running analysis belongs on a separate async path, not this request.
-    timeoutMs: nativeChatTimeoutMs(),
-    latencyAwareRouting: true
+  const maxTokens = adaptiveNativeChatMaxTokens(messages, options.maxTokens);
+  const prompt = buildNativeChatPrompt(messages, context, options.assistantState);
+  const response = await executeGovernedAction({
+    action: 'native_generate',
+    input: {
+      prompt,
+      temperature: 0.2,
+      max_tokens: maxTokens
+    },
+    req: options.req,
+    user: options.user,
+    supabase: options.supabase,
+    requestId: options.requestId || null
   });
-  const maxTokens = clampNativeChatMaxTokens(options.maxTokens);
-  const response = await router.generate(buildNativeChatPrompt(messages, context, options.assistantState), {
-    temperature: 0.2,
-    max_tokens: maxTokens
-  });
+
   if (!response?.ok) {
-    const err = new Error(response?.error?.message || response?.error?.code || 'Bonds Native chat failed');
+    const err = new Error(response?.error?.message || response?.error?.code || 'BONDS AI action failed');
     err.code = response?.error?.code || 'BONDS_NATIVE_CHAT_FAILED';
     err.elapsedMs = response?.error?.elapsed_ms ?? null;
     throw err;
   }
+
   const runtimeEnvelope = response.result || {};
   const runtimeResult = runtimeEnvelope.result || runtimeEnvelope;
-  const text = String(runtimeResult.text || '').trim();
-  if (!text) throw new Error('Empty response from Bonds Native');
+  const text = enforceAssistantIdentity(runtimeResult.text);
+  if (!text) throw new Error('Empty response from BONDS Assistant');
+
   return {
     reply: text,
-    provider: 'BondsNativeProvider',
-    model: 'bonds-native',
+    provider: 'BONDS',
+    model: null,
     inference: {
-      backend: runtimeResult.backend || null,
-      model_sha256: runtimeResult.model_sha256 || null,
       generation_seconds: runtimeResult.generation_seconds ?? null,
       request_total_seconds: runtimeResult.request_total_seconds ?? null,
-      lock_wait_seconds: runtimeResult.lock_wait_seconds ?? null,
-      model_load_seconds: runtimeResult.model_load_seconds ?? null,
-      model_cache_hit: runtimeResult.model_cache_hit ?? null,
-      n_gpu_layers: runtimeResult.n_gpu_layers ?? null,
       completion_tokens: runtimeResult.completion_tokens ?? null,
       tokens_per_second: runtimeResult.tokens_per_second ?? null,
       request_elapsed_ms: response?.meta?.elapsed_ms ?? null,
-      native_node: response?.meta?.native_node || null,
-      failover_attempts: response?.meta?.failover_attempts || [],
-      latency_routing: response?.meta?.latency_routing || null,
-      max_tokens: maxTokens
+      max_tokens: maxTokens,
+      action_fabric: response.action_fabric || null
     }
   };
 }
@@ -547,7 +578,8 @@ async function aiChatHandler(req, res) {
       supabase: getSupabaseClient(),
       message: lastUserText,
       context: enrichedContext,
-      assistantState: safeAssistantState
+      assistantState: safeAssistantState,
+      messages
     });
 
     if (orchestration?.handled && orchestration.response) {
@@ -609,7 +641,11 @@ async function aiChatHandler(req, res) {
       }
       aiResult = await generateNativeReply(messages, enrichedContext, {
         maxTokens: options?.max_tokens,
-        assistantState: assistantConversationState
+        assistantState: assistantConversationState,
+        req,
+        user: authenticatedUser,
+        supabase: getSupabaseClient(),
+        requestId: req.headers['x-request-id'] || null
       });
     } catch (err) {
       nativeError = err;
@@ -656,9 +692,9 @@ async function aiChatHandler(req, res) {
 
   sendAssistantResponse(res, 200, {
     reply,
-    source: aiResult ? 'bonds-native' : 'data-driven-fallback',
-    provider: aiResult?.provider || 'BondsV3DataEngine',
-    model: aiResult?.model || null,
+    source: aiResult ? 'bonds-assistant-ai' : 'data-driven-fallback',
+    provider: aiResult?.provider || 'BONDS',
+    model: null,
     inference: aiResult?.inference || null,
     fallback_reason: nativeError ? (nativeError.code || nativeError.message) : null,
     debug: debugInfo,
