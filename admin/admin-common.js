@@ -158,11 +158,13 @@
     debounce
   };
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        ensureAdminI18n().then(i18n => i18n?.setLocale?.(i18n.locale)).catch(() => {});
+      }, { once: true });
+    } else {
       ensureAdminI18n().then(i18n => i18n?.setLocale?.(i18n.locale)).catch(() => {});
-    }, { once: true });
-  } else {
-    ensureAdminI18n().then(i18n => i18n?.setLocale?.(i18n.locale)).catch(() => {});
+    }
   }
 })(window);
