@@ -574,6 +574,7 @@ async function main() {
   await waitForMatchingProduction();
   await assertHealth();
   const token = await getAuthenticatedToken();
+  await assertFinancialDataIntake(token);
   await assertNativeProductionRuntime(token);
   // Run the bounded synthetic journeys before the broader Assistant smoke so they
   // are not starved by the shared Assistant compute rate-limit window.
@@ -583,7 +584,6 @@ async function main() {
     expectedSha: cfg.expectedSha
   });
   await assertAssistantProduction({ baseUrl: cfg.baseUrl, token, expectedSha: cfg.expectedSha });
-  await assertFinancialDataIntake(token);
   await assertProductionAssets();
   await assertAdminRuntime(token);
   await assertFundingCasesRuntime(token);
