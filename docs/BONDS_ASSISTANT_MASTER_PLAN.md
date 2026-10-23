@@ -659,3 +659,19 @@ parent/child relationships بين التوكنات.
 4. تسجيل PR/SHA.
 5. تحديث أي قرار معماري تغير.
 6. عدم حذف الاقتراحات القديمة؛ إن ألغيت توسم `rejected` مع السبب.
+
+---
+## 2026-10-23 — Chat Orchestrator + Case Engine checkpoint
+
+تمت إضافة طبقة تشغيل محادثية فوق البنية القائمة دون إنشاء مسار موازٍ:
+
+- `lib/assistant/chat-orchestrator.js` لحسم Page/Session authority، تصنيف النية، اختيار الخدمة، واستدعاء Service Execution Layer عند وجود execution profile مسجل.
+- `lib/assistant/case-engine.js` لحالات `discovery -> data_collection -> validation -> analysis -> review -> execution -> completed` مع Next Best Action مبني على المتطلبات المسجلة.
+- الصفحة الرئيسية حالة رسمية `homepage/no_service_selected`.
+- Page context لخدمة مسجلة يتغلب على session service context القديم.
+- Human escalation يستخدم Agent Inbox القائم.
+- الحساب/التحليل التشغيلي يمر عبر القدرة/المحرك المسجل؛ AI لا يصبح مصدر الحساب.
+- الردود التشغيلية تحمل provenance وstructured UI envelope، والواجهة تعرض Markdown محدوداً عبر DOM آمن دون `innerHTML` لرسائل المساعد.
+- التخزين الدائم يعيد استخدام `assistant_workflow_state` وRPCs القائمة، ولا ينشئ authorization plane أو token architecture جديداً.
+
+الحالة في هذه النقطة: implementation candidate على فرع؛ لا تعتبر MERGED أو CI/PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الدمج.
