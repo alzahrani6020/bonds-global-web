@@ -3,7 +3,8 @@
 const {
   normalizeParallelRequests,
   preflightParallelServices,
-  executeParallelServices
+  executeParallelServices,
+  parallelRequestContext
 } = require('../../lib/services/parallel-tool-execution');
 
 describe('Assistant parallel tool execution', () => {
@@ -11,6 +12,29 @@ describe('Assistant parallel tool execution', () => {
     expect(() => normalizeParallelRequests([
       { service_code:'financial_analysis', body:{} }
     ])).toThrow('PARALLEL_TASK_NOT_DECLARED_INDEPENDENT');
+  });
+
+  test('bounds one parallel batch without limiting model token or context settings', () => {
+    const requests = Array.from({ length: 9 }, (_, index) => ({
+      id:`task-${index}`,
+      service_code:'service-a',
+      independent:true,
+      body:{}
+    }));
+    expect(() => normalizeParallelRequests(requests))
+      .toThrow('PARALLEL_REQUEST_LIMIT_EXCEEDED');
+  });
+
+  test('does not reuse a caller service token across concurrent tasks', () => {
+    const child = parallelRequestContext({
+      headers:{
+        'x-bonds-service-token':'single-use-token',
+        'x-request-id':'parent'
+      }
+    }, 'task-a');
+
+    expect(child.headers['x-bonds-service-token']).toBeUndefined();
+    expect(child.headers['x-request-id']).toBe('parent:task-a');
   });
 
   test('preflights the complete plan before any execution and rejects unsafe side effects', async () => {
