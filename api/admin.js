@@ -3627,6 +3627,83 @@ async function createAiPromptVersion(sb, body, admin, req) {
   return{success:true,promptVersion:data};
 }
 
+
+
+function replayOutcomeFromEvents(events=[]){
+  const names=events.map(x=>x.event_type);
+  if(names.includes('execution_succeeded')||names.includes('write_succeeded'))return 'succeeded';
+  if(names.includes('execution_failed')||names.includes('failed'))return 'failed';
+  if(names.includes('execution_denied')||names.includes('denied'))return 'denied';
+  if(names.includes('write_uncertain'))return 'uncertain';
+  if(names.includes('replayed')||names.includes('event_replayed'))return 'replayed';
+  return events.length?'incomplete':'not_found';
+}
+
+async function getAssistantOperationalReplay(sb,params={}){
+  const actionId=cleanAssistantAuditFilter(params.action_id,200);
+  const resourceId=cleanAssistantAuditFilter(params.resource_id,200);
+  if(!actionId&&!resourceId)throw badRequest('action_id or resource_id required');
+
+  let query=sb.from('assistant_action_audit')
+    .select('id,created_at,user_id,boundary,action_id,action_type,target,event_type,outcome,risk,requires_confirmation,resource_id')
+    .order('created_at',{ascending:true})
+    .limit(200);
+
+  if(actionId)query=query.eq('action_id',actionId);
+  if(resourceId)query=query.eq('resource_id',resourceId);
+
+  const {data,error}=await query;
+  if(error)throw error;
+  const rows=data||[];
+  if(!rows.length)return{success:true,replay:{status:'not_found',timeline:[],event_count:0,execution_performed:false}};
+
+  const subjectRefs=[...new Set(rows.map(x=>assistantAuditSubjectRef(x.user_id)).filter(Boolean))];
+  const boundaries=[...new Set(rows.map(x=>x.boundary).filter(Boolean))];
+  const actionTypes=[...new Set(rows.map(x=>x.action_type).filter(Boolean))];
+  const targets=[...new Set(rows.map(x=>x.target).filter(Boolean))];
+
+  const timeline=rows.map((row,index)=>({
+    sequence:index+1,
+    id:row.id,
+    created_at:row.created_at,
+    event_type:row.event_type,
+    outcome:row.outcome,
+    risk:row.risk,
+    requires_confirmation:Boolean(row.requires_confirmation),
+    action_id:row.action_id,
+    resource_id:row.resource_id
+  }));
+
+  const terminal=replayOutcomeFromEvents(rows);
+  const anomalies=[];
+  if(subjectRefs.length>1)anomalies.push('multiple_subjects');
+  if(boundaries.length>1)anomalies.push('multiple_boundaries');
+  if(actionTypes.length>1)anomalies.push('multiple_action_types');
+  if(rows.length>=200)anomalies.push('timeline_truncated');
+
+  return{
+    success:true,
+    replay:{
+      status:terminal,
+      event_count:timeline.length,
+      started_at:rows[0]?.created_at||null,
+      ended_at:rows[rows.length-1]?.created_at||null,
+      subject_ref:subjectRefs[0]||null,
+      boundary:boundaries[0]||null,
+      action_type:actionTypes[0]||null,
+      target:targets[0]||null,
+      action_id:actionId||rows[0]?.action_id||null,
+      resource_id:resourceId||rows[0]?.resource_id||null,
+      timeline,
+      anomalies,
+      execution_performed:false,
+      writes_performed:false,
+      authorization_simulated:false,
+      note:'Operational replay reconstructs immutable audit evidence only; it never re-executes capabilities.'
+    }
+  };
+}
+
 // ── Data Governance / Document Center ──────────────────────
 function maskEmail(value){const s=String(value||'');const [a,b]=s.split('@');if(!b)return s?'***':'';return (a?String(a[0]||'')+'***':'***')+'@'+b;}
 function maskPhone(value){const s=String(value||'').replace(/\s+/g,'');if(s.length<=4)return s?'****':'';return '*'.repeat(Math.max(4,s.length-4))+s.slice(-4);}
@@ -4145,7 +4222,7 @@ async function handler(req, res) {
       'ai-operations', 'platform-overview', 'automation-overview',
       'permission-simulator', 'security-operations-overview', 'finance-overview',
       'support-overview', 'support-ticket-detail', 'crm-overview', 'analytics',
-      'ai-reviews', 'audit-log', 'assistant-audit-search', 'operations-overview', 'system-health',
+      'ai-reviews', 'audit-log', 'assistant-audit-search', 'assistant-operational-replay', 'operations-overview', 'system-health',
       'security-status', 'funding-cases-list', 'funding-cases-detail',
       'funding-cases-assignees', 'funding-cases-kpis',
       'funding-cases-client-list', 'funding-cases-client-detail'
@@ -4504,6 +4581,10 @@ async function handler(req, res) {
       if (action === 'assistant-audit-search') {
         await requireAdminPermission(req, sb, 'ai.operations.read');
         return res.status(200).json(await searchAssistantAudit(sb, req.query || {}));
+      }
+      if (action === 'assistant-operational-replay') {
+        await requireAdminPermission(req, sb, 'ai.operations.read');
+        return res.status(200).json(await getAssistantOperationalReplay(sb, req.query || {}));
       }
       if (action === 'platform-overview') {
         const access = await requireAdminPermission(req, sb, 'observability.read');
