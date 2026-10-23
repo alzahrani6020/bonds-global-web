@@ -164,7 +164,7 @@
       window.BondsAIChat.mount({
         mode: 'city',
         global: true,
-        pagePath: window.location.pathname,
+        pagePath: window.location.pathname + window.location.hash,
         pageTitle: document.title || null
       });
       const whatsapp = document.getElementById('bonds-chat-launcher');
