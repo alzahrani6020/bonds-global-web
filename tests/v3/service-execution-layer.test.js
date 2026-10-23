@@ -1,3 +1,4 @@
+const { capabilityServiceCode } = require('../../lib/services/service-execution-router');
 const fs = require('fs');
 const path = require('path');
 
@@ -13,11 +14,22 @@ describe('Unified service execution layer', () => {
     expect(api).toContain("/services\\/([^/]+)\\/execution");
   });
 
+  test('capability service resolution follows the central capability registry', () => {
+    expect(capabilityServiceCode('orchestrator_run')).toBe('orchestrator');
+    expect(capabilityServiceCode('calculator_open')).toBe('assistant');
+    expect(capabilityServiceCode('calculator_run')).toBe('assistant');
+    expect(capabilityServiceCode('risk_analysis_run')).toBe('financial-engine');
+    expect(capabilityServiceCode('scenario_forecast_run')).toBe('financial-engine');
+    expect(capabilityServiceCode('unknown_capability')).toBeNull();
+  });
+
   test('router resolves service profile before execution', () => {
     const router = read('lib/services/service-execution-router.js');
     expect(router).toContain("from('service_execution_profiles')");
     expect(router).toContain("from('service_capability_map')");
     expect(router).toContain("SERVICE_EXECUTION_NOT_AUTOMATED");
+    expect(router).toContain('getCapability');
+    expect(router).toContain('capability?.serviceCode');
     expect(router).toContain("orchestrator_run");
     expect(router).toContain("calculator_open");
     expect(router).toContain("calculator_run");
