@@ -59,6 +59,28 @@ table{width:100%;border-collapse:collapse}th,td{padding:.55rem;border-bottom:1px
   </article>
 
   <article class="card s12">
+    <div style="display:flex;justify-content:space-between;gap:.75rem;align-items:center;flex-wrap:wrap">
+      <div>
+        <h2 style="margin-bottom:.25rem">التعلم والتطور — مراجعة فقط</h2>
+        <div class="muted">يعرض المقترحات المستخلصة من إشارات التشغيل. لا يمنح هذا القسم موافقة أو صلاحية تنفيذ.</div>
+      </div>
+      <button id="analyzeEvolutionBtn" class="btn btn2" type="button">تحليل المقترحات</button>
+    </div>
+    <div class="notice" style="margin-top:.8rem">
+      Analysis only · execution_authorized=false · auto_execute=false · no code mutation
+    </div>
+    <div id="evolutionStatus" class="muted" style="margin-top:.8rem">جارٍ التحميل…</div>
+    <div style="overflow:auto;margin-top:.5rem">
+      <table>
+        <thead><tr>
+          <th>الإشارة</th><th>المشكلة</th><th>المسار المقترح</th><th>المخاطر</th><th>الأدلة</th><th>التكرار</th>
+        </tr></thead>
+        <tbody id="evolutionRows"><tr><td colspan="6">—</td></tr></tbody>
+      </table>
+    </div>
+  </article>
+
+  <article class="card s12">
     <h2>تغيير وضع المساعد</h2>
     <label for="targetMode">الوضع المطلوب</label>
     <select id="targetMode">
@@ -88,6 +110,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:.55rem;border-bottom:1px
 'use strict';
 const Control=window.BondsAssistantControlCenter;
 let rows=[];
+let evolutionProposals=[];
 
 const esc=v=>BondsAdminCommon.escapeHtml(v==null?'':String(v));
 const fmt=v=>v?new Date(v).toLocaleString('ar-SA'):'—';
@@ -123,12 +146,69 @@ function render(){
   document.getElementById('reason').textContent=state.reason||'—';
 }
 
+function renderEvolution(){
+  const tbody=document.getElementById('evolutionRows');
+  const status=document.getElementById('evolutionStatus');
+  if(!evolutionProposals.length){
+    tbody.innerHTML='<tr><td colspan="6">لا توجد مقترحات بحالة proposed حاليًا.</td></tr>';
+    status.textContent='0 مقترح للمراجعة';
+    return;
+  }
+  tbody.innerHTML=evolutionProposals.map(item=>{
+    const analysis=item.learning_analysis||{};
+    const diagnosis=analysis.diagnosis||{};
+    const risk=analysis.risk||{};
+    const evidence=analysis.evidence||{};
+    return '<tr>'+
+      '<td><b>'+esc(item.event_type||'—')+'</b><br><span class="muted">'+esc(item.signal?.error_code||item.signal?.service_code||'')+'</span></td>'+
+      '<td>'+esc(diagnosis.problem_class||'غير محلل')+'</td>'+
+      '<td>'+esc(diagnosis.recommended_path||'—')+'</td>'+
+      '<td>'+esc(risk.risk_class||item.severity||'—')+(risk.requires_human_approval?' · يحتاج موافقة':'')+'</td>'+
+      '<td>'+esc(evidence.evidence_count??0)+'</td>'+
+      '<td>'+esc(item.occurrence_count||0)+' / '+esc(item.threshold||0)+'</td>'+
+    '</tr>';
+  }).join('');
+  status.textContent=evolutionProposals.length+' مقترح للمراجعة';
+}
+
+async function loadEvolution(){
+  const status=document.getElementById('evolutionStatus');
+  status.textContent='جارٍ تحميل مقترحات التطور…';
+  try{
+    const data=await api('/api/v3/admin/evolution-proposals?status=proposed&limit=50');
+    evolutionProposals=data.evolution_proposals?.items||[];
+    renderEvolution();
+  }catch(err){
+    evolutionProposals=[];
+    document.getElementById('evolutionRows').innerHTML='<tr><td colspan="6">تعذر تحميل المقترحات.</td></tr>';
+    status.textContent='فشل تحميل مراجعة التطور: '+err.message;
+  }
+}
+
+async function analyzeEvolution(){
+  const btn=document.getElementById('analyzeEvolutionBtn');
+  btn.disabled=true;
+  try{
+    await api('/api/v3/admin/evolution-proposals',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({limit:50})
+    });
+    await loadEvolution();
+  }catch(err){
+    document.getElementById('evolutionStatus').textContent='فشل تحليل المقترحات: '+err.message;
+  }finally{
+    btn.disabled=false;
+  }
+}
+
 async function load(){
   show('');
   try{
     const data=await api('/api/admin?action=ai-operations');
     rows=activeRows(data.killSwitches);
     render();
+    await loadEvolution();
   }catch(err){
     show('فشل تحميل حالة المساعد: '+err.message);
   }
@@ -195,6 +275,7 @@ async function apply(){
 document.getElementById('targetMode').addEventListener('change',updatePhrase);
 document.getElementById('refreshBtn').addEventListener('click',load);
 document.getElementById('applyBtn').addEventListener('click',apply);
+document.getElementById('analyzeEvolutionBtn').addEventListener('click',analyzeEvolution);
 updatePhrase();
 if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
 })();
