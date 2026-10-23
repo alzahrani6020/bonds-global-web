@@ -289,7 +289,11 @@ async function assertNativeProductionRuntime(token) {
         `${probe.label} chat did not prove Bonds Native execution: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}, debug=${JSON.stringify(chat.body?.debug || null)}`
       );
     }
-    if (orchestratedNativeEnvelope && chat.body?.model !== null) {
+    if (
+      orchestratedNativeEnvelope &&
+      chat.body?.model !== null &&
+      chat.body?.model !== undefined
+    ) {
       throw new Error(`${probe.label} governed assistant exposed underlying model identity`);
     }
     const observedModelSha = String(chat.body?.inference?.model_sha256 || '').toLowerCase();
