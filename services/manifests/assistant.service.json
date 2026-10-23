@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "assistant",
-  "version": 4,
+  "version": 5,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -208,6 +208,19 @@
       ],
       "runtime": {
         "adapter": "assistant_document_analyze"
+      }
+    },
+    {
+      "action": "file_security_scan",
+      "action_type": "engine",
+      "id": "BONDS-CAP-ASST-014",
+      "purpose": "Fail-closed malware and structural security scan for an owned quarantined document before parsing, OCR, Vision, download, or assistant use.",
+      "side_effect": "database_write",
+      "required": [
+        "document_id"
+      ],
+      "runtime": {
+        "adapter": "assistant_file_security_scan"
       }
     }
   ]
