@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase2-learning-foundation",
-  "current_workstream": "p2.5-admin-evolution-review",
+  "current_workstream": "p2.6-control-center-evolution-review-ui",
   "status": "in_progress",
-  "baseline_main_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
+  "baseline_main_sha": "4dc1ad44f4d55a9019e4c8f7443ae0029f7c4bb7",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -32,16 +32,19 @@
     "p2.1-gap-defect-detection",
     "p2.2-evidence-aggregation",
     "p2.3-learning-proposal-analysis",
-    "p2.4-proposal-risk-classification"
-  ],
-  "currently_working_on": [
+    "p2.4-proposal-risk-classification",
     "p2.5-admin-review-projection",
     "p2.5-admin-analysis-endpoint"
   ],
-  "next_action": "validate admin-only evolution review flow in CI; after merge add review UI/inbox integration and decide Phase 2 closeout criteria",
+  "currently_working_on": [
+    "p2.6-control-center-proposal-list",
+    "p2.6-control-center-analysis-trigger"
+  ],
+  "next_action": "validate Control Center evolution review UI in CI; after merge integrate proposed high/critical evolution items with Agent Inbox and evaluate Phase 2 closeout",
   "blocked": [],
   "verification": {
-    "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247"
+    "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
+    "phase2_admin_review_merge_sha": "4dc1ad44f4d55a9019e4c8f7443ae0029f7c4bb7"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -62,5 +65,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p2.5-candidate"
+  "updated_by": "p2.6-candidate"
 }
