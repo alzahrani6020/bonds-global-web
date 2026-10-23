@@ -56,7 +56,7 @@ describe('Sensitive action verifier', () => {
     const verification=verifySensitiveAction({
       action:{
         ...action,
-        input:{ command:'rm -rf /' }
+        input:{ script:'rm -rf /' }
       }
     });
 
