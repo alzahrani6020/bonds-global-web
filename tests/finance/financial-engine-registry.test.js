@@ -108,6 +108,98 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(debtToEquity.required_inputs).toContain('non_zero_equity');
   });
 
+
+  test('computes batch 5 exact financial metrics with scoped inputs', () => {
+    const cases = [
+      {
+        serviceCode: 'ebitda_analysis',
+        input: { ebitda: 300 },
+        metric: 'ebitda',
+        expected: 300
+      },
+      {
+        serviceCode: 'operating_margin_analysis',
+        input: { revenue: 1000, operating_income: 220 },
+        metric: 'operating_margin_pct',
+        expected: 22
+      },
+      {
+        serviceCode: 'inventory_turnover_analysis',
+        input: { cogs: 400, inventory: 100 },
+        metric: 'inventory_turnover',
+        expected: 4
+      },
+      {
+        serviceCode: 'receivables_turnover_analysis',
+        input: { revenue: 1000, receivables: 200 },
+        metric: 'receivables_turnover',
+        expected: 5
+      },
+      {
+        serviceCode: 'cost_of_debt_analysis',
+        input: { total_debt: 500, interest_expense: 50 },
+        metric: 'cost_of_debt_pct',
+        expected: 10
+      },
+      {
+        serviceCode: 'revenue_growth_analysis',
+        input: { revenue: 1200, prior_revenue: 1000 },
+        metric: 'revenue_growth_pct',
+        expected: 20
+      },
+      {
+        serviceCode: 'earnings_growth_analysis',
+        input: { net_income: 180, prior_net_income: 150 },
+        metric: 'earnings_growth_pct',
+        expected: 20
+      },
+      {
+        serviceCode: 'wacc_analysis',
+        input: {
+          total_debt: 400,
+          equity: 600,
+          cost_of_equity_pct: 12,
+          cost_of_debt_pct: 6,
+          tax_rate_pct: 20
+        },
+        metric: 'wacc_pct',
+        expected: 9.12
+      }
+    ];
+
+    for (const item of cases) {
+      const result = runFinancialEngine(
+        'financial_analysis',
+        item.input,
+        { serviceCode: item.serviceCode }
+      );
+      expect(result.ok).toBe(true);
+      expect(result.executed).toBe(true);
+      expect(result.metrics[item.metric]).toBeCloseTo(item.expected, 8);
+      expect(result.diagnostics.service_scope).toBe(item.serviceCode);
+    }
+  });
+
+  test('batch 5 metrics fail closed on missing or invalid critical inputs', () => {
+    const growth = runFinancialEngine('financial_analysis', {
+      prior_revenue: 1000
+    }, { serviceCode: 'revenue_growth_analysis' });
+    expect(growth.ok).toBe(false);
+    expect(growth.metrics.revenue_growth_pct).toBeNull();
+    expect(growth.required_inputs).toContain('revenue');
+
+    const wacc = runFinancialEngine('financial_analysis', {
+      total_debt: 400,
+      equity: 600,
+      cost_of_equity_pct: 12,
+      cost_of_debt_pct: 6,
+      tax_rate_pct: 120
+    }, { serviceCode: 'wacc_analysis' });
+    expect(wacc.ok).toBe(false);
+    expect(wacc.metrics.wacc_pct).toBeNull();
+    expect(wacc.required_inputs).toContain('tax_rate_pct_0_to_100');
+  });
+
   test('computes cash-flow trajectory and liquidity stress', () => {
     const result = runFinancialEngine('cash_flow_analysis', {
       opening_balance: 100,
