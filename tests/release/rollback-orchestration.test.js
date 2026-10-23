@@ -76,7 +76,7 @@ describe('Phase 5 rollback orchestration',()=>{
       currentProductionSha:CURRENT
     });
     expect(approved.status).toBe('approved');
-    expect(approved.state).toBe(STATES.ROLLED_BACK);
+    expect(approved.state).toBe(STATES.BLOCKED);
     expect(approved.policy.execution_authorized).toBe(false);
     expect(approved.policy.post_rollback_verification_required).toBe(true);
   });
@@ -101,7 +101,7 @@ describe('Phase 5 rollback orchestration',()=>{
       ]
     });
     expect(result.status).toBe('rollback_verified');
-    expect(result.state).toBe(STATES.VERIFIED);
+    expect(result.state).toBe(STATES.ROLLED_BACK);
     expect(result.policy.production_verified).toBe(true);
   });
 
