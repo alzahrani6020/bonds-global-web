@@ -1,0 +1,75 @@
+{
+  "schema": "bonds.independent-runtime-import/v1",
+  "status": "STAGED_NOT_ACTIVE",
+  "source": {
+    "repository": "alzahrani6020/AFAQ-GIE",
+    "commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+    "mode": "COPY_ONLY_READ_SOURCE"
+  },
+  "independence": {
+    "runtime_dependency_on_afaq": false,
+    "submodule": false,
+    "symlink": false,
+    "source_repository_mutation": false,
+    "shared_runtime": false,
+    "shared_state": false,
+    "shared_credentials": false,
+    "governance": "BONDS_OWNED_FAIL_CLOSED_STAGING_ADAPTER"
+  },
+  "imported_capability_families": [
+    "web_fetch",
+    "web_crawl",
+    "web_explore",
+    "browser_execute",
+    "content_extraction",
+    "api_surface_discovery",
+    "remote_verification",
+    "continuous_source_observation",
+    "research_verification",
+    "research_synthesis",
+    "project_understanding",
+    "mission_modeling",
+    "causal_reasoning",
+    "scenario_forecast_uncertainty",
+    "research_portfolio",
+    "opportunity_goal_formation"
+  ],
+  "reuse_existing_bonds": [
+    "Capability Registry",
+    "Governed Action Fabric",
+    "authorization/audit",
+    "Service Token",
+    "AI inference router",
+    "financial engines/calculators",
+    "service execution router"
+  ],
+  "intentionally_not_imported": [
+    "AFAQ current_authority",
+    "mutation journal/runtime mutation",
+    "developer agent/tools",
+    "self-healing governance",
+    "capability self-training",
+    "automatic promotion/activation",
+    "AFAQ API key store",
+    "AFAQ workspace mutation stack"
+  ],
+  "reference_only_not_runtime_proven": [
+    "social publishing",
+    "email/communications",
+    "marketing/advertising",
+    "notifications",
+    "generic API/ETL gateway",
+    "multi-agent society"
+  ],
+  "external_runtime_dependencies": [
+    {
+      "name": "defusedxml",
+      "use": "safe XML parsing for content extraction"
+    },
+    {
+      "name": "Playwright",
+      "use": "real browser execution when browser capability is enabled",
+      "optional_until_activation": true
+    }
+  ]
+}
