@@ -42,6 +42,7 @@ describe('BONDS Assistant context state', () => {
       'open_tasks',
       'required_data',
       'confirmed_facts',
+      'conversation_tail',
       'pending_confirmation',
       'last_action'
     ]) {
@@ -49,6 +50,8 @@ describe('BONDS Assistant context state', () => {
     }
     expect(source).toContain('.slice(0, 50)');
     expect(source).toContain('Object.entries(value).slice(0, 100)');
+    expect(source).toContain('function sanitizeConversationTail(value)');
+    expect(source).toContain('.slice(-12)');
   });
 
   test('passes only sanitized assistant state into chat payloads', () => {
@@ -57,6 +60,12 @@ describe('BONDS Assistant context state', () => {
     expect(source).toContain(': null;');
     expect(source).toContain('assistantState: structuredState');
     expect(source).not.toContain('assistantState: assistantContextState');
+  });
+
+  test('reconciles durable server case state without accepting its boundary as executable context', () => {
+    expect(source).toContain('function reconcileServerCaseState(caseState)');
+    expect(source).toContain('conversation_tail: sanitizeConversationTail(caseState.conversation_tail)');
+    expect(source).not.toContain('boundary: caseState.boundary');
   });
 
   test('does not silently promote AI envelope context into confirmed facts', () => {
