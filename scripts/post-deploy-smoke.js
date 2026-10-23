@@ -5,6 +5,7 @@ const vm = require('vm');
 const { createClient } = require('@supabase/supabase-js');
 const canonicalModel = require('../services/bonds_native_inference/canonical-model.json');
 const { assertAssistantProduction } = require('./assistant-production-smoke');
+const { runSyntheticProductionJourneys } = require('../lib/assistant/synthetic-production-journeys');
 
 const cfg = {
   baseUrl: (process.env.PRODUCTION_URL || 'https://bonds-global.com').replace(/\/$/, ''),
@@ -477,6 +478,11 @@ async function main() {
   const token = await getAuthenticatedToken();
   await assertNativeProductionRuntime(token);
   await assertAssistantProduction({ baseUrl: cfg.baseUrl, token, expectedSha: cfg.expectedSha });
+  await runSyntheticProductionJourneys({
+    baseUrl: cfg.baseUrl,
+    token,
+    expectedSha: cfg.expectedSha
+  });
   await assertProductionAssets();
   await assertAdminRuntime(token);
   await assertFundingCasesRuntime(token);
