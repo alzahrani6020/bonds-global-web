@@ -735,4 +735,4 @@ parent/child relationships بين التوكنات.
 - نقطة API الجديدة `POST /assistant/services/execute-parallel` تحت Emergency/Read-only control plane القائم.
 - لا يوجد تغيير provider/model/token/context/throughput/compute authorization، ولا توجد database migration لهذه المرحلة.
 
-الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/assistant-parallel-tool-execution`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
+الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/assistant-parallel-tool-execution-main`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
