@@ -3447,18 +3447,36 @@ async function recordConfigSnapshot(sb, body, admin, req) {
 // ── Executive Analytics / AI Operations ────────────────────
 async function getExecutiveAnalyticsV2(sb) {
   const since90=new Date(Date.now()-90*86400000).toISOString();
-  const [profilesRes,subsRes,invoicesRes,presenceRes,oppsRes,renewalsRes,successRes,aiRes]=await Promise.all([
-    sb.from('profiles').select('id,tier,status,created_at,profile_completeness').order('created_at',{ascending:false}).limit(5000),
-    sb.from('subscriptions').select('*').order('created_at',{ascending:false}).limit(5000),
-    sb.from('moyasar_invoices').select('user_id,amount,currency,status,paid_at,created_at').order('created_at',{ascending:false}).limit(5000),
-    sb.from('user_presence').select('user_id,last_seen_at').gte('last_seen_at',since90).order('last_seen_at',{ascending:false}).limit(10000),
-    sb.from('crm_opportunities').select('stage,value_amount,probability,expected_close_date,created_at').limit(5000),
-    sb.from('crm_renewals').select('renewal_date,value_amount,status,risk_level').limit(5000),
-    sb.from('crm_customer_success').select('health_score,risk_level,lifecycle_stage').limit(5000),
-    sb.from('admin_ai_operation_events').select('*').gte('created_at',since90).order('created_at',{ascending:false}).limit(10000)
-  ]);
-  for(const r of [profilesRes,subsRes,invoicesRes,presenceRes,oppsRes,renewalsRes,successRes,aiRes])if(r.error)throw r.error;
-  const profiles=profilesRes.data||[],subs=subsRes.data||[],invoices=invoicesRes.data||[],presence=presenceRes.data||[],opps=oppsRes.data||[],renewals=renewalsRes.data||[],success=successRes.data||[],ai=aiRes.data||[];
+  const sourceQueries=[
+    ['profiles',sb.from('profiles').select('id,tier,status,created_at,profile_completeness').order('created_at',{ascending:false}).limit(5000)],
+    ['subscriptions',sb.from('subscriptions').select('*').order('created_at',{ascending:false}).limit(5000)],
+    ['invoices',sb.from('moyasar_invoices').select('user_id,amount,currency,status,paid_at,created_at').order('created_at',{ascending:false}).limit(5000)],
+    ['presence',sb.from('user_presence').select('user_id,last_seen_at').gte('last_seen_at',since90).order('last_seen_at',{ascending:false}).limit(10000)],
+    ['opportunities',sb.from('crm_opportunities').select('stage,value_amount,probability,expected_close_date,created_at').limit(5000)],
+    ['renewals',sb.from('crm_renewals').select('renewal_date,value_amount,status,risk_level').limit(5000)],
+    ['customerSuccess',sb.from('crm_customer_success').select('health_score,risk_level,lifecycle_stage').limit(5000)],
+    ['aiTelemetry',sb.from('admin_ai_operation_events').select('*').gte('created_at',since90).order('created_at',{ascending:false}).limit(10000)]
+  ];
+  const settled=await Promise.allSettled(sourceQueries.map(([,query])=>query));
+  const sourceStatus={};
+  const sourceData={};
+  settled.forEach((result,index)=>{
+    const name=sourceQueries[index][0];
+    if(result.status==='rejected'){
+      sourceStatus[name]={status:'unavailable',error:String(result.reason?.message||result.reason||'Query failed').slice(0,180)};
+      sourceData[name]=[];
+      return;
+    }
+    const payload=result.value||{};
+    if(payload.error){
+      sourceStatus[name]={status:'unavailable',error:String(payload.error.message||payload.error).slice(0,180)};
+      sourceData[name]=[];
+      return;
+    }
+    sourceStatus[name]={status:'ok',rows:Array.isArray(payload.data)?payload.data.length:0};
+    sourceData[name]=payload.data||[];
+  });
+  const profiles=sourceData.profiles,subs=sourceData.subscriptions,invoices=sourceData.invoices,presence=sourceData.presence,opps=sourceData.opportunities,renewals=sourceData.renewals,success=sourceData.customerSuccess,ai=sourceData.aiTelemetry;
   const prices=await getTierPrices(sb);
   const paidInvoices=invoices.filter(i=>i.status==='paid');
   const paidUsers=new Set(paidInvoices.map(i=>i.user_id).filter(Boolean));
@@ -3514,6 +3532,8 @@ async function getExecutiveAnalyticsV2(sb) {
     funnel:{registered:total,activated,paid:paidUsers.size,active30d:activeUsers},
     cohorts,
     ai:{requests:ai.length,costUsd:Math.round(aiCost*1000000)/1000000,failureRatePct:ai.length?Math.round(aiFailures/ai.length*1000)/10:0,p50LatencyMs:aiLatency.length?aiLatency[Math.floor(aiLatency.length*.5)]:null,p95LatencyMs:aiLatency.length?aiLatency[Math.min(aiLatency.length-1,Math.floor(aiLatency.length*.95))]:null,inputTokens:ai.reduce((s,x)=>s+Number(x.input_tokens||0),0),outputTokens:ai.reduce((s,x)=>s+Number(x.output_tokens||0),0),byModel,byFeature,costByFeature,costByModel,costByUser},
+    sources:sourceStatus,
+    status:Object.values(sourceStatus).some(x=>x.status!=='ok')?'degraded':'healthy',
     generatedAt:new Date().toISOString()
   };
 }

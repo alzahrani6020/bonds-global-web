@@ -18,7 +18,12 @@ describe('Executive analytics and AI operations',()=>{
   expect(api).toContain("requireAdminPermission(req, sb, 'ai.operations.manage')");
  });
  test('workspace labels missing AI telemetry as unknown rather than fabricating it',()=>{
-  const page=read('admin/executive-ai-analytics.html'),dash=read('admin/dashboard.html');
-  expect(page).toContain('UNKNOWN — لا توجد AI telemetry بعد');expect(page).toContain('BondsAdminCommon.escapeHtml');expect(page).toContain("typeof r.json!=='function'");expect(dash).toContain('/admin/executive-ai-analytics.html?embed=1');
+  const page=read('admin/executive-ai-analytics.html'),dash=read('admin/dashboard.html'),i18n=read('admin/admin-i18n.js');
+  expect(i18n).toContain('غير معروف — لا توجد بيانات تشغيل للذكاء الاصطناعي بعد');
+  expect(i18n).toContain('UNKNOWN — no AI telemetry yet');
+  expect(page).toContain("I.t('unknownNoTelemetry')");
+  expect(page).toContain('BondsAdminCommon.escapeHtml');
+  expect(page).toContain("typeof r.json!=='function'");
+  expect(dash).toContain('/admin/executive-ai-analytics.html?embed=1');
  });
 });
