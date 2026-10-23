@@ -44,6 +44,10 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(result.metrics.current_ratio).toBe(2);
     expect(result.metrics.quick_ratio).toBe(1.6);
     expect(result.metrics.interest_coverage).toBe(6);
+    expect(result.metrics.working_capital).toBe(250);
+    expect(result.metrics.asset_turnover).toBeCloseTo(1000 / 1200, 8);
+    expect(result.metrics.net_debt).toBe(250);
+    expect(result.metrics.net_debt_to_ebitda).toBeCloseTo(250 / 300, 8);
   });
 
   test('computes cash-flow trajectory and liquidity stress', () => {
