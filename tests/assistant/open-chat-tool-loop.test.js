@@ -45,6 +45,17 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain('freshness');
   });
 
+  test('fails closed instead of substituting model knowledge when required research fails', () => {
+    const { failureReply } = require('../../lib/assistant/open-chat-tool-loop');
+    const reply = failureReply(
+      [{ role: 'user', content: 'من هو محمد بن سلمان؟' }],
+      'web_search',
+      { ok: false, error: { code: 'SEARCH_NO_RESULTS' } }
+    );
+    expect(reply).toContain('لم أعتمد على معلومات غير موثقة');
+    expect(reply).toContain('SEARCH_NO_RESULTS');
+  });
+
   test('forces search results through fetched page exploration before final synthesis', () => {
     expect(source).toContain("last.action !== 'web_search'");
     expect(source).toContain("action: 'web_explore'");
