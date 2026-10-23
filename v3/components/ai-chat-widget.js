@@ -801,10 +801,16 @@
         version: ASSISTANT_STATE_VERSION,
         boundary,
         goal: null,
+        active_topic: null,
+        active_service: null,
+        active_entity: null,
         current_stage: null,
+        last_intent: null,
+        unresolved_question: null,
         open_tasks: [],
         required_data: [],
         confirmed_facts: {},
+        important_confirmed_facts: {},
         pending_confirmation: null,
         last_action: null,
         updated_at: null
@@ -843,10 +849,16 @@
         version: ASSISTANT_STATE_VERSION,
         boundary,
         goal: typeof value.goal === 'string' ? value.goal.slice(0, 500) : null,
+        active_topic: typeof value.active_topic === 'string' ? value.active_topic.slice(0, 500) : null,
+        active_service: typeof value.active_service === 'string' ? value.active_service.slice(0, 120) : null,
+        active_entity: typeof value.active_entity === 'string' ? value.active_entity.slice(0, 200) : null,
         current_stage: typeof value.current_stage === 'string' ? value.current_stage.slice(0, 200) : null,
+        last_intent: typeof value.last_intent === 'string' ? value.last_intent.slice(0, 120) : null,
+        unresolved_question: typeof value.unresolved_question === 'string' ? value.unresolved_question.slice(0, 500) : null,
         open_tasks: sanitizeStringArray(value.open_tasks),
         required_data: sanitizeStringArray(value.required_data),
         confirmed_facts: sanitizePlainObject(value.confirmed_facts),
+        important_confirmed_facts: sanitizePlainObject(value.important_confirmed_facts || value.confirmed_facts),
         pending_confirmation: value.pending_confirmation && typeof value.pending_confirmation === 'object'
           ? sanitizePlainObject(value.pending_confirmation)
           : null,
@@ -2072,11 +2084,11 @@
         ? {
             projectId: context.projectId,
             message: text,
-            history: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6),
+            history: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-10),
             assistantState: structuredState
           }
         : {
-            messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6),
+            messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-10),
             context,
             assistantState: structuredState,
             options: { stream: true }
@@ -2098,6 +2110,15 @@
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
         addAssistantMessage(data.reply, data.source === 'fallback');
+        if (assistantContextEnabled() && data.context && typeof data.context === 'object') {
+          const statePatch = {};
+          if (typeof data.context.lastIntent === 'string') statePatch.last_intent = data.context.lastIntent;
+          if (typeof data.context.activeTopic === 'string') statePatch.active_topic = data.context.activeTopic;
+          if (typeof data.context.serviceCode === 'string') statePatch.active_service = data.context.serviceCode;
+          if (typeof data.context.activeEntity === 'string') statePatch.active_entity = data.context.activeEntity;
+          if (typeof data.context.unresolvedQuestion === 'string') statePatch.unresolved_question = data.context.unresolvedQuestion;
+          if (Object.keys(statePatch).length) patchAssistantContextState(statePatch);
+        }
         if (Array.isArray(data.actions) || Array.isArray(data.ui)) {
           renderStructuredEnvelope(data);
         }
