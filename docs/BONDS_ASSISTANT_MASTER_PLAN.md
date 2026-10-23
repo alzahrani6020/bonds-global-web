@@ -831,5 +831,18 @@ parent/child relationships بين التوكنات.
 - التقييم لا يستدعي provider/model، ولا ينفذ tools أو business writes، ولا يمنح execution authority؛ `execution_authorized:false` و`writes_performed:false` جزء من عقد النتيجة.
 - تمت إضافة regression tests للفشل عند planner drift، corpus authority drift، وcontext-code drift.
 - لا تغيير provider/model/token/context/throughput/compute أو authorization، ولا database migration.
-- الحالة الحالية: **IMPLEMENTATION CANDIDATE**؛ لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
-- العنصر التالي بعد التحقق الإنتاجي: **Red Team Scenarios** (`red_team_scenarios`).
+- الحالة النهائية: **MERGED / CI VERIFIED / PRODUCTION VERIFIED**.
+
+أدلة الإغلاق:
+- Implementation PR: #527.
+- Merge SHA: `8b45d942be4ecfcc15b6cbf3efc80a616e2489a8`.
+- Post-merge CI: run `39948593154` — SUCCESS.
+- Service Worker: run `39948593042` — SUCCESS.
+- Dependency Security: run `39948593093` — SUCCESS.
+- Production Release: run `39949138040` — SUCCESS.
+- Production Authenticated Smoke: run `39949336163` — SUCCESS.
+- Vercel Production: deployment `dpl_8opzr7t6w19h1v72xNAqU8x2ERX4` — READY لنفس Merge SHA.
+- `/api/health`: `ok` على version `8b45d94`.
+- `/api/readiness`: `ready` على version `8b45d94`.
+- Migration: N/A.
+- العنصر التالي: **Red Team Scenarios** (`red_team_scenarios`).
