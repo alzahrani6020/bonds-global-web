@@ -61,11 +61,11 @@
     "phase3-candidate-engineering-closeout"
   ],
   "currently_working_on": [
-    "p4.1-sha-bound-approved-target",
-    "p4.1-partial-approval-scope",
-    "p4.1-material-scope-change-invalidation"
+    "p4.1-approved-target-contract",
+    "p4.1-sha-bound-approval",
+    "p4.1-partial-scope-approval"
   ],
-  "next_action": "validate P4.1 SHA-bound APPROVED_TARGET contract and partial approvals in CI; after merge implement P4.2 deterministic dependency checks",
+  "next_action": "validate P4.1 APPROVED_TARGET contract in CI; after merge continue Phase 4 with dependency checks, integration resolver, and assistant/capability registry synchronization",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
