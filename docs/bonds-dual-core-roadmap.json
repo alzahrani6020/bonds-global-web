@@ -4,7 +4,7 @@
   "source_of_truth": "docs/BONDS_DUAL_CORE_MASTER_ARCHITECTURE.md",
   "bootstrap": "docs/PROJECT_BOOTSTRAP.md",
   "status": "in_progress",
-  "current_phase": "phase1-dual-core-foundation",
+  "current_phase": "phase2-learning-foundation",
   "phases": [
     {
       "id": "phase0",
@@ -31,7 +31,7 @@
     {
       "id": "phase1",
       "title": "Dual-Core Foundation",
-      "status": "in_progress",
+      "status": "completed",
       "items": [
         {
           "id": "p1.1",
@@ -81,14 +81,14 @@
         {
           "id": "p1.10",
           "title": "Workflow, document and intent outcome coverage",
-          "status": "implemented_candidate"
+          "status": "completed"
         }
       ]
     },
     {
       "id": "phase2",
       "title": "Learning Foundation",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "id": "phase3",
