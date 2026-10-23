@@ -155,17 +155,17 @@
         {
           "id": "p3.5",
           "title": "Patch Engine",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p3.6",
           "title": "Autonomous Repair Loop and stuck-loop detector",
-          "status": "planned"
+          "status": "completed"
         },
         {
           "id": "p3.7",
           "title": "Engineering Memory",
-          "status": "planned"
+          "status": "implemented_candidate"
         }
       ]
     },
