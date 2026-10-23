@@ -189,4 +189,21 @@ describe('financial data intake phase 1', () => {
     expect(validation.quality_gate).toBe('PASS');
   });
 
+  test('marks a valid reviewed service-scoped dataset as verified despite unused alternatives', () => {
+    const fields = [
+      { field:'total_debt', value:200000, status:'extracted', confidence:0.95, source:[] },
+      { field:'equity', value:100000, status:'extracted', confidence:0.95, source:[] },
+      { field:'total_assets', value:null, status:'missing', source:[] },
+      { field:'total_liabilities', value:null, status:'missing', source:[] }
+    ];
+    const validation = validateDataset({
+      primaryAction:'financial_analysis_run',
+      serviceCode:'debt_to_equity_analysis',
+      values:{total_debt:200000,equity:100000},
+      fields
+    });
+    expect(validation.valid).toBe(true);
+    expect(qualityStatus({validation,fields,reviewed:true})).toBe('verified');
+  });
+
 });
