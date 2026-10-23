@@ -4,7 +4,7 @@
   "source_of_truth": "docs/BONDS_DUAL_CORE_MASTER_ARCHITECTURE.md",
   "bootstrap": "docs/PROJECT_BOOTSTRAP.md",
   "status": "in_progress",
-  "current_phase": "phase5-ci-release",
+  "current_phase": "phase6-self-training",
   "phases": [
     {
       "id": "phase0",
@@ -199,7 +199,7 @@
     {
       "id": "phase5",
       "title": "CI / Release",
-      "status": "in_progress",
+      "status": "completed",
       "items": [
         {
           "id": "p5.1",
@@ -229,19 +229,19 @@
         {
           "id": "p5.6",
           "title": "Known-good releases",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p5.7",
           "title": "Rollback orchestration",
-          "status": "planned"
+          "status": "completed"
         }
       ]
     },
     {
       "id": "phase6",
       "title": "Self-Training",
-      "status": "planned"
+      "status": "in_progress"
     },
     {
       "id": "phase7",
