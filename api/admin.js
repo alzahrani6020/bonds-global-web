@@ -3766,6 +3766,50 @@ async function getAssistantCostGovernance(sb,params={}){
   };
 }
 
+
+
+async function getAssistantTaskBudget(sb,params={}){
+  const requestId=String(params.request_id||'').trim().slice(0,200);
+  if(!requestId)throw badRequest('request_id required');
+  const budgetUsd=Number(params.budget_usd);
+  if(!Number.isFinite(budgetUsd)||budgetUsd<0||budgetUsd>1000000)throw badRequest('valid budget_usd required');
+
+  const {data,error}=await sb.from('admin_ai_operation_events')
+    .select('created_at,feature,model,status,input_tokens,output_tokens,cost_usd,latency_ms,request_id')
+    .eq('request_id',requestId)
+    .order('created_at',{ascending:true})
+    .limit(1000);
+  if(error)throw error;
+  const events=data||[];
+  const priced=events.filter(e=>e.cost_usd!==null&&Number.isFinite(Number(e.cost_usd)));
+  const actual=events.reduce((s,e)=>s+Number(e.cost_usd||0),0);
+  const remaining=budgetUsd-actual;
+  const utilization=budgetUsd>0?actual/budgetUsd*100:(actual>0?Infinity:0);
+  return{
+    success:true,
+    task_budget:{
+      request_id:requestId,
+      budget_usd:roundCost(budgetUsd),
+      actual_cost_usd:roundCost(actual),
+      remaining_usd:roundCost(remaining),
+      utilization_pct:Number.isFinite(utilization)?Math.round(utilization*10)/10:null,
+      state:priced.length<events.length?'unpriced':actual>budgetUsd?'over_budget':'within_budget',
+      event_count:events.length,
+      input_tokens:events.reduce((s,e)=>s+Number(e.input_tokens||0),0),
+      output_tokens:events.reduce((s,e)=>s+Number(e.output_tokens||0),0),
+      first_event_at:events[0]?.created_at||null,
+      last_event_at:events[events.length-1]?.created_at||null,
+      advisory_only:true,
+      enforcement:false,
+      execution_blocking:false,
+      token_limiting:false,
+      model_selection_effect:'none',
+      provider_routing_effect:'none',
+      authorization_effect:'none'
+    }
+  };
+}
+
 // ── Data Governance / Document Center ──────────────────────
 function maskEmail(value){const s=String(value||'');const [a,b]=s.split('@');if(!b)return s?'***':'';return (a?String(a[0]||'')+'***':'***')+'@'+b;}
 function maskPhone(value){const s=String(value||'').replace(/\s+/g,'');if(s.length<=4)return s?'****':'';return '*'.repeat(Math.max(4,s.length-4))+s.slice(-4);}
@@ -4284,7 +4328,7 @@ async function handler(req, res) {
       'ai-operations', 'platform-overview', 'automation-overview',
       'permission-simulator', 'security-operations-overview', 'finance-overview',
       'support-overview', 'support-ticket-detail', 'crm-overview', 'analytics',
-      'ai-reviews', 'audit-log', 'assistant-audit-search', 'assistant-operational-replay', 'assistant-cost-governance', 'operations-overview', 'system-health',
+      'ai-reviews', 'audit-log', 'assistant-audit-search', 'assistant-operational-replay', 'assistant-cost-governance', 'assistant-task-budget', 'operations-overview', 'system-health',
       'security-status', 'funding-cases-list', 'funding-cases-detail',
       'funding-cases-assignees', 'funding-cases-kpis',
       'funding-cases-client-list', 'funding-cases-client-detail'
@@ -4651,6 +4695,10 @@ async function handler(req, res) {
       if (action === 'assistant-cost-governance') {
         await requireAdminPermission(req, sb, 'ai.operations.read');
         return res.status(200).json(await getAssistantCostGovernance(sb, req.query || {}));
+      }
+      if (action === 'assistant-task-budget') {
+        await requireAdminPermission(req, sb, 'ai.operations.read');
+        return res.status(200).json(await getAssistantTaskBudget(sb, req.query || {}));
       }
       if (action === 'platform-overview') {
         const access = await requireAdminPermission(req, sb, 'observability.read');
