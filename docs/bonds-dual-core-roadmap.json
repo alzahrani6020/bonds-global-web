@@ -176,12 +176,12 @@
       "items": [
         {
           "id": "p4.1",
-          "title": "SHA-bound APPROVED_TARGET and partial approvals",
+          "title": "APPROVED_TARGET and partial SHA-bound approvals",
           "status": "implemented_candidate"
         },
         {
           "id": "p4.2",
-          "title": "Deterministic dependency checks",
+          "title": "Dependency checks",
           "status": "planned"
         },
         {
