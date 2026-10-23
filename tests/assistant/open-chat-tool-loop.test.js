@@ -28,6 +28,16 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain('if (seen.has(signature)) break;');
   });
 
+  test('resolves a short search follow-up against the previous user topic', () => {
+    const { searchQueryFromConversation } = require('../../lib/assistant/open-chat-tool-loop');
+    const query = searchQueryFromConversation([
+      { role: 'user', content: 'من هو الدكتور طلال حسن الزهراني؟' },
+      { role: 'assistant', content: 'لم أتمكن من العثور على معلومات.' },
+      { role: 'user', content: 'ابحث في النت' }
+    ]);
+    expect(query).toBe('من هو الدكتور طلال حسن الزهراني؟');
+  });
+
   test('forces public-person, explicit-search and freshness queries into web search', () => {
     expect(source).toContain('function initialSearchDecision(messages, trace = [])');
     expect(source).toContain("action: 'web_search'");
