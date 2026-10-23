@@ -1186,9 +1186,7 @@
       }
 
       function loadModule(url, title) {
-        if (window.BondsAdminLocale) {
-          window.BondsAdminLocale.applyToDocument(document);
-        }
+        adminI18n?.bind(document);
         const titleEl = document.getElementById('pageTitle');
         if (titleEl) titleEl.textContent = title || 'لوحة التحكم الموحدة';
         if (onlineRefreshTimer) { clearInterval(onlineRefreshTimer); onlineRefreshTimer = null; }
