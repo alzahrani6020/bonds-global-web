@@ -15,11 +15,90 @@ const {
   buildDependencyGraph
 } = require('../../lib/finance/financial-data-intake');
 const crypto = require('crypto');
+const XLSX = require('xlsx');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(JSON.stringify(data));
+}
+
+function sendBinary(res, status, contentType, filename, buffer) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Disposition', 'attachment; filename="' + String(filename || 'export').replace(/[^A-Za-z0-9._-]/g, '_') + '"');
+  res.setHeader('Content-Length', String(buffer.length));
+  res.end(buffer);
+}
+
+function executiveSummaryForDataset(dataset) {
+  const metrics = dataset.derived_metrics && typeof dataset.derived_metrics === 'object'
+    ? dataset.derived_metrics
+    : {};
+  return {
+    title: 'BONDS Financial Analysis Executive Summary',
+    dataset_id: dataset.id,
+    dataset_version: dataset.dataset_version || 1,
+    service_code: dataset.decision_record?.service_code || dataset.service_code,
+    quality_status: dataset.quality_status,
+    approval_status: dataset.approval_status,
+    status: dataset.status,
+    is_stale: Boolean(dataset.is_stale),
+    source_file: dataset.source_file_name || null,
+    source_file_version: dataset.source_file_version || null,
+    key_metrics: metrics,
+    validation: dataset.validation || {},
+    generated_from_approved_result: dataset.approval_status === 'approved',
+    generated_at: new Date().toISOString()
+  };
+}
+
+function pdfEscape(value) {
+  return String(value ?? '').replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+}
+
+function buildSimplePdf(summary) {
+  const lines = [
+    summary.title,
+    'Dataset: ' + summary.dataset_id,
+    'Version: ' + summary.dataset_version,
+    'Service: ' + (summary.service_code || 'unknown'),
+    'Quality: ' + (summary.quality_status || 'unknown'),
+    'Approval: ' + (summary.approval_status || 'unknown'),
+    'Status: ' + (summary.status || 'unknown'),
+    'Stale: ' + String(summary.is_stale),
+    'Source: ' + (summary.source_file || 'manual'),
+    'Source version: ' + (summary.source_file_version || 'n/a'),
+    'Metrics:',
+    ...Object.entries(summary.key_metrics || {}).slice(0, 28).map(([key,value]) =>
+      '  ' + key + ': ' + (typeof value === 'object' ? JSON.stringify(value).slice(0, 120) : String(value))
+    )
+  ].slice(0, 44);
+  const text = ['BT','/F1 10 Tf','50 800 Td']
+    .concat(lines.flatMap((line,index)=>[
+      '(' + pdfEscape(line).replace(/[^\x20-\x7E]/g, '?') + ') Tj',
+      index < lines.length - 1 ? '0 -16 Td' : ''
+    ]).filter(Boolean))
+    .concat(['ET']).join('\n');
+  const stream = Buffer.from(text, 'ascii');
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    '<< /Length ' + stream.length + ' >>\nstream\n' + text + '\nendstream'
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((object,index)=>{
+    offsets[index+1]=Buffer.byteLength(pdf,'ascii');
+    pdf += (index+1) + ' 0 obj\n' + object + '\nendobj\n';
+  });
+  const xref = Buffer.byteLength(pdf,'ascii');
+  pdf += 'xref\n0 ' + (objects.length+1) + '\n0000000000 65535 f \n';
+  for(let i=1;i<=objects.length;i++) pdf += String(offsets[i]).padStart(10,'0') + ' 00000 n \n';
+  pdf += 'trailer\n<< /Size ' + (objects.length+1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+  return Buffer.from(pdf,'ascii');
 }
 
 function getQuery(req) {
@@ -853,6 +932,55 @@ async function handleFinancialDatasetGet(req,res,supabase,user,id){
   return sendJson(res,200,{ok:true,dataset:data});
 }
 
+async function handleFinancialDatasetExport(req,res,supabase,user,id){
+  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
+  if(!user) return sendJson(res,401,{error:'Unauthorized'});
+  const url=getQuery(req);
+  const format=String(url.searchParams.get('format') || 'summary').toLowerCase();
+  const {data,error}=await supabase
+    .from('financial_datasets')
+    .select('*')
+    .eq('id',id).eq('user_id',user.id).is('deleted_at',null).maybeSingle();
+  if(error||!data) return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+  if(data.approval_status!=='approved' || !['validated','executed'].includes(data.status)) {
+    return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_APPROVED'}});
+  }
+  const summary=executiveSummaryForDataset(data);
+  if(format==='summary'){
+    const text=[
+      summary.title,
+      'Dataset: '+summary.dataset_id+' v'+summary.dataset_version,
+      'Service: '+(summary.service_code||'unknown'),
+      'Quality: '+summary.quality_status,
+      'Approval: '+summary.approval_status,
+      'Stale: '+String(summary.is_stale),
+      '',
+      'Key metrics:',
+      ...Object.entries(summary.key_metrics||{}).map(([key,value])=>'- '+key+': '+(typeof value==='object'?JSON.stringify(value):String(value)))
+    ].join('\n');
+    return sendBinary(res,200,'text/plain; charset=utf-8','financial-executive-summary-'+id+'.txt',Buffer.from(text,'utf8'));
+  }
+  if(format==='xlsx' || format==='excel'){
+    const workbook=XLSX.utils.book_new();
+    const summaryRows=Object.entries(summary).filter(([key])=>key!=='key_metrics' && key!=='validation')
+      .map(([key,value])=>({field:key,value:typeof value==='object'?JSON.stringify(value):value}));
+    const metricRows=Object.entries(summary.key_metrics||{}).map(([metric,value])=>({
+      metric,
+      value:typeof value==='object'?JSON.stringify(value):value
+    }));
+    const inputRows=Object.entries(data.reviewed_values||{}).map(([field,value])=>({field,value}));
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(summaryRows),'Summary');
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(metricRows),'Metrics');
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(inputRows),'Approved Inputs');
+    const bytes=XLSX.write(workbook,{type:'buffer',bookType:'xlsx'});
+    return sendBinary(res,200,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','financial-analysis-'+id+'.xlsx',bytes);
+  }
+  if(format==='pdf'){
+    return sendBinary(res,200,'application/pdf','financial-analysis-'+id+'.pdf',buildSimplePdf(summary));
+  }
+  return sendJson(res,400,{ok:false,error:{code:'FINANCIAL_EXPORT_FORMAT_UNSUPPORTED'},supported:['summary','xlsx','pdf']});
+}
+
 async function handleServiceExecutionProfile(req, res, supabase, user, code) {
   if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
   if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
@@ -1117,6 +1245,8 @@ async function servicesRouter(req, res, path, supabase, user) {
   if (path === '/services/execute') return handleServiceExecute(req, res, supabase, user);
   if (path === '/services/intake/prepare') return handleFinancialIntakePrepare(req, res, supabase, user);
   if (path === '/services/intake/approve') return handleFinancialIntakeApprove(req, res, supabase, user);
+  const datasetExportMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)\/export$/);
+  if(datasetExportMatch) return handleFinancialDatasetExport(req,res,supabase,user,decodeURIComponent(datasetExportMatch[1]));
   const datasetMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)$/);
   if(datasetMatch) return handleFinancialDatasetGet(req,res,supabase,user,decodeURIComponent(datasetMatch[1]));
   if (path === '/services/requests') return handleCreateServiceRequest(req, res, supabase, user);
