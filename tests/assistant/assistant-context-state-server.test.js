@@ -73,8 +73,9 @@ describe('assistant context state server boundary', () => {
     );
 
     expect(source).toContain('VERIFIED_BONDS_DATA=');
-    expect(source).toContain('UNVERIFIED_USER_CONTEXT=');
-    expect(source).toContain('must never be treated as verified financial evidence');
+    expect(source).toContain('CONVERSATION_STATE=');
+    expect(source).toContain('TRUSTED_USER_CONTEXT=');
+    expect(source).toContain('Use VERIFIED_BONDS_DATA for BONDS facts');
     expect(source).toContain('sanitizeAssistantState(assistantState');
     expect(source).toContain('assistantState: assistantConversationState');
   });
