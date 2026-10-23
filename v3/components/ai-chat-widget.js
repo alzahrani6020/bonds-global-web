@@ -276,7 +276,7 @@
     .bonds-ai-home-status,
     .bonds-ai-send-icon { display: none; }
 
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-toggle {
+    #bonds-ai-chat-root .bonds-ai-chat-toggle {
       width: auto;
       min-width: 156px;
       height: 54px;
@@ -289,11 +289,11 @@
       border: 1px solid rgba(255,255,255,0.14);
       direction: rtl;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-toggle:hover {
+    #bonds-ai-chat-root .bonds-ai-chat-toggle:hover {
       transform: translateY(-1px);
       background: #0b315f;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-toggle > svg {
+    #bonds-ai-chat-root .bonds-ai-chat-toggle > svg {
       width: 34px !important;
       height: 34px !important;
       max-width: 34px !important;
@@ -303,13 +303,13 @@
       background: #fff;
       padding: 4px;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-toggle-label {
+    #bonds-ai-chat-root .bonds-ai-chat-toggle-label {
       display: inline;
       font-size: 0.9rem;
       font-weight: 800;
       white-space: nowrap;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-toggle-status {
+    #bonds-ai-chat-root .bonds-ai-chat-toggle-status {
       display: block;
       position: absolute;
       left: 8px;
@@ -322,7 +322,7 @@
       box-sizing: border-box;
     }
 
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-window {
+    #bonds-ai-chat-root .bonds-ai-chat-window {
       bottom: 92px;
       left: 24px;
       width: min(420px, calc(100vw - 48px));
@@ -336,28 +336,28 @@
       color: #0b2340;
       direction: rtl;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-header {
+    #bonds-ai-chat-root .bonds-ai-chat-header {
       background: #082446;
       border-bottom: none;
       padding: 14px 16px;
       min-height: 66px;
       color: #fff;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-header strong {
+    #bonds-ai-chat-root .bonds-ai-chat-header strong {
       color: #fff;
       font-size: 1rem;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-header small {
+    #bonds-ai-chat-root .bonds-ai-chat-header small {
       color: #d8e3ef;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-status {
+    #bonds-ai-chat-root .bonds-ai-home-status {
       display: inline-flex;
       align-items: center;
       gap: 6px;
       color: #d8e3ef;
       font-size: 0.75rem;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-status::before {
+    #bonds-ai-chat-root .bonds-ai-home-status::before {
       content: '';
       width: 8px;
       height: 8px;
@@ -365,23 +365,23 @@
       background: #22c55e;
       box-shadow: 0 0 0 2px rgba(34,197,94,0.16);
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-close {
+    #bonds-ai-chat-root .bonds-ai-chat-close {
       color: #fff;
       font-size: 1.45rem;
       line-height: 1;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-close:hover { color: #d4a853; }
+    #bonds-ai-chat-root .bonds-ai-chat-close:hover { color: #d4a853; }
 
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-launchpad {
+    #bonds-ai-chat-root .bonds-ai-home-launchpad {
       display: block;
       padding: 14px 14px 6px;
       background: #fff;
       overflow-y: auto;
     }
-    #bonds-ai-chat-root.bonds-ai-home.conversation-started .bonds-ai-home-launchpad {
+    #bonds-ai-chat-root.conversation-started .bonds-ai-home-launchpad {
       display: none;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-intro {
+    #bonds-ai-chat-root .bonds-ai-home-intro {
       display: flex;
       align-items: flex-start;
       gap: 10px;
@@ -391,7 +391,7 @@
       border-radius: 12px;
       background: #f7f9fc;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-intro-icon {
+    #bonds-ai-chat-root .bonds-ai-home-intro-icon {
       width: 34px;
       height: 34px;
       flex: 0 0 34px;
@@ -402,24 +402,24 @@
       color: #0b4b78;
       font-size: 1.05rem;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-intro strong {
+    #bonds-ai-chat-root .bonds-ai-home-intro strong {
       display: block;
       color: #0b2340;
       margin-bottom: 3px;
       font-size: 0.9rem;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-intro p {
+    #bonds-ai-chat-root .bonds-ai-home-intro p {
       margin: 0;
       color: #66758a;
       font-size: 0.78rem;
       line-height: 1.55;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-grid {
+    #bonds-ai-chat-root .bonds-ai-home-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
       gap: 8px;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-service {
+    #bonds-ai-chat-root .bonds-ai-home-service {
       min-height: 72px;
       border: 1px solid #dbe3ec;
       border-radius: 12px;
@@ -435,12 +435,12 @@
       gap: 5px;
       transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-service:hover {
+    #bonds-ai-chat-root .bonds-ai-home-service:hover {
       border-color: #c79a34;
       box-shadow: 0 8px 18px rgba(8,36,70,0.08);
       transform: translateY(-1px);
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-service svg {
+    #bonds-ai-chat-root .bonds-ai-home-service svg {
       width: 22px !important;
       height: 22px !important;
       max-width: 22px !important;
@@ -448,23 +448,23 @@
       color: #0b3d73;
       stroke-width: 1.9;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-service span {
+    #bonds-ai-chat-root .bonds-ai-home-service span {
       font-size: 0.78rem;
       font-weight: 800;
       text-align: center;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-quick-title {
+    #bonds-ai-chat-root .bonds-ai-home-quick-title {
       margin: 11px 2px 7px;
       color: #66758a;
       font-size: 0.73rem;
       font-weight: 700;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-quick {
+    #bonds-ai-chat-root .bonds-ai-home-quick {
       display: grid;
       grid-template-columns: 1fr;
       gap: 6px;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-quick button {
+    #bonds-ai-chat-root .bonds-ai-home-quick button {
       border: 1px solid #e1e7ef;
       border-radius: 999px;
       background: #f8fafc;
@@ -475,71 +475,71 @@
       text-align: right;
       cursor: pointer;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-quick button:hover {
+    #bonds-ai-chat-root .bonds-ai-home-quick button:hover {
       border-color: #d4a853;
       color: #0b2340;
       background: #fffaf0;
     }
 
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-messages {
+    #bonds-ai-chat-root .bonds-ai-chat-messages {
       padding: 12px 14px 8px;
       gap: 8px;
       background: #fff;
     }
-    #bonds-ai-chat-root.bonds-ai-home:not(.conversation-started) .bonds-ai-chat-messages {
+    #bonds-ai-chat-root:not(.conversation-started) .bonds-ai-chat-messages {
       min-height: 0;
       flex: 0 0 auto;
       padding: 0;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-message {
+    #bonds-ai-chat-root .bonds-ai-message {
       max-width: 88%;
       border-radius: 12px;
       font-size: 0.83rem;
       line-height: 1.6;
       box-shadow: none;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-message.user {
+    #bonds-ai-chat-root .bonds-ai-message.user {
       align-self: flex-start;
       background: #0b5bd3;
       color: #fff;
       border-bottom-right-radius: 4px;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-message.assistant {
+    #bonds-ai-chat-root .bonds-ai-message.assistant {
       align-self: flex-end;
       background: #f3f6fa;
       color: #172b46;
       border: 1px solid #e4eaf1;
       border-bottom-left-radius: 4px;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-message.error {
+    #bonds-ai-chat-root .bonds-ai-message.error {
       color: #b42318;
       background: #fff1f0;
       border-color: #ffd1cc;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-typing { color: #66758a; }
+    #bonds-ai-chat-root .bonds-ai-typing { color: #66758a; }
 
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-notifications {
+    #bonds-ai-chat-root .bonds-ai-notifications {
       background: #f8fafc;
       border-bottom: 1px solid #e7edf4;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-notification-card,
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-action-card {
+    #bonds-ai-chat-root .bonds-ai-notification-card,
+    #bonds-ai-chat-root .bonds-ai-action-card {
       background: #fff;
       color: #172b46;
       border-color: #dbe3ec;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-notification-card strong,
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-action-card strong { color: #0b3d73; }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-notification-card small,
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-action-card small { color: #66758a; }
+    #bonds-ai-chat-root .bonds-ai-notification-card strong,
+    #bonds-ai-chat-root .bonds-ai-action-card strong { color: #0b3d73; }
+    #bonds-ai-chat-root .bonds-ai-notification-card small,
+    #bonds-ai-chat-root .bonds-ai-action-card small { color: #66758a; }
 
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-suggestions {
+    #bonds-ai-chat-root .bonds-ai-suggestions {
       padding: 4px 14px 8px;
       gap: 6px;
       background: #fff;
     }
-    #bonds-ai-chat-root.bonds-ai-home:not(.conversation-started) .bonds-ai-suggestions { display: none; }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-suggestion {
+    #bonds-ai-chat-root:not(.conversation-started) .bonds-ai-suggestions { display: none; }
+    #bonds-ai-chat-root .bonds-ai-suggestion {
       flex: 1 1 100%;
       border-radius: 999px;
       background: #f8fafc;
@@ -549,26 +549,26 @@
       font-size: 0.73rem;
       text-align: right;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-suggestion:hover {
+    #bonds-ai-chat-root .bonds-ai-suggestion:hover {
       background: #fffaf0;
       border-color: #d4a853;
       color: #0b2340;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-input {
+    #bonds-ai-chat-root .bonds-ai-chat-input {
       background: #fff;
       border-top: 1px solid #e3e9f0;
       padding: 10px 12px;
       gap: 8px;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-input input {
+    #bonds-ai-chat-root .bonds-ai-chat-input input {
       background: #fff;
       color: #0b2340;
       border-color: #cfd8e3;
       border-radius: 10px;
       min-width: 0;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-input input::placeholder { color: #8491a3; }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-input button {
+    #bonds-ai-chat-root .bonds-ai-chat-input input::placeholder { color: #8491a3; }
+    #bonds-ai-chat-root .bonds-ai-chat-input button {
       width: 44px;
       flex: 0 0 44px;
       min-height: 40px;
@@ -579,9 +579,9 @@
       background: #082446;
       color: #fff;
     }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-input button:hover { background: #0b315f; }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-input .bonds-ai-send-label { display: none; }
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-send-icon {
+    #bonds-ai-chat-root .bonds-ai-chat-input button:hover { background: #0b315f; }
+    #bonds-ai-chat-root .bonds-ai-chat-input .bonds-ai-send-label { display: none; }
+    #bonds-ai-chat-root .bonds-ai-send-icon {
       display: block;
       width: 18px !important;
       height: 18px !important;
@@ -616,7 +616,7 @@
       unicode-bidi: isolate;
     }
 
-    #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-disclaimer {
+    #bonds-ai-chat-root .bonds-ai-home-disclaimer {
       display: block;
       padding: 0 12px 9px;
       color: #7b8797;
@@ -626,8 +626,153 @@
       text-align: center;
     }
 
+    #bonds-ai-chat-root.assistant-open .bonds-ai-chat-toggle { display: none; }
+
+    #bonds-ai-chat-root .bonds-ai-chat-header-controls {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      direction: ltr;
+    }
+    #bonds-ai-chat-root .bonds-ai-view-button,
+    #bonds-ai-chat-root .bonds-ai-chat-close {
+      width: 32px;
+      height: 32px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.06);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      line-height: 1;
+    }
+    #bonds-ai-chat-root .bonds-ai-view-button:hover,
+    #bonds-ai-chat-root .bonds-ai-chat-close:hover {
+      background: rgba(255,255,255,0.12);
+      color: #f0c96a;
+    }
+    #bonds-ai-chat-root .bonds-ai-view-button[aria-pressed="true"] {
+      background: rgba(212,168,83,0.22);
+      border-color: rgba(212,168,83,0.5);
+      color: #f0c96a;
+    }
+
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen {
+      display: none;
+      grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);
+      grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto;
+      align-items: stretch;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.open.view-workspace,
+    #bonds-ai-chat-root .bonds-ai-chat-window.open.view-fullscreen {
+      display: grid;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace {
+      left: 4vw;
+      bottom: 5vh;
+      width: 92vw;
+      height: 90vh;
+      max-width: 1440px;
+      max-height: 920px;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen {
+      inset: 0;
+      width: 100vw;
+      height: 100dvh;
+      max-width: none;
+      max-height: none;
+      border: 0;
+      border-radius: 0;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-header,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-header,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-notifications,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-notifications,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-home-launchpad,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-launchpad {
+      grid-column: 1 / -1;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-header,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-header { grid-row: 1; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-notifications,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-notifications { grid-row: 2; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-home-launchpad,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-launchpad { grid-row: 3 / 8; overflow-y: auto; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-messages,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-messages {
+      grid-column: 2;
+      grid-row: 3;
+      min-width: 0;
+      min-height: 0;
+      border-inline-start: 1px solid #e3e9f0;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-actions,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-actions {
+      grid-column: 1;
+      grid-row: 3 / 8;
+      min-width: 0;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 16px;
+      background: #f7f9fc;
+      border-inline-end: 1px solid #e3e9f0;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-actions:empty::before,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-actions:empty::before {
+      content: 'مساحة العمل جاهزة لعرض النتائج والجداول والإجراءات.';
+      display: block;
+      padding: 18px;
+      border: 1px dashed #cfd8e3;
+      border-radius: 12px;
+      color: #66758a;
+      background: #fff;
+      text-align: center;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+    html[lang="en"] #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-actions:empty::before,
+    html[lang="en"] #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-actions:empty::before {
+      content: 'Workspace is ready for results, tables and governed actions.';
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-suggestions,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-suggestions {
+      grid-column: 2;
+      grid-row: 4;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-input,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-input {
+      grid-column: 2;
+      grid-row: 5;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-human-link,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-human-link {
+      grid-column: 2;
+      grid-row: 6;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-home-disclaimer,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-disclaimer {
+      grid-column: 2;
+      grid-row: 7;
+    }
+
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-collapsed {
+      left: 24px;
+      bottom: 24px;
+      width: min(420px, calc(100vw - 48px));
+      height: 66px;
+      max-width: none;
+      max-height: 66px;
+      border-radius: 14px;
+    }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-collapsed > :not(.bonds-ai-chat-header) {
+      display: none !important;
+    }
+
     @media (max-width: 640px) {
-      #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-window {
+      #bonds-ai-chat-root .bonds-ai-chat-window {
         inset: 0;
         width: 100vw;
         height: 100dvh;
@@ -636,13 +781,16 @@
         border: 0;
         border-radius: 0;
       }
-      #bonds-ai-chat-root.bonds-ai-home .bonds-ai-chat-toggle {
+      #bonds-ai-chat-root .bonds-ai-chat-toggle {
         left: 16px;
         bottom: 16px;
         min-width: 146px;
       }
-      #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-grid { gap: 7px; }
-      #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-service { min-height: 66px; }
+      #bonds-ai-chat-root .bonds-ai-view-button[data-assistant-view="workspace"],
+      #bonds-ai-chat-root .bonds-ai-view-button[data-assistant-view="fullscreen"],
+      #bonds-ai-chat-root .bonds-ai-view-button[data-assistant-view="collapsed"] { display: none; }
+      #bonds-ai-chat-root .bonds-ai-home-grid { gap: 7px; }
+      #bonds-ai-chat-root .bonds-ai-home-service { min-height: 66px; }
     }
   `;
 
@@ -663,7 +811,13 @@
             <strong>مساعد بوندز</strong>
             <br><small class="bonds-ai-default-status">محلل فرص استثمارية</small><span class="bonds-ai-home-status">متصل الآن</span>
           </div>
-          <button class="bonds-ai-chat-close" aria-label="إغلاق">×</button>
+          <div class="bonds-ai-chat-header-controls" aria-label="أوضاع عرض مساعد بوندز">
+            <button type="button" class="bonds-ai-view-button" data-assistant-view="standard" aria-label="الحجم العادي" title="الحجم العادي">▣</button>
+            <button type="button" class="bonds-ai-view-button" data-assistant-view="workspace" aria-label="مساحة العمل" title="مساحة العمل">◫</button>
+            <button type="button" class="bonds-ai-view-button" data-assistant-view="fullscreen" aria-label="ملء الشاشة" title="ملء الشاشة">⛶</button>
+            <button type="button" class="bonds-ai-view-button" data-assistant-view="collapsed" aria-label="طي مساحة العمل" title="طي">—</button>
+            <button class="bonds-ai-chat-close" aria-label="إغلاق" title="إغلاق">×</button>
+          </div>
         </div>
         <div class="bonds-ai-notifications" aria-live="polite"></div>
         <div class="bonds-ai-home-launchpad" aria-label="ابدأ مع مساعد بوندز">
@@ -720,13 +874,14 @@
     injectStyles();
     const root = document.createElement('div');
     root.id = 'bonds-ai-chat-root';
-    if (options.home === true) root.classList.add('bonds-ai-home');
+    root.classList.add('bonds-ai-unified');
     root.innerHTML = createWidgetHTML();
     document.body.appendChild(root);
 
     const toggle = root.querySelector('.bonds-ai-chat-toggle');
     const windowEl = root.querySelector('.bonds-ai-chat-window');
     const closeBtn = root.querySelector('.bonds-ai-chat-close');
+    const viewButtons = Array.from(root.querySelectorAll('[data-assistant-view]'));
     const notificationsEl = root.querySelector('.bonds-ai-notifications');
     const notificationBadge = root.querySelector('.bonds-ai-notification-badge');
     const messagesEl = root.querySelector('.bonds-ai-chat-messages');
@@ -1124,11 +1279,59 @@
       }
     }
 
+    function readPreferredViewMode() {
+      try {
+        const value = window.sessionStorage?.getItem('bonds.assistant.view-mode.v1');
+        return ['standard', 'workspace', 'fullscreen'].includes(value) ? value : 'standard';
+      } catch (_) {
+        return 'standard';
+      }
+    }
+
     const state = {
       messages: [],
       isOpen: false,
-      isLoading: false
+      isLoading: false,
+      viewMode: readPreferredViewMode(),
+      previousViewMode: 'standard'
     };
+
+    function setViewMode(mode, { persist = true } = {}) {
+      const safeMode = ['standard', 'workspace', 'fullscreen', 'collapsed'].includes(mode)
+        ? mode
+        : 'standard';
+
+      if (safeMode === 'collapsed') {
+        if (state.viewMode !== 'collapsed') state.previousViewMode = state.viewMode || 'standard';
+      } else {
+        state.previousViewMode = safeMode;
+      }
+
+      state.viewMode = safeMode;
+      ['standard', 'workspace', 'fullscreen', 'collapsed'].forEach(item => {
+        windowEl.classList.toggle('view-' + item, item === safeMode);
+      });
+      windowEl.dataset.viewMode = safeMode;
+
+      viewButtons.forEach(button => {
+        button.setAttribute(
+          'aria-pressed',
+          button.dataset.assistantView === safeMode ? 'true' : 'false'
+        );
+      });
+
+      if (persist && safeMode !== 'collapsed') {
+        try {
+          window.sessionStorage?.setItem('bonds.assistant.view-mode.v1', safeMode);
+        } catch (_) {
+          // View persistence is best-effort only.
+        }
+      }
+
+      return safeMode;
+    }
+
+    setViewMode(state.viewMode, { persist: false });
 
     function getCityName() {
       const citySelect = document.getElementById('citySelect');
@@ -1341,27 +1544,30 @@
     async function toggleOpen() {
       state.isOpen = !state.isOpen;
       windowEl.classList.toggle('open', state.isOpen);
+      root.classList.toggle('assistant-open', state.isOpen);
+
       if (state.isOpen && state.messages.length === 0) {
+        root.classList.remove('conversation-started');
         refreshContext();
         await loadVerifiedServiceProfile();
         await resumePersistentCaseState();
-        if (options.home === true) {
-          root.classList.remove('conversation-started');
-        } else if (context.mode === 'project' && context.projectId) {
+
+        if (context.mode === 'project' && context.projectId) {
+          root.classList.add('conversation-started');
           addAssistantMessage('مرحباً! أنا مستشار بوندز التنفيذي. أسألني عن مشروعك: أين وصلنا؟ ما الذي ينقص؟ ما الخطوة التالية؟');
           renderSuggestions();
         } else if (context.serviceCode) {
+          root.classList.add('conversation-started');
           const service = context.serviceName || context.serviceCode;
           addAssistantMessage(`مرحباً! أنا مساعد بوندز. أنت الآن ضمن خدمة "${service}". أستطيع مساعدتك في المتطلبات، البيانات والمستندات المطلوبة، القدرات المتاحة، والخطوة التالية.`);
           renderSuggestions();
-        } else {
-          const city = context.cityName || context.cityCode || 'مدينة محددة';
-          const activity = context.activityName || context.activityCode || 'نشاط محدد';
-          addAssistantMessage(`مرحباً! أنا مساعد بوندز. يمكنك سؤالي عن فرصة "${activity}" في ${city}، أو عن أي مدينة/نشاط آخر.`);
-          renderSuggestions();
         }
       }
+
       if (state.isOpen) {
+        if (state.viewMode === 'collapsed') {
+          setViewMode(state.previousViewMode || 'standard', { persist: false });
+        }
         refreshNotifications();
         input.focus();
       }
@@ -1711,7 +1917,13 @@
           const plan = await requestGovernedPlan(action);
           const route = plan?.context?.navigation?.route;
           if (!safeInternalRoute(route)) throw new Error('UNSAFE_NAVIGATION_ROUTE');
-          window.location.assign(route);
+          const link = document.createElement('a');
+          link.href = route;
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
           return;
         }
 
@@ -1939,8 +2151,18 @@
         });
       }
 
+      const uiCards = Array.isArray(envelope.ui) ? envelope.ui : [];
       renderActionCards(actions);
-      renderStructuredCards(Array.isArray(envelope.ui) ? envelope.ui : []);
+      renderStructuredCards(uiCards);
+
+      if (
+        window.innerWidth > 640 &&
+        state.isOpen &&
+        state.viewMode === 'standard' &&
+        (actions.length > 0 || uiCards.length > 0)
+      ) {
+        setViewMode('workspace');
+      }
     }
 
     function renderSuggestions() {
@@ -2068,9 +2290,7 @@
       refreshContext();
       await loadVerifiedServiceProfile();
       await resumePersistentCaseState();
-      if (options.home === true) {
-        root.classList.add('conversation-started');
-      }
+      root.classList.add('conversation-started');
       addUserMessage(text);
       setLoading(true);
       input.value = '';
@@ -2141,6 +2361,18 @@
         input.focus();
       });
     }
+
+    viewButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const requested = button.dataset.assistantView;
+        if (requested === 'collapsed') {
+          setViewMode('collapsed', { persist: false });
+          return;
+        }
+        setViewMode(requested);
+        input.focus();
+      });
+    });
 
     toggle.addEventListener('click', toggleOpen);
     closeBtn.addEventListener('click', toggleOpen);
