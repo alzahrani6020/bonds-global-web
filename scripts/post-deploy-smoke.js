@@ -384,7 +384,9 @@ async function assertFinancialDataIntake(token) {
     })
   });
 
-  const calculated = execution.body?.result?.metrics?.debt_to_equity;
+  const calculated =
+    execution.body?.metrics?.debt_to_equity ??
+    execution.body?.result?.metrics?.debt_to_equity;
   const manual = 200000 / 100000;
   if (!execution.res.ok || execution.body?.executed !== true || calculated !== manual) {
     throw new Error(
