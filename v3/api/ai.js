@@ -14,6 +14,8 @@ const { getSupabaseClient } = require('../lib/supabase');
 const { getInferenceRouter } = require('../../lib/ai/inference-router');
 const { getUserFromToken } = require('../lib/auth');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
+const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
+const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -544,6 +546,24 @@ async function aiChatHandler(req, res) {
   } else {
     nativeError = Object.assign(new Error('Authentication required for Native AI execution'), {
       code: 'NATIVE_AUTH_REQUIRED'
+    });
+  }
+
+  if (authenticatedUser && nativeError) {
+    const hasResolvedIntentContext = Boolean(
+      enrichedContext.serviceCode || enrichedContext.activityCode || enrichedContext.cityCode
+    );
+    await publishAssistantOutcomeBestEffort({
+      supabase:getSupabaseClient(),
+      type:hasResolvedIntentContext
+        ? DUAL_CORE_EVENT_TYPES.ASSISTANT_LOW_CONFIDENCE
+        : DUAL_CORE_EVENT_TYPES.ASSISTANT_INTENT_FAILED,
+      userId:authenticatedUser.id,
+      metadata:{
+        service_code:enrichedContext.serviceCode || null,
+        error_code:nativeError.code || 'BONDS_NATIVE_CHAT_FAILED',
+        source:'ai-chat'
+      }
     });
   }
 

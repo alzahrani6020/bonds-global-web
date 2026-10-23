@@ -896,6 +896,26 @@ async function assistantRouter(req, res, path, user) {
         'INVALID_WORKFLOW_VERSION',
         'WORKFLOW_EVENT_STATUS_BLOCKED'
       ].includes(err.message);
+
+      if ([
+        'ASSISTANT_EVENT_BOUNDARY_CONFLICT',
+        'WORKFLOW_VERSION_CONFLICT',
+        'WORKFLOW_NOT_FOUND',
+        'WORKFLOW_EVENT_STATUS_BLOCKED'
+      ].includes(err.message)) {
+        await publishAssistantOutcomeBestEffort({
+          supabase,
+          type:DUAL_CORE_EVENT_TYPES.WORKFLOW_BLOCKED,
+          userId:user.id,
+          metadata:{
+            workflow_key:body.workflow_key || null,
+            error_code:err.message,
+            event_type:body.event?.type || null,
+            source:'assistant'
+          }
+        });
+      }
+
       return sendJson(res, conflict ? 409 : notFound ? 404 : clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
