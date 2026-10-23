@@ -18,7 +18,7 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import Any, Mapping
 
-from current_authority.resolver import AuthorityRequest, resolve
+from bonds_runtime_governance import AuthorityRequest, resolve
 
 from .fetch import AcquisitionBlocked, validate_public_url
 
