@@ -17,7 +17,7 @@ const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
-const { planOpenTurn, executePlannedTool, synthesizeToolReply } = require('../../lib/assistant/open-chat-tool-loop');
+const { runOpenChatLoop } = require('../../lib/assistant/open-chat-tool-loop');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -541,6 +541,22 @@ async function aiChatHandler(req, res) {
   if (!Array.isArray(messages) || messages.length === 0) {
     return sendAssistantResponse(res, 400, { error: 'messages array is required' }, { stream: streaming });
   }
+
+  let authenticatedUser = null;
+  try {
+    authenticatedUser = await getUserFromToken(req);
+  } catch (_error) {
+    authenticatedUser = null;
+  }
+
+  if (!authenticatedUser) {
+    return sendJson(res, 401, {
+      error: 'AUTHENTICATION_REQUIRED',
+      reply: 'يلزم تسجيل الدخول لاستخدام مساعد بوندز.',
+      requires_authentication: true
+    });
+  }
+
   if (streaming) {
     writeEvent(res, 'status', { phase:'preparing', source:'assistant' });
   }
@@ -564,19 +580,7 @@ async function aiChatHandler(req, res) {
     console.warn('[ai/chat] Context enrichment failed:', err.message);
   }
 
-  // Structured investment questions already have deterministic, sourced answers.
-  // Serve those first instead of blocking every chat request on a slow single-flight LLM.
   const forceNative = options?.force_native === true;
-  let authenticatedUser = null;
-  try {
-    authenticatedUser = await getUserFromToken(req);
-  } catch (_error) {
-    authenticatedUser = null;
-  }
-
-  if (forceNative && !authenticatedUser) {
-    return sendAssistantResponse(res, 401, { error: 'Authentication required for BONDS AI execution' }, { stream: streaming });
-  }
 
   // Resolve page/session/service authority and operational intent before ordinary chat.
   // This reuses the existing Service Execution Layer, workflow state and Agent Inbox.
@@ -613,29 +617,38 @@ async function aiChatHandler(req, res) {
     console.warn('[ai/chat] Chat orchestration degraded to existing assistant path:', err.message);
   }
 
-  if (authenticatedUser && !forceNative) {
+  if (!forceNative) {
     try {
-      const plannerDecision = await planOpenTurn(messages, enrichedContext, {
+      const loopResult = await runOpenChatLoop(messages, enrichedContext, {
         req,
         user: authenticatedUser,
         supabase: getSupabaseClient(),
         requestId: req.headers['x-request-id'] || null,
-        timeoutMs: nativeChatTimeoutMs()
+        timeoutMs: nativeChatTimeoutMs(),
+        maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens)
       });
 
-      if (plannerDecision?.mode === 'answer') {
+      if (loopResult?.ok && loopResult.reply) {
+        const actions = (loopResult.trace || []).map(item => item.action).filter(Boolean);
         return sendAssistantResponse(res, 200, {
-          reply: enforceAssistantIdentity(plannerDecision.answer),
-          source: 'bonds-assistant-ai',
+          reply: enforceAssistantIdentity(loopResult.reply),
+          source: loopResult.toolUsed ? 'bonds-assistant-ai-tool' : 'bonds-assistant-ai',
           provider: 'BONDS',
           model: null,
-          inference: { planner: 'open-chat', tool_used: false },
+          inference: {
+            planner: 'open-chat-loop',
+            tool_used: loopResult.toolUsed === true,
+            tool_steps: loopResult.steps || 0,
+            actions
+          },
           fallback_reason: null,
           debug: {
             input: lastUser?.content,
             native_attempted: true,
             open_chat_planner: true,
-            tool_used: false
+            tool_used: loopResult.toolUsed === true,
+            tool_steps: loopResult.steps || 0,
+            tool_actions: actions
           },
           context: {
             cityCode: enrichedContext.cityCode || null,
@@ -645,127 +658,38 @@ async function aiChatHandler(req, res) {
             serviceCode: enrichedContext.serviceCode || null,
             serviceName: enrichedContext.serviceName || null,
             lastIntent: orchestrationMeta?.intent || null,
-            activeTopic: lastUserText || null
+            activeTopic: orchestrationMeta?.resolvedContext?.conversationReference?.follow_up
+              ? orchestrationMeta.resolvedContext.conversationReference.active_topic
+              : (lastUserText || null)
           }
         }, { stream: streaming });
       }
-
-      if (plannerDecision?.mode === 'tool') {
-        const toolResult = await executePlannedTool(plannerDecision, {
-          req,
-          user: authenticatedUser,
-          supabase: getSupabaseClient(),
-          requestId: req.headers['x-request-id'] || null
-        });
-        const toolReply = await synthesizeToolReply(messages, enrichedContext, plannerDecision, toolResult, {
-          req,
-          user: authenticatedUser,
-          supabase: getSupabaseClient(),
-          requestId: req.headers['x-request-id'] || null,
-          timeoutMs: nativeChatTimeoutMs(),
-          maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens)
-        });
-
-        if (toolReply) {
-          return sendAssistantResponse(res, 200, {
-            reply: enforceAssistantIdentity(toolReply),
-            source: 'bonds-assistant-ai-tool',
-            provider: 'BONDS',
-            model: null,
-            inference: {
-              planner: 'open-chat',
-              tool_used: true,
-              action: plannerDecision.action,
-              action_fabric: toolResult?.action_fabric || null
-            },
-            fallback_reason: toolResult?.ok ? null : (toolResult?.error?.code || 'TOOL_EXECUTION_FAILED'),
-            debug: {
-              input: lastUser?.content,
-              native_attempted: true,
-              open_chat_planner: true,
-              tool_used: true,
-              tool_action: plannerDecision.action,
-              tool_ok: toolResult?.ok === true
-            },
-            context: {
-              cityCode: enrichedContext.cityCode || null,
-              activityCode: enrichedContext.activityCode || null,
-              cityName: enrichedContext.cityName || null,
-              activityName: enrichedContext.activityName || null,
-              serviceCode: enrichedContext.serviceCode || null,
-              serviceName: enrichedContext.serviceName || null,
-              lastIntent: orchestrationMeta?.intent || null,
-              activeTopic: lastUserText || null
-            }
-          }, { stream: streaming });
-        }
-      }
     } catch (err) {
-      console.warn('[ai/chat] Open-chat planner degraded to ordinary governed AI path:', err.message);
+      console.warn('[ai/chat] Open-chat loop degraded to ordinary governed AI path:', err.message);
     }
-  }
-
-  const deterministicReply = (forceNative || authenticatedUser) ? null : generateDataDrivenReply(lastUserText, enrichedContext);
-  if (deterministicReply) {
-    return sendAssistantResponse(res, 200, {
-      reply: deterministicReply,
-      source: 'data-driven',
-      provider: 'BondsV3DataEngine',
-      model: null,
-      inference: null,
-      fallback_reason: null,
-      debug: {
-        input: lastUser?.content,
-        cityName: enrichedContext.cityName || null,
-        activityName: enrichedContext.activityName || null,
-        hasMarketData: !!enrichedContext.marketData,
-        hasIndicators: !!enrichedContext.indicators,
-        comparisonCount: (enrichedContext.comparison || []).length,
-        alertCount: (enrichedContext.alerts || []).length,
-        native_attempted: false
-      },
-      context: {
-        cityCode: enrichedContext.cityCode || null,
-        activityCode: enrichedContext.activityCode || null,
-        cityName: enrichedContext.cityName || null,
-        activityName: enrichedContext.activityName || null,
-        serviceCode: enrichedContext.serviceCode || null,
-        serviceName: enrichedContext.serviceName || null,
-        lastIntent: orchestrationMeta?.intent || null,
-        activeTopic: orchestrationMeta?.resolvedContext?.conversationReference?.follow_up
-          ? orchestrationMeta.resolvedContext.conversationReference.active_topic
-          : (lastUserText || null)
-      }
-    }, { stream: streaming });
   }
 
   let aiResult = null;
   let nativeError = null;
 
-  if (authenticatedUser) {
-    try {
-      if (streaming) {
-        writeEvent(res, 'status', { phase:'inference', source:'bonds-assistant-ai', token_streaming:false });
-      }
-      aiResult = await generateNativeReply(messages, enrichedContext, {
-        maxTokens: options?.max_tokens,
-        assistantState: assistantConversationState,
-        req,
-        user: authenticatedUser,
-        supabase: getSupabaseClient(),
-        requestId: req.headers['x-request-id'] || null
-      });
-    } catch (err) {
-      nativeError = err;
-      console.warn('[ai/chat] Bonds Native unavailable, using deterministic data-driven fallback:', err.message);
+  try {
+    if (streaming) {
+      writeEvent(res, 'status', { phase:'inference', source:'bonds-assistant-ai', token_streaming:false });
     }
-  } else {
-    nativeError = Object.assign(new Error('Authentication required for BONDS AI execution'), {
-      code: 'NATIVE_AUTH_REQUIRED'
+    aiResult = await generateNativeReply(messages, enrichedContext, {
+      maxTokens: options?.max_tokens,
+      assistantState: assistantConversationState,
+      req,
+      user: authenticatedUser,
+      supabase: getSupabaseClient(),
+      requestId: req.headers['x-request-id'] || null
     });
+  } catch (err) {
+    nativeError = err;
+    console.warn('[ai/chat] Bonds Native unavailable:', err.message);
   }
 
-  if (authenticatedUser && nativeError) {
+  if (nativeError) {
     const hasResolvedIntentContext = Boolean(
       enrichedContext.serviceCode || enrichedContext.activityCode || enrichedContext.cityCode
     );
@@ -783,7 +707,15 @@ async function aiChatHandler(req, res) {
     });
   }
 
-  const reply = aiResult?.reply || fallbackReply(lastUserText, enrichedContext);
+  if (!aiResult?.reply) {
+    return sendAssistantResponse(res, 503, {
+      error: 'BONDS_AI_RUNTIME_UNAVAILABLE',
+      reply: 'تعذر تشغيل مساعد بوندز حالياً. لم يتم استخدام رد بديل غير موثوق.',
+      fallback_reason: nativeError ? (nativeError.code || nativeError.message) : 'AI_RESPONSE_UNAVAILABLE'
+    }, { stream: streaming });
+  }
+
+  const reply = aiResult.reply;
 
   // Debug: include enrichment summary in response during rollout
   const debugInfo = {
@@ -800,8 +732,8 @@ async function aiChatHandler(req, res) {
 
   sendAssistantResponse(res, 200, {
     reply,
-    source: aiResult ? 'bonds-assistant-ai' : 'data-driven-fallback',
-    provider: aiResult?.provider || 'BONDS',
+    source: 'bonds-assistant-ai',
+    provider: aiResult.provider || 'BONDS',
     model: null,
     inference: aiResult?.inference || null,
     fallback_reason: nativeError ? (nativeError.code || nativeError.message) : null,
