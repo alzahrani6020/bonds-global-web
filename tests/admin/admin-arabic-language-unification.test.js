@@ -5,47 +5,45 @@ const path=require('path');
 const root=process.cwd();
 const read=file=>fs.readFileSync(path.join(root,file),'utf8');
 
-describe('Admin Arabic language unification',()=>{
+describe('Admin bilingual language unification',()=>{
   const dashboard=read('admin/dashboard.html');
+  const i18n=read('admin/admin-i18n.js');
   const locale=read('admin/admin-locale.js');
 
-  test('dashboard loads the shared Arabic locale layer',()=>{
-    expect(dashboard).toContain('/admin/admin-locale.js?v=1');
-    expect(dashboard).toContain('BondsAdminLocale.applyToDocument(document)');
+  test('dashboard loads only the central Admin i18n source',()=>{
+    expect(dashboard).toContain('/admin/admin-i18n.js?v=2');
+    expect(dashboard).not.toContain('/admin/admin-locale.js');
+    expect(dashboard).not.toContain('shellLabels');
   });
 
-  test('every embedded admin page is normalized after iframe load',()=>{
-    expect(dashboard).toContain('BondsAdminLocale.applyToDocument(iframe.contentDocument)');
+  test('every embedded admin page is normalized through the central i18n contract',()=>{
+    expect(dashboard).toContain('adminI18n?.bind(doc)');
+    expect(dashboard).toContain("doc.documentElement.lang = locale");
+    expect(dashboard).toContain("doc.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr'");
+    expect(dashboard).toContain("postMessage({ type: 'admin-locale', locale }");
   });
 
-  test('shared locale covers the visible mixed-language control-center labels',()=>{
-    for(const value of [
-      "'BONDS Unified Control Center':'مركز التحكم الموحد لبوندز'",
-      "'Dual-Core Control Surface':'سطح التحكم ثنائي النواة'",
-      "'Assistant':'المساعد'",
-      "'Learning':'التعلم'",
-      "'Training':'التدريب'",
-      "'Evolution':'التطور'",
-      "'Capabilities':'القدرات'",
-      "'Models':'النماذج'",
-      "'Approvals':'الموافقات'",
-      "'Releases':'الإصدارات'",
-      "'Health':'الصحة التشغيلية'",
-      "'Audit':'سجل المراجعة'",
-      "['Self-Training','التدريب الذاتي']",
-      "['Normal / Emergency / Full Stop','عادي / طوارئ / إيقاف كامل']"
-    ]) expect(locale).toContain(value);
+  test('central dictionary covers the visible mixed-language control-center labels in both languages',()=>{
+    for(const key of [
+      'bondsUnifiedControlCenter','dualCoreControlSurface','assistant','learning','training',
+      'evolution','capabilities','models','approvals','releases','health','audit',
+      'selfTraining','normalEmergencyFullStop'
+    ]) {
+      expect(i18n).toContain(key + ':');
+    }
+    expect(i18n).toContain("bondsUnifiedControlCenter: 'مركز التحكم الموحد لبوندز'");
+    expect(i18n).toContain("bondsUnifiedControlCenter: 'BONDS Unified Control Center'");
   });
 
-  test('locale forces Arabic direction and watches dynamic content',()=>{
-    expect(locale).toContain("html.setAttribute('lang','ar')");
-    expect(locale).toContain("html.setAttribute('dir','rtl')");
-    expect(locale).toContain('new MutationObserver');
-    expect(locale).toContain('childList:true');
-    expect(locale).toContain('subtree:true');
+  test('locale shim no longer forces Arabic or watches dynamic content',()=>{
+    expect(locale).toContain('global.BondsAdminI18n');
+    expect(locale).not.toContain("html.setAttribute('lang','ar')");
+    expect(locale).not.toContain("html.setAttribute('dir','rtl')");
+    expect(locale).not.toContain('new MutationObserver');
+    expect(locale).not.toMatch(/\bEXACT\b|\bPHRASES\b/);
   });
 
-  test('scripts, styles and code blocks are not rewritten',()=>{
-    expect(locale).toContain("['SCRIPT','STYLE','CODE','PRE','TEXTAREA']");
+  test('central binder skips scripts, styles and code blocks',()=>{
+    expect(i18n).toContain("['SCRIPT','STYLE','CODE','PRE','TEXTAREA']");
   });
 });
