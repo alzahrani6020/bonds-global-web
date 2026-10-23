@@ -26,6 +26,7 @@ function dataset(){
       target:'safe answer',
       email:'person@example.com',
       national_id:'1234567890',
+      customer_email:'hidden@example.com',
       metadata:{language:'ar'}
     }],
     provenance:{
@@ -84,9 +85,10 @@ describe('Phase 6 Self-Training',()=>{
     expect(d.policy.raw_sensitive_data_allowed).toBe(false);
     expect(d.examples[0].email).toBeUndefined();
     expect(d.examples[0].national_id).toBeUndefined();
+    expect(d.examples[0].customer_email).toBeUndefined();
     expect(d.examples[0].input).toContain('[REDACTED_EMAIL]');
     expect(d.examples[0].input).toContain('[REDACTED_PHONE]');
-    expect(d.deidentification.removed_field_count).toBeGreaterThanOrEqual(2);
+    expect(d.deidentification.removed_field_count).toBeGreaterThanOrEqual(3);
     expect(d.deidentification.pattern_redaction_count).toBeGreaterThanOrEqual(2);
   });
 
@@ -142,6 +144,21 @@ describe('Phase 6 Self-Training',()=>{
     expect(result.status).toBe('blocked');
     expect(result.policy.promotion_eligible).toBe(false);
     expect(result.blockers).toHaveLength(1);
+  });
+
+  test('model registry rejects missing provenance and direct known-good status',()=>{
+    expect(()=>createModelRecord({
+      modelId:'bad-model',
+      artifactSha256:CANDIDATE_SHA,
+      status:'candidate'
+    })).toThrow('MODEL_PROVENANCE_REQUIRED');
+    expect(()=>createModelRecord({
+      modelId:'bad-known-good',
+      artifactSha256:CANDIDATE_SHA,
+      sourceRepository:'local',
+      license:'Apache-2.0',
+      status:'known_good'
+    })).toThrow('MODEL_STATUS_INVALID');
   });
 
   test('model promotion requires benchmark, explicit approval, exact current SHA and post-promotion verification',()=>{
@@ -219,15 +236,22 @@ describe('Phase 6 Self-Training',()=>{
       promotionVerification
     });
 
-    const priorKnownGood=createModelRecord({
+    const priorProduction=createModelRecord({
       modelId:'bonds-canonical-known-good',
       artifactSha256:BASE_SHA,
       sourceRepository:canonicalModel.source_repository,
       sourceRevision:canonicalModel.source_revision,
       license:canonicalModel.license,
-      status:'known_good'
+      status:'production'
     });
-    priorKnownGood.policy.rollback_source_eligible=true;
+    const priorKnownGood=markModelKnownGood({
+      model:priorProduction,
+      promotionVerification:{
+        verification_id:'bootstrap-production-verification',
+        status:'model_promotion_verified',
+        observed_model_sha256:BASE_SHA
+      }
+    });
 
     expect(()=>createModelRollbackPlan({
       currentModel:promotedKnownGood,
