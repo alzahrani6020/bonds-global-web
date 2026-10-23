@@ -185,12 +185,30 @@
     } catch (e) {}
   }
 
+  function syntheticResponse(payload, status, requestId) {
+    const body = payload && typeof payload === 'object' ? payload : {};
+    const textBody = JSON.stringify(body);
+    return {
+      ...body,
+      ok: status >= 200 && status < 300,
+      status,
+      headers: null,
+      requestId: requestId || body.requestId || null,
+      async json() { return body; },
+      async text() { return textBody; },
+      async blob() {
+        if (typeof Blob !== 'undefined') return new Blob([textBody], { type: 'application/json' });
+        return textBody;
+      }
+    };
+  }
+
   async function authenticatedFetch(url, options) {
     options = options || {};
     await ensureEnv();
     const sb = getSupabase();
     if (!sb) {
-      return { __authError: 'AUTH_REQUIRED', ok: false, status: 0, authError: 'AUTH_REQUIRED' };
+      return syntheticResponse({ __authError: 'AUTH_REQUIRED', authError: 'AUTH_REQUIRED', error: 'AUTH_REQUIRED' }, 0);
     }
 
     let sessionData = null;
@@ -217,7 +235,7 @@
           const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
           if (typeof window !== 'undefined') window.location.href = loginUrl;
         }
-        return { __authError: 'AUTH_REQUIRED', ok: false, status: 0, authError: 'AUTH_REQUIRED' };
+        return syntheticResponse({ __authError: 'AUTH_REQUIRED', authError: 'AUTH_REQUIRED', error: 'AUTH_REQUIRED' }, 0);
       }
     }
 
@@ -240,7 +258,7 @@
         headers: { ...authHeaders, ...(options.headers || {}) }
       });
     } catch (e) {
-      return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId };
+      return syntheticResponse({ __networkError: 'OFFLINE', offline: true, error: e.message, requestId }, 0, requestId);
     }
 
     if (response.status === 401) {
@@ -256,7 +274,7 @@
               headers: { ...authHeaders, ...(options.headers || {}) }
             });
           } catch (e) {
-            return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId };
+            return syntheticResponse({ __networkError: 'OFFLINE', offline: true, error: e.message, requestId }, 0, requestId);
           }
         }
       } catch (e) {}
@@ -266,16 +284,16 @@
           const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
           if (typeof window !== 'undefined') window.location.href = loginUrl;
         }
-        return { __authError: 'AUTH_REQUIRED', ok: false, status: 401, authError: 'AUTH_REQUIRED', requestId };
+        return syntheticResponse({ __authError: 'AUTH_REQUIRED', authError: 'AUTH_REQUIRED', error: 'AUTH_REQUIRED', requestId }, 401, requestId);
       }
     }
 
     if (response.status === 403) {
-      return { __authError: 'FORBIDDEN', ok: false, status: 403, authError: 'FORBIDDEN', requestId };
+      return syntheticResponse({ __authError: 'FORBIDDEN', authError: 'FORBIDDEN', error: 'FORBIDDEN', requestId }, 403, requestId);
     }
 
     if (response.status >= 500) {
-      return { __serverError: true, ok: false, status: response.status, serverError: true, requestId };
+      return syntheticResponse({ __serverError: true, serverError: true, error: 'SERVER_ERROR', requestId }, response.status, requestId);
     }
 
     return {
