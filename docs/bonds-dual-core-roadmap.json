@@ -209,12 +209,12 @@
         {
           "id": "p5.2",
           "title": "Automatic rebase",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p5.3",
           "title": "Merge simulation",
-          "status": "planned"
+          "status": "implemented_candidate"
         },
         {
           "id": "p5.4",
