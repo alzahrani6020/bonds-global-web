@@ -27,9 +27,10 @@ describe('service discovery direct routing', () => {
     expect(script).toContain("url.origin !== window.location.origin");
   });
 
-  test('preserves generic service request as fallback when no canonical route exists', () => {
+  test('preserves generic service request fallback and does not bypass execution for capability-backed services', () => {
     expect(script).toContain("'/en/service-request.html':'/service-request.html'");
-    expect(script).toContain("if (directRoute)");
+    expect(script).toContain("hasExecutionCapabilities");
+    expect(script).toContain("if (directRoute && !hasExecutionCapabilities)");
   });
 
   test('persists selected service intent before direct routing', () => {
