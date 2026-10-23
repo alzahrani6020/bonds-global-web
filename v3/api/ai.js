@@ -239,7 +239,7 @@ async function generateNativeReply(messages, context, options = {}) {
   const maxTokens = adaptiveNativeChatMaxTokens(messages, options.maxTokens);
   const prompt = buildNativeChatPrompt(messages, context, options.assistantState);
   const response = await executeGovernedAction({
-    action: 'native_generate',
+    action: 'ai_reason',
     input: {
       prompt,
       temperature: 0.2,
@@ -248,7 +248,11 @@ async function generateNativeReply(messages, context, options = {}) {
     req: options.req,
     user: options.user,
     supabase: options.supabase,
-    requestId: options.requestId || null
+    requestId: options.requestId || null,
+    runtimeContext: {
+      timeoutMs: nativeChatTimeoutMs(),
+      latencyAwareRouting: true
+    }
   });
 
   if (!response?.ok) {
