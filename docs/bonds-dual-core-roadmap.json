@@ -187,12 +187,12 @@
         {
           "id": "p4.3",
           "title": "Integration resolver",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p4.4",
           "title": "Assistant and capability registry synchronization",
-          "status": "planned"
+          "status": "implemented_candidate"
         }
       ]
     },
