@@ -2,12 +2,14 @@ const {
   normalizePath,
   isHomepage,
   resolveIntent,
-  asksCurrentService
+  asksCurrentService,
+  serviceFromExplicitIntent
 } = require('../../lib/assistant/chat-orchestrator');
 const {
   stageForIntent,
   nextBestAction,
-  buildCaseState
+  buildCaseState,
+  sanitizeConversationTail
 } = require('../../lib/assistant/case-engine');
 
 describe('BONDS Chat Orchestrator + Case Engine', () => {
@@ -37,6 +39,7 @@ describe('BONDS Chat Orchestrator + Case Engine', () => {
     expect(stageForIntent('analysis', { missingRequired: 2 })).toBe('data_collection');
     expect(stageForIntent('analysis', { missingRequired: 0 })).toBe('analysis');
     expect(stageForIntent('execution', { executed: true })).toBe('review');
+    expect(stageForIntent('escalation')).toBe('review');
   });
 
   test('next best action is based on actual missing requirements', () => {
@@ -47,6 +50,61 @@ describe('BONDS Chat Orchestrator + Case Engine', () => {
     });
     expect(action.code).toBe('COLLECT_REQUIRED_DATA');
     expect(action.missing).toEqual(['القوائم المالية']);
+  });
+
+  test('resolves only clear explicit service intent', async () => {
+    const services = [
+      { id: '1', code: 'financial_analysis', name_ar: 'التحليل المالي', name_en: 'Financial Analysis' },
+      { id: '2', code: 'risk_analysis', name_ar: 'تحليل المخاطر', name_en: 'Risk Analysis' }
+    ];
+    const supabase = {
+      from: () => {
+        const builder = {
+          select() { return this; },
+          eq() { return this; },
+          limit() { return this; },
+          then(resolve) { return Promise.resolve(resolve({ data: services, error: null })); }
+        };
+        return builder;
+      }
+    };
+
+    await expect(serviceFromExplicitIntent({
+      supabase,
+      message: 'أريد خدمة تحليل المخاطر'
+    })).resolves.toMatchObject({ code: 'risk_analysis' });
+
+    await expect(serviceFromExplicitIntent({
+      supabase,
+      message: 'حلل المخاطر في هذه الحالة'
+    })).resolves.toBeNull();
+  });
+
+  test('carries guest continuity into durable case state with a bounded conversation tail', () => {
+    const state = buildCaseState({
+      boundary: 'page:/services#analysis|service:financial_analysis',
+      seedState: {
+        goal: 'تحليل الشركة',
+        current_stage: 'data_collection',
+        confirmed_facts: { currency: 'SAR' },
+        conversation_tail: [
+          { role: 'user', content: 'ابدأ التحليل' },
+          { role: 'assistant', content: 'أرسل البيانات المالية' }
+        ]
+      },
+      conversationTail: [
+        { role: 'user', content: 'هذه البيانات' }
+      ],
+      userMessage: 'هذه البيانات',
+      serviceCode: 'financial_analysis',
+      intent: 'follow_up',
+      missingRequirements: []
+    });
+    expect(state.goal).toBe('تحليل الشركة');
+    expect(state.current_stage).toBe('data_collection');
+    expect(state.confirmed_facts.currency).toBe('SAR');
+    expect(state.conversation_tail).toHaveLength(3);
+    expect(sanitizeConversationTail(new Array(20).fill({ role: 'user', content: 'x' }))).toHaveLength(12);
   });
 
   test('builds persistent case state using the existing workflow-state contract', () => {
