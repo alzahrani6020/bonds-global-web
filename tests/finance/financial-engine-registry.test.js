@@ -196,6 +196,7 @@ describe('BONDS deterministic financial engine registry', () => {
       tax_rate_pct: 120
     }, { serviceCode: 'wacc_analysis' });
     expect(wacc.ok).toBe(false);
+    expect(wacc.metrics.wacc_pct).toBeNull();
     expect(wacc.required_inputs).toContain('tax_rate_pct_0_to_100');
   });
 
