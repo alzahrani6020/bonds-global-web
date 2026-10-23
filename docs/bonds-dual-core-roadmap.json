@@ -88,7 +88,29 @@
     {
       "id": "phase2",
       "title": "Learning Foundation",
-      "status": "ready"
+      "status": "in_progress",
+      "items": [
+        {
+          "id": "p2.1",
+          "title": "Gap and defect detection",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p2.2",
+          "title": "Evidence aggregation",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p2.3",
+          "title": "Learning proposal analysis engine",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p2.4",
+          "title": "Proposal risk classification",
+          "status": "implemented_candidate"
+        }
+      ]
     },
     {
       "id": "phase3",
