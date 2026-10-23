@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase5-ci-release",
-  "current_workstream": "p5.2-automatic-rebase",
+  "current_workstream": "p5.3-merge-simulation",
   "status": "in_progress",
-  "baseline_main_sha": "09e05842d8a3542523e140c0aa42d181fe332f52",
+  "baseline_main_sha": "c27e853a5180fc4be735c478b3ffab0815658811",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -74,26 +74,29 @@
     "phase4-approval-integration-closeout",
     "p5.1-github-ci-failure-intake",
     "p5.1-ci-failed-event",
-    "p5.1-deterministic-failure-signature"
-  ],
-  "currently_working_on": [
+    "p5.1-deterministic-failure-signature",
     "p5.2-deterministic-rebase-planner",
     "p5.2-clean-latest-main-rebuild",
     "p5.2-revalidation-required"
   ],
-  "next_action": "validate P5.2 Automatic Rebase in CI; after merge implement P5.3 Merge Simulation",
+  "currently_working_on": [
+    "p5.3-deterministic-merge-simulation",
+    "p5.3-exact-sha-binding",
+    "p5.3-fail-closed-conflict-and-check-gates"
+  ],
+  "next_action": "validate rebased P5.3 Merge Simulation in CI; after merge implement P5.4 Staged Release",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
     "phase2_admin_review_merge_sha": "4dc1ad44f4d55a9019e4c8f7443ae0029f7c4bb7",
     "phase2_control_center_merge_sha": "e91bb282735c0ec1798e792ce02e627d8e9b7916",
-    "latest_main_sha": "8d321e58f5810fe3ae09333be25f480012a880e8",
+    "latest_main_sha": "c27e853a5180fc4be735c478b3ffab0815658811",
     "phase2_agent_inbox_merge_sha": "c4140b9bd24075431df5d4aa8212a84250394a94",
     "phase2_ci_verified": true,
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "09e05842d8a3542523e140c0aa42d181fe332f52",
+    "current_main_sha": "c27e853a5180fc4be735c478b3ffab0815658811",
     "superseded_candidate_prs": [
       472,
       475
@@ -139,7 +142,13 @@
     ],
     "phase5_ci_failure_intake_merge_sha": "09e05842d8a3542523e140c0aa42d181fe332f52",
     "phase5_ci_failure_intake_pr_head_sha": "53fe07fb5f4847d53525ee233ef389f872fed01e",
-    "phase5_ci_failure_intake_pr_ci_verified": true
+    "phase5_ci_failure_intake_pr_ci_verified": true,
+    "phase5_automatic_rebase_merge_sha": "fcce547fdf5c1ad33b02743f50cdb5540a745f26",
+    "phase5_automatic_rebase_pr_head_sha": "2109441c84b08985abbe8186fa3ebc4b4fc92822",
+    "phase5_automatic_rebase_pr_ci_verified": true,
+    "superseded_phase5_merge_simulation_prs": [
+      502
+    ]
   },
   "approved_architecture": {
     "dual_core": true,
@@ -160,5 +169,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p5.2-automatic-rebase-candidate"
+  "updated_by": "p5.3-merge-simulation-rebased-candidate"
 }
