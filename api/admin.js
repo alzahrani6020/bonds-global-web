@@ -3527,6 +3527,89 @@ async function getAiOperations(sb) {
   return{success:true,events:eventsRes.data||[],promptVersions:promptsRes.data||[],killSwitches:switchesRes.data||[]};
 }
 
+
+function cleanAssistantAuditFilter(value,max=160){
+  if(value===null||value===undefined)return null;
+  const text=String(value).trim();
+  if(!text)return null;
+  return text.slice(0,max);
+}
+
+function assistantAuditSubjectRef(userId){
+  const value=String(userId||'').trim();
+  if(!value)return null;
+  const crypto=require('crypto');
+  return 'usr_'+crypto.createHash('sha256').update(value).digest('hex').slice(0,16);
+}
+
+async function searchAssistantAudit(sb,params={}){
+  const limit=Math.max(1,Math.min(Number(params.limit)||50,100));
+  const offset=Math.max(0,Math.min(Number(params.offset)||0,10000));
+  const actionType=cleanAssistantAuditFilter(params.action_type,100);
+  const eventType=cleanAssistantAuditFilter(params.event_type,100);
+  const outcome=cleanAssistantAuditFilter(params.outcome,100);
+  const risk=cleanAssistantAuditFilter(params.risk,50);
+  const actionId=cleanAssistantAuditFilter(params.action_id,200);
+  const resourceId=cleanAssistantAuditFilter(params.resource_id,200);
+  const from=cleanAssistantAuditFilter(params.from,64);
+  const to=cleanAssistantAuditFilter(params.to,64);
+  const requiresConfirmation=params.requires_confirmation;
+
+  let query=sb.from('assistant_action_audit')
+    .select('id,created_at,user_id,boundary,action_id,action_type,target,event_type,outcome,risk,requires_confirmation,resource_id',{count:'exact'})
+    .order('created_at',{ascending:false});
+
+  if(actionType)query=query.ilike('action_type',`%${actionType}%`);
+  if(eventType)query=query.eq('event_type',eventType);
+  if(outcome)query=query.ilike('outcome',`%${outcome}%`);
+  if(risk)query=query.eq('risk',risk);
+  if(actionId)query=query.eq('action_id',actionId);
+  if(resourceId)query=query.eq('resource_id',resourceId);
+  if(from){
+    const d=new Date(from);
+    if(Number.isNaN(d.getTime()))throw badRequest('invalid from');
+    query=query.gte('created_at',d.toISOString());
+  }
+  if(to){
+    const d=new Date(to);
+    if(Number.isNaN(d.getTime()))throw badRequest('invalid to');
+    query=query.lte('created_at',d.toISOString());
+  }
+  if(requiresConfirmation==='true'||requiresConfirmation===true)query=query.eq('requires_confirmation',true);
+  if(requiresConfirmation==='false'||requiresConfirmation===false)query=query.eq('requires_confirmation',false);
+
+  const {data,error,count}=await query.range(offset,offset+limit-1);
+  if(error)throw error;
+
+  const events=(data||[]).map(row=>({
+    id:row.id,
+    created_at:row.created_at,
+    subject_ref:assistantAuditSubjectRef(row.user_id),
+    boundary:row.boundary,
+    action_id:row.action_id,
+    action_type:row.action_type,
+    target:row.target,
+    event_type:row.event_type,
+    outcome:row.outcome,
+    risk:row.risk,
+    requires_confirmation:Boolean(row.requires_confirmation),
+    resource_id:row.resource_id
+  }));
+
+  return{
+    success:true,
+    events,
+    count:count||0,
+    pagination:{limit,offset,returned:events.length},
+    privacy:{
+      raw_user_id:false,
+      session_id:false,
+      metadata:false,
+      idempotency_key_hash:false
+    }
+  };
+}
+
 async function setAiKillSwitch(sb, body, admin, req) {
   const feature=String(body?.feature||'').trim();if(!feature)throw badRequest('feature required');
   const disabled=body?.disabled===true;const row={feature,disabled,reason:body?.reason||null,disabled_by:disabled?admin.id:null,disabled_at:disabled?new Date().toISOString():null,expires_at:body?.expires_at||null,updated_at:new Date().toISOString()};
@@ -4062,7 +4145,7 @@ async function handler(req, res) {
       'ai-operations', 'platform-overview', 'automation-overview',
       'permission-simulator', 'security-operations-overview', 'finance-overview',
       'support-overview', 'support-ticket-detail', 'crm-overview', 'analytics',
-      'ai-reviews', 'audit-log', 'operations-overview', 'system-health',
+      'ai-reviews', 'audit-log', 'assistant-audit-search', 'operations-overview', 'system-health',
       'security-status', 'funding-cases-list', 'funding-cases-detail',
       'funding-cases-assignees', 'funding-cases-kpis',
       'funding-cases-client-list', 'funding-cases-client-detail'
@@ -4417,6 +4500,10 @@ async function handler(req, res) {
       if (action === 'ai-operations') {
         const access = await requireAdminPermission(req, sb, 'ai.operations.read');
         return res.status(200).json(await getAiOperations(sb));
+      }
+      if (action === 'assistant-audit-search') {
+        await requireAdminPermission(req, sb, 'ai.operations.read');
+        return res.status(200).json(await searchAssistantAudit(sb, req.query || {}));
       }
       if (action === 'platform-overview') {
         const access = await requireAdminPermission(req, sb, 'observability.read');
