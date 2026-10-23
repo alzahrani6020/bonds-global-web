@@ -37,6 +37,13 @@ describe('Unified service execution layer', () => {
     expect(router).toContain('issueBrokerServiceToken');
     expect(router).toContain('revokeBrokerServiceToken');
     expect(router).toContain('executeCapability');
+    expect(router).toContain('service_code: service.code');
+  });
+
+  test('financial runtime adapter forwards service scope to deterministic analysis', () => {
+    const adapters = read('lib/capabilities/runtime-adapters.js');
+    expect(adapters).toContain("{ serviceCode: input.service_code || null }");
+    expect(adapters).toContain("'financial_analysis'");
   });
 
   test('registered calculators are resolved centrally', () => {
