@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "assistant",
-  "version": 2,
+  "version": 3,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -9,7 +9,7 @@
     "feature_flags": []
   },
   "security": {
-    "network_access": "none",
+    "network_access": "runtime_configured",
     "service_token_required": false,
     "privileges": {
       "service_role": false,
