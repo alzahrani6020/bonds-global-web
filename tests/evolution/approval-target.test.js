@@ -5,7 +5,8 @@ const {
   validateApprovedTarget,
   assertApprovalFresh,
   approvalCovers,
-  assertTargetUnchanged
+  assertTargetUnchanged,
+  approveEvolutionProposalTarget
 }=require('../../lib/evolution/approval-target');
 
 const SHA='f7a28c3fa833c6b1b57318c4f1a46c342496a0e3';
@@ -128,5 +129,90 @@ describe('Phase 4 approved target contract',()=>{
       approvedBy:'owner',
       scope:{mode:'partial'}
     })).toThrow('APPROVED_TARGET_PARTIAL_SCOPE_REQUIRED');
+  });
+});
+
+
+function mockSupabase(row){
+  const updates=[];
+  return {
+    updates,
+    from:jest.fn(()=>({
+      select:jest.fn(()=>({
+        eq:jest.fn(function(){return this;}),
+        limit:jest.fn().mockResolvedValue({data:[row],error:null})
+      })),
+      update:jest.fn(payload=>{
+        updates.push(payload);
+        return {
+          eq:jest.fn(function(){return this;}),
+          then(resolve){return Promise.resolve({data:null,error:null}).then(resolve);}
+        };
+      })
+    }))
+  };
+}
+
+describe('Phase 4 approved target persistence',()=>{
+  test('persists approved target on existing evolution proposal without execution authority',async()=>{
+    const row={
+      id:'11111111-1111-1111-1111-111111111111',
+      fingerprint:'a'.repeat(64),
+      severity:'high',
+      status:'proposed',
+      execution_authorized:false,
+      auto_execute:false,
+      metadata:{
+        learning_analysis:{
+          diagnosis:{
+            problem_class:'execution_defect',
+            target_component:'capability_execution',
+            recommended_path:'development_candidate'
+          },
+          risk:{risk_class:'high'}
+        }
+      }
+    };
+    const supabase=mockSupabase(row);
+
+    const result=await approveEvolutionProposalTarget({
+      supabase,
+      proposalId:row.id,
+      currentMainSha:SHA,
+      approvedBy:'owner',
+      approvedAt:'2026-10-23T04:10:00Z'
+    });
+
+    expect(result.status).toBe('approved');
+    expect(result.approved_target.state).toBe('APPROVED_TARGET');
+    expect(result.policy.execution_authorized).toBe(false);
+    expect(result.policy.auto_execute).toBe(false);
+    expect(supabase.updates).toHaveLength(1);
+    expect(supabase.updates[0]).toEqual(expect.objectContaining({
+      status:'approved',
+      execution_authorized:false,
+      auto_execute:false
+    }));
+    expect(supabase.updates[0].metadata.approved_target.policy.execution_authorized).toBe(false);
+  });
+
+  test('rejects proposal rows without learning diagnosis needed for bounded approval',async()=>{
+    const row={
+      id:'11111111-1111-1111-1111-111111111111',
+      fingerprint:'a'.repeat(64),
+      severity:'high',
+      status:'proposed',
+      execution_authorized:false,
+      auto_execute:false,
+      metadata:{}
+    };
+    const supabase=mockSupabase(row);
+    await expect(approveEvolutionProposalTarget({
+      supabase,
+      proposalId:row.id,
+      currentMainSha:SHA,
+      approvedBy:'owner'
+    })).rejects.toThrow('APPROVED_TARGET_PROPOSAL_SCOPE_INVALID');
+    expect(supabase.updates).toHaveLength(0);
   });
 });
