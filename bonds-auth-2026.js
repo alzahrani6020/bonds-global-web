@@ -185,12 +185,42 @@
     } catch (e) {}
   }
 
+  function responseLikeError(payload, status, requestId) {
+    const body = { ...(payload || {}), requestId: requestId || payload?.requestId || null };
+    return {
+      ...body,
+      ok: false,
+      status: Number(status || 0),
+      headers: null,
+      requestId: body.requestId,
+      async json() { return body; },
+      async text() { return JSON.stringify(body); },
+      async blob() {
+        if (typeof Blob !== 'undefined') return new Blob([JSON.stringify(body)], { type: 'application/json' });
+        return null;
+      }
+    };
+  }
+
+  function wrapFetchResponse(response, requestId, extra) {
+    return {
+      ...(extra || {}),
+      ok: response.ok,
+      status: response.status,
+      headers: response.headers,
+      requestId,
+      async json() { return response.json(); },
+      async text() { return response.text(); },
+      async blob() { return response.blob(); }
+    };
+  }
+
   async function authenticatedFetch(url, options) {
     options = options || {};
     await ensureEnv();
     const sb = getSupabase();
     if (!sb) {
-      return { __authError: 'AUTH_REQUIRED', ok: false, status: 0, authError: 'AUTH_REQUIRED' };
+      return responseLikeError({ __authError: 'AUTH_REQUIRED', authError: 'AUTH_REQUIRED', error: 'AUTH_REQUIRED' }, 0, null);
     }
 
     let sessionData = null;
@@ -217,7 +247,7 @@
           const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
           if (typeof window !== 'undefined') window.location.href = loginUrl;
         }
-        return { __authError: 'AUTH_REQUIRED', ok: false, status: 0, authError: 'AUTH_REQUIRED' };
+        return responseLikeError({ __authError: 'AUTH_REQUIRED', authError: 'AUTH_REQUIRED', error: 'AUTH_REQUIRED' }, 0, null);
       }
     }
 
@@ -240,7 +270,7 @@
         headers: { ...authHeaders, ...(options.headers || {}) }
       });
     } catch (e) {
-      return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId };
+      return responseLikeError({ __networkError: 'OFFLINE', offline: true, error: e.message }, 0, requestId);
     }
 
     if (response.status === 401) {
@@ -256,7 +286,7 @@
               headers: { ...authHeaders, ...(options.headers || {}) }
             });
           } catch (e) {
-            return { __networkError: 'OFFLINE', ok: false, status: 0, offline: true, error: e.message, requestId };
+            return responseLikeError({ __networkError: 'OFFLINE', offline: true, error: e.message }, 0, requestId);
           }
         }
       } catch (e) {}
@@ -266,27 +296,19 @@
           const loginUrl = options.loginUrl || getDefaultLoginUrl(options.returnTo);
           if (typeof window !== 'undefined') window.location.href = loginUrl;
         }
-        return { __authError: 'AUTH_REQUIRED', ok: false, status: 401, authError: 'AUTH_REQUIRED', requestId };
+        return responseLikeError({ __authError: 'AUTH_REQUIRED', authError: 'AUTH_REQUIRED', error: 'AUTH_REQUIRED' }, 401, requestId);
       }
     }
 
     if (response.status === 403) {
-      return { __authError: 'FORBIDDEN', ok: false, status: 403, authError: 'FORBIDDEN', requestId };
+      return responseLikeError({ __authError: 'FORBIDDEN', authError: 'FORBIDDEN', error: 'FORBIDDEN' }, 403, requestId);
     }
 
     if (response.status >= 500) {
-      return { __serverError: true, ok: false, status: response.status, serverError: true, requestId };
+      return wrapFetchResponse(response, requestId, { __serverError: true, serverError: true });
     }
 
-    return {
-      ok: response.ok,
-      status: response.status,
-      headers: response.headers,
-      requestId: requestId,
-      async json() { return response.json(); },
-      async text() { return response.text(); },
-      async blob() { return response.blob(); }
-    };
+    return wrapFetchResponse(response, requestId);
   }
 
   function decodeJwtAal(token) {
