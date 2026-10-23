@@ -22,6 +22,7 @@
   const ASSISTANT_WORKFLOW_SAVE_URL = '/api/v3/assistant/workflows/save';
   const CAPABILITY_EXECUTE_URL = '/api/v3/capabilities/execute';
   const CLIENT_DOCUMENTS_BUCKET = 'client-documents';
+  const CLIENT_DOCUMENTS_QUARANTINE_BUCKET = 'client-documents-quarantine';
   const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
   const MAX_ATTACHMENT_BATCH_FILES = 10;
   const MAX_ATTACHMENT_BATCH_BYTES = 25 * 1024 * 1024;
@@ -1848,14 +1849,22 @@
         name.textContent = item.filename || item.name || 'file';
         const meta = document.createElement('small');
         const status = item.error
-          ? (languageCode() === 'en' ? 'Failed' : 'فشل')
+          ? (languageCode() === 'en' ? 'Blocked or scan failed' : 'موقوف أو فشل الفحص')
           : item.uploading
-            ? (languageCode() === 'en' ? 'Uploading…' : 'جارٍ الرفع…')
-            : item.status === 'analyzed'
-              ? (item.extracted?.method === 'vision-required'
-                  ? (languageCode() === 'en' ? 'Uploaded · Vision required' : 'تم الرفع · يحتاج محرك الرؤية')
-                  : (languageCode() === 'en' ? 'Ready for assistant' : 'جاهز للمساعد'))
-              : (languageCode() === 'en' ? 'Uploaded' : 'تم الرفع');
+            ? (languageCode() === 'en' ? 'Uploading to quarantine…' : 'جارٍ الرفع إلى الحجر…')
+            : item.security_status === 'quarantined' || item.security_status === 'scanning'
+              ? (languageCode() === 'en' ? 'Security scan pending' : 'بانتظار الفحص الأمني')
+              : item.security_verdict === 'suspicious'
+                ? (languageCode() === 'en' ? 'Suspicious · blocked' : 'مشبوه · موقوف')
+                : item.security_verdict === 'malicious'
+                  ? (languageCode() === 'en' ? 'Malicious · blocked' : 'خبيث · موقوف')
+                  : item.status === 'analyzed'
+                    ? (item.extracted?.method === 'vision-required'
+                        ? (languageCode() === 'en' ? 'Clean · Vision required' : 'نظيف · يحتاج محرك الرؤية')
+                        : (languageCode() === 'en' ? 'Clean · Ready for assistant' : 'نظيف · جاهز للمساعد'))
+                    : item.security_verdict === 'clean'
+                      ? (languageCode() === 'en' ? 'Security scan passed' : 'اجتاز الفحص الأمني')
+                      : (languageCode() === 'en' ? 'Quarantined' : 'في الحجر');
         meta.textContent = status + (item.size_bytes ? ' · ' + formatAttachmentBytes(item.size_bytes) : '');
         card.append(name, meta);
         attachmentsEl.appendChild(card);
@@ -1958,7 +1967,7 @@
         storagePath = user.id + '/' + token + safeStorageExtension(file.name);
 
         const { error:uploadError } = await sb.storage
-          .from(CLIENT_DOCUMENTS_BUCKET)
+          .from(CLIENT_DOCUMENTS_QUARANTINE_BUCKET)
           .upload(storagePath, file, {
             contentType:file.type || 'application/octet-stream',
             cacheControl:'3600',
@@ -1973,26 +1982,45 @@
             project_id:context.projectId || null,
             filename:String(file.name || 'file').slice(0, 255),
             storage_path:storagePath,
+            storage_bucket:CLIENT_DOCUMENTS_QUARANTINE_BUCKET,
             mime_type:file.type || 'application/octet-stream',
             size_bytes:file.size,
-            status:'uploaded'
+            status:'uploaded',
+            security_status:'quarantined',
+            security_verdict:'pending'
           })
-          .select('id,filename,mime_type,size_bytes,status')
+          .select('id,filename,mime_type,size_bytes,status,security_status,security_verdict')
           .single();
         if (insertError || !documentRow?.id) throw new Error('DOCUMENT_METADATA_FAILED');
         metadataCreated = true;
 
+        const security = await executeAttachmentCapability('file_security_scan', {
+          document_id:documentRow.id
+        });
+        Object.assign(placeholder, documentRow, security || {}, { uploading:false, error:false });
+
+        if (security?.verdict !== 'clean' || security?.security_status !== 'clean') {
+          placeholder.error = true;
+          placeholder.error_code = security?.verdict === 'malicious'
+            ? 'FILE_REJECTED_MALICIOUS'
+            : security?.verdict === 'suspicious'
+              ? 'FILE_REJECTED_SUSPICIOUS'
+              : 'FILE_SECURITY_NOT_APPROVED';
+          renderAttachments();
+          return placeholder;
+        }
+
         const analyzed = await executeAttachmentCapability('document_analyze', {
           document_id:documentRow.id
         });
-        Object.assign(placeholder, analyzed || documentRow, { uploading:false, error:false });
+        Object.assign(placeholder, analyzed || documentRow, security || {}, { uploading:false, error:false });
         renderAttachments();
         root.classList.add('conversation-started');
         if (window.innerWidth > 640 && state.viewMode === 'standard') setViewMode('workspace');
         return placeholder;
       } catch (error) {
         if (sb && storagePath && !metadataCreated) {
-          try { await sb.storage.from(CLIENT_DOCUMENTS_BUCKET).remove([storagePath]); } catch (_) {}
+          try { await sb.storage.from(CLIENT_DOCUMENTS_QUARANTINE_BUCKET).remove([storagePath]); } catch (_) {}
         }
         placeholder.uploading = false;
         placeholder.error = true;
