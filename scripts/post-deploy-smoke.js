@@ -321,11 +321,11 @@ async function assertFinancialDataIntake(token) {
 
   const fixturePath = path.join(__dirname, '..', 'tests', 'fixtures', 'debt-to-equity.csv');
   const file = fs.readFileSync(fixturePath);
-  const storagePath = `financial-intake/${userId}/e2e-${cfg.expectedSha}.csv`;
+  const storagePath = `financial-intake/${userId}/e2e-${cfg.expectedSha}-${Date.now()}.csv`;
 
   const { error: uploadError } = await supabase.storage
     .from('client-documents')
-    .upload(storagePath, file, { contentType: 'text/csv', upsert: true });
+    .upload(storagePath, file, { contentType: 'text/csv', upsert: false });
   if (uploadError) throw new Error(`Financial intake upload failed: ${uploadError.message}`);
 
   const headers = {
