@@ -168,11 +168,12 @@ describe('V3 AI chat runtime wiring', () => {
     const fs = require('fs');
     const path = require('path');
     const source = fs.readFileSync(path.join(__dirname, '../../v3/api/ai.js'), 'utf8');
-    expect(source).toContain("require('../../lib/ai/inference-router')");
+    expect(source).toContain("require('../../lib/services/service-execution-router')");
     expect(source).toContain('const deterministicReply = forceNative ? null : generateDataDrivenReply');
     expect(source).toContain("source: 'data-driven'");
     expect(source).toContain('generateNativeReply(messages, enrichedContext, {');
-    expect(source).toContain("source: aiResult ? 'bonds-native' : 'data-driven-fallback'");
-    expect(source).toContain("provider: aiResult?.provider || 'BondsV3DataEngine'");
+    expect(source).toContain("source: aiResult ? 'bonds-assistant-ai' : 'data-driven-fallback'");
+    expect(source).toContain("provider: aiResult?.provider || 'BONDS'");
+    expect(source).toContain("action: 'ai_reason'");
   });
 });

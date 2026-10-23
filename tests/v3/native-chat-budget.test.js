@@ -7,10 +7,13 @@ describe('Bonds Native chat generation budget', () => {
     'utf8'
   );
 
-  test('keeps native chat output below the canonical runtime ceiling', () => {
-    expect(source).toContain('if (!Number.isFinite(parsed)) return 48;');
-    expect(source).toContain('Math.max(4, Math.min(48, Math.floor(parsed)))');
+  test('uses an adaptive bounded chat budget instead of the legacy 48-token ceiling', () => {
+    expect(source).toContain('function adaptiveNativeChatMaxTokens');
+    expect(source).toContain('Math.max(80, Math.min(384, Math.floor(requested)))');
+    expect(source).toContain('if (complex) return 320;');
+    expect(source).toContain('return 112;');
     expect(source).toContain('max_tokens: maxTokens');
+    expect(source).not.toContain('Math.min(48');
   });
 
   test('does not restore the previous 900-token chat budget', () => {
@@ -34,18 +37,20 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).toContain("native_attempted: false");
   });
 
-  test('allows an explicit bounded Native probe without raising the chat ceiling', () => {
-    expect(source).toContain('clampNativeChatMaxTokens(options.maxTokens)');
-    expect(source).toContain('Math.min(48');
+  test('allows an explicit bounded BONDS AI probe within the runtime ceiling', () => {
+    expect(source).toContain('adaptiveNativeChatMaxTokens(messages, options.maxTokens)');
+    expect(source).toContain('Math.min(384');
     expect(source).toContain('options?.force_native === true');
   });
 
-  test('keeps native prompt prefill compact for synchronous chat', () => {
-    expect(source).toContain("messages.slice(-4)");
-    expect(source).toContain("slice(0, 1000)");
+  test('keeps a bounded 8-12 message prompt with structured context layers', () => {
+    expect(source).toContain("slice(-10)");
     expect(source).toContain("VERIFIED_BONDS_DATA=");
-    expect(source).toContain("native_generator already supplies the invariant system contract");
-    expect(source).not.toContain("${system}\\n\\nبيانات موثقة متاحة بصيغة JSON:");
+    expect(source).toContain("CONVERSATION_STATE=");
+    expect(source).toContain("RECENT_MESSAGES=");
+    expect(source).toContain("CURRENT_REQUEST=");
+    expect(source).toContain("AVAILABLE_GOVERNED_ACTIONS=");
+    expect(source).toContain("Never reveal, infer, or name any underlying model");
   });
 
 });

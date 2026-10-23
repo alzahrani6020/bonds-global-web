@@ -14,7 +14,7 @@ describe('Assistant SSE transport streaming',()=>{
 
   test('streams truthful lifecycle events without claiming token deltas',()=>{
     expect(api).toContain("writeEvent(res, 'status', { phase:'preparing', source:'assistant' })");
-    expect(api).toContain("writeEvent(res, 'status', { phase:'inference', source:'bonds-native', token_streaming:false })");
+    expect(api).toContain("writeEvent(res, 'status', { phase:'inference', source:'bonds-assistant-ai', token_streaming:false })");
     expect(api).toContain("writeEvent(res, 'final', data)");
     expect(api).toContain("writeEvent(res, 'error'");
     expect(api).toContain("token_streaming:false");
@@ -22,8 +22,10 @@ describe('Assistant SSE transport streaming',()=>{
   });
 
   test('does not alter provider model token context or compute controls',()=>{
-    expect(api).toContain("provider: 'BondsNativeProvider'");
-    expect(api).toContain("model: 'bonds-native'");
+    expect(api).toContain("provider: 'BONDS'");
+    expect(api).toContain("model: null");
+    expect(api).not.toContain("provider: 'BondsNativeProvider'");
+    expect(api).not.toContain("model: 'bonds-native'");
     expect(api).toContain("max_tokens: maxTokens");
     expect(api).not.toContain("streamingMaxTokens");
     expect(api).not.toContain("streamingModel");

@@ -9,7 +9,7 @@ const calculatorRegistry = require('../../lib/assistant/calculator-registry.json
 describe('assistant calculator capabilities', () => {
   test('calculator capabilities are registered without service-token or throughput coupling', () => {
     const service = getService('assistant');
-    expect(service.version).toBe(2);
+    expect(service.version).toBe(3);
     expect(service.security.serviceTokenRequired).toBe(false);
     expect(service.limits).toEqual({
       requestsPerMinute: null,

@@ -75,7 +75,7 @@ describe('V3 critical control-plane boundaries', () => {
   test('Native AI execution is denied to unauthenticated callers', () => {
     const source = read('v3/api/ai.js');
     expect(source).toContain('authenticatedUser = await getUserFromToken(req)');
-    expect(source).toContain('Authentication required for Native AI execution');
+    expect(source).toContain('Authentication required for BONDS AI execution');
     expect(source).toContain('NATIVE_AUTH_REQUIRED');
   });
 
