@@ -103,10 +103,12 @@
     "phase6-self-training-closeout",
     "p7.1-unified-control-center",
     "phase7-control-center-closeout",
-    "dual-core-roadmap-closeout"
+    "dual-core-roadmap-closeout",
+    "p7.1-assistant-learning-training-evolution-surfaces",
+    "p7.1-capabilities-models-approvals-releases-health-audit"
   ],
   "currently_working_on": [],
-  "next_action": "operate and monitor the completed dual-core system; reopen only through a documented new roadmap item",
+  "next_action": "operate, monitor, and open a new governed roadmap only for future approved expansions",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
