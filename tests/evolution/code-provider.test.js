@@ -93,6 +93,18 @@ describe('Phase 3 BondsNative CodeProvider',()=>{
     ])).toThrow('CODE_PROVIDER_SOURCE_PATH_FORBIDDEN');
   });
 
+  test('rejects absolute and traversal repository paths before normalization',()=>{
+    expect(()=>normalizeSourceFiles([
+      {path:'/etc/passwd',content:'x'}
+    ])).toThrow('CODE_PROVIDER_PATH_INVALID');
+    expect(()=>normalizeSourceFiles([
+      {path:'C:\\Windows\\system.ini',content:'x'}
+    ])).toThrow('CODE_PROVIDER_PATH_INVALID');
+    expect(()=>normalizeSourceFiles([
+      {path:'lib/../.env',content:'x'}
+    ])).toThrow('CODE_PROVIDER_PATH_INVALID');
+  });
+
   test('rejects operational command fields from model output',()=>{
     expect(()=>validatePatchProposal({
       summary:'x',
