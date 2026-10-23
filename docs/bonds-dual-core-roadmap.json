@@ -4,7 +4,7 @@
   "source_of_truth": "docs/BONDS_DUAL_CORE_MASTER_ARCHITECTURE.md",
   "bootstrap": "docs/PROJECT_BOOTSTRAP.md",
   "status": "in_progress",
-  "current_phase": "phase2-learning-foundation",
+  "current_phase": "phase3-candidate-engineering",
   "phases": [
     {
       "id": "phase0",
@@ -88,7 +88,7 @@
     {
       "id": "phase2",
       "title": "Learning Foundation",
-      "status": "in_progress",
+      "status": "completed",
       "items": [
         {
           "id": "p2.1",
@@ -123,14 +123,14 @@
         {
           "id": "p2.7",
           "title": "High/critical evolution proposals to Agent Inbox",
-          "status": "implemented_candidate"
+          "status": "completed"
         }
       ]
     },
     {
       "id": "phase3",
       "title": "Candidate Engineering",
-      "status": "planned"
+      "status": "ready"
     },
     {
       "id": "phase4",
