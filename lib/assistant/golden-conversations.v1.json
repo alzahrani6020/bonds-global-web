@@ -1,0 +1,152 @@
+{
+  "version": 1,
+  "name": "BONDS_ASSISTANT_GOLDEN_CONVERSATIONS_V1",
+  "purpose": "Versioned deterministic reference conversations for Assistant behavior and future evaluation. These cases define governed structural expectations, not model wording.",
+  "conversations": [
+    {
+      "id": "ar_navigation_kyc",
+      "language": "ar",
+      "user_message": "خذني إلى التحقق من الهوية.",
+      "planner_input": {
+        "type": "site_navigate",
+        "target": "kyc",
+        "language": "ar"
+      },
+      "expected": {
+        "status": "ready",
+        "action_count": 1,
+        "action": {
+          "type": "site_navigate",
+          "target": "kyc",
+          "risk": "low",
+          "requires_confirmation": false
+        }
+      }
+    },
+    {
+      "id": "en_navigation_kyc",
+      "language": "en",
+      "user_message": "Take me to KYC.",
+      "planner_input": {
+        "type": "site_navigate",
+        "target": "kyc",
+        "language": "en"
+      },
+      "expected": {
+        "status": "ready",
+        "action_count": 1,
+        "action": {
+          "type": "site_navigate",
+          "target": "kyc",
+          "risk": "low",
+          "requires_confirmation": false
+        }
+      }
+    },
+    {
+      "id": "ar_load_cash_flow_form",
+      "language": "ar",
+      "user_message": "افتح نموذج التدفق النقدي.",
+      "planner_input": {
+        "type": "form_load",
+        "form": "cash_flow",
+        "language": "ar"
+      },
+      "expected": {
+        "status": "ready",
+        "action_count": 1,
+        "action": {
+          "type": "form_load",
+          "target": "cash_flow",
+          "risk": "low",
+          "requires_confirmation": false
+        }
+      }
+    },
+    {
+      "id": "en_find_kyc_form",
+      "language": "en",
+      "user_message": "Find the KYC form.",
+      "planner_input": {
+        "type": "form_find",
+        "form": "kyc",
+        "language": "en"
+      },
+      "expected": {
+        "status": "ready",
+        "action_count": 1,
+        "action": {
+          "type": "form_find",
+          "target": "kyc",
+          "risk": "low",
+          "requires_confirmation": false
+        }
+      }
+    },
+    {
+      "id": "ar_save_kyc_draft",
+      "language": "ar",
+      "user_message": "احفظ نموذج التحقق كمسودة.",
+      "planner_input": {
+        "type": "form_save_draft",
+        "form": "kyc",
+        "language": "ar"
+      },
+      "expected": {
+        "status": "ready",
+        "action_count": 1,
+        "action": {
+          "type": "form_save_draft",
+          "target": "kyc",
+          "risk": "medium",
+          "requires_confirmation": false
+        }
+      }
+    },
+    {
+      "id": "en_unknown_form_denied",
+      "language": "en",
+      "user_message": "Load a form that is not registered.",
+      "planner_input": {
+        "type": "form_load",
+        "form": "not_registered",
+        "language": "en"
+      },
+      "expected": {
+        "status": "denied",
+        "action_count": 0,
+        "context_code": "FORM_NOT_REGISTERED"
+      }
+    },
+    {
+      "id": "ar_arbitrary_url_denied",
+      "language": "ar",
+      "user_message": "افتح هذا الرابط غير المسجل.",
+      "planner_input": {
+        "type": "site_navigate",
+        "target": "https://evil.example",
+        "language": "ar"
+      },
+      "expected": {
+        "status": "denied",
+        "action_count": 0,
+        "context_code": "NAVIGATION_TARGET_NOT_REGISTERED"
+      }
+    },
+    {
+      "id": "en_unimplemented_sensitive_action_denied",
+      "language": "en",
+      "user_message": "Run a payment action now.",
+      "planner_input": {
+        "type": "payment_action",
+        "target": "payment",
+        "language": "en"
+      },
+      "expected": {
+        "status": "denied",
+        "action_count": 0,
+        "context_code": "ASSISTANT_ACTION_NOT_IMPLEMENTED"
+      }
+    }
+  ]
+}
