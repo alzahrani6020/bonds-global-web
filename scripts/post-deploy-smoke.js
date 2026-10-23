@@ -335,55 +335,54 @@ async function assertFinancialDataIntake(token) {
     'X-Request-ID': `e2e-financial-intake-${Date.now()}`
   };
 
-  const prepare = await fetchJson(`${cfg.baseUrl}/api/v3/services/intake/prepare`, {
+  const post = (url, body) => fetchJson(`${cfg.baseUrl}${url}`, {
     method: 'POST',
     headers,
-    body: JSON.stringify({
-      service_code: 'debt_to_equity_analysis',
-      storage_path: storagePath,
-      file_name: 'debt-to-equity.csv',
-      mime_type: 'text/csv',
-      size_bytes: file.length
-    })
+    body: JSON.stringify(body)
+  });
+  const get = url => fetchJson(`${cfg.baseUrl}${url}`, {
+    method: 'GET',
+    headers
+  });
+  const prepareManual = (serviceCode, manualValues, extra = {}) => post('/api/v3/services/intake/prepare', {
+    service_code: serviceCode,
+    manual_values: manualValues,
+    ...extra
+  });
+  const approveDataset = (datasetId, corrections = {}) => post('/api/v3/services/intake/approve', {
+    dataset_id: datasetId,
+    corrections
+  });
+  const executeDataset = (serviceCode, datasetId) => post('/api/v3/services/execute', {
+    service_code: serviceCode,
+    dataset_id: datasetId,
+    language: 'en',
+    source: 'production_e2e'
   });
 
+  // Test 1 — real file, debt/equity, deterministic ground truth.
+  const prepare = await post('/api/v3/services/intake/prepare', {
+    service_code: 'debt_to_equity_analysis',
+    storage_path: storagePath,
+    file_name: 'debt-to-equity.csv',
+    mime_type: 'text/csv',
+    size_bytes: file.length
+  });
   if (!prepare.res.ok || !prepare.body?.dataset_id) {
     throw new Error(`Financial intake prepare failed: HTTP ${prepare.res.status} ${JSON.stringify(prepare.body)}`);
   }
   if (prepare.body?.source?.file_version?.startsWith('sha256:') !== true) {
     throw new Error('Financial intake did not return a content-addressed file version');
   }
-
-  const extracted = Object.fromEntries(
-    (prepare.body.fields || []).map(field => [field.field, field.value])
-  );
+  const extracted = Object.fromEntries((prepare.body.fields || []).map(field => [field.field, field.value]));
   if (extracted.total_debt !== 200000 || extracted.equity !== 100000) {
     throw new Error(`Financial extraction mismatch: ${JSON.stringify(extracted)}`);
   }
-
-  const approve = await fetchJson(`${cfg.baseUrl}/api/v3/services/intake/approve`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      dataset_id: prepare.body.dataset_id,
-      corrections: {}
-    })
-  });
-  if (!approve.res.ok || approve.body?.status !== 'validated') {
+  const approve = await approveDataset(prepare.body.dataset_id);
+  if (!approve.res.ok || approve.body?.status !== 'validated' || approve.body?.quality_status !== 'verified') {
     throw new Error(`Financial intake approval failed: HTTP ${approve.res.status} ${JSON.stringify(approve.body)}`);
   }
-
-  const execution = await fetchJson(`${cfg.baseUrl}/api/v3/services/execute`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({
-      service_code: 'debt_to_equity_analysis',
-      dataset_id: prepare.body.dataset_id,
-      language: 'en',
-      source: 'production_e2e'
-    })
-  });
-
+  const execution = await executeDataset('debt_to_equity_analysis', prepare.body.dataset_id);
   const calculated = execution.body?.metrics?.debt_to_equity ?? execution.body?.result?.metrics?.debt_to_equity;
   const manual = 200000 / 100000;
   if (!execution.res.ok || execution.body?.executed !== true || calculated !== manual) {
@@ -395,8 +394,105 @@ async function assertFinancialDataIntake(token) {
     throw new Error('Financial execution result is missing dataset provenance');
   }
 
+  // Test 2 — liquidity service through the same dataset gateway.
+  const liquidityPrepare = await prepareManual('liquidity_gap_analysis', {
+    opening_balance: 100,
+    periods: [
+      { period: 'M1', inflows: 50, outflows: 120 },
+      { period: 'M2', inflows: 20, outflows: 100 }
+    ]
+  });
+  if (!liquidityPrepare.res.ok || !liquidityPrepare.body?.dataset_id) {
+    throw new Error(`Liquidity intake failed: HTTP ${liquidityPrepare.res.status} ${JSON.stringify(liquidityPrepare.body)}`);
+  }
+  const liquidityApprove = await approveDataset(liquidityPrepare.body.dataset_id);
+  if (!liquidityApprove.res.ok) throw new Error(`Liquidity approval failed: ${JSON.stringify(liquidityApprove.body)}`);
+  const liquidityExecution = await executeDataset('liquidity_gap_analysis', liquidityPrepare.body.dataset_id);
+  const peakGap = liquidityExecution.body?.metrics?.peak_liquidity_gap
+    ?? liquidityExecution.body?.result?.metrics?.peak_liquidity_gap;
+  if (!liquidityExecution.res.ok || liquidityExecution.body?.executed !== true || peakGap !== 50) {
+    throw new Error(`Liquidity E2E mismatch: expected peak gap 50, got ${peakGap}; ${JSON.stringify(liquidityExecution.body)}`);
+  }
+
+  // Test 3 — profitability/margin deterministic ground truth.
+  const marginPrepare = await prepareManual('gross_margin_analysis', { revenue: 1000, cogs: 600 });
+  if (!marginPrepare.res.ok) throw new Error(`Margin intake failed: ${JSON.stringify(marginPrepare.body)}`);
+  const marginApprove = await approveDataset(marginPrepare.body.dataset_id);
+  if (!marginApprove.res.ok) throw new Error(`Margin approval failed: ${JSON.stringify(marginApprove.body)}`);
+  const marginExecution = await executeDataset('gross_margin_analysis', marginPrepare.body.dataset_id);
+  const grossMargin = marginExecution.body?.metrics?.gross_margin_pct
+    ?? marginExecution.body?.result?.metrics?.gross_margin_pct;
+  if (!marginExecution.res.ok || marginExecution.body?.executed !== true || grossMargin !== 40) {
+    throw new Error(`Gross margin E2E mismatch: expected 40, got ${grossMargin}; ${JSON.stringify(marginExecution.body)}`);
+  }
+
+  // Test 4 — changing an executed dataset marks previous execution evidence stale.
+  const changed = await approveDataset(prepare.body.dataset_id, { total_debt: 210000 });
+  if (!changed.res.ok) throw new Error(`Dataset correction failed: ${JSON.stringify(changed.body)}`);
+  const changedDataset = await get(`/api/v3/services/intake/datasets/${encodeURIComponent(prepare.body.dataset_id)}`);
+  if (!changedDataset.res.ok || changedDataset.body?.dataset?.is_stale !== true) {
+    throw new Error(`Dataset change did not mark prior result STALE: ${JSON.stringify(changedDataset.body)}`);
+  }
+  const staleHistory = changedDataset.body?.dataset?.execution_history || [];
+  if (!staleHistory.some(entry => entry?.stale === true)) {
+    throw new Error('Dataset change did not preserve prior execution as stale history');
+  }
+
+  // Test 5 — conflicting file/manual values must never be selected silently.
+  const conflictPrepare = await post('/api/v3/services/intake/prepare', {
+    service_code: 'debt_to_equity_analysis',
+    storage_path: storagePath,
+    file_name: 'debt-to-equity.csv',
+    mime_type: 'text/csv',
+    size_bytes: file.length,
+    manual_values: { total_debt: 210000 }
+  });
+  const conflictDebt = (conflictPrepare.body?.fields || []).find(field => field.field === 'total_debt');
+  if (!conflictPrepare.res.ok || conflictPrepare.body?.quality_status !== 'conflicting'
+      || conflictDebt?.status !== 'conflict' || conflictDebt?.value !== null) {
+    throw new Error(`Conflict detection failed closed incorrectly: ${JSON.stringify(conflictPrepare.body)}`);
+  }
+
+  // Test 6 — a critical uncertain/missing value must fail closed.
+  const uncertainPrepare = await prepareManual('debt_to_equity_analysis', { total_debt: 200000 });
+  if (!uncertainPrepare.res.ok || uncertainPrepare.body?.validation?.quality_gate !== 'FAIL_CLOSED') {
+    throw new Error(`Missing critical value was not flagged: ${JSON.stringify(uncertainPrepare.body)}`);
+  }
+  const uncertainApprove = await approveDataset(uncertainPrepare.body.dataset_id);
+  if (uncertainApprove.res.status !== 422 || uncertainApprove.body?.ok !== false) {
+    throw new Error(`Missing critical value approval did not fail closed: ${JSON.stringify(uncertainApprove.body)}`);
+  }
+  const uncertainExecution = await executeDataset('debt_to_equity_analysis', uncertainPrepare.body.dataset_id);
+  if (uncertainExecution.res.status !== 409 || uncertainExecution.body?.executed !== false) {
+    throw new Error(`Missing critical value reached execution: ${JSON.stringify(uncertainExecution.body)}`);
+  }
+
+  // Test 7 — new version preserves parent history instead of overwriting it.
+  const versionPrepare = await prepareManual(
+    'debt_to_equity_analysis',
+    { total_debt: 210000, equity: 100000 },
+    { parent_dataset_id: prepare.body.dataset_id }
+  );
+  if (!versionPrepare.res.ok || versionPrepare.body?.dataset_version !== 2) {
+    throw new Error(`Dataset versioning failed: ${JSON.stringify(versionPrepare.body)}`);
+  }
+  const parentAfterVersion = await get(`/api/v3/services/intake/datasets/${encodeURIComponent(prepare.body.dataset_id)}`);
+  if (!parentAfterVersion.res.ok || parentAfterVersion.body?.dataset?.is_stale !== true) {
+    throw new Error('Parent dataset history was not retained/staled after new version');
+  }
+
+  // Export acceptance — all formats originate from the same approved result.
+  const marginExports = await Promise.all(['summary','xlsx','pdf'].map(async format => {
+    const response = await fetch(`${cfg.baseUrl}/api/v3/services/intake/datasets/${encodeURIComponent(marginPrepare.body.dataset_id)}/export?format=${format}`, {
+      headers: { Authorization: `Bearer ${token}`, 'Cache-Control': 'no-cache' }
+    });
+    const bytes = Buffer.from(await response.arrayBuffer());
+    if (!response.ok || bytes.length < 20) throw new Error(`Financial ${format} export failed: HTTP ${response.status}`);
+    return { format, bytes: bytes.length, contentType: response.headers.get('content-type') };
+  }));
+
   console.log(
-    `Financial Data Intake E2E PASS (service=debt_to_equity_analysis, file=debt-to-equity.csv, total_debt=200000, equity=100000, calculated=${calculated}, manual=${manual}, dataset=${prepare.body.dataset_id})`
+    `Financial Data 62 acceptance PASS (debt_equity=${calculated}, liquidity_peak_gap=${peakGap}, gross_margin=${grossMargin}, stale=true, conflict=true, fail_closed=true, version=2, exports=${JSON.stringify(marginExports)})`
   );
 }
 
