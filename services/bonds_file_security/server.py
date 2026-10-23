@@ -35,6 +35,19 @@ MAGIC = (
     (b"\xd0\xcf\x11\xe0\xa1\xb1\x1a\xe1", "application/x-ole-storage"),
 )
 
+OPENXML_BY_SUFFIX = {
+    ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    ".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+}
+OLE_BY_SUFFIX = {
+    ".doc": "application/msword",
+    ".xls": "application/vnd.ms-excel",
+}
+SUPPORTED_MIME_ALIASES = {
+    "application/csv": "text/csv",
+}
+
 def _authorized(header: str) -> bool:
     if not TOKEN:
         return False
@@ -45,22 +58,42 @@ def _clam_ready() -> bool:
     return bool(CLAMSCAN and Path(CLAMSCAN).is_file())
 
 def _detect_mime(path: Path, expected: str = "") -> str:
-    head = path.read_bytes()[:32]
+    head = path.read_bytes()[:64]
+    suffix = path.suffix.lower()
+    if len(head) >= 12 and head[4:8] == b"ftyp" and head[8:12] in {
+        b"heic", b"heix", b"hevc", b"hevx", b"mif1", b"msf1"
+    }:
+        return "image/heic"
     for signature, mime in MAGIC:
         if head.startswith(signature):
             if mime == "application/zip":
-                suffix = path.suffix.lower()
-                if suffix == ".docx":
-                    return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                if suffix == ".xlsx":
-                    return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                if suffix == ".pptx":
-                    return "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+                return OPENXML_BY_SUFFIX.get(suffix, "application/zip")
+            if mime == "application/x-ole-storage":
+                return OLE_BY_SUFFIX.get(suffix, mime)
             if mime == "image/webp" and head[8:12] != b"WEBP":
                 continue
             return mime
     guessed, _ = mimetypes.guess_type(path.name)
     return guessed or expected or "application/octet-stream"
+
+def _normalize_mime(value: str) -> str:
+    normalized = str(value or "").strip().lower().split(";", 1)[0]
+    return SUPPORTED_MIME_ALIASES.get(normalized, normalized)
+
+def _validate_structure(path: Path, expected_mime: str, detected_mime: str) -> None:
+    expected = _normalize_mime(expected_mime)
+    detected = _normalize_mime(detected_mime)
+    if not expected:
+        raise ValueError("EXPECTED_MIME_REQUIRED")
+    if expected.startswith("image/") and detected.startswith("image/"):
+        if expected in {"image/heif", "image/heic"} and detected == "image/heic":
+            return
+        if expected == detected:
+            return
+        raise ValueError("FILE_SIGNATURE_MISMATCH")
+    if expected == detected:
+        return
+    raise ValueError("FILE_SIGNATURE_MISMATCH")
 
 def _download(url: str, target: Path, expected_size: int) -> None:
     parsed = urllib.parse.urlparse(url)
@@ -137,6 +170,7 @@ def _scan(body: dict[str, Any]) -> dict[str, Any]:
         _download(url, path, expected_size)
         sha256 = _sha256(path)
         detected_mime = _detect_mime(path, expected_mime)
+        _validate_structure(path, expected_mime, detected_mime)
         verdict, details = _run_clam(path)
         yara_hit, yara_hits = _run_yara(path)
         if yara_hit and verdict == "clean":
