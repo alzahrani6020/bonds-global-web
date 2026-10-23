@@ -614,7 +614,9 @@
     }));
 
     const directRoute = selectedServiceRoute(serviceCode);
-    if (directRoute) {
+    const hasExecutionCapabilities = Array.isArray(selectedService?.capabilities) &&
+      selectedService.capabilities.length > 0;
+    if (directRoute && !hasExecutionCapabilities) {
       track('service_direct_route',{
         service_code:serviceCode,
         route:directRoute
