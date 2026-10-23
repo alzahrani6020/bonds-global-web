@@ -17,6 +17,7 @@ const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
+const { planOpenTurn, executePlannedTool, synthesizeToolReply } = require('../../lib/assistant/open-chat-tool-loop');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -612,7 +613,99 @@ async function aiChatHandler(req, res) {
     console.warn('[ai/chat] Chat orchestration degraded to existing assistant path:', err.message);
   }
 
-  const deterministicReply = forceNative ? null : generateDataDrivenReply(lastUserText, enrichedContext);
+  if (authenticatedUser && !forceNative) {
+    try {
+      const plannerDecision = await planOpenTurn(messages, enrichedContext, {
+        req,
+        user: authenticatedUser,
+        supabase: getSupabaseClient(),
+        requestId: req.headers['x-request-id'] || null,
+        timeoutMs: nativeChatTimeoutMs()
+      });
+
+      if (plannerDecision?.mode === 'answer') {
+        return sendAssistantResponse(res, 200, {
+          reply: enforceAssistantIdentity(plannerDecision.answer),
+          source: 'bonds-assistant-ai',
+          provider: 'BONDS',
+          model: null,
+          inference: { planner: 'open-chat', tool_used: false },
+          fallback_reason: null,
+          debug: {
+            input: lastUser?.content,
+            native_attempted: true,
+            open_chat_planner: true,
+            tool_used: false
+          },
+          context: {
+            cityCode: enrichedContext.cityCode || null,
+            activityCode: enrichedContext.activityCode || null,
+            cityName: enrichedContext.cityName || null,
+            activityName: enrichedContext.activityName || null,
+            serviceCode: enrichedContext.serviceCode || null,
+            serviceName: enrichedContext.serviceName || null,
+            lastIntent: orchestrationMeta?.intent || null,
+            activeTopic: lastUserText || null
+          }
+        }, { stream: streaming });
+      }
+
+      if (plannerDecision?.mode === 'tool') {
+        const toolResult = await executePlannedTool(plannerDecision, {
+          req,
+          user: authenticatedUser,
+          supabase: getSupabaseClient(),
+          requestId: req.headers['x-request-id'] || null
+        });
+        const toolReply = await synthesizeToolReply(messages, enrichedContext, plannerDecision, toolResult, {
+          req,
+          user: authenticatedUser,
+          supabase: getSupabaseClient(),
+          requestId: req.headers['x-request-id'] || null,
+          timeoutMs: nativeChatTimeoutMs(),
+          maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens)
+        });
+
+        if (toolReply) {
+          return sendAssistantResponse(res, 200, {
+            reply: enforceAssistantIdentity(toolReply),
+            source: 'bonds-assistant-ai-tool',
+            provider: 'BONDS',
+            model: null,
+            inference: {
+              planner: 'open-chat',
+              tool_used: true,
+              action: plannerDecision.action,
+              action_fabric: toolResult?.action_fabric || null
+            },
+            fallback_reason: toolResult?.ok ? null : (toolResult?.error?.code || 'TOOL_EXECUTION_FAILED'),
+            debug: {
+              input: lastUser?.content,
+              native_attempted: true,
+              open_chat_planner: true,
+              tool_used: true,
+              tool_action: plannerDecision.action,
+              tool_ok: toolResult?.ok === true
+            },
+            context: {
+              cityCode: enrichedContext.cityCode || null,
+              activityCode: enrichedContext.activityCode || null,
+              cityName: enrichedContext.cityName || null,
+              activityName: enrichedContext.activityName || null,
+              serviceCode: enrichedContext.serviceCode || null,
+              serviceName: enrichedContext.serviceName || null,
+              lastIntent: orchestrationMeta?.intent || null,
+              activeTopic: lastUserText || null
+            }
+          }, { stream: streaming });
+        }
+      }
+    } catch (err) {
+      console.warn('[ai/chat] Open-chat planner degraded to ordinary governed AI path:', err.message);
+    }
+  }
+
+  const deterministicReply = (forceNative || authenticatedUser) ? null : generateDataDrivenReply(lastUserText, enrichedContext);
   if (deterministicReply) {
     return sendAssistantResponse(res, 200, {
       reply: deterministicReply,
