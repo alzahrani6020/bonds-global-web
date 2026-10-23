@@ -132,6 +132,15 @@ describe('assistant persistent workflow state', () => {
     })).resolves.toBeNull();
   });
 
+  test('load returns null when PostgREST represents an empty composite RPC as an empty array', async () => {
+    mockRpc.mockResolvedValueOnce({ data:[], error:null });
+    await expect(loadWorkflowState({
+      supabase:{ rpc:mockRpc },
+      userId:'user-1',
+      workflowKey:'wf-404'
+    })).resolves.toBeNull();
+  });
+
   test('status transitions require expected version', async () => {
     await expect(setWorkflowStatus({
       supabase:{ rpc:mockRpc },
