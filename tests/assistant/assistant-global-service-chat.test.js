@@ -8,7 +8,7 @@ describe('BONDS global service assistant', () => {
 
   test('mounts the assistant globally from the shared site layout', () => {
     expect(layout).toContain('function ensureGlobalAssistantRuntime()');
-    expect(layout).toContain("script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-5';");
+    expect(layout).toContain("script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-6';");
     expect(layout).toContain("window.BondsAIChat.mount({");
     expect(layout).toContain("global: true");
     expect(layout).toContain("pagePath: window.location.pathname + window.location.hash");
