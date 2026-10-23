@@ -289,8 +289,11 @@ async function assertNativeProductionRuntime(token) {
         `${probe.label} chat did not prove Bonds Native execution: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}, debug=${JSON.stringify(chat.body?.debug || null)}`
       );
     }
-    if (chat.body?.model !== 'bonds-native') {
-      throw new Error(`${probe.label} chat returned unexpected model: ${chat.body?.model || 'missing'}`);
+    if (legacyNativeEnvelope && chat.body?.model !== 'bonds-native') {
+      throw new Error(`${probe.label} legacy Native envelope returned unexpected model: ${chat.body?.model || 'missing'}`);
+    }
+    if (orchestratedNativeEnvelope && chat.body?.model != null) {
+      throw new Error(`${probe.label} orchestrated Native envelope unexpectedly exposed a model identifier`);
     }
     const observedModelSha = String(chat.body?.inference?.model_sha256 || '').toLowerCase();
     if (observedModelSha !== expectedModelSha) {
