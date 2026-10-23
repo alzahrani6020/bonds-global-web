@@ -122,3 +122,31 @@ create policy file_security_events_client_select
   );
 
 grant select on public.file_security_events to authenticated;
+
+
+-- ---------------------------------------------------------------------------
+-- Privilege hardening: authenticated users may create metadata only.
+-- Security state/verdict and approved storage promotion are server-owned.
+-- ---------------------------------------------------------------------------
+alter table public.client_documents
+  alter column storage_bucket set default 'client-documents-quarantine',
+  alter column security_status set default 'quarantined',
+  alter column security_verdict set default 'pending';
+
+revoke insert, update on table public.client_documents from authenticated;
+grant select on table public.client_documents to authenticated;
+grant insert (
+  client_id,
+  project_id,
+  filename,
+  storage_path,
+  mime_type,
+  size_bytes
+) on table public.client_documents to authenticated;
+
+revoke all on table public.file_security_events from anon;
+revoke all on table public.file_security_events from authenticated;
+grant select on table public.file_security_events to authenticated;
+
+-- Approved storage is writeable only by trusted server/service-role paths.
+drop policy if exists client_documents_insert on storage.objects;
