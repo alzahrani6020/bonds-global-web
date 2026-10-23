@@ -21,7 +21,7 @@ import urllib.request
 from datetime import datetime, timezone
 from typing import Mapping
 
-from current_authority.resolver import AuthorityRequest, resolve
+from bonds_runtime_governance import AuthorityRequest, resolve
 
 from .contracts import FetchEvidence, FetchResult
 
