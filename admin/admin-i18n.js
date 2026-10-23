@@ -160,7 +160,9 @@
   }
 
   global.addEventListener('message', event => {
+    if (global.parent === global) return;
     if (event.origin !== location.origin) return;
+    if (event.source !== global.parent) return;
     if (event.data?.type !== 'admin-locale') return;
     apply(event.data.locale, { persist: true });
   });
