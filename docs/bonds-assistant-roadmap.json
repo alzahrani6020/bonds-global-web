@@ -95,13 +95,13 @@
       "id": 11,
       "title": "Deterministic Planner",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 12,
       "title": "Missing-Data Resolver",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 13,
@@ -485,13 +485,13 @@
       "id": 76,
       "title": "User Journey Engine",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 77,
       "title": "Next-Step Engine",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 78,
@@ -689,7 +689,7 @@
       "id": 110,
       "title": "Evidence Binding",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 111,
