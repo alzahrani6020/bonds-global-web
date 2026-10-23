@@ -32,8 +32,8 @@ describe('admin platform center rebuild', () => {
     expect(page).not.toContain('method: "POST"');
   });
 
-  test('keeps admin guard and authenticated fetch', () => {
+  test('keeps admin guard and shared authenticated request path', () => {
     expect(page).toContain('BondsAuth.initAdminGuard()');
-    expect(page).toContain('BondsAuth.authenticatedFetch');
+    expect(page).toContain('BondsAdminCommon.requestJson');
   });
 });
