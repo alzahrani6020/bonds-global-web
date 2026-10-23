@@ -159,4 +159,15 @@ describe('financial data intake phase 1', () => {
     ]));
   });
 
+  test('maps liquidity requirements to structured periods and opening balance', () => {
+    const required = requirementsFor({
+      primaryAction: 'cash_flow_analysis_run',
+      serviceCode: 'liquidity_gap_analysis',
+      values: {}
+    });
+    expect(required.requirement_fields).toEqual(
+      expect.arrayContaining(['periods','opening_balance'])
+    );
+  });
+
 });
