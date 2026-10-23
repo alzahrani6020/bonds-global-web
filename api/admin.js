@@ -3704,6 +3704,68 @@ async function getAssistantOperationalReplay(sb,params={}){
   };
 }
 
+
+
+function roundCost(value){return Math.round(Number(value||0)*1000000)/1000000;}
+
+async function getAssistantCostGovernance(sb,params={}){
+  const windowDays=Math.max(1,Math.min(Number(params.window_days)||30,90));
+  const since=new Date(Date.now()-windowDays*86400000).toISOString();
+  const {data,error}=await sb.from('admin_ai_operation_events')
+    .select('created_at,feature,model,status,input_tokens,output_tokens,cost_usd,latency_ms')
+    .gte('created_at',since)
+    .order('created_at',{ascending:false})
+    .limit(10000);
+  if(error)throw error;
+  const events=data||[];
+  const groups=(key)=>{
+    const map={};
+    for(const e of events){
+      const name=String(e[key]||'unknown');
+      const row=map[name]||(map[name]={name,requests:0,cost_usd:0,input_tokens:0,output_tokens:0,failures:0});
+      row.requests++;
+      row.cost_usd+=Number(e.cost_usd||0);
+      row.input_tokens+=Number(e.input_tokens||0);
+      row.output_tokens+=Number(e.output_tokens||0);
+      if(e.status!=='success')row.failures++;
+    }
+    return Object.values(map).map(x=>({...x,cost_usd:roundCost(x.cost_usd)})).sort((a,b)=>b.cost_usd-a.cost_usd||b.requests-a.requests);
+  };
+  const priced=events.filter(e=>Number.isFinite(Number(e.cost_usd))&&e.cost_usd!==null);
+  const latencies=events.map(e=>Number(e.latency_ms||0)).filter(v=>v>0).sort((a,b)=>a-b);
+  const totalCost=events.reduce((s,e)=>s+Number(e.cost_usd||0),0);
+  const inputTokens=events.reduce((s,e)=>s+Number(e.input_tokens||0),0);
+  const outputTokens=events.reduce((s,e)=>s+Number(e.output_tokens||0),0);
+  return{
+    success:true,
+    cost_governance:{
+      window_days:windowDays,
+      generated_at:new Date().toISOString(),
+      summary:{
+        requests:events.length,
+        cost_usd:roundCost(totalCost),
+        input_tokens:inputTokens,
+        output_tokens:outputTokens,
+        unpriced_events:Math.max(0,events.length-priced.length),
+        cost_coverage_pct:events.length?Math.round(priced.length/events.length*1000)/10:100,
+        p50_latency_ms:latencies.length?latencies[Math.floor(latencies.length*.5)]:null,
+        p95_latency_ms:latencies.length?latencies[Math.min(latencies.length-1,Math.floor(latencies.length*.95))]:null
+      },
+      by_feature:groups('feature'),
+      by_model:groups('model'),
+      policy:{
+        observability_only:true,
+        authorization_effect:'none',
+        execution_blocking:false,
+        token_limiting:false,
+        provider_routing_effect:'none',
+        model_selection_effect:'none',
+        compute_limit_effect:'none'
+      }
+    }
+  };
+}
+
 // ── Data Governance / Document Center ──────────────────────
 function maskEmail(value){const s=String(value||'');const [a,b]=s.split('@');if(!b)return s?'***':'';return (a?String(a[0]||'')+'***':'***')+'@'+b;}
 function maskPhone(value){const s=String(value||'').replace(/\s+/g,'');if(s.length<=4)return s?'****':'';return '*'.repeat(Math.max(4,s.length-4))+s.slice(-4);}
@@ -4222,7 +4284,7 @@ async function handler(req, res) {
       'ai-operations', 'platform-overview', 'automation-overview',
       'permission-simulator', 'security-operations-overview', 'finance-overview',
       'support-overview', 'support-ticket-detail', 'crm-overview', 'analytics',
-      'ai-reviews', 'audit-log', 'assistant-audit-search', 'assistant-operational-replay', 'operations-overview', 'system-health',
+      'ai-reviews', 'audit-log', 'assistant-audit-search', 'assistant-operational-replay', 'assistant-cost-governance', 'operations-overview', 'system-health',
       'security-status', 'funding-cases-list', 'funding-cases-detail',
       'funding-cases-assignees', 'funding-cases-kpis',
       'funding-cases-client-list', 'funding-cases-client-detail'
@@ -4585,6 +4647,10 @@ async function handler(req, res) {
       if (action === 'assistant-operational-replay') {
         await requireAdminPermission(req, sb, 'ai.operations.read');
         return res.status(200).json(await getAssistantOperationalReplay(sb, req.query || {}));
+      }
+      if (action === 'assistant-cost-governance') {
+        await requireAdminPermission(req, sb, 'ai.operations.read');
+        return res.status(200).json(await getAssistantCostGovernance(sb, req.query || {}));
       }
       if (action === 'platform-overview') {
         const access = await requireAdminPermission(req, sb, 'observability.read');
