@@ -921,10 +921,11 @@
     "user_control_center",
     "audit_search",
     "operational_replay",
-    "cost_governance_separate_from_auth"
+    "cost_governance_separate_from_auth",
+    "per_task_budget"
   ],
   "next": [
-    "per_task_budget"
+    "latency_aware_routing"
   ],
   "deferred": [
     "action_tokens",
@@ -941,8 +942,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-cost-governance",
-    "change": "Cost Governance implemented_base as observability-only reporting over existing admin_ai_operation_events. It reports recorded cost/tokens/latency with bounded windows and feature/model breakdowns while explicitly having no authorization, execution-blocking, token/compute limiting, provider-routing, or model-selection effect. No migration. Next: per_task_budget."
+    "branch": "feat/assistant-per-task-budget",
+    "change": "Per-task Budget implemented_base as request-scoped advisory evaluation over existing admin_ai_operation_events request_id. It compares recorded cost with an explicit USD budget and reports within/over/unpriced state without blocking execution or limiting tokens/compute or changing model/provider/authorization. No migration. Next: latency_aware_routing."
   },
   "production_rollout": {
     "status": "complete",
