@@ -754,4 +754,22 @@ parent/child relationships بين التوكنات.
 - `model_used:false` و`multi_agent:false` مثبتان في عقد النتيجة، ولا تغيير provider/model/token/context/throughput/compute.
 - full multi-agent يبقى مؤجلًا وفق الخارطة.
 
-الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/assistant-sensitive-action-verifier`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
+الحالة النهائية: **MERGED + CI VERIFIED + PRODUCTION VERIFIED** عبر PR #486، Merge SHA `6ea6e453ed1e1e930d77da54ba85105573523ede`.
+
+
+---
+
+## 2026-10-23 — Critical Multi-model Consensus checkpoint
+
+- تمت إضافة `lib/assistant/critical-multi-model-consensus.js` كمراجعة advisory للحالات `risk=critical` فقط.
+- لا تعمل للحالات `high` أو الأقل؛ هذه تبقى تحت Critic/Verifier الحتمي وHuman Approval القائمين.
+- تستخدم عقد Bonds Native Remote المهيأة داخل `InferenceRouter` الحالي؛ لا provider جديد ولا model routing بديل ولا architecture موازية.
+- لا ترسل قيم `action.input` الخام إلى المراجعين؛ فقط metadata هيكلية وأسماء المفاتيح وaction fingerprint.
+- لا تعتبر النتيجة Multi-Model إلا عند نجاح مراجعتين على الأقل بهويتي `model_sha256` مختلفتين فعليًا؛ replica لنفس النموذج لا يحتسب كنموذج ثانٍ.
+- عدم توفر عقدتين/نموذجين مختلفين أو فشل المراجعات يعيد `not_available` دون اختلاق consensus.
+- اختلاف النماذج يعاد صراحة كـ`no_consensus`؛ لا يوجد تصويت يخفي الخلاف.
+- consensus يرفق كدليل داخل Human Approval للحالات الحرجة فقط، ويبقى `execution_authorized:false`, `auto_execute:false`, `authorization_source:false`.
+- إعادة Human Approval بنفس idempotency key لا تعيد تشغيل المراجعين.
+- لا تغيير provider/model/token/context/throughput/compute ولا database migration، وfull multi-agent يبقى مؤجلًا.
+
+الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/assistant-critical-multi-model-consensus-latest`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
