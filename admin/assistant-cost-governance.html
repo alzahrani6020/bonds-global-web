@@ -53,17 +53,24 @@ async function loadTaskBudget(){
  const requestId=String(taskRequestId.value||'').trim(),budget=String(taskBudgetUsd.value||'').trim();
  if(!requestId||budget===''){taskBudgetResult.textContent='أدخل request_id وBudget USD.';return;}
  taskBudgetBtn.disabled=true;taskBudgetResult.textContent='جارٍ التقييم…';
- try{const p=new URLSearchParams({action:'assistant-task-budget',request_id:requestId,budget_usd:budget});
- const r=await BondsAuth.authenticatedFetch('/api/admin?'+p.toString(),{returnTo:location.pathname});const b=await r.json().catch(()=>({}));
- if(!r.ok||b.success!==true)throw new Error(b.error||('HTTP '+r.status));const d=b.task_budget||{};
- taskBudgetResult.innerHTML='<b>'+esc(d.state||'unknown')+'</b> · Budget if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
-})();
-</script><script src="/admin/admin-embed.js?v=4"></script></body></html>+money(d.budget_usd)+' · Actual if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
-})();
-</script><script src="/admin/admin-embed.js?v=4"></script></body></html>+money(d.actual_cost_usd)+' · Remaining if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
-})();
-</script><script src="/admin/admin-embed.js?v=4"></script></body></html>+money(d.remaining_usd)+' · Utilization '+esc(d.utilization_pct==null?'—':d.utilization_pct+'%')+' · Events '+n(d.event_count)+' · enforcement='+esc(d.enforcement);
- }catch(e){taskBudgetResult.textContent='فشل التقييم: '+e.message;}finally{taskBudgetBtn.disabled=false;}
+ try{
+   const p=new URLSearchParams({action:'assistant-task-budget',request_id:requestId,budget_usd:budget});
+   const r=await BondsAuth.authenticatedFetch('/api/admin?'+p.toString(),{returnTo:location.pathname});
+   const b=await r.json().catch(()=>({}));
+   if(!r.ok||b.success!==true)throw new Error(b.error||('HTTP '+r.status));
+   const d=b.task_budget||{};
+   taskBudgetResult.innerHTML='<b>'+esc(d.state||'unknown')+'</b>'+
+     ' · Budget $'+money(d.budget_usd)+
+     ' · Actual $'+money(d.actual_cost_usd)+
+     ' · Remaining $'+money(d.remaining_usd)+
+     ' · Utilization '+esc(d.utilization_pct==null?'—':d.utilization_pct+'%')+
+     ' · Events '+n(d.event_count)+
+     ' · enforcement='+esc(d.enforcement);
+ }catch(e){
+   taskBudgetResult.textContent='فشل التقييم: '+e.message;
+ }finally{
+   taskBudgetBtn.disabled=false;
+ }
 }
 taskBudgetBtn.addEventListener('click',loadTaskBudget);
 refreshBtn.addEventListener('click',load);windowDays.addEventListener('change',load);if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
