@@ -56,6 +56,34 @@ describe('BONDS unified assistant workspace UI',()=>{
     expect(widget).toContain('executeStructuredAction(action, button)');
   });
 
+  test('integrates voice as an input-output adapter in the same assistant shell',()=>{
+    expect(widget).toContain('class="bonds-ai-voice-button"');
+    expect(widget).toContain("window.SpeechRecognition || window.webkitSpeechRecognition");
+    expect(widget).toContain('function startRecognition()');
+    expect(widget).toContain("input.value = transcript");
+    expect(widget).toContain("voiceBtn.addEventListener('click', startRecognition)");
+    expect(widget).toContain('function speakAssistantText(text, button)');
+    expect(widget).toContain('new window.SpeechSynthesisUtterance(value)');
+    expect(widget).toContain('window.speechSynthesis.speak(utterance)');
+    expect(widget).toContain('window.BondsAssistant.voice = Object.freeze');
+  });
+
+  test('keeps voice outside backend execution and preserves the existing sendMessage path',()=>{
+    expect(widget).toContain("sendBtn.addEventListener('click', () => sendMessage(input.value))");
+    expect(widget).not.toContain('/api/v3/voice');
+    expect(widget).not.toContain('MediaRecorder');
+    expect(widget).not.toContain('getUserMedia');
+    expect(widget).toContain("voiceBtn.hidden = !voiceInputSupported()");
+  });
+
+  test('uses page language and country context for Arabic speech locale without forcing Saudi locale',()=>{
+    expect(widget).toContain('const ARABIC_SPEECH_LOCALES = Object.freeze');
+    expect(widget).toContain("SA: 'ar-SA'");
+    expect(widget).toContain("EG: 'ar-EG'");
+    expect(widget).toContain("AE: 'ar-AE'");
+    expect(widget).toContain("return ARABIC_SPEECH_LOCALES[country] || 'ar';");
+  });
+
   test('uses full-screen chat on mobile',()=>{
     expect(widget).toContain('@media (max-width: 640px)');
     expect(widget).toContain('width: 100vw;');
