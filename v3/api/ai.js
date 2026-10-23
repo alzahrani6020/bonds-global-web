@@ -575,6 +575,7 @@ async function aiChatHandler(req, res) {
 
   // Resolve page/session/service authority and operational intent before ordinary chat.
   // This reuses the existing Service Execution Layer, workflow state and Agent Inbox.
+  let orchestrationMeta = null;
   try {
     const orchestration = await orchestrateChat({
       req,
@@ -585,6 +586,8 @@ async function aiChatHandler(req, res) {
       assistantState: safeAssistantState,
       messages
     });
+
+    orchestrationMeta = orchestration || null;
 
     if (orchestration?.handled && orchestration.response) {
       return sendAssistantResponse(res, 200, orchestration.response, { stream: streaming });
@@ -630,7 +633,11 @@ async function aiChatHandler(req, res) {
         cityName: enrichedContext.cityName || null,
         activityName: enrichedContext.activityName || null,
         serviceCode: enrichedContext.serviceCode || null,
-        serviceName: enrichedContext.serviceName || null
+        serviceName: enrichedContext.serviceName || null,
+        lastIntent: orchestrationMeta?.intent || null,
+        activeTopic: orchestrationMeta?.resolvedContext?.conversationReference?.follow_up
+          ? orchestrationMeta.resolvedContext.conversationReference.active_topic
+          : (lastUserText || null)
       }
     }, { stream: streaming });
   }
@@ -708,7 +715,11 @@ async function aiChatHandler(req, res) {
       cityName: enrichedContext.cityName || null,
       activityName: enrichedContext.activityName || null,
       serviceCode: enrichedContext.serviceCode || null,
-      serviceName: enrichedContext.serviceName || null
+      serviceName: enrichedContext.serviceName || null,
+      lastIntent: orchestrationMeta?.intent || null,
+      activeTopic: orchestrationMeta?.resolvedContext?.conversationReference?.follow_up
+        ? orchestrationMeta.resolvedContext.conversationReference.active_topic
+        : (lastUserText || null)
     },
     streaming: streaming ? {
       transport:'sse',
