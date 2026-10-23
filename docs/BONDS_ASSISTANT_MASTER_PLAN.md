@@ -773,3 +773,23 @@ parent/child relationships بين التوكنات.
 - لا تغيير provider/model/token/context/throughput/compute ولا database migration، وfull multi-agent يبقى مؤجلًا.
 
 الحالة النهائية: **MERGED + CI VERIFIED + PRODUCTION VERIFIED** عبر PR #501، Merge SHA `c27e853a5180fc4be735c478b3ffab0815658811`; Production Release وProduction Authenticated Smoke ناجحان، وVercel READY لنفس SHA. لا توجد migration لهذه المرحلة.
+
+
+---
+
+## 2026-10-23 — Synthetic Production Journeys checkpoint
+
+- تمت إضافة `scripts/assistant-synthetic-production-journeys.js` كامتداد آمن لاختبارات الإنتاج القائمة، وليس كنظام تشغيل موازٍ.
+- يتم تشغيل الرحلات بعد نجاح `Production Authenticated Smoke` القائم عبر نفس `npm run test:production-smoke`، فلا توجد Workflow أسرار جديدة أو هوية تشغيل جديدة.
+- الرحلات الحالية كلها read/plan-only:
+  - الصفحة الرئيسية تتغلب على stale session service context وتعيد الحالة الرسمية `homepage/no_service_selected`.
+  - التحقق من التنقل المسجل لـKYC بالعربية والإنجليزية.
+  - التحقق من `form_load` لنموذج KYC المسجل دون حفظ أو submit.
+  - التحقق من fail-closed عند هدف تنقل غير مسجل.
+- لا تنشئ الرحلات Draft أو Human Approval أو Agent Inbox أو Idempotency write أو سجل عميل.
+- لا تنفذ حساباً مالياً ولا تستدعي capability write.
+- يتم احترام 429 بـretry واحد bounded دون bypass أو تغيير rate limits.
+- تمت إضافة اختبارات عقد محلية للتأكد أن المسارات المستخدمة محصورة في `/api/v3/ai/chat` و`/api/v3/assistant/plan`.
+- لا تغيير provider/model/token/context/throughput/compute/authorization، ولا database migration لهذه المرحلة.
+
+الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/assistant-synthetic-production-journeys`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من Merge SHA الفعلي.
