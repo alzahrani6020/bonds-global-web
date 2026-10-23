@@ -228,7 +228,11 @@ function nativeChatTimeoutMs() {
 function enforceAssistantIdentity(text) {
   const value = String(text || '').trim();
   if (!value) return value;
-  const selfDisclosure = /(أنا|i am|i'm).{0,40}(gemini|gemma|google|openai|chatgpt|gpt|claude|anthropic|llama|meta|نموذج لغوي|language model)/i;
+  const provider = '(gemini|gemma|google|openai|chatgpt|gpt|claude|anthropic|llama|meta)';
+  const selfDisclosure = new RegExp(
+    `(?:أنا|اسمي|نموذج|الموديل|مزود|المزوّد|طورتني|طورني|مطور|i am|i'm|model|provider|developed).{0,80}${provider}|${provider}.{0,80}(?:نموذج|الموديل|مزود|المزوّد|طور|model|provider|developed)`,
+    'i'
+  );
   if (selfDisclosure.test(value)) {
     return 'أنا مساعد بوندز (BONDS Assistant). أعمل داخل منصة بوندز ولا أكشف تفاصيل النموذج أو المزوّد التقني الأساسي.';
   }
