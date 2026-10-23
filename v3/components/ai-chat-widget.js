@@ -803,6 +803,7 @@
         open_tasks: [],
         required_data: [],
         confirmed_facts: {},
+        conversation_tail: [],
         pending_confirmation: null,
         last_action: null,
         updated_at: null
@@ -815,6 +816,18 @@
         .filter(item => typeof item === 'string' && item.trim())
         .map(item => item.trim())
         .slice(0, 50);
+    }
+
+    function sanitizeConversationTail(value) {
+      if (!Array.isArray(value)) return [];
+      return value
+        .filter(turn => turn && typeof turn === 'object' && ['user', 'assistant'].includes(turn.role))
+        .map(turn => ({
+          role: turn.role,
+          content: typeof turn.content === 'string' ? turn.content.trim().slice(0, 1200) : ''
+        }))
+        .filter(turn => turn.content)
+        .slice(-12);
     }
 
     function sanitizePlainObject(value) {
@@ -845,6 +858,7 @@
         open_tasks: sanitizeStringArray(value.open_tasks),
         required_data: sanitizeStringArray(value.required_data),
         confirmed_facts: sanitizePlainObject(value.confirmed_facts),
+        conversation_tail: sanitizeConversationTail(value.conversation_tail),
         pending_confirmation: value.pending_confirmation && typeof value.pending_confirmation === 'object'
           ? sanitizePlainObject(value.pending_confirmation)
           : null,
@@ -1230,8 +1244,27 @@
       });
     }
 
+    function recordConversationTurn(role, text) {
+      if (!assistantContextEnabled() || !['user', 'assistant'].includes(role)) return;
+      const content = typeof text === 'string' ? text.trim().slice(0, 1200) : '';
+      if (!content) return;
+      const tail = sanitizeConversationTail([
+        ...(assistantContextState.conversation_tail || []),
+        { role, content }
+      ]);
+      const previous = tail[tail.length - 2];
+      const current = tail[tail.length - 1];
+      assistantContextState.conversation_tail = previous &&
+        previous.role === current?.role &&
+        previous.content === current?.content
+        ? tail.slice(0, -1)
+        : tail;
+      saveAssistantContextState();
+    }
+
     function addMessage(role, text, isError = false) {
       state.messages.push({ role, content: text });
+      recordConversationTurn(role, text);
       const msgEl = document.createElement('div');
       msgEl.className = `bonds-ai-message ${role}${isError ? ' error' : ''}`;
       if (role === 'assistant') {
@@ -1731,6 +1764,26 @@
         });
     }
 
+    function reconcileServerCaseState(caseState) {
+      if (!caseState || typeof caseState !== 'object' || Array.isArray(caseState)) return;
+      patchAssistantContextState({
+        goal: typeof caseState.goal === 'string' ? caseState.goal.slice(0, 500) : assistantContextState.goal,
+        current_stage: typeof caseState.current_stage === 'string'
+          ? caseState.current_stage.slice(0, 200)
+          : assistantContextState.current_stage,
+        open_tasks: sanitizeStringArray(caseState.open_tasks),
+        required_data: sanitizeStringArray(caseState.required_data),
+        confirmed_facts: sanitizePlainObject(caseState.confirmed_facts),
+        conversation_tail: sanitizeConversationTail(caseState.conversation_tail),
+        pending_confirmation: caseState.pending_confirmation && typeof caseState.pending_confirmation === 'object'
+          ? sanitizePlainObject(caseState.pending_confirmation)
+          : assistantContextState.pending_confirmation,
+        last_action: caseState.last_action && typeof caseState.last_action === 'object'
+          ? sanitizePlainObject(caseState.last_action)
+          : assistantContextState.last_action
+      });
+    }
+
     function renderStructuredEnvelope(envelope, { appendReply = false } = {}) {
       if (!envelope || typeof envelope !== 'object') return;
       if (appendReply && envelope.reply) addAssistantMessage(envelope.reply);
@@ -1856,6 +1909,7 @@
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
+        if (data.case_state) reconcileServerCaseState(data.case_state);
         addAssistantMessage(data.reply, data.source === 'fallback');
         if (Array.isArray(data.actions) || Array.isArray(data.ui)) {
           renderStructuredEnvelope(data);
