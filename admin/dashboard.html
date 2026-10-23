@@ -587,7 +587,16 @@
 
       function sendLocaleToFrame(frame) {
         if (!frame?.contentWindow) return;
-        frame.contentWindow.postMessage({ type: 'admin-locale', locale: adminI18n?.locale || 'ar' }, location.origin);
+        const locale = adminI18n?.locale || 'ar';
+        try {
+          const doc = frame.contentDocument;
+          if (doc?.documentElement) {
+            doc.documentElement.lang = locale;
+            doc.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+            adminI18n?.bind(doc);
+          }
+        } catch (_) {}
+        frame.contentWindow.postMessage({ type: 'admin-locale', locale }, location.origin);
       }
 
       function applyShellLocale() {
