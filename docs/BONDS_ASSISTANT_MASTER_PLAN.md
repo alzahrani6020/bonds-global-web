@@ -788,4 +788,19 @@ parent/child relationships بين التوكنات.
 - تمت إضافة اختبارات عقدية محلية لضمان بقاء الرحلات bounded وعدم استدعاء مسارات business-write.
 - لا provider/model/token/context/throughput/compute أو authorization change، ولا database migration.
 
-الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/synthetic-production-journeys`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
+الحالة الحالية: **MERGED / CI VERIFIED / PRODUCTION VERIFIED**.
+
+أدلة الإغلاق:
+- تنفيذ المرحلة الأصلي: PR #508، Merge SHA `f9554f88253cd27089b0321ca54997f21a83a117`.
+- فشل التحقق الإنتاجي الأول كشف خلل `workflow_resume_read`; PR #513 جرّب عزل ترتيب rate-limit لكنه لم يحسم الخلل إنتاجيًا.
+- الإصلاح الجذري النهائي: PR #516، Merge SHA `247f388e7f4fe92d3dd17bdaebacc5d9bf140974`، لتطبيع composite RPC result في `loadWorkflowState`.
+- Post-merge CI: run `39919002653` — SUCCESS.
+- Service Worker: run `39919002732` — SUCCESS.
+- Dependency Security: run `39919002650` — SUCCESS.
+- Production Release: run `39919529225` — SUCCESS.
+- Production Authenticated Smoke: run `39919709924` — SUCCESS.
+- Synthetic Production Journeys: الخمس رحلات PASS، بما فيها `workflow_resume_read` و`service_execution_profile_read`.
+- Vercel Production: deployment `dpl_AAz1fPHzQn4eRDEmHooM3nSWPy4M` — READY لنفس Merge SHA.
+- لا توجد migration لهذه المرحلة.
+- PR #509 أُغلق دون دمج باعتباره تنفيذًا مكررًا.
+- العنصر التالي حسب خارطة Assistant: **Golden Conversations** (`golden_conversations`).
