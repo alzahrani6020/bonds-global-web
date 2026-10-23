@@ -906,7 +906,12 @@ async function handleServiceExecute(req, res, supabase, user) {
         dataset_version:dataset.dataset_version || 1,
         executed_at:now,
         stale:false,
-        result:result.body
+        result_summary:{
+          executed:successful,
+          http_status:result.httpStatus,
+          metrics:result.body?.metrics || result.body?.result?.metrics || {},
+          error:result.body?.error || null
+        }
       };
       const history=[...oldHistory,historyEntry].slice(-100);
       const metrics=result.body?.metrics || result.body?.result?.metrics || {};
