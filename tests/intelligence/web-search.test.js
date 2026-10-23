@@ -1,4 +1,4 @@
-const { parseDuckDuckGoHtml, parseBraveHtml } = require('../../lib/intelligence/web-search');
+const { parseDuckDuckGoHtml, parseBraveHtml, parseBingHtml } = require('../../lib/intelligence/web-search');
 
 describe('BONDS governed web search', () => {
   test('parses bounded public search results and unwraps redirect targets', () => {
@@ -36,6 +36,33 @@ describe('BONDS governed web search', () => {
     expect(results).toEqual([
       expect.objectContaining({
         title: 'عام / السيرة الذاتية لصاحب السمو الملكي الأمير محمد بن سلمان',
+        url: 'https://www.spa.gov.sa/1319666'
+      }),
+      expect.objectContaining({
+        title: 'Mohammed bin Salman | Biography',
+        url: 'https://www.britannica.com/biography/Mohammed-bin-Salman'
+      })
+    ]);
+  });
+
+  test('parses Bing public search result links while excluding Bing navigation', () => {
+    const html = `
+      <main>
+        <a href="https://www.bing.com/search?q=settings">Search</a>
+        <li class="b_algo">
+          <h2><a href="https://www.spa.gov.sa/1319666">محمد بن سلمان - وكالة الأنباء السعودية</a></h2>
+          <div class="b_caption"><p>نتيجة عامة موثوقة.</p></div>
+        </li>
+        <li class="b_algo">
+          <h2><a href="https://www.britannica.com/biography/Mohammed-bin-Salman">Mohammed bin Salman | Biography</a></h2>
+          <div class="b_caption"><p>Biography result.</p></div>
+        </li>
+      </main>
+    `;
+    const results = parseBingHtml(html, 5);
+    expect(results).toEqual([
+      expect.objectContaining({
+        title: 'محمد بن سلمان - وكالة الأنباء السعودية',
         url: 'https://www.spa.gov.sa/1319666'
       }),
       expect.objectContaining({
