@@ -13,7 +13,8 @@ async function assertAssistantProduction({
   token,
   expectedSha,
   fetchImpl = global.fetch,
-  log = console.log
+  log = console.log,
+  sleepImpl = ms => new Promise(resolve => setTimeout(resolve, ms))
 } = {}) {
   if (!token || !/^[0-9a-f]{40}$/i.test(expectedSha || '')) {
     throw new Error('Assistant smoke requires an authenticated session and exact release SHA');
@@ -31,31 +32,58 @@ async function assertAssistantProduction({
     if (!condition) throw new Error(`Assistant smoke failed: ${label} (marker=${marker})`);
   }
 
+  function retryAfterMs(value) {
+    const raw = String(value || '').trim();
+    if (!raw) return 1000;
+    const seconds = Number(raw);
+    if (Number.isFinite(seconds)) {
+      return Math.max(0, Math.min(65000, Math.ceil(seconds * 1000)));
+    }
+    const absolute = Date.parse(raw);
+    if (Number.isFinite(absolute)) {
+      return Math.max(0, Math.min(65000, absolute - Date.now()));
+    }
+    return 1000;
+  }
+
   async function request(path, { method = 'GET', body, authenticated = true } = {}) {
     const headers = { 'Cache-Control': 'no-cache', 'X-Request-ID': marker };
     if (authenticated) headers.Authorization = `Bearer ${token}`;
     if (body !== undefined) headers['Content-Type'] = 'application/json';
-    requestCount += 1;
-    let response;
-    try {
-      response = await fetchImpl(`${origin.origin}/api/v3${path}`, {
-        method,
-        headers,
-        body: body === undefined ? undefined : JSON.stringify(body),
-        // Never forward the session to a redirect target.
-        redirect: 'error',
-        signal: AbortSignal.timeout(20000)
-      });
-    } catch (_) {
-      throw new Error(`Assistant smoke request failed: ${method} ${path} (marker=${marker})`);
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      requestCount += 1;
+      let response;
+      try {
+        response = await fetchImpl(`${origin.origin}/api/v3${path}`, {
+          method,
+          headers,
+          body: body === undefined ? undefined : JSON.stringify(body),
+          // Never forward the session to a redirect target.
+          redirect: 'error',
+          signal: AbortSignal.timeout(20000)
+        });
+      } catch (_) {
+        throw new Error(`Assistant smoke request failed: ${method} ${path} (marker=${marker})`);
+      }
+
+      if (response.status === 429 && attempt === 1) {
+        const delayMs = retryAfterMs(response.headers.get('retry-after'));
+        log(`Assistant smoke transient 429; retrying once after ${delayMs}ms (marker=${marker})`);
+        await sleepImpl(delayMs);
+        continue;
+      }
+
+      check(/^application\/json\b/i.test(response.headers.get('content-type') || ''),
+        `${method} ${path} must return JSON`);
+      let data;
+      try { data = JSON.parse(await response.text()); }
+      catch (_) { throw new Error(`Assistant smoke invalid JSON: ${method} ${path} (marker=${marker})`); }
+      check(data && typeof data === 'object' && !Array.isArray(data), `${path} object response`);
+      return { status: response.status, data };
     }
-    check(/^application\/json\b/i.test(response.headers.get('content-type') || ''),
-      `${method} ${path} must return JSON`);
-    let data;
-    try { data = JSON.parse(await response.text()); }
-    catch (_) { throw new Error(`Assistant smoke invalid JSON: ${method} ${path} (marker=${marker})`); }
-    check(data && typeof data === 'object' && !Array.isArray(data), `${path} object response`);
-    return { status: response.status, data };
+
+    throw new Error(`Assistant smoke request exhausted retries: ${method} ${path} (marker=${marker})`);
   }
 
   function expectStatus(result, status, label) {
