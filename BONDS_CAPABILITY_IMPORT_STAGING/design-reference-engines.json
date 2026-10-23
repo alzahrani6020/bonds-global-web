@@ -1,0 +1,549 @@
+{
+  "schema": "bonds.afaq-import.design-reference/v1",
+  "source": {
+    "repository": "alzahrani6020/AFAQ-GIE",
+    "commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf"
+  },
+  "count": 14,
+  "engines": [
+    {
+      "source_engine_id": "ENG-CAP-015",
+      "target_engine_id": "BONDS-ENG-CAP-015",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-015",
+        "name": "Governed Calling & Communications Engine",
+        "classification": "SHARED_SERVICE",
+        "gap_classification": "PARTIAL_GAP",
+        "target_packages": [
+          "W8-P09",
+          "W8-P21",
+          "W8-P23"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-RECORDING-POLICY",
+          "PRIM-TRANSCRIPTION"
+        ],
+        "provider_candidates": [
+          "Microsoft Teams communications",
+          "WebRTC/SIP",
+          "Telegram Bot messaging",
+          "Provider-specific messaging/calling"
+        ],
+        "state": "REGISTERED_BUILD_REQUIREMENT_NOT_IMPLEMENTED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-016",
+      "target_engine_id": "BONDS-ENG-CAP-016",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-016",
+        "name": "Governed Social Publishing Engine",
+        "classification": "SHARED_SERVICE",
+        "gap_classification": "PARTIAL_GAP",
+        "target_packages": [
+          "W8-P16",
+          "W8-P17",
+          "W8-P21"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-WEBHOOK"
+        ],
+        "provider_candidates": [
+          "Meta APIs",
+          "TikTok Content Posting",
+          "X API",
+          "Telegram Bot API",
+          "Snapchat supported APIs"
+        ],
+        "state": "REGISTERED_BUILD_REQUIREMENT_NOT_IMPLEMENTED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-019",
+      "target_engine_id": "BONDS-ENG-CAP-019",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-019",
+        "name": "Governed Data & Analytics Runtime",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P20",
+          "W8-P14"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CATALOG"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-024",
+      "target_engine_id": "BONDS-ENG-CAP-024",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-024",
+        "name": "Governed Marketing / Advertising Engine",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P21",
+          "W8-P20"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-RETENTION"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-027",
+      "target_engine_id": "BONDS-ENG-CAP-027",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-027",
+        "name": "Event / Queue / Messaging Fabric",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P27",
+          "W8-P28",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "priority_aware_queueing",
+          "backpressure_control",
+          "low_latency_delivery_path",
+          "queue_depth_telemetry",
+          "deadline_aware_delivery",
+          "bulk_request_intake",
+          "partitioned_work_queues",
+          "elastic_queue_sharding",
+          "mass_fanout",
+          "work_deduplication",
+          "idempotent_delivery",
+          "queue_backpressure",
+          "priority_partitioning",
+          "tenant_workload_isolation",
+          "result_aggregation_queue",
+          "partial_result_stream",
+          "autonomous_event_to_action_dispatch"
+        ],
+        "performance_realtime_strengthening": "V11-PERFORMANCE-REALTIME-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-028",
+      "target_engine_id": "BONDS-ENG-CAP-028",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-028",
+        "name": "Scheduler / Trigger / Webhook Runtime",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P27",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CRON",
+          "PRIM-SCHEDULE",
+          "PRIM-TIMEOUT"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "deadline_aware_scheduling",
+          "latency_budget_scheduling",
+          "warm_worker_routing",
+          "critical_path_scheduling",
+          "resource_aware_dispatch",
+          "bulk_schedule_expansion",
+          "event_driven_dispatch",
+          "continuous_triggering",
+          "mass_task_dispatch",
+          "adaptive_concurrency_control",
+          "resource_quota_aware_dispatch",
+          "retry_schedule",
+          "deadline_classes",
+          "autonomous_trigger_to_action_dispatch"
+        ],
+        "performance_realtime_strengthening": "V11-PERFORMANCE-REALTIME-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-029",
+      "target_engine_id": "BONDS-ENG-CAP-029",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-029",
+        "name": "API / Integration / ETL Gateway",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P22",
+          "W8-P27",
+          "W8-P20"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-PROVENANCE",
+          "PRIM-RATE-LIMIT",
+          "PRIM-WEBHOOK"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-041",
+      "target_engine_id": "BONDS-ENG-CAP-041",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-041",
+        "name": "Notification / Escalation Engine",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P27",
+          "W8-P21",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-DEDUP",
+          "PRIM-ESCALATION"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "instant_change_notification",
+          "knowledge_update_notification",
+          "proposal_notification",
+          "goal_candidate_notification",
+          "notification_deduplication",
+          "priority_notification",
+          "subscription_based_notification",
+          "delivery_status_tracking"
+        ],
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-043",
+      "target_engine_id": "BONDS-ENG-CAP-043",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-043",
+        "name": "Multi-Agent Society / Coordination Engine",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P26"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-DELEGATION",
+          "PRIM-HANDOFF"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "mission_role_assignment",
+          "dynamic_agent_reassignment",
+          "execution_handoff",
+          "parallel_work_coordination",
+          "mass_parallel_mission_coordination",
+          "worker_pool_coordination",
+          "dynamic_work_partitioning",
+          "work_stealing_coordination",
+          "fanout_fanin_coordination",
+          "partial_failure_isolation",
+          "autonomous_machine_to_machine_work_assignment"
+        ],
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-052",
+      "target_engine_id": "BONDS-ENG-CAP-052",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-052",
+        "name": "Capability Improvement Intelligence Engine",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W7-P24",
+          "W8-P32",
+          "W8-P45",
+          "W8-P46"
+        ],
+        "shared_primitive_contract_refs": [],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "performance_feedback_ingestion",
+          "capability_improvement_candidate_generation",
+          "configuration_improvement_hypothesis",
+          "regression_aware_improvement",
+          "autonomous_improvement_trigger"
+        ],
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-055",
+      "target_engine_id": "BONDS-ENG-CAP-055",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-055",
+        "name": "Provider / API Observatory",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-DATA-RESIDENCY",
+          "PRIM-DEPRECATION"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-085",
+      "target_engine_id": "BONDS-ENG-CAP-085",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-085",
+        "name": "Targeted Retrieval Orchestrator",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P05",
+          "W8-P22",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "query_expansion",
+          "cross_language_query_planning",
+          "source_ranking",
+          "retrieval_strategy_selection",
+          "structured_api_preference",
+          "rendered_page_fallback",
+          "retrieval_provenance_capture",
+          "continuous_targeted_retrieval",
+          "source_failover",
+          "freshness_triggered_retrieval",
+          "always_on_retrieval",
+          "event_driven_immediate_retrieval",
+          "continuous_refresh_without_waiting_for_staleness",
+          "source_update_subscription",
+          "retrieval_result_stream"
+        ],
+        "intelligence_fabric_strengthening": "V11-INTELLIGENCE-ACQUISITION-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-086",
+      "target_engine_id": "BONDS-ENG-CAP-086",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-086",
+        "name": "Semantic Change Intelligence Engine",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "BONDS-P80",
+          "W8-P30",
+          "W8-P38"
+        ],
+        "shared_primitive_contract_refs": [],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION"
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-088",
+      "target_engine_id": "BONDS-ENG-CAP-088",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "design_reference_only",
+      "reason": "Source registry does not prove this engine production-ready; do not activate in BONDS until independently implemented and verified.",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-088",
+        "name": "Live Trust / Provenance / Freshness Engine",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P38",
+          "W8-P30",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-STALENESS-REJECTION"
+        ],
+        "provider_candidates": [],
+        "state": null,
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": false,
+        "production_admission": "NOT_ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "source_identity",
+          "source_uri",
+          "source_system",
+          "source_owner_or_publisher",
+          "acquired_at",
+          "observed_at",
+          "published_at",
+          "effective_at",
+          "expires_at",
+          "ingested_by_actor",
+          "ingested_by_engine",
+          "ingestion_method",
+          "source_version",
+          "content_hash",
+          "raw_artifact_reference",
+          "transformation_lineage",
+          "derivation_lineage",
+          "claim_source_lineage",
+          "information_dimensions",
+          "temporal_dimensions",
+          "spatial_dimensions",
+          "domain_dimensions",
+          "entity_dimensions",
+          "confidence_dimensions",
+          "rights_dimensions",
+          "freshness_state",
+          "supersession_chain",
+          "provenance_completeness_score"
+        ],
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1"
+      }
+    }
+  ]
+}
