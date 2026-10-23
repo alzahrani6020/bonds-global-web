@@ -103,6 +103,9 @@ describe('web acquisition network invariants', () => {
     expect(lookup).toHaveBeenCalledTimes(1);
     expect(lookup).toHaveBeenCalledWith('public.example', { all: true, verbatim: true });
     expect(request).toHaveBeenCalledTimes(1);
+    const requestOptions = request.mock.calls[0][0];
+    expect(requestOptions.family).toBe(4);
+    expect(requestOptions.autoSelectFamily).toBe(false);
     expect(connectAddresses).toEqual([validatedAddress]);
   });
 
