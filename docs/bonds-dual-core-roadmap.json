@@ -204,12 +204,12 @@
         {
           "id": "p5.1",
           "title": "GitHub CI failure intake",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p5.2",
           "title": "Automatic rebase",
-          "status": "planned"
+          "status": "implemented_candidate"
         },
         {
           "id": "p5.3",
