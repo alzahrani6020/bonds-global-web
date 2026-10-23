@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" data-ud-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Assistant Operational Replay | بوندز</title>
+  <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=1">
+  <style>
+    body{margin:0;background:#f5f0e8;color:#1f2937;font-family:system-ui,sans-serif}
+    .wrap{max-width:1400px;margin:auto;padding:1.25rem}.head{display:flex;justify-content:space-between;gap:1rem;align-items:flex-start;flex-wrap:wrap}
+    .actions,.filters{display:flex;gap:.55rem;flex-wrap:wrap}.btn,input{border:1px solid rgba(0,0,0,.14);background:#fff;border-radius:10px;padding:.62rem .75rem;font:inherit}
+    .btn{font-weight:700;cursor:pointer;text-decoration:none;color:inherit}.card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:1rem;margin-top:1rem}
+    .muted{color:#6b7280}.ok{color:#15803d}.warn{color:#92400e}.error{display:none;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;padding:.8rem;border-radius:10px;margin-top:1rem}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:.7rem}.kpi{border:1px solid #e5e7eb;border-radius:12px;padding:.75rem}.kpi b{display:block;font-size:1.1rem}
+    .table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:900px}th,td{padding:.55rem;border-bottom:1px solid #e5e7eb;text-align:right;font-size:.82rem}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}.notice{padding:.75rem;border-radius:10px;background:#eff6ff;border:1px solid #bfdbfe}
+  </style>
+  <script src="/api/env"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="/bonds-auth-2026.js?v=3.1.3"></script>
+  <script>BondsAuth.initAdminGuard();</script>
+  <script src="/admin/admin-common.js?v=4"></script>
+</head>
+<body>
+<main class="wrap">
+  <div class="head">
+    <div>
+      <h1 style="margin:.1rem 0">Operational Replay للمساعد</h1>
+      <div class="muted">إعادة بناء تسلسل الأحداث لأغراض debugging فقط — بدون إعادة تنفيذ أي capability أو write.</div>
+    </div>
+    <div class="actions">
+      <a class="btn" href="/admin/assistant-audit-search.html">بحث السجل</a>
+      <a class="btn" href="/admin/assistant-operations.html">عمليات المساعد</a>
+    </div>
+  </div>
+  <div id="errorBox" class="error"></div>
+  <section class="card">
+    <div class="notice">هذه الأداة تقرأ السجل immutable فقط. لا تعيد إرسال طلب، لا تولد token، لا تنفذ action، ولا تغيّر authorization أو provider/model.</div>
+    <div class="filters" style="margin-top:.8rem">
+      <input id="actionId" maxlength="200" placeholder="Action ID">
+      <input id="resourceId" maxlength="200" placeholder="Resource ID">
+      <button class="btn" id="runBtn" type="button">إعادة بناء التسلسل</button>
+    </div>
+    <div id="status" class="muted" style="margin-top:.7rem">بانتظار التحقق من الجلسة…</div>
+  </section>
+
+  <section class="card" id="summaryCard" style="display:none">
+    <div id="summary" class="grid"></div>
+    <div id="anomalies" class="muted" style="margin-top:.8rem"></div>
+  </section>
+
+  <section class="card">
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>الوقت</th><th>Event</th><th>Outcome</th><th>Risk</th><th>Confirmation</th><th>Action ID</th><th>Resource ID</th></tr></thead>
+        <tbody id="timeline"><tr><td colspan="8" class="muted">لا توجد نتيجة بعد.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+<script>
+(()=>{
+'use strict';
+const esc=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const fmt=v=>v?new Date(v).toLocaleString('ar-SA'):'—';
+const kpi=(l,v)=>'<div class="kpi"><b>'+esc(v??'—')+'</b><span class="muted">'+esc(l)+'</span></div>';
+
+async function load(){
+  errorBox.style.display='none';
+  const a=String(actionId.value||'').trim(),r=String(resourceId.value||'').trim();
+  if(!a&&!r){errorBox.textContent='أدخل Action ID أو Resource ID.';errorBox.style.display='block';return;}
+  const p=new URLSearchParams({action:'assistant-operational-replay'});
+  if(a)p.set('action_id',a);if(r)p.set('resource_id',r);
+  runBtn.disabled=true;status.textContent='جارٍ إعادة بناء التسلسل من السجل…';
+  try{
+    const response=await BondsAuth.authenticatedFetch('/api/admin?'+p.toString(),{returnTo:location.pathname+location.search});
+    const body=await response.json().catch(()=>({}));
+    if(!response.ok||body.success!==true)throw new Error(body.error||('HTTP '+response.status));
+    const d=body.replay||{};
+    summaryCard.style.display='block';
+    summary.innerHTML=[
+      kpi('الحالة',d.status),
+      kpi('عدد الأحداث',d.event_count),
+      kpi('Subject ref',d.subject_ref),
+      kpi('Action type',d.action_type),
+      kpi('Boundary',d.boundary),
+      kpi('بدأ',fmt(d.started_at)),
+      kpi('انتهى',fmt(d.ended_at)),
+      kpi('Execution performed',d.execution_performed?'نعم':'لا')
+    ].join('');
+    anomalies.textContent=(d.anomalies||[]).length?'ملاحظات: '+d.anomalies.join('، '):'لا توجد anomalies بنيوية في التسلسل.';
+    const list=Array.isArray(d.timeline)?d.timeline:[];
+    timeline.innerHTML=list.length?list.map(e=>'<tr>'+
+      '<td>'+esc(e.sequence)+'</td><td>'+esc(fmt(e.created_at))+'</td><td class="mono">'+esc(e.event_type)+'</td>'+
+      '<td>'+esc(e.outcome||'—')+'</td><td>'+esc(e.risk||'—')+'</td><td>'+esc(e.requires_confirmation?'نعم':'لا')+'</td>'+
+      '<td class="mono">'+esc(e.action_id||'—')+'</td><td class="mono">'+esc(e.resource_id||'—')+'</td></tr>').join(''):
+      '<tr><td colspan="8" class="muted">لا توجد أحداث مطابقة.</td></tr>';
+    status.innerHTML='<span class="ok">تمت إعادة بناء evidence فقط؛ لم يتم تنفيذ أي إجراء.</span>';
+  }catch(err){
+    errorBox.textContent='فشل replay: '+err.message;errorBox.style.display='block';status.textContent='تعذر إعادة بناء التسلسل.';
+  }finally{runBtn.disabled=false;}
+}
+runBtn.addEventListener('click',load);
+if(window.__ADMIN_ROLE)status.textContent='جاهز.';else window.addEventListener('admin-auth-ready',()=>status.textContent='جاهز.',{once:true});
+})();
+</script>
+<script src="/admin/admin-embed.js?v=4"></script>
+</body>
+</html>
