@@ -92,6 +92,7 @@ describe(
           'evidence_graph_analyze',
           'evidence_verify',
           'feasibility_run',
+          'file_security_scan',
           'financial_analysis_run',
           'form_find',
           'form_load',
