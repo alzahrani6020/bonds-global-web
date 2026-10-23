@@ -477,12 +477,14 @@ async function main() {
   await assertHealth();
   const token = await getAuthenticatedToken();
   await assertNativeProductionRuntime(token);
-  await assertAssistantProduction({ baseUrl: cfg.baseUrl, token, expectedSha: cfg.expectedSha });
+  // Run the bounded synthetic journeys before the broader Assistant smoke so they
+  // are not starved by the shared Assistant compute rate-limit window.
   await runSyntheticProductionJourneys({
     baseUrl: cfg.baseUrl,
     token,
     expectedSha: cfg.expectedSha
   });
+  await assertAssistantProduction({ baseUrl: cfg.baseUrl, token, expectedSha: cfg.expectedSha });
   await assertProductionAssets();
   await assertAdminRuntime(token);
   await assertFundingCasesRuntime(token);
