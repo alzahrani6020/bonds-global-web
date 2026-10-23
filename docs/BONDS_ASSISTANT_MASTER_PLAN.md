@@ -804,3 +804,20 @@ parent/child relationships بين التوكنات.
 - لا توجد migration لهذه المرحلة.
 - PR #509 أُغلق دون دمج باعتباره تنفيذًا مكررًا.
 - العنصر التالي حسب خارطة Assistant: **Golden Conversations** (`golden_conversations`).
+
+
+---
+
+## Golden Conversations — Production Verified
+
+- Implementation PR: #522.
+- Merge SHA: `41e5a382895a4f78b36f94b48fc89f102336f617`.
+- Post-merge CI: run `39921695505` — SUCCESS.
+- Service Worker: run `39921695476` — SUCCESS.
+- Dependency Security: run `39921695578` — SUCCESS.
+- Production Release: run `39922242977` — SUCCESS.
+- Production Authenticated Smoke: run `39922439691` — SUCCESS.
+- Vercel Production: deployment `dpl_3a4SB5ZfQACPdvVTomZaY7Pcr5sh` — READY for the exact Merge SHA.
+- No migration for this stage.
+- Status: **MERGED / CI VERIFIED / PRODUCTION VERIFIED**.
+- Next Assistant roadmap item: **Assistant Evaluations** (`assistant_evaluations`).
