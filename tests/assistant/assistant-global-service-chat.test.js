@@ -11,7 +11,7 @@ describe('BONDS global service assistant', () => {
     expect(layout).toContain("script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-1';");
     expect(layout).toContain("window.BondsAIChat.mount({");
     expect(layout).toContain("global: true");
-    expect(layout).toContain("pagePath: window.location.pathname");
+    expect(layout).toContain("pagePath: window.location.pathname + window.location.hash");
     expect(layout).toContain("ensureGlobalAssistantRuntime();");
   });
 
@@ -22,12 +22,12 @@ describe('BONDS global service assistant', () => {
 
   test('chat is page-aware and loads verified service profile', () => {
     expect(widget).toContain("const SERVICE_DETAIL_API = '/api/v3/services/';");
-    expect(widget).toContain('pagePath: options.pagePath || window.location.pathname');
+    expect(widget).toContain("pagePath: options.pagePath || (window.location.pathname + window.location.hash)");
     expect(widget).toContain("const SERVICE_CATALOG_API = '/api/v3/services/catalog';");
     expect(widget).toContain('async function resolveServiceContextFromPage()');
     expect(widget).toContain('async function loadVerifiedServiceProfile()');
     expect(widget).toContain('updateContext(compactServiceProfile(data));');
-    expect(widget).toContain("context.pagePath = window.location.pathname");
+    expect(widget).toContain("context.pagePath = (window.location.pathname + window.location.hash)");
   });
 
   test('service-aware greeting and suggestions are generated from verified service context', () => {
@@ -35,7 +35,9 @@ describe('BONDS global service assistant', () => {
     expect(widget).toContain('ما متطلبات خدمة ${service}؟');
     expect(widget).toContain('ما البيانات أو المستندات الناقصة؟');
     expect(widget).toContain('ما القدرات والأدوات المتاحة لهذه الخدمة؟');
-    expect(widget).toContain('التواصل مع مستشار بشري');
+    expect(widget).toContain('طلب مراجعة بشرية');
+    expect(widget).toContain("data-assistant-human-escalation=\"true\"");
+    expect(widget).not.toContain('href="https://wa.me/966567566616');
   });
 
   test('server discards client capability arrays and reloads them from service tables', () => {
