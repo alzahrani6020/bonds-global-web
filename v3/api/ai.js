@@ -177,7 +177,8 @@ async function generateNativeReply(messages, context, options = {}) {
   const router = getInferenceRouter({
     // Chat must finish comfortably before the synchronous edge ceiling.
     // Long-running analysis belongs on a separate async path, not this request.
-    timeoutMs: nativeChatTimeoutMs()
+    timeoutMs: nativeChatTimeoutMs(),
+    latencyAwareRouting: true
   });
   const maxTokens = clampNativeChatMaxTokens(options.maxTokens);
   const response = await router.generate(buildNativeChatPrompt(messages, context, options.assistantState), {
@@ -210,6 +211,9 @@ async function generateNativeReply(messages, context, options = {}) {
       completion_tokens: runtimeResult.completion_tokens ?? null,
       tokens_per_second: runtimeResult.tokens_per_second ?? null,
       request_elapsed_ms: response?.meta?.elapsed_ms ?? null,
+      native_node: response?.meta?.native_node || null,
+      failover_attempts: response?.meta?.failover_attempts || [],
+      latency_routing: response?.meta?.latency_routing || null,
       max_tokens: maxTokens
     }
   };
