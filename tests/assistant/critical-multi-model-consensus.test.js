@@ -38,12 +38,14 @@ function response(modelSha, verdict) {
 function routerFor(reviews) {
   return {
     mode:'REMOTE_BONDS_NATIVE',
-    _candidateRemoteProviders:() => reviews.map((item, index) => ({
-      id:`native-${index + 1}`,
-      provider:{
-        generate:jest.fn().mockResolvedValue(response(item.model, item.verdict))
-      }
-    }))
+    generateAcrossRemoteNodes:jest.fn().mockResolvedValue({
+      ok:reviews.length > 0,
+      executed:reviews.length > 0,
+      results:reviews.map((item, index) => ({
+        ...response(item.model, item.verdict),
+        meta:{ native_node:`native-${index + 1}` }
+      }))
+    })
   };
 }
 
@@ -72,7 +74,7 @@ describe('Critical multi-model consensus', () => {
 
     expect(result.status).toBe('not_applicable');
     expect(result.multi_model).toBe(false);
-    expect(router._candidateRemoteProviders).not.toHaveBeenCalled();
+    expect(router.generateAcrossRemoteNodes).not.toHaveBeenCalled();
   });
 
   test('rejects malformed model identity instead of treating it as a distinct model', async () => {
