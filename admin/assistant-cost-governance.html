@@ -24,6 +24,16 @@ body{margin:0;background:#f5f0e8;color:#1f2937;font-family:system-ui,sans-serif}
 <div id="errorBox" class="error"></div>
 <section class="card"><div class="notice">هذه الشاشة لا تمنع أي طلب، ولا تغيّر authorization أو provider/model أو compute limits. الأرقام تعتمد على القياسات المسجلة فعليًا في admin_ai_operation_events.</div><div id="status" class="muted" style="margin-top:.7rem">بانتظار التحقق من الجلسة…</div></section>
 <section class="card"><div id="summary" class="grid"></div></section>
+<section class="card">
+<h2>Per-task Budget — تقييم استرشادي</h2>
+<div class="notice">المهمة تُعرّف بـ request_id المسجل فعليًا. الميزانية هنا للمقارنة فقط ولا تمنع التنفيذ أو تغيّر التوكن/الموديل/provider.</div>
+<div class="actions" style="margin-top:.8rem">
+<input id="taskRequestId" maxlength="200" placeholder="request_id" style="min-width:280px">
+<input id="taskBudgetUsd" type="number" min="0" max="1000000" step="0.000001" placeholder="Budget USD">
+<button class="btn" id="taskBudgetBtn" type="button">تقييم المهمة</button>
+</div>
+<div id="taskBudgetResult" class="muted" style="margin-top:.75rem">—</div>
+</section>
 <section class="card"><h2>حسب Feature</h2><div class="table-wrap"><table><thead><tr><th>Feature</th><th>Requests</th><th>Cost USD</th><th>Input tokens</th><th>Output tokens</th><th>Failures</th></tr></thead><tbody id="featureRows"></tbody></table></div></section>
 <section class="card"><h2>حسب Model</h2><div class="table-wrap"><table><thead><tr><th>Model</th><th>Requests</th><th>Cost USD</th><th>Input tokens</th><th>Output tokens</th><th>Failures</th></tr></thead><tbody id="modelRows"></tbody></table></div></section>
 </main>
@@ -39,6 +49,23 @@ summary.innerHTML=[kpi('Requests',n(s.requests)),kpi('Cost USD',money(s.cost_usd
 featureRows.innerHTML=rows(d.by_feature);modelRows.innerHTML=rows(d.by_model);
 status.innerHTML='<span class="ok">تم التحميل · observability_only='+esc(p.observability_only)+' · authorization_effect='+esc(p.authorization_effect)+' · execution_blocking='+esc(p.execution_blocking)+'</span>';
 }catch(e){errorBox.textContent='فشل التحميل: '+e.message;errorBox.style.display='block';status.textContent='تعذر تحميل قياسات التكلفة.';}finally{refreshBtn.disabled=false;}}
+async function loadTaskBudget(){
+ const requestId=String(taskRequestId.value||'').trim(),budget=String(taskBudgetUsd.value||'').trim();
+ if(!requestId||budget===''){taskBudgetResult.textContent='أدخل request_id وBudget USD.';return;}
+ taskBudgetBtn.disabled=true;taskBudgetResult.textContent='جارٍ التقييم…';
+ try{const p=new URLSearchParams({action:'assistant-task-budget',request_id:requestId,budget_usd:budget});
+ const r=await BondsAuth.authenticatedFetch('/api/admin?'+p.toString(),{returnTo:location.pathname});const b=await r.json().catch(()=>({}));
+ if(!r.ok||b.success!==true)throw new Error(b.error||('HTTP '+r.status));const d=b.task_budget||{};
+ taskBudgetResult.innerHTML='<b>'+esc(d.state||'unknown')+'</b> · Budget if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script><script src="/admin/admin-embed.js?v=4"></script></body></html>+money(d.budget_usd)+' · Actual if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script><script src="/admin/admin-embed.js?v=4"></script></body></html>+money(d.actual_cost_usd)+' · Remaining if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script><script src="/admin/admin-embed.js?v=4"></script></body></html>+money(d.remaining_usd)+' · Utilization '+esc(d.utilization_pct==null?'—':d.utilization_pct+'%')+' · Events '+n(d.event_count)+' · enforcement='+esc(d.enforcement);
+ }catch(e){taskBudgetResult.textContent='فشل التقييم: '+e.message;}finally{taskBudgetBtn.disabled=false;}
+}
+taskBudgetBtn.addEventListener('click',loadTaskBudget);
 refreshBtn.addEventListener('click',load);windowDays.addEventListener('change',load);if(window.__ADMIN_ROLE)load();else window.addEventListener('admin-auth-ready',load,{once:true});
 })();
 </script><script src="/admin/admin-embed.js?v=4"></script></body></html>
