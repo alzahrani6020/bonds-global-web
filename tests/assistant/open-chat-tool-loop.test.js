@@ -78,4 +78,16 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain('The governed tool trace below is the execution authority for this turn.');
     expect(source).toContain('Never claim execution before a governed tool result exists.');
   });
+
+  test('parses the final grounding verifier verdict and fails invalid verifier output closed', () => {
+    const { parseGroundingDecision } = require('../../lib/assistant/open-chat-tool-loop');
+    expect(parseGroundingDecision('{"grounded":true,"unsupported_claims":[],"missing_citations":[]}')).toEqual({
+      grounded:true,
+      unsupported_claims:[],
+      missing_citations:[]
+    });
+    expect(parseGroundingDecision('not-json')).toBeNull();
+    expect(source).toContain('ANSWER_GROUNDING_FAILED');
+    expect(source).toContain("status:'grounding_blocked'");
+  });
 });

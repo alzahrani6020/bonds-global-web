@@ -109,6 +109,77 @@ describe('BONDS query-led research workflow', () => {
     }));
   });
 
+  test('retries one transient search failure and then continues', async () => {
+    let searchCalls = 0;
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        searchCalls += 1;
+        if (searchCalls === 1) {
+          return {
+            ok:false,
+            executed:true,
+            error:{
+              code:'SEARCH_NO_RESULTS',
+              attempts:[
+                { code:'SEARCH_UPSTREAM_FAILED', failure_class:'TIMEOUT', status_code:null }
+              ]
+            }
+          };
+        }
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            query:input.query,
+            results:[
+              { url:'https://a.example/profile' },
+              { url:'https://b.example/profile' }
+            ]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            pages:[
+              { url:'https://a.example/profile', evidence:{content_type:'text/html',headers:{}}, extracted:{format:'html',text:'A'} },
+              { url:'https://b.example/profile', evidence:{content_type:'text/html',headers:{}}, extracted:{format:'html',text:'B'} }
+            ]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            verification_state:'SUPPORTED',
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'research_synthesize') {
+        return { ok:true, executed:true, result:{ unknown:[], contradictions:[] } };
+      }
+      throw new Error('unexpected action');
+    });
+
+    const result = await runResearchWorkflow({
+      query:'transient query',
+      forceResearch:true,
+      research:{enabled:true}
+    }, {}, { executeCapability });
+
+    expect(searchCalls).toBe(2);
+    expect(result.search_attempts).toHaveLength(2);
+    expect(result.decisionEligible).toBe(true);
+  });
+
   test('fails closed when query-led search cannot produce results', async () => {
     const executeCapability = jest.fn(async action => {
       if (action === 'web_search') {
