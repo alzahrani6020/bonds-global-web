@@ -113,6 +113,11 @@
         {
           "id": "p2.5",
           "title": "Admin-only evolution proposal review",
+          "status": "completed"
+        },
+        {
+          "id": "p2.6",
+          "title": "Control Center evolution review UI",
           "status": "implemented_candidate"
         }
       ]
