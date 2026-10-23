@@ -3,9 +3,9 @@
 const $=s=>document.querySelector(s);
 const lang=(document.documentElement.lang||'ar').startsWith('en')?'en':'ar';
 const T=lang==='ar'?{
- loading:'جاري تحميل الخدمة...', procedures:'الإجراءات', requirements:'المتطلبات', deliverables:'المخرجات', dependencies:'خدمات مرتبطة', pricing:'التسعير', form:'بيانات الطلب', submit:'إرسال طلب الخدمة', details:'تفاصيل الخدمة', login:'سجّل الدخول لإرسال الطلب', noForm:'لا توجد بيانات إضافية مطلوبة حاليًا. يمكنك إنشاء الطلب مباشرة.', custom:'حسب عرض سعر', required:'مطلوب', optional:'اختياري', sent:'تم إنشاء طلب الخدمة بنجاح', unavailable:'هذه الخدمة غير متاحة حاليًا لهذا الاختيار.', failed:'تعذر تنفيذ الطلب', files:'سيتم رفع المستندات المطلوبة من بوابة العميل بعد إنشاء الطلب.'
+ loading:'جاري تحميل الخدمة...', procedures:'الإجراءات', requirements:'المتطلبات', deliverables:'المخرجات', dependencies:'خدمات مرتبطة', pricing:'التسعير', form:'بيانات الطلب', submit:'ابدأ التنفيذ', details:'تفاصيل الخدمة', login:'سجّل الدخول لتنفيذ الخدمة', noForm:'لا توجد بيانات إضافية مطلوبة حاليًا. ابدأ التنفيذ لتحديد المتطلبات تلقائيًا.', custom:'حسب عرض سعر', required:'مطلوب', optional:'اختياري', sent:'تم إنشاء طلب الخدمة بنجاح', executed:'تم تنفيذ الخدمة بنجاح', moreInputs:'أدخل البيانات المطلوبة لإكمال التنفيذ', unavailable:'هذه الخدمة غير متاحة حاليًا لهذا الاختيار.', failed:'تعذر تنفيذ الطلب', files:'سيتم رفع المستندات المطلوبة من بوابة العميل بعد إنشاء الطلب.'
 }:{
- loading:'Loading service...', procedures:'Procedures', requirements:'Requirements', deliverables:'Deliverables', dependencies:'Related services', pricing:'Pricing', form:'Request information', submit:'Submit service request', details:'Service details', login:'Sign in to submit the request', noForm:'No additional information is required now. You can create the request directly.', custom:'By quote', required:'Required', optional:'Optional', sent:'Service request created successfully', unavailable:'This service is currently unavailable for this selection.', failed:'Request failed', files:'Required documents can be uploaded from the client portal after creating the request.'
+ loading:'Loading service...', procedures:'Procedures', requirements:'Requirements', deliverables:'Deliverables', dependencies:'Related services', pricing:'Pricing', form:'Service inputs', submit:'Start execution', details:'Service details', login:'Sign in to execute the service', noForm:'No additional information is required yet. Start execution to resolve requirements automatically.', custom:'By quote', required:'Required', optional:'Optional', sent:'Service request created successfully', executed:'Service executed successfully', moreInputs:'Enter the required data to complete execution', unavailable:'This service is currently unavailable for this selection.', failed:'Request failed', files:'Required documents can be uploaded from the client portal after creating the request.'
 };
 const params=new URLSearchParams(location.search);
 const serviceCode=params.get('service')||'';
@@ -55,6 +55,85 @@ function render(){
  $('#srFormTitle').textContent=form?text(form):T.form;
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
 }
+function humanizeKey(key){
+ const labels={
+  total_debt:lang==='ar'?'إجمالي الدين':'Total debt',
+  equity:lang==='ar'?'حقوق الملكية':'Equity',
+  total_assets:lang==='ar'?'إجمالي الأصول':'Total assets',
+  total_liabilities:lang==='ar'?'إجمالي الالتزامات':'Total liabilities',
+  current_assets:lang==='ar'?'الأصول المتداولة':'Current assets',
+  current_liabilities:lang==='ar'?'الالتزامات المتداولة':'Current liabilities',
+  cash:lang==='ar'?'النقد وما في حكمه':'Cash',
+  revenue:lang==='ar'?'الإيرادات':'Revenue',
+  cogs:lang==='ar'?'تكلفة المبيعات':'Cost of goods sold',
+  operating_expenses:lang==='ar'?'المصروفات التشغيلية':'Operating expenses',
+  operating_income:lang==='ar'?'الربح التشغيلي':'Operating income',
+  net_income:lang==='ar'?'صافي الربح':'Net income',
+  ebitda:lang==='ar'?'EBITDA':'EBITDA',
+  interest_expense:lang==='ar'?'مصروف الفوائد':'Interest expense',
+  inventory:lang==='ar'?'المخزون':'Inventory',
+  receivables:lang==='ar'?'الذمم المدينة':'Receivables',
+  prior_revenue:lang==='ar'?'إيرادات الفترة السابقة':'Prior revenue',
+  prior_net_income:lang==='ar'?'صافي ربح الفترة السابقة':'Prior net income',
+  cost_of_equity_pct:lang==='ar'?'تكلفة حقوق الملكية %':'Cost of equity %',
+  cost_of_debt_pct:lang==='ar'?'تكلفة الدين %':'Cost of debt %',
+  tax_rate_pct:lang==='ar'?'معدل الضريبة %':'Tax rate %'
+ };
+ return labels[key]||String(key||'').replace(/_/g,' ');
+}
+function normalizeRequiredInputs(items){
+ const out=[];
+ for(const raw of Array.isArray(items)?items:[]){
+  const key=String(raw||'');
+  if(!key)continue;
+  if(key==='equity_or_total_assets_and_total_liabilities'){
+   out.push('equity');
+   continue;
+  }
+  if(key==='ebitda_or_revenue_cogs_operating_expenses'){
+   out.push('ebitda');
+   continue;
+  }
+  if(key==='cost_of_debt_pct_or_interest_expense'){
+   out.push('cost_of_debt_pct');
+   continue;
+  }
+  if(key.startsWith('non_zero_')||key.startsWith('non_negative_')||key==='positive_total_capital')continue;
+  out.push(key);
+ }
+ return [...new Set(out)];
+}
+function ensureExecutionFields(requiredInputs){
+ const container=$('#srDynamicFields');
+ const keys=normalizeRequiredInputs(requiredInputs);
+ if(!container||!keys.length)return false;
+ for(const key of keys){
+  if(container.querySelector('[name="'+CSS.escape(key)+'"]'))continue;
+  const wrap=document.createElement('div');
+  wrap.className='sr-field';
+  wrap.innerHTML='<label>'+escapeHtml(humanizeKey(key))+' <small>('+T.required+')</small></label>'+
+    '<input type="number" step="any" name="'+escapeHtml(key)+'" required>';
+  container.appendChild(wrap);
+ }
+ $('#srFormTitle').textContent=T.moreInputs;
+ return true;
+}
+function renderExecutionResult(payload){
+ let box=$('#srExecutionResult');
+ if(!box){
+  box=document.createElement('section');
+  box.id='srExecutionResult';
+  box.className='sr-card';
+  $('#srRequestForm').insertAdjacentElement('afterend',box);
+ }
+ const result=payload?.result||{};
+ const metrics=result.metrics||payload?.metrics||{};
+ const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined);
+ box.innerHTML='<h2>'+escapeHtml(T.executed)+'</h2>'+
+  (entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+escapeHtml(typeof v==='number'?Number(v).toLocaleString(lang==='ar'?'ar-SA':'en-US',{maximumFractionDigits:4}):v)+'</li>').join('')+'</ul></div>':
+  '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>');
+}
+
 function track(event,properties={}){
  try{
   fetch('/api/log-usage',{
@@ -92,6 +171,54 @@ async function submit(e){
   if(!user){location.href='/calculators/auth/index.html?redirect='+encodeURIComponent(location.pathname+location.search);return}
   const sb=window.BondsAuth.getSupabase();const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)throw new Error(T.login);
+  const values=collectValues();
+  const context={
+    country:params.get('country')||null,
+    region:params.get('region')||null,
+    locality:params.get('locality')||null,
+    sector:params.get('sector')||null,
+    activity:params.get('activity')||null
+  };
+  const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};
+
+  const executionResponse=await fetch('/api/v3/services/execute',{
+    method:'POST',
+    headers,
+    body:JSON.stringify({
+      service_code:serviceCode,
+      inputs:values,
+      values,
+      country_code:context.country,
+      sector:context.sector,
+      activity:context.activity,
+      language:lang,
+      context,
+      source:'service_request_page'
+    })
+  });
+  const execution=await executionResponse.json().catch(()=>({}));
+
+  if(executionResponse.ok&&execution.executed===true){
+    submitted=true;
+    track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null});
+    showStatus(T.executed,true);
+    renderExecutionResult(execution);
+    $('#srSubmit').disabled=true;
+    return;
+  }
+
+  const requiredInputs=execution.required_inputs||execution.result?.required_inputs||execution.error?.missing||[];
+  if(ensureExecutionFields(requiredInputs)){
+    showStatus(T.moreInputs,false);
+    return;
+  }
+
+  const manualFallback=executionResponse.status===409&&execution?.error?.code==='SERVICE_EXECUTION_NOT_AUTOMATED';
+  if(!manualFallback){
+    const code=execution?.error?.code||execution?.status||('HTTP '+executionResponse.status);
+    throw new Error(code);
+  }
+
   const body={
     service_code:serviceCode,
     country_code:params.get('country')||null,
@@ -101,13 +228,13 @@ async function submit(e){
     locality_name:params.get('locality_name')||null,
     sector_code:params.get('sector')||null,
     activity_code:params.get('activity')||null,
-    values:collectValues(),
+    values,
     form_version:detail.form?.version||null,
     lang,
     url:location.href,
     source:'service_request_page'
   };
-  const d=await json('/api/v3/services/requests',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify(body)});
+  const d=await json('/api/v3/services/requests',{method:'POST',headers,body:JSON.stringify(body)});
   submitted=true;
   track('service_converted',{request_reference:d.request.request_reference});
   showStatus(T.sent+' — '+d.request.request_reference,true);
@@ -122,6 +249,7 @@ async function init(){
   detail=await json('/api/v3/services/'+encodeURIComponent(serviceCode)+'?'+contextQuery());
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
   const requestForm=$('#srRequestForm');
+  $('#srSubmit').textContent=T.submit;
   requestForm.addEventListener('submit',submit);
   requestForm.addEventListener('input',()=>{formTouched=true},{passive:true});
   requestForm.addEventListener('change',()=>{formTouched=true},{passive:true});
