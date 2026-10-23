@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase5-ci-release",
-  "current_workstream": "p5.6-known-good-releases",
+  "current_workstream": "p5.7-rollback-orchestration",
   "status": "in_progress",
-  "baseline_main_sha": "013cef79f136883d634e013375cd8d2a11a73907",
+  "baseline_main_sha": "e6c2da3b1bed37cd3a2461cc78ca5d4e405436ff",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -86,26 +86,29 @@
     "p5.4-staging-verification-gate",
     "p5.5-production-sha-verification",
     "p5.5-health-readiness-smoke-gate",
-    "p5.5-known-good-eligibility"
-  ],
-  "currently_working_on": [
+    "p5.5-known-good-eligibility",
     "p5.6-known-good-release-record",
     "p5.6-exact-sha-evidence",
     "p5.6-rollback-source-eligibility"
   ],
-  "next_action": "validate P5.6 Known-Good Releases in CI; after merge implement P5.7 Rollback Orchestration",
+  "currently_working_on": [
+    "p5.7-known-good-only-rollback-plan",
+    "p5.7-explicit-approval-gate",
+    "p5.7-post-rollback-verification"
+  ],
+  "next_action": "validate rebased P5.7 Rollback Orchestration in CI; after merge close Phase 5 and proceed to Phase 6 Self-Training",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
     "phase2_admin_review_merge_sha": "4dc1ad44f4d55a9019e4c8f7443ae0029f7c4bb7",
     "phase2_control_center_merge_sha": "e91bb282735c0ec1798e792ce02e627d8e9b7916",
-    "latest_main_sha": "013cef79f136883d634e013375cd8d2a11a73907",
+    "latest_main_sha": "e6c2da3b1bed37cd3a2461cc78ca5d4e405436ff",
     "phase2_agent_inbox_merge_sha": "c4140b9bd24075431df5d4aa8212a84250394a94",
     "phase2_ci_verified": true,
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "013cef79f136883d634e013375cd8d2a11a73907",
+    "current_main_sha": "e6c2da3b1bed37cd3a2461cc78ca5d4e405436ff",
     "superseded_candidate_prs": [
       472,
       475
@@ -169,7 +172,13 @@
     "phase5_staged_release_pr_ci_verified": true,
     "phase5_production_verification_merge_sha": "013cef79f136883d634e013375cd8d2a11a73907",
     "phase5_production_verification_pr_head_sha": "f6fa206159e065ed3d457af3bfdaadad03c241e5",
-    "phase5_production_verification_pr_ci_verified": true
+    "phase5_production_verification_pr_ci_verified": true,
+    "phase5_known_good_releases_merge_sha": "11b0b3ef3fe080c808475d53641a881736f44f8b",
+    "phase5_known_good_releases_pr_head_sha": "7e61c3b3a1c4a8dc821b20e5764b201c4ea9b616",
+    "phase5_known_good_releases_pr_ci_verified": true,
+    "superseded_phase5_rollback_prs": [
+      515
+    ]
   },
   "approved_architecture": {
     "dual_core": true,
@@ -190,5 +199,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p5.6-known-good-releases-candidate"
+  "updated_by": "p5.7-rollback-orchestration-rebased-candidate"
 }
