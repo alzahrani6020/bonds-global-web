@@ -14,6 +14,7 @@ const { getSupabaseClient } = require('../lib/supabase');
 const { getInferenceRouter } = require('../../lib/ai/inference-router');
 const { getUserFromToken } = require('../lib/auth');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
+const { appendCaseConversationTurn } = require('../../lib/assistant/case-engine');
 const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
@@ -22,6 +23,22 @@ function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(JSON.stringify(data));
+}
+
+async function persistAssistantReply(orchestration, reply) {
+  if (!orchestration?.persistence || !reply) return orchestration?.response?.case_state || orchestration?.caseState || null;
+  try {
+    const saved = await appendCaseConversationTurn({
+      supabase: getSupabaseClient(),
+      ...orchestration.persistence,
+      role: 'assistant',
+      content: reply
+    });
+    return saved?.state || orchestration?.response?.case_state || orchestration?.caseState || null;
+  } catch (error) {
+    console.warn('[ai/chat] Assistant reply persistence degraded:', error.message);
+    return orchestration?.response?.case_state || orchestration?.caseState || null;
+  }
 }
 
 function parseBody(req) {
@@ -518,6 +535,8 @@ async function aiChatHandler(req, res) {
     orchestrationMeta = orchestration || null;
 
     if (orchestration?.handled && orchestration.response) {
+      const persistedCaseState = await persistAssistantReply(orchestration, orchestration.response.reply);
+      if (persistedCaseState) orchestration.response.case_state = persistedCaseState;
       return sendJson(res, 200, orchestration.response);
     }
 
@@ -538,6 +557,7 @@ async function aiChatHandler(req, res) {
 
   const deterministicReply = forceNative ? null : generateDataDrivenReply(lastUserText, enrichedContext);
   if (deterministicReply) {
+    const persistedCaseState = await persistAssistantReply(orchestrationMeta, deterministicReply);
     return sendJson(res, 200, {
       reply: deterministicReply,
       source: 'data-driven',
@@ -550,7 +570,7 @@ async function aiChatHandler(req, res) {
         intent: orchestrationMeta.intent || 'information',
         handled: false
       } : undefined,
-      case_state: orchestrationMeta?.caseState || null,
+      case_state: persistedCaseState || orchestrationMeta?.caseState || null,
       next_best_action: orchestrationMeta?.nextBestAction || null,
       debug: {
         input: lastUser?.content,
@@ -611,6 +631,7 @@ async function aiChatHandler(req, res) {
   }
 
   const reply = aiResult?.reply || fallbackReply(lastUserText, enrichedContext);
+  const persistedCaseState = await persistAssistantReply(orchestrationMeta, reply);
 
   // Debug: include enrichment summary in response during rollout
   const debugInfo = {
@@ -637,7 +658,7 @@ async function aiChatHandler(req, res) {
       intent: orchestrationMeta.intent || 'information',
       handled: false
     } : undefined,
-    case_state: orchestrationMeta?.caseState || null,
+    case_state: persistedCaseState || orchestrationMeta?.caseState || null,
     next_best_action: orchestrationMeta?.nextBestAction || null,
     debug: debugInfo,
     context: {
