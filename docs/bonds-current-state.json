@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase2-learning-foundation",
-  "current_workstream": "p2.1-learning-analysis-foundation",
+  "current_workstream": "p2.5-admin-evolution-review",
   "status": "in_progress",
-  "baseline_main_sha": "3b353ce371307513d4232567f951009a0b4b2570",
+  "baseline_main_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -28,18 +28,20 @@
     "p1.9-supabase-migration-verified",
     "p1.10-workflow-blocked-signal",
     "p1.10-document-extraction-failure-signal",
-    "p1.10-intent-and-low-confidence-signals"
-  ],
-  "currently_working_on": [
+    "p1.10-intent-and-low-confidence-signals",
     "p2.1-gap-defect-detection",
     "p2.2-evidence-aggregation",
     "p2.3-learning-proposal-analysis",
     "p2.4-proposal-risk-classification"
   ],
-  "next_action": "validate Phase 2 learning analysis foundation in CI; after merge connect analysis invocation to admin/evolution review flow without authorizing execution",
+  "currently_working_on": [
+    "p2.5-admin-review-projection",
+    "p2.5-admin-analysis-endpoint"
+  ],
+  "next_action": "validate admin-only evolution review flow in CI; after merge add review UI/inbox integration and decide Phase 2 closeout criteria",
   "blocked": [],
   "verification": {
-    "phase1_closeout_merge_sha": "3b353ce371307513d4232567f951009a0b4b2570"
+    "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -60,5 +62,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p2.1-candidate"
+  "updated_by": "p2.5-candidate"
 }

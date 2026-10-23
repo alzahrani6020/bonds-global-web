@@ -17,6 +17,8 @@ const { calibrateCompetitorCounts } = require('../engine/data-acquisition/Compet
 const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMonitor');
 const { scanAssistantAnomalies } = require('../../lib/assistant/anomaly-detection');
 const { buildAssistantOperationalDashboard } = require('../../lib/assistant/operational-dashboard');
+const { listEvolutionProposals } = require('../../lib/learning/evolution-review');
+const { analyzeProposedEvolution } = require('../../lib/learning/learning-proposal-engine');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -620,6 +622,67 @@ async function handleAssistantAnomalies(req, res) {
   }
 }
 
+async function handleEvolutionProposals(req, res) {
+  const supabase = getSupabaseClient();
+  const url = new URL(req.url || '/api/v3/admin/evolution-proposals', 'http://localhost');
+
+  if (!['GET','POST'].includes(req.method)) {
+    return sendJson(res, 405, {
+      success:false,
+      error:'Method not allowed',
+      policy:{
+        admin_review_only:true,
+        analysis_only:true,
+        execution_authorized:false,
+        auto_execute:false
+      }
+    });
+  }
+
+  try {
+    if (req.method === 'POST') {
+      const body = await parseBody(req);
+      const analysis = await analyzeProposedEvolution({
+        supabase,
+        limit:body.limit || url.searchParams.get('limit') || 50
+      });
+      return sendJson(res, 200, {
+        success:true,
+        learning_analysis:analysis,
+        policy:{
+          admin_review_only:true,
+          analysis_only:true,
+          execution_authorized:false,
+          auto_execute:false,
+          code_mutation:false,
+          status_change:false
+        }
+      });
+    }
+
+    const review = await listEvolutionProposals({
+      supabase,
+      status:url.searchParams.get('status') || 'proposed',
+      limit:url.searchParams.get('limit') || 50
+    });
+    return sendJson(res, 200, {
+      success:true,
+      evolution_proposals:review
+    });
+  } catch (err) {
+    return sendJson(res, 503, {
+      success:false,
+      error:String(err?.message || 'EVOLUTION_REVIEW_FAILED'),
+      policy:{
+        admin_review_only:true,
+        analysis_only:true,
+        execution_authorized:false,
+        auto_execute:false
+      }
+    });
+  }
+}
+
 async function handleServiceAdmin(req, res, code) {
   const supabase = getSupabaseClient();
 
@@ -1109,6 +1172,7 @@ async function adminRouter(req, res, path) {
     if (resource === 'source-quality-alerts') return await handleSourceQualityAlerts(req, res);
     if (resource === 'assistant-anomalies') return await handleAssistantAnomalies(req, res);
     if (resource === 'assistant-operations') return await handleAssistantOperations(req, res);
+    if (resource === 'evolution-proposals') return await handleEvolutionProposals(req, res);
     if (resource === 'services') {
       const serviceCode = parts[2];
       if (parts[3] === 'forms') return await handleServiceFormsAdmin(req, res, serviceCode, parts[4], parts[5]);
