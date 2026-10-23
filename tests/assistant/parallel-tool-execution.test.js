@@ -1,5 +1,8 @@
 /** @jest-environment node */
 
+const fs = require('fs');
+const path = require('path');
+
 const {
   normalizeParallelRequests,
   preflightParallelServices,
@@ -8,6 +11,15 @@ const {
 } = require('../../lib/services/parallel-tool-execution');
 
 describe('Assistant parallel tool execution', () => {
+  test('is exposed through the existing Assistant API and covered by emergency mode', () => {
+    const api = fs.readFileSync(path.join(process.cwd(),'v3','api','assistant.js'),'utf8');
+    const emergency = fs.readFileSync(path.join(process.cwd(),'lib','assistant','emergency-kill-switch.js'),'utf8');
+
+    expect(api).toContain("const { executeParallelServices } = require('../../lib/services/parallel-tool-execution');");
+    expect(api).toContain("path === '/assistant/services/execute-parallel'");
+    expect(emergency).toContain("'POST /assistant/services/execute-parallel':'assistant.services.execute_parallel'");
+  });
+
   test('requires every task to be explicitly independent', () => {
     expect(() => normalizeParallelRequests([
       { service_code:'financial_analysis', body:{} }
