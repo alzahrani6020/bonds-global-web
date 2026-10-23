@@ -818,3 +818,18 @@ parent/child relationships بين التوكنات.
 - No migration for this stage.
 - Status: MERGED / CI VERIFIED / PRODUCTION VERIFIED.
 - Next Assistant roadmap item: **Assistant Evaluations** (`assistant_evaluations`).
+
+
+---
+
+## 2026-10-23 — Assistant Evaluations checkpoint
+
+- تمت إضافة `lib/assistant/assistant-evaluations.js` كطبقة تقييم حتمية فوق Golden Conversations المعتمدة؛ لا تنشئ planner أو runtime موازيًا.
+- التقييم يقيس structural accuracy الكلية، ready-flow accuracy، denial-flow accuracy، ودقة اللغتين العربية والإنجليزية.
+- جميع بوابات Golden v1 مطلوبة بنسبة 100%؛ أي drift معروف يفشل التقييم بدل تخفيف العتبات أو تطبيع الخطأ.
+- corpus غير الصالح يرفض قبل التشغيل، مع إرجاع evidence من validator القائم.
+- التقييم لا يستدعي provider/model، ولا ينفذ tools أو business writes، ولا يمنح execution authority؛ `execution_authorized:false` و`writes_performed:false` جزء من عقد النتيجة.
+- تمت إضافة regression tests للفشل عند planner drift، corpus authority drift، وcontext-code drift.
+- لا تغيير provider/model/token/context/throughput/compute أو authorization، ولا database migration.
+- الحالة الحالية: **IMPLEMENTATION CANDIDATE**؛ لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
+- العنصر التالي بعد التحقق الإنتاجي: **Red Team Scenarios** (`red_team_scenarios`).
