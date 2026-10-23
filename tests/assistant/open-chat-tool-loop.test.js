@@ -28,6 +28,13 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain('if (seen.has(signature)) break;');
   });
 
+  test('forces public-person, explicit-search and freshness queries into web search', () => {
+    expect(source).toContain('function initialSearchDecision(messages, trace = [])');
+    expect(source).toContain("action: 'web_search'");
+    expect(source).toContain('personLookup');
+    expect(source).toContain('freshness');
+  });
+
   test('forces search results through fetched page exploration before final synthesis', () => {
     expect(source).toContain("last.action !== 'web_search'");
     expect(source).toContain("action: 'web_explore'");
