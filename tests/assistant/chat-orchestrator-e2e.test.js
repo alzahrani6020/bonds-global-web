@@ -171,7 +171,7 @@ describe('BONDS Chat Orchestrator end-to-end acceptance', () => {
     expect(result.response.context.serviceCode).toBeNull();
   });
 
-  test('clear explicit service intent overrides page and session and seeds durable state', async () => {
+  test('clear explicit service intent overrides page/session without carrying service-specific facts', async () => {
     const supabase = createSupabase();
     const result = await orchestrateChat({
       req: { headers: {} },
@@ -201,9 +201,45 @@ describe('BONDS Chat Orchestrator end-to-end acceptance', () => {
     expect(result.handled).toBe(false);
     expect(result.resolvedContext.serviceCode).toBe('risk_analysis');
     expect(result.resolvedContext.contextAuthority).toBe('explicit_user_intent');
-    expect(result.caseState.confirmed_facts.currency).toBe('SAR');
+    expect(result.caseState.confirmed_facts.currency).toBeUndefined();
     expect(result.caseState.conversation_tail.at(-1).content).toBe('أريد خدمة تحليل المخاطر');
     expect(supabase.getWorkflow().boundary).toContain('service:risk_analysis');
+  });
+
+  test('guest-to-authenticated continuity persists same-service state', async () => {
+    const supabase = createSupabase();
+    const result = await orchestrateChat({
+      req: { headers: {} },
+      user: { id: 'user-1' },
+      supabase,
+      message: 'ما التالي؟',
+      messages: [
+        { role: 'user', content: 'بدأت كضيف' },
+        { role: 'assistant', content: 'أرسل القوائم المالية' },
+        { role: 'user', content: 'ما التالي؟' }
+      ],
+      context: {
+        pagePath: '/services#analysis',
+        serviceCode: 'financial_analysis'
+      },
+      assistantState: {
+        boundary: 'city:none|activity:none|model:none|service:financial_analysis',
+        goal: 'تحليل الشركة',
+        current_stage: 'data_collection',
+        confirmed_facts: { currency: 'SAR' },
+        conversation_tail: [
+          { role: 'user', content: 'بدأت كضيف' },
+          { role: 'assistant', content: 'أرسل القوائم المالية' }
+        ]
+      }
+    });
+
+    expect(result.handled).toBe(true);
+    expect(result.response.case_state.goal).toBe('تحليل الشركة');
+    expect(result.response.case_state.current_stage).toBe('data_collection');
+    expect(result.response.case_state.confirmed_facts.currency).toBe('SAR');
+    expect(result.response.case_state.conversation_tail.at(-1).content).toBe('ما التالي؟');
+    expect(supabase.getWorkflow()).not.toBeNull();
   });
 
   test('registered deterministic execution returns a governed action result and review state', async () => {
