@@ -31,11 +31,13 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).not.toContain('timeoutMs: Number(process.env.BONDS_NATIVE_TIMEOUT_MS || 20000)');
   });
 
-  test('keeps deterministic sourced answers only for anonymous fallback while authenticated chat uses open planning', () => {
-    expect(source).toContain('if (authenticatedUser && !forceNative)');
-    expect(source).toContain("const deterministicReply = (forceNative || authenticatedUser) ? null : generateDataDrivenReply");
-    expect(source).toContain("source: 'data-driven'");
-    expect(source).toContain("native_attempted: false");
+  test('requires authentication before any AI or legacy fallback path', () => {
+    expect(source).toContain("error: 'AUTHENTICATION_REQUIRED'");
+    expect(source).toContain('requires_authentication: true');
+    expect(source).toContain('if (!forceNative)');
+    expect(source).toContain('runOpenChatLoop(messages, enrichedContext, {');
+    expect(source).not.toContain('const deterministicReply =');
+    expect(source).not.toContain("source: 'data-driven'");
   });
 
   test('allows an explicit bounded BONDS AI probe within the runtime ceiling', () => {
