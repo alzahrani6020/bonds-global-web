@@ -7,6 +7,18 @@
 
   const isEmbed = location.search.includes('embed=1');
 
+  function applyEmbeddedLocale(value) {
+    const locale = String(value || '').toLowerCase().startsWith('en') ? 'en' : 'ar';
+    document.documentElement.lang = locale;
+    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+    try { window.localStorage?.setItem('bonds-admin-locale', locale); } catch (_) {}
+    if (window.BondsAdminI18n?.setLocale) {
+      window.BondsAdminI18n.setLocale(locale);
+    } else {
+      window.dispatchEvent(new CustomEvent('admin-locale-changed', { detail: { locale } }));
+    }
+  }
+
   function applyEmbedStyles() {
     const style = document.createElement('style');
     style.textContent = `
@@ -87,7 +99,12 @@
     if (!isEmbed) return;
     if (e.origin !== location.origin) return;
     if (e.source !== window.parent) return;
-    if (!e.data || e.data.type !== 'admin-token') return;
+    if (!e.data) return;
+    if (e.data.type === 'admin-locale') {
+      applyEmbeddedLocale(e.data.locale);
+      return;
+    }
+    if (e.data.type !== 'admin-token') return;
 
     const token = typeof e.data.token === 'string'
       ? e.data.token.trim()
