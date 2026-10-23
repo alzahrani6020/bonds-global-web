@@ -24,6 +24,35 @@ function sendJson(res, status, data) {
   res.end(JSON.stringify(data));
 }
 
+function wantsEventStream(req, body = null) {
+  const accept = String(req?.headers?.accept || '').toLowerCase();
+  return accept.includes('text/event-stream') || body?.options?.stream === true;
+}
+
+function startEventStream(res) {
+  if (res.headersSent) return;
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/event-stream; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-cache, no-transform');
+  res.setHeader('X-Accel-Buffering', 'no');
+}
+
+function writeEvent(res, event, data) {
+  startEventStream(res);
+  res.write(`event: ${event}\n`);
+  res.write(`data: ${JSON.stringify(data)}\n\n`);
+}
+
+function sendAssistantResponse(res, status, data, { stream = false } = {}) {
+  if (!stream) return sendJson(res, status, data);
+  if (status >= 400) {
+    writeEvent(res, 'error', { error: data?.error || 'Request failed', status });
+  } else {
+    writeEvent(res, 'final', data);
+  }
+  res.end();
+}
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
@@ -468,8 +497,12 @@ async function aiChatHandler(req, res) {
   }
 
   const { messages = [], context = {}, options = {}, assistantState = null } = body;
+  const streaming = wantsEventStream(req, body);
   if (!Array.isArray(messages) || messages.length === 0) {
-    return sendJson(res, 400, { error: 'messages array is required' });
+    return sendAssistantResponse(res, 400, { error: 'messages array is required' }, { stream: streaming });
+  }
+  if (streaming) {
+    writeEvent(res, 'status', { phase:'preparing', source:'assistant' });
   }
 
   const baseAssistantBoundary = `city:${String(context.cityCode || 'none').trim()}|activity:${String(context.activityCode || 'none').trim()}|model:${String(context.modelCode || 'none').trim()}`;
@@ -502,7 +535,7 @@ async function aiChatHandler(req, res) {
   }
 
   if (forceNative && !authenticatedUser) {
-    return sendJson(res, 401, { error: 'Authentication required for Native AI execution' });
+    return sendAssistantResponse(res, 401, { error: 'Authentication required for Native AI execution' }, { stream: streaming });
   }
 
   // Resolve page/session/service authority and operational intent before ordinary chat.
@@ -518,7 +551,7 @@ async function aiChatHandler(req, res) {
     });
 
     if (orchestration?.handled && orchestration.response) {
-      return sendJson(res, 200, orchestration.response);
+      return sendAssistantResponse(res, 200, orchestration.response, { stream: streaming });
     }
 
     if (orchestration?.resolvedContext) {
@@ -538,7 +571,7 @@ async function aiChatHandler(req, res) {
 
   const deterministicReply = forceNative ? null : generateDataDrivenReply(lastUserText, enrichedContext);
   if (deterministicReply) {
-    return sendJson(res, 200, {
+    return sendAssistantResponse(res, 200, {
       reply: deterministicReply,
       source: 'data-driven',
       provider: 'BondsV3DataEngine',
@@ -563,7 +596,7 @@ async function aiChatHandler(req, res) {
         serviceCode: enrichedContext.serviceCode || null,
         serviceName: enrichedContext.serviceName || null
       }
-    });
+    }, { stream: streaming });
   }
 
   let aiResult = null;
@@ -571,6 +604,9 @@ async function aiChatHandler(req, res) {
 
   if (authenticatedUser) {
     try {
+      if (streaming) {
+        writeEvent(res, 'status', { phase:'inference', source:'bonds-native', token_streaming:false });
+      }
       aiResult = await generateNativeReply(messages, enrichedContext, {
         maxTokens: options?.max_tokens,
         assistantState: assistantConversationState
@@ -618,7 +654,7 @@ async function aiChatHandler(req, res) {
     native_elapsed_ms: nativeError?.elapsedMs ?? aiResult?.inference?.request_elapsed_ms ?? null
   };
 
-  sendJson(res, 200, {
+  sendAssistantResponse(res, 200, {
     reply,
     source: aiResult ? 'bonds-native' : 'data-driven-fallback',
     provider: aiResult?.provider || 'BondsV3DataEngine',
@@ -633,8 +669,13 @@ async function aiChatHandler(req, res) {
       activityName: enrichedContext.activityName || null,
       serviceCode: enrichedContext.serviceCode || null,
       serviceName: enrichedContext.serviceName || null
-    }
-  });
+    },
+    streaming: streaming ? {
+      transport:'sse',
+      token_streaming:false,
+      events:['status','final','error']
+    } : null
+  }, { stream: streaming });
 }
 
 async function resolveActivityAndCityFromMessage(message, context, supabase) {

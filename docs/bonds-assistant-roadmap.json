@@ -923,10 +923,11 @@
     "operational_replay",
     "cost_governance_separate_from_auth",
     "per_task_budget",
-    "latency_aware_routing"
+    "latency_aware_routing",
+    "streaming"
   ],
   "next": [
-    "streaming"
+    "parallel_tool_execution"
   ],
   "deferred": [
     "action_tokens",
@@ -938,13 +939,14 @@
     "full_multi_agent",
     "operational_digital_twin",
     "voice",
-    "multimodal"
+    "multimodal",
+    "native_token_streaming_runtime_rollout"
   ],
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-latency-aware-routing",
-    "change": "Latency-aware routing implemented_base inside the existing Bonds Native inference router. Assistant chat enables same-provider node ordering using fresh method-scoped EWMA latency observations. Circuit breaker/failover remain authoritative; there is no forced exploration, and latency ordering only applies when at least two current observations exist for the same operation. It does not block execution, limit tokens/compute, change model/provider, or alter authorization. No migration. Next: streaming."
+    "branch": "feat/assistant-streaming",
+    "change": "Streaming implemented_base as backward-compatible SSE transport on the existing Assistant chat path. Clients receive status/final/error events with JSON fallback; no synthetic token deltas are emitted. Existing Bonds Native /generate still returns a complete result, so native token-by-token streaming is explicitly deferred until the external runtime is upgraded and production-verified. No provider/model/token/context/throughput/compute/authorization or migration change. Next: parallel_tool_execution."
   },
   "production_rollout": {
     "status": "complete",
