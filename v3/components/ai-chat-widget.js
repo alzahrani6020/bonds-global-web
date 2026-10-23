@@ -20,6 +20,11 @@
   const ASSISTANT_NOTIFICATION_READ_URL = '/api/v3/assistant/notifications/read';
   const ASSISTANT_WORKFLOW_RESUME_URL = '/api/v3/assistant/workflows/resume';
   const ASSISTANT_WORKFLOW_SAVE_URL = '/api/v3/assistant/workflows/save';
+  const CAPABILITY_EXECUTE_URL = '/api/v3/capabilities/execute';
+  const CLIENT_DOCUMENTS_BUCKET = 'client-documents';
+  const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
+  const MAX_ATTACHMENT_BATCH_FILES = 10;
+  const MAX_ATTACHMENT_BATCH_BYTES = 25 * 1024 * 1024;
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
   const ASSISTANT_CONTEXT_PREFERENCE_KEY = 'bonds.assistant.context.enabled.v1';
@@ -227,6 +232,7 @@
       cursor: pointer;
     }
     .bonds-ai-chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .bonds-ai-chat-input .bonds-ai-attach-button,
     .bonds-ai-chat-input .bonds-ai-voice-button,
     .bonds-ai-chat-input .bonds-ai-send-button {
       width: 44px;
@@ -236,14 +242,44 @@
       display: grid;
       place-items: center;
     }
+    .bonds-ai-chat-input .bonds-ai-attach-button,
     .bonds-ai-chat-input .bonds-ai-voice-button {
       background: #eef3f8;
       color: #0b3d73;
       border: 1px solid #cfd8e3;
     }
-    .bonds-ai-chat-input .bonds-ai-voice-button:hover {
-      background: #e2eaf3;
+    .bonds-ai-chat-input .bonds-ai-attach-button:hover,
+    .bonds-ai-chat-input .bonds-ai-voice-button:hover { background: #e2eaf3; }
+    .bonds-ai-chat-input .bonds-ai-attach-button.uploading { opacity: 0.65; cursor: progress; }
+    .bonds-ai-attachments {
+      display: none;
+      gap: 0.45rem;
+      padding: 0.55rem 0.75rem;
+      overflow-x: auto;
+      background: #0d1321;
+      border-top: 1px solid rgba(197,160,40,0.12);
     }
+    .bonds-ai-attachments.visible { display: flex; }
+    .bonds-ai-attachment {
+      flex: 0 0 auto;
+      max-width: 220px;
+      border: 1px solid rgba(197,160,40,0.2);
+      border-radius: 10px;
+      padding: 0.5rem 0.65rem;
+      background: rgba(255,255,255,0.04);
+      color: #e8ecf4;
+      font-size: 0.75rem;
+    }
+    .bonds-ai-attachment strong {
+      display: block;
+      max-width: 190px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .bonds-ai-attachment small { display: block; margin-top: 0.2rem; color: #94a3b8; }
+    .bonds-ai-attachment.error { border-color: rgba(239,68,68,0.5); }
+    .bonds-ai-chat-window.drag-active { outline: 2px dashed #d4a853; outline-offset: -8px; }
     .bonds-ai-chat-input .bonds-ai-voice-button.listening {
       background: #fff1f0;
       color: #b42318;
@@ -932,8 +968,13 @@
         <div class="bonds-ai-chat-messages"></div>
         <div class="bonds-ai-actions"></div>
         <div class="bonds-ai-suggestions"></div>
+        <div class="bonds-ai-attachments" aria-live="polite"></div>
         <div class="bonds-ai-chat-input">
-          <input type="text" placeholder="اكتب سؤالك هنا..." autocomplete="off">
+          <input class="bonds-ai-file-input" type="file" multiple hidden accept=".pdf,.doc,.docx,.xls,.xlsx,.csv,.jpg,.jpeg,.png,.webp,.heic,.heif,.tif,.tiff,image/*">
+          <button type="button" class="bonds-ai-attach-button" aria-label="إرفاق ملف أو صورة" title="إرفاق ملف أو صورة">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m21.4 11.6-8.9 8.9a6 6 0 0 1-8.5-8.5l9.6-9.6a4 4 0 0 1 5.7 5.7l-9.7 9.6a2 2 0 0 1-2.8-2.8l8.9-8.9"/></svg>
+          </button>
+          <input class="bonds-ai-text-input" type="text" placeholder="اكتب سؤالك هنا..." autocomplete="off">
           <button type="button" class="bonds-ai-voice-button" aria-label="التحدث إلى مساعد بوندز" title="التحدث" hidden>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
           </button>
@@ -965,7 +1006,10 @@
     const messagesEl = root.querySelector('.bonds-ai-chat-messages');
     const actionsEl = root.querySelector('.bonds-ai-actions');
     const suggestionsEl = root.querySelector('.bonds-ai-suggestions');
-    const input = root.querySelector('.bonds-ai-chat-input input');
+    const input = root.querySelector('.bonds-ai-text-input');
+    const fileInput = root.querySelector('.bonds-ai-file-input');
+    const attachBtn = root.querySelector('.bonds-ai-attach-button');
+    const attachmentsEl = root.querySelector('.bonds-ai-attachments');
     const sendBtn = root.querySelector('.bonds-ai-send-button');
     const voiceBtn = root.querySelector('.bonds-ai-voice-button');
     const voiceStatus = root.querySelector('.bonds-ai-voice-status');
@@ -1342,9 +1386,12 @@
 
     function resetVisibleConversationForBoundary() {
       state.messages = [];
+      state.attachments = [];
+      context.attachments = [];
       messagesEl.innerHTML = '';
       actionsEl.innerHTML = '';
       suggestionsEl.innerHTML = '';
+      renderAttachments();
     }
 
     function updateContext(newContext) {
@@ -1372,6 +1419,8 @@
       messages: [],
       isOpen: false,
       isLoading: false,
+      isUploading: false,
+      attachments: [],
       voiceState: 'idle',
       recognition: null,
       activeUtterance: null,
@@ -1768,6 +1817,7 @@
       sendBtn.disabled = loading;
       input.disabled = loading;
       voiceBtn.disabled = loading || !voiceInputSupported();
+      attachBtn.disabled = loading || state.isUploading;
       const typing = root.querySelector('.bonds-ai-typing');
       if (loading) {
         if (!typing) {
@@ -1779,6 +1829,213 @@
         }
       } else if (typing) {
         typing.remove();
+      }
+    }
+
+    function formatAttachmentBytes(bytes) {
+      const value = Number(bytes) || 0;
+      if (value >= 1024 * 1024) return (value / (1024 * 1024)).toFixed(1) + ' MB';
+      if (value >= 1024) return Math.round(value / 1024) + ' KB';
+      return value + ' B';
+    }
+
+    function renderAttachments() {
+      attachmentsEl.innerHTML = '';
+      state.attachments.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'bonds-ai-attachment' + (item.error ? ' error' : '');
+        const name = document.createElement('strong');
+        name.textContent = item.filename || item.name || 'file';
+        const meta = document.createElement('small');
+        const status = item.error
+          ? (languageCode() === 'en' ? 'Failed' : 'فشل')
+          : item.uploading
+            ? (languageCode() === 'en' ? 'Uploading…' : 'جارٍ الرفع…')
+            : item.status === 'analyzed'
+              ? (item.extracted?.method === 'vision-required'
+                  ? (languageCode() === 'en' ? 'Uploaded · Vision required' : 'تم الرفع · يحتاج محرك الرؤية')
+                  : (languageCode() === 'en' ? 'Ready for assistant' : 'جاهز للمساعد'))
+              : (languageCode() === 'en' ? 'Uploaded' : 'تم الرفع');
+        meta.textContent = status + (item.size_bytes ? ' · ' + formatAttachmentBytes(item.size_bytes) : '');
+        card.append(name, meta);
+        attachmentsEl.appendChild(card);
+      });
+      attachmentsEl.classList.toggle('visible', state.attachments.length > 0);
+      context.attachments = state.attachments
+        .filter(item => item.document_id && !item.error)
+        .slice(-8)
+        .map(item => ({
+          document_id:item.document_id,
+          filename:item.filename,
+          mime_type:item.mime_type,
+          size_bytes:item.size_bytes,
+          status:item.status,
+          extracted:item.extracted || null,
+          assistant_analysis:item.assistant_analysis || null
+        }));
+    }
+
+    async function executeAttachmentCapability(action, inputValue) {
+      if (!window.BondsAuth || typeof window.BondsAuth.authenticatedFetch !== 'function') {
+        throw new Error('AUTH_RUNTIME_UNAVAILABLE');
+      }
+      const response = await window.BondsAuth.authenticatedFetch(CAPABILITY_EXECUTE_URL, {
+        method:'POST',
+        redirectOnAuth:false,
+        headers:{ 'Content-Type':'application/json' },
+        body:JSON.stringify({ action, input:inputValue })
+      });
+      const data = await response.json();
+      if (!response.ok || data?.ok === false) {
+        throw new Error(data?.error?.code || data?.error || 'CAPABILITY_EXECUTION_FAILED');
+      }
+      return data.result;
+    }
+
+    async function ensureAttachmentClient(sb, user) {
+      const { data:clientId, error:rpcError } = await sb.rpc('get_my_client_id');
+      if (rpcError) throw new Error('CLIENT_LOOKUP_FAILED');
+      if (clientId) return clientId;
+
+      const displayName = String(
+        user?.user_metadata?.full_name ||
+        user?.user_metadata?.name ||
+        user?.email ||
+        'BONDS Client'
+      ).slice(0, 200);
+      const { data:created, error:createError } = await sb
+        .from('advisory_clients')
+        .insert({
+          auth_user_id:user.id,
+          name:displayName,
+          email:user.email || null,
+          status:'active'
+        })
+        .select('id')
+        .single();
+      if (createError || !created?.id) throw new Error('CLIENT_CREATE_FAILED');
+      return created.id;
+    }
+
+    function safeStorageExtension(name) {
+      const match = String(name || '').toLowerCase().match(/\.([a-z0-9]{1,10})$/);
+      return match ? '.' + match[1] : '';
+    }
+
+    async function uploadOneAttachment(file) {
+      const placeholder = {
+        name:file.name,
+        filename:file.name,
+        mime_type:file.type || 'application/octet-stream',
+        size_bytes:file.size,
+        uploading:true
+      };
+      state.attachments.push(placeholder);
+      renderAttachments();
+
+      let sb = null;
+      let storagePath = null;
+      let metadataCreated = false;
+      try {
+        const classification = await executeAttachmentCapability('media_classify', {
+          name:file.name,
+          size:file.size,
+          type:file.type || 'application/octet-stream'
+        });
+        if (!classification?.valid) throw new Error(classification?.code || 'UNSUPPORTED_FILE_TYPE');
+
+        await window.BondsAuth.ensureEnv();
+        const userResult = await window.BondsAuth.getUser();
+        const user = userResult?.data?.user;
+        if (!user) throw new Error('AUTH_REQUIRED');
+        sb = window.BondsAuth.getSupabase();
+        if (!sb) throw new Error('STORAGE_RUNTIME_UNAVAILABLE');
+
+        const clientId = await ensureAttachmentClient(sb, user);
+        const token = window.crypto?.randomUUID
+          ? window.crypto.randomUUID()
+          : (Date.now().toString(36) + '-' + Math.random().toString(36).slice(2));
+        storagePath = user.id + '/' + token + safeStorageExtension(file.name);
+
+        const { error:uploadError } = await sb.storage
+          .from(CLIENT_DOCUMENTS_BUCKET)
+          .upload(storagePath, file, {
+            contentType:file.type || 'application/octet-stream',
+            cacheControl:'3600',
+            upsert:false
+          });
+        if (uploadError) throw new Error('FILE_UPLOAD_FAILED');
+
+        const { data:documentRow, error:insertError } = await sb
+          .from('client_documents')
+          .insert({
+            client_id:clientId,
+            project_id:context.projectId || null,
+            filename:String(file.name || 'file').slice(0, 255),
+            storage_path:storagePath,
+            mime_type:file.type || 'application/octet-stream',
+            size_bytes:file.size,
+            status:'uploaded'
+          })
+          .select('id,filename,mime_type,size_bytes,status')
+          .single();
+        if (insertError || !documentRow?.id) throw new Error('DOCUMENT_METADATA_FAILED');
+        metadataCreated = true;
+
+        const analyzed = await executeAttachmentCapability('document_analyze', {
+          document_id:documentRow.id
+        });
+        Object.assign(placeholder, analyzed || documentRow, { uploading:false, error:false });
+        renderAttachments();
+        root.classList.add('conversation-started');
+        if (window.innerWidth > 640 && state.viewMode === 'standard') setViewMode('workspace');
+        return placeholder;
+      } catch (error) {
+        if (sb && storagePath && !metadataCreated) {
+          try { await sb.storage.from(CLIENT_DOCUMENTS_BUCKET).remove([storagePath]); } catch (_) {}
+        }
+        placeholder.uploading = false;
+        placeholder.error = true;
+        placeholder.error_code = String(error?.message || 'ATTACHMENT_FAILED');
+        renderAttachments();
+        if (placeholder.error_code === 'AUTH_REQUIRED') addAuthenticationRequiredMessage();
+        return placeholder;
+      }
+    }
+
+    async function handleAttachmentFiles(fileList) {
+      const files = Array.from(fileList || []).filter(Boolean);
+      if (!files.length || state.isUploading) return;
+      if (files.length > MAX_ATTACHMENT_BATCH_FILES) {
+        addAssistantMessage(languageCode() === 'en'
+          ? 'You can upload up to 10 files at a time.'
+          : 'يمكن رفع 10 ملفات كحد أقصى في الدفعة الواحدة.', true);
+        return;
+      }
+      const totalBytes = files.reduce((sum, file) => sum + (Number(file.size) || 0), 0);
+      if (totalBytes > MAX_ATTACHMENT_BATCH_BYTES) {
+        addAssistantMessage(languageCode() === 'en'
+          ? 'The selected batch is larger than 25 MB.'
+          : 'الحجم الإجمالي للدفعة يتجاوز 25 MB.', true);
+        return;
+      }
+      if (files.some(file => Number(file.size) > MAX_ATTACHMENT_BYTES)) {
+        addAssistantMessage(languageCode() === 'en'
+          ? 'Each file must currently be 10 MB or smaller.'
+          : 'الحد الحالي لكل ملف هو 10 MB.', true);
+        return;
+      }
+
+      state.isUploading = true;
+      attachBtn.classList.add('uploading');
+      attachBtn.disabled = true;
+      try {
+        for (const file of files) await uploadOneAttachment(file);
+      } finally {
+        state.isUploading = false;
+        attachBtn.classList.remove('uploading');
+        attachBtn.disabled = state.isLoading;
+        fileInput.value = '';
       }
     }
 
@@ -2700,6 +2957,22 @@
 
     toggle.addEventListener('click', toggleOpen);
     closeBtn.addEventListener('click', toggleOpen);
+    attachBtn.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => handleAttachmentFiles(fileInput.files));
+    windowEl.addEventListener('dragover', event => {
+      event.preventDefault();
+      windowEl.classList.add('drag-active');
+    });
+    windowEl.addEventListener('dragleave', () => windowEl.classList.remove('drag-active'));
+    windowEl.addEventListener('drop', event => {
+      event.preventDefault();
+      windowEl.classList.remove('drag-active');
+      handleAttachmentFiles(event.dataTransfer?.files);
+    });
+    input.addEventListener('paste', event => {
+      const files = Array.from(event.clipboardData?.files || []);
+      if (files.length) handleAttachmentFiles(files);
+    });
     voiceBtn.addEventListener('click', startRecognition);
     sendBtn.addEventListener('click', () => sendMessage(input.value));
     input.addEventListener('keydown', e => {
@@ -2727,6 +3000,15 @@
     window.BondsAssistant.refreshNotifications = refreshNotifications;
     window.BondsAssistant.resumeCase = resumePersistentCaseState;
     window.BondsAssistant.markNotificationRead = markNotificationRead;
+    window.BondsAssistant.getAttachments = () => state.attachments.map(item => ({
+      document_id:item.document_id || null,
+      filename:item.filename || item.name || null,
+      mime_type:item.mime_type || null,
+      size_bytes:item.size_bytes || null,
+      status:item.status || null,
+      extracted:item.extracted || null,
+      error_code:item.error_code || null
+    }));
     window.BondsAssistant.voice = Object.freeze({
       inputSupported: voiceInputSupported(),
       outputSupported: speechOutputSupported(),
