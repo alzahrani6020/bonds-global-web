@@ -5,16 +5,101 @@ const { executeService, loadExecutionProfile } = require('../../lib/services/ser
 const { parseDocument, DocumentParserError } = require('../../lib/api/document-parser');
 const {
   parseNumeric,
+  ALL_FIELDS,
   requirementsFor,
   extractFinancialFields,
-  validateDataset
+  validateDataset,
+  classifyDocumentType,
+  fieldConfidenceMap,
+  qualityStatus,
+  stableInputHash,
+  buildDependencyGraph
 } = require('../../lib/finance/financial-data-intake');
 const crypto = require('crypto');
+const XLSX = require('xlsx');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.end(JSON.stringify(data));
+}
+
+function sendBinary(res, status, contentType, filename, buffer) {
+  res.statusCode = status;
+  res.setHeader('Content-Type', contentType);
+  res.setHeader('Content-Disposition', 'attachment; filename="' + String(filename || 'export').replace(/[^A-Za-z0-9._-]/g, '_') + '"');
+  res.setHeader('Content-Length', String(buffer.length));
+  res.end(buffer);
+}
+
+function executiveSummaryForDataset(dataset) {
+  const metrics = dataset.derived_metrics && typeof dataset.derived_metrics === 'object'
+    ? dataset.derived_metrics
+    : {};
+  return {
+    title: 'BONDS Financial Analysis Executive Summary',
+    dataset_id: dataset.id,
+    dataset_version: dataset.dataset_version || 1,
+    service_code: dataset.decision_record?.service_code || dataset.service_code,
+    quality_status: dataset.quality_status,
+    approval_status: dataset.approval_status,
+    status: dataset.status,
+    is_stale: Boolean(dataset.is_stale),
+    source_file: dataset.source_file_name || null,
+    source_file_version: dataset.source_file_version || null,
+    key_metrics: metrics,
+    validation: dataset.validation || {},
+    generated_from_approved_result: dataset.approval_status === 'approved',
+    generated_at: new Date().toISOString()
+  };
+}
+
+function pdfEscape(value) {
+  return String(value ?? '').replace(/\\/g, '\\\\').replace(/\(/g, '\\(').replace(/\)/g, '\\)');
+}
+
+function buildSimplePdf(summary) {
+  const lines = [
+    summary.title,
+    'Dataset: ' + summary.dataset_id,
+    'Version: ' + summary.dataset_version,
+    'Service: ' + (summary.service_code || 'unknown'),
+    'Quality: ' + (summary.quality_status || 'unknown'),
+    'Approval: ' + (summary.approval_status || 'unknown'),
+    'Status: ' + (summary.status || 'unknown'),
+    'Stale: ' + String(summary.is_stale),
+    'Source: ' + (summary.source_file || 'manual'),
+    'Source version: ' + (summary.source_file_version || 'n/a'),
+    'Metrics:',
+    ...Object.entries(summary.key_metrics || {}).slice(0, 28).map(([key,value]) =>
+      '  ' + key + ': ' + (typeof value === 'object' ? JSON.stringify(value).slice(0, 120) : String(value))
+    )
+  ].slice(0, 44);
+  const text = ['BT','/F1 10 Tf','50 800 Td']
+    .concat(lines.flatMap((line,index)=>[
+      '(' + pdfEscape(line).replace(/[^\x20-\x7E]/g, '?') + ') Tj',
+      index < lines.length - 1 ? '0 -16 Td' : ''
+    ]).filter(Boolean))
+    .concat(['ET']).join('\n');
+  const stream = Buffer.from(text, 'ascii');
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>',
+    '<< /Length ' + stream.length + ' >>\nstream\n' + text + '\nendstream'
+  ];
+  let pdf = '%PDF-1.4\n';
+  const offsets = [0];
+  objects.forEach((object,index)=>{
+    offsets[index+1]=Buffer.byteLength(pdf,'ascii');
+    pdf += (index+1) + ' 0 obj\n' + object + '\nendobj\n';
+  });
+  const xref = Buffer.byteLength(pdf,'ascii');
+  pdf += 'xref\n0 ' + (objects.length+1) + '\n0000000000 65535 f \n';
+  for(let i=1;i<=objects.length;i++) pdf += String(offsets[i]).padStart(10,'0') + ' 00000 n \n';
+  pdf += 'trailer\n<< /Size ' + (objects.length+1) + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n';
+  return Buffer.from(pdf,'ascii');
 }
 
 function getQuery(req) {
@@ -240,9 +325,16 @@ function cleanFinancialManualValues(values, fields) {
   const source = values && typeof values === 'object' && !Array.isArray(values) ? values : {};
   const out = {};
   const reviewFields = [];
-  for (const field of fields) {
+  const acceptedFields = [...new Set([
+    ...(Array.isArray(fields) ? fields : []),
+    ...Object.keys(source).filter(field => ALL_FIELDS.includes(field))
+  ])];
+  for (const field of acceptedFields) {
     const raw = source[field];
-    const value = parseNumeric(raw);
+    const structured = field === 'periods';
+    const value = structured
+      ? (Array.isArray(raw) && raw.length ? raw : null)
+      : parseNumeric(raw);
     if (value !== null) out[field] = value;
     reviewFields.push({
       field,
@@ -251,6 +343,7 @@ function cleanFinancialManualValues(values, fields) {
       candidates: [],
       currency: null,
       period: null,
+      confidence: value === null ? 0 : 1,
       source: value === null ? [] : [{ extraction_method: 'manual_input' }]
     });
   }
@@ -288,8 +381,11 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
   }
 
   const primaryAction = profileState.resolved.profile.primary_action;
-  const sourceType = body.storage_path ? 'file' : 'manual';
+  const hasFile = Boolean(String(body.storage_path || '').trim());
+  const hasManual = Boolean(body.manual_values && typeof body.manual_values === 'object' && !Array.isArray(body.manual_values));
+  const sourceType = hasFile && hasManual ? 'mixed' : hasFile ? 'file' : 'manual';
   let extracted;
+  let documentType = 'unknown';
 
   const source = {
     type: sourceType,
@@ -299,7 +395,7 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
     mime_type: null
   };
 
-  if (sourceType === 'file') {
+  if (hasFile) {
     const storagePath = String(body.storage_path || '').trim();
     const requiredPrefix = 'financial-intake/' + user.id + '/';
     if (!storagePath.startsWith(requiredPrefix) || storagePath.includes('..') || storagePath.includes('\\')) {
@@ -340,16 +436,52 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
       return sendJson(res, 422, { ok: false, error: { code } });
     }
 
-    extracted = extractFinancialFields({
-      parsed,
-      primaryAction,
-      serviceCode
-    });
+    documentType = classifyDocumentType(parsed);
+    extracted = extractFinancialFields({ parsed, primaryAction, serviceCode });
 
     source.file_name = String(body.file_name || 'financial-document').slice(0, 255);
     source.storage_path = storagePath;
     source.file_version = 'sha256:' + crypto.createHash('sha256').update(buffer).digest('hex');
     source.mime_type = mime;
+
+    if (hasManual) {
+      const manual = cleanFinancialManualValues(body.manual_values, profileState.requirements.requirement_fields);
+      const fieldMap = new Map((extracted.fields || []).map(field => [field.field, field]));
+      for (const manualField of manual.fields.filter(field => field.value !== null)) {
+        const current = fieldMap.get(manualField.field);
+        if (!current || current.status === 'missing') {
+          extracted.values[manualField.field] = manualField.value;
+          const replacement = { ...manualField };
+          if (current) Object.assign(current, replacement);
+          else {
+            extracted.fields.push(replacement);
+            fieldMap.set(replacement.field, replacement);
+          }
+          continue;
+        }
+        if (current.value === manualField.value && !['conflict','multi_period'].includes(current.status)) {
+          current.source = [...(current.source || []), ...manualField.source];
+          current.confidence = 1;
+          continue;
+        }
+        delete extracted.values[manualField.field];
+        current.status = 'conflict';
+        current.candidates = [
+          ...(current.candidates || []),
+          { value: current.value, period: current.period || null, source: 'file' },
+          { value: manualField.value, period: null, source: 'manual' }
+        ];
+        current.value = null;
+        current.confidence = 0;
+        current.source = [...(current.source || []), ...manualField.source];
+      }
+      extracted.validation = validateDataset({
+        primaryAction,
+        serviceCode,
+        values: extracted.values,
+        fields: extracted.fields
+      });
+    }
   } else {
     const manual = cleanFinancialManualValues(
       body.manual_values,
@@ -360,9 +492,7 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
       values: manual.values,
       fields: manual.fields,
       provenance: Object.fromEntries(
-        manual.fields
-          .filter(field => field.value !== null)
-          .map(field => [field.field, field.source])
+        manual.fields.filter(field => field.value !== null).map(field => [field.field, field.source])
       )
     };
     extracted.validation = validateDataset({
@@ -373,16 +503,70 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
     });
   }
 
+  const inputHash = stableInputHash(extracted.values || {});
+  const confidence = fieldConfidenceMap(extracted.fields || []);
+  const qStatus = qualityStatus({ validation: extracted.validation, fields: extracted.fields, reviewed: false });
+  const dependencyGraph = buildDependencyGraph({
+    requirementFields: extracted.requirement_fields || [],
+    serviceCode,
+    engineCode: extracted.engine_code || null
+  });
+
+  let parentDataset = null;
+  const parentDatasetId = String(body.parent_dataset_id || '').trim() || null;
+  if (parentDatasetId) {
+    const { data, error } = await supabase
+      .from('financial_datasets')
+      .select('id,dataset_version,reviewed_values,input_hash')
+      .eq('id', parentDatasetId)
+      .eq('user_id', user.id)
+      .is('deleted_at', null)
+      .maybeSingle();
+    if (error || !data) return sendJson(res, 404, { ok:false, error:{ code:'FINANCIAL_PARENT_DATASET_NOT_FOUND' } });
+    parentDataset = data;
+  }
+
+  const { data: duplicate } = await supabase
+    .from('financial_datasets')
+    .select('id,dataset_version')
+    .eq('user_id', user.id)
+    .eq('input_hash', inputHash)
+    .is('deleted_at', null)
+    .order('created_at', { ascending:false })
+    .limit(1)
+    .maybeSingle();
+
+  const parentValues = parentDataset?.reviewed_values || {};
+  const currentValues = extracted.values || {};
+  const changedKeys = [...new Set([...Object.keys(parentValues), ...Object.keys(currentValues)])]
+    .filter(key => JSON.stringify(parentValues[key]) !== JSON.stringify(currentValues[key]));
+  const changeDetection = parentDataset ? {
+    baseline_dataset_id: parentDataset.id,
+    baseline_dataset_version: parentDataset.dataset_version || 1,
+    baseline_input_hash: parentDataset.input_hash || null,
+    input_hash_changed: parentDataset.input_hash !== inputHash,
+    changed_fields: changedKeys.map(field => {
+      const previous = parentValues[field] ?? null;
+      const current = currentValues[field] ?? null;
+      const numeric = Number.isFinite(Number(previous)) && Number.isFinite(Number(current));
+      const absolute = numeric ? Number(current) - Number(previous) : null;
+      const pct = numeric && Number(previous) !== 0 ? (absolute / Math.abs(Number(previous))) * 100 : null;
+      return { field, previous, current, absolute_change:absolute, pct_change:pct };
+    })
+  } : null;
+
+  const now = new Date().toISOString();
   const provenanceEnvelope = {
     source,
     fields: extracted.fields || [],
-    extracted_at: new Date().toISOString(),
+    extracted_at: now,
     extraction_scope: extracted.requirement_fields || [],
-    extraction_method: sourceType === 'file' ? 'existing_document_parser' : 'manual_input'
+    extraction_method: sourceType === 'file' ? 'existing_document_parser' : sourceType === 'mixed' ? 'existing_document_parser+manual_input' : 'manual_input'
   };
 
   const row = {
     user_id: user.id,
+    client_id: body.client_id || null,
     project_id: body.project_id || null,
     service_code: serviceCode,
     source_type: sourceType,
@@ -390,24 +574,54 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
     source_storage_path: source.storage_path,
     source_file_version: source.file_version,
     source_mime_type: source.mime_type,
+    document_type: documentType,
     extracted_values: extracted.values || {},
     reviewed_values: extracted.values || {},
     field_provenance: provenanceEnvelope,
+    field_confidence: confidence,
     validation: extracted.validation || {},
+    quality_status: qStatus,
     overrides: [],
     status: 'draft',
-    updated_at: new Date().toISOString()
+    approval_status: 'draft',
+    input_hash: inputHash,
+    input_snapshot: {},
+    dependency_graph: dependencyGraph,
+    evidence_pack: {
+      source: { type: source.type, file_name: source.file_name, file_version: source.file_version, mime_type: source.mime_type },
+      validation: extracted.validation || {},
+      field_confidence: confidence,
+      document_type: documentType,
+      historical_baseline: parentDataset ? {
+        dataset_id:parentDataset.id,
+        dataset_version:parentDataset.dataset_version || 1,
+        input_hash:parentDataset.input_hash || null
+      } : null,
+      change_detection: changeDetection
+    },
+    dataset_version: parentDataset ? Number(parentDataset.dataset_version || 1) + 1 : 1,
+    parent_dataset_id: parentDataset?.id || null,
+    duplicate_of_id: duplicate?.id || null,
+    updated_at: now
   };
 
   const { data: dataset, error: insertError } = await supabase
     .from('financial_datasets')
     .insert(row)
-    .select('id,service_code,source_type,source_file_name,source_file_version,extracted_values,reviewed_values,field_provenance,validation,status,created_at')
+    .select('id,service_code,source_type,source_file_name,source_file_version,document_type,quality_status,dataset_version,parent_dataset_id,duplicate_of_id,extracted_values,reviewed_values,field_provenance,field_confidence,validation,status,approval_status,created_at')
     .single();
 
   if (insertError) {
     console.error('[services/intake/prepare]', insertError.message);
     return sendJson(res, 500, { ok: false, error: { code: 'FINANCIAL_DATASET_CREATE_FAILED' } });
+  }
+
+  if (parentDataset?.id) {
+    await supabase.from('financial_datasets').update({
+      is_stale: true,
+      stale_reason: 'superseded_by_dataset_version:' + dataset.id,
+      updated_at: now
+    }).eq('id', parentDataset.id).eq('user_id', user.id);
   }
 
   return sendJson(res, 201, {
@@ -416,10 +630,16 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
     service_code: serviceCode,
     required_fields: extracted.requirement_fields || [],
     fields: extracted.fields || [],
+    field_confidence: confidence,
     missing_fields: extracted.validation?.missing || [],
     validation: extracted.validation || {},
-    source,
-    status: dataset.status
+    quality_status: qStatus,
+    document_type: documentType,
+    dataset_version: dataset.dataset_version,
+    duplicate_of_id: dataset.duplicate_of_id,
+    source: { type: source.type, file_name: source.file_name, file_version: source.file_version, mime_type: source.mime_type },
+    status: dataset.status,
+    approval_status: dataset.approval_status
   });
 }
 
@@ -439,6 +659,7 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     .select('*')
     .eq('id', datasetId)
     .eq('user_id', user.id)
+    .is('deleted_at', null)
     .maybeSingle();
   if (readError || !dataset) return sendJson(res, 404, { ok: false, error: { code: 'FINANCIAL_DATASET_NOT_FOUND' } });
 
@@ -457,17 +678,23 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
   const fieldMap = new Map(fields.map(field => [field.field, field]));
   const overrides = Array.isArray(dataset.overrides) ? [...dataset.overrides] : [];
   const now = new Date().toISOString();
+  let valuesChanged = false;
 
   for (const field of profileState.requirements.requirement_fields) {
     if (!Object.prototype.hasOwnProperty.call(corrections, field)) continue;
-    const value = parseNumeric(corrections[field]);
+    const rawCorrection = corrections[field];
+    const value = field === 'periods'
+      ? (Array.isArray(rawCorrection) && rawCorrection.length ? rawCorrection : null)
+      : parseNumeric(rawCorrection);
     if (value === null) {
+      if (Object.prototype.hasOwnProperty.call(reviewed, field)) valuesChanged = true;
       delete reviewed[field];
       continue;
     }
     const previous = Object.prototype.hasOwnProperty.call(reviewed, field) ? reviewed[field] : null;
     reviewed[field] = value;
-    if (previous !== value) {
+    if (JSON.stringify(previous) !== JSON.stringify(value)) {
+      valuesChanged = true;
       overrides.push({
         field,
         original_extracted_value: Object.prototype.hasOwnProperty.call(dataset.extracted_values || {}, field)
@@ -480,16 +707,12 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
       });
     }
     const current = fieldMap.get(field) || {
-      field,
-      value: null,
-      status: 'missing',
-      candidates: [],
-      currency: null,
-      period: null,
-      source: []
+      field, value:null, status:'missing', candidates:[], currency:null, period:null, confidence:0, source:[]
     };
     current.value = value;
     current.status = 'corrected';
+    current.candidates = [];
+    current.confidence = 1;
     current.source = [...current.source, { extraction_method: 'manual_review', at: now }];
     if (!fieldMap.has(field)) {
       fields.push(current);
@@ -504,20 +727,50 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     fields
   });
   const status = validation.valid ? 'validated' : 'reviewed';
+  const approvalStatus = validation.valid ? 'approved' : 'reviewed';
+  const confidence = fieldConfidenceMap(fields);
+  const qStatus = qualityStatus({ validation, fields, reviewed:true });
+  const inputHash = stableInputHash(reviewed);
+  const previousHistory = Array.isArray(dataset.execution_history) ? dataset.execution_history : [];
+  const executionHistory = valuesChanged
+    ? previousHistory.map(entry=>({ ...entry, stale:true, stale_reason:'dataset_values_changed', stale_at:now }))
+    : previousHistory;
   const provenance = {
     ...(dataset.field_provenance || {}),
     fields,
     reviewed_at: now
   };
+  const inputSnapshot = validation.valid ? {
+    dataset_id:dataset.id,
+    dataset_version:dataset.dataset_version || 1,
+    values:{...reviewed},
+    input_hash:inputHash,
+    approved_at:now
+  } : {};
 
   const { error: updateError } = await supabase
     .from('financial_datasets')
     .update({
       reviewed_values: reviewed,
       field_provenance: provenance,
+      field_confidence: confidence,
       validation,
+      quality_status: qStatus,
       overrides,
       status,
+      approval_status: approvalStatus,
+      input_hash: inputHash,
+      input_snapshot: inputSnapshot,
+      execution_history: executionHistory,
+      is_stale: valuesChanged && previousHistory.length > 0,
+      stale_reason: valuesChanged && previousHistory.length > 0 ? 'dataset_values_changed' : dataset.stale_reason,
+      evidence_pack: {
+        ...(dataset.evidence_pack || {}),
+        validation,
+        field_confidence:confidence,
+        reviewed_at:now,
+        override_count:overrides.length
+      },
       updated_at: now
     })
     .eq('id', dataset.id)
@@ -533,8 +786,11 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     dataset_id: dataset.id,
     service_code: dataset.service_code,
     status,
+    approval_status: approvalStatus,
+    quality_status:qStatus,
     values: reviewed,
     fields,
+    field_confidence:confidence,
     missing_fields: validation.missing || [],
     warnings: validation.warnings || [],
     errors: validation.errors || [],
@@ -546,11 +802,8 @@ async function handleServiceExecute(req, res, supabase, user) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
 
   let body;
-  try {
-    body = await parseJsonBody(req);
-  } catch (err) {
-    return sendJson(res, 400, { error: 'Invalid JSON body', detail: err.message });
-  }
+  try { body = await parseJsonBody(req); }
+  catch (err) { return sendJson(res, 400, { error: 'Invalid JSON body', detail: err.message }); }
 
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     return sendJson(res, 400, { error: 'Invalid request body' });
@@ -560,23 +813,45 @@ async function handleServiceExecute(req, res, supabase, user) {
   if (!serviceCode) return sendJson(res, 400, { error: 'service_code is required' });
 
   let dataset = null;
+  let targetValidation = null;
+  let targetProfile = null;
   if (body.dataset_id) {
     if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
     const { data, error } = await supabase
       .from('financial_datasets')
-      .select('id,user_id,service_code,reviewed_values,field_provenance,validation,status')
+      .select('*')
       .eq('id', String(body.dataset_id))
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .maybeSingle();
     if (error || !data) {
       return sendJson(res, 404, { ok: false, executed: false, error: { code: 'FINANCIAL_DATASET_NOT_FOUND' } });
     }
-    if (data.service_code !== serviceCode) {
-      return sendJson(res, 409, { ok: false, executed: false, error: { code: 'FINANCIAL_DATASET_SERVICE_MISMATCH' } });
+
+    targetProfile = await resolveFinancialIntakeProfile(supabase, serviceCode);
+    if (targetProfile.error) {
+      return sendJson(res, targetProfile.httpStatus, { ok:false, executed:false, error:{ code:targetProfile.error } });
     }
-    if (data.status !== 'validated' || data.validation?.valid !== true) {
+    const sourceFields=Array.isArray(data.field_provenance?.fields) ? data.field_provenance.fields : [];
+    targetValidation=validateDataset({
+      primaryAction:targetProfile.resolved.profile.primary_action,
+      serviceCode,
+      values:data.reviewed_values || {},
+      fields:sourceFields.filter(field=>targetProfile.requirements.requirement_fields.includes(field.field))
+    });
+    if (targetValidation.valid !== true) {
+      return sendJson(res, 409, {
+        ok:false,
+        executed:false,
+        error:{ code:'FINANCIAL_DATASET_INCOMPATIBLE' },
+        missing_fields:targetValidation.missing || [],
+        unresolved:targetValidation.unresolved || []
+      });
+    }
+    if (!['validated','executed'].includes(data.status) || data.validation?.valid !== true) {
       return sendJson(res, 409, { ok: false, executed: false, error: { code: 'FINANCIAL_DATASET_NOT_VALIDATED' } });
     }
+
     dataset = data;
     body = {
       ...body,
@@ -587,30 +862,91 @@ async function handleServiceExecute(req, res, supabase, user) {
   }
 
   try {
-    const result = await executeService({
-      req,
-      user,
-      supabase,
-      serviceCode,
-      body
-    });
+    const result = await executeService({ req, user, supabase, serviceCode, body });
 
     if (dataset) {
+      const now=new Date().toISOString();
+      const inputHash=stableInputHash(dataset.reviewed_values || {});
+      const inputSnapshot={
+        dataset_id:dataset.id,
+        dataset_version:dataset.dataset_version || 1,
+        service_code:serviceCode,
+        values:{...(dataset.reviewed_values || {})},
+        input_hash:inputHash,
+        executed_at:now
+      };
       const evidence = {
         dataset_id: dataset.id,
+        dataset_version:dataset.dataset_version || 1,
         inputs_used: dataset.reviewed_values || {},
-        source: dataset.field_provenance?.source || null,
+        input_hash:inputHash,
+        source: {
+          type:dataset.source_type,
+          file_name:dataset.source_file_name,
+          file_version:dataset.source_file_version,
+          mime_type:dataset.source_mime_type
+        },
         field_provenance: dataset.field_provenance?.fields || [],
-        validation: dataset.validation || {}
+        field_confidence:dataset.field_confidence || {},
+        validation: targetValidation || dataset.validation || {},
+        dependency_graph:buildDependencyGraph({
+          requirementFields:targetProfile?.requirements?.requirement_fields || [],
+          serviceCode,
+          engineCode:targetProfile?.requirements?.engine_code || null
+        })
       };
       result.body = { ...result.body, dataset: evidence };
+
+      const oldHistory=Array.isArray(dataset.execution_history) ? dataset.execution_history : [];
+      const successful=result.body?.executed === true;
+      const historyEntry={
+        service_code:serviceCode,
+        engine_code:targetProfile?.requirements?.engine_code || null,
+        input_hash:inputHash,
+        dataset_version:dataset.dataset_version || 1,
+        executed_at:now,
+        stale:false,
+        result_summary:{
+          executed:successful,
+          http_status:result.httpStatus,
+          metrics:result.body?.metrics || result.body?.result?.metrics || {},
+          error:result.body?.error || null
+        }
+      };
+      const history=[...oldHistory,historyEntry].slice(-100);
+      const metrics=result.body?.metrics || result.body?.result?.metrics || {};
+      const decisionRecord={
+        service_code:serviceCode,
+        dataset_id:dataset.id,
+        dataset_version:dataset.dataset_version || 1,
+        deterministic:true,
+        executed:successful,
+        metrics,
+        validation:targetValidation || {},
+        benchmarking:{
+          applied:false,
+          reason:'trusted_source_required',
+          policy:'benchmark_only_with_verified_source_provenance'
+        },
+        recorded_at:now
+      };
 
       await supabase
         .from('financial_datasets')
         .update({
-          status: result.body?.executed === true ? 'executed' : 'validated',
+          status: successful ? 'executed' : 'validated',
           execution_result: result.body || {},
-          updated_at: new Date().toISOString()
+          execution_history:history,
+          input_snapshot:inputSnapshot,
+          derived_metrics:metrics,
+          dependency_graph:evidence.dependency_graph,
+          evidence_pack:evidence,
+          decision_record:decisionRecord,
+          engine_version:result.body?.engine_version || result.body?.result?.engine_version || null,
+          is_stale:false,
+          stale_reason:null,
+          last_executed_at:now,
+          updated_at:now
         })
         .eq('id', dataset.id)
         .eq('user_id', user.id);
@@ -626,6 +962,142 @@ async function handleServiceExecute(req, res, supabase, user) {
       error: { code: 'SERVICE_EXECUTION_FAILED', message: err.message }
     });
   }
+}
+
+async function handleFinancialPortfolio(req,res,supabase,user){
+  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
+  if(!user) return sendJson(res,401,{error:'Unauthorized'});
+  const url=getQuery(req);
+  const projectId=String(url.searchParams.get('project_id') || '').trim() || null;
+  const clientId=String(url.searchParams.get('client_id') || '').trim() || null;
+  let query=supabase
+    .from('financial_datasets')
+    .select('id,client_id,project_id,service_code,quality_status,status,approval_status,dataset_version,parent_dataset_id,duplicate_of_id,is_stale,last_executed_at,created_at,updated_at')
+    .eq('user_id',user.id)
+    .is('deleted_at',null)
+    .order('updated_at',{ascending:false});
+  if(projectId) query=query.eq('project_id',projectId);
+  if(clientId) query=query.eq('client_id',clientId);
+  const {data,error}=await query.limit(500);
+  if(error) return sendJson(res,500,{ok:false,error:{code:'FINANCIAL_PORTFOLIO_LOAD_FAILED'}});
+
+  const rows=data || [];
+  const byService={};
+  const byProject={};
+  const byClient={};
+  for(const row of rows){
+    byService[row.service_code]=(byService[row.service_code]||0)+1;
+    const project=row.project_id || 'unassigned';
+    const client=row.client_id || 'unassigned';
+    byProject[project]=(byProject[project]||0)+1;
+    byClient[client]=(byClient[client]||0)+1;
+  }
+  return sendJson(res,200,{
+    ok:true,
+    portfolio:{
+      filters:{project_id:projectId,client_id:clientId},
+      totals:{
+        datasets:rows.length,
+        approved:rows.filter(row=>row.approval_status==='approved').length,
+        executed:rows.filter(row=>row.status==='executed').length,
+        stale:rows.filter(row=>row.is_stale===true).length
+      },
+      by_service:byService,
+      by_project:byProject,
+      by_client:byClient,
+      datasets:rows
+    }
+  });
+}
+
+async function handleFinancialDatasetGet(req,res,supabase,user,id){
+  if(!user) return sendJson(res,401,{error:'Unauthorized'});
+
+  if(req.method==='DELETE'){
+    const now=new Date().toISOString();
+    const {data,error}=await supabase
+      .from('financial_datasets')
+      .update({deleted_at:now,updated_at:now})
+      .eq('id',id).eq('user_id',user.id).is('deleted_at',null)
+      .select('id,deleted_at').maybeSingle();
+    if(error||!data) return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+    return sendJson(res,200,{ok:true,dataset_id:data.id,deleted_at:data.deleted_at});
+  }
+
+  if(req.method==='PATCH'){
+    let body;
+    try { body=await parseJsonBody(req); }
+    catch(err){ return sendJson(res,400,{error:'Invalid JSON body',detail:err.message}); }
+    const retention = body.retention_until === null ? null : new Date(body.retention_until);
+    if(body.retention_until !== null && (!retention || Number.isNaN(retention.getTime()))) {
+      return sendJson(res,400,{ok:false,error:{code:'INVALID_RETENTION_UNTIL'}});
+    }
+    const retentionIso = body.retention_until === null ? null : retention.toISOString();
+    const {data,error}=await supabase
+      .from('financial_datasets')
+      .update({retention_until:retentionIso,updated_at:new Date().toISOString()})
+      .eq('id',id).eq('user_id',user.id).is('deleted_at',null)
+      .select('id,retention_until').maybeSingle();
+    if(error||!data) return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+    return sendJson(res,200,{ok:true,dataset_id:data.id,retention_until:data.retention_until});
+  }
+
+  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
+  const {data,error}=await supabase
+    .from('financial_datasets')
+    .select('id,client_id,project_id,service_code,source_type,source_file_name,source_file_version,source_mime_type,document_type,reviewed_values,field_provenance,field_confidence,validation,quality_status,status,approval_status,dataset_version,parent_dataset_id,duplicate_of_id,input_hash,input_snapshot,derived_metrics,dependency_graph,evidence_pack,decision_record,execution_history,is_stale,stale_reason,parser_version,mapping_version,engine_version,analysis_version,retention_until,created_at,updated_at,last_executed_at')
+    .eq('id',id).eq('user_id',user.id).is('deleted_at',null).maybeSingle();
+  if(error||!data) return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+  return sendJson(res,200,{ok:true,dataset:data});
+}
+
+async function handleFinancialDatasetExport(req,res,supabase,user,id){
+  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
+  if(!user) return sendJson(res,401,{error:'Unauthorized'});
+  const url=getQuery(req);
+  const format=String(url.searchParams.get('format') || 'summary').toLowerCase();
+  const {data,error}=await supabase
+    .from('financial_datasets')
+    .select('*')
+    .eq('id',id).eq('user_id',user.id).is('deleted_at',null).maybeSingle();
+  if(error||!data) return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+  if(data.approval_status!=='approved' || !['validated','executed'].includes(data.status)) {
+    return sendJson(res,409,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_APPROVED'}});
+  }
+  const summary=executiveSummaryForDataset(data);
+  if(format==='summary'){
+    const text=[
+      summary.title,
+      'Dataset: '+summary.dataset_id+' v'+summary.dataset_version,
+      'Service: '+(summary.service_code||'unknown'),
+      'Quality: '+summary.quality_status,
+      'Approval: '+summary.approval_status,
+      'Stale: '+String(summary.is_stale),
+      '',
+      'Key metrics:',
+      ...Object.entries(summary.key_metrics||{}).map(([key,value])=>'- '+key+': '+(typeof value==='object'?JSON.stringify(value):String(value)))
+    ].join('\n');
+    return sendBinary(res,200,'text/plain; charset=utf-8','financial-executive-summary-'+id+'.txt',Buffer.from(text,'utf8'));
+  }
+  if(format==='xlsx' || format==='excel'){
+    const workbook=XLSX.utils.book_new();
+    const summaryRows=Object.entries(summary).filter(([key])=>key!=='key_metrics' && key!=='validation')
+      .map(([key,value])=>({field:key,value:typeof value==='object'?JSON.stringify(value):value}));
+    const metricRows=Object.entries(summary.key_metrics||{}).map(([metric,value])=>({
+      metric,
+      value:typeof value==='object'?JSON.stringify(value):value
+    }));
+    const inputRows=Object.entries(data.reviewed_values||{}).map(([field,value])=>({field,value}));
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(summaryRows),'Summary');
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(metricRows),'Metrics');
+    XLSX.utils.book_append_sheet(workbook,XLSX.utils.json_to_sheet(inputRows),'Approved Inputs');
+    const bytes=XLSX.write(workbook,{type:'buffer',bookType:'xlsx'});
+    return sendBinary(res,200,'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','financial-analysis-'+id+'.xlsx',bytes);
+  }
+  if(format==='pdf'){
+    return sendBinary(res,200,'application/pdf','financial-analysis-'+id+'.pdf',buildSimplePdf(summary));
+  }
+  return sendJson(res,400,{ok:false,error:{code:'FINANCIAL_EXPORT_FORMAT_UNSUPPORTED'},supported:['summary','xlsx','pdf']});
 }
 
 async function handleServiceExecutionProfile(req, res, supabase, user, code) {
@@ -892,6 +1364,11 @@ async function servicesRouter(req, res, path, supabase, user) {
   if (path === '/services/execute') return handleServiceExecute(req, res, supabase, user);
   if (path === '/services/intake/prepare') return handleFinancialIntakePrepare(req, res, supabase, user);
   if (path === '/services/intake/approve') return handleFinancialIntakeApprove(req, res, supabase, user);
+  if (path === '/services/intake/portfolio') return handleFinancialPortfolio(req, res, supabase, user);
+  const datasetExportMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)\/export$/);
+  if(datasetExportMatch) return handleFinancialDatasetExport(req,res,supabase,user,decodeURIComponent(datasetExportMatch[1]));
+  const datasetMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)$/);
+  if(datasetMatch) return handleFinancialDatasetGet(req,res,supabase,user,decodeURIComponent(datasetMatch[1]));
   if (path === '/services/requests') return handleCreateServiceRequest(req, res, supabase, user);
   const executionMatch=path.match(/^\/services\/([^/]+)\/execution$/);
   if (executionMatch) return handleServiceExecutionProfile(req,res,supabase,user,decodeURIComponent(executionMatch[1]));
