@@ -77,7 +77,9 @@ describe('Assistant parallel tool execution', () => {
   test('starts independent service executions concurrently and preserves input order', async () => {
     const started = [];
     let release;
+    let markBothStarted;
     const gate = new Promise(resolve => { release = resolve; });
+    const bothStarted = new Promise(resolve => { markBothStarted = resolve; });
 
     const loadProfileFn = jest.fn().mockResolvedValue({
       profile:{ execution_mode:'capability_plan', primary_action:'financial_analysis_run' }
@@ -88,6 +90,7 @@ describe('Assistant parallel tool execution', () => {
     });
     const executeServiceFn = jest.fn(async ({ serviceCode }) => {
       started.push(serviceCode);
+      if (started.length === 2) markBothStarted();
       await gate;
       return {
         httpStatus:200,
@@ -108,8 +111,7 @@ describe('Assistant parallel tool execution', () => {
       executeServiceFn
     });
 
-    await Promise.resolve();
-    await Promise.resolve();
+    await bothStarted;
 
     expect(started).toEqual(['service-a','service-b']);
     release();
