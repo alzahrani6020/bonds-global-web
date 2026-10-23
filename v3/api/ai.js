@@ -350,7 +350,7 @@ function generateDataDrivenReply(userMessage, context) {
   const alerts = context?.alerts || [];
 
   // Greeting / general
-  if (msg.match(/^(مرحبا|مرحباً|هلا|أهلا|السلام|سلام|مساعد|من أنت|ما هي|ما هو)/)) {
+  if (msg.match(/^(مرحبا|مرحباً|هلا|أهلا|السلام|سلام|مساعد)\b/)) {
     if (context?.serviceCode) {
       const service = context.serviceName || context.serviceCode;
       return `مرحباً! أنا مساعد بوندز. أنت ضمن خدمة "${service}". أستطيع توضيح المتطلبات والمخرجات والقدرات المسجلة والخطوة التالية، أو مساعدتك في البيانات والتحليل المرتبط بالخدمة.`;
@@ -570,7 +570,7 @@ async function aiChatHandler(req, res) {
   }
 
   if (forceNative && !authenticatedUser) {
-    return sendAssistantResponse(res, 401, { error: 'Authentication required for Native AI execution' }, { stream: streaming });
+    return sendAssistantResponse(res, 401, { error: 'Authentication required for BONDS AI execution' }, { stream: streaming });
   }
 
   // Resolve page/session/service authority and operational intent before ordinary chat.
@@ -648,7 +648,7 @@ async function aiChatHandler(req, res) {
   if (authenticatedUser) {
     try {
       if (streaming) {
-        writeEvent(res, 'status', { phase:'inference', source:'bonds-native', token_streaming:false });
+        writeEvent(res, 'status', { phase:'inference', source:'bonds-assistant-ai', token_streaming:false });
       }
       aiResult = await generateNativeReply(messages, enrichedContext, {
         maxTokens: options?.max_tokens,
@@ -663,7 +663,7 @@ async function aiChatHandler(req, res) {
       console.warn('[ai/chat] Bonds Native unavailable, using deterministic data-driven fallback:', err.message);
     }
   } else {
-    nativeError = Object.assign(new Error('Authentication required for Native AI execution'), {
+    nativeError = Object.assign(new Error('Authentication required for BONDS AI execution'), {
       code: 'NATIVE_AUTH_REQUIRED'
     });
   }
