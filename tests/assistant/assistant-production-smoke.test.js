@@ -96,8 +96,9 @@ describe('Assistant production acceptance', () => {
     });
   }
 
-  const run = fetchImpl => assertAssistantProduction({
-    baseUrl: 'https://bonds-global.com', token: TOKEN, expectedSha: SHA, fetchImpl, log
+  const run = (fetchImpl, options = {}) => assertAssistantProduction({
+    baseUrl: 'https://bonds-global.com', token: TOKEN, expectedSha: SHA, fetchImpl, log,
+    ...options
   });
 
   function mutateResponse(predicate, mutate) {
@@ -128,6 +129,51 @@ describe('Assistant production acceptance', () => {
     expect(requests.every(({ options }) => options.redirect === 'error')).toBe(true);
     expect(JSON.stringify(log.mock.calls)).not.toContain(TOKEN);
     expect(JSON.stringify(auditEvents)).not.toContain(TOKEN);
+  });
+
+  test('retries one transient 429 and respects Retry-After without weakening the contract', async () => {
+    let injected = false;
+    const sleepImpl = jest.fn().mockResolvedValue();
+    const fetchImpl = async (url, options) => {
+      if (!injected && url.endsWith('/assistant/idempotency/resolve')) {
+        injected = true;
+        requests.push({ url, options });
+        return new Response(JSON.stringify({ error:'Too many requests. Please try again later.' }), {
+          status:429,
+          headers:{ 'content-type':'application/json', 'retry-after':'0' }
+        });
+      }
+      return routeFetch(url, options);
+    };
+
+    const result = await run(fetchImpl, { sleepImpl });
+
+    expect(injected).toBe(true);
+    expect(sleepImpl).toHaveBeenCalledTimes(1);
+    expect(sleepImpl).toHaveBeenCalledWith(0);
+    expect(result.idempotencyState).toBe('uncertain');
+    expect([...ledger.values()][0].status).toBe('uncertain');
+  });
+
+  test('does not hide a persistent 429 after the single bounded retry', async () => {
+    let attempts = 0;
+    const sleepImpl = jest.fn().mockResolvedValue();
+    const fetchImpl = async (url, options) => {
+      if (url.endsWith('/assistant/idempotency/resolve')) {
+        attempts += 1;
+        requests.push({ url, options });
+        return new Response(JSON.stringify({ error:'Too many requests. Please try again later.' }), {
+          status:429,
+          headers:{ 'content-type':'application/json', 'retry-after':'0' }
+        });
+      }
+      return routeFetch(url, options);
+    };
+
+    await expect(run(fetchImpl, { sleepImpl }))
+      .rejects.toThrow('synthetic idempotency resolution: expected HTTP 200, received 429');
+    expect(attempts).toBeGreaterThanOrEqual(2);
+    expect(sleepImpl).toHaveBeenCalledTimes(2);
   });
 
   test('fails when a nominally successful contract drops a forbidden execution field', async () => {
