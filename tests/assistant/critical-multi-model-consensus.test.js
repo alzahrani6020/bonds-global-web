@@ -3,7 +3,8 @@
 const {
   buildCriticalReviewPrompt,
   aggregateCriticalConsensus,
-  reviewCriticalAction
+  reviewCriticalAction,
+  criticalConsensusTimeoutMs
 } = require('../../lib/assistant/critical-multi-model-consensus');
 
 function action(risk = 'critical') {
@@ -44,6 +45,12 @@ function routerFor(reviews) {
 }
 
 describe('Critical multi-model consensus', () => {
+  test('bounds review timeout without changing model token or context settings', () => {
+    expect(criticalConsensusTimeoutMs('1')).toBe(3000);
+    expect(criticalConsensusTimeoutMs('999999')).toBe(30000);
+    expect(criticalConsensusTimeoutMs('15000')).toBe(15000);
+  });
+
   test('withholds raw action input values from reviewer prompts', () => {
     const prompt = buildCriticalReviewPrompt(action());
     expect(prompt).toContain('account_number');
@@ -62,7 +69,7 @@ describe('Critical multi-model consensus', () => {
 
     expect(result.status).toBe('not_applicable');
     expect(result.multi_model).toBe(false);
-    expect(router._candidateRemoteProviders).not.toHaveBeenCalled;
+    expect(router._candidateRemoteProviders).not.toHaveBeenCalled();
   });
 
   test('returns unavailable when fewer than two reviewer nodes exist', async () => {
