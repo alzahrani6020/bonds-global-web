@@ -170,4 +170,23 @@ describe('financial data intake phase 1', () => {
     );
   });
 
+  test('does not fail on unused alternative fields once the engine has enough data', () => {
+    const fields = [
+      { field:'total_debt', value:200000, status:'extracted', confidence:0.95, currency:'SAR', period:'2026', source:[] },
+      { field:'equity', value:100000, status:'extracted', confidence:0.95, currency:'SAR', period:'2026', source:[] },
+      { field:'total_assets', value:null, status:'missing', candidates:[], currency:null, period:null, source:[] },
+      { field:'total_liabilities', value:null, status:'missing', candidates:[], currency:null, period:null, source:[] }
+    ];
+    const validation = validateDataset({
+      primaryAction:'financial_analysis_run',
+      serviceCode:'debt_to_equity_analysis',
+      values:{ total_debt:200000, equity:100000 },
+      fields
+    });
+    expect(validation.valid).toBe(true);
+    expect(validation.unresolved).toEqual([]);
+    expect(validation.missing).toEqual([]);
+    expect(validation.quality_gate).toBe('PASS');
+  });
+
 });
