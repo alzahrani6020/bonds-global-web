@@ -150,12 +150,12 @@
         {
           "id": "p3.4",
           "title": "BondsNative code-provider adapter",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p3.5",
           "title": "Patch Engine",
-          "status": "planned"
+          "status": "implemented_candidate"
         },
         {
           "id": "p3.6",
