@@ -170,6 +170,20 @@ describe('financial data intake phase 1', () => {
     );
   });
 
+  test('quality status ignores unused alternative fields after validation passes', () => {
+    const fields = [
+      { field:'total_debt', value:200000, status:'extracted', confidence:0.95, source:[] },
+      { field:'equity', value:100000, status:'extracted', confidence:0.95, source:[] },
+      { field:'total_assets', value:null, status:'missing', candidates:[], source:[] },
+      { field:'total_liabilities', value:null, status:'missing', candidates:[], source:[] }
+    ];
+    expect(qualityStatus({
+      validation:{ valid:true, missing:[], unresolved:[] },
+      fields,
+      reviewed:true
+    })).toBe('verified');
+  });
+
   test('does not fail on unused alternative fields once the engine has enough data', () => {
     const fields = [
       { field:'total_debt', value:200000, status:'extracted', confidence:0.95, currency:'SAR', period:'2026', source:[] },
