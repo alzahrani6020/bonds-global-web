@@ -788,4 +788,4 @@ parent/child relationships بين التوكنات.
 - تمت إضافة اختبارات عقدية محلية لضمان بقاء الرحلات bounded وعدم استدعاء مسارات business-write.
 - لا provider/model/token/context/throughput/compute أو authorization change، ولا database migration.
 
-الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/synthetic-production-journeys`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
+الحالة النهائية: **MERGED + CI VERIFIED + PRODUCTION VERIFIED**. تم دمج التنفيذ الأصلي عبر PR #508 (Merge SHA `f9554f88253cd27089b0321ca54997f21a83a117`)، ثم إصلاح ترتيب الـsmoke عبر PR #513، وأغلق سبب فشل `workflow_resume_read` عبر PR #516. SHA الإنتاجي النهائي المتحقق هو `247f388e7f4fe92d3dd17bdaebacc5d9bf140974`. Production Release #713 ناجح، Vercel Production `READY` على نفس SHA، `/api/health` = `ok`، `/api/readiness` = `ready`، وProduction Authenticated Smoke #312 ناجح مع PASS صريح للرحلات الخمس: `assistant_foundation`, `registered_navigation_plan`, `policy_dry_run`, `workflow_resume_read`, `service_execution_profile_read`. لا توجد migration لهذه المرحلة. العنصر التالي حسب الخارطة: `golden_conversations`.
