@@ -31,8 +31,9 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).not.toContain('timeoutMs: Number(process.env.BONDS_NATIVE_TIMEOUT_MS || 20000)');
   });
 
-  test('serves deterministic sourced answers before attempting Native inference', () => {
-    expect(source).toContain("const deterministicReply = forceNative ? null : generateDataDrivenReply");
+  test('keeps deterministic sourced answers only for anonymous fallback while authenticated chat uses open planning', () => {
+    expect(source).toContain('if (authenticatedUser && !forceNative)');
+    expect(source).toContain("const deterministicReply = (forceNative || authenticatedUser) ? null : generateDataDrivenReply");
     expect(source).toContain("source: 'data-driven'");
     expect(source).toContain("native_attempted: false");
   });
