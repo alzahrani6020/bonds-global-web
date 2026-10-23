@@ -928,10 +928,11 @@
     "parallel_tool_execution",
     "critic_verifier_for_sensitive_tasks",
     "multi_model_consensus_only_for_critical_tasks",
-    "synthetic_production_journeys"
+    "synthetic_production_journeys",
+    "golden_conversations"
   ],
   "next": [
-    "golden_conversations"
+    "assistant_evaluations"
   ],
   "deferred": [
     "action_tokens",
@@ -949,8 +950,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "docs/close-synthetic-production-journeys",
-    "change": "Synthetic Production Journeys closed after production verification. Original implementation PR #508 (merge f9554f88253cd27089b0321ca54997f21a83a117) required production fixes. Final root-cause fix PR #516 merged as 247f388e7f4fe92d3dd17bdaebacc5d9bf140974. Post-merge CI 39919002653, Service Worker 39919002732, Dependency Security 39919002650, Production Release 39919529225 and Production Authenticated Smoke 39919709924 all passed. All five synthetic journeys passed, including workflow_resume_read and service_execution_profile_read. Vercel deployment dpl_AAz1fPHzQn4eRDEmHooM3nSWPy4M is READY for the exact merge SHA. PR #509 was closed without merge as duplicate. No migration. Next: golden_conversations."
+    "branch": "docs/close-golden-conversations-latest",
+    "change": "Golden Conversations closed after production verification. PR #522 merged as 41e5a382895a4f78b36f94b48fc89f102336f617. Post-merge CI 39921695505, Service Worker 39921695476, Dependency Security 39921695578, Production Release 39922242977, and Production Authenticated Smoke 39922439691 all passed. Vercel deployment dpl_3a4SB5ZfQACPdvVTomZaY7Pcr5sh is READY for the exact merge SHA. No migration. Next: assistant_evaluations."
   },
   "production_rollout": {
     "status": "complete",
