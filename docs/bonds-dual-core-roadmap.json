@@ -135,17 +135,17 @@
         {
           "id": "p3.1",
           "title": "Deterministic System Map",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p3.2",
           "title": "Impact Analyzer and focused test selection",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p3.3",
           "title": "Isolated Candidate Manager",
-          "status": "planned"
+          "status": "implemented_candidate"
         },
         {
           "id": "p3.4",
