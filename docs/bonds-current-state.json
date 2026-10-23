@@ -3,10 +3,10 @@
   "project": "BONDS Dual-Core Self-Evolving Intelligence System",
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
-  "current_phase": "phase6-self-training",
-  "current_workstream": "phase6-full-batch",
+  "current_phase": "phase7-control-center",
+  "current_workstream": "phase7-full-batch",
   "status": "in_progress",
-  "baseline_main_sha": "41e5a382895a4f78b36f94b48fc89f102336f617",
+  "baseline_main_sha": "8b45d942be4ecfcc15b6cbf3efc80a616e2489a8",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -93,12 +93,19 @@
     "p5.7-known-good-only-rollback-plan",
     "p5.7-explicit-approval-gate",
     "p5.7-post-rollback-verification",
-    "phase5-ci-release-closeout"
+    "phase5-ci-release-closeout",
+    "p6.1-dataset-registry",
+    "p6.2-de-identification",
+    "p6.3-capacity-aware-training-queue",
+    "p6.4-model-registry",
+    "p6.5-deterministic-model-benchmark",
+    "p6.6-governed-model-promotion-rollback",
+    "phase6-self-training-closeout"
   ],
   "currently_working_on": [
-    "phase6-full-self-training-batch"
+    "phase7-full-control-center-batch"
   ],
-  "next_action": "implement Phase 6 Self-Training as one consolidated batch, then one final PR/CI/merge cycle",
+  "next_action": "implement Phase 7 Control Center as one consolidated batch, then one final PR/CI/merge cycle",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -181,7 +188,8 @@
       515,
       517,
       519
-    ]
+    ],
+    "phase6_candidate_base_sha": "8b45d942be4ecfcc15b6cbf3efc80a616e2489a8"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -202,5 +210,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "phase5-final-closeout-v2-candidate"
+  "updated_by": "phase6-self-training-full-batch-candidate"
 }

@@ -4,7 +4,7 @@
   "source_of_truth": "docs/BONDS_DUAL_CORE_MASTER_ARCHITECTURE.md",
   "bootstrap": "docs/PROJECT_BOOTSTRAP.md",
   "status": "in_progress",
-  "current_phase": "phase6-self-training",
+  "current_phase": "phase7-control-center",
   "phases": [
     {
       "id": "phase0",
@@ -241,12 +241,51 @@
     {
       "id": "phase6",
       "title": "Self-Training",
-      "status": "in_progress"
+      "status": "completed",
+      "items": [
+        {
+          "id": "p6.1",
+          "title": "Dataset registry",
+          "status": "completed"
+        },
+        {
+          "id": "p6.2",
+          "title": "De-identification",
+          "status": "completed"
+        },
+        {
+          "id": "p6.3",
+          "title": "Training queue",
+          "status": "completed"
+        },
+        {
+          "id": "p6.4",
+          "title": "Model registry",
+          "status": "completed"
+        },
+        {
+          "id": "p6.5",
+          "title": "Candidate model benchmark",
+          "status": "completed"
+        },
+        {
+          "id": "p6.6",
+          "title": "Model promotion and rollback",
+          "status": "completed"
+        }
+      ]
     },
     {
       "id": "phase7",
       "title": "Control Center",
-      "status": "planned"
+      "status": "in_progress",
+      "items": [
+        {
+          "id": "p7.1",
+          "title": "Unified Control Center",
+          "status": "planned"
+        }
+      ]
     }
   ]
 }
