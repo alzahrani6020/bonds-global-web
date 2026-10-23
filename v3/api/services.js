@@ -512,7 +512,7 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
   if (parentDatasetId) {
     const { data, error } = await supabase
       .from('financial_datasets')
-      .select('id,dataset_version')
+      .select('id,dataset_version,reviewed_values,input_hash')
       .eq('id', parentDatasetId)
       .eq('user_id', user.id)
       .is('deleted_at', null)
@@ -530,6 +530,25 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
     .order('created_at', { ascending:false })
     .limit(1)
     .maybeSingle();
+
+  const parentValues = parentDataset?.reviewed_values || {};
+  const currentValues = extracted.values || {};
+  const changedKeys = [...new Set([...Object.keys(parentValues), ...Object.keys(currentValues)])]
+    .filter(key => JSON.stringify(parentValues[key]) !== JSON.stringify(currentValues[key]));
+  const changeDetection = parentDataset ? {
+    baseline_dataset_id: parentDataset.id,
+    baseline_dataset_version: parentDataset.dataset_version || 1,
+    baseline_input_hash: parentDataset.input_hash || null,
+    input_hash_changed: parentDataset.input_hash !== inputHash,
+    changed_fields: changedKeys.map(field => {
+      const previous = parentValues[field] ?? null;
+      const current = currentValues[field] ?? null;
+      const numeric = Number.isFinite(Number(previous)) && Number.isFinite(Number(current));
+      const absolute = numeric ? Number(current) - Number(previous) : null;
+      const pct = numeric && Number(previous) !== 0 ? (absolute / Math.abs(Number(previous))) * 100 : null;
+      return { field, previous, current, absolute_change:absolute, pct_change:pct };
+    })
+  } : null;
 
   const now = new Date().toISOString();
   const provenanceEnvelope = {
@@ -567,7 +586,13 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
       source: { type: source.type, file_name: source.file_name, file_version: source.file_version, mime_type: source.mime_type },
       validation: extracted.validation || {},
       field_confidence: confidence,
-      document_type: documentType
+      document_type: documentType,
+      historical_baseline: parentDataset ? {
+        dataset_id:parentDataset.id,
+        dataset_version:parentDataset.dataset_version || 1,
+        input_hash:parentDataset.input_hash || null
+      } : null,
+      change_detection: changeDetection
     },
     dataset_version: parentDataset ? Number(parentDataset.dataset_version || 1) + 1 : 1,
     parent_dataset_id: parentDataset?.id || null,
@@ -922,8 +947,38 @@ async function handleServiceExecute(req, res, supabase, user) {
 }
 
 async function handleFinancialDatasetGet(req,res,supabase,user,id){
-  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
   if(!user) return sendJson(res,401,{error:'Unauthorized'});
+
+  if(req.method==='DELETE'){
+    const now=new Date().toISOString();
+    const {data,error}=await supabase
+      .from('financial_datasets')
+      .update({deleted_at:now,updated_at:now})
+      .eq('id',id).eq('user_id',user.id).is('deleted_at',null)
+      .select('id,deleted_at').maybeSingle();
+    if(error||!data) return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+    return sendJson(res,200,{ok:true,dataset_id:data.id,deleted_at:data.deleted_at});
+  }
+
+  if(req.method==='PATCH'){
+    let body;
+    try { body=await parseJsonBody(req); }
+    catch(err){ return sendJson(res,400,{error:'Invalid JSON body',detail:err.message}); }
+    const retention = body.retention_until === null ? null : new Date(body.retention_until);
+    if(body.retention_until !== null && (!retention || Number.isNaN(retention.getTime()))) {
+      return sendJson(res,400,{ok:false,error:{code:'INVALID_RETENTION_UNTIL'}});
+    }
+    const retentionIso = body.retention_until === null ? null : retention.toISOString();
+    const {data,error}=await supabase
+      .from('financial_datasets')
+      .update({retention_until:retentionIso,updated_at:new Date().toISOString()})
+      .eq('id',id).eq('user_id',user.id).is('deleted_at',null)
+      .select('id,retention_until').maybeSingle();
+    if(error||!data) return sendJson(res,404,{ok:false,error:{code:'FINANCIAL_DATASET_NOT_FOUND'}});
+    return sendJson(res,200,{ok:true,dataset_id:data.id,retention_until:data.retention_until});
+  }
+
+  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
   const {data,error}=await supabase
     .from('financial_datasets')
     .select('id,client_id,project_id,service_code,source_type,source_file_name,source_file_version,source_mime_type,document_type,reviewed_values,field_provenance,field_confidence,validation,quality_status,status,approval_status,dataset_version,parent_dataset_id,duplicate_of_id,input_hash,input_snapshot,derived_metrics,dependency_graph,evidence_pack,decision_record,execution_history,is_stale,stale_reason,parser_version,mapping_version,engine_version,analysis_version,retention_until,created_at,updated_at,last_executed_at')
