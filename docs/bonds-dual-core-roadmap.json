@@ -76,6 +76,11 @@
         {
           "id": "p1.9",
           "title": "Durable evolution proposal aggregation",
+          "status": "completed"
+        },
+        {
+          "id": "p1.10",
+          "title": "Workflow, document and intent outcome coverage",
           "status": "implemented_candidate"
         }
       ]
