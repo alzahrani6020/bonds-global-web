@@ -922,10 +922,11 @@
     "audit_search",
     "operational_replay",
     "cost_governance_separate_from_auth",
-    "per_task_budget"
+    "per_task_budget",
+    "latency_aware_routing"
   ],
   "next": [
-    "latency_aware_routing"
+    "streaming"
   ],
   "deferred": [
     "action_tokens",
@@ -942,8 +943,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-per-task-budget-main",
-    "change": "Per-task Budget implemented_base as request-scoped advisory evaluation over existing admin_ai_operation_events request_id. It compares recorded cost with an explicit USD budget and reports within/over/unpriced/not_found state without blocking execution or limiting tokens/compute or changing model/provider/authorization. No migration. Next: latency_aware_routing."
+    "branch": "feat/assistant-latency-aware-routing",
+    "change": "Latency-aware routing implemented_base inside the existing Bonds Native inference router. Assistant chat enables same-provider node ordering using fresh method-scoped EWMA latency observations. Circuit breaker/failover remain authoritative; there is no forced exploration, and latency ordering only applies when at least two current observations exist for the same operation. It does not block execution, limit tokens/compute, change model/provider, or alter authorization. No migration. Next: streaming."
   },
   "production_rollout": {
     "status": "complete",
