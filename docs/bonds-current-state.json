@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase3-candidate-engineering",
-  "current_workstream": "p3.4-bondsnative-code-provider",
+  "current_workstream": "p3.5-patch-engine",
   "status": "in_progress",
-  "baseline_main_sha": "81491cc8bbc5cb6230b1639de4b9da46c91f1fdc",
+  "baseline_main_sha": "9fcfa4fc71b1b673509ce82fdb5061ca90d27f2b",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -45,14 +45,17 @@
     "p3.2-protected-surface-test-selection",
     "p3.3-isolated-candidate-manager",
     "p3.3-candidate-freshness-guard",
-    "p3.3-clean-workspace-contract"
-  ],
-  "currently_working_on": [
+    "p3.3-clean-workspace-contract",
     "p3.4-bondsnative-code-provider-adapter",
     "p3.4-structured-patch-proposal-contract",
     "p3.4-native-only-provider-guard"
   ],
-  "next_action": "validate rebased P3.4 BondsNative CodeProvider in CI; after merge implement P3.5 Patch Engine that applies only validated proposals inside the isolated candidate workspace",
+  "currently_working_on": [
+    "p3.5-deterministic-patch-engine",
+    "p3.5-isolated-workspace-containment",
+    "p3.5-transactional-preflight-and-rollback"
+  ],
+  "next_action": "validate P3.5 Patch Engine in CI; after merge implement P3.6 Autonomous Repair Loop and stuck-loop detector using bounded deterministic failure signatures",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -64,7 +67,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "81491cc8bbc5cb6230b1639de4b9da46c91f1fdc",
+    "current_main_sha": "9fcfa4fc71b1b673509ce82fdb5061ca90d27f2b",
     "superseded_candidate_prs": [
       472,
       475
@@ -73,7 +76,9 @@
     "phase3_candidate_manager_ci_verified": true,
     "superseded_code_provider_prs": [
       478
-    ]
+    ],
+    "phase3_code_provider_merge_sha": "9fcfa4fc71b1b673509ce82fdb5061ca90d27f2b",
+    "phase3_code_provider_ci_verified": true
   },
   "approved_architecture": {
     "dual_core": true,
@@ -94,5 +99,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p3.4-rebased-candidate"
+  "updated_by": "p3.5-candidate"
 }
