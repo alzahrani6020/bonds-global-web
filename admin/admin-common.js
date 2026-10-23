@@ -85,6 +85,73 @@
     }
   }
 
+  const ADMIN_LABELS_AR = Object.freeze({
+    organizations:'المنشآت',
+    clients:'العملاء',
+    opportunities:'الفرص',
+    renewals:'التجديدات',
+    customerSuccessRecords:'سجلات نجاح العملاء',
+    generatedAt:'وقت التحديث',
+    currentDeployment:'النشر الحالي',
+    provider:'المزوّد',
+    environment:'البيئة',
+    production:'الإنتاج',
+    executive:'التحليلات التنفيذية',
+    activeUsers30d:'المستخدمون النشطون خلال 30 يومًا',
+    activatedUsers:'المستخدمون المفعّلون',
+    mrr:'الإيراد الشهري المتكرر',
+    arr:'الإيراد السنوي المتكرر',
+    arpu:'متوسط الإيراد لكل مستخدم',
+    conversionPct:'معدل التحويل',
+    churnPct:'معدل التسرب',
+    pipelineValue:'قيمة خط المبيعات',
+    weightedPipeline:'خط المبيعات المرجّح',
+    renewalRisk:'مخاطر التجديد',
+    customerHealth:'صحة العملاء',
+    lead:'عملاء محتملون',
+    qualified:'مؤهلون',
+    count:'العدد',
+    value:'القيمة',
+    weightedValue:'القيمة المرجّحة',
+    items:'العناصر',
+    requests:'الطلبات',
+    status:'الحالة',
+    version:'الإصدار'
+  });
+
+  function humanizeAdminKey(value, locale) {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    const parts = raw.split('.');
+    const translatePart = part => {
+      if ((locale || document?.documentElement?.lang || 'ar').startsWith('ar') && ADMIN_LABELS_AR[part]) {
+        return ADMIN_LABELS_AR[part];
+      }
+      return part
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .replace(/[_-]+/g, ' ')
+        .replace(/\b\w/g, m => m.toUpperCase());
+    };
+    return parts.map(translatePart).join(' · ');
+  }
+
+  async function requestJson(url, options) {
+    const response = await global.BondsAuth.authenticatedFetch(url, options || {});
+    let body = {};
+    try {
+      body = typeof response?.json === 'function' ? await response.json() : response || {};
+    } catch (error) {
+      body = { error: error?.message || 'INVALID_JSON_RESPONSE' };
+    }
+    if (!response?.ok || body?.success === false) {
+      const err = new Error(body?.error || body?.message || ('HTTP ' + Number(response?.status || 0)));
+      err.status = Number(response?.status || 0);
+      err.body = body;
+      throw err;
+    }
+    return body;
+  }
+
   function debounce(fn, ms) {
     let t;
     return function (...args) {
@@ -98,6 +165,8 @@
     showAdminStatus,
     escapeHtml,
     safeExternalUrl,
+    humanizeAdminKey,
+    requestJson,
     debounce
   };
 })(window);
