@@ -164,20 +164,21 @@ describe('/api/v3/intelligence', () => {
 
 
 describe('V3 AI chat runtime wiring', () => {
-  test('routes authenticated chat through the governed open-chat loop while preserving anonymous deterministic fallback', () => {
+  test('requires authentication and routes signed-in chat through the governed open-chat loop', () => {
     const fs = require('fs');
     const path = require('path');
     const source = fs.readFileSync(path.join(__dirname, '../../v3/api/ai.js'), 'utf8');
     expect(source).toContain("require('../../lib/services/service-execution-router')");
     expect(source).toContain("require('../../lib/assistant/open-chat-tool-loop')");
-    expect(source).toContain('planOpenTurn(messages, enrichedContext, {');
-    expect(source).toContain('executePlannedTool(plannerDecision, {');
-    expect(source).toContain('synthesizeToolReply(messages, enrichedContext, plannerDecision, toolResult, {');
-    expect(source).toContain('const deterministicReply = (forceNative || authenticatedUser) ? null : generateDataDrivenReply');
-    expect(source).toContain("source: 'data-driven'");
+    expect(source).toContain("error: 'AUTHENTICATION_REQUIRED'");
+    expect(source).toContain('requires_authentication: true');
+    expect(source).toContain('runOpenChatLoop(messages, enrichedContext, {');
+    expect(source).not.toContain('const deterministicReply =');
     expect(source).toContain('generateNativeReply(messages, enrichedContext, {');
-    expect(source).toContain("source: aiResult ? 'bonds-assistant-ai' : 'data-driven-fallback'");
-    expect(source).toContain("provider: aiResult?.provider || 'BONDS'");
+    expect(source).not.toContain("source: 'data-driven'");
+    expect(source).not.toContain("source: aiResult ? 'bonds-assistant-ai' : 'data-driven-fallback'");
+    expect(source).toContain("source: 'bonds-assistant-ai'");
+    expect(source).toContain("provider: aiResult.provider || 'BONDS'");
     expect(source).toContain("action: 'ai_reason'");
   });
 });
