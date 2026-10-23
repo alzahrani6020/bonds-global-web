@@ -770,7 +770,7 @@
       modelCode: options.modelCode || null,
       calculationResult: options.calculationResult || null,
       projectId: options.projectId || null,
-      pagePath: options.pagePath || window.location.pathname || '/',
+      pagePath: options.pagePath || (window.location.pathname + window.location.hash) || '/',
       pageTitle: options.pageTitle || document.title || null,
       mode: options.mode || 'city'
     };
@@ -1053,7 +1053,7 @@
           activityCode: context.activityCode || bridge.activityCode || null
         });
       }
-      context.pagePath = window.location.pathname || context.pagePath || '/';
+      context.pagePath = (window.location.pathname + window.location.hash) || context.pagePath || '/';
       context.pageTitle = document.title || context.pageTitle || null;
       context.cityName = getCityName() || context.localityName || context.cityName || null;
       context.activityName = getActivityName() || context.activityName || null;
