@@ -40,6 +40,7 @@
   "capabilities": [
     {
       "action": "agent_execute",
+      "action_type": "workflow",
       "id": "BONDS-CAP-AGENT-001",
       "purpose": "Reserved governed execution boundary for the Bonds agent runtime.",
       "side_effect": "compute",
