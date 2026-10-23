@@ -35,7 +35,6 @@ describe('Assistant Golden Conversations', () => {
 
   test('golden corpus covers safe ready flows and fail-closed flows', () => {
     const ids=new Set(corpus.conversations.map(item=>item.id));
-    expect(ids).toEqual(expect.objectContaining ? ids : ids);
     expect(ids.has('ar_navigation_kyc')).toBe(true);
     expect(ids.has('en_navigation_kyc')).toBe(true);
     expect(ids.has('ar_save_kyc_draft')).toBe(true);
