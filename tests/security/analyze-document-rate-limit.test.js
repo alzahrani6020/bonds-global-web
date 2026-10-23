@@ -199,6 +199,9 @@ describe('document analysis auth, ownership, and parser error regression', () =>
       data: {
         id: 'doc-1',
         storage_path: 'user-a/doc-1.docx',
+        storage_bucket: 'client-documents',
+        security_status: 'clean',
+        security_verdict: 'clean',
         mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         filename: 'doc-1.docx',
         advisory_clients: { auth_user_id: 'user-a' }
@@ -247,6 +250,9 @@ describe('document analysis auth, ownership, and parser error regression', () =>
       data: {
         id: 'doc-1',
         storage_path: 'user-a/doc-1.png',
+        storage_bucket: 'client-documents',
+        security_status: 'clean',
+        security_verdict: 'clean',
         mime_type: 'image/png',
         filename: 'doc-1.png',
         advisory_clients: { auth_user_id: 'user-a' }
@@ -288,6 +294,9 @@ describe('document analysis auth, ownership, and parser error regression', () =>
       data: {
         id: 'doc-1',
         storage_path: 'user-a/doc-1.docx',
+        storage_bucket: 'client-documents',
+        security_status: 'clean',
+        security_verdict: 'clean',
         mime_type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         filename: 'doc-1.docx',
         advisory_clients: { auth_user_id: 'user-a' }
