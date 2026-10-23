@@ -247,7 +247,10 @@ function cleanFinancialManualValues(values, fields) {
   const reviewFields = [];
   for (const field of fields) {
     const raw = source[field];
-    const value = parseNumeric(raw);
+    const structured = field === 'periods';
+    const value = structured
+      ? (Array.isArray(raw) && raw.length ? raw : null)
+      : parseNumeric(raw);
     if (value !== null) out[field] = value;
     reviewFields.push({
       field,
