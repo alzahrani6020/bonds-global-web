@@ -132,6 +132,46 @@ describe('assistant persistent workflow state', () => {
     })).resolves.toBeNull();
   });
 
+  test('load treats PostgREST empty composite RPC shapes as not found', async () => {
+    for (const data of [
+      [null],
+      [{ id:null, workflow_key:null, state:null, status:null, version:null }]
+    ]) {
+      mockRpc.mockResolvedValueOnce({ data, error:null });
+      await expect(loadWorkflowState({
+        supabase:{ rpc:mockRpc },
+        userId:'user-1',
+        workflowKey:'wf-404'
+      })).resolves.toBeNull();
+    }
+  });
+
+  test('load unwraps a one-row composite RPC result', async () => {
+    mockRpc.mockResolvedValueOnce({
+      data:[{
+        id:'wf-1',
+        workflow_key:'wf-1',
+        boundary:'project:p-1',
+        status:'active',
+        version:2,
+        state:{ boundary:'project:p-1' }
+      }],
+      error:null
+    });
+
+    await expect(loadWorkflowState({
+      supabase:{ rpc:mockRpc },
+      userId:'user-1',
+      workflowKey:'wf-1'
+    })).resolves.toEqual(expect.objectContaining({
+      id:'wf-1',
+      workflow_key:'wf-1',
+      boundary:'project:p-1',
+      status:'active',
+      version:2
+    }));
+  });
+
   test('status transitions require expected version', async () => {
     await expect(setWorkflowStatus({
       supabase:{ rpc:mockRpc },
