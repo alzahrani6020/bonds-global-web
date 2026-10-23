@@ -38,6 +38,7 @@ const {
 const { getCachedIntrospection } = require('../../lib/assistant/safe-introspection-cache');
 const { publicAssistantPolicyDescriptor } = require('../../lib/assistant/policy-engine');
 const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
+const { executeParallelServices } = require('../../lib/services/parallel-tool-execution');
 const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
@@ -154,6 +155,51 @@ async function assistantRouter(req, res, path, user) {
         status:'denied',
         service_code:serviceCode,
         error:{ code:'ASSISTANT_SERVICE_EXECUTION_FAILED', message:err.message }
+      });
+    }
+  }
+
+  if (path === '/assistant/services/execute-parallel' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
+
+    try {
+      const result = await executeParallelServices({
+        req,
+        user,
+        supabase:getSupabaseClient(),
+        requests:body.requests
+      });
+
+      return sendJson(res, result.httpStatus, {
+        protocol:PROTOCOL,
+        status:result.body?.ok ? 'completed' : (result.body?.executed ? 'partial' : 'denied'),
+        ...result.body
+      });
+    } catch (err) {
+      const code = String(err?.message || 'PARALLEL_TOOL_EXECUTION_FAILED');
+      const clientError = [
+        'PARALLEL_REQUESTS_REQUIRED',
+        'PARALLEL_REQUEST_LIMIT_EXCEEDED',
+        'INVALID_PARALLEL_REQUEST',
+        'PARALLEL_TASK_NOT_DECLARED_INDEPENDENT',
+        'PARALLEL_SERVICE_CODE_REQUIRED',
+        'PARALLEL_TASK_ID_DUPLICATE',
+        'PARALLEL_SERVICE_NOT_FOUND',
+        'PARALLEL_SERVICE_NOT_AUTOMATED',
+        'PARALLEL_CAPABILITY_UNAVAILABLE',
+        'PARALLEL_SIDE_EFFECT_NOT_SAFE'
+      ].includes(code);
+
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:{
+          code:clientError ? code : 'PARALLEL_TOOL_EXECUTION_FAILED',
+          task_id:err?.taskId || null,
+          side_effect:err?.sideEffect || null
+        }
       });
     }
   }
