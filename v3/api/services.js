@@ -682,7 +682,10 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
 
   for (const field of profileState.requirements.requirement_fields) {
     if (!Object.prototype.hasOwnProperty.call(corrections, field)) continue;
-    const value = parseNumeric(corrections[field]);
+    const rawCorrection = corrections[field];
+    const value = field === 'periods'
+      ? (Array.isArray(rawCorrection) && rawCorrection.length ? rawCorrection : null)
+      : parseNumeric(rawCorrection);
     if (value === null) {
       if (Object.prototype.hasOwnProperty.call(reviewed, field)) valuesChanged = true;
       delete reviewed[field];
@@ -690,7 +693,7 @@ async function handleFinancialIntakeApprove(req, res, supabase, user) {
     }
     const previous = Object.prototype.hasOwnProperty.call(reviewed, field) ? reviewed[field] : null;
     reviewed[field] = value;
-    if (previous !== value) {
+    if (JSON.stringify(previous) !== JSON.stringify(value)) {
       valuesChanged = true;
       overrides.push({
         field,
