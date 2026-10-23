@@ -946,6 +946,52 @@ async function handleServiceExecute(req, res, supabase, user) {
   }
 }
 
+async function handleFinancialPortfolio(req,res,supabase,user){
+  if(req.method!=='GET') return sendJson(res,405,{error:'Method not allowed'});
+  if(!user) return sendJson(res,401,{error:'Unauthorized'});
+  const url=getQuery(req);
+  const projectId=String(url.searchParams.get('project_id') || '').trim() || null;
+  const clientId=String(url.searchParams.get('client_id') || '').trim() || null;
+  let query=supabase
+    .from('financial_datasets')
+    .select('id,client_id,project_id,service_code,quality_status,status,approval_status,dataset_version,parent_dataset_id,duplicate_of_id,is_stale,last_executed_at,created_at,updated_at')
+    .eq('user_id',user.id)
+    .is('deleted_at',null)
+    .order('updated_at',{ascending:false});
+  if(projectId) query=query.eq('project_id',projectId);
+  if(clientId) query=query.eq('client_id',clientId);
+  const {data,error}=await query.limit(500);
+  if(error) return sendJson(res,500,{ok:false,error:{code:'FINANCIAL_PORTFOLIO_LOAD_FAILED'}});
+
+  const rows=data || [];
+  const byService={};
+  const byProject={};
+  const byClient={};
+  for(const row of rows){
+    byService[row.service_code]=(byService[row.service_code]||0)+1;
+    const project=row.project_id || 'unassigned';
+    const client=row.client_id || 'unassigned';
+    byProject[project]=(byProject[project]||0)+1;
+    byClient[client]=(byClient[client]||0)+1;
+  }
+  return sendJson(res,200,{
+    ok:true,
+    portfolio:{
+      filters:{project_id:projectId,client_id:clientId},
+      totals:{
+        datasets:rows.length,
+        approved:rows.filter(row=>row.approval_status==='approved').length,
+        executed:rows.filter(row=>row.status==='executed').length,
+        stale:rows.filter(row=>row.is_stale===true).length
+      },
+      by_service:byService,
+      by_project:byProject,
+      by_client:byClient,
+      datasets:rows
+    }
+  });
+}
+
 async function handleFinancialDatasetGet(req,res,supabase,user,id){
   if(!user) return sendJson(res,401,{error:'Unauthorized'});
 
@@ -1300,6 +1346,7 @@ async function servicesRouter(req, res, path, supabase, user) {
   if (path === '/services/execute') return handleServiceExecute(req, res, supabase, user);
   if (path === '/services/intake/prepare') return handleFinancialIntakePrepare(req, res, supabase, user);
   if (path === '/services/intake/approve') return handleFinancialIntakeApprove(req, res, supabase, user);
+  if (path === '/services/intake/portfolio') return handleFinancialPortfolio(req, res, supabase, user);
   const datasetExportMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)\/export$/);
   if(datasetExportMatch) return handleFinancialDatasetExport(req,res,supabase,user,decodeURIComponent(datasetExportMatch[1]));
   const datasetMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)$/);
