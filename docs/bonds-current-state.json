@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase3-candidate-engineering",
-  "current_workstream": "p3.1-system-map-impact-analyzer",
+  "current_workstream": "p3.3-isolated-candidate-manager",
   "status": "in_progress",
-  "baseline_main_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
+  "baseline_main_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -39,14 +39,18 @@
     "p2.6-control-center-analysis-trigger",
     "p2.7-high-critical-proposal-inbox-routing",
     "p2.7-evolution-inbox-deduplication",
-    "p2.7-best-effort-core-a-isolation"
-  ],
-  "currently_working_on": [
+    "p2.7-best-effort-core-a-isolation",
     "p3.1-deterministic-system-map",
     "p3.2-impact-analyzer",
     "p3.2-protected-surface-test-selection"
   ],
-  "next_action": "validate System Map and Impact Analyzer in CI; after merge implement isolated Candidate Manager from exact clean main SHA",
+  "currently_working_on": [
+    "p3.3-exact-base-sha-contract",
+    "p3.3-isolated-workspace-descriptor",
+    "p3.3-candidate-freshness-guard",
+    "p3.3-impact-manifest-binding"
+  ],
+  "next_action": "validate P3.3 in CI; after merge implement BondsNative CodeProvider adapter and structured Patch Engine without free-text execution",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -55,7 +59,8 @@
     "latest_main_sha": "e2148f0cec5be44ca3516257cc1b612633cddb88",
     "phase2_agent_inbox_merge_sha": "c4140b9bd24075431df5d4aa8212a84250394a94",
     "phase2_ci_verified": true,
-    "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6"
+    "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
+    "p3_1_p3_2_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -76,5 +81,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p3.1-p3.2-candidate"
+  "updated_by": "p3.3-candidate"
 }
