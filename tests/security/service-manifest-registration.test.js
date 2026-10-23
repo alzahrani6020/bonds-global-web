@@ -80,6 +80,7 @@ describe(
           Object.keys(CAPABILITIES).sort()
         ).toEqual([
           'agent_execute',
+          'ai_reason',
           'calculator_open',
           'calculator_run',
           'cash_flow_analysis_run',
@@ -121,6 +122,11 @@ describe(
         } = require('../../lib/capabilities/bonds-capability-registry');
 
         expect(getActionDescriptor('native_generate').actionType).toBe('ai');
+        expect(getActionDescriptor('ai_reason')).toEqual(expect.objectContaining({
+          actionType:'ai',
+          serviceCode:'assistant',
+          runtimeAdapter:'native_generate'
+        }));
         expect(getActionDescriptor('web_fetch').actionType).toBe('api');
         expect(getActionDescriptor('financial_analysis_run').actionType).toBe('engine');
         expect(getActionDescriptor('funding_status').actionType).toBe('data');
