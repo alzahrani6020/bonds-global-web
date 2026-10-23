@@ -1,0 +1,3 @@
+country,geonames_code,geoname_id,geonames_name,status,triage,notes
+PS,PS.GZ,281132,Gaza Strip,EXCLUDED,GRANULARITY_MISMATCH,"GeoNames unit is broader than the internal 13-governorate model; no direct link."
+PS,PS.WE,285153,West Bank,EXCLUDED,GRANULARITY_MISMATCH,"GeoNames unit is broader than the internal 13-governorate model; no direct link."
