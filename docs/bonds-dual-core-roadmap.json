@@ -229,12 +229,12 @@
         {
           "id": "p5.6",
           "title": "Known-good releases",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p5.7",
           "title": "Rollback orchestration",
-          "status": "planned"
+          "status": "implemented_candidate"
         }
       ]
     },
