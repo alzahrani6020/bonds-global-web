@@ -1982,12 +1982,8 @@
             project_id:context.projectId || null,
             filename:String(file.name || 'file').slice(0, 255),
             storage_path:storagePath,
-            storage_bucket:CLIENT_DOCUMENTS_QUARANTINE_BUCKET,
             mime_type:file.type || 'application/octet-stream',
-            size_bytes:file.size,
-            status:'uploaded',
-            security_status:'quarantined',
-            security_verdict:'pending'
+            size_bytes:file.size
           })
           .select('id,filename,mime_type,size_bytes,status,security_status,security_verdict')
           .single();
