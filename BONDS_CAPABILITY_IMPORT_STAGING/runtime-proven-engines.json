@@ -1,0 +1,1528 @@
+{
+  "schema": "bonds.afaq-import.runtime-proven/v1",
+  "source": {
+    "repository": "alzahrani6020/AFAQ-GIE",
+    "commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf"
+  },
+  "count": 22,
+  "engines": [
+    {
+      "source_engine_id": "ENG-CAP-001",
+      "target_engine_id": "BONDS-ENG-CAP-001",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-001",
+        "name": "Governed Browser & Computer Use Engine",
+        "classification": "SHARED_SERVICE",
+        "gap_classification": "PARTIAL_GAP",
+        "target_packages": [
+          "W8-P13",
+          "W8-P23",
+          "W8-P31",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [],
+        "provider_candidates": [
+          "OpenAI Computer Use",
+          "Cursor Browser/Computer Use",
+          "Cloudflare Browser Rendering",
+          "Vercel/v0 Browser"
+        ],
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "specialized_runtime_adapter",
+            "authority_gated_execution",
+            "all_required_capability_steps_executed",
+            "sha256_hashed_runtime_evidence",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10"
+          ],
+          "verified_commit": "1178cecbb636bab24c83ddcddd68ea770ceca352",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-002",
+      "target_engine_id": "BONDS-ENG-CAP-002",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-002",
+        "name": "Governed Command Execution Engine",
+        "classification": "SHARED_SERVICE",
+        "gap_classification": "PARTIAL_GAP",
+        "target_packages": [
+          "W7-P06",
+          "W8-P28",
+          "W8-P31",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-TIMEOUT"
+        ],
+        "provider_candidates": [
+          "OpenAI Shell",
+          "Local PowerShell/CMD/Bash",
+          "Cursor Terminal",
+          "GitHub/Codespaces runners"
+        ],
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_command_or_sandbox_runtime",
+            "allowlist_enforced",
+            "shell_false",
+            "repository_boundary_enforced",
+            "sandbox_required_for_untrusted_execution",
+            "dedicated_runtime_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass"
+          ],
+          "verified_commit": "53823d46edd329ae5c01e98c75c54fab84d652b0",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-003",
+      "target_engine_id": "BONDS-ENG-CAP-003",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-003",
+        "name": "Governed Sandbox Compute Engine",
+        "classification": "SHARED_SERVICE",
+        "gap_classification": "PARTIAL_GAP",
+        "target_packages": [
+          "W8-P28",
+          "W8-P29",
+          "W8-P32",
+          "W8-P43"
+        ],
+        "shared_primitive_contract_refs": [],
+        "provider_candidates": [
+          "OpenAI Code Interpreter",
+          "Vercel Sandbox",
+          "Container/VM provider",
+          "Local BONDS Sandbox"
+        ],
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_command_or_sandbox_runtime",
+            "allowlist_enforced",
+            "shell_false",
+            "repository_boundary_enforced",
+            "sandbox_required_for_untrusted_execution",
+            "dedicated_runtime_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass"
+          ],
+          "verified_commit": "53823d46edd329ae5c01e98c75c54fab84d652b0",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-005",
+      "target_engine_id": "BONDS-ENG-CAP-005",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-005",
+        "name": "Capability Discovery & Resolver Engine",
+        "classification": "CORE",
+        "gap_classification": "PARTIAL_GAP",
+        "target_packages": [
+          "W7-P24",
+          "W8-P22",
+          "W8-P34",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CERTIFICATION",
+          "PRIM-DISCOVER"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "mission_requirement_match",
+          "mission_fitness_scoring",
+          "local_package_search",
+          "runtime_availability_check",
+          "composition_candidate_search",
+          "dynamic_activation_candidate",
+          "gap_detection",
+          "rank_implementation_candidates",
+          "capability_resolution_for_research_missions",
+          "autonomous_capability_resolution",
+          "owner_authority_aware_resolution"
+        ],
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "specialized_runtime_adapter",
+            "authority_gated_execution",
+            "all_required_capability_steps_executed",
+            "sha256_hashed_runtime_evidence",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10"
+          ],
+          "verified_commit": "1178cecbb636bab24c83ddcddd68ea770ceca352",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-006",
+      "target_engine_id": "BONDS-ENG-CAP-006",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-006",
+        "name": "Provider Registry & Adapter Runtime",
+        "classification": "CORE",
+        "gap_classification": "PARTIAL_GAP",
+        "target_packages": [
+          "W7-P02",
+          "W7-P21",
+          "W8-P22",
+          "W8-P25"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CERTIFICATION",
+          "PRIM-FALLBACK",
+          "PRIM-HEALTH"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "provider_discovery",
+          "provider_binding",
+          "provider_unbinding",
+          "provider_health_refresh",
+          "provider_capability_index",
+          "provider_version_compatibility",
+          "provider_failover_candidate_resolution",
+          "provider_adapter_resolution_for_acquisition"
+        ],
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "specialized_runtime_adapter",
+            "authority_gated_execution",
+            "all_required_capability_steps_executed",
+            "sha256_hashed_runtime_evidence",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10"
+          ],
+          "verified_commit": "1178cecbb636bab24c83ddcddd68ea770ceca352",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-091",
+      "target_engine_id": "BONDS-ENG-CAP-091",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-091",
+        "name": "Resilient Adaptive Retrieval & Crawling Fabric",
+        "classification": null,
+        "gap_classification": null,
+        "target_packages": [
+          "W8-P05",
+          "W8-P22",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-RATE-LIMIT"
+        ],
+        "provider_candidates": [],
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "required_capabilities": [
+          "sitemap_discovery",
+          "link_graph_traversal",
+          "pagination_discovery",
+          "rendered_web_crawl",
+          "incremental_recrawl",
+          "content_deduplication",
+          "canonical_url_resolution",
+          "crawl_frontier_prioritization",
+          "crawl_checkpoint_resume",
+          "source_boundary_detection",
+          "continuous_recrawl",
+          "change_triggered_recrawl",
+          "crawl_strategy_failover",
+          "always_on_crawling",
+          "event_driven_immediate_recrawl",
+          "continuous_frontier_expansion",
+          "crawl_result_stream",
+          "source_change_subscription",
+          "high_frequency_watch_profile"
+        ],
+        "intelligence_fabric_strengthening": "V11-INTELLIGENCE-ACQUISITION-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "specialized_runtime_adapter",
+            "authority_gated_execution",
+            "all_required_capability_steps_executed",
+            "sha256_hashed_runtime_evidence",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10"
+          ],
+          "verified_commit": "1178cecbb636bab24c83ddcddd68ea770ceca352",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-137",
+      "target_engine_id": "BONDS-ENG-CAP-137",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-137",
+        "name": "Adaptive Capability Composition & Assembly Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED",
+        "target_packages": [
+          "W8-P22",
+          "W8-P26",
+          "W8-P34",
+          "W8-P49",
+          "W8-P50"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CONTRACT",
+          "PRIM-DISCOVER"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "composition_search",
+          "capability_graph_assembly",
+          "dependency_satisfaction",
+          "contract_compatibility_check",
+          "composite_capability_build",
+          "composition_cost_quality_tradeoff",
+          "composition_verification_plan",
+          "temporary_composite_registration",
+          "research_capability_composition"
+        ],
+        "side_effect_classes": [
+          "selection_and_composition_only"
+        ],
+        "purpose": "Assemble several existing capabilities into a mission-specific composite capability when no single capability can satisfy the requested work.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_orchestration_runtime",
+            "existing_capability_only_composition",
+            "bounded_mission_graph_execution",
+            "mission_verification",
+            "conflict_and_minority_preserving_fusion",
+            "dedicated_orchestration_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass"
+          ],
+          "verified_commit": "da5d14787f2ed1b34ad0920aa1e6fdc4c81ca8f1",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-138",
+      "target_engine_id": "BONDS-ENG-CAP-138",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-138",
+        "name": "Mission Execution Graph Compiler & Dynamic Replanning Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED",
+        "target_packages": [
+          "W8-P26",
+          "W8-P27",
+          "W8-P28",
+          "W8-P44",
+          "W8-P47"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-TIMEOUT",
+          "PRIM-HANDOFF"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "execution_dag_compile",
+          "parallelization_plan",
+          "sequencing",
+          "checkpoint_plan",
+          "fallback_plan",
+          "runtime_replan",
+          "failed_step_substitution",
+          "provider_substitution",
+          "partial_result_reuse",
+          "stop_condition_evaluation",
+          "critical_path_analysis",
+          "latency_budget_propagation",
+          "parallel_branch_compilation",
+          "speculative_branch_execution",
+          "slow_step_replacement",
+          "deadline_replanning",
+          "research_execution_replanning",
+          "acquisition_path_replanning",
+          "mass_mission_graph_compile",
+          "bulk_execution_graph_partitioning",
+          "continuous_plan_reanalysis",
+          "proposal_execution_plan_analysis",
+          "goal_execution_plan_candidate",
+          "autonomous_execution_graph_compile",
+          "autonomous_replanning_within_authority_envelope"
+        ],
+        "side_effect_classes": [
+          "planning_only",
+          "orchestration_only"
+        ],
+        "purpose": "Compile the selected capabilities into an executable mission graph and re-plan safely when context, availability, evidence or failures change during execution.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "performance_realtime_strengthening": "V11-PERFORMANCE-REALTIME-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_orchestration_runtime",
+            "existing_capability_only_composition",
+            "bounded_mission_graph_execution",
+            "mission_verification",
+            "conflict_and_minority_preserving_fusion",
+            "dedicated_orchestration_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass"
+          ],
+          "verified_commit": "da5d14787f2ed1b34ad0920aa1e6fdc4c81ca8f1",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-139",
+      "target_engine_id": "BONDS-ENG-CAP-139",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-139",
+        "name": "Multi-Engine Result Fusion & Conflict Resolution Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED",
+        "target_packages": [
+          "W8-P04",
+          "W8-P26",
+          "W8-P30",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CONFIDENCE",
+          "PRIM-EVIDENCE-BUNDLE"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "result_normalization",
+          "evidence_weighting",
+          "conflict_detection",
+          "conflict_resolution",
+          "consensus_estimation",
+          "minority_result_preservation",
+          "uncertainty_propagation",
+          "final_result_synthesis",
+          "source_lineage_preservation",
+          "claim_level_fusion",
+          "source_quality_weighting",
+          "temporal_conflict_resolution",
+          "multi_source_result_fusion",
+          "proposal_evidence_fusion",
+          "proposal_comparison_fusion",
+          "goal_candidate_evidence_fusion"
+        ],
+        "side_effect_classes": [
+          "analysis_only"
+        ],
+        "purpose": "Fuse outputs from multiple engines/providers into one evidence-preserving result without hiding disagreement, uncertainty or minority evidence.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "intelligence_fabric_strengthening": "V11-INTELLIGENCE-ACQUISITION-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_orchestration_runtime",
+            "existing_capability_only_composition",
+            "bounded_mission_graph_execution",
+            "mission_verification",
+            "conflict_and_minority_preserving_fusion",
+            "dedicated_orchestration_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass"
+          ],
+          "verified_commit": "da5d14787f2ed1b34ad0920aa1e6fdc4c81ca8f1",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-141",
+      "target_engine_id": "BONDS-ENG-CAP-141",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-141",
+        "name": "Capability Performance Memory & Selection Learning Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED",
+        "target_packages": [
+          "W7-P12",
+          "W7-P24",
+          "W8-P25",
+          "W8-P32",
+          "W8-P45",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-FRESHNESS",
+          "PRIM-CONFIDENCE"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "capability_run_history",
+          "provider_run_history",
+          "success_failure_memory",
+          "quality_latency_cost_memory",
+          "environment_specific_performance_memory",
+          "version_performance_comparison",
+          "selection_feedback",
+          "resolver_ranking_feedback",
+          "regression_signal",
+          "p50_p95_p99_memory",
+          "time_to_first_result_memory",
+          "time_to_final_result_memory",
+          "cache_hit_effectiveness_memory",
+          "provider_latency_regression",
+          "throughput_memory",
+          "resource_efficiency_memory",
+          "research_provider_performance_memory",
+          "bulk_workload_performance_memory",
+          "continuous_acquisition_performance_memory",
+          "autonomous_selection_learning_feedback"
+        ],
+        "side_effect_classes": [
+          "learning_state_write"
+        ],
+        "purpose": "Learn from prior capability/provider executions so future selection and configuration improve for each mission and environment.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "performance_realtime_strengthening": "V11-PERFORMANCE-REALTIME-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "specialized_runtime_adapter",
+            "authority_gated_execution",
+            "all_required_capability_steps_executed",
+            "sha256_hashed_runtime_evidence",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10"
+          ],
+          "verified_commit": "1178cecbb636bab24c83ddcddd68ea770ceca352",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-142",
+      "target_engine_id": "BONDS-ENG-CAP-142",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-142",
+        "name": "Dynamic Capability Loader & Runtime Attachment Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED",
+        "target_packages": [
+          "W8-P22",
+          "W8-P23",
+          "W8-P26",
+          "W8-P34",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CERTIFICATION",
+          "PRIM-HEALTH",
+          "PRIM-CONTRACT"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "installed_capability_discovery",
+          "package_load",
+          "package_unload",
+          "runtime_attach",
+          "runtime_detach",
+          "version_compatibility_gate",
+          "dependency_load_order",
+          "health_after_load",
+          "ephemeral_capability_session",
+          "safe_cleanup",
+          "load_evidence",
+          "autonomous_runtime_attach",
+          "autonomous_runtime_detach",
+          "adaptive_service_loading",
+          "owner_policy_aware_attachment"
+        ],
+        "side_effect_classes": [
+          "runtime_state_change"
+        ],
+        "purpose": "Load, attach, detach or temporarily activate an already approved capability at runtime so missions can use needed capabilities without rebuilding the whole platform.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "approved_existing_capability_session_attachment",
+            "no_arbitrary_code_loading",
+            "authority_and_artifact_hash_gate",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "95127757f074b3af010346178a02b7378fb54071",
+          "verified_workflow_run": 37639940327,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-143",
+      "target_engine_id": "BONDS-ENG-CAP-143",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-143",
+        "name": "Capability Gap Acquisition & Genesis Orchestrator",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED",
+        "target_packages": [
+          "W7-P24",
+          "W8-P35",
+          "W8-P44",
+          "W8-P45",
+          "BONDS-P80"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-DISCOVER",
+          "PRIM-CERTIFICATION",
+          "PRIM-EVIDENCE-BUNDLE"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "gap_proof",
+          "existing_capability_search",
+          "package_search",
+          "provider_search",
+          "composition_search",
+          "acquisition_candidate_resolution",
+          "new_capability_contract_generation",
+          "implementation_candidate_request",
+          "sandbox_handoff",
+          "benchmark_handoff",
+          "security_review_handoff",
+          "recovery_test_handoff",
+          "registration_handoff",
+          "mission_resume_after_capability_resolution",
+          "research_capability_gap_resolution",
+          "autonomous_gap_closure_loop",
+          "automatic_existing_solution_search",
+          "automatic_composition_search",
+          "automatic_provider_acquisition_search",
+          "automatic_genesis_handoff",
+          "automatic_test_verify_attach_resume",
+          "owner_authority_boundary_pause_and_resume"
+        ],
+        "side_effect_classes": [
+          "discovery_only",
+          "candidate_generation_only"
+        ],
+        "purpose": "When a mission lacks a required capability, drive the search-acquire-compose-create cycle and return a verified candidate path without treating registration as authorization or production readiness.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "REFERENCE_CANONICAL_PRIMITIVES; NO_DOMAIN_RUNTIME_COPY",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "adaptive_runtime_extension": "V11-ADAPTIVE-CAPABILITY-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "fail_closed_gap_proof_and_handoff_runtime",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "security_dependency_build_and_sbom_gates_pass"
+          ],
+          "verified_commit": "8f829c42bfbc54a13c0ecb117abf95920d5cbfce",
+          "verified_workflow_run": 37636988068,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-147",
+      "target_engine_id": "BONDS-ENG-CAP-147",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-147",
+        "name": "Evidence Verification Corroboration & Contradiction Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED_AFTER_FULL_V11_REVIEW",
+        "target_packages": [
+          "W8-P05",
+          "W8-P30",
+          "W8-P38",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-EVIDENCE-BUNDLE",
+          "PRIM-CONFIDENCE"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "source_quality_assessment",
+          "source_independence_detection",
+          "claim_verification",
+          "cross_source_corroboration",
+          "contradiction_detection",
+          "consensus_estimation",
+          "freshness_weighting",
+          "primary_source_preference",
+          "citation_completeness",
+          "unsupported_claim_detection",
+          "verification_state_output",
+          "residual_uncertainty",
+          "continuous_evidence_verification"
+        ],
+        "side_effect_classes": [
+          "analysis_only"
+        ],
+        "purpose": "Determine what acquired information is supported, contradicted, stale, weak or unresolved before it is promoted into intelligence or knowledge.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "COMPOSE_EXISTING_PROVENANCE_FRESHNESS_AND_RESULT_FUSION_PRIMITIVES",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "intelligence_fabric_extension": "V11-INTELLIGENCE-ACQUISITION-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_research_intelligence_runtime",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "security_dependency_build_and_sbom_gates_pass"
+          ],
+          "verified_commit": "8f829c42bfbc54a13c0ecb117abf95920d5cbfce",
+          "verified_workflow_run": 37636988068,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-148",
+      "target_engine_id": "BONDS-ENG-CAP-148",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-148",
+        "name": "Research Synthesis & Knowledge Integration Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED_AFTER_FULL_V11_REVIEW",
+        "target_packages": [
+          "W8-P04",
+          "W8-P05",
+          "W8-P06",
+          "W8-P38",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-EVIDENCE-BUNDLE",
+          "PRIM-CONFIDENCE"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "research_synthesis",
+          "question_coverage_tracking",
+          "evidence_map_building",
+          "cross_source_synthesis",
+          "known_unknown_separation",
+          "temporal_synthesis",
+          "knowledge_update_candidate",
+          "world_model_update_candidate",
+          "summary_with_evidence",
+          "open_question_generation",
+          "continuous_research_synthesis",
+          "information_to_insight_candidate",
+          "insight_to_proposal_input",
+          "continuous_synthesis_on_new_evidence"
+        ],
+        "side_effect_classes": [
+          "analysis_only"
+        ],
+        "purpose": "Synthesize verified evidence into mission-relevant knowledge without collapsing uncertainty, disagreement, provenance or open questions.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "WRITE_ONLY_THROUGH_EXISTING_GOVERNED_MEMORY_KNOWLEDGE_UPDATE_PATHS",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "intelligence_fabric_extension": "V11-INTELLIGENCE-ACQUISITION-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_research_intelligence_runtime",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "security_dependency_build_and_sbom_gates_pass"
+          ],
+          "verified_commit": "8f829c42bfbc54a13c0ecb117abf95920d5cbfce",
+          "verified_workflow_run": 37636988068,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-149",
+      "target_engine_id": "BONDS-ENG-CAP-149",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-149",
+        "name": "Hypothesis Falsification & Causal Reasoning Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED_AFTER_FULL_V11_REVIEW",
+        "target_packages": [
+          "W8-P04",
+          "W8-P06",
+          "W8-P30",
+          "W8-P36",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CONFIDENCE",
+          "PRIM-EVIDENCE-BUNDLE"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "multi_hypothesis_generation",
+          "alternative_explanation_generation",
+          "falsification_test_design",
+          "evidence_for_against_mapping",
+          "causal_graph_reasoning",
+          "confounder_detection",
+          "root_cause_candidate_ranking",
+          "counterfactual_reasoning",
+          "uncertainty_propagation",
+          "unresolved_hypothesis_preservation",
+          "research_hypothesis_falsification"
+        ],
+        "side_effect_classes": [
+          "analysis_only"
+        ],
+        "purpose": "Reason over competing explanations, actively seek disconfirming evidence and distinguish correlation from supported causal explanations.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "EXTEND_W8_P04_REASONING; DO_NOT_CREATE_PARALLEL_REASONING_STACK",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "intelligence_fabric_extension": "V11-INTELLIGENCE-ACQUISITION-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_analysis_only_runtime",
+            "falsification_or_forecast_uncertainty_contract",
+            "no_automatic_causal_claim_or_decision",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "317d6ed1523322339b4ecdb068f89a459250b1c1",
+          "verified_workflow_run": 37639112534,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-150",
+      "target_engine_id": "BONDS-ENG-CAP-150",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-150",
+        "name": "Scenario Forecast & Uncertainty Intelligence Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED_AFTER_FULL_V11_REVIEW",
+        "target_packages": [
+          "W8-P04",
+          "W8-P06",
+          "W8-P20",
+          "W8-P36",
+          "W8-P44"
+        ],
+        "shared_primitive_contract_refs": [
+          "PRIM-CONFIDENCE"
+        ],
+        "provider_candidates": [
+          "BONDS Native",
+          "Replaceable forecasting/simulation providers"
+        ],
+        "required_capabilities": [
+          "scenario_generation",
+          "assumption_registry",
+          "forecast_generation",
+          "confidence_interval_output",
+          "sensitivity_analysis",
+          "stress_case_generation",
+          "counterfactual_scenario",
+          "forecast_backtesting",
+          "calibration_tracking",
+          "forecast_vs_actual_reconciliation",
+          "research_scenario_forecast"
+        ],
+        "side_effect_classes": [
+          "analysis_only"
+        ],
+        "purpose": "Generate scenarios and forecasts with explicit assumptions, uncertainty and later reconciliation against actual outcomes.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "COMPOSE_EXISTING_SCENARIO_SIMULATION_AND_DOMAIN_FORECAST_CAPABILITIES",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "intelligence_fabric_extension": "V11-INTELLIGENCE-ACQUISITION-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_analysis_only_runtime",
+            "falsification_or_forecast_uncertainty_contract",
+            "no_automatic_causal_claim_or_decision",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "317d6ed1523322339b4ecdb068f89a459250b1c1",
+          "verified_workflow_run": 37639112534,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-152",
+      "target_engine_id": "BONDS-ENG-CAP-152",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-152",
+        "name": "Adaptive Latency & Performance Orchestration Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_REGISTERED_AFTER_V11_PERFORMANCE_REVIEW",
+        "target_packages": [
+          "W8-P24",
+          "W8-P28",
+          "W8-P30",
+          "W8-P37",
+          "W8-P44"
+        ],
+        "provider_candidates": [
+          "BONDS Native"
+        ],
+        "required_capabilities": [
+          "mission_latency_budget",
+          "step_latency_budget",
+          "critical_path_detection",
+          "fast_path_selection",
+          "small_model_first_policy",
+          "parallel_execution_planning",
+          "speculative_execution_policy",
+          "streaming_first_result_policy",
+          "semantic_cache_policy",
+          "deterministic_cache_policy",
+          "precompute_policy",
+          "hot_state_policy",
+          "incremental_processing_policy",
+          "lazy_loading_policy",
+          "chunk_processing_policy",
+          "gpu_scheduling_coordination",
+          "dynamic_batching_policy",
+          "warm_worker_policy",
+          "connection_pool_tuning",
+          "zero_copy_preference",
+          "priority_queue_coordination",
+          "circuit_breaker_coordination",
+          "adaptive_resolution_policy",
+          "provider_latency_ranking",
+          "slow_provider_fallback",
+          "bottleneck_localization",
+          "performance_regression_detection",
+          "auto_tuning_recommendation",
+          "time_to_first_result_optimization",
+          "time_to_final_result_optimization",
+          "throughput_optimization",
+          "resource_efficiency_optimization",
+          "latency_vs_quality_tradeoff",
+          "latency_vs_cost_tradeoff",
+          "deadline_miss_prediction",
+          "runtime_reoptimization",
+          "research_latency_budget",
+          "fast_research_path"
+        ],
+        "side_effect_classes": [
+          "analysis_only",
+          "runtime_orchestration"
+        ],
+        "purpose": "Continuously optimize mission execution for responsiveness, latency, throughput and resource efficiency by coordinating existing BONDS performance primitives without duplicating their runtimes.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "reuse_policy": "ORCHESTRATE_EXISTING_W8_P24_FUNCTIONS_AND_ENG_CAP_007_027_028_089_138_140_141; DO_NOT_DUPLICATE_RUNTIME_PRIMITIVES",
+        "authority": "NONE_BY_ITSELF",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "performance_realtime_extension": "V11-PERFORMANCE-REALTIME-R1",
+        "research_intelligence_center_strengthening": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "specialized_runtime_adapter",
+            "authority_gated_execution",
+            "all_required_capability_steps_executed",
+            "sha256_hashed_runtime_evidence",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10"
+          ],
+          "verified_commit": "1178cecbb636bab24c83ddcddd68ea770ceca352",
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-153",
+      "target_engine_id": "BONDS-ENG-CAP-153",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-153",
+        "name": "Continuous Global Knowledge Observatory Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_AFTER_152_ENGINE_REVIEW",
+        "target_packages": [
+          "W8-P05",
+          "W8-P38",
+          "W8-P44"
+        ],
+        "required_capabilities": [
+          "continuous_source_watch",
+          "watchlist_management",
+          "change_detection",
+          "new_source_discovery",
+          "new_topic_detection",
+          "publication_event_detection",
+          "release_update_detection",
+          "research_trigger_generation",
+          "freshness_trigger_generation",
+          "priority_scoring",
+          "duplicate_update_suppression",
+          "observation_checkpointing",
+          "coverage_map",
+          "always_on_observation",
+          "near_realtime_change_trigger",
+          "instant_retrieval_trigger",
+          "instant_notification_trigger",
+          "continuous_cross_domain_discovery",
+          "open_ended_discovery",
+          "serendipitous_discovery_capture",
+          "cross_domain_relevance_scoring"
+        ],
+        "purpose": "Continuously observe configured global knowledge domains and trigger targeted research when meaningful new information or change is detected.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "authority": "NONE_BY_ITSELF",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "provider_candidates": [
+          "BONDS Native",
+          "Replaceable research/data providers where applicable"
+        ],
+        "side_effect_classes": [
+          "read_only",
+          "analysis_only"
+        ],
+        "research_intelligence_center_extension": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_observatory_or_benchmark_runtime",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "46b0c7845bfe3db2aedcdc6c8f5fb99c0b9140f1",
+          "verified_workflow_run": 37638068206,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-154",
+      "target_engine_id": "BONDS-ENG-CAP-154",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-154",
+        "name": "Frontier Discovery & Emerging Capability Intelligence Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_AFTER_152_ENGINE_REVIEW",
+        "target_packages": [
+          "W8-P05",
+          "W8-P25",
+          "W8-P34",
+          "W8-P38",
+          "W8-P45"
+        ],
+        "required_capabilities": [
+          "emerging_technology_discovery",
+          "emerging_model_discovery",
+          "emerging_tool_discovery",
+          "emerging_method_discovery",
+          "research_frontier_mapping",
+          "novel_capability_detection",
+          "capability_relevance_assessment",
+          "technology_maturity_signal",
+          "adoption_signal",
+          "frontier_to_capability_gap_candidate",
+          "frontier_research_queue"
+        ],
+        "purpose": "Discover emerging external methods, tools, models and capabilities and convert relevant advances into evidence-backed BONDS capability-gap candidates.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "authority": "NONE_BY_ITSELF",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "provider_candidates": [
+          "BONDS Native",
+          "Replaceable research/data providers where applicable"
+        ],
+        "side_effect_classes": [
+          "read_only",
+          "analysis_only"
+        ],
+        "research_intelligence_center_extension": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_observatory_or_benchmark_runtime",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "46b0c7845bfe3db2aedcdc6c8f5fb99c0b9140f1",
+          "verified_workflow_run": 37638068206,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-155",
+      "target_engine_id": "BONDS-ENG-CAP-155",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-155",
+        "name": "Comparative Capability Benchmark Observatory Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_AFTER_152_ENGINE_REVIEW",
+        "target_packages": [
+          "W8-P25",
+          "W8-P30",
+          "W8-P37",
+          "W8-P45"
+        ],
+        "required_capabilities": [
+          "external_capability_inventory",
+          "comparable_capability_mapping",
+          "benchmark_definition",
+          "baseline_capture",
+          "quality_comparison",
+          "latency_comparison",
+          "cost_comparison",
+          "coverage_comparison",
+          "reliability_comparison",
+          "resource_efficiency_comparison",
+          "evidence_backed_gap_detection",
+          "benchmark_reproducibility",
+          "benchmark_history",
+          "regression_and_overtake_signal",
+          "improvement_candidate_generation",
+          "proposal_benchmark_input",
+          "commercial_value_comparison",
+          "strategic_value_comparison"
+        ],
+        "purpose": "Continuously compare BONDS capabilities with relevant external capabilities using reproducible evidence and convert proven deficits into improvement candidates.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "authority": "NONE_BY_ITSELF",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "provider_candidates": [
+          "BONDS Native",
+          "Replaceable research/data providers where applicable"
+        ],
+        "side_effect_classes": [
+          "read_only",
+          "analysis_only"
+        ],
+        "research_intelligence_center_extension": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_observatory_or_benchmark_runtime",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "46b0c7845bfe3db2aedcdc6c8f5fb99c0b9140f1",
+          "verified_workflow_run": 37638068206,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-156",
+      "target_engine_id": "BONDS-ENG-CAP-156",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-156",
+        "name": "Research Mission Portfolio & Studies Center Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_AFTER_152_ENGINE_REVIEW",
+        "target_packages": [
+          "W8-P04",
+          "W8-P05",
+          "W8-P06",
+          "W8-P44",
+          "W8-P45"
+        ],
+        "required_capabilities": [
+          "research_mission_intake",
+          "research_question_portfolio",
+          "mission_priority",
+          "research_program_planning",
+          "collection_plan",
+          "source_strategy",
+          "cross_domain_study_coordination",
+          "evidence_requirement_definition",
+          "research_progress_tracking",
+          "research_stop_condition",
+          "blind_spot_registry",
+          "open_question_registry",
+          "study_versioning",
+          "study_reproducibility",
+          "research_output_to_knowledge_candidate",
+          "research_output_to_capability_candidate",
+          "open_discovery_intake",
+          "serendipitous_discovery_portfolio",
+          "cross_domain_opportunity_handoff"
+        ],
+        "purpose": "Coordinate BONDS studies and research missions from question definition through collection, evidence, synthesis, open questions and capability-improvement handoff.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "authority": "NONE_BY_ITSELF",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "provider_candidates": [
+          "BONDS Native",
+          "Replaceable research/data providers where applicable"
+        ],
+        "side_effect_classes": [
+          "read_only",
+          "analysis_only"
+        ],
+        "research_intelligence_center_extension": "V11-RESEARCH-INTELLIGENCE-CENTER-R1",
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "continuous_intelligence_strengthening": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_analysis_only_runtime",
+            "research_portfolio_or_goal_formation_governance",
+            "heuristics_explicitly_disclosed_where_used",
+            "no_automatic_execution_or_authority_creation",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "62287f8365daaecd1d3075e0aa0422d1cf4b7759",
+          "verified_workflow_run": 37638549480,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    },
+    {
+      "source_engine_id": "ENG-CAP-157",
+      "target_engine_id": "BONDS-ENG-CAP-157",
+      "source_repository": "alzahrani6020/AFAQ-GIE",
+      "source_commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+      "classification": "runtime_proven_source",
+      "imported_definition": {
+        "engine_id": "ENG-CAP-157",
+        "name": "Insight Proposal Opportunity & Goal Formation Engine",
+        "classification": "CORE",
+        "gap_classification": "REAL_GAP_AFTER_156_ENGINE_REVIEW",
+        "target_packages": [
+          "W8-P04",
+          "W8-P05",
+          "W8-P06",
+          "W8-P26",
+          "W8-P27",
+          "W8-P37",
+          "W8-P41",
+          "W8-P44",
+          "W8-P45"
+        ],
+        "required_capabilities": [
+          "information_to_insight",
+          "insight_to_multi_proposal_generation",
+          "alternative_proposal_generation",
+          "proposal_assumption_extraction",
+          "proposal_dependency_extraction",
+          "proposal_risk_analysis",
+          "proposal_feasibility_analysis",
+          "proposal_value_analysis",
+          "proposal_cost_analysis",
+          "proposal_time_analysis",
+          "proposal_resource_analysis",
+          "proposal_evidence_analysis",
+          "proposal_counterargument_generation",
+          "proposal_reanalysis",
+          "proposal_comparison",
+          "pareto_proposal_frontier",
+          "proposal_deduplication",
+          "proposal_clustering",
+          "proposal_priority",
+          "proposal_rejection_reason",
+          "proposal_lineage",
+          "internal_improvement_opportunity",
+          "external_client_opportunity",
+          "research_opportunity",
+          "product_opportunity",
+          "service_opportunity",
+          "licensing_opportunity",
+          "partnership_opportunity",
+          "commercialization_candidate",
+          "noncommercial_benefit_candidate",
+          "goal_candidate_generation",
+          "goal_candidate_success_criteria",
+          "goal_candidate_evidence_package",
+          "goal_candidate_handoff",
+          "continuous_reassessment_on_new_information",
+          "autonomous_opportunity_to_goal_trigger"
+        ],
+        "purpose": "Convert verified information and synthesized insight into multiple alternatives, repeatedly analyze and compare them, filter weak proposals, and produce evidence-linked goal/opportunity candidates for internal improvement or external value creation.",
+        "state": "CURRENTLY_ACTIVE_ACTIVATED",
+        "authority": "NONE_BY_ITSELF",
+        "operationally_proven": true,
+        "production_admission": "ADMITTED",
+        "implementation_authority": false,
+        "side_effect_classes": [
+          "analysis_only"
+        ],
+        "clean_build_gate": "INSPECT_CURRENT_STATE_BEFORE_IMPLEMENTATION",
+        "continuous_intelligence_extension": "V11-CONTINUOUS-INTELLIGENCE-R1",
+        "autonomy_by_default_extension": "V11-AUTONOMY-BY-DEFAULT-R1",
+        "production_admission_evidence": {
+          "schema": "BONDS_PRODUCTION_ADMISSION_EVIDENCE_V1",
+          "basis": [
+            "dedicated_analysis_only_runtime",
+            "research_portfolio_or_goal_formation_governance",
+            "heuristics_explicitly_disclosed_where_used",
+            "no_automatic_execution_or_authority_creation",
+            "dedicated_behavioral_tests_pass",
+            "repository_wide_177_of_177_execution_pass",
+            "hardening_score_10_of_10",
+            "specialized_production_admission_gate_pass",
+            "dependency_audits_build_regression_and_sbom_pass"
+          ],
+          "verified_commit": "62287f8365daaecd1d3075e0aa0422d1cf4b7759",
+          "verified_workflow_run": 37638549480,
+          "admission_gate": "scripts/production-admission.py"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema": "bonds.capability-import-staging/v1",
+  "status": "ISOLATED_NON_RUNTIME",
+  "source": {
+    "repository": "alzahrani6020/AFAQ-GIE",
+    "commit": "b1fec7fa400c57f32c2022a21cf74039379fc3cf",
+    "mode": "READ_ONLY"
+  },
+  "target": {
+    "repository": "alzahrani6020/bonds-global-web",
+    "baseline_main_sha": "10e2de3489befa22df9820bac2c78c5f430e0756"
+  },
+  "rules": {
+    "runtime_imports_allowed": false,
+    "cross_repo_runtime_dependency_allowed": false,
+    "submodule_allowed": false,
+    "symlink_allowed": false,
+    "source_repo_mutation_allowed": false,
+    "activation_from_staging_allowed": false,
+    "secret_copy_allowed": false,
+    "provider_credentials_copy_allowed": false,
+    "target_namespace": "BONDS",
+    "financial_calculation_authority": "existing_BONDS_deterministic_engines",
+    "activation_requires": "separate_reviewed_BONDS_integration_PR"
+  }
+}
