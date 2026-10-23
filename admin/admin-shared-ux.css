@@ -57,3 +57,50 @@
     white-space: nowrap;
   }
 }
+
+
+/* Shared admin content resilience */
+.admin-layout,
+.ai-layout,
+.ex-layout,
+.fa-layout,
+.ii-layout,
+.admin-main,
+.main-content,
+.card,
+.metric {
+  min-width: 0;
+}
+
+.metric {
+  align-items: flex-start;
+}
+
+.metric > * {
+  min-width: 0;
+}
+
+.metric strong,
+.metric .value,
+.admin-metric-value,
+.kpi-value {
+  overflow-wrap: break-word;
+  word-break: normal;
+  white-space: normal;
+}
+
+html[dir="rtl"] .metric strong,
+html[dir="rtl"] .metric .value,
+html[dir="rtl"] .admin-metric-value,
+html[dir="rtl"] .kpi-value {
+  text-align: start;
+  direction: rtl;
+}
+
+html[dir="ltr"] .metric strong,
+html[dir="ltr"] .metric .value,
+html[dir="ltr"] .admin-metric-value,
+html[dir="ltr"] .kpi-value {
+  text-align: start;
+  direction: ltr;
+}
