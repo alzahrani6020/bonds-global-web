@@ -93,21 +93,26 @@
         {
           "id": "p2.1",
           "title": "Gap and defect detection",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p2.2",
           "title": "Evidence aggregation",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p2.3",
           "title": "Learning proposal analysis engine",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p2.4",
           "title": "Proposal risk classification",
+          "status": "completed"
+        },
+        {
+          "id": "p2.5",
+          "title": "Admin-only evolution proposal review",
           "status": "implemented_candidate"
         }
       ]

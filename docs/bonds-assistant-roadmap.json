@@ -920,10 +920,11 @@
     "assistant_control_center",
     "user_control_center",
     "audit_search",
-    "operational_replay"
+    "operational_replay",
+    "cost_governance_separate_from_auth"
   ],
   "next": [
-    "cost_governance_separate_from_auth"
+    "per_task_budget"
   ],
   "deferred": [
     "action_tokens",
@@ -940,8 +941,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-operational-replay",
-    "change": "Operational Replay implemented_base as an admin-only evidence reconstruction tool over immutable assistant_action_audit. It requires action_id or resource_id, deterministically rebuilds the event timeline and terminal status, returns sanitized subject context, and performs no capability execution, writes, token issuance, or authorization simulation. No migration or parallel authorization plane. Next: cost_governance_separate_from_auth."
+    "branch": "feat/assistant-cost-governance",
+    "change": "Cost Governance implemented_base as observability-only reporting over existing admin_ai_operation_events. It reports recorded cost/tokens/latency with bounded windows and feature/model breakdowns while explicitly having no authorization, execution-blocking, token/compute limiting, provider-routing, or model-selection effect. No migration. Next: per_task_budget."
   },
   "production_rollout": {
     "status": "complete",
