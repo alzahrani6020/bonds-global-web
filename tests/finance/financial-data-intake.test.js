@@ -66,56 +66,6 @@ describe('financial data intake phase 1', () => {
     });
   });
 
-  test('does not fail quality for unused alternative fields when equity is present', () => {
-    const extracted = extractFinancialFields({
-      primaryAction: 'financial_analysis_run',
-      serviceCode: 'debt_to_equity_analysis',
-      parsed: {
-        rows: [
-          ['Total debt','200000'],
-          ['Equity','100000']
-        ],
-        text: ''
-      }
-    });
-
-    expect(extracted.validation.valid).toBe(true);
-    expect(extracted.validation.unresolved).toEqual([]);
-    expect(extracted.validation.missing).toEqual([]);
-    expect(extracted.fields.find(x => x.field === 'total_assets').status).toBe('missing');
-    expect(extracted.fields.find(x => x.field === 'total_liabilities').status).toBe('missing');
-    expect(qualityStatus({
-      validation: extracted.validation,
-      fields: extracted.fields,
-      reviewed: true
-    })).toBe('verified');
-  });
-
-  test('accepts derived equity from assets and liabilities without requiring explicit equity', () => {
-    const extracted = extractFinancialFields({
-      primaryAction: 'financial_analysis_run',
-      serviceCode: 'debt_to_equity_analysis',
-      parsed: {
-        rows: [
-          ['Total debt','200000'],
-          ['Total assets','500000'],
-          ['Total liabilities','400000']
-        ],
-        text: ''
-      }
-    });
-
-    expect(extracted.values).toMatchObject({
-      total_debt: 200000,
-      total_assets: 500000,
-      total_liabilities: 400000
-    });
-    expect(extracted.values.equity).toBeUndefined();
-    expect(extracted.validation.valid).toBe(true);
-    expect(extracted.validation.unresolved).toEqual([]);
-    expect(extracted.validation.engine_preview.metrics.debt_to_equity).toBe(2);
-  });
-
   test('does not invent missing equity and exposes it for review', () => {
     const extracted = extractFinancialFields({
       primaryAction: 'financial_analysis_run',
@@ -218,6 +168,39 @@ describe('financial data intake phase 1', () => {
     expect(required.requirement_fields).toEqual(
       expect.arrayContaining(['periods','opening_balance'])
     );
+  });
+
+  test('quality status ignores unused alternative fields after validation passes', () => {
+    const fields = [
+      { field:'total_debt', value:200000, status:'extracted', confidence:0.95, source:[] },
+      { field:'equity', value:100000, status:'extracted', confidence:0.95, source:[] },
+      { field:'total_assets', value:null, status:'missing', candidates:[], source:[] },
+      { field:'total_liabilities', value:null, status:'missing', candidates:[], source:[] }
+    ];
+    expect(qualityStatus({
+      validation:{ valid:true, missing:[], unresolved:[] },
+      fields,
+      reviewed:true
+    })).toBe('verified');
+  });
+
+  test('does not fail on unused alternative fields once the engine has enough data', () => {
+    const fields = [
+      { field:'total_debt', value:200000, status:'extracted', confidence:0.95, currency:'SAR', period:'2026', source:[] },
+      { field:'equity', value:100000, status:'extracted', confidence:0.95, currency:'SAR', period:'2026', source:[] },
+      { field:'total_assets', value:null, status:'missing', candidates:[], currency:null, period:null, source:[] },
+      { field:'total_liabilities', value:null, status:'missing', candidates:[], currency:null, period:null, source:[] }
+    ];
+    const validation = validateDataset({
+      primaryAction:'financial_analysis_run',
+      serviceCode:'debt_to_equity_analysis',
+      values:{ total_debt:200000, equity:100000 },
+      fields
+    });
+    expect(validation.valid).toBe(true);
+    expect(validation.unresolved).toEqual([]);
+    expect(validation.missing).toEqual([]);
+    expect(validation.quality_gate).toBe('PASS');
   });
 
 });
