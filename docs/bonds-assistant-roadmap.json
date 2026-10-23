@@ -924,10 +924,11 @@
     "cost_governance_separate_from_auth",
     "per_task_budget",
     "latency_aware_routing",
-    "streaming"
+    "streaming",
+    "parallel_tool_execution"
   ],
   "next": [
-    "parallel_tool_execution"
+    "critic_verifier_for_sensitive_tasks"
   ],
   "deferred": [
     "action_tokens",
@@ -945,8 +946,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-streaming",
-    "change": "Streaming implemented_base as backward-compatible SSE transport on the existing Assistant chat path. Clients receive status/final/error events with JSON fallback; no synthetic token deltas are emitted. Existing Bonds Native /generate still returns a complete result, so native token-by-token streaming is explicitly deferred until the external runtime is upgraded and production-verified. No provider/model/token/context/throughput/compute/authorization or migration change. Next: parallel_tool_execution."
+    "branch": "feat/assistant-parallel-tool-execution-current",
+    "change": "Parallel Tool Execution implemented_base on the existing Service Execution Layer for explicitly independent tasks only. The full batch is preflighted before execution; only registered active capabilities with none/database_read/network_read/compute side effects are eligible. Each task reuses existing governance and receives an isolated service-token context so a caller single-use token is never shared across concurrent tasks. Batch cardinality is bounded independently from model/token/context/throughput/compute settings. No provider/model/token/context/throughput/compute authorization or database migration change. Next after merge and production verification: critic_verifier_for_sensitive_tasks; full multi-agent remains deferred."
   },
   "production_rollout": {
     "status": "complete",
