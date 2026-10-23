@@ -1990,6 +1990,67 @@
       });
     }
 
+    function setStreamingStatus(phase) {
+      const typing = root.querySelector('.bonds-ai-typing');
+      if (!typing) return;
+      const en = languageCode() === 'en';
+      const labels = {
+        preparing: en ? 'Preparing…' : 'جارٍ التجهيز…',
+        inference: en ? 'Generating…' : 'جارٍ التوليد…'
+      };
+      typing.textContent = labels[phase] || (en ? 'Working…' : 'جارٍ العمل…');
+    }
+
+    async function readAssistantEventStream(response) {
+      if (!response.body || typeof response.body.getReader !== 'function') {
+        throw new Error('STREAM_BODY_UNAVAILABLE');
+      }
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let finalPayload = null;
+
+      const consumeBlock = block => {
+        const lines = String(block || '').split(/\r?\n/);
+        let event = 'message';
+        const dataLines = [];
+        for (const line of lines) {
+          if (line.startsWith('event:')) event = line.slice(6).trim();
+          if (line.startsWith('data:')) dataLines.push(line.slice(5).trimStart());
+        }
+        if (!dataLines.length) return;
+        let data;
+        try { data = JSON.parse(dataLines.join('\n')); }
+        catch (_) { throw new Error('INVALID_STREAM_EVENT'); }
+
+        if (event === 'status') {
+          setStreamingStatus(data?.phase);
+          return;
+        }
+        if (event === 'error') {
+          throw new Error(data?.error || 'Streaming request failed');
+        }
+        if (event === 'final') {
+          finalPayload = data;
+        }
+      };
+
+      while (true) {
+        const { value, done } = await reader.read();
+        buffer += decoder.decode(value || new Uint8Array(), { stream: !done });
+        let boundary;
+        while ((boundary = buffer.indexOf('\n\n')) !== -1) {
+          const block = buffer.slice(0, boundary);
+          buffer = buffer.slice(boundary + 2);
+          if (block.trim()) consumeBlock(block);
+        }
+        if (done) break;
+      }
+      if (buffer.trim()) consumeBlock(buffer);
+      if (!finalPayload) throw new Error('STREAM_FINAL_EVENT_MISSING');
+      return finalPayload;
+    }
+
     async function sendMessage(text) {
       if (!text.trim() || state.isLoading) return;
       refreshContext();
@@ -2017,17 +2078,23 @@
         : {
             messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-6),
             context,
-            assistantState: structuredState
+            assistantState: structuredState,
+            options: { stream: true }
           };
 
       try {
+        const headers = await getAuthHeaders();
+        if (!isProjectMode) headers.Accept = 'text/event-stream';
         const res = await fetch(url, {
           method: 'POST',
-          headers: await getAuthHeaders(),
+          headers,
           body: JSON.stringify(payload)
         });
 
-        const data = await res.json();
+        const contentType = String(res.headers.get('content-type') || '').toLowerCase();
+        const data = contentType.includes('text/event-stream')
+          ? await readAssistantEventStream(res)
+          : await res.json();
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
         addAssistantMessage(data.reply, data.source === 'fallback');
