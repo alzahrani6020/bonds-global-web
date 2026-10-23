@@ -22,6 +22,9 @@ function action(risk = 'critical') {
   };
 }
 
+const MODEL_A = 'a'.repeat(64);
+const MODEL_B = 'b'.repeat(64);
+
 function response(modelSha, verdict) {
   return {
     ok:true,
@@ -61,8 +64,8 @@ describe('Critical multi-model consensus', () => {
 
   test('does not run multi-model review for non-critical actions', async () => {
     const router = routerFor([
-      { model:'model-a', verdict:'approve' },
-      { model:'model-b', verdict:'approve' }
+      { model:MODEL_A, verdict:'approve' },
+      { model:MODEL_B, verdict:'approve' }
     ]);
 
     const result = await reviewCriticalAction({ action:action('high'), router });
@@ -72,10 +75,24 @@ describe('Critical multi-model consensus', () => {
     expect(router._candidateRemoteProviders).not.toHaveBeenCalled();
   });
 
+  test('rejects malformed model identity instead of treating it as a distinct model', async () => {
+    const result = await reviewCriticalAction({
+      action:action(),
+      router:routerFor([
+        { model:'not-a-sha', verdict:'approve' },
+        { model:MODEL_B, verdict:'approve' }
+      ])
+    });
+
+    expect(result.status).toBe('not_available');
+    expect(result.distinct_model_count).toBe(1);
+    expect(result.multi_model).toBe(false);
+  });
+
   test('returns unavailable when fewer than two reviewer nodes exist', async () => {
     const result = await reviewCriticalAction({
       action:action(),
-      router:routerFor([{ model:'model-a', verdict:'approve' }])
+      router:routerFor([{ model:MODEL_A, verdict:'approve' }])
     });
 
     expect(result.status).toBe('not_available');
@@ -88,8 +105,8 @@ describe('Critical multi-model consensus', () => {
     const result = await reviewCriticalAction({
       action:action(),
       router:routerFor([
-        { model:'same-model', verdict:'approve' },
-        { model:'same-model', verdict:'approve' }
+        { model:MODEL_A, verdict:'approve' },
+        { model:MODEL_A, verdict:'approve' }
       ])
     });
 
@@ -103,8 +120,8 @@ describe('Critical multi-model consensus', () => {
     const result = await reviewCriticalAction({
       action:action(),
       router:routerFor([
-        { model:'model-a', verdict:'approve' },
-        { model:'model-b', verdict:'approve' }
+        { model:MODEL_A, verdict:'approve' },
+        { model:MODEL_B, verdict:'approve' }
       ])
     });
 
@@ -121,8 +138,8 @@ describe('Critical multi-model consensus', () => {
     const result = aggregateCriticalConsensus({
       action:action(),
       reviews:[
-        { ok:true, model_sha256:'model-a', verdict:'approve', reason_codes:['OK'] },
-        { ok:true, model_sha256:'model-b', verdict:'reject', reason_codes:['RISK'] }
+        { ok:true, model_sha256:MODEL_A, verdict:'approve', reason_codes:['OK'] },
+        { ok:true, model_sha256:MODEL_B, verdict:'reject', reason_codes:['RISK'] }
       ]
     });
 
