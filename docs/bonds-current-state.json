@@ -132,6 +132,9 @@
     "phase4_registry_sync_pr_ci_verified": true,
     "superseded_phase5_ci_intake_prs": [
       494
+    ],
+    "superseded_phase5_ci_failure_prs": [
+      494
     ]
   },
   "approved_architecture": {
