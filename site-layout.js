@@ -181,7 +181,7 @@
     }
 
     const script = document.createElement('script');
-    script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-4';
+    script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-5';
     script.async = false;
     script.addEventListener('load', mountAssistant, { once:true });
     document.head.appendChild(script);

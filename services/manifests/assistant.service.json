@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "assistant",
-  "version": 3,
+  "version": 4,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -167,6 +167,47 @@
       ],
       "runtime": {
         "adapter": "native_generate"
+      }
+    },
+    {
+      "action": "media_classify",
+      "action_type": "engine",
+      "id": "BONDS-CAP-ASST-011",
+      "purpose": "Validate and classify file metadata against the central BONDS media intake policy before upload or processing.",
+      "side_effect": "compute",
+      "required": [
+        "name",
+        "size",
+        "type"
+      ],
+      "runtime": {
+        "adapter": "assistant_media_classify"
+      }
+    },
+    {
+      "action": "language_detect",
+      "action_type": "engine",
+      "id": "BONDS-CAP-ASST-012",
+      "purpose": "Detect Arabic, English or mixed-script text deterministically without translating or mutating the source.",
+      "side_effect": "compute",
+      "required": [
+        "text"
+      ],
+      "runtime": {
+        "adapter": "assistant_language_detect"
+      }
+    },
+    {
+      "action": "document_analyze",
+      "action_type": "engine",
+      "id": "BONDS-CAP-ASST-013",
+      "purpose": "Analyze one document owned by the signed-in user, persist bounded extracted data, and return assistant-safe evidence without automatic business writes.",
+      "side_effect": "database_write",
+      "required": [
+        "document_id"
+      ],
+      "runtime": {
+        "adapter": "assistant_document_analyze"
       }
     }
   ]
