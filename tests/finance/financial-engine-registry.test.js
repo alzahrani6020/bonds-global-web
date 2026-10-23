@@ -50,6 +50,64 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(result.metrics.net_debt_to_ebitda).toBeCloseTo(250 / 300, 8);
   });
 
+
+  test('uses service-scoped input requirements for exact financial metrics', () => {
+    const workingCapital = runFinancialEngine('financial_analysis', {
+      current_assets: 500,
+      current_liabilities: 250
+    }, { serviceCode: 'working_capital_analysis' });
+    expect(workingCapital.ok).toBe(true);
+    expect(workingCapital.metrics.working_capital).toBe(250);
+    expect(workingCapital.required_inputs).toEqual([]);
+
+    const grossMargin = runFinancialEngine('financial_analysis', {
+      revenue: 1000,
+      cogs: 400
+    }, { serviceCode: 'gross_margin_analysis' });
+    expect(grossMargin.ok).toBe(true);
+    expect(grossMargin.metrics.gross_margin_pct).toBe(60);
+
+    const netDebt = runFinancialEngine('financial_analysis', {
+      total_debt: 350,
+      cash: 100
+    }, { serviceCode: 'net_debt_analysis' });
+    expect(netDebt.ok).toBe(true);
+    expect(netDebt.metrics.net_debt).toBe(250);
+  });
+
+  test('fails closed on missing metric-specific inputs instead of inventing values', () => {
+    const grossMargin = runFinancialEngine('financial_analysis', {
+      revenue: 1000
+    }, { serviceCode: 'gross_margin_analysis' });
+    expect(grossMargin.ok).toBe(false);
+    expect(grossMargin.executed).toBe(false);
+    expect(grossMargin.metrics.gross_margin_pct).toBeNull();
+    expect(grossMargin.required_inputs).toContain('cogs');
+
+    const netDebt = runFinancialEngine('financial_analysis', {
+      total_debt: 350
+    }, { serviceCode: 'net_debt_analysis' });
+    expect(netDebt.ok).toBe(false);
+    expect(netDebt.metrics.net_debt).toBeNull();
+    expect(netDebt.required_inputs).toContain('cash');
+  });
+
+  test('rejects zero denominators for ratio-scoped services', () => {
+    const assetTurnover = runFinancialEngine('financial_analysis', {
+      revenue: 1000,
+      total_assets: 0
+    }, { serviceCode: 'asset_turnover_analysis' });
+    expect(assetTurnover.ok).toBe(false);
+    expect(assetTurnover.required_inputs).toContain('non_zero_total_assets');
+
+    const debtToEquity = runFinancialEngine('financial_analysis', {
+      total_debt: 500,
+      equity: 0
+    }, { serviceCode: 'debt_to_equity_analysis' });
+    expect(debtToEquity.ok).toBe(false);
+    expect(debtToEquity.required_inputs).toContain('non_zero_equity');
+  });
+
   test('computes cash-flow trajectory and liquidity stress', () => {
     const result = runFinancialEngine('cash_flow_analysis', {
       opening_balance: 100,
