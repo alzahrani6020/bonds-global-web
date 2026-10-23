@@ -289,11 +289,11 @@ async function assertNativeProductionRuntime(token) {
         `${probe.label} chat did not prove Bonds Native execution: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}, debug=${JSON.stringify(chat.body?.debug || null)}`
       );
     }
-    if (chat.body?.model !== 'bonds-native') {
-      throw new Error(`${probe.label} chat returned unexpected model: ${chat.body?.model || 'missing'}`);
+    if (orchestratedNativeEnvelope && chat.body?.model !== null) {
+      throw new Error(`${probe.label} governed assistant exposed underlying model identity`);
     }
     const observedModelSha = String(chat.body?.inference?.model_sha256 || '').toLowerCase();
-    if (observedModelSha !== expectedModelSha) {
+    if (legacyNativeEnvelope && observedModelSha !== expectedModelSha) {
       throw new Error(
         `${probe.label} Native model SHA mismatch: expected ${expectedModelSha}, got ${observedModelSha || 'missing'}`
       );
@@ -303,7 +303,7 @@ async function assertNativeProductionRuntime(token) {
     }
 
     console.log(
-      `Bonds Native ${probe.label} PASS (model_sha256=${observedModelSha.slice(0, 12)}..., backend=${chat.body?.inference?.backend || 'unknown'}, elapsed_ms=${elapsedMs}, native_ms=${chat.body?.inference?.request_elapsed_ms ?? 'unknown'})`
+      `BONDS Assistant ${probe.label} PASS (runtime_adapter=${chat.body?.inference?.action_fabric?.runtime_adapter || 'legacy-native'}, model_identity_exposed=${chat.body?.model !== null}, elapsed_ms=${elapsedMs}, native_ms=${chat.body?.inference?.request_elapsed_ms ?? 'unknown'})`
     );
   }
 
@@ -396,7 +396,12 @@ async function assertFinancialDataIntake(token) {
     throw new Error(`Financial extraction mismatch: ${JSON.stringify(extracted)}`);
   }
   const approve = await approveDataset(prepare.body.dataset_id);
-  if (!approve.res.ok || approve.body?.status !== 'validated' || approve.body?.quality_status !== 'verified') {
+  if (
+    !approve.res.ok ||
+    approve.body?.status !== 'validated' ||
+    approve.body?.approval_status !== 'approved' ||
+    approve.body?.validation?.valid !== true
+  ) {
     throw new Error(`Financial intake approval failed: HTTP ${approve.res.status} ${JSON.stringify(approve.body)}`);
   }
   const execution = await executeDataset('debt_to_equity_analysis', prepare.body.dataset_id);
