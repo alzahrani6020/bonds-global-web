@@ -84,6 +84,26 @@ describe('BONDS unified assistant workspace UI',()=>{
     expect(widget).toContain("return ARABIC_SPEECH_LOCALES[country] || 'ar';");
   });
 
+  test('accepts governed file and image attachments in the same assistant shell',()=>{
+    expect(widget).toContain('class="bonds-ai-file-input"');
+    expect(widget).toContain('class="bonds-ai-attach-button"');
+    expect(widget).toContain('multiple hidden');
+    expect(widget).toContain("const CLIENT_DOCUMENTS_BUCKET = 'client-documents';");
+    expect(widget).toContain("executeAttachmentCapability('media_classify'");
+    expect(widget).toContain("executeAttachmentCapability('document_analyze'");
+    expect(widget).toContain(".from('client_documents')");
+    expect(widget).toContain(".from(CLIENT_DOCUMENTS_BUCKET)");
+    expect(widget).toContain("context.attachments = state.attachments");
+    expect(widget).not.toContain('/api/v3/upload');
+  });
+
+  test('supports drag drop and pasted files without adding a second assistant',()=>{
+    expect(widget).toContain("windowEl.addEventListener('dragover'");
+    expect(widget).toContain("windowEl.addEventListener('drop'");
+    expect(widget).toContain("input.addEventListener('paste'");
+    expect(widget).toContain('handleAttachmentFiles');
+  });
+
   test('uses full-screen chat on mobile',()=>{
     expect(widget).toContain('@media (max-width: 640px)');
     expect(widget).toContain('width: 100vw;');
