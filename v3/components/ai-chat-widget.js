@@ -648,6 +648,21 @@
       max-height: 18px !important;
       transform: rotate(180deg);
     }
+    .bonds-ai-login-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: #082446;
+      color: #fff;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.78rem;
+    }
+    .bonds-ai-login-link:hover { background: #0b315f; color: #fff; }
+
     .bonds-ai-human-link {
       display: block;
       width: calc(100% - 32px);
@@ -1724,6 +1739,26 @@
       addMessage('assistant', text, isError);
     }
 
+    function authenticationLoginHref() {
+      const returnPath = window.location.pathname + window.location.search + window.location.hash;
+      const base = languageCode() === 'en' ? '/en/calculators/auth/' : '/calculators/auth/';
+      return base + '?redirect=' + encodeURIComponent(returnPath);
+    }
+
+    function addAuthenticationRequiredMessage() {
+      const text = languageCode() === 'en'
+        ? 'You need to sign in to use BONDS Assistant.'
+        : 'يلزم تسجيل الدخول لاستخدام مساعد بوندز.';
+      addAssistantMessage(text, false);
+      const message = messagesEl.lastElementChild;
+      if (!message) return;
+      const link = document.createElement('a');
+      link.className = 'bonds-ai-login-link';
+      link.href = authenticationLoginHref();
+      link.textContent = languageCode() === 'en' ? 'Sign in' : 'تسجيل الدخول';
+      message.appendChild(link);
+    }
+
     function addUserMessage(text) {
       addMessage('user', text);
     }
@@ -2611,6 +2646,11 @@
         const data = contentType.includes('text/event-stream')
           ? await readAssistantEventStream(res)
           : await res.json();
+
+        if (res.status === 401 && data?.error === 'AUTHENTICATION_REQUIRED') {
+          addAuthenticationRequiredMessage();
+          return;
+        }
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
         addAssistantMessage(data.reply, data.source === 'fallback');
