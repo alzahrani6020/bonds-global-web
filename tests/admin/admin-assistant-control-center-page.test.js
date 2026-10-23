@@ -32,4 +32,20 @@ describe('Assistant Control Center page contract',()=>{
     expect(html).toContain('مزود AI/API');
     expect(html).toContain('الموديل');
   });
+
+  test('adds evolution review through the admin-only analysis endpoint',()=>{
+    expect(html).toContain('/api/v3/admin/evolution-proposals?status=proposed&limit=50');
+    expect(html).toContain("method:'POST'");
+    expect(html).toContain('تحليل المقترحات');
+    expect(html).toContain('execution_authorized=false');
+    expect(html).toContain('auto_execute=false');
+    expect(html).toContain('no code mutation');
+  });
+
+  test('does not expose evolution approval or execution controls',()=>{
+    expect(html).not.toContain('evolution-proposals/approve');
+    expect(html).not.toContain('evolution-proposals/execute');
+    expect(html).not.toContain('اعتماد المقترح');
+    expect(html).not.toContain('تنفيذ المقترح');
+  });
 });
