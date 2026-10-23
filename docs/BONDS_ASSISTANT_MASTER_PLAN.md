@@ -773,3 +773,19 @@ parent/child relationships بين التوكنات.
 - لا تغيير provider/model/token/context/throughput/compute ولا database migration، وfull multi-agent يبقى مؤجلًا.
 
 الحالة النهائية: **MERGED + CI VERIFIED + PRODUCTION VERIFIED** عبر PR #501، Merge SHA `c27e853a5180fc4be735c478b3ffab0815658811`; Production Release وProduction Authenticated Smoke ناجحان، وVercel READY لنفس SHA. لا توجد migration لهذه المرحلة.
+
+
+---
+
+## 2026-10-23 — Synthetic Production Journeys checkpoint
+
+- تمت إضافة `lib/assistant/synthetic-production-journeys.js` كسجل وتشغيل لرحلات إنتاج اصطناعية authenticated بعد النشر.
+- الرحلات الحالية محدودة ومتعمدة: Assistant readiness/introspection/emergency-mode، navigation planning، policy dry-run، workflow resume read، وقراءة execution profile لخدمة `cash_generation_analysis`.
+- لا تحفظ نموذجًا، لا تنشئ طلب تمويل، لا تغيّر workflow business state، ولا تستدعي service execution؛ `writes_performed:false` و`business_records_created:false` و`execution_authorized:false` جزء من عقد النتيجة.
+- runner يعاد استخدام جلسة E2E الإنتاجية الحالية ويعمل داخل `Production Authenticated Smoke` بعد قبول Assistant الأساسي.
+- الفشل في أي invariant أو drift في execution profile يفشل smoke بدل إخفاء الانحراف.
+- transient 429 يعاد مرة واحدة فقط مع Retry-After bounded؛ لا retry للكتابة لأنه لا توجد كتابة أعمال في هذه الرحلات.
+- تمت إضافة اختبارات عقدية محلية لضمان بقاء الرحلات bounded وعدم استدعاء مسارات business-write.
+- لا provider/model/token/context/throughput/compute أو authorization change، ولا database migration.
+
+الحالة الحالية: **IMPLEMENTATION CANDIDATE** على الفرع `feat/synthetic-production-journeys`; لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
