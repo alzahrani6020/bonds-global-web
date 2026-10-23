@@ -944,7 +944,7 @@
   "last_update": {
     "date": "2026-10-23",
     "branch": "feat/assistant-latency-aware-routing",
-    "change": "Latency-aware routing implemented_base inside the existing Bonds Native inference router. Assistant chat explicitly enables advisory node ordering using fresh EWMA latency observations while preserving existing circuit breaker/failover behavior. It does not block execution, limit tokens/compute, change model/provider, or alter authorization. No migration. Next: streaming."
+    "change": "Latency-aware routing implemented_base inside the existing Bonds Native inference router. Assistant chat enables same-provider node ordering using fresh method-scoped EWMA latency observations. Circuit breaker/failover remain authoritative; there is no forced exploration, and latency ordering only applies when at least two current observations exist for the same operation. It does not block execution, limit tokens/compute, change model/provider, or alter authorization. No migration. Next: streaming."
   },
   "production_rollout": {
     "status": "complete",
