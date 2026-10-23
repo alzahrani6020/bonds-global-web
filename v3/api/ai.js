@@ -503,15 +503,19 @@ async function aiChatHandler(req, res) {
 
   // Resolve page/session/service authority and operational intent before ordinary chat.
   // This reuses the existing Service Execution Layer, workflow state and Agent Inbox.
+  let orchestrationMeta = null;
   try {
     const orchestration = await orchestrateChat({
       req,
       user: authenticatedUser,
       supabase: getSupabaseClient(),
       message: lastUserText,
+      messages,
       context: enrichedContext,
       assistantState: safeAssistantState
     });
+
+    orchestrationMeta = orchestration || null;
 
     if (orchestration?.handled && orchestration.response) {
       return sendJson(res, 200, orchestration.response);
@@ -541,6 +545,13 @@ async function aiChatHandler(req, res) {
       model: null,
       inference: null,
       fallback_reason: null,
+      orchestrator: orchestrationMeta ? {
+        version: 1,
+        intent: orchestrationMeta.intent || 'information',
+        handled: false
+      } : undefined,
+      case_state: orchestrationMeta?.caseState || null,
+      next_best_action: orchestrationMeta?.nextBestAction || null,
       debug: {
         input: lastUser?.content,
         cityName: enrichedContext.cityName || null,
@@ -621,6 +632,13 @@ async function aiChatHandler(req, res) {
     model: aiResult?.model || null,
     inference: aiResult?.inference || null,
     fallback_reason: nativeError ? (nativeError.code || nativeError.message) : null,
+    orchestrator: orchestrationMeta ? {
+      version: 1,
+      intent: orchestrationMeta.intent || 'information',
+      handled: false
+    } : undefined,
+    case_state: orchestrationMeta?.caseState || null,
+    next_best_action: orchestrationMeta?.nextBestAction || null,
     debug: debugInfo,
     context: {
       cityCode: enrichedContext.cityCode || null,
