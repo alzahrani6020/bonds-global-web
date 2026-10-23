@@ -945,4 +945,9 @@ async function enrichContext(context, userMessage) {
   return enriched;
 }
 
-module.exports = { aiChatHandler };
+module.exports = {
+  aiChatHandler,
+  buildNativeChatPrompt,
+  adaptiveNativeChatMaxTokens,
+  enforceAssistantIdentity
+};
