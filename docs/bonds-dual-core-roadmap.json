@@ -177,12 +177,12 @@
         {
           "id": "p4.1",
           "title": "APPROVED_TARGET and partial SHA-bound approvals",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p4.2",
           "title": "Dependency checks",
-          "status": "planned"
+          "status": "implemented_candidate"
         },
         {
           "id": "p4.3",
