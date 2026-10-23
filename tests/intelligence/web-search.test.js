@@ -1,4 +1,4 @@
-const { parseDuckDuckGoHtml } = require('../../lib/intelligence/web-search');
+const { parseDuckDuckGoHtml, parseBraveHtml } = require('../../lib/intelligence/web-search');
 
 describe('BONDS governed web search', () => {
   test('parses bounded public search results and unwraps redirect targets', () => {
@@ -20,6 +20,29 @@ describe('BONDS governed web search', () => {
       snippet: 'Verified public profile snippet.'
     }));
     expect(results[1].url).toBe('https://example.org/report');
+  });
+
+  test('parses Brave public search result links while excluding Brave internal links', () => {
+    const html = `
+      <main>
+        <a href="https://search.brave.com/settings">Settings</a>
+        <a href="https://www.spa.gov.sa/1319666">عام / السيرة الذاتية لصاحب السمو الملكي الأمير محمد بن سلمان</a>
+        <p>سيرة ذاتية رسمية.</p>
+        <a href="https://www.britannica.com/biography/Mohammed-bin-Salman">Mohammed bin Salman | Biography</a>
+        <p>Biography result.</p>
+      </main>
+    `;
+    const results = parseBraveHtml(html, 5);
+    expect(results).toEqual([
+      expect.objectContaining({
+        title: 'عام / السيرة الذاتية لصاحب السمو الملكي الأمير محمد بن سلمان',
+        url: 'https://www.spa.gov.sa/1319666'
+      }),
+      expect.objectContaining({
+        title: 'Mohammed bin Salman | Biography',
+        url: 'https://www.britannica.com/biography/Mohammed-bin-Salman'
+      })
+    ]);
   });
 
   test('accepts DuckDuckGo lite result-link markup and redirect URLs', () => {
