@@ -612,7 +612,12 @@ async function aiChatHandler(req, res) {
     console.warn('[ai/chat] Chat orchestration degraded to existing assistant path:', err.message);
   }
 
-  const deterministicReply = forceNative ? null : generateDataDrivenReply(lastUserText, enrichedContext);
+  // Authenticated conversations must reach governed AI reasoning after orchestration.
+  // Keep deterministic public answers for unauthenticated visitors and as the
+  // existing explicit fallback when governed inference fails.
+  const deterministicReply = (forceNative || authenticatedUser)
+    ? null
+    : generateDataDrivenReply(lastUserText, enrichedContext);
   if (deterministicReply) {
     return sendAssistantResponse(res, 200, {
       reply: deterministicReply,
