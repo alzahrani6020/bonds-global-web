@@ -227,6 +227,65 @@
       cursor: pointer;
     }
     .bonds-ai-chat-input button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .bonds-ai-chat-input .bonds-ai-voice-button,
+    .bonds-ai-chat-input .bonds-ai-send-button {
+      width: 44px;
+      flex: 0 0 44px;
+      min-height: 40px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+    }
+    .bonds-ai-chat-input .bonds-ai-voice-button {
+      background: #eef3f8;
+      color: #0b3d73;
+      border: 1px solid #cfd8e3;
+    }
+    .bonds-ai-chat-input .bonds-ai-voice-button:hover {
+      background: #e2eaf3;
+    }
+    .bonds-ai-chat-input .bonds-ai-voice-button.listening {
+      background: #fff1f0;
+      color: #b42318;
+      border-color: #f0aaa4;
+    }
+    .bonds-ai-chat-input .bonds-ai-voice-button[hidden] { display: none !important; }
+    .bonds-ai-voice-status {
+      display: none;
+      padding: 0 12px 7px;
+      background: #fff;
+      color: #66758a;
+      font-size: 0.72rem;
+      text-align: start;
+    }
+    .bonds-ai-voice-status.visible { display: block; }
+    .bonds-ai-message.assistant {
+      position: relative;
+      padding-bottom: 2rem;
+    }
+    .bonds-ai-speak-button {
+      position: absolute;
+      inset-inline-end: 7px;
+      bottom: 5px;
+      width: 26px;
+      height: 26px;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border: 1px solid #dbe3ec;
+      border-radius: 7px;
+      background: #fff;
+      color: #4a5d75;
+      cursor: pointer;
+      font: inherit;
+      line-height: 1;
+    }
+    .bonds-ai-speak-button:hover { color: #0b3d73; border-color: #9eb1c7; }
+    .bonds-ai-speak-button.speaking {
+      color: #b42318;
+      border-color: #f0aaa4;
+      background: #fff1f0;
+    }
     .bonds-ai-typing {
       align-self: flex-end;
       color: #94a3b8;
@@ -860,8 +919,12 @@
         <div class="bonds-ai-suggestions"></div>
         <div class="bonds-ai-chat-input">
           <input type="text" placeholder="اكتب سؤالك هنا..." autocomplete="off">
-          <button aria-label="إرسال"><span class="bonds-ai-send-label">إرسال</span><svg class="bonds-ai-send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
+          <button type="button" class="bonds-ai-voice-button" aria-label="التحدث إلى مساعد بوندز" title="التحدث" hidden>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8"/></svg>
+          </button>
+          <button type="button" class="bonds-ai-send-button" aria-label="إرسال"><span class="bonds-ai-send-label">إرسال</span><svg class="bonds-ai-send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
         </div>
+        <div class="bonds-ai-voice-status" role="status" aria-live="polite"></div>
         <button type="button" class="bonds-ai-human-link" data-assistant-human-escalation="true">طلب مراجعة بشرية</button>
         <small class="bonds-ai-home-disclaimer">مساعد بوندز قد يخطئ؛ راجع المعلومات المهمة قبل اتخاذ القرار.</small>
       </div>
@@ -888,7 +951,9 @@
     const actionsEl = root.querySelector('.bonds-ai-actions');
     const suggestionsEl = root.querySelector('.bonds-ai-suggestions');
     const input = root.querySelector('.bonds-ai-chat-input input');
-    const sendBtn = root.querySelector('.bonds-ai-chat-input button');
+    const sendBtn = root.querySelector('.bonds-ai-send-button');
+    const voiceBtn = root.querySelector('.bonds-ai-voice-button');
+    const voiceStatus = root.querySelector('.bonds-ai-voice-status');
     const homeLaunchpad = root.querySelector('.bonds-ai-home-launchpad');
     const homePromptButtons = root.querySelectorAll('[data-assistant-prompt]');
     const homeFocusButton = root.querySelector('[data-assistant-focus]');
@@ -1292,6 +1357,9 @@
       messages: [],
       isOpen: false,
       isLoading: false,
+      voiceState: 'idle',
+      recognition: null,
+      activeUtterance: null,
       viewMode: readPreferredViewMode(),
       previousViewMode: 'standard'
     };
@@ -1332,6 +1400,9 @@
     }
 
     setViewMode(state.viewMode, { persist: false });
+    voiceBtn.hidden = !voiceInputSupported();
+    voiceBtn.disabled = !voiceInputSupported();
+    voiceBtn.setAttribute('aria-pressed', 'false');
 
     function getCityName() {
       const citySelect = document.getElementById('citySelect');
@@ -1570,6 +1641,10 @@
         }
         refreshNotifications();
         input.focus();
+      } else {
+        stopRecognition();
+        stopSpeaking();
+        setVoiceStatus('idle');
       }
     }
 
@@ -1627,6 +1702,17 @@
       msgEl.className = `bonds-ai-message ${role}${isError ? ' error' : ''}`;
       if (role === 'assistant') {
         renderSafeMarkdown(msgEl, text);
+        if (!isError && speechOutputSupported()) {
+          const speakBtn = document.createElement('button');
+          speakBtn.type = 'button';
+          speakBtn.className = 'bonds-ai-speak-button';
+          speakBtn.setAttribute('aria-label', languageCode() === 'en' ? 'Read response aloud' : 'قراءة الرد صوتيًا');
+          speakBtn.setAttribute('aria-pressed', 'false');
+          speakBtn.title = languageCode() === 'en' ? 'Read aloud' : 'قراءة صوتية';
+          speakBtn.textContent = '◖';
+          speakBtn.addEventListener('click', () => speakAssistantText(text, speakBtn));
+          msgEl.appendChild(speakBtn);
+        }
       } else {
         msgEl.textContent = text;
       }
@@ -1646,6 +1732,7 @@
       state.isLoading = loading;
       sendBtn.disabled = loading;
       input.disabled = loading;
+      voiceBtn.disabled = loading || !voiceInputSupported();
       const typing = root.querySelector('.bonds-ai-typing');
       if (loading) {
         if (!typing) {
@@ -1662,6 +1749,203 @@
 
     function languageCode() {
       return document.documentElement.lang === 'en' ? 'en' : 'ar';
+    }
+
+    const ARABIC_SPEECH_LOCALES = Object.freeze({
+      DZ: 'ar-DZ', BH: 'ar-BH', KM: 'ar-KM', DJ: 'ar-DJ', EG: 'ar-EG', IQ: 'ar-IQ',
+      JO: 'ar-JO', KW: 'ar-KW', LB: 'ar-LB', LY: 'ar-LY', MR: 'ar-MR', MA: 'ar-MA',
+      OM: 'ar-OM', PS: 'ar-PS', QA: 'ar-QA', SA: 'ar-SA', SO: 'ar-SO', SD: 'ar-SD',
+      SY: 'ar-SY', TN: 'ar-TN', AE: 'ar-AE', YE: 'ar-YE'
+    });
+
+    function speechLocale() {
+      if (languageCode() === 'en') return 'en-US';
+      const country = String(context.countryCode || '').trim().toUpperCase();
+      return ARABIC_SPEECH_LOCALES[country] || 'ar';
+    }
+
+    function setVoiceStatus(nextState, message = '') {
+      state.voiceState = nextState;
+      const listening = nextState === 'listening';
+      voiceBtn.classList.toggle('listening', listening);
+      voiceBtn.setAttribute('aria-pressed', listening ? 'true' : 'false');
+      voiceBtn.setAttribute(
+        'aria-label',
+        listening
+          ? (languageCode() === 'en' ? 'Stop listening' : 'إيقاف الاستماع')
+          : (languageCode() === 'en' ? 'Speak to BONDS Assistant' : 'التحدث إلى مساعد بوندز')
+      );
+      voiceStatus.textContent = message;
+      voiceStatus.classList.toggle('visible', Boolean(message));
+    }
+
+    function stopRecognition() {
+      const recognition = state.recognition;
+      state.recognition = null;
+      if (recognition) {
+        try { recognition.stop(); } catch (_) {}
+      }
+      if (state.voiceState === 'listening') setVoiceStatus('idle');
+    }
+
+    function stopSpeaking() {
+      if (window.speechSynthesis) {
+        try { window.speechSynthesis.cancel(); } catch (_) {}
+      }
+      state.activeUtterance = null;
+      root.querySelectorAll('.bonds-ai-speak-button.speaking').forEach(button => {
+        button.classList.remove('speaking');
+        button.setAttribute('aria-pressed', 'false');
+      });
+      if (state.voiceState === 'speaking') setVoiceStatus('idle');
+    }
+
+    function speechRecognitionConstructor() {
+      return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+    }
+
+    function voiceInputSupported() {
+      return typeof speechRecognitionConstructor() === 'function';
+    }
+
+    function speechOutputSupported() {
+      return typeof window.SpeechSynthesisUtterance === 'function' && Boolean(window.speechSynthesis);
+    }
+
+    function createRecognition() {
+      const Recognition = speechRecognitionConstructor();
+      if (!Recognition) return null;
+      const recognition = new Recognition();
+      recognition.lang = speechLocale();
+      recognition.interimResults = true;
+      recognition.continuous = false;
+      recognition.maxAlternatives = 1;
+      return recognition;
+    }
+
+    function startRecognition() {
+      if (!voiceInputSupported() || state.isLoading) return;
+      stopSpeaking();
+      if (state.voiceState === 'listening') {
+        stopRecognition();
+        return;
+      }
+
+      const recognition = createRecognition();
+      if (!recognition) return;
+      state.recognition = recognition;
+      let finalTranscript = '';
+
+      recognition.onstart = () => {
+        setVoiceStatus(
+          'listening',
+          languageCode() === 'en' ? 'Listening… speak now.' : 'أستمع الآن… تحدث.'
+        );
+      };
+
+      recognition.onresult = event => {
+        let interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i += 1) {
+          const transcript = String(event.results[i][0]?.transcript || '').trim();
+          if (!transcript) continue;
+          if (event.results[i].isFinal) {
+            finalTranscript = [finalTranscript, transcript].filter(Boolean).join(' ').trim();
+          } else {
+            interim = [interim, transcript].filter(Boolean).join(' ').trim();
+          }
+        }
+        const transcript = [finalTranscript, interim].filter(Boolean).join(' ').trim();
+        if (transcript) input.value = transcript;
+      };
+
+      recognition.onerror = event => {
+        const code = String(event?.error || '');
+        const denied = code === 'not-allowed' || code === 'service-not-allowed';
+        setVoiceStatus(
+          'idle',
+          denied
+            ? (languageCode() === 'en'
+                ? 'Microphone permission is unavailable. You can continue by typing.'
+                : 'تعذر استخدام الميكروفون. يمكنك متابعة المحادثة بالكتابة.')
+            : (languageCode() === 'en'
+                ? 'Voice input stopped. You can try again or continue by typing.'
+                : 'توقف الإدخال الصوتي. يمكنك المحاولة مجددًا أو المتابعة بالكتابة.')
+        );
+      };
+
+      recognition.onend = () => {
+        if (state.recognition === recognition) state.recognition = null;
+        if (state.voiceState === 'listening') {
+          setVoiceStatus(
+            'idle',
+            input.value.trim()
+              ? (languageCode() === 'en' ? 'Voice captured. Review it, then send.' : 'تم التقاط الكلام. راجعه ثم أرسله.')
+              : ''
+          );
+        }
+        input.focus();
+      };
+
+      try {
+        recognition.start();
+      } catch (_) {
+        state.recognition = null;
+        setVoiceStatus(
+          'idle',
+          languageCode() === 'en'
+            ? 'Voice input could not start. You can continue by typing.'
+            : 'تعذر بدء الإدخال الصوتي. يمكنك متابعة المحادثة بالكتابة.'
+        );
+      }
+    }
+
+    function selectSpeechVoice(locale) {
+      if (!window.speechSynthesis) return null;
+      const voices = window.speechSynthesis.getVoices?.() || [];
+      if (!voices.length) return null;
+      const exact = voices.find(voice => String(voice.lang || '').toLowerCase() === locale.toLowerCase());
+      if (exact) return exact;
+      const base = locale.split('-')[0].toLowerCase();
+      return voices.find(voice => String(voice.lang || '').toLowerCase().startsWith(base)) || null;
+    }
+
+    function speakAssistantText(text, button) {
+      const value = String(text || '').trim();
+      if (!value || !speechOutputSupported()) return;
+
+      if (button.classList.contains('speaking')) {
+        stopSpeaking();
+        return;
+      }
+
+      stopRecognition();
+      stopSpeaking();
+
+      const utterance = new window.SpeechSynthesisUtterance(value);
+      const locale = speechLocale();
+      utterance.lang = locale;
+      const voice = selectSpeechVoice(locale);
+      if (voice) utterance.voice = voice;
+      utterance.rate = 1;
+      utterance.pitch = 1;
+
+      const finish = () => {
+        if (state.activeUtterance === utterance) state.activeUtterance = null;
+        button.classList.remove('speaking');
+        button.setAttribute('aria-pressed', 'false');
+        if (state.voiceState === 'speaking') setVoiceStatus('idle');
+      };
+
+      utterance.onend = finish;
+      utterance.onerror = finish;
+      state.activeUtterance = utterance;
+      button.classList.add('speaking');
+      button.setAttribute('aria-pressed', 'true');
+      setVoiceStatus(
+        'speaking',
+        languageCode() === 'en' ? 'Reading the response aloud…' : 'جارٍ قراءة الرد صوتيًا…'
+      );
+      window.speechSynthesis.speak(utterance);
     }
 
     function safeInternalRoute(route) {
@@ -2376,6 +2660,7 @@
 
     toggle.addEventListener('click', toggleOpen);
     closeBtn.addEventListener('click', toggleOpen);
+    voiceBtn.addEventListener('click', startRecognition);
     sendBtn.addEventListener('click', () => sendMessage(input.value));
     input.addEventListener('keydown', e => {
       if (e.key === 'Enter') sendMessage(input.value);
@@ -2402,6 +2687,15 @@
     window.BondsAssistant.refreshNotifications = refreshNotifications;
     window.BondsAssistant.resumeCase = resumePersistentCaseState;
     window.BondsAssistant.markNotificationRead = markNotificationRead;
+    window.BondsAssistant.voice = Object.freeze({
+      inputSupported: voiceInputSupported(),
+      outputSupported: speechOutputSupported(),
+      stop: () => {
+        stopRecognition();
+        stopSpeaking();
+        setVoiceStatus('idle');
+      }
+    });
     window.BondsAssistant.clearState = () => {
       const boundary = contextBoundaryKey();
       try {
