@@ -88,6 +88,11 @@
     .user-role { font-size: 0.75rem; color: var(--text-muted); }
 
     .main-content { flex: 1; margin-right: var(--sidebar-width); display: flex; flex-direction: column; height: 100vh; overflow-y: auto; }
+    html[dir="ltr"] .sidebar { left: 0; right: auto; border-left: none; border-right: 1px solid var(--border); }
+    html[dir="ltr"] .main-content { margin-right: 0; margin-left: var(--sidebar-width); }
+    html[dir="ltr"] .sidebar-link,
+    html[dir="ltr"] .nav-label,
+    html[dir="ltr"] .topbar-title { text-align: left; }
     .topbar {
       height: 64px; background: var(--bg-secondary); border-bottom: 1px solid var(--border);
       display: flex; align-items: center; justify-content: space-between;
