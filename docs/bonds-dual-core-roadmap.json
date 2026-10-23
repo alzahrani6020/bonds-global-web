@@ -214,12 +214,12 @@
         {
           "id": "p5.3",
           "title": "Merge simulation",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p5.4",
           "title": "Staged release",
-          "status": "planned"
+          "status": "implemented_candidate"
         },
         {
           "id": "p5.5",
