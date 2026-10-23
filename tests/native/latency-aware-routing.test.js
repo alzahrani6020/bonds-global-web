@@ -28,35 +28,35 @@ describe('Assistant latency-aware routing', () => {
       .toEqual(['native-1','native-2']);
   });
 
-  test('explores unmeasured nodes before preferring lower EWMA latency', () => {
+  test('keeps configured order until at least two current observations exist', () => {
     const nodes = [
       { id:'native-1', baseUrl:'https://a.example' },
       { id:'native-2', baseUrl:'https://b.example' }
     ];
 
-    recordLatencyObservation(nodes[0], 200);
-    expect(rankNodesByLatency(nodes, { enabled:true }).map(x => x.id))
-      .toEqual(['native-2','native-1']);
+    recordLatencyObservation(nodes[0], 200, { operation:'generate' });
+    expect(rankNodesByLatency(nodes, { enabled:true, operation:'generate' }).map(x => x.id))
+      .toEqual(['native-1','native-2']);
 
-    recordLatencyObservation(nodes[1], 40);
-    expect(rankNodesByLatency(nodes, { enabled:true }).map(x => x.id))
+    recordLatencyObservation(nodes[1], 40, { operation:'generate' });
+    expect(rankNodesByLatency(nodes, { enabled:true, operation:'generate' }).map(x => x.id))
       .toEqual(['native-2','native-1']);
   });
 
   test('uses EWMA rather than replacing history with one sample', () => {
     const node = { id:'native-1', baseUrl:'https://a.example' };
-    recordLatencyObservation(node, 100, { alpha:0.5, now:1000 });
-    recordLatencyObservation(node, 300, { alpha:0.5, now:2000 });
+    recordLatencyObservation(node, 100, { alpha:0.5, now:1000, operation:'generate' });
+    recordLatencyObservation(node, 300, { alpha:0.5, now:2000, operation:'generate' });
 
-    expect(getLatencyObservation(node, { now:2000 }).ewma_ms).toBe(200);
-    expect(getLatencyObservation(node, { now:2000 }).samples).toBe(2);
+    expect(getLatencyObservation(node, { now:2000, operation:'generate' }).ewma_ms).toBe(200);
+    expect(getLatencyObservation(node, { now:2000, operation:'generate' }).samples).toBe(2);
   });
 
   test('ignores stale observations', () => {
     const node = { id:'native-1', baseUrl:'https://a.example' };
-    recordLatencyObservation(node, 20, { now:1000 });
+    recordLatencyObservation(node, 20, { now:1000, operation:'generate' });
 
-    expect(getLatencyObservation(node, { now:7000, staleAfterMs:5000 })).toBeNull();
+    expect(getLatencyObservation(node, { now:7000, staleAfterMs:5000, operation:'generate' })).toBeNull();
   });
 
   test('router prefers the lower-latency healthy node when explicitly enabled', async () => {
@@ -68,8 +68,8 @@ describe('Assistant latency-aware routing', () => {
       latencyAwareRouting:true
     });
 
-    recordLatencyObservation(router.remoteProviders[0], 240);
-    recordLatencyObservation(router.remoteProviders[1], 35);
+    recordLatencyObservation(router.remoteProviders[0], 240, { operation:'health' });
+    recordLatencyObservation(router.remoteProviders[1], 35, { operation:'health' });
 
     global.fetch = jest.fn().mockResolvedValue({
       ok:true,
@@ -85,5 +85,26 @@ describe('Assistant latency-aware routing', () => {
     expect(response.meta.native_node).toBe('native-2');
     expect(response.meta.latency_routing.enabled).toBe(true);
     expect(response.meta.latency_routing.observed).toBe(true);
+    expect(response.meta.latency_routing.operation).toBe('health');
+  });
+
+  test('health observations do not reorder generate traffic', () => {
+    const router = new InferenceRouter({
+      mode:'REMOTE_BONDS_NATIVE',
+      remoteUrls:['https://native-a.example','https://native-b.example'],
+      latencyAwareRouting:true
+    });
+
+    recordLatencyObservation(router.remoteProviders[0], 250, { operation:'health' });
+    recordLatencyObservation(router.remoteProviders[1], 20, { operation:'health' });
+
+    expect(router._candidateRemoteProviders('generate').map(x => x.id))
+      .toEqual(['native-1','native-2']);
+
+    recordLatencyObservation(router.remoteProviders[0], 200, { operation:'generate' });
+    recordLatencyObservation(router.remoteProviders[1], 45, { operation:'generate' });
+
+    expect(router._candidateRemoteProviders('generate').map(x => x.id))
+      .toEqual(['native-2','native-1']);
   });
 });
