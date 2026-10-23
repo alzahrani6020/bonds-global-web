@@ -15,7 +15,7 @@
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:.9rem}
     .card{background:#fff;border:1px solid rgba(0,0,0,.08);border-radius:14px;padding:1rem;min-width:0}
     .card h2{font-size:1rem;margin:0 0 .7rem}.metric{display:flex;justify-content:space-between;gap:1rem;padding:.45rem 0;border-bottom:1px solid rgba(0,0,0,.06)}
-    .metric:last-child{border-bottom:0}.metric strong{max-width:58%;overflow-wrap:anywhere;text-align:left}
+    .metric:last-child{border-bottom:0}.metric strong{max-width:58%;overflow-wrap:break-word;word-break:normal;text-align:start;direction:inherit}
     .error{display:none;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;padding:.8rem;border-radius:10px;margin-bottom:1rem}
     .status{font-size:.85rem}.ok{color:#15803d}.unknown{color:#92400e}
     pre{white-space:pre-wrap;word-break:break-word;font-size:.75rem;max-height:320px;overflow:auto;background:#fafafa;padding:.75rem;border-radius:10px}
@@ -25,7 +25,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.1.3"></script>
   <script>BondsAuth.initAdminGuard();</script>
-  <script src="/admin/admin-common.js?v=4"></script>
+  <script src="/admin/admin-common.js?v=5"></script>\n  <script src="/admin/admin-i18n.js?v=1"></script>
 </head>
 <body>
   <main class="wrap">
@@ -53,7 +53,7 @@
     ['platform', 'المنصة والمراقبة', '/api/admin?action=platform-overview'],
     ['assistant', 'عمليات المساعد', '/api/v3/admin/assistant-operations?window_hours=24'],
     ['executive', 'التحليلات التنفيذية', '/api/admin?action=executive-analytics-v2'],
-    ['crm', 'CRM', '/api/admin?action=crm-overview'],
+    ['crm', 'إدارة علاقات العملاء', '/api/admin?action=crm-overview'],
     ['support', 'الدعم', '/api/admin?action=support-overview'],
     ['finance', 'المالية', '/api/admin?action=finance-overview'],
     ['security', 'الأمن', '/api/admin?action=security-operations-overview'],
@@ -82,16 +82,13 @@
   }
 
   async function request(url) {
-    const response = await BondsAuth.authenticatedFetch(url, { returnTo: location.pathname + location.search });
-    const body = await response.json().catch(() => ({}));
-    if (!response.ok || body.success === false) throw new Error(body.error || ('HTTP ' + response.status));
-    return body;
+    return BondsAdminCommon.requestJson(url, { returnTo: location.pathname + location.search });
   }
 
   function renderCard(title, result) {
     const rows = scalarEntries(result);
     const metrics = rows.length
-      ? rows.map(([key,value]) => '<div class="metric"><span class="muted">'+esc(key)+'</span><strong>'+esc(value ?? '—')+'</strong></div>').join('')
+      ? rows.map(([key,value]) => '<div class="metric"><span class="muted">'+esc(BondsAdminCommon.humanizeAdminKey(key))+'</span><strong>'+esc(value ?? '—')+'</strong></div>').join('')
       : '<div class="muted">لا توجد مؤشرات مختصرة.</div>';
     return '<article class="card"><h2>'+esc(title)+'</h2>'+metrics+'<details><summary class="muted">البيانات الخام</summary><pre>'+esc(JSON.stringify(result,null,2))+'</pre></details></article>';
   }
