@@ -689,3 +689,18 @@ parent/child relationships بين التوكنات.
 - إذا وجدت حالة دائمة وكانت حالة Guest أحدث، تُدمج حقول الاستمرارية الآمنة فقط؛ تبقى `pending_confirmation` من الخادم ولا تُنقل من Guest.
 - لا تغيير في token/provider/model/context/throughput/compute ولا authorization plane جديد.
 - الحالة الحالية: implementation candidate؛ تحتاج CI ثم الدمج والتحقق الإنتاجي قبل الإغلاق.
+
+---
+## 2026-10-23 — Latency-Aware Routing checkpoint
+
+تم تنفيذ `latency_aware_routing` داخل `lib/ai/inference-router.js` دون إنشاء provider أو authorization plane جديد:
+
+- ترتيب عقد Bonds Native المتاحة حسب EWMA لزمن الاستجابة المرصود.
+- العقد غير المقاسة أو stale تُستكشف قبل الاعتماد على ترتيب latency.
+- circuit breaker وfailover الحاليان يظلان الحاكمين عند الأعطال.
+- القياس لا يغير model/provider ولا يخفض tokens/context/compute/throughput.
+- Assistant chat يفعّل هذا الترتيب صراحةً، بينما بقية مستهلكي Inference Router يحتفظون بالسلوك السابق ما لم يفعّلوه.
+- response metadata تتضمن `native_node` و`failover_attempts` و`latency_routing` للتشخيص.
+- لا توجد migration لهذه المرحلة.
+
+الحالة: implementation candidate؛ لا تعتبر MERGED أو CI/PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الدمج.
