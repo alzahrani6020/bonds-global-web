@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase4-approval-integration",
-  "current_workstream": "p4.2-dependency-checks",
+  "current_workstream": "p4.3-integration-resolver",
   "status": "in_progress",
-  "baseline_main_sha": "89e5f0f96f1fe44dc4afe11fe7e2e76f22cee922",
+  "baseline_main_sha": "6af9d8b54a564d94660ccd66c419ddfd03483af0",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -61,14 +61,17 @@
     "phase3-candidate-engineering-closeout",
     "p4.1-approved-target-contract",
     "p4.1-sha-bound-approval",
-    "p4.1-partial-scope-approval"
-  ],
-  "currently_working_on": [
+    "p4.1-partial-scope-approval",
     "p4.2-deterministic-dependency-checks",
     "p4.2-fail-closed-blockers",
     "p4.2-required-test-and-gate-validation"
   ],
-  "next_action": "validate rebased P4.2 deterministic dependency checks in CI; after merge implement P4.3 Integration Resolver",
+  "currently_working_on": [
+    "p4.3-deterministic-integration-resolver",
+    "p4.3-staging-manifest",
+    "p4.3-integration-verification"
+  ],
+  "next_action": "validate P4.3 Integration Resolver in CI; after merge implement P4.4 Assistant and capability registry synchronization",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -80,7 +83,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "89e5f0f96f1fe44dc4afe11fe7e2e76f22cee922",
+    "current_main_sha": "6af9d8b54a564d94660ccd66c419ddfd03483af0",
     "superseded_candidate_prs": [
       472,
       475
@@ -110,7 +113,10 @@
     "phase4_approved_target_pr_ci_verified": true,
     "superseded_phase4_dependency_prs": [
       489
-    ]
+    ],
+    "phase4_dependency_checks_merge_sha": "6af9d8b54a564d94660ccd66c419ddfd03483af0",
+    "phase4_dependency_checks_pr_head_sha": "647b6f7b2b8c2ab38fffc991b748575fdf5e75bc",
+    "phase4_dependency_checks_pr_ci_verified": true
   },
   "approved_architecture": {
     "dual_core": true,
@@ -131,5 +137,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p4.2-dependency-checks-rebased-candidate"
+  "updated_by": "p4.3-integration-resolver-candidate"
 }
