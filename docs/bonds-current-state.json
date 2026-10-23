@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase5-ci-release",
-  "current_workstream": "p5.4-staged-release",
+  "current_workstream": "p5.5-production-verification",
   "status": "in_progress",
-  "baseline_main_sha": "ee5e60ffed2324ce81f07d1f3ba7936ba0cffa42",
+  "baseline_main_sha": "e44a1cd3f52b0da8be1c56e2720ef6de1bb77bed",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -80,26 +80,29 @@
     "p5.2-revalidation-required",
     "p5.3-deterministic-merge-simulation",
     "p5.3-exact-sha-binding",
-    "p5.3-fail-closed-conflict-and-check-gates"
-  ],
-  "currently_working_on": [
+    "p5.3-fail-closed-conflict-and-check-gates",
     "p5.4-staged-release-manifest",
     "p5.4-exact-merge-sha-binding",
     "p5.4-staging-verification-gate"
   ],
-  "next_action": "validate rebased P5.4 Staged Release in CI; after merge implement P5.5 Production Verification",
+  "currently_working_on": [
+    "p5.5-production-sha-verification",
+    "p5.5-health-readiness-smoke-gate",
+    "p5.5-known-good-eligibility"
+  ],
+  "next_action": "validate P5.5 Production Verification in CI; after merge implement P5.6 Known-Good Releases",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
     "phase2_admin_review_merge_sha": "4dc1ad44f4d55a9019e4c8f7443ae0029f7c4bb7",
     "phase2_control_center_merge_sha": "e91bb282735c0ec1798e792ce02e627d8e9b7916",
-    "latest_main_sha": "ee5e60ffed2324ce81f07d1f3ba7936ba0cffa42",
+    "latest_main_sha": "e44a1cd3f52b0da8be1c56e2720ef6de1bb77bed",
     "phase2_agent_inbox_merge_sha": "c4140b9bd24075431df5d4aa8212a84250394a94",
     "phase2_ci_verified": true,
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "ee5e60ffed2324ce81f07d1f3ba7936ba0cffa42",
+    "current_main_sha": "e44a1cd3f52b0da8be1c56e2720ef6de1bb77bed",
     "superseded_candidate_prs": [
       472,
       475
@@ -157,7 +160,10 @@
     "phase5_merge_simulation_pr_ci_verified": true,
     "superseded_phase5_staged_release_prs": [
       505
-    ]
+    ],
+    "phase5_staged_release_merge_sha": "e44a1cd3f52b0da8be1c56e2720ef6de1bb77bed",
+    "phase5_staged_release_pr_head_sha": "06f393db259ba0513c8846d4746700b8ee5ca6ea",
+    "phase5_staged_release_pr_ci_verified": true
   },
   "approved_architecture": {
     "dual_core": true,
@@ -178,5 +184,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p5.4-staged-release-rebased-candidate"
+  "updated_by": "p5.5-production-verification-candidate"
 }
