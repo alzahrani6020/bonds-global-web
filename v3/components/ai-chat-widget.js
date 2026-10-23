@@ -18,6 +18,8 @@
   const ASSISTANT_IDEMPOTENCY_RESOLVE_URL = '/api/v3/assistant/idempotency/resolve';
   const ASSISTANT_NOTIFICATIONS_URL = '/api/v3/assistant/notifications';
   const ASSISTANT_NOTIFICATION_READ_URL = '/api/v3/assistant/notifications/read';
+  const ASSISTANT_WORKFLOW_RESUME_URL = '/api/v3/assistant/workflows/resume';
+  const ASSISTANT_WORKFLOW_SAVE_URL = '/api/v3/assistant/workflows/save';
   const ASSISTANT_STATE_VERSION = 1;
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
   const ASSISTANT_CONTEXT_PREFERENCE_KEY = 'bonds.assistant.context.enabled.v1';
@@ -921,6 +923,175 @@
     }
 
     let assistantContextState = loadAssistantContextState();
+    let persistentCaseSyncSignature = null;
+
+    function normalizeCasePagePath(value) {
+      const raw = String(value || '/').trim() || '/';
+      const hashIndex = raw.indexOf('#');
+      const beforeHash = hashIndex >= 0 ? raw.slice(0, hashIndex) : raw;
+      const rawHash = hashIndex >= 0 ? raw.slice(hashIndex + 1) : '';
+      const pathOnly = (beforeHash.split('?')[0] || '/').replace(/\/{2,}/g, '/');
+      const safePath = pathOnly.startsWith('/') ? pathOnly : '/';
+      const hash = rawHash.split('?')[0].trim().slice(0, 160);
+      return hash ? `${safePath}#${hash}` : safePath;
+    }
+
+    function caseBoundaryKey() {
+      const pagePath = normalizeCasePagePath(
+        context.pagePath || (window.location.pathname + window.location.hash) || '/'
+      );
+      const homepage = ['/', '/index.html', '/en', '/en/', '/en/index.html'].includes(pagePath);
+      if (homepage) return 'homepage/no_service_selected';
+      const service = String(context.serviceCode || '').trim();
+      return `page:${pagePath}|service:${service || 'none'}`;
+    }
+
+    function hasMeaningfulAssistantState(value) {
+      if (!value || typeof value !== 'object') return false;
+      return Boolean(
+        value.goal ||
+        value.current_stage ||
+        (Array.isArray(value.open_tasks) && value.open_tasks.length) ||
+        (Array.isArray(value.required_data) && value.required_data.length) ||
+        (value.confirmed_facts && Object.keys(value.confirmed_facts).length) ||
+        value.last_action
+      );
+    }
+
+    function serverWorkflowState(localState, boundary) {
+      const safe = sanitizeAssistantContextState(localState, contextBoundaryKey());
+      return {
+        ...safe,
+        boundary,
+        pending_confirmation: null
+      };
+    }
+
+    function localWorkflowState(serverState) {
+      return sanitizeAssistantContextState({
+        ...(serverState || {}),
+        boundary: contextBoundaryKey()
+      }, contextBoundaryKey());
+    }
+
+    function mergeGuestStateIntoWorkflow(serverState, localState, caseBoundary) {
+      const server = serverState && typeof serverState === 'object' ? serverState : {};
+      const local = sanitizeAssistantContextState(localState, contextBoundaryKey());
+      const serverUpdated = Date.parse(server.updated_at || '') || 0;
+      const localUpdated = Date.parse(local.updated_at || '') || 0;
+
+      if (!hasMeaningfulAssistantState(local) || localUpdated <= serverUpdated) {
+        return { state: { ...server, boundary: caseBoundary }, changed: false };
+      }
+
+      const unique = values => Array.from(new Set((values || []).filter(Boolean))).slice(0, 50);
+      return {
+        changed: true,
+        state: {
+          ...server,
+          boundary: caseBoundary,
+          goal: local.goal || server.goal || null,
+          current_stage: server.current_stage || local.current_stage || null,
+          open_tasks: unique([...(server.open_tasks || []), ...(local.open_tasks || [])]),
+          required_data: unique([...(server.required_data || []), ...(local.required_data || [])]),
+          confirmed_facts: {
+            ...(server.confirmed_facts || {}),
+            ...(local.confirmed_facts || {})
+          },
+          pending_confirmation: server.pending_confirmation || null,
+          last_action: server.last_action || local.last_action || null,
+          updated_at: local.updated_at || server.updated_at || new Date().toISOString()
+        }
+      };
+    }
+
+    async function resumePersistentCaseState() {
+      if (!assistantContextEnabled()) return null;
+      if (!window.BondsAuth || typeof window.BondsAuth.getSession !== 'function') return null;
+
+      try {
+        const { data } = await window.BondsAuth.getSession();
+        const session = data?.session || null;
+        const token = session?.access_token;
+        if (!token) {
+          persistentCaseSyncSignature = null;
+          return null;
+        }
+
+        const userRef = String(session?.user?.id || 'authenticated');
+        const caseBoundary = caseBoundaryKey();
+        const localState = sanitizeAssistantContextState(assistantContextState, contextBoundaryKey());
+        const localStamp = localState?.updated_at || 'empty';
+        const signature = `${userRef}|${caseBoundary}|${localStamp}`;
+        if (persistentCaseSyncSignature === signature) return null;
+
+        const headers = {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        };
+        const resumeUrl = ASSISTANT_WORKFLOW_RESUME_URL + '?boundary=' + encodeURIComponent(caseBoundary);
+        const resumeRes = await fetch(resumeUrl, {
+          method: 'GET',
+          headers,
+          credentials: 'same-origin',
+          cache: 'no-store'
+        });
+        const resumeData = await resumeRes.json();
+        if (!resumeRes.ok) throw new Error(resumeData.error || 'WORKFLOW_RESUME_FAILED');
+
+        let workflow = resumeData.workflow || null;
+        const workflowKey = resumeData.workflow_key || null;
+
+        if (workflow) {
+          const merged = mergeGuestStateIntoWorkflow(workflow.state, localState, caseBoundary);
+          if (merged.changed && workflowKey) {
+            const saveRes = await fetch(ASSISTANT_WORKFLOW_SAVE_URL, {
+              method: 'POST',
+              headers,
+              credentials: 'same-origin',
+              body: JSON.stringify({
+                workflow_key: workflowKey,
+                boundary: caseBoundary,
+                state: merged.state,
+                status: workflow.status || 'active',
+                expected_version: workflow.version
+              })
+            });
+            const saveData = await saveRes.json();
+            if (!saveRes.ok) throw new Error(saveData.error || 'WORKFLOW_HANDOFF_FAILED');
+            workflow = saveData.workflow || workflow;
+          }
+          assistantContextState = localWorkflowState(workflow.state);
+          saveAssistantContextState();
+        } else if (workflowKey && hasMeaningfulAssistantState(localState)) {
+          const saveRes = await fetch(ASSISTANT_WORKFLOW_SAVE_URL, {
+            method: 'POST',
+            headers,
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              workflow_key: workflowKey,
+              boundary: caseBoundary,
+              state: serverWorkflowState(localState, caseBoundary),
+              status: 'active',
+              expected_version: null
+            })
+          });
+          const saveData = await saveRes.json();
+          if (!saveRes.ok) throw new Error(saveData.error || 'WORKFLOW_HANDOFF_FAILED');
+          workflow = saveData.workflow || null;
+          if (workflow?.state) {
+            assistantContextState = localWorkflowState(workflow.state);
+            saveAssistantContextState();
+          }
+        }
+
+        persistentCaseSyncSignature = `${userRef}|${caseBoundary}|${assistantContextState?.updated_at || 'empty'}`;
+        return workflow;
+      } catch (err) {
+        console.warn('[BondsAssistantTaskResume]', err);
+        return null;
+      }
+    }
 
     function resetVisibleConversationForBoundary() {
       state.messages = [];
@@ -936,6 +1107,7 @@
 
       if (previousBoundary !== nextBoundary) {
         assistantContextState = loadAssistantContextState(nextBoundary);
+        persistentCaseSyncSignature = null;
         resetVisibleConversationForBoundary();
       }
     }
@@ -1160,6 +1332,7 @@
       if (state.isOpen && state.messages.length === 0) {
         refreshContext();
         await loadVerifiedServiceProfile();
+        await resumePersistentCaseState();
         if (options.home === true) {
           root.classList.remove('conversation-started');
         } else if (context.mode === 'project' && context.projectId) {
@@ -1821,6 +1994,7 @@
       if (!text.trim() || state.isLoading) return;
       refreshContext();
       await loadVerifiedServiceProfile();
+      await resumePersistentCaseState();
       if (options.home === true) {
         root.classList.add('conversation-started');
       }
@@ -1906,6 +2080,7 @@
       : createAssistantContextState(contextBoundaryKey());
     window.BondsAssistant.isContextEnabled = assistantContextEnabled;
     window.BondsAssistant.refreshNotifications = refreshNotifications;
+    window.BondsAssistant.resumeCase = resumePersistentCaseState;
     window.BondsAssistant.markNotificationRead = markNotificationRead;
     window.BondsAssistant.clearState = () => {
       const boundary = contextBoundaryKey();
