@@ -14,6 +14,7 @@ const { getSupabaseClient } = require('../lib/supabase');
 const { getInferenceRouter } = require('../../lib/ai/inference-router');
 const { getUserFromToken } = require('../lib/auth');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
+const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 
@@ -498,6 +499,37 @@ async function aiChatHandler(req, res) {
 
   if (forceNative && !authenticatedUser) {
     return sendJson(res, 401, { error: 'Authentication required for Native AI execution' });
+  }
+
+  // Resolve page/session/service authority and operational intent before ordinary chat.
+  // This reuses the existing Service Execution Layer, workflow state and Agent Inbox.
+  try {
+    const orchestration = await orchestrateChat({
+      req,
+      user: authenticatedUser,
+      supabase: getSupabaseClient(),
+      message: lastUserText,
+      context: enrichedContext,
+      assistantState: safeAssistantState
+    });
+
+    if (orchestration?.handled && orchestration.response) {
+      return sendJson(res, 200, orchestration.response);
+    }
+
+    if (orchestration?.resolvedContext) {
+      const previousServiceCode = enrichedContext.serviceCode || null;
+      enrichedContext = orchestration.resolvedContext;
+      if ((enrichedContext.serviceCode || null) !== previousServiceCode) {
+        try {
+          enrichedContext = await enrichContext(enrichedContext, lastUserText);
+        } catch (err) {
+          console.warn('[ai/chat] Page-authority context enrichment failed:', err.message);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn('[ai/chat] Chat orchestration degraded to existing assistant path:', err.message);
   }
 
   const deterministicReply = forceNative ? null : generateDataDrivenReply(lastUserText, enrichedContext);
