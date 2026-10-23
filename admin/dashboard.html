@@ -11,6 +11,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="/bonds-auth-2026.js?v=3.1.3"></script>
   <script src="/lib/tracking.js?v=3.0.0"></script>
+  <script src="/admin/admin-locale.js?v=1"></script>
   <style>
     :root {
       --bg: #f5f0e8;
@@ -1155,6 +1156,9 @@
       }
 
       function loadModule(url, title) {
+        if (window.BondsAdminLocale) {
+          window.BondsAdminLocale.applyToDocument(document);
+        }
         const titleEl = document.getElementById('pageTitle');
         if (titleEl) titleEl.textContent = title || 'لوحة التحكم الموحدة';
         if (onlineRefreshTimer) { clearInterval(onlineRefreshTimer); onlineRefreshTimer = null; }
@@ -1180,6 +1184,11 @@
         iframe.style.overflow = 'auto';
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads');
         iframe.onload = async () => {
+          try {
+            if (window.BondsAdminLocale && iframe.contentDocument) {
+              window.BondsAdminLocale.applyToDocument(iframe.contentDocument);
+            }
+          } catch (e) {}
           try {
             const { data: { session } } = await sb.auth.getSession();
             const token = session?.access_token || window.__ADMIN_TOKEN || '';
