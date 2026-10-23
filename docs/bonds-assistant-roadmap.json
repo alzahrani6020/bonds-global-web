@@ -950,8 +950,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "docs/close-golden-conversations-v2",
-    "change": "Golden Conversations closed after production verification. PR #522 merged as 41e5a382895a4f78b36f94b48fc89f102336f617. Post-merge CI 39921695505, Service Worker 39921695476, Dependency Security 39921695578, Production Release 39922242977, and Production Authenticated Smoke 39922439691 all passed. Vercel deployment dpl_3a4SB5ZfQACPdvVTomZaY7Pcr5sh is READY for the exact merge SHA. No migration. Next: assistant_evaluations."
+    "branch": "feat/assistant-evaluations",
+    "change": "Assistant Evaluations implemented as a deterministic fail-closed evaluation layer over the versioned Golden Conversations corpus. It measures exact structural, ready-flow, denial-flow, Arabic and English accuracy and requires all Golden v1 gates to remain at 100%. Invalid corpus or planner/context drift fails with structured evidence. No provider/model/token/context/throughput/compute/authorization change, no business writes and no migration. Candidate only until merge and production verification. Next after verification: red_team_scenarios."
   },
   "production_rollout": {
     "status": "complete",
