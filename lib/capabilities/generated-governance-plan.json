@@ -3,8 +3,7 @@
     "agent.runtime.execute",
     "ai.native.use",
     "orchestrator.execute",
-    "research.intelligence.execute",
-    "research.web.read"
+    "research.intelligence.execute"
   ],
   "entitlements": [
     "agent.runtime",

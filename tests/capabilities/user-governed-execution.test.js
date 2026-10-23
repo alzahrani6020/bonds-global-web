@@ -40,7 +40,7 @@ function override(fixture, value, changes = {}) {
 function trustedContext() {
   return {
     actor: { id: 'trusted-user' }, userId: 'trusted-user', userTier: 'pro',
-    governance: { permissions: ['research.web.read'], entitlements: ['research.web'] }
+    governance: { permissions: [], entitlements: ['research.web'] }
   };
 }
 
@@ -60,10 +60,10 @@ describe('user authorization through the real capability execution path', () => 
     expect(fixture.reads).toEqual([]);
   });
 
-  test('a user without the required permission is denied before capability execution', async () => {
+  test('web research does not require an enterprise permission that no production role owns', async () => {
     const res = await request(createGovernanceFixture({ permissions: [] }));
-    expect(res.statusCode).toBe(403);
-    expect(res.body).toMatchObject({ ok: false, executed: false, error: { code: 'PERMISSION_DENIED' } });
+    expect(res.statusCode).toBe(200);
+    expect(res.body).toMatchObject({ ok: true, executed: true, action: 'evidence_verify' });
   });
 
   test('a user without the plan entitlement is denied', async () => {
@@ -136,16 +136,16 @@ describe('user authorization through the real capability execution path', () => 
     expect(res.body.error.code).toBe('ENTITLEMENT_CATALOG_UNAVAILABLE');
   });
 
-  test('body identity, roles, tier and user_metadata cannot confer permission', async () => {
-    const fixture = createGovernanceFixture({ permissions: [] });
+  test('body identity, roles, tier and user_metadata cannot confer a server entitlement', async () => {
+    const fixture = createGovernanceFixture({ permissions: [], tables: { subscriptions: [] } });
     fixture.user.user_metadata = { role: 'admin', permissions: ['research.web.read'], tier: 'enterprise' };
     const res = await request(fixture, { body: {
       userId: 'another-user', userTier: 'enterprise', actor: { id: 'another-user' },
-      governance: { permissions: ['research.web.read'], entitlements: ['research.web'], enforcePermissions: false },
-      options: { governance: { permissions: ['research.web.read'] } }
+      governance: { permissions: ['research.web.read'], entitlements: ['research.web'], enforceEntitlements: false },
+      options: { governance: { entitlements: ['research.web'] } }
     } });
     expect(res.statusCode).toBe(403);
-    expect(res.body.error.code).toBe('PERMISSION_DENIED');
+    expect(res.body.error.code).toBe('ENTITLEMENT_DENIED');
     expect(fixture.reads.find(read => read.rpc).args).toEqual({ p_user_id: fixture.user.id });
     expect(JSON.stringify(res.body)).not.toContain('another-user');
   });
@@ -221,12 +221,41 @@ describe('mandatory governance and trusted adapter context', () => {
       error: { code: 'USER_GOVERNANCE_UNAVAILABLE' } });
   });
 
-  test.each(['permissions', 'entitlements'])('false enforcement flags cannot disable %s requirements', async field => {
+  test('false enforcement flags cannot disable manifest permission requirements', async () => {
+    const service = {
+      ...SERVICES['web-research'],
+      governance: {
+        ...SERVICES['web-research'].governance,
+        permissions: ['required.permission']
+      }
+    };
     const context = trustedContext();
-    context.governance = { ...context.governance, enforcePermissions: false, enforceEntitlements: false, [field]: [] };
+    context.governance = {
+      ...context.governance,
+      permissions: [],
+      enforcePermissions: false,
+      enforceEntitlements: false
+    };
+    const result = await evaluateGovernance({
+      service,
+      capability: CAPABILITIES.evidence_verify,
+      context,
+      rateLimiter: new MemoryRateLimiter()
+    });
+    expect(result).toMatchObject({ allowed: false, code: 'PERMISSION_DENIED' });
+  });
+
+  test('false enforcement flags cannot disable manifest entitlement requirements', async () => {
+    const context = trustedContext();
+    context.governance = {
+      ...context.governance,
+      entitlements: [],
+      enforcePermissions: false,
+      enforceEntitlements: false
+    };
     const result = await executeCapability('evidence_verify', input, context);
     expect(result).toMatchObject({ executed: false, httpStatus: 403,
-      error: { code: field === 'permissions' ? 'PERMISSION_DENIED' : 'ENTITLEMENT_DENIED' } });
+      error: { code: 'ENTITLEMENT_DENIED' } });
   });
 
   test('changing the request id cannot reset the rate limit for the same verified actor', async () => {
@@ -260,7 +289,7 @@ describe('mandatory governance and trusted adapter context', () => {
 
 describe('user governance metadata readiness', () => {
   const nilUuid = '00000000-0000-0000-0000-000000000000';
-  const permissionCodes = ['research.web.read', 'ai.native.use', 'research.intelligence.execute', 'orchestrator.execute'];
+  const permissionCodes = ['ai.native.use', 'research.intelligence.execute', 'orchestrator.execute'];
   const entitlementKeys = ['research.web', 'ai.native', 'research.intelligence', 'orchestrator'];
 
   function readinessFixture(options = {}) {

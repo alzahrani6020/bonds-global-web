@@ -1,13 +1,10 @@
 {
   "schema_version": 1,
   "service_code": "web-research",
-  "version": 1,
+  "version": 2,
   "enabled": true,
-
   "governance": {
-    "permissions": [
-      "research.web.read"
-    ],
+    "permissions": [],
     "entitlements": [
       "research.web"
     ],
@@ -18,7 +15,6 @@
       }
     ]
   },
-
   "security": {
     "network_access": "public_only",
     "privileges": {
@@ -29,36 +25,46 @@
       "ai_tool_exposure": false
     }
   },
-
   "observability": {
     "health_check": true,
     "audit": true,
     "metrics": true
   },
-
   "data": {
     "provenance": true,
     "quality": true
   },
-
   "workflows": {
     "events": [
       "research.completed"
     ]
   },
-
   "ai": {
     "exposed": false
   },
-
   "capabilities": [
+    {
+      "action": "web_search",
+      "action_type": "api",
+      "id": "BONDS-CAP-WEB-000",
+      "purpose": "Search the public web from a free-text query and return bounded result URLs and snippets for governed follow-up acquisition.",
+      "side_effect": "network_read",
+      "required": [
+        "query"
+      ],
+      "runtime": {
+        "adapter": "web_search"
+      }
+    },
     {
       "action": "web_fetch",
       "action_type": "api",
       "id": "BONDS-CAP-WEB-001",
       "purpose": "Fetch one public HTTP/HTTPS resource with SSRF protection and evidence hashing.",
       "side_effect": "network_read",
-      "required": ["url"],
+      "required": [
+        "url"
+      ],
       "runtime": {
         "adapter": "web_fetch"
       }
@@ -70,7 +76,11 @@
       "purpose": "Run a bounded multi-page crawl with host/depth/page budgets.",
       "side_effect": "network_read",
       "required_any": [
-        ["url", "seedUrls", "seed_urls"]
+        [
+          "url",
+          "seedUrls",
+          "seed_urls"
+        ]
       ],
       "runtime": {
         "adapter": "web_crawl"
@@ -83,7 +93,11 @@
       "purpose": "Fetch, crawl and extract evidence-bearing content.",
       "side_effect": "network_read",
       "required_any": [
-        ["url", "seedUrls", "seed_urls"]
+        [
+          "url",
+          "seedUrls",
+          "seed_urls"
+        ]
       ],
       "runtime": {
         "adapter": "web_explore"
@@ -95,7 +109,9 @@
       "id": "BONDS-CAP-RSCH-001",
       "purpose": "Verify evidence, independence and contradictions.",
       "side_effect": "none",
-      "required": ["sources"],
+      "required": [
+        "sources"
+      ],
       "runtime": {
         "adapter": "evidence_verify"
       }
@@ -106,7 +122,9 @@
       "id": "BONDS-CAP-RSCH-002",
       "purpose": "Synthesize verified research while preserving provenance.",
       "side_effect": "none",
-      "required": ["sources"],
+      "required": [
+        "sources"
+      ],
       "runtime": {
         "adapter": "research_synthesize"
       }

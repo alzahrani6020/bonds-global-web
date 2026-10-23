@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "reviewedAt": "2026-10-16",
-  "sourceSha": "19189934485a518b0948128bce913640ac65e85e",
+  "reviewedAt": "2026-10-23",
+  "sourceSha": "fe26304e618740a2c02a02609f34c11422702d14",
   "entries": [
     {
       "id": "GHSA-hp3w-g68c-fv3c",
@@ -22,6 +22,56 @@
       "scope": "dev",
       "status": "accepted-temporarily",
       "rationale": "Known Vercel tooling dependency debt. Reachability review remains separate; do not force a Vercel downgrade."
+    },
+    {
+      "id": "GHSA-MRHX-C7XC-M3W5",
+      "package": "zod",
+      "resolvedVersion": "3.22.4",
+      "dependencyPath": "node_modules/@vercel/backends/node_modules/zod",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "rationale": "Reviewed 2026-10-23: dev-only Vercel CLI/tooling dependency; npm production audit is clean. Do not force an incompatible Zod/Vercel major override during assistant runtime work; re-review on Vercel dependency refresh or any scope change."
+    },
+    {
+      "id": "GHSA-MRHX-C7XC-M3W5",
+      "package": "zod",
+      "resolvedVersion": "3.22.4",
+      "dependencyPath": "node_modules/@vercel/express/node_modules/zod",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "rationale": "Reviewed 2026-10-23: dev-only Vercel CLI/tooling dependency; npm production audit is clean. Do not force an incompatible Zod/Vercel major override during assistant runtime work; re-review on Vercel dependency refresh or any scope change."
+    },
+    {
+      "id": "GHSA-MRHX-C7XC-M3W5",
+      "package": "zod",
+      "resolvedVersion": "3.22.4",
+      "dependencyPath": "node_modules/@vercel/hono/node_modules/zod",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "rationale": "Reviewed 2026-10-23: dev-only Vercel CLI/tooling dependency; npm production audit is clean. Do not force an incompatible Zod/Vercel major override during assistant runtime work; re-review on Vercel dependency refresh or any scope change."
+    },
+    {
+      "id": "GHSA-MRHX-C7XC-M3W5",
+      "package": "zod",
+      "resolvedVersion": "3.22.4",
+      "dependencyPath": "node_modules/@vercel/python-analysis/node_modules/zod",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "rationale": "Reviewed 2026-10-23: dev-only Vercel CLI/tooling dependency; npm production audit is clean. Do not force an incompatible Zod/Vercel major override during assistant runtime work; re-review on Vercel dependency refresh or any scope change."
+    },
+    {
+      "id": "GHSA-MRHX-C7XC-M3W5",
+      "package": "zod",
+      "resolvedVersion": "4.1.11",
+      "dependencyPath": "node_modules/zod",
+      "severity": "high",
+      "scope": "dev",
+      "status": "accepted-temporarily",
+      "rationale": "Reviewed 2026-10-23: dev-only Vercel CLI/tooling dependency; npm production audit is clean. Do not force an incompatible Zod/Vercel major override during assistant runtime work; re-review on Vercel dependency refresh or any scope change."
     }
   ],
   "minimumVersions": {

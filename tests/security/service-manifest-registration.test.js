@@ -112,7 +112,8 @@ describe(
           'valuation_run',
           'web_crawl',
           'web_explore',
-          'web_fetch'
+          'web_fetch',
+          'web_search'
         ]);
       }
     );
@@ -201,8 +202,14 @@ describe(
       () => {
         expect(
           GOVERNANCE.permissions
-        ).toContain(
+        ).not.toContain(
           'research.web.read'
+        );
+
+        expect(
+          GOVERNANCE.entitlements
+        ).toContain(
+          'research.web'
         );
 
         expect(
@@ -264,8 +271,13 @@ describe(
     test(
       'permissions are enforced by gateway',
       async () => {
-        const service =
-          SERVICES['web-research'];
+        const service = {
+          ...SERVICES['web-research'],
+          governance: {
+            ...SERVICES['web-research'].governance,
+            permissions: ['test.permission']
+          }
+        };
 
         const capability =
           CAPABILITIES.web_fetch;

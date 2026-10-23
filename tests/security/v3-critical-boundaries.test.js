@@ -72,11 +72,14 @@ describe('V3 critical control-plane boundaries', () => {
     expect(source).toContain("status === 'active' || status === 'trialing'");
   });
 
-  test('Native AI execution is denied to unauthenticated callers', () => {
+  test('all assistant execution is denied to unauthenticated callers before AI or fallback routing', () => {
     const source = read('v3/api/ai.js');
     expect(source).toContain('authenticatedUser = await getUserFromToken(req)');
-    expect(source).toContain('Authentication required for BONDS AI execution');
-    expect(source).toContain('NATIVE_AUTH_REQUIRED');
+    expect(source).toContain("error: 'AUTHENTICATION_REQUIRED'");
+    expect(source).toContain('requires_authentication: true');
+    expect(source).toContain('return sendJson(res, 401');
+    expect(source).not.toContain('NATIVE_AUTH_REQUIRED');
+    expect(source).not.toContain('const deterministicReply =');
   });
 
   test('token service cutover refuses unknown listeners and restores known runtime', () => {
