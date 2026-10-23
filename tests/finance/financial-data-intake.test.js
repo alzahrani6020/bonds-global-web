@@ -5,7 +5,12 @@ const {
   parseNumeric,
   requirementsFor,
   extractFinancialFields,
-  validateDataset
+  validateDataset,
+  classifyDocumentType,
+  fieldConfidenceMap,
+  qualityStatus,
+  stableInputHash,
+  buildDependencyGraph
 } = require('../../lib/finance/financial-data-intake');
 
 describe('financial data intake phase 1', () => {
@@ -109,4 +114,49 @@ describe('financial data intake phase 1', () => {
       expect.arrayContaining([expect.objectContaining({code:'ACCOUNTING_EQUATION_MISMATCH'})])
     );
   });
+  test('keeps multiple periods explicit instead of silently choosing one', () => {
+    const extracted = extractFinancialFields({
+      primaryAction: 'financial_analysis_run',
+      serviceCode: 'debt_to_equity_analysis',
+      parsed: {
+        rows: [
+          ['Total debt','200000','SAR','2025'],
+          ['Total debt','250000','SAR','2026'],
+          ['Equity','100000','SAR','2026']
+        ],
+        text: ''
+      }
+    });
+    const debt = extracted.fields.find(x => x.field === 'total_debt');
+    expect(debt.status).toBe('multi_period');
+    expect(debt.period_values).toMatchObject({ '2025': 200000, '2026': 250000 });
+    expect(extracted.validation.valid).toBe(false);
+    expect(extracted.validation.quality_gate).toBe('FAIL_CLOSED');
+  });
+
+  test('classifies known document types conservatively and leaves unknown unknown', () => {
+    expect(classifyDocumentType({ text: 'Statement of financial position for 2026' })).toBe('balance_sheet');
+    expect(classifyDocumentType({ text: 'كشف الحساب البنكي للفترة' })).toBe('bank_statement');
+    expect(classifyDocumentType({ text: 'unstructured notes without a financial statement heading' })).toBe('unknown');
+  });
+
+  test('produces confidence, quality, stable hash and dependency evidence', () => {
+    const fields = [
+      { field:'total_debt', value:200000, status:'extracted', confidence:0.95, source:[{extraction_method:'tabular_parser'}] },
+      { field:'equity', value:100000, status:'manual', source:[{extraction_method:'manual_input'}] }
+    ];
+    const confidence = fieldConfidenceMap(fields);
+    expect(confidence).toEqual({ total_debt:0.95, equity:1 });
+    expect(qualityStatus({ validation:{valid:true,missing:[]}, fields, reviewed:true })).toBe('verified');
+    expect(stableInputHash({equity:100000,total_debt:200000}))
+      .toBe(stableInputHash({total_debt:200000,equity:100000}));
+    expect(buildDependencyGraph({
+      requirementFields:['total_debt','equity'],
+      serviceCode:'debt_to_equity_analysis',
+      engineCode:'financial_analysis'
+    }).edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({from:'input:total_debt',to:'engine:financial_analysis'})
+    ]));
+  });
+
 });
