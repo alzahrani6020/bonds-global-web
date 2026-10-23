@@ -276,9 +276,17 @@ async function assertNativeProductionRuntime(token) {
         `${probe.label} Native chat failed: HTTP ${chat.res.status}, elapsed_ms=${elapsedMs}, request_id=${requestId}, body=${JSON.stringify(chat.body)}`
       );
     }
-    if (chat.body?.source !== 'bonds-native' || chat.body?.provider !== 'BondsNativeProvider') {
+    const legacyNativeEnvelope =
+      chat.body?.source === 'bonds-native' &&
+      chat.body?.provider === 'BondsNativeProvider';
+    const orchestratedNativeEnvelope =
+      chat.body?.source === 'bonds-assistant-ai' &&
+      chat.body?.provider === 'BONDS' &&
+      chat.body?.inference?.action_fabric?.runtime_adapter === 'native_generate' &&
+      chat.body?.debug?.native_attempted === true;
+    if (!legacyNativeEnvelope && !orchestratedNativeEnvelope) {
       throw new Error(
-        `${probe.label} chat did not use Bonds Native: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}, debug=${JSON.stringify(chat.body?.debug || null)}`
+        `${probe.label} chat did not prove Bonds Native execution: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}, debug=${JSON.stringify(chat.body?.debug || null)}`
       );
     }
     if (chat.body?.model !== 'bonds-native') {
