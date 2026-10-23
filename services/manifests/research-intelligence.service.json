@@ -40,6 +40,7 @@
   "capabilities": [
     {
       "action": "research_intelligence_verify",
+      "action_type": "engine",
       "id": "BONDS-CAP-RI-001",
       "purpose": "Verify structured research evidence through the Bonds research intelligence engine.",
       "side_effect": "none",
@@ -48,6 +49,7 @@
     },
     {
       "action": "research_intelligence_synthesize",
+      "action_type": "engine",
       "id": "BONDS-CAP-RI-002",
       "purpose": "Synthesize verified research while preserving provenance and uncertainty.",
       "side_effect": "none",

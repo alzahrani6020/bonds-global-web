@@ -172,7 +172,15 @@
     },
     "capabilities": {
       "type": "array",
-      "minItems": 1
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "action_type": {
+            "enum": ["token", "ai", "api", "engine", "data", "workflow", "human", "capability"]
+          }
+        }
+      }
     }
   }
 }

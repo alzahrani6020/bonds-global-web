@@ -37,6 +37,7 @@
   "capabilities": [
     {
       "action": "financial_analysis_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-001",
       "purpose": "Run deterministic financial statement and ratio analysis.",
       "side_effect": "compute",
@@ -49,6 +50,7 @@
     },
     {
       "action": "cash_flow_analysis_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-002",
       "purpose": "Run deterministic cash-flow projection and liquidity analysis.",
       "side_effect": "compute",
@@ -61,6 +63,7 @@
     },
     {
       "action": "funding_readiness_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-003",
       "purpose": "Assess deterministic funding readiness and debt service capacity.",
       "side_effect": "compute",
@@ -73,6 +76,7 @@
     },
     {
       "action": "creditworthiness_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-004",
       "purpose": "Run deterministic creditworthiness scoring and risk banding.",
       "side_effect": "compute",
@@ -85,6 +89,7 @@
     },
     {
       "action": "feasibility_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-005",
       "purpose": "Run deterministic feasibility metrics including NPV, IRR and payback.",
       "side_effect": "compute",
@@ -97,6 +102,7 @@
     },
     {
       "action": "valuation_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-006",
       "purpose": "Run deterministic DCF valuation and equity value computation.",
       "side_effect": "compute",
@@ -109,6 +115,7 @@
     },
     {
       "action": "risk_analysis_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-007",
       "purpose": "Run deterministic financial risk scoring across liquidity, leverage and debt service.",
       "side_effect": "compute",
@@ -121,6 +128,7 @@
     },
     {
       "action": "scenario_forecast_run",
+      "action_type": "engine",
       "id": "BONDS-CAP-FIN-008",
       "purpose": "Run deterministic forecasting and Monte Carlo scenario analysis.",
       "side_effect": "compute",

@@ -2,6 +2,7 @@
 
 const mockValidate=jest.fn();
 const mockGetService=jest.fn();
+const mockGetActionDescriptor=jest.fn();
 const mockAdapter=jest.fn();
 const mockGetAdapter=jest.fn(()=>mockAdapter);
 const mockEvaluateGovernance=jest.fn();
@@ -10,7 +11,8 @@ const mockMetric=jest.fn();
 
 jest.mock('../../lib/capabilities/bonds-capability-registry',()=>({
   validateCapabilityInput:(...args)=>mockValidate(...args),
-  getService:(...args)=>mockGetService(...args)
+  getService:(...args)=>mockGetService(...args),
+  getActionDescriptor:(...args)=>mockGetActionDescriptor(...args)
 }));
 jest.mock('../../lib/capabilities/runtime-adapters',()=>({
   getRuntimeAdapter:(...args)=>mockGetAdapter(...args)
@@ -50,6 +52,15 @@ describe('Governed executor shadow authorization integration',()=>{
     jest.clearAllMocks();
     mockValidate.mockReturnValue({valid:true,code:null,missing:[],spec:cap});
     mockGetService.mockReturnValue(svc);
+    mockGetActionDescriptor.mockReturnValue({
+      action:'orchestrator_run',
+      actionType:'workflow',
+      serviceCode:'svc',
+      runtimeAdapter:'mock',
+      sideEffect:'compute',
+      capabilityId:'CAP-TEST',
+      active:true
+    });
     mockAdapter.mockResolvedValue({ok:true,executed:true});
   });
 
@@ -58,6 +69,13 @@ describe('Governed executor shadow authorization integration',()=>{
     const out=await executeCapability('orchestrator_run',{request:{}},ctx);
     expect(mockAdapter).toHaveBeenCalledTimes(1);
     expect(out.ok).toBe(true);
+    expect(out.action_fabric).toEqual(expect.objectContaining({
+      version:1,
+      action:'orchestrator_run',
+      action_type:'workflow',
+      service_code:'svc',
+      governed:true
+    }));
     expect(out.shadow_authorization).toEqual(expect.objectContaining({
       outcome:'would_allow',
       drift:false,
@@ -72,6 +90,10 @@ describe('Governed executor shadow authorization integration',()=>{
     expect(out.ok).toBe(false);
     expect(out.executed).toBe(false);
     expect(out.error.code).toBe('RATE_LIMITED');
+    expect(out.action_fabric).toEqual(expect.objectContaining({
+      action_type:'workflow',
+      governed:true
+    }));
     expect(mockAdapter).not.toHaveBeenCalled();
     expect(out.shadow_authorization).toEqual(expect.objectContaining({
       outcome:'would_allow',

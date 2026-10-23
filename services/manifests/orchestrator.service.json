@@ -40,6 +40,7 @@
   "capabilities": [
     {
       "action": "orchestrator_run",
+      "action_type": "workflow",
       "id": "BONDS-CAP-ORCH-001",
       "purpose": "Execute the Bonds intelligence orchestrator through the governed capability boundary.",
       "side_effect": "compute",
