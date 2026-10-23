@@ -40,6 +40,7 @@ const { publicAssistantPolicyDescriptor } = require('../../lib/assistant/policy-
 const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
 const { executeParallelServices } = require('../../lib/services/parallel-tool-execution');
 const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
+const { verifySensitiveAction } = require('../../lib/assistant/sensitive-action-verifier');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 
@@ -283,6 +284,43 @@ async function assistantRouter(req, res, path, user) {
           authorization_source:false,
           execution_authorized:false,
           auto_execute:false
+        }
+      });
+    }
+  }
+
+  if (path === '/assistant/sensitive-actions/verify' && req.method === 'POST') {
+    let body;
+    try { body = await parseBody(req); }
+    catch (_err) {
+      return sendJson(res, 400, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'INVALID_JSON_BODY'
+      });
+    }
+
+    try {
+      const verification=verifySensitiveAction({
+        action:body.action,
+        confirmation:body.confirmation || null,
+        approval:body.approval || null
+      });
+      const accepted=verification.verdict==='verified_for_review';
+      return sendJson(res, accepted ? 200 : 422, {
+        protocol:PROTOCOL,
+        status:accepted ? 'completed' : 'denied',
+        verification
+      });
+    } catch (_err) {
+      return sendJson(res, 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:'SENSITIVE_ACTION_VERIFIER_UNAVAILABLE',
+        policy:{
+          execution_authorized:false,
+          auto_execute:false,
+          authorization_source:false
         }
       });
     }
@@ -1077,6 +1115,7 @@ async function assistantRouter(req, res, path, user) {
         'HUMAN_APPROVAL_USER_REQUIRED','HUMAN_APPROVAL_BOUNDARY_REQUIRED',
         'HUMAN_APPROVAL_VERSION_REQUIRED','HUMAN_APPROVAL_IDEMPOTENCY_KEY_INVALID',
         'HUMAN_APPROVAL_CONFIRMATION_REQUIRED','HUMAN_APPROVAL_RISK_NOT_ELIGIBLE',
+        'SENSITIVE_ACTION_VERIFICATION_FAILED',
         'INVALID_WORKFLOW_KEY','INVALID_ASSISTANT_ACTION'
       ].includes(err.message);
       return sendJson(res,conflict?409:notFound?404:clientError?422:503,{
