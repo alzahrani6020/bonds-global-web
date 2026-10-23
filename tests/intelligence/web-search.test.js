@@ -1,4 +1,4 @@
-const { parseDuckDuckGoHtml, parseBraveHtml, parseBingHtml } = require('../../lib/intelligence/web-search');
+const { parseDuckDuckGoHtml, parseBraveHtml, decodeBingRedirectUrl, parseBingHtml } = require('../../lib/intelligence/web-search');
 
 describe('BONDS governed web search', () => {
   test('parses bounded public search results and unwraps redirect targets', () => {
@@ -39,13 +39,22 @@ describe('BONDS governed web search', () => {
         url: 'https://www.spa.gov.sa/1319666'
       }),
       expect.objectContaining({
-        title: 'Mohammed bin Salman | Biography',
-        url: 'https://www.britannica.com/biography/Mohammed-bin-Salman'
+        title: 'Amr Moussa - Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/Amr_Moussa'
       })
     ]);
   });
 
+  test('decodes Bing ck/a base64url redirects to the external destination', () => {
+    const target = 'https://en.wikipedia.org/wiki/Amr_Moussa';
+    const encoded = Buffer.from(target, 'utf8').toString('base64url');
+    const redirect = 'https://www.bing.com/ck/a?u=a1' + encoded + '&ntb=1';
+    expect(decodeBingRedirectUrl(redirect)).toBe(target);
+  });
+
   test('parses Bing public search result links while excluding Bing navigation', () => {
+    const wikiTarget = 'https://en.wikipedia.org/wiki/Amr_Moussa';
+    const wikiRedirect = 'https://www.bing.com/ck/a?u=a1' + Buffer.from(wikiTarget, 'utf8').toString('base64url') + '&ntb=1';
     const html = `
       <main>
         <a href="https://www.bing.com/search?q=settings">Search</a>
@@ -54,7 +63,7 @@ describe('BONDS governed web search', () => {
           <div class="b_caption"><p>نتيجة عامة موثوقة.</p></div>
         </li>
         <li class="b_algo">
-          <h2><a href="https://www.britannica.com/biography/Mohammed-bin-Salman">Mohammed bin Salman | Biography</a></h2>
+          <h2><a href="${wikiRedirect}">Amr Moussa - Wikipedia</a></h2>
           <div class="b_caption"><p>Biography result.</p></div>
         </li>
       </main>
