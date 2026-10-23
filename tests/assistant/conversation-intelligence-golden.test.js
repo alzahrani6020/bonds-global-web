@@ -99,8 +99,11 @@ describe('BONDS conversational intelligence golden conversations', () => {
     expect(asksAssistantIdentity('من أنت؟')).toBe(true);
     expect(asksUserIdentity('هل تعرف من أنا؟')).toBe(true);
     const guarded = enforceAssistantIdentity('أنا Gemini من Google وأساعدك.');
+    const guardedTechnical = enforceAssistantIdentity('النموذج الأساسي هو Gemma من Google.');
     expect(guarded).toContain('مساعد بوندز');
+    expect(guardedTechnical).toContain('مساعد بوندز');
     expect(guarded).not.toMatch(/Gemini|Gemma|Google|OpenAI|ChatGPT|GPT|Claude|Anthropic|Llama|Meta/i);
+    expect(guardedTechnical).not.toMatch(/Gemini|Gemma|Google|OpenAI|ChatGPT|GPT|Claude|Anthropic|Llama|Meta/i);
   });
 
   test('adaptive token budget removes the legacy 48-token ceiling', () => {
