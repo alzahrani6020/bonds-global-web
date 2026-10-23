@@ -4,7 +4,7 @@
   "source_of_truth": "docs/BONDS_DUAL_CORE_MASTER_ARCHITECTURE.md",
   "bootstrap": "docs/PROJECT_BOOTSTRAP.md",
   "status": "in_progress",
-  "current_phase": "phase3-candidate-engineering",
+  "current_phase": "phase4-approval-integration",
   "phases": [
     {
       "id": "phase0",
@@ -130,7 +130,7 @@
     {
       "id": "phase3",
       "title": "Candidate Engineering",
-      "status": "in_progress",
+      "status": "completed",
       "items": [
         {
           "id": "p3.1",
@@ -165,14 +165,36 @@
         {
           "id": "p3.7",
           "title": "Engineering Memory",
-          "status": "implemented_candidate"
+          "status": "completed"
         }
       ]
     },
     {
       "id": "phase4",
       "title": "Approval & Integration",
-      "status": "planned"
+      "status": "in_progress",
+      "items": [
+        {
+          "id": "p4.1",
+          "title": "SHA-bound APPROVED_TARGET and partial approvals",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p4.2",
+          "title": "Deterministic dependency checks",
+          "status": "planned"
+        },
+        {
+          "id": "p4.3",
+          "title": "Integration resolver",
+          "status": "planned"
+        },
+        {
+          "id": "p4.4",
+          "title": "Assistant and capability registry synchronization",
+          "status": "planned"
+        }
+      ]
     },
     {
       "id": "phase5",
