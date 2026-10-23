@@ -39,8 +39,8 @@ describe('BONDS governed web search', () => {
         url: 'https://www.spa.gov.sa/1319666'
       }),
       expect.objectContaining({
-        title: 'Amr Moussa - Wikipedia',
-        url: 'https://en.wikipedia.org/wiki/Amr_Moussa'
+        title: 'Mohammed bin Salman | Biography',
+        url: 'https://www.britannica.com/biography/Mohammed-bin-Salman'
       })
     ]);
   });
@@ -75,8 +75,8 @@ describe('BONDS governed web search', () => {
         url: 'https://www.spa.gov.sa/1319666'
       }),
       expect.objectContaining({
-        title: 'Mohammed bin Salman | Biography',
-        url: 'https://www.britannica.com/biography/Mohammed-bin-Salman'
+        title: 'Amr Moussa - Wikipedia',
+        url: 'https://en.wikipedia.org/wiki/Amr_Moussa'
       })
     ]);
   });
