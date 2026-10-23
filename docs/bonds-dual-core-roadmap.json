@@ -130,7 +130,44 @@
     {
       "id": "phase3",
       "title": "Candidate Engineering",
-      "status": "ready"
+      "status": "in_progress",
+      "items": [
+        {
+          "id": "p3.1",
+          "title": "Deterministic System Map",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p3.2",
+          "title": "Impact Analyzer and focused test selection",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p3.3",
+          "title": "Isolated Candidate Manager",
+          "status": "planned"
+        },
+        {
+          "id": "p3.4",
+          "title": "BondsNative code-provider adapter",
+          "status": "planned"
+        },
+        {
+          "id": "p3.5",
+          "title": "Patch Engine",
+          "status": "planned"
+        },
+        {
+          "id": "p3.6",
+          "title": "Autonomous Repair Loop and stuck-loop detector",
+          "status": "planned"
+        },
+        {
+          "id": "p3.7",
+          "title": "Engineering Memory",
+          "status": "planned"
+        }
+      ]
     },
     {
       "id": "phase4",
