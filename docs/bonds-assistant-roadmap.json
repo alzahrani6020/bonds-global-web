@@ -95,13 +95,13 @@
       "id": 11,
       "title": "Deterministic Planner",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 12,
       "title": "Missing-Data Resolver",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 13,
@@ -485,13 +485,13 @@
       "id": 76,
       "title": "User Journey Engine",
       "phase": "phase2",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 77,
       "title": "Next-Step Engine",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 78,
@@ -689,7 +689,7 @@
       "id": 110,
       "title": "Evidence Binding",
       "phase": "phase1",
-      "status": "planned"
+      "status": "implemented_base"
     },
     {
       "id": 111,
@@ -943,7 +943,7 @@
   "last_update": {
     "date": "2026-10-23",
     "branch": "feat/assistant-per-task-budget",
-    "change": "Per-task Budget implemented_base as request-scoped advisory evaluation over existing admin_ai_operation_events request_id. It compares recorded cost with an explicit USD budget and reports within/over/unpriced state without blocking execution or limiting tokens/compute or changing model/provider/authorization. No migration. Next: latency_aware_routing."
+    "change": "Per-task Budget implemented_base as request-scoped advisory evaluation over existing admin_ai_operation_events request_id. It compares recorded cost with an explicit USD budget, reports not_found/within/over/unpriced state with telemetry_found evidence, and never blocks execution or limits tokens/compute or changes model/provider/authorization. No migration. Next: latency_aware_routing."
   },
   "production_rollout": {
     "status": "complete",
