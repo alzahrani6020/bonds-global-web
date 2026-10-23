@@ -280,6 +280,9 @@ async function generateNativeReply(messages, context, options = {}) {
       request_total_seconds: runtimeResult.request_total_seconds ?? null,
       completion_tokens: runtimeResult.completion_tokens ?? null,
       tokens_per_second: runtimeResult.tokens_per_second ?? null,
+      model_sha256: runtimeResult.model_sha256 ?? null,
+      backend: runtimeResult.backend ?? null,
+      generator_identity: runtimeResult.generator_identity ?? null,
       request_elapsed_ms: response?.meta?.elapsed_ms ?? null,
       max_tokens: maxTokens,
       action_fabric: response.action_fabric || null
