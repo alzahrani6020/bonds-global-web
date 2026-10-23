@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase3-candidate-engineering",
-  "current_workstream": "p3.6-autonomous-repair-loop",
+  "current_workstream": "p3.7-engineering-memory",
   "status": "in_progress",
-  "baseline_main_sha": "3272dee7364f9cb4ba08feedd0aade8bcf340ac4",
+  "baseline_main_sha": "3b54078ec0074c49fa69783baf3df8aebed4ecdb",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -51,14 +51,17 @@
     "p3.4-native-only-provider-guard",
     "p3.5-deterministic-patch-engine",
     "p3.5-isolated-workspace-containment",
-    "p3.5-transactional-preflight-and-rollback"
-  ],
-  "currently_working_on": [
+    "p3.5-transactional-preflight-and-rollback",
     "p3.6-autonomous-repair-loop",
     "p3.6-deterministic-failure-signatures",
     "p3.6-stuck-loop-detector"
   ],
-  "next_action": "validate P3.6 Autonomous Repair Loop + Stuck-Loop Detector in CI; after merge implement P3.7 Engineering Memory without bypassing Candidate isolation or deterministic validation",
+  "currently_working_on": [
+    "p3.7-deterministic-engineering-memory",
+    "p3.7-repair-outcome-memory",
+    "p3.7-advisory-memory-context"
+  ],
+  "next_action": "validate P3.7 Engineering Memory in CI; after merge close Phase 3 Candidate Engineering and proceed to Phase 4 Approval & Integration",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -70,7 +73,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "3272dee7364f9cb4ba08feedd0aade8bcf340ac4",
+    "current_main_sha": "3b54078ec0074c49fa69783baf3df8aebed4ecdb",
     "superseded_candidate_prs": [
       472,
       475
@@ -85,7 +88,11 @@
     "phase3_patch_engine_merge_sha": "3272dee7364f9cb4ba08feedd0aade8bcf340ac4",
     "phase3_patch_engine_pr_head_sha": "6c682ab0de635b95bb64f5a111ede9e385a14f7a",
     "phase3_patch_engine_pr_ci_verified": true,
-    "phase3_patch_engine_merge_ci_status": "not_run"
+    "phase3_patch_engine_merge_ci_status": "not_run",
+    "phase3_repair_loop_merge_sha": "3b54078ec0074c49fa69783baf3df8aebed4ecdb",
+    "phase3_repair_loop_pr_head_sha": "52c7980a1ea99abe72c7ccd5f0ad145479ea3fda",
+    "phase3_repair_loop_pr_ci_verified": true,
+    "phase3_repair_loop_merge_ci_status": "not_run"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -106,5 +113,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p3.6-candidate"
+  "updated_by": "p3.7-candidate"
 }
