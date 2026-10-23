@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "phase3-candidate-engineering",
-  "current_workstream": "p3.3-isolated-candidate-manager",
+  "current_workstream": "p3.4-bondsnative-code-provider",
   "status": "in_progress",
-  "baseline_main_sha": "0a1f3e244e088e0611a3de7dbe4ca43bc7a09006",
+  "baseline_main_sha": "8ddb8adbe4e225aa29bfb4d998244846a066ae40",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -42,14 +42,17 @@
     "p2.7-best-effort-core-a-isolation",
     "p3.1-deterministic-system-map",
     "p3.2-impact-analyzer",
-    "p3.2-protected-surface-test-selection"
-  ],
-  "currently_working_on": [
+    "p3.2-protected-surface-test-selection",
     "p3.3-isolated-candidate-manager",
     "p3.3-candidate-freshness-guard",
     "p3.3-clean-workspace-contract"
   ],
-  "next_action": "validate second rebased P3.3 candidate on current main in CI; after merge implement P3.4 BondsNative code-provider adapter using the latest inference router",
+  "currently_working_on": [
+    "p3.4-bondsnative-code-provider-adapter",
+    "p3.4-structured-patch-proposal-contract",
+    "p3.4-native-only-provider-guard"
+  ],
+  "next_action": "validate P3.4 BondsNative CodeProvider in CI; after merge implement P3.5 Patch Engine that applies only validated proposals inside the isolated candidate workspace",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -61,11 +64,13 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "0a1f3e244e088e0611a3de7dbe4ca43bc7a09006",
+    "current_main_sha": "8ddb8adbe4e225aa29bfb4d998244846a066ae40",
     "superseded_candidate_prs": [
       472,
       475
-    ]
+    ],
+    "phase3_candidate_manager_merge_sha": "8ddb8adbe4e225aa29bfb4d998244846a066ae40",
+    "phase3_candidate_manager_ci_verified": true
   },
   "approved_architecture": {
     "dual_core": true,
@@ -86,5 +91,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "p3.3-rebased2-candidate"
+  "updated_by": "p3.4-candidate"
 }
