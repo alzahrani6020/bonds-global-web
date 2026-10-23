@@ -89,10 +89,12 @@ describe('BONDS unified assistant workspace UI',()=>{
     expect(widget).toContain('class="bonds-ai-attach-button"');
     expect(widget).toContain('multiple hidden');
     expect(widget).toContain("const CLIENT_DOCUMENTS_BUCKET = 'client-documents';");
+    expect(widget).toContain("const CLIENT_DOCUMENTS_QUARANTINE_BUCKET = 'client-documents-quarantine';");
     expect(widget).toContain("executeAttachmentCapability('media_classify'");
+    expect(widget).toContain("executeAttachmentCapability('file_security_scan'");
     expect(widget).toContain("executeAttachmentCapability('document_analyze'");
     expect(widget).toContain(".from('client_documents')");
-    expect(widget).toContain(".from(CLIENT_DOCUMENTS_BUCKET)");
+    expect(widget).toContain(".from(CLIENT_DOCUMENTS_QUARANTINE_BUCKET)");
     expect(widget).toContain("context.attachments = state.attachments");
     expect(widget).not.toContain('/api/v3/upload');
   });
