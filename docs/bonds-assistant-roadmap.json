@@ -951,8 +951,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "docs/close-assistant-evaluations",
-    "change": "Assistant Evaluations closed after production verification. PR #527 merged as 8b45d942be4ecfcc15b6cbf3efc80a616e2489a8. Post-merge CI 39948593154, Service Worker 39948593042, Dependency Security 39948593093, Production Release 39949138040, and Production Authenticated Smoke 39949336163 all passed. Vercel deployment dpl_8opzr7t6w19h1v72xNAqU8x2ERX4 is READY for the exact merge SHA; /api/health is ok and /api/readiness is ready on version 8b45d94. No migration. Next: red_team_scenarios."
+    "branch": "feat/assistant-red-team-scenarios",
+    "change": "Red Team Scenarios implemented as a versioned deterministic adversarial corpus and runner over the existing Assistant protocol. Coverage includes unregistered/external navigation, javascript URL attempts, form path traversal, unimplemented sensitive actions, nested forbidden execution fields, raw SQL/code injection and high-risk confirmation bypass attempts. Results fail closed with structured evidence and always keep execution_authorized=false and writes_performed=false. No provider/model/token/context/throughput/compute/authorization change and no migration. Candidate only until merge and production verification. Next after verification: end_to_end_ci_journeys."
   },
   "production_rollout": {
     "status": "complete",
