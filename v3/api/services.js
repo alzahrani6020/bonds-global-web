@@ -5,6 +5,7 @@ const { executeService, loadExecutionProfile } = require('../../lib/services/ser
 const { parseDocument, DocumentParserError } = require('../../lib/api/document-parser');
 const {
   parseNumeric,
+  ALL_FIELDS,
   requirementsFor,
   extractFinancialFields,
   validateDataset,
@@ -324,7 +325,11 @@ function cleanFinancialManualValues(values, fields) {
   const source = values && typeof values === 'object' && !Array.isArray(values) ? values : {};
   const out = {};
   const reviewFields = [];
-  for (const field of fields) {
+  const acceptedFields = [...new Set([
+    ...(Array.isArray(fields) ? fields : []),
+    ...Object.keys(source).filter(field => ALL_FIELDS.includes(field))
+  ])];
+  for (const field of acceptedFields) {
     const raw = source[field];
     const structured = field === 'periods';
     const value = structured
@@ -910,6 +915,11 @@ async function handleServiceExecute(req, res, supabase, user) {
         executed:successful,
         metrics,
         validation:targetValidation || {},
+        benchmarking:{
+          applied:false,
+          reason:'trusted_source_required',
+          policy:'benchmark_only_with_verified_source_provenance'
+        },
         recorded_at:now
       };
 
