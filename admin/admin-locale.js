@@ -53,16 +53,39 @@
     'Label':'التسمية',
     'Organization UUID':'معرّف المنشأة',
     'Value':'القيمة',
-    'Title':'العنوان'
+    'Title':'العنوان',
+    'CRM وإدارة الشركات':'إدارة علاقات العملاء (CRM)',
+    'Leads الحاسبات':'عملاء الحاسبات المحتملون',
+    'طلبات مراجعة AI':'طلبات مراجعة الذكاء الاصطناعي',
+    'مدن City Intelligence':'مدن ذكاء المدن'
   });
+
+  const PHRASES=Object.freeze([
+    ['Normal / Emergency / Full Stop','عادي / طوارئ / إيقاف كامل'],
+    ['Self-Training','التدريب الذاتي'],
+    ['Production SHA','معرّف إصدار الإنتاج'],
+    ['Production READY','الإنتاج جاهز'],
+    ['Production readiness','جاهزية الإنتاج'],
+    ['Provider','المزوّد'],
+    ['AI/API','الذكاء الاصطناعي / واجهة البرمجة'],
+    ['AI','الذكاء الاصطناعي'],
+    ['CRM','إدارة علاقات العملاء'],
+    ['City Intelligence','ذكاء المدن'],
+    ['Dual-Core','ثنائي النواة'],
+    ['Control Center','مركز التحكم']
+  ]);
 
   function translateText(text){
     const raw=String(text??'');
     const trimmed=raw.trim();
     if(!trimmed) return raw;
     const direct=EXACT[trimmed];
-    if(!direct) return raw;
-    return raw.replace(trimmed,direct);
+    if(direct) return raw.replace(trimmed,direct);
+    let translated=raw;
+    for(const [from,to] of PHRASES){
+      if(translated.includes(from)) translated=translated.split(from).join(to);
+    }
+    return translated;
   }
 
   function translateAttributes(el){
@@ -118,5 +141,11 @@
     observe(doc);
   }
 
-  global.BondsAdminLocale={EXACT,applyToDocument,translateText};
+  global.BondsAdminLocale={EXACT,PHRASES,applyToDocument,translateText};
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',()=>applyToDocument(document),{once:true});
+  }else{
+    applyToDocument(document);
+  }
 })(window);
