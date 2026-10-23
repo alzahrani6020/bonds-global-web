@@ -926,10 +926,11 @@
     "latency_aware_routing",
     "streaming",
     "parallel_tool_execution",
-    "critic_verifier_for_sensitive_tasks"
+    "critic_verifier_for_sensitive_tasks",
+    "multi_model_consensus_only_for_critical_tasks"
   ],
   "next": [
-    "multi_model_consensus_only_for_critical_tasks"
+    "synthetic_production_journeys"
   ],
   "deferred": [
     "action_tokens",
@@ -947,8 +948,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-critical-multi-model-consensus-latest",
-    "change": "Critical-only multi-model consensus rebased onto latest main as an advisory implementation candidate. It runs only for risk=critical, withholds raw action input values, reuses configured Bonds Native remote nodes, requires at least two distinct valid model_sha256 identities before calling the result multi-model, reports disagreement honestly, and never grants execution authority. No provider/model/token/context/throughput/compute reduction, no multi-agent architecture, and no database migration. Next after merge and production verification: synthetic_production_journeys."
+    "branch": "docs/close-critical-multi-model-consensus-current",
+    "change": "Critical-only multi-model consensus closed after production verification. PR #501 merged as c27e853a5180fc4be735c478b3ffab0815658811. Exact Merge SHA passed CI, Service Worker, Dependency Security, Production Release, Production Authenticated Smoke, and Vercel READY. Consensus remains advisory-only for risk=critical, requires distinct valid model_sha256 identities, never grants execution authority, and introduces no provider/model/token/context/throughput/compute restriction or database migration. Next: synthetic_production_journeys."
   },
   "production_rollout": {
     "status": "complete",
