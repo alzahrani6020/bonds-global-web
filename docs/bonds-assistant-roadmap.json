@@ -930,10 +930,11 @@
     "multi_model_consensus_only_for_critical_tasks",
     "synthetic_production_journeys",
     "golden_conversations",
-    "assistant_evaluations"
+    "assistant_evaluations",
+    "red_team_scenarios"
   ],
   "next": [
-    "red_team_scenarios"
+    "end_to_end_ci_journeys"
   ],
   "deferred": [
     "action_tokens",
@@ -951,8 +952,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-red-team-scenarios",
-    "change": "Red Team Scenarios implemented as a versioned deterministic adversarial corpus and runner over the existing Assistant protocol. Coverage includes unregistered/external navigation, javascript URL attempts, form path traversal, unimplemented sensitive actions, nested forbidden execution fields, raw SQL/code injection and high-risk confirmation bypass attempts. Results fail closed with structured evidence and always keep execution_authorized=false and writes_performed=false. No provider/model/token/context/throughput/compute/authorization change and no migration. Candidate only until merge and production verification. Next after verification: end_to_end_ci_journeys."
+    "branch": "docs/close-red-team-scenarios-v2",
+    "change": "Red Team Scenarios closed after production verification. PR #531 merged as 818ad1795215325a39584f5ce2bd84dfcd6a27db. Post-merge CI 39951589185, Service Worker 39951589116, Dependency Security 39951589189, Production Release 39952247079, and Production Authenticated Smoke 39952481837 all passed. Vercel deployment dpl_ZeDQosEhjbc74Gw3552X2JJmYcc7 is READY for the exact merge SHA. No migration. Next: end_to_end_ci_journeys."
   },
   "production_rollout": {
     "status": "complete",
