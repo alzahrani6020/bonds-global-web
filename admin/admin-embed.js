@@ -7,16 +7,27 @@
 
   const isEmbed = location.search.includes('embed=1');
 
-  function applyEmbeddedLocale(value) {
-    const locale = String(value || '').toLowerCase().startsWith('en') ? 'en' : 'ar';
-    document.documentElement.lang = locale;
-    document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
-    try { window.localStorage?.setItem('bonds-admin-locale', locale); } catch (_) {}
-    if (window.BondsAdminI18n?.setLocale) {
-      window.BondsAdminI18n.setLocale(locale);
-    } else {
-      window.dispatchEvent(new CustomEvent('admin-locale-changed', { detail: { locale } }));
-    }
+  async function ensureAdminI18n() {
+    if (window.BondsAdminI18n) return window.BondsAdminI18n;
+    if (window.BondsAdminCommon?.ensureAdminI18n) return window.BondsAdminCommon.ensureAdminI18n();
+    if (window.BondsAdminLocale?.ensureCentral) return window.BondsAdminLocale.ensureCentral();
+    if (window.__BONDS_ADMIN_I18N_PROMISE__) return window.__BONDS_ADMIN_I18N_PROMISE__;
+
+    window.__BONDS_ADMIN_I18N_PROMISE__ = new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = '/admin/admin-i18n.js?v=2';
+      script.dataset.bondsAdminI18n = 'true';
+      script.onload = () => resolve(window.BondsAdminI18n);
+      script.onerror = reject;
+      document.head.appendChild(script);
+    });
+    return window.__BONDS_ADMIN_I18N_PROMISE__;
+  }
+
+  async function applyEmbeddedLocale(value) {
+    const i18n = await ensureAdminI18n();
+    if (!i18n?.setLocale) return;
+    i18n.setLocale(value);
   }
 
   function applyEmbedStyles() {
@@ -101,7 +112,7 @@
     if (e.source !== window.parent) return;
     if (!e.data) return;
     if (e.data.type === 'admin-locale') {
-      applyEmbeddedLocale(e.data.locale);
+      applyEmbeddedLocale(e.data.locale).catch(() => {});
       return;
     }
     if (e.data.type !== 'admin-token') return;
