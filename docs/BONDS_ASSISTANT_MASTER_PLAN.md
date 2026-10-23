@@ -675,4 +675,17 @@ parent/child relationships بين التوكنات.
 - التخزين الدائم يعيد استخدام `assistant_workflow_state` وRPCs القائمة، ولا ينشئ authorization plane أو token architecture جديداً.
 - Cost Governance الحالية تبقى observability-only ولا تُستخدم للحجب أو تقييد token/provider/model/compute.
 
-الحالة في هذه النقطة: implementation candidate على فرع؛ لا تعتبر MERGED أو CI/PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الدمج.
+الحالة النهائية: **MERGED + CI VERIFIED + PRODUCTION VERIFIED** عبر PR #462، Merge SHA `e2148f0cec5be44ca3516257cc1b612633cddb88`، مع Production Release وProduction Authenticated Smoke ناجحين.
+
+
+---
+
+## 2026-10-23 — Task Resume + Guest→Authenticated continuity checkpoint
+
+- إعادة استخدام `assistant_workflow_state` وواجهات `/assistant/workflows/load|save` القائمة؛ لا مخزن جديد.
+- إضافة lookup قراءة فقط `GET /assistant/workflows/resume?boundary=...` لاشتقاق workflow key canonical وتحميل حالة المستخدم نفسها.
+- عند فتح الشات أو قبل الإرسال، إذا كان المستخدم مصادقاً عليه تُستأنف الحالة الدائمة لنفس Page/Service boundary.
+- إذا لم توجد حالة دائمة وكانت هناك حالة Guest محلية ذات معنى، تُنقل عبر مسار `/assistant/workflows/save` القائم والمحكوم.
+- إذا وجدت حالة دائمة وكانت حالة Guest أحدث، تُدمج حقول الاستمرارية الآمنة فقط؛ تبقى `pending_confirmation` من الخادم ولا تُنقل من Guest.
+- لا تغيير في token/provider/model/context/throughput/compute ولا authorization plane جديد.
+- الحالة الحالية: implementation candidate؛ تحتاج CI ثم الدمج والتحقق الإنتاجي قبل الإغلاق.
