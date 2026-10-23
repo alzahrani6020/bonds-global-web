@@ -41,3 +41,10 @@
 
 ## DEC-014 — أولوية التشغيل
 Production/critical incidents تتقدم على evolution/training/background work.
+
+
+## DEC-015 — Unified Governed Action Fabric
+كل تنفيذ تشغيلي يمر عبر Capability Registry وGoverned Executor نفسه، مع تصنيف صريح للفعل إلى:
+`token` أو `ai` أو `api` أو `engine` أو `data` أو `workflow` أو `human` أو `capability`.
+
+التصنيف لا يمنح صلاحية جديدة ولا يتجاوز الحوكمة. AI/API ليست مسارات حرة؛ هي capabilities مسجلة بــ runtime adapters معروفة. Service Token يبقى آلية داخلية للـbroker ولا يصبح سرًا أو قدرة حرة يختارها النموذج.

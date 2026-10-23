@@ -113,6 +113,24 @@ describe(
 
 
     test(
+      'classifies AI API engine data and workflow actions through one registry',
+      () => {
+        const {
+          getActionDescriptor,
+          listActions
+        } = require('../../lib/capabilities/bonds-capability-registry');
+
+        expect(getActionDescriptor('native_generate').actionType).toBe('ai');
+        expect(getActionDescriptor('web_fetch').actionType).toBe('api');
+        expect(getActionDescriptor('financial_analysis_run').actionType).toBe('engine');
+        expect(getActionDescriptor('funding_status').actionType).toBe('data');
+        expect(getActionDescriptor('orchestrator_run').actionType).toBe('workflow');
+        expect(listActions().length).toBe(Object.keys(CAPABILITIES).length);
+      }
+    );
+
+
+    test(
       'all active capabilities have approved adapters',
       () => {
         for (

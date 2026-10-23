@@ -54,6 +54,7 @@
   "capabilities": [
     {
       "action": "web_fetch",
+      "action_type": "api",
       "id": "BONDS-CAP-WEB-001",
       "purpose": "Fetch one public HTTP/HTTPS resource with SSRF protection and evidence hashing.",
       "side_effect": "network_read",
@@ -64,6 +65,7 @@
     },
     {
       "action": "web_crawl",
+      "action_type": "api",
       "id": "BONDS-CAP-WEB-002",
       "purpose": "Run a bounded multi-page crawl with host/depth/page budgets.",
       "side_effect": "network_read",
@@ -76,6 +78,7 @@
     },
     {
       "action": "web_explore",
+      "action_type": "api",
       "id": "BONDS-CAP-WEB-003",
       "purpose": "Fetch, crawl and extract evidence-bearing content.",
       "side_effect": "network_read",
@@ -88,6 +91,7 @@
     },
     {
       "action": "evidence_verify",
+      "action_type": "engine",
       "id": "BONDS-CAP-RSCH-001",
       "purpose": "Verify evidence, independence and contradictions.",
       "side_effect": "none",
@@ -98,6 +102,7 @@
     },
     {
       "action": "research_synthesize",
+      "action_type": "engine",
       "id": "BONDS-CAP-RSCH-002",
       "purpose": "Synthesize verified research while preserving provenance.",
       "side_effect": "none",

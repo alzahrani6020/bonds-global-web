@@ -54,6 +54,7 @@
   "capabilities": [
     {
       "action": "native_generate",
+      "action_type": "ai",
       "id": "BONDS-CAP-AI-001",
       "purpose": "Generate text through the configured Bonds Native Inference runtime.",
       "side_effect": "compute",
@@ -64,6 +65,7 @@
     },
     {
       "action": "native_health",
+      "action_type": "ai",
       "id": "BONDS-CAP-AI-002",
       "purpose": "Inspect the configured Bonds Native Inference runtime.",
       "side_effect": "none",

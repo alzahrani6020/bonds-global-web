@@ -36,6 +36,17 @@ const SIDE_EFFECTS = new Set([
   'database_write'
 ]);
 
+const ACTION_TYPES = new Set([
+  'token',
+  'ai',
+  'api',
+  'engine',
+  'data',
+  'workflow',
+  'human',
+  'capability'
+]);
+
 const NETWORK_ACCESS = new Set([
   'none',
   'public_only',
@@ -203,6 +214,14 @@ function validateManifest(manifest, filename) {
       fail(`${prefix}.side_effect is invalid`);
     }
 
+    const actionType = capability.action_type === undefined
+      ? null
+      : String(capability.action_type).trim().toLowerCase();
+
+    if (actionType !== null && !ACTION_TYPES.has(actionType)) {
+      fail(`${prefix}.action_type is invalid`);
+    }
+
     if (
       !capability.runtime ||
       typeof capability.runtime.adapter !== 'string' ||
@@ -234,6 +253,7 @@ function validateManifest(manifest, filename) {
       id: capability.id,
       purpose: capability.purpose,
       sideEffect: capability.side_effect,
+      ...(actionType ? { actionType } : {}),
       required,
       requiredAny,
       runtime: {
