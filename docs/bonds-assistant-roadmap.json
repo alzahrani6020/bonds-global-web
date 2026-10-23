@@ -948,8 +948,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "docs/finalize-critical-multi-model-consensus",
-    "change": "Critical-only multi-model consensus is merged, CI verified, and production verified via PR #501 / merge SHA c27e853a5180fc4be735c478b3ffab0815658811. It remains advisory-only, runs only for risk=critical, requires at least two distinct model_sha256 identities to claim multi-model consensus, never grants execution authority, and introduced no database migration. Next: synthetic_production_journeys."
+    "branch": "feat/synthetic-production-journeys",
+    "change": "Synthetic Production Journeys implemented as a bounded authenticated post-deploy runner over read-only or dry-run Assistant paths. It verifies readiness/introspection/emergency-mode, registered navigation planning, policy simulation, isolated workflow resume lookup, and the cash_generation_analysis execution profile without creating business records or invoking service execution. It is wired into Production Authenticated Smoke and fails closed on drift. No provider/model/token/context/throughput/compute or authorization change and no migration. Next after merge and production verification: golden_conversations."
   },
   "production_rollout": {
     "status": "complete",
