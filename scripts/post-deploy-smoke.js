@@ -375,6 +375,15 @@ async function assertFinancialDataIntake(token) {
     throw new Error('Financial intake did not return a content-addressed file version');
   }
   const extracted = Object.fromEntries((prepare.body.fields || []).map(field => [field.field, field.value]));
+  const groundTruth = { total_debt:200000, equity:100000 };
+  const truthFields = Object.keys(groundTruth);
+  const exactMatches = truthFields.filter(field => extracted[field] === groundTruth[field]).length;
+  const extractionMetrics = {
+    extraction_accuracy: exactMatches / truthFields.length,
+    missing_field_rate: truthFields.filter(field => extracted[field] === null || extracted[field] === undefined).length / truthFields.length,
+    wrong_mapping_rate: (prepare.body.fields || []).filter(field => !truthFields.includes(field.field) && field.value !== null).length / Math.max(1, truthFields.length),
+    manual_correction_rate: 0
+  };
   if (extracted.total_debt !== 200000 || extracted.equity !== 100000) {
     throw new Error(`Financial extraction mismatch: ${JSON.stringify(extracted)}`);
   }
@@ -492,7 +501,7 @@ async function assertFinancialDataIntake(token) {
   }));
 
   console.log(
-    `Financial Data 62 acceptance PASS (debt_equity=${calculated}, liquidity_peak_gap=${peakGap}, gross_margin=${grossMargin}, stale=true, conflict=true, fail_closed=true, version=2, exports=${JSON.stringify(marginExports)})`
+    `Financial Data 62 acceptance PASS (debt_equity=${calculated}, liquidity_peak_gap=${peakGap}, gross_margin=${grossMargin}, stale=true, conflict=true, fail_closed=true, version=2, quality_metrics=${JSON.stringify(extractionMetrics)}, exports=${JSON.stringify(marginExports)})`
   );
 }
 
