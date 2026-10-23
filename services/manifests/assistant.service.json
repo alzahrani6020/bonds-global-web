@@ -155,6 +155,19 @@
       "runtime": {
         "adapter": "assistant_calculator_run"
       }
+    },
+    {
+      "action": "ai_reason",
+      "action_type": "ai",
+      "id": "BONDS-CAP-ASST-010",
+      "purpose": "Reason over bounded BONDS chat context through the configured native inference runtime.",
+      "side_effect": "compute",
+      "required": [
+        "prompt"
+      ],
+      "runtime": {
+        "adapter": "native_generate"
+      }
     }
   ]
 }
