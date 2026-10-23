@@ -3,15 +3,19 @@
 const $=s=>document.querySelector(s);
 const lang=(document.documentElement.lang||'ar').startsWith('en')?'en':'ar';
 const T=lang==='ar'?{
- loading:'جاري تحميل الخدمة...', procedures:'الإجراءات', requirements:'المتطلبات', deliverables:'المخرجات', dependencies:'خدمات مرتبطة', pricing:'التسعير', form:'بيانات الطلب', submit:'ابدأ التنفيذ', details:'تفاصيل الخدمة', login:'سجّل الدخول لتنفيذ الخدمة', noForm:'لا توجد بيانات إضافية مطلوبة حاليًا. ابدأ التنفيذ لتحديد المتطلبات تلقائيًا.', custom:'حسب عرض سعر', required:'مطلوب', optional:'اختياري', sent:'تم إنشاء طلب الخدمة بنجاح', executed:'تم تنفيذ الخدمة بنجاح', moreInputs:'أدخل البيانات المطلوبة لإكمال التنفيذ', unavailable:'هذه الخدمة غير متاحة حاليًا لهذا الاختيار.', failed:'تعذر تنفيذ الطلب', files:'سيتم رفع المستندات المطلوبة من بوابة العميل بعد إنشاء الطلب.'
+ loading:'جاري تحميل الخدمة...', procedures:'الإجراءات', requirements:'المتطلبات', deliverables:'المخرجات', dependencies:'خدمات مرتبطة', pricing:'التسعير', form:'بيانات الطلب', submit:'ابدأ التنفيذ', details:'تفاصيل الخدمة', login:'سجّل الدخول لتنفيذ الخدمة', noForm:'لا توجد بيانات إضافية مطلوبة حاليًا. ابدأ التنفيذ لتحديد المتطلبات تلقائيًا.', custom:'حسب عرض سعر', required:'مطلوب', optional:'اختياري', sent:'تم إنشاء طلب الخدمة بنجاح', executed:'تم تنفيذ الخدمة بنجاح', moreInputs:'أدخل البيانات المطلوبة لإكمال التنفيذ', unavailable:'هذه الخدمة غير متاحة حاليًا لهذا الاختيار.', failed:'تعذر تنفيذ الطلب', files:'سيتم رفع المستندات المطلوبة من بوابة العميل بعد إنشاء الطلب.', intake:'مصدر البيانات المالية', upload:'رفع ملف', manual:'إدخال يدوي', chooseFile:'اختر PDF أو XLSX أو XLS أو CSV', review:'راجع البيانات المستخرجة قبل التنفيذ', approveExecute:'اعتماد وتشغيل التحليل', missing:'مفقود', conflict:'متعارض', source:'المصدر', value:'القيمة', currency:'العملة', period:'الفترة', original:'الأصلية', correction:'القيمة المعتمدة'
 }:{
- loading:'Loading service...', procedures:'Procedures', requirements:'Requirements', deliverables:'Deliverables', dependencies:'Related services', pricing:'Pricing', form:'Service inputs', submit:'Start execution', details:'Service details', login:'Sign in to execute the service', noForm:'No additional information is required yet. Start execution to resolve requirements automatically.', custom:'By quote', required:'Required', optional:'Optional', sent:'Service request created successfully', executed:'Service executed successfully', moreInputs:'Enter the required data to complete execution', unavailable:'This service is currently unavailable for this selection.', failed:'Request failed', files:'Required documents can be uploaded from the client portal after creating the request.'
+ loading:'Loading service...', procedures:'Procedures', requirements:'Requirements', deliverables:'Deliverables', dependencies:'Related services', pricing:'Pricing', form:'Service inputs', submit:'Start execution', details:'Service details', login:'Sign in to execute the service', noForm:'No additional information is required yet. Start execution to resolve requirements automatically.', custom:'By quote', required:'Required', optional:'Optional', sent:'Service request created successfully', executed:'Service executed successfully', moreInputs:'Enter the required data to complete execution', unavailable:'This service is currently unavailable for this selection.', failed:'Request failed', files:'Required documents can be uploaded from the client portal after creating the request.', intake:'Financial data source', upload:'Upload file', manual:'Manual input', chooseFile:'Choose PDF, XLSX, XLS or CSV', review:'Review extracted data before execution', approveExecute:'Approve and run analysis', missing:'Missing', conflict:'Conflict', source:'Source', value:'Value', currency:'Currency', period:'Period', original:'Original', correction:'Approved value'
 };
 const params=new URLSearchParams(location.search);
 const serviceCode=params.get('service')||'';
 let detail=null;
 let formTouched=false;
 let submitted=false;
+let intakeDatasetId=null;
+let intakeReview=null;
+let intakeMode='file';
+let intakeUploadedPath=null;
 function text(row,ar='name_ar',en='name_en'){return lang==='ar'?(row?.[ar]||row?.[en]||''):(row?.[en]||row?.[ar]||'')}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function json(url,opts){const r=await fetch(url,opts);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'HTTP '+r.status);return d}
@@ -54,6 +58,149 @@ function render(){
  const form=detail.form;
  $('#srFormTitle').textContent=form?text(form):T.form;
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
+ renderFinancialIntake();
+}
+const FINANCIAL_ACTIONS=new Set([
+ 'financial_analysis_run','cash_flow_analysis_run','funding_readiness_run','creditworthiness_run',
+ 'feasibility_run','valuation_run','risk_analysis_run','scenario_forecast_run'
+]);
+function isFinancialIntakeService(){
+ return (detail?.capabilities||[]).some(item=>FINANCIAL_ACTIONS.has(item.capability_code));
+}
+function renderFinancialIntake(){
+ if(!isFinancialIntakeService())return;
+ const host=$('#srDynamicFields');
+ if(!host||$('#srFinancialIntake'))return;
+ const panel=document.createElement('div');
+ panel.id='srFinancialIntake';
+ panel.className='sr-intake full';
+ panel.innerHTML='<h3>'+escapeHtml(T.intake)+'</h3>'+
+   '<div class="sr-intake-modes">'+
+     '<label><input type="radio" name="__intake_mode" value="file" checked> '+escapeHtml(T.upload)+'</label>'+
+     '<label><input type="radio" name="__intake_mode" value="manual"> '+escapeHtml(T.manual)+'</label>'+
+   '</div>'+
+   '<div id="srIntakeFileWrap"><input id="srIntakeFile" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"><div class="sr-muted">'+escapeHtml(T.chooseFile)+'</div></div>'+
+   '<div id="srIntakeReview"></div>';
+ host.prepend(panel);
+ panel.querySelectorAll('input[name="__intake_mode"]').forEach(radio=>radio.addEventListener('change',()=>{
+   intakeMode=radio.value;
+   $('#srIntakeFileWrap').hidden=intakeMode!=='file';
+ }));
+}
+function inferFinancialMime(file){
+ const type=String(file?.type||'').toLowerCase();
+ const allowed=new Set([
+   'application/pdf',
+   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+   'application/vnd.ms-excel',
+   'text/csv',
+   'application/csv'
+ ]);
+ if(allowed.has(type))return type==='application/csv'?'text/csv':type;
+ const name=String(file?.name||'').toLowerCase();
+ if(name.endsWith('.pdf'))return 'application/pdf';
+ if(name.endsWith('.xlsx'))return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+ if(name.endsWith('.xls'))return 'application/vnd.ms-excel';
+ if(name.endsWith('.csv'))return 'text/csv';
+ return null;
+}
+function intakeSourceLabel(field){
+ const sources=Array.isArray(field?.source)?field.source:[];
+ if(!sources.length)return intakeReview?.source?.file_name||T.manual;
+ const src=sources[0]||{};
+ const parts=[];
+ if(intakeReview?.source?.file_name)parts.push(intakeReview.source.file_name);
+ if(src.sheet)parts.push((lang==='ar'?'ورقة ':'Sheet ')+src.sheet);
+ if(src.row)parts.push((lang==='ar'?'صف ':'Row ')+src.row);
+ if(src.column)parts.push((lang==='ar'?'عمود ':'Column ')+src.column);
+ if(src.line)parts.push((lang==='ar'?'سطر ':'Line ')+src.line);
+ if(src.extraction_method==='manual_input')parts.push(T.manual);
+ return parts.join(' · ')||T.manual;
+}
+function renderIntakeReview(payload){
+ intakeReview=payload;
+ const host=$('#srIntakeReview');
+ if(!host)return;
+ const fields=Array.isArray(payload?.fields)?payload.fields:[];
+ host.innerHTML='<div class="sr-intake-review-title">'+escapeHtml(T.review)+'</div>'+
+   '<div class="sr-intake-table">'+fields.map(field=>{
+     const status=field.status==='missing'?T.missing:(field.status==='conflict'?T.conflict:field.status||'');
+     const current=field.value??'';
+     const candidates=Array.isArray(field.candidates)&&field.candidates.length?' ['+field.candidates.join(' / ')+']':'';
+     return '<div class="sr-intake-row">'+
+       '<div><strong>'+escapeHtml(humanizeKey(field.field))+'</strong><small>'+escapeHtml(status)+escapeHtml(candidates)+'</small></div>'+
+       '<div><label>'+escapeHtml(T.correction)+'</label><input type="number" step="any" data-intake-field="'+escapeHtml(field.field)+'" value="'+escapeHtml(current)+'"></div>'+
+       '<div><label>'+escapeHtml(T.currency)+'</label><span>'+escapeHtml(field.currency||'—')+'</span></div>'+
+       '<div><label>'+escapeHtml(T.period)+'</label><span>'+escapeHtml(field.period||'—')+'</span></div>'+
+       '<div class="sr-intake-source"><label>'+escapeHtml(T.source)+'</label><span>'+escapeHtml(intakeSourceLabel(field))+'</span></div>'+
+     '</div>';
+   }).join('')+'</div>';
+ $('#srSubmit').textContent=T.approveExecute;
+}
+function collectIntakeCorrections(){
+ const out={};
+ document.querySelectorAll('[data-intake-field]').forEach(input=>{
+   if(input.value!=='')out[input.dataset.intakeField]=input.value;
+ });
+ return out;
+}
+async function uploadIntakeFile(sb,user){
+ const file=$('#srIntakeFile')?.files?.[0];
+ if(!file)throw new Error(T.chooseFile);
+ const mime=inferFinancialMime(file);
+ if(!mime)throw new Error(T.chooseFile);
+ if(file.size>10*1024*1024)throw new Error('10 MB');
+ const ext={ 'application/pdf':'pdf','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet':'xlsx','application/vnd.ms-excel':'xls','text/csv':'csv' }[mime];
+ const id=(window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
+ const path='financial-intake/'+user.id+'/'+id+'.'+ext;
+ const {error}=await sb.storage.from('client-documents').upload(path,file,{contentType:mime,upsert:false});
+ if(error)throw error;
+ intakeUploadedPath=path;
+ return {storage_path:path,file_name:file.name,mime_type:mime,size_bytes:file.size};
+}
+async function prepareFinancialIntake({sb,user,headers,values}){
+ let source={manual_values:values};
+ if(intakeMode==='file')source=await uploadIntakeFile(sb,user);
+ try{
+   const response=await fetch('/api/v3/services/intake/prepare',{
+     method:'POST',
+     headers,
+     body:JSON.stringify({
+       service_code:serviceCode,
+       project_id:params.get('project_id')||null,
+       ...source
+     })
+   });
+   const payload=await response.json().catch(()=>({}));
+   if(!response.ok)throw new Error(payload?.error?.code||payload?.error||('HTTP '+response.status));
+   intakeDatasetId=payload.dataset_id;
+   renderIntakeReview(payload);
+   showStatus(T.review,true);
+ }catch(error){
+   if(intakeUploadedPath){
+     await sb.storage.from('client-documents').remove([intakeUploadedPath]).catch(()=>{});
+     intakeUploadedPath=null;
+   }
+   throw error;
+ }
+}
+async function approveFinancialIntake(headers){
+ const response=await fetch('/api/v3/services/intake/approve',{
+   method:'POST',
+   headers,
+   body:JSON.stringify({
+     dataset_id:intakeDatasetId,
+     corrections:collectIntakeCorrections()
+   })
+ });
+ const payload=await response.json().catch(()=>({}));
+ if(!response.ok){
+   if(payload?.fields)renderIntakeReview(payload);
+   const missing=payload?.missing_fields||[];
+   throw new Error(missing.length?T.moreInputs+': '+missing.map(humanizeKey).join(', '):(payload?.error?.code||'HTTP '+response.status));
+ }
+ intakeReview=payload;
+ return payload;
 }
 function humanizeKey(key){
  const labels={
@@ -180,6 +327,38 @@ async function submit(e){
     activity:params.get('activity')||null
   };
   const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};
+
+  if(isFinancialIntakeService()){
+    if(!intakeDatasetId){
+      await prepareFinancialIntake({sb,user,headers,values});
+      return;
+    }
+    await approveFinancialIntake(headers);
+    const executionResponse=await fetch('/api/v3/services/execute',{
+      method:'POST',
+      headers,
+      body:JSON.stringify({
+        service_code:serviceCode,
+        dataset_id:intakeDatasetId,
+        country_code:context.country,
+        sector:context.sector,
+        activity:context.activity,
+        language:lang,
+        context,
+        source:'service_request_page'
+      })
+    });
+    const execution=await executionResponse.json().catch(()=>({}));
+    if(!executionResponse.ok||execution.executed!==true){
+      throw new Error(execution?.error?.code||execution?.status||('HTTP '+executionResponse.status));
+    }
+    submitted=true;
+    track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null,dataset_id:intakeDatasetId});
+    showStatus(T.executed,true);
+    renderExecutionResult(execution);
+    $('#srSubmit').disabled=true;
+    return;
+  }
 
   const executionResponse=await fetch('/api/v3/services/execute',{
     method:'POST',

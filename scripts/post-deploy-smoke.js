@@ -302,6 +302,104 @@ async function assertNativeProductionRuntime(token) {
   console.log('Remote Bonds Native production caller PASS');
 }
 
+function getTokenSubject(token) {
+  const parts = String(token || '').split('.');
+  if (parts.length !== 3) throw new Error('E2E access token is not a JWT');
+  const payload = JSON.parse(Buffer.from(parts[1], 'base64url').toString('utf8'));
+  const sub = String(payload?.sub || '');
+  if (!/^[0-9a-f-]{36}$/i.test(sub)) throw new Error('E2E access token subject is invalid');
+  return sub;
+}
+
+async function assertFinancialDataIntake(token) {
+  const userId = getTokenSubject(token);
+  const supabaseUrl = resolveSupabaseUrl();
+  const supabase = createClient(supabaseUrl, cfg.supabaseAnonKey, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: { headers: { Authorization: `Bearer ${token}` } }
+  });
+
+  const fixturePath = path.join(__dirname, '..', 'tests', 'fixtures', 'debt-to-equity.csv');
+  const file = fs.readFileSync(fixturePath);
+  const storagePath = `financial-intake/${userId}/e2e-${cfg.expectedSha}-${Date.now()}.csv`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('client-documents')
+    .upload(storagePath, file, { contentType: 'text/csv', upsert: false });
+  if (uploadError) throw new Error(`Financial intake upload failed: ${uploadError.message}`);
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache',
+    'X-Request-ID': `e2e-financial-intake-${Date.now()}`
+  };
+
+  const prepare = await fetchJson(`${cfg.baseUrl}/api/v3/services/intake/prepare`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      service_code: 'debt_to_equity_analysis',
+      storage_path: storagePath,
+      file_name: 'debt-to-equity.csv',
+      mime_type: 'text/csv',
+      size_bytes: file.length
+    })
+  });
+
+  if (!prepare.res.ok || !prepare.body?.dataset_id) {
+    throw new Error(`Financial intake prepare failed: HTTP ${prepare.res.status} ${JSON.stringify(prepare.body)}`);
+  }
+  if (prepare.body?.source?.file_version?.startsWith('sha256:') !== true) {
+    throw new Error('Financial intake did not return a content-addressed file version');
+  }
+
+  const extracted = Object.fromEntries(
+    (prepare.body.fields || []).map(field => [field.field, field.value])
+  );
+  if (extracted.total_debt !== 200000 || extracted.equity !== 100000) {
+    throw new Error(`Financial extraction mismatch: ${JSON.stringify(extracted)}`);
+  }
+
+  const approve = await fetchJson(`${cfg.baseUrl}/api/v3/services/intake/approve`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      dataset_id: prepare.body.dataset_id,
+      corrections: {}
+    })
+  });
+  if (!approve.res.ok || approve.body?.status !== 'validated') {
+    throw new Error(`Financial intake approval failed: HTTP ${approve.res.status} ${JSON.stringify(approve.body)}`);
+  }
+
+  const execution = await fetchJson(`${cfg.baseUrl}/api/v3/services/execute`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({
+      service_code: 'debt_to_equity_analysis',
+      dataset_id: prepare.body.dataset_id,
+      language: 'en',
+      source: 'production_e2e'
+    })
+  });
+
+  const calculated = execution.body?.result?.metrics?.debt_to_equity;
+  const manual = 200000 / 100000;
+  if (!execution.res.ok || execution.body?.executed !== true || calculated !== manual) {
+    throw new Error(
+      `Debt/equity E2E mismatch: HTTP ${execution.res.status}, calculated=${calculated}, manual=${manual}, body=${JSON.stringify(execution.body)}`
+    );
+  }
+  if (execution.body?.dataset?.dataset_id !== prepare.body.dataset_id) {
+    throw new Error('Financial execution result is missing dataset provenance');
+  }
+
+  console.log(
+    `Financial Data Intake E2E PASS (service=debt_to_equity_analysis, file=debt-to-equity.csv, total_debt=200000, equity=100000, calculated=${calculated}, manual=${manual}, dataset=${prepare.body.dataset_id})`
+  );
+}
+
 async function assertAdminRuntime(token) {
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -485,6 +583,7 @@ async function main() {
     expectedSha: cfg.expectedSha
   });
   await assertAssistantProduction({ baseUrl: cfg.baseUrl, token, expectedSha: cfg.expectedSha });
+  await assertFinancialDataIntake(token);
   await assertProductionAssets();
   await assertAdminRuntime(token);
   await assertFundingCasesRuntime(token);
