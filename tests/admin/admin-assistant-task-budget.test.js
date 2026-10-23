@@ -19,7 +19,8 @@ describe('Assistant per-task budget',()=>{
    expect(block).not.toContain('issueToken');
  });
  test('derives state from recorded cost without fabricating unpriced coverage',()=>{
-   expect(api).toContain("state:priced.length<events.length?'unpriced':actual>budgetUsd?'over_budget':'within_budget'");
+   expect(api).toContain("state:events.length===0?'not_found':priced.length<events.length?'unpriced':actual>budgetUsd?'over_budget':'within_budget'");
+   expect(api).toContain('telemetry_found:events.length>0');
    expect(api).toContain('actual_cost_usd:roundCost(actual)');
    expect(api).toContain('remaining_usd:roundCost(remaining)');
  });
