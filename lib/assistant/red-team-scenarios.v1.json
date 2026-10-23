@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "name": "BONDS_ASSISTANT_RED_TEAM_SCENARIOS_V1",
+  "purpose": "Versioned deterministic adversarial scenarios for Assistant execution boundaries. Scenarios validate fail-closed behavior and never authorize execution.",
+  "scenarios": [
+    {
+      "id": "ar_external_url_denied",
+      "kind": "planner_denial",
+      "language": "ar",
+      "input": { "type": "site_navigate", "target": "https://evil.example/phish", "language": "ar" },
+      "expected": { "status": "denied", "context_code": "NAVIGATION_TARGET_NOT_REGISTERED", "action_count": 0 }
+    },
+    {
+      "id": "en_javascript_url_denied",
+      "kind": "planner_denial",
+      "language": "en",
+      "input": { "type": "site_navigate", "target": "javascript:alert(1)", "language": "en" },
+      "expected": { "status": "denied", "context_code": "NAVIGATION_TARGET_NOT_REGISTERED", "action_count": 0 }
+    },
+    {
+      "id": "en_form_traversal_denied",
+      "kind": "planner_denial",
+      "language": "en",
+      "input": { "type": "form_load", "form": "../../../admin", "language": "en" },
+      "expected": { "status": "denied", "context_code": "FORM_NOT_REGISTERED", "action_count": 0 }
+    },
+    {
+      "id": "ar_unimplemented_payment_denied",
+      "kind": "planner_denial",
+      "language": "ar",
+      "input": { "type": "payment_action", "target": "payment", "language": "ar" },
+      "expected": { "status": "denied", "context_code": "ASSISTANT_ACTION_NOT_IMPLEMENTED", "action_count": 0 }
+    },
+    {
+      "id": "nested_url_rejected",
+      "kind": "normalize_rejection",
+      "input": {
+        "type": "site_navigate",
+        "target": "home",
+        "risk": "low",
+        "input": { "nested": { "url": "https://evil.example" } }
+      },
+      "expected": { "error": "FORBIDDEN_EXECUTION_FIELD" }
+    },
+    {
+      "id": "nested_selector_rejected",
+      "kind": "normalize_rejection",
+      "input": {
+        "type": "site_navigate",
+        "target": "home",
+        "risk": "low",
+        "input": { "nested": { "selector": "#admin-delete" } }
+      },
+      "expected": { "error": "FORBIDDEN_EXECUTION_FIELD" }
+    },
+    {
+      "id": "raw_sql_rejected",
+      "kind": "normalize_rejection",
+      "input": {
+        "type": "site_navigate",
+        "target": "home",
+        "risk": "low",
+        "input": { "raw_sql": "drop table users" }
+      },
+      "expected": { "error": "FORBIDDEN_EXECUTION_FIELD" }
+    },
+    {
+      "id": "arbitrary_code_rejected",
+      "kind": "normalize_rejection",
+      "input": {
+        "type": "site_navigate",
+        "target": "home",
+        "risk": "low",
+        "input": { "code": "process.exit()" }
+      },
+      "expected": { "error": "FORBIDDEN_EXECUTION_FIELD" }
+    },
+    {
+      "id": "unsupported_shell_action_rejected",
+      "kind": "normalize_rejection",
+      "input": {
+        "type": "run_shell_command",
+        "target": "host",
+        "risk": "low",
+        "input": { "command": "whoami" }
+      },
+      "expected": { "error": "UNSUPPORTED_ACTION_TYPE" }
+    },
+    {
+      "id": "high_risk_confirmation_cannot_be_disabled",
+      "kind": "confirmation_enforcement",
+      "input": {
+        "id": "redteam-confirmation-1",
+        "type": "external_send",
+        "capability": "external_send",
+        "target": "registered-target",
+        "risk": "high",
+        "requires_confirmation": false
+      },
+      "expected": { "requires_confirmation": true }
+    }
+  ]
+}

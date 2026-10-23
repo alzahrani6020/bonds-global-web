@@ -846,3 +846,16 @@ parent/child relationships بين التوكنات.
 - `/api/readiness`: `ready` على version `8b45d94`.
 - Migration: N/A.
 - العنصر التالي: **Red Team Scenarios** (`red_team_scenarios`).
+
+
+---
+
+## 2026-10-23 — Red Team Scenarios checkpoint
+
+- تمت إضافة `BONDS_ASSISTANT_RED_TEAM_SCENARIOS_V1` كـ corpus عدائي versioned فوق بروتوكول Assistant الحالي، دون planner أو runtime موازٍ.
+- يغطي corpus روابط خارجية و`javascript:`، path traversal للنماذج، فعلًا حساسًا غير منفذ، حقول تنفيذ محظورة nested، SQL/code injection، ومحاولة تعطيل confirmation لفعل عالي المخاطر.
+- runner الحتمي يعيد `pass/fail/invalid` مع evidence لكل سيناريو، ويثبت دائمًا `execution_authorized:false` و`writes_performed:false`.
+- السيناريوهات تستخدم `planRegisteredAction` و`normalizeAction` الحاليين؛ لا توجد أدوات جديدة أو business writes أو database migration.
+- لا تغيير provider/model/token/context/throughput/compute أو authorization semantics.
+- الحالة الحالية: **IMPLEMENTATION CANDIDATE**؛ لا تعتبر MERGED أو CI VERIFIED أو PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الفعلي.
+- العنصر التالي بعد التحقق الإنتاجي: **End-to-End CI Journeys** (`end_to_end_ci_journeys`).
