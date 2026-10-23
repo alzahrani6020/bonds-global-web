@@ -589,14 +589,30 @@
     }
     .bonds-ai-human-link {
       display: block;
+      width: calc(100% - 32px);
       margin: 8px 16px 0;
+      padding: 0;
+      border: 0;
+      background: transparent;
       text-align: center;
+      font: inherit;
       font-size: 0.78rem;
       text-decoration: none;
       color: inherit;
       opacity: 0.78;
+      cursor: pointer;
     }
     .bonds-ai-human-link:hover { opacity: 1; text-decoration: underline; }
+    .bonds-ai-message .bonds-ai-markdown-line { display: block; margin: 0 0 0.35rem; }
+    .bonds-ai-message .bonds-ai-markdown-line:last-child { margin-bottom: 0; }
+    .bonds-ai-message code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      padding: 0.08rem 0.28rem;
+      border-radius: 4px;
+      background: rgba(148,163,184,0.12);
+      direction: ltr;
+      unicode-bidi: isolate;
+    }
 
     #bonds-ai-chat-root.bonds-ai-home .bonds-ai-home-disclaimer {
       display: block;
@@ -690,7 +706,7 @@
           <input type="text" placeholder="اكتب سؤالك هنا..." autocomplete="off">
           <button aria-label="إرسال"><span class="bonds-ai-send-label">إرسال</span><svg class="bonds-ai-send-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 2 11 13"/><path d="m22 2-7 20-4-9-9-4Z"/></svg></button>
         </div>
-        <a class="bonds-ai-human-link" href="https://wa.me/966567566616?text=%D9%85%D8%B1%D8%AD%D8%A8%D8%A7%D9%8B%20%D8%A8%D9%88%D9%86%D8%AF%D8%B2%D8%8C%20%D8%A3%D8%B1%D9%8A%D8%AF%20%D8%A7%D9%84%D8%AA%D8%AD%D8%AF%D8%AB%20%D9%85%D8%B9%20%D9%85%D8%B3%D8%AA%D8%B4%D8%A7%D8%B1." target="_blank" rel="noopener noreferrer">التواصل مع مستشار بشري</a>
+        <button type="button" class="bonds-ai-human-link" data-assistant-human-escalation="true">طلب مراجعة بشرية</button>
         <small class="bonds-ai-home-disclaimer">مساعد بوندز قد يخطئ؛ راجع المعلومات المهمة قبل اتخاذ القرار.</small>
       </div>
     `;
@@ -719,6 +735,7 @@
     const homeLaunchpad = root.querySelector('.bonds-ai-home-launchpad');
     const homePromptButtons = root.querySelectorAll('[data-assistant-prompt]');
     const homeFocusButton = root.querySelector('[data-assistant-focus]');
+    const humanEscalationButton = root.querySelector('[data-assistant-human-escalation]');
 
     function readServiceAssistantContext() {
       try {
@@ -753,7 +770,7 @@
       modelCode: options.modelCode || null,
       calculationResult: options.calculationResult || null,
       projectId: options.projectId || null,
-      pagePath: options.pagePath || window.location.pathname || '/',
+      pagePath: options.pagePath || (window.location.pathname + window.location.hash) || '/',
       pageTitle: options.pageTitle || document.title || null,
       mode: options.mode || 'city'
     };
@@ -1036,7 +1053,7 @@
           activityCode: context.activityCode || bridge.activityCode || null
         });
       }
-      context.pagePath = window.location.pathname || context.pagePath || '/';
+      context.pagePath = (window.location.pathname + window.location.hash) || context.pagePath || '/';
       context.pageTitle = document.title || context.pageTitle || null;
       context.cityName = getCityName() || context.localityName || context.cityName || null;
       context.activityName = getActivityName() || context.activityName || null;
@@ -1165,11 +1182,63 @@
       }
     }
 
+    function appendSafeInlineMarkdown(container, text) {
+      const value = String(text || '');
+      const tokenPattern = /(\*\*[^*]+\*\*|\`[^\`]+\`)/g;
+      let cursor = 0;
+      let match;
+      while ((match = tokenPattern.exec(value)) !== null) {
+        if (match.index > cursor) {
+          container.appendChild(document.createTextNode(value.slice(cursor, match.index)));
+        }
+        const token = match[0];
+        if (token.startsWith('**') && token.endsWith('**')) {
+          const strong = document.createElement('strong');
+          strong.textContent = token.slice(2, -2);
+          container.appendChild(strong);
+        } else if (token.startsWith('`') && token.endsWith('`')) {
+          const code = document.createElement('code');
+          code.textContent = token.slice(1, -1);
+          container.appendChild(code);
+        }
+        cursor = match.index + token.length;
+      }
+      if (cursor < value.length) {
+        container.appendChild(document.createTextNode(value.slice(cursor)));
+      }
+    }
+
+    function renderSafeMarkdown(container, text) {
+      const lines = String(text || '').split(/\r?\n/);
+      lines.forEach((rawLine, index) => {
+        const line = document.createElement('span');
+        line.className = 'bonds-ai-markdown-line';
+        let content = rawLine;
+        if (/^#{1,6}\s+/.test(content)) {
+          content = content.replace(/^#{1,6}\s+/, '');
+          const strong = document.createElement('strong');
+          appendSafeInlineMarkdown(strong, content);
+          line.appendChild(strong);
+        } else if (/^[-*•]\s+/.test(content)) {
+          line.appendChild(document.createTextNode('• '));
+          appendSafeInlineMarkdown(line, content.replace(/^[-*•]\s+/, ''));
+        } else {
+          appendSafeInlineMarkdown(line, content);
+        }
+        container.appendChild(line);
+        if (index === lines.length - 1 && rawLine === '') line.remove();
+      });
+    }
+
     function addMessage(role, text, isError = false) {
       state.messages.push({ role, content: text });
       const msgEl = document.createElement('div');
       msgEl.className = `bonds-ai-message ${role}${isError ? ' error' : ''}`;
-      msgEl.textContent = text;
+      if (role === 'assistant') {
+        renderSafeMarkdown(msgEl, text);
+      } else {
+        msgEl.textContent = text;
+      }
       messagesEl.appendChild(msgEl);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
@@ -1632,6 +1701,36 @@
         });
     }
 
+    function renderStructuredCards(cards = []) {
+      cards
+        .filter(card => card && typeof card === 'object')
+        .forEach(card => {
+          const el = document.createElement('div');
+          el.className = 'bonds-ai-action-card bonds-ai-structured-card';
+          el.dataset.messageType = String(card.type || 'result_card');
+
+          const title = document.createElement('strong');
+          title.textContent = String(card.title || card.type || 'Result');
+          el.appendChild(title);
+
+          if (card.body) {
+            const body = document.createElement('small');
+            renderSafeMarkdown(body, String(card.body));
+            el.appendChild(body);
+          }
+
+          if (Array.isArray(card.items)) {
+            card.items.slice(0, 25).forEach(item => {
+              const row = document.createElement('small');
+              row.textContent = `• ${String(item)}`;
+              el.appendChild(row);
+            });
+          }
+
+          actionsEl.appendChild(el);
+        });
+    }
+
     function renderStructuredEnvelope(envelope, { appendReply = false } = {}) {
       if (!envelope || typeof envelope !== 'object') return;
       if (appendReply && envelope.reply) addAssistantMessage(envelope.reply);
@@ -1656,6 +1755,7 @@
       }
 
       renderActionCards(actions);
+      renderStructuredCards(Array.isArray(envelope.ui) ? envelope.ui : []);
     }
 
     function renderSuggestions() {
@@ -1786,6 +1886,13 @@
     input.addEventListener('keydown', e => {
       if (e.key === 'Enter') sendMessage(input.value);
     });
+    if (humanEscalationButton) {
+      humanEscalationButton.addEventListener('click', () => {
+        sendMessage(languageCode() === 'en'
+          ? 'I want a human advisor to review this case.'
+          : 'أريد مستشاراً بشرياً لمراجعة هذه الحالة.');
+      });
+    }
 
     window.BondsAIChat.updateContext = updateContext;
     window.BondsAssistant = window.BondsAssistant || {};
