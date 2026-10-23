@@ -926,10 +926,11 @@
     "latency_aware_routing",
     "streaming",
     "parallel_tool_execution",
-    "critic_verifier_for_sensitive_tasks"
+    "critic_verifier_for_sensitive_tasks",
+    "multi_model_consensus_only_for_critical_tasks"
   ],
   "next": [
-    "multi_model_consensus_only_for_critical_tasks"
+    "synthetic_production_journeys"
   ],
   "deferred": [
     "action_tokens",
@@ -947,8 +948,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/assistant-sensitive-action-verifier",
-    "change": "Critic/Verifier for sensitive tasks implemented_base as a deterministic structured-action verifier. It reuses existing policy normalization and action fingerprints, validates high/critical risk plus optional confirmation/approval evidence, attaches sanitized verifier evidence to Human Approval payloads, and never grants execution authority. No second model, multi-agent architecture, provider/model/token/context/throughput/compute change, or database migration. Next after merge and production verification: multi_model_consensus_only_for_critical_tasks; full_multi_agent remains deferred."
+    "branch": "feat/assistant-critical-multi-model-consensus-main",
+    "change": "Critical-only multi-model consensus implemented_base as advisory review evidence attached to Human Approval. It runs only for risk=critical, withholds raw action input values, reuses configured Bonds Native remote nodes, requires at least two distinct valid model_sha256 identities before calling the result multi-model, reports disagreement honestly, and never grants execution authority. Missing/failed consensus is not_available and does not block Human Approval. No provider/model selection change, no token/context/throughput/compute reduction, no multi-agent architecture, and no database migration. Next after merge and production verification: synthetic_production_journeys."
   },
   "production_rollout": {
     "status": "complete",
