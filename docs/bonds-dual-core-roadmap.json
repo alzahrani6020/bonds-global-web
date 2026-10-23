@@ -182,12 +182,12 @@
         {
           "id": "p4.2",
           "title": "Dependency checks",
-          "status": "implemented_candidate"
+          "status": "completed"
         },
         {
           "id": "p4.3",
           "title": "Integration resolver",
-          "status": "planned"
+          "status": "implemented_candidate"
         },
         {
           "id": "p4.4",
