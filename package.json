@@ -36,7 +36,7 @@
     "test:admin:ui": "jest tests/admin/admin-modules-ui.test.js --runInBand",
     "test:workspace:ui": "jest tests/v3/workspace-preview-ui.test.js --runInBand",
     "audit:admin-contracts": "node scripts/admin-contract-audit.js",
-    "test:production-smoke": "node scripts/post-deploy-smoke.js",
+    "test:production-smoke": "node scripts/post-deploy-smoke.js && npm run test:synthetic-production-journeys",
     "services:compile": "node scripts/compile-service-manifests.js",
     "services:check": "node scripts/compile-service-manifests.js --check",
     "test:service-manifests": "jest tests/security/service-manifest-registration.test.js --runInBand",
@@ -53,7 +53,8 @@
     "geo:rollback-local": "node scripts/rollback-local-geo-run.js",
     "generate:feasibility-pdf": "node scripts/generate-report.js",
     "verify:feasibility-pdf": "node scripts/verify-feasibility-pdf-generation.js",
-    "audit:generated-pdfs": "node scripts/verify-generated-pdf-references.js"
+    "audit:generated-pdfs": "node scripts/verify-generated-pdf-references.js",
+    "test:synthetic-production-journeys": "node scripts/assistant-synthetic-production-journeys.js"
   },
   "dependencies": {
     "@sentry/node": "^10.57.0",
