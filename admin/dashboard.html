@@ -304,6 +304,7 @@
   </style>
   <script>BondsAuth.initAdminGuard();</script>
   <script src="/admin/admin-common.js?v=4"></script>
+  <script src="/admin/admin-i18n.js?v=1"></script>
   <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=3.0.0" />
   <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
@@ -539,6 +540,7 @@
       <div class="topbar">
         <div class="topbar-title" id="pageTitle">لوحة التحكم الموحدة</div>
         <div class="topbar-actions">
+          <button class="btn-sm btn-secondary" id="languageToggle" type="button" aria-label="تغيير اللغة" title="العربية / English">EN</button>
           <button class="btn-sm btn-secondary" id="searchTrigger" title="بحث (/)" style="display:inline-flex;align-items:center;gap:0.4rem;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
             بحث
@@ -576,6 +578,155 @@
       const sb = window.BondsAuth?.getSupabase ? window.BondsAuth.getSupabase() : null;
       const overviewEl = document.getElementById('overviewPanel');
       const iframeWrap = document.getElementById('iframeWrap');
+      const adminI18n = window.BondsAdminI18n;
+
+      const shellLabels = {
+        ar: {
+          pageTitle: 'لوحة التحكم الموحدة',
+          search: 'بحث',
+          notifications: 'الإشعارات',
+          loadingSection: 'جارِ تحميل القسم...',
+          groups: ['نظرة عامة','العملاء والأعمال','المالية','الذكاء والبيانات','التشغيل','الأمن والحوكمة'],
+          titles: {
+            'overview':'نظرة عامة',
+            '/admin/executive-dashboard?embed=1':'المؤشرات التنفيذية',
+            '/admin/executive-ai-analytics.html?embed=1':'التحليلات التنفيذية والذكاء الاصطناعي',
+            '/admin/analytics.html?embed=1':'التحليلات',
+            'online-users':'المتواجدون الآن',
+            '/admin/global-search?embed=1':'البحث الموحد',
+            '/admin/users.html?embed=1':'المستخدمون',
+            '/admin/messages.html?embed=1':'الرسائل',
+            '/admin/agent-inbox/?embed=1':'صندوق عمل المساعد',
+            '/admin/human-approvals/?embed=1':'الموافقات البشرية',
+            '/admin/support.html?embed=1':'مركز الدعم',
+            '/admin/crm.html?embed=1':'إدارة علاقات العملاء',
+            '/admin/funding-cases/?embed=1':'طلبات التمويل',
+            '/admin/financial-advisory?embed=1':'الاستشارات المالية',
+            '/admin/distressed-recovery?embed=1':'إنقاذ الأصول المتعثرة',
+            '/admin/finance.html?embed=1':'العمليات المالية',
+            '/admin/subscriptions.html?embed=1':'الاشتراكات',
+            '/admin/bank-transfers.html?embed=1':'التحويلات البنكية',
+            '/admin/conversion-dashboard.html?embed=1':'تحويل الحاسبات',
+            '/admin/city-intelligence/index.html?embed=1':'ذكاء المدن',
+            '/admin/data-coverage.html?embed=1':'مصفوفة تغطية البيانات',
+            '/admin/market-intelligence.html?embed=1':'الذكاء السوقي',
+            '/admin/data-quality-center?embed=1':'مركز جودة البيانات',
+            '/admin/data-quality.html?embed=1':'تقرير جودة البيانات',
+            '/admin/data-governance.html?embed=1':'حوكمة البيانات والوثائق',
+            '/admin/ai-business-advisor?embed=1':'مستشار الأعمال الذكي',
+            '/admin/ai-reviews.html?embed=1':'مراجعات الذكاء الاصطناعي',
+            '/admin/risk-intelligence.html?embed=1':'ذكاء المخاطر',
+            '/admin/condition-assessment.html?embed=1':'تقييم الحالة',
+            '/admin/economic-life.html?embed=1':'العمر الاقتصادي للأصول',
+            '/admin/depreciation-factors.html?embed=1':'عوامل الاستهلاك',
+            '/admin/automation.html?embed=1':'الأتمتة والمنتج',
+            '/admin/platform-operations.html?embed=1':'عمليات المنصة',
+            '/admin/social-media?embed=1':'التواصل الاجتماعي',
+            '/admin/exceptions.html?embed=1':'الاستثناءات',
+            '/admin/settings.html?embed=1':'الإعدادات',
+            '/admin/roles.html?embed=1':'الصلاحيات والأدوار',
+            '/admin/security.html?embed=1':'الأمان والمصادقة الثنائية',
+            '/admin/security-operations.html?embed=1':'عمليات الأمن',
+            '/admin/control-center.html?embed=1':'مركز التحكم الإداري',
+            '/admin/audit-log.html?embed=1':'سجل المراجعة'
+          }
+        },
+        en: {
+          pageTitle: 'Unified Admin Dashboard',
+          search: 'Search',
+          notifications: 'Notifications',
+          loadingSection: 'Loading section...',
+          groups: ['Overview','Customers & Business','Finance','Intelligence & Data','Operations','Security & Governance'],
+          titles: {
+            'overview':'Overview',
+            '/admin/executive-dashboard?embed=1':'Executive Dashboard',
+            '/admin/executive-ai-analytics.html?embed=1':'Executive & AI Analytics',
+            '/admin/analytics.html?embed=1':'Analytics',
+            'online-users':'Online Now',
+            '/admin/global-search?embed=1':'Global Search',
+            '/admin/users.html?embed=1':'Users',
+            '/admin/messages.html?embed=1':'Messages',
+            '/admin/agent-inbox/?embed=1':'Assistant Work Inbox',
+            '/admin/human-approvals/?embed=1':'Human Approvals',
+            '/admin/support.html?embed=1':'Support Center',
+            '/admin/crm.html?embed=1':'CRM',
+            '/admin/funding-cases/?embed=1':'Funding Cases',
+            '/admin/financial-advisory?embed=1':'Financial Advisory',
+            '/admin/distressed-recovery?embed=1':'Distressed Asset Recovery',
+            '/admin/finance.html?embed=1':'Finance Operations',
+            '/admin/subscriptions.html?embed=1':'Subscriptions',
+            '/admin/bank-transfers.html?embed=1':'Bank Transfers',
+            '/admin/conversion-dashboard.html?embed=1':'Calculator Conversion',
+            '/admin/city-intelligence/index.html?embed=1':'City Intelligence',
+            '/admin/data-coverage.html?embed=1':'Data Coverage Matrix',
+            '/admin/market-intelligence.html?embed=1':'Market Intelligence',
+            '/admin/data-quality-center?embed=1':'Data Quality Center',
+            '/admin/data-quality.html?embed=1':'Data Quality Report',
+            '/admin/data-governance.html?embed=1':'Data Governance & Documents',
+            '/admin/ai-business-advisor?embed=1':'AI Business Advisor',
+            '/admin/ai-reviews.html?embed=1':'AI Reviews',
+            '/admin/risk-intelligence.html?embed=1':'Risk Intelligence',
+            '/admin/condition-assessment.html?embed=1':'Condition Assessment',
+            '/admin/economic-life.html?embed=1':'Asset Economic Life',
+            '/admin/depreciation-factors.html?embed=1':'Depreciation Factors',
+            '/admin/automation.html?embed=1':'Automation & Product',
+            '/admin/platform-operations.html?embed=1':'Platform Operations',
+            '/admin/social-media?embed=1':'Social Media',
+            '/admin/exceptions.html?embed=1':'Exceptions',
+            '/admin/settings.html?embed=1':'Settings',
+            '/admin/roles.html?embed=1':'Roles & Permissions',
+            '/admin/security.html?embed=1':'Security & MFA',
+            '/admin/security-operations.html?embed=1':'Security Operations',
+            '/admin/control-center.html?embed=1':'Admin Control Center',
+            '/admin/audit-log.html?embed=1':'Audit Log'
+          }
+        }
+      };
+
+      function sendLocaleToFrame(frame) {
+        if (!frame?.contentWindow) return;
+        frame.contentWindow.postMessage({ type: 'admin-locale', locale: adminI18n?.locale || 'ar' }, location.origin);
+      }
+
+      function applyShellLocale() {
+        const locale = adminI18n?.locale || 'ar';
+        const labels = shellLabels[locale] || shellLabels.ar;
+        document.documentElement.lang = locale;
+        document.documentElement.dir = locale === 'ar' ? 'rtl' : 'ltr';
+        const toggle = document.getElementById('languageToggle');
+        if (toggle) {
+          toggle.textContent = locale === 'ar' ? 'EN' : 'AR';
+          toggle.setAttribute('aria-label', locale === 'ar' ? 'Switch to English' : 'التبديل إلى العربية');
+        }
+        const search = document.getElementById('searchTrigger');
+        if (search) {
+          const textNode = Array.from(search.childNodes).find(n => n.nodeType === Node.TEXT_NODE && n.textContent.trim());
+          if (textNode) textNode.textContent = ' ' + labels.search + ' ';
+          search.title = labels.search + ' (/)';
+        }
+        const groups = Array.from(document.querySelectorAll('#sidebar .nav-group'));
+        groups.forEach((group,index) => {
+          const label = group.querySelector('.nav-label');
+          if (label && labels.groups[index]) label.textContent = labels.groups[index];
+        });
+        document.querySelectorAll('#sidebar .sidebar-link[data-target]').forEach(link => {
+          const title = labels.titles[link.dataset.target];
+          if (!title) return;
+          link.dataset.title = title;
+          const spans = link.querySelectorAll('span');
+          const textSpan = spans[spans.length - 1];
+          if (textSpan) textSpan.textContent = title;
+        });
+        const active = document.querySelector('#sidebar .sidebar-link.active');
+        const pageTitle = document.getElementById('pageTitle');
+        if (pageTitle) pageTitle.textContent = active?.dataset?.title || labels.pageTitle;
+        const searchInput = document.getElementById('cmdPaletteInput');
+        if (searchInput) {
+          searchInput.placeholder = locale === 'ar' ? 'ابحث في الوحدات والصفحات...' : 'Search modules and pages...';
+          searchInput.dir = locale === 'ar' ? 'rtl' : 'ltr';
+        }
+        sendLocaleToFrame(currentIframe);
+      }
 
       // Resize only from the currently loaded same-origin admin iframe.
       window.addEventListener('message', (event) => {
@@ -1170,7 +1321,7 @@
           renderOnlineUsers();
           return;
         }
-        iframeWrap.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>جارِ تحميل القسم...</p></div>';
+        iframeWrap.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>' + (shellLabels[adminI18n?.locale || 'ar']?.loadingSection || 'جارِ تحميل القسم...') + '</p></div>';
         const iframe = document.createElement('iframe');
         iframe.className = 'module-frame';
         iframe.src = url + '&_v=4';
@@ -1188,6 +1339,8 @@
                 { type: 'admin-token', token },
                 location.origin
               );
+              sendLocaleToFrame(iframe);
+              sendLocaleToFrame(iframe);
             }
           } catch (e) {}
         };
@@ -1354,6 +1507,14 @@
       }
 
       reorganizeAdminSidebar();
+      applyShellLocale();
+
+      document.getElementById('languageToggle')?.addEventListener('click', () => {
+        adminI18n?.setLocale(adminI18n.locale === 'ar' ? 'en' : 'ar');
+        applyShellLocale();
+        buildSearchIndex();
+      });
+      window.addEventListener('admin-locale-changed', applyShellLocale);
 
       const sidebarEl = document.getElementById('sidebar');
       sidebarEl.addEventListener('click', (e) => {
