@@ -927,10 +927,11 @@
     "streaming",
     "parallel_tool_execution",
     "critic_verifier_for_sensitive_tasks",
-    "multi_model_consensus_only_for_critical_tasks"
+    "multi_model_consensus_only_for_critical_tasks",
+    "synthetic_production_journeys"
   ],
   "next": [
-    "synthetic_production_journeys"
+    "golden_conversations"
   ],
   "deferred": [
     "action_tokens",
@@ -948,8 +949,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "feat/synthetic-production-journeys",
-    "change": "Synthetic Production Journeys implemented as a bounded authenticated post-deploy runner over read-only or dry-run Assistant paths. It verifies readiness/introspection/emergency-mode, registered navigation planning, policy simulation, isolated workflow resume lookup, and the cash_generation_analysis execution profile without creating business records or invoking service execution. It is wired into Production Authenticated Smoke and fails closed on drift. No provider/model/token/context/throughput/compute or authorization change and no migration. Next after merge and production verification: golden_conversations."
+    "branch": "docs/finalize-synthetic-production-journeys",
+    "change": "Synthetic Production Journeys production verification complete. Original implementation merged in PR #508; smoke ordering fixed in PR #513; PostgREST composite workflow resume normalization fixed in PR #516. Final verified production SHA 247f388e7f4fe92d3dd17bdaebacc5d9bf140974. Post-merge CI PASS, Production Release #713 PASS, Vercel Production READY, /api/health ok, /api/readiness ready, and Production Authenticated Smoke #312 PASS with all five synthetic journeys explicitly passing. MIGRATION VERIFIED: N/A. Next: golden_conversations."
   },
   "production_rollout": {
     "status": "complete",
