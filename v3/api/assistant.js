@@ -13,6 +13,7 @@ const { claimAssistantAction, resolveAssistantAction } = require('../../lib/assi
 const { getSupabaseClient } = require('../lib/supabase');
 const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
+const { workflowKeyFor } = require('../../lib/assistant/case-engine');
 const { findOwnedDocuments, loadOwnedDocument } = require('../../lib/assistant/document-intelligence');
 const { suggestDocumentWorkflow } = require('../../lib/assistant/document-workflow');
 const { applyAssistantEvent } = require('../../lib/assistant/event-driven');
@@ -546,6 +547,39 @@ async function assistantRouter(req, res, path, user) {
         'IDEMPOTENCY_USER_REQUIRED',
         'INVALID_IDEMPOTENCY_STATUS'
       ].includes(err.message);
+      return sendJson(res, clientError ? 422 : 503, {
+        protocol:PROTOCOL,
+        status:'denied',
+        error:err.message
+      });
+    }
+  }
+
+  if (path === '/assistant/workflows/resume' && req.method === 'GET') {
+    try {
+      const requestUrl = new URL(req.url || '/api/v3/assistant/workflows/resume', 'http://localhost');
+      const boundary = String(requestUrl.searchParams.get('boundary') || '').trim().slice(0, 500);
+      if (!boundary) {
+        return sendJson(res, 422, {
+          protocol:PROTOCOL,
+          status:'denied',
+          error:'WORKFLOW_BOUNDARY_REQUIRED'
+        });
+      }
+      const workflowKey = workflowKeyFor(boundary);
+      const workflow = await loadWorkflowState({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        workflowKey
+      });
+      return sendJson(res, 200, {
+        protocol:PROTOCOL,
+        status:workflow ? 'completed' : 'not_found',
+        workflow_key:workflowKey,
+        workflow
+      });
+    } catch (err) {
+      const clientError = ['WORKFLOW_BOUNDARY_REQUIRED','INVALID_WORKFLOW_KEY'].includes(err.message);
       return sendJson(res, clientError ? 422 : 503, {
         protocol:PROTOCOL,
         status:'denied',
