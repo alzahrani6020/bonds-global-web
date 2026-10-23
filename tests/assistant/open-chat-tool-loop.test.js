@@ -38,11 +38,13 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(query).toBe('من هو الدكتور طلال حسن الزهراني؟');
   });
 
-  test('forces public-person, explicit-search and freshness queries into web search', () => {
-    expect(source).toContain('function initialSearchDecision(messages, trace = [])');
-    expect(source).toContain("action: 'web_search'");
-    expect(source).toContain('personLookup');
-    expect(source).toContain('freshness');
+  test('routes public-person, explicit-search and freshness queries into governed research', () => {
+    const { researchIntent } = require('../../lib/assistant/open-chat-tool-loop');
+    expect(researchIntent([{ role:'user', content:'من هو محمد بن سلمان؟' }]).required).toBe(true);
+    expect(researchIntent([{ role:'user', content:'ابحث في النت عن بوندز' }]).required).toBe(true);
+    expect(source).toContain("runResearchWorkflow");
+    expect(source).toContain("evidence_ready");
+    expect(source).toContain("VERIFIED_RESEARCH_SOURCES=");
   });
 
   test('fails closed instead of substituting model knowledge when required research fails', () => {
@@ -56,11 +58,13 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(reply).toContain('SEARCH_NO_RESULTS');
   });
 
-  test('forces search results through fetched page exploration before final synthesis', () => {
-    expect(source).toContain("last.action !== 'web_search'");
-    expect(source).toContain("action: 'web_explore'");
-    expect(source).toContain('seedUrls');
-    expect(source).toContain('maxDepth: 0');
+  test('forces public research through search, exploration, evidence verification and synthesis', () => {
+    expect(source).toContain("runResearchWorkflow");
+    expect(source).toContain("action:'web_search'");
+    expect(source).toContain("action:'web_explore'");
+    expect(source).toContain("action:'evidence_verify'");
+    expect(source).toContain("action:'research_synthesize'");
+    expect(source).toContain('decision_eligible:false');
   });
 
   test('uses full recent conversation and tool trace for follow-up reasoning', () => {
