@@ -4,7 +4,7 @@
   "source_of_truth": "docs/BONDS_DUAL_CORE_MASTER_ARCHITECTURE.md",
   "bootstrap": "docs/PROJECT_BOOTSTRAP.md",
   "status": "in_progress",
-  "current_phase": "phase4-approval-integration",
+  "current_phase": "phase5-ci-release",
   "phases": [
     {
       "id": "phase0",
@@ -172,7 +172,7 @@
     {
       "id": "phase4",
       "title": "Approval & Integration",
-      "status": "in_progress",
+      "status": "completed",
       "items": [
         {
           "id": "p4.1",
@@ -192,14 +192,51 @@
         {
           "id": "p4.4",
           "title": "Assistant and capability registry synchronization",
-          "status": "implemented_candidate"
+          "status": "completed"
         }
       ]
     },
     {
       "id": "phase5",
       "title": "CI / Release",
-      "status": "planned"
+      "status": "in_progress",
+      "items": [
+        {
+          "id": "p5.1",
+          "title": "GitHub CI failure intake",
+          "status": "implemented_candidate"
+        },
+        {
+          "id": "p5.2",
+          "title": "Automatic rebase",
+          "status": "planned"
+        },
+        {
+          "id": "p5.3",
+          "title": "Merge simulation",
+          "status": "planned"
+        },
+        {
+          "id": "p5.4",
+          "title": "Staged release",
+          "status": "planned"
+        },
+        {
+          "id": "p5.5",
+          "title": "Production verification",
+          "status": "planned"
+        },
+        {
+          "id": "p5.6",
+          "title": "Known-good releases",
+          "status": "planned"
+        },
+        {
+          "id": "p5.7",
+          "title": "Rollback orchestration",
+          "status": "planned"
+        }
+      ]
     },
     {
       "id": "phase6",
