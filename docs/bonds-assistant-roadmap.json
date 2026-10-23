@@ -927,10 +927,11 @@
     "streaming",
     "parallel_tool_execution",
     "critic_verifier_for_sensitive_tasks",
-    "multi_model_consensus_only_for_critical_tasks"
+    "multi_model_consensus_only_for_critical_tasks",
+    "synthetic_production_journeys"
   ],
   "next": [
-    "synthetic_production_journeys"
+    "golden_conversations"
   ],
   "deferred": [
     "action_tokens",
@@ -948,8 +949,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-10-23",
-    "branch": "docs/finalize-critical-multi-model-consensus",
-    "change": "Critical-only multi-model consensus is merged, CI verified, and production verified via PR #501 / merge SHA c27e853a5180fc4be735c478b3ffab0815658811. It remains advisory-only, runs only for risk=critical, requires at least two distinct model_sha256 identities to claim multi-model consensus, never grants execution authority, and introduced no database migration. Next: synthetic_production_journeys."
+    "branch": "feat/assistant-synthetic-production-journeys",
+    "change": "Synthetic Production Journeys implemented_base as safe read/plan-only production checks chained after the existing authenticated Production Smoke. Journeys cover homepage page-authority over stale session service, bilingual registered navigation, registered form load planning, and fail-closed unregistered navigation. They do not save drafts, create human approvals/escalations, write customer records, or execute financial calculations. No provider/model/token/context/throughput/compute/authorization or database migration change. Next after merge and production verification: golden_conversations."
   },
   "production_rollout": {
     "status": "complete",
