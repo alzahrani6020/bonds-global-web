@@ -15,6 +15,8 @@ describe('BONDS Chat Orchestrator + Case Engine', () => {
     expect(isHomepage('/')).toBe(true);
     expect(isHomepage('/en/')).toBe(true);
     expect(normalizePath('/index.html?x=1')).toBe('/index.html');
+    expect(normalizePath('/services#analysis')).toBe('/services#analysis');
+    expect(normalizePath('/services?x=1#risk')).toBe('/services#risk');
   });
 
   test('detects current-service questions from page context intent', () => {
