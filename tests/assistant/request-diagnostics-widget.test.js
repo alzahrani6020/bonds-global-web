@@ -29,4 +29,13 @@ describe('assistant diagnostics widget contract', () => {
     expect(source).toContain("stage:'response_parse'");
     expect(source).toContain("stage:'ui_render'");
   });
+  test('renders explicit acquisition and quality-repair stages', () => {
+    expect(source).toContain("research_acquisition:'Research Acquisition'");
+    expect(source).toContain("initial_quality_gate:'Initial Quality Gate'");
+    expect(source).toContain("repair_attempt:'Repair Attempt'");
+    expect(source).toContain("repair_quality_gate:'Repair Quality Gate'");
+    expect(source).toContain('repair_attempted:');
+    expect(source).toContain('repair_succeeded:');
+  });
+
 });

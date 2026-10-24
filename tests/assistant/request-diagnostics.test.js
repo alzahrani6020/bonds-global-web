@@ -20,11 +20,14 @@ describe('assistant request diagnostics', () => {
         ],
         research:{
           status:'completed',
+          initial_quality_code:'PASS',
+          repair_attempted:false,
           decision_eligible:true,
           source_count:3,
           evidence_count:4,
           verification_state:'verified',
           timings:{ search_ms:120, explore_ms:340, verify_ms:80, synthesize_ms:60 },
+          research_acquisition_ms:900,
           answer_synthesis_ms:500,
           elapsed_ms:2200,
           unknowns:[],
@@ -38,7 +41,9 @@ describe('assistant request diagnostics', () => {
     expect(result.error_code).toBeNull();
     expect(result.total_ms).toBe(2500);
     expect(result.stages.find(row => row.stage === 'search').status).toBe(STATUS.PASS);
-    expect(result.stages.find(row => row.stage === 'quality_gate').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'initial_quality_gate').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'repair_attempt').status).toBe(STATUS.NOT_REQUIRED);
+    expect(result.stages.find(row => row.stage === 'research_acquisition').duration_ms).toBe(900);
     expect(result.evidence).toEqual(expect.objectContaining({
       source_count:3,
       evidence_count:4,
@@ -64,8 +69,14 @@ describe('assistant request diagnostics', () => {
         research:{
           status:'ANSWER_QUALITY_FAILED',
           quality_code:'PERSON_IDENTITY_TOO_GENERIC',
+          initial_quality_code:'PERSON_IDENTITY_TOO_GENERIC',
+          repair_attempted:true,
+          repair_ms:300,
+          repair_quality_code:'PERSON_IDENTITY_TOO_GENERIC',
+          repair_succeeded:false,
           decision_eligible:true,
           timings:{ search_ms:100, explore_ms:200, verify_ms:50, synthesize_ms:40 },
+          research_acquisition_ms:1200,
           answer_synthesis_ms:700,
           elapsed_ms:2800
         }
@@ -73,13 +84,62 @@ describe('assistant request diagnostics', () => {
     });
 
     expect(result.status).toBe(STATUS.FAIL);
-    expect(result.failure_stage).toBe('quality_gate');
+    expect(result.failure_stage).toBe('initial_quality_gate');
     expect(result.error_code).toBe('PERSON_IDENTITY_TOO_GENERIC');
     expect(result.stages.find(row => row.stage === 'search').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'evidence').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'ai_generate').status).toBe(STATUS.PASS);
-    expect(result.stages.find(row => row.stage === 'quality_gate').status).toBe(STATUS.FAIL);
+    expect(result.stages.find(row => row.stage === 'initial_quality_gate').status).toBe(STATUS.FAIL);
+    expect(result.stages.find(row => row.stage === 'repair_attempt').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'repair_quality_gate').status).toBe(STATUS.FAIL);
+    expect(result.research_quality).toEqual(expect.objectContaining({
+      initial_quality_code:'PERSON_IDENTITY_TOO_GENERIC',
+      repair_attempted:true,
+      repair_quality_code:'PERSON_IDENTITY_TOO_GENERIC',
+      repair_succeeded:false
+    }));
     expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.FAIL);
+  });
+
+  test('marks a successfully repaired answer as degraded rather than failed', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-repaired',
+      path:'OPEN_CHAT_RESEARCH',
+      totalMs:4200,
+      loopResult:{
+        ok:true,
+        reply:'محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.',
+        failed:false,
+        trace:[
+          { action:'web_search', execution:{ ok:true } },
+          { action:'web_explore', execution:{ ok:true } },
+          { action:'evidence_verify', execution:{ ok:true } },
+          { action:'research_synthesize', execution:{ ok:true } }
+        ],
+        research:{
+          status:'completed',
+          initial_quality_code:'PERSON_IDENTITY_TOO_GENERIC',
+          initial_quality_ms:1,
+          repair_attempted:true,
+          repair_ms:600,
+          repair_quality_code:'PASS',
+          repair_quality_ms:1,
+          repair_succeeded:true,
+          decision_eligible:true,
+          research_acquisition_ms:1200,
+          answer_synthesis_ms:1800,
+          timings:{ search_ms:200, explore_ms:300, verify_ms:100, synthesize_ms:50 }
+        }
+      }
+    });
+
+    expect(result.status).toBe(STATUS.DEGRADED);
+    expect(result.failure_stage).toBeNull();
+    expect(result.error_code).toBeNull();
+    expect(result.stages.find(row => row.stage === 'initial_quality_gate').status).toBe(STATUS.DEGRADED);
+    expect(result.stages.find(row => row.stage === 'repair_attempt').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'repair_quality_gate').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
   });
 
   test('marks native fallback as degraded rather than clean pass', () => {
