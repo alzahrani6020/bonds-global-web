@@ -1,6 +1,8 @@
 const {
   researchQuery,
   researchQueryVariants,
+  rankRelevantSearchResults,
+  filterRelevantPages,
   runResearchWorkflow
 } = require('../../lib/intelligence/research-workflow');
 
@@ -17,8 +19,8 @@ describe('BONDS query-led research workflow', () => {
           result:{
             query:input.query,
             results:[
-              { title:'Source A', url:'https://a.example/profile', snippet:'A' },
-              { title:'Source B', url:'https://b.example/profile', snippet:'B' }
+              { title:'محمد بن سلمان - الملف التعريفي', url:'https://a.example/profile', snippet:'محمد بن سلمان ولي العهد السعودي' },
+              { title:'سيرة محمد بن سلمان', url:'https://b.example/profile', snippet:'محمد بن سلمان المملكة العربية السعودية' }
             ]
           }
         };
@@ -33,12 +35,12 @@ describe('BONDS query-led research workflow', () => {
               {
                 url:'https://a.example/profile',
                 evidence:{ content_type:'text/html', headers:{} },
-                extracted:{ format:'html', title:'Source A', text:'Verified source A content.' }
+                extracted:{ format:'html', title:'محمد بن سلمان - الملف التعريفي', text:'محمد بن سلمان ولي العهد السعودي، وهذه معلومات موثقة من المصدر الأول.' }
               },
               {
                 url:'https://b.example/profile',
                 evidence:{ content_type:'text/html', headers:{} },
-                extracted:{ format:'html', title:'Source B', text:'Verified source B content.' }
+                extracted:{ format:'html', title:'سيرة محمد بن سلمان', text:'محمد بن سلمان شخصية عامة سعودية، وهذه معلومات موثقة من المصدر الثاني.' }
               }
             ],
             failures:[],
@@ -133,8 +135,8 @@ describe('BONDS query-led research workflow', () => {
           result:{
             query:input.query,
             results:[
-              { url:'https://a.example/profile' },
-              { url:'https://b.example/profile' }
+              { title:'Transient query A', snippet:'transient query result A', url:'https://a.example/profile' },
+              { title:'Transient query B', snippet:'transient query result B', url:'https://b.example/profile' }
             ]
           }
         };
@@ -145,8 +147,8 @@ describe('BONDS query-led research workflow', () => {
           executed:true,
           result:{
             pages:[
-              { url:'https://a.example/profile', evidence:{content_type:'text/html',headers:{}}, extracted:{format:'html',text:'A'} },
-              { url:'https://b.example/profile', evidence:{content_type:'text/html',headers:{}}, extracted:{format:'html',text:'B'} }
+              { url:'https://a.example/profile', evidence:{content_type:'text/html',headers:{}}, extracted:{format:'html',title:'Transient query A',text:'Transient query result A.'} },
+              { url:'https://b.example/profile', evidence:{content_type:'text/html',headers:{}}, extracted:{format:'html',title:'Transient query B',text:'Transient query result B.'} }
             ]
           }
         };
@@ -181,7 +183,7 @@ describe('BONDS query-led research workflow', () => {
     expect(result.decisionEligible).toBe(true);
   });
 
-  test('tries bounded query variants and stops on the first successful search', async () => {
+  test('tries bounded query variants until it finds relevant results', async () => {
     const queries = [];
     const executeCapability = jest.fn(async (action, input) => {
       if (action === 'web_search') {
@@ -192,13 +194,16 @@ describe('BONDS query-led research workflow', () => {
         return {
           ok:true,
           executed:true,
-          result:{ results:[{url:'https://example.com/amr'},{url:'https://example.org/amr'}] }
+          result:{ results:[
+            {title:'عمرو موسى',snippet:'عمرو موسى وزير خارجية مصري سابق',url:'https://example.com/amr'},
+            {title:'Amr Moussa',snippet:'Amr Moussa biography',url:'https://example.org/amr'}
+          ] }
         };
       }
       if (action === 'web_explore') {
         return { ok:true, executed:true, result:{ pages:[
-          {url:'https://example.com/amr',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'A'}},
-          {url:'https://example.org/amr',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'B'}}
+          {url:'https://example.com/amr',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',title:'عمرو موسى',text:'عمرو موسى دبلوماسي وسياسي مصري.'}},
+          {url:'https://example.org/amr',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',title:'Amr Moussa',text:'Amr Moussa is an Egyptian diplomat and politician.'}}
         ]}};
       }
       if (action === 'evidence_verify') {
@@ -219,7 +224,7 @@ describe('BONDS query-led research workflow', () => {
       }
     }, {}, {executeCapability});
 
-    expect(queries).toEqual(['عمر موسى','عمرو موسى']);
+    expect(queries).toEqual(['عمر موسى','عمرو موسى','Amr Moussa']);
     expect(result.selected_query).toBe('عمرو موسى');
     expect(result.attempted_queries).toEqual(['عمر موسى','عمرو موسى','Amr Moussa']);
     expect(result.decisionEligible).toBe(true);
@@ -234,9 +239,9 @@ describe('BONDS query-led research workflow', () => {
           executed:true,
           result:{
             results:[
-              {url:'https://a.example/profile'},
-              {url:'https://b.example/profile'},
-              {url:'https://c.example/profile'}
+              {title:'Public person profile A',snippet:'public person background',url:'https://a.example/profile'},
+              {title:'Public person profile B',snippet:'public person biography',url:'https://b.example/profile'},
+              {title:'Public person profile C',snippet:'public person information',url:'https://c.example/profile'}
             ]
           }
         };
@@ -250,7 +255,7 @@ describe('BONDS query-led research workflow', () => {
             executed:true,
             result:{
               pages:[
-                {url:'https://a.example/profile',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'A'}}
+                {url:'https://a.example/profile',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',title:'Public person A',text:'Public person profile and background information.'}}
               ]
             }
           };
@@ -261,7 +266,7 @@ describe('BONDS query-led research workflow', () => {
             executed:true,
             result:{
               pages:[
-                {url:'https://b.example/profile',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'B'}}
+                {url:'https://b.example/profile',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',title:'Public person B',text:'Public person biography and career information.'}}
               ]
             }
           };
@@ -331,4 +336,185 @@ describe('BONDS query-led research workflow', () => {
     expect(researchQuery({ input:'input' })).toBe('input');
     expect(researchQueryVariants({ research:{ queryVariants:['a','b'], query:'a' } })).toEqual(['a','b']);
   });
+
+  test('extracts bounded query-relevant HTML evidence candidates', () => {
+    const { htmlEvidenceClaims } = require('../../lib/intelligence/research-workflow');
+
+    const claims = htmlEvidenceClaims({
+      format:'html',
+      text:[
+        'Navigation and unrelated text.',
+        'Mohammed bin Salman is Crown Prince of Saudi Arabia.',
+        'This sentence is unrelated.',
+        'Mohammed bin Salman chairs several national development bodies.'
+      ].join(' ')
+    }, 'Mohammed bin Salman');
+
+    expect(claims.length).toBeGreaterThan(0);
+    expect(claims.length).toBeLessThanOrEqual(6);
+    expect(claims[0].text).toMatch(/Mohammed bin Salman/i);
+  });
+
+  test('does not confuse a short Arabic person name with another person sharing common name terms', () => {
+    const { rankRelevantSearchResults } = require('../../lib/intelligence/research-workflow');
+
+    const ranked = rankRelevantSearchResults([
+      {
+        title:'محمد بن عبدالله صلى الله عليه وسلم',
+        snippet:'معلومات عن النبي محمد بن عبدالله',
+        url:'https://religion.example/mohammed'
+      },
+      {
+        title:'محمد بن سلمان',
+        snippet:'محمد بن سلمان ولي العهد السعودي',
+        url:'https://gov.example/mohammed-bin-salman'
+      }
+    ], 'محمد بن سلمان');
+
+    expect(ranked).toHaveLength(1);
+    expect(ranked[0].url).toBe('https://gov.example/mohammed-bin-salman');
+  });
+
+  test('rejects technically successful search results that are not relevant to the entity', () => {
+    const ranked = rankRelevantSearchResults([
+      {title:'Football news',snippet:'Latest league results',url:'https://sports.example'},
+      {title:'محمد بن سلمان',snippet:'محمد بن سلمان ولي العهد السعودي',url:'https://gov.example/profile'}
+    ], 'محمد بن سلمان');
+
+    expect(ranked).toHaveLength(1);
+    expect(ranked[0].url).toBe('https://gov.example/profile');
+  });
+
+  test('rejects fetched pages that do not satisfy entity relevance', () => {
+    const pages = filterRelevantPages([
+      {
+        url:'https://irrelevant.example',
+        extracted:{title:'General news',text:'Economic markets and weather updates.'}
+      },
+      {
+        url:'https://relevant.example',
+        extracted:{title:'الدكتور طلال حسن الزهراني',text:'الدكتور طلال حسن الزهراني مستشار وخبير مالي.'}
+      }
+    ], 'الدكتور طلال حسن الزهراني');
+
+    expect(pages).toHaveLength(1);
+    expect(pages[0].url).toBe('https://relevant.example');
+  });
+
+  test('fails closed when fetched pages are insufficiently relevant', async () => {
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{results:[
+            {title:'الدكتور طلال حسن الزهراني',snippet:'معلومات عن الدكتور طلال حسن الزهراني',url:'https://a.example'},
+            {title:'الدكتور طلال حسن الزهراني',snippet:'سيرة الدكتور طلال حسن الزهراني',url:'https://b.example'}
+          ]}
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          result:{pages:[
+            {url:'https://a.example',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',title:'General',text:'Unrelated market text only.'}},
+            {url:'https://b.example',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',title:'General',text:'Another unrelated page.'}}
+          ]}
+        };
+      }
+      throw new Error('verification should not run for irrelevant pages');
+    });
+
+    const result = await runResearchWorkflow({
+      input:'الدكتور طلال حسن الزهراني',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        topic:'الدكتور طلال حسن الزهراني',
+        queryVariants:['الدكتور طلال حسن الزهراني'],
+        minIndependentPublishers:2
+      }
+    }, {}, {executeCapability});
+
+    expect(result.status).toBe('insufficient_relevant_evidence');
+    expect(result.unknowns).toContain('INSUFFICIENT_RELEVANT_EVIDENCE');
+    expect(result.decisionEligible).toBe(false);
+  });
+
+  test('returns stage timings on successful research workflow', async () => {
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          result:{
+            results:[
+              {title:'Topic A',snippet:'Topic fact from A',url:'https://a.example'},
+              {title:'Topic B',snippet:'Topic fact from B',url:'https://b.example'}
+            ]
+          }
+        };
+      }
+
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          result:{
+            pages:[
+              {
+                url:'https://a.example',
+                evidence:{content_type:'text/html',headers:{}},
+                extracted:{format:'html',text:'Topic fact from A.'}
+              },
+              {
+                url:'https://b.example',
+                evidence:{content_type:'text/html',headers:{}},
+                extracted:{format:'html',text:'Topic fact from B.'}
+              }
+            ]
+          }
+        };
+      }
+
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          result:{
+            verification_state:'SUPPORTED',
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:['NO_STRUCTURED_CLAIMS'],
+            sources:input.sources
+          }
+        };
+      }
+
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          result:{
+            known:[],
+            unknown:['NO_STRUCTURED_CLAIMS'],
+            contradictions:[]
+          }
+        };
+      }
+
+      throw new Error('unexpected action');
+    });
+
+    const result = await runResearchWorkflow({
+      query:'Topic',
+      forceResearch:true,
+      research:{enabled:true,minIndependentPublishers:2}
+    }, {}, {executeCapability});
+
+    expect(result.timings).toEqual(expect.objectContaining({
+      search_ms:expect.any(Number),
+      explore_ms:expect.any(Number),
+      verify_ms:expect.any(Number),
+      synthesize_ms:expect.any(Number)
+    }));
+  });
+
 });

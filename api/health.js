@@ -18,6 +18,7 @@ const {
   readIntrospectionClaims
 } = require('../lib/security/service-token-verifier');
 const { resolveBrokerChannel } = require('../lib/security/service-token-broker');
+const { searchUpstreams } = require('../lib/intelligence/web-search');
 
 function readParam(req, name) {
   if (req && req.query && req.query[name] != null) return String(req.query[name]);
@@ -150,6 +151,38 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
   };
 }
 
+function probeWebSearchReadiness() {
+  const upstreams = searchUpstreams();
+  if (!Array.isArray(upstreams) || upstreams.length === 0) {
+    return { status: 'not_configured', code: 'WEB_SEARCH_UNCONFIGURED', upstream_count: 0 };
+  }
+
+  let validCount = 0;
+  for (const value of upstreams) {
+    try {
+      const target = new URL(String(value || '').trim());
+      if (target.protocol === 'https:' || target.protocol === 'http:') validCount += 1;
+    } catch (_) {
+      // Invalid entries are reported below without exposing configured URLs.
+    }
+  }
+
+  if (validCount !== upstreams.length) {
+    return {
+      status: 'invalid_configuration',
+      code: 'WEB_SEARCH_INVALID_CONFIGURATION',
+      upstream_count: upstreams.length,
+      valid_upstream_count: validCount
+    };
+  }
+
+  return {
+    status: 'ok',
+    code: null,
+    upstream_count: upstreams.length
+  };
+}
+
 async function probeOpenAI(timeoutMs = 5000) {
   const apiKey = String(process.env.OPENAI_API_KEY || '').trim();
   if (!apiKey) return { ok: false, reason: 'not_configured' };
@@ -267,6 +300,7 @@ module.exports = async function handler(req, res) {
     const [tokenRuntime, userGovernance, assistant] = await Promise.all([
       probeTokenRuntime(), probeUserGovernanceReadiness(), probeAssistantReadiness()
     ]);
+    const webSearch = probeWebSearchReadiness();
     const ready = coreHealthy && inferenceReady && tokenRuntime.status === 'ok' &&
       userGovernance.status === 'ok' && assistant.status === 'ok';
     const activeProvider = nativeReady
@@ -286,11 +320,13 @@ module.exports = async function handler(req, res) {
         token_runtime: tokenRuntime.status,
         user_governance: userGovernance.status,
         assistant: assistant.status,
+        web_search: webSearch.status,
         responseMs: Date.now() - started,
       },
       token_runtime: tokenRuntime,
       user_governance: userGovernance,
       assistant,
+      web_search: webSearch,
       inference: {
         mode: nativeMode,
         provider: activeProvider,
@@ -332,3 +368,4 @@ module.exports = async function handler(req, res) {
 
 // Reused by the isolated acceptance harness without substituting runtime calls.
 module.exports.probeTokenRuntime = probeTokenRuntime;
+module.exports.probeWebSearchReadiness = probeWebSearchReadiness;
