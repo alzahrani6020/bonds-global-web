@@ -250,8 +250,8 @@ test('forces public research through search, exploration, evidence verification 
       assessResearchAnswer(
         'محمد بن سلمان شخصية عامة سعودية وفق الأدلة المتاحة.',
         intent
-      ).ok
-    ).toBe(true);
+      ).code
+    ).toBe('PERSON_IDENTITY_TOO_GENERIC');
   });
 
   test('person lookup quality gate rejects generic identity-only answers', () => {
@@ -276,6 +276,37 @@ test('forces public research through search, exploration, evidence verification 
         intent
       ).ok
     ).toBe(true);
+  });
+
+  test('person identity gate requires a positive concrete identity signal', () => {
+    const { assessResearchAnswer, hasConcretePersonIdentity } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    expect(
+      assessResearchAnswer(
+        'محمد بن سلمان هو شخصية مرتبطة بمجالات العمل السياسي والإصلاحات الداخلية.',
+        intent
+      ).code
+    ).toBe('PERSON_IDENTITY_TOO_GENERIC');
+
+    expect(
+      assessResearchAnswer(
+        'محمد بن سلمان هو ولي العهد ورئيس مجلس الوزراء في المملكة العربية السعودية.',
+        intent
+      ).ok
+    ).toBe(true);
+
+    expect(hasConcretePersonIdentity('محمد بن سلمان يعمل في مجالات السياسة والإصلاح.')).toBe(false);
+    expect(hasConcretePersonIdentity('محمد بن سلمان هو ولي العهد.')).toBe(true);
+    expect(hasConcretePersonIdentity('محمد بن سلمان هو ولي عهد المملكة العربية السعودية.')).toBe(true);
+    expect(hasConcretePersonIdentity('Jane Doe is the chief executive of the company.')).toBe(true);
   });
 
   test('repairs only answer-shape failures and keeps safety failures fail-closed', () => {
