@@ -30,6 +30,12 @@
   const ASSISTANT_STATE_PREFIX = 'bonds.assistant.state.v1:';
   const ASSISTANT_CONTEXT_PREFERENCE_KEY = 'bonds.assistant.context.enabled.v1';
   const SERVICE_ASSISTANT_CONTEXT_KEY = 'bonds_service_assistant_context_v1';
+  const ASSISTANT_LAYOUT_KEY = 'bonds.assistant.layout.v1';
+  const ASSISTANT_LAYOUT_VERSION = 1;
+  const ASSISTANT_LAYOUT_MARGIN = 8;
+  const ASSISTANT_LAYOUT_SNAP = 24;
+  const ASSISTANT_LAYOUT_MIN_WIDTH = 360;
+  const ASSISTANT_LAYOUT_MIN_HEIGHT = 360;
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -150,6 +156,59 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      cursor: move;
+      user-select: none;
+      touch-action: none;
+    }
+    .bonds-ai-chat-header-controls,
+    .bonds-ai-chat-header-controls * {
+      cursor: default;
+      touch-action: auto;
+    }
+    .bonds-ai-layout-reset {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: inherit;
+      border-radius: 7px;
+      width: 30px;
+      height: 30px;
+      padding: 0;
+      cursor: pointer !important;
+      font: inherit;
+    }
+    .bonds-ai-resize-handle {
+      position: absolute;
+      z-index: 4;
+      display: none;
+      touch-action: none;
+    }
+    .bonds-ai-chat-window.open.view-standard .bonds-ai-resize-handle { display: block; }
+    .bonds-ai-resize-left,
+    .bonds-ai-resize-right {
+      top: 12px;
+      bottom: 12px;
+      width: 10px;
+      cursor: ew-resize;
+    }
+    .bonds-ai-resize-left { left: -5px; }
+    .bonds-ai-resize-right { right: -5px; }
+    .bonds-ai-resize-bottom {
+      left: 12px;
+      right: 12px;
+      bottom: -5px;
+      height: 10px;
+      cursor: ns-resize;
+    }
+    .bonds-ai-resize-corner {
+      right: -5px;
+      bottom: -5px;
+      width: 18px;
+      height: 18px;
+      cursor: nwse-resize;
+    }
+    .bonds-ai-chat-window.layout-dragging,
+    .bonds-ai-chat-window.layout-resizing {
+      transition: none !important;
     }
     .bonds-ai-chat-header strong { color: #f0c96a; font-size: 0.95rem; }
     .bonds-ai-chat-header small { color: #94a3b8; font-size: 0.75rem; }
@@ -927,9 +986,14 @@
             <button type="button" class="bonds-ai-view-button" data-assistant-view="workspace" aria-label="مساحة العمل" title="مساحة العمل">◫</button>
             <button type="button" class="bonds-ai-view-button" data-assistant-view="fullscreen" aria-label="ملء الشاشة" title="ملء الشاشة">⛶</button>
             <button type="button" class="bonds-ai-view-button" data-assistant-view="collapsed" aria-label="طي مساحة العمل" title="طي">—</button>
+            <button type="button" class="bonds-ai-layout-reset" aria-label="إعادة ضبط موضع وحجم النافذة" title="إعادة ضبط النافذة">↺</button>
             <button class="bonds-ai-chat-close" aria-label="إغلاق" title="إغلاق">×</button>
           </div>
         </div>
+        <div class="bonds-ai-resize-handle bonds-ai-resize-left" data-resize-edge="left" aria-hidden="true"></div>
+        <div class="bonds-ai-resize-handle bonds-ai-resize-right" data-resize-edge="right" aria-hidden="true"></div>
+        <div class="bonds-ai-resize-handle bonds-ai-resize-bottom" data-resize-edge="bottom" aria-hidden="true"></div>
+        <div class="bonds-ai-resize-handle bonds-ai-resize-corner" data-resize-edge="right-bottom" aria-hidden="true"></div>
         <div class="bonds-ai-notifications" aria-live="polite"></div>
         <div class="bonds-ai-home-launchpad" aria-label="ابدأ مع مساعد بوندز">
           <div class="bonds-ai-home-intro">
@@ -1001,6 +1065,9 @@
     const toggle = root.querySelector('.bonds-ai-chat-toggle');
     const windowEl = root.querySelector('.bonds-ai-chat-window');
     const closeBtn = root.querySelector('.bonds-ai-chat-close');
+    const chatHeader = root.querySelector('.bonds-ai-chat-header');
+    const layoutResetBtn = root.querySelector('.bonds-ai-layout-reset');
+    const resizeHandles = Array.from(root.querySelectorAll('[data-resize-edge]'));
     const viewButtons = Array.from(root.querySelectorAll('[data-assistant-view]'));
     const notificationsEl = root.querySelector('.bonds-ai-notifications');
     const notificationBadge = root.querySelector('.bonds-ai-notification-badge');
@@ -1407,6 +1474,186 @@
       }
     }
 
+    function assistantLayoutViewport() {
+      return {
+        width: Math.max(1, Number(window.innerWidth) || document.documentElement.clientWidth || 1),
+        height: Math.max(1, Number(window.innerHeight) || document.documentElement.clientHeight || 1)
+      };
+    }
+
+    function defaultAssistantLayout() {
+      const viewport = assistantLayoutViewport();
+      const width = Math.min(420, Math.max(ASSISTANT_LAYOUT_MIN_WIDTH, viewport.width - 48));
+      const height = Math.min(650, Math.max(ASSISTANT_LAYOUT_MIN_HEIGHT, viewport.height - 140));
+      return {
+        version: ASSISTANT_LAYOUT_VERSION,
+        x: Math.max(ASSISTANT_LAYOUT_MARGIN, Math.min(24, viewport.width - width - ASSISTANT_LAYOUT_MARGIN)),
+        y: Math.max(ASSISTANT_LAYOUT_MARGIN, viewport.height - 92 - height),
+        width,
+        height,
+        dock: null
+      };
+    }
+
+    function normalizeAssistantLayout(value) {
+      const viewport = assistantLayoutViewport();
+      const fallback = defaultAssistantLayout();
+      const maxWidth = Math.max(240, viewport.width - (ASSISTANT_LAYOUT_MARGIN * 2));
+      const maxHeight = Math.max(260, viewport.height - (ASSISTANT_LAYOUT_MARGIN * 2));
+      const minWidth = Math.min(ASSISTANT_LAYOUT_MIN_WIDTH, maxWidth);
+      const minHeight = Math.min(ASSISTANT_LAYOUT_MIN_HEIGHT, maxHeight);
+      const width = Math.min(maxWidth, Math.max(minWidth, Number(value?.width) || fallback.width));
+      const height = Math.min(maxHeight, Math.max(minHeight, Number(value?.height) || fallback.height));
+      const x = Math.min(
+        viewport.width - width - ASSISTANT_LAYOUT_MARGIN,
+        Math.max(ASSISTANT_LAYOUT_MARGIN, Number(value?.x) || fallback.x)
+      );
+      const y = Math.min(
+        viewport.height - height - ASSISTANT_LAYOUT_MARGIN,
+        Math.max(ASSISTANT_LAYOUT_MARGIN, Number(value?.y) || fallback.y)
+      );
+      return {
+        version: ASSISTANT_LAYOUT_VERSION,
+        x: Math.round(x),
+        y: Math.round(y),
+        width: Math.round(width),
+        height: Math.round(height),
+        dock: value?.dock === 'left' || value?.dock === 'right' ? value.dock : null
+      };
+    }
+
+    function readAssistantLayout() {
+      try {
+        const raw = window.localStorage?.getItem(ASSISTANT_LAYOUT_KEY);
+        if (!raw) return defaultAssistantLayout();
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.version !== ASSISTANT_LAYOUT_VERSION) return defaultAssistantLayout();
+        return normalizeAssistantLayout(parsed);
+      } catch (_) {
+        return defaultAssistantLayout();
+      }
+    }
+
+    function persistAssistantLayout(layout) {
+      try {
+        window.localStorage?.setItem(ASSISTANT_LAYOUT_KEY, JSON.stringify(normalizeAssistantLayout(layout)));
+      } catch (_) {
+        // Layout persistence is best-effort only.
+      }
+    }
+
+    function clearStandardLayoutStyles() {
+      ['left','top','right','bottom','width','height','inset'].forEach(property => {
+        windowEl.style[property] = '';
+      });
+    }
+
+    let standardLayout = readAssistantLayout();
+
+    function applyStandardLayout(layout = standardLayout, { persist = false } = {}) {
+      if ((Number(window.innerWidth) || 0) <= 640) {
+        clearStandardLayoutStyles();
+        return standardLayout;
+      }
+      standardLayout = normalizeAssistantLayout(layout);
+      windowEl.style.inset = 'auto';
+      windowEl.style.right = 'auto';
+      windowEl.style.bottom = 'auto';
+      windowEl.style.left = standardLayout.x + 'px';
+      windowEl.style.top = standardLayout.y + 'px';
+      windowEl.style.width = standardLayout.width + 'px';
+      windowEl.style.height = standardLayout.height + 'px';
+      windowEl.dataset.layoutDock = standardLayout.dock || '';
+      if (persist) persistAssistantLayout(standardLayout);
+      return standardLayout;
+    }
+
+    function resetAssistantLayout() {
+      try {
+        window.localStorage?.removeItem(ASSISTANT_LAYOUT_KEY);
+      } catch (_) {}
+      standardLayout = defaultAssistantLayout();
+      if (state?.viewMode === 'standard') applyStandardLayout(standardLayout);
+      return standardLayout;
+    }
+
+    function snapAssistantLayout(layout) {
+      const viewport = assistantLayoutViewport();
+      const next = normalizeAssistantLayout(layout);
+      const rightGap = viewport.width - (next.x + next.width);
+      if (next.x <= ASSISTANT_LAYOUT_SNAP) {
+        next.x = ASSISTANT_LAYOUT_MARGIN;
+        next.dock = 'left';
+      } else if (rightGap <= ASSISTANT_LAYOUT_SNAP) {
+        next.x = viewport.width - next.width - ASSISTANT_LAYOUT_MARGIN;
+        next.dock = 'right';
+      } else {
+        next.dock = null;
+      }
+      if (next.y <= ASSISTANT_LAYOUT_SNAP) next.y = ASSISTANT_LAYOUT_MARGIN;
+      return normalizeAssistantLayout(next);
+    }
+
+    let layoutInteraction = null;
+
+    function beginLayoutInteraction(type, edge, event) {
+      if (state.viewMode !== 'standard' || (Number(window.innerWidth) || 0) <= 640) return;
+      if (event.button !== undefined && event.button !== 0) return;
+      event.preventDefault();
+      layoutInteraction = {
+        type,
+        edge: edge || null,
+        pointerId:event.pointerId,
+        startX:event.clientX,
+        startY:event.clientY,
+        start:{ ...standardLayout }
+      };
+      windowEl.classList.toggle('layout-dragging', type === 'move');
+      windowEl.classList.toggle('layout-resizing', type === 'resize');
+      try { event.currentTarget?.setPointerCapture?.(event.pointerId); } catch (_) {}
+    }
+
+    function updateLayoutInteraction(event) {
+      if (!layoutInteraction) return;
+      if (
+        layoutInteraction.pointerId !== undefined &&
+        event.pointerId !== undefined &&
+        layoutInteraction.pointerId !== event.pointerId
+      ) return;
+
+      const dx = event.clientX - layoutInteraction.startX;
+      const dy = event.clientY - layoutInteraction.startY;
+      const start = layoutInteraction.start;
+      let next = { ...start, dock:null };
+
+      if (layoutInteraction.type === 'move') {
+        next.x = start.x + dx;
+        next.y = start.y + dy;
+      } else {
+        const edge = layoutInteraction.edge || '';
+        if (edge.includes('right')) next.width = start.width + dx;
+        if (edge.includes('left')) {
+          next.width = start.width - dx;
+          next.x = start.x + dx;
+        }
+        if (edge.includes('bottom')) next.height = start.height + dy;
+      }
+      applyStandardLayout(next);
+    }
+
+    function finishLayoutInteraction(event) {
+      if (!layoutInteraction) return;
+      if (
+        layoutInteraction.pointerId !== undefined &&
+        event?.pointerId !== undefined &&
+        layoutInteraction.pointerId !== event.pointerId
+      ) return;
+      standardLayout = snapAssistantLayout(standardLayout);
+      applyStandardLayout(standardLayout, { persist:true });
+      layoutInteraction = null;
+      windowEl.classList.remove('layout-dragging', 'layout-resizing');
+    }
+
     function readPreferredViewMode() {
       try {
         const value = window.sessionStorage?.getItem('bonds.assistant.view-mode.v1');
@@ -1441,6 +1688,11 @@
       }
 
       state.viewMode = safeMode;
+      if (safeMode === 'standard') {
+        applyStandardLayout(standardLayout);
+      } else {
+        clearStandardLayoutStyles();
+      }
       ['standard', 'workspace', 'fullscreen', 'collapsed'].forEach(item => {
         windowEl.classList.toggle('view-' + item, item === safeMode);
       });
@@ -1465,6 +1717,32 @@
     }
 
     setViewMode(state.viewMode, { persist: false });
+
+    chatHeader.addEventListener('pointerdown', event => {
+      if (event.target.closest('.bonds-ai-chat-header-controls, button, a, input')) return;
+      beginLayoutInteraction('move', null, event);
+    });
+    resizeHandles.forEach(handle => {
+      handle.addEventListener('pointerdown', event => {
+        event.stopPropagation();
+        beginLayoutInteraction('resize', handle.dataset.resizeEdge, event);
+      });
+    });
+    window.addEventListener('pointermove', updateLayoutInteraction);
+    window.addEventListener('pointerup', finishLayoutInteraction);
+    window.addEventListener('pointercancel', finishLayoutInteraction);
+    window.addEventListener('resize', () => {
+      if (state.viewMode !== 'standard' || (Number(window.innerWidth) || 0) <= 640) return;
+      standardLayout = normalizeAssistantLayout(standardLayout);
+      applyStandardLayout(standardLayout, { persist:true });
+    });
+    layoutResetBtn.addEventListener('click', event => {
+      event.stopPropagation();
+      resetAssistantLayout();
+      if (state.viewMode !== 'standard') setViewMode('standard');
+      input.focus();
+    });
+
     voiceBtn.hidden = !voiceInputSupported();
     voiceBtn.disabled = !voiceInputSupported();
     voiceBtn.setAttribute('aria-pressed', 'false');
@@ -3024,6 +3302,8 @@
     window.BondsAssistant.refreshNotifications = refreshNotifications;
     window.BondsAssistant.resumeCase = resumePersistentCaseState;
     window.BondsAssistant.markNotificationRead = markNotificationRead;
+    window.BondsAssistant.resetLayout = resetAssistantLayout;
+    window.BondsAssistant.getLayout = () => ({ ...standardLayout });
     window.BondsAssistant.getAttachments = () => state.attachments.map(item => ({
       document_id:item.document_id || null,
       filename:item.filename || item.name || null,
