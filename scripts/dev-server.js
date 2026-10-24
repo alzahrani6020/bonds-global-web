@@ -194,6 +194,11 @@ function sendStatic(filePath, res) {
 }
 
 async function handleApi(req, res, log) {
+  const pathname = req.url.split('?')[0];
+  if (pathname === '/api/readiness' || pathname === '/api/readiness/') {
+    req.url = '/api/health?strict=1';
+  }
+
   const apiFile = resolveApiRoute(req.url);
   if (!apiFile) {
     res.statusCode = 404;
