@@ -110,4 +110,18 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain("source: data.source || 'bonds-assistant'");
   });
 
+  test('renders live runtime health instead of a fixed connected label', () => {
+    expect(source).toContain("const READINESS_URL = '/api/readiness';");
+    expect(source).toContain('async function refreshServiceHealth()');
+    expect(source).toContain('function renderServiceHealth(payload, error = null)');
+    expect(source).toContain('data-health-service="ai"');
+    expect(source).toContain('data-health-service="api"');
+    expect(source).toContain('data-health-service="token"');
+    expect(source).toContain('data-health-service="search"');
+    expect(source).toContain('data-health-service="governance"');
+    expect(source).toContain('window.BondsAssistant.refreshHealth = refreshServiceHealth;');
+    expect(source).toContain('window.BondsAssistant.getHealth = () => ({ ...state.health });');
+    expect(source).not.toContain('<span class="bonds-ai-home-status">متصل الآن</span>');
+  });
+
 });
