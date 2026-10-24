@@ -583,8 +583,18 @@
       padding:8px 12px 10px;
       font-size:0.7rem;
       color:#334155;
+      min-height:0;
     }
     #bonds-ai-chat-root .bonds-ai-request-diagnostics.visible { display:block; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-details {
+      max-height:240px;
+      overflow-y:auto;
+      overflow-x:hidden;
+      overscroll-behavior:contain;
+    }
+    #bonds-ai-chat-root .bonds-ai-request-diagnostics:not(.expanded) .bonds-ai-diagnostics-details {
+      display:none;
+    }
     #bonds-ai-chat-root .bonds-ai-diagnostics-head {
       display:flex;
       align-items:center;
@@ -596,7 +606,8 @@
     #bonds-ai-chat-root .bonds-ai-diagnostics-summary[data-status="PASS"] { color:#15803d; }
     #bonds-ai-chat-root .bonds-ai-diagnostics-summary[data-status="DEGRADED"] { color:#b45309; }
     #bonds-ai-chat-root .bonds-ai-diagnostics-summary[data-status="FAIL"] { color:#b42318; }
-    #bonds-ai-chat-root .bonds-ai-diagnostics-copy {
+    #bonds-ai-chat-root .bonds-ai-diagnostics-copy,
+    #bonds-ai-chat-root .bonds-ai-diagnostics-toggle {
       border:1px solid #dbe3ec;
       background:#f8fafc;
       color:#334155;
@@ -604,6 +615,9 @@
       padding:3px 7px;
       cursor:pointer;
       font:inherit;
+    }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-toggle {
+      min-width:62px;
     }
     #bonds-ai-chat-root .bonds-ai-diagnostics-meta {
       display:grid;
@@ -949,8 +963,8 @@
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen {
       display: none;
-      grid-template-columns: minmax(0, 1.35fr) minmax(340px, 0.65fr);
-      grid-template-rows: auto auto minmax(0, 1fr) auto auto auto auto;
+      grid-template-columns: minmax(0, 1.1fr) minmax(460px, 0.9fr);
+      grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto auto;
       align-items: stretch;
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.open.view-workspace,
@@ -976,6 +990,8 @@
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-header,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-header,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-service-statuses,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-service-statuses,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-notifications,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-notifications,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-home-launchpad,
@@ -984,22 +1000,35 @@
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-header,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-header { grid-row: 1; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-service-statuses,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-service-statuses { grid-row: 2; }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-notifications,
-    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-notifications { grid-row: 2; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-notifications { grid-row: 3; }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-home-launchpad,
-    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-launchpad { grid-row: 3 / 8; overflow-y: auto; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-launchpad { grid-row: 4 / 9; overflow-y: auto; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-request-diagnostics,
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-request-diagnostics {
+      grid-column:2;
+      grid-row:4;
+      align-self:start;
+      max-height:280px;
+      overflow:hidden;
+      border-inline-start:1px solid #e3e9f0;
+    }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-messages,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-messages {
       grid-column: 2;
-      grid-row: 3;
+      grid-row: 5;
       min-width: 0;
-      min-height: 0;
+      min-height: 220px;
+      overflow-y:auto;
+      overscroll-behavior:contain;
       border-inline-start: 1px solid #e3e9f0;
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-actions,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-actions {
       grid-column: 1;
-      grid-row: 3 / 8;
+      grid-row: 4 / 9;
       min-width: 0;
       min-height: 0;
       overflow-y: auto;
@@ -1027,22 +1056,22 @@
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-suggestions,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-suggestions {
       grid-column: 2;
-      grid-row: 4;
+      grid-row: 6;
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-chat-input,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-chat-input {
       grid-column: 2;
-      grid-row: 5;
+      grid-row: 7;
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-human-link,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-human-link {
       grid-column: 2;
-      grid-row: 6;
+      grid-row: 8;
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-home-disclaimer,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-disclaimer {
       grid-column: 2;
-      grid-row: 7;
+      grid-row: 9;
     }
 
     #bonds-ai-chat-root .bonds-ai-chat-window.view-collapsed {
@@ -1123,11 +1152,14 @@
           <div class="bonds-ai-diagnostics-head">
             <strong>Last Request Pipeline</strong>
             <span class="bonds-ai-diagnostics-summary">—</span>
+            <button type="button" class="bonds-ai-diagnostics-toggle" aria-expanded="false">Details</button>
             <button type="button" class="bonds-ai-diagnostics-copy">Copy</button>
           </div>
-          <div class="bonds-ai-diagnostics-meta"></div>
-          <div class="bonds-ai-diagnostics-pipeline"></div>
-          <div class="bonds-ai-diagnostics-history"></div>
+          <div class="bonds-ai-diagnostics-details">
+            <div class="bonds-ai-diagnostics-meta"></div>
+            <div class="bonds-ai-diagnostics-pipeline"></div>
+            <div class="bonds-ai-diagnostics-history"></div>
+          </div>
         </div>
         <div class="bonds-ai-notifications" aria-live="polite"></div>
         <div class="bonds-ai-home-launchpad" aria-label="ابدأ مع مساعد بوندز">
@@ -1232,6 +1264,7 @@
     const diagnosticsPipeline = root.querySelector('.bonds-ai-diagnostics-pipeline');
     const diagnosticsHistory = root.querySelector('.bonds-ai-diagnostics-history');
     const diagnosticsCopy = root.querySelector('.bonds-ai-diagnostics-copy');
+    const diagnosticsToggle = root.querySelector('.bonds-ai-diagnostics-toggle');
 
     function readServiceAssistantContext() {
       try {
@@ -1971,8 +2004,20 @@
       if (!safe || !diagnosticsPanel) return null;
       state.diagnostics = safe;
       diagnosticsPanel.classList.add('visible');
-      diagnosticsSummary.textContent = safe.status;
+      diagnosticsSummary.textContent = [
+        safe.status,
+        safe.timing?.server_processing_ms == null ? null : 'Server ' + safe.timing.server_processing_ms + 'ms',
+        safe.timing?.end_to_end_ms == null ? null : 'E2E ' + safe.timing.end_to_end_ms + 'ms',
+        safe.bottleneck?.stage ? diagnosticStageLabel(safe.bottleneck.stage) + ' ' + (safe.bottleneck.duration_ms ?? '—') + 'ms' : null
+      ].filter(Boolean).join(' · ');
       diagnosticsSummary.dataset.status = safe.status;
+
+      const shouldExpand = safe.status !== 'PASS';
+      diagnosticsPanel.classList.toggle('expanded', shouldExpand);
+      if (diagnosticsToggle) {
+        diagnosticsToggle.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
+        diagnosticsToggle.textContent = shouldExpand ? 'Hide' : 'Details';
+      }
 
       const meta = [
         ['Request', safe.request_id || '—'],
@@ -2014,6 +2059,15 @@
           ).join(' · ')
         : '';
       return safe;
+    }
+
+    if (diagnosticsToggle) {
+      diagnosticsToggle.addEventListener('click', () => {
+        const expanded = !diagnosticsPanel.classList.contains('expanded');
+        diagnosticsPanel.classList.toggle('expanded', expanded);
+        diagnosticsToggle.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+        diagnosticsToggle.textContent = expanded ? 'Hide' : 'Details';
+      });
     }
 
     loadDiagnosticHistory();
@@ -3763,6 +3817,8 @@
           reply_to_message_id: userMessage.message_id
         });
         const uiRenderCompletedAt = Date.now();
+        const latestAssistantMessage = messagesEl?.lastElementChild;
+        latestAssistantMessage?.scrollIntoView?.({ block:'nearest', behavior:'smooth' });
         if (responseDiagnostics) {
           const apiRoundtripMs = fetchStartedAt == null || parseCompletedAt == null
             ? null
