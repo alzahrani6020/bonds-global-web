@@ -54,4 +54,22 @@ describe('assistant diagnostics widget contract', () => {
     expect(source).toContain("['End-to-End', safe.timing?.end_to_end_ms");
   });
 
+  test('workspace keeps diagnostics bounded and prioritizes answer space', () => {
+    expect(source).toContain('grid-template-columns: minmax(0, 1.1fr) minmax(460px, 0.9fr)');
+    expect(source).toContain('max-height:280px');
+    expect(source).toContain('min-height: 220px');
+    expect(source).toContain('overflow-y:auto');
+  });
+
+  test('diagnostics collapse on pass and expose a details toggle', () => {
+    expect(source).toContain('class="bonds-ai-diagnostics-toggle"');
+    expect(source).toContain("const shouldExpand = safe.status !== 'PASS';");
+    expect(source).toContain("diagnosticsPanel.classList.toggle('expanded', shouldExpand)");
+    expect(source).toContain("diagnosticsToggle.addEventListener('click'");
+  });
+
+  test('keeps the final assistant answer visible after render', () => {
+    expect(source).toContain("latestAssistantMessage?.scrollIntoView?.({ block:'nearest', behavior:'smooth' });");
+  });
+
 });
