@@ -964,7 +964,7 @@
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen {
       display: none;
       grid-template-columns: minmax(0, 1.1fr) minmax(460px, 0.9fr);
-      grid-template-rows: auto auto auto minmax(0, 1fr) auto auto auto auto;
+      grid-template-rows: auto auto auto auto minmax(0, 1fr) auto auto auto auto;
       align-items: stretch;
     }
     #bonds-ai-chat-root .bonds-ai-chat-window.open.view-workspace,
@@ -1005,7 +1005,7 @@
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-notifications,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-notifications { grid-row: 3; }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-home-launchpad,
-    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-launchpad { grid-row: 4 / 9; overflow-y: auto; }
+    #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-home-launchpad { grid-row: 4 / 10; overflow-y: auto; }
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-request-diagnostics,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-request-diagnostics {
       grid-column:2;
@@ -1028,7 +1028,7 @@
     #bonds-ai-chat-root .bonds-ai-chat-window.view-workspace .bonds-ai-actions,
     #bonds-ai-chat-root .bonds-ai-chat-window.view-fullscreen .bonds-ai-actions {
       grid-column: 1;
-      grid-row: 4 / 9;
+      grid-row: 4 / 10;
       min-width: 0;
       min-height: 0;
       overflow-y: auto;
