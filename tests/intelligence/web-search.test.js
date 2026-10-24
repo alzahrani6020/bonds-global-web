@@ -1,4 +1,10 @@
-const { parseDuckDuckGoHtml, parseBraveHtml, decodeBingRedirectUrl, parseBingHtml } = require('../../lib/intelligence/web-search');
+const {
+  parseDuckDuckGoHtml,
+  parseBraveHtml,
+  decodeBingRedirectUrl,
+  parseBingHtml,
+  parseBingRss
+} = require('../../lib/intelligence/web-search');
 
 describe('BONDS governed web search', () => {
   test('parses bounded public search results and unwraps redirect targets', () => {
@@ -100,4 +106,27 @@ describe('BONDS governed web search', () => {
       })
     ]);
   });
+
+  test('parses Bing RSS search results as a stable no-key fallback', () => {
+    const rss = `
+      <rss>
+        <channel>
+          <item>
+            <title><![CDATA[Amr Moussa - Example]]></title>
+            <link>https://example.org/amr-moussa</link>
+            <description><![CDATA[Public biography result.]]></description>
+          </item>
+        </channel>
+      </rss>
+    `;
+
+    expect(parseBingRss(rss, 5)).toEqual([
+      expect.objectContaining({
+        title: 'Amr Moussa - Example',
+        url: 'https://example.org/amr-moussa',
+        snippet: 'Public biography result.'
+      })
+    ]);
+  });
+
 });

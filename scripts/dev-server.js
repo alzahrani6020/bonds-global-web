@@ -130,7 +130,11 @@ function resolveApiRoute(reqUrl) {
   // Generic /api/:name -> /api/:name.js
   const match = pathname.match(/^\/api\/([^/]+)$/);
   if (match) {
-    const candidate = `${match[1]}.js`;
+    const requested = match[1];
+    const candidate = requested.endsWith('.js')
+      ? requested
+      : `${requested}.js`;
+
     if (getApiHandler(candidate)) return candidate;
   }
 
@@ -234,7 +238,13 @@ async function handleApi(req, res, log) {
 }
 
 async function main() {
-  Object.assign(process.env, loadEnvLocal());
+  const localEnv = loadEnvLocal();
+
+  for (const [key, value] of Object.entries(localEnv)) {
+    if (process.env[key] === undefined) {
+      process.env[key] = value;
+    }
+  }
 
   const server = http.createServer(async (req, res) => {
     const start = Date.now();
