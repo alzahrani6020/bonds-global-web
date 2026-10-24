@@ -95,7 +95,7 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain("status:'alias_candidates_generated'");
   });
 
-  test('parses the final grounding verifier verdict and fails invalid verifier output closed', () => {
+  test('parses the final consistency verdict and fails invalid checker output closed', () => {
     const { parseGroundingDecision } = require('../../lib/assistant/open-chat-tool-loop');
     expect(parseGroundingDecision('{"grounded":true,"unsupported_claims":[],"missing_citations":[]}')).toEqual({
       grounded:true,
@@ -223,7 +223,7 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain('function buildResearchAnswerContext');
     expect(source).toContain('async function generateResearchAnswer');
     expect(source).toContain('async function checkResearchAnswerConsistency');
-    expect(source).not.toContain('RECENT_MESSAGES=' + "' + compactJson(recent.slice(0, -1), 7000)");
+    expect(source).not.toContain("RECENT_MESSAGES=' + compactJson(recent.slice(0, -1), 7000)");
     expect(source).not.toContain('Every factual statement must be explicitly supported by VERIFIED_RESEARCH_SOURCES.');
     expect(source).not.toContain('Do not use model memory to add facts that are absent from the package.');
     expect(source).toContain('Stable background explanation and clearly framed reasonable inference do not require verbatim source support.');
