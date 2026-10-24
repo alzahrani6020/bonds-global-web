@@ -50,7 +50,6 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(researchIntent([{ role:'user', content:'ابحث في النت عن بوندز' }]).required).toBe(true);
     expect(source).toContain("runResearchWorkflow");
     expect(source).toContain("evidence_ready");
-    expect(source).toContain("VERIFIED_RESEARCH_SOURCES=");
   });
 
   test('fails closed instead of substituting model knowledge when required research fails', () => {
@@ -95,18 +94,13 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain("status:'alias_candidates_generated'");
   });
 
-  test('parses the final consistency verdict and fails invalid checker output closed', () => {
-    const { parseGroundingDecision } = require('../../lib/assistant/open-chat-tool-loop');
-    expect(parseGroundingDecision('{"grounded":true,"unsupported_claims":[],"missing_citations":[]}')).toEqual({
-      grounded:true,
-      unsupported_claims:[],
-      missing_citations:[]
-    });
-    expect(parseGroundingDecision('not-json')).toBeNull();
-    expect(source).toContain('ANSWER_CONSISTENCY_FAILED');
-    expect(source).toContain("status:'consistency_blocked'");
+  test('research runtime uses one LLM answer-generation pass', () => {
+    expect(source).toContain('const reply = await generateResearchAnswer(intent, workflow, answerPackage, options);');
+    expect(source).toContain('const quality = assessResearchAnswer(reply, intent);');
+    expect(source).not.toContain('ANSWER_CONSISTENCY_FAILED');
+    expect(source).not.toContain("status:'consistency_blocked'");
+    expect(source).not.toContain('async function checkResearchAnswerConsistency');
   });
-
 
   test('separates public answer evidence from internal verification evidence', () => {
     const {
@@ -208,13 +202,12 @@ describe('BONDS governed open-chat tool loop', () => {
   test('research completion exposes stage-level latency metrics', () => {
     expect(source).toContain('search_ms:workflow?.timings?.search_ms');
     expect(source).toContain('answer_synthesis_ms:synthesisMs');
-    expect(source).toContain('answer_verify_ms:verificationMs');
   });
 
 
-  test('uses isolated answer context and bounded verification evidence', () => {
+  test('uses isolated answer context with one generation pass', () => {
     expect(source).toContain("ANSWER_CONTEXT=' + compactJson(answerContext, 8500)");
-    expect(source).toContain("'VERIFIED_RESEARCH_SOURCES=' + compactJson(verificationPackage, 6000)");
+    expect(source).not.toContain("'VERIFIED_RESEARCH_SOURCES=' + compactJson(verificationPackage, 6000)");
     expect(source).not.toContain('buildResearchEvidencePackage');
   });
 
@@ -222,11 +215,11 @@ describe('BONDS governed open-chat tool loop', () => {
     const source = fs.readFileSync(require.resolve('../../lib/assistant/open-chat-tool-loop'), 'utf8');
     expect(source).toContain('function buildResearchAnswerContext');
     expect(source).toContain('async function generateResearchAnswer');
-    expect(source).toContain('async function checkResearchAnswerConsistency');
+    expect(source).not.toContain('async function checkResearchAnswerConsistency');
     expect(source).not.toContain("RECENT_MESSAGES=' + compactJson(recent.slice(0, -1), 7000)");
     expect(source).not.toContain('Every factual statement must be explicitly supported by VERIFIED_RESEARCH_SOURCES.');
     expect(source).not.toContain('Do not use model memory to add facts that are absent from the package.');
-    expect(source).toContain('Stable background explanation and clearly framed reasonable inference do not require verbatim source support.');
+    expect(source).toContain('You may use stable general knowledge for background explanation.');
   });
 
 });
