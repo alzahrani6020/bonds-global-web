@@ -134,7 +134,8 @@ test('forces public research through search, exploration, evidence verification 
   });
 
   test('research runtime uses one LLM answer-generation pass', () => {
-    expect(source).toContain('const reply = await generateResearchAnswer(intent, workflow, answerPackage, options);');
+    expect(source).toContain('const rawReply = await generateResearchAnswer(intent, workflow, answerPackage, options);');
+    expect(source).toContain('const reply = sanitizeResearchReply(rawReply, sourceRows);');
     expect(source).toContain('const quality = assessResearchAnswer(reply, intent);');
     expect(source).not.toContain('ANSWER_CONSISTENCY_FAILED');
     expect(source).not.toContain("status:'consistency_blocked'");
