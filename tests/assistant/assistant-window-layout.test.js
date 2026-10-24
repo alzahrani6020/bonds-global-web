@@ -10,9 +10,9 @@ describe('BONDS assistant movable and resizable window layout', () => {
   test('uses one versioned persistent layout state', () => {
     expect(source).toContain("const ASSISTANT_LAYOUT_KEY = 'bonds.assistant.layout.v1';");
     expect(source).toContain('const ASSISTANT_LAYOUT_VERSION = 1;');
-    expect(source).toContain('window.localStorage?.getItem(ASSISTANT_LAYOUT_KEY)');
-    expect(source).toContain('window.localStorage?.setItem(ASSISTANT_LAYOUT_KEY');
-    expect(source).toContain('window.localStorage?.removeItem(ASSISTANT_LAYOUT_KEY)');
+    expect(source).toContain('window.sessionStorage?.getItem(ASSISTANT_LAYOUT_KEY)');
+    expect(source).toContain('window.sessionStorage?.setItem(ASSISTANT_LAYOUT_KEY');
+    expect(source).toContain('window.sessionStorage?.removeItem(ASSISTANT_LAYOUT_KEY)');
   });
 
   test('supports pointer-driven move and resize only in standard desktop mode', () => {
