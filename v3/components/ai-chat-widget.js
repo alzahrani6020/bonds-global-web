@@ -21,6 +21,8 @@
   const ASSISTANT_WORKFLOW_RESUME_URL = '/api/v3/assistant/workflows/resume';
   const ASSISTANT_WORKFLOW_SAVE_URL = '/api/v3/assistant/workflows/save';
   const CAPABILITY_EXECUTE_URL = '/api/v3/capabilities/execute';
+  const READINESS_URL = '/api/readiness';
+  const HEALTH_REFRESH_MS = 45000;
   const CLIENT_DOCUMENTS_BUCKET = 'client-documents';
   const CLIENT_DOCUMENTS_QUARANTINE_BUCKET = 'client-documents-quarantine';
   const MAX_ATTACHMENT_BYTES = 10 * 1024 * 1024;
@@ -527,8 +529,51 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 0 2px rgba(34,197,94,0.16);
+      background: #94a3b8;
+      box-shadow: 0 0 0 2px rgba(148,163,184,0.16);
+    }
+    #bonds-ai-chat-root .bonds-ai-home-status[data-status="connected"]::before { background:#22c55e; box-shadow:0 0 0 2px rgba(34,197,94,0.16); }
+    #bonds-ai-chat-root .bonds-ai-home-status[data-status="degraded"]::before,
+    #bonds-ai-chat-root .bonds-ai-home-status[data-status="checking"]::before { background:#f59e0b; box-shadow:0 0 0 2px rgba(245,158,11,0.16); }
+    #bonds-ai-chat-root .bonds-ai-home-status[data-status="disconnected"]::before { background:#ef4444; box-shadow:0 0 0 2px rgba(239,68,68,0.16); }
+    #bonds-ai-chat-root .bonds-ai-service-statuses {
+      display:flex;
+      flex-wrap:wrap;
+      gap:5px;
+      padding:7px 12px;
+      background:#f8fafc;
+      border-bottom:1px solid #e7edf4;
+      font-size:0.7rem;
+      line-height:1.2;
+    }
+    #bonds-ai-chat-root .bonds-ai-service-status {
+      display:inline-flex;
+      align-items:center;
+      gap:4px;
+      border:1px solid #dbe3ec;
+      border-radius:999px;
+      padding:4px 7px;
+      color:#475569;
+      background:#fff;
+      white-space:nowrap;
+    }
+    #bonds-ai-chat-root .bonds-ai-service-status::before {
+      content:'';
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:#94a3b8;
+    }
+    #bonds-ai-chat-root .bonds-ai-service-status[data-status="connected"]::before { background:#22c55e; }
+    #bonds-ai-chat-root .bonds-ai-service-status[data-status="degraded"]::before,
+    #bonds-ai-chat-root .bonds-ai-service-status[data-status="checking"]::before { background:#f59e0b; }
+    #bonds-ai-chat-root .bonds-ai-service-status[data-status="disconnected"]::before { background:#ef4444; }
+    #bonds-ai-chat-root .bonds-ai-service-status[data-status="unconfigured"]::before { background:#94a3b8; }
+    #bonds-ai-chat-root .bonds-ai-health-updated {
+      margin-inline-start:auto;
+      align-self:center;
+      color:#64748b;
+      white-space:nowrap;
     }
     #bonds-ai-chat-root .bonds-ai-chat-close {
       color: #fff;
@@ -989,7 +1034,7 @@
         <div class="bonds-ai-chat-header">
           <div>
             <strong>مساعد بوندز</strong>
-            <br><small class="bonds-ai-default-status">محلل فرص استثمارية</small><span class="bonds-ai-home-status">متصل الآن</span>
+            <br><small class="bonds-ai-default-status">محلل فرص استثمارية</small><span class="bonds-ai-home-status" data-status="checking">جاري التحقق</span>
           </div>
           <div class="bonds-ai-chat-header-controls" aria-label="أوضاع عرض مساعد بوندز">
             <button type="button" class="bonds-ai-view-button" data-assistant-view="standard" aria-label="الحجم العادي" title="الحجم العادي">▣</button>
@@ -1004,6 +1049,14 @@
         <div class="bonds-ai-resize-handle bonds-ai-resize-right" data-resize-edge="right" aria-hidden="true"></div>
         <div class="bonds-ai-resize-handle bonds-ai-resize-bottom" data-resize-edge="bottom" aria-hidden="true"></div>
         <div class="bonds-ai-resize-handle bonds-ai-resize-corner" data-resize-edge="right-bottom" aria-hidden="true"></div>
+        <div class="bonds-ai-service-statuses" aria-label="حالة خدمات مساعد بوندز">
+          <span class="bonds-ai-service-status" data-health-service="ai" data-status="checking">AI</span>
+          <span class="bonds-ai-service-status" data-health-service="api" data-status="checking">API</span>
+          <span class="bonds-ai-service-status" data-health-service="token" data-status="checking">Token</span>
+          <span class="bonds-ai-service-status" data-health-service="search" data-status="checking">Search</span>
+          <span class="bonds-ai-service-status" data-health-service="governance" data-status="checking">Governance</span>
+          <span class="bonds-ai-health-updated" aria-live="polite">—</span>
+        </div>
         <div class="bonds-ai-notifications" aria-live="polite"></div>
         <div class="bonds-ai-home-launchpad" aria-label="ابدأ مع مساعد بوندز">
           <div class="bonds-ai-home-intro">
@@ -1095,6 +1148,12 @@
     const homePromptButtons = root.querySelectorAll('[data-assistant-prompt]');
     const homeFocusButton = root.querySelector('[data-assistant-focus]');
     const humanEscalationButton = root.querySelector('[data-assistant-human-escalation]');
+    const overallHealthStatus = root.querySelector('.bonds-ai-home-status');
+    const healthUpdatedEl = root.querySelector('.bonds-ai-health-updated');
+    const healthServiceEls = Object.fromEntries(
+      Array.from(root.querySelectorAll('[data-health-service]'))
+        .map(element => [element.dataset.healthService, element])
+    );
 
     function readServiceAssistantContext() {
       try {
@@ -1683,8 +1742,110 @@
       recognition: null,
       activeUtterance: null,
       viewMode: readPreferredViewMode(),
-      previousViewMode: 'standard'
+      previousViewMode: 'standard',
+      health: { status: 'checking', lastCheckedAt: null, payload: null, lastError: null },
+      healthTimer: null
     };
+
+    function healthState(value) {
+      const normalized = String(value || '').toLowerCase();
+      if (['ok', 'ready', 'available'].includes(normalized)) return 'connected';
+      if (['not_configured', 'invalid_configuration', 'unconfigured'].includes(normalized)) return 'unconfigured';
+      if (['checking', 'unknown', 'not_checked', 'skipped'].includes(normalized)) return 'checking';
+      return 'disconnected';
+    }
+
+    function healthText(status) {
+      const english = languageCode() === 'en';
+      if (status === 'connected') return english ? 'Connected' : 'متصل';
+      if (status === 'degraded') return english ? 'Degraded' : 'متاح جزئياً';
+      if (status === 'unconfigured') return english ? 'Not configured' : 'غير مهيأ';
+      if (status === 'checking') return english ? 'Checking' : 'جاري التحقق';
+      return english ? 'Disconnected' : 'غير متصل';
+    }
+
+    function setHealthBadge(name, status, detail = '') {
+      const element = healthServiceEls[name];
+      if (!element) return;
+      element.dataset.status = status;
+      const label = element.dataset.healthLabel || element.textContent.split(' · ')[0];
+      element.dataset.healthLabel = label;
+      element.textContent = label + ' · ' + healthText(status);
+      element.title = detail || element.textContent;
+    }
+
+    function renderServiceHealth(payload, error = null) {
+      const checks = payload?.checks || {};
+      const apiState = payload && checks.supabase === 'ok' ? 'connected' : 'disconnected';
+      const nativeState = healthState(checks.native);
+      const fallbackState = healthState(checks.fallback);
+      const aiState = nativeState === 'connected' || fallbackState === 'connected'
+        ? 'connected'
+        : (nativeState === 'unconfigured' ? 'unconfigured' : 'disconnected');
+      const tokenState = healthState(checks.token_runtime);
+      const searchState = healthState(checks.web_search);
+      const governanceState = healthState(checks.user_governance);
+
+      setHealthBadge('ai', aiState, payload?.inference?.native_diagnostic?.code || '');
+      setHealthBadge('api', apiState, checks.supabase || '');
+      setHealthBadge('token', tokenState, payload?.token_runtime?.code || '');
+      setHealthBadge('search', searchState, payload?.web_search?.code || '');
+      setHealthBadge('governance', governanceState, payload?.user_governance?.code || '');
+
+      const serviceStates = [aiState, apiState, tokenState, searchState, governanceState];
+      const overall = payload?.status === 'ready' && serviceStates.every(value => value === 'connected')
+        ? 'connected'
+        : (apiState === 'connected' && serviceStates.some(value => value === 'connected') ? 'degraded' : 'disconnected');
+
+      state.health = {
+        status: overall,
+        lastCheckedAt: new Date().toISOString(),
+        payload: payload || null,
+        lastError: error ? String(error.message || error) : null
+      };
+
+      if (overallHealthStatus) {
+        overallHealthStatus.dataset.status = overall;
+        overallHealthStatus.textContent = healthText(overall);
+      }
+      if (healthUpdatedEl) {
+        const now = new Date();
+        healthUpdatedEl.textContent = (languageCode() === 'en' ? 'Checked ' : 'فحص ') +
+          now.toLocaleTimeString(languageCode() === 'en' ? 'en-GB' : 'ar-SA', { hour:'2-digit', minute:'2-digit' });
+        healthUpdatedEl.title = state.health.lastError || '';
+      }
+      return state.health;
+    }
+
+    async function refreshServiceHealth() {
+      if (document.hidden) return state.health;
+      if (window.navigator && window.navigator.onLine === false) {
+        renderServiceHealth(null, new Error('BROWSER_OFFLINE'));
+        return state.health;
+      }
+
+      if (overallHealthStatus) {
+        overallHealthStatus.dataset.status = 'checking';
+        overallHealthStatus.textContent = healthText('checking');
+      }
+
+      const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 7000) : null;
+      try {
+        const response = await fetch(READINESS_URL, {
+          method:'GET',
+          headers:{ Accept:'application/json' },
+          cache:'no-store',
+          signal:controller?.signal
+        });
+        const payload = await response.json().catch(() => null);
+        return renderServiceHealth(payload, response.ok ? null : new Error(payload?.status || 'READINESS_FAILED'));
+      } catch (error) {
+        return renderServiceHealth(null, error);
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
 
     function setViewMode(mode, { persist = true } = {}) {
       const safeMode = ['standard', 'workspace', 'fullscreen', 'collapsed'].includes(mode)
@@ -1989,6 +2150,7 @@
       }
 
       if (state.isOpen) {
+        refreshServiceHealth();
         if (state.viewMode === 'collapsed') {
           setViewMode(state.previousViewMode || 'standard', { persist: false });
         }
@@ -3414,6 +3576,8 @@
     window.BondsAssistant.markNotificationRead = markNotificationRead;
     window.BondsAssistant.resetLayout = resetAssistantLayout;
     window.BondsAssistant.getLayout = () => ({ ...standardLayout });
+    window.BondsAssistant.refreshHealth = refreshServiceHealth;
+    window.BondsAssistant.getHealth = () => ({ ...state.health });
     window.BondsAssistant.getAttachments = () => state.attachments.map(item => ({
       document_id:item.document_id || null,
       filename:item.filename || item.name || null,
