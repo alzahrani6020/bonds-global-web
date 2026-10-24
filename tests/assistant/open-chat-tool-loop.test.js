@@ -286,6 +286,48 @@ test('forces public research through search, exploration, evidence verification 
     expect(source).toContain('Use only the supplied ANSWER_CONTEXT and the rejected answer. Do not search, request new information, or add unsupported facts.');
   });
 
+  test('person lookup contract requires a concrete distinguishing identity fact', () => {
+    const { researchAnswerContract } = require('../../lib/assistant/open-chat-tool-loop');
+    const contract = researchAnswerContract({
+      language_plan:{ intent:'person_lookup' }
+    });
+
+    expect(contract).toContain('specific identifying role');
+    expect(contract).toContain('supported by the supplied evidence');
+    expect(contract).toContain('Do not use public figure');
+  });
+
+  test('uses failure-specific repair instructions for supported quality codes', () => {
+    const { repairQualityInstruction } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const generic = repairQualityInstruction('PERSON_IDENTITY_TOO_GENERIC');
+    expect(generic).toContain('identified the person too generically');
+    expect(generic).toContain('one concrete distinguishing role');
+    expect(generic).toContain('absent from ANSWER_CONTEXT');
+
+    const missing = repairQualityInstruction('PERSON_IDENTITY_NOT_ANSWERED');
+    expect(missing).toContain('did not directly identify the requested person');
+    expect(missing).toContain('directly names the requested person');
+
+    const meta = repairQualityInstruction('META_ONLY_ANSWER');
+    expect(meta).toContain('talks about sources');
+    expect(meta).toContain('direct substantive answer');
+  });
+
+  test('repair prompt uses the failure-specific instruction and stays evidence-bounded', () => {
+    const repairFunction = source.slice(
+      source.indexOf('async function repairResearchAnswer'),
+      source.indexOf('function assessResearchAnswer')
+    );
+
+    expect(repairFunction).toContain("'REPAIR_INSTRUCTION=' + repairQualityInstruction(qualityCode)");
+    expect(repairFunction).toContain('Use only the supplied ANSWER_CONTEXT and the rejected answer.');
+    expect(repairFunction).not.toContain('runResearchWorkflow');
+    expect(repairFunction).not.toContain('web_search');
+    expect(repairFunction).not.toContain('web_explore');
+    expect(repairFunction).not.toContain('evidence_verify');
+  });
+
   test('records explicit acquisition and repair timing without re-running research', () => {
     expect(source).toContain('const researchAcquisitionMs = Date.now() - startedAt;');
     expect(source).toContain('research_acquisition_ms:researchAcquisitionMs');
