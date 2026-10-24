@@ -28,6 +28,17 @@ describe('BONDS language and query resolver', () => {
     ]));
   });
 
+  test('strips a trailing UI ordinal from a person entity', () => {
+    const result = resolveLanguageQuery('من هو عمر موسى 4.');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.entity).toEqual(expect.objectContaining({
+      type:'person',
+      text:'عمر موسى'
+    }));
+    expect(result.selected_query).toBe('عمر موسى');
+    expect(result.query_variants).not.toContain('عمر موسى 4');
+  });
+
   test('keeps mixed Arabic and English language metadata explicit', () => {
     const result = resolveLanguageQuery('حلل EBITDA وابحث latest news');
     expect(result.language.language).toBe('mixed');
