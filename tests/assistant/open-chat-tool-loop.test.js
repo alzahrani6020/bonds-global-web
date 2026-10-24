@@ -106,4 +106,41 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain('ANSWER_GROUNDING_FAILED');
     expect(source).toContain("status:'grounding_blocked'");
   });
+  test('never exposes internal research identifiers or internal failure codes to the user', () => {
+    const {
+      sanitizeResearchReply,
+      researchFailureReply,
+      failureReply
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const sanitized = sanitizeResearchReply(
+      'ولي العهد السعودي. المصدر: web-source-1 source_id=web-source-1',
+      [{
+        id:'web-source-1',
+        title:'Public source',
+        publisher:'example.com',
+        url:'https://example.com/profile'
+      }]
+    );
+
+    expect(sanitized).toContain('https://example.com/profile');
+    expect(sanitized).not.toContain('web-source-1');
+    expect(sanitized).not.toContain('source_id');
+
+    const researchBlocked = researchFailureReply(
+      [{ role:'user', content:'من محمد بن سلمان؟' }],
+      { status:'blocked', unknowns:['INTERNAL_SOURCE_ID_LEAK'] }
+    );
+    expect(researchBlocked).not.toContain('INTERNAL_SOURCE_ID_LEAK');
+    expect(researchBlocked).not.toContain('رمز الحالة');
+
+    const searchBlocked = failureReply(
+      [{ role:'user', content:'من محمد بن سلمان؟' }],
+      'web_search',
+      { ok:false, error:{ code:'INTERNAL_SOURCE_ID_LEAK' } }
+    );
+    expect(searchBlocked).not.toContain('INTERNAL_SOURCE_ID_LEAK');
+    expect(searchBlocked).not.toContain('رمز الخطأ');
+  });
+
 });
