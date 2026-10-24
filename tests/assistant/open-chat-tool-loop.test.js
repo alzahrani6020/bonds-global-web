@@ -61,7 +61,8 @@ describe('BONDS governed open-chat tool loop', () => {
       { ok: false, error: { code: 'SEARCH_NO_RESULTS' } }
     );
     expect(reply).toContain('لم أعتمد على معلومات غير موثقة');
-    expect(reply).toContain('SEARCH_NO_RESULTS');
+    expect(reply).not.toContain('SEARCH_NO_RESULTS');
+    expect(reply).not.toContain('رمز الخطأ');
   });
 
   test('forces public research through search, exploration, evidence verification and synthesis', () => {
