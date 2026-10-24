@@ -3764,9 +3764,9 @@
         });
         const uiRenderCompletedAt = Date.now();
         if (responseDiagnostics) {
-          const apiRoundtripMs = fetchStartedAt == null || responseReceivedAt == null
+          const apiRoundtripMs = fetchStartedAt == null || parseCompletedAt == null
             ? null
-            : responseReceivedAt - fetchStartedAt;
+            : parseCompletedAt - fetchStartedAt;
           const clientParseMs = parseStartedAt == null || parseCompletedAt == null
             ? null
             : parseCompletedAt - parseStartedAt;
@@ -3798,9 +3798,9 @@
       } catch (err) {
         if (responseDiagnostics) {
           const now = Date.now();
-          const apiRoundtripMs = fetchStartedAt == null || responseReceivedAt == null
+          const apiRoundtripMs = fetchStartedAt == null
             ? null
-            : responseReceivedAt - fetchStartedAt;
+            : (parseCompletedAt || responseReceivedAt || now) - fetchStartedAt;
           const clientParseMs = parseStartedAt == null || parseCompletedAt == null
             ? null
             : parseCompletedAt - parseStartedAt;
