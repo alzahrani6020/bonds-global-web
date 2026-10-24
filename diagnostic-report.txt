@@ -1,0 +1,275 @@
+﻿=== تقرير التشخيص الشامل ===
+التاريخ: 2026-10-24 08:27:04
+
+--- 1. حالة Git (ما الذي تم تعديله فعلياً؟) ---
+ M lib/assistant/open-chat-tool-loop.js  M lib/intelligence/web-search.js  M scripts/dev-server.js  M styles.css  M tests/intelligence/web-search.test.js ?? lib/assistant/open-chat-tool-loop.js.local-grounding-backup ?? lib/intelligence/web-search.js.bak
+
+--- 2. محتوى package.json (للتأكد من سكربت التشغيل) ---
+{
+  "name": "bonds-global-web",
+  "version": "2.0.0",
+  "description": "Bonds Global — Restaurant Profitability SaaS Platform",
+  "private": true,
+  "scripts": {
+    "dev": "vercel dev",
+    "dev:local": "node scripts/dev-server.js",
+    "deploy": "vercel --prod",
+    "test": "jest",
+    "test:visual": "node tests/visual/visual-tests.js",
+    "test:visual:update": "node tests/visual/visual-tests.js --update",
+    "test:a11y": "node tests/a11y/a11y-tests.js",
+    "test:mobile": "node tests/mobile/mobile-tests.js",
+    "audit": "node scripts/site-audit.js",
+    "audit:migrations": "node scripts/verify-migrations.js",
+    "audit:og": "node scripts/og-audit.js",
+    "audit:i18n": "node scripts/i18n-audit.js",
+    "audit:api": "node scripts/api-auth-audit.js",
+    "install-hooks": "node scripts/install-hooks.js",
+    "setup:supabase": "node scripts/setup-supabase.js",
+    "setup:stripe": "node scripts/setup-stripe.js",
+    "regenerate:platforms": "node scripts/extract-platform-data.js",
+    "regenerate:geo": "node scripts/update-geo-from-geonames.js && node scripts/extract-geo-data.js",
+    "regenerate:geo-chunks": "node scripts/extract-geo-data.js",
+    "regenerate:calculator-status": "node scripts/generate-calculator-status.js",
+    "bump:cache": "node scripts/bump-cache-version.js",
+    "generate:sitemap": "node scripts/generate-sitemap.js",
+    "generate:search-index": "node scripts/generate-search-index.js",
+    "apply:dynamic-og": "node scripts/apply-dynamic-og.js && node scripts/encode-og-image-amps.js",
+    "apply:structured-data": "node scripts/apply-structured-data.js",
+    "apply:organization-schema": "node scripts/apply-organization-schema.js",
+    "apply:hreflang": "node scripts/apply-hreflang.js",
+    "test:security:critical": "jest tests/security/admin-auth-unification.test.js tests/security/admin-dashboard-xss.test.js tests/security/admin-owner-server-authority.test.js tests/security/admin-security-center.test.js tests/security/admin-session-bridge.test.js tests/security/admin-iframe-messaging.test.js tests/security/admin-external-navigation.test.js tests/security/admin-dynamic-url-safety.test.js tests/security/admin-reset-link-safety.test.js tests/security/admin-external-url-safety.test.js tests/security/supabase-migration-uniqueness.test.js tests/security/moyasar-invoices-rls.test.js tests/security/public-lead-tables-rls.test.js tests/security/advisory-storage-rls.test.js tests/security/csp-baseline.test.js tests/security/public-env-exposure.test.js tests/api/funding-bank-transfer.test.js tests/security/mammoth-runtime-surface.test.js tests/security/document-parser-containment.test.js tests/security/document-parser-timeout.test.js tests/security/client-documents-rls.test.js tests/security/analyze-document-rate-limit.test.js tests/security/service-manifest-registration.test.js tests/security/security-containment-closure.test.js tests/security/otp-verification-hardening.test.js tests/security/resend-webhook-auth.test.js tests/security/payment-webhook-hardening.test.js --runInBand",
+    "audit:precommit": "npm run audit && npm run audit:api && npm run test:security:critical && npm run test:admin:ui && npm run test:workspace:ui",
+    "test:admin:ui": "jest tests/admin/admin-modules-ui.test.js --runInBand",
+    "test:workspace:ui": "jest tests/v3/workspace-preview-ui.test.js --runInBand",
+    "audit:admin-contracts": "node scripts/admin-contract-audit.js",
+    "test:production-smoke": "node scripts/post-deploy-smoke.js",
+    "services:compile": "node scripts/compile-service-manifests.js",
+    "services:check": "node scripts/compile-service-manifests.js --check",
+    "test:service-manifests": "jest tests/security/service-manifest-registration.test.js --runInBand",
+    "audit:tools": "node scripts/validate-tools-registry.js",
+    "generate:tools": "node scripts/generate-tools-registry.js",
+    "geo:build-local": "node scripts/build-local-geo-dataset.js",
+    "geo:load-local": "node scripts/load-local-geo-dataset.js",
+    "geo:test-local": "jest tests/v3/local-geo-intelligence.test.js tests/v3/local-geo-foundation-contract.test.js tests/v3/geo-ingestion-architecture.test.js --runInBand",
+    "geo:link-admin1": "node scripts/link-local-geonames-admin1.js",
+    "geo:stage-local": "node scripts/stage-local-geo-dataset.js",
+    "geo:reconcile-local": "node scripts/reconcile-local-geo-run.js",
+    "geo:promote-local": "node scripts/promote-local-geo-run.js",
+    "geo:ingest-local": "node scripts/ingest-local-geo-dataset.js",
+    "geo:rollback-local": "node scripts/rollback-local-geo-run.js",
+    "generate:feasibility-pdf": "node scripts/generate-report.js",
+    "verify:feasibility-pdf": "node scripts/verify-feasibility-pdf-generation.js",
+    "audit:generated-pdfs": "node scripts/verify-generated-pdf-references.js"
+  },
+  "dependencies": {
+    "@sentry/node": "^10.57.0",
+    "@supabase/supabase-js": "^2.108.2",
+    "mammoth": "^1.12.0",
+    "nodemailer": "^10.1.0",
+    "pdf-parse": "^2.4.5",
+    "playwright-core": "^1.61.1",
+    "resend": "^6.17.1",
+    "stripe": "^15.12.0",
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.20.3/xlsx-0.20.3.tgz"
+  },
+  "devDependencies": {
+    "axe-core": "^4.10.2",
+    "bidi-shaper": "^0.1.2",
+    "jest": "^30.4.2",
+    "pg": "^8.21.0",
+    "pixelmatch": "^5.3.0",
+    "playwright": "^1.61.0",
+    "pngjs": "^7.0.0",
+    "sharp": "^0.35.3",
+    "twemoji": "^14.0.2",
+    "vercel": "^56.3.2"
+  },
+  "overrides": {
+    "@tootallnate/once": "^2.0.1",
+    "ajv": "^8.17.2",
+    "js-yaml": "^4.1.2",
+    "minimatch": "^10.2.5",
+    "path-to-regexp": "^6.3.0",
+    "smol-toml": "^1.6.1",
+    "tar": "^7.5.20",
+    "undici": "^6.27.0"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}
+
+
+--- 3. هل يوجد ملف نسخة احتياطية من التعديل السابق؟ ---
+
+FullName                                                         Length LastWriteTime        
+--------                                                         ------ -------------        
+C:\Users\vip\bonds-global-web\lib\intelligence\web-search.js.bak  11294 10/24/2026 7:58:02 AM
+
+
+
+
+--- 4. حالة ملف البحث الحالي (هل يحتوي على التعديل أم لا؟) ---
+
+LineNumber Line                                                                                                 
+---------- ----                                                                                                 
+        12 const MAX_QUERY_LENGTH = 500;                                                                        
+       296 async function searchWeb(query, options = {}) {                                                      
+       297   const q = String(query || '').trim();                                                              
+       299     return { ok: false, executed: false, httpStatus: 400, error: { code: 'SEARCH_QUERY_REQUIRED' } };
+       301   if (q.length > MAX_QUERY_LENGTH) {                                                                 
+       302     return { ok: false, executed: false, httpStatus: 400, error: { code: 'SEARCH_QUERY_TOO_LONG' } };
+       365           query: q,                                                                                  
+       390       query: q,                                                                                      
+
+
+
+
+--- 5. البحث عن مصدر الخطأ AI_SYNTHESIS_FAILED ---
+
+Path                                                               LineNumber Line                                     
+----                                                               ---------- ----                                     
+C:\Users\vip\bonds-global-web\lib\assistant\open-chat-tool-loop.js        514       reply:researchFailureReply(messa...
+C:\Users\vip\bonds-global-web\lib\assistant\open-chat-tool-loop.js        519       research:{ task_id:taskId, statu...
+
+
+
+
+--- 6. آخر تعديلات على ملفات المشروع (خلال اليومين الماضيين) ---
+
+FullName                                                                        LastWriteTime        
+--------                                                                        -------------        
+C:\Users\vip\bonds-global-web\lib\ai\inference-router.js                        10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\ai\latency-aware-routing.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\api\analyze-document.js                       10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\api\document-parser-core.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\api\document-parser-pdf-child.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\api\document-parser.js                        10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\api\rate-limit-distributed.js                 10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\agent-inbox-queue.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\agent-inbox.js                      10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\anomaly-detection.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\assistant-evaluations.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\audit-trail.js                      10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\case-engine.js                      10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\chat-orchestrator.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\confirmation-engine.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\context-state.js                    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\critical-multi-model-consensus.js   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\document-intelligence.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\document-processing.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\document-workflow.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\draft-center.js                     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\emergency-kill-switch.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\employee-assistant-mode.js          10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\event-driven.js                     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\golden-conversations.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\human-approval.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\human-escalation.js                 10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\idempotency.js                      10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\language-query-resolver.js          10/24/2026 7:19:36 AM
+C:\Users\vip\bonds-global-web\lib\assistant\notification-engine.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\notification-store.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\open-chat-tool-loop.js              10/24/2026 8:04:36 AM
+C:\Users\vip\bonds-global-web\lib\assistant\operational-dashboard.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\policy-engine.js                    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\policy-simulation.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\prefill-provenance.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\production-readiness.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\protocol.js                         10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\red-team-scenarios.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\safe-introspection-cache.js         10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\sensitive-action-verifier.js        10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\sensitive-workflow-state-machine.js 10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\shadow-authorization.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\synthetic-production-journeys.js    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\assistant\workflow-state.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\capabilities\bonds-capability-registry.js     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\capabilities\generated-service-registry.js    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\capabilities\governance-gateway.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\capabilities\governed-executor.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\capabilities\runtime-adapters.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\capabilities\user-governance-context.js       10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\decision-os\simulation-engine.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\dual-core\assistant-outcome-bridge.js         10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\dual-core\event-taxonomy.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\dual-core\evolution-proposal-aggregator.js    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\dual-core\evolution-state-machine.js          10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\dual-core\intelligence-bus.js                 10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\dual-core\resource-scheduler.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\dual-core\runtime-capability-profiler.js      10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\approval-target.js                  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\candidate-manager.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\code-provider.js                    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\dependency-checks.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\engineering-memory.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\impact-analyzer.js                  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\integration-resolver.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\patch-engine.js                     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\registry-sync.js                    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\repair-loop.js                      10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\evolution\system-map.js                       10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\engines\cash-flow-engine.js           10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\engines\feasibility-engine.js         10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\engines\financial-analysis-engine.js  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\engines\funding-engine.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\engines\risk-engine.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\engines\scenario-engine.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\engines\valuation-engine.js           10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\shared\math.js                        10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\shared\result-envelope.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\financial-data-intake.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\financial-engine-registry.js          10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\finance\version.js                            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\forms\credit-consent-form.js                  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\forms\dynamic-form-engine.js                  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\forms\funding-case-context.js                 10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\geo\local-intelligence.js                     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\geo\normalization.js                          10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\geo\resolve-context.js                        10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\intelligence\research-workflow.js             10/24/2026 7:19:36 AM
+C:\Users\vip\bonds-global-web\lib\intelligence\web-acquisition.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\intelligence\web-search.js                    10/24/2026 8:20:48 AM
+C:\Users\vip\bonds-global-web\lib\investment-intelligence\document-generator.js 10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\learning\evidence-aggregator.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\learning\evolution-agent-inbox.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\learning\evolution-review.js                  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\learning\gap-defect-detector.js               10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\learning\learning-proposal-engine.js          10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\learning\proposal-risk-classifier.js          10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\media\file-policy-registry.js                 10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\media\language-engine.js                      10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\orchestrator\intelligence-orchestrator.js     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\project-memory\persistent-state.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\project-memory\recovery.js                    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\project-memory\remote-checkpoint-store.js     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\project-memory\sqlite-checkpoint-store.js     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\release\automatic-rebase.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\release\ci-failure-intake.js                  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\release\known-good-releases.js                10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\release\merge-simulation.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\release\production-verification.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\release\rollback-orchestration.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\release\staged-release.js                     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\security\file-security.js                     10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\security\service-token-authorization.js       10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\security\service-token-broker.js              10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\security\service-token-policies.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\security\service-token-verifier.js            10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\services\parallel-tool-execution.js           10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\services\service-execution-router.js          10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\services\service-tool-registry.js             10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\training\dataset-registry.js                  10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\training\model-benchmark.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\training\model-lifecycle.js                   10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\training\model-registry.js                    10/24/2026 2:45:58 AM
+C:\Users\vip\bonds-global-web\lib\training\training-queue.js                    10/24/2026 2:45:58 AM
+
+
+
+
+--- 7. متغيرات البيئة المتعلقة بالذكاء الاصطناعي ---
+--- .env.dev2 --- MANAGER_EMAIL OPENAI_API_KEY SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.example --- BONDS_AI_PROVIDER BONDS_OPENAI_FALLBACK # --- Smart Research Agent --- # Get free key from https://aistudio.google.com/app/apikey (1500 req/day free) # This powers the AI analysis of market research results GEMINI_API_KEY # Pexels API (200 req/hour free) for image search in galleries # Optional: Google Custom Search (100 req/day free) for real web search results # https://programmablesearchengine.google.com/controlpanel/create # --- OpenAI (Bonds AI Analysis) --- # Get key from: https://platform.openai.com/api-keys OPENAI_API_KEY OPENAI_MODEL # --- Email Notifications --- # SMTP settings (e.g. Gmail, SendGrid, Resend, etc.) SMTP_HOST SMTP_USER EMAIL_FROM # Primary admin email used as fallback for super_admin verification ADMIN_EMAIL # Comma-separated list of admin Supabase user UUIDs or emails (legacy fallback) # These emails will receive notifications for new messages & signups ADMIN_EMAILS # --- Email Notifications (Resend) --- # Signing secret from Resend Webhooks. Required by /api/email-webhook. --- .env.local --- MANAGER_EMAIL OPENAI_API_KEY SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.local.backup-20261024-035052 --- MANAGER_EMAIL OPENAI_API_KEY SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.prod --- ADMIN_EMAIL GEMINI_API_KEY MANAGER_EMAIL OPENAI_API_KEY REPORT_EMAILS SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.production --- ADMIN_EMAIL GEMINI_API_KEY VERCEL_OIDC_TOKEN --- .env.production.check --- ADMIN_EMAIL GEMINI_API_KEY MANAGER_EMAIL OPENAI_API_KEY REPORT_EMAILS SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.production.local --- ADMIN_EMAIL GEMINI_API_KEY MANAGER_EMAIL OPENAI_API_KEY REPORT_EMAILS SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.production.tmp --- ADMIN_EMAIL GEMINI_API_KEY MANAGER_EMAIL OPENAI_API_KEY REPORT_EMAILS SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.vercel --- MANAGER_EMAIL OPENAI_API_KEY SENDER_EMAIL VERCEL_OIDC_TOKEN --- .env.vercel.production --- ADMIN_EMAIL GEMINI_API_KEY MANAGER_EMAIL OPENAI_API_KEY REPORT_EMAILS SENDER_EMAIL VERCEL_OIDC_TOKEN
+
+=== نهاية التقرير ===

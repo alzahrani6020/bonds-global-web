@@ -106,4 +106,120 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain('ANSWER_GROUNDING_FAILED');
     expect(source).toContain("status:'grounding_blocked'");
   });
+
+
+  test('separates public answer evidence from internal verification evidence', () => {
+    const {
+      buildResearchAnswerPackage,
+      buildResearchVerificationPackage
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const rows = [{
+      id:'web-source-1',
+      title:'Official profile',
+      publisher:'example.gov',
+      url:'https://example.gov/profile',
+      text:'Mohammed bin Salman is Crown Prince of Saudi Arabia.',
+      candidate_claims:[
+        {text:'Mohammed bin Salman is Crown Prince of Saudi Arabia.'}
+      ]
+    }];
+
+    const workflow = {
+      status:'SUPPORTED',
+      verification:{
+        result:{
+          verification_state:'SUPPORTED',
+          supported_claims:[],
+          sources:rows
+        }
+      },
+      synthesis:{
+        result:{
+          known:[],
+          unknown:['NO_STRUCTURED_CLAIMS'],
+          contradictions:[]
+        }
+      }
+    };
+
+    const answer = buildResearchAnswerPackage(
+      workflow,
+      rows,
+      'Mohammed bin Salman'
+    );
+
+    const verify = buildResearchVerificationPackage(
+      workflow,
+      rows,
+      'Mohammed bin Salman'
+    );
+
+    expect(JSON.stringify(answer)).not.toContain('web-source-1');
+    expect(JSON.stringify(answer)).toContain('https://example.gov/profile');
+    expect(JSON.stringify(verify)).toContain('web-source-1');
+  });
+
+  test('quality gate rejects internal IDs and meta-only research answers', () => {
+    const { assessResearchAnswer } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    expect(
+      assessResearchAnswer(
+        'محمد بن سلمان وفق web-source-1.',
+        intent
+      ).code
+    ).toBe('INTERNAL_SOURCE_ID_LEAK');
+
+    expect(
+      assessResearchAnswer(
+        'توجد مقالات ومصادر عديدة عن محمد بن سلمان.',
+        intent
+      ).code
+    ).toBe('META_ONLY_ANSWER');
+
+    expect(
+      assessResearchAnswer(
+        'محمد بن سلمان شخصية عامة سعودية وفق الأدلة المتاحة.',
+        intent
+      ).ok
+    ).toBe(true);
+  });
+
+  test('person lookup has an explicit direct-answer contract', () => {
+    const { researchAnswerContract } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    const contract = researchAnswerContract({
+      language_plan:{intent:'person_lookup'}
+    });
+
+    expect(contract).toContain('first sentence');
+    expect(contract).toContain('Do not answer by merely saying');
+  });
+
+  test('research completion exposes stage-level latency metrics', () => {
+    expect(source).toContain('search_ms:workflow?.timings?.search_ms');
+    expect(source).toContain('answer_synthesis_ms:synthesisMs');
+    expect(source).toContain('answer_verify_ms:verificationMs');
+  });
+
+
+  test('keeps the public research answer evidence bounded', () => {
+    expect(source).toContain(
+      "VERIFIED_RESEARCH_ANSWER_EVIDENCE=' + compactJson(answerPackage, 5000)"
+    );
+    expect(source).toContain(
+      "'VERIFIED_RESEARCH_SOURCES=' + compactJson(verificationPackage, 6000)"
+    );
+    expect(source).not.toContain('buildResearchEvidencePackage');
+  });
+
 });

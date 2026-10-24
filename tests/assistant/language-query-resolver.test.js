@@ -59,4 +59,40 @@ describe('BONDS language and query resolver', () => {
     expect(result.query_variants).not.toContain('عمرو موسى');
     expect(result.query_variants).not.toContain('Amr Moussa');
   });
+
+  test('understands Arabic person lookup without copula', () => {
+    const result = resolveLanguageQuery('\u0645\u0646 \u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.requires_research).toBe(true);
+    expect(result.entity.type).toBe('person');
+    expect(result.entity.text).toBe('\u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+  });
+
+  test('understands reversed Arabic person lookup', () => {
+    const result = resolveLanguageQuery('\u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646 \u0645\u0646\u061f');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.entity.text).toBe('\u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+  });
+
+  test('understands colloquial tell-me-about request', () => {
+    const result = resolveLanguageQuery('\u0648\u0634 \u062a\u0639\u0631\u0641 \u0639\u0646 \u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646\u061f');
+    expect(result.intent).toBe('web_research');
+    expect(result.requires_research).toBe(true);
+    expect(result.entity.text).toBe('\u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+  });
+
+  test('understands information-about request', () => {
+    const result = resolveLanguageQuery('\u0645\u0639\u0644\u0648\u0645\u0627\u062a \u0639\u0646 \u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+    expect(result.intent).toBe('web_research');
+    expect(result.requires_research).toBe(true);
+    expect(result.entity.text).toBe('\u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+  });
+
+  test('understands introduce-me-to request', () => {
+    const result = resolveLanguageQuery('\u0639\u0631\u0641\u0646\u064a \u0639\u0644\u0649 \u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.requires_research).toBe(true);
+    expect(result.entity.text).toBe('\u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
+  });
+
 });
