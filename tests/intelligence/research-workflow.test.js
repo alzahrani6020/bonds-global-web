@@ -331,4 +331,98 @@ describe('BONDS query-led research workflow', () => {
     expect(researchQuery({ input:'input' })).toBe('input');
     expect(researchQueryVariants({ research:{ queryVariants:['a','b'], query:'a' } })).toEqual(['a','b']);
   });
+
+  test('extracts bounded query-relevant HTML evidence candidates', () => {
+    const { htmlEvidenceClaims } = require('../../lib/intelligence/research-workflow');
+
+    const claims = htmlEvidenceClaims({
+      format:'html',
+      text:[
+        'Navigation and unrelated text.',
+        'Mohammed bin Salman is Crown Prince of Saudi Arabia.',
+        'This sentence is unrelated.',
+        'Mohammed bin Salman chairs several national development bodies.'
+      ].join(' ')
+    }, 'Mohammed bin Salman');
+
+    expect(claims.length).toBeGreaterThan(0);
+    expect(claims.length).toBeLessThanOrEqual(6);
+    expect(claims[0].text).toMatch(/Mohammed bin Salman/i);
+  });
+
+  test('returns stage timings on successful research workflow', async () => {
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          result:{
+            results:[
+              {url:'https://a.example'},
+              {url:'https://b.example'}
+            ]
+          }
+        };
+      }
+
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          result:{
+            pages:[
+              {
+                url:'https://a.example',
+                evidence:{content_type:'text/html',headers:{}},
+                extracted:{format:'html',text:'Topic fact from A.'}
+              },
+              {
+                url:'https://b.example',
+                evidence:{content_type:'text/html',headers:{}},
+                extracted:{format:'html',text:'Topic fact from B.'}
+              }
+            ]
+          }
+        };
+      }
+
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          result:{
+            verification_state:'SUPPORTED',
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:['NO_STRUCTURED_CLAIMS'],
+            sources:input.sources
+          }
+        };
+      }
+
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          result:{
+            known:[],
+            unknown:['NO_STRUCTURED_CLAIMS'],
+            contradictions:[]
+          }
+        };
+      }
+
+      throw new Error('unexpected action');
+    });
+
+    const result = await runResearchWorkflow({
+      query:'Topic',
+      forceResearch:true,
+      research:{enabled:true,minIndependentPublishers:2}
+    }, {}, {executeCapability});
+
+    expect(result.timings).toEqual(expect.objectContaining({
+      search_ms:expect.any(Number),
+      explore_ms:expect.any(Number),
+      verify_ms:expect.any(Number),
+      synthesize_ms:expect.any(Number)
+    }));
+  });
+
 });
