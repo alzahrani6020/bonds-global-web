@@ -1524,7 +1524,7 @@
 
     function readAssistantLayout() {
       try {
-        const raw = window.localStorage?.getItem(ASSISTANT_LAYOUT_KEY);
+        const raw = window.sessionStorage?.getItem(ASSISTANT_LAYOUT_KEY);
         if (!raw) return defaultAssistantLayout();
         const parsed = JSON.parse(raw);
         if (!parsed || parsed.version !== ASSISTANT_LAYOUT_VERSION) return defaultAssistantLayout();
@@ -1536,7 +1536,7 @@
 
     function persistAssistantLayout(layout) {
       try {
-        window.localStorage?.setItem(ASSISTANT_LAYOUT_KEY, JSON.stringify(normalizeAssistantLayout(layout)));
+        window.sessionStorage?.setItem(ASSISTANT_LAYOUT_KEY, JSON.stringify(normalizeAssistantLayout(layout)));
       } catch (_) {
         // Layout persistence is best-effort only.
       }
@@ -1570,7 +1570,7 @@
 
     function resetAssistantLayout() {
       try {
-        window.localStorage?.removeItem(ASSISTANT_LAYOUT_KEY);
+        window.sessionStorage?.removeItem(ASSISTANT_LAYOUT_KEY);
       } catch (_) {}
       standardLayout = defaultAssistantLayout();
       if (state?.viewMode === 'standard') applyStandardLayout(standardLayout);
