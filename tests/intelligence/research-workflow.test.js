@@ -225,6 +225,84 @@ describe('BONDS query-led research workflow', () => {
     expect(result.decisionEligible).toBe(true);
   });
 
+  test('recovers missing search seeds individually before evidence verification', async () => {
+    let exploreCalls = 0;
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            results:[
+              {url:'https://a.example/profile'},
+              {url:'https://b.example/profile'},
+              {url:'https://c.example/profile'}
+            ]
+          }
+        };
+      }
+
+      if (action === 'web_explore') {
+        exploreCalls += 1;
+        if (exploreCalls === 1) {
+          return {
+            ok:true,
+            executed:true,
+            result:{
+              pages:[
+                {url:'https://a.example/profile',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'A'}}
+              ]
+            }
+          };
+        }
+        if (input.seedUrls[0] === 'https://b.example/profile') {
+          return {
+            ok:true,
+            executed:true,
+            result:{
+              pages:[
+                {url:'https://b.example/profile',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'B'}}
+              ]
+            }
+          };
+        }
+        return {ok:false,executed:true,error:{code:'WEB_ACQUISITION_FAILED'}};
+      }
+
+      if (action === 'evidence_verify') {
+        expect(input.sources).toHaveLength(2);
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            verification_state:'SUPPORTED',
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        };
+      }
+
+      if (action === 'research_synthesize') {
+        return {ok:true,executed:true,result:{unknown:[],contradictions:[]}};
+      }
+
+      throw new Error('unexpected action: ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      query:'public person',
+      forceResearch:true,
+      research:{enabled:true,minIndependentPublishers:2,maxDepth:0}
+    }, {}, {executeCapability});
+
+    expect(exploreCalls).toBe(2);
+    expect(result.exploration.result.pages).toHaveLength(2);
+    expect(result.exploration.result.recovery_attempts).toHaveLength(1);
+    expect(result.decisionEligible).toBe(true);
+  });
+
   test('fails closed when query-led search cannot produce results', async () => {
     const executeCapability = jest.fn(async action => {
       if (action === 'web_search') {
