@@ -144,4 +144,11 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(searchBlocked).not.toContain('رمز الخطأ');
   });
 
+  test('preserves a long current user request while keeping prior turns bounded', () => {
+    expect(source).toContain("index === latestUserIndex ? 12000 : 2400");
+    expect(source).toContain("currentRequest.slice(0, 12000)");
+    expect(source).toContain("intent.current.slice(0, 12000)");
+    expect(source).not.toContain("content: String((item && item.content) || '').slice(0, 1400)");
+  });
+
 });

@@ -200,9 +200,13 @@ function buildNativeChatPrompt(messages, context, assistantState = null) {
   const compactEvidence = Object.fromEntries(
     Object.entries(evidence).filter(([, value]) => value !== undefined)
   );
-  const recent = (Array.isArray(messages) ? messages : []).slice(-10).map(m => ({
+  const rawRecent = (Array.isArray(messages) ? messages : []).slice(-10);
+  const recent = rawRecent.map((m, index) => ({
     role: String(m?.role || 'user').slice(0, 20),
-    content: String(m?.content || '').slice(0, 1200)
+    content: String(m?.content || '').slice(
+      0,
+      index === rawRecent.length - 1 ? 12000 : 2400
+    )
   }));
   const currentRequest = recent.length ? recent[recent.length - 1].content : '';
   const priorMessages = recent.slice(0, -1);
@@ -223,8 +227,8 @@ function buildNativeChatPrompt(messages, context, assistantState = null) {
     `TRUSTED_USER_CONTEXT=${compactJson(trustedUser, 1200)}`,
     assistantState ? `CONVERSATION_STATE=${compactJson(assistantState, 3000)}` : 'CONVERSATION_STATE={}',
     Object.keys(compactEvidence).length ? `VERIFIED_BONDS_DATA=${compactJson(compactEvidence, 6000)}` : 'VERIFIED_BONDS_DATA={}',
-    `RECENT_MESSAGES=${compactJson(priorMessages, 7000)}`,
-    `CURRENT_REQUEST=${JSON.stringify(currentRequest.slice(0, 1600))}`,
+    `RECENT_MESSAGES=${compactJson(priorMessages, 12000)}`,
+    `CURRENT_REQUEST=${JSON.stringify(currentRequest.slice(0, 12000))}`,
     `AVAILABLE_GOVERNED_ACTIONS=${compactJson(availableActions, 2000)}`,
     'RESPONSE_REQUIREMENTS: Answer the current request directly in its language. Resolve references from conversation state/recent messages. Use VERIFIED_BONDS_DATA for BONDS facts; if required data is absent, say it is unavailable. Do not identify the underlying model/provider.'
   ].join('\n');
