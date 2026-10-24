@@ -1,6 +1,6 @@
 $ErrorActionPreference = "Stop"
 
-$repo = "C:\Users\vip\bonds-global-web"
+$repo = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 Set-Location $repo
 
 $reg = "HKLM:\SYSTEM\CurrentControlSet\Services\BondsTokenRuntimeService"
