@@ -133,10 +133,12 @@ test('forces public research through search, exploration, evidence verification 
     expect(source).toContain("status:'alias_candidates_generated'");
   });
 
-  test('research runtime uses one LLM answer-generation pass', () => {
+  test('research runtime uses one generation pass plus at most one bounded quality repair', () => {
     expect(source).toContain('const rawReply = await generateResearchAnswer(intent, workflow, answerPackage, options);');
-    expect(source).toContain('const reply = sanitizeResearchReply(rawReply, sourceRows);');
-    expect(source).toContain('const quality = assessResearchAnswer(reply, intent);');
+    expect(source).toContain('REPAIRABLE_QUALITY_CODES.has(quality.code)');
+    expect(source).toContain('const repairedRawReply = await repairResearchAnswer(');
+    expect(source).toContain('repairAttempted = true;');
+    expect(source).not.toContain('while (!quality.ok)');
     expect(source).not.toContain('ANSWER_CONSISTENCY_FAILED');
     expect(source).not.toContain("status:'consistency_blocked'");
     expect(source).not.toContain('async function checkResearchAnswerConsistency');
@@ -268,6 +270,30 @@ test('forces public research through search, exploration, evidence verification 
         intent
       ).ok
     ).toBe(true);
+  });
+
+  test('repairs only answer-shape failures and keeps safety failures fail-closed', () => {
+    expect(source).toContain("'PERSON_IDENTITY_TOO_GENERIC'");
+    expect(source).toContain("'PERSON_IDENTITY_NOT_ANSWERED'");
+    expect(source).toContain("'META_ONLY_ANSWER'");
+    expect(source).not.toContain("'INTERNAL_SOURCE_ID_LEAK',\n  'PLANNER_META_LEAK'");
+    expect(source).toContain('Use only the supplied ANSWER_CONTEXT and the rejected answer. Do not search, request new information, or add unsupported facts.');
+  });
+
+  test('records explicit acquisition and repair timing without re-running research', () => {
+    expect(source).toContain('const researchAcquisitionMs = Date.now() - startedAt;');
+    expect(source).toContain('research_acquisition_ms:researchAcquisitionMs');
+    expect(source).toContain('repair_ms:repairMs');
+    expect(source).toContain('repair_quality_code:repairQualityCode');
+    expect(source).toContain('repair_succeeded:repairSucceeded');
+    const repairFunction = source.slice(
+      source.indexOf('async function repairResearchAnswer'),
+      source.indexOf('function assessResearchAnswer')
+    );
+    expect(repairFunction).not.toContain('runResearchWorkflow');
+    expect(repairFunction).not.toContain('web_search');
+    expect(repairFunction).not.toContain('web_explore');
+    expect(repairFunction).not.toContain('evidence_verify');
   });
 
   test('person lookup has an explicit direct-answer contract', () => {
