@@ -1829,9 +1829,10 @@
 
     function diagnosticStageLabel(stage) {
       const labels = {
-        intent:'Intent', planner:'Planner', research:'Research', search:'Search',
+        intent:'Intent', planner:'Planner', research_acquisition:'Research Acquisition', search:'Search',
         explore:'Explore', evidence:'Evidence', ai_generate:'AI Generate',
-        quality_gate:'Quality Gate', final_answer:'Final Answer',
+        initial_quality_gate:'Initial Quality Gate', repair_attempt:'Repair Attempt',
+        repair_quality_gate:'Repair Quality Gate', final_answer:'Final Answer',
         api_delivery:'API Delivery', response_parse:'Response Parse', ui_render:'UI Render'
       };
       return labels[stage] || String(stage || 'Unknown');
@@ -1860,6 +1861,13 @@
         provider:String(value.provider || '').slice(0, 80) || null,
         fallback_used:value.fallback_used === true,
         fallback_reason:String(value.fallback_reason || '').slice(0, 160) || null,
+        research_quality:value.research_quality && typeof value.research_quality === 'object' ? {
+          initial_quality_code:String(value.research_quality.initial_quality_code || '').slice(0, 160) || null,
+          repair_attempted:value.research_quality.repair_attempted === true,
+          repair_ms:Number.isFinite(Number(value.research_quality.repair_ms)) ? Math.round(Number(value.research_quality.repair_ms)) : null,
+          repair_quality_code:String(value.research_quality.repair_quality_code || '').slice(0, 160) || null,
+          repair_succeeded:value.research_quality.repair_succeeded === true
+        } : null,
         evidence:value.evidence && typeof value.evidence === 'object' ? {
           source_count:Number.isFinite(Number(value.evidence.source_count)) ? Number(value.evidence.source_count) : null,
           evidence_count:Number.isFinite(Number(value.evidence.evidence_count)) ? Number(value.evidence.evidence_count) : null,
@@ -1916,7 +1924,12 @@
         'error_code=' + (record.error_code || 'n/a'),
         'provider=' + (record.provider || 'n/a'),
         'fallback_used=' + (record.fallback_used ? 'YES' : 'NO'),
-        'total_ms=' + (record.total_ms ?? 'n/a')
+        'total_ms=' + (record.total_ms ?? 'n/a'),
+        'initial_quality_code=' + (record.research_quality?.initial_quality_code || 'n/a'),
+        'repair_attempted=' + (record.research_quality?.repair_attempted ? 'YES' : 'NO'),
+        'repair_ms=' + (record.research_quality?.repair_ms ?? 'n/a'),
+        'repair_quality_code=' + (record.research_quality?.repair_quality_code || 'n/a'),
+        'repair_succeeded=' + (record.research_quality?.repair_succeeded ? 'YES' : 'NO')
       ];
       for (const stage of record.stages || []) {
         rows.push(stage.stage + '=' + stage.status + (stage.duration_ms == null ? '' : ':' + stage.duration_ms + 'ms'));
