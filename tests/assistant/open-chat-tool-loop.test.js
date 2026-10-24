@@ -103,8 +103,8 @@ describe('BONDS governed open-chat tool loop', () => {
       missing_citations:[]
     });
     expect(parseGroundingDecision('not-json')).toBeNull();
-    expect(source).toContain('ANSWER_GROUNDING_FAILED');
-    expect(source).toContain("status:'grounding_blocked'");
+    expect(source).toContain('ANSWER_CONSISTENCY_FAILED');
+    expect(source).toContain("status:'consistency_blocked'");
   });
 
 
@@ -212,14 +212,21 @@ describe('BONDS governed open-chat tool loop', () => {
   });
 
 
-  test('keeps the public research answer evidence bounded', () => {
-    expect(source).toContain(
-      "VERIFIED_RESEARCH_ANSWER_EVIDENCE=' + compactJson(answerPackage, 5000)"
-    );
-    expect(source).toContain(
-      "'VERIFIED_RESEARCH_SOURCES=' + compactJson(verificationPackage, 6000)"
-    );
+  test('uses isolated answer context and bounded verification evidence', () => {
+    expect(source).toContain("ANSWER_CONTEXT=' + compactJson(answerContext, 8500)");
+    expect(source).toContain("'VERIFIED_RESEARCH_SOURCES=' + compactJson(verificationPackage, 6000)");
     expect(source).not.toContain('buildResearchEvidencePackage');
+  });
+
+  test('new research answer layer is isolated and non-restrictive', () => {
+    const source = fs.readFileSync(require.resolve('../../lib/assistant/open-chat-tool-loop'), 'utf8');
+    expect(source).toContain('function buildResearchAnswerContext');
+    expect(source).toContain('async function generateResearchAnswer');
+    expect(source).toContain('async function checkResearchAnswerConsistency');
+    expect(source).not.toContain('RECENT_MESSAGES=' + "' + compactJson(recent.slice(0, -1), 7000)");
+    expect(source).not.toContain('Every factual statement must be explicitly supported by VERIFIED_RESEARCH_SOURCES.');
+    expect(source).not.toContain('Do not use model memory to add facts that are absent from the package.');
+    expect(source).toContain('Stable background explanation and clearly framed reasonable inference do not require verbatim source support.');
   });
 
 });
