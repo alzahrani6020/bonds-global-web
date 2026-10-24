@@ -38,6 +38,7 @@
   const ASSISTANT_LAYOUT_SNAP = 24;
   const ASSISTANT_LAYOUT_MIN_WIDTH = 360;
   const ASSISTANT_LAYOUT_MIN_HEIGHT = 360;
+  const ASSISTANT_DIAGNOSTICS_HISTORY_KEY = 'bonds.assistant.diagnostics.v1';
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -575,6 +576,67 @@
       color:#64748b;
       white-space:nowrap;
     }
+    #bonds-ai-chat-root .bonds-ai-request-diagnostics {
+      display:none;
+      border-bottom:1px solid #e7edf4;
+      background:#fff;
+      padding:8px 12px 10px;
+      font-size:0.7rem;
+      color:#334155;
+    }
+    #bonds-ai-chat-root .bonds-ai-request-diagnostics.visible { display:block; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-head {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-bottom:6px;
+    }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-head strong { color:#0b2340; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-summary { margin-inline-start:auto; font-weight:800; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-summary[data-status="PASS"] { color:#15803d; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-summary[data-status="DEGRADED"] { color:#b45309; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-summary[data-status="FAIL"] { color:#b42318; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-copy {
+      border:1px solid #dbe3ec;
+      background:#f8fafc;
+      color:#334155;
+      border-radius:7px;
+      padding:3px 7px;
+      cursor:pointer;
+      font:inherit;
+    }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-meta {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:3px 10px;
+      margin-bottom:7px;
+    }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-pipeline {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:4px 8px;
+    }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-stage {
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+      border:1px solid #eef2f7;
+      border-radius:6px;
+      padding:4px 6px;
+      background:#f8fafc;
+    }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-stage b[data-status="PASS"] { color:#15803d; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-stage b[data-status="DEGRADED"] { color:#b45309; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-stage b[data-status="FAIL"] { color:#b42318; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-stage b[data-status="SKIPPED"],
+    #bonds-ai-chat-root .bonds-ai-diagnostics-stage b[data-status="NOT_REQUIRED"],
+    #bonds-ai-chat-root .bonds-ai-diagnostics-stage b[data-status="NOT_AVAILABLE"] { color:#64748b; }
+    #bonds-ai-chat-root .bonds-ai-diagnostics-history {
+      margin-top:7px;
+      padding-top:6px;
+      border-top:1px solid #eef2f7;
+      color:#64748b;
+    }
     #bonds-ai-chat-root .bonds-ai-chat-close {
       color: #fff;
       font-size: 1.45rem;
@@ -1057,6 +1119,16 @@
           <span class="bonds-ai-service-status" data-health-service="governance" data-status="checking">Governance</span>
           <span class="bonds-ai-health-updated" aria-live="polite">—</span>
         </div>
+        <div class="bonds-ai-request-diagnostics" aria-live="polite">
+          <div class="bonds-ai-diagnostics-head">
+            <strong>Last Request Pipeline</strong>
+            <span class="bonds-ai-diagnostics-summary">—</span>
+            <button type="button" class="bonds-ai-diagnostics-copy">Copy</button>
+          </div>
+          <div class="bonds-ai-diagnostics-meta"></div>
+          <div class="bonds-ai-diagnostics-pipeline"></div>
+          <div class="bonds-ai-diagnostics-history"></div>
+        </div>
         <div class="bonds-ai-notifications" aria-live="polite"></div>
         <div class="bonds-ai-home-launchpad" aria-label="ابدأ مع مساعد بوندز">
           <div class="bonds-ai-home-intro">
@@ -1154,6 +1226,12 @@
       Array.from(root.querySelectorAll('[data-health-service]'))
         .map(element => [element.dataset.healthService, element])
     );
+    const diagnosticsPanel = root.querySelector('.bonds-ai-request-diagnostics');
+    const diagnosticsSummary = root.querySelector('.bonds-ai-diagnostics-summary');
+    const diagnosticsMeta = root.querySelector('.bonds-ai-diagnostics-meta');
+    const diagnosticsPipeline = root.querySelector('.bonds-ai-diagnostics-pipeline');
+    const diagnosticsHistory = root.querySelector('.bonds-ai-diagnostics-history');
+    const diagnosticsCopy = root.querySelector('.bonds-ai-diagnostics-copy');
 
     function readServiceAssistantContext() {
       try {
@@ -1744,8 +1822,157 @@
       viewMode: readPreferredViewMode(),
       previousViewMode: 'standard',
       health: { status: 'checking', lastCheckedAt: null, payload: null, lastError: null },
-      healthTimer: null
+      healthTimer: null,
+      diagnostics: null,
+      diagnosticHistory: []
     };
+
+    function diagnosticStageLabel(stage) {
+      const labels = {
+        intent:'Intent', planner:'Planner', research:'Research', search:'Search',
+        explore:'Explore', evidence:'Evidence', ai_generate:'AI Generate',
+        quality_gate:'Quality Gate', final_answer:'Final Answer',
+        api_delivery:'API Delivery', response_parse:'Response Parse', ui_render:'UI Render'
+      };
+      return labels[stage] || String(stage || 'Unknown');
+    }
+
+    function safeDiagnosticRecord(value) {
+      if (!value || typeof value !== 'object') return null;
+      const stages = Array.isArray(value.stages) ? value.stages.slice(0, 16).map(item => ({
+        stage:String(item?.stage || '').slice(0, 50),
+        status:String(item?.status || 'NOT_AVAILABLE').slice(0, 20),
+        duration_ms:Number.isFinite(Number(item?.duration_ms)) ? Math.round(Number(item.duration_ms)) : null
+      })) : [];
+      return {
+        schema_version:1,
+        request_id:String(value.request_id || '').slice(0, 120) || null,
+        path:String(value.path || '').slice(0, 80) || null,
+        status:String(value.status || 'NOT_AVAILABLE').slice(0, 20),
+        stages,
+        failure_stage:String(value.failure_stage || '').slice(0, 50) || null,
+        error_code:String(value.error_code || '').slice(0, 160) || null,
+        total_ms:Number.isFinite(Number(value.total_ms)) ? Math.round(Number(value.total_ms)) : null,
+        bottleneck:value.bottleneck && typeof value.bottleneck === 'object' ? {
+          stage:String(value.bottleneck.stage || '').slice(0, 50) || null,
+          duration_ms:Number.isFinite(Number(value.bottleneck.duration_ms)) ? Math.round(Number(value.bottleneck.duration_ms)) : null
+        } : null,
+        provider:String(value.provider || '').slice(0, 80) || null,
+        fallback_used:value.fallback_used === true,
+        fallback_reason:String(value.fallback_reason || '').slice(0, 160) || null,
+        evidence:value.evidence && typeof value.evidence === 'object' ? {
+          source_count:Number.isFinite(Number(value.evidence.source_count)) ? Number(value.evidence.source_count) : null,
+          evidence_count:Number.isFinite(Number(value.evidence.evidence_count)) ? Number(value.evidence.evidence_count) : null,
+          decision_eligible:typeof value.evidence.decision_eligible === 'boolean' ? value.evidence.decision_eligible : null,
+          unknown_count:Number(value.evidence.unknown_count || 0),
+          contradiction_count:Number(value.evidence.contradiction_count || 0)
+        } : null
+      };
+    }
+
+    function loadDiagnosticHistory() {
+      try {
+        const parsed = JSON.parse(window.sessionStorage?.getItem(ASSISTANT_DIAGNOSTICS_HISTORY_KEY) || '[]');
+        state.diagnosticHistory = Array.isArray(parsed) ? parsed.map(safeDiagnosticRecord).filter(Boolean).slice(0, 5) : [];
+      } catch (_) {
+        state.diagnosticHistory = [];
+      }
+    }
+
+    function saveDiagnosticHistory() {
+      try {
+        window.sessionStorage?.setItem(
+          ASSISTANT_DIAGNOSTICS_HISTORY_KEY,
+          JSON.stringify(state.diagnosticHistory.slice(0, 5))
+        );
+      } catch (_) {}
+    }
+
+    function appendClientDiagnosticStages(record, clientStages = []) {
+      const safe = safeDiagnosticRecord(record);
+      if (!safe) return null;
+      for (const item of clientStages) {
+        safe.stages.push({
+          stage:String(item.stage || '').slice(0, 50),
+          status:String(item.status || 'NOT_AVAILABLE').slice(0, 20),
+          duration_ms:Number.isFinite(Number(item.duration_ms)) ? Math.round(Number(item.duration_ms)) : null
+        });
+      }
+      const clientFailure = safe.stages.find(item => item.status === 'FAIL');
+      if (clientFailure) {
+        safe.status = 'FAIL';
+        if (!safe.failure_stage) safe.failure_stage = clientFailure.stage;
+      }
+      return safe;
+    }
+
+    function diagnosticCopyText(record) {
+      if (!record) return '';
+      const rows = [
+        'request_id=' + (record.request_id || 'n/a'),
+        'path=' + (record.path || 'n/a'),
+        'status=' + (record.status || 'n/a'),
+        'failure_stage=' + (record.failure_stage || 'n/a'),
+        'error_code=' + (record.error_code || 'n/a'),
+        'provider=' + (record.provider || 'n/a'),
+        'fallback_used=' + (record.fallback_used ? 'YES' : 'NO'),
+        'total_ms=' + (record.total_ms ?? 'n/a')
+      ];
+      for (const stage of record.stages || []) {
+        rows.push(stage.stage + '=' + stage.status + (stage.duration_ms == null ? '' : ':' + stage.duration_ms + 'ms'));
+      }
+      return rows.join('\n');
+    }
+
+    function renderRequestDiagnostics(record, { remember = true } = {}) {
+      const safe = safeDiagnosticRecord(record);
+      if (!safe || !diagnosticsPanel) return null;
+      state.diagnostics = safe;
+      diagnosticsPanel.classList.add('visible');
+      diagnosticsSummary.textContent = safe.status;
+      diagnosticsSummary.dataset.status = safe.status;
+
+      const meta = [
+        ['Request', safe.request_id || '—'],
+        ['Path', safe.path || '—'],
+        ['Failure', safe.failure_stage || '—'],
+        ['Error', safe.error_code || '—'],
+        ['Total', safe.total_ms == null ? '—' : safe.total_ms + 'ms'],
+        ['Bottleneck', safe.bottleneck?.stage ? diagnosticStageLabel(safe.bottleneck.stage) + ' ' + (safe.bottleneck.duration_ms ?? '—') + 'ms' : '—']
+      ];
+      diagnosticsMeta.innerHTML = '';
+      for (const [key, value] of meta) {
+        const item = document.createElement('span');
+        item.textContent = key + ': ' + value;
+        diagnosticsMeta.appendChild(item);
+      }
+
+      diagnosticsPipeline.innerHTML = '';
+      for (const stage of safe.stages) {
+        const row = document.createElement('div');
+        row.className = 'bonds-ai-diagnostics-stage';
+        const name = document.createElement('span');
+        name.textContent = diagnosticStageLabel(stage.stage);
+        const status = document.createElement('b');
+        status.dataset.status = stage.status;
+        status.textContent = stage.status + (stage.duration_ms == null ? '' : ' · ' + stage.duration_ms + 'ms');
+        row.append(name, status);
+        diagnosticsPipeline.appendChild(row);
+      }
+
+      if (remember) {
+        state.diagnosticHistory = [safe, ...state.diagnosticHistory.filter(item => item.request_id !== safe.request_id)].slice(0, 5);
+        saveDiagnosticHistory();
+      }
+      diagnosticsHistory.textContent = state.diagnosticHistory.length > 1
+        ? 'Recent: ' + state.diagnosticHistory.slice(1).map(item =>
+            (item.status || '—') + ' ' + (item.total_ms == null ? '—' : item.total_ms + 'ms')
+          ).join(' · ')
+        : '';
+      return safe;
+    }
+
+    loadDiagnosticHistory();
 
     function healthState(value) {
       const normalized = String(value || '').toLowerCase();
@@ -3448,6 +3675,8 @@
             options: { stream: true }
           };
 
+      let responseDiagnostics = null;
+      const clientStartedAt = Date.now();
       try {
         const headers = await getAuthHeaders();
         if (!isProjectMode) headers.Accept = 'text/event-stream';
@@ -3461,6 +3690,7 @@
         const data = contentType.includes('text/event-stream')
           ? await readAssistantEventStream(res)
           : await res.json();
+        responseDiagnostics = data?.diagnostics || null;
 
         if (res.status === 401 && data?.error === 'AUTHENTICATION_REQUIRED') {
           updateMessageTracking(userMessage.message_id, { status: 'failed' });
@@ -3479,6 +3709,13 @@
           source: data.source || 'bonds-assistant',
           reply_to_message_id: userMessage.message_id
         });
+        if (responseDiagnostics) {
+          renderRequestDiagnostics(appendClientDiagnosticStages(responseDiagnostics, [
+            { stage:'api_delivery', status:'PASS', duration_ms:Date.now() - clientStartedAt },
+            { stage:'response_parse', status:'PASS' },
+            { stage:'ui_render', status:'PASS' }
+          ]));
+        }
         if (assistantContextEnabled() && data.context && typeof data.context === 'object') {
           const statePatch = {};
           if (typeof data.context.lastIntent === 'string') statePatch.last_intent = data.context.lastIntent;
@@ -3492,6 +3729,13 @@
           renderStructuredEnvelope(data);
         }
       } catch (err) {
+        if (responseDiagnostics) {
+          renderRequestDiagnostics(appendClientDiagnosticStages(responseDiagnostics, [
+            { stage:'api_delivery', status:'PASS', duration_ms:Date.now() - clientStartedAt },
+            { stage:'response_parse', status:'PASS' },
+            { stage:'ui_render', status:'FAIL' }
+          ]));
+        }
         console.error('[BondsAIChat]', err);
         updateMessageTracking(userMessage.message_id, { status: 'failed' });
         addAssistantMessage('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.', true, {
@@ -3503,6 +3747,20 @@
       } finally {
         setLoading(false);
       }
+    }
+
+    if (diagnosticsCopy) {
+      diagnosticsCopy.addEventListener('click', async () => {
+        const text = diagnosticCopyText(state.diagnostics);
+        if (!text) return;
+        try {
+          await window.navigator.clipboard.writeText(text);
+          diagnosticsCopy.textContent = languageCode() === 'en' ? 'Copied' : 'تم النسخ';
+          setTimeout(() => { diagnosticsCopy.textContent = 'Copy'; }, 1200);
+        } catch (_) {
+          diagnosticsCopy.title = text;
+        }
+      });
     }
 
     homePromptButtons.forEach(button => {
@@ -3578,6 +3836,7 @@
     window.BondsAssistant.getLayout = () => ({ ...standardLayout });
     window.BondsAssistant.refreshHealth = refreshServiceHealth;
     window.BondsAssistant.getHealth = () => ({ ...state.health });
+    window.BondsAssistant.getDiagnostics = () => state.diagnostics ? JSON.parse(JSON.stringify(state.diagnostics)) : null;
     window.BondsAssistant.getAttachments = () => state.attachments.map(item => ({
       document_id:item.document_id || null,
       filename:item.filename || item.name || null,

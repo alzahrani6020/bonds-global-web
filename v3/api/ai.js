@@ -18,6 +18,8 @@ const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assis
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
 const { runOpenChatLoop } = require('../../lib/assistant/open-chat-tool-loop');
+const { buildRequestDiagnostics } = require('../../lib/assistant/request-diagnostics');
+const crypto = require('crypto');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -551,6 +553,11 @@ function fallbackReply(userMessage, context) {
 }
 
 async function aiChatHandler(req, res) {
+  const requestStartedAt = Date.now();
+  const requestId = String(req.headers['x-request-id'] || '').trim().slice(0, 120) ||
+    (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : crypto.randomBytes(16).toString('hex'));
+  res.setHeader('X-Request-Id', requestId);
+
   if (req.method !== 'POST') {
     return sendJson(res, 405, { error: 'Method not allowed' });
   }
@@ -586,6 +593,19 @@ async function aiChatHandler(req, res) {
       reply: 'يلزم تسجيل الدخول لاستخدام مساعد بوندز.',
       requires_authentication: true
     });
+  }
+
+  let diagnosticsAllowed = false;
+  try {
+    const { data: diagnosticRole } = await getSupabaseClient()
+      .from('admin_roles')
+      .select('role')
+      .eq('user_id', authenticatedUser.id)
+      .in('role', ['super_admin', 'admin', 'support'])
+      .maybeSingle();
+    diagnosticsAllowed = Boolean(diagnosticRole?.role);
+  } catch (_error) {
+    diagnosticsAllowed = false;
   }
 
   if (streaming) {
@@ -654,7 +674,7 @@ async function aiChatHandler(req, res) {
         req,
         user: authenticatedUser,
         supabase: getSupabaseClient(),
-        requestId: req.headers['x-request-id'] || null,
+        requestId,
         timeoutMs: nativeChatTimeoutMs(),
         maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens)
       });
@@ -673,6 +693,12 @@ async function aiChatHandler(req, res) {
             actions
           },
           fallback_reason: null,
+          diagnostics: diagnosticsAllowed ? buildRequestDiagnostics({
+            requestId,
+            path: loopResult?.research ? 'OPEN_CHAT_RESEARCH' : 'OPEN_CHAT',
+            loopResult,
+            totalMs: Date.now() - requestStartedAt
+          }) : undefined,
           debug: {
             input: lastUser?.content,
             native_attempted: true,
@@ -713,7 +739,7 @@ async function aiChatHandler(req, res) {
       req,
       user: authenticatedUser,
       supabase: getSupabaseClient(),
-      requestId: req.headers['x-request-id'] || null
+      requestId
     });
   } catch (err) {
     nativeError = err;
@@ -742,7 +768,14 @@ async function aiChatHandler(req, res) {
     return sendAssistantResponse(res, 503, {
       error: 'BONDS_AI_RUNTIME_UNAVAILABLE',
       reply: 'تعذر تشغيل مساعد بوندز حالياً. لم يتم استخدام رد بديل غير موثوق.',
-      fallback_reason: nativeError ? (nativeError.code || nativeError.message) : 'AI_RESPONSE_UNAVAILABLE'
+      fallback_reason: nativeError ? (nativeError.code || nativeError.message) : 'AI_RESPONSE_UNAVAILABLE',
+      diagnostics: diagnosticsAllowed ? buildRequestDiagnostics({
+        requestId,
+        path:'NATIVE_DIRECT',
+        aiResult,
+        nativeError,
+        totalMs:Date.now() - requestStartedAt
+      }) : undefined
     }, { stream: streaming });
   }
 
@@ -768,6 +801,13 @@ async function aiChatHandler(req, res) {
     model: null,
     inference: aiResult?.inference || null,
     fallback_reason: nativeError ? (nativeError.code || nativeError.message) : null,
+    diagnostics: diagnosticsAllowed ? buildRequestDiagnostics({
+      requestId,
+      path:'NATIVE_DIRECT',
+      aiResult,
+      nativeError,
+      totalMs:Date.now() - requestStartedAt
+    }) : undefined,
     debug: debugInfo,
     context: {
       cityCode: enrichedContext.cityCode || null,
