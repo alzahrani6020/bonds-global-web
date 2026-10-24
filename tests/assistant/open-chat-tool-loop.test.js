@@ -60,10 +60,49 @@ describe('BONDS governed open-chat tool loop', () => {
       { ok: false, error: { code: 'SEARCH_NO_RESULTS' } }
     );
     expect(reply).toContain('لم أعتمد على معلومات غير موثقة');
-    expect(reply).toContain('SEARCH_NO_RESULTS');
+    expect(reply).not.toContain('SEARCH_NO_RESULTS');
+    expect(reply).not.toContain('رمز الخطأ');
   });
 
-  test('forces public research through search, exploration, evidence verification and synthesis', () => {
+
+  test('never exposes internal research identifiers or internal failure codes to the user', () => {
+    const {
+      sanitizeResearchReply,
+      researchFailureReply,
+      failureReply
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const sanitized = sanitizeResearchReply(
+      'ولي العهد السعودي. المصدر: web-source-1 source_id=web-source-1',
+      [{
+        id:'web-source-1',
+        title:'Public source',
+        publisher:'example.com',
+        url:'https://example.com/profile'
+      }]
+    );
+
+    expect(sanitized).toContain('https://example.com/profile');
+    expect(sanitized).not.toContain('web-source-1');
+    expect(sanitized).not.toContain('source_id');
+
+    const researchBlocked = researchFailureReply(
+      [{ role:'user', content:'من محمد بن سلمان؟' }],
+      { status:'blocked', unknowns:['INTERNAL_SOURCE_ID_LEAK'] }
+    );
+    expect(researchBlocked).not.toContain('INTERNAL_SOURCE_ID_LEAK');
+    expect(researchBlocked).not.toContain('رمز الحالة');
+
+    const searchBlocked = failureReply(
+      [{ role:'user', content:'من محمد بن سلمان؟' }],
+      'web_search',
+      { ok:false, error:{ code:'INTERNAL_SOURCE_ID_LEAK' } }
+    );
+    expect(searchBlocked).not.toContain('INTERNAL_SOURCE_ID_LEAK');
+    expect(searchBlocked).not.toContain('رمز الخطأ');
+  });
+
+test('forces public research through search, exploration, evidence verification and synthesis', () => {
     expect(source).toContain("runResearchWorkflow");
     expect(source).toContain("action:'web_search'");
     expect(source).toContain("action:'web_explore'");
