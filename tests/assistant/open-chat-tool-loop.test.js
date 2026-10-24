@@ -305,6 +305,7 @@ test('forces public research through search, exploration, evidence verification 
 
     expect(hasConcretePersonIdentity('محمد بن سلمان يعمل في مجالات السياسة والإصلاح.')).toBe(false);
     expect(hasConcretePersonIdentity('محمد بن سلمان هو ولي العهد.')).toBe(true);
+    expect(hasConcretePersonIdentity('محمد بن سلمان هو ولي عهد المملكة العربية السعودية.')).toBe(true);
     expect(hasConcretePersonIdentity('Jane Doe is the chief executive of the company.')).toBe(true);
   });
 
