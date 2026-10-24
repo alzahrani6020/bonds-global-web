@@ -1829,30 +1829,43 @@
 
     function diagnosticStageLabel(stage) {
       const labels = {
-        intent:'Intent', planner:'Planner', research_acquisition:'Research Acquisition', search:'Search',
+        intent:'Intent', planner:'Planner', research_acquisition:'Research Acquisition',
+        search_transport:'Search Transport', search_relevance:'Search Relevance',
         explore:'Explore', evidence:'Evidence', ai_generate:'AI Generate',
         initial_quality_gate:'Initial Quality Gate', repair_attempt:'Repair Attempt',
         repair_quality_gate:'Repair Quality Gate', final_answer:'Final Answer',
-        api_delivery:'API Delivery', response_parse:'Response Parse', ui_render:'UI Render'
+        http_roundtrip:'HTTP Round-trip', client_parse:'Client Parse', ui_render:'UI Render'
       };
       return labels[stage] || String(stage || 'Unknown');
     }
 
     function safeDiagnosticRecord(value) {
       if (!value || typeof value !== 'object') return null;
-      const stages = Array.isArray(value.stages) ? value.stages.slice(0, 16).map(item => ({
+      const stages = Array.isArray(value.stages) ? value.stages.slice(0, 20).map(item => ({
         stage:String(item?.stage || '').slice(0, 50),
         status:String(item?.status || 'NOT_AVAILABLE').slice(0, 20),
         duration_ms:Number.isFinite(Number(item?.duration_ms)) ? Math.round(Number(item.duration_ms)) : null
       })) : [];
+      const timing = value.timing && typeof value.timing === 'object' ? value.timing : {};
       return {
-        schema_version:1,
+        schema_version:Number(value.schema_version) === 2 ? 2 : 1,
         request_id:String(value.request_id || '').slice(0, 120) || null,
         path:String(value.path || '').slice(0, 80) || null,
         status:String(value.status || 'NOT_AVAILABLE').slice(0, 20),
         stages,
-        failure_stage:String(value.failure_stage || '').slice(0, 50) || null,
+        pipeline_stage:String(value.pipeline_stage || '').slice(0, 50) || null,
+        root_cause_stage:String(value.root_cause_stage || value.failure_stage || '').slice(0, 50) || null,
+        failure_stage:String(value.failure_stage || value.root_cause_stage || '').slice(0, 50) || null,
         error_code:String(value.error_code || '').slice(0, 160) || null,
+        timing:{
+          server_processing_ms:Number.isFinite(Number(timing.server_processing_ms ?? value.total_ms))
+            ? Math.round(Number(timing.server_processing_ms ?? value.total_ms))
+            : null,
+          api_roundtrip_ms:Number.isFinite(Number(timing.api_roundtrip_ms)) ? Math.round(Number(timing.api_roundtrip_ms)) : null,
+          client_parse_ms:Number.isFinite(Number(timing.client_parse_ms)) ? Math.round(Number(timing.client_parse_ms)) : null,
+          ui_render_ms:Number.isFinite(Number(timing.ui_render_ms)) ? Math.round(Number(timing.ui_render_ms)) : null,
+          end_to_end_ms:Number.isFinite(Number(timing.end_to_end_ms)) ? Math.round(Number(timing.end_to_end_ms)) : null
+        },
         total_ms:Number.isFinite(Number(value.total_ms)) ? Math.round(Number(value.total_ms)) : null,
         bottleneck:value.bottleneck && typeof value.bottleneck === 'object' ? {
           stage:String(value.bottleneck.stage || '').slice(0, 50) || null,
@@ -1896,7 +1909,7 @@
       } catch (_) {}
     }
 
-    function appendClientDiagnosticStages(record, clientStages = []) {
+    function appendClientDiagnosticStages(record, clientStages = [], timingPatch = {}) {
       const safe = safeDiagnosticRecord(record);
       if (!safe) return null;
       for (const item of clientStages) {
@@ -1906,10 +1919,19 @@
           duration_ms:Number.isFinite(Number(item.duration_ms)) ? Math.round(Number(item.duration_ms)) : null
         });
       }
+      safe.timing = {
+        ...safe.timing,
+        ...Object.fromEntries(Object.entries(timingPatch).map(([key, value]) => [
+          key,
+          Number.isFinite(Number(value)) ? Math.round(Number(value)) : null
+        ]))
+      };
       const clientFailure = safe.stages.find(item => item.status === 'FAIL');
       if (clientFailure) {
         safe.status = 'FAIL';
+        if (!safe.root_cause_stage) safe.root_cause_stage = clientFailure.stage;
         if (!safe.failure_stage) safe.failure_stage = clientFailure.stage;
+        if (!safe.pipeline_stage) safe.pipeline_stage = 'client';
       }
       return safe;
     }
@@ -1917,14 +1939,21 @@
     function diagnosticCopyText(record) {
       if (!record) return '';
       const rows = [
+        'schema_version=' + (record.schema_version || 'n/a'),
         'request_id=' + (record.request_id || 'n/a'),
         'path=' + (record.path || 'n/a'),
         'status=' + (record.status || 'n/a'),
+        'pipeline_stage=' + (record.pipeline_stage || 'n/a'),
+        'root_cause_stage=' + (record.root_cause_stage || 'n/a'),
         'failure_stage=' + (record.failure_stage || 'n/a'),
         'error_code=' + (record.error_code || 'n/a'),
         'provider=' + (record.provider || 'n/a'),
         'fallback_used=' + (record.fallback_used ? 'YES' : 'NO'),
-        'total_ms=' + (record.total_ms ?? 'n/a'),
+        'server_processing_ms=' + (record.timing?.server_processing_ms ?? 'n/a'),
+        'api_roundtrip_ms=' + (record.timing?.api_roundtrip_ms ?? 'n/a'),
+        'client_parse_ms=' + (record.timing?.client_parse_ms ?? 'n/a'),
+        'ui_render_ms=' + (record.timing?.ui_render_ms ?? 'n/a'),
+        'end_to_end_ms=' + (record.timing?.end_to_end_ms ?? 'n/a'),
         'initial_quality_code=' + (record.research_quality?.initial_quality_code || 'n/a'),
         'repair_attempted=' + (record.research_quality?.repair_attempted ? 'YES' : 'NO'),
         'repair_ms=' + (record.research_quality?.repair_ms ?? 'n/a'),
@@ -1948,9 +1977,11 @@
       const meta = [
         ['Request', safe.request_id || '—'],
         ['Path', safe.path || '—'],
-        ['Failure', safe.failure_stage || '—'],
+        ['Pipeline', safe.pipeline_stage || '—'],
+        ['Root Cause', safe.root_cause_stage || '—'],
         ['Error', safe.error_code || '—'],
-        ['Total', safe.total_ms == null ? '—' : safe.total_ms + 'ms'],
+        ['Server', safe.timing?.server_processing_ms == null ? '—' : safe.timing.server_processing_ms + 'ms'],
+        ['End-to-End', safe.timing?.end_to_end_ms == null ? '—' : safe.timing.end_to_end_ms + 'ms'],
         ['Bottleneck', safe.bottleneck?.stage ? diagnosticStageLabel(safe.bottleneck.stage) + ' ' + (safe.bottleneck.duration_ms ?? '—') + 'ms' : '—']
       ];
       diagnosticsMeta.innerHTML = '';
@@ -1979,7 +2010,7 @@
       }
       diagnosticsHistory.textContent = state.diagnosticHistory.length > 1
         ? 'Recent: ' + state.diagnosticHistory.slice(1).map(item =>
-            (item.status || '—') + ' ' + (item.total_ms == null ? '—' : item.total_ms + 'ms')
+            (item.status || '—') + ' ' + (item.timing?.end_to_end_ms ?? item.timing?.server_processing_ms ?? item.total_ms ?? '—') + 'ms'
           ).join(' · ')
         : '';
       return safe;
@@ -3690,19 +3721,27 @@
 
       let responseDiagnostics = null;
       const clientStartedAt = Date.now();
+      let fetchStartedAt = null;
+      let responseReceivedAt = null;
+      let parseStartedAt = null;
+      let parseCompletedAt = null;
       try {
         const headers = await getAuthHeaders();
         if (!isProjectMode) headers.Accept = 'text/event-stream';
+        fetchStartedAt = Date.now();
         const res = await fetch(url, {
           method: 'POST',
           headers,
           body: JSON.stringify(payload)
         });
+        responseReceivedAt = Date.now();
 
         const contentType = String(res.headers.get('content-type') || '').toLowerCase();
+        parseStartedAt = Date.now();
         const data = contentType.includes('text/event-stream')
           ? await readAssistantEventStream(res)
           : await res.json();
+        parseCompletedAt = Date.now();
         responseDiagnostics = data?.diagnostics || null;
 
         if (res.status === 401 && data?.error === 'AUTHENTICATION_REQUIRED') {
@@ -3716,18 +3755,33 @@
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
         updateMessageTracking(userMessage.message_id, { status: 'sent' });
+        const uiRenderStartedAt = Date.now();
         addAssistantMessage(data.reply, data.source === 'fallback', {
           turn_id: turnId,
           status: 'sent',
           source: data.source || 'bonds-assistant',
           reply_to_message_id: userMessage.message_id
         });
+        const uiRenderCompletedAt = Date.now();
         if (responseDiagnostics) {
+          const apiRoundtripMs = fetchStartedAt == null || responseReceivedAt == null
+            ? null
+            : responseReceivedAt - fetchStartedAt;
+          const clientParseMs = parseStartedAt == null || parseCompletedAt == null
+            ? null
+            : parseCompletedAt - parseStartedAt;
+          const uiRenderMs = uiRenderCompletedAt - uiRenderStartedAt;
+          const endToEndMs = uiRenderCompletedAt - clientStartedAt;
           renderRequestDiagnostics(appendClientDiagnosticStages(responseDiagnostics, [
-            { stage:'api_delivery', status:'PASS', duration_ms:Date.now() - clientStartedAt },
-            { stage:'response_parse', status:'PASS' },
-            { stage:'ui_render', status:'PASS' }
-          ]));
+            { stage:'http_roundtrip', status:'PASS', duration_ms:apiRoundtripMs },
+            { stage:'client_parse', status:'PASS', duration_ms:clientParseMs },
+            { stage:'ui_render', status:'PASS', duration_ms:uiRenderMs }
+          ], {
+            api_roundtrip_ms:apiRoundtripMs,
+            client_parse_ms:clientParseMs,
+            ui_render_ms:uiRenderMs,
+            end_to_end_ms:endToEndMs
+          }));
         }
         if (assistantContextEnabled() && data.context && typeof data.context === 'object') {
           const statePatch = {};
@@ -3743,11 +3797,23 @@
         }
       } catch (err) {
         if (responseDiagnostics) {
+          const now = Date.now();
+          const apiRoundtripMs = fetchStartedAt == null || responseReceivedAt == null
+            ? null
+            : responseReceivedAt - fetchStartedAt;
+          const clientParseMs = parseStartedAt == null || parseCompletedAt == null
+            ? null
+            : parseCompletedAt - parseStartedAt;
           renderRequestDiagnostics(appendClientDiagnosticStages(responseDiagnostics, [
-            { stage:'api_delivery', status:'PASS', duration_ms:Date.now() - clientStartedAt },
-            { stage:'response_parse', status:'PASS' },
+            { stage:'http_roundtrip', status:responseReceivedAt == null ? 'FAIL' : 'PASS', duration_ms:apiRoundtripMs },
+            { stage:'client_parse', status:parseCompletedAt == null ? 'FAIL' : 'PASS', duration_ms:clientParseMs },
             { stage:'ui_render', status:'FAIL' }
-          ]));
+          ], {
+            api_roundtrip_ms:apiRoundtripMs,
+            client_parse_ms:clientParseMs,
+            ui_render_ms:null,
+            end_to_end_ms:now - clientStartedAt
+          }));
         }
         console.error('[BondsAIChat]', err);
         updateMessageTracking(userMessage.message_id, { status: 'failed' });
