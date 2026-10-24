@@ -1,5 +1,6 @@
 const {
   researchQuery,
+  researchQueryVariants,
   runResearchWorkflow
 } = require('../../lib/intelligence/research-workflow');
 
@@ -180,6 +181,50 @@ describe('BONDS query-led research workflow', () => {
     expect(result.decisionEligible).toBe(true);
   });
 
+  test('tries bounded query variants and stops on the first successful search', async () => {
+    const queries = [];
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        queries.push(input.query);
+        if (input.query === 'عمر موسى') {
+          return { ok:false, executed:true, error:{code:'SEARCH_NO_RESULTS',attempts:[{code:'SEARCH_NO_RESULTS',status_code:200}]} };
+        }
+        return {
+          ok:true,
+          executed:true,
+          result:{ results:[{url:'https://example.com/amr'},{url:'https://example.org/amr'}] }
+        };
+      }
+      if (action === 'web_explore') {
+        return { ok:true, executed:true, result:{ pages:[
+          {url:'https://example.com/amr',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'A'}},
+          {url:'https://example.org/amr',evidence:{content_type:'text/html',headers:{}},extracted:{format:'html',text:'B'}}
+        ]}};
+      }
+      if (action === 'evidence_verify') {
+        return { ok:true, executed:true, result:{verification_state:'SUPPORTED',supported_claims:[],sources:input.sources,contradictions:[],residual_uncertainty:[]} };
+      }
+      if (action === 'research_synthesize') {
+        return { ok:true, executed:true, result:{unknown:[],contradictions:[]} };
+      }
+      throw new Error('unexpected action');
+    });
+
+    const result = await runResearchWorkflow({
+      query:'عمر موسى',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        queryVariants:['عمر موسى','عمرو موسى','Amr Moussa']
+      }
+    }, {}, {executeCapability});
+
+    expect(queries).toEqual(['عمر موسى','عمرو موسى']);
+    expect(result.selected_query).toBe('عمرو موسى');
+    expect(result.attempted_queries).toEqual(['عمر موسى','عمرو موسى','Amr Moussa']);
+    expect(result.decisionEligible).toBe(true);
+  });
+
   test('fails closed when query-led search cannot produce results', async () => {
     const executeCapability = jest.fn(async action => {
       if (action === 'web_search') {
@@ -206,5 +251,6 @@ describe('BONDS query-led research workflow', () => {
   test('resolves the research query from topic or request input', () => {
     expect(researchQuery({ research:{ topic:'topic' } })).toBe('topic');
     expect(researchQuery({ input:'input' })).toBe('input');
+    expect(researchQueryVariants({ research:{ queryVariants:['a','b'], query:'a' } })).toEqual(['a','b']);
   });
 });

@@ -38,9 +38,15 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(query).toBe('من هو الدكتور طلال حسن الزهراني؟');
   });
 
-  test('routes public-person, explicit-search and freshness queries into governed research', () => {
+  test('routes public-person, explicit-search and freshness queries through the language resolver', () => {
     const { researchIntent } = require('../../lib/assistant/open-chat-tool-loop');
-    expect(researchIntent([{ role:'user', content:'من هو محمد بن سلمان؟' }]).required).toBe(true);
+    const person = researchIntent([{ role:'user', content:'من هو عمر موسى؟' }]);
+    expect(person.required).toBe(true);
+    expect(person.language_plan.intent).toBe('person_lookup');
+    expect(person.language_plan.entity.text).toBe('عمر موسى');
+    expect(person.query).toBe('عمر موسى');
+    expect(person.query_variants).toContain('عمر موسى biography');
+
     expect(researchIntent([{ role:'user', content:'ابحث في النت عن بوندز' }]).required).toBe(true);
     expect(source).toContain("runResearchWorkflow");
     expect(source).toContain("evidence_ready");
@@ -77,6 +83,16 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(source).toContain("action: 'ai_reason'");
     expect(source).toContain('The governed tool trace below is the execution authority for this turn.');
     expect(source).toContain('Never claim execution before a governed tool result exists.');
+  });
+
+  test('parses unverified multilingual alias candidates without treating them as facts', () => {
+    const { parseAliasCandidates } = require('../../lib/assistant/open-chat-tool-loop');
+    expect(parseAliasCandidates('{"candidates":["عمرو موسى","Amr Moussa","عمرو موسى"]}')).toEqual([
+      'عمرو موسى',
+      'Amr Moussa'
+    ]);
+    expect(source).toContain('Candidates are NOT facts and will be verified by web search before use.');
+    expect(source).toContain("status:'alias_candidates_generated'");
   });
 
   test('parses the final grounding verifier verdict and fails invalid verifier output closed', () => {
