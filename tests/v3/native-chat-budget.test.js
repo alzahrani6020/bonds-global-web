@@ -56,4 +56,12 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).toContain("Never reveal, infer, or name any underlying model");
   });
 
+  test('preserves long current user input instead of silently truncating it near 1-2k characters', () => {
+    expect(source).toContain("index === rawRecent.length - 1 ? 12000 : 2400");
+    expect(source).toContain("currentRequest.slice(0, 12000)");
+    expect(source).toContain("compactJson(priorMessages, 12000)");
+    expect(source).not.toContain("content: String(m?.content || '').slice(0, 1200)");
+    expect(source).not.toContain("currentRequest.slice(0, 1600)");
+  });
+
 });
