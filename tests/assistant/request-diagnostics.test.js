@@ -39,8 +39,13 @@ describe('assistant request diagnostics', () => {
     expect(result.status).toBe(STATUS.PASS);
     expect(result.failure_stage).toBeNull();
     expect(result.error_code).toBeNull();
+    expect(result.schema_version).toBe(2);
     expect(result.total_ms).toBe(2500);
-    expect(result.stages.find(row => row.stage === 'search').status).toBe(STATUS.PASS);
+    expect(result.timing.server_processing_ms).toBe(2500);
+    expect(result.pipeline_stage).toBeNull();
+    expect(result.root_cause_stage).toBeNull();
+    expect(result.stages.find(row => row.stage === 'search_relevance').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'search_transport').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'initial_quality_gate').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'repair_attempt').status).toBe(STATUS.NOT_REQUIRED);
     expect(result.stages.find(row => row.stage === 'research_acquisition').duration_ms).toBe(900);
@@ -84,9 +89,11 @@ describe('assistant request diagnostics', () => {
     });
 
     expect(result.status).toBe(STATUS.FAIL);
-    expect(result.failure_stage).toBe('initial_quality_gate');
+    expect(result.failure_stage).toBe('repair_quality_gate');
+    expect(result.pipeline_stage).toBe('answer_quality');
+    expect(result.root_cause_stage).toBe('repair_quality_gate');
     expect(result.error_code).toBe('PERSON_IDENTITY_TOO_GENERIC');
-    expect(result.stages.find(row => row.stage === 'search').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'search_transport').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'evidence').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'ai_generate').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'initial_quality_gate').status).toBe(STATUS.FAIL);
@@ -140,6 +147,82 @@ describe('assistant request diagnostics', () => {
     expect(result.stages.find(row => row.stage === 'repair_attempt').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'repair_quality_gate').status).toBe(STATUS.PASS);
     expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
+  });
+
+  test('separates search transport from relevance and skips downstream stages on low relevance', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-low-relevance',
+      path:'OPEN_CHAT_RESEARCH',
+      totalMs:35000,
+      loopResult:{
+        ok:true,
+        reply:'safe failure response',
+        failed:true,
+        trace:[
+          { action:'web_search', execution:{ ok:true } }
+        ],
+        research:{
+          status:'search_low_relevance',
+          decision_eligible:false,
+          timings:{ search_ms:3102 },
+          research_acquisition_ms:8123
+        }
+      }
+    });
+
+    expect(result.schema_version).toBe(2);
+    expect(result.status).toBe(STATUS.FAIL);
+    expect(result.pipeline_stage).toBe('research_acquisition');
+    expect(result.root_cause_stage).toBe('search_relevance');
+    expect(result.failure_stage).toBe('search_relevance');
+    expect(result.error_code).toBe('search_low_relevance');
+    expect(result.stages.find(row => row.stage === 'research_acquisition').status).toBe(STATUS.FAIL);
+    expect(result.stages.find(row => row.stage === 'search_transport').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'search_relevance').status).toBe(STATUS.FAIL);
+    expect(result.stages.find(row => row.stage === 'explore').status).toBe(STATUS.SKIPPED);
+    expect(result.stages.find(row => row.stage === 'evidence').status).toBe(STATUS.SKIPPED);
+    expect(result.stages.find(row => row.stage === 'ai_generate').status).toBe(STATUS.SKIPPED);
+    expect(result.stages.find(row => row.stage === 'initial_quality_gate').status).toBe(STATUS.SKIPPED);
+    expect(result.stages.find(row => row.stage === 'repair_attempt').status).toBe(STATUS.NOT_REQUIRED);
+    expect(result.stages.find(row => row.stage === 'repair_quality_gate').status).toBe(STATUS.NOT_REQUIRED);
+    expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.FAIL);
+  });
+
+  test('does not report ai generation as pass when research metadata is absent', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-no-research',
+      path:'OPEN_CHAT',
+      loopResult:{
+        ok:true,
+        reply:'non-research answer',
+        failed:false,
+        trace:[],
+        research:null
+      }
+    });
+
+    expect(result.stages.find(row => row.stage === 'research_acquisition').status).toBe(STATUS.NOT_REQUIRED);
+    expect(result.stages.find(row => row.stage === 'ai_generate').status).toBe(STATUS.NOT_AVAILABLE);
+  });
+
+  test('forces search transport failure for search_failed even without a failed trace row', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-search-failed',
+      path:'OPEN_CHAT_RESEARCH',
+      loopResult:{
+        ok:true,
+        reply:'safe failure response',
+        failed:true,
+        trace:[{ action:'web_search', execution:{ ok:true } }],
+        research:{ status:'search_failed', decision_eligible:false, timings:{ search_ms:100 } }
+      }
+    });
+
+    expect(result.pipeline_stage).toBe('research_acquisition');
+    expect(result.root_cause_stage).toBe('search_transport');
+    expect(result.stages.find(row => row.stage === 'search_transport').status).toBe(STATUS.FAIL);
+    expect(result.stages.find(row => row.stage === 'search_relevance').status).toBe(STATUS.SKIPPED);
+    expect(result.stages.find(row => row.stage === 'explore').status).toBe(STATUS.SKIPPED);
   });
 
   test('marks native fallback as degraded rather than clean pass', () => {
