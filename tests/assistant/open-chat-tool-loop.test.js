@@ -123,6 +123,12 @@ test('forces public research through search, exploration, evidence verification 
     expect(source).toContain('Never claim execution before a governed tool result exists.');
   });
 
+  test('retries bounded entity aliases when search succeeds but relevance is too low', () => {
+    expect(source).toContain("['search_failed', 'search_low_relevance'].includes(workflow?.status)");
+    expect(source).toContain('const aliases = await suggestUnverifiedQueryAliases(intent, options);');
+    expect(source).toContain('const mergedVariants = [...new Set([...aliases, ...(intent.query_variants || [])])].slice(0, 8);');
+  });
+
   test('parses unverified multilingual alias candidates without treating them as facts', () => {
     const { parseAliasCandidates } = require('../../lib/assistant/open-chat-tool-loop');
     expect(parseAliasCandidates('{"candidates":["عمرو موسى","Amr Moussa","عمرو موسى"]}')).toEqual([
