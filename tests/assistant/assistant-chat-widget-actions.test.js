@@ -84,4 +84,30 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).not.toMatch(/eval\s*\(/);
     expect(source).not.toMatch(/new\s+Function\s*\(/);
   });
+
+  test('tracks every chat message with stable metadata and visible timestamp', () => {
+    expect(source).toContain('message_id: metadata.message_id || createMessageTrackingId');
+    expect(source).toContain('turn_id: metadata.turn_id || createMessageTrackingId');
+    expect(source).toContain("created_at: metadata.created_at || new Date().toISOString()");
+    expect(source).toContain("status: metadata.status || (isError ? 'failed' : 'sent')");
+    expect(source).toContain("source: metadata.source || (role === 'assistant' ? 'assistant-ui' : 'user-input')");
+    expect(source).toContain('reply_to_message_id: metadata.reply_to_message_id || null');
+    expect(source).toContain("meta.className = 'bonds-ai-message-meta'");
+    expect(source).toContain('formatMessageTimestamp(message.created_at)');
+  });
+
+  test('keeps message tracking metadata client-side and preserves the existing API contract', () => {
+    expect(source).toContain(".map(message => ({ role: message.role, content: message.content }))");
+    expect(source).toContain('messages: apiHistory');
+    expect(source).toContain('history: apiHistory');
+  });
+
+  test('links each assistant reply to the originating user turn and records send outcome', () => {
+    expect(source).toContain("status: 'sending'");
+    expect(source).toContain("updateMessageTracking(userMessage.message_id, { status: 'sent' })");
+    expect(source).toContain("updateMessageTracking(userMessage.message_id, { status: 'failed' })");
+    expect(source).toContain('reply_to_message_id: userMessage.message_id');
+    expect(source).toContain("source: data.source || 'bonds-assistant'");
+  });
+
 });
