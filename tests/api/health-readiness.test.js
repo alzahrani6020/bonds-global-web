@@ -107,6 +107,7 @@ describe('platform health vs strict readiness', () => {
     process.env.BONDS_TOKEN_EXPECTED_BUILD_COMMIT = runtimeBuild;
     delete process.env.BONDS_TOKEN_ISSUER;
     delete process.env.BONDS_TOKEN_INTROSPECTION_TIMEOUT_MS;
+    delete process.env.BONDS_WEB_SEARCH_URL;
   });
 
   afterAll(() => {
@@ -183,6 +184,8 @@ describe('platform health vs strict readiness', () => {
     expect(res.statusCode).toBe(200);
     expect(res.body.status).toBe('ready');
     expect(res.body.checks.assistant).toBe('ok');
+    expect(res.body.checks.web_search).toBe('ok');
+    expect(res.body.web_search).toMatchObject({ status: 'ok', code: null });
     expect(res.body.assistant).toEqual({ status: 'ok', code: null, schema_version: 1 });
     expect(mockAssistantReadiness.calls).toBe(1);
     expect(res.body.inference.native_reachable).toBe(true);
@@ -240,6 +243,18 @@ describe('platform health vs strict readiness', () => {
     expect(healthy.statusCode).toBe(200);
     expect(healthy.body.checks.native).toBe('ok');
     expect(mockNativeHealthCalls.count).toBe(4);
+  });
+
+  test('invalid web search configuration is surfaced without exposing the configured URL', async () => {
+    process.env.BONDS_WEB_SEARCH_URL = 'not-a-valid-url';
+    const result = healthHandler.probeWebSearchReadiness();
+    expect(result).toMatchObject({
+      status: 'invalid_configuration',
+      code: 'WEB_SEARCH_INVALID_CONFIGURATION',
+      upstream_count: 1,
+      valid_upstream_count: 0
+    });
+    expect(JSON.stringify(result)).not.toContain('not-a-valid-url');
   });
 
   test('core health fails when Supabase is unavailable', async () => {
