@@ -248,6 +248,16 @@
       border-bottom-left-radius: 4px;
     }
     .bonds-ai-message.error { color: #ef4444; background: rgba(239,68,68,0.1); }
+    .bonds-ai-message-meta {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 0.68rem;
+      line-height: 1.25;
+      opacity: 0.72;
+      direction: auto;
+      unicode-bidi: plaintext;
+    }
+    .bonds-ai-message-meta[data-status="failed"] { color: #ef4444; opacity: 1; }
     .bonds-ai-suggestions {
       display: flex;
       flex-wrap: wrap;
@@ -2039,10 +2049,83 @@
       });
     }
 
-    function addMessage(role, text, isError = false) {
-      state.messages.push({ role, content: text });
+    function createMessageTrackingId(prefix) {
+      const safePrefix = String(prefix || 'msg').replace(/[^a-z0-9_-]/gi, '').slice(0, 20) || 'msg';
+      if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+        return safePrefix + '-' + window.crypto.randomUUID();
+      }
+      return safePrefix + '-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 12);
+    }
+
+    function formatMessageTimestamp(value) {
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      const locale = languageCode() === 'en' ? 'en-GB' : 'ar-SA-u-ca-gregory';
+      try {
+        return new Intl.DateTimeFormat(locale, {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(date);
+      } catch (err) {
+        return date.toLocaleString();
+      }
+    }
+
+    function messageStatusLabel(message) {
+      if (!message || message.role !== 'user') return '';
+      const english = languageCode() === 'en';
+      if (message.status === 'sending') return english ? 'Sending' : 'قيد الإرسال';
+      if (message.status === 'failed') return english ? 'Failed' : 'تعذر الإرسال';
+      return english ? 'Sent' : 'تم الإرسال';
+    }
+
+    function renderMessageMeta(msgEl, message) {
+      if (!msgEl || !message) return;
+      let meta = msgEl.querySelector('.bonds-ai-message-meta');
+      if (!meta) {
+        meta = document.createElement('small');
+        meta.className = 'bonds-ai-message-meta';
+        msgEl.appendChild(meta);
+      }
+      meta.dataset.status = message.status || 'sent';
+      const timestamp = formatMessageTimestamp(message.created_at);
+      const status = messageStatusLabel(message);
+      meta.textContent = [timestamp, status].filter(Boolean).join(' · ');
+    }
+
+    function updateMessageTracking(messageId, patch = {}) {
+      const message = state.messages.find(item => item?.message_id === messageId);
+      if (!message) return null;
+      Object.assign(message, patch);
+      const msgEl = Array.from(messagesEl.querySelectorAll('.bonds-ai-message'))
+        .find(element => element.dataset.messageId === messageId);
+      if (msgEl) {
+        msgEl.dataset.status = message.status || 'sent';
+        renderMessageMeta(msgEl, message);
+      }
+      return message;
+    }
+
+    function addMessage(role, text, isError = false, metadata = {}) {
+      const message = {
+        role,
+        content: text,
+        message_id: metadata.message_id || createMessageTrackingId('msg'),
+        turn_id: metadata.turn_id || createMessageTrackingId('turn'),
+        created_at: metadata.created_at || new Date().toISOString(),
+        status: metadata.status || (isError ? 'failed' : 'sent'),
+        source: metadata.source || (role === 'assistant' ? 'assistant-ui' : 'user-input'),
+        reply_to_message_id: metadata.reply_to_message_id || null
+      };
+      state.messages.push(message);
       const msgEl = document.createElement('div');
       msgEl.className = `bonds-ai-message ${role}${isError ? ' error' : ''}`;
+      msgEl.dataset.messageId = message.message_id;
+      msgEl.dataset.turnId = message.turn_id;
+      msgEl.dataset.status = message.status;
       if (role === 'assistant') {
         renderSafeMarkdown(msgEl, text);
         if (!isError && speechOutputSupported()) {
@@ -2059,12 +2142,14 @@
       } else {
         msgEl.textContent = text;
       }
+      renderMessageMeta(msgEl, message);
       messagesEl.appendChild(msgEl);
       messagesEl.scrollTop = messagesEl.scrollHeight;
+      return message;
     }
 
-    function addAssistantMessage(text, isError) {
-      addMessage('assistant', text, isError);
+    function addAssistantMessage(text, isError, metadata = {}) {
+      return addMessage('assistant', text, isError, metadata);
     }
 
     function authenticationLoginHref() {
@@ -2073,11 +2158,11 @@
       return base + '?redirect=' + encodeURIComponent(returnPath);
     }
 
-    function addAuthenticationRequiredMessage() {
+    function addAuthenticationRequiredMessage(metadata = {}) {
       const text = languageCode() === 'en'
         ? 'You need to sign in to use BONDS Assistant.'
         : 'يلزم تسجيل الدخول لاستخدام مساعد بوندز.';
-      addAssistantMessage(text, false);
+      addAssistantMessage(text, false, { source: 'authentication', ...metadata });
       const message = messagesEl.lastElementChild;
       if (!message) return;
       const link = document.createElement('a');
@@ -2087,8 +2172,8 @@
       message.appendChild(link);
     }
 
-    function addUserMessage(text) {
-      addMessage('user', text);
+    function addUserMessage(text, metadata = {}) {
+      return addMessage('user', text, false, metadata);
     }
 
     function setLoading(loading) {
@@ -3169,7 +3254,12 @@
       await loadVerifiedServiceProfile();
       await resumePersistentCaseState();
       root.classList.add('conversation-started');
-      addUserMessage(text);
+      const turnId = createMessageTrackingId('turn');
+      const userMessage = addUserMessage(text, {
+        turn_id: turnId,
+        status: 'sending',
+        source: 'user-input'
+      });
       setLoading(true);
       input.value = '';
 
@@ -3178,15 +3268,19 @@
       const structuredState = assistantContextEnabled()
         ? sanitizeAssistantContextState(assistantContextState, contextBoundaryKey())
         : null;
+      const apiHistory = state.messages
+        .filter(message => message.role === 'user' || message.role === 'assistant')
+        .slice(-10)
+        .map(message => ({ role: message.role, content: message.content }));
       const payload = isProjectMode
         ? {
             projectId: context.projectId,
             message: text,
-            history: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-10),
+            history: apiHistory,
             assistantState: structuredState
           }
         : {
-            messages: state.messages.filter(m => m.role === 'user' || m.role === 'assistant').slice(-10),
+            messages: apiHistory,
             context,
             assistantState: structuredState,
             options: { stream: true }
@@ -3207,12 +3301,22 @@
           : await res.json();
 
         if (res.status === 401 && data?.error === 'AUTHENTICATION_REQUIRED') {
-          addAuthenticationRequiredMessage();
+          updateMessageTracking(userMessage.message_id, { status: 'failed' });
+          addAuthenticationRequiredMessage({
+            turn_id: turnId,
+            reply_to_message_id: userMessage.message_id
+          });
           return;
         }
         if (!res.ok) throw new Error(data.error || 'Request failed');
 
-        addAssistantMessage(data.reply, data.source === 'fallback');
+        updateMessageTracking(userMessage.message_id, { status: 'sent' });
+        addAssistantMessage(data.reply, data.source === 'fallback', {
+          turn_id: turnId,
+          status: 'sent',
+          source: data.source || 'bonds-assistant',
+          reply_to_message_id: userMessage.message_id
+        });
         if (assistantContextEnabled() && data.context && typeof data.context === 'object') {
           const statePatch = {};
           if (typeof data.context.lastIntent === 'string') statePatch.last_intent = data.context.lastIntent;
@@ -3227,7 +3331,13 @@
         }
       } catch (err) {
         console.error('[BondsAIChat]', err);
-        addAssistantMessage('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.', true);
+        updateMessageTracking(userMessage.message_id, { status: 'failed' });
+        addAssistantMessage('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.', true, {
+          turn_id: turnId,
+          status: 'failed',
+          source: 'assistant-error',
+          reply_to_message_id: userMessage.message_id
+        });
       } finally {
         setLoading(false);
       }
