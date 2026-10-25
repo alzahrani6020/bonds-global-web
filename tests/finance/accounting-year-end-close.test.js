@@ -82,6 +82,7 @@ describe('Wave 13 governed year-end close', () => {
     expect(MIGRATION).toContain("'reopening'");
     expect(MIGRATION).toContain("'reversed'");
     expect(MIGRATION).toContain('reversal_of=v_original_journal.id');
+    expect(MIGRATION).not.toContain("status='reversed',\n      metadata=metadata || jsonb_build_object");
     expect(MIGRATION).toContain(
       'public.accounting_commit_posting(v_event,v_posting)'
     );
