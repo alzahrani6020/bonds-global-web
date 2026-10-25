@@ -190,8 +190,8 @@ begin
     raise exception 'ACCOUNTING_PERIOD_ENTITY_MISMATCH';
   end if;
 
-  if v_status = 'closed' then
-    raise exception 'ACCOUNTING_PERIOD_CLOSED';
+  if v_status <> 'open' then
+    raise exception 'ACCOUNTING_PERIOD_NOT_OPEN';
   end if;
 
   return new;
