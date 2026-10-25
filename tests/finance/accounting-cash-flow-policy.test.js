@@ -17,6 +17,11 @@ const MIGRATION = fs.readFileSync(
   'utf8'
 );
 
+const HARDENING = fs.readFileSync(
+  path.join(__dirname, '../../supabase/migrations/20261026004500_cash_flow_advisor_hardening.sql'),
+  'utf8'
+);
+
 describe('explicit-policy cash flow reporting', () => {
   test('builds operating/investing/financing statement with opening and closing cash', () => {
     const statement = buildCashFlowStatement({
@@ -47,25 +52,7 @@ describe('explicit-policy cash flow reporting', () => {
           cash_amount:400
         }
       ]
-      test('advisor hardening covers cash-flow foreign keys and optimized RLS auth lookups', () => {
-    const hardening = fs.readFileSync(
-      path.join(__dirname, '../../supabase/migrations/20261026004500_cash_flow_advisor_hardening.sql'),
-      'utf8'
-    );
-
-    for (const indexName of [
-      'idx_accounting_cash_accounts_created_by',
-      'idx_accounting_cash_flow_policies_created_by',
-      'idx_client_cash_flow_reports_client_id'
-    ]) {
-      expect(hardening).toContain(indexName);
-    }
-
-    expect(hardening).toContain('using (user_id = (select auth.uid()))');
-    expect(hardening).toContain('with check (user_id = (select auth.uid()))');
-    expect(hardening).not.toMatch(/user_id\s*=\s*auth\.uid\(\)/);
-  });
-});
+    });
 
     expect(statement).toMatchObject({
       opening_cash:1000,
@@ -209,5 +196,19 @@ describe('explicit-policy cash flow reporting', () => {
       endsOn:'2026-10-01'
     })).rejects.toThrow('CASH_FLOW_DATE_RANGE_INVALID');
     expect(rpc).not.toHaveBeenCalled();
+  });
+
+  test('advisor hardening covers cash-flow foreign keys and optimized RLS auth lookups', () => {
+    for (const indexName of [
+      'idx_accounting_cash_accounts_created_by',
+      'idx_accounting_cash_flow_policies_created_by',
+      'idx_client_cash_flow_reports_client_id'
+    ]) {
+      expect(HARDENING).toContain(indexName);
+    }
+
+    expect(HARDENING).toContain('using (user_id = (select auth.uid()))');
+    expect(HARDENING).toContain('with check (user_id = (select auth.uid()))');
+    expect(HARDENING).not.toMatch(/user_id\s*=\s*auth\.uid\(\)/);
   });
 });
