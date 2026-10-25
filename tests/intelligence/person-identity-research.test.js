@@ -94,8 +94,8 @@ describe('Person identity integration in research workflow', () => {
     expect(result.decisionEligible).toBe(true);
 
     expect(evidenceVerifyInput).toBeTruthy();
-    expect(evidenceVerifyInput.identity.verified_identity.verification_state).toBe('VERIFIED');
-    expect(evidenceVerifyInput.identity.person_entity_frame.canonical_name).toBe('خالد محمد');
+    expect(evidenceVerifyInput.sources).toHaveLength(2);
+    expect(evidenceVerifyInput.identity).toBeUndefined();
   });
 
   test('same-name candidates with missing organization fail closed before evidence verification', async () => {
