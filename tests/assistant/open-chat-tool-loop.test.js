@@ -771,4 +771,25 @@ test('forces public research through search, exploration, evidence verification 
     expect(synthesisIndex).toBeGreaterThan(fastPathIndex);
   });
 
+  test('does not canonicalize noisy quoted source-title shaped role-before-name text', () => {
+    const { canonicalizePersonIdentityEvidenceSentence } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    expect(
+      canonicalizePersonIdentityEvidenceSentence(
+        '↑ "لقاء ولي العهد السعودي محمد بن سلمان مع مجلة تايم".',
+        'محمد بن سلمان',
+        'ar'
+      )
+    ).toBeNull();
+
+    expect(
+      canonicalizePersonIdentityEvidenceSentence(
+        '«لقاء ولي العهد السعودي محمد بن سلمان»',
+        'محمد بن سلمان',
+        'ar'
+      )
+    ).toBeNull();
+  });
+
 });
