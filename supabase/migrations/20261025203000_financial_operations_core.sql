@@ -42,7 +42,8 @@ create table if not exists public.accounting_periods (
     (status <> 'closed')
   ),
   unique(accounting_entity_id, period_code),
-  unique(accounting_entity_id, starts_on, ends_on)
+  unique(accounting_entity_id, starts_on, ends_on),
+  unique(accounting_entity_id, id)
 );
 
 create index if not exists idx_accounting_periods_entity_dates
@@ -133,7 +134,7 @@ create table if not exists public.accounting_journal_entries (
     check (status in ('draft','posted','reversed')),
   total_debit numeric(20,2) not null check (total_debit >= 0),
   total_credit numeric(20,2) not null check (total_credit >= 0),
-  reversal_of uuid references public.accounting_journal_entries(id) on delete restrict,
+  reversal_of uuid,
   posted_by uuid references auth.users(id) on delete set null,
   posted_at timestamptz,
   metadata jsonb not null default '{}'::jsonb,
@@ -150,6 +151,9 @@ create table if not exists public.accounting_journal_entries (
     on delete restrict,
   foreign key (accounting_entity_id, period_id)
     references public.accounting_periods(accounting_entity_id, id)
+    on delete restrict,
+  foreign key (accounting_entity_id, reversal_of)
+    references public.accounting_journal_entries(accounting_entity_id, id)
     on delete restrict
 );
 
@@ -192,7 +196,7 @@ create index if not exists idx_journal_lines_entry
 create or replace function public.accounting_assert_open_period()
 returns trigger
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
 declare
@@ -218,6 +222,9 @@ begin
   return new;
 end;
 $$;
+
+revoke execute on function public.accounting_assert_open_period() from public, anon, authenticated;
+grant execute on function public.accounting_assert_open_period() to service_role;
 
 drop trigger if exists trg_accounting_assert_open_period on public.accounting_journal_entries;
 create trigger trg_accounting_assert_open_period
