@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "financial-operations-core",
-  "current_workstream": "wave2-ledger-statements-normalization",
+  "current_workstream": "wave3-operational-intelligence",
   "status": "in_progress",
-  "baseline_main_sha": "94c6ff66d06b16dfd0c9806097fa1117a4d26380",
+  "baseline_main_sha": "746773fab4f66461ffe9be0f389c0c4ff3368c15",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -106,13 +106,12 @@
     "dual-core-roadmap-closeout"
   ],
   "currently_working_on": [
-    "ledger-reporting-rpc",
-    "trial-balance-verification",
-    "financial-statements-engine",
-    "canonical-financial-mapping",
-    "ledger-to-existing-financial-engine-bridge"
+    "financial-operational-alert-rules",
+    "executive-financial-metrics",
+    "existing-notification-integration",
+    "existing-admin-metric-snapshot-integration"
   ],
-  "next_action": "verify Wave 2 candidate through PR CI; merge only on full success; apply reporting migration and verify production database before release",
+  "next_action": "verify Wave 3 candidate through PR CI; merge only on full success; no new alert or analytics store",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -124,7 +123,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "94c6ff66d06b16dfd0c9806097fa1117a4d26380",
+    "current_main_sha": "746773fab4f66461ffe9be0f389c0c4ff3368c15",
     "superseded_candidate_prs": [
       472,
       475
@@ -206,7 +205,12 @@
     "financial_operations_smoke_rollback_verified": true,
     "financial_operations_unindexed_fk_findings": 0,
     "financial_operations_wave2_candidate_branch": "feat/financial-operations-core",
-    "financial_operations_wave2_candidate_status": "awaiting_pr_ci"
+    "financial_operations_wave2_candidate_status": "awaiting_pr_ci",
+    "financial_operations_wave2_merge_sha": "746773fab4f66461ffe9be0f389c0c4ff3368c15",
+    "financial_operations_reporting_rpc_verified": true,
+    "financial_operations_reporting_smoke_rollback_verified": true,
+    "financial_operations_wave3_candidate_branch": "feat/financial-operations-core",
+    "financial_operations_wave3_candidate_status": "awaiting_pr_ci"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -227,5 +231,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "financial-operations-core-wave2"
+  "updated_by": "financial-operations-core-wave3"
 }
