@@ -580,7 +580,7 @@
       display:none;
       border-bottom:1px solid #e7edf4;
       background:#fff;
-      padding:8px 12px 10px;
+      padding:6px 10px 7px;
       font-size:0.7rem;
       color:#334155;
       min-height:0;
@@ -598,7 +598,11 @@
     #bonds-ai-chat-root .bonds-ai-diagnostics-head {
       display:flex;
       align-items:center;
-      gap:8px;
+      gap:6px;
+      margin-bottom:0;
+      min-height:28px;
+    }
+    #bonds-ai-chat-root .bonds-ai-request-diagnostics.expanded .bonds-ai-diagnostics-head {
       margin-bottom:6px;
     }
     #bonds-ai-chat-root .bonds-ai-diagnostics-head strong { color:#0b2340; }
@@ -1011,7 +1015,7 @@
       grid-column:2;
       grid-row:4;
       align-self:start;
-      max-height:280px;
+      max-height:220px;
       overflow:hidden;
       border-inline-start:1px solid #e3e9f0;
     }
@@ -2062,11 +2066,13 @@
       ].filter(Boolean).join(' · ');
       diagnosticsSummary.dataset.status = safe.status;
 
-      const shouldExpand = safe.status !== 'PASS';
-      diagnosticsPanel.classList.toggle('expanded', shouldExpand);
+      // Keep diagnostics compact by default even on failures. The summary
+      // already exposes status/timing/root cause; full stage detail is opt-in.
+      const shouldExpand = false;
+      diagnosticsPanel.classList.remove('expanded');
       if (diagnosticsToggle) {
-        diagnosticsToggle.setAttribute('aria-expanded', shouldExpand ? 'true' : 'false');
-        diagnosticsToggle.textContent = shouldExpand ? 'Hide' : 'Details';
+        diagnosticsToggle.setAttribute('aria-expanded', 'false');
+        diagnosticsToggle.textContent = 'Details';
       }
 
       const meta = [

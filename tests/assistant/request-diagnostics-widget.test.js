@@ -56,15 +56,15 @@ describe('assistant diagnostics widget contract', () => {
 
   test('workspace keeps diagnostics bounded and prioritizes answer space', () => {
     expect(source).toContain('grid-template-columns: minmax(0, 1.1fr) minmax(460px, 0.9fr)');
-    expect(source).toContain('max-height:280px');
+    expect(source).toContain('max-height:220px');
     expect(source).toContain('min-height: 220px');
     expect(source).toContain('overflow-y:auto');
   });
 
-  test('diagnostics collapse on pass and expose a details toggle', () => {
+  test('diagnostics stay compact by default and expose details only on demand', () => {
     expect(source).toContain('class="bonds-ai-diagnostics-toggle"');
-    expect(source).toContain("const shouldExpand = safe.status !== 'PASS';");
-    expect(source).toContain("diagnosticsPanel.classList.toggle('expanded', shouldExpand)");
+    expect(source).toContain('const shouldExpand = false;');
+    expect(source).toContain("diagnosticsPanel.classList.remove('expanded')");
     expect(source).toContain("diagnosticsToggle.addEventListener('click'");
   });
 
