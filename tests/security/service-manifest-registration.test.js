@@ -84,6 +84,7 @@ describe(
           'accounting_depreciation_policy_configure',
           'accounting_depreciation_post',
           'accounting_dimension_create',
+          'accounting_dimension_policy_configure',
           'accounting_period_transition',
           'agent_execute',
           'ai_reason',
