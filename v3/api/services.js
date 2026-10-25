@@ -17,6 +17,9 @@ const {
 } = require('../../lib/finance/financial-data-intake');
 const crypto = require('crypto');
 const XLSX = require('xlsx');
+const {
+  AccountingEntityUserService
+} = require('../../lib/finance/accounting/accounting-entity-user-service');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -1521,11 +1524,45 @@ async function handleServiceDetail(req, res, supabase, code) {
   });
 }
 
+async function handleAccountingEntities(req, res, supabase, user) {
+  if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+
+  const service = new AccountingEntityUserService(supabase);
+
+  try {
+    if (req.method === 'GET') {
+      const entities = await service.listForUser(user.id);
+      return sendJson(res, 200, { ok:true, entities, count:entities.length });
+    }
+
+    if (req.method === 'POST') {
+      let body;
+      try { body = await parseJsonBody(req); }
+      catch (err) { return sendJson(res, 400, { ok:false, error:{ code:'INVALID_JSON', detail:err.message } }); }
+
+      const entity = await service.createForUser(user.id, body || {});
+      return sendJson(res, 201, { ok:true, entity });
+    }
+
+    return sendJson(res, 405, { error: 'Method not allowed' });
+  } catch (err) {
+    const code = String(err?.message || 'ACCOUNTING_ENTITY_OPERATION_FAILED');
+    const clientErrors = new Set([
+      'ACCOUNTING_ENTITY_NAME_REQUIRED',
+      'ACCOUNTING_ENTITY_NAME_TOO_LONG',
+      'ACCOUNTING_ENTITY_CURRENCY_INVALID'
+    ]);
+    const status = clientErrors.has(code) ? 400 : 500;
+    return sendJson(res, status, { ok:false, error:{ code } });
+  }
+}
+
 async function servicesRouter(req, res, path, supabase, user) {
   if (path === '/services' || path === '/services/catalog') return handleServiceCatalog(req, res, supabase);
   if (path === '/services/goals') return handleServiceGoals(req, res, supabase);
   if (path === '/services/packages') return handleServicePackages(req, res, supabase);
   if (path === '/services/execute') return handleServiceExecute(req, res, supabase, user);
+  if (path === '/services/accounting/entities') return handleAccountingEntities(req, res, supabase, user);
   if (path === '/services/intake/prepare') return handleFinancialIntakePrepare(req, res, supabase, user);
   if (path === '/services/intake/approve') return handleFinancialIntakeApprove(req, res, supabase, user);
   if (path === '/services/intake/portfolio') return handleFinancialPortfolio(req, res, supabase, user);
