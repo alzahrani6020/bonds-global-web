@@ -309,6 +309,61 @@ test('forces public research through search, exploration, evidence verification 
     expect(hasConcretePersonIdentity('Jane Doe is the chief executive of the company.')).toBe(true);
   });
 
+  test('repairs person identity deterministically from verified evidence before model repair', () => {
+    const {
+      evidenceGroundedPersonIdentityRepair,
+      assessResearchAnswer
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        language:{language:'ar'},
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    const repaired = evidenceGroundedPersonIdentityRepair(intent, {
+      mode:'verified_source_digest',
+      known:[],
+      sources:[
+        {
+          claims:[],
+          excerpt:'محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.'
+        }
+      ]
+    });
+
+    expect(repaired).toBe('محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.');
+    expect(assessResearchAnswer(repaired, intent).ok).toBe(true);
+  });
+
+  test('evidence-grounded person repair fails closed when no concrete verified identity exists', () => {
+    const { evidenceGroundedPersonIdentityRepair } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        language:{language:'ar'},
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    expect(
+      evidenceGroundedPersonIdentityRepair(intent, {
+        mode:'verified_source_digest',
+        known:[],
+        sources:[
+          {
+            claims:[],
+            excerpt:'محمد بن سلمان شخصية عامة معروفة ومرتبطة بمجالات العمل السياسي.'
+          }
+        ]
+      })
+    ).toBeNull();
+  });
+
   test('research acquisition trace summarizes crawl metadata without page text or full URLs', () => {
     const { researchAcquisitionTrace } = require('../../lib/assistant/open-chat-tool-loop');
     const trace = researchAcquisitionTrace({
