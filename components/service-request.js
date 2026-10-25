@@ -65,7 +65,12 @@ const FINANCIAL_ACTIONS=new Set([
  'feasibility_run','valuation_run','risk_analysis_run','scenario_forecast_run'
 ]);
 function isFinancialIntakeService(){
+ if(detail?.intake?.supported===true)return true;
  return (detail?.capabilities||[]).some(item=>FINANCIAL_ACTIONS.has(item.capability_code));
+}
+function isRequestOnlyIntakeService(){
+ return detail?.intake?.supported===true &&
+   detail?.intake?.execution_mode==='request_only';
 }
 function renderFinancialIntake(){
  if(!isFinancialIntakeService())return;
@@ -334,6 +339,34 @@ async function submit(e){
       return;
     }
     await approveFinancialIntake(headers);
+
+    if(isRequestOnlyIntakeService()){
+      const requestBody={
+        service_code:serviceCode,
+        country_code:params.get('country')||null,
+        region_code:params.get('region')||null,
+        region_name:params.get('region_name')||null,
+        locality_code:params.get('locality')||null,
+        locality_name:params.get('locality_name')||null,
+        sector_code:params.get('sector')||null,
+        activity_code:params.get('activity')||null,
+        values:{},
+        form_version:detail.form?.version||null,
+        lang,
+        url:location.href,
+        source:'service_request_page',
+        metadata:{financial_dataset_id:intakeDatasetId,intake_mode:intakeMode}
+      };
+      const d=await json('/api/v3/services/requests',{method:'POST',headers,body:JSON.stringify(requestBody)});
+      submitted=true;
+      track('service_converted',{request_reference:d.request.request_reference,dataset_id:intakeDatasetId});
+      showStatus(T.sent+' — '+d.request.request_reference,true);
+      $('#srSubmit').disabled=true;
+      $('#srSuccessLink').href=lang==='ar'?'/my-bonds/':'/en/my-bonds/';
+      $('#srSuccessLink').hidden=false;
+      return;
+    }
+
     const executionResponse=await fetch('/api/v3/services/execute',{
       method:'POST',
       headers,
