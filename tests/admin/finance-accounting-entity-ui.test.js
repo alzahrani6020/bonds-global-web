@@ -8,6 +8,13 @@ const SOURCE = fs.readFileSync(
   'utf8'
 );
 
+function extractFunction(source, name, nextName) {
+  const start = source.indexOf(`async function ${name}(`);
+  const end = source.indexOf(`async function ${nextName}(`, start + 1);
+  if (start < 0 || end < 0) return '';
+  return source.slice(start, end);
+}
+
 describe('finance accounting entity onboarding UI', () => {
   test('uses the existing governed accounting entity API instead of direct table writes', () => {
     expect(SOURCE).toContain('/api/v3/services/accounting/entities');
@@ -25,9 +32,18 @@ describe('finance accounting entity onboarding UI', () => {
   });
 
   test('does not accept owner identity from the browser payload', () => {
-    const fn = SOURCE.match(/async function createAccountingEntity\(ev\)[\s\S]*?return null\}\}/)?.[0] || '';
+    const fn = extractFunction(SOURCE, 'createAccountingEntity', 'loadAllFinance');
     expect(fn).toContain('JSON.stringify({name,base_currency})');
     expect(fn).not.toContain('user_id');
     expect(fn).not.toContain('created_by');
+  });
+
+  test('locks duplicate submits and sends an idempotency key', () => {
+    const fn = extractFunction(SOURCE, 'createAccountingEntity', 'loadAllFinance');
+    expect(SOURCE).toContain('id="accountingEntitySubmit"');
+    expect(fn).toContain('accountingEntityCreateInFlight');
+    expect(fn).toContain("'Idempotency-Key':accountingEntityRequestKey");
+    expect(fn).toContain('submit.disabled=true');
+    expect(fn).toContain('submit.disabled=false');
   });
 });
