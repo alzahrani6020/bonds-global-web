@@ -12,6 +12,7 @@ const { valuationAnalysis } = require('../../lib/finance/engines/valuation-engin
 const { riskAnalysis } = require('../../lib/finance/engines/risk-engine');
 const { scenarioForecast } = require('../../lib/finance/engines/scenario-engine');
 const { creditRiskAnalysis } = require('../../lib/finance/engines/credit-risk-engine');
+const { treasuryLiquidityAnalysis } = require('../../lib/finance/engines/treasury-liquidity-engine');
 
 function stable(result) {
   return {
@@ -37,7 +38,8 @@ describe('modular financial engine architecture parity', () => {
       'scenario_forecast',
       'debt_schedule',
       'covenant_monitoring',
-      'credit_risk'
+      'credit_risk',
+      'treasury_liquidity'
     ]);
   });
 
@@ -166,6 +168,15 @@ describe('modular financial engine architecture parity', () => {
         ead: 1000000,
         parameter_source: 'policy',
         as_of_date: '2026-10-26'
+      },
+      {}
+    ],
+    [
+      'treasury_liquidity',
+      treasuryLiquidityAnalysis,
+      {
+        accounts: [{ id: 'A1', bank: 'Bank A', balance: 1000 }],
+        minimum_liquidity_buffer: 100
       },
       {}
     ]
