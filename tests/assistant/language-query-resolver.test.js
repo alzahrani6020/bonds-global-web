@@ -148,4 +148,34 @@ describe('BONDS language and query resolver', () => {
     expect(result.entity.type).toBe('topic');
   });
 
+  test('parses organization role-holder question as relation lookup, not a person named after the company', () => {
+    const result = resolveLanguageQuery('من هو رئيس شركة أرامكو؟');
+
+    expect(result.intent).toBe('relation_lookup');
+    expect(result.entity).toEqual(expect.objectContaining({
+      type:'relation',
+      text:'شركة أرامكو',
+      relation:expect.objectContaining({ value:'رئيس', verified:false }),
+      organization:expect.objectContaining({ value:'شركة أرامكو', verified:false })
+    }));
+    expect(result.entity_frame).toEqual(expect.objectContaining({
+      entity_type:'relation',
+      canonical_name:'شركة أرامكو'
+    }));
+    expect(result.entity_frame.relations).toEqual([
+      expect.objectContaining({ value:'رئيس' })
+    ]);
+    expect(result.entity_frame.organizations).toEqual([
+      expect.objectContaining({ value:'شركة أرامكو' })
+    ]);
+    expect(result.query_variants).toEqual(expect.arrayContaining([
+      'رئيس شركة أرامكو',
+      'شركة أرامكو رئيس'
+    ]));
+    expect(result.query_variants).not.toEqual(expect.arrayContaining([
+      'شركة أرامكو سيرة',
+      'شركة أرامكو biography'
+    ]));
+  });
+
 });
