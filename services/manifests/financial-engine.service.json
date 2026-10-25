@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 5,
+  "version": 6,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -156,6 +156,21 @@
       }
     },
     {
+      "action": "accounting_dimension_policy_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-015",
+      "purpose": "Configure whether a canonical cost-center or segment is mandatory for journal lines posted to a specific account within the same accounting entity.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "account_id",
+        "dimension_type"
+      ],
+      "runtime": {
+        "adapter": "accounting_dimension_policy_configure"
+      }
+    },
+    {
       "action": "accounting_period_transition",
       "action_type": "workflow",
       "id": "BONDS-CAP-FIN-010",
@@ -234,7 +249,7 @@
     {
       "action": "debt_schedule_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-015",
+      "id": "BONDS-CAP-FIN-016",
       "purpose": "Build deterministic debt amortization, maturity and debt-service schedules from explicit facilities.",
       "side_effect": "compute",
       "required": [
@@ -247,7 +262,7 @@
     {
       "action": "covenant_monitoring_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-016",
+      "id": "BONDS-CAP-FIN-017",
       "purpose": "Evaluate deterministic financial covenant compliance, headroom and forecast breach periods.",
       "side_effect": "compute",
       "required": [
@@ -260,7 +275,7 @@
     {
       "action": "credit_risk_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-017",
+      "id": "BONDS-CAP-FIN-018",
       "purpose": "Calculate deterministic PD/LGD/EAD expected loss and stress loss from explicit governed credit-risk parameters.",
       "side_effect": "compute",
       "required": [
@@ -273,7 +288,7 @@
     {
       "action": "treasury_liquidity_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-018",
+      "id": "BONDS-CAP-FIN-019",
       "purpose": "Compute deterministic treasury cash position, liquidity headroom, funding gap, concentration and limits.",
       "side_effect": "compute",
       "required": [
