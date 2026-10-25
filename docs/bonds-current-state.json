@@ -6,7 +6,7 @@
   "current_phase": "financial-operations-core",
   "current_workstream": "wave5-explicit-cash-flow-statement",
   "status": "in_progress",
-  "baseline_main_sha": "a0d7fabd04c46707e753789d2ac0b7db6c46ef56",
+  "baseline_main_sha": "d91b6e047845f98448a16c32f4623fc1496a1ac7",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -106,13 +106,13 @@
     "dual-core-roadmap-closeout"
   ],
   "currently_working_on": [
-    "explicit-cash-account-mapping",
-    "explicit-event-cash-flow-policy",
-    "cash-flow-statement",
-    "existing-cash-flow-engine-bridge"
+    "production-authenticated-cash-flow-smoke",
+    "classified-unclassified-production-verification"
   ],
-  "next_action": "verify Wave 5 through PR CI; merge only on full success; apply cash-flow policy migration; run production classified/unclassified smoke",
-  "blocked": [],
+  "next_action": "create or identify a legitimate active accounting-entity membership in production through the normal product flow, then run authenticated classified/unclassified cash-flow smoke; do not create synthetic production fixtures solely for verification",
+  "blocked": [
+    "NO_ACTIVE_ACCOUNTING_ENTITY_MEMBERSHIP_FOR_AUTHENTICATED_PRODUCTION_SMOKE"
+  ],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
     "phase2_admin_review_merge_sha": "4dc1ad44f4d55a9019e4c8f7443ae0029f7c4bb7",
@@ -123,7 +123,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "a0d7fabd04c46707e753789d2ac0b7db6c46ef56",
+    "current_main_sha": "d91b6e047845f98448a16c32f4623fc1496a1ac7",
     "superseded_candidate_prs": [
       472,
       475
@@ -219,7 +219,16 @@
     "financial_operations_wave4_merge_sha": "a0d7fabd04c46707e753789d2ac0b7db6c46ef56",
     "financial_operations_wave4_production_authenticated_smoke": true,
     "financial_operations_wave5_candidate_branch": "feat/financial-operations-core",
-    "financial_operations_wave5_candidate_status": "awaiting_pr_ci"
+    "financial_operations_wave5_candidate_status": "awaiting_pr_ci",
+    "financial_operations_wave5_merge_sha": "191c5e90cbc1acaf50a12a96f2d2445980b0cd46",
+    "financial_operations_wave5_security_merge_sha": "d91b6e047845f98448a16c32f4623fc1496a1ac7",
+    "financial_operations_wave5_pr_616_ci_verified": true,
+    "financial_operations_wave5_pr_617_ci_verified": true,
+    "financial_operations_wave5_pr_618_ci_verified": true,
+    "financial_operations_wave5_migrations_verified": true,
+    "financial_operations_wave5_unauthenticated_fail_closed_smoke": true,
+    "financial_operations_wave5_authenticated_smoke": false,
+    "financial_operations_wave5_authenticated_smoke_blocker": "NO_ACTIVE_ACCOUNTING_ENTITY_MEMBERSHIP"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -240,5 +249,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "financial-operations-core-wave5"
+  "updated_by": "financial-operations-core-wave5-verification"
 }
