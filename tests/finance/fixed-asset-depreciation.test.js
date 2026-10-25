@@ -12,6 +12,11 @@ const MIGRATION = fs.readFileSync(
   'utf8'
 );
 
+const HARDENING = fs.readFileSync(
+  path.join(__dirname, '../../supabase/migrations/20261026021500_fixed_asset_depreciation_advisor_hardening.sql'),
+  'utf8'
+);
+
 describe('governed fixed asset accounting depreciation', () => {
   test('recognizes depreciation as a governed financial event', () => {
     expect(EVENT_TYPES).toContain('asset.depreciation');
@@ -53,6 +58,13 @@ describe('governed fixed asset accounting depreciation', () => {
     expect(MIGRATION).toContain(
       'grant execute on function public.accounting_post_asset_depreciation(uuid,uuid,uuid)'
     );
+  });
+
+  test('covers depreciation-run provenance foreign keys for advisor performance', () => {
+    expect(HARDENING).toContain('idx_fixed_asset_depreciation_runs_event');
+    expect(HARDENING).toContain('accounting_entity_id, financial_event_id');
+    expect(HARDENING).toContain('idx_fixed_asset_depreciation_runs_journal');
+    expect(HARDENING).toContain('accounting_entity_id, journal_entry_id');
   });
 
   test('store configures policy and posts a period through governed RPC', async () => {
