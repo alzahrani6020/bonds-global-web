@@ -122,6 +122,7 @@ describe(
           'risk_analysis_run',
           'scenario_forecast_run',
           'site_navigate',
+          'treasury_liquidity_run',
           'valuation_run',
           'web_crawl',
           'web_explore',
