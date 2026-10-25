@@ -12,7 +12,7 @@ Wave 7 adds deterministic fixed-asset depreciation on top of the canonical bonds
 - Depreciation expense and accumulated-depreciation account codes are explicit per asset profile.
 - No AI or heuristic selects accounting accounts.
 - Depreciation postings use the existing Financial Event -> Accounting Policy -> Posting Engine path.
-- Event type: asset.depreciation_accrued.
+- Event type: asset.depreciation.
 - Idempotency is deterministic for entity + asset + period + amount.
 
 ## Non-goals
