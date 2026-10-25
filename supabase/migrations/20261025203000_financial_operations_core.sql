@@ -221,4 +221,12 @@ revoke all on public.accounting_subledger_entries from anon, authenticated;
 revoke all on public.accounting_journal_entries from anon, authenticated;
 revoke all on public.accounting_journal_lines from anon, authenticated;
 
+grant select, insert, update, delete on public.accounting_entities to service_role;
+grant select, insert, update, delete on public.accounting_periods to service_role;
+grant select, insert, update, delete on public.accounting_accounts to service_role;
+grant select, insert, update, delete on public.financial_events to service_role;
+grant select, insert, update, delete on public.accounting_subledger_entries to service_role;
+grant select, insert, update, delete on public.accounting_journal_entries to service_role;
+grant select, insert, update, delete on public.accounting_journal_lines to service_role;
+
 commit;
