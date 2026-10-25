@@ -43,5 +43,22 @@ describe('financial operations migrations', () => {
     expect(sql).toContain(
       'grant select, insert, update, delete on public.accounting_journal_entries to service_role;'
     );
+    expect(sql).toContain(
+      'foreign key (accounting_entity_id, account_id)'
+    );
+    expect(sql).toContain(
+      'foreign key (accounting_entity_id, journal_entry_id)'
+    );
+    expect(sql).toContain(
+      'foreign key (accounting_entity_id, financial_event_id)'
+    );
+    expect(sql).toContain(
+      'foreign key (accounting_entity_id, period_id)'
+    );
+    expect(sql).toContain(
+      'foreign key (accounting_entity_id, reversal_of)'
+    );
+    expect(sql).toContain('security invoker');
+    expect(sql).not.toContain('security definer');
   });
 });
