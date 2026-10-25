@@ -1920,6 +1920,40 @@
           decision_eligible:typeof value.evidence.decision_eligible === 'boolean' ? value.evidence.decision_eligible : null,
           unknown_count:Number(value.evidence.unknown_count || 0),
           contradiction_count:Number(value.evidence.contradiction_count || 0)
+        } : null,
+        acquisition_trace:value.acquisition_trace && typeof value.acquisition_trace === 'object' ? {
+          search_attempt_count:Number.isFinite(Number(value.acquisition_trace.search_attempt_count)) ? Number(value.acquisition_trace.search_attempt_count) : null,
+          search_result_count:Number.isFinite(Number(value.acquisition_trace.search_result_count)) ? Number(value.acquisition_trace.search_result_count) : null,
+          relevant_search_result_count:Number.isFinite(Number(value.acquisition_trace.relevant_search_result_count)) ? Number(value.acquisition_trace.relevant_search_result_count) : null,
+          seed_count:Number.isFinite(Number(value.acquisition_trace.seed_count)) ? Number(value.acquisition_trace.seed_count) : null,
+          crawl_attempted:value.acquisition_trace.crawl_attempted === true,
+          discovered_count:Number.isFinite(Number(value.acquisition_trace.discovered_count)) ? Number(value.acquisition_trace.discovered_count) : null,
+          visited_count:Number.isFinite(Number(value.acquisition_trace.visited_count)) ? Number(value.acquisition_trace.visited_count) : null,
+          fetched_count:Number.isFinite(Number(value.acquisition_trace.fetched_count)) ? Number(value.acquisition_trace.fetched_count) : null,
+          failed_count:Number.isFinite(Number(value.acquisition_trace.failed_count)) ? Number(value.acquisition_trace.failed_count) : null,
+          blocked_count:Number.isFinite(Number(value.acquisition_trace.blocked_count)) ? Number(value.acquisition_trace.blocked_count) : null,
+          pending_count:Number.isFinite(Number(value.acquisition_trace.pending_count)) ? Number(value.acquisition_trace.pending_count) : null,
+          relevant_page_count:Number.isFinite(Number(value.acquisition_trace.relevant_page_count)) ? Number(value.acquisition_trace.relevant_page_count) : null,
+          recovery_attempt_count:Number.isFinite(Number(value.acquisition_trace.recovery_attempt_count)) ? Number(value.acquisition_trace.recovery_attempt_count) : null,
+          verification_attempted:value.acquisition_trace.verification_attempted === true,
+          verified_source_count:Number.isFinite(Number(value.acquisition_trace.verified_source_count)) ? Number(value.acquisition_trace.verified_source_count) : null,
+          evidence_count:Number.isFinite(Number(value.acquisition_trace.evidence_count)) ? Number(value.acquisition_trace.evidence_count) : null,
+          crawl_unknowns:Array.isArray(value.acquisition_trace.crawl_unknowns)
+            ? value.acquisition_trace.crawl_unknowns.slice(0,8).map(item => String(item || '').slice(0,80))
+            : [],
+          failure_samples:Array.isArray(value.acquisition_trace.failure_samples)
+            ? value.acquisition_trace.failure_samples.slice(0,8).map(item => ({
+                host:String(item?.host || '').slice(0,120) || null,
+                status_code:Number.isFinite(Number(item?.status_code)) ? Number(item.status_code) : null,
+                failure_class:String(item?.failure_class || '').slice(0,80) || null
+              }))
+            : [],
+          blocked_samples:Array.isArray(value.acquisition_trace.blocked_samples)
+            ? value.acquisition_trace.blocked_samples.slice(0,8).map(item => ({
+                host:String(item?.host || '').slice(0,120) || null,
+                reason:String(item?.reason || '').slice(0,80) || null
+              }))
+            : []
         } : null
       };
     }
@@ -1991,7 +2025,23 @@
         'repair_attempted=' + (record.research_quality?.repair_attempted ? 'YES' : 'NO'),
         'repair_ms=' + (record.research_quality?.repair_ms ?? 'n/a'),
         'repair_quality_code=' + (record.research_quality?.repair_quality_code || 'n/a'),
-        'repair_succeeded=' + (record.research_quality?.repair_succeeded ? 'YES' : 'NO')
+        'repair_succeeded=' + (record.research_quality?.repair_succeeded ? 'YES' : 'NO'),
+        'search_attempt_count=' + (record.acquisition_trace?.search_attempt_count ?? 'n/a'),
+        'search_result_count=' + (record.acquisition_trace?.search_result_count ?? 'n/a'),
+        'relevant_search_result_count=' + (record.acquisition_trace?.relevant_search_result_count ?? 'n/a'),
+        'seed_count=' + (record.acquisition_trace?.seed_count ?? 'n/a'),
+        'crawl_attempted=' + (record.acquisition_trace?.crawl_attempted ? 'YES' : 'NO'),
+        'crawl_discovered=' + (record.acquisition_trace?.discovered_count ?? 'n/a'),
+        'crawl_visited=' + (record.acquisition_trace?.visited_count ?? 'n/a'),
+        'crawl_fetched=' + (record.acquisition_trace?.fetched_count ?? 'n/a'),
+        'crawl_failed=' + (record.acquisition_trace?.failed_count ?? 'n/a'),
+        'crawl_blocked=' + (record.acquisition_trace?.blocked_count ?? 'n/a'),
+        'crawl_pending=' + (record.acquisition_trace?.pending_count ?? 'n/a'),
+        'relevant_page_count=' + (record.acquisition_trace?.relevant_page_count ?? 'n/a'),
+        'recovery_attempt_count=' + (record.acquisition_trace?.recovery_attempt_count ?? 'n/a'),
+        'verification_attempted=' + (record.acquisition_trace?.verification_attempted ? 'YES' : 'NO'),
+        'verified_source_count=' + (record.acquisition_trace?.verified_source_count ?? 'n/a'),
+        'acquisition_evidence_count=' + (record.acquisition_trace?.evidence_count ?? 'n/a')
       ];
       for (const stage of record.stages || []) {
         rows.push(stage.stage + '=' + stage.status + (stage.duration_ms == null ? '' : ':' + stage.duration_ms + 'ms'));
@@ -2027,7 +2077,16 @@
         ['Error', safe.error_code || '—'],
         ['Server', safe.timing?.server_processing_ms == null ? '—' : safe.timing.server_processing_ms + 'ms'],
         ['End-to-End', safe.timing?.end_to_end_ms == null ? '—' : safe.timing.end_to_end_ms + 'ms'],
-        ['Bottleneck', safe.bottleneck?.stage ? diagnosticStageLabel(safe.bottleneck.stage) + ' ' + (safe.bottleneck.duration_ms ?? '—') + 'ms' : '—']
+        ['Bottleneck', safe.bottleneck?.stage ? diagnosticStageLabel(safe.bottleneck.stage) + ' ' + (safe.bottleneck.duration_ms ?? '—') + 'ms' : '—'],
+        ['Search Results', safe.acquisition_trace?.search_result_count ?? '—'],
+        ['Relevant Results', safe.acquisition_trace?.relevant_search_result_count ?? '—'],
+        ['Seed URLs', safe.acquisition_trace?.seed_count ?? '—'],
+        ['Crawl Fetched', safe.acquisition_trace?.fetched_count ?? '—'],
+        ['Crawl Failed', safe.acquisition_trace?.failed_count ?? '—'],
+        ['Crawl Blocked', safe.acquisition_trace?.blocked_count ?? '—'],
+        ['Relevant Pages', safe.acquisition_trace?.relevant_page_count ?? '—'],
+        ['Verified Sources', safe.acquisition_trace?.verified_source_count ?? '—'],
+        ['Evidence Items', safe.acquisition_trace?.evidence_count ?? '—']
       ];
       diagnosticsMeta.innerHTML = '';
       for (const [key, value] of meta) {

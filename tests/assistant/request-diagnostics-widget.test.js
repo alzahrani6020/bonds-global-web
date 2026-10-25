@@ -72,4 +72,15 @@ describe('assistant diagnostics widget contract', () => {
     expect(source).toContain("latestAssistantMessage?.scrollIntoView?.({ block:'nearest', behavior:'smooth' });");
   });
 
+  test('renders research acquisition counters in diagnostics', () => {
+    expect(source).toContain('acquisition_trace:');
+    expect(source).toContain("['Search Results', safe.acquisition_trace?.search_result_count ?? '—']");
+    expect(source).toContain("['Crawl Fetched', safe.acquisition_trace?.fetched_count ?? '—']");
+    expect(source).toContain("['Crawl Failed', safe.acquisition_trace?.failed_count ?? '—']");
+    expect(source).toContain("['Crawl Blocked', safe.acquisition_trace?.blocked_count ?? '—']");
+    expect(source).toContain("['Relevant Pages', safe.acquisition_trace?.relevant_page_count ?? '—']");
+    expect(source).toContain("['Verified Sources', safe.acquisition_trace?.verified_source_count ?? '—']");
+    expect(source).toContain("'crawl_fetched=' + (record.acquisition_trace?.fetched_count ?? 'n/a')");
+  });
+
 });
