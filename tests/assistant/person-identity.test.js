@@ -1,5 +1,8 @@
 /** @jest-environment node */
 
+const fs = require('fs');
+const path = require('path');
+
 const {
   PERSON_IDENTITY_SCHEMA_VERSION,
   IDENTITY_VERIFICATION_STATES,
@@ -121,4 +124,17 @@ describe('Governed person identity pipeline', () => {
     expect(verified.matched).toBe(false);
     expect(verified.unresolved_conflicts.length).toBeGreaterThan(0);
   });
+  test('downstream research and answer layers do not rebuild PersonEntityFrame from raw text', () => {
+    const downstream = [
+      path.join(__dirname, '../../lib/intelligence/research-workflow.js'),
+      path.join(__dirname, '../../lib/assistant/open-chat-tool-loop.js')
+    ];
+
+    for (const filename of downstream) {
+      const source = fs.readFileSync(filename, 'utf8');
+      expect(source).not.toContain('buildPersonEntityFrame(');
+      expect(source).not.toContain('personEntityFromMention(');
+    }
+  });
+
 });
