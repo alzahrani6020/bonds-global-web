@@ -338,6 +338,44 @@ test('forces public research through search, exploration, evidence verification 
     expect(assessResearchAnswer(repaired, intent).ok).toBe(true);
   });
 
+  test('repairs person identity from verified sourceRows when compact answer evidence is generic', () => {
+    const {
+      evidenceGroundedPersonIdentityRepair,
+      assessResearchAnswer
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        language:{language:'ar'},
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    const repaired = evidenceGroundedPersonIdentityRepair(
+      intent,
+      {
+        mode:'verified_source_digest',
+        known:[],
+        sources:[
+          {
+            claims:[],
+            excerpt:'محمد بن سلمان شخصية سعودية بارزة.'
+          }
+        ]
+      },
+      [
+        {
+          title:'سيرة محمد بن سلمان',
+          text:'محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.'
+        }
+      ]
+    );
+
+    expect(repaired).toBe('محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.');
+    expect(assessResearchAnswer(repaired, intent).ok).toBe(true);
+  });
+
   test('evidence-grounded person repair fails closed when no concrete verified identity exists', () => {
     const { evidenceGroundedPersonIdentityRepair } =
       require('../../lib/assistant/open-chat-tool-loop');
