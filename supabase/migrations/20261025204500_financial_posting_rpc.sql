@@ -43,8 +43,10 @@ begin
   end if;
 
   if not exists (
-    select 1 from public.accounting_entities
-    where id = v_entity and status = 'active'
+    select 1
+    from public.accounting_entities
+    where id = v_entity
+      and status = 'active'
   ) then
     raise exception 'ACCOUNTING_ENTITY_NOT_ACTIVE';
   end if;
@@ -70,7 +72,16 @@ begin
   if v_amount is null or v_amount <= 0 then
     raise exception 'FINANCIAL_EVENT_AMOUNT_INVALID';
   end if;
-  if v_currency !~ '^[A-Z]{3}(hashtextextended(v_entity::text || ':' || v_idempotency, 0));
+  if v_currency !~ '^[A-Z]{3}$' then
+    raise exception 'FINANCIAL_EVENT_CURRENCY_INVALID';
+  end if;
+  if v_source_system is null or v_source_record_id is null then
+    raise exception 'FINANCIAL_EVENT_SOURCE_REQUIRED';
+  end if;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended(v_entity::text || ':' || v_idempotency, 0)
+  );
 
   select id, event_key
     into v_existing_event, v_existing_event_key
@@ -83,7 +94,9 @@ begin
     if v_existing_event_key <> v_event_key then
       raise exception 'POSTING_IDEMPOTENCY_CONFLICT';
     end if;
-    select id into v_existing_journal
+
+    select id
+      into v_existing_journal
     from public.accounting_journal_entries
     where accounting_entity_id = v_entity
       and financial_event_id = v_existing_event
@@ -114,6 +127,7 @@ begin
 
   v_total_debit := nullif(p_posting#>>'{journal,total_debit}','')::numeric;
   v_total_credit := nullif(p_posting#>>'{journal,total_credit}','')::numeric;
+
   if v_total_debit is null or v_total_credit is null or v_total_debit <= 0 then
     raise exception 'JOURNAL_TOTALS_REQUIRED';
   end if;
@@ -122,7 +136,8 @@ begin
   end if;
 
   for v_line in
-    select value from jsonb_array_elements(coalesce(p_posting#>'{journal,lines}','[]'::jsonb))
+    select value
+    from jsonb_array_elements(coalesce(p_posting#>'{journal,lines}','[]'::jsonb))
   loop
     v_line_count := v_line_count + 1;
     v_debit := coalesce(nullif(v_line->>'debit','')::numeric,0);
@@ -133,7 +148,8 @@ begin
       raise exception 'JOURNAL_LINE_ONE_SIDED_REQUIRED';
     end if;
 
-    select id into v_account_id
+    select id
+      into v_account_id
     from public.accounting_accounts
     where accounting_entity_id = v_entity
       and code = nullif(v_line->>'account_code','')
@@ -159,9 +175,20 @@ begin
   end if;
 
   insert into public.financial_events(
-    accounting_entity_id,event_key,event_type,occurred_at,effective_at,
-    amount,currency,source_system,source_record_id,service_code,
-    idempotency_key,payload,evidence,status
+    accounting_entity_id,
+    event_key,
+    event_type,
+    occurred_at,
+    effective_at,
+    amount,
+    currency,
+    source_system,
+    source_record_id,
+    service_code,
+    idempotency_key,
+    payload,
+    evidence,
+    status
   ) values (
     v_entity,
     v_event_key,
@@ -181,13 +208,19 @@ begin
   returning id into v_event_id;
 
   insert into public.accounting_subledger_entries(
-    accounting_entity_id,financial_event_id,subledger_code,source_record_id,
-    amount,currency,status,metadata
+    accounting_entity_id,
+    financial_event_id,
+    subledger_code,
+    source_record_id,
+    amount,
+    currency,
+    status,
+    metadata
   ) values (
     v_entity,
     v_event_id,
     coalesce(nullif(p_posting#>>'{subledger,code}',''),v_event_type),
-    coalesce(nullif(p_posting#>>'{subledger,source_record_id}',''),p_event#>>'{source,record_id}'),
+    coalesce(nullif(p_posting#>>'{subledger,source_record_id}',''),v_source_record_id),
     v_amount,
     v_currency,
     'pending',
@@ -196,8 +229,17 @@ begin
   returning id into v_subledger_id;
 
   insert into public.accounting_journal_entries(
-    accounting_entity_id,financial_event_id,period_id,effective_at,currency,
-    description,status,total_debit,total_credit,posted_at,metadata
+    accounting_entity_id,
+    financial_event_id,
+    period_id,
+    effective_at,
+    currency,
+    description,
+    status,
+    total_debit,
+    total_credit,
+    posted_at,
+    metadata
   ) values (
     v_entity,
     v_event_id,
@@ -209,14 +251,19 @@ begin
     v_total_debit,
     v_total_credit,
     now(),
-    jsonb_build_object('event_key',v_event_key,'subledger_entry_id',v_subledger_id)
+    jsonb_build_object(
+      'event_key',v_event_key,
+      'subledger_entry_id',v_subledger_id
+    )
   )
   returning id into v_journal_id;
 
   for v_line in
-    select value from jsonb_array_elements(p_posting#>'{journal,lines}')
+    select value
+    from jsonb_array_elements(p_posting#>'{journal,lines}')
   loop
-    select id into v_account_id
+    select id
+      into v_account_id
     from public.accounting_accounts
     where accounting_entity_id = v_entity
       and code = nullif(v_line->>'account_code','')
@@ -229,8 +276,15 @@ begin
     end if;
 
     insert into public.accounting_journal_lines(
-      journal_entry_id,accounting_entity_id,line_no,account_code,account_name,
-      debit,credit,dimensions
+      journal_entry_id,
+      accounting_entity_id,
+      line_no,
+      account_id,
+      account_code,
+      account_name,
+      debit,
+      credit,
+      dimensions
     ) values (
       v_journal_id,
       v_entity,
@@ -245,11 +299,11 @@ begin
   end loop;
 
   update public.financial_events
-    set status = 'posted'
+  set status = 'posted'
   where id = v_event_id;
 
   update public.accounting_subledger_entries
-    set status = 'posted'
+  set status = 'posted'
   where id = v_subledger_id;
 
   return jsonb_build_object(
@@ -266,184 +320,5 @@ $$;
 revoke all on function public.accounting_commit_posting(jsonb,jsonb) from public;
 revoke all on function public.accounting_commit_posting(jsonb,jsonb) from anon, authenticated;
 grant execute on function public.accounting_commit_posting(jsonb,jsonb) to service_role;
-
-commit;
- then
-    raise exception 'FINANCIAL_EVENT_CURRENCY_INVALID';
-  end if;
-  if v_source_system is null or v_source_record_id is null then
-    raise exception 'FINANCIAL_EVENT_SOURCE_REQUIRED';
-  end if;
-
-  perform pg_advisory_xact_lock(hashtextextended(v_entity::text || ':' || v_idempotency, 0));
-
-  select id, event_key
-    into v_existing_event, v_existing_event_key
-  from public.financial_events
-  where accounting_entity_id = v_entity
-    and idempotency_key = v_idempotency
-  limit 1;
-
-  if v_existing_event is not null then
-    if v_existing_event_key <> v_event_key then
-      raise exception 'POSTING_IDEMPOTENCY_CONFLICT';
-    end if;
-    select id into v_existing_journal
-    from public.accounting_journal_entries
-    where accounting_entity_id = v_entity
-      and financial_event_id = v_existing_event
-    limit 1;
-
-    return jsonb_build_object(
-      'ok', true,
-      'state', 'replayed',
-      'event_id', v_existing_event,
-      'posting_id', v_existing_journal
-    );
-  end if;
-
-  select id, status
-    into v_period_id, v_period_status
-  from public.accounting_periods
-  where accounting_entity_id = v_entity
-    and v_effective::date between starts_on and ends_on
-  order by starts_on desc
-  limit 1;
-
-  if v_period_id is null then
-    raise exception 'ACCOUNTING_OPEN_PERIOD_REQUIRED';
-  end if;
-  if v_period_status <> 'open' then
-    raise exception 'ACCOUNTING_PERIOD_NOT_OPEN';
-  end if;
-
-  v_total_debit := nullif(p_posting#>>'{journal,total_debit}','')::numeric;
-  v_total_credit := nullif(p_posting#>>'{journal,total_credit}','')::numeric;
-  if v_total_debit is null or v_total_credit is null or v_total_debit <= 0 then
-    raise exception 'JOURNAL_TOTALS_REQUIRED';
-  end if;
-  if v_total_debit <> v_total_credit then
-    raise exception 'JOURNAL_NOT_BALANCED';
-  end if;
-
-  for v_line in
-    select value from jsonb_array_elements(coalesce(p_posting#>'{journal,lines}','[]'::jsonb))
-  loop
-    v_line_count := v_line_count + 1;
-    v_debit := coalesce(nullif(v_line->>'debit','')::numeric,0);
-    v_credit := coalesce(nullif(v_line->>'credit','')::numeric,0);
-
-    if v_debit < 0 or v_credit < 0 or
-       not ((v_debit > 0 and v_credit = 0) or (v_credit > 0 and v_debit = 0)) then
-      raise exception 'JOURNAL_LINE_ONE_SIDED_REQUIRED';
-    end if;
-
-    v_calc_debit := v_calc_debit + v_debit;
-    v_calc_credit := v_calc_credit + v_credit;
-  end loop;
-
-  if v_line_count < 2 then
-    raise exception 'JOURNAL_LINES_REQUIRED';
-  end if;
-  if v_calc_debit <> v_calc_credit or
-     v_calc_debit <> v_total_debit or
-     v_calc_credit <> v_total_credit then
-    raise exception 'JOURNAL_LINE_TOTAL_MISMATCH';
-  end if;
-
-  insert into public.financial_events(
-    accounting_entity_id,event_key,event_type,occurred_at,effective_at,
-    amount,currency,source_system,source_record_id,service_code,
-    idempotency_key,payload,evidence,status
-  ) values (
-    v_entity,
-    v_event_key,
-    v_event_type,
-    coalesce(nullif(p_event->>'occurred_at','')::timestamptz,now()),
-    v_effective,
-    v_amount,
-    v_currency,
-    nullif(p_event#>>'{source,system}',''),
-    nullif(p_event#>>'{source,record_id}',''),
-    nullif(p_event->>'service_code',''),
-    v_idempotency,
-    coalesce(p_event->'payload','{}'::jsonb),
-    coalesce(p_event->'evidence','[]'::jsonb),
-    'accepted'
-  )
-  returning id into v_event_id;
-
-  insert into public.accounting_subledger_entries(
-    accounting_entity_id,financial_event_id,subledger_code,source_record_id,
-    amount,currency,status,metadata
-  ) values (
-    v_entity,
-    v_event_id,
-    coalesce(nullif(p_posting#>>'{subledger,code}',''),v_event_type),
-    coalesce(nullif(p_posting#>>'{subledger,source_record_id}',''),p_event#>>'{source,record_id}'),
-    v_amount,
-    v_currency,
-    'pending',
-    jsonb_build_object('event_key',v_event_key)
-  )
-  returning id into v_subledger_id;
-
-  insert into public.accounting_journal_entries(
-    accounting_entity_id,financial_event_id,period_id,effective_at,currency,
-    description,status,total_debit,total_credit,posted_at,metadata
-  ) values (
-    v_entity,
-    v_event_id,
-    v_period_id,
-    v_effective,
-    v_currency,
-    coalesce(nullif(p_posting->>'description',''),v_event_type),
-    'posted',
-    v_total_debit,
-    v_total_credit,
-    now(),
-    jsonb_build_object('event_key',v_event_key,'subledger_entry_id',v_subledger_id)
-  )
-  returning id into v_journal_id;
-
-  for v_line in
-    select value from jsonb_array_elements(p_posting#>'{journal,lines}')
-  loop
-    insert into public.accounting_journal_lines(
-      journal_entry_id,accounting_entity_id,line_no,account_code,account_name,
-      debit,credit,dimensions
-    ) values (
-      v_journal_id,
-      v_entity,
-      (v_line->>'line_no')::integer,
-      nullif(v_line->>'account_code',''),
-      coalesce(nullif(v_line->>'account_name',''),v_line->>'account_code'),
-      coalesce(nullif(v_line->>'debit','')::numeric,0),
-      coalesce(nullif(v_line->>'credit','')::numeric,0),
-      coalesce(v_line->'dimensions','{}'::jsonb)
-    );
-  end loop;
-
-  update public.financial_events
-    set status = 'posted'
-  where id = v_event_id;
-
-  update public.accounting_subledger_entries
-    set status = 'posted'
-  where id = v_subledger_id;
-
-  return jsonb_build_object(
-    'ok', true,
-    'state', 'claimed',
-    'event_id', v_event_id,
-    'posting_id', v_journal_id,
-    'subledger_id', v_subledger_id,
-    'period_id', v_period_id
-  );
-end;
-$$;
-
-revoke all on function public.accounting_commit_posting(jsonb,jsonb) from public;
-revoke all on function public.accounting_commit_posting(jsonb,jsonb) from anon, authenticated;
 
 commit;
