@@ -36,7 +36,7 @@ describe('fixed assets depreciation', () => {
   test('posting accounts are explicit and never guessed', () => {
     expect(() => createDepreciationPolicy({depreciation_expense_account_code:'',accumulated_depreciation_account_code:'1590'})).toThrow('FIXED_ASSET_EXPENSE_ACCOUNT_REQUIRED');
     const registry = createDepreciationPolicy({depreciation_expense_account_code:'5200',accumulated_depreciation_account_code:'1590'});
-    const rule = registry.resolve({type:'asset.depreciation_accrued'});
+    const rule = registry.resolve({type:'asset.depreciation'});
     expect(rule.debit_account.code).toBe('5200');
     expect(rule.credit_account.code).toBe('1590');
   });
@@ -51,7 +51,7 @@ describe('fixed assets depreciation', () => {
     const b = buildDepreciationEvent(input);
     expect(a.idempotency_key).toBe(b.idempotency_key);
     expect(a.idempotency_key).toMatch(/^[0-9a-f]{64}$/);
-    expect(a.type).toBe('asset.depreciation_accrued');
+    expect(a.type).toBe('asset.depreciation');
     expect(a.amount).toBe(1000);
   });
 
