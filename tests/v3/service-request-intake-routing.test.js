@@ -34,4 +34,31 @@ describe('service request intake routing', () => {
     expect(ui).toContain("fetch('/api/v3/services/execute'");
     expect(ui).toContain("dataset_id:intakeDatasetId");
   });
+
+  test('central request profiles cover request-only service families', () => {
+    expect(api).toContain("accounting_records: 'accounting'");
+    expect(api).toContain("financial_statements_reporting: 'reporting'");
+    expect(api).toContain("audit_opinion: 'audit'");
+    expect(api).toContain("planning_cashflow: 'planning'");
+    expect(api).toContain("core_financial_analysis: 'analysis'");
+    expect(api).toContain("risk_resilience: 'risk'");
+    expect(api).toContain("zakat_services: 'tax'");
+    expect(api).toContain("vat_services: 'tax'");
+    expect(api).toContain("tax_audit_disputes: 'tax'");
+    expect(api).toContain("business_market: 'consulting'");
+  });
+
+  test('service detail returns a request profile only when no specific request content exists', () => {
+    expect(api).toContain("const requestProfile = (!form && procedures.length===0 && requirements.length===0 && (delRes.data||[]).length===0)");
+    expect(api).toContain("request_profile:requestProfile");
+  });
+
+  test('request UI renders the central request profile instead of the generic empty form', () => {
+    expect(ui).toContain("function renderRequestProfile()");
+    expect(ui).toContain("if(!form?.fields?.length)renderRequestProfile()");
+    expect(ui).toContain("profile.requirements_ar");
+    expect(ui).toContain("profile.procedures_ar");
+    expect(ui).toContain("profile.deliverables_ar");
+  });
+
 });
