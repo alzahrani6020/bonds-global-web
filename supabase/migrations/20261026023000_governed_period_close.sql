@@ -70,7 +70,7 @@ begin
     raise exception 'ACCOUNTING_PERIOD_ACTOR_REQUIRED';
   end if;
 
-  if p_action not in ('soft_close','close','reopen') then
+  if p_action is null or p_action not in ('soft_close','close','reopen') then
     raise exception 'ACCOUNTING_PERIOD_ACTION_UNSUPPORTED';
   end if;
 
