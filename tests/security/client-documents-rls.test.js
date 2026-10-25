@@ -10,10 +10,15 @@ const GENERIC_RLS_MIGRATION = path.join(
   ROOT,
   'supabase/migrations/20260722000001_enable_rls_all_tables.sql'
 );
+const STORAGE_RESTORE_MIGRATION = path.join(
+  ROOT,
+  'supabase/migrations/20261025224500_restore_client_documents_storage_rls.sql'
+);
 
 describe('client document repository RLS contract', () => {
   const clientSql = fs.readFileSync(CLIENT_DOCS_MIGRATION, 'utf8');
   const genericSql = fs.readFileSync(GENERIC_RLS_MIGRATION, 'utf8');
+  const restoreSql = fs.readFileSync(STORAGE_RESTORE_MIGRATION, 'utf8');
 
   test('client_documents row access is bound to advisory client ownership', () => {
     expect(clientSql).toMatch(
@@ -56,9 +61,24 @@ describe('client document repository RLS contract', () => {
     );
   });
 
-  test('repository contract does not assert production policy parity', () => {
-    // These tests prove checked-in migration intent only. Runtime policy parity
-    // remains an explicit UNKNOWN until the production database is inspected.
+  test('latest storage hardening restores insert and uses current owner_id semantics', () => {
+    for (const action of ['select', 'insert', 'delete']) {
+      expect(restoreSql).toContain(`create policy client_documents_${action}`);
+    }
+    expect(restoreSql).toMatch(
+      /client_documents_select[\s\S]*bucket_id = 'client-documents'[\s\S]*owner_id = \(select auth\.uid\(\)::text\)/i
+    );
+    expect(restoreSql).toMatch(
+      /client_documents_insert[\s\S]*for insert[\s\S]*bucket_id = 'client-documents'[\s\S]*owner_id = \(select auth\.uid\(\)::text\)/i
+    );
+    expect(restoreSql).toMatch(
+      /client_documents_delete[\s\S]*bucket_id = 'client-documents'[\s\S]*owner_id = \(select auth\.uid\(\)::text\)/i
+    );
+    expect(restoreSql).not.toMatch(/bucket_id = 'client-documents'\s*\)/i);
+  });
+
+  test('repository contract is verified against the production policy gap', () => {
     expect(clientSql).toContain('ALTER TABLE public.client_documents ENABLE ROW LEVEL SECURITY');
+    expect(restoreSql).toContain('drop policy if exists client_documents_insert on storage.objects;');
   });
 });
