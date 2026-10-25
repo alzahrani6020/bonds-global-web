@@ -86,11 +86,23 @@ create index if not exists idx_accounting_year_end_close_period
     accounting_entity_id, closing_period_id, status
   );
 
+create index if not exists idx_accounting_year_end_close_event
+  on public.accounting_year_end_close_runs(
+    accounting_entity_id, closing_event_id
+  )
+  where closing_event_id is not null;
+
 create index if not exists idx_accounting_year_end_close_journal
   on public.accounting_year_end_close_runs(
     accounting_entity_id, closing_journal_id
   )
   where closing_journal_id is not null;
+
+create index if not exists idx_accounting_year_end_reversal_event
+  on public.accounting_year_end_close_runs(
+    accounting_entity_id, reversal_event_id
+  )
+  where reversal_event_id is not null;
 
 create index if not exists idx_accounting_year_end_reversal_journal
   on public.accounting_year_end_close_runs(
