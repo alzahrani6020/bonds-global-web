@@ -92,6 +92,7 @@ describe(
           'calculator_run',
           'cash_flow_analysis_run',
           'covenant_monitoring_run',
+          'credit_risk_run',
           'creditworthiness_run',
           'debt_schedule_run',
           'decision_graph_build',
