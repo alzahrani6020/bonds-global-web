@@ -15,7 +15,7 @@ create table if not exists public.accounting_account_dimension_policies (
   status text not null default 'active'
     check (status in ('active','inactive')),
   metadata jsonb not null default '{}'::jsonb,
-  created_by uuid references auth.users(id) on delete set null,
+  configured_by uuid references auth.users(id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique(accounting_entity_id, account_id, dimension_type),
@@ -27,9 +27,9 @@ create table if not exists public.accounting_account_dimension_policies (
 create index if not exists idx_accounting_account_dimension_policies_entity_account
   on public.accounting_account_dimension_policies(accounting_entity_id, account_id, status);
 
-create index if not exists idx_accounting_account_dimension_policies_created_by
-  on public.accounting_account_dimension_policies(created_by)
-  where created_by is not null;
+create index if not exists idx_accounting_account_dimension_policies_configured_by
+  on public.accounting_account_dimension_policies(configured_by)
+  where configured_by is not null;
 
 alter table public.accounting_account_dimension_policies enable row level security;
 
