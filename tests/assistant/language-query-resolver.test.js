@@ -28,6 +28,29 @@ describe('BONDS language and query resolver', () => {
     ]));
   });
 
+  test('strips professional titles from person search entity', () => {
+    const result = resolveLanguageQuery('من هو المستشار المالي الدكتور طلال حسن الزهراني؟');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.entity).toEqual(expect.objectContaining({
+      type:'person',
+      text:'طلال حسن الزهراني'
+    }));
+    expect(result.selected_query).toBe('طلال حسن الزهراني');
+    expect(result.query_variants).toEqual(expect.arrayContaining([
+      'طلال حسن الزهراني',
+      'طلال حسن الزهراني سيرة',
+      'طلال حسن الزهراني biography'
+    ]));
+    expect(result.query_variants).not.toContain('المستشار المالي الدكتور طلال حسن الزهراني');
+  });
+
+  test('strips honorific prefixes from person search entity', () => {
+    const result = resolveLanguageQuery('من هو صاحب السمو الملكي الأمير محمد بن سلمان؟');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.entity.text).toBe('محمد بن سلمان');
+    expect(result.selected_query).toBe('محمد بن سلمان');
+  });
+
   test('strips a trailing UI ordinal from a person entity', () => {
     const result = resolveLanguageQuery('من هو عمر موسى 4.');
     expect(result.intent).toBe('person_lookup');
