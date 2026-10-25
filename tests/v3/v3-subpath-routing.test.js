@@ -31,6 +31,6 @@ describe('V3 subpath routing through Vercel', () => {
       'utf8'
     );
     expect(source).toContain("path.startsWith('/services/accounting/')");
-    expect(source).toContain("return servicesRouter(req, res, path, supabase, user)");
+    expect(source).toContain("return await servicesRouter(req, res, path, supabase, user)");
   });
 });
