@@ -203,4 +203,86 @@ describe('financial data intake phase 1', () => {
     expect(validation.quality_gate).toBe('PASS');
   });
 
+
+  test('supports tax health check intake without enabling a tax execution engine', () => {
+    const required = requirementsFor({
+      primaryAction: null,
+      serviceCode: 'tax_health_check',
+      values: {}
+    });
+    expect(required.supported).toBe(true);
+    expect(required.engine_code).toBeNull();
+    expect(required.intake_profile).toBe('tax_zakat');
+    expect(required.requirement_fields).toEqual(
+      expect.arrayContaining(['revenue','total_assets','total_liabilities','equity','output_vat','input_vat'])
+    );
+    expect(required.required_inputs).toEqual(
+      expect.arrayContaining(['revenue','total_assets','total_liabilities','equity'])
+    );
+  });
+
+  test('extracts VAT intake fields conservatively with provenance', () => {
+    const extracted = extractFinancialFields({
+      primaryAction: null,
+      serviceCode: 'vat_return_preparation',
+      parsed: {
+        sheet_name: 'VAT',
+        rows: [
+          ['Taxable sales','100000','SAR','2026'],
+          ['Output VAT','15000','SAR','2026'],
+          ['Taxable purchases','40000','SAR','2026'],
+          ['Input VAT','6000','SAR','2026']
+        ],
+        text: ''
+      }
+    });
+    expect(extracted.values).toMatchObject({
+      taxable_sales:100000,
+      output_vat:15000,
+      taxable_purchases:40000,
+      input_vat:6000
+    });
+    expect(extracted.validation.valid).toBe(true);
+    expect(extracted.engine_code).toBeNull();
+    expect(extracted.provenance.output_vat[0]).toMatchObject({
+      extraction_method:'tabular_parser',
+      sheet:'VAT',
+      row:2,
+      column:2
+    });
+  });
+
+  test('fails closed when required VAT fields are missing', () => {
+    const extracted = extractFinancialFields({
+      primaryAction: null,
+      serviceCode: 'vat_return_preparation',
+      parsed: {
+        rows: [['Output VAT','15000']],
+        text: ''
+      }
+    });
+    expect(extracted.validation.valid).toBe(false);
+    expect(extracted.validation.quality_gate).toBe('FAIL_CLOSED');
+    expect(extracted.validation.missing).toContain('input_vat');
+    expect(extracted.fields.find(x => x.field === 'input_vat').status).toBe('missing');
+  });
+
+  test('classifies zakat, VAT and tax invoice documents', () => {
+    expect(classifyDocumentType({ text:'الإقرار الزكوي للسنة المالية 2026' })).toBe('zakat_return');
+    expect(classifyDocumentType({ text:'إقرار ضريبة القيمة المضافة للربع الرابع' })).toBe('vat_return');
+    expect(classifyDocumentType({ text:'فاتورة ضريبية - ضريبة القيمة المضافة' })).toBe('tax_invoice');
+  });
+
+  test('builds direct intake dependency evidence when no execution engine exists', () => {
+    const graph = buildDependencyGraph({
+      requirementFields:['revenue','total_assets'],
+      serviceCode:'tax_health_check',
+      engineCode:null
+    });
+    expect(graph.edges).toEqual(expect.arrayContaining([
+      expect.objectContaining({from:'input:revenue',to:'service:tax_health_check',type:'required_input'}),
+      expect.objectContaining({from:'input:total_assets',to:'service:tax_health_check',type:'required_input'})
+    ]));
+  });
+
 });
