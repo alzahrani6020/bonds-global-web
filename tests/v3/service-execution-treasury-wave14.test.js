@@ -19,8 +19,8 @@ describe('Financial core wave 14 treasury execution contract', () => {
     expect(sql).toContain("'treasury_liquidity_run'");
     expect(sql).toContain("'automated'");
     expect(sql).toContain("'capability_plan'");
-    expect(sql).toContain("'no_external_execution'");
-    expect(sql).toContain("'no_hidden_limits'");
+    expect(sql).toContain('"no_external_execution":true');
+    expect(sql).toContain('"no_hidden_limits":true');
   });
 
   test('does not introduce AI, orchestrator, or external write execution', () => {
