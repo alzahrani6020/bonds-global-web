@@ -12,8 +12,6 @@ begin
      or exists(select 1 from public.finance_collections)
      or exists(select 1 from public.finance_contracts)
      or exists(select 1 from public.finance_revenue_exceptions)
-     or exists(select 1 from public.moyasar_invoices)
-     or exists(select 1 from public.bank_transfer_requests)
   then raise exception 'FINANCE_ENTITY_BACKFILL_REQUIRED'; end if;
 end;
 $$;
@@ -29,16 +27,12 @@ alter table public.finance_reconciliation_items add column if not exists account
 alter table public.finance_collections add column if not exists accounting_entity_id uuid;
 alter table public.finance_contracts add column if not exists accounting_entity_id uuid;
 alter table public.finance_revenue_exceptions add column if not exists accounting_entity_id uuid;
-alter table public.moyasar_invoices add column if not exists accounting_entity_id uuid;
-alter table public.bank_transfer_requests add column if not exists accounting_entity_id uuid;
 
 alter table public.finance_refunds alter column accounting_entity_id set not null, alter column source_financial_event_id set not null, alter column request_key set not null;
 alter table public.finance_reconciliation_items alter column accounting_entity_id set not null;
 alter table public.finance_collections alter column accounting_entity_id set not null;
 alter table public.finance_contracts alter column accounting_entity_id set not null;
 alter table public.finance_revenue_exceptions alter column accounting_entity_id set not null;
-alter table public.moyasar_invoices alter column accounting_entity_id set not null;
-alter table public.bank_transfer_requests alter column accounting_entity_id set not null;
 
 alter table public.finance_refunds add constraint finance_refunds_entity_fk foreign key(accounting_entity_id) references public.accounting_entities(id) on delete restrict;
 alter table public.finance_refunds add constraint finance_refunds_source_event_fk foreign key(accounting_entity_id,source_financial_event_id) references public.financial_events(accounting_entity_id,id) on delete restrict;
@@ -47,8 +41,6 @@ alter table public.finance_reconciliation_items add constraint finance_reconcili
 alter table public.finance_collections add constraint finance_collections_entity_fk foreign key(accounting_entity_id) references public.accounting_entities(id) on delete restrict;
 alter table public.finance_contracts add constraint finance_contracts_entity_fk foreign key(accounting_entity_id) references public.accounting_entities(id) on delete restrict;
 alter table public.finance_revenue_exceptions add constraint finance_revenue_exceptions_entity_fk foreign key(accounting_entity_id) references public.accounting_entities(id) on delete restrict;
-alter table public.moyasar_invoices add constraint moyasar_invoices_accounting_entity_fk foreign key(accounting_entity_id) references public.accounting_entities(id) on delete restrict;
-alter table public.bank_transfer_requests add constraint bank_transfer_requests_accounting_entity_fk foreign key(accounting_entity_id) references public.accounting_entities(id) on delete restrict;
 
 alter table public.finance_reconciliation_items drop constraint if exists finance_reconciliation_items_source_type_source_id_key;
 create unique index if not exists uq_finance_reconciliation_entity_source on public.finance_reconciliation_items(accounting_entity_id,source_type,source_id);
