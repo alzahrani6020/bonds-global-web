@@ -28,7 +28,7 @@ returns trigger
 language plpgsql
 security definer
 set search_path=public
-as $
+as $finance_seed$
 declare
   v_cash_account_id uuid;
 begin
@@ -64,7 +64,7 @@ begin
 
   return new;
 end;
-$;
+$finance_seed$;
 
 revoke all on function public.accounting_seed_entity_finance_defaults() from public,anon,authenticated;
 grant execute on function public.accounting_seed_entity_finance_defaults() to service_role;
