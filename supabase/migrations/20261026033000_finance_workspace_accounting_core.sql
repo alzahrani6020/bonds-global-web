@@ -22,6 +22,90 @@ create unique index if not exists uq_accounting_entities_active_business_identit
 on public.accounting_entities(created_by,normalized_name,base_currency)
 where status='active' and created_by is not null;
 
+
+create or replace function public.accounting_seed_entity_finance_defaults()
+returns trigger
+language plpgsql
+security definer
+set search_path=public
+as $
+declare
+  v_cash_account_id uuid;
+begin
+  insert into public.accounting_accounts(accounting_entity_id,code,name,account_type,is_postable,is_active)
+  values
+    (new.id,'1010','Cash and Bank','asset',true,true),
+    (new.id,'1100','Accounts Receivable','asset',true,true),
+    (new.id,'2100','Accounts Payable','liability',true,true),
+    (new.id,'4100','Service Revenue','revenue',true,true),
+    (new.id,'4200','Financing Success Fees','revenue',true,true),
+    (new.id,'4300','Rental Income','revenue',true,true),
+    (new.id,'5100','Operating Expenses','expense',true,true)
+  on conflict(accounting_entity_id,code) do nothing;
+
+  select id into v_cash_account_id
+  from public.accounting_accounts
+  where accounting_entity_id=new.id and code='1010'
+  limit 1;
+
+  if v_cash_account_id is not null then
+    insert into public.accounting_cash_accounts(accounting_entity_id,account_id,status,created_by)
+    values(new.id,v_cash_account_id,'active',new.created_by)
+    on conflict(accounting_entity_id,account_id)
+    do update set status='active',updated_at=now();
+  end if;
+
+  insert into public.accounting_cash_flow_policies(accounting_entity_id,event_type,cash_flow_category,status,created_by)
+  values
+    (new.id,'payment.received','operating','active',new.created_by),
+    (new.id,'refund.completed','operating','active',new.created_by)
+  on conflict(accounting_entity_id,event_type)
+  do update set cash_flow_category=excluded.cash_flow_category,status='active',updated_at=now();
+
+  return new;
+end;
+$;
+
+revoke all on function public.accounting_seed_entity_finance_defaults() from public,anon,authenticated;
+grant execute on function public.accounting_seed_entity_finance_defaults() to service_role;
+
+drop trigger if exists trg_accounting_seed_entity_finance_defaults on public.accounting_entities;
+create trigger trg_accounting_seed_entity_finance_defaults
+after insert on public.accounting_entities
+for each row execute function public.accounting_seed_entity_finance_defaults();
+
+insert into public.accounting_accounts(accounting_entity_id,code,name,account_type,is_postable,is_active)
+select e.id,v.code,v.name,v.account_type,true,true
+from public.accounting_entities e
+cross join (values
+  ('1010','Cash and Bank','asset'),
+  ('1100','Accounts Receivable','asset'),
+  ('2100','Accounts Payable','liability'),
+  ('4100','Service Revenue','revenue'),
+  ('4200','Financing Success Fees','revenue'),
+  ('4300','Rental Income','revenue'),
+  ('5100','Operating Expenses','expense')
+) as v(code,name,account_type)
+where e.status='active'
+on conflict(accounting_entity_id,code) do nothing;
+
+insert into public.accounting_cash_accounts(accounting_entity_id,account_id,status,created_by)
+select e.id,a.id,'active',e.created_by
+from public.accounting_entities e
+join public.accounting_accounts a
+  on a.accounting_entity_id=e.id and a.code='1010'
+where e.status='active'
+on conflict(accounting_entity_id,account_id)
+do update set status='active',updated_at=now();
+
+insert into public.accounting_cash_flow_policies(accounting_entity_id,event_type,cash_flow_category,status,created_by)
+select e.id,v.event_type,'operating','active',e.created_by
+from public.accounting_entities e
+cross join (values('payment.received'),('refund.completed')) as v(event_type)
+where e.status='active'
+on conflict(accounting_entity_id,event_type)
+do update set cash_flow_category=excluded.cash_flow_category,status='active',updated_at=now();
+
 alter table public.finance_refunds add column if not exists accounting_entity_id uuid, add column if not exists source_financial_event_id uuid, add column if not exists financial_event_id uuid, add column if not exists request_key text;
 alter table public.finance_reconciliation_items add column if not exists accounting_entity_id uuid;
 alter table public.finance_collections add column if not exists accounting_entity_id uuid;
