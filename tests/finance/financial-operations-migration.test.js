@@ -61,4 +61,20 @@ describe('financial operations migrations', () => {
     expect(sql).toContain('security invoker');
     expect(sql).not.toContain('security definer');
   });
+  test('advisor hardening covers financial foreign-key access paths', () => {
+    const sql = migration('20261025213000_financial_operations_index_hardening.sql');
+    for (const indexName of [
+      'idx_accounting_accounts_entity_parent',
+      'idx_accounting_entities_created_by',
+      'idx_accounting_journal_entries_entity_period',
+      'idx_accounting_journal_entries_entity_reversal',
+      'idx_accounting_journal_entries_posted_by',
+      'idx_accounting_journal_lines_entity_account_id',
+      'idx_accounting_journal_lines_entity_entry',
+      'idx_accounting_periods_closed_by'
+    ]) {
+      expect(sql).toContain(indexName);
+    }
+    expect((sql.match(/create index if not exists/g) || []).length).toBe(8);
+  });
 });
