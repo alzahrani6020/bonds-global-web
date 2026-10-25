@@ -107,8 +107,8 @@ begin
   if v_period_id is null then
     raise exception 'ACCOUNTING_OPEN_PERIOD_REQUIRED';
   end if;
-  if v_period_status = 'closed' then
-    raise exception 'ACCOUNTING_PERIOD_CLOSED';
+  if v_period_status <> 'open' then
+    raise exception 'ACCOUNTING_PERIOD_NOT_OPEN';
   end if;
 
   v_total_debit := nullif(p_posting#>>'{journal,total_debit}','')::numeric;
