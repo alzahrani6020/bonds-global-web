@@ -1540,8 +1540,9 @@ async function handleAccountingEntities(req, res, supabase, user) {
       try { body = await parseJsonBody(req); }
       catch (err) { return sendJson(res, 400, { ok:false, error:{ code:'INVALID_JSON', detail:err.message } }); }
 
-      const entity = await service.createForUser(user.id, body || {});
-      return sendJson(res, 201, { ok:true, entity });
+      const idempotencyKey = req.headers['idempotency-key'] || req.headers['x-idempotency-key'] || null;
+      const entity = await service.createForUser(user.id, body || {}, idempotencyKey);
+      return sendJson(res, entity.idempotent_replay ? 200 : 201, { ok:true, entity });
     }
 
     return sendJson(res, 405, { error: 'Method not allowed' });
@@ -1550,7 +1551,8 @@ async function handleAccountingEntities(req, res, supabase, user) {
     const clientErrors = new Set([
       'ACCOUNTING_ENTITY_NAME_REQUIRED',
       'ACCOUNTING_ENTITY_NAME_TOO_LONG',
-      'ACCOUNTING_ENTITY_CURRENCY_INVALID'
+      'ACCOUNTING_ENTITY_CURRENCY_INVALID',
+      'ACCOUNTING_ENTITY_IDEMPOTENCY_KEY_INVALID'
     ]);
     const status = clientErrors.has(code) ? 400 : 500;
     return sendJson(res, status, { ok:false, error:{ code } });
