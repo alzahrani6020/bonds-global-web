@@ -376,6 +376,47 @@ test('forces public research through search, exploration, evidence verification 
     expect(assessResearchAnswer(repaired, intent).ok).toBe(true);
   });
 
+  test('rejects raw Wikipedia/page-chrome dumps as person identity answers', () => {
+    const {
+      assessResearchAnswer,
+      isCleanPersonIdentitySentence
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        language:{language:'ar'},
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    const raw = 'محمد بن سلمان آل سعود - ويكيبيديا انتقل إلى المحتوى القائمة الرئيسة إنشاء حساب تسجيل دخول أدوات شخصية ولي العهد رئيس مجلس الوزراء';
+    expect(isCleanPersonIdentitySentence(raw, 'محمد بن سلمان')).toBe(false);
+    expect(assessResearchAnswer(raw, intent)).toEqual({
+      ok:false,
+      code:'PERSON_IDENTITY_CONTAMINATED'
+    });
+  });
+
+  test('accepts a short direct person identity sentence', () => {
+    const {
+      assessResearchAnswer,
+      isCleanPersonIdentitySentence
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        language:{language:'ar'},
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    const answer = 'محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.';
+    expect(isCleanPersonIdentitySentence(answer, 'محمد بن سلمان')).toBe(true);
+    expect(assessResearchAnswer(answer, intent)).toEqual({ ok:true, code:'PASS' });
+  });
+
   test('person identity repair rejects source-title shaped text and prefers direct identity sentences', () => {
     const {
       evidenceGroundedPersonIdentityRepair,
