@@ -19,7 +19,8 @@ describe('BONDS deterministic financial engine registry', () => {
       'scenario_forecast',
       'debt_schedule',
       'covenant_monitoring',
-      'credit_risk'
+      'credit_risk',
+      'treasury_liquidity'
     ]);
   });
 
@@ -331,7 +332,8 @@ describe('BONDS deterministic financial engine registry', () => {
       'scenario_forecast_run',
       'debt_schedule_run',
       'covenant_monitoring_run',
-      'credit_risk_run'
+      'credit_risk_run',
+      'treasury_liquidity_run'
     ];
 
     for (const action of actions) {
