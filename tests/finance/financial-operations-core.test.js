@@ -14,6 +14,9 @@ const {
   validateBalanced,
   postFinancialEvent
 } = require('../../lib/finance/accounting/posting-engine');
+const {
+  SupabasePostingStore
+} = require('../../lib/finance/accounting/supabase-posting-store');
 
 describe('BONDS financial operations core', () => {
   test('fails closed when accounting entity is missing', () => {
@@ -180,5 +183,45 @@ describe('BONDS financial operations core', () => {
     })).rejects.toThrow('POSTING_IDEMPOTENCY_CONFLICT');
 
     expect(store.commitPosting).not.toHaveBeenCalled();
+  });
+  test('Supabase posting store uses one atomic RPC and preserves replay state', async () => {
+    const rpc = jest.fn(async () => ({
+      data:{
+        ok:true,
+        state:'replayed',
+        posting_id:'jp-9',
+        event_id:'evt-9',
+        subledger_id:'sl-9',
+        period_id:'per-9'
+      },
+      error:null
+    }));
+    const store = new SupabasePostingStore({ rpc });
+    const posting = buildPosting({
+      id:'fevt_store_1',
+      type:'invoice.issued',
+      accounting_entity_id:'11111111-1111-1111-1111-111111111111',
+      effective_date:'2026-10-25T10:00:00Z',
+      amount:750,
+      source:{system:'crm',record_id:'inv-750'}
+    });
+
+    await store.claimEvent({
+      accounting_entity_id:posting.accounting_entity_id,
+      event_id:posting.event_id,
+      idempotency_key:posting.idempotency_key
+    });
+    const result = await store.commitPosting(posting);
+
+    expect(rpc).toHaveBeenCalledTimes(1);
+    expect(rpc).toHaveBeenCalledWith('accounting_commit_posting', {
+      p_event:posting.event,
+      p_posting:posting
+    });
+    expect(result).toMatchObject({
+      ok:true,
+      replayed:true,
+      posting_id:'jp-9'
+    });
   });
 });
