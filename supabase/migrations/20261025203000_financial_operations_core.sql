@@ -55,13 +55,17 @@ create table if not exists public.accounting_accounts (
   name text not null,
   account_type text not null
     check (account_type in ('asset','liability','equity','revenue','expense','contra_asset','contra_liability','contra_equity','contra_revenue','contra_expense')),
-  parent_id uuid references public.accounting_accounts(id) on delete restrict,
+  parent_id uuid,
   is_postable boolean not null default true,
   is_active boolean not null default true,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique(accounting_entity_id, code)
+  unique(accounting_entity_id, code),
+  unique(accounting_entity_id, id),
+  foreign key (accounting_entity_id, parent_id)
+    references public.accounting_accounts(accounting_entity_id, id)
+    on delete restrict
 );
 
 create index if not exists idx_accounting_accounts_entity_type
@@ -87,7 +91,8 @@ create table if not exists public.financial_events (
   created_at timestamptz not null default now(),
   unique(accounting_entity_id, event_key),
   unique(accounting_entity_id, idempotency_key),
-  unique(accounting_entity_id, source_system, source_record_id, event_type)
+  unique(accounting_entity_id, source_system, source_record_id, event_type),
+  unique(accounting_entity_id, id)
 );
 
 create index if not exists idx_financial_events_entity_effective
@@ -98,7 +103,7 @@ create index if not exists idx_financial_events_type
 create table if not exists public.accounting_subledger_entries (
   id uuid primary key default gen_random_uuid(),
   accounting_entity_id uuid not null references public.accounting_entities(id) on delete restrict,
-  financial_event_id uuid not null references public.financial_events(id) on delete restrict,
+  financial_event_id uuid not null,
   subledger_code text not null,
   source_record_id text not null,
   amount numeric(20,2) not null check (amount > 0),
@@ -107,7 +112,10 @@ create table if not exists public.accounting_subledger_entries (
     check (status in ('pending','posted','reversed')),
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
-  unique(accounting_entity_id, financial_event_id)
+  unique(accounting_entity_id, financial_event_id),
+  foreign key (accounting_entity_id, financial_event_id)
+    references public.financial_events(accounting_entity_id, id)
+    on delete restrict
 );
 
 create index if not exists idx_subledger_entity_code
@@ -116,8 +124,8 @@ create index if not exists idx_subledger_entity_code
 create table if not exists public.accounting_journal_entries (
   id uuid primary key default gen_random_uuid(),
   accounting_entity_id uuid not null references public.accounting_entities(id) on delete restrict,
-  financial_event_id uuid not null references public.financial_events(id) on delete restrict,
-  period_id uuid references public.accounting_periods(id) on delete restrict,
+  financial_event_id uuid not null,
+  period_id uuid,
   effective_at timestamptz not null,
   currency text not null check (currency ~ '^[A-Z]{3}$'),
   description text not null,
@@ -135,7 +143,14 @@ create table if not exists public.accounting_journal_entries (
     (status = 'posted' and posted_at is not null) or
     (status <> 'posted')
   ),
-  unique(accounting_entity_id, financial_event_id)
+  unique(accounting_entity_id, financial_event_id),
+  unique(accounting_entity_id, id),
+  foreign key (accounting_entity_id, financial_event_id)
+    references public.financial_events(accounting_entity_id, id)
+    on delete restrict,
+  foreign key (accounting_entity_id, period_id)
+    references public.accounting_periods(accounting_entity_id, id)
+    on delete restrict
 );
 
 create index if not exists idx_journal_entries_entity_effective
@@ -145,10 +160,10 @@ create index if not exists idx_journal_entries_period
 
 create table if not exists public.accounting_journal_lines (
   id uuid primary key default gen_random_uuid(),
-  journal_entry_id uuid not null references public.accounting_journal_entries(id) on delete cascade,
+  journal_entry_id uuid not null,
   accounting_entity_id uuid not null references public.accounting_entities(id) on delete restrict,
   line_no integer not null check (line_no > 0),
-  account_id uuid references public.accounting_accounts(id) on delete restrict,
+  account_id uuid not null,
   account_code text not null,
   account_name text not null,
   debit numeric(20,2) not null default 0 check (debit >= 0),
@@ -159,7 +174,13 @@ create table if not exists public.accounting_journal_lines (
     (debit > 0 and credit = 0) or
     (credit > 0 and debit = 0)
   ),
-  unique(journal_entry_id, line_no)
+  unique(journal_entry_id, line_no),
+  foreign key (accounting_entity_id, journal_entry_id)
+    references public.accounting_journal_entries(accounting_entity_id, id)
+    on delete cascade,
+  foreign key (accounting_entity_id, account_id)
+    references public.accounting_accounts(accounting_entity_id, id)
+    on delete restrict
 );
 
 create index if not exists idx_journal_lines_entity_account
