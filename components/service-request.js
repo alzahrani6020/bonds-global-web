@@ -389,8 +389,7 @@ async function submit(e){
       track('service_converted',{request_reference:d.request.request_reference,dataset_id:intakeDatasetId});
       showStatus(T.sent+' — '+d.request.request_reference,true);
       $('#srSubmit').disabled=true;
-      $('#srSuccessLink').href=lang==='ar'?'/my-bonds/':'/en/my-bonds/';
-      $('#srSuccessLink').hidden=false;
+      $('#srSuccessLink').hidden=true;
       return;
     }
 
@@ -478,7 +477,7 @@ async function submit(e){
   track('service_converted',{request_reference:d.request.request_reference});
   showStatus(T.sent+' — '+d.request.request_reference,true);
   $('#srSubmit').disabled=true;
-  $('#srSuccessLink').href=lang==='ar'?'/my-bonds/':'/en/my-bonds/';$('#srSuccessLink').hidden=false;
+  $('#srSuccessLink').hidden=true;
  }catch(err){showStatus(T.failed+': '+err.message,false)}
 }
 async function init(){
