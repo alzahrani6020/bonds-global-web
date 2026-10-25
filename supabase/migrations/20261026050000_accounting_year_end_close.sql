@@ -1168,7 +1168,6 @@ begin
 
     update public.accounting_journal_entries
     set
-      status='reversed',
       metadata=metadata || jsonb_build_object(
         'reversed_by_journal_id',v_reversal_journal_id,
         'year_end_reopened',true
