@@ -22,7 +22,10 @@ module.exports = async function handler(req, res) {
   setCors(res, req);
 
   const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
-  const path = url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/';
+  const rewrittenPath = String(req.query?.__path || url.searchParams.get('__path') || '').trim();
+  const path = rewrittenPath
+    ? '/' + rewrittenPath.replace(/^\/+/, '')
+    : (url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/');
 
   const route = req.query?.__route;
   if (route && String(route).startsWith('social-')) {
