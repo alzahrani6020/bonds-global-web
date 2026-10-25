@@ -309,6 +309,71 @@ test('forces public research through search, exploration, evidence verification 
     expect(hasConcretePersonIdentity('Jane Doe is the chief executive of the company.')).toBe(true);
   });
 
+  test('research acquisition trace summarizes crawl metadata without page text or full URLs', () => {
+    const { researchAcquisitionTrace } = require('../../lib/assistant/open-chat-tool-loop');
+    const trace = researchAcquisitionTrace({
+      search_attempts:[
+        { relevant_result_count:2 },
+        { relevant_result_count:1 }
+      ],
+      search:{ result:{ results:[{url:'https://example.com/a'}], result_count:1 } },
+      seeds:['https://example.com/a','https://blocked.example/x'],
+      exploration:{
+        result:{
+          pages:[],
+          failures:[
+            {
+              url:'https://example.com/private/person-profile',
+              evidence:{status_code:403, failure_class:'HTTP_403', text:'PRIVATE PAGE TEXT'}
+            }
+          ],
+          blocked:[
+            {url:'https://blocked.example/private/path', reason:'ROBOTS_DISALLOW'}
+          ],
+          coverage:{
+            discovered_count:2,
+            visited_count:2,
+            successful_count:0,
+            failed_count:1,
+            blocked_count:1,
+            pending_count:0,
+            unknowns:['NO_SUCCESSFUL_ACQUISITION']
+          },
+          recovery_attempts:[{seed:'https://example.com/a'}],
+          relevant_pages:[]
+        }
+      },
+      evidence:[]
+    });
+
+    expect(trace).toEqual(expect.objectContaining({
+      search_attempt_count:2,
+      relevant_search_result_count:3,
+      seed_count:2,
+      crawl_attempted:true,
+      fetched_count:0,
+      failed_count:1,
+      blocked_count:1,
+      relevant_page_count:0,
+      recovery_attempt_count:1,
+      verified_source_count:0,
+      evidence_count:0
+    }));
+    expect(trace.failure_samples[0]).toEqual({
+      host:'example.com',
+      status_code:403,
+      failure_class:'HTTP_403'
+    });
+    expect(trace.blocked_samples[0]).toEqual({
+      host:'blocked.example',
+      reason:'ROBOTS_DISALLOW'
+    });
+    const serialized = JSON.stringify(trace);
+    expect(serialized).not.toContain('/private/person-profile');
+    expect(serialized).not.toContain('/private/path');
+    expect(serialized).not.toContain('PRIVATE PAGE TEXT');
+  });
+
   test('repairs only answer-shape failures and keeps safety failures fail-closed', () => {
     expect(source).toContain("'PERSON_IDENTITY_TOO_GENERIC'");
     expect(source).toContain("'PERSON_IDENTITY_NOT_ANSWERED'");
