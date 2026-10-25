@@ -22,6 +22,8 @@ describe('financial operations migrations', () => {
 
   test('posting RPC is restricted to service role and validates account mappings', () => {
     const sql = migration('20261025204500_financial_posting_rpc.sql');
+    expect(sql).toContain('security invoker');
+    expect(sql).not.toContain('security definer');
     expect(sql).toContain(
       'grant execute on function public.accounting_commit_posting(jsonb,jsonb) to service_role;'
     );
@@ -38,5 +40,8 @@ describe('financial operations migrations', () => {
     expect(sql).toContain('check (total_debit = total_credit)');
     expect(sql).toContain("if v_status <> 'open' then");
     expect(sql).toContain('ACCOUNTING_PERIOD_NOT_OPEN');
+    expect(sql).toContain(
+      'grant select, insert, update, delete on public.accounting_journal_entries to service_role;'
+    );
   });
 });
