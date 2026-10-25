@@ -433,22 +433,29 @@ begin
     raise exception 'ACCOUNTING_ALLOCATION_REQUEST_KEY_INVALID';
   end if;
 
-  select r, a.code, a.name
-  into v_rule, v_source_code, v_source_name
+  select *
+  into v_rule
   from public.accounting_allocation_rules r
-  join public.accounting_accounts a
-    on a.accounting_entity_id = r.accounting_entity_id
-   and a.id = r.source_account_id
   where r.accounting_entity_id = p_accounting_entity_id
     and r.id = p_rule_id
     and r.status = 'active'
-    and r.allocation_method = 'fixed_percentage'
+    and r.allocation_method = 'fixed_percentage';
+
+  if v_rule.id is null then
+    raise exception 'ACCOUNTING_ALLOCATION_ACTIVE_RULE_REQUIRED';
+  end if;
+
+  select a.code, a.name
+  into v_source_code, v_source_name
+  from public.accounting_accounts a
+  where a.accounting_entity_id = p_accounting_entity_id
+    and a.id = v_rule.source_account_id
     and a.account_type = 'expense'
     and a.is_active = true
     and a.is_postable = true;
 
-  if v_rule.id is null then
-    raise exception 'ACCOUNTING_ALLOCATION_ACTIVE_RULE_REQUIRED';
+  if v_source_code is null then
+    raise exception 'ACCOUNTING_ALLOCATION_SOURCE_EXPENSE_ACCOUNT_REQUIRED';
   end if;
 
   perform public.accounting_assert_account_dimensions(
