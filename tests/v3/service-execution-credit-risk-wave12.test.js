@@ -20,8 +20,8 @@ describe('Financial core wave 12 credit risk execution contract', () => {
     expect(sql).toContain("'automated'");
     expect(sql).toContain("'capability_plan'");
     expect(sql).toContain("'none'");
-    expect(sql).toContain("'requires_governed_parameters'");
-    expect(sql).toContain("'does_not_infer_pd_lgd_from_score'");
+    expect(sql).toContain('"requires_governed_parameters":true');
+    expect(sql).toContain('"does_not_infer_pd_lgd_from_score":true');
   });
 
   test('maps exactly the credit-risk capability without introducing a parallel route', () => {
