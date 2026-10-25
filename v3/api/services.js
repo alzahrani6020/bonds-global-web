@@ -1343,11 +1343,32 @@ async function handleServiceDetail(req, res, supabase, code) {
     service:dependencyServices.find(x=>x.id===row.depends_on_service_id)||null
   }));
 
+  let intake = { supported:false, execution_status:null, execution_mode:null, requirement_fields:[] };
+  try {
+    const resolved = await loadExecutionProfile(supabase, code);
+    if (resolved) {
+      const intakeRequirements = requirementsFor({
+        primaryAction: resolved.profile.primary_action,
+        serviceCode: code,
+        values: {}
+      });
+      intake = {
+        supported: intakeRequirements.supported === true,
+        execution_status: resolved.profile.execution_status || 'request_only',
+        execution_mode: resolved.profile.execution_mode || 'request_only',
+        requirement_fields: intakeRequirements.requirement_fields || []
+      };
+    }
+  } catch (intakeError) {
+    console.warn('[services/detail] intake profile unavailable:', intakeError.message);
+  }
+
   return sendJson(res,200,{
     service,
     filters,
     availability:countryRes.data||null,
     capabilities:capRes.data||[],
+    intake,
     procedures,
     requirements,
     deliverables:delRes.data||[],
