@@ -240,6 +240,74 @@ describe('assistant request diagnostics', () => {
     expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
   });
 
+  test('exposes safe research acquisition counters without raw page content', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-acquisition-trace',
+      path:'OPEN_CHAT_RESEARCH',
+      loopResult:{
+        ok:true,
+        reply:'safe failure response',
+        failed:true,
+        trace:[
+          { action:'web_search', execution:{ ok:true } },
+          { action:'web_explore', execution:{ ok:true } }
+        ],
+        research:{
+          status:'insufficient_relevant_evidence',
+          decision_eligible:false,
+          source_count:0,
+          evidence_count:0,
+          acquisition_trace:{
+            search_attempt_count:8,
+            search_result_count:5,
+            relevant_search_result_count:3,
+            seed_count:3,
+            crawl_attempted:true,
+            discovered_count:3,
+            visited_count:3,
+            fetched_count:0,
+            failed_count:2,
+            blocked_count:1,
+            pending_count:0,
+            relevant_page_count:0,
+            recovery_attempt_count:3,
+            verification_attempted:false,
+            verified_source_count:0,
+            evidence_count:0,
+            crawl_unknowns:['NO_SUCCESSFUL_ACQUISITION'],
+            failure_samples:[
+              {host:'example.com', status_code:403, failure_class:'HTTP_403'}
+            ],
+            blocked_samples:[
+              {host:'blocked.example', reason:'ROBOTS_DISALLOW'}
+            ]
+          }
+        }
+      }
+    });
+
+    expect(result.acquisition_trace).toEqual(expect.objectContaining({
+      search_attempt_count:8,
+      search_result_count:5,
+      seed_count:3,
+      crawl_attempted:true,
+      fetched_count:0,
+      failed_count:2,
+      blocked_count:1,
+      relevant_page_count:0,
+      verification_attempted:false,
+      verified_source_count:0,
+      evidence_count:0
+    }));
+    expect(result.acquisition_trace.failure_samples[0]).toEqual({
+      host:'example.com',
+      status_code:403,
+      failure_class:'HTTP_403'
+    });
+    expect(JSON.stringify(result.acquisition_trace)).not.toContain('PRIVATE PAGE TEXT');
+    expect(JSON.stringify(result.acquisition_trace)).not.toContain('https://example.com/private/path');
+  });
+
   test('diagnostics output is metadata-only and excludes raw trace payloads', () => {
     const result = buildRequestDiagnostics({
       requestId:'req-safe',
