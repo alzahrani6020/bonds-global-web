@@ -129,5 +129,11 @@ describe('governed accounting entity user flow', () => {
     expect(source).toContain("if (path === '/services/accounting/entities')");
     expect(source).toContain("if (!user) return sendJson(res, 401, { error: 'Unauthorized' });");
     expect(source).toContain('AccountingEntityUserService');
+
+    const apiIndex = fs.readFileSync(
+      path.join(__dirname, '../../v3/api/index.js'),
+      'utf8'
+    );
+    expect(apiIndex).toContain("path.startsWith('/services/accounting/')");
   });
 });
