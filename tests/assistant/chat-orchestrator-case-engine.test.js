@@ -2,6 +2,7 @@ const {
   normalizePath,
   isHomepage,
   resolveIntent,
+  asksHumanEscalationIntent,
   asksCurrentService
 } = require('../../lib/assistant/chat-orchestrator');
 const {
@@ -22,6 +23,15 @@ describe('BONDS Chat Orchestrator + Case Engine', () => {
   test('detects current-service questions from page context intent', () => {
     expect(asksCurrentService('ما الخدمة التي أنا موجود فيها الآن؟')).toBe(true);
     expect(asksCurrentService('what is the current service?')).toBe(true);
+  });
+
+  test('does not mistake advisor/person lookup text for human escalation', () => {
+    expect(resolveIntent('من هو المستشار المالي الدكتور طلال حسن الزهراني')).toBe('information');
+    expect(resolveIntent('من هو مستشار محمد بن سلمان')).toBe('information');
+    expect(resolveIntent('ما هو دور المستشار المالي؟')).toBe('information');
+    expect(asksHumanEscalationIntent('أريد مستشار بشري')).toBe(true);
+    expect(asksHumanEscalationIntent('حوّلني إلى موظف')).toBe(true);
+    expect(asksHumanEscalationIntent('طلب مراجعة بشرية')).toBe(true);
   });
 
   test('classifies operational intents deterministically', () => {
