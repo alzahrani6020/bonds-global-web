@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "financial-operations-core",
-  "current_workstream": "wave1-accounting-foundation",
+  "current_workstream": "wave2-ledger-statements-normalization",
   "status": "in_progress",
-  "baseline_main_sha": "a1d3be6e9e352802bf0f80e9bbac1fea77012cf0",
+  "baseline_main_sha": "94c6ff66d06b16dfd0c9806097fa1117a4d26380",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -106,13 +106,13 @@
     "dual-core-roadmap-closeout"
   ],
   "currently_working_on": [
-    "financial-event-contract",
-    "accounting-policy-mapping",
-    "subledger-posting-engine",
-    "financial-period-control",
-    "atomic-supabase-posting"
+    "ledger-reporting-rpc",
+    "trial-balance-verification",
+    "financial-statements-engine",
+    "canonical-financial-mapping",
+    "ledger-to-existing-financial-engine-bridge"
   ],
-  "next_action": "verify financial operations core candidate through PR CI; do not apply production migrations or deploy until CI passes and the candidate is merged",
+  "next_action": "verify Wave 2 candidate through PR CI; merge only on full success; apply reporting migration and verify production database before release",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -124,7 +124,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "a1d3be6e9e352802bf0f80e9bbac1fea77012cf0",
+    "current_main_sha": "94c6ff66d06b16dfd0c9806097fa1117a4d26380",
     "superseded_candidate_prs": [
       472,
       475
@@ -199,7 +199,14 @@
     "phase6_candidate_base_sha": "8b45d942be4ecfcc15b6cbf3efc80a616e2489a8",
     "phase7_candidate_base_sha": "818ad1795215325a39584f5ce2bd84dfcd6a27db",
     "financial_operations_candidate_branch": "feat/financial-operations-core",
-    "financial_operations_candidate_status": "awaiting_pr_ci"
+    "financial_operations_candidate_status": "awaiting_pr_ci",
+    "financial_operations_wave1_merge_sha": "e32ad68fec0654aa2229f807050a0f27486f30f7",
+    "financial_operations_index_hardening_merge_sha": "94c6ff66d06b16dfd0c9806097fa1117a4d26380",
+    "financial_operations_database_verified": true,
+    "financial_operations_smoke_rollback_verified": true,
+    "financial_operations_unindexed_fk_findings": 0,
+    "financial_operations_wave2_candidate_branch": "feat/financial-operations-core",
+    "financial_operations_wave2_candidate_status": "awaiting_pr_ci"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -220,5 +227,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "financial-operations-core-wave1"
+  "updated_by": "financial-operations-core-wave2"
 }
