@@ -77,4 +77,18 @@ describe('financial operations migrations', () => {
     }
     expect((sql.match(/create index if not exists/g) || []).length).toBe(8);
   });
+  test('ledger reporting RPC remains service-role only and security invoker', () => {
+    const sql = migration('20261025220000_accounting_ledger_reporting_rpc.sql');
+    expect(sql).toContain('security invoker');
+    expect(sql).not.toContain('security definer');
+    expect(sql).toContain(
+      'revoke all on function public.accounting_ledger_balances(uuid,date,date) from anon, authenticated;'
+    );
+    expect(sql).toContain(
+      'grant execute on function public.accounting_ledger_balances(uuid,date,date) to service_role;'
+    );
+    expect(sql).toContain("j.status = 'posted'");
+    expect(sql).toContain('ACCOUNTING_ENTITY_NOT_ACTIVE');
+    expect(sql).toContain('ACCOUNTING_REPORT_DATE_RANGE_INVALID');
+  });
 });
