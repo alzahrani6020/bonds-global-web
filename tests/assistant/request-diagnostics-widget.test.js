@@ -61,10 +61,10 @@ describe('assistant diagnostics widget contract', () => {
     expect(source).toContain('overflow-y:auto');
   });
 
-  test('diagnostics collapse on pass and expose a details toggle', () => {
+  test('diagnostics stay compact by default and expose details only on demand', () => {
     expect(source).toContain('class="bonds-ai-diagnostics-toggle"');
-    expect(source).toContain("const shouldExpand = safe.status !== 'PASS';");
-    expect(source).toContain("diagnosticsPanel.classList.toggle('expanded', shouldExpand)");
+    expect(source).toContain('const shouldExpand = false;');
+    expect(source).toContain("diagnosticsPanel.classList.remove('expanded')");
     expect(source).toContain("diagnosticsToggle.addEventListener('click'");
   });
 
