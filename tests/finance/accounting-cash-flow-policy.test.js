@@ -22,6 +22,11 @@ const HARDENING = fs.readFileSync(
   'utf8'
 );
 
+const SECURITY_HARDENING = fs.readFileSync(
+  path.join(__dirname, '../../supabase/migrations/20261026010000_cash_flow_security_hardening.sql'),
+  'utf8'
+);
+
 describe('explicit-policy cash flow reporting', () => {
   test('builds operating/investing/financing statement with opening and closing cash', () => {
     const statement = buildCashFlowStatement({
@@ -210,5 +215,35 @@ describe('explicit-policy cash flow reporting', () => {
     expect(HARDENING).toContain('using (user_id = (select auth.uid()))');
     expect(HARDENING).toContain('with check (user_id = (select auth.uid()))');
     expect(HARDENING).not.toMatch(/user_id\s*=\s*auth\.uid\(\)/);
+  });
+
+  test('security hardening pins legacy search paths and narrows user RPC execution', () => {
+    expect(SECURITY_HARDENING).toContain(
+      'alter function public.touch_cash_flow_updated_at()'
+    );
+    expect(SECURITY_HARDENING).toContain(
+      'alter function public.normalize_cash_flow_report()'
+    );
+    expect(SECURITY_HARDENING).toContain(
+      "coalesce((select auth.role()), '') = 'authenticated'"
+    );
+
+    for (const signature of [
+      'public.accounting_user_can_access_entity(uuid)',
+      'public.accounting_user_ledger_balances(uuid,date,date)',
+      'public.accounting_user_cash_balance(uuid,date)',
+      'public.accounting_user_cash_flow_movements(uuid,date,date)'
+    ]) {
+      expect(SECURITY_HARDENING).toContain(
+        `revoke all on function ${signature}`
+      );
+      expect(SECURITY_HARDENING).toContain(
+        `grant execute on function ${signature}`
+      );
+    }
+
+    expect(SECURITY_HARDENING).toContain(
+      'from public, anon, service_role;'
+    );
   });
 });
