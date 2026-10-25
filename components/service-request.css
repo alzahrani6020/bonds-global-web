@@ -15,3 +15,5 @@
 .sr-intake-row input{width:100%}
 .sr-intake-source{grid-column:1/-1}
 @media(max-width:700px){.sr-intake-row{grid-template-columns:1fr 1fr}.sr-intake-source{grid-column:1/-1}}
+
+.service-request-page [hidden]{display:none!important}
