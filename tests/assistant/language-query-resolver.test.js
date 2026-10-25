@@ -118,4 +118,34 @@ describe('BONDS language and query resolver', () => {
     expect(result.entity.text).toBe('\u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
   });
 
+  test('promotes titled tell-me-about request to person lookup with a versioned frame', () => {
+    const result = resolveLanguageQuery('حدثني عن الدكتور طلال حسن الزهراني');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.entity.type).toBe('person');
+    expect(result.entity.text).toBe('طلال حسن الزهراني');
+    expect(result.entity.person_entity_frame).toEqual(expect.objectContaining({
+      person_identity_schema_version:1,
+      raw_mention:'الدكتور طلال حسن الزهراني',
+      canonical_name:'طلال حسن الزهراني'
+    }));
+    expect(result.semantic_frame.person_entity_frame.canonical_name).toBe('طلال حسن الزهراني');
+  });
+
+  test('promotes titled information-about request to person lookup', () => {
+    const result = resolveLanguageQuery('معلومات عن المحامي أحمد محمد علي');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.entity.text).toBe('أحمد محمد علي');
+    expect(result.entity.person_entity_frame.qualifiers).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ value:'المحامي', source:'user', verified:false })
+      ])
+    );
+  });
+
+  test('keeps generic non-person topic phrasing out of person lookup', () => {
+    const result = resolveLanguageQuery('حدثني عن مستقبل الذكاء الاصطناعي التوليدي');
+    expect(result.intent).toBe('web_research');
+    expect(result.entity.type).toBe('topic');
+  });
+
 });

@@ -71,4 +71,13 @@ describe('BONDS Chat Orchestrator + Case Engine', () => {
     expect(state.boundary).toContain('financial_analysis');
     expect(state.last_action.code).toBe('RUN_REGISTERED_ENGINE');
   });
+  test('person lookup outranks ambiguous advisor wording but explicit human escalation remains explicit', () => {
+    expect(resolveIntent('حدثني عن المستشار طلال حسن الزهراني')).toBe('information');
+    expect(resolveIntent('معلومات عن المحامي أحمد محمد علي')).toBe('information');
+    expect(resolveIntent('من هو مستشار محمد بن سلمان')).toBe('information');
+
+    expect(resolveIntent('أريد مستشار بشري')).toBe('escalation');
+    expect(resolveIntent('وصلني مع موظف')).toBe('escalation');
+  });
+
 });
