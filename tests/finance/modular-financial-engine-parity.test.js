@@ -24,7 +24,7 @@ function stable(result) {
 
 describe('modular financial engine architecture parity', () => {
   test('preserves engine version and registry surface', () => {
-    expect(ENGINE_VERSION).toBe('1.3.0');
+    expect(ENGINE_VERSION).toBe('1.4.0');
     expect(listFinancialEngines().map(item => item.code)).toEqual([
       'financial_analysis',
       'cash_flow_analysis',
@@ -33,7 +33,9 @@ describe('modular financial engine architecture parity', () => {
       'feasibility',
       'valuation',
       'risk_analysis',
-      'scenario_forecast'
+      'scenario_forecast',
+      'debt_schedule',
+      'covenant_monitoring'
     ]);
   });
 
