@@ -30,4 +30,13 @@ describe('finance accounting entity onboarding UI', () => {
     expect(fn).not.toContain('user_id');
     expect(fn).not.toContain('created_by');
   });
+
+  test('locks duplicate submits and sends an idempotency key', () => {
+    const fn = SOURCE.match(/async function createAccountingEntity\\(ev\\)[\\s\\S]*?finally\\{[\\s\\S]*?\\}\\}/)?.[0] || '';
+    expect(SOURCE).toContain('id="accountingEntitySubmit"');
+    expect(fn).toContain('accountingEntityCreateInFlight');
+    expect(fn).toContain("'Idempotency-Key':accountingEntityRequestKey");
+    expect(fn).toContain('submit.disabled=true');
+    expect(fn).toContain('submit.disabled=false');
+  });
 });
