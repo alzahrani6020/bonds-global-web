@@ -376,6 +376,68 @@ test('forces public research through search, exploration, evidence verification 
     expect(assessResearchAnswer(repaired, intent).ok).toBe(true);
   });
 
+  test('person identity repair rejects source-title shaped text and prefers direct identity sentences', () => {
+    const {
+      evidenceGroundedPersonIdentityRepair,
+      assessResearchAnswer
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        language:{language:'ar'},
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    const repaired = evidenceGroundedPersonIdentityRepair(
+      intent,
+      {
+        mode:'verified_source_digest',
+        known:[],
+        sources:[]
+      },
+      [
+        {
+          title:'لقاء ولي العهد السعودي محمد بن سلمان مع مجلة تايم',
+          text:[
+            'لقاء ولي العهد السعودي محمد بن سلمان مع مجلة تايم.',
+            'محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.'
+          ].join(' ')
+        }
+      ]
+    );
+
+    expect(repaired).toBe('محمد بن سلمان هو ولي عهد المملكة العربية السعودية ورئيس مجلس الوزراء.');
+    expect(assessResearchAnswer(repaired, intent).ok).toBe(true);
+  });
+
+  test('person identity repair does not return a source title as the final answer', () => {
+    const { evidenceGroundedPersonIdentityRepair } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    const intent = {
+      language_plan:{
+        language:{language:'ar'},
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    };
+
+    expect(
+      evidenceGroundedPersonIdentityRepair(
+        intent,
+        { mode:'verified_source_digest', known:[], sources:[] },
+        [
+          {
+            title:'لقاء ولي العهد السعودي محمد بن سلمان مع مجلة تايم',
+            text:'لقاء ولي العهد السعودي محمد بن سلمان مع مجلة تايم.'
+          }
+        ]
+      )
+    ).toBeNull();
+  });
+
   test('evidence-grounded person repair fails closed when no concrete verified identity exists', () => {
     const { evidenceGroundedPersonIdentityRepair } =
       require('../../lib/assistant/open-chat-tool-loop');
