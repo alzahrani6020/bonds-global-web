@@ -12,6 +12,7 @@ const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const FundingCases = require('../lib/api/funding-cases-admin');
 const { logCommercialEvent } = require('../lib/analytics/commercial-events');
+const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -2788,90 +2789,34 @@ async function requireFinanceApprover(sb, admin) {
   if (role !== 'super_admin') throw forbidden('Super admin required for refund approval');
 }
 
-async function getFinanceOverview(sb) {
-  const [
-    invoicesRes,
-    transfersRes,
-    subscriptionsRes,
-    refundsRes,
-    reconciliationRes,
-    collectionsRes,
-    contractsRes,
-    exceptionsRes
-  ] = await Promise.all([
-    sb.from('moyasar_invoices').select('id, user_id, invoice_id, tier, amount, currency, status, paid_at, created_at, updated_at').order('created_at', { ascending: false }).limit(1000),
-    sb.from('bank_transfer_requests').select('*').order('created_at', { ascending: false }).limit(1000),
-    sb.from('subscriptions').select('*').order('created_at', { ascending: false }).limit(1000),
-    sb.from('finance_refunds').select('*').order('created_at', { ascending: false }).limit(1000),
-    sb.from('finance_reconciliation_items').select('*').order('created_at', { ascending: false }).limit(1000),
-    sb.from('finance_collections').select('*').order('due_date', { ascending: true }).limit(1000),
-    sb.from('finance_contracts').select('*').order('end_date', { ascending: true }).limit(1000),
-    sb.from('finance_revenue_exceptions').select('*').order('created_at', { ascending: false }).limit(1000)
-  ]);
-  for (const result of [invoicesRes, transfersRes, subscriptionsRes, refundsRes, reconciliationRes, collectionsRes, contractsRes, exceptionsRes]) {
-    if (result.error) throw result.error;
-  }
-
-  const invoices = invoicesRes.data || [];
-  const transfers = transfersRes.data || [];
-  const refunds = refundsRes.data || [];
-  const reconciliation = reconciliationRes.data || [];
-  const collections = collectionsRes.data || [];
-  const contracts = contractsRes.data || [];
-  const exceptions = exceptionsRes.data || [];
-  const paidInvoices = invoices.filter(x => x.status === 'paid');
-  const verifiedTransfers = transfers.filter(x => x.status === 'verified');
-  const grossPaid = paidInvoices.reduce((s,x)=>s+Number(x.amount||0),0)
-    + verifiedTransfers.reduce((s,x)=>s+Number(x.amount_sar||0),0);
-  const completedRefunds = refunds.filter(x => x.status === 'completed').reduce((s,x)=>s+Number(x.amount||0),0);
-  const now = Date.now();
-  const due30 = contracts.filter(c => c.end_date && new Date(c.end_date).getTime() >= now && new Date(c.end_date).getTime() <= now + 30*86400000).length;
-
-  return {
-    success: true,
-    summary: {
-      grossPaid,
-      completedRefunds,
-      netCollected: grossPaid - completedRefunds,
-      reconciliationExceptions: reconciliation.filter(x => ['unmatched','variance'].includes(x.status)).length,
-      overdueCollections: collections.filter(x => !['paid','written_off'].includes(x.status) && new Date(x.due_date).getTime() < now).length,
-      contractsExpiring30d: due30,
-      openRevenueExceptions: exceptions.filter(x => x.status !== 'resolved' && x.status !== 'ignored').length
-    },
-    invoices,
-    bankTransfers: transfers,
-    subscriptions: subscriptionsRes.data || [],
-    refunds,
-    reconciliation,
-    collections,
-    contracts,
-    revenueExceptions: exceptions
-  };
+async function getFinanceOverview(sb, userId, query = {}) {
+  const service = new FinanceWorkspaceService(sb);
+  return service.overview({
+    userId,
+    accountingEntityId: query.accounting_entity_id,
+    from: query.from,
+    to: query.to
+  });
 }
 
 async function createFinanceRefund(sb, body, admin, req) {
-  const amount = Number(body?.amount || 0);
-  if (!Number.isFinite(amount) || !(amount > 0)) throw badRequest('positive amount required');
-  const invoiceId = financeOptionalUuid(body?.invoice_id, 'invoice_id');
-  const userId = financeOptionalUuid(body?.user_id, 'user_id');
-  const externalReference = String(body?.external_reference || '').trim();
-  const reason = String(body?.reason || '').trim();
-  if (!invoiceId && !externalReference) throw badRequest('invoice_id or external_reference required');
-  if (!reason) throw badRequest('reason required');
-  const row = {
-    user_id: userId,
-    invoice_id: invoiceId,
-    external_reference: externalReference.slice(0, 200) || null,
-    amount,
-    currency: financeCurrency(body?.currency),
-    reason: reason.slice(0, 2000),
-    status: 'requested',
-    requested_by: admin.id
-  };
-  const { data, error } = await sb.from('finance_refunds').insert([row]).select().single();
-  if (error) throw error;
-  await logAdminAction(sb, admin, 'finance_refund_request', 'finance_refund', data.id, null, { amount, invoice_id: row.invoice_id }, req);
-  return { success: true, refund: data };
+  const service = new FinanceWorkspaceService(sb);
+  const result = await service.createRefundRequest({
+    userId: admin.id,
+    accountingEntityId: body?.accounting_entity_id,
+    sourceFinancialEventId: body?.source_financial_event_id,
+    amount: body?.amount,
+    reason: body?.reason,
+    requestKey: body?.request_key
+  });
+  const refund = result.refund;
+  await logAdminAction(sb, admin, 'finance_refund_request', 'finance_refund', refund.id, null, {
+    accounting_entity_id: refund.accounting_entity_id,
+    source_financial_event_id: refund.source_financial_event_id,
+    amount: refund.amount,
+    replayed: result.replayed === true
+  }, req);
+  return { success: true, refund, replayed: result.replayed === true };
 }
 
 async function updateFinanceRefund(sb, body, admin, req) {
@@ -2883,6 +2828,9 @@ async function updateFinanceRefund(sb, body, admin, req) {
   const { data: current, error: currentError } = await sb.from('finance_refunds')
     .select('*').eq('id', id).single();
   if (currentError) throw currentError;
+
+  const service = new FinanceWorkspaceService(sb);
+  await service.assertEntityAccess(admin.id, current.accounting_entity_id);
 
   const transitions = {
     requested: new Set(['approved','rejected']),
@@ -2896,6 +2844,17 @@ async function updateFinanceRefund(sb, body, admin, req) {
     throw badRequest('invalid refund status transition');
   }
 
+  if (status === 'completed') {
+    if (!current.approved_by) throw badRequest('refund must be approved before completion');
+    const completed = await service.completeRefund({ userId: admin.id, refund: current, actorId: admin.id });
+    await logAdminAction(sb, admin, 'finance_refund_update', 'finance_refund', id, null, {
+      from_status: current.status,
+      to_status: status,
+      financial_event_id: completed.refund.financial_event_id
+    }, req);
+    return { success: true, refund: completed.refund, replayed: completed.replayed === true };
+  }
+
   const updates = { status, updated_at: new Date().toISOString() };
   if (status === 'approved') {
     await requireFinanceApprover(sb, admin);
@@ -2904,15 +2863,14 @@ async function updateFinanceRefund(sb, body, admin, req) {
     }
     updates.approved_by = admin.id;
   }
-  if (status === 'processing') {
-    if (!current.approved_by) throw badRequest('refund must be approved before processing');
-  }
-  if (status === 'completed') {
-    if (!current.approved_by) throw badRequest('refund must be approved before completion');
-    updates.completed_at = new Date().toISOString();
+  if (status === 'processing' && !current.approved_by) {
+    throw badRequest('refund must be approved before processing');
   }
 
-  const { data, error } = await sb.from('finance_refunds').update(updates).eq('id', id).select().single();
+  const { data, error } = await sb.from('finance_refunds').update(updates)
+    .eq('id', id)
+    .eq('accounting_entity_id', current.accounting_entity_id)
+    .select().single();
   if (error) throw error;
   await logAdminAction(sb, admin, 'finance_refund_update', 'finance_refund', id, null, {
     from_status: current.status,
@@ -2923,6 +2881,10 @@ async function updateFinanceRefund(sb, body, admin, req) {
 }
 
 async function upsertReconciliationItem(sb, body, admin, req) {
+  const accountingEntityId = financeOptionalUuid(body?.accounting_entity_id, 'accounting_entity_id');
+  if (!accountingEntityId) throw badRequest('accounting_entity_id required');
+  const service = new FinanceWorkspaceService(sb);
+  await service.assertEntityAccess(admin.id, accountingEntityId);
   const sourceType = body?.source_type;
   const sourceId = String(body?.source_id || '').trim();
   if (!sourceType || !sourceId) throw badRequest('source_type and source_id required');
@@ -2934,6 +2896,7 @@ async function upsertReconciliationItem(sb, body, admin, req) {
   if (expectedAmount != null && !Number.isFinite(expectedAmount)) throw badRequest('invalid expected_amount');
   if (actualAmount != null && !Number.isFinite(actualAmount)) throw badRequest('invalid actual_amount');
   const row = {
+    accounting_entity_id: accountingEntityId,
     source_type: sourceType,
     source_id: sourceId.slice(0, 250),
     expected_amount: expectedAmount,
@@ -2946,13 +2909,17 @@ async function upsertReconciliationItem(sb, body, admin, req) {
     updated_at: new Date().toISOString()
   };
   const { data, error } = await sb.from('finance_reconciliation_items')
-    .upsert(row, { onConflict: 'source_type,source_id' }).select().single();
+    .upsert(row, { onConflict: 'accounting_entity_id,source_type,source_id' }).select().single();
   if (error) throw error;
   await logAdminAction(sb, admin, 'finance_reconciliation_upsert', 'finance_reconciliation', data.id, null, { source_type: sourceType, source_id: sourceId, status: data.status }, req);
   return { success: true, reconciliation: data };
 }
 
 async function createRevenueException(sb, body, admin, req) {
+  const accountingEntityId = financeOptionalUuid(body?.accounting_entity_id, 'accounting_entity_id');
+  if (!accountingEntityId) throw badRequest('accounting_entity_id required');
+  const service = new FinanceWorkspaceService(sb);
+  const entityAccess = await service.assertEntityAccess(admin.id, accountingEntityId);
   const category = String(body?.category || '').trim();
   const description = String(body?.description || '').trim();
   if (!category || !description) throw badRequest('category and description required');
@@ -2961,12 +2928,13 @@ async function createRevenueException(sb, body, admin, req) {
   const amountImpact = Number(body?.amount_impact || 0);
   if (!Number.isFinite(amountImpact)) throw badRequest('invalid amount_impact');
   const row = {
+    accounting_entity_id: accountingEntityId,
     user_id: financeOptionalUuid(body?.user_id, 'user_id'),
     organization_id: financeOptionalUuid(body?.organization_id, 'organization_id'),
     category: category.slice(0, 120),
     description: description.slice(0, 5000),
     amount_impact: amountImpact,
-    currency: financeCurrency(body?.currency),
+    currency: financeCurrency(body?.currency || entityAccess.entity.base_currency),
     severity,
     status: 'open',
     owner_user_id: financeOptionalUuid(body?.owner_user_id, 'owner_user_id') || admin.id,
@@ -4741,8 +4709,8 @@ async function handler(req, res) {
         return res.status(200).json(await getSecurityOperationsOverview(sb));
       }
       if (action === 'finance-overview') {
-        await requireAdminPermission(req, sb, 'billing.read');
-        return res.status(200).json(await getFinanceOverview(sb));
+        const access = await requireAdminPermission(req, sb, 'billing.read');
+        return res.status(200).json(await getFinanceOverview(sb, access.user.id, req.query || {}));
       }
       if (action === 'support-overview') {
         await requireAdminPermission(req, sb, 'support.manage');
