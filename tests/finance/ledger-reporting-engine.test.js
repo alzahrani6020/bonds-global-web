@@ -10,7 +10,7 @@ const {
 } = require('../../lib/finance/accounting/ledger-report-engine');
 const {
   runFinancialEngineFromLedger
-} = require('../../lib/finance/accounting/ledger-analysis-bridge');
+} = require('../../lib/finance/financial-engine-registry');
 const {
   SupabaseLedgerReportingStore
 } = require('../../lib/finance/accounting/supabase-ledger-reporting-store');
