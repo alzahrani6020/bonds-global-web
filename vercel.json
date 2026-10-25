@@ -64,7 +64,7 @@
     },
     {
       "source": "/api/v3/(.*)",
-      "destination": "/api/v3"
+      "destination": "/api/v3?__path=$1"
     },
     {
       "source": "/api/analyze-feasibility-v2",
