@@ -659,6 +659,35 @@ begin
   end if;
 
   if exists (
+    with ordered_periods as (
+      select
+        p.starts_on,
+        p.ends_on,
+        lag(p.ends_on) over(order by p.starts_on,p.ends_on,p.id) as previous_end
+      from public.accounting_periods p
+      where p.accounting_entity_id=p_accounting_entity_id
+        and p.starts_on >= p_fiscal_year_start
+        and p.ends_on <= p_fiscal_year_end
+    )
+    select 1
+    from ordered_periods
+    where previous_end is not null
+      and starts_on <> previous_end + 1
+  ) then
+    raise exception 'ACCOUNTING_YEAR_END_PERIODS_NOT_CONTIGUOUS';
+  end if;
+
+  if (
+    select coalesce(sum((p.ends_on-p.starts_on)+1),0)
+    from public.accounting_periods p
+    where p.accounting_entity_id=p_accounting_entity_id
+      and p.starts_on >= p_fiscal_year_start
+      and p.ends_on <= p_fiscal_year_end
+  ) <> ((p_fiscal_year_end-p_fiscal_year_start)+1) then
+    raise exception 'ACCOUNTING_YEAR_END_PERIOD_COVERAGE_INVALID';
+  end if;
+
+  if exists (
     select 1
     from public.accounting_periods p
     where p.accounting_entity_id=p_accounting_entity_id
