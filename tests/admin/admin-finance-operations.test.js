@@ -1,55 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const ROOT = path.join(__dirname, '../..');
-const read = file => fs.readFileSync(path.join(ROOT, file), 'utf8');
-
-describe('Admin Finance Operations', () => {
-  test('finance schema covers refunds reconciliation collections contracts and exceptions', () => {
-    const sql = read('supabase/migrations/20261012223000_admin_finance_operations.sql');
-    expect(sql).toContain('CREATE TABLE IF NOT EXISTS public.finance_refunds');
-    expect(sql).toContain('CREATE TABLE IF NOT EXISTS public.finance_reconciliation_items');
-    expect(sql).toContain('CREATE TABLE IF NOT EXISTS public.finance_collections');
-    expect(sql).toContain('CREATE TABLE IF NOT EXISTS public.finance_contracts');
-    expect(sql).toContain('CREATE TABLE IF NOT EXISTS public.finance_revenue_exceptions');
-    expect(sql).toContain('variance_amount numeric');
-    expect(sql).toContain('REVOKE ALL ON public.finance_refunds FROM anon, authenticated');
-  });
-
-  test('finance API aggregates existing payments and audited operations', () => {
-    const api = read('api/admin.js');
-    expect(api).toContain('async function getFinanceOverview(sb)');
-    expect(api).toContain("sb.from('moyasar_invoices')");
-    expect(api).toContain("sb.from('bank_transfer_requests')");
-    expect(api).toContain("sb.from('subscriptions')");
-    expect(api).toContain('async function createFinanceRefund');
-    expect(api).toContain('async function upsertReconciliationItem');
-    expect(api).toContain('FINANCE_UUID_RE');
-    expect(api).toContain('requireFinanceApprover');
-    expect(api).toContain('Refund requester cannot approve the same refund');
-    expect(api).toContain('invalid refund status transition');
-    expect(api).toContain('invalid reconciliation source_type');
-    expect(api).toContain('invalid reconciliation status');
-    expect(api).toContain('async function createRevenueException');
-    expect(api).toContain("'finance_refund_request'");
-    expect(api).toContain("'finance_reconciliation_upsert'");
-  });
-
-  test('finance workspace is linked from admin navigation', () => {
-    const page = read('admin/finance.html');
-    const dashboard = read('admin/dashboard.html');
-    expect(page).toContain('Finance Operations');
-    expect(page).toContain('Reconciliation Exceptions');
-    expect(page).toContain('Revenue Exceptions');
-    expect(page).toContain('aria-label="شدة الاستثناء"');
-    expect(page).toContain('refundInvoiceId');
-    expect(page).toContain('refundExternalRef');
-    expect(page).toContain('.muted{color:#475569}');
-    expect(dashboard).toContain('/admin/finance.html?embed=1');
-  });
-
-  test('finance UI escapes dynamic values and does not expose service role', () => {
-    const page = read('admin/finance.html');
-    expect(page).toContain('BondsAdminCommon.escapeHtml');
-    expect(page).not.toContain('SUPABASE_SERVICE_ROLE_KEY');
-  });
+const fs=require('fs');const path=require('path');const ROOT=path.join(__dirname,'../..');const read=file=>fs.readFileSync(path.join(ROOT,file),'utf8');
+describe('Admin Finance Operations',()=>{
+test('finance schema is governed by accounting entity and atomic refund invariants',()=>{const sql=read('supabase/migrations/20261026033000_finance_workspace_accounting_core.sql');expect(sql).toContain('ACCOUNTING_ENTITY_DUPLICATES_MUST_BE_RESOLVED');expect(sql).toContain('FINANCE_ENTITY_BACKFILL_REQUIRED');expect(sql).toContain('uq_accounting_entities_active_business_identity');expect(sql).toContain('source_financial_event_id');expect(sql).toContain('finance_create_refund_request');expect(sql).toContain('pg_advisory_xact_lock');expect(sql).toContain('FINANCE_REFUND_EXCEEDS_AVAILABLE_AMOUNT');expect(sql).toContain('finance_complete_refund');expect(sql).toContain('accounting_commit_posting');expect(sql).toContain('accounting_seed_entity_finance_defaults');expect(sql).toContain("('1010','Cash and Bank','asset')");expect(sql).toContain("('refund.completed')")});
+test('finance API reads ledger-derived workspace instead of legacy payment sums',()=>{const api=read('api/admin.js');const service=read('lib/finance/accounting/finance-workspace-service.js');expect(api).toContain('FinanceWorkspaceService');expect(api).toContain("getFinanceOverview(sb, access.user.id, req.query || {})");expect(service).toContain('SupabaseLedgerReportingStore');expect(service).toContain('buildFinancialStatements');expect(service).not.toContain("from('moyasar_invoices')");expect(service).not.toContain("from('bank_transfer_requests')");expect(service).not.toContain("from('subscriptions')")});
+test('refund is entity scoped and based on a posted payment financial event',()=>{const service=read('lib/finance/accounting/finance-workspace-service.js');const page=read('admin/finance.html');expect(service).toContain("rpc('finance_create_refund_request'");expect(service).toContain("type:'refund.completed'");expect(page).toContain('source_financial_event_id');expect(page).toContain('refundInFlight');expect(page).toContain('request_key:refundRequestKey');expect(page).not.toContain('refundInvoiceId')});
+test('workspace remains linked and dynamic values are escaped',()=>{const page=read('admin/finance.html');const dashboard=read('admin/dashboard.html');expect(page).toContain('مساحة العمل المالية');expect(page).toContain('ميزان المراجعة');expect(page).toContain('BondsAdminCommon.escapeHtml');expect(page).not.toContain('SUPABASE_SERVICE_ROLE_KEY');expect(dashboard).toContain('/admin/finance.html?embed=1')});
 });

@@ -1542,7 +1542,7 @@ async function handleAccountingEntities(req, res, supabase, user) {
 
       const idempotencyKey = req.headers['idempotency-key'] || req.headers['x-idempotency-key'] || null;
       const entity = await service.createForUser(user.id, body || {}, idempotencyKey);
-      return sendJson(res, entity.idempotent_replay ? 200 : 201, { ok:true, entity });
+      return sendJson(res, (entity.idempotent_replay || entity.business_identity_replay) ? 200 : 201, { ok:true, entity });
     }
 
     return sendJson(res, 405, { error: 'Method not allowed' });

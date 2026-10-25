@@ -177,4 +177,37 @@ describe('governed accounting entity user flow', () => {
     );
     expect(apiIndex).toContain("path.startsWith('/services/accounting/')");
   });
+
+  test('recovers a logical duplicate from the database business identity constraint', async () => {
+    const conflict = { data:null, error:{ code:'23505', message:'duplicate key' } };
+    const businessEntity = {
+      id:'entity-business',
+      name:'ثقه',
+      base_currency:'SAR',
+      status:'active',
+      metadata:{}
+    };
+    const membership = {
+      accounting_entity_id:'entity-business',
+      user_id:'user-1',
+      role:'owner',
+      status:'active'
+    };
+    const insertChain = chain(conflict);
+    const businessChain = chain({data:businessEntity,error:null});
+    const membershipChain = chain({data:membership,error:null});
+    let entityCalls = 0;
+    const supabase = {
+      from: jest.fn(table => {
+        if (table === 'accounting_entity_members') return membershipChain;
+        entityCalls += 1;
+        return entityCalls === 1 ? insertChain : businessChain;
+      })
+    };
+    const service = new AccountingEntityUserService(supabase);
+    const result = await service.createForUser('user-1',{name:'ثقه',base_currency:'SAR'});
+    expect(result.id).toBe('entity-business');
+    expect(result.business_identity_replay).toBe(true);
+    expect(businessChain.eq).toHaveBeenCalledWith('normalized_name','ثقه');
+  });
 });
