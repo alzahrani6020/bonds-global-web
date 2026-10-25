@@ -94,7 +94,7 @@ function getCategory(path) {
   if (path.startsWith('/admin') || path.startsWith('/cron')) return 'strict';
   if (path === '/ai/chat') return 'ai';
   if (path === '/assistant' || path.startsWith('/assistant/')) return 'compute';
-  if (path === '/services/execute' || path.startsWith('/services/intake/') || /^\/services\/[^/]+\/execution$/.test(path)) return 'compute';
+  if (path === '/services/execute' || path.startsWith('/services/intake/') || path.startsWith('/services/accounting/') || /^\/services\/[^/]+\/execution$/.test(path)) return 'compute';
   if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence') || path.startsWith('/capabilities') || path.startsWith('/enterprise-lifecycle') || path.startsWith('/ecc') || path === '/water-factory-data' || path === '/sector-data') return 'compute';
   return 'public';
 }
