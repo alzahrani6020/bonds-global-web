@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 1,
+  "version": 2,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -137,6 +137,98 @@
       ],
       "runtime": {
         "adapter": "scenario_forecast_engine"
+      }
+    },
+    {
+      "action": "accounting_dimension_create",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-009",
+      "purpose": "Create a governed accounting cost center or segment for an accounting entity the signed-in user can manage.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "dimension_type",
+        "code",
+        "name"
+      ],
+      "runtime": {
+        "adapter": "accounting_dimension_create"
+      }
+    },
+    {
+      "action": "accounting_period_transition",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-010",
+      "purpose": "Soft-close, close, or reopen an accounting period through the governed period transition workflow.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "period_id",
+        "transition"
+      ],
+      "runtime": {
+        "adapter": "accounting_period_transition"
+      }
+    },
+    {
+      "action": "accounting_asset_create",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-011",
+      "purpose": "Create an accounting-linked asset in the canonical bonds_assets registry.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "asset_number",
+        "asset_class"
+      ],
+      "runtime": {
+        "adapter": "accounting_asset_create"
+      }
+    },
+    {
+      "action": "accounting_collateral_assign",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-012",
+      "purpose": "Assign a canonical asset as collateral within the same accounting entity.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "asset_id"
+      ],
+      "runtime": {
+        "adapter": "accounting_collateral_assign"
+      }
+    },
+    {
+      "action": "accounting_depreciation_policy_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-013",
+      "purpose": "Configure deterministic straight-line fixed-asset depreciation policy using explicit ledger accounts.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "asset_id",
+        "in_service_date",
+        "depreciation_expense_account_id",
+        "accumulated_depreciation_account_id"
+      ],
+      "runtime": {
+        "adapter": "accounting_depreciation_policy_configure"
+      }
+    },
+    {
+      "action": "accounting_depreciation_post",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-014",
+      "purpose": "Post fixed-asset depreciation for an accounting period through the governed posting RPC.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "asset_id",
+        "period_id"
+      ],
+      "runtime": {
+        "adapter": "accounting_depreciation_post"
       }
     }
   ]

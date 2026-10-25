@@ -79,6 +79,12 @@ describe(
         expect(
           Object.keys(CAPABILITIES).sort()
         ).toEqual([
+          'accounting_asset_create',
+          'accounting_collateral_assign',
+          'accounting_depreciation_policy_configure',
+          'accounting_depreciation_post',
+          'accounting_dimension_create',
+          'accounting_period_transition',
           'agent_execute',
           'ai_reason',
           'blind_spot_analyze',
