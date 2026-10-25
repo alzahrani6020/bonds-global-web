@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "financial-operations-core",
-  "current_workstream": "wave5-authenticated-production-smoke",
+  "current_workstream": "wave5-v3-subpath-routing-fix",
   "status": "in_progress",
-  "baseline_main_sha": "a56f8799397e9cd74603b2d51bde3760a1554711",
+  "baseline_main_sha": "d9061e487b9b051e615fd0981bc2ff78423c6161",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -106,14 +106,12 @@
     "dual-core-roadmap-closeout"
   ],
   "currently_working_on": [
-    "create-legitimate-accounting-entity-via-production-admin-finance",
-    "verify-trigger-seeded-owner-membership",
-    "run-authenticated-cash-flow-production-smoke"
+    "preserve-v3-subpath-through-vercel-rewrite",
+    "restore-accounting-entities-route",
+    "retest-legitimate-accounting-entity-creation"
   ],
-  "next_action": "create a legitimate accounting entity from https://bonds-global.com/admin/finance.html using the authenticated admin session, verify active owner membership in production, then run Wave 5 authenticated cash-flow smoke; do not create synthetic production fixtures",
-  "blocked": [
-    "WAITING_FOR_LEGITIMATE_ACCOUNTING_ENTITY_CREATION"
-  ],
+  "next_action": "verify V3 subpath routing fix through PR CI; merge only on full success; deploy exact merge SHA to production; recreate legitimate accounting entity through admin finance; then run authenticated Wave 5 smoke",
+  "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
     "phase2_admin_review_merge_sha": "4dc1ad44f4d55a9019e4c8f7443ae0029f7c4bb7",
@@ -124,7 +122,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "a56f8799397e9cd74603b2d51bde3760a1554711",
+    "current_main_sha": "d9061e487b9b051e615fd0981bc2ff78423c6161",
     "superseded_candidate_prs": [
       472,
       475
@@ -242,7 +240,9 @@
     "accounting_entity_admin_ui_production_sha": "a56f8799397e9cd74603b2d51bde3760a1554711",
     "accounting_entity_admin_ui_production_ready": true,
     "accounting_entity_admin_ui_custom_domain_verified": true,
-    "production_runtime_errors_30m": 0
+    "production_runtime_errors_30m": 0,
+    "v3_subpath_routing_candidate_branch": "fix/v3-subpath-routing",
+    "v3_subpath_routing_status": "awaiting_pr_ci"
   },
   "approved_architecture": {
     "dual_core": true,
@@ -263,5 +263,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "financial-operations-core-wave5-production-onboarding"
+  "updated_by": "financial-operations-core-wave5-v3-routing-fix"
 }
