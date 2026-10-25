@@ -30,6 +30,13 @@ const RECOVERY = fs.readFileSync(
   ),
   'utf8'
 );
+const FK_INDEX = fs.readFileSync(
+  path.join(
+    __dirname,
+    '../../supabase/migrations/20261026044500_accounting_allocation_fk_index.sql'
+  ),
+  'utf8'
+);
 const ROUTER = fs.readFileSync(
   path.join(__dirname, '../../lib/services/service-execution-router.js'),
   'utf8'
@@ -58,6 +65,15 @@ describe('Wave 12 governed cost allocation engine', () => {
     );
     expect(MIGRATION).toContain('v_total_weight <> 10000');
     expect(MIGRATION).toContain('weight_basis_points');
+  });
+
+  test('covers the allocation source-account composite foreign key', () => {
+    expect(FK_INDEX).toContain(
+      'idx_accounting_allocation_rules_source_account'
+    );
+    expect(FK_INDEX).toContain(
+      'accounting_entity_id, source_account_id'
+    );
   });
 
   test('qualifies pgcrypto digest without broadening the RPC search path', () => {
