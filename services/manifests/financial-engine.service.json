@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 3,
+  "version": 4,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -168,6 +168,40 @@
       ],
       "runtime": {
         "adapter": "accounting_dimension_policy_configure"
+      }
+    },
+    {
+      "action": "accounting_allocation_rule_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-016",
+      "purpose": "Configure a deterministic fixed-percentage cost-allocation rule across governed expense accounts and canonical dimensions.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "rule_code",
+        "name",
+        "source_account_id",
+        "targets"
+      ],
+      "runtime": {
+        "adapter": "accounting_allocation_rule_configure"
+      }
+    },
+    {
+      "action": "accounting_allocation_execute",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-017",
+      "purpose": "Execute an active governed cost-allocation rule through the canonical atomic accounting posting RPC.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "rule_id",
+        "amount",
+        "effective_at",
+        "request_key"
+      ],
+      "runtime": {
+        "adapter": "accounting_allocation_execute"
       }
     },
     {
