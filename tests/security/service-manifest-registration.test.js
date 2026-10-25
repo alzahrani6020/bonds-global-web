@@ -79,6 +79,8 @@ describe(
         expect(
           Object.keys(CAPABILITIES).sort()
         ).toEqual([
+          'accounting_allocation_execute',
+          'accounting_allocation_rule_configure',
           'accounting_asset_create',
           'accounting_collateral_assign',
           'accounting_depreciation_policy_configure',
