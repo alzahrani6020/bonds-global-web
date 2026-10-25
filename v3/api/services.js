@@ -1261,6 +1261,144 @@ async function handleCreateServiceRequest(req, res, supabase, user) {
 }
 
 
+function defaultRequestProfileForService(service) {
+  const familyByGroup = {
+    accounting_records: 'accounting',
+    working_capital_cash: 'accounting',
+    financial_statements_reporting: 'reporting',
+    audit_opinion: 'audit',
+    planning_cashflow: 'planning',
+    core_financial_analysis: 'analysis',
+    returns_margins: 'analysis',
+    leverage_capital_debt: 'analysis',
+    comparative_trends: 'analysis',
+    growth_value_diagnostics: 'analysis',
+    risk_resilience: 'risk',
+    zakat_services: 'tax',
+    vat_services: 'tax',
+    direct_tax_withholding: 'tax',
+    transaction_excise_tax: 'tax',
+    e_invoicing_tax: 'tax',
+    tax_audit_disputes: 'tax',
+    tax_compliance_health: 'tax',
+    business_market: 'consulting'
+  };
+  const profiles = {
+    accounting: {
+      form_title_ar:'بيانات الخدمة المحاسبية', form_title_en:'Accounting service information',
+      fields:[
+        {field_key:'request_scope',label_ar:'نطاق العمل المطلوب',label_en:'Requested scope',field_type:'textarea',is_required:true,placeholder_ar:'اذكر الفترة، السجلات أو العمليات المطلوب العمل عليها',placeholder_en:'Describe the period, records or transactions in scope'},
+        {field_key:'accounting_period',label_ar:'الفترة المحاسبية',label_en:'Accounting period',field_type:'text',is_required:false,placeholder_ar:'مثال: 2026 أو الربع الرابع',placeholder_en:'Example: 2026 or Q4'},
+        {field_key:'notes',label_ar:'ملاحظات إضافية',label_en:'Additional notes',field_type:'textarea',is_required:false,placeholder_ar:'أي تفاصيل تساعد على تنفيذ الخدمة',placeholder_en:'Any details that help deliver the service'}
+      ],
+      requirements_ar:['السجلات أو التقارير المتعلقة بالخدمة','تحديد الفترة المحاسبية محل الطلب'],
+      requirements_en:['Records or reports related to the service','Accounting period in scope'],
+      procedures_ar:['مراجعة نطاق الطلب','استلام وفحص المستندات','تنفيذ المراجعة أو المعالجة المطلوبة','تسليم النتائج للمراجعة النهائية'],
+      procedures_en:['Review request scope','Receive and inspect documents','Perform the requested accounting work','Deliver results for final review'],
+      deliverables_ar:['نتيجة الخدمة المحاسبية','قائمة بالملاحظات أو الفروقات المكتشفة'],
+      deliverables_en:['Accounting service result','List of identified observations or differences']
+    },
+    reporting: {
+      form_title_ar:'بيانات إعداد القوائم والتقارير', form_title_en:'Financial reporting information',
+      fields:[
+        {field_key:'reporting_period',label_ar:'الفترة المالية',label_en:'Reporting period',field_type:'text',is_required:true,placeholder_ar:'حدد السنة أو الفترة المالية',placeholder_en:'Specify year or reporting period'},
+        {field_key:'reporting_basis',label_ar:'أساس أو غرض التقرير',label_en:'Reporting purpose or basis',field_type:'textarea',is_required:true,placeholder_ar:'اذكر الغرض من القوائم أو التقرير المطلوب',placeholder_en:'Describe the purpose of the requested statements or report'},
+        {field_key:'notes',label_ar:'ملاحظات إضافية',label_en:'Additional notes',field_type:'textarea',is_required:false,placeholder_ar:'أي تفاصيل إضافية',placeholder_en:'Any additional details'}
+      ],
+      requirements_ar:['ميزان المراجعة أو البيانات المالية المتاحة','الفترة المالية المطلوب إعدادها'],
+      requirements_en:['Available trial balance or financial data','Reporting period requested'],
+      procedures_ar:['تحديد نطاق التقرير','مراجعة البيانات المالية','إعداد القوائم أو التقرير','مراجعة الاتساق والإفصاحات'],
+      procedures_en:['Define reporting scope','Review financial data','Prepare statements or report','Review consistency and disclosures'],
+      deliverables_ar:['القائمة أو التقرير المالي المطلوب','ملاحظات المراجعة والإفصاحات عند الحاجة'],
+      deliverables_en:['Requested financial statement or report','Review notes and disclosures where applicable']
+    },
+    audit: {
+      form_title_ar:'بيانات المراجعة والرأي', form_title_en:'Review and opinion information',
+      fields:[
+        {field_key:'review_scope',label_ar:'موضوع ونطاق المراجعة',label_en:'Review subject and scope',field_type:'textarea',is_required:true,placeholder_ar:'حدد الموضوع والفترة والغرض من المراجعة',placeholder_en:'Specify subject, period and purpose of the review'},
+        {field_key:'known_issue',label_ar:'المشكلة أو الملاحظة الرئيسية',label_en:'Known issue or key concern',field_type:'textarea',is_required:false,placeholder_ar:'اذكر أي إشكال أو نقطة تريد التحقق منها',placeholder_en:'Describe any issue or point requiring verification'}
+      ],
+      requirements_ar:['المستندات والقوائم ذات العلاقة','تحديد الغرض ونطاق المراجعة'],
+      requirements_en:['Relevant documents and statements','Defined review purpose and scope'],
+      procedures_ar:['فهم نطاق المراجعة','فحص المستندات والأدلة','تحليل الملاحظات','إصدار النتيجة أو الرأي'],
+      procedures_en:['Understand review scope','Inspect documents and evidence','Analyze observations','Issue result or opinion'],
+      deliverables_ar:['مذكرة مراجعة أو رأي مهني','الملاحظات والتوصيات'],
+      deliverables_en:['Review memorandum or professional opinion','Observations and recommendations']
+    },
+    planning: {
+      form_title_ar:'بيانات التخطيط المالي', form_title_en:'Financial planning information',
+      fields:[
+        {field_key:'planning_horizon',label_ar:'أفق التخطيط',label_en:'Planning horizon',field_type:'text',is_required:true,placeholder_ar:'مثال: 12 شهرًا أو 3 سنوات',placeholder_en:'Example: 12 months or 3 years'},
+        {field_key:'planning_objective',label_ar:'هدف التخطيط',label_en:'Planning objective',field_type:'textarea',is_required:true,placeholder_ar:'اذكر الهدف الرئيسي من الخدمة',placeholder_en:'Describe the primary objective'},
+        {field_key:'constraints',label_ar:'القيود أو الافتراضات المهمة',label_en:'Key constraints or assumptions',field_type:'textarea',is_required:false,placeholder_ar:'تمويل، سيولة، نمو، تكلفة أو قيود أخرى',placeholder_en:'Funding, liquidity, growth, cost or other constraints'}
+      ],
+      requirements_ar:['البيانات المالية الحالية','الافتراضات والأهداف المستقبلية'],
+      requirements_en:['Current financial data','Future assumptions and objectives'],
+      procedures_ar:['تحديد الهدف والأفق الزمني','تحليل الوضع الحالي','بناء الخطة أو التقديرات','مراجعة السيناريوهات والنتائج'],
+      procedures_en:['Define objective and horizon','Analyze current position','Build plan or estimates','Review scenarios and outcomes'],
+      deliverables_ar:['الخطة أو التقدير المالي المطلوب','الافتراضات والتوصيات الرئيسية'],
+      deliverables_en:['Requested financial plan or forecast','Key assumptions and recommendations']
+    },
+    analysis: {
+      form_title_ar:'بيانات التحليل المالي', form_title_en:'Financial analysis information',
+      fields:[
+        {field_key:'analysis_period',label_ar:'الفترة محل التحليل',label_en:'Analysis period',field_type:'text',is_required:true,placeholder_ar:'حدد السنة أو الفترات المطلوب تحليلها',placeholder_en:'Specify year or periods to analyze'},
+        {field_key:'analysis_goal',label_ar:'هدف التحليل',label_en:'Analysis objective',field_type:'textarea',is_required:true,placeholder_ar:'ما القرار أو السؤال الذي تريد أن يجيب عنه التحليل؟',placeholder_en:'What decision or question should the analysis address?'},
+        {field_key:'notes',label_ar:'ملاحظات إضافية',label_en:'Additional notes',field_type:'textarea',is_required:false,placeholder_ar:'أي عوامل أو ظروف يجب مراعاتها',placeholder_en:'Any factors or circumstances to consider'}
+      ],
+      requirements_ar:['القوائم أو البيانات المالية للفترة محل التحليل','تحديد الهدف من التحليل'],
+      requirements_en:['Financial statements or data for the analysis period','Defined analysis objective'],
+      procedures_ar:['فحص البيانات','تنفيذ التحليل المطلوب','مراجعة المؤشرات والفروقات','إعداد الخلاصة والتوصيات'],
+      procedures_en:['Inspect data','Perform requested analysis','Review metrics and differences','Prepare conclusions and recommendations'],
+      deliverables_ar:['نتائج التحليل المالي','المؤشرات والاستنتاجات والتوصيات'],
+      deliverables_en:['Financial analysis results','Metrics, conclusions and recommendations']
+    },
+    risk: {
+      form_title_ar:'بيانات تحليل المخاطر', form_title_en:'Risk analysis information',
+      fields:[
+        {field_key:'risk_scope',label_ar:'نطاق المخاطر المطلوب تقييمها',label_en:'Risk scope',field_type:'textarea',is_required:true,placeholder_ar:'حدد المخاطر أو المجال والفترة المطلوب تقييمها',placeholder_en:'Specify risks, area and period to assess'},
+        {field_key:'risk_event',label_ar:'أحداث أو مؤشرات مقلقة',label_en:'Known risk events or warning signs',field_type:'textarea',is_required:false,placeholder_ar:'اذكر أي أحداث أو مؤشرات حالية',placeholder_en:'Describe any current events or warning signs'}
+      ],
+      requirements_ar:['البيانات المالية والتشغيلية ذات العلاقة','تحديد نطاق المخاطر أو السيناريو'],
+      requirements_en:['Relevant financial and operational data','Defined risk scope or scenario'],
+      procedures_ar:['تحديد نطاق المخاطر','فحص المؤشرات والأدلة','تقييم الاحتمال والأثر','تحديد إجراءات المعالجة'],
+      procedures_en:['Define risk scope','Inspect indicators and evidence','Assess likelihood and impact','Identify mitigation actions'],
+      deliverables_ar:['تقييم المخاطر','المؤشرات الرئيسية وخطة المعالجة المقترحة'],
+      deliverables_en:['Risk assessment','Key indicators and proposed mitigation plan']
+    },
+    tax: {
+      form_title_ar:'بيانات الخدمة الزكوية والضريبية', form_title_en:'Zakat and tax service information',
+      fields:[
+        {field_key:'tax_period',label_ar:'الفترة الزكوية أو الضريبية',label_en:'Zakat or tax period',field_type:'text',is_required:true,placeholder_ar:'حدد السنة أو الفترة أو الإقرار',placeholder_en:'Specify year, period or return'},
+        {field_key:'tax_request_scope',label_ar:'موضوع الطلب',label_en:'Request subject',field_type:'textarea',is_required:true,placeholder_ar:'اذكر الحالة أو الإقرار أو الفحص أو الاعتراض المطلوب',placeholder_en:'Describe the return, audit, objection or matter requested'},
+        {field_key:'zatca_reference',label_ar:'رقم مرجع الهيئة إن وجد',label_en:'ZATCA reference if available',field_type:'text',is_required:false,placeholder_ar:'اختياري',placeholder_en:'Optional'}
+      ],
+      requirements_ar:['الإقرار أو المستندات الزكوية/الضريبية ذات العلاقة','القوائم أو السجلات المالية المؤيدة','أي مراسلات أو قرارات من الهيئة عند وجودها'],
+      requirements_en:['Relevant zakat/tax return or documents','Supporting financial statements or records','Any ZATCA correspondence or decisions where applicable'],
+      procedures_ar:['تحديد نوع الالتزام والفترة','فحص البيانات والمستندات','تحديد النواقص أو المخاطر','إعداد ملف المراجعة أو الطلب للمختص'],
+      procedures_en:['Identify obligation and period','Review data and documents','Identify gaps or risks','Prepare review/request file for specialist'],
+      deliverables_ar:['ملف مراجعة زكوي/ضريبي','قائمة النواقص والمخاطر والملاحظات'],
+      deliverables_en:['Zakat/tax review file','List of gaps, risks and observations']
+    },
+    consulting: {
+      form_title_ar:'بيانات الطلب الاستشاري', form_title_en:'Consulting request information',
+      fields:[
+        {field_key:'business_issue',label_ar:'المشكلة أو الهدف التشغيلي',label_en:'Business issue or objective',field_type:'textarea',is_required:true,placeholder_ar:'اشرح المشكلة أو الهدف المطلوب معالجته',placeholder_en:'Describe the issue or objective to address'},
+        {field_key:'business_context',label_ar:'سياق المنشأة',label_en:'Business context',field_type:'textarea',is_required:false,placeholder_ar:'القطاع، الحجم، المرحلة وأي معلومات مهمة',placeholder_en:'Sector, size, stage and any important context'}
+      ],
+      requirements_ar:['وصف واضح للمشكلة أو الهدف','المعلومات التشغيلية المرتبطة بالطلب'],
+      requirements_en:['Clear description of issue or objective','Operational information related to the request'],
+      procedures_ar:['تشخيص الحالة','تحديد نطاق العمل','تحليل الوضع الحالي','إعداد التوصيات وخطة العمل'],
+      procedures_en:['Diagnose the situation','Define scope','Analyze current state','Prepare recommendations and action plan'],
+      deliverables_ar:['مذكرة استشارية','التوصيات وخطة العمل'],
+      deliverables_en:['Consulting memorandum','Recommendations and action plan']
+    }
+  };
+  const family = familyByGroup[service.group_code] || (service.category_code === 'tax_zakat' ? 'tax' : 'consulting');
+  const profile = profiles[family];
+  return profile ? { family, ...profile } : null;
+}
+
 function rowMatchesContext(row, filters) {
   if (row.country_code && filters.country && row.country_code !== filters.country) return false;
   if (row.country_code && !filters.country) return false;
@@ -1280,7 +1418,7 @@ async function handleServiceDetail(req, res, supabase, code) {
 
   const { data: service, error } = await supabase
     .from('service_catalog')
-    .select('id,code,category_code,name_ar,name_en,short_description_ar,short_description_en,delivery_type,sort_order,default_route_ar,default_route_en,metadata')
+    .select('id,code,category_code,group_code,name_ar,name_en,short_description_ar,short_description_en,delivery_type,sort_order,default_route_ar,default_route_en,metadata')
     .eq('code', code)
     .eq('status', 'published')
     .eq('is_active', true)
@@ -1343,6 +1481,10 @@ async function handleServiceDetail(req, res, supabase, code) {
     service:dependencyServices.find(x=>x.id===row.depends_on_service_id)||null
   }));
 
+  const requestProfile = (!form && procedures.length===0 && requirements.length===0 && (delRes.data||[]).length===0)
+    ? defaultRequestProfileForService(service)
+    : null;
+
   let intake = { supported:false, execution_status:null, execution_mode:null, requirement_fields:[] };
   try {
     const resolved = await loadExecutionProfile(supabase, code);
@@ -1369,6 +1511,7 @@ async function handleServiceDetail(req, res, supabase, code) {
     availability:countryRes.data||null,
     capabilities:capRes.data||[],
     intake,
+    request_profile:requestProfile,
     procedures,
     requirements,
     deliverables:delRes.data||[],
