@@ -1554,7 +1554,7 @@ async function handleAccountingEntities(req, res, supabase, user) {
       'ACCOUNTING_ENTITY_CURRENCY_INVALID',
       'ACCOUNTING_ENTITY_IDEMPOTENCY_KEY_INVALID'
     ]);
-    const status = clientErrors.has(code) ? 400 : 500;
+    const status = code === 'ACCOUNTING_ENTITY_IDEMPOTENCY_CONFLICT' ? 409 : clientErrors.has(code) ? 400 : 500;
     return sendJson(res, status, { ok:false, error:{ code } });
   }
 }
