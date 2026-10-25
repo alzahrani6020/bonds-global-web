@@ -22,6 +22,32 @@ async function json(url,opts){const r=await fetch(url,opts);const d=await r.json
 function showStatus(msg,ok){const e=$('#srStatus');e.textContent=msg;e.className='sr-status show '+(ok?'ok':'err')}
 function contextQuery(){const p=new URLSearchParams();for(const k of ['country','sector','activity']){const v=params.get(k);if(v)p.set(k,v)}return p.toString()}
 function renderList(id,items,fn){const el=$(id);if(!el)return;el.innerHTML=items.length?'<ul class="sr-list">'+items.map(fn).join('')+'</ul>':'<div class="sr-empty">—</div>'}
+function renderRequestProfileField(field){
+ const key=escapeHtml(field.field_key),label=escapeHtml(lang==='ar'?(field.label_ar||field.label_en||field.field_key):(field.label_en||field.label_ar||field.field_key));
+ const req=field.is_required?' required':'';
+ const reqLabel=field.is_required?T.required:T.optional;
+ const placeholder=escapeHtml(lang==='ar'?(field.placeholder_ar||''):(field.placeholder_en||''));
+ if(field.field_type==='textarea')return '<div class="sr-field full"><label>'+label+' <small>('+reqLabel+')</small></label><textarea name="'+key+'"'+req+' placeholder="'+placeholder+'"></textarea></div>';
+ return '<div class="sr-field"><label>'+label+' <small>('+reqLabel+')</small></label><input type="text" name="'+key+'"'+req+' placeholder="'+placeholder+'"></div>';
+}
+function renderRequestProfile(){
+ const profile=detail?.request_profile;
+ if(!profile)return false;
+ const formTitle=lang==='ar'?(profile.form_title_ar||T.form):(profile.form_title_en||T.form);
+ $('#srFormTitle').textContent=formTitle;
+ $('#srDynamicFields').innerHTML=(profile.fields||[]).map(renderRequestProfileField).join('');
+ if((detail.procedures||[]).length===0){
+   renderList('#srProcedures',(lang==='ar'?profile.procedures_ar:profile.procedures_en)||[],x=>'<li>'+escapeHtml(x)+'</li>');
+ }
+ if((detail.requirements||[]).length===0){
+   renderList('#srRequirements',(lang==='ar'?profile.requirements_ar:profile.requirements_en)||[],x=>'<li>'+escapeHtml(x)+' <strong>('+T.required+')</strong></li>');
+ }
+ if((detail.deliverables||[]).length===0){
+   renderList('#srDeliverables',(lang==='ar'?profile.deliverables_ar:profile.deliverables_en)||[],x=>'<li>'+escapeHtml(x)+'</li>');
+ }
+ return true;
+}
+
 function renderField(field){
  const key=escapeHtml(field.field_key),label=escapeHtml(text(field,'label_ar','label_en')),req=field.is_required?' required':'',reqLabel=field.is_required?T.required:T.optional;
  if(field.field_type==='section')return '<div class="sr-field full"><h3>'+label+'</h3></div>';
@@ -58,6 +84,7 @@ function render(){
  const form=detail.form;
  $('#srFormTitle').textContent=form?text(form):T.form;
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
+ if(!form?.fields?.length)renderRequestProfile();
  renderFinancialIntake();
 }
 const FINANCIAL_ACTIONS=new Set([
