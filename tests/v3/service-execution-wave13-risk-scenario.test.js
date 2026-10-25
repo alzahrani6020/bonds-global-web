@@ -26,8 +26,8 @@ describe('Financial core wave 13 execution contract', () => {
 
     expect(sql).toContain("'reverse_stress_testing'");
     expect(sql).toContain("'scenario_forecast_run'");
-    expect(sql).toContain("'requires_explicit_sensitivity'");
-    expect(sql).toContain("'no_hidden_thresholds'");
+    expect(sql).toContain('"requires_explicit_sensitivity":true');
+    expect(sql).toContain('"no_hidden_thresholds":true');
   });
 
   test('does not introduce a parallel orchestrator or AI execution path', () => {
