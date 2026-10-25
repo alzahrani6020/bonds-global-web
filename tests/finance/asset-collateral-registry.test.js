@@ -11,6 +11,11 @@ const MIGRATION = fs.readFileSync(
   'utf8'
 );
 
+const HARDENING = fs.readFileSync(
+  path.join(__dirname, '../../supabase/migrations/20261026014500_asset_collateral_advisor_hardening.sql'),
+  'utf8'
+);
+
 describe('governed asset and collateral registry', () => {
   test('reuses bonds_assets instead of creating a parallel asset master', () => {
     expect(MIGRATION).toContain('alter table public.bonds_assets');
@@ -29,6 +34,13 @@ describe('governed asset and collateral registry', () => {
     expect(MIGRATION).toContain('create table if not exists public.asset_collateral_assignments');
     expect(MIGRATION).toContain('foreign key (accounting_entity_id, asset_id)');
     expect(MIGRATION).toContain('references public.bonds_assets(accounting_entity_id, id)');
+  });
+
+  test('asset ownership RLS avoids per-row auth.uid init plans', () => {
+    expect(HARDENING).toContain('p.user_id = (select auth.uid())');
+    expect(HARDENING).not.toMatch(/p\.user_id\s*=\s*auth\.uid\(\)/);
+    expect(HARDENING).toContain('drop policy if exists bonds_assets_user_isolation');
+    expect(HARDENING).toContain('create policy bonds_assets_user_isolation');
   });
 
   test('collateral writes are server-mediated', () => {
