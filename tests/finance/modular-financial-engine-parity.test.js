@@ -11,6 +11,7 @@ const { feasibilityAnalysis } = require('../../lib/finance/engines/feasibility-e
 const { valuationAnalysis } = require('../../lib/finance/engines/valuation-engine');
 const { riskAnalysis } = require('../../lib/finance/engines/risk-engine');
 const { scenarioForecast } = require('../../lib/finance/engines/scenario-engine');
+const { creditRiskAnalysis } = require('../../lib/finance/engines/credit-risk-engine');
 
 function stable(result) {
   return {
@@ -35,7 +36,8 @@ describe('modular financial engine architecture parity', () => {
       'risk_analysis',
       'scenario_forecast',
       'debt_schedule',
-      'covenant_monitoring'
+      'covenant_monitoring',
+      'credit_risk'
     ]);
   });
 
@@ -152,6 +154,18 @@ describe('modular financial engine architecture parity', () => {
         annual_net_cash_flow: 250,
         discount_rate: 0.10,
         simulation_config: { iterations: 200, seed: 42 }
+      },
+      {}
+    ],
+    [
+      'credit_risk',
+      creditRiskAnalysis,
+      {
+        pd_pct: 2,
+        lgd_pct: 40,
+        ead: 1000000,
+        parameter_source: 'policy',
+        as_of_date: '2026-10-26'
       },
       {}
     ]
