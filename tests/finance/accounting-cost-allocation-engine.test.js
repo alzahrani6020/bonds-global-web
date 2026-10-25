@@ -23,6 +23,13 @@ const STORE = fs.readFileSync(
   ),
   'utf8'
 );
+const RECOVERY = fs.readFileSync(
+  path.join(
+    __dirname,
+    '../../supabase/migrations/20261026043000_accounting_cost_allocation_digest_recovery.sql'
+  ),
+  'utf8'
+);
 const ROUTER = fs.readFileSync(
   path.join(__dirname, '../../lib/services/service-execution-router.js'),
   'utf8'
@@ -51,6 +58,12 @@ describe('Wave 12 governed cost allocation engine', () => {
     );
     expect(MIGRATION).toContain('v_total_weight <> 10000');
     expect(MIGRATION).toContain('weight_basis_points');
+  });
+
+  test('qualifies pgcrypto digest without broadening the RPC search path', () => {
+    expect(RECOVERY).toContain('extensions.digest(');
+    expect(RECOVERY).toContain("SET search_path");
+    expect(RECOVERY).not.toContain("search_path = public, extensions");
   });
 
   test('routes every execution through the canonical atomic posting RPC', () => {
