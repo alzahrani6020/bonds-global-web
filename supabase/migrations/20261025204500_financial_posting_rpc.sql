@@ -6,7 +6,7 @@ create or replace function public.accounting_commit_posting(
 )
 returns jsonb
 language plpgsql
-security definer
+security invoker
 set search_path = public
 as $$
 declare
