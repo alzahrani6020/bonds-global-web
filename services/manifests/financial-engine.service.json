@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 6,
+  "version": 7,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -171,6 +171,40 @@
       }
     },
     {
+      "action": "accounting_allocation_rule_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-016",
+      "purpose": "Configure a deterministic fixed-percentage cost-allocation rule across governed expense accounts and canonical dimensions.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "rule_code",
+        "name",
+        "source_account_id",
+        "targets"
+      ],
+      "runtime": {
+        "adapter": "accounting_allocation_rule_configure"
+      }
+    },
+    {
+      "action": "accounting_allocation_execute",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-017",
+      "purpose": "Execute an active governed cost-allocation rule through the canonical atomic accounting posting RPC.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "rule_id",
+        "amount",
+        "effective_at",
+        "request_key"
+      ],
+      "runtime": {
+        "adapter": "accounting_allocation_execute"
+      }
+    },
+    {
       "action": "accounting_period_transition",
       "action_type": "workflow",
       "id": "BONDS-CAP-FIN-010",
@@ -249,7 +283,7 @@
     {
       "action": "debt_schedule_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-016",
+      "id": "BONDS-CAP-FIN-018",
       "purpose": "Build deterministic debt amortization, maturity and debt-service schedules from explicit facilities.",
       "side_effect": "compute",
       "required": [
@@ -262,7 +296,7 @@
     {
       "action": "covenant_monitoring_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-017",
+      "id": "BONDS-CAP-FIN-019",
       "purpose": "Evaluate deterministic financial covenant compliance, headroom and forecast breach periods.",
       "side_effect": "compute",
       "required": [
@@ -275,7 +309,7 @@
     {
       "action": "credit_risk_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-018",
+      "id": "BONDS-CAP-FIN-020",
       "purpose": "Calculate deterministic PD/LGD/EAD expected loss and stress loss from explicit governed credit-risk parameters.",
       "side_effect": "compute",
       "required": [
@@ -288,7 +322,7 @@
     {
       "action": "treasury_liquidity_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-019",
+      "id": "BONDS-CAP-FIN-021",
       "purpose": "Compute deterministic treasury cash position, liquidity headroom, funding gap, concentration and limits.",
       "side_effect": "compute",
       "required": [
