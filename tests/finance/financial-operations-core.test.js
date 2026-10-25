@@ -117,6 +117,11 @@ describe('BONDS financial operations core', () => {
     expect(posting.journal.lines[1].account_code).toBe('4210');
   });
 
+  test('refund completion reverses the posted customer payment through the accounting core', () => {
+    const posting = buildPosting({type:'refund.completed',accounting_entity_id:'entity-1',amount:250,currency:'SAR',source:{system:'finance_refunds',record_id:'refund-1'}});
+    expect(posting.journal.lines).toEqual([expect.objectContaining({account_code:'1100',debit:250,credit:0}),expect.objectContaining({account_code:'1010',debit:0,credit:250})]);
+  });
+
   test('rejects accounting policy that debits and credits the same account', () => {
     expect(() => new AccountingPolicyRegistry([{
       event_type:'invoice.issued',
