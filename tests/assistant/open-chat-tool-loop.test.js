@@ -678,4 +678,97 @@ test('forces public research through search, exploration, evidence verification 
     expect(source).not.toContain("content: String((item && item.content) || '').slice(0, 1400)");
   });
 
+  test('canonicalizes verified role-before-name evidence into a direct identity sentence', () => {
+    const {
+      canonicalizePersonIdentityEvidenceSentence,
+      assessResearchAnswer
+    } = require('../../lib/assistant/open-chat-tool-loop');
+
+    const direct = canonicalizePersonIdentityEvidenceSentence(
+      'ولي العهد محمد بن سلمان يقود عددا من الملفات الوطنية.',
+      'محمد بن سلمان',
+      'ar'
+    );
+
+    expect(direct).toBe('محمد بن سلمان هو ولي العهد');
+    expect(assessResearchAnswer(direct, {
+      language_plan:{
+        intent:'person_lookup',
+        entity:{text:'محمد بن سلمان'}
+      }
+    }).ok).toBe(true);
+  });
+
+  test('does not canonicalize source-title shaped role-before-name text', () => {
+    const { canonicalizePersonIdentityEvidenceSentence } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    expect(
+      canonicalizePersonIdentityEvidenceSentence(
+        'لقاء ولي العهد محمد بن سلمان مع مجلة تايم.',
+        'محمد بن سلمان',
+        'ar'
+      )
+    ).toBeNull();
+  });
+
+  test('direct identity question detector stays narrow', () => {
+    const { isDirectPersonIdentityQuestion } =
+      require('../../lib/assistant/open-chat-tool-loop');
+
+    expect(isDirectPersonIdentityQuestion({
+      current:'من هو محمد بن سلمان؟',
+      language_plan:{
+        intent:'person_lookup',
+        entity:{
+          person_entity_frame:{
+            qualifiers:[],
+            relations:[],
+            organizations:[]
+          }
+        }
+      }
+    })).toBe(true);
+
+    expect(isDirectPersonIdentityQuestion({
+      current:'حدثني عن محمد بن سلمان',
+      language_plan:{
+        intent:'person_lookup',
+        entity:{
+          person_entity_frame:{
+            qualifiers:[],
+            relations:[],
+            organizations:[]
+          }
+        }
+      }
+    })).toBe(false);
+
+    expect(isDirectPersonIdentityQuestion({
+      current:'من هو رئيس شركة X خالد محمد؟',
+      language_plan:{
+        intent:'person_lookup',
+        entity:{
+          person_entity_frame:{
+            qualifiers:[],
+            relations:[{value:'رئيس'}],
+            organizations:[{value:'شركة X'}]
+          }
+        }
+      }
+    })).toBe(false);
+  });
+
+  test('direct verified person identity path runs before AI synthesis', () => {
+    const source = require('fs').readFileSync(
+      require.resolve('../../lib/assistant/open-chat-tool-loop'),
+      'utf8'
+    );
+    const fastPathIndex = source.indexOf("answer_mode:'deterministic_verified_identity'");
+    const synthesisIndex = source.indexOf('const rawReply = await generateResearchAnswer');
+
+    expect(fastPathIndex).toBeGreaterThan(0);
+    expect(synthesisIndex).toBeGreaterThan(fastPathIndex);
+  });
+
 });
