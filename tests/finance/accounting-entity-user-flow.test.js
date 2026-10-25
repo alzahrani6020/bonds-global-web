@@ -14,6 +14,7 @@ function chain(result) {
     eq: jest.fn(() => api),
     in: jest.fn(() => api),
     insert: jest.fn(() => api),
+    delete: jest.fn(() => api),
     single: jest.fn(async () => result),
     maybeSingle: jest.fn(async () => result),
     then: (resolve, reject) => Promise.resolve(result).then(resolve, reject)
@@ -86,6 +87,9 @@ describe('governed accounting entity user flow', () => {
     const service = new AccountingEntityUserService(supabase);
     await expect(service.createForUser('user-2',{name:'X'}))
       .rejects.toThrow('ACCOUNTING_ENTITY_OWNER_MEMBERSHIP_NOT_SEEDED');
+    expect(entityChain.delete).toHaveBeenCalled();
+    expect(entityChain.eq).toHaveBeenCalledWith('id','entity-2');
+    expect(entityChain.eq).toHaveBeenCalledWith('created_by','user-2');
   });
 
   test('lists only active memberships and active accounting entities for user', async () => {
