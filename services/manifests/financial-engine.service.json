@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 7,
+  "version": 8,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -202,6 +202,55 @@
       ],
       "runtime": {
         "adapter": "accounting_allocation_execute"
+      }
+    },
+    {
+      "action": "accounting_year_end_policy_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-022",
+      "purpose": "Configure the retained earnings account and explicit fiscal year-end date for a governed Accounting Entity.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "retained_earnings_account_id",
+        "fiscal_year_end_month",
+        "fiscal_year_end_day"
+      ],
+      "runtime": {
+        "adapter": "accounting_year_end_policy_configure"
+      }
+    },
+    {
+      "action": "accounting_year_end_close",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-023",
+      "purpose": "Close a complete fiscal year by posting temporary-account closing entries to retained earnings and closing the final accounting period.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "fiscal_year_start",
+        "fiscal_year_end",
+        "closing_period_id",
+        "request_key"
+      ],
+      "runtime": {
+        "adapter": "accounting_year_end_close"
+      }
+    },
+    {
+      "action": "accounting_year_end_reopen",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-024",
+      "purpose": "Reopen a previously closed fiscal year by reopening the final period and atomically reversing its year-end closing journal.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "close_run_id",
+        "request_key",
+        "reason"
+      ],
+      "runtime": {
+        "adapter": "accounting_year_end_reopen"
       }
     },
     {
