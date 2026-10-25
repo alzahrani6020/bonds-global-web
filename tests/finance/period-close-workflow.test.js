@@ -36,6 +36,10 @@ describe('governed accounting period close workflow', () => {
     );
   });
 
+  test('rejects null or unsupported actions at the database boundary', () => {
+    expect(MIGRATION).toContain("p_action is null or p_action not in ('soft_close','close','reopen')");
+  });
+
   test('enforces role boundaries', () => {
     expect(MIGRATION).toContain(
       "v_actor_role not in ('owner','admin','accountant')"
