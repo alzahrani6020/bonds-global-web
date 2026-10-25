@@ -56,7 +56,7 @@ describe('assistant diagnostics widget contract', () => {
 
   test('workspace keeps diagnostics bounded and prioritizes answer space', () => {
     expect(source).toContain('grid-template-columns: minmax(0, 1.1fr) minmax(460px, 0.9fr)');
-    expect(source).toContain('max-height:280px');
+    expect(source).toContain('max-height:220px');
     expect(source).toContain('min-height: 220px');
     expect(source).toContain('overflow-y:auto');
   });
