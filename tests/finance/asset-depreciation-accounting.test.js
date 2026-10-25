@@ -177,6 +177,6 @@ describe('canonical asset accounting depreciation',()=>{
   });
 
   test('migration version is later than asset collateral registry version',()=>{
-    expect('20261026020000').toBeGreaterThan('20261026013000');
+    expect(Number('20261026020000')).toBeGreaterThan(Number('20261026013000'));
   });
 });
