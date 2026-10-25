@@ -5,6 +5,7 @@ const path = require('path');
 const {
   normalizeEntityName,
   normalizeCurrency,
+  normalizeIdempotencyKey,
   AccountingEntityUserService
 } = require('../../lib/finance/accounting/accounting-entity-user-service');
 
@@ -13,6 +14,7 @@ function chain(result) {
     select: jest.fn(() => api),
     eq: jest.fn(() => api),
     in: jest.fn(() => api),
+    contains: jest.fn(() => api),
     insert: jest.fn(() => api),
     delete: jest.fn(() => api),
     single: jest.fn(async () => result),
@@ -28,6 +30,9 @@ describe('governed accounting entity user flow', () => {
     expect(normalizeCurrency('sar')).toBe('SAR');
     expect(() => normalizeEntityName('')).toThrow('ACCOUNTING_ENTITY_NAME_REQUIRED');
     expect(() => normalizeCurrency('SA')).toThrow('ACCOUNTING_ENTITY_CURRENCY_INVALID');
+    expect(normalizeIdempotencyKey('req-123')).toBe('req-123');
+    expect(normalizeIdempotencyKey('')).toBeNull();
+    expect(() => normalizeIdempotencyKey('bad key')).toThrow('ACCOUNTING_ENTITY_IDEMPOTENCY_KEY_INVALID');
   });
 
   test('creates entity with created_by and verifies seeded owner membership', async () => {
@@ -70,6 +75,38 @@ describe('governed accounting entity user flow', () => {
     }));
     expect(membershipChain.eq).toHaveBeenCalledWith('user_id','user-1');
     expect(created.role).toBe('owner');
+  });
+
+  test('replays an existing entity for the same idempotency key without another insert', async () => {
+    const entity = {
+      id:'entity-existing',
+      name:'شركة الاختبار',
+      base_currency:'SAR',
+      status:'active',
+      metadata:{creation_request_id:'req-1'}
+    };
+    const membership = {
+      accounting_entity_id:'entity-existing',
+      user_id:'user-1',
+      role:'owner',
+      status:'active'
+    };
+    const entityChain = chain({data:entity,error:null});
+    const membershipChain = chain({data:membership,error:null});
+    const supabase = {
+      from: jest.fn(table => table === 'accounting_entities' ? entityChain : membershipChain)
+    };
+
+    const service = new AccountingEntityUserService(supabase);
+    const replay = await service.createForUser('user-1', {
+      name:'شركة الاختبار',
+      base_currency:'SAR'
+    }, 'req-1');
+
+    expect(entityChain.contains).toHaveBeenCalledWith('metadata', { creation_request_id:'req-1' });
+    expect(entityChain.insert).not.toHaveBeenCalled();
+    expect(replay.id).toBe('entity-existing');
+    expect(replay.idempotent_replay).toBe(true);
   });
 
   test('fails closed when owner membership trigger did not seed', async () => {
