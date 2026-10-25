@@ -62,7 +62,7 @@ describe('Wave 12 governed cost allocation engine', () => {
 
   test('qualifies pgcrypto digest without broadening the RPC search path', () => {
     expect(RECOVERY).toContain('extensions.digest(');
-    expect(RECOVERY).toContain("SET search_path");
+    expect(RECOVERY).toContain('set search_path = public');
     expect(RECOVERY).not.toContain("search_path = public, extensions");
   });
 
