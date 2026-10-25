@@ -11,6 +11,8 @@ const { feasibilityAnalysis } = require('../../lib/finance/engines/feasibility-e
 const { valuationAnalysis } = require('../../lib/finance/engines/valuation-engine');
 const { riskAnalysis } = require('../../lib/finance/engines/risk-engine');
 const { scenarioForecast } = require('../../lib/finance/engines/scenario-engine');
+const { creditRiskAnalysis } = require('../../lib/finance/engines/credit-risk-engine');
+const { treasuryLiquidityAnalysis } = require('../../lib/finance/engines/treasury-liquidity-engine');
 
 function stable(result) {
   return {
@@ -24,7 +26,7 @@ function stable(result) {
 
 describe('modular financial engine architecture parity', () => {
   test('preserves engine version and registry surface', () => {
-    expect(ENGINE_VERSION).toBe('1.3.0');
+    expect(ENGINE_VERSION).toBe('1.4.0');
     expect(listFinancialEngines().map(item => item.code)).toEqual([
       'financial_analysis',
       'cash_flow_analysis',
@@ -33,7 +35,11 @@ describe('modular financial engine architecture parity', () => {
       'feasibility',
       'valuation',
       'risk_analysis',
-      'scenario_forecast'
+      'scenario_forecast',
+      'debt_schedule',
+      'covenant_monitoring',
+      'credit_risk',
+      'treasury_liquidity'
     ]);
   });
 
@@ -150,6 +156,27 @@ describe('modular financial engine architecture parity', () => {
         annual_net_cash_flow: 250,
         discount_rate: 0.10,
         simulation_config: { iterations: 200, seed: 42 }
+      },
+      {}
+    ],
+    [
+      'credit_risk',
+      creditRiskAnalysis,
+      {
+        pd_pct: 2,
+        lgd_pct: 40,
+        ead: 1000000,
+        parameter_source: 'policy',
+        as_of_date: '2026-10-26'
+      },
+      {}
+    ],
+    [
+      'treasury_liquidity',
+      treasuryLiquidityAnalysis,
+      {
+        accounts: [{ id: 'A1', bank: 'Bank A', balance: 1000 }],
+        minimum_liquidity_buffer: 100
       },
       {}
     ]

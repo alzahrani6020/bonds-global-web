@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 4,
+  "version": 7,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -278,6 +278,58 @@
       ],
       "runtime": {
         "adapter": "accounting_depreciation_post"
+      }
+    },
+    {
+      "action": "debt_schedule_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-018",
+      "purpose": "Build deterministic debt amortization, maturity and debt-service schedules from explicit facilities.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "debt_schedule_engine"
+      }
+    },
+    {
+      "action": "covenant_monitoring_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-019",
+      "purpose": "Evaluate deterministic financial covenant compliance, headroom and forecast breach periods.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "covenant_monitoring_engine"
+      }
+    },
+    {
+      "action": "credit_risk_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-020",
+      "purpose": "Calculate deterministic PD/LGD/EAD expected loss and stress loss from explicit governed credit-risk parameters.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "credit_risk_engine"
+      }
+    },
+    {
+      "action": "treasury_liquidity_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-021",
+      "purpose": "Compute deterministic treasury cash position, liquidity headroom, funding gap, concentration and limits.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "treasury_liquidity_engine"
       }
     }
   ]

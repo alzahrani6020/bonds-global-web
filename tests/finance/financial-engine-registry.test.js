@@ -7,7 +7,7 @@ const generated = require('../../lib/capabilities/generated-service-registry');
 const { getRuntimeAdapter } = require('../../lib/capabilities/runtime-adapters');
 
 describe('BONDS deterministic financial engine registry', () => {
-  test('registers the eight initial financial engines', () => {
+  test('registers the governed deterministic financial engines', () => {
     expect(listFinancialEngines().map(x => x.code)).toEqual([
       'financial_analysis',
       'cash_flow_analysis',
@@ -16,7 +16,11 @@ describe('BONDS deterministic financial engine registry', () => {
       'feasibility',
       'valuation',
       'risk_analysis',
-      'scenario_forecast'
+      'scenario_forecast',
+      'debt_schedule',
+      'covenant_monitoring',
+      'credit_risk',
+      'treasury_liquidity'
     ]);
   });
 
@@ -325,7 +329,11 @@ describe('BONDS deterministic financial engine registry', () => {
       'feasibility_run',
       'valuation_run',
       'risk_analysis_run',
-      'scenario_forecast_run'
+      'scenario_forecast_run',
+      'debt_schedule_run',
+      'covenant_monitoring_run',
+      'credit_risk_run',
+      'treasury_liquidity_run'
     ];
 
     for (const action of actions) {
