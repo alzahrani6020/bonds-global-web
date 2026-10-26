@@ -6,6 +6,7 @@ const { createClient } = require('@supabase/supabase-js');
 const canonicalModel = require('../services/bonds_native_inference/canonical-model.json');
 const { assertAssistantProduction } = require('./assistant-production-smoke');
 const { runSyntheticProductionJourneys } = require('../lib/assistant/synthetic-production-journeys');
+const { runProductionConversationalSmoke } = require('../lib/assistant/production-conversational-smoke');
 
 const cfg = {
   baseUrl: (process.env.PRODUCTION_URL || 'https://bonds-global.com').replace(/\/$/, ''),
@@ -697,6 +698,11 @@ async function main() {
   const token = await getAuthenticatedToken();
   await assertFinancialDataIntake(token);
   await assertNativeProductionRuntime(token);
+  await runProductionConversationalSmoke({
+    baseUrl: cfg.baseUrl,
+    token,
+    expectedSha: cfg.expectedSha
+  });
   // Run the bounded synthetic journeys before the broader Assistant smoke so they
   // are not starved by the shared Assistant compute rate-limit window.
   await runSyntheticProductionJourneys({
