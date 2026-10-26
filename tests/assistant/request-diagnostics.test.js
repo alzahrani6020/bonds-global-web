@@ -56,6 +56,46 @@ describe('assistant request diagnostics', () => {
     }));
   });
 
+  test('marks failed exploration as degraded when governed fallback still produces verified evidence', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-official-fallback',
+      path:'OPEN_CHAT_RESEARCH',
+      loopResult:{
+        ok:true,
+        reply:'https://www.mof.gov.sa/',
+        failed:false,
+        trace:[
+          { action:'web_search', execution:{ ok:true } },
+          { action:'web_explore', execution:{ ok:false, error:{ code:'WEB_ACQUISITION_FAILED' } } },
+          { action:'evidence_verify', execution:{ ok:true } },
+          { action:'research_synthesize', execution:{ ok:true } }
+        ],
+        research:{
+          status:'completed',
+          initial_quality_code:'PASS',
+          repair_attempted:false,
+          decision_eligible:true,
+          source_count:1,
+          evidence_count:1,
+          verification_state:'SUPPORTED',
+          timings:{ search_ms:100, explore_ms:50, verify_ms:20, synthesize_ms:10 },
+          research_acquisition_ms:200,
+          answer_synthesis_ms:100,
+          unknowns:[],
+          contradictions:[]
+        }
+      }
+    });
+
+    expect(result.status).toBe(STATUS.DEGRADED);
+    expect(result.failure_stage).toBeNull();
+    expect(result.root_cause_stage).toBeNull();
+    expect(result.stages.find(row => row.stage === 'research_acquisition').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'explore').status).toBe(STATUS.DEGRADED);
+    expect(result.stages.find(row => row.stage === 'evidence').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
+  });
+
   test('does not treat HTTP-success quality rejection as final success', () => {
     const result = buildRequestDiagnostics({
       requestId:'req-quality',
