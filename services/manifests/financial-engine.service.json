@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 11,
+  "version": 12,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -265,6 +265,20 @@
       ],
       "runtime": {
         "adapter": "accounting_dimension_income_statement"
+      }
+    },
+    {
+      "action": "accounting_dimension_financial_position",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-029",
+      "purpose": "Prepare a deterministic statement of financial position by canonical cost-center or segment dimension from posted accounting journals, including current-period earnings.",
+      "side_effect": "none",
+      "required": [
+        "accounting_entity_id",
+        "dimension_type"
+      ],
+      "runtime": {
+        "adapter": "accounting_dimension_financial_position"
       }
     },
     {
