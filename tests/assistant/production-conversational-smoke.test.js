@@ -1,5 +1,6 @@
 const {
   containsOfficialMofDomain,
+  safeDiagnosticsSummary,
   runProductionConversationalSmoke
 } = require('../../lib/assistant/production-conversational-smoke');
 
@@ -68,6 +69,96 @@ describe('Assistant production conversational smoke', () => {
     expect(calls[0].body.messages).toHaveLength(1);
     expect(calls[1].body.messages).toHaveLength(3);
     expect(calls[1].body.messages[1].role).toBe('assistant');
+  });
+
+
+  test('safe diagnostics summary exposes metadata only', () => {
+    const summary = safeDiagnosticsSummary({
+      reply:'SECRET_REPLY_SHOULD_NOT_LEAK https://private.example/path',
+      source:'bonds-assistant-ai-tool',
+      inference:{
+        tool_used:true,
+        actions:['web_search','web_explore'],
+        raw_trace:[{ secret:'NOPE' }]
+      },
+      diagnostics:{
+        path:'OPEN_CHAT_RESEARCH',
+        status:'FAIL',
+        pipeline_stage:'research_acquisition',
+        root_cause_stage:'search_relevance',
+        failure_stage:'search_relevance',
+        error_code:'SEARCH_LOW_RELEVANCE',
+        evidence:{
+          decision_eligible:false,
+          source_count:0,
+          evidence_count:0,
+          unknown_count:1,
+          contradiction_count:0
+        },
+        acquisition_trace:{
+          failure_samples:[{ url:'https://private.example/path' }]
+        }
+      }
+    });
+
+    expect(summary).toEqual({
+      source:'bonds-assistant-ai-tool',
+      tool_used:true,
+      actions:['web_search','web_explore'],
+      path:'OPEN_CHAT_RESEARCH',
+      status:'FAIL',
+      pipeline_stage:'research_acquisition',
+      root_cause_stage:'search_relevance',
+      failure_stage:'search_relevance',
+      error_code:'SEARCH_LOW_RELEVANCE',
+      decision_eligible:false,
+      source_count:0,
+      evidence_count:0,
+      unknown_count:1,
+      contradiction_count:0
+    });
+    expect(JSON.stringify(summary)).not.toContain('SECRET_REPLY_SHOULD_NOT_LEAK');
+    expect(JSON.stringify(summary)).not.toContain('private.example');
+    expect(JSON.stringify(summary)).not.toContain('raw_trace');
+  });
+
+  test('logs safe diagnostics metadata when evidence-backed research proof fails', async () => {
+    const logs = [];
+    const fetchImpl = jest.fn(async () => jsonResponse(200, {
+      reply:'وزارة المالية السعودية',
+      source:'bonds-assistant-ai-tool',
+      inference:{ tool_used:true, actions:['web_search'] },
+      diagnostics:{
+        path:'OPEN_CHAT_RESEARCH',
+        status:'FAIL',
+        pipeline_stage:'research_acquisition',
+        root_cause_stage:'search_relevance',
+        failure_stage:'search_relevance',
+        error_code:'SEARCH_LOW_RELEVANCE',
+        evidence:{
+          decision_eligible:false,
+          source_count:0,
+          evidence_count:0,
+          unknown_count:1,
+          contradiction_count:0
+        }
+      }
+    }));
+
+    await expect(runProductionConversationalSmoke({
+      baseUrl:'https://bonds-global.com',
+      token:'token',
+      expectedSha:'e'.repeat(40),
+      fetchImpl,
+      sleepImpl:async () => {},
+      log:value => logs.push(String(value))
+    })).rejects.toThrow('successful evidence-backed research pipeline');
+
+    expect(logs).toHaveLength(1);
+    expect(logs[0]).toContain('BONDS conversational smoke diagnostics');
+    expect(logs[0]).toContain('"root_cause_stage":"search_relevance"');
+    expect(logs[0]).toContain('"decision_eligible":false');
+    expect(logs[0]).not.toContain('وزارة المالية السعودية');
   });
 
   test('fails closed when evidence is valid but the verified official URL is missing', async () => {
