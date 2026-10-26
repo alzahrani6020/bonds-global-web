@@ -115,3 +115,86 @@ describe('Assistant production conversational smoke', () => {
   });
 
 });
+
+
+describe('official source URL research contract', () => {
+  const {
+    officialUrlRequest,
+    officialUrlOnlyRequest,
+    verifiedOfficialSourceUrl,
+    ensureRequestedOfficialUrl
+  } = require('../../lib/assistant/open-chat-tool-loop');
+  const { buildSearchRoute } = require('../../lib/intelligence/search-router');
+  const { findInstitutionalSources } = require('../../lib/intelligence/institutional-source-registry');
+
+  test('routes Saudi Ministry of Finance research through its official institutional domain', () => {
+    const sources = findInstitutionalSources({
+      query:'وزارة المالية السعودية الموقع الرسمي',
+      intent:'web_research',
+      country:'SA'
+    });
+    expect(sources.some(source =>
+      source.id === 'ministry_finance_sa' &&
+      source.domains.includes('mof.gov.sa')
+    )).toBe(true);
+
+    const route = buildSearchRoute({
+      query:'وزارة المالية السعودية الموقع الرسمي',
+      intent:'web_research',
+      country:'SA'
+    });
+    expect(route.preferred_domains).toContain('mof.gov.sa');
+    expect(route.query_variants.some(query => query.includes('site:mof.gov.sa'))).toBe(true);
+  });
+
+  test('keeps the entity name when the user asks for name plus official URL', () => {
+    const intent = {
+      current:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+      query:'وزارة المالية السعودية الموقع الرسمي',
+      language_plan:{
+        raw_text:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.'
+      }
+    };
+    const sources = [{
+      title:'وزارة المالية',
+      publisher:'Ministry of Finance',
+      url:'https://www.mof.gov.sa/ar/Pages/default.aspx'
+    }];
+
+    expect(officialUrlRequest(intent)).toBe(true);
+    expect(officialUrlOnlyRequest(intent)).toBe(false);
+
+    const reply = ensureRequestedOfficialUrl('وزارة المالية السعودية', intent, sources);
+    expect(reply).toContain('وزارة المالية السعودية');
+    expect(reply).toContain('https://www.mof.gov.sa/ar/Pages/default.aspx');
+  });
+
+  test('returns only the official URL when the user explicitly asks for the link only', () => {
+    const intent = {
+      current:'أعطني الرابط الرسمي فقط',
+      language_plan:{ raw_text:'أعطني الرابط الرسمي فقط' }
+    };
+    const sources = [{
+      title:'وزارة المالية',
+      publisher:'Ministry of Finance',
+      url:'https://www.mof.gov.sa/ar/Pages/default.aspx'
+    }];
+
+    expect(officialUrlOnlyRequest(intent)).toBe(true);
+    expect(ensureRequestedOfficialUrl('وزارة المالية السعودية', intent, sources))
+      .toBe('https://www.mof.gov.sa/ar/Pages/default.aspx');
+  });
+
+  test('does not invent an official URL when verified institutional evidence is absent', () => {
+    const intent = {
+      current:'أعطني الرابط الرسمي فقط',
+      language_plan:{ raw_text:'أعطني الرابط الرسمي فقط' }
+    };
+    const reply = ensureRequestedOfficialUrl(
+      'الجهة الرسمية',
+      intent,
+      [{ url:'https://example.com/' }]
+    );
+    expect(reply).toBe('الجهة الرسمية');
+  });
+});
