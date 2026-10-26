@@ -197,6 +197,26 @@ describe('official source URL research contract', () => {
       .toBe('https://www.mof.gov.sa/ar/Pages/default.aspx');
   });
 
+  test('does not duplicate a verified official URL already present in the answer', () => {
+    const {
+      ensureRequestedOfficialUrl
+    } = require('../../lib/assistant/open-chat-tool-loop');
+    const intent = {
+      current:'اذكر اسم الجهة والرابط الرسمي فقط',
+      language_plan:{ raw_text:'اذكر اسم الجهة والرابط الرسمي فقط' }
+    };
+    const officialUrl = 'https://www.mof.gov.sa/ar/Pages/default.aspx';
+    const reply = `وزارة المالية السعودية\n${officialUrl}`;
+    const result = ensureRequestedOfficialUrl(reply, intent, [{
+      title:'وزارة المالية',
+      publisher:'Ministry of Finance',
+      url:officialUrl
+    }]);
+
+    expect(result).toBe(reply);
+    expect((result.match(/mof\.gov\.sa/g) || []).length).toBe(1);
+  });
+
   test('does not invent an official URL when verified institutional evidence is absent', () => {
     const intent = {
       current:'أعطني الرابط الرسمي فقط',
