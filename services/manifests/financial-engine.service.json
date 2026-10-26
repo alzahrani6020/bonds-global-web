@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 13,
+  "version": 14,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -268,6 +268,20 @@
       }
     },
     {
+      "action": "accounting_dimension_financial_position",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-030",
+      "purpose": "Prepare a deterministic statement of financial position by canonical cost-center or segment dimension from posted accounting journals, including current-period earnings.",
+      "side_effect": "none",
+      "required": [
+        "accounting_entity_id",
+        "dimension_type"
+      ],
+      "runtime": {
+        "adapter": "accounting_dimension_financial_position"
+      }
+    },
+    {
       "action": "accounting_dimension_ledger_report",
       "action_type": "data",
       "id": "BONDS-CAP-FIN-025",
@@ -451,7 +465,7 @@
     {
       "action": "consolidation_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-030",
+      "id": "BONDS-CAP-FIN-031",
       "purpose": "Run deterministic group consolidation with explicit ownership, NCI, intercompany eliminations and acquisition adjustments.",
       "side_effect": "compute",
       "required": [
@@ -464,7 +478,7 @@
     {
       "action": "accounting_group_configure",
       "action_type": "data",
-      "id": "BONDS-CAP-FIN-031",
+      "id": "BONDS-CAP-FIN-032",
       "purpose": "Configure a governed accounting group, parent entity, subsidiaries and ownership percentages without creating a parallel ledger.",
       "side_effect": "database_write",
       "required": [
@@ -481,7 +495,7 @@
     {
       "action": "accounting_intercompany_link",
       "action_type": "data",
-      "id": "BONDS-CAP-FIN-032",
+      "id": "BONDS-CAP-FIN-033",
       "purpose": "Link a posted journal line to its intercompany counterparty within a governed accounting group for deterministic reconciliation and elimination.",
       "side_effect": "database_write",
       "required": [
@@ -499,7 +513,7 @@
     {
       "action": "accounting_consolidation_report",
       "action_type": "data",
-      "id": "BONDS-CAP-FIN-033",
+      "id": "BONDS-CAP-FIN-034",
       "purpose": "Read posted ledgers for every governed group member and produce a deterministic consolidated financial report with explicit intercompany eliminations.",
       "side_effect": "none",
       "required": [
