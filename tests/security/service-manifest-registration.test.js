@@ -83,6 +83,7 @@ describe(
           'accounting_allocation_execute',
           'accounting_allocation_rule_configure',
           'accounting_asset_create',
+          'accounting_bank_reconciliation_run',
           'accounting_budget_analysis',
           'accounting_budget_draft_save',
           'accounting_budget_plan_create',
