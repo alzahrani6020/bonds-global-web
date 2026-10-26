@@ -15,7 +15,7 @@ describe('post-release pipeline contracts', () => {
     expect(workflow).toContain('grep -F "<!DOCTYPE html>"');
   });
 
-  test('production promotion refuses stale main SHAs', () => {
+  test('production promotion rejects stale content but permits equivalent Git trees', () => {
     const workflow = fs.readFileSync(
       path.resolve(__dirname, '../.github/workflows/deploy-vercel.yml'),
       'utf8'
@@ -23,7 +23,10 @@ describe('post-release pipeline contracts', () => {
 
     expect(workflow).toContain('Verify release candidate is current main');
     expect(workflow).toContain('git fetch origin main --depth=1');
-    expect(workflow).toContain('Refusing to promote stale release candidate.');
+    expect(workflow).toContain('current_tree="$(git rev-parse "$current_main^{tree}")"');
+    expect(workflow).toContain('release_tree="$(git rev-parse "$release_sha^{tree}")"');
+    expect(workflow).toContain('Refusing to promote stale release candidate with a different Git tree.');
+    expect(workflow).toContain('Release SHA differs from current main, but the Git trees are identical.');
   });
 
   test('CI has a bounded runtime for hung browser suites', () => {

@@ -196,13 +196,25 @@ jobs:
           release_sha="${{ steps.release.outputs.sha }}"
 
           if [[ "$current_main" != "$release_sha" ]]; then
-            echo "Refusing to promote stale release candidate."
+            current_tree="$(git rev-parse "$current_main^{tree}")"
+            release_tree="$(git rev-parse "$release_sha^{tree}")"
+
+            if [[ "$current_tree" != "$release_tree" ]]; then
+              echo "Refusing to promote stale release candidate with a different Git tree."
+              echo "Release candidate: $release_sha"
+              echo "Release tree:      $release_tree"
+              echo "Current main:      $current_main"
+              echo "Current tree:      $current_tree"
+              exit 1
+            fi
+
+            echo "Release SHA differs from current main, but the Git trees are identical."
             echo "Release candidate: $release_sha"
             echo "Current main:      $current_main"
-            exit 1
+            echo "Equivalent tree:   $release_tree"
+          else
+            echo "Release candidate is still current main: $release_sha"
           fi
-
-          echo "Release candidate is still current main: $release_sha"
 
       - name: Promote tested deployment
         id: promote
