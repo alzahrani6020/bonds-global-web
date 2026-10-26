@@ -8,6 +8,43 @@ const { actionFingerprint } = require('../lib/assistant/confirmation-engine');
 
 // Uses the existing smoke user's session. Only a synthetic idempotency ledger
 // entry and audit evidence are written; no form or financial record is saved.
+
+// Transport-error classification for smoke diagnostics. Only structural fields
+// (name/code) are inspected or reported; raw error messages are never logged,
+// so credentials, tokens and response payloads cannot leak through them.
+function describeFetchError(error) {
+  if (!error || typeof error !== 'object') {
+    return { name: 'UnknownError', code: null, causeName: null, causeCode: null, kind: 'other' };
+  }
+  const name = typeof error.name === 'string' && error.name ? error.name : null;
+  const code = typeof error.code === 'string' && error.code ? error.code : null;
+  const cause = error.cause && typeof error.cause === 'object' ? error.cause : null;
+  const causeName = cause && typeof cause.name === 'string' && cause.name ? cause.name : null;
+  const causeCode = cause && typeof cause.code === 'string' && cause.code ? cause.code : null;
+  const causeMessage = cause && typeof cause.message === 'string' ? cause.message : '';
+  const haystack = `${name || ''} ${code || ''} ${causeName || ''} ${causeCode || ''}`.toUpperCase();
+  let kind = 'other';
+  if (name === 'TimeoutError' || code === 'ETIMEDOUT' || causeCode === 'ETIMEDOUT' ||
+      haystack.includes('UND_ERR_CONNECT_TIMEOUT')) {
+    kind = 'timeout';
+  } else if (name === 'AbortError' || haystack.includes('ABORT_ERR')) {
+    kind = 'abort';
+  } else if (haystack.includes('UND_ERR_SOCKET')) {
+    kind = 'socket';
+  } else if (code === 'ECONNRESET' || causeCode === 'ECONNRESET') {
+    kind = 'connreset';
+  } else if (haystack.includes('ENOTFOUND') || haystack.includes('EAI_AGAIN') ||
+             haystack.includes('DNS')) {
+    kind = 'dns';
+  } else if (haystack.includes('CERT') || haystack.includes('TLS') || haystack.includes('SSL') ||
+             haystack.includes('EPROTO') || haystack.includes('UNABLE_TO_VERIFY')) {
+    kind = 'tls';
+  } else if (causeMessage.toUpperCase().includes('REDIRECT')) {
+    kind = 'redirect';
+  }
+  return { name: name || 'UnknownError', code, causeName, causeCode, kind };
+}
+
 async function assertAssistantProduction({
   baseUrl,
   token,
@@ -54,6 +91,7 @@ async function assertAssistantProduction({
     for (let attempt = 1; attempt <= 2; attempt++) {
       requestCount += 1;
       let response;
+      const startedAt = Date.now();
       try {
         response = await fetchImpl(`${origin.origin}/api/v3${path}`, {
           method,
@@ -63,8 +101,15 @@ async function assertAssistantProduction({
           redirect: 'error',
           signal: AbortSignal.timeout(20000)
         });
-      } catch (_) {
-        throw new Error(`Assistant smoke request failed: ${method} ${path} (marker=${marker})`);
+      } catch (error) {
+        const detail = describeFetchError(error);
+        throw new Error(
+          `Assistant smoke request failed: ${method} ${path} ` +
+          `(attempt=${attempt}, elapsed_ms=${Date.now() - startedAt}, kind=${detail.kind}, ` +
+          `error_name=${detail.name}, error_code=${detail.code || 'none'}, ` +
+          `cause_name=${detail.causeName || 'none'}, cause_code=${detail.causeCode || 'none'}, ` +
+          `marker=${marker})`
+        );
       }
 
       if (response.status === 429 && attempt === 1) {
