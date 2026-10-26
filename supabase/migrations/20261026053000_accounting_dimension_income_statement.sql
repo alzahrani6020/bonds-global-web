@@ -19,7 +19,14 @@ returns table(
   account_code text,
   account_name text,
   account_type text,
-  amount numeric
+  amount numeric,
+  gross_revenue numeric,
+  contra_revenue_total numeric,
+  net_revenue numeric,
+  gross_expense numeric,
+  contra_expense_total numeric,
+  net_expense numeric,
+  net_income numeric
 )
 language plpgsql
 stable
@@ -64,71 +71,107 @@ begin
   end if;
 
   return query
-  select
-    v_dimension_type,
-    l.dimensions->>v_dimension_type as dimension_code,
-    d.name as dimension_name,
-    case a.account_type
-      when 'revenue' then 'revenue'
-      when 'contra_revenue' then 'contra_revenue'
-      when 'expense' then 'expense'
-      when 'contra_expense' then 'contra_expense'
-      else null
-    end as statement_class,
-    a.code as account_code,
-    a.name as account_name,
-    a.account_type,
-    case a.account_type
+  with account_rows as (
+    select
+      l.dimensions->>v_dimension_type as dimension_code,
+      d.name as dimension_name,
+      case a.account_type
+        when 'revenue' then 'revenue'
+        when 'contra_revenue' then 'contra_revenue'
+        when 'expense' then 'expense'
+        when 'contra_expense' then 'contra_expense'
+        else null
+      end as statement_class,
+      a.code as account_code,
+      a.name as account_name,
+      a.account_type,
+      (
+        case a.account_type
+          when 'revenue' then coalesce(sum(l.credit-l.debit),0)
+          when 'contra_revenue' then coalesce(sum(l.debit-l.credit),0)
+          when 'expense' then coalesce(sum(l.debit-l.credit),0)
+          when 'contra_expense' then coalesce(sum(l.credit-l.debit),0)
+          else 0
+        end
+      )::numeric as amount
+    from public.accounting_journal_entries j
+    join public.accounting_journal_lines l
+      on l.accounting_entity_id=j.accounting_entity_id
+     and l.journal_entry_id=j.id
+    join public.accounting_accounts a
+      on a.accounting_entity_id=l.accounting_entity_id
+     and a.id=l.account_id
+    join public.accounting_dimensions d
+      on d.accounting_entity_id=l.accounting_entity_id
+     and d.dimension_type=v_dimension_type
+     and d.code=l.dimensions->>v_dimension_type
+    where j.accounting_entity_id=p_accounting_entity_id
+      and j.status='posted'
+      and a.account_type in (
+        'revenue','contra_revenue','expense','contra_expense'
+      )
+      and l.dimensions ? v_dimension_type
+      and nullif(btrim(l.dimensions->>v_dimension_type),'') is not null
+      and (v_dimension_code is null or l.dimensions->>v_dimension_type=v_dimension_code)
+      and (p_from is null or j.effective_at::date >= p_from)
+      and (p_to is null or j.effective_at::date <= p_to)
+    group by
+      l.dimensions->>v_dimension_type,
+      d.name,
+      a.code,
+      a.name,
+      a.account_type
+    having case a.account_type
       when 'revenue' then coalesce(sum(l.credit-l.debit),0)
       when 'contra_revenue' then coalesce(sum(l.debit-l.credit),0)
       when 'expense' then coalesce(sum(l.debit-l.credit),0)
       when 'contra_expense' then coalesce(sum(l.credit-l.debit),0)
       else 0
-    end::numeric as amount
-  from public.accounting_journal_entries j
-  join public.accounting_journal_lines l
-    on l.accounting_entity_id=j.accounting_entity_id
-   and l.journal_entry_id=j.id
-  join public.accounting_accounts a
-    on a.accounting_entity_id=l.accounting_entity_id
-   and a.id=l.account_id
-  join public.accounting_dimensions d
-    on d.accounting_entity_id=l.accounting_entity_id
-   and d.dimension_type=v_dimension_type
-   and d.code=l.dimensions->>v_dimension_type
-  where j.accounting_entity_id=p_accounting_entity_id
-    and j.status='posted'
-    and a.account_type in (
-      'revenue','contra_revenue','expense','contra_expense'
-    )
-    and l.dimensions ? v_dimension_type
-    and nullif(btrim(l.dimensions->>v_dimension_type),'') is not null
-    and (v_dimension_code is null or l.dimensions->>v_dimension_type=v_dimension_code)
-    and (p_from is null or j.effective_at::date >= p_from)
-    and (p_to is null or j.effective_at::date <= p_to)
-  group by
-    l.dimensions->>v_dimension_type,
-    d.name,
-    a.code,
-    a.name,
-    a.account_type
-  having case a.account_type
-    when 'revenue' then coalesce(sum(l.credit-l.debit),0)
-    when 'contra_revenue' then coalesce(sum(l.debit-l.credit),0)
-    when 'expense' then coalesce(sum(l.debit-l.credit),0)
-    when 'contra_expense' then coalesce(sum(l.credit-l.debit),0)
-    else 0
-  end <> 0
+    end <> 0
+  ),
+  with_totals as (
+    select
+      r.*,
+      coalesce(sum(r.amount) filter(where r.statement_class='revenue')
+        over(partition by r.dimension_code),0)::numeric as gross_revenue,
+      coalesce(sum(r.amount) filter(where r.statement_class='contra_revenue')
+        over(partition by r.dimension_code),0)::numeric as contra_revenue_total,
+      coalesce(sum(r.amount) filter(where r.statement_class='expense')
+        over(partition by r.dimension_code),0)::numeric as gross_expense,
+      coalesce(sum(r.amount) filter(where r.statement_class='contra_expense')
+        over(partition by r.dimension_code),0)::numeric as contra_expense_total
+    from account_rows r
+  )
+  select
+    v_dimension_type,
+    t.dimension_code,
+    t.dimension_name,
+    t.statement_class,
+    t.account_code,
+    t.account_name,
+    t.account_type,
+    t.amount,
+    t.gross_revenue,
+    t.contra_revenue_total,
+    (t.gross_revenue-t.contra_revenue_total)::numeric as net_revenue,
+    t.gross_expense,
+    t.contra_expense_total,
+    (t.gross_expense-t.contra_expense_total)::numeric as net_expense,
+    (
+      (t.gross_revenue-t.contra_revenue_total) -
+      (t.gross_expense-t.contra_expense_total)
+    )::numeric as net_income
+  from with_totals t
   order by
-    l.dimensions->>v_dimension_type,
-    case a.account_type
+    t.dimension_code,
+    case t.statement_class
       when 'revenue' then 10
       when 'contra_revenue' then 20
       when 'expense' then 30
       when 'contra_expense' then 40
       else 99
     end,
-    a.code;
+    t.account_code;
 end;
 $$;
 
