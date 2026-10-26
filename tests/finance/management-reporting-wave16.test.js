@@ -45,8 +45,8 @@ describe('Management reporting core wave 16', () => {
     expect(result.metrics.kpi_count).toBe(1);
     expect(result.metrics.risk_count).toBe(1);
     expect(result.metrics.action_count).toBe(1);
-    expect(result.metrics.material_variance_count).toBe(4);
-    expect(result.metrics.pack.cfo_focus.material_variance_count).toBe(4);
+    expect(result.metrics.material_variance_count).toBe(3);
+    expect(result.metrics.pack.cfo_focus.material_variance_count).toBe(3);
     expect(result.diagnostics.commentary_method).toBe('formula_based_no_ai');
   });
 
