@@ -135,7 +135,7 @@ describe('official source URL research contract', () => {
     ];
 
     expect(officialUrlRequest(intent)).toBe(true);
-    expect(officialUrlOnlyRequest(intent)).toBe(true);
+    expect(officialUrlOnlyRequest(intent)).toBe(false);
     expect(verifiedOfficialSourceUrl(sources)).toContain('mof.gov.sa');
 
     const reply = ensureRequestedOfficialUrl(
@@ -144,7 +144,24 @@ describe('official source URL research contract', () => {
       sources
     );
 
-    expect(reply).toBe('https://www.mof.gov.sa/ar/Pages/default.aspx');
+    expect(reply).toContain('وزارة المالية السعودية');
+    expect(reply).toContain('https://www.mof.gov.sa/ar/Pages/default.aspx');
+  });
+
+  test('returns only the official URL when the user explicitly asks for the link only', () => {
+    const intent = {
+      current:'أعطني الرابط الرسمي فقط',
+      language_plan:{ raw_text:'أعطني الرابط الرسمي فقط' }
+    };
+    const sources = [{
+      title:'وزارة المالية',
+      publisher:'Ministry of Finance',
+      url:'https://www.mof.gov.sa/ar/Pages/default.aspx'
+    }];
+
+    expect(officialUrlOnlyRequest(intent)).toBe(true);
+    expect(ensureRequestedOfficialUrl('وزارة المالية السعودية', intent, sources))
+      .toBe('https://www.mof.gov.sa/ar/Pages/default.aspx');
   });
 
   test('does not invent an official URL when verified institutional evidence is absent', () => {
