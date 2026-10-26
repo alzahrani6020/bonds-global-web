@@ -94,7 +94,7 @@ describe('Accounting operations wave 24 adjustments', () => {
     const entry = manifest.capabilities.find(
       item => item.action === 'accounting_adjustment_post'
     );
-    expect(manifest.version).toBe(21);
+    expect(manifest.version).toBe(22);
     expect(entry).toBeTruthy();
     expect(entry.id).toBe('BONDS-CAP-FIN-045');
     expect(entry.side_effect).toBe('database_write');
