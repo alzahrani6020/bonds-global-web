@@ -7,7 +7,7 @@ function migration() {
   return fs.readFileSync(
     path.join(
       process.cwd(),
-      'supabase/migrations/20261027008000_financial_core_wave25_budget_governance.sql'
+      'supabase/migrations/20261027009000_financial_core_wave25_budget_governance.sql'
     ),
     'utf8'
   );
