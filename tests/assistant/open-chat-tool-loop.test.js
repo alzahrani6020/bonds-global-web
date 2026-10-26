@@ -38,6 +38,31 @@ describe('BONDS governed open-chat tool loop', () => {
     expect(query).toBe('من هو الدكتور طلال حسن الزهراني؟');
   });
 
+  test('answers explicit prior-link follow-up deterministically from the previous assistant message', () => {
+    const { deterministicConversationUrlFollowUp } = require('../../lib/assistant/open-chat-tool-loop');
+    const result = deterministicConversationUrlFollowUp([
+      { role:'user', content:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية.' },
+      { role:'assistant', content:'وزارة المالية السعودية\nhttps://www.mof.gov.sa/' },
+      { role:'user', content:'ما الرابط الرسمي الذي وجدته في الإجابة السابقة؟ أجب بالرابط فقط.' }
+    ]);
+
+    expect(result).toEqual(expect.objectContaining({
+      ok:true,
+      reply:'https://www.mof.gov.sa/',
+      toolUsed:false,
+      steps:0,
+      deterministic:true
+    }));
+  });
+
+  test('does not invent a URL when the previous assistant message contains none', () => {
+    const { deterministicConversationUrlFollowUp } = require('../../lib/assistant/open-chat-tool-loop');
+    expect(deterministicConversationUrlFollowUp([
+      { role:'assistant', content:'لم أجد رابطاً موثقاً.' },
+      { role:'user', content:'ما الرابط الذي ذكرته سابقاً؟ أجب بالرابط فقط.' }
+    ])).toBeNull();
+  });
+
   test('routes public-person, explicit-search and freshness queries through the language resolver', () => {
     const { researchIntent } = require('../../lib/assistant/open-chat-tool-loop');
     const person = researchIntent([{ role:'user', content:'من هو عمر موسى؟' }]);
