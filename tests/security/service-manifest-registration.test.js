@@ -134,6 +134,7 @@ describe(
           'native_generate',
           'native_health',
           'orchestrator_run',
+          'planning_budgeting_run',
           'profitability_intelligence_run',
           'project_status',
           'recommendation_synthesize',
