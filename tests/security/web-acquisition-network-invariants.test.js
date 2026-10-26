@@ -82,6 +82,33 @@ describe('web acquisition network invariants', () => {
     jest.dontMock('https');
   });
 
+  test('prefers validated IPv4 when DNS returns IPv6 first', async () => {
+    const connectAddresses = [];
+
+    const { acquisition, request } = loadAcquisition({
+      dnsLookup: async () => [
+        { address:'2a06:59c0:4:3::8a', family:6 },
+        { address:'93.184.216.34', family:4 }
+      ],
+      onRequest: ({ callback, address, family }) => {
+        connectAddresses.push({ address, family });
+        callback(makeResponse(200, { 'content-type':'text/plain' }, ['ok']));
+      }
+    });
+
+    const result = await acquisition.fetchUrl('https://public.example/resource', {
+      timeoutMs:200,
+      maxBytes:32
+    });
+
+    expect(result.ok).toBe(true);
+    expect(request).toHaveBeenCalledTimes(1);
+    expect(request.mock.calls[0][0].family).toBe(4);
+    expect(connectAddresses).toEqual([
+      { address:'93.184.216.34', family:4 }
+    ]);
+  });
+
   test('pins the validated DNS address set to the outbound connection with no second resolver lookup', async () => {
     const validatedAddress = '93.184.216.34';
     const connectAddresses = [];
