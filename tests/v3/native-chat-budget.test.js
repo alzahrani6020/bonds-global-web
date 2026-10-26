@@ -35,6 +35,7 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).toContain("error: 'AUTHENTICATION_REQUIRED'");
     expect(source).toContain('requires_authentication: true');
     expect(source).toContain('if (!forceNative)');
+    expect(source).toContain('const forceNative = requestedForceNative && diagnosticsAllowed;');
     expect(source).toContain('runOpenChatLoop(messages, enrichedContext, {');
     expect(source).not.toContain('const deterministicReply =');
     expect(source).not.toContain("source: 'data-driven'");
@@ -44,6 +45,14 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).toContain('adaptiveNativeChatMaxTokens(messages, options.maxTokens)');
     expect(source).toContain('Math.min(384');
     expect(source).toContain('options?.force_native === true');
+    expect(source).toContain('const forceNative = requestedForceNative && diagnosticsAllowed;');
+  });
+
+  test('does not expose rollout debug metadata in public assistant responses', () => {
+    expect(source).not.toContain('debug: debugInfo');
+    expect(source).not.toContain('native_attempted: true');
+    expect(source).not.toContain('nativeError.code || nativeError.message');
+    expect(source).toContain("fallback_reason: 'AI_RUNTIME_UNAVAILABLE'");
   });
 
   test('keeps a bounded 8-12 message prompt with structured context layers', () => {

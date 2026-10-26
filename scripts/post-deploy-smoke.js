@@ -282,11 +282,10 @@ async function assertNativeProductionRuntime(token) {
     const orchestratedNativeEnvelope =
       chat.body?.source === 'bonds-assistant-ai' &&
       chat.body?.provider === 'BONDS' &&
-      chat.body?.inference?.action_fabric?.runtime_adapter === 'native_generate' &&
-      chat.body?.debug?.native_attempted === true;
+      chat.body?.inference?.action_fabric?.runtime_adapter === 'native_generate';
     if (!legacyNativeEnvelope && !orchestratedNativeEnvelope) {
       throw new Error(
-        `${probe.label} chat did not prove Bonds Native execution: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}, debug=${JSON.stringify(chat.body?.debug || null)}`
+        `${probe.label} chat did not prove Bonds Native execution: source=${chat.body?.source || 'missing'}, provider=${chat.body?.provider || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}, elapsed_ms=${elapsedMs}, request_id=${requestId}, inference=${JSON.stringify(chat.body?.inference || null)}`
       );
     }
     if (
