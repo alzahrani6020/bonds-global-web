@@ -95,7 +95,16 @@ describe('Accounting consolidation store wave 17', () => {
             {entity_id:'A',role:'parent',ownership_pct:100,base_currency:'SAR'},
             {entity_id:'B',role:'subsidiary',ownership_pct:100,base_currency:'USD'}
           ],
-          balance_rows:[],
+          balance_rows:[
+            {
+              entity_id:'B',
+              account_code:'1010',
+              account_name:'Cash',
+              account_type:'asset',
+              debit:100,
+              credit:0
+            }
+          ],
           period_rows:[],
           intercompany_links:[]
         },
@@ -109,6 +118,135 @@ describe('Accounting consolidation store wave 17', () => {
     await expect(store.engineInput({
       groupId:'G1'
     })).rejects.toThrow('ACCOUNTING_CONSOLIDATION_FX_TRANSLATION_REQUIRED');
+  });
+
+  test('translates foreign entity rows and intercompany links into presentation currency', async () => {
+    const supabase={
+      rpc:jest.fn().mockResolvedValue({
+        data:{
+          group:{presentation_currency:'SAR'},
+          members:[
+            {entity_id:'A',role:'parent',ownership_pct:100,base_currency:'SAR'},
+            {entity_id:'B',role:'subsidiary',ownership_pct:100,base_currency:'USD'}
+          ],
+          balance_rows:[
+            {
+              entity_id:'A',
+              account_code:'1100',
+              account_name:'IC AR',
+              account_type:'asset',
+              debit:375,
+              credit:0
+            },
+            {
+              entity_id:'A',
+              account_code:'3100',
+              account_name:'Parent Equity',
+              account_type:'equity',
+              debit:0,
+              credit:375
+            },
+            {
+              entity_id:'B',
+              account_code:'1010',
+              account_name:'Cash',
+              account_type:'asset',
+              debit:100,
+              credit:0
+            },
+            {
+              entity_id:'B',
+              account_code:'2100',
+              account_name:'IC AP',
+              account_type:'liability',
+              debit:0,
+              credit:100
+            }
+          ],
+          period_rows:[
+            {
+              entity_id:'B',
+              account_code:'4100',
+              account_name:'Revenue',
+              account_type:'revenue',
+              debit:0,
+              credit:50
+            },
+            {
+              entity_id:'B',
+              account_code:'5100',
+              account_name:'Expense',
+              account_type:'expense',
+              debit:50,
+              credit:0
+            }
+          ],
+          intercompany_links:[
+            {
+              pair_key:'PAIR-FX',
+              accounting_entity_id:'A',
+              counterparty_accounting_entity_id:'B',
+              account_code:'1100',
+              account_name:'IC AR',
+              account_type:'asset',
+              debit:375,
+              credit:0
+            },
+            {
+              pair_key:'PAIR-FX',
+              accounting_entity_id:'B',
+              counterparty_accounting_entity_id:'A',
+              account_code:'2100',
+              account_name:'IC AP',
+              account_type:'liability',
+              debit:0,
+              credit:100
+            }
+          ]
+        },
+        error:null
+      }),
+      from:jest.fn()
+    };
+
+    const store=new SupabaseAccountingConsolidationStore(supabase);
+    const prepared=await store.engineInput({
+      groupId:'G1',
+      fxTranslations:{
+        B:{
+          rates:{
+            closing:{rate:3.75,source:'governed_test'},
+            average:{rate:4.10,appropriate:true,source:'governed_test'}
+          }
+        }
+      }
+    });
+
+    const foreign=prepared.engine_input.entities.find(entity=>entity.id==='B');
+    expect(foreign.balance_rows.find(row=>row.account_code==='1010').debit).toBe(375);
+    expect(foreign.balance_rows.find(row=>row.account_code==='2100').credit).toBe(375);
+    expect(foreign.period_rows.find(row=>row.account_code==='4100').credit).toBe(205);
+    expect(foreign.period_rows.find(row=>row.account_code==='5100').debit).toBe(205);
+
+    expect(prepared.engine_input.intercompany_pairs[0]).toEqual(
+      expect.objectContaining({
+        id:'PAIR-FX',
+        source_amount:375,
+        counterparty_amount:375
+      })
+    );
+
+    expect(prepared.fx_translation_evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          entity_id:'B',
+          functional_currency:'USD',
+          presentation_currency:'SAR',
+          deterministic:true,
+          ai_generated:false
+        })
+      ])
+    );
   });
 
   test('requires a Supabase-compatible database', () => {
