@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 20,
+  "version": 21,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -666,6 +666,72 @@
       ],
       "runtime": {
         "adapter": "planning_budgeting_engine"
+      }
+    },
+    {
+      "action": "accounting_budget_plan_create",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-045",
+      "purpose": "Create a governed budget or forecast plan with its initial draft version for an Accounting Entity the signed-in user can manage.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "code",
+        "name",
+        "plan_type",
+        "fiscal_year_start",
+        "fiscal_year_end",
+        "request_key"
+      ],
+      "runtime": {
+        "adapter": "accounting_budget_plan_create"
+      }
+    },
+    {
+      "action": "accounting_budget_draft_save",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-046",
+      "purpose": "Atomically replace the lines of a governed draft budget or forecast version after validating canonical periods, accounts and dimensions.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "budget_version_id",
+        "lines",
+        "request_key"
+      ],
+      "runtime": {
+        "adapter": "accounting_budget_draft_save"
+      }
+    },
+    {
+      "action": "accounting_budget_version_transition",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-047",
+      "purpose": "Submit, approve, reject or revise a governed budget or forecast version through an immutable version lifecycle.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "budget_version_id",
+        "action",
+        "request_key"
+      ],
+      "runtime": {
+        "adapter": "accounting_budget_version_transition"
+      }
+    },
+    {
+      "action": "accounting_budget_analysis",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-048",
+      "purpose": "Run FIN-043 from an approved budget baseline, optional approved forecast and canonical posted ledger actuals through an explicit actual-through date.",
+      "side_effect": "database_read",
+      "required": [
+        "accounting_entity_id",
+        "budget_plan_id",
+        "actual_through"
+      ],
+      "runtime": {
+        "adapter": "accounting_budget_analysis"
       }
     }
   ]
