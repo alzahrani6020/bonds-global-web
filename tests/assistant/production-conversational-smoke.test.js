@@ -26,7 +26,7 @@ describe('Assistant production conversational smoke', () => {
 
       if (calls.length === 1) {
         return jsonResponse(200, {
-          reply:'وزارة المالية السعودية',
+          reply:'وزارة المالية السعودية — https://www.mof.gov.sa/',
           source:'bonds-assistant-ai-tool',
           inference:{ tool_used:true },
           diagnostics:{
@@ -38,7 +38,7 @@ describe('Assistant production conversational smoke', () => {
       }
 
       return jsonResponse(200, {
-        reply:'وزارة المالية',
+        reply:'https://www.mof.gov.sa/',
         source:'bonds-assistant-ai',
         inference:{ tool_used:false }
       });
@@ -57,7 +57,8 @@ describe('Assistant production conversational smoke', () => {
       ok:true,
       research_tool_used:true,
       evidence_backed:true,
-      follow_up_context:true
+      follow_up_context:true,
+      official_domain:'mof.gov.sa'
     }));
     expect(calls).toHaveLength(2);
     expect(calls.every(call => call.url.endsWith('/api/v3/ai/chat'))).toBe(true);
@@ -67,6 +68,28 @@ describe('Assistant production conversational smoke', () => {
     expect(calls[0].body.messages).toHaveLength(1);
     expect(calls[1].body.messages).toHaveLength(3);
     expect(calls[1].body.messages[1].role).toBe('assistant');
+  });
+
+  test('fails closed when evidence is valid but the verified official URL is missing', async () => {
+    const fetchImpl = jest.fn(async () => jsonResponse(200, {
+      reply:'وزارة المالية السعودية',
+      source:'bonds-assistant-ai-tool',
+      inference:{ tool_used:true },
+      diagnostics:{
+        path:'OPEN_CHAT_RESEARCH',
+        status:'PASS',
+        evidence:{ decision_eligible:true, source_count:2 }
+      }
+    }));
+
+    await expect(runProductionConversationalSmoke({
+      baseUrl:'https://bonds-global.com',
+      token:'token',
+      expectedSha:'d'.repeat(40),
+      fetchImpl,
+      sleepImpl:async () => {},
+      log:() => {}
+    })).rejects.toThrow('verified official mof.gov.sa domain');
   });
 
   test('fails closed when research does not prove tool use', async () => {
