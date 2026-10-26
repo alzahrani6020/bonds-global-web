@@ -411,6 +411,33 @@ describe('BONDS query-led research workflow', () => {
     expect(researchRelevanceQuery({ research:{ query:'عمرو موسى' } })).toBe('');
   });
 
+  test('accepts only the authoritative institutional source selected by the search route', () => {
+    const { authoritativeRoutedSource } = require('../../lib/intelligence/research-workflow');
+    const route = {
+      institutional_sources:[
+        { id:'ministry_finance_sa', authority_score:1 }
+      ]
+    };
+
+    expect(authoritativeRoutedSource(
+      { url:'https://www.mof.gov.sa/' },
+      route,
+      true
+    )?.id).toBe('ministry_finance_sa');
+
+    expect(authoritativeRoutedSource(
+      { url:'https://www.cma.org.sa/' },
+      route,
+      true
+    )).toBeNull();
+
+    expect(authoritativeRoutedSource(
+      { url:'https://www.mof.gov.sa/' },
+      route,
+      false
+    )).toBeNull();
+  });
+
   test('rejects technically successful search results that are not relevant to the entity', () => {
     const ranked = rankRelevantSearchResults([
       {title:'Football news',snippet:'Latest league results',url:'https://sports.example'},
