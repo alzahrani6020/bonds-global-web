@@ -108,8 +108,11 @@ describe('Accounting operations wave 24 adjustments', () => {
     expect(migration).toContain('if mapped_count <> 0 then');
     expect(migration).toContain("'accounting_adjustments'");
     expect(migration).toContain("'accounting_adjustment_post'");
-    expect(migration).toContain('uq_financial_events_adjustment_reversal_source');
+    expect(migration).toContain('uq_accounting_journal_entries_reversal_of');
+    expect(migration).toContain('create or replace function public.accounting_commit_posting');
+    expect(migration).toContain('reversal_of');
+    expect(migration).toContain('ACCOUNTING_REVERSAL_SOURCE_NOT_POSTED');
     expect(migration.toLowerCase()).not.toContain('create table');
-    expect(migration.toLowerCase()).not.toContain('create or replace function');
+    expect((migration.match(/create or replace function/gi) || [])).toHaveLength(1);
   });
 });
