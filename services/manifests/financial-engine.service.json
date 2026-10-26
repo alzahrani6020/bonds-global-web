@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 16,
+  "version": 18,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -569,9 +569,50 @@
       }
     },
     {
-      "action": "accounting_equity_movement_policy_configure",
+      "action": "accounting_trial_balance_report",
       "action_type": "data",
       "id": "BONDS-CAP-FIN-038",
+      "purpose": "Read a deterministic trial balance from posted canonical ledger journals for an Accounting Entity the signed-in user can access.",
+      "side_effect": "database_read",
+      "required": [
+        "accounting_entity_id"
+      ],
+      "runtime": {
+        "adapter": "accounting_trial_balance_report"
+      }
+    },
+    {
+      "action": "accounting_financial_statements_report",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-039",
+      "purpose": "Prepare deterministic financial statements from posted canonical ledger journals for an Accounting Entity the signed-in user can access.",
+      "side_effect": "database_read",
+      "required": [
+        "accounting_entity_id",
+        "from",
+        "to"
+      ],
+      "runtime": {
+        "adapter": "accounting_financial_statements_report"
+      }
+    },
+    {
+      "action": "fx_translation_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-040",
+      "purpose": "Translate foreign-operation financial statement rows deterministically into a presentation currency using explicit closing, transaction or appropriate average, and historical rates with translation differences presented in OCI.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "fx_translation_engine"
+      }
+    },
+    {
+      "action": "accounting_equity_movement_policy_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-041",
       "purpose": "Configure deterministic capital contribution, distribution, or other equity classification for a financial event type.",
       "side_effect": "database_write",
       "required": [
@@ -586,7 +627,7 @@
     {
       "action": "accounting_changes_in_equity_statement",
       "action_type": "data",
-      "id": "BONDS-CAP-FIN-039",
+      "id": "BONDS-CAP-FIN-042",
       "purpose": "Prepare a deterministic statement of changes in equity from canonical posted accounting journals with direct closing-equity reconciliation.",
       "side_effect": "none",
       "required": [
