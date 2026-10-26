@@ -183,6 +183,47 @@ describe('Assistant production conversational smoke', () => {
     })).rejects.toThrow('verified official mof.gov.sa domain');
   });
 
+  test('retries one transient 524 on conversational follow-up with the same request id', async () => {
+    const calls = [];
+    let followUpAttempts = 0;
+    const fetchImpl = jest.fn(async (url, options) => {
+      const body = JSON.parse(options.body);
+      calls.push({ url, options, body });
+
+      if (body.messages.length === 1) {
+        return jsonResponse(200, {
+          reply:'وزارة المالية السعودية — https://www.mof.gov.sa/',
+          source:'bonds-assistant-ai-tool',
+          inference:{ tool_used:true },
+          diagnostics:{
+            path:'OPEN_CHAT_RESEARCH',
+            status:'PASS',
+            evidence:{ decision_eligible:true, source_count:1 }
+          }
+        });
+      }
+
+      followUpAttempts += 1;
+      if (followUpAttempts === 1) return jsonResponse(524, { error:'timeout' });
+      return jsonResponse(200, { reply:'https://www.mof.gov.sa/' });
+    });
+
+    const result = await runProductionConversationalSmoke({
+      baseUrl:'https://bonds-global.com',
+      token:'token',
+      expectedSha:'f'.repeat(40),
+      fetchImpl,
+      sleepImpl:async () => {},
+      log:() => {}
+    });
+
+    expect(result.ok).toBe(true);
+    expect(followUpAttempts).toBe(2);
+    const followUps = calls.filter(call => call.body.messages.length === 3);
+    expect(followUps).toHaveLength(2);
+    expect(followUps[0].options.headers['X-Request-ID']).toBe(followUps[1].options.headers['X-Request-ID']);
+  });
+
   test('fails closed when research does not prove tool use', async () => {
     const fetchImpl = jest.fn(async () => jsonResponse(200, {
       reply:'https://www.mof.gov.sa/',
