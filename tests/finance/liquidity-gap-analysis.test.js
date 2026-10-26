@@ -4,8 +4,8 @@ const {
 } = require('../../lib/finance/financial-engine-registry');
 
 describe('Batch 6A liquidity gap analysis', () => {
-  test('uses financial engine contract version 1.9.0', () => {
-    expect(ENGINE_VERSION).toBe('1.9.0');
+  test('uses financial engine contract version 1.10.0', () => {
+    expect(ENGINE_VERSION).toBe('1.10.0');
   });
 
   test('computes peak cumulative liquidity gap and recovery deterministically', () => {

@@ -99,6 +99,7 @@ describe(
           'accounting_financial_statements_report',
           'accounting_group_configure',
           'accounting_intercompany_link',
+          'accounting_journal_post',
           'accounting_period_transition',
           'accounting_trial_balance_report',
           'accounting_year_end_close',
