@@ -26,14 +26,19 @@ describe('Assistant production conversational smoke', () => {
 
       if (calls.length === 1) {
         return jsonResponse(200, {
-          reply:'وزارة المالية السعودية — https://www.mof.gov.sa/',
+          reply:'وزارة المالية السعودية',
           source:'bonds-assistant-ai-tool',
-          inference:{ tool_used:true }
+          inference:{ tool_used:true },
+          diagnostics:{
+            path:'OPEN_CHAT_RESEARCH',
+            status:'PASS',
+            evidence:{ decision_eligible:true, source_count:2 }
+          }
         });
       }
 
       return jsonResponse(200, {
-        reply:'https://www.mof.gov.sa/',
+        reply:'وزارة المالية',
         source:'bonds-assistant-ai',
         inference:{ tool_used:false }
       });
@@ -51,8 +56,8 @@ describe('Assistant production conversational smoke', () => {
     expect(result).toEqual(expect.objectContaining({
       ok:true,
       research_tool_used:true,
-      follow_up_context:true,
-      official_domain:'mof.gov.sa'
+      evidence_backed:true,
+      follow_up_context:true
     }));
     expect(calls).toHaveLength(2);
     expect(calls.every(call => call.url.endsWith('/api/v3/ai/chat'))).toBe(true);
@@ -80,8 +85,36 @@ describe('Assistant production conversational smoke', () => {
       log:() => {}
     })).rejects.toThrow('did not prove governed tool use');
   });
-});
+  test('fails closed when evidence-backed research diagnostics are missing', async () => {
+    let call = 0;
+    const fetchImpl = jest.fn(async () => {
+      call += 1;
+      if (call === 1) {
+        return jsonResponse(200, {
+          reply:'وزارة المالية السعودية',
+          source:'bonds-assistant-ai-tool',
+          inference:{ tool_used:true },
+          diagnostics:{
+            path:'OPEN_CHAT_RESEARCH',
+            status:'PASS',
+            evidence:{ decision_eligible:true, source_count:0 }
+          }
+        });
+      }
+      return jsonResponse(200, { reply:'وزارة المالية' });
+    });
 
+    await expect(runProductionConversationalSmoke({
+      baseUrl:'https://bonds-global.com',
+      token:'token',
+      expectedSha:'c'.repeat(40),
+      fetchImpl,
+      sleepImpl:async () => {},
+      log:() => {}
+    })).rejects.toThrow('successful evidence-backed research pipeline');
+  });
+
+});
 
 describe('official source URL research contract', () => {
   const {
