@@ -631,7 +631,12 @@ async function aiChatHandler(req, res) {
     console.warn('[ai/chat] Context enrichment failed:', err.message);
   }
 
-  const forceNative = options?.force_native === true;
+  const requestedForceNative = options?.force_native === true;
+  const forceNative = requestedForceNative && diagnosticsAllowed;
+
+  if (requestedForceNative && !forceNative) {
+    console.warn(`[ai/chat] Ignored unauthorized Native probe request requestId=${requestId}`);
+  }
 
   // Resolve page/session/service authority and operational intent before ordinary chat.
   // This reuses the existing Service Execution Layer, workflow state and Agent Inbox.
@@ -699,14 +704,6 @@ async function aiChatHandler(req, res) {
             loopResult,
             totalMs: Date.now() - requestStartedAt
           }) : undefined,
-          debug: {
-            input: lastUser?.content,
-            native_attempted: true,
-            open_chat_planner: true,
-            tool_used: loopResult.toolUsed === true,
-            tool_steps: loopResult.steps || 0,
-            tool_actions: actions
-          },
           context: {
             cityCode: enrichedContext.cityCode || null,
             activityCode: enrichedContext.activityCode || null,
@@ -768,7 +765,7 @@ async function aiChatHandler(req, res) {
     return sendAssistantResponse(res, 503, {
       error: 'BONDS_AI_RUNTIME_UNAVAILABLE',
       reply: 'تعذر تشغيل مساعد بوندز حالياً. لم يتم استخدام رد بديل غير موثوق.',
-      fallback_reason: nativeError ? (nativeError.code || nativeError.message) : 'AI_RESPONSE_UNAVAILABLE',
+      fallback_reason: 'AI_RUNTIME_UNAVAILABLE',
       diagnostics: diagnosticsAllowed ? buildRequestDiagnostics({
         requestId,
         path:'NATIVE_DIRECT',
@@ -781,26 +778,13 @@ async function aiChatHandler(req, res) {
 
   const reply = aiResult.reply;
 
-  // Debug: include enrichment summary in response during rollout
-  const debugInfo = {
-    input: lastUser?.content,
-    cityName: enrichedContext.cityName || null,
-    activityName: enrichedContext.activityName || null,
-    hasMarketData: !!enrichedContext.marketData,
-    hasIndicators: !!enrichedContext.indicators,
-    comparisonCount: (enrichedContext.comparison || []).length,
-    alertCount: (enrichedContext.alerts || []).length,
-    native_attempted: true,
-    native_elapsed_ms: nativeError?.elapsedMs ?? aiResult?.inference?.request_elapsed_ms ?? null
-  };
-
   sendAssistantResponse(res, 200, {
     reply,
     source: 'bonds-assistant-ai',
     provider: aiResult.provider || 'BONDS',
     model: null,
     inference: aiResult?.inference || null,
-    fallback_reason: nativeError ? (nativeError.code || nativeError.message) : null,
+    fallback_reason: nativeError ? 'AI_RUNTIME_UNAVAILABLE' : null,
     diagnostics: diagnosticsAllowed ? buildRequestDiagnostics({
       requestId,
       path:'NATIVE_DIRECT',
@@ -808,7 +792,6 @@ async function aiChatHandler(req, res) {
       nativeError,
       totalMs:Date.now() - requestStartedAt
     }) : undefined,
-    debug: debugInfo,
     context: {
       cityCode: enrichedContext.cityCode || null,
       activityCode: enrichedContext.activityCode || null,
