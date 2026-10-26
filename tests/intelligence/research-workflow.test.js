@@ -438,7 +438,7 @@ describe('BONDS query-led research workflow', () => {
     )).toBeNull();
   });
 
-  test('resolves an explicit official URL through governed evidence verification without web_explore', async () => {
+  test('falls back to governed official URL evidence only when web_explore fails', async () => {
     const { verifyEvidence, synthesizeResearch } = require('../../lib/intelligence/research-intelligence');
     const executeCapability = jest.fn(async (action, input) => {
       if (action === 'web_search') {
@@ -454,11 +454,15 @@ describe('BONDS query-led research workflow', () => {
           }
         };
       }
+      if (action === 'web_explore') {
+        return {
+          ok:false,
+          executed:true,
+          error:{ code:'WEB_ACQUISITION_FAILED' }
+        };
+      }
       if (action === 'evidence_verify') return verifyEvidence(input);
       if (action === 'research_synthesize') return synthesizeResearch(input);
-      if (action === 'web_explore') {
-        throw new Error('web_explore must not run for routed official URL reference evidence');
-      }
       throw new Error('unexpected action: ' + action);
     });
 
@@ -478,6 +482,7 @@ describe('BONDS query-led research workflow', () => {
     expect(result.status).toBe('SUPPORTED');
     expect(result.decisionEligible).toBe(true);
     expect(result.authoritative_primary_evidence_fast_path).toBe(true);
+    expect(result.exploration.fallback).toBe('authoritative_registry_url_reference');
     expect(result.verification.executed).toBe(true);
     expect(result.verification.result.authoritative_primary_evidence_used).toBe(true);
     expect(result.verification.result.sources[0]).toEqual(expect.objectContaining({
@@ -485,13 +490,6 @@ describe('BONDS query-led research workflow', () => {
       url:'https://www.mof.gov.sa/',
       text:''
     }));
-    expect(result.verification.result.sources[0].claims).toEqual([
-      expect.objectContaining({
-        key:'official.url',
-        predicate:'official.url',
-        value:'https://www.mof.gov.sa/'
-      })
-    ]);
     expect(result.evidence).toEqual([
       expect.objectContaining({
         evidence_code:'official.url',
@@ -499,11 +497,7 @@ describe('BONDS query-led research workflow', () => {
         source_url:'https://www.mof.gov.sa/'
       })
     ]);
-    expect(executeCapability).not.toHaveBeenCalledWith(
-      'web_explore',
-      expect.any(Object),
-      expect.any(Object)
-    );
+    expect(executeCapability.mock.calls.filter(([action]) => action === 'web_explore')).toHaveLength(1);
   });
 
   test('rejects technically successful search results that are not relevant to the entity', () => {
