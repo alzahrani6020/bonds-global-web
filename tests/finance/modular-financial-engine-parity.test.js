@@ -183,6 +183,34 @@ describe('modular financial engine architecture parity', () => {
         minimum_liquidity_buffer: 100
       },
       {}
+    ],
+    [
+      'profitability_intelligence',
+      profitabilityIntelligence,
+      {
+        units: [{
+          id: 'P1',
+          scope_type: 'product',
+          revenue: 1000,
+          variable_cost: 400,
+          direct_fixed_cost: 100,
+          allocated_cost: 120
+        }]
+      },
+      {}
+    ],
+    [
+      'unit_economics',
+      unitEconomicsAnalysis,
+      {
+        acquisition_spend: 10000,
+        new_customers: 100,
+        active_customers: 500,
+        revenue: 100000,
+        gross_profit: 40000,
+        ltv: 1500
+      },
+      {}
     ]
   ])('%s registry dispatch preserves direct-engine result', (code, direct, input, options) => {
     expect(stable(runFinancialEngine(code, input, options))).toEqual(
