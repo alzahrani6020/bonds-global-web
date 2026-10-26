@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 9,
+  "version": 10,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -251,6 +251,20 @@
       ],
       "runtime": {
         "adapter": "accounting_year_end_reopen"
+      }
+    },
+    {
+      "action": "accounting_dimension_income_statement",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-026",
+      "purpose": "Prepare a deterministic income statement by canonical cost-center or segment dimension from posted accounting journals.",
+      "side_effect": "none",
+      "required": [
+        "accounting_entity_id",
+        "dimension_type"
+      ],
+      "runtime": {
+        "adapter": "accounting_dimension_income_statement"
       }
     },
     {
