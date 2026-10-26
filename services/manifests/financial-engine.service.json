@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 13,
+  "version": 14,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -460,6 +460,67 @@
       ],
       "runtime": {
         "adapter": "management_reporting_engine"
+      }
+    },
+    {
+      "action": "consolidation_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-031",
+      "purpose": "Run deterministic group consolidation with explicit ownership, NCI, intercompany eliminations and acquisition adjustments.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "consolidation_engine"
+      }
+    },
+    {
+      "action": "accounting_group_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-032",
+      "purpose": "Configure a governed accounting group, parent entity, subsidiaries and ownership percentages without creating a parallel ledger.",
+      "side_effect": "database_write",
+      "required": [
+        "parent_accounting_entity_id",
+        "code",
+        "name",
+        "presentation_currency",
+        "members"
+      ],
+      "runtime": {
+        "adapter": "accounting_group_configure"
+      }
+    },
+    {
+      "action": "accounting_intercompany_link",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-033",
+      "purpose": "Link a posted journal line to its intercompany counterparty within a governed accounting group for deterministic reconciliation and elimination.",
+      "side_effect": "database_write",
+      "required": [
+        "group_id",
+        "accounting_entity_id",
+        "journal_line_id",
+        "counterparty_accounting_entity_id",
+        "pair_key",
+        "intercompany_class"
+      ],
+      "runtime": {
+        "adapter": "accounting_intercompany_link"
+      }
+    },
+    {
+      "action": "accounting_consolidation_report",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-034",
+      "purpose": "Read posted ledgers for every governed group member and produce a deterministic consolidated financial report with explicit intercompany eliminations.",
+      "side_effect": "none",
+      "required": [
+        "group_id"
+      ],
+      "runtime": {
+        "adapter": "accounting_consolidation_report"
       }
     }
   ]
