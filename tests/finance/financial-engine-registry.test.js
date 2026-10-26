@@ -25,7 +25,8 @@ describe('BONDS deterministic financial engine registry', () => {
       'unit_economics',
       'management_reporting',
       'consolidation',
-      'fx_translation'
+      'fx_translation',
+      'planning_budgeting'
     ]);
   });
 
@@ -342,7 +343,8 @@ describe('BONDS deterministic financial engine registry', () => {
       'profitability_intelligence_run',
       'unit_economics_run',
       'management_reporting_run',
-      'consolidation_run'
+      'consolidation_run',
+      'planning_budgeting_run'
     ];
 
     for (const action of actions) {
