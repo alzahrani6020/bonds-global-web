@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 12,
+  "version": 13,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -270,7 +270,7 @@
     {
       "action": "accounting_dimension_financial_position",
       "action_type": "data",
-      "id": "BONDS-CAP-FIN-029",
+      "id": "BONDS-CAP-FIN-030",
       "purpose": "Prepare a deterministic statement of financial position by canonical cost-center or segment dimension from posted accounting journals, including current-period earnings.",
       "side_effect": "none",
       "required": [
@@ -447,6 +447,19 @@
       ],
       "runtime": {
         "adapter": "unit_economics_engine"
+      }
+    },
+    {
+      "action": "management_reporting_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-029",
+      "purpose": "Compose deterministic CFO, board, monthly management and KPI packs from explicit actual, budget, prior-period, KPI, risk and action inputs.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "management_reporting_engine"
       }
     }
   ]

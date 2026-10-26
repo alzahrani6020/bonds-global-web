@@ -12,7 +12,7 @@ const {
 const MIGRATION = fs.readFileSync(
   path.join(
     __dirname,
-    '../../supabase/migrations/20261026234500_accounting_dimension_financial_position.sql'
+    '../../supabase/migrations/20261026235900_accounting_dimension_financial_position.sql'
   ),
   'utf8'
 );
