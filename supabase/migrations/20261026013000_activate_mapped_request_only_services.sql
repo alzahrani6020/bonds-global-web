@@ -17,15 +17,15 @@ begin
       and p.is_active = true
       and p.execution_mode = 'request_only'
       and p.primary_action is null
-      and m.capability_code in (
-        'financial_analysis_run',
-        'risk_analysis_run',
-        'funding_readiness_run',
-        'cash_flow_analysis_run',
-        'scenario_forecast_run'
-      )
-    group by p.service_id
+      group by p.service_id
     having count(*) = 1
+       and bool_and(m.capability_code in (
+         'financial_analysis_run',
+         'risk_analysis_run',
+         'funding_readiness_run',
+         'cash_flow_analysis_run',
+         'scenario_forecast_run'
+       ))
   )
   select count(*) into candidate_count from candidates;
 
@@ -46,15 +46,15 @@ with candidates as (
     and p.is_active = true
     and p.execution_mode = 'request_only'
     and p.primary_action is null
-    and m.capability_code in (
-      'financial_analysis_run',
-      'risk_analysis_run',
-      'funding_readiness_run',
-      'cash_flow_analysis_run',
-      'scenario_forecast_run'
-    )
   group by p.service_id
   having count(*) = 1
+     and bool_and(m.capability_code in (
+       'financial_analysis_run',
+       'risk_analysis_run',
+       'funding_readiness_run',
+       'cash_flow_analysis_run',
+       'scenario_forecast_run'
+     ))
 )
 update public.service_execution_profiles p
 set
