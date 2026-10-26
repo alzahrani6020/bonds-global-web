@@ -86,6 +86,31 @@ describe('Accounting consolidation store wave 17', () => {
     ],'BAD2')).toThrow('INTERCOMPANY_PAIR_NOT_RECIPROCAL:BAD2');
   });
 
+  test('fails closed when member currency differs from presentation currency', async () => {
+    const supabase={
+      rpc:jest.fn().mockResolvedValue({
+        data:{
+          group:{presentation_currency:'SAR'},
+          members:[
+            {entity_id:'A',role:'parent',ownership_pct:100,base_currency:'SAR'},
+            {entity_id:'B',role:'subsidiary',ownership_pct:100,base_currency:'USD'}
+          ],
+          balance_rows:[],
+          period_rows:[],
+          intercompany_links:[]
+        },
+        error:null
+      }),
+      from:jest.fn()
+    };
+
+    const store=new SupabaseAccountingConsolidationStore(supabase);
+
+    await expect(store.engineInput({
+      groupId:'G1'
+    })).rejects.toThrow('ACCOUNTING_CONSOLIDATION_FX_TRANSLATION_REQUIRED');
+  });
+
   test('requires a Supabase-compatible database', () => {
     expect(()=>new SupabaseAccountingConsolidationStore(null))
       .toThrow('ACCOUNTING_CONSOLIDATION_DATABASE_REQUIRED');
