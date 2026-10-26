@@ -398,6 +398,39 @@ describe('BONDS query-led research workflow', () => {
     expect(ranked[0].url).toContain('mof.gov.sa');
   });
 
+  test('accepts a matched registered institutional domain for explicit official-source relevance', () => {
+    const ranked = rankRelevantSearchResults([
+      {
+        title:'وزارة المالية',
+        snippet:'الخدمات الإلكترونية',
+        url:'https://www.mof.gov.sa/ar/Pages/default.aspx'
+      }
+    ], 'وزارة المالية السعودية', {
+      allowAuthoritativeInstitutionalMatch:true
+    });
+
+    expect(ranked).toHaveLength(1);
+    expect(ranked[0]).toEqual(expect.objectContaining({
+      url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+      institutional_source_id:'ministry_finance_sa',
+      authoritative_primary:true
+    }));
+  });
+
+  test('does not accept a different institutional domain for official-source relevance', () => {
+    const ranked = rankRelevantSearchResults([
+      {
+        title:'وزارة التجارة',
+        snippet:'الخدمات الإلكترونية',
+        url:'https://mc.gov.sa/'
+      }
+    ], 'وزارة المالية السعودية', {
+      allowAuthoritativeInstitutionalMatch:true
+    });
+
+    expect(ranked).toHaveLength(0);
+  });
+
   test('uses explicit research topic as semantic relevance reference without breaking query variants', async () => {
     const { researchRelevanceQuery } = require('../../lib/intelligence/research-workflow');
     const request = {
