@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 19,
+  "version": 20,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -637,6 +637,22 @@
       ],
       "runtime": {
         "adapter": "accounting_changes_in_equity_statement"
+      }
+    },
+    {
+      "action": "accounting_journal_post",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-044",
+      "purpose": "Post a governed balanced manual journal entry through the canonical accounting posting RPC for an Accounting Entity the signed-in user can manage.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "effective_at",
+        "request_key",
+        "lines"
+      ],
+      "runtime": {
+        "adapter": "accounting_journal_post"
       }
     },
     {
