@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 15,
+  "version": 16,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -566,6 +566,19 @@
       ],
       "runtime": {
         "adapter": "accounting_dimension_cash_flow_statement"
+      }
+    },
+    {
+      "action": "fx_translation_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-038",
+      "purpose": "Translate foreign-operation financial statement rows deterministically into a presentation currency using explicit closing, transaction or appropriate average, and historical rates with translation differences presented in OCI.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "fx_translation_engine"
       }
     }
   ]
