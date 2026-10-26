@@ -456,9 +456,6 @@ begin
     where m.group_id=p_group_id and m.status='active'
       and (p_from is null or j.effective_at::date>=p_from)
       and (p_to is null or j.effective_at::date<=p_to)
-      and a.account_type in (
-        'revenue','contra_revenue','expense','contra_expense'
-      )
       and (p_to is null or m.effective_from is null or m.effective_from<=p_to)
       and (p_from is null or m.effective_to is null or m.effective_to>=p_from)
     group by m.accounting_entity_id,m.role,m.ownership_pct,
