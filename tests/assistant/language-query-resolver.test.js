@@ -1,6 +1,7 @@
 const {
   normalizeArabicSearch,
   stripSearchCommand,
+  stripOutputInstructions,
   extractEntity,
   classifyGeneralIntent,
   resolveLanguageQuery
@@ -74,6 +75,38 @@ describe('BONDS language and query resolver', () => {
       intent:'web_research',
       requires_research:true
     }));
+  });
+
+  test('strips presentation instructions from a search topic without changing the subject', () => {
+    expect(
+      stripOutputInstructions('الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.')
+    ).toBe('الموقع الرسمي لوزارة المالية السعودية');
+
+    expect(
+      stripOutputInstructions('Saudi Ministry of Finance official website, and return the organization name and official link only.')
+    ).toBe('Saudi Ministry of Finance official website');
+  });
+
+  test('extracts a concise semantic topic from the production official-URL smoke prompt', () => {
+    const result = resolveLanguageQuery(
+      'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.'
+    );
+
+    expect(result.intent).toBe('web_research');
+    expect(result.entity).toEqual(expect.objectContaining({
+      type:'topic',
+      text:'الموقع الرسمي لوزارة المالية السعودية'
+    }));
+    expect(result.selected_query).toBe('الموقع الرسمي لوزارة المالية السعودية');
+    expect(result.query_variants[0]).toBe('الموقع الرسمي لوزارة المالية السعودية');
+  });
+
+  test('does not strip semantic comparison constraints that are part of the research subject', () => {
+    const result = resolveLanguageQuery(
+      'ابحث في الإنترنت عن أثر ضريبة القيمة المضافة على الشركات الصغيرة مع مقارنة 2025 و2026'
+    );
+
+    expect(result.entity.text).toContain('مع مقارنة 2025 و2026');
   });
 
   test('does not silently correct a possibly misspelled entity', () => {
