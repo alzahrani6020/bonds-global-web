@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 14,
+  "version": 15,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -521,6 +521,51 @@
       ],
       "runtime": {
         "adapter": "accounting_consolidation_report"
+      }
+    },
+    {
+      "action": "accounting_cash_account_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-035",
+      "purpose": "Configure a governed cash or cash-equivalent account for an accounting entity without inferring cash status from account type alone.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "account_id"
+      ],
+      "runtime": {
+        "adapter": "accounting_cash_account_configure"
+      }
+    },
+    {
+      "action": "accounting_cash_flow_policy_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-036",
+      "purpose": "Configure a deterministic operating, investing or financing cash-flow classification for a financial event type.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "event_type",
+        "cash_flow_category"
+      ],
+      "runtime": {
+        "adapter": "accounting_cash_flow_policy_configure"
+      }
+    },
+    {
+      "action": "accounting_dimension_cash_flow_statement",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-037",
+      "purpose": "Prepare a deterministic direct cash-flow statement by canonical cost-center or segment dimension with opening, closing and reconciliation controls.",
+      "side_effect": "none",
+      "required": [
+        "accounting_entity_id",
+        "dimension_type",
+        "from",
+        "to"
+      ],
+      "runtime": {
+        "adapter": "accounting_dimension_cash_flow_statement"
       }
     }
   ]
