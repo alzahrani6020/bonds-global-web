@@ -20,7 +20,8 @@ describe('BONDS deterministic financial engine registry', () => {
       'debt_schedule',
       'covenant_monitoring',
       'credit_risk',
-      'treasury_liquidity'
+      'treasury_liquidity',
+      'recurring_payment_intelligence'
     ]);
   });
 
@@ -320,6 +321,50 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(result.required_inputs).toContain('discount_rate');
   });
 
+
+  test('detects recurring payments, predicts next charge and flags price increases deterministically', () => {
+    const result = runFinancialEngine('recurring_payment_intelligence', {
+      currency: 'SAR',
+      transactions: [
+        { date: '2026-06-15', amount: -49, merchant: 'CANVA', status: 'posted' },
+        { date: '2026-07-15', amount: -49, merchant: 'Canva', status: 'posted' },
+        { date: '2026-08-15', amount: -49, merchant: 'CANVA', status: 'posted' },
+        { date: '2026-09-15', amount: -59, merchant: 'CANVA', status: 'posted' },
+        { date: '2026-10-17', amount: -60, merchant: 'Cursor', status: 'failed' },
+        { date: '2026-09-17', amount: -60, merchant: 'Cursor', status: 'posted' },
+        { date: '2026-08-17', amount: -60, merchant: 'Cursor', status: 'posted' }
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.provenance.deterministic).toBe(true);
+    expect(result.metrics.recurring_payments).toHaveLength(2);
+
+    const canva = result.metrics.recurring_payments.find(x => x.merchant_key === 'canva');
+    expect(canva.cadence).toBe('monthly');
+    expect(canva.next_expected_charge_date).toBe('2026-10-16');
+    expect(canva.price_increase_detected).toBe(true);
+    expect(canva.annualized_cost).toBeGreaterThan(0);
+
+    const cursor = result.metrics.recurring_payments.find(x => x.merchant_key === 'cursor');
+    expect(cursor.failed_attempt_count).toBe(1);
+    expect(result.metrics.alerts.some(x => x.type === 'failed_payment_attempt' && x.merchant_key === 'cursor')).toBe(true);
+  });
+
+  test('does not guess positive transaction direction when outflow semantics are absent', () => {
+    const result = runFinancialEngine('recurring_payment_intelligence', {
+      currency: 'SAR',
+      transactions: [
+        { date: '2026-08-01', amount: 100, merchant: 'Unknown Service' },
+        { date: '2026-09-01', amount: 100, merchant: 'Unknown Service' }
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.recurring_payments).toHaveLength(0);
+    expect(result.metrics.summary.unclassified_direction_count).toBe(2);
+  });
+
   test('capabilities are compiled and have governed runtime adapters', () => {
     const actions = [
       'financial_analysis_run',
@@ -333,7 +378,8 @@ describe('BONDS deterministic financial engine registry', () => {
       'debt_schedule_run',
       'covenant_monitoring_run',
       'credit_risk_run',
-      'treasury_liquidity_run'
+      'treasury_liquidity_run',
+      'recurring_payment_intelligence_run'
     ];
 
     for (const action of actions) {
