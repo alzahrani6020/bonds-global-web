@@ -337,6 +337,30 @@ describe('BONDS query-led research workflow', () => {
     expect(researchQueryVariants({ research:{ queryVariants:['a','b'], query:'a' } })).toEqual(['a','b']);
   });
 
+  test('uses the research topic as semantic relevance reference when query includes output instructions', () => {
+    const { researchRelevanceQuery, rankRelevantSearchResults } = require('../../lib/intelligence/research-workflow');
+
+    const request = {
+      research:{
+        query:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        topic:'وزارة المالية السعودية'
+      }
+    };
+
+    expect(researchRelevanceQuery(request)).toBe('وزارة المالية السعودية');
+
+    const ranked = rankRelevantSearchResults([
+      {
+        title:'وزارة المالية - المملكة العربية السعودية',
+        snippet:'الموقع الرسمي لوزارة المالية السعودية',
+        url:'https://www.mof.gov.sa/'
+      }
+    ], researchRelevanceQuery(request));
+
+    expect(ranked).toHaveLength(1);
+    expect(ranked[0].url).toBe('https://www.mof.gov.sa/');
+  });
+
   test('extracts bounded query-relevant HTML evidence candidates', () => {
     const { htmlEvidenceClaims } = require('../../lib/intelligence/research-workflow');
 
