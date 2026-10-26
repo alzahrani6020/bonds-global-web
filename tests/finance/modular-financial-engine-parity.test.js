@@ -17,6 +17,7 @@ const { profitabilityIntelligence } = require('../../lib/finance/engines/profita
 const { unitEconomicsAnalysis } = require('../../lib/finance/engines/unit-economics-engine');
 const { managementReporting } = require('../../lib/finance/engines/management-reporting-engine');
 const { consolidationAnalysis } = require('../../lib/finance/engines/consolidation-engine');
+const { fxTranslationAnalysis } = require('../../lib/finance/engines/fx-translation-engine');
 
 function stable(result) {
   return {
@@ -30,7 +31,7 @@ function stable(result) {
 
 describe('modular financial engine architecture parity', () => {
   test('preserves engine version and registry surface', () => {
-    expect(ENGINE_VERSION).toBe('1.7.0');
+    expect(ENGINE_VERSION).toBe('1.8.0');
     expect(listFinancialEngines().map(item => item.code)).toEqual([
       'financial_analysis',
       'cash_flow_analysis',
@@ -47,7 +48,8 @@ describe('modular financial engine architecture parity', () => {
       'profitability_intelligence',
       'unit_economics',
       'management_reporting',
-      'consolidation'
+      'consolidation',
+      'fx_translation'
     ]);
   });
 
@@ -268,6 +270,24 @@ describe('modular financial engine architecture parity', () => {
             ]
           }
         ]
+      },
+      {}
+    ],
+    [
+      'fx_translation',
+      fxTranslationAnalysis,
+      {
+        functional_currency: 'USD',
+        presentation_currency: 'SAR',
+        balance_rows: [
+          { account_code: '1010', account_name: 'Cash', account_type: 'asset', debit: 100, credit: 0 },
+          { account_code: '3100', account_name: 'Equity', account_type: 'equity', debit: 0, credit: 100 }
+        ],
+        period_rows: [],
+        rates: {
+          closing: { rate: 3.75 },
+          historical: { '3100': { rate: 3.50 } }
+        }
       },
       {}
     ]
