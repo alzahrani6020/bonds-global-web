@@ -411,6 +411,58 @@ describe('BONDS query-led research workflow', () => {
     expect(researchRelevanceQuery({ research:{ query:'عمرو موسى' } })).toBe('');
   });
 
+  test('verifies routed official URL from institutional registry without crawling', async () => {
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{results:[
+            {
+              title:'وزارة المالية - المملكة العربية السعودية',
+              snippet:'الموقع الرسمي لوزارة المالية السعودية',
+              url:'https://www.mof.gov.sa/'
+            }
+          ]}
+        };
+      }
+      if (action === 'web_explore') {
+        throw new Error('official URL registry evidence path must not crawl');
+      }
+      if (action === 'evidence_verify') {
+        const { verifyEvidence } = require('../../lib/intelligence/research-intelligence');
+        return verifyEvidence(input);
+      }
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          executed:true,
+          result:{known:[],unknown:[],contradictions:[]}
+        };
+      }
+      throw new Error('unexpected action');
+    });
+
+    const result = await runResearchWorkflow({
+      input:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        query:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        topic:'وزارة المالية السعودية',
+        intent:'web_research',
+        minIndependentPublishers:2,
+        allowAuthoritativePrimaryEvidence:true
+      }
+    }, {}, {executeCapability});
+
+    expect(result.decisionEligible).toBe(true);
+    expect(result.authoritative_primary_evidence_fast_path).toBe(true);
+    expect(result.exploration.executed).toBe(false);
+    expect(result.verification.result.authoritative_primary_evidence_used).toBe(true);
+    expect(result.verification.result.sources[0].url).toContain('mof.gov.sa');
+  });
+
   test('accepts only the authoritative institutional source selected by the search route', () => {
     const { authoritativeRoutedSource } = require('../../lib/intelligence/research-workflow');
     const route = {
