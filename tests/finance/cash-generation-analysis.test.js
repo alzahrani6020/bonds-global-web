@@ -18,8 +18,8 @@ describe('Batch 6A-2 cash generation analysis', () => {
     ]
   };
 
-  test('uses financial engine contract version 1.6.0', () => {
-    expect(ENGINE_VERSION).toBe('1.6.0');
+  test('uses financial engine contract version 1.7.0', () => {
+    expect(ENGINE_VERSION).toBe('1.7.0');
   });
 
   test('computes deterministic cash generation metrics', () => {
