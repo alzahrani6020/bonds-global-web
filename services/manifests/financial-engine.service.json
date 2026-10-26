@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 20,
+  "version": 21,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -653,6 +653,23 @@
       ],
       "runtime": {
         "adapter": "accounting_journal_post"
+      }
+    },
+    {
+      "action": "accounting_adjustment_post",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-045",
+      "purpose": "Post a governed accounting accrual, deferral, reclassification, correction, or reversal through the canonical accounting posting RPC.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "effective_at",
+        "request_key",
+        "adjustment_type",
+        "reason"
+      ],
+      "runtime": {
+        "adapter": "accounting_adjustment_post"
       }
     },
     {
