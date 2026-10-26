@@ -81,6 +81,7 @@ describe(
         ).toEqual([
           'accounting_allocation_execute',
           'accounting_allocation_rule_configure',
+          'accounting_adjustment_post',
           'accounting_asset_create',
           'accounting_cash_account_configure',
           'accounting_cash_flow_policy_configure',
