@@ -398,6 +398,19 @@ describe('BONDS query-led research workflow', () => {
     expect(ranked[0].url).toContain('mof.gov.sa');
   });
 
+  test('uses explicit research topic as semantic relevance reference without breaking query variants', async () => {
+    const { researchRelevanceQuery } = require('../../lib/intelligence/research-workflow');
+    const request = {
+      research:{
+        query:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        topic:'وزارة المالية السعودية'
+      }
+    };
+
+    expect(researchRelevanceQuery(request)).toBe('وزارة المالية السعودية');
+    expect(researchRelevanceQuery({ research:{ query:'عمرو موسى' } })).toBe('');
+  });
+
   test('rejects technically successful search results that are not relevant to the entity', () => {
     const ranked = rankRelevantSearchResults([
       {title:'Football news',snippet:'Latest league results',url:'https://sports.example'},
