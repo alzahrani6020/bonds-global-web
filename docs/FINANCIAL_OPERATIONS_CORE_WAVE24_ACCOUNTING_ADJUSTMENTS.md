@@ -13,7 +13,7 @@ Wave 24 activates the published `accounting_adjustments` service without creatin
 - Existing postable account codes are required; accounts are never invented.
 
 ## Reversal governance
-A reversal requires a posted source journal from the same Accounting Entity. Its lines are reversed deterministically. The source journal ID is written into the canonical financial-event payload, and a unique partial index prevents more than one reversal event for the same source journal and entity.
+A reversal requires a posted source journal from the same Accounting Entity. Its lines are reversed deterministically. The source journal ID is written into the canonical financial-event payload and into `accounting_journal_entries.reversal_of` atomically by the existing canonical posting RPC. A unique partial index prevents more than one reversal journal for the same source journal and entity.
 
 ## Non-goals
 Wave 24 does not:
