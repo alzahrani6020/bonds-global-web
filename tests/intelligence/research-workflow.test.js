@@ -1,6 +1,8 @@
 const {
   researchQuery,
   researchQueryVariants,
+  relevanceSubject,
+  relevanceProfile,
   rankRelevantSearchResults,
   filterRelevantPages,
   runResearchWorkflow
@@ -373,6 +375,40 @@ describe('BONDS query-led research workflow', () => {
 
     expect(ranked).toHaveLength(1);
     expect(ranked[0].url).toBe('https://gov.example/mohammed-bin-salman');
+  });
+
+
+  test('ignores routed search operators and generic official-link words in relevance scoring', () => {
+    const query = 'site:mof.gov.sa وزارة المالية السعودية الموقع الرسمي';
+    expect(relevanceSubject(query)).toBe('وزارة المالية السعودية الموقع الرسمي');
+    expect(relevanceProfile(query)).toEqual({
+      terms:['وزارة','المالية','السعودية'],
+      requiredMatches:3
+    });
+
+    const ranked = rankRelevantSearchResults([
+      {
+        title:'وزارة المالية - المملكة العربية السعودية',
+        snippet:'الموقع الرسمي لوزارة المالية السعودية',
+        url:'https://www.mof.gov.sa/ar/Pages/default.aspx'
+      }
+    ], query);
+
+    expect(ranked).toHaveLength(1);
+    expect(ranked[0].url).toContain('mof.gov.sa');
+  });
+
+  test('uses explicit research topic as semantic relevance reference without breaking query variants', async () => {
+    const { researchRelevanceQuery } = require('../../lib/intelligence/research-workflow');
+    const request = {
+      research:{
+        query:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        topic:'وزارة المالية السعودية'
+      }
+    };
+
+    expect(researchRelevanceQuery(request)).toBe('وزارة المالية السعودية');
+    expect(researchRelevanceQuery({ research:{ query:'عمرو موسى' } })).toBe('');
   });
 
   test('rejects technically successful search results that are not relevant to the entity', () => {
