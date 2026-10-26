@@ -95,7 +95,16 @@ describe('Accounting consolidation store wave 17', () => {
             {entity_id:'A',role:'parent',ownership_pct:100,base_currency:'SAR'},
             {entity_id:'B',role:'subsidiary',ownership_pct:100,base_currency:'USD'}
           ],
-          balance_rows:[],
+          balance_rows:[
+            {
+              entity_id:'B',
+              account_code:'1010',
+              account_name:'Cash',
+              account_type:'asset',
+              debit:100,
+              credit:0
+            }
+          ],
           period_rows:[],
           intercompany_links:[]
         },
