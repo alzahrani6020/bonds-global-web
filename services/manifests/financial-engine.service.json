@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 17,
+  "version": 18,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -607,6 +607,36 @@
       ],
       "runtime": {
         "adapter": "fx_translation_engine"
+      }
+    },
+    {
+      "action": "accounting_equity_movement_policy_configure",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-041",
+      "purpose": "Configure deterministic capital contribution, distribution, or other equity classification for a financial event type.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "event_type",
+        "movement_category"
+      ],
+      "runtime": {
+        "adapter": "accounting_equity_movement_policy_configure"
+      }
+    },
+    {
+      "action": "accounting_changes_in_equity_statement",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-042",
+      "purpose": "Prepare a deterministic statement of changes in equity from canonical posted accounting journals with direct closing-equity reconciliation.",
+      "side_effect": "none",
+      "required": [
+        "accounting_entity_id",
+        "from",
+        "to"
+      ],
+      "runtime": {
+        "adapter": "accounting_changes_in_equity_statement"
       }
     }
   ]
