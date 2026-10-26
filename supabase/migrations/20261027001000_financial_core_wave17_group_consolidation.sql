@@ -391,11 +391,14 @@ begin
     'entity_id',m.accounting_entity_id,
     'role',m.role,
     'ownership_pct',m.ownership_pct,
+    'base_currency',e.base_currency,
     'effective_from',m.effective_from,
     'effective_to',m.effective_to
   ) order by case when m.role='parent' then 0 else 1 end,m.accounting_entity_id),'[]'::jsonb)
   into v_members
   from public.accounting_group_members m
+  join public.accounting_entities e
+    on e.id=m.accounting_entity_id
   where m.group_id=p_group_id and m.status='active'
     and (p_to is null or m.effective_from is null or m.effective_from<=p_to)
     and (p_from is null or m.effective_to is null or m.effective_to>=p_from);
