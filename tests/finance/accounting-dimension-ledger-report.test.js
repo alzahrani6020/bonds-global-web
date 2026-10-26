@@ -29,6 +29,11 @@ const ROUTER = fs.readFileSync(
 );
 
 describe('Accounting Reporting Wave 14 dimension ledger', () => {
+  test('indexes journal dimensions for reporting growth', () => {
+    expect(MIGRATION).toContain('idx_accounting_journal_lines_dimensions_gin');
+    expect(MIGRATION).toContain('using gin (dimensions)');
+  });
+
   test('reads only canonical posted journal sources', () => {
     expect(MIGRATION).toContain('public.accounting_journal_entries');
     expect(MIGRATION).toContain('public.accounting_journal_lines');
