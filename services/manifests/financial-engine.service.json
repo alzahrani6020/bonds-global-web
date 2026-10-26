@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 17,
+  "version": 18,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -607,6 +607,19 @@
       ],
       "runtime": {
         "adapter": "fx_translation_engine"
+      }
+    },
+    {
+      "action": "planning_budgeting_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-041",
+      "purpose": "Run deterministic planning, actual-versus-budget variance analysis, and rolling forecast from explicit actual, budget, and future forecast values.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "planning_budgeting_engine"
       }
     }
   ]
