@@ -86,6 +86,7 @@ describe(
           'accounting_depreciation_policy_configure',
           'accounting_depreciation_post',
           'accounting_dimension_create',
+          'accounting_dimension_income_statement',
           'accounting_dimension_ledger_report',
           'accounting_dimension_policy_configure',
           'accounting_period_transition',
