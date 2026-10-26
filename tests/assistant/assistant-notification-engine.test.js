@@ -4,6 +4,7 @@ const {
   notificationId,
   notificationsFromAssistantEvent
 } = require('../../lib/assistant/notification-engine');
+const { normalizeStoredNotification } = require('../../lib/assistant/notification-store');
 
 describe('assistant structured notifications', () => {
   const workflow = {
@@ -112,5 +113,48 @@ describe('assistant structured notifications', () => {
 
     expect(notification.message_ar).toContain('دون تأكيد');
     expect(notification.policy.authorization_granted).toBe(false);
+  });
+
+  describe('durable notification contract (producer → store)', () => {
+    const producingEvents = [
+      { id:'event-form-saved', type:'form_saved', boundary:'project:p-1' },
+      { id:'event-doc-uploaded', type:'document_uploaded', boundary:'project:p-1', resource_id:'doc-1' },
+      { id:'event-doc-analyzed', type:'document_analyzed', boundary:'project:p-1', resource_id:'doc-2' },
+      { id:'event-funding-changed', type:'funding_case_status_changed', boundary:'project:p-1', data:{ status:'under_review' } },
+      { id:'event-workflow-resumed', type:'workflow_resumed', boundary:'project:p-1' }
+    ];
+
+    test.each(producingEvents.map(event => [event.type, event]))(
+      'notification for %s carries event_id equal to the event id and passes store normalization',
+      (_label, event) => {
+        const notifications = notificationsFromAssistantEvent({ workflow, event, suggestions:[] });
+
+        expect(notifications).toHaveLength(1);
+        expect(notifications[0].event_id).toBe(event.id);
+        expect(() => normalizeStoredNotification(notifications[0])).not.toThrow();
+      }
+    );
+
+    test('notification id is derived from event identity parts and is unchanged by event_id', () => {
+      const event = {
+        id:'event-identity',
+        type:'document_uploaded',
+        boundary:'project:p-1',
+        resource_id:'doc-identity'
+      };
+      const [first] = notificationsFromAssistantEvent({ workflow, event, suggestions:[] });
+      const [second] = notificationsFromAssistantEvent({ workflow, event, suggestions:[] });
+      const expectedId = notificationId([
+        workflow.workflow_key,
+        event.id,
+        event.type,
+        event.resource_id,
+        event.occurred_at
+      ]);
+
+      expect(first.id).toBe(expectedId);
+      expect(second.id).toBe(first.id);
+      expect(first.id).not.toBe(first.event_id);
+    });
   });
 });

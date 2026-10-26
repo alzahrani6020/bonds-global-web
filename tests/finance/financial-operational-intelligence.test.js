@@ -97,6 +97,7 @@ describe('financial operational intelligence', () => {
       priority:'critical',
       read:false
     });
+    expect(notification.event_id).toBe(alert.id);
     expect(notification.policy).toEqual({
       informational_only:true,
       auto_execute:false,
