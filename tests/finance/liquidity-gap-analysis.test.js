@@ -4,7 +4,7 @@ const {
 } = require('../../lib/finance/financial-engine-registry');
 
 describe('Batch 6A liquidity gap analysis', () => {
-  test('uses financial engine contract version 1.10.0', () => {
+  test('uses financial engine contract version 1.11.0', () => {
     expect(ENGINE_VERSION).toBe('1.10.0');
   });
 
