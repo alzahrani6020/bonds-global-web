@@ -438,8 +438,9 @@ describe('BONDS query-led research workflow', () => {
     )).toBeNull();
   });
 
-  test('resolves an explicit official URL from routed institutional search evidence without web_explore', async () => {
-    const executeCapability = jest.fn(async (action) => {
+  test('resolves an explicit official URL through governed evidence verification without web_explore', async () => {
+    const { verifyEvidence, synthesizeResearch } = require('../../lib/intelligence/research-intelligence');
+    const executeCapability = jest.fn(async (action, input) => {
       if (action === 'web_search') {
         return {
           ok:true,
@@ -453,8 +454,10 @@ describe('BONDS query-led research workflow', () => {
           }
         };
       }
+      if (action === 'evidence_verify') return verifyEvidence(input);
+      if (action === 'research_synthesize') return synthesizeResearch(input);
       if (action === 'web_explore') {
-        throw new Error('web_explore must not run for routed official URL evidence');
+        throw new Error('web_explore must not run for routed official URL reference evidence');
       }
       throw new Error('unexpected action: ' + action);
     });
@@ -465,7 +468,7 @@ describe('BONDS query-led research workflow', () => {
       research:{
         enabled:true,
         query:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
-        topic:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        topic:'وزارة المالية السعودية',
         intent:'web_research',
         allowAuthoritativePrimaryEvidence:true,
         minIndependentPublishers:2
@@ -475,13 +478,27 @@ describe('BONDS query-led research workflow', () => {
     expect(result.status).toBe('SUPPORTED');
     expect(result.decisionEligible).toBe(true);
     expect(result.authoritative_primary_evidence_fast_path).toBe(true);
-    expect(result.verification.result.sources[0].institutional_source_id).toBe('ministry_finance_sa');
-    expect(result.verification.result.sources[0].url).toBe('https://www.mof.gov.sa/');
-    expect(executeCapability).toHaveBeenCalledWith(
-      'web_search',
-      expect.any(Object),
-      expect.any(Object)
-    );
+    expect(result.verification.executed).toBe(true);
+    expect(result.verification.result.authoritative_primary_evidence_used).toBe(true);
+    expect(result.verification.result.sources[0]).toEqual(expect.objectContaining({
+      institutional_source_id:'ministry_finance_sa',
+      url:'https://www.mof.gov.sa/',
+      text:''
+    }));
+    expect(result.verification.result.sources[0].claims).toEqual([
+      expect.objectContaining({
+        key:'official.url',
+        predicate:'official.url',
+        value:'https://www.mof.gov.sa/'
+      })
+    ]);
+    expect(result.evidence).toEqual([
+      expect.objectContaining({
+        evidence_code:'official.url',
+        value:'https://www.mof.gov.sa/',
+        source_url:'https://www.mof.gov.sa/'
+      })
+    ]);
     expect(executeCapability).not.toHaveBeenCalledWith(
       'web_explore',
       expect.any(Object),
