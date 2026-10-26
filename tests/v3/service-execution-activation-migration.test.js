@@ -5,7 +5,7 @@ const path = require('path');
 
 describe('mapped request-only activation migration', () => {
   const sql = fs.readFileSync(
-    path.join(process.cwd(), 'supabase/migrations/20261026013000_activate_mapped_request_only_services.sql'),
+    path.join(process.cwd(), 'supabase/migrations/20261026013700_activate_mapped_request_only_services.sql'),
     'utf8'
   );
 
