@@ -20,7 +20,7 @@ describe('governed ledger report service capabilities', () => {
   );
 
   test('manifest and generated registry expose both read-only ledger reports', () => {
-    expect(manifest.version).toBe(17);
+    expect(manifest.version).toBe(18);
     for (const action of [
       'accounting_trial_balance_report',
       'accounting_financial_statements_report'
