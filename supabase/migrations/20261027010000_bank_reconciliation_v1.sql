@@ -115,7 +115,7 @@ where source_type='bank_statement';
 
 update public.service_catalog
 set delivery_type='partially_automated',
-    metadata=metadata || '{"source":"bank_reconciliation_v1","deterministic_matching":true,"bank_feed":"file_import","ai_matching":false,"auto_match_policy":"exact_only","no_parallel_ledger":true}'::jsonb,
+    metadata=metadata || '{"source":"bank_reconciliation_v1","deterministic_matching":true,"bank_feed":"normalized_import","ai_matching":false,"auto_match_policy":"exact_only","no_parallel_ledger":true}'::jsonb,
     updated_at=now()
 where code='bank_reconciliation';
 
