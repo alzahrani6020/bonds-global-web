@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 8,
+  "version": 9,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -379,6 +379,32 @@
       ],
       "runtime": {
         "adapter": "treasury_liquidity_engine"
+      }
+    },
+    {
+      "action": "profitability_intelligence_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-025",
+      "purpose": "Compute deterministic profitability by customer, product, branch, project, segment or cost center using explicit direct and allocated costs.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "profitability_intelligence_engine"
+      }
+    },
+    {
+      "action": "unit_economics_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-026",
+      "purpose": "Compute deterministic CAC, LTV, LTV-to-CAC, payback and unit contribution economics from explicit governed inputs.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "unit_economics_engine"
       }
     }
   ]
