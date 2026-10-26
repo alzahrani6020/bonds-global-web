@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 8,
+  "version": 9,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -379,6 +379,19 @@
       ],
       "runtime": {
         "adapter": "treasury_liquidity_engine"
+      }
+    },
+    {
+      "action": "recurring_payment_intelligence_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-025",
+      "purpose": "Detect deterministic recurring payments, expected next charges, price increases and failed collection attempts from explicit transaction history.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "recurring_payment_intelligence_engine"
       }
     }
   ]
