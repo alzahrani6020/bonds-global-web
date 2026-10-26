@@ -2,7 +2,7 @@ const {
   planningBudgetingAnalysis
 } = require('../../lib/finance/engines/planning-budgeting-engine');
 
-describe('Planning budgeting core wave 20', () => {
+describe('Planning budgeting core wave 21', () => {
   test('combines actuals and explicit future forecast into a rolling forecast', () => {
     const result = planningBudgetingAnalysis({
       fiscal_year:'2026',

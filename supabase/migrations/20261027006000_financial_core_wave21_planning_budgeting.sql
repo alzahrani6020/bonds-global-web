@@ -1,6 +1,6 @@
 begin;
 
--- Financial Core Wave 20: deterministic planning, budgeting and rolling forecast.
+-- Financial Core Wave 21: deterministic planning, budgeting and rolling forecast.
 -- One governed service and one engine capability; no parallel planning store,
 -- no AI-generated budget values, and no inferred growth or seasonality.
 
@@ -21,7 +21,7 @@ values (
   'published',
   true,
   155,
-  '{"source":"financial_core_wave20","deterministic":true,"single_planning_service":true,"no_parallel_planning_store":true,"no_ai_budget_values":true,"no_inferred_growth":true,"no_inferred_seasonality":true}'::jsonb,
+  '{"source":"financial_core_wave21","deterministic":true,"single_planning_service":true,"no_parallel_planning_store":true,"no_ai_budget_values":true,"no_inferred_growth":true,"no_inferred_seasonality":true}'::jsonb,
   now()
 )
 on conflict(code) do update set
@@ -56,7 +56,7 @@ select
   true,
   coalesce(p.version,0)+1,
   true,
-  '{"source":"financial_core_wave20","deterministic":true,"fail_closed":true,"explicit_future_values":true}'::jsonb,
+  '{"source":"financial_core_wave21","deterministic":true,"fail_closed":true,"explicit_future_values":true}'::jsonb,
   now()
 from public.service_catalog s
 left join public.service_execution_profiles p on p.service_id=s.id
@@ -84,7 +84,7 @@ select
   'planning_budgeting_run',
   10,
   true,
-  '{"wave":20,"deterministic":true,"explicit_future_values":true}'::jsonb
+  '{"wave":21,"deterministic":true,"explicit_future_values":true}'::jsonb
 from public.service_catalog s
 where s.code='planning_budgeting_forecasting'
 on conflict(service_id,capability_code) do update set
