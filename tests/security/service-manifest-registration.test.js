@@ -79,6 +79,7 @@ describe(
         expect(
           Object.keys(CAPABILITIES).sort()
         ).toEqual([
+          'accounting_adjustment_post',
           'accounting_allocation_execute',
           'accounting_allocation_rule_configure',
           'accounting_asset_create',

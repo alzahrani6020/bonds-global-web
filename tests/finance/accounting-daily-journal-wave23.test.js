@@ -90,7 +90,7 @@ describe('Accounting operations wave 23 daily journal posting', () => {
     const entry = manifest.capabilities.find(
       item => item.action === 'accounting_journal_post'
     );
-    expect(manifest.version).toBe(20);
+    expect(manifest.version).toBe(21);
     expect(entry).toBeTruthy();
     expect(entry.id).toBe('BONDS-CAP-FIN-044');
     expect(entry.side_effect).toBe('database_write');
