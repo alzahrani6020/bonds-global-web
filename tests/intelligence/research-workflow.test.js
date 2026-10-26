@@ -438,6 +438,57 @@ describe('BONDS query-led research workflow', () => {
     )).toBeNull();
   });
 
+  test('resolves an explicit official URL from routed institutional search evidence without web_explore', async () => {
+    const executeCapability = jest.fn(async (action) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            results:[{
+              title:'وزارة المالية',
+              snippet:'Ministry of Finance official website',
+              url:'https://www.mof.gov.sa/'
+            }]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        throw new Error('web_explore must not run for routed official URL evidence');
+      }
+      throw new Error('unexpected action: ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        query:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        topic:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        intent:'web_research',
+        allowAuthoritativePrimaryEvidence:true,
+        minIndependentPublishers:2
+      }
+    }, {}, { executeCapability });
+
+    expect(result.status).toBe('SUPPORTED');
+    expect(result.decisionEligible).toBe(true);
+    expect(result.authoritative_primary_evidence_fast_path).toBe(true);
+    expect(result.verification.result.sources[0].institutional_source_id).toBe('ministry_finance_sa');
+    expect(result.verification.result.sources[0].url).toBe('https://www.mof.gov.sa/');
+    expect(executeCapability).toHaveBeenCalledWith(
+      'web_search',
+      expect.any(Object),
+      expect.any(Object)
+    );
+    expect(executeCapability).not.toHaveBeenCalledWith(
+      'web_explore',
+      expect.any(Object),
+      expect.any(Object)
+    );
+  });
+
   test('rejects technically successful search results that are not relevant to the entity', () => {
     const ranked = rankRelevantSearchResults([
       {title:'Football news',snippet:'Latest league results',url:'https://sports.example'},
