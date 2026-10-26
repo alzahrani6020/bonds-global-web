@@ -87,6 +87,7 @@ describe(
           'accounting_depreciation_post',
           'accounting_dimension_create',
           'accounting_dimension_policy_configure',
+          'accounting_dimension_ledger_report',
           'accounting_period_transition',
           'accounting_year_end_close',
           'accounting_year_end_policy_configure',
