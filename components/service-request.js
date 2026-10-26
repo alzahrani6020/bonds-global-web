@@ -16,6 +16,52 @@ let intakeDatasetId=null;
 let intakeReview=null;
 let intakeMode='file';
 let intakeUploadedPath=null;
+const isServiceWorkspace=/\/my-bonds\/workspace\/?$/.test(location.pathname);
+const workspaceDraftKey='bonds_service_workspace_draft_v1:'+serviceCode;
+let workspaceDirty=false;
+function saveWorkspaceDraft(){
+ if(!isServiceWorkspace)return;
+ const form=$('#srRequestForm');if(!form)return;
+ const values={};
+ form.querySelectorAll('[name]').forEach(el=>{
+   if(el.type==='file'||el.name==='__intake_mode')return;
+   if(el.type==='checkbox')values[el.name]=el.checked;
+   else if(el.multiple)values[el.name]=Array.from(el.selectedOptions).map(o=>o.value);
+   else values[el.name]=el.value;
+ });
+ localStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,updated_at:new Date().toISOString()}));
+ workspaceDirty=true;
+}
+function restoreWorkspaceDraft(){
+ if(!isServiceWorkspace)return;
+ let saved=null;
+ try{saved=JSON.parse(localStorage.getItem(workspaceDraftKey)||'null')}catch(_){}
+ if(!saved?.values||saved.service_code!==serviceCode)return;
+ const form=$('#srRequestForm');if(!form)return;
+ Object.entries(saved.values).forEach(([key,value])=>{
+   const el=form.elements.namedItem(key);if(!el||el.type==='file')return;
+   if(el.type==='checkbox')el.checked=Boolean(value);
+   else if(el.multiple&&Array.isArray(value))Array.from(el.options).forEach(o=>{o.selected=value.includes(o.value)});
+   else el.value=value??'';
+ });
+ workspaceDirty=false;
+}
+function bindWorkspaceDraft(){
+ if(!isServiceWorkspace)return;
+ const form=$('#srRequestForm');if(!form)return;
+ form.addEventListener('input',saveWorkspaceDraft);
+ form.addEventListener('change',saveWorkspaceDraft);
+}
+function clearWorkspaceDraft(){
+ if(!isServiceWorkspace)return;
+ localStorage.removeItem(workspaceDraftKey);
+ workspaceDirty=false;
+}
+window.addEventListener('beforeunload',e=>{
+ if(!isServiceWorkspace||!workspaceDirty)return;
+ e.preventDefault();
+ e.returnValue='';
+});
 function text(row,ar='name_ar',en='name_en'){return lang==='ar'?(row?.[ar]||row?.[en]||''):(row?.[en]||row?.[ar]||'')}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
 async function json(url,opts){const r=await fetch(url,opts);const d=await r.json().catch(()=>({}));if(!r.ok)throw new Error(d.error||'HTTP '+r.status);return d}
@@ -86,6 +132,8 @@ function render(){
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
  if(!form?.fields?.length)renderRequestProfile();
  renderFinancialIntake();
+ restoreWorkspaceDraft();
+ bindWorkspaceDraft();
 }
 const FINANCIAL_ACTIONS=new Set([
  'financial_analysis_run','cash_flow_analysis_run','funding_readiness_run','creditworthiness_run',
@@ -415,6 +463,7 @@ async function submit(e){
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null,dataset_id:intakeDatasetId});
     showStatus(T.executed,true);
     renderExecutionResult(execution);
+    clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;
   }
@@ -441,6 +490,7 @@ async function submit(e){
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null});
     showStatus(T.executed,true);
     renderExecutionResult(execution);
+    clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;
   }
@@ -485,6 +535,10 @@ async function init(){
  $('#srLoading').textContent=T.loading;
  try{
   detail=await json('/api/v3/services/'+encodeURIComponent(serviceCode)+'?'+contextQuery());
+  if(isServiceWorkspace&&detail?.workspace?.mode!=='execute'){
+    location.replace((lang==='ar'?'/service-request.html':'/en/service-request.html')+location.search);
+    return;
+  }
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
   const requestForm=$('#srRequestForm');
   $('#srSubmit').textContent=T.submit;
