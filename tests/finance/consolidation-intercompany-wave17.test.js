@@ -3,23 +3,28 @@ const {
 } = require('../../lib/finance/financial-engine-registry');
 
 function baseEntity(id, role, ownershipPct = 100) {
+  const isParent = role === 'parent';
   return {
     id,
     role,
     ...(role === 'subsidiary' ? { ownership_pct:ownershipPct } : {}),
     balance_rows:[
       { account_code:'1010', account_name:'Cash', account_type:'asset', debit:500, credit:0 },
-      { account_code:'1100', account_name:'Intercompany AR', account_type:'asset', debit:id === 'P' ? 100 : 0, credit:0 },
-      { account_code:'2100', account_name:'Intercompany AP', account_type:'liability', debit:0, credit:id === 'S' ? 100 : 0 },
+      { account_code:'1100', account_name:'Intercompany AR', account_type:'asset', debit:isParent ? 100 : 0, credit:0 },
+      { account_code:'2000', account_name:'Other Liability', account_type:'liability', debit:0, credit:isParent ? 200 : 100 },
+      { account_code:'2100', account_name:'Intercompany AP', account_type:'liability', debit:0, credit:isParent ? 0 : 100 },
       { account_code:'3100', account_name:'Equity', account_type:'equity', debit:0, credit:300 },
       { account_code:'4100', account_name:'Revenue', account_type:'revenue', debit:0, credit:300 },
-      { account_code:'5100', account_name:'Expense', account_type:'expense', debit:role === 'parent' ? 300 : 200, credit:0 }
+      { account_code:'6100', account_name:'Intercompany Revenue', account_type:'revenue', debit:0, credit:isParent ? 50 : 0 },
+      { account_code:'5100', account_name:'Expense', account_type:'expense', debit:250, credit:0 },
+      { account_code:'6200', account_name:'Intercompany Expense', account_type:'expense', debit:isParent ? 0 : 50, credit:0 }
     ],
     period_rows:[
       { account_code:'4100', account_name:'Revenue', account_type:'revenue', debit:0, credit:300 },
-      { account_code:'5100', account_name:'Expense', account_type:'expense', debit:role === 'parent' ? 300 : 200, credit:0 },
-      { account_code:'6100', account_name:'Intercompany Revenue', account_type:'revenue', debit:0, credit:id === 'P' ? 50 : 0 },
-      { account_code:'6200', account_name:'Intercompany Expense', account_type:'expense', debit:id === 'S' ? 50 : 0, credit:0 }
+      { account_code:'6100', account_name:'Intercompany Revenue', account_type:'revenue', debit:0, credit:isParent ? 50 : 0 },
+      { account_code:'5100', account_name:'Expense', account_type:'expense', debit:250, credit:0 },
+      { account_code:'6200', account_name:'Intercompany Expense', account_type:'expense', debit:isParent ? 0 : 50, credit:0 },
+      { account_code:'1010', account_name:'Cash', account_type:'asset', debit:isParent ? 100 : 0, credit:0 }
     ]
   };
 }
@@ -28,14 +33,6 @@ describe('Consolidation and intercompany core wave 17', () => {
   test('consolidates full-owned entities and eliminates matched intercompany balances and income', () => {
     const parent=baseEntity('P','parent');
     const sub=baseEntity('S','subsidiary',100);
-
-    // Keep each entity period ledger balanced by adding cash counterpart rows.
-    parent.period_rows.push(
-      { account_code:'1010', account_name:'Cash', account_type:'asset', debit:0, credit:50 }
-    );
-    sub.period_rows.push(
-      { account_code:'1010', account_name:'Cash', account_type:'asset', debit:50, credit:0 }
-    );
 
     const result=runFinancialEngine('consolidation',{
       entities:[parent,sub],
