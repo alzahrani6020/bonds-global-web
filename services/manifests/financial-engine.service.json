@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 15,
+  "version": 16,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -566,6 +566,34 @@
       ],
       "runtime": {
         "adapter": "accounting_dimension_cash_flow_statement"
+      }
+    },
+    {
+      "action": "accounting_trial_balance_report",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-038",
+      "purpose": "Read a deterministic trial balance from posted canonical ledger journals for an Accounting Entity the signed-in user can access.",
+      "side_effect": "database_read",
+      "required": [
+        "accounting_entity_id"
+      ],
+      "runtime": {
+        "adapter": "accounting_trial_balance_report"
+      }
+    },
+    {
+      "action": "accounting_financial_statements_report",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-039",
+      "purpose": "Prepare deterministic financial statements from posted canonical ledger journals for an Accounting Entity the signed-in user can access.",
+      "side_effect": "database_read",
+      "required": [
+        "accounting_entity_id",
+        "from",
+        "to"
+      ],
+      "runtime": {
+        "adapter": "accounting_financial_statements_report"
       }
     }
   ]
