@@ -13,6 +13,8 @@ const { riskAnalysis } = require('../../lib/finance/engines/risk-engine');
 const { scenarioForecast } = require('../../lib/finance/engines/scenario-engine');
 const { creditRiskAnalysis } = require('../../lib/finance/engines/credit-risk-engine');
 const { treasuryLiquidityAnalysis } = require('../../lib/finance/engines/treasury-liquidity-engine');
+const { profitabilityIntelligence } = require('../../lib/finance/engines/profitability-intelligence-engine');
+const { unitEconomicsAnalysis } = require('../../lib/finance/engines/unit-economics-engine');
 
 function stable(result) {
   return {
@@ -26,7 +28,7 @@ function stable(result) {
 
 describe('modular financial engine architecture parity', () => {
   test('preserves engine version and registry surface', () => {
-    expect(ENGINE_VERSION).toBe('1.4.0');
+    expect(ENGINE_VERSION).toBe('1.5.0');
     expect(listFinancialEngines().map(item => item.code)).toEqual([
       'financial_analysis',
       'cash_flow_analysis',
@@ -39,7 +41,9 @@ describe('modular financial engine architecture parity', () => {
       'debt_schedule',
       'covenant_monitoring',
       'credit_risk',
-      'treasury_liquidity'
+      'treasury_liquidity',
+      'profitability_intelligence',
+      'unit_economics'
     ]);
   });
 
@@ -177,6 +181,34 @@ describe('modular financial engine architecture parity', () => {
       {
         accounts: [{ id: 'A1', bank: 'Bank A', balance: 1000 }],
         minimum_liquidity_buffer: 100
+      },
+      {}
+    ],
+    [
+      'profitability_intelligence',
+      profitabilityIntelligence,
+      {
+        units: [{
+          id: 'P1',
+          scope_type: 'product',
+          revenue: 1000,
+          variable_cost: 400,
+          direct_fixed_cost: 100,
+          allocated_cost: 120
+        }]
+      },
+      {}
+    ],
+    [
+      'unit_economics',
+      unitEconomicsAnalysis,
+      {
+        acquisition_spend: 10000,
+        new_customers: 100,
+        active_customers: 500,
+        revenue: 100000,
+        gross_profit: 40000,
+        ltv: 1500
       },
       {}
     ]
