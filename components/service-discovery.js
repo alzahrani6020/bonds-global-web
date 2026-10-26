@@ -278,7 +278,7 @@
     }
   }
 
-  function selectService(serviceCode) {
+  function selectService(serviceCode, launch=true) {
     const el = q('#bondsService');
     if (!el) return;
     el.value = serviceCode;
@@ -293,6 +293,7 @@
       sector_code:q('#bondsSector').value || null,
       activity_code:q('#bondsActivity').value || null
     });
+    if (launch) setTimeout(start, 0);
   }
 
   function renderServicePicker() {
@@ -560,6 +561,12 @@
   function selectedServiceRoute(serviceCode) {
     const service = state.services.find(row => row.code === serviceCode);
     if (!service) return null;
+    const workspacePreferred = lang === 'en' ? service.workspace?.route_en : service.workspace?.route_ar;
+    const workspaceFallback = lang === 'en' ? service.workspace?.route_ar : service.workspace?.route_en;
+    const workspaceRoute = safeInternalRoute(workspacePreferred) || safeInternalRoute(workspaceFallback);
+    if (service.workspace?.ready === true && service.workspace?.mode === 'execute' && workspaceRoute) {
+      return workspaceRoute;
+    }
     const preferred = lang === 'en' ? service.default_route_en : service.default_route_ar;
     const fallback = lang === 'en' ? service.default_route_ar : service.default_route_en;
     return safeInternalRoute(preferred) || safeInternalRoute(fallback);
@@ -614,16 +621,8 @@
     }));
 
     const directRoute = selectedServiceRoute(serviceCode);
-    const hasExecutionCapabilities = Array.isArray(selectedService?.capabilities) &&
-      selectedService.capabilities.length > 0;
-    if (directRoute && !hasExecutionCapabilities) {
-      track('service_direct_route',{
-        service_code:serviceCode,
-        route:directRoute
-      });
-      window.location.href=directRoute;
-      return;
-    }
+    const workspaceExecute = selectedService?.workspace?.ready === true &&
+      selectedService?.workspace?.mode === 'execute';
 
     const params=new URLSearchParams({
       country:intent.country_code || '',
@@ -635,6 +634,28 @@
       activity:intent.activity_code || '',
       service:serviceCode
     });
+
+    if (directRoute && workspaceExecute) {
+      track('service_workspace_route',{
+        service_code:serviceCode,
+        workspace_type:selectedService?.workspace?.type || null,
+        route:directRoute
+      });
+      window.location.href=directRoute+'?'+params.toString();
+      return;
+    }
+
+    const hasExecutionCapabilities = Array.isArray(selectedService?.capabilities) &&
+      selectedService.capabilities.length > 0;
+    if (directRoute && !hasExecutionCapabilities) {
+      track('service_direct_route',{
+        service_code:serviceCode,
+        route:directRoute
+      });
+      window.location.href=directRoute;
+      return;
+    }
+
     window.location.href=(lang==='en'?'/en/service-request.html':'/service-request.html')+'?'+params.toString();
   }
 
