@@ -564,12 +564,30 @@
     const workspacePreferred = lang === 'en' ? service.workspace?.route_en : service.workspace?.route_ar;
     const workspaceFallback = lang === 'en' ? service.workspace?.route_ar : service.workspace?.route_en;
     const workspaceRoute = safeInternalRoute(workspacePreferred) || safeInternalRoute(workspaceFallback);
-    if (service.workspace?.ready === true && service.workspace?.mode === 'execute' && workspaceRoute) {
+    const dedicatedRequestWorkspace = service.workspace?.mode === 'request' &&
+      service.workspace?.dedicated === true;
+
+    if (service.workspace?.ready === true &&
+        (service.workspace?.mode === 'execute' || dedicatedRequestWorkspace) &&
+        workspaceRoute) {
       return workspaceRoute;
     }
+
+    if (service.workspace?.mode === 'request') return null;
+
     const preferred = lang === 'en' ? service.default_route_en : service.default_route_ar;
     const fallback = lang === 'en' ? service.default_route_ar : service.default_route_en;
     return safeInternalRoute(preferred) || safeInternalRoute(fallback);
+  }
+
+  function routeWithParams(route, params) {
+    const safe = safeInternalRoute(route);
+    if (!safe) return null;
+    const url = new URL(safe, window.location.origin);
+    for (const [key, value] of params.entries()) {
+      if (value !== '') url.searchParams.set(key, value);
+    }
+    return url.pathname + url.search + url.hash;
   }
 
   function start() {
@@ -623,6 +641,9 @@
     const directRoute = selectedServiceRoute(serviceCode);
     const workspaceExecute = selectedService?.workspace?.ready === true &&
       selectedService?.workspace?.mode === 'execute';
+    const dedicatedRequestWorkspace = selectedService?.workspace?.ready === true &&
+      selectedService?.workspace?.mode === 'request' &&
+      selectedService?.workspace?.dedicated === true;
 
     const params=new URLSearchParams({
       country:intent.country_code || '',
@@ -641,7 +662,18 @@
         workspace_type:selectedService?.workspace?.type || null,
         route:directRoute
       });
-      window.location.href=directRoute+'?'+params.toString();
+      window.location.href=routeWithParams(directRoute,params) || directRoute;
+      return;
+    }
+
+    if (directRoute && dedicatedRequestWorkspace) {
+      track('service_workspace_route',{
+        service_code:serviceCode,
+        workspace_type:selectedService?.workspace?.type || null,
+        route:directRoute,
+        mode:'request'
+      });
+      window.location.href=routeWithParams(directRoute,params) || directRoute;
       return;
     }
 

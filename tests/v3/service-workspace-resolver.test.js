@@ -50,6 +50,44 @@ describe('canonical service workspace resolver', () => {
     });
   });
 
+  test('request-only marketing routes do not become workspaces implicitly', () => {
+    expect(resolveServiceWorkspace(
+      {
+        category_code:'financial_advisory',
+        group_code:'planning_cashflow',
+        default_route_ar:'/services#strategy',
+        default_route_en:'/en/services#strategy'
+      },
+      { execution_status:'request_only', execution_mode:'request_only', primary_action:null }
+    )).toMatchObject({
+      type:WORKSPACE_TYPES.ADVISORY,
+      mode:'request',
+      dedicated:false,
+      route_ar:'/service-request.html',
+      route_en:'/en/service-request.html'
+    });
+  });
+
+  test('explicitly tagged request workspaces preserve their dedicated routes', () => {
+    expect(resolveServiceWorkspace(
+      {
+        category_code:'financial_advisory',
+        group_code:'working_capital_cash',
+        default_route_ar:'/client/receivables-aging.html',
+        default_route_en:'/en/client/receivables-aging.html',
+        metadata:{workspace_route_source:'existing_client_aging_workspace'}
+      },
+      { execution_status:'request_only', execution_mode:'request_only', primary_action:null }
+    )).toMatchObject({
+      type:WORKSPACE_TYPES.FINANCIAL_ANALYSIS,
+      mode:'request',
+      dedicated:true,
+      route_ar:'/client/receivables-aging.html',
+      route_en:'/en/client/receivables-aging.html',
+      reason:'explicit_request_workspace'
+    });
+  });
+
   test('capability-backed services use canonical workspace route', () => {
     expect(resolveServiceWorkspace(
       { category_code:'financial_advisory', group_code:'core_financial_analysis' },
