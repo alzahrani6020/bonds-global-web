@@ -32,7 +32,7 @@ function loadHarness({ injectedText, secondPlannerDecision, synthesisText = 'saf
         if (reasonerCall === 1) {
           return {
             ok:true,
-            result:{ text:'{"mode":"tool","action":"web_search","input":{"query":"example"}}' }
+            result:{ text:'{"mode":"tool","action":"web_fetch","input":{"url":"https://example.com/result"}}' }
           };
         }
 
@@ -49,25 +49,14 @@ function loadHarness({ injectedText, secondPlannerDecision, synthesisText = 'saf
         };
       }
 
-      if (action === 'web_search') {
-        return {
-          ok:true,
-          result:{
-            results:[{
-              title:'External result',
-              url:'https://example.com/result',
-              text:injectedText
-            }]
-          }
-        };
-      }
-
       if (action === 'web_fetch') {
         return {
           ok:true,
           result:{
-            url:'https://example.com/next',
-            text:'benign fetched content'
+            url:String(input?.url || 'https://example.com/result'),
+            text:String(input?.url || '').includes('/next')
+              ? 'benign fetched content'
+              : injectedText
           }
         };
       }
@@ -162,7 +151,7 @@ describe('BONDS Assistant indirect tool-output injection red-team verification',
     );
 
     expect(reasonerPrompts.some(prompt => prompt.includes(benign))).toBe(true);
-    expect(calls.filter(call => !['ai_reason', 'web_search'].includes(call.action))).toHaveLength(0);
+    expect(calls.filter(call => !['ai_reason', 'web_fetch'].includes(call.action))).toHaveLength(0);
     expect(result.reply).toBe('The external result was reviewed.');
   });
 });
