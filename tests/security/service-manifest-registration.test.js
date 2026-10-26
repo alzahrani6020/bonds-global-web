@@ -117,6 +117,7 @@ describe(
           'funding_readiness_run',
           'funding_status',
           'language_detect',
+          'management_reporting_run',
           'media_classify',
           'native_generate',
           'native_health',
