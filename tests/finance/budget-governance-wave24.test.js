@@ -158,7 +158,7 @@ describe('Financial core wave 24 governed budget baselines', () => {
   test('reuses canonical ledger actuals and FIN-043 instead of creating a parallel actuals store', () => {
     expect(migration).toContain('public.accounting_journal_entries');
     expect(migration).toContain('public.accounting_journal_lines');
-    expect(migration).toContain('public.accounting_dimensions');
+    expect(migration).toContain('accounting_assert_account_dimensions');
     expect(migration).not.toContain('accounting_budget_actual');
   });
 });
