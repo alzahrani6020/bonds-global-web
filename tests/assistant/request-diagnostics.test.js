@@ -225,6 +225,50 @@ describe('assistant request diagnostics', () => {
     expect(result.stages.find(row => row.stage === 'explore').status).toBe(STATUS.SKIPPED);
   });
 
+  test('marks recovered exploration failure as degraded when verified research completes', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-recovered-explore',
+      path:'OPEN_CHAT_RESEARCH',
+      totalMs:3200,
+      loopResult:{
+        ok:true,
+        reply:'وزارة المالية https://www.mof.gov.sa/',
+        failed:false,
+        trace:[
+          { action:'web_search', execution:{ ok:true } },
+          { action:'web_explore', execution:{ ok:false, error:{ code:'WEB_ACQUISITION_FAILED' } } },
+          { action:'evidence_verify', execution:{ ok:true } },
+          { action:'research_synthesize', execution:{ ok:true } }
+        ],
+        research:{
+          status:'completed',
+          initial_quality_code:'PASS',
+          repair_attempted:false,
+          decision_eligible:true,
+          source_count:1,
+          evidence_count:1,
+          verification_state:'SUPPORTED',
+          timings:{ search_ms:100, explore_ms:500, verify_ms:60, synthesize_ms:40 },
+          research_acquisition_ms:1200,
+          answer_synthesis_ms:200,
+          unknowns:[],
+          contradictions:[]
+        }
+      }
+    });
+
+    expect(result.status).toBe(STATUS.DEGRADED);
+    expect(result.failure_stage).toBeNull();
+    expect(result.root_cause_stage).toBeNull();
+    expect(result.error_code).toBe('WEB_ACQUISITION_FAILED');
+    expect(result.stages.find(row => row.stage === 'explore')).toEqual(expect.objectContaining({
+      status:STATUS.DEGRADED,
+      recovered:true
+    }));
+    expect(result.stages.find(row => row.stage === 'evidence').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
+  });
+
   test('marks native fallback as degraded rather than clean pass', () => {
     const result = buildRequestDiagnostics({
       requestId:'req-fallback',

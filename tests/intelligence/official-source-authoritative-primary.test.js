@@ -153,5 +153,7 @@ describe('Authoritative primary evidence for official-source lookup', () => {
     expect(result.verification.result.authoritative_primary_evidence_used).toBe(true);
     expect(result.evidence.length).toBeGreaterThan(0);
     expect(calls.filter(item => item.action === 'web_explore')).toHaveLength(1);
+    expect(calls.filter(item => item.action === 'evidence_verify')).toHaveLength(1);
+    expect(calls.filter(item => item.action === 'research_synthesize')).toHaveLength(1);
   });
 });

@@ -438,6 +438,68 @@ describe('BONDS query-led research workflow', () => {
     )).toBeNull();
   });
 
+  test('falls back to governed official URL evidence only when web_explore fails', async () => {
+    const { verifyEvidence, synthesizeResearch } = require('../../lib/intelligence/research-intelligence');
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            results:[{
+              title:'وزارة المالية',
+              snippet:'Ministry of Finance official website',
+              url:'https://www.mof.gov.sa/'
+            }]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:false,
+          executed:true,
+          error:{ code:'WEB_ACQUISITION_FAILED' }
+        };
+      }
+      if (action === 'evidence_verify') return verifyEvidence(input);
+      if (action === 'research_synthesize') return synthesizeResearch(input);
+      throw new Error('unexpected action: ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        query:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        topic:'وزارة المالية السعودية',
+        intent:'web_research',
+        allowAuthoritativePrimaryEvidence:true,
+        minIndependentPublishers:2
+      }
+    }, {}, { executeCapability });
+
+    expect(result.status).toBe('SUPPORTED');
+    expect(result.decisionEligible).toBe(true);
+    expect(result.authoritative_primary_evidence_fast_path).toBe(true);
+    expect(result.exploration.fallback).toBe('authoritative_registry_url_reference');
+    expect(result.verification.executed).toBe(true);
+    expect(result.verification.result.authoritative_primary_evidence_used).toBe(true);
+    expect(result.verification.result.sources[0]).toEqual(expect.objectContaining({
+      institutional_source_id:'ministry_finance_sa',
+      url:'https://www.mof.gov.sa/',
+      text:''
+    }));
+    expect(result.evidence).toEqual([
+      expect.objectContaining({
+        evidence_code:'official.url',
+        value:'https://www.mof.gov.sa/',
+        source_url:'https://www.mof.gov.sa/'
+      })
+    ]);
+    expect(executeCapability.mock.calls.filter(([action]) => action === 'web_explore')).toHaveLength(1);
+  });
+
   test('rejects technically successful search results that are not relevant to the entity', () => {
     const ranked = rankRelevantSearchResults([
       {title:'Football news',snippet:'Latest league results',url:'https://sports.example'},
