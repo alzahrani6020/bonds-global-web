@@ -18,6 +18,7 @@ const { unitEconomicsAnalysis } = require('../../lib/finance/engines/unit-econom
 const { managementReporting } = require('../../lib/finance/engines/management-reporting-engine');
 const { consolidationAnalysis } = require('../../lib/finance/engines/consolidation-engine');
 const { fxTranslationAnalysis } = require('../../lib/finance/engines/fx-translation-engine');
+const { planningBudgetingAnalysis } = require('../../lib/finance/engines/planning-budgeting-engine');
 
 function stable(result) {
   return {
@@ -31,7 +32,7 @@ function stable(result) {
 
 describe('modular financial engine architecture parity', () => {
   test('preserves engine version and registry surface', () => {
-    expect(ENGINE_VERSION).toBe('1.8.0');
+    expect(ENGINE_VERSION).toBe('1.9.0');
     expect(listFinancialEngines().map(item => item.code)).toEqual([
       'financial_analysis',
       'cash_flow_analysis',
@@ -49,7 +50,8 @@ describe('modular financial engine architecture parity', () => {
       'unit_economics',
       'management_reporting',
       'consolidation',
-      'fx_translation'
+      'fx_translation',
+      'planning_budgeting'
     ]);
   });
 
@@ -288,6 +290,17 @@ describe('modular financial engine architecture parity', () => {
           closing: { rate: 3.75 },
           historical: { '3100': { rate: 3.50 } }
         }
+      },
+      {}
+    ],
+    [
+      'planning_budgeting',
+      planningBudgetingAnalysis,
+      {
+        periods: [
+          { period: 'P1', status: 'actual', actual: { revenue: 100 }, budget: { revenue: 90 } },
+          { period: 'P2', status: 'forecast', budget: { revenue: 110 }, forecast: { revenue: 115 } }
+        ]
       },
       {}
     ]
