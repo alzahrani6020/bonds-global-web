@@ -75,7 +75,7 @@ create table if not exists public.accounting_budget_lines (
   account_id uuid not null,
   amount numeric(20,2) not null,
   dimensions jsonb not null default '{}'::jsonb,
-  dimensions_key text generated always as (md5(dimensions::text)) stored,
+  dimensions_key text generated always as (dimensions::text) stored,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
