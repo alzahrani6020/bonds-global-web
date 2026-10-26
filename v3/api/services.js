@@ -2,6 +2,7 @@
 
 const { resolveGeoContext } = require('../../lib/geo/resolve-context');
 const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
+const { resolveServiceWorkspace } = require('../../lib/services/service-workspace-resolver');
 const { parseDocument, DocumentParserError } = require('../../lib/api/document-parser');
 const {
   parseNumeric,
@@ -177,14 +178,18 @@ async function listPublishedServices(supabase, filters = {}) {
   const ids = selected.map(row => row.id);
   if (!ids.length) return [];
 
-  const [capRes, goalRes, countryRes] = await Promise.all([
+  const [capRes, goalRes, countryRes, profileRes] = await Promise.all([
     supabase.from('service_capability_map').select('service_id,capability_code,run_order,is_required').in('service_id', ids).order('run_order'),
     supabase.from('service_goal_map').select('service_id,goal_code,priority').in('service_id', ids),
     filters.country
       ? supabase.from('service_country_map').select('service_id,country_code,availability_status,availability_reason_ar,availability_reason_en,priority').eq('country_code', filters.country).in('service_id', ids)
-      : Promise.resolve({ data: [], error: null })
+      : Promise.resolve({ data: [], error: null }),
+    supabase.from('service_execution_profiles')
+      .select('service_id,execution_status,execution_mode,primary_action,assistant_enabled,version,is_active')
+      .in('service_id', ids)
+      .eq('is_active', true)
   ]);
-  const failed = [capRes, goalRes, countryRes].find(x => x.error);
+  const failed = [capRes, goalRes, countryRes, profileRes].find(x => x.error);
   if (failed?.error) throw failed.error;
 
   const caps = new Map();
@@ -198,11 +203,22 @@ async function listPublishedServices(supabase, filters = {}) {
     goals.get(row.service_id).push(row);
   }
   const country = new Map((countryRes.data || []).map(row => [row.service_id, row]));
+  const profiles = new Map((profileRes.data || []).map(row => [row.service_id, row]));
 
-  return selected.map(row => ({
+  return selected.map(row => {
+    const executionProfile = profiles.get(row.id) || {
+      execution_status: 'request_only',
+      execution_mode: 'request_only',
+      primary_action: null,
+      assistant_enabled: true,
+      version: 1
+    };
+    return {
     ...row,
     goals: goals.get(row.id) || [],
     capabilities: caps.get(row.id) || [],
+    execution_profile: executionProfile,
+    workspace: resolveServiceWorkspace(row, executionProfile),
     country: country.get(row.id) || (filters.country ? {
       country_code: filters.country,
       availability_status: 'unknown',
@@ -210,7 +226,8 @@ async function listPublishedServices(supabase, filters = {}) {
       availability_reason_en: null,
       priority: 100
     } : null)
-  }));
+  };
+  });
 }
 
 async function handleServiceCatalog(req, res, supabase) {
@@ -1489,9 +1506,13 @@ async function handleServiceDetail(req, res, supabase, code) {
     : null;
 
   let intake = { supported:false, execution_status:null, execution_mode:null, requirement_fields:[] };
+  let executionProfile = { execution_status:'request_only', execution_mode:'request_only', primary_action:null };
+  let workspace = resolveServiceWorkspace(service, executionProfile);
   try {
     const resolved = await loadExecutionProfile(supabase, code);
     if (resolved) {
+      executionProfile = resolved.profile || executionProfile;
+      workspace = resolveServiceWorkspace(service, executionProfile);
       const intakeRequirements = requirementsFor({
         primaryAction: resolved.profile.primary_action,
         serviceCode: code,
@@ -1513,6 +1534,8 @@ async function handleServiceDetail(req, res, supabase, code) {
     filters,
     availability:countryRes.data||null,
     capabilities:capRes.data||[],
+    execution_profile:executionProfile,
+    workspace,
     intake,
     request_profile:requestProfile,
     procedures,
