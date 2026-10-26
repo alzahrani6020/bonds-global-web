@@ -4,6 +4,9 @@ begin;
 -- Reuses canonical posted journals, accounting dimensions, membership boundary,
 -- general_ledger service, and /api/v3/services/execute.
 
+create index if not exists idx_accounting_journal_lines_dimensions_gin
+  on public.accounting_journal_lines using gin (dimensions);
+
 create or replace function public.accounting_dimension_ledger_balances(
   p_accounting_entity_id uuid,
   p_dimension_type text,
