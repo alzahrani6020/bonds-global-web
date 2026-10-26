@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 11,
+  "version": 12,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -433,6 +433,19 @@
       ],
       "runtime": {
         "adapter": "unit_economics_engine"
+      }
+    },
+    {
+      "action": "management_reporting_run",
+      "action_type": "engine",
+      "id": "BONDS-CAP-FIN-029",
+      "purpose": "Compose deterministic CFO, board, monthly management and KPI packs from explicit actual, budget, prior-period, KPI, risk and action inputs.",
+      "side_effect": "compute",
+      "required": [
+        "inputs"
+      ],
+      "runtime": {
+        "adapter": "management_reporting_engine"
       }
     }
   ]

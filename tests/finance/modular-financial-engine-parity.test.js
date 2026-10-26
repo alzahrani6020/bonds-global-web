@@ -15,6 +15,7 @@ const { creditRiskAnalysis } = require('../../lib/finance/engines/credit-risk-en
 const { treasuryLiquidityAnalysis } = require('../../lib/finance/engines/treasury-liquidity-engine');
 const { profitabilityIntelligence } = require('../../lib/finance/engines/profitability-intelligence-engine');
 const { unitEconomicsAnalysis } = require('../../lib/finance/engines/unit-economics-engine');
+const { managementReporting } = require('../../lib/finance/engines/management-reporting-engine');
 
 function stable(result) {
   return {
@@ -28,7 +29,7 @@ function stable(result) {
 
 describe('modular financial engine architecture parity', () => {
   test('preserves engine version and registry surface', () => {
-    expect(ENGINE_VERSION).toBe('1.5.0');
+    expect(ENGINE_VERSION).toBe('1.6.0');
     expect(listFinancialEngines().map(item => item.code)).toEqual([
       'financial_analysis',
       'cash_flow_analysis',
@@ -43,7 +44,8 @@ describe('modular financial engine architecture parity', () => {
       'credit_risk',
       'treasury_liquidity',
       'profitability_intelligence',
-      'unit_economics'
+      'unit_economics',
+      'management_reporting'
     ]);
   });
 
@@ -209,6 +211,27 @@ describe('modular financial engine architecture parity', () => {
         revenue: 100000,
         gross_profit: 40000,
         ltv: 1500
+      },
+      {}
+    ],
+    [
+      'management_reporting',
+      managementReporting,
+      {
+        pack_type: 'cfo',
+        period: '2026-10',
+        actual: {
+          revenue: 1200,
+          operating_profit: 240
+        },
+        budget: {
+          revenue: 1000,
+          operating_profit: 260
+        },
+        prior: {
+          revenue: 900,
+          operating_profit: 200
+        }
       },
       {}
     ]
