@@ -33,6 +33,14 @@ describe('service discovery direct routing', () => {
     expect(script).toContain("if (directRoute && !hasExecutionCapabilities)");
   });
 
+  test('uses direct request routes only for explicitly tagged workspaces', () => {
+    expect(script).toContain("service.workspace?.mode === 'request'");
+    expect(script).toContain("service.workspace?.dedicated === true");
+    expect(script).toContain("if (service.workspace?.mode === 'request') return null");
+    expect(script).toContain("dedicatedRequestWorkspace");
+    expect(script).toContain("routeWithParams");
+  });
+
   test('persists selected service intent before direct routing', () => {
     const storeIndex = script.indexOf("sessionStorage.setItem('bonds_service_intent'");
     const routeIndex = script.indexOf("const directRoute = selectedServiceRoute(serviceCode)");
