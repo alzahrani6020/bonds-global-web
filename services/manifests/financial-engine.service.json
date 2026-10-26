@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 11,
+  "version": 12,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -254,6 +254,20 @@
       }
     },
     {
+      "action": "accounting_dimension_income_statement",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-028",
+      "purpose": "Prepare a deterministic income statement by canonical cost-center or segment dimension from posted accounting journals.",
+      "side_effect": "none",
+      "required": [
+        "accounting_entity_id",
+        "dimension_type"
+      ],
+      "runtime": {
+        "adapter": "accounting_dimension_income_statement"
+      }
+    },
+    {
       "action": "accounting_dimension_ledger_report",
       "action_type": "data",
       "id": "BONDS-CAP-FIN-025",
@@ -424,7 +438,7 @@
     {
       "action": "management_reporting_run",
       "action_type": "engine",
-      "id": "BONDS-CAP-FIN-028",
+      "id": "BONDS-CAP-FIN-029",
       "purpose": "Compose deterministic CFO, board, monthly management and KPI packs from explicit actual, budget, prior-period, KPI, risk and action inputs.",
       "side_effect": "compute",
       "required": [
