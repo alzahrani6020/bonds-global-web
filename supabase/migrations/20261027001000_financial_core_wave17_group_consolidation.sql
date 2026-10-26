@@ -166,6 +166,18 @@ begin
     status='active',
     updated_at=now();
 
+  update public.accounting_group_members existing
+  set status='inactive',updated_at=now()
+  where existing.group_id=v_group_id
+    and existing.role='subsidiary'
+    and existing.status='active'
+    and not exists(
+      select 1
+      from jsonb_array_elements(coalesce(p_members,'[]'::jsonb)) incoming
+      where nullif(incoming->>'accounting_entity_id','') =
+            existing.accounting_entity_id::text
+    );
+
   for v_member in
     select value from jsonb_array_elements(coalesce(p_members,'[]'::jsonb))
   loop
