@@ -125,6 +125,7 @@ describe(
           'funding_next_step',
           'funding_readiness_run',
           'funding_status',
+          'fx_translation_run',
           'language_detect',
           'management_reporting_run',
           'media_classify',
