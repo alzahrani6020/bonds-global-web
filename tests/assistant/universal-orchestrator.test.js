@@ -52,33 +52,68 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(parseDecision('{"mode":"tool","action":"invented_action","input":{}}')).toBeNull();
   });
 
-  test('uses planner first and can replan after an empty/failed search instead of failing the turn', async () => {
-    executeGovernedAction
-      .mockResolvedValueOnce({
-        ok:true,
-        result:{ result:{ text:'{"mode":"tool","action":"web_search","input":{"query":"طلال حسن الزهراني"}}' } }
-      })
-      .mockResolvedValueOnce({
-        ok:false,
-        executed:true,
-        action:'web_search',
-        action_fabric:{ side_effect:'network_read' },
-        error:{ code:'SEARCH_NO_RESULTS' }
-      })
-      .mockResolvedValueOnce({
-        ok:true,
-        result:{ result:{ text:'{"mode":"tool","action":"web_search","input":{"query":"طلال حسن الزهراني بوندز"}}' } }
-      })
-      .mockResolvedValueOnce({
-        ok:true,
-        action:'web_search',
-        action_fabric:{ side_effect:'network_read' },
-        result:{ results:[{ title:'BONDS', url:'https://bonds-global.com/', snippet:'طلال حسن الزهراني' }] }
-      })
-      .mockResolvedValueOnce({
-        ok:true,
-        result:{ result:{ text:'{"mode":"answer","answer":"وجدت نتيجة موثقة مرتبطة بالاسم."}' } }
-      });
+  test('routes clear person lookup through deterministic research without ai_reason', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') {
+        throw new Error('AI_REASON_MUST_NOT_RUN_FOR_CLEAR_RESEARCH');
+      }
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            query:input.query,
+            results:[
+              { title:'الدكتور طلال حسن الزهراني | بوندز', url:'https://bonds-global.com/', snippet:'طلال حسن الزهراني مستشار وخبير مالي.' }
+            ]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            pages:[{
+              url:'https://bonds-global.com/',
+              evidence:{ content_type:'text/html', headers:{} },
+              extracted:{ format:'html', title:'الدكتور طلال حسن الزهراني | بوندز', text:'طلال حسن الزهراني مستشار وخبير مالي.' }
+            }]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'SUPPORTED',
+            source_count:1,
+            independent_publisher_count:1,
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{ verification_state:'SUPPORTED', known:[], unknown:[], contradictions:[] }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
 
     const result = await runUniversalOrchestrator(
       [{ role:'user', content:'من هو الدكتور طلال حسن الزهراني؟' }],
@@ -87,11 +122,94 @@ describe('BONDS planner-first universal orchestrator', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.reply).toBe('وجدت نتيجة موثقة مرتبطة بالاسم.');
-    expect(result.trace.map(item => item.action)).toEqual(['web_search','web_search']);
-    expect(executeGovernedAction.mock.calls[0][0].action).toBe('ai_reason');
-    expect(executeGovernedAction.mock.calls[1][0].action).toBe('web_search');
-    expect(executeGovernedAction.mock.calls[2][0].action).toBe('ai_reason');
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(result.toolUsed).toBe(true);
+    expect(result.research.decision_eligible).toBe(true);
+    expect(result.research.answer_synthesis_ms).toBe(0);
+    const actions = result.trace.map(item => item.action);
+    expect(actions).toContain('web_search');
+    expect(actions).toContain('web_explore');
+    expect(actions).toContain('evidence_verify');
+    expect(actions).toContain('research_synthesize');
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
+  });
+
+  test('routes exact production official URL question through deterministic research without ai_reason', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') {
+        throw new Error('AI_REASON_MUST_NOT_RUN_FOR_OFFICIAL_URL');
+      }
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            query:input.query,
+            results:[{
+              title:'وزارة المالية',
+              url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+              snippet:'الموقع الرسمي لوزارة المالية السعودية'
+            }]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            pages:[{
+              url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+              evidence:{ content_type:'text/html', headers:{} },
+              extracted:{ format:'html', title:'وزارة المالية', text:'الموقع الرسمي لوزارة المالية السعودية' }
+            }]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'SUPPORTED',
+            source_count:1,
+            independent_publisher_count:1,
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{ verification_state:'SUPPORTED', known:[], unknown:[], contradictions:[] }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(result.reply).toContain('mof.gov.sa');
+    expect(result.research.answer_synthesis_ms).toBe(0);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
   });
 
   test('does not execute a mutating action without explicit confirmation', async () => {
