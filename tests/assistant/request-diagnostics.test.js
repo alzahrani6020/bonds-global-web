@@ -1,6 +1,6 @@
 'use strict';
 
-const { buildRequestDiagnostics, STATUS } = require('../../lib/assistant/request-diagnostics');
+const { buildRequestDiagnostics, sanitizeNativeTelemetryRows, STATUS } = require('../../lib/assistant/request-diagnostics');
 
 describe('assistant request diagnostics', () => {
   test('reports a successful research pipeline from execution metadata', () => {
@@ -350,6 +350,75 @@ describe('assistant request diagnostics', () => {
     });
     expect(JSON.stringify(result.acquisition_trace)).not.toContain('PRIVATE PAGE TEXT');
     expect(JSON.stringify(result.acquisition_trace)).not.toContain('https://example.com/private/path');
+  });
+
+  test('native telemetry diagnostics are whitelist-only, bounded, and rounded', () => {
+    const rows = sanitizeNativeTelemetryRows([{
+      step:1,
+      final:false,
+      lock_wait_seconds:9.87654,
+      generation_seconds:2.12345,
+      request_total_seconds:12.00049,
+      model_load_seconds:0,
+      model_cache_hit:true,
+      completion_tokens:31,
+      prompt_tokens:6144,
+      tokens_per_second:14.98765,
+      n_ctx:4096,
+      finish_reason:'stop',
+      native_node:'native-1',
+      elapsed_ms:12001.7,
+      model_path:'C:/private/model.gguf',
+      prompt:'PRIVATE PROMPT',
+      secret:'DO_NOT_EXPOSE'
+    }]);
+
+    expect(rows).toEqual([{
+      step:1,
+      final:false,
+      lock_wait_seconds:9.877,
+      generation_seconds:2.123,
+      request_total_seconds:12,
+      model_load_seconds:0,
+      model_cache_hit:true,
+      completion_tokens:31,
+      prompt_tokens:6144,
+      tokens_per_second:14.988,
+      n_ctx:4096,
+      finish_reason:'stop',
+      native_node:'native-1',
+      elapsed_ms:12002
+    }]);
+    expect(JSON.stringify(rows)).not.toContain('model.gguf');
+    expect(JSON.stringify(rows)).not.toContain('PRIVATE PROMPT');
+    expect(JSON.stringify(rows)).not.toContain('DO_NOT_EXPOSE');
+
+    const diagnostics = buildRequestDiagnostics({
+      requestId:'req-native-telemetry',
+      path:'UNIVERSAL_ORCHESTRATOR',
+      loopResult:{
+        ok:true,
+        reply:'answer',
+        trace:[],
+        nativeTelemetry:[{
+          step:1,
+          final:false,
+          lock_wait_seconds:9.87654,
+          usage:{ prompt_tokens:999999 },
+          prompt_tokens:6144,
+          model_path:'C:/private/model.gguf'
+        }]
+      }
+    });
+
+    expect(diagnostics.native_telemetry).toEqual([{
+      step:1,
+      final:false,
+      lock_wait_seconds:9.877,
+      prompt_tokens:6144
+    }]);
+    expect(JSON.stringify(diagnostics.native_telemetry)).not.toContain('model_path');
+    expect(JSON.stringify(diagnostics.native_telemetry)).not.toContain('usage');
   });
 
   test('diagnostics output is metadata-only and excludes raw trace payloads', () => {
