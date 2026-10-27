@@ -17,7 +17,7 @@ const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
-const { runOpenChatLoop } = require('../../lib/assistant/open-chat-tool-loop');
+const { runUniversalOrchestrator } = require('../../lib/assistant/universal-orchestrator');
 const { buildRequestDiagnostics } = require('../../lib/assistant/request-diagnostics');
 const crypto = require('crypto');
 
@@ -675,7 +675,7 @@ async function aiChatHandler(req, res) {
 
   if (!forceNative) {
     try {
-      const loopResult = await runOpenChatLoop(messages, enrichedContext, {
+      const loopResult = await runUniversalOrchestrator(messages, enrichedContext, {
         req,
         user: authenticatedUser,
         supabase: getSupabaseClient(),
@@ -692,7 +692,7 @@ async function aiChatHandler(req, res) {
           provider: 'BONDS',
           model: null,
           inference: {
-            planner: 'open-chat-loop',
+            planner: loopResult.planner || 'universal-v2',
             tool_used: loopResult.toolUsed === true,
             tool_steps: loopResult.steps || 0,
             actions
@@ -700,7 +700,7 @@ async function aiChatHandler(req, res) {
           fallback_reason: null,
           diagnostics: diagnosticsAllowed ? buildRequestDiagnostics({
             requestId,
-            path: loopResult?.research ? 'OPEN_CHAT_RESEARCH' : 'OPEN_CHAT',
+            path: 'UNIVERSAL_ORCHESTRATOR',
             loopResult,
             totalMs: Date.now() - requestStartedAt
           }) : undefined,

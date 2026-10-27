@@ -127,7 +127,7 @@ describe('Governed person identity pipeline', () => {
   test('downstream research and answer layers do not rebuild PersonEntityFrame from raw text', () => {
     const downstream = [
       path.join(__dirname, '../../lib/intelligence/research-workflow.js'),
-      path.join(__dirname, '../../lib/assistant/open-chat-tool-loop.js')
+      path.join(__dirname, '../../lib/assistant/universal-orchestrator.js')
     ];
 
     for (const filename of downstream) {
