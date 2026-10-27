@@ -177,6 +177,70 @@ describe('Financial core wave 11', () => {
       .toContain('facilities[0].rate_type_fixed_or_floating');
   });
 
+  test('measures refinancing coverage and first uncovered maturity within an explicit horizon', () => {
+    const result = runFinancialEngine('debt_schedule', {
+      refinancing_horizon_periods: 4,
+      available_refinancing_capacity: 500,
+      available_liquidity_for_refinancing: 100,
+      facilities: [
+        {
+          id: 'F1',
+          principal: 100,
+          annual_rate_pct: 6,
+          term_periods: 2,
+          periods_per_year: 4,
+          amortization_method: 'bullet'
+        },
+        {
+          id: 'F2',
+          principal: 900,
+          annual_rate_pct: 8,
+          term_periods: 4,
+          periods_per_year: 4,
+          amortization_method: 'bullet'
+        }
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.refinancing_risk).toMatchObject({
+      horizon_periods: 4,
+      principal_due_within_horizon: 1000,
+      available_refinancing_capacity: 500,
+      available_liquidity_for_refinancing: 100,
+      total_refinancing_resources: 600,
+      refinancing_coverage_ratio: 0.6,
+      refinancing_gap: 400,
+      surplus_resources: 0,
+      first_uncovered_maturity_period: 4,
+      status: 'shortfall'
+    });
+    expect(result.metrics.refinancing_risk.principal_due_profile).toEqual([
+      { period: 2, principal_due: 100 },
+      { period: 4, principal_due: 900 }
+    ]);
+    expect(result.diagnostics.refinancing_risk_method)
+      .toBe('cumulative_scheduled_principal_due_vs_explicit_resources');
+  });
+
+  test('fails closed when refinancing analysis is requested without explicit resources', () => {
+    const result = runFinancialEngine('debt_schedule', {
+      refinancing_horizon_periods: 4,
+      facilities: [{
+        principal: 1000,
+        annual_rate_pct: 8,
+        term_periods: 4,
+        periods_per_year: 4,
+        amortization_method: 'bullet'
+      }]
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.executed).toBe(false);
+    expect(result.required_inputs)
+      .toContain('available_refinancing_capacity_or_liquidity');
+  });
+
   test('evaluates covenant headroom and forecast breach periods', () => {
     const result = runFinancialEngine('covenant_monitoring', {
       covenants: [
