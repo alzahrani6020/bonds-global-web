@@ -107,6 +107,30 @@ describe('BONDS governed web search', () => {
     ]);
   });
 
+  test('rejects Bing/Microsoft-owned RSS items before exposing search results', () => {
+    const rss = `
+      <rss><channel>
+        <item>
+          <title>Microsoft - Official Home Page</title>
+          <link>https://www.microsoft.com/en-us/</link>
+          <description>Microsoft products and services.</description>
+        </item>
+        <item>
+          <title>External biography</title>
+          <link>https://example.org/profile</link>
+          <description>Public profile.</description>
+        </item>
+      </channel></rss>
+    `;
+
+    expect(parseBingRss(rss, 5)).toEqual([
+      expect.objectContaining({
+        title:'External biography',
+        url:'https://example.org/profile'
+      })
+    ]);
+  });
+
   test('parses Bing RSS search results as a stable no-key fallback', () => {
     const rss = `
       <rss>
