@@ -39,6 +39,59 @@ describe('Treasury and liquidity core wave 14', () => {
     expect(result.metrics.investable_surplus).toBe(0);
   });
 
+  test('builds a multi-period liquidity maturity ladder and identifies the first buffer breach', () => {
+    const result = runFinancialEngine('treasury_liquidity', {
+      currency: 'SAR',
+      accounts: [
+        { id: 'A1', bank: 'Bank A', balance: 500000, restricted_cash: 50000 }
+      ],
+      minimum_liquidity_buffer: 200000,
+      liquidity_periods: [
+        { period: 'W1', inflows: 100000, outflows: 150000 },
+        { period: 'W2', inflows: 50000, outflows: 300000, facilities: 100000 },
+        { period: 'W3', inflows: 250000, outflows: 50000 }
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.liquidity_ladder).toHaveLength(3);
+    expect(result.metrics.liquidity_ladder[0]).toEqual(expect.objectContaining({
+      period: 'W1',
+      opening_liquidity: 450000,
+      projected_liquidity_before_facilities: 400000,
+      funding_gap: 0
+    }));
+    expect(result.metrics.liquidity_ladder[1]).toEqual(expect.objectContaining({
+      period: 'W2',
+      projected_liquidity_before_facilities: 150000,
+      funding_gap: 50000,
+      facilities: 100000,
+      projected_liquidity_after_facilities: 250000
+    }));
+    expect(result.metrics.first_buffer_breach_period).toBe('W2');
+    expect(result.metrics.maximum_funding_gap).toBe(50000);
+    expect(result.metrics.lowest_projected_liquidity).toBe(150000);
+    expect(result.metrics.ending_projected_liquidity).toBe(450000);
+    expect(result.diagnostics.method).toBe('cash_position_plus_maturity_ladder');
+  });
+
+  test('fails closed on invalid liquidity ladder flows', () => {
+    const result = runFinancialEngine('treasury_liquidity', {
+      accounts: [{ id: 'A1', balance: 1000 }],
+      minimum_liquidity_buffer: 100,
+      liquidity_periods: [
+        { period: 'D1', inflows: -1, outflows: 10 },
+        { period: 'D2', inflows: 10 }
+      ]
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.required_inputs)
+      .toContain('liquidity_periods[0].inflows_non_negative');
+    expect(result.required_inputs)
+      .toContain('liquidity_periods[1].outflows_non_negative');
+  });
+
   test('computes bank concentration and forecast-versus-actual variance', () => {
     const result = runFinancialEngine('treasury_liquidity', {
       accounts: [
