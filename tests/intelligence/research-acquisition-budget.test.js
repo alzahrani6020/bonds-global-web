@@ -156,7 +156,7 @@ describe('research acquisition budget enforcement', () => {
     expect(result.decisionEligible).toBe(true);
     expect(result.research_budget.stop_reason).toBe(RESEARCH_STOP_REASONS.COMPLETED);
     expect(result.research_budget.attempted_query_count).toBeGreaterThan(0);
-    expect(result.research_budget.provider_universe_count).toBe(3);
+    expect(result.research_budget.provider_universe_count).toBe(4);
   });
 });
 
@@ -165,6 +165,7 @@ describe('provider collapse and retry semantics', () => {
 
   test('all providers down (403) stops after the first query without retries', async () => {
     const executeCapability = jest.fn(async () => providerFailureSearch([
+      ['searxng', 403, 'HTTP_STATUS'],
       ['bing', 403, 'HTTP_STATUS'],
       ['duckduckgo', 403, 'HTTP_STATUS'],
       ['brave', 403, 'HTTP_STATUS']
@@ -175,12 +176,13 @@ describe('provider collapse and retry semantics', () => {
     expect(executeCapability.mock.calls.filter(([action]) => action === 'web_search')).toHaveLength(1);
     expect(result.status).toBe('search_failed');
     expect(result.research_stop_reason).toBe(RESEARCH_STOP_REASONS.PROVIDERS_EXHAUSTED);
-    expect(result.research_budget.provider_disabled_count).toBe(3);
+    expect(result.research_budget.provider_disabled_count).toBe(4);
     expect(result.decisionEligible).toBe(false);
   });
 
   test('all providers rate-limited (429) does not waste a worthless retry', async () => {
     const executeCapability = jest.fn(async () => providerFailureSearch([
+      ['searxng', 429, 'RATE_LIMITED'],
       ['bing', 429, 'RATE_LIMITED'],
       ['duckduckgo', 429, 'RATE_LIMITED'],
       ['brave', 429, 'RATE_LIMITED']
@@ -191,6 +193,40 @@ describe('provider collapse and retry semantics', () => {
     expect(executeCapability.mock.calls.filter(([action]) => action === 'web_search')).toHaveLength(1);
     expect(result.research_stop_reason).toBe(RESEARCH_STOP_REASONS.PROVIDERS_EXHAUSTED);
     expect(result.search_attempts.every(record => !record.retry)).toBe(true);
+  });
+
+  test('does not report providers_exhausted while Bing remains healthy', async () => {
+    let searchCalls = 0;
+    const executeCapability = jest.fn(async (action) => {
+      if (action !== 'web_search') throw new Error('unexpected: ' + action);
+      searchCalls += 1;
+      if (searchCalls === 1) {
+        return {
+          ok: false,
+          executed: true,
+          error: {
+            code: 'SEARCH_NO_RESULTS',
+            attempts: [
+              { provider: 'searxng', status_code: 429, failure_class: 'HTTP_429' },
+              { provider: 'duckduckgo', status_code: 403, failure_class: 'HTTP_403' },
+              { provider: 'brave', status_code: 429, failure_class: 'HTTP_429' },
+              { provider: 'bing', status_code: 200, code: 'SEARCH_NO_RESULTS' }
+            ]
+          }
+        };
+      }
+      return noResultSearch();
+    });
+
+    const result = await runResearchWorkflow(generalResearchRequest(), {}, { executeCapability });
+
+    expect(searchCalls).toBeGreaterThan(1);
+    expect(result.disabled_search_providers).toEqual(
+      expect.arrayContaining(['searxng', 'duckduckgo', 'brave'])
+    );
+    expect(result.disabled_search_providers).not.toContain('bing');
+    expect(result.research_stop_reason).not.toBe(RESEARCH_STOP_REASONS.PROVIDERS_EXHAUSTED);
+    expect(result.research_budget.provider_universe_count).toBe(4);
   });
 
   test('a 403 provider is disabled and not retried by itself', async () => {
