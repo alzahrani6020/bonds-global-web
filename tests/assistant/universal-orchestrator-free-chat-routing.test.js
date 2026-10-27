@@ -5,7 +5,7 @@
  * Free-chat routing: L0 default, L1/L2 at claim level, per-claim degradation.
  */
 
-function loadHarness({ plannerReplies, toolResults = {} }) {
+function loadHarness({ plannerReplies, plannerTelemetry = [], toolResults = {} }) {
   jest.resetModules();
 
   const calls = [];
@@ -27,9 +27,23 @@ function loadHarness({ plannerReplies, toolResults = {} }) {
       if (action === 'ai_reason') {
         const prompt = String(input?.prompt || '');
         reasonerPrompts.push(prompt);
-        const reply = plannerReplies[Math.min(reasonerCall, plannerReplies.length - 1)];
+        const replyIndex = Math.min(reasonerCall, plannerReplies.length - 1);
+        const reply = plannerReplies[replyIndex];
+        const telemetry = plannerTelemetry[Math.min(reasonerCall, Math.max(0, plannerTelemetry.length - 1))] || {};
         reasonerCall += 1;
-        return { ok:true, result:{ result:{ text: typeof reply === 'string' ? reply : JSON.stringify(reply) } } };
+        return {
+          ok:true,
+          result:{
+            result:{
+              text: typeof reply === 'string' ? reply : JSON.stringify(reply),
+              ...telemetry
+            }
+          },
+          meta:{
+            native_node:'native-1',
+            elapsed_ms:telemetry.elapsed_ms ?? 2050
+          }
+        };
       }
 
       if (action in toolResults) {
@@ -224,6 +238,55 @@ describe('universal orchestrator free-chat routing', () => {
     const english = mod.qualifyUnverifiedAnswer('This figure is verified by official sources.', false);
     expect(english.qualified).toBe(true);
     expect(english.reply).toContain('unverified');
+  });
+
+  test('captures only safe planner Native telemetry and preserves prompt token usage', async () => {
+    const { mod } = loadHarness({
+      plannerReplies:[{ mode:'answer', answer:'إجابة عامة.' }],
+      plannerTelemetry:[{
+        lock_wait_seconds:1.23456,
+        generation_seconds:2.34567,
+        request_total_seconds:3.45678,
+        model_load_seconds:0,
+        model_cache_hit:true,
+        completion_tokens:27,
+        tokens_per_second:11.23456,
+        n_ctx:4096,
+        finish_reason:'stop',
+        usage:{ prompt_tokens:6123, completion_tokens:27 },
+        model_path:'C:/private/model.gguf',
+        secret:'DO_NOT_EXPOSE',
+        elapsed_ms:999999
+      }]
+    });
+
+    const result = await mod.runUniversalOrchestrator(
+      [{ role:'user', content:'اشرح مفهوماً عاماً' }],
+      {},
+      { requestId:'req-native-telemetry' }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.nativeTelemetry).toHaveLength(1);
+    expect(result.nativeTelemetry[0]).toEqual(expect.objectContaining({
+      step:1,
+      final:false,
+      lock_wait_seconds:1.235,
+      generation_seconds:2.346,
+      request_total_seconds:3.457,
+      model_load_seconds:0,
+      model_cache_hit:true,
+      completion_tokens:27,
+      prompt_tokens:6123,
+      tokens_per_second:11.235,
+      n_ctx:4096,
+      finish_reason:'stop',
+      native_node:'native-1',
+      elapsed_ms:2050
+    }));
+    expect(result.nativeTelemetry[0]).not.toHaveProperty('model_path');
+    expect(result.nativeTelemetry[0]).not.toHaveProperty('secret');
+    expect(result.nativeTelemetry[0]).not.toHaveProperty('usage');
   });
 
   test('planner unavailable degrades to a deterministic patient reply without HTTP-style failure semantics', async () => {
