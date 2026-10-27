@@ -164,15 +164,15 @@ describe('/api/v3/intelligence', () => {
 
 
 describe('V3 AI chat runtime wiring', () => {
-  test('requires authentication and routes signed-in chat through the governed open-chat loop', () => {
+  test('requires authentication and routes signed-in chat through the planner-first universal orchestrator', () => {
     const fs = require('fs');
     const path = require('path');
     const source = fs.readFileSync(path.join(__dirname, '../../v3/api/ai.js'), 'utf8');
     expect(source).toContain("require('../../lib/services/service-execution-router')");
-    expect(source).toContain("require('../../lib/assistant/open-chat-tool-loop')");
+    expect(source).toContain("require('../../lib/assistant/universal-orchestrator')");
     expect(source).toContain("error: 'AUTHENTICATION_REQUIRED'");
     expect(source).toContain('requires_authentication: true');
-    expect(source).toContain('runOpenChatLoop(messages, enrichedContext, {');
+    expect(source).toContain('runUniversalOrchestrator(messages, enrichedContext, {');
     expect(source).not.toContain('const deterministicReply =');
     expect(source).toContain('generateNativeReply(messages, enrichedContext, {');
     expect(source).not.toContain("source: 'data-driven'");
