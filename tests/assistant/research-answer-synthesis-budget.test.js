@@ -61,6 +61,23 @@ describe('buildAnswerPlan deterministic extensions', () => {
     expect(plan.direct_answer).toContain('وزارة المالية');
   });
 
+  test('production official URL phrasing under web_research intent bypasses AI synthesis', () => {
+    const plan = buildAnswerPlan({
+      intent: 'web_research',
+      languagePlan: {
+        language: 'ar',
+        raw_text: 'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.',
+        entity: { text: 'الموقع الرسمي لوزارة المالية السعودية' }
+      },
+      entityFrame: { canonical_name: 'وزارة المالية السعودية' },
+      officialSourceUrl: 'https://www.mof.gov.sa/'
+    });
+
+    expect(plan.mode).toBe('direct_official_url');
+    expect(plan.requires_ai_synthesis).toBe(false);
+    expect(plan.direct_answer).toContain('https://www.mof.gov.sa/');
+  });
+
   test('official source is ignored when the question does not ask for the official URL', () => {
     const plan = buildAnswerPlan({
       intent: 'information',
