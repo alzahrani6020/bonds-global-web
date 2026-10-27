@@ -203,6 +203,29 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
   });
 
+
+  test('resolves official URL follow-up from the prior verified assistant answer without tools', async () => {
+    executeGovernedAction.mockImplementation(async () => {
+      throw new Error('NO_TOOL_SHOULD_RUN_FOR_CONTEXT_URL_FOLLOWUP');
+    });
+
+    const result = await runUniversalOrchestrator(
+      [
+        { role:'user', content:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.' },
+        { role:'assistant', content:'وزارة المالية\nhttps://www.mof.gov.sa/' },
+        { role:'user', content:'ما الرابط الرسمي الذي وجدته في الإجابة السابقة؟ أجب بالرابط فقط.' }
+      ],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.reply).toBe('https://www.mof.gov.sa/');
+    expect(result.planner).toBe('universal-v2-context-followup');
+    expect(result.toolUsed).toBe(false);
+    expect(executeGovernedAction).not.toHaveBeenCalled();
+  });
+
   test('does not execute a mutating action without explicit confirmation', async () => {
     executeGovernedAction.mockResolvedValueOnce({
       ok:true,
