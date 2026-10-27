@@ -4,9 +4,9 @@
   "repository": "alzahrani6020/bonds-global-web",
   "source_of_truth": "docs/PROJECT_BOOTSTRAP.md",
   "current_phase": "financial-operations-core",
-  "current_workstream": "wave5-v3-subpath-routing-fix",
+  "current_workstream": "wave5-closed",
   "status": "in_progress",
-  "baseline_main_sha": "d9061e487b9b051e615fd0981bc2ff78423c6161",
+  "baseline_main_sha": "2bd27fef277f5c18b4faf4384f8a4106d4c6ed3f",
   "last_completed": [
     "p0.1-canonical-project-memory",
     "p0.2-persistent-checkpoint-library",
@@ -103,14 +103,13 @@
     "phase6-self-training-closeout",
     "p7.1-unified-control-center",
     "phase7-control-center-closeout",
-    "dual-core-roadmap-closeout"
+    "dual-core-roadmap-closeout",
+    "financial-operations-wave5-v3-subpath-routing-verified",
+    "financial-operations-wave5-accounting-entity-membership-verified",
+    "financial-operations-wave5-authenticated-smoke-closed"
   ],
-  "currently_working_on": [
-    "preserve-v3-subpath-through-vercel-rewrite",
-    "restore-accounting-entities-route",
-    "retest-legitimate-accounting-entity-creation"
-  ],
-  "next_action": "verify V3 subpath routing fix through PR CI; merge only on full success; deploy exact merge SHA to production; recreate legitimate accounting entity through admin finance; then run authenticated Wave 5 smoke",
+  "currently_working_on": [],
+  "next_action": "resume the next unclosed financial-operations milestone from current main; do not reopen Wave 5 unless new production evidence fails",
   "blocked": [],
   "verification": {
     "phase2_analysis_foundation_merge_sha": "d08491f1b01c72af48f512f91712e08fe7823247",
@@ -122,7 +121,7 @@
     "phase2_closeout_merge_sha": "f48fa1616da1fe5405aba202e6d2744c5702f7f6",
     "phase3_system_map_impact_merge_sha": "536ef502ada24a40db452bd7679963cc7d03959a",
     "phase3_system_map_impact_ci_verified": true,
-    "current_main_sha": "d9061e487b9b051e615fd0981bc2ff78423c6161",
+    "current_main_sha": "2bd27fef277f5c18b4faf4384f8a4106d4c6ed3f",
     "superseded_candidate_prs": [
       472,
       475
@@ -226,8 +225,8 @@
     "financial_operations_wave5_pr_618_ci_verified": true,
     "financial_operations_wave5_migrations_verified": true,
     "financial_operations_wave5_unauthenticated_fail_closed_smoke": true,
-    "financial_operations_wave5_authenticated_smoke": false,
-    "financial_operations_wave5_authenticated_smoke_blocker": "NO_ACTIVE_ACCOUNTING_ENTITY_MEMBERSHIP",
+    "financial_operations_wave5_authenticated_smoke": true,
+    "financial_operations_wave5_authenticated_smoke_blocker": null,
     "accounting_entity_onboarding_candidate_branch": "feat/accounting-entity-user-flow",
     "accounting_entity_onboarding_status": "merged_ci_verified",
     "accounting_entity_onboarding_merge_sha": "6ef0dcff62372d3c1e99a877de5c1ac20f515cd1",
@@ -242,7 +241,13 @@
     "accounting_entity_admin_ui_custom_domain_verified": true,
     "production_runtime_errors_30m": 0,
     "v3_subpath_routing_candidate_branch": "fix/v3-subpath-routing",
-    "v3_subpath_routing_status": "awaiting_pr_ci"
+    "v3_subpath_routing_status": "merged_ci_production_verified",
+    "v3_subpath_routing_merge_sha": "4a7a8c2a7d7b26a0cac7e4cf609925e8bbcd2be4",
+    "v3_subpath_routing_ci_verified": true,
+    "v3_subpath_routing_production_smoke": true,
+    "production_authenticated_smoke_run": 40450376146,
+    "active_accounting_entities": 1,
+    "active_accounting_entity_memberships": 1
   },
   "approved_architecture": {
     "dual_core": true,
@@ -263,5 +268,5 @@
     "do not use a dirty working tree as candidate base",
     "resolve checkpoint split-brain explicitly; never overwrite it silently"
   ],
-  "updated_by": "financial-operations-core-wave5-v3-routing-fix"
+  "updated_by": "financial-operations-core-wave5-closeout"
 }
