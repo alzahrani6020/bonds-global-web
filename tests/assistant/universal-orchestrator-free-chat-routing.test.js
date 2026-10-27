@@ -226,6 +226,43 @@ describe('universal orchestrator free-chat routing', () => {
     expect(english.reply).toContain('unverified');
   });
 
+  test('planner unavailable degrades to a deterministic patient reply without HTTP-style failure semantics', async () => {
+    const { mod } = loadHarness({
+      plannerReplies:[null]
+    });
+
+    const result = await mod.runUniversalOrchestrator(
+      [{ role:'user', content:'ارسل موقع مدينة جده' }],
+      {},
+      { requestId:'req-planner-unavailable' }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.degraded).toBe(true);
+    expect(result.failure).toBe('PLANNER_UNAVAILABLE');
+    expect(result.reply).toBe('تعذر الوصول إلى خدمة الذكاء حالياً. أعد المحاولة بعد قليل.');
+    expect(result.steps).toBe(0);
+  });
+
+  test('planner exhausted after insufficient research returns the evidence-aware deterministic fallback', async () => {
+    const { mod } = loadHarness({
+      plannerReplies:[null],
+      toolResults:{ web_search:ALL_PROVIDERS_DOWN }
+    });
+
+    const result = await mod.runUniversalOrchestrator(
+      [{ role:'user', content:'من هو الدكتور فلان الفلاني غير المعروف؟' }],
+      {},
+      { requestId:'req-planner-exhausted' }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.degraded).toBe(true);
+    expect(result.failure).toBe('PLANNER_EXHAUSTED');
+    expect(result.reply).toContain('البحث لم يجد دليلاً كافياً');
+    expect(result.reply).toContain('خدمة الذكاء غير متاحة');
+  });
+
   test('planner prompt carries the free-chat and phrasing rules (source contract)', () => {
     const { mod, reasonerPrompts } = loadHarness({
       plannerReplies: [{ mode:'answer', answer:'إجابة عامة بلا مفردات توثيق.' }]

@@ -3871,7 +3871,20 @@
           });
           return;
         }
-        if (!res.ok) throw new Error(data.error || 'Request failed');
+        if (!res.ok) {
+          const serverReply = typeof data?.reply === 'string' ? data.reply.trim() : '';
+          if (serverReply) {
+            updateMessageTracking(userMessage.message_id, { status: 'failed' });
+            addAssistantMessage(serverReply, true, {
+              turn_id: turnId,
+              status: 'failed',
+              source: data.source || 'assistant-server-error',
+              reply_to_message_id: userMessage.message_id
+            });
+            return;
+          }
+          throw new Error(data.error || 'Request failed');
+        }
 
         updateMessageTracking(userMessage.message_id, { status: 'sent' });
         const uiRenderStartedAt = Date.now();
