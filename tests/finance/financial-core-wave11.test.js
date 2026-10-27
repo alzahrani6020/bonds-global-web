@@ -117,6 +117,66 @@ describe('Financial core wave 11', () => {
       .toBe('scheduled_principal_due_share_of_total_principal');
   });
 
+  test('stresses interest only on floating-rate debt when a basis-point shock is requested', () => {
+    const result = runFinancialEngine('debt_schedule', {
+      interest_rate_shock_bps: 200,
+      facilities: [
+        {
+          id: 'FLOAT',
+          principal: 1000,
+          annual_rate_pct: 8,
+          rate_type: 'floating',
+          term_periods: 4,
+          periods_per_year: 4,
+          amortization_method: 'bullet'
+        },
+        {
+          id: 'FIXED',
+          principal: 1000,
+          annual_rate_pct: 8,
+          rate_type: 'fixed',
+          term_periods: 4,
+          periods_per_year: 4,
+          amortization_method: 'bullet'
+        }
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.interest_rate_sensitivity).toMatchObject({
+      shock_bps: 200,
+      floating_rate_principal: 1000,
+      fixed_rate_principal: 1000,
+      floating_rate_principal_pct: 50,
+      baseline_interest: 160,
+      stressed_interest: 180,
+      incremental_interest: 20,
+      incremental_debt_service: 20
+    });
+    expect(result.metrics.facilities[0].stressed_annual_rate_pct).toBe(10);
+    expect(result.metrics.facilities[1].stressed_annual_rate_pct).toBe(8);
+    expect(result.diagnostics.interest_rate_sensitivity_method)
+      .toBe('static_existing_principal_schedule_floating_rate_shock');
+  });
+
+  test('fails closed when interest-rate sensitivity is requested without facility rate types', () => {
+    const result = runFinancialEngine('debt_schedule', {
+      interest_rate_shock_bps: 150,
+      facilities: [{
+        principal: 1000,
+        annual_rate_pct: 8,
+        term_periods: 4,
+        periods_per_year: 4,
+        amortization_method: 'bullet'
+      }]
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.executed).toBe(false);
+    expect(result.required_inputs)
+      .toContain('facilities[0].rate_type_fixed_or_floating');
+  });
+
   test('evaluates covenant headroom and forecast breach periods', () => {
     const result = runFinancialEngine('covenant_monitoring', {
       covenants: [
