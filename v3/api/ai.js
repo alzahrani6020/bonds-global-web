@@ -697,7 +697,7 @@ async function aiChatHandler(req, res) {
             tool_steps: loopResult.steps || 0,
             actions
           },
-          fallback_reason: null,
+          fallback_reason: loopResult.failure || null,
           diagnostics: diagnosticsAllowed ? buildRequestDiagnostics({
             requestId,
             path: 'UNIVERSAL_ORCHESTRATOR',
