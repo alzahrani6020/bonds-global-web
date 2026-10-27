@@ -72,7 +72,7 @@ describe('Treasury and liquidity core wave 14', () => {
     expect(result.metrics.maximum_funding_gap).toBe(50000);
     expect(result.metrics.lowest_projected_liquidity).toBe(150000);
     expect(result.metrics.ending_projected_liquidity).toBe(450000);
-    expect(result.provenance.method).toBe('cash_position_plus_maturity_ladder');
+    expect(result.diagnostics.method).toBe('cash_position_plus_maturity_ladder');
   });
 
   test('fails closed on invalid liquidity ladder flows', () => {
