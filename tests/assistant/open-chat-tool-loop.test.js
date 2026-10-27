@@ -150,8 +150,10 @@ test('forces public research through search, exploration, evidence verification 
 
   test('retries bounded entity aliases when search succeeds but relevance is too low', () => {
     expect(source).toContain("['search_failed', 'search_low_relevance'].includes(workflow?.status)");
-    expect(source).toContain('const aliases = await suggestUnverifiedQueryAliases(intent, options);');
-    expect(source).toContain('const mergedVariants = [...new Set([...aliases, ...(intent.query_variants || [])])].slice(0, 8);');
+    expect(source).toContain('const aliases = await suggestUnverifiedQueryAliases(intent, {');
+    expect(source).toContain('remainingBudgetMs: remainingBudgetMs()');
+    expect(source).toContain('const mergedVariants = [...new Set([...aliases, ...(intent.query_variants || [])])]');
+    expect(source).toContain('.filter(value => !attemptedQueries.has(normalizeQueryKey(value)))');
   });
 
   test('parses unverified multilingual alias candidates without treating them as facts', () => {
