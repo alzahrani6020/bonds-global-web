@@ -12,7 +12,7 @@ describe('Authoritative primary evidence for official-source lookup', () => {
   const officialSource = {
     id:'official-mof',
     publisher:'www.mof.gov.sa',
-    url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+    url:'https://www.mof.gov.sa/',
     authoritative_primary:true,
     authority_score:1,
     institutional_source_id:'ministry_finance_sa',
@@ -83,7 +83,7 @@ describe('Authoritative primary evidence for official-source lookup', () => {
               {
                 title:'وزارة المالية السعودية',
                 snippet:'الموقع الرسمي لوزارة المالية السعودية',
-                url:'https://www.mof.gov.sa/ar/Pages/default.aspx'
+                url:'https://www.mof.gov.sa/'
               },
               {
                 title:'دليل غير رسمي',
@@ -98,14 +98,14 @@ describe('Authoritative primary evidence for official-source lookup', () => {
       if (action === 'web_explore') {
         expect(input.maxDepth).toBe(0);
         expect(input.seedUrls).toEqual([
-          'https://www.mof.gov.sa/ar/Pages/default.aspx'
+          'https://www.mof.gov.sa/'
         ]);
         return {
           ok:true,
           executed:true,
           result:{
             pages:[{
-              url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+              url:'https://www.mof.gov.sa/',
               evidence:{content_type:'text/html',headers:{}},
               extracted:{
                 format:'html',
