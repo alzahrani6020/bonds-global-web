@@ -121,6 +121,9 @@ describe('BONDS planner-first universal orchestrator', () => {
       { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
     );
 
+    const webSearchCalls = executeGovernedAction.mock.calls
+      .filter(call => call[0].action === 'web_search');
+    expect(webSearchCalls.length).toBeGreaterThan(0);
     expect(result.ok).toBe(true);
     expect(result.planner).toBe('universal-v2-deterministic-research');
     expect(result.toolUsed).toBe(true);
@@ -148,9 +151,9 @@ describe('BONDS planner-first universal orchestrator', () => {
           result:{
             query:input.query,
             results:[{
-              title:'وزارة المالية',
+              title:'Home',
               url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
-              snippet:'الموقع الرسمي لوزارة المالية السعودية'
+              snippet:''
             }]
           }
         };
