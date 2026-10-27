@@ -31,7 +31,7 @@ describe('Assistant production conversational smoke', () => {
           source:'bonds-assistant-ai-tool',
           inference:{ tool_used:true },
           diagnostics:{
-            path:'OPEN_CHAT_RESEARCH',
+            path:'UNIVERSAL_ORCHESTRATOR',
             status:'PASS',
             evidence:{ decision_eligible:true, source_count:2 }
           }
@@ -82,7 +82,7 @@ describe('Assistant production conversational smoke', () => {
         raw_trace:[{ secret:'NOPE' }]
       },
       diagnostics:{
-        path:'OPEN_CHAT_RESEARCH',
+        path:'UNIVERSAL_ORCHESTRATOR',
         status:'FAIL',
         pipeline_stage:'research_acquisition',
         root_cause_stage:'search_relevance',
@@ -105,7 +105,7 @@ describe('Assistant production conversational smoke', () => {
       source:'bonds-assistant-ai-tool',
       tool_used:true,
       actions:['web_search','web_explore'],
-      path:'OPEN_CHAT_RESEARCH',
+      path:'UNIVERSAL_ORCHESTRATOR',
       status:'FAIL',
       pipeline_stage:'research_acquisition',
       root_cause_stage:'search_relevance',
@@ -129,7 +129,7 @@ describe('Assistant production conversational smoke', () => {
       source:'bonds-assistant-ai-tool',
       inference:{ tool_used:true, actions:['web_search'] },
       diagnostics:{
-        path:'OPEN_CHAT_RESEARCH',
+        path:'UNIVERSAL_ORCHESTRATOR',
         status:'FAIL',
         pipeline_stage:'research_acquisition',
         root_cause_stage:'search_relevance',
@@ -167,7 +167,7 @@ describe('Assistant production conversational smoke', () => {
       source:'bonds-assistant-ai-tool',
       inference:{ tool_used:true },
       diagnostics:{
-        path:'OPEN_CHAT_RESEARCH',
+        path:'UNIVERSAL_ORCHESTRATOR',
         status:'PASS',
         evidence:{ decision_eligible:true, source_count:2 }
       }
@@ -209,7 +209,7 @@ describe('Assistant production conversational smoke', () => {
           source:'bonds-assistant-ai-tool',
           inference:{ tool_used:true },
           diagnostics:{
-            path:'OPEN_CHAT_RESEARCH',
+            path:'UNIVERSAL_ORCHESTRATOR',
             status:'PASS',
             evidence:{ decision_eligible:true, source_count:0 }
           }
