@@ -134,6 +134,50 @@ describe('official source resolution', () => {
 
     expect(resolveOfficialSourceRow({}, [])).toBeNull();
   });
+
+  test('resolves a routed institutional search URL even when metadata is absent', () => {
+    const resolved = resolveOfficialSourceRow({
+      search: { result: { results: [
+        { title: 'وزارة المالية السعودية', url: 'https://www.mof.gov.sa/' }
+      ] } },
+      search_route: {
+        institutional_sources: [{ id: 'ministry_finance_sa' }]
+      }
+    }, []);
+
+    expect(resolved).toEqual({
+      name: 'Ministry of Finance',
+      url: 'https://www.mof.gov.sa/'
+    });
+  });
+
+  test('does not promote an unrelated institutional domain outside the routed source set', () => {
+    const resolved = resolveOfficialSourceRow({
+      search: { result: { results: [
+        { title: 'البنك المركزي السعودي', url: 'https://www.sama.gov.sa/' }
+      ] } },
+      search_route: {
+        institutional_sources: [{ id: 'ministry_finance_sa' }]
+      }
+    }, []);
+
+    expect(resolved).toBeNull();
+  });
+
+  test('resolves verified institutional source URLs even when institutional_source_id is absent', () => {
+    const resolved = resolveOfficialSourceRow({
+      search_route: {
+        institutional_sources: [{ id: 'ministry_finance_sa' }]
+      }
+    }, [
+      { publisher: 'www.mof.gov.sa', url: 'https://www.mof.gov.sa/' }
+    ]);
+
+    expect(resolved).toEqual({
+      name: 'Ministry of Finance',
+      url: 'https://www.mof.gov.sa/'
+    });
+  });
 });
 
 describe('evidence fallback eligibility and digest builder', () => {
