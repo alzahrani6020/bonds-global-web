@@ -73,6 +73,42 @@ describe('Financial core wave 11', () => {
     expect(result.metrics.combined_schedule[3].principal_payment).toBe(1000);
   });
 
+  test('measures portfolio debt maturity concentration from scheduled principal due', () => {
+    const result = runFinancialEngine('debt_schedule', {
+      facilities: [
+        {
+          id: 'A',
+          principal: 600,
+          annual_rate_pct: 10,
+          term_periods: 3,
+          periods_per_year: 12,
+          amortization_method: 'bullet'
+        },
+        {
+          id: 'B',
+          principal: 400,
+          annual_rate_pct: 8,
+          term_periods: 4,
+          periods_per_year: 12,
+          amortization_method: 'equal_principal'
+        }
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.total_principal).toBe(1000);
+    expect(result.metrics.peak_principal_due).toBe(700);
+    expect(result.metrics.peak_principal_due_period).toBe(3);
+    expect(result.metrics.peak_principal_due_concentration_pct).toBe(70);
+    expect(result.metrics.principal_due_period_count).toBe(4);
+    expect(result.metrics.principal_due_profile).toEqual([
+      { period: 1, principal_due: 100, share_of_total_principal_pct: 10 },
+      { period: 2, principal_due: 100, share_of_total_principal_pct: 10 },
+      { period: 3, principal_due: 700, share_of_total_principal_pct: 70 },
+      { period: 4, principal_due: 100, share_of_total_principal_pct: 10 }
+    ]);
+  });
+
   test('evaluates covenant headroom and forecast breach periods', () => {
     const result = runFinancialEngine('covenant_monitoring', {
       covenants: [
