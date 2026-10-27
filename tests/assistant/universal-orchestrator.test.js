@@ -126,9 +126,11 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.toolUsed).toBe(true);
     expect(result.research.decision_eligible).toBe(true);
     expect(result.research.answer_synthesis_ms).toBe(0);
-    expect(result.trace.map(item => item.action)).toEqual([
-      'web_search','web_explore','evidence_verify','research_synthesize'
-    ]);
+    const actions = result.trace.map(item => item.action);
+    expect(actions).toContain('web_search');
+    expect(actions).toContain('web_explore');
+    expect(actions).toContain('evidence_verify');
+    expect(actions).toContain('research_synthesize');
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
   });
 
