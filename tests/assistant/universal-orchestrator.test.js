@@ -134,6 +134,84 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
   });
 
+  test('passes resolved intent, entity frame and official-source policy into research engine', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            query:input.query,
+            results:[{
+              title:'وزارة المالية',
+              url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+              snippet:'وزارة المالية السعودية'
+            }]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            pages:[{
+              url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+              evidence:{ content_type:'text/html', headers:{} },
+              extracted:{ format:'html', title:'وزارة المالية', text:'وزارة المالية السعودية' }
+            }]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        expect(input.allowAuthoritativePrimaryEvidence).toBe(true);
+        expect(input.minIndependentPublishers).toBe(1);
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'SUPPORTED',
+            source_count:1,
+            independent_publisher_count:1,
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{ verification_state:'SUPPORTED', known:[], unknown:[], contradictions:[] }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(result.reply).toContain('mof.gov.sa');
+    expect(result.research.decision_eligible).toBe(true);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
+  });
+
   test('routes exact production official URL question through deterministic research without ai_reason', async () => {
     executeGovernedAction.mockImplementation(async ({ action, input }) => {
       if (action === 'ai_reason') {
