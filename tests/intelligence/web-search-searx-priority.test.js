@@ -49,6 +49,61 @@ describe('BONDS web search SearX priority and fallback', () => {
     expect(fetchUrl).not.toHaveBeenCalled();
   });
 
+  test('continues to the next upstream when a non-empty batch has zero required-term relevance', async () => {
+    searchSearx.mockResolvedValue({
+      ok:false,
+      executed:true,
+      error:{ code:'SEARX_UPSTREAM_FAILED', status_code:503 },
+      evidence:{ upstream:'https://search.example.com', fetch:{ status_code:503, failure_class:'HTTP_503' } },
+      result:{ query:'طلال حسن الزهراني الدكتور', results:[], result_count:0 }
+    });
+
+    fetchUrl
+      .mockResolvedValueOnce({
+        ok:true,
+        text:`
+          <rss><channel>
+            <item>
+              <title><![CDATA[Central Time Zone]]></title>
+              <link>https://example.net/time-zone</link>
+              <description><![CDATA[Time zone information.]]></description>
+            </item>
+          </channel></rss>
+        `,
+        evidence:{ status_code:200, content_type:'application/rss+xml' }
+      })
+      .mockResolvedValueOnce({
+        ok:true,
+        text:`
+          <a class="result__a" href="https://example.org/talal">الدكتور طلال حسن الزهراني</a>
+          <div class="result__snippet">طلال حسن الزهراني مستشار مالي.</div>
+        `,
+        evidence:{ status_code:200, content_type:'text/html' }
+      });
+
+    const result = await searchWeb('طلال حسن الزهراني الدكتور', {
+      limit:5,
+      requiredTerms:['طلال','حسن','الزهراني']
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.result.results).toEqual([
+      expect.objectContaining({
+        title:'الدكتور طلال حسن الزهراني',
+        url:'https://example.org/talal'
+      })
+    ]);
+    expect(fetchUrl).toHaveBeenCalledTimes(2);
+    expect(result.evidence.attempts).toEqual(expect.arrayContaining([
+      expect.objectContaining({
+        provider:'bing',
+        code:'SEARCH_RESULTS_REJECTED',
+        raw_result_count:1,
+        result_count:0
+      })
+    ]));
+  });
+
   test('falls back to legacy upstreams when SearX fails', async () => {
     searchSearx.mockResolvedValue({
       ok:false,
