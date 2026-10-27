@@ -44,7 +44,7 @@ describe('BONDS planner-first universal orchestrator', () => {
       })
       .mockResolvedValueOnce({
         ok:true,
-        result:{ result:{ text:'{"mode":"tool","action":"web_search","input":{"query":"\"طلال حسن الزهراني\" بوندز"}}' } }
+        result:{ result:{ text:'{"mode":"tool","action":"web_search","input":{"query":"طلال حسن الزهراني بوندز"}}' } }
       })
       .mockResolvedValueOnce({
         ok:true,
