@@ -36,7 +36,7 @@ describe('Bonds Native chat generation budget', () => {
     expect(source).toContain('requires_authentication: true');
     expect(source).toContain('if (!forceNative)');
     expect(source).toContain('const forceNative = requestedForceNative && diagnosticsAllowed;');
-    expect(source).toContain('runOpenChatLoop(messages, enrichedContext, {');
+    expect(source).toContain('runUniversalOrchestrator(messages, enrichedContext, {');
     expect(source).not.toContain('const deterministicReply =');
     expect(source).not.toContain("source: 'data-driven'");
   });
