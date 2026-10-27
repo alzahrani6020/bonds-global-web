@@ -1,5 +1,7 @@
 const {
   capabilityCatalog,
+  totalBudgetMs,
+  plannerCallBudgetMs,
   parseDecision,
   explicitMutationConfirmation,
   runUniversalOrchestrator
@@ -14,6 +16,27 @@ const { executeGovernedAction } = require('../../lib/services/service-execution-
 describe('BONDS planner-first universal orchestrator', () => {
   beforeEach(() => {
     executeGovernedAction.mockReset();
+  });
+
+  test('budgets allow the measured native planner latency and remain bounded', () => {
+    const originalTotal = process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS;
+    const originalPlanner = process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
+    try {
+      delete process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS;
+      delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
+      expect(totalBudgetMs()).toBe(55000);
+      expect(plannerCallBudgetMs(55000)).toBe(22000);
+
+      process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS = '999999';
+      process.env.ASSISTANT_PLANNER_TIMEOUT_MS = '999999';
+      expect(totalBudgetMs()).toBe(60000);
+      expect(plannerCallBudgetMs(60000)).toBe(25000);
+    } finally {
+      if (originalTotal === undefined) delete process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS;
+      else process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS = originalTotal;
+      if (originalPlanner === undefined) delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
+      else process.env.ASSISTANT_PLANNER_TIMEOUT_MS = originalPlanner;
+    }
   });
 
   test('exposes registered read/compute capabilities to the planner and marks mutations as confirmation-required', () => {
