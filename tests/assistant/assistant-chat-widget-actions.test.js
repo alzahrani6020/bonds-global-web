@@ -110,6 +110,18 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain("source: data.source || 'bonds-assistant'");
   });
 
+  test('renders a server reply on non-OK chat responses before falling back to the generic connection error', () => {
+    const start = source.indexOf('async function sendMessage');
+    const end = source.indexOf('if (diagnosticsCopy)', start);
+    const sendSource = source.slice(start, end);
+
+    expect(sendSource).toContain("const serverReply = typeof data?.reply === 'string' ? data.reply.trim() : '';");
+    expect(sendSource).toContain('if (serverReply)');
+    expect(sendSource).toContain('addAssistantMessage(serverReply, true');
+    expect(sendSource.indexOf('if (serverReply)')).toBeLessThan(sendSource.indexOf("throw new Error(data.error || 'Request failed')"));
+    expect(sendSource).toContain('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.');
+  });
+
   test('renders live runtime health instead of a fixed connected label', () => {
     expect(source).toContain("const READINESS_URL = '/api/readiness';");
     expect(source).toContain('async function refreshServiceHealth()');
