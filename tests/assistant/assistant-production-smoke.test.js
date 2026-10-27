@@ -224,4 +224,68 @@ describe('Assistant production acceptance', () => {
     expect(failure.message).not.toContain(TOKEN);
     expect(JSON.stringify(log.mock.calls)).not.toContain(TOKEN);
   });
+
+  test('transport failure reports classification, attempt, elapsed time and cause without credentials', async () => {
+    const socketError = new TypeError('fetch failed');
+    socketError.code = 'ECONNRESET';
+    socketError.cause = Object.assign(new Error('read ECONNRESET'), { code: 'UND_ERR_SOCKET' });
+    const fetchImpl = jest.fn().mockRejectedValue(socketError);
+
+    let failure;
+    try { await run(fetchImpl); } catch (error) { failure = error; }
+
+    expect(failure.message).toContain('Assistant smoke request failed');
+    expect(failure.message).toContain('GET /assistant');
+    expect(failure.message).toContain('attempt=1');
+    expect(failure.message).toMatch(/elapsed_ms=\d+/);
+    expect(failure.message).toContain('kind=socket');
+    expect(failure.message).toContain('error_name=TypeError');
+    expect(failure.message).toContain('error_code=ECONNRESET');
+    expect(failure.message).toContain('cause_name=Error');
+    expect(failure.message).toContain('cause_code=UND_ERR_SOCKET');
+    expect(failure.message).not.toContain(TOKEN);
+    expect(failure.message).not.toContain('Authorization');
+    expect(failure.message).not.toContain('Bearer');
+    expect(JSON.stringify(log.mock.calls)).not.toContain(TOKEN);
+  });
+
+  test.each([
+    ['timeout', Object.assign(new Error('timed out'), { name: 'TimeoutError' })],
+    ['abort', Object.assign(new Error('aborted'), { name: 'AbortError' })],
+    ['connreset', Object.assign(new Error('fetch failed'), { code: 'ECONNRESET' })],
+    ['socket', (() => {
+      const error = new TypeError('fetch failed');
+      error.cause = Object.assign(new Error('socket hang up'), { code: 'UND_ERR_SOCKET' });
+      return error;
+    })()],
+    ['dns', (() => {
+      const error = new TypeError('fetch failed');
+      error.cause = Object.assign(new Error('getaddrinfo ENOTFOUND example'), { code: 'ENOTFOUND' });
+      return error;
+    })()],
+    ['tls', (() => {
+      const error = new TypeError('fetch failed');
+      error.cause = Object.assign(new Error('unable to verify certificate'), { code: 'UNABLE_TO_VERIFY_LEAF_SIGNATURE' });
+      return error;
+    })()],
+    ['redirect', (() => {
+      const error = new TypeError('fetch failed');
+      error.cause = new Error('uri requested responds with a redirect, redirect mode is set to error');
+      return error;
+    })()]
+  ])('classifies %s fetch failures with the safe diagnostics', async (kind, error) => {
+    const fetchImpl = jest.fn().mockRejectedValue(error);
+    let failure;
+    try { await run(fetchImpl); } catch (caught) { failure = caught; }
+    expect(failure.message).toContain('Assistant smoke request failed');
+    expect(failure.message).toContain(`kind=${kind}`);
+    expect(failure.message).toMatch(/elapsed_ms=\d+/);
+    expect(failure.message).toContain('attempt=1');
+  });
+
+  test('still fails closed and preserves 429 retry semantics after the diagnostic change', async () => {
+    const fetchImpl = jest.fn().mockRejectedValue(Object.assign(new Error('gone'), { code: 'ETIMEDOUT' }));
+    await expect(run(fetchImpl)).rejects.toThrow('Assistant smoke request failed');
+    expect(fetchImpl).toHaveBeenCalledTimes(1);
+  });
 });
