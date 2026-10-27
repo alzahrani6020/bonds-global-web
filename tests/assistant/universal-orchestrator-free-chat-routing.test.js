@@ -41,7 +41,7 @@ function loadHarness({ plannerReplies, plannerTelemetry = [], toolResults = {} }
           },
           meta:{
             native_node:'native-1',
-            elapsed_ms:telemetry.elapsed_ms ?? 2050
+            elapsed_ms:2050
           }
         };
       }
