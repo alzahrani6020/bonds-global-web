@@ -143,20 +143,7 @@ describe('BONDS planner-first universal orchestrator', () => {
         throw new Error('AI_REASON_MUST_NOT_RUN_FOR_OFFICIAL_URL');
       }
       if (action === 'web_search') {
-        return {
-          ok:true,
-          executed:true,
-          action,
-          action_fabric:{ side_effect:'network_read' },
-          result:{
-            query:input.query,
-            results:[{
-              title:'Home',
-              url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
-              snippet:''
-            }]
-          }
-        };
+        throw new Error('WEB_SEARCH_MUST_NOT_RUN_FOR_REGISTERED_OFFICIAL_URL');
       }
       if (action === 'web_explore') {
         return {
@@ -166,7 +153,7 @@ describe('BONDS planner-first universal orchestrator', () => {
           action_fabric:{ side_effect:'network_read' },
           result:{
             pages:[{
-              url:'https://www.mof.gov.sa/ar/Pages/default.aspx',
+              url:'https://www.mof.gov.sa/',
               evidence:{ content_type:'text/html', headers:{} },
               extracted:{ format:'html', title:'وزارة المالية', text:'الموقع الرسمي لوزارة المالية السعودية' }
             }]
@@ -212,6 +199,7 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.planner).toBe('universal-v2-deterministic-research');
     expect(result.reply).toContain('mof.gov.sa');
     expect(result.research.answer_synthesis_ms).toBe(0);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'web_search')).toBe(false);
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
   });
 
