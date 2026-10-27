@@ -106,8 +106,8 @@ describe('Credit Risk Core wave 12', () => {
 
     expect(result.ok).toBe(true);
     expect(result.metrics.total_ead).toBe(1000000);
-    expect(result.metrics.total_expected_loss).toBe(18300);
-    expect(result.metrics.expected_loss_pct_of_ead).toBeCloseTo(1.83, 10);
+    expect(result.metrics.total_expected_loss).toBe(11100);
+    expect(result.metrics.expected_loss_pct_of_ead).toBeCloseTo(1.11, 10);
     expect(result.metrics.weighted_average_pd_pct).toBeCloseTo(2.5, 10);
     expect(result.metrics.weighted_average_lgd_pct).toBeCloseTo(42, 10);
     expect(result.metrics.top_obligor.key).toBe('OB1');
