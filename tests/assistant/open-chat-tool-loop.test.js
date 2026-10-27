@@ -167,9 +167,11 @@ test('forces public research through search, exploration, evidence verification 
   });
 
   test('research runtime uses one generation pass plus at most one bounded quality repair', () => {
-    expect(source).toContain('const rawReply = await generateResearchAnswer(intent, workflow, answerPackage, options);');
+    expect(source).toContain('const rawReply = await generateResearchAnswer(intent, workflow, answerPackage, {');
+    expect(source).toContain('Math.min(answerSynthesisBudgetMs, remainingAnswerSynthesisMs())');
     expect(source).toContain('REPAIRABLE_QUALITY_CODES.has(quality.code)');
     expect(source).toContain('const repairedRawReply = await repairResearchAnswer(');
+    expect(source).toContain('remainingBeforeRepair >= ANSWER_REPAIR_MIN_REMAINING_MS');
     expect(source).toContain('repairAttempted = true;');
     expect(source).not.toContain('while (!quality.ok)');
     expect(source).not.toContain('ANSWER_CONSISTENCY_FAILED');
