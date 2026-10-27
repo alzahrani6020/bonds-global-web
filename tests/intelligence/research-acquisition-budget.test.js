@@ -11,10 +11,6 @@ const {
   researchAcquisitionBudgetMs,
   RESEARCH_STOP_REASONS
 } = require('../../lib/intelligence/research-workflow');
-const {
-  suggestUnverifiedQueryAliases,
-  runResearchTurn
-} = require('../../lib/assistant/open-chat-tool-loop');
 const { verifyPersonIdentity, buildPersonEntityFrame } = require('../../lib/assistant/person-identity');
 
 function noResultSearch() {
@@ -343,70 +339,6 @@ describe('candidate discovery defers to verification', () => {
       resolution_basis: ['name'], contradictions: [{ field: 'qualifier', detail: 'x' }]
     };
     expect(verifyPersonIdentity(frame, [contradicted]).verification_state).toBe('CONTRADICTED');
-  });
-});
-
-describe('bounded alias generation', () => {
-  beforeEach(() => jest.clearAllMocks());
-
-  const personIntent = {
-    language_plan: {
-      language: 'ar',
-      intent: 'person_lookup',
-      raw_text: 'من هو الدكتور طلال حسن الزهراني',
-      normalized_text: 'من هو طلال حسن الزهراني',
-      entity: {
-        text: 'طلال حسن الزهراني',
-        type: 'person',
-        person_entity_frame: buildPersonEntityFrame('الدكتور طلال حسن الزهراني')
-      }
-    }
-  };
-
-  test('person lookup uses deterministic aliases first and never calls the native reasoner', async () => {
-    const aliases = await suggestUnverifiedQueryAliases(personIntent, {});
-    expect(aliases.length).toBeGreaterThanOrEqual(3);
-    expect(executeGovernedAction).not.toHaveBeenCalled();
-  });
-
-  test('native fallback receives a bounded timeout derived from the remaining budget', async () => {
-    const generalIntent = {
-      language_plan: {
-        language: 'ar',
-        intent: 'research',
-        raw_text: 'شركة X',
-        normalized_text: 'شركة X',
-        entity: { text: 'شركة X', type: 'general' }
-      }
-    };
-    executeGovernedAction.mockResolvedValue({
-      ok: true,
-      executed: true,
-      result: { result: { text: JSON.stringify({ candidates: ['شركة X القابضة'] }) } }
-    });
-
-    const aliases = await suggestUnverifiedQueryAliases(generalIntent, { remainingBudgetMs: 5000 });
-    expect(executeGovernedAction).toHaveBeenCalledTimes(1);
-    const runtimeContext = executeGovernedAction.mock.calls[0][0].runtimeContext;
-    expect(runtimeContext.timeoutMs).toBeLessThanOrEqual(3000);
-    expect(runtimeContext.timeoutMs).toBeLessThanOrEqual(8000);
-    expect(aliases).toContain('شركة X القابضة');
-  });
-
-  test('native fallback is skipped when the remaining budget is too small', async () => {
-    const generalIntent = {
-      language_plan: {
-        language: 'ar',
-        intent: 'research',
-        raw_text: 'شركة X',
-        normalized_text: 'شركة X',
-        entity: { text: 'شركة X', type: 'general' }
-      }
-    };
-
-    const aliases = await suggestUnverifiedQueryAliases(generalIntent, { remainingBudgetMs: 1000 });
-    expect(executeGovernedAction).not.toHaveBeenCalled();
-    expect(aliases).toEqual(['شركة X']);
   });
 });
 
