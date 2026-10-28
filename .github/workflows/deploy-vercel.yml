@@ -157,6 +157,7 @@ jobs:
                   status:runtime?.status || null,
                   code:runtime?.code || null,
                   probe_code:runtime?.probe_code || null,
+                  probe_stage:runtime?.probe_stage || null,
                   channel_auth:runtime?.channel_auth || null,
                   broker_auth:runtime?.broker_auth || null,
                   contract_version:runtime?.contract_version || null,

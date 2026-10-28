@@ -379,6 +379,80 @@ describe('platform health vs strict readiness', () => {
     }
   );
 
+  test('a transient authenticated health probe transport failure recovers', async () => {
+    let healthAttempts = 0;
+    global.fetch = jest.fn(async (url, options) => {
+      if (url.endsWith('/health')) {
+        healthAttempts += 1;
+        if (healthAttempts < 3) throw new Error('transient health failure');
+      }
+      return runtimeFetch(url, options);
+    });
+
+    await expect(healthHandler.probeTokenRuntime()).resolves.toMatchObject({
+      status:'ok',
+      required:true,
+      channel_auth:'verified'
+    });
+    expect(healthAttempts).toBe(3);
+  });
+
+  test('a persistent authenticated health probe failure remains unreachable and identifies its stage', async () => {
+    let healthAttempts = 0;
+    global.fetch = jest.fn(async (url, options) => {
+      if (url.endsWith('/health')) {
+        healthAttempts += 1;
+        throw new Error('health unreachable');
+      }
+      return runtimeFetch(url, options);
+    });
+
+    await expect(healthHandler.probeTokenRuntime()).resolves.toMatchObject({
+      status:'unreachable',
+      required:true,
+      code:'TOKEN_INTROSPECTION_FAILED',
+      probe_stage:'health'
+    });
+    expect(healthAttempts).toBe(3);
+  });
+
+  test('a transient authenticated introspection transport failure recovers', async () => {
+    let authenticatedAttempts = 0;
+    global.fetch = jest.fn(async (url, options) => {
+      if (url.endsWith('/introspect') && options.headers['X-Bonds-Channel']) {
+        authenticatedAttempts += 1;
+        if (authenticatedAttempts < 3) throw new Error('transient introspection failure');
+      }
+      return runtimeFetch(url, options);
+    });
+
+    await expect(healthHandler.probeTokenRuntime()).resolves.toMatchObject({
+      status:'ok',
+      required:true,
+      channel_auth:'verified'
+    });
+    expect(authenticatedAttempts).toBe(3);
+  });
+
+  test('a persistent authenticated introspection failure remains unreachable and identifies its stage', async () => {
+    let authenticatedAttempts = 0;
+    global.fetch = jest.fn(async (url, options) => {
+      if (url.endsWith('/introspect') && options.headers['X-Bonds-Channel']) {
+        authenticatedAttempts += 1;
+        throw new Error('introspection unreachable');
+      }
+      return runtimeFetch(url, options);
+    });
+
+    await expect(healthHandler.probeTokenRuntime()).resolves.toMatchObject({
+      status:'unreachable',
+      required:true,
+      code:'TOKEN_INTROSPECTION_FAILED',
+      probe_stage:'introspection'
+    });
+    expect(authenticatedAttempts).toBe(3);
+  });
+
   test('a transient unauthenticated probe transport failure recovers without weakening channel enforcement', async () => {
     let unauthenticatedAttempts = 0;
     global.fetch = jest.fn(async (url, options) => {
