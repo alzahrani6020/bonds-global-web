@@ -362,6 +362,85 @@ describe('BONDS deterministic financial engine registry', () => {
       .toContain('borrowing_payments_per_year_positive_integer');
   });
 
+
+  test('computes collateral capacity from explicit collateral value and maximum LTV', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      collateral_value: 1000,
+      maximum_ltv_pct: 60,
+      existing_secured_debt: 350
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.collateral_capacity).toEqual({
+      collateral_value: 1000,
+      maximum_ltv_pct: 60,
+      existing_secured_debt: 350,
+      maximum_secured_debt: 600,
+      collateral_headroom: 250,
+      collateral_excess: 0,
+      current_ltv_pct: 35,
+      status: 'collateral_capacity_available'
+    });
+    expect(result.diagnostics.collateral_capacity_method)
+      .toBe('collateral_value_times_maximum_ltv_less_existing_secured_debt');
+  });
+
+  test('uses the lower of debt-service and collateral limits as borrowing capacity', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 12,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      collateral_value: 300,
+      maximum_ltv_pct: 60,
+      existing_secured_debt: 40,
+      requested_amount: 150
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.loan_sizing.maximum_additional_debt).toBeCloseTo(187.31266, 5);
+    expect(result.metrics.collateral_capacity.collateral_headroom).toBe(140);
+    expect(result.metrics.borrowing_capacity.maximum_additional_debt).toBe(140);
+    expect(result.metrics.borrowing_capacity.binding_constraint).toBe('collateral');
+    expect(result.metrics.borrowing_capacity.requested_amount_status).toBe('exceeds_capacity');
+    expect(result.metrics.borrowing_capacity.requested_amount_headroom).toBe(-10);
+    expect(result.diagnostics.borrowing_capacity_method)
+      .toBe('minimum_of_debt_service_limit_and_collateral_headroom');
+  });
+
+  test('reports collateral excess and fails closed on invalid collateral inputs', () => {
+    const exceeded = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 150,
+      collateral_value: 500,
+      maximum_ltv_pct: 50,
+      existing_secured_debt: 300
+    });
+
+    expect(exceeded.ok).toBe(true);
+    expect(exceeded.metrics.collateral_capacity.maximum_secured_debt).toBe(250);
+    expect(exceeded.metrics.collateral_capacity.collateral_headroom).toBe(0);
+    expect(exceeded.metrics.collateral_capacity.collateral_excess).toBe(50);
+    expect(exceeded.metrics.collateral_capacity.status).toBe('collateral_capacity_exceeded');
+
+    const invalid = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      collateral_value: 1000,
+      maximum_ltv_pct: 120,
+      existing_secured_debt: 0
+    });
+
+    expect(invalid.ok).toBe(false);
+    expect(invalid.executed).toBe(false);
+    expect(invalid.required_inputs)
+      .toContain('maximum_ltv_pct_between_0_and_100');
+  });
+
   test('computes feasibility NPV, IRR and payback without AI', () => {
     const result = runFinancialEngine('feasibility', {
       initial_investment: 1000,
