@@ -357,7 +357,7 @@
       }
 
       function serviceRequestStatusLabel(status) {
-        const labels = { draft:'مسودة', submitted:'تم الإرسال', in_review:'قيد المراجعة', processing:'قيد التنفيذ', completed:'مكتمل', rejected:'مرفوض', cancelled:'ملغي' };
+        const labels = { draft:'مسودة', submitted:'تم الإرسال', triage:'قيد الفرز', in_progress:'قيد التنفيذ', awaiting_client:'بانتظار العميل', awaiting_approval:'بانتظار الاعتماد', completed:'مكتمل', cancelled:'ملغي' };
         return labels[status] || status || 'غير محدد';
       }
 

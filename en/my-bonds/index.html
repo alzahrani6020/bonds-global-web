@@ -382,7 +382,7 @@
       }
 
       function serviceRequestStatusLabel(status) {
-        const labels = { draft:'Draft', submitted:'Submitted', in_review:'In review', processing:'In progress', completed:'Completed', rejected:'Rejected', cancelled:'Cancelled' };
+        const labels = { draft:'Draft', submitted:'Submitted', triage:'Triage', in_progress:'In progress', awaiting_client:'Awaiting client', awaiting_approval:'Awaiting approval', completed:'Completed', cancelled:'Cancelled' };
         return labels[status] || status || 'Unknown';
       }
 

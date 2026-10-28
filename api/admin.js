@@ -2475,15 +2475,20 @@ async function getCrmOverview(sb) {
     clientsRes,
     oppsRes,
     renewalsRes,
-    successRes
+    successRes,
+    serviceRequestsRes
   ] = await Promise.all([
     sb.from('crm_organizations').select('*').order('created_at', { ascending: false }).limit(500),
     sb.from('advisory_clients').select('id, name, email, phone, company_name, status, source, organization_id, is_decision_maker, relationship_role, account_owner, created_at, updated_at').order('created_at', { ascending: false }).limit(1000),
     sb.from('crm_opportunities').select('*').order('updated_at', { ascending: false }).limit(1000),
     sb.from('crm_renewals').select('*').order('renewal_date', { ascending: true }).limit(1000),
-    sb.from('crm_customer_success').select('*').order('updated_at', { ascending: false }).limit(1000)
+    sb.from('crm_customer_success').select('*').order('updated_at', { ascending: false }).limit(1000),
+    sb.from('service_requests')
+      .select('id,request_reference,user_id,client_id,service_id,status,country_code,region_name,locality_name,crm_opportunity_id,submitted_at,completed_at,created_at,updated_at')
+      .order('created_at', { ascending: false })
+      .limit(1000)
   ]);
-  for (const result of [orgsRes, clientsRes, oppsRes, renewalsRes, successRes]) {
+  for (const result of [orgsRes, clientsRes, oppsRes, renewalsRes, successRes, serviceRequestsRes]) {
     if (result.error) throw result.error;
   }
 
@@ -2522,6 +2527,26 @@ async function getCrmOverview(sb) {
     atRisk: success.filter(row => ['high','critical'].includes(row.risk_level) || row.lifecycle_stage === 'at_risk').length
   };
 
+  const serviceRequests = serviceRequestsRes.data || [];
+  const serviceIds = [...new Set(serviceRequests.map(row => row.service_id).filter(Boolean))];
+  let serviceCatalog = [];
+  if (serviceIds.length) {
+    const { data, error } = await sb.from('service_catalog')
+      .select('id,code,name_ar,name_en,category_code,group_code')
+      .in('id', serviceIds);
+    if (error) throw error;
+    serviceCatalog = data || [];
+  }
+  const serviceMap = new Map(serviceCatalog.map(row => [row.id, row]));
+  const clientMap = new Map((clientsRes.data || []).map(row => [row.id, row]));
+  const opportunityMap = new Map(opportunities.map(row => [row.id, row]));
+  const serviceRequestQueue = serviceRequests.map(row => ({
+    ...row,
+    service: serviceMap.get(row.service_id) || null,
+    client: clientMap.get(row.client_id) || null,
+    opportunity: opportunityMap.get(row.crm_opportunity_id) || null
+  }));
+
   return {
     success: true,
     organizations: orgsRes.data || [],
@@ -2529,6 +2554,7 @@ async function getCrmOverview(sb) {
     opportunities,
     renewals,
     customerSuccessRecords: success,
+    serviceRequests: serviceRequestQueue,
     pipeline,
     renewalSummary,
     customerSuccess
@@ -2592,6 +2618,55 @@ async function updateCrmOpportunity(sb, body, admin, req) {
   if (error) throw error;
   await logAdminAction(sb, admin, 'crm_opportunity_update', 'crm_opportunity', id, null, updates, req);
   return { success: true, opportunity: data };
+}
+
+const SERVICE_REQUEST_STATUSES = new Set([
+  'draft',
+  'submitted',
+  'triage',
+  'in_progress',
+  'awaiting_client',
+  'awaiting_approval',
+  'completed',
+  'cancelled'
+]);
+
+async function updateServiceRequestStatus(sb, body, admin, req) {
+  const id = body?.id;
+  const status = String(body?.status || '').trim();
+  if (!id) throw badRequest('id required');
+  if (!SERVICE_REQUEST_STATUSES.has(status)) throw badRequest('invalid service request status');
+
+  const { data: before, error: beforeError } = await sb.from('service_requests')
+    .select('id,status,request_reference,crm_opportunity_id,completed_at')
+    .eq('id', id)
+    .maybeSingle();
+  if (beforeError) throw beforeError;
+  if (!before) throw new HttpError(404, 'Service request not found');
+
+  const updates = { status, updated_at: new Date().toISOString() };
+  if (status === 'completed' && !before.completed_at) updates.completed_at = new Date().toISOString();
+  if (status !== 'completed' && before.completed_at) updates.completed_at = null;
+
+  const { data, error } = await sb.from('service_requests')
+    .update(updates)
+    .eq('id', id)
+    .select('id,request_reference,status,crm_opportunity_id,submitted_at,completed_at,updated_at')
+    .single();
+  if (error) throw error;
+
+  await logAdminAction(
+    sb,
+    admin,
+    'service_request_status_update',
+    'service_request',
+    id,
+    { status: before.status },
+    { status: data.status, request_reference: data.request_reference },
+    req
+  );
+
+  return { success: true, serviceRequest: data };
 }
 
 async function upsertCrmCustomerSuccess(sb, body, admin, req) {
@@ -4573,6 +4648,10 @@ async function handler(req, res) {
       if (action === 'crm-customer-success-upsert') {
         const access = await requireAdminPermission(req, sb, 'crm.write');
         return res.status(200).json(await upsertCrmCustomerSuccess(sb, req.body, access.user, req));
+      }
+      if (action === 'service-request-status-update') {
+        const access = await requireAdminPermission(req, sb, 'crm.write');
+        return res.status(200).json(await updateServiceRequestStatus(sb, req.body, access.user, req));
       }
       if (action === 'user-360-note') {
         const admin = await verifyAdminStrict(req, sb);

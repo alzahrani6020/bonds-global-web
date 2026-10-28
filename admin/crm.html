@@ -38,6 +38,16 @@
       <div id="pipeline" class="pipeline"></div>
     </section>
 
+    <section class="card span-12">
+      <h2>طلبات الخدمات</h2>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>المرجع</th><th>الخدمة</th><th>العميل</th><th>الحالة</th><th>المدينة</th><th>التاريخ</th><th>الإجراء</th></tr></thead>
+          <tbody id="serviceRequestRows"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section class="card span-6">
       <h2>المؤسسات</h2>
       <div class="scroll"><table><thead><tr><th>الاسم</th><th>الحالة</th><th>القطاع</th><th>الدولة</th></tr></thead><tbody id="orgRows"></tbody></table></div>
@@ -110,6 +120,14 @@
       return '<div class="stage"><h3>'+esc(stage)+' · '+deals.length+'</h3>'+deals.map(o=>'<div class="deal"><b>'+esc(o.title)+'</b><div class="muted">'+Number(o.value_amount||0).toLocaleString('en-US')+' '+esc(o.currency||'SAR')+' · '+esc(o.probability||0)+'%</div></div>').join('')+'</div>';
     }).join('');
 
+    const requestStatusLabels={draft:'مسودة',submitted:'تم الإرسال',triage:'قيد الفرز',in_progress:'قيد التنفيذ',awaiting_client:'بانتظار العميل',awaiting_approval:'بانتظار الاعتماد',completed:'مكتمل',cancelled:'ملغي'};
+    const requestStatusOptions=['submitted','triage','in_progress','awaiting_client','awaiting_approval','completed','cancelled'];
+    document.getElementById('serviceRequestRows').innerHTML=(crm.serviceRequests||[]).map(r=>{
+      const service=r.service||{}, client=r.client||{};
+      const options=requestStatusOptions.map(s=>'<option value="'+esc(s)+'"'+(r.status===s?' selected':'')+'>'+esc(requestStatusLabels[s]||s)+'</option>').join('');
+      return '<tr><td>'+esc(r.request_reference||'—')+'</td><td>'+esc(service.name_ar||service.name_en||service.code||'—')+'</td><td>'+esc(client.name||client.company_name||client.email||'—')+'</td><td><select id="sr-status-'+esc(r.id)+'">'+options+'</select></td><td>'+esc(r.locality_name||r.region_name||r.country_code||'—')+'</td><td>'+fmt(r.submitted_at||r.created_at)+'</td><td><button class="btn btn2" onclick="updateServiceRequestStatus(\''+esc(r.id)+'\')">حفظ</button></td></tr>';
+    }).join('')||'<tr><td colspan="7">لا توجد طلبات خدمات</td></tr>';
+
     document.getElementById('orgRows').innerHTML=(crm.organizations||[]).map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+esc(o.status)+'</td><td>'+esc(o.sector||'—')+'</td><td>'+esc(o.country||'—')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد مؤسسات</td></tr>';
     document.getElementById('renewalRows').innerHTML=(crm.renewals||[]).map(x=>'<tr><td>'+fmt(x.renewal_date)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.risk_level)+'</td><td>'+Number(x.value_amount||0).toLocaleString('en-US')+' '+esc(x.currency||'SAR')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد تجديدات</td></tr>';
     document.getElementById('successRows').innerHTML=(crm.customerSuccessRecords||[]).map(x=>'<tr><td>'+esc(x.health_score)+'</td><td>'+esc(x.risk_level)+'</td><td>'+esc(x.lifecycle_stage)+'</td><td>'+fmt(x.next_review_at)+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد سجلات</td></tr>';
@@ -119,6 +137,20 @@
     sel.innerHTML='<option value="">بدون مؤسسة</option>'+(crm.organizations||[]).map(o=>'<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>').join('');
   }
   async function loadCrm(){error('');try{crm=await api('/api/admin?action=crm-overview');render()}catch(e){error('فشل تحميل CRM: '+e.message)}}
+  async function updateServiceRequestStatus(id){
+    error('');
+    try{
+      const select=document.getElementById('sr-status-'+id);
+      if(!select) return;
+      await api('/api/admin?action=service-request-status-update',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({id,status:select.value})
+      });
+      await loadCrm();
+    }catch(e){error('فشل تحديث حالة طلب الخدمة: '+e.message)}
+  }
+
   async function createOrg(ev){ev.preventDefault();try{
     await api('/api/admin?action=crm-organization-create',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:orgName.value,sector:orgSector.value,country:orgCountry.value,status:orgStatus.value})});
     ev.target.reset();await loadCrm();

@@ -53,4 +53,34 @@ describe('Admin CRM operations', () => {
     expect(page).toContain('BondsAdminCommon.escapeHtml');
     expect(page).not.toContain('SUPABASE_SERVICE_ROLE_KEY');
   });
+
+  test('CRM exposes and manages service request operations using the database status contract', () => {
+    const api = read('api/admin.js');
+    const page = read('admin/crm.html');
+    const ar = read('my-bonds/index.html');
+    const en = read('en/my-bonds/index.html');
+
+    expect(api).toContain("const SERVICE_REQUEST_STATUSES = new Set([");
+    for (const status of ['draft','submitted','triage','in_progress','awaiting_client','awaiting_approval','completed','cancelled']) {
+      expect(api).toContain("'" + status + "'");
+    }
+    expect(api).toContain("async function updateServiceRequestStatus");
+    expect(api).toContain("'service_request_status_update'");
+    expect(api).toContain("if (action === 'service-request-status-update')");
+    expect(api).toContain("requireAdminPermission(req, sb, 'crm.write')");
+    expect(api).toContain('serviceRequests: serviceRequestQueue');
+
+    expect(page).toContain('طلبات الخدمات');
+    expect(page).toContain('serviceRequestRows');
+    expect(page).toContain('updateServiceRequestStatus');
+    expect(page).toContain('awaiting_client');
+    expect(page).toContain('awaiting_approval');
+
+    expect(ar).toContain("triage:'قيد الفرز'");
+    expect(ar).toContain("awaiting_client:'بانتظار العميل'");
+    expect(ar).toContain("awaiting_approval:'بانتظار الاعتماد'");
+    expect(en).toContain("triage:'Triage'");
+    expect(en).toContain("awaiting_client:'Awaiting client'");
+    expect(en).toContain("awaiting_approval:'Awaiting approval'");
+  });
 });
