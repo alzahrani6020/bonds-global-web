@@ -1,5 +1,6 @@
 const {
   capabilityCatalog,
+  plannerCapabilityCatalog,
   totalBudgetMs,
   plannerCallBudgetMs,
   parseDecision,
@@ -44,6 +45,18 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(catalog.some(item => item.action === 'web_search' && item.autonomous === true)).toBe(true);
     expect(catalog.some(item => item.action === 'financial_analysis_run' && item.autonomous === true)).toBe(true);
     expect(catalog.some(item => item.confirmation_required === true)).toBe(true);
+  });
+
+  test('planner prompt keeps every registered capability while compacting the catalog below the old 24k payload', () => {
+    const full = capabilityCatalog();
+    const compact = plannerCapabilityCatalog();
+
+    expect(compact).toHaveLength(full.length);
+    expect(compact.map(item => item.a)).toEqual(full.map(item => item.action));
+    expect(compact.some(item => item.a === 'web_search')).toBe(true);
+    expect(compact.some(item => item.a === 'financial_analysis_run')).toBe(true);
+    expect(compact.some(item => item.c === 1)).toBe(true);
+    expect(JSON.stringify(compact).length).toBeLessThan(16000);
   });
 
   test('parses only registered planner decisions', () => {
