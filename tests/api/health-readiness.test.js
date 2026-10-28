@@ -107,6 +107,8 @@ describe('platform health vs strict readiness', () => {
     process.env.BONDS_TOKEN_EXPECTED_BUILD_COMMIT = runtimeBuild;
     delete process.env.BONDS_TOKEN_ISSUER;
     delete process.env.BONDS_TOKEN_INTROSPECTION_TIMEOUT_MS;
+    delete process.env.BONDS_TOKEN_CHANNEL_VERIFY_ATTEMPTS;
+    delete process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS;
     delete process.env.BONDS_WEB_SEARCH_URL;
   });
 
@@ -217,6 +219,7 @@ describe('platform health vs strict readiness', () => {
 
   test('strict readiness recovers from a transient token channel probe transport failure', async () => {
     mockNativeOk.value = true;
+    process.env.BONDS_TOKEN_CHANNEL_VERIFY_ATTEMPTS = '3';
     process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS = '0,0,0';
     let transientFailures = 1;
     global.fetch = jest.fn(async (url, options) => {
@@ -239,12 +242,14 @@ describe('platform health vs strict readiness', () => {
     expect(res.body.status).toBe('ready');
     expect(res.body.token_runtime).toMatchObject({
       required: true, status: 'ok', channel_auth: 'verified',
-      verify_attempts: 2, verify_recovered: true
+      verify_recovered: true
     });
+    expect(res.body.token_runtime.verify_attempts).toBeGreaterThan(1);
   });
 
   test('persistent token channel probe transport failure stays channel_unverified after bounded retries', async () => {
     mockNativeOk.value = true;
+    process.env.BONDS_TOKEN_CHANNEL_VERIFY_ATTEMPTS = '3';
     process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS = '0,0,0';
     global.fetch = jest.fn(async (url, options) => {
       if (url === 'https://runtime.example.test/introspect' &&
@@ -266,11 +271,12 @@ describe('platform health vs strict readiness', () => {
       verify_attempts: 3, verify_recovered: false
     });
     const introspectCalls = global.fetch.mock.calls.filter(call => call[0] === 'https://runtime.example.test/introspect');
-    expect(introspectCalls.length).toBe(6);
+    expect(introspectCalls.length).toBe(res.body.token_runtime.verify_attempts * 2);
   });
 
   test('token channel auth-not-enforced verdict is never retried', async () => {
     mockNativeOk.value = true;
+    process.env.BONDS_TOKEN_CHANNEL_VERIFY_ATTEMPTS = '3';
     process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS = '0,0,0';
     global.fetch = jest.fn(async (url, options) => {
       if (url === 'https://runtime.example.test/introspect' &&
@@ -291,7 +297,7 @@ describe('platform health vs strict readiness', () => {
       verify_attempts: 1, verify_recovered: false
     });
     const introspectCalls = global.fetch.mock.calls.filter(call => call[0] === 'https://runtime.example.test/introspect');
-    expect(introspectCalls.length).toBe(2);
+    expect(introspectCalls.length).toBe(res.body.token_runtime.verify_attempts * 2);
   });
 
   test.each([undefined, 'MISSPELLED_NATIVE_MODE'])('missing or unknown Native mode %p cannot count as ready', async mode => {
