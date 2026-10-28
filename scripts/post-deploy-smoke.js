@@ -691,6 +691,70 @@ async function assertDistressedRecoveryEmbed() {
   console.log('Distressed Recovery embed PASS (duplicate auth-gate suppressed)');
 }
 
+async function runPlannerTelemetryProbe() {
+  console.log('Starting Planner telemetry Production probe');
+  await waitForMatchingProduction();
+  const token = await getAuthenticatedToken();
+  const requestId = `e2e-planner-telemetry-${Date.now()}`;
+  const startedAt = Date.now();
+
+  const chat = await fetchJson(`${cfg.baseUrl}/api/v3/ai/chat`, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Cache-Control':'no-cache',
+      'X-Request-ID':requestId,
+      Authorization:`Bearer ${token}`
+    },
+    body:JSON.stringify({
+      messages:[{
+        role:'user',
+        content:'اشرح الفرق بين الربح والتدفق النقدي في جملة واحدة.'
+      }],
+      context:{},
+      options:{}
+    })
+  });
+
+  const elapsedMs = Date.now() - startedAt;
+  if (!chat.res.ok) {
+    throw new Error(
+      `Planner telemetry probe failed: HTTP ${chat.res.status}, elapsed_ms=${elapsedMs}, request_id=${requestId}, fallback_reason=${chat.body?.fallback_reason || 'missing'}`
+    );
+  }
+
+  const diagnostics = chat.body?.diagnostics || null;
+  const telemetry = Array.isArray(diagnostics?.native_telemetry)
+    ? diagnostics.native_telemetry
+    : [];
+  if (!diagnostics) {
+    throw new Error('Planner telemetry probe did not return diagnostics for the E2E admin role');
+  }
+  if (!telemetry.length) {
+    throw new Error(
+      `Planner telemetry probe returned no native telemetry: status=${diagnostics.status || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}`
+    );
+  }
+
+  const allowed = new Set([
+    'step','final','lock_wait_seconds','generation_seconds','request_total_seconds',
+    'model_load_seconds','model_cache_hit','completion_tokens','prompt_tokens',
+    'tokens_per_second','n_ctx','finish_reason','native_node','elapsed_ms'
+  ]);
+  const safeTelemetry = telemetry.slice(0, 8).map(row => Object.fromEntries(
+    Object.entries(row || {}).filter(([key]) => allowed.has(key))
+  ));
+
+  console.log('PLANNER_TELEMETRY ' + JSON.stringify({
+    request_id:requestId,
+    elapsed_ms:elapsedMs,
+    diagnostics_status:diagnostics.status || null,
+    fallback_reason:chat.body?.fallback_reason || null,
+    native_telemetry:safeTelemetry
+  }));
+  console.log('Planner telemetry Production probe: PASS');
+}
+
 async function main() {
   console.log('Starting authenticated Production smoke verification');
   await waitForMatchingProduction();
@@ -718,7 +782,10 @@ async function main() {
   console.log('Production authenticated smoke test: PASS');
 }
 
-main().catch(error => {
-  console.error(`Production authenticated smoke test: FAIL - ${error.message}`);
+const telemetryOnly = String(process.env.PLANNER_TELEMETRY_ONLY || '').trim() === '1';
+
+(telemetryOnly ? runPlannerTelemetryProbe() : main()).catch(error => {
+  const label = telemetryOnly ? 'Planner telemetry Production probe' : 'Production authenticated smoke test';
+  console.error(`${label}: FAIL - ${error.message}`);
   process.exit(1);
 });
