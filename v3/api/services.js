@@ -1144,9 +1144,58 @@ async function handleServiceExecutionProfile(req, res, supabase, user, code) {
   }
 }
 
-async function handleCreateServiceRequest(req, res, supabase, user) {
-  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+async function handleServiceRequests(req, res, supabase, user) {
   if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+
+  if (req.method === 'GET') {
+    const url = getQuery(req);
+    const reference = String(url.searchParams.get('reference') || '').trim();
+
+    let query = supabase
+      .from('service_requests')
+      .select('id,request_reference,service_id,status,country_code,region_name,locality_name,submitted_at,completed_at,created_at,updated_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending:false })
+      .limit(100);
+
+    if (reference) query = query.eq('request_reference', reference).limit(1);
+
+    const { data: requests, error } = await query;
+    if (error) return sendJson(res, 500, { error: 'Failed to load service requests' });
+
+    const serviceIds = [...new Set((requests || []).map(row => row.service_id).filter(Boolean))];
+    let services = [];
+    if (serviceIds.length) {
+      const { data, error: serviceError } = await supabase
+        .from('service_catalog')
+        .select('id,code,name_ar,name_en,category_code,group_code')
+        .in('id', serviceIds);
+      if (serviceError) return sendJson(res, 500, { error: 'Failed to load service request services' });
+      services = data || [];
+    }
+
+    const serviceMap = new Map(services.map(row => [row.id, row]));
+    const safeRequests = (requests || []).map(row => ({
+      id: row.id,
+      request_reference: row.request_reference,
+      status: row.status,
+      country_code: row.country_code,
+      region_name: row.region_name,
+      locality_name: row.locality_name,
+      submitted_at: row.submitted_at,
+      completed_at: row.completed_at,
+      created_at: row.created_at,
+      updated_at: row.updated_at,
+      service: serviceMap.get(row.service_id) || null
+    }));
+
+    return sendJson(res, 200, {
+      requests: safeRequests,
+      count: safeRequests.length
+    });
+  }
+
+  if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
 
   let body = {};
   try {
@@ -1595,7 +1644,7 @@ async function servicesRouter(req, res, path, supabase, user) {
   if(datasetExportMatch) return handleFinancialDatasetExport(req,res,supabase,user,decodeURIComponent(datasetExportMatch[1]));
   const datasetMatch=path.match(/^\/services\/intake\/datasets\/([^/]+)$/);
   if(datasetMatch) return handleFinancialDatasetGet(req,res,supabase,user,decodeURIComponent(datasetMatch[1]));
-  if (path === '/services/requests') return handleCreateServiceRequest(req, res, supabase, user);
+  if (path === '/services/requests') return handleServiceRequests(req, res, supabase, user);
   const executionMatch=path.match(/^\/services\/([^/]+)\/execution$/);
   if (executionMatch) return handleServiceExecutionProfile(req,res,supabase,user,decodeURIComponent(executionMatch[1]));
   const detailMatch=path.match(/^\/services\/([^/]+)$/);
