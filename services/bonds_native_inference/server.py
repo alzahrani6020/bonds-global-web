@@ -7,7 +7,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from native_generator import generate, status
+from native_generator import NativeContextOverflow, NativeRuntimeBusy, generate, status
 
 ROOT = Path(__file__).resolve().parent
 HOST = os.environ.get("BONDS_NATIVE_HOST", "127.0.0.1")
@@ -92,6 +92,22 @@ class Handler(BaseHTTPRequestHandler):
                 options=body.get("options") or {},
             )
             self._json(200, {"ok": True, "result": result})
+        except NativeRuntimeBusy as exc:
+            self._json(503, {
+                "ok": False,
+                "error": {
+                    "code": "NATIVE_RUNTIME_BUSY",
+                    "message": str(exc),
+                },
+            })
+        except NativeContextOverflow as exc:
+            self._json(503, {
+                "ok": False,
+                "error": {
+                    "code": "NATIVE_CONTEXT_OVERFLOW",
+                    "message": str(exc),
+                },
+            })
         except Exception as exc:
             self._json(503, {
                 "ok": False,
