@@ -441,6 +441,91 @@ describe('BONDS deterministic financial engine registry', () => {
       .toContain('maximum_ltv_pct_between_0_and_100');
   });
 
+
+  test('computes net leverage capacity from debt, cash, EBITDA and an explicit leverage limit', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      ebitda: 200,
+      annual_debt_service: 80,
+      total_debt: 500,
+      cash_and_equivalents: 100,
+      maximum_net_leverage: 3
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.leverage_capacity).toEqual({
+      total_debt: 500,
+      cash_and_equivalents: 100,
+      net_debt: 400,
+      ebitda: 200,
+      net_debt_to_ebitda: 2,
+      maximum_net_leverage: 3,
+      maximum_net_debt: 600,
+      maximum_total_debt: 700,
+      leverage_headroom: 200,
+      leverage_excess: 0,
+      status: 'leverage_capacity_available'
+    });
+    expect(result.diagnostics.leverage_capacity_method)
+      .toBe('maximum_net_leverage_times_ebitda_plus_cash_less_total_debt');
+  });
+
+  test('uses net leverage as the binding borrowing constraint when it is lowest', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      ebitda: 200,
+      operating_cash_flow: 300,
+      annual_debt_service: 100,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 10,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      collateral_value: 1000,
+      maximum_ltv_pct: 70,
+      existing_secured_debt: 100,
+      total_debt: 500,
+      cash_and_equivalents: 100,
+      maximum_net_leverage: 2.25,
+      requested_amount: 75
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.leverage_capacity.leverage_headroom).toBe(50);
+    expect(result.metrics.borrowing_capacity.net_leverage_limit).toBe(50);
+    expect(result.metrics.borrowing_capacity.maximum_additional_debt).toBe(50);
+    expect(result.metrics.borrowing_capacity.binding_constraint).toBe('net_leverage');
+    expect(result.metrics.borrowing_capacity.requested_amount_status).toBe('exceeds_capacity');
+    expect(result.metrics.borrowing_capacity.requested_amount_headroom).toBe(-25);
+    expect(result.diagnostics.borrowing_capacity_method)
+      .toBe('minimum_of_available_debt_service_collateral_and_net_leverage_limits');
+  });
+
+  test('reports leverage excess and fails closed on invalid leverage capacity inputs', () => {
+    const exceeded = runFinancialEngine('funding_readiness', {
+      ebitda: 100,
+      annual_debt_service: 50,
+      total_debt: 500,
+      cash_and_equivalents: 50,
+      maximum_net_leverage: 3
+    });
+
+    expect(exceeded.ok).toBe(true);
+    expect(exceeded.metrics.leverage_capacity.net_debt).toBe(450);
+    expect(exceeded.metrics.leverage_capacity.net_debt_to_ebitda).toBe(4.5);
+    expect(exceeded.metrics.leverage_capacity.leverage_headroom).toBe(0);
+    expect(exceeded.metrics.leverage_capacity.leverage_excess).toBe(150);
+    expect(exceeded.metrics.leverage_capacity.status).toBe('leverage_capacity_exceeded');
+
+    const invalid = runFinancialEngine('funding_readiness', {
+      annual_debt_service: 50,
+      total_debt: 500,
+      cash_and_equivalents: 50,
+      maximum_net_leverage: 3
+    });
+
+    expect(invalid.ok).toBe(false);
+    expect(invalid.executed).toBe(false);
+    expect(invalid.required_inputs).toContain('ebitda_positive_for_net_leverage');
+  });
+
   test('computes feasibility NPV, IRR and payback without AI', () => {
     const result = runFinancialEngine('feasibility', {
       initial_investment: 1000,
