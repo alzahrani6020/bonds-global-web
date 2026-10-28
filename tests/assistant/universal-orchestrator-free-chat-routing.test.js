@@ -295,11 +295,11 @@ describe('universal orchestrator free-chat routing', () => {
       delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
       const { mod } = loadHarness({ plannerReplies:[{ mode:'answer', answer:'ok' }] });
 
-      expect(mod.plannerCallBudgetMs(55000)).toBe(45000);
+      expect(mod.plannerCallBudgetMs(60000)).toBe(55000);
       expect(mod.plannerCallBudgetMs(30000)).toBe(30000);
 
       process.env.ASSISTANT_PLANNER_TIMEOUT_MS = '60000';
-      expect(mod.plannerCallBudgetMs(55000)).toBe(50000);
+      expect(mod.plannerCallBudgetMs(60000)).toBe(58000);
     } finally {
       if (previous === undefined) delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
       else process.env.ASSISTANT_PLANNER_TIMEOUT_MS = previous;
