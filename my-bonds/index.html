@@ -72,6 +72,14 @@
         </div>
       </div>
 
+      <!-- Service requests -->
+      <div class="my-bonds-section" id="serviceRequestsSection" style="display:none;">
+        <h3 class="my-bonds-section__title">طلبات الخدمات</h3>
+        <div id="serviceRequestsList" class="my-bonds-grid">
+          <div class="bonds-card my-bonds-empty"><p>جارٍ تحميل طلبات الخدمات...</p></div>
+        </div>
+      </div>
+
       <!-- Quick links -->
       <div class="my-bonds-section">
         <h3 class="my-bonds-section__title">أدوات سريعة</h3>
@@ -338,6 +346,48 @@
         }).join('');
       }
 
+      async function loadServiceRequests() {
+        const res = await apiFetch('/api/v3/services/requests', { method: 'GET', returnTo: '/my-bonds/' });
+        if (res.authError) throw new Error('AUTH_REQUIRED');
+        if (res.offline) throw new Error('OFFLINE');
+        if (res.serverError) throw new Error('SERVER_ERROR');
+        const json = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(json.error || 'فشل تحميل طلبات الخدمات');
+        return json.requests || [];
+      }
+
+      function serviceRequestStatusLabel(status) {
+        const labels = { draft:'مسودة', submitted:'تم الإرسال', in_review:'قيد المراجعة', processing:'قيد التنفيذ', completed:'مكتمل', rejected:'مرفوض', cancelled:'ملغي' };
+        return labels[status] || status || 'غير محدد';
+      }
+
+      function renderServiceRequests(requests) {
+        const section = document.getElementById('serviceRequestsSection');
+        const container = document.getElementById('serviceRequestsList');
+        if (!section || !container) return;
+        section.style.display = 'block';
+        if (!requests || requests.length === 0) {
+          container.innerHTML = '<div class="bonds-card my-bonds-empty"><p>لا توجد طلبات خدمات حتى الآن.</p></div>';
+          return;
+        }
+        container.innerHTML = requests.map(function(item) {
+          const service = item.service || {};
+          const title = BondsCommon.escapeHtml(service.name_ar || service.name_en || service.code || 'طلب خدمة');
+          const reference = BondsCommon.escapeHtml(item.request_reference || '—');
+          const status = BondsCommon.escapeHtml(serviceRequestStatusLabel(item.status));
+          const date = formatDate(item.submitted_at || item.created_at);
+          return `<div class="bonds-card my-bonds-project"><div class="my-bonds-project__header"><h4 class="my-bonds-project__title">${title}</h4><span class="my-bonds-badge">${status}</span></div><p class="my-bonds-project__summary">رقم المرجع: <strong>${reference}</strong></p><div class="my-bonds-project__meta"><span class="my-bonds-project__date">${date}</span></div></div>`;
+        }).join('');
+      }
+
+      function renderServiceRequestsError() {
+        const section = document.getElementById('serviceRequestsSection');
+        const container = document.getElementById('serviceRequestsList');
+        if (!section || !container) return;
+        section.style.display = 'block';
+        container.innerHTML = '<div class="bonds-card my-bonds-empty"><p>تعذر تحميل طلبات الخدمات الآن.</p></div>';
+      }
+
       async function init() {
         try {
           setProjectsLoading(true);
@@ -409,6 +459,12 @@
           const countEl = document.getElementById('projectCount');
           if (countEl) countEl.textContent = String(allProjects.length);
           renderProjects(allProjects, false);
+          try {
+            renderServiceRequests(await loadServiceRequests());
+          } catch (requestError) {
+            console.error('[my-bonds] loadServiceRequests failed:', requestError);
+            renderServiceRequestsError();
+          }
         } catch (e) {
           console.error('[my-bonds] init failed:', e);
           document.getElementById('guestCta').style.display = 'none';

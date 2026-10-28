@@ -73,16 +73,20 @@ function mockBondsAuth(projects = [], hasAuthFetch = true) {
   return `
     (function() {
       window.__lastApiCall = null;
+      window.__apiCalls = [];
       window.BondsAuth = {
         getUser: async () => ({ data: { user: { id: 'u1', email: 'a@example.com', user_metadata: {} } }, error: null }),
         getSession: async () => ({ data: { session: { access_token: 'test-token' } }, error: null }),
         initSiteAuth: async () => {},
         authenticatedFetch: ${hasAuthFetch ? `async (url, options) => {
           window.__lastApiCall = { url, options };
+          window.__apiCalls.push({ url, options });
           return {
             ok: true,
             status: 200,
-            json: async () => ({ projects: ${projectsJson} })
+            json: async () => url === '/api/v3/services/requests'
+              ? ({ requests: [] })
+              : ({ projects: ${projectsJson} })
           };
         }` : 'undefined'}
       };
@@ -105,8 +109,9 @@ describe('my-bonds cache regression', () => {
     const page = await openMyBondsPage('/my-bonds/', mockBondsAuth(projects, true));
     const count = await page.locator('#projectCount').textContent();
     expect(count).toBe('1');
-    const lastCall = await page.evaluate(() => window.__lastApiCall);
-    expect(lastCall && lastCall.url).toBe('/api/v3/projects');
+    const calls = await page.evaluate(() => window.__apiCalls || []);
+    expect(calls.some(call => call && call.url === '/api/v3/projects')).toBe(true);
+    expect(calls.some(call => call && call.url === '/api/v3/services/requests')).toBe(true);
     expect(await page.locator('#manualRefreshBtn').count()).toBe(0);
     const projectsHtml = await page.locator('#projectsList').innerHTML();
     expect(projectsHtml).toContain('مشروع 1');
