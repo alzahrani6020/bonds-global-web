@@ -262,6 +262,70 @@ describe('Financial core wave 11', () => {
     expect(result.metrics.covenants[1].first_forecast_breach_period).toBe('Q2');
   });
 
+  test('derives actual and forecast DSCR from explicit cash flow or EBITDA and debt service', () => {
+    const result = runFinancialEngine('covenant_monitoring', {
+      derive_dscr: true,
+      covenants: [
+        { id: 'DSCR', metric: 'dscr', operator: '>=', threshold: 1.25 }
+      ],
+      actuals: {
+        operating_cash_flow: 140,
+        debt_service: 100
+      },
+      forecasts: [
+        {
+          period: 'Q1',
+          metrics: { ebitda: 130, debt_service: 100 }
+        },
+        {
+          period: 'Q2',
+          metrics: { operating_cash_flow: 110, debt_service: 100 }
+        }
+      ]
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.covenants[0].actual).toBeCloseTo(1.4, 8);
+    expect(result.metrics.covenants[0].actual_source)
+      .toBe('derived_operating_cash_flow_over_debt_service');
+    expect(result.metrics.covenants[0].first_forecast_breach_period).toBe('Q2');
+    expect(result.metrics.covenants[0].forecast_evaluations).toEqual([
+      {
+        period: 'Q1',
+        value: 1.3,
+        source: 'derived_ebitda_over_debt_service',
+        headroom: 0.050000000000000044,
+        status: 'compliant'
+      },
+      {
+        period: 'Q2',
+        value: 1.1,
+        source: 'derived_operating_cash_flow_over_debt_service',
+        headroom: -0.1499999999999999,
+        status: 'breach'
+      }
+    ]);
+    expect(result.diagnostics.derived_dscr_method)
+      .toBe('operating_cash_flow_or_ebitda_over_positive_debt_service');
+  });
+
+  test('fails closed when derived DSCR is requested without positive debt service', () => {
+    const result = runFinancialEngine('covenant_monitoring', {
+      derive_dscr: true,
+      covenants: [
+        { id: 'DSCR', metric: 'dscr', operator: '>=', threshold: 1.25 }
+      ],
+      actuals: { operating_cash_flow: 140 },
+      forecasts: [
+        { period: 'Q1', metrics: { operating_cash_flow: 130, debt_service: 100 } }
+      ]
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.executed).toBe(false);
+    expect(result.required_inputs).toContain('actuals.debt_service_positive');
+  });
+
   test('covenant engine fails closed on malformed covenant definitions', () => {
     const result = runFinancialEngine('covenant_monitoring', {
       covenants: [{ metric: 'dscr', operator: 'approximately', threshold: 1.25 }],
