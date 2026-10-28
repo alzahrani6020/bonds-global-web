@@ -312,8 +312,8 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(result.ok).toBe(true);
     expect(result.metrics.loan_sizing.annual_debt_service_headroom).toBe(50);
     expect(result.metrics.loan_sizing.periodic_payment_capacity).toBeCloseTo(50 / 12, 8);
-    expect(result.metrics.loan_sizing.maximum_additional_debt).toBeCloseTo(187.382, 3);
-    expect(result.metrics.loan_sizing.requested_amount_headroom).toBeCloseTo(12.382, 3);
+    expect(result.metrics.loan_sizing.maximum_additional_debt).toBeCloseTo(187.31266, 5);
+    expect(result.metrics.loan_sizing.requested_amount_headroom).toBeCloseTo(12.31266, 5);
     expect(result.metrics.loan_sizing.requested_amount_status).toBe('within_capacity');
     expect(result.diagnostics.loan_sizing_method)
       .toBe('level_payment_annuity_from_annual_debt_service_headroom');
