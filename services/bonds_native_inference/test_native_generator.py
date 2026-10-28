@@ -212,6 +212,60 @@ class NativeGeneratorConcurrencyTests(unittest.TestCase):
         self.assertEqual({result["n_ctx"] for result in results}, {1024, 2048})
         self.assertEqual(sum(result["model_load_seconds"] > 0 for result in results), 2)
 
+    def test_generate_fails_fast_with_busy_when_lock_deadline_expires(self):
+        tracker = _Tracker()
+        fake_module = _fake_llama_module(tracker)
+        ng._LLM_LOCK.acquire()
+        try:
+            with (
+                mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
+                mock.patch.object(ng, "gpu_offload_supported", return_value=False),
+                mock.patch.object(ng, "_verified_model", return_value=self.model),
+                mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
+            ):
+                with self.assertRaises(ng.NativeRuntimeBusy):
+                    ng.generate(
+                        "/tmp",
+                        "hello",
+                        options={
+                            "n_threads": 1,
+                            "max_tokens": 8,
+                            "lock_timeout_seconds": 0.2,
+                        },
+                    )
+        finally:
+            ng._LLM_LOCK.release()
+        self.assertEqual(tracker.generate_calls, 0)
+
+    def test_generate_maps_context_overflow_value_error(self):
+        tracker = _Tracker()
+        fake_module = _fake_llama_module(tracker)
+
+        class OverflowLlama(fake_module.Llama):
+            def create_chat_completion(self, **kwargs):
+                tracker.enter_generate()
+                try:
+                    raise ValueError("Requested tokens exceed context window")
+                finally:
+                    tracker.exit_generate()
+
+        fake_module.Llama = OverflowLlama
+
+        with (
+            mock.patch.object(ng.importlib.util, "find_spec", return_value=object()),
+            mock.patch.object(ng, "gpu_offload_supported", return_value=False),
+            mock.patch.object(ng, "_verified_model", return_value=self.model),
+            mock.patch.dict(sys.modules, {"llama_cpp": fake_module}),
+        ):
+            with self.assertRaises(ng.NativeContextOverflow):
+                ng.generate(
+                    "/tmp",
+                    "hello",
+                    options={"n_threads": 1, "max_tokens": 8},
+                )
+
+        self.assertEqual(tracker.generate_calls, 1)
+
 
 if __name__ == "__main__":
     unittest.main()

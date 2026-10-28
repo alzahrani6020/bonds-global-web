@@ -22,6 +22,14 @@ class NativeModelIntegrityError(RuntimeError):
     pass
 
 
+class NativeRuntimeBusy(RuntimeError):
+    pass
+
+
+class NativeContextOverflow(RuntimeError):
+    pass
+
+
 @dataclass(frozen=True)
 class NativeModel:
     path: Path
@@ -213,21 +221,36 @@ def generate(
         user_text = f"Context:\n{context_text}\n\n{user_text}"
     messages.append({"role": "user", "content": user_text})
 
+    lock_timeout_seconds = _float(opts.get("lock_timeout_seconds"), 0.0) or _float(
+        os.environ.get("BONDS_NATIVE_LOCK_TIMEOUT_SECONDS"), 30.0
+    )
+    lock_timeout_seconds = max(1.0, min(120.0, lock_timeout_seconds))
+
     lock_wait_started = time.perf_counter()
-    with _LLM_LOCK:
-        lock_wait_seconds = max(0.0, time.perf_counter() - lock_wait_started)
+    acquired = _LLM_LOCK.acquire(timeout=lock_timeout_seconds)
+    lock_wait_seconds = max(0.0, time.perf_counter() - lock_wait_started)
+    if not acquired:
+        raise NativeRuntimeBusy(
+            f"model busy beyond the {lock_timeout_seconds:.1f}s lock deadline"
+        )
+    try:
         model = _verified_model(root)
         llm, cache_hit, load_seconds = _resident_llm(
             model, n_ctx=n_ctx, n_threads=n_threads, n_gpu_layers=n_gpu_layers
         )
 
         generation_started = time.perf_counter()
-        response = llm.create_chat_completion(
-            messages=messages,
-            max_tokens=max_tokens,
-            temperature=temperature,
-        )
+        try:
+            response = llm.create_chat_completion(
+                messages=messages,
+                max_tokens=max_tokens,
+                temperature=temperature,
+            )
+        except ValueError as exc:
+            raise NativeContextOverflow(str(exc)) from exc
         generation_seconds = max(0.0, time.perf_counter() - generation_started)
+    finally:
+        _LLM_LOCK.release()
 
     choices = response.get("choices") or []
     first = choices[0] if choices else {}
@@ -261,6 +284,7 @@ def generate(
         "completion_tokens": completion_tokens,
         "generation_seconds": generation_seconds,
         "lock_wait_seconds": lock_wait_seconds,
+        "lock_timeout_seconds": lock_timeout_seconds,
         "request_total_seconds": request_total_seconds,
         "tokens_per_second": tokens_per_second,
         "model_resident": True,
