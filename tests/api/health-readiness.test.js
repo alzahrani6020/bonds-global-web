@@ -215,6 +215,85 @@ describe('platform health vs strict readiness', () => {
     expect(mockNativeHealthCalls.count).toBe(3);
   });
 
+  test('strict readiness recovers from a transient token channel probe transport failure', async () => {
+    mockNativeOk.value = true;
+    process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS = '0,0,0';
+    let transientFailures = 1;
+    global.fetch = jest.fn(async (url, options) => {
+      if (url === 'https://runtime.example.test/introspect' &&
+          options.headers['X-Bonds-Channel'] !== channelSecret) {
+        if (transientFailures > 0) {
+          transientFailures -= 1;
+          throw new Error('simulated transport reset');
+        }
+        return { ok: false, status: 401 };
+      }
+      return runtimeFetch(url, options);
+    });
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.statusCode).toBe(200);
+    expect(res.body.status).toBe('ready');
+    expect(res.body.token_runtime).toMatchObject({
+      required: true, status: 'ok', channel_auth: 'verified',
+      verify_attempts: 2, verify_recovered: true
+    });
+  });
+
+  test('persistent token channel probe transport failure stays channel_unverified after bounded retries', async () => {
+    mockNativeOk.value = true;
+    process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS = '0,0,0';
+    global.fetch = jest.fn(async (url, options) => {
+      if (url === 'https://runtime.example.test/introspect' &&
+          options.headers['X-Bonds-Channel'] !== channelSecret) {
+        throw new Error('simulated transport reset');
+      }
+      return runtimeFetch(url, options);
+    });
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.statusCode).toBe(503);
+    expect(res.body.status).toBe('not_ready');
+    expect(res.body.token_runtime).toMatchObject({
+      required: true, status: 'channel_unverified',
+      code: 'TOKEN_CHANNEL_PROTECTION_UNVERIFIED',
+      verify_attempts: 3, verify_recovered: false
+    });
+    const introspectCalls = global.fetch.mock.calls.filter(call => call[0] === 'https://runtime.example.test/introspect');
+    expect(introspectCalls.length).toBe(6);
+  });
+
+  test('token channel auth-not-enforced verdict is never retried', async () => {
+    mockNativeOk.value = true;
+    process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS = '0,0,0';
+    global.fetch = jest.fn(async (url, options) => {
+      if (url === 'https://runtime.example.test/introspect' &&
+          options.headers['X-Bonds-Channel'] !== channelSecret) {
+        return { ok: true, status: 200, json: async () => ({ runtime: runtimeIdentity, claims: { active: false } }) };
+      }
+      return runtimeFetch(url, options);
+    });
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.statusCode).toBe(503);
+    expect(res.body.token_runtime).toMatchObject({
+      required: true, status: 'channel_unverified',
+      code: 'TOKEN_CHANNEL_AUTH_NOT_ENFORCED',
+      verify_attempts: 1, verify_recovered: false
+    });
+    const introspectCalls = global.fetch.mock.calls.filter(call => call[0] === 'https://runtime.example.test/introspect');
+    expect(introspectCalls.length).toBe(2);
+  });
+
   test.each([undefined, 'MISSPELLED_NATIVE_MODE'])('missing or unknown Native mode %p cannot count as ready', async mode => {
     if (mode === undefined) delete process.env.BONDS_INFERENCE_MODE;
     else process.env.BONDS_INFERENCE_MODE = mode;
