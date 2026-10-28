@@ -735,6 +735,11 @@ async function runPlannerTelemetryProbe() {
       `Planner telemetry probe returned no native telemetry: status=${diagnostics.status || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}`
     );
   }
+  if (diagnostics.status === 'DEGRADED' || chat.body?.fallback_reason) {
+    throw new Error(
+      `Planner telemetry probe degraded: status=${diagnostics.status || 'missing'}, fallback_reason=${chat.body?.fallback_reason || 'missing'}`
+    );
+  }
 
   const allowed = new Set([
     'step','final','lock_wait_seconds','generation_seconds','request_total_seconds',
