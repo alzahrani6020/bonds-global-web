@@ -289,6 +289,23 @@ describe('universal orchestrator free-chat routing', () => {
     expect(result.nativeTelemetry[0]).not.toHaveProperty('usage');
   });
 
+  test('planner timeout budget covers the bounded Native lock deadline', () => {
+    const previous = process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
+    try {
+      delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
+      const { mod } = loadHarness({ plannerReplies:[{ mode:'answer', answer:'ok' }] });
+
+      expect(mod.plannerCallBudgetMs(55000)).toBe(45000);
+      expect(mod.plannerCallBudgetMs(30000)).toBe(30000);
+
+      process.env.ASSISTANT_PLANNER_TIMEOUT_MS = '60000';
+      expect(mod.plannerCallBudgetMs(55000)).toBe(50000);
+    } finally {
+      if (previous === undefined) delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
+      else process.env.ASSISTANT_PLANNER_TIMEOUT_MS = previous;
+    }
+  });
+
   test('planner unavailable degrades to a deterministic patient reply without HTTP-style failure semantics', async () => {
     const { mod } = loadHarness({
       plannerReplies:[null]
