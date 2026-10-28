@@ -82,6 +82,45 @@ async function probeNativeHealth(attempts = 3) {
   };
 }
 
+async function requestTokenRuntimeWithTransientRetry({
+  channel,
+  method = 'POST',
+  body,
+  fetchImpl = global.fetch,
+  attempts = 3
+}) {
+  const delays = [0, 150, 400];
+  let last = null;
+  for (let index = 0; index < attempts; index += 1) {
+    if (delays[index]) await sleep(delays[index]);
+    last = await requestTokenRuntime({ channel, method, body, fetchImpl });
+    if (last?.ok === true) return last;
+    if (last?.code !== 'TOKEN_INTROSPECTION_FAILED') return last;
+  }
+  return last;
+}
+
+async function probeUnauthenticatedTokenChannel({
+  channel,
+  body,
+  fetchImpl = global.fetch,
+  attempts = 3
+}) {
+  const delays = [0, 150, 400];
+  let last = null;
+  for (let index = 0; index < attempts; index += 1) {
+    if (delays[index]) await sleep(delays[index]);
+    last = await requestTokenRuntime({
+      channel: { ...channel, headers: { accept: 'application/json' } },
+      body,
+      fetchImpl
+    });
+    if (last?.code === 'TOKEN_CHANNEL_REJECTED' || last?.ok === true) return last;
+    if (last?.code !== 'TOKEN_INTROSPECTION_FAILED') return last;
+  }
+  return last;
+}
+
 async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
   const healthChannel = resolveTokenRuntimeChannel({
     url: String(process.env.BONDS_TOKEN_RUNTIME_HEALTH_URL || '').trim(),
@@ -110,9 +149,18 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
     return { status: 'invalid_configuration', required: true, code: 'TOKEN_RUNTIME_INVALID_CONFIGURATION' };
   }
 
-  const health = await requestTokenRuntime({ channel: healthChannel, method: 'GET', fetchImpl });
+  const health = await requestTokenRuntimeWithTransientRetry({
+    channel: healthChannel,
+    method: 'GET',
+    fetchImpl
+  });
   if (!health.ok) {
-    return { status: 'unreachable', required: true, code: health.code };
+    return {
+      status: 'unreachable',
+      required: true,
+      code: health.code,
+      probe_stage: 'health'
+    };
   }
   const payload = health.payload;
   if (!matchesRuntimeIdentity(payload, expectedBuild)) {
@@ -123,14 +171,25 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
   // request proves the same endpoint rejects a caller without channel auth.
   const body = { token: 'bonds_readiness_probe_never_issued' };
   const [authorized, unauthenticated] = await Promise.all([
-    requestTokenRuntime({ channel: introspectionChannel, body, fetchImpl }),
-    requestTokenRuntime({
-      channel: { ...introspectionChannel, headers: { accept: 'application/json' } },
+    requestTokenRuntimeWithTransientRetry({
+      channel: introspectionChannel,
+      body,
+      fetchImpl
+    }),
+    probeUnauthenticatedTokenChannel({
+      channel: introspectionChannel,
       body,
       fetchImpl
     })
   ]);
-  if (!authorized.ok) return { status: 'unreachable', required: true, code: authorized.code };
+  if (!authorized.ok) {
+    return {
+      status: 'unreachable',
+      required: true,
+      code: authorized.code,
+      probe_stage: 'introspection'
+    };
+  }
   const claims = readIntrospectionClaims(authorized.payload);
   if (!matchesRuntimeIdentity(authorized.payload.runtime, expectedBuild) || !claims || claims.active !== false) {
     return { status: 'contract_mismatch', required: true, code: 'TOKEN_RUNTIME_INTROSPECTION_CONTRACT_MISMATCH' };
@@ -138,7 +197,8 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
   if (unauthenticated.code !== 'TOKEN_CHANNEL_REJECTED') {
     return {
       status: 'channel_unverified', required: true,
-      code: unauthenticated.ok ? 'TOKEN_CHANNEL_AUTH_NOT_ENFORCED' : 'TOKEN_CHANNEL_PROTECTION_UNVERIFIED'
+      code: unauthenticated.ok ? 'TOKEN_CHANNEL_AUTH_NOT_ENFORCED' : 'TOKEN_CHANNEL_PROTECTION_UNVERIFIED',
+      probe_code: unauthenticated.code || null
     };
   }
 

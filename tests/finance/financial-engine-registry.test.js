@@ -251,6 +251,117 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(['A','B','C','D','E']).toContain(credit.metrics.rating_band);
   });
 
+
+  test('computes debt service capacity headroom from an explicit minimum DSCR', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.debt_service_capacity).toEqual({
+      minimum_dscr: 1.5,
+      cash_flow_basis: 300,
+      current_annual_debt_service: 150,
+      maximum_annual_debt_service: 200,
+      annual_debt_service_headroom: 50,
+      annual_debt_service_excess: 0,
+      status: 'capacity_available'
+    });
+    expect(result.diagnostics.debt_service_capacity_method)
+      .toBe('cash_flow_basis_divided_by_minimum_dscr_less_current_debt_service');
+  });
+
+  test('reports debt service capacity excess and fails closed on invalid minimum DSCR', () => {
+    const exceeded = runFinancialEngine('funding_readiness', {
+      ebitda: 180,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5
+    });
+
+    expect(exceeded.ok).toBe(true);
+    expect(exceeded.metrics.debt_service_capacity.maximum_annual_debt_service).toBe(120);
+    expect(exceeded.metrics.debt_service_capacity.annual_debt_service_headroom).toBe(0);
+    expect(exceeded.metrics.debt_service_capacity.annual_debt_service_excess).toBe(30);
+    expect(exceeded.metrics.debt_service_capacity.status).toBe('capacity_exceeded');
+
+    const invalid = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 0
+    });
+
+    expect(invalid.ok).toBe(false);
+    expect(invalid.executed).toBe(false);
+    expect(invalid.required_inputs).toContain('minimum_dscr_positive');
+  });
+
+
+  test('sizes maximum additional debt from explicit DSCR headroom and loan terms', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 12,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      requested_amount: 175
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.loan_sizing.annual_debt_service_headroom).toBe(50);
+    expect(result.metrics.loan_sizing.periodic_payment_capacity).toBeCloseTo(50 / 12, 8);
+    expect(result.metrics.loan_sizing.maximum_additional_debt).toBeCloseTo(187.31266, 5);
+    expect(result.metrics.loan_sizing.requested_amount_headroom).toBeCloseTo(12.31266, 5);
+    expect(result.metrics.loan_sizing.requested_amount_status).toBe('within_capacity');
+    expect(result.diagnostics.loan_sizing_method)
+      .toBe('level_payment_annuity_from_annual_debt_service_headroom');
+  });
+
+  test('flags requested borrowing above capacity and supports zero-rate sizing', () => {
+    const exceeded = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 12,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      requested_amount: 250
+    });
+
+    expect(exceeded.ok).toBe(true);
+    expect(exceeded.metrics.loan_sizing.requested_amount_status).toBe('exceeds_capacity');
+    expect(exceeded.metrics.loan_sizing.requested_amount_headroom).toBeLessThan(0);
+
+    const zeroRate = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 0,
+      borrowing_term_years: 4,
+      borrowing_payments_per_year: 4
+    });
+
+    expect(zeroRate.ok).toBe(true);
+    expect(zeroRate.metrics.loan_sizing.maximum_additional_debt).toBe(200);
+  });
+
+  test('fails closed when loan sizing terms are incomplete or invalid', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 10,
+      borrowing_term_years: 5
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.executed).toBe(false);
+    expect(result.required_inputs)
+      .toContain('borrowing_payments_per_year_positive_integer');
+  });
+
   test('computes feasibility NPV, IRR and payback without AI', () => {
     const result = runFinancialEngine('feasibility', {
       initial_investment: 1000,
