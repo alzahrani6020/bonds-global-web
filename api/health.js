@@ -211,6 +211,45 @@ async function probeTokenRuntime({ fetchImpl = global.fetch } = {}) {
   };
 }
 
+function tokenChannelVerifyAttempts() {
+  const configured = Number(process.env.BONDS_TOKEN_CHANNEL_VERIFY_ATTEMPTS || 3);
+  if (!Number.isFinite(configured)) return 3;
+  return Math.max(1, Math.min(5, Math.floor(configured)));
+}
+
+function tokenChannelVerifyDelaysMs() {
+  return String(process.env.BONDS_TOKEN_CHANNEL_VERIFY_DELAYS_MS || '0,300,700')
+    .split(',')
+    .map(value => Math.max(0, Number(value) || 0));
+}
+
+// The unauthenticated channel probe is a single transport call against a
+// runtime that is also serving live broker traffic; a transient timeout must
+// not flip readiness to channel_unverified (or block release promotion).
+// Retry only transport-level outcomes; never retry a definitive security
+// verdict such as TOKEN_CHANNEL_AUTH_NOT_ENFORCED.
+async function probeTokenRuntimeResilient({ fetchImpl = global.fetch } = {}) {
+  const attempts = tokenChannelVerifyAttempts();
+  const delaysMs = tokenChannelVerifyDelaysMs();
+  let last = null;
+  for (let index = 0; index < attempts; index += 1) {
+    const delayMs = delaysMs[index] || 0;
+    if (delayMs) await sleep(delayMs);
+    const result = await probeTokenRuntime({ fetchImpl });
+    last = result;
+    if (result.status === 'ok') {
+      return attempts > 1 ? { ...result, verify_attempts: index + 1, verify_recovered: index > 0 } : result;
+    }
+    const retryable = result.status === 'unreachable' || result.code === 'TOKEN_CHANNEL_PROTECTION_UNVERIFIED';
+    if (!retryable) {
+      return attempts > 1
+        ? { ...result, verify_attempts: index + 1, verify_recovered: false }
+        : result;
+    }
+  }
+  return { ...last, verify_attempts: attempts, verify_recovered: false };
+}
+
 function probeWebSearchReadiness() {
   const upstreams = searchUpstreams();
   if (!Array.isArray(upstreams) || upstreams.length === 0) {
@@ -358,7 +397,7 @@ module.exports = async function handler(req, res) {
     const fallbackReady = fallbackStatus === 'ok';
     const inferenceReady = nativeModeConfigured && (nativeRequired ? nativeReady : (nativeReady || fallbackReady));
     const [tokenRuntime, userGovernance, assistant] = await Promise.all([
-      probeTokenRuntime(), probeUserGovernanceReadiness(), probeAssistantReadiness()
+      probeTokenRuntimeResilient(), probeUserGovernanceReadiness(), probeAssistantReadiness()
     ]);
     const webSearch = probeWebSearchReadiness();
     const ready = coreHealthy && inferenceReady && tokenRuntime.status === 'ok' &&
