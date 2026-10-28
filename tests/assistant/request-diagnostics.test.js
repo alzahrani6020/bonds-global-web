@@ -269,6 +269,33 @@ describe('assistant request diagnostics', () => {
     expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
   });
 
+  test('marks degraded planner fallback truthfully and preserves failure reason', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-planner-degraded',
+      path:'UNIVERSAL_ORCHESTRATOR',
+      totalMs:22471,
+      loopResult:{
+        ok:true,
+        reply:'تعذر الوصول إلى خدمة الذكاء حالياً. أعد المحاولة بعد قليل.',
+        degraded:true,
+        failure:'PLANNER_UNAVAILABLE',
+        trace:[],
+        nativeTelemetry:[{
+          step:1,
+          final:false,
+          elapsed_ms:22467
+        }]
+      }
+    });
+
+    expect(result.status).toBe(STATUS.DEGRADED);
+    expect(result.stages.find(row => row.stage === 'planner').status).toBe(STATUS.DEGRADED);
+    expect(result.error_code).toBe('PLANNER_UNAVAILABLE');
+    expect(result.fallback_used).toBe(true);
+    expect(result.fallback_reason).toBe('PLANNER_UNAVAILABLE');
+    expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
+  });
+
   test('marks native fallback as degraded rather than clean pass', () => {
     const result = buildRequestDiagnostics({
       requestId:'req-fallback',
