@@ -526,6 +526,108 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(invalid.required_inputs).toContain('ebitda_positive_for_net_leverage');
   });
 
+
+  test('computes EBITDA interest coverage and interest expense headroom', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 120,
+      annual_interest_expense: 75,
+      minimum_interest_coverage: 3
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.interest_coverage_capacity).toEqual({
+      ebitda: 300,
+      annual_interest_expense: 75,
+      interest_coverage_ratio: 4,
+      minimum_interest_coverage: 3,
+      maximum_annual_interest: 100,
+      annual_interest_headroom: 25,
+      annual_interest_excess: 0,
+      incremental_rate_pct: null,
+      maximum_additional_debt_from_interest: null,
+      status: 'interest_coverage_capacity_available'
+    });
+    expect(result.diagnostics.interest_coverage_capacity_method)
+      .toBe('ebitda_over_interest_with_minimum_coverage_headroom');
+  });
+
+  test('converts interest coverage headroom into a borrowing limit at an explicit incremental rate', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 120,
+      annual_interest_expense: 75,
+      minimum_interest_coverage: 3,
+      interest_coverage_incremental_rate_pct: 10
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.interest_coverage_capacity.maximum_additional_debt_from_interest)
+      .toBe(250);
+  });
+
+  test('uses interest coverage as the binding constraint when it is the lowest available limit', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      operating_cash_flow: 400,
+      annual_debt_service: 100,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 8,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      collateral_value: 1000,
+      maximum_ltv_pct: 70,
+      existing_secured_debt: 100,
+      total_debt: 300,
+      cash_and_equivalents: 50,
+      maximum_net_leverage: 3,
+      annual_interest_expense: 90,
+      minimum_interest_coverage: 3,
+      interest_coverage_incremental_rate_pct: 10,
+      requested_amount: 110
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.interest_coverage_capacity.annual_interest_headroom).toBe(10);
+    expect(result.metrics.interest_coverage_capacity.maximum_additional_debt_from_interest)
+      .toBe(100);
+    expect(result.metrics.borrowing_capacity.interest_coverage_limit).toBe(100);
+    expect(result.metrics.borrowing_capacity.maximum_additional_debt).toBe(100);
+    expect(result.metrics.borrowing_capacity.binding_constraint).toBe('interest_coverage');
+    expect(result.metrics.borrowing_capacity.requested_amount_status).toBe('exceeds_capacity');
+    expect(result.metrics.borrowing_capacity.requested_amount_headroom).toBe(-10);
+    expect(result.diagnostics.borrowing_capacity_method)
+      .toBe('minimum_of_available_debt_service_collateral_net_leverage_and_interest_coverage_limits');
+  });
+
+  test('reports interest coverage excess and fails closed on invalid interest coverage inputs', () => {
+    const exceeded = runFinancialEngine('funding_readiness', {
+      ebitda: 200,
+      annual_debt_service: 100,
+      annual_interest_expense: 100,
+      minimum_interest_coverage: 3
+    });
+
+    expect(exceeded.ok).toBe(true);
+    expect(exceeded.metrics.interest_coverage_capacity.interest_coverage_ratio).toBe(2);
+    expect(exceeded.metrics.interest_coverage_capacity.annual_interest_headroom).toBe(0);
+    expect(exceeded.metrics.interest_coverage_capacity.annual_interest_excess)
+      .toBeCloseTo(33.3333333333, 8);
+    expect(exceeded.metrics.interest_coverage_capacity.status)
+      .toBe('interest_coverage_capacity_exceeded');
+
+    const invalid = runFinancialEngine('funding_readiness', {
+      ebitda: 200,
+      annual_debt_service: 100,
+      annual_interest_expense: 50,
+      minimum_interest_coverage: 0
+    });
+
+    expect(invalid.ok).toBe(false);
+    expect(invalid.executed).toBe(false);
+    expect(invalid.required_inputs).toContain('minimum_interest_coverage_positive');
+  });
+
   test('computes feasibility NPV, IRR and payback without AI', () => {
     const result = runFinancialEngine('feasibility', {
       initial_investment: 1000,
