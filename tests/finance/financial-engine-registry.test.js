@@ -297,6 +297,71 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(invalid.required_inputs).toContain('minimum_dscr_positive');
   });
 
+
+  test('sizes maximum additional debt from explicit DSCR headroom and loan terms', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 12,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      requested_amount: 175
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.loan_sizing.annual_debt_service_headroom).toBe(50);
+    expect(result.metrics.loan_sizing.periodic_payment_capacity).toBeCloseTo(50 / 12, 8);
+    expect(result.metrics.loan_sizing.maximum_additional_debt).toBeCloseTo(187.31266, 5);
+    expect(result.metrics.loan_sizing.requested_amount_headroom).toBeCloseTo(12.31266, 5);
+    expect(result.metrics.loan_sizing.requested_amount_status).toBe('within_capacity');
+    expect(result.diagnostics.loan_sizing_method)
+      .toBe('level_payment_annuity_from_annual_debt_service_headroom');
+  });
+
+  test('flags requested borrowing above capacity and supports zero-rate sizing', () => {
+    const exceeded = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 12,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      requested_amount: 250
+    });
+
+    expect(exceeded.ok).toBe(true);
+    expect(exceeded.metrics.loan_sizing.requested_amount_status).toBe('exceeds_capacity');
+    expect(exceeded.metrics.loan_sizing.requested_amount_headroom).toBeLessThan(0);
+
+    const zeroRate = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 0,
+      borrowing_term_years: 4,
+      borrowing_payments_per_year: 4
+    });
+
+    expect(zeroRate.ok).toBe(true);
+    expect(zeroRate.metrics.loan_sizing.maximum_additional_debt).toBe(200);
+  });
+
+  test('fails closed when loan sizing terms are incomplete or invalid', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      operating_cash_flow: 300,
+      annual_debt_service: 150,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 10,
+      borrowing_term_years: 5
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.executed).toBe(false);
+    expect(result.required_inputs)
+      .toContain('borrowing_payments_per_year_positive_integer');
+  });
+
   test('computes feasibility NPV, IRR and payback without AI', () => {
     const result = runFinancialEngine('feasibility', {
       initial_investment: 1000,
