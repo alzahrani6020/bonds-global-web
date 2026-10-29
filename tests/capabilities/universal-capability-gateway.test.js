@@ -137,7 +137,9 @@ describe('Universal Capability Gateway', () => {
       limit:120
     });
 
-    expect(result.fallback).toBe(true);
+    const actions = result.capabilities.map(item => item.action);
+    expect(actions).not.toContain('form_find');
+    expect(actions).not.toContain('form_load');
   });
 
   test('falls back to a bounded eligible catalog when query has no lexical match', () => {
