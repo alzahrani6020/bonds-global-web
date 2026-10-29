@@ -25,13 +25,13 @@ describe('BONDS planner-first universal orchestrator', () => {
     try {
       delete process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS;
       delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
-      expect(totalBudgetMs()).toBe(60000);
-      expect(plannerCallBudgetMs(60000)).toBe(55000);
+      expect(totalBudgetMs()).toBe(240000);
+      expect(plannerCallBudgetMs(240000)).toBe(115000);
 
       process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS = '999999';
       process.env.ASSISTANT_PLANNER_TIMEOUT_MS = '999999';
-      expect(totalBudgetMs()).toBe(60000);
-      expect(plannerCallBudgetMs(60000)).toBe(58000);
+      expect(totalBudgetMs()).toBe(280000);
+      expect(plannerCallBudgetMs(280000)).toBe(120000);
     } finally {
       if (originalTotal === undefined) delete process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS;
       else process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS = originalTotal;
