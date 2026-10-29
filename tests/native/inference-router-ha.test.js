@@ -102,6 +102,82 @@ describe('Bonds Native HA inference router', () => {
     expect(global.fetch.mock.calls[4][0]).toBe('https://native-b.example/health');
   });
 
+  test('retries one recoverable Native 503 on the same node before failing over', async () => {
+    global.fetch = jest
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => JSON.stringify({
+          ok: false,
+          error: { code: 'NATIVE_RUNTIME_BUSY' }
+        })
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ ok: true, result: { text: 'recovered' } })
+      });
+
+    const router = new InferenceRouter({
+      mode: 'REMOTE_BONDS_NATIVE',
+      remoteUrls: ['https://native-a.example'],
+      token: 'test-token',
+      timeoutMs: 1000,
+      recoverableGenerateRetries: 1,
+      recoverableGenerateRetryDelayMs: 0
+    });
+
+    const response = await router.generate('hello');
+
+    expect(response.ok).toBe(true);
+    expect(global.fetch).toHaveBeenCalledTimes(2);
+    expect(response.meta.failover_attempts).toEqual([
+      expect.objectContaining({
+        node: 'native-1',
+        node_attempt: 1,
+        http_status: 503,
+        runtime_error_code: 'NATIVE_RUNTIME_BUSY'
+      }),
+      expect.objectContaining({
+        node: 'native-1',
+        node_attempt: 2,
+        ok: true
+      })
+    ]);
+  });
+
+  test('does not retry a Native context-overflow 503', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      ok: false,
+      status: 503,
+      text: async () => JSON.stringify({
+        ok: false,
+        error: { code: 'NATIVE_CONTEXT_OVERFLOW' }
+      })
+    });
+
+    const router = new InferenceRouter({
+      mode: 'REMOTE_BONDS_NATIVE',
+      remoteUrls: ['https://native-a.example'],
+      token: 'test-token',
+      timeoutMs: 1000,
+      recoverableGenerateRetries: 1,
+      recoverableGenerateRetryDelayMs: 0
+    });
+
+    const response = await router.generate('hello');
+
+    expect(response.ok).toBe(false);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+    expect(response.meta.failover_attempts[0]).toEqual(
+      expect.objectContaining({
+        node_attempt: 1,
+        runtime_error_code: 'NATIVE_CONTEXT_OVERFLOW'
+      })
+    );
+  });
+
   test('keeps the legacy single remote URL configuration compatible', async () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
