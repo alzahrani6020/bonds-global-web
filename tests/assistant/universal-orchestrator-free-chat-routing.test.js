@@ -125,6 +125,7 @@ describe('universal orchestrator free-chat routing', () => {
     expect(result.reply).toContain('EBITDA');
     expect(result.steps).toBe(0);
     expect(calls.every(call => call.action === 'ai_reason')).toBe(true);
+    expect(calls[0].input.max_tokens).toBe(80);
     expect(reasonerPrompts[0]).toContain('FREE_CHAT_DEFAULT');
   });
 
