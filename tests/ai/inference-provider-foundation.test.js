@@ -61,7 +61,7 @@ describe('dynamic AI provider foundation', () => {
     expect(router.providerId).toBe('BONDS_NATIVE');
     expect(router.mode).toBe('LOCAL_NATIVE');
     expect(router.provider()).toBeInstanceOf(NativeInferenceProvider);
-    expect(router.ollamaProvider).toBeNull();
+    expect(router.delegate).toBeInstanceOf(require('../../lib/ai/inference-router').InferenceRouter);
   });
 
   test('rejects unregistered inference providers fail-closed', () => {
