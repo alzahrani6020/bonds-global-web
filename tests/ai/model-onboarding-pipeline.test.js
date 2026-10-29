@@ -206,7 +206,7 @@ describe('Model Onboarding & Certification Pipeline', () => {
       enabled:true,
       certification_level:'production-low-risk',
       max_risk:'low',
-      allowed_actions:['calculator_run', 'web_search']
+      allowed_actions:['calculator_run']
     });
 
     expect(compileCapabilityExposure({
