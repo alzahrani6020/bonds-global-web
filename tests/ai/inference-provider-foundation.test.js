@@ -1,10 +1,14 @@
 'use strict';
 
 const {
-  InferenceRouter,
-  NativeInferenceProvider,
-  OllamaInferenceProvider
+  NativeInferenceProvider
 } = require('../../lib/ai/inference-router');
+const {
+  InferenceProviderRouter
+} = require('../../lib/ai/provider-router');
+const {
+  OllamaInferenceProvider
+} = require('../../lib/ai/providers/ollama-provider');
 const {
   ModelRegistry,
   defaultModelRegistry
@@ -49,7 +53,7 @@ describe('dynamic AI provider foundation', () => {
   });
 
   test('keeps BONDS_NATIVE as the default provider and preserves local mode', () => {
-    const router = new InferenceRouter({
+    const router = new InferenceProviderRouter({
       localUrl:'http://127.0.0.1:8765',
       remoteUrls:[]
     });
@@ -61,7 +65,7 @@ describe('dynamic AI provider foundation', () => {
   });
 
   test('rejects unregistered inference providers fail-closed', () => {
-    expect(() => new InferenceRouter({ providerId:'invented-provider' }))
+    expect(() => new InferenceProviderRouter({ providerId:'invented-provider' }))
       .toThrow('Inference provider INVENTED_PROVIDER is not configured');
   });
 
@@ -122,7 +126,7 @@ describe('dynamic AI provider foundation', () => {
         })
       });
 
-    const router = new InferenceRouter({
+    const router = new InferenceProviderRouter({
       providerId:'OLLAMA',
       ollamaBaseUrl:'http://127.0.0.1:11434',
       ollamaModel:'qwen3:8b',
