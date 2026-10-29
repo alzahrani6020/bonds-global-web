@@ -54,6 +54,16 @@ describe('Admin CRM operations', () => {
     expect(page).not.toContain('SUPABASE_SERVICE_ROLE_KEY');
   });
 
+  test('service request status changes notify the owning customer through existing notifications', () => {
+    const api = read('api/admin.js');
+
+    expect(api).toContain("if (before.status !== data.status && before.user_id)");
+    expect(api).toContain("sb.from('user_notifications')");
+    expect(api).toContain("subject: 'مطلوب إجراء منك على طلب الخدمة'");
+    expect(api).toContain("body: 'طلب الخدمة رقم ' + data.request_reference + ' بانتظار معلومات أو مستندات منك.");
+    expect(api).toContain("return { success: true, serviceRequest: data, notification }");
+  });
+
   test('CRM exposes and manages service request operations using the database status contract', () => {
     const api = read('api/admin.js');
     const page = read('admin/crm.html');
