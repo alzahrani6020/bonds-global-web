@@ -11,6 +11,7 @@ const {
 const {
   capabilityRisk,
   capabilityHealth,
+  capabilityActionType,
   trustedGovernanceAllows,
   compileCapabilityExposure
 } = require('../../lib/capabilities/capability-exposure-compiler');
@@ -80,6 +81,14 @@ describe('Model Capability Passport and Exposure Compiler', () => {
       valid:false,
       code:'MODEL_NOT_REGISTERED'
     });
+  });
+
+  test('classifies capability action type without registry coupling', () => {
+    expect(capabilityActionType({ actionType:'workflow' })).toBe('workflow');
+    expect(capabilityActionType({ sideEffect:'network_read' })).toBe('api');
+    expect(capabilityActionType({ sideEffect:'database_write' })).toBe('data');
+    expect(capabilityActionType({ sideEffect:'compute' })).toBe('engine');
+    expect(capabilityActionType({})).toBe('capability');
   });
 
   test('derives conservative capability risk from side effects', () => {

@@ -4,6 +4,7 @@ const {
   plannerDiscoveryLimit,
   totalBudgetMs,
   plannerCallBudgetMs,
+  plannerInferenceIdentity,
   parseDecision,
   explicitMutationConfirmation,
   runUniversalOrchestrator
@@ -102,6 +103,88 @@ describe('BONDS planner-first universal orchestrator', () => {
       if (original === undefined) delete process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT;
       else process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT = original;
     }
+  });
+
+  test('binds default planner identity to the certified BONDS Native model', () => {
+    expect(plannerInferenceIdentity({
+      inferenceProviderId:'BONDS_NATIVE'
+    }, 240000)).toMatchObject({
+      provider_id:'BONDS_NATIVE',
+      model_id:'bonds-native',
+      runtime_model:'bonds-native'
+    });
+
+    const compact = plannerCapabilityCatalog(
+      'حلل المخاطر والتمويل للشركة',
+      [],
+      { modelId:'bonds-native', enforceModelPassport:true }
+    );
+
+    expect(compact.length).toBeGreaterThan(0);
+    expect(compact.some(item => /risk|credit|funding/.test(item.a))).toBe(true);
+  });
+
+  test('fails closed when planner model identity has no registered passport', () => {
+    const compact = plannerCapabilityCatalog(
+      'حلل المخاطر والتمويل للشركة',
+      [{ action:'web_search', ok:true }],
+      { modelId:'qwen-local-unqualified', enforceModelPassport:true }
+    );
+
+    expect(compact).toEqual([]);
+  });
+
+  test('fails closed when model binding is enforced but model identity is missing', () => {
+    expect(plannerCapabilityCatalog(
+      'حلل البيانات',
+      [],
+      { modelId:null, enforceModelPassport:true }
+    )).toEqual([]);
+
+    expect(plannerCapabilityCatalog(
+      '',
+      [],
+      { modelId:null, enforceModelPassport:true }
+    )).toEqual([]);
+  });
+
+  test('Ollama without model certification receives no site capabilities in planner prompt', async () => {
+    executeGovernedAction.mockResolvedValueOnce({
+      ok:true,
+      result:{
+        result:{
+          text:'{"mode":"answer","answer":"إجابة مباشرة"}'
+        }
+      }
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'اشرح لي مفهوم التدفق النقدي' }],
+      {},
+      {
+        req:{ headers:{} },
+        user:{ id:'u1' },
+        supabase:{},
+        inferenceProviderId:'OLLAMA',
+        ollamaModel:'qwen3:8b',
+        ollamaModelId:'qwen-local-unqualified'
+      }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.reply).toContain('إجابة مباشرة');
+    expect(executeGovernedAction).toHaveBeenCalledTimes(1);
+
+    const call = executeGovernedAction.mock.calls[0][0];
+    expect(call.action).toBe('ai_reason');
+    expect(call.input.prompt).toContain('CAPABILITY_DISCOVERY_COUNT=0');
+    expect(call.input.prompt).toContain('CAPABILITIES=[]');
+    expect(call.input.prompt).toContain('"model_id":"qwen-local-unqualified"');
+    expect(call.runtimeContext).toMatchObject({
+      providerId:'OLLAMA',
+      ollamaModel:'qwen3:8b',
+      ollamaModelId:'qwen-local-unqualified'
+    });
   });
 
   test('parses only registered planner decisions', () => {
