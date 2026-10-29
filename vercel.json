@@ -1049,5 +1049,10 @@
       "**": false,
       "main": false
     }
+  },
+  "functions": {
+    "api/v3/index.js": {
+      "maxDuration": 300
+    }
   }
 }
