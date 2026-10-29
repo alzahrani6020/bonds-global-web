@@ -131,6 +131,15 @@ describe('Universal Capability Gateway', () => {
       .not.toContain('accounting_journal_post');
   });
 
+  test('does not treat information as a fuzzy match for form capabilities', () => {
+    const result = discoverCapabilities({
+      query:'Continue with the information you found.',
+      limit:120
+    });
+
+    expect(result.fallback).toBe(true);
+  });
+
   test('falls back to a bounded eligible catalog when query has no lexical match', () => {
     const result = discoverCapabilities({
       query:'عبارة لا تطابق أي وصف مسجل على الإطلاق',
