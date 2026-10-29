@@ -628,6 +628,97 @@ describe('BONDS deterministic financial engine registry', () => {
     expect(invalid.required_inputs).toContain('minimum_interest_coverage_positive');
   });
 
+
+  test('computes debt yield capacity from NOI and an explicit minimum debt yield', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 120,
+      net_operating_income: 120,
+      debt_yield_debt_balance: 900,
+      minimum_debt_yield_pct: 10
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.debt_yield_capacity).toEqual({
+      net_operating_income: 120,
+      debt_balance: 900,
+      debt_yield_pct: 120 / 900 * 100,
+      minimum_debt_yield_pct: 10,
+      maximum_debt_at_minimum_yield: 1200,
+      debt_yield_headroom: 300,
+      debt_yield_excess: 0,
+      status: 'debt_yield_capacity_available'
+    });
+    expect(result.diagnostics.debt_yield_capacity_method)
+      .toBe('net_operating_income_over_debt_with_minimum_debt_yield_headroom');
+  });
+
+  test('uses debt yield as the binding borrowing constraint when it is lowest', () => {
+    const result = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      operating_cash_flow: 400,
+      annual_debt_service: 100,
+      minimum_dscr: 1.5,
+      borrowing_annual_rate_pct: 8,
+      borrowing_term_years: 5,
+      borrowing_payments_per_year: 12,
+      collateral_value: 1000,
+      maximum_ltv_pct: 70,
+      existing_secured_debt: 100,
+      total_debt: 300,
+      cash_and_equivalents: 50,
+      maximum_net_leverage: 3,
+      annual_interest_expense: 60,
+      minimum_interest_coverage: 3,
+      interest_coverage_incremental_rate_pct: 10,
+      net_operating_income: 100,
+      debt_yield_debt_balance: 900,
+      minimum_debt_yield_pct: 10,
+      requested_amount: 110
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.debt_yield_capacity.maximum_debt_at_minimum_yield).toBe(1000);
+    expect(result.metrics.debt_yield_capacity.debt_yield_headroom).toBe(100);
+    expect(result.metrics.borrowing_capacity.debt_yield_limit).toBe(100);
+    expect(result.metrics.borrowing_capacity.maximum_additional_debt).toBe(100);
+    expect(result.metrics.borrowing_capacity.binding_constraint).toBe('debt_yield');
+    expect(result.metrics.borrowing_capacity.requested_amount_status).toBe('exceeds_capacity');
+    expect(result.metrics.borrowing_capacity.requested_amount_headroom).toBe(-10);
+    expect(result.diagnostics.borrowing_capacity_method)
+      .toBe('minimum_of_available_debt_service_collateral_net_leverage_interest_coverage_and_debt_yield_limits');
+  });
+
+  test('reports debt yield excess and fails closed on invalid debt yield inputs', () => {
+    const exceeded = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 120,
+      net_operating_income: 80,
+      debt_yield_debt_balance: 1000,
+      minimum_debt_yield_pct: 10
+    });
+
+    expect(exceeded.ok).toBe(true);
+    expect(exceeded.metrics.debt_yield_capacity.debt_yield_pct).toBe(8);
+    expect(exceeded.metrics.debt_yield_capacity.maximum_debt_at_minimum_yield).toBe(800);
+    expect(exceeded.metrics.debt_yield_capacity.debt_yield_headroom).toBe(0);
+    expect(exceeded.metrics.debt_yield_capacity.debt_yield_excess).toBe(200);
+    expect(exceeded.metrics.debt_yield_capacity.status)
+      .toBe('debt_yield_capacity_exceeded');
+
+    const invalid = runFinancialEngine('funding_readiness', {
+      ebitda: 300,
+      annual_debt_service: 120,
+      net_operating_income: 100,
+      debt_yield_debt_balance: 900,
+      minimum_debt_yield_pct: 0
+    });
+
+    expect(invalid.ok).toBe(false);
+    expect(invalid.executed).toBe(false);
+    expect(invalid.required_inputs).toContain('minimum_debt_yield_pct_positive');
+  });
+
   test('computes feasibility NPV, IRR and payback without AI', () => {
     const result = runFinancialEngine('feasibility', {
       initial_investment: 1000,
