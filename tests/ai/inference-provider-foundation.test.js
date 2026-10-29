@@ -61,7 +61,12 @@ describe('dynamic AI provider foundation', () => {
     expect(router.providerId).toBe('BONDS_NATIVE');
     expect(router.mode).toBe('LOCAL_NATIVE');
     expect(router.provider()).toBeInstanceOf(NativeInferenceProvider);
-    expect(router.delegate).toBeInstanceOf(require('../../lib/ai/inference-router').InferenceRouter);
+    expect(router.identity()).toEqual({
+      provider_id:'BONDS_NATIVE',
+      model_id:'bonds-native',
+      runtime_model:'bonds-native',
+      mode:'LOCAL_NATIVE'
+    });
   });
 
   test('rejects unregistered inference providers fail-closed', () => {
@@ -135,6 +140,12 @@ describe('dynamic AI provider foundation', () => {
 
     expect(router.mode).toBe('OLLAMA');
     expect(router.provider()).toBeInstanceOf(OllamaInferenceProvider);
+    expect(router.identity()).toEqual({
+      provider_id:'OLLAMA',
+      model_id:'qwen3:8b',
+      runtime_model:'qwen3:8b',
+      mode:'OLLAMA'
+    });
 
     const health = await router.health();
     expect(health).toMatchObject({
@@ -183,6 +194,21 @@ describe('dynamic AI provider foundation', () => {
         temperature:0.05,
         num_ctx:4096
       }
+    });
+  });
+
+  test('Ollama supports a canonical model id distinct from runtime model name', () => {
+    const router = new InferenceProviderRouter({
+      providerId:'OLLAMA',
+      ollamaModel:'qwen3:8b',
+      ollamaModelId:'qwen-local'
+    });
+
+    expect(router.identity()).toEqual({
+      provider_id:'OLLAMA',
+      model_id:'qwen-local',
+      runtime_model:'qwen3:8b',
+      mode:'OLLAMA'
     });
   });
 
