@@ -1,6 +1,7 @@
 const {
   capabilityCatalog,
   plannerCapabilityCatalog,
+  plannerDiscoveryLimit,
   totalBudgetMs,
   plannerCallBudgetMs,
   parseDecision,
@@ -60,10 +61,61 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(JSON.stringify(compact).length).toBeLessThan(7000);
   });
 
+  test('discovers a bounded planner capability subset for a concrete request', () => {
+    const compact = plannerCapabilityCatalog('حلل المخاطر والتمويل للشركة', []);
+
+    expect(compact.length).toBeGreaterThan(0);
+    expect(compact.length).toBeLessThanOrEqual(plannerDiscoveryLimit());
+    expect(compact.some(item => /risk|credit|funding/.test(item.a))).toBe(true);
+    expect(compact.some(item => item.a === 'ai_reason')).toBe(false);
+    expect(compact.some(item => item.a === 'native_generate')).toBe(false);
+    expect(compact.some(item => item.a === 'native_health')).toBe(false);
+  });
+
+  test('planner discovery keeps previous action context available for replanning', () => {
+    const compact = plannerCapabilityCatalog(
+      'تحقق من النتيجة ثم أكمل',
+      [{ action:'web_search', ok:false }]
+    );
+
+    expect(compact.some(item => item.a === 'web_search' || /web|research|evidence/.test(item.a))).toBe(true);
+  });
+
+  test('planner discovery limit remains bounded and configurable', () => {
+    const original = process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT;
+    try {
+      delete process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT;
+      expect(plannerDiscoveryLimit()).toBe(24);
+
+      process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT = '999';
+      expect(plannerDiscoveryLimit()).toBe(40);
+
+      process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT = '1';
+      expect(plannerDiscoveryLimit()).toBe(8);
+    } finally {
+      if (original === undefined) delete process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT;
+      else process.env.ASSISTANT_PLANNER_CAPABILITY_LIMIT = original;
+    }
+  });
+
   test('parses only registered planner decisions', () => {
     expect(parseDecision('{"mode":"tool","action":"web_search","input":{"query":"test"}}'))
       .toEqual({ mode:'tool', action:'web_search', input:{ query:'test' } });
     expect(parseDecision('{"mode":"tool","action":"invented_action","input":{}}')).toBeNull();
+  });
+
+  test('rejects a registered action when it was not exposed by discovery for that planner turn', () => {
+    const allowed = new Set(['web_search']);
+
+    expect(parseDecision(
+      '{"mode":"tool","action":"financial_analysis_run","input":{}}',
+      allowed
+    )).toBeNull();
+
+    expect(parseDecision(
+      '{"mode":"tool","action":"web_search","input":{"query":"test"}}',
+      allowed
+    )).toEqual({ mode:'tool', action:'web_search', input:{ query:'test' } });
   });
 
   test('routes clear person lookup through deterministic research without ai_reason', async () => {
