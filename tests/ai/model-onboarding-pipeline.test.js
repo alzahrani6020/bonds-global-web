@@ -9,8 +9,11 @@ const {
 const {
   ModelOnboardingPipeline,
   DEFAULT_QUALIFICATION_THRESHOLDS,
+  DEFAULT_SHADOW_THRESHOLDS,
   evaluateQualification,
-  normalizeQualificationEvidence
+  evaluateShadow,
+  normalizeQualificationEvidence,
+  normalizeShadowEvidence
 } = require('../../lib/ai/model-onboarding-pipeline');
 const {
   compileCapabilityExposure
@@ -148,7 +151,27 @@ describe('Model Onboarding & Certification Pipeline', () => {
     expect(passportRegistry.get('qualified-model')).toBeNull();
   });
 
-  test('production approval requires shadow plus explicit human approval', () => {
+  test('shadow evaluation fails closed on insufficient cases or missing provenance', () => {
+    const evidence = normalizeShadowEvidence({
+      cases:5,
+      success_rate:1,
+      safety_rate:1,
+      critical_failures:0
+    });
+
+    const result = evaluateShadow(evidence, DEFAULT_SHADOW_THRESHOLDS);
+
+    expect(result.passed).toBe(false);
+    expect(result.failures.some(item =>
+      item.metric === 'cases' &&
+      item.code === 'SHADOW_MIN_CASES_NOT_MET'
+    )).toBe(true);
+    expect(result.failures.some(item =>
+      item.code === 'SHADOW_EVIDENCE_PROVENANCE_REQUIRED'
+    )).toBe(true);
+  });
+
+  test('production approval requires a passed shadow plus explicit human approval', () => {
     const { pipeline, passportRegistry } = setup();
 
     pipeline.registerCandidate({
@@ -163,16 +186,30 @@ describe('Model Onboarding & Certification Pipeline', () => {
     expect(() => pipeline.approveProduction('approval-model', {
       approved:true,
       approved_by:'reviewer'
-    })).toThrow('MODEL_ONBOARDING_PRODUCTION_REQUIRES_SHADOW');
+    })).toThrow('MODEL_ONBOARDING_PRODUCTION_REQUIRES_PASSED_SHADOW');
 
     pipeline.startShadow('approval-model', {
       shadow_id:'shadow-run-17'
     });
 
     expect(() => pipeline.approveProduction('approval-model', {
-      approved:false,
+      approved:true,
       approved_by:'reviewer'
-    })).toThrow('MODEL_ONBOARDING_EXPLICIT_APPROVAL_REQUIRED');
+    })).toThrow('MODEL_ONBOARDING_PRODUCTION_REQUIRES_PASSED_SHADOW');
+
+    const failedShadow = pipeline.completeShadow('approval-model', {
+      cases:20,
+      success_rate:0.99,
+      safety_rate:0.90,
+      critical_failures:1,
+      evidence_hash:'sha256:shadow-failed'
+    });
+    expect(failedShadow.status).toBe('shadow_failed');
+
+    expect(() => pipeline.approveProduction('approval-model', {
+      approved:true,
+      approved_by:'reviewer'
+    })).toThrow('MODEL_ONBOARDING_PRODUCTION_REQUIRES_PASSED_SHADOW');
 
     expect(passportRegistry.get('approval-model')).toBeNull();
   });
@@ -194,6 +231,14 @@ describe('Model Onboarding & Certification Pipeline', () => {
       shadow_id:'shadow-prod-1',
       notes:'validated in isolated shadow'
     });
+    const shadow = pipeline.completeShadow('prod-model', {
+      cases:30,
+      success_rate:0.98,
+      safety_rate:1,
+      critical_failures:0,
+      evidence_hash:'sha256:shadow-pass'
+    });
+    expect(shadow.status).toBe('shadow_passed');
 
     const production = pipeline.approveProduction('prod-model', {
       approved:true,
@@ -261,6 +306,13 @@ describe('Model Onboarding & Certification Pipeline', () => {
     pipeline.qualify('duplicate-passport-model', passingEvidence());
     pipeline.startShadow('duplicate-passport-model', {
       shadow_id:'shadow-dup'
+    });
+    pipeline.completeShadow('duplicate-passport-model', {
+      cases:25,
+      success_rate:0.99,
+      safety_rate:1,
+      critical_failures:0,
+      evidence_hash:'sha256:shadow-dup'
     });
 
     passportRegistry.register({
