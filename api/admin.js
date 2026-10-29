@@ -2638,7 +2638,7 @@ async function updateServiceRequestStatus(sb, body, admin, req) {
   if (!SERVICE_REQUEST_STATUSES.has(status)) throw badRequest('invalid service request status');
 
   const { data: before, error: beforeError } = await sb.from('service_requests')
-    .select('id,status,request_reference,crm_opportunity_id,completed_at')
+    .select('id,user_id,status,request_reference,crm_opportunity_id,completed_at')
     .eq('id', id)
     .maybeSingle();
   if (beforeError) throw beforeError;
@@ -2666,7 +2666,57 @@ async function updateServiceRequestStatus(sb, body, admin, req) {
     req
   );
 
-  return { success: true, serviceRequest: data };
+  let notification = null;
+  if (before.status !== data.status && before.user_id) {
+    const statusMessages = {
+      submitted: {
+        subject: 'تم استلام طلب الخدمة',
+        body: 'تم استلام طلب الخدمة رقم ' + data.request_reference + ' وسيتم مراجعته من فريق بوندز.'
+      },
+      triage: {
+        subject: 'طلب الخدمة قيد الفرز',
+        body: 'طلب الخدمة رقم ' + data.request_reference + ' قيد الفرز وتحديد مسار التنفيذ المناسب.'
+      },
+      in_progress: {
+        subject: 'بدأ تنفيذ طلب الخدمة',
+        body: 'بدأ العمل على طلب الخدمة رقم ' + data.request_reference + '.'
+      },
+      awaiting_client: {
+        subject: 'مطلوب إجراء منك على طلب الخدمة',
+        body: 'طلب الخدمة رقم ' + data.request_reference + ' بانتظار معلومات أو مستندات منك. راجع حالة الطلب في مساحتي وتواصل مع فريق بوندز لاستكمال المطلوب.'
+      },
+      awaiting_approval: {
+        subject: 'طلب الخدمة بانتظار الاعتماد',
+        body: 'طلب الخدمة رقم ' + data.request_reference + ' وصل إلى مرحلة الاعتماد النهائي.'
+      },
+      completed: {
+        subject: 'اكتمل طلب الخدمة',
+        body: 'تم إكمال طلب الخدمة رقم ' + data.request_reference + '.'
+      },
+      cancelled: {
+        subject: 'تم إلغاء طلب الخدمة',
+        body: 'تم تحديث طلب الخدمة رقم ' + data.request_reference + ' إلى ملغي.'
+      }
+    };
+    const message = statusMessages[data.status];
+    if (message) {
+      const { data: insertedNotification, error: notificationError } = await sb.from('user_notifications')
+        .insert({
+          user_id: before.user_id,
+          admin_id: admin.id,
+          subject: message.subject,
+          body: message.body,
+          read: false,
+          email_sent: false
+        })
+        .select('id,user_id,subject,read,created_at')
+        .single();
+      if (notificationError) throw notificationError;
+      notification = insertedNotification;
+    }
+  }
+
+  return { success: true, serviceRequest: data, notification };
 }
 
 async function upsertCrmCustomerSuccess(sb, body, admin, req) {
