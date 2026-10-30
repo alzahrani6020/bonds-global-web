@@ -46,7 +46,7 @@ describe('Executive Command Center', () => {
     const page = read('admin/executive-command-center.html');
     expect(page).toContain('Business Health Score');
     expect(page).toContain("$('healthScore').textContent='UNKNOWN'");
-    expect(page).toContain('renderSources(data)');
+    expect(page).toContain('renderSources(data,ga)');
     expect(page).toContain('UNKNOWN/PARTIAL/ACTIVE');
   });
 
