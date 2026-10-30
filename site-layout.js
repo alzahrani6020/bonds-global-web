@@ -12,6 +12,157 @@
   'use strict';
 
   const NAV_COLLAPSE_WIDTH = 1280;
+  const GA_MEASUREMENT_ID = 'G-3B9HJ3YTY7';
+  const GA_CONSENT_STORAGE_KEY = 'bonds:analytics-consent:v1';
+
+  function initGoogleAnalyticsConsent() {
+    if (location.pathname.startsWith('/admin') || shouldNoPrint()) return;
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '::1') return;
+
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
+
+    // Default-deny before any Google Analytics network request.
+    window.gtag('consent', 'default', {
+      analytics_storage: 'denied',
+      ad_storage: 'denied',
+      ad_user_data: 'denied',
+      ad_personalization: 'denied',
+      wait_for_update: 500
+    });
+
+    function readChoice() {
+      try {
+        const value = localStorage.getItem(GA_CONSENT_STORAGE_KEY);
+        return value === 'granted' || value === 'denied' ? value : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function saveChoice(value) {
+      try {
+        localStorage.setItem(GA_CONSENT_STORAGE_KEY, value);
+      } catch (e) {}
+    }
+
+    function loadAnalytics() {
+      if (document.querySelector('script[data-bonds-ga4]')) return;
+
+      window.gtag('consent', 'update', {
+        analytics_storage: 'granted',
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied'
+      });
+      window.gtag('js', new Date());
+      window.gtag('config', GA_MEASUREMENT_ID, {
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false
+      });
+
+      const script = document.createElement('script');
+      script.async = true;
+      script.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(GA_MEASUREMENT_ID);
+      script.setAttribute('data-bonds-ga4', 'true');
+      document.head.appendChild(script);
+    }
+
+    function removeBanner() {
+      const banner = document.getElementById('bonds-analytics-consent');
+      if (banner) banner.remove();
+    }
+
+    function applyChoice(value) {
+      saveChoice(value);
+      if (value === 'granted') {
+        loadAnalytics();
+      } else {
+        window.gtag('consent', 'update', {
+          analytics_storage: 'denied',
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied'
+        });
+      }
+      removeBanner();
+    }
+
+    function showBanner() {
+      if (document.getElementById('bonds-analytics-consent')) return;
+
+      const isEn = (document.documentElement.lang || '').toLowerCase().startsWith('en') ||
+        /^\/en(?:\/|$)/i.test(location.pathname);
+      const banner = document.createElement('aside');
+      banner.id = 'bonds-analytics-consent';
+      banner.setAttribute('role', 'dialog');
+      banner.setAttribute('aria-live', 'polite');
+      banner.setAttribute('aria-label', isEn ? 'Analytics cookie consent' : 'موافقة ملفات تعريف الارتباط التحليلية');
+      banner.style.cssText = [
+        'position:fixed',
+        'left:16px',
+        'right:16px',
+        'bottom:16px',
+        'z-index:2147483000',
+        'max-width:760px',
+        'margin:auto',
+        'padding:16px 18px',
+        'border:1px solid rgba(212,168,83,.35)',
+        'border-radius:14px',
+        'background:#0f172a',
+        'color:#e8ecf4',
+        'box-shadow:0 18px 50px rgba(0,0,0,.35)',
+        'font:14px/1.7 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif'
+      ].join(';');
+
+      const privacyHref = isEn ? '/en/privacy.html' : '/privacy.html';
+      const message = isEn
+        ? 'We use optional analytics cookies to understand website usage and improve BONDS Global. Analytics stays off unless you accept.'
+        : 'نستخدم ملفات تعريف ارتباط تحليلية اختيارية لفهم استخدام الموقع وتحسين BONDS Global. يبقى التتبع متوقفًا ما لم توافق.';
+      const acceptText = isEn ? 'Accept analytics' : 'موافق';
+      const rejectText = isEn ? 'Reject' : 'رفض';
+      const privacyText = isEn ? 'Privacy policy' : 'سياسة الخصوصية';
+
+      banner.innerHTML =
+        '<div style="margin-bottom:12px">' + message +
+        ' <a href="' + privacyHref + '" style="color:#f0c96a;text-decoration:underline">' + privacyText + '</a></div>' +
+        '<div style="display:flex;gap:10px;flex-wrap:wrap">' +
+        '<button type="button" data-ga-consent="accept" style="cursor:pointer;border:0;border-radius:10px;padding:10px 16px;background:#d4a853;color:#0a0f1a;font-weight:800">' + acceptText + '</button>' +
+        '<button type="button" data-ga-consent="reject" style="cursor:pointer;border:1px solid rgba(255,255,255,.28);border-radius:10px;padding:10px 16px;background:transparent;color:#e8ecf4;font-weight:700">' + rejectText + '</button>' +
+        '</div>';
+
+      banner.addEventListener('click', function (event) {
+        const target = event.target.closest('[data-ga-consent]');
+        if (!target) return;
+        applyChoice(target.getAttribute('data-ga-consent') === 'accept' ? 'granted' : 'denied');
+      });
+
+      document.body.appendChild(banner);
+    }
+
+    const choice = readChoice();
+    if (choice === 'granted') {
+      loadAnalytics();
+    } else if (choice === 'denied') {
+      applyChoice('denied');
+    } else if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', showBanner, { once: true });
+    } else {
+      showBanner();
+    }
+
+    // Expose a small reset hook for future privacy/settings UI.
+    window.BondsAnalyticsConsent = Object.freeze({
+      measurementId: GA_MEASUREMENT_ID,
+      getChoice: readChoice,
+      setChoice: applyChoice,
+      reset: function () {
+        try { localStorage.removeItem(GA_CONSENT_STORAGE_KEY); } catch (e) {}
+        showBanner();
+      }
+    });
+  }
+
 
   const INTERFACE_SVG_SELECTOR = [
     '.emoji-icon > svg',
@@ -88,6 +239,8 @@
   }
 
   installInterfaceSvgGuard();
+
+  initGoogleAnalyticsConsent();
 
   function ensureEmojiRuntime() {
     const rendererPath = '/components/emoji-renderer.js';
