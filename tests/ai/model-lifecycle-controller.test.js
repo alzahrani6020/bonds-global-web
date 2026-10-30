@@ -334,4 +334,151 @@ describe('Model Promotion Canary Rollback Lifecycle Controller', () => {
     expect(state.champion_model_id).toBe('champion');
     expect(state.canary).toBeNull();
   });
+
+  test('runtime health breach degrades canary one step instead of promoting', () => {
+    const { controller } = setup();
+    controller.startCanary('challenger');
+
+    for (let i = 0; i < 2; i += 1) {
+      controller.recordOutcome({
+        model_id:'challenger',
+        success:true,
+        safe:true,
+        latency_ms:10
+      });
+      controller.recordOutcome({
+        model_id:'champion',
+        success:true,
+        safe:true,
+        latency_ms:10
+      });
+    }
+    controller.advanceCanary({ approved_by:'reviewer' });
+    expect(controller.snapshot().canary.percentage).toBe(50);
+
+    controller.recordOutcome({
+      model_id:'challenger',
+      success:false,
+      safe:true,
+      error:true,
+      tool_failure:true,
+      latency_ms:60000
+    });
+    const degraded = controller.recordOutcome({
+      model_id:'challenger',
+      success:false,
+      safe:true,
+      error:true,
+      tool_failure:true,
+      latency_ms:60000
+    });
+
+    expect(degraded.canary).toMatchObject({
+      percentage:10,
+      step_index:0,
+      status:'active'
+    });
+    expect(controller.listEvents().some(item =>
+      item.type === 'canary_degraded' && item.automatic === true
+    )).toBe(true);
+  });
+
+  test('production champion health can automatically roll back after promotion', () => {
+    const { controller } = setup();
+    controller.startCanary('challenger');
+
+    for (let step = 0; step < 3; step += 1) {
+      for (let i = 0; i < 2; i += 1) {
+        controller.recordOutcome({
+          model_id:'challenger',
+          success:true,
+          safe:true,
+          latency_ms:10
+        });
+        controller.recordOutcome({
+          model_id:'champion',
+          success:true,
+          safe:true,
+          latency_ms:10
+        });
+      }
+      if (step < 2) controller.advanceCanary({ approved_by:'reviewer' });
+    }
+
+    controller.promote({ approved_by:'reviewer' });
+    expect(controller.snapshot().champion_model_id).toBe('challenger');
+
+    controller.recordOutcome({
+      model_id:'challenger',
+      success:false,
+      safe:true,
+      error:true,
+      tool_failure:true,
+      latency_ms:60000
+    });
+    const state = controller.recordOutcome({
+      model_id:'challenger',
+      success:false,
+      safe:true,
+      error:true,
+      tool_failure:true,
+      latency_ms:60000
+    });
+
+    expect(state).toMatchObject({
+      champion_model_id:'champion',
+      previous_champion_model_id:'challenger'
+    });
+    expect(controller.listEvents().some(item =>
+      item.type === 'champion_rolled_back' &&
+      item.automatic === true
+    )).toBe(true);
+  });
+
+  test('health evaluation includes tool failure and latency thresholds', () => {
+    const result = evaluateMetrics({
+      challenger:{
+        requests:2,
+        successes:2,
+        safe:2,
+        critical_failures:0,
+        errors:0,
+        tool_failures:1,
+        total_latency_ms:120000,
+        max_latency_ms:60000
+      },
+      champion:{
+        requests:2,
+        successes:2,
+        safe:2,
+        critical_failures:0,
+        errors:0,
+        tool_failures:0,
+        total_latency_ms:20,
+        max_latency_ms:10
+      },
+      policy:normalizePolicy({
+        steps:[100],
+        min_samples:2,
+        min_success_rate:0.5,
+        min_safety_rate:1,
+        max_error_rate:0.5,
+        max_tool_failure_rate:0.1,
+        max_average_latency_ms:30000,
+        max_latency_vs_champion_ratio:2
+      })
+    });
+
+    expect(result.passed).toBe(false);
+    expect(result.failures.some(item =>
+      item.code === 'CANARY_TOOL_FAILURE_RATE_ABOVE_THRESHOLD'
+    )).toBe(true);
+    expect(result.failures.some(item =>
+      item.code === 'CANARY_AVERAGE_LATENCY_ABOVE_THRESHOLD'
+    )).toBe(true);
+    expect(result.failures.some(item =>
+      item.code === 'CANARY_LATENCY_WORSE_THAN_CHAMPION'
+    )).toBe(true);
+  });
+
 });
