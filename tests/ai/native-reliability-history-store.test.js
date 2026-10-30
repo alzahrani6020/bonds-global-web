@@ -9,7 +9,8 @@ const {
 const {
   hashEndpoint,
   normalizeEvent,
-  MemoryNativeReliabilityHistoryStore
+  MemoryNativeReliabilityHistoryStore,
+  SupabaseNativeReliabilityHistoryStore
 } = require('../../lib/ai/native-reliability-history-store');
 const {
   resetNativeReliabilityState
@@ -170,6 +171,104 @@ describe('persistent native reliability history', () => {
     });
     expect(router.reliabilityHistoryDiagnostics().recent_errors.length)
       .toBeGreaterThan(0);
+  });
+
+  test('supabase history store enriches lifecycle and incident correlation before insert', async () => {
+    let inserted = null;
+    const client = {
+      from(table) {
+        if (table === 'admin_incidents') {
+          const builder = {
+            select:() => builder,
+            eq:() => builder,
+            is:() => builder,
+            order:() => builder,
+            limit:async () => ({
+              data:[{ id:'11111111-1111-1111-1111-111111111111' }],
+              error:null
+            })
+          };
+          return builder;
+        }
+
+        if (table === 'ai_model_lifecycle_state') {
+          const builder = {
+            select:() => builder,
+            eq:() => builder,
+            maybeSingle:async () => ({
+              data:{
+                generation:12,
+                champion_model_id:'bonds-native',
+                canary:{
+                  challenger_model_id:'qwen-local',
+                  percentage:25
+                }
+              },
+              error:null
+            })
+          };
+          return builder;
+        }
+
+        if (table === 'ai_native_reliability_history') {
+          return {
+            insert(row) {
+              inserted = row;
+              return {
+                select() {
+                  return {
+                    single:async () => ({
+                      data:{
+                        id:'22222222-2222-2222-2222-222222222222',
+                        observed_at:'2026-10-30T12:00:00.000Z',
+                        event_type:row.event_type,
+                        node_id:row.node_id,
+                        status:row.status,
+                        incident_id:row.incident_id,
+                        deployment_sha:row.deployment_sha
+                      },
+                      error:null
+                    })
+                  };
+                }
+              };
+            }
+          };
+        }
+
+        throw new Error('unexpected table: ' + table);
+      }
+    };
+
+    const store = new SupabaseNativeReliabilityHistoryStore({ client });
+    await store.append({
+      event_type:'breaker_open',
+      node_id:'native-1',
+      node_endpoint:'https://native-1.example',
+      breaker_open:true,
+      breaker_failures:3,
+      snapshot:{
+        status:'degraded',
+        requests:5,
+        successes:2,
+        failures:3,
+        failure_rate:0.6
+      },
+      context:{
+        deployment_sha:'release-123'
+      }
+    });
+
+    expect(inserted).toMatchObject({
+      lifecycle_generation:12,
+      champion_model_id:'bonds-native',
+      challenger_model_id:'qwen-local',
+      canary_percentage:25,
+      incident_id:'11111111-1111-1111-1111-111111111111',
+      deployment_sha:'release-123'
+    });
+    expect(inserted.node_endpoint_hash).toBe(hashEndpoint('https://native-1.example'));
+    expect(JSON.stringify(inserted)).not.toContain('https://native-1.example');
   });
 
   test('persistent runtime routing supplies lifecycle context to native reliability history', async () => {
