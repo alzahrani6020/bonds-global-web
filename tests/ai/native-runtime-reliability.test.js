@@ -67,6 +67,21 @@ describe('BONDS Native runtime reliability controller', () => {
       recoverable:false,
       node_failure:false
     });
+
+    expect(classifyNativeFailure({
+      ok:false,
+      executed:true,
+      error:{
+        code:'NATIVE_RUNTIME_HTTP_ERROR',
+        status:503,
+        detail:{ error:{ code:'NATIVE_CONTEXT_OVERFLOW' } }
+      }
+    })).toMatchObject({
+      category:'request',
+      recoverable:false,
+      node_failure:false,
+      runtime_code:'NATIVE_CONTEXT_OVERFLOW'
+    });
   });
 
   test('retries a transient 503 once on the same node and emits reliability evidence', async () => {
