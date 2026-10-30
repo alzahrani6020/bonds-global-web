@@ -1,10 +1,10 @@
 'use strict';
 
-const { researchTopic, chooseLead } = require('../../lib/intelligence/answer-brief');
+const { bondsAnswerBrief, chooseLead } = require('../../lib/intelligence/answer-brief');
 
 describe('bonds answer brief', () => {
   test('leads with the current dated sentence and keeps the source', () => {
-    const report = researchTopic('وزير الطاقة', [{
+    const report = bondsAnswerBrief('وزير الطاقة', [{
       id: 'wiki',
       title: 'عبد العزيز بن سلمان آل سعود',
       publisher: 'ar.wikipedia.org',
@@ -12,6 +12,9 @@ describe('bonds answer brief', () => {
       text: 'وزارة الطاقة جهة حكومية. الأمير عبد العزيز بن سلمان هو وزير الطاقة السعودي منذ سبتمبر 2019.'
     }]);
 
+    expect(report.owner).toBe('bonds');
+    expect(report.id).toBe('BONDS-CAP-BRIEF-001');
+    expect(report.name).toBe('bonds.answer_brief');
     expect(report.sources).toHaveLength(1);
     expect(report.facts.length).toBeGreaterThan(0);
     const lead = chooseLead(report.facts.map(fact => fact.claim));
@@ -21,7 +24,7 @@ describe('bonds answer brief', () => {
   });
 
   test('records an open question when the page has no extractable sentence and no topic overlap', () => {
-    const report = researchTopic('طلال حسن الزهراني', []);
+    const report = bondsAnswerBrief('طلال حسن الزهراني', []);
     expect(report.facts).toEqual([]);
     expect(report.open_questions).toContain('لا توجد صفحة ذات صلة بهذا السؤال.');
   });
