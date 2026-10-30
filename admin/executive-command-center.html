@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>مركز القيادة التنفيذي | BONDS Global</title>
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=3.0.0">
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--line:#e2e8f0;--text:#172033;--muted:#64748b;--gold:#9b7a35;--ok:#15803d;--warn:#a16207;--bad:#b91c1c}
+    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:1680px;margin:auto;padding:1rem}.head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    h1,h2,h3{margin-top:0}.muted{color:var(--muted)}.btn{border:0;border-radius:10px;padding:.65rem 1rem;font-weight:800;cursor:pointer;background:#172033;color:#fff}
+    .statusbar{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0}.pill{border:1px solid var(--line);border-radius:999px;padding:.25rem .65rem;font-size:.78rem;font-weight:800;background:#fff}
+    .pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;min-width:0}
+    .s12{grid-column:span 12}.s8{grid-column:span 8}.s6{grid-column:span 6}.s4{grid-column:span 4}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.65rem}.kpi{border:1px solid var(--line);border-radius:12px;padding:.75rem;min-height:96px}
+    .kpi b{display:block;font-size:1.3rem;line-height:1.2}.kpi small{display:block;color:var(--muted);margin-top:.35rem}.unknown{color:var(--muted)}
+    .funnel{display:flex;gap:.6rem;align-items:stretch;overflow:auto}.stage{min-width:150px;flex:1;border:1px solid var(--line);border-radius:12px;padding:.8rem;position:relative}.stage:not(:last-child):after{content:"←";position:absolute;left:-.55rem;top:35%;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;font-size:.84rem}th,td{padding:.58rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}.scroll{overflow:auto;max-height:440px}
+    .health{display:flex;align-items:center;gap:1rem}.score{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;border:10px solid #e2e8f0;font-size:1.35rem;font-weight:900}
+    .cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.65rem}.cap{border:1px solid var(--line);border-radius:12px;padding:.75rem}.cap strong{display:block}.cap small{color:var(--muted)}
+    .alert{border-right:4px solid var(--warn);padding:.65rem .8rem;background:#fffbeb;border-radius:8px;margin:.45rem 0}
+    .error{display:none;background:#fee2e2;color:#991b1b;border-radius:10px;padding:.75rem;margin:.75rem 0}
+    @media(max-width:1000px){.s8,.s6,.s4{grid-column:span 12}}@media(max-width:640px){main{padding:.65rem}.funnel{flex-direction:column}.stage:not(:last-child):after{display:none}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="head">
+    <div><h1>مركز القيادة التنفيذي</h1><div class="muted">Traffic → Lead → Funding / Advisory → Client → Revenue · مصادر موثقة فقط</div></div>
+    <button class="btn" id="refreshBtn">تحديث</button>
+  </div>
+  <div class="statusbar">
+    <span class="pill" id="overallStatus">LOADING</span>
+    <span class="pill" id="generatedAt">آخر تحديث: —</span>
+    <span class="pill" id="ga4Status">GA4: NOT_CONFIGURED</span>
+    <span class="pill" id="firstPartyStatus">First-party: UNKNOWN</span>
+  </div>
+  <div id="error" class="error"></div>
+
+  <div class="grid">
+    <section class="card s12">
+      <h2>المؤشرات التنفيذية</h2>
+      <div id="execKpis" class="kpis"></div>
+    </section>
+
+    <section class="card s8">
+      <h2>مسار التحويل التجاري</h2>
+      <div id="funnel" class="funnel"></div>
+    </section>
+    <section class="card s4">
+      <h2>Business Health Score</h2>
+      <div class="health"><div id="healthScore" class="score">UNKNOWN</div><div><b id="healthLabel">غير محسوب</b><div class="muted" id="healthReason">يحتاج أهدافًا معتمدة ومصادر مكتملة؛ لا يتم تخمينه.</div></div></div>
+    </section>
+
+    <section class="card s6">
+      <h2>الإيراد والـPipeline</h2>
+      <div id="commercialKpis" class="kpis"></div>
+    </section>
+    <section class="card s6">
+      <h2>التوقع والاحتفاظ</h2>
+      <div id="forecastKpis" class="kpis"></div>
+    </section>
+
+    <section class="card s6">
+      <h2>صحة مصادر البيانات</h2>
+      <div class="scroll"><table><thead><tr><th>المصدر</th><th>الحالة</th><th>السجلات</th><th>الدليل</th></tr></thead><tbody id="sourceRows"></tbody></table></div>
+    </section>
+    <section class="card s6">
+      <h2>تنبيهات تنفيذية</h2>
+      <div id="alerts"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>القدرات الإدارية والتحليلية</h2>
+      <div class="muted" style="margin-bottom:.75rem">الحالة هنا تشغيلية وليست تسويقية: ACTIVE = مصدر فعلي متاح؛ PARTIAL = أساس موجود لكن الربط غير مكتمل؛ NOT_CONFIGURED = يحتاج اعتمادًا خارجيًا؛ PLANNED = مسجل في خارطة التنفيذ فقط.</div>
+      <div id="capabilities" class="cap-grid"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>حدود الثقة</h2>
+      <div class="muted">لا يعرض المركز رقمًا للزوار أو Realtime أو Attribution من Google قبل ربط Google Analytics Data API على الخادم. لا تُرسل PII إلى GA4، ولا تُعرض أسرار أو Credentials في المتصفح. أي مصدر متعطل يتحول إلى UNKNOWN/DEGRADED بدل صفر مضلل.</div>
+    </section>
+  </div>
+</main>
+<script src="/supabase-client.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script>BondsAuth.initAdminGuard();</script>
+<script src="/admin/admin-common.js?v=6"></script>
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const esc=v=>window.BondsAdminCommon.escapeHtml(v==null?'':String(v));
+  const num=v=>v==null?'UNKNOWN':new Intl.NumberFormat('ar-SA').format(Number(v));
+  const sar=v=>v==null?'UNKNOWN':new Intl.NumberFormat('ar-SA',{style:'currency',currency:'SAR',maximumFractionDigits:0}).format(Number(v));
+  const pct=v=>v==null?'UNKNOWN':Number(v).toLocaleString('ar-SA',{maximumFractionDigits:1})+'%';
+  const safe=(value,fallback=null)=>Number.isFinite(Number(value))?Number(value):fallback;
+
+  const CAPABILITIES=[
+    ['GA4 Traffic & Realtime','NOT_CONFIGURED','يتطلب Google Analytics Data API credentials خادمية'],
+    ['Traffic Sources & UTM','NOT_CONFIGURED','يتطلب GA4 Data API'],
+    ['Top Pages / Landing Pages','NOT_CONFIGURED','يتطلب GA4 Data API'],
+    ['Geography & Devices','NOT_CONFIGURED','يتطلب GA4 Data API'],
+    ['Search-to-Revenue','NOT_CONFIGURED','يتطلب Search Console + GA4 + CRM'],
+    ['Commercial Funnel','ACTIVE','BONDS first-party commercial events + platform data'],
+    ['Revenue & Pipeline','ACTIVE','Invoices + CRM opportunities'],
+    ['Revenue Forecast 90d','ACTIVE','Linear paid-invoice trend; method exposed'],
+    ['Cohort / Retention','ACTIVE','Profiles + presence + paid users'],
+    ['Customer Health','ACTIVE','CRM customer success'],
+    ['AI Operations','ACTIVE','AI telemetry + cost + latency + failure rate'],
+    ['Data Source Health','ACTIVE','Per-source status from executive analytics'],
+    ['Customer 360','ACTIVE','موجود في Admin API الحالي'],
+    ['Data Quality Center','ACTIVE','موجود في لوحة BONDS الحالية'],
+    ['Security Operations','ACTIVE','موجود في لوحة BONDS الحالية'],
+    ['Audit Trail','ACTIVE','admin_audit_log قائم'],
+    ['Funding Intelligence','PARTIAL','الحالات موجودة؛ الربط الكامل بمصدر الاكتساب لم يكتمل'],
+    ['Lead Scoring','PLANNED','يتطلب نموذجًا موثقًا وبيانات تدريب/قواعد'],
+    ['Opportunity Scoring','PARTIAL','probability موجودة؛ score موحد غير معتمد'],
+    ['Revenue Attribution','PARTIAL','أحداث تجارية موجودة؛ GA4 acquisition غير مربوط'],
+    ['Service Profitability','PLANNED','يتطلب تخصيص تكلفة موثق لكل خدمة'],
+    ['Client Lifetime Value','PLANNED','يتطلب سياسة احتساب معتمدة'],
+    ['CAC / ROAS','NOT_CONFIGURED','يتطلب تكلفة الحملات الإعلانية'],
+    ['Scenario Simulator','PARTIAL','Schema تمت إضافته؛ محرك الحساب يحتاج قواعد معتمدة'],
+    ['Target vs Actual','PARTIAL','Schema تمت إضافته؛ الأهداف لم تُدخل بعد'],
+    ['KPI Governance','PARTIAL','Metric dictionary/schema تمت إضافته'],
+    ['Decision-to-Outcome Loop','PARTIAL','Decision/action schema تمت إضافته'],
+    ['Alert Threshold Engine','PARTIAL','Alert-rule schema تمت إضافته؛ evaluator لم يُفعّل'],
+    ['Saved Views / Watchlists','PARTIAL','Schema تمت إضافته؛ UI الإدارة لم يكتمل'],
+    ['Board Pack Generator','PLANNED','يحتاج قالب تقرير معتمد'],
+    ['Natural Language Analytics','PLANNED','يجب ربطه بمصادر معتمدة مع evidence'],
+    ['Anomaly Detection','PLANNED','يحتاج baseline موسمي قبل التفعيل'],
+    ['Decision Simulator','PLANNED','يحتاج افتراضات موثقة وقيودًا مالية'],
+    ['Release Impact','PLANNED','يتطلب ربط deployments بمؤشرات قبل/بعد'],
+    ['Analytics Cost Monitor','PLANNED','يتطلب سجلات تكلفة مصادر التحليلات'],
+    ['Data Lineage','PARTIAL','المصادر تظهر لكل مجموعة؛ lineage على مستوى metric قيد التأسيس'],
+    ['Confidence Labels','ACTIVE','UNKNOWN/PARTIAL/ACTIVE semantics مستخدمة في المركز']
+  ];
+
+  async function api(action){
+    const r=await BondsAuth.authenticatedFetch('/api/admin?action='+encodeURIComponent(action),{returnTo:location.pathname});
+    if(r?.__authError) throw new Error(r.status===403?'غير مصرح':'انتهت جلسة الدخول');
+    if(!r||typeof r.json!=='function') throw new Error('استجابة غير صالحة');
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.success) throw new Error(d.error||('HTTP '+r.status));
+    return d;
+  }
+
+  function kpi(label,value,detail){
+    return '<div class="kpi"><b>'+esc(value)+'</b><span>'+esc(label)+'</span><small>'+esc(detail||'')+'</small></div>';
+  }
+
+  function renderCapabilities(){
+    $('capabilities').innerHTML=CAPABILITIES.map(([name,status,note])=>{
+      const cls=status==='ACTIVE'?'ok':status==='NOT_CONFIGURED'?'bad':'warn';
+      return '<div class="cap"><strong>'+esc(name)+'</strong><span class="pill '+cls+'">'+esc(status)+'</span><small>'+esc(note)+'</small></div>';
+    }).join('');
+  }
+
+  function renderSources(data){
+    const sources=data.sources||{};
+    const labels={profiles:'Profiles',subscriptions:'Subscriptions',invoices:'Payments / Invoices',presence:'Presence',opportunities:'CRM Opportunities',renewals:'CRM Renewals',customerSuccess:'Customer Success',aiTelemetry:'AI Telemetry'};
+    const rows=Object.entries(sources).map(([key,v])=>{
+      const status=v?.status||'unknown';
+      return '<tr><td>'+esc(labels[key]||key)+'</td><td><span class="pill '+(status==='ok'?'ok':'bad')+'">'+esc(status.toUpperCase())+'</span></td><td>'+esc(v?.rows==null?'—':num(v.rows))+'</td><td>'+esc(v?.error||'direct API source')+'</td></tr>';
+    });
+    rows.unshift('<tr><td>Google Analytics 4</td><td><span class="pill bad">NOT_CONFIGURED</span></td><td>—</td><td>Data API credential غير موثق بعد</td></tr>');
+    $('sourceRows').innerHTML=rows.join('');
+  }
+
+  function renderAlerts(data){
+    const alerts=[];
+    for(const [key,v] of Object.entries(data.sources||{})) if(v?.status!=='ok') alerts.push('مصدر '+key+' غير متاح: '+(v?.error||'UNKNOWN'));
+    if((data.executive?.renewalRisk||0)>0) alerts.push('قيمة تجديدات عالية/حرجة تحت الخطر: '+sar(data.executive.renewalRisk));
+    if((data.ai?.failureRatePct||0)>=10) alerts.push('معدل فشل عمليات AI بلغ '+pct(data.ai.failureRatePct));
+    alerts.push('GA4 Data API غير مهيأ داخل لوحة BONDS؛ مؤشرات Traffic/Realtime/Attribution ستظل UNKNOWN.');
+    $('alerts').innerHTML=alerts.map(a=>'<div class="alert">'+esc(a)+'</div>').join('');
+  }
+
+  function render(data){
+    const e=data.executive||{},f=data.funnel||{},a=data.ai||{};
+    $('overallStatus').textContent=(data.status||'unknown').toUpperCase();
+    $('overallStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
+    $('generatedAt').textContent='آخر تحديث: '+(data.generatedAt?new Date(data.generatedAt).toLocaleString('ar-SA'):'UNKNOWN');
+    $('ga4Status').textContent='GA4: NOT_CONFIGURED';
+    $('ga4Status').className='pill bad';
+    $('firstPartyStatus').textContent='First-party: '+(data.status==='healthy'?'HEALTHY':'DEGRADED');
+    $('firstPartyStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
+
+    $('execKpis').innerHTML=[
+      kpi('زوار اليوم','UNKNOWN','GA4 Data API غير مهيأ'),
+      kpi('المتواجدون الآن','UNKNOWN','GA4 Realtime غير مهيأ'),
+      kpi('المستخدمون 30 يوم',num(e.activeUsers30d),'BONDS presence'),
+      kpi('العملاء المدفوعون',num(f.paid),'Paid invoice users'),
+      kpi('Conversion',pct(e.conversionPct),'Paid users / profiles'),
+      kpi('MRR',sar(e.mrr),'Paid active subscriptions'),
+      kpi('Pipeline',sar(e.pipelineValue),'CRM open opportunities'),
+      kpi('Weighted Pipeline',sar(e.weightedPipeline),'Value × probability')
+    ].join('');
+
+    const stages=[
+      ['Registered',f.registered],['Activated',f.activated],['Paid',f.paid],['Active 30d',f.active30d]
+    ];
+    $('funnel').innerHTML=stages.map(([l,v],i)=>{
+      let rate='—';
+      if(i>0&&safe(stages[i-1][1],0)>0) rate=pct(safe(v,0)/safe(stages[i-1][1],1)*100);
+      return '<div class="stage"><b>'+esc(num(v))+'</b><div>'+esc(l)+'</div><small class="muted">'+(i?'من المرحلة السابقة: '+esc(rate):'بداية المسار الحالي')+'</small></div>';
+    }).join('');
+
+    $('commercialKpis').innerHTML=[
+      kpi('MRR',sar(e.mrr),'شهري متكرر'),kpi('ARR',sar(e.arr),'MRR × 12'),kpi('ARPU',sar(e.arpu),'MRR / users'),
+      kpi('Pipeline',sar(e.pipelineValue),'غير won/lost'),kpi('Weighted Pipeline',sar(e.weightedPipeline),'مرجح بالاحتمال'),kpi('Renewal Risk',sar(e.renewalRisk),'high + critical')
+    ].join('');
+    $('forecastKpis').innerHTML=[
+      kpi('Forecast 90d',sar(e.revenueForecast90d),e.forecastMethod||'UNKNOWN'),kpi('Churn',pct(e.churnPct),'subscription status'),
+      kpi('Customer Health',e.customerHealth==null?'UNKNOWN':num(e.customerHealth)+'/100','CRM customer success'),
+      kpi('AI Requests',num(a.requests),'90 يوم'),kpi('AI Failure',pct(a.failureRatePct),'90 يوم'),kpi('AI Cost USD',a.costUsd==null?'UNKNOWN':'$'+num(a.costUsd),'telemetry')
+    ].join('');
+
+    $('healthScore').textContent='UNKNOWN';
+    $('healthLabel').textContent='غير محسوب';
+    $('healthReason').textContent='لن يُحسب قبل إدخال أهداف رسمية وتفعيل مصادر Traffic/Attribution المطلوبة.';
+    renderSources(data);renderAlerts(data);
+  }
+
+  async function load(){
+    $('error').style.display='none';
+    try{render(await api('executive-analytics-v2'));}
+    catch(e){$('error').textContent='فشل تحميل مركز القيادة: '+e.message;$('error').style.display='block';$('overallStatus').textContent='ERROR';$('overallStatus').className='pill bad';}
+  }
+  $('refreshBtn').addEventListener('click',load);
+  renderCapabilities();
+  if(window.__ADMIN_ROLE) load(); else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script>
+</body></html>
