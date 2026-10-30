@@ -21,9 +21,25 @@ describe('Executive Command Center', () => {
   test('GA4 is fail-honest until server-side Data API credentials are configured', () => {
     const page = read('admin/executive-command-center.html');
     expect(page).toContain('GA4: NOT_CONFIGURED');
-    expect(page).toContain("kpi('زوار اليوم','UNKNOWN'");
-    expect(page).toContain("kpi('المتواجدون الآن','UNKNOWN'");
+    expect(page).toContain("ga?.today?.activeUsers==null?'UNKNOWN'");
+    expect(page).toContain("ga?.realtime?.activeUsers==null?'UNKNOWN'");
+    expect(page).toContain("api('ga4-analytics')");
     expect(page).not.toMatch(/PRIVATE_KEY|CLIENT_SECRET|GOOGLE_APPLICATION_CREDENTIALS|service_account/i);
+  });
+
+  test('GA4 Data API client is server-side, read-only and fail-honest', () => {
+    const client = read('lib/analytics/ga4-data-api.js');
+    const api = read('api/admin.js');
+    expect(client).toContain('analytics.readonly');
+    expect(client).toContain('GA4_PROPERTY_ID');
+    expect(client).toContain('GOOGLE_SERVICE_ACCOUNT_EMAIL');
+    expect(client).toContain('GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY');
+    expect(client).toContain("status: 'not_configured'");
+    expect(client).toContain('runRealtimeReport');
+    expect(client).toContain('sessionDefaultChannelGroup');
+    expect(client).toContain('pagePath');
+    expect(api).toContain("action === 'ga4-analytics'");
+    expect(api).toContain("requireAdminPermission(req, sb, 'analytics.executive')");
   });
 
   test('command center renders source health and avoids fabricated business health score', () => {
