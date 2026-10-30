@@ -22,7 +22,8 @@ const EXCLUDED_FILES = new Set([
   'test.html', 'v.html', 'proof.html', 'modon_eservices.html', 'modon_home.html',
   'distressed-recovery-study.html',
   'offline.html',
-  'google62a502fa9a665553.html'
+  'google62a502fa9a665553.html',
+  'google7bb24901fbc76f40.html'
 ]);
 
 function isExcluded(filePath) {
