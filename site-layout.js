@@ -17,6 +17,7 @@
 
   function initGoogleAnalyticsConsent() {
     if (location.pathname.startsWith('/admin') || shouldNoPrint()) return;
+    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1' || location.hostname === '::1') return;
 
     window.dataLayer = window.dataLayer || [];
     window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
