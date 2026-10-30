@@ -307,4 +307,104 @@ describe('Persistent Runtime Model Routing', () => {
     });
     expect(runtimeB.snapshot().revision).toBe(runtimeA.snapshot().revision);
   });
+
+
+  test('production health metrics survive persistent restart', async () => {
+    const { controller } = setup();
+    const store = new MemoryModelRoutingStateStore();
+    const runtime1 = new PersistentRuntimeModelRouting({
+      lifecycleController:controller(),
+      stateStore:store
+    });
+
+    await runtime1.initialize();
+    await runtime1.recordOutcome({
+      model_id:'champion',
+      success:true,
+      safe:true,
+      latency_ms:25
+    });
+
+    const runtime2Controller = controller();
+    const runtime2 = new PersistentRuntimeModelRouting({
+      lifecycleController:runtime2Controller,
+      stateStore:store
+    });
+    await runtime2.initialize();
+
+    expect(runtime2Controller.persistentState().production_metrics)
+      .toMatchObject({
+        requests:1,
+        successes:1,
+        safe:1,
+        total_latency_ms:25,
+        max_latency_ms:25
+      });
+  });
+
+  test('generateWithFeedback requires an explicit safety evaluator', async () => {
+    const { controller, modelRegistry } = setup();
+    const runtime = new PersistentRuntimeModelRouting({
+      lifecycleController:controller(),
+      stateStore:new MemoryModelRoutingStateStore(),
+      modelRegistry
+    });
+    await runtime.initialize();
+
+    await expect(runtime.generateWithFeedback({
+      requestKey:'request-1',
+      prompt:'hello'
+    })).rejects.toThrow('RUNTIME_MODEL_OUTCOME_EVALUATOR_REQUIRED');
+  });
+
+  test('generateWithFeedback records technical outcome latency and safety judgment', async () => {
+    const { controller, modelRegistry } = setup();
+
+    class FakeRouter {
+      identity() {
+        return {
+          provider_id:'BONDS_NATIVE',
+          model_id:'champion',
+          runtime_model:'bonds-native',
+          mode:'LOCAL_NATIVE'
+        };
+      }
+      async generate() {
+        return {
+          ok:true,
+          executed:true,
+          result:{ text:'ok' }
+        };
+      }
+    }
+
+    const runtimeController = controller();
+    const runtime = new PersistentRuntimeModelRouting({
+      lifecycleController:runtimeController,
+      stateStore:new MemoryModelRoutingStateStore(),
+      modelRegistry,
+      providerRouterClass:FakeRouter,
+      outcomeEvaluator:async () => ({
+        safe:true,
+        tool_failure:false,
+        critical_failure:false
+      })
+    });
+
+    await runtime.initialize();
+    const result = await runtime.generateWithFeedback({
+      requestKey:'request-1',
+      prompt:'hello'
+    });
+
+    expect(result.outcome).toMatchObject({
+      model_id:'champion',
+      success:true,
+      safe:true,
+      error:false,
+      tool_failure:false
+    });
+    expect(result.outcome.latency_ms).toBeGreaterThanOrEqual(0);
+    expect(runtimeController.persistentState().production_metrics.requests).toBe(1);
+  });
 });
