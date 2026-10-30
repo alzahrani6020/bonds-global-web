@@ -137,14 +137,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://bonds-global.com/calculator</loc>
-    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator" />
-    <lastmod>2026-08-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://bonds-global.com/calculator-v2</loc>
     <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator-v2" />
     <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator-v2" />
@@ -1059,14 +1051,6 @@
     <loc>https://bonds-global.com/en/book</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/book" />
     <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/book" />
-    <lastmod>2026-08-21</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  <url>
-    <loc>https://bonds-global.com/en/calculator</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://bonds-global.com/en/calculator" />
-    <xhtml:link rel="alternate" hreflang="ar" href="https://bonds-global.com/calculator" />
     <lastmod>2026-08-21</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
