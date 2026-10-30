@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS public.ai_model_lifecycle_state (
   scope text PRIMARY KEY,
   lifecycle_version text NOT NULL,
   generation bigint NOT NULL CHECK (generation >= 1),
+  revision bigint NOT NULL DEFAULT 1 CHECK (revision >= 1),
   champion_model_id text NOT NULL,
   previous_champion_model_id text,
   canary jsonb,
@@ -31,5 +32,7 @@ CREATE POLICY "service_role_manage_ai_model_lifecycle_state"
 
 COMMENT ON TABLE public.ai_model_lifecycle_state IS
   'Persistent AI model champion/canary routing state. Service-role only; contains no customer prompts or model outputs.';
+COMMENT ON COLUMN public.ai_model_lifecycle_state.revision IS
+  'Optimistic-concurrency revision incremented on every persisted write.';
 COMMENT ON COLUMN public.ai_model_lifecycle_state.state_hash IS
   'SHA-256 integrity hash of the canonical lifecycle state payload.';
