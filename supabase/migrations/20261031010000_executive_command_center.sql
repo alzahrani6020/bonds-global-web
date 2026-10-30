@@ -157,7 +157,8 @@ INSERT INTO public.analytics_data_sources(source_key,display_name,source_type,st
 ('tracking','BONDS First-Party Tracking','tracking','not_configured',15,'admin'),
 ('crm','BONDS CRM','crm','not_configured',60,'admin'),
 ('payments','Payments','payments','not_configured',60,'finance'),
-('funding','Funding Cases','supabase','not_configured',60,'admin')
+('funding','Funding Cases','supabase','not_configured',60,'admin'),
+('computed','Computed Metrics','computed','not_configured',60,'management')
 ON CONFLICT(source_key) DO NOTHING;
 
 INSERT INTO public.analytics_metric_definitions(metric_key,display_name_ar,display_name_en,description,unit,source_key,formula,owner_role,refresh_minutes) VALUES
