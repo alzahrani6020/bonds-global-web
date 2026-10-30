@@ -912,6 +912,16 @@
     .bonds-ai-human-link:hover { opacity: 1; text-decoration: underline; }
     .bonds-ai-message .bonds-ai-markdown-line { display: block; margin: 0 0 0.35rem; }
     .bonds-ai-message .bonds-ai-markdown-line:last-child { margin-bottom: 0; }
+    .bonds-ai-message a.bonds-ai-source-url {
+      direction: ltr;
+      unicode-bidi: isolate;
+      display: block;
+      text-align: left;
+      color: #0b5bd3;
+      overflow-wrap: anywhere;
+      text-decoration: none;
+    }
+    .bonds-ai-message a.bonds-ai-source-url:hover { text-decoration: underline; }
     .bonds-ai-message code {
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       padding: 0.08rem 0.28rem;
@@ -2220,7 +2230,7 @@
       }
 
       const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-      const timer = controller ? setTimeout(() => controller.abort(), 7000) : null;
+      const timer = controller ? setTimeout(() => controller.abort(), 16000) : null;
       try {
         const response = await fetch(READINESS_URL, {
           method:'GET',
@@ -2593,6 +2603,15 @@
         } else if (/^[-*•]\s+/.test(content)) {
           line.appendChild(document.createTextNode('• '));
           appendSafeInlineMarkdown(line, content.replace(/^[-*•]\s+/, ''));
+        } else if (/^https?:\/\/\S+$/.test(content.trim())) {
+          const link = document.createElement('a');
+          link.className = 'bonds-ai-source-url';
+          link.dir = 'ltr';
+          link.href = content.trim();
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.textContent = content.trim();
+          line.appendChild(link);
         } else {
           appendSafeInlineMarkdown(line, content);
         }

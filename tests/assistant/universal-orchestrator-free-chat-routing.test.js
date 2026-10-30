@@ -85,11 +85,8 @@ describe('universal orchestrator free-chat routing', () => {
     jest.clearAllMocks();
   });
 
-  test('unknown person: failed research degrades to free chat instead of a terminal refusal', async () => {
+  test('unknown person search returns the empty-search sentence without the planner', async () => {
     const { mod, reasonerPrompts } = loadHarness({
-      plannerReplies: [
-        { mode:'answer', answer:'لا تتوفر لدي معلومات عامة كافية عن هذا الاسم. إن زودتني بموقع أو مصدر أحلله لك فوراً.' }
-      ],
       toolResults: { web_search: ALL_PROVIDERS_DOWN }
     });
 
@@ -100,12 +97,9 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.reply).not.toBe(TERMINAL_INSUFFICIENT);
-    expect(result.reply).toContain('لا تتوفر لدي معلومات عامة كافية');
-    expect(result.planner).toBe('universal-v2');
-    expect(reasonerPrompts.length).toBeGreaterThan(0);
-    expect(reasonerPrompts[0]).toContain('INSUFFICIENT_EVIDENCE');
-    expect(reasonerPrompts[0]).toContain('deterministic_research');
+    expect(result.reply).toBe('لم أجد صفحة تذكر هذا الاسم.');
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(reasonerPrompts).toHaveLength(0);
   });
 
   test('general finance concept answers directly without any tool', async () => {
@@ -158,12 +152,8 @@ describe('universal orchestrator free-chat routing', () => {
     expect(reasonerPrompts[0]).toContain('calculator');
   });
 
-  test('failed tool observation reaches the planner with the no-guessing rule', async () => {
+  test('a public search that returns no pages stops without opening the planner', async () => {
     const { mod, reasonerPrompts } = loadHarness({
-      plannerReplies: [
-        { mode:'tool', action:'web_search', input:{ query:'إيرادات شركة X الحالية' } },
-        { mode:'answer', answer:'تعذر الوصول إلى البحث المباشر الآن، فلا أستطيع تأكيد الرقم الحالي.' }
-      ],
       toolResults: {
         web_search: async () => ({
           ok:false,
@@ -182,9 +172,8 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(reasonerPrompts[0]).toContain('TOOL_FAILURE');
-    expect(reasonerPrompts[1]).toContain('SEARCH_FAILED');
-    expect(reasonerPrompts[1]).toContain('"ok":false');
+    expect(result.reply).toBe('البحث لم يُرجع صفحات.');
+    expect(reasonerPrompts).toHaveLength(0);
     expect(result.reply).not.toMatch(/\d{3,}/);
   });
 
@@ -325,7 +314,7 @@ describe('universal orchestrator free-chat routing', () => {
     expect(result.steps).toBe(0);
   });
 
-  test('planner exhausted after insufficient research returns the evidence-aware deterministic fallback', async () => {
+  test('an empty person search stops without waiting for a planner', async () => {
     const { mod } = loadHarness({
       plannerReplies:[null],
       toolResults:{ web_search:ALL_PROVIDERS_DOWN }
@@ -338,10 +327,8 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.degraded).toBe(true);
-    expect(result.failure).toBe('PLANNER_EXHAUSTED');
-    expect(result.reply).toContain('البحث لم يجد دليلاً كافياً');
-    expect(result.reply).toContain('خدمة الذكاء غير متاحة');
+    expect(result.reply).toBe('لم أجد صفحة تذكر هذا الاسم.');
+    expect(result.planner).toBe('universal-v2-deterministic-research');
   });
 
   test('planner prompt carries the free-chat and phrasing rules (source contract)', () => {
