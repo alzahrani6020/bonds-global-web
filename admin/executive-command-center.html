@@ -64,6 +64,15 @@
     </section>
 
     <section class="card s6">
+      <h2>مصادر الزيارات — GA4</h2>
+      <div class="scroll"><table><thead><tr><th>القناة</th><th>Sessions</th><th>Users</th><th>Engaged</th></tr></thead><tbody id="acquisitionRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
+    </section>
+    <section class="card s6">
+      <h2>أفضل صفحات الهبوط/المحتوى — GA4</h2>
+      <div class="scroll"><table><thead><tr><th>الصفحة</th><th>Views</th><th>Users</th><th>Engagement</th></tr></thead><tbody id="topPageRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card s6">
       <h2>صحة مصادر البيانات</h2>
       <div class="scroll"><table><thead><tr><th>المصدر</th><th>الحالة</th><th>السجلات</th><th>الدليل</th></tr></thead><tbody id="sourceRows"></tbody></table></div>
     </section>
@@ -158,39 +167,42 @@
     }).join('');
   }
 
-  function renderSources(data){
+  function renderSources(data,ga){
     const sources=data.sources||{};
     const labels={profiles:'Profiles',subscriptions:'Subscriptions',invoices:'Payments / Invoices',presence:'Presence',opportunities:'CRM Opportunities',renewals:'CRM Renewals',customerSuccess:'Customer Success',aiTelemetry:'AI Telemetry'};
     const rows=Object.entries(sources).map(([key,v])=>{
       const status=v?.status||'unknown';
       return '<tr><td>'+esc(labels[key]||key)+'</td><td><span class="pill '+(status==='ok'?'ok':'bad')+'">'+esc(status.toUpperCase())+'</span></td><td>'+esc(v?.rows==null?'—':num(v.rows))+'</td><td>'+esc(v?.error||'direct API source')+'</td></tr>';
     });
-    rows.unshift('<tr><td>Google Analytics 4</td><td><span class="pill bad">NOT_CONFIGURED</span></td><td>—</td><td>Data API credential غير موثق بعد</td></tr>');
+    const gs=ga?.status||'not_configured'; const gcls=gs==='healthy'?'ok':gs==='degraded'?'warn':'bad';
+    rows.unshift('<tr><td>Google Analytics 4</td><td><span class="pill '+gcls+'">'+esc(gs.toUpperCase())+'</span></td><td>—</td><td>'+esc(ga?.error||ga?.reason||'server-side GA4 Data API')+'</td></tr>');
     $('sourceRows').innerHTML=rows.join('');
   }
 
-  function renderAlerts(data){
+  function renderAlerts(data,ga){
     const alerts=[];
     for(const [key,v] of Object.entries(data.sources||{})) if(v?.status!=='ok') alerts.push('مصدر '+key+' غير متاح: '+(v?.error||'UNKNOWN'));
     if((data.executive?.renewalRisk||0)>0) alerts.push('قيمة تجديدات عالية/حرجة تحت الخطر: '+sar(data.executive.renewalRisk));
     if((data.ai?.failureRatePct||0)>=10) alerts.push('معدل فشل عمليات AI بلغ '+pct(data.ai.failureRatePct));
-    alerts.push('GA4 Data API غير مهيأ داخل لوحة BONDS؛ مؤشرات Traffic/Realtime/Attribution ستظل UNKNOWN.');
+    if(!ga?.configured) alerts.push('GA4 Data API غير مهيأ داخل لوحة BONDS؛ مؤشرات Traffic/Realtime/Attribution ستظل UNKNOWN.');
+    else if(ga?.status!=='healthy') alerts.push('GA4 Data API في حالة DEGRADED: '+(ga?.error||'UNKNOWN'));
     $('alerts').innerHTML=alerts.map(a=>'<div class="alert">'+esc(a)+'</div>').join('');
   }
 
-  function render(data){
+  function render(data,ga){
     const e=data.executive||{},f=data.funnel||{},a=data.ai||{};
     $('overallStatus').textContent=(data.status||'unknown').toUpperCase();
     $('overallStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
     $('generatedAt').textContent='آخر تحديث: '+(data.generatedAt?new Date(data.generatedAt).toLocaleString('ar-SA'):'UNKNOWN');
-    $('ga4Status').textContent='GA4: NOT_CONFIGURED';
-    $('ga4Status').className='pill bad';
+    const gaStatus=ga?.status||'not_configured';
+    $('ga4Status').textContent='GA4: '+gaStatus.toUpperCase();
+    $('ga4Status').className='pill '+(gaStatus==='healthy'?'ok':gaStatus==='degraded'?'warn':'bad');
     $('firstPartyStatus').textContent='First-party: '+(data.status==='healthy'?'HEALTHY':'DEGRADED');
     $('firstPartyStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
 
     $('execKpis').innerHTML=[
-      kpi('زوار اليوم','UNKNOWN','GA4 Data API غير مهيأ'),
-      kpi('المتواجدون الآن','UNKNOWN','GA4 Realtime غير مهيأ'),
+      kpi('زوار اليوم',ga?.today?.activeUsers==null?'UNKNOWN':num(ga.today.activeUsers),ga?.configured?'GA4 activeUsers today':'GA4 Data API غير مهيأ'),
+      kpi('المتواجدون الآن',ga?.realtime?.activeUsers==null?'UNKNOWN':num(ga.realtime.activeUsers),ga?.configured?'GA4 Realtime':'GA4 Realtime غير مهيأ'),
       kpi('المستخدمون 30 يوم',num(e.activeUsers30d),'BONDS presence'),
       kpi('العملاء المدفوعون',num(f.paid),'Paid invoice users'),
       kpi('Conversion',pct(e.conversionPct),'Paid users / profiles'),
@@ -221,13 +233,19 @@
     $('healthScore').textContent='UNKNOWN';
     $('healthLabel').textContent='غير محسوب';
     $('healthReason').textContent='لن يُحسب قبل إدخال أهداف رسمية وتفعيل مصادر Traffic/Attribution المطلوبة.';
-    renderSources(data);renderAlerts(data);
+    $('acquisitionRows').innerHTML=(ga?.acquisition||[]).map(r=>'<tr><td>'+esc(r.channel||'UNKNOWN')+'</td><td>'+esc(num(r.sessions))+'</td><td>'+esc(num(r.activeUsers))+'</td><td>'+esc(num(r.engagedSessions))+'</td></tr>').join('')||'<tr><td colspan="4">'+esc(ga?.configured?'لا توجد بيانات':'NOT_CONFIGURED')+'</td></tr>';
+    $('topPageRows').innerHTML=(ga?.topPages||[]).map(r=>'<tr><td>'+esc(r.path||r.title||'UNKNOWN')+'</td><td>'+esc(num(r.views))+'</td><td>'+esc(num(r.activeUsers))+'</td><td>'+esc(r.engagementSeconds==null?'UNKNOWN':num(Math.round(r.engagementSeconds))+'s')+'</td></tr>').join('')||'<tr><td colspan="4">'+esc(ga?.configured?'لا توجد بيانات':'NOT_CONFIGURED')+'</td></tr>';
+    renderSources(data,ga);renderAlerts(data,ga);
   }
 
   async function load(){
     $('error').style.display='none';
-    try{render(await api('executive-analytics-v2'));}
-    catch(e){$('error').textContent='فشل تحميل مركز القيادة: '+e.message;$('error').style.display='block';$('overallStatus').textContent='ERROR';$('overallStatus').className='pill bad';}
+    try{
+      const [execRes,gaRes]=await Promise.allSettled([api('executive-analytics-v2'),api('ga4-analytics')]);
+      if(execRes.status!=='fulfilled') throw execRes.reason;
+      const ga=gaRes.status==='fulfilled'?gaRes.value:{configured:false,status:'degraded',error:gaRes.reason?.message||'GA4 request failed'};
+      render(execRes.value,ga);
+    }catch(e){$('error').textContent='فشل تحميل مركز القيادة: '+e.message;$('error').style.display='block';$('overallStatus').textContent='ERROR';$('overallStatus').className='pill bad';}
   }
   $('refreshBtn').addEventListener('click',load);
   renderCapabilities();
