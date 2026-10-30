@@ -154,10 +154,10 @@ ON CONFLICT(role,permission) DO NOTHING;
 
 INSERT INTO public.analytics_data_sources(source_key,display_name,source_type,status,freshness_sla_minutes,owner_role) VALUES
 ('ga4','Google Analytics 4','ga4','not_configured',15,'admin'),
-('tracking','BONDS First-Party Tracking','tracking','healthy',15,'admin'),
-('crm','BONDS CRM','crm','healthy',60,'admin'),
-('payments','Payments','payments','healthy',60,'finance'),
-('funding','Funding Cases','supabase','healthy',60,'admin')
+('tracking','BONDS First-Party Tracking','tracking','not_configured',15,'admin'),
+('crm','BONDS CRM','crm','not_configured',60,'admin'),
+('payments','Payments','payments','not_configured',60,'finance'),
+('funding','Funding Cases','supabase','not_configured',60,'admin')
 ON CONFLICT(source_key) DO NOTHING;
 
 INSERT INTO public.analytics_metric_definitions(metric_key,display_name_ar,display_name_en,description,unit,source_key,formula,owner_role,refresh_minutes) VALUES
