@@ -4,6 +4,7 @@ const {
   plannerDiscoveryLimit,
   totalBudgetMs,
   plannerCallBudgetMs,
+  plannerInferenceOptions,
   plannerInferenceIdentity,
   parseDecision,
   explicitMutationConfirmation,
@@ -39,6 +40,30 @@ describe('BONDS planner-first universal orchestrator', () => {
       else process.env.ASSISTANT_ORCHESTRATOR_BUDGET_MS = originalTotal;
       if (originalPlanner === undefined) delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
       else process.env.ASSISTANT_PLANNER_TIMEOUT_MS = originalPlanner;
+    }
+  });
+
+  test('planner keeps recoverable retry inside the single call budget', () => {
+    const originalRetries = process.env.BONDS_NATIVE_RECOVERABLE_GENERATE_RETRIES;
+    const originalDelay = process.env.BONDS_NATIVE_RECOVERABLE_RETRY_DELAY_MS;
+    try {
+      process.env.BONDS_NATIVE_RECOVERABLE_GENERATE_RETRIES = '1';
+      process.env.BONDS_NATIVE_RECOVERABLE_RETRY_DELAY_MS = '750';
+
+      const options = plannerInferenceOptions({}, 240000);
+
+      expect(options.recoverableGenerateRetries).toBe(1);
+      expect(options.recoverableGenerateRetryDelayMs).toBe(750);
+      expect(options.timeoutMs).toBe(57125);
+      expect(
+        (options.timeoutMs * (options.recoverableGenerateRetries + 1)) +
+        options.recoverableGenerateRetryDelayMs
+      ).toBeLessThanOrEqual(plannerCallBudgetMs(240000));
+    } finally {
+      if (originalRetries === undefined) delete process.env.BONDS_NATIVE_RECOVERABLE_GENERATE_RETRIES;
+      else process.env.BONDS_NATIVE_RECOVERABLE_GENERATE_RETRIES = originalRetries;
+      if (originalDelay === undefined) delete process.env.BONDS_NATIVE_RECOVERABLE_RETRY_DELAY_MS;
+      else process.env.BONDS_NATIVE_RECOVERABLE_RETRY_DELAY_MS = originalDelay;
     }
   });
 
