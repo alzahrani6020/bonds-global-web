@@ -1831,6 +1831,21 @@ async function getDataQualityReport(sb) {
   return { success: true, calculator_leads, contact_messages, profiles };
 }
 
+function isReservedTestEmail(email) {
+  const normalized = String(email || '').trim().toLowerCase();
+  const at = normalized.lastIndexOf('@');
+  if (at < 0) return false;
+  const domain = normalized.slice(at + 1);
+  return domain === 'example.com'
+    || domain === 'example.net'
+    || domain === 'example.org'
+    || domain === 'localhost'
+    || domain.endsWith('.example')
+    || domain.endsWith('.invalid')
+    || domain.endsWith('.localhost')
+    || domain.endsWith('.local');
+}
+
 async function sendBulkProfileReminders(sb, admin, req) {
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
   const { data: profiles, error } = await sb.from('profiles')
@@ -1843,11 +1858,15 @@ async function sendBulkProfileReminders(sb, admin, req) {
 
   let sent = 0;
   let failed = 0;
+  let skipped = 0;
   const concurrency = 5;
   const queue = (profiles || []).slice();
 
   async function processOne(profile) {
-    if (!profile.email) { failed++; return; }
+    if (!profile.email || isReservedTestEmail(profile.email)) {
+      skipped++;
+      return;
+    }
     try {
       await sendProfileReminder(sb, { id: profile.id }, admin || { id: 'cron', email: 'cron@bonds-global.com' }, req);
       await sb.from('profiles').update({ profile_reminder_sent_at: new Date().toISOString() }).eq('id', profile.id);
@@ -1866,7 +1885,7 @@ async function sendBulkProfileReminders(sb, admin, req) {
   }
 
   await Promise.all(Array.from({ length: concurrency }, worker));
-  return { success: true, sent, failed, total: (profiles || []).length };
+  return { success: true, sent, failed, skipped, total: (profiles || []).length };
 }
 
 async function getUsers(sb, params = {}) {
@@ -5250,3 +5269,4 @@ async function handler(req, res) {
 
 module.exports = handler;
 module.exports.getUsers = getUsers;
+module.exports.isReservedTestEmail = isReservedTestEmail;
