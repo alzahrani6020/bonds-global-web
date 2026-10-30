@@ -69,6 +69,21 @@ describe('dynamic AI provider foundation', () => {
     });
   });
 
+  test('BONDS Native supports a canonical model id distinct from runtime name', () => {
+    const router = new InferenceProviderRouter({
+      providerId:'BONDS_NATIVE',
+      nativeModelId:'champion',
+      nativeRuntimeModel:'bonds-native'
+    });
+
+    expect(router.identity()).toEqual({
+      provider_id:'BONDS_NATIVE',
+      model_id:'champion',
+      runtime_model:'bonds-native',
+      mode:'LOCAL_NATIVE'
+    });
+  });
+
   test('rejects unregistered inference providers fail-closed', () => {
     expect(() => new InferenceProviderRouter({ providerId:'invented-provider' }))
       .toThrow('Inference provider INVENTED_PROVIDER is not configured');
