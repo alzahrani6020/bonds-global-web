@@ -709,6 +709,26 @@
   ],
   "redirects": [
     {
+      "source": "/calculator",
+      "destination": "/calculators/break-even",
+      "statusCode": 301
+    },
+    {
+      "source": "/calculator.html",
+      "destination": "/calculators/break-even",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculator",
+      "destination": "/en/calculators/break-even",
+      "statusCode": 301
+    },
+    {
+      "source": "/en/calculator.html",
+      "destination": "/en/calculators/break-even",
+      "statusCode": 301
+    },
+    {
       "source": "/calculators",
       "destination": "/calculators/investment-center",
       "statusCode": 301
