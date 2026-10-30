@@ -12,6 +12,7 @@ const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const FundingCases = require('../lib/api/funding-cases-admin');
 const { logCommercialEvent } = require('../lib/analytics/commercial-events');
+const { getGa4Overview } = require('../lib/analytics/ga4-data-api');
 const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
@@ -4813,6 +4814,10 @@ async function handler(req, res) {
       if (action === 'data-governance-overview') {
         const access = await requireAdminPermission(req, sb, 'governance.read');
         return res.status(200).json(await getDataGovernanceOverview(sb, access));
+      }
+      if (action === 'ga4-analytics') {
+        await requireAdminPermission(req, sb, 'analytics.executive');
+        return res.status(200).json(await getGa4Overview());
       }
       if (action === 'executive-analytics-v2') {
         const access = await requireAdminPermission(req, sb, 'analytics.executive');
