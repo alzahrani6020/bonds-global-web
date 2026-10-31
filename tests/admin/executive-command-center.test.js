@@ -64,6 +64,25 @@ describe('Executive Command Center', () => {
     expect(api).toContain("analytics.command_center.manage");
   });
 
+  test('wave 2 exposes decision loop, funding intelligence and saved view/watchlist operations', () => {
+    const page = read('admin/executive-command-center.html');
+    const api = read('api/admin.js');
+    expect(page).toContain('القرارات → النتائج');
+    expect(page).toContain('Funding Intelligence وRevenue Attribution');
+    expect(page).toContain('Saved Views وWatchlists');
+    expect(page).toContain("api('command-center-operations-overview')");
+    expect(page).toContain("apiPost('command-center-decision-create'");
+    expect(page).toContain("apiPost('command-center-action-create'");
+    expect(page).toContain("apiPost('command-center-view-save'");
+    expect(page).toContain("apiPost('command-center-watchlist-save'");
+    expect(page).toContain("['Decision-to-Outcome Loop','ACTIVE'");
+    expect(page).toContain("['Funding Intelligence','ACTIVE'");
+    expect(page).toContain("['Saved Views / Watchlists','ACTIVE'");
+    expect(page).toContain("['Revenue Attribution','PARTIAL'");
+    expect(api).toContain("action === 'command-center-operations-overview'");
+    expect(api).toContain("action === 'command-center-decision-measure'");
+  });
+
   test('governance schema covers sources metrics targets alerts decisions actions scenarios and views', () => {
     const sql = read('supabase/migrations/20261031010000_executive_command_center.sql');
     [
