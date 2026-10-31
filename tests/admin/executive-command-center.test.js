@@ -18,11 +18,12 @@ describe('Executive Command Center', () => {
     expect(page).toContain('BondsAuth.authenticatedFetch');
   });
 
-  test('GA4 is fail-honest until server-side Data API credentials are configured', () => {
+  test('GA4 stays optional and fail-honest while first-party traffic remains primary', () => {
     const page = read('admin/executive-command-center.html');
     expect(page).toContain('GA4: NOT_CONFIGURED');
-    expect(page).toContain("ga?.today?.activeUsers==null?'UNKNOWN'");
-    expect(page).toContain("ga?.realtime?.activeUsers==null?'UNKNOWN'");
+    expect(page).toContain("fp?.traffic?.visitorsToday==null?'UNKNOWN'");
+    expect(page).toContain("fp?.traffic?.onlineNow==null?'UNKNOWN'");
+    expect(page).toContain("api('first-party-analytics')");
     expect(page).toContain("api('ga4-analytics')");
     expect(page).not.toMatch(/PRIVATE_KEY|CLIENT_SECRET|GOOGLE_APPLICATION_CREDENTIALS|service_account/i);
   });
