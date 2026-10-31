@@ -136,6 +136,82 @@
     </section>
 
     <section class="card s12">
+      <h2>القرارات → النتائج</h2>
+      <div class="gov-note">كل قرار يلتقط baseline من مؤشر فعلي، ثم يقاس لاحقًا على نفس المؤشر. لا يتم استنتاج النجاح دون قياس صريح.</div>
+      <div class="gov-grid">
+        <div>
+          <h3>القرارات</h3>
+          <div class="scroll"><table><thead><tr><th>القرار</th><th>المؤشر</th><th>Baseline</th><th>الهدف</th><th>الحالة</th><th>القياس</th></tr></thead><tbody id="decisionRows"><tr><td colspan="6">LOADING</td></tr></tbody></table></div>
+        </div>
+        <div>
+          <h3>الإجراءات</h3>
+          <div class="scroll"><table><thead><tr><th>الإجراء</th><th>الأولوية</th><th>الحالة</th><th>القرار</th></tr></thead><tbody id="actionRows"><tr><td colspan="4">LOADING</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <h3>إضافة قرار</h3>
+      <form id="decisionForm" class="form-grid">
+        <label>عنوان القرار<input id="decisionTitle" required maxlength="240"></label>
+        <label>المؤشر<select id="decisionMetric" required></select></label>
+        <label>الهدف<input id="decisionExpected" type="number" step="any" required></label>
+        <label>المقارنة<select id="decisionComparison"><option value="gte">أكبر أو يساوي</option><option value="lte">أقل أو يساوي</option><option value="eq">يساوي</option></select></label>
+        <label>تاريخ المراجعة<input id="decisionReviewAt" type="date"></label>
+        <label>الثقة<select id="decisionConfidence"><option value="unknown">UNKNOWN</option><option value="low">LOW</option><option value="medium">MEDIUM</option><option value="high">HIGH</option></select></label>
+        <label style="grid-column:span 2">مبرر القرار<textarea id="decisionRationale"></textarea></label>
+        <div class="form-actions"><button class="btn" type="submit">إنشاء القرار</button></div>
+      </form>
+      <h3>إضافة إجراء مرتبط</h3>
+      <form id="actionForm" class="form-grid">
+        <label>الإجراء<input id="actionTitle" required maxlength="240"></label>
+        <label>القرار<select id="actionDecision"><option value="">بدون قرار</option></select></label>
+        <label>الأولوية<select id="actionPriority"><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option><option value="low">Low</option></select></label>
+        <label>الموعد<input id="actionDueAt" type="date"></label>
+        <div class="form-actions"><button class="btn" type="submit">إضافة الإجراء</button></div>
+      </form>
+    </section>
+
+    <section class="card s12">
+      <h2>Funding Intelligence وRevenue Attribution</h2>
+      <div class="gov-grid">
+        <div>
+          <h3>Funding Intelligence</h3>
+          <div id="fundingSummary" class="kpis"></div>
+          <div class="scroll"><table><thead><tr><th>المصدر</th><th>الحالات</th><th>القيمة</th></tr></thead><tbody id="fundingSourceRows"></tbody></table></div>
+        </div>
+        <div>
+          <h3>Revenue Attribution</h3>
+          <div id="attributionState" class="gov-note"></div>
+          <div class="scroll"><table><thead><tr><th>المصدر</th><th>الفرص</th><th>Pipeline</th><th>Won</th><th>Paid Revenue</th></tr></thead><tbody id="attributionRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card s12">
+      <h2>Saved Views وWatchlists</h2>
+      <div class="gov-grid">
+        <div>
+          <h3>Saved Views</h3>
+          <form id="viewForm" class="form-grid">
+            <label>الاسم<input id="viewName" required maxlength="160"></label>
+            <label>النطاق<select id="viewScope"><option value="private">Private</option><option value="role">Role</option><option value="global">Global</option></select></label>
+            <label>الأقسام<input id="viewSections" placeholder="revenue,pipeline,funding"></label>
+            <div class="form-actions"><button class="btn" type="submit">حفظ View</button></div>
+          </form>
+          <div class="scroll"><table><thead><tr><th>الاسم</th><th>النطاق</th><th>التعريف</th><th></th></tr></thead><tbody id="savedViewRows"></tbody></table></div>
+        </div>
+        <div>
+          <h3>Watchlists</h3>
+          <form id="watchForm" class="form-grid">
+            <label>الاسم<input id="watchName" required maxlength="160"></label>
+            <label>النوع<select id="watchType"><option value="metric">Metric</option><option value="crm_opportunity">CRM Opportunity</option><option value="funding_case">Funding Case</option></select></label>
+            <label>المراجع<input id="watchRefs" required placeholder="monthly_revenue,conversion_rate"></label>
+            <div class="form-actions"><button class="btn" type="submit">حفظ Watchlist</button></div>
+          </form>
+          <div class="scroll"><table><thead><tr><th>الاسم</th><th>النوع</th><th>المراجع</th><th></th></tr></thead><tbody id="watchRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card s12">
       <h2>القدرات الإدارية والتحليلية</h2>
       <div class="muted" style="margin-bottom:.75rem">الحالة هنا تشغيلية وليست تسويقية: ACTIVE = مصدر فعلي متاح؛ PARTIAL = أساس موجود لكن الربط غير مكتمل؛ NOT_CONFIGURED = يحتاج اعتمادًا خارجيًا؛ PLANNED = مسجل في خارطة التنفيذ فقط.</div>
       <div id="capabilities" class="cap-grid"></div>
@@ -178,19 +254,19 @@
     ['Data Quality Center','ACTIVE','موجود في لوحة BONDS الحالية'],
     ['Security Operations','ACTIVE','موجود في لوحة BONDS الحالية'],
     ['Audit Trail','ACTIVE','admin_audit_log قائم'],
-    ['Funding Intelligence','PARTIAL','الحالات موجودة؛ الربط الكامل بمصدر الاكتساب لم يكتمل'],
+    ['Funding Intelligence','ACTIVE','حالات التمويل حسب الحالة والمصدر والقيمة والجاهزية؛ EMPTY عند عدم وجود حالات'],
     ['Lead Scoring','PLANNED','يتطلب نموذجًا موثقًا وبيانات تدريب/قواعد'],
     ['Opportunity Scoring','PARTIAL','probability موجودة؛ score موحد غير معتمد'],
-    ['Revenue Attribution','PARTIAL','BONDS source/referrer متاح؛ الربط السببي مع العميل/الإيراد غير مكتمل'],
+    ['Revenue Attribution','PARTIAL','يعرض pipeline حسب المصدر؛ يبقى PARTIAL حتى توجد فواتير مدفوعة بمصدر اكتساب صريح'],
     ['Service Profitability','PLANNED','يتطلب تخصيص تكلفة موثق لكل خدمة'],
     ['Client Lifetime Value','PLANNED','يتطلب سياسة احتساب معتمدة'],
     ['CAC / ROAS','NOT_CONFIGURED','يتطلب تكلفة الحملات الإعلانية'],
     ['Scenario Simulator','PARTIAL','Schema تمت إضافته؛ محرك الحساب يحتاج قواعد معتمدة'],
     ['Target vs Actual','ACTIVE','محرك Actual مقابل أهداف معتمدة؛ يبقى UNKNOWN عند عدم وجود هدف'],
     ['KPI Governance','ACTIVE','قاموس المقاييس + Actual + إدارة أهداف معتمدة'],
-    ['Decision-to-Outcome Loop','PARTIAL','Decision/action schema تمت إضافته'],
+    ['Decision-to-Outcome Loop','ACTIVE','إنشاء قرار + baseline + إجراء + قياس outcome فعلي'],
     ['Alert Threshold Engine','ACTIVE','إدارة قواعد + evaluator فعلي على المقاييس المتاحة'],
-    ['Saved Views / Watchlists','PARTIAL','Schema تمت إضافته؛ UI الإدارة لم يكتمل'],
+    ['Saved Views / Watchlists','ACTIVE','إنشاء/حذف Views وقوائم متابعة من مركز القيادة'],
     ['Board Pack Generator','PLANNED','يحتاج قالب تقرير معتمد'],
     ['Natural Language Analytics','PLANNED','يجب ربطه بمصادر معتمدة مع evidence'],
     ['Anomaly Detection','PLANNED','يحتاج baseline موسمي قبل التفعيل'],
@@ -301,7 +377,38 @@
     }
   }
 
-  function render(data,fp,ga,gov){
+  function renderOperations(ops,gov){
+    const metrics=gov?.metrics||[];
+    const metricOptions=metrics.map(m=>'<option value="'+esc(m.metric_key)+'">'+esc(m.display_name_ar||m.metric_key)+'</option>').join('');
+    $('decisionMetric').innerHTML=metricOptions;
+
+    const decisions=ops?.decisions||[];
+    $('actionDecision').innerHTML='<option value="">بدون قرار</option>'+decisions.map(d=>'<option value="'+esc(d.id)+'">'+esc(d.title)+'</option>').join('');
+    $('decisionRows').innerHTML=decisions.map(d=>{
+      const exp=d.expected_outcome||{}, base=d.baseline||{}, measured=d.measured_outcome||{};
+      const outcome=measured.target_met===true?'MET':measured.target_met===false?'NOT_MET':'UNKNOWN';
+      return '<tr><td><b>'+esc(d.title)+'</b><br><small>'+esc(d.confidence||'unknown')+'</small></td><td>'+esc(exp.metric_key||'UNKNOWN')+'</td><td>'+esc(base.actual_value==null?'UNKNOWN':num(base.actual_value))+'</td><td>'+esc(exp.target_value==null?'UNKNOWN':num(exp.target_value))+' '+esc(exp.comparison||'')+'</td><td><span class="pill '+(d.status==='measured'?'ok':'warn')+'">'+esc(String(d.status||'unknown').toUpperCase())+'</span></td><td><span class="pill '+(outcome==='MET'?'ok':outcome==='NOT_MET'?'bad':'warn')+'">'+outcome+'</span><br><button type="button" class="btn secondary decision-measure" data-id="'+esc(d.id)+'">قياس</button></td></tr>';
+    }).join('')||'<tr><td colspan="6">لا توجد قرارات</td></tr>';
+
+    $('actionRows').innerHTML=(ops?.actions||[]).map(a=>'<tr><td>'+esc(a.title)+'</td><td>'+esc(a.priority||'medium')+'</td><td>'+esc(a.status||'open')+'</td><td>'+esc(a.decision_id||'—')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد إجراءات</td></tr>';
+
+    const fi=ops?.fundingIntelligence||{};
+    $('fundingSummary').innerHTML=[
+      kpi('الحالات',num(fi.totalCases||0),fi.dataState==='empty'?'EMPTY':'Available'),
+      kpi('القيمة المطلوبة',sar(fi.totalRequestedAmount||0),'Funding cases'),
+      kpi('متوسط الجاهزية',fi.averageReadiness==null?'UNKNOWN':num(fi.averageReadiness)+'/100','الحالات التي تحتوي readiness')
+    ].join('');
+    $('fundingSourceRows').innerHTML=(fi.bySource||[]).map(r=>'<tr><td>'+esc(r.source)+'</td><td>'+esc(num(r.cases))+'</td><td>'+esc(sar(r.amount))+'</td></tr>').join('')||'<tr><td colspan="3">لا توجد حالات تمويل حتى الآن</td></tr>';
+
+    const ra=ops?.revenueAttribution||{};
+    $('attributionState').innerHTML='<span class="pill '+(ra.status==='active'?'ok':'warn')+'">'+esc(String(ra.status||'partial').toUpperCase())+'</span> '+esc(ra.reason||'Explicit paid revenue source available');
+    $('attributionRows').innerHTML=(ra.rows||[]).map(r=>'<tr><td>'+esc(r.source)+'</td><td>'+esc(num(r.opportunities))+'</td><td>'+esc(sar(r.pipelineValue))+'</td><td>'+esc(sar(r.wonValue))+'</td><td>'+esc(sar(r.paidRevenue))+'</td></tr>').join('')||'<tr><td colspan="5">لا توجد بيانات إسناد قابلة للعرض</td></tr>';
+
+    $('savedViewRows').innerHTML=(ops?.savedViews||[]).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.scope)+'</td><td><small>'+esc(JSON.stringify(v.definition||{}))+'</small></td><td><button type="button" class="btn danger view-delete" data-id="'+esc(v.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Views محفوظة</td></tr>';
+    $('watchRows').innerHTML=(ops?.watchlists||[]).map(w=>'<tr><td>'+esc(w.name)+'</td><td>'+esc(w.entity_type)+'</td><td>'+esc((w.entity_refs||[]).join(', '))+'</td><td><button type="button" class="btn danger watch-delete" data-id="'+esc(w.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Watchlists</td></tr>';
+  }
+
+  function render(data,fp,ga,gov,ops){
     const e=data.executive||{},f=data.funnel||{},a=data.ai||{};
     $('overallStatus').textContent=(data.status||'unknown').toUpperCase();
     $('overallStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
@@ -344,6 +451,7 @@
     ].join('');
 
     renderGovernance(gov||{});
+    renderOperations(ops||{},gov||{});
     $('acquisitionRows').innerHTML=(fp?.traffic?.sources||[]).map(r=>'<tr><td>'+esc(r.source||'UNKNOWN')+'</td><td>'+esc(num(r.sessions))+'</td><td>'+esc(num(r.views))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
     $('topPageRows').innerHTML=(fp?.traffic?.topPages||[]).map(r=>'<tr><td>'+esc(r.page||'UNKNOWN')+'</td><td>'+esc(num(r.views))+'</td><td>'+esc(num(r.sessions))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
     renderSources(data,ga);renderAlerts(data,ga);
@@ -352,12 +460,13 @@
   async function load(){
     $('error').style.display='none';
     try{
-      const [execRes,fpRes,gaRes,govRes]=await Promise.allSettled([api('executive-analytics-v2'),api('first-party-analytics'),api('ga4-analytics'),api('command-center-governance')]);
+      const [execRes,fpRes,gaRes,govRes,opsRes]=await Promise.allSettled([api('executive-analytics-v2'),api('first-party-analytics'),api('ga4-analytics'),api('command-center-governance'),api('command-center-operations-overview')]);
       if(execRes.status!=='fulfilled') throw execRes.reason;
       if(fpRes.status!=='fulfilled') throw fpRes.reason;
       if(govRes.status!=='fulfilled') throw govRes.reason;
+      if(opsRes.status!=='fulfilled') throw opsRes.reason;
       const ga=gaRes.status==='fulfilled'?gaRes.value:{configured:false,status:'not_configured'};
-      render(execRes.value,fpRes.value,ga,govRes.value);
+      render(execRes.value,fpRes.value,ga,govRes.value,opsRes.value);
     }catch(e){$('error').textContent='فشل تحميل مركز القيادة: '+e.message;$('error').style.display='block';$('overallStatus').textContent='ERROR';$('overallStatus').className='pill bad';}
   }
   $('targetForm').addEventListener('submit',async e=>{
@@ -394,13 +503,77 @@
     }catch(err){$('error').textContent='فشل حفظ قاعدة التنبيه: '+err.message;$('error').style.display='block';}
   });
 
+  $('decisionForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-decision-create',{
+        title:$('decisionTitle').value,
+        metric_key:$('decisionMetric').value,
+        expected_value:$('decisionExpected').value,
+        comparison:$('decisionComparison').value,
+        review_at:$('decisionReviewAt').value,
+        confidence:$('decisionConfidence').value,
+        rationale:$('decisionRationale').value
+      });
+      $('decisionTitle').value='';$('decisionExpected').value='';$('decisionRationale').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل إنشاء القرار: '+err.message;$('error').style.display='block';}
+  });
+
+  $('actionForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-action-create',{
+        title:$('actionTitle').value,
+        decision_id:$('actionDecision').value||null,
+        priority:$('actionPriority').value,
+        due_at:$('actionDueAt').value
+      });
+      $('actionTitle').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل إنشاء الإجراء: '+err.message;$('error').style.display='block';}
+  });
+
+  $('viewForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      const sections=$('viewSections').value.split(',').map(x=>x.trim()).filter(Boolean);
+      await apiPost('command-center-view-save',{
+        name:$('viewName').value,
+        scope:$('viewScope').value,
+        definition:{sections}
+      });
+      $('viewName').value='';$('viewSections').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل حفظ View: '+err.message;$('error').style.display='block';}
+  });
+
+  $('watchForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-watchlist-save',{
+        name:$('watchName').value,
+        entity_type:$('watchType').value,
+        entity_refs:$('watchRefs').value.split(',').map(x=>x.trim()).filter(Boolean)
+      });
+      $('watchName').value='';$('watchRefs').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل حفظ Watchlist: '+err.message;$('error').style.display='block';}
+  });
+
   document.addEventListener('click',async e=>{
     const targetBtn=e.target.closest('.gov-delete-target');
     const alertBtn=e.target.closest('.gov-delete-alert');
-    if(!targetBtn&&!alertBtn)return;
+    const measureBtn=e.target.closest('.decision-measure');
+    const viewBtn=e.target.closest('.view-delete');
+    const watchBtn=e.target.closest('.watch-delete');
+    if(!targetBtn&&!alertBtn&&!measureBtn&&!viewBtn&&!watchBtn)return;
     try{
       if(targetBtn) await apiPost('command-center-target-delete',{id:targetBtn.dataset.id});
       if(alertBtn) await apiPost('command-center-alert-delete',{id:alertBtn.dataset.id});
+      if(measureBtn) await apiPost('command-center-decision-measure',{id:measureBtn.dataset.id});
+      if(viewBtn) await apiPost('command-center-view-delete',{id:viewBtn.dataset.id});
+      if(watchBtn) await apiPost('command-center-watchlist-delete',{id:watchBtn.dataset.id});
       await load();
     }catch(err){$('error').textContent='فشل الحذف: '+err.message;$('error').style.display='block';}
   });
