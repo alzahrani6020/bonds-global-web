@@ -448,6 +448,60 @@ describe('assistant request diagnostics', () => {
     expect(JSON.stringify(diagnostics.native_telemetry)).not.toContain('usage');
   });
 
+  test('direct native failure diagnostics expose only safe status and retry metadata', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-native-failure',
+      path:'NATIVE_DIRECT',
+      totalMs:2500,
+      nativeError:{
+        code:'NATIVE_RUNTIME_HTTP_ERROR',
+        elapsedMs:640,
+        upstreamStatus:404,
+        runtimeErrorCode:'NOT_FOUND',
+        nativeNode:'native-1',
+        nativeAttempts:[
+          {
+            node:'native-1',
+            node_attempt:1,
+            ok:false,
+            error_code:'NATIVE_RUNTIME_HTTP_ERROR',
+            runtime_error_code:'NOT_FOUND',
+            http_status:404,
+            failure_category:'request',
+            recoverable:false,
+            node_failure:false,
+            prompt:'PRIVATE PROMPT',
+            authorization:'Bearer SECRET',
+            native_node_url:'https://private-origin.example'
+          }
+        ]
+      }
+    });
+
+    expect(result.status).toBe(STATUS.FAIL);
+    expect(result.native_failure).toEqual({
+      http_status:404,
+      runtime_error_code:'NOT_FOUND',
+      native_node:'native-1',
+      attempts:[{
+        node:'native-1',
+        node_attempt:1,
+        ok:false,
+        error_code:'NATIVE_RUNTIME_HTTP_ERROR',
+        runtime_error_code:'NOT_FOUND',
+        http_status:404,
+        failure_category:'request',
+        recoverable:false,
+        node_failure:false
+      }]
+    });
+
+    const serialized = JSON.stringify(result.native_failure);
+    expect(serialized).not.toContain('PRIVATE PROMPT');
+    expect(serialized).not.toContain('Bearer SECRET');
+    expect(serialized).not.toContain('private-origin');
+  });
+
   test('diagnostics output is metadata-only and excludes raw trace payloads', () => {
     const result = buildRequestDiagnostics({
       requestId:'req-safe',
