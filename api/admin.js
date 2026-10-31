@@ -33,6 +33,7 @@ const {
   deleteWatchlist
 } = require('../lib/analytics/command-center-operations');
 const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
+const { buildCommercialScoring } = require('../lib/analytics/commercial-scoring');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -2586,17 +2587,24 @@ async function getCrmOverview(sb) {
     opportunity: opportunityMap.get(row.crm_opportunity_id) || null
   }));
 
+  const commercialScoring = buildCommercialScoring(
+    clientsRes.data || [],
+    opportunities,
+    serviceRequests
+  );
+
   return {
     success: true,
     organizations: orgsRes.data || [],
-    clients: clientsRes.data || [],
-    opportunities,
+    clients: commercialScoring.clients,
+    opportunities: commercialScoring.opportunities,
     renewals,
     customerSuccessRecords: success,
     serviceRequests: serviceRequestQueue,
     pipeline,
     renewalSummary,
-    customerSuccess
+    customerSuccess,
+    commercialScoring: commercialScoring.summary
   };
 }
 
