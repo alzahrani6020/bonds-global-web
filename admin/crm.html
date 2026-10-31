@@ -34,6 +34,12 @@
     <section class="card span-12"><div class="kpis" id="kpis"></div></section>
 
     <section class="card span-12">
+      <h2>Commercial Scoring</h2>
+      <div class="muted">Rule-based operational prioritization · ليس احتمال تحويل أو توقع إيراد · UNKNOWN عند نقص الدليل</div>
+      <div class="kpis" id="scoringKpis" style="margin-top:.75rem"></div>
+    </section>
+
+    <section class="card span-12">
       <h2>Pipeline</h2>
       <div id="pipeline" class="pipeline"></div>
     </section>
@@ -65,7 +71,7 @@
 
     <section class="card span-6">
       <h2>Decision Makers / Leads</h2>
-      <div class="scroll"><table><thead><tr><th>الاسم</th><th>الشركة</th><th>الحالة</th><th>الدور</th></tr></thead><tbody id="clientRows"></tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>الاسم</th><th>الشركة</th><th>الحالة</th><th>الدور</th><th>Lead Score</th><th>Confidence</th></tr></thead><tbody id="clientRows"></tbody></table></div>
     </section>
 
     <section class="card span-12">
@@ -114,10 +120,19 @@
       ['تجديدات 30 يوم',r.due30||0],['Customer Success At Risk',cs.atRisk||0]
     ].map(x=>'<div class="kpi"><b>'+esc(x[1])+'</b><span class="muted">'+esc(x[0])+'</span></div>').join('');
 
+    const scoring=crm.commercialScoring||{};
+    const leadScore=scoring.leadScoring||{}, oppScore=scoring.opportunityScoring||{};
+    document.getElementById('scoringKpis').innerHTML=[
+      ['Lead Score',leadScore.averageScore==null?'UNKNOWN':leadScore.averageScore+'/100','entities: '+Number(leadScore.entityCount||0)],
+      ['Lead Confidence',JSON.stringify(leadScore.confidence||{}),'evidence coverage'],
+      ['Opportunity Score',oppScore.averageScore==null?'UNKNOWN':oppScore.averageScore+'/100','entities: '+Number(oppScore.entityCount||0)],
+      ['Opportunity Confidence',JSON.stringify(oppScore.confidence||{}),'evidence coverage']
+    ].map(x=>'<div class="kpi"><b>'+esc(x[1])+'</b><span class="muted">'+esc(x[0])+' · '+esc(x[2])+'</span></div>').join('');
+
     const stages=['lead','qualified','proposal','negotiation','won','lost'];
     document.getElementById('pipeline').innerHTML=stages.map(stage=>{
       const deals=(crm.opportunities||[]).filter(o=>o.stage===stage);
-      return '<div class="stage"><h3>'+esc(stage)+' · '+deals.length+'</h3>'+deals.map(o=>'<div class="deal"><b>'+esc(o.title)+'</b><div class="muted">'+Number(o.value_amount||0).toLocaleString('en-US')+' '+esc(o.currency||'SAR')+' · '+esc(o.probability||0)+'%</div></div>').join('')+'</div>';
+      return '<div class="stage"><h3>'+esc(stage)+' · '+deals.length+'</h3>'+deals.map(o=>{const s=o.commercial_score||{};return '<div class="deal"><b>'+esc(o.title)+'</b><div class="muted">'+Number(o.value_amount||0).toLocaleString('en-US')+' '+esc(o.currency||'SAR')+' · probability '+esc(o.probability==null?'UNKNOWN':o.probability+'%')+'</div><div class="muted">Opportunity Score: '+esc(s.score==null?'UNKNOWN':s.score+'/100')+' · '+esc(String(s.confidence||'unknown').toUpperCase())+' · coverage '+esc(s.coverage==null?'UNKNOWN':s.coverage+'%')+'</div></div>';}).join('')+'</div>';
     }).join('');
 
     const requestStatusLabels={draft:'مسودة',submitted:'تم الإرسال',triage:'قيد الفرز',in_progress:'قيد التنفيذ',awaiting_client:'بانتظار العميل',awaiting_approval:'بانتظار الاعتماد',completed:'مكتمل',cancelled:'ملغي'};
@@ -131,7 +146,7 @@
     document.getElementById('orgRows').innerHTML=(crm.organizations||[]).map(o=>'<tr><td>'+esc(o.name)+'</td><td>'+esc(o.status)+'</td><td>'+esc(o.sector||'—')+'</td><td>'+esc(o.country||'—')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد مؤسسات</td></tr>';
     document.getElementById('renewalRows').innerHTML=(crm.renewals||[]).map(x=>'<tr><td>'+fmt(x.renewal_date)+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.risk_level)+'</td><td>'+Number(x.value_amount||0).toLocaleString('en-US')+' '+esc(x.currency||'SAR')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد تجديدات</td></tr>';
     document.getElementById('successRows').innerHTML=(crm.customerSuccessRecords||[]).map(x=>'<tr><td>'+esc(x.health_score)+'</td><td>'+esc(x.risk_level)+'</td><td>'+esc(x.lifecycle_stage)+'</td><td>'+fmt(x.next_review_at)+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد سجلات</td></tr>';
-    document.getElementById('clientRows').innerHTML=(crm.clients||[]).map(x=>'<tr><td>'+esc(x.name)+'</td><td>'+esc(x.company_name||'—')+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.relationship_role||(x.is_decision_maker?'Decision Maker':'—'))+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد جهات اتصال</td></tr>';
+    document.getElementById('clientRows').innerHTML=(crm.clients||[]).map(x=>{const s=x.commercial_score||{};return '<tr><td>'+esc(x.name)+'</td><td>'+esc(x.company_name||'—')+'</td><td>'+esc(x.status)+'</td><td>'+esc(x.relationship_role||(x.is_decision_maker?'Decision Maker':'—'))+'</td><td>'+esc(s.score==null?'UNKNOWN':s.score+'/100')+'</td><td>'+esc(String(s.confidence||'unknown').toUpperCase())+' · '+esc(s.coverage==null?'UNKNOWN':s.coverage+'%')+'</td></tr>';}).join('')||'<tr><td colspan="6">لا توجد جهات اتصال</td></tr>';
 
     const sel=document.getElementById('oppOrg');
     sel.innerHTML='<option value="">بدون مؤسسة</option>'+(crm.organizations||[]).map(o=>'<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>').join('');

@@ -114,4 +114,12 @@ describe('Executive Command Center', () => {
     expect(seeded).not.toContain("'healthy'");
     expect(seeded).toContain("'not_configured'");
   });
+  test('commercial scoring capabilities are active with fail-honest semantics', () => {
+    const page = read('admin/executive-command-center.html');
+    expect(page).toContain("['Lead Scoring','ACTIVE'");
+    expect(page).toContain("['Opportunity Scoring','ACTIVE'");
+    expect(page).toContain('ليس احتمال تحويل');
+    expect(page).toContain('ليس forecast');
+  });
+
 });
