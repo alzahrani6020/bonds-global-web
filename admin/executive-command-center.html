@@ -186,6 +186,14 @@
     </section>
 
     <section class="card s12">
+      <h2>Service Profitability</h2>
+      <div id="serviceProfitabilityState" class="gov-note"></div>
+      <div id="serviceProfitabilitySummary" class="kpis" style="margin:.75rem 0"></div>
+      <div class="scroll"><table><thead><tr><th>الخدمة</th><th>العملة</th><th>الطلبات</th><th>الإيراد المعترف به</th><th>التكلفة المباشرة</th><th>الربح المباشر المرصود</th><th>الهامش</th><th>حالة الدليل</th></tr></thead><tbody id="serviceProfitabilityRows"></tbody></table></div>
+      <div class="muted" id="serviceProfitabilityUnknown" style="margin-top:.65rem"></div>
+    </section>
+
+    <section class="card s12">
       <h2>Saved Views وWatchlists</h2>
       <div class="gov-grid">
         <div>
@@ -258,7 +266,7 @@
     ['Lead Scoring','ACTIVE','Rule-based v1 مشتق من CRM مع score + confidence + missing evidence؛ ليس احتمال تحويل'],
     ['Opportunity Scoring','ACTIVE','Rule-based v1 مشتق من stage/probability/value/owner/close/action/linkage مع confidence؛ ليس forecast'],
     ['Revenue Attribution','PARTIAL','يعرض pipeline حسب المصدر؛ يبقى PARTIAL حتى توجد فواتير مدفوعة بمصدر اكتساب صريح'],
-    ['Service Profitability','PLANNED','يتطلب تخصيص تكلفة موثق لكل خدمة'],
+    ['Service Profitability','PARTIAL','يعرض الربح المباشر المرصود من financial_events posted المرتبطة بـ service_code؛ يبقى PARTIAL حتى تتوفر تكاليف موزعة موثقة لكل خدمة'],
     ['Client Lifetime Value','PLANNED','يتطلب سياسة احتساب معتمدة'],
     ['CAC / ROAS','NOT_CONFIGURED','يتطلب تكلفة الحملات الإعلانية'],
     ['Scenario Simulator','PARTIAL','Schema تمت إضافته؛ محرك الحساب يحتاج قواعد معتمدة'],
@@ -403,6 +411,20 @@
     const ra=ops?.revenueAttribution||{};
     $('attributionState').innerHTML='<span class="pill '+(ra.status==='active'?'ok':'warn')+'">'+esc(String(ra.status||'partial').toUpperCase())+'</span> '+esc(ra.reason||'Explicit paid revenue source available');
     $('attributionRows').innerHTML=(ra.rows||[]).map(r=>'<tr><td>'+esc(r.source)+'</td><td>'+esc(num(r.opportunities))+'</td><td>'+esc(sar(r.pipelineValue))+'</td><td>'+esc(sar(r.wonValue))+'</td><td>'+esc(sar(r.paidRevenue))+'</td></tr>').join('')||'<tr><td colspan="5">لا توجد بيانات إسناد قابلة للعرض</td></tr>';
+
+    const sp=ops?.serviceProfitability||{};
+    $('serviceProfitabilityState').innerHTML='<span class="pill warn">'+esc(String(sp.status||'partial').toUpperCase())+'</span> '+esc(sp.reason||'Service profitability evidence is incomplete.');
+    const totals=sp.totals||null;
+    $('serviceProfitabilitySummary').innerHTML=[
+      kpi('الخدمات ذات أحداث مالية',num(sp.coverage?.servicesWithObservedFinancials||0),sp.dataState==='unknown'?'UNKNOWN':'Observed'),
+      kpi('خدمات بطلبات بلا أحداث',num(sp.coverage?.requestedServicesWithoutFinancials||0),'UNKNOWN until posted events exist'),
+      kpi('الإيراد المرصود',totals?sar(totals.recognizedRevenue):'UNKNOWN',totals?totals.currency:'Multi/No currency'),
+      kpi('الربح المباشر المرصود',totals?sar(totals.observedDirectProfit):'UNKNOWN','ليس Operating Profit كاملاً')
+    ].join('');
+    $('serviceProfitabilityRows').innerHTML=(sp.rows||[]).map(r=>'<tr><td>'+esc(r.serviceName||r.serviceCode)+'</td><td>'+esc(r.currency||'UNKNOWN')+'</td><td>'+esc(num(r.requestCount||0))+'</td><td>'+esc(num(r.recognizedRevenue))+'</td><td>'+esc(num(r.directCost))+'</td><td>'+esc(num(r.observedDirectProfit))+'</td><td>'+esc(r.observedDirectMarginPct==null?'UNKNOWN':pct(r.observedDirectMarginPct))+'</td><td>'+esc(r.dataState||'UNKNOWN')+'</td></tr>').join('')||'<tr><td colspan="8">UNKNOWN — لا توجد أحداث مالية posted مرتبطة بخدمة حتى الآن</td></tr>';
+    $('serviceProfitabilityUnknown').textContent=(sp.requestedWithoutFinancials||[]).length
+      ? 'طلبات خدمات بلا أحداث مالية posted: '+(sp.requestedWithoutFinancials||[]).map(r=>(r.serviceName||r.serviceCode)+' ('+r.requestCount+')').join('، ')
+      : '';
 
     $('savedViewRows').innerHTML=(ops?.savedViews||[]).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.scope)+'</td><td><small>'+esc(JSON.stringify(v.definition||{}))+'</small></td><td><button type="button" class="btn danger view-delete" data-id="'+esc(v.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Views محفوظة</td></tr>';
     $('watchRows').innerHTML=(ops?.watchlists||[]).map(w=>'<tr><td>'+esc(w.name)+'</td><td>'+esc(w.entity_type)+'</td><td>'+esc((w.entity_refs||[]).join(', '))+'</td><td><button type="button" class="btn danger watch-delete" data-id="'+esc(w.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Watchlists</td></tr>';

@@ -122,4 +122,18 @@ describe('Executive Command Center', () => {
     expect(page).toContain('ليس forecast');
   });
 
+  test('service profitability is partial and fail-honest until allocated service cost is complete', () => {
+    const page = read('admin/executive-command-center.html');
+    const ops = read('lib/analytics/command-center-operations.js');
+    const engine = read('lib/analytics/service-profitability.js');
+
+    expect(page).toContain('Service Profitability');
+    expect(page).toContain("['Service Profitability','PARTIAL'");
+    expect(page).toContain('UNKNOWN — لا توجد أحداث مالية posted مرتبطة بخدمة حتى الآن');
+    expect(ops).toContain("sb.from('financial_events')");
+    expect(ops).toContain('buildServiceProfitability');
+    expect(engine).toContain("status:'partial'");
+    expect(engine).toContain("semantics:'observed_direct_margin_not_full_operating_profit'");
+  });
+
 });
