@@ -17,7 +17,7 @@ const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
-const { runUniversalOrchestrator } = require('../../lib/assistant/universal-orchestrator');
+const { runUniversalOrchestrator, isFastPublicFact } = require('../../lib/assistant/universal-orchestrator');
 const { buildRequestDiagnostics } = require('../../lib/assistant/request-diagnostics');
 const crypto = require('crypto');
 
@@ -595,6 +595,46 @@ async function aiChatHandler(req, res) {
     });
   }
 
+  const lastUser = [...messages].reverse().find(m => m.role === 'user');
+  const lastUserText = lastUser?.content || '';
+  const hasDomainContext = Boolean(context?.cityCode || context?.cityName || context?.activityCode || context?.serviceCode);
+
+  if (!hasDomainContext && isFastPublicFact(lastUserText)) {
+    if (streaming) writeEvent(res, 'status', { phase: 'searching', source: 'assistant' });
+    try {
+      const loopResult = await runUniversalOrchestrator(messages, context, {
+        req,
+        user: authenticatedUser,
+        supabase: getSupabaseClient(),
+        requestId,
+        timeoutMs: 8000,
+        maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens)
+      });
+      if (loopResult?.ok && loopResult.reply) {
+        const actions = (loopResult.trace || []).map(item => item.action).filter(Boolean);
+        return sendAssistantResponse(res, 200, {
+          reply: enforceAssistantIdentity(loopResult.reply),
+          source: 'bonds-assistant-ai-tool',
+          provider: 'BONDS',
+          model: null,
+          inference: {
+            planner: loopResult.planner || 'universal-v2-deterministic-research',
+            tool_used: loopResult.toolUsed === true,
+            tool_steps: loopResult.steps || 0,
+            actions
+          },
+          context: {
+            cityCode: context.cityCode || null,
+            activityCode: context.activityCode || null,
+            serviceCode: context.serviceCode || null
+          }
+        }, { stream: streaming });
+      }
+    } catch (err) {
+      console.warn('[ai/chat] Fast public fact path failed:', err.message);
+    }
+  }
+
   let diagnosticsAllowed = false;
   try {
     const { data: diagnosticRole } = await getSupabaseClient()
@@ -621,9 +661,6 @@ async function aiChatHandler(req, res) {
   const assistantConversationState = conversationalStateView(safeAssistantState);
 
   // Enrich context with real data
-  const lastUser = [...messages].reverse().find(m => m.role === 'user');
-  const lastUserText = lastUser?.content || '';
-
   let enrichedContext = { ...context };
   try {
     enrichedContext = await enrichContext(enrichedContext, lastUserText);

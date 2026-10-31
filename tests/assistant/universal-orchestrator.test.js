@@ -251,6 +251,27 @@ describe('BONDS planner-first universal orchestrator', () => {
           }
         };
       }
+      if (action === 'web_fetch') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            text:'<p>طلال حسن الزهراني أكاديمي ومستشار مالي، وهو رئيس مجلس إدارة بوندز منذ 2019.</p>',
+            content_type:'text/html'
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{ verification_state:'SUPPORTED', supported_claims:[], contradictions:[] }
+        };
+      }
       if (action === 'web_explore') {
         return {
           ok:true,
@@ -309,12 +330,70 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.toolUsed).toBe(true);
     expect(result.research.decision_eligible).toBe(true);
     expect(result.research.answer_synthesis_ms).toBe(0);
+    expect(result.reply).toContain('منذ 2019');
+    expect(result.reply).toContain('https://bonds-global.com/');
     const actions = result.trace.map(item => item.action);
-    expect(actions).toContain('web_search');
-    expect(actions).toContain('web_explore');
-    expect(actions).toContain('evidence_verify');
-    expect(actions).toContain('research_synthesize');
+    expect(actions).toEqual(['web_search', 'web_fetch', 'evidence_verify']);
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
+    const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
+    expect(searchInput.query).toBe('طلال حسن الزهراني');
+    expect(searchInput.disabledProviders).toEqual(['searxng']);
+  });
+
+  test('shows search excerpts for a news question and drops weak pages', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            results:[
+              { title:'خبر الذهب', url:'https://example.com/gold', snippet:'سعر الذهب تحرك اليوم.' },
+              { title:'يوتيوب', url:'https://www.youtube.com/watch?v=1', snippet:'مقطع' },
+              { title:'وسم', url:'https://example.com/tag/gold', snippet:'وسم ذهب' }
+            ]
+          }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'أحدث أخبار الذهب' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(result.reply).toContain('سعر الذهب تحرك اليوم.');
+    expect(result.reply).toContain('https://example.com/gold');
+    expect(result.reply).not.toContain('youtube.com');
+    expect(result.reply).not.toContain('/tag/');
+    expect(result.trace.map(item => item.action)).toEqual(['web_search']);
+  });
+
+  test('stops after an empty public search instead of calling the planner', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'web_search') {
+        return { ok:true, executed:true, action, action_fabric:{ side_effect:'network_read' }, result:{ results:[] } };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'من وزير الداخلية' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.reply).toBe('البحث لم يُرجع صفحات.');
+    expect(result.trace.map(item => item.action)).toEqual(['web_search']);
+    const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
+    expect(searchInput.query).toBe('وزير الداخلية');
   });
 
   test('routes exact production official URL question through deterministic research without ai_reason', async () => {

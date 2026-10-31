@@ -175,6 +175,14 @@ describe('BONDS language and query resolver', () => {
     );
   });
 
+  test('classifies a search command around a person as a person lookup', () => {
+    const result = resolveLanguageQuery('ابحث من هو المستشار المالي الدكتور طلال حسن الزهراني');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.requires_research).toBe(true);
+    expect(result.entity.text).toBe('طلال حسن الزهراني');
+    expect(result.selected_query).toBe('طلال حسن الزهراني');
+  });
+
   test('keeps generic non-person topic phrasing out of person lookup', () => {
     const result = resolveLanguageQuery('حدثني عن مستقبل الذكاء الاصطناعي التوليدي');
     expect(result.intent).toBe('web_research');

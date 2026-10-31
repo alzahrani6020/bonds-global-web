@@ -114,6 +114,7 @@ describe(
           'agent_execute',
           'ai_reason',
           'blind_spot_analyze',
+          'bonds_answer_brief',
           'calculator_open',
           'calculator_run',
           'cash_flow_analysis_run',
