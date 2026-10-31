@@ -17,15 +17,15 @@
     .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.65rem}.kpi{border:1px solid var(--line);border-radius:12px;padding:.75rem;min-height:96px}
     .kpi b{display:block;font-size:1.3rem;line-height:1.2}.kpi small{display:block;color:var(--muted);margin-top:.35rem}.unknown{color:var(--muted)}
     .funnel{display:flex;gap:.6rem;align-items:stretch;overflow:auto}.stage{min-width:150px;flex:1;border:1px solid var(--line);border-radius:12px;padding:.8rem;position:relative}.stage:not(:last-child):after{content:"←";position:absolute;left:-.55rem;top:35%;color:var(--muted)}
-    table{width:100%;border-collapse:collapse;font-size:.84rem}th,td{padding:.58rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}.scroll{overflow:auto;max-height:440px}
+    table{width:100%;border-collapse:collapse;font-size:.84rem}th,td{padding:.58rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}.scroll{overflow:auto;max-height:440px;width:100%;max-width:100%;min-width:0}
     .health{display:flex;align-items:center;gap:1rem}.score{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;border:10px solid #e2e8f0;font-size:1.35rem;font-weight:900}
     .cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.65rem}.cap{border:1px solid var(--line);border-radius:12px;padding:.75rem}.cap strong{display:block}.cap small{color:var(--muted)}
     .alert{border-right:4px solid var(--warn);padding:.65rem .8rem;background:#fffbeb;border-radius:8px;margin:.45rem 0}
     .error{display:none;background:#fee2e2;color:#991b1b;border-radius:10px;padding:.75rem;margin:.75rem 0}
-    .gov-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem}
+    .gov-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.gov-grid>*{min-width:0;max-width:100%}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;min-width:0;max-width:100%}.form-grid>*{min-width:0;max-width:100%}
     .form-grid label{display:flex;flex-direction:column;gap:.3rem;font-size:.82rem;color:var(--muted);min-width:0}.form-grid input,.form-grid select,.form-grid textarea{border:1px solid var(--line);border-radius:9px;padding:.58rem;background:#fff;color:var(--ink);font:inherit;min-width:0;width:100%;max-width:100%}
     .form-grid textarea{min-height:72px;resize:vertical}.form-actions{display:flex;gap:.5rem;align-items:end;min-width:0}.form-actions .btn{max-width:100%}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.danger{background:#991b1b}.gov-note{font-size:.82rem;color:var(--muted);margin:.35rem 0 .8rem}
-    @media(max-width:900px){.gov-grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr 1fr}}@media(max-width:640px){.form-grid{grid-template-columns:1fr}}
+    @media(max-width:900px){.gov-grid{grid-template-columns:minmax(0,1fr)}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.form-grid{grid-template-columns:minmax(0,1fr)}.form-grid label[style]{grid-column:auto!important}}
     @media(max-width:1000px){.s8,.s6,.s4{grid-column:span 12}}@media(max-width:640px){main{padding:.65rem}.funnel{flex-direction:column}.stage:not(:last-child):after{display:none}}
   </style>
 </head>
