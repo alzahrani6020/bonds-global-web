@@ -194,6 +194,13 @@
     </section>
 
     <section class="card s12">
+      <h2>Client Lifetime Value</h2>
+      <div id="clientLifetimeValueState" class="gov-note"></div>
+      <div id="clientLifetimeValueSummary" class="kpis" style="margin:.75rem 0"></div>
+      <div class="muted" id="clientLifetimeValueMissing"></div>
+    </section>
+
+    <section class="card s12">
       <h2>Saved Views وWatchlists</h2>
       <div class="gov-grid">
         <div>
@@ -267,7 +274,7 @@
     ['Opportunity Scoring','ACTIVE','Rule-based v1 مشتق من stage/probability/value/owner/close/action/linkage مع confidence؛ ليس forecast'],
     ['Revenue Attribution','PARTIAL','يعرض pipeline حسب المصدر؛ يبقى PARTIAL حتى توجد فواتير مدفوعة بمصدر اكتساب صريح'],
     ['Service Profitability','PARTIAL','يعرض الربح المباشر المرصود من financial_events posted المرتبطة بـ service_code؛ يبقى PARTIAL حتى تتوفر تكاليف موزعة موثقة لكل خدمة'],
-    ['Client Lifetime Value','PLANNED','يتطلب سياسة احتساب معتمدة'],
+    ['Client Lifetime Value','PARTIAL','يستخدم محرك unit-economics الحالي؛ يبقى UNKNOWN حتى تتوفر أدلة retention وربحية وإسناد مالي للعميل'],
     ['CAC / ROAS','NOT_CONFIGURED','يتطلب تكلفة الحملات الإعلانية'],
     ['Scenario Simulator','PARTIAL','Schema تمت إضافته؛ محرك الحساب يحتاج قواعد معتمدة'],
     ['Target vs Actual','ACTIVE','محرك Actual مقابل أهداف معتمدة؛ يبقى UNKNOWN عند عدم وجود هدف'],
@@ -424,6 +431,18 @@
     $('serviceProfitabilityRows').innerHTML=(sp.rows||[]).map(r=>'<tr><td>'+esc(r.serviceName||r.serviceCode)+'</td><td>'+esc(r.currency||'UNKNOWN')+'</td><td>'+esc(num(r.requestCount||0))+'</td><td>'+esc(num(r.recognizedRevenue))+'</td><td>'+esc(num(r.directCost))+'</td><td>'+esc(num(r.observedDirectProfit))+'</td><td>'+esc(r.observedDirectMarginPct==null?'UNKNOWN':pct(r.observedDirectMarginPct))+'</td><td>'+esc(r.dataState||'UNKNOWN')+'</td></tr>').join('')||'<tr><td colspan="8">UNKNOWN — لا توجد أحداث مالية posted مرتبطة بخدمة حتى الآن</td></tr>';
     $('serviceProfitabilityUnknown').textContent=(sp.requestedWithoutFinancials||[]).length
       ? 'طلبات خدمات بلا أحداث مالية posted: '+(sp.requestedWithoutFinancials||[]).map(r=>(r.serviceName||r.serviceCode)+' ('+r.requestCount+')').join('، ')
+      : '';
+
+    const clv=ops?.clientLifetimeValue||{};
+    $('clientLifetimeValueState').innerHTML='<span class="pill warn">'+esc(String(clv.status||'partial').toUpperCase())+'</span> '+esc(clv.reason||'Client Lifetime Value evidence is incomplete.');
+    $('clientLifetimeValueSummary').innerHTML=[
+      kpi('CLV',clv.ltv==null?'UNKNOWN':sar(clv.ltv),clv.method||'No governed LTV method available'),
+      kpi('العملاء',num(clv.coverage?.clients||0),'advisory_clients'),
+      kpi('عملاء لديهم طلبات',num(clv.coverage?.clientsWithServiceRequests||0),'service_requests.client_id'),
+      kpi('أحداث مالية منسوبة للعميل',num(clv.coverage?.postedClientAttributedFinancialEvents||0),'posted only')
+    ].join('');
+    $('clientLifetimeValueMissing').textContent=(clv.missingEvidence||[]).length
+      ? 'UNKNOWN — الأدلة الناقصة: '+(clv.missingEvidence||[]).join('، ')
       : '';
 
     $('savedViewRows').innerHTML=(ops?.savedViews||[]).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.scope)+'</td><td><small>'+esc(JSON.stringify(v.definition||{}))+'</small></td><td><button type="button" class="btn danger view-delete" data-id="'+esc(v.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Views محفوظة</td></tr>';
