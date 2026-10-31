@@ -64,11 +64,11 @@
     </section>
 
     <section class="card s6">
-      <h2>مصادر الزيارات — GA4</h2>
+      <h2>مصادر الزيارات — BONDS</h2>
       <div class="scroll"><table><thead><tr><th>القناة</th><th>Sessions</th><th>Users</th><th>Engaged</th></tr></thead><tbody id="acquisitionRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
     </section>
     <section class="card s6">
-      <h2>أفضل صفحات الهبوط/المحتوى — GA4</h2>
+      <h2>أفضل الصفحات — BONDS</h2>
       <div class="scroll"><table><thead><tr><th>الصفحة</th><th>Views</th><th>Users</th><th>Engagement</th></tr></thead><tbody id="topPageRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
     </section>
 
@@ -89,7 +89,7 @@
 
     <section class="card s12">
       <h2>حدود الثقة</h2>
-      <div class="muted">لا يعرض المركز رقمًا للزوار أو Realtime أو Attribution من Google قبل ربط Google Analytics Data API على الخادم. لا تُرسل PII إلى GA4، ولا تُعرض أسرار أو Credentials في المتصفح. أي مصدر متعطل يتحول إلى UNKNOWN/DEGRADED بدل صفر مضلل.</div>
+      <div class="muted">المصدر التشغيلي الافتراضي هو BONDS First-Party Analytics بدون خدمة مدفوعة. GA4 اختياري فقط ولا يحجب أي مؤشر أساسي. لا تُعرض معرفات الجلسات أو عناوين IP أو PII في واجهة مركز القيادة، وأي مصدر متعطل يتحول إلى UNKNOWN/DEGRADED بدل صفر مضلل.</div>
     </section>
   </div>
 </main>
@@ -108,10 +108,10 @@
   const safe=(value,fallback=null)=>Number.isFinite(Number(value))?Number(value):fallback;
 
   const CAPABILITIES=[
-    ['GA4 Traffic & Realtime','NOT_CONFIGURED','يتطلب Google Analytics Data API credentials خادمية'],
-    ['Traffic Sources & UTM','NOT_CONFIGURED','يتطلب GA4 Data API'],
-    ['Top Pages / Landing Pages','NOT_CONFIGURED','يتطلب GA4 Data API'],
-    ['Geography & Devices','NOT_CONFIGURED','يتطلب GA4 Data API'],
+    ['BONDS Traffic & Realtime','ACTIVE','First-party page_views + user_presence؛ بدون تكلفة خارجية'],
+    ['Traffic Sources','ACTIVE','BONDS source/referrer على page_views'],
+    ['Top Pages / Landing Pages','ACTIVE','BONDS page_views'],
+    ['Geography & Devices','ACTIVE','BONDS country/city/user_agent'],
     ['Search-to-Revenue','NOT_CONFIGURED','يتطلب Search Console + GA4 + CRM'],
     ['Commercial Funnel','ACTIVE','BONDS first-party commercial events + platform data'],
     ['Revenue & Pipeline','ACTIVE','Invoices + CRM opportunities'],
@@ -127,7 +127,7 @@
     ['Funding Intelligence','PARTIAL','الحالات موجودة؛ الربط الكامل بمصدر الاكتساب لم يكتمل'],
     ['Lead Scoring','PLANNED','يتطلب نموذجًا موثقًا وبيانات تدريب/قواعد'],
     ['Opportunity Scoring','PARTIAL','probability موجودة؛ score موحد غير معتمد'],
-    ['Revenue Attribution','PARTIAL','أحداث تجارية موجودة؛ GA4 acquisition غير مربوط'],
+    ['Revenue Attribution','PARTIAL','BONDS source/referrer متاح؛ الربط السببي مع العميل/الإيراد غير مكتمل'],
     ['Service Profitability','PLANNED','يتطلب تخصيص تكلفة موثق لكل خدمة'],
     ['Client Lifetime Value','PLANNED','يتطلب سياسة احتساب معتمدة'],
     ['CAC / ROAS','NOT_CONFIGURED','يتطلب تكلفة الحملات الإعلانية'],
@@ -189,7 +189,7 @@
     $('alerts').innerHTML=alerts.map(a=>'<div class="alert">'+esc(a)+'</div>').join('');
   }
 
-  function render(data,ga){
+  function render(data,fp,ga){
     const e=data.executive||{},f=data.funnel||{},a=data.ai||{};
     $('overallStatus').textContent=(data.status||'unknown').toUpperCase();
     $('overallStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
@@ -197,12 +197,13 @@
     const gaStatus=ga?.status||'not_configured';
     $('ga4Status').textContent='GA4: '+gaStatus.toUpperCase();
     $('ga4Status').className='pill '+(gaStatus==='healthy'?'ok':gaStatus==='degraded'?'warn':'bad');
-    $('firstPartyStatus').textContent='First-party: '+(data.status==='healthy'?'HEALTHY':'DEGRADED');
-    $('firstPartyStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
+    const fpStatus=fp?.status||'unknown';
+    $('firstPartyStatus').textContent='First-party: '+fpStatus.toUpperCase();
+    $('firstPartyStatus').className='pill '+(fpStatus==='healthy'?'ok':'warn');
 
     $('execKpis').innerHTML=[
-      kpi('زوار اليوم',ga?.today?.activeUsers==null?'UNKNOWN':num(ga.today.activeUsers),ga?.configured?'GA4 activeUsers today':'GA4 Data API غير مهيأ'),
-      kpi('المتواجدون الآن',ga?.realtime?.activeUsers==null?'UNKNOWN':num(ga.realtime.activeUsers),ga?.configured?'GA4 Realtime':'GA4 Realtime غير مهيأ'),
+      kpi('زوار اليوم',fp?.traffic?.visitorsToday==null?'UNKNOWN':num(fp.traffic.visitorsToday),'BONDS unique first-party sessions'),
+      kpi('المتواجدون الآن',fp?.traffic?.onlineNow==null?'UNKNOWN':num(fp.traffic.onlineNow),'BONDS presence, آخر دقيقتين'),
       kpi('المستخدمون 30 يوم',num(e.activeUsers30d),'BONDS presence'),
       kpi('العملاء المدفوعون',num(f.paid),'Paid invoice users'),
       kpi('Conversion',pct(e.conversionPct),'Paid users / profiles'),
@@ -233,18 +234,19 @@
     $('healthScore').textContent='UNKNOWN';
     $('healthLabel').textContent='غير محسوب';
     $('healthReason').textContent='لن يُحسب قبل إدخال أهداف رسمية وتفعيل مصادر Traffic/Attribution المطلوبة.';
-    $('acquisitionRows').innerHTML=(ga?.acquisition||[]).map(r=>'<tr><td>'+esc(r.channel||'UNKNOWN')+'</td><td>'+esc(num(r.sessions))+'</td><td>'+esc(num(r.activeUsers))+'</td><td>'+esc(num(r.engagedSessions))+'</td></tr>').join('')||'<tr><td colspan="4">'+esc(ga?.configured?'لا توجد بيانات':'NOT_CONFIGURED')+'</td></tr>';
-    $('topPageRows').innerHTML=(ga?.topPages||[]).map(r=>'<tr><td>'+esc(r.path||r.title||'UNKNOWN')+'</td><td>'+esc(num(r.views))+'</td><td>'+esc(num(r.activeUsers))+'</td><td>'+esc(r.engagementSeconds==null?'UNKNOWN':num(Math.round(r.engagementSeconds))+'s')+'</td></tr>').join('')||'<tr><td colspan="4">'+esc(ga?.configured?'لا توجد بيانات':'NOT_CONFIGURED')+'</td></tr>';
+    $('acquisitionRows').innerHTML=(fp?.traffic?.sources||[]).map(r=>'<tr><td>'+esc(r.source||'UNKNOWN')+'</td><td>'+esc(num(r.sessions))+'</td><td>'+esc(num(r.views))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
+    $('topPageRows').innerHTML=(fp?.traffic?.topPages||[]).map(r=>'<tr><td>'+esc(r.page||'UNKNOWN')+'</td><td>'+esc(num(r.views))+'</td><td>'+esc(num(r.sessions))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
     renderSources(data,ga);renderAlerts(data,ga);
   }
 
   async function load(){
     $('error').style.display='none';
     try{
-      const [execRes,gaRes]=await Promise.allSettled([api('executive-analytics-v2'),api('ga4-analytics')]);
+      const [execRes,fpRes,gaRes]=await Promise.allSettled([api('executive-analytics-v2'),api('first-party-analytics'),api('ga4-analytics')]);
       if(execRes.status!=='fulfilled') throw execRes.reason;
-      const ga=gaRes.status==='fulfilled'?gaRes.value:{configured:false,status:'degraded',error:gaRes.reason?.message||'GA4 request failed'};
-      render(execRes.value,ga);
+      if(fpRes.status!=='fulfilled') throw fpRes.reason;
+      const ga=gaRes.status==='fulfilled'?gaRes.value:{configured:false,status:'not_configured'};
+      render(execRes.value,fpRes.value,ga);
     }catch(e){$('error').textContent='فشل تحميل مركز القيادة: '+e.message;$('error').style.display='block';$('overallStatus').textContent='ERROR';$('overallStatus').className='pill bad';}
   }
   $('refreshBtn').addEventListener('click',load);
