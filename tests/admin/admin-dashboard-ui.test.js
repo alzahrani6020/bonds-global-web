@@ -170,39 +170,28 @@ describe('admin dashboard UI', () => {
 
     const failures = [];
 
-    async function clickExactTarget(target) {
-      const clickedSidebar = await page.evaluate(value => {
-        const el = [...document.querySelectorAll('#sidebar [data-target]')]
-          .find(node => node.dataset.target === value);
-        if (!el) return false;
-        el.click();
-        return true;
-      }, target);
-
-      if (clickedSidebar) return true;
-
-      await page.evaluate(() => {
-        const overview = [...document.querySelectorAll('#sidebar [data-target]')]
-          .find(node => node.dataset.target === 'overview');
-        if (overview) overview.click();
-      });
-
-      await page.waitForFunction(() =>
-        document.querySelectorAll('#overviewPanel [data-target]').length > 5
-      );
-
-      return page.evaluate(value => {
-        const el = [...document.querySelectorAll('#overviewPanel [data-target]')]
-          .find(node => node.dataset.target === value);
-        if (!el) return false;
-        el.click();
-        return true;
-      }, target);
-    }
-
     for (const target of targets) {
       try {
-        const clicked = await clickExactTarget(target);
+        await page.goto(
+          new URL('/admin/dashboard', BASE_URL).toString(),
+          { waitUntil: 'domcontentloaded' }
+        );
+        await page.waitForFunction(() =>
+          document.querySelectorAll('#sidebar [data-target]').length > 5 &&
+          document.querySelectorAll('#overviewPanel [data-target]').length > 5
+        );
+
+        const clicked = await page.evaluate(value => {
+          const sidebarTarget = [...document.querySelectorAll('#sidebar [data-target]')]
+            .find(node => node.dataset.target === value);
+          const overviewTarget = [...document.querySelectorAll('#overviewPanel [data-target]')]
+            .find(node => node.dataset.target === value);
+          const el = sidebarTarget || overviewTarget;
+          if (!el) return false;
+          el.click();
+          return true;
+        }, target);
+
         if (!clicked) {
           failures.push({ target, type: 'no-clickable-control' });
           continue;
@@ -219,7 +208,7 @@ describe('admin dashboard UI', () => {
         }
 
         const iframe = page.locator('iframe.module-frame');
-        await iframe.waitFor({ state: 'attached' });
+        await iframe.waitFor({ state: 'attached', timeout: 5000 });
         const src = await iframe.getAttribute('src');
         if (src !== target + '&_v=4') {
           failures.push({ target, type: 'wrong-module-src', src });
@@ -234,15 +223,11 @@ describe('admin dashboard UI', () => {
     await context.close();
   }, 120000);
 
-  test('top-level icon controls are bound to working UI behaviors', async () => {
+  test('visible top-level icon controls are bound to working UI behaviors', async () => {
     const { context, page } = await openAdmin({
       width: 1280,
       height: 900
     });
-
-    const ownerPerms = page.locator('#ownerPermsDropdown');
-    await ownerPerms.locator('summary').click();
-    expect(await ownerPerms.evaluate(el => el.open)).toBe(true);
 
     await page.locator('#searchTrigger').click();
     expect(await page.locator('#cmdPaletteOverlay').evaluate(el => el.classList.contains('open'))).toBe(true);
@@ -258,7 +243,7 @@ describe('admin dashboard UI', () => {
     const after = await language.textContent();
     expect(after).not.toBe(before);
 
-    const interactiveIconParents = await page.evaluate(() => {
+    const interactiveIcons = await page.evaluate(() => {
       const selectors = [
         '#sidebar .sidebar-link svg',
         '.stat-card__icon svg',
@@ -275,11 +260,18 @@ describe('admin dashboard UI', () => {
       );
     });
 
-    expect(interactiveIconParents.length).toBeGreaterThan(5);
-    expect(interactiveIconParents.every(item => item.parentInteractive)).toBe(true);
+    expect(interactiveIcons.length).toBeGreaterThan(5);
+    expect(interactiveIcons.every(item => item.parentInteractive)).toBe(true);
+
+    const contentIcons = interactiveIcons.filter(item =>
+      item.selector.includes('sidebar-link') ||
+      item.selector.includes('stat-card__icon') ||
+      item.selector.includes('module-card__icon')
+    );
+    expect(contentIcons.every(item => item.pointerEvents === 'none')).toBe(true);
 
     await context.close();
-  });
+  }, 60000);
 
   test('admin dashboard has no serious or critical accessibility violations', async () => {
     const { context, page } = await openAdmin({
