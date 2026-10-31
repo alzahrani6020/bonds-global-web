@@ -65,11 +65,11 @@
 
     <section class="card s6">
       <h2>مصادر الزيارات — BONDS</h2>
-      <div class="scroll"><table><thead><tr><th>القناة</th><th>Sessions</th><th>Users</th><th>Engaged</th></tr></thead><tbody id="acquisitionRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>المصدر</th><th>Sessions</th><th>Views</th><th>ملاحظة</th></tr></thead><tbody id="acquisitionRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
     </section>
     <section class="card s6">
       <h2>أفضل الصفحات — BONDS</h2>
-      <div class="scroll"><table><thead><tr><th>الصفحة</th><th>Views</th><th>Users</th><th>Engagement</th></tr></thead><tbody id="topPageRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
+      <div class="scroll"><table><thead><tr><th>الصفحة</th><th>Views</th><th>Sessions</th><th>ملاحظة</th></tr></thead><tbody id="topPageRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
     </section>
 
     <section class="card s6">
@@ -184,8 +184,7 @@
     for(const [key,v] of Object.entries(data.sources||{})) if(v?.status!=='ok') alerts.push('مصدر '+key+' غير متاح: '+(v?.error||'UNKNOWN'));
     if((data.executive?.renewalRisk||0)>0) alerts.push('قيمة تجديدات عالية/حرجة تحت الخطر: '+sar(data.executive.renewalRisk));
     if((data.ai?.failureRatePct||0)>=10) alerts.push('معدل فشل عمليات AI بلغ '+pct(data.ai.failureRatePct));
-    if(!ga?.configured) alerts.push('GA4 Data API غير مهيأ داخل لوحة BONDS؛ مؤشرات Traffic/Realtime/Attribution ستظل UNKNOWN.');
-    else if(ga?.status!=='healthy') alerts.push('GA4 Data API في حالة DEGRADED: '+(ga?.error||'UNKNOWN'));
+    if(ga?.configured && ga?.status!=='healthy') alerts.push('GA4 الاختياري في حالة DEGRADED: '+(ga?.error||'UNKNOWN'));
     $('alerts').innerHTML=alerts.map(a=>'<div class="alert">'+esc(a)+'</div>').join('');
   }
 
@@ -233,7 +232,7 @@
 
     $('healthScore').textContent='UNKNOWN';
     $('healthLabel').textContent='غير محسوب';
-    $('healthReason').textContent='لن يُحسب قبل إدخال أهداف رسمية وتفعيل مصادر Traffic/Attribution المطلوبة.';
+    $('healthReason').textContent='لن يُحسب قبل إدخال أهداف رسمية معتمدة؛ بيانات Traffic الداخلية أصبحت متاحة.';
     $('acquisitionRows').innerHTML=(fp?.traffic?.sources||[]).map(r=>'<tr><td>'+esc(r.source||'UNKNOWN')+'</td><td>'+esc(num(r.sessions))+'</td><td>'+esc(num(r.views))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
     $('topPageRows').innerHTML=(fp?.traffic?.topPages||[]).map(r=>'<tr><td>'+esc(r.page||'UNKNOWN')+'</td><td>'+esc(num(r.views))+'</td><td>'+esc(num(r.sessions))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
     renderSources(data,ga);renderAlerts(data,ga);
