@@ -93,4 +93,19 @@ describe('Admin CRM operations', () => {
     expect(en).toContain("awaiting_client:'Awaiting client'");
     expect(en).toContain("awaiting_approval:'Awaiting approval'");
   });
+  test('CRM overview exposes derived explainable commercial scoring without schema writes', () => {
+    const api = read('api/admin.js');
+    const page = read('admin/crm.html');
+    const engine = read('lib/analytics/commercial-scoring.js');
+
+    expect(api).toContain("buildCommercialScoring");
+    expect(api).toContain("commercialScoring: commercialScoring.summary");
+    expect(page).toContain('Commercial Scoring');
+    expect(page).toContain('Opportunity Score:');
+    expect(page).toContain('Lead Score');
+    expect(engine).toContain("methodology: 'rule_based_v1'");
+    expect(engine).toContain("operational_prioritization_not_conversion_probability");
+    expect(engine).not.toContain(".from(");
+  });
+
 });
