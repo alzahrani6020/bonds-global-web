@@ -3557,6 +3557,233 @@ async function recordConfigSnapshot(sb, body, admin, req) {
   return{success:true,snapshots:data||[]};
 }
 
+
+function riyadhDayStartIso(nowMs=Date.now()) {
+  const shifted = new Date(nowMs + 3 * 3600000);
+  const startUtcForRiyadh = Date.UTC(
+    shifted.getUTCFullYear(),
+    shifted.getUTCMonth(),
+    shifted.getUTCDate(),
+    0, 0, 0, 0
+  ) - 3 * 3600000;
+  return new Date(startUtcForRiyadh).toISOString();
+}
+
+function normalizeTrafficSource(source, referrer) {
+  const explicit = String(source || '').trim().toLowerCase();
+  if (explicit && !['unknown','null','undefined'].includes(explicit)) return explicit.slice(0, 120);
+  const value = String(referrer || '').trim();
+  if (!value) return 'direct';
+  try {
+    const host = new URL(value).hostname.replace(/^www\./, '').toLowerCase();
+    return host || 'direct';
+  } catch (_) {
+    return 'other';
+  }
+}
+
+function inferDevice(userAgent) {
+  const ua = String(userAgent || '');
+  if (/ipad|tablet/i.test(ua)) return 'tablet';
+  if (/mobile|android|iphone|ipod/i.test(ua)) return 'mobile';
+  if (ua) return 'desktop';
+  return 'unknown';
+}
+
+async function getFirstPartyAnalytics(sb) {
+  const now = Date.now();
+  const todayStart = riyadhDayStartIso(now);
+  const since30 = new Date(now - 30 * 86400000).toISOString();
+  const presenceCutoff = new Date(now - 2 * 60 * 1000).toISOString();
+
+  const sourceQueries = [
+    ['viewsToday', sb.from('page_views')
+      .select('session_id,page,section,source,referrer,country,country_code,city,user_agent,created_at')
+      .gte('created_at', todayStart)
+      .order('created_at', { ascending: false })
+      .limit(10000)],
+    ['views30', sb.from('page_views')
+      .select('session_id,page,section,source,referrer,country,country_code,city,user_agent,created_at')
+      .gte('created_at', since30)
+      .order('created_at', { ascending: false })
+      .limit(10000)],
+    ['sessions30', sb.from('page_sessions')
+      .select('page,section,duration_seconds,source,referrer,started_at')
+      .gte('started_at', since30)
+      .order('started_at', { ascending: false })
+      .limit(10000)],
+    ['presenceNow', sb.from('user_presence')
+      .select('session_id,user_id,page,section,country,city,last_seen_at,is_online')
+      .eq('is_online', true)
+      .gte('last_seen_at', presenceCutoff)
+      .order('last_seen_at', { ascending: false })
+      .limit(5000)],
+    ['contacts30', sb.from('contact_messages')
+      .select('service,source,created_at')
+      .gte('created_at', since30)
+      .order('created_at', { ascending: false })
+      .limit(5000)],
+    ['funding30', sb.from('funding_cases')
+      .select('status,source,amount,created_at')
+      .gte('created_at', since30)
+      .order('created_at', { ascending: false })
+      .limit(5000)]
+  ];
+
+  const settled = await Promise.allSettled(sourceQueries.map(([, query]) => query));
+  const data = {};
+  const sources = {};
+  settled.forEach((result, index) => {
+    const name = sourceQueries[index][0];
+    if (result.status === 'rejected') {
+      data[name] = [];
+      sources[name] = { status: 'unavailable', error: String(result.reason?.message || result.reason || 'Query failed').slice(0, 180) };
+      return;
+    }
+    const payload = result.value || {};
+    if (payload.error) {
+      data[name] = [];
+      sources[name] = { status: 'unavailable', error: String(payload.error.message || payload.error).slice(0, 180) };
+      return;
+    }
+    const rows = Array.isArray(payload.data) ? payload.data : [];
+    data[name] = rows;
+    const queryLimit = name === 'presenceNow' || name === 'contacts30' || name === 'funding30' ? 5000 : 10000;
+    sources[name] = { status: rows.length >= queryLimit ? 'partial' : 'ok', rows: rows.length, truncated: rows.length >= queryLimit };
+  });
+
+  const viewsToday = data.viewsToday || [];
+  const views30 = data.views30 || [];
+  const sessions30 = data.sessions30 || [];
+  const presenceNow = data.presenceNow || [];
+  const contacts30 = data.contacts30 || [];
+  const funding30 = data.funding30 || [];
+
+  const uniqueSessions = rows => new Set(rows.map(r => r.session_id).filter(Boolean)).size;
+  const visitorsToday = uniqueSessions(viewsToday);
+  const visitors30d = uniqueSessions(views30);
+  const onlineNow = uniqueSessions(presenceNow);
+
+  const traffic = {};
+  const pages = {};
+  const countries = {};
+  const cities = {};
+  const devices = {};
+  for (const row of views30) {
+    const session = row.session_id || null;
+    const source = normalizeTrafficSource(row.source, row.referrer);
+    const t = traffic[source] || (traffic[source] = { source, views: 0, sessions: new Set() });
+    t.views++;
+    if (session) t.sessions.add(session);
+
+    const page = String(row.page || 'unknown').slice(0, 240);
+    const p = pages[page] || (pages[page] = { page, views: 0, sessions: new Set() });
+    p.views++;
+    if (session) p.sessions.add(session);
+
+    const country = String(row.country || row.country_code || 'unknown').slice(0, 120);
+    const g = countries[country] || (countries[country] = { country, views: 0, sessions: new Set() });
+    g.views++;
+    if (session) g.sessions.add(session);
+
+    const city = String(row.city || 'unknown').slice(0, 120);
+    const cg = cities[city] || (cities[city] = { city, views: 0, sessions: new Set() });
+    cg.views++;
+    if (session) cg.sessions.add(session);
+
+    const device = inferDevice(row.user_agent);
+    const d = devices[device] || (devices[device] = { device, views: 0, sessions: new Set() });
+    d.views++;
+    if (session) d.sessions.add(session);
+  }
+
+  const toRanked = (obj, sessionKey='sessions') => Object.values(obj)
+    .map(x => ({ ...x, [sessionKey]: x.sessions.size }))
+    .map(({ sessions, ...rest }) => ({ ...rest, sessions: sessions?.size ?? rest[sessionKey] }))
+    .sort((a, b) => (b.sessions || 0) - (a.sessions || 0) || (b.views || 0) - (a.views || 0));
+
+  const trafficSources = Object.values(traffic)
+    .map(x => ({ source: x.source, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views)
+    .slice(0,20);
+  const topPages = Object.values(pages)
+    .map(x => ({ page: x.page, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.views - a.views || b.sessions - a.sessions)
+    .slice(0,25);
+  const geography = Object.values(countries)
+    .map(x => ({ country: x.country, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views)
+    .slice(0,25);
+  const topCities = Object.values(cities)
+    .map(x => ({ city: x.city, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views)
+    .slice(0,25);
+  const deviceBreakdown = Object.values(devices)
+    .map(x => ({ device: x.device, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views);
+
+  const totalDuration = sessions30.reduce((sum, row) => sum + Number(row.duration_seconds || 0), 0);
+  const avgSessionSeconds = sessions30.length ? Math.round(totalDuration / sessions30.length) : null;
+
+  const leadsToday = contacts30.filter(x => String(x.created_at || '') >= todayStart).length;
+  const leads30d = contacts30.length;
+  const fundingToday = funding30.filter(x => String(x.created_at || '') >= todayStart).length;
+  const fundingRequests30d = funding30.length;
+  const aggregateLeadConversionPct30d = visitors30d ? Math.round((leads30d / visitors30d) * 1000) / 10 : null;
+
+  const serviceDemand = {};
+  for (const lead of contacts30) {
+    const service = String(lead.service || 'unspecified').trim() || 'unspecified';
+    serviceDemand[service] = (serviceDemand[service] || 0) + 1;
+  }
+
+  return {
+    success: true,
+    mode: 'first_party_free',
+    costDependency: 'none',
+    timezone: 'Asia/Riyadh',
+    todayStart,
+    traffic: {
+      visitorsToday,
+      pageViewsToday: viewsToday.length,
+      onlineNow,
+      visitors30d,
+      pageViews30d: views30.length,
+      sessions30d: sessions30.length,
+      avgSessionSeconds,
+      sources: trafficSources,
+      topPages,
+      geography,
+      topCities,
+      devices: deviceBreakdown
+    },
+    leads: {
+      today: leadsToday,
+      last30d: leads30d,
+      fundingToday,
+      fundingRequests30d,
+      aggregateLeadConversionPct30d,
+      conversionDefinition: 'contact_messages_30d / unique_first_party_sessions_30d; aggregate only, not identity attribution',
+      topServices: Object.entries(serviceDemand)
+        .map(([service, count]) => ({ service, count }))
+        .sort((a,b) => b.count - a.count)
+        .slice(0,20)
+    },
+    sources,
+    status: Object.values(sources).some(x => x.status === 'unavailable')
+      ? 'degraded'
+      : Object.values(sources).some(x => x.status === 'partial')
+        ? 'partial'
+        : 'healthy',
+    privacy: {
+      rawSessionIdsReturned: false,
+      rawIpAddressesReturned: false,
+      piiReturned: false
+    },
+    generatedAt: new Date().toISOString()
+  };
+}
+
 // ── Executive Analytics / AI Operations ────────────────────
 async function getExecutiveAnalyticsV2(sb) {
   const since90=new Date(Date.now()-90*86400000).toISOString();
@@ -4814,6 +5041,10 @@ async function handler(req, res) {
       if (action === 'data-governance-overview') {
         const access = await requireAdminPermission(req, sb, 'governance.read');
         return res.status(200).json(await getDataGovernanceOverview(sb, access));
+      }
+      if (action === 'first-party-analytics') {
+        await requireAdminPermission(req, sb, 'analytics.executive');
+        return res.status(200).json(await getFirstPartyAnalytics(sb));
       }
       if (action === 'ga4-analytics') {
         await requireAdminPermission(req, sb, 'analytics.executive');
