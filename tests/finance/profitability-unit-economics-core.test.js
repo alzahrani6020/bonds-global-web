@@ -125,6 +125,34 @@ describe('Profitability intelligence and unit economics core', () => {
     expect(result.diagnostics.ltv_method).toBe('explicit_ltv');
   });
 
+  test('supports LTV-only analysis without requiring CAC inputs', () => {
+    const result = runFinancialEngine('unit_economics', {
+      analysis_scope: 'ltv',
+      period_basis: 'monthly',
+      active_customers: 10,
+      gross_profit: 4000,
+      churn_rate_pct: 5
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.ltv).toBe(8000);
+    expect(result.metrics.cac).toBeNull();
+    expect(result.metrics.ltv_to_cac).toBeNull();
+    expect(result.diagnostics.analysis_scope).toBe('ltv');
+  });
+
+  test('LTV-only analysis still fails closed without governed LTV evidence', () => {
+    const result = runFinancialEngine('unit_economics', {
+      analysis_scope: 'ltv',
+      active_customers: 10,
+      gross_profit: 4000
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.required_inputs)
+      .toContain('ltv_or_churn_rate_pct_gt_0_lte_100');
+  });
+
   test('unit economics fails closed when LTV cannot be supported', () => {
     const result = runFinancialEngine('unit_economics', {
       acquisition_spend: 10000,
