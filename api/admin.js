@@ -13,6 +13,14 @@ const { setAllowedOrigin } = require('../lib/api/cors');
 const FundingCases = require('../lib/api/funding-cases-admin');
 const { logCommercialEvent } = require('../lib/analytics/commercial-events');
 const { getGa4Overview } = require('../lib/analytics/ga4-data-api');
+const {
+  buildMetricSnapshot,
+  loadCommandCenterGovernance,
+  saveTarget,
+  deleteTarget,
+  saveAlertRule,
+  deleteAlertRule
+} = require('../lib/analytics/command-center-governance');
 const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
@@ -5041,6 +5049,70 @@ async function handler(req, res) {
       if (action === 'data-governance-overview') {
         const access = await requireAdminPermission(req, sb, 'governance.read');
         return res.status(200).json(await getDataGovernanceOverview(sb, access));
+      }
+      if (action === 'command-center-governance') {
+        await requireAdminPermission(req, sb, 'analytics.command_center.read');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        return res.status(200).json(await loadCommandCenterGovernance(sb, metricSnapshot));
+      }
+      if (action === 'command-center-target-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let target;
+        try {
+          target = await saveTarget(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required|must be|target_value|period_|comparison|scenario/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_target_save', 'analytics_target', target.id, null, {
+          metric_key: target.metric_key,
+          period_start: target.period_start,
+          period_end: target.period_end,
+          scenario: target.scenario
+        }, req);
+        return res.status(200).json({ success: true, target });
+      }
+      if (action === 'command-center-target-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const deleted = await deleteTarget(sb, id);
+        await logAdminAction(sb, access.user, 'analytics_target_delete', 'analytics_target', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-alert-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let rule;
+        try {
+          rule = await saveAlertRule(sb, req.body || {});
+        } catch (err) {
+          if (/invalid|required|must be|threshold|cooldown|severity|operator|metric_key/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_alert_rule_save', 'analytics_alert_rule', rule.id, null, {
+          metric_key: rule.metric_key,
+          operator: rule.operator,
+          severity: rule.severity,
+          enabled: rule.enabled
+        }, req);
+        return res.status(200).json({ success: true, rule });
+      }
+      if (action === 'command-center-alert-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const deleted = await deleteAlertRule(sb, id);
+        await logAdminAction(sb, access.user, 'analytics_alert_rule_delete', 'analytics_alert_rule', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
       }
       if (action === 'first-party-analytics') {
         await requireAdminPermission(req, sb, 'analytics.executive');

@@ -43,12 +43,25 @@ describe('Executive Command Center', () => {
     expect(api).toContain("requireAdminPermission(req, sb, 'analytics.executive')");
   });
 
-  test('command center renders source health and avoids fabricated business health score', () => {
+  test('command center renders source health and computes business health only from approved targets', () => {
     const page = read('admin/executive-command-center.html');
     expect(page).toContain('Business Health Score');
-    expect(page).toContain("$('healthScore').textContent='UNKNOWN'");
+    expect(page).toContain('renderGovernance(gov||{})');
+    expect(page).toContain("health.score==null?'UNKNOWN':num(health.score)");
+    expect(page).toContain('لا توجد أهداف قابلة للقياس للفترة الحالية');
     expect(page).toContain('renderSources(data,ga)');
     expect(page).toContain('UNKNOWN/PARTIAL/ACTIVE');
+  });
+
+  test('command center exposes governed KPI targets and alert rules through admin-only actions', () => {
+    const page = read('admin/executive-command-center.html');
+    const api = read('api/admin.js');
+    expect(page).toContain("api('command-center-governance')");
+    expect(page).toContain("apiPost('command-center-target-save'");
+    expect(page).toContain("apiPost('command-center-alert-save'");
+    expect(api).toContain("action === 'command-center-governance'");
+    expect(api).toContain("analytics.command_center.read");
+    expect(api).toContain("analytics.command_center.manage");
   });
 
   test('governance schema covers sources metrics targets alerts decisions actions scenarios and views', () => {
