@@ -147,6 +147,140 @@ describe('admin dashboard UI', () => {
     await context.close();
   });
 
+  test('every dashboard icon/card target is wired to its intended module or panel', async () => {
+    const { context, page } = await openAdmin({
+      width: 1280,
+      height: 900
+    });
+
+    await page.waitForFunction(() =>
+      document.querySelectorAll('#sidebar [data-target]').length > 5 &&
+      document.querySelectorAll('#overviewPanel [data-target]').length > 5
+    );
+
+    const targets = await page.locator('[data-target]').evaluateAll(elements =>
+      [...new Set(elements
+        .map(el => el.getAttribute('data-target'))
+        .filter(Boolean)
+        .filter(target => target === 'overview' || target === 'online-users' || target.startsWith('/admin/'))
+      )]
+    );
+
+    expect(targets.length).toBeGreaterThan(20);
+
+    const failures = [];
+
+    async function clickExactTarget(target) {
+      const clickedSidebar = await page.evaluate(value => {
+        const el = [...document.querySelectorAll('#sidebar [data-target]')]
+          .find(node => node.dataset.target === value);
+        if (!el) return false;
+        el.click();
+        return true;
+      }, target);
+
+      if (clickedSidebar) return true;
+
+      await page.evaluate(() => {
+        const overview = [...document.querySelectorAll('#sidebar [data-target]')]
+          .find(node => node.dataset.target === 'overview');
+        if (overview) overview.click();
+      });
+
+      await page.waitForFunction(() =>
+        document.querySelectorAll('#overviewPanel [data-target]').length > 5
+      );
+
+      return page.evaluate(value => {
+        const el = [...document.querySelectorAll('#overviewPanel [data-target]')]
+          .find(node => node.dataset.target === value);
+        if (!el) return false;
+        el.click();
+        return true;
+      }, target);
+    }
+
+    for (const target of targets) {
+      try {
+        const clicked = await clickExactTarget(target);
+        if (!clicked) {
+          failures.push({ target, type: 'no-clickable-control' });
+          continue;
+        }
+
+        if (target === 'overview') {
+          await page.waitForSelector('#overviewPanel');
+          continue;
+        }
+
+        if (target === 'online-users') {
+          await page.waitForSelector('#onlineUsersPanel');
+          continue;
+        }
+
+        const iframe = page.locator('iframe.module-frame');
+        await iframe.waitFor({ state: 'attached' });
+        const src = await iframe.getAttribute('src');
+        if (src !== target + '&_v=4') {
+          failures.push({ target, type: 'wrong-module-src', src });
+        }
+      } catch (error) {
+        failures.push({ target, type: 'interaction-error', error: error.message });
+      }
+    }
+
+    expect(failures).toEqual([]);
+
+    await context.close();
+  }, 120000);
+
+  test('top-level icon controls are bound to working UI behaviors', async () => {
+    const { context, page } = await openAdmin({
+      width: 1280,
+      height: 900
+    });
+
+    const ownerPerms = page.locator('#ownerPermsDropdown');
+    await ownerPerms.locator('summary').click();
+    expect(await ownerPerms.evaluate(el => el.open)).toBe(true);
+
+    await page.locator('#searchTrigger').click();
+    expect(await page.locator('#cmdPaletteOverlay').evaluate(el => el.classList.contains('open'))).toBe(true);
+    await page.keyboard.press('Escape');
+    expect(await page.locator('#cmdPaletteOverlay').evaluate(el => el.classList.contains('open'))).toBe(false);
+
+    await page.locator('#notifBell').click();
+    expect(await page.locator('#notifDropdown').evaluate(el => el.classList.contains('open'))).toBe(true);
+
+    const language = page.locator('#languageToggle');
+    const before = await language.textContent();
+    await language.click();
+    const after = await language.textContent();
+    expect(after).not.toBe(before);
+
+    const interactiveIconParents = await page.evaluate(() => {
+      const selectors = [
+        '#sidebar .sidebar-link svg',
+        '.stat-card__icon svg',
+        '.module-card__icon svg',
+        '#searchTrigger svg',
+        '#notifBell svg'
+      ];
+      return selectors.flatMap(selector =>
+        [...document.querySelectorAll(selector)].map(svg => ({
+          selector,
+          pointerEvents: getComputedStyle(svg).pointerEvents,
+          parentInteractive: Boolean(svg.closest('button,[role="button"],a,summary,[data-target]'))
+        }))
+      );
+    });
+
+    expect(interactiveIconParents.length).toBeGreaterThan(5);
+    expect(interactiveIconParents.every(item => item.parentInteractive)).toBe(true);
+
+    await context.close();
+  });
+
   test('admin dashboard has no serious or critical accessibility violations', async () => {
     const { context, page } = await openAdmin({
       width: 1280,
