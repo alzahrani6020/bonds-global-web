@@ -89,31 +89,13 @@ jobs:
           mkdir -p .vercel
           printf '{"orgId":"%s","projectId":"%s"}\n' "$VERCEL_ORG_ID" "$VERCEL_PROJECT_ID" > .vercel/project.json
 
-      - name: Pull Production Vercel settings
-        shell: bash
-        run: |
-          set -euo pipefail
-          npx --no-install vercel pull --yes --environment=production
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      - name: Build Production output in GitHub runner
-        shell: bash
-        run: |
-          set -euo pipefail
-          sha="${{ steps.release.outputs.sha }}"
-          BONDS_RELEASE_SHA="$sha" npx --no-install vercel build --prod
-          test -f .vercel/output/config.json
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-
-      - name: Stage prebuilt Production deployment
+      - name: Stage Production deployment
         id: deploy
         shell: bash
         run: |
           set -euo pipefail
           sha="${{ steps.release.outputs.sha }}"
-          output="$(npx --no-install vercel deploy --prebuilt --prod --skip-domain --yes --env "BONDS_RELEASE_SHA=$sha" --meta "githubCommitSha=$sha")"
+          output="$(npx --no-install vercel deploy --prod --skip-domain --yes --env "BONDS_RELEASE_SHA=$sha" --meta "githubCommitSha=$sha")"
           printf '%s\n' "$output"
 
           deployment_url="$(printf '%s\n' "$output" | grep -Eo 'https://[^[:space:]]+\.vercel\.app' | tail -n 1)"
