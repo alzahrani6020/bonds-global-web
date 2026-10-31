@@ -294,9 +294,18 @@ async function generateNativeReply(messages, context, options = {}) {
   });
 
   if (!response?.ok) {
+    const attempts = Array.isArray(response?.meta?.failover_attempts)
+      ? response.meta.failover_attempts
+      : [];
+    const lastAttempt = attempts.length ? attempts[attempts.length - 1] : null;
+    const upstreamStatus = Number(response?.error?.status ?? lastAttempt?.http_status);
     const err = new Error(response?.error?.message || response?.error?.code || 'BONDS AI action failed');
     err.code = response?.error?.code || 'BONDS_NATIVE_CHAT_FAILED';
     err.elapsedMs = response?.error?.elapsed_ms ?? null;
+    err.upstreamStatus = Number.isFinite(upstreamStatus) ? upstreamStatus : null;
+    err.runtimeErrorCode = response?.error?.detail?.error?.code || lastAttempt?.runtime_error_code || null;
+    err.nativeNode = response?.meta?.native_node || lastAttempt?.node || null;
+    err.nativeAttempts = attempts;
     throw err;
   }
 
