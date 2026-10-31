@@ -7,12 +7,12 @@
   <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=3.0.0">
   <style>
     :root{--bg:#f6f7fb;--card:#fff;--line:#e2e8f0;--text:#172033;--muted:#596273;--gold:#9b7a35;--ok:#15803d;--warn:#a16207;--bad:#b91c1c}
-    *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-    main{max-width:1680px;margin:auto;padding:1rem}.head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+    *{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:1680px;width:100%;min-width:0;margin:auto;padding:1rem}.head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;min-width:0}
     h1,h2,h3{margin-top:0}.muted{color:var(--muted)}.btn{border:0;border-radius:10px;padding:.65rem 1rem;font-weight:800;cursor:pointer;background:#172033;color:#fff}
     .statusbar{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0}.pill{border:1px solid var(--line);border-radius:999px;padding:.25rem .65rem;font-size:.78rem;font-weight:800;background:#fff}
     .pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}
-    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;min-width:0}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;min-width:0;max-width:100%;overflow:hidden}
     .s12{grid-column:span 12}.s8{grid-column:span 8}.s6{grid-column:span 6}.s4{grid-column:span 4}
     .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.65rem}.kpi{border:1px solid var(--line);border-radius:12px;padding:.75rem;min-height:96px}
     .kpi b{display:block;font-size:1.3rem;line-height:1.2}.kpi small{display:block;color:var(--muted);margin-top:.35rem}.unknown{color:var(--muted)}
