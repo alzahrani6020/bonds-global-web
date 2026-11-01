@@ -127,7 +127,13 @@ jobs:
               console.log(`Staged health PASS (commit=${body.version})`);
             '
 
-          readiness_json="$(npx --no-install vercel curl "$deployment_url/api/readiness" -H 'Cache-Control: no-cache')"
+          # /api/readiness only returns coarse state publicly; the runtime contract detail below
+          # (build fingerprint, versions, auth modes) requires the bearer secret.
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "CRON_SECRET is not available to the release gate; cannot read authorised readiness detail."
+            exit 1
+          fi
+          readiness_json="$(npx --no-install vercel curl "$deployment_url/api/readiness" -H 'Cache-Control: no-cache' -H "Authorization: Bearer $CRON_SECRET")"
           READINESS_JSON="$readiness_json" EXPECTED_VERSION="${{ steps.release.outputs.short_sha }}" node --input-type=module -e '
             import { createRequire } from "node:module";
             const require = createRequire(import.meta.url);
@@ -135,6 +141,7 @@ jobs:
             const body = JSON.parse(process.env.READINESS_JSON);
             const runtime = body.token_runtime;
             const failures = [];
+            if (runtime && !("build_commit" in runtime)) failures.push("readiness_detail_unauthorized");
             if (body.version !== process.env.EXPECTED_VERSION) failures.push("version");
             if (body.environment !== "production") failures.push("environment");
             if (body.status !== "ready") failures.push("status");
@@ -207,6 +214,7 @@ jobs:
           echo "Staged tools navigation and critical routes PASS"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
 
       - name: Verify release candidate is current main
         if: github.event_name == 'workflow_run' || inputs.promote

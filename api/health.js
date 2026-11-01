@@ -20,13 +20,12 @@ const {
 const { resolveBrokerChannel } = require('../lib/security/service-token-broker');
 const { searchUpstreams, searchWeb } = require('../lib/intelligence/web-search');
 
-// Public /api/readiness is polled by the site widget and the release gate, so it
-// keeps what they need. NOTE: .github/workflows/deploy-vercel.yml asserts
-// token_runtime.{channel_auth,broker_auth,contract_version,schema_version,build_commit}
-// from this public body, so those stay public until the gate sends a bearer token.
-// Other operational detail (retry counters, upstream counts, latency) and the live
-// search probe (?deep=1, which makes outbound requests) require
-// `Authorization: Bearer <CRON_SECRET>`.
+// Public /api/readiness is polled by the site widget and post-deploy smoke, so it
+// keeps only coarse state: checks.*, token_runtime.{status,required,code}, inference.mode/provider
+// and the native diagnostic code. Everything else (runtime build fingerprint, contract versions,
+// auth modes, retry counters, upstream counts, latency) and the live search probe (?deep=1, which
+// makes outbound requests) require `Authorization: Bearer <CRON_SECRET>`.
+// .github/workflows/deploy-vercel.yml sends that header; keep the two in sync.
 function isHealthDetailAuthorized(req) {
   const secret = String(process.env.CRON_SECRET || '').trim();
   if (!secret) return false;
@@ -45,10 +44,17 @@ function omitKeys(source, keys) {
   return copy;
 }
 
+function pickKeys(source, keys) {
+  if (!source || typeof source !== 'object') return source;
+  const copy = {};
+  for (const key of keys) if (key in source) copy[key] = source[key];
+  return copy;
+}
+
 function redactPublicReadiness(body) {
   return {
     ...body,
-    token_runtime: omitKeys(body.token_runtime, ['verify_attempts', 'verify_recovered']),
+    token_runtime: pickKeys(body.token_runtime, ['status', 'required', 'code']),
     web_search: omitKeys(body.web_search, ['upstream_count', 'valid_upstream_count', 'live_result_count', 'cached']),
     inference: body.inference && {
       ...body.inference,
