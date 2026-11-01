@@ -121,7 +121,7 @@ Current approved artifact:
 - SHA-256: `0ffb122c8b6921f13cbc34186e052524d0b5803b17f4867b7197a561400b3770`
 - license: `Apache-2.0`
 - storage: outside Git under the host model store
-- runtime: `n_ctx=4096`, `n_threads=10`, `n_gpu_layers=-1`, `max_tokens=512`, `temperature=0.2`
+- runtime: `n_ctx=8192`, `n_threads=10`, `n_gpu_layers=-1`, `max_tokens=512`, `temperature=0.2`
 
 Provision it on the Windows host with:
 
