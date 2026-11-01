@@ -2177,9 +2177,11 @@
     function renderServiceHealth(payload, error = null) {
       const checks = payload?.checks || {};
       const apiState = payload && checks.supabase === 'ok' ? 'connected' : 'disconnected';
-      const nativeState = healthState(checks.native);
-      const fallbackState = healthState(checks.fallback);
-      const aiState = nativeState === 'connected' || fallbackState === 'connected'
+      // Chat runs only on Bonds Native; a healthy analysis fallback must never
+      // be shown as "connected" for the assistant. Older servers without
+      // checks.assistant_chat fall back to the native check alone.
+      const nativeState = healthState(checks.assistant_chat ?? checks.native);
+      const aiState = nativeState === 'connected'
         ? 'connected'
         : (nativeState === 'unconfigured' ? 'unconfigured' : 'disconnected');
       const tokenState = healthState(checks.token_runtime);
