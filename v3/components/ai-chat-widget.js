@@ -8,6 +8,10 @@
  */
 (function (window) {
   const API_URL = '/api/v3/ai/chat';
+  // Server orchestration budget is 240s; stop waiting shortly after that instead of hanging forever.
+  const ASSISTANT_REQUEST_TIMEOUT_MS = 270000;
+  // After this long without an answer, tell the user it is still working and that they can stop it.
+  const ASSISTANT_SLOW_NOTICE_MS = 20000;
   const SERVICE_DETAIL_API = '/api/v3/services/';
   const SERVICE_CATALOG_API = '/api/v3/services/catalog';
   const ECC_ADVISOR_URL = '/api/v3/ecc/advisor';
@@ -400,6 +404,22 @@
       color: #94a3b8;
       font-size: 0.8rem;
       padding: 0.25rem 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .bonds-ai-typing-cancel {
+      border: 1px solid currentColor;
+      background: transparent;
+      color: inherit;
+      border-radius: 999px;
+      padding: 0.1rem 0.6rem;
+      font: inherit;
+      cursor: pointer;
+    }
+    .bonds-ai-typing-cancel:hover,
+    .bonds-ai-typing-cancel:focus-visible {
+      color: #d4a853;
     }
     .bonds-ai-actions {
       display: flex;
@@ -1861,6 +1881,9 @@
       messages: [],
       isOpen: false,
       isLoading: false,
+      abortController: null,
+      abortReason: null,
+      slowNoticeTimer: null,
       isUploading: false,
       attachments: [],
       voiceState: 'idle',
@@ -2756,17 +2779,47 @@
       voiceBtn.disabled = loading || !voiceInputSupported();
       attachBtn.disabled = loading || state.isUploading;
       const typing = root.querySelector('.bonds-ai-typing');
+      if (state.slowNoticeTimer) {
+        clearTimeout(state.slowNoticeTimer);
+        state.slowNoticeTimer = null;
+      }
       if (loading) {
         if (!typing) {
+          const en = languageCode() === 'en';
           const el = document.createElement('div');
           el.className = 'bonds-ai-typing';
-          el.textContent = 'يكتب...';
+          el.setAttribute('role', 'status');
+          const label = document.createElement('span');
+          label.className = 'bonds-ai-typing-text';
+          label.textContent = en ? 'Typing…' : 'يكتب...';
+          const cancel = document.createElement('button');
+          cancel.type = 'button';
+          cancel.className = 'bonds-ai-typing-cancel';
+          cancel.textContent = en ? 'Stop' : 'إيقاف';
+          cancel.setAttribute('aria-label', en ? 'Stop waiting for the assistant' : 'إيقاف انتظار رد المساعد');
+          cancel.addEventListener('click', () => cancelActiveRequest('user'));
+          el.appendChild(label);
+          el.appendChild(cancel);
           messagesEl.appendChild(el);
           messagesEl.scrollTop = messagesEl.scrollHeight;
+          state.slowNoticeTimer = setTimeout(() => {
+            const text = root.querySelector('.bonds-ai-typing-text');
+            if (text) {
+              text.textContent = en
+                ? 'Still working… this can take a while. You can stop at any time.'
+                : 'ما زال المساعد يعمل… قد يستغرق الأمر وقتاً. يمكنك الإيقاف في أي وقت.';
+            }
+          }, ASSISTANT_SLOW_NOTICE_MS);
         }
       } else if (typing) {
         typing.remove();
       }
+    }
+
+    function cancelActiveRequest(reason) {
+      if (!state.abortController) return;
+      state.abortReason = reason || 'user';
+      state.abortController.abort();
     }
 
     function formatAttachmentBytes(bytes) {
@@ -3761,7 +3814,7 @@
     }
 
     function setStreamingStatus(phase) {
-      const typing = root.querySelector('.bonds-ai-typing');
+      const typing = root.querySelector('.bonds-ai-typing-text') || root.querySelector('.bonds-ai-typing');
       if (!typing) return;
       const en = languageCode() === 'en';
       const labels = {
@@ -3865,6 +3918,12 @@
       let responseReceivedAt = null;
       let parseStartedAt = null;
       let parseCompletedAt = null;
+      const requestController = typeof AbortController !== 'undefined' ? new AbortController() : null;
+      state.abortController = requestController;
+      state.abortReason = null;
+      const requestTimeoutId = requestController
+        ? setTimeout(() => cancelActiveRequest('timeout'), ASSISTANT_REQUEST_TIMEOUT_MS)
+        : null;
       try {
         const headers = await getAuthHeaders();
         if (!isProjectMode) headers.Accept = 'text/event-stream';
@@ -3872,7 +3931,8 @@
         const res = await fetch(url, {
           method: 'POST',
           headers,
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          signal: requestController ? requestController.signal : undefined
         });
         responseReceivedAt = Date.now();
 
@@ -3970,15 +4030,36 @@
             end_to_end_ms:now - clientStartedAt
           }));
         }
-        console.error('[BondsAIChat]', err);
+        const aborted = state.abortReason !== null || (err && err.name === 'AbortError');
+        const en = languageCode() === 'en';
+        let failureMessage = 'عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.';
+        let failureSource = 'assistant-error';
+        if (aborted) {
+          if (state.abortReason === 'user') {
+            failureMessage = en
+              ? 'Request stopped. You can edit your question and send it again.'
+              : 'تم إيقاف الطلب. يمكنك تعديل سؤالك وإرساله مرة أخرى.';
+            failureSource = 'assistant-cancelled';
+          } else {
+            failureMessage = en
+              ? 'The assistant took too long to answer. Please try again, or ask a shorter, more specific question.'
+              : 'استغرق المساعد وقتاً أطول من المتوقع. حاول مرة أخرى أو اطرح سؤالاً أقصر وأكثر تحديداً.';
+            failureSource = 'assistant-timeout';
+          }
+        } else {
+          console.error('[BondsAIChat]', err);
+        }
         updateMessageTracking(userMessage.message_id, { status: 'failed' });
-        addAssistantMessage('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.', true, {
+        addAssistantMessage(failureMessage, true, {
           turn_id: turnId,
           status: 'failed',
-          source: 'assistant-error',
+          source: failureSource,
           reply_to_message_id: userMessage.message_id
         });
       } finally {
+        if (requestTimeoutId) clearTimeout(requestTimeoutId);
+        state.abortController = null;
+        state.abortReason = null;
         setLoading(false);
       }
     }

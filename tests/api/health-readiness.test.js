@@ -81,6 +81,19 @@ function createResponse() {
   };
 }
 
+const DETAIL_SECRET = 'health-detail-secret-for-tests-1234567890';
+
+// Detail fields (retry counters, runtime fingerprint...) are only returned to authorised callers.
+// The public shape is covered separately by the redaction tests below.
+function strictReq({ authorized = true, query = {} } = {}) {
+  return {
+    method: 'GET',
+    url: '/api/health?strict=1',
+    query: { strict: '1', ...query },
+    headers: authorized ? { authorization: `Bearer ${DETAIL_SECRET}` } : {}
+  };
+}
+
 describe('platform health vs strict readiness', () => {
   beforeEach(() => {
     global.fetch = jest.fn(async (url, options) => runtimeFetch(url, options));
@@ -93,6 +106,7 @@ describe('platform health vs strict readiness', () => {
     mockAssistantReadiness.value = { status: 'ok', code: null, schema_version: 1 };
     mockAssistantReadiness.calls = 0;
     process.env.BONDS_NATIVE_HEALTH_RETRY_DELAYS_MS = '0,0,0';
+    process.env.CRON_SECRET = DETAIL_SECRET;
     process.env.BONDS_INFERENCE_MODE = 'REMOTE_BONDS_NATIVE';
     process.env.VERCEL_GIT_COMMIT_SHA = 'abcdef1234567890';
     delete process.env.BONDS_E2E_SMOKE_NONCE;
@@ -142,7 +156,7 @@ describe('platform health vs strict readiness', () => {
   });
 
   test('strict readiness passes through verified OpenAI fallback when Native AI is unavailable', async () => {
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -162,7 +176,7 @@ describe('platform health vs strict readiness', () => {
 
   test('strict readiness fails when native-only mode is configured and Native AI is unavailable', async () => {
     process.env.BONDS_AI_PROVIDER = 'native-only';
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -176,9 +190,76 @@ describe('platform health vs strict readiness', () => {
     expect(global.fetch).not.toHaveBeenCalledWith('https://api.openai.com/v1/models', expect.any(Object));
   });
 
+  describe('public readiness redaction', () => {
+    const PUBLIC_DROPPED = {
+      token_runtime: ['verify_attempts', 'verify_recovered'],
+      web_search: ['upstream_count', 'valid_upstream_count', 'live_result_count', 'cached'],
+      native_diagnostic: ['elapsed_ms', 'attempts', 'retry_recovered']
+    };
+
+    async function readiness(req) {
+      mockNativeOk.value = true;
+      const res = createResponse();
+      await healthHandler(req, res);
+      return res;
+    }
+
+    test('unauthenticated callers keep the fields the widget and release gate rely on', async () => {
+      const res = await readiness(strictReq({ authorized: false }));
+      expect(res.statusCode).toBe(200);
+      expect(res.body.status).toBe('ready');
+      expect(res.body.checks).toMatchObject({ native: 'ok', assistant_chat: 'ok', token_runtime: 'ok', web_search: 'ok' });
+      expect(res.body.token_runtime).toMatchObject({ status: 'ok', required: true, channel_auth: 'verified' });
+      expect(res.body.inference).toMatchObject({ mode: 'REMOTE_BONDS_NATIVE', native_reachable: true, chat_ready: true });
+      expect(res.body.inference.native_diagnostic).toHaveProperty('code', null);
+      expect(res.body.inference.native_diagnostic).toHaveProperty('executed');
+    });
+
+    test('unauthenticated callers do not receive operational detail', async () => {
+      const res = await readiness(strictReq({ authorized: false }));
+      for (const key of PUBLIC_DROPPED.token_runtime) expect(res.body.token_runtime).not.toHaveProperty(key);
+      for (const key of PUBLIC_DROPPED.web_search) expect(res.body.web_search).not.toHaveProperty(key);
+      for (const key of PUBLIC_DROPPED.native_diagnostic) expect(res.body.inference.native_diagnostic).not.toHaveProperty(key);
+    });
+
+    test('fields asserted by the release gate (deploy-vercel.yml) stay public', async () => {
+      const res = await readiness(strictReq({ authorized: false }));
+      expect(res.body.token_runtime).toMatchObject({
+        channel_auth: 'verified', broker_auth: 'configured', contract_version: 2, schema_version: 3, build_commit: runtimeBuild
+      });
+      const workflow = require('fs').readFileSync(require('path').join(__dirname, '../../.github/workflows/deploy-vercel.yml'), 'utf8');
+      for (const field of ['channel_auth', 'broker_auth', 'contract_version', 'schema_version', 'build_commit']) {
+        expect(workflow).toContain('runtime?.' + field);
+      }
+    });
+
+    test('a wrong bearer token is treated as unauthenticated', async () => {
+      const req = strictReq({ authorized: false });
+      req.headers = { authorization: 'Bearer not-the-secret' };
+      const res = await readiness(req);
+      expect(res.body.inference.native_diagnostic).not.toHaveProperty('attempts');
+    });
+
+    test('no CRON_SECRET configured means detail is never exposed', async () => {
+      delete process.env.CRON_SECRET;
+      const res = await readiness(strictReq({ authorized: true }));
+      expect(res.body.inference.native_diagnostic).not.toHaveProperty('attempts');
+    });
+
+    test('authorised callers receive the full detail', async () => {
+      const res = await readiness(strictReq({ authorized: true }));
+      expect(res.body.inference.native_diagnostic.attempts).toBe(1);
+    });
+
+    test('?deep=1 live search probe is ignored for unauthenticated callers', async () => {
+      const res = await readiness(strictReq({ authorized: false, query: { deep: '1' } }));
+      expect(res.body.web_search.verification).toBe('config_only');
+    });
+  });
+
   test('strict readiness passes when core and Native AI are healthy', async () => {
     mockNativeOk.value = true;
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -203,7 +284,7 @@ describe('platform health vs strict readiness', () => {
   test('strict readiness recovers from a transient Native health flap', async () => {
     mockNativeSequence.values = [false, false, true];
     process.env.BONDS_AI_PROVIDER = 'native-only';
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -233,7 +314,7 @@ describe('platform health vs strict readiness', () => {
       }
       return runtimeFetch(url, options);
     });
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -256,7 +337,7 @@ describe('platform health vs strict readiness', () => {
       }
       return runtimeFetch(url, options);
     });
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -281,7 +362,7 @@ describe('platform health vs strict readiness', () => {
       }
       return runtimeFetch(url, options);
     });
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -586,7 +667,7 @@ describe('platform health vs strict readiness', () => {
   });
 
   test('chat readiness reflects Native only and is not satisfied by the analysis fallback', async () => {
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -602,7 +683,7 @@ describe('platform health vs strict readiness', () => {
 
   test('chat readiness is ok when Native is healthy', async () => {
     mockNativeOk.value = true;
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
@@ -614,7 +695,7 @@ describe('platform health vs strict readiness', () => {
 
   test('default web search readiness is labelled config-only, not live-verified', async () => {
     mockNativeOk.value = true;
-    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const req = strictReq();
     const res = createResponse();
 
     await healthHandler(req, res);
