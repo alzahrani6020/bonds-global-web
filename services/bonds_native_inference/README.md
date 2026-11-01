@@ -94,6 +94,15 @@ Outputs under `%ProgramData%\BondsNative`: `service-supervisor.log` (rotated at 
 
 Host power: this is a laptop. Sleep/Modern Standby on battery suspends all three services and drops the tunnel; keep `standby-timeout-dc` at `0` (see `powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE`) or keep the machine on AC.
 
+## Cancel on client disconnect
+
+Generation is single-flight (`_LLM_LOCK`), so work nobody will read delays every later request. Two layers cooperate:
+
+- **Web side (always on, no host change):** `v3/api/ai.js` binds the browser's disconnect to a request-scoped signal (`lib/ai/request-abort-context.js`). `NativeInferenceProvider` aborts its fetch, and `InferenceRouter` treats `NATIVE_RUNTIME_CLIENT_ABORT` as neutral: no retry, no failover, no reliability/breaker/latency record, and no paid OpenAI fallback. A user pressing Stop therefore cannot trip the circuit breaker.
+- **Host side (opt-in):** set machine env `BONDS_NATIVE_CANCEL_ON_DISCONNECT=1` for `BondsNativeRuntimeService`. Queued requests then give up as soon as the caller leaves (instead of taking their turn), and an in-flight generation stops between tokens. In this mode the model streams internally; `completion_tokens` is the chunk count (`usage.completion_tokens_estimated=true`) and `prompt_tokens`/`total_tokens` are `null`. Default is off, which keeps the current non-streaming behaviour byte-for-byte.
+
+Enable only after verifying through the tunnel (EOF-based detection treats a proxy that half-closes after sending the request as a disconnect, which would cancel every request): start a long `/generate` through `https://native.bonds-global.com`, abort the client, and confirm a `native_generate_cancelled` line on the service's stderr and that the next request is not delayed. To roll back, remove the variable and restart the service. Changing host files needs the elevated runtime reinstall in a maintenance window.
+
 ## Architecture decision
 
 Keep the current `server.py` + `threading.Lock` single-flight runtime until measured production evidence justifies a concurrency architecture change.

@@ -8,7 +8,7 @@ import threading
 import time
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Callable, Mapping
 
 IDENTITY = "Bonds Native Inference"
 BACKEND = "llama_cpp"
@@ -28,6 +28,10 @@ class NativeRuntimeBusy(RuntimeError):
 
 class NativeContextOverflow(RuntimeError):
     pass
+
+
+class NativeClientCancelled(RuntimeError):
+    """The caller disconnected, so queued or in-flight work was abandoned."""
 
 
 @dataclass(frozen=True)
@@ -177,12 +181,81 @@ def _resident_llm(model: NativeModel, n_ctx: int, n_threads: int, n_gpu_layers: 
     return llm, False, load_seconds
 
 
+_CANCEL_POLL_SECONDS = 0.25
+
+
+def _acquire_llm_lock(timeout_seconds: float, cancel_check: Callable[[], bool] | None) -> bool:
+    """Acquire the single-flight lock; stop waiting early if the caller left."""
+    if cancel_check is None:
+        return _LLM_LOCK.acquire(timeout=timeout_seconds)
+    deadline = time.perf_counter() + timeout_seconds
+    while True:
+        remaining = deadline - time.perf_counter()
+        if remaining <= 0:
+            return False
+        if _LLM_LOCK.acquire(timeout=min(remaining, _CANCEL_POLL_SECONDS)):
+            return True
+        if cancel_check():
+            raise NativeClientCancelled("client disconnected while queued")
+
+
+def _stream_completion(
+    llm: Any,
+    messages: list[dict[str, str]],
+    max_tokens: int,
+    temperature: float,
+    cancel_check: Callable[[], bool],
+) -> dict[str, Any]:
+    """Run a streaming completion, aborting between tokens when the caller left.
+
+    Returns the same shape as the non-streaming call. llama.cpp emits one chunk
+    per token, so the chunk count is used as completion_tokens (flagged as an
+    estimate); prompt/total token counts are not available in this mode.
+    """
+    parts: list[str] = []
+    finish_reason = None
+    chunks = 0
+    stream = llm.create_chat_completion(
+        messages=messages,
+        max_tokens=max_tokens,
+        temperature=temperature,
+        stream=True,
+    )
+    try:
+        for chunk in stream:
+            choice = (chunk.get("choices") or [{}])[0]
+            piece = (choice.get("delta") or {}).get("content")
+            if piece:
+                parts.append(piece)
+                chunks += 1
+            if choice.get("finish_reason"):
+                finish_reason = choice.get("finish_reason")
+            if cancel_check():
+                raise NativeClientCancelled("client disconnected during generation")
+    finally:
+        close = getattr(stream, "close", None)
+        if callable(close):
+            close()
+    return {
+        "choices": [
+            {"message": {"content": "".join(parts)}, "finish_reason": finish_reason}
+        ],
+        "usage": {
+            "prompt_tokens": None,
+            "completion_tokens": chunks,
+            "total_tokens": None,
+            "completion_tokens_estimated": True,
+        },
+    }
+
+
 def generate(
     root: str | Path,
     prompt: str,
     *,
     context: Mapping[str, Any] | None = None,
     options: Mapping[str, Any] | None = None,
+    cancel_check: Callable[[], bool] | None = None,
 ) -> dict[str, Any]:
     request_started = time.perf_counter()
     if importlib.util.find_spec("llama_cpp") is None:
@@ -227,13 +300,15 @@ def generate(
     lock_timeout_seconds = max(1.0, min(120.0, lock_timeout_seconds))
 
     lock_wait_started = time.perf_counter()
-    acquired = _LLM_LOCK.acquire(timeout=lock_timeout_seconds)
+    acquired = _acquire_llm_lock(lock_timeout_seconds, cancel_check)
     lock_wait_seconds = max(0.0, time.perf_counter() - lock_wait_started)
     if not acquired:
         raise NativeRuntimeBusy(
             f"model busy beyond the {lock_timeout_seconds:.1f}s lock deadline"
         )
     try:
+        if cancel_check is not None and cancel_check():
+            raise NativeClientCancelled("client disconnected before generation started")
         model = _verified_model(root)
         llm, cache_hit, load_seconds = _resident_llm(
             model, n_ctx=n_ctx, n_threads=n_threads, n_gpu_layers=n_gpu_layers
@@ -241,11 +316,16 @@ def generate(
 
         generation_started = time.perf_counter()
         try:
-            response = llm.create_chat_completion(
-                messages=messages,
-                max_tokens=max_tokens,
-                temperature=temperature,
-            )
+            if cancel_check is None:
+                response = llm.create_chat_completion(
+                    messages=messages,
+                    max_tokens=max_tokens,
+                    temperature=temperature,
+                )
+            else:
+                response = _stream_completion(
+                    llm, messages, max_tokens, temperature, cancel_check
+                )
         except ValueError as exc:
             raise NativeContextOverflow(str(exc)) from exc
         generation_seconds = max(0.0, time.perf_counter() - generation_started)

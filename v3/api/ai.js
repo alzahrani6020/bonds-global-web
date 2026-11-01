@@ -19,6 +19,7 @@ const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/even
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
 const { runUniversalOrchestrator, isFastPublicFact } = require('../../lib/assistant/universal-orchestrator');
 const { buildRequestDiagnostics } = require('../../lib/assistant/request-diagnostics');
+const { runWithClientAbort } = require('../../lib/ai/request-abort-context');
 const crypto = require('crypto');
 
 function sendJson(res, status, data) {
@@ -561,7 +562,17 @@ function fallbackReply(userMessage, context) {
   return `أنا مساعد بوندز، وأعتمد على البيانات لإعطائك إجابات دقيقة عن "${activity}" في ${city}.\n\nيمكنك سؤالي عن:\n• كيف تقيم هذه الفرصة؟\n• ما مخاطر الاستثمار هنا؟\n• ما حجم السوق والمنافسين؟\n• قارن بين المدن\n• ما أحدث المؤشرات والإنذارات؟\n\nللحصول على إجابة أدق، اختر مدينة ونشاطاً محددين من القوائم أعلاه.`;
 }
 
-async function aiChatHandler(req, res) {
+// Binds the client's disconnect to a request-scoped signal so the native transport
+// can stop waiting (and stop queued work) when the browser aborts or closes the tab.
+function aiChatHandler(req, res) {
+  const clientAbort = new AbortController();
+  res.once('close', () => {
+    if (!res.writableEnded) clientAbort.abort();
+  });
+  return runWithClientAbort(clientAbort.signal, () => aiChatHandlerImpl(req, res));
+}
+
+async function aiChatHandlerImpl(req, res) {
   const requestStartedAt = Date.now();
   const requestId = String(req.headers['x-request-id'] || '').trim().slice(0, 120) ||
     (typeof crypto.randomUUID === 'function' ? crypto.randomUUID() : crypto.randomBytes(16).toString('hex'));
