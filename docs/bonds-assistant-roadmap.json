@@ -931,10 +931,11 @@
     "synthetic_production_journeys",
     "golden_conversations",
     "assistant_evaluations",
-    "red_team_scenarios"
+    "red_team_scenarios",
+    "end_to_end_ci_journeys"
   ],
   "next": [
-    "end_to_end_ci_journeys"
+    "outcome_analytics"
   ],
   "deferred": [
     "action_tokens",
@@ -952,8 +953,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-11-01",
-    "branch": "feat/end-to-end-ci-journeys",
-    "change": "End-to-End CI Journeys implementation candidate: explicit test:assistant:e2e-ci release gate added for safe persisted replay/audit, sensitive confirmation plus human-review evidence without execution authority, and fail-closed payload/idempotency drift. CI/merge/production verification pending. next remains end_to_end_ci_journeys until verified."
+    "branch": "docs/close-end-to-end-ci-journeys",
+    "change": "End-to-End CI Journeys closed after production verification. PR #817 merged as 3020d30f2ca561032c37311c0bdeaa0234e5d39f. PR CI 41340528582, Dependency Security 41340528528, Service Worker 41340528665, post-merge CI 41341037773, post-merge Dependency Security 41341037763, post-merge Service Worker 41341037790, and Production Release 41341426359 all passed. Vercel deployment dpl_7eUrcyQuKtQarVHK5iJkPrbRbjPR is READY for the exact merge SHA; health/readiness passed and runtime errors were zero. Next: outcome_analytics."
   },
   "production_rollout": {
     "status": "complete",
