@@ -902,4 +902,16 @@ parent/child relationships بين التوكنات.
 - تعرض الطبقة: إجمالي الرحلات، المكتملة، الفاشلة، المرفوضة، غير المؤكدة، غير المكتملة، completion rate، audit-incomplete drop-off proxy، outcome coverage، ومتوسط/وسيط زمن إكمال الرحلات المكتملة.
 - `dropoff_proxy_rate` هو **مؤشر نقص دليل تدقيقي فقط** وليس إثباتًا أن المستخدم تخلّى عن الرحلة.
 - لا execution authority، ولا business writes، ولا provider/model/token/context/compute/throughput change.
-- الحالة الحالية: **IMPLEMENTATION CANDIDATE / CI PENDING**. يبقى `next = journey_analytics` حتى إغلاق PR والتحقق من Production.
+- الحالة النهائية: **IMPLEMENTED / MERGED / POST-MERGE CI VERIFIED / DEPLOYED / PRODUCTION VERIFIED**.
+- Implementation PR: #823.
+- Merge SHA: `10c92aa7f908e05ef51e23e153235fa96db62a3b`.
+- Post-merge CI: `41347911188` — SUCCESS.
+- Post-merge Dependency Security: `41347911240` — SUCCESS.
+- Post-merge Service Worker: `41347911184` — SUCCESS.
+- Production Release: `41348378455` — SUCCESS.
+- Vercel Production deployment: `dpl_DSwArxWjk2FoHEHXHpZ5TxG7PVoY` — READY for exact SHA `10c92aa7f908e05ef51e23e153235fa96db62a3b`.
+- Production Authenticated Smoke: `41348527170` — SUCCESS, including `planner-telemetry`.
+- Production `/api/health`: HTTP 200 / `ok`, version `10c92aa`.
+- Production `/api/readiness`: HTTP 200 / `ready`; Supabase, Native, Token Runtime, User Governance, Assistant, Assistant Chat, and Web Search = `ok`.
+- Runtime error scan: zero errors in the verified post-release window.
+- Next Assistant roadmap item: **Conversion Metrics** (`conversion_metrics`).
