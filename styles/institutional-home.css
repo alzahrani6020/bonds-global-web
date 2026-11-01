@@ -96,10 +96,10 @@ html[lang="en"] .fi-page { font-family: Arial, "Helvetica Neue", sans-serif; }
 
 .fi-page .fi-hero {
   display: grid !important;
-  align-items: center !important;
-  min-height: 520px !important;
+  align-items: start !important;
+  min-height: auto !important;
   max-height: none !important;
-  padding: clamp(4rem, 7vw, 6rem) clamp(1.25rem, 5vw, 5rem) !important;
+  padding: clamp(2rem, 4vw, 3.25rem) clamp(1.25rem, 5vw, 5rem) 3rem !important;
   background: #FFFFFF !important;
   overflow: visible !important;
 }
