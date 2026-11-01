@@ -37,6 +37,7 @@ const {
 const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
 const { buildCommercialScoring } = require('../lib/analytics/commercial-scoring');
 const { buildBoardPack } = require('../lib/analytics/board-pack');
+const { answerNaturalLanguageAnalytics } = require('../lib/analytics/natural-language-analytics');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -5102,6 +5103,20 @@ async function handler(req, res) {
         }
         const boardPack = buildBoardPack(governance, operations, { materiality_pct: materialityPct });
         return res.status(200).json({ success: true, boardPack });
+      }
+      if (action === 'command-center-natural-language-query') {
+        await requireAdminPermission(req, sb, 'analytics.command_center.read');
+        const question = String(req.body?.question || '').trim();
+        if (!question) throw badRequest('question required');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        const governance = await loadCommandCenterGovernance(sb, metricSnapshot);
+        const result = answerNaturalLanguageAnalytics(question, governance);
+        return res.status(200).json({ success: true, result });
       }
       if (action === 'command-center-target-save') {
         const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
