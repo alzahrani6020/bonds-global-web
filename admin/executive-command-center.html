@@ -209,6 +209,18 @@
     </section>
 
     <section class="card s12">
+      <h2>Natural Language Analytics</h2>
+      <div class="muted" style="margin-bottom:.75rem">اسأل عن قيمة مؤشر معتمد أو هدفه أو الفرق أو المصدر أو الوحدة. الإجابة deterministic من قاموس المقاييس governed فقط؛ أي سؤال غير مدعوم يبقى UNKNOWN.</div>
+      <form id="nlqForm" class="form-grid">
+        <label style="grid-column:span 2">السؤال<input id="nlqQuestion" required maxlength="500" placeholder="مثال: ما قيمة الإيراد الشهري؟"></label>
+        <div class="form-actions"><button class="btn" type="submit">اسأل</button></div>
+      </form>
+      <div id="nlqState" class="gov-note" style="margin-top:.75rem">لم يتم تنفيذ سؤال بعد.</div>
+      <div id="nlqAnswer" class="kpis"></div>
+      <div class="scroll" style="margin-top:.75rem"><table><thead><tr><th>نوع الدليل</th><th>المؤشر</th><th>القيمة / المصدر</th><th>الفترة</th></tr></thead><tbody id="nlqEvidenceRows"><tr><td colspan="4">لا يوجد دليل بعد</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card s12">
       <h2>Scenario Simulator</h2>
       <div class="muted" style="margin-bottom:.75rem">محاكاة what-if/forecast/stress باستخدام محرك scenario_forecast الحالي. لا يتم حفظ سيناريو غير قابل للحساب.</div>
       <form id="scenarioForm" class="form-grid">
@@ -324,7 +336,7 @@
     ['Alert Threshold Engine','ACTIVE','إدارة قواعد + evaluator فعلي على المقاييس المتاحة'],
     ['Saved Views / Watchlists','ACTIVE','إنشاء/حذف Views وقوائم متابعة من مركز القيادة'],
     ['Board Pack Generator','ACTIVE','يستخدم محرك management_reporting الحالي؛ يعتمد فقط على المقاييس governed والأهداف والمخاطر والإجراءات والقرارات والسيناريوهات، مع طباعة PDF محلية'],
-    ['Natural Language Analytics','PLANNED','يجب ربطه بمصادر معتمدة مع evidence'],
+    ['Natural Language Analytics','ACTIVE','استعلام deterministic على قاموس المقاييس governed؛ يدعم actual/target/variance/source/unit مع confidence وevidence وUNKNOWN عند الغموض'],
     ['Anomaly Detection','PLANNED','يحتاج baseline موسمي قبل التفعيل'],
     ['Decision Simulator','PLANNED','يحتاج افتراضات موثقة وقيودًا مالية'],
     ['Release Impact','PLANNED','يتطلب ربط deployments بمؤشرات قبل/بعد'],
@@ -358,6 +370,28 @@
 
   function kpi(label,value,detail){
     return '<div class="kpi"><b>'+esc(value)+'</b><span>'+esc(label)+'</span><small>'+esc(detail||'')+'</small></div>';
+  }
+
+  function renderNaturalLanguageResult(result){
+    const status=String(result?.status||'unknown').toUpperCase();
+    $('nlqState').innerHTML='<span class="pill '+(status==='ACTIVE'?'ok':'warn')+'">'+esc(status)+'</span> '+esc(result?.reason||result?.semantics||'');
+    const metric=result?.matchedMetric||{};
+    $('nlqAnswer').innerHTML=[
+      kpi('الإجابة',result?.answer??'UNKNOWN',result?.intent||'unknown intent'),
+      kpi('المؤشر',metric.display_name_ar||metric.display_name_en||metric.metric_key||'UNKNOWN',metric.metric_key||''),
+      kpi('الثقة',String(result?.confidence||'unknown').toUpperCase(),'deterministic matcher'),
+      kpi('الوحدة',metric.unit||'UNKNOWN','governed definition')
+    ].join('');
+    const rows=(result?.evidence||[]).map(e=>{
+      const value=e.type==='metric_definition'
+        ? (e.source_key||e.unit||'—')
+        : (e.value??e.target_value??'—');
+      const period=e.type==='base_target'
+        ? ((e.period_start||'')+' → '+(e.period_end||''))
+        : (e.as_of||'—');
+      return '<tr><td>'+esc(e.type||'evidence')+'</td><td>'+esc(e.metric_key||'—')+'</td><td>'+esc(value)+'</td><td>'+esc(period)+'</td></tr>';
+    }).join('');
+    $('nlqEvidenceRows').innerHTML=rows||'<tr><td colspan="4">UNKNOWN — لا يوجد دليل قابل للعرض</td></tr>';
   }
 
   function renderBoardPack(bp){
@@ -667,6 +701,17 @@
       $('actionTitle').value='';
       await load();
     }catch(err){$('error').textContent='فشل إنشاء الإجراء: '+err.message;$('error').style.display='block';}
+  });
+
+  $('nlqForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      const d=await apiPost('command-center-natural-language-query',{question:$('nlqQuestion').value});
+      renderNaturalLanguageResult(d.result);
+    }catch(err){
+      $('error').textContent='فشل Natural Language Analytics: '+err.message;
+      $('error').style.display='block';
+    }
   });
 
   $('scenarioForm').addEventListener('submit',async e=>{
