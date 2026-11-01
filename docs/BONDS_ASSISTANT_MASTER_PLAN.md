@@ -915,3 +915,14 @@ parent/child relationships بين التوكنات.
 - Production `/api/readiness`: HTTP 200 / `ready`; Supabase, Native, Token Runtime, User Governance, Assistant, Assistant Chat, and Web Search = `ok`.
 - Runtime error scan: zero errors in the verified post-release window.
 - Next Assistant roadmap item: **Conversion Metrics** (`conversion_metrics`).
+
+
+## 2026-11-02 — Conversion Metrics checkpoint
+- **STATUS: IMPLEMENTATION CANDIDATE / CI PENDING**.
+- أضيفت Conversion Metrics كطبقة **read-only deterministic** داخل Assistant Operations فوق سجل `assistant_action_audit` الحالي؛ لا جدول أو migration أو endpoint أو authorization plane جديد.
+- القياس الحالي هو **تحويل دورة حياة الإجراء داخل نافذة القياس**، وليس تحويلًا تجاريًا أو إيراديًا.
+- cohort الأساسي يبدأ فقط من الإجراءات التي لديها حدث `planned` داخل النافذة، ثم يقيس `execution_started` والنتيجة النهائية الناجحة، مع `planned_terminal_coverage` لتمييز الأفعال غير المكتملة داخل النافذة.
+- cohort التأكيد مستقل ويبدأ من `confirmation_prepared` للإجراءات التي `requires_confirmation=true` ثم يقيس `confirmation_resolved` والنجاح النهائي.
+- تعرض الطبقة: planned cohort size، planned→execution، execution→success، planned→success، terminal coverage، incomplete-within-window، confirmation prepared→resolved، confirmation prepared→success، وتفصيلًا حسب `action_type`.
+- لا يتم إرجاع raw action IDs أو session IDs أو boundaries أو user identifiers.
+- تبقى `next = conversion_metrics` حتى نجاح PR CI، الدمج، فحوص main، Production Release، والتحقق الإنتاجي.

@@ -5,6 +5,7 @@ const {
   auditSummary,
   outcomeAnalytics,
   journeyAnalytics,
+  conversionMetrics,
   agentInboxSummary,
   approvalsSummary,
   anomalyAlertSummary,
@@ -113,6 +114,80 @@ describe('Assistant Operational Dashboard',()=>{
     expect(JSON.stringify(out)).not.toContain('s1');
   });
 
+  test('derives lifecycle conversion metrics from planned audit cohorts',()=>{
+    const rows=[
+      {action_id:'a1',action_type:'form_submit',event_type:'planned',created_at:'2026-11-02T00:00:00Z'},
+      {action_id:'a1',action_type:'form_submit',event_type:'execution_started',created_at:'2026-11-02T00:01:00Z'},
+      {action_id:'a1',action_type:'form_submit',event_type:'execution_succeeded',created_at:'2026-11-02T00:02:00Z'},
+      {action_id:'a2',action_type:'form_submit',event_type:'planned',created_at:'2026-11-02T00:03:00Z'},
+      {action_id:'a2',action_type:'form_submit',event_type:'execution_started',created_at:'2026-11-02T00:04:00Z'},
+      {action_id:'a2',action_type:'form_submit',event_type:'execution_failed',created_at:'2026-11-02T00:05:00Z'},
+      {action_id:'a3',action_type:'form_save_draft',event_type:'planned',created_at:'2026-11-02T00:06:00Z'},
+      {action_id:'a4',action_type:'form_save_draft',event_type:'execution_succeeded',created_at:'2026-11-02T00:07:00Z'}
+    ];
+    const out=conversionMetrics(rows,1000);
+    expect(out).toEqual(expect.objectContaining({
+      status:'measured',
+      observed_actions:4,
+      planned_cohort_actions:3,
+      execution_started_from_planned:2,
+      terminal_from_planned:2,
+      successful_from_planned:1,
+      incomplete_from_planned:1,
+      planned_to_execution_rate:0.6667,
+      execution_to_success_rate:0.5,
+      planned_to_success_rate:0.3333,
+      planned_terminal_coverage:0.6667,
+      methodology:'within_window_planned_action_cohort_and_confirmation_prepared_cohort'
+    }));
+    expect(out.by_action_type.find(x=>x.action_type==='form_submit')).toEqual(expect.objectContaining({
+      planned_actions:2,
+      execution_started_actions:2,
+      successful_actions:1,
+      planned_to_execution_rate:1,
+      planned_to_success_rate:0.5
+    }));
+    expect(out.privacy).toEqual({
+      raw_action_ids:false,
+      raw_session_ids:false,
+      raw_boundaries:false,
+      raw_user_identifiers:false
+    });
+  });
+
+  test('derives confirmation conversion separately and keeps business conversion out of scope',()=>{
+    const rows=[
+      {action_id:'c1',action_type:'form_submit',requires_confirmation:true,event_type:'confirmation_prepared',created_at:'2026-11-02T01:00:00Z'},
+      {action_id:'c1',action_type:'form_submit',requires_confirmation:true,event_type:'confirmation_resolved',created_at:'2026-11-02T01:01:00Z'},
+      {action_id:'c1',action_type:'form_submit',requires_confirmation:true,event_type:'execution_succeeded',created_at:'2026-11-02T01:02:00Z'},
+      {action_id:'c2',action_type:'form_submit',requires_confirmation:true,event_type:'confirmation_prepared',created_at:'2026-11-02T01:03:00Z'},
+      {action_id:'c2',action_type:'form_submit',requires_confirmation:true,event_type:'execution_denied',created_at:'2026-11-02T01:04:00Z'}
+    ];
+    const out=conversionMetrics(rows,1000);
+    expect(out.status).toBe('measured');
+    expect(out.planned_cohort_actions).toBe(0);
+    expect(out.planned_to_success_rate).toBeNull();
+    expect(out.confirmation).toEqual({
+      prepared_cohort_actions:2,
+      resolved_from_prepared:1,
+      successful_from_prepared:1,
+      prepared_to_resolved_rate:0.5,
+      prepared_to_success_rate:0.5
+    });
+    expect(out.note).toMatch(/not business or revenue conversion/i);
+  });
+
+  test('reports UNKNOWN when no conversion cohort exists',()=>{
+    const out=conversionMetrics([
+      {action_id:'a1',action_type:'site_navigate',event_type:'execution_succeeded',created_at:'2026-11-02T02:00:00Z'}
+    ],1000);
+    expect(out.status).toBe('unknown');
+    expect(out.planned_cohort_actions).toBe(0);
+    expect(out.planned_to_execution_rate).toBeNull();
+    expect(out.confirmation.prepared_cohort_actions).toBe(0);
+    expect(out.note).toMatch(/^UNKNOWN:/);
+  });
+
   test('reports UNKNOWN when no journey key exists',()=>{
     const out=journeyAnalytics([
       {action_id:'a1',action_type:'site_navigate',event_type:'execution_succeeded',created_at:'2026-11-01T10:00:00Z'}
@@ -175,6 +250,9 @@ describe('Assistant Operational Dashboard',()=>{
     }));
     expect(out.journeys).toEqual(expect.objectContaining({
       status:'measured',total_journeys:2,completed_journeys:1,denied_journeys:1
+    }));
+    expect(out.conversions).toEqual(expect.objectContaining({
+      status:'unknown'
     }));
     expect(out.queues.agent_inbox.active_total).toBe(1);
     expect(out.queues.human_approvals.pending_total).toBe(1);
