@@ -934,11 +934,10 @@
     "red_team_scenarios",
     "end_to_end_ci_journeys",
     "outcome_analytics",
-    "journey_analytics"
-  ],
-  "next": [
+    "journey_analytics",
     "conversion_metrics"
   ],
+  "next": [],
   "deferred": [
     "action_tokens",
     "workflow_tokens",
@@ -955,8 +954,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-11-02",
-    "branch": "feat/conversion-metrics",
-    "change": "Conversion Metrics implementation candidate added to existing read-only Assistant Operations dashboard using assistant_action_audit only. Lifecycle cohorts measure planned->execution->success and confirmation prepared->resolved/success inside the selected window. Pending PR CI, merge, post-merge checks, Production Release, and production verification; next remains conversion_metrics."
+    "branch": "docs/close-conversion-metrics-20261102",
+    "change": "Conversion Metrics closed after PR #828 merge SHA 779f2ca96197e236aa7328e6b766d8e6c4b61a75 passed post-merge CI, security, service worker, Production Release, authenticated production smoke, health/readiness verification, and zero runtime errors. No subsequent roadmap item is defined; next=[]."
   },
   "production_rollout": {
     "status": "complete",
