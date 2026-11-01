@@ -39,6 +39,7 @@
     <article class="card s12"><h2>نشاط المساعد</h2><div id="activity" class="kpis"></div></article>
     <article class="card s12"><h2>Outcome Analytics · نتائج الإجراءات</h2><div id="outcomes" class="kpis"></div><div id="outcomeNote" class="muted" style="margin-top:.65rem"></div><div style="overflow:auto;margin-top:.75rem"><table><thead><tr><th>نوع الإجراء</th><th>مقاس</th><th>نجح</th><th>فشل</th><th>رُفض</th><th>غير مؤكد</th><th>Replay</th><th>نسبة النجاح</th></tr></thead><tbody id="outcomeRows"></tbody></table></div></article>
     <article class="card s12"><h2>Journey Analytics · الرحلات</h2><div id="journeys" class="kpis"></div><div id="journeyNote" class="muted" style="margin-top:.65rem"></div></article>
+    <article class="card s12"><h2>Conversion Metrics · مؤشرات التحويل</h2><div id="conversions" class="kpis"></div><div id="conversionNote" class="muted" style="margin-top:.65rem"></div><div style="overflow:auto;margin-top:.75rem"><table><thead><tr><th>نوع الإجراء</th><th>مخطط</th><th>بدأ التنفيذ</th><th>نجح</th><th>من التخطيط للتنفيذ</th><th>من التخطيط للنجاح</th></tr></thead><tbody id="conversionRows"></tbody></table></div></article>
     <article class="card s6"><h2>الطوابير البشرية</h2><div id="queues"></div></article>
     <article class="card s6"><h2>السلامة</h2><div id="safety"></div></article>
     <article class="card s12"><h2>سلامة القياس</h2><div id="telemetry"></div></article>
@@ -64,7 +65,7 @@
   }
 
   function render(d){
-    const a=d.activity||{},o=d.outcomes||{},j=d.journeys||{},q=d.queues||{},s=d.safety||{},em=s.emergency_mode||{},alerts=s.anomaly_alerts||{};
+    const a=d.activity||{},o=d.outcomes||{},j=d.journeys||{},cv=d.conversions||{},q=d.queues||{},s=d.safety||{},em=s.emergency_mode||{},alerts=s.anomaly_alerts||{};
     activity.innerHTML=[
       kpi('إجمالي الأحداث',n(a.total_events),a.truncated?'القراءة وصلت للسقف':''),
       kpi('بدأ التنفيذ',n(a.execution_started)),
@@ -120,6 +121,35 @@
       kpi('وسيط زمن الإكمال',ms(j.median_completion_duration_ms))
     ].join('');
     journeyNote.textContent=j.note||'UNKNOWN';
+
+    const conf=cv.confirmation||{};
+    conversions.innerHTML=[
+      kpi('حالة القياس',String(cv.status||'UNKNOWN').toUpperCase(),cv.methodology||''),
+      kpi('إجراءات مرصودة',n(cv.observed_actions)),
+      kpi('مجموعة التخطيط',n(cv.planned_cohort_actions)),
+      kpi('بدأت التنفيذ',n(cv.execution_started_from_planned)),
+      kpi('نتيجة نهائية',n(cv.terminal_from_planned)),
+      kpi('نجحت',n(cv.successful_from_planned)),
+      kpi('غير مكتملة داخل النافذة',n(cv.incomplete_from_planned)),
+      kpi('من التخطيط للتنفيذ',cv.planned_to_execution_rate==null?'UNKNOWN':(cv.planned_to_execution_rate*100).toFixed(1)+'%'),
+      kpi('من التنفيذ للنجاح',cv.execution_to_success_rate==null?'UNKNOWN':(cv.execution_to_success_rate*100).toFixed(1)+'%'),
+      kpi('من التخطيط للنجاح',cv.planned_to_success_rate==null?'UNKNOWN':(cv.planned_to_success_rate*100).toFixed(1)+'%'),
+      kpi('تغطية النتائج النهائية',cv.planned_terminal_coverage==null?'UNKNOWN':(cv.planned_terminal_coverage*100).toFixed(1)+'%'),
+      kpi('تأكيدات مهيأة',n(conf.prepared_cohort_actions)),
+      kpi('تأكيدات محسومة',n(conf.resolved_from_prepared)),
+      kpi('من التهيئة للحسم',conf.prepared_to_resolved_rate==null?'UNKNOWN':(conf.prepared_to_resolved_rate*100).toFixed(1)+'%'),
+      kpi('من التهيئة للنجاح',conf.prepared_to_success_rate==null?'UNKNOWN':(conf.prepared_to_success_rate*100).toFixed(1)+'%')
+    ].join('');
+    conversionNote.textContent=cv.note||'UNKNOWN';
+    conversionRows.innerHTML=(cv.by_action_type||[]).map(row=>'<tr>'+
+      '<td>'+esc(row.action_type||'unknown')+'</td>'+
+      '<td>'+n(row.planned_actions)+'</td>'+
+      '<td>'+n(row.execution_started_actions)+'</td>'+
+      '<td>'+n(row.successful_actions)+'</td>'+
+      '<td>'+esc(row.planned_to_execution_rate==null?'UNKNOWN':(row.planned_to_execution_rate*100).toFixed(1)+'%')+'</td>'+
+      '<td>'+esc(row.planned_to_success_rate==null?'UNKNOWN':(row.planned_to_success_rate*100).toFixed(1)+'%')+'</td>'+
+      '</tr>').join('') || '<tr><td colspan="6">UNKNOWN — لا توجد مجموعة تحويل قابلة للقياس في النافذة المحددة.</td></tr>';
+
 
     const inbox=q.agent_inbox||{},approval=q.human_approvals||{};
     queues.innerHTML='<table><tbody>'+
