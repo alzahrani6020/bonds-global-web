@@ -584,4 +584,87 @@ describe('platform health vs strict readiness', () => {
     }
     expect(JSON.stringify(result)).not.toContain(channelSecret);
   });
+
+  test('chat readiness reflects Native only and is not satisfied by the analysis fallback', async () => {
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    // Existing contract: overall readiness may pass via verified fallback...
+    expect(res.statusCode).toBe(200);
+    expect(res.body.inference.provider).toBe('openai_fallback');
+    // ...but the assistant chat path never uses the fallback.
+    expect(res.body.checks.assistant_chat).toBe('error');
+    expect(res.body.inference.chat_ready).toBe(false);
+    expect(res.body.inference.chat_provider).toBeNull();
+  });
+
+  test('chat readiness is ok when Native is healthy', async () => {
+    mockNativeOk.value = true;
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.body.checks.assistant_chat).toBe('ok');
+    expect(res.body.inference.chat_ready).toBe(true);
+    expect(res.body.inference.chat_provider).toBe('BondsNativeProvider');
+  });
+
+  test('default web search readiness is labelled config-only, not live-verified', async () => {
+    mockNativeOk.value = true;
+    const req = { method: 'GET', url: '/api/health?strict=1', query: { strict: '1' } };
+    const res = createResponse();
+
+    await healthHandler(req, res);
+
+    expect(res.body.web_search.verification).toBe('config_only');
+  });
+});
+
+describe('live web search readiness probe', () => {
+  const { probeWebSearchLive, _resetLiveSearchProbeCache } = healthHandler;
+  const configured = { status: 'ok', code: null, upstream_count: 5, verification: 'config_only' };
+
+  beforeEach(() => _resetLiveSearchProbeCache());
+
+  test('reports ok only when a real upstream returns results', async () => {
+    const searchImpl = jest.fn(async () => ({ ok: true, result: { result_count: 2 } }));
+    const result = await probeWebSearchLive(configured, { searchImpl });
+    expect(result).toMatchObject({ status: 'ok', verification: 'live', live_result_count: 2, cached: false });
+  });
+
+  test('reports degraded when upstreams answer without results (e.g. blocked)', async () => {
+    const searchImpl = jest.fn(async () => ({ ok: false, error: { code: 'SEARCH_UPSTREAM_BLOCKED' } }));
+    const result = await probeWebSearchLive(configured, { searchImpl });
+    expect(result).toMatchObject({ status: 'degraded', code: 'SEARCH_UPSTREAM_BLOCKED', verification: 'live' });
+  });
+
+  test('reports degraded when the probe throws', async () => {
+    const searchImpl = jest.fn(async () => { throw new Error('boom'); });
+    const result = await probeWebSearchLive(configured, { searchImpl });
+    expect(result).toMatchObject({ status: 'degraded', code: 'WEB_SEARCH_LIVE_PROBE_FAILED' });
+  });
+
+  test('caches the result so repeated polling does not hit upstreams', async () => {
+    const searchImpl = jest.fn(async () => ({ ok: true, result: { result_count: 1 } }));
+    let clock = 1000;
+    const now = () => clock;
+    await probeWebSearchLive(configured, { searchImpl, now });
+    clock += 60 * 1000;
+    const second = await probeWebSearchLive(configured, { searchImpl, now });
+    expect(searchImpl).toHaveBeenCalledTimes(1);
+    expect(second.cached).toBe(true);
+    clock += 10 * 60 * 1000;
+    await probeWebSearchLive(configured, { searchImpl, now });
+    expect(searchImpl).toHaveBeenCalledTimes(2);
+  });
+
+  test('never probes upstreams when the configuration itself is invalid', async () => {
+    const searchImpl = jest.fn();
+    const bad = { status: 'not_configured', code: 'WEB_SEARCH_UNCONFIGURED', upstream_count: 0 };
+    expect(await probeWebSearchLive(bad, { searchImpl })).toBe(bad);
+    expect(searchImpl).not.toHaveBeenCalled();
+  });
 });

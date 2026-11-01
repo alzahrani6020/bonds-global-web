@@ -57,6 +57,38 @@ function getApiHandler(fileName) {
   return apiHandlers[fileName];
 }
 
+// Single source of truth: exact-match /api/* rewrites are read from vercel.json
+// so the local server cannot drift from production routing. Pattern rewrites
+// (regex groups) stay handled by resolveApiRoute below.
+let vercelApiRewrites = null;
+function loadVercelApiRewrites() {
+  if (vercelApiRewrites) return vercelApiRewrites;
+  vercelApiRewrites = new Map();
+  try {
+    const config = JSON.parse(fs.readFileSync(path.join(ROOT, 'vercel.json'), 'utf8'));
+    for (const rule of Array.isArray(config.rewrites) ? config.rewrites : []) {
+      const { source, destination } = rule || {};
+      if (typeof source !== 'string' || typeof destination !== 'string') continue;
+      if (!source.startsWith('/api/') || !destination.startsWith('/api/')) continue;
+      if (/[()*:]/.test(source)) continue;
+      if (!vercelApiRewrites.has(source)) vercelApiRewrites.set(source, destination);
+    }
+  } catch (_) {
+    // Missing/invalid vercel.json: fall back to the built-in routing table.
+  }
+  return vercelApiRewrites;
+}
+
+function applyVercelApiRewrite(reqUrl) {
+  const [pathname, query = ''] = String(reqUrl || '').split('?');
+  const destination = loadVercelApiRewrites().get(pathname);
+  if (!destination) return reqUrl;
+  const [destPath, destQuery = ''] = destination.split('?');
+  if (destPath === pathname) return reqUrl;
+  const merged = [destQuery, query].filter(Boolean).join('&');
+  return merged ? `${destPath}?${merged}` : destPath;
+}
+
 function resolveApiRoute(reqUrl) {
   const pathname = reqUrl.split('?')[0];
 
@@ -135,7 +167,8 @@ function resolveApiRoute(reqUrl) {
       ? requested
       : `${requested}.js`;
 
-    if (getApiHandler(candidate)) return candidate;
+    // Existence check only; the handler module is loaded lazily on request.
+    if (fs.existsSync(path.join(ROOT, 'api', candidate))) return candidate;
   }
 
   return null;
@@ -196,7 +229,9 @@ function sendStatic(filePath, res) {
 async function handleApi(req, res, log) {
   const pathname = req.url.split('?')[0];
   if (pathname === '/api/readiness' || pathname === '/api/readiness/') {
-    req.url = '/api/health?strict=1';
+    req.url = '/api/health?strict=1' + (req.url.includes('?') ? '&' + req.url.split('?')[1] : '');
+  } else {
+    req.url = applyVercelApiRewrite(req.url);
   }
 
   const apiFile = resolveApiRoute(req.url);
@@ -316,7 +351,11 @@ async function main() {
   });
 }
 
-main().catch(err => {
-  console.error('Failed to start dev server:', err);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch(err => {
+    console.error('Failed to start dev server:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = { applyVercelApiRewrite, loadVercelApiRewrites, resolveApiRoute };

@@ -1,5 +1,5 @@
 /**
- * Bonds Global — platform health + strict readiness endpoint.
+ * Bonds Global � platform health + strict readiness endpoint.
  *
  * /api/health checks the commercial core only.
  * /api/readiness is rewritten to /api/health?strict=1 so strict dependency
@@ -18,7 +18,7 @@ const {
   readIntrospectionClaims
 } = require('../lib/security/service-token-verifier');
 const { resolveBrokerChannel } = require('../lib/security/service-token-broker');
-const { searchUpstreams } = require('../lib/intelligence/web-search');
+const { searchUpstreams, searchWeb } = require('../lib/intelligence/web-search');
 
 function readParam(req, name) {
   if (req && req.query && req.query[name] != null) return String(req.query[name]);
@@ -278,8 +278,46 @@ function probeWebSearchReadiness() {
   return {
     status: 'ok',
     code: null,
-    upstream_count: upstreams.length
+    upstream_count: upstreams.length,
+    verification: 'config_only'
   };
+}
+
+const LIVE_SEARCH_PROBE_TTL_MS = 5 * 60 * 1000;
+let liveSearchProbeCache = null;
+
+// Opt-in (?deep=1): proves a real upstream answers from this runtime. The
+// config-only probe cannot detect datacenter-IP blocking by search engines.
+// The result is cached per instance so repeated polling cannot hammer upstreams.
+async function probeWebSearchLive(configProbe, { searchImpl = searchWeb, now = Date.now } = {}) {
+  if (configProbe.status !== 'ok') return configProbe;
+  const current = now();
+  if (liveSearchProbeCache && current - liveSearchProbeCache.at < LIVE_SEARCH_PROBE_TTL_MS) {
+    return { ...liveSearchProbeCache.value, cached: true };
+  }
+
+  let value;
+  try {
+    const result = await searchImpl('bonds global', { limit: 1, timeoutMs: 6000 });
+    const count = Number(result?.result?.result_count || result?.result?.results?.length || 0);
+    value = result?.ok === true && count > 0
+      ? { ...configProbe, verification: 'live', live_result_count: count }
+      : {
+          ...configProbe,
+          status: 'degraded',
+          code: result?.error?.code || 'WEB_SEARCH_LIVE_NO_RESULTS',
+          verification: 'live'
+        };
+  } catch (error) {
+    value = {
+      ...configProbe,
+      status: 'degraded',
+      code: 'WEB_SEARCH_LIVE_PROBE_FAILED',
+      verification: 'live'
+    };
+  }
+  liveSearchProbeCache = { at: current, value };
+  return { ...value, cached: false };
 }
 
 async function probeOpenAI(timeoutMs = 5000) {
@@ -399,9 +437,15 @@ module.exports = async function handler(req, res) {
     const [tokenRuntime, userGovernance, assistant] = await Promise.all([
       probeTokenRuntimeResilient(), probeUserGovernanceReadiness(), probeAssistantReadiness()
     ]);
-    const webSearch = probeWebSearchReadiness();
+    const configuredWebSearch = probeWebSearchReadiness();
+    const webSearch = readParam(req, 'deep') === '1'
+      ? await probeWebSearchLive(configuredWebSearch)
+      : configuredWebSearch;
     const ready = coreHealthy && inferenceReady && tokenRuntime.status === 'ok' &&
       userGovernance.status === 'ok' && assistant.status === 'ok';
+    // Assistant chat only ever runs on Bonds Native (the fallback serves analysis
+    // flows, not chat), so chat readiness must not be inferred from the fallback.
+    const assistantChatStatus = nativeModeConfigured ? (nativeReady ? 'ok' : 'error') : nativeStatus;
     const activeProvider = nativeReady
       ? (nativeProvider || 'BondsNativeProvider')
       : (fallbackReady ? 'openai_fallback' : null);
@@ -419,6 +463,7 @@ module.exports = async function handler(req, res) {
         token_runtime: tokenRuntime.status,
         user_governance: userGovernance.status,
         assistant: assistant.status,
+        assistant_chat: assistantChatStatus,
         web_search: webSearch.status,
         responseMs: Date.now() - started,
       },
@@ -431,6 +476,8 @@ module.exports = async function handler(req, res) {
         provider: activeProvider,
         native_provider: nativeProvider,
         native_reachable: nativeStatus === 'ok',
+        chat_ready: assistantChatStatus === 'ok',
+        chat_provider: nativeReady ? (nativeProvider || 'BondsNativeProvider') : null,
         fallback_provider: fallbackEligible ? 'openai' : null,
         fallback_reason: fallbackReason,
         fallback_http_status: fallbackHttpStatus,
@@ -468,3 +515,5 @@ module.exports = async function handler(req, res) {
 // Reused by the isolated acceptance harness without substituting runtime calls.
 module.exports.probeTokenRuntime = probeTokenRuntime;
 module.exports.probeWebSearchReadiness = probeWebSearchReadiness;
+module.exports.probeWebSearchLive = probeWebSearchLive;
+module.exports._resetLiveSearchProbeCache = () => { liveSearchProbeCache = null; };

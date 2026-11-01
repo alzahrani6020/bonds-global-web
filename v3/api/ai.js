@@ -858,36 +858,59 @@ async function aiChatHandler(req, res) {
   }, { stream: streaming });
 }
 
+// Reference lists change rarely; re-reading them (all activities, up to 2000
+// cities) from Supabase on every chat message only adds latency. The cache is
+// per serverless instance and short-lived, so edits propagate within minutes.
+const LOOKUP_CACHE_TTL_MS = 5 * 60 * 1000;
+const lookupCache = new Map();
+
+async function cachedLookup(key, loader) {
+  const hit = lookupCache.get(key);
+  if (hit && Date.now() - hit.at < LOOKUP_CACHE_TTL_MS) return hit.data;
+  const data = await loader();
+  if (Array.isArray(data)) lookupCache.set(key, { at: Date.now(), data });
+  return data;
+}
+
+function matchByName(rows, msg) {
+  return (rows || []).find(row => {
+    const name = String(row?.name_ar || '').toLowerCase().trim();
+    // An empty name would match every message via includes('').
+    return name.length > 0 && msg.includes(name);
+  });
+}
+
 async function resolveActivityAndCityFromMessage(message, context, supabase) {
   const msg = (message || '').toLowerCase().trim();
   if (!msg) return context;
 
   if (!context.activityCode) {
-    const { data: activities } = await supabase
-      .from('economic_activities')
-      .select('code, name_ar')
-      .eq('is_active', true);
-    if (activities) {
-      const matched = activities.find(a => msg.includes((a.name_ar || '').toLowerCase()));
-      if (matched) context.activityCode = matched.code;
-    }
+    const activities = await cachedLookup('activities', async () => {
+      const { data } = await supabase
+        .from('economic_activities')
+        .select('code, name_ar')
+        .eq('is_active', true);
+      return data;
+    });
+    const matched = matchByName(activities, msg);
+    if (matched) context.activityCode = matched.code;
   }
 
   if (!context.cityCode) {
-    const { data: cities } = await supabase
-      .from('cities')
-      .select('code, name_ar')
-      .eq('is_active', true)
-      .limit(2000);
-    if (cities) {
-      const matched = cities.find(c => msg.includes((c.name_ar || '').toLowerCase()));
-      if (matched) context.cityCode = matched.code;
-    }
+    const cities = await cachedLookup('cities', async () => {
+      const { data } = await supabase
+        .from('cities')
+        .select('code, name_ar')
+        .eq('is_active', true)
+        .limit(2000);
+      return data;
+    });
+    const matched = matchByName(cities, msg);
+    if (matched) context.cityCode = matched.code;
   }
 
   return context;
 }
-
 async function enrichContext(context, userMessage) {
   const supabase = getSupabaseClient();
   const currentYear = new Date().getFullYear();
@@ -1078,5 +1101,7 @@ module.exports = {
   aiChatHandler,
   buildNativeChatPrompt,
   adaptiveNativeChatMaxTokens,
-  enforceAssistantIdentity
+  enforceAssistantIdentity,
+  resolveActivityAndCityFromMessage,
+  _resetLookupCache: () => lookupCache.clear()
 };

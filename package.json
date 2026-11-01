@@ -15,6 +15,8 @@
     "audit": "node scripts/site-audit.js",
     "audit:migrations": "node scripts/verify-migrations.js",
     "audit:og": "node scripts/og-audit.js",
+    "audit:assistant-widget": "node scripts/stamp-assistant-widget-version.js --check",
+    "stamp:assistant-widget": "node scripts/stamp-assistant-widget-version.js",
     "audit:i18n": "node scripts/i18n-audit.js",
     "audit:api": "node scripts/api-auth-audit.js",
     "install-hooks": "node scripts/install-hooks.js",
