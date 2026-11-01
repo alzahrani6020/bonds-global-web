@@ -51,6 +51,26 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('Sensitive execution still requires the governed execution layer.');
   });
 
+  test('chat requests are cancellable and bounded by a client timeout', () => {
+    expect(source).toContain('const ASSISTANT_REQUEST_TIMEOUT_MS = 270000;');
+    expect(source).toContain('const requestController = typeof AbortController');
+    expect(source).toContain('signal: requestController ? requestController.signal : undefined');
+    expect(source).toContain("setTimeout(() => cancelActiveRequest('timeout'), ASSISTANT_REQUEST_TIMEOUT_MS)");
+    expect(source).toContain("cancel.addEventListener('click', () => cancelActiveRequest('user'));");
+    expect(source).toContain("failureSource = 'assistant-cancelled';");
+    expect(source).toContain("failureSource = 'assistant-timeout';");
+    // timer and controller are always released
+    expect(source).toContain('if (requestTimeoutId) clearTimeout(requestTimeoutId);');
+    expect(source).toContain('state.abortController = null;');
+  });
+
+  test('cancelling or timing out is not logged as a console error', () => {
+    const catchStart = source.indexOf('const aborted = state.abortReason');
+    const catchEnd = source.indexOf('updateMessageTracking(userMessage.message_id, { status: \'failed\' });', catchStart);
+    const block = source.slice(catchStart, catchEnd);
+    expect(block).toMatch(/if \(aborted\) \{[\s\S]*\} else \{\s*console\.error\('\[BondsAIChat\]', err\);\s*\}/);
+  });
+
   test('exposes one governed UI action bus', () => {
     expect(source).toContain('window.BondsAssistant.execute = executeStructuredAction;');
     expect(source).toContain('window.BondsAssistant.renderEnvelope');

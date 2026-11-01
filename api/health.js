@@ -20,6 +20,43 @@ const {
 const { resolveBrokerChannel } = require('../lib/security/service-token-broker');
 const { searchUpstreams, searchWeb } = require('../lib/intelligence/web-search');
 
+// Public /api/readiness is polled by the site widget and the release gate, so it
+// keeps what they need. NOTE: .github/workflows/deploy-vercel.yml asserts
+// token_runtime.{channel_auth,broker_auth,contract_version,schema_version,build_commit}
+// from this public body, so those stay public until the gate sends a bearer token.
+// Other operational detail (retry counters, upstream counts, latency) and the live
+// search probe (?deep=1, which makes outbound requests) require
+// `Authorization: Bearer <CRON_SECRET>`.
+function isHealthDetailAuthorized(req) {
+  const secret = String(process.env.CRON_SECRET || '').trim();
+  if (!secret) return false;
+  const header = String((req && req.headers && (req.headers.authorization || req.headers.Authorization)) || '');
+  const match = /^Bearer\s+(.+)$/i.exec(header.trim());
+  if (!match) return false;
+  const supplied = Buffer.from(match[1]);
+  const expected = Buffer.from(secret);
+  return supplied.length === expected.length && require('crypto').timingSafeEqual(supplied, expected);
+}
+
+function omitKeys(source, keys) {
+  if (!source || typeof source !== 'object') return source;
+  const copy = { ...source };
+  for (const key of keys) delete copy[key];
+  return copy;
+}
+
+function redactPublicReadiness(body) {
+  return {
+    ...body,
+    token_runtime: omitKeys(body.token_runtime, ['verify_attempts', 'verify_recovered']),
+    web_search: omitKeys(body.web_search, ['upstream_count', 'valid_upstream_count', 'live_result_count', 'cached']),
+    inference: body.inference && {
+      ...body.inference,
+      native_diagnostic: omitKeys(body.inference.native_diagnostic, ['elapsed_ms', 'attempts', 'retry_recovered'])
+    }
+  };
+}
+
 function readParam(req, name) {
   if (req && req.query && req.query[name] != null) return String(req.query[name]);
   try {
@@ -438,7 +475,8 @@ module.exports = async function handler(req, res) {
       probeTokenRuntimeResilient(), probeUserGovernanceReadiness(), probeAssistantReadiness()
     ]);
     const configuredWebSearch = probeWebSearchReadiness();
-    const webSearch = readParam(req, 'deep') === '1'
+    const detailAuthorized = isHealthDetailAuthorized(req);
+    const webSearch = detailAuthorized && readParam(req, 'deep') === '1'
       ? await probeWebSearchLive(configuredWebSearch)
       : configuredWebSearch;
     const ready = coreHealthy && inferenceReady && tokenRuntime.status === 'ok' &&
@@ -450,7 +488,7 @@ module.exports = async function handler(req, res) {
       ? (nativeProvider || 'BondsNativeProvider')
       : (fallbackReady ? 'openai_fallback' : null);
 
-    return res.status(ready ? 200 : 503).json({
+    const readinessBody = {
       status: ready ? 'ready' : 'not_ready',
       service: 'bonds-global',
       version,
@@ -483,7 +521,8 @@ module.exports = async function handler(req, res) {
         fallback_http_status: fallbackHttpStatus,
         native_diagnostic: nativeDiagnostic,
       },
-    });
+    };
+    return res.status(ready ? 200 : 503).json(detailAuthorized ? readinessBody : redactPublicReadiness(readinessBody));
   }
 
   return res.status(coreHealthy ? 200 : 503).json({
@@ -516,4 +555,6 @@ module.exports = async function handler(req, res) {
 module.exports.probeTokenRuntime = probeTokenRuntime;
 module.exports.probeWebSearchReadiness = probeWebSearchReadiness;
 module.exports.probeWebSearchLive = probeWebSearchLive;
+module.exports.isHealthDetailAuthorized = isHealthDetailAuthorized;
+module.exports.redactPublicReadiness = redactPublicReadiness;
 module.exports._resetLiveSearchProbeCache = () => { liveSearchProbeCache = null; };
