@@ -153,6 +153,34 @@ describe('Profitability intelligence and unit economics core', () => {
       .toContain('ltv_or_churn_rate_pct_gt_0_lte_100');
   });
 
+  test('supports acquisition-only analysis for governed CAC and ROAS', () => {
+    const result = runFinancialEngine('unit_economics', {
+      analysis_scope: 'acquisition',
+      period_basis: 'monthly',
+      acquisition_spend: 10000,
+      new_customers: 50,
+      attributed_revenue: 40000
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.metrics.cac).toBe(200);
+    expect(result.metrics.roas).toBe(4);
+    expect(result.metrics.attributed_revenue).toBe(40000);
+    expect(result.metrics.ltv).toBeNull();
+    expect(result.diagnostics.analysis_scope).toBe('acquisition');
+  });
+
+  test('acquisition-only analysis fails closed without attributed revenue', () => {
+    const result = runFinancialEngine('unit_economics', {
+      analysis_scope: 'acquisition',
+      acquisition_spend: 10000,
+      new_customers: 50
+    });
+
+    expect(result.ok).toBe(false);
+    expect(result.required_inputs).toContain('attributed_revenue_non_negative');
+  });
+
   test('unit economics fails closed when LTV cannot be supported', () => {
     const result = runFinancialEngine('unit_economics', {
       acquisition_spend: 10000,
