@@ -934,11 +934,10 @@
     "red_team_scenarios",
     "end_to_end_ci_journeys",
     "outcome_analytics",
-    "journey_analytics"
-  ],
-  "next": [
+    "journey_analytics",
     "conversion_metrics"
   ],
+  "next": [],
   "deferred": [
     "action_tokens",
     "workflow_tokens",
@@ -954,9 +953,9 @@
   ],
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
-    "date": "2026-11-01",
-    "branch": "docs/close-journey-analytics-20261101",
-    "change": "Journey Analytics closed after PR #823 merge SHA 10c92aa7f908e05ef51e23e153235fa96db62a3b passed post-merge CI, security, service worker, Production Release, authenticated production smoke including planner telemetry, health/readiness verification, and zero runtime errors. next=conversion_metrics."
+    "date": "2026-11-02",
+    "branch": "docs/close-conversion-metrics-20261102",
+    "change": "Conversion Metrics closed after PR #828 merge SHA 779f2ca96197e236aa7328e6b766d8e6c4b61a75 passed post-merge CI, security, service worker, Production Release, authenticated production smoke, health/readiness verification, and zero runtime errors. No subsequent roadmap item is defined; next=[]."
   },
   "production_rollout": {
     "status": "complete",
