@@ -1821,9 +1821,9 @@ p.error-message,
   -webkit-text-fill-color: #765D2D !important;
 }
 .fi-page .fi-hero {
-  min-height: 500px !important;
-  padding-top: calc(var(--header-height) + clamp(2.75rem, 5vw, 4.5rem)) !important;
-  padding-bottom: clamp(3rem, 5vw, 4.5rem) !important;
+  min-height: auto !important;
+  padding-top: clamp(2.25rem, 4vw, 3.25rem) !important;
+  padding-bottom: clamp(2.5rem, 4vw, 3.5rem) !important;
 }
 .fi-page .fi-hero__title,
 .fi-page .fi-hero__subtitle,
@@ -1861,7 +1861,7 @@ p.error-message,
   }
   .fi-page .fi-hero {
     min-height: auto !important;
-    padding-top: calc(var(--header-height) + 2.25rem) !important;
+    padding-top: 2.25rem !important;
     padding-bottom: 3rem !important;
   }
 }
