@@ -292,3 +292,223 @@ describe('BONDS Assistant V1 end-to-end governed journeys', () => {
     expect(response.body.actions).toHaveLength(0);
   });
 });
+
+
+describe('End-to-End CI journeys — explicit release gate', () => {
+  const ciLedger = new Map();
+  const ciAuditEvents = [];
+
+  beforeEach(() => {
+    ciLedger.clear();
+    ciAuditEvents.length = 0;
+    mockRpc.mockReset();
+    mockRpc.mockImplementation(async (name, payload) => {
+      if (name === 'assistant_append_action_audit') {
+        ciAuditEvents.push(payload);
+        return { data:`ci-audit-${ciAuditEvents.length}`, error:null };
+      }
+      if (name === 'assistant_claim_idempotency') {
+        const existing = ciLedger.get(payload.p_idempotency_key);
+        if (!existing) {
+          ciLedger.set(payload.p_idempotency_key, {
+            fingerprint:payload.p_action_fingerprint,
+            status:'in_progress',
+            result:null
+          });
+          return { data:{ state:'claimed', status:'in_progress', result:null }, error:null };
+        }
+        if (existing.fingerprint !== payload.p_action_fingerprint) {
+          return { data:{ state:'key_conflict', status:existing.status, result:null }, error:null };
+        }
+        if (existing.status === 'succeeded') {
+          return { data:{ state:'replay_succeeded', status:'succeeded', result:existing.result }, error:null };
+        }
+        return { data:{ state:'in_progress', status:existing.status, result:null }, error:null };
+      }
+      if (name === 'assistant_resolve_idempotency') {
+        const existing = ciLedger.get(payload.p_idempotency_key);
+        if (!existing) return { data:{ state:'missing', status:null, result:null }, error:null };
+        if (existing.fingerprint !== payload.p_action_fingerprint) {
+          return { data:{ state:'key_conflict', status:existing.status, result:null }, error:null };
+        }
+        existing.status = payload.p_status;
+        existing.result = payload.p_result || null;
+        return {
+          data:{
+            state:payload.p_status === 'succeeded' ? 'succeeded' : 'uncertain',
+            status:payload.p_status,
+            result:existing.result
+          },
+          error:null
+        };
+      }
+      throw new Error('UNEXPECTED_RPC:' + name);
+    });
+  });
+
+  const {
+    prepareConfirmation,
+    resolveConfirmation,
+    actionFingerprint
+  } = require('../../lib/assistant/confirmation-engine');
+  const { verifySensitiveAction } = require('../../lib/assistant/sensitive-action-verifier');
+  const { normalizeAssistantAuditEvent } = require('../../lib/assistant/audit-trail');
+
+  test('safe write journey preserves evidence from plan through persisted replay', async () => {
+    const plan = await callAssistant({
+      path:'/assistant/plan',
+      body:{ type:'form_save_draft', form:'kyc', language:'ar', session_id:'ci-safe-journey' }
+    });
+
+    expect(plan.statusCode).toBe(200);
+    expect(plan.body.status).toBe('ready');
+    const action = plan.body.actions[0];
+    expect(action).toMatchObject({
+      type:'form_save_draft',
+      risk:'medium',
+      requires_confirmation:false
+    });
+
+    const key='1'.repeat(64);
+    const claim=await callAssistant({
+      path:'/assistant/idempotency/claim',
+      body:{ action, idempotency_key:key, session_id:'ci-safe-journey', boundary:'ci:safe' }
+    });
+    expect(claim.statusCode).toBe(200);
+    expect(claim.body.idempotency.state).toBe('claimed');
+
+    const executionEvidence={
+      ok:true,
+      code:'DRAFT_SAVED',
+      record_id:'ci-draft-001',
+      status:'draft'
+    };
+    const resolved=await callAssistant({
+      path:'/assistant/idempotency/resolve',
+      body:{
+        action,
+        idempotency_key:key,
+        status:'succeeded',
+        result:executionEvidence,
+        session_id:'ci-safe-journey',
+        boundary:'ci:safe'
+      }
+    });
+    expect(resolved.statusCode).toBe(200);
+    expect(resolved.body.idempotency.result).toEqual(executionEvidence);
+
+    const replay=await callAssistant({
+      path:'/assistant/idempotency/claim',
+      body:{ action, idempotency_key:key, session_id:'ci-safe-journey', boundary:'ci:safe' }
+    });
+    expect(replay.body.idempotency.state).toBe('replay_succeeded');
+    expect(replay.body.idempotency.result).toEqual(executionEvidence);
+
+    const lifecycle=ciAuditEvents.map(event=>event.p_event_type);
+    expect(lifecycle).toEqual(expect.arrayContaining([
+      'planned','idempotency_claimed','write_succeeded','replayed'
+    ]));
+    expect(ciAuditEvents.every(event=>event.p_user_id==='user-e2e-1')).toBe(true);
+  });
+
+  test('sensitive journey requires confirmation and human-review evidence but never self-authorizes execution', () => {
+    const action={
+      id:'ci-sensitive-action',
+      type:'form_submit',
+      capability:'form_submit',
+      target:'funding',
+      input:{ application_id:'ci-app-1', amount:125000 },
+      risk:'high',
+      requires_confirmation:true,
+      status:'ready'
+    };
+
+    const prepared=prepareConfirmation(action,{language:'ar'});
+    expect(prepared).toMatchObject({
+      required:true,
+      status:'pending',
+      execution_authorized:false
+    });
+
+    const confirmed=resolveConfirmation(action,prepared,'confirm');
+    expect(confirmed.status).toBe('confirmed');
+    expect(confirmed.execution_authorized).toBe(false);
+
+    const approval={
+      status:'approved',
+      action_fingerprint:actionFingerprint(action),
+      risk:'high'
+    };
+    const verification=verifySensitiveAction({
+      action,
+      confirmation:confirmed,
+      approval
+    });
+
+    expect(verification.verdict).toBe('verified_for_review');
+    expect(verification.confirmation_status).toBe('confirmed');
+    expect(verification.approval_status).toBe('approved');
+    expect(verification.execution_authorized).toBe(false);
+    expect(verification.auto_execute).toBe(false);
+    expect(verification.authorization_source).toBe(false);
+
+    const audit=normalizeAssistantAuditEvent({
+      userId:'ci-user',
+      sessionId:'ci-sensitive-journey',
+      boundary:'ci:sensitive',
+      action,
+      eventType:'confirmation_resolved',
+      outcome:'confirmed',
+      metadata:{
+        human_approval_status:'approved',
+        verifier_verdict:verification.verdict
+      }
+    });
+    expect(audit.p_event_type).toBe('confirmation_resolved');
+    expect(audit.p_requires_confirmation).toBe(true);
+    expect(audit.p_metadata).toMatchObject({
+      human_approval_status:'approved',
+      verifier_verdict:'verified_for_review'
+    });
+  });
+
+  test('sensitive journey fails closed on payload drift and reused idempotency keys', async () => {
+    const key='2'.repeat(64);
+    const action={
+      id:'ci-deny-action',
+      type:'form_save_draft',
+      capability:'form_save_draft',
+      target:'kyc',
+      input:{ amount:100 },
+      risk:'high',
+      requires_confirmation:true,
+      status:'ready'
+    };
+
+    const prepared=prepareConfirmation(action);
+    expect(() => resolveConfirmation(
+      { ...action, input:{ amount:101 } },
+      prepared,
+      'confirm'
+    )).toThrow('CONFIRMATION_PAYLOAD_CHANGED');
+
+    const first=await callAssistant({
+      path:'/assistant/idempotency/claim',
+      body:{ action, idempotency_key:key, session_id:'ci-deny-journey' }
+    });
+    expect(first.statusCode).toBe(200);
+    expect(first.body.idempotency.state).toBe('claimed');
+
+    const conflict=await callAssistant({
+      path:'/assistant/idempotency/claim',
+      body:{
+        action:{ ...action, input:{ amount:102 } },
+        idempotency_key:key,
+        session_id:'ci-deny-journey'
+      }
+    });
+    expect(conflict.statusCode).toBe(409);
+    expect(conflict.body.status).toBe('denied');
+    expect(conflict.body.idempotency.state).toBe('key_conflict');
+  });
+});
