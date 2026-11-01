@@ -198,4 +198,24 @@ describe('Executive Command Center', () => {
     expect(engine).toContain('SimulationEngine');
   });
 
+  test('board pack generator is active, governed and printable without inventing data', () => {
+    const page = read('admin/executive-command-center.html');
+    const api = read('api/admin.js');
+    const adapter = read('lib/analytics/board-pack.js');
+    const engine = read('lib/finance/engines/management-reporting-engine.js');
+
+    expect(page).toContain("['Board Pack Generator','ACTIVE'");
+    expect(page).toContain('boardPackBtn');
+    expect(page).toContain("api('command-center-board-pack')");
+    expect(page).toContain('window.print()');
+    expect(page).toContain('UNKNOWN means evidence is unavailable');
+    expect(api).toContain("action === 'command-center-board-pack'");
+    expect(api).toContain("analytics.command_center.read");
+    expect(api).toContain('buildBoardPack');
+    expect(adapter).toContain("runFinancialEngine('management_reporting'");
+    expect(adapter).toContain("methodology: 'deterministic_governed_board_pack_no_ai'");
+    expect(adapter).toContain("row?.scenario !== 'base'");
+    expect(engine).toContain("packType === 'board'");
+  });
+
 });

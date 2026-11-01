@@ -36,6 +36,7 @@ const {
 } = require('../lib/analytics/command-center-operations');
 const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
 const { buildCommercialScoring } = require('../lib/analytics/commercial-scoring');
+const { buildBoardPack } = require('../lib/analytics/board-pack');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -5080,6 +5081,27 @@ async function handler(req, res) {
         ]);
         const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
         return res.status(200).json(await loadCommandCenterGovernance(sb, metricSnapshot));
+      }
+      if (action === 'command-center-board-pack') {
+        await requireAdminPermission(req, sb, 'analytics.command_center.read');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        const [governance, operations] = await Promise.all([
+          loadCommandCenterGovernance(sb, metricSnapshot),
+          loadDecisionOperations(sb, metricSnapshot)
+        ]);
+        const materialityPct = req.query?.materiality_pct == null
+          ? 10
+          : Number(req.query.materiality_pct);
+        if (!Number.isFinite(materialityPct) || materialityPct < 0 || materialityPct > 1000) {
+          throw badRequest('materiality_pct must be between 0 and 1000');
+        }
+        const boardPack = buildBoardPack(governance, operations, { materiality_pct: materialityPct });
+        return res.status(200).json({ success: true, boardPack });
       }
       if (action === 'command-center-target-save') {
         const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
