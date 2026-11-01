@@ -932,10 +932,11 @@
     "golden_conversations",
     "assistant_evaluations",
     "red_team_scenarios",
-    "end_to_end_ci_journeys"
+    "end_to_end_ci_journeys",
+    "outcome_analytics"
   ],
   "next": [
-    "outcome_analytics"
+    "journey_analytics"
   ],
   "deferred": [
     "action_tokens",
@@ -953,8 +954,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-11-01",
-    "branch": "feat/outcome-analytics",
-    "change": "Outcome Analytics implementation candidate: action-level deterministic outcomes derived from immutable assistant_action_audit terminal evidence and rendered in the existing Assistant Operations dashboard. No migration/new endpoint. CI/merge/production verification pending; next remains outcome_analytics."
+    "branch": "docs/close-outcome-analytics-final-20261101",
+    "change": "Outcome Analytics closed after exact merge SHA 1838681dee33a2fabf96506a2925a4e1a9b3a53e passed post-merge CI, Production Release, exact-SHA promotion verification, authenticated production smoke, health/readiness checks, and runtime error scan. next=journey_analytics."
   },
   "production_rollout": {
     "status": "complete",
