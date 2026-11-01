@@ -4,6 +4,7 @@ const {
   boundedWindowHours,
   auditSummary,
   outcomeAnalytics,
+  journeyAnalytics,
   agentInboxSummary,
   approvalsSummary,
   anomalyAlertSummary,
@@ -78,6 +79,50 @@ describe('Assistant Operational Dashboard',()=>{
     }));
   });
 
+
+  test('derives privacy-safe journey analytics from session and boundary audit evidence',()=>{
+    const rows=[
+      {session_id:'s1',boundary:'project:p1',action_id:'a1',action_type:'form_find',event_type:'planned',created_at:'2026-11-01T10:00:00Z'},
+      {session_id:'s1',boundary:'project:p1',action_id:'a1',action_type:'form_find',event_type:'execution_succeeded',created_at:'2026-11-01T10:01:00Z'},
+      {session_id:'s1',boundary:'project:p1',action_id:'a2',action_type:'form_save_draft',event_type:'execution_succeeded',created_at:'2026-11-01T10:03:00Z'},
+      {session_id:'s2',boundary:'project:p2',action_id:'a3',action_type:'form_submit',event_type:'planned',created_at:'2026-11-01T11:00:00Z'},
+      {session_id:'s3',boundary:'project:p3',action_id:'a4',action_type:'form_submit',event_type:'execution_failed',created_at:'2026-11-01T12:00:00Z'}
+    ];
+    const out=journeyAnalytics(rows,1000);
+    expect(out).toEqual(expect.objectContaining({
+      status:'measured',
+      total_journeys:3,
+      completed_journeys:1,
+      failed_journeys:1,
+      incomplete_journeys:1,
+      completion_rate:0.3333,
+      dropoff_proxy_rate:0.3333,
+      actions_total:4,
+      measured_actions:3,
+      outcome_coverage:0.75,
+      average_completion_duration_ms:180000,
+      median_completion_duration_ms:180000,
+      methodology:'boundary_session_group_with_latest_terminal_per_action'
+    }));
+    expect(out.privacy).toEqual({
+      raw_session_ids:false,
+      raw_boundaries:false,
+      raw_user_identifiers:false
+    });
+    expect(JSON.stringify(out)).not.toContain('project:p1');
+    expect(JSON.stringify(out)).not.toContain('s1');
+  });
+
+  test('reports UNKNOWN when no journey key exists',()=>{
+    const out=journeyAnalytics([
+      {action_id:'a1',action_type:'site_navigate',event_type:'execution_succeeded',created_at:'2026-11-01T10:00:00Z'}
+    ],1000);
+    expect(out.status).toBe('unknown');
+    expect(out.total_journeys).toBe(0);
+    expect(out.completion_rate).toBeNull();
+    expect(out.note).toMatch(/^UNKNOWN:/);
+  });
+
   test('reports UNKNOWN when no terminal action outcome exists',()=>{
     const out=outcomeAnalytics([
       {action_id:'a1',action_type:'site_navigate',event_type:'planned',created_at:'2026-11-01T10:00:00Z'}
@@ -110,8 +155,8 @@ describe('Assistant Operational Dashboard',()=>{
   test('builds bounded read-only dashboard from existing sources',async()=>{
     const rows={
       assistant_action_audit:[
-        {action_id:'a1',action_type:'form_submit',event_type:'execution_succeeded',created_at:'2026-10-23T00:20:00Z'},
-        {action_id:'a2',action_type:'form_submit',event_type:'execution_denied',created_at:'2026-10-23T00:10:00Z'}
+        {session_id:'ops-1',boundary:'ops:one',action_id:'a1',action_type:'form_submit',event_type:'execution_succeeded',created_at:'2026-10-23T00:20:00Z'},
+        {session_id:'ops-2',boundary:'ops:two',action_id:'a2',action_type:'form_submit',event_type:'execution_denied',created_at:'2026-10-23T00:10:00Z'}
       ],
       assistant_agent_inbox:[{status:'open',priority:'high',created_at:'2026-10-23T00:00:00Z'}],
       admin_approval_requests:[{status:'pending',risk:'critical',created_at:'2026-10-23T00:00:00Z'}],
@@ -127,6 +172,9 @@ describe('Assistant Operational Dashboard',()=>{
     }));
     expect(out.outcomes).toEqual(expect.objectContaining({
       status:'measured',distinct_actions:2,measured_actions:2,succeeded:1,denied:1,success_rate:0.5
+    }));
+    expect(out.journeys).toEqual(expect.objectContaining({
+      status:'measured',total_journeys:2,completed_journeys:1,denied_journeys:1
     }));
     expect(out.queues.agent_inbox.active_total).toBe(1);
     expect(out.queues.human_approvals.pending_total).toBe(1);
