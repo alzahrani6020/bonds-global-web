@@ -561,6 +561,15 @@
   function selectedServiceRoute(serviceCode) {
     const service = state.services.find(row => row.code === serviceCode);
     if (!service) return null;
+
+    // Financial Analysis is a public service landing route, not a workspace launch.
+    // Preserve the canonical catalog route even when an execution workspace exists.
+    if (serviceCode === 'financial_analysis') {
+      const preferredPublic = lang === 'en' ? service.default_route_en : service.default_route_ar;
+      const fallbackPublic = lang === 'en' ? service.default_route_ar : service.default_route_en;
+      return safeInternalRoute(preferredPublic) || safeInternalRoute(fallbackPublic);
+    }
+
     const workspacePreferred = lang === 'en' ? service.workspace?.route_en : service.workspace?.route_ar;
     const workspaceFallback = lang === 'en' ? service.workspace?.route_ar : service.workspace?.route_en;
     const workspaceRoute = safeInternalRoute(workspacePreferred) || safeInternalRoute(workspaceFallback);
