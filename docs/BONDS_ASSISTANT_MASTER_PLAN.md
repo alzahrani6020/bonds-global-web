@@ -885,4 +885,15 @@ parent/child relationships بين التوكنات.
 - القياس يتم على مستوى `action_id` وليس عدد الأحداث: أحدث terminal audit event داخل النافذة يحدد النتيجة `succeeded / failed / denied / uncertain / replayed`.
 - تعرض الطبقة: distinct actions، measured/unmeasured actions، outcome coverage، outcome success rate، breakdown حسب `action_type`، و`UNKNOWN` عندما لا توجد terminal evidence.
 - `admin/assistant-operations.html` يعرض المقاييس والـbreakdown عبر نفس API الإداري الحالي، بدون raw user IDs أو audit metadata أو execution authority.
-- الحالة الحالية: **IMPLEMENTATION CANDIDATE / CI PENDING**. يبقى `next = outcome_analytics` حتى إغلاق PR والتحقق من Production.
+- الحالة النهائية: **IMPLEMENTED / MERGED / POST-MERGE CI VERIFIED / DEPLOYED / PRODUCTION VERIFIED**.
+- Implementation PR: #819.
+- Merge SHA: `1838681dee33a2fabf96506a2925a4e1a9b3a53e`.
+- Post-merge Main CI: run `41344171143` — SUCCESS.
+- Production Release: run `41345004817` — SUCCESS; staged, smoke-tested, current-main verified, same deployment promoted, and Production SHA verified.
+- Vercel Production deployment: `dpl_52SFgKmVLHkYwusQ2sAYAhzVuEGH` — READY for exact SHA `1838681dee33a2fabf96506a2925a4e1a9b3a53e`.
+- Production Authenticated Smoke: run `41345160063` — SUCCESS.
+- `/api/health`: HTTP 200 / `ok`, version `1838681`.
+- `/api/readiness`: HTTP 200 / `ready`; Supabase, Native, Token Runtime, User Governance, Assistant, Assistant Chat, and Web Search = `ok`.
+- Runtime error scan: zero errors in the verified post-release window.
+- No migration, new endpoint, authorization-plane change, provider/model/token/context/compute/throughput change, or production business-write path was introduced.
+- Next Assistant roadmap item: **Journey Analytics** (`journey_analytics`).
