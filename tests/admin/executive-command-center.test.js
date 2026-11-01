@@ -153,4 +153,25 @@ describe('Executive Command Center', () => {
     expect(adapter).toContain("engine: 'unit_economics'");
     expect(engine).toContain("analysis_scope");
   });
+  test('CAC and ROAS are partial and fail-honest until governed acquisition evidence exists', () => {
+    const page = read('admin/executive-command-center.html');
+    const ops = read('lib/analytics/command-center-operations.js');
+    const adapter = read('lib/analytics/cac-roas.js');
+    const engine = read('lib/finance/engines/unit-economics-engine.js');
+
+    expect(page).toContain('CAC / ROAS');
+    expect(page).toContain("['CAC / ROAS','PARTIAL'");
+    expect(page).toContain("cr.cac==null?'UNKNOWN'");
+    expect(page).toContain("cr.roas==null?'UNKNOWN'");
+    expect(page).toContain('UNKNOWN — الأدلة الناقصة');
+    expect(ops).toContain('buildCacRoas');
+    expect(ops).toContain("cacRoas:'partial'");
+    expect(adapter).toContain("semantics: 'governed_spend_and_attributed_revenue_not_pipeline_value'");
+    expect(adapter).toContain("engine: 'unit_economics'");
+    expect(adapter).toContain('period_basis');
+    expect(adapter).toContain('currency');
+    expect(engine).toContain("analysisScope === 'acquisition'");
+    expect(page).not.toContain("clv.ltv==null?'UNKNOWN':sar(clv.ltv)");
+  });
+
 });

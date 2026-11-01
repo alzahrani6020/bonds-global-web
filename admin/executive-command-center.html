@@ -201,6 +201,13 @@
     </section>
 
     <section class="card s12">
+      <h2>CAC / ROAS</h2>
+      <div id="cacRoasState" class="gov-note"></div>
+      <div id="cacRoasSummary" class="kpis" style="margin:.75rem 0"></div>
+      <div class="muted" id="cacRoasMissing"></div>
+    </section>
+
+    <section class="card s12">
       <h2>Saved Views وWatchlists</h2>
       <div class="gov-grid">
         <div>
@@ -275,7 +282,7 @@
     ['Revenue Attribution','PARTIAL','يعرض pipeline حسب المصدر؛ يبقى PARTIAL حتى توجد فواتير مدفوعة بمصدر اكتساب صريح'],
     ['Service Profitability','PARTIAL','يعرض الربح المباشر المرصود من financial_events posted المرتبطة بـ service_code؛ يبقى PARTIAL حتى تتوفر تكاليف موزعة موثقة لكل خدمة'],
     ['Client Lifetime Value','PARTIAL','يستخدم محرك unit-economics الحالي؛ يبقى UNKNOWN حتى تتوفر أدلة retention وربحية وإسناد مالي للعميل'],
-    ['CAC / ROAS','NOT_CONFIGURED','يتطلب تكلفة الحملات الإعلانية'],
+    ['CAC / ROAS','PARTIAL','يستخدم محرك unit-economics الحالي؛ يبقى UNKNOWN حتى تتوفر تكلفة اكتساب معتمدة + عملاء جدد + إيراد مدفوع منسوب صراحة وبنفس الفترة والعملة'],
     ['Scenario Simulator','PARTIAL','Schema تمت إضافته؛ محرك الحساب يحتاج قواعد معتمدة'],
     ['Target vs Actual','ACTIVE','محرك Actual مقابل أهداف معتمدة؛ يبقى UNKNOWN عند عدم وجود هدف'],
     ['KPI Governance','ACTIVE','قاموس المقاييس + Actual + إدارة أهداف معتمدة'],
@@ -436,13 +443,25 @@
     const clv=ops?.clientLifetimeValue||{};
     $('clientLifetimeValueState').innerHTML='<span class="pill warn">'+esc(String(clv.status||'partial').toUpperCase())+'</span> '+esc(clv.reason||'Client Lifetime Value evidence is incomplete.');
     $('clientLifetimeValueSummary').innerHTML=[
-      kpi('CLV',clv.ltv==null?'UNKNOWN':sar(clv.ltv),clv.method||'No governed LTV method available'),
+      kpi('CLV',clv.ltv==null?'UNKNOWN':num(clv.ltv)+' (currency UNKNOWN)',clv.method||'No governed LTV method available'),
       kpi('العملاء',num(clv.coverage?.clients||0),'advisory_clients'),
       kpi('عملاء لديهم طلبات',num(clv.coverage?.clientsWithServiceRequests||0),'service_requests.client_id'),
       kpi('أحداث مالية منسوبة للعميل',num(clv.coverage?.postedClientAttributedFinancialEvents||0),'posted only')
     ].join('');
     $('clientLifetimeValueMissing').textContent=(clv.missingEvidence||[]).length
       ? 'UNKNOWN — الأدلة الناقصة: '+(clv.missingEvidence||[]).join('، ')
+      : '';
+
+    const cr=ops?.cacRoas||{};
+    $('cacRoasState').innerHTML='<span class="pill warn">'+esc(String(cr.status||'partial').toUpperCase())+'</span> '+esc(cr.reason||'CAC / ROAS evidence is incomplete.');
+    $('cacRoasSummary').innerHTML=[
+      kpi('CAC',cr.cac==null?'UNKNOWN':num(cr.cac)+' '+esc(cr.currency||'UNKNOWN'),cr.periodBasis||'No governed period basis'),
+      kpi('ROAS',cr.roas==null?'UNKNOWN':num(cr.roas)+'x','Attributed paid revenue / acquisition spend'),
+      kpi('فواتير مدفوعة منسوبة',num(cr.coverage?.paidInvoicesWithExplicitSource||0),'explicit source only'),
+      kpi('فرص لها مصدر',num(cr.coverage?.opportunitiesWithSource||0),'pipeline evidence only; not revenue')
+    ].join('');
+    $('cacRoasMissing').textContent=(cr.missingEvidence||[]).length
+      ? 'UNKNOWN — الأدلة الناقصة: '+(cr.missingEvidence||[]).join('، ')
       : '';
 
     $('savedViewRows').innerHTML=(ops?.savedViews||[]).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.scope)+'</td><td><small>'+esc(JSON.stringify(v.definition||{}))+'</small></td><td><button type="button" class="btn danger view-delete" data-id="'+esc(v.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Views محفوظة</td></tr>';
