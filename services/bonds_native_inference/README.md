@@ -74,6 +74,26 @@ The existing local startup verifier remains available:
 
 `verify-startup.ps1` validates local runtime startup only. Use `verify-readiness.ps1` for local + remote + production readiness.
 
+## Service health supervisor
+
+In production the three components run as Windows services (`BondsNativeRuntimeService`, `BondsTokenRuntimeService`, `Cloudflared`; LocalSystem, auto start, SCM restart-on-crash). SCM only reacts to a **crashed** process; it cannot detect a service that is running but not answering. `windows/service-supervisor.ps1` closes that gap and **replaces the legacy `watchdog.ps1`** (which manages the retired `BondsNativeRuntime` / `BondsNativeTunnel` scheduled tasks and must not be enabled next to the services).
+
+```powershell
+# Report-only check of all three layers (never restarts anything; exit 1 if unhealthy)
+.\services\bonds_native_inference\windows\service-supervisor.ps1 -Once
+
+# Install as a SYSTEM scheduled task (elevated PowerShell). Runs at boot, also on battery.
+.\services\bonds_native_inference\windows\install-service-supervisor.ps1 -RemoveLegacyWatchdog
+```
+
+Probes: Native `GET 127.0.0.1:8765/health` (authenticated, `runtime.available`), token runtime `GET 127.0.0.1:8771/health` (HTTP 200/401 proves it is serving; no secret needed), tunnel `GET https://native.bonds-global.com/health`.
+
+Safeguards: 3 consecutive failures before a restart; startup grace after restart/boot/wake (180s Native, 60s others); 300s cooldown per service; at most 6 restarts/hour per service (then it gives up and alerts); the tunnel is restarted only when the local runtime is healthy **and** the internet is reachable; stuck services are force-killed after 30s. Pause recovery for maintenance by creating `%ProgramData%\BondsNative\supervisor.paused`. Optional alerts: set machine env `BONDS_SUPERVISOR_ALERT_WEBHOOK` to a Slack/Discord-compatible webhook.
+
+Outputs under `%ProgramData%\BondsNative`: `service-supervisor.log` (rotated at 5 MB, logs only non-healthy events) and `service-supervisor-heartbeat.json`.
+
+Host power: this is a laptop. Sleep/Modern Standby on battery suspends all three services and drops the tunnel; keep `standby-timeout-dc` at `0` (see `powercfg /query SCHEME_CURRENT SUB_SLEEP STANDBYIDLE`) or keep the machine on AC.
+
 ## Architecture decision
 
 Keep the current `server.py` + `threading.Lock` single-flight runtime until measured production evidence justifies a concurrency architecture change.

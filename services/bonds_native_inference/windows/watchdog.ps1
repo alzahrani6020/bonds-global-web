@@ -1,3 +1,6 @@
+﻿# DEPRECATED: this watchdog manages the retired BondsNativeRuntime/BondsNativeTunnel scheduled tasks.
+# Production now runs as Windows services; use service-supervisor.ps1 / install-service-supervisor.ps1 instead.
+# Do not enable this next to the services: it would try to start a second runtime and tunnel.
 param(
     [int]$IntervalSeconds = 15,
     [int]$RecoveryDelaySeconds = 10,
