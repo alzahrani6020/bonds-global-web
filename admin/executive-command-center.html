@@ -27,6 +27,7 @@
     .form-grid textarea{min-height:72px;resize:vertical}.form-actions{display:flex;gap:.5rem;align-items:end;min-width:0}.form-actions .btn{max-width:100%}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.danger{background:#991b1b}.gov-note{font-size:.82rem;color:var(--muted);margin:.35rem 0 .8rem}
     @media(max-width:900px){.gov-grid{grid-template-columns:minmax(0,1fr)}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.form-grid{grid-template-columns:minmax(0,1fr)}.form-grid label[style]{grid-column:auto!important}}
     @media(max-width:1000px){.s8,.s6,.s4{grid-column:span 12}}@media(max-width:640px){main{padding:.65rem}.funnel{flex-direction:column}.stage:not(:last-child):after{display:none}}
+    @media print{body *{visibility:hidden!important}#boardPackPrint,#boardPackPrint *{visibility:visible!important}#boardPackPrint{position:absolute;inset:0;width:100%;box-shadow:none!important;border:0!important}.no-print{display:none!important}#boardPackPrint table{page-break-inside:auto}#boardPackPrint tr{page-break-inside:avoid}}
   </style>
 </head>
 <body>
@@ -231,6 +232,15 @@
       <div class="scroll"><table><thead><tr><th>الاسم</th><th>النوع</th><th>الثقة</th><th>NPV المتوقع</th><th>P(NPV&gt;0)</th><th>P(loss)</th><th></th></tr></thead><tbody id="scenarioRows"></tbody></table></div>
     </section>
 
+    <section class="card s12" id="boardPackPrint">
+      <div class="no-print" style="display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap">
+        <div><h2 style="margin:0">Board Pack Generator</h2><div class="muted">حزمة مجلس إدارة deterministic من المقاييس governed والأهداف والقرارات والمخاطر والإجراءات. الطباعة إلى PDF تتم من المتصفح دون رفع نسخة إضافية.</div></div>
+        <button class="btn" id="boardPackBtn" type="button">توليد الحزمة / طباعة PDF</button>
+      </div>
+      <div id="boardPackState" class="gov-note" style="margin-top:.75rem">لم يتم توليد الحزمة بعد.</div>
+      <div id="boardPackContent"></div>
+    </section>
+
     <section class="card s12">
       <h2>Saved Views وWatchlists</h2>
       <div class="gov-grid">
@@ -313,7 +323,7 @@
     ['Decision-to-Outcome Loop','ACTIVE','إنشاء قرار + baseline + إجراء + قياس outcome فعلي'],
     ['Alert Threshold Engine','ACTIVE','إدارة قواعد + evaluator فعلي على المقاييس المتاحة'],
     ['Saved Views / Watchlists','ACTIVE','إنشاء/حذف Views وقوائم متابعة من مركز القيادة'],
-    ['Board Pack Generator','PLANNED','يحتاج قالب تقرير معتمد'],
+    ['Board Pack Generator','ACTIVE','يستخدم محرك management_reporting الحالي؛ يعتمد فقط على المقاييس governed والأهداف والمخاطر والإجراءات والقرارات والسيناريوهات، مع طباعة PDF محلية'],
     ['Natural Language Analytics','PLANNED','يجب ربطه بمصادر معتمدة مع evidence'],
     ['Anomaly Detection','PLANNED','يحتاج baseline موسمي قبل التفعيل'],
     ['Decision Simulator','PLANNED','يحتاج افتراضات موثقة وقيودًا مالية'],
@@ -348,6 +358,39 @@
 
   function kpi(label,value,detail){
     return '<div class="kpi"><b>'+esc(value)+'</b><span>'+esc(label)+'</span><small>'+esc(detail||'')+'</small></div>';
+  }
+
+  function renderBoardPack(bp){
+    if(!bp||bp.generated!==true){
+      $('boardPackState').innerHTML='<span class="pill warn">UNKNOWN</span> '+esc(bp?.reason||'Board Pack unavailable.');
+      $('boardPackContent').innerHTML='';
+      return;
+    }
+    const p=bp.pack||{};
+    const coverage=p.evidence_coverage||{};
+    $('boardPackState').innerHTML='<span class="pill ok">ACTIVE</span> As of '+esc(bp.asOfDate||'UNKNOWN')+' · '+esc(bp.methodology||'deterministic');
+    const kpis=(p.kpis||[]).map(r=>'<tr><td>'+esc(r.name||r.code)+'</td><td>'+esc(num(r.value))+'</td><td>'+esc(r.target==null?'UNKNOWN':num(r.target))+'</td><td>'+esc(r.target_variance_pct==null?'UNKNOWN':pct(r.target_variance_pct))+'</td></tr>').join('');
+    const variances=(p.material_variances||[]).map(r=>'<tr><td>'+esc(r.metric)+'</td><td>'+esc(num(r.actual))+'</td><td>'+esc(r.budget==null?'UNKNOWN':num(r.budget))+'</td><td>'+esc(r.budget_variance_pct==null?'UNKNOWN':pct(r.budget_variance_pct))+'</td></tr>').join('');
+    const risks=(p.risks||[]).map(r=>'<tr><td>'+esc(r.title||r.id)+'</td><td>'+esc(r.severity||'UNKNOWN')+'</td></tr>').join('');
+    const actions=(p.actions_required||[]).map(r=>'<tr><td>'+esc(r.title||r.id)+'</td><td>'+esc(r.status||'UNKNOWN')+'</td><td>'+esc(r.due_date||'—')+'</td></tr>').join('');
+    const decisions=(p.decisions||[]).map(r=>'<tr><td>'+esc(r.title||r.id)+'</td><td>'+esc(r.status||'UNKNOWN')+'</td><td>'+esc(r.confidence||'unknown')+'</td></tr>').join('');
+    const scenarios=(p.scenarios||[]).map(r=>'<tr><td>'+esc(r.name||r.id)+'</td><td>'+esc(r.scenario_type||'UNKNOWN')+'</td><td>'+esc(r.confidence||'unknown')+'</td></tr>').join('');
+    $('boardPackContent').innerHTML=
+      '<h1 style="margin:1rem 0 .25rem">BONDS Global — Board Pack</h1>'+
+      '<div class="muted">Period: '+esc(p.period||bp.asOfDate||'UNKNOWN')+' · Currency: '+esc(p.currency||'UNKNOWN / mixed basis')+'</div>'+
+      '<div class="kpis" style="margin:1rem 0">'+
+        kpi('Business Health',p.business_health?.score==null?'UNKNOWN':num(p.business_health.score),p.business_health?.label||'governed targets only')+
+        kpi('Actual metrics',num(coverage.actual_metric_count||0),'governed snapshot')+
+        kpi('Targets covered',num(coverage.target_covered_metric_count||0),'base scenario')+
+        kpi('Triggered risks',num(coverage.triggered_risk_count||0),'evaluated alerts')+
+      '</div>'+
+      '<h3>KPIs / Target</h3><div class="scroll"><table><thead><tr><th>KPI</th><th>Actual</th><th>Target</th><th>Variance %</th></tr></thead><tbody>'+(kpis||'<tr><td colspan="4">UNKNOWN — لا توجد KPIs قابلة للعرض</td></tr>')+'</tbody></table></div>'+
+      '<h3>Material Variances</h3><div class="scroll"><table><thead><tr><th>Metric</th><th>Actual</th><th>Target/Budget</th><th>Variance %</th></tr></thead><tbody>'+(variances||'<tr><td colspan="4">لا توجد فروقات مادية مثبتة</td></tr>')+'</tbody></table></div>'+
+      '<h3>Risks</h3><div class="scroll"><table><thead><tr><th>Risk</th><th>Severity</th></tr></thead><tbody>'+(risks||'<tr><td colspan="2">لا توجد تنبيهات مفعّلة ومتحققة</td></tr>')+'</tbody></table></div>'+
+      '<h3>Actions Required</h3><div class="scroll"><table><thead><tr><th>Action</th><th>Status</th><th>Due</th></tr></thead><tbody>'+(actions||'<tr><td colspan="3">لا توجد إجراءات</td></tr>')+'</tbody></table></div>'+
+      '<h3>Decisions</h3><div class="scroll"><table><thead><tr><th>Decision</th><th>Status</th><th>Confidence</th></tr></thead><tbody>'+(decisions||'<tr><td colspan="3">لا توجد قرارات</td></tr>')+'</tbody></table></div>'+
+      '<h3>Scenarios</h3><div class="scroll"><table><thead><tr><th>Scenario</th><th>Type</th><th>Confidence</th></tr></thead><tbody>'+(scenarios||'<tr><td colspan="3">لا توجد سيناريوهات محفوظة</td></tr>')+'</tbody></table></div>'+
+      '<p class="muted">Method: '+esc(bp.methodology||'deterministic')+'. UNKNOWN means evidence is unavailable; no values are inferred.</p>';
   }
 
   function renderCapabilities(){
@@ -699,6 +742,20 @@
       if(scenarioBtn) await apiPost('command-center-scenario-delete',{id:scenarioBtn.dataset.id});
       await load();
     }catch(err){$('error').textContent='فشل الحذف: '+err.message;$('error').style.display='block';}
+  });
+
+  $('boardPackBtn').addEventListener('click',async()=>{
+    try{
+      $('boardPackBtn').disabled=true;
+      const d=await api('command-center-board-pack');
+      renderBoardPack(d.boardPack);
+      if(d.boardPack?.generated===true) window.print();
+    }catch(err){
+      $('error').textContent='فشل توليد Board Pack: '+err.message;
+      $('error').style.display='block';
+    }finally{
+      $('boardPackBtn').disabled=false;
+    }
   });
 
   $('refreshBtn').addEventListener('click',load);
