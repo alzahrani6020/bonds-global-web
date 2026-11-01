@@ -344,7 +344,7 @@
     const loadDiscovery = () => {
       if (document.querySelector('script[src*="service-discovery.js"]')) return;
       const script = document.createElement('script');
-      script.src = '/components/service-discovery.js?v=6';
+      script.src = '/components/service-discovery.js?v=7';
       script.async = false;
       document.head.appendChild(script);
     };
@@ -568,7 +568,7 @@
       {
         heading: { ar: 'الاستشارات المالية', en: 'Financial Advisory' },
         items: [
-          { label: labels.analysis, href: servicesHref + '#analysis' },
+          { label: labels.analysis, href: langBase + 'my-bonds/workspace/?service=financial_analysis' },
           { label: labels.cashflow, href: servicesHref + '#cashflow' },
           { label: labels.budgets, href: servicesHref + '#budgets' },
           { label: labels.strategy, href: servicesHref + '#strategy' },
