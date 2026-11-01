@@ -37,6 +37,7 @@
   <div id="status" class="muted" style="margin-top:.7rem">بانتظار التحقق من الجلسة…</div>
   <section class="grid">
     <article class="card s12"><h2>نشاط المساعد</h2><div id="activity" class="kpis"></div></article>
+    <article class="card s12"><h2>Outcome Analytics · نتائج الإجراءات</h2><div id="outcomes" class="kpis"></div><div id="outcomeNote" class="muted" style="margin-top:.65rem"></div><div style="overflow:auto;margin-top:.75rem"><table><thead><tr><th>نوع الإجراء</th><th>مقاس</th><th>نجح</th><th>فشل</th><th>رُفض</th><th>غير مؤكد</th><th>Replay</th><th>نسبة النجاح</th></tr></thead><tbody id="outcomeRows"></tbody></table></div></article>
     <article class="card s6"><h2>الطوابير البشرية</h2><div id="queues"></div></article>
     <article class="card s6"><h2>السلامة</h2><div id="safety"></div></article>
     <article class="card s12"><h2>سلامة القياس</h2><div id="telemetry"></div></article>
@@ -62,7 +63,7 @@
   }
 
   function render(d){
-    const a=d.activity||{},q=d.queues||{},s=d.safety||{},em=s.emergency_mode||{},alerts=s.anomaly_alerts||{};
+    const a=d.activity||{},o=d.outcomes||{},q=d.queues||{},s=d.safety||{},em=s.emergency_mode||{},alerts=s.anomaly_alerts||{};
     activity.innerHTML=[
       kpi('إجمالي الأحداث',n(a.total_events),a.truncated?'القراءة وصلت للسقف':''),
       kpi('بدأ التنفيذ',n(a.execution_started)),
@@ -75,6 +76,31 @@
       kpi('نسبة نجاح التنفيذ',a.success_rate==null?'—':(a.success_rate*100).toFixed(1)+'%'),
       kpi('آخر حدث',fmt(a.last_event_at))
     ].join('');
+
+    outcomes.innerHTML=[
+      kpi('حالة القياس',String(o.status||'UNKNOWN').toUpperCase(),o.methodology||''),
+      kpi('إجراءات مميزة',n(o.distinct_actions)),
+      kpi('إجراءات ذات نتيجة',n(o.measured_actions)),
+      kpi('غير مقاسة',n(o.unmeasured_actions)),
+      kpi('نجحت',n(o.succeeded)),
+      kpi('فشلت',n(o.failed)),
+      kpi('رُفضت',n(o.denied)),
+      kpi('غير مؤكدة',n(o.uncertain)),
+      kpi('Replay',n(o.replayed)),
+      kpi('Outcome Coverage',o.outcome_coverage==null?'UNKNOWN':(o.outcome_coverage*100).toFixed(1)+'%'),
+      kpi('Outcome Success Rate',o.success_rate==null?'UNKNOWN':(o.success_rate*100).toFixed(1)+'%')
+    ].join('');
+    outcomeNote.textContent=o.note||'UNKNOWN';
+    outcomeRows.innerHTML=(o.by_action_type||[]).map(row=>'<tr>'+
+      '<td>'+esc(row.action_type||'unknown')+'</td>'+
+      '<td>'+n(row.measured_actions)+'</td>'+
+      '<td>'+n(row.succeeded)+'</td>'+
+      '<td>'+n(row.failed)+'</td>'+
+      '<td>'+n(row.denied)+'</td>'+
+      '<td>'+n(row.uncertain)+'</td>'+
+      '<td>'+n(row.replayed)+'</td>'+
+      '<td>'+esc(row.success_rate==null?'UNKNOWN':(row.success_rate*100).toFixed(1)+'%')+'</td>'+
+      '</tr>').join('') || '<tr><td colspan="8">UNKNOWN — لا توجد نتائج نهائية قابلة للقياس في النافذة المحددة.</td></tr>';
 
     const inbox=q.agent_inbox||{},approval=q.human_approvals||{};
     queues.innerHTML='<table><tbody>'+
