@@ -192,7 +192,7 @@ describe('platform health vs strict readiness', () => {
 
   describe('public readiness redaction', () => {
     const PUBLIC_DROPPED = {
-      token_runtime: ['verify_attempts', 'verify_recovered'],
+      token_runtime: ['channel_auth', 'broker_auth', 'contract_version', 'schema_version', 'build_commit', 'verify_attempts', 'verify_recovered'],
       web_search: ['upstream_count', 'valid_upstream_count', 'live_result_count', 'cached'],
       native_diagnostic: ['elapsed_ms', 'attempts', 'retry_recovered']
     };
@@ -209,7 +209,7 @@ describe('platform health vs strict readiness', () => {
       expect(res.statusCode).toBe(200);
       expect(res.body.status).toBe('ready');
       expect(res.body.checks).toMatchObject({ native: 'ok', assistant_chat: 'ok', token_runtime: 'ok', web_search: 'ok' });
-      expect(res.body.token_runtime).toMatchObject({ status: 'ok', required: true, channel_auth: 'verified' });
+      expect(res.body.token_runtime).toMatchObject({ status: 'ok', required: true });
       expect(res.body.inference).toMatchObject({ mode: 'REMOTE_BONDS_NATIVE', native_reachable: true, chat_ready: true });
       expect(res.body.inference.native_diagnostic).toHaveProperty('code', null);
       expect(res.body.inference.native_diagnostic).toHaveProperty('executed');
@@ -222,17 +222,26 @@ describe('platform health vs strict readiness', () => {
       for (const key of PUBLIC_DROPPED.native_diagnostic) expect(res.body.inference.native_diagnostic).not.toHaveProperty(key);
     });
 
-    test('fields asserted by the release gate (deploy-vercel.yml) stay public', async () => {
-      const res = await readiness(strictReq({ authorized: false }));
-      expect(res.body.token_runtime).toMatchObject({
+    test('runtime contract detail is not public but authorised callers (the release gate) receive it', async () => {
+      const publicRes = await readiness(strictReq({ authorized: false }));
+      expect(publicRes.body.token_runtime).toEqual({ status: 'ok', required: true, code: null });
+      expect(JSON.stringify(publicRes.body)).not.toContain(runtimeBuild);
+
+      const authorised = await readiness(strictReq({ authorized: true }));
+      expect(authorised.body.token_runtime).toMatchObject({
         channel_auth: 'verified', broker_auth: 'configured', contract_version: 2, schema_version: 3, build_commit: runtimeBuild
       });
+    });
+
+    test('the release gate sends the bearer secret and fails clearly when it is missing', () => {
       const workflow = require('fs').readFileSync(require('path').join(__dirname, '../../.github/workflows/deploy-vercel.yml'), 'utf8');
+      expect(workflow).toContain('CRON_SECRET: ${{ secrets.CRON_SECRET }}');
+      expect(workflow).toContain('-H "Authorization: Bearer $CRON_SECRET"');
+      expect(workflow).toContain('readiness_detail_unauthorized');
       for (const field of ['channel_auth', 'broker_auth', 'contract_version', 'schema_version', 'build_commit']) {
         expect(workflow).toContain('runtime?.' + field);
       }
     });
-
     test('a wrong bearer token is treated as unauthenticated', async () => {
       const req = strictReq({ authorized: false });
       req.headers = { authorization: 'Bearer not-the-secret' };
