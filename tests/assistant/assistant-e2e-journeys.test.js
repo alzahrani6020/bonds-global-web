@@ -295,6 +295,57 @@ describe('BONDS Assistant V1 end-to-end governed journeys', () => {
 
 
 describe('End-to-End CI journeys — explicit release gate', () => {
+  const ciLedger = new Map();
+  const ciAuditEvents = [];
+
+  beforeEach(() => {
+    ciLedger.clear();
+    ciAuditEvents.length = 0;
+    mockRpc.mockReset();
+    mockRpc.mockImplementation(async (name, payload) => {
+      if (name === 'assistant_append_action_audit') {
+        ciAuditEvents.push(payload);
+        return { data:`ci-audit-${ciAuditEvents.length}`, error:null };
+      }
+      if (name === 'assistant_claim_idempotency') {
+        const existing = ciLedger.get(payload.p_idempotency_key);
+        if (!existing) {
+          ciLedger.set(payload.p_idempotency_key, {
+            fingerprint:payload.p_action_fingerprint,
+            status:'in_progress',
+            result:null
+          });
+          return { data:{ state:'claimed', status:'in_progress', result:null }, error:null };
+        }
+        if (existing.fingerprint !== payload.p_action_fingerprint) {
+          return { data:{ state:'key_conflict', status:existing.status, result:null }, error:null };
+        }
+        if (existing.status === 'succeeded') {
+          return { data:{ state:'replay_succeeded', status:'succeeded', result:existing.result }, error:null };
+        }
+        return { data:{ state:'in_progress', status:existing.status, result:null }, error:null };
+      }
+      if (name === 'assistant_resolve_idempotency') {
+        const existing = ciLedger.get(payload.p_idempotency_key);
+        if (!existing) return { data:{ state:'missing', status:null, result:null }, error:null };
+        if (existing.fingerprint !== payload.p_action_fingerprint) {
+          return { data:{ state:'key_conflict', status:existing.status, result:null }, error:null };
+        }
+        existing.status = payload.p_status;
+        existing.result = payload.p_result || null;
+        return {
+          data:{
+            state:payload.p_status === 'succeeded' ? 'succeeded' : 'uncertain',
+            status:payload.p_status,
+            result:existing.result
+          },
+          error:null
+        };
+      }
+      throw new Error('UNEXPECTED_RPC:' + name);
+    });
+  });
+
   const {
     prepareConfirmation,
     resolveConfirmation,
@@ -318,7 +369,7 @@ describe('End-to-End CI journeys — explicit release gate', () => {
       requires_confirmation:false
     });
 
-    const key='ci-safe-'+ '1'.repeat(56);
+    const key='1'.repeat(64);
     const claim=await callAssistant({
       path:'/assistant/idempotency/claim',
       body:{ action, idempotency_key:key, session_id:'ci-safe-journey', boundary:'ci:safe' }
@@ -328,10 +379,9 @@ describe('End-to-End CI journeys — explicit release gate', () => {
 
     const executionEvidence={
       ok:true,
-      executed:true,
       code:'DRAFT_SAVED',
       record_id:'ci-draft-001',
-      evidence_id:'ci-evidence-001'
+      status:'draft'
     };
     const resolved=await callAssistant({
       path:'/assistant/idempotency/resolve',
@@ -354,11 +404,11 @@ describe('End-to-End CI journeys — explicit release gate', () => {
     expect(replay.body.idempotency.state).toBe('replay_succeeded');
     expect(replay.body.idempotency.result).toEqual(executionEvidence);
 
-    const lifecycle=auditEvents.map(event=>event.p_event_type);
+    const lifecycle=ciAuditEvents.map(event=>event.p_event_type);
     expect(lifecycle).toEqual(expect.arrayContaining([
       'planned','idempotency_claimed','write_succeeded','replayed'
     ]));
-    expect(auditEvents.every(event=>event.p_user_id==='user-e2e-1')).toBe(true);
+    expect(ciAuditEvents.every(event=>event.p_user_id==='user-e2e-1')).toBe(true);
   });
 
   test('sensitive journey requires confirmation and human-review evidence but never self-authorizes execution', () => {
@@ -423,7 +473,7 @@ describe('End-to-End CI journeys — explicit release gate', () => {
   });
 
   test('sensitive journey fails closed on payload drift and reused idempotency keys', async () => {
-    const key='ci-deny-'+ '2'.repeat(56);
+    const key='2'.repeat(64);
     const action={
       id:'ci-deny-action',
       type:'form_save_draft',
