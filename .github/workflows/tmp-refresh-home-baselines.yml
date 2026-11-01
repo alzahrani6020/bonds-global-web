@@ -1,0 +1,98 @@
+name: Temporary Homepage Baseline Refresh
+
+on:
+  push:
+    branches:
+      - redesign/home-institutional-latest-main-20261102
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-home-baselines:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Start local server
+        run: npm run dev:local > /tmp/bonds-dev.log 2>&1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3005 > /dev/null; then
+              echo "Server ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/bonds-dev.log || true
+          exit 1
+
+      - name: Generate candidate baselines
+        env:
+          UPDATE_BASELINE: '1'
+        run: npm run test:visual
+
+      - name: Keep only homepage baseline candidates
+        run: |
+          git checkout -- tests/visual/baselines
+          for viewport in desktop tablet mobile; do
+            cp "tests/visual/snapshots/$viewport/index-ar.png" "tests/visual/baselines/$viewport/index-ar.png"
+            cp "tests/visual/snapshots/$viewport/index-en.png" "tests/visual/baselines/$viewport/index-en.png"
+          done
+
+      - name: Validate PNGs and rerun visual regression
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const { PNG } = require('pngjs');
+          for (const viewport of ['desktop','tablet','mobile']) {
+            for (const locale of ['ar','en']) {
+              const p = `tests/visual/baselines/${viewport}/index-${locale}.png`;
+              const png = PNG.sync.read(fs.readFileSync(p));
+              if (!png.width || !png.height) throw new Error(`Invalid PNG: ${p}`);
+              console.log(`${p}: ${png.width}x${png.height} OK`);
+            }
+          }
+          NODE
+          npm run test:visual
+
+      - name: Verify scope
+        run: |
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          unexpected="$(echo "$changed" | grep -vE '^tests/visual/baselines/(desktop|tablet|mobile)/index-(ar|en)\.png$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected changed files:"
+            echo "$unexpected"
+            exit 1
+          fi
+
+      - name: Commit refreshed baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/visual/baselines/desktop/index-ar.png
+          git add tests/visual/baselines/desktop/index-en.png
+          git add tests/visual/baselines/tablet/index-ar.png
+          git add tests/visual/baselines/tablet/index-en.png
+          git add tests/visual/baselines/mobile/index-ar.png
+          git add tests/visual/baselines/mobile/index-en.png
+          git diff --cached --quiet && { echo "No homepage baseline changes detected"; exit 1; }
+          git commit -m "test(visual): refresh homepage baselines on latest main"
+          git push origin HEAD:"$GITHUB_REF_NAME"
