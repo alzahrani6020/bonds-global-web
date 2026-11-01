@@ -932,10 +932,11 @@
     "golden_conversations",
     "assistant_evaluations",
     "red_team_scenarios",
-    "end_to_end_ci_journeys"
+    "end_to_end_ci_journeys",
+    "outcome_analytics"
   ],
   "next": [
-    "outcome_analytics"
+    "journey_analytics"
   ],
   "deferred": [
     "action_tokens",
@@ -953,8 +954,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-11-01",
-    "branch": "feat/outcome-analytics",
-    "change": "Outcome Analytics implementation candidate: action-level deterministic outcomes derived from immutable assistant_action_audit terminal evidence and rendered in the existing Assistant Operations dashboard. No migration/new endpoint. CI/merge/production verification pending; next remains outcome_analytics."
+    "branch": "docs/close-outcome-analytics",
+    "change": "Outcome Analytics closed after production verification. PR #819 merged as 1838681dee33a2fabf96506a2925a4e1a9b3a53e. PR CI 41343346219, Dependency Security 41343346290, Service Worker 41343346170, post-merge CI 41344171143, post-merge Dependency Security 41344171142, post-merge Service Worker 41344171154, and Production Release 41345004817 passed. Vercel deployment dpl_52SFgKmVLHkYwusQ2sAYAhzVuEGH is READY for the exact merge SHA; health/readiness passed and runtime errors were zero. Next: journey_analytics."
   },
   "production_rollout": {
     "status": "complete",
