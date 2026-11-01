@@ -867,8 +867,14 @@ parent/child relationships بين التوكنات.
 
 
 ## 2026-11-01 — End-to-End CI Journeys checkpoint
-- تمت إضافة بوابة CI صريحة `test:assistant:e2e-ci` فوق الرحلات المحكومة القائمة، بدون runtime endpoint أو authorization plane جديد.
-- الرحلات تغطي: safe plan → idempotency claim → persisted execution evidence → replay + immutable audit lifecycle؛ sensitive confirmation + approved human-review evidence مع إثبات أن `execution_authorized:false` و`auto_execute:false`؛ وfail-closed عند payload/fingerprint drift أو idempotency conflict.
-- `.github/workflows/ci.yml` يشغّل الرحلات كخطوة مستقلة قبل مجموعة Unit/Integration العامة، بحيث لا يمكن اختفاؤها داخل نجاح Jest الشامل.
-- لا توجد migration، ولا provider/model/token/context/compute/throughput changes، ولا business write جديد خارج fixtures الاختبارية.
-- الحالة الحالية: **IMPLEMENTATION CANDIDATE / CI PENDING**. لا تعتبر MERGED أو CI/PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الدمج.
+- **STATUS: IMPLEMENTED / MERGED / CI VERIFIED / PRODUCTION VERIFIED**.
+- PR #817 merged as `3020d30f2ca561032c37311c0bdeaa0234e5d39f`.
+- Explicit release gate: `npm run test:assistant:e2e-ci`, wired as `Run Assistant End-to-End CI Journeys` before the broad Unit/Integration suite.
+- Verified journeys cover: safe plan → idempotency claim → sanitized execution evidence → replay → immutable audit lifecycle; sensitive confirmation + approved human-review evidence while preserving `execution_authorized:false`, `auto_execute:false`, and `authorization_source:false`; and fail-closed payload/fingerprint drift plus idempotency key conflict.
+- PR checks passed: CI `41340528582`, Dependency Security `41340528528`, Service Worker `41340528665`.
+- Post-merge checks passed on exact merge SHA: CI `41341037773`, Dependency Security `41341037763`, Service Worker `41341037790`.
+- Production Release #964 / run `41341426359` passed stage, smoke, current-main verification, promotion, exact Production SHA verification, and webhook method guard.
+- Vercel deployment `dpl_7eUrcyQuKtQarVHK5iJkPrbRbjPR` is READY for exact SHA `3020d30f2ca561032c37311c0bdeaa0234e5d39f`.
+- Production `/api/health` returned 200/`ok` version `3020d30`; `/api/readiness` returned 200/`ready` with Supabase, Native, Token Runtime, User Governance, Assistant, Assistant Chat, and Web Search healthy; runtime error scan returned zero errors.
+- No migration, new runtime endpoint, authorization plane, provider/model/token/context/compute/throughput change, or production business-write path was introduced by this workstream.
+- Next Assistant roadmap item: **Outcome Analytics** (`outcome_analytics`).
