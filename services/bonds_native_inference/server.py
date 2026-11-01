@@ -3,17 +3,29 @@ from __future__ import annotations
 import hmac
 import json
 import os
+import select
+import socket
+import sys
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 
-from native_generator import NativeContextOverflow, NativeRuntimeBusy, generate, status
+from native_generator import (
+    NativeClientCancelled,
+    NativeContextOverflow,
+    NativeRuntimeBusy,
+    generate,
+    status,
+)
 
 ROOT = Path(__file__).resolve().parent
 HOST = os.environ.get("BONDS_NATIVE_HOST", "127.0.0.1")
 PORT = int(os.environ.get("BONDS_NATIVE_PORT", "8765"))
 TOKEN = os.environ.get("BONDS_NATIVE_TOKEN", "")
 MAX_BODY_BYTES = int(os.environ.get("BONDS_NATIVE_MAX_BODY_BYTES", "1048576"))
+# Opt-in: stop queued/in-flight generation when the HTTP client disconnects.
+# Off by default; enable only after verifying disconnect detection through the tunnel.
+CANCEL_ON_DISCONNECT = os.environ.get("BONDS_NATIVE_CANCEL_ON_DISCONNECT", "0") == "1"
 
 
 def _is_loopback(host: str) -> bool:
@@ -48,6 +60,22 @@ class Handler(BaseHTTPRequestHandler):
             return True
         self._json(401, {"ok": False, "error": {"code": "UNAUTHORIZED"}})
         return False
+
+    def _client_disconnected(self) -> bool:
+        """True once the peer has closed its side of the connection.
+
+        The request body was fully read, so a readable socket that yields EOF
+        on a non-consuming peek means the client went away. Pending bytes
+        (e.g. a pipelined request) mean it is still connected.
+        """
+        try:
+            conn = self.connection
+            readable, _, _ = select.select([conn], [], [], 0)
+            if not readable:
+                return False
+            return conn.recv(1, socket.MSG_PEEK) == b""
+        except (OSError, ValueError):
+            return True
 
     def _read_json(self) -> dict[str, Any]:
         raw_length = self.headers.get("content-length", "0")
@@ -90,8 +118,16 @@ class Handler(BaseHTTPRequestHandler):
                 prompt,
                 context=body.get("context") or {},
                 options=body.get("options") or {},
+                cancel_check=self._client_disconnected if CANCEL_ON_DISCONNECT else None,
             )
             self._json(200, {"ok": True, "result": result})
+        except NativeClientCancelled as exc:
+            # The caller is gone; there is nobody to answer.
+            self.close_connection = True
+            print(json.dumps({
+                "event": "native_generate_cancelled",
+                "reason": str(exc),
+            }, ensure_ascii=False), file=sys.stderr, flush=True)
         except NativeRuntimeBusy as exc:
             self._json(503, {
                 "ok": False,
