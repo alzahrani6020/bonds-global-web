@@ -933,10 +933,11 @@
     "assistant_evaluations",
     "red_team_scenarios",
     "end_to_end_ci_journeys",
-    "outcome_analytics"
+    "outcome_analytics",
+    "journey_analytics"
   ],
   "next": [
-    "journey_analytics"
+    "conversion_metrics"
   ],
   "deferred": [
     "action_tokens",
@@ -954,8 +955,8 @@
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
     "date": "2026-11-01",
-    "branch": "feat/journey-analytics",
-    "change": "Journey Analytics implementation candidate: privacy-safe deterministic journey aggregation from existing immutable assistant_action_audit using boundary+session_id internally, with completion/failure/denial/uncertain/incomplete counts, completion and audit-incomplete drop-off proxy rates, action outcome coverage, and completion duration metrics. No migration/new endpoint/auth change. CI/merge/production verification pending; next remains journey_analytics."
+    "branch": "docs/close-journey-analytics-20261101",
+    "change": "Journey Analytics closed after PR #823 merge SHA 10c92aa7f908e05ef51e23e153235fa96db62a3b passed post-merge CI, security, service worker, Production Release, authenticated production smoke including planner telemetry, health/readiness verification, and zero runtime errors. next=conversion_metrics."
   },
   "production_rollout": {
     "status": "complete",
