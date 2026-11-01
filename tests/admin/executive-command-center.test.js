@@ -136,4 +136,21 @@ describe('Executive Command Center', () => {
     expect(engine).toContain("semantics:'observed_direct_margin_not_full_operating_profit'");
   });
 
+  test('client lifetime value is partial and fail-honest until governed evidence exists', () => {
+    const page = read('admin/executive-command-center.html');
+    const ops = read('lib/analytics/command-center-operations.js');
+    const adapter = read('lib/analytics/client-lifetime-value.js');
+    const engine = read('lib/finance/engines/unit-economics-engine.js');
+
+    expect(page).toContain('Client Lifetime Value');
+    expect(page).toContain("['Client Lifetime Value','PARTIAL'");
+    expect(page).toContain("clv.ltv==null?'UNKNOWN'");
+    expect(page).toContain('UNKNOWN — الأدلة الناقصة');
+    expect(ops).toContain("sb.from('advisory_clients')");
+    expect(ops).toContain("sb.from('crm_customer_success')");
+    expect(ops).toContain('buildClientLifetimeValue');
+    expect(adapter).toContain("semantics: 'governed_ltv_not_crm_pipeline_value'");
+    expect(adapter).toContain("engine: 'unit_economics'");
+    expect(engine).toContain("analysis_scope");
+  });
 });
