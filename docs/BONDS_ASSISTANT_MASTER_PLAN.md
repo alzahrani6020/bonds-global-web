@@ -893,3 +893,13 @@ parent/child relationships بين التوكنات.
 - Production `/api/health` returned 200/`ok` version `1838681`; `/api/readiness` returned 200/`ready` with Supabase, Native, Token Runtime, User Governance, Assistant, Assistant Chat, and Web Search healthy; runtime error scan returned zero errors.
 - No raw user identifiers, raw audit metadata, execution authority, provider/model/token/context/compute/throughput change, or business-write path was introduced by this workstream.
 - Next Assistant roadmap item: **Journey Analytics** (`journey_analytics`).
+
+
+## 2026-11-01 — Journey Analytics checkpoint
+- تمت إضافة Journey Analytics كطبقة **read-only deterministic** داخل لوحة Assistant Operations الحالية، فوق سجل `assistant_action_audit` immutable نفسه؛ لا جدول أو migration أو endpoint جديد.
+- تعريف الرحلة داخليًا يعتمد على المفتاح المركب `boundary + session_id` الموجود أصلًا في سجل التدقيق، مع عدم عرض raw session IDs أو raw boundaries أو raw user identifiers.
+- كل رحلة تجمع الإجراءات المميزة ثم تستخدم أحدث terminal audit event لكل `action_id` لتحديد الحالة: `completed / failed / denied / uncertain / incomplete`.
+- تعرض الطبقة: إجمالي الرحلات، المكتملة، الفاشلة، المرفوضة، غير المؤكدة، غير المكتملة، completion rate، audit-incomplete drop-off proxy، outcome coverage، ومتوسط/وسيط زمن إكمال الرحلات المكتملة.
+- `dropoff_proxy_rate` هو **مؤشر نقص دليل تدقيقي فقط** وليس إثباتًا أن المستخدم تخلّى عن الرحلة.
+- لا execution authority، ولا business writes، ولا provider/model/token/context/compute/throughput change.
+- الحالة الحالية: **IMPLEMENTATION CANDIDATE / CI PENDING**. يبقى `next = journey_analytics` حتى إغلاق PR والتحقق من Production.
