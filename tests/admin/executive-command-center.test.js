@@ -218,4 +218,23 @@ describe('Executive Command Center', () => {
     expect(engine).toContain("packType === 'board'");
   });
 
+  test('natural language analytics is active, governed and evidence-bound', () => {
+    const page = read('admin/executive-command-center.html');
+    const api = read('api/admin.js');
+    const adapter = read('lib/analytics/natural-language-analytics.js');
+
+    expect(page).toContain("['Natural Language Analytics','ACTIVE'");
+    expect(page).toContain('nlqForm');
+    expect(page).toContain("apiPost('command-center-natural-language-query'");
+    expect(page).toContain('nlqEvidenceRows');
+    expect(page).toContain('UNKNOWN — لا يوجد دليل قابل للعرض');
+    expect(api).toContain("action === 'command-center-natural-language-query'");
+    expect(api).toContain("analytics.command_center.read");
+    expect(api).toContain('answerNaturalLanguageAnalytics');
+    expect(adapter).toContain("supportedIntents: ['actual', 'target', 'variance', 'source', 'unit']");
+    expect(adapter).toContain("semantics: 'governed_metric_lookup_no_freeform_generation'");
+    expect(adapter).toContain("Question is ambiguous between governed metrics.");
+    expect(adapter).not.toMatch(/openai|anthropic|generateText|chatCompletion/i);
+  });
+
 });
