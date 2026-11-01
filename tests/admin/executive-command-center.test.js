@@ -174,4 +174,28 @@ describe('Executive Command Center', () => {
     expect(page).not.toContain("clv.ltv==null?'UNKNOWN':sar(clv.ltv)");
   });
 
+  test('scenario simulator is active, governed and fail-closed', () => {
+    const page = read('admin/executive-command-center.html');
+    const api = read('api/admin.js');
+    const ops = read('lib/analytics/command-center-operations.js');
+    const adapter = read('lib/analytics/scenario-simulator.js');
+    const engine = read('lib/finance/engines/scenario-engine.js');
+
+    expect(page).toContain("['Scenario Simulator','ACTIVE'");
+    expect(page).toContain('scenarioForm');
+    expect(page).toContain("apiPost('command-center-scenario-create'");
+    expect(page).toContain("apiPost('command-center-scenario-delete'");
+    expect(page).toContain('scenarioRows');
+    expect(api).toContain("action === 'command-center-scenario-create'");
+    expect(api).toContain("action === 'command-center-scenario-delete'");
+    expect(api).toContain("analytics.command_center.manage");
+    expect(ops).toContain("sb.from('analytics_scenarios')");
+    expect(ops).toContain('validateAndRunScenario');
+    expect(ops).toContain("scenarioSimulator:'active'");
+    expect(adapter).toContain("runFinancialEngine('scenario_forecast'");
+    expect(adapter).toContain("source: 'manual_explicit'");
+    expect(adapter).toContain('scenario engine requires');
+    expect(engine).toContain('SimulationEngine');
+  });
+
 });

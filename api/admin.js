@@ -27,6 +27,8 @@ const {
   updateDecisionStatus,
   measureDecision,
   createAction,
+  createScenario,
+  deleteScenario,
   saveView,
   deleteView,
   saveWatchlist,
@@ -5212,6 +5214,37 @@ async function handler(req, res) {
           priority: item.priority
         }, req);
         return res.status(200).json({ success: true, actionItem: item });
+      }
+      if (action === 'command-center-scenario-create') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let scenario;
+        try {
+          scenario = await createScenario(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required|must be|out of range|scenario engine/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_scenario_create', 'analytics_scenario', scenario.id, null, {
+          scenario_type: scenario.scenario_type,
+          confidence: scenario.confidence
+        }, req);
+        return res.status(200).json({ success: true, scenario });
+      }
+      if (action === 'command-center-scenario-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        let deleted;
+        try {
+          deleted = await deleteScenario(sb, id);
+        } catch (err) {
+          if (/invalid|required|not found/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_scenario_delete', 'analytics_scenario', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
       }
       if (action === 'command-center-view-save') {
         const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');

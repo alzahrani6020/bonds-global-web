@@ -208,6 +208,30 @@
     </section>
 
     <section class="card s12">
+      <h2>Scenario Simulator</h2>
+      <div class="muted" style="margin-bottom:.75rem">محاكاة what-if/forecast/stress باستخدام محرك scenario_forecast الحالي. لا يتم حفظ سيناريو غير قابل للحساب.</div>
+      <form id="scenarioForm" class="form-grid">
+        <label>الاسم<input id="scenarioName" required maxlength="160" placeholder="Base 2027"></label>
+        <label>النوع<select id="scenarioType"><option value="what_if">What-if</option><option value="forecast">Forecast</option><option value="stress">Stress</option></select></label>
+        <label>الإيراد السنوي<input id="scenarioRevenue" type="number" step="any" min="0"></label>
+        <label>التكاليف السنوية<input id="scenarioCosts" type="number" step="any" min="0"></label>
+        <label>النمو %<input id="scenarioGrowth" type="number" step="any" min="-100" max="1000"></label>
+        <label>نمو التكلفة %<input id="scenarioCostGrowth" type="number" step="any" min="-100" max="1000"></label>
+        <label>السنوات<input id="scenarioYears" type="number" min="1" max="30" value="5"></label>
+        <label>الاستثمار الأولي<input id="scenarioInvestment" type="number" step="any" min="0"></label>
+        <label>صافي التدفق النقدي السنوي<input id="scenarioCashFlow" type="number" step="any"></label>
+        <label>خدمة الدين السنوية<input id="scenarioDebtService" type="number" step="any" min="0"></label>
+        <label>معدل الخصم %<input id="scenarioDiscount" type="number" step="any" min="-50" max="100" value="10"></label>
+        <label>Iterations<input id="scenarioIterations" type="number" min="100" max="50000" value="5000"></label>
+        <label>Revenue volatility %<input id="scenarioRevenueVol" type="number" step="any" min="0" max="100" value="15"></label>
+        <label>Cost volatility %<input id="scenarioCostVol" type="number" step="any" min="0" max="100" value="10"></label>
+        <label>Shock correlation<input id="scenarioCorrelation" type="number" step="0.01" min="-1" max="1" value="0.35"></label>
+        <div class="form-actions"><button class="btn" type="submit">تشغيل وحفظ السيناريو</button></div>
+      </form>
+      <div class="scroll"><table><thead><tr><th>الاسم</th><th>النوع</th><th>الثقة</th><th>NPV المتوقع</th><th>P(NPV&gt;0)</th><th>P(loss)</th><th></th></tr></thead><tbody id="scenarioRows"></tbody></table></div>
+    </section>
+
+    <section class="card s12">
       <h2>Saved Views وWatchlists</h2>
       <div class="gov-grid">
         <div>
@@ -283,7 +307,7 @@
     ['Service Profitability','PARTIAL','يعرض الربح المباشر المرصود من financial_events posted المرتبطة بـ service_code؛ يبقى PARTIAL حتى تتوفر تكاليف موزعة موثقة لكل خدمة'],
     ['Client Lifetime Value','PARTIAL','يستخدم محرك unit-economics الحالي؛ يبقى UNKNOWN حتى تتوفر أدلة retention وربحية وإسناد مالي للعميل'],
     ['CAC / ROAS','PARTIAL','يستخدم محرك unit-economics الحالي؛ يبقى UNKNOWN حتى تتوفر تكلفة اكتساب معتمدة + عملاء جدد + إيراد مدفوع منسوب صراحة وبنفس الفترة والعملة'],
-    ['Scenario Simulator','PARTIAL','Schema تمت إضافته؛ محرك الحساب يحتاج قواعد معتمدة'],
+    ['Scenario Simulator','ACTIVE','محرك scenario_forecast متصل بالـschema مع inputs/assumptions صريحة ونتائج محفوظة؛ السيناريوهات غير القابلة للحساب تُرفض fail-closed'],
     ['Target vs Actual','ACTIVE','محرك Actual مقابل أهداف معتمدة؛ يبقى UNKNOWN عند عدم وجود هدف'],
     ['KPI Governance','ACTIVE','قاموس المقاييس + Actual + إدارة أهداف معتمدة'],
     ['Decision-to-Outcome Loop','ACTIVE','إنشاء قرار + baseline + إجراء + قياس outcome فعلي'],
@@ -464,6 +488,14 @@
       ? 'UNKNOWN — الأدلة الناقصة: '+(cr.missingEvidence||[]).join('، ')
       : '';
 
+    $('scenarioRows').innerHTML=(ops?.scenarios||[]).map(s=>{
+      const sim=s.outputs?.simulation||{};
+      const expected=sim.expectedNpv;
+      const pPos=sim.probabilityPositiveNpv;
+      const pLoss=sim.probabilityLoss;
+      return '<tr><td><b>'+esc(s.name)+'</b><br><small>'+esc(new Date(s.created_at).toLocaleString('ar-SA'))+'</small></td><td>'+esc(s.scenario_type||'what_if')+'</td><td>'+esc(String(s.confidence||'unknown').toUpperCase())+'</td><td>'+esc(expected==null?'UNKNOWN':num(expected))+'</td><td>'+esc(pPos==null?'UNKNOWN':pct(pPos*100))+'</td><td>'+esc(pLoss==null?'UNKNOWN':pct(pLoss*100))+'</td><td><button type="button" class="btn danger scenario-delete" data-id="'+esc(s.id)+'">حذف</button></td></tr>';
+    }).join('')||'<tr><td colspan="7">لا توجد سيناريوهات محفوظة</td></tr>';
+
     $('savedViewRows').innerHTML=(ops?.savedViews||[]).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.scope)+'</td><td><small>'+esc(JSON.stringify(v.definition||{}))+'</small></td><td><button type="button" class="btn danger view-delete" data-id="'+esc(v.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Views محفوظة</td></tr>';
     $('watchRows').innerHTML=(ops?.watchlists||[]).map(w=>'<tr><td>'+esc(w.name)+'</td><td>'+esc(w.entity_type)+'</td><td>'+esc((w.entity_refs||[]).join(', '))+'</td><td><button type="button" class="btn danger watch-delete" data-id="'+esc(w.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Watchlists</td></tr>';
   }
@@ -594,6 +626,35 @@
     }catch(err){$('error').textContent='فشل إنشاء الإجراء: '+err.message;$('error').style.display='block';}
   });
 
+  $('scenarioForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-scenario-create',{
+        name:$('scenarioName').value,
+        scenario_type:$('scenarioType').value,
+        inputs:{
+          annual_revenue:$('scenarioRevenue').value,
+          annual_costs:$('scenarioCosts').value,
+          growth_rate_pct:$('scenarioGrowth').value,
+          cost_growth_rate_pct:$('scenarioCostGrowth').value,
+          years:$('scenarioYears').value,
+          initial_investment:$('scenarioInvestment').value,
+          annual_net_cash_flow:$('scenarioCashFlow').value,
+          total_debt_service:$('scenarioDebtService').value,
+          discount_rate_pct:$('scenarioDiscount').value
+        },
+        assumptions:{
+          iterations:$('scenarioIterations').value,
+          revenue_volatility_pct:$('scenarioRevenueVol').value,
+          cost_volatility_pct:$('scenarioCostVol').value,
+          shock_correlation:$('scenarioCorrelation').value
+        }
+      });
+      $('scenarioName').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل تشغيل السيناريو: '+err.message;$('error').style.display='block';}
+  });
+
   $('viewForm').addEventListener('submit',async e=>{
     e.preventDefault();
     try{
@@ -627,13 +688,15 @@
     const measureBtn=e.target.closest('.decision-measure');
     const viewBtn=e.target.closest('.view-delete');
     const watchBtn=e.target.closest('.watch-delete');
-    if(!targetBtn&&!alertBtn&&!measureBtn&&!viewBtn&&!watchBtn)return;
+    const scenarioBtn=e.target.closest('.scenario-delete');
+    if(!targetBtn&&!alertBtn&&!measureBtn&&!viewBtn&&!watchBtn&&!scenarioBtn)return;
     try{
       if(targetBtn) await apiPost('command-center-target-delete',{id:targetBtn.dataset.id});
       if(alertBtn) await apiPost('command-center-alert-delete',{id:alertBtn.dataset.id});
       if(measureBtn) await apiPost('command-center-decision-measure',{id:measureBtn.dataset.id});
       if(viewBtn) await apiPost('command-center-view-delete',{id:viewBtn.dataset.id});
       if(watchBtn) await apiPost('command-center-watchlist-delete',{id:watchBtn.dataset.id});
+      if(scenarioBtn) await apiPost('command-center-scenario-delete',{id:scenarioBtn.dataset.id});
       await load();
     }catch(err){$('error').textContent='فشل الحذف: '+err.message;$('error').style.display='block';}
   });
