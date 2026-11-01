@@ -114,6 +114,17 @@ jobs:
       - name: Run Visual Regression Tests
         run: npm run test:visual
 
+      - name: Export tablet English homepage baseline
+        if: failure()
+        shell: bash
+        run: |
+          f="tests/visual/snapshots/tablet/index-en.png"
+          if [ -f "$f" ]; then
+            echo "TABLET_EN_BEGIN"
+            base64 "$f"
+            echo "TABLET_EN_END"
+          fi
+
       - name: Validate service manifests and token policies
         run: npm run services:check
 
