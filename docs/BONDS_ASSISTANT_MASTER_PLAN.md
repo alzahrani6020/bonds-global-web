@@ -878,3 +878,11 @@ parent/child relationships بين التوكنات.
 - Production `/api/health` returned 200/`ok` version `3020d30`; `/api/readiness` returned 200/`ready` with Supabase, Native, Token Runtime, User Governance, Assistant, Assistant Chat, and Web Search healthy; runtime error scan returned zero errors.
 - No migration, new runtime endpoint, authorization plane, provider/model/token/context/compute/throughput change, or production business-write path was introduced by this workstream.
 - Next Assistant roadmap item: **Outcome Analytics** (`outcome_analytics`).
+
+
+## 2026-11-01 — Outcome Analytics checkpoint
+- تمت إضافة Outcome Analytics كطبقة **read-only deterministic** داخل `lib/assistant/operational-dashboard.js` فوق سجل `assistant_action_audit` immutable الحالي؛ لا جدول أو migration أو endpoint جديد.
+- القياس يتم على مستوى `action_id` وليس عدد الأحداث: أحدث terminal audit event داخل النافذة يحدد النتيجة `succeeded / failed / denied / uncertain / replayed`.
+- تعرض الطبقة: distinct actions، measured/unmeasured actions، outcome coverage، outcome success rate، breakdown حسب `action_type`، و`UNKNOWN` عندما لا توجد terminal evidence.
+- `admin/assistant-operations.html` يعرض المقاييس والـbreakdown عبر نفس API الإداري الحالي، بدون raw user IDs أو audit metadata أو execution authority.
+- الحالة الحالية: **IMPLEMENTATION CANDIDATE / CI PENDING**. يبقى `next = outcome_analytics` حتى إغلاق PR والتحقق من Production.

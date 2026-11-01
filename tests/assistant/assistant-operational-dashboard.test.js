@@ -3,6 +3,7 @@
 const {
   boundedWindowHours,
   auditSummary,
+  outcomeAnalytics,
   agentInboxSummary,
   approvalsSummary,
   anomalyAlertSummary,
@@ -47,6 +48,46 @@ describe('Assistant Operational Dashboard',()=>{
     expect(JSON.stringify(out)).not.toContain('secret-user');
   });
 
+
+  test('derives action-level outcome analytics from latest terminal immutable evidence',()=>{
+    const rows=[
+      {action_id:'a1',action_type:'form_submit',event_type:'planned',created_at:'2026-11-01T10:00:00Z'},
+      {action_id:'a1',action_type:'form_submit',event_type:'execution_started',created_at:'2026-11-01T10:01:00Z'},
+      {action_id:'a1',action_type:'form_submit',event_type:'execution_succeeded',created_at:'2026-11-01T10:02:00Z'},
+      {action_id:'a2',action_type:'form_submit',event_type:'execution_failed',created_at:'2026-11-01T10:03:00Z'},
+      {action_id:'a3',action_type:'form_save_draft',event_type:'replayed',created_at:'2026-11-01T10:04:00Z'},
+      {action_id:'a4',action_type:'form_save_draft',event_type:'planned',created_at:'2026-11-01T10:05:00Z'}
+    ];
+    const out=outcomeAnalytics(rows,1000);
+    expect(out).toEqual(expect.objectContaining({
+      status:'measured',
+      distinct_actions:4,
+      measured_actions:3,
+      unmeasured_actions:1,
+      succeeded:1,
+      failed:1,
+      denied:0,
+      uncertain:0,
+      replayed:1,
+      outcome_coverage:0.75,
+      success_rate:0.3333,
+      methodology:'latest_terminal_audit_event_per_action'
+    }));
+    expect(out.by_action_type.find(x=>x.action_type==='form_submit')).toEqual(expect.objectContaining({
+      measured_actions:2,succeeded:1,failed:1,success_rate:0.5
+    }));
+  });
+
+  test('reports UNKNOWN when no terminal action outcome exists',()=>{
+    const out=outcomeAnalytics([
+      {action_id:'a1',action_type:'site_navigate',event_type:'planned',created_at:'2026-11-01T10:00:00Z'}
+    ],1000);
+    expect(out.status).toBe('unknown');
+    expect(out.measured_actions).toBe(0);
+    expect(out.success_rate).toBeNull();
+    expect(out.note).toMatch(/^UNKNOWN:/);
+  });
+
   test('summarizes human queues and anomaly alerts',()=>{
     expect(agentInboxSummary([
       {status:'open',priority:'critical'},
@@ -69,8 +110,8 @@ describe('Assistant Operational Dashboard',()=>{
   test('builds bounded read-only dashboard from existing sources',async()=>{
     const rows={
       assistant_action_audit:[
-        {event_type:'execution_succeeded',created_at:'2026-10-23T00:20:00Z'},
-        {event_type:'execution_denied',created_at:'2026-10-23T00:10:00Z'}
+        {action_id:'a1',action_type:'form_submit',event_type:'execution_succeeded',created_at:'2026-10-23T00:20:00Z'},
+        {action_id:'a2',action_type:'form_submit',event_type:'execution_denied',created_at:'2026-10-23T00:10:00Z'}
       ],
       assistant_agent_inbox:[{status:'open',priority:'high',created_at:'2026-10-23T00:00:00Z'}],
       admin_approval_requests:[{status:'pending',risk:'critical',created_at:'2026-10-23T00:00:00Z'}],
@@ -83,6 +124,9 @@ describe('Assistant Operational Dashboard',()=>{
     });
     expect(out.activity).toEqual(expect.objectContaining({
       total_events:2,execution_succeeded:1,execution_denied:1
+    }));
+    expect(out.outcomes).toEqual(expect.objectContaining({
+      status:'measured',distinct_actions:2,measured_actions:2,succeeded:1,denied:1,success_rate:0.5
     }));
     expect(out.queues.agent_inbox.active_total).toBe(1);
     expect(out.queues.human_approvals.pending_total).toBe(1);
