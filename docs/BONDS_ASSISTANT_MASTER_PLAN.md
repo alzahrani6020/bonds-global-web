@@ -864,3 +864,11 @@ parent/child relationships بين التوكنات.
 - No provider/model/token/context/throughput/compute/authorization semantics changed.
 - Status: MERGED / CI VERIFIED / PRODUCTION VERIFIED.
 - Next Assistant roadmap item: **End-to-End CI Journeys** (`end_to_end_ci_journeys`).
+
+
+## 2026-11-01 — End-to-End CI Journeys checkpoint
+- تمت إضافة بوابة CI صريحة `test:assistant:e2e-ci` فوق الرحلات المحكومة القائمة، بدون runtime endpoint أو authorization plane جديد.
+- الرحلات تغطي: safe plan → idempotency claim → persisted execution evidence → replay + immutable audit lifecycle؛ sensitive confirmation + approved human-review evidence مع إثبات أن `execution_authorized:false` و`auto_execute:false`؛ وfail-closed عند payload/fingerprint drift أو idempotency conflict.
+- `.github/workflows/ci.yml` يشغّل الرحلات كخطوة مستقلة قبل مجموعة Unit/Integration العامة، بحيث لا يمكن اختفاؤها داخل نجاح Jest الشامل.
+- لا توجد migration، ولا provider/model/token/context/compute/throughput changes، ولا business write جديد خارج fixtures الاختبارية.
+- الحالة الحالية: **IMPLEMENTATION CANDIDATE / CI PENDING**. لا تعتبر MERGED أو CI/PRODUCTION VERIFIED قبل إغلاق PR والتحقق من SHA الدمج.

@@ -99,6 +99,9 @@ jobs:
           done
           echo "Server did not start in time" && exit 1
 
+      - name: Run Assistant End-to-End CI Journeys
+        run: npm run test:assistant:e2e-ci
+
       - name: Run Unit and Integration Tests
         run: npm test
 

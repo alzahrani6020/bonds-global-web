@@ -951,9 +951,9 @@
   ],
   "resume_instruction_ar": "راجع docs/BONDS_ASSISTANT_MASTER_PLAN.md وdocs/bonds-assistant-roadmap.json من المستودع، تحقق من main الحالي، ثم أكمل من أول عنصر غير منفذ حسب الأولوية دون العودة من الصفر.",
   "last_update": {
-    "date": "2026-10-23",
-    "branch": "docs/close-red-team-scenarios-v2",
-    "change": "Red Team Scenarios closed after production verification. PR #531 merged as 818ad1795215325a39584f5ce2bd84dfcd6a27db. Post-merge CI 39951589185, Service Worker 39951589116, Dependency Security 39951589189, Production Release 39952247079, and Production Authenticated Smoke 39952481837 all passed. Vercel deployment dpl_ZeDQosEhjbc74Gw3552X2JJmYcc7 is READY for the exact merge SHA. No migration. Next: end_to_end_ci_journeys."
+    "date": "2026-11-01",
+    "branch": "feat/end-to-end-ci-journeys",
+    "change": "End-to-End CI Journeys implementation candidate: explicit test:assistant:e2e-ci release gate added for safe persisted replay/audit, sensitive confirmation plus human-review evidence without execution authority, and fail-closed payload/idempotency drift. CI/merge/production verification pending. next remains end_to_end_ci_journeys until verified."
   },
   "production_rollout": {
     "status": "complete",
