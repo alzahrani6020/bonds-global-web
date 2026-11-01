@@ -881,8 +881,15 @@ parent/child relationships بين التوكنات.
 
 
 ## 2026-11-01 — Outcome Analytics checkpoint
-- تمت إضافة Outcome Analytics كطبقة **read-only deterministic** داخل `lib/assistant/operational-dashboard.js` فوق سجل `assistant_action_audit` immutable الحالي؛ لا جدول أو migration أو endpoint جديد.
-- القياس يتم على مستوى `action_id` وليس عدد الأحداث: أحدث terminal audit event داخل النافذة يحدد النتيجة `succeeded / failed / denied / uncertain / replayed`.
-- تعرض الطبقة: distinct actions، measured/unmeasured actions، outcome coverage، outcome success rate، breakdown حسب `action_type`، و`UNKNOWN` عندما لا توجد terminal evidence.
-- `admin/assistant-operations.html` يعرض المقاييس والـbreakdown عبر نفس API الإداري الحالي، بدون raw user IDs أو audit metadata أو execution authority.
-- الحالة الحالية: **IMPLEMENTATION CANDIDATE / CI PENDING**. يبقى `next = outcome_analytics` حتى إغلاق PR والتحقق من Production.
+- **STATUS: IMPLEMENTED / MERGED / CI VERIFIED / PRODUCTION VERIFIED**.
+- PR #819 merged as `1838681dee33a2fabf96506a2925a4e1a9b3a53e`.
+- Outcome Analytics remains **read-only deterministic** and reuses the existing `assistant_action_audit` immutable evidence plus the existing Assistant Operations API/UI; no table, migration, endpoint, or authorization plane was added.
+- Measurement is action-level: for each `action_id`, the latest terminal audit event inside the selected window determines `succeeded / failed / denied / uncertain / replayed`.
+- Exposed metrics include distinct/measured/unmeasured actions, outcome coverage, outcome success rate, terminal outcome counts, and breakdown by `action_type`; when no terminal evidence exists, the result is explicitly `UNKNOWN`.
+- PR checks passed on head `575b1edfbad05fa07c856aaf88c92b8ce86067cd`: CI `41343346219`, Dependency Security `41343346290`, Service Worker `41343346170`. An unrelated admin-module navigation timeout was verified transient by rerunning the same CI job on the unchanged SHA, which then passed.
+- Post-merge checks passed on exact merge SHA: CI `41344171143`, Dependency Security `41344171142`, Service Worker `41344171154`, with Token Runtime Windows acceptance and the explicit Assistant E2E gate also passing. A second unrelated admin-module navigation timeout was likewise resolved by rerunning the failed job on the unchanged merge SHA.
+- Production Release #968 / run `41345004817` passed stage, smoke, current-main verification, promotion, exact Production SHA verification, and webhook method guard.
+- Vercel deployment `dpl_52SFgKmVLHkYwusQ2sAYAhzVuEGH` is READY for exact SHA `1838681dee33a2fabf96506a2925a4e1a9b3a53e`.
+- Production `/api/health` returned 200/`ok` version `1838681`; `/api/readiness` returned 200/`ready` with Supabase, Native, Token Runtime, User Governance, Assistant, Assistant Chat, and Web Search healthy; runtime error scan returned zero errors.
+- No raw user identifiers, raw audit metadata, execution authority, provider/model/token/context/compute/throughput change, or business-write path was introduced by this workstream.
+- Next Assistant roadmap item: **Journey Analytics** (`journey_analytics`).
