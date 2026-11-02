@@ -569,32 +569,32 @@
         heading: { ar: 'الاستشارات المالية', en: 'Financial Advisory' },
         items: [
           { label: labels.analysis, href: langBase + 'my-bonds/workspace/?service=financial_analysis' },
-          { label: labels.cashflow, href: servicesHref + '#cashflow' },
-          { label: labels.budgets, href: servicesHref + '#budgets' },
-          { label: labels.strategy, href: servicesHref + '#strategy' },
+          { label: labels.cashflow, href: langBase + 'my-bonds/workspace/?service=cashflow_management' },
+          { label: labels.budgets, href: langBase + 'my-bonds/workspace/?service=budgeting_forecasting' },
+          { label: labels.strategy, href: langBase + 'service-request.html?service=financial_strategy' },
         ],
       },
       {
         heading: { ar: 'الدراسات والتقييم', en: 'Studies & Valuation' },
         items: [
-          { label: labels.feasibility, href: servicesHref + '#feasibility' },
-          { label: labels.valuation, href: valuationHref },
-          { label: labels.risk, href: servicesHref + '#risk' },
+          { label: labels.feasibility, href: langBase + 'my-bonds/workspace/?service=feasibility_studies' },
+          { label: labels.valuation, href: langBase + 'my-bonds/workspace/?service=asset_company_valuation' },
+          { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
         ],
       },
       {
         heading: { ar: 'التمويل وإعادة الهيكلة', en: 'Funding & Restructuring' },
         items: [
-          { label: labels.fundingExtraction, href: fundingExtractionHref },
-          { label: labels.fundingReadiness, href: fundingReadinessHref },
-          { label: labels.projectRescue, href: projectRescueHref },
+          { label: labels.fundingExtraction, href: langBase + 'my-bonds/workspace/?service=funding_extraction' },
+          { label: labels.fundingReadiness, href: langBase + 'my-bonds/workspace/?service=funding_readiness' },
+          { label: labels.projectRescue, href: langBase + 'my-bonds/workspace/?service=project_rescue' },
         ],
       },
       {
         heading: { ar: 'الأعمال والسوق', en: 'Business & Market' },
         items: [
-          { label: labels.operations, href: servicesHref + '#operations' },
-          { label: labels.research, href: servicesHref + '#research' },
+          { label: labels.operations, href: langBase + 'service-request.html?service=operational_consulting' },
+          { label: labels.research, href: langBase + 'my-bonds/workspace/?service=market_research' },
         ],
       },
     ];
