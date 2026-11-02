@@ -375,6 +375,47 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.trace.map(item => item.action)).toEqual(['web_search']);
   });
 
+  test('keeps Wikipedia hits whose snippets were truncated mid-tag', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            results:[
+              {
+                title:'طلال حسن الزهراني',
+                url:'https://ar.wikipedia.org/wiki/%D8%B7%D9%84%D8%A7%D9%84',
+                snippet:'<span class="searchmatch">طلال حسن الزهراني</span> مستشار مالي. يعمل في <span class="searchmat'
+              },
+              {
+                title:'Bonds Global',
+                url:'https://en.wikipedia.org/wiki/Bonds_Global',
+                snippet:'&lt;span class="searchmatch"&gt;Bonds Global&lt;/span&gt; is a financial advisory'
+              }
+            ]
+          }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'من هو طلال حسن الزهراني' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.reply).not.toBe('البحث لم يُرجع صفحات.');
+    expect(result.reply).toContain('طلال حسن الزهراني');
+    expect(result.reply).toContain('https://ar.wikipedia.org/wiki/');
+    expect(result.reply).not.toMatch(/<span|searchmatch|&lt;/);
+    expect(result.trace.map(item => item.action)).toEqual(['web_search']);
+  });
+
   test('stops after an empty public search instead of calling the planner', async () => {
     executeGovernedAction.mockImplementation(async ({ action }) => {
       if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
