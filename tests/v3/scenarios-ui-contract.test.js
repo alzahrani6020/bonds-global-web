@@ -74,6 +74,26 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain('لم يطبق');
   });
 
+  test('keeps city optional and does not auto-select the first city', () => {
+    expect(scenarioPage).toContain('data-ud-placeholder="اختر مدينة (اختياري)"');
+    expect(scenarioPage).toContain("citySelect.value = ''");
+    expect(scenarioPage).toContain("window.getUniversalDropdown?.(citySelect)?.value = ''");
+  });
+
+  test('rejects invalid projection years instead of silently coercing zero to five', () => {
+    expect(scenarioPage).toContain("const yearsRaw = document.getElementById('yearsInput').value.trim()");
+    expect(scenarioPage).toContain("const years = yearsRaw === '' ? 5 : Number(yearsRaw)");
+    expect(scenarioPage).toContain('مدة التحليل المالي يجب أن تكون بين سنة واحدة و10 سنوات');
+    expect(scenarioPage).not.toContain("Number(document.getElementById('yearsInput').value) || 5");
+  });
+
+  test('defines the financial number formatter used by metrics rendering', () => {
+    expect(scenarioPage).toContain('function formatNumber(value)');
+    expect(scenarioPage).toContain('صافي القيمة الحالية (NPV)');
+    expect(scenarioPage).toContain('معدل العائد الداخلي (IRR)');
+    expect(scenarioPage).toContain('نسبة تغطية خدمة الدين (DSCR)');
+  });
+
   test('caps client-side scenario count at the API maximum', () => {
     expect(scenarioPage).toContain('if (scenarios.length >= 10)');
     expect(scenarioPage).toContain('الحد الأقصى 10 سيناريوهات لكل تحليل');
