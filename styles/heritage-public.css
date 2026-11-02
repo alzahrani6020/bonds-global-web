@@ -204,3 +204,35 @@ body.heritage-home.heritage-public .heritage-contact{background:var(--heritage-b
 @media(max-width:900px){
   body.heritage-public .main-header{background:#fff!important}
 }
+
+
+/* Accessibility contrast corrections */
+body.heritage-public{
+  --heritage-gold-text:#76520d;
+  --heritage-gold-on-dark:#e2bc68;
+}
+body.heritage-public .canva-card__num,
+body.heritage-public .stat-item__icon,
+body.heritage-public .tool-card__icon,
+body.heritage-public .funding-path__icon{
+  color:var(--heritage-gold-text)!important;
+}
+body.heritage-public .canva-contact-card a,
+body.heritage-public .canva-contact-card a:visited{
+  color:#5f430f!important;
+}
+body.heritage-public .canva-page-hero .canva-kicker,
+body.heritage-public .hero:not(.hero--light) .hero__eyebrow,
+body.heritage-public .funding-hub__hero .hero__eyebrow{
+  color:var(--heritage-gold-on-dark)!important;
+}
+body.heritage-public .hero:not(.hero--light) .hero__trust,
+body.heritage-public .hero:not(.hero--light) .hero__trust > div,
+body.heritage-public .hero:not(.hero--light) .hero__link,
+body.heritage-public .funding-hub__hero .fi-btn--secondary,
+body.heritage-public .funding-hub__hero .fi-btn--secondary:visited{
+  color:#fff!important;
+}
+body.heritage-public #btnEnterprise{
+  color:#090909!important;
+}
