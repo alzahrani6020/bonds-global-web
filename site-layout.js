@@ -735,7 +735,7 @@
     const navItems = [
       { href: homeHref, label: labels.home },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
-      { href: servicesHref + '#sectors', label: labels.sectors },
+      { href: langBase + 'sectors.html', label: labels.sectors },
       { type: 'dropdown', navId: 'tools', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
       { type: 'dropdown', label: labels.knowledge, items: intelligenceDropdown },
       { type: 'dropdown', label: labels.aboutGovernance, items: aboutDropdown },
