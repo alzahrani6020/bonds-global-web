@@ -81,10 +81,40 @@ describe('V3 scenarios UI contract', () => {
   });
 
   test('rejects invalid projection years instead of silently coercing zero to five', () => {
-    expect(scenarioPage).toContain("const yearsRaw = document.getElementById('yearsInput').value.trim()");
+    expect(scenarioPage).toContain("const yearsRaw = String(document.getElementById('yearsInput').value).trim()");
     expect(scenarioPage).toContain("const years = yearsRaw === '' ? 5 : Number(yearsRaw)");
     expect(scenarioPage).toContain('مدة التحليل المالي يجب أن تكون بين سنة واحدة و10 سنوات');
     expect(scenarioPage).not.toContain("Number(document.getElementById('yearsInput').value) || 5");
+  });
+
+  test('shows an explicit baseline, currency, base year and forecast period', () => {
+    expect(scenarioPage).toContain('id="currencyDisplay"');
+    expect(scenarioPage).toContain('id="baseYearInput"');
+    expect(scenarioPage).toContain('id="forecastPeriod"');
+    expect(scenarioPage).toContain('id="baselinePreview"');
+    expect(scenarioPage).toContain('السيناريو الأساسي (Baseline)');
+    expect(scenarioPage).toContain('فترة التوقع: ');
+  });
+
+  test('uses economic activity terminology and preset severity with visible numeric shocks', () => {
+    expect(scenarioPage).toContain('<label for="activitySelect">النشاط الاقتصادي</label>');
+    expect(scenarioPage).not.toContain('<label for="activitySelect">التخصص / النشاط</label>');
+    expect(scenarioPage).toContain('id="presetSeverity"');
+    expect(scenarioPage).toContain('function scaledPresetShocks(preset, severity)');
+    expect(scenarioPage).toContain('شدة الصدمة: ');
+  });
+
+  test('blocks analysis until required economic context is selected', () => {
+    expect(scenarioPage).toContain("if (!countryCode) return alert('اختر الدولة أولاً')");
+    expect(scenarioPage).toContain("if (!sectorCode) return alert('اختر القطاع أولاً')");
+    expect(scenarioPage).toContain("if (!activityCode) return alert('اختر النشاط الاقتصادي أولاً')");
+    expect(scenarioPage).toContain("if (!modelCode) return alert('اختر النموذج الاستثماري أولاً')");
+  });
+
+  test('renders a decision interpretation summary after calculation', () => {
+    expect(scenarioPage).toContain('id="decisionSummary"');
+    expect(scenarioPage).toContain('أكبر ضغط على NPV');
+    expect(scenarioPage).toContain('أكبر زيادة في المخاطر');
   });
 
   test('defines the financial number formatter used by metrics rendering', () => {
