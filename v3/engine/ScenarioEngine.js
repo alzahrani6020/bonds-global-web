@@ -78,6 +78,10 @@ function applyShocksWithDiagnostics(assumptions, shocks) {
   return { assumptions: adjusted, applied, ignored };
 }
 
+function applyShocks(assumptions, shocks) {
+  return applyShocksWithDiagnostics(assumptions, shocks).assumptions;
+}
+
 function median(a, b) {
   return (Number(a) + Number(b)) / 2;
 }
