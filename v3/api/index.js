@@ -227,6 +227,7 @@ async function handleInvestmentTaxonomy(req, res) {
   );
   const includeActivities = include.has('activities') || include.has('all');
   const includeDimensions = include.has('dimensions') || include.has('all');
+  const includeModelAvailability = include.has('model_availability') || include.has('all');
 
   if (countryCode && !COUNTRY_NAMES[countryCode]) {
     return sendJson(res, 400, { error: 'Invalid country parameter' });
@@ -403,6 +404,49 @@ async function handleInvestmentTaxonomy(req, res) {
     opportunityTypes = opportunityTypesResult.data || [];
   }
 
+  let modelAvailabilityBySector = new Map();
+
+  if (includeModelAvailability && sectorIds.length) {
+    const [projectModelsResult, legacyMapResult] = await Promise.all([
+      supabase
+        .from('project_models')
+        .select('sector_id')
+        .eq('is_published', true)
+        .eq('is_active', true),
+      supabase
+        .from('legacy_sector_investment_map')
+        .select('economic_sector_id,investment_sector_id')
+        .eq('is_primary', true)
+        .in('investment_sector_id', sectorIds)
+    ]);
+
+    if (projectModelsResult.error || legacyMapResult.error) {
+      console.error(
+        '[investment-taxonomy/model-availability]',
+        projectModelsResult.error?.message || legacyMapResult.error?.message
+      );
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy model availability' });
+    }
+
+    const modelCountByLegacySector = new Map();
+    for (const row of projectModelsResult.data || []) {
+      if (!row.sector_id) continue;
+      modelCountByLegacySector.set(
+        row.sector_id,
+        (modelCountByLegacySector.get(row.sector_id) || 0) + 1
+      );
+    }
+
+    for (const row of legacyMapResult.data || []) {
+      const count = modelCountByLegacySector.get(row.economic_sector_id) || 0;
+      if (!count) continue;
+      modelAvailabilityBySector.set(
+        row.investment_sector_id,
+        (modelAvailabilityBySector.get(row.investment_sector_id) || 0) + count
+      );
+    }
+  }
+
   const subsectorsBySector = new Map();
   for (const row of subsectors) {
     if (!subsectorsBySector.has(row.sector_id)) subsectorsBySector.set(row.sector_id, []);
@@ -418,11 +462,14 @@ async function handleInvestmentTaxonomy(req, res) {
     included: {
       subsectors: includeSubsectors,
       activities: includeActivities,
-      dimensions: includeDimensions
+      dimensions: includeDimensions,
+      model_availability: includeModelAvailability
     },
     sectors: (sectors || []).map(sector => ({
       ...sector,
-      subsectors: includeSubsectors ? (subsectorsBySector.get(sector.id) || []) : []
+      subsectors: includeSubsectors ? (subsectorsBySector.get(sector.id) || []) : [],
+      model_available: includeModelAvailability ? modelAvailabilityBySector.has(sector.id) : null,
+      model_count: includeModelAvailability ? (modelAvailabilityBySector.get(sector.id) || 0) : null
     })),
     activities,
     project_sizes: projectSizes,
