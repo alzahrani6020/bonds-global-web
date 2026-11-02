@@ -1,0 +1,101 @@
+name: Refresh approved public visual baselines
+
+on:
+  push:
+    branches:
+      - design/public-heritage-identity-20261102
+    paths:
+      - '.github/workflows/refresh-public-visual-baselines.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: design/public-heritage-identity-20261102
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install chromium
+
+      - name: Start local server
+        run: npm run dev:local &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3005 > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          exit 1
+
+      - name: Refresh baselines
+        run: npm run test:visual:update
+
+      - name: Refresh approved homepage fingerprints
+        shell: bash
+        run: |
+          D=$(sha256sum tests/visual/baselines/desktop/index-ar.png | awk '{print $1}')
+          T=$(sha256sum tests/visual/baselines/tablet/index-ar.png | awk '{print $1}')
+          M=$(sha256sum tests/visual/baselines/mobile/index-ar.png | awk '{print $1}')
+          node - "$D" "$T" "$M" <<'NODE'
+          const fs = require('fs');
+          const file = 'tests/visual/visual-tests.js';
+          const values = process.argv.slice(2);
+          let i = 0;
+          let source = fs.readFileSync(file, 'utf8');
+          source = source.replace(/'index-ar': '[0-9a-f]{64}'/g, () => {
+            const value = values[i++];
+            if (!value) throw new Error('Missing approved visual hash');
+            return `'index-ar': '${value}'`;
+          });
+          if (i !== 3) throw new Error(`Expected 3 approved hashes, updated ${i}`);
+          fs.writeFileSync(file, source);
+          NODE
+
+      - name: Commit approved baseline changes
+        shell: bash
+        run: |
+          git config user.name "bonds-ci"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            tests/visual/baselines/desktop/index-ar.png \
+            tests/visual/baselines/desktop/about-ar.png \
+            tests/visual/baselines/desktop/contact-ar.png \
+            tests/visual/baselines/desktop/services-ar.png \
+            tests/visual/baselines/desktop/pricing-root-ar.png \
+            tests/visual/baselines/desktop/calculator-ar.png \
+            tests/visual/baselines/tablet/index-ar.png \
+            tests/visual/baselines/tablet/about-ar.png \
+            tests/visual/baselines/tablet/contact-ar.png \
+            tests/visual/baselines/tablet/services-ar.png \
+            tests/visual/baselines/tablet/pricing-root-ar.png \
+            tests/visual/baselines/tablet/calculator-ar.png \
+            tests/visual/baselines/mobile/index-ar.png \
+            tests/visual/baselines/mobile/about-ar.png \
+            tests/visual/baselines/mobile/contact-ar.png \
+            tests/visual/baselines/mobile/services-ar.png \
+            tests/visual/baselines/mobile/pricing-root-ar.png \
+            tests/visual/baselines/mobile/calculator-ar.png \
+            tests/visual/baselines/mobile/index-en.png \
+            tests/visual/visual-tests.js
+          if git diff --cached --quiet; then
+            echo "No baseline changes to commit"
+            exit 0
+          fi
+          git commit -m "test(visual): approve public heritage identity baselines"
+          git push origin HEAD:design/public-heritage-identity-20261102
