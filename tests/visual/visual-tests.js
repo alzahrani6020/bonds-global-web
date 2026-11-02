@@ -179,6 +179,13 @@ function writePng(png, filePath) {
         ensureDir(path.dirname(snapshotPath));
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
 
+        if (UPDATE_BASELINE) {
+          ensureDir(path.dirname(baselinePath));
+          fs.copyFileSync(snapshotPath, baselinePath);
+          console.log(` baseline updated: ${viewport.name}/${p.name}`);
+          continue;
+        }
+
         const approvedHash = APPROVED_SCREENSHOT_SHA256[viewport.name]?.[p.name];
         if (approvedHash) {
           const actualHash = crypto.createHash('sha256').update(fs.readFileSync(snapshotPath)).digest('hex');
@@ -188,13 +195,6 @@ function writePng(png, filePath) {
           } else {
             console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint match`);
           }
-          continue;
-        }
-
-        if (UPDATE_BASELINE) {
-          ensureDir(path.dirname(baselinePath));
-          fs.copyFileSync(snapshotPath, baselinePath);
-          console.log(` baseline updated: ${viewport.name}/${p.name}`);
           continue;
         }
 
