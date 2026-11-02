@@ -66,7 +66,8 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain('icon: c.flag || null');
     expect(scenarioPage).toContain('if (item.icon) opt.dataset.icon = item.icon');
     expect(scenarioPage).toContain('fetchJsonWithRetry');
-    expect(scenarioPage).toContain("fetchJsonWithRetry(API_URL + '/models?country='");
+    expect(scenarioPage).toContain("API_URL + '/models?country='");
+    expect(scenarioPage).toContain("'&investment_sector=' + encodeURIComponent(sectorCode)");
     expect(scenarioPage).toContain("fetchJsonWithRetry(API_URL + '/cities?country='");
   });
 
