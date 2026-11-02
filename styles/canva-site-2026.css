@@ -311,3 +311,8 @@ body.heritage-home{
   .heritage-contact{padding:52px 0}
   .heritage-contact__grid{gap:26px}
 }
+
+/* Accessibility: darker gold text on light heritage surfaces */
+.heritage-about .heritage-section-title span,
+.heritage-services .heritage-section-title span,
+.heritage-process .heritage-section-title span{color:#7b591a}
