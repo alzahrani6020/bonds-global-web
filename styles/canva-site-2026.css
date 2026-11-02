@@ -180,3 +180,29 @@ body.canva-site main{overflow:hidden}
 .canva-site .header-actions .btn,.canva-site .header-cta{border-radius:9px!important}
 .canva-site .dropdown-menu{border:1px solid var(--bonds-line)!important;border-radius:14px!important;box-shadow:0 24px 60px rgba(11,31,58,.12)!important}
 @media(max-width:1280px){.canva-site .main-header__inner{width:calc(100% - 20px)!important}}
+
+
+/* Knowledge + client workspace surfaces */
+.canva-site .blog-grid{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))!important;gap:1rem!important}
+.canva-site .blog-card{background:#fff!important;border:1px solid var(--bonds-line)!important;border-radius:16px!important;box-shadow:none!important;backdrop-filter:none!important;padding:1.4rem!important;color:var(--bonds-ink)!important}
+.canva-site .blog-card:hover{transform:translateY(-3px)!important;box-shadow:0 18px 45px rgba(11,31,58,.08)!important;border-color:#c8b17d!important}
+.canva-site .blog-card__tag{color:#765d2d!important;background:#f7f3ea!important;border-color:#eadbbd!important}
+.canva-site .blog-card__title{color:var(--bonds-navy)!important}
+.canva-site .blog-card__desc,.canva-site .blog-card__meta{color:var(--bonds-muted)!important;border-color:var(--bonds-line)!important}
+.canva-site .service-request-page,.canva-site .service-workspace-page{width:min(var(--bonds-max),calc(100% - 32px))!important;margin:0 auto!important;padding:2.2rem 0 5rem!important;background:transparent!important}
+.canva-site .service-workspace-breadcrumb{color:var(--bonds-muted)!important;margin-bottom:1rem!important}
+.canva-site .sr-hero{background:linear-gradient(145deg,#0b1f3a,#153657)!important;border-radius:20px!important;border:1px solid rgba(255,255,255,.08)!important;padding:2rem!important;color:#fff!important;box-shadow:var(--bonds-shadow)!important}
+.canva-site .sr-hero h1,.canva-site .sr-hero h2{color:#fff!important}
+.canva-site .sr-desc{color:#c9d4df!important}
+.canva-site .sr-card{background:#fff!important;border:1px solid var(--bonds-line)!important;border-radius:16px!important;box-shadow:none!important}
+.canva-site .sr-card h2{color:var(--bonds-navy)!important}
+.canva-site .sr-primary{background:var(--bonds-navy)!important;color:#fff!important;border-radius:9px!important}
+.canva-site .sr-secondary{border-radius:9px!important;border-color:#cfd7e0!important;color:var(--bonds-navy)!important;background:#fff!important}
+.canva-site .my-bonds-page{background:var(--bonds-paper)!important;color:var(--bonds-ink)!important}
+.canva-site .my-bonds-hero{background:linear-gradient(145deg,#0b1f3a,#153657)!important;border-bottom:3px solid var(--bonds-gold)!important}
+.canva-site .my-bonds-hero h1{color:#fff!important}
+.canva-site .my-bonds-hero p{color:#c9d4df!important}
+.canva-site .bonds-card{background:#fff!important;border:1px solid var(--bonds-line)!important;border-radius:16px!important;box-shadow:none!important}
+.canva-site .my-bonds-section__title{color:var(--bonds-navy)!important}
+.canva-site .bonds-btn-primary{background:var(--bonds-navy)!important;color:#fff!important}
+.canva-site .bonds-btn-secondary{background:#fff!important;color:var(--bonds-navy)!important;border-color:#cfd7e0!important}
