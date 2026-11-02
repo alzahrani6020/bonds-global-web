@@ -87,6 +87,12 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).not.toContain("Number(document.getElementById('yearsInput').value) || 5");
   });
 
+  test('syncs dynamic options directly into the universal dropdown component', () => {
+    expect(scenarioPage).toContain("if (dropdown && typeof dropdown.setOptions === 'function')");
+    expect(scenarioPage).toContain('dropdown.setOptions(normalized)');
+    expect(scenarioPage).toContain('if (countryDropdown) countryDropdown.value = countrySelect.value');
+  });
+
   test('shows an explicit baseline, currency, base year and forecast period', () => {
     expect(scenarioPage).toContain('id="currencyDisplay"');
     expect(scenarioPage).toContain('id="baseYearInput"');
