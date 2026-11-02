@@ -16,6 +16,10 @@ describe('BONDS web search SearX priority and fallback', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     delete process.env.BONDS_WEB_SEARCH_URL;
+    delete process.env.BONDS_BRAVE_SEARCH_API_KEY;
+    delete process.env.BONDS_BING_SEARCH_API_KEY;
+    delete process.env.GOOGLE_CSE_KEY;
+    delete process.env.GOOGLE_CSE_CX;
   });
 
   test('returns SearX results before legacy HTML search upstreams', async () => {
@@ -144,5 +148,29 @@ describe('BONDS web search SearX priority and fallback', () => {
     expect(result.evidence.attempts[0]).toEqual(expect.objectContaining({
       code:'SEARX_UPSTREAM_FAILED'
     }));
+  });
+
+  test('uses the official Brave API before SearX or HTML scraping', async () => {
+    process.env.BONDS_BRAVE_SEARCH_API_KEY = 'test-brave-key';
+    fetchUrl.mockResolvedValue({
+      ok:true,
+      text: JSON.stringify({
+        web:{
+          results:[
+            { title:'Aramco CEO', url:'https://www.aramco.com/leadership', description:'Official leadership page.' }
+          ]
+        }
+      }),
+      evidence:{ status_code:200 }
+    });
+
+    const result = await searchWeb('رئيس أرامكو', { limit:5 });
+
+    expect(result.ok).toBe(true);
+    expect(result.evidence.search_engine).toBe('brave-api');
+    expect(result.result.results[0].url).toBe('https://www.aramco.com/leadership');
+    expect(searchSearx).not.toHaveBeenCalled();
+    expect(fetchUrl).toHaveBeenCalledTimes(1);
+    expect(fetchUrl.mock.calls[0][1].headers['X-Subscription-Token']).toBe('test-brave-key');
   });
 });
