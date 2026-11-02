@@ -1,0 +1,109 @@
+name: Temporary Canva Baseline Refresh
+
+on:
+  push:
+    branches:
+      - design/canva-full-site-20261102
+
+permissions:
+  contents: write
+
+jobs:
+  refresh-canva-baselines:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install chromium
+
+      - name: Start local server
+        run: npm run dev:local > /tmp/bonds-dev.log 2>&1 &
+
+      - name: Wait for server
+        run: |
+          for i in {1..30}; do
+            if curl -s http://localhost:3005 > /dev/null; then
+              echo "Server ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/bonds-dev.log || true
+          exit 1
+
+      - name: Generate candidate baselines
+        env:
+          UPDATE_BASELINE: '1'
+        run: npm run test:visual
+
+      - name: Keep only redesigned Arabic page baselines
+        run: |
+          git checkout -- tests/visual/baselines
+          for viewport in desktop tablet mobile; do
+            for page in index-ar about-ar contact-ar services-ar; do
+              cp "tests/visual/snapshots/$viewport/$page.png" "tests/visual/baselines/$viewport/$page.png"
+            done
+          done
+
+      - name: Validate PNGs
+        run: |
+          node - <<'NODE'
+          const fs = require('fs');
+          const { PNG } = require('pngjs');
+          for (const viewport of ['desktop','tablet','mobile']) {
+            for (const page of ['index-ar','about-ar','contact-ar','services-ar']) {
+              const p = `tests/visual/baselines/${viewport}/${page}.png`;
+              const png = PNG.sync.read(fs.readFileSync(p));
+              if (!png.width || !png.height) throw new Error(`Invalid PNG: ${p}`);
+              console.log(`${p}: ${png.width}x${png.height} OK`);
+            }
+          }
+          NODE
+
+      - name: Rerun full visual regression
+        run: npm run test:visual
+
+      - name: Verify exact baseline scope
+        run: |
+          changed="$(git diff --name-only)"
+          echo "$changed"
+          unexpected="$(echo "$changed" | grep -vE '^tests/visual/baselines/(desktop|tablet|mobile)/(index-ar|about-ar|contact-ar|services-ar)\.png$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Unexpected changed files:"
+            echo "$unexpected"
+            exit 1
+          fi
+          count="$(echo "$changed" | grep -cE '^tests/visual/baselines/(desktop|tablet|mobile)/(index-ar|about-ar|contact-ar|services-ar)\.png$' || true)"
+          [ "$count" -eq 12 ] || { echo "Expected 12 baseline changes, got $count"; exit 1; }
+
+      - name: Commit refreshed baselines
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add tests/visual/baselines/desktop/index-ar.png
+          git add tests/visual/baselines/desktop/about-ar.png
+          git add tests/visual/baselines/desktop/contact-ar.png
+          git add tests/visual/baselines/desktop/services-ar.png
+          git add tests/visual/baselines/tablet/index-ar.png
+          git add tests/visual/baselines/tablet/about-ar.png
+          git add tests/visual/baselines/tablet/contact-ar.png
+          git add tests/visual/baselines/tablet/services-ar.png
+          git add tests/visual/baselines/mobile/index-ar.png
+          git add tests/visual/baselines/mobile/about-ar.png
+          git add tests/visual/baselines/mobile/contact-ar.png
+          git add tests/visual/baselines/mobile/services-ar.png
+          git diff --cached --quiet && { echo "No baseline changes"; exit 1; }
+          git commit -m "test(visual): refresh Canva redesign baselines"
+          git push origin HEAD:"$GITHUB_REF_NAME"
