@@ -314,6 +314,8 @@
     let chart = null;
     let contextLoadSequence = 0;
 
+    const QUARANTINED_CITY_CODES = new Set(['EG-98-004','SY-98-018','IQ-98-001','YE-98-001']);
+
     function escapeHtml(value) {
       return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     }
@@ -454,7 +456,7 @@
       }
 
       if (cityResult.status === 'fulfilled') {
-        cities = cityResult.value.cities || [];
+        cities = (cityResult.value.cities || []).filter(c => !QUARANTINED_CITY_CODES.has(c.code));
         const cityOptions = cities.map(c => ({
           value: c.code,
           label: [c.name_ar || c.name_en || c.code, c.region].filter(Boolean).join(' — ')
