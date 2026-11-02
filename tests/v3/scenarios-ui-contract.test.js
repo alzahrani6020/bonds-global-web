@@ -28,7 +28,8 @@ describe('V3 scenarios UI contract', () => {
 
   test('uses canonical investment taxonomy for sectors and activities', () => {
     expect(scenarioPage).toContain("/investment-taxonomy?country=");
-    expect(scenarioPage).toContain("&depth=sector&include=activities");
+    expect(scenarioPage).toContain("&depth=sector&include=activities,model_availability");
+    expect(scenarioPage).toContain("sector.model_available !== false");
     expect(scenarioPage).toContain("&investment_sector=");
     expect(scenarioPage).toContain("m.canonical_activity?.code");
     expect(scenarioPage).not.toContain("m => m.sector?.code");
