@@ -248,3 +248,17 @@ body.heritage-public .fi-hero .fi-btn--secondary:visited{
   border-color:rgba(255,255,255,.88)!important;
   background:transparent!important;
 }
+
+
+/* Resolve legacy text-fill/background interactions */
+body.heritage-public .hero.v2026 .hero__eyebrow{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+body.heritage-public .fi-hero .fi-btn--secondary,
+body.heritage-public .fi-hero .fi-btn--secondary:visited{
+  color:#161616!important;
+  -webkit-text-fill-color:#161616!important;
+  background:#fff!important;
+  border-color:#5f5a52!important;
+}
