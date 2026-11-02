@@ -717,16 +717,15 @@ async function handleModels(req, res) {
 
   if (countryCode) {
     countryProfile = await loadCountryProfile(supabase, countryCode);
-    const modelIds = localizedModels.map(model => model.id).filter(Boolean);
+    const modelIds = new Set(localizedModels.map(model => model.id).filter(Boolean));
     let overrides = [];
-    if (modelIds.length) {
+    if (modelIds.size) {
       const { data, error: overridesError } = await supabase
         .from('country_model_overrides')
         .select('*')
-        .eq('country_code', countryCode)
-        .in('project_model_id', modelIds);
+        .eq('country_code', countryCode);
       if (overridesError) throw overridesError;
-      overrides = data || [];
+      overrides = (data || []).filter(row => modelIds.has(row.project_model_id));
     }
     const byModel = new Map(overrides.map(row => [row.project_model_id, row]));
 
