@@ -155,7 +155,7 @@ function calculateScenario(modelData, baseOptions = {}, scenario = {}) {
     shocks: scenario.shocks || [],
     appliedShocks: [...assumptionShockResult.applied, ...optionShockResult.applied],
     ignoredShocks: [
-      ...assumptionShockResult.ignored.filter(shock => !SUPPORTED_OPTION_CODES.has(shock.code)),
+      ...assumptionShockResult.ignored.filter(shock => shock.reason === 'assumption_not_available_in_model'),
       ...ignoredOptionShocks,
       ...ignoredUnsupported
     ],
