@@ -296,6 +296,24 @@ describe('universal orchestrator free-chat routing', () => {
     }
   });
 
+  test('unparseable Native planner prose is shown as the answer instead of PLANNER_UNAVAILABLE', async () => {
+    const { mod } = loadHarness({
+      plannerReplies:['متطلبات خدمة الجاهزية التمويلية تشمل القوائم المالية وخطة العمل.']
+    });
+
+    const result = await mod.runUniversalOrchestrator(
+      [{ role:'user', content:'ما متطلبات خدمة الجاهزية التمويلية؟' }],
+      {},
+      { requestId:'req-planner-prose' }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.degraded).not.toBe(true);
+    expect(result.failure).toBeUndefined();
+    expect(result.reply).toContain('القوائم المالية');
+    expect(result.reply).not.toContain('تعذر الوصول إلى خدمة الذكاء');
+  });
+
   test('planner unavailable degrades to a deterministic patient reply without HTTP-style failure semantics', async () => {
     const { mod } = loadHarness({
       plannerReplies:[null]

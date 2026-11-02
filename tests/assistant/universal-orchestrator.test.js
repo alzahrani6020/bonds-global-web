@@ -7,6 +7,7 @@ const {
   plannerInferenceOptions,
   plannerInferenceIdentity,
   parseDecision,
+  recoverPlannerDecision,
   explicitMutationConfirmation,
   runUniversalOrchestrator
 } = require('../../lib/assistant/universal-orchestrator');
@@ -230,6 +231,26 @@ describe('BONDS planner-first universal orchestrator', () => {
       '{"mode":"tool","action":"web_search","input":{"query":"test"}}',
       allowed
     )).toEqual({ mode:'tool', action:'web_search', input:{ query:'test' } });
+  });
+
+  test('parses trailing commas and answer aliases from Native planner output', () => {
+    expect(parseDecision('{"mode":"answer","answer":"تم",}'))
+      .toEqual({ mode:'answer', answer:'تم' });
+    expect(parseDecision('{"type":"response","text":"تم"}'))
+      .toEqual({ mode:'answer', answer:'تم' });
+    expect(parseDecision('{"answer":"تم"}'))
+      .toEqual({ mode:'answer', answer:'تم' });
+  });
+
+  test('recovers Native prose as an answer instead of pretending the model is down', () => {
+    expect(recoverPlannerDecision('متطلبات الجاهزية التمويلية تشمل القوائم المالية ودراسة الجدوى.'))
+      .toEqual({
+        mode:'answer',
+        answer:'متطلبات الجاهزية التمويلية تشمل القوائم المالية ودراسة الجدوى.'
+      });
+    expect(recoverPlannerDecision('null')).toBeNull();
+    expect(recoverPlannerDecision('{not json')).toBeNull();
+    expect(recoverPlannerDecision('You are the BONDS universal action planner\nnope')).toBeNull();
   });
 
   test('routes clear person lookup through deterministic research without ai_reason', async () => {
