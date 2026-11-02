@@ -227,6 +227,7 @@ async function handleInvestmentTaxonomy(req, res) {
   );
   const includeActivities = include.has('activities') || include.has('all');
   const includeDimensions = include.has('dimensions') || include.has('all');
+  const includeModelAvailability = include.has('model_availability') || include.has('all');
 
   if (countryCode && !COUNTRY_NAMES[countryCode]) {
     return sendJson(res, 400, { error: 'Invalid country parameter' });
@@ -403,6 +404,49 @@ async function handleInvestmentTaxonomy(req, res) {
     opportunityTypes = opportunityTypesResult.data || [];
   }
 
+  let modelAvailabilityBySector = new Map();
+
+  if (includeModelAvailability && sectorIds.length) {
+    const [projectModelsResult, legacyMapResult] = await Promise.all([
+      supabase
+        .from('project_models')
+        .select('sector_id')
+        .eq('is_published', true)
+        .eq('is_active', true),
+      supabase
+        .from('legacy_sector_investment_map')
+        .select('economic_sector_id,investment_sector_id')
+        .eq('is_primary', true)
+        .in('investment_sector_id', sectorIds)
+    ]);
+
+    if (projectModelsResult.error || legacyMapResult.error) {
+      console.error(
+        '[investment-taxonomy/model-availability]',
+        projectModelsResult.error?.message || legacyMapResult.error?.message
+      );
+      return sendJson(res, 500, { error: 'Failed to load investment taxonomy model availability' });
+    }
+
+    const modelCountByLegacySector = new Map();
+    for (const row of projectModelsResult.data || []) {
+      if (!row.sector_id) continue;
+      modelCountByLegacySector.set(
+        row.sector_id,
+        (modelCountByLegacySector.get(row.sector_id) || 0) + 1
+      );
+    }
+
+    for (const row of legacyMapResult.data || []) {
+      const count = modelCountByLegacySector.get(row.economic_sector_id) || 0;
+      if (!count) continue;
+      modelAvailabilityBySector.set(
+        row.investment_sector_id,
+        (modelAvailabilityBySector.get(row.investment_sector_id) || 0) + count
+      );
+    }
+  }
+
   const subsectorsBySector = new Map();
   for (const row of subsectors) {
     if (!subsectorsBySector.has(row.sector_id)) subsectorsBySector.set(row.sector_id, []);
@@ -418,11 +462,14 @@ async function handleInvestmentTaxonomy(req, res) {
     included: {
       subsectors: includeSubsectors,
       activities: includeActivities,
-      dimensions: includeDimensions
+      dimensions: includeDimensions,
+      model_availability: includeModelAvailability
     },
     sectors: (sectors || []).map(sector => ({
       ...sector,
-      subsectors: includeSubsectors ? (subsectorsBySector.get(sector.id) || []) : []
+      subsectors: includeSubsectors ? (subsectorsBySector.get(sector.id) || []) : [],
+      model_available: includeModelAvailability ? modelAvailabilityBySector.has(sector.id) : null,
+      model_count: includeModelAvailability ? (modelAvailabilityBySector.get(sector.id) || 0) : null
     })),
     activities,
     project_sizes: projectSizes,
@@ -659,6 +706,7 @@ async function handleModelDetail(req, res, path) {
 async function handleModels(req, res) {
   const url = getQuery(req);
   const sectorCode = url.searchParams.get('sector');
+  const investmentSectorCode = url.searchParams.get('investment_sector');
   const subSectorCode = url.searchParams.get('sub_sector');
   const activityCode = url.searchParams.get('activity');
   const cityCode = url.searchParams.get('city');
@@ -686,6 +734,42 @@ async function handleModels(req, res) {
     if (sector) query = query.eq('sector_id', sector.id);
   }
 
+  let investmentSector = null;
+  let investmentSectorConfidenceByLegacySector = new Map();
+
+  if (investmentSectorCode) {
+    const { data: canonicalSector, error: canonicalSectorError } = await supabase
+      .from('canonical_investment_sectors')
+      .select('id,code,name_ar,name_en')
+      .eq('code', investmentSectorCode)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (canonicalSectorError) throw canonicalSectorError;
+    if (!canonicalSector) {
+      return sendJson(res, 200, { models: [], city: null, investment_sector: null, count: 0 });
+    }
+    investmentSector = canonicalSector;
+
+    const { data: legacySectorMappings, error: legacySectorMapError } = await supabase
+      .from('legacy_sector_investment_map')
+      .select('economic_sector_id,confidence')
+      .eq('investment_sector_id', canonicalSector.id)
+      .eq('is_primary', true);
+    if (legacySectorMapError) throw legacySectorMapError;
+
+    const legacySectorIds = (legacySectorMappings || [])
+      .map(row => row.economic_sector_id)
+      .filter(Boolean);
+    investmentSectorConfidenceByLegacySector = new Map(
+      (legacySectorMappings || []).map(row => [row.economic_sector_id, row.confidence || 0])
+    );
+
+    if (!legacySectorIds.length) {
+      return sendJson(res, 200, { models: [], city: null, investment_sector: investmentSector, count: 0 });
+    }
+    query = query.in('sector_id', legacySectorIds);
+  }
+
   if (subSectorCode) {
     const { data: sub } = await supabase.from('economic_sub_sectors').select('id').eq('code', subSectorCode).single();
     if (sub) query = query.eq('sub_sector_id', sub.id);
@@ -706,6 +790,37 @@ async function handleModels(req, res) {
     return sendJson(res, 500, { error: 'Failed to load models' });
   }
 
+  const modelActivityIds = [...new Set((models || []).map(model => model.activity_id).filter(Boolean))];
+  let canonicalByLegacyActivityId = new Map();
+
+  if (modelActivityIds.length) {
+    const { data: aliasRows, error: aliasError } = await supabase
+      .from('canonical_activity_legacy_aliases')
+      .select('canonical_activity_id,legacy_activity_id')
+      .in('legacy_activity_id', modelActivityIds);
+    if (aliasError) throw aliasError;
+
+    const canonicalActivityIds = [...new Set(
+      (aliasRows || []).map(row => row.canonical_activity_id).filter(Boolean)
+    )];
+    let canonicalById = new Map();
+    if (canonicalActivityIds.length) {
+      const { data: canonicalRows, error: canonicalError } = await supabase
+        .from('canonical_activity_catalog')
+        .select('id,code,name_ar,name_en,is_active')
+        .in('id', canonicalActivityIds);
+      if (canonicalError) throw canonicalError;
+      canonicalById = new Map((canonicalRows || []).map(row => [row.id, row]));
+    }
+
+    canonicalByLegacyActivityId = new Map(
+      (aliasRows || []).map(row => [
+        row.legacy_activity_id,
+        canonicalById.get(row.canonical_activity_id) || null
+      ])
+    );
+  }
+
   let city = null;
   if (cityCode) {
     const { data } = await supabase.from('cities').select('*').eq('code', cityCode).single();
@@ -713,7 +828,14 @@ async function handleModels(req, res) {
   }
 
   let countryProfile = null;
-  let localizedModels = models || [];
+  let localizedModels = (models || []).map(model => ({
+    ...model,
+    canonical_activity: canonicalByLegacyActivityId.get(model.activity_id) || null,
+    investment_sector_code: investmentSector?.code || null,
+    investment_sector_name_ar: investmentSector?.name_ar || null,
+    investment_sector_name_en: investmentSector?.name_en || null,
+    legacy_sector_mapping_confidence: investmentSectorConfidenceByLegacySector.get(model.sector_id) || null
+  }));
 
   if (countryCode) {
     countryProfile = await loadCountryProfile(supabase, countryCode);
@@ -747,6 +869,7 @@ async function handleModels(req, res) {
     models: localizedModels,
     city,
     country: countryProfile,
+    investment_sector: investmentSector,
     count: localizedModels.length
   });
 }

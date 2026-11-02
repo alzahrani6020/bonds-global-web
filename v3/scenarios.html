@@ -308,6 +308,7 @@
     ];
 
     let countries = [];
+    let taxonomy = { sectors: [], activities: [] };
     let models = [];
     let cities = [];
     let scenarios = [];
@@ -386,11 +387,43 @@
       return ({ small:'صغير', medium:'متوسط', large:'كبير' })[size] || size || '';
     }
 
-    function modelDisplayLabel(model) {
-      const sector = model.sector?.name_ar || model.sector?.name_en || '';
-      const activity = model.activity?.name_ar || model.activity?.name_en || '';
+    function modelDisplayLabel(model, duplicateProfile = false) {
+      const activity = model.canonical_activity?.name_ar || model.canonical_activity?.name_en || '';
       const size = sizeLabel(model.size_category);
-      return [sector, activity, size].filter(Boolean).join(' ← ') || model.name_ar || model.name_en || model.code;
+      const legacyContext = duplicateProfile
+        ? (model.sector?.name_ar || model.sector?.name_en || '')
+        : '';
+      return [activity, size, legacyContext].filter(Boolean).join(' ← ') || model.name_ar || model.name_en || model.code;
+    }
+
+    function financialProfileKey(model) {
+      return [
+        model.size_category,
+        model.capex_min, model.capex_max,
+        model.revenue_min, model.revenue_max,
+        model.employee_count_min, model.employee_count_max,
+        model.typical_roi_months
+      ].join('|');
+    }
+
+    function deduplicateFinanciallyEquivalentModels(rows) {
+      const grouped = new Map();
+      rows.forEach(model => {
+        const key = financialProfileKey(model);
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key).push(model);
+      });
+
+      return [...grouped.values()].map(group => {
+        group.sort((a,b) =>
+          (Number(b.legacy_sector_mapping_confidence || 0) - Number(a.legacy_sector_mapping_confidence || 0)) ||
+          String(a.code).localeCompare(String(b.code))
+        );
+        return {
+          model: group[0],
+          duplicateProfile: false
+        };
+      });
     }
 
     function uniqueByCode(rows, getCode, getLabel) {
@@ -405,11 +438,14 @@
 
     function populateSectors() {
       const sectorSelect = document.getElementById('sectorSelect');
-      const sectorOptions = uniqueByCode(
-        models,
-        m => m.sector?.code,
-        m => m.sector?.name_ar || m.sector?.name_en
+      const activitySectorIds = new Set(
+        (taxonomy.activities || [])
+          .filter(a => a.is_active !== false && a.primary_sector?.sector_id)
+          .map(a => a.primary_sector.sector_id)
       );
+      const sectorOptions = (taxonomy.sectors || [])
+        .filter(sector => activitySectorIds.has(sector.id) && sector.model_available !== false)
+        .map(sector => ({ value: sector.code, label: sector.name_ar || sector.name_en || sector.code }));
       setSelectOptions(sectorSelect, sectorOptions, 'اختر قطاعاً');
       setControlDisabled('sectorSelect', sectorOptions.length === 0);
       setSelectOptions(document.getElementById('activitySelect'), [], 'اختر تخصصاً');
@@ -418,57 +454,124 @@
       setControlDisabled('modelSelect', true);
     }
 
-    function populateActivities() {
+    async function loadSectorModels() {
+      const countryCode = document.getElementById('countrySelect').value;
       const sectorCode = document.getElementById('sectorSelect').value;
       const activitySelect = document.getElementById('activitySelect');
-      const scoped = models.filter(m => m.sector?.code === sectorCode);
-      const activityOptions = uniqueByCode(
-        scoped,
-        m => m.activity?.code,
-        m => m.activity?.name_ar || m.activity?.name_en
-      );
-      setSelectOptions(activitySelect, activityOptions, 'اختر تخصصاً');
-      setControlDisabled('activitySelect', activityOptions.length === 0);
+      const status = document.getElementById('contextStatus');
+
+      setSelectOptions(activitySelect, [], 'جاري تحميل التخصصات...');
+      setControlDisabled('activitySelect', true);
       setSelectOptions(document.getElementById('modelSelect'), [], 'اختر نموذجاً');
       setControlDisabled('modelSelect', true);
+      models = [];
       invalidateResults();
+      if (!countryCode || !sectorCode) return;
+
+      status.textContent = 'جاري تحميل نماذج القطاع...';
+      try {
+        const modelData = await fetchJsonWithRetry(
+          API_URL + '/models?country=' + encodeURIComponent(countryCode) +
+          '&investment_sector=' + encodeURIComponent(sectorCode)
+        );
+        models = (modelData.models || []).filter(m => m.canonical_activity?.code && m.canonical_activity?.is_active !== false);
+
+        const availableActivityCodes = new Set(models.map(m => m.canonical_activity.code));
+        const sector = (taxonomy.sectors || []).find(s => s.code === sectorCode);
+        const sectorId = sector?.id || null;
+        const activityOptions = (taxonomy.activities || [])
+          .filter(a =>
+            a.is_active !== false &&
+            a.primary_sector?.sector_id === sectorId &&
+            availableActivityCodes.has(a.code)
+          )
+          .map(a => ({ value: a.code, label: a.name_ar || a.name_en || a.code }))
+          .sort((a,b) => a.label.localeCompare(b.label, 'ar', { sensitivity:'base' }));
+
+        setSelectOptions(activitySelect, activityOptions, 'اختر تخصصاً');
+        setControlDisabled('activitySelect', activityOptions.length === 0);
+        status.textContent = models.length + ' نموذج ضمن القطاع • ' + activityOptions.length + ' تخصص متاح';
+      } catch (err) {
+        console.error(err);
+        models = [];
+        setSelectOptions(activitySelect, [], 'تعذر تحميل التخصصات');
+        setControlDisabled('activitySelect', true);
+        status.textContent = 'تعذر تحميل نماذج القطاع: ' + err.message;
+      }
     }
 
     function populateModels() {
-      const sectorCode = document.getElementById('sectorSelect').value;
       const activityCode = document.getElementById('activitySelect').value;
       const modelSelect = document.getElementById('modelSelect');
-      const scoped = models
-        .filter(m => m.sector?.code === sectorCode && m.activity?.code === activityCode)
-        .map(m => ({ value: m.code, label: modelDisplayLabel(m) }))
-        .sort((a,b) => a.label.localeCompare(b.label, 'ar', { sensitivity:'base' }));
-      setSelectOptions(modelSelect, scoped, 'اختر نموذجاً');
-      setControlDisabled('modelSelect', scoped.length === 0);
+      const scoped = models.filter(m => m.canonical_activity?.code === activityCode);
+
+      const profileGroups = new Map();
+      scoped.forEach(model => {
+        const key = financialProfileKey(model);
+        if (!profileGroups.has(key)) profileGroups.set(key, []);
+        profileGroups.get(key).push(model);
+      });
+
+      const groups = [...profileGroups.values()];
+      const profileCountBySize = new Map();
+      groups.forEach(group => {
+        const size = group[0]?.size_category || '';
+        profileCountBySize.set(size, (profileCountBySize.get(size) || 0) + 1);
+      });
+
+      const options = [];
+      for (const group of groups) {
+        group.sort((a,b) =>
+          (Number(b.legacy_sector_mapping_confidence || 0) - Number(a.legacy_sector_mapping_confidence || 0)) ||
+          String(a.code).localeCompare(String(b.code))
+        );
+        const representative = group[0];
+        const needsContext = (profileCountBySize.get(representative.size_category || '') || 0) > 1;
+        options.push({
+          value: representative.code,
+          label: modelDisplayLabel(representative, needsContext)
+        });
+      }
+
+      options.sort((a,b) => {
+        const rank = value => value.includes('صغير') ? 1 : value.includes('متوسط') ? 2 : value.includes('كبير') ? 3 : 9;
+        return rank(a.label) - rank(b.label) || a.label.localeCompare(b.label, 'ar', { sensitivity:'base' });
+      });
+
+      setSelectOptions(modelSelect, options, 'اختر نموذجاً');
+      setControlDisabled('modelSelect', options.length === 0);
       invalidateResults();
     }
 
     async function loadCountryContext(countryCode) {
       const sequence = ++contextLoadSequence;
       const status = document.getElementById('contextStatus');
-      status.textContent = 'جاري تحميل النماذج والمدن...';
+      status.textContent = 'جاري تحميل التصنيف الاستثماري والمدن...';
       setControlDisabled('sectorSelect', true);
       setControlDisabled('activitySelect', true);
       setControlDisabled('modelSelect', true);
       setControlDisabled('citySelect', true);
+      models = [];
 
-      const [modelResult, cityResult] = await Promise.allSettled([
-        fetchJsonWithRetry(API_URL + '/models?country=' + encodeURIComponent(countryCode)),
+      const [taxonomyResult, cityResult] = await Promise.allSettled([
+        fetchJsonWithRetry(
+          API_URL + '/investment-taxonomy?country=' + encodeURIComponent(countryCode) +
+          '&depth=sector&include=activities,model_availability'
+        ),
         fetchJsonWithRetry(API_URL + '/cities?country=' + encodeURIComponent(countryCode) + '&limit=500')
       ]);
       if (sequence !== contextLoadSequence) return;
 
-      if (modelResult.status === 'fulfilled') {
-        models = modelResult.value.models || [];
+      if (taxonomyResult.status === 'fulfilled') {
+        taxonomy = {
+          sectors: taxonomyResult.value.sectors || [],
+          activities: (taxonomyResult.value.activities || []).filter(a => a.is_active !== false)
+        };
         populateSectors();
       } else {
-        models = [];
+        taxonomy = { sectors: [], activities: [] };
         populateSectors();
-        console.error(modelResult.reason);
+        console.error(taxonomyResult.reason);
       }
 
       if (cityResult.status === 'fulfilled') {
@@ -486,9 +589,11 @@
         console.error(cityResult.reason);
       }
 
-      const modelMsg = modelResult.status === 'fulfilled' ? (models.length + ' نموذج') : 'تعذر تحميل النماذج';
+      const taxonomyMsg = taxonomyResult.status === 'fulfilled'
+        ? ((taxonomy.sectors || []).length + ' قطاع استثماري')
+        : 'تعذر تحميل التصنيف الاستثماري';
       const cityMsg = cityResult.status === 'fulfilled' ? (cities.length + ' مدينة') : 'تعذر تحميل المدن';
-      status.textContent = modelMsg + ' • ' + cityMsg;
+      status.textContent = taxonomyMsg + ' • ' + cityMsg;
       invalidateResults();
     }
 
@@ -520,7 +625,7 @@
       setSelectOptions(document.getElementById('citySelect'), [], 'اختر مدينة (اختياري)');
       if (countryCode) await loadCountryContext(countryCode);
     });
-    document.getElementById('sectorSelect').addEventListener('change', populateActivities);
+    document.getElementById('sectorSelect').addEventListener('change', loadSectorModels);
     document.getElementById('activitySelect').addEventListener('change', populateModels);
     document.getElementById('modelSelect').addEventListener('change', invalidateResults);
     document.getElementById('citySelect').addEventListener('change', invalidateResults);

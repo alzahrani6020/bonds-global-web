@@ -26,6 +26,22 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain('id="citySelect"');
   });
 
+  test('uses canonical investment taxonomy for sectors and activities', () => {
+    expect(scenarioPage).toContain("/investment-taxonomy?country=");
+    expect(scenarioPage).toContain("&depth=sector&include=activities,model_availability");
+    expect(scenarioPage).toContain("sector.model_available !== false");
+    expect(scenarioPage).toContain("&investment_sector=");
+    expect(scenarioPage).toContain("m.canonical_activity?.code");
+    expect(scenarioPage).not.toContain("m => m.sector?.code");
+    expect(scenarioPage).not.toContain("m => m.activity?.code");
+  });
+
+  test('deduplicates financially equivalent legacy models before display', () => {
+    expect(scenarioPage).toContain('function financialProfileKey(model)');
+    expect(scenarioPage).toContain('const profileGroups = new Map()');
+    expect(scenarioPage).toContain('legacy_sector_mapping_confidence');
+  });
+
   test('renders preset scenarios safely before engine normalization', () => {
     expect(scenarioPage).toContain('Array.isArray(scenario.shocks) ? scenario.shocks : []');
     expect(scenarioPage).toContain('سيتم تطبيق الصدمات الجاهزة عند تشغيل التحليل.');
@@ -50,7 +66,8 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain('icon: c.flag || null');
     expect(scenarioPage).toContain('if (item.icon) opt.dataset.icon = item.icon');
     expect(scenarioPage).toContain('fetchJsonWithRetry');
-    expect(scenarioPage).toContain("fetchJsonWithRetry(API_URL + '/models?country='");
+    expect(scenarioPage).toContain("API_URL + '/models?country='");
+    expect(scenarioPage).toContain("'&investment_sector=' + encodeURIComponent(sectorCode)");
     expect(scenarioPage).toContain("fetchJsonWithRetry(API_URL + '/cities?country='");
   });
 
