@@ -46,6 +46,14 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain("'<h4>' + escapeHtml(scenario.name) + '</h4>'");
   });
 
+  test('shows country flags and retries transient context loads', () => {
+    expect(scenarioPage).toContain('icon: c.flag || null');
+    expect(scenarioPage).toContain('if (item.icon) opt.dataset.icon = item.icon');
+    expect(scenarioPage).toContain('fetchJsonWithRetry');
+    expect(scenarioPage).toContain("fetchJsonWithRetry(API_URL + '/models?country='");
+    expect(scenarioPage).toContain("fetchJsonWithRetry(API_URL + '/cities?country='");
+  });
+
   test('quarantines city records proven to have corrupt labels', () => {
     for (const code of ['EG-98-004','SY-98-018','IQ-98-001','YE-98-001']) {
       expect(scenarioPage).toContain(code);
