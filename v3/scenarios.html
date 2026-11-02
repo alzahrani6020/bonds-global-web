@@ -163,7 +163,7 @@
 
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
-<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.51.8" />
+<link rel="stylesheet" href="../components/universal-dropdown.css?v=2.52.0" />
 <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
 <script defer src="/calculators/auth-gate.js?v=3"></script>
@@ -211,25 +211,39 @@
       <div class="card">
         <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M34 15h-3.362c-.324-1.369-.864-2.651-1.582-3.814l2.379-2.379c.781-.781.781-2.048 0-2.829l-1.414-1.414c-.781-.781-2.047-.781-2.828 0l-2.379 2.379C23.65 6.225 22.369 5.686 21 5.362V2c0-1.104-.896-2-2-2h-2c-1.104 0-2 .896-2 2v3.362c-1.369.324-2.651.864-3.814 1.582L8.808 4.565c-.781-.781-2.048-.781-2.828 0L4.565 5.979c-.781.781-.781 2.048-.001 2.829l2.379 2.379C6.225 12.35 5.686 13.632 5.362 15H2c-1.104 0-2 .896-2 2v2c0 1.104.896 2 2 2h3.362c.324 1.368.864 2.65 1.582 3.813l-2.379 2.379c-.78.78-.78 2.048.001 2.829l1.414 1.414c.78.78 2.047.78 2.828 0l2.379-2.379c1.163.719 2.445 1.258 3.814 1.582V34c0 1.104.896 2 2 2h2c1.104 0 2-.896 2-2v-3.362c1.368-.324 2.65-.864 3.813-1.582l2.379 2.379c.781.781 2.047.781 2.828 0l1.414-1.414c.781-.781.781-2.048 0-2.829l-2.379-2.379c.719-1.163 1.258-2.445 1.582-3.814H34c1.104 0 2-.896 2-2v-2C36 15.896 35.104 15 34 15zM18 26c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z"/></svg></span> اختيار النموذج والمدينة</h3>
         <div class="control-group">
+          <label for="countrySelect">الدولة</label>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="countrySelect"><option value="">اختر دولة</option></select>
+        </div>
+        <div class="control-group">
+          <label for="sectorSelect">القطاع</label>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="sectorSelect" disabled><option value="">اختر قطاعاً</option></select>
+        </div>
+        <div class="control-group">
+          <label for="activitySelect">التخصص / النشاط</label>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="activitySelect" disabled><option value="">اختر تخصصاً</option></select>
+        </div>
+        <div class="control-group">
           <label for="modelSelect">النموذج الاستثماري</label>
-          <select data-universal-dropdown="true" id="modelSelect"><option value="">اختر نموذجاً</option></select>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="modelSelect" disabled><option value="">اختر نموذجاً</option></select>
         </div>
         <div class="control-group">
           <label for="citySelect">المدينة</label>
-          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" id="citySelect"><option value="">اختر مدينة (اختياري)</option></select>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-deduplicate="true" data-ud-remove-empty="true" data-ud-max-height="340px" data-ud-virtualize="true" data-ud-virtual-threshold="80" id="citySelect" disabled><option value="">اختر مدينة (اختياري)</option></select>
+          <div id="cityContextHint" style="margin-top:.35rem;color:var(--text-secondary);font-size:.78rem;">يتم تحميل المدن حسب الدولة المختارة فقط.</div>
         </div>
         <div class="control-group">
           <label for="revenueInput">الإيراد السنوي المتوقع (ر.س)</label>
-          <input type="number" id="revenueInput" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
+          <input type="number" id="revenueInput" min="0" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
         </div>
         <div class="control-group">
           <label for="capexInput">رأس المال المستثمر (ر.س)</label>
-          <input type="number" id="capexInput" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
+          <input type="number" id="capexInput" min="0" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
         </div>
         <div class="control-group">
           <label for="yearsInput">سنوات التوقع</label>
           <input type="number" id="yearsInput" value="5" min="1" max="10">
         </div>
+        <div id="contextStatus" style="color:var(--text-secondary);font-size:.82rem;"></div>
       </div>
 
       <div class="card">
@@ -293,48 +307,201 @@
       { code: 'corporate_tax_rate', name: 'ضريبة الأرباح', unit: 'absolute' }
     ];
 
+    let countries = [];
     let models = [];
     let cities = [];
     let scenarios = [];
     let chart = null;
+    let contextLoadSequence = 0;
 
-    async function fetchJson(url, options) {
-      const res = await fetch(url, options);
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Request failed');
-      return data;
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
     }
 
-    function formatNumber(num) {
-      if (num === null || num === undefined) return '-';
-      if (num >= 1e9) return (num / 1e9).toFixed(1) + ' مليار';
-      if (num >= 1e6) return (num / 1e6).toFixed(1) + ' مليون';
-      return num.toLocaleString('ar-SA');
+    async function fetchJson(url, options = {}, timeoutMs = 12000) {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), timeoutMs);
+      try {
+        const res = await fetch(url, { ...options, signal: options.signal || controller.signal });
+        const raw = await res.text();
+        let data;
+        try { data = raw ? JSON.parse(raw) : {}; }
+        catch (_) { throw new Error('استجابة غير صالحة من الخادم'); }
+        if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+        return data;
+      } catch (err) {
+        if (err?.name === 'AbortError') throw new Error('انتهت مهلة تحميل البيانات');
+        throw err;
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+
+    function setSelectOptions(select, items, placeholder) {
+      const fragment = document.createDocumentFragment();
+      const first = document.createElement('option');
+      first.value = '';
+      first.textContent = placeholder;
+      fragment.appendChild(first);
+      items.forEach(item => {
+        const opt = document.createElement('option');
+        opt.value = item.value;
+        opt.textContent = item.label;
+        fragment.appendChild(opt);
+      });
+      select.replaceChildren(fragment);
+      const dropdown = window.getUniversalDropdown?.(select);
+      if (dropdown) dropdown.refresh();
+    }
+
+    function invalidateResults() {
+      document.getElementById('resultsArea').classList.add('hidden');
+    }
+
+    function setControlDisabled(id, disabled) {
+      const select = document.getElementById(id);
+      select.disabled = disabled;
+      window.getUniversalDropdown?.(select)?.refresh();
+    }
+
+    function sizeLabel(size) {
+      return ({ small:'صغير', medium:'متوسط', large:'كبير' })[size] || size || '';
+    }
+
+    function modelDisplayLabel(model) {
+      const sector = model.sector?.name_ar || model.sector?.name_en || '';
+      const activity = model.activity?.name_ar || model.activity?.name_en || '';
+      const size = sizeLabel(model.size_category);
+      return [sector, activity, size].filter(Boolean).join(' ← ') || model.name_ar || model.name_en || model.code;
+    }
+
+    function uniqueByCode(rows, getCode, getLabel) {
+      const map = new Map();
+      rows.forEach(row => {
+        const code = getCode(row);
+        if (!code || map.has(code)) return;
+        map.set(code, { value: code, label: getLabel(row) || code });
+      });
+      return [...map.values()].sort((a,b) => a.label.localeCompare(b.label, 'ar', { sensitivity:'base' }));
+    }
+
+    function populateSectors() {
+      const sectorSelect = document.getElementById('sectorSelect');
+      const sectorOptions = uniqueByCode(
+        models,
+        m => m.sector?.code,
+        m => m.sector?.name_ar || m.sector?.name_en
+      );
+      setSelectOptions(sectorSelect, sectorOptions, 'اختر قطاعاً');
+      setControlDisabled('sectorSelect', sectorOptions.length === 0);
+      setSelectOptions(document.getElementById('activitySelect'), [], 'اختر تخصصاً');
+      setControlDisabled('activitySelect', true);
+      setSelectOptions(document.getElementById('modelSelect'), [], 'اختر نموذجاً');
+      setControlDisabled('modelSelect', true);
+    }
+
+    function populateActivities() {
+      const sectorCode = document.getElementById('sectorSelect').value;
+      const activitySelect = document.getElementById('activitySelect');
+      const scoped = models.filter(m => m.sector?.code === sectorCode);
+      const activityOptions = uniqueByCode(
+        scoped,
+        m => m.activity?.code,
+        m => m.activity?.name_ar || m.activity?.name_en
+      );
+      setSelectOptions(activitySelect, activityOptions, 'اختر تخصصاً');
+      setControlDisabled('activitySelect', activityOptions.length === 0);
+      setSelectOptions(document.getElementById('modelSelect'), [], 'اختر نموذجاً');
+      setControlDisabled('modelSelect', true);
+      invalidateResults();
+    }
+
+    function populateModels() {
+      const sectorCode = document.getElementById('sectorSelect').value;
+      const activityCode = document.getElementById('activitySelect').value;
+      const modelSelect = document.getElementById('modelSelect');
+      const scoped = models
+        .filter(m => m.sector?.code === sectorCode && m.activity?.code === activityCode)
+        .map(m => ({ value: m.code, label: modelDisplayLabel(m) }))
+        .sort((a,b) => a.label.localeCompare(b.label, 'ar', { sensitivity:'base' }));
+      setSelectOptions(modelSelect, scoped, 'اختر نموذجاً');
+      setControlDisabled('modelSelect', scoped.length === 0);
+      invalidateResults();
+    }
+
+    async function loadCountryContext(countryCode) {
+      const sequence = ++contextLoadSequence;
+      const status = document.getElementById('contextStatus');
+      status.textContent = 'جاري تحميل النماذج والمدن...';
+      setControlDisabled('sectorSelect', true);
+      setControlDisabled('activitySelect', true);
+      setControlDisabled('modelSelect', true);
+      setControlDisabled('citySelect', true);
+
+      const [modelResult, cityResult] = await Promise.allSettled([
+        fetchJson(API_URL + '/models?country=' + encodeURIComponent(countryCode)),
+        fetchJson(API_URL + '/cities?country=' + encodeURIComponent(countryCode) + '&limit=500')
+      ]);
+      if (sequence !== contextLoadSequence) return;
+
+      if (modelResult.status === 'fulfilled') {
+        models = modelResult.value.models || [];
+        populateSectors();
+      } else {
+        models = [];
+        populateSectors();
+        console.error(modelResult.reason);
+      }
+
+      if (cityResult.status === 'fulfilled') {
+        cities = cityResult.value.cities || [];
+        const cityOptions = cities.map(c => ({
+          value: c.code,
+          label: [c.name_ar || c.name_en || c.code, c.region].filter(Boolean).join(' — ')
+        }));
+        setSelectOptions(document.getElementById('citySelect'), cityOptions, 'اختر مدينة (اختياري)');
+        setControlDisabled('citySelect', cityOptions.length === 0);
+      } else {
+        cities = [];
+        setSelectOptions(document.getElementById('citySelect'), [], 'اختر مدينة (اختياري)');
+        setControlDisabled('citySelect', true);
+        console.error(cityResult.reason);
+      }
+
+      const modelMsg = modelResult.status === 'fulfilled' ? (models.length + ' نموذج') : 'تعذر تحميل النماذج';
+      const cityMsg = cityResult.status === 'fulfilled' ? (cities.length + ' مدينة') : 'تعذر تحميل المدن';
+      status.textContent = modelMsg + ' • ' + cityMsg;
+      invalidateResults();
     }
 
     async function init() {
       try {
-        const [modelsData, citiesData] = await Promise.all([
-          fetchJson(API_URL + '/models'),
-          fetchJson(API_URL + '/cities')
-        ]);
-        models = modelsData.models || [];
-        cities = citiesData.cities || [];
-
-        const modelSelect = document.getElementById('modelSelect');
-        models.forEach(m => {
-          modelSelect.innerHTML += `<option value="${m.code}">${m.name_ar}</option>`;
-        });
-
-        const citySelect = document.getElementById('citySelect');
-        cities.forEach(c => {
-          citySelect.innerHTML += `<option value="${c.code}">${c.name_ar}</option>`;
-        });
+        const countriesData = await fetchJson(API_URL + '/catalog/countries');
+        countries = (countriesData.countries || []).filter(c => c.is_supported !== false);
+        const countryOptions = countries.map(c => ({ value: c.code, label: c.name_ar || c.name_en || c.code }));
+        const countrySelect = document.getElementById('countrySelect');
+        setSelectOptions(countrySelect, countryOptions, 'اختر دولة');
+        countrySelect.value = countryOptions.some(c => c.value === 'SA') ? 'SA' : (countryOptions[0]?.value || '');
+        window.getUniversalDropdown?.(countrySelect)?.refresh();
+        if (countrySelect.value) await loadCountryContext(countrySelect.value);
       } catch (err) {
         console.error(err);
-        alert('فشل تحميل البيانات: ' + err.message);
+        document.getElementById('contextStatus').textContent = 'فشل تحميل سياق الاستثمار: ' + err.message;
       }
     }
+
+    document.getElementById('countrySelect').addEventListener('change', async (event) => {
+      const countryCode = event.target.value;
+      setSelectOptions(document.getElementById('sectorSelect'), [], 'اختر قطاعاً');
+      setSelectOptions(document.getElementById('activitySelect'), [], 'اختر تخصصاً');
+      setSelectOptions(document.getElementById('modelSelect'), [], 'اختر نموذجاً');
+      setSelectOptions(document.getElementById('citySelect'), [], 'اختر مدينة (اختياري)');
+      if (countryCode) await loadCountryContext(countryCode);
+    });
+    document.getElementById('sectorSelect').addEventListener('change', populateActivities);
+    document.getElementById('activitySelect').addEventListener('change', populateModels);
+    document.getElementById('modelSelect').addEventListener('change', invalidateResults);
+    document.getElementById('citySelect').addEventListener('change', invalidateResults);
 
     function createShockRow() {
       const div = document.createElement('div');
@@ -377,15 +544,17 @@
         list.innerHTML = '<p style="color: var(--text-secondary);">لا توجد سيناريوهات بعد. أضف سيناريو جاهز أو مخصص.</p>';
         return;
       }
-      list.innerHTML = scenarios.map((s, i) => `
-        <div class="scenario-item">
-          <h4>${s.name}</h4>
-          <ul style="margin: 0; padding-right: 1.2rem; color: var(--text-secondary); font-size: 0.9rem;">
-            ${s.shocks.map(sh => `<li>${shockLabel(sh.code)}: ${sh.type === 'relative' ? (sh.value * 100).toFixed(1) + '%' : sh.value}</li>`).join('')}
-          </ul>
-          <button class="btn btn-danger" style="margin-top: 0.75rem;" onclick="removeScenario(${i})">حذف</button>
-        </div>
-      `).join('');
+      list.innerHTML = scenarios.map((scenario, index) => {
+        const shocks = Array.isArray(scenario.shocks) ? scenario.shocks : [];
+        const details = shocks.length
+          ? shocks.map(sh => '<li>' + escapeHtml(shockLabel(sh.code)) + ': ' + escapeHtml(sh.type === 'relative' ? (sh.value * 100).toFixed(1) + '%' : sh.value) + '</li>').join('')
+          : '<li>سيتم تطبيق الصدمات الجاهزة عند تشغيل التحليل.</li>';
+        return '<div class="scenario-item">' +
+          '<h4>' + escapeHtml(scenario.name) + '</h4>' +
+          '<ul style="margin:0;padding-right:1.2rem;color:var(--text-secondary);font-size:.9rem;">' + details + '</ul>' +
+          '<button class="btn btn-danger" style="margin-top:.75rem;" onclick="removeScenario(' + index + ')">حذف</button>' +
+          '</div>';
+      }).join('');
     }
 
     function shockLabel(code) {
@@ -397,8 +566,17 @@
       renderScenarios();
     };
 
+    function canAddScenario() {
+      if (scenarios.length >= 10) {
+        alert('الحد الأقصى 10 سيناريوهات لكل تحليل');
+        return false;
+      }
+      return true;
+    }
+
     document.querySelectorAll('[data-preset]').forEach(btn => {
       btn.addEventListener('click', () => {
+        if (!canAddScenario()) return;
         const preset = btn.dataset.preset;
         const names = {
           recession: 'سيناريو الركود',
@@ -413,6 +591,7 @@
     });
 
     document.getElementById('addScenarioBtn').addEventListener('click', () => {
+      if (!canAddScenario()) return;
       const name = document.getElementById('scenarioName').value.trim() || 'سيناريو مخصص';
       const shocks = collectCustomShocks();
       if (shocks.length === 0) return alert('أضف صدمة واحدة على الأقل');
@@ -430,18 +609,29 @@
     });
 
     document.getElementById('runBtn').addEventListener('click', async () => {
+      const runBtn = document.getElementById('runBtn');
       const modelCode = document.getElementById('modelSelect').value;
       if (!modelCode) return alert('اختر نموذجاً أولاً');
       if (scenarios.length === 0) return alert('أضف سيناريو واحداً على الأقل');
+      if (scenarios.length > 10) return alert('الحد الأقصى 10 سيناريوهات لكل تحليل');
+
+      const revenueValue = document.getElementById('revenueInput').value;
+      const capexValue = document.getElementById('capexInput').value;
+      const years = Number(document.getElementById('yearsInput').value) || 5;
+      if (revenueValue && Number(revenueValue) < 0) return alert('الإيراد لا يمكن أن يكون سالباً');
+      if (capexValue && Number(capexValue) < 0) return alert('رأس المال لا يمكن أن يكون سالباً');
+      if (years < 1 || years > 10) return alert('سنوات التوقع يجب أن تكون بين 1 و10');
 
       const assumptions = {
-        revenue: document.getElementById('revenueInput').value ? Number(document.getElementById('revenueInput').value) : undefined,
-        capex: document.getElementById('capexInput').value ? Number(document.getElementById('capexInput').value) : undefined,
-        projectionYears: Number(document.getElementById('yearsInput').value) || 5
+        revenue: revenueValue ? Number(revenueValue) : undefined,
+        capex: capexValue ? Number(capexValue) : undefined,
+        projectionYears: years
       };
-
       const cityCode = document.getElementById('citySelect').value || undefined;
 
+      const previousText = runBtn.textContent;
+      runBtn.disabled = true;
+      runBtn.textContent = 'جاري تشغيل التحليل...';
       try {
         const payload = { projectModelCode: modelCode, assumptions, scenarios };
         if (cityCode) payload.cityCode = cityCode;
@@ -449,10 +639,13 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
-        });
+        }, 20000);
         renderResults(res);
       } catch (err) {
         alert('فشل التحليل: ' + err.message);
+      } finally {
+        runBtn.disabled = false;
+        runBtn.textContent = previousText;
       }
     });
 
@@ -543,7 +736,7 @@
     init();
   </script>
   <div id="site-footer"></div>
-<script src="../components/universal-dropdown.js?v=2.51.8"></script>
+<script src="../components/universal-dropdown.js?v=2.52.1"></script>
 <script src="../components/universal-dropdown-init.js"></script>
   <script src="shared-v3-ui.js" defer></script>
 <script src="/components/emoji-icons.js" defer></script>
