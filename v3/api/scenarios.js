@@ -136,7 +136,17 @@ async function handleCalculateScenarios(req, res) {
       cityDataStatus,
       cityConfidence: modelData.cityIndicators?.overall_confidence ?? null,
       cityAdjustmentsApplied: results.baseline?.cityAdjustments || [],
-      cityIndicatorsUsed: results.baseline?.cityIndicators || null
+      cityIndicatorsUsed: results.baseline?.cityIndicators || null,
+      model: {
+        code: modelData.projectModel?.code || projectModelCode,
+        name_ar: modelData.projectModel?.name_ar || null,
+        name_en: modelData.projectModel?.name_en || null
+      },
+      inputSources: {
+        revenue: assumptions.revenue !== undefined ? 'user' : 'model',
+        capex: assumptions.capex !== undefined ? 'user' : 'model',
+        projectionYears: assumptions.projectionYears !== undefined ? 'user' : 'default'
+      }
     };
 
     results.recommendation = recommend(results.baseline, modelData.marketData || {});
