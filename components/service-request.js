@@ -446,7 +446,31 @@ async function submit(e){
       return;
     }
 
-    const executionResponse=await fetch('/api/v3/services/execute',{
+    if(isRequestOnlyService()){
+    const body={
+      service_code:serviceCode,
+      country_code:params.get('country')||null,
+      region_code:params.get('region')||null,
+      region_name:params.get('region_name')||null,
+      locality_code:params.get('locality')||null,
+      locality_name:params.get('locality_name')||null,
+      sector_code:params.get('sector')||null,
+      activity_code:params.get('activity')||null,
+      values,
+      form_version:detail.form?.version||null,
+      lang,
+      url:location.href,
+      source:'service_request_page'
+    };
+    const d=await json('/api/v3/services/requests',{method:'POST',headers,body:JSON.stringify(body)});
+    submitted=true;
+    track('service_converted',{request_reference:d.request.request_reference});
+    showStatus(T.sent+' — '+d.request.request_reference,true);
+    $('#srSubmit').disabled=true;
+    $('#srSuccessLink').hidden=true;
+    return;
+  }
+  const executionResponse=await fetch('/api/v3/services/execute',{
       method:'POST',
       headers,
       body:JSON.stringify({
