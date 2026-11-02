@@ -444,7 +444,7 @@
           .map(a => a.primary_sector.sector_id)
       );
       const sectorOptions = (taxonomy.sectors || [])
-        .filter(sector => activitySectorIds.has(sector.id))
+        .filter(sector => activitySectorIds.has(sector.id) && sector.model_available !== false)
         .map(sector => ({ value: sector.code, label: sector.name_ar || sector.name_en || sector.code }));
       setSelectOptions(sectorSelect, sectorOptions, 'اختر قطاعاً');
       setControlDisabled('sectorSelect', sectorOptions.length === 0);
@@ -556,7 +556,7 @@
       const [taxonomyResult, cityResult] = await Promise.allSettled([
         fetchJsonWithRetry(
           API_URL + '/investment-taxonomy?country=' + encodeURIComponent(countryCode) +
-          '&depth=sector&include=activities'
+          '&depth=sector&include=activities,model_availability'
         ),
         fetchJsonWithRetry(API_URL + '/cities?country=' + encodeURIComponent(countryCode) + '&limit=500')
       ]);
