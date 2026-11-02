@@ -1,0 +1,274 @@
+/* BONDS Global — shared public heritage identity
+   Scope: public/marketing pages only. Operational surfaces are excluded in site-layout.js. */
+body.heritage-public{
+  --heritage-black:#050505;
+  --heritage-black-soft:#0c0c0c;
+  --heritage-ivory:#f4efe6;
+  --heritage-ivory-2:#ece8df;
+  --heritage-gold:#c59a43;
+  --heritage-gold-2:#d3aa57;
+  --heritage-ink:#161616;
+  --heritage-muted:#6f6a61;
+  --heritage-line:#d8d0c1;
+  background:#fff;
+  color:var(--heritage-ink);
+}
+body.heritage-public .main-header{
+  background:#fff!important;
+  border-bottom:1px solid #e8e2d8!important;
+  box-shadow:0 8px 28px rgba(0,0,0,.035)!important;
+}
+body.heritage-public .main-nav a,
+body.heritage-public .dropdown-toggle{color:#161616!important}
+body.heritage-public .main-nav a.active,
+body.heritage-public .dropdown-toggle.active{color:#a77a25!important}
+body.heritage-public .main-nav a.active::after{background:var(--heritage-gold)!important}
+body.heritage-public .btn-header,
+body.heritage-public .header-signup,
+body.heritage-public .header-login{
+  background:var(--heritage-black)!important;
+  color:#fff!important;
+  border-color:var(--heritage-black)!important;
+}
+body.heritage-public .header-search,
+body.heritage-public .header-account,
+body.heritage-public .lang-switch{
+  color:#161616!important;
+  border-color:#d8d0c1!important;
+  background:#fff!important;
+}
+body.heritage-public .dropdown-menu{
+  background:#fff!important;
+  border-color:#e6dece!important;
+  box-shadow:0 20px 42px rgba(0,0,0,.10)!important;
+}
+body.heritage-public .dropdown-menu a:hover{background:#f6f1e8!important;color:#111!important}
+
+/* Shared hero surfaces */
+body.heritage-public .canva-page-hero,
+body.heritage-public .hero:not(.hero--light),
+body.heritage-public .page-hero,
+body.heritage-public .faq-hero,
+body.heritage-public .funding-hub__hero{
+  background:var(--heritage-black)!important;
+  color:#fff!important;
+  border-color:#1a1a1a!important;
+}
+body.heritage-public .canva-page-hero h1,
+body.heritage-public .canva-page-hero .canva-h1,
+body.heritage-public .hero h1,
+body.heritage-public .hero__title,
+body.heritage-public .funding-hub__hero h1{color:#fff!important}
+body.heritage-public .canva-page-hero p,
+body.heritage-public .canva-page-hero .canva-lead,
+body.heritage-public .hero__desc,
+body.heritage-public .funding-hub__hero p{color:#c9c9c9!important}
+body.heritage-public .canva-kicker,
+body.heritage-public .hero__eyebrow,
+body.heritage-public .section__eyebrow,
+body.heritage-public .funding-hub__hero .hero__eyebrow{
+  color:var(--heritage-gold)!important;
+}
+body.heritage-public .text-gradient,
+body.heritage-public em[style*="--bonds-gold"]{
+  color:var(--heritage-gold)!important;
+  background:none!important;
+  -webkit-text-fill-color:var(--heritage-gold)!important;
+}
+
+/* Buttons */
+body.heritage-public .canva-btn--primary,
+body.heritage-public .btn-primary,
+body.heritage-public .fi-btn--primary,
+body.heritage-public .pricing-card__cta--gold,
+body.heritage-public .cookie-banner__btn{
+  background:var(--heritage-gold)!important;
+  border-color:var(--heritage-gold)!important;
+  color:#090909!important;
+  box-shadow:none!important;
+}
+body.heritage-public .canva-btn--primary:hover,
+body.heritage-public .btn-primary:hover,
+body.heritage-public .fi-btn--primary:hover{
+  background:var(--heritage-gold-2)!important;
+  border-color:var(--heritage-gold-2)!important;
+}
+body.heritage-public .canva-btn--secondary,
+body.heritage-public .btn-outline,
+body.heritage-public .fi-btn--secondary{
+  border-color:#8d877d!important;
+  color:inherit!important;
+  background:transparent!important;
+}
+
+/* Light sections and cards */
+body.heritage-public .canva-section--white,
+body.heritage-public .section-cream,
+body.heritage-public .section:not(.section-dark),
+body.heritage-public .methodology-wrap,
+body.heritage-public .seo-service{
+  background:#fff!important;
+}
+body.heritage-public .canva-section--navy,
+body.heritage-public .section-dark,
+body.heritage-public .cta-section{
+  background:var(--heritage-black)!important;
+  color:#fff!important;
+}
+body.heritage-public .canva-section--navy h2,
+body.heritage-public .canva-section--navy h3,
+body.heritage-public .section-dark h2,
+body.heritage-public .section-dark h3,
+body.heritage-public .cta-section h2,
+body.heritage-public .cta-section h3{color:#fff!important}
+
+body.heritage-public .canva-card,
+body.heritage-public .pricing-card,
+body.heritage-public .faq-card,
+body.heritage-public .funding-path,
+body.heritage-public .tool-card,
+body.heritage-public .canva-form-card,
+body.heritage-public .canva-contact-card{
+  background:#f5f1e9!important;
+  border-color:#e7dfd1!important;
+  box-shadow:none!important;
+}
+body.heritage-public .canva-card:hover,
+body.heritage-public .pricing-card:hover,
+body.heritage-public .faq-card:hover,
+body.heritage-public .funding-path:hover,
+body.heritage-public .tool-card:hover{
+  border-color:var(--heritage-gold)!important;
+  box-shadow:0 16px 34px rgba(0,0,0,.06)!important;
+}
+body.heritage-public .canva-card__num,
+body.heritage-public .stat-item__icon,
+body.heritage-public .tool-card__icon,
+body.heritage-public .funding-path__icon{color:var(--heritage-gold)!important}
+
+/* Service discovery follows the same visual language but remains functional */
+body.heritage-public:not(.heritage-home) .bonds-service-discovery{
+  background:#fff!important;
+  border:1px solid #e6dece!important;
+  box-shadow:0 16px 40px rgba(0,0,0,.05)!important;
+}
+body.heritage-public:not(.heritage-home) .bonds-service-discovery button,
+body.heritage-public:not(.heritage-home) .bonds-service-discovery .bsd-start{
+  border-color:var(--heritage-gold)!important;
+}
+body.heritage-public:not(.heritage-home) .bonds-service-discovery .bsd-start{
+  background:var(--heritage-gold)!important;
+  color:#090909!important;
+}
+
+/* Typography and separators */
+body.heritage-public h1,
+body.heritage-public h2,
+body.heritage-public h3{letter-spacing:-.015em}
+body.heritage-public hr,
+body.heritage-public .section-divider{border-color:var(--heritage-line)!important}
+body.heritage-public ::selection{background:#d9b768;color:#090909}
+
+/* Footer */
+body.heritage-public .footer,
+body.heritage-public .footer-grid,
+body.heritage-public .footer-bottom{
+  background:var(--heritage-black)!important;
+  color:#e8e2d8!important;
+  border-color:#1b1b1b!important;
+}
+body.heritage-public .footer-title{color:var(--heritage-gold)!important}
+body.heritage-public .footer a,
+body.heritage-public .footer p,
+body.heritage-public .footer span{color:#d7d2c9!important}
+body.heritage-public .footer a:hover{color:#fff!important}
+body.heritage-public .footer-socials a{border-color:#403b33!important;color:#fff!important}
+
+/* Forms */
+body.heritage-public input,
+body.heritage-public select,
+body.heritage-public textarea{
+  border-color:#d8d0c1;
+}
+body.heritage-public input:focus,
+body.heritage-public select:focus,
+body.heritage-public textarea:focus{
+  border-color:var(--heritage-gold)!important;
+  box-shadow:0 0 0 3px rgba(197,154,67,.12)!important;
+}
+
+/* Keep homepage exact design stronger than this shared layer */
+body.heritage-home.heritage-public .heritage-hero,
+body.heritage-home.heritage-public .heritage-contact{background:var(--heritage-black)!important}
+
+@media(max-width:900px){
+  body.heritage-public .main-header{background:#fff!important}
+}
+
+
+/* Accessibility contrast corrections */
+body.heritage-public{
+  --heritage-gold-text:#76520d;
+  --heritage-gold-on-dark:#e2bc68;
+}
+body.heritage-public .canva-card__num,
+body.heritage-public .stat-item__icon,
+body.heritage-public .tool-card__icon,
+body.heritage-public .funding-path__icon{
+  color:var(--heritage-gold-text)!important;
+}
+body.heritage-public .canva-contact-card a,
+body.heritage-public .canva-contact-card a:visited{
+  color:#5f430f!important;
+}
+body.heritage-public .canva-page-hero .canva-kicker,
+body.heritage-public .hero:not(.hero--light) .hero__eyebrow,
+body.heritage-public .funding-hub__hero .hero__eyebrow{
+  color:var(--heritage-gold-on-dark)!important;
+}
+body.heritage-public .hero:not(.hero--light) .hero__trust,
+body.heritage-public .hero:not(.hero--light) .hero__trust > div,
+body.heritage-public .hero:not(.hero--light) .hero__link,
+body.heritage-public .funding-hub__hero .fi-btn--secondary,
+body.heritage-public .funding-hub__hero .fi-btn--secondary:visited{
+  color:#fff!important;
+}
+body.heritage-public #btnEnterprise{
+  color:#090909!important;
+}
+
+
+/* Final contrast fixes for dark public heroes */
+body.heritage-public .hero.v2026 .hero__eyebrow{
+  color:#fff!important;
+}
+body.heritage-public .fi-hero .fi-btn--secondary,
+body.heritage-public .fi-hero .fi-btn--secondary:visited{
+  color:#fff!important;
+  border-color:rgba(255,255,255,.88)!important;
+  background:transparent!important;
+}
+
+
+/* Resolve legacy text-fill/background interactions */
+body.heritage-public .hero.v2026 .hero__eyebrow{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+body.heritage-public .fi-hero .fi-btn--secondary,
+body.heritage-public .fi-hero .fi-btn--secondary:visited{
+  color:#161616!important;
+  -webkit-text-fill-color:#161616!important;
+  background:#fff!important;
+  border-color:#5f5a52!important;
+}
+
+
+/* English public CTA: secondary action sits on a dark background */
+body.heritage-public .fi-cta-section .fi-btn--secondary,
+body.heritage-public .fi-cta-section .fi-btn--secondary:visited{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  background:transparent!important;
+  border-color:rgba(255,255,255,.88)!important;
+}

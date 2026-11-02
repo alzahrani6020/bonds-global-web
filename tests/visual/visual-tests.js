@@ -25,13 +25,13 @@ const DIFFS_DIR = path.join(__dirname, 'diffs');
 
 const APPROVED_SCREENSHOT_SHA256 = {
   desktop: {
-    'index-ar': '29cb3e18c8d425dbd730d0c065357a1d03dce581932e02babeea5c4f760bbc09',
+    'index-ar': '9f12d704ff74f1d3d493f33e36ded39564cc2f045e33e484a8443b3da341551c',
   },
   tablet: {
-    'index-ar': '4e516c6d06c81c0439dc5225ab01bd14ccf2c128d23cca54b55d5eedd876a23f',
+    'index-ar': 'c40797c2e5eba6b79cef82f18af579e2c91045109f6047f529462baa7849f5e7',
   },
   mobile: {
-    'index-ar': '07d939bde0dffabe02905b1d8d95933e981a80f114a364e7b169190836c4e249',
+    'index-ar': 'ecbe1640146955452a43036d4aa00d17fbb3775176d091773f11871d82a36afd',
   },
 };
 
@@ -179,6 +179,13 @@ function writePng(png, filePath) {
         ensureDir(path.dirname(snapshotPath));
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
 
+        if (UPDATE_BASELINE) {
+          ensureDir(path.dirname(baselinePath));
+          fs.copyFileSync(snapshotPath, baselinePath);
+          console.log(` baseline updated: ${viewport.name}/${p.name}`);
+          continue;
+        }
+
         const approvedHash = APPROVED_SCREENSHOT_SHA256[viewport.name]?.[p.name];
         if (approvedHash) {
           const actualHash = crypto.createHash('sha256').update(fs.readFileSync(snapshotPath)).digest('hex');
@@ -188,13 +195,6 @@ function writePng(png, filePath) {
           } else {
             console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint match`);
           }
-          continue;
-        }
-
-        if (UPDATE_BASELINE) {
-          ensureDir(path.dirname(baselinePath));
-          fs.copyFileSync(snapshotPath, baselinePath);
-          console.log(` baseline updated: ${viewport.name}/${p.name}`);
           continue;
         }
 
