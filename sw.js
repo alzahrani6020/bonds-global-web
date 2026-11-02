@@ -45,7 +45,7 @@ const CORE_ASSETS = [
   '/scripts/funding-context.js',
   '/header-footer.css?v=2.71.0',
   '/script.js?v=5',
-  '/site-layout.js?v=3.8.3',
+  '/site-layout.js?v=3.8.4',
   '/styles/social-feed.css?v=3',
   '/styles/institutional-home.css?v=5',
   '/styles/institutional-system.css?v=6',
