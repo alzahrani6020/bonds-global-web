@@ -30,6 +30,14 @@ describe('service request intake routing', () => {
     expect(ui).toContain("if(isRequestOnlyIntakeService())");
   });
 
+  test('non-intake request-only services bypass execution and create a request directly', () => {
+    expect(ui).toContain("function isRequestOnlyService()");
+    expect(ui).toContain("detail?.execution_profile?.execution_mode==='request_only'");
+    expect(ui).toContain("if(isRequestOnlyService()){");
+    expect(ui).toContain("requestSubmit:'إرسال الطلب'");
+    expect(ui).toContain("requestSubmit:'Submit request'");
+    expect(ui).toContain("$('#srSubmit').textContent=isRequestOnlyService()?T.requestSubmit:T.submit");
+  });
   test('automated intake still uses the governed execution endpoint', () => {
     expect(ui).toContain("fetch('/api/v3/services/execute'");
     expect(ui).toContain("dataset_id:intakeDatasetId");
