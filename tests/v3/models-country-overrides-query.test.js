@@ -17,6 +17,13 @@ describe('country model override query contract', () => {
     expect(apiIndex).toContain("filter(row => modelIds.has(row.project_model_id))");
     expect(apiIndex).not.toContain(".in('project_model_id', modelIds)");
   });
+  test('can expose model availability for canonical investment sectors', () => {
+    expect(apiIndex).toContain("include.has('model_availability')");
+    expect(apiIndex).toContain(".from('legacy_sector_investment_map')");
+    expect(apiIndex).toContain('model_available: includeModelAvailability ? modelAvailabilityBySector.has(sector.id) : null');
+    expect(apiIndex).toContain('model_count: includeModelAvailability ? (modelAvailabilityBySector.get(sector.id) || 0) : null');
+  });
+
   test('supports canonical investment-sector filtering and activity enrichment', () => {
     expect(apiIndex).toContain("url.searchParams.get('investment_sector')");
     expect(apiIndex).toContain(".from('legacy_sector_investment_map')");
