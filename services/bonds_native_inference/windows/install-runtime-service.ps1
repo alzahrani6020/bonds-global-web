@@ -72,6 +72,24 @@ if ($LASTEXITCODE -ne 0) {
 & sc.exe failureflag BondsNativeRuntimeService 1 | Out-Null
 & sc.exe config BondsNativeRuntimeService start= auto | Out-Null
 
+$serviceRegistryPath = "HKLM:\SYSTEM\CurrentControlSet\Services\BondsNativeRuntimeService"
+$existingEnvironment = @{}
+try {
+    foreach ($line in @((Get-ItemProperty -Path $serviceRegistryPath -Name Environment -ErrorAction SilentlyContinue).Environment)) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        $separator = $line.IndexOf("=")
+        if ($separator -lt 1) { continue }
+        $existingEnvironment[$line.Substring(0, $separator)] = $line.Substring($separator + 1)
+    }
+}
+catch {
+}
+
+$cancelOnDisconnect = [string]$existingEnvironment["BONDS_NATIVE_CANCEL_ON_DISCONNECT"]
+if ([string]::IsNullOrWhiteSpace($cancelOnDisconnect)) {
+    $cancelOnDisconnect = "1"
+}
+
 $serviceEnvironment = @(
     "BONDS_NATIVE_TOKEN=$token",
     "BONDS_NATIVE_HOST=127.0.0.1",
@@ -84,9 +102,21 @@ $serviceEnvironment = @(
     "BONDS_NATIVE_MAX_TOKENS=$([string]$manifest.runtime.max_tokens)",
     "BONDS_NATIVE_STATE_DIR=$stateDir",
     "BONDS_NATIVE_RUNTIME_ROOT=$runtimeDir",
-    "BONDS_PYTHON_EXE=$pythonExe"
+    "BONDS_PYTHON_EXE=$pythonExe",
+    "BONDS_NATIVE_CANCEL_ON_DISCONNECT=$cancelOnDisconnect"
 )
-$serviceRegistryPath = "HKLM:\SYSTEM\CurrentControlSet\Services\BondsNativeRuntimeService"
+$managedKeys = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+foreach ($line in $serviceEnvironment) {
+    $separator = $line.IndexOf("=")
+    if ($separator -gt 0) {
+        [void]$managedKeys.Add($line.Substring(0, $separator))
+    }
+}
+foreach ($key in $existingEnvironment.Keys) {
+    if (-not $managedKeys.Contains($key)) {
+        $serviceEnvironment += "$key=$($existingEnvironment[$key])"
+    }
+}
 New-ItemProperty -Path $serviceRegistryPath -Name "Environment" -PropertyType MultiString -Value $serviceEnvironment -Force | Out-Null
 
 function Test-LocalHealth {
