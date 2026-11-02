@@ -32,7 +32,7 @@ describe('header hover and automated refresh stabilization', () => {
     ]) {
       expect(read(file)).toContain('site-layout.js?v=3.4.0');
     }
-    expect(read('contact.html')).toContain('site-layout.js?v=3.8.3');
+    expect(read('contact.html')).toContain('site-layout.js?v=3.8.4');
   });
 
   test('market refresh has a daily Vercel cron and bearer-authenticated endpoint', () => {
