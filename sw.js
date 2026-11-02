@@ -34,7 +34,7 @@ const CORE_ASSETS = [
   '/components/service-discovery.css?v=3',
   '/components/service-discovery.js?v=7',
   '/components/service-request.css?v=1',
-  '/components/service-request.js?v=2',
+  '/components/service-request.js?v=3',
   '/service-request.html',
   '/en/service-request.html',
   '/components/ecc-icons.js',
