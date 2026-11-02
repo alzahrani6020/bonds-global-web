@@ -326,6 +326,31 @@ describe('UniversalDropdown', () => {
     await page.close();
   });
 
+  test('dynamic option updates refresh the visible trigger value', async () => {
+    const page = await pageWithErrors();
+    await page.goto('file://' + TEST_PAGE);
+    await page.waitForTimeout(300);
+
+    const result = await page.evaluate(async () => {
+      const select = document.createElement('select');
+      select.id = 'dynamicValueSelect';
+      select.setAttribute('data-universal-dropdown', 'true');
+      select.setAttribute('data-ud-remove-empty', 'true');
+      select.innerHTML = '<option value="">اختر مدينة</option>';
+      document.body.appendChild(select);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const before = select.closest('.ud-dropdown')?.querySelector('.ud-trigger-value')?.textContent || '';
+      select.innerHTML = '<option value="">اختر مدينة</option><option value="JED">جدة</option>';
+      await new Promise(resolve => setTimeout(resolve, 100));
+      const after = select.closest('.ud-dropdown')?.querySelector('.ud-trigger-value')?.textContent || '';
+      return { before, after };
+    });
+
+    expect(result.after).not.toBe('لا توجد بيانات متاحة');
+    expect(page._flushErrors()).toEqual([]);
+    await page.close();
+  });
+
   test('MutationObserver auto-inits dynamically added select', async () => {
     const page = await pageWithErrors();
     await page.goto('file://' + TEST_PAGE);

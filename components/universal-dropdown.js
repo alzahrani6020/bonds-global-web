@@ -938,7 +938,10 @@
 
     _observeNative() {
       if (typeof MutationObserver === 'undefined') return;
-      this._mutationObserver = new MutationObserver(() => this._readOptionsFromSelect());
+      this._mutationObserver = new MutationObserver(() => {
+        this._readOptionsFromSelect();
+        this._syncValue();
+      });
       this._mutationObserver.observe(this.select, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled'] });
     }
 
