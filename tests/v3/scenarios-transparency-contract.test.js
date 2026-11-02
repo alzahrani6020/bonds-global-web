@@ -28,6 +28,14 @@ describe('V3 scenario transparency contract', () => {
     expect(scenariosApi).toContain("revenue: assumptions.revenue !== undefined ? 'user' : 'model'");
   });
 
+  test('validates and returns explicit forecast timing', () => {
+    expect(scenariosApi).toContain("projectionYears must be an integer between 1 and 10");
+    expect(scenariosApi).toContain("baseYear must be an integer between 2000 and 2100");
+    expect(scenariosApi).toContain('forecastStartYear: baseYear + 1');
+    expect(scenariosApi).toContain('forecastEndYear: baseYear + projectionYears');
+    expect(scenariosApi).toContain("baseYear: assumptions.baseYear !== undefined ? 'user' : 'default'");
+  });
+
   test('returns authoritative preset definitions', () => {
     expect(scenariosApi).toContain("path === '/calculate/scenarios/presets'");
     expect(scenariosApi).toContain('ScenarioEngine.getPreset(code)');

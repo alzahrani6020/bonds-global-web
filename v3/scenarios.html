@@ -209,7 +209,7 @@
 
     <div class="grid-2">
       <div class="card">
-        <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M34 15h-3.362c-.324-1.369-.864-2.651-1.582-3.814l2.379-2.379c.781-.781.781-2.048 0-2.829l-1.414-1.414c-.781-.781-2.047-.781-2.828 0l-2.379 2.379C23.65 6.225 22.369 5.686 21 5.362V2c0-1.104-.896-2-2-2h-2c-1.104 0-2 .896-2 2v3.362c-1.369.324-2.651.864-3.814 1.582L8.808 4.565c-.781-.781-2.048-.781-2.828 0L4.565 5.979c-.781.781-.781 2.048-.001 2.829l2.379 2.379C6.225 12.35 5.686 13.632 5.362 15H2c-1.104 0-2 .896-2 2v2c0 1.104.896 2 2 2h3.362c.324 1.368.864 2.65 1.582 3.813l-2.379 2.379c-.78.78-.78 2.048.001 2.829l1.414 1.414c.78.78 2.047.78 2.828 0l2.379-2.379c1.163.719 2.445 1.258 3.814 1.582V34c0 1.104.896 2 2 2h2c1.104 0 2-.896 2-2v-3.362c1.368-.324 2.65-.864 3.813-1.582l2.379 2.379c.781.781 2.047.781 2.828 0l1.414-1.414c.781-.781.781-2.048 0-2.829l-2.379-2.379c.719-1.163 1.258-2.445 1.582-3.814H34c1.104 0 2-.896 2-2v-2C36 15.896 35.104 15 34 15zM18 26c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z"/></svg></span> اختيار النموذج والمدينة</h3>
+        <h3><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#66757F" d="M34 15h-3.362c-.324-1.369-.864-2.651-1.582-3.814l2.379-2.379c.781-.781.781-2.048 0-2.829l-1.414-1.414c-.781-.781-2.047-.781-2.828 0l-2.379 2.379C23.65 6.225 22.369 5.686 21 5.362V2c0-1.104-.896-2-2-2h-2c-1.104 0-2 .896-2 2v3.362c-1.369.324-2.651.864-3.814 1.582L8.808 4.565c-.781-.781-2.048-.781-2.828 0L4.565 5.979c-.781.781-.781 2.048-.001 2.829l2.379 2.379C6.225 12.35 5.686 13.632 5.362 15H2c-1.104 0-2 .896-2 2v2c0 1.104.896 2 2 2h3.362c.324 1.368.864 2.65 1.582 3.813l-2.379 2.379c-.78.78-.78 2.048.001 2.829l1.414 1.414c.78.78 2.047.78 2.828 0l2.379-2.379c1.163.719 2.445 1.258 3.814 1.582V34c0 1.104.896 2 2 2h2c1.104 0 2-.896 2-2v-3.362c1.368-.324 2.65-.864 3.813-1.582l2.379 2.379c.781.781 2.047.781 2.828 0l1.414-1.414c.781-.781.781-2.048 0-2.829l-2.379-2.379c.719-1.163 1.258-2.445 1.582-3.814H34c1.104 0 2-.896 2-2v-2C36 15.896 35.104 15 34 15zM18 26c-4.418 0-8-3.582-8-8s3.582-8 8-8 8 3.582 8 8-3.582 8-8 8z"/></svg></span> إعداد نموذج التحليل</h3>
         <div class="control-group">
           <label for="countrySelect">الدولة</label>
           <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="countrySelect"><option value="">اختر دولة</option></select>
@@ -219,8 +219,8 @@
           <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="sectorSelect" disabled><option value="">اختر قطاعاً</option></select>
         </div>
         <div class="control-group">
-          <label for="activitySelect">التخصص / النشاط</label>
-          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="activitySelect" disabled><option value="">اختر تخصصاً</option></select>
+          <label for="activitySelect">النشاط الاقتصادي</label>
+          <select data-universal-dropdown="true" data-ud-search="true" data-ud-sort="true" data-ud-max-height="340px" id="activitySelect" disabled><option value="">اختر نشاطاً اقتصادياً</option></select>
         </div>
         <div class="control-group">
           <label for="modelSelect">النموذج الاستثماري</label>
@@ -232,6 +232,14 @@
           <div id="cityContextHint" style="margin-top:.35rem;color:var(--text-secondary);font-size:.78rem;">يتم تحميل المدن حسب الدولة المختارة فقط.</div>
         </div>
         <div class="control-group">
+          <label for="currencyDisplay">عملة التحليل</label>
+          <input type="text" id="currencyDisplay" readonly placeholder="تتحدد تلقائياً حسب الدولة">
+        </div>
+        <div class="control-group">
+          <label for="baseYearInput">سنة الأساس</label>
+          <input type="number" id="baseYearInput" value="2026" min="2000" max="2100">
+        </div>
+        <div class="control-group">
           <label for="revenueInput" id="revenueLabel">الإيراد السنوي المتوقع</label>
           <input type="number" id="revenueInput" min="0" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
         </div>
@@ -240,14 +248,30 @@
           <input type="number" id="capexInput" min="0" placeholder="اتركه فارغاً لاستخدام متوسط النموذج">
         </div>
         <div class="control-group">
-          <label for="yearsInput">مدة التحليل المالي (سنوات)</label>
-          <input type="number" id="yearsInput" value="5" min="1" max="10">
+          <label for="yearsInput">مدة التوقع المالي (سنوات)</label>
+          <select data-universal-dropdown="true" id="yearsInput">
+            <option value="1">سنة واحدة</option>
+            <option value="3">3 سنوات</option>
+            <option value="5" selected>5 سنوات</option>
+            <option value="10">10 سنوات</option>
+          </select>
+          <div id="forecastPeriod" style="margin-top:.35rem;color:var(--text-secondary);font-size:.78rem;"></div>
         </div>
+        <div id="baselinePreview" style="margin:.9rem 0;padding:.9rem;border:1px solid var(--border);border-radius:10px;background:rgba(212,168,83,.06);font-size:.84rem;"></div>
         <div id="contextStatus" aria-live="polite" style="color:var(--text-secondary);font-size:.82rem;"></div>
       </div>
 
       <div class="card">
         <h3>◎ سيناريوهات جاهزة</h3>
+        <div class="control-group">
+          <label for="presetSeverity">شدة السيناريو</label>
+          <select data-universal-dropdown="true" id="presetSeverity">
+            <option value="mild">خفيف — 50% من الصدمة المرجعية</option>
+            <option value="moderate" selected>متوسط — الصدمة المرجعية</option>
+            <option value="severe">شديد — 150% من الصدمة المرجعية</option>
+          </select>
+          <div style="margin-top:.35rem;color:var(--text-secondary);font-size:.78rem;">تظهر القيم الرقمية الفعلية قبل تشغيل التحليل ويمكن حذف السيناريو أو استبداله.</div>
+        </div>
         <div class="preset-group">
           <button class="btn btn-secondary" data-preset="recession">▽ ركود</button>
           <button class="btn btn-secondary" data-preset="high_inflation"><span class="emoji-icon" style="display:inline-flex;width:1em;height:1em;vertical-align:-0.15em;" aria-hidden="true"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36"><path fill="#F4900C" d="M35 19c0-2.062-.367-4.039-1.04-5.868-.46 5.389-3.333 8.157-6.335 6.868-2.812-1.208-.917-5.917-.777-8.164.236-3.809-.012-8.169-6.931-11.794 2.875 5.5.333 8.917-2.333 9.125-2.958.231-5.667-2.542-4.667-7.042-3.238 2.386-3.332 6.402-2.333 9 1.042 2.708-.042 4.958-2.583 5.208-2.84.28-4.418-3.041-2.963-8.333C2.52 10.965 1 14.805 1 19c0 9.389 7.611 17 17 17s17-7.611 17-17z"/><path fill="#FFCC4D" d="M28.394 23.999c.148 3.084-2.561 4.293-4.019 3.709-2.106-.843-1.541-2.291-2.083-5.291s-2.625-5.083-5.708-6c2.25 6.333-1.247 8.667-3.08 9.084-1.872.426-3.753-.001-3.968-4.007C7.352 23.668 6 26.676 6 30c0 .368.023.73.055 1.09C9.125 34.124 13.342 36 18 36s8.875-1.876 11.945-4.91c.032-.36.055-.722.055-1.09 0-2.187-.584-4.236-1.606-6.001z"/></svg></span> تضخم مرتفع</button>
@@ -279,6 +303,10 @@
         <h3>ملخص التحليل</h3>
         <div id="analysisContext" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;"></div>
         <div id="analysisRecommendation" style="margin-top:1rem;padding:1rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02);"></div>
+      </div>
+      <div class="card">
+        <h3>ماذا تعني النتيجة للقرار؟</h3>
+        <div id="decisionSummary"></div>
       </div>
       <div class="card">
         <h3>أثر المدينة والبيانات المستخدمة</h3>
@@ -355,6 +383,49 @@
       const suffix = currencyCode ? ' (' + currencyCode + ')' : '';
       document.getElementById('revenueLabel').textContent = 'الإيراد السنوي المتوقع' + suffix;
       document.getElementById('capexLabel').textContent = 'رأس المال المستثمر' + suffix;
+      document.getElementById('currencyDisplay').value = currencyCode || 'عملة النموذج';
+      updateBaselinePreview();
+    }
+
+    function updateForecastPeriod() {
+      const baseYear = Number(document.getElementById('baseYearInput').value);
+      const years = Number(document.getElementById('yearsInput').value);
+      const node = document.getElementById('forecastPeriod');
+      if (!Number.isInteger(baseYear) || baseYear < 2000 || baseYear > 2100 || !Number.isInteger(years) || years < 1 || years > 10) {
+        node.textContent = 'تحقق من سنة الأساس ومدة التوقع.';
+        return;
+      }
+      node.textContent = 'فترة التوقع: ' + (baseYear + 1) + '–' + (baseYear + years) + ' (' + years + ' سنوات)';
+    }
+
+    function updateBaselinePreview() {
+      const currency = selectedCountryCurrency() || 'عملة النموذج';
+      const revenue = document.getElementById('revenueInput')?.value;
+      const capex = document.getElementById('capexInput')?.value;
+      const node = document.getElementById('baselinePreview');
+      if (!node) return;
+      node.innerHTML =
+        '<strong>السيناريو الأساسي (Baseline)</strong><br>' +
+        'الإيراد: ' + escapeHtml(revenue ? formatNumber(revenue) + ' ' + currency : 'متوسط النموذج — سيظهر مصدره في النتائج') + '<br>' +
+        'رأس المال: ' + escapeHtml(capex ? formatNumber(capex) + ' ' + currency : 'متوسط النموذج — سيظهر مصدره في النتائج') + '<br>' +
+        '<span style="color:var(--text-secondary)">تطبق الصدمات على هذا الأساس، ولا تعد الأرقام الافتراضية بيانات فعلية للمستخدم.</span>';
+      updateForecastPeriod();
+    }
+
+    function severityFactor(level) {
+      return ({ mild: 0.5, moderate: 1, severe: 1.5 })[level] || 1;
+    }
+
+    function severityLabel(level) {
+      return ({ mild: 'خفيف', moderate: 'متوسط', severe: 'شديد' })[level] || 'متوسط';
+    }
+
+    function scaledPresetShocks(preset, severity) {
+      const factor = severityFactor(severity);
+      return (preset?.shocks || []).map(shock => ({
+        ...shock,
+        value: shock.type === 'relative' ? Number(shock.value) * factor : Number(shock.value) * factor
+      }));
     }
 
     async function fetchJson(url, options = {}, timeoutMs = 12000) {
@@ -484,7 +555,7 @@
         .map(sector => ({ value: sector.code, label: sector.name_ar || sector.name_en || sector.code }));
       setSelectOptions(sectorSelect, sectorOptions, 'اختر قطاعاً');
       setControlDisabled('sectorSelect', sectorOptions.length === 0);
-      setSelectOptions(document.getElementById('activitySelect'), [], 'اختر تخصصاً');
+      setSelectOptions(document.getElementById('activitySelect'), [], 'اختر نشاطاً اقتصادياً');
       setControlDisabled('activitySelect', true);
       setSelectOptions(document.getElementById('modelSelect'), [], 'اختر نموذجاً');
       setControlDisabled('modelSelect', true);
@@ -524,13 +595,13 @@
           .map(a => ({ value: a.code, label: a.name_ar || a.name_en || a.code }))
           .sort((a,b) => a.label.localeCompare(b.label, 'ar', { sensitivity:'base' }));
 
-        setSelectOptions(activitySelect, activityOptions, 'اختر تخصصاً');
+        setSelectOptions(activitySelect, activityOptions, 'اختر نشاطاً اقتصادياً');
         setControlDisabled('activitySelect', activityOptions.length === 0);
-        status.textContent = models.length + ' نموذج ضمن القطاع • ' + activityOptions.length + ' تخصص متاح';
+        status.textContent = models.length + ' نموذج ضمن القطاع • ' + activityOptions.length + ' نشاط متاح';
       } catch (err) {
         console.error(err);
         models = [];
-        setSelectOptions(activitySelect, [], 'تعذر تحميل التخصصات');
+        setSelectOptions(activitySelect, [], 'تعذر تحميل الأنشطة');
         setControlDisabled('activitySelect', true);
         status.textContent = 'تعذر تحميل نماذج القطاع: ' + err.message;
       }
@@ -657,6 +728,8 @@
         countrySelect.value = countryOptions.some(c => c.value === 'SA') ? 'SA' : (countryOptions[0]?.value || '');
         window.getUniversalDropdown?.(countrySelect)?.refresh();
         updateInputCurrencyLabels(selectedCountryCurrency());
+        updateForecastPeriod();
+        updateBaselinePreview();
         if (countrySelect.value) await loadCountryContext(countrySelect.value);
       } catch (err) {
         console.error(err);
@@ -667,7 +740,7 @@
     document.getElementById('countrySelect').addEventListener('change', async (event) => {
       const countryCode = event.target.value;
       setSelectOptions(document.getElementById('sectorSelect'), [], 'اختر قطاعاً');
-      setSelectOptions(document.getElementById('activitySelect'), [], 'اختر تخصصاً');
+      setSelectOptions(document.getElementById('activitySelect'), [], 'اختر نشاطاً اقتصادياً');
       setSelectOptions(document.getElementById('modelSelect'), [], 'اختر نموذجاً');
       setSelectOptions(document.getElementById('citySelect'), [], 'اختر مدينة (اختياري)');
       updateInputCurrencyLabels(selectedCountryCurrency());
@@ -675,8 +748,12 @@
     });
     document.getElementById('sectorSelect').addEventListener('change', loadSectorModels);
     document.getElementById('activitySelect').addEventListener('change', populateModels);
-    document.getElementById('modelSelect').addEventListener('change', invalidateResults);
+    document.getElementById('modelSelect').addEventListener('change', () => { invalidateResults(); updateBaselinePreview(); });
     document.getElementById('citySelect').addEventListener('change', invalidateResults);
+    document.getElementById('revenueInput').addEventListener('input', () => { invalidateResults(); updateBaselinePreview(); });
+    document.getElementById('capexInput').addEventListener('input', () => { invalidateResults(); updateBaselinePreview(); });
+    document.getElementById('baseYearInput').addEventListener('input', () => { invalidateResults(); updateBaselinePreview(); });
+    document.getElementById('yearsInput').addEventListener('change', () => { invalidateResults(); updateBaselinePreview(); });
 
     function createShockRow() {
       const div = document.createElement('div');
@@ -732,6 +809,7 @@
           : '<li>لا توجد تفاصيل صدمات متاحة.</li>';
         return '<div class="scenario-item">' +
           '<h4>' + escapeHtml(scenario.name) + '</h4>' +
+          (scenario.severity ? '<div style="color:var(--text-secondary);font-size:.8rem;margin-bottom:.4rem;">شدة الصدمة: ' + escapeHtml(severityLabel(scenario.severity)) + '</div>' : '') +
           '<ul style="margin:0;padding-right:1.2rem;color:var(--text-secondary);font-size:.9rem;">' + details + '</ul>' +
           '<button class="btn btn-danger" style="margin-top:.75rem;" onclick="removeScenario(' + index + ')">حذف</button>' +
           '</div>';
@@ -766,7 +844,16 @@
           rent_boom: 'سيناريو ارتفاع الإيجارات',
           sales_drop: 'سيناريو انخفاض المبيعات'
         };
-        scenarios.push({ name: names[preset], preset });
+        const definition = presetCatalog.get(preset);
+        if (!definition) return alert('تعذر تحميل تعريف السيناريو. أعد المحاولة.');
+        const severity = document.getElementById('presetSeverity').value || 'moderate';
+        const shocks = scaledPresetShocks(definition, severity);
+        scenarios.push({
+          name: names[preset] + ' — ' + severityLabel(severity),
+          shocks,
+          sourcePreset: preset,
+          severity
+        });
         renderScenarios();
       });
     });
@@ -791,28 +878,38 @@
 
     document.getElementById('runBtn').addEventListener('click', async () => {
       const runBtn = document.getElementById('runBtn');
+      const countryCode = document.getElementById('countrySelect').value;
+      const sectorCode = document.getElementById('sectorSelect').value;
+      const activityCode = document.getElementById('activitySelect').value;
       const modelCode = document.getElementById('modelSelect').value;
-      if (!modelCode) return alert('اختر نموذجاً أولاً');
+      if (!countryCode) return alert('اختر الدولة أولاً');
+      if (!sectorCode) return alert('اختر القطاع أولاً');
+      if (!activityCode) return alert('اختر النشاط الاقتصادي أولاً');
+      if (!modelCode) return alert('اختر النموذج الاستثماري أولاً');
       if (scenarios.length === 0) return alert('أضف سيناريو واحداً على الأقل');
       if (scenarios.length > 10) return alert('الحد الأقصى 10 سيناريوهات لكل تحليل');
 
       const revenueValue = document.getElementById('revenueInput').value;
       const capexValue = document.getElementById('capexInput').value;
-      const yearsRaw = document.getElementById('yearsInput').value.trim();
+      const yearsRaw = String(document.getElementById('yearsInput').value).trim();
       const years = yearsRaw === '' ? 5 : Number(yearsRaw);
+      const baseYear = Number(document.getElementById('baseYearInput').value);
       if (revenueValue && Number(revenueValue) < 0) return alert('الإيراد لا يمكن أن يكون سالباً');
       if (capexValue && Number(capexValue) < 0) return alert('رأس المال لا يمكن أن يكون سالباً');
       if (!Number.isFinite(years) || years < 1 || years > 10) {
         return alert('مدة التحليل المالي يجب أن تكون بين سنة واحدة و10 سنوات');
       }
+      if (!Number.isInteger(baseYear) || baseYear < 2000 || baseYear > 2100) {
+        return alert('سنة الأساس يجب أن تكون بين 2000 و2100');
+      }
 
       const assumptions = {
         revenue: revenueValue ? Number(revenueValue) : undefined,
         capex: capexValue ? Number(capexValue) : undefined,
-        projectionYears: years
+        projectionYears: years,
+        baseYear
       };
       const cityCode = document.getElementById('citySelect').value || undefined;
-      const countryCode = document.getElementById('countrySelect').value || undefined;
 
       const previousText = runBtn.textContent;
       runBtn.disabled = true;
@@ -868,9 +965,11 @@
         ['الدولة', selectedOptionText('countrySelect')],
         ['المدينة', selectedOptionText('citySelect')],
         ['القطاع', selectedOptionText('sectorSelect')],
-        ['التخصص / النشاط', selectedOptionText('activitySelect')],
+        ['النشاط الاقتصادي', selectedOptionText('activitySelect')],
         ['النموذج', context.model?.name_ar || context.model?.name_en || selectedOptionText('modelSelect')],
         ['العملة', currency || '-'],
+        ['سنة الأساس', String(context.baseYear || document.getElementById('baseYearInput').value || '-')],
+        ['فترة التوقع', ((context.baseYear || Number(document.getElementById('baseYearInput').value)) + 1) + '–' + ((context.baseYear || Number(document.getElementById('baseYearInput').value)) + Number(document.getElementById('yearsInput').value || 5))],
         ['مدة التحليل', ((document.getElementById('yearsInput').value || '5') + ' سنوات')],
         ['مصدر الإيراد', sourceLabel(context.inputSources?.revenue)],
         ['مصدر رأس المال', sourceLabel(context.inputSources?.capex)],
@@ -882,6 +981,21 @@
       ).join('');
 
       const risk = baseline.risk || {};
+      const scenarioRows = data.scenarios || [];
+      const worstNpv = scenarioRows.reduce((worst, row) => {
+        const delta = Number(row.comparison?.deltaNpv);
+        return Number.isFinite(delta) && (worst === null || delta < worst.delta) ? { name: row.name, delta } : worst;
+      }, null);
+      const highestRisk = scenarioRows.reduce((worst, row) => {
+        const delta = Number(row.comparison?.deltaRiskScore);
+        return Number.isFinite(delta) && (worst === null || delta > worst.delta) ? { name: row.name, delta } : worst;
+      }, null);
+      document.getElementById('decisionSummary').innerHTML =
+        '<div><strong>الوضع الأساسي:</strong> ' + escapeHtml(data.recommendation || 'لا توجد توصية متاحة.') + '</div>' +
+        (worstNpv ? '<div style="margin-top:.55rem;"><strong>أكبر ضغط على NPV:</strong> ' + escapeHtml(worstNpv.name) + ' (' + escapeHtml(formatNumber(worstNpv.delta)) + (currency ? ' ' + escapeHtml(currency) : '') + ')</div>' : '') +
+        (highestRisk ? '<div style="margin-top:.55rem;"><strong>أكبر زيادة في المخاطر:</strong> ' + escapeHtml(highestRisk.name) + ' (+' + escapeHtml(formatNumber(highestRisk.delta)) + ' نقطة)</div>' : '') +
+        '<div style="margin-top:.55rem;color:var(--text-secondary);">هذه خلاصة مقارنة بالـ Baseline وليست تنبؤاً مؤكداً؛ راجع الافتراضات والصدمات المعروضة قبل اتخاذ القرار.</div>';
+
       document.getElementById('analysisRecommendation').innerHTML =
         '<div style="font-weight:800;margin-bottom:.45rem;">التوصية المحسوبة</div>' +
         '<div>' + escapeHtml(data.recommendation || 'لا توجد توصية متاحة.') + '</div>' +
