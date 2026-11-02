@@ -463,21 +463,37 @@
     }
 
     function setSelectOptions(select, items, placeholder) {
+      const normalized = [
+        { value: '', label: placeholder },
+        ...items.map(item => ({
+          value: item.value,
+          label: item.label,
+          icon: item.icon || null,
+          disabled: !!item.disabled
+        }))
+      ];
+
+      let dropdown = window.getUniversalDropdown?.(select) || null;
+      if (!dropdown && window.initUniversalDropdowns) {
+        window.initUniversalDropdowns(select);
+        dropdown = window.getUniversalDropdown?.(select) || null;
+      }
+
+      if (dropdown && typeof dropdown.setOptions === 'function') {
+        dropdown.setOptions(normalized);
+        return;
+      }
+
       const fragment = document.createDocumentFragment();
-      const first = document.createElement('option');
-      first.value = '';
-      first.textContent = placeholder;
-      fragment.appendChild(first);
-      items.forEach(item => {
+      normalized.forEach(item => {
         const opt = document.createElement('option');
         opt.value = item.value;
         opt.textContent = item.label;
+        opt.disabled = item.disabled;
         if (item.icon) opt.dataset.icon = item.icon;
         fragment.appendChild(opt);
       });
       select.replaceChildren(fragment);
-      const dropdown = window.getUniversalDropdown?.(select);
-      if (dropdown) dropdown.refresh();
     }
 
     function invalidateResults() {
@@ -726,7 +742,8 @@
         const countrySelect = document.getElementById('countrySelect');
         setSelectOptions(countrySelect, countryOptions, 'اختر دولة');
         countrySelect.value = countryOptions.some(c => c.value === 'SA') ? 'SA' : (countryOptions[0]?.value || '');
-        window.getUniversalDropdown?.(countrySelect)?.refresh();
+        const countryDropdown = window.getUniversalDropdown?.(countrySelect);
+        if (countryDropdown) countryDropdown.value = countrySelect.value;
         updateInputCurrencyLabels(selectedCountryCurrency());
         updateForecastPeriod();
         updateBaselinePreview();
