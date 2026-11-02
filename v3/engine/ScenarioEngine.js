@@ -34,7 +34,7 @@ const SUPPORTED_OPTION_CODES = new Set(['revenue', 'capex']);
  * @param {Array} shocks — array of { code, type: 'relative' | 'absolute', value }
  * @returns {Array} adjusted assumptions
  */
-function applyShocks(assumptions, shocks) {
+function applyShocksWithDiagnostics(assumptions, shocks) {
   const adjusted = assumptions.map(a => ({ ...a }));
   const applied = [];
   const ignored = [];
@@ -123,7 +123,7 @@ function applyOptionShocks(baseOptions, modelData, shocks) {
  * @returns {Object} calculation result with scenario name
  */
 function calculateScenario(modelData, baseOptions = {}, scenario = {}) {
-  const assumptionShockResult = applyShocks(modelData.assumptions || [], scenario.shocks);
+  const assumptionShockResult = applyShocksWithDiagnostics(modelData.assumptions || [], scenario.shocks);
   const optionShockResult = applyOptionShocks(baseOptions, modelData, scenario.shocks);
   const modelDataCopy = {
     ...modelData,
