@@ -12,6 +12,7 @@ const { createClient } = require('@supabase/supabase-js');
 const { getSupabaseClient } = require('../lib/supabase');
 const { loadProjectModel } = require('../engine/loader');
 const ScenarioEngine = require('../engine/ScenarioEngine');
+const { recommend } = require('../engine/calculator');
 const { getUserFromToken } = require('../lib/auth');
 
 function getUserSupabaseClient(req) {
@@ -88,7 +89,7 @@ async function handleCalculateScenarios(req, res) {
     return sendJson(res, 400, { error: 'Invalid JSON body' });
   }
 
-  const { projectModelCode, cityCode, assumptions = {}, scenarios = [], save = false } = body;
+  const { projectModelCode, cityCode, countryCode, assumptions = {}, scenarios = [], save = false } = body;
 
   if (!projectModelCode) {
     return sendJson(res, 400, { error: 'projectModelCode is required' });
@@ -102,7 +103,7 @@ async function handleCalculateScenarios(req, res) {
 
   try {
     const supabase = getSupabaseClient();
-    const modelData = await loadProjectModel(supabase, projectModelCode, cityCode);
+    const modelData = await loadProjectModel(supabase, projectModelCode, cityCode, countryCode);
 
     const baseOptions = {
       revenue: assumptions.revenue,
@@ -112,6 +113,48 @@ async function handleCalculateScenarios(req, res) {
 
     const normalizedScenarios = scenarios.map(ScenarioEngine.normalizeScenario);
     const results = ScenarioEngine.runScenarios(modelData, baseOptions, normalizedScenarios);
+
+    const hasCityIndicators = Boolean(modelData.cityIndicators && Object.keys(modelData.cityIndicators).length);
+    const hasMarketData = Boolean(modelData.marketData && Object.keys(modelData.marketData).length);
+    const cityDataStatus = !cityCode
+      ? 'not_selected'
+      : hasCityIndicators && hasMarketData
+        ? 'indicators_and_market'
+        : hasCityIndicators
+          ? 'indicators_only'
+          : hasMarketData
+            ? 'market_only'
+            : 'location_only';
+
+    const resultContext = {
+      countryCode: countryCode || modelData.city?.country_code || modelData.countryContext?.country_code || null,
+      cityCode: cityCode || null,
+      city: modelData.city || null,
+      currencyCode: modelData.countryContext?.currency_code || modelData.projectModel?.default_currency || null,
+      modelStatus: modelData.countryContext?.model_status || null,
+      localized: Boolean(modelData.countryContext?.localized),
+      cityDataStatus,
+      cityConfidence: modelData.cityIndicators?.overall_confidence ?? null,
+      cityAdjustmentsApplied: results.baseline?.cityAdjustments || [],
+      cityIndicatorsUsed: results.baseline?.cityIndicators || null,
+      model: {
+        code: modelData.projectModel?.code || projectModelCode,
+        name_ar: modelData.projectModel?.name_ar || null,
+        name_en: modelData.projectModel?.name_en || null
+      },
+      inputSources: {
+        revenue: assumptions.revenue !== undefined ? 'user' : 'model',
+        capex: assumptions.capex !== undefined ? 'user' : 'model',
+        projectionYears: assumptions.projectionYears !== undefined ? 'user' : 'default'
+      }
+    };
+
+    results.recommendation = recommend(results.baseline, modelData.marketData || {});
+    results.scenarios = results.scenarios.map(item => ({
+      ...item,
+      recommendation: recommend(item.result, modelData.marketData || {})
+    }));
+    results.context = resultContext;
 
     // Save scenarios if requested and user is authenticated
     let saved = [];
@@ -257,6 +300,13 @@ async function handleDeleteScenario(req, res, id) {
 }
 
 async function scenariosRouter(req, res, path) {
+  if (path === '/calculate/scenarios/presets' && req.method === 'GET') {
+    const codes = ['recession', 'high_inflation', 'labor_shortage', 'rent_boom', 'sales_drop'];
+    return sendJson(res, 200, {
+      presets: codes.map(code => ({ code, ...ScenarioEngine.getPreset(code) })).filter(item => item.name)
+    });
+  }
+
   if (path === '/calculate/scenarios' && req.method === 'POST') {
     return handleCalculateScenarios(req, res);
   }

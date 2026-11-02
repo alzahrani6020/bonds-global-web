@@ -34,14 +34,22 @@ const SUPPORTED_OPTION_CODES = new Set(['revenue', 'capex']);
  * @param {Array} shocks — array of { code, type: 'relative' | 'absolute', value }
  * @returns {Array} adjusted assumptions
  */
-function applyShocks(assumptions, shocks) {
+function applyShocksWithDiagnostics(assumptions, shocks) {
   const adjusted = assumptions.map(a => ({ ...a }));
+  const applied = [];
+  const ignored = [];
 
   for (const shock of shocks || []) {
-    if (!SUPPORTED_ASSUMPTION_CODES.has(shock.code)) continue;
+    if (!SUPPORTED_ASSUMPTION_CODES.has(shock.code)) {
+      ignored.push({ ...shock, reason: 'unsupported_assumption_code' });
+      continue;
+    }
 
     const idx = adjusted.findIndex(a => a.code === shock.code);
-    if (idx < 0) continue;
+    if (idx < 0) {
+      ignored.push({ ...shock, reason: 'assumption_not_available_in_model' });
+      continue;
+    }
 
     const isPercentage = adjusted[idx].unit_type === 'percentage';
     const currentValue = Number(adjusted[idx].value);
@@ -64,9 +72,14 @@ function applyShocks(assumptions, shocks) {
     }
 
     adjusted[idx].value = round(newValue, isPercentage ? 2 : 4);
+    applied.push({ ...shock, resultValue: adjusted[idx].value, unitType: adjusted[idx].unit_type });
   }
 
-  return adjusted;
+  return { assumptions: adjusted, applied, ignored };
+}
+
+function applyShocks(assumptions, shocks) {
+  return applyShocksWithDiagnostics(assumptions, shocks).assumptions;
 }
 
 function median(a, b) {
@@ -79,6 +92,7 @@ function median(a, b) {
 function applyOptionShocks(baseOptions, modelData, shocks) {
   const model = modelData.projectModel || {};
   const newOptions = { ...baseOptions };
+  const applied = [];
 
   const baseRevenue = baseOptions.revenue || median(model.revenue_min, model.revenue_max);
   const baseCapex = baseOptions.capex || median(model.capex_min, model.capex_max);
@@ -90,6 +104,7 @@ function applyOptionShocks(baseOptions, modelData, shocks) {
       } else {
         newOptions.revenue = baseRevenue * (1 + Number(shock.value));
       }
+      applied.push({ ...shock, resultValue: newOptions.revenue, target: 'revenue' });
     }
     if (shock.code === 'capex') {
       if (shock.type === 'absolute') {
@@ -97,10 +112,11 @@ function applyOptionShocks(baseOptions, modelData, shocks) {
       } else {
         newOptions.capex = baseCapex * (1 + Number(shock.value));
       }
+      applied.push({ ...shock, resultValue: newOptions.capex, target: 'capex' });
     }
   }
 
-  return newOptions;
+  return { options: newOptions, applied };
 }
 
 /**
@@ -111,13 +127,26 @@ function applyOptionShocks(baseOptions, modelData, shocks) {
  * @returns {Object} calculation result with scenario name
  */
 function calculateScenario(modelData, baseOptions = {}, scenario = {}) {
+  const assumptionShockResult = applyShocksWithDiagnostics(modelData.assumptions || [], scenario.shocks);
+  const optionShockResult = applyOptionShocks(baseOptions, modelData, scenario.shocks);
   const modelDataCopy = {
     ...modelData,
-    assumptions: applyShocks(modelData.assumptions || [], scenario.shocks)
+    assumptions: assumptionShockResult.assumptions
   };
 
-  const newOptions = applyOptionShocks(baseOptions, modelData, scenario.shocks);
-  const result = calculate(modelDataCopy, newOptions);
+  const result = calculate(modelDataCopy, optionShockResult.options);
+
+  const appliedShockKeys = new Set(
+    [...assumptionShockResult.applied, ...optionShockResult.applied]
+      .map(shock => [shock.code, shock.type, String(shock.value)].join('|'))
+  );
+  const ignoredOptionShocks = (scenario.shocks || [])
+    .filter(shock => SUPPORTED_OPTION_CODES.has(shock.code))
+    .filter(shock => !appliedShockKeys.has([shock.code, shock.type, String(shock.value)].join('|')))
+    .map(shock => ({ ...shock, reason: 'option_shock_not_applied' }));
+  const ignoredUnsupported = (scenario.shocks || [])
+    .filter(shock => !SUPPORTED_ASSUMPTION_CODES.has(shock.code) && !SUPPORTED_OPTION_CODES.has(shock.code))
+    .map(shock => ({ ...shock, reason: 'unsupported_shock_code' }));
 
   // Apply optional risk score delta
   if (scenario.riskScoreDelta) {
@@ -128,6 +157,12 @@ function calculateScenario(modelData, baseOptions = {}, scenario = {}) {
   return {
     name: scenario.name || 'سيناريو',
     shocks: scenario.shocks || [],
+    appliedShocks: [...assumptionShockResult.applied, ...optionShockResult.applied],
+    ignoredShocks: [
+      ...assumptionShockResult.ignored.filter(shock => shock.reason === 'assumption_not_available_in_model'),
+      ...ignoredOptionShocks,
+      ...ignoredUnsupported
+    ],
     riskScoreDelta: scenario.riskScoreDelta || 0,
     result
   };

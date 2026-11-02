@@ -376,7 +376,7 @@ function calculate(modelData, options = {}) {
  * Generate a human-readable recommendation in Arabic.
  */
 function recommend(calcResult, marketData = {}) {
-  const { summary, risk } = calcResult;
+  const { summary = {}, risk = {} } = calcResult || {};
   const parts = [];
 
   if (summary.npv > 0 && summary.irr > 15) {

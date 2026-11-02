@@ -42,9 +42,36 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain('legacy_sector_mapping_confidence');
   });
 
-  test('renders preset scenarios safely before engine normalization', () => {
-    expect(scenarioPage).toContain('Array.isArray(scenario.shocks) ? scenario.shocks : []');
-    expect(scenarioPage).toContain('سيتم تطبيق الصدمات الجاهزة عند تشغيل التحليل.');
+  test('renders authoritative preset shock details before calculation', () => {
+    expect(scenarioPage).toContain("API_URL + '/calculate/scenarios/presets'");
+    expect(scenarioPage).toContain('presetCatalog.get(scenario.preset)');
+    expect(scenarioPage).not.toContain('سيتم تطبيق الصدمات الجاهزة عند تشغيل التحليل.');
+  });
+
+  test('passes country context and uses dynamic calculation currency', () => {
+    expect(scenarioPage).toContain('payload.countryCode = countryCode');
+    expect(scenarioPage).toContain('context.currencyCode');
+    expect(scenarioPage).toContain("currency || 'عملة النموذج'");
+  });
+
+  test('shows city effect, risk, confidence and full scenario deltas', () => {
+    expect(scenarioPage).toContain('id="cityImpactSummary"');
+    expect(scenarioPage).toContain('context.cityAdjustmentsApplied');
+    expect(scenarioPage).toContain('context.cityConfidence');
+    expect(scenarioPage).toContain("['التغير في IRR', 'deltaIrr'");
+    expect(scenarioPage).toContain("['التغير في المخاطر', 'deltaRiskScore'");
+    expect(scenarioPage).toContain("get: r => r.risk?.score");
+  });
+
+  test('treats relative custom shock input as a human percentage', () => {
+    expect(scenarioPage).toContain("const value = type === 'relative' ? rawValue / 100 : rawValue");
+    expect(scenarioPage).toContain('placeholder="10"');
+  });
+
+  test('shows applied and ignored shock diagnostics', () => {
+    expect(scenarioPage).toContain('s.appliedShocks || []');
+    expect(scenarioPage).toContain('s.ignoredShocks || []');
+    expect(scenarioPage).toContain('لم يطبق');
   });
 
   test('caps client-side scenario count at the API maximum', () => {
