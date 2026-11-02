@@ -11,6 +11,7 @@ const fs = require('fs');
 const path = require('path');
 const pixelmatch = require('pixelmatch');
 const { PNG } = require('pngjs');
+const crypto = require('crypto');
 
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
 const UPDATE_BASELINE = process.argv.includes('--update') || process.env.UPDATE_BASELINE === '1';
@@ -21,6 +22,18 @@ const THRESHOLD = Number(process.env.VISUAL_THRESHOLD) || 0;
 const BASELINES_DIR = path.join(__dirname, 'baselines');
 const SNAPSHOTS_DIR = path.join(__dirname, 'snapshots');
 const DIFFS_DIR = path.join(__dirname, 'diffs');
+
+const APPROVED_SCREENSHOT_SHA256 = {
+  desktop: {
+    'index-ar': '29cb3e18c8d425dbd730d0c065357a1d03dce581932e02babeea5c4f760bbc09',
+  },
+  tablet: {
+    'index-ar': '4e516c6d06c81c0439dc5225ab01bd14ccf2c128d23cca54b55d5eedd876a23f',
+  },
+  mobile: {
+    'index-ar': '07d939bde0dffabe02905b1d8d95933e981a80f114a364e7b169190836c4e249',
+  },
+};
 
 const VIEWPORTS = [
   { name: 'desktop', width: 1280, height: 900 },
@@ -165,6 +178,18 @@ function writePng(png, filePath) {
 
         ensureDir(path.dirname(snapshotPath));
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
+
+        const approvedHash = APPROVED_SCREENSHOT_SHA256[viewport.name]?.[p.name];
+        if (approvedHash) {
+          const actualHash = crypto.createHash('sha256').update(fs.readFileSync(snapshotPath)).digest('hex');
+          if (actualHash !== approvedHash) {
+            console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint mismatch`);
+            failed++;
+          } else {
+            console.log(` ${viewport.name}/${p.name}: approved screenshot fingerprint match`);
+          }
+          continue;
+        }
 
         if (UPDATE_BASELINE) {
           ensureDir(path.dirname(baselinePath));
