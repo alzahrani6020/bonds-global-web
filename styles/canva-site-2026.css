@@ -168,3 +168,15 @@ body.canva-site main{overflow:hidden}
   .canva-trust-row{display:grid;grid-template-columns:1fr 1fr}
   .bonds-service-discovery{width:calc(100% - 20px)!important}
 }
+
+
+/* Canva 2026 shared header override */
+.canva-site .main-header{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,.96)!important;border-bottom:1px solid var(--bonds-line)!important;box-shadow:none!important;backdrop-filter:blur(16px)}
+.canva-site .main-header__inner{width:min(var(--bonds-max),calc(100% - 32px))!important;max-width:none!important;margin:0 auto!important;min-height:78px!important;padding:0!important}
+.canva-site .header-brand__image{width:112px!important;height:auto!important;object-fit:contain}
+.canva-site .main-nav>ul{gap:.25rem!important}
+.canva-site .main-nav a,.canva-site .dropdown-toggle{color:var(--bonds-navy)!important;font-weight:700!important;border-radius:8px!important}
+.canva-site .main-nav a:hover,.canva-site .dropdown-toggle:hover{background:#f5f7fa!important}
+.canva-site .header-actions .btn,.canva-site .header-cta{border-radius:9px!important}
+.canva-site .dropdown-menu{border:1px solid var(--bonds-line)!important;border-radius:14px!important;box-shadow:0 24px 60px rgba(11,31,58,.12)!important}
+@media(max-width:1280px){.canva-site .main-header__inner{width:calc(100% - 20px)!important}}
