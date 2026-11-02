@@ -14,8 +14,8 @@ describe('homepage illustrative market data labels', () => {
     expect(html).not.toContain('<span>LIVE</span>');
     expect(html).not.toContain('SPREAD');
     expect(html).not.toContain('SOFR');
-    expect(html).toContain('منهجية القرار');
-    expect(html).toContain('دون أرقام استعراضية أو افتراضات غير موثقة');
+    expect(html).toContain('رؤية أوسع لقرارات أدق');
+    expect(html).toContain('الاعتماد على بيانات موثوقة');
   });
 
   test('English homepage does not present static market figures as live', () => {
