@@ -276,6 +276,15 @@
 
     <div id="resultsArea" class="hidden">
       <div class="card">
+        <h3>ملخص التحليل</h3>
+        <div id="analysisContext" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;"></div>
+        <div id="analysisRecommendation" style="margin-top:1rem;padding:1rem;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.02);"></div>
+      </div>
+      <div class="card">
+        <h3>أثر المدينة والبيانات المستخدمة</h3>
+        <div id="cityImpactSummary"></div>
+      </div>
+      <div class="card">
         <h3>▤ مقارنة المؤشرات المالية</h3>
         <div style="overflow-x: auto;">
           <table class="metrics-table" id="metricsTable">
@@ -286,6 +295,10 @@
         <div class="chart-container">
           <canvas id="comparisonChart"></canvas>
         </div>
+      </div>
+      <div class="card">
+        <h3>تفاصيل تطبيق السيناريوهات</h3>
+        <div id="scenarioDiagnostics"></div>
       </div>
     </div>
   </div>
@@ -312,6 +325,7 @@
     let models = [];
     let cities = [];
     let scenarios = [];
+    let presetCatalog = new Map();
     let chart = null;
     let contextLoadSequence = 0;
 
@@ -599,6 +613,13 @@
 
     async function init() {
       try {
+        try {
+          const presetData = await fetchJsonWithRetry(API_URL + '/calculate/scenarios/presets');
+          presetCatalog = new Map((presetData.presets || []).map(item => [item.code, item]));
+        } catch (presetError) {
+          console.error(presetError);
+          presetCatalog = new Map();
+        }
         const countriesData = await fetchJsonWithRetry(API_URL + '/catalog/countries');
         countries = (countriesData.countries || []).filter(c => c.is_supported !== false);
         const countryOptions = countries.map(c => ({
@@ -641,7 +662,7 @@
           <option value="relative">نسبي %</option>
           <option value="absolute">مطلق</option>
         </select>
-        <input type="number" class="shock-value" placeholder="0.1" step="0.01">
+        <input type="number" class="shock-value" placeholder="10" step="0.1">
         <button class="btn btn-danger remove-shock">×</button>
       `;
       div.querySelector('.remove-shock').addEventListener('click', () => div.remove());
@@ -659,8 +680,11 @@
       rows.forEach(row => {
         const code = row.querySelector('.shock-code').value;
         const type = row.querySelector('.shock-type').value;
-        const value = parseFloat(row.querySelector('.shock-value').value);
-        if (!isNaN(value)) shocks.push({ code, type, value });
+        const rawValue = parseFloat(row.querySelector('.shock-value').value);
+        if (!isNaN(rawValue)) {
+          const value = type === 'relative' ? rawValue / 100 : rawValue;
+          shocks.push({ code, type, value });
+        }
       });
       return shocks;
     }
@@ -672,10 +696,13 @@
         return;
       }
       list.innerHTML = scenarios.map((scenario, index) => {
-        const shocks = Array.isArray(scenario.shocks) ? scenario.shocks : [];
+        const preset = scenario.preset ? presetCatalog.get(scenario.preset) : null;
+        const shocks = Array.isArray(scenario.shocks) && scenario.shocks.length
+          ? scenario.shocks
+          : (preset?.shocks || []);
         const details = shocks.length
-          ? shocks.map(sh => '<li>' + escapeHtml(shockLabel(sh.code)) + ': ' + escapeHtml(sh.type === 'relative' ? (sh.value * 100).toFixed(1) + '%' : sh.value) + '</li>').join('')
-          : '<li>سيتم تطبيق الصدمات الجاهزة عند تشغيل التحليل.</li>';
+          ? shocks.map(sh => '<li>' + escapeHtml(shockLabel(sh.code)) + ': ' + escapeHtml(sh.type === 'relative' ? (Number(sh.value) * 100).toFixed(1) + '%' : sh.value) + '</li>').join('')
+          : '<li>لا توجد تفاصيل صدمات متاحة.</li>';
         return '<div class="scenario-item">' +
           '<h4>' + escapeHtml(scenario.name) + '</h4>' +
           '<ul style="margin:0;padding-right:1.2rem;color:var(--text-secondary);font-size:.9rem;">' + details + '</ul>' +
@@ -755,6 +782,7 @@
         projectionYears: years
       };
       const cityCode = document.getElementById('citySelect').value || undefined;
+      const countryCode = document.getElementById('countrySelect').value || undefined;
 
       const previousText = runBtn.textContent;
       runBtn.disabled = true;
@@ -762,6 +790,7 @@
       try {
         const payload = { projectModelCode: modelCode, assumptions, scenarios };
         if (cityCode) payload.cityCode = cityCode;
+        if (countryCode) payload.countryCode = countryCode;
         const res = await fetchJson(API_URL + '/calculate/scenarios', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -776,48 +805,136 @@
       }
     });
 
+    function selectedOptionText(id) {
+      const select = document.getElementById(id);
+      return select?.selectedOptions?.[0]?.textContent?.trim() || '-';
+    }
+
+    function sourceLabel(source) {
+      return ({ user:'إدخال المستخدم', model:'النموذج', default:'قيمة افتراضية' })[source] || source || '-';
+    }
+
+    function cityDataStatusLabel(status) {
+      return ({
+        not_selected:'لم يتم اختيار مدينة',
+        indicators_and_market:'مؤشرات مدينة + بيانات سوق',
+        indicators_only:'مؤشرات مدينة فقط',
+        market_only:'بيانات سوق فقط',
+        location_only:'موقع فقط — لا توجد بيانات محلية مؤثرة'
+      })[status] || status || '-';
+    }
+
     function renderResults(data) {
       const resultsArea = document.getElementById('resultsArea');
       resultsArea.classList.remove('hidden');
 
-      const table = document.getElementById('metricsTable');
-      const all = [{ name: 'الوضع الأساسي', result: data.baseline, comparison: null }, ...data.scenarios];
+      const context = data.context || {};
+      const currency = context.currencyCode || '';
+      const money = value => value === null || value === undefined ? '-' : formatNumber(value) + (currency ? ' ' + currency : '');
+      const baseline = data.baseline || {};
+      const all = [{ name: 'الوضع الأساسي', result: baseline, comparison: null }, ...(data.scenarios || [])];
 
+      const contextItems = [
+        ['الدولة', selectedOptionText('countrySelect')],
+        ['المدينة', selectedOptionText('citySelect')],
+        ['القطاع', selectedOptionText('sectorSelect')],
+        ['التخصص / النشاط', selectedOptionText('activitySelect')],
+        ['النموذج', context.model?.name_ar || context.model?.name_en || selectedOptionText('modelSelect')],
+        ['العملة', currency || '-'],
+        ['مصدر الإيراد', sourceLabel(context.inputSources?.revenue)],
+        ['مصدر رأس المال', sourceLabel(context.inputSources?.capex)],
+        ['حالة توطين النموذج', context.localized ? 'معدل للدولة' : (context.modelStatus || 'غير موطن')]
+      ];
+      document.getElementById('analysisContext').innerHTML = contextItems.map(([label,value]) =>
+        '<div style="padding:.8rem;border:1px solid var(--border);border-radius:9px;"><div style="color:var(--text-secondary);font-size:.78rem;">' +
+        escapeHtml(label) + '</div><div style="font-weight:700;margin-top:.2rem;">' + escapeHtml(value) + '</div></div>'
+      ).join('');
+
+      const risk = baseline.risk || {};
+      document.getElementById('analysisRecommendation').innerHTML =
+        '<div style="font-weight:800;margin-bottom:.45rem;">التوصية المحسوبة</div>' +
+        '<div>' + escapeHtml(data.recommendation || 'لا توجد توصية متاحة.') + '</div>' +
+        '<div style="margin-top:.65rem;color:var(--text-secondary);">المخاطر: ' +
+        escapeHtml(risk.score ?? '-') + ' / 100 — ' + escapeHtml(risk.level || '-') + '</div>';
+
+      const adjustments = context.cityAdjustmentsApplied || [];
+      const confidence = context.cityConfidence;
+      let cityHtml = '<div style="margin-bottom:.75rem;"><strong>حالة بيانات المدينة:</strong> ' +
+        escapeHtml(cityDataStatusLabel(context.cityDataStatus)) + '</div>';
+      cityHtml += '<div style="margin-bottom:.75rem;"><strong>الثقة المحلية:</strong> ' +
+        escapeHtml(confidence === null || confidence === undefined ? 'غير متاحة' : confidence) + '</div>';
+      if (adjustments.length) {
+        cityHtml += '<div style="overflow-x:auto;"><table class="metrics-table"><thead><tr><th>الافتراض</th><th>قبل</th><th>بعد</th><th>سبب التعديل</th></tr></thead><tbody>' +
+          adjustments.map(item =>
+            '<tr><td>' + escapeHtml(shockLabel(item.code)) + '</td><td>' + escapeHtml(item.oldValue) +
+            '</td><td>' + escapeHtml(item.newValue) + '</td><td>' + escapeHtml(item.reason || '-') + '</td></tr>'
+          ).join('') + '</tbody></table></div>';
+      } else if (context.cityCode) {
+        cityHtml += '<div style="color:var(--text-secondary);">لم يطبق المحرك أي تعديل على الافتراضات بسبب المدينة في هذا التحليل.</div>';
+      } else {
+        cityHtml += '<div style="color:var(--text-secondary);">لم يتم اختيار مدينة.</div>';
+      }
+      document.getElementById('cityImpactSummary').innerHTML = cityHtml;
+
+      const table = document.getElementById('metricsTable');
       const metrics = [
-        { key: 'npv', label: 'NPV (ر.س)', fmt: v => formatNumber(v) },
-        { key: 'irr', label: 'IRR %', fmt: v => v !== null ? v.toFixed(2) + '%' : '-' },
-        { key: 'paybackMonths', label: 'فترة الاسترداد (شهر)', fmt: v => v !== null ? v.toFixed(1) : '-' },
-        { key: 'breakEvenRevenue', label: 'تعادل الإيرادات (ر.س)', fmt: v => formatNumber(v) },
-        { key: 'dscr', label: 'DSCR', fmt: v => v !== null ? v.toFixed(2) : '-' },
-        { key: 'annualRevenue', label: 'الإيراد السنوي (ر.س)', fmt: v => formatNumber(v) },
-        { key: 'annualProfit', label: 'صافي الربح (ر.س)', fmt: v => formatNumber(v) }
+        { label: 'NPV (' + (currency || 'عملة النموذج') + ')', get: r => r.summary?.npv, fmt: money },
+        { label: 'IRR %', get: r => r.summary?.irr, fmt: v => v !== null && v !== undefined ? Number(v).toFixed(2) + '%' : '-' },
+        { label: 'فترة الاسترداد (شهر)', get: r => r.summary?.paybackMonths, fmt: v => v !== null && v !== undefined ? Number(v).toFixed(1) : '-' },
+        { label: 'تعادل الإيرادات (' + (currency || 'عملة النموذج') + ')', get: r => r.summary?.breakEvenRevenue, fmt: money },
+        { label: 'DSCR', get: r => r.summary?.dscr, fmt: v => v !== null && v !== undefined ? Number(v).toFixed(2) : '-' },
+        { label: 'الإيراد السنوي (' + (currency || 'عملة النموذج') + ')', get: r => r.summary?.annualRevenue, fmt: money },
+        { label: 'صافي الربح (' + (currency || 'عملة النموذج') + ')', get: r => r.summary?.annualProfit, fmt: money },
+        { label: 'درجة المخاطر', get: r => r.risk?.score, fmt: v => v !== null && v !== undefined ? Number(v).toFixed(1) + ' / 100' : '-' }
       ];
 
       let thead = '<tr><th>المؤشر</th>' + all.map(s => {
         const badge = s.comparison ? impactBadge(s.comparison.impact) : '';
-        return `<th>${s.name} ${badge}</th>`;
+        return '<th>' + escapeHtml(s.name) + ' ' + badge + '</th>';
       }).join('') + '</tr>';
 
       let tbody = metrics.map(m => {
-        let row = `<td>${m.label}</td>`;
+        let row = '<td>' + escapeHtml(m.label) + '</td>';
         all.forEach(s => {
-          row += `<td>${m.fmt(s.result.summary[m.key])}</td>`;
+          row += '<td>' + m.fmt(m.get(s.result || {})) + '</td>';
         });
-        return `<tr>${row}</tr>`;
+        return '<tr>' + row + '</tr>';
       }).join('');
 
-      // Add delta row for scenarios
-      let deltaRow = '<td>التأثير على NPV</td>';
-      deltaRow += '<td>-</td>';
-      data.scenarios.forEach(s => {
-        deltaRow += `<td class="${impactClass(s.comparison.impact)}">${formatNumber(s.comparison.deltaNpv)}</td>`;
-      });
-      tbody += `<tr>${deltaRow}</tr>`;
+      const deltaRows = [
+        ['التغير في NPV', 'deltaNpv', money],
+        ['التغير في IRR', 'deltaIrr', v => (v > 0 ? '+' : '') + Number(v || 0).toFixed(2) + ' نقطة'],
+        ['التغير في الاسترداد', 'deltaPaybackMonths', v => (v > 0 ? '+' : '') + Number(v || 0).toFixed(1) + ' شهر'],
+        ['التغير في DSCR', 'deltaDscr', v => (v > 0 ? '+' : '') + Number(v || 0).toFixed(2)],
+        ['التغير في المخاطر', 'deltaRiskScore', v => (v > 0 ? '+' : '') + Number(v || 0).toFixed(1) + ' نقطة']
+      ];
+      for (const [label,key,fmt] of deltaRows) {
+        let row = '<td>' + escapeHtml(label) + '</td><td>-</td>';
+        (data.scenarios || []).forEach(s => {
+          row += '<td class="' + impactClass(s.comparison?.impact) + '">' + fmt(s.comparison?.[key]) + '</td>';
+        });
+        tbody += '<tr>' + row + '</tr>';
+      }
 
       table.querySelector('thead').innerHTML = thead;
       table.querySelector('tbody').innerHTML = tbody;
 
-      renderChart(all, metrics);
+      document.getElementById('scenarioDiagnostics').innerHTML = (data.scenarios || []).map(s => {
+        const applied = s.appliedShocks || [];
+        const ignored = s.ignoredShocks || [];
+        const appliedHtml = applied.length
+          ? '<ul>' + applied.map(sh => '<li>' + escapeHtml(shockLabel(sh.code)) + ': تم التطبيق</li>').join('') + '</ul>'
+          : '<div style="color:var(--text-secondary);">لا توجد صدمات مطبقة.</div>';
+        const ignoredHtml = ignored.length
+          ? '<ul>' + ignored.map(sh => '<li>' + escapeHtml(shockLabel(sh.code)) + ': لم يطبق — ' + escapeHtml(sh.reason || 'غير متاح') + '</li>').join('') + '</ul>'
+          : '<div style="color:var(--text-secondary);">لا توجد صدمات متجاهلة.</div>';
+        return '<div class="scenario-item"><h4>' + escapeHtml(s.name) + '</h4>' +
+          '<div><strong>المطبق:</strong>' + appliedHtml + '</div>' +
+          '<div><strong>غير المطبق:</strong>' + ignoredHtml + '</div>' +
+          '<div style="margin-top:.5rem;"><strong>التوصية:</strong> ' + escapeHtml(s.recommendation || '-') + '</div></div>';
+      }).join('');
+
+      renderChart(all, metrics, currency);
       resultsArea.scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -830,7 +947,7 @@
       return `<span class="badge badge-${impact || 'neutral'}">${labels[impact] || impact}</span>`;
     }
 
-    function renderChart(all, metrics) {
+    function renderChart(all, metrics, currency = '') {
       const ctx = document.getElementById('comparisonChart').getContext('2d');
       if (chart) chart.destroy();
 
@@ -843,7 +960,7 @@
         data: {
           labels,
           datasets: [
-            { label: 'NPV (مليون ر.س)', data: npvData.map(v => v / 1e6), backgroundColor: '#d4a853' },
+            { label: 'NPV (مليون ' + (currency || 'عملة النموذج') + ')', data: npvData.map(v => v / 1e6), backgroundColor: '#d4a853' },
             { label: 'IRR %', data: irrData, yAxisID: 'y1', backgroundColor: '#22c55e' }
           ]
         },
@@ -853,7 +970,7 @@
           plugins: { legend: { labels: { color: '#e8ecf4' } } },
           scales: {
             x: { ticks: { color: '#94a3b8' } },
-            y: { ticks: { color: '#94a3b8' }, title: { display: true, text: 'NPV (مليون ر.س)', color: '#94a3b8' } },
+            y: { ticks: { color: '#94a3b8' }, title: { display: true, text: 'NPV (مليون ' + (currency || 'عملة النموذج') + ')', color: '#94a3b8' } },
             y1: { position: 'right', ticks: { color: '#94a3b8' }, title: { display: true, text: 'IRR %', color: '#94a3b8' }, grid: { drawOnChartArea: false } }
           }
         }
