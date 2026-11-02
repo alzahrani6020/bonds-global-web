@@ -262,3 +262,13 @@ body.heritage-public .fi-hero .fi-btn--secondary:visited{
   background:#fff!important;
   border-color:#5f5a52!important;
 }
+
+
+/* English public CTA: secondary action sits on a dark background */
+body.heritage-public .fi-cta-section .fi-btn--secondary,
+body.heritage-public .fi-cta-section .fi-btn--secondary:visited{
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  background:transparent!important;
+  border-color:rgba(255,255,255,.88)!important;
+}
