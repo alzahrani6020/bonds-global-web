@@ -101,14 +101,33 @@ async function handleCalculateScenarios(req, res) {
     return sendJson(res, 400, { error: 'Maximum 10 scenarios per request' });
   }
 
+  const projectionYears = assumptions.projectionYears === undefined ? 5 : Number(assumptions.projectionYears);
+  const baseYear = assumptions.baseYear === undefined ? new Date().getUTCFullYear() : Number(assumptions.baseYear);
+  const revenue = assumptions.revenue === undefined ? undefined : Number(assumptions.revenue);
+  const capex = assumptions.capex === undefined ? undefined : Number(assumptions.capex);
+
+  if (!Number.isInteger(projectionYears) || projectionYears < 1 || projectionYears > 10) {
+    return sendJson(res, 400, { error: 'projectionYears must be an integer between 1 and 10' });
+  }
+  if (!Number.isInteger(baseYear) || baseYear < 2000 || baseYear > 2100) {
+    return sendJson(res, 400, { error: 'baseYear must be an integer between 2000 and 2100' });
+  }
+  if (revenue !== undefined && (!Number.isFinite(revenue) || revenue < 0)) {
+    return sendJson(res, 400, { error: 'revenue must be a non-negative number' });
+  }
+  if (capex !== undefined && (!Number.isFinite(capex) || capex < 0)) {
+    return sendJson(res, 400, { error: 'capex must be a non-negative number' });
+  }
+
   try {
     const supabase = getSupabaseClient();
     const modelData = await loadProjectModel(supabase, projectModelCode, cityCode, countryCode);
 
     const baseOptions = {
-      revenue: assumptions.revenue,
-      capex: assumptions.capex,
-      projectionYears: assumptions.projectionYears || 5
+      revenue,
+      capex,
+      projectionYears,
+      baseYear
     };
 
     const normalizedScenarios = scenarios.map(ScenarioEngine.normalizeScenario);
@@ -131,6 +150,10 @@ async function handleCalculateScenarios(req, res) {
       cityCode: cityCode || null,
       city: modelData.city || null,
       currencyCode: modelData.countryContext?.currency_code || modelData.projectModel?.default_currency || null,
+      baseYear,
+      projectionYears,
+      forecastStartYear: baseYear + 1,
+      forecastEndYear: baseYear + projectionYears,
       modelStatus: modelData.countryContext?.model_status || null,
       localized: Boolean(modelData.countryContext?.localized),
       cityDataStatus,
@@ -145,7 +168,8 @@ async function handleCalculateScenarios(req, res) {
       inputSources: {
         revenue: assumptions.revenue !== undefined ? 'user' : 'model',
         capex: assumptions.capex !== undefined ? 'user' : 'model',
-        projectionYears: assumptions.projectionYears !== undefined ? 'user' : 'default'
+        projectionYears: assumptions.projectionYears !== undefined ? 'user' : 'default',
+        baseYear: assumptions.baseYear !== undefined ? 'user' : 'default'
       }
     };
 
