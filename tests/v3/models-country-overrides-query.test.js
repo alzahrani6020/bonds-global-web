@@ -30,6 +30,9 @@ describe('country model override query contract', () => {
     expect(apiIndex).toContain(".eq('investment_sector_id', canonicalSector.id)");
     expect(apiIndex).toContain(".eq('is_primary', true)");
     expect(apiIndex).toContain(".from('canonical_activity_legacy_aliases')");
+    expect(apiIndex).toContain(".from('canonical_activity_investment_sectors')");
+    expect(apiIndex).toContain(".eq('sector_id', investmentSector.id)");
+    expect(apiIndex).toContain("allowedCanonicalActivityIds.has(model.canonical_activity.id)");
     expect(apiIndex).toContain('canonical_activity: canonicalByLegacyActivityId.get(model.activity_id) || null');
   });
 });
