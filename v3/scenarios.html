@@ -512,16 +512,24 @@
         profileGroups.get(key).push(model);
       });
 
+      const groups = [...profileGroups.values()];
+      const profileCountBySize = new Map();
+      groups.forEach(group => {
+        const size = group[0]?.size_category || '';
+        profileCountBySize.set(size, (profileCountBySize.get(size) || 0) + 1);
+      });
+
       const options = [];
-      for (const group of profileGroups.values()) {
+      for (const group of groups) {
         group.sort((a,b) =>
           (Number(b.legacy_sector_mapping_confidence || 0) - Number(a.legacy_sector_mapping_confidence || 0)) ||
           String(a.code).localeCompare(String(b.code))
         );
         const representative = group[0];
+        const needsContext = (profileCountBySize.get(representative.size_category || '') || 0) > 1;
         options.push({
           value: representative.code,
-          label: modelDisplayLabel(representative, false)
+          label: modelDisplayLabel(representative, needsContext)
         });
       }
 
