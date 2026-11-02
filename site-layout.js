@@ -950,6 +950,26 @@
     if (head) head.appendChild(link);
   }
 
+  function ensurePublicHeritageIdentity() {
+    const path = (window.location.pathname || '/').toLowerCase();
+    const excluded = [
+      '/admin', '/client', '/calculators', '/auth', '/my-bonds',
+      '/v3', '/api', '/service-request', '/en/service-request'
+    ];
+    if (excluded.some(prefix => path === prefix || path.startsWith(prefix + '/'))) return;
+
+    document.body.classList.add('heritage-public');
+
+    const href = '/styles/heritage-public.css?v=1';
+    let link = document.querySelector('link[href*="heritage-public.css"]');
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'stylesheet';
+      document.head.appendChild(link);
+    }
+    if (!link.href.includes('heritage-public.css?v=1')) link.href = href;
+  }
+
   function initThemeToggle() {
     // The public institutional interface is intentionally single-theme.
     // Remove any legacy empty theme control left by older cached layout code.
@@ -1021,6 +1041,7 @@
     const lang = detectLang();
     const base = getBase();
     ensureLayoutCSS();
+    ensurePublicHeritageIdentity();
 
     // Ensure <main> has an id for skip-link targeting
     const mainEl = document.querySelector('main');
