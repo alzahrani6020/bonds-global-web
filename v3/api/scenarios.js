@@ -300,6 +300,13 @@ async function handleDeleteScenario(req, res, id) {
 }
 
 async function scenariosRouter(req, res, path) {
+  if (path === '/calculate/scenarios/presets' && req.method === 'GET') {
+    const codes = ['recession', 'high_inflation', 'labor_shortage', 'rent_boom', 'sales_drop'];
+    return sendJson(res, 200, {
+      presets: codes.map(code => ({ code, ...ScenarioEngine.getPreset(code) })).filter(item => item.name)
+    });
+  }
+
   if (path === '/calculate/scenarios' && req.method === 'POST') {
     return handleCalculateScenarios(req, res);
   }
