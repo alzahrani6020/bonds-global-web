@@ -243,7 +243,7 @@
           <label for="yearsInput">سنوات التوقع</label>
           <input type="number" id="yearsInput" value="5" min="1" max="10">
         </div>
-        <div id="contextStatus" style="color:var(--text-secondary);font-size:.82rem;"></div>
+        <div id="contextStatus" aria-live="polite" style="color:var(--text-secondary);font-size:.82rem;"></div>
       </div>
 
       <div class="card">
@@ -339,6 +339,21 @@
       }
     }
 
+    async function fetchJsonWithRetry(url, options = {}, timeoutMs = 12000, attempts = 2) {
+      let lastError;
+      for (let attempt = 1; attempt <= attempts; attempt += 1) {
+        try {
+          return await fetchJson(url, options, timeoutMs);
+        } catch (err) {
+          lastError = err;
+          if (attempt < attempts) {
+            await new Promise(resolve => setTimeout(resolve, 400));
+          }
+        }
+      }
+      throw lastError;
+    }
+
     function setSelectOptions(select, items, placeholder) {
       const fragment = document.createDocumentFragment();
       const first = document.createElement('option');
@@ -349,6 +364,7 @@
         const opt = document.createElement('option');
         opt.value = item.value;
         opt.textContent = item.label;
+        if (item.icon) opt.dataset.icon = item.icon;
         fragment.appendChild(opt);
       });
       select.replaceChildren(fragment);
@@ -441,8 +457,8 @@
       setControlDisabled('citySelect', true);
 
       const [modelResult, cityResult] = await Promise.allSettled([
-        fetchJson(API_URL + '/models?country=' + encodeURIComponent(countryCode)),
-        fetchJson(API_URL + '/cities?country=' + encodeURIComponent(countryCode) + '&limit=500')
+        fetchJsonWithRetry(API_URL + '/models?country=' + encodeURIComponent(countryCode)),
+        fetchJsonWithRetry(API_URL + '/cities?country=' + encodeURIComponent(countryCode) + '&limit=500')
       ]);
       if (sequence !== contextLoadSequence) return;
 
@@ -478,9 +494,13 @@
 
     async function init() {
       try {
-        const countriesData = await fetchJson(API_URL + '/catalog/countries');
+        const countriesData = await fetchJsonWithRetry(API_URL + '/catalog/countries');
         countries = (countriesData.countries || []).filter(c => c.is_supported !== false);
-        const countryOptions = countries.map(c => ({ value: c.code, label: c.name_ar || c.name_en || c.code }));
+        const countryOptions = countries.map(c => ({
+          value: c.code,
+          label: c.name_ar || c.name_en || c.code,
+          icon: c.flag || null
+        }));
         const countrySelect = document.getElementById('countrySelect');
         setSelectOptions(countrySelect, countryOptions, 'اختر دولة');
         countrySelect.value = countryOptions.some(c => c.value === 'SA') ? 'SA' : (countryOptions[0]?.value || '');
