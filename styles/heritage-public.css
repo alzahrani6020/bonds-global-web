@@ -236,3 +236,15 @@ body.heritage-public .funding-hub__hero .fi-btn--secondary:visited{
 body.heritage-public #btnEnterprise{
   color:#090909!important;
 }
+
+
+/* Final contrast fixes for dark public heroes */
+body.heritage-public .hero.v2026 .hero__eyebrow{
+  color:#fff!important;
+}
+body.heritage-public .fi-hero .fi-btn--secondary,
+body.heritage-public .fi-hero .fi-btn--secondary:visited{
+  color:#fff!important;
+  border-color:rgba(255,255,255,.88)!important;
+  background:transparent!important;
+}
