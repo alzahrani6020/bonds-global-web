@@ -337,7 +337,7 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
     const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
     expect(searchInput.query).toBe('طلال حسن الزهراني');
-    expect(searchInput.disabledProviders).toEqual(['searxng']);
+    expect(searchInput.disabledProviders).toBeUndefined();
   });
 
   test('shows search excerpts for a news question and drops weak pages', async () => {

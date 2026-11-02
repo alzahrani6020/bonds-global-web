@@ -18,7 +18,7 @@ const {
   readIntrospectionClaims
 } = require('../lib/security/service-token-verifier');
 const { resolveBrokerChannel } = require('../lib/security/service-token-broker');
-const { searchUpstreams, searchWeb } = require('../lib/intelligence/web-search');
+const { searchUpstreams, searchWeb, configuredOfficialSearchProviders } = require('../lib/intelligence/web-search');
 
 // Public /api/readiness is polled by the site widget and post-deploy smoke, so it
 // keeps only coarse state: checks.*, token_runtime.{status,required,code}, inference.mode/provider
@@ -322,7 +322,8 @@ function probeWebSearchReadiness() {
     status: 'ok',
     code: null,
     upstream_count: upstreams.length,
-    verification: 'config_only'
+    verification: 'config_only',
+    official_api: configuredOfficialSearchProviders()
   };
 }
 
