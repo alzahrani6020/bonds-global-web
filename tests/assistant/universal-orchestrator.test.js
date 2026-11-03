@@ -253,6 +253,14 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(recoverPlannerDecision('You are the BONDS universal action planner\nnope')).toBeNull();
   });
 
+  test('recovers a length-truncated planner JSON answer instead of pretending the model is down', () => {
+    const truncated = '{"mode":"answer","answer":"بصفتي مساعدك في الاستثمار ودعم اتخاذ القرار، يمكنني تقديم إرشادات عامة حول كيفية عمل الميزانية. عملية عمل الميزانية تعتمد بشكل كبير على الهدف (هل هي ميزانية شخصية، ميزانية عمل، ميزانية مشروع، إلخ) وعلى الأدوات المتاحة لك. \\n\\n**بشكل عام، تتضمن عملية عمل الميزانية الخطوات الأساسية التالية:**\\n\\n1. **تحديد الهدف:** لماذا تقوم بعمل الميزانية؟ (مثل: الادخار لشراء منزل';
+    const recovered = recoverPlannerDecision(truncated);
+    expect(recovered.mode).toBe('answer');
+    expect(recovered.answer).toContain('كيفية عمل الميزانية');
+    expect(recovered.answer).toContain('تحديد الهدف');
+  });
+
   test('routes clear person lookup through deterministic research without ai_reason', async () => {
     executeGovernedAction.mockImplementation(async ({ action, input }) => {
       if (action === 'ai_reason') {
