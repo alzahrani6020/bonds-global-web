@@ -119,6 +119,15 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain('فترة التوقع: ');
   });
 
+  test('renders yearly financial projections from the calculated projection series', () => {
+    expect(scenarioPage).toContain('id="yearlyProjectionTable"');
+    expect(scenarioPage).toContain('id="yearlyProjectionSummary"');
+    expect(scenarioPage).toContain("Array.isArray(item.result?.projections)");
+    expect(scenarioPage).toContain("const calendarYear = projectionBaseYear + Number(period.year || 0)");
+    expect(scenarioPage).toContain("period.cashFlowAfterDebt ?? period.cashFlow");
+    expect(scenarioPage).toContain('يعرض الجدول القيم المحسوبة سنة بسنة');
+  });
+
   test('uses economic activity terminology and preset severity with visible numeric shocks', () => {
     expect(scenarioPage).toContain('<label for="activitySelect">النشاط الاقتصادي</label>');
     expect(scenarioPage).not.toContain('<label for="activitySelect">التخصص / النشاط</label>');
