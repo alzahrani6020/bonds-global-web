@@ -35,6 +35,13 @@ describe('Dropdown interaction regression', () => {
     expect(udCss).toMatch(/\.ud-menu:not\(\.ud-open\)\s*\{[\s\S]*?pointer-events:\s*none\s*!important/);
   });
 
+  test('service worker serves universal dropdown runtime network-first', () => {
+    const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+    expect(sw).toContain("url.pathname === '/components/universal-dropdown.js'");
+    expect(sw).toContain("url.pathname === '/components/universal-dropdown-init.js'");
+    expect(sw).toContain("const CACHE_VERSION = 'v3.0.222'");
+  });
+
   test('public pages default UniversalDropdown to light unless dark is explicit', () => {
     expect(udJs).toContain("if (htmlTheme === 'dark' || htmlTheme === 'light') return htmlTheme;");
     expect(udJs).toContain("return 'light';");
