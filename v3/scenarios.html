@@ -327,6 +327,16 @@
         </div>
       </div>
       <div class="card">
+        <h3>التوقع المالي السنوي</h3>
+        <div id="yearlyProjectionSummary" style="margin-bottom:.75rem;color:var(--text-secondary);font-size:.84rem;"></div>
+        <div style="overflow-x:auto;">
+          <table class="metrics-table" id="yearlyProjectionTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
         <h3>تفاصيل تطبيق السيناريوهات</h3>
         <div id="scenarioDiagnostics"></div>
       </div>
@@ -1089,6 +1099,38 @@
 
       table.querySelector('thead').innerHTML = thead;
       table.querySelector('tbody').innerHTML = tbody;
+
+      const projectionTable = document.getElementById('yearlyProjectionTable');
+      const projectionSummary = document.getElementById('yearlyProjectionSummary');
+      const projectionBaseYear = Number(context.baseYear || document.getElementById('baseYearInput').value);
+      const projectionYears = Number(context.projectionYears || document.getElementById('yearsInput').value || 5);
+      projectionSummary.textContent =
+        'يعرض الجدول القيم المحسوبة سنة بسنة من ' +
+        (projectionBaseYear + 1) + ' إلى ' + (projectionBaseYear + projectionYears) +
+        '، وليس متوسطاً لخمس سنوات.';
+
+      projectionTable.querySelector('thead').innerHTML =
+        '<tr><th>الحالة</th><th>السنة</th><th>الإيراد</th><th>EBITDA</th><th>صافي الربح</th><th>التدفق النقدي بعد خدمة الدين</th></tr>';
+
+      const projectionRows = [];
+      all.forEach(item => {
+        const projections = Array.isArray(item.result?.projections) ? item.result.projections : [];
+        projections.forEach(period => {
+          const calendarYear = projectionBaseYear + Number(period.year || 0);
+          const cashFlowAfterDebt = period.cashFlowAfterDebt ?? period.cashFlow;
+          projectionRows.push(
+            '<tr><td>' + escapeHtml(item.name) +
+            '</td><td>' + escapeHtml(calendarYear) +
+            '</td><td>' + escapeHtml(money(period.revenue)) +
+            '</td><td>' + escapeHtml(money(period.ebitda)) +
+            '</td><td>' + escapeHtml(money(period.netProfit)) +
+            '</td><td>' + escapeHtml(money(cashFlowAfterDebt)) + '</td></tr>'
+          );
+        });
+      });
+      projectionTable.querySelector('tbody').innerHTML = projectionRows.length
+        ? projectionRows.join('')
+        : '<tr><td colspan="6">لا توجد توقعات سنوية متاحة لهذا التحليل.</td></tr>';
 
       document.getElementById('scenarioDiagnostics').innerHTML = (data.scenarios || []).map(s => {
         const applied = s.appliedShocks || [];
