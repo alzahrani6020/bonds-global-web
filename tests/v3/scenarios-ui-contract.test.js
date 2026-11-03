@@ -126,6 +126,17 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain('فترة التوقع: ');
   });
 
+  test('shows an auditable executive reading with debt capacity and reliance limits', () => {
+    expect(scenarioPage).toContain('id="executiveReading"');
+    expect(scenarioPage).toContain('اتجاه القرار المبدئي');
+    expect(scenarioPage).toContain('قدرة خدمة الدين');
+    expect(scenarioPage).toContain('حدود الاعتماد');
+    expect(scenarioPage).toContain("DSCR أقل من 1");
+    expect(scenarioPage).toContain("DSCR عند أو فوق 1");
+    expect(scenarioPage).toContain('السيناريوهات اختبارات حساسية وليست توقعات مؤكدة للمستقبل');
+    expect(scenarioPage).toContain('لا تستبدل التحقق القانوني والضريبي والتمويلي والسوقي المتخصص');
+  });
+
   test('renders yearly financial projections from the calculated projection series', () => {
     expect(scenarioPage).toContain('id="yearlyProjectionTable"');
     expect(scenarioPage).toContain('id="yearlyProjectionSummary"');
