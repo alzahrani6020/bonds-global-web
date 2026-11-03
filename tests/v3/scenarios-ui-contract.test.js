@@ -77,7 +77,8 @@ describe('V3 scenarios UI contract', () => {
   test('keeps city optional and does not auto-select the first city', () => {
     expect(scenarioPage).toContain('data-ud-placeholder="اختر مدينة (اختياري)"');
     expect(scenarioPage).toContain("citySelect.value = ''");
-    expect(scenarioPage).toContain("window.getUniversalDropdown?.(citySelect)?.value = ''");
+    expect(scenarioPage).toContain("const cityDropdown = window.getUniversalDropdown?.(citySelect)");
+    expect(scenarioPage).toContain("if (cityDropdown) cityDropdown.value = ''");
   });
 
   test('rejects invalid projection years instead of silently coercing zero to five', () => {
