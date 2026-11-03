@@ -18,11 +18,12 @@ Country
 
 - 40 investment sectors
 - 122 investment subsectors
-- 83 canonical activities mapped to a primary sector and subsector
+- Active canonical activities are the user-facing catalog; inactive duplicates remain as aliases (`canonical_activity_code_aliases`) and are not deleted
+- Article-only Arabic variants (`مقاهي` / `المقاهي`) and English plurals (`cafe` / `cafes`) consolidate onto one survivor
 - 6 project sizes
 - 12 business forms
 - 18 opportunity types
-- 837 legacy project models linked to the new dimensions
+- Published project models are classified in `project_model_canonical_reconciliation` as mapped / unmapped / ambiguous / inactive / unpublished
 - 69 legacy economic sectors mapped to canonical investment sectors
 - 13 Saudi productive-family candidates stored as country-scoped, unverified business-form eligibility
 
@@ -41,7 +42,8 @@ Country-specific regulatory verification is required before treating productive-
 
 ## Safety rules
 
-- no legacy sector/activity/model rows are deleted or renamed
+- no legacy sector/activity/model rows are deleted
+- duplicate canonical identities are deactivated and aliased, not dropped
 - canonical mappings are additive
 - taxonomy mappings do not imply regulatory availability
 - business-form eligibility does not imply licensing approval

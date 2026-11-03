@@ -28,6 +28,21 @@ describe('V3 canonical activity taxonomy', () => {
     expect(new Set(security.sector_codes)).toEqual(new Set(['aviation', 'mining']));
   });
 
+  test('duplicate consolidation aliases retired codes and does not delete canonical or legacy rows', () => {
+    const migration = read('supabase/migrations/20261104010000_canonical_activity_duplicate_consolidation.sql');
+
+    expect(migration).toContain('CREATE TABLE IF NOT EXISTS public.canonical_activity_code_aliases');
+    expect(migration).toContain('CREATE OR REPLACE FUNCTION public.merge_canonical_activity');
+    expect(migration).toContain('bonds_canonical_activity_semantic_ar');
+    expect(migration).toContain('project_model_canonical_reconciliation');
+    expect(migration).toContain("superseded_by = survivor_id");
+    expect(migration).toContain("name_ar = 'بيوت محمية للخضروات'");
+    expect(migration).not.toMatch(/DELETE\s+FROM\s+public\.canonical_activities/i);
+    expect(migration).not.toMatch(/DELETE\s+FROM\s+public\.economic_activities/i);
+    expect(migration).not.toMatch(/DELETE\s+FROM\s+public\.project_models/i);
+    expect(migration).not.toMatch(/UPDATE\s+public\.project_models\s+SET\s+activity_id/i);
+  });
+
   test('database migration is additive and persists canonical identity, aliases and applicability', () => {
     const migration = read('v3/supabase/migrations/20261019020000_v3_canonical_activity_taxonomy.sql');
 
