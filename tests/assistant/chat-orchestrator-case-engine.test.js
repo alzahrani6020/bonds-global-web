@@ -3,7 +3,9 @@ const {
   isHomepage,
   resolveIntent,
   asksHumanEscalationIntent,
-  asksCurrentService
+  asksCurrentService,
+  isDeterministicAssistantTurn,
+  orchestrateChat
 } = require('../../lib/assistant/chat-orchestrator');
 const {
   stageForIntent,
@@ -41,6 +43,26 @@ describe('BONDS Chat Orchestrator + Case Engine', () => {
     expect(resolveIntent('أريد مستشار بشري')).toBe('escalation');
     expect(resolveIntent('ارفع المستند')).toBe('document');
     expect(resolveIntent('ما الحالة الآن')).toBe('follow_up');
+    expect(resolveIntent('افتح صفحة حاسبة التمويل')).toBe('analysis');
+  });
+
+  test('does not intercept open-page commands as missing service requirements', async () => {
+    const supabase = {
+      from: jest.fn(() => {
+        throw new Error('SERVICE_CATALOG_MUST_NOT_RUN');
+      })
+    };
+    for (const message of ['افتح صفحة الميزانية', 'افتح صفحة حاسبة التمويل', 'ما الموجود هنا']) {
+      expect(isDeterministicAssistantTurn(message)).toBe(true);
+      const result = await orchestrateChat({
+        user: { id:'u1' },
+        supabase,
+        message,
+        context: { pagePath:'/calculators/loan', serviceCode:'funding' }
+      });
+      expect(result.handled).toBe(false);
+    }
+    expect(supabase.from).not.toHaveBeenCalled();
   });
 
   test('moves cases through declared stages without inventing service execution', () => {
