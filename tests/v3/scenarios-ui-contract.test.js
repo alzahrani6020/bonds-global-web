@@ -145,6 +145,19 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain("'<h4>' + escapeHtml(scenario.name) + '</h4>'");
   });
 
+  test('keeps institutional light theme and dropdowns visually consistent', () => {
+    expect(scenarioPage).toContain('<html lang="ar" dir="rtl" data-theme="light">');
+    for (const id of ['countrySelect','sectorSelect','activitySelect','modelSelect','citySelect']) {
+      const re = new RegExp('<select[^>]*data-ud-theme="light"[^>]*id="' + id + '"');
+      expect(scenarioPage).toMatch(re);
+    }
+    expect(scenarioPage).toContain('data-ud-remove-empty="true" data-ud-placeholder="اختر دولة"');
+    expect(scenarioPage).toContain('data-ud-search="false" id="yearsInput"');
+    expect(scenarioPage).toContain('data-ud-search="false" id="presetSeverity"');
+    expect(scenarioPage).toContain("legend: { labels: { color: '#334155' } }");
+    expect(scenarioPage).not.toContain("legend: { labels: { color: '#e8ecf4' } }");
+  });
+
   test('shows country flags and retries transient context loads', () => {
     expect(scenarioPage).toContain('icon: c.flag || null');
     expect(scenarioPage).toContain('if (item.icon) opt.dataset.icon = item.icon');
