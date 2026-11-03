@@ -376,36 +376,59 @@ function calculate(modelData, options = {}) {
  * Generate a human-readable recommendation in Arabic.
  */
 function recommend(calcResult, marketData = {}) {
-  const { summary = {}, risk = {} } = calcResult || {};
+  const { summary = {}, risk = {}, assumptions = {} } = calcResult || {};
   const parts = [];
 
-  if (summary.npv > 0 && summary.irr > 15) {
-    parts.push('المشروع مربح من الناحية المالية');
-  } else if (summary.npv > 0) {
-    parts.push('المشروع يحقق عائداً إيجابياً لكنه محدود');
-  } else {
-    parts.push('المشروع غير مربح حالياً من الناحية المالية');
+  const npv = Number(summary.npv);
+  const irr = Number(summary.irr);
+  const discountRatePct = Number(assumptions.discountRate) * 100;
+  const paybackMonths = Number(summary.paybackMonths);
+  const dscr = Number(summary.dscr);
+  const riskScore = Number(risk.score);
+  const saturationScore = Number(marketData.market_saturation_score);
+
+  if (Number.isFinite(npv)) {
+    if (npv > 0) {
+      parts.push('القيمة الحالية الصافية (NPV) موجبة وفق الافتراضات الحالية');
+    } else if (npv < 0) {
+      parts.push('القيمة الحالية الصافية (NPV) سالبة وفق الافتراضات الحالية');
+    } else {
+      parts.push('القيمة الحالية الصافية (NPV) تساوي صفراً وفق الافتراضات الحالية');
+    }
   }
 
-  if (summary.paybackMonths && summary.paybackMonths <= 24) {
-    parts.push('وفترة استرداد رأس المال قصيرة نسبياً');
-  } else if (summary.paybackMonths && summary.paybackMonths > 36) {
-    parts.push('لكن فترة الاسترداد طويلة');
+  if (Number.isFinite(irr)) {
+    if (Number.isFinite(discountRatePct) && discountRatePct >= 0) {
+      const relation = irr > discountRatePct ? 'يتجاوز' : irr < discountRatePct ? 'أقل من' : 'يساوي';
+      parts.push(
+        'معدل العائد الداخلي (IRR) ' + round(irr, 2) + '% وهو ' + relation +
+        ' معدل الخصم المستخدم ' + round(discountRatePct, 2) + '%'
+      );
+    } else {
+      parts.push('معدل العائد الداخلي (IRR) المحسوب ' + round(irr, 2) + '%');
+    }
   }
 
-  if (risk.level === 'high') {
-    parts.push('مع ذلك، المخاطر مرتفعة وتحتاج إلى تخفيف');
-  } else if (risk.level === 'low') {
-    parts.push('المخاطر منخفضة نسبياً');
+  if (Number.isFinite(paybackMonths) && paybackMonths >= 0) {
+    parts.push('فترة استرداد رأس المال المحسوبة ' + round(paybackMonths, 1) + ' شهراً');
   }
 
-  if (marketData.market_saturation_score > 70) {
-    parts.push('السوق يعاني من إشباع عالٍ');
-  } else if (marketData.market_saturation_score < 40) {
-    parts.push('السوق يحمل فرصة جيدة');
+  if (Number.isFinite(dscr)) {
+    parts.push('نسبة تغطية خدمة الدين (DSCR) المحسوبة ' + round(dscr, 2));
   }
 
-  return parts.join('، ') + '.';
+  if (Number.isFinite(riskScore)) {
+    const riskLabel = ({ low: 'منخفضة', medium: 'متوسطة', high: 'مرتفعة' })[risk.level] || risk.level || 'غير مصنفة';
+    parts.push('درجة المخاطر المحسوبة ' + round(riskScore, 1) + ' من 100 (' + riskLabel + ')');
+  }
+
+  if (Number.isFinite(saturationScore)) {
+    parts.push('مؤشر تشبع السوق المتاح ' + round(saturationScore, 1) + ' من 100');
+  }
+
+  return parts.length
+    ? parts.join('، ') + '.'
+    : 'لا تتوفر مؤشرات مالية كافية لإصدار قراءة محسوبة.';
 }
 
 module.exports = {
