@@ -119,7 +119,7 @@ describe('universal orchestrator free-chat routing', () => {
     expect(result.reply).toContain('EBITDA');
     expect(result.steps).toBe(0);
     expect(calls.every(call => call.action === 'ai_reason')).toBe(true);
-    expect(calls[0].input.max_tokens).toBe(128);
+    expect(calls[0].input.max_tokens).toBe(256);
     expect(reasonerPrompts[0]).toContain('FREE_CHAT_DEFAULT');
   });
 
@@ -294,6 +294,27 @@ describe('universal orchestrator free-chat routing', () => {
       if (previous === undefined) delete process.env.ASSISTANT_PLANNER_TIMEOUT_MS;
       else process.env.ASSISTANT_PLANNER_TIMEOUT_MS = previous;
     }
+  });
+
+  test('length-truncated planner JSON is shown as the answer instead of PLANNER_UNAVAILABLE', async () => {
+    const { mod } = loadHarness({
+      plannerReplies:[
+        '{"mode":"answer","answer":"يمكنني تقديم إرشادات عامة حول كيفية عمل الميزانية. العملية تعتمد على الهدف. \\n\\n1. **تحديد الهدف:** لماذا تقوم بعمل الميزانية؟ (مثل: الادخار لشراء منزل'
+      ],
+      plannerTelemetry:[{ finish_reason:'length', completion_tokens:128 }]
+    });
+
+    const result = await mod.runUniversalOrchestrator(
+      [{ role:'user', content:'كيف اعمل ميزانية' }],
+      {},
+      { requestId:'req-planner-truncated-json' }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.degraded).not.toBe(true);
+    expect(result.failure).toBeUndefined();
+    expect(result.reply).toContain('كيفية عمل الميزانية');
+    expect(result.reply).not.toContain('تعذر الوصول إلى خدمة الذكاء');
   });
 
   test('unparseable Native planner prose is shown as the answer instead of PLANNER_UNAVAILABLE', async () => {
