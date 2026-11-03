@@ -71,6 +71,7 @@ async function runScenarioDropdownInteractionGate(browser) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
   const pageErrors = [];
   page.on('pageerror', error => pageErrors.push(error.message));
+  await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
   const arabCountries = [
     ['SA','السعودية'],['AE','الإمارات'],['EG','مصر'],['BH','البحرين'],['DZ','الجزائر'],['JO','الأردن'],
     ['KW','الكويت'],['QA','قطر'],['OM','عُمان'],['YE','اليمن'],['IQ','العراق'],['LB','لبنان'],
