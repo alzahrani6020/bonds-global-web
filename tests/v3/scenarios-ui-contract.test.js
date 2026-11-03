@@ -54,10 +54,17 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain("currency || 'عملة النموذج'");
   });
 
-  test('shows city effect, risk, confidence and full scenario deltas', () => {
+  test('shows city effect, freshness, provenance, risk, confidence and full scenario deltas', () => {
     expect(scenarioPage).toContain('id="cityImpactSummary"');
     expect(scenarioPage).toContain('context.cityAdjustmentsApplied');
     expect(scenarioPage).toContain('context.cityConfidence');
+    expect(scenarioPage).toContain('context.cityIndicatorYear');
+    expect(scenarioPage).toContain('context.cityMarketDataYear');
+    expect(scenarioPage).toContain('context.cityMarketDataConfidence');
+    expect(scenarioPage).toContain('context.cityMarketDataSource');
+    expect(scenarioPage).toContain('سنة مؤشرات المدينة');
+    expect(scenarioPage).toContain('سنة بيانات السوق المحلية');
+    expect(scenarioPage).toContain('مصدر بيانات السوق المحلية');
     expect(scenarioPage).toContain("['التغير في IRR', 'deltaIrr'");
     expect(scenarioPage).toContain("['التغير في المخاطر', 'deltaRiskScore'");
     expect(scenarioPage).toContain("get: r => r.risk?.score");
