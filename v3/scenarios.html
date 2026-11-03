@@ -164,6 +164,8 @@
   <meta name="description" content="حاسبات مالية متخصصة واستشارات اقتصادية من بوندز." />
 
 <link rel="stylesheet" href="../components/universal-dropdown.css?v=2.52.0" />
+<script src="../components/universal-dropdown.js?v=2.52.2"></script>
+<script src="../components/universal-dropdown-init.js?v=4"></script>
 <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
 <script defer src="/calculators/auth-gate.js?v=3"></script>
@@ -481,6 +483,7 @@
 
       if (dropdown && typeof dropdown.setOptions === 'function') {
         dropdown.setOptions(normalized);
+        dropdown.value = '';
         return;
       }
 
@@ -706,7 +709,8 @@
         const citySelect = document.getElementById('citySelect');
         setSelectOptions(citySelect, cityOptions, 'اختر مدينة (اختياري)');
         citySelect.value = '';
-        window.getUniversalDropdown?.(citySelect)?.value = '';
+        const cityDropdown = window.getUniversalDropdown?.(citySelect);
+        if (cityDropdown) cityDropdown.value = '';
         setControlDisabled('citySelect', cityOptions.length === 0);
       } else {
         cities = [];
@@ -743,7 +747,12 @@
         setSelectOptions(countrySelect, countryOptions, 'اختر دولة');
         countrySelect.value = countryOptions.some(c => c.value === 'SA') ? 'SA' : (countryOptions[0]?.value || '');
         const countryDropdown = window.getUniversalDropdown?.(countrySelect);
-        if (countryDropdown) countryDropdown.value = countrySelect.value;
+        if (countryDropdown) {
+          if (countryDropdown.items.length !== countryOptions.length) {
+            countryDropdown.setOptions(countryOptions);
+          }
+          countryDropdown.value = countrySelect.value;
+        }
         updateInputCurrencyLabels(selectedCountryCurrency());
         updateForecastPeriod();
         updateBaselinePreview();
@@ -1142,8 +1151,6 @@
     init();
   </script>
   <div id="site-footer"></div>
-<script src="../components/universal-dropdown.js?v=2.52.2"></script>
-<script src="../components/universal-dropdown-init.js?v=3"></script>
   <script src="shared-v3-ui.js" defer></script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>

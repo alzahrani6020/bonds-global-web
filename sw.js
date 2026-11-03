@@ -30,7 +30,7 @@ const CORE_ASSETS = [
   '/styles/distressed-recovery-study.css',
   '/components/universal-dropdown.css?v=2.52.0',
   '/components/universal-dropdown.js?v=2.52.2',
-  '/components/universal-dropdown-init.js?v=3',
+  '/components/universal-dropdown-init.js?v=4',
   '/components/service-discovery.css?v=3',
   '/components/service-discovery.js?v=7',
   '/components/service-request.css?v=1',

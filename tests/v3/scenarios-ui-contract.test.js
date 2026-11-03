@@ -77,7 +77,8 @@ describe('V3 scenarios UI contract', () => {
   test('keeps city optional and does not auto-select the first city', () => {
     expect(scenarioPage).toContain('data-ud-placeholder="اختر مدينة (اختياري)"');
     expect(scenarioPage).toContain("citySelect.value = ''");
-    expect(scenarioPage).toContain("window.getUniversalDropdown?.(citySelect)?.value = ''");
+    expect(scenarioPage).toContain("const cityDropdown = window.getUniversalDropdown?.(citySelect)");
+    expect(scenarioPage).toContain("if (cityDropdown) cityDropdown.value = ''");
   });
 
   test('rejects invalid projection years instead of silently coercing zero to five', () => {
@@ -87,15 +88,26 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).not.toContain("Number(document.getElementById('yearsInput').value) || 5");
   });
 
+  test('keeps the scenarios runtime syntactically valid in browsers', () => {
+    const match = scenarioPage.match(/<script>\s*(const API_URL[\s\S]*?)<\/script>/);
+    expect(match).not.toBeNull();
+    expect(() => new Function(match[1])).not.toThrow();
+    expect(scenarioPage).not.toContain("?.value =");
+  });
+
   test('loads the current universal dropdown runtime with explicit cache-busting versions', () => {
     expect(scenarioPage).toContain('../components/universal-dropdown.js?v=2.52.2');
-    expect(scenarioPage).toContain('../components/universal-dropdown-init.js?v=3');
+    expect(scenarioPage).toContain('../components/universal-dropdown-init.js?v=4');
   });
 
   test('syncs dynamic options directly into the universal dropdown component', () => {
     expect(scenarioPage).toContain("if (dropdown && typeof dropdown.setOptions === 'function')");
     expect(scenarioPage).toContain('dropdown.setOptions(normalized)');
-    expect(scenarioPage).toContain('if (countryDropdown) countryDropdown.value = countrySelect.value');
+    expect(scenarioPage).toContain("dropdown.value = ''");
+    expect(scenarioPage).toContain('const countryDropdown = window.getUniversalDropdown?.(countrySelect)');
+    expect(scenarioPage).toContain('countryDropdown.items.length !== countryOptions.length');
+    expect(scenarioPage).toContain('countryDropdown.setOptions(countryOptions)');
+    expect(scenarioPage).toContain('countryDropdown.value = countrySelect.value');
   });
 
   test('shows an explicit baseline, currency, base year and forecast period', () => {
@@ -148,6 +160,15 @@ describe('V3 scenarios UI contract', () => {
 
   test('escapes user-provided scenario names before rendering', () => {
     expect(scenarioPage).toContain("'<h4>' + escapeHtml(scenario.name) + '</h4>'");
+  });
+
+  test('loads UniversalDropdown before scenarios init and recovers country options deterministically', () => {
+    const dropdownScript = scenarioPage.indexOf('../components/universal-dropdown.js?v=2.52.2');
+    const pageInit = scenarioPage.indexOf('async function init()');
+    expect(dropdownScript).toBeGreaterThanOrEqual(0);
+    expect(pageInit).toBeGreaterThan(dropdownScript);
+    expect(scenarioPage).toContain('if (countryDropdown.items.length !== countryOptions.length)');
+    expect(scenarioPage).toContain('countryDropdown.setOptions(countryOptions)');
   });
 
   test('keeps institutional light theme and dropdowns visually consistent', () => {
