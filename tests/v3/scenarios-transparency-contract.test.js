@@ -25,6 +25,10 @@ describe('V3 scenario transparency contract', () => {
     expect(scenariosApi).toContain('cityDataStatus');
     expect(scenariosApi).toContain('cityAdjustmentsApplied: results.baseline?.cityAdjustments || []');
     expect(scenariosApi).toContain('cityConfidence: modelData.cityIndicators?.overall_confidence ?? null');
+    expect(scenariosApi).toContain('cityIndicatorYear: modelData.cityIndicators?.year ?? null');
+    expect(scenariosApi).toContain('cityMarketDataYear: modelData.marketData?.data_year ?? null');
+    expect(scenariosApi).toContain('cityMarketDataConfidence: modelData.marketData?.confidence ?? null');
+    expect(scenariosApi).toContain('cityMarketDataSource: modelData.marketData?.source ?? null');
     expect(scenariosApi).toContain("revenue: assumptions.revenue !== undefined ? 'user' : 'model'");
   });
 

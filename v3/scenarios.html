@@ -1042,8 +1042,23 @@
       const confidence = context.cityConfidence;
       let cityHtml = '<div style="margin-bottom:.75rem;"><strong>حالة بيانات المدينة:</strong> ' +
         escapeHtml(cityDataStatusLabel(context.cityDataStatus)) + '</div>';
-      cityHtml += '<div style="margin-bottom:.75rem;"><strong>درجة ثقة بيانات المدينة:</strong> ' +
+      cityHtml += '<div style="margin-bottom:.75rem;"><strong>درجة ثقة مؤشرات المدينة:</strong> ' +
         escapeHtml(confidence === null || confidence === undefined ? 'غير متاحة' : (confidence + ' من 100')) + '</div>';
+      cityHtml += '<div style="margin-bottom:.75rem;"><strong>سنة مؤشرات المدينة:</strong> ' +
+        escapeHtml(context.cityIndicatorYear ?? 'غير متاحة') + '</div>';
+      cityHtml += '<div style="margin-bottom:.75rem;"><strong>سنة بيانات السوق المحلية:</strong> ' +
+        escapeHtml(context.cityMarketDataYear ?? 'غير متاحة') + '</div>';
+      cityHtml += '<div style="margin-bottom:.75rem;"><strong>ثقة بيانات السوق المحلية:</strong> ' +
+        escapeHtml(context.cityMarketDataConfidence === null || context.cityMarketDataConfidence === undefined
+          ? 'غير متاحة'
+          : (context.cityMarketDataConfidence + ' من 100')) + '</div>';
+      cityHtml += '<div style="margin-bottom:.75rem;"><strong>مصدر بيانات السوق المحلية:</strong> ' +
+        escapeHtml(context.cityMarketDataSource || 'غير متاح') + '</div>';
+      if (context.cityIndicatorUpdatedAt) {
+        const indicatorDate = new Date(context.cityIndicatorUpdatedAt);
+        cityHtml += '<div style="margin-bottom:.75rem;"><strong>آخر تحديث لمؤشرات المدينة:</strong> ' +
+          escapeHtml(Number.isNaN(indicatorDate.getTime()) ? 'غير متاح' : indicatorDate.toLocaleDateString('ar-SA')) + '</div>';
+      }
       if (adjustments.length) {
         cityHtml += '<div style="overflow-x:auto;"><table class="metrics-table"><thead><tr><th>البند المالي</th><th>قبل أثر المدينة</th><th>بعد أثر المدينة</th><th>مصدر التعديل</th></tr></thead><tbody>' +
           adjustments.map(item =>
