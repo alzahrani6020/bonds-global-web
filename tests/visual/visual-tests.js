@@ -135,6 +135,30 @@ async function runScenarioDropdownInteractionGate(browser) {
     })
   );
 
+  async function waitForEnabled(id, stage) {
+    try {
+      await page.waitForFunction(selectId => {
+        const select = document.getElementById(selectId);
+        return !!select && !select.disabled;
+      }, id, { timeout: 10000 });
+    } catch (error) {
+      const diagnostic = await page.evaluate(selectId => {
+        const select = document.getElementById(selectId);
+        const dd = select && window.getUniversalDropdown && window.getUniversalDropdown(select);
+        return {
+          stage: selectId,
+          present: !!select,
+          disabled: select ? select.disabled : null,
+          value: select ? select.value : null,
+          nativeOptions: select ? select.options.length : null,
+          dropdownItems: dd?.items?.length ?? null,
+          contextStatus: document.getElementById('contextStatus')?.textContent || ''
+        };
+      }, id);
+      throw new Error(`${stage} did not enable: ${JSON.stringify(diagnostic)} pageErrors=${JSON.stringify(pageErrors)}`);
+    }
+  }
+
   try {
     const url = new URL('/v3/scenarios', BASE_URL).toString();
     await page.goto(url, { waitUntil: 'domcontentloaded' });
@@ -191,19 +215,19 @@ async function runScenarioDropdownInteractionGate(browser) {
 
     await page.locator('#countrySelect').locator('xpath=..').locator('.ud-item[data-value="SA"]').click();
 
-    await page.waitForFunction(() => !document.getElementById('sectorSelect').disabled);
+    await waitForEnabled('sectorSelect', 'sector');
     await page.locator('#sectorSelect + .ud-trigger').click();
     await page.locator('#sectorSelect').locator('xpath=..').locator('.ud-item[data-value="health"]').click();
 
-    await page.waitForFunction(() => !document.getElementById('activitySelect').disabled);
+    await waitForEnabled('activitySelect', 'activity');
     await page.locator('#activitySelect + .ud-trigger').click();
     await page.locator('#activitySelect').locator('xpath=..').locator('.ud-item[data-value="dental_clinics"]').click();
 
-    await page.waitForFunction(() => !document.getElementById('modelSelect').disabled);
+    await waitForEnabled('modelSelect', 'model');
     await page.locator('#modelSelect + .ud-trigger').click();
     await page.locator('#modelSelect').locator('xpath=..').locator('.ud-item[data-value="small_dental_clinic_model"]').click();
 
-    await page.waitForFunction(() => !document.getElementById('citySelect').disabled);
+    await waitForEnabled('citySelect', 'city');
     const cityCount = await page.evaluate(() => {
       const select = document.getElementById('citySelect');
       const dd = window.getUniversalDropdown(select);
