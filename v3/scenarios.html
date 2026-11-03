@@ -743,7 +743,12 @@
         setSelectOptions(countrySelect, countryOptions, 'اختر دولة');
         countrySelect.value = countryOptions.some(c => c.value === 'SA') ? 'SA' : (countryOptions[0]?.value || '');
         const countryDropdown = window.getUniversalDropdown?.(countrySelect);
-        if (countryDropdown) countryDropdown.value = countrySelect.value;
+        if (countryDropdown) {
+          if (countryDropdown.items.length !== countryOptions.length) {
+            countryDropdown.setOptions(countryOptions);
+          }
+          countryDropdown.value = countrySelect.value;
+        }
         updateInputCurrencyLabels(selectedCountryCurrency());
         updateForecastPeriod();
         updateBaselinePreview();
@@ -1142,8 +1147,6 @@
     init();
   </script>
   <div id="site-footer"></div>
-<script src="../components/universal-dropdown.js?v=2.52.2"></script>
-<script src="../components/universal-dropdown-init.js?v=3"></script>
   <script src="shared-v3-ui.js" defer></script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>
