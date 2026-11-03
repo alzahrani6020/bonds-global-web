@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.221';
+const CACHE_VERSION = 'v3.0.222';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -29,8 +29,8 @@ const CORE_ASSETS = [
   '/styles/manufacturing.css',
   '/styles/distressed-recovery-study.css',
   '/components/universal-dropdown.css?v=2.52.0',
-  '/components/universal-dropdown.js?v=2.52.1',
-  '/components/universal-dropdown-init.js?v=2',
+  '/components/universal-dropdown.js?v=2.52.2',
+  '/components/universal-dropdown-init.js?v=3',
   '/components/service-discovery.css?v=3',
   '/components/service-discovery.js?v=7',
   '/components/service-request.css?v=1',
@@ -290,6 +290,8 @@ self.addEventListener('fetch', (event) => {
   // Critical shared runtime assets are always network-first so instrumentation/navigation updates are immediate.
   if (
     url.pathname === '/site-layout.js' ||
+    url.pathname === '/components/universal-dropdown.js' ||
+    url.pathname === '/components/universal-dropdown-init.js' ||
     url.pathname === '/page-tracker-v2.js' ||
     url.pathname === '/components/emoji-icons.js' ||
     url.pathname === '/components/emoji-renderer.js' ||
