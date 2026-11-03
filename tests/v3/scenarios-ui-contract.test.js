@@ -89,7 +89,7 @@ describe('V3 scenarios UI contract', () => {
 
   test('loads the current universal dropdown runtime with explicit cache-busting versions', () => {
     expect(scenarioPage).toContain('../components/universal-dropdown.js?v=2.52.2');
-    expect(scenarioPage).toContain('../components/universal-dropdown-init.js?v=3');
+    expect(scenarioPage).toContain('../components/universal-dropdown-init.js?v=4');
   });
 
   test('syncs dynamic options directly into the universal dropdown component', () => {
