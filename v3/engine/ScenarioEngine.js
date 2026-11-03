@@ -216,6 +216,22 @@ function classifyImpact(deltaNpv, deltaIrr, deltaRisk) {
   return 'neutral';
 }
 
+function severityFactor(level) {
+  return ({ mild: 0.5, moderate: 1, severe: 1.5 })[String(level || 'moderate')] || 1;
+}
+
+function scaleRiskScoreDelta(baseDelta, severity) {
+  return round((Number(baseDelta) || 0) * severityFactor(severity), 1);
+}
+
+function scaleShocks(shocks, severity) {
+  const factor = severityFactor(severity);
+  return (Array.isArray(shocks) ? shocks : []).map(shock => ({
+    ...shock,
+    value: Number(shock.value) * factor
+  }));
+}
+
 /**
  * Get a preset scenario by name.
  */
@@ -270,22 +286,33 @@ function getPreset(name) {
 
 /**
  * Normalize scenario input: supports preset or explicit shocks.
+ * UI may send scaled shocks with sourcePreset/severity instead of preset.
+ * Preset riskScoreDelta must still apply, scaled by severity.
  */
-function normalizeScenario(input) {
-  if (input.preset) {
-    const preset = getPreset(input.preset);
-    if (!preset) throw new Error(`Unknown preset: ${input.preset}`);
+function normalizeScenario(input = {}) {
+  const presetName = String(input.preset || input.sourcePreset || '').trim();
+  const severity = String(input.severity || 'moderate').trim() || 'moderate';
+  const explicitShocks = Array.isArray(input.shocks) ? input.shocks : [];
+  const preset = presetName ? getPreset(presetName) : null;
+
+  if (presetName && !preset && explicitShocks.length === 0) {
+    throw new Error(`Unknown preset: ${presetName}`);
+  }
+
+  if (preset) {
     return {
       name: input.name || preset.name,
-      shocks: preset.shocks,
-      riskScoreDelta: preset.riskScoreDelta
+      shocks: explicitShocks.length ? explicitShocks : scaleShocks(preset.shocks, severity),
+      riskScoreDelta: scaleRiskScoreDelta(preset.riskScoreDelta, severity),
+      preset: presetName,
+      severity
     };
   }
 
   return {
     name: input.name || 'سيناريو مخصص',
-    shocks: input.shocks || [],
-    riskScoreDelta: input.riskScoreDelta || 0
+    shocks: explicitShocks,
+    riskScoreDelta: Number(input.riskScoreDelta) || 0
   };
 }
 
@@ -295,5 +322,8 @@ module.exports = {
   runScenarios,
   compareScenario,
   getPreset,
-  normalizeScenario
+  normalizeScenario,
+  severityFactor,
+  scaleRiskScoreDelta,
+  scaleShocks
 };

@@ -45,6 +45,12 @@ describe('V3 scenario transparency contract', () => {
     expect(scenariosApi).toContain('ScenarioEngine.getPreset(code)');
   });
 
+  test('keeps designed preset risk deltas when UI sends sourcePreset', () => {
+    expect(scenarioEngine).toContain('input.preset || input.sourcePreset');
+    expect(scenarioEngine).toContain('scaleRiskScoreDelta(preset.riskScoreDelta, severity)');
+    expect(scenarioEngine).toContain("riskScoreDelta: 10");
+  });
+
   test('reports applied and ignored shocks without changing applyShocks public contract', () => {
     expect(scenarioEngine).toContain('function applyShocksWithDiagnostics');
     expect(scenarioEngine).toContain('function applyShocks(assumptions, shocks)');

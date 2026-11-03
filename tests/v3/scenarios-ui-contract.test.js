@@ -48,6 +48,21 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).not.toContain('سيتم تطبيق الصدمات الجاهزة عند تشغيل التحليل.');
   });
 
+  test('sends preset riskScoreDelta with severity instead of dropping it', () => {
+    expect(scenarioPage).toContain('riskScoreDelta');
+    expect(scenarioPage).toContain('preset,');
+    expect(scenarioPage).toContain('sourcePreset: preset');
+    expect(scenarioPage).toContain('Number(definition.riskScoreDelta || 0) * severityFactor(severity)');
+  });
+
+  test('describes relative shocks as a percent change from baseline', () => {
+    expect(scenarioPage).toContain('function formatShockDisplay(shock)');
+    expect(scenarioPage).toContain("'زيادة ' + name + ' بنسبة '");
+    expect(scenarioPage).toContain("'انخفاض ' + name + ' بنسبة '");
+    expect(scenarioPage).toContain('% عن الأساس');
+    expect(scenarioPage).not.toContain("sh.type === 'relative' ? (Number(sh.value) * 100).toFixed(1) + '%'");
+  });
+
   test('passes country context and uses dynamic calculation currency', () => {
     expect(scenarioPage).toContain('payload.countryCode = countryCode');
     expect(scenarioPage).toContain('context.currencyCode');

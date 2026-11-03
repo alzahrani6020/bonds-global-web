@@ -845,7 +845,7 @@
           ? scenario.shocks
           : (preset?.shocks || []);
         const details = shocks.length
-          ? shocks.map(sh => '<li>' + escapeHtml(shockLabel(sh.code)) + ': ' + escapeHtml(sh.type === 'relative' ? (Number(sh.value) * 100).toFixed(1) + '%' : sh.value) + '</li>').join('')
+          ? shocks.map(sh => '<li>' + escapeHtml(formatShockDisplay(sh)) + '</li>').join('')
           : '<li>لا توجد تفاصيل صدمات متاحة.</li>';
         return '<div class="scenario-item">' +
           '<h4>' + escapeHtml(scenario.name) + '</h4>' +
@@ -858,6 +858,24 @@
 
     function shockLabel(code) {
       return SHOCK_OPTIONS.find(o => o.code === code)?.name || code;
+    }
+
+    function formatPercentPoints(value) {
+      const pct = Math.abs(Number(value) * 100);
+      if (!Number.isFinite(pct)) return '0';
+      const rounded = Math.round(pct * 10) / 10;
+      return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
+    }
+
+    function formatShockDisplay(shock) {
+      const name = shockLabel(shock.code);
+      const value = Number(shock.value);
+      if (shock.type === 'relative') {
+        if (value < 0) return 'انخفاض ' + name + ' بنسبة ' + formatPercentPoints(value) + '% عن الأساس';
+        if (value > 0) return 'زيادة ' + name + ' بنسبة ' + formatPercentPoints(value) + '% عن الأساس';
+        return name + ': دون تغيير عن الأساس';
+      }
+      return name + ': ' + (Number.isFinite(value) ? value : shock.value);
     }
 
     window.removeScenario = function(index) {
@@ -888,11 +906,14 @@
         if (!definition) return alert('تعذر تحميل تعريف السيناريو. أعد المحاولة.');
         const severity = document.getElementById('presetSeverity').value || 'moderate';
         const shocks = scaledPresetShocks(definition, severity);
+        const riskScoreDelta = Number(definition.riskScoreDelta || 0) * severityFactor(severity);
         scenarios.push({
           name: names[preset] + ' — ' + severityLabel(severity),
           shocks,
+          preset,
           sourcePreset: preset,
-          severity
+          severity,
+          riskScoreDelta
         });
         renderScenarios();
       });
