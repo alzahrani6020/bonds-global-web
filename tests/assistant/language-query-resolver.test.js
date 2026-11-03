@@ -116,6 +116,32 @@ describe('BONDS language and query resolver', () => {
     expect(result.query_variants).not.toContain('Amr Moussa');
   });
 
+  test('looks up a single-token who-is name such as Madonna', () => {
+    const who = resolveLanguageQuery('من مردونا');
+    expect(who.intent).toBe('person_lookup');
+    expect(who.requires_research).toBe(true);
+    expect(who.entity).toEqual(expect.objectContaining({
+      type:'person',
+      text:'مردونا'
+    }));
+
+    const bare = resolveLanguageQuery('مردونا');
+    expect(bare.intent).toBe('person_lookup');
+    expect(bare.requires_research).toBe(true);
+    expect(bare.entity.text).toBe('مردونا');
+  });
+
+  test('treats how-to questions as web research', () => {
+    const result = resolveLanguageQuery('كيف اعمل ميزانية');
+    expect(result.intent).toBe('web_research');
+    expect(result.requires_research).toBe(true);
+  });
+
+  test('does not treat greetings as research', () => {
+    const result = resolveLanguageQuery('مرحبا');
+    expect(result.requires_research).toBe(false);
+  });
+
   test('understands Arabic person lookup without copula', () => {
     const result = resolveLanguageQuery('\u0645\u0646 \u0645\u062d\u0645\u062f \u0628\u0646 \u0633\u0644\u0645\u0627\u0646');
     expect(result.intent).toBe('person_lookup');

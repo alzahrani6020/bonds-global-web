@@ -85,6 +85,72 @@ describe('universal orchestrator free-chat routing', () => {
     jest.clearAllMocks();
   });
 
+  test('a single-name person question searches the web without waiting for the planner', async () => {
+    const { mod, reasonerPrompts } = loadHarness({
+      toolResults: {
+        web_search: async ({ query }) => ({
+          ok:true,
+          executed:true,
+          action:'web_search',
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            query,
+            results:[{
+              title:'Madonna',
+              url:'https://en.wikipedia.org/wiki/Madonna',
+              snippet:'Madonna is an American singer and songwriter.'
+            }]
+          }
+        })
+      }
+    });
+
+    const result = await mod.runUniversalOrchestrator(
+      [{ role:'user', content:'من مردونا' }],
+      {},
+      { requestId:'req-madonna' }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(reasonerPrompts).toHaveLength(0);
+    expect(result.reply).toMatch(/Madonna|مغن|مغنية|singer/i);
+    expect(result.reply).not.toContain('غير موثق لدي');
+  });
+
+  test('a how-to question searches the web without waiting for the planner', async () => {
+    const { mod, reasonerPrompts } = loadHarness({
+      toolResults: {
+        web_search: async ({ query }) => ({
+          ok:true,
+          executed:true,
+          action:'web_search',
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            query,
+            results:[{
+              title:'How to make a budget',
+              url:'https://www.example.com/budget',
+              snippet:'A budget lists income, expenses, and a savings target.'
+            }]
+          }
+        })
+      }
+    });
+
+    const result = await mod.runUniversalOrchestrator(
+      [{ role:'user', content:'كيف اعمل ميزانية' }],
+      {},
+      { requestId:'req-budget-howto' }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(reasonerPrompts).toHaveLength(0);
+    expect(result.reply).toMatch(/budget|ميزانية|income|دخل/i);
+    expect(result.reply).not.toContain('تعذر الوصول إلى خدمة الذكاء');
+  });
+
   test('unknown person search returns the empty-search sentence without the planner', async () => {
     const { mod, reasonerPrompts } = loadHarness({
       toolResults: { web_search: ALL_PROVIDERS_DOWN }
@@ -305,7 +371,7 @@ describe('universal orchestrator free-chat routing', () => {
     });
 
     const result = await mod.runUniversalOrchestrator(
-      [{ role:'user', content:'كيف اعمل ميزانية' }],
+      [{ role:'user', content:'اشرح لي مفهوم الميزانية باختصار' }],
       {},
       { requestId:'req-planner-truncated-json' }
     );
