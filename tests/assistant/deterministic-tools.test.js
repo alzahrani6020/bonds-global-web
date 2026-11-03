@@ -5,7 +5,8 @@ const {
   parseCalculatorOpen,
   mathCommandNeedsClarification,
   resolveDeterministicTool,
-  formatDeterministicToolReply
+  formatDeterministicToolReply,
+  calculatorNavigationAction
 } = require('../../lib/assistant/deterministic-tools');
 
 describe('deterministic assistant tools', () => {
@@ -62,5 +63,19 @@ describe('deterministic assistant tools', () => {
       { ok:true, result:{ calculator:'loan', navigation:{ route:'/calculators/loan' } } },
       'ar'
     )).toBe('حاسبة القرض\n/calculators/loan');
+  });
+
+  test('exposes a governed navigation action only after a registered calculator opens', () => {
+    expect(calculatorNavigationAction({
+      ok:true,
+      result:{ navigation:{ target:'calculator_loan', route:'/calculators/loan' } }
+    })).toEqual({
+      type:'site_navigate',
+      capability:'site_navigate',
+      target:'calculator_loan',
+      risk:'low'
+    });
+    expect(calculatorNavigationAction({ ok:false, result:{ navigation:{ target:'calculator_loan' } } })).toBeNull();
+    expect(calculatorNavigationAction({ ok:true, result:{} })).toBeNull();
   });
 });

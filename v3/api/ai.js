@@ -743,11 +743,13 @@ async function aiChatHandlerImpl(req, res) {
 
       if (loopResult?.ok && loopResult.reply) {
         const actions = (loopResult.trace || []).map(item => item.action).filter(Boolean);
+        const protocolActions = Array.isArray(loopResult.actions) ? loopResult.actions : [];
         return sendAssistantResponse(res, 200, {
           reply: enforceAssistantIdentity(loopResult.reply),
           source: loopResult.toolUsed ? 'bonds-assistant-ai-tool' : 'bonds-assistant-ai',
           provider: 'BONDS',
           model: null,
+          ...(protocolActions.length ? { actions: protocolActions } : {}),
           inference: {
             planner: loopResult.planner || 'universal-v2',
             tool_used: loopResult.toolUsed === true,

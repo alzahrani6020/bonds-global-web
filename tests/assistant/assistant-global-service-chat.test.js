@@ -40,6 +40,11 @@ describe('BONDS global service assistant', () => {
     expect(widget).not.toContain('href="https://wa.me/966567566616');
   });
 
+  test('chat API forwards governed protocol actions so the widget can open calculators', () => {
+    expect(aiApi).toContain('const protocolActions = Array.isArray(loopResult.actions) ? loopResult.actions : [];');
+    expect(aiApi).toContain('...(protocolActions.length ? { actions: protocolActions } : {})');
+  });
+
   test('server discards client capability arrays and reloads them from service tables', () => {
     expect(aiApi).toContain('delete enriched.serviceCapabilities;');
     expect(aiApi).toContain(".from('service_capability_map')");
