@@ -29,7 +29,8 @@ describe('Assistant production tool smoke', () => {
         return jsonResponse(200, {
           reply:'حاسبة القرض\n/calculators/loan',
           source:'bonds-assistant-ai-tool',
-          inference:{ tool_used:true, actions:['calculator_open'], planner:'universal-v2-deterministic-tool' }
+          inference:{ tool_used:true, actions:['calculator_open'], planner:'universal-v2-deterministic-tool' },
+          actions:[{ type:'site_navigate', target:'calculator_loan', status:'ready' }]
         });
       }
       return jsonResponse(200, {
@@ -74,7 +75,8 @@ describe('Assistant production tool smoke', () => {
       if (call === 2) {
         return jsonResponse(200, {
           reply:'حاسبة القرض\n/calculators/loan',
-          inference:{ tool_used:true, actions:['calculator_open'] }
+          inference:{ tool_used:true, actions:['calculator_open'] },
+          actions:[{ type:'site_navigate', target:'calculator_loan', status:'ready' }]
         });
       }
       return jsonResponse(200, {

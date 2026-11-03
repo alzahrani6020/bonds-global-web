@@ -3477,7 +3477,7 @@
       actionsEl.appendChild(card);
     }
 
-    async function executeStructuredAction(action, button) {
+    async function executeStructuredAction(action, button, options = {}) {
       if (!action || action.status === 'denied') return;
       if (action.requires_confirmation) {
         if (button) button.disabled = true;
@@ -3506,6 +3506,10 @@
           const plan = await requestGovernedPlan(action);
           const route = plan?.context?.navigation?.route;
           if (!safeInternalRoute(route)) throw new Error('UNSAFE_NAVIGATION_ROUTE');
+          if (options && options.sameTab === true) {
+            window.location.assign(route);
+            return;
+          }
           const link = document.createElement('a');
           link.href = route;
           link.target = '_blank';
@@ -3715,6 +3719,25 @@
 
           actionsEl.appendChild(el);
         });
+    }
+
+    function isCalculatorOpenTurn(payload) {
+      const tools = payload?.inference?.actions;
+      return payload?.inference?.planner === 'universal-v2-deterministic-tool'
+        && Array.isArray(tools)
+        && tools.includes('calculator_open');
+    }
+
+    function maybeAutoOpenCalculatorNavigation(payload) {
+      if (!isCalculatorOpenTurn(payload)) return;
+      const action = (Array.isArray(payload.actions) ? payload.actions : []).find(item =>
+        item
+        && item.type === 'site_navigate'
+        && item.status !== 'denied'
+        && item.requires_confirmation !== true
+      );
+      if (!action) return;
+      void executeStructuredAction(action, null, { sameTab: true });
     }
 
     function renderStructuredEnvelope(envelope, { appendReply = false } = {}) {
@@ -4010,6 +4033,7 @@
         if (Array.isArray(data.actions) || Array.isArray(data.ui)) {
           renderStructuredEnvelope(data);
         }
+        maybeAutoOpenCalculatorNavigation(data);
       } catch (err) {
         if (responseDiagnostics) {
           const now = Date.now();

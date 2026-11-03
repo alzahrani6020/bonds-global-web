@@ -699,6 +699,15 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.ok).toBe(true);
     expect(result.planner).toBe('universal-v2-deterministic-tool');
     expect(result.reply).toBe('حاسبة القرض\n/calculators/loan');
+    expect(result.actions).toEqual([
+      expect.objectContaining({
+        type:'site_navigate',
+        capability:'site_navigate',
+        target:'calculator_loan',
+        risk:'low',
+        status:'ready'
+      })
+    ]);
     expect(executeGovernedAction.mock.calls[0][0]).toMatchObject({
       action:'calculator_open',
       input:{ calculator:'loan', language:'ar' }
