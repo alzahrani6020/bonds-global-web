@@ -103,6 +103,7 @@ describe('V3 scenarios UI contract', () => {
   test('syncs dynamic options directly into the universal dropdown component', () => {
     expect(scenarioPage).toContain("if (dropdown && typeof dropdown.setOptions === 'function')");
     expect(scenarioPage).toContain('dropdown.setOptions(normalized)');
+    expect(scenarioPage).toContain("dropdown.value = ''");
     expect(scenarioPage).toContain('const countryDropdown = window.getUniversalDropdown?.(countrySelect)');
     expect(scenarioPage).toContain('countryDropdown.items.length !== countryOptions.length');
     expect(scenarioPage).toContain('countryDropdown.setOptions(countryOptions)');
