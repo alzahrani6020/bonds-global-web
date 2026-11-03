@@ -66,12 +66,194 @@ function writePng(png, filePath) {
   fs.writeFileSync(filePath, PNG.sync.write(png));
 }
 
+
+async function runScenarioDropdownInteractionGate(browser) {
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
+  await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
+  const arabCountries = [
+    ['SA','السعودية'],['AE','الإمارات'],['EG','مصر'],['BH','البحرين'],['DZ','الجزائر'],['JO','الأردن'],
+    ['KW','الكويت'],['QA','قطر'],['OM','عُمان'],['YE','اليمن'],['IQ','العراق'],['LB','لبنان'],
+    ['SY','سوريا'],['PS','فلسطين'],['LY','ليبيا'],['TN','تونس'],['MA','المغرب'],['MR','موريتانيا'],
+    ['SD','السودان'],['SO','الصومال'],['DJ','جيبوتي'],['KM','جزر القمر']
+  ].map(([code, name_ar]) => ({
+    code,
+    name_ar,
+    name_en: code,
+    is_supported: true,
+    currency_code: code === 'SA' ? 'SAR' : 'USD',
+    flag: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4 3"><rect width="4" height="3" fill="#ddd"/></svg>'
+  }));
+
+  const fulfillJson = (route, payload) => route.fulfill({
+    status: 200,
+    contentType: 'application/json; charset=utf-8',
+    body: JSON.stringify(payload)
+  });
+
+  await page.route('**/api/v3/calculate/scenarios/presets', route =>
+    fulfillJson(route, { presets: [{ code: 'recession', name: 'سيناريو الركود', shocks: [] }] })
+  );
+  await page.route('**/api/v3/catalog/countries', route =>
+    fulfillJson(route, { countries: arabCountries, count: arabCountries.length })
+  );
+  await page.route('**/api/v3/investment-taxonomy**', route =>
+    fulfillJson(route, {
+      sectors: [{ id: 'sector-health', code: 'health', name_ar: 'الصحة', model_available: true, model_count: 1 }],
+      activities: [{
+        id: 'activity-dental',
+        code: 'dental_clinics',
+        name_ar: 'عيادات الأسنان',
+        is_active: true,
+        primary_sector: { sector_id: 'sector-health', is_primary: true }
+      }]
+    })
+  );
+  await page.route('**/api/v3/cities**', route =>
+    fulfillJson(route, {
+      cities: [{ code: 'SA-02-001', name_ar: 'جدة', name_en: 'Jeddah', country_code: 'SA', geo_confidence: 100 }]
+    })
+  );
+  await page.route('**/api/v3/models**', route =>
+    fulfillJson(route, {
+      models: [{
+        code: 'small_dental_clinic_model',
+        name_ar: 'نموذج عيادة أسنان صغيرة',
+        size_category: 'small',
+        default_currency: 'SAR',
+        capex_min: 100000,
+        capex_max: 300000,
+        revenue_min: 200000,
+        revenue_max: 500000,
+        employee_count_min: 3,
+        employee_count_max: 8,
+        typical_roi_months: 24,
+        legacy_sector_mapping_confidence: 1,
+        canonical_activity: { code: 'dental_clinics', name_ar: 'عيادات الأسنان', is_active: true }
+      }]
+    })
+  );
+
+  async function waitForEnabled(id, stage) {
+    try {
+      await page.waitForFunction(selectId => {
+        const select = document.getElementById(selectId);
+        return !!select && !select.disabled;
+      }, id, { timeout: 10000 });
+    } catch (error) {
+      const diagnostic = await page.evaluate(selectId => {
+        const select = document.getElementById(selectId);
+        const dd = select && window.getUniversalDropdown && window.getUniversalDropdown(select);
+        return {
+          stage: selectId,
+          present: !!select,
+          disabled: select ? select.disabled : null,
+          value: select ? select.value : null,
+          nativeOptions: select ? select.options.length : null,
+          dropdownItems: dd?.items?.length ?? null,
+          contextStatus: document.getElementById('contextStatus')?.textContent || ''
+        };
+      }, id);
+      throw new Error(`${stage} did not enable: ${JSON.stringify(diagnostic)} pageErrors=${JSON.stringify(pageErrors)}`);
+    }
+  }
+
+  try {
+    const url = new URL('/v3/scenarios', BASE_URL).toString();
+    await page.goto(url, { waitUntil: 'domcontentloaded' });
+    try {
+      await page.waitForFunction(() => {
+        const select = document.getElementById('countrySelect');
+        const dd = select && window.getUniversalDropdown && window.getUniversalDropdown(select);
+        return !!dd && dd.items && dd.items.length === 22;
+      }, null, { timeout: 10000 });
+    } catch (error) {
+      const diagnostic = await page.evaluate(() => {
+        const select = document.getElementById('countrySelect');
+        const dd = select && window.getUniversalDropdown && window.getUniversalDropdown(select);
+        return {
+          readyState: document.readyState,
+          selectPresent: !!select,
+          nativeOptions: select ? select.options.length : null,
+          universalDropdownDefined: typeof window.UniversalDropdown !== 'undefined',
+          initApiDefined: typeof window.initUniversalDropdowns === 'function',
+          getApiDefined: typeof window.getUniversalDropdown === 'function',
+          dropdownPresent: !!dd,
+          dropdownItems: dd?.items?.length ?? null,
+          contextStatus: document.getElementById('contextStatus')?.textContent || ''
+        };
+      });
+      throw new Error(`country dropdown did not reach 22 items: ${JSON.stringify(diagnostic)} pageErrors=${JSON.stringify(pageErrors)}`);
+    }
+
+    const countryState = await page.evaluate(() => {
+      const select = document.getElementById('countrySelect');
+      const dd = window.getUniversalDropdown(select);
+      return {
+        nativeOptions: select.options.length,
+        dropdownItems: dd.items.length,
+        selected: select.value,
+        flags: dd.items.filter(item => !!item.icon).length
+      };
+    });
+
+    if (countryState.nativeOptions !== 23) throw new Error(`country native option count mismatch: ${countryState.nativeOptions}`);
+    if (countryState.dropdownItems !== 22) throw new Error(`country dropdown item count mismatch: ${countryState.dropdownItems}`);
+    if (countryState.flags !== 22) throw new Error(`country flags missing: ${countryState.flags}/22`);
+    if (countryState.selected !== 'SA') throw new Error(`default country is not SA: ${countryState.selected}`);
+
+    await page.locator('#countrySelect + .ud-trigger').click();
+    await page.locator('#countrySelect').locator('xpath=..').locator('.ud-item[data-value="SA"]').waitFor({ state: 'visible' });
+
+    const visibleLabels = await page.locator('#countrySelect').locator('xpath=..').locator('.ud-item').evaluateAll(nodes =>
+      nodes.map(node => (node.textContent || '').trim())
+    );
+    if (!visibleLabels.includes('السعودية')) throw new Error('Saudi Arabia is not visible in the opened country dropdown');
+    const visibleFlagCount = await page.locator('#countrySelect').locator('xpath=..').locator('.ud-item svg').count();
+    if (visibleFlagCount < 1) throw new Error('country dropdown rendered without flag icons');
+
+    await page.locator('#countrySelect').locator('xpath=..').locator('.ud-item[data-value="SA"]').click();
+
+    await waitForEnabled('sectorSelect', 'sector');
+    await page.locator('#sectorSelect + .ud-trigger').click();
+    await page.locator('#sectorSelect').locator('xpath=..').locator('.ud-item[data-value="health"]').click();
+
+    await waitForEnabled('activitySelect', 'activity');
+    await page.locator('#activitySelect + .ud-trigger').click();
+    await page.locator('#activitySelect').locator('xpath=..').locator('.ud-item[data-value="dental_clinics"]').click();
+
+    await waitForEnabled('modelSelect', 'model');
+    await page.locator('#modelSelect + .ud-trigger').click();
+    await page.locator('#modelSelect').locator('xpath=..').locator('.ud-item[data-value="small_dental_clinic_model"]').click();
+
+    await waitForEnabled('citySelect', 'city');
+    const cityCount = await page.evaluate(() => {
+      const select = document.getElementById('citySelect');
+      const dd = window.getUniversalDropdown(select);
+      return dd ? dd.items.length : 0;
+    });
+    if (cityCount !== 1) throw new Error(`city dropdown item count mismatch: ${cityCount}`);
+
+    console.log(' scenario dropdown interaction gate: countries=22 flags=22 country→sector→activity→model→city PASS');
+  } finally {
+    await page.close();
+  }
+}
+
 (async () => {
   ensureDir(SNAPSHOTS_DIR);
   ensureDir(DIFFS_DIR);
 
   const browser = await chromium.launch({ headless: true });
   let failed = 0;
+
+  try {
+    await runScenarioDropdownInteractionGate(browser);
+  } catch (err) {
+    console.error(` scenario dropdown interaction gate failed: ${err.message}`);
+    failed++;
+  }
   let created = 0;
 
   for (const viewport of VIEWPORTS) {

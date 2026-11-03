@@ -5,6 +5,13 @@ const root = path.resolve(__dirname, '../..');
 const read = rel => fs.readFileSync(path.join(root, rel), 'utf8');
 
 describe('V3 investment taxonomy API', () => {
+  test('honors Vercel __path rewrites before route dispatch', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain("req.query?.__path || url.searchParams.get('__path')");
+    expect(api).toContain("? '/' + rewrittenPath.replace(/^\\/+/, '')");
+  });
+
   test('canonical taxonomy endpoint is additive and keeps legacy sectors endpoint', () => {
     const api = read('v3/api/index.js');
 

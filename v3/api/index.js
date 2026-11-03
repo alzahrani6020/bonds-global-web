@@ -2686,8 +2686,11 @@ module.exports = async function handler(req, res) {
   }
 
   const url = new URL(req.url, `http://${req.headers.host}`);
-  // Support both /api/v3/... (production under main site) and /api/... (standalone dev)
-  const path = url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/';
+  const rewrittenPath = String(req.query?.__path || url.searchParams.get('__path') || '').trim();
+  // Support pretty /api/v3/... URLs and the Vercel rewrite form /api/v3?__path=...
+  const path = rewrittenPath
+    ? '/' + rewrittenPath.replace(/^\/+/, '')
+    : (url.pathname.replace(/^\/api\/v3/, '').replace(/^\/api/, '') || '/');
 
   // Legacy analyze-document proxy (previously handled by api/v3/index.js wrapper)
   if (path === '/analyze-document' || path === '/analyze-document/') {

@@ -114,7 +114,8 @@
     initUniversalDropdowns(document);
   }
 
-  // Auto-init dynamically added selects
+  // Auto-init dynamically added selects. This must be safe when the script
+  // is loaded from <head> before document.body exists.
   if (typeof MutationObserver !== 'undefined') {
     const observer = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
@@ -129,6 +130,17 @@
         });
       });
     });
-    observer.observe(document.body, { childList: true, subtree: true });
+
+    const startObserver = () => {
+      if (!document.body || observer._udObserving) return;
+      observer.observe(document.body, { childList: true, subtree: true });
+      observer._udObserving = true;
+    };
+
+    if (document.body) {
+      startObserver();
+    } else {
+      document.addEventListener('DOMContentLoaded', startObserver, { once: true });
+    }
   }
 })();
