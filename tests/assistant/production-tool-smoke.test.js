@@ -11,33 +11,44 @@ function jsonResponse(status, body) {
   };
 }
 
+function replyFor(content) {
+  if (content === 'احسب 18 بالمئة من مليون') {
+    return jsonResponse(200, {
+      reply:'الناتج: 180000',
+      source:'bonds-assistant-ai-tool',
+      inference:{ tool_used:true, actions:['math_calculate'], planner:'universal-v2-deterministic-tool' }
+    });
+  }
+  if (content === 'افتح حاسبة القرض' || content === 'افتح صفحة حاسبة التمويل') {
+    return jsonResponse(200, {
+      reply:'حاسبة القرض\n/calculators/loan',
+      source:'bonds-assistant-ai-tool',
+      inference:{ tool_used:true, actions:['calculator_open'], planner:'universal-v2-deterministic-tool' },
+      actions:[{ type:'site_navigate', target:'calculator_loan', status:'ready' }]
+    });
+  }
+  if (content === 'افتح صفحة الميزانية') {
+    return jsonResponse(200, {
+      reply:'الميزانيات والموازنات\n/budgeting',
+      source:'bonds-assistant-ai-tool',
+      inference:{ tool_used:true, actions:['site_navigate'], planner:'universal-v2-deterministic-tool' },
+      actions:[{ type:'site_navigate', target:'budgeting', status:'ready' }]
+    });
+  }
+  return jsonResponse(200, {
+    reply:'1. How to make a budget\nhttps://example.com/budget',
+    source:'bonds-assistant-ai-tool',
+    inference:{ tool_used:true, actions:['web_search'], planner:'universal-v2-deterministic-research' }
+  });
+}
+
 describe('Assistant production tool smoke', () => {
-  test('proves calculate, calculator open, and how-to search actually ran tools', async () => {
+  test('proves calculate, calculator open, page open, and how-to search actually ran tools', async () => {
     const calls = [];
     const fetchImpl = jest.fn(async (url, options) => {
       const body = JSON.parse(options.body);
       calls.push(body.messages[0].content);
-
-      if (calls.length === 1) {
-        return jsonResponse(200, {
-          reply:'الناتج: 180000',
-          source:'bonds-assistant-ai-tool',
-          inference:{ tool_used:true, actions:['math_calculate'], planner:'universal-v2-deterministic-tool' }
-        });
-      }
-      if (calls.length === 2) {
-        return jsonResponse(200, {
-          reply:'حاسبة القرض\n/calculators/loan',
-          source:'bonds-assistant-ai-tool',
-          inference:{ tool_used:true, actions:['calculator_open'], planner:'universal-v2-deterministic-tool' },
-          actions:[{ type:'site_navigate', target:'calculator_loan', status:'ready' }]
-        });
-      }
-      return jsonResponse(200, {
-        reply:'1. How to make a budget\nhttps://example.com/budget',
-        source:'bonds-assistant-ai-tool',
-        inference:{ tool_used:true, actions:['web_search'], planner:'universal-v2-deterministic-research' }
-      });
+      return replyFor(body.messages[0].content);
     });
 
     const result = await runProductionToolSmoke({
@@ -53,36 +64,33 @@ describe('Assistant production tool smoke', () => {
       ok:true,
       math_calculate:true,
       calculator_open:true,
+      site_navigate:true,
+      funding_calculator_open:true,
       web_search:true
     });
     expect(calls).toEqual([
       'احسب 18 بالمئة من مليون',
       'افتح حاسبة القرض',
+      'افتح صفحة الميزانية',
+      'افتح صفحة حاسبة التمويل',
       'كيف اعمل ميزانية'
     ]);
+    expect(JSON.parse(fetchImpl.mock.calls[2][1].body).context).toEqual({
+      pagePath:'/calculators/loan',
+      serviceCode:'funding'
+    });
   });
 
   test('fails closed when a how-to answer skips search', async () => {
-    let call = 0;
-    const fetchImpl = jest.fn(async () => {
-      call += 1;
-      if (call === 1) {
+    const fetchImpl = jest.fn(async (url, options) => {
+      const content = JSON.parse(options.body).messages[0].content;
+      if (content === 'كيف اعمل ميزانية') {
         return jsonResponse(200, {
-          reply:'الناتج: 180000',
-          inference:{ tool_used:true, actions:['math_calculate'] }
+          reply:'غير موثق لدي',
+          inference:{ tool_used:false, actions:[] }
         });
       }
-      if (call === 2) {
-        return jsonResponse(200, {
-          reply:'حاسبة القرض\n/calculators/loan',
-          inference:{ tool_used:true, actions:['calculator_open'] },
-          actions:[{ type:'site_navigate', target:'calculator_loan', status:'ready' }]
-        });
-      }
-      return jsonResponse(200, {
-        reply:'غير موثق لدي',
-        inference:{ tool_used:false, actions:[] }
-      });
+      return replyFor(content);
     });
 
     await expect(runProductionToolSmoke({

@@ -714,6 +714,39 @@ describe('BONDS planner-first universal orchestrator', () => {
     });
   });
 
+  test('opens the funding calculator page from code even when a service is selected', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'calculator_open') {
+        return {
+          ok:true,
+          executed:true,
+          action:'calculator_open',
+          result:{
+            calculator:input.calculator,
+            navigation:{ target:'calculator_loan', route:'/calculators/loan' }
+          }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'افتح صفحة حاسبة التمويل' }],
+      { pagePath:'/calculators/loan', serviceCode:'funding' },
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-tool');
+    expect(result.reply).toContain('/calculators/loan');
+    expect(result.reply).not.toMatch(/case_id|accounting_entity_id/i);
+    expect(executeGovernedAction.mock.calls[0][0]).toMatchObject({
+      action:'calculator_open',
+      input:{ calculator:'loan', language:'ar' }
+    });
+  });
+
   test('opens a registered budgeting page from code without asking for an entity id', async () => {
     executeGovernedAction.mockImplementation(async ({ action, input }) => {
       if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');

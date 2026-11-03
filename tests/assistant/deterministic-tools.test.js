@@ -47,7 +47,12 @@ describe('deterministic assistant tools', () => {
     expect(parsePageOpen('افتح صفحة التمويل')).toEqual({ target:'funding' });
     expect(parsePageOpen('كيف اعمل ميزانية')).toBeNull();
     expect(parseCalculatorOpen('افتح حاسبة التمويل')).toEqual({ calculator:'loan' });
+    expect(parseCalculatorOpen('افتح صفحة حاسبة التمويل')).toEqual({ calculator:'loan' });
     expect(resolveDeterministicTool('افتح حاسبة التمويل')).toEqual({
+      action:'calculator_open',
+      input:{ calculator:'loan' }
+    });
+    expect(resolveDeterministicTool('افتح صفحة حاسبة التمويل')).toEqual({
       action:'calculator_open',
       input:{ calculator:'loan' }
     });

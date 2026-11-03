@@ -45,6 +45,13 @@ describe('BONDS global service assistant', () => {
     expect(aiApi).toContain('...(protocolActions.length ? { actions: protocolActions } : {})');
   });
 
+  test('runs deterministic local tools before service orchestration', () => {
+    const deterministic = aiApi.indexOf('runDeterministicLocalTools(');
+    const orchestration = aiApi.indexOf('orchestrateChat({');
+    expect(deterministic).toBeGreaterThan(-1);
+    expect(orchestration).toBeGreaterThan(deterministic);
+  });
+
   test('server discards client capability arrays and reloads them from service tables', () => {
     expect(aiApi).toContain('delete enriched.serviceCapabilities;');
     expect(aiApi).toContain(".from('service_capability_map')");
