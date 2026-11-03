@@ -3721,15 +3721,18 @@
         });
     }
 
-    function isCalculatorOpenTurn(payload) {
-      const tools = payload?.inference?.actions;
-      return payload?.inference?.planner === 'universal-v2-deterministic-tool'
-        && Array.isArray(tools)
-        && tools.includes('calculator_open');
+    function isGovernedNavigationTurn(payload) {
+      if (payload?.inference?.planner !== 'universal-v2-deterministic-tool') return false;
+      return (Array.isArray(payload.actions) ? payload.actions : []).some(item =>
+        item
+        && item.type === 'site_navigate'
+        && item.status !== 'denied'
+        && item.requires_confirmation !== true
+      );
     }
 
     function maybeAutoOpenCalculatorNavigation(payload) {
-      if (!isCalculatorOpenTurn(payload)) return;
+      if (!isGovernedNavigationTurn(payload)) return;
       const action = (Array.isArray(payload.actions) ? payload.actions : []).find(item =>
         item
         && item.type === 'site_navigate'

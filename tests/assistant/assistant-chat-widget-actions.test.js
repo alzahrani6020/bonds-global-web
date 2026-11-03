@@ -40,9 +40,8 @@ describe('BONDS Assistant chat widget action renderer', () => {
   });
 
   test('auto-opens a registered calculator in the current tab after calculator_open', () => {
-    expect(source).toContain('function isCalculatorOpenTurn(payload)');
-    expect(source).toContain("payload?.inference?.planner === 'universal-v2-deterministic-tool'");
-    expect(source).toContain("tools.includes('calculator_open')");
+    expect(source).toContain('function isGovernedNavigationTurn(payload)');
+    expect(source).toContain("payload?.inference?.planner !== 'universal-v2-deterministic-tool'");
     expect(source).toContain('function maybeAutoOpenCalculatorNavigation(payload)');
     expect(source).toContain("item.type === 'site_navigate'");
     expect(source).toContain('void executeStructuredAction(action, null, { sameTab: true })');

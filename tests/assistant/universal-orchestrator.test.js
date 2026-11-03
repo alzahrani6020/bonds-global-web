@@ -714,6 +714,59 @@ describe('BONDS planner-first universal orchestrator', () => {
     });
   });
 
+  test('opens a registered budgeting page from code without asking for an entity id', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'site_navigate') {
+        return {
+          ok:true,
+          executed:true,
+          action:'site_navigate',
+          result:{ target:input.target, route:'/budgeting', kind:'page' }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'افتح صفحة الميزانية' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-tool');
+    expect(result.reply).toContain('/budgeting');
+    expect(result.actions).toEqual([
+      expect.objectContaining({
+        type:'site_navigate',
+        target:'budgeting',
+        status:'ready'
+      })
+    ]);
+    expect(executeGovernedAction.mock.calls[0][0]).toMatchObject({
+      action:'site_navigate',
+      input:{ target:'budgeting', language:'ar' }
+    });
+  });
+
+  test('describes the current loan calculator instead of asking for previous context', async () => {
+    executeGovernedAction.mockImplementation(async () => {
+      throw new Error('AI_REASON_MUST_NOT_RUN');
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'ما الموجود هنا' }],
+      { pagePath:'/calculators/loan', pageTitle:'حاسبة القرض والتمويل | بوندز' },
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-page');
+    expect(result.reply).toContain('حاسبة القرض');
+    expect(executeGovernedAction).not.toHaveBeenCalled();
+  });
+
   test('recognizes explicit execution confirmation text', () => {
     expect(explicitMutationConfirmation([{ role:'user', content:'نفذ الآن' }], 'accounting_journal_post')).toBe(true);
     expect(explicitMutationConfirmation([{ role:'user', content:'جهزه فقط' }], 'accounting_journal_post')).toBe(false);
