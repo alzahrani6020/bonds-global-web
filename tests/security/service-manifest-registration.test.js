@@ -140,6 +140,7 @@ describe(
           'fx_translation_run',
           'language_detect',
           'management_reporting_run',
+          'math_calculate',
           'media_classify',
           'native_generate',
           'native_health',

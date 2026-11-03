@@ -7,6 +7,7 @@ const canonicalModel = require('../services/bonds_native_inference/canonical-mod
 const { assertAssistantProduction } = require('./assistant-production-smoke');
 const { runSyntheticProductionJourneys } = require('../lib/assistant/synthetic-production-journeys');
 const { runProductionConversationalSmoke } = require('../lib/assistant/production-conversational-smoke');
+const { runProductionToolSmoke } = require('../lib/assistant/production-tool-smoke');
 
 const cfg = {
   baseUrl: (process.env.PRODUCTION_URL || 'https://bonds-global.com').replace(/\/$/, ''),
@@ -776,6 +777,11 @@ async function main() {
   });
   await assertAssistantProduction({ baseUrl: cfg.baseUrl, token, expectedSha: cfg.expectedSha });
   await runProductionConversationalSmoke({
+    baseUrl: cfg.baseUrl,
+    token,
+    expectedSha: cfg.expectedSha
+  });
+  await runProductionToolSmoke({
     baseUrl: cfg.baseUrl,
     token,
     expectedSha: cfg.expectedSha

@@ -118,6 +118,34 @@ describe('Universal Capability Gateway', () => {
     expect(expandedTokens('تحليل جدوى وتمويل')).toEqual(
       expect.arrayContaining(['feasibility', 'funding'])
     );
+    expect(expandedTokens('ابحث عن مردونا')).toEqual(
+      expect.arrayContaining(['search', 'research'])
+    );
+    expect(expandedTokens('احسب 18 بالمئة')).toEqual(
+      expect.arrayContaining(['calculator', 'compute', 'calculate'])
+    );
+  });
+
+  test('search and calculate commands discover the matching tools instead of the accounting fallback', () => {
+    const search = discoverCapabilities({
+      query:'ابحث عن مردونا',
+      limit:8,
+      hiddenActions:new Set(['ai_reason', 'native_generate', 'native_health'])
+    });
+    expect(search.fallback).toBe(false);
+    expect(search.capabilities.map(item => item.action)).toEqual(
+      expect.arrayContaining(['web_search'])
+    );
+
+    const calculate = discoverCapabilities({
+      query:'احسب 18 بالمئة من مليون',
+      limit:8,
+      hiddenActions:new Set(['ai_reason', 'native_generate', 'native_health'])
+    });
+    expect(calculate.fallback).toBe(false);
+    expect(calculate.capabilities.map(item => item.action)).toEqual(
+      expect.arrayContaining(['math_calculate'])
+    );
   });
 
   test('can exclude mutating capabilities from discovery', () => {

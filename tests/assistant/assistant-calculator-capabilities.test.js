@@ -16,7 +16,7 @@ describe('assistant calculator capabilities', () => {
       retryMaxAttempts: null
     });
 
-    for (const action of ['calculator_open', 'calculator_run']) {
+    for (const action of ['calculator_open', 'calculator_run', 'math_calculate']) {
       expect(getCapability(action)).toMatchObject({
         action,
         serviceCode:'assistant',
@@ -70,6 +70,22 @@ describe('assistant calculator capabilities', () => {
       .toBe('tmp_retail_default');
     expect(calculatorRegistry.calculators.restaurant_feasibility.template_code)
       .toBe('tmp_restaurant_default');
+  });
+
+  test('math_calculate evaluates bounded arithmetic and rejects variables', async () => {
+    const calculate = getRuntimeAdapter('assistant_math_calculate');
+
+    expect(await calculate({ expression:'(1000000) * (18 / 100)' })).toMatchObject({
+      ok:true,
+      executed:true,
+      result:{ value:180000 }
+    });
+
+    expect(await calculate({ expression:'revenue * 0.18' })).toMatchObject({
+      ok:false,
+      executed:false,
+      error:{ code:'MATH_EXPRESSION_VARIABLES_NOT_ALLOWED' }
+    });
   });
 
   test('calculator registry never accepts a caller-supplied template as a calculator key', async () => {
