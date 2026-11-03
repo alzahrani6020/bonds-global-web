@@ -158,6 +158,11 @@ async function handleCalculateScenarios(req, res) {
       localized: Boolean(modelData.countryContext?.localized),
       cityDataStatus,
       cityConfidence: modelData.cityIndicators?.overall_confidence ?? null,
+      cityIndicatorYear: modelData.cityIndicators?.year ?? null,
+      cityIndicatorUpdatedAt: modelData.cityIndicators?.updated_at ?? null,
+      cityMarketDataYear: modelData.marketData?.data_year ?? null,
+      cityMarketDataConfidence: modelData.marketData?.confidence ?? null,
+      cityMarketDataSource: modelData.marketData?.source ?? null,
       cityAdjustmentsApplied: results.baseline?.cityAdjustments || [],
       cityIndicatorsUsed: results.baseline?.cityIndicators || null,
       model: {
