@@ -87,6 +87,13 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).not.toContain("Number(document.getElementById('yearsInput').value) || 5");
   });
 
+  test('keeps the scenarios runtime syntactically valid in browsers', () => {
+    const match = scenarioPage.match(/<script>\s*(const API_URL[\s\S]*?)<\/script>/);
+    expect(match).not.toBeNull();
+    expect(() => new Function(match[1])).not.toThrow();
+    expect(scenarioPage).not.toContain("?.value =");
+  });
+
   test('loads the current universal dropdown runtime with explicit cache-busting versions', () => {
     expect(scenarioPage).toContain('../components/universal-dropdown.js?v=2.52.2');
     expect(scenarioPage).toContain('../components/universal-dropdown-init.js?v=4');
