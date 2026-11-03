@@ -311,6 +311,10 @@
         <div id="decisionSummary"></div>
       </div>
       <div class="card">
+        <h3>القراءة التنفيذية وحدود الاعتماد</h3>
+        <div id="executiveReading"></div>
+      </div>
+      <div class="card">
         <h3>أثر المدينة والبيانات المستخدمة</h3>
         <div id="cityImpactSummary"></div>
       </div>
@@ -1031,6 +1035,50 @@
         (worstNpv ? '<div style="margin-top:.55rem;"><strong>أكبر ضغط على NPV:</strong> ' + escapeHtml(worstNpv.name) + ' (' + escapeHtml(formatNumber(worstNpv.delta)) + (currency ? ' ' + escapeHtml(currency) : '') + ')</div>' : '') +
         (highestRisk ? '<div style="margin-top:.55rem;"><strong>أكبر زيادة في المخاطر:</strong> ' + escapeHtml(highestRisk.name) + ' (+' + escapeHtml(formatNumber(highestRisk.delta)) + ' نقطة)</div>' : '') +
         '<div style="margin-top:.55rem;color:var(--text-secondary);">هذه خلاصة مقارنة بالـ Baseline وليست تنبؤاً مؤكداً؛ راجع الافتراضات والصدمات المعروضة قبل اتخاذ القرار.</div>';
+
+      const baselineSummary = baseline.summary || {};
+      const baselineAssumptions = baseline.assumptions || {};
+      const npv = Number(baselineSummary.npv);
+      const irr = Number(baselineSummary.irr);
+      const discountRatePct = Number(baselineAssumptions.discountRate) * 100;
+      const dscr = Number(baselineSummary.dscr);
+      const hasValueMetrics = Number.isFinite(npv) && Number.isFinite(irr) && Number.isFinite(discountRatePct);
+
+      let preliminaryDirection = 'غير حاسم — يلزم استكمال أو مراجعة المدخلات.';
+      if (hasValueMetrics && npv > 0 && irr > discountRatePct) {
+        preliminaryDirection = 'إيجابي مبدئياً — يمكن الانتقال إلى تحقق جدوى أعمق مع اختبار الافتراضات.';
+      } else if (hasValueMetrics && (npv < 0 || irr < discountRatePct)) {
+        preliminaryDirection = 'يحتاج مراجعة — لا تتقدم قبل مراجعة الافتراضات أو هيكل المشروع أو التمويل.';
+      }
+
+      let debtReading = 'غير متاحة لأن DSCR غير محسوب.';
+      if (Number.isFinite(dscr)) {
+        debtReading = dscr >= 1
+          ? 'DSCR عند أو فوق 1: التدفق المحسوب يغطي خدمة الدين وفق افتراضات النموذج.'
+          : 'DSCR أقل من 1: التدفق المحسوب لا يغطي خدمة الدين بالكامل وفق افتراضات النموذج.';
+      }
+
+      const cityReliance = !context.cityCode
+        ? 'لم تُختبر حساسية القرار لمدينة محددة.'
+        : context.cityDataStatus === 'location_only'
+          ? 'تم اختيار مدينة لكن لا توجد بيانات محلية مؤثرة؛ لا تعتمد على أثر الموقع في القرار.'
+          : 'أثر المدينة محسوب من البيانات المحلية المعروضة وسنواتها ومصادرها أعلاه.';
+
+      const limitations = [
+        'النتائج تعتمد على المدخلات والافتراضات المالية الحالية؛ تغييرها قد يغير NPV وIRR وDSCR جذرياً.',
+        'السيناريوهات اختبارات حساسية وليست توقعات مؤكدة للمستقبل.',
+        cityReliance,
+        'هذه القراءة لا تستبدل التحقق القانوني والضريبي والتمويلي والسوقي المتخصص قبل الالتزام برأس المال.'
+      ];
+
+      document.getElementById('executiveReading').innerHTML =
+        '<div><strong>اتجاه القرار المبدئي:</strong> ' + escapeHtml(preliminaryDirection) + '</div>' +
+        '<div style="margin-top:.6rem;"><strong>قدرة خدمة الدين:</strong> ' + escapeHtml(debtReading) + '</div>' +
+        '<div style="margin-top:.6rem;"><strong>المخاطر:</strong> ' +
+          escapeHtml(risk.score ?? '-') + ' من 100 — ' + escapeHtml(riskLevelLabel(risk.level)) + '</div>' +
+        '<div style="margin-top:.8rem;"><strong>حدود الاعتماد:</strong><ul style="margin:.45rem 0 0;padding-inline-start:1.25rem;">' +
+          limitations.map(item => '<li style="margin:.3rem 0;">' + escapeHtml(item) + '</li>').join('') +
+        '</ul></div>';
 
       document.getElementById('analysisRecommendation').innerHTML =
         '<div style="font-weight:800;margin-bottom:.45rem;">التوصية المحسوبة</div>' +
