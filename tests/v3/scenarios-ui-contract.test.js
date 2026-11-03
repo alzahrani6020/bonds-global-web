@@ -150,6 +150,15 @@ describe('V3 scenarios UI contract', () => {
     expect(scenarioPage).toContain("'<h4>' + escapeHtml(scenario.name) + '</h4>'");
   });
 
+  test('loads UniversalDropdown before scenarios init and recovers country options deterministically', () => {
+    const dropdownScript = scenarioPage.indexOf('../components/universal-dropdown.js?v=2.52.2');
+    const pageInit = scenarioPage.indexOf('async function init()');
+    expect(dropdownScript).toBeGreaterThanOrEqual(0);
+    expect(pageInit).toBeGreaterThan(dropdownScript);
+    expect(scenarioPage).toContain('if (countryDropdown.items.length !== countryOptions.length)');
+    expect(scenarioPage).toContain('countryDropdown.setOptions(countryOptions)');
+  });
+
   test('keeps institutional light theme and dropdowns visually consistent', () => {
     expect(scenarioPage).toContain('<html lang="ar" dir="rtl" data-theme="light">');
     for (const id of ['countrySelect','sectorSelect','activitySelect','modelSelect','citySelect']) {
