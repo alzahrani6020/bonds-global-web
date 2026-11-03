@@ -69,6 +69,8 @@ function writePng(png, filePath) {
 
 async function runScenarioDropdownInteractionGate(browser) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
+  const pageErrors = [];
+  page.on('pageerror', error => pageErrors.push(error.message));
   const arabCountries = [
     ['SA','السعودية'],['AE','الإمارات'],['EG','مصر'],['BH','البحرين'],['DZ','الجزائر'],['JO','الأردن'],
     ['KW','الكويت'],['QA','قطر'],['OM','عُمان'],['YE','اليمن'],['IQ','العراق'],['LB','لبنان'],
@@ -135,11 +137,30 @@ async function runScenarioDropdownInteractionGate(browser) {
   try {
     const url = new URL('/v3/scenarios', BASE_URL).toString();
     await page.goto(url, { waitUntil: 'domcontentloaded' });
-    await page.waitForFunction(() => {
-      const select = document.getElementById('countrySelect');
-      const dd = window.getUniversalDropdown && window.getUniversalDropdown(select);
-      return !!dd && dd.items && dd.items.length === 22;
-    }, null, { timeout: 10000 });
+    try {
+      await page.waitForFunction(() => {
+        const select = document.getElementById('countrySelect');
+        const dd = select && window.getUniversalDropdown && window.getUniversalDropdown(select);
+        return !!dd && dd.items && dd.items.length === 22;
+      }, null, { timeout: 10000 });
+    } catch (error) {
+      const diagnostic = await page.evaluate(() => {
+        const select = document.getElementById('countrySelect');
+        const dd = select && window.getUniversalDropdown && window.getUniversalDropdown(select);
+        return {
+          readyState: document.readyState,
+          selectPresent: !!select,
+          nativeOptions: select ? select.options.length : null,
+          universalDropdownDefined: typeof window.UniversalDropdown !== 'undefined',
+          initApiDefined: typeof window.initUniversalDropdowns === 'function',
+          getApiDefined: typeof window.getUniversalDropdown === 'function',
+          dropdownPresent: !!dd,
+          dropdownItems: dd?.items?.length ?? null,
+          contextStatus: document.getElementById('contextStatus')?.textContent || ''
+        };
+      });
+      throw new Error(`country dropdown did not reach 22 items: ${JSON.stringify(diagnostic)} pageErrors=${JSON.stringify(pageErrors)}`);
+    }
 
     const countryState = await page.evaluate(() => {
       const select = document.getElementById('countrySelect');
