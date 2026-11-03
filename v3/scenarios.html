@@ -483,6 +483,7 @@
 
       if (dropdown && typeof dropdown.setOptions === 'function') {
         dropdown.setOptions(normalized);
+        dropdown.value = '';
         return;
       }
 
