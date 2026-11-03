@@ -10,6 +10,14 @@
       "kind": "page",
       "risk": "low"
     },
+    "budgeting": {
+      "routes": {
+        "ar": "/budgeting",
+        "en": "/en/budgeting"
+      },
+      "kind": "page",
+      "risk": "low"
+    },
     "funding_readiness": {
       "routes": {
         "ar": "/funding-readiness",
