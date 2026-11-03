@@ -15,7 +15,8 @@ function loadHarness({ plannerReplies, plannerTelemetry = [], toolResults = {} }
   const capabilities = {
     web_search: { action:'web_search', active:true, sideEffect:'network_read', purpose:'search the public web' },
     web_fetch: { action:'web_fetch', active:true, sideEffect:'network_read', purpose:'fetch a page' },
-    calculator: { action:'calculator', active:true, sideEffect:'compute', purpose:'deterministic calculation' },
+    calculator_open: { action:'calculator_open', active:true, sideEffect:'none', purpose:'open a registered calculator' },
+    math_calculate: { action:'math_calculate', active:true, sideEffect:'compute', purpose:'deterministic calculation' },
     form_save_draft: { action:'form_save_draft', active:true, sideEffect:'database_write', purpose:'save draft' },
     ai_reason: { action:'ai_reason', active:true, sideEffect:'compute', purpose:'reason' }
   };
@@ -192,16 +193,15 @@ describe('universal orchestrator free-chat routing', () => {
   test('deterministic finance action routes through the tool and cites its result', async () => {
     const { mod, calls, reasonerPrompts } = loadHarness({
       plannerReplies: [
-        { mode:'tool', action:'calculator', input:{ expression:'1000000 * 0.18' } },
-        { mode:'answer', answer:'الناتج الحتمي: 180000.' }
+        { mode:'answer', answer:'should-not-run' }
       ],
       toolResults: {
-        calculator: async () => ({
+        math_calculate: async () => ({
           ok:true,
           executed:true,
-          action:'calculator',
+          action:'math_calculate',
           action_fabric:{ side_effect:'compute' },
-          result:{ value:'180000' }
+          result:{ value:180000 }
         })
       }
     });
@@ -213,9 +213,10 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(calls.some(call => call.action === 'calculator')).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-tool');
+    expect(calls.some(call => call.action === 'math_calculate')).toBe(true);
     expect(result.reply).toContain('180000');
-    expect(reasonerPrompts[0]).toContain('calculator');
+    expect(reasonerPrompts).toEqual([]);
   });
 
   test('a public search that returns no pages stops without opening the planner', async () => {

@@ -1,4 +1,5 @@
 const {
+  CORE_PLANNER_ACTIONS,
   capabilityCatalog,
   plannerCapabilityCatalog,
   plannerDiscoveryLimit,
@@ -148,6 +149,20 @@ describe('BONDS planner-first universal orchestrator', () => {
 
     expect(compact.length).toBeGreaterThan(0);
     expect(compact.some(item => /risk|credit|funding/.test(item.a))).toBe(true);
+  });
+
+  test('pins core search and calculator tools when discovery has no lexical match', () => {
+    const compact = plannerCapabilityCatalog(
+      'من مردونا',
+      [],
+      { modelId:'bonds-native', enforceModelPassport:true }
+    );
+
+    expect(compact.length).toBeGreaterThan(0);
+    expect(compact.length).toBeLessThanOrEqual(plannerDiscoveryLimit());
+    expect(CORE_PLANNER_ACTIONS.every(action => compact.some(item => item.a === action))).toBe(true);
+    expect(compact.slice(0, CORE_PLANNER_ACTIONS.length).map(item => item.a))
+      .toEqual([...CORE_PLANNER_ACTIONS].reverse());
   });
 
   test('fails closed when planner model identity has no registered passport', () => {
@@ -571,6 +586,123 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.confirmationRequired).toBe(true);
     expect(result.pendingAction.action).toBe('accounting_journal_post');
     expect(executeGovernedAction).toHaveBeenCalledTimes(1);
+  });
+
+  test('searches how-to questions even when the user asks for an explanation', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action:'web_search',
+          result:{
+            results:[{
+              title:'How to make a budget',
+              url:'https://example.com/budget',
+              snippet:'Start with income, then subtract expenses.'
+            }]
+          }
+        };
+      }
+      if (action === 'web_fetch') {
+        return { ok:true, executed:true, result:{ text:'Start with income, then subtract expenses.' } };
+      }
+      if (action === 'evidence_verify') {
+        return { ok:true, executed:true, result:{ verification_state:'SUPPORTED' } };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'اشرح كيف اعمل ميزانية' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.toolUsed).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'web_search')).toBe(true);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
+    expect(result.reply).not.toContain('تعذر الوصول إلى خدمة الذكاء');
+  });
+
+  test('asks for a clear expression instead of inventing a number', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'احسب الميزانية' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.toolUsed).toBe(false);
+    expect(result.reply).toContain('عبارة واضحة');
+    expect(executeGovernedAction).not.toHaveBeenCalled();
+  });
+
+  test('runs arithmetic from code without waiting for the planner', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'math_calculate') {
+        return {
+          ok:true,
+          executed:true,
+          action:'math_calculate',
+          result:{ expression:input.expression, value:180000 }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'احسب 18 بالمئة من مليون' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-tool');
+    expect(result.toolUsed).toBe(true);
+    expect(result.reply).toBe('الناتج: 180000');
+    expect(executeGovernedAction.mock.calls.map(call => call[0].action)).toEqual(['math_calculate']);
+    expect(executeGovernedAction.mock.calls[0][0].input.expression).toBe('(1000000) * (18 / 100)');
+  });
+
+  test('opens a registered calculator from code without waiting for the planner', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'calculator_open') {
+        return {
+          ok:true,
+          executed:true,
+          action:'calculator_open',
+          result:{
+            calculator:input.calculator,
+            navigation:{ target:'calculator_loan', route:'/calculators/loan' }
+          }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'افتح حاسبة القرض' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-tool');
+    expect(result.reply).toBe('حاسبة القرض\n/calculators/loan');
+    expect(executeGovernedAction.mock.calls[0][0]).toMatchObject({
+      action:'calculator_open',
+      input:{ calculator:'loan', language:'ar' }
+    });
   });
 
   test('recognizes explicit execution confirmation text', () => {

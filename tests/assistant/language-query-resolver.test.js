@@ -135,6 +135,10 @@ describe('BONDS language and query resolver', () => {
     const result = resolveLanguageQuery('كيف اعمل ميزانية');
     expect(result.intent).toBe('web_research');
     expect(result.requires_research).toBe(true);
+
+    const explained = resolveLanguageQuery('اشرح كيف اعمل ميزانية');
+    expect(explained.intent).toBe('web_research');
+    expect(explained.requires_research).toBe(true);
   });
 
   test('does not treat greetings as research', () => {

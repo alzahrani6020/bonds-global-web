@@ -48,6 +48,7 @@ describe('post-release pipeline contracts', () => {
     expect(smoke).toContain('Authorization: `Bearer ${token}`');
     expect(smoke).toContain('const token = await getAuthenticatedToken();');
     expect(smoke).toContain('await assertNativeProductionRuntime(token);');
+    expect(smoke).toContain('await runProductionToolSmoke({');
   });
 
   test('service-token governance reuses the existing fail-closed verifier', () => {
