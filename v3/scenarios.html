@@ -708,7 +708,8 @@
         const citySelect = document.getElementById('citySelect');
         setSelectOptions(citySelect, cityOptions, 'اختر مدينة (اختياري)');
         citySelect.value = '';
-        window.getUniversalDropdown?.(citySelect)?.value = '';
+        const cityDropdown = window.getUniversalDropdown?.(citySelect);
+        if (cityDropdown) cityDropdown.value = '';
         setControlDisabled('citySelect', cityOptions.length === 0);
       } else {
         cities = [];
