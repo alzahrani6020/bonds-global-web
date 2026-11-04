@@ -54,6 +54,20 @@ describe('V3 canonical activity taxonomy', () => {
     expect(migration).not.toMatch(/UPDATE\s+public\.project_models\s+SET\s+activity_id/i);
   });
 
+  test('colliding model titles are qualified from mapped sector, activity and size only', () => {
+    const migration = read('supabase/migrations/20261104173600_project_model_sector_qualified_names.sql');
+
+    expect(migration).toContain("concat('نموذج ', ca.name_ar, ' — ', s.name_ar, ' (', sz.name_ar, ')')");
+    expect(migration).toContain("concat(sz.name_en, ' ', s.name_en, ' ', ca.name_en, ' Model')");
+    expect(migration).toContain("concat('نموذج ', ca.name_ar, ' — ', es.name_ar, ' (', sz.name_ar, ')')");
+    expect(migration).toContain('legacy_sector_id');
+    expect(migration).toContain("pm.name_ar NOT LIKE '% — %'");
+    expect(migration).toContain('HAVING COUNT(*) > 1');
+    expect(migration).not.toMatch(/capex_|revenue_|employee_count_|typical_roi/i);
+    expect(migration).not.toMatch(/DELETE\s+FROM\s+public\.project_models/i);
+    expect(migration).not.toMatch(/UPDATE\s+public\.project_models\s+SET\s+activity_id/i);
+  });
+
   test('database migration is additive and persists canonical identity, aliases and applicability', () => {
     const migration = read('v3/supabase/migrations/20261019020000_v3_canonical_activity_taxonomy.sql');
 
