@@ -38,6 +38,7 @@ const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-w
 const { buildCommercialScoring } = require('../lib/analytics/commercial-scoring');
 const { buildBoardPack } = require('../lib/analytics/board-pack');
 const { answerNaturalLanguageAnalytics } = require('../lib/analytics/natural-language-analytics');
+const { resolveMigrationDbUrl } = require('../lib/db/migration-db-url');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -61,38 +62,11 @@ function isOwner(email) {
 }
 
 /**
- * Apply the social-media Supabase migrations directly over the Postgres
- * connection (SUPABASE_DB_URL). This avoids needing a Supabase Management API
- * access token and lets the project apply migrations from a secure Vercel
- * endpoint using the CRON_SECRET.
- *
- * Supabase's direct DB host (db.<ref>.supabase.co) is IPv6-only and Vercel
- * serverless functions cannot resolve it, so we rewrite it to the IPv4-enabled
- * session pooler host when needed.
+ * Apply Supabase migrations over Postgres using SUPABASE_DB_URL.
+ * Direct db.<ref>.supabase.co hosts are IPv6-only on Vercel, and session
+ * pooler URLs that still use the bare `postgres` user are rewritten to
+ * `postgres.<ref>` before connecting.
  */
-function resolveMigrationDbUrl() {
-  const dbUrl = process.env.SUPABASE_DB_URL;
-  if (!dbUrl) {
-    throw new Error('SUPABASE_DB_URL is not configured in environment variables');
-  }
-
-  try {
-    const url = new URL(dbUrl);
-    const directMatch = url.hostname.match(/^db\.([a-z0-9]+)\.supabase\.co$/i);
-    if (!directMatch) {
-      // Already a pooler/custom URL.
-      return dbUrl;
-    }
-    const ref = directMatch[1];
-    const poolerHost = process.env.SUPABASE_POOLER_HOST || 'aws-1-eu-central-1.pooler.supabase.com';
-    url.hostname = poolerHost;
-    url.port = '5432';
-    url.username = `postgres.${ref}`;
-    return url.toString();
-  } catch (err) {
-    throw new Error(`Failed to parse SUPABASE_DB_URL: ${err.message}`);
-  }
-}
 
 function validateMigrationPath(inputPath) {
   if (!inputPath) {
