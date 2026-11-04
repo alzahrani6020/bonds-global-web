@@ -10,6 +10,7 @@ const { resolveDeterministicTool } = require('../../lib/assistant/deterministic-
 describe('identity statement builder', () => {
   test('parses Arabic spoken magnitudes used in budget requests', () => {
     expect(parseSpokenNumber('عشرة مليون')).toBe(10000000);
+    expect(parseSpokenNumber('عشره مليون')).toBe(10000000);
     expect(parseSpokenNumber('سبع مئة الف')).toBe(700000);
     expect(parseSpokenNumber('سبع مئة ألف')).toBe(700000);
     expect(parseSpokenNumber('10 مليون')).toBe(10000000);
@@ -46,6 +47,12 @@ describe('identity statement builder', () => {
   test('resolves the user screenshot command as a local statement tool', () => {
     expect(resolveDeterministicTool(
       'اعمل لي ميزانية قائمة مركز مالي ودخل وتدفقات ايرادات عشرة مليون وربح سبع مئة الف ولوزن الباقي كمتراكم مناسب'
+    )).toEqual({
+      action: 'statement_build',
+      input: { revenue: 10000000, profit: 700000 }
+    });
+    expect(resolveDeterministicTool(
+      'اعمل لي ميزانية قائمة مركز مالي ودخل وتدفقات ايرادات عشره مليون وربح سبع مئة الف واوزن الباقي كمتراه مناسب'
     )).toEqual({
       action: 'statement_build',
       input: { revenue: 10000000, profit: 700000 }
