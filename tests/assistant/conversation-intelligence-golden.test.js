@@ -100,8 +100,11 @@ describe('BONDS conversational intelligence golden conversations', () => {
     expect(asksUserIdentity('هل تعرف من أنا؟')).toBe(true);
     const guarded = enforceAssistantIdentity('أنا Gemini من Google وأساعدك.');
     const guardedTechnical = enforceAssistantIdentity('النموذج الأساسي هو Gemma من Google.');
+    const guardedLlm = enforceAssistantIdentity('أنا نموذج لغوي ولا أستطيع إنشاء ميزانية مالية.');
     expect(guarded).toContain('مساعد بوندز');
     expect(guardedTechnical).toContain('مساعد بوندز');
+    expect(guardedLlm).toContain('مساعد بوندز');
+    expect(guardedLlm).not.toMatch(/نموذج لغوي/);
     expect(guarded).not.toMatch(/Gemini|Gemma|Google|OpenAI|ChatGPT|GPT|Claude|Anthropic|Llama|Meta/i);
     expect(guardedTechnical).not.toMatch(/Gemini|Gemma|Google|OpenAI|ChatGPT|GPT|Claude|Anthropic|Llama|Meta/i);
   });

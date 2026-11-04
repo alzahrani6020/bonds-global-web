@@ -43,6 +43,7 @@ describe('BONDS global service assistant', () => {
   test('chat API forwards governed protocol actions so the widget can open calculators', () => {
     expect(aiApi).toContain('const protocolActions = Array.isArray(loopResult.actions) ? loopResult.actions : [];');
     expect(aiApi).toContain('...(protocolActions.length ? { actions: protocolActions } : {})');
+    expect(aiApi).toContain('...(Array.isArray(deterministic.ui) && deterministic.ui.length ? { ui: deterministic.ui } : {})');
   });
 
   test('runs deterministic local tools before service orchestration', () => {

@@ -266,6 +266,7 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(recoverPlannerDecision('null')).toBeNull();
     expect(recoverPlannerDecision('{not json')).toBeNull();
     expect(recoverPlannerDecision('You are the BONDS universal action planner\nnope')).toBeNull();
+    expect(recoverPlannerDecision('You are BONDS Assistant, an agent that uses registered capabilities.\nnope')).toBeNull();
   });
 
   test('recovers a length-truncated planner JSON answer instead of pretending the model is down', () => {
@@ -781,6 +782,30 @@ describe('BONDS planner-first universal orchestrator', () => {
       action:'site_navigate',
       input:{ target:'budgeting', language:'ar' }
     });
+  });
+
+  test('builds statements from given revenue and profit without asking the language model', async () => {
+    executeGovernedAction.mockImplementation(async () => {
+      throw new Error('AI_REASON_MUST_NOT_RUN');
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{
+        role:'user',
+        content:'اعمل لي ميزانية قائمة مركز مالي ودخل وتدفقات ايرادات عشرة مليون وربح سبع مئة الف ولوزن الباقي كمتراكم مناسب'
+      }],
+      { pagePath:'/budgeting' },
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.toolUsed).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-tool');
+    expect(result.reply).not.toMatch(/نموذج لغوي|language model/i);
+    expect(result.reply).toContain('10,000,000');
+    expect(result.reply).toContain('700,000');
+    expect(result.ui).toHaveLength(3);
+    expect(executeGovernedAction).not.toHaveBeenCalled();
   });
 
   test('describes the current loan calculator instead of asking for previous context', async () => {
