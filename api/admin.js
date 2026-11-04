@@ -38,7 +38,7 @@ const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-w
 const { buildCommercialScoring } = require('../lib/analytics/commercial-scoring');
 const { buildBoardPack } = require('../lib/analytics/board-pack');
 const { answerNaturalLanguageAnalytics } = require('../lib/analytics/natural-language-analytics');
-const { resolveMigrationDbUrl } = require('../lib/db/migration-db-url');
+const { resolveMigrationDbUrl, describeMigrationDbUrl } = require('../lib/db/migration-db-url');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -140,7 +140,14 @@ async function applyMigration(targetFile, commitSha) {
     ssl: { rejectUnauthorized: false },
   });
 
-  await client.connect();
+  try {
+    await client.connect();
+  } catch (err) {
+    const target = describeMigrationDbUrl(connectionString);
+    const error = new Error(`Migration DB connect failed (${target.hostKind}/${target.userKind}): ${err.message}`);
+    error.cause = err;
+    throw error;
+  }
 
   try {
     await client.query('BEGIN');

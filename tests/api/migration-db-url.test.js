@@ -30,6 +30,21 @@ describe('resolveMigrationDbUrl', () => {
     expect(url.hostname).toBe('aws-1-eu-central-1.pooler.supabase.com');
   });
 
+  test('fails clearly when a bare postgres user cannot be rewritten without a project ref', () => {
+    expect(() => resolveMigrationDbUrl(
+      'postgresql://postgres:secret@aws-1-eu-central-1.pooler.supabase.com:5432/postgres',
+      {}
+    )).toThrow(/missing SUPABASE_URL project ref/);
+  });
+
+  test('rewrites a bare postgres user on any remaining host once the project ref is known', () => {
+    const resolved = resolveMigrationDbUrl(
+      'postgresql://postgres:secret@db.internal:5432/postgres',
+      env
+    );
+    expect(decodeURIComponent(new URL(resolved).username)).toBe('postgres.hutxsqzplyuqgnghsrcs');
+  });
+
   test('keeps a pooler URL that already uses postgres.ref', () => {
     const input = 'postgresql://postgres.hutxsqzplyuqgnghsrcs:secret@aws-0-eu-central-1.pooler.supabase.com:6543/postgres';
     expect(resolveMigrationDbUrl(input, env)).toBe(input);
