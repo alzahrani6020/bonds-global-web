@@ -43,6 +43,17 @@ describe('V3 canonical activity taxonomy', () => {
     expect(migration).not.toMatch(/UPDATE\s+public\.project_models\s+SET\s+activity_id/i);
   });
 
+  test('model reconciliation maps generic activities by any attached investment sector', () => {
+    const migration = read('supabase/migrations/20261104140500_project_model_sector_reconciliation.sql');
+
+    expect(migration).toContain('legacy_alias_sector_backfill');
+    expect(migration).toContain('ON CONFLICT (canonical_activity_id, sector_id) DO NOTHING');
+    expect(migration).toContain('matched.sector_id = lsim.investment_sector_id');
+    expect(migration).toContain("THEN 'mapped'");
+    expect(migration).not.toMatch(/DELETE\s+FROM\s+public\.project_models/i);
+    expect(migration).not.toMatch(/UPDATE\s+public\.project_models\s+SET\s+activity_id/i);
+  });
+
   test('database migration is additive and persists canonical identity, aliases and applicability', () => {
     const migration = read('v3/supabase/migrations/20261019020000_v3_canonical_activity_taxonomy.sql');
 
