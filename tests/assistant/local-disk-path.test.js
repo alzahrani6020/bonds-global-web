@@ -92,11 +92,13 @@ describe('assistant local disk paths', () => {
     expect(result.reply).toContain('trial-balance.xlsx');
   });
 
-  test('statement-build without numbers falls through when an analyzed attachment is present', async () => {
+  test('statement-build without numbers uses the attached trial balance', async () => {
     const result = await runDeterministicLocalTools([
       { role: 'user', content: 'اعمل ميزانية قائمة دخل ومركز مالي' }
     ], { attachments: [READY_ATTACHMENT] }, {}, []);
-    expect(result).toBeNull();
+    expect(result.planner).toBe('universal-v2-deterministic-trial-balance');
+    expect(result.reply).toContain('trial-balance.xlsx');
+    expect(result.reply).toContain('10,900,000');
   });
 
   test('statement-build without numbers still asks for figures when no file is present', async () => {
