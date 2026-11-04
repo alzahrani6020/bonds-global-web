@@ -58,6 +58,7 @@ describe('Bonds Native chat generation budget', () => {
   test('keeps a bounded 8-12 message prompt with structured context layers', () => {
     expect(source).toContain("slice(-10)");
     expect(source).toContain("VERIFIED_BONDS_DATA=");
+    expect(source).toContain("ATTACHMENTS=");
     expect(source).toContain("CONVERSATION_STATE=");
     expect(source).toContain("RECENT_MESSAGES=");
     expect(source).toContain("CURRENT_REQUEST=");

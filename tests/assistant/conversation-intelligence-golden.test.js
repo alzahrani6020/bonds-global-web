@@ -134,11 +134,34 @@ describe('BONDS conversational intelligence golden conversations', () => {
     expect(prompt).toContain('TRUSTED_USER_CONTEXT=');
     expect(prompt).toContain('CONVERSATION_STATE=');
     expect(prompt).toContain('VERIFIED_BONDS_DATA=');
+    expect(prompt).toContain('ATTACHMENTS=[]');
     expect(prompt).toContain('RECENT_MESSAGES=');
     expect(prompt).toContain('CURRENT_REQUEST=');
     expect(prompt).toContain('رسالة-4');
     expect(prompt).not.toContain('رسالة-3');
     expect(prompt).toContain('رسالة-13');
+  });
+
+  test('keeps uploaded trial-balance evidence in ATTACHMENTS instead of asking for the file again', () => {
+    const prompt = buildNativeChatPrompt([
+      { role:'user', content:'أرسلت لك ميزان المراجعة حمله من C:\\\\Users\\\\vip\\\\Downloads\\\\trial-balance.xlsx' }
+    ], {
+      authenticated:true,
+      attachments:[{
+        document_id:'doc-tb-1',
+        filename:'trial-balance.xlsx',
+        status:'analyzed',
+        extracted:{
+          summary:'تم استخراج 18 صفوف',
+          text_excerpt:'Sales\t10900000',
+          rows_count:18
+        }
+      }]
+    });
+    expect(prompt).toContain('ATTACHMENTS=');
+    expect(prompt).toContain('trial-balance.xlsx');
+    expect(prompt).toContain('never say a named file, trial balance');
+    expect(prompt).not.toContain('ATTACHMENTS=[]');
   });
 
   test('chat AI is a registered governed Action Fabric capability', () => {
