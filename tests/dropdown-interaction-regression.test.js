@@ -39,7 +39,7 @@ describe('Dropdown interaction regression', () => {
     const sw = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
     expect(sw).toContain("url.pathname === '/components/universal-dropdown.js'");
     expect(sw).toContain("url.pathname === '/components/universal-dropdown-init.js'");
-    expect(sw).toContain("const CACHE_VERSION = 'v3.0.225'");
+    expect(sw).toContain("const CACHE_VERSION = 'v3.0.226'");
   });
 
   test('public pages default UniversalDropdown to light unless dark is explicit', () => {
