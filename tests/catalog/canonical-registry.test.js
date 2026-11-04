@@ -49,6 +49,24 @@ describe('canonical catalog registry', () => {
     expect(cities).toHaveLength(2);
   });
 
+  test('collapses Arabic article variants of the same activity identity', () => {
+    const activities = canonicalizeActivities([
+      { code: 'cafe', name_ar: 'مقاهي', name_en: 'Cafes', is_active: true, sector_code: 'hospitality' },
+      { code: 'cafes', name_ar: 'المقاهي', name_en: 'Cafes', is_active: true, sector_code: 'hospitality' },
+      { code: 'restaurant', name_ar: 'مطاعم', name_en: 'Restaurants', is_active: true, sector_code: 'hospitality' },
+      { code: 'restaurants', name_ar: 'المطاعم', name_en: 'Restaurants', is_active: true, sector_code: 'hospitality' },
+      { code: 'retail_de6eadad', name_ar: 'تجزئة', name_en: 'Retail', is_active: true, sector_code: 'trade' },
+      { code: 'retail_31301cbc', name_ar: 'التجزئة', name_en: 'Retail', is_active: true, sector_code: 'trade' }
+    ]);
+
+    expect(activities).toHaveLength(3);
+    expect(activities.find(row => row.aliases.includes('cafe') && row.aliases.includes('cafes'))).toBeTruthy();
+    expect(activities.find(row => row.aliases.includes('restaurant') && row.aliases.includes('restaurants'))).toBeTruthy();
+    expect(activities.find(row =>
+      row.aliases.includes('retail_de6eadad') && row.aliases.includes('retail_31301cbc')
+    )).toBeTruthy();
+  });
+
   test('collapses repeated generic activity names and preserves all activity aliases', () => {
     const activities = canonicalizeActivities([
       {

@@ -59,6 +59,26 @@ describe('V3 investment taxonomy API', () => {
     expect(api).toContain('_sectorCanonical: sectorCanonical');
   });
 
+  test('user-facing taxonomy counts active canonical activities only', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain(".eq('is_active', true)");
+    expect(api).toContain('.filter(activity => activity.is_active !== false)');
+    expect(api).toContain("canonicalRows.filter(row => row.is_active !== false)");
+    expect(api).toContain('inactiveCount');
+    expect(api).toContain("from('canonical_activity_code_aliases')");
+    expect(api).toContain("canonical.is_active === false");
+  });
+
+  test('taxonomy can report project-model mapping reconciliation without rewriting models', () => {
+    const api = read('v3/api/index.js');
+
+    expect(api).toContain("include.has('model_reconciliation')");
+    expect(api).toContain(".from('project_model_canonical_reconciliation')");
+    expect(api).toContain('duplicate_financial_profile_groups');
+    expect(api).toContain('mapping_status');
+  });
+
   test('taxonomy returns the cross-cutting dimensions explicitly when requested', () => {
     const api = read('v3/api/index.js');
 

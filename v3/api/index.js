@@ -228,6 +228,7 @@ async function handleInvestmentTaxonomy(req, res) {
   const includeActivities = include.has('activities') || include.has('all');
   const includeDimensions = include.has('dimensions') || include.has('all');
   const includeModelAvailability = include.has('model_availability') || include.has('all');
+  const includeModelReconciliation = include.has('model_reconciliation') || include.has('all');
 
   if (countryCode && !COUNTRY_NAMES[countryCode]) {
     return sendJson(res, 400, { error: 'Invalid country parameter' });
@@ -319,6 +320,7 @@ async function handleInvestmentTaxonomy(req, res) {
         supabase
           .from('canonical_activity_catalog')
           .select('id,code,name_ar,name_en,description,is_active,sort_order,aliases')
+          .eq('is_active', true)
           .in('id', activityIds)
           .order('sort_order')
           .order('name_ar'),
@@ -373,13 +375,15 @@ async function handleInvestmentTaxonomy(req, res) {
       countryActivityRows.map(row => [row.canonical_activity_id, row])
     );
 
-    activities = activityRows.map(activity => ({
-      ...activity,
-      primary_sector: primarySectorByActivity.get(activity.id) || null,
-      primary_subsector: primarySubsectorByActivity.get(activity.id) || null,
-      country: countryByActivity.get(activity.id) || null,
-      business_forms: eligibilityByActivity.get(activity.id) || []
-    }));
+    activities = activityRows
+      .filter(activity => activity.is_active !== false)
+      .map(activity => ({
+        ...activity,
+        primary_sector: primarySectorByActivity.get(activity.id) || null,
+        primary_subsector: primarySubsectorByActivity.get(activity.id) || null,
+        country: countryByActivity.get(activity.id) || null,
+        business_forms: eligibilityByActivity.get(activity.id) || []
+      }));
   }
 
   let projectSizes = [];
@@ -479,6 +483,48 @@ async function handleInvestmentTaxonomy(req, res) {
     subsectorsBySector.get(row.sector_id).push(row);
   }
 
+  let modelReconciliation = null;
+  if (includeModelReconciliation) {
+    const { data: reconciliationRows, error: reconciliationError } = await supabase
+      .from('project_model_canonical_reconciliation')
+      .select('id,mapping_status,financial_profile_key,is_published,is_active');
+    if (reconciliationError) {
+      const missingView = /does not exist|schema cache/i.test(reconciliationError.message || '');
+      if (!missingView) {
+        console.error('[investment-taxonomy/model-reconciliation]', reconciliationError.message);
+        return sendJson(res, 500, { error: 'Failed to load project model reconciliation' });
+      }
+    } else {
+    const statusCounts = {
+      mapped: 0,
+      unmapped: 0,
+      ambiguous: 0,
+      inactive: 0,
+      unpublished: 0
+    };
+    const profileGroups = new Map();
+    for (const row of reconciliationRows || []) {
+      const status = row.mapping_status;
+      if (Object.prototype.hasOwnProperty.call(statusCounts, status)) {
+        statusCounts[status] += 1;
+      }
+      if (row.is_published && row.is_active && status === 'mapped' && row.financial_profile_key) {
+        profileGroups.set(
+          row.financial_profile_key,
+          (profileGroups.get(row.financial_profile_key) || 0) + 1
+        );
+      }
+    }
+    const duplicateGroups = [...profileGroups.values()].filter(count => count > 1);
+    modelReconciliation = {
+      ...statusCounts,
+      total: (reconciliationRows || []).length,
+      duplicate_financial_profile_groups: duplicateGroups.length,
+      duplicate_financial_profile_models: duplicateGroups.reduce((sum, count) => sum + count, 0)
+    };
+    }
+  }
+
   res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=3600');
   return sendJson(res, 200, {
     taxonomy_version: 'v3-canonical-investment-1',
@@ -489,7 +535,8 @@ async function handleInvestmentTaxonomy(req, res) {
       subsectors: includeSubsectors,
       activities: includeActivities,
       dimensions: includeDimensions,
-      model_availability: includeModelAvailability
+      model_availability: includeModelAvailability,
+      model_reconciliation: includeModelReconciliation
     },
     sectors: (sectors || []).map(sector => ({
       ...sector,
@@ -508,7 +555,8 @@ async function handleInvestmentTaxonomy(req, res) {
       project_sizes: projectSizes.length,
       business_forms: businessForms.length,
       opportunity_types: opportunityTypes.length
-    }
+    },
+    model_reconciliation: modelReconciliation
   });
 }
 
@@ -525,26 +573,37 @@ async function resolveActivitySelection(supabase, activityCode) {
 
     const { data: direct, error: directError } = await supabase
       .from('canonical_activity_catalog')
-      .select('id,code,name_ar,name_en,aliases')
+      .select('id,code,name_ar,name_en,aliases,is_active')
       .eq('code', activityCode)
       .maybeSingle();
 
     if (!directError && direct) {
       canonical = direct;
-    } else {
-      const { data: alias, error: aliasError } = await supabase
-        .from('canonical_activity_legacy_aliases')
-        .select('canonical_activity_id')
-        .eq('legacy_code', activityCode)
-        .maybeSingle();
+    }
 
-      if (!aliasError && alias?.canonical_activity_id) {
-        const { data: aliasedCanonical, error: canonicalError } = await supabase
+    if (!canonical || canonical.is_active === false) {
+      const [codeAliasResult, legacyAliasResult] = await Promise.all([
+        supabase
+          .from('canonical_activity_code_aliases')
+          .select('canonical_activity_id')
+          .eq('alias_code', activityCode)
+          .maybeSingle(),
+        supabase
+          .from('canonical_activity_legacy_aliases')
+          .select('canonical_activity_id')
+          .eq('legacy_code', activityCode)
+          .maybeSingle()
+      ]);
+      const survivorId = codeAliasResult.data?.canonical_activity_id
+        || legacyAliasResult.data?.canonical_activity_id
+        || null;
+      if (survivorId) {
+        const { data: survivor, error: survivorError } = await supabase
           .from('canonical_activity_catalog')
-          .select('id,code,name_ar,name_en,aliases')
-          .eq('id', alias.canonical_activity_id)
+          .select('id,code,name_ar,name_en,aliases,is_active')
+          .eq('id', survivorId)
           .maybeSingle();
-        if (!canonicalError && aliasedCanonical) canonical = aliasedCanonical;
+        if (!survivorError && survivor) canonical = survivor;
       }
     }
 
@@ -1184,6 +1243,10 @@ async function handleCatalogActivities(req, res) {
       .order('name_ar');
 
     if (!canonicalError && canonicalRows) {
+      const includeInactive = url.searchParams.get('include_inactive') === '1';
+      const visibleRows = includeInactive
+        ? canonicalRows
+        : canonicalRows.filter(row => row.is_active !== false);
       let countryCoverage = new Map();
       let countryProfile = null;
       if (countryCode) {
@@ -1196,7 +1259,7 @@ async function handleCatalogActivities(req, res) {
         countryCoverage = new Map((coverageRows || []).map(row => [row.canonical_activity_id, row]));
       }
 
-      const activities = canonicalRows.map(row => ({
+      const activities = visibleRows.map(row => ({
         id: row.id,
         code: row.code,
         canonical_code: row.code,
@@ -1222,11 +1285,13 @@ async function handleCatalogActivities(req, res) {
       }));
 
       const rawCount = activities.reduce((sum, row) => sum + Math.max(1, Number(row.aliases?.length || 0)), 0);
+      const inactiveCount = canonicalRows.filter(row => row.is_active === false).length;
       return sendJson(res, 200, {
         activities,
         count: activities.length,
         rawCount,
         duplicatesCollapsed: Math.max(0, rawCount - activities.length),
+        inactiveCount,
         country: countryCode || null,
         source: 'canonical_activity_catalog'
       });
