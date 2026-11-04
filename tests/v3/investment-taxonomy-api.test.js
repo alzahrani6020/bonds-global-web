@@ -79,6 +79,19 @@ describe('V3 investment taxonomy API', () => {
     expect(api).toContain('mapping_status');
   });
 
+  test('model availability counts a model when any attached sector matches, not only the primary', () => {
+    const api = read('v3/api/index.js');
+    const availabilityBlock = api.slice(
+      api.indexOf('includeModelAvailability && sectorIds.length'),
+      api.indexOf('const subsectorsBySector')
+    );
+
+    expect(availabilityBlock).toContain(".from('canonical_activity_investment_sectors')");
+    expect(availabilityBlock).toContain('sectorsByCanonicalActivity');
+    expect(availabilityBlock).toContain('activitySectors.has(mappedInvestmentSector)');
+    expect(availabilityBlock).not.toMatch(/canonical_activity_investment_sectors'\)\s*\.select\([^)]+\)\s*\.eq\('is_primary', true\)/);
+  });
+
   test('taxonomy returns the cross-cutting dimensions explicitly when requested', () => {
     const api = read('v3/api/index.js');
 

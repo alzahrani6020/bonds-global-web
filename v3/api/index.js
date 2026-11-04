@@ -433,7 +433,6 @@ async function handleInvestmentTaxonomy(req, res) {
       supabase
         .from('canonical_activity_investment_sectors')
         .select('canonical_activity_id,sector_id')
-        .eq('is_primary', true)
         .in('sector_id', sectorIds)
     ]);
 
@@ -459,15 +458,19 @@ async function handleInvestmentTaxonomy(req, res) {
     const canonicalActivityByLegacyActivity = new Map(
       (activityAliasesResult.data || []).map(row => [row.legacy_activity_id, row.canonical_activity_id])
     );
-    const primarySectorByCanonicalActivity = new Map(
-      (activitySectorResult.data || []).map(row => [row.canonical_activity_id, row.sector_id])
-    );
+    const sectorsByCanonicalActivity = new Map();
+    for (const row of activitySectorResult.data || []) {
+      if (!sectorsByCanonicalActivity.has(row.canonical_activity_id)) {
+        sectorsByCanonicalActivity.set(row.canonical_activity_id, new Set());
+      }
+      sectorsByCanonicalActivity.get(row.canonical_activity_id).add(row.sector_id);
+    }
 
     for (const model of projectModelsResult.data || []) {
       const mappedInvestmentSector = investmentSectorByLegacySector.get(model.sector_id);
       const canonicalActivityId = canonicalActivityByLegacyActivity.get(model.activity_id);
-      const canonicalActivitySector = primarySectorByCanonicalActivity.get(canonicalActivityId);
-      if (!mappedInvestmentSector || !canonicalActivityId || mappedInvestmentSector !== canonicalActivitySector) {
+      const activitySectors = sectorsByCanonicalActivity.get(canonicalActivityId);
+      if (!mappedInvestmentSector || !canonicalActivityId || !activitySectors || !activitySectors.has(mappedInvestmentSector)) {
         continue;
       }
       modelAvailabilityBySector.set(
