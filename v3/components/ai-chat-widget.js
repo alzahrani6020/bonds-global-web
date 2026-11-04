@@ -43,6 +43,9 @@
   const ASSISTANT_LAYOUT_MIN_WIDTH = 360;
   const ASSISTANT_LAYOUT_MIN_HEIGHT = 360;
   const ASSISTANT_DIAGNOSTICS_HISTORY_KEY = 'bonds.assistant.diagnostics.v1';
+  const LOCAL_DISK_DB = 'bonds_assistant_local_disk_v1';
+  const LOCAL_DISK_STORE = 'folders';
+  const LOCAL_DISK_EXT = '(?:xlsx|xls|csv|pdf|docx?|jpe?g|png|webp|heic|heif|tiff?)';
 
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
@@ -3056,6 +3059,242 @@
       return document.documentElement.lang === 'en' ? 'en' : 'ar';
     }
 
+    function parseLocalDiskPath(value) {
+      let pathValue = String(value || '').trim().replace(/^["']|["']$/g, '');
+      if (!pathValue) return null;
+      if (/^file:\/\//i.test(pathValue)) {
+        try {
+          pathValue = decodeURIComponent(pathValue.replace(/^file:\/\//i, ''));
+        } catch (_error) {
+          pathValue = pathValue.replace(/^file:\/\//i, '');
+        }
+        pathValue = pathValue.replace(/^\/([A-Za-z]:)/, '$1');
+      }
+      const posix = pathValue.startsWith('/') || pathValue.startsWith('~');
+      pathValue = posix ? pathValue.replace(/\\/g, '/') : pathValue.replace(/\//g, '\\');
+      if (/\.\.|[\\/](?:windows|system32|\.ssh|\.gnupg)(?:[\\/]|$)|[\\/]\.env(?:[\\/]|$|\.)/i.test(pathValue)) {
+        return null;
+      }
+      const segments = pathValue.split(posix ? /\/+/ : /\\+/).filter(Boolean);
+      const basename = segments[segments.length - 1] || '';
+      if (!new RegExp('\\.' + LOCAL_DISK_EXT + '$', 'i').test(basename)) return null;
+      return {
+        original: String(value || '').trim(),
+        normalized: pathValue.toLowerCase(),
+        basename,
+        segments
+      };
+    }
+
+    function extractLocalDiskPaths(text) {
+      const raw = String(text || '');
+      const found = [];
+      const seen = new Set();
+      const patterns = [
+        new RegExp('["\']((?:[A-Za-z]:\\\\|\\\\\\\\|file:///)[^"\'\\n]+?\\.' + LOCAL_DISK_EXT + ')["\']', 'gi'),
+        new RegExp('(?:[A-Za-z]:\\\\|\\\\\\\\)[^\\n<>"|?*]+\\.' + LOCAL_DISK_EXT, 'gi'),
+        new RegExp('file:///[^\\s"\'<>]+\\.' + LOCAL_DISK_EXT, 'gi'),
+        new RegExp('(?:^|[\\s"\'])(/(?:Users|home)/[^\\n<>"|*]+\\.' + LOCAL_DISK_EXT + ')', 'gi')
+      ];
+      for (const pattern of patterns) {
+        let match = pattern.exec(raw);
+        while (match) {
+          const parsed = parseLocalDiskPath(match[1] || match[0]);
+          if (parsed && !seen.has(parsed.normalized)) {
+            seen.add(parsed.normalized);
+            found.push(parsed);
+          }
+          match = pattern.exec(raw);
+        }
+      }
+      return found;
+    }
+
+    function hasReadyAttachment(basename) {
+      const wanted = String(basename || '').trim().toLowerCase();
+      return state.attachments.some(item =>
+        !item.error &&
+        item.document_id &&
+        String(item.filename || item.name || '').trim().toLowerCase() === wanted
+      );
+    }
+
+    function supportsLocalDiskPicker() {
+      return window.isSecureContext === true && typeof window.showDirectoryPicker === 'function';
+    }
+
+    function openLocalFolderDb() {
+      return new Promise((resolve, reject) => {
+        const req = indexedDB.open(LOCAL_DISK_DB, 1);
+        req.onupgradeneeded = () => {
+          if (!req.result.objectStoreNames.contains(LOCAL_DISK_STORE)) {
+            req.result.createObjectStore(LOCAL_DISK_STORE);
+          }
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    }
+
+    async function loadGrantedFolders() {
+      if (!window.indexedDB) return [];
+      try {
+        const db = await openLocalFolderDb();
+        const folders = await new Promise((resolve, reject) => {
+          const tx = db.transaction(LOCAL_DISK_STORE, 'readonly');
+          const req = tx.objectStore(LOCAL_DISK_STORE).getAll();
+          req.onsuccess = () => resolve(Array.isArray(req.result) ? req.result : []);
+          req.onerror = () => reject(req.error);
+        });
+        db.close();
+        return folders.filter(item => item && typeof item.getFileHandle === 'function');
+      } catch (_error) {
+        return [];
+      }
+    }
+
+    async function persistGrantedFolder(handle) {
+      if (!handle || !window.indexedDB) return;
+      try {
+        const db = await openLocalFolderDb();
+        await new Promise((resolve, reject) => {
+          const tx = db.transaction(LOCAL_DISK_STORE, 'readwrite');
+          tx.objectStore(LOCAL_DISK_STORE).put(handle, handle.name || 'folder');
+          tx.oncomplete = () => resolve();
+          tx.onerror = () => reject(tx.error);
+        });
+        db.close();
+      } catch (_error) {}
+    }
+
+    async function ensureFolderPermission(handle) {
+      if (!handle || typeof handle.queryPermission !== 'function') return false;
+      const query = await handle.queryPermission({ mode: 'read' });
+      if (query === 'granted') return true;
+      if (typeof handle.requestPermission !== 'function') return false;
+      return (await handle.requestPermission({ mode: 'read' })) === 'granted';
+    }
+
+    async function findFileInDirectory(dirHandle, parsed, depth) {
+      const level = Number(depth) || 0;
+      if (!dirHandle || !parsed?.basename || level > 3) return null;
+      try {
+        const fileHandle = await dirHandle.getFileHandle(parsed.basename);
+        return await fileHandle.getFile();
+      } catch (_direct) {}
+      const folderName = String(dirHandle.name || '').toLowerCase();
+      const segments = Array.isArray(parsed.segments) ? parsed.segments : [];
+      const index = segments.findIndex(part => String(part || '').toLowerCase() === folderName);
+      if (index >= 0 && index < segments.length - 1) {
+        try {
+          let current = dirHandle;
+          for (const part of segments.slice(index + 1, -1)) {
+            current = await current.getDirectoryHandle(part);
+          }
+          const fileHandle = await current.getFileHandle(parsed.basename);
+          return await fileHandle.getFile();
+        } catch (_relative) {}
+      }
+      if (level >= 2) return null;
+      try {
+        for await (const entry of dirHandle.values()) {
+          if (entry.kind !== 'directory') continue;
+          const found = await findFileInDirectory(entry, parsed, level + 1);
+          if (found) return found;
+        }
+      } catch (_walk) {}
+      return null;
+    }
+
+    function localDiskReply(code, parsed) {
+      const english = languageCode() === 'en';
+      const name = parsed?.basename || parsed?.original || '';
+      if (code === 'BROWSER_CANNOT_OPEN_TYPED_PATH') {
+        return english
+          ? 'This browser cannot open a typed disk path. Use the attach button, or Chrome/Edge on this computer.'
+          : 'هذا المتصفح لا يفتح مسار القرص المكتوب. أرفق الملف من الزر، أو استخدم كروم/إيدج على هذا الجهاز.';
+      }
+      if (code === 'FILE_NOT_IN_GRANTED_FOLDER') {
+        return english
+          ? `I could not find ${name} in the folder you allowed. Choose the folder that contains the file, for example Downloads.`
+          : `لم أجد ${name} في المجلد المسموح. اختر المجلد الذي يحتوي الملف، مثل التنزيلات.`;
+      }
+      if (code === 'LOCAL_DISK_UPLOAD_FAILED') {
+        return english
+          ? `The file ${name} was found on this device but could not be uploaded.`
+          : `وجدت الملف ${name} على هذا الجهاز لكن تعذر رفعه.`;
+      }
+      return english
+        ? 'I need folder permission on this device to open that path from the website.'
+        : 'أحتاج صلاحية المجلد على هذا الجهاز لفتح ذلك المسار من الموقع.';
+    }
+
+    const localDiskFolders = [];
+
+    void (async () => {
+      for (const handle of await loadGrantedFolders()) {
+        if (await ensureFolderPermission(handle)) localDiskFolders.push(handle);
+      }
+    })();
+
+    async function rememberFolder(handle) {
+      if (!handle || localDiskFolders.includes(handle)) return;
+      localDiskFolders.push(handle);
+      await persistGrantedFolder(handle);
+    }
+
+    async function loadFilesFromLocalDisk(paths) {
+      const pending = (Array.isArray(paths) ? paths : []).filter(item => !hasReadyAttachment(item.basename));
+      if (!pending.length) return { ok: true, reused: true };
+      if (!supportsLocalDiskPicker()) {
+        return { ok: false, code: 'BROWSER_CANNOT_OPEN_TYPED_PATH', pending };
+      }
+
+      async function findInKnownFolders(parsed) {
+        for (const folder of localDiskFolders) {
+          const file = await findFileInDirectory(folder, parsed, 0);
+          if (file) return file;
+        }
+        return null;
+      }
+
+      const files = [];
+      for (const parsed of pending) {
+        let file = await findInKnownFolders(parsed);
+        if (!file) {
+          try {
+            const picked = await window.showDirectoryPicker({
+              id: 'bonds-local-files',
+              mode: 'read',
+              startIn: 'downloads'
+            });
+            await rememberFolder(picked);
+            file = await findFileInDirectory(picked, parsed, 0);
+          } catch (error) {
+            if (error && error.name === 'AbortError') {
+              return { ok: false, code: 'FOLDER_PERMISSION_REQUIRED', pending, parsed };
+            }
+            return { ok: false, code: 'BROWSER_CANNOT_OPEN_TYPED_PATH', pending, parsed };
+          }
+        }
+        if (!file) return { ok: false, code: 'FILE_NOT_IN_GRANTED_FOLDER', pending, parsed };
+        files.push(file);
+      }
+      state.isUploading = true;
+      attachBtn.classList.add('uploading');
+      attachBtn.disabled = true;
+      try {
+        for (const file of files) await uploadOneAttachment(file);
+      } finally {
+        state.isUploading = false;
+        attachBtn.classList.remove('uploading');
+        attachBtn.disabled = state.isLoading;
+      }
+      const missing = pending.filter(item => !hasReadyAttachment(item.basename));
+      if (missing.length) return { ok: false, code: 'LOCAL_DISK_UPLOAD_FAILED', pending: missing, parsed: missing[0] };
+      return { ok: true, loaded: pending };
+    }
+
     const ARABIC_SPEECH_LOCALES = Object.freeze({
       DZ: 'ar-DZ', BH: 'ar-BH', KM: 'ar-KM', DJ: 'ar-DJ', EG: 'ar-EG', IQ: 'ar-IQ',
       JO: 'ar-JO', KW: 'ar-KW', LB: 'ar-LB', LY: 'ar-LY', MR: 'ar-MR', MA: 'ar-MA',
@@ -3901,7 +4140,22 @@
     }
 
     async function sendMessage(text) {
-      if (!text.trim() || state.isLoading) return;
+      if (!text.trim() || state.isLoading || state.isUploading) return;
+      const localPaths = extractLocalDiskPaths(text);
+      if (localPaths.length) {
+        const loaded = await loadFilesFromLocalDisk(localPaths);
+        const ready = localPaths.some(item => hasReadyAttachment(item.basename));
+        if (!loaded.ok && !ready) {
+          root.classList.add('conversation-started');
+          addUserMessage(text, {
+            turn_id: createMessageTrackingId('turn'),
+            status: 'sent',
+            source: 'user-input'
+          });
+          addAssistantMessage(localDiskReply(loaded.code, loaded.parsed || loaded.pending?.[0]), true);
+          return;
+        }
+      }
       refreshContext();
       await loadVerifiedServiceProfile();
       await resumePersistentCaseState();

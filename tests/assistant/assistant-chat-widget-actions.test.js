@@ -153,6 +153,16 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(sendSource).toContain('عذراً، حدث خطأ أثناء الاتصال بالمساعد. حاول مرة أخرى.');
   });
 
+  test('loads a typed disk path from the website browser before sending chat', () => {
+    expect(source).toContain('function extractLocalDiskPaths(text)');
+    expect(source).toContain('async function loadFilesFromLocalDisk(paths)');
+    expect(source).toContain('window.showDirectoryPicker');
+    expect(source).toContain("startIn: 'downloads'");
+    expect(source).toContain('const localPaths = extractLocalDiskPaths(text)');
+    expect(source).toContain('await loadFilesFromLocalDisk(localPaths)');
+    expect(source).toContain('function localDiskReply(code, parsed)');
+  });
+
   test('renders live runtime health instead of a fixed connected label', () => {
     expect(source).toContain("const READINESS_URL = '/api/readiness';");
     expect(source).toContain('async function refreshServiceHealth()');

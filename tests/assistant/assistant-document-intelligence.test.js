@@ -60,6 +60,16 @@ describe('assistant document intelligence', () => {
     });
   });
 
+  test('classifies Arabic trial-balance filenames', () => {
+    expect(classifyDocument(document({
+      filename:'ميزان مراجعة خاص مكتب د-- طلال.xlsx',
+      mime_type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      extracted_data:{ text:'Account\tDebit\tCredit' }
+    }))).toMatchObject({
+      type:'trial_balance'
+    });
+  });
+
   test('extracts suggested fields with provenance', () => {
     const fields = extractDocumentFields(document());
     const iban = fields.find(x => x.name === 'iban');
