@@ -26,6 +26,21 @@ describe('identity statement builder', () => {
     });
   });
 
+  test('splits revenue from والارباح plus a numeric thousand amount', () => {
+    expect(parseStatementBuild(
+      'اعمل ميزانية لشركتي بوندز ايرادات عشرة مليون والارباح 900 الف اظبط القوائم من تاليفك بشكل صحيح'
+    )).toEqual({
+      revenue: 10000000,
+      profit: 900000
+    });
+    expect(parseSpokenNumber('عشرة مليون والارباح 900 الف')).toBe(10000000);
+  });
+
+  test('does not treat a missing profit as zero', () => {
+    expect(buildIdentityStatements({ revenue: 10000000, profit: null }, 'ar')).toBeNull();
+    expect(buildIdentityStatements({ revenue: 10000000 }, 'ar')).toBeNull();
+  });
+
   test('does not steal how-to or feasibility requests', () => {
     expect(parseStatementBuild('كيف اعمل ميزانية')).toBeNull();
     expect(parseStatementBuild('اعمل دراسة جدوى للمشروع')).toBeNull();

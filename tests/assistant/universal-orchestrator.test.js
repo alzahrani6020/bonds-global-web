@@ -808,6 +808,29 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(executeGovernedAction).not.toHaveBeenCalled();
   });
 
+  test('splits والارباح from revenue and does not coerce missing profit to zero', async () => {
+    executeGovernedAction.mockImplementation(async () => {
+      throw new Error('AI_REASON_MUST_NOT_RUN');
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{
+        role:'user',
+        content:'اعمل ميزانية لشركتي بوندز ايرادات عشرة مليون والارباح 900 الف اظبط القوائم من تاليفك بشكل صحيح'
+      }],
+      { pagePath:'/budgeting' },
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.toolUsed).toBe(true);
+    expect(result.reply).toContain('10,000,000');
+    expect(result.reply).toContain('900,000');
+    expect(result.reply).not.toContain('10,900,000');
+    expect(result.reply).not.toMatch(/صافي ربح 0/);
+    expect(executeGovernedAction).not.toHaveBeenCalled();
+  });
+
   test('describes the current loan calculator instead of asking for previous context', async () => {
     executeGovernedAction.mockImplementation(async () => {
       throw new Error('AI_REASON_MUST_NOT_RUN');
