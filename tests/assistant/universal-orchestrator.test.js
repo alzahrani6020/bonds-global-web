@@ -10,6 +10,7 @@ const {
   parseDecision,
   recoverPlannerDecision,
   explicitMutationConfirmation,
+  isFastPublicFact,
   runUniversalOrchestrator
 } = require('../../lib/assistant/universal-orchestrator');
 
@@ -22,6 +23,10 @@ const { executeGovernedAction } = require('../../lib/services/service-execution-
 describe('BONDS planner-first universal orchestrator', () => {
   beforeEach(() => {
     executeGovernedAction.mockReset();
+  });
+
+  test('routes explicit official URL requests through the deterministic research entry path', () => {
+    expect(isFastPublicFact('ابحث في الإنترنت عن الموقع الرسمي لوزارة المالية السعودية، واذكر اسم الجهة والرابط الرسمي فقط.')).toBe(true);
   });
 
   test('budgets allow the measured native planner latency and remain bounded', () => {
