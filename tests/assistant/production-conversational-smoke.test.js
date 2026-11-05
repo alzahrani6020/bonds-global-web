@@ -72,6 +72,42 @@ describe('Assistant production conversational smoke', () => {
   });
 
 
+  test('accepts deterministic evidence trace when fast research omits diagnostics', async () => {
+    let call = 0;
+    const fetchImpl = jest.fn(async () => {
+      call += 1;
+      if (call === 1) {
+        return jsonResponse(200, {
+          reply:'وزارة المالية السعودية — https://www.mof.gov.sa/',
+          source:'bonds-assistant-ai-tool',
+          inference:{
+            tool_used:true,
+            actions:['web_explore','evidence_verify','research_synthesize']
+          }
+        });
+      }
+      return jsonResponse(200, {
+        reply:'https://www.mof.gov.sa/',
+        source:'bonds-assistant-ai',
+        inference:{ tool_used:false }
+      });
+    });
+
+    await expect(runProductionConversationalSmoke({
+      baseUrl:'https://bonds-global.com',
+      token:'token',
+      expectedSha:'f'.repeat(40),
+      fetchImpl,
+      sleepImpl:async () => {},
+      log:() => {}
+    })).resolves.toEqual(expect.objectContaining({
+      ok:true,
+      research_tool_used:true,
+      evidence_backed:true,
+      official_domain:'mof.gov.sa'
+    }));
+  });
+
   test('safe diagnostics summary exposes metadata only', () => {
     const summary = safeDiagnosticsSummary({
       reply:'SECRET_REPLY_SHOULD_NOT_LEAK https://private.example/path',
