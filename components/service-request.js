@@ -70,6 +70,160 @@ function renderFinancialWorkspaceShell(){
   '</div>';
  grid.insertAdjacentElement('beforebegin',shell);
 }
+const ACCOUNTING_REPORT_WORKSPACE_SERVICES=new Set([
+ 'financial_statements','income_statement','statement_financial_position',
+ 'cash_flow_statement','changes_in_equity'
+]);
+function financialFieldLabel(key){
+ const labels={
+  accounting_entity_id:lang==='ar'?'الكيان المحاسبي':'Accounting entity',
+  from:lang==='ar'?'من تاريخ':'From',
+  to:lang==='ar'?'إلى تاريخ':'To',
+  as_of:lang==='ar'?'كما في تاريخ':'As of',
+  dimension_type:lang==='ar'?'نوع البعد التحليلي':'Analysis dimension',
+  dimension_code:lang==='ar'?'رمز البعد':'Dimension code',
+  fiscal_year:lang==='ar'?'السنة المالية':'Fiscal year',
+  currency:lang==='ar'?'العملة':'Currency',
+  materiality_pct:lang==='ar'?'حد الأهمية النسبية %':'Materiality threshold %'
+ };
+ return labels[key]||humanizeKey(key);
+}
+function accountingReportNeedsDimension(){
+ return ['income_statement','statement_financial_position','cash_flow_statement'].includes(serviceCode);
+}
+function accountingReportNeedsRange(){
+ return ['financial_statements','cash_flow_statement','changes_in_equity'].includes(serviceCode);
+}
+function renderAccountingReportInputs(){
+ const host=$('#srDynamicFields');
+ if(!host||!ACCOUNTING_REPORT_WORKSPACE_SERVICES.has(serviceCode))return false;
+ const dimension=accountingReportNeedsDimension();
+ const range=accountingReportNeedsRange();
+ const asOf=serviceCode==='statement_financial_position';
+ host.innerHTML=
+  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('accounting_entity_id'))+' <small>('+T.required+')</small></label>'+
+   '<select name="accounting_entity_id" id="financialAccountingEntity" required><option value="">'+
+   escapeHtml(lang==='ar'?'جاري تحميل الكيانات...':'Loading entities...')+'</option></select></div>'+
+  (dimension?'<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('dimension_type'))+' <small>('+T.required+')</small></label>'+
+   '<select name="dimension_type" required><option value="cost_center">'+(lang==='ar'?'مركز تكلفة':'Cost center')+'</option>'+
+   '<option value="segment">'+(lang==='ar'?'قطاع / شريحة':'Segment')+'</option></select></div>'+
+   '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('dimension_code'))+' <small>('+T.optional+')</small></label>'+
+   '<input type="text" name="dimension_code" placeholder="'+escapeHtml(lang==='ar'?'اتركه فارغًا لإظهار جميع الأبعاد':'Leave blank for all dimensions')+'"></div>':'')+
+  (range?'<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('from'))+' <small>('+T.required+')</small></label><input type="date" name="from" required></div>'+
+   '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('to'))+' <small>('+T.required+')</small></label><input type="date" name="to" required></div>':'')+
+  (asOf?'<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('as_of'))+' <small>('+T.optional+')</small></label><input type="date" name="as_of"></div>':'');
+ $('#srFormTitle').textContent=lang==='ar'?'بيانات إعداد القائمة المالية':'Financial statement inputs';
+ return true;
+}
+function budgetMetricRow(index=0){
+ const metric=lang==='ar'?'الإيرادات':'revenue';
+ return '<div class="financial-budget-row" data-budget-row>'+
+  '<input data-budget-period type="month" aria-label="'+escapeHtml(lang==='ar'?'الفترة':'Period')+'" required>'+
+  '<select data-budget-status aria-label="'+escapeHtml(lang==='ar'?'الحالة':'Status')+'"><option value="actual">'+(lang==='ar'?'فعلي':'Actual')+'</option><option value="forecast">'+(lang==='ar'?'توقع':'Forecast')+'</option></select>'+
+  '<input data-budget-metric type="text" value="revenue" aria-label="'+escapeHtml(lang==='ar'?'البند':'Metric')+'" required>'+
+  '<input data-budget-actual type="number" step="any" placeholder="'+escapeHtml(lang==='ar'?'الفعلي':'Actual')+'">'+
+  '<input data-budget-budget type="number" step="any" placeholder="'+escapeHtml(lang==='ar'?'الموازنة':'Budget')+'">'+
+  '<input data-budget-forecast type="number" step="any" placeholder="'+escapeHtml(lang==='ar'?'التوقع':'Forecast')+'">'+
+  '<button type="button" class="financial-budget-remove" data-budget-remove aria-label="'+escapeHtml(lang==='ar'?'حذف الصف':'Remove row')+'">×</button>'+
+ '</div>';
+}
+function renderPlanningBudgetInputs(){
+ const host=$('#srDynamicFields');
+ if(!host||serviceCode!=='planning_budgeting_forecasting')return false;
+ const year=new Date().getFullYear();
+ host.innerHTML=
+  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('fiscal_year'))+' <small>('+T.required+')</small></label><input type="number" min="2000" max="2200" name="fiscal_year" value="'+year+'" required></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('currency'))+' <small>('+T.required+')</small></label><input type="text" name="currency" value="SAR" maxlength="3" required></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('materiality_pct'))+' <small>('+T.optional+')</small></label><input type="number" min="0" step="0.1" name="materiality_pct" value="5"></div>'+
+  '<div class="sr-field"><label class="sr-check"><input type="checkbox" name="use_budget_as_forecast"> '+escapeHtml(lang==='ar'?'استخدم الموازنة كتوقع فقط عند عدم وجود توقع صريح':'Use budget as forecast only when explicit forecast is missing')+'</label></div>'+
+  '<div class="sr-field full financial-budget-builder"><div class="financial-budget-builder-head"><div><h3>'+
+   escapeHtml(lang==='ar'?'بنود الفعلي والموازنة والتوقع':'Actual, budget and forecast rows')+
+   '</h3><p>'+escapeHtml(lang==='ar'?'كل صف يمثل بندًا ماليًا في فترة. يمكنك إضافة إيرادات ومصروفات وأي مؤشرات مالية أخرى.':'Each row is one metric in one period. Add revenue, expenses, or any other financial metric.')+
+   '</p></div><button type="button" id="financialBudgetAddRow" class="sr-secondary">'+escapeHtml(lang==='ar'?'إضافة صف':'Add row')+'</button></div>'+
+   '<div class="financial-budget-columns" aria-hidden="true"><span>'+(lang==='ar'?'الفترة':'Period')+'</span><span>'+(lang==='ar'?'الحالة':'Status')+'</span><span>'+(lang==='ar'?'البند':'Metric')+'</span><span>'+(lang==='ar'?'الفعلي':'Actual')+'</span><span>'+(lang==='ar'?'الموازنة':'Budget')+'</span><span>'+(lang==='ar'?'التوقع':'Forecast')+'</span><span></span></div>'+
+   '<div id="financialBudgetRows">'+budgetMetricRow()+'</div></div>';
+ $('#srFormTitle').textContent=lang==='ar'?'بيانات الموازنة والتوقع':'Budget & forecast inputs';
+ const rows=$('#financialBudgetRows');
+ $('#financialBudgetAddRow')?.addEventListener('click',()=>{rows.insertAdjacentHTML('beforeend',budgetMetricRow());saveWorkspaceDraft()});
+ rows?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-budget-remove]');
+  if(!btn)return;
+  const all=rows.querySelectorAll('[data-budget-row]');
+  if(all.length<=1)return;
+  btn.closest('[data-budget-row]')?.remove();
+  saveWorkspaceDraft();
+ });
+ return true;
+}
+function renderFinancialOperationalInputs(){
+ if(!isFinancialWorkspaceService())return false;
+ if(serviceCode==='planning_budgeting_forecasting')return renderPlanningBudgetInputs();
+ return renderAccountingReportInputs();
+}
+async function hydrateAccountingEntities(){
+ if(!ACCOUNTING_REPORT_WORKSPACE_SERVICES.has(serviceCode))return;
+ const select=$('#financialAccountingEntity');
+ if(!select)return;
+ try{
+  await window.BondsAuth.ensureEnv();
+  const u=await window.BondsAuth.getUser();
+  const user=u.data?.user;
+  if(!user){
+   select.innerHTML='<option value="">'+escapeHtml(lang==='ar'?'سجّل الدخول لاختيار الكيان':'Sign in to select an entity')+'</option>';
+   return;
+  }
+  const sb=window.BondsAuth.getSupabase();
+  const session=(await sb.auth.getSession()).data.session;
+  if(!session?.access_token)throw new Error(T.login);
+  const response=await fetch('/api/v3/services/accounting/entities',{headers:{'Authorization':'Bearer '+session.access_token}});
+  const payload=await response.json().catch(()=>({}));
+  if(!response.ok)throw new Error(payload?.error?.code||payload?.error||('HTTP '+response.status));
+  const entities=Array.isArray(payload.entities)?payload.entities:[];
+  select.innerHTML='<option value="">'+escapeHtml(lang==='ar'?'اختر الكيان المحاسبي':'Select accounting entity')+'</option>'+
+   entities.map(entity=>'<option value="'+escapeHtml(entity.id)+'">'+escapeHtml(entity.name||entity.id)+(entity.base_currency?' — '+escapeHtml(entity.base_currency):'')+'</option>').join('');
+  if(entities.length===1)select.value=entities[0].id;
+  restoreWorkspaceDraft();
+  if(!select.value&&entities.length===1)select.value=entities[0].id;
+ }catch(error){
+  select.innerHTML='<option value="">'+escapeHtml(lang==='ar'?'تعذر تحميل الكيانات':'Could not load entities')+'</option>';
+  showStatus(T.failed+': '+error.message,false);
+ }
+}
+function collectPlanningBudgetValues(){
+ const form=$('#srRequestForm');
+ const fiscalYear=String(form.elements.namedItem('fiscal_year')?.value||'').trim();
+ const currency=String(form.elements.namedItem('currency')?.value||'').trim().toUpperCase();
+ const materialityRaw=form.elements.namedItem('materiality_pct')?.value;
+ const useBudget=form.elements.namedItem('use_budget_as_forecast')?.checked===true;
+ const grouped=new Map();
+ document.querySelectorAll('[data-budget-row]').forEach(row=>{
+  const period=String(row.querySelector('[data-budget-period]')?.value||'').trim();
+  const status=String(row.querySelector('[data-budget-status]')?.value||'actual').trim();
+  const metric=String(row.querySelector('[data-budget-metric]')?.value||'').trim();
+  if(!period||!metric)return;
+  if(!grouped.has(period))grouped.set(period,{period,status,actual:{},budget:{},forecast:{}});
+  const item=grouped.get(period);
+  item.status=status;
+  const assign=(selector,target)=>{
+   const raw=row.querySelector(selector)?.value;
+   if(raw!==''&&raw!==undefined&&raw!==null){
+    const n=Number(raw);
+    if(Number.isFinite(n))item[target][metric]=n;
+   }
+  };
+  assign('[data-budget-actual]','actual');
+  assign('[data-budget-budget]','budget');
+  assign('[data-budget-forecast]','forecast');
+ });
+ return {
+  fiscal_year:fiscalYear,
+  currency,
+  materiality_pct:materialityRaw===''?0:Number(materialityRaw),
+  use_budget_as_forecast:useBudget,
+  periods:[...grouped.values()].sort((a,b)=>a.period.localeCompare(b.period))
+ };
+}
+
 const workspaceDraftKey='bonds_service_workspace_draft_v1:'+serviceCode;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
@@ -185,6 +339,7 @@ function render(){
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
  if(!form?.fields?.length)renderRequestProfile();
  renderFinancialWorkspaceShell();
+ renderFinancialOperationalInputs();
  renderFinancialIntake();
  restoreWorkspaceDraft();
  bindWorkspaceDraft();
@@ -194,6 +349,7 @@ const FINANCIAL_ACTIONS=new Set([
  'feasibility_run','valuation_run','risk_analysis_run','scenario_forecast_run'
 ]);
 function isFinancialIntakeService(){
+ if(isFinancialWorkspaceService())return false;
  if(detail?.intake?.supported===true)return true;
  return (detail?.capabilities||[]).some(item=>FINANCIAL_ACTIONS.has(item.capability_code));
 }
@@ -520,6 +676,7 @@ function track(event,properties={}){
  }catch(_){}
 }
 function collectValues(){
+ if(serviceCode==='planning_budgeting_forecasting'&&isFinancialWorkspaceService())return collectPlanningBudgetValues();
  const values={};const form=$('#srRequestForm');
  form.querySelectorAll('[name]').forEach(el=>{
    if(el.type==='file')return;
@@ -679,6 +836,7 @@ async function init(){
     return;
   }
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
+  await hydrateAccountingEntities();
   const requestForm=$('#srRequestForm');
   $('#srSubmit').textContent=T.submit;
   requestForm.addEventListener('submit',submit);
