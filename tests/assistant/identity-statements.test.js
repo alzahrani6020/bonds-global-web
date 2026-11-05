@@ -36,6 +36,15 @@ describe('identity statement builder', () => {
     expect(parseSpokenNumber('عشرة مليون والارباح 900 الف')).toBe(10000000);
   });
 
+  test('does not steal requests for actual ledger statements', () => {
+    expect(parseStatementBuild(
+      'اعمل لي القوائم المالية الفعلية لهذا الكيان عن أكتوبر 2026'
+    )).toBeNull();
+    expect(resolveDeterministicTool(
+      'اعمل لي القوائم المالية الفعلية من دفتر الأستاذ عن أكتوبر 2026'
+    )).toBeNull();
+  });
+
   test('does not treat a missing profit as zero', () => {
     expect(buildIdentityStatements({ revenue: 10000000, profit: null }, 'ar')).toBeNull();
     expect(buildIdentityStatements({ revenue: 10000000 }, 'ar')).toBeNull();
