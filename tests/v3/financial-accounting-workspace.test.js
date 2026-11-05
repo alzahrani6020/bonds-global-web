@@ -28,6 +28,9 @@ describe('financial accounting workspace contract',()=>{
     expect(ui).toContain('function hydrateAccountingEntities');
     expect(ui).toContain("'/api/v3/services/accounting/entities'");
     expect(ui).toContain('function collectPlanningBudgetValues');
+    expect(ui).toContain('function handleBudgetGovernanceAction');
+    expect(ui).toContain('function collectGovernedBudgetLines');
+    expect(ui).toContain('data-budget-transition="approve"');
   });
 
   test('accounting reports use typed operational inputs instead of numeric fallbacks',()=>{
@@ -59,5 +62,7 @@ describe('financial accounting workspace contract',()=>{
     expect(css).toContain('.financial-result-kpis');
     expect(css).toContain('.financial-budget-row');
     expect(css).toContain('.financial-budget-builder');
+    expect(css).toContain('.financial-governance-panel');
+    expect(css).toContain('.financial-governance-line');
   });
 });
