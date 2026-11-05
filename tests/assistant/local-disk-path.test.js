@@ -8,6 +8,7 @@ const {
   isLocalDiskLoadCommand,
   isLoadOnlyCommand,
   isSaveToFileCommand,
+  parseExportFormat,
   resolveLocalDiskRequest
 } = require('../../lib/assistant/local-disk-path');
 const { runDeterministicLocalTools } = require('../../lib/assistant/universal-orchestrator');
@@ -109,34 +110,49 @@ describe('assistant local disk paths', () => {
       { role: 'user', content: 'احملها في ملف' }
     ], { attachments: [READY_ATTACHMENT] }, {}, []);
     expect(result.planner).toBe('universal-v2-deterministic-trial-balance-export');
-    expect(result.reply).toContain('bonds-statements.xlsx');
-    expect(result.reply).not.toMatch(/PDF/);
+    expect(result.reply).not.toMatch(/لا يمكنني رفع الملفات بصيغة PDF/);
     const fileCard = (result.ui || []).find(card => card.type === 'download_file');
-    expect(fileCard).toMatchObject({
+    expect(fileCard.autodownload).toBe(false);
+    expect(fileCard.files.map(file => file.label)).toEqual(['إكسل', 'PDF', 'HTML']);
+    expect(fileCard.files[0]).toMatchObject({
       filename: 'bonds-statements.xlsx',
-      mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-      autodownload: true
+      mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     });
-    expect(fileCard.base64).toMatch(/^[A-Za-z0-9+/=]+$/);
+    expect(fileCard.files[0].base64).toMatch(/^[A-Za-z0-9+/=]+$/);
+    expect(fileCard.files[1].print_html).toContain('قائمة الدخل');
     expect(result.ui[0]).toBe(fileCard);
   });
 
-  test('ارفع القوائم لي downloads Excel, not a Native PDF refusal', async () => {
+  test('ارفع القوائم لي offers Excel, PDF and HTML instead of a Native PDF refusal', async () => {
     expect(isSaveToFileCommand('ارفع القوائم لي')).toBe(true);
     expect(isSaveToFileCommand('أعطني الملف')).toBe(true);
     expect(isSaveToFileCommand('نزلها')).toBe(true);
     expect(isSaveToFileCommand('رفعت لك ميزان المراجعة')).toBe(false);
+    expect(parseExportFormat('ارفع القوائم لي')).toBeNull();
+    expect(parseExportFormat('ارفعها إكسل')).toBe('xlsx');
+    expect(parseExportFormat('ارفع PDF')).toBe('pdf');
     const result = await runDeterministicLocalTools([
       { role: 'user', content: 'ارفع القوائم لي' }
     ], { attachments: [READY_ATTACHMENT] }, {}, []);
     expect(result.planner).toBe('universal-v2-deterministic-trial-balance-export');
-    expect(result.reply).toContain('bonds-statements.xlsx');
-    expect(result.reply).not.toMatch(/PDF/);
+    expect(result.reply).toMatch(/إكسل أو PDF أو HTML/);
+    expect(result.reply).not.toMatch(/لا يمكنني رفع الملفات بصيغة PDF/);
     expect(result.ui[0]).toMatchObject({
       type: 'download_file',
-      filename: 'bonds-statements.xlsx',
-      autodownload: true
+      title: 'تنزيل القوائم المالية',
+      autodownload: false
     });
+    expect(result.ui[0].files).toHaveLength(3);
+  });
+
+  test('ارفعها إكسل autodownloads only the Excel format', async () => {
+    const result = await runDeterministicLocalTools([
+      { role: 'user', content: 'ارفعها إكسل' }
+    ], { attachments: [READY_ATTACHMENT] }, {}, []);
+    expect(result.planner).toBe('universal-v2-deterministic-trial-balance-export');
+    expect(result.ui[0].autodownload).toBe(true);
+    expect(result.ui[0].files.find(file => file.format === 'xlsx').autodownload).toBe(true);
+    expect(result.ui[0].files.find(file => file.format === 'pdf').autodownload).toBe(false);
   });
 
   test('statement-build without numbers still asks for figures when no file is present', async () => {
