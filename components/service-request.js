@@ -225,7 +225,7 @@ async function loadBudgetReference(accountingEntityId){
    equity.map(a=>'<option value="'+escapeHtml(a.id)+'">'+escapeHtml(a.code+' — '+a.name)+'</option>').join('');
   if(yearPolicy?.retained_earnings_account_id)retainedSelect.value=yearPolicy.retained_earnings_account_id;
  }
- if(periodInit)periodInit.hidden=(payload.periods||[]).length>0||!yearPolicy;
+ if(periodInit)periodInit.hidden=!yearPolicy;
  if(rows)rows.innerHTML=(payload.periods||[]).length?governedBudgetLineRow():'<div class="sr-muted">'+escapeHtml(lang==='ar'?'لا توجد فترات محاسبية. حدد بداية ونهاية السنة ثم هيئ الفترات الشهرية.':'No accounting periods exist. Set fiscal start/end and initialize monthly periods.')+'</div>';
  const role=payload.accounting_entity?.role;
  document.querySelectorAll('[data-budget-transition="approve"],[data-budget-transition="reject"]').forEach(btn=>{btn.disabled=!['owner','admin'].includes(role)});
@@ -233,9 +233,9 @@ async function loadBudgetReference(accountingEntityId){
  if(range.length){
   const first=range[0],last=range[range.length-1];
   const starts=$('#financialFiscalStart'),ends=$('#financialFiscalEnd'),actual=$('#financialActualThrough');
-  if(starts)starts.value=first.starts_on||'';
-  if(ends)ends.value=last.ends_on||'';
-  if(actual)actual.value=last.ends_on||'';
+  if(starts&&!starts.value)starts.value=first.starts_on||'';
+  if(ends&&!ends.value)ends.value=last.ends_on||'';
+  if(actual&&!actual.value)actual.value=last.ends_on||'';
  }
 }
 async function createRetainedEarningsAccount(){

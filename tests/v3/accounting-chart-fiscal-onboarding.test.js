@@ -49,6 +49,12 @@ describe('accounting chart and fiscal onboarding contract',()=>{
     expect(ui).toContain('financialRetainedEarningsAccount');
   });
 
+  test('workspace permits safe completion of partial periods without overwriting fiscal inputs',()=>{
+    expect(ui).toContain('if(periodInit)periodInit.hidden=!yearPolicy;');
+    expect(ui).toContain("if(starts&&!starts.value)starts.value=first.starts_on||'';");
+    expect(ui).toContain("if(ends&&!ends.value)ends.value=last.ends_on||'';");
+  });
+
   test('maps account creation and existing year-end policy capability to planning service',()=>{
     expect(migration).toContain("'accounting_account_create'");
     expect(migration).toContain("'accounting_year_end_policy_configure'");
