@@ -45,7 +45,7 @@ describe('accounting chart and fiscal onboarding contract',()=>{
     expect(ui).toContain("'accounting_year_end_policy_configure'");
     expect(ui).toContain("'accounting_account_create'");
     expect(ui).toContain('if(!policy)throw new Error');
-    expect(ui).toContain('Nهاية السنة');
+    expect(ui).toContain('نهاية السنة');
     expect(ui).toContain('financialRetainedEarningsAccount');
   });
 
