@@ -17,6 +17,59 @@ let intakeReview=null;
 let intakeMode='file';
 let intakeUploadedPath=null;
 const isServiceWorkspace=/\/my-bonds\/workspace\/?$/.test(location.pathname);
+const FINANCIAL_WORKSPACE_SERVICES=Object.freeze([
+ 'financial_statements',
+ 'income_statement',
+ 'statement_financial_position',
+ 'cash_flow_statement',
+ 'changes_in_equity',
+ 'planning_budgeting_forecasting'
+]);
+const FINANCIAL_WORKSPACE_TABS=Object.freeze([
+ ['financial_statements','القوائم المالية','Financial statements'],
+ ['income_statement','قائمة الدخل','Income statement'],
+ ['statement_financial_position','المركز المالي','Financial position'],
+ ['cash_flow_statement','التدفقات النقدية','Cash flow'],
+ ['changes_in_equity','التغيرات في حقوق الملكية','Changes in equity'],
+ ['planning_budgeting_forecasting','الموازنات والتوقعات','Budgeting & forecast']
+]);
+function isFinancialWorkspaceService(){
+ return isServiceWorkspace&&FINANCIAL_WORKSPACE_SERVICES.includes(serviceCode);
+}
+function financialWorkspaceHref(code){
+ const next=new URLSearchParams(location.search);
+ next.set('service',code);
+ return (lang==='ar'?'/my-bonds/workspace/':'/en/my-bonds/workspace/')+'?'+next.toString();
+}
+function renderFinancialWorkspaceShell(){
+ if(!isFinancialWorkspaceService())return;
+ document.body.classList.add('financial-workspace-mode');
+ if($('#financialWorkspaceNav'))return;
+ const grid=document.querySelector('.sr-grid');
+ if(!grid)return;
+ const shell=document.createElement('section');
+ shell.id='financialWorkspaceNav';
+ shell.className='financial-workspace-shell';
+ const title=lang==='ar'?'مساحة العمل المالية والمحاسبية':'Financial & Accounting Workspace';
+ const desc=lang==='ar'
+  ?'إعداد الموازنات والقوائم المالية والتوقعات من مساحة تنفيذ واحدة، مع إبقاء كل خدمة مرتبطة بمحركها المعتمد.'
+  :'Prepare budgets, financial statements and forecasts in one execution workspace while preserving each governed service engine.';
+ const actualBudget=lang==='ar'?'الفعلي مقابل الموازنة':'Actual vs budget';
+ const forecast=lang==='ar'?'التوقع المالي':'Forecast';
+ shell.innerHTML='<div class="financial-workspace-head"><div><span class="financial-workspace-kicker">'+
+  (lang==='ar'?'تنفيذ مالي مباشر':'Direct financial execution')+
+  '</span><h2>'+escapeHtml(title)+'</h2><p>'+escapeHtml(desc)+'</p></div>'+
+  '<span class="financial-workspace-state">'+(lang==='ar'?'الخدمة الحالية':'Current service')+': '+escapeHtml(text(detail?.service))+'</span></div>'+
+  '<nav class="financial-workspace-tabs" aria-label="'+escapeHtml(title)+'">'+
+  FINANCIAL_WORKSPACE_TABS.map(([code,ar,en])=>'<a class="financial-workspace-tab'+(serviceCode===code?' active':'')+'" href="'+
+   escapeHtml(financialWorkspaceHref(code))+'"'+(serviceCode===code?' aria-current="page"':'')+'>'+escapeHtml(lang==='ar'?ar:en)+'</a>').join('')+
+  '</nav>'+
+  '<div class="financial-workspace-shortcuts">'+
+   '<a href="'+escapeHtml(financialWorkspaceHref('planning_budgeting_forecasting'))+'">'+escapeHtml(actualBudget)+'</a>'+
+   '<a href="'+escapeHtml(financialWorkspaceHref('planning_budgeting_forecasting'))+'">'+escapeHtml(forecast)+'</a>'+
+  '</div>';
+ grid.insertAdjacentElement('beforebegin',shell);
+}
 const workspaceDraftKey='bonds_service_workspace_draft_v1:'+serviceCode;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
@@ -131,6 +184,7 @@ function render(){
  $('#srFormTitle').textContent=form?text(form):T.form;
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
  if(!form?.fields?.length)renderRequestProfile();
+ renderFinancialWorkspaceShell();
  renderFinancialIntake();
  restoreWorkspaceDraft();
  bindWorkspaceDraft();
@@ -345,6 +399,88 @@ function ensureExecutionFields(requiredInputs){
  $('#srFormTitle').textContent=T.moreInputs;
  return true;
 }
+function formatFinancialValue(value){
+ if(value===null||value===undefined||value==='')return '—';
+ if(typeof value==='boolean')return value?(lang==='ar'?'نعم':'Yes'):(lang==='ar'?'لا':'No');
+ if(typeof value==='number')return Number(value).toLocaleString(lang==='ar'?'ar-SA':'en-US',{maximumFractionDigits:2});
+ if(typeof value==='object')return escapeHtml(JSON.stringify(value));
+ return escapeHtml(value);
+}
+function financialLabel(key){
+ const labels={
+  period:lang==='ar'?'الفترة':'Period',
+  status:lang==='ar'?'الحالة':'Status',
+  metric:lang==='ar'?'البند':'Metric',
+  actual:lang==='ar'?'الفعلي':'Actual',
+  budget:lang==='ar'?'الموازنة':'Budget',
+  forecast:lang==='ar'?'التوقع':'Forecast',
+  rolling_forecast:lang==='ar'?'التوقع المتجدد':'Rolling forecast',
+  actual_vs_budget_variance:lang==='ar'?'انحراف الفعلي عن الموازنة':'Actual vs budget variance',
+  actual_vs_budget_variance_pct:lang==='ar'?'الانحراف %':'Variance %',
+  forecast_vs_budget_variance:lang==='ar'?'انحراف التوقع عن الموازنة':'Forecast vs budget variance',
+  forecast_vs_budget_variance_pct:lang==='ar'?'انحراف التوقع %':'Forecast variance %',
+  total_assets:lang==='ar'?'إجمالي الأصول':'Total assets',
+  total_liabilities:lang==='ar'?'إجمالي الالتزامات':'Total liabilities',
+  total_equity:lang==='ar'?'إجمالي حقوق الملكية':'Total equity',
+  base_equity:lang==='ar'?'حقوق الملكية الأساسية':'Base equity',
+  cumulative_earnings:lang==='ar'?'الأرباح المتراكمة':'Cumulative earnings',
+  accounting_difference:lang==='ar'?'فرق المعادلة المحاسبية':'Accounting difference',
+  revenue:lang==='ar'?'الإيرادات':'Revenue',
+  expenses:lang==='ar'?'المصروفات':'Expenses',
+  net_income:lang==='ar'?'صافي الربح':'Net income',
+  total_debit:lang==='ar'?'إجمالي المدين':'Total debit',
+  total_credit:lang==='ar'?'إجمالي الدائن':'Total credit',
+  difference:lang==='ar'?'الفرق':'Difference'
+ };
+ return labels[key]||humanizeKey(key);
+}
+function renderFinancialRows(rows){
+ if(!Array.isArray(rows)||!rows.length)return '<div class="sr-empty">—</div>';
+ const preferred=['period','status','metric','account_code','account_name','dimension_code','actual','budget','forecast','rolling_forecast','actual_vs_budget_variance','actual_vs_budget_variance_pct','balance','debit','credit','amount','total'];
+ const keys=[...new Set(rows.flatMap(row=>Object.keys(row||{})).filter(key=>!['metadata','provenance'].includes(key)))];
+ keys.sort((a,b)=>{
+  const ai=preferred.indexOf(a),bi=preferred.indexOf(b);
+  return (ai<0?999:ai)-(bi<0?999:bi);
+ });
+ const visible=keys.slice(0,12);
+ return '<div class="financial-result-table-wrap"><table class="financial-result-table"><thead><tr>'+
+  visible.map(key=>'<th>'+escapeHtml(financialLabel(key))+'</th>').join('')+
+  '</tr></thead><tbody>'+
+  rows.map(row=>'<tr>'+visible.map(key=>'<td>'+formatFinancialValue(row?.[key])+'</td>').join('')+'</tr>').join('')+
+  '</tbody></table></div>';
+}
+function renderFinancialObject(title,obj){
+ if(!obj||typeof obj!=='object'||Array.isArray(obj))return '';
+ const entries=Object.entries(obj).filter(([,v])=>['string','number','boolean'].includes(typeof v)||v===null);
+ if(!entries.length)return '';
+ return '<section class="financial-result-section"><h3>'+escapeHtml(title)+'</h3><div class="financial-result-kpis">'+
+  entries.map(([key,value])=>'<div><span>'+escapeHtml(financialLabel(key))+'</span><strong>'+formatFinancialValue(value)+'</strong></div>').join('')+
+  '</div></section>';
+}
+function renderFinancialExecution(result,metrics){
+ if(result?.financial_statements){
+  const fs=result.financial_statements;
+  return '<div class="financial-result-stack">'+
+   renderFinancialObject(lang==='ar'?'قائمة المركز المالي':'Statement of financial position',fs.balance_sheet)+
+   renderFinancialObject(lang==='ar'?'قائمة الدخل':'Income statement',fs.income_statement)+
+   renderFinancialObject(lang==='ar'?'ميزان المراجعة — الفترة':'Trial balance — period',fs.trial_balance?.period)+
+   '</div>';
+ }
+ if(Array.isArray(result?.rows)){
+  return '<div class="financial-result-stack"><section class="financial-result-section"><h3>'+
+   escapeHtml(text(detail?.service))+'</h3>'+renderFinancialRows(result.rows)+'</section></div>';
+ }
+ if(Array.isArray(metrics?.rows)){
+  const summary=metrics.summary&&typeof metrics.summary==='object'?metrics.summary:{};
+  const summaryRows=Object.entries(summary).map(([metric,row])=>({metric,...(row||{})}));
+  return '<div class="financial-result-stack">'+
+   renderFinancialObject(lang==='ar'?'ملخص الموازنة والتوقع':'Budget & forecast summary',metrics)+
+   '<section class="financial-result-section"><h3>'+(lang==='ar'?'ملخص البنود':'Metric summary')+'</h3>'+renderFinancialRows(summaryRows)+'</section>'+
+   '<section class="financial-result-section"><h3>'+(lang==='ar'?'التفاصيل الدورية':'Period detail')+'</h3>'+renderFinancialRows(metrics.rows)+'</section>'+
+   '</div>';
+ }
+ return '';
+}
 function renderExecutionResult(payload){
  let box=$('#srExecutionResult');
  if(!box){
@@ -355,10 +491,13 @@ function renderExecutionResult(payload){
  }
  const result=payload?.result||{};
  const metrics=result.metrics||payload?.metrics||{};
- const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined);
+ const financial=renderFinancialExecution(result,metrics);
+ const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
  box.innerHTML='<h2>'+escapeHtml(T.executed)+'</h2>'+
-  (entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+escapeHtml(typeof v==='number'?Number(v).toLocaleString(lang==='ar'?'ar-SA':'en-US',{maximumFractionDigits:4}):v)+'</li>').join('')+'</ul></div>':
-  '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>');
+  (financial||(
+   entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
+   '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
+  ));
 }
 
 function track(event,properties={}){
