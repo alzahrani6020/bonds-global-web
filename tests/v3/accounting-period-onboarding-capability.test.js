@@ -27,7 +27,7 @@ describe('accounting period onboarding capability contract',()=>{
     expect(ui).toContain('function initializeAccountingPeriods');
     expect(ui).toContain("'accounting_period_initialize_monthly'");
     expect(ui).toContain('id="financialPeriodInitialize"');
-    expect(ui).toContain("periodInit.hidden=(payload.periods||[]).length>0");
+    expect(ui).toContain("periodInit.hidden=!yearPolicy");
   });
 
   test('migration maps the capability idempotently to planning budgeting forecasting',()=>{
