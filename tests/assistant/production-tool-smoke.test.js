@@ -57,6 +57,7 @@ function replyFor(content) {
 describe('Assistant production tool smoke', () => {
   test('proves calculate, calculator open, page open, and how-to search actually ran tools', async () => {
     const calls = [];
+    const logs = [];
     const fetchImpl = jest.fn(async (url, options) => {
       const body = JSON.parse(options.body);
       calls.push(body.messages[0].content);
@@ -69,7 +70,7 @@ describe('Assistant production tool smoke', () => {
       expectedSha:'a'.repeat(40),
       fetchImpl,
       sleepImpl:async () => {},
-      log:() => {}
+      log:entry => logs.push(entry)
     });
 
     expect(result).toEqual({
@@ -81,6 +82,8 @@ describe('Assistant production tool smoke', () => {
       statement_build:true,
       web_search:true
     });
+    expect(logs).toHaveLength(1);
+    expect(logs[0]).toMatch(/statement_build_ms=\d+/);
     expect(calls).toEqual([
       'احسب 18 بالمئة من مليون',
       'افتح حاسبة القرض',
