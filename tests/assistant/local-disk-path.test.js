@@ -118,6 +118,25 @@ describe('assistant local disk paths', () => {
       autodownload: true
     });
     expect(fileCard.base64).toMatch(/^[A-Za-z0-9+/=]+$/);
+    expect(result.ui[0]).toBe(fileCard);
+  });
+
+  test('ارفع القوائم لي downloads Excel, not a Native PDF refusal', async () => {
+    expect(isSaveToFileCommand('ارفع القوائم لي')).toBe(true);
+    expect(isSaveToFileCommand('أعطني الملف')).toBe(true);
+    expect(isSaveToFileCommand('نزلها')).toBe(true);
+    expect(isSaveToFileCommand('رفعت لك ميزان المراجعة')).toBe(false);
+    const result = await runDeterministicLocalTools([
+      { role: 'user', content: 'ارفع القوائم لي' }
+    ], { attachments: [READY_ATTACHMENT] }, {}, []);
+    expect(result.planner).toBe('universal-v2-deterministic-trial-balance-export');
+    expect(result.reply).toContain('bonds-statements.xlsx');
+    expect(result.reply).not.toMatch(/PDF/);
+    expect(result.ui[0]).toMatchObject({
+      type: 'download_file',
+      filename: 'bonds-statements.xlsx',
+      autodownload: true
+    });
   });
 
   test('statement-build without numbers still asks for figures when no file is present', async () => {

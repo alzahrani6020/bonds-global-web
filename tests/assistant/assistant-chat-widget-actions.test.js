@@ -86,6 +86,8 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('function downloadBase64File(card)');
     expect(source).toContain("card.type === 'download_file'");
     expect(source).toContain('if (card.autodownload === true) downloadBase64File(card)');
+    expect(source).toContain("el.classList.add('bonds-ai-download-card')");
+    expect(source).toContain("el.scrollIntoView({ block: 'nearest', behavior: 'smooth' })");
     expect(source).toContain('link.download = filename');
     expect(source).toContain('URL.createObjectURL');
     expect(source).not.toContain('jspdf');
