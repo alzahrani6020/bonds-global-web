@@ -79,10 +79,13 @@ describe('trial balance statement builder', () => {
     const workbook = XLSX.read(Buffer.from(file.base64, 'base64'), { type: 'buffer' });
     expect(workbook.SheetNames).toEqual(['الدخل', 'التدفقات', 'المركز', 'الحسابات', 'ملاحظات']);
     const cashFlow = XLSX.utils.sheet_to_json(workbook.Sheets['التدفقات'], { header: 1 });
-    expect(cashFlow[2][1]).toBe('غير متوفر من الميزان');
-    expect(cashFlow[2][1]).not.toBe(built.profit);
+    expect(cashFlow[2][3]).toBe('غير متوفر من الميزان');
+    expect(cashFlow[2][3]).not.toBe(built.profit);
     const income = XLSX.utils.sheet_to_json(workbook.Sheets['الدخل'], { header: 1 });
-    expect(income[1][1]).toBe(10900000);
+    expect(income.some(row => row.includes('Sales') && row.includes(10900000))).toBe(true);
+    expect(income.some(row => row.includes('Operating expenses') && row.includes(10000000))).toBe(true);
+    expect(income.some(row => row.includes('إجمالي الإيرادات') && row.includes(10900000))).toBe(true);
+    expect(income.some(row => row.includes('صافي الربح') && row.includes(900000))).toBe(true);
   });
 
   test('does not plug a balancing figure when the file is incomplete', () => {
@@ -105,8 +108,10 @@ describe('trial balance statement builder', () => {
       { role: 'user', content: 'أرسلت لك ميزان المراجعة اعمل القوائم' }
     ], { attachments: [BALANCED_ATTACHMENT] }, {}, []);
     expect(result.planner).toBe('universal-v2-deterministic-trial-balance');
-    expect(result.ui).toHaveLength(3);
+    expect(result.ui).toHaveLength(4);
+    expect(result.ui[3]).toMatchObject({ type: 'download_file', autodownload: false });
     expect(result.reply).toContain('900,000');
+    expect(result.reply).toContain('جاهز في البطاقة');
     expect(result.reply).not.toMatch(/لم يتم تزويدي/);
   });
 

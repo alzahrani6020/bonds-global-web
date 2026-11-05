@@ -85,6 +85,7 @@ describe('BONDS Assistant chat widget action renderer', () => {
   test('downloads assistant-prepared files from a download_file card', () => {
     expect(source).toContain('function downloadBase64File(card)');
     expect(source).toContain("card.type === 'download_file'");
+    expect(source).toContain('if (card.autodownload === true) downloadBase64File(card)');
     expect(source).toContain('link.download = filename');
     expect(source).toContain('URL.createObjectURL');
     expect(source).not.toContain('jspdf');

@@ -114,7 +114,8 @@ describe('assistant local disk paths', () => {
     const fileCard = (result.ui || []).find(card => card.type === 'download_file');
     expect(fileCard).toMatchObject({
       filename: 'bonds-statements.xlsx',
-      mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      autodownload: true
     });
     expect(fileCard.base64).toMatch(/^[A-Za-z0-9+/=]+$/);
   });
