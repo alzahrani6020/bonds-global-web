@@ -127,22 +127,189 @@ function budgetMetricRow(data={}){
   '<button type="button" class="financial-budget-remove" data-budget-remove aria-label="'+escapeHtml(lang==='ar'?'حذف الصف':'Remove row')+'">×</button>'+
  '</div>';
 }
+let budgetReference=null;
+let governedBudgetPlanId=null;
+let governedBudgetVersionId=null;
+function governedBudgetRequestKey(action){
+ const id=window.crypto?.randomUUID?window.crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+ return 'budget:'+action+':'+id;
+}
+function governedBudgetLineRow(data={}){
+ const periods=budgetReference?.periods||[];
+ const accounts=budgetReference?.accounts||[];
+ const dimensions=budgetReference?.dimensions||[];
+ const periodOptions=periods.map(p=>'<option value="'+escapeHtml(p.id)+'"'+(data.period_id===p.id?' selected':'')+'>'+escapeHtml(p.period_code)+' · '+escapeHtml(p.starts_on)+' — '+escapeHtml(p.ends_on)+'</option>').join('');
+ const accountOptions=accounts.map(a=>'<option value="'+escapeHtml(a.id)+'"'+(data.account_id===a.id?' selected':'')+'>'+escapeHtml(a.code)+' — '+escapeHtml(a.name)+'</option>').join('');
+ const costCenters=dimensions.filter(d=>d.dimension_type==='cost_center').map(d=>'<option value="'+escapeHtml(d.code)+'"'+(data.cost_center===d.code?' selected':'')+'>'+escapeHtml(d.code)+' — '+escapeHtml(d.name)+'</option>').join('');
+ const segments=dimensions.filter(d=>d.dimension_type==='segment').map(d=>'<option value="'+escapeHtml(d.code)+'"'+(data.segment===d.code?' selected':'')+'>'+escapeHtml(d.code)+' — '+escapeHtml(d.name)+'</option>').join('');
+ return '<div class="financial-governance-line" data-governance-line>'+
+  '<select data-governance-period required><option value="">'+escapeHtml(lang==='ar'?'الفترة':'Period')+'</option>'+periodOptions+'</select>'+
+  '<select data-governance-account required><option value="">'+escapeHtml(lang==='ar'?'الحساب':'Account')+'</option>'+accountOptions+'</select>'+
+  '<input data-governance-amount type="number" step="0.01" value="'+escapeHtml(data.amount||'')+'" placeholder="'+escapeHtml(lang==='ar'?'المبلغ':'Amount')+'" required>'+
+  '<select data-governance-cost-center><option value="">'+escapeHtml(lang==='ar'?'مركز التكلفة (اختياري)':'Cost center (optional)')+'</option>'+costCenters+'</select>'+
+  '<select data-governance-segment><option value="">'+escapeHtml(lang==='ar'?'القطاع (اختياري)':'Segment (optional)')+'</option>'+segments+'</select>'+
+  '<button type="button" class="financial-budget-remove" data-governance-remove aria-label="'+escapeHtml(lang==='ar'?'حذف السطر':'Remove line')+'">×</button>'+
+ '</div>';
+}
+function setGovernedBudgetState(payload={}){
+ if(payload.budget_plan_id)governedBudgetPlanId=payload.budget_plan_id;
+ if(payload.budget_version_id)governedBudgetVersionId=payload.budget_version_id;
+ const status=$('#financialBudgetGovernanceStatus');
+ if(status){
+  const state=payload.status||payload.state||'—';
+  status.textContent=(lang==='ar'?'الحالة: ':'Status: ')+state+
+   (governedBudgetPlanId?' · '+(lang==='ar'?'الخطة ':'Plan ')+governedBudgetPlanId.slice(0,8):'')+
+   (governedBudgetVersionId?' · '+(lang==='ar'?'النسخة ':'Version ')+governedBudgetVersionId.slice(0,8):'');
+ }
+ saveWorkspaceDraft();
+}
+async function governedCapability(action,input){
+ await window.BondsAuth.ensureEnv();
+ const sb=window.BondsAuth.getSupabase();
+ const session=(await sb.auth.getSession()).data.session;
+ if(!session?.access_token)throw new Error(T.login);
+ const response=await fetch('/api/v3/capabilities/execute',{
+  method:'POST',
+  headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},
+  body:JSON.stringify({action,input})
+ });
+ const payload=await response.json().catch(()=>({}));
+ if(!response.ok||payload.ok!==true)throw new Error(payload?.error?.code||payload?.code||('HTTP '+response.status));
+ return payload.result||payload;
+}
+function collectGovernedBudgetLines(){
+ const policies=budgetReference?.dimension_policies||[];
+ const lines=[];
+ document.querySelectorAll('[data-governance-line]').forEach(row=>{
+  const period_id=row.querySelector('[data-governance-period]')?.value||'';
+  const account_id=row.querySelector('[data-governance-account]')?.value||'';
+  const amountRaw=row.querySelector('[data-governance-amount]')?.value;
+  if(!period_id&&!account_id&&amountRaw==='')return;
+  if(!period_id||!account_id||amountRaw==='')throw new Error(lang==='ar'?'أكمل الفترة والحساب والمبلغ لكل سطر':'Complete period, account and amount for each line');
+  const dimensions={};
+  const costCenter=row.querySelector('[data-governance-cost-center]')?.value||'';
+  const segment=row.querySelector('[data-governance-segment]')?.value||'';
+  if(costCenter)dimensions.cost_center=costCenter;
+  if(segment)dimensions.segment=segment;
+  for(const policy of policies.filter(p=>p.account_id===account_id&&p.required===true)){
+   if(!dimensions[policy.dimension_type]){
+    throw new Error((lang==='ar'?'البعد الإلزامي غير محدد: ':'Required dimension missing: ')+policy.dimension_type);
+   }
+  }
+  lines.push({period_id,account_id,amount:Number(amountRaw),dimensions});
+ });
+ if(!lines.length)throw new Error(lang==='ar'?'أضف سطر موازنة واحدًا على الأقل':'Add at least one budget line');
+ return lines;
+}
+async function loadBudgetReference(accountingEntityId){
+ if(!accountingEntityId)return;
+ await window.BondsAuth.ensureEnv();
+ const sb=window.BondsAuth.getSupabase();
+ const session=(await sb.auth.getSession()).data.session;
+ if(!session?.access_token)throw new Error(T.login);
+ const response=await fetch('/api/v3/services/accounting/budget-reference?accounting_entity_id='+encodeURIComponent(accountingEntityId),{
+  headers:{'Authorization':'Bearer '+session.access_token}
+ });
+ const payload=await response.json().catch(()=>({}));
+ if(!response.ok||payload.ok!==true)throw new Error(payload?.error?.code||('HTTP '+response.status));
+ budgetReference=payload;
+ const currency=$('#financialBudgetCurrency');
+ if(currency&&payload.accounting_entity?.base_currency)currency.value=payload.accounting_entity.base_currency;
+ const rows=$('#financialGovernanceLines');
+ if(rows)rows.innerHTML=governedBudgetLineRow();
+ const role=payload.accounting_entity?.role;
+ document.querySelectorAll('[data-budget-transition="approve"],[data-budget-transition="reject"]').forEach(btn=>{btn.disabled=!['owner','admin'].includes(role)});
+ const range=payload.periods||[];
+ if(range.length){
+  const first=range[0],last=range[range.length-1];
+  const starts=$('#financialFiscalStart'),ends=$('#financialFiscalEnd'),actual=$('#financialActualThrough');
+  if(starts)starts.value=first.starts_on||'';
+  if(ends)ends.value=last.ends_on||'';
+  if(actual)actual.value=last.ends_on||'';
+ }
+}
+async function handleBudgetGovernanceAction(action){
+ const entityId=$('#financialAccountingEntity')?.value||'';
+ if(!entityId)throw new Error(lang==='ar'?'اختر الكيان المحاسبي':'Select an accounting entity');
+ if(action==='create'){
+  const result=await governedCapability('accounting_budget_plan_create',{
+   accounting_entity_id:entityId,
+   code:String($('#financialBudgetPlanCode')?.value||'').trim(),
+   name:String($('#financialBudgetPlanName')?.value||'').trim(),
+   plan_type:$('#financialBudgetPlanType')?.value||'budget',
+   fiscal_year_start:$('#financialFiscalStart')?.value||'',
+   fiscal_year_end:$('#financialFiscalEnd')?.value||'',
+   currency:String($('#financialBudgetCurrency')?.value||'').trim().toUpperCase(),
+   request_key:governedBudgetRequestKey('create')
+  });
+  setGovernedBudgetState(result);
+  showStatus(lang==='ar'?'تم إنشاء خطة الموازنة كمسودة':'Budget plan created as draft',true);
+  return;
+ }
+ if(action==='save'){
+  if(!governedBudgetVersionId)throw new Error(lang==='ar'?'أنشئ الخطة أولًا':'Create the plan first');
+  const result=await governedCapability('accounting_budget_draft_save',{
+   accounting_entity_id:entityId,
+   budget_version_id:governedBudgetVersionId,
+   lines:collectGovernedBudgetLines(),
+   request_key:governedBudgetRequestKey('save')
+  });
+  setGovernedBudgetState(result);
+  showStatus(lang==='ar'?'تم حفظ مسودة الموازنة':'Budget draft saved',true);
+  return;
+ }
+ if(action==='analyze'){
+  if(!governedBudgetPlanId)throw new Error(lang==='ar'?'لا توجد خطة موازنة محددة':'No budget plan selected');
+  const result=await governedCapability('accounting_budget_analysis',{
+   accounting_entity_id:entityId,
+   budget_plan_id:governedBudgetPlanId,
+   actual_through:$('#financialActualThrough')?.value||'',
+   use_budget_as_forecast:$('#financialUseBudgetForecast')?.checked===true,
+   materiality_pct:Number($('#financialBudgetMateriality')?.value||0),
+   metric_directions:{}
+  });
+  renderExecutionResult({result:result.analysis||result});
+  showStatus(lang==='ar'?'تم تحليل الفعلي مقابل الموازنة':'Actual vs budget analysis completed',true);
+  return;
+ }
+ if(!governedBudgetVersionId)throw new Error(lang==='ar'?'لا توجد نسخة موازنة محددة':'No budget version selected');
+ const reason=String($('#financialBudgetReason')?.value||'').trim()||null;
+ const result=await governedCapability('accounting_budget_version_transition',{
+  accounting_entity_id:entityId,
+  budget_version_id:governedBudgetVersionId,
+  action,
+  reason,
+  request_key:governedBudgetRequestKey(action)
+ });
+ setGovernedBudgetState(result);
+ showStatus((lang==='ar'?'تم تنفيذ إجراء الموازنة: ':'Budget action completed: ')+action,true);
+}
 function renderPlanningBudgetInputs(){
  const host=$('#srDynamicFields');
  if(!host||serviceCode!=='planning_budgeting_forecasting')return false;
  const year=new Date().getFullYear();
  host.innerHTML=
+  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('accounting_entity_id'))+' <small>('+T.required+')</small></label><select name="accounting_entity_id" id="financialAccountingEntity" required><option value="">'+escapeHtml(lang==='ar'?'جاري تحميل الكيانات...':'Loading entities...')+'</option></select></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'رمز الخطة':'Plan code')+' <small>('+T.required+')</small></label><input id="financialBudgetPlanCode" type="text" value="BUDGET-'+year+'" maxlength="64"></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'اسم الخطة':'Plan name')+' <small>('+T.required+')</small></label><input id="financialBudgetPlanName" type="text" value="'+escapeHtml(lang==='ar'?'موازنة '+year:'Budget '+year)+'" maxlength="200"></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'نوع الخطة':'Plan type')+'</label><select id="financialBudgetPlanType"><option value="budget">'+(lang==='ar'?'موازنة':'Budget')+'</option><option value="forecast">'+(lang==='ar'?'توقع':'Forecast')+'</option></select></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'بداية السنة المالية':'Fiscal year start')+' <small>('+T.required+')</small></label><input id="financialFiscalStart" type="date"></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'نهاية السنة المالية':'Fiscal year end')+' <small>('+T.required+')</small></label><input id="financialFiscalEnd" type="date"></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('currency'))+' <small>('+T.required+')</small></label><input id="financialBudgetCurrency" type="text" name="currency" value="SAR" maxlength="3" readonly></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('materiality_pct'))+' <small>('+T.optional+')</small></label><input id="financialBudgetMateriality" type="number" min="0" step="0.1" name="materiality_pct" value="5"></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'الفترة الفعلية حتى':'Actual through')+'</label><input id="financialActualThrough" type="date"></div>'+
+  '<div class="sr-field"><label class="sr-check"><input id="financialUseBudgetForecast" type="checkbox" name="use_budget_as_forecast"> '+escapeHtml(lang==='ar'?'استخدم الموازنة كتوقع عند غياب توقع معتمد':'Use budget as forecast when no approved forecast exists')+'</label></div>'+
+  '<div class="sr-field full financial-governance-panel"><div class="financial-budget-builder-head"><div><h3>'+escapeHtml(lang==='ar'?'حوكمة الموازنة':'Budget governance')+'</h3><p>'+escapeHtml(lang==='ar'?'خطة محكومة مرتبطة بالفترات والحسابات الفعلية في دفتر الأستاذ.':'Governed plan linked to real accounting periods and ledger accounts.')+'</p></div><strong id="financialBudgetGovernanceStatus">'+escapeHtml(lang==='ar'?'الحالة: لم تُنشأ خطة':'Status: no plan created')+'</strong></div>'+
+  '<div class="financial-governance-actions"><button type="button" data-budget-governance="create">'+escapeHtml(lang==='ar'?'إنشاء خطة':'Create plan')+'</button><button type="button" data-budget-governance="save">'+escapeHtml(lang==='ar'?'حفظ المسودة':'Save draft')+'</button><button type="button" data-budget-transition="submit">'+escapeHtml(lang==='ar'?'إرسال للاعتماد':'Submit')+'</button><button type="button" data-budget-transition="approve">'+escapeHtml(lang==='ar'?'اعتماد':'Approve')+'</button><button type="button" data-budget-transition="reject">'+escapeHtml(lang==='ar'?'رفض':'Reject')+'</button><button type="button" data-budget-transition="revise">'+escapeHtml(lang==='ar'?'إنشاء مراجعة':'Revise')+'</button><button type="button" data-budget-governance="analyze">'+escapeHtml(lang==='ar'?'تحليل الفعلي مقابل الموازنة':'Analyze actual vs budget')+'</button></div>'+
+  '<div class="sr-field full"><label>'+escapeHtml(lang==='ar'?'سبب الرفض/المراجعة':'Reject/revise reason')+' <small>('+T.optional+')</small></label><input id="financialBudgetReason" type="text"></div>'+
+  '<div class="financial-governance-columns" aria-hidden="true"><span>'+(lang==='ar'?'الفترة':'Period')+'</span><span>'+(lang==='ar'?'الحساب':'Account')+'</span><span>'+(lang==='ar'?'المبلغ':'Amount')+'</span><span>'+(lang==='ar'?'مركز التكلفة':'Cost center')+'</span><span>'+(lang==='ar'?'القطاع':'Segment')+'</span><span></span></div>'+
+  '<div id="financialGovernanceLines"><div class="sr-muted">'+escapeHtml(lang==='ar'?'اختر الكيان المحاسبي لتحميل الفترات والحسابات.':'Select an accounting entity to load periods and accounts.')+'</div></div>'+
+  '<button type="button" id="financialGovernanceAddLine" class="sr-secondary">'+escapeHtml(lang==='ar'?'إضافة سطر موازنة':'Add budget line')+'</button></div>'+
   '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('fiscal_year'))+' <small>('+T.required+')</small></label><input type="number" min="2000" max="2200" name="fiscal_year" value="'+year+'" required></div>'+
-  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('currency'))+' <small>('+T.required+')</small></label><input type="text" name="currency" value="SAR" maxlength="3" required></div>'+
-  '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('materiality_pct'))+' <small>('+T.optional+')</small></label><input type="number" min="0" step="0.1" name="materiality_pct" value="5"></div>'+
-  '<div class="sr-field"><label class="sr-check"><input type="checkbox" name="use_budget_as_forecast"> '+escapeHtml(lang==='ar'?'استخدم الموازنة كتوقع فقط عند عدم وجود توقع صريح':'Use budget as forecast only when explicit forecast is missing')+'</label></div>'+
-  '<div class="sr-field full financial-budget-builder"><div class="financial-budget-builder-head"><div><h3>'+
-   escapeHtml(lang==='ar'?'بنود الفعلي والموازنة والتوقع':'Actual, budget and forecast rows')+
-   '</h3><p>'+escapeHtml(lang==='ar'?'كل صف يمثل بندًا ماليًا في فترة. يمكنك إضافة إيرادات ومصروفات وأي مؤشرات مالية أخرى.':'Each row is one metric in one period. Add revenue, expenses, or any other financial metric.')+
-   '</p></div><button type="button" id="financialBudgetAddRow" class="sr-secondary">'+escapeHtml(lang==='ar'?'إضافة صف':'Add row')+'</button></div>'+
-   '<div class="financial-budget-columns" aria-hidden="true"><span>'+(lang==='ar'?'الفترة':'Period')+'</span><span>'+(lang==='ar'?'الحالة':'Status')+'</span><span>'+(lang==='ar'?'البند':'Metric')+'</span><span>'+(lang==='ar'?'الفعلي':'Actual')+'</span><span>'+(lang==='ar'?'الموازنة':'Budget')+'</span><span>'+(lang==='ar'?'التوقع':'Forecast')+'</span><span></span></div>'+
-   '<div id="financialBudgetRows">'+budgetMetricRow()+'</div></div>';
- $('#srFormTitle').textContent=lang==='ar'?'بيانات الموازنة والتوقع':'Budget & forecast inputs';
+  '<div class="sr-field full financial-budget-builder"><div class="financial-budget-builder-head"><div><h3>'+escapeHtml(lang==='ar'?'تحليل سريع فعلي / موازنة / توقع':'Quick actual / budget / forecast analysis')+'</h3><p>'+escapeHtml(lang==='ar'?'محرك حتمي للتحليل السريع؛ لا يولد قيمًا افتراضية.':'Deterministic quick analysis; it does not invent financial values.')+'</p></div><button type="button" id="financialBudgetAddRow" class="sr-secondary">'+escapeHtml(lang==='ar'?'إضافة صف':'Add row')+'</button></div>'+
+  '<div class="financial-budget-columns" aria-hidden="true"><span>'+(lang==='ar'?'الفترة':'Period')+'</span><span>'+(lang==='ar'?'الحالة':'Status')+'</span><span>'+(lang==='ar'?'البند':'Metric')+'</span><span>'+(lang==='ar'?'الفعلي':'Actual')+'</span><span>'+(lang==='ar'?'الموازنة':'Budget')+'</span><span>'+(lang==='ar'?'التوقع':'Forecast')+'</span><span></span></div>'+
+  '<div id="financialBudgetRows">'+budgetMetricRow()+'</div></div>';
+ $('#srFormTitle').textContent=lang==='ar'?'الموازنة والتوقع والحوكمة':'Budget, forecast & governance';
  const rows=$('#financialBudgetRows');
  $('#financialBudgetAddRow')?.addEventListener('click',()=>{rows.insertAdjacentHTML('beforeend',budgetMetricRow());saveWorkspaceDraft()});
  rows?.addEventListener('click',e=>{
@@ -153,6 +320,26 @@ function renderPlanningBudgetInputs(){
   btn.closest('[data-budget-row]')?.remove();
   saveWorkspaceDraft();
  });
+ $('#financialGovernanceAddLine')?.addEventListener('click',()=>{
+  if(!budgetReference)return showStatus(lang==='ar'?'اختر الكيان المحاسبي أولًا':'Select an accounting entity first',false);
+  $('#financialGovernanceLines')?.insertAdjacentHTML('beforeend',governedBudgetLineRow());
+ });
+ $('#financialGovernanceLines')?.addEventListener('click',e=>{
+  const btn=e.target.closest('[data-governance-remove]');
+  if(btn)btn.closest('[data-governance-line]')?.remove();
+ });
+ document.querySelectorAll('[data-budget-governance]').forEach(btn=>btn.addEventListener('click',async()=>{
+  btn.disabled=true;
+  try{await handleBudgetGovernanceAction(btn.dataset.budgetGovernance)}
+  catch(error){showStatus(T.failed+': '+error.message,false)}
+  finally{btn.disabled=false}
+ }));
+ document.querySelectorAll('[data-budget-transition]').forEach(btn=>btn.addEventListener('click',async()=>{
+  btn.disabled=true;
+  try{await handleBudgetGovernanceAction(btn.dataset.budgetTransition)}
+  catch(error){showStatus(T.failed+': '+error.message,false)}
+  finally{btn.disabled=false}
+ }));
  return true;
 }
 function renderFinancialOperationalInputs(){
@@ -161,7 +348,7 @@ function renderFinancialOperationalInputs(){
  return renderAccountingReportInputs();
 }
 async function hydrateAccountingEntities(){
- if(!ACCOUNTING_REPORT_WORKSPACE_SERVICES.has(serviceCode))return;
+ if(!(ACCOUNTING_REPORT_WORKSPACE_SERVICES.has(serviceCode)||serviceCode==='planning_budgeting_forecasting'))return;
  const select=$('#financialAccountingEntity');
  if(!select)return;
  try{
@@ -180,10 +367,20 @@ async function hydrateAccountingEntities(){
   if(!response.ok)throw new Error(payload?.error?.code||payload?.error||('HTTP '+response.status));
   const entities=Array.isArray(payload.entities)?payload.entities:[];
   select.innerHTML='<option value="">'+escapeHtml(lang==='ar'?'اختر الكيان المحاسبي':'Select accounting entity')+'</option>'+
-   entities.map(entity=>'<option value="'+escapeHtml(entity.id)+'">'+escapeHtml(entity.name||entity.id)+(entity.base_currency?' — '+escapeHtml(entity.base_currency):'')+'</option>').join('');
+   entities.map(entity=>'<option value="'+escapeHtml(entity.id)+'" data-role="'+escapeHtml(entity.role||'')+'">'+escapeHtml(entity.name||entity.id)+(entity.base_currency?' — '+escapeHtml(entity.base_currency):'')+'</option>').join('');
   if(entities.length===1)select.value=entities[0].id;
   restoreWorkspaceDraft();
   if(!select.value&&entities.length===1)select.value=entities[0].id;
+  if(serviceCode==='planning_budgeting_forecasting'){
+   select.addEventListener('change',async()=>{
+    budgetReference=null;
+    governedBudgetPlanId=null;
+    governedBudgetVersionId=null;
+    try{await loadBudgetReference(select.value)}
+    catch(error){showStatus(T.failed+': '+error.message,false)}
+   });
+   if(select.value)await loadBudgetReference(select.value);
+  }
  }catch(error){
   select.innerHTML='<option value="">'+escapeHtml(lang==='ar'?'تعذر تحميل الكيانات':'Could not load entities')+'</option>';
   showStatus(T.failed+': '+error.message,false);
