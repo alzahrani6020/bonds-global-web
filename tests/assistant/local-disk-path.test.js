@@ -7,6 +7,7 @@ const {
   matchAttachmentsToPaths,
   isLocalDiskLoadCommand,
   isLoadOnlyCommand,
+  isSaveToFileCommand,
   resolveLocalDiskRequest
 } = require('../../lib/assistant/local-disk-path');
 const { runDeterministicLocalTools } = require('../../lib/assistant/universal-orchestrator');
@@ -99,6 +100,23 @@ describe('assistant local disk paths', () => {
     expect(result.planner).toBe('universal-v2-deterministic-trial-balance');
     expect(result.reply).toContain('trial-balance.xlsx');
     expect(result.reply).toContain('10,900,000');
+  });
+
+  test('احملها في ملف is an export, not a load-only disk path', async () => {
+    expect(isSaveToFileCommand('احملها في ملف')).toBe(true);
+    expect(isLoadOnlyCommand('احملها في ملف')).toBe(false);
+    const result = await runDeterministicLocalTools([
+      { role: 'user', content: 'احملها في ملف' }
+    ], { attachments: [READY_ATTACHMENT] }, {}, []);
+    expect(result.planner).toBe('universal-v2-deterministic-trial-balance-export');
+    expect(result.reply).toContain('bonds-statements.xlsx');
+    expect(result.reply).not.toMatch(/PDF/);
+    const fileCard = (result.ui || []).find(card => card.type === 'download_file');
+    expect(fileCard).toMatchObject({
+      filename: 'bonds-statements.xlsx',
+      mime: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+    expect(fileCard.base64).toMatch(/^[A-Za-z0-9+/=]+$/);
   });
 
   test('statement-build without numbers still asks for figures when no file is present', async () => {

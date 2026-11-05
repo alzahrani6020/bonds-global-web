@@ -3930,6 +3930,26 @@
         });
     }
 
+    function downloadBase64File(card) {
+      const filename = String(card && card.filename || 'bonds-statements.xlsx').replace(/[\\/:*?"<>|]+/g, '-').slice(0, 180);
+      const mime = String(card && card.mime || 'application/octet-stream');
+      const base64 = String(card && card.base64 || '');
+      if (!base64 || base64.length > 2_000_000) return false;
+      const binary = atob(base64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+      const url = URL.createObjectURL(new Blob([bytes], { type: mime }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      link.rel = 'noopener';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      return true;
+    }
+
     function renderStructuredCards(cards = []) {
       cards
         .filter(card => card && typeof card === 'object')
@@ -3954,6 +3974,15 @@
               row.textContent = `• ${String(item)}`;
               el.appendChild(row);
             });
+          }
+
+          if (card.type === 'download_file' && card.base64) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.textContent = languageCode() === 'en' ? 'Download file' : 'تنزيل الملف';
+            button.addEventListener('click', () => downloadBase64File(card));
+            el.appendChild(button);
+            downloadBase64File(card);
           }
 
           actionsEl.appendChild(el);
