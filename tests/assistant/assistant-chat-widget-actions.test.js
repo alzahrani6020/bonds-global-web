@@ -134,6 +134,10 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('patch.accountingEntityId = entityId');
     expect(source).toContain('patch.accountingFrom = String(from)');
     expect(source).toContain('patch.accountingTo = String(to)');
+    expect(source).toContain('patch.budgetPlanId = budgetPlanId');
+    expect(source).toContain('patch.actualThrough = actualThroughDate');
+    expect(source).toContain('#financialBudgetPlanIdContext');
+    expect(source).toContain('#financialActualThrough');
     expect(source).toContain('context = { ...context, ...readAccountingWorkspaceContext() };');
   });
 
