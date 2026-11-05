@@ -127,7 +127,7 @@ describe('Financial core wave 25 governed budget baselines', () => {
   });
 
   test('keeps governed budget capabilities registered after FIN-050', () => {
-    expect(manifest.version).toBe(24);
+    expect(manifest.version).toBe(25);
     const expected = {
       accounting_budget_plan_create:'BONDS-CAP-FIN-046',
       accounting_budget_draft_save:'BONDS-CAP-FIN-047',

@@ -217,7 +217,15 @@ async function loadBudgetReference(accountingEntityId){
  if(currency&&payload.accounting_entity?.base_currency)currency.value=payload.accounting_entity.base_currency;
  const rows=$('#financialGovernanceLines');
  const periodInit=$('#financialPeriodInitialize');
- if(periodInit)periodInit.hidden=(payload.periods||[]).length>0;
+ const yearPolicy=payload.year_end_policy||null;
+ const retainedSelect=$('#financialRetainedEarningsAccount');
+ if(retainedSelect){
+  const equity=(payload.accounts||[]).filter(a=>a.account_type==='equity'&&a.is_active!==false&&a.is_postable!==false);
+  retainedSelect.innerHTML='<option value="">'+escapeHtml(lang==='ar'?'اختر حساب الأرباح المبقاة':'Select retained earnings account')+'</option>'+
+   equity.map(a=>'<option value="'+escapeHtml(a.id)+'">'+escapeHtml(a.code+' — '+a.name)+'</option>').join('');
+  if(yearPolicy?.retained_earnings_account_id)retainedSelect.value=yearPolicy.retained_earnings_account_id;
+ }
+ if(periodInit)periodInit.hidden=(payload.periods||[]).length>0||!yearPolicy;
  if(rows)rows.innerHTML=(payload.periods||[]).length?governedBudgetLineRow():'<div class="sr-muted">'+escapeHtml(lang==='ar'?'لا توجد فترات محاسبية. حدد بداية ونهاية السنة ثم هيئ الفترات الشهرية.':'No accounting periods exist. Set fiscal start/end and initialize monthly periods.')+'</div>';
  const role=payload.accounting_entity?.role;
  document.querySelectorAll('[data-budget-transition="approve"],[data-budget-transition="reject"]').forEach(btn=>{btn.disabled=!['owner','admin'].includes(role)});
@@ -230,12 +238,58 @@ async function loadBudgetReference(accountingEntityId){
   if(actual)actual.value=last.ends_on||'';
  }
 }
+async function createRetainedEarningsAccount(){
+ const entityId=$('#financialAccountingEntity')?.value||'';
+ const code=String($('#financialEquityAccountCode')?.value||'').trim();
+ const name=String($('#financialEquityAccountName')?.value||'').trim();
+ if(!entityId)throw new Error(lang==='ar'?'اختر الكيان المحاسبي':'Select an accounting entity');
+ if(!code||!name)throw new Error(lang==='ar'?'أدخل رمز واسم حساب حقوق الملكية':'Enter the equity account code and name');
+ const result=await governedCapability('accounting_account_create',{
+  accounting_entity_id:entityId,
+  code,
+  name,
+  account_type:'equity',
+  is_postable:true,
+  is_active:true
+ });
+ await loadBudgetReference(entityId);
+ if(result?.account?.id&&$('#financialRetainedEarningsAccount'))$('#financialRetainedEarningsAccount').value=result.account.id;
+ showStatus(lang==='ar'?'تم إنشاء حساب حقوق الملكية':'Equity account created',true);
+}
+
+async function saveFiscalYearPolicy(){
+ const entityId=$('#financialAccountingEntity')?.value||'';
+ const retainedId=$('#financialRetainedEarningsAccount')?.value||'';
+ const endsOn=$('#financialFiscalEnd')?.value||'';
+ if(!entityId)throw new Error(lang==='ar'?'اختر الكيان المحاسبي':'Select an accounting entity');
+ if(!retainedId)throw new Error(lang==='ar'?'اختر حساب الأرباح المبقاة':'Select retained earnings account');
+ if(!endsOn)throw new Error(lang==='ar'?'حدد نهاية السنة المالية':'Set fiscal year end');
+ const end=new Date(endsOn+'T00:00:00Z');
+ if(Number.isNaN(end.getTime()))throw new Error(lang==='ar'?'تاريخ نهاية السنة غير صالح':'Invalid fiscal year end');
+ await governedCapability('accounting_year_end_policy_configure',{
+  accounting_entity_id:entityId,
+  retained_earnings_account_id:retainedId,
+  fiscal_year_end_month:end.getUTCMonth()+1,
+  fiscal_year_end_day:end.getUTCDate(),
+  status:'active',
+  metadata:{source:'planning_budgeting_workspace'}
+ });
+ await loadBudgetReference(entityId);
+ showStatus(lang==='ar'?'تم حفظ سياسة السنة المالية':'Fiscal year policy saved',true);
+}
+
 async function initializeAccountingPeriods(){
  const entityId=$('#financialAccountingEntity')?.value||'';
  const startsOn=$('#financialFiscalStart')?.value||'';
  const endsOn=$('#financialFiscalEnd')?.value||'';
  if(!entityId)throw new Error(lang==='ar'?'اختر الكيان المحاسبي':'Select an accounting entity');
  if(!startsOn||!endsOn)throw new Error(lang==='ar'?'حدد بداية ونهاية السنة المالية':'Set fiscal year start and end');
+ const policy=budgetReference?.year_end_policy;
+ if(!policy)throw new Error(lang==='ar'?'احفظ سياسة السنة المالية أولًا':'Save the fiscal year policy first');
+ const end=new Date(endsOn+'T00:00:00Z');
+ if(end.getUTCMonth()+1!==Number(policy.fiscal_year_end_month)||end.getUTCDate()!==Number(policy.fiscal_year_end_day)){
+  throw new Error(lang==='ar'?'نهاية السنة لا تطابق السياسة المحفوظة':'Fiscal year end does not match the saved policy');
+ }
  const result=await governedCapability('accounting_period_initialize_monthly',{
   accounting_entity_id:entityId,
   starts_on:startsOn,
@@ -317,7 +371,11 @@ function renderPlanningBudgetInputs(){
   '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'الفترة الفعلية حتى':'Actual through')+'</label><input id="financialActualThrough" type="date"></div>'+
   '<div class="sr-field"><label class="sr-check"><input id="financialUseBudgetForecast" type="checkbox" name="use_budget_as_forecast"> '+escapeHtml(lang==='ar'?'استخدم الموازنة كتوقع عند غياب توقع معتمد':'Use budget as forecast when no approved forecast exists')+'</label></div>'+
   '<div class="sr-field full financial-governance-panel"><div class="financial-budget-builder-head"><div><h3>'+escapeHtml(lang==='ar'?'حوكمة الموازنة':'Budget governance')+'</h3><p>'+escapeHtml(lang==='ar'?'خطة محكومة مرتبطة بالفترات والحسابات الفعلية في دفتر الأستاذ.':'Governed plan linked to real accounting periods and ledger accounts.')+'</p></div><strong id="financialBudgetGovernanceStatus">'+escapeHtml(lang==='ar'?'الحالة: لم تُنشأ خطة':'Status: no plan created')+'</strong></div>'+
-  '<div class="financial-governance-actions"><button type="button" id="financialPeriodInitialize" hidden>'+escapeHtml(lang==='ar'?'تهيئة الفترات الشهرية':'Initialize monthly periods')+'</button><button type="button" data-budget-governance="create">'+escapeHtml(lang==='ar'?'إنشاء خطة':'Create plan')+'</button><button type="button" data-budget-governance="save">'+escapeHtml(lang==='ar'?'حفظ المسودة':'Save draft')+'</button><button type="button" data-budget-transition="submit">'+escapeHtml(lang==='ar'?'إرسال للاعتماد':'Submit')+'</button><button type="button" data-budget-transition="approve">'+escapeHtml(lang==='ar'?'اعتماد':'Approve')+'</button><button type="button" data-budget-transition="reject">'+escapeHtml(lang==='ar'?'رفض':'Reject')+'</button><button type="button" data-budget-transition="revise">'+escapeHtml(lang==='ar'?'إنشاء مراجعة':'Revise')+'</button><button type="button" data-budget-governance="analyze">'+escapeHtml(lang==='ar'?'تحليل الفعلي مقابل الموازنة':'Analyze actual vs budget')+'</button></div>'+
+  '<div class="sr-field full"><h4>'+escapeHtml(lang==='ar'?'إعداد السنة المالية':'Fiscal year setup')+'</h4></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'حساب الأرباح المبقاة':'Retained earnings account')+'</label><select id="financialRetainedEarningsAccount"><option value="">'+escapeHtml(lang==='ar'?'اختر الحساب':'Select account')+'</option></select></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'رمز حساب حقوق ملكية جديد':'New equity account code')+'</label><input id="financialEquityAccountCode" type="text" maxlength="64" placeholder="3200"></div>'+
+  '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'اسم حساب حقوق ملكية جديد':'New equity account name')+'</label><input id="financialEquityAccountName" type="text" maxlength="200" placeholder="'+escapeHtml(lang==='ar'?'الأرباح المبقاة':'Retained Earnings')+'"></div>'+
+  '<div class="financial-governance-actions"><button type="button" id="financialEquityAccountCreate">'+escapeHtml(lang==='ar'?'إنشاء حساب حقوق ملكية':'Create equity account')+'</button><button type="button" id="financialYearEndPolicySave">'+escapeHtml(lang==='ar'?'حفظ سياسة السنة المالية':'Save fiscal year policy')+'</button><button type="button" id="financialPeriodInitialize" hidden>'+escapeHtml(lang==='ar'?'تهيئة الفترات الشهرية':'Initialize monthly periods')+'</button><button type="button" data-budget-governance="create">'+escapeHtml(lang==='ar'?'إنشاء خطة':'Create plan')+'</button><button type="button" data-budget-governance="save">'+escapeHtml(lang==='ar'?'حفظ المسودة':'Save draft')+'</button><button type="button" data-budget-transition="submit">'+escapeHtml(lang==='ar'?'إرسال للاعتماد':'Submit')+'</button><button type="button" data-budget-transition="approve">'+escapeHtml(lang==='ar'?'اعتماد':'Approve')+'</button><button type="button" data-budget-transition="reject">'+escapeHtml(lang==='ar'?'رفض':'Reject')+'</button><button type="button" data-budget-transition="revise">'+escapeHtml(lang==='ar'?'إنشاء مراجعة':'Revise')+'</button><button type="button" data-budget-governance="analyze">'+escapeHtml(lang==='ar'?'تحليل الفعلي مقابل الموازنة':'Analyze actual vs budget')+'</button></div>'+
   '<div class="sr-field full"><label>'+escapeHtml(lang==='ar'?'سبب الرفض/المراجعة':'Reject/revise reason')+' <small>('+T.optional+')</small></label><input id="financialBudgetReason" type="text"></div>'+
   '<div class="financial-governance-columns" aria-hidden="true"><span>'+(lang==='ar'?'الفترة':'Period')+'</span><span>'+(lang==='ar'?'الحساب':'Account')+'</span><span>'+(lang==='ar'?'المبلغ':'Amount')+'</span><span>'+(lang==='ar'?'مركز التكلفة':'Cost center')+'</span><span>'+(lang==='ar'?'القطاع':'Segment')+'</span><span></span></div>'+
   '<div id="financialGovernanceLines"><div class="sr-muted">'+escapeHtml(lang==='ar'?'اختر الكيان المحاسبي لتحميل الفترات والحسابات.':'Select an accounting entity to load periods and accounts.')+'</div></div>'+
@@ -344,6 +402,16 @@ function renderPlanningBudgetInputs(){
  $('#financialGovernanceLines')?.addEventListener('click',e=>{
   const btn=e.target.closest('[data-governance-remove]');
   if(btn)btn.closest('[data-governance-line]')?.remove();
+ });
+ $('#financialEquityAccountCreate')?.addEventListener('click',async()=>{
+  const btn=$('#financialEquityAccountCreate');btn.disabled=true;
+  try{await createRetainedEarningsAccount()}catch(error){showStatus(T.failed+': '+error.message,false)}
+  finally{btn.disabled=false}
+ });
+ $('#financialYearEndPolicySave')?.addEventListener('click',async()=>{
+  const btn=$('#financialYearEndPolicySave');btn.disabled=true;
+  try{await saveFiscalYearPolicy()}catch(error){showStatus(T.failed+': '+error.message,false)}
+  finally{btn.disabled=false}
  });
  $('#financialPeriodInitialize')?.addEventListener('click',async()=>{
   const btn=$('#financialPeriodInitialize');

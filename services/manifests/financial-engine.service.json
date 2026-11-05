@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "service_code": "financial-engine",
-  "version": 24,
+  "version": 25,
   "enabled": true,
   "governance": {
     "permissions": [],
@@ -749,6 +749,22 @@
       ],
       "runtime": {
         "adapter": "accounting_budget_analysis"
+      }
+    },
+    {
+      "action": "accounting_account_create",
+      "action_type": "data",
+      "id": "BONDS-CAP-FIN-052",
+      "purpose": "Create a governed chart-of-accounts account for an Accounting Entity using an explicit code, name and canonical account type.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "code",
+        "name",
+        "account_type"
+      ],
+      "runtime": {
+        "adapter": "accounting_account_create"
       }
     },
     {
