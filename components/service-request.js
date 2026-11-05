@@ -399,6 +399,88 @@ function ensureExecutionFields(requiredInputs){
  $('#srFormTitle').textContent=T.moreInputs;
  return true;
 }
+function formatFinancialValue(value){
+ if(value===null||value===undefined||value==='')return '—';
+ if(typeof value==='boolean')return value?(lang==='ar'?'نعم':'Yes'):(lang==='ar'?'لا':'No');
+ if(typeof value==='number')return Number(value).toLocaleString(lang==='ar'?'ar-SA':'en-US',{maximumFractionDigits:2});
+ if(typeof value==='object')return escapeHtml(JSON.stringify(value));
+ return escapeHtml(value);
+}
+function financialLabel(key){
+ const labels={
+  period:lang==='ar'?'الفترة':'Period',
+  status:lang==='ar'?'الحالة':'Status',
+  metric:lang==='ar'?'البند':'Metric',
+  actual:lang==='ar'?'الفعلي':'Actual',
+  budget:lang==='ar'?'الموازنة':'Budget',
+  forecast:lang==='ar'?'التوقع':'Forecast',
+  rolling_forecast:lang==='ar'?'التوقع المتجدد':'Rolling forecast',
+  actual_vs_budget_variance:lang==='ar'?'انحراف الفعلي عن الموازنة':'Actual vs budget variance',
+  actual_vs_budget_variance_pct:lang==='ar'?'الانحراف %':'Variance %',
+  forecast_vs_budget_variance:lang==='ar'?'انحراف التوقع عن الموازنة':'Forecast vs budget variance',
+  forecast_vs_budget_variance_pct:lang==='ar'?'انحراف التوقع %':'Forecast variance %',
+  total_assets:lang==='ar'?'إجمالي الأصول':'Total assets',
+  total_liabilities:lang==='ar'?'إجمالي الالتزامات':'Total liabilities',
+  total_equity:lang==='ar'?'إجمالي حقوق الملكية':'Total equity',
+  base_equity:lang==='ar'?'حقوق الملكية الأساسية':'Base equity',
+  cumulative_earnings:lang==='ar'?'الأرباح المتراكمة':'Cumulative earnings',
+  accounting_difference:lang==='ar'?'فرق المعادلة المحاسبية':'Accounting difference',
+  revenue:lang==='ar'?'الإيرادات':'Revenue',
+  expenses:lang==='ar'?'المصروفات':'Expenses',
+  net_income:lang==='ar'?'صافي الربح':'Net income',
+  total_debit:lang==='ar'?'إجمالي المدين':'Total debit',
+  total_credit:lang==='ar'?'إجمالي الدائن':'Total credit',
+  difference:lang==='ar'?'الفرق':'Difference'
+ };
+ return labels[key]||humanizeKey(key);
+}
+function renderFinancialRows(rows){
+ if(!Array.isArray(rows)||!rows.length)return '<div class="sr-empty">—</div>';
+ const preferred=['period','status','metric','account_code','account_name','dimension_code','actual','budget','forecast','rolling_forecast','actual_vs_budget_variance','actual_vs_budget_variance_pct','balance','debit','credit','amount','total'];
+ const keys=[...new Set(rows.flatMap(row=>Object.keys(row||{})).filter(key=>!['metadata','provenance'].includes(key)))];
+ keys.sort((a,b)=>{
+  const ai=preferred.indexOf(a),bi=preferred.indexOf(b);
+  return (ai<0?999:ai)-(bi<0?999:bi);
+ });
+ const visible=keys.slice(0,12);
+ return '<div class="financial-result-table-wrap"><table class="financial-result-table"><thead><tr>'+
+  visible.map(key=>'<th>'+escapeHtml(financialLabel(key))+'</th>').join('')+
+  '</tr></thead><tbody>'+
+  rows.map(row=>'<tr>'+visible.map(key=>'<td>'+formatFinancialValue(row?.[key])+'</td>').join('')+'</tr>').join('')+
+  '</tbody></table></div>';
+}
+function renderFinancialObject(title,obj){
+ if(!obj||typeof obj!=='object'||Array.isArray(obj))return '';
+ const entries=Object.entries(obj).filter(([,v])=>['string','number','boolean'].includes(typeof v)||v===null);
+ if(!entries.length)return '';
+ return '<section class="financial-result-section"><h3>'+escapeHtml(title)+'</h3><div class="financial-result-kpis">'+
+  entries.map(([key,value])=>'<div><span>'+escapeHtml(financialLabel(key))+'</span><strong>'+formatFinancialValue(value)+'</strong></div>').join('')+
+  '</div></section>';
+}
+function renderFinancialExecution(result,metrics){
+ if(result?.financial_statements){
+  const fs=result.financial_statements;
+  return '<div class="financial-result-stack">'+
+   renderFinancialObject(lang==='ar'?'قائمة المركز المالي':'Statement of financial position',fs.balance_sheet)+
+   renderFinancialObject(lang==='ar'?'قائمة الدخل':'Income statement',fs.income_statement)+
+   renderFinancialObject(lang==='ar'?'ميزان المراجعة — الفترة':'Trial balance — period',fs.trial_balance?.period)+
+   '</div>';
+ }
+ if(Array.isArray(result?.rows)){
+  return '<div class="financial-result-stack"><section class="financial-result-section"><h3>'+
+   escapeHtml(text(detail?.service))+'</h3>'+renderFinancialRows(result.rows)+'</section></div>';
+ }
+ if(Array.isArray(metrics?.rows)){
+  const summary=metrics.summary&&typeof metrics.summary==='object'?metrics.summary:{};
+  const summaryRows=Object.entries(summary).map(([metric,row])=>({metric,...(row||{})}));
+  return '<div class="financial-result-stack">'+
+   renderFinancialObject(lang==='ar'?'ملخص الموازنة والتوقع':'Budget & forecast summary',metrics)+
+   '<section class="financial-result-section"><h3>'+(lang==='ar'?'ملخص البنود':'Metric summary')+'</h3>'+renderFinancialRows(summaryRows)+'</section>'+
+   '<section class="financial-result-section"><h3>'+(lang==='ar'?'التفاصيل الدورية':'Period detail')+'</h3>'+renderFinancialRows(metrics.rows)+'</section>'+
+   '</div>';
+ }
+ return '';
+}
 function renderExecutionResult(payload){
  let box=$('#srExecutionResult');
  if(!box){
@@ -409,10 +491,13 @@ function renderExecutionResult(payload){
  }
  const result=payload?.result||{};
  const metrics=result.metrics||payload?.metrics||{};
- const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined);
+ const financial=renderFinancialExecution(result,metrics);
+ const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
  box.innerHTML='<h2>'+escapeHtml(T.executed)+'</h2>'+
-  (entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+escapeHtml(typeof v==='number'?Number(v).toLocaleString(lang==='ar'?'ar-SA':'en-US',{maximumFractionDigits:4}):v)+'</li>').join('')+'</ul></div>':
-  '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>');
+  (financial||(
+   entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
+   '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
+  ));
 }
 
 function track(event,properties={}){
