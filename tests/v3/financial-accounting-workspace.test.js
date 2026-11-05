@@ -22,6 +22,8 @@ describe('financial accounting workspace contract',()=>{
     expect(ui).toContain('function renderFinancialWorkspaceShell()');
     expect(ui).toContain('financial-workspace-mode');
     expect(ui).toContain('financialWorkspaceHref');
+    expect(ui).toContain('function renderFinancialExecution');
+    expect(ui).toContain('function renderFinancialRows');
   });
 
   test('financial workspace preserves the existing unified execution route',()=>{
@@ -41,5 +43,7 @@ describe('financial accounting workspace contract',()=>{
     expect(css).toContain('.financial-workspace-tabs');
     expect(css).toContain('@media(max-width:700px)');
     expect(css).toContain('@media(max-width:430px)');
+    expect(css).toContain('.financial-result-table');
+    expect(css).toContain('.financial-result-kpis');
   });
 });
