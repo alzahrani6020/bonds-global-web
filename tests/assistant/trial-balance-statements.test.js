@@ -77,15 +77,22 @@ describe('trial balance statement builder', () => {
     expect(looksLikeTrialBalance(BALANCED_ATTACHMENT)).toBe(true);
     const file = buildStatementsWorkbook(built, 'ar');
     const workbook = XLSX.read(Buffer.from(file.base64, 'base64'), { type: 'buffer' });
-    expect(workbook.SheetNames).toEqual(['الدخل', 'التدفقات', 'المركز', 'الحسابات', 'ملاحظات']);
-    const cashFlow = XLSX.utils.sheet_to_json(workbook.Sheets['التدفقات'], { header: 1 });
-    expect(cashFlow[2][3]).toBe('غير متوفر من الميزان');
-    expect(cashFlow[2][3]).not.toBe(built.profit);
-    const income = XLSX.utils.sheet_to_json(workbook.Sheets['الدخل'], { header: 1 });
-    expect(income.some(row => row.includes('Sales') && row.includes(10900000))).toBe(true);
-    expect(income.some(row => row.includes('Operating expenses') && row.includes(10000000))).toBe(true);
-    expect(income.some(row => row.includes('إجمالي الإيرادات') && row.includes(10900000))).toBe(true);
-    expect(income.some(row => row.includes('صافي الربح') && row.includes(900000))).toBe(true);
+    expect(workbook.SheetNames).toEqual(['قائمة الدخل', 'التدفقات النقدية', 'الميزانية العمومية', 'دليل الحسابات', 'إيضاحات']);
+    const cashFlow = XLSX.utils.sheet_to_json(workbook.Sheets['التدفقات النقدية'], { header: 1 });
+    expect(cashFlow.some(row => row.includes('غير متوفر من الميزان'))).toBe(true);
+    expect(cashFlow.some(row => row.includes(built.profit))).toBe(false);
+    const income = XLSX.utils.sheet_to_json(workbook.Sheets['قائمة الدخل'], { header: 1 });
+    expect(income[0][0]).toBe('قائمة الدخل');
+    expect(income.some(row => row[0] === 'البيان' && row[1] === 'المبلغ')).toBe(true);
+    expect(income.flat().includes('القسم')).toBe(false);
+    expect(income.flat().includes('معطى')).toBe(false);
+    expect(income.some(row => String(row[0]).includes('Sales') && row[1] === 10900000)).toBe(true);
+    expect(income.some(row => String(row[0]).includes('Operating expenses') && row[1] === 10000000)).toBe(true);
+    expect(income.some(row => row[0] === 'صافي الإيرادات' && row[1] === 10900000)).toBe(true);
+    expect(income.some(row => row[0] === 'صافي الربح' && row[1] === 900000)).toBe(true);
+    const position = XLSX.utils.sheet_to_json(workbook.Sheets['الميزانية العمومية'], { header: 1 });
+    expect(position[0][0]).toBe('الميزانية العمومية');
+    expect(position.some(row => row[0] === 'إجمالي الالتزامات وحقوق الملكية')).toBe(true);
   });
 
   test('does not plug a balancing figure when the file is incomplete', () => {
@@ -110,8 +117,9 @@ describe('trial balance statement builder', () => {
     expect(result.planner).toBe('universal-v2-deterministic-trial-balance');
     expect(result.ui).toHaveLength(4);
     expect(result.ui[0]).toMatchObject({ type: 'download_file', autodownload: false });
+    expect(result.ui[0].files.map(file => file.label)).toEqual(['إكسل', 'PDF', 'HTML']);
     expect(result.reply).toContain('900,000');
-    expect(result.reply).toContain('جاهز في البطاقة');
+    expect(result.reply).toContain('اختر إكسل أو PDF أو HTML');
     expect(result.reply).not.toMatch(/لم يتم تزويدي/);
   });
 
@@ -132,6 +140,8 @@ describe('trial balance statement builder', () => {
     expect(classifyAccount('مبيعات شبكة', '110203')).toBe('cash');
     expect(classifyAccount('ايرادات المبيعات', '410101')).toBe('revenue');
     expect(classifyAccount('عمولة مبيعات')).toBe('expense');
+    expect(classifyAccount('ايجار مستحق')).toBe('liability');
+    expect(classifyAccount('تحسينات على أصول مستأجرة', '120401')).toBe('asset');
     expect(classifyAccount('مردود المبيعات')).toBe('contra_revenue');
     expect(classifyAccount('ضريبه القيمه المضافه للمبيعات')).toBe('liability');
     expect(classifyAccount('مخصص نهاية الخدمة للموظفين')).toBe('liability');

@@ -468,6 +468,9 @@
       color: #0a0f1a;
       border-color: #d4a853;
     }
+    .bonds-ai-action-card.bonds-ai-download-card button + button {
+      margin-top: 0.4rem;
+    }
 
     /* Homepage assistant — institutional light treatment */
     .bonds-ai-chat-toggle-label,
@@ -3968,6 +3971,26 @@
       return true;
     }
 
+    function openPrintHtml(html) {
+      const source = String(html || '');
+      if (!source || source.length > 2_000_000) return false;
+      const popup = window.open('', '_blank', 'noopener,noreferrer');
+      if (!popup) return false;
+      popup.document.open();
+      popup.document.write(source);
+      popup.document.close();
+      popup.focus();
+      setTimeout(() => {
+        try { popup.print(); } catch (_error) { /* print is user-controlled */ }
+      }, 250);
+      return true;
+    }
+
+    function deliverPreparedFile(file) {
+      if (file && file.print_html) return openPrintHtml(file.print_html);
+      return downloadBase64File(file);
+    }
+
     function renderStructuredCards(cards = []) {
       cards
         .filter(card => card && typeof card === 'object')
@@ -3994,14 +4017,21 @@
             });
           }
 
-          if (card.type === 'download_file' && card.base64) {
+          if (card.type === 'download_file' && (card.base64 || (Array.isArray(card.files) && card.files.length))) {
             el.classList.add('bonds-ai-download-card');
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = languageCode() === 'en' ? 'Download file' : 'تنزيل الملف';
-            button.addEventListener('click', () => downloadBase64File(card));
-            el.appendChild(button);
-            if (card.autodownload === true) downloadBase64File(card);
+            const files = Array.isArray(card.files) && card.files.length
+              ? card.files
+              : [{ label: languageCode() === 'en' ? 'Download file' : 'تنزيل الملف', filename: card.filename, mime: card.mime, base64: card.base64, autodownload: card.autodownload }];
+            files.forEach(file => {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.textContent = file.label || (languageCode() === 'en' ? 'Download file' : 'تنزيل الملف');
+              button.addEventListener('click', () => deliverPreparedFile(file));
+              el.appendChild(button);
+            });
+            const autoFile = files.find(file => file.autodownload === true);
+            if (autoFile) deliverPreparedFile(autoFile);
+            else if (card.autodownload === true && files[0]) deliverPreparedFile(files[0]);
           }
 
           actionsEl.appendChild(el);
