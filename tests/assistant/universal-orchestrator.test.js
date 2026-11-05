@@ -11,6 +11,8 @@ const {
   recoverPlannerDecision,
   explicitMutationConfirmation,
   isFastPublicFact,
+  isActualAccountingStatementRequest,
+  actualAccountingRange,
   runUniversalOrchestrator
 } = require('../../lib/assistant/universal-orchestrator');
 
@@ -23,6 +25,55 @@ const { executeGovernedAction } = require('../../lib/services/service-execution-
 describe('BONDS planner-first universal orchestrator', () => {
   beforeEach(() => {
     executeGovernedAction.mockReset();
+  });
+
+  test('detects actual accounting statements and resolves an Arabic month range', () => {
+    expect(isActualAccountingStatementRequest(
+      'اعرض لي القوائم المالية الفعلية لهذا الكيان عن أكتوبر 2026'
+    )).toBe(true);
+    expect(actualAccountingRange('عن أكتوبر 2026', {})).toEqual({
+      from:'2026-10-01',
+      to:'2026-10-31'
+    });
+  });
+
+  test('reads actual accounting statements through governed ledger capabilities without estimates', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      if (action === 'accounting_trial_balance_report') {
+        return { ok:true, executed:true, result:{ trial_balance:{ ok:true, total_debit:0, total_credit:0, difference:0, rows:[] } } };
+      }
+      if (action === 'accounting_financial_statements_report') {
+        return {
+          ok:true, executed:true,
+          result:{ financial_statements:{
+            balance_sheet:{ total_assets:0, total_liabilities:0, total_equity:0, accounting_difference:0 },
+            income_statement:{ revenue:0, expenses:0, net_income:0 },
+            provenance:{ source:'bonds_accounting_ledger', deterministic:true, ai_generated:false }
+          }}
+        };
+      }
+      if (action === 'accounting_changes_in_equity_statement') {
+        return { ok:true, executed:true, result:{ rows:[{ opening_equity:0, current_period_earnings:0, closing_equity:0 }] } };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'اعرض لي القوائم المالية الفعلية لهذا الكيان عن أكتوبر 2026 وقارنها بالموازنة' }],
+      { accountingEntityId:'entity-1' },
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-accounting');
+    expect(result.toolUsed).toBe(true);
+    expect(result.reply).toContain('لا توجد قيود منشورة');
+    expect(result.ui).toHaveLength(5);
+    expect(result.trace.map(item => item.action)).toEqual([
+      'accounting_trial_balance_report',
+      'accounting_financial_statements_report',
+      'accounting_changes_in_equity_statement'
+    ]);
   });
 
   test('routes explicit official URL requests through the deterministic research entry path', () => {
