@@ -43,3 +43,16 @@
 .financial-budget-remove{width:34px;height:34px;border:1px solid #e2a8a8;border-radius:8px;background:#fff;color:#b42318;font-size:1.2rem;cursor:pointer}
 @media(max-width:950px){.financial-budget-columns{display:none}.financial-budget-row{grid-template-columns:1fr 1fr}.financial-budget-remove{width:100%}}
 @media(max-width:560px){.financial-budget-builder-head{display:block}.financial-budget-builder-head button{margin-top:10px}.financial-budget-row{grid-template-columns:1fr}}
+
+.financial-governance-panel{border:1px solid #cfd9e8;border-radius:14px;padding:15px;background:#f8fbff}
+.financial-governance-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.financial-governance-actions button{min-height:38px;padding:8px 12px;border:1px solid #c8d4e6;border-radius:8px;background:#fff;color:#24344d;font-weight:700;cursor:pointer}
+.financial-governance-actions button:hover{border-color:#2563eb;color:#1d4ed8}
+.financial-governance-actions button:disabled{opacity:.5;cursor:not-allowed}
+.financial-governance-columns,.financial-governance-line{display:grid;grid-template-columns:160px minmax(220px,1.6fr) 130px 160px 160px 40px;gap:8px;align-items:center}
+.financial-governance-columns{padding:8px 2px;color:#66758a;font-size:.75rem;font-weight:800}
+.financial-governance-line{padding:8px 0;border-top:1px solid #e4eaf2}
+.financial-governance-line select,.financial-governance-line input{width:100%;min-width:0}
+@media(max-width:1050px){.financial-governance-columns{display:none}.financial-governance-line{grid-template-columns:1fr 1fr 1fr}}
+@media(max-width:650px){.financial-governance-line{grid-template-columns:1fr}.financial-governance-actions{display:grid;grid-template-columns:1fr 1fr}}
+@media(max-width:420px){.financial-governance-actions{grid-template-columns:1fr}}
