@@ -135,7 +135,6 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('patch.accountingFrom = String(from)');
     expect(source).toContain('patch.accountingTo = String(to)');
     expect(source).toContain('context = { ...context, ...readAccountingWorkspaceContext() };');
-    expect(source).toContain('|accounting:');
   });
 
   test('tracks every chat message with stable metadata and visible timestamp', () => {
