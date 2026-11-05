@@ -82,6 +82,14 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(block).toMatch(/if \(aborted\) \{[\s\S]*\} else \{\s*console\.error\('\[BondsAIChat\]', err\);\s*\}/);
   });
 
+  test('downloads assistant-prepared files from a download_file card', () => {
+    expect(source).toContain('function downloadBase64File(card)');
+    expect(source).toContain("card.type === 'download_file'");
+    expect(source).toContain('link.download = filename');
+    expect(source).toContain('URL.createObjectURL');
+    expect(source).not.toContain('jspdf');
+  });
+
   test('exposes one governed UI action bus', () => {
     expect(source).toContain('window.BondsAssistant.execute = executeStructuredAction;');
     expect(source).toContain('window.BondsAssistant.renderEnvelope');

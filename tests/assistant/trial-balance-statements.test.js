@@ -4,7 +4,8 @@ const {
   classifyAccount,
   parseTrialBalanceRows,
   looksLikeTrialBalance,
-  buildStatementsFromTrialBalance
+  buildStatementsFromTrialBalance,
+  buildStatementsWorkbook
 } = require('../../lib/assistant/trial-balance-statements');
 const { runDeterministicLocalTools } = require('../../lib/assistant/universal-orchestrator');
 const { parseDocumentBuffer } = require('../../lib/api/document-parser-core');
@@ -74,6 +75,14 @@ describe('trial balance statement builder', () => {
     expect(built.reply).not.toMatch(/التدفق من التشغيل: 900,000/);
     expect(built.ui[1].items.join('\n')).toMatch(/غير متوفر من الميزان/);
     expect(looksLikeTrialBalance(BALANCED_ATTACHMENT)).toBe(true);
+    const file = buildStatementsWorkbook(built, 'ar');
+    const workbook = XLSX.read(Buffer.from(file.base64, 'base64'), { type: 'buffer' });
+    expect(workbook.SheetNames).toEqual(['الدخل', 'التدفقات', 'المركز', 'الحسابات', 'ملاحظات']);
+    const cashFlow = XLSX.utils.sheet_to_json(workbook.Sheets['التدفقات'], { header: 1 });
+    expect(cashFlow[2][1]).toBe('غير متوفر من الميزان');
+    expect(cashFlow[2][1]).not.toBe(built.profit);
+    const income = XLSX.utils.sheet_to_json(workbook.Sheets['الدخل'], { header: 1 });
+    expect(income[1][1]).toBe(10900000);
   });
 
   test('does not plug a balancing figure when the file is incomplete', () => {
