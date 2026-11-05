@@ -1349,6 +1349,19 @@
       }
     }
 
+    function readAccountingWorkspaceContext() {
+      const entity = document.querySelector('#financialAccountingEntity, [name="accounting_entity_id"]');
+      const form = document.querySelector('#srForm');
+      const from = form?.elements?.namedItem?.('from')?.value || '';
+      const to = form?.elements?.namedItem?.('to')?.value || '';
+      const patch = {};
+      const entityId = String(entity?.value || '').trim();
+      if (entityId) patch.accountingEntityId = entityId;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(String(from))) patch.accountingFrom = String(from);
+      if (/^\d{4}-\d{2}-\d{2}$/.test(String(to))) patch.accountingTo = String(to);
+      return patch;
+    }
+
     const serviceContext = readServiceAssistantContext();
     let context = {
       ...serviceContext,
@@ -4250,6 +4263,7 @@
       setLoading(true);
       input.value = '';
 
+      context = { ...context, ...readAccountingWorkspaceContext() };
       const isProjectMode = context.mode === 'project' && context.projectId;
       const url = isProjectMode ? ECC_ADVISOR_URL : API_URL;
       const structuredState = assistantContextEnabled()
