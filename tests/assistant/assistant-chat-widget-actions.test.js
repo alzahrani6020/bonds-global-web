@@ -128,6 +128,16 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).not.toMatch(/new\s+Function\s*\(/);
   });
 
+  test('carries the selected accounting entity and date range into assistant context', () => {
+    expect(source).toContain('function readAccountingWorkspaceContext()');
+    expect(source).toContain('#financialAccountingEntity, [name="accounting_entity_id"]');
+    expect(source).toContain('patch.accountingEntityId = entityId');
+    expect(source).toContain('patch.accountingFrom = String(from)');
+    expect(source).toContain('patch.accountingTo = String(to)');
+    expect(source).toContain('context = { ...context, ...readAccountingWorkspaceContext() };');
+    expect(source).toContain('|accounting:');
+  });
+
   test('tracks every chat message with stable metadata and visible timestamp', () => {
     expect(source).toContain('message_id: metadata.message_id || createMessageTrackingId');
     expect(source).toContain('turn_id: metadata.turn_id || createMessageTrackingId');
