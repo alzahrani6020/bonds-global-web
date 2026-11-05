@@ -1631,12 +1631,76 @@ async function handleAccountingEntities(req, res, supabase, user) {
   }
 }
 
+async function handleAccountingBudgetReference(req, res, supabase, user) {
+  if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+  if (req.method !== 'GET') return sendJson(res, 405, { error: 'Method not allowed' });
+
+  const url = getQuery(req);
+  const accountingEntityId = String(url.searchParams.get('accounting_entity_id') || '').trim();
+  if (!accountingEntityId) {
+    return sendJson(res, 400, { ok:false, error:{ code:'ACCOUNTING_ENTITY_REQUIRED' } });
+  }
+
+  try {
+    const service = new AccountingEntityUserService(supabase);
+    const entities = await service.listForUser(user.id);
+    const entity = entities.find(row => row.id === accountingEntityId);
+    if (!entity) {
+      return sendJson(res, 403, { ok:false, error:{ code:'ACCOUNTING_ENTITY_ACCESS_DENIED' } });
+    }
+
+    const [periodsRes, accountsRes, dimensionsRes, policiesRes] = await Promise.all([
+      supabase.from('accounting_periods')
+        .select('id,period_code,starts_on,ends_on,status')
+        .eq('accounting_entity_id', accountingEntityId)
+        .order('starts_on'),
+      supabase.from('accounting_accounts')
+        .select('id,code,name,account_type,is_postable,is_active')
+        .eq('accounting_entity_id', accountingEntityId)
+        .eq('is_active', true)
+        .eq('is_postable', true)
+        .order('code'),
+      supabase.from('accounting_dimensions')
+        .select('id,dimension_type,code,name,parent_id,status')
+        .eq('accounting_entity_id', accountingEntityId)
+        .eq('status', 'active')
+        .order('dimension_type')
+        .order('code'),
+      supabase.from('accounting_account_dimension_policies')
+        .select('account_id,dimension_type,required,status')
+        .eq('accounting_entity_id', accountingEntityId)
+        .eq('status', 'active')
+    ]);
+
+    const failed = [periodsRes, accountsRes, dimensionsRes, policiesRes].find(result => result.error);
+    if (failed?.error) throw failed.error;
+
+    return sendJson(res, 200, {
+      ok:true,
+      accounting_entity:{
+        id:entity.id,
+        name:entity.name,
+        base_currency:entity.base_currency,
+        role:entity.role
+      },
+      periods:periodsRes.data || [],
+      accounts:accountsRes.data || [],
+      dimensions:dimensionsRes.data || [],
+      dimension_policies:policiesRes.data || []
+    });
+  } catch (err) {
+    console.error('[services/accounting/budget-reference]', err.message);
+    return sendJson(res, 500, { ok:false, error:{ code:'ACCOUNTING_BUDGET_REFERENCE_FAILED' } });
+  }
+}
+
 async function servicesRouter(req, res, path, supabase, user) {
   if (path === '/services' || path === '/services/catalog') return handleServiceCatalog(req, res, supabase);
   if (path === '/services/goals') return handleServiceGoals(req, res, supabase);
   if (path === '/services/packages') return handleServicePackages(req, res, supabase);
   if (path === '/services/execute') return handleServiceExecute(req, res, supabase, user);
   if (path === '/services/accounting/entities') return handleAccountingEntities(req, res, supabase, user);
+  if (path === '/services/accounting/budget-reference') return handleAccountingBudgetReference(req, res, supabase, user);
   if (path === '/services/intake/prepare') return handleFinancialIntakePrepare(req, res, supabase, user);
   if (path === '/services/intake/approve') return handleFinancialIntakeApprove(req, res, supabase, user);
   if (path === '/services/intake/portfolio') return handleFinancialPortfolio(req, res, supabase, user);
