@@ -27,6 +27,18 @@ function replyFor(content) {
       actions:[{ type:'site_navigate', target:'calculator_loan', status:'ready' }]
     });
   }
+  if (content === 'اعمل لي ميزانية قائمة مركز مالي ودخل وتدفقات ايرادات عشرة مليون وربح سبع مئة الف') {
+    return jsonResponse(200, {
+      reply:'بنيت مسودة القوائم من الأرقام المعطاة.',
+      source:'bonds-assistant-ai-tool',
+      inference:{ tool_used:true, actions:['statement_build'], planner:'universal-v2-deterministic-tool' },
+      ui:[
+        { type:'result_card', title:'قائمة الدخل', items:['الإيرادات: 10,000,000','صافي الربح: 700,000'] },
+        { type:'result_card', title:'قائمة التدفقات النقدية', items:['صافي التغير في النقد: 700,000'] },
+        { type:'result_card', title:'قائمة المركز المالي', items:['إجمالي الأصول: 700,000'] }
+      ]
+    });
+  }
   if (content === 'افتح صفحة الميزانية') {
     return jsonResponse(200, {
       reply:'الميزانيات والموازنات\n/budgeting',
@@ -66,6 +78,7 @@ describe('Assistant production tool smoke', () => {
       calculator_open:true,
       site_navigate:true,
       funding_calculator_open:true,
+      statement_build:true,
       web_search:true
     });
     expect(calls).toEqual([
@@ -73,6 +86,7 @@ describe('Assistant production tool smoke', () => {
       'افتح حاسبة القرض',
       'افتح صفحة الميزانية',
       'افتح صفحة حاسبة التمويل',
+      'اعمل لي ميزانية قائمة مركز مالي ودخل وتدفقات ايرادات عشرة مليون وربح سبع مئة الف',
       'كيف اعمل ميزانية'
     ]);
     expect(JSON.parse(fetchImpl.mock.calls[2][1].body).context).toEqual({
