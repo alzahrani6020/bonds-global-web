@@ -17,6 +17,59 @@ let intakeReview=null;
 let intakeMode='file';
 let intakeUploadedPath=null;
 const isServiceWorkspace=/\/my-bonds\/workspace\/?$/.test(location.pathname);
+const FINANCIAL_WORKSPACE_SERVICES=Object.freeze([
+ 'financial_statements',
+ 'income_statement',
+ 'statement_financial_position',
+ 'cash_flow_statement',
+ 'changes_in_equity',
+ 'planning_budgeting_forecasting'
+]);
+const FINANCIAL_WORKSPACE_TABS=Object.freeze([
+ ['financial_statements','القوائم المالية','Financial statements'],
+ ['income_statement','قائمة الدخل','Income statement'],
+ ['statement_financial_position','المركز المالي','Financial position'],
+ ['cash_flow_statement','التدفقات النقدية','Cash flow'],
+ ['changes_in_equity','التغيرات في حقوق الملكية','Changes in equity'],
+ ['planning_budgeting_forecasting','الموازنات والتوقعات','Budgeting & forecast']
+]);
+function isFinancialWorkspaceService(){
+ return isServiceWorkspace&&FINANCIAL_WORKSPACE_SERVICES.includes(serviceCode);
+}
+function financialWorkspaceHref(code){
+ const next=new URLSearchParams(location.search);
+ next.set('service',code);
+ return (lang==='ar'?'/my-bonds/workspace/':'/en/my-bonds/workspace/')+'?'+next.toString();
+}
+function renderFinancialWorkspaceShell(){
+ if(!isFinancialWorkspaceService())return;
+ document.body.classList.add('financial-workspace-mode');
+ if($('#financialWorkspaceNav'))return;
+ const grid=document.querySelector('.sr-grid');
+ if(!grid)return;
+ const shell=document.createElement('section');
+ shell.id='financialWorkspaceNav';
+ shell.className='financial-workspace-shell';
+ const title=lang==='ar'?'مساحة العمل المالية والمحاسبية':'Financial & Accounting Workspace';
+ const desc=lang==='ar'
+  ?'إعداد الموازنات والقوائم المالية والتوقعات من مساحة تنفيذ واحدة، مع إبقاء كل خدمة مرتبطة بمحركها المعتمد.'
+  :'Prepare budgets, financial statements and forecasts in one execution workspace while preserving each governed service engine.';
+ const actualBudget=lang==='ar'?'الفعلي مقابل الموازنة':'Actual vs budget';
+ const forecast=lang==='ar'?'التوقع المالي':'Forecast';
+ shell.innerHTML='<div class="financial-workspace-head"><div><span class="financial-workspace-kicker">'+
+  (lang==='ar'?'تنفيذ مالي مباشر':'Direct financial execution')+
+  '</span><h2>'+escapeHtml(title)+'</h2><p>'+escapeHtml(desc)+'</p></div>'+
+  '<span class="financial-workspace-state">'+(lang==='ar'?'الخدمة الحالية':'Current service')+': '+escapeHtml(text(detail?.service))+'</span></div>'+
+  '<nav class="financial-workspace-tabs" aria-label="'+escapeHtml(title)+'">'+
+  FINANCIAL_WORKSPACE_TABS.map(([code,ar,en])=>'<a class="financial-workspace-tab'+(serviceCode===code?' active':'')+'" href="'+
+   escapeHtml(financialWorkspaceHref(code))+'"'+(serviceCode===code?' aria-current="page"':'')+'>'+escapeHtml(lang==='ar'?ar:en)+'</a>').join('')+
+  '</nav>'+
+  '<div class="financial-workspace-shortcuts">'+
+   '<a href="'+escapeHtml(financialWorkspaceHref('planning_budgeting_forecasting'))+'">'+escapeHtml(actualBudget)+'</a>'+
+   '<a href="'+escapeHtml(financialWorkspaceHref('planning_budgeting_forecasting'))+'">'+escapeHtml(forecast)+'</a>'+
+  '</div>';
+ grid.insertAdjacentElement('beforebegin',shell);
+}
 const workspaceDraftKey='bonds_service_workspace_draft_v1:'+serviceCode;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
@@ -131,6 +184,7 @@ function render(){
  $('#srFormTitle').textContent=form?text(form):T.form;
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
  if(!form?.fields?.length)renderRequestProfile();
+ renderFinancialWorkspaceShell();
  renderFinancialIntake();
  restoreWorkspaceDraft();
  bindWorkspaceDraft();
