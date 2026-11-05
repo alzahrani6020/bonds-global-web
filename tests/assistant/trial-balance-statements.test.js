@@ -109,7 +109,7 @@ describe('trial balance statement builder', () => {
     ], { attachments: [BALANCED_ATTACHMENT] }, {}, []);
     expect(result.planner).toBe('universal-v2-deterministic-trial-balance');
     expect(result.ui).toHaveLength(4);
-    expect(result.ui[3]).toMatchObject({ type: 'download_file', autodownload: false });
+    expect(result.ui[0]).toMatchObject({ type: 'download_file', autodownload: false });
     expect(result.reply).toContain('900,000');
     expect(result.reply).toContain('جاهز في البطاقة');
     expect(result.reply).not.toMatch(/لم يتم تزويدي/);
@@ -177,7 +177,9 @@ describe('trial balance statement builder', () => {
     expect(result.reply).toContain('500,000');
     expect(result.reply).toContain('200,000');
     expect(result.reply).not.toMatch(/تعذر قراءة صفوف/);
-    expect(result.ui[1].items.join('\n')).toMatch(/غير متوفر من الميزان/);
+    expect(result.ui[0]).toMatchObject({ type: 'download_file', autodownload: false });
+    const cashCard = result.ui.find(card => card.title === 'قائمة التدفقات النقدية');
+    expect(cashCard.items.join('\n')).toMatch(/غير متوفر من الميزان/);
   });
 });
 

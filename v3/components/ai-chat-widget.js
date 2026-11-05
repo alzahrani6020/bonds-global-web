@@ -459,6 +459,15 @@
       font-weight: 700;
     }
     .bonds-ai-action-card button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .bonds-ai-action-card.bonds-ai-download-card {
+      border-color: rgba(197,160,40,0.55);
+    }
+    .bonds-ai-action-card.bonds-ai-download-card button {
+      width: 100%;
+      background: #d4a853;
+      color: #0a0f1a;
+      border-color: #d4a853;
+    }
 
     /* Homepage assistant — institutional light treatment */
     .bonds-ai-chat-toggle-label,
@@ -840,6 +849,15 @@
       background: #fff;
       color: #172b46;
       border-color: #dbe3ec;
+    }
+    #bonds-ai-chat-root .bonds-ai-action-card.bonds-ai-download-card {
+      border-color: #d4a853;
+      background: #fffaf0;
+    }
+    #bonds-ai-chat-root .bonds-ai-action-card.bonds-ai-download-card button {
+      background: #d4a853;
+      color: #0a0f1a;
+      border-color: #d4a853;
     }
     #bonds-ai-chat-root .bonds-ai-notification-card strong,
     #bonds-ai-chat-root .bonds-ai-action-card strong { color: #0b3d73; }
@@ -3977,6 +3995,7 @@
           }
 
           if (card.type === 'download_file' && card.base64) {
+            el.classList.add('bonds-ai-download-card');
             const button = document.createElement('button');
             button.type = 'button';
             button.textContent = languageCode() === 'en' ? 'Download file' : 'تنزيل الملف';
@@ -3986,6 +4005,9 @@
           }
 
           actionsEl.appendChild(el);
+          if (card.type === 'download_file') {
+            el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+          }
         });
     }
 
