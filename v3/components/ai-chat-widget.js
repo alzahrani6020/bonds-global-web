@@ -1387,8 +1387,9 @@
       const model = String(value.modelCode || 'none').trim();
       const service = String(value.serviceCode || '').trim();
       const accountingEntity = String(value.accountingEntityId || '').trim();
-      const base = `city:${city}|activity:${activity}|model:${model}|accounting:${accountingEntity || 'none'}`;
-      return service ? `${base}|service:${service}` : base;
+      const base = `city:${city}|activity:${activity}|model:${model}`;
+      const accountingScoped = accountingEntity ? `${base}|accounting:${accountingEntity}` : base;
+      return service ? `${accountingScoped}|service:${service}` : accountingScoped;
     }
 
     function assistantStateStorageKey(boundary = contextBoundaryKey()) {
