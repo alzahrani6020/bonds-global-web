@@ -3982,7 +3982,7 @@
             button.textContent = languageCode() === 'en' ? 'Download file' : 'تنزيل الملف';
             button.addEventListener('click', () => downloadBase64File(card));
             el.appendChild(button);
-            downloadBase64File(card);
+            if (card.autodownload === true) downloadBase64File(card);
           }
 
           actionsEl.appendChild(el);
