@@ -1649,7 +1649,7 @@ async function handleAccountingBudgetReference(req, res, supabase, user) {
       return sendJson(res, 403, { ok:false, error:{ code:'ACCOUNTING_ENTITY_ACCESS_DENIED' } });
     }
 
-    const [periodsRes, accountsRes, dimensionsRes, policiesRes] = await Promise.all([
+    const [periodsRes, accountsRes, dimensionsRes, policiesRes, yearEndRes] = await Promise.all([
       supabase.from('accounting_periods')
         .select('id,period_code,starts_on,ends_on,status')
         .eq('accounting_entity_id', accountingEntityId)
@@ -1669,10 +1669,14 @@ async function handleAccountingBudgetReference(req, res, supabase, user) {
       supabase.from('accounting_account_dimension_policies')
         .select('account_id,dimension_type,required,status')
         .eq('accounting_entity_id', accountingEntityId)
-        .eq('status', 'active')
+        .eq('status', 'active'),
+      supabase.from('accounting_year_end_policies')
+        .select('accounting_entity_id,retained_earnings_account_id,fiscal_year_end_month,fiscal_year_end_day,status')
+        .eq('accounting_entity_id', accountingEntityId)
+        .maybeSingle()
     ]);
 
-    const failed = [periodsRes, accountsRes, dimensionsRes, policiesRes].find(result => result.error);
+    const failed = [periodsRes, accountsRes, dimensionsRes, policiesRes, yearEndRes].find(result => result.error);
     if (failed?.error) throw failed.error;
 
     return sendJson(res, 200, {
@@ -1686,7 +1690,8 @@ async function handleAccountingBudgetReference(req, res, supabase, user) {
       periods:periodsRes.data || [],
       accounts:accountsRes.data || [],
       dimensions:dimensionsRes.data || [],
-      dimension_policies:policiesRes.data || []
+      dimension_policies:policiesRes.data || [],
+      year_end_policy:yearEndRes.data || null
     });
   } catch (err) {
     console.error('[services/accounting/budget-reference]', err.message);
