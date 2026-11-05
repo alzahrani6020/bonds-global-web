@@ -216,7 +216,9 @@ async function loadBudgetReference(accountingEntityId){
  const currency=$('#financialBudgetCurrency');
  if(currency&&payload.accounting_entity?.base_currency)currency.value=payload.accounting_entity.base_currency;
  const rows=$('#financialGovernanceLines');
- if(rows)rows.innerHTML=governedBudgetLineRow();
+ const periodInit=$('#financialPeriodInitialize');
+ if(periodInit)periodInit.hidden=(payload.periods||[]).length>0;
+ if(rows)rows.innerHTML=(payload.periods||[]).length?governedBudgetLineRow():'<div class="sr-muted">'+escapeHtml(lang==='ar'?'لا توجد فترات محاسبية. حدد بداية ونهاية السنة ثم هيئ الفترات الشهرية.':'No accounting periods exist. Set fiscal start/end and initialize monthly periods.')+'</div>';
  const role=payload.accounting_entity?.role;
  document.querySelectorAll('[data-budget-transition="approve"],[data-budget-transition="reject"]').forEach(btn=>{btn.disabled=!['owner','admin'].includes(role)});
  const range=payload.periods||[];
@@ -228,6 +230,21 @@ async function loadBudgetReference(accountingEntityId){
   if(actual)actual.value=last.ends_on||'';
  }
 }
+async function initializeAccountingPeriods(){
+ const entityId=$('#financialAccountingEntity')?.value||'';
+ const startsOn=$('#financialFiscalStart')?.value||'';
+ const endsOn=$('#financialFiscalEnd')?.value||'';
+ if(!entityId)throw new Error(lang==='ar'?'اختر الكيان المحاسبي':'Select an accounting entity');
+ if(!startsOn||!endsOn)throw new Error(lang==='ar'?'حدد بداية ونهاية السنة المالية':'Set fiscal year start and end');
+ const result=await governedCapability('accounting_period_initialize_monthly',{
+  accounting_entity_id:entityId,
+  starts_on:startsOn,
+  ends_on:endsOn
+ });
+ await loadBudgetReference(entityId);
+ showStatus((lang==='ar'?'تمت تهيئة الفترات المحاسبية: ':'Accounting periods initialized: ')+(result.period_count||0),true);
+}
+
 async function handleBudgetGovernanceAction(action){
  const entityId=$('#financialAccountingEntity')?.value||'';
  if(!entityId)throw new Error(lang==='ar'?'اختر الكيان المحاسبي':'Select an accounting entity');
@@ -300,7 +317,7 @@ function renderPlanningBudgetInputs(){
   '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'الفترة الفعلية حتى':'Actual through')+'</label><input id="financialActualThrough" type="date"></div>'+
   '<div class="sr-field"><label class="sr-check"><input id="financialUseBudgetForecast" type="checkbox" name="use_budget_as_forecast"> '+escapeHtml(lang==='ar'?'استخدم الموازنة كتوقع عند غياب توقع معتمد':'Use budget as forecast when no approved forecast exists')+'</label></div>'+
   '<div class="sr-field full financial-governance-panel"><div class="financial-budget-builder-head"><div><h3>'+escapeHtml(lang==='ar'?'حوكمة الموازنة':'Budget governance')+'</h3><p>'+escapeHtml(lang==='ar'?'خطة محكومة مرتبطة بالفترات والحسابات الفعلية في دفتر الأستاذ.':'Governed plan linked to real accounting periods and ledger accounts.')+'</p></div><strong id="financialBudgetGovernanceStatus">'+escapeHtml(lang==='ar'?'الحالة: لم تُنشأ خطة':'Status: no plan created')+'</strong></div>'+
-  '<div class="financial-governance-actions"><button type="button" data-budget-governance="create">'+escapeHtml(lang==='ar'?'إنشاء خطة':'Create plan')+'</button><button type="button" data-budget-governance="save">'+escapeHtml(lang==='ar'?'حفظ المسودة':'Save draft')+'</button><button type="button" data-budget-transition="submit">'+escapeHtml(lang==='ar'?'إرسال للاعتماد':'Submit')+'</button><button type="button" data-budget-transition="approve">'+escapeHtml(lang==='ar'?'اعتماد':'Approve')+'</button><button type="button" data-budget-transition="reject">'+escapeHtml(lang==='ar'?'رفض':'Reject')+'</button><button type="button" data-budget-transition="revise">'+escapeHtml(lang==='ar'?'إنشاء مراجعة':'Revise')+'</button><button type="button" data-budget-governance="analyze">'+escapeHtml(lang==='ar'?'تحليل الفعلي مقابل الموازنة':'Analyze actual vs budget')+'</button></div>'+
+  '<div class="financial-governance-actions"><button type="button" id="financialPeriodInitialize" hidden>'+escapeHtml(lang==='ar'?'تهيئة الفترات الشهرية':'Initialize monthly periods')+'</button><button type="button" data-budget-governance="create">'+escapeHtml(lang==='ar'?'إنشاء خطة':'Create plan')+'</button><button type="button" data-budget-governance="save">'+escapeHtml(lang==='ar'?'حفظ المسودة':'Save draft')+'</button><button type="button" data-budget-transition="submit">'+escapeHtml(lang==='ar'?'إرسال للاعتماد':'Submit')+'</button><button type="button" data-budget-transition="approve">'+escapeHtml(lang==='ar'?'اعتماد':'Approve')+'</button><button type="button" data-budget-transition="reject">'+escapeHtml(lang==='ar'?'رفض':'Reject')+'</button><button type="button" data-budget-transition="revise">'+escapeHtml(lang==='ar'?'إنشاء مراجعة':'Revise')+'</button><button type="button" data-budget-governance="analyze">'+escapeHtml(lang==='ar'?'تحليل الفعلي مقابل الموازنة':'Analyze actual vs budget')+'</button></div>'+
   '<div class="sr-field full"><label>'+escapeHtml(lang==='ar'?'سبب الرفض/المراجعة':'Reject/revise reason')+' <small>('+T.optional+')</small></label><input id="financialBudgetReason" type="text"></div>'+
   '<div class="financial-governance-columns" aria-hidden="true"><span>'+(lang==='ar'?'الفترة':'Period')+'</span><span>'+(lang==='ar'?'الحساب':'Account')+'</span><span>'+(lang==='ar'?'المبلغ':'Amount')+'</span><span>'+(lang==='ar'?'مركز التكلفة':'Cost center')+'</span><span>'+(lang==='ar'?'القطاع':'Segment')+'</span><span></span></div>'+
   '<div id="financialGovernanceLines"><div class="sr-muted">'+escapeHtml(lang==='ar'?'اختر الكيان المحاسبي لتحميل الفترات والحسابات.':'Select an accounting entity to load periods and accounts.')+'</div></div>'+
@@ -327,6 +344,13 @@ function renderPlanningBudgetInputs(){
  $('#financialGovernanceLines')?.addEventListener('click',e=>{
   const btn=e.target.closest('[data-governance-remove]');
   if(btn)btn.closest('[data-governance-line]')?.remove();
+ });
+ $('#financialPeriodInitialize')?.addEventListener('click',async()=>{
+  const btn=$('#financialPeriodInitialize');
+  btn.disabled=true;
+  try{await initializeAccountingPeriods()}
+  catch(error){showStatus(T.failed+': '+error.message,false)}
+  finally{btn.disabled=false}
  });
  document.querySelectorAll('[data-budget-governance]').forEach(btn=>btn.addEventListener('click',async()=>{
   btn.disabled=true;
