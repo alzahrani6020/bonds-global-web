@@ -115,15 +115,15 @@ function renderAccountingReportInputs(){
  $('#srFormTitle').textContent=lang==='ar'?'بيانات إعداد القائمة المالية':'Financial statement inputs';
  return true;
 }
-function budgetMetricRow(index=0){
- const metric=lang==='ar'?'الإيرادات':'revenue';
+function budgetMetricRow(data={}){
+ const status=String(data.status||'actual');
  return '<div class="financial-budget-row" data-budget-row>'+
-  '<input data-budget-period type="month" aria-label="'+escapeHtml(lang==='ar'?'الفترة':'Period')+'" required>'+
-  '<select data-budget-status aria-label="'+escapeHtml(lang==='ar'?'الحالة':'Status')+'"><option value="actual">'+(lang==='ar'?'فعلي':'Actual')+'</option><option value="forecast">'+(lang==='ar'?'توقع':'Forecast')+'</option></select>'+
-  '<input data-budget-metric type="text" value="revenue" aria-label="'+escapeHtml(lang==='ar'?'البند':'Metric')+'" required>'+
-  '<input data-budget-actual type="number" step="any" placeholder="'+escapeHtml(lang==='ar'?'الفعلي':'Actual')+'">'+
-  '<input data-budget-budget type="number" step="any" placeholder="'+escapeHtml(lang==='ar'?'الموازنة':'Budget')+'">'+
-  '<input data-budget-forecast type="number" step="any" placeholder="'+escapeHtml(lang==='ar'?'التوقع':'Forecast')+'">'+
+  '<input data-budget-period type="month" value="'+escapeHtml(data.period||'')+'" aria-label="'+escapeHtml(lang==='ar'?'الفترة':'Period')+'" required>'+
+  '<select data-budget-status aria-label="'+escapeHtml(lang==='ar'?'الحالة':'Status')+'"><option value="actual"'+(status==='actual'?' selected':'')+'>'+(lang==='ar'?'فعلي':'Actual')+'</option><option value="forecast"'+(status==='forecast'?' selected':'')+'>'+(lang==='ar'?'توقع':'Forecast')+'</option></select>'+
+  '<input data-budget-metric type="text" value="'+escapeHtml(data.metric||'revenue')+'" aria-label="'+escapeHtml(lang==='ar'?'البند':'Metric')+'" required>'+
+  '<input data-budget-actual type="number" step="any" value="'+escapeHtml(data.actual||'')+'" placeholder="'+escapeHtml(lang==='ar'?'الفعلي':'Actual')+'">'+
+  '<input data-budget-budget type="number" step="any" value="'+escapeHtml(data.budget||'')+'" placeholder="'+escapeHtml(lang==='ar'?'الموازنة':'Budget')+'">'+
+  '<input data-budget-forecast type="number" step="any" value="'+escapeHtml(data.forecast||'')+'" placeholder="'+escapeHtml(lang==='ar'?'التوقع':'Forecast')+'">'+
   '<button type="button" class="financial-budget-remove" data-budget-remove aria-label="'+escapeHtml(lang==='ar'?'حذف الصف':'Remove row')+'">×</button>'+
  '</div>';
 }
@@ -236,7 +236,8 @@ function saveWorkspaceDraft(){
    else if(el.multiple)values[el.name]=Array.from(el.selectedOptions).map(o=>o.value);
    else values[el.name]=el.value;
  });
- localStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,updated_at:new Date().toISOString()}));
+ const budget_rows=serviceCode==='planning_budgeting_forecasting'?[...document.querySelectorAll('[data-budget-row]')].map(row=>({period:row.querySelector('[data-budget-period]')?.value||'',status:row.querySelector('[data-budget-status]')?.value||'actual',metric:row.querySelector('[data-budget-metric]')?.value||'',actual:row.querySelector('[data-budget-actual]')?.value||'',budget:row.querySelector('[data-budget-budget]')?.value||'',forecast:row.querySelector('[data-budget-forecast]')?.value||''})):null;
+ localStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,budget_rows,updated_at:new Date().toISOString()}));
  workspaceDirty=true;
 }
 function restoreWorkspaceDraft(){
@@ -251,6 +252,10 @@ function restoreWorkspaceDraft(){
    else if(el.multiple&&Array.isArray(value))Array.from(el.options).forEach(o=>{o.selected=value.includes(o.value)});
    else el.value=value??'';
  });
+ if(serviceCode==='planning_budgeting_forecasting'&&Array.isArray(saved.budget_rows)&&saved.budget_rows.length){
+   const rows=$('#financialBudgetRows');
+   if(rows)rows.innerHTML=saved.budget_rows.map(row=>budgetMetricRow(row)).join('');
+ }
  workspaceDirty=false;
 }
 function bindWorkspaceDraft(){
