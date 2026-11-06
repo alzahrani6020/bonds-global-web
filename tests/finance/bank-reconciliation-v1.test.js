@@ -141,8 +141,8 @@ describe('Bank reconciliation V1', () => {
     });
   });
 
-  test('registers FIN-050 on financial-engine v23', () => {
-    expect(manifest.version).toBe(23);
+  test('registers FIN-050 on financial-engine v25', () => {
+    expect(manifest.version).toBe(25);
     const entry = manifest.capabilities.find(
       item => item.action === 'accounting_bank_reconciliation_run'
     );

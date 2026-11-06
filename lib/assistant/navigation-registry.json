@@ -171,6 +171,14 @@
       },
       "kind": "calculator",
       "risk": "low"
+    },
+    "budgeting": {
+      "routes": {
+        "ar": "/budgeting",
+        "en": "/en/budgeting"
+      },
+      "kind": "page",
+      "risk": "low"
     }
   }
 }

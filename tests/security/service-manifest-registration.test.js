@@ -79,6 +79,7 @@ describe(
         expect(
           Object.keys(CAPABILITIES).sort()
         ).toEqual([
+          'accounting_account_create',
           'accounting_adjustment_post',
           'accounting_allocation_execute',
           'accounting_allocation_rule_configure',
@@ -106,6 +107,7 @@ describe(
           'accounting_group_configure',
           'accounting_intercompany_link',
           'accounting_journal_post',
+          'accounting_period_initialize_monthly',
           'accounting_period_transition',
           'accounting_trial_balance_report',
           'accounting_year_end_close',
@@ -114,6 +116,7 @@ describe(
           'agent_execute',
           'ai_reason',
           'blind_spot_analyze',
+          'bonds_answer_brief',
           'calculator_open',
           'calculator_run',
           'cash_flow_analysis_run',
@@ -139,6 +142,7 @@ describe(
           'fx_translation_run',
           'language_detect',
           'management_reporting_run',
+          'math_calculate',
           'media_classify',
           'native_generate',
           'native_health',

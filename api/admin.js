@@ -12,6 +12,28 @@ const { sendEmail } = require('../lib/api/email');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const FundingCases = require('../lib/api/funding-cases-admin');
 const { logCommercialEvent } = require('../lib/analytics/commercial-events');
+const { getGa4Overview } = require('../lib/analytics/ga4-data-api');
+const {
+  buildMetricSnapshot,
+  loadCommandCenterGovernance,
+  saveTarget,
+  deleteTarget,
+  saveAlertRule,
+  deleteAlertRule
+} = require('../lib/analytics/command-center-governance');
+const {
+  loadDecisionOperations,
+  createDecision,
+  updateDecisionStatus,
+  measureDecision,
+  createAction,
+  createScenario,
+  deleteScenario,
+  saveView,
+  deleteView,
+  saveWatchlist,
+  deleteWatchlist
+} = require('../lib/analytics/command-center-operations');
 const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
@@ -3412,6 +3434,233 @@ async function recordConfigSnapshot(sb, body, admin, req) {
   return{success:true,snapshots:data||[]};
 }
 
+function riyadhDayStartIso(nowMs=Date.now()) {
+  const shifted = new Date(nowMs + 3 * 3600000);
+  const startUtcForRiyadh = Date.UTC(
+    shifted.getUTCFullYear(),
+    shifted.getUTCMonth(),
+    shifted.getUTCDate(),
+    0, 0, 0, 0
+  ) - 3 * 3600000;
+  return new Date(startUtcForRiyadh).toISOString();
+}
+
+function normalizeTrafficSource(source, referrer) {
+  const explicit = String(source || '').trim().toLowerCase();
+  if (explicit && !['unknown','null','undefined'].includes(explicit)) return explicit.slice(0, 120);
+  const value = String(referrer || '').trim();
+  if (!value) return 'direct';
+  try {
+    const host = new URL(value).hostname.replace(/^www\./, '').toLowerCase();
+    return host || 'direct';
+  } catch (_) {
+    return 'other';
+  }
+}
+
+function inferDevice(userAgent) {
+  const ua = String(userAgent || '');
+  if (/ipad|tablet/i.test(ua)) return 'tablet';
+  if (/mobile|android|iphone|ipod/i.test(ua)) return 'mobile';
+  if (ua) return 'desktop';
+  return 'unknown';
+}
+
+async function getFirstPartyAnalytics(sb) {
+  const now = Date.now();
+  const todayStart = riyadhDayStartIso(now);
+  const since30 = new Date(now - 30 * 86400000).toISOString();
+  const presenceCutoff = new Date(now - 2 * 60 * 1000).toISOString();
+
+  const sourceQueries = [
+    ['viewsToday', sb.from('page_views')
+      .select('session_id,page,section,source,referrer,country,country_code,city,user_agent,created_at')
+      .gte('created_at', todayStart)
+      .order('created_at', { ascending: false })
+      .limit(10000)],
+    ['views30', sb.from('page_views')
+      .select('session_id,page,section,source,referrer,country,country_code,city,user_agent,created_at')
+      .gte('created_at', since30)
+      .order('created_at', { ascending: false })
+      .limit(10000)],
+    ['sessions30', sb.from('page_sessions')
+      .select('page,section,duration_seconds,source,referrer,started_at')
+      .gte('started_at', since30)
+      .order('started_at', { ascending: false })
+      .limit(10000)],
+    ['presenceNow', sb.from('user_presence')
+      .select('session_id,user_id,page,section,country,city,last_seen_at,is_online')
+      .eq('is_online', true)
+      .gte('last_seen_at', presenceCutoff)
+      .order('last_seen_at', { ascending: false })
+      .limit(5000)],
+    ['contacts30', sb.from('contact_messages')
+      .select('service,source,created_at')
+      .gte('created_at', since30)
+      .order('created_at', { ascending: false })
+      .limit(5000)],
+    ['funding30', sb.from('funding_cases')
+      .select('status,source,amount,created_at')
+      .gte('created_at', since30)
+      .order('created_at', { ascending: false })
+      .limit(5000)]
+  ];
+
+  const settled = await Promise.allSettled(sourceQueries.map(([, query]) => query));
+  const data = {};
+  const sources = {};
+  settled.forEach((result, index) => {
+    const name = sourceQueries[index][0];
+    if (result.status === 'rejected') {
+      data[name] = [];
+      sources[name] = { status: 'unavailable', error: String(result.reason?.message || result.reason || 'Query failed').slice(0, 180) };
+      return;
+    }
+    const payload = result.value || {};
+    if (payload.error) {
+      data[name] = [];
+      sources[name] = { status: 'unavailable', error: String(payload.error.message || payload.error).slice(0, 180) };
+      return;
+    }
+    const rows = Array.isArray(payload.data) ? payload.data : [];
+    data[name] = rows;
+    const queryLimit = name === 'presenceNow' || name === 'contacts30' || name === 'funding30' ? 5000 : 10000;
+    sources[name] = { status: rows.length >= queryLimit ? 'partial' : 'ok', rows: rows.length, truncated: rows.length >= queryLimit };
+  });
+
+  const viewsToday = data.viewsToday || [];
+  const views30 = data.views30 || [];
+  const sessions30 = data.sessions30 || [];
+  const presenceNow = data.presenceNow || [];
+  const contacts30 = data.contacts30 || [];
+  const funding30 = data.funding30 || [];
+
+  const uniqueSessions = rows => new Set(rows.map(r => r.session_id).filter(Boolean)).size;
+  const visitorsToday = uniqueSessions(viewsToday);
+  const visitors30d = uniqueSessions(views30);
+  const onlineNow = uniqueSessions(presenceNow);
+
+  const traffic = {};
+  const pages = {};
+  const countries = {};
+  const cities = {};
+  const devices = {};
+  for (const row of views30) {
+    const session = row.session_id || null;
+    const source = normalizeTrafficSource(row.source, row.referrer);
+    const t = traffic[source] || (traffic[source] = { source, views: 0, sessions: new Set() });
+    t.views++;
+    if (session) t.sessions.add(session);
+
+    const page = String(row.page || 'unknown').slice(0, 240);
+    const p = pages[page] || (pages[page] = { page, views: 0, sessions: new Set() });
+    p.views++;
+    if (session) p.sessions.add(session);
+
+    const country = String(row.country || row.country_code || 'unknown').slice(0, 120);
+    const g = countries[country] || (countries[country] = { country, views: 0, sessions: new Set() });
+    g.views++;
+    if (session) g.sessions.add(session);
+
+    const city = String(row.city || 'unknown').slice(0, 120);
+    const cg = cities[city] || (cities[city] = { city, views: 0, sessions: new Set() });
+    cg.views++;
+    if (session) cg.sessions.add(session);
+
+    const device = inferDevice(row.user_agent);
+    const d = devices[device] || (devices[device] = { device, views: 0, sessions: new Set() });
+    d.views++;
+    if (session) d.sessions.add(session);
+  }
+
+  const toRanked = (obj, sessionKey='sessions') => Object.values(obj)
+    .map(x => ({ ...x, [sessionKey]: x.sessions.size }))
+    .map(({ sessions, ...rest }) => ({ ...rest, sessions: sessions?.size ?? rest[sessionKey] }))
+    .sort((a, b) => (b.sessions || 0) - (a.sessions || 0) || (b.views || 0) - (a.views || 0));
+
+  const trafficSources = Object.values(traffic)
+    .map(x => ({ source: x.source, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views)
+    .slice(0,20);
+  const topPages = Object.values(pages)
+    .map(x => ({ page: x.page, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.views - a.views || b.sessions - a.sessions)
+    .slice(0,25);
+  const geography = Object.values(countries)
+    .map(x => ({ country: x.country, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views)
+    .slice(0,25);
+  const topCities = Object.values(cities)
+    .map(x => ({ city: x.city, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views)
+    .slice(0,25);
+  const deviceBreakdown = Object.values(devices)
+    .map(x => ({ device: x.device, views: x.views, sessions: x.sessions.size }))
+    .sort((a,b) => b.sessions - a.sessions || b.views - a.views);
+
+  const totalDuration = sessions30.reduce((sum, row) => sum + Number(row.duration_seconds || 0), 0);
+  const avgSessionSeconds = sessions30.length ? Math.round(totalDuration / sessions30.length) : null;
+
+  const leadsToday = contacts30.filter(x => String(x.created_at || '') >= todayStart).length;
+  const leads30d = contacts30.length;
+  const fundingToday = funding30.filter(x => String(x.created_at || '') >= todayStart).length;
+  const fundingRequests30d = funding30.length;
+  const aggregateLeadConversionPct30d = visitors30d ? Math.round((leads30d / visitors30d) * 1000) / 10 : null;
+
+  const serviceDemand = {};
+  for (const lead of contacts30) {
+    const service = String(lead.service || 'unspecified').trim() || 'unspecified';
+    serviceDemand[service] = (serviceDemand[service] || 0) + 1;
+  }
+
+  return {
+    success: true,
+    mode: 'first_party_free',
+    costDependency: 'none',
+    timezone: 'Asia/Riyadh',
+    todayStart,
+    traffic: {
+      visitorsToday,
+      pageViewsToday: viewsToday.length,
+      onlineNow,
+      visitors30d,
+      pageViews30d: views30.length,
+      sessions30d: sessions30.length,
+      avgSessionSeconds,
+      sources: trafficSources,
+      topPages,
+      geography,
+      topCities,
+      devices: deviceBreakdown
+    },
+    leads: {
+      today: leadsToday,
+      last30d: leads30d,
+      fundingToday,
+      fundingRequests30d,
+      aggregateLeadConversionPct30d,
+      conversionDefinition: 'contact_messages_30d / unique_first_party_sessions_30d; aggregate only, not identity attribution',
+      topServices: Object.entries(serviceDemand)
+        .map(([service, count]) => ({ service, count }))
+        .sort((a,b) => b.count - a.count)
+        .slice(0,20)
+    },
+    sources,
+    status: Object.values(sources).some(x => x.status === 'unavailable')
+      ? 'degraded'
+      : Object.values(sources).some(x => x.status === 'partial')
+        ? 'partial'
+        : 'healthy',
+    privacy: {
+      rawSessionIdsReturned: false,
+      rawIpAddressesReturned: false,
+      piiReturned: false
+    },
+    generatedAt: new Date().toISOString()
+  };
+}
+
+
 // ── Executive Analytics / AI Operations ────────────────────
 async function getExecutiveAnalyticsV2(sb) {
   const since90=new Date(Date.now()-90*86400000).toISOString();
@@ -4665,6 +4914,260 @@ async function handler(req, res) {
       if (action === 'data-governance-overview') {
         const access = await requireAdminPermission(req, sb, 'governance.read');
         return res.status(200).json(await getDataGovernanceOverview(sb, access));
+      }
+      if (action === 'command-center-governance') {
+        await requireAdminPermission(req, sb, 'analytics.command_center.read');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        return res.status(200).json(await loadCommandCenterGovernance(sb, metricSnapshot));
+      }
+      if (action === 'command-center-board-pack') {
+        await requireAdminPermission(req, sb, 'analytics.command_center.read');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        const [governance, operations] = await Promise.all([
+          loadCommandCenterGovernance(sb, metricSnapshot),
+          loadDecisionOperations(sb, metricSnapshot)
+        ]);
+        const materialityPct = req.query?.materiality_pct == null
+          ? 10
+          : Number(req.query.materiality_pct);
+        if (!Number.isFinite(materialityPct) || materialityPct < 0 || materialityPct > 1000) {
+          throw badRequest('materiality_pct must be between 0 and 1000');
+        }
+        const boardPack = buildBoardPack(governance, operations, { materiality_pct: materialityPct });
+        return res.status(200).json({ success: true, boardPack });
+      }
+      if (action === 'command-center-natural-language-query') {
+        await requireAdminPermission(req, sb, 'analytics.command_center.read');
+        const question = String(req.body?.question || '').trim();
+        if (!question) throw badRequest('question required');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        const governance = await loadCommandCenterGovernance(sb, metricSnapshot);
+        const result = answerNaturalLanguageAnalytics(question, governance);
+        return res.status(200).json({ success: true, result });
+      }
+      if (action === 'command-center-target-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let target;
+        try {
+          target = await saveTarget(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required|must be|target_value|period_|comparison|scenario/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_target_save', 'analytics_target', target.id, null, {
+          metric_key: target.metric_key,
+          period_start: target.period_start,
+          period_end: target.period_end,
+          scenario: target.scenario
+        }, req);
+        return res.status(200).json({ success: true, target });
+      }
+      if (action === 'command-center-target-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const deleted = await deleteTarget(sb, id);
+        await logAdminAction(sb, access.user, 'analytics_target_delete', 'analytics_target', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-alert-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let rule;
+        try {
+          rule = await saveAlertRule(sb, req.body || {});
+        } catch (err) {
+          if (/invalid|required|must be|threshold|cooldown|severity|operator|metric_key/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_alert_rule_save', 'analytics_alert_rule', rule.id, null, {
+          metric_key: rule.metric_key,
+          operator: rule.operator,
+          severity: rule.severity,
+          enabled: rule.enabled
+        }, req);
+        return res.status(200).json({ success: true, rule });
+      }
+      if (action === 'command-center-alert-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const deleted = await deleteAlertRule(sb, id);
+        await logAdminAction(sb, access.user, 'analytics_alert_rule_delete', 'analytics_alert_rule', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-operations-overview') {
+        await requireAdminPermission(req, sb, 'analytics.command_center.read');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        return res.status(200).json(await loadDecisionOperations(sb, metricSnapshot));
+      }
+      if (action === 'command-center-decision-create') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        let decision;
+        try {
+          decision = await createDecision(sb, req.body || {}, access.user.id, metricSnapshot);
+        } catch (err) {
+          if (/invalid|required|must be/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_decision_create', 'analytics_decision', decision.id, null, {
+          metric_key: decision.expected_outcome?.metric_key || null,
+          review_at: decision.review_at || null
+        }, req);
+        return res.status(200).json({ success: true, decision });
+      }
+      if (action === 'command-center-decision-status') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let decision;
+        try {
+          decision = await updateDecisionStatus(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_decision_status', 'analytics_decision', decision.id, null, { status: decision.status }, req);
+        return res.status(200).json({ success: true, decision });
+      }
+      if (action === 'command-center-decision-measure') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        let decision;
+        try {
+          decision = await measureDecision(sb, id, metricSnapshot);
+        } catch (err) {
+          if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_decision_measure', 'analytics_decision', decision.id, null, {
+          measured_outcome: decision.measured_outcome || {}
+        }, req);
+        return res.status(200).json({ success: true, decision });
+      }
+      if (action === 'command-center-action-create') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let item;
+        try {
+          item = await createAction(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_action_create', 'analytics_action', item.id, null, {
+          decision_id: item.decision_id || null,
+          priority: item.priority
+        }, req);
+        return res.status(200).json({ success: true, actionItem: item });
+      }
+      if (action === 'command-center-scenario-create') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let scenario;
+        try {
+          scenario = await createScenario(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required|must be|out of range|scenario engine/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_scenario_create', 'analytics_scenario', scenario.id, null, {
+          scenario_type: scenario.scenario_type,
+          confidence: scenario.confidence
+        }, req);
+        return res.status(200).json({ success: true, scenario });
+      }
+      if (action === 'command-center-scenario-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        let deleted;
+        try {
+          deleted = await deleteScenario(sb, id);
+        } catch (err) {
+          if (/invalid|required|not found/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_scenario_delete', 'analytics_scenario', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-view-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let view;
+        try { view = await saveView(sb, req.body || {}, access.user.id); }
+        catch (err) { if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_saved_view_create', 'analytics_saved_view', view.id, null, { scope: view.scope }, req);
+        return res.status(200).json({ success: true, view });
+      }
+      if (action === 'command-center-view-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        let deleted;
+        try { deleted = await deleteView(sb, id, access.user.id); }
+        catch (err) { if (/invalid|required|not found/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_saved_view_delete', 'analytics_saved_view', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-watchlist-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let watchlist;
+        try { watchlist = await saveWatchlist(sb, req.body || {}, access.user.id); }
+        catch (err) { if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_watchlist_create', 'analytics_watchlist', watchlist.id, null, { entity_type: watchlist.entity_type }, req);
+        return res.status(200).json({ success: true, watchlist });
+      }
+      if (action === 'command-center-watchlist-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        let deleted;
+        try { deleted = await deleteWatchlist(sb, id, access.user.id); }
+        catch (err) { if (/invalid|required|not found/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_watchlist_delete', 'analytics_watchlist', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'first-party-analytics') {
+        await requireAdminPermission(req, sb, 'analytics.executive');
+        return res.status(200).json(await getFirstPartyAnalytics(sb));
+      }
+      if (action === 'ga4-analytics') {
+        await requireAdminPermission(req, sb, 'analytics.executive');
+        return res.status(200).json(await getGa4Overview());
       }
       if (action === 'executive-analytics-v2') {
         const access = await requireAdminPermission(req, sb, 'analytics.executive');

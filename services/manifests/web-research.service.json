@@ -117,6 +117,19 @@
       }
     },
     {
+      "action": "bonds_answer_brief",
+      "action_type": "engine",
+      "id": "BONDS-CAP-BRIEF-001",
+      "purpose": "Bonds-owned page brief. Rank the page, extract the lead sentence, and keep conflicts and open questions.",
+      "side_effect": "compute",
+      "required": [
+        "topic"
+      ],
+      "runtime": {
+        "adapter": "bonds_answer_brief"
+      }
+    },
+    {
       "action": "research_synthesize",
       "action_type": "engine",
       "id": "BONDS-CAP-RSCH-002",
