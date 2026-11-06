@@ -222,6 +222,19 @@
       "runtime": {
         "adapter": "assistant_file_security_scan"
       }
+    },
+    {
+      "action": "math_calculate",
+      "action_type": "engine",
+      "id": "BONDS-CAP-ASST-015",
+      "purpose": "Evaluate a bounded arithmetic expression deterministically without calling the language model.",
+      "side_effect": "compute",
+      "required": [
+        "expression"
+      ],
+      "runtime": {
+        "adapter": "assistant_math_calculate"
+      }
     }
   ]
 }
