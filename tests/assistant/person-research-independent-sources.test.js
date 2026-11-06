@@ -106,6 +106,33 @@ describe('governed person research independent sources regression', () => {
     expect(deterministicResearchAnswer('من هو حسني مبارك؟', wikipediaOnly, plan))
       .toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
 
+    const oneVerifiedPlusSearchOnly = {
+      verification:{
+        sources:[
+          {
+            title:'حسني مبارك - ويكيبيديا',
+            url:'https://ar.wikipedia.org/wiki/%D8%AD%D8%B3%D9%86%D9%8A_%D9%85%D8%A8%D8%A7%D8%B1%D9%83',
+            text:'محمد حسني مبارك سياسي وعسكري مصري.'
+          }
+        ],
+        result:{ independent_publisher_count:1 }
+      },
+      search:{
+        result:{
+          results:[
+            {
+              title:'Hosni Mubarak | Britannica',
+              url:'https://www.britannica.com/biography/Hosni-Mubarak',
+              snippet:'Hosni Mubarak was an Egyptian military officer and politician.'
+            }
+          ]
+        }
+      }
+    };
+    expect(researchSources(oneVerifiedPlusSearchOnly)).toHaveLength(2);
+    expect(deterministicResearchAnswer('من هو حسني مبارك؟', oneVerifiedPlusSearchOnly, plan))
+      .toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+
     let verifyInput = null;
     executeGovernedAction.mockImplementation(async ({ action, input }) => {
       if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
