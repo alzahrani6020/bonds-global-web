@@ -5,6 +5,7 @@ const {
   runUniversalOrchestrator
 } = require('../../lib/assistant/universal-orchestrator');
 const { resolveLanguageQuery } = require('../../lib/assistant/language-query-resolver');
+const { verifyEvidence } = require('../../lib/intelligence/research-intelligence');
 
 jest.mock('../../lib/services/service-execution-router', () => ({
   executeGovernedAction: jest.fn()
@@ -26,6 +27,25 @@ describe('governed person research independent sources regression', () => {
       .toBe('wikipedia.org');
     expect(publisherKey('https://en.wikipedia.org/wiki/Hosni_Mubarak'))
       .toBe('wikipedia.org');
+
+    const wikipediaVerification = verifyEvidence({
+      topic:'حسني مبارك',
+      minIndependentPublishers:2,
+      sources:[
+        {
+          url:'https://ar.wikipedia.org/wiki/%D8%AD%D8%B3%D9%86%D9%8A_%D9%85%D8%A8%D8%A7%D8%B1%D9%83',
+          publisher:'ar.wikipedia.org',
+          text:'محمد حسني مبارك سياسي وعسكري مصري.'
+        },
+        {
+          url:'https://en.wikipedia.org/wiki/Hosni_Mubarak',
+          publisher:'en.wikipedia.org',
+          text:'Hosni Mubarak was an Egyptian politician.'
+        }
+      ]
+    });
+    expect(wikipediaVerification.ok).toBe(false);
+    expect(wikipediaVerification.result.independent_publisher_count).toBe(1);
 
     const fixture = {
       verification:{
