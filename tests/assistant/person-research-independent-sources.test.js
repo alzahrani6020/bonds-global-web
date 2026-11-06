@@ -188,5 +188,95 @@ describe('governed person research independent sources regression', () => {
     expect(result.reply).toContain('britannica.com');
     expect(result.reply).toContain('ar.wikipedia.org');
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
+
+    executeGovernedAction.mockReset();
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN_ON_INSUFFICIENT_PERSON_EVIDENCE');
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            query:input.query,
+            results:[
+              {
+                title:'حسني مبارك - ويكيبيديا',
+                url:'https://ar.wikipedia.org/wiki/%D8%AD%D8%B3%D9%86%D9%8A_%D9%85%D8%A8%D8%A7%D8%B1%D9%83',
+                snippet:'محمد حسني مبارك سياسي وعسكري مصري.'
+              },
+              {
+                title:'Hosni Mubarak - Wikipedia',
+                url:'https://en.wikipedia.org/wiki/Hosni_Mubarak',
+                snippet:'Hosni Mubarak was an Egyptian politician.'
+              }
+            ]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            pages:[
+              {
+                url:'https://ar.wikipedia.org/wiki/%D8%AD%D8%B3%D9%86%D9%8A_%D9%85%D8%A8%D8%A7%D8%B1%D9%83',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'حسني مبارك - ويكيبيديا', text:'محمد حسني مبارك سياسي وعسكري مصري.' }
+              },
+              {
+                url:'https://en.wikipedia.org/wiki/Hosni_Mubarak',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'Hosni Mubarak - Wikipedia', text:'Hosni Mubarak was an Egyptian politician.' }
+              }
+            ]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:false,
+          executed:true,
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'INSUFFICIENT_EVIDENCE',
+            source_count:2,
+            independent_publisher_count:1,
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:['INSUFFICIENT_INDEPENDENT_SOURCES'],
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'research_synthesize') {
+        return {
+          ok:false,
+          executed:true,
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'INSUFFICIENT_EVIDENCE',
+            known:[],
+            unknown:['INSUFFICIENT_INDEPENDENT_SOURCES'],
+            contradictions:[]
+          }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const insufficient = await runUniversalOrchestrator(
+      [{ role:'user', content:'من هو حسني مبارك؟' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(insufficient.ok).toBe(true);
+    expect(insufficient.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(insufficient.research.decision_eligible).toBe(false);
+    expect(insufficient.research.initial_quality_code).toBe('INSUFFICIENT_INDEPENDENT_SOURCES');
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
   });
 });
