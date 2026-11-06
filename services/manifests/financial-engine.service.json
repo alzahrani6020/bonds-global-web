@@ -752,21 +752,6 @@
       }
     },
     {
-      "action": "accounting_bank_reconciliation_run",
-      "action_type": "workflow",
-      "id": "BONDS-CAP-FIN-050",
-      "purpose": "Reconcile imported bank-statement rows deterministically against posted canonical cash-account ledger lines, auto-matching only unambiguous exact evidence and preserving exceptions for review.",
-      "side_effect": "database_write",
-      "required": [
-        "accounting_entity_id",
-        "request_key",
-        "rows"
-      ],
-      "runtime": {
-        "adapter": "accounting_bank_reconciliation_run"
-      }
-    },
-    {
       "action": "accounting_account_create",
       "action_type": "data",
       "id": "BONDS-CAP-FIN-052",
@@ -795,6 +780,21 @@
       ],
       "runtime": {
         "adapter": "accounting_period_initialize_monthly"
+      }
+    },
+    {
+      "action": "accounting_bank_reconciliation_run",
+      "action_type": "workflow",
+      "id": "BONDS-CAP-FIN-050",
+      "purpose": "Reconcile imported bank-statement rows deterministically against posted canonical cash-account ledger lines, auto-matching only unambiguous exact evidence and preserving exceptions for review.",
+      "side_effect": "database_write",
+      "required": [
+        "accounting_entity_id",
+        "request_key",
+        "rows"
+      ],
+      "runtime": {
+        "adapter": "accounting_bank_reconciliation_run"
       }
     }
   ]
