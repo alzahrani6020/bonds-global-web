@@ -66,7 +66,8 @@ describe('BONDS planner-first universal orchestrator', () => {
           result:{
             query:input.query,
             results:[
-              { title:'الدكتور طلال حسن الزهراني | بوندز', url:'https://bonds-global.com/', snippet:'طلال حسن الزهراني مستشار وخبير مالي.' }
+              { title:'الدكتور طلال حسن الزهراني | بوندز', url:'https://bonds-global.com/', snippet:'طلال حسن الزهراني مستشار وخبير مالي.' },
+              { title:'ملف طلال حسن الزهراني', url:'https://example.org/talal-hassan-alzahrani', snippet:'طلال حسن الزهراني مستشار مالي.' }
             ]
           }
         };
@@ -78,11 +79,18 @@ describe('BONDS planner-first universal orchestrator', () => {
           action,
           action_fabric:{ side_effect:'network_read' },
           result:{
-            pages:[{
-              url:'https://bonds-global.com/',
-              evidence:{ content_type:'text/html', headers:{} },
-              extracted:{ format:'html', title:'الدكتور طلال حسن الزهراني | بوندز', text:'طلال حسن الزهراني مستشار وخبير مالي.' }
-            }]
+            pages:[
+              {
+                url:'https://bonds-global.com/',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'الدكتور طلال حسن الزهراني | بوندز', text:'طلال حسن الزهراني مستشار وخبير مالي.' }
+              },
+              {
+                url:'https://example.org/talal-hassan-alzahrani',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'ملف طلال حسن الزهراني', text:'طلال حسن الزهراني مستشار مالي.' }
+              }
+            ]
           }
         };
       }
@@ -94,8 +102,8 @@ describe('BONDS planner-first universal orchestrator', () => {
           action_fabric:{ side_effect:'compute' },
           result:{
             verification_state:'SUPPORTED',
-            source_count:1,
-            independent_publisher_count:1,
+            source_count:2,
+            independent_publisher_count:2,
             supported_claims:[],
             contradictions:[],
             residual_uncertainty:[],
