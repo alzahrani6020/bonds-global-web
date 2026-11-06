@@ -51,9 +51,9 @@ describe('governed person research independent sources regression', () => {
       verification:{
         sources:[
           {
-            title:'Hosni Mubarak | Britannica',
-            url:'https://www.britannica.com/biography/Hosni-Mubarak',
-            text:'Hosni Mubarak was an Egyptian military officer and politician who served as president of Egypt from 1981 until 2011.'
+            title:'حسني مبارك | BBC عربي',
+            url:'https://www.bbc.com/arabic/articles/hosni-mubarak',
+            text:'حسني مبارك سياسي وعسكري مصري شغل منصب رئيس جمهورية مصر العربية من عام 1981 حتى 2011.'
           },
           {
             title:'حسني مبارك - ويكيبيديا',
@@ -73,17 +73,17 @@ describe('governed person research independent sources regression', () => {
     const sources = researchSources(fixture);
     expect(sources).toHaveLength(2);
     expect(sources.map(item => item.publisher)).toEqual(
-      expect.arrayContaining(['britannica.com', 'wikipedia.org'])
+      expect.arrayContaining(['bbc.com', 'wikipedia.org'])
     );
 
     const answer = deterministicResearchAnswer('من هو حسني مبارك؟', fixture, plan);
-    expect(answer.indexOf('Hosni Mubarak was an Egyptian military officer')).toBe(0);
+    expect(answer.indexOf('حسني مبارك سياسي وعسكري مصري')).toBe(0);
     expect(answer.indexOf('المصادر:')).toBeGreaterThan(0);
-    expect(answer).toContain('britannica.com/biography/Hosni-Mubarak');
+    expect(answer).toContain('bbc.com/arabic/articles/hosni-mubarak');
     expect(answer).toContain('ar.wikipedia.org');
     expect(answer).not.toContain('en.wikipedia.org');
     expect(answer.split('\n')[0]).toBe(
-      'Hosni Mubarak was an Egyptian military officer and politician who served as president of Egypt from 1981 until 2011.'
+      'حسني مبارك سياسي وعسكري مصري شغل منصب رئيس جمهورية مصر العربية من عام 1981 حتى 2011.'
     );
 
     const wikipediaOnly = {
@@ -121,9 +121,9 @@ describe('governed person research independent sources regression', () => {
         result:{
           results:[
             {
-              title:'Hosni Mubarak | Britannica',
-              url:'https://www.britannica.com/biography/Hosni-Mubarak',
-              snippet:'Hosni Mubarak was an Egyptian military officer and politician.'
+              title:'حسني مبارك | BBC عربي',
+              url:'https://www.bbc.com/arabic/articles/hosni-mubarak',
+              snippet:'حسني مبارك سياسي وعسكري مصري.'
             }
           ]
         }
@@ -145,9 +145,9 @@ describe('governed person research independent sources regression', () => {
             query:input.query,
             results:[
               {
-                title:'Hosni Mubarak | Britannica',
-                url:'https://www.britannica.com/biography/Hosni-Mubarak',
-                snippet:'Hosni Mubarak was an Egyptian military officer and politician who served as president of Egypt from 1981 until 2011.'
+                title:'حسني مبارك | BBC عربي',
+                url:'https://www.bbc.com/arabic/articles/hosni-mubarak',
+                snippet:'حسني مبارك سياسي وعسكري مصري شغل منصب رئيس جمهورية مصر العربية من عام 1981 حتى 2011.'
               },
               {
                 title:'حسني مبارك - ويكيبيديا',
@@ -166,12 +166,12 @@ describe('governed person research independent sources regression', () => {
           result:{
             pages:[
               {
-                url:'https://www.britannica.com/biography/Hosni-Mubarak',
+                url:'https://www.bbc.com/arabic/articles/hosni-mubarak',
                 evidence:{ content_type:'text/html', headers:{} },
                 extracted:{
                   format:'html',
-                  title:'Hosni Mubarak | Britannica',
-                  text:'Hosni Mubarak was an Egyptian military officer and politician who served as president of Egypt from 1981 until 2011.'
+                  title:'حسني مبارك | BBC عربي',
+                  text:'حسني مبارك سياسي وعسكري مصري شغل منصب رئيس جمهورية مصر العربية من عام 1981 حتى 2011.'
                 }
               },
               {
@@ -230,9 +230,9 @@ describe('governed person research independent sources regression', () => {
     expect(verifyInput.minIndependentPublishers).toBe(2);
     expect(result.ok).toBe(true);
     expect(result.planner).toBe('universal-v2-deterministic-research');
-    expect(result.reply.indexOf('Hosni Mubarak was an Egyptian military officer')).toBe(0);
+    expect(result.reply.indexOf('حسني مبارك سياسي وعسكري مصري')).toBe(0);
     expect(result.reply).toContain('المصادر:');
-    expect(result.reply).toContain('britannica.com');
+    expect(result.reply).toContain('bbc.com');
     expect(result.reply).toContain('ar.wikipedia.org');
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
 
