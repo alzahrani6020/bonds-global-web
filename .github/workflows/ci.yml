@@ -2,7 +2,7 @@ name: CI — Tests, Audit & Visual Regression
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, fix/person-research-independent-sources-20261107]
     paths-ignore:
       - '**/*.md'
   pull_request:
