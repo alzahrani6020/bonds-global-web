@@ -84,7 +84,7 @@ describe('Executive Command Center', () => {
   });
 
   test('governance schema covers sources metrics targets alerts decisions actions scenarios and views', () => {
-    const sql = read('supabase/migrations/20261031010000_executive_command_center.sql');
+    const sql = read('docs/architecture/executive-command-center-schema.sql');
     [
       'analytics_data_sources',
       'analytics_metric_definitions',
@@ -101,7 +101,7 @@ describe('Executive Command Center', () => {
   });
 
   test('new governance tables are fail-closed for browser roles', () => {
-    const sql = read('supabase/migrations/20261031010000_executive_command_center.sql');
+    const sql = read('docs/architecture/executive-command-center-schema.sql');
     expect(sql).toContain('ENABLE ROW LEVEL SECURITY');
     expect(sql).toContain('REVOKE ALL ON public.analytics_data_sources');
     expect(sql).toContain('FROM anon, authenticated');
@@ -109,7 +109,7 @@ describe('Executive Command Center', () => {
   });
 
   test('new source registry does not claim runtime health before verification', () => {
-    const sql = read('supabase/migrations/20261031010000_executive_command_center.sql');
+    const sql = read('docs/architecture/executive-command-center-schema.sql');
     const seeded = sql.slice(sql.indexOf("INSERT INTO public.analytics_data_sources"), sql.indexOf("INSERT INTO public.analytics_metric_definitions"));
     expect(seeded).not.toContain("'healthy'");
     expect(seeded).toContain("'not_configured'");
