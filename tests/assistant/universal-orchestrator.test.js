@@ -67,7 +67,7 @@ describe('BONDS planner-first universal orchestrator', () => {
             query:input.query,
             results:[
               { title:'الدكتور طلال حسن الزهراني | بوندز', url:'https://bonds-global.com/', snippet:'طلال حسن الزهراني مستشار وخبير مالي.' },
-              { title:'Talal Alzahrani profile', url:'https://example.org/talal-alzahrani', snippet:'Talal Alzahrani is a financial consultant.' }
+              { title:'ملف طلال حسن الزهراني', url:'https://example.org/talal-hassan-alzahrani', snippet:'طلال حسن الزهراني مستشار مالي.' }
             ]
           }
         };
@@ -86,9 +86,9 @@ describe('BONDS planner-first universal orchestrator', () => {
                 extracted:{ format:'html', title:'الدكتور طلال حسن الزهراني | بوندز', text:'طلال حسن الزهراني مستشار وخبير مالي.' }
               },
               {
-                url:'https://example.org/talal-alzahrani',
+                url:'https://example.org/talal-hassan-alzahrani',
                 evidence:{ content_type:'text/html', headers:{} },
-                extracted:{ format:'html', title:'Talal Alzahrani profile', text:'Talal Alzahrani is a financial consultant.' }
+                extracted:{ format:'html', title:'ملف طلال حسن الزهراني', text:'طلال حسن الزهراني مستشار مالي.' }
               }
             ]
           }
