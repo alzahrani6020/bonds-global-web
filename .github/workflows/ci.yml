@@ -2,11 +2,11 @@ name: CI — Tests, Audit & Visual Regression
 
 on:
   push:
-    branches: [main, master, fix/person-research-independent-sources-20261107]
+    branches: [main, master]
     paths-ignore:
       - '**/*.md'
   pull_request:
-    branches: [main, master, feat/native-bounded-lock]
+    branches: [main, master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-bounded-v2
