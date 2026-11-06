@@ -15,13 +15,25 @@ const { logCommercialEvent } = require('../lib/analytics/commercial-events');
 const { getGa4Overview } = require('../lib/analytics/ga4-data-api');
 const {
   buildMetricSnapshot,
-  loadCommandCenterGovernance
+  loadCommandCenterGovernance,
+  saveTarget,
+  deleteTarget,
+  saveAlertRule,
+  deleteAlertRule
 } = require('../lib/analytics/command-center-governance');
 const {
-  loadDecisionOperations
+  loadDecisionOperations,
+  createDecision,
+  updateDecisionStatus,
+  measureDecision,
+  createAction,
+  createScenario,
+  deleteScenario,
+  saveView,
+  deleteView,
+  saveWatchlist,
+  deleteWatchlist
 } = require('../lib/analytics/command-center-operations');
-const { buildBoardPack } = require('../lib/analytics/board-pack');
-const { answerNaturalLanguageAnalytics } = require('../lib/analytics/natural-language-analytics');
 const { FinanceWorkspaceService } = require('../lib/finance/accounting/finance-workspace-service');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
@@ -4925,14 +4937,14 @@ async function handler(req, res) {
           loadCommandCenterGovernance(sb, metricSnapshot),
           loadDecisionOperations(sb, metricSnapshot)
         ]);
-        const materialityPct = req.query?.materiality_pct == null ? 10 : Number(req.query.materiality_pct);
+        const materialityPct = req.query?.materiality_pct == null
+          ? 10
+          : Number(req.query.materiality_pct);
         if (!Number.isFinite(materialityPct) || materialityPct < 0 || materialityPct > 1000) {
           throw badRequest('materiality_pct must be between 0 and 1000');
         }
-        return res.status(200).json({
-          success:true,
-          boardPack:buildBoardPack(governance, operations, { materiality_pct:materialityPct })
-        });
+        const boardPack = buildBoardPack(governance, operations, { materiality_pct: materialityPct });
+        return res.status(200).json({ success: true, boardPack });
       }
       if (action === 'command-center-natural-language-query') {
         await requireAdminPermission(req, sb, 'analytics.command_center.read');
@@ -4945,10 +4957,62 @@ async function handler(req, res) {
         ]);
         const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
         const governance = await loadCommandCenterGovernance(sb, metricSnapshot);
-        return res.status(200).json({
-          success:true,
-          result:answerNaturalLanguageAnalytics(question, governance)
-        });
+        const result = answerNaturalLanguageAnalytics(question, governance);
+        return res.status(200).json({ success: true, result });
+      }
+      if (action === 'command-center-target-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let target;
+        try {
+          target = await saveTarget(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required|must be|target_value|period_|comparison|scenario/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_target_save', 'analytics_target', target.id, null, {
+          metric_key: target.metric_key,
+          period_start: target.period_start,
+          period_end: target.period_end,
+          scenario: target.scenario
+        }, req);
+        return res.status(200).json({ success: true, target });
+      }
+      if (action === 'command-center-target-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const deleted = await deleteTarget(sb, id);
+        await logAdminAction(sb, access.user, 'analytics_target_delete', 'analytics_target', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-alert-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let rule;
+        try {
+          rule = await saveAlertRule(sb, req.body || {});
+        } catch (err) {
+          if (/invalid|required|must be|threshold|cooldown|severity|operator|metric_key/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_alert_rule_save', 'analytics_alert_rule', rule.id, null, {
+          metric_key: rule.metric_key,
+          operator: rule.operator,
+          severity: rule.severity,
+          enabled: rule.enabled
+        }, req);
+        return res.status(200).json({ success: true, rule });
+      }
+      if (action === 'command-center-alert-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const deleted = await deleteAlertRule(sb, id);
+        await logAdminAction(sb, access.user, 'analytics_alert_rule_delete', 'analytics_alert_rule', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
       }
       if (action === 'command-center-operations-overview') {
         await requireAdminPermission(req, sb, 'analytics.command_center.read');
@@ -4959,6 +5023,151 @@ async function handler(req, res) {
         ]);
         const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
         return res.status(200).json(await loadDecisionOperations(sb, metricSnapshot));
+      }
+      if (action === 'command-center-decision-create') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        let decision;
+        try {
+          decision = await createDecision(sb, req.body || {}, access.user.id, metricSnapshot);
+        } catch (err) {
+          if (/invalid|required|must be/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_decision_create', 'analytics_decision', decision.id, null, {
+          metric_key: decision.expected_outcome?.metric_key || null,
+          review_at: decision.review_at || null
+        }, req);
+        return res.status(200).json({ success: true, decision });
+      }
+      if (action === 'command-center-decision-status') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let decision;
+        try {
+          decision = await updateDecisionStatus(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_decision_status', 'analytics_decision', decision.id, null, { status: decision.status }, req);
+        return res.status(200).json({ success: true, decision });
+      }
+      if (action === 'command-center-decision-measure') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        const [executiveData, firstPartyData, ga4Data] = await Promise.all([
+          getExecutiveAnalyticsV2(sb),
+          getFirstPartyAnalytics(sb),
+          getGa4Overview()
+        ]);
+        const metricSnapshot = buildMetricSnapshot(executiveData, firstPartyData, ga4Data);
+        let decision;
+        try {
+          decision = await measureDecision(sb, id, metricSnapshot);
+        } catch (err) {
+          if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_decision_measure', 'analytics_decision', decision.id, null, {
+          measured_outcome: decision.measured_outcome || {}
+        }, req);
+        return res.status(200).json({ success: true, decision });
+      }
+      if (action === 'command-center-action-create') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let item;
+        try {
+          item = await createAction(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_action_create', 'analytics_action', item.id, null, {
+          decision_id: item.decision_id || null,
+          priority: item.priority
+        }, req);
+        return res.status(200).json({ success: true, actionItem: item });
+      }
+      if (action === 'command-center-scenario-create') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let scenario;
+        try {
+          scenario = await createScenario(sb, req.body || {}, access.user.id);
+        } catch (err) {
+          if (/invalid|required|must be|out of range|scenario engine/i.test(String(err?.message || ''))) {
+            throw badRequest(err.message);
+          }
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_scenario_create', 'analytics_scenario', scenario.id, null, {
+          scenario_type: scenario.scenario_type,
+          confidence: scenario.confidence
+        }, req);
+        return res.status(200).json({ success: true, scenario });
+      }
+      if (action === 'command-center-scenario-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        let deleted;
+        try {
+          deleted = await deleteScenario(sb, id);
+        } catch (err) {
+          if (/invalid|required|not found/i.test(String(err?.message || ''))) throw badRequest(err.message);
+          throw err;
+        }
+        await logAdminAction(sb, access.user, 'analytics_scenario_delete', 'analytics_scenario', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-view-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let view;
+        try { view = await saveView(sb, req.body || {}, access.user.id); }
+        catch (err) { if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_saved_view_create', 'analytics_saved_view', view.id, null, { scope: view.scope }, req);
+        return res.status(200).json({ success: true, view });
+      }
+      if (action === 'command-center-view-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        let deleted;
+        try { deleted = await deleteView(sb, id, access.user.id); }
+        catch (err) { if (/invalid|required|not found/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_saved_view_delete', 'analytics_saved_view', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'command-center-watchlist-save') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        let watchlist;
+        try { watchlist = await saveWatchlist(sb, req.body || {}, access.user.id); }
+        catch (err) { if (/invalid|required/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_watchlist_create', 'analytics_watchlist', watchlist.id, null, { entity_type: watchlist.entity_type }, req);
+        return res.status(200).json({ success: true, watchlist });
+      }
+      if (action === 'command-center-watchlist-delete') {
+        const access = await requireAdminPermission(req, sb, 'analytics.command_center.manage');
+        const id = String(req.body?.id || '').trim();
+        if (!id) throw badRequest('id required');
+        let deleted;
+        try { deleted = await deleteWatchlist(sb, id, access.user.id); }
+        catch (err) { if (/invalid|required|not found/i.test(String(err?.message || ''))) throw badRequest(err.message); throw err; }
+        await logAdminAction(sb, access.user, 'analytics_watchlist_delete', 'analytics_watchlist', id, null, {}, req);
+        return res.status(200).json({ success: true, deleted });
+      }
+      if (action === 'first-party-analytics') {
+        await requireAdminPermission(req, sb, 'analytics.executive');
+        return res.status(200).json(await getFirstPartyAnalytics(sb));
+      }
+      if (action === 'ga4-analytics') {
+        await requireAdminPermission(req, sb, 'analytics.executive');
+        return res.status(200).json(await getGa4Overview());
       }
       if (action === 'executive-analytics-v2') {
         const access = await requireAdminPermission(req, sb, 'analytics.executive');
