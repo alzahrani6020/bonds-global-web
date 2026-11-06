@@ -117,19 +117,6 @@
       }
     },
     {
-      "action": "research_synthesize",
-      "action_type": "engine",
-      "id": "BONDS-CAP-RSCH-002",
-      "purpose": "Synthesize verified research while preserving provenance.",
-      "side_effect": "none",
-      "required": [
-        "sources"
-      ],
-      "runtime": {
-        "adapter": "research_synthesize"
-      }
-    },
-    {
       "action": "bonds_answer_brief",
       "action_type": "engine",
       "id": "BONDS-CAP-BRIEF-001",
@@ -140,6 +127,19 @@
       ],
       "runtime": {
         "adapter": "bonds_answer_brief"
+      }
+    },
+    {
+      "action": "research_synthesize",
+      "action_type": "engine",
+      "id": "BONDS-CAP-RSCH-002",
+      "purpose": "Synthesize verified research while preserving provenance.",
+      "side_effect": "none",
+      "required": [
+        "sources"
+      ],
+      "runtime": {
+        "adapter": "research_synthesize"
       }
     }
   ]
