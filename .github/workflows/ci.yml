@@ -2,7 +2,7 @@ name: CI — Tests, Audit & Visual Regression
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, feat/native-bounded-lock]
     paths-ignore:
       - '**/*.md'
   pull_request:
