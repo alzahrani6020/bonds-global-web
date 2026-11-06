@@ -55,12 +55,24 @@ describe('BONDS planner-first universal orchestrator', () => {
       if (action === 'accounting_changes_in_equity_statement') {
         return { ok:true, executed:true, result:{ rows:[{ opening_equity:0, current_period_earnings:0, closing_equity:0 }] } };
       }
+      if (action === 'accounting_budget_analysis') {
+        return {
+          ok:true, executed:true,
+          result:{ analysis:{ ok:true, metrics:{ summary:{
+            revenue:{ actual_to_date:0, budget_to_date:100, actual_vs_budget_variance:-100 }
+          }}}}
+        };
+      }
       throw new Error('UNEXPECTED_ACTION:' + action);
     });
 
     const result = await runUniversalOrchestrator(
       [{ role:'user', content:'اعرض لي القوائم المالية الفعلية لهذا الكيان عن أكتوبر 2026 وقارنها بالموازنة' }],
-      { accountingEntityId:'entity-1' },
+      {
+        accountingEntityId:'entity-1',
+        budgetPlanId:'budget-1',
+        actualThrough:'2026-10-31'
+      },
       { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
     );
 
@@ -68,12 +80,20 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.planner).toBe('universal-v2-deterministic-accounting');
     expect(result.toolUsed).toBe(true);
     expect(result.reply).toContain('لا توجد قيود منشورة');
-    expect(result.ui).toHaveLength(5);
+    expect(result.ui).toHaveLength(6);
+    expect(result.ui.at(-1).title).toBe('الفعلي مقابل الموازنة');
+    expect(result.ui.at(-1).items.join(' ')).toContain('revenue');
     expect(result.trace.map(item => item.action)).toEqual([
       'accounting_trial_balance_report',
       'accounting_financial_statements_report',
-      'accounting_changes_in_equity_statement'
+      'accounting_changes_in_equity_statement',
+      'accounting_budget_analysis'
     ]);
+    expect(executeGovernedAction.mock.calls.at(-1)[0].input).toEqual({
+      accounting_entity_id:'entity-1',
+      budget_plan_id:'budget-1',
+      actual_through:'2026-10-31'
+    });
   });
 
   test('routes explicit official URL requests through the deterministic research entry path', () => {

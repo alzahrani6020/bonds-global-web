@@ -1354,11 +1354,17 @@
       const form = document.querySelector('#srForm');
       const from = form?.elements?.namedItem?.('from')?.value || '';
       const to = form?.elements?.namedItem?.('to')?.value || '';
+      const budgetPlan = document.querySelector('#financialBudgetPlanIdContext');
+      const actualThrough = document.querySelector('#financialActualThrough');
       const patch = {};
       const entityId = String(entity?.value || '').trim();
+      const budgetPlanId = String(budgetPlan?.value || '').trim();
+      const actualThroughDate = String(actualThrough?.value || '').trim();
       if (entityId) patch.accountingEntityId = entityId;
       if (/^\d{4}-\d{2}-\d{2}$/.test(String(from))) patch.accountingFrom = String(from);
       if (/^\d{4}-\d{2}-\d{2}$/.test(String(to))) patch.accountingTo = String(to);
+      if (budgetPlanId) patch.budgetPlanId = budgetPlanId;
+      if (/^\d{4}-\d{2}-\d{2}$/.test(actualThroughDate)) patch.actualThrough = actualThroughDate;
       return patch;
     }
 

@@ -154,6 +154,10 @@ function governedBudgetLineRow(data={}){
 function setGovernedBudgetState(payload={}){
  if(payload.budget_plan_id)governedBudgetPlanId=payload.budget_plan_id;
  if(payload.budget_version_id)governedBudgetVersionId=payload.budget_version_id;
+ const planContext=$('#financialBudgetPlanIdContext');
+ const versionContext=$('#financialBudgetVersionIdContext');
+ if(planContext)planContext.value=governedBudgetPlanId||'';
+ if(versionContext)versionContext.value=governedBudgetVersionId||'';
  const status=$('#financialBudgetGovernanceStatus');
  if(status){
   const state=payload.status||payload.state||'—';
@@ -369,6 +373,8 @@ function renderPlanningBudgetInputs(){
   '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('currency'))+' <small>('+T.required+')</small></label><input id="financialBudgetCurrency" type="text" name="currency" value="SAR" maxlength="3" readonly></div>'+
   '<div class="sr-field"><label>'+escapeHtml(financialFieldLabel('materiality_pct'))+' <small>('+T.optional+')</small></label><input id="financialBudgetMateriality" type="number" min="0" step="0.1" name="materiality_pct" value="5"></div>'+
   '<div class="sr-field"><label>'+escapeHtml(lang==='ar'?'الفترة الفعلية حتى':'Actual through')+'</label><input id="financialActualThrough" type="date"></div>'+
+  '<input id="financialBudgetPlanIdContext" type="hidden" value="">'+
+  '<input id="financialBudgetVersionIdContext" type="hidden" value="">'+
   '<div class="sr-field"><label class="sr-check"><input id="financialUseBudgetForecast" type="checkbox" name="use_budget_as_forecast"> '+escapeHtml(lang==='ar'?'استخدم الموازنة كتوقع عند غياب توقع معتمد':'Use budget as forecast when no approved forecast exists')+'</label></div>'+
   '<div class="sr-field full financial-governance-panel"><div class="financial-budget-builder-head"><div><h3>'+escapeHtml(lang==='ar'?'حوكمة الموازنة':'Budget governance')+'</h3><p>'+escapeHtml(lang==='ar'?'خطة محكومة مرتبطة بالفترات والحسابات الفعلية في دفتر الأستاذ.':'Governed plan linked to real accounting periods and ledger accounts.')+'</p></div><strong id="financialBudgetGovernanceStatus">'+escapeHtml(lang==='ar'?'الحالة: لم تُنشأ خطة':'Status: no plan created')+'</strong></div>'+
   '<div class="sr-field full"><h4>'+escapeHtml(lang==='ar'?'إعداد السنة المالية':'Fiscal year setup')+'</h4></div>'+
@@ -468,6 +474,8 @@ async function hydrateAccountingEntities(){
     budgetReference=null;
     governedBudgetPlanId=null;
     governedBudgetVersionId=null;
+    if($('#financialBudgetPlanIdContext'))$('#financialBudgetPlanIdContext').value='';
+    if($('#financialBudgetVersionIdContext'))$('#financialBudgetVersionIdContext').value='';
     try{await loadBudgetReference(select.value)}
     catch(error){showStatus(T.failed+': '+error.message,false)}
    });
