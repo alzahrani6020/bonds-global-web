@@ -1,0 +1,811 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>مركز القيادة التنفيذي | BONDS Global</title>
+  <link rel="stylesheet" href="/admin/admin-shared-ux.css?v=3.0.0">
+  <style>
+    :root{--bg:#f6f7fb;--card:#fff;--line:#e2e8f0;--text:#172033;--muted:#596273;--gold:#9b7a35;--ok:#15803d;--warn:#a16207;--bad:#b91c1c}
+    *{box-sizing:border-box}html,body{max-width:100%;overflow-x:hidden}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+    main{max-width:1680px;width:100%;min-width:0;margin:auto;padding:1rem}.head{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;min-width:0}
+    h1,h2,h3{margin-top:0}.muted{color:var(--muted)}.btn{border:0;border-radius:10px;padding:.65rem 1rem;font-weight:800;cursor:pointer;background:#172033;color:#fff}
+    .statusbar{display:flex;gap:.5rem;flex-wrap:wrap;margin:.8rem 0}.pill{border:1px solid var(--line);border-radius:999px;padding:.25rem .65rem;font-size:.78rem;font-weight:800;background:#fff}
+    .pill.ok{color:var(--ok)}.pill.warn{color:var(--warn)}.pill.bad{color:var(--bad)}
+    .grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;min-width:0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;min-width:0;max-width:100%;overflow:hidden}
+    .s12{grid-column:span 12}.s8{grid-column:span 8}.s6{grid-column:span 6}.s4{grid-column:span 4}
+    .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.65rem}.kpi{border:1px solid var(--line);border-radius:12px;padding:.75rem;min-height:96px}
+    .kpi b{display:block;font-size:1.3rem;line-height:1.2}.kpi small{display:block;color:var(--muted);margin-top:.35rem}.unknown{color:var(--muted)}
+    .funnel{display:flex;gap:.6rem;align-items:stretch;overflow:auto}.stage{min-width:150px;flex:1;border:1px solid var(--line);border-radius:12px;padding:.8rem;position:relative}.stage:not(:last-child):after{content:"←";position:absolute;left:-.55rem;top:35%;color:var(--muted)}
+    table{width:100%;border-collapse:collapse;font-size:.84rem}th,td{padding:.58rem;border-bottom:1px solid var(--line);text-align:right;vertical-align:top}.scroll{overflow:auto;max-height:440px;width:100%;max-width:100%;min-width:0}
+    .health{display:flex;align-items:center;gap:1rem}.score{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;border:10px solid #e2e8f0;font-size:1.35rem;font-weight:900}
+    .cap-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:.65rem}.cap{border:1px solid var(--line);border-radius:12px;padding:.75rem}.cap strong{display:block}.cap small{color:var(--muted)}
+    .alert{border-right:4px solid var(--warn);padding:.65rem .8rem;background:#fffbeb;border-radius:8px;margin:.45rem 0}
+    .error{display:none;background:#fee2e2;color:#991b1b;border-radius:10px;padding:.75rem;margin:.75rem 0}
+    .gov-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}.gov-grid>*{min-width:0;max-width:100%}.form-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.65rem;min-width:0;max-width:100%}.form-grid>*{min-width:0;max-width:100%}
+    .form-grid label{display:flex;flex-direction:column;gap:.3rem;font-size:.82rem;color:var(--muted);min-width:0}.form-grid input,.form-grid select,.form-grid textarea{border:1px solid var(--line);border-radius:9px;padding:.58rem;background:#fff;color:var(--ink);font:inherit;min-width:0;width:100%;max-width:100%}
+    .form-grid textarea{min-height:72px;resize:vertical}.form-actions{display:flex;gap:.5rem;align-items:end;min-width:0}.form-actions .btn{max-width:100%}.btn.secondary{background:#fff;color:var(--ink);border:1px solid var(--line)}.btn.danger{background:#991b1b}.gov-note{font-size:.82rem;color:var(--muted);margin:.35rem 0 .8rem}
+    @media(max-width:900px){.gov-grid{grid-template-columns:minmax(0,1fr)}.form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:640px){.form-grid{grid-template-columns:minmax(0,1fr)}.form-grid label[style]{grid-column:auto!important}}
+    @media(max-width:1000px){.s8,.s6,.s4{grid-column:span 12}}@media(max-width:640px){main{padding:.65rem}.funnel{flex-direction:column}.stage:not(:last-child):after{display:none}}
+    @media print{body *{visibility:hidden!important}#boardPackPrint,#boardPackPrint *{visibility:visible!important}#boardPackPrint{position:absolute;inset:0;width:100%;box-shadow:none!important;border:0!important}.no-print{display:none!important}#boardPackPrint table{page-break-inside:auto}#boardPackPrint tr{page-break-inside:avoid}}
+  </style>
+</head>
+<body>
+<main>
+  <div class="head">
+    <div><h1>مركز القيادة التنفيذي</h1><div class="muted">Traffic → Lead → Funding / Advisory → Client → Revenue · مصادر موثقة فقط</div></div>
+    <button class="btn" id="refreshBtn">تحديث</button>
+  </div>
+  <div class="statusbar">
+    <span class="pill" id="overallStatus">LOADING</span>
+    <span class="pill" id="generatedAt">آخر تحديث: —</span>
+    <span class="pill" id="ga4Status">GA4: NOT_CONFIGURED</span>
+    <span class="pill" id="firstPartyStatus">First-party: UNKNOWN</span>
+  </div>
+  <div id="error" class="error"></div>
+
+  <div class="grid">
+    <section class="card s12">
+      <h2>المؤشرات التنفيذية</h2>
+      <div id="execKpis" class="kpis"></div>
+    </section>
+
+    <section class="card s8">
+      <h2>مسار التحويل التجاري</h2>
+      <div id="funnel" class="funnel"></div>
+    </section>
+    <section class="card s4">
+      <h2>Business Health Score</h2>
+      <div class="health"><div id="healthScore" class="score">UNKNOWN</div><div><b id="healthLabel">غير محسوب</b><div class="muted" id="healthReason">يحتاج أهدافًا معتمدة ومصادر مكتملة؛ لا يتم تخمينه.</div></div></div>
+    </section>
+
+    <section class="card s6">
+      <h2>الإيراد والـPipeline</h2>
+      <div id="commercialKpis" class="kpis"></div>
+    </section>
+    <section class="card s6">
+      <h2>التوقع والاحتفاظ</h2>
+      <div id="forecastKpis" class="kpis"></div>
+    </section>
+
+    <section class="card s6">
+      <h2>مصادر الزيارات — BONDS</h2>
+      <div class="scroll"><table><thead><tr><th>المصدر</th><th>Sessions</th><th>Views</th><th>ملاحظة</th></tr></thead><tbody id="acquisitionRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
+    </section>
+    <section class="card s6">
+      <h2>أفضل الصفحات — BONDS</h2>
+      <div class="scroll"><table><thead><tr><th>الصفحة</th><th>Views</th><th>Sessions</th><th>ملاحظة</th></tr></thead><tbody id="topPageRows"><tr><td colspan="4">NOT_CONFIGURED</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card s6">
+      <h2>صحة مصادر البيانات</h2>
+      <div class="scroll"><table><thead><tr><th>المصدر</th><th>الحالة</th><th>السجلات</th><th>الدليل</th></tr></thead><tbody id="sourceRows"></tbody></table></div>
+    </section>
+    <section class="card s6">
+      <h2>تنبيهات تنفيذية</h2>
+      <div id="alerts"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>حوكمة المؤشرات والأهداف والتنبيهات</h2>
+      <div class="gov-note">لا توجد أهداف أو حدود افتراضية. أي قيمة هنا يجب إدخالها واعتمادها إداريًا، وإلا تبقى النتيجة UNKNOWN.</div>
+      <div class="gov-grid">
+        <div>
+          <h3>المقاييس والقيم الحالية</h3>
+          <div class="scroll"><table><thead><tr><th>المؤشر</th><th>القيمة الفعلية</th><th>الوحدة</th><th>المصدر</th></tr></thead><tbody id="governanceMetricsRows"><tr><td colspan="4">LOADING</td></tr></tbody></table></div>
+        </div>
+        <div>
+          <h3>الأهداف المعتمدة الحالية</h3>
+          <div class="scroll"><table><thead><tr><th>المؤشر</th><th>الهدف</th><th>المقارنة</th><th>الفترة</th><th></th></tr></thead><tbody id="governanceTargetsRows"><tr><td colspan="5">لا توجد أهداف</td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <h3>إضافة / تحديث هدف معتمد</h3>
+      <form id="targetForm" class="form-grid">
+        <label>المؤشر<select id="targetMetric" required></select></label>
+        <label>القيمة المستهدفة<input id="targetValue" type="number" step="any" required></label>
+        <label>نوع المقارنة<select id="targetComparison"><option value="gte">أكبر أو يساوي</option><option value="lte">أقل أو يساوي</option><option value="eq">يساوي</option></select></label>
+        <label>بداية الفترة<input id="targetStart" type="date" required></label>
+        <label>نهاية الفترة<input id="targetEnd" type="date" required></label>
+        <label>السيناريو<select id="targetScenario"><option value="base">Base</option><option value="upside">Upside</option><option value="downside">Downside</option></select></label>
+        <label style="grid-column:span 2">ملاحظة الاعتماد<textarea id="targetNotes" placeholder="مثال: هدف معتمد من الإدارة بتاريخ ..."></textarea></label>
+        <div class="form-actions"><button class="btn" type="submit">حفظ الهدف</button></div>
+      </form>
+
+      <hr style="border:0;border-top:1px solid var(--line);margin:1.2rem 0">
+      <div class="gov-grid">
+        <div>
+          <h3>قواعد التنبيه</h3>
+          <div class="scroll"><table><thead><tr><th>القاعدة</th><th>المؤشر</th><th>الشرط</th><th>الحالة</th><th></th></tr></thead><tbody id="governanceAlertRows"><tr><td colspan="5">لا توجد قواعد</td></tr></tbody></table></div>
+        </div>
+        <div>
+          <h3>نتائج التقييم الحالية</h3>
+          <div class="scroll"><table><thead><tr><th>القاعدة</th><th>الفعلية</th><th>الحد</th><th>النتيجة</th></tr></thead><tbody id="governanceEvaluationRows"><tr><td colspan="4">لا توجد نتائج</td></tr></tbody></table></div>
+        </div>
+      </div>
+
+      <h3>إضافة قاعدة تنبيه</h3>
+      <form id="alertForm" class="form-grid">
+        <label>اسم القاعدة<input id="alertName" required maxlength="160"></label>
+        <label>المؤشر<select id="alertMetric" required></select></label>
+        <label>المشغل<select id="alertOperator"><option value="lt">&lt;</option><option value="lte">&le;</option><option value="gt">&gt;</option><option value="gte">&ge;</option><option value="eq">=</option></select></label>
+        <label>الحد<input id="alertThreshold" type="number" step="any" required></label>
+        <label>الخطورة<select id="alertSeverity"><option value="warning">Warning</option><option value="high">High</option><option value="critical">Critical</option><option value="info">Info</option></select></label>
+        <label>فترة التهدئة بالدقائق<input id="alertCooldown" type="number" min="0" max="43200" value="60" required></label>
+        <div class="form-actions"><button class="btn" type="submit">حفظ قاعدة التنبيه</button></div>
+      </form>
+    </section>
+
+    <section class="card s12">
+      <h2>القرارات → النتائج</h2>
+      <div class="gov-note">كل قرار يلتقط baseline من مؤشر فعلي، ثم يقاس لاحقًا على نفس المؤشر. لا يتم استنتاج النجاح دون قياس صريح.</div>
+      <div class="gov-grid">
+        <div>
+          <h3>القرارات</h3>
+          <div class="scroll"><table><thead><tr><th>القرار</th><th>المؤشر</th><th>Baseline</th><th>الهدف</th><th>الحالة</th><th>القياس</th></tr></thead><tbody id="decisionRows"><tr><td colspan="6">LOADING</td></tr></tbody></table></div>
+        </div>
+        <div>
+          <h3>الإجراءات</h3>
+          <div class="scroll"><table><thead><tr><th>الإجراء</th><th>الأولوية</th><th>الحالة</th><th>القرار</th></tr></thead><tbody id="actionRows"><tr><td colspan="4">LOADING</td></tr></tbody></table></div>
+        </div>
+      </div>
+      <h3>إضافة قرار</h3>
+      <form id="decisionForm" class="form-grid">
+        <label>عنوان القرار<input id="decisionTitle" required maxlength="240"></label>
+        <label>المؤشر<select id="decisionMetric" required></select></label>
+        <label>الهدف<input id="decisionExpected" type="number" step="any" required></label>
+        <label>المقارنة<select id="decisionComparison"><option value="gte">أكبر أو يساوي</option><option value="lte">أقل أو يساوي</option><option value="eq">يساوي</option></select></label>
+        <label>تاريخ المراجعة<input id="decisionReviewAt" type="date"></label>
+        <label>الثقة<select id="decisionConfidence"><option value="unknown">UNKNOWN</option><option value="low">LOW</option><option value="medium">MEDIUM</option><option value="high">HIGH</option></select></label>
+        <label style="grid-column:span 2">مبرر القرار<textarea id="decisionRationale"></textarea></label>
+        <div class="form-actions"><button class="btn" type="submit">إنشاء القرار</button></div>
+      </form>
+      <h3>إضافة إجراء مرتبط</h3>
+      <form id="actionForm" class="form-grid">
+        <label>الإجراء<input id="actionTitle" required maxlength="240"></label>
+        <label>القرار<select id="actionDecision"><option value="">بدون قرار</option></select></label>
+        <label>الأولوية<select id="actionPriority"><option value="medium">Medium</option><option value="high">High</option><option value="critical">Critical</option><option value="low">Low</option></select></label>
+        <label>الموعد<input id="actionDueAt" type="date"></label>
+        <div class="form-actions"><button class="btn" type="submit">إضافة الإجراء</button></div>
+      </form>
+    </section>
+
+    <section class="card s12">
+      <h2>Funding Intelligence وRevenue Attribution</h2>
+      <div class="gov-grid">
+        <div>
+          <h3>Funding Intelligence</h3>
+          <div id="fundingSummary" class="kpis"></div>
+          <div class="scroll"><table><thead><tr><th>المصدر</th><th>الحالات</th><th>القيمة</th></tr></thead><tbody id="fundingSourceRows"></tbody></table></div>
+        </div>
+        <div>
+          <h3>Revenue Attribution</h3>
+          <div id="attributionState" class="gov-note"></div>
+          <div class="scroll"><table><thead><tr><th>المصدر</th><th>الفرص</th><th>Pipeline</th><th>Won</th><th>Paid Revenue</th></tr></thead><tbody id="attributionRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card s12">
+      <h2>Service Profitability</h2>
+      <div id="serviceProfitabilityState" class="gov-note"></div>
+      <div id="serviceProfitabilitySummary" class="kpis" style="margin:.75rem 0"></div>
+      <div class="scroll"><table><thead><tr><th>الخدمة</th><th>العملة</th><th>الطلبات</th><th>الإيراد المعترف به</th><th>التكلفة المباشرة</th><th>الربح المباشر المرصود</th><th>الهامش</th><th>حالة الدليل</th></tr></thead><tbody id="serviceProfitabilityRows"></tbody></table></div>
+      <div class="muted" id="serviceProfitabilityUnknown" style="margin-top:.65rem"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>Client Lifetime Value</h2>
+      <div id="clientLifetimeValueState" class="gov-note"></div>
+      <div id="clientLifetimeValueSummary" class="kpis" style="margin:.75rem 0"></div>
+      <div class="muted" id="clientLifetimeValueMissing"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>CAC / ROAS</h2>
+      <div id="cacRoasState" class="gov-note"></div>
+      <div id="cacRoasSummary" class="kpis" style="margin:.75rem 0"></div>
+      <div class="muted" id="cacRoasMissing"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>Natural Language Analytics</h2>
+      <div class="muted" style="margin-bottom:.75rem">اسأل عن قيمة مؤشر معتمد أو هدفه أو الفرق أو المصدر أو الوحدة. الإجابة deterministic من قاموس المقاييس governed فقط؛ أي سؤال غير مدعوم يبقى UNKNOWN.</div>
+      <form id="nlqForm" class="form-grid">
+        <label style="grid-column:span 2">السؤال<input id="nlqQuestion" required maxlength="500" placeholder="مثال: ما قيمة الإيراد الشهري؟"></label>
+        <div class="form-actions"><button class="btn" type="submit">اسأل</button></div>
+      </form>
+      <div id="nlqState" class="gov-note" style="margin-top:.75rem">لم يتم تنفيذ سؤال بعد.</div>
+      <div id="nlqAnswer" class="kpis"></div>
+      <div class="scroll" style="margin-top:.75rem"><table><thead><tr><th>نوع الدليل</th><th>المؤشر</th><th>القيمة / المصدر</th><th>الفترة</th></tr></thead><tbody id="nlqEvidenceRows"><tr><td colspan="4">لا يوجد دليل بعد</td></tr></tbody></table></div>
+    </section>
+
+    <section class="card s12">
+      <h2>Scenario Simulator</h2>
+      <div class="muted" style="margin-bottom:.75rem">محاكاة what-if/forecast/stress باستخدام محرك scenario_forecast الحالي. لا يتم حفظ سيناريو غير قابل للحساب.</div>
+      <form id="scenarioForm" class="form-grid">
+        <label>الاسم<input id="scenarioName" required maxlength="160" placeholder="Base 2027"></label>
+        <label>النوع<select id="scenarioType"><option value="what_if">What-if</option><option value="forecast">Forecast</option><option value="stress">Stress</option></select></label>
+        <label>الإيراد السنوي<input id="scenarioRevenue" type="number" step="any" min="0"></label>
+        <label>التكاليف السنوية<input id="scenarioCosts" type="number" step="any" min="0"></label>
+        <label>النمو %<input id="scenarioGrowth" type="number" step="any" min="-100" max="1000"></label>
+        <label>نمو التكلفة %<input id="scenarioCostGrowth" type="number" step="any" min="-100" max="1000"></label>
+        <label>السنوات<input id="scenarioYears" type="number" min="1" max="30" value="5"></label>
+        <label>الاستثمار الأولي<input id="scenarioInvestment" type="number" step="any" min="0"></label>
+        <label>صافي التدفق النقدي السنوي<input id="scenarioCashFlow" type="number" step="any"></label>
+        <label>خدمة الدين السنوية<input id="scenarioDebtService" type="number" step="any" min="0"></label>
+        <label>معدل الخصم %<input id="scenarioDiscount" type="number" step="any" min="-50" max="100" value="10"></label>
+        <label>Iterations<input id="scenarioIterations" type="number" min="100" max="50000" value="5000"></label>
+        <label>Revenue volatility %<input id="scenarioRevenueVol" type="number" step="any" min="0" max="100" value="15"></label>
+        <label>Cost volatility %<input id="scenarioCostVol" type="number" step="any" min="0" max="100" value="10"></label>
+        <label>Shock correlation<input id="scenarioCorrelation" type="number" step="0.01" min="-1" max="1" value="0.35"></label>
+        <div class="form-actions"><button class="btn" type="submit">تشغيل وحفظ السيناريو</button></div>
+      </form>
+      <div class="scroll"><table><thead><tr><th>الاسم</th><th>النوع</th><th>الثقة</th><th>NPV المتوقع</th><th>P(NPV&gt;0)</th><th>P(loss)</th><th></th></tr></thead><tbody id="scenarioRows"></tbody></table></div>
+    </section>
+
+    <section class="card s12" id="boardPackPrint">
+      <div class="no-print" style="display:flex;gap:.6rem;align-items:center;justify-content:space-between;flex-wrap:wrap">
+        <div><h2 style="margin:0">Board Pack Generator</h2><div class="muted">حزمة مجلس إدارة deterministic من المقاييس governed والأهداف والقرارات والمخاطر والإجراءات. الطباعة إلى PDF تتم من المتصفح دون رفع نسخة إضافية.</div></div>
+        <button class="btn" id="boardPackBtn" type="button">توليد الحزمة / طباعة PDF</button>
+      </div>
+      <div id="boardPackState" class="gov-note" style="margin-top:.75rem">لم يتم توليد الحزمة بعد.</div>
+      <div id="boardPackContent"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>Saved Views وWatchlists</h2>
+      <div class="gov-grid">
+        <div>
+          <h3>Saved Views</h3>
+          <form id="viewForm" class="form-grid">
+            <label>الاسم<input id="viewName" required maxlength="160"></label>
+            <label>النطاق<select id="viewScope"><option value="private">Private</option><option value="role">Role</option><option value="global">Global</option></select></label>
+            <label>الأقسام<input id="viewSections" placeholder="revenue,pipeline,funding"></label>
+            <div class="form-actions"><button class="btn" type="submit">حفظ View</button></div>
+          </form>
+          <div class="scroll"><table><thead><tr><th>الاسم</th><th>النطاق</th><th>التعريف</th><th></th></tr></thead><tbody id="savedViewRows"></tbody></table></div>
+        </div>
+        <div>
+          <h3>Watchlists</h3>
+          <form id="watchForm" class="form-grid">
+            <label>الاسم<input id="watchName" required maxlength="160"></label>
+            <label>النوع<select id="watchType"><option value="metric">Metric</option><option value="crm_opportunity">CRM Opportunity</option><option value="funding_case">Funding Case</option></select></label>
+            <label>المراجع<input id="watchRefs" required placeholder="monthly_revenue,conversion_rate"></label>
+            <div class="form-actions"><button class="btn" type="submit">حفظ Watchlist</button></div>
+          </form>
+          <div class="scroll"><table><thead><tr><th>الاسم</th><th>النوع</th><th>المراجع</th><th></th></tr></thead><tbody id="watchRows"></tbody></table></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card s12">
+      <h2>القدرات الإدارية والتحليلية</h2>
+      <div class="muted" style="margin-bottom:.75rem">الحالة هنا تشغيلية وليست تسويقية: ACTIVE = مصدر فعلي متاح؛ PARTIAL = أساس موجود لكن الربط غير مكتمل؛ NOT_CONFIGURED = يحتاج اعتمادًا خارجيًا؛ PLANNED = مسجل في خارطة التنفيذ فقط.</div>
+      <div id="capabilities" class="cap-grid"></div>
+    </section>
+
+    <section class="card s12">
+      <h2>حدود الثقة</h2>
+      <div class="muted">المصدر التشغيلي الافتراضي هو BONDS First-Party Analytics بدون خدمة مدفوعة. GA4 اختياري فقط ولا يحجب أي مؤشر أساسي. لا تُعرض معرفات الجلسات أو عناوين IP أو PII في واجهة مركز القيادة، وأي مصدر متعطل يتحول إلى UNKNOWN/DEGRADED بدل صفر مضلل.</div>
+    </section>
+  </div>
+</main>
+<script src="/supabase-client.js"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
+<script>BondsAuth.initAdminGuard();</script>
+<script src="/admin/admin-common.js?v=6"></script>
+<script>
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const esc=v=>window.BondsAdminCommon.escapeHtml(v==null?'':String(v));
+  const num=v=>v==null?'UNKNOWN':new Intl.NumberFormat('ar-SA').format(Number(v));
+  const sar=v=>v==null?'UNKNOWN':new Intl.NumberFormat('ar-SA',{style:'currency',currency:'SAR',maximumFractionDigits:0}).format(Number(v));
+  const pct=v=>v==null?'UNKNOWN':Number(v).toLocaleString('ar-SA',{maximumFractionDigits:1})+'%';
+  const safe=(value,fallback=null)=>Number.isFinite(Number(value))?Number(value):fallback;
+
+  const CAPABILITIES=[
+    ['BONDS Traffic & Realtime','ACTIVE','First-party page_views + user_presence؛ بدون تكلفة خارجية'],
+    ['Traffic Sources','ACTIVE','BONDS source/referrer على page_views'],
+    ['Top Pages / Landing Pages','ACTIVE','BONDS page_views'],
+    ['Geography & Devices','ACTIVE','BONDS country/city/user_agent'],
+    ['Search-to-Revenue','NOT_CONFIGURED','يتطلب Search Console + GA4 + CRM'],
+    ['Commercial Funnel','ACTIVE','BONDS first-party commercial events + platform data'],
+    ['Revenue & Pipeline','ACTIVE','Invoices + CRM opportunities'],
+    ['Revenue Forecast 90d','ACTIVE','Linear paid-invoice trend; method exposed'],
+    ['Cohort / Retention','ACTIVE','Profiles + presence + paid users'],
+    ['Customer Health','ACTIVE','CRM customer success'],
+    ['AI Operations','ACTIVE','AI telemetry + cost + latency + failure rate'],
+    ['Data Source Health','ACTIVE','Per-source status from executive analytics'],
+    ['Customer 360','ACTIVE','موجود في Admin API الحالي'],
+    ['Data Quality Center','ACTIVE','موجود في لوحة BONDS الحالية'],
+    ['Security Operations','ACTIVE','موجود في لوحة BONDS الحالية'],
+    ['Audit Trail','ACTIVE','admin_audit_log قائم'],
+    ['Funding Intelligence','ACTIVE','حالات التمويل حسب الحالة والمصدر والقيمة والجاهزية؛ EMPTY عند عدم وجود حالات'],
+    ['Lead Scoring','ACTIVE','Rule-based v1 مشتق من CRM مع score + confidence + missing evidence؛ ليس احتمال تحويل'],
+    ['Opportunity Scoring','ACTIVE','Rule-based v1 مشتق من stage/probability/value/owner/close/action/linkage مع confidence؛ ليس forecast'],
+    ['Revenue Attribution','PARTIAL','يعرض pipeline حسب المصدر؛ يبقى PARTIAL حتى توجد فواتير مدفوعة بمصدر اكتساب صريح'],
+    ['Service Profitability','PARTIAL','يعرض الربح المباشر المرصود من financial_events posted المرتبطة بـ service_code؛ يبقى PARTIAL حتى تتوفر تكاليف موزعة موثقة لكل خدمة'],
+    ['Client Lifetime Value','PARTIAL','يستخدم محرك unit-economics الحالي؛ يبقى UNKNOWN حتى تتوفر أدلة retention وربحية وإسناد مالي للعميل'],
+    ['CAC / ROAS','PARTIAL','يستخدم محرك unit-economics الحالي؛ يبقى UNKNOWN حتى تتوفر تكلفة اكتساب معتمدة + عملاء جدد + إيراد مدفوع منسوب صراحة وبنفس الفترة والعملة'],
+    ['Scenario Simulator','ACTIVE','محرك scenario_forecast متصل بالـschema مع inputs/assumptions صريحة ونتائج محفوظة؛ السيناريوهات غير القابلة للحساب تُرفض fail-closed'],
+    ['Target vs Actual','ACTIVE','محرك Actual مقابل أهداف معتمدة؛ يبقى UNKNOWN عند عدم وجود هدف'],
+    ['KPI Governance','ACTIVE','قاموس المقاييس + Actual + إدارة أهداف معتمدة'],
+    ['Decision-to-Outcome Loop','ACTIVE','إنشاء قرار + baseline + إجراء + قياس outcome فعلي'],
+    ['Alert Threshold Engine','ACTIVE','إدارة قواعد + evaluator فعلي على المقاييس المتاحة'],
+    ['Saved Views / Watchlists','ACTIVE','إنشاء/حذف Views وقوائم متابعة من مركز القيادة'],
+    ['Board Pack Generator','ACTIVE','يستخدم محرك management_reporting الحالي؛ يعتمد فقط على المقاييس governed والأهداف والمخاطر والإجراءات والقرارات والسيناريوهات، مع طباعة PDF محلية'],
+    ['Natural Language Analytics','ACTIVE','استعلام deterministic على قاموس المقاييس governed؛ يدعم actual/target/variance/source/unit مع confidence وevidence وUNKNOWN عند الغموض'],
+    ['Anomaly Detection','PLANNED','يحتاج baseline موسمي قبل التفعيل'],
+    ['Decision Simulator','PLANNED','يحتاج افتراضات موثقة وقيودًا مالية'],
+    ['Release Impact','PLANNED','يتطلب ربط deployments بمؤشرات قبل/بعد'],
+    ['Analytics Cost Monitor','PLANNED','يتطلب سجلات تكلفة مصادر التحليلات'],
+    ['Data Lineage','PARTIAL','المصادر تظهر لكل مجموعة؛ lineage على مستوى metric قيد التأسيس'],
+    ['Confidence Labels','ACTIVE','UNKNOWN/PARTIAL/ACTIVE semantics مستخدمة في المركز']
+  ];
+
+  async function api(action){
+    const r=await BondsAuth.authenticatedFetch('/api/admin?action='+encodeURIComponent(action),{returnTo:location.pathname});
+    if(r?.__authError) throw new Error(r.status===403?'غير مصرح':'انتهت جلسة الدخول');
+    if(!r||typeof r.json!=='function') throw new Error('استجابة غير صالحة');
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.success) throw new Error(d.error||('HTTP '+r.status));
+    return d;
+  }
+
+  async function apiPost(action,body){
+    const r=await BondsAuth.authenticatedFetch('/api/admin?action='+encodeURIComponent(action),{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body||{}),
+      returnTo:location.pathname
+    });
+    if(r?.__authError) throw new Error(r.status===403?'غير مصرح':'انتهت جلسة الدخول');
+    if(!r||typeof r.json!=='function') throw new Error('استجابة غير صالحة');
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.success) throw new Error(d.error||('HTTP '+r.status));
+    return d;
+  }
+
+  function kpi(label,value,detail){
+    return '<div class="kpi"><b>'+esc(value)+'</b><span>'+esc(label)+'</span><small>'+esc(detail||'')+'</small></div>';
+  }
+
+  function renderNaturalLanguageResult(result){
+    const status=String(result?.status||'unknown').toUpperCase();
+    $('nlqState').innerHTML='<span class="pill '+(status==='ACTIVE'?'ok':'warn')+'">'+esc(status)+'</span> '+esc(result?.reason||result?.semantics||'');
+    const metric=result?.matchedMetric||{};
+    $('nlqAnswer').innerHTML=[
+      kpi('الإجابة',result?.answer??'UNKNOWN',result?.intent||'unknown intent'),
+      kpi('المؤشر',metric.display_name_ar||metric.display_name_en||metric.metric_key||'UNKNOWN',metric.metric_key||''),
+      kpi('الثقة',String(result?.confidence||'unknown').toUpperCase(),'deterministic matcher'),
+      kpi('الوحدة',metric.unit||'UNKNOWN','governed definition')
+    ].join('');
+    const rows=(result?.evidence||[]).map(e=>{
+      const value=e.type==='metric_definition'
+        ? (e.source_key||e.unit||'—')
+        : (e.value??e.target_value??'—');
+      const period=e.type==='base_target'
+        ? ((e.period_start||'')+' → '+(e.period_end||''))
+        : (e.as_of||'—');
+      return '<tr><td>'+esc(e.type||'evidence')+'</td><td>'+esc(e.metric_key||'—')+'</td><td>'+esc(value)+'</td><td>'+esc(period)+'</td></tr>';
+    }).join('');
+    $('nlqEvidenceRows').innerHTML=rows||'<tr><td colspan="4">UNKNOWN — لا يوجد دليل قابل للعرض</td></tr>';
+  }
+
+  function renderBoardPack(bp){
+    if(!bp||bp.generated!==true){
+      $('boardPackState').innerHTML='<span class="pill warn">UNKNOWN</span> '+esc(bp?.reason||'Board Pack unavailable.');
+      $('boardPackContent').innerHTML='';
+      return;
+    }
+    const p=bp.pack||{};
+    const coverage=p.evidence_coverage||{};
+    $('boardPackState').innerHTML='<span class="pill ok">ACTIVE</span> As of '+esc(bp.asOfDate||'UNKNOWN')+' · '+esc(bp.methodology||'deterministic');
+    const kpis=(p.kpis||[]).map(r=>'<tr><td>'+esc(r.name||r.code)+'</td><td>'+esc(num(r.value))+'</td><td>'+esc(r.target==null?'UNKNOWN':num(r.target))+'</td><td>'+esc(r.target_variance_pct==null?'UNKNOWN':pct(r.target_variance_pct))+'</td></tr>').join('');
+    const variances=(p.material_variances||[]).map(r=>'<tr><td>'+esc(r.metric)+'</td><td>'+esc(num(r.actual))+'</td><td>'+esc(r.budget==null?'UNKNOWN':num(r.budget))+'</td><td>'+esc(r.budget_variance_pct==null?'UNKNOWN':pct(r.budget_variance_pct))+'</td></tr>').join('');
+    const risks=(p.risks||[]).map(r=>'<tr><td>'+esc(r.title||r.id)+'</td><td>'+esc(r.severity||'UNKNOWN')+'</td></tr>').join('');
+    const actions=(p.actions_required||[]).map(r=>'<tr><td>'+esc(r.title||r.id)+'</td><td>'+esc(r.status||'UNKNOWN')+'</td><td>'+esc(r.due_date||'—')+'</td></tr>').join('');
+    const decisions=(p.decisions||[]).map(r=>'<tr><td>'+esc(r.title||r.id)+'</td><td>'+esc(r.status||'UNKNOWN')+'</td><td>'+esc(r.confidence||'unknown')+'</td></tr>').join('');
+    const scenarios=(p.scenarios||[]).map(r=>'<tr><td>'+esc(r.name||r.id)+'</td><td>'+esc(r.scenario_type||'UNKNOWN')+'</td><td>'+esc(r.confidence||'unknown')+'</td></tr>').join('');
+    $('boardPackContent').innerHTML=
+      '<h1 style="margin:1rem 0 .25rem">BONDS Global — Board Pack</h1>'+
+      '<div class="muted">Period: '+esc(p.period||bp.asOfDate||'UNKNOWN')+' · Currency: '+esc(p.currency||'UNKNOWN / mixed basis')+'</div>'+
+      '<div class="kpis" style="margin:1rem 0">'+
+        kpi('Business Health',p.business_health?.score==null?'UNKNOWN':num(p.business_health.score),p.business_health?.label||'governed targets only')+
+        kpi('Actual metrics',num(coverage.actual_metric_count||0),'governed snapshot')+
+        kpi('Targets covered',num(coverage.target_covered_metric_count||0),'base scenario')+
+        kpi('Triggered risks',num(coverage.triggered_risk_count||0),'evaluated alerts')+
+      '</div>'+
+      '<h3>KPIs / Target</h3><div class="scroll"><table><thead><tr><th>KPI</th><th>Actual</th><th>Target</th><th>Variance %</th></tr></thead><tbody>'+(kpis||'<tr><td colspan="4">UNKNOWN — لا توجد KPIs قابلة للعرض</td></tr>')+'</tbody></table></div>'+
+      '<h3>Material Variances</h3><div class="scroll"><table><thead><tr><th>Metric</th><th>Actual</th><th>Target/Budget</th><th>Variance %</th></tr></thead><tbody>'+(variances||'<tr><td colspan="4">لا توجد فروقات مادية مثبتة</td></tr>')+'</tbody></table></div>'+
+      '<h3>Risks</h3><div class="scroll"><table><thead><tr><th>Risk</th><th>Severity</th></tr></thead><tbody>'+(risks||'<tr><td colspan="2">لا توجد تنبيهات مفعّلة ومتحققة</td></tr>')+'</tbody></table></div>'+
+      '<h3>Actions Required</h3><div class="scroll"><table><thead><tr><th>Action</th><th>Status</th><th>Due</th></tr></thead><tbody>'+(actions||'<tr><td colspan="3">لا توجد إجراءات</td></tr>')+'</tbody></table></div>'+
+      '<h3>Decisions</h3><div class="scroll"><table><thead><tr><th>Decision</th><th>Status</th><th>Confidence</th></tr></thead><tbody>'+(decisions||'<tr><td colspan="3">لا توجد قرارات</td></tr>')+'</tbody></table></div>'+
+      '<h3>Scenarios</h3><div class="scroll"><table><thead><tr><th>Scenario</th><th>Type</th><th>Confidence</th></tr></thead><tbody>'+(scenarios||'<tr><td colspan="3">لا توجد سيناريوهات محفوظة</td></tr>')+'</tbody></table></div>'+
+      '<p class="muted">Method: '+esc(bp.methodology||'deterministic')+'. UNKNOWN means evidence is unavailable; no values are inferred.</p>';
+  }
+
+  function renderCapabilities(){
+    $('capabilities').innerHTML=CAPABILITIES.map(([name,status,note])=>{
+      const cls=status==='ACTIVE'?'ok':status==='NOT_CONFIGURED'?'bad':'warn';
+      return '<div class="cap"><strong>'+esc(name)+'</strong><span class="pill '+cls+'">'+esc(status)+'</span><small>'+esc(note)+'</small></div>';
+    }).join('');
+  }
+
+  function renderSources(data,ga){
+    const sources=data.sources||{};
+    const labels={profiles:'Profiles',subscriptions:'Subscriptions',invoices:'Payments / Invoices',presence:'Presence',opportunities:'CRM Opportunities',renewals:'CRM Renewals',customerSuccess:'Customer Success',aiTelemetry:'AI Telemetry'};
+    const rows=Object.entries(sources).map(([key,v])=>{
+      const status=v?.status||'unknown';
+      return '<tr><td>'+esc(labels[key]||key)+'</td><td><span class="pill '+(status==='ok'?'ok':'bad')+'">'+esc(status.toUpperCase())+'</span></td><td>'+esc(v?.rows==null?'—':num(v.rows))+'</td><td>'+esc(v?.error||'direct API source')+'</td></tr>';
+    });
+    const gs=ga?.status||'not_configured'; const gcls=gs==='healthy'?'ok':gs==='degraded'?'warn':'bad';
+    rows.unshift('<tr><td>Google Analytics 4</td><td><span class="pill '+gcls+'">'+esc(gs.toUpperCase())+'</span></td><td>—</td><td>'+esc(ga?.error||ga?.reason||'server-side GA4 Data API')+'</td></tr>');
+    $('sourceRows').innerHTML=rows.join('');
+  }
+
+  function renderAlerts(data,ga){
+    const alerts=[];
+    for(const [key,v] of Object.entries(data.sources||{})) if(v?.status!=='ok') alerts.push('مصدر '+key+' غير متاح: '+(v?.error||'UNKNOWN'));
+    if((data.executive?.renewalRisk||0)>0) alerts.push('قيمة تجديدات عالية/حرجة تحت الخطر: '+sar(data.executive.renewalRisk));
+    if((data.ai?.failureRatePct||0)>=10) alerts.push('معدل فشل عمليات AI بلغ '+pct(data.ai.failureRatePct));
+    if(ga?.configured && ga?.status!=='healthy') alerts.push('GA4 الاختياري في حالة DEGRADED: '+(ga?.error||'UNKNOWN'));
+    $('alerts').innerHTML=alerts.map(a=>'<div class="alert">'+esc(a)+'</div>').join('');
+  }
+
+  function metricValue(metric){
+    if(metric?.actual==null) return 'UNKNOWN';
+    if(String(metric.unit).toLowerCase()==='sar') return sar(metric.actual);
+    if(String(metric.unit).toLowerCase()==='percent') return pct(metric.actual);
+    return num(metric.actual);
+  }
+
+  function renderGovernance(gov){
+    const metrics=gov?.metrics||[];
+    const metricMap=Object.fromEntries(metrics.map(m=>[m.metric_key,m]));
+    const options=metrics.map(m=>'<option value="'+esc(m.metric_key)+'">'+esc(m.display_name_ar||m.display_name_en||m.metric_key)+'</option>').join('');
+    $('targetMetric').innerHTML=options;
+    $('alertMetric').innerHTML=options;
+    $('governanceMetricsRows').innerHTML=metrics.map(m=>'<tr><td><b>'+esc(m.display_name_ar||m.metric_key)+'</b><br><small class="muted">'+esc(m.metric_key)+'</small></td><td>'+esc(metricValue(m))+'</td><td>'+esc(m.unit||'number')+'</td><td>'+esc(m.source_key||'UNKNOWN')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد مقاييس معرفة</td></tr>';
+
+    $('governanceTargetsRows').innerHTML=(gov?.targets||[]).map(t=>{
+      const m=metricMap[t.metric_key]||{};
+      return '<tr><td>'+esc(m.display_name_ar||t.metric_key)+'</td><td>'+esc(num(t.target_value))+'</td><td>'+esc(t.comparison)+'</td><td>'+esc(t.period_start)+' → '+esc(t.period_end)+'<br><small>'+esc(t.scenario)+'</small></td><td><button class="btn danger gov-delete-target" data-id="'+esc(t.id)+'" type="button">حذف</button></td></tr>';
+    }).join('')||'<tr><td colspan="5">لا توجد أهداف معتمدة للفترة الحالية</td></tr>';
+
+    const evalMap=Object.fromEntries((gov?.alertEvaluations||[]).map(e=>[e.id,e]));
+    $('governanceAlertRows').innerHTML=(gov?.alertRules||[]).map(r=>{
+      const ev=evalMap[r.id];
+      const state=ev?.triggered===true?'TRIGGERED':ev?.triggered===false?'OK':(ev?.status||'UNKNOWN').toUpperCase();
+      return '<tr><td>'+esc(r.name)+'</td><td>'+esc(r.metric_key)+'</td><td>'+esc(r.operator)+' '+esc(num(r.threshold))+'</td><td><span class="pill '+(state==='TRIGGERED'?'bad':state==='OK'?'ok':'warn')+'">'+esc(state)+'</span></td><td><button class="btn danger gov-delete-alert" data-id="'+esc(r.id)+'" type="button">حذف</button></td></tr>';
+    }).join('')||'<tr><td colspan="5">لا توجد قواعد تنبيه</td></tr>';
+
+    $('governanceEvaluationRows').innerHTML=(gov?.alertEvaluations||[]).map(e=>{
+      const result=e.triggered===true?'TRIGGERED':e.triggered===false?'OK':'UNKNOWN';
+      return '<tr><td>'+esc(e.name||e.id||'—')+'</td><td>'+esc(e.actual==null?'UNKNOWN':num(e.actual))+'</td><td>'+esc(e.threshold==null?'UNKNOWN':num(e.threshold))+'</td><td><span class="pill '+(result==='TRIGGERED'?'bad':result==='OK'?'ok':'warn')+'">'+esc(result)+'</span></td></tr>';
+    }).join('')||'<tr><td colspan="4">لا توجد نتائج تقييم</td></tr>';
+
+    const health=gov?.businessHealth||{};
+    $('healthScore').textContent=health.score==null?'UNKNOWN':num(health.score);
+    $('healthLabel').textContent=health.score==null?'غير محسوب':'محسوب من أهداف معتمدة';
+    $('healthReason').textContent=health.score==null?(health.reason||'لا توجد أهداف قابلة للقياس للفترة الحالية'):'الثقة: '+String(health.confidence||'unknown').toUpperCase()+' · المكونات: '+num((health.components||[]).length);
+
+    if(gov?.asOfDate && !$('targetStart').value){
+      const start=gov.asOfDate.slice(0,7)+'-01';
+      const d=new Date(start+'T00:00:00Z'); d.setUTCMonth(d.getUTCMonth()+1); d.setUTCDate(0);
+      $('targetStart').value=start;
+      $('targetEnd').value=d.toISOString().slice(0,10);
+    }
+  }
+
+  function renderOperations(ops,gov){
+    const metrics=gov?.metrics||[];
+    const metricOptions=metrics.map(m=>'<option value="'+esc(m.metric_key)+'">'+esc(m.display_name_ar||m.metric_key)+'</option>').join('');
+    $('decisionMetric').innerHTML=metricOptions;
+
+    const decisions=ops?.decisions||[];
+    $('actionDecision').innerHTML='<option value="">بدون قرار</option>'+decisions.map(d=>'<option value="'+esc(d.id)+'">'+esc(d.title)+'</option>').join('');
+    $('decisionRows').innerHTML=decisions.map(d=>{
+      const exp=d.expected_outcome||{}, base=d.baseline||{}, measured=d.measured_outcome||{};
+      const outcome=measured.target_met===true?'MET':measured.target_met===false?'NOT_MET':'UNKNOWN';
+      return '<tr><td><b>'+esc(d.title)+'</b><br><small>'+esc(d.confidence||'unknown')+'</small></td><td>'+esc(exp.metric_key||'UNKNOWN')+'</td><td>'+esc(base.actual_value==null?'UNKNOWN':num(base.actual_value))+'</td><td>'+esc(exp.target_value==null?'UNKNOWN':num(exp.target_value))+' '+esc(exp.comparison||'')+'</td><td><span class="pill '+(d.status==='measured'?'ok':'warn')+'">'+esc(String(d.status||'unknown').toUpperCase())+'</span></td><td><span class="pill '+(outcome==='MET'?'ok':outcome==='NOT_MET'?'bad':'warn')+'">'+outcome+'</span><br><button type="button" class="btn secondary decision-measure" data-id="'+esc(d.id)+'">قياس</button></td></tr>';
+    }).join('')||'<tr><td colspan="6">لا توجد قرارات</td></tr>';
+
+    $('actionRows').innerHTML=(ops?.actions||[]).map(a=>'<tr><td>'+esc(a.title)+'</td><td>'+esc(a.priority||'medium')+'</td><td>'+esc(a.status||'open')+'</td><td>'+esc(a.decision_id||'—')+'</td></tr>').join('')||'<tr><td colspan="4">لا توجد إجراءات</td></tr>';
+
+    const fi=ops?.fundingIntelligence||{};
+    $('fundingSummary').innerHTML=[
+      kpi('الحالات',num(fi.totalCases||0),fi.dataState==='empty'?'EMPTY':'Available'),
+      kpi('القيمة المطلوبة',sar(fi.totalRequestedAmount||0),'Funding cases'),
+      kpi('متوسط الجاهزية',fi.averageReadiness==null?'UNKNOWN':num(fi.averageReadiness)+'/100','الحالات التي تحتوي readiness')
+    ].join('');
+    $('fundingSourceRows').innerHTML=(fi.bySource||[]).map(r=>'<tr><td>'+esc(r.source)+'</td><td>'+esc(num(r.cases))+'</td><td>'+esc(sar(r.amount))+'</td></tr>').join('')||'<tr><td colspan="3">لا توجد حالات تمويل حتى الآن</td></tr>';
+
+    const ra=ops?.revenueAttribution||{};
+    $('attributionState').innerHTML='<span class="pill '+(ra.status==='active'?'ok':'warn')+'">'+esc(String(ra.status||'partial').toUpperCase())+'</span> '+esc(ra.reason||'Explicit paid revenue source available');
+    $('attributionRows').innerHTML=(ra.rows||[]).map(r=>'<tr><td>'+esc(r.source)+'</td><td>'+esc(num(r.opportunities))+'</td><td>'+esc(sar(r.pipelineValue))+'</td><td>'+esc(sar(r.wonValue))+'</td><td>'+esc(sar(r.paidRevenue))+'</td></tr>').join('')||'<tr><td colspan="5">لا توجد بيانات إسناد قابلة للعرض</td></tr>';
+
+    const sp=ops?.serviceProfitability||{};
+    $('serviceProfitabilityState').innerHTML='<span class="pill warn">'+esc(String(sp.status||'partial').toUpperCase())+'</span> '+esc(sp.reason||'Service profitability evidence is incomplete.');
+    const totals=sp.totals||null;
+    $('serviceProfitabilitySummary').innerHTML=[
+      kpi('الخدمات ذات أحداث مالية',num(sp.coverage?.servicesWithObservedFinancials||0),sp.dataState==='unknown'?'UNKNOWN':'Observed'),
+      kpi('خدمات بطلبات بلا أحداث',num(sp.coverage?.requestedServicesWithoutFinancials||0),'UNKNOWN until posted events exist'),
+      kpi('الإيراد المرصود',totals?sar(totals.recognizedRevenue):'UNKNOWN',totals?totals.currency:'Multi/No currency'),
+      kpi('الربح المباشر المرصود',totals?sar(totals.observedDirectProfit):'UNKNOWN','ليس Operating Profit كاملاً')
+    ].join('');
+    $('serviceProfitabilityRows').innerHTML=(sp.rows||[]).map(r=>'<tr><td>'+esc(r.serviceName||r.serviceCode)+'</td><td>'+esc(r.currency||'UNKNOWN')+'</td><td>'+esc(num(r.requestCount||0))+'</td><td>'+esc(num(r.recognizedRevenue))+'</td><td>'+esc(num(r.directCost))+'</td><td>'+esc(num(r.observedDirectProfit))+'</td><td>'+esc(r.observedDirectMarginPct==null?'UNKNOWN':pct(r.observedDirectMarginPct))+'</td><td>'+esc(r.dataState||'UNKNOWN')+'</td></tr>').join('')||'<tr><td colspan="8">UNKNOWN — لا توجد أحداث مالية posted مرتبطة بخدمة حتى الآن</td></tr>';
+    $('serviceProfitabilityUnknown').textContent=(sp.requestedWithoutFinancials||[]).length
+      ? 'طلبات خدمات بلا أحداث مالية posted: '+(sp.requestedWithoutFinancials||[]).map(r=>(r.serviceName||r.serviceCode)+' ('+r.requestCount+')').join('، ')
+      : '';
+
+    const clv=ops?.clientLifetimeValue||{};
+    $('clientLifetimeValueState').innerHTML='<span class="pill warn">'+esc(String(clv.status||'partial').toUpperCase())+'</span> '+esc(clv.reason||'Client Lifetime Value evidence is incomplete.');
+    $('clientLifetimeValueSummary').innerHTML=[
+      kpi('CLV',clv.ltv==null?'UNKNOWN':num(clv.ltv)+' (currency UNKNOWN)',clv.method||'No governed LTV method available'),
+      kpi('العملاء',num(clv.coverage?.clients||0),'advisory_clients'),
+      kpi('عملاء لديهم طلبات',num(clv.coverage?.clientsWithServiceRequests||0),'service_requests.client_id'),
+      kpi('أحداث مالية منسوبة للعميل',num(clv.coverage?.postedClientAttributedFinancialEvents||0),'posted only')
+    ].join('');
+    $('clientLifetimeValueMissing').textContent=(clv.missingEvidence||[]).length
+      ? 'UNKNOWN — الأدلة الناقصة: '+(clv.missingEvidence||[]).join('، ')
+      : '';
+
+    const cr=ops?.cacRoas||{};
+    $('cacRoasState').innerHTML='<span class="pill warn">'+esc(String(cr.status||'partial').toUpperCase())+'</span> '+esc(cr.reason||'CAC / ROAS evidence is incomplete.');
+    $('cacRoasSummary').innerHTML=[
+      kpi('CAC',cr.cac==null?'UNKNOWN':num(cr.cac)+' '+esc(cr.currency||'UNKNOWN'),cr.periodBasis||'No governed period basis'),
+      kpi('ROAS',cr.roas==null?'UNKNOWN':num(cr.roas)+'x','Attributed paid revenue / acquisition spend'),
+      kpi('فواتير مدفوعة منسوبة',num(cr.coverage?.paidInvoicesWithExplicitSource||0),'explicit source only'),
+      kpi('فرص لها مصدر',num(cr.coverage?.opportunitiesWithSource||0),'pipeline evidence only; not revenue')
+    ].join('');
+    $('cacRoasMissing').textContent=(cr.missingEvidence||[]).length
+      ? 'UNKNOWN — الأدلة الناقصة: '+(cr.missingEvidence||[]).join('، ')
+      : '';
+
+    $('scenarioRows').innerHTML=(ops?.scenarios||[]).map(s=>{
+      const sim=s.outputs?.simulation||{};
+      const expected=sim.expectedNpv;
+      const pPos=sim.probabilityPositiveNpv;
+      const pLoss=sim.probabilityLoss;
+      return '<tr><td><b>'+esc(s.name)+'</b><br><small>'+esc(new Date(s.created_at).toLocaleString('ar-SA'))+'</small></td><td>'+esc(s.scenario_type||'what_if')+'</td><td>'+esc(String(s.confidence||'unknown').toUpperCase())+'</td><td>'+esc(expected==null?'UNKNOWN':num(expected))+'</td><td>'+esc(pPos==null?'UNKNOWN':pct(pPos*100))+'</td><td>'+esc(pLoss==null?'UNKNOWN':pct(pLoss*100))+'</td><td><button type="button" class="btn danger scenario-delete" data-id="'+esc(s.id)+'">حذف</button></td></tr>';
+    }).join('')||'<tr><td colspan="7">لا توجد سيناريوهات محفوظة</td></tr>';
+
+    $('savedViewRows').innerHTML=(ops?.savedViews||[]).map(v=>'<tr><td>'+esc(v.name)+'</td><td>'+esc(v.scope)+'</td><td><small>'+esc(JSON.stringify(v.definition||{}))+'</small></td><td><button type="button" class="btn danger view-delete" data-id="'+esc(v.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Views محفوظة</td></tr>';
+    $('watchRows').innerHTML=(ops?.watchlists||[]).map(w=>'<tr><td>'+esc(w.name)+'</td><td>'+esc(w.entity_type)+'</td><td>'+esc((w.entity_refs||[]).join(', '))+'</td><td><button type="button" class="btn danger watch-delete" data-id="'+esc(w.id)+'">حذف</button></td></tr>').join('')||'<tr><td colspan="4">لا توجد Watchlists</td></tr>';
+  }
+
+  function render(data,fp,ga,gov,ops){
+    const e=data.executive||{},f=data.funnel||{},a=data.ai||{};
+    $('overallStatus').textContent=(data.status||'unknown').toUpperCase();
+    $('overallStatus').className='pill '+(data.status==='healthy'?'ok':'warn');
+    $('generatedAt').textContent='آخر تحديث: '+(data.generatedAt?new Date(data.generatedAt).toLocaleString('ar-SA'):'UNKNOWN');
+    const gaStatus=ga?.status||'not_configured';
+    $('ga4Status').textContent='GA4: '+gaStatus.toUpperCase();
+    $('ga4Status').className='pill '+(gaStatus==='healthy'?'ok':gaStatus==='degraded'?'warn':'bad');
+    const fpStatus=fp?.status||'unknown';
+    $('firstPartyStatus').textContent='First-party: '+fpStatus.toUpperCase();
+    $('firstPartyStatus').className='pill '+(fpStatus==='healthy'?'ok':'warn');
+
+    $('execKpis').innerHTML=[
+      kpi('زوار اليوم',fp?.traffic?.visitorsToday==null?'UNKNOWN':num(fp.traffic.visitorsToday),'BONDS unique first-party sessions'),
+      kpi('المتواجدون الآن',fp?.traffic?.onlineNow==null?'UNKNOWN':num(fp.traffic.onlineNow),'BONDS presence, آخر دقيقتين'),
+      kpi('المستخدمون 30 يوم',num(e.activeUsers30d),'BONDS presence'),
+      kpi('العملاء المدفوعون',num(f.paid),'Paid invoice users'),
+      kpi('Conversion',pct(e.conversionPct),'Paid users / profiles'),
+      kpi('MRR',sar(e.mrr),'Paid active subscriptions'),
+      kpi('Pipeline',sar(e.pipelineValue),'CRM open opportunities'),
+      kpi('Weighted Pipeline',sar(e.weightedPipeline),'Value × probability')
+    ].join('');
+
+    const stages=[
+      ['Registered',f.registered],['Activated',f.activated],['Paid',f.paid],['Active 30d',f.active30d]
+    ];
+    $('funnel').innerHTML=stages.map(([l,v],i)=>{
+      let rate='—';
+      if(i>0&&safe(stages[i-1][1],0)>0) rate=pct(safe(v,0)/safe(stages[i-1][1],1)*100);
+      return '<div class="stage"><b>'+esc(num(v))+'</b><div>'+esc(l)+'</div><small class="muted">'+(i?'من المرحلة السابقة: '+esc(rate):'بداية المسار الحالي')+'</small></div>';
+    }).join('');
+
+    $('commercialKpis').innerHTML=[
+      kpi('MRR',sar(e.mrr),'شهري متكرر'),kpi('ARR',sar(e.arr),'MRR × 12'),kpi('ARPU',sar(e.arpu),'MRR / users'),
+      kpi('Pipeline',sar(e.pipelineValue),'غير won/lost'),kpi('Weighted Pipeline',sar(e.weightedPipeline),'مرجح بالاحتمال'),kpi('Renewal Risk',sar(e.renewalRisk),'high + critical')
+    ].join('');
+    $('forecastKpis').innerHTML=[
+      kpi('Forecast 90d',sar(e.revenueForecast90d),e.forecastMethod||'UNKNOWN'),kpi('Churn',pct(e.churnPct),'subscription status'),
+      kpi('Customer Health',e.customerHealth==null?'UNKNOWN':num(e.customerHealth)+'/100','CRM customer success'),
+      kpi('AI Requests',num(a.requests),'90 يوم'),kpi('AI Failure',pct(a.failureRatePct),'90 يوم'),kpi('AI Cost USD',a.costUsd==null?'UNKNOWN':'$'+num(a.costUsd),'telemetry')
+    ].join('');
+
+    renderGovernance(gov||{});
+    renderOperations(ops||{},gov||{});
+    $('acquisitionRows').innerHTML=(fp?.traffic?.sources||[]).map(r=>'<tr><td>'+esc(r.source||'UNKNOWN')+'</td><td>'+esc(num(r.sessions))+'</td><td>'+esc(num(r.views))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
+    $('topPageRows').innerHTML=(fp?.traffic?.topPages||[]).map(r=>'<tr><td>'+esc(r.page||'UNKNOWN')+'</td><td>'+esc(num(r.views))+'</td><td>'+esc(num(r.sessions))+'</td><td>—</td></tr>').join('')||'<tr><td colspan="4">لا توجد بيانات داخلية</td></tr>';
+    renderSources(data,ga);renderAlerts(data,ga);
+  }
+
+  async function load(){
+    $('error').style.display='none';
+    try{
+      const [execRes,fpRes,gaRes,govRes,opsRes]=await Promise.allSettled([api('executive-analytics-v2'),api('first-party-analytics'),api('ga4-analytics'),api('command-center-governance'),api('command-center-operations-overview')]);
+      if(execRes.status!=='fulfilled') throw execRes.reason;
+      if(fpRes.status!=='fulfilled') throw fpRes.reason;
+      if(govRes.status!=='fulfilled') throw govRes.reason;
+      if(opsRes.status!=='fulfilled') throw opsRes.reason;
+      const ga=gaRes.status==='fulfilled'?gaRes.value:{configured:false,status:'not_configured'};
+      render(execRes.value,fpRes.value,ga,govRes.value,opsRes.value);
+    }catch(e){$('error').textContent='فشل تحميل مركز القيادة: '+e.message;$('error').style.display='block';$('overallStatus').textContent='ERROR';$('overallStatus').className='pill bad';}
+  }
+  $('targetForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-target-save',{
+        metric_key:$('targetMetric').value,
+        target_value:$('targetValue').value,
+        comparison:$('targetComparison').value,
+        period_start:$('targetStart').value,
+        period_end:$('targetEnd').value,
+        scenario:$('targetScenario').value,
+        notes:$('targetNotes').value
+      });
+      $('targetValue').value=''; $('targetNotes').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل حفظ الهدف: '+err.message;$('error').style.display='block';}
+  });
+
+  $('alertForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-alert-save',{
+        name:$('alertName').value,
+        metric_key:$('alertMetric').value,
+        operator:$('alertOperator').value,
+        threshold:$('alertThreshold').value,
+        severity:$('alertSeverity').value,
+        cooldown_minutes:$('alertCooldown').value,
+        enabled:true
+      });
+      $('alertName').value=''; $('alertThreshold').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل حفظ قاعدة التنبيه: '+err.message;$('error').style.display='block';}
+  });
+
+  $('decisionForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-decision-create',{
+        title:$('decisionTitle').value,
+        metric_key:$('decisionMetric').value,
+        expected_value:$('decisionExpected').value,
+        comparison:$('decisionComparison').value,
+        review_at:$('decisionReviewAt').value,
+        confidence:$('decisionConfidence').value,
+        rationale:$('decisionRationale').value
+      });
+      $('decisionTitle').value='';$('decisionExpected').value='';$('decisionRationale').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل إنشاء القرار: '+err.message;$('error').style.display='block';}
+  });
+
+  $('actionForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-action-create',{
+        title:$('actionTitle').value,
+        decision_id:$('actionDecision').value||null,
+        priority:$('actionPriority').value,
+        due_at:$('actionDueAt').value
+      });
+      $('actionTitle').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل إنشاء الإجراء: '+err.message;$('error').style.display='block';}
+  });
+
+  $('nlqForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      const d=await apiPost('command-center-natural-language-query',{question:$('nlqQuestion').value});
+      renderNaturalLanguageResult(d.result);
+    }catch(err){
+      $('error').textContent='فشل Natural Language Analytics: '+err.message;
+      $('error').style.display='block';
+    }
+  });
+
+  $('scenarioForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-scenario-create',{
+        name:$('scenarioName').value,
+        scenario_type:$('scenarioType').value,
+        inputs:{
+          annual_revenue:$('scenarioRevenue').value,
+          annual_costs:$('scenarioCosts').value,
+          growth_rate_pct:$('scenarioGrowth').value,
+          cost_growth_rate_pct:$('scenarioCostGrowth').value,
+          years:$('scenarioYears').value,
+          initial_investment:$('scenarioInvestment').value,
+          annual_net_cash_flow:$('scenarioCashFlow').value,
+          total_debt_service:$('scenarioDebtService').value,
+          discount_rate_pct:$('scenarioDiscount').value
+        },
+        assumptions:{
+          iterations:$('scenarioIterations').value,
+          revenue_volatility_pct:$('scenarioRevenueVol').value,
+          cost_volatility_pct:$('scenarioCostVol').value,
+          shock_correlation:$('scenarioCorrelation').value
+        }
+      });
+      $('scenarioName').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل تشغيل السيناريو: '+err.message;$('error').style.display='block';}
+  });
+
+  $('viewForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      const sections=$('viewSections').value.split(',').map(x=>x.trim()).filter(Boolean);
+      await apiPost('command-center-view-save',{
+        name:$('viewName').value,
+        scope:$('viewScope').value,
+        definition:{sections}
+      });
+      $('viewName').value='';$('viewSections').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل حفظ View: '+err.message;$('error').style.display='block';}
+  });
+
+  $('watchForm').addEventListener('submit',async e=>{
+    e.preventDefault();
+    try{
+      await apiPost('command-center-watchlist-save',{
+        name:$('watchName').value,
+        entity_type:$('watchType').value,
+        entity_refs:$('watchRefs').value.split(',').map(x=>x.trim()).filter(Boolean)
+      });
+      $('watchName').value='';$('watchRefs').value='';
+      await load();
+    }catch(err){$('error').textContent='فشل حفظ Watchlist: '+err.message;$('error').style.display='block';}
+  });
+
+  document.addEventListener('click',async e=>{
+    const targetBtn=e.target.closest('.gov-delete-target');
+    const alertBtn=e.target.closest('.gov-delete-alert');
+    const measureBtn=e.target.closest('.decision-measure');
+    const viewBtn=e.target.closest('.view-delete');
+    const watchBtn=e.target.closest('.watch-delete');
+    const scenarioBtn=e.target.closest('.scenario-delete');
+    if(!targetBtn&&!alertBtn&&!measureBtn&&!viewBtn&&!watchBtn&&!scenarioBtn)return;
+    try{
+      if(targetBtn) await apiPost('command-center-target-delete',{id:targetBtn.dataset.id});
+      if(alertBtn) await apiPost('command-center-alert-delete',{id:alertBtn.dataset.id});
+      if(measureBtn) await apiPost('command-center-decision-measure',{id:measureBtn.dataset.id});
+      if(viewBtn) await apiPost('command-center-view-delete',{id:viewBtn.dataset.id});
+      if(watchBtn) await apiPost('command-center-watchlist-delete',{id:watchBtn.dataset.id});
+      if(scenarioBtn) await apiPost('command-center-scenario-delete',{id:scenarioBtn.dataset.id});
+      await load();
+    }catch(err){$('error').textContent='فشل الحذف: '+err.message;$('error').style.display='block';}
+  });
+
+  $('boardPackBtn').addEventListener('click',async()=>{
+    try{
+      $('boardPackBtn').disabled=true;
+      const d=await api('command-center-board-pack');
+      renderBoardPack(d.boardPack);
+      if(d.boardPack?.generated===true) window.print();
+    }catch(err){
+      $('error').textContent='فشل توليد Board Pack: '+err.message;
+      $('error').style.display='block';
+    }finally{
+      $('boardPackBtn').disabled=false;
+    }
+  });
+
+  $('refreshBtn').addEventListener('click',load);
+  renderCapabilities();
+  if(window.__ADMIN_ROLE) load(); else window.addEventListener('admin-auth-ready',load,{once:true});
+})();
+</script>
+</body></html>
