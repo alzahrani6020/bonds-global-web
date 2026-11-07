@@ -208,7 +208,7 @@ function Invoke-Git([string[]]$Arguments) {
 function Invoke-Installer([string]$Path, [scriptblock]$OnTick = $null) {
     $script:activationAttempted = $true
     return Invoke-Child $shellExe @("-NoLogo", "-NoProfile", "-NonInteractive",
-        "-File", $Path, "-Activate", "-HealthTimeoutSeconds", "15") -OnTick $OnTick
+        "-File", $Path, "-Activate", "-HealthTimeoutSeconds", "30") -OnTick $OnTick
 }
 
 function Send-Runtime([string]$Route, [string]$Credential = "Channel", $Body = $null) {
