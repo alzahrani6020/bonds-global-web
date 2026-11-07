@@ -676,7 +676,8 @@ describe('BONDS query-led research workflow', () => {
     expect(result.decisionEligible).toBe(false);
     expect(executeCapability).toHaveBeenCalledWith(
       'web_search',
-      expect.objectContaining({ requiredTermMinMatches:2 })
+      expect.objectContaining({ requiredTermMinMatches:2 }),
+      expect.any(Object)
     );
   });
 
