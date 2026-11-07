@@ -54,4 +54,15 @@ describe('new capability wiring', () => {
     expect(result.executed).toBe(true);
     expect(result.capability_id).toBe('BONDS-CAP-BRIEF-001');
   });
+  test('preserves strict person search threshold through runtime adapter wiring', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(
+      path.join(__dirname, '../../lib/capabilities/runtime-adapters.js'),
+      'utf8'
+    );
+
+    expect(source).toContain('requiredTermMinMatches: input.requiredTermMinMatches');
+  });
+
 });
