@@ -374,6 +374,28 @@ describe('BONDS planner-first universal orchestrator', () => {
           }
         };
       }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            pages:[
+              {
+                url:'https://source-one.example/profile',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'طلال حسن الزهراني', text:'طلال حسن الزهراني مستشار مالي.' }
+              },
+              {
+                url:'https://source-two.example/bio',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'طلال حسن الزهراني', text:'طلال حسن الزهراني خبير اقتصادي.' }
+              }
+            ]
+          }
+        };
+      }
       if (action === 'evidence_verify') {
         expect(input.minIndependentPublishers).toBe(2);
         return {
@@ -383,17 +405,20 @@ describe('BONDS planner-first universal orchestrator', () => {
           action_fabric:{ side_effect:'compute' },
           result:{
             verification_state:'SUPPORTED',
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
             sources:input.sources
           }
         };
       }
-      if (action === 'web_fetch') {
+      if (action === 'research_synthesize') {
         return {
           ok:true,
           executed:true,
           action,
-          action_fabric:{ side_effect:'network_read' },
-          result:{ text:'طلال حسن الزهراني مستشار مالي وخبير اقتصادي.', content_type:'text/html' }
+          action_fabric:{ side_effect:'compute' },
+          result:{ verification_state:'SUPPORTED', known:[], unknown:[], contradictions:[] }
         };
       }
       throw new Error('UNEXPECTED_ACTION:' + action);
@@ -479,7 +504,8 @@ describe('BONDS planner-first universal orchestrator', () => {
           result:{
             query:input.query,
             results:[
-              { title:'الدكتور طلال حسن الزهراني | بوندز', url:'https://bonds-global.com/', snippet:'طلال حسن الزهراني مستشار وخبير مالي.' }
+              { title:'الدكتور طلال حسن الزهراني | بوندز', url:'https://bonds-global.com/', snippet:'طلال حسن الزهراني مستشار وخبير مالي.' },
+              { title:'طلال حسن الزهراني | مصدر مستقل', url:'https://independent.example/talal', snippet:'طلال حسن الزهراني خبير اقتصادي ومستشار مالي.' }
             ]
           }
         };
@@ -512,11 +538,18 @@ describe('BONDS planner-first universal orchestrator', () => {
           action,
           action_fabric:{ side_effect:'network_read' },
           result:{
-            pages:[{
-              url:'https://bonds-global.com/',
-              evidence:{ content_type:'text/html', headers:{} },
-              extracted:{ format:'html', title:'الدكتور طلال حسن الزهراني | بوندز', text:'طلال حسن الزهراني مستشار وخبير مالي.' }
-            }]
+            pages:[
+              {
+                url:'https://bonds-global.com/',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'الدكتور طلال حسن الزهراني | بوندز', text:'طلال حسن الزهراني مستشار وخبير مالي، وهو رئيس مجلس إدارة بوندز منذ 2019.' }
+              },
+              {
+                url:'https://independent.example/talal',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'طلال حسن الزهراني | مصدر مستقل', text:'طلال حسن الزهراني خبير اقتصادي ومستشار مالي منذ سنوات.' }
+              }
+            ]
           }
         };
       }
@@ -528,8 +561,8 @@ describe('BONDS planner-first universal orchestrator', () => {
           action_fabric:{ side_effect:'compute' },
           result:{
             verification_state:'SUPPORTED',
-            source_count:1,
-            independent_publisher_count:1,
+            source_count:2,
+            independent_publisher_count:2,
             supported_claims:[],
             contradictions:[],
             residual_uncertainty:[],
@@ -642,11 +675,9 @@ describe('BONDS planner-first universal orchestrator', () => {
       { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
     );
 
-    expect(result.reply).not.toBe('البحث لم يُرجع صفحات.');
-    expect(result.reply).toContain('طلال حسن الزهراني');
-    expect(result.reply).toContain('https://ar.wikipedia.org/wiki/');
-    expect(result.reply).not.toMatch(/<span|searchmatch|&lt;/);
-    expect(result.trace.map(item => item.action)).toEqual(['web_search']);
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
   });
 
   test('stops after an empty public search instead of calling the planner', async () => {
@@ -664,8 +695,8 @@ describe('BONDS planner-first universal orchestrator', () => {
       { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
     );
 
-    expect(result.reply).toBe('البحث لم يُرجع صفحات.');
-    expect(result.trace.map(item => item.action)).toEqual(['web_search']);
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(result.planner).toBe('universal-v2-deterministic-research');
     const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
     expect(searchInput.query).toBe('وزير الداخلية');
   });
