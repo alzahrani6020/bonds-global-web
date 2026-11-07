@@ -530,4 +530,46 @@ describe('assistant request diagnostics', () => {
     expect(serialized).not.toContain('PRIVATE EVIDENCE');
     expect(serialized).toContain('SEARCH_FAILED');
   });
+
+  test('keeps successful research PASS when a backup search attempt fails', () => {
+    const result = buildRequestDiagnostics({
+      requestId:'req-recovered-search',
+      path:'OPEN_CHAT_RESEARCH',
+      totalMs:14000,
+      loopResult:{
+        ok:true,
+        reply:'verified answer',
+        failed:false,
+        trace:[
+          { action:'web_search', execution:{ ok:true } },
+          { action:'web_search', execution:{ ok:true } },
+          { action:'web_search', execution:{ ok:false, error:{ code:'SEARCH_NO_RESULTS' } } },
+          { action:'web_explore', execution:{ ok:true } },
+          { action:'evidence_verify', execution:{ ok:true } },
+          { action:'research_synthesize', execution:{ ok:true } }
+        ],
+        research:{
+          status:'completed',
+          initial_quality_code:'PASS',
+          repair_attempted:false,
+          decision_eligible:true,
+          source_count:3,
+          evidence_count:3,
+          verification_state:'SUPPORTED',
+          timings:{ search_ms:8000, explore_ms:2500, verify_ms:400, synthesize_ms:500 },
+          research_acquisition_ms:12000,
+          answer_synthesis_ms:500,
+          unknowns:[],
+          contradictions:[]
+        }
+      }
+    });
+
+    expect(result.status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'search_transport').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'evidence').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'ai_generate').status).toBe(STATUS.PASS);
+    expect(result.stages.find(row => row.stage === 'final_answer').status).toBe(STATUS.PASS);
+  });
+
 });
