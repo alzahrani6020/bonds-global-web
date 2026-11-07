@@ -46,7 +46,7 @@ describe('person lookup verified-source boundary', () => {
     const answer = deterministicResearchAnswer(
       'من هو حسني مبارك؟',
       result,
-      { intent:'person_lookup' }
+      { intent:'person_lookup', entity:{ person_entity_frame:buildPersonEntityFrame('حسني مبارك') } }
     );
 
     expect(answer).toContain('Hosni Mubarak');
@@ -85,14 +85,14 @@ describe('person lookup verified-source boundary', () => {
     expect(deterministicResearchAnswer(
       'من هو حسني مبارك؟',
       result,
-      { intent:'person_lookup' }
+      { intent:'person_lookup', entity:{ person_entity_frame:buildPersonEntityFrame('حسني مبارك') } }
     )).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
   });
   test('rejects unrelated verified-source rows and raw MediaWiki markup at final answer boundary', () => {
     const plan = {
       intent:'person_lookup',
       entity:{
-        person_entity_frame: require('../../lib/assistant/person-identity').buildPersonEntityFrame('الدكتور طلال حسن الزهراني')
+        person_entity_frame: buildPersonEntityFrame('الدكتور طلال حسن الزهراني')
       }
     };
 
