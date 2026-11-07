@@ -7,6 +7,8 @@ const {
   PERSON_IDENTITY_SCHEMA_VERSION,
   IDENTITY_VERIFICATION_STATES,
   buildPersonEntityFrame,
+  isPersonIdentitySocialSource,
+  isPersonIdentitySourceEligible,
   resolveCandidateIdentity,
   verifyPersonIdentity
 } = require('../../lib/assistant/person-identity');
@@ -135,6 +137,32 @@ describe('Governed person identity pipeline', () => {
       expect(source).not.toContain('buildPersonEntityFrame(');
       expect(source).not.toContain('personEntityFromMention(');
     }
+  });
+
+
+  test('rejects social-network pages and event-only posts as person identity evidence', () => {
+    const frame = buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+
+    const linkedIn = {
+      url:'https://www.linkedin.com/in/example-person',
+      title:'طلال حسن الزهراني',
+      text:'طلال حسن الزهراني مستشار مالي.'
+    };
+    const eventPost = {
+      url:'https://publisher.example/news/visit-2024',
+      title:'استضافة الدكتور طلال حسن الزهراني',
+      text:'استضاف المكتب الدكتور طلال حسن الزهراني في زيارة خلال أكتوبر 2024.'
+    };
+    const profile = {
+      url:'https://publisher.example/profile/talal-alzahrani',
+      title:'الملف التعريفي للدكتور طلال حسن الزهراني',
+      text:'الدكتور طلال حسن الزهراني خبير اقتصادي ومستشار مالي.'
+    };
+
+    expect(isPersonIdentitySocialSource(linkedIn)).toBe(true);
+    expect(isPersonIdentitySourceEligible(frame, linkedIn)).toBe(false);
+    expect(isPersonIdentitySourceEligible(frame, eventPost)).toBe(false);
+    expect(isPersonIdentitySourceEligible(frame, profile)).toBe(true);
   });
 
 });

@@ -642,4 +642,87 @@ describe('BONDS query-led research workflow', () => {
     }));
   });
 
+
+  test('fails closed when person lookup only has LinkedIn and visit-post evidence', async () => {
+    const actions = [];
+    const personEntityFrame = require('../../lib/assistant/person-identity')
+      .buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+
+    const executeCapability = jest.fn(async (action, input) => {
+      actions.push(action);
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            results:[
+              {
+                title:'طلال حسن الزهراني',
+                snippet:'طلال حسن الزهراني مستشار مالي',
+                url:'https://www.linkedin.com/in/example-person'
+              },
+              {
+                title:'استضافة الدكتور طلال حسن الزهراني',
+                snippet:'استضاف المكتب الدكتور طلال حسن الزهراني في زيارة خلال أكتوبر 2024',
+                url:'https://publisher.example/news/visit-2024'
+              }
+            ]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            pages:[
+              {
+                url:'https://www.linkedin.com/in/example-person',
+                evidence:{content_type:'text/html',headers:{}},
+                extracted:{
+                  format:'html',
+                  title:'طلال حسن الزهراني',
+                  text:'طلال حسن الزهراني مستشار مالي.'
+                }
+              },
+              {
+                url:'https://publisher.example/news/visit-2024',
+                evidence:{content_type:'text/html',headers:{}},
+                extracted:{
+                  format:'html',
+                  title:'استضافة الدكتور طلال حسن الزهراني',
+                  text:'استضاف المكتب الدكتور طلال حسن الزهراني في زيارة خلال أكتوبر 2024.'
+                }
+              }
+            ]
+          }
+        };
+      }
+      if (action === 'evidence_verify' || action === 'research_synthesize') {
+        throw new Error('IDENTITY_EVIDENCE_MUST_FAIL_CLOSED_BEFORE_' + action);
+      }
+      throw new Error('unexpected action: ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'من هو الدكتور طلال حسن الزهراني؟',
+      query:'طلال حسن الزهراني',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        topic:'طلال حسن الزهراني',
+        intent:'person_lookup',
+        personEntityFrame,
+        minIndependentPublishers:2,
+        maxDepth:0
+      }
+    }, {}, {executeCapability});
+
+    expect(result.status).toBe('identity_unverified');
+    expect(result.decisionEligible).toBe(false);
+    expect(result.evidence).toEqual([]);
+    expect(result.verified_identity.verification_state).toBe('INSUFFICIENT_EVIDENCE');
+    expect(actions).toEqual(['web_search','web_explore']);
+  });
+
 });
