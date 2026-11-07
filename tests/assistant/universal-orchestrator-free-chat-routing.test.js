@@ -85,7 +85,7 @@ describe('universal orchestrator free-chat routing', () => {
     jest.clearAllMocks();
   });
 
-  test('unknown person: failed research degrades to free chat instead of a terminal refusal', async () => {
+  test('unknown person: failed research fails closed without planner substitution', async () => {
     const { mod, reasonerPrompts } = loadHarness({
       plannerReplies: [
         { mode:'answer', answer:'لا تتوفر لدي معلومات عامة كافية عن هذا الاسم. إن زودتني بموقع أو مصدر أحلله لك فوراً.' }
@@ -100,12 +100,13 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.reply).not.toBe(TERMINAL_INSUFFICIENT);
-    expect(result.reply).toContain('لا تتوفر لدي معلومات عامة كافية');
-    expect(result.planner).toBe('universal-v2');
-    expect(reasonerPrompts.length).toBeGreaterThan(0);
-    expect(reasonerPrompts[0]).toContain('INSUFFICIENT_EVIDENCE');
-    expect(reasonerPrompts[0]).toContain('deterministic_research');
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(reasonerPrompts).toHaveLength(0);
+    expect(result.research).toEqual(expect.objectContaining({
+      status:'insufficient_evidence',
+      decision_eligible:false
+    }));
   });
 
   test('general finance concept answers directly without any tool', async () => {
@@ -307,8 +308,8 @@ describe('universal orchestrator free-chat routing', () => {
     expect(result.steps).toBe(0);
   });
 
-  test('planner exhausted after insufficient research returns the evidence-aware deterministic fallback', async () => {
-    const { mod } = loadHarness({
+  test('person lookup never reaches planner exhaustion after insufficient research', async () => {
+    const { mod, reasonerPrompts } = loadHarness({
       plannerReplies:[null],
       toolResults:{ web_search:ALL_PROVIDERS_DOWN }
     });
@@ -320,10 +321,11 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.degraded).toBe(true);
-    expect(result.failure).toBe('PLANNER_EXHAUSTED');
-    expect(result.reply).toContain('البحث لم يجد دليلاً كافياً');
-    expect(result.reply).toContain('خدمة الذكاء غير متاحة');
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(result.degraded).toBeUndefined();
+    expect(result.failure).toBeUndefined();
+    expect(reasonerPrompts).toHaveLength(0);
   });
 
   test('planner prompt carries the free-chat and phrasing rules (source contract)', () => {
