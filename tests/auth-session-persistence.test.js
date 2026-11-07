@@ -81,7 +81,7 @@ function createMockAuth(localStorage, overrides = {}) {
   return { ...auth, ...overrides };
 }
 
-function loadAuth({ search = '', initialStorage = {}, authOverrides = {}, fetchMock = jest.fn() } = {}) {
+function loadAuth({ search = '', origin = 'https://bonds-global.com', initialStorage = {}, authOverrides = {}, fetchMock = jest.fn() } = {}) {
   const localStorage = createStorage(initialStorage);
   const sessionStorage = createStorage();
   const auth = createMockAuth(localStorage, authOverrides);
@@ -97,11 +97,11 @@ function loadAuth({ search = '', initialStorage = {}, authOverrides = {}, fetchM
   const window = {
     __ENV: { SUPABASE_URL: 'https://example.supabase.co', SUPABASE_ANON_KEY: 'anon' },
     location: {
-      origin: 'https://bonds-global.com',
+      origin,
       pathname: '/calculators/auth/',
       search,
       hash: '',
-      href: 'https://bonds-global.com/calculators/auth/'
+      href: origin + '/calculators/auth/'
     },
     localStorage,
     document,
@@ -160,6 +160,26 @@ test('uses one persistent Supabase client and persists session after login', asy
   expect(createClient).toHaveBeenCalledTimes(1);
   expect(localStorage.getItem('bonds-auth-token')).toContain('user-1');
   expect(result.error).toBeNull();
+});
+
+
+test('OAuth callback stays on the current deployment origin', async () => {
+  const signInWithOAuth = jest.fn(async payload => ({ data: payload, error: null }));
+  const origin = 'https://bonds-global-stage.example.vercel.app';
+  const { window } = loadAuth({
+    origin,
+    authOverrides: { signInWithOAuth }
+  });
+
+  await window.BondsAuth.signInWithOAuth('google');
+
+  expect(signInWithOAuth).toHaveBeenCalledTimes(1);
+  expect(signInWithOAuth.mock.calls[0][0]).toEqual(expect.objectContaining({
+    provider:'google',
+    options:expect.objectContaining({
+      redirectTo:origin + '/calculators/auth/confirmed.html'
+    })
+  }));
 });
 
 // ── Session storage migration & conflict tests ─────────────────────────────

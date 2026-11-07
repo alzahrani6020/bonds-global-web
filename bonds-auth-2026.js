@@ -531,7 +531,8 @@
     await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
-    const redirectTo = normalizeUrl(options?.redirectTo) || 'https://bonds-global.com/calculators/auth/confirmed.html';
+    const origin = (typeof window !== 'undefined' && window.location ? window.location.origin : 'https://bonds-global.com');
+    const redirectTo = normalizeUrl(options?.redirectTo) || (origin + '/calculators/auth/confirmed.html');
     return sb.auth.signInWithOAuth({ provider, options: { ...(options || {}), redirectTo } });
   }
 
