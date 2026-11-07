@@ -691,11 +691,74 @@ async function assertDistressedRecoveryEmbed() {
   console.log('Distressed Recovery embed PASS (duplicate auth-gate suppressed)');
 }
 
+async function assertPersonLookupSmoke(token) {
+  const requestId = `e2e-person-lookup-${Date.now()}`;
+  const chat = await fetchJson(`${cfg.baseUrl}/api/v3/ai/chat`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'X-Request-ID': requestId
+    },
+    body: JSON.stringify({
+      messages: [{ role: 'user', content: '1. من هو الدكتور طلال حسن الزهراني؟' }],
+      context: {},
+      options: { max_tokens: 256 }
+    })
+  });
+
+  if (!chat.res.ok) {
+    throw new Error(
+      `Person lookup smoke failed: HTTP ${chat.res.status}, request_id=${requestId}, body=${JSON.stringify(chat.body)}`
+    );
+  }
+
+  const planner = chat.body?.inference?.planner || null;
+  if (planner !== 'universal-v2-deterministic-research') {
+    throw new Error(
+      `Person lookup did not use deterministic research: planner=${planner || 'missing'}, request_id=${requestId}`
+    );
+  }
+
+  if (chat.body?.fallback_reason) {
+    throw new Error(
+      `Person lookup returned fallback_reason=${chat.body.fallback_reason}, request_id=${requestId}`
+    );
+  }
+
+  const reply = String(chat.body?.reply || '').trim();
+  if (!reply) {
+    throw new Error(`Person lookup returned an empty reply, request_id=${requestId}`);
+  }
+
+  const diagnostics = chat.body?.diagnostics || null;
+  if (
+    diagnostics &&
+    diagnostics.path !== 'UNIVERSAL_ORCHESTRATOR'
+  ) {
+    throw new Error(
+      `Person lookup diagnostics path mismatch: ${diagnostics.path || 'missing'}, request_id=${requestId}`
+    );
+  }
+
+  console.log(
+    `Authenticated person lookup PASS (planner=${planner}, tool_used=${chat.body?.inference?.tool_used === true}, request_id=${requestId})`
+  );
+}
+
 async function main() {
   console.log('Starting authenticated Production smoke verification');
   await waitForMatchingProduction();
   await assertHealth();
   const token = await getAuthenticatedToken();
+
+  if (String(process.env.PERSON_LOOKUP_SMOKE_ONLY || '').toLowerCase() === 'true') {
+    await assertPersonLookupSmoke(token);
+    console.log('Authenticated person lookup smoke test: PASS');
+    return;
+  }
+
   await assertFinancialDataIntake(token);
   await assertNativeProductionRuntime(token);
   // Run the bounded synthetic journeys before the broader Assistant smoke so they
