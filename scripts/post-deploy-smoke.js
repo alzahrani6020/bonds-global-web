@@ -696,6 +696,13 @@ async function runPlannerTelemetryProbe() {
   console.log('Starting Planner telemetry Production probe');
   await waitForMatchingProduction();
   const token = await getAuthenticatedToken();
+
+  if (String(process.env.PERSON_LOOKUP_SMOKE_ONLY || '').toLowerCase() === 'true') {
+    await assertPersonLookupSmoke(token);
+    console.log('Authenticated person lookup smoke test: PASS');
+    return;
+  }
+
   const requestId = `e2e-planner-telemetry-${Date.now()}`;
   const startedAt = Date.now();
 
@@ -759,6 +766,52 @@ async function runPlannerTelemetryProbe() {
     native_telemetry:safeTelemetry
   }));
   console.log('Planner telemetry Production probe: PASS');
+}
+
+async function assertPersonLookupSmoke(token) {
+  const requestId = `e2e-person-lookup-${Date.now()}`;
+  const chat = await fetchJson(`${cfg.baseUrl}/api/v3/ai/chat`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'X-Request-ID': requestId
+    },
+    body: JSON.stringify({
+      messages: [{ role: 'user', content: '1. من هو الدكتور طلال حسن الزهراني؟' }],
+      context: {},
+      options: { max_tokens: 256 }
+    })
+  });
+
+  if (!chat.res.ok) {
+    throw new Error(
+      `Person lookup smoke failed: HTTP ${chat.res.status}, request_id=${requestId}, body=${JSON.stringify(chat.body)}`
+    );
+  }
+
+  const planner = chat.body?.inference?.planner || null;
+  if (planner !== 'universal-v2-deterministic-research') {
+    throw new Error(
+      `Person lookup did not use deterministic research: planner=${planner || 'missing'}, request_id=${requestId}`
+    );
+  }
+
+  if (chat.body?.fallback_reason) {
+    throw new Error(
+      `Person lookup returned fallback_reason=${chat.body.fallback_reason}, request_id=${requestId}`
+    );
+  }
+
+  const reply = String(chat.body?.reply || '').trim();
+  if (!reply) {
+    throw new Error(`Person lookup returned an empty reply, request_id=${requestId}`);
+  }
+
+  console.log(
+    `Authenticated person lookup PASS (planner=${planner}, tool_used=${chat.body?.inference?.tool_used === true}, request_id=${requestId})`
+  );
 }
 
 async function main() {
