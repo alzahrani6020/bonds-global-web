@@ -353,6 +353,118 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(recovered.answer).toContain('تحديد الهدف');
   });
 
+  test('does not use fast snippet path for person lookup and requires two independent publishers', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'ai_reason') {
+        throw new Error('AI_REASON_MUST_NOT_RUN_FOR_PERSON_LOOKUP');
+      }
+      if (action === 'web_search') {
+        expect(input.requiredTermMinMatches ?? 2).toBeGreaterThanOrEqual(2);
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            query:input.query,
+            results:[
+              { title:'طلال حسن الزهراني', url:'https://source-one.example/profile', snippet:'طلال حسن الزهراني مستشار مالي.' },
+              { title:'طلال حسن الزهراني', url:'https://source-two.example/bio', snippet:'طلال حسن الزهراني خبير اقتصادي.' }
+            ]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        expect(input.minIndependentPublishers).toBe(2);
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'SUPPORTED',
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'web_fetch') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{ text:'طلال حسن الزهراني مستشار مالي وخبير اقتصادي.', content_type:'text/html' }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'1. من هو الدكتور طلال حسن الزهراني؟' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(result.research.decision_eligible).toBe(true);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
+  });
+
+  test('fails closed for person lookup when independent evidence is insufficient and never falls back to planner', async () => {
+    executeGovernedAction.mockImplementation(async ({ action }) => {
+      if (action === 'ai_reason') {
+        throw new Error('AI_REASON_MUST_NOT_RUN_AFTER_PERSON_RESEARCH_FAILURE');
+      }
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            results:[
+              { title:'Wrong person', url:'https://single-source.example/person', snippet:'شخص آخر مختلف تمامًا.' }
+            ]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'INSUFFICIENT_EVIDENCE',
+            sources:[]
+          }
+        };
+      }
+      if (action === 'web_fetch') {
+        return {
+          ok:true,
+          executed:true,
+          action,
+          action_fabric:{ side_effect:'network_read' },
+          result:{ text:'شخص آخر مختلف تمامًا.', content_type:'text/html' }
+        };
+      }
+      return { ok:false, executed:false, action, error:{ code:'NO_EVIDENCE' } };
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'1. من هو الدكتور طلال حسن الزهراني؟' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-research');
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(result.research.decision_eligible).toBe(false);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
+  });
+
   test('routes clear person lookup through deterministic research without ai_reason', async () => {
     executeGovernedAction.mockImplementation(async ({ action, input }) => {
       if (action === 'ai_reason') {
