@@ -15,4 +15,17 @@ describe('post-deploy staged Vercel curl contract', () => {
     expect(source).toContain("const request = String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'");
     expect(source).toContain("const chat = await request(\`${cfg.baseUrl}/api/v3/ai/chat\`, {");
   });
+
+  test('enforces person lookup semantic output contract', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../../scripts/post-deploy-smoke.js'), 'utf8');
+
+    expect(source).toContain("لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.");
+    expect(source).toContain("forbiddenIdentityHosts");
+    expect(source).toContain("'linkedin.com'");
+    expect(source).toContain("'youtube.com'");
+    expect(source).toContain("reply.indexOf('المصادر:')");
+    expect(source).toContain("publishers.size < 2");
+    expect(source).toContain("semantic_contract=");
+  });
+
 });

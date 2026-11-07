@@ -853,8 +853,61 @@ async function assertPersonLookupSmoke(token) {
     throw new Error(`Person lookup returned an empty reply, request_id=${requestId}`);
   }
 
+  const insufficientEvidence =
+    reply === 'لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.' ||
+    reply === 'I could not find enough independent sources to provide a verified profile.';
+
+  const forbiddenIdentityHosts = [
+    'linkedin.com','youtube.com','youtu.be','facebook.com','instagram.com',
+    'x.com','twitter.com','tiktok.com','threads.net','snapchat.com'
+  ];
+
+  const replyUrls = [...reply.matchAll(/https?:\\/\\/[^\\s)\]}>]+/g)]
+    .map(match => match[0].replace(/[.,،؛;:]+$/, ''));
+
+  const forbiddenUrl = replyUrls.find(url => {
+    try {
+      const host = new URL(url).hostname.replace(/^www\\./, '').toLowerCase();
+      return forbiddenIdentityHosts.some(domain => host === domain || host.endsWith('.' + domain));
+    } catch (_) {
+      return false;
+    }
+  });
+
+  if (forbiddenUrl) {
+    throw new Error(
+      `Person lookup exposed a forbidden identity source: ${new URL(forbiddenUrl).hostname}, request_id=${requestId}`
+    );
+  }
+
+  if (!insufficientEvidence) {
+    const sourceMarker = reply.indexOf('المصادر:');
+    if (sourceMarker < 0) {
+      throw new Error(`Person lookup verified profile is missing sources section, request_id=${requestId}`);
+    }
+
+    const identityLead = reply.slice(0, sourceMarker).trim();
+    if (!identityLead || /^\\s*(?:\\d+[.)-]|https?:\\/\\/)/u.test(identityLead)) {
+      throw new Error(`Person lookup does not lead with a verified identity sentence, request_id=${requestId}`);
+    }
+
+    const publishers = new Set();
+    for (const url of replyUrls) {
+      try {
+        const host = new URL(url).hostname.replace(/^www\\./, '').toLowerCase();
+        if (host) publishers.add(host);
+      } catch (_) {}
+    }
+
+    if (publishers.size < 2) {
+      throw new Error(
+        `Person lookup verified profile has fewer than two independent publishers, publishers=${publishers.size}, request_id=${requestId}`
+      );
+    }
+  }
+
   console.log(
-    `Authenticated person lookup PASS (planner=${planner}, tool_used=${chat.body?.inference?.tool_used === true}, request_id=${requestId})`
+    `Authenticated person lookup PASS (planner=${planner}, tool_used=${chat.body?.inference?.tool_used === true}, semantic_contract=${insufficientEvidence ? 'insufficient_evidence' : 'verified_profile'}, request_id=${requestId})`
   );
 }
 
