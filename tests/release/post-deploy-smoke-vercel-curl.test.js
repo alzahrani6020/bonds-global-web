@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 
 describe('post-deploy staged Vercel curl contract', () => {
   test('targets the exact protected deployment with native Vercel curl URL syntax and preserves app Authorization', () => {
@@ -26,6 +27,12 @@ describe('post-deploy staged Vercel curl contract', () => {
     expect(source).toContain("reply.indexOf('المصادر:')");
     expect(source).toContain("publishers.size < 2");
     expect(source).toContain("semantic_contract=");
+  });
+
+
+  test('post-deploy smoke script parses as valid JavaScript', () => {
+    const filename = path.join(__dirname, '../../scripts/post-deploy-smoke.js');
+    expect(() => execFileSync(process.execPath, ['--check', filename], { stdio:'pipe' })).not.toThrow();
   });
 
 });
