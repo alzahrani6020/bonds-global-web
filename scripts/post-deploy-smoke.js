@@ -38,9 +38,8 @@ async function fetchJson(url, options = {}) {
 
 function fetchJsonViaVercelCurl(url, options = {}) {
   const target = new URL(url);
-  const deployment = target.origin;
-  const requestPath = `${target.pathname}${target.search}` || '/';
-  const args = ['--no-install', 'vercel', 'curl', requestPath, '--deployment', deployment, '-sS', '-w', '\\n%{http_code}'];
+  const requestUrl = target.toString();
+  const args = ['--no-install', 'vercel', 'curl', requestUrl, '--write-out', '\\n%{http_code}'];
   const method = String(options.method || 'GET').toUpperCase();
   if (method !== 'GET') args.push('-X', method);
 
