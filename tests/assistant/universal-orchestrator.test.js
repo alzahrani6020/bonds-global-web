@@ -588,10 +588,12 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.toolUsed).toBe(true);
     expect(result.research.decision_eligible).toBe(true);
     expect(result.research.answer_synthesis_ms).toBe(0);
-    expect(result.reply).toContain('طلال حسن الزهراني مستشار وخبير مالي.');
-    expect(result.reply).toContain('طلال حسن الزهراني خبير اقتصادي ومستشار مالي.');
+    expect(result.reply).toContain('طلال حسن الزهراني مستشار وخبير مالي، وهو رئيس مجلس إدارة بوندز منذ 2019.');
+    expect(result.reply).toContain('طلال حسن الزهراني خبير اقتصادي ومستشار مالي منذ سنوات.');
+    expect(result.reply).toContain('المصادر:');
     expect(result.reply).toContain('https://bonds-global.com/');
     expect(result.reply).toContain('https://independent.example/talal');
+    expect(result.reply).not.toContain('linkedin.com');
     const actions = result.trace.map(item => item.action);
     expect(actions.filter(action => action === 'web_search').length).toBeGreaterThan(0);
     expect(actions.slice(-3)).toEqual(['web_explore', 'evidence_verify', 'research_synthesize']);
