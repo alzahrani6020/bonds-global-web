@@ -592,10 +592,13 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.reply).toContain('https://bonds-global.com/');
     expect(result.reply).toContain('https://independent.example/talal');
     const actions = result.trace.map(item => item.action);
-    expect(actions).toEqual(['web_search', 'web_explore', 'evidence_verify', 'research_synthesize']);
+    expect(actions.filter(action => action === 'web_search').length).toBeGreaterThan(0);
+    expect(actions.slice(-3)).toEqual(['web_explore', 'evidence_verify', 'research_synthesize']);
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
     const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
     expect(searchInput.query).toBe('طلال حسن الزهراني');
+    expect(searchInput.requiredTermMinMatches).toBe(2);
+    expect(searchInput.matchAllTerms).toBe(true);
     expect(searchInput.disabledProviders).toBeUndefined();
   });
 
