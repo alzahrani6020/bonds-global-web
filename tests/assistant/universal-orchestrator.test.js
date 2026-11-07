@@ -587,10 +587,12 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.toolUsed).toBe(true);
     expect(result.research.decision_eligible).toBe(true);
     expect(result.research.answer_synthesis_ms).toBe(0);
-    expect(result.reply).toContain('منذ 2019');
+    expect(result.reply).toContain('طلال حسن الزهراني مستشار وخبير مالي.');
+    expect(result.reply).toContain('طلال حسن الزهراني خبير اقتصادي ومستشار مالي.');
     expect(result.reply).toContain('https://bonds-global.com/');
+    expect(result.reply).toContain('https://independent.example/talal');
     const actions = result.trace.map(item => item.action);
-    expect(actions).toEqual(['web_search', 'web_fetch', 'evidence_verify']);
+    expect(actions).toEqual(['web_search', 'web_explore', 'evidence_verify', 'research_synthesize']);
     expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'ai_reason')).toBe(false);
     const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
     expect(searchInput.query).toBe('طلال حسن الزهراني');
