@@ -27,8 +27,8 @@ permissions:
   contents: read
 
 env:
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: prj_djffUO1KXbGKtumZBWsziWxqJ6Qk
+  VERCEL_ORG_ID: team_ENxUZq5el15Zn8pi4ahZMXpz
 
 jobs:
   release:
@@ -127,24 +127,53 @@ jobs:
               console.log(`Staged health PASS (commit=${body.version})`);
             '
 
-          readiness_json="$(npx --no-install vercel curl "$deployment_url/api/readiness" -H 'Cache-Control: no-cache')"
+          # /api/readiness only returns coarse state publicly; the runtime contract detail below
+          # (build fingerprint, versions, auth modes) requires the bearer secret.
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "CRON_SECRET is not available to the release gate; cannot read authorised readiness detail."
+            exit 1
+          fi
+          readiness_json="$(npx --no-install vercel curl "$deployment_url/api/readiness" -H 'Cache-Control: no-cache' -H "Authorization: Bearer $CRON_SECRET")"
           READINESS_JSON="$readiness_json" EXPECTED_VERSION="${{ steps.release.outputs.short_sha }}" node --input-type=module -e '
             import { createRequire } from "node:module";
             const require = createRequire(import.meta.url);
             const contract = require("./services/bonds_token_runtime/contract.json");
             const body = JSON.parse(process.env.READINESS_JSON);
             const runtime = body.token_runtime;
-            if (body.version !== process.env.EXPECTED_VERSION || body.environment !== "production" ||
-                body.status !== "ready" || body.checks?.supabase !== "ok" ||
-                body.checks?.user_governance !== "ok" || body.user_governance?.status !== "ok" ||
-                body.checks?.assistant !== "ok" || body.assistant?.status !== "ok" ||
-                body.assistant?.schema_version !== 1 ||
-                body.checks?.token_runtime !== "ok" || runtime?.required !== true ||
-                runtime.status !== "ok" || runtime.channel_auth !== "verified" ||
-                runtime.broker_auth !== "configured" ||
-                runtime.contract_version !== contract.contractVersion ||
-                runtime.schema_version !== contract.schemaVersion ||
-                !/^[0-9a-f]{40}$/.test(runtime.build_commit || "")) {
+            const failures = [];
+            if (runtime && !("build_commit" in runtime)) failures.push("readiness_detail_unauthorized");
+            if (body.version !== process.env.EXPECTED_VERSION) failures.push("version");
+            if (body.environment !== "production") failures.push("environment");
+            if (body.status !== "ready") failures.push("status");
+            if (body.checks?.supabase !== "ok") failures.push("supabase");
+            if (body.checks?.user_governance !== "ok" || body.user_governance?.status !== "ok") failures.push("user_governance");
+            if (body.checks?.assistant !== "ok" || body.assistant?.status !== "ok") failures.push("assistant");
+            if (body.assistant?.schema_version !== 1) failures.push("assistant_schema");
+            if (body.checks?.token_runtime !== "ok" || runtime?.required !== true || runtime?.status !== "ok") failures.push("token_runtime");
+            if (runtime?.channel_auth !== "verified") failures.push("token_channel");
+            if (runtime?.broker_auth !== "configured") failures.push("token_broker");
+            if (runtime?.contract_version !== contract.contractVersion) failures.push("token_contract");
+            if (runtime?.schema_version !== contract.schemaVersion) failures.push("token_schema");
+            if (!/^[0-9a-f]{40}$/.test(runtime?.build_commit || "")) failures.push("token_build");
+            if (failures.length) {
+              console.error("Staged readiness failures:", failures.join(","));
+              console.error("Staged readiness status:", JSON.stringify({
+                status:body.status,
+                checks:body.checks,
+                token_runtime:{
+                  status:runtime?.status || null,
+                  code:runtime?.code || null,
+                  probe_code:runtime?.probe_code || null,
+                  probe_stage:runtime?.probe_stage || null,
+                  channel_auth:runtime?.channel_auth || null,
+                  broker_auth:runtime?.broker_auth || null,
+                  contract_version:runtime?.contract_version || null,
+                  schema_version:runtime?.schema_version || null,
+                  build_commit_valid:/^[0-9a-f]{40}$/.test(runtime?.build_commit || "")
+                },
+                assistant:body.assistant,
+                user_governance:body.user_governance
+              }));
               throw new Error("Staged integrated readiness is unproved; production promotion is blocked.");
             }
             console.log(`Staged channel, broker configuration and runtime contract PASS (runtime=${runtime.build_commit}); capability token acceptance remains a separate production check.`);
@@ -185,6 +214,7 @@ jobs:
           echo "Staged tools navigation and critical routes PASS"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
 
       - name: Authenticated staged person lookup gate
         shell: bash
