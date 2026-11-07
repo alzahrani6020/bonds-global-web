@@ -862,7 +862,8 @@ async function assertPersonLookupSmoke(token) {
     'x.com','twitter.com','tiktok.com','threads.net','snapchat.com'
   ];
 
-  const replyUrls = [...reply.matchAll(/https?:\\/\\/[^\\s)\]}>]+/g)]
+  const urlPattern = new RegExp('https?://[^\\\\s)\\]}>]+', 'g');
+  const replyUrls = [...reply.matchAll(urlPattern)]
     .map(match => match[0].replace(/[.,،؛;:]+$/, ''));
 
   const forbiddenUrl = replyUrls.find(url => {
@@ -887,7 +888,10 @@ async function assertPersonLookupSmoke(token) {
     }
 
     const identityLead = reply.slice(0, sourceMarker).trim();
-    if (!identityLead || /^\\s*(?:\\d+[.)-]|https?:\\/\\/)/u.test(identityLead)) {
+    const firstLeadChar = identityLead.charAt(0);
+    const numberedLead = '0123456789٠١٢٣٤٥٦٧٨٩'.includes(firstLeadChar);
+    const urlLead = identityLead.startsWith('http://') || identityLead.startsWith('https://');
+    if (!identityLead || numberedLead || urlLead) {
       throw new Error(`Person lookup does not lead with a verified identity sentence, request_id=${requestId}`);
     }
 
