@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const { spawnSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
@@ -33,6 +34,47 @@ async function fetchJson(url, options = {}) {
   let body = null;
   try { body = text ? JSON.parse(text) : null; } catch { body = { raw: text }; }
   return { res, body };
+}
+
+function fetchJsonViaVercelCurl(url, options = {}) {
+  const args = ['--no-install', 'vercel', 'curl', url, '-sS', '-w', '\\n%{http_code}'];
+  const method = String(options.method || 'GET').toUpperCase();
+  if (method !== 'GET') args.push('-X', method);
+
+  for (const [name, value] of Object.entries(options.headers || {})) {
+    args.push('-H', `${name}: ${value}`);
+  }
+
+  if (options.body != null) args.push('-d', String(options.body));
+
+  const result = spawnSync('npx', args, {
+    encoding: 'utf8',
+    env: process.env,
+    maxBuffer: 10 * 1024 * 1024
+  });
+
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    throw new Error(
+      `vercel curl failed with exit code ${result.status}: ${String(result.stderr || '').trim() || 'no stderr'}`
+    );
+  }
+
+  const output = String(result.stdout || '');
+  const match = output.match(/\\n(\\d{3})\\s*$/);
+  if (!match) {
+    throw new Error('vercel curl did not return an HTTP status trailer');
+  }
+
+  const status = Number(match[1]);
+  const text = output.slice(0, match.index);
+  let body = null;
+  try { body = text ? JSON.parse(text) : null; } catch { body = { raw: text }; }
+
+  return {
+    res: { ok: status >= 200 && status < 300, status },
+    body
+  };
 }
 
 async function fetchText(url, options = {}) {
@@ -252,7 +294,10 @@ async function assertNativeProductionRuntime(token) {
   for (const probe of probes) {
     const requestId = `e2e-native-${probe.label.toLowerCase()}-${Date.now()}`;
     const startedAt = Date.now();
-    const chat = await fetchJson(`${cfg.baseUrl}/api/v3/ai/chat`, {
+    const request = String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'
+    ? fetchJsonViaVercelCurl
+    : fetchJson;
+  const chat = await request(`${cfg.baseUrl}/api/v3/ai/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -697,12 +742,6 @@ async function runPlannerTelemetryProbe() {
   await waitForMatchingProduction();
   const token = await getAuthenticatedToken();
 
-  if (String(process.env.PERSON_LOOKUP_SMOKE_ONLY || '').toLowerCase() === 'true') {
-    await assertPersonLookupSmoke(token);
-    console.log('Authenticated person lookup smoke test: PASS');
-    return;
-  }
-
   const requestId = `e2e-planner-telemetry-${Date.now()}`;
   const startedAt = Date.now();
 
@@ -816,6 +855,13 @@ async function assertPersonLookupSmoke(token) {
 
 async function main() {
   console.log('Starting authenticated Production smoke verification');
+
+  if (String(process.env.PERSON_LOOKUP_SMOKE_ONLY || '').toLowerCase() === 'true') {
+    const token = await getAuthenticatedToken();
+    await assertPersonLookupSmoke(token);
+    console.log('Authenticated person lookup smoke test: PASS');
+    return;
+  }
   await waitForMatchingProduction();
   await assertHealth();
   const token = await getAuthenticatedToken();
