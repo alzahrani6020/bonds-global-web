@@ -3,6 +3,7 @@
 const {
   deterministicResearchAnswer
 } = require('../../lib/assistant/universal-orchestrator');
+const { buildPersonEntityFrame } = require('../../lib/assistant/person-identity');
 
 describe('person lookup verified-source boundary', () => {
   test('renders only sources that actually supported the verified identity', () => {
