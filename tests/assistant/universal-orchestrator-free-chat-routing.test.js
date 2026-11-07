@@ -96,12 +96,59 @@ describe('universal orchestrator free-chat routing', () => {
           action_fabric:{ side_effect:'network_read' },
           result:{
             query,
-            results:[{
-              title:'Madonna',
-              url:'https://en.wikipedia.org/wiki/Madonna',
-              snippet:'Madonna is an American singer and songwriter.'
-            }]
+            results:[
+              {
+                title:'Madonna',
+                url:'https://en.wikipedia.org/wiki/Madonna',
+                snippet:'Madonna is an American singer and songwriter.'
+              },
+              {
+                title:'Madonna biography',
+                url:'https://www.britannica.com/biography/Madonna-American-singer-and-actress',
+                snippet:'Madonna is an American singer, songwriter, and actress.'
+              }
+            ]
           }
+        }),
+        web_explore: async () => ({
+          ok:true,
+          executed:true,
+          action:'web_explore',
+          action_fabric:{ side_effect:'network_read' },
+          result:{
+            pages:[
+              {
+                url:'https://en.wikipedia.org/wiki/Madonna',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'Madonna', text:'Madonna is an American singer and songwriter.' }
+              },
+              {
+                url:'https://www.britannica.com/biography/Madonna-American-singer-and-actress',
+                evidence:{ content_type:'text/html', headers:{} },
+                extracted:{ format:'html', title:'Madonna biography', text:'Madonna is an American singer, songwriter, and actress.' }
+              }
+            ]
+          }
+        }),
+        evidence_verify: async input => ({
+          ok:true,
+          executed:true,
+          action:'evidence_verify',
+          action_fabric:{ side_effect:'compute' },
+          result:{
+            verification_state:'SUPPORTED',
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        }),
+        research_synthesize: async () => ({
+          ok:true,
+          executed:true,
+          action:'research_synthesize',
+          action_fabric:{ side_effect:'compute' },
+          result:{ verification_state:'SUPPORTED', known:[], unknown:[], contradictions:[] }
         })
       }
     });
@@ -115,8 +162,8 @@ describe('universal orchestrator free-chat routing', () => {
     expect(result.ok).toBe(true);
     expect(result.planner).toBe('universal-v2-deterministic-research');
     expect(reasonerPrompts).toHaveLength(0);
-    expect(result.reply).toMatch(/Madonna|مغن|مغنية|singer/i);
-    expect(result.reply).not.toContain('غير موثق لدي');
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(result.research.decision_eligible).toBe(false);
   });
 
   test('a how-to question searches the web without waiting for the planner', async () => {
@@ -164,7 +211,7 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.reply).toBe('لم أجد صفحة تذكر هذا الاسم.');
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
     expect(result.planner).toBe('universal-v2-deterministic-research');
     expect(reasonerPrompts).toHaveLength(0);
   });
@@ -433,7 +480,7 @@ describe('universal orchestrator free-chat routing', () => {
     );
 
     expect(result.ok).toBe(true);
-    expect(result.reply).toBe('لم أجد صفحة تذكر هذا الاسم.');
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
     expect(result.planner).toBe('universal-v2-deterministic-research');
   });
 
