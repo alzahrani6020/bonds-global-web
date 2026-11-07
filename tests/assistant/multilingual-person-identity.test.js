@@ -49,4 +49,32 @@ describe('multilingual person identity resolver', () => {
     expect(result.verification_state).toBe('VERIFIED');
     expect(result.supporting_sources).toHaveLength(2);
   });
+  test('does not confuse Talal Hassan Alzahrani with Yasser Talal Alzahrani plus unrelated Hassan text', () => {
+    const frame = buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+    expect(frame.canonical_name).toBe('طلال حسن الزهراني');
+
+    const wrong = resolveCandidateIdentity(frame, {
+      url:'https://ar.wikipedia.org/wiki/%D9%8A%D8%A7%D8%B3%D8%B1_%D8%B7%D9%84%D8%A7%D9%84_%D8%A7%D9%84%D8%B2%D9%87%D8%B1%D8%A7%D9%86%D9%8A',
+      title:'ياسر طلال الزهراني',
+      text:'ياسر طلال الزهراني مواطن سعودي. استشهاد التراث الديني في شعر حسن إبراهيم حسن.'
+    }, 0);
+
+    expect(wrong.name_score).toBeLessThan(0.75);
+
+    const result = verifyPersonIdentity(frame, [wrong], { minSupportingSources:2 });
+    expect(result.verification_state).toBe('INSUFFICIENT_EVIDENCE');
+    expect(result.matched).toBe(false);
+  });
+
+  test('still accepts the correct ordered Arabic name when present', () => {
+    const frame = buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+    const correct = resolveCandidateIdentity(frame, {
+      url:'https://example.com/talal-hassan-alzahrani',
+      title:'الدكتور طلال حسن الزهراني',
+      text:'الدكتور طلال حسن الزهراني مستشار مالي وخبير اقتصادي.'
+    }, 0);
+
+    expect(correct.name_score).toBeGreaterThanOrEqual(0.9);
+  });
+
 });
