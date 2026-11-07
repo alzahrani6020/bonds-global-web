@@ -13,6 +13,7 @@ const {
   isFastPublicFact,
   isActualAccountingStatementRequest,
   actualAccountingRange,
+  researchSources,
   runUniversalOrchestrator
 } = require('../../lib/assistant/universal-orchestrator');
 
@@ -1135,6 +1136,58 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.reply).toContain('المصادر:');
     expect(result.reply).toContain('https://source-one.example/profile');
     expect(result.reply).not.toMatch(/^1\. طلال حسن الزهراني —/);
+  });
+
+
+  test('person research sources exclude raw social discovery results and expose only verified identity sources', () => {
+    const result = {
+      person_entity_frame:{
+        entity_type:'person',
+        canonical_name:'طلال حسن الزهراني'
+      },
+      search:{
+        result:{
+          results:[
+            {
+              title:'طلال حسن الزهراني',
+              url:'https://www.linkedin.com/in/example-person',
+              snippet:'طلال حسن الزهراني مستشار مالي.'
+            },
+            {
+              title:'استضافة الدكتور طلال حسن الزهراني',
+              url:'https://publisher.example/news/visit-2024',
+              snippet:'استضاف المكتب الدكتور طلال حسن الزهراني في زيارة.'
+            }
+          ]
+        }
+      },
+      verification:{
+        result:{
+          sources:[
+            {
+              id:'verified-1',
+              title:'الملف التعريفي للدكتور طلال حسن الزهراني',
+              publisher:'profile.example',
+              url:'https://profile.example/about/talal',
+              text:'الدكتور طلال حسن الزهراني خبير اقتصادي ومستشار مالي.'
+            }
+          ]
+        }
+      },
+      evidence:[
+        {
+          source:'profile.example',
+          source_url:'https://profile.example/about/talal',
+          value:'الدكتور طلال حسن الزهراني خبير اقتصادي ومستشار مالي.'
+        }
+      ]
+    };
+
+    const sources = researchSources(result);
+    expect(sources).toHaveLength(1);
+    expect(sources[0].url).toBe('https://profile.example/about/talal');
+    expect(sources.some(row => row.url.includes('linkedin.com'))).toBe(false);
+    expect(sources.some(row => row.url.includes('/visit-2024'))).toBe(false);
   });
 
 });
