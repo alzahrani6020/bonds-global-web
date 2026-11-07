@@ -221,6 +221,7 @@ jobs:
         run: |
           set -euo pipefail
           PERSON_LOOKUP_SMOKE_ONLY=true \
+          PERSON_LOOKUP_USE_VERCEL_CURL=true \
           PRODUCTION_URL="${{ steps.deploy.outputs.url }}" \
           GITHUB_SHA="${{ steps.release.outputs.sha }}" \
           npm run test:production-smoke
@@ -230,6 +231,7 @@ jobs:
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
           E2E_ADMIN_TOTP_SECRET: ${{ secrets.E2E_ADMIN_TOTP_SECRET }}
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
       - name: Verify release candidate is current main
         if: github.event_name == 'workflow_run' || inputs.promote
