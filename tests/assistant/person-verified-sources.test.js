@@ -3,6 +3,7 @@
 const {
   deterministicResearchAnswer
 } = require('../../lib/assistant/universal-orchestrator');
+const { buildPersonEntityFrame } = require('../../lib/assistant/person-identity');
 
 describe('person lookup verified-source boundary', () => {
   test('renders only sources that actually supported the verified identity', () => {
@@ -46,7 +47,7 @@ describe('person lookup verified-source boundary', () => {
     const answer = deterministicResearchAnswer(
       'من هو حسني مبارك؟',
       result,
-      { intent:'person_lookup' }
+      { intent:'person_lookup', entity:{ person_entity_frame:buildPersonEntityFrame('حسني مبارك') } }
     );
 
     expect(answer).toContain('Hosni Mubarak');
@@ -85,7 +86,46 @@ describe('person lookup verified-source boundary', () => {
     expect(deterministicResearchAnswer(
       'من هو حسني مبارك؟',
       result,
-      { intent:'person_lookup' }
+      { intent:'person_lookup', entity:{ person_entity_frame:buildPersonEntityFrame('حسني مبارك') } }
     )).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
   });
+  test('rejects unrelated verified-source rows and raw MediaWiki markup at final answer boundary', () => {
+    const plan = {
+      intent:'person_lookup',
+      entity:{
+        person_entity_frame: buildPersonEntityFrame('الدكتور طلال حسن الزهراني')
+      }
+    };
+
+    const result = {
+      verified_identity:{
+        verification_state:'VERIFIED',
+        supporting_sources:[
+          'https://ar.wikipedia.org/wiki/محمد_ولد_الغزواني',
+          'https://example.org/other'
+        ]
+      },
+      verification:{
+        sources:[
+          {
+            title:'محمد ولد الغزواني - ويكيبيديا',
+            url:'https://ar.wikipedia.org/wiki/محمد_ولد_الغزواني',
+            text:'محمد ولد الغزواني - ويكيبيديا {{\"wt\":\"الحاكم\"}} <br> [[2019]]'
+          },
+          {
+            title:'مصدر آخر',
+            url:'https://example.org/other',
+            text:'محمد ولد الغزواني سياسي موريتاني.'
+          }
+        ]
+      }
+    };
+
+    expect(deterministicResearchAnswer(
+      'من هو الدكتور طلال حسن الزهراني؟',
+      result,
+      plan
+    )).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+  });
+
 });
