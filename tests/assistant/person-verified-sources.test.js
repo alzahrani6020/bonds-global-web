@@ -88,4 +88,43 @@ describe('person lookup verified-source boundary', () => {
       { intent:'person_lookup' }
     )).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
   });
+  test('rejects unrelated verified-source rows and raw MediaWiki markup at final answer boundary', () => {
+    const plan = {
+      intent:'person_lookup',
+      entity:{
+        person_entity_frame: require('../../lib/assistant/person-identity').buildPersonEntityFrame('الدكتور طلال حسن الزهراني')
+      }
+    };
+
+    const result = {
+      verified_identity:{
+        verification_state:'VERIFIED',
+        supporting_sources:[
+          'https://ar.wikipedia.org/wiki/محمد_ولد_الغزواني',
+          'https://example.org/other'
+        ]
+      },
+      verification:{
+        sources:[
+          {
+            title:'محمد ولد الغزواني - ويكيبيديا',
+            url:'https://ar.wikipedia.org/wiki/محمد_ولد_الغزواني',
+            text:'محمد ولد الغزواني - ويكيبيديا {{\"wt\":\"الحاكم\"}} <br> [[2019]]'
+          },
+          {
+            title:'مصدر آخر',
+            url:'https://example.org/other',
+            text:'محمد ولد الغزواني سياسي موريتاني.'
+          }
+        ]
+      }
+    };
+
+    expect(deterministicResearchAnswer(
+      'من هو الدكتور طلال حسن الزهراني؟',
+      result,
+      plan
+    )).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+  });
+
 });
