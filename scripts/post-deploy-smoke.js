@@ -862,7 +862,8 @@ async function assertPersonLookupSmoke(token) {
     'x.com','twitter.com','tiktok.com','threads.net','snapchat.com'
   ];
 
-  const replyUrls = [...reply.matchAll(/https?:\\/\\/[^\\s)\]}>]+/g)]
+  const urlPattern = new RegExp('https?://[^\\\\s)\\]}>]+', 'g');
+  const replyUrls = [...reply.matchAll(urlPattern)]
     .map(match => match[0].replace(/[.,،؛;:]+$/, ''));
 
   const forbiddenUrl = replyUrls.find(url => {
