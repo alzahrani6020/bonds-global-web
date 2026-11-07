@@ -522,15 +522,6 @@ describe('BONDS planner-first universal orchestrator', () => {
           }
         };
       }
-      if (action === 'evidence_verify') {
-        return {
-          ok:true,
-          executed:true,
-          action,
-          action_fabric:{ side_effect:'compute' },
-          result:{ verification_state:'SUPPORTED', supported_claims:[], contradictions:[] }
-        };
-      }
       if (action === 'web_explore') {
         return {
           ok:true,
