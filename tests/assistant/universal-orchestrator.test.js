@@ -1067,4 +1067,74 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(explicitMutationConfirmation([{ role:'user', content:'نفذ الآن' }], 'accounting_journal_post')).toBe(true);
     expect(explicitMutationConfirmation([{ role:'user', content:'جهزه فقط' }], 'accounting_journal_post')).toBe(false);
   });
+
+  test('uses synthesized person research answer instead of raw source listing', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            query:input.query,
+            results:[
+              { title:'طلال حسن الزهراني', url:'https://source-one.example/profile', snippet:'طلال حسن الزهراني مستشار مالي.' },
+              { title:'طلال حسن الزهراني', url:'https://source-two.example/bio', snippet:'طلال حسن الزهراني خبير اقتصادي.' }
+            ]
+          }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            pages:[
+              { url:'https://source-one.example/profile', evidence:{ content_type:'text/html', headers:{} }, extracted:{ format:'html', title:'طلال حسن الزهراني', text:'طلال حسن الزهراني مستشار مالي.' } },
+              { url:'https://source-two.example/bio', evidence:{ content_type:'text/html', headers:{} }, extracted:{ format:'html', title:'طلال حسن الزهراني', text:'طلال حسن الزهراني خبير اقتصادي.' } }
+            ]
+          }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            verification_state:'SUPPORTED',
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            verification_state:'SUPPORTED',
+            answer:'الدكتور طلال حسن الزهراني خبير اقتصادي ومستشار مالي وفق المصادر المتحققة.',
+            known:[],
+            unknown:[],
+            contradictions:[]
+          }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'من هو الدكتور طلال حسن الزهراني؟' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.reply).toContain('خبير اقتصادي ومستشار مالي');
+    expect(result.reply).toContain('المصادر:');
+    expect(result.reply).toContain('https://source-one.example/profile');
+    expect(result.reply).not.toMatch(/^1\. طلال حسن الزهراني —/);
+  });
+
 });
