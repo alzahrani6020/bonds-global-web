@@ -599,7 +599,7 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(searchInput.query).toBe('طلال حسن الزهراني');
     expect(searchInput.requiredTermMinMatches).toBe(2);
     expect(searchInput.matchAllTerms).toBe(true);
-    expect(searchInput.disabledProviders).toBeUndefined();
+    expect(searchInput.disabledProviders).toEqual([]);
   });
 
   test('shows search excerpts for a news question and drops weak pages', async () => {
