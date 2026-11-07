@@ -128,4 +128,33 @@ describe('person lookup verified-source boundary', () => {
     )).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
   });
 
+  test('fails closed instead of falling back to another person when search only partially matches the requested name', () => {
+    const plan = {
+      intent:'person_lookup',
+      entity:{
+        person_entity_frame: buildPersonEntityFrame('الدكتور طلال حسن الزهراني')
+      }
+    };
+    const result = {
+      decisionEligible:false,
+      verification:{
+        result:{ verification_state:'INSUFFICIENT_EVIDENCE', independent_publisher_count:1 },
+        sources:[
+          {
+            title:'الوليد بن طلال بن عبد العزيز آل سعود - ويكيبيديا',
+            url:'https://ar.wikipedia.org/wiki/الوليد_بن_طلال_بن_عبد_العزيز_آل_سعود',
+            text:'الوليد بن طلال رجل أعمال سعودي.'
+          }
+        ]
+      },
+      verified_identity:{ supporting_sources:[] }
+    };
+
+    expect(deterministicResearchAnswer(
+      'من هو الدكتور طلال حسن الزهراني؟',
+      result,
+      plan
+    )).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+  });
+
 });
