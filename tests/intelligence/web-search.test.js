@@ -1,6 +1,7 @@
 const {
   parseDuckDuckGoHtml,
   parseBraveHtml,
+  parseBraveApiResponse,
   decodeBingRedirectUrl,
   parseBingHtml,
   parseBingRss
@@ -149,6 +150,28 @@ describe('BONDS governed web search', () => {
         title: 'Amr Moussa - Example',
         url: 'https://example.org/amr-moussa',
         snippet: 'Public biography result.'
+      })
+    ]);
+  });
+
+  test('parses Brave Search API web results', () => {
+    const results = parseBraveApiResponse({
+      web:{
+        results:[
+          {
+            title:'الدكتور طلال حسن الزهراني',
+            url:'https://example.com/dr-talal',
+            description:'تعريف موثق من مصدر مستقل.'
+          }
+        ]
+      }
+    }, 5);
+
+    expect(results).toEqual([
+      expect.objectContaining({
+        title:'الدكتور طلال حسن الزهراني',
+        url:'https://example.com/dr-talal',
+        snippet:'تعريف موثق من مصدر مستقل.'
       })
     ]);
   });

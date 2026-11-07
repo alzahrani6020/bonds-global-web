@@ -642,4 +642,43 @@ describe('BONDS query-led research workflow', () => {
     }));
   });
 
+  test('passes strict person term threshold to web_search', async () => {
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        expect(input.requiredTerms.length).toBeGreaterThanOrEqual(2);
+        expect(input.requiredTermMinMatches).toBe(2);
+        return {
+          ok:false,
+          executed:true,
+          error:{ code:'SEARCH_NO_RESULTS', attempts:[{code:'SEARCH_NO_RESULTS',status_code:200}] }
+        };
+      }
+      throw new Error('unexpected action: ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'من هو الدكتور طلال حسن الزهراني؟',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        topic:'الدكتور طلال حسن الزهراني',
+        intent:'person_lookup',
+        personEntityFrame:{
+          raw_mention:'الدكتور طلال حسن الزهراني',
+          canonical_name:'طلال حسن الزهراني',
+          confidence:1
+        },
+        minIndependentPublishers:2,
+        maxDepth:0
+      }
+    }, {}, { executeCapability });
+
+    expect(result.decisionEligible).toBe(false);
+    expect(executeCapability).toHaveBeenCalledWith(
+      'web_search',
+      expect.objectContaining({ requiredTermMinMatches:2 }),
+      expect.any(Object)
+    );
+  });
+
 });
