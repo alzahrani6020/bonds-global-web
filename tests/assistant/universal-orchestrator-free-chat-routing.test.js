@@ -162,8 +162,8 @@ describe('universal orchestrator free-chat routing', () => {
     expect(result.ok).toBe(true);
     expect(result.planner).toBe('universal-v2-deterministic-research');
     expect(reasonerPrompts).toHaveLength(0);
-    expect(result.reply).toMatch(/Madonna|مغن|مغنية|singer/i);
-    expect(result.reply).not.toContain('غير موثق لدي');
+    expect(result.reply).toBe('لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.');
+    expect(result.research.decision_eligible).toBe(false);
   });
 
   test('a how-to question searches the web without waiting for the planner', async () => {
