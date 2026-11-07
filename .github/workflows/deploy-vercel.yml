@@ -216,6 +216,21 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
 
+      - name: Authenticated staged person lookup gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          PERSON_LOOKUP_SMOKE_ONLY=true \
+          PRODUCTION_URL="${{ steps.deploy.outputs.url }}" \
+          GITHUB_SHA="${{ steps.release.outputs.sha }}" \
+          npm run test:production-smoke
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          E2E_ADMIN_TOTP_SECRET: ${{ secrets.E2E_ADMIN_TOTP_SECRET }}
+
       - name: Verify release candidate is current main
         if: github.event_name == 'workflow_run' || inputs.promote
         shell: bash
