@@ -211,4 +211,13 @@ describe('BONDS language and query resolver', () => {
     ]));
   });
 
+  test('handles numbered Arabic person lookup exactly as entered in chat', () => {
+    const result = resolveLanguageQuery('1. من هو الدكتور طلال حسن الزهراني؟');
+    expect(result.intent).toBe('person_lookup');
+    expect(result.requires_research).toBe(true);
+    expect(result.entity.type).toBe('person');
+    expect(result.entity.text).toBe('طلال حسن الزهراني');
+    expect(result.selected_query).toContain('طلال حسن الزهراني');
+  });
+
 });
