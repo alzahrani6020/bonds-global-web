@@ -11,5 +11,8 @@ describe('post-deploy staged Vercel curl contract', () => {
     expect(source).toContain("'--deployment', deployment");
     expect(source).toContain("Authorization: \`Bearer ${token}\`");
     expect(source).not.toContain("['--no-install', 'vercel', 'curl', url,");
+    expect(source).toContain("async function assertPersonLookupSmoke(token)");
+    expect(source).toContain("const request = String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'");
+    expect(source).toContain("const chat = await request(\`${cfg.baseUrl}/api/v3/ai/chat\`, {");
   });
 });

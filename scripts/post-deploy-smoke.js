@@ -812,7 +812,10 @@ async function runPlannerTelemetryProbe() {
 
 async function assertPersonLookupSmoke(token) {
   const requestId = `e2e-person-lookup-${Date.now()}`;
-  const chat = await fetchJson(`${cfg.baseUrl}/api/v3/ai/chat`, {
+  const request = String(process.env.PERSON_LOOKUP_USE_VERCEL_CURL || '').toLowerCase() === 'true'
+    ? fetchJsonViaVercelCurl
+    : fetchJson;
+  const chat = await request(`${cfg.baseUrl}/api/v3/ai/chat`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${token}`,
