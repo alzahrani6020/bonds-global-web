@@ -14,6 +14,7 @@ const {
   isActualAccountingStatementRequest,
   actualAccountingRange,
   researchSources,
+  trustedFirstPartyDiscoveryUrls,
   runUniversalOrchestrator
 } = require('../../lib/assistant/universal-orchestrator');
 
@@ -26,6 +27,26 @@ const { executeGovernedAction } = require('../../lib/services/service-execution-
 describe('BONDS planner-first universal orchestrator', () => {
   beforeEach(() => {
     executeGovernedAction.mockReset();
+  });
+
+  test('prefers stable production first-party discovery before staged runtime', () => {
+    const previousProduction = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    const previousRuntime = process.env.VERCEL_URL;
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = 'bonds-global-web.vercel.app';
+    process.env.VERCEL_URL = 'bonds-global-protected-stage-dr-talal.vercel.app';
+    try {
+      expect(trustedFirstPartyDiscoveryUrls()).toEqual([
+        'https://bonds-global-web.vercel.app/about',
+        'https://bonds-global-web.vercel.app/en/about',
+        'https://bonds-global-protected-stage-dr-talal.vercel.app/about',
+        'https://bonds-global-protected-stage-dr-talal.vercel.app/en/about'
+      ]);
+    } finally {
+      if (previousProduction == null) delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+      else process.env.VERCEL_PROJECT_PRODUCTION_URL = previousProduction;
+      if (previousRuntime == null) delete process.env.VERCEL_URL;
+      else process.env.VERCEL_URL = previousRuntime;
+    }
   });
 
   test('detects actual accounting statements and resolves an Arabic month range', () => {
