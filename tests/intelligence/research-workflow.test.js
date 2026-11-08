@@ -725,4 +725,79 @@ describe('BONDS query-led research workflow', () => {
     expect(actions).toEqual(['web_search','web_explore']);
   });
 
+  test('fails closed when evidence is about another person sharing only part of the requested name', async () => {
+    const personEntityFrame = require('../../lib/assistant/person-identity')
+      .buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+
+    const executeCapability = jest.fn(async (action) => {
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{results:[
+            {
+              title:'محمد عبيشة الزهراني',
+              snippet:'محمد عبيشة الزهراني شاعر وباحث، وورد اسم طلال في موضع آخر واسم حسن في تعليق.',
+              url:'https://a.example/mohammed-alzahrani'
+            },
+            {
+              title:'محمد عبيشة الزهراني - سيرة',
+              snippet:'سيرة محمد عبيشة الزهراني. تشير الصفحة منفصلا إلى طلال وإلى حسن.',
+              url:'https://b.example/mohammed-alzahrani'
+            }
+          ]}
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          result:{pages:[
+            {
+              url:'https://a.example/mohammed-alzahrani',
+              evidence:{content_type:'text/html',headers:{}},
+              extracted:{
+                format:'html',
+                title:'محمد عبيشة الزهراني',
+                text:'محمد عبيشة الزهراني شاعر وباحث. ورد اسم طلال في موضع آخر واسم حسن في تعليق منفصل.'
+              }
+            },
+            {
+              url:'https://b.example/mohammed-alzahrani',
+              evidence:{content_type:'text/html',headers:{}},
+              extracted:{
+                format:'html',
+                title:'محمد عبيشة الزهراني - سيرة',
+                text:'سيرة محمد عبيشة الزهراني. تشير الصفحة منفصلا إلى طلال وإلى حسن.'
+              }
+            }
+          ]}
+        };
+      }
+      if (action === 'evidence_verify' || action === 'research_synthesize') {
+        throw new Error('WRONG_PERSON_MUST_FAIL_CLOSED_BEFORE_' + action);
+      }
+      throw new Error('unexpected action: ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'من هو الدكتور طلال حسن الزهراني؟',
+      query:'طلال حسن الزهراني',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        topic:'طلال حسن الزهراني',
+        intent:'person_lookup',
+        personEntityFrame,
+        minIndependentPublishers:2,
+        maxDepth:0
+      }
+    }, {}, { executeCapability });
+
+    expect(result.status).toBe('identity_unverified');
+    expect(result.decisionEligible).toBe(false);
+    expect(result.evidence).toEqual([]);
+    expect(result.verified_identity.verification_state).toBe('INSUFFICIENT_EVIDENCE');
+  });
+
 });
