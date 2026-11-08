@@ -2,17 +2,20 @@ const fs = require('fs');
 const path = require('path');
 
 describe('Production Authenticated Smoke workflow', () => {
-  test('supports person-only production verification on protected main pushes without redeploy', () => {
+  test('runs person identity verification only after the deployed Production Release smoke', () => {
     const source = fs.readFileSync(
       path.join(__dirname, '../../.github/workflows/post-deploy-smoke.yml'),
       'utf8'
     );
 
-    expect(source).toContain("push:");
-    expect(source).toContain("branches: [main]");
-    expect(source).toContain("- 'scripts/post-deploy-smoke.js'");
-    expect(source).toContain("github.event_name == 'push'");
-    expect(source).toContain("PERSON_LOOKUP_SMOKE_ONLY: ${{ github.event_name == 'push' && 'true' || '' }}");
-    expect(source).toContain("needs.smoke.result == 'success' && github.event_name != 'push'");
+    expect(source).toContain("workflow_run:");
+    expect(source).toContain("workflows:");
+    expect(source).toContain("- 'Production Release'");
+    expect(source).toContain("PERSON_LOOKUP_SMOKE_ONLY: ''");
+    expect(source).toContain("person-identity-smoke:");
+    expect(source).toContain("needs: smoke");
+    expect(source).toContain("PERSON_LOOKUP_SMOKE_ONLY: 'true'");
+    expect(source).toContain("github.event_name != 'push'");
+    expect(source).toContain("needs: [smoke, person-identity-smoke]");
   });
 });
