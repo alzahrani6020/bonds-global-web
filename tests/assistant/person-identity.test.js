@@ -9,6 +9,7 @@ const {
   buildPersonEntityFrame,
   isPersonIdentitySocialSource,
   isPersonIdentitySourceEligible,
+  isAuthoritativePersonPrimarySource,
   resolveCandidateIdentity,
   verifyPersonIdentity
 } = require('../../lib/assistant/person-identity');
@@ -163,6 +164,53 @@ describe('Governed person identity pipeline', () => {
     expect(isPersonIdentitySourceEligible(frame, linkedIn)).toBe(false);
     expect(isPersonIdentitySourceEligible(frame, eventPost)).toBe(false);
     expect(isPersonIdentitySourceEligible(frame, profile)).toBe(true);
+  });
+
+  test('accepts canonical affiliation on the exact trusted Vercel runtime host only', () => {
+    const previous = process.env.VERCEL_URL;
+    process.env.VERCEL_URL = 'bonds-global-staged-dr-talal.vercel.app';
+    try {
+      const frame = buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+      const source = {
+        url:'https://bonds-global-staged-dr-talal.vercel.app/dr-talal-alzahrani',
+        title:'الدكتور طلال حسن الزهراني | مستشار مالي | بوندز',
+        text:'نبذة الدكتور طلال حسن الزهراني خبير اقتصادي ومستشار مالي.',
+        extracted:{
+          title:'الدكتور طلال حسن الزهراني | مستشار مالي | بوندز',
+          text:'نبذة الدكتور طلال حسن الزهراني خبير اقتصادي ومستشار مالي.',
+          profile_page:{
+            profile_page:true,
+            profile_page_url:'https://bonds-global.com/dr-talal-alzahrani',
+            person_name:'الدكتور طلال حسن الزهراني',
+            person_alternate_names:['Dr. Talal Hassan Alzahrani'],
+            works_for_name:'بوندز للاستشارات المالية',
+            works_for_url:'https://bonds-global.com'
+          }
+        }
+      };
+      expect(isAuthoritativePersonPrimarySource(frame, source)).toBe(true);
+
+      const untrustedTransport = {
+        ...source,
+        url:'https://attacker.vercel.app/dr-talal-alzahrani'
+      };
+      expect(isAuthoritativePersonPrimarySource(frame, untrustedTransport)).toBe(false);
+
+      const wrongCanonicalPath = {
+        ...source,
+        extracted:{
+          ...source.extracted,
+          profile_page:{
+            ...source.extracted.profile_page,
+            profile_page_url:'https://bonds-global.com/another-person'
+          }
+        }
+      };
+      expect(isAuthoritativePersonPrimarySource(frame, wrongCanonicalPath)).toBe(false);
+    } finally {
+      if (previous == null) delete process.env.VERCEL_URL;
+      else process.env.VERCEL_URL = previous;
+    }
   });
 
   test('does not verify another person that only shares scattered name tokens', () => {
