@@ -51,7 +51,49 @@ jobs:
         run: npm run test:production-smoke
         env:
           PRODUCTION_URL: https://bonds-global.com
-          PERSON_LOOKUP_SMOKE_ONLY: ${{ github.event_name == 'push' && 'true' || '' }}
+          PERSON_LOOKUP_SMOKE_ONLY: ''
+          GITHUB_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          VERCEL_PROJECT_ID: prj_djffUO1KXbGKtumZBWsziWxqJ6Qk
+          VERCEL_TEAM_ID: team_ENxUZq5el15Zn8pi4ahZMXpz
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          E2E_ADMIN_TOTP_SECRET: ${{ secrets.E2E_ADMIN_TOTP_SECRET }}
+
+  person-identity-smoke:
+    needs: smoke
+    if: needs.smoke.result == 'success' && github.event_name != 'push'
+    runs-on: ubuntu-24.04
+    environment: production
+    timeout-minutes: 10
+
+    steps:
+      - name: Cool down shared Assistant rate-limit window
+        run: sleep 65
+
+      - name: Checkout deployed release
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
+          persist-credentials: false
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts --no-audit
+
+      - name: Verify Production person identity contract
+        run: npm run test:production-smoke
+        env:
+          PRODUCTION_URL: https://bonds-global.com
+          PERSON_LOOKUP_SMOKE_ONLY: 'true'
           GITHUB_SHA: ${{ github.event_name == 'workflow_run' && github.event.workflow_run.head_sha || github.sha }}
           VERCEL_PROJECT_ID: prj_djffUO1KXbGKtumZBWsziWxqJ6Qk
           VERCEL_TEAM_ID: team_ENxUZq5el15Zn8pi4ahZMXpz
@@ -63,7 +105,7 @@ jobs:
           E2E_ADMIN_TOTP_SECRET: ${{ secrets.E2E_ADMIN_TOTP_SECRET }}
 
   planner-telemetry:
-    needs: smoke
+    needs: [smoke, person-identity-smoke]
     if: needs.smoke.result == 'success' && github.event_name != 'push'
     runs-on: ubuntu-24.04
     environment: production
