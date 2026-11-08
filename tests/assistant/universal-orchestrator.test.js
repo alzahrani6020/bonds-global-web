@@ -601,7 +601,7 @@ describe('BONDS planner-first universal orchestrator', () => {
     const searchInput = executeGovernedAction.mock.calls.find(call => call[0].action === 'web_search')[0].input;
     expect(searchInput.query).toBe('طلال حسن الزهراني');
     expect(searchInput.requiredTermMinMatches).toBe(2);
-    expect(searchInput.matchAllTerms).toBe(true);
+    expect(searchInput.matchAllTerms).toBe(false);
     expect(searchInput.disabledProviders).toEqual([]);
   });
 
