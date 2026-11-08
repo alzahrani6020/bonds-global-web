@@ -414,19 +414,8 @@ describe('Person identity integration in research workflow', () => {
             pages:[{
               url:'https://official.example/profile/khalid',
               evidence:{ content_type:'text/html', headers:{} },
-              extracted:{
-                format:'html',
-                title:'خالد محمد العتيبي',
-                text:'Profile خالد محمد العتيبي. خالد محمد العتيبي خبير اقتصادي.',
-                profile_page:{
-                  profile_page:true,
-                  profile_page_url:'https://official.example/profile/khalid',
-                  person_name:'خالد محمد العتيبي',
-                  person_alternate_names:[],
-                  works_for_name:'Official Example',
-                  works_for_url:'https://official.example'
-                }
-              }
+              body:"<html><head><title>خالد محمد العتيبي</title><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"ProfilePage\",\"url\":\"https://official.example/profile/khalid\",\"mainEntity\":{\"@type\":\"Person\",\"name\":\"خالد محمد العتيبي\",\"worksFor\":{\"@type\":\"Organization\",\"name\":\"Official Example\",\"url\":\"https://official.example\"}}}</script></head><body><main>Profile خالد محمد العتيبي خبير اقتصادي.</main></body></html>",
+              text:"<html><head><title>خالد محمد العتيبي</title><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"ProfilePage\",\"url\":\"https://official.example/profile/khalid\",\"mainEntity\":{\"@type\":\"Person\",\"name\":\"خالد محمد العتيبي\",\"worksFor\":{\"@type\":\"Organization\",\"name\":\"Official Example\",\"url\":\"https://official.example\"}}}</script></head><body><main>Profile خالد محمد العتيبي خبير اقتصادي.</main></body></html>"
             }],
             failures:[],
             blocked:[]
