@@ -735,7 +735,7 @@ async function assistantRouter(req, res, path, user) {
         supabase:getSupabaseClient(),
         userId:user.id,
         workflowKey:body.workflow_key
-      }).catch(() => null);
+      });
       const clientState = body.state && typeof body.state === 'object' && !Array.isArray(body.state)
         ? body.state
         : {};
