@@ -166,9 +166,11 @@ describe('Governed person identity pipeline', () => {
     expect(isPersonIdentitySourceEligible(frame, profile)).toBe(true);
   });
 
-  test('accepts canonical affiliation on the exact trusted Vercel runtime host only', () => {
-    const previous = process.env.VERCEL_URL;
+  test('accepts canonical affiliation only on exact trusted Vercel runtime hosts', () => {
+    const previousRuntime = process.env.VERCEL_URL;
+    const previousProduction = process.env.VERCEL_PROJECT_PRODUCTION_URL;
     process.env.VERCEL_URL = 'bonds-global-staged-dr-talal.vercel.app';
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = 'bonds-global-web.vercel.app';
     try {
       const frame = buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
       const source = {
@@ -190,6 +192,12 @@ describe('Governed person identity pipeline', () => {
       };
       expect(isAuthoritativePersonPrimarySource(frame, source)).toBe(true);
 
+      const productionTransport = {
+        ...source,
+        url:'https://bonds-global-web.vercel.app/dr-talal-alzahrani.html'
+      };
+      expect(isAuthoritativePersonPrimarySource(frame, productionTransport)).toBe(true);
+
       const untrustedTransport = {
         ...source,
         url:'https://attacker.vercel.app/dr-talal-alzahrani'
@@ -208,8 +216,10 @@ describe('Governed person identity pipeline', () => {
       };
       expect(isAuthoritativePersonPrimarySource(frame, wrongCanonicalPath)).toBe(false);
     } finally {
-      if (previous == null) delete process.env.VERCEL_URL;
-      else process.env.VERCEL_URL = previous;
+      if (previousRuntime == null) delete process.env.VERCEL_URL;
+      else process.env.VERCEL_URL = previousRuntime;
+      if (previousProduction == null) delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+      else process.env.VERCEL_PROJECT_PRODUCTION_URL = previousProduction;
     }
   });
 
