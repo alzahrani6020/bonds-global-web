@@ -42,6 +42,7 @@ const { executeParallelServices } = require('../../lib/services/parallel-tool-ex
 const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
 const { verifySensitiveAction } = require('../../lib/assistant/sensitive-action-verifier');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
+const { grantGoalWorkflowMandate } = require('../../lib/assistant/goal-workflow');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 
 function sendJson(res, status, body) {
@@ -524,6 +525,43 @@ async function assistantRouter(req, res, path, user) {
 
     try {
       const confirmation = resolveConfirmation(body.action, body.confirmation, body.decision);
+      let workflow = null;
+      const binding = body.workflow_binding && typeof body.workflow_binding === 'object'
+        ? body.workflow_binding
+        : null;
+
+      if (confirmation.status === 'confirmed' && binding) {
+        const current = await loadWorkflowState({
+          supabase:getSupabaseClient(),
+          userId:user.id,
+          workflowKey:binding.workflow_key
+        });
+        if (!current) throw new Error('WORKFLOW_NOT_FOUND');
+        if (current.boundary !== String(binding.boundary || '')) {
+          throw new Error('WORKFLOW_BOUNDARY_CONFLICT');
+        }
+        if (!Number.isInteger(binding.expected_version) || current.version !== binding.expected_version) {
+          throw new Error('WORKFLOW_VERSION_CONFLICT');
+        }
+
+        const capability = String(body.action?.capability || body.action?.type || '').trim();
+        const goalWorkflow = grantGoalWorkflowMandate(current.state?.goal_workflow, {
+          edgeId:binding.edge_id,
+          capability,
+          actionFingerprint:confirmation.action_fingerprint
+        });
+
+        workflow = await saveWorkflowState({
+          supabase:getSupabaseClient(),
+          userId:user.id,
+          workflowKey:current.workflow_key,
+          boundary:current.boundary,
+          state:{ ...current.state, goal_workflow:goalWorkflow },
+          status:current.status,
+          expectedVersion:current.version
+        });
+      }
+
       await appendAssistantAuditBestEffort({
         supabase:getSupabaseClient(),
         userId:user.id,
@@ -531,13 +569,19 @@ async function assistantRouter(req, res, path, user) {
         eventType:'confirmation_resolved',
         outcome:confirmation.status,
         sessionId:body.session_id,
-        boundary:body.boundary,
-        metadata:{ decision:body.decision, confirmation_status:confirmation.status }
+        boundary:body.boundary || binding?.boundary,
+        metadata:{
+          decision:body.decision,
+          confirmation_status:confirmation.status,
+          workflow_edge_id:binding?.edge_id || null
+        }
       });
       return sendJson(res, 200, {
         protocol:PROTOCOL,
         status:confirmation.status === 'confirmed' ? 'completed' : 'denied',
-        confirmation
+        confirmation,
+        workflow,
+        resume_required:Boolean(workflow)
       });
     } catch (err) {
       return sendJson(res, 409, {
@@ -687,12 +731,25 @@ async function assistantRouter(req, res, path, user) {
         throw new Error('SENSITIVE_STATE_DIRECT_WRITE_FORBIDDEN');
       }
 
+      const current = await loadWorkflowState({
+        supabase:getSupabaseClient(),
+        userId:user.id,
+        workflowKey:body.workflow_key
+      });
+      const clientState = body.state && typeof body.state === 'object' && !Array.isArray(body.state)
+        ? body.state
+        : {};
+      const state = {
+        ...clientState,
+        goal_workflow:current?.state?.goal_workflow || null
+      };
+
       const workflow = await saveWorkflowState({
         supabase:getSupabaseClient(),
         userId:user.id,
         workflowKey:body.workflow_key,
         boundary:body.boundary,
-        state:body.state,
+        state,
         status:body.status,
         expectedVersion:body.expected_version
       });

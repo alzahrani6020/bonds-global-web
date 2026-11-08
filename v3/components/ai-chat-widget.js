@@ -3582,7 +3582,12 @@
         ? ASSISTANT_CONFIRMATION_RESOLVE_URL
         : ASSISTANT_CONFIRMATION_PREPARE_URL;
       const body = confirmation
-        ? { action, confirmation, decision }
+        ? {
+            action,
+            confirmation,
+            decision,
+            ...(action?.workflow_binding ? { workflow_binding:action.workflow_binding } : {})
+          }
         : { action, language: languageCode() };
 
       const res = await fetch(url, {
