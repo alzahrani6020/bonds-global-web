@@ -30,6 +30,7 @@ describe('post-deploy staged Vercel curl contract', () => {
     expect(source).toContain("reply.indexOf('المصادر:')");
     expect(source).toContain("publisherGroups.size < 2");
     expect(source).toContain("officialPrimaryOnly");
+    expect(source).toContain("Person lookup production identity gate returned insufficient evidence");
     expect(source).toContain("replyUrls.length !== 1");
     expect(source).toContain("semantic_contract=");
   });

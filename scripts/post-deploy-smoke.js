@@ -892,6 +892,12 @@ async function assertPersonLookupSmoke(token) {
 
   const officialPrimaryOnly = reply.startsWith('التعريف التالي مستند إلى المصدر الرسمي فقط.');
 
+  if (insufficientEvidence) {
+    throw new Error(
+      `Person lookup production identity gate returned insufficient evidence, request_id=${requestId}`
+    );
+  }
+
   if (!insufficientEvidence) {
     const sourceMarker = reply.indexOf('المصادر:');
     if (sourceMarker < 0) {
