@@ -848,6 +848,19 @@ async function assertPersonLookupSmoke(token) {
     throw new Error(`Person lookup returned an empty reply, request_id=${requestId}`);
   }
 
+  const normalizeIdentity = value => String(value || '')
+    .toLowerCase()
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+    .replace(/[إأآٱ]/g, 'ا')
+    .replace(/ى/g, 'ي')
+    .replace(/ؤ/g, 'و')
+    .replace(/ئ/g, 'ي')
+    .replace(/[“”"'؟?!.,،:;؛()\[\]{}]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const expectedPerson = normalizeIdentity('طلال حسن الزهراني');
+
   const insufficientEvidence =
     reply === 'لم أجد مصادر مستقلة كافية لتقديم تعريف موثق.' ||
     reply === 'I could not find enough independent sources to provide a verified profile.';
@@ -883,6 +896,12 @@ async function assertPersonLookupSmoke(token) {
     }
 
     const identityLead = reply.slice(0, sourceMarker).trim();
+    if (!normalizeIdentity(identityLead).includes(expectedPerson)) {
+      throw new Error(
+        `Person lookup answer is not bound to requested identity, request_id=${requestId}`
+      );
+    }
+
     const firstLeadChar = identityLead.charAt(0);
     const numberedLead = '0123456789٠١٢٣٤٥٦٧٨٩'.includes(firstLeadChar);
     const urlLead = identityLead.startsWith('http://') || identityLead.startsWith('https://');
