@@ -117,6 +117,31 @@ describe('chat orchestrator goal workflow execution gate', () => {
     expect(result.response.execution.executed).toBe(true);
   });
 
+
+  test('write edge without authenticated user identity is denied before execution', async () => {
+    mockLoadExecutionProfile.mockResolvedValue({
+      profile:{
+        execution_mode:'capability_plan',
+        primary_action:'request_create'
+      }
+    });
+    mockGetCapability.mockReturnValue({ sideEffect:'database_write' });
+
+    const result = await orchestrateChat({
+      req:{ headers:{} },
+      user:{},
+      supabase:fakeSupabase(),
+      message:'نفذ الطلب',
+      context:{ pagePath:'/funding', serviceCode:'funding', executionInputs:{ amount:1000 } },
+      assistantState:{ confirmed_facts:{} },
+      messages:[]
+    });
+
+    expect(mockPersistCaseState).not.toHaveBeenCalled();
+    expect(mockExecuteService).not.toHaveBeenCalled();
+    expect(result.response.error.code).toBe('AUTHENTICATION_REQUIRED_FOR_GOAL_WORKFLOW_WRITE');
+  });
+
   test('write edge without server mandate stops before service execution', async () => {
     mockLoadExecutionProfile.mockResolvedValue({
       profile:{
