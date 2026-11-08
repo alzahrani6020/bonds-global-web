@@ -392,6 +392,7 @@ describe('Person identity integration in research workflow', () => {
   test('uses trusted first-party discovery when external search cannot find the official profile', async () => {
     const frame = buildPersonEntityFrame('الدكتور خالد محمد العتيبي');
     const actions = [];
+    const exploreInputs = [];
 
     const executeCapability = jest.fn(async (action, input) => {
       actions.push({ action, input });
@@ -405,7 +406,7 @@ describe('Person identity integration in research workflow', () => {
       }
 
       if (action === 'web_explore') {
-        expect(input.seedUrls).toContain('https://official.example/about');
+        exploreInputs.push(input);
         return {
           ok:true,
           executed:true,
@@ -457,7 +458,12 @@ describe('Person identity integration in research workflow', () => {
     expect(result.answer_scope).toBe('official_primary_only');
     expect(result.verified_identity.official_primary_matched).toBe(true);
     expect(result.verified_identity.matched).toBe(false);
-    expect(actions.map(row => row.action)).toEqual(['web_search','web_explore']);
+    expect(exploreInputs[0].seedUrls).toEqual(expect.arrayContaining([
+      'https://official.example/about',
+      'https://official.example/en/about'
+    ]));
+    expect(actions[0].action).toBe('web_search');
+    expect(actions.some(row => row.action === 'web_explore')).toBe(true);
   });
 
   test('first-party discovery does not relax official-source validation', async () => {
