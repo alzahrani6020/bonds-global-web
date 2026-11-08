@@ -238,4 +238,16 @@ describe('BONDS Acquisition P0', () => {
       expect.arrayContaining(['searxng','duckduckgo'])
     );
   });
+
+  test('scores person profile links above generic site links', () => {
+    const { personProfileLinkScore } = require('../../lib/intelligence/web-acquisition');
+
+    expect(personProfileLinkScore('https://example.com/en/dr-talal-alzahrani'))
+      .toBeGreaterThan(personProfileLinkScore('https://example.com/en/about'));
+    expect(personProfileLinkScore('https://example.com/profile/talal'))
+      .toBeGreaterThan(0);
+    expect(personProfileLinkScore('https://example.com/assets/app.js'))
+      .toBeLessThan(0);
+  });
+
 });
