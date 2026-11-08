@@ -3,6 +3,7 @@ const {
   capabilityCatalog,
   plannerCapabilityCatalog,
   plannerDiscoveryLimit,
+  trustedFirstPartyDiscoveryUrls,
   totalBudgetMs,
   plannerCallBudgetMs,
   plannerInferenceOptions,
@@ -26,6 +27,28 @@ const { executeGovernedAction } = require('../../lib/services/service-execution-
 describe('BONDS planner-first universal orchestrator', () => {
   beforeEach(() => {
     executeGovernedAction.mockReset();
+  });
+
+  test('prefers the public canonical site before protected Vercel discovery hosts', () => {
+    const previousPublic = process.env.BONDS_PUBLIC_SITE_ORIGIN;
+    const previousVercel = process.env.VERCEL_URL;
+    const previousProject = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+    process.env.BONDS_PUBLIC_SITE_ORIGIN = 'https://bonds-global.com';
+    process.env.VERCEL_URL = 'protected-stage.vercel.app';
+    process.env.VERCEL_PROJECT_PRODUCTION_URL = 'project-prod.vercel.app';
+    try {
+      expect(trustedFirstPartyDiscoveryUrls().slice(0, 2)).toEqual([
+        'https://bonds-global.com/about',
+        'https://bonds-global.com/en/about'
+      ]);
+    } finally {
+      if (previousPublic == null) delete process.env.BONDS_PUBLIC_SITE_ORIGIN;
+      else process.env.BONDS_PUBLIC_SITE_ORIGIN = previousPublic;
+      if (previousVercel == null) delete process.env.VERCEL_URL;
+      else process.env.VERCEL_URL = previousVercel;
+      if (previousProject == null) delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+      else process.env.VERCEL_PROJECT_PRODUCTION_URL = previousProject;
+    }
   });
 
   test('detects actual accounting statements and resolves an Arabic month range', () => {
