@@ -242,10 +242,10 @@ describe('web acquisition network invariants', () => {
       'https://bonds-global.com/photo.webp',
       'https://bonds-global.com/en/dr-talal-alzahrani'
     ]));
-    expect(navigationLinks).toEqual(expect.arrayContaining([
-      'https://bonds-global.com/styles.css',
+    expect(navigationLinks).toEqual([
       'https://bonds-global.com/en/dr-talal-alzahrani'
-    ]));
+    ]);
+    expect(navigationLinks).not.toContain('https://bonds-global.com/styles.css');
     expect(navigationLinks).not.toContain('https://bonds-global.com/app.js');
     expect(navigationLinks).not.toContain('https://bonds-global.com/photo.webp');
   });
