@@ -9,7 +9,7 @@ describe('post-deploy staged Vercel curl contract', () => {
     expect(source).toContain("const target = new URL(url);");
     expect(source).toContain("const requestUrl = target.toString();");
     expect(source).toContain("['--no-install', 'vercel', 'curl', requestUrl, '--include']");
-    expect(source).toContain("matchAll(/^HTTP\\\\/\\\\S+\\\\s+(\\\\d{3})\\\\b.*$/gmi)");
+    expect(source).toContain("matchAll(/^HTTP\\/\\S+\\s+(\\d{3})\\b.*$/gmi)");
     expect(source).toContain("vercel curl did not return an HTTP status line");
     expect(source).not.toContain("'--deployment', deployment");
     expect(source).not.toContain("'-sS'");
