@@ -9,6 +9,7 @@ const { assertAssistantProduction } = require('./assistant-production-smoke');
 const { runSyntheticProductionJourneys } = require('../lib/assistant/synthetic-production-journeys');
 const { runProductionConversationalSmoke } = require('../lib/assistant/production-conversational-smoke');
 const { runProductionToolSmoke } = require('../lib/assistant/production-tool-smoke');
+const { resolvePublisher } = require('../lib/intelligence/publisher-identity-resolver');
 
 const cfg = {
   baseUrl: (process.env.PRODUCTION_URL || 'https://bonds-global.com').replace(/\/$/, ''),
@@ -889,10 +890,12 @@ async function assertPersonLookupSmoke(token) {
     );
   }
 
+  const officialPrimaryOnly = reply.startsWith('التعريف التالي مستند إلى المصدر الرسمي فقط.');
+
   if (!insufficientEvidence) {
     const sourceMarker = reply.indexOf('المصادر:');
     if (sourceMarker < 0) {
-      throw new Error(`Person lookup verified profile is missing sources section, request_id=${requestId}`);
+      throw new Error(`Person lookup answer is missing sources section, request_id=${requestId}`);
     }
 
     const identityLead = reply.slice(0, sourceMarker).trim();
@@ -906,26 +909,36 @@ async function assertPersonLookupSmoke(token) {
     const numberedLead = '0123456789٠١٢٣٤٥٦٧٨٩'.includes(firstLeadChar);
     const urlLead = identityLead.startsWith('http://') || identityLead.startsWith('https://');
     if (!identityLead || numberedLead || urlLead) {
-      throw new Error(`Person lookup does not lead with a verified identity sentence, request_id=${requestId}`);
+      throw new Error(`Person lookup does not lead with an identity sentence, request_id=${requestId}`);
     }
 
-    const publishers = new Set();
+    const publisherGroups = new Set();
     for (const url of replyUrls) {
-      try {
-        const host = new URL(url).hostname.replace(/^www\\./, '').toLowerCase();
-        if (host) publishers.add(host);
-      } catch (_) {}
+      const resolved = resolvePublisher(url);
+      if (resolved?.independenceGroup) publisherGroups.add(resolved.independenceGroup);
     }
 
-    if (publishers.size < 2) {
+    if (officialPrimaryOnly) {
+      if (replyUrls.length !== 1) {
+        throw new Error(
+          `Person lookup official-primary answer must expose exactly one source, sources=${replyUrls.length}, request_id=${requestId}`
+        );
+      }
+    } else if (publisherGroups.size < 2) {
       throw new Error(
-        `Person lookup verified profile has fewer than two independent publishers, publishers=${publishers.size}, request_id=${requestId}`
+        `Person lookup verified profile has fewer than two independent publisher groups, publishers=${publisherGroups.size}, request_id=${requestId}`
       );
     }
   }
 
+  const semanticContract = insufficientEvidence
+    ? 'insufficient_evidence'
+    : officialPrimaryOnly
+      ? 'official_primary_only'
+      : 'verified_profile';
+
   console.log(
-    `Authenticated person lookup PASS (planner=${planner}, tool_used=${chat.body?.inference?.tool_used === true}, semantic_contract=${insufficientEvidence ? 'insufficient_evidence' : 'verified_profile'}, request_id=${requestId})`
+    `Authenticated person lookup PASS (planner=${planner}, tool_used=${chat.body?.inference?.tool_used === true}, semantic_contract=${semanticContract}, request_id=${requestId})`
   );
 }
 

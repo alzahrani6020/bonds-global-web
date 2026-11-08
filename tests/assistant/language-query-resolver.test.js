@@ -187,7 +187,7 @@ describe('BONDS language and query resolver', () => {
     expect(result.entity.type).toBe('person');
     expect(result.entity.text).toBe('طلال حسن الزهراني');
     expect(result.entity.person_entity_frame).toEqual(expect.objectContaining({
-      person_identity_schema_version:1,
+      person_identity_schema_version:2,
       raw_mention:'الدكتور طلال حسن الزهراني',
       canonical_name:'طلال حسن الزهراني'
     }));
