@@ -800,4 +800,83 @@ describe('BONDS query-led research workflow', () => {
     expect(result.verified_identity.verification_state).toBe('INSUFFICIENT_EVIDENCE');
   });
 
+  test('person discovery does not require every canonical-name token before final verification', async () => {
+    const personEntityFrame = require('../../lib/assistant/person-identity')
+      .buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+    const searchInputs = [];
+
+    const executeCapability = jest.fn(async (action, input) => {
+      if (action === 'web_search') {
+        searchInputs.push(input);
+        return {
+          ok:true,
+          executed:true,
+          result:{results:[
+            {
+              title:'طلال الزهراني - مستشار مالي',
+              snippet:'طلال الزهراني مستشار مالي واقتصادي',
+              url:'https://a.example/talal-alzahrani'
+            },
+            {
+              title:'طلال الزهراني - خبير اقتصادي',
+              snippet:'طلال الزهراني خبير اقتصادي',
+              url:'https://b.example/talal-alzahrani'
+            }
+          ]}
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          result:{pages:[
+            {
+              url:'https://a.example/talal-alzahrani',
+              evidence:{content_type:'text/html',headers:{}},
+              extracted:{
+                format:'html',
+                title:'طلال الزهراني - مستشار مالي',
+                text:'طلال الزهراني مستشار مالي واقتصادي.'
+              }
+            },
+            {
+              url:'https://b.example/talal-alzahrani',
+              evidence:{content_type:'text/html',headers:{}},
+              extracted:{
+                format:'html',
+                title:'طلال الزهراني - خبير اقتصادي',
+                text:'طلال الزهراني خبير اقتصادي.'
+              }
+            }
+          ]}
+        };
+      }
+      if (action === 'evidence_verify' || action === 'research_synthesize') {
+        throw new Error('PARTIAL_NAME_DISCOVERY_MUST_NOT_VERIFY_IDENTITY');
+      }
+      throw new Error('unexpected action: ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'من هو الدكتور طلال حسن الزهراني؟',
+      query:'طلال حسن الزهراني',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        topic:'طلال حسن الزهراني',
+        intent:'person_lookup',
+        personEntityFrame,
+        minIndependentPublishers:2,
+        maxDepth:0
+      }
+    }, {}, { executeCapability });
+
+    expect(searchInputs.length).toBeGreaterThan(0);
+    expect(searchInputs[0].requiredTerms).toEqual(['طلال','حسن','الزهراني']);
+    expect(searchInputs[0].requiredTermMinMatches).toBe(2);
+    expect(searchInputs[0].matchAllTerms).toBe(false);
+    expect(result.status).toBe('identity_unverified');
+    expect(result.verified_identity.verification_state).toBe('INSUFFICIENT_EVIDENCE');
+  });
+
 });
