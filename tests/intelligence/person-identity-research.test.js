@@ -271,7 +271,7 @@ describe('Person identity integration in research workflow', () => {
                   profile_page:{
                     profile_page:true,
                     profile_page_url:'https://official.example/profile/khalid',
-                    person_name:'خالد محمد العتيبي',
+                    person_name:'الدكتور خالد محمد العتيبي',
                     person_alternate_names:[],
                     works_for_name:'Official Example',
                     works_for_url:'https://official.example'
