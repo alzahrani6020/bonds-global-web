@@ -35,11 +35,40 @@ describe('assistant context state server boundary', () => {
       goal: 'Evaluate financing readiness',
       current_stage: 'analysis'
     });
+    expect(ASSISTANT_STATE_VERSION).toBe(2);
     expect(state.open_tasks).toHaveLength(50);
     expect(state.confirmed_facts).toEqual({
       company_name: 'Example',
       employees: 12
     });
+  });
+
+  test('preserves only bounded server goal workflow fields in state v2', () => {
+    const state = sanitizeAssistantState({
+      boundary:'project:p-1',
+      goal:'Prepare financing',
+      goal_workflow:{
+        status:'active',
+        nodes:[
+          { id:'analysis', label:'Analysis', status:'active', sql:'drop' },
+          { id:'review', label:'Review', status:'pending' }
+        ],
+        edges:[{
+          id:'edge:project_status:analysis:review',
+          from:'analysis',
+          to:'review',
+          capability:'project_status',
+          effect:'database_read',
+          status:'pending',
+          input:{ raw_sql:'select *' }
+        }]
+      }
+    }, { expectedBoundary:'project:p-1' });
+
+    expect(state.goal_workflow).toBeTruthy();
+    expect(state.goal_workflow.edges[0].capability).toBe('project_status');
+    expect(state.goal_workflow.edges[0].input).toBeUndefined();
+    expect(conversationalStateView(state).goal_workflow).toEqual(state.goal_workflow);
   });
 
   test('rejects context state crossing city or project boundaries', () => {
