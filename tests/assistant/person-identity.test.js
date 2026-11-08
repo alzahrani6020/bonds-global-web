@@ -172,7 +172,7 @@ describe('Governed person identity pipeline', () => {
     try {
       const frame = buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
       const source = {
-        url:'https://bonds-global-staged-dr-talal.vercel.app/dr-talal-alzahrani',
+        url:'https://bonds-global-staged-dr-talal.vercel.app/dr-talal-alzahrani.html',
         title:'الدكتور طلال حسن الزهراني | مستشار مالي | بوندز',
         text:'نبذة الدكتور طلال حسن الزهراني خبير اقتصادي ومستشار مالي.',
         extracted:{
