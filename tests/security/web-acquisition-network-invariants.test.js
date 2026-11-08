@@ -213,4 +213,41 @@ describe('web acquisition network invariants', () => {
     expect(result.evidence.failure_class).toBe('BODY_TRUNCATED');
     expect(response.destroyed).toBe(true);
   });
+
+  test('navigation-only link extraction follows href links and excludes src assets', () => {
+    const { acquisition } = loadAcquisition({
+      dnsLookup: async () => [{ address:'93.184.216.34', family:4 }],
+      onRequest: () => {
+        throw new Error('network request was not expected');
+      }
+    });
+
+    const html = [
+      '<link rel="stylesheet" href="/styles.css">',
+      '<script src="/app.js"></script>',
+      '<img src="/photo.webp">',
+      '<a href="/en/dr-talal-alzahrani">More about Dr. Talal</a>'
+    ].join('');
+
+    const allLinks = acquisition.extractLinks(html, 'https://bonds-global.com/en/about');
+    const navigationLinks = acquisition.extractLinks(
+      html,
+      'https://bonds-global.com/en/about',
+      { navigationOnly:true }
+    );
+
+    expect(allLinks).toEqual(expect.arrayContaining([
+      'https://bonds-global.com/styles.css',
+      'https://bonds-global.com/app.js',
+      'https://bonds-global.com/photo.webp',
+      'https://bonds-global.com/en/dr-talal-alzahrani'
+    ]));
+    expect(navigationLinks).toEqual(expect.arrayContaining([
+      'https://bonds-global.com/styles.css',
+      'https://bonds-global.com/en/dr-talal-alzahrani'
+    ]));
+    expect(navigationLinks).not.toContain('https://bonds-global.com/app.js');
+    expect(navigationLinks).not.toContain('https://bonds-global.com/photo.webp');
+  });
+
 });
