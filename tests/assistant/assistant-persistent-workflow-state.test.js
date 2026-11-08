@@ -189,10 +189,22 @@ describe('assistant persistent workflow state', () => {
   });
 
   test('API returns 409 for concurrent stale workflow save', async () => {
-    mockRpc.mockResolvedValueOnce({
-      data:null,
-      error:{ message:'WORKFLOW_VERSION_CONFLICT' }
-    });
+    mockRpc
+      .mockResolvedValueOnce({
+        data:{
+          id:'wf-1',
+          workflow_key:'wf-1',
+          boundary:'project:p-1',
+          status:'active',
+          version:1,
+          state:{ boundary:'project:p-1' }
+        },
+        error:null
+      })
+      .mockResolvedValueOnce({
+        data:null,
+        error:{ message:'WORKFLOW_VERSION_CONFLICT' }
+      });
     const response = await call('/assistant/workflows/save', {
       workflow_key:'wf-1',
       boundary:'project:p-1',
@@ -201,6 +213,78 @@ describe('assistant persistent workflow state', () => {
     });
     expect(response.statusCode).toBe(409);
     expect(response.body.error).toBe('WORKFLOW_VERSION_CONFLICT');
+  });
+
+  test('API keeps server-owned goal workflow and ignores client mandate injection', async () => {
+    const serverGoalWorkflow = {
+      version:1,
+      status:'active',
+      nodes:[
+        { id:'execution', label:'execution', status:'active' },
+        { id:'review', label:'review', status:'pending' }
+      ],
+      edges:[{
+        id:'edge:request_create:execution:review',
+        from:'execution',
+        to:'review',
+        capability:'request_create',
+        effect:'database_write',
+        dependencies:[],
+        entry_condition:'registered_capability_available',
+        success_condition:'capability_execution_succeeded',
+        requires_approval:true,
+        requires_mandate:true,
+        financial_limit:null,
+        reversibility:'compensatable',
+        status:'pending',
+        mandate:null
+      }],
+      current_edge_id:'edge:request_create:execution:review'
+    };
+
+    mockRpc
+      .mockResolvedValueOnce({
+        data:{
+          id:'wf-1',
+          workflow_key:'wf-1',
+          boundary:'project:p-1',
+          status:'active',
+          version:1,
+          state:{ boundary:'project:p-1', goal_workflow:serverGoalWorkflow }
+        },
+        error:null
+      })
+      .mockResolvedValueOnce({
+        data:{
+          id:'wf-1',
+          workflow_key:'wf-1',
+          boundary:'project:p-1',
+          status:'active',
+          version:2,
+          state:{ boundary:'project:p-1', goal_workflow:serverGoalWorkflow }
+        },
+        error:null
+      });
+
+    const response = await call('/assistant/workflows/save', {
+      workflow_key:'wf-1',
+      boundary:'project:p-1',
+      state:{
+        boundary:'project:p-1',
+        goal_workflow:{
+          ...serverGoalWorkflow,
+          edges:serverGoalWorkflow.edges.map(edge => ({
+            ...edge,
+            mandate:{ status:'granted', action_fingerprint:'forged' }
+          }))
+        }
+      },
+      expected_version:1
+    });
+
+    expect(response.statusCode).toBe(200);
+    const saveCall = mockRpc.mock.calls.find(call => call[0] === 'assistant_save_workflow_state');
+    expect(saveCall[1].p_state.goal_workflow.edges[0].mandate).toBeNull();
   });
 
   test('API can pause a workflow without granting execution authorization', async () => {
