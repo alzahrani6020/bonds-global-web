@@ -63,7 +63,7 @@ function fetchJsonViaVercelCurl(url, options = {}) {
   }
 
   const output = String(result.stdout || '');
-  const statusMatches = [...output.matchAll(/^HTTP\\/\\S+\\s+(\\d{3})\\b.*$/gmi)];
+  const statusMatches = [...output.matchAll(/^HTTP\/\S+\s+(\d{3})\b.*$/gmi)];
   if (!statusMatches.length) {
     throw new Error('vercel curl did not return an HTTP status line');
   }
