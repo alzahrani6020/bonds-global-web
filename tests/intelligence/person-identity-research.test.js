@@ -388,4 +388,145 @@ describe('Person identity integration in research workflow', () => {
     expect(actions).not.toContain('research_synthesize');
   });
 
+
+  test('uses trusted first-party discovery when external search cannot find the official profile', async () => {
+    const frame = buildPersonEntityFrame('الدكتور خالد محمد العتيبي');
+    const actions = [];
+    const exploreInputs = [];
+
+    const executeCapability = jest.fn(async (action, input) => {
+      actions.push({ action, input });
+
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          result:{ results:[] }
+        };
+      }
+
+      if (action === 'web_explore') {
+        exploreInputs.push(input);
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            pages:[{
+              url:'https://official.example/profile/khalid',
+              evidence:{ content_type:'text/html', headers:{} },
+              extracted:{
+                format:'html',
+                title:'خالد محمد العتيبي',
+                text:'Profile خالد محمد العتيبي. خالد محمد العتيبي خبير اقتصادي.',
+                profile_page:{
+                  profile_page:true,
+                  profile_page_url:'https://official.example/profile/khalid',
+                  person_name:'خالد محمد العتيبي',
+                  person_alternate_names:[],
+                  works_for_name:'Official Example',
+                  works_for_url:'https://official.example'
+                }
+              }
+            }],
+            failures:[],
+            blocked:[]
+          }
+        };
+      }
+
+      throw new Error('first-party official-primary path should stop before ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'خالد محمد العتيبي',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        query:'خالد محمد العتيبي',
+        queryVariants:['خالد محمد العتيبي'],
+        topic:'خالد محمد العتيبي',
+        personEntityFrame:frame,
+        firstPartyDiscoveryUrls:[
+          'https://official.example/about',
+          'https://official.example/en/about'
+        ],
+        minIndependentPublishers:2
+      }
+    }, {}, { executeCapability });
+
+    expect(result.status).toBe('OFFICIAL_PRIMARY_ONLY');
+    expect(result.answer_scope).toBe('official_primary_only');
+    expect(result.verified_identity.official_primary_matched).toBe(true);
+    expect(result.verified_identity.matched).toBe(false);
+    expect(exploreInputs[0].seedUrls).toEqual(expect.arrayContaining([
+      'https://official.example/about',
+      'https://official.example/en/about'
+    ]));
+    expect(actions[0].action).toBe('web_search');
+    expect(actions.some(row => row.action === 'web_explore')).toBe(true);
+  });
+
+  test('first-party discovery does not relax official-source validation', async () => {
+    const frame = buildPersonEntityFrame('الدكتور خالد محمد العتيبي');
+    const actions = [];
+
+    const executeCapability = jest.fn(async (action, input) => {
+      actions.push(action);
+
+      if (action === 'web_search') {
+        return { ok:true, executed:true, result:{ results:[] } };
+      }
+
+      if (action === 'web_explore') {
+        expect(input.seedUrls).toContain('https://publisher.example/about');
+        return {
+          ok:true,
+          executed:true,
+          result:{
+            pages:[{
+              url:'https://publisher.example/profile/khalid',
+              evidence:{ content_type:'text/html', headers:{} },
+              extracted:{
+                format:'html',
+                title:'خالد محمد العتيبي',
+                text:'Profile خالد محمد العتيبي خبير اقتصادي.',
+                profile_page:{
+                  profile_page:true,
+                  profile_page_url:'https://publisher.example/profile/khalid',
+                  person_name:'خالد محمد العتيبي',
+                  person_alternate_names:[],
+                  works_for_name:'Different Organization',
+                  works_for_url:'https://different.example'
+                }
+              }
+            }],
+            failures:[],
+            blocked:[]
+          }
+        };
+      }
+
+      throw new Error('identity gate should fail closed before ' + action);
+    });
+
+    const result = await runResearchWorkflow({
+      input:'خالد محمد العتيبي',
+      forceResearch:true,
+      research:{
+        enabled:true,
+        query:'خالد محمد العتيبي',
+        queryVariants:['خالد محمد العتيبي'],
+        topic:'خالد محمد العتيبي',
+        personEntityFrame:frame,
+        firstPartyDiscoveryUrls:['https://publisher.example/about'],
+        minIndependentPublishers:2
+      }
+    }, {}, { executeCapability });
+
+    expect(result.status).toBe('identity_unverified');
+    expect(result.verified_identity.official_primary_matched).toBe(false);
+    expect(result.decisionEligible).toBe(false);
+    expect(actions).toEqual(['web_search','web_explore']);
+  });
+
 });
