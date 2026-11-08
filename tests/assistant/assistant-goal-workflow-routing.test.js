@@ -2,26 +2,26 @@
  * @jest-environment node
  */
 
-const executeService = jest.fn();
-const loadExecutionProfile = jest.fn();
+const mockExecuteService = jest.fn();
+const mockLoadExecutionProfile = jest.fn();
 jest.mock('../../lib/services/service-execution-router', () => ({
-  executeService,
-  loadExecutionProfile
+  executeService:mockExecuteService,
+  loadExecutionProfile:mockLoadExecutionProfile
 }));
 
-const persistCaseState = jest.fn();
+const mockPersistCaseState = jest.fn();
 jest.mock('../../lib/assistant/case-engine', () => {
   const actual = jest.requireActual('../../lib/assistant/case-engine');
   return {
     ...actual,
     workflowKeyFor: () => 'assistant-case:test',
-    persistCaseState
+    persistCaseState:mockPersistCaseState
   };
 });
 
-const getCapability = jest.fn();
+const mockGetCapability = jest.fn();
 jest.mock('../../lib/capabilities/bonds-capability-registry', () => ({
-  getCapability
+  getCapability:mockGetCapability
 }));
 
 const { ensureSingleEdgeGoalWorkflow } = require('../../lib/assistant/goal-workflow');
@@ -85,15 +85,15 @@ describe('chat orchestrator goal workflow execution gate', () => {
   });
 
   test('read edge reaches the existing governed service execution path', async () => {
-    loadExecutionProfile.mockResolvedValue({
+    mockLoadExecutionProfile.mockResolvedValue({
       profile:{
         execution_mode:'capability_plan',
         primary_action:'project_status'
       }
     });
-    getCapability.mockReturnValue({ sideEffect:'database_read' });
-    persistCaseState.mockResolvedValue(persistedFor('project_status', 'database_read'));
-    executeService.mockResolvedValue({
+    mockGetCapability.mockReturnValue({ sideEffect:'database_read' });
+    mockPersistCaseState.mockResolvedValue(persistedFor('project_status', 'database_read'));
+    mockExecuteService.mockResolvedValue({
       body:{
         ok:true,
         executed:true,
@@ -112,20 +112,20 @@ describe('chat orchestrator goal workflow execution gate', () => {
       messages:[]
     });
 
-    expect(executeService).toHaveBeenCalledTimes(1);
+    expect(mockExecuteService).toHaveBeenCalledTimes(1);
     expect(result.handled).toBe(true);
     expect(result.response.execution.executed).toBe(true);
   });
 
   test('write edge without server mandate stops before service execution', async () => {
-    loadExecutionProfile.mockResolvedValue({
+    mockLoadExecutionProfile.mockResolvedValue({
       profile:{
         execution_mode:'capability_plan',
         primary_action:'request_create'
       }
     });
-    getCapability.mockReturnValue({ sideEffect:'database_write' });
-    persistCaseState.mockResolvedValue(persistedFor('request_create', 'database_write', 'execution'));
+    mockGetCapability.mockReturnValue({ sideEffect:'database_write' });
+    mockPersistCaseState.mockResolvedValue(persistedFor('request_create', 'database_write', 'execution'));
 
     const result = await orchestrateChat({
       req:{ headers:{} },
@@ -137,7 +137,7 @@ describe('chat orchestrator goal workflow execution gate', () => {
       messages:[]
     });
 
-    expect(executeService).not.toHaveBeenCalled();
+    expect(mockExecuteService).not.toHaveBeenCalled();
     expect(result.handled).toBe(true);
     expect(result.response.error.code).toBe('GOAL_WORKFLOW_MANDATE_REQUIRED');
     expect(result.response.actions[0]).toMatchObject({
