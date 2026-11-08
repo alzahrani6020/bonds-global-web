@@ -165,4 +165,19 @@ describe('Governed person identity pipeline', () => {
     expect(isPersonIdentitySourceEligible(frame, profile)).toBe(true);
   });
 
+  test('does not verify another person that only shares scattered name tokens', () => {
+    const frame = buildPersonEntityFrame('الدكتور طلال حسن الزهراني');
+    const wrong = resolveCandidateIdentity(frame, {
+      url:'https://example.com/wrong-person',
+      title:'محمد عبيشة الزهراني',
+      snippet:'محمد عبيشة الزهراني شاعر وباحث. ورد اسم طلال في قسم آخر، واسم حسن في تعليق منفصل.'
+    }, 0);
+
+    expect(wrong.exact_name_match).toBe(false);
+    expect(wrong.name_score).toBeGreaterThan(0);
+    const verification = verifyPersonIdentity(frame, [wrong, wrong], { minSupportingSources:2 });
+    expect(verification.verification_state).not.toBe('VERIFIED');
+    expect(verification.matched).toBe(false);
+  });
+
 });
