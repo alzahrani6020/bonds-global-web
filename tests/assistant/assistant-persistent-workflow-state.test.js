@@ -189,6 +189,25 @@ describe('assistant persistent workflow state', () => {
     expect(mockRpc).not.toHaveBeenCalled();
   });
 
+
+  test('API workflow save fails closed when current server workflow cannot be loaded', async () => {
+    mockRpc.mockResolvedValueOnce({
+      data:null,
+      error:{ message:'temporary database failure' }
+    });
+
+    const response = await call('/assistant/workflows/save', {
+      workflow_key:'wf-1',
+      boundary:'project:p-1',
+      state:{ boundary:'project:p-1', goal:'x' },
+      expected_version:1
+    });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.body.error).toBe('WORKFLOW_LOAD_FAILED');
+    expect(mockRpc).toHaveBeenCalledTimes(1);
+  });
+
   test('API returns 409 for concurrent stale workflow save', async () => {
     mockRpc
       .mockResolvedValueOnce({
