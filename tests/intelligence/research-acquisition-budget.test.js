@@ -325,7 +325,7 @@ describe('candidate discovery defers to verification', () => {
   test('verifyPersonIdentity keeps the final say: strong candidate verifies, weak stays insufficient, contradictions fail closed', () => {
     const frame = { entity_type: 'person', canonical_name: 'خالد محمد' };
     const strong = {
-      source_id: 's1', name_score: 0.8, confidence: 0.7,
+      source_id: 's1', exact_name_match: true, name_score: 0.8, confidence: 0.7,
       resolution_basis: ['name'], contradictions: []
     };
 
@@ -335,7 +335,7 @@ describe('candidate discovery defers to verification', () => {
     expect(verifyPersonIdentity(frame, [weak]).verification_state).toBe('INSUFFICIENT_EVIDENCE');
 
     const contradicted = {
-      source_id: 's2', name_score: 0.9, confidence: 0.8,
+      source_id: 's2', exact_name_match: true, name_score: 0.9, confidence: 0.8,
       resolution_basis: ['name'], contradictions: [{ field: 'qualifier', detail: 'x' }]
     };
     expect(verifyPersonIdentity(frame, [contradicted]).verification_state).toBe('CONTRADICTED');
