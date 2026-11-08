@@ -893,8 +893,17 @@ async function assertPersonLookupSmoke(token) {
   const officialPrimaryOnly = reply.startsWith('التعريف التالي مستند إلى المصدر الرسمي فقط.');
 
   if (insufficientEvidence) {
+    const diagnostics = chat.body?.diagnostics || null;
+    const safeDiagnostic = diagnostics ? {
+      status:diagnostics.status || null,
+      pipeline_stage:diagnostics.pipeline_stage || null,
+      root_cause_stage:diagnostics.root_cause_stage || null,
+      error_code:diagnostics.error_code || null,
+      evidence:diagnostics.evidence || null,
+      acquisition_trace:diagnostics.acquisition_trace || null
+    } : null;
     throw new Error(
-      `Person lookup production identity gate returned insufficient evidence, request_id=${requestId}`
+      `Person lookup production identity gate returned insufficient evidence, request_id=${requestId}, diagnostics=${JSON.stringify(safeDiagnostic)}`
     );
   }
 
