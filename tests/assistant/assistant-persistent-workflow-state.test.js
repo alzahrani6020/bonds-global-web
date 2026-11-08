@@ -21,6 +21,7 @@ const {
   setWorkflowStatus
 } = require('../../lib/assistant/workflow-state');
 const { assistantRouter } = require('../../v3/api/assistant');
+const { prepareConfirmation } = require('../../lib/assistant/confirmation-engine');
 
 function req(body) {
   const r = new EventEmitter();
@@ -285,6 +286,101 @@ describe('assistant persistent workflow state', () => {
     expect(response.statusCode).toBe(200);
     const saveCall = mockRpc.mock.calls.find(call => call[0] === 'assistant_save_workflow_state');
     expect(saveCall[1].p_state.goal_workflow.edges[0].mandate).toBeNull();
+  });
+
+
+  test('confirmed structured action grants a mandate only to the bound server edge', async () => {
+    const action = {
+      id:'goal-edge-1',
+      type:'request_create',
+      capability:'request_create',
+      target:'funding',
+      risk:'high',
+      requires_confirmation:true
+    };
+    const confirmation = prepareConfirmation(action, { language:'ar' });
+    const serverState = {
+      boundary:'project:p-1',
+      goal_workflow:{
+        version:1,
+        status:'active',
+        nodes:[
+          { id:'execution', label:'execution', status:'active' },
+          { id:'review', label:'review', status:'pending' }
+        ],
+        edges:[{
+          id:'edge:request_create:execution:review',
+          from:'execution',
+          to:'review',
+          capability:'request_create',
+          effect:'database_write',
+          dependencies:[],
+          entry_condition:'registered_capability_available',
+          success_condition:'capability_execution_succeeded',
+          requires_approval:true,
+          requires_mandate:true,
+          financial_limit:null,
+          reversibility:'compensatable',
+          status:'pending',
+          mandate:null
+        }],
+        current_edge_id:'edge:request_create:execution:review'
+      }
+    };
+
+    mockRpc.mockImplementation(async (name, payload) => {
+      if (name === 'assistant_load_workflow_state') {
+        return {
+          data:{
+            id:'wf-1',
+            workflow_key:'wf-1',
+            boundary:'project:p-1',
+            status:'active',
+            version:1,
+            state:serverState
+          },
+          error:null
+        };
+      }
+      if (name === 'assistant_save_workflow_state') {
+        return {
+          data:{
+            id:'wf-1',
+            workflow_key:'wf-1',
+            boundary:'project:p-1',
+            status:'active',
+            version:2,
+            state:payload.p_state
+          },
+          error:null
+        };
+      }
+      if (name === 'assistant_append_action_audit') {
+        return { data:'audit-1', error:null };
+      }
+      return { data:null, error:null };
+    });
+
+    const response = await call('/assistant/confirmation/resolve', {
+      action,
+      confirmation,
+      decision:'confirm',
+      workflow_binding:{
+        workflow_key:'wf-1',
+        edge_id:'edge:request_create:execution:review',
+        boundary:'project:p-1',
+        expected_version:1
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.resume_required).toBe(true);
+    const saveCall = mockRpc.mock.calls.find(call => call[0] === 'assistant_save_workflow_state');
+    expect(saveCall[1].p_state.goal_workflow.edges[0].mandate).toMatchObject({
+      status:'granted',
+      action_fingerprint:confirmation.action_fingerprint,
+      revocable:true
+    });
   });
 
   test('API can pause a workflow without granting execution authorization', async () => {
