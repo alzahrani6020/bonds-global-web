@@ -39,7 +39,7 @@ async function fetchJson(url, options = {}) {
 function fetchJsonViaVercelCurl(url, options = {}) {
   const target = new URL(url);
   const requestUrl = target.toString();
-  const args = ['--no-install', 'vercel', 'curl', requestUrl, '--include'];
+  const args = ['--no-install', 'vercel', 'curl', requestUrl, '--fail-with-body'];
   const method = String(options.method || 'GET').toUpperCase();
   if (method !== 'GET') args.push('-X', method);
 
@@ -57,31 +57,19 @@ function fetchJsonViaVercelCurl(url, options = {}) {
 
   if (result.error) throw result.error;
   if (result.status !== 0) {
+    const stderr = String(result.stderr || '').trim();
+    const stdout = String(result.stdout || '').trim();
     throw new Error(
-      `vercel curl failed with exit code ${result.status}: ${String(result.stderr || '').trim() || 'no stderr'}`
+      `vercel curl failed with exit code ${result.status}: ${stderr || stdout || 'no response body'}`
     );
   }
 
-  const output = String(result.stdout || '');
-  const statusMatches = [...output.matchAll(/^HTTP\/\S+\s+(\d{3})\b.*$/gmi)];
-  if (!statusMatches.length) {
-    throw new Error('vercel curl did not return an HTTP status line');
-  }
-
-  const lastStatus = statusMatches[statusMatches.length - 1];
-  const status = Number(lastStatus[1]);
-  const afterStatus = output.slice(lastStatus.index);
-  const separatorMatch = afterStatus.match(/\\r?\\n\\r?\\n/);
-  if (!separatorMatch) {
-    throw new Error('vercel curl did not return a complete HTTP response');
-  }
-
-  const text = afterStatus.slice(separatorMatch.index + separatorMatch[0].length).trim();
+  const text = String(result.stdout || '').trim();
   let body = null;
   try { body = text ? JSON.parse(text) : null; } catch { body = { raw: text }; }
 
   return {
-    res: { ok: status >= 200 && status < 300, status },
+    res: { ok: true, status: 200 },
     body
   };
 }
