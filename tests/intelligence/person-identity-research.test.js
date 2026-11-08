@@ -1,9 +1,15 @@
 /** @jest-environment node */
 
 const { runResearchWorkflow } = require('../../lib/intelligence/research-workflow');
-const { buildPersonEntityFrame } = require('../../lib/assistant/person-identity');
+const { buildPersonEntityFrame, normalizeStructuredPersonName } = require('../../lib/assistant/person-identity');
 
 describe('Person identity integration in research workflow', () => {
+
+  test('normalizes leading honorifics without dropping arbitrary name tokens', () => {
+    expect(normalizeStructuredPersonName('الدكتور طلال حسن الزهراني')).toBe('طلال حسن الزهراني');
+    expect(normalizeStructuredPersonName('Dr. Talal Hassan Alzahrani')).toBe('talal hassan alzahrani');
+    expect(normalizeStructuredPersonName('محمد طلال حسن الزهراني')).toBe('محمد طلال حسن الزهراني');
+  });
   test('verifies identity before evidence verification and passes only verified identity forward', async () => {
     const frame = buildPersonEntityFrame('رئيس شركة X خالد محمد');
     let evidenceVerifyInput = null;
@@ -414,8 +420,8 @@ describe('Person identity integration in research workflow', () => {
             pages:[{
               url:'https://official.example/profile/khalid',
               evidence:{ content_type:'text/html', headers:{} },
-              body:"<html><head><title>خالد محمد العتيبي</title><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"ProfilePage\",\"url\":\"https://official.example/profile/khalid\",\"mainEntity\":{\"@type\":\"Person\",\"name\":\"خالد محمد العتيبي\",\"worksFor\":{\"@type\":\"Organization\",\"name\":\"Official Example\",\"url\":\"https://official.example\"}}}</script></head><body><main>Profile خالد محمد العتيبي خبير اقتصادي.</main></body></html>",
-              text:"<html><head><title>خالد محمد العتيبي</title><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"ProfilePage\",\"url\":\"https://official.example/profile/khalid\",\"mainEntity\":{\"@type\":\"Person\",\"name\":\"خالد محمد العتيبي\",\"worksFor\":{\"@type\":\"Organization\",\"name\":\"Official Example\",\"url\":\"https://official.example\"}}}</script></head><body><main>Profile خالد محمد العتيبي خبير اقتصادي.</main></body></html>"
+              body:"<html><head><title>خالد محمد العتيبي</title><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"ProfilePage\",\"url\":\"https://official.example/profile/khalid\",\"mainEntity\":{\"@type\":\"Person\",\"name\":\"الدكتور خالد محمد العتيبي\",\"worksFor\":{\"@type\":\"Organization\",\"name\":\"Official Example\",\"url\":\"https://official.example\"}}}</script></head><body><main>Profile خالد محمد العتيبي خبير اقتصادي.</main></body></html>",
+              text:"<html><head><title>خالد محمد العتيبي</title><script type=\"application/ld+json\">{\"@context\":\"https://schema.org\",\"@type\":\"ProfilePage\",\"url\":\"https://official.example/profile/khalid\",\"mainEntity\":{\"@type\":\"Person\",\"name\":\"الدكتور خالد محمد العتيبي\",\"worksFor\":{\"@type\":\"Organization\",\"name\":\"Official Example\",\"url\":\"https://official.example\"}}}</script></head><body><main>Profile خالد محمد العتيبي خبير اقتصادي.</main></body></html>"
             }],
             failures:[],
             blocked:[]
