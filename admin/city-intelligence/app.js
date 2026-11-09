@@ -1,5 +1,5 @@
 /**
- * City Intelligence SPA
+ * مؤشرات المدينة SPA
  */
 (function (global) {
   'use strict';
@@ -828,7 +828,7 @@
   async function renderRolesPage(container) {
     container.innerHTML = `
       <div class="page-header">
-        <div><h1>${PAGE_TITLES.roles}</h1><p>إدارة صلاحيات City Intelligence</p></div>
+        <div><h1>${PAGE_TITLES.roles}</h1><p>إدارة صلاحيات مؤشرات المدينة</p></div>
         <button class="ecc-btn ecc-btn--primary" onclick="CityIntelligenceApp.openAssignRoleModal()">+ تعيين دور</button>
       </div>
       <div class="table-card">
@@ -1156,7 +1156,7 @@
       <div class="report-paper">
         <div class="report-paper__header">
           <img src="/assets/bonds-logo-2026-v2-sm.webp" />
-          <h1>City Intelligence Report</h1>
+          <h1>تقرير مؤشرات المدينة</h1>
           <h2>${BondsAdminCommon.escapeHtml(title || city.name)}</h2>
           <p>تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}</p>
         </div>

@@ -75,6 +75,10 @@
       "schedule": "0 9 * * *"
     },
     {
+      "path": "/api/cron/live-source-refresh",
+      "schedule": "20 2 * * *"
+    },
+    {
       "path": "/api/admin/alerts/evaluate",
       "schedule": "0 8 * * *"
     }

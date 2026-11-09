@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { applyVercelApiRewrite, loadVercelApiRewrites, resolveApiRoute } = require('../scripts/dev-server');
+const { applyVercelApiRewrite, loadVercelApiRewrites, resolveApiRoute, parseUrlQuery } = require('../scripts/dev-server');
 
 describe('local dev server mirrors vercel.json API routing', () => {
   const config = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'vercel.json'), 'utf8'));
@@ -24,6 +24,14 @@ describe('local dev server mirrors vercel.json API routing', () => {
   test('destination query is merged with the original query string', () => {
     expect(applyVercelApiRewrite('/api/social-feed?limit=5')).toBe('/api/v3?__route=social-feed&limit=5');
     expect(applyVercelApiRewrite('/api/funding-request')).toBe('/api/funding?action=funding-request');
+    expect(applyVercelApiRewrite('/api/funding-sources?country_code=JO')).toBe('/api/funding?action=sources&country_code=JO');
+  });
+
+  test('parses query strings the way Vercel populates req.query', () => {
+    expect(parseUrlQuery('/api/funding?action=sources&country_code=JO')).toEqual({
+      action: 'sources',
+      country_code: 'JO'
+    });
   });
 
   test('non-rewritten and regex rules are left untouched', () => {

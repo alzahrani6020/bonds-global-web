@@ -57,7 +57,7 @@
           <p>لديك <strong id="projectCount">0</strong> مشاريع محفوظة.</p>
         </div>
         <div class="my-bonds-actions">
-          <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">+ مشروع جديد</a>
+          <a href="../v3/project" class="bonds-btn bonds-btn-primary">+ مشروع جديد</a>
           <a href="../v3/portfolio" class="bonds-btn bonds-btn-secondary">لوحة المحفظة</a>
         </div>
       </div>
@@ -316,10 +316,11 @@
         if (!container) return;
 
         if (!projects || projects.length === 0) {
+          const emptyHref = isGuest ? '../calculators/feasibility.html' : '../v3/project';
           container.innerHTML = `
             <div class="bonds-card my-bonds-empty">
               <p>لا توجد مشاريع محفوظة بعد.</p>
-              <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">ابدأ أول مشروع</a>
+              <a href="${emptyHref}" class="bonds-btn bonds-btn-primary">ابدأ أول مشروع</a>
             </div>
           `;
           return;

@@ -1,0 +1,217 @@
+/* Bonds directory fingerprint pages — SEO entity profiles + header ad */
+
+.dir-page {
+  padding: 0 0 4rem;
+}
+
+/* Full-bleed black billboard: identity is narrow, ad is the majority */
+.dir-hero {
+  position: relative;
+  background:
+    radial-gradient(ellipse at 78% 18%, rgba(197, 154, 67, 0.18) 0%, transparent 42%),
+    linear-gradient(180deg, #050505 0%, #0c0c0c 100%);
+  color: #f4efe6;
+  border-bottom: 1px solid #1a1a1a;
+  overflow: hidden;
+}
+.dir-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(212, 168, 83, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(212, 168, 83, 0.04) 1px, transparent 1px);
+  background-size: 72px 72px;
+  pointer-events: none;
+}
+.dir-hero__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(200px, 0.28fr) minmax(0, 0.72fr);
+  gap: 1.25rem;
+  align-items: stretch;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.15rem 1.5rem 1.6rem;
+}
+.dir-hero__identity {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.35rem 0;
+}
+.dir-hero h1 {
+  font-size: clamp(1.45rem, 2.4vw, 2.05rem);
+  font-weight: 900;
+  color: #e8ecf4;
+  margin: 0 0 0.65rem;
+  line-height: 1.3;
+}
+.dir-hero h1 span { color: #d4a853; }
+.dir-kicker {
+  display: inline-block;
+  color: #d4a853;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.55rem;
+}
+.dir-lead {
+  color: #94a3b8;
+  line-height: 1.7;
+  margin: 0;
+  font-size: 0.92rem;
+}
+
+.dir-hero__ad {
+  background: linear-gradient(160deg, rgba(212, 168, 83, 0.16), rgba(10, 15, 26, 0.35));
+  border: 1px solid rgba(212, 168, 83, 0.38);
+  border-radius: 16px;
+  padding: 1.15rem 1.3rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 280px;
+  box-shadow: inset 0 1px 0 rgba(240, 201, 106, 0.12);
+}
+.dir-ad-label {
+  display: inline-flex;
+  align-self: flex-start;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0a0f1a;
+  background: #d4a853;
+  border-radius: 4px;
+  padding: 0.22rem 0.55rem;
+  margin-bottom: 0.65rem;
+}
+.dir-ad-kicker {
+  margin: 0 0 0.35rem;
+  color: #f0c96a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.dir-ad-title {
+  margin: 0 0 0.55rem;
+  color: #e8ecf4;
+  font-size: clamp(1.15rem, 2vw, 1.55rem);
+  font-weight: 800;
+  line-height: 1.35;
+}
+.dir-ad-text {
+  margin: 0 0 1rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  max-width: 46rem;
+}
+.dir-ad-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+.dir-ad-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.55rem 1.05rem;
+  border-radius: 10px;
+  background: #d4a853;
+  color: #0a0f1a;
+  font-weight: 800;
+  text-decoration: none;
+}
+.dir-ad-btn:hover { background: #f0c96a; color: #0a0f1a; }
+.dir-ad-btn--ghost {
+  background: transparent;
+  color: #e8ecf4;
+  border: 1px solid rgba(212, 168, 83, 0.45);
+}
+.dir-ad-btn--ghost:hover {
+  background: rgba(212, 168, 83, 0.12);
+  color: #f0c96a;
+}
+
+.dir-card {
+  max-width: 1180px;
+  margin: 1rem auto 0;
+  padding: 1.25rem 1.4rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+.dir-page > .dir-card:first-of-type { margin-top: 1.25rem; }
+.dir-card h2 { font-size: 1.1rem; color: var(--gold); margin: 0 0 0.75rem; }
+.dir-meta { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.8; }
+.dir-meta div + div { margin-top: 0.35rem; }
+.dir-meta strong { color: var(--text); }
+.dir-fingerprint {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem 1.25rem;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  background: rgba(212, 168, 83, 0.08);
+  border-radius: 10px;
+  padding: 0.95rem 1.05rem;
+}
+.dir-fingerprint .dir-claim strong { color: var(--gold); }
+.dir-fingerprint .dir-stamp {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  word-break: break-all;
+}
+.dir-note { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.7; margin: 0.75rem 0 0; }
+.dir-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
+.dir-actions a, .dir-list a {
+  color: var(--gold);
+  font-weight: 700;
+  text-decoration: none;
+}
+.dir-actions .dir-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7rem 1.15rem;
+  border-radius: 10px;
+  background: var(--gold);
+  color: #0a0f1a;
+  font-weight: 800;
+}
+.dir-actions .dir-btn-outline {
+  background: transparent;
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.dir-list { list-style: none; padding: 0; margin: 0; columns: 2; gap: 1.5rem; }
+.dir-list li { break-inside: avoid; margin: 0 0 0.45rem; line-height: 1.55; }
+.dir-groups { display: grid; gap: 1rem; }
+.dir-group h3 { font-size: 1rem; margin: 0 0 0.5rem; color: var(--text); }
+
+/* Offset the in-flow destination strip below the fixed nav */
+body.dir-fingerprint-page .bonds-service-discovery {
+  margin-top: var(--header-height, 64px);
+}
+
+@media (max-width: 900px) {
+  .dir-hero__inner {
+    grid-template-columns: 1fr;
+    padding-bottom: 1.15rem;
+  }
+  .dir-hero__ad {
+    order: -1;
+    min-height: 260px;
+  }
+  .dir-fingerprint { grid-template-columns: 1fr; }
+  .dir-card { margin-inline: 1rem; }
+}
+@media (max-width: 720px) {
+  .dir-hero h1 { font-size: 1.4rem; }
+  .dir-list { columns: 1; }
+  .dir-ad-actions { flex-direction: column; }
+  .dir-ad-btn { width: 100%; }
+}

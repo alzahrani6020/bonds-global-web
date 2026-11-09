@@ -54,6 +54,12 @@ describe('financial accounting workspace contract',()=>{
     expect(ui).not.toContain('3,280,000');
   });
 
+  test('workspace type chrome reuses the existing shell',()=>{
+    expect(ui).toContain('function applyWorkspaceTypeChrome()');
+    expect(ui).toContain('document.body.dataset.workspaceType=type');
+    expect(css).toContain('body[data-workspace-type] .sr-eyebrow');
+  });
+
   test('financial workspace remains responsive',()=>{
     expect(css).toContain('.financial-workspace-tabs');
     expect(css).toContain('@media(max-width:700px)');

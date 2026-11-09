@@ -1,17 +1,20 @@
 const { chromium } = require('playwright');
 const axeCore = require('axe-core');
+const { resolveBaseUrl, stopSpawnedServer } = require('../helpers/local-dev-server');
 
-jest.setTimeout(90000);
+jest.setTimeout(180000);
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
+let BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
 let browser;
 
 beforeAll(async () => {
+  BASE_URL = await resolveBaseUrl();
   browser = await chromium.launch({ headless: true });
 });
 
 afterAll(async () => {
   if (browser) await browser.close();
+  stopSpawnedServer();
 });
 
 async function createPage({
@@ -85,7 +88,7 @@ describe('v3 workspace preview', () => {
       new URL('/v3/workspace-preview/', BASE_URL).toString(),
       {
         waitUntil: 'domcontentloaded',
-        timeout: 15000
+        timeout: 30000
       }
     );
 
@@ -107,7 +110,7 @@ describe('v3 workspace preview', () => {
       new URL('/v3/workspace-preview/', BASE_URL).toString(),
       {
         waitUntil: 'domcontentloaded',
-        timeout: 15000
+        timeout: 30000
       }
     );
 
@@ -131,7 +134,7 @@ describe('v3 workspace preview', () => {
       new URL('/v3/workspace-preview/', BASE_URL).toString(),
       {
         waitUntil: 'domcontentloaded',
-        timeout: 15000
+        timeout: 30000
       }
     );
 
@@ -154,7 +157,7 @@ describe('v3 workspace preview', () => {
       new URL('/v3/workspace-preview/', BASE_URL).toString(),
       {
         waitUntil: 'domcontentloaded',
-        timeout: 15000
+        timeout: 30000
       }
     );
 

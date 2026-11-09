@@ -18,7 +18,7 @@ describe('header hover and automated refresh stabilization', () => {
 
   test('shared header CSS cache version is bumped', () => {
     const layout = read('site-layout.js');
-    expect(layout).toContain("/header-footer.css?v=2.71.0");
+    expect(layout).toContain("/header-footer.css?v=2.72.0");
   });
 
   test('V3 high-traffic intelligence pages request the new shared layout version', () => {
@@ -72,17 +72,20 @@ describe('header hover and automated refresh stabilization', () => {
     expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
   });
 
-  test('funding dropdown exposes one organized funding-file entry point instead of raw form links', () => {
+  test('funding dropdown stays two columns without duplicate file or hub links', () => {
     const layout = read('site-layout.js');
     expect(layout).not.toContain("heading: { ar: 'نماذج', en: 'Forms' }");
-    expect(layout).toContain("fundingFileGroup: isEn ? 'Funding File' : 'ملف التمويل'");
-    expect(layout).toContain("fundingRequirements: isEn ? 'Requirements & Forms' : 'المتطلبات والنماذج'");
-    expect(layout).toContain("fundingCases: isEn ? 'Funding Cases' : 'حالات التمويل'");
+    expect(layout).toContain('{ label: labels.fundingSources, href: fundingSourcesHref }');
+    expect(layout).toContain('{ label: labels.fundingDirectory, href: fundingDirectoryHref }');
+    expect(layout).toContain('{ label: labels.fundingExtraction, href: fundingExtractionHref }');
+    expect(layout).toContain('{ label: labels.fundingReadiness, href: fundingReadinessHref }');
+    expect(layout).toContain('{ label: labels.fundingCases, href: fundingCasesHref }');
+    expect(layout).toContain('{ label: labels.investmentOpportunities, href: investmentOpportunitiesHref }');
+    expect(layout).not.toContain('{ label: labels.fundingHub, href: fundingHubHref }');
+    expect(layout).not.toContain('{ label: labels.fundingRequirements, href: fundingRequirementsHref }');
+    expect(layout).not.toContain('{ label: labels.clientPortalNav, href: clientPortalHref }');
     expect(layout).toContain("const fundingCasesHref = isEn ? '/en/client/funding-cases' : '/client/funding-cases';");
     expect(layout).toContain("const fundingRequirementsHref = fundingExtractionHref + '#funding-file';");
-    expect(layout).toContain('{ label: labels.fundingCases, href: fundingCasesHref }');
-    expect(layout).toContain('{ label: labels.fundingRequirements, href: fundingRequirementsHref }');
-    expect(layout).toContain('{ label: labels.clientPortalNav, href: clientPortalHref }');
     expect(read('funding-extraction.html')).toContain('id="funding-file"');
     expect(read('funding-extraction.html')).toContain('data-funding-file-grid');
     expect(read('en/funding-extraction.html')).toContain('id="funding-file"');

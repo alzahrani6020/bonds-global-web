@@ -334,7 +334,7 @@
     }
 
     const script = document.createElement('script');
-    script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-fd8d86c611';
+    script.src = '/v3/components/ai-chat-widget.js?v=global-assistant-c0fdd9ca66';
     script.async = false;
     script.addEventListener('load', mountAssistant, { once:true });
     document.head.appendChild(script);
@@ -426,13 +426,12 @@
       calculators: isEn ? 'Calculators' : 'الحاسبات',
       intelligence: isEn ? 'Intelligence' : 'الذكاء الاقتصادي',
       articles: isEn ? 'Insights' : 'مقالات',
-      cityIntelligence: isEn ? 'City Intelligence' : 'ذكاء المدن',
+      cityIntelligence: isEn ? 'City indicators' : 'مؤشرات المدينة',
       cityComparison: isEn ? 'City Comparison' : 'مقارنة المدن',
       investmentMap: isEn ? 'Investment Map' : 'الخريطة الاستثمارية',
       projectReadiness: isEn ? 'Project Readiness' : 'جاهزية المشروع',
       opportunityBank: isEn ? 'Opportunity Bank' : 'بنك الفرص',
       scenariosEngine: isEn ? 'Scenarios' : 'محرك السيناريوهات',
-      fundingSources: isEn ? 'Funding' : 'التمويل',
       contact: isEn ? 'Contact' : 'تواصل معنا',
       cta: isEn ? 'Book a Consultation' : 'احجز استشارة',
       login: isEn ? 'Login' : 'تسجيل الدخول',
@@ -449,12 +448,14 @@
       risk: isEn ? 'Risk Analysis' : 'تحليل المخاطر',
       strategy: isEn ? 'Financial Strategy' : 'الاستراتيجية المالية',
       operations: isEn ? 'Operational Consulting' : 'استشارات تشغيلية',
-      research: isEn ? 'Surveys & Research' : 'الاستبيانات والبحوث',
+      research: isEn ? 'Surveys & Market Research' : 'الاستبيانات والبحوث السوقية',
+      scientificResearch: isEn ? 'Scientific Research' : 'البحث العلمي',
       projectRescue: isEn ? 'Project Rescue' : 'إحياء المشاريع',
       fundingExtraction: isEn ? 'Funding Extraction' : 'استخراج التمويل',
       fundingHub: isEn ? 'Funding & Investment' : 'التمويل والاستثمار',
       investmentOpportunities: isEn ? 'Investment Opportunities' : 'فرص استثمارية',
       fundingSources: isEn ? 'Funding Sources' : 'مصادر التمويل',
+      fundingDirectory: isEn ? 'Funding Directory' : 'دليل التمويل',
       fundingReadiness: isEn ? 'Funding Readiness' : 'جاهزية التمويل',
       breakEven: isEn ? "Break-Even" : "نقطة التعادل",
       projectWizard: isEn ? "Project Feasibility Wizard" : "معالج جدوى المشاريع",
@@ -540,6 +541,7 @@
     const v3Base = 'v3/';
     const fundingReadinessHref = langBase + 'funding-readiness.html';
     const fundingSourcesHref = langBase + 'funding-sources.html';
+    const fundingDirectoryHref = isEn ? '/en/directory/' : '/directory/';
     const fundingHubHref = langBase + 'funding.html';
     const kycHref = isEn ? '/en/client/kyc' : '/client/kyc';
     const receivablesAgingHref = isEn ? '/en/client/receivables-aging' : '/client/receivables-aging';
@@ -578,7 +580,7 @@
         heading: { ar: 'الدراسات والتقييم', en: 'Studies & Valuation' },
         items: [
           { label: labels.feasibility, href: langBase + 'my-bonds/workspace/?service=feasibility_studies' },
-          { label: labels.valuation, href: langBase + 'my-bonds/workspace/?service=asset_company_valuation' },
+          { label: labels.valuation, href: valuationHref },
           { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
         ],
       },
@@ -595,6 +597,7 @@
         items: [
           { label: labels.operations, href: langBase + 'service-request.html?service=operational_consulting' },
           { label: labels.research, href: langBase + 'my-bonds/workspace/?service=market_research' },
+          { label: labels.scientificResearch, href: langBase + 'my-bonds/workspace/?service=scientific_research' },
         ],
       },
     ];
@@ -642,26 +645,18 @@
       {
         heading: { ar: labels.fundingGroup, en: 'Funding' },
         items: [
-          { label: labels.fundingHub, href: fundingHubHref },
-          { label: labels.fundingExtraction, href: fundingExtractionHref },
           { label: labels.fundingSources, href: fundingSourcesHref },
+          { label: labels.fundingDirectory, href: fundingDirectoryHref },
+          { label: labels.fundingExtraction, href: fundingExtractionHref },
           { label: labels.fundingReadiness, href: fundingReadinessHref },
+          { label: labels.fundingCases, href: fundingCasesHref },
         ],
       },
       {
         heading: { ar: labels.investmentGroup, en: 'Investment' },
         items: [
           { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
-          { label: labels.projectReadiness, href: isEn ? v3EnglishHubHref + '#project-readiness' : '/v3/project-readiness' },
           { label: labels.opportunityBank, href: isEn ? v3EnglishHubHref + '#opportunity-bank' : '/v3/opportunity-bank' },
-        ],
-      },
-      {
-        heading: { ar: labels.fundingFileGroup, en: 'Funding File' },
-        items: [
-          { label: labels.fundingCases, href: fundingCasesHref },
-          { label: labels.fundingRequirements, href: fundingRequirementsHref },
-          { label: labels.clientPortalNav, href: clientPortalHref },
         ],
       },
     ];
@@ -673,6 +668,7 @@
           { label: labels.cityIntelligence, href: isEn ? v3EnglishHubHref + '#city-intelligence' : '/v3/city-intelligence' },
           { label: labels.cityComparison, href: isEn ? v3EnglishHubHref + '#city-comparison' : '/v3/city-comparison' },
           { label: labels.investmentMap, href: isEn ? v3EnglishHubHref + '#investment-map' : '/v3/investment-map' },
+          { label: labels.projectReadiness, href: isEn ? v3EnglishHubHref + '#project-readiness' : '/v3/project-readiness' },
           { label: labels.scenariosEngine, href: isEn ? v3EnglishHubHref + '#scenarios' : '/v3/scenarios' },
         ],
       },
@@ -726,8 +722,9 @@
           html += `<div class="dropdown-menu__divider"></div><a href="${extraAll.href}">${extraAll.label}</a>`;
         }
       }
+      const colCount = isGrouped ? Math.min(Math.max(items.length, 1), 4) : 1;
       const cls = isGrouped
-        ? 'dropdown-menu dropdown-menu--grouped'
+        ? `dropdown-menu dropdown-menu--grouped dropdown-menu--cols-${colCount}`
         : (isLarge ? 'dropdown-menu dropdown-menu--large' : 'dropdown-menu');
       return `<div class="${cls}">${html}</div>`;
     }
@@ -735,6 +732,7 @@
     const navItems = [
       { href: homeHref, label: labels.home },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
+      { type: 'dropdown', label: labels.fundingGroup, items: fundingDropdown },
       { href: langBase + 'sectors.html', label: labels.sectors },
       { type: 'dropdown', navId: 'tools', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
       { type: 'dropdown', label: labels.knowledge, items: intelligenceDropdown },
@@ -814,6 +812,7 @@
     const fundingHubHref = langBase + 'funding.html';
     const fundingExtractionHref = langBase + 'funding-extraction.html';
     const fundingSourcesHref = langBase + 'funding-sources.html';
+    const fundingDirectoryHref = isEn ? '/en/directory/' : '/directory/';
     const fundingReadinessHref = langBase + 'funding-readiness.html';
     const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
     const aboutHref = langBase + 'about.html';
@@ -853,6 +852,7 @@
         <a href="${fundingHubHref}">${isEn ? 'Funding & Investment Hub' : 'بوابة التمويل والاستثمار'}</a>
         <a href="${fundingExtractionHref}">${isEn ? 'Funding Extraction' : 'استخراج التمويل'}</a>
         <a href="${fundingSourcesHref}">${isEn ? 'Funding Sources' : 'مصادر التمويل'}</a>
+        <a href="${fundingDirectoryHref}">${isEn ? 'Funding Directory' : 'دليل التمويل'}</a>
         <a href="${fundingReadinessHref}">${isEn ? 'Funding Readiness' : 'جاهزية التمويل'}</a>
         <a href="${investmentOpportunitiesHref}">${isEn ? 'Investment Opportunities' : 'فرص استثمارية'}</a>
       </div>
@@ -935,10 +935,10 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.71.0';
+    const href = '/header-footer.css?v=2.72.0';
     const existing = document.querySelector('link[href*="header-footer.css"]');
     if (existing) {
-      if (!existing.href.includes('header-footer.css?v=2.71.0')) {
+      if (!existing.href.includes('header-footer.css?v=2.72.0')) {
         existing.href = href;
       }
       return;

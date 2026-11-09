@@ -14,7 +14,7 @@
 | `credit_assessment` | تقييم الجدارة الائتمانية |
 | `feasibility_study` | دراسة جدوى المشروع |
 | `distressed_project` | إحياء مشروع متعثر |
-| `city_analysis` | استخبارات المدينة |
+| `city_analysis` | مؤشرات المدينة |
 
 ## طريقة الاستخدام
 

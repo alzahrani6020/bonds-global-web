@@ -480,9 +480,9 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
           <span>إنقاذ الأصول المتعثرة</span>
         </button>
-        <button class="sidebar-link" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence">
+        <button class="sidebar-link" data-target="/admin/city-intelligence/index.html?embed=1" data-title="مؤشرات المدينة">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-          <span>City Intelligence</span>
+          <span>مؤشرات المدينة</span>
         </button>
         <button class="sidebar-link" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Z"/><path d="M12 6v6l4 2"/></svg>
@@ -788,7 +788,7 @@
             <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض عملاء الاستشارات"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">📊</div></div><div class="stat-card__num">${statValue(counts.advisoryClients)}</div><div class="stat-card__label">عملاء الاستشارات</div></div>
             <div class="stat-card" data-target="/admin/financial-advisory?embed=1" data-title="الاستشارات المالية" tabindex="0" role="button" aria-label="عرض المشاريع الاستشارية"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--blue">📁</div></div><div class="stat-card__num">${statValue(counts.advisoryProjects)}</div><div class="stat-card__label">مشاريع استشارية</div></div>
             <div class="stat-card" data-target="/admin/distressed-recovery?embed=1" data-title="إنقاذ الأصول المتعثرة" tabindex="0" role="button" aria-label="عرض الأصول المتعثرة"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--red">🏗️</div></div><div class="stat-card__num">${statValue(counts.recoveryAssets)}</div><div class="stat-card__label">أصول متعثرة</div></div>
-            <div class="stat-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence" tabindex="0" role="button" aria-label="عرض مدن City Intelligence"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${statValue(counts.cities)}</div><div class="stat-card__label">مدن City Intelligence</div></div>
+            <div class="stat-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="مؤشرات المدينة" tabindex="0" role="button" aria-label="عرض مدن مؤشرات المدينة"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🏙️</div></div><div class="stat-card__num">${statValue(counts.cities)}</div><div class="stat-card__label">مدن مؤشرات المدينة</div></div>
             <div class="stat-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص" tabindex="0" role="button" aria-label="عرض طلبات مراجعة AI"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--purple">🧑‍⚕️</div></div><div class="stat-card__num">${statValue(counts.aiReviews)}</div><div class="stat-card__label">طلبات مراجعة AI</div></div>
             <div class="stat-card" data-target="/admin/funding-cases/?embed=1" data-title="طلبات التمويل" tabindex="0" role="button" aria-label="عرض طلبات التمويل"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--gold">🏦</div></div><div class="stat-card__num">${statValue(counts.fundingCases)}</div><div class="stat-card__label">طلبات التمويل</div></div>
             <div class="stat-card" data-target="online-users" data-title="المتواجدون" tabindex="0" role="button" aria-label="عرض المتواجدين الآن"><div class="stat-card__header"><div class="stat-card__icon stat-card__icon--green">🟢</div></div><div class="stat-card__num">${statValue(counts.onlineUsers)}</div><div class="stat-card__label">متواجدون الآن</div></div>
@@ -870,9 +870,9 @@
               <div class="module-card__title">إنقاذ الأصول المتعثرة</div>
               <div class="module-card__desc">تقييم الأصول وخطط الإنقاذ</div>
             </button>
-            <button class="module-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="City Intelligence">
+            <button class="module-card" data-target="/admin/city-intelligence/index.html?embed=1" data-title="مؤشرات المدينة">
               <div class="module-card__icon">🏙️</div>
-              <div class="module-card__title">City Intelligence</div>
+              <div class="module-card__title">مؤشرات المدينة</div>
               <div class="module-card__desc">تحليل المدن والأحياء والتقارير</div>
             </button>
             <button class="module-card" data-target="/admin/ai-reviews.html?embed=1" data-title="مراجعة المتخصص">
@@ -1307,7 +1307,7 @@
           {
             label: 'الذكاء والبيانات',
             items: [
-              ['/admin/city-intelligence/index.html?embed=1', 'ذكاء المدن'],
+              ['/admin/city-intelligence/index.html?embed=1', 'مؤشرات المدينة'],
               ['/admin/data-coverage.html?embed=1', 'مصفوفة تغطية البيانات'],
               ['/admin/market-intelligence.html?embed=1', 'الذكاء السوقي'],
               ['/admin/data-quality-center?embed=1', 'مركز جودة البيانات'],

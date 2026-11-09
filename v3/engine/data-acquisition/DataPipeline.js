@@ -8,6 +8,7 @@ const InferenceEngine = require('./InferenceEngine');
 const FeedbackEngine = require('./FeedbackEngine');
 const RegressionEstimator = require('../ml/RegressionEstimator');
 const OpportunityScoringEngine = require('../OpportunityScoringEngine');
+const { isCityGrainObservation } = require('./source-capability-registry');
 
 class DataPipeline {
   constructor(supabaseConfig, options = {}) {
@@ -171,6 +172,9 @@ class DataPipeline {
     // 按 metric_code 分组
     const grouped = {};
     for (const m of metrics || []) {
+      // City Gold is a city-grain mart. Region/national silver observations
+      // stay in normalized_metrics and must not be written as city indicators.
+      if (!isCityGrainObservation(m)) continue;
       if (!grouped[m.metric_code]) grouped[m.metric_code] = [];
       grouped[m.metric_code].push({
         value: m.value,

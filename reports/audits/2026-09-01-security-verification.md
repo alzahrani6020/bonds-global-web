@@ -68,7 +68,7 @@ ALTER TABLE public._migrations DISABLE ROW LEVEL SECURITY;
 - Read/modify system metadata (_migrations table)
 - Read/delete all social posts
 - Access/modify fabric infrastructure tables
-- Read/delete city intelligence data
+- Read/delete city indicators data
 
 ---
 

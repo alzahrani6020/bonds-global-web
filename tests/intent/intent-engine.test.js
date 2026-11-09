@@ -39,4 +39,10 @@ describe('Intent Engine', () => {
   it('gets a single intent', () => {
     expect(getIntent('buy_asset').id).toBe('buy_asset');
   });
+
+  it('detects scientific research as distinct from market analysis', () => {
+    const result = detectIntent('أحتاج بحث علمي بمنهجية وفرضية');
+    expect(result.intent).toBe('scientific_research');
+    expect(getIntent('scientific_research').id).toBe('scientific_research');
+  });
 });

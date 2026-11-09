@@ -1,5 +1,5 @@
 /**
- * CityIntelligenceService — Client-side CRUD for City Intelligence module.
+ * CityIntelligenceService — Client-side CRUD for the city indicators module.
  */
 (function (global) {
   'use strict';
@@ -352,7 +352,7 @@
         .select()
         .single();
       if (error) throw error;
-      await logAction('تعيين دور City Intelligence', { target_user: userId, role });
+      await logAction('تعيين دور مؤشرات المدينة', { target_user: userId, role });
       return data;
     },
     async removeCityRole(userId) {
@@ -360,7 +360,7 @@
       const client = getClient();
       const { error } = await client.from('city_roles').delete().eq('user_id', userId);
       if (error) throw error;
-      await logAction('إزالة دور City Intelligence', { target_user: userId });
+      await logAction('إزالة دور مؤشرات المدينة', { target_user: userId });
       return true;
     }
   };

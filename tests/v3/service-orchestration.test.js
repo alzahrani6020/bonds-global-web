@@ -42,6 +42,7 @@ describe('Dynamic service orchestration layer', () => {
     expect(layout).toContain("label: labels.sectors");
     expect(layout).toContain("label: labels.tools");
     expect(layout).toContain("label: labels.knowledge");
+    expect(layout).toContain("{ type: 'dropdown', label: labels.fundingGroup, items: fundingDropdown }");
     expect(layout).not.toContain("{ type: 'dropdown', label: labels.fundingHub, items: fundingDropdown, highlight: true }");
   });
 

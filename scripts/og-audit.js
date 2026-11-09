@@ -13,17 +13,18 @@ const PATTERNS = [
   'blog/**/*.html',
   'calculators/**/*.html',
   'sectors/**/*.html',
+  'directory/**/*.html',
   'v3/**/*.html',
   'wave4/**/*.html',
 ];
 
-const files = PATTERNS.flatMap((p) => {
+const files = [...new Set(PATTERNS.flatMap((p) => {
   try {
     return fs.globSync(p, { cwd: ROOT, absolute: true });
   } catch {
     return [];
   }
-}).filter((f) => !f.includes('node_modules') && !f.includes('.vercel') && !path.basename(f).startsWith('google') && !path.basename(f).startsWith('BingSiteAuth'));
+}))].filter((f) => !f.includes('node_modules') && !f.includes('.vercel') && !path.basename(f).startsWith('google') && !path.basename(f).startsWith('BingSiteAuth'));
 
 const requiredMeta = [
   { name: 'description', attr: 'name' },

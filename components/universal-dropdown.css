@@ -179,6 +179,10 @@ select[data-ud-native] {
 
 .ud-dropdown.ud-portal .ud-menu {
   position: fixed;
+  left: auto;
+  right: auto;
+  min-width: 0;
+  max-width: min(100vw - 24px, 420px);
 }
 
 /* ---------- Search (Select2 / Ant Design style) ---------- */

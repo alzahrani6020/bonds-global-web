@@ -3,6 +3,7 @@
  * يجمع المؤشرات الاقتصادية والديموغرافية للمدينة من المصادر الرسمية حسب الدولة.
  */
 const DataPipeline = require('../DataPipeline');
+const { liveAdapterIdsForCountry } = require('../source-capability-registry');
 const {
   GastatAdapter,
   SamaAdapter,
@@ -41,34 +42,54 @@ class CityEngine {
 
     const city = await this._getCity(cityId);
     const cityContext = {
-      population: city?.population || 1000000,
-      purchasingPowerIndex: city?.purchasing_power_index || 100,
+      population: city?.population || (options.liveOnly ? undefined : 1000000),
+      purchasingPowerIndex: city?.purchasing_power_index || (options.liveOnly ? undefined : 100),
       countryCode: city?.country_code || countryCode || 'SA'
     };
 
     const results = [];
-    const adaptersToRun = this._selectAdapters(cityContext.countryCode);
+    const adaptersToRun = options.liveOnly
+      ? this._selectLiveAdapters(cityContext.countryCode)
+      : this._selectAdapters(cityContext.countryCode);
 
     for (const adapter of adaptersToRun) {
       results.push(await this.pipeline.runAdapter(adapter, {
-        cityId, cityCode, year, runType: 'incremental', ...cityContext
+        cityId, cityCode, year, runType: options.liveOnly ? 'live' : 'incremental', ...cityContext
       }));
     }
 
     let effectiveYear = Number.isInteger(Number(year)) ? Number(year) : null;
     if (!effectiveYear) {
-      const { data: latestMetric } = await this.pipeline.supabase
+      const { data: latestMetrics } = await this.pipeline.supabase
         .from('normalized_metrics')
-        .select('year')
+        .select('year,source_url,metadata')
         .eq('city_id', cityId)
         .order('year', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      effectiveYear = Number(latestMetric?.year) || new Date().getFullYear();
+        .limit(50);
+      const observed = (latestMetrics || []).find(row => {
+        const quality = String(row.metadata?.dataQuality || '').toLowerCase();
+        return Number.isInteger(Number(row.year)) && (
+          row.metadata?.observationKind === 'observed' ||
+          (
+            row.metadata?.estimated !== true &&
+            Boolean(row.source_url) &&
+            ['official', 'open_data'].includes(quality)
+          )
+        );
+      });
+      effectiveYear = Number(observed?.year) || (
+        options.updateGold === false
+          ? null
+          : (Number(latestMetrics?.[0]?.year) || new Date().getFullYear())
+      );
     }
 
-    // Fuse the actual observed year, not the literal "latest" request token.
-    const fused = await this.pipeline.fuseToGold({ cityId, cityCode, year: effectiveYear });
+    // Live refresh stores sourced observations only. Gold fusion remains an
+    // admin/materialization step so national/regional facts are not written
+    // as if they were city-level indicators.
+    const fused = options.updateGold === false
+      ? null
+      : await this.pipeline.fuseToGold({ cityId, cityCode, year: effectiveYear });
 
     return {
       engine: 'CityEngine',
@@ -78,8 +99,16 @@ class CityEngine {
       requestedYear: year,
       year: effectiveYear,
       adapters: results,
-      fused
+      fused,
+      liveOnly: Boolean(options.liveOnly),
+      updateGold: options.updateGold !== false
     };
+  }
+
+  _selectLiveAdapters(countryCode) {
+    return liveAdapterIdsForCountry(countryCode)
+      .map(id => this.adapters[id])
+      .filter(Boolean);
   }
 
   _selectAdapters(countryCode) {

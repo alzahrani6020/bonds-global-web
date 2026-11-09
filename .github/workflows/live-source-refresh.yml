@@ -1,0 +1,23 @@
+name: Live Source Refresh
+
+on:
+  schedule:
+    - cron: '20 2 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  refresh:
+    name: Refresh official city and country observations
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger live source ingest
+        run: |
+          curl -fsS -X POST "${SITE_URL}/api/v3/cron/live-source-refresh" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            -d '{}'
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://bonds-global.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}

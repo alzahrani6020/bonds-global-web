@@ -7,7 +7,7 @@ Current migrations define ~45 tables across:
 - Subscriptions/Billing: `subscriptions`, `moyasar_invoices`, `bank_transfer_requests`
 - Advisory: `advisory_clients`, `advisory_projects`, `advisory_feasibility_studies`, `advisory_financial_models`, `advisory_documents`, `advisory_notes`, `advisory_activity_logs`
 - Recovery: `recovery_assets`, `recovery_plans`, `recovery_plan_stages`, `recovery_investor_offers`, `recovery_investors`, etc.
-- City Intelligence: `cities`, `districts`, `city_indicator_values`, `city_competitors`, `city_projects`, `city_reports`
+- مؤشرات المدينة: `cities`, `districts`, `city_indicator_values`, `city_competitors`, `city_projects`, `city_reports`
 - AI Advisor: `ai_advisor_reports`
 - Analytics: `usage_logs`, `page_views`, `page_sessions`, `contact_messages`
 - Restaurant/Ingredients: `ingredients`, `ingredient_prices`, `recipes`, `recipe_ingredients`
