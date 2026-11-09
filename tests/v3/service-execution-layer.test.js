@@ -30,6 +30,7 @@ describe('Unified service execution layer', () => {
     expect(router).toContain("SERVICE_EXECUTION_NOT_AUTOMATED");
     expect(router).toContain('getCapability');
     expect(router).toContain('capability?.serviceCode');
+    expect(router).toContain('enrichStudiesExecutionRequest');
     expect(router).toContain("orchestrator_run");
     expect(router).toContain("calculator_open");
     expect(router).toContain("calculator_run");

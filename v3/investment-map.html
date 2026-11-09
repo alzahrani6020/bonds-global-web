@@ -249,7 +249,7 @@
       <h1>▣ الخريطة الاستثمارية</h1>
       <p>اكتشف أفضل المدن والفرص حسب النشاط الاقتصادي</p>
     </div>
-    <a class="back-link" href="/v3/city-intelligence">← ذكاء المدن</a>
+    <a class="back-link" href="/v3/city-intelligence">← مؤشرات المدينة</a>
   </section>
 
   <div class="layout">
@@ -603,12 +603,12 @@
           <div class="popup-metric"><span>حجم السوق:</span><span>${formatMarketMoney(city.opportunity.marketSize, city.opportunity.currencyCode)}</span></div>
           <div class="popup-metric"><span>المنافسين:</span><span>${formatNumber(city.opportunity.competitorsCount)}</span></div>
           <div class="popup-metric"><span>التشبع:</span><span>${city.opportunity.saturation ?? '-'}%</span></div>
-          <a class="popup-link" href="/v3/city-intelligence?city=${encodeURIComponent(city.code)}&activity=${encodeURIComponent(document.getElementById('activitySelect').value)}" target="_blank" rel="noopener">عرض ذكاء المدينة →</a>
+          <a class="popup-link" href="/v3/city-intelligence?city=${encodeURIComponent(city.code)}&activity=${encodeURIComponent(document.getElementById('activitySelect').value)}" target="_blank" rel="noopener">عرض مؤشرات المدينة →</a>
         ` : `
           <div class="popup-title">${city.name_ar || city.name_en || city.code || 'مدينة'}</div>
           <div class="popup-metric"><span>الدولة:</span><strong>${countryNames[city.country_code] || city.country_code}</strong></div>
           <div class="popup-metric"><span>السكان:</span><strong>${formatNumber(city.population)}</strong></div>
-          <a class="popup-link" href="/v3/city-intelligence?city=${encodeURIComponent(city.code)}" target="_blank" rel="noopener">عرض ذكاء المدينة →</a>
+          <a class="popup-link" href="/v3/city-intelligence?city=${encodeURIComponent(city.code)}" target="_blank" rel="noopener">عرض مؤشرات المدينة →</a>
         `;
         marker.bindPopup(popupContent);
         bounds.extend([Number(city.lat), Number(city.lng)]);
@@ -722,7 +722,7 @@
       }
     })();
   </script>
-  <script src="/v3/components/ai-chat-widget.js?v=global-assistant-fd8d86c611"></script>
+  <script src="/v3/components/ai-chat-widget.js?v=global-assistant-c0fdd9ca66"></script>
   <div id="site-footer"></div>
   <script src="shared-v3-ui.js" defer></script>
 <script src="/components/emoji-icons.js" defer></script>

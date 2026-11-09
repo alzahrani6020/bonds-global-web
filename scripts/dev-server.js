@@ -47,14 +47,49 @@ const ROOT = path.join(__dirname, '..');
 // Pre-compile API handler cache
 const apiHandlers = {};
 function getApiHandler(fileName) {
-  if (!apiHandlers[fileName]) {
-    const fullPath = path.join(ROOT, 'api', fileName);
-    if (!fs.existsSync(fullPath)) return null;
-    // Clear require cache so edits are picked up without restart
-    delete require.cache[require.resolve(fullPath)];
-    apiHandlers[fileName] = require(fullPath);
+  const fullPath = path.join(ROOT, 'api', fileName);
+  if (!fs.existsSync(fullPath)) return null;
+  // Clear require cache so edits are picked up without restart
+  delete require.cache[require.resolve(fullPath)];
+  if (String(fileName).replace(/\\/g, '/') === 'v3/index.js') {
+    for (const key of Object.keys(require.cache)) {
+      const norm = key.replace(/\\/g, '/');
+      if (norm.includes('/v3/api/') || norm.includes('/v3/engine/') || norm.includes('/lib/data/')) {
+        delete require.cache[key];
+      }
+    }
   }
+  apiHandlers[fileName] = require(fullPath);
   return apiHandlers[fileName];
+}
+
+function parseUrlQuery(reqUrl) {
+  const query = {};
+  const raw = String(reqUrl || '').split('?')[1] || '';
+  if (!raw) return query;
+  for (const [key, value] of new URLSearchParams(raw).entries()) {
+    if (query[key] === undefined) query[key] = value;
+    else if (Array.isArray(query[key])) query[key].push(value);
+    else query[key] = [query[key], value];
+  }
+  return query;
+}
+
+async function readJsonBody(req) {
+  if (!req || req.method === 'GET' || req.method === 'HEAD' || req.method === 'OPTIONS') {
+    return undefined;
+  }
+  const ctype = String(req.headers && req.headers['content-type'] || '');
+  if (!ctype.includes('application/json')) return undefined;
+  const chunks = [];
+  for await (const chunk of req) chunks.push(chunk);
+  const raw = Buffer.concat(chunks).toString('utf8').trim();
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw);
+  } catch (_) {
+    return {};
+  }
 }
 
 // Single source of truth: exact-match /api/* rewrites are read from vercel.json
@@ -234,6 +269,11 @@ async function handleApi(req, res, log) {
     req.url = applyVercelApiRewrite(req.url);
   }
 
+  req.query = parseUrlQuery(req.url);
+  if (req.body === undefined) {
+    req.body = await readJsonBody(req);
+  }
+
   const apiFile = resolveApiRoute(req.url);
   if (!apiFile) {
     res.statusCode = 404;
@@ -358,4 +398,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { applyVercelApiRewrite, loadVercelApiRewrites, resolveApiRoute };
+module.exports = { applyVercelApiRewrite, loadVercelApiRewrites, resolveApiRoute, parseUrlQuery };

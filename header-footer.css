@@ -2301,3 +2301,26 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
   white-space: nowrap;
   vertical-align: middle;
 }
+
+@media (min-width: 1281px) {
+  html[dir] .main-header .dropdown-menu--grouped.dropdown-menu--cols-1,
+  .dropdown-menu--grouped.dropdown-menu--cols-1 {
+    grid-template-columns: 1fr;
+    width: min(280px, calc(100vw - 2rem));
+  }
+  html[dir] .main-header .dropdown-menu--grouped.dropdown-menu--cols-2,
+  .dropdown-menu--grouped.dropdown-menu--cols-2 {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    width: min(520px, calc(100vw - 2rem));
+  }
+  html[dir] .main-header .dropdown-menu--grouped.dropdown-menu--cols-3,
+  .dropdown-menu--grouped.dropdown-menu--cols-3 {
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    width: min(720px, calc(100vw - 2rem));
+  }
+  html[dir] .main-header .dropdown-menu--grouped.dropdown-menu--cols-4,
+  .dropdown-menu--grouped.dropdown-menu--cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: min(920px, calc(100vw - 2rem));
+  }
+}

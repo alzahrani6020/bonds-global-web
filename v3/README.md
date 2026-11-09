@@ -159,7 +159,7 @@ OPENAI_MODEL=gpt-4o-mini # اختياري
 - `ManualAdapter` — إدخال يدوي من فريق بوندز.
 - `LLMEstimationAdapter` — تقدير ذكي للفجوات.
 
-### Public City Intelligence على الإنتاج الحالي
+### مؤشرات المدينة العامة على الإنتاج الحالي
 صفحة عمومية لعرض مؤشرات المدن:
 
 ```

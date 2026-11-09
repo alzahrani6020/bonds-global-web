@@ -14,6 +14,10 @@ const {
 const FeedbackEngine = require('../engine/data-acquisition/FeedbackEngine');
 const RegressionEstimator = require('../engine/ml/RegressionEstimator');
 const { CountryIndicatorEngine } = require('../../lib/data/country-indicator-engine');
+const {
+  liveAdapterIdsForCountry,
+  LIVE_CRON_CITY_CODES
+} = require('../engine/data-acquisition/source-capability-registry');
 
 function sendJson(res, status, data) {
   res.statusCode = status;
@@ -22,6 +26,9 @@ function sendJson(res, status, data) {
 }
 
 function parseBody(req) {
+  if (req.body && typeof req.body === 'object' && !Buffer.isBuffer(req.body)) {
+    return Promise.resolve(req.body);
+  }
   return new Promise((resolve, reject) => {
     let body = '';
     req.on('data', chunk => (body += chunk));
@@ -32,6 +39,7 @@ function parseBody(req) {
         reject(err);
       }
     });
+    req.on('error', reject);
   });
 }
 
@@ -366,6 +374,69 @@ async function handleFeedbackAccuracy(req, res) {
   }
 }
 
+const LIVE_REFRESH_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+async function handleLiveCityRefresh(req, res) {
+  const body = await parseBody(req);
+  const cityCode = String(body.cityCode || '').trim();
+  const force = body.force === true;
+
+  if (!cityCode) {
+    return sendJson(res, 400, { error: 'cityCode is required' });
+  }
+
+  const supabase = getSupabaseClient();
+  let city;
+  try {
+    city = await resolveCity(supabase, cityCode);
+  } catch (err) {
+    return sendJson(res, 404, { error: err.message });
+  }
+
+  if (!force) {
+    const since = new Date(Date.now() - LIVE_REFRESH_MAX_AGE_MS).toISOString();
+    const { data: recentRuns } = await supabase
+      .from('data_source_runs')
+      .select('id,source_id,status,finished_at,metadata')
+      .in('source_id', ['gastat', 'sama', 'world_bank_country'])
+      .eq('status', 'success')
+      .gte('finished_at', since)
+      .order('finished_at', { ascending: false })
+      .limit(20);
+    const cached = (recentRuns || []).find(run =>
+      ['gastat', 'sama'].includes(run.source_id) && run.metadata?.cityCode === cityCode
+    );
+    if (cached) {
+      return sendJson(res, 200, {
+        success: true,
+        cached: true,
+        liveOnly: true,
+        city: { code: city.code, country_code: city.country_code },
+        lastFetchedAt: cached.finished_at,
+        message: 'تم الجلب الحي خلال ست ساعات. لن يُعاد الطلب من المصدر إلا بالجلب الإجباري.'
+      });
+    }
+  }
+
+  const config = getSupabaseConfig();
+
+  try {
+    const { cityResult, countryIndicators } = await refreshLiveCity(supabase, config, cityCode);
+    sendJson(res, 200, {
+      success: true,
+      cached: false,
+      liveOnly: true,
+      city: { code: city.code, country_code: city.country_code },
+      adapters: cityResult?.adapters || [],
+      countryIndicators,
+      year: cityResult?.year || null
+    });
+  } catch (err) {
+    console.error('[data-engine live-refresh]', err.message);
+    sendJson(res, 500, { error: err.message });
+  }
+}
+
 async function handleAutoFill(req, res) {
   if (!(await requireAdminAccess(req))) {
     return sendJson(res, 401, { error: 'Unauthorized' });
@@ -559,6 +630,10 @@ async function dataEngineRouter(req, res, path) {
     return handleGetIndicators(req, res);
   }
 
+  if (path === '/data/live-refresh' && req.method === 'POST') {
+    return handleLiveCityRefresh(req, res);
+  }
+
   if (path === '/data/auto-fill' && req.method === 'POST') {
     return handleAutoFill(req, res);
   }
@@ -586,4 +661,91 @@ async function dataEngineRouter(req, res, path) {
   sendJson(res, 404, { error: 'Not found' });
 }
 
-module.exports = { dataEngineRouter };
+async function refreshLiveCity(supabase, config, cityCode, { refreshCountry = true } = {}) {
+  const city = await resolveCity(supabase, cityCode);
+  const cityEngine = new CityEngine(config, {
+    pipeline: { persistModeledGold: false, inferMissing: false }
+  });
+  const cityResult = await cityEngine.run({
+    cityId: city.id,
+    cityCode,
+    countryCode: city.country_code,
+    year: 'latest',
+    liveOnly: true,
+    updateGold: false
+  });
+
+  let countryIndicators = null;
+  if (refreshCountry) {
+    try {
+      const countryEngine = new CountryIndicatorEngine({ timeoutMs: 12000 });
+      countryIndicators = await countryEngine.refresh(supabase, {
+        countryCodes: [city.country_code]
+      });
+    } catch (countryErr) {
+      countryIndicators = {
+        updated: 0,
+        failed: 1,
+        errors: [countryErr.message]
+      };
+    }
+  }
+
+  return { city, cityResult, countryIndicators };
+}
+
+async function runScheduledLiveRefresh() {
+  const supabase = getSupabaseClient();
+  const config = getSupabaseConfig();
+  let countryIndicators;
+  try {
+    const countryEngine = new CountryIndicatorEngine({ timeoutMs: 12000 });
+    countryIndicators = await countryEngine.refresh(supabase);
+  } catch (err) {
+    countryIndicators = { updated: 0, failed: 1, errors: [err.message] };
+  }
+
+  const cities = [];
+  for (const cityCode of LIVE_CRON_CITY_CODES) {
+    try {
+      const city = await resolveCity(supabase, cityCode);
+      if (!liveAdapterIdsForCountry(city.country_code).length) {
+        cities.push({ cityCode, skipped: true, reason: 'no_live_adapters' });
+        continue;
+      }
+      const { cityResult } = await refreshLiveCity(supabase, config, cityCode, {
+        refreshCountry: false
+      });
+      cities.push({
+        cityCode,
+        status: 'ok',
+        year: cityResult.year,
+        adapters: cityResult.adapters
+      });
+    } catch (err) {
+      cities.push({ cityCode, status: 'error', error: err.message });
+    }
+  }
+
+  return {
+    liveOnly: true,
+    updateGold: false,
+    countryIndicators,
+    cities
+  };
+}
+
+async function handleCronLiveSourceRefresh(req, res) {
+  if (req.method !== 'POST' && req.method !== 'GET') {
+    return sendJson(res, 405, { error: 'Method not allowed' });
+  }
+  try {
+    const result = await runScheduledLiveRefresh();
+    sendJson(res, 200, { cron: 'live-source-refresh', ...result });
+  } catch (err) {
+    console.error('[data-engine cron live-source-refresh]', err.message);
+    sendJson(res, 500, { error: err.message });
+  }
+}
+
+module.exports = { dataEngineRouter, handleCronLiveSourceRefresh };

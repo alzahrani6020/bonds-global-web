@@ -451,7 +451,7 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 | مستشار الأعمال الذكي | `/admin/ai-business-advisor/` | تحليل مالي، فرص، مخاطر، حلول تمويلية، تقارير إدارة عليا. لا يُفتح مباشرة — يُعيد التوجيه إلى `/admin/dashboard.html`. |
 | الاستشارات المالية | `/admin/financial-advisory/` | العملاء، المشاريع، دراسات الجدوى، النماذج المالية. |
 | إنقاذ الأصول المتعثرة | `/admin/distressed-recovery/` | تقييم الأصول وخطط الإنقاذ. |
-| City Intelligence | `/admin/city-intelligence/` | تحليل المدن والأحياء والتقارير الجغرافية. |
+| مؤشرات المدينة | `/admin/city-intelligence/` | تحليل المدن والأحياء والتقارير الجغرافية. |
 | مراجعة المتخصص (AI) | `/admin/ai-reviews.html` | إدارة طلبات مراجعة تحليلات AI من العملاء. تعتمد على `ai_review_requests` والحالات: pending_review → assigned → under_review → approved → returned. |
 | التواصل الاجتماعي | `/admin/social-media/` | ربط ونشر ومراقبة حسابات بوندز على Instagram و YouTube و X. APIs: `/api/social-feed`، `/api/social-accounts`، `/api/social-publish`. انظر `docs/SOCIAL_INTEGRATION.md`. |
 

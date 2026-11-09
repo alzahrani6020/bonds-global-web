@@ -10,7 +10,7 @@ describe('V3 canonical geo coordinate fallback', () => {
 
     expect(api).toContain('async function enrichCitiesWithGeoCoordinates');
     expect(api).toContain(".from('geo_places')");
-    expect(api).toContain(".select('id,lat,lng,confidence,source_code,source_updated_at')");
+    expect(api).toContain(".select('id,lat,lng,confidence,source_code,source_updated_at,population')");
     expect(api).toContain("let selectFields = 'id, code, geo_place_id");
     expect(api).toContain('let enriched = await enrichCitiesWithGeoCoordinates(supabase, cities || [])');
   });
@@ -18,8 +18,10 @@ describe('V3 canonical geo coordinate fallback', () => {
   test('legacy city coordinates win over canonical fallback', () => {
     const api = read('v3/api/index.js');
 
-    expect(api).toContain('if (rowHasCoords || !placeHasCoords) return row');
-    expect(api).toContain('coordinate_source: place.source_code || \'geo_places\'');
+    expect(api).toContain('function applyGeoPlaceProfile(row, place)');
+    expect(api).toContain('if (!hasGeoCoordinates(next) && hasGeoCoordinates(place))');
+    expect(api).toContain("next.coordinate_source = place.source_code || 'geo_places'");
+    expect(api).toContain("next.population_source = place.source_code || 'geo_places'");
   });
 
   test('catalog and opportunity responses use canonical coordinates when linked', () => {

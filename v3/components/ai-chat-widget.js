@@ -1329,7 +1329,11 @@
         const raw = window.sessionStorage?.getItem(SERVICE_ASSISTANT_CONTEXT_KEY);
         if (!raw) return {};
         const parsed = JSON.parse(raw);
-        if (!parsed || parsed.version !== 1 || parsed.source !== 'service_discovery') return {};
+        if (!parsed || parsed.version !== 1) return {};
+        if (parsed.source !== 'service_discovery' && parsed.source !== 'service_workspace') return {};
+        const executionInputs = parsed.executionInputs && typeof parsed.executionInputs === 'object' && !Array.isArray(parsed.executionInputs)
+          ? parsed.executionInputs
+          : null;
         return {
           serviceCode: typeof parsed.serviceCode === 'string' ? parsed.serviceCode.slice(0, 100) : null,
           serviceName: typeof parsed.serviceName === 'string' ? parsed.serviceName.slice(0, 200) : null,
@@ -1342,7 +1346,9 @@
           sectorName: typeof parsed.sectorName === 'string' ? parsed.sectorName.slice(0, 200) : null,
           activityCode: typeof parsed.activityCode === 'string' ? parsed.activityCode.slice(0, 100) : null,
           activityName: typeof parsed.activityName === 'string' ? parsed.activityName.slice(0, 200) : null,
-          language: parsed.language === 'en' ? 'en' : 'ar'
+          language: parsed.language === 'en' ? 'en' : 'ar',
+          studiesBrief: typeof parsed.studiesBrief === 'string' ? parsed.studiesBrief.slice(0, 500) : null,
+          executionInputs
         };
       } catch (_) {
         return {};
@@ -1365,6 +1371,40 @@
       if (/^\d{4}-\d{2}-\d{2}$/.test(String(to))) patch.accountingTo = String(to);
       if (budgetPlanId) patch.budgetPlanId = budgetPlanId;
       if (/^\d{4}-\d{2}-\d{2}$/.test(actualThroughDate)) patch.actualThrough = actualThroughDate;
+      return patch;
+    }
+
+    function readStudiesWorkspaceContext() {
+      const form = document.querySelector('#srRequestForm');
+      if (!form || !document.body.classList.contains('studies-workspace-mode')) return {};
+      const params = new URLSearchParams(window.location.search);
+      const executionInputs = {};
+      form.querySelectorAll('[name]').forEach(el => {
+        if (!el.name || el.type === 'file' || el.name === '__intake_mode') return;
+        if (el.type === 'checkbox') executionInputs[el.name] = el.checked;
+        else if (el.multiple) executionInputs[el.name] = Array.from(el.selectedOptions).map(option => option.value);
+        else if (el.value !== '') executionInputs[el.name] = el.value;
+      });
+      const brief = String(
+        executionInputs.research_problem ||
+        executionInputs.research_question ||
+        executionInputs.project_brief ||
+        executionInputs.risk_question ||
+        ''
+      ).trim().slice(0, 500);
+      const country = String(executionInputs.country_code || params.get('country') || '').trim();
+      const sector = String(executionInputs.sector_code || params.get('sector') || '').trim();
+      const activity = String(executionInputs.activity_code || params.get('activity') || '').trim();
+      const city = String(executionInputs.locality_name || params.get('locality_name') || params.get('locality') || '').trim();
+      const patch = {
+        serviceCode: params.get('service') || context.serviceCode || null,
+        executionInputs
+      };
+      if (brief) patch.studiesBrief = brief;
+      if (country) patch.countryCode = country.slice(0, 20);
+      if (sector) patch.sectorCode = sector.slice(0, 100);
+      if (activity) patch.activityCode = activity.slice(0, 100);
+      if (city) patch.localityName = city.slice(0, 200);
       return patch;
     }
 
@@ -2497,6 +2537,7 @@
       context.pageTitle = document.title || context.pageTitle || null;
       context.cityName = getCityName() || context.localityName || context.cityName || null;
       context.activityName = getActivityName() || context.activityName || null;
+      updateContext(readStudiesWorkspaceContext());
     }
 
     function notificationText(notification, field) {
@@ -4274,7 +4315,7 @@
       setLoading(true);
       input.value = '';
 
-      context = { ...context, ...readAccountingWorkspaceContext() };
+      context = { ...context, ...readAccountingWorkspaceContext(), ...readStudiesWorkspaceContext() };
       const isProjectMode = context.mode === 'project' && context.projectId;
       const url = isProjectMode ? ECC_ADVISOR_URL : API_URL;
       const structuredState = assistantContextEnabled()

@@ -26,6 +26,11 @@ describe('V3 city intelligence catalog and truth regressions', () => {
     expect(page).toContain('لا توجد ثلاثة أبعاد مستقلة على الأقل بأدلة مصدرية مثبتة');
     expect(page).toContain('/evidence?year=');
     expect(page).toContain('id="catalogSummary"');
+    expect(page).toContain('function cityOrNational(');
+    expect(page).toContain('cityOrNational(\'population\', null, \'نسمة\'');
+    expect(page).toContain('سياق وطني');
+    expect(page).toContain("API_URL + '/data/live-refresh'");
+    expect(page).toContain('جلب حي من المصادر');
     expect(page).not.toContain('أكثر من 1200 مدينة');
   });
 
@@ -71,5 +76,12 @@ describe('V3 city intelligence catalog and truth regressions', () => {
     expect(source).toContain('this.useFallback = config.useFallback === true;');
     expect(source).toContain("metricScope.population = 'region'");
     expect(source).toContain("metricScope[k] = 'national'");
+  });
+
+  test('catalog cities inherit GeoNames population without inventing city indicators', () => {
+    const api = read('v3/api/index.js');
+    expect(api).toContain('function applyGeoPlaceProfile(row, place)');
+    expect(api).toContain('if (!(Number(next.population) > 0) && Number(place.population) > 0)');
+    expect(api).toContain('const [cityRecord] = await enrichCitiesWithGeoCoordinates(supabase, [city])');
   });
 });

@@ -17,6 +17,8 @@ describe('service to AI context bridge', () => {
   test('chat widget consumes service context and isolates memory by service', () => {
     expect(widget).toContain("const SERVICE_ASSISTANT_CONTEXT_KEY = 'bonds_service_assistant_context_v1';");
     expect(widget).toContain('function readServiceAssistantContext()');
+    expect(widget).toContain("parsed.source !== 'service_workspace'");
+    expect(widget).toContain('function readStudiesWorkspaceContext()');
     expect(widget).toContain('serviceCode: typeof parsed.serviceCode');
     expect(widget).toContain('|service:${service}');
     expect(widget).toContain('return service ?');

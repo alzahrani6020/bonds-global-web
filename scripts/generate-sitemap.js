@@ -51,6 +51,7 @@ const EXCLUDED_FILES = new Set([
   'auth-v2.html',
   '404.html',
   '500.html',
+  'offline.html',
   'maintenance.html',
 ]);
 
@@ -139,6 +140,12 @@ function getPriority(relPath) {
   // Sector landing pages.
   if (segments[0] === 'sectors' || (segments[0] === 'en' && segments[1] === 'sectors')) {
     return '0.5';
+  }
+
+  // Directory fingerprint pages (banks, sectors, services).
+  const dirIdx = segments[0] === 'en' ? 1 : 0;
+  if (segments[dirIdx] === 'directory') {
+    return segments.length <= dirIdx + 2 ? '0.7' : '0.5';
   }
 
   return '0.5';

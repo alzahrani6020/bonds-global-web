@@ -11,8 +11,12 @@ describe('service workspace UI contract',()=>{
   const api=fs.readFileSync(path.join(process.cwd(),'v3/api/services.js'),'utf8');
 
   test('Arabic and English workspaces reuse governed service execution UI',()=>{
-    expect(ar).toContain('/components/service-request.js?v=4');
-    expect(en).toContain('/components/service-request.js?v=4');
+    expect(ar).toContain('/lib/services/studies-workspace-bindings.js?v=2');
+    expect(en).toContain('/lib/services/studies-workspace-bindings.js?v=2');
+    expect(ar).toContain('/components/service-request.js?v=16');
+    expect(en).toContain('/components/service-request.js?v=16');
+    expect(ar).toContain('/components/service-workspace.css?v=7');
+    expect(en).toContain('/components/service-workspace.css?v=7');
     expect(ar).toContain('id="srRequestForm"');
     expect(en).toContain('id="srRequestForm"');
   });

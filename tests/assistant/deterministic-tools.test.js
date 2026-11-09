@@ -65,15 +65,24 @@ describe('deterministic assistant tools', () => {
 
   test('routes registered City Intelligence use requests but not informational questions', () => {
     expect(parsePageOpen('افتح ذكاء المدن من الموقع')).toEqual({ target:'city_intelligence' });
+    expect(parsePageOpen('افتح مؤشرات المدينة من الموقع')).toEqual({ target:'city_intelligence' });
     expect(parsePageUse('كيف استخدم ذكاء المدن')).toEqual({ target:'city_intelligence' });
     expect(parsePageUse('كيف أستخدم ذكاء المدن من الموقع')).toEqual({ target:'city_intelligence' });
+    expect(parsePageUse('كيف استخدم مؤشرات المدينة')).toEqual({ target:'city_intelligence' });
     expect(parsePageUse('how do I use city intelligence')).toEqual({ target:'city_intelligence' });
+    expect(parsePageUse('how do I use city indicators')).toEqual({ target:'city_intelligence' });
     expect(parsePageUse('كيف يعمل ذكاء المدن؟')).toBeNull();
     expect(parsePageUse('ما فوائد ذكاء المدن؟')).toBeNull();
+    expect(parsePageOpen('كيف استخدم ذكاء المدن من الموقع')).toBeNull();
     expect(resolveDeterministicTool('كيف استخدم ذكاء المدن')).toEqual({
       action:'site_navigate',
       input:{ target:'city_intelligence' }
     });
+    expect(resolveDeterministicTool('كيف استخدم مؤشرات المدينة من الموقع')).toEqual({
+      action:'site_navigate',
+      input:{ target:'city_intelligence' }
+    });
+    expect(resolveDeterministicTool('كيف يعمل ذكاء المدن؟')).toBeNull();
   });
 
   test('describes the current page without asking for more context', () => {

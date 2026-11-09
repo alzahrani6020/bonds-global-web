@@ -1,0 +1,162 @@
+/* Shared black-header billboard: identity is narrow, Bonds ad is the majority */
+
+.page-hero.v2026.bonds-hero-ad,
+body.heritage-public .page-hero.v2026.bonds-hero-ad {
+  min-height: 0 !important;
+  max-height: none !important;
+  display: block !important;
+  align-items: stretch !important;
+  text-align: start !important;
+  padding: 1.1rem 1.25rem 1.4rem !important;
+  background:
+    radial-gradient(ellipse at 78% 18%, rgba(197, 154, 67, 0.18) 0%, transparent 42%),
+    linear-gradient(180deg, #050505 0%, #0c0c0c 100%) !important;
+  color: #f4efe6 !important;
+  border-bottom: 1px solid #1a1a1a !important;
+  overflow: hidden !important;
+}
+
+.bonds-hero-ad__inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(200px, 0.28fr) minmax(0, 0.72fr);
+  gap: 1.25rem;
+  align-items: stretch;
+  max-width: 1180px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 !important;
+}
+
+.bonds-hero-ad__identity {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.2rem 0;
+}
+
+.page-hero.bonds-hero-ad h1,
+body.heritage-public .page-hero.bonds-hero-ad h1 {
+  font-size: clamp(1.45rem, 2.4vw, 2.1rem) !important;
+  font-weight: 900 !important;
+  color: #f4efe6 !important;
+  margin: 0 0 0.65rem !important;
+  line-height: 1.3 !important;
+  text-align: start !important;
+}
+
+.page-hero.bonds-hero-ad h1 span {
+  color: #d4a853 !important;
+}
+
+.page-hero.bonds-hero-ad .bonds-hero-ad__identity > p,
+body.heritage-public .page-hero.bonds-hero-ad .bonds-hero-ad__identity > p {
+  color: #c9c9c9 !important;
+  line-height: 1.7 !important;
+  margin: 0 !important;
+  max-width: none !important;
+  font-size: 0.95rem !important;
+  text-align: start !important;
+}
+
+.bonds-hero-ad__panel {
+  background: linear-gradient(160deg, rgba(212, 168, 83, 0.16), rgba(10, 15, 26, 0.35));
+  border: 1px solid rgba(212, 168, 83, 0.38);
+  border-radius: 16px;
+  padding: 1.15rem 1.3rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 280px;
+  box-shadow: inset 0 1px 0 rgba(240, 201, 106, 0.12);
+}
+
+.bonds-hero-ad__label {
+  display: inline-flex;
+  align-self: flex-start;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0a0f1a;
+  background: #d4a853;
+  border-radius: 4px;
+  padding: 0.22rem 0.55rem;
+  margin-bottom: 0.65rem;
+}
+
+.bonds-hero-ad__kicker {
+  margin: 0 0 0.35rem;
+  color: #f0c96a;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.bonds-hero-ad__title {
+  margin: 0 0 0.55rem !important;
+  color: #f4efe6 !important;
+  font-size: clamp(1.15rem, 2vw, 1.55rem) !important;
+  font-weight: 800 !important;
+  line-height: 1.35 !important;
+}
+
+.bonds-hero-ad__text {
+  margin: 0 0 1rem;
+  color: #c9c9c9;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  max-width: 46rem;
+}
+
+.bonds-hero-ad__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.bonds-hero-ad__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0.55rem 1.05rem;
+  border-radius: 10px;
+  background: #d4a853;
+  color: #0a0f1a !important;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.bonds-hero-ad__btn:hover {
+  background: #f0c96a;
+  color: #0a0f1a !important;
+}
+
+.bonds-hero-ad__btn--ghost {
+  background: transparent;
+  color: #f4efe6 !important;
+  border: 1px solid rgba(212, 168, 83, 0.45);
+}
+
+.bonds-hero-ad__btn--ghost:hover {
+  background: rgba(212, 168, 83, 0.12);
+  color: #f0c96a !important;
+}
+
+@media (max-width: 900px) {
+  .bonds-hero-ad__inner {
+    grid-template-columns: 1fr;
+  }
+  .bonds-hero-ad__panel {
+    order: -1;
+    min-height: 240px;
+  }
+  .bonds-hero-ad__actions {
+    flex-direction: column;
+  }
+  .bonds-hero-ad__btn {
+    width: 100%;
+  }
+}

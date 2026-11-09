@@ -691,6 +691,10 @@
       "schedule": "0 9 * * *"
     },
     {
+      "path": "/api/v3/cron/live-source-refresh",
+      "schedule": "20 2 * * *"
+    },
+    {
       "path": "/api/v3/admin/alerts/evaluate",
       "schedule": "0 8 * * *"
     },

@@ -372,6 +372,31 @@
     return sb.from('advisory_roles').select('role').eq('user_id', userId).maybeSingle();
   }
 
+  function stripOAuthErrorParams(target) {
+    const noise = ['error', 'error_code', 'error_description', 'error_uri'];
+    noise.forEach((key) => target.searchParams.delete(key));
+    if (target.hash && target.hash.length > 1) {
+      const hashQuery = target.hash.startsWith('#') && target.hash.includes('=')
+        ? target.hash.slice(1)
+        : '';
+      if (hashQuery) {
+        const hashParams = new URLSearchParams(hashQuery);
+        let touched = false;
+        noise.forEach((key) => {
+          if (hashParams.has(key)) {
+            hashParams.delete(key);
+            touched = true;
+          }
+        });
+        if (touched) {
+          const nextHash = hashParams.toString();
+          target.hash = nextHash ? '#' + nextHash : '';
+        }
+      }
+    }
+    return target;
+  }
+
   function getRedirectUrl() {
     const params = new URLSearchParams(window.location.search);
     const fromParam = params.get('redirect');
@@ -379,7 +404,7 @@
     const fallback = origin + '/my-bonds/';
     if (fromParam) {
       try {
-        const target = new URL(fromParam, origin || 'https://bonds-global.com');
+        const target = stripOAuthErrorParams(new URL(fromParam, origin || 'https://bonds-global.com'));
         if (!origin || target.origin === origin) {
           const safe = target.pathname + target.search + target.hash;
           try { sessionStorage.setItem('auth_redirect', safe); } catch(e) {}
@@ -527,12 +552,22 @@
     return origin + (url.startsWith('/') ? url : '/' + url);
   }
 
+  function oauthCallbackUrl() {
+    if (typeof window === 'undefined' || !window.location) {
+      return 'https://bonds-global.com/calculators/auth/';
+    }
+    getRedirectUrl();
+    const prefix = window.location.pathname.startsWith('/en/') ? '/en' : '';
+    return window.location.origin + prefix + '/calculators/auth/';
+  }
+
   async function signInWithOAuth(provider, options) {
     await ensureEnv();
     const sb = getSupabase();
     if (!sb) return { error: new Error('Not initialized') };
-    const redirectTo = normalizeUrl(options?.redirectTo) || 'https://bonds-global.com/calculators/auth/confirmed.html';
-    return sb.auth.signInWithOAuth({ provider, options: { ...(options || {}), redirectTo } });
+    const { redirectTo: _ignored, ...rest } = options || {};
+    const redirectTo = oauthCallbackUrl();
+    return sb.auth.signInWithOAuth({ provider, options: { ...rest, redirectTo } });
   }
 
   async function resendConfirmation(email) {

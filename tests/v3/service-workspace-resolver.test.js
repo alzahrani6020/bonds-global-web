@@ -88,6 +88,46 @@ describe('canonical service workspace resolver', () => {
     });
   });
 
+  test('valuation keeps its dedicated product route while remaining executable', () => {
+    expect(resolveServiceWorkspace(
+      {
+        code:'asset_company_valuation',
+        category_code:'studies_valuation',
+        group_code:'studies_valuation',
+        default_route_ar:'/valuation/',
+        default_route_en:'/en/valuation/'
+      },
+      { execution_status:'fully_orchestrated', execution_mode:'capability_plan', primary_action:'orchestrator_run' }
+    )).toMatchObject({
+      type:WORKSPACE_TYPES.STUDIES_VALUATION,
+      mode:'execute',
+      dedicated:true,
+      route_ar:'/valuation/',
+      route_en:'/en/valuation/',
+      reason:'dedicated_execute_route'
+    });
+  });
+
+  test('scientific research stays in the studies workspace', () => {
+    expect(workspaceTypeFor({
+      category_code:'business_market',
+      group_code:'business_market'
+    })).toBe(WORKSPACE_TYPES.STUDIES_VALUATION);
+    expect(resolveServiceWorkspace(
+      {
+        code:'scientific_research',
+        category_code:'business_market',
+        group_code:'business_market'
+      },
+      { execution_status:'fully_orchestrated', execution_mode:'capability_plan', primary_action:'orchestrator_run' }
+    )).toMatchObject({
+      type:WORKSPACE_TYPES.STUDIES_VALUATION,
+      mode:'execute',
+      route_ar:'/my-bonds/workspace/',
+      route_en:'/en/my-bonds/workspace/'
+    });
+  });
+
   test('capability-backed services use canonical workspace route', () => {
     expect(resolveServiceWorkspace(
       { category_code:'financial_advisory', group_code:'core_financial_analysis' },

@@ -27,6 +27,17 @@ describe('data observation/model separation', () => {
     expect(occurrences.length).toBeGreaterThanOrEqual(2);
   });
 
+  test('city Gold fusion skips region and national silver observations', () => {
+    const pipeline = read('v3/engine/data-acquisition/DataPipeline.js');
+    expect(pipeline).toContain("require('./source-capability-registry')");
+    expect(pipeline).toContain('if (!isCityGrainObservation(m)) continue;');
+  });
+
+  test('live run type is a first-class data_source_runs value', () => {
+    const sql = read('supabase/migrations/20261110013000_data_source_runs_live_type.sql');
+    expect(sql).toContain("CHECK (run_type IN ('full', 'incremental', 'manual', 'live'))");
+  });
+
   test('Gold market source explicitly identifies observed versus mixed provenance', () => {
     const pipeline = read('v3/engine/data-acquisition/DataPipeline.js');
     expect(pipeline).toContain("Bonds Data Engine (observed)");

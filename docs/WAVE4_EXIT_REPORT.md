@@ -9,7 +9,7 @@
 
 ## 1. ملخص تنفيذي
 
-تم توحيد واجهة التقييم (Valuation) وأربع وحدات إدارية مع `styles/design-system.css`، مع تحويل City Intelligence إلى الثيم الداكن ليتماشى مع باقي لوحات الإدارة.
+تم توحيد واجهة التقييم (Valuation) وأربع وحدات إدارية مع `styles/design-system.css`، مع تحويل مؤشرات المدينة إلى الثيم الداكن ليتماشى مع باقي لوحات الإدارة.
 
 ---
 
@@ -22,7 +22,7 @@
 | 3 | Admin Executive Dashboard unified | `admin/executive-dashboard/*` | ✅ |
 | 4 | Admin Financial Advisory unified | `admin/financial-advisory/*` | ✅ |
 | 5 | Admin AI Business Advisor unified | `admin/ai-business-advisor/*` | ✅ |
-| 6 | Admin City Intelligence unified | `admin/city-intelligence/*` | ✅ |
+| 6 | Admin city indicators unified | `admin/city-intelligence/*` | ✅ |
 | 7 | Service Worker cache bump | `sw.js` | ✅ |
 | 8 | Wave 4 Exit Report | `docs/WAVE4_EXIT_REPORT.md` | ✅ |
 

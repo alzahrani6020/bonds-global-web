@@ -1004,7 +1004,9 @@ describe('BONDS planner-first universal orchestrator', () => {
 
   test.each([
     'افتح ذكاء المدن من الموقع',
-    'كيف استخدم ذكاء المدن'
+    'كيف استخدم ذكاء المدن',
+    'افتح مؤشرات المدينة من الموقع',
+    'كيف استخدم مؤشرات المدينة'
   ])('routes City Intelligence navigation deterministically without web search: %s', async message => {
     executeGovernedAction.mockImplementation(async ({ action, input }) => {
       if (action === 'web_search') throw new Error('WEB_SEARCH_MUST_NOT_RUN_FOR_CITY_NAVIGATION');
@@ -1028,7 +1030,7 @@ describe('BONDS planner-first universal orchestrator', () => {
 
     expect(result.ok).toBe(true);
     expect(result.planner).toBe('universal-v2-deterministic-tool');
-    expect(result.reply).toBe('ذكاء المدن\n/v3/city-intelligence');
+    expect(result.reply).toBe('مؤشرات المدينة\n/v3/city-intelligence');
     expect(result.actions).toEqual([
       expect.objectContaining({
         type:'site_navigate',
@@ -1094,7 +1096,7 @@ describe('BONDS planner-first universal orchestrator', () => {
           action:'research_synthesize',
           result:{
             verification_state:'SUPPORTED',
-            answer:'ذكاء المدن يجمع مؤشرات حضرية واقتصادية وسكانية لدعم القرار.',
+            answer:'مؤشرات المدينة تجمع مؤشرات حضرية واقتصادية وسكانية لدعم القرار.',
             known:[],
             unknown:[],
             contradictions:[]

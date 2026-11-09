@@ -37,7 +37,7 @@ describe('live source refresh and dynamic years', () => {
     expect(scheduled).toContain("require('../lib/data/country-indicator-engine')");
     expect(scheduled).toContain('new CountryIndicatorEngine({ timeoutMs: SOURCE_FETCH_TIMEOUT_MS }).refresh(supabase)');
     expect(instant).toContain("require('../../lib/data/country-indicator-engine')");
-    expect(instant).toContain('results.countryIndicators = await countryEngine.refresh');
+    expect(instant).toContain('countryEngine.refresh(supabase');
     expect(instant).toContain('countryCodes: [city.country_code]');
   });
 
@@ -164,7 +164,8 @@ describe('live source refresh and dynamic years', () => {
     expect(api).toContain("path === '/catalog/years'");
     expect(api).toContain('sourceYears');
     expect(api).toContain('legacyYears');
-    expect(api).toContain('sourceBacked: verified.length > 0');
+    expect(api).toContain('citySourceYears');
+    expect(api).toContain('sourceBacked: cityCode ? verifiedCity.length > 0 : verified.length > 0');
     expect(api).toContain("new CountryIndicatorEngine({ timeoutMs: 12000 })");
   });
 
@@ -173,7 +174,8 @@ describe('live source refresh and dynamic years', () => {
     const comparison = read('v3/city-comparison.html');
 
     expect(intelligence).toContain("API_URL + '/catalog/years?'");
-    expect(intelligence).toContain("year: /^\\d{4}$/.test(year) ? Number(year) : 'latest'");
+    expect(intelligence).toContain("API_URL + '/data/live-refresh'");
+    expect(intelligence).toContain("body: JSON.stringify({ cityCode: code, force })");
     expect(intelligence).not.toMatch(/<option value="202[0-9]"/);
 
     expect(comparison).toContain("API_URL + '/catalog/years?'");
@@ -260,5 +262,41 @@ describe('live source refresh and dynamic years', () => {
     expect(api).toContain('year: effectiveYear');
     expect(api).toContain('results.requestedYear = year');
     expect(api).toContain('results.effectiveYear = effectiveYear');
+  });
+
+  test('public live refresh fetches official sources without filling modeled gaps', () => {
+    const api = read('v3/api/data-engine.js');
+    const index = read('v3/api/index.js');
+    const engine = read('v3/engine/data-acquisition/engines/CityEngine.js');
+    const page = read('v3/city-intelligence.html');
+    const vercel = JSON.parse(read('vercel.json'));
+    const liveFn = api.slice(
+      api.indexOf('async function handleLiveCityRefresh'),
+      api.indexOf('async function handleAutoFill')
+    );
+
+    expect(api).toContain("path === '/data/live-refresh'");
+    expect(index).toContain("path === '/cron/live-source-refresh'");
+    expect(index).toContain('handleCronLiveSourceRefresh');
+    expect(liveFn).not.toContain('requireAdminAccess');
+    expect(liveFn).not.toContain('MarketEngine');
+    expect(liveFn).not.toContain('RealEstateEngine');
+    expect(liveFn).not.toContain('BenchmarkAdapter');
+    expect(liveFn).toContain('liveOnly: true');
+    expect(api).toContain('updateGold: false');
+    expect(api).toContain('runScheduledLiveRefresh');
+    expect(api).toContain('LIVE_CRON_CITY_CODES');
+    expect(api).toContain('if (req.body && typeof req.body === \'object\' && !Buffer.isBuffer(req.body))');
+    expect(engine).toContain('_selectLiveAdapters');
+    expect(engine).toContain('liveAdapterIdsForCountry');
+    expect(engine).toContain('options.updateGold === false');
+    expect(engine).toContain("runType: options.liveOnly ? 'live' : 'incremental'");
+    expect(engine).toContain('observationKind === \'observed\'');
+    expect(page).toContain('/data/live-refresh');
+    expect(page).toContain('جلب حي من المصادر');
+    expect(page).not.toContain('/data/auto-fill');
+    expect(vercel.crons).toEqual(expect.arrayContaining([
+      expect.objectContaining({ path: '/api/v3/cron/live-source-refresh', schedule: '20 2 * * *' })
+    ]));
   });
 });

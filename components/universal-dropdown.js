@@ -859,9 +859,14 @@
       const openUp = spaceBelow < menuHeight && spaceAbove > spaceBelow;
 
       if (isFixed) {
+        const width = Math.max(rect.width, 0);
+        const maxWidth = Math.max(window.innerWidth - 24, 160);
+        const left = Math.min(Math.max(8, rect.left), Math.max(8, window.innerWidth - Math.min(width, maxWidth) - 8));
         menu.style.position = 'fixed';
-        menu.style.width = rect.width + 'px';
-        menu.style.left = rect.left + 'px';
+        menu.style.minWidth = '0';
+        menu.style.width = width + 'px';
+        menu.style.maxWidth = maxWidth + 'px';
+        menu.style.left = left + 'px';
         menu.style.right = 'auto';
         menu.style.top = openUp ? (rect.top - menuHeight - 6) + 'px' : (rect.bottom + 6) + 'px';
       } else {

@@ -1,18 +1,20 @@
 const { chromium } = require('playwright');
 const axeCore = require('axe-core');
+const { resolveBaseUrl, stopSpawnedServer } = require('../helpers/local-dev-server');
 
-jest.setTimeout(120000);
+jest.setTimeout(240000);
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
-
+let BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
 let browser;
 
 beforeAll(async () => {
+  BASE_URL = await resolveBaseUrl();
   browser = await chromium.launch({ headless: true });
 });
 
 afterAll(async () => {
   if (browser) await browser.close();
+  stopSpawnedServer();
 });
 
 async function createPage(viewport = { width: 1280, height: 900 }) {
@@ -129,6 +131,17 @@ function normalizePath(target) {
   return target.replace(/\/+$/, '');
 }
 
+async function stabilizePage(page) {
+  await page.waitForTimeout(300);
+  try {
+    await page.evaluate(() => document.readyState);
+  } catch (error) {
+    if (!/Execution context was destroyed/i.test(error.message)) throw error;
+    await page.waitForLoadState('domcontentloaded');
+    await page.waitForTimeout(300);
+  }
+}
+
 describe('admin linked modules UI', () => {
   test('all dashboard-linked admin modules render without fatal UI failures', async () => {
     const targets = await getDashboardModuleTargets();
@@ -156,11 +169,11 @@ describe('admin linked modules UI', () => {
           new URL(target, BASE_URL).toString(),
           {
             waitUntil: 'domcontentloaded',
-            timeout: 15000
+            timeout: 30000
           }
         );
 
-        await page.waitForTimeout(300);
+        await stabilizePage(page);
 
         const status = response ? response.status() : null;
 
@@ -231,11 +244,11 @@ describe('admin linked modules UI', () => {
           new URL(target, BASE_URL).toString(),
           {
             waitUntil: 'domcontentloaded',
-            timeout: 15000
+            timeout: 30000
           }
         );
 
-        await page.waitForTimeout(300);
+        await stabilizePage(page);
 
         const sizes = await page.evaluate(() => ({
           viewport: window.innerWidth,
@@ -287,11 +300,11 @@ describe('admin linked modules UI', () => {
           new URL(target, BASE_URL).toString(),
           {
             waitUntil: 'domcontentloaded',
-            timeout: 15000
+            timeout: 30000
           }
         );
 
-        await page.waitForTimeout(300);
+        await stabilizePage(page);
         await page.addScriptTag({ content: axeCore.source });
 
         const violations = await page.evaluate(async () => {

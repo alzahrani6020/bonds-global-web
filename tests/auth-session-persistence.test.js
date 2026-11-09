@@ -148,6 +148,13 @@ test('rejects an external post-login redirect', () => {
   expect(window.BondsAuth.getRedirectUrl()).toBe('https://bonds-global.com/my-bonds/');
 });
 
+test('strips OAuth failure params from the post-login destination', () => {
+  const dirty = 'https://bonds-global.com/v3/project-readiness?keep=1&error=server_error&error_code=unexpected_failure#error=server_error';
+  const { window, sessionStorage } = loadAuth({ search: '?redirect=' + encodeURIComponent(dirty) });
+  expect(window.BondsAuth.getRedirectUrl()).toBe('https://bonds-global.com/v3/project-readiness?keep=1');
+  expect(sessionStorage.getItem('auth_redirect')).toBe('/v3/project-readiness?keep=1');
+});
+
 test('uses one persistent Supabase client and persists session after login', async () => {
   const { window, localStorage, createClient } = loadAuth();
 

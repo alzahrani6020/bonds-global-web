@@ -81,7 +81,7 @@
           <p>You have <strong id="projectCount">0</strong> saved projects.</p>
         </div>
         <div class="my-bonds-actions">
-          <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">+ New Project</a>
+          <a href="../../en/v3/project" class="bonds-btn bonds-btn-primary">+ New Project</a>
           <a href="../../en/v3/portfolio" class="bonds-btn bonds-btn-secondary">Portfolio Dashboard</a>
         </div>
       </div>
@@ -340,10 +340,11 @@
         if (!container) return;
 
         if (!projects || projects.length === 0) {
+          const emptyHref = isGuest ? '../calculators/feasibility.html' : '../../en/v3/project';
           container.innerHTML = `
             <div class="bonds-card my-bonds-empty">
               <p>No saved projects yet.</p>
-              <a href="../calculators/feasibility.html" class="bonds-btn bonds-btn-primary">Start Your First Project</a>
+              <a href="${emptyHref}" class="bonds-btn bonds-btn-primary">Start Your First Project</a>
             </div>
           `;
           return;

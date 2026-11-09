@@ -36,10 +36,597 @@ const FINANCIAL_WORKSPACE_TABS=Object.freeze([
 function isFinancialWorkspaceService(){
  return isServiceWorkspace&&FINANCIAL_WORKSPACE_SERVICES.includes(serviceCode);
 }
+const WORKSPACE_TYPE_COPY=Object.freeze({
+ accounting:{ ar:'مساحة المحاسبة', en:'Accounting workspace' },
+ 'financial-analysis':{ ar:'مساحة التحليل المالي', en:'Financial analysis workspace' },
+ 'funding-restructuring':{ ar:'مساحة التمويل', en:'Funding workspace' },
+ 'studies-valuation':{ ar:'مساحة الدراسات والتقييم', en:'Studies & valuation workspace' },
+ 'tax-compliance':{ ar:'مساحة الزكاة والضريبة', en:'Zakat & tax workspace' },
+ 'professional-review':{ ar:'مساحة المراجعة المهنية', en:'Professional review workspace' },
+ 'advisory-request':{ ar:'مساحة الطلب الاستشاري', en:'Advisory request workspace' }
+});
+function applyWorkspaceTypeChrome(){
+ if(!isServiceWorkspace)return;
+ const type=String(detail?.workspace?.type||'').trim();
+ const copy=WORKSPACE_TYPE_COPY[type];
+ if(!copy)return;
+ document.body.dataset.workspaceType=type;
+ const eyebrow=document.querySelector('.sr-eyebrow');
+ if(eyebrow) eyebrow.textContent=lang==='ar'?copy.ar:copy.en;
+}
 function financialWorkspaceHref(code){
  const next=new URLSearchParams(location.search);
  next.set('service',code);
  return (lang==='ar'?'/my-bonds/workspace/':'/en/my-bonds/workspace/')+'?'+next.toString();
+}
+const STUDIES_WORKSPACE_SERVICES=Object.freeze([
+ 'market_research',
+ 'scientific_research',
+ 'feasibility_studies',
+ 'risk_analysis'
+]);
+const STUDIES_WORKSPACE_TABS=Object.freeze([
+ ['market_research','البحوث السوقية','Market research'],
+ ['scientific_research','البحث العلمي','Scientific research'],
+ ['feasibility_studies','دراسات الجدوى','Feasibility'],
+ ['risk_analysis','تحليل المخاطر','Risk analysis']
+]);
+function isStudiesWorkspaceService(){
+ return isServiceWorkspace&&STUDIES_WORKSPACE_SERVICES.includes(serviceCode);
+}
+function readServiceIntent(){
+ try{return JSON.parse(sessionStorage.getItem('bonds_service_intent')||'null')}catch(_){return null}
+}
+function liveParams(){
+ try{return new URLSearchParams(location.search)}catch(_){return params}
+}
+function studiesWorkspaceHref(code){
+ const next=new URLSearchParams(location.search);
+ next.set('service',code);
+ return (lang==='ar'?'/my-bonds/workspace/':'/en/my-bonds/workspace/')+'?'+next.toString();
+}
+function studiesToolHref(path){
+ const next=new URLSearchParams(location.search);
+ next.delete('service');
+ if(!next.get('city') && next.get('locality')) next.set('city', next.get('locality'));
+ const qs=next.toString();
+ return path+(qs?'?'+qs:'');
+}
+function studiesContextChips(){
+ const intent=readServiceIntent()||{};
+ const live=liveParams();
+ const chips=[
+  live.get('country')||intent.country_code,
+  live.get('region_name')||intent.region_name||live.get('region')||intent.region_code,
+  live.get('locality_name')||intent.locality_name||live.get('locality')||intent.locality_code,
+  $('#studiesSectorName')?.value||intent.sector_name||live.get('sector'),
+  $('#studiesActivityName')?.value||intent.activity_name||live.get('activity')
+ ].map(v=>String(v||'').trim()).filter(Boolean);
+ if(!chips.length)return '';
+ return '<div class="studies-workspace-context">'+chips.map(v=>'<span>'+escapeHtml(v)+'</span>').join('')+'</div>';
+}
+function renderStudiesWorkspaceShell(){
+ if(!isStudiesWorkspaceService())return;
+ document.body.classList.add('studies-workspace-mode');
+ if($('#studiesWorkspaceNav'))return;
+ const grid=document.querySelector('.sr-grid');
+ if(!grid)return;
+ const detailsBtn=$('#srDetails');
+ if(detailsBtn) detailsBtn.hidden=true;
+ const shell=document.createElement('section');
+ shell.id='studiesWorkspaceNav';
+ shell.className='financial-workspace-shell studies-workspace-shell';
+ const title=lang==='ar'?'مساحة الدراسات والسوق':'Studies & market workspace';
+ const desc=lang==='ar'
+  ?'أدخل موجز الدراسة، شغّل التحليل، ثم انتقل إلى مؤشرات المدينة أو الخريطة الاستثمارية أو دراسة الجدوى من نفس السياق.'
+  :'Enter the study brief, run the analysis, then continue to city indicators, the investment map, or feasibility using the same context.';
+  const tools=studiesBindings()?.studiesToolHrefs(lang)||{};
+  const cityHref=studiesToolHref(tools.cityIntelligence||'/v3/city-intelligence.html');
+  const mapHref=studiesToolHref(tools.investmentMap||'/v3/investment-map.html');
+  const feasibilityHref=studiesWorkspaceHref('feasibility_studies');
+  const fundingHref=studiesToolHref(tools.fundingSources||(lang==='ar'?'/funding-sources.html':'/en/funding-sources.html'));
+ shell.innerHTML='<div class="financial-workspace-head"><div><span class="financial-workspace-kicker">'+
+  (lang==='ar'?'تنفيذ دراسات مباشر':'Direct studies execution')+
+  '</span><h2>'+escapeHtml(title)+'</h2><p>'+escapeHtml(desc)+'</p>'+studiesContextChips()+'</div>'+
+  '<span class="financial-workspace-state">'+(lang==='ar'?'الخدمة الحالية':'Current service')+': '+escapeHtml(text(detail?.service))+'</span></div>'+
+  '<nav class="financial-workspace-tabs studies-workspace-tabs" aria-label="'+escapeHtml(title)+'">'+
+  STUDIES_WORKSPACE_TABS.map(([code,ar,en])=>'<a class="financial-workspace-tab'+(serviceCode===code?' active':'')+'" href="'+
+   escapeHtml(studiesWorkspaceHref(code))+'"'+(serviceCode===code?' aria-current="page"':'')+'>'+escapeHtml(lang==='ar'?ar:en)+'</a>').join('')+
+  '</nav>'+
+  '<div class="financial-workspace-shortcuts">'+
+   '<a href="'+escapeHtml(cityHref)+'">'+(lang==='ar'?'مؤشرات المدينة':'City indicators')+'</a>'+
+   '<a href="'+escapeHtml(mapHref)+'">'+(lang==='ar'?'الخريطة الاستثمارية':'Investment map')+'</a>'+
+   '<a href="'+escapeHtml(feasibilityHref)+'">'+(lang==='ar'?'دراسة الجدوى':'Feasibility study')+'</a>'+
+   '<a href="'+escapeHtml(fundingHref)+'">'+(lang==='ar'?'مصادر التمويل':'Funding sources')+'</a>'+
+  '</div>';
+ grid.insertAdjacentElement('beforebegin',shell);
+}
+function studiesBindings(){
+ return window.BondsStudiesBindings||null;
+}
+function studiesParamMap(){
+ const intent=readServiceIntent()||{};
+ const live=liveParams();
+ return {
+  country:live.get('country')||intent.country_code||'',
+  region:live.get('region')||intent.region_code||'',
+  region_name:live.get('region_name')||intent.region_name||'',
+  locality:live.get('locality')||intent.locality_code||'',
+  locality_name:live.get('locality_name')||intent.locality_name||'',
+  city:live.get('locality_name')||intent.locality_name||live.get('locality')||'',
+  sector:live.get('sector')||intent.sector_code||'',
+  activity:live.get('activity')||intent.activity_code||''
+ };
+}
+function studiesRuntimeFromValues(values){
+ const bindings=studiesBindings();
+ const query=studiesParamMap();
+ const geo=bindings?bindings.studiesGeoFrom(values,query):{
+  country:values.country_code||query.country||null,
+  city:values.locality_name||query.locality_name||query.locality||null,
+  sector:values.sector_code||query.sector||null,
+  activity:values.activity_code||query.activity||null
+ };
+ const packet=bindings?bindings.studiesResearchPacket(serviceCode,values,geo):null;
+ return {geo,packet,input:packet&&packet.query||null};
+}
+function syncStudiesAssistantContext(){
+ if(!isStudiesWorkspaceService())return;
+ const bindings=studiesBindings();
+ const values=typeof collectValues==='function'?collectValues():{};
+ const payload=bindings
+  ?bindings.studiesAssistantContext(serviceCode,values,studiesParamMap(),lang,text(detail?.service))
+  :{version:1,source:'service_workspace',serviceCode,language:lang,executionInputs:values};
+ try{sessionStorage.setItem('bonds_service_assistant_context_v1',JSON.stringify(payload))}catch(_){}
+}
+function studiesPrefill(key,intentKey){
+ const intent=readServiceIntent()||{};
+ const live=liveParams();
+ return live.get(key)||intent[intentKey]||live.get(intentKey)||params.get(key)||'';
+}
+function studiesSelectMarkup(id,name,placeholder,prefill){
+ const seeded=prefill?'<option value="'+escapeHtml(prefill)+'" selected>'+escapeHtml(prefill)+'</option>':'';
+ return '<select id="'+id+'" name="'+name+'" data-ud-placeholder="'+escapeHtml(placeholder)+'">'+
+  '<option value="">'+escapeHtml(placeholder)+'</option>'+seeded+'</select>';
+}
+function studiesLocationFieldsHtml(){
+ const opt=' <small>('+T.optional+')</small>';
+ const country=studiesPrefill('country','country_code');
+ const region=studiesPrefill('region','region_code')||studiesPrefill('region_name','region_name');
+ const locality=studiesPrefill('locality','locality_code');
+ const localityName=studiesPrefill('locality_name','locality_name');
+ const sector=studiesPrefill('sector','sector_code');
+ const activity=studiesPrefill('activity','activity_code');
+ const L=lang==='ar'?{
+  country:'الدولة',region:'المنطقة / المحافظة',locality:'المدينة / الموقع',sector:'القطاع',activity:'النشاط',
+  countryPh:'اختر الدولة',regionPh:'اختر المنطقة',localityPh:'اختر المدينة',sectorPh:'اختر القطاع',activityPh:'اختر النشاط'
+ }:{
+  country:'Country',region:'Region / province',locality:'City / location',sector:'Sector',activity:'Activity',
+  countryPh:'Choose country',regionPh:'Choose region',localityPh:'Choose city',sectorPh:'Choose sector',activityPh:'Choose activity'
+ };
+ return '<div class="sr-field"><label for="studiesCountry">'+L.country+opt+'</label>'+studiesSelectMarkup('studiesCountry','country_code',L.countryPh,country)+'</div>'+
+  '<div class="sr-field"><label for="studiesRegion">'+L.region+opt+'</label>'+studiesSelectMarkup('studiesRegion','region_code',L.regionPh,region)+'</div>'+
+  '<div class="sr-field"><label for="studiesLocality">'+L.locality+opt+'</label>'+studiesSelectMarkup('studiesLocality','locality_code',L.localityPh,locality||localityName)+'</div>'+
+  '<div class="sr-field"><label for="studiesSector">'+L.sector+opt+'</label>'+studiesSelectMarkup('studiesSector','sector_code',L.sectorPh,sector)+'</div>'+
+  '<div class="sr-field"><label for="studiesActivity">'+L.activity+opt+'</label>'+studiesSelectMarkup('studiesActivity','activity_code',L.activityPh,activity)+'</div>'+
+  '<input type="hidden" name="region_name" id="studiesRegionName" value="'+escapeHtml(studiesPrefill('region_name','region_name')||region)+'">'+
+  '<input type="hidden" name="locality_name" id="studiesLocalityName" value="'+escapeHtml(localityName)+'">'+
+  '<input type="hidden" name="sector_name" id="studiesSectorName">'+
+  '<input type="hidden" name="activity_name" id="studiesActivityName">';
+}
+const studiesCatalog={countries:[],cities:[],sectors:[],activities:[]};
+const studiesDropdowns={};
+let studiesCatalogLock=false;
+let studiesCatalogBound=false;
+function studiesCatalogLabel(row){
+ return lang==='en'?(row.name_en||row.name_ar||row.code):(row.name_ar||row.name_en||row.code);
+}
+function studiesLocalityLabel(row){
+ const types=lang==='ar'?{city:'مدينة',town:'بلدة',village:'قرية',hijra:'هجرة',hamlet:'نجع',oasis:'واحة',district:'حي',settlement:'تجمع',other:'أخرى'}:{city:'City',town:'Town',village:'Village',hijra:'Hijra',hamlet:'Hamlet',oasis:'Oasis',district:'District',settlement:'Settlement',other:'Other'};
+ const base=studiesCatalogLabel(row);
+ const type=row.locality_type&&types[row.locality_type]?types[row.locality_type]:'';
+ return type?base+' — '+type:base;
+}
+function studiesDestroyDropdown(el){
+ if(!el?.id)return;
+ if(studiesDropdowns[el.id]){
+  try{studiesDropdowns[el.id].destroy()}catch(_){}
+  studiesDropdowns[el.id]=null;
+ }
+}
+function studiesEnhanceSelect(el,searchPlaceholder,virtualize){
+ if(!el||!window.UniversalDropdown)return;
+ studiesDestroyDropdown(el);
+ studiesDropdowns[el.id]=window.UniversalDropdown.fromSelect(el,{
+  search:true,
+  searchPlaceholder:searchPlaceholder||(lang==='ar'?'بحث...':'Search...'),
+  placeholder:el.getAttribute('data-ud-placeholder')||el.options[0]?.textContent||'',
+  sort:false,
+  deduplicate:true,
+  removeEmpty:false,
+  maxResults:0,
+  debounce:80,
+  virtualize:!!virtualize,
+  virtualThreshold:40,
+  theme:'light',
+  fixed:true
+ });
+}
+function studiesFillSelect(el,rows,valueKey,labelFn,placeholder,selected){
+ if(!el)return;
+ const current=selected!=null&&selected!==''?String(selected):el.value;
+ el.innerHTML='';
+ const first=document.createElement('option');
+ first.value='';
+ first.textContent=placeholder;
+ el.appendChild(first);
+ (rows||[]).forEach(row=>{
+  const option=document.createElement('option');
+  option.value=String(row[valueKey]||'');
+  option.textContent=labelFn(row);
+  if(row.name_ar||row.name_en) option.dataset.name=studiesCatalogLabel(row);
+  if(row.flag) option.dataset.icon=row.flag;
+  el.appendChild(option);
+ });
+ if([...el.options].some(o=>o.value===current)) el.value=current;
+ else if(current){
+  const byName=[...el.options].find(o=>o.value===current||o.textContent===current||o.dataset.name===current);
+  if(byName) el.value=byName.value;
+  else{
+   const extra=document.createElement('option');
+   extra.value=current;
+   extra.textContent=current;
+   extra.dataset.name=current;
+   extra.selected=true;
+   el.appendChild(extra);
+   el.value=current;
+  }
+ }
+ studiesEnhanceSelect(el,placeholder,true);
+}
+function studiesSelectedName(el){
+ if(!el)return '';
+ const option=el.options[el.selectedIndex];
+ if(!option||!option.value)return '';
+ return option.dataset.name||option.textContent||'';
+}
+function studiesSyncHiddenNames(){
+ const region=$('#studiesRegion');
+ const locality=$('#studiesLocality');
+ const sector=$('#studiesSector');
+ const activity=$('#studiesActivity');
+ const regionName=$('#studiesRegionName');
+ const localityName=$('#studiesLocalityName');
+ const sectorName=$('#studiesSectorName');
+ const activityName=$('#studiesActivityName');
+ if(regionName) regionName.value=studiesSelectedName(region)||region?.value||'';
+ if(localityName) localityName.value=studiesSelectedName(locality)||'';
+ if(sectorName) sectorName.value=studiesSelectedName(sector)||'';
+ if(activityName) activityName.value=studiesSelectedName(activity)||'';
+}
+function studiesWriteLocationToUrl(){
+ studiesSyncHiddenNames();
+ const url=new URL(location.href);
+ const mapping=[
+  ['country',$('#studiesCountry')?.value],
+  ['region',$('#studiesRegion')?.value],
+  ['region_name',$('#studiesRegionName')?.value],
+  ['locality',$('#studiesLocality')?.value],
+  ['locality_name',$('#studiesLocalityName')?.value],
+  ['sector',$('#studiesSector')?.value],
+  ['activity',$('#studiesActivity')?.value]
+ ];
+ mapping.forEach(([key,value])=>{
+  if(value) url.searchParams.set(key,value);
+  else url.searchParams.delete(key);
+ });
+ history.replaceState({},'',url);
+ studiesRefreshContextChrome();
+ syncStudiesAssistantContext();
+ if(studiesCatalogBound) saveWorkspaceDraft();
+}
+function studiesRefreshContextChrome(){
+ const head=document.querySelector('#studiesWorkspaceNav .financial-workspace-head > div');
+ if(head){
+  const existing=head.querySelector('.studies-workspace-context');
+  const html=studiesContextChips();
+  if(existing) existing.outerHTML=html||'';
+  else if(html) head.insertAdjacentHTML('beforeend',html);
+ }
+ const shortcuts=document.querySelector('#studiesWorkspaceNav .financial-workspace-shortcuts');
+ if(shortcuts){
+  const tools=studiesBindings()?.studiesToolHrefs(lang)||{};
+  const cityHref=studiesToolHref(tools.cityIntelligence||'/v3/city-intelligence.html');
+  const mapHref=studiesToolHref(tools.investmentMap||'/v3/investment-map.html');
+  const feasibilityHref=studiesWorkspaceHref('feasibility_studies');
+  const fundingHref=studiesToolHref(tools.fundingSources||(lang==='ar'?'/funding-sources.html':'/en/funding-sources.html'));
+  shortcuts.innerHTML=
+   '<a href="'+escapeHtml(cityHref)+'">'+(lang==='ar'?'مؤشرات المدينة':'City indicators')+'</a>'+
+   '<a href="'+escapeHtml(mapHref)+'">'+(lang==='ar'?'الخريطة الاستثمارية':'Investment map')+'</a>'+
+   '<a href="'+escapeHtml(feasibilityHref)+'">'+(lang==='ar'?'دراسة الجدوى':'Feasibility study')+'</a>'+
+   '<a href="'+escapeHtml(fundingHref)+'">'+(lang==='ar'?'مصادر التمويل':'Funding sources')+'</a>';
+ }
+ document.querySelectorAll('#studiesWorkspaceNav .studies-workspace-tabs a').forEach(a=>{
+  try{
+   const code=new URL(a.getAttribute('href'),location.origin).searchParams.get('service');
+   if(code) a.setAttribute('href',studiesWorkspaceHref(code));
+  }catch(_){}
+ });
+}
+async function studiesCatalogJson(url){
+ const response=await fetch(url,{credentials:'same-origin',cache:'no-store'});
+ if(!response.ok) throw new Error('HTTP '+response.status);
+ return response.json();
+}
+function studiesLooseMatch(value,token){
+ const hay=String(value||'').replace(/^منطقة\s+/,'');
+ const needle=String(token||'').replace(/^منطقة\s+/,'');
+ return hay===needle||hay.includes(needle)||needle.includes(hay);
+}
+function studiesMatchRegion(regions,wanted){
+ const token=String(wanted||'').trim();
+ if(!token) return '';
+ const exact=regions.find(row=>row.code===token||row.name_ar===token||row.name_en===token);
+ if(exact) return exact.code;
+ const loose=regions.find(row=>studiesLooseMatch(row.code,token)||studiesLooseMatch(row.name_ar,token)||studiesLooseMatch(row.name_en,token));
+ return loose?loose.code:'';
+}
+function studiesMatchCity(cities,code,name,region){
+ if(code&&cities.some(c=>c.code===code)) return code;
+ const label=String(name||'').trim();
+ if(label){
+  const hit=cities.find(c=>c.code===label||c.name_ar===label||c.name_en===label||studiesLooseMatch(c.name_ar,label));
+  if(hit) return hit.code;
+ }
+ const regionLabel=String(region||'').trim();
+ if(regionLabel){
+  const hit=cities.find(c=>c.region===regionLabel||c.name_ar===regionLabel||studiesLooseMatch(c.region,regionLabel));
+  if(hit) return hit.code;
+ }
+ return '';
+}
+async function studiesOnCountry(){
+ const countryEl=$('#studiesCountry');
+ const country=countryEl?.value||'';
+ if(!country){
+  studiesFillSelect($('#studiesRegion'),[],'code',studiesCatalogLabel,lang==='ar'?'اختر المنطقة':'Choose region','');
+  studiesFillSelect($('#studiesLocality'),[],'code',studiesLocalityLabel,lang==='ar'?'اختر المدينة':'Choose city','');
+  studiesFillSelect($('#studiesSector'),[],'code',studiesCatalogLabel,lang==='ar'?'اختر القطاع':'Choose sector','');
+  studiesFillSelect($('#studiesActivity'),[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity','');
+  studiesWriteLocationToUrl();
+  return;
+ }
+ try{localStorage.setItem('bonds_selected_country',country)}catch(_){}
+ const [cityData,taxData]=await Promise.all([
+  studiesCatalogJson('/api/v3/catalog/cities?country='+encodeURIComponent(country)),
+  studiesCatalogJson('/api/v3/investment-taxonomy?country='+encodeURIComponent(country)+'&include=activities&depth=subsector')
+ ]);
+ studiesCatalog.cities=cityData.cities||[];
+ studiesCatalog.sectors=taxData.sectors||[];
+ studiesCatalog.activities=taxData.activities||[];
+ const regions=[...new Map(
+  studiesCatalog.cities.filter(x=>x.region).map(x=>[x.region,{code:x.region,name_ar:x.region,name_en:x.region_en||x.region}])
+ ).values()];
+ const wantedRegion=studiesMatchRegion(regions,liveParams().get('region')||liveParams().get('region_name')||$('#studiesRegion')?.value||'');
+ const wantedLocality=studiesMatchCity(
+  studiesCatalog.cities,
+  liveParams().get('locality')||$('#studiesLocality')?.value||'',
+  liveParams().get('locality_name')||$('#studiesLocalityName')?.value||'',
+  wantedRegion
+ );
+ const wantedSector=liveParams().get('sector')||$('#studiesSector')?.value||'';
+ const wantedActivity=liveParams().get('activity')||$('#studiesActivity')?.value||'';
+ studiesFillSelect($('#studiesRegion'),regions,'code',studiesCatalogLabel,lang==='ar'?'اختر المنطقة':'Choose region',wantedRegion);
+ studiesFillSelect($('#studiesLocality'),studiesCatalog.cities,'code',studiesLocalityLabel,lang==='ar'?'اختر المدينة':'Choose city',wantedLocality);
+ studiesFillSelect($('#studiesSector'),studiesCatalog.sectors,'code',studiesCatalogLabel,lang==='ar'?'اختر القطاع':'Choose sector',wantedSector);
+ studiesFillSelect($('#studiesActivity'),studiesCatalog.activities,'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',wantedActivity);
+ if(wantedRegion && studiesCatalog.cities.some(city=>city.region===wantedRegion)){
+  studiesFilterLocalities(wantedRegion,wantedLocality);
+ }
+ if(wantedSector && studiesCatalog.sectors.some(row=>row.code===wantedSector)) await studiesOnSector(true);
+ studiesWriteLocationToUrl();
+}
+function studiesFilterLocalities(region,selected){
+ const matched=region?studiesCatalog.cities.filter(x=>x.region===region||studiesLooseMatch(x.region,region)):studiesCatalog.cities;
+ const rows=matched.length?matched:studiesCatalog.cities;
+ studiesFillSelect($('#studiesLocality'),rows,'code',studiesLocalityLabel,lang==='ar'?'اختر المدينة':'Choose city',selected||'');
+}
+async function studiesOnSector(skipUrl){
+ const sector=$('#studiesSector')?.value||'';
+ const country=$('#studiesCountry')?.value||'';
+ if(!sector||!country){
+  studiesFillSelect($('#studiesActivity'),studiesCatalog.activities,'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',$('#studiesActivity')?.value||'');
+  if(!skipUrl) studiesWriteLocationToUrl();
+  return;
+ }
+ const data=await studiesCatalogJson('/api/v3/investment-taxonomy?country='+encodeURIComponent(country)+'&sector='+encodeURIComponent(sector)+'&include=activities&depth=subsector');
+ studiesFillSelect($('#studiesActivity'),data.activities||[],'code',studiesCatalogLabel,lang==='ar'?'اختر النشاط':'Choose activity',liveParams().get('activity')||$('#studiesActivity')?.value||'');
+ if(!skipUrl) studiesWriteLocationToUrl();
+}
+function studiesBindCatalogEvents(){
+ const country=$('#studiesCountry');
+ const region=$('#studiesRegion');
+ const locality=$('#studiesLocality');
+ const sector=$('#studiesSector');
+ const activity=$('#studiesActivity');
+ if(!country||country.dataset.studiesBound==='1')return;
+ country.dataset.studiesBound='1';
+ country.addEventListener('change',()=>{studiesOnCountry().catch(()=>{})});
+ region?.addEventListener('change',()=>{
+  studiesFilterLocalities(region.value,$('#studiesLocality')?.value||'');
+  studiesWriteLocationToUrl();
+ });
+ locality?.addEventListener('change',studiesWriteLocationToUrl);
+ sector?.addEventListener('change',()=>{studiesOnSector(false).catch(()=>{})});
+ activity?.addEventListener('change',studiesWriteLocationToUrl);
+}
+function studiesPullDiscovery(){
+ if(studiesCatalogLock)return;
+ const country=$('#bondsCountry')?.value||'';
+ const studiesCountry=$('#studiesCountry');
+ if(!studiesCountry||!country)return;
+ studiesCatalogLock=true;
+ const apply=async()=>{
+  try{
+   if(studiesCountry.value!==country){
+    studiesCountry.value=country;
+    studiesEnhanceSelect(studiesCountry,lang==='ar'?'اختر الدولة':'Choose country',true);
+    await studiesOnCountry();
+   }
+   const region=$('#bondsRegion')?.value||'';
+   const locality=$('#bondsLocality')?.value||'';
+   const sector=$('#bondsSector')?.value||'';
+   const activity=$('#bondsActivity')?.value||'';
+   if(region&&$('#studiesRegion')){
+    $('#studiesRegion').value=region;
+    studiesFilterLocalities(region,locality);
+   }
+   if(locality&&$('#studiesLocality')) $('#studiesLocality').value=locality;
+   if(sector&&$('#studiesSector')&&$('#studiesSector').value!==sector){
+    $('#studiesSector').value=sector;
+    await studiesOnSector(true);
+   }
+   if(activity&&$('#studiesActivity')) $('#studiesActivity').value=activity;
+   studiesWriteLocationToUrl();
+  }finally{studiesCatalogLock=false}
+ };
+ apply().catch(()=>{studiesCatalogLock=false});
+}
+function studiesListenDiscovery(){
+ ['bondsCountry','bondsRegion','bondsLocality','bondsSector','bondsActivity'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el||el.dataset.studiesBridge==='1')return;
+  el.dataset.studiesBridge='1';
+  el.addEventListener('change',studiesPullDiscovery);
+ });
+}
+function enhanceStudiesStaticSelects(){
+ const host=$('#srDynamicFields');
+ if(!host)return;
+ host.querySelectorAll('select[name="research_type"],select[name="methodology"],select[name="time_horizon"],select[name="risk_scope"]').forEach(el=>{
+  if(!el.id) el.id='studiesField_'+el.name;
+  studiesEnhanceSelect(el,el.options[0]?.textContent||'',false);
+ });
+}
+function bindStudiesCatalogDropdowns(){
+ if(!isStudiesWorkspaceService()||!$('#studiesCountry'))return;
+ studiesBindCatalogEvents();
+ studiesListenDiscovery();
+ enhanceStudiesStaticSelects();
+ const start=async()=>{
+  try{
+   const data=await studiesCatalogJson('/api/v3/catalog/countries');
+   studiesCatalog.countries=data.countries||[];
+   const wanted=liveParams().get('country')||$('#studiesCountry').value||localStorage.getItem('bonds_selected_country')||'SA';
+   studiesFillSelect($('#studiesCountry'),studiesCatalog.countries,'code',studiesCatalogLabel,lang==='ar'?'اختر الدولة':'Choose country',wanted);
+   await studiesOnCountry();
+   studiesCatalogBound=true;
+   studiesListenDiscovery();
+  }catch(_){
+   enhanceStudiesStaticSelects();
+  }
+ };
+ if(window.UniversalDropdown) start();
+ else{
+  const existing=document.querySelector('script[src*="universal-dropdown.js"]');
+  if(existing) existing.addEventListener('load',start,{once:true});
+  else{
+   const wait=setInterval(()=>{
+    if(!window.UniversalDropdown)return;
+    clearInterval(wait);
+    start();
+   },50);
+   setTimeout(()=>clearInterval(wait),8000);
+  }
+ }
+}
+function applyStudiesSubmitLabel(){
+ const btn=$('#srSubmit');
+ if(!btn||!isStudiesWorkspaceService())return;
+ const labels={
+  market_research:[ 'شغّل تحليل السوق','Run market analysis'],
+  scientific_research:['شغّل البحث العلمي','Run scientific research'],
+  feasibility_studies:['شغّل دراسة الجدوى','Run feasibility study'],
+  risk_analysis:['شغّل تحليل المخاطر','Run risk analysis']
+ };
+ const pair=labels[serviceCode];
+ if(pair) btn.textContent=lang==='ar'?pair[0]:pair[1];
+}
+function renderStudiesOperationalInputs(){
+ if(!isStudiesWorkspaceService())return false;
+ const host=$('#srDynamicFields');
+ if(!host)return false;
+ if(host.querySelector('[name="research_question"],[name="research_problem"],[name="project_brief"],[name="risk_question"]')){
+  applyStudiesSubmitLabel();
+  return false;
+ }
+ const req=' <small>('+T.required+')</small>';
+ const opt=' <small>('+T.optional+')</small>';
+ const locationFields=studiesLocationFieldsHtml();
+ if(serviceCode==='market_research'){
+  $('#srFormTitle').textContent=lang==='ar'?'موجز الدراسة السوقية':'Market research brief';
+  host.innerHTML=locationFields+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'سؤال الدراسة / السوق المستهدف':'Research question / target market')+req+'</label><textarea name="research_question" required placeholder="'+escapeHtml(lang==='ar'?'مثال: حجم الطلب والمنافسة لمطعم وجبات سريعة في هذا الموقع':'e.g. demand and competition for a QSR restaurant in this location')+'"></textarea></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'العميل المستهدف':'Target customer')+opt+'</label><input type="text" name="target_customer" placeholder="'+escapeHtml(lang==='ar'?'أسر، شركات، سياح...':'families, corporates, tourists...')+'"></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'أفق الدراسة':'Time horizon')+opt+'</label><select name="time_horizon"><option value="12">'+(lang==='ar'?'12 شهر':'12 months')+'</option><option value="36" selected>'+(lang==='ar'?'3 سنوات':'3 years')+'</option><option value="60">'+(lang==='ar'?'5 سنوات':'5 years')+'</option></select></div>'+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'المنافسون المعروفون':'Known competitors')+opt+'</label><textarea name="competitors" placeholder="'+escapeHtml(lang==='ar'?'أسماء المنافسين أو نوعهم':'competitor names or types')+'"></textarea></div>';
+ }
+ else if(serviceCode==='scientific_research'){
+  $('#srFormTitle').textContent=lang==='ar'?'موجز البحث العلمي':'Scientific research brief';
+  host.innerHTML=
+   '<div class="sr-field full"><label>'+(lang==='ar'?'عنوان البحث':'Research title')+req+'</label><input type="text" name="research_title" required placeholder="'+escapeHtml(lang==='ar'?'عنوان واضح لمشكلة البحث':'a clear title for the research problem')+'"></div>'+
+   locationFields+
+   '<div class="sr-field"><label>'+(lang==='ar'?'نوع البحث':'Research type')+req+'</label><select name="research_type" required>'+
+    '<option value="applied">'+(lang==='ar'?'تطبيقي':'Applied')+'</option>'+
+    '<option value="descriptive">'+(lang==='ar'?'وصفي':'Descriptive')+'</option>'+
+    '<option value="experimental">'+(lang==='ar'?'تجريبي':'Experimental')+'</option>'+
+    '<option value="literature">'+(lang==='ar'?'مراجعة أدبية':'Literature review')+'</option>'+
+    '<option value="mixed" selected>'+(lang==='ar'?'مختلط':'Mixed')+'</option>'+
+   '</select></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'المنهجية':'Methodology')+req+'</label><select name="methodology" required>'+
+    '<option value="quantitative">'+(lang==='ar'?'كمية':'Quantitative')+'</option>'+
+    '<option value="qualitative">'+(lang==='ar'?'نوعية':'Qualitative')+'</option>'+
+    '<option value="mixed" selected>'+(lang==='ar'?'مختلطة':'Mixed')+'</option>'+
+   '</select></div>'+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'مشكلة البحث / الأسئلة':'Research problem / questions')+req+'</label><textarea name="research_problem" required placeholder="'+escapeHtml(lang==='ar'?'ما السؤال العلمي وما حدود الدراسة؟':'What is the scientific question and the study boundary?')+'"></textarea></div>'+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'الفرضية':'Hypothesis')+opt+'</label><textarea name="hypothesis" placeholder="'+escapeHtml(lang==='ar'?'الفرضية الرئيسية إن وجدت':'the main hypothesis if any')+'"></textarea></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'المجتمع والعينة':'Population & sample')+opt+'</label><input type="text" name="population_sample"></div>'+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'مصادر البيانات والأدلة':'Data sources & evidence')+opt+'</label><textarea name="data_sources" placeholder="'+escapeHtml(lang==='ar'?'دراسات سابقة، بيانات رسمية، تجارب، مقابلات...':'prior studies, official data, experiments, interviews...')+'"></textarea></div>';
+ }
+ else if(serviceCode==='feasibility_studies'){
+  $('#srFormTitle').textContent=lang==='ar'?'مدخلات دراسة الجدوى':'Feasibility study inputs';
+  host.innerHTML=
+   '<div class="sr-field"><label>'+(lang==='ar'?'اسم المشروع':'Project name')+req+'</label><input type="text" name="project_name" required></div>'+
+   locationFields+
+   '<div class="sr-field"><label>'+(lang==='ar'?'حجم الاستثمار المتوقع':'Expected investment')+opt+'</label><input type="number" name="investment_amount" min="0" step="any"></div>'+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'وصف المشروع':'Project brief')+req+'</label><textarea name="project_brief" required></textarea></div>';
+ }
+ else if(serviceCode==='risk_analysis'){
+  $('#srFormTitle').textContent=lang==='ar'?'نطاق تحليل المخاطر':'Risk analysis scope';
+  host.innerHTML=locationFields+
+   '<div class="sr-field"><label>'+(lang==='ar'?'نطاق المخاطر':'Risk scope')+req+'</label><select name="risk_scope" required><option value="market">'+(lang==='ar'?'سوقية':'Market')+'</option><option value="operational">'+(lang==='ar'?'تشغيلية':'Operational')+'</option><option value="financial">'+(lang==='ar'?'مالية':'Financial')+'</option><option value="combined" selected>'+(lang==='ar'?'متكاملة':'Combined')+'</option></select></div>'+
+   '<div class="sr-field"><label>'+(lang==='ar'?'أفق التحليل':'Time horizon')+opt+'</label><select name="time_horizon"><option value="12">'+(lang==='ar'?'12 شهر':'12 months')+'</option><option value="36" selected>'+(lang==='ar'?'3 سنوات':'3 years')+'</option><option value="60">'+(lang==='ar'?'5 سنوات':'5 years')+'</option></select></div>'+
+   '<div class="sr-field full"><label>'+(lang==='ar'?'سؤال المخاطر':'Risk question')+req+'</label><textarea name="risk_question" required></textarea></div>';
+ }
+ applyStudiesSubmitLabel();
+ return true;
+}
+function renderStudiesExecution(result){
+ if(!isStudiesWorkspaceService()||!result||typeof result!=='object')return '';
+ const summary=result.summary||result.executive_summary||result.narrative||result.analysis;
+ const findings=result.findings||result.insights||result.recommendations||result.competitors;
+ const parts=[];
+ if(typeof summary==='string'&&summary.trim()){
+  parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'ملخص الدراسة':'Study summary')+'</h3><div class="studies-result-copy">'+escapeHtml(summary)+'</div></section>');
+ }
+ if(Array.isArray(findings)&&findings.length){
+  if(typeof findings[0]==='string'){
+   parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'النتائج':'Findings')+'</h3><ul class="sr-list">'+findings.map(item=>'<li>'+escapeHtml(item)+'</li>').join('')+'</ul></section>');
+  }else if(typeof findings[0]==='object'){
+   parts.push('<section class="financial-result-section"><h3>'+(lang==='ar'?'النتائج':'Findings')+'</h3>'+renderFinancialRows(findings)+'</section>');
+  }
+ }
+ return parts.length?'<div class="financial-result-stack studies-result-stack">'+parts.join('')+'</div>':'';
 }
 function renderFinancialWorkspaceShell(){
  if(!isFinancialWorkspaceService())return;
@@ -536,6 +1123,7 @@ function saveWorkspaceDraft(){
  const budget_rows=serviceCode==='planning_budgeting_forecasting'?[...document.querySelectorAll('[data-budget-row]')].map(row=>({period:row.querySelector('[data-budget-period]')?.value||'',status:row.querySelector('[data-budget-status]')?.value||'actual',metric:row.querySelector('[data-budget-metric]')?.value||'',actual:row.querySelector('[data-budget-actual]')?.value||'',budget:row.querySelector('[data-budget-budget]')?.value||'',forecast:row.querySelector('[data-budget-forecast]')?.value||''})):null;
  localStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,budget_rows,updated_at:new Date().toISOString()}));
  workspaceDirty=true;
+ syncStudiesAssistantContext();
 }
 function restoreWorkspaceDraft(){
  if(!isServiceWorkspace)return;
@@ -639,12 +1227,18 @@ function render(){
  const form=detail.form;
  $('#srFormTitle').textContent=form?text(form):T.form;
  $('#srDynamicFields').innerHTML=form?.fields?.length?form.fields.map(renderField).join(''):'<div class="sr-empty">'+T.noForm+'</div>';
- if(!form?.fields?.length)renderRequestProfile();
+ if(!form?.fields?.length&&!isStudiesWorkspaceService())renderRequestProfile();
  renderFinancialWorkspaceShell();
+ renderStudiesWorkspaceShell();
+ applyWorkspaceTypeChrome();
  renderFinancialOperationalInputs();
+ renderStudiesOperationalInputs();
  renderFinancialIntake();
  restoreWorkspaceDraft();
  bindWorkspaceDraft();
+ applyStudiesSubmitLabel();
+ bindStudiesCatalogDropdowns();
+ syncStudiesAssistantContext();
 }
 const FINANCIAL_ACTIONS=new Set([
  'financial_analysis_run','cash_flow_analysis_run','funding_readiness_run','creditworthiness_run',
@@ -950,9 +1544,10 @@ function renderExecutionResult(payload){
  const result=payload?.result||{};
  const metrics=result.metrics||payload?.metrics||{};
  const financial=renderFinancialExecution(result,metrics);
+ const studies=renderStudiesExecution(result);
  const entries=Object.entries(metrics).filter(([,v])=>v!==null&&v!==undefined&&typeof v!=='object');
  box.innerHTML='<h2>'+escapeHtml(T.executed)+'</h2>'+
-  (financial||(
+  (financial||studies||(
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
    '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
   ));
@@ -997,13 +1592,17 @@ async function submit(e){
   const sb=window.BondsAuth.getSupabase();const session=(await sb.auth.getSession()).data.session;
   if(!session?.access_token)throw new Error(T.login);
   const values=collectValues();
+  const runtime=studiesRuntimeFromValues(values);
   const context={
-    country:params.get('country')||null,
+    country:runtime.geo.country||params.get('country')||null,
     region:params.get('region')||null,
     locality:params.get('locality')||null,
-    sector:params.get('sector')||null,
-    activity:params.get('activity')||null
+    locality_name:runtime.geo.city||params.get('locality_name')||null,
+    sector:runtime.geo.sector||params.get('sector')||null,
+    activity:runtime.geo.activity||params.get('activity')||null,
+    studies_brief:runtime.input||null
   };
+  syncStudiesAssistantContext();
   const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};
 
   if(isFinancialIntakeService()){
@@ -1073,9 +1672,12 @@ async function submit(e){
       service_code:serviceCode,
       inputs:values,
       values,
+      input:runtime.input||undefined,
+      research:runtime.packet||undefined,
       country_code:context.country,
       sector:context.sector,
       activity:context.activity,
+      city:context.locality_name,
       language:lang,
       context,
       source:'service_request_page'
@@ -1128,11 +1730,52 @@ async function submit(e){
   $('#srSuccessLink').hidden=true;
  }catch(err){showStatus(T.failed+': '+err.message,false)}
 }
+function studiesFallbackDetail(){
+ if(serviceCode!=='scientific_research')return null;
+ return {
+  service:{
+   code:'scientific_research',
+   category_code:'business_market',
+   group_code:'business_market',
+   name_ar:'البحث العلمي',
+   name_en:'Scientific Research',
+   short_description_ar:'تصميم وتنفيذ بحث علمي بمنهجية وفرضية ومصادر أدلة، مستقل عن دراسة السوق التجارية.',
+   short_description_en:'Design and run scientific research with methodology, hypothesis and evidence sources, separate from commercial market studies.',
+   delivery_type:'hybrid',
+   default_route_ar:'/my-bonds/workspace/?service=scientific_research',
+   default_route_en:'/en/my-bonds/workspace/?service=scientific_research'
+  },
+  workspace:{type:'studies-valuation',mode:'execute',ready:true},
+  procedures:[
+   {title_ar:'تحديد مشكلة البحث والفرضية',title_en:'Define the research problem and hypothesis'},
+   {title_ar:'اختيار المنهجية والعينة',title_en:'Select methodology and sample'},
+   {title_ar:'جمع الأدلة وتحليلها',title_en:'Collect and analyze evidence'},
+   {title_ar:'صياغة النتائج والتوصيات',title_en:'Draft findings and recommendations'}
+  ],
+  requirements:[
+   {label_ar:'مشكلة بحث واضحة',label_en:'A clear research problem',is_required:true},
+   {label_ar:'المنهجية المقترحة',label_en:'Proposed methodology',is_required:true}
+  ],
+  deliverables:[
+   {name_ar:'موجز البحث العلمي',name_en:'Scientific research brief'},
+   {name_ar:'مذكرة المنهجية والأدلة',name_en:'Methodology and evidence note'}
+  ],
+  dependencies:[],
+  pricing:[],
+  form:null,
+  capabilities:[]
+ };
+}
 async function init(){
  if(!serviceCode){showStatus(T.failed+': service',false);return}
  $('#srLoading').textContent=T.loading;
  try{
-  detail=await json('/api/v3/services/'+encodeURIComponent(serviceCode)+'?'+contextQuery());
+  try{
+   detail=await json('/api/v3/services/'+encodeURIComponent(serviceCode)+'?'+contextQuery());
+  }catch(loadErr){
+   detail=studiesFallbackDetail();
+   if(!detail) throw loadErr;
+  }
   if(isServiceWorkspace&&detail?.workspace?.mode!=='execute'){
     location.replace((lang==='ar'?'/service-request.html':'/en/service-request.html')+location.search);
     return;
@@ -1140,7 +1783,8 @@ async function init(){
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
   await hydrateAccountingEntities();
   const requestForm=$('#srRequestForm');
-  $('#srSubmit').textContent=T.submit;
+  if(isStudiesWorkspaceService()) applyStudiesSubmitLabel();
+  else $('#srSubmit').textContent=T.submit;
   requestForm.addEventListener('submit',submit);
   requestForm.addEventListener('input',()=>{formTouched=true},{passive:true});
   requestForm.addEventListener('change',()=>{formTouched=true},{passive:true});

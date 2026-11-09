@@ -415,6 +415,37 @@ async function getUserFromToken(req, sb) {
   }
 }
 
+function parseRequestQuery(req) {
+  const parsed = {};
+  try {
+    const raw = String(req.url || '');
+    const i = raw.indexOf('?');
+    if (i !== -1) {
+      Object.assign(parsed, Object.fromEntries(new URLSearchParams(raw.slice(i + 1))));
+    }
+  } catch (_) { /* ignore malformed URLs */ }
+  if (req.query && typeof req.query === 'object') {
+    for (const [key, value] of Object.entries(req.query)) {
+      if (value !== undefined && value !== '') parsed[key] = value;
+    }
+  }
+  return parsed;
+}
+
+function inferFundingAction(req, query) {
+  const direct = (query && query.action) || (req.body && req.body.action);
+  if (direct) return String(direct);
+  const path = String(req.url || '').split('?')[0].replace(/\/+$/, '');
+  switch (path) {
+    case '/api/funding-sources': return 'sources';
+    case '/api/funding-readiness': return 'funding-readiness';
+    case '/api/bank-partner-request': return 'bank-partner-request';
+    case '/api/bank-transfer': return 'bank-transfer';
+    case '/api/funding-request': return 'funding-request';
+    default: return '';
+  }
+}
+
 // ── Main dispatcher ────────────────────────────────────────
 async function handler(req, res) {
   setAllowedOrigin(res, req);
@@ -423,7 +454,8 @@ async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const action = req.query?.action || req.body?.action;
+  req.query = parseRequestQuery(req);
+  const action = inferFundingAction(req, req.query);
 
   switch (action) {
     case 'bank-transfer':
@@ -446,4 +478,6 @@ async function handler(req, res) {
   }
 }
 
+handler.parseRequestQuery = parseRequestQuery;
+handler.inferFundingAction = inferFundingAction;
 module.exports = handler;

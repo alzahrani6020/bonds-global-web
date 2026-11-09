@@ -40,7 +40,15 @@
 
   const TOKEN_KEY = 'bonds-auth-token';
   const authPath = path.startsWith('/en/') ? '/en/calculators/auth/index.html' : '/calculators/auth/index.html';
-  const REDIRECT_URL = authPath + '?redirect=' + encodeURIComponent(window.location.href);
+  function currentReturnPath() {
+    const url = new URL(window.location.href);
+    ['error', 'error_code', 'error_description', 'error_uri'].forEach(function (key) {
+      url.searchParams.delete(key);
+    });
+    const query = url.searchParams.toString();
+    return url.pathname + (query ? '?' + query : '');
+  }
+  const REDIRECT_URL = authPath + '?redirect=' + encodeURIComponent(currentReturnPath());
 
   function getStoredToken() {
     try {

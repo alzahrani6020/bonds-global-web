@@ -615,7 +615,10 @@
         if (error) {
           const msg = error.message || '';
           if (msg.includes('Invalid login credentials')) {
-            showError('البريد أو كلمة المرور غير صحيحة', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="sendMagicLink()">📧 أرسل رمز التحقق</button><a href="./reset.html" class="link" style="font-size:0.85rem;">نسيت كلمة المرور؟</a>`);
+            const localHint = /^(localhost|127\.0\.0\.1)$/.test(location.hostname)
+              ? ' على الخادم المحلي Google لا يكتمل. استخدم رمز التحقق إذا كنت تدخل عادة عبر Google.'
+              : '';
+            showError('البريد أو كلمة المرور غير صحيحة.' + localHint, `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="sendMagicLink()">📧 أرسل رمز التحقق</button><a href="./reset.html" class="link" style="font-size:0.85rem;">نسيت كلمة المرور؟</a>`);
           } else if (msg.includes('Email not confirmed')) {
             showError('البريد الإلكتروني غير مُفعّل. تحقق من صندوق الوارد أو أعد إرسال رابط التفعيل.', `<button type="button" class="btn btn-secondary" style="font-size:0.8rem;padding:0.4rem 0.8rem;" onclick="resendActivation('${email.replace(/'/g, "\\'")}')">إعادة إرسال رابط التفعيل</button>`);
           } else if (msg.includes('Too many requests') || msg.includes('rate limit') || msg.includes('Request rate limit')) {
@@ -744,10 +747,19 @@
       // Google Sign-In
       document.getElementById('googleBtn').addEventListener('click', async () => {
         hideMessages();
-        const { error } = await window.BondsAuth.signInWithOAuth('google', { redirectTo: redirectTo });
-        window.BondsAuth.clearRedirectUrl();
+        if (/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+          showError('تسجيل Google لا يكتمل على الخادم المحلي. استخدم البريد وكلمة المرور، أو أرسل رمز التحقق.');
+          return;
+        }
+        const { error } = await window.BondsAuth.signInWithOAuth('google');
         if (error) showError(error.message);
       });
+
+      window.BondsAuth.getSession().then(function (result) {
+        if (result && result.data && result.data.session) {
+          window.location.href = redirectTo;
+        }
+      }).catch(function () {});
 
       // Two-step signup navigation
       function validateSignupStep1() {

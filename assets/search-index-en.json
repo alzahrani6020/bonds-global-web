@@ -1,24 +1,17 @@
 {
-  "version": 1787024052702,
-  "count": 161,
+  "version": 1794263176084,
+  "count": 765,
   "entries": [
     {
-      "title": "404 — Page Not Found | Bonds",
-      "description": "The page you are looking for does not exist. Return to Bonds Global homepage or explore our calculators and financial advisory services.",
-      "url": "/en/404",
-      "lang": "en",
-      "category": "English"
-    },
-    {
-      "title": "About Us | Bonds Certified Financial Advisory &amp; Analysis",
-      "description": "Learn about Bonds: a certified financial advisory and analysis firm serving business owners in Saudi Arabia, Egypt and the GCC since 1991. We build decisions from your real numbers.",
+      "title": "About Us | Bonds Financial &amp; Management Consulting",
+      "description": "Learn about Bonds: financial and management consulting services delivered through separately registered entities in Egypt and Saudi Arabia.",
       "url": "/en/about",
       "lang": "en",
       "category": "English"
     },
     {
-      "title": "Bonds-Certified Advisors | Ask an Expert",
-      "description": "Choose a Bonds-certified financial advisor to review your project analysis and answer your investment questions.",
+      "title": "Bonds Advisors | Ask an Expert",
+      "description": "Choose a Bonds financial advisor to review your project analysis and answer your investment questions.",
       "url": "/en/advisors",
       "lang": "en",
       "category": "English"
@@ -38,9 +31,9 @@
       "category": "English"
     },
     {
-      "title": "Redirecting to calendar | Bonds",
-      "description": "Book a consultation with the Bonds team.",
-      "url": "/en/book",
+      "title": "Budgeting and Financial Forecasting Services | BONDS",
+      "description": "Operating budgets, cash budgets and financial forecasts for companies and projects, including variance analysis and actual-versus-budget monitoring.",
+      "url": "/en/budgeting",
       "lang": "en",
       "category": "English"
     },
@@ -80,8 +73,15 @@
       "category": "English"
     },
     {
-      "title": "Dr. Talal Hassan Alzahrani | Certified Financial Advisor | Bonds",
-      "description": "Dr. Talal Hassan Alzahrani is an academic, financial and management advisor, and entrepreneur. He holds PhDs in cost accounting and risk management, and chairs Bonds Financial Advisory.",
+      "title": "Data Sources & Methodology | Bonds",
+      "description": "Bonds methodology for data sources, freshness, confidence and separation of observed versus modeled data.",
+      "url": "/en/data-methodology",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dr. Talal Hassan Alzahrani | Financial Advisor | Bonds",
+      "description": "Dr. Talal Hassan Alzahrani is an academic, financial and management advisor, and entrepreneur. He holds PhDs in cost accounting and risk management, and chairs BONDS FINANCIAL AND MANAGEMENT CONSULTING COMPANY.",
       "url": "/en/dr-talal-alzahrani",
       "lang": "en",
       "category": "English"
@@ -94,8 +94,22 @@
       "category": "English"
     },
     {
-      "title": "Bonds Financial Advisory | Bonds",
-      "description": "Bonds Financial Advisory: comprehensive financial solutions for individuals and institutions, from feasibility studies to financial and investment planning.",
+      "title": "Feasibility Study Services in Saudi Arabia | BONDS",
+      "description": "Professional feasibility studies for projects, factories and investments covering market, technical, financial, funding, cash flow and risk analysis.",
+      "url": "/en/feasibility-study",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Financial Statements and Management Reporting | BONDS",
+      "description": "Preparation and organization of financial statements and management reports including income statement, balance sheet, cash flow and pro forma reporting.",
+      "url": "/en/financial-statements",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Fixed-Income Intelligence & Financial Analysis | Bonds",
+      "description": "Bonds Global provides financial analysis, feasibility studies, project investment analysis, and decision-support tools for individuals and institutions.",
       "url": "/en/fixed-income-intelligence",
       "lang": "en",
       "category": "English"
@@ -129,9 +143,23 @@
       "category": "English"
     },
     {
-      "title": "Bonds Certified Financial Advisory | Feasibility Studies &amp; Financial Planning",
-      "description": "Bonds certified financial advisory delivers feasibility studies, financial planning, investment analysis and funding solutions for individuals and enterprises. Trusted partner since 1991.",
+      "title": "Funding & Investment | Bonds",
+      "description": "Bonds funding and investment gateway: extract financing for your project, discover funding sources, or invest in distressed real estate opportunities.",
+      "url": "/en/funding",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bonds Global | Feasibility Studies &amp; Financial Analysis",
+      "description": "Bonds Global provides financial and management consulting, feasibility studies, financial analysis, project investment analysis, and funding support for individuals and enterprises.",
       "url": "/en/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Investment Opportunities | Distressed Asset Revival | Bonds",
+      "description": "Unique investment opportunities in reviving distressed real estate assets. Target IRR 19-20% and 2.5x-4x capital multiplier with a clear profit-sharing model.",
+      "url": "/en/investment-opportunities",
       "lang": "en",
       "category": "English"
     },
@@ -178,8 +206,8 @@
       "category": "English"
     },
     {
-      "title": "Pricing &amp; Packages | Bonds — Flexible Financial Advisory",
-      "description": "Flexible financial advisory packages for businesses and factories. Start free and choose Pro or Enterprise. Request a custom quote based on scope and sector.",
+      "title": "Pricing &amp; Packages | Bonds — Flexible Financial Consulting",
+      "description": "Flexible financial consulting packages for businesses and factories. Start free and choose Pro or Enterprise. Request a custom quote based on scope and sector.",
       "url": "/en/pricing",
       "lang": "en",
       "category": "English"
@@ -199,8 +227,22 @@
       "category": "English"
     },
     {
-      "title": "Bonds Services | Certified Financial Consulting, Feasibility Studies &amp; Analysis",
-      "description": "Explore Bonds services: certified financial consulting, feasibility studies, financial analysis, cash flow, budgeting, risk analysis and operational consulting for businesses in MENA.",
+      "title": "Search | Bonds Global",
+      "description": "Search Bonds Global calculators, reports, articles, and services.",
+      "url": "/en/search",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sectors | BONDS Global Financial Consulting",
+      "description": "BONDS Global sector-focused financial consulting for manufacturing, real estate, healthcare, education, technology, hospitality, logistics, trade and services.",
+      "url": "/en/sectors",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bonds Services | Financial Consulting, Feasibility Studies &amp; Analysis",
+      "description": "Explore Bonds services: financial consulting, feasibility studies, financial analysis, cash flow, budgeting, risk analysis and operational consulting for businesses in MENA.",
       "url": "/en/services",
       "lang": "en",
       "category": "English"
@@ -241,6 +283,13 @@
       "category": "English"
     },
     {
+      "title": "Economic Intelligence | Bonds",
+      "description": "English hub for Bonds economic intelligence, city indicators, investment maps and data methodology.",
+      "url": "/en/v3/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
       "title": "Project Command Center | BONDS",
       "description": "Project investment command center — status, intelligence, next action.",
       "url": "/en/v3/project/",
@@ -263,7 +312,7 @@
     },
     {
       "title": "Industrial Investment Guide in Bahrain | Bonds",
-      "description": "دليل شامل للاستثمار الصناعي في مملكة Bahrain - وزارة الصناعة والتجارة، هيئة Bahrain للتنمية الاقتصادية، المناطق الصناعية، التراخيص",
+      "description": "Comprehensive industrial investment guide for Bahrain covering the Ministry of Industry and Commerce, Bahrain Economic Development Board, industrial zones, and licensing.",
       "url": "/en/sectors/manufacturing-bh",
       "lang": "en",
       "category": "English"
@@ -298,7 +347,7 @@
     },
     {
       "title": "Industrial Investment Guide in Kuwait | Bonds",
-      "description": "دليل شامل للاستثمار الصناعي في دولة Kuwait - الهيئة العامة للاستثمار، الهيئة العامة للصناعة، المناطق الصناعية، التراخيص",
+      "description": "Comprehensive industrial investment guide for Kuwait covering the Investment Authority, Public Authority for Industry, industrial zones, and licensing.",
       "url": "/en/sectors/manufacturing-kw",
       "lang": "en",
       "category": "English"
@@ -319,21 +368,21 @@
     },
     {
       "title": "Industrial Investment Guide in Morocco | Bonds",
-      "description": "دليل شامل للاستثمار الصناعي في المملكة Moroccoية - وزارة الصناعة، وكالة التنمية، المناطق الصناعية، التراخيص",
+      "description": "Comprehensive industrial investment guide for Morocco covering the Ministry of Industry, investment-development agencies, industrial zones, and licensing.",
       "url": "/en/sectors/manufacturing-ma",
       "lang": "en",
       "category": "English"
     },
     {
       "title": "Industrial Investment Guide in Oman | Bonds",
-      "description": "دليل شامل للاستثمار الصناعي في سلطنة Oman - الهيئة العامة للمناطق الاقتصادية، المناطق الحرة، التراخيص، التكاليف",
+      "description": "Comprehensive industrial investment guide for Oman covering economic-zone authorities, free zones, licensing, and industrial costs.",
       "url": "/en/sectors/manufacturing-om",
       "lang": "en",
       "category": "English"
     },
     {
       "title": "Industrial Investment Guide in Qatar | Bonds",
-      "description": "دليل شامل للاستثمار الصناعي في دولة Qatar - هيئة المناطق الحرة، مدينة راس لفان الصناعية، التراخيص، التكاليف",
+      "description": "Comprehensive industrial investment guide for Qatar covering free-zone authorities, Ras Laffan Industrial City, licensing, and industrial costs.",
       "url": "/en/sectors/manufacturing-qa",
       "lang": "en",
       "category": "English"
@@ -354,7 +403,7 @@
     },
     {
       "title": "Industrial Investment Guide in Tunisia | Bonds",
-      "description": "دليل شامل للاستثمار الصناعي في الجمهورية الTunisiaية - وزارة الصناعة، وكالة النهوض بالاستثمار، المناطق الصناعية، التراخيص",
+      "description": "Comprehensive industrial investment guide for Tunisia covering the Ministry of Industry, investment-promotion agencies, industrial zones, and licensing.",
       "url": "/en/sectors/manufacturing-tn",
       "lang": "en",
       "category": "English"
@@ -388,9 +437,4188 @@
       "category": "English"
     },
     {
-      "title": "My Bonds",
-      "description": "Your personal space on Bonds: saved projects, reports, and next steps.",
-      "url": "/en/my-bonds/",
+      "title": "Bonds public directory | Banks, sectors and services",
+      "description": "Indexable Bonds pages for every listed bank, fund, government program, sector and consulting service.",
+      "url": "/en/directory/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Budgeting &amp; Forecasting | Bonds service",
+      "description": "Realistic monthly and quarterly budgets with actual versus planned comparison.",
+      "url": "/en/directory/services/budgeting",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Cash Flow Management | Bonds service",
+      "description": "Cash inflow and outflow mapping, payment prioritization, and early warning of liquidity shortages.",
+      "url": "/en/directory/services/cash-flow",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Daily Journal Entries | Bonds service",
+      "description": "Recording journal entries and reviewing balance on the approved accounting entity.",
+      "url": "/en/directory/services/daily-journal-entries",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Feasibility Studies | Bonds service",
+      "description": "Market, technical, cost, revenue, cash-flow, sensitivity and risk analysis before investment.",
+      "url": "/en/directory/services/feasibility-study",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Financial Analysis | Bonds service",
+      "description": "Reading financial statements, liquidity and profitability indicators, and comparing actual versus planned performance.",
+      "url": "/en/directory/services/financial-analysis",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Financial Statements | Bonds service",
+      "description": "Preparing income statement, balance sheet and cash-flow from the ledger.",
+      "url": "/en/directory/services/financial-statements",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Financial Strategy | Bonds service",
+      "description": "Clear KPIs, investment priorities and a short-term implementation plan.",
+      "url": "/en/directory/services/financial-strategy",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Funding Extraction | Bonds service",
+      "description": "Preparing the file and path so the client can reach suitable financing options.",
+      "url": "/en/directory/services/funding-extraction",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Funding Readiness | Bonds service",
+      "description": "Checking data, structure and repayment capacity before applying.",
+      "url": "/en/directory/services/funding-readiness",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Services | Bonds directory",
+      "description": "Indexable Bonds pages for services in the verified directory.",
+      "url": "/en/directory/services/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Surveys &amp; Market Research | Bonds service",
+      "description": "Designing surveys and market studies to support investment and expansion decisions.",
+      "url": "/en/directory/services/market-research",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Operational Consulting | Bonds service",
+      "description": "Simplifying procedures, distributing roles and linking performance to financial results.",
+      "url": "/en/directory/services/operational-consulting",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Planning, Budgeting &amp; Forecasting | Bonds service",
+      "description": "A governed plan linked to periods and actual accounts.",
+      "url": "/en/directory/services/planning-budgeting-forecasting",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Risk Analysis | Bonds service",
+      "description": "Identifying financial, operational and market risks and testing response scenarios.",
+      "url": "/en/directory/services/risk-analysis",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Scientific Research | Bonds service",
+      "description": "Designing scientific research with methodology, hypothesis and evidence sources to support the decision.",
+      "url": "/en/directory/services/scientific-research",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Zakat &amp; Tax Health Check | Bonds service",
+      "description": "A full review of risks and gaps before filing or inspection.",
+      "url": "/en/directory/services/tax-health-check",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Financial Valuation | Bonds service",
+      "description": "Valuation of companies, assets and projects using methods suited to available data.",
+      "url": "/en/directory/services/valuation",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "VAT Return Preparation | Bonds service",
+      "description": "Reviewing inputs, outputs and adjustments before the VAT return.",
+      "url": "/en/directory/services/vat-return-preparation",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Zakat Return Preparation | Bonds service",
+      "description": "Preparing and reviewing the zakat return and linking it to the financial data before filing.",
+      "url": "/en/directory/services/zakat-return-preparation",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Advertising sector | Financing and advisory | Bonds",
+      "description": "Advertising and marketing agencies",
+      "url": "/en/directory/sectors/advertising",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Inputs sector | Financing and advisory | Bonds",
+      "description": "Seeds fertilizers and pesticides",
+      "url": "/en/directory/sectors/agricultural_inputs",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agriculture sector | Financing and advisory | Bonds",
+      "description": "Crop farming and agricultural production",
+      "url": "/en/directory/sectors/agriculture",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Artificial Intelligence sector | Financing and advisory | Bonds",
+      "description": "AI products and services",
+      "url": "/en/directory/sectors/artificial_intelligence",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Automotive sector | Financing and advisory | Bonds",
+      "description": "Car sales and services",
+      "url": "/en/directory/sectors/automotive",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Aviation sector | Financing and advisory | Bonds",
+      "description": "Commercial aviation",
+      "url": "/en/directory/sectors/aviation",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Awqaf &amp; Endowments sector | Financing and advisory | Bonds",
+      "description": "Islamic endowments and waqf management",
+      "url": "/en/directory/sectors/awqaf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Beauty sector | Financing and advisory | Bonds",
+      "description": "Beauty salons and cosmetics",
+      "url": "/en/directory/sectors/beauty",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Chemical Industries sector | Financing and advisory | Bonds",
+      "description": "Chemical and petrochemical products",
+      "url": "/en/directory/sectors/chemical_industries",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Cold Storage sector | Financing and advisory | Bonds",
+      "description": "Refrigerated warehouses",
+      "url": "/en/directory/sectors/cold_warehouses",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commerce sector | Financing and advisory | Bonds",
+      "description": "Wholesale and retail trade",
+      "url": "/en/directory/sectors/commerce",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commercial Brokerage sector | Financing and advisory | Bonds",
+      "description": "Trade brokerage services",
+      "url": "/en/directory/sectors/commercial_brokerage",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Consulting sector | Financing and advisory | Bonds",
+      "description": "Management and technical consulting",
+      "url": "/en/directory/sectors/consulting",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Contracting sector | Financing and advisory | Bonds",
+      "description": "Construction contracting",
+      "url": "/en/directory/sectors/contracting",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Creative Economy sector | Financing and advisory | Bonds",
+      "description": "Design arts and creative industries",
+      "url": "/en/directory/sectors/creative_economy",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Culture sector | Financing and advisory | Bonds",
+      "description": "Cultural centers and heritage",
+      "url": "/en/directory/sectors/culture",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Cybersecurity sector | Financing and advisory | Bonds",
+      "description": "Cybersecurity services",
+      "url": "/en/directory/sectors/cybersecurity",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Desertification Control sector | Financing and advisory | Bonds",
+      "description": "Land reclamation and conservation",
+      "url": "/en/directory/sectors/desertification_control",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dry Warehouses sector | Financing and advisory | Bonds",
+      "description": "General storage facilities",
+      "url": "/en/directory/sectors/dry_warehouses",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "E-commerce sector | Financing and advisory | Bonds",
+      "description": "Online retail and marketplaces",
+      "url": "/en/directory/sectors/ecommerce",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Education sector | Financing and advisory | Bonds",
+      "description": "Schools universities and training",
+      "url": "/en/directory/sectors/education",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Energy sector | Financing and advisory | Bonds",
+      "description": "Power generation and utilities",
+      "url": "/en/directory/sectors/energy",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Entertainment sector | Financing and advisory | Bonds",
+      "description": "Entertainment and amusement",
+      "url": "/en/directory/sectors/entertainment",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Environment &amp; Sustainability sector | Financing and advisory | Bonds",
+      "description": "Environmental services and sustainability",
+      "url": "/en/directory/sectors/environment_sustainability",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Facilities Management sector | Financing and advisory | Bonds",
+      "description": "Building and facility management",
+      "url": "/en/directory/sectors/facilities_management",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Financial &amp; Banking sector | Financing and advisory | Bonds",
+      "description": "Banks and financial institutions",
+      "url": "/en/directory/sectors/financial_banking",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Fisheries sector | Financing and advisory | Bonds",
+      "description": "Fish farming and fisheries",
+      "url": "/en/directory/sectors/fisheries",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Food &amp; Beverage sector | Financing and advisory | Bonds",
+      "description": "Restaurants cafes and catering",
+      "url": "/en/directory/sectors/food_beverage",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Food Industries sector | Financing and advisory | Bonds",
+      "description": "Food processing and manufacturing",
+      "url": "/en/directory/sectors/food_industries",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Furniture sector | Financing and advisory | Bonds",
+      "description": "Furniture manufacturing and retail",
+      "url": "/en/directory/sectors/furniture",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Geology sector | Financing and advisory | Bonds",
+      "description": "Geological surveys and services",
+      "url": "/en/directory/sectors/geology",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Hajj &amp; Umrah sector | Financing and advisory | Bonds",
+      "description": "Pilgrimage services",
+      "url": "/en/directory/sectors/hajj_umrah",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Healthcare sector | Financing and advisory | Bonds",
+      "description": "Hospitals clinics and medical services",
+      "url": "/en/directory/sectors/healthcare",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Heavy Equipment sector | Financing and advisory | Bonds",
+      "description": "Heavy machinery and equipment",
+      "url": "/en/directory/sectors/heavy_equipment",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Hospitality sector | Financing and advisory | Bonds",
+      "description": "Hotels and accommodation",
+      "url": "/en/directory/sectors/hospitality",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Human Resources sector | Financing and advisory | Bonds",
+      "description": "HR and recruitment services",
+      "url": "/en/directory/sectors/human_resources",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sectors | Bonds directory",
+      "description": "Indexable Bonds pages for sectors in the verified directory.",
+      "url": "/en/directory/sectors/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "General Industry sector | Financing and advisory | Bonds",
+      "description": "Manufacturing and industrial operations",
+      "url": "/en/directory/sectors/industrial",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Industrial Cities sector | Financing and advisory | Bonds",
+      "description": "Industrial zones and cities",
+      "url": "/en/directory/sectors/industrial_cities",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Insurance sector | Financing and advisory | Bonds",
+      "description": "Insurance companies and services",
+      "url": "/en/directory/sectors/insurance",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Insurance Agent sector | Financing and advisory | Bonds",
+      "description": "Insurance agency",
+      "url": "/en/directory/sectors/insurance_agent",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Insurance Broker sector | Financing and advisory | Bonds",
+      "description": "Insurance brokerage",
+      "url": "/en/directory/sectors/insurance_broker",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Laboratories sector | Financing and advisory | Bonds",
+      "description": "Medical and industrial labs",
+      "url": "/en/directory/sectors/laboratories",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Livestock sector | Financing and advisory | Bonds",
+      "description": "Animal production and breeding",
+      "url": "/en/directory/sectors/livestock",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Logistics sector | Financing and advisory | Bonds",
+      "description": "Supply chain and logistics services",
+      "url": "/en/directory/sectors/logistics",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Media sector | Financing and advisory | Bonds",
+      "description": "Broadcasting and publishing",
+      "url": "/en/directory/sectors/media",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Metal Refineries sector | Financing and advisory | Bonds",
+      "description": "Metal smelting and refining",
+      "url": "/en/directory/sectors/metal_refineries",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mining sector | Financing and advisory | Bonds",
+      "description": "Mineral extraction and mining",
+      "url": "/en/directory/sectors/mining",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Oil &amp; Gas sector | Financing and advisory | Bonds",
+      "description": "Exploration and production",
+      "url": "/en/directory/sectors/oil_gas",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Oil Refineries sector | Financing and advisory | Bonds",
+      "description": "Petroleum refining",
+      "url": "/en/directory/sectors/oil_refineries",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Pharmaceutical Industries sector | Financing and advisory | Bonds",
+      "description": "Pharma manufacturing and distribution",
+      "url": "/en/directory/sectors/pharmaceutical_industries",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ports sector | Financing and advisory | Bonds",
+      "description": "Sea ports and terminals",
+      "url": "/en/directory/sectors/ports",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Poultry sector | Financing and advisory | Bonds",
+      "description": "Poultry farming and production",
+      "url": "/en/directory/sectors/poultry",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Private Aviation sector | Financing and advisory | Bonds",
+      "description": "Private jets and charter services",
+      "url": "/en/directory/sectors/private_aviation",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Public Services sector | Financing and advisory | Bonds",
+      "description": "Government and public services",
+      "url": "/en/directory/sectors/public_services",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Real Estate sector | Financing and advisory | Bonds",
+      "description": "Property development and brokerage",
+      "url": "/en/directory/sectors/real_estate",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Research &amp; Development sector | Financing and advisory | Bonds",
+      "description": "R&amp;D centers and innovation",
+      "url": "/en/directory/sectors/research_development",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Security &amp; Safety sector | Financing and advisory | Bonds",
+      "description": "Security services and safety equipment",
+      "url": "/en/directory/sectors/security_safety",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sports Economy sector | Financing and advisory | Bonds",
+      "description": "Sports clubs and facilities",
+      "url": "/en/directory/sectors/sports_economy",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Technology sector | Financing and advisory | Bonds",
+      "description": "IT services and software",
+      "url": "/en/directory/sectors/technology",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tourism sector | Financing and advisory | Bonds",
+      "description": "Travel and tourism services",
+      "url": "/en/directory/sectors/tourism",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Transport sector | Financing and advisory | Bonds",
+      "description": "Land sea and air transport",
+      "url": "/en/directory/sectors/transport",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Water sector | Financing and advisory | Bonds",
+      "description": "Water supply and treatment",
+      "url": "/en/directory/sectors/water",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Well Drilling sector | Financing and advisory | Bonds",
+      "description": "Water and oil well drilling",
+      "url": "/en/directory/sectors/well_drilling",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Emirates Development Bank | Government program in UAE | Bonds",
+      "description": "Federal development bank financing priority sectors, industry and innovation.",
+      "url": "/en/directory/programs/ae-edb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Khalifa Fund | Government program in UAE | Bonds",
+      "description": "Abu Dhabi non-profit fund providing finance and enablement for Emirati-owned SMEs.",
+      "url": "/en/directory/programs/ae-khalifa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mohammed bin Rashid Innovation Fund | Government program in UAE | Bonds",
+      "description": "Innovation and technology project financing.",
+      "url": "/en/directory/programs/ae-mbr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National SME Programme | Government program in UAE | Bonds",
+      "description": "Federal programme enabling Emirati SMEs through finance, government procurement and training.",
+      "url": "/en/directory/programs/ae-nsme",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sharjah Ruwad | Government program in UAE | Bonds",
+      "description": "Sharjah government establishment supporting, licensing and financing entrepreneurs and SMEs.",
+      "url": "/en/directory/programs/ae-ruwad",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dubai SME | Government program in UAE | Bonds",
+      "description": "Dubai government establishment supporting, licensing and enabling entrepreneurs and SMEs.",
+      "url": "/en/directory/programs/ae-sme",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tamkeen | Government program in Bahrain | Bonds",
+      "description": "Labour Fund supporting finance and training for Bahraini enterprises.",
+      "url": "/en/directory/programs/bh-tamkeen",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ANGEM | Government program in Algeria | Bonds",
+      "description": "Government agency financing micro-projects through microcredit and triangular bank finance.",
+      "url": "/en/directory/programs/dz-angem",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "FGAR | Government program in Algeria | Bonds",
+      "description": "Government fund guaranteeing bank loans for Algerian SME creation and expansion.",
+      "url": "/en/directory/programs/dz-fgar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "NESDA (ex-ANADE/ANSEJ) | Government program in Algeria | Bonds",
+      "description": "Government agency supporting micro-enterprise creation and expansion (successor of ANSEJ/ANADE).",
+      "url": "/en/directory/programs/dz-nesda",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "MSMEDA bank window | Government program in Egypt | Bonds",
+      "description": "MSMEDA financing delivered through partner bank branches nationwide.",
+      "url": "/en/directory/programs/eg-abe-idb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "MSMEDA | Government program in Egypt | Bonds",
+      "description": "Government agency financing and developing MSMEs through banks and NGO partners.",
+      "url": "/en/directory/programs/eg-msmeda",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Government programs | Bonds directory",
+      "description": "Indexable Bonds pages for government programs in the verified directory.",
+      "url": "/en/directory/programs/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "CBI SME financing initiative | Government program in Iraq | Bonds",
+      "description": "Central Bank of Iraq initiative channelling SME finance through participating banks.",
+      "url": "/en/directory/programs/iq-cbi-sme",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Iraqi Company for Financing SMEs | Government program in Iraq | Bonds",
+      "description": "CBI-licensed company financing youth, graduates, women and agricultural projects.",
+      "url": "/en/directory/programs/iq-icfsme",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Credit Corporation | Government program in Jordan | Bonds",
+      "description": "Government corporation providing farm and agribusiness loans in Jordan.",
+      "url": "/en/directory/programs/jo-acc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Development and Employment Fund | Government program in Jordan | Bonds",
+      "description": "Government fund financing small projects and self-employment across Jordanian governorates.",
+      "url": "/en/directory/programs/jo-def",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "JEDCO | Government program in Jordan | Bonds",
+      "description": "Government corporation for developing and financing SMEs and economic projects.",
+      "url": "/en/directory/programs/jo-jedco",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jordan Loan Guarantee Corporation | Government program in Jordan | Bonds",
+      "description": "Loan guarantees for SMEs in partnership with banks.",
+      "url": "/en/directory/programs/jo-jlgc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Local Development Fund | Government program in Jordan | Bonds",
+      "description": "Local development project financing in Jordanian governorates.",
+      "url": "/en/directory/programs/jo-ldf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Fund for SME Development | Government program in Kuwait | Bonds",
+      "description": "Government fund financing and developing Kuwaiti SMEs.",
+      "url": "/en/directory/programs/kw-nf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Kafalat | Government program in Lebanon | Bonds",
+      "description": "Lebanese SME loan-guarantee company. New guarantees are currently suspended because of the banking crisis; confirm with the company before relying on it.",
+      "url": "/en/directory/programs/lb-kafalat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Intelaka | Government program in Morocco | Bonds",
+      "description": "Government concessional finance programme for VSMEs and SMEs through Moroccan banks.",
+      "url": "/en/directory/programs/ma-intelaka",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tamwilcom | Government program in Morocco | Bonds",
+      "description": "National guarantee and enterprise-finance institution for VSMEs and SMEs.",
+      "url": "/en/directory/programs/ma-tamwilcom",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SME Development Authority (Riyada) | Government program in Oman | Bonds",
+      "description": "Government authority that succeeded Al-Raffd Fund and PASMED, providing SME finance and entrepreneur support.",
+      "url": "/en/directory/programs/om-riyada",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "PMA Estidama | Government program in Palestine | Bonds",
+      "description": "Palestine Monetary Authority programme easing SME finance through banks on supported terms.",
+      "url": "/en/directory/programs/ps-estidama",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "QDB Al-Dhameen | Government program in Qatar | Bonds",
+      "description": "Government guarantee programme helping Qatari companies obtain bank finance.",
+      "url": "/en/directory/programs/qa-dhameen",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Qatar Development Bank | Government program in Qatar | Bonds",
+      "description": "Development bank financing Qatari companies, exports and guarantees.",
+      "url": "/en/directory/programs/qa-qdb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi EXIM Bank | Government program in Saudi Arabia | Bonds",
+      "description": "Financing and guaranteeing Saudi non-oil exports.",
+      "url": "/en/directory/programs/sa-exim",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi Exports | Government program in Saudi Arabia | Bonds",
+      "description": "Financial and training incentives for product registration, trade fairs and SME export support.",
+      "url": "/en/directory/programs/sa-exports",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HRDF (Hadaf) | Government program in Saudi Arabia | Bonds",
+      "description": "Government wage and training support for Saudisation inside enterprises via Hadaf programmes.",
+      "url": "/en/directory/programs/sa-hrdf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Kafalah Program | Government program in Saudi Arabia | Bonds",
+      "description": "Credit-guarantee programme for SMEs through partner banks and finance companies.",
+      "url": "/en/directory/programs/sa-kafalah",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Monshaat | Government program in Saudi Arabia | Bonds",
+      "description": "The SME authority overseeing sector policy and supporting finance and investment programmes.",
+      "url": "/en/directory/programs/sa-monshaat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Entrepreneurship Institute (Riyadah) | Government program in Saudi Arabia | Bonds",
+      "description": "Active national institute providing entrepreneurship training and advisory, in partnership with the Social Development Bank for finance.",
+      "url": "/en/directory/programs/sa-riyadah",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Social Development Bank | Government program in Saudi Arabia | Bonds",
+      "description": "Development finance for individuals, entrepreneurs and startups, including asset and working-capital products.",
+      "url": "/en/directory/programs/sa-sdb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SIDF | Government program in Saudi Arabia | Bonds",
+      "description": "Financing for industrial, mining, logistics and energy projects.",
+      "url": "/en/directory/programs/sa-sidf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SME Bank | Government program in Saudi Arabia | Bonds",
+      "description": "National Development Fund bank that finances SMEs through partner banks, NBFIs and platforms.",
+      "url": "/en/directory/programs/sa-smebank",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "APII / FTI window | Government program in Tunisia | Bonds",
+      "description": "Investment-incentive and Tunisian Investment Fund window for industrial projects.",
+      "url": "/en/directory/programs/tn-apii",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SOTUGAR | Government program in Tunisia | Bonds",
+      "description": "Credit guarantees for Tunisian SMEs through partner banks.",
+      "url": "/en/directory/programs/tn-sotugar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Social Fund for Development Yemen | Government program in Yemen | Bonds",
+      "description": "Government fund financing local development, microfinance and community projects in Yemen.",
+      "url": "/en/directory/programs/ye-sfd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SMEPS Yemen | Government program in Yemen | Bonds",
+      "description": "Enablement and finance for micro and small enterprises in Yemen.",
+      "url": "/en/directory/programs/ye-smeps",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dubai Future District Fund | Investor in UAE | Bonds",
+      "description": "Technology and innovation investment fund in Dubai.",
+      "url": "/en/directory/investors/ae-dfdf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Flat6Labs | Investor in Egypt | Bonds",
+      "description": "Seed accelerator and fund for startups in Egypt and the region.",
+      "url": "/en/directory/investors/eg-flat6",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Investors | Bonds directory",
+      "description": "Indexable Bonds pages for investors in the verified directory.",
+      "url": "/en/directory/investors/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Oasis500 | Investor in Jordan | Bonds",
+      "description": "Amman accelerator and early-stage fund.",
+      "url": "/en/directory/investors/jo-oasis",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Angel Investors Saudi | Investor in Saudi Arabia | Bonds",
+      "description": "Angel network for early-stage companies.",
+      "url": "/en/directory/investors/sa-angels",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Abu Dhabi Fund for Development | Fund in UAE | Bonds",
+      "description": "Concessional loans, export finance and development investment, including UAE private-sector support.",
+      "url": "/en/directory/funds/ae-adfd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mubadala Investment Company | Fund in UAE | Bonds",
+      "description": "Sovereign investor in growth sectors in the UAE and internationally.",
+      "url": "/en/directory/funds/ae-mubadala",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "The Sovereign Fund of Egypt | Fund in Egypt | Bonds",
+      "description": "Investments in infrastructure, energy and strategic assets.",
+      "url": "/en/directory/funds/eg-tsfe",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Funds | Bonds directory",
+      "description": "Indexable Bonds pages for funds in the verified directory.",
+      "url": "/en/directory/funds/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Kuwait Fund for Arab Economic Development | Fund in Kuwait | Bonds",
+      "description": "Concessional loans and grants for development projects in Arab and developing countries.",
+      "url": "/en/directory/funds/kw-kfund",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Namaa Tamweel | Fund in Libya | Bonds",
+      "description": "ATIB microfinance institution providing Sharia-compliant MSME finance.",
+      "url": "/en/directory/funds/ly-namaa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Palestine Investment Fund | Fund in Palestine | Bonds",
+      "description": "Palestine’s sovereign fund investing in productive sectors inside Palestine.",
+      "url": "/en/directory/funds/ps-pif",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Qatar Fund for Development | Fund in Qatar | Bonds",
+      "description": "Qatar’s development arm financing humanitarian and development projects.",
+      "url": "/en/directory/funds/qa-qffd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "AAAID | Fund in Pan-Arab / regional | Bonds",
+      "description": "Arab authority investing in agribusiness companies and projects to strengthen food security in shareholder states.",
+      "url": "/en/directory/funds/reg-aaaid",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "African Development Bank | Fund in Pan-Arab / regional | Bonds",
+      "description": "Finances development and the private sector in African member countries, including African Arab states.",
+      "url": "/en/directory/funds/reg-afdb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Fund for Economic and Social Development | Fund in Pan-Arab / regional | Bonds",
+      "description": "Arab financial institution financing infrastructure and economic and social development, with priority for joint Arab projects.",
+      "url": "/en/directory/funds/reg-afesd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Afreximbank | Fund in Pan-Arab / regional | Bonds",
+      "description": "African trade bank financing intra- and extra-African trade, including African Arab member states.",
+      "url": "/en/directory/funds/reg-afrexim",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "AGFUND | Fund in Pan-Arab / regional | Bonds",
+      "description": "Gulf development institution funding human-development and microfinance programmes, especially for women and children, with UN and local partners.",
+      "url": "/en/directory/funds/reg-agfund",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Monetary Fund | Fund in Pan-Arab / regional | Bonds",
+      "description": "Finances Arab balance-of-payments needs and supports monetary reform, financial markets and intra-Arab trade.",
+      "url": "/en/directory/funds/reg-amf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "APICORP | Fund in Pan-Arab / regional | Bonds",
+      "description": "OAPEC multilateral financier of energy, industry and related trade projects in Arab member states.",
+      "url": "/en/directory/funds/reg-apicorp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Trade Finance Program | Fund in Pan-Arab / regional | Bonds",
+      "description": "Joint AMF–Arab Fund programme financing intra-Arab trade through lines to accredited banks.",
+      "url": "/en/directory/funds/reg-atfp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BADEA | Fund in Pan-Arab / regional | Bonds",
+      "description": "Finances development in non-Arab African states and Arab-African trade, funded by League of Arab States members.",
+      "url": "/en/directory/funds/reg-badea",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dhaman | Fund in Pan-Arab / regional | Bonds",
+      "description": "Multilateral Arab insurer of investment against political risk and export credit against commercial risk in Arab states.",
+      "url": "/en/directory/funds/reg-dhaman",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "EBRD | Fund in Pan-Arab / regional | Bonds",
+      "description": "Finances private-sector and infrastructure projects in transition economies, including Egypt, Jordan, Morocco, Tunisia, Lebanon and Palestine.",
+      "url": "/en/directory/funds/reg-ebrd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "European Investment Bank | Fund in Pan-Arab / regional | Bonds",
+      "description": "EU lending arm financing projects in the southern neighbourhood, including Mediterranean Arab states, plus its EU operations.",
+      "url": "/en/directory/funds/reg-eib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ICD | Fund in Pan-Arab / regional | Bonds",
+      "description": "Private-sector arm of the IsDB Group, financing companies through equity, Islamic finance and lines to banks.",
+      "url": "/en/directory/funds/reg-icd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ICIEC | Fund in Pan-Arab / regional | Bonds",
+      "description": "Insures export credit and investment against commercial and political risk for member countries and their exporters.",
+      "url": "/en/directory/funds/reg-iciec",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "IFC | Fund in Pan-Arab / regional | Bonds",
+      "description": "World Bank Group private-sector arm providing loans, equity and guarantees to companies and banks in emerging markets.",
+      "url": "/en/directory/funds/reg-ifc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Islamic Development Bank | Fund in Pan-Arab / regional | Bonds",
+      "description": "Multilateral development bank in the IsDB Group financing public and private projects on Sharia-compliant terms in 57 member countries.",
+      "url": "/en/directory/funds/reg-isdb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Islamic Solidarity Fund for Development | Fund in Pan-Arab / regional | Bonds",
+      "description": "Poverty-reduction fund of the IsDB Group providing concessional finance and human-development programmes in the neediest member countries.",
+      "url": "/en/directory/funds/reg-isfd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ITFC | Fund in Pan-Arab / regional | Bonds",
+      "description": "Finances member-country trade through bank lines, credits and direct importer/exporter finance.",
+      "url": "/en/directory/funds/reg-itfc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "OPEC Fund | Fund in Pan-Arab / regional | Bonds",
+      "description": "Multilateral development fund financing infrastructure and private projects in developing countries, including non-OPEC Arab states.",
+      "url": "/en/directory/funds/reg-opec",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "World Bank | Fund in Pan-Arab / regional | Bonds",
+      "description": "Finances governments and development projects, and the private sector through Group institutions, via country offices in Arab capitals.",
+      "url": "/en/directory/funds/reg-wb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Development Fund | Fund in Saudi Arabia | Bonds",
+      "description": "Financing for agricultural and food activity across Saudi Arabia.",
+      "url": "/en/directory/funds/sa-adf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Abdul Latif Jameel United Finance | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed consumer, SME and productive-asset finance.",
+      "url": "/en/directory/funds/sa-alj",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Aljabr Finance | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed vehicle, SME and asset finance.",
+      "url": "/en/directory/funds/sa-aljabr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tamweel Aloula | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed SME, consumer and asset finance.",
+      "url": "/en/directory/funds/sa-aloula",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Yusr Leasing and Financing | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed leasing and enterprise finance.",
+      "url": "/en/directory/funds/sa-alyusr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Amlak International Finance | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed real-estate and SME finance.",
+      "url": "/en/directory/funds/sa-amlak",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bidaya Home Finance | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed home-finance company.",
+      "url": "/en/directory/funds/sa-bidaya",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Cultural Development Fund | Fund in Saudi Arabia | Bonds",
+      "description": "Financing investment in cultural and creative activity.",
+      "url": "/en/directory/funds/sa-cdf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Events Investment Fund | Fund in Saudi Arabia | Bonds",
+      "description": "Investment and financing for events, entertainment and sports.",
+      "url": "/en/directory/funds/sa-eif",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Emkan Finance | Fund in Saudi Arabia | Bonds",
+      "description": "Al Rajhi-owned finance company licensed by SAMA.",
+      "url": "/en/directory/funds/sa-emkan",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jada Fund of Funds | Fund in Saudi Arabia | Bonds",
+      "description": "Fund of funds investing in VC, private-equity and private-debt managers in Saudi Arabia.",
+      "url": "/en/directory/funds/sa-jada",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Lendo | Fund in Saudi Arabia | Bonds",
+      "description": "Debt crowdfunding platform for SMEs.",
+      "url": "/en/directory/funds/sa-lendo",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Manafa | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed debt crowdfunding platform for enterprises.",
+      "url": "/en/directory/funds/sa-manafa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Nayifat Finance | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed finance company for enterprises and consumers.",
+      "url": "/en/directory/funds/sa-nayifat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Infrastructure Fund | Fund in Saudi Arabia | Bonds",
+      "description": "Enabling and financing strategic infrastructure projects.",
+      "url": "/en/directory/funds/sa-nif",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi ORIX | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed leasing finance for assets and enterprises.",
+      "url": "/en/directory/funds/sa-orix",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Real Estate Development Fund | Fund in Saudi Arabia | Bonds",
+      "description": "Financing and support for residential and development real-estate activity.",
+      "url": "/en/directory/funds/sa-redf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sahl Finance | Fund in Saudi Arabia | Bonds",
+      "description": "SAMA-licensed real-estate and SME finance.",
+      "url": "/en/directory/funds/sa-sahl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi Fund for Development | Fund in Saudi Arabia | Bonds",
+      "description": "Finances development projects in developing countries, including Arab states, and supports Saudi exports.",
+      "url": "/en/directory/funds/sa-sfd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi Real Estate Refinance Company | Fund in Saudi Arabia | Bonds",
+      "description": "Refinances mortgage portfolios to support the housing market.",
+      "url": "/en/directory/funds/sa-src",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SVC | Fund in Saudi Arabia | Bonds",
+      "description": "Invests in VC, private-equity and private-debt funds that back startups and SMEs.",
+      "url": "/en/directory/funds/sa-svc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tourism Development Fund | Fund in Saudi Arabia | Bonds",
+      "description": "Tourism-sector financing in partnership with banks, NBFIs and the Kafalah programme.",
+      "url": "/en/directory/funds/sa-tdf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab African International Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-aaib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Bank of China UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-abc-cn",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Ahli Bank of Kuwait UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-abk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Abu Dhabi Commercial Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-adcb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Abu Dhabi Islamic Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-adib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ajman Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-ajman",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Alfalah UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-alfalah",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Banorient France UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-banorient",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Barclays UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-barclays",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Baroda UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-baroda",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BNP Paribas UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-bnp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of China UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-boc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BOK International Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-bok",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Crédit Agricole CIB UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-cacib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commercial Bank of Dubai | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-cbd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commercial Bank International | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-cbi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Deutsche Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-db",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dubai Islamic Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-dib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Doha Bank — UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-doha",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Emirates Islamic | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-ei",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Emirates Investment Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-eib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Emirates NBD | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-enbd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "First Abu Dhabi Bank (FAB) | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-fab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Fujairah | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-fujairah",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Gulf International Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-gib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "KEB Hana Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-hana",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Habib Bank Limited UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-hbl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Habib Bank AG Zurich UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-hbz",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Hilal Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-hilal",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HSBC Bank Middle East | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-hsbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ICBC UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-icbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "International Development Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-idb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Iraqi Islamic Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-iib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Intesa Sanpaolo UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-intesa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Invest Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-invest",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Janata Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-janata",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Khaliji France UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-khaliji",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Maryah Community Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-maryah",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mashreq Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-mashreq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Masraf | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-masraf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "MCB Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-mcb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Melli Iran UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-melli",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Misr UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-misr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Bahrain UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-nbb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Kuwait UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-nbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Oman — UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-nbo",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "El Nilein Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-nilein",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Rafidain Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-rafidain",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "RAKBANK | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-rakbank",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Reem Community Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-reem",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ruya Community Islamic Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-ruya",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Saderat Iran UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-saderat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Standard Chartered UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-sc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Sharjah | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-sharjah",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sharjah Islamic Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-sib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi National Bank UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-snb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "United Arab Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-uab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Umm Al Quwain | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-uaq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "United Bank Limited UAE | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-ubl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Wio Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-wio",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Zand Bank | Bank in UAE | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ae-zand",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank ABC Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-abc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Baraka Islamic Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-baraka",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Bahrain and Kuwait | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-bbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bahrain Development Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-bdb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bahrain Islamic Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-bisb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Eskan Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-eskan",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "FAB Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-fab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Gulf International Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-gib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HSBC Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-hsbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ithmaar Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-ithmaar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "KFH Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-kfh",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Khaleeji Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-khaleeji",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-nbb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "NBK Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-nbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Salam Bank | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-salam",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Standard Chartered Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-sc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SNB Bahrain | Bank in Bahrain | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/bh-snb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BCI Mer Rouge | Bank in Djibouti | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dj-bci",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Africa Djibouti | Bank in Djibouti | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dj-boa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "CAC International Bank Djibouti | Bank in Djibouti | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dj-cac",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Exim Bank Djibouti | Bank in Djibouti | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dj-exim",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saba Islamic Bank Djibouti | Bank in Djibouti | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dj-saba",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank ABC Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-abc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Gulf Bank Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-agb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BADR | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-badr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Baraka Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-baraka",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque de Développement Local | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-bdl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Extérieure d’Algérie | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-bea",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Nationale d’Algérie | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-bna",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Nationale de l’Habitat | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-bnh",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BNP Paribas El Djazaïr | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-bnp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "CNEP Banque | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-cnep",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Crédit Populaire d’Algérie | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-cpa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Fransabank El Djazaïr | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-fransa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HBTF Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-hbtf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HSBC Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-hsbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Natixis Algérie | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-natixis",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Salam Bank Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-salam",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Société Générale Algeria | Bank in Algeria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/dz-sg",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab African International Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-aaib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank ABC Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-abc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Bank of Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-abe",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Ahli Bank of Kuwait Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-abk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ADCB Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-adcb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ADIB Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-adib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Investment Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-aib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab International Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-aib2",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Alexandria | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-alex",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Attijariwafa Bank Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-awb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Baraka Bank Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-baraka",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque du Caire | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-bdc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Crédit Agricole Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-cae",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commercial International Bank (CIB) | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-cib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Egyptian Arab Land Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-eal",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Export Development Bank of Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-edbe",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Egyptian Gulf Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-egb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Emirates NBD Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-enbd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "FAB Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-fab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Faisal Islamic Bank of Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-faisal",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Housing and Development Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-hdb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HSBC Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-hsbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Industrial Development Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-idb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "KFH Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-kfh",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mashreq Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-mashreq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "MIDBank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-midbank",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Misr | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-misr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-nbe",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Greece Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-nbg",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "NBK Egypt | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-nbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BANK NXT | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-nxt",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "QNB Alahli | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SAIB Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-saib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Suez Canal Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-scb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "The United Bank | Bank in Egypt | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/eg-united",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banks | Bonds directory",
+      "description": "Indexable Bonds pages for banks in the verified directory.",
+      "url": "/en/directory/banks/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Cooperative Bank of Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-agri",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ashur International Bank | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-ashur",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Baghdad | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-bob",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Byblos Bank Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-byblos",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commercial Bank of Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-cbiq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Gulf Commercial Bank | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-gulf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Investment Bank of Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-ibi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "International Development Bank | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-idb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Industrial Bank of Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-ind",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Kurdistan International Bank | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-kib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-north",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Rafidain Bank | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-rafidain",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Rasheed Bank | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-rasheed",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Real Estate Bank of Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-reb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Trade Bank of Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-tbi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ziraat Bank Iraq | Bank in Iraq | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/iq-ziraat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank ABC Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-abc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jordan Ahli Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-ahli",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Jordan Investment Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-ajib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Audi Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-audi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Blink | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-blink",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-boj",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Cairo Amman Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-cab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Capital Bank of Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-capital",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank al Etihad | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-etihad",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Housing Bank for Trade &amp; Finance | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-hbtf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Islamic International Arab Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-iiab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "INVESTBANK | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-invest",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jordan Commercial Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-jcb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jordan Islamic Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-jib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jordan Kuwait Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-jkb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "NBK Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-nbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Rafidain Bank Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-rafidain",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Rajhi Bank Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-rajhi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Safwa Islamic Bank | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-safwa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Standard Chartered Jordan | Bank in Jordan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/jo-sc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque pour l’Industrie et le Commerce | Bank in Comoros | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/km-bic",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Exim Bank Comoros | Bank in Comoros | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/km-exim",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SNPSF Comoros | Bank in Comoros | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/km-snps",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Ahli Bank of Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-abk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BBK Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-bbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BNP Paribas Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-bnp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Boubyan Bank | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-boubyan",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Burgan Bank | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-burgan",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commercial Bank of Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-cbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Doha Bank Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-doha",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "FAB Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-fab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Gulf Bank | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-gulf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HSBC Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-hsbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Industrial Bank of Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-ibk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ICBC Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-icbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Kuwait Finance House | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-kfh",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Kuwait International Bank | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-kib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mashreq Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-mashreq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Muscat Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-muscat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-nbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "QNB Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Rajhi Bank Kuwait | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-rajhi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Warba Bank | Bank in Kuwait | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/kw-warba",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Lebanon | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Audi | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-audi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BBAC | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-bbac",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Libano-Française | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-blf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BLOM Bank | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-blom",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Beirut | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-bob",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Byblos Bank | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-byblos",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Lebanon | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Crédit Libanais | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-cl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "First National Bank Lebanon | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-fnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Fransabank | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-fransa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "IBL Bank | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-ibl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BankMed | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-med",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "NBK Lebanon | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-nbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saradar Bank | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-saradar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "SGBL | Bank in Lebanon | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/lb-sgbl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Alwaha Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-alwaha",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Aman Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-aman",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Assaray Trade and Investment Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-atib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Commerce &amp; Development | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-bcd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "First Gulf Libyan Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-fab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jumhouria Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-jumhouria",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Libyan Foreign Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-lfb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "North Africa Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-nab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Commercial Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-ncb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Nuran Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-nuran",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sahara Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-sahara",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "UBCI Libya | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-ubci",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Wahda Bank | Bank in Libya | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ly-wahda",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Akhdar Bank | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-akhdar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Morocco | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Assafa | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-assafa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Attijariwafa Bank | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-attijari",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Barid Bank | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-barid",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Centrale Populaire | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-bcp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BMCI | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-bmci",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Africa | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-boa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Al-Tamweel wa Al-Inma | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-bti",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Crédit Agricole du Maroc | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-cam",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Crédit du Maroc | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-cdm",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "CFG Bank | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-cfg",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "CIH Bank | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-cih",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Morocco | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Société Générale Morocco | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-sg",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Umnia Bank | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-umnia",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Al Yousr | Bank in Morocco | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ma-yousr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BAMIS | Bank in Mauritania | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/mr-bam",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Islamique de Mauritanie | Bank in Mauritania | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/mr-bim",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BMCI Mauritania | Bank in Mauritania | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/mr-bmci",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Nationale de Mauritanie | Bank in Mauritania | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/mr-bnm",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Générale de Banque de Mauritanie | Bank in Mauritania | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/mr-gbm",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Société Générale Mauritania | Bank in Mauritania | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/mr-sg",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ahli Bank Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-ahli",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Beirut Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-beirut",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Dhofar | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-dhofar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "FAB Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-fab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "GIB Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-gib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Oman Housing Bank | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-housing",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HSBC Bank Middle East — Oman Branch | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-hsbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Alizz Islamic Bank | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-izz",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mashreq Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-mashreq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Muscat | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-muscat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-nbo",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Nizwa | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-nizwa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Oman Arab Bank | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-oab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Oman Development Bank | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-odb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "QNB Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Standard Chartered Oman | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-sc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sohar International | Bank in Oman | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/om-sohar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jordan Ahli Bank Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-ahli",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Islamic Bank | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-aib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Jordan Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-boj",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-bop",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Cairo Amman Bank Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-cab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Egyptian Arab Land Bank Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-eal",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HBTF Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-hbtf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Jordan Kuwait Bank Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-jkb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Palestine Islamic Bank | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-pib-isl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Palestine Investment Bank | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-pib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Quds Bank | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-quds",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Safa Bank | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-safa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "The National Bank Palestine | Bank in Palestine | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ps-tnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ahli Bank Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-ahli",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BNP Paribas Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-bnp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "The Commercial Bank | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-cbq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Doha Bank | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-doha",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dukhan Bank | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-dukhan",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "HSBC Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-hsbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Mashreq Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-mashreq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Qatar Islamic Bank | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-qib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Qatar International Islamic Bank | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-qiib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Qatar National Bank | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Masraf Al Rayan | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-rayan",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Saderat Iran Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-saderat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Standard Chartered Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-sc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "United Bank Limited Qatar | Bank in Qatar | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/qa-ubl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ADCB — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-adcb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Albilad | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-albilad",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Alinma Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-alinma",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab National Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-anb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Aljazira | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-baj",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BNP Paribas — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-bnp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of China — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-boc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Jordan — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-boj",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Saudi Fransi | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-bsf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Syariah Indonesia — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-bsi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "D360 Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-d360",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Deutsche Bank — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-db",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Emirates NBD — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-enbd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "EZ Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-ez",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "FAB — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-fab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Gulf International Bank Saudi Arabia | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-gib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "ICBC — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-icbc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "J.P. Morgan — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-jpm",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Misr — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-misr",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "MUFG Bank — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-mufg",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Muscat — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-muscat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Bahrain — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-nbb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Egypt — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-nbe-br",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Iraq — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-nbi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Kuwait — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-nbk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Pakistan — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-nbp",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Qatar National Bank — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Rajhi Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-rajhi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Riyad Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-riyad",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi Awwal Bank (SAB) | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-sab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi Investment Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-saib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Standard Chartered — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-sc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saudi National Bank (SNB) | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-snb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sohar International — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-sohar",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "STC Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-stc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Trade Bank of Iraq — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-tbi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "UBS — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-ubs",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Vision Bank | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-vision",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Ziraat Bank — KSA | Bank in Saudi Arabia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sa-ziraat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Bank of Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-agri",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Baraka Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-baraka",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Blue Nile Mashreq Bank | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-blue",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Khartoum | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-bok",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Export Development Bank Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-edb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Faisal Islamic Bank Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-faisal",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Family Bank Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-family",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Industrial Development Bank Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-idb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "NBE Khartoum | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-nbe",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "El Nilein Bank | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-nilein",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Omdurman National Bank | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-onb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "QNB Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Salam Bank Sudan | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-salam",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Sudanese Islamic Bank | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-sib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Savings and Social Development Bank | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-ssdb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tadamon Islamic Bank | Bank in Sudan | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sd-tadamon",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Amal Bank Somalia | Bank in Somalia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/so-amal",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Dahabshiil Bank International | Bank in Somalia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/so-dahabshiil",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "International Bank of Somalia | Bank in Somalia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/so-ibs",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Premier Bank | Bank in Somalia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/so-premier",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Salaam Somali Bank | Bank in Somalia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/so-salaam",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Agricultural Cooperative Bank Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-agri",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank BEMO Saudi Fransi | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-bemo",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Jordan Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-boj",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank of Syria &amp; Overseas | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-bso",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Commercial Bank of Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-cbs",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Cham Bank | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-cham",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Fransabank Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-fransa",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "IBTF Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-ibtf",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Industrial Bank Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-ind",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Popular Credit Bank | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-pcb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Real Estate Bank Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-reb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saving Bank Syria | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-save",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Syria Gulf Bank | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-sgb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank Al-Sharq | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-sharq",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Syria International Islamic Bank | Bank in Syria | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/sy-siib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Bank ABC Tunisia | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-abc",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Amen Bank | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-amen",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Tunisian Bank | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-atb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Attijari Bank Tunisia | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-attijari",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al Baraka Bank Tunisia | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-baraka",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BFPME | Bank in Tunisia | Bonds",
+      "description": "Public bank financing SME creation and expansion.",
+      "url": "/en/directory/banks/tn-bfpme",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BH Bank | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-bh",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BIAT | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-biat",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Nationale Agricole | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-bna",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque de Tunisie | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-bt",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BTE | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-bte",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "BTK | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-btk",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Tuniso-Libyenne | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-btl",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Tunisienne de Solidarité | Bank in Tunisia | Bonds",
+      "description": "Public bank financing small projects and graduates.",
+      "url": "/en/directory/banks/tn-bts",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Citibank Tunisia | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-citi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "QNB Tunisia | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "STB | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-stb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tunisian Saudi Bank | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-tsb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "UBCI | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-ubci",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "UIB | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-uib",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Wifak International Bank | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-wifak",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Banque Zitouna | Bank in Tunisia | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/tn-zitouna",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al-Amal Microfinance Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-amal",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Arab Bank Yemen | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-arab",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "CAC Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-cac",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Hadhramout Commercial Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-hadhramout",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "International Bank of Yemen | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-iby",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Al-Kuraimi Islamic Microfinance Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-kuraimi",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "National Bank of Yemen | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-nby",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "QNB Yemen | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-qnb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Saba Islamic Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-saba",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Shamil Bank of Yemen &amp; Bahrain | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-shamil",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Tadhamon Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-tadhamon",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Yemen Bank for Reconstruction &amp; Development | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-ybrd",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Yemen Commercial Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-ycb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Yemen Gulf Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-ygb",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "Yemen Kuwait Bank | Bank in Yemen | Bonds",
+      "description": "Corporate and SME financing through conventional or Islamic products, according to the bank licence.",
+      "url": "/en/directory/banks/ye-ykb",
       "lang": "en",
       "category": "English"
     },

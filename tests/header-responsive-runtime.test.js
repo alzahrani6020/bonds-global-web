@@ -170,7 +170,7 @@ function measureHeader() {
 
 describe('parsed authenticated header responsive behavior', () => {
   beforeAll(async () => { browser = await chromium.launch({ headless: true }); }, 30000);
-  afterAll(async () => { if (browser) await browser.close(); });
+  afterAll(async () => { if (browser) await browser.close(); }, 30000);
 
   test.each(['ar', 'en'])('%s navigation changes interaction at the actual 1280px boundary', async lang => {
     const fixture = await openFixture({ lang, width: 375 });

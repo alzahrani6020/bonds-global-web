@@ -8,7 +8,7 @@ const SourceQualityMonitor = require('../engine/data-acquisition/SourceQualityMo
 const { authRouter } = require('./auth');
 const { projectsRouter } = require('./projects');
 const { billingRouter } = require('./billing');
-const { dataEngineRouter } = require('./data-engine');
+const { dataEngineRouter, handleCronLiveSourceRefresh } = require('./data-engine');
 const { getUserFromToken } = require('../lib/auth');
 const { requireAdminAccess, constantTimeEqual } = require('../lib/admin-access');
 const { checkRateLimit } = require('../../lib/api/rate-limit');
@@ -95,6 +95,7 @@ function getCategory(path) {
   if (path === '/ai/chat') return 'ai';
   if (path === '/assistant' || path.startsWith('/assistant/')) return 'compute';
   if (path === '/services/execute' || path.startsWith('/services/intake/') || path.startsWith('/services/accounting/') || /^\/services\/[^/]+\/execution$/.test(path)) return 'compute';
+  if (path === '/data/live-refresh' || path === '/data/auto-fill') return 'compute';
   if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence') || path.startsWith('/capabilities') || path.startsWith('/enterprise-lifecycle') || path.startsWith('/ecc') || path === '/water-factory-data' || path === '/sector-data') return 'compute';
   return 'public';
 }
@@ -1009,6 +1010,28 @@ async function handleGeocode(req, res) {
   }
 }
 
+function hasGeoCoordinates(row) {
+  return row?.lat !== null && row?.lat !== undefined &&
+    row?.lng !== null && row?.lng !== undefined;
+}
+
+function applyGeoPlaceProfile(row, place) {
+  if (!row || !place) return row;
+  const next = { ...row };
+  if (!hasGeoCoordinates(next) && hasGeoCoordinates(place)) {
+    next.lat = place.lat;
+    next.lng = place.lng;
+    next.geo_confidence = place.confidence;
+    next.coordinate_source = place.source_code || 'geo_places';
+    next.coordinate_source_updated_at = place.source_updated_at || null;
+  }
+  if (!(Number(next.population) > 0) && Number(place.population) > 0) {
+    next.population = Number(place.population);
+    next.population_source = place.source_code || 'geo_places';
+  }
+  return next;
+}
+
 function loadMasterCatalogCities(countryCode = null) {
   const countries = countryCode
     ? (ARAB_COUNTRIES_GEO[countryCode] ? [ARAB_COUNTRIES_GEO[countryCode]] : [])
@@ -1096,7 +1119,7 @@ async function loadCatalogCityRows(supabase, countryCode = null) {
   for (let from = 0; ; from += pageSize) {
     const { data: page, error: geoError } = await supabase
       .from('geo_places')
-      .select('id,canonical_code,country_code,admin1_id,admin2_id,name_ar,name_en,place_type,lat,lng,population,confidence')
+      .select('id,canonical_code,country_code,admin1_id,admin2_id,name_ar,name_en,place_type,lat,lng,population,confidence,source_code,source_updated_at')
       .eq('country_code', countryCode)
       .eq('is_active', true)
       .eq('is_canonical', true)
@@ -1151,23 +1174,7 @@ async function loadCatalogCityRows(supabase, countryCode = null) {
   const geoById = new Map(geoRows.map(place => [place.id, place]));
   const enrichedLegacyRows = (legacyRows || []).map(row => {
     const place = row.geo_place_id ? geoById.get(row.geo_place_id) : null;
-    if (!place) return row;
-
-    const rowHasCoords =
-      row.lat !== null && row.lat !== undefined &&
-      row.lng !== null && row.lng !== undefined;
-    const placeHasCoords =
-      place.lat !== null && place.lat !== undefined &&
-      place.lng !== null && place.lng !== undefined;
-
-    if (rowHasCoords || !placeHasCoords) return row;
-    return {
-      ...row,
-      lat: place.lat,
-      lng: place.lng,
-      geo_confidence: place.confidence,
-      coordinate_source: 'geo_places'
-    };
+    return applyGeoPlaceProfile(row, place);
   });
 
   return [...enrichedLegacyRows, ...geoCatalogRows];
@@ -1362,6 +1369,7 @@ async function handleCatalogYears(req, res) {
   try {
     const supabase = getSupabaseClient();
     const sourceYears = new Set();
+    const citySourceYears = new Set();
     const legacyYears = new Set();
 
     let cityIds = [];
@@ -1427,8 +1435,12 @@ async function handleCatalogYears(req, res) {
         const observed = row.metadata?.observationKind === 'observed' ||
           (row.metadata?.estimated !== true && Boolean(row.source_url) &&
             ['official', 'open_data'].includes(quality));
-        if (observed) sourceYears.add(year);
-        else legacyYears.add(year);
+        if (observed) {
+          sourceYears.add(year);
+          citySourceYears.add(year);
+        } else {
+          legacyYears.add(year);
+        }
       }
 
       let marketQuery = supabase
@@ -1482,15 +1494,18 @@ async function handleCatalogYears(req, res) {
     }
 
     const verified = [...sourceYears].filter(year => year >= 1900 && year <= 2200).sort((a, b) => b - a);
+    const verifiedCity = [...citySourceYears].filter(year => year >= 1900 && year <= 2200).sort((a, b) => b - a);
     const legacy = [...legacyYears].filter(year => year >= 1900 && year <= 2200).sort((a, b) => b - a);
-    const years = verified.length ? verified : legacy;
+    const years = (cityCode && verifiedCity.length ? verifiedCity : (verified.length ? verified : legacy));
+    const latest = (cityCode && verifiedCity[0]) || years[0] || null;
 
     return sendJson(res, 200, {
       years,
-      latest: years[0] || null,
+      latest,
       sourceYears: verified,
+      citySourceYears: verifiedCity,
       legacyYears: legacy,
-      sourceBacked: verified.length > 0,
+      sourceBacked: cityCode ? verifiedCity.length > 0 : verified.length > 0,
       fallbackToLegacy: verified.length === 0 && legacy.length > 0,
       count: years.length,
       country: countryCode || null,
@@ -1688,7 +1703,7 @@ async function enrichCitiesWithGeoCoordinates(supabase, rows = []) {
 
   const { data: places, error } = await supabase
     .from('geo_places')
-    .select('id,lat,lng,confidence,source_code,source_updated_at')
+    .select('id,lat,lng,confidence,source_code,source_updated_at,population')
     .in('id', linkedIds);
 
   if (error) {
@@ -1697,29 +1712,7 @@ async function enrichCitiesWithGeoCoordinates(supabase, rows = []) {
   }
 
   const byId = new Map((places || []).map(place => [place.id, place]));
-  return (rows || []).map(row => {
-    const place = byId.get(row.geo_place_id);
-    if (!place) return row;
-
-    const rowHasCoords =
-      row.lat !== null && row.lat !== undefined &&
-      row.lng !== null && row.lng !== undefined;
-
-    const placeHasCoords =
-      place.lat !== null && place.lat !== undefined &&
-      place.lng !== null && place.lng !== undefined;
-
-    if (rowHasCoords || !placeHasCoords) return row;
-
-    return {
-      ...row,
-      lat: place.lat,
-      lng: place.lng,
-      geo_confidence: place.confidence,
-      coordinate_source: place.source_code || 'geo_places',
-      coordinate_source_updated_at: place.source_updated_at || null
-    };
-  });
+  return (rows || []).map(row => applyGeoPlaceProfile(row, byId.get(row.geo_place_id)));
 }
 
 async function handleCities(req, res) {
@@ -2217,6 +2210,8 @@ async function handleCityDetail(req, res, path) {
     return sendJson(res, 404, { error: 'City not found' });
   }
 
+  const [cityRecord] = await enrichCitiesWithGeoCoordinates(supabase, [city]);
+
   let targetYear = requestedYear && requestedYear !== 'latest' ? parseInt(requestedYear, 10) : null;
 
   // "latest" means latest source-backed city observation, never the newest
@@ -2246,7 +2241,7 @@ async function handleCityDetail(req, res, path) {
         Number(latestMarket?.data_year || 0)
       ) || null;
       return sendJson(res, 200, {
-        city,
+        city: cityRecord || city,
         indicators: null,
         marketData: [],
         year: null,
@@ -2272,7 +2267,7 @@ async function handleCityDetail(req, res, path) {
   ]);
 
   sendJson(res, 200, {
-    city,
+    city: cityRecord || city,
     indicators: indicators || null,
     marketData: marketData || [],
     year: targetYear
@@ -2871,6 +2866,11 @@ module.exports = async function handler(req, res) {
     }
     if (path === '/cron/calibrate-competitors') return await handleCronCalibrate(req, res);
     if (path === '/cron/check-source-quality') return await handleCronCheckQuality(req, res);
+    if (path === '/cron/live-source-refresh') {
+      const authError = await requireCronOrAdmin(req);
+      if (authError) return sendJson(res, 401, authError);
+      return await handleCronLiveSourceRefresh(req, res);
+    }
 
     if (path.startsWith('/admin')) {
       return await adminRouter(req, res, path);

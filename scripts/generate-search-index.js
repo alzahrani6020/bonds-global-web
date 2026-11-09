@@ -16,17 +16,18 @@ const PATTERNS = [
   'calculators/**/*.html',
   'reports/**/*.html',
   'sectors/**/*.html',
+  'directory/**/*.html',
   'v3/**/*.html',
   'wave4/**/*.html',
 ];
 
-const files = PATTERNS.flatMap((p) => {
+const files = [...new Set(PATTERNS.flatMap((p) => {
   try {
     return fs.globSync(p, { cwd: ROOT, absolute: true });
   } catch {
     return [];
   }
-}).filter((f) => !f.includes('node_modules') && !f.includes('.vercel'));
+}))].filter((f) => !f.includes('node_modules') && !f.includes('.vercel'));
 
 function canonicalUrl(relPath) {
   let p = relPath.replace(/\\/g, '/').replace(/^\//, '');
@@ -52,6 +53,10 @@ function categoryFromPath(relPath, isEn) {
   if (p.startsWith('reports/') || p.includes('/reports/')) return isEn ? 'Reports' : 'التقارير';
   if (p.startsWith('blog/') || p.includes('/blog/')) return isEn ? 'Insights' : 'المقالات';
   if (p.startsWith('sectors/') || p.includes('/sectors/')) return isEn ? 'Sectors' : 'القطاعات';
+  if (p.includes('/directory/banks/')) return isEn ? 'Banks' : 'البنوك';
+  if (p.includes('/directory/sectors/')) return isEn ? 'Sectors' : 'القطاعات';
+  if (p.includes('/directory/services/')) return isEn ? 'Services' : 'الخدمات';
+  if (p.includes('/directory/')) return isEn ? 'Directory' : 'الدليل';
   if (p.startsWith('v3/') || p.includes('/v3/')) return isEn ? 'Intelligence' : 'الذكاء الاقتصادي';
   return isEn ? 'Pages' : 'الصفحات';
 }
@@ -61,7 +66,13 @@ const entries = [];
 for (const file of files) {
   const html = fs.readFileSync(file, 'utf8');
   const relPath = path.relative(ROOT, file).replace(/\\/g, '/');
-  if (relPath.includes('/auth/') || relPath.includes('/admin/') || relPath.includes('/client/')) continue;
+  if (
+    relPath.includes('/auth/') ||
+    relPath.includes('/admin/') ||
+    relPath.includes('/client/') ||
+    relPath.includes('my-bonds/') ||
+    /(^|\/)(404|500|offline|book|service-request)\.html$/.test(relPath)
+  ) continue;
   const isEn = relPath.startsWith('en/');
   const lang = isEn ? 'en' : 'ar';
 
