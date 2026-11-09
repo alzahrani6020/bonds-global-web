@@ -18,7 +18,7 @@ describe('header hover and automated refresh stabilization', () => {
 
   test('shared header CSS cache version is bumped', () => {
     const layout = read('site-layout.js');
-    expect(layout).toContain("/header-footer.css?v=2.72.0");
+    expect(layout).toContain("/header-footer.css?v=2.73.0");
   });
 
   test('V3 high-traffic intelligence pages request the new shared layout version', () => {

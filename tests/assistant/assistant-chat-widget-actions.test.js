@@ -138,7 +138,8 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('patch.actualThrough = actualThroughDate');
     expect(source).toContain('#financialBudgetPlanIdContext');
     expect(source).toContain('#financialActualThrough');
-    expect(source).toContain('context = { ...context, ...readAccountingWorkspaceContext() };');
+    expect(source).toContain('function readStudiesWorkspaceContext()');
+    expect(source).toContain('context = { ...context, ...readAccountingWorkspaceContext(), ...readStudiesWorkspaceContext() };');
   });
 
   test('tracks every chat message with stable metadata and visible timestamp', () => {

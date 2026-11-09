@@ -55,7 +55,7 @@ describe('service request intake routing', () => {
 
   test('request UI renders the central request profile instead of the generic empty form', () => {
     expect(ui).toContain("function renderRequestProfile()");
-    expect(ui).toContain("if(!form?.fields?.length)renderRequestProfile()");
+    expect(ui).toContain("if(!form?.fields?.length&&!isStudiesWorkspaceService())renderRequestProfile()");
     expect(ui).toContain("profile.requirements_ar");
     expect(ui).toContain("profile.procedures_ar");
     expect(ui).toContain("profile.deliverables_ar");

@@ -935,10 +935,10 @@
   }
 
   function ensureLayoutCSS() {
-    const href = '/header-footer.css?v=2.72.0';
+    const href = '/header-footer.css?v=2.73.0';
     const existing = document.querySelector('link[href*="header-footer.css"]');
     if (existing) {
-      if (!existing.href.includes('header-footer.css?v=2.72.0')) {
+      if (!existing.href.includes('header-footer.css?v=2.73.0')) {
         existing.href = href;
       }
       return;
