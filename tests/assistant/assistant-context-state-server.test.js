@@ -107,6 +107,8 @@ describe('assistant context state server boundary', () => {
     expect(source).toContain('Use VERIFIED_BONDS_DATA for BONDS facts');
     expect(source).toContain('sanitizeAssistantState(assistantState');
     expect(source).toContain('assistantState: assistantConversationState');
+    expect(source).toContain('goalWorkflow: durableGoal?.stored?.state?.goal_workflow || null');
+    expect(source).toContain('persistDurableGoalWorkflow(durableGoal, loopResult.goal_workflow');
   });
 
   test('ECC advisor binds assistant state to the exact project id', () => {

@@ -5,8 +5,11 @@
 const {
   sanitizeGoalWorkflow,
   ensureSingleEdgeGoalWorkflow,
+  createReadWriteGoalWorkflow,
+  goalWorkflowGraph,
   nextGoalWorkflowEdge,
   evaluateGoalWorkflowEdge,
+  evaluatePlannerGoalEdge,
   grantGoalWorkflowMandate,
   completeGoalWorkflowEdge
 } = require('../../lib/assistant/goal-workflow');
@@ -107,6 +110,38 @@ describe('assistant goal workflow wave 1', () => {
     expect(workflow.edges[0]).toMatchObject({
       capability:'project_status',
       effect:'database_read'
+    });
+  });
+
+  test('read-then-write template uses WorkflowGraph order and blocks the write until mandate', () => {
+    const workflow = createReadWriteGoalWorkflow({
+      readAction:'project_status',
+      writeAction:'request_create',
+      readEffect:'database_read',
+      writeEffect:'database_write'
+    });
+    const graph = goalWorkflowGraph(workflow);
+
+    expect(graph.nextStages('gather')).toEqual(['act']);
+    expect(graph.nextStages('act')).toEqual(['complete']);
+    expect(nextGoalWorkflowEdge(workflow)).toMatchObject({
+      capability:'project_status',
+      requires_mandate:false
+    });
+
+    const afterRead = completeGoalWorkflowEdge(workflow, nextGoalWorkflowEdge(workflow).id);
+    const writeEdge = nextGoalWorkflowEdge(afterRead);
+    expect(writeEdge).toMatchObject({
+      capability:'request_create',
+      requires_mandate:true
+    });
+    expect(evaluatePlannerGoalEdge(afterRead, 'request_create', 'database_write')).toMatchObject({
+      allowed:false,
+      code:'GOAL_WORKFLOW_MANDATE_REQUIRED'
+    });
+    expect(evaluatePlannerGoalEdge(afterRead, 'web_search', 'network_read')).toMatchObject({
+      allowed:true,
+      code:'GOAL_WORKFLOW_READ_UNBOUND'
     });
   });
 });

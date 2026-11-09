@@ -79,11 +79,65 @@ describe('Assistant Task Resume and guest-to-authenticated continuity', () => {
     expect(response.body.status).toBe('completed');
     expect(response.body.workflow_key).toBe(workflowKey);
     expect(response.body.workflow.state.current_stage).toBe('analysis');
+    expect(response.body.next_edge).toBeNull();
     expect(mockRpc).toHaveBeenCalledTimes(1);
     expect(mockRpc).toHaveBeenCalledWith('assistant_load_workflow_state', {
       p_user_id:'user-1',
       p_workflow_key:workflowKey
     });
+  });
+
+  test('resume exposes the next durable goal edge without executing it', async () => {
+    const boundary = 'page:/funding|service:funding';
+    const workflowKey = workflowKeyFor(boundary);
+    mockRpc.mockResolvedValueOnce({
+      data:{
+        id:'wf-2',
+        workflow_key:workflowKey,
+        boundary,
+        status:'active',
+        version:2,
+        state:{
+          boundary,
+          goal:'Submit funding request',
+          current_stage:'execution',
+          goal_workflow:{
+            version:1,
+            status:'active',
+            nodes:[
+              { id:'execution', label:'execution', status:'active' },
+              { id:'review', label:'review', status:'pending' }
+            ],
+            edges:[{
+              id:'edge:request_create:execution:review',
+              from:'execution',
+              to:'review',
+              capability:'request_create',
+              effect:'database_write',
+              dependencies:[],
+              requires_mandate:true,
+              status:'pending',
+              mandate:null
+            }],
+            current_edge_id:'edge:request_create:execution:review'
+          }
+        }
+      },
+      error:null
+    });
+
+    const response = await callGet(
+      '/assistant/workflows/resume',
+      '/api/v3/assistant/workflows/resume?boundary=' + encodeURIComponent(boundary)
+    );
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.next_edge).toMatchObject({
+      capability:'request_create',
+      requires_mandate:true,
+      evaluation:{ allowed:false, code:'GOAL_WORKFLOW_MANDATE_REQUIRED' }
+    });
+    expect(mockRpc).toHaveBeenCalledTimes(1);
   });
 
   test('resume lookup requires authentication and does not touch persistence', async () => {

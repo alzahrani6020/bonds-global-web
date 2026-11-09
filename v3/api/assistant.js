@@ -42,7 +42,11 @@ const { executeParallelServices } = require('../../lib/services/parallel-tool-ex
 const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
 const { verifySensitiveAction } = require('../../lib/assistant/sensitive-action-verifier');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
-const { grantGoalWorkflowMandate } = require('../../lib/assistant/goal-workflow');
+const {
+  grantGoalWorkflowMandate,
+  nextGoalWorkflowEdge,
+  evaluateGoalWorkflowEdge
+} = require('../../lib/assistant/goal-workflow');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 
 function sendJson(res, status, body) {
@@ -700,11 +704,22 @@ async function assistantRouter(req, res, path, user) {
         userId:user.id,
         workflowKey
       });
+      const nextEdge = nextGoalWorkflowEdge(workflow?.state?.goal_workflow);
       return sendJson(res, 200, {
         protocol:PROTOCOL,
         status:workflow ? 'completed' : 'not_found',
         workflow_key:workflowKey,
-        workflow
+        workflow,
+        next_edge: nextEdge ? {
+          id:nextEdge.id,
+          from:nextEdge.from,
+          to:nextEdge.to,
+          capability:nextEdge.capability,
+          effect:nextEdge.effect,
+          requires_mandate:nextEdge.requires_mandate,
+          status:nextEdge.status,
+          evaluation:evaluateGoalWorkflowEdge(nextEdge)
+        } : null
       });
     } catch (err) {
       const clientError = ['WORKFLOW_BOUNDARY_REQUIRED','INVALID_WORKFLOW_KEY'].includes(err.message);

@@ -14,6 +14,8 @@ const { getSupabaseClient } = require('../lib/supabase');
 const { getUserFromToken } = require('../lib/auth');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
 const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
+const { saveWorkflowState, loadWorkflowState } = require('../../lib/assistant/workflow-state');
+const { workflowKeyFor } = require('../../lib/assistant/case-engine');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
@@ -55,6 +57,54 @@ function sendAssistantResponse(res, status, data, { stream = false } = {}) {
     writeEvent(res, 'final', data);
   }
   res.end();
+}
+
+function durableCaseBoundary(context = {}) {
+  const pagePath = String(context.pagePath || '').trim();
+  const serviceCode = String(context.serviceCode || '').trim();
+  if (!pagePath && !serviceCode) return null;
+  const homepage = ['/', '/index.html', '/en', '/en/', '/en/index.html'].includes(pagePath || '/');
+  if (homepage && !serviceCode) return 'homepage/no_service_selected';
+  return `page:${pagePath || '/'}|service:${serviceCode || 'none'}`;
+}
+
+function goalWorkflowChanged(previous, next) {
+  try {
+    return JSON.stringify(previous || null) !== JSON.stringify(next || null);
+  } catch (_err) {
+    return true;
+  }
+}
+
+async function loadDurableGoalWorkflow({ supabase, userId, context }) {
+  const boundary = durableCaseBoundary(context);
+  if (!supabase || !userId || !boundary) return null;
+  try {
+    const workflowKey = workflowKeyFor(boundary);
+    const stored = await loadWorkflowState({ supabase, userId, workflowKey });
+    if (!stored?.state?.goal_workflow) return null;
+    return { stored, workflowKey, boundary };
+  } catch (_err) {
+    return null;
+  }
+}
+
+async function persistDurableGoalWorkflow(durable, goalWorkflow, { supabase, userId }) {
+  if (!durable?.stored || !goalWorkflow || !supabase || !userId) return;
+  if (!goalWorkflowChanged(durable.stored.state?.goal_workflow, goalWorkflow)) return;
+  await saveWorkflowState({
+    supabase,
+    userId,
+    workflowKey: durable.workflowKey,
+    boundary: durable.boundary,
+    state: {
+      ...durable.stored.state,
+      boundary: durable.boundary,
+      goal_workflow: goalWorkflow
+    },
+    status: durable.stored.status || 'active',
+    expectedVersion: durable.stored.version
+  });
 }
 
 function parseBody(req) {
@@ -777,16 +827,36 @@ async function aiChatHandlerImpl(req, res) {
 
   if (!forceNative) {
     try {
+      const durableGoal = await loadDurableGoalWorkflow({
+        supabase: getSupabaseClient(),
+        userId: authenticatedUser?.id || null,
+        context: enrichedContext
+      });
       const loopResult = await runUniversalOrchestrator(messages, enrichedContext, {
         req,
         user: authenticatedUser,
         supabase: getSupabaseClient(),
         requestId,
         timeoutMs: nativeChatTimeoutMs(),
-        maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens)
+        maxTokens: adaptiveNativeChatMaxTokens(messages, options?.max_tokens),
+        goalWorkflow: durableGoal?.stored?.state?.goal_workflow || null,
+        goalWorkflowBinding: durableGoal ? {
+          workflow_key: durableGoal.workflowKey,
+          boundary: durableGoal.boundary,
+          expected_version: durableGoal.stored.version,
+          service_code: enrichedContext.serviceCode || null
+        } : null
       });
 
       if (loopResult?.ok && loopResult.reply) {
+        try {
+          await persistDurableGoalWorkflow(durableGoal, loopResult.goal_workflow, {
+            supabase: getSupabaseClient(),
+            userId: authenticatedUser?.id || null
+          });
+        } catch (err) {
+          console.warn('[ai/chat] Durable goal workflow persist failed:', err.message);
+        }
         const actions = (loopResult.trace || []).map(item => item.action).filter(Boolean);
         const protocolActions = Array.isArray(loopResult.actions) ? loopResult.actions : [];
         return sendAssistantResponse(res, 200, {
@@ -795,6 +865,7 @@ async function aiChatHandlerImpl(req, res) {
           provider: 'BONDS',
           model: null,
           ...(protocolActions.length ? { actions: protocolActions } : {}),
+          ...(loopResult.goal_workflow ? { goal_workflow: loopResult.goal_workflow } : {}),
           inference: {
             planner: loopResult.planner || 'universal-v2',
             tool_used: loopResult.toolUsed === true,
