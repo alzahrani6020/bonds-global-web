@@ -1002,6 +1002,121 @@ describe('BONDS planner-first universal orchestrator', () => {
     });
   });
 
+  test.each([
+    'افتح ذكاء المدن من الموقع',
+    'كيف استخدم ذكاء المدن'
+  ])('routes City Intelligence navigation deterministically without web search: %s', async message => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'web_search') throw new Error('WEB_SEARCH_MUST_NOT_RUN_FOR_CITY_NAVIGATION');
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN_FOR_CITY_NAVIGATION');
+      if (action === 'site_navigate') {
+        return {
+          ok:true,
+          executed:true,
+          action:'site_navigate',
+          result:{ target:input.target, route:'/v3/city-intelligence', kind:'page' }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:message }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(result.planner).toBe('universal-v2-deterministic-tool');
+    expect(result.reply).toBe('ذكاء المدن\n/v3/city-intelligence');
+    expect(result.actions).toEqual([
+      expect.objectContaining({
+        type:'site_navigate',
+        target:'city_intelligence',
+        status:'ready'
+      })
+    ]);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'web_search')).toBe(false);
+    expect(executeGovernedAction.mock.calls[0][0]).toMatchObject({
+      action:'site_navigate',
+      input:{ target:'city_intelligence', language:'ar' }
+    });
+  });
+
+  test('keeps informational City Intelligence questions out of site navigation', async () => {
+    executeGovernedAction.mockImplementation(async ({ action, input }) => {
+      if (action === 'site_navigate') throw new Error('SITE_NAVIGATE_MUST_NOT_RUN_FOR_INFORMATIONAL_CITY_QUESTION');
+      if (action === 'ai_reason') throw new Error('AI_REASON_MUST_NOT_RUN');
+      if (action === 'web_search') {
+        return {
+          ok:true,
+          executed:true,
+          action:'web_search',
+          result:{ results:[{
+            title:'City intelligence overview',
+            url:'https://example.com/city-intelligence',
+            snippet:'City intelligence combines urban, economic, and demographic indicators.'
+          }] }
+        };
+      }
+      if (action === 'web_explore') {
+        return {
+          ok:true,
+          executed:true,
+          action:'web_explore',
+          result:{ pages:[{
+            url:'https://example.com/city-intelligence',
+            evidence:{ content_type:'text/html', headers:{} },
+            extracted:{ format:'html', title:'City intelligence overview', text:'City intelligence combines urban, economic, and demographic indicators.' }
+          }] }
+        };
+      }
+      if (action === 'evidence_verify') {
+        return {
+          ok:true,
+          executed:true,
+          action:'evidence_verify',
+          result:{
+            verification_state:'SUPPORTED',
+            source_count:1,
+            independent_publisher_count:1,
+            supported_claims:[],
+            contradictions:[],
+            residual_uncertainty:[],
+            sources:input.sources
+          }
+        };
+      }
+      if (action === 'research_synthesize') {
+        return {
+          ok:true,
+          executed:true,
+          action:'research_synthesize',
+          result:{
+            verification_state:'SUPPORTED',
+            answer:'ذكاء المدن يجمع مؤشرات حضرية واقتصادية وسكانية لدعم القرار.',
+            known:[],
+            unknown:[],
+            contradictions:[]
+          }
+        };
+      }
+      throw new Error('UNEXPECTED_ACTION:' + action);
+    });
+
+    const result = await runUniversalOrchestrator(
+      [{ role:'user', content:'كيف يعمل ذكاء المدن؟' }],
+      {},
+      { req:{ headers:{} }, user:{ id:'u1' }, supabase:{} }
+    );
+
+    expect(result.ok).toBe(true);
+    expect(executeGovernedAction.mock.calls.some(call => call[0].action === 'site_navigate')).toBe(false);
+    expect(result.actions || []).toEqual(expect.not.arrayContaining([
+      expect.objectContaining({ type:'site_navigate' })
+    ]));
+  });
+
   test('builds statements from given revenue and profit without asking the language model', async () => {
     executeGovernedAction.mockImplementation(async () => {
       throw new Error('AI_REASON_MUST_NOT_RUN');
