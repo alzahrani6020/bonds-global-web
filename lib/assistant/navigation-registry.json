@@ -179,6 +179,14 @@
       },
       "kind": "calculator",
       "risk": "low"
+    },
+    "city_intelligence": {
+      "routes": {
+        "ar": "/v3/city-intelligence",
+        "en": "/v3/city-intelligence"
+      },
+      "kind": "page",
+      "risk": "low"
     }
   }
 }

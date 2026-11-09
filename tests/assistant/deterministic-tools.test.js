@@ -4,6 +4,7 @@ const {
   parseMathCommand,
   parseCalculatorOpen,
   parsePageOpen,
+  parsePageUse,
   parseHereQuestion,
   mathCommandNeedsClarification,
   resolveDeterministicTool,
@@ -59,6 +60,19 @@ describe('deterministic assistant tools', () => {
     expect(resolveDeterministicTool('افتح صفحة الميزانية')).toEqual({
       action:'site_navigate',
       input:{ target:'budgeting' }
+    });
+  });
+
+  test('routes registered City Intelligence use requests but not informational questions', () => {
+    expect(parsePageOpen('افتح ذكاء المدن من الموقع')).toEqual({ target:'city_intelligence' });
+    expect(parsePageUse('كيف استخدم ذكاء المدن')).toEqual({ target:'city_intelligence' });
+    expect(parsePageUse('كيف أستخدم ذكاء المدن من الموقع')).toEqual({ target:'city_intelligence' });
+    expect(parsePageUse('how do I use city intelligence')).toEqual({ target:'city_intelligence' });
+    expect(parsePageUse('كيف يعمل ذكاء المدن؟')).toBeNull();
+    expect(parsePageUse('ما فوائد ذكاء المدن؟')).toBeNull();
+    expect(resolveDeterministicTool('كيف استخدم ذكاء المدن')).toEqual({
+      action:'site_navigate',
+      input:{ target:'city_intelligence' }
     });
   });
 
