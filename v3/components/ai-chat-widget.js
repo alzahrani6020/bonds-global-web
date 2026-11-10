@@ -1278,7 +1278,7 @@
             <button type="button" class="bonds-ai-home-service" data-assistant-focus="true" data-conversation-mode="general">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.6-4.8A7 7 0 0 1 3 12V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg><span>الأسئلة العامة</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-conversation-mode="execute" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً.">
+            <button type="button" class="bonds-ai-home-service" data-conversation-mode="execute" data-label-ar="تنفيذ على الموقع" data-label-en="On-site actions" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً." data-assistant-prompt-en="I want to perform an on-site action: open the matching page or form, or save a draft. Do not submit.">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>تنفيذ على الموقع</span>
             </button>
           </div>
@@ -1350,7 +1350,8 @@
       Array.from(root.querySelectorAll('[data-health-service]'))
         .map(element => [element.dataset.healthService, element])
     );
-    const conversationModeButtons = Array.from(root.querySelectorAll('[data-conversation-mode]'));
+    const conversationModeButtons = Array.from(root.querySelectorAll('.bonds-ai-conversation-mode'));
+    const executeHomeTile = root.querySelector('.bonds-ai-home-service[data-conversation-mode="execute"]');
     const diagnosticsPanel = root.querySelector('.bonds-ai-request-diagnostics');
     const diagnosticsSummary = root.querySelector('.bonds-ai-diagnostics-summary');
     const diagnosticsMeta = root.querySelector('.bonds-ai-diagnostics-meta');
@@ -3193,6 +3194,10 @@
         button.setAttribute('aria-pressed', mode === state.conversationMode ? 'true' : 'false');
         button.textContent = en ? button.dataset.labelEn : button.dataset.labelAr;
       });
+      const executeHomeLabel = executeHomeTile?.querySelector('span');
+      if (executeHomeLabel) {
+        executeHomeLabel.textContent = en ? executeHomeTile.dataset.labelEn : executeHomeTile.dataset.labelAr;
+      }
     }
 
     function setConversationMode(mode) {
@@ -4272,28 +4277,50 @@
         return;
       }
 
-      const city = context.cityName || context.cityCode || 'هذه المدينة';
-      const activity = context.activityName || context.activityCode || 'هذا النشاط';
+      const en = languageCode() === 'en';
+      const city = context.cityName || context.cityCode || (en ? 'this city' : 'هذه المدينة');
+      const activity = context.activityName || context.activityCode || (en ? 'this activity' : 'هذا النشاط');
       const defaults = state.conversationMode === 'execute'
-        ? [
-            'افتح الصفحة المناسبة في هذا الموقع',
-            'ابحث عن النموذج المطلوب',
-            'حمّل النموذج الحالي',
-            'احفظ مسودة بدون إرسال نهائي'
-          ]
-        : state.conversationMode === 'general'
+        ? (en
           ? [
-              'ماذا يمكن أن يساعدني به مساعد بوندز؟',
-              'لخّص هذه الصفحة',
-              'ما الخطوة التالية بدون حسابات مالية؟',
-              'كيف أستخدم خدمات بوندز؟'
+              'Open the matching page on this site',
+              'Find the required form',
+              'Load the current form',
+              'Save a draft without final submit'
             ]
           : [
-              `كيف تقيم فرصة ${activity} في ${city}؟`,
-              'ما أفضل مدينة لهذا النشاط؟',
-              `ما مخاطر الاستثمار في ${city}؟`,
-              'كيف أحسن فترة الاسترداد؟'
-            ];
+              'افتح الصفحة المناسبة في هذا الموقع',
+              'ابحث عن النموذج المطلوب',
+              'حمّل النموذج الحالي',
+              'احفظ مسودة بدون إرسال نهائي'
+            ])
+        : state.conversationMode === 'general'
+          ? (en
+            ? [
+                'What can BONDS Assistant help me with?',
+                'Summarize this page',
+                'What is the next step without financial calculations?',
+                'How do I use BONDS services?'
+              ]
+            : [
+                'ماذا يمكن أن يساعدني به مساعد بوندز؟',
+                'لخّص هذه الصفحة',
+                'ما الخطوة التالية بدون حسابات مالية؟',
+                'كيف أستخدم خدمات بوندز؟'
+              ])
+          : (en
+            ? [
+                `How do you assess the opportunity for ${activity} in ${city}?`,
+                'What is the best city for this activity?',
+                `What are the investment risks in ${city}?`,
+                'How can I improve the payback period?'
+              ]
+            : [
+                `كيف تقيم فرصة ${activity} في ${city}؟`,
+                'ما أفضل مدينة لهذا النشاط؟',
+                `ما مخاطر الاستثمار في ${city}؟`,
+                'كيف أحسن فترة الاسترداد؟'
+              ]);
       const suggestions = options.suggestions || defaults;
       suggestionsEl.innerHTML = '';
       suggestions.forEach(text => {
@@ -4599,7 +4626,11 @@
     homePromptButtons.forEach(button => {
       button.addEventListener('click', () => {
         setConversationMode(String(button.dataset.conversationMode || 'financial'));
-        const prompt = String(button.dataset.assistantPrompt || '').trim();
+        const prompt = String(
+          languageCode() === 'en' && button.dataset.assistantPromptEn
+            ? button.dataset.assistantPromptEn
+            : button.dataset.assistantPrompt || ''
+        ).trim();
         if (prompt) sendMessage(prompt);
       });
     });

@@ -62,7 +62,8 @@ describe('authenticated assistant conversation modes', () => {
   });
 
   test('execute home tile and mode-aware suggestions stay aligned with governed actions', () => {
-    expect(widget).toContain('data-conversation-mode="execute" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً."');
+    expect(widget).toContain('data-conversation-mode="execute"');
+    expect(widget).toContain('data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً."');
     expect(widget).toContain('<span>تنفيذ على الموقع</span>');
 
     const setMode = widget.match(/function setConversationMode\(mode\) \{[\s\S]*?return state\.conversationMode;\n    \}/)?.[0] || '';
@@ -76,6 +77,25 @@ describe('authenticated assistant conversation modes', () => {
     expect(widget).toContain("'لخّص هذه الصفحة'");
     expect(widget).toContain("'ما الخطوة التالية بدون حسابات مالية؟'");
     expect(widget).toContain("'كيف أستخدم خدمات بوندز؟'");
+  });
+
+  test('execute tile and default suggestions are bilingual without changing governed action contracts', () => {
+    expect(widget).toContain('data-label-ar="تنفيذ على الموقع"');
+    expect(widget).toContain('data-label-en="On-site actions"');
+    expect(widget).toContain('data-assistant-prompt-en="I want to perform an on-site action: open the matching page or form, or save a draft. Do not submit."');
+    expect(widget).toContain("'Open the matching page on this site'");
+    expect(widget).toContain("'Find the required form'");
+    expect(widget).toContain("'Load the current form'");
+    expect(widget).toContain("'Save a draft without final submit'");
+    expect(widget).toContain("'What can BONDS Assistant help me with?'");
+    expect(widget).toContain("'Summarize this page'");
+    expect(widget).toContain("'What is the next step without financial calculations?'");
+    expect(widget).toContain("'How do I use BONDS services?'");
+    expect(widget).toContain('How do you assess the opportunity for ${activity} in ${city}?');
+    expect(widget).toContain('What is the best city for this activity?');
+    expect(widget).toContain('What are the investment risks in ${city}?');
+    expect(widget).toContain('How can I improve the payback period?');
+    expect(widget).toContain("languageCode() === 'en' && button.dataset.assistantPromptEn");
   });
 
   test('shared widget persists and sends the selected mode with English labels available', () => {

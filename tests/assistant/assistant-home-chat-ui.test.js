@@ -42,6 +42,7 @@ describe('BONDS unified assistant workspace UI',()=>{
     expect(widget).toContain('القطاعات والفرص');
     expect(widget).toContain('الأسئلة العامة');
     expect(widget).toContain('تنفيذ على الموقع');
+    expect(widget).toContain('On-site actions');
   });
 
   test('promotes structured work into workspace without changing assistant identity',()=>{
