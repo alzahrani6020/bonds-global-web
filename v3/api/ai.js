@@ -189,28 +189,6 @@ function opportunityVerdict(score) {
   return { label: 'فرصة ضعيفة حالياً', advice: 'أنصحك بمراجعة البدائل أو انتظار تحسن المؤشرات.' };
 }
 
-function buildSystemPrompt(context) {
-  const city = context?.cityName || context?.cityCode || 'غير محدد';
-  const activity = context?.activityName || context?.activityCode || 'غير محدد';
-  const country = context?.countryCode || '';
-  const service = context?.serviceName || context?.serviceCode || 'غير محدد';
-
-  return `أنت "مساعد بوندز"، محلل استثماري يعتمد على البيانات فقط. أجب بلغة آخر رسالة للمستخدم بأسلوب مختصر وواقعي.
-
-قواعدك الصارمة:
-- استند إلى البيانات المذكورة فقط. لا تخترع أرقام ولا تبالغ.
-- لا تقدم نصائح مالية نهائية ولا وعوداً بالربح.
-- إذا ناقصتك بيانات، قل بوضوح: "لا توجد بيانات كافية".
-- اذكر مصدر الأرقام (بonds V3 Data Engine) عند ذكرها.
-- كن واقعياً: كل استثمار يحمل مخاطر، والبيانات تقديرية وتخضع للتحقق.
-
-السياق المتاح:
-- المدينة: ${city} (${country || 'الدولة غير محددة'})
-- النشاط: ${activity}
-- الخدمة المطلوبة: ${service}
-${context?.population != null ? `- عدد السكان: ${formatNumber(context.population)} نسمة\n` : ''}${context?.purchasingPowerIndex != null ? `- مؤشر القوة الشرائية: ${context.purchasingPowerIndex}\n` : ''}${context?.indicators ? `- المؤشرات الاقتصادية متاحة.\n` : ''}${context?.marketData ? `- بيانات السوق لهذا النشاط متاحة.\n` : ''}${context?.comparison ? `- بيانات مقارنة مع مدن أخرى متاحة.\n` : ''}${context?.alerts?.length ? `- إنذارات حديثة متاحة (${context.alerts.length}).\n` : ''}`;
-}
-
 function compactJson(value, maxLength = 5000) {
   const text = JSON.stringify(value || {});
   return text.length > maxLength ? text.slice(0, maxLength) : text;
@@ -617,16 +595,6 @@ function generateDataDrivenReply(userMessage, context) {
   }
 
   return null;
-}
-
-function fallbackReply(userMessage, context) {
-  const dataReply = generateDataDrivenReply(userMessage, context);
-  if (dataReply) return dataReply;
-
-  const city = context?.cityName || context?.cityCode || 'المدينة';
-  const activity = context?.activityName || context?.activityCode || 'النشاط';
-
-  return `أنا مساعد بوندز، وأعتمد على البيانات لإعطائك إجابات دقيقة عن "${activity}" في ${city}.\n\nيمكنك سؤالي عن:\n• كيف تقيم هذه الفرصة؟\n• ما مخاطر الاستثمار هنا؟\n• ما حجم السوق والمنافسين؟\n• قارن بين المدن\n• ما أحدث المؤشرات والإنذارات؟\n\nللحصول على إجابة أدق، اختر مدينة ونشاطاً محددين من القوائم أعلاه.`;
 }
 
 // Binds the client's disconnect to a request-scoped signal so the native transport
