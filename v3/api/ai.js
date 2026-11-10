@@ -107,31 +107,44 @@ async function persistDurableGoalWorkflow(durable, goalWorkflow, { supabase, use
   });
 }
 
+const MAX_CHAT_BODY_BYTES = 1_048_576;
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
-    let body = '';
+    const chunks = [];
+    let bytes = 0;
+    let settled = false;
+
     req.on('data', chunk => {
-      body += chunk;
-      if (body.length > 262144) {
+      if (settled) return;
+      const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk));
+      bytes += buffer.length;
+      if (bytes > MAX_CHAT_BODY_BYTES) {
+        settled = true;
         reject(new Error('request body too large'));
         req.destroy();
+        return;
       }
+      chunks.push(buffer);
     });
     req.on('end', () => {
+      if (settled) return;
       try {
+        const body = chunks.length ? Buffer.concat(chunks).toString('utf8') : '';
         resolve(body ? JSON.parse(body) : {});
       } catch (err) {
         reject(err);
       }
     });
-    req.on('error', reject);
+    req.on('error', err => {
+      if (!settled) reject(err);
+    });
   });
 }
 
-// /ai/chat rate limiting is enforced once at the API router boundary
-// (api/v3/index.js and v3/api/index.js). Do not add a second in-memory
-// limiter here: serverless instances do not share memory and double limiting
-// makes the effective quota inconsistent across deployments.
+// /ai/chat rate limiting is enforced once in v3/api/index.js.
+// The outer api/v3/index.js wrapper delegates ordinary V3 requests without
+// applying the same category limiter a second time.
 
 function formatNumber(num) {
   if (num === null || num === undefined || Number.isNaN(num)) return 'غير متوفر';
