@@ -110,7 +110,13 @@ async function persistDurableGoalWorkflow(durable, goalWorkflow, { supabase, use
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
-    req.on('data', chunk => (body += chunk));
+    req.on('data', chunk => {
+      body += chunk;
+      if (body.length > 262144) {
+        reject(new Error('request body too large'));
+        req.destroy();
+      }
+    });
     req.on('end', () => {
       try {
         resolve(body ? JSON.parse(body) : {});
@@ -118,23 +124,14 @@ function parseBody(req) {
         reject(err);
       }
     });
+    req.on('error', reject);
   });
 }
 
-// Simple in-memory per-IP rate limit: 20 requests per minute
-const rateLimiter = new Map();
-function checkRateLimit(ip) {
-  const now = Date.now();
-  const windowMs = 60 * 1000;
-  const limit = 20;
-
-  const entries = rateLimiter.get(ip) || [];
-  const fresh = entries.filter(t => now - t < windowMs);
-  if (fresh.length >= limit) return false;
-  fresh.push(now);
-  rateLimiter.set(ip, fresh);
-  return true;
-}
+// /ai/chat rate limiting is enforced once at the API router boundary
+// (api/v3/index.js and v3/api/index.js). Do not add a second in-memory
+// limiter here: serverless instances do not share memory and double limiting
+// makes the effective quota inconsistent across deployments.
 
 function formatNumber(num) {
   if (num === null || num === undefined || Number.isNaN(num)) return 'غير متوفر';
@@ -639,16 +636,14 @@ async function aiChatHandlerImpl(req, res) {
     return sendJson(res, 405, { error: 'Method not allowed' });
   }
 
-  const clientIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
-  if (!checkRateLimit(clientIp)) {
-    return sendJson(res, 429, { error: 'Rate limit exceeded. Try again later.' });
-  }
-
   let body;
   try {
     body = await parseBody(req);
   } catch (err) {
-    return sendJson(res, 400, { error: 'Invalid JSON body' });
+    const tooLarge = err?.message === 'request body too large';
+    return sendJson(res, tooLarge ? 413 : 400, {
+      error: tooLarge ? 'Request body too large' : 'Invalid JSON body'
+    });
   }
 
   const { messages = [], context = {}, options = {}, assistantState = null } = body;
