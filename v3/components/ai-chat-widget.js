@@ -1278,6 +1278,9 @@
             <button type="button" class="bonds-ai-home-service" data-assistant-focus="true" data-conversation-mode="general">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.6-4.8A7 7 0 0 1 3 12V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg><span>الأسئلة العامة</span>
             </button>
+            <button type="button" class="bonds-ai-home-service" data-conversation-mode="execute" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً.">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>تنفيذ على الموقع</span>
+            </button>
           </div>
           <div class="bonds-ai-home-quick-title">أو اطرح سؤالاً مباشراً</div>
           <div class="bonds-ai-home-quick">
@@ -3200,6 +3203,7 @@
         // Ignore unavailable storage.
       }
       renderConversationMode();
+      renderSuggestions();
       return state.conversationMode;
     }
 
@@ -4270,12 +4274,26 @@
 
       const city = context.cityName || context.cityCode || 'هذه المدينة';
       const activity = context.activityName || context.activityCode || 'هذا النشاط';
-      const defaults = [
-        `كيف تقيم فرصة ${activity} في ${city}؟`,
-        'ما أفضل مدينة لهذا النشاط؟',
-        `ما مخاطر الاستثمار في ${city}؟`,
-        'كيف أحسن فترة الاسترداد؟'
-      ];
+      const defaults = state.conversationMode === 'execute'
+        ? [
+            'افتح الصفحة المناسبة في هذا الموقع',
+            'ابحث عن النموذج المطلوب',
+            'حمّل النموذج الحالي',
+            'احفظ مسودة بدون إرسال نهائي'
+          ]
+        : state.conversationMode === 'general'
+          ? [
+              'ماذا يمكن أن يساعدني به مساعد بوندز؟',
+              'لخّص هذه الصفحة',
+              'ما الخطوة التالية بدون حسابات مالية؟',
+              'كيف أستخدم خدمات بوندز؟'
+            ]
+          : [
+              `كيف تقيم فرصة ${activity} في ${city}؟`,
+              'ما أفضل مدينة لهذا النشاط؟',
+              `ما مخاطر الاستثمار في ${city}؟`,
+              'كيف أحسن فترة الاسترداد؟'
+            ];
       const suggestions = options.suggestions || defaults;
       suggestionsEl.innerHTML = '';
       suggestions.forEach(text => {

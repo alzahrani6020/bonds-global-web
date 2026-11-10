@@ -32,15 +32,16 @@ describe('BONDS unified assistant workspace UI',()=>{
     expect(widget).toContain('.bonds-ai-chat-window.view-collapsed');
   });
 
-  test('keeps six service entry points and direct prompts in the unified launchpad',()=>{
+  test('keeps seven service entry points and direct prompts in the unified launchpad',()=>{
     const serviceMatches=widget.match(/class="bonds-ai-home-service"/g)||[];
-    expect(serviceMatches).toHaveLength(6);
+    expect(serviceMatches).toHaveLength(7);
     expect(widget).toContain('الحاسبات المالية');
     expect(widget).toContain('طلب تمويل');
     expect(widget).toContain('الاستشارات والخدمات');
     expect(widget).toContain('دراسات الجدوى');
     expect(widget).toContain('القطاعات والفرص');
     expect(widget).toContain('الأسئلة العامة');
+    expect(widget).toContain('تنفيذ على الموقع');
   });
 
   test('promotes structured work into workspace without changing assistant identity',()=>{

@@ -46,7 +46,10 @@ describe('authenticated assistant conversation modes', () => {
   test('home launchpad binds prompts to financial mode and general questions to general mode before action', () => {
     const promptButtons = widget.match(/<button[^>]*data-assistant-prompt="[^"]*"[^>]*>/g) || [];
     expect(promptButtons.length).toBeGreaterThan(0);
-    expect(promptButtons.every(button => button.includes('data-conversation-mode="financial"'))).toBe(true);
+    const executePrompts = promptButtons.filter(button => button.includes('data-conversation-mode="execute"'));
+    const financialPrompts = promptButtons.filter(button => button.includes('data-conversation-mode="financial"'));
+    expect(executePrompts).toHaveLength(1);
+    expect(financialPrompts.length + executePrompts.length).toBe(promptButtons.length);
     expect(widget).toMatch(/<button[^>]*data-assistant-focus="true"[^>]*data-conversation-mode="general"[^>]*>/);
 
     const promptHandler = widget.match(/homePromptButtons\.forEach[\s\S]*?\n    \}\);/)?.[0] || '';
@@ -56,6 +59,23 @@ describe('authenticated assistant conversation modes', () => {
     const focusHandler = widget.match(/if \(homeFocusButton\) \{[\s\S]*?\n    \}/)?.[0] || '';
     expect(focusHandler.indexOf('setConversationMode(')).toBeGreaterThan(-1);
     expect(focusHandler.indexOf('input.focus(')).toBeGreaterThan(focusHandler.indexOf('setConversationMode('));
+  });
+
+  test('execute home tile and mode-aware suggestions stay aligned with governed actions', () => {
+    expect(widget).toContain('data-conversation-mode="execute" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً."');
+    expect(widget).toContain('<span>تنفيذ على الموقع</span>');
+
+    const setMode = widget.match(/function setConversationMode\(mode\) \{[\s\S]*?return state\.conversationMode;\n    \}/)?.[0] || '';
+    expect(setMode).toContain('renderSuggestions();');
+
+    expect(widget).toContain("'افتح الصفحة المناسبة في هذا الموقع'");
+    expect(widget).toContain("'ابحث عن النموذج المطلوب'");
+    expect(widget).toContain("'حمّل النموذج الحالي'");
+    expect(widget).toContain("'احفظ مسودة بدون إرسال نهائي'");
+    expect(widget).toContain("'ماذا يمكن أن يساعدني به مساعد بوندز؟'");
+    expect(widget).toContain("'لخّص هذه الصفحة'");
+    expect(widget).toContain("'ما الخطوة التالية بدون حسابات مالية؟'");
+    expect(widget).toContain("'كيف أستخدم خدمات بوندز؟'");
   });
 
   test('shared widget persists and sends the selected mode with English labels available', () => {
