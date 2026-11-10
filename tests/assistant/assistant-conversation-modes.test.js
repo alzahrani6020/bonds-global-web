@@ -22,7 +22,8 @@ describe('authenticated assistant conversation modes', () => {
   });
 
   test('execute mode cannot grant execution authorization and only exposes current structured actions', () => {
-    expect(aiApi).toContain("const EXECUTE_ALLOWED_ACTION_TYPES = new Set(['navigate', 'form_find', 'form_load', 'draft']);");
+    expect(aiApi).toContain("const EXECUTE_ALLOWED_ACTION_TYPES = new Set(['site_navigate', 'form_find', 'form_load', 'form_save_draft']);");
+    expect(aiApi).not.toContain("new Set(['navigate', 'form_find', 'form_load', 'draft'])");
     expect(aiApi).toContain("if (key === 'execution_authorized') continue;");
     expect(aiApi).toContain("conversationMode === 'execute'");
     expect(aiApi).not.toContain('execution_authorized: true');
