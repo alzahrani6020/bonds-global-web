@@ -231,14 +231,35 @@
               <th>Status</th>
               <th>Start Date</th>
               <th>Renewal Date</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody id="subsTable">
-            <tr><td colspan="5" class="loading">Loading...</td></tr>
+            <tr><td colspan="6" class="loading">Loading...</td></tr>
           </tbody>
         </table>
       </div>
     </main>
+  </div>
+
+  <div id="extendSubModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:10000;align-items:center;justify-content:center;padding:1rem;" onclick="if(event.target===this)closeExtendSubModal()">
+    <div style="width:min(440px,100%);background:var(--bg-card,#fff);color:var(--text-primary,#111827);border-radius:14px;padding:1.25rem;box-shadow:0 20px 50px rgba(0,0,0,0.25);">
+      <h3 style="margin-top:0;">Extend Subscription</h3>
+      <div id="extendSubStatus" style="display:none;margin-bottom:0.75rem;font-size:0.85rem;font-weight:600;"></div>
+      <input type="hidden" id="extendSubUserId">
+      <label for="extendSubDays">Extension period *</label>
+      <select id="extendSubDays" style="width:100%;margin:0.4rem 0 0.9rem;padding:0.65rem;">
+        <option value="7">7 days</option>
+        <option value="14" selected>14 days</option>
+        <option value="30">30 days</option>
+      </select>
+      <label for="extendSubReason">Reason *</label>
+      <textarea id="extendSubReason" rows="3" required style="width:100%;margin:0.4rem 0 1rem;padding:0.65rem;" placeholder="Reason for extension"></textarea>
+      <div style="display:flex;justify-content:flex-end;gap:0.5rem;">
+        <button class="btn-sm" onclick="closeExtendSubModal()">Cancel</button>
+        <button class="btn-sm btn-primary" onclick="submitExtendSub()">Confirm extension</button>
+      </div>
+    </div>
   </div>
 
   <script>
@@ -304,7 +325,7 @@
       window._subsData = data.recentSubscriptions || [];
       const subs = window._subsData;
       if (subs.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading">No subscriptions found</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="loading">No subscriptions found</td></tr>';
         return;
       }
       tbody.innerHTML = subs.map(sub => `
@@ -314,11 +335,80 @@
           <td>${statusBadge(sub.status)}</td>
           <td>${formatDate(sub.created_at)}</td>
           <td>${formatDate(sub.current_period_end || sub.created_at)}</td>
+          <td>
+            <button class="btn-sm btn-primary" onclick="openExtendSubModal('${sub.user_id}')">Extend</button>
+            <button class="btn-sm" style="margin-left:0.35rem;background:#dc2626;color:#fff;border-color:#dc2626;" onclick="stopSubscription('${sub.user_id}')">Stop</button>
+          </td>
         </tr>
       `).join('');
     }
 
     window.addEventListener('load', refreshData);
+
+    function showExtendSubStatus(message, isError) {
+      const el = document.getElementById('extendSubStatus');
+      el.textContent = message;
+      el.style.color = isError ? '#dc2626' : '#15803d';
+      el.style.display = message ? 'block' : 'none';
+    }
+
+    function openExtendSubModal(userId) {
+      document.getElementById('extendSubUserId').value = userId || '';
+      document.getElementById('extendSubDays').value = '14';
+      document.getElementById('extendSubReason').value = '';
+      showExtendSubStatus('', false);
+      document.getElementById('extendSubModal').style.display = 'flex';
+    }
+
+    function closeExtendSubModal() {
+      document.getElementById('extendSubModal').style.display = 'none';
+    }
+
+    async function submitExtendSub() {
+      const id = document.getElementById('extendSubUserId').value;
+      const days = Number(document.getElementById('extendSubDays').value);
+      const reason = document.getElementById('extendSubReason').value.trim();
+      if (!id) return showExtendSubStatus('User is required.', true);
+      if (![7, 14, 30].includes(days)) return showExtendSubStatus('Choose 7, 14, or 30 days.', true);
+      if (!reason) return showExtendSubStatus('Reason is required.', true);
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'extend-access', id, days, reason })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) return showExtendSubStatus(data.error || 'Extension failed.', true);
+        closeExtendSubModal();
+        await refreshData();
+      } catch (error) {
+        console.error('submitExtendSub error:', error);
+        showExtendSubStatus('Connection error.', true);
+      }
+    }
+
+    async function stopSubscription(id) {
+      if (!id) return;
+      if (!confirm('Stop this subscription and revoke access immediately?')) return;
+      try {
+        const token = await getAdminToken();
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'cancel-access', id })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          alert(data.error || 'Failed to stop subscription.');
+          return;
+        }
+        await refreshData();
+      } catch (error) {
+        console.error('stopSubscription error:', error);
+        alert('Connection error.');
+      }
+    }
 
     function exportCSV() {
       const headers = ['User ID','Plan','Status','Start Date','Renewal Date'];
