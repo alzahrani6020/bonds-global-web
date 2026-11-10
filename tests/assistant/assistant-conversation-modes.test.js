@@ -105,4 +105,25 @@ describe('authenticated assistant conversation modes', () => {
     expect(widget).toContain('data-label-en="General"');
     expect(widget).toContain('data-label-en="Execute"');
   });
+  test('home launchpad bilingual attributes remain independently locked', () => {
+    expect(widget).toContain('data-label-en="Financial calculators"');
+    expect(widget).toContain('data-assistant-prompt-en="I want to use the financial calculators. Help me choose the right calculator."');
+    expect(widget).toContain('data-label-en="Funding request"');
+    expect(widget).toContain('data-assistant-prompt-en="I want to submit a funding request. What are the steps and requirements?"');
+    expect(widget).toContain('data-label-en="Advisory and services"');
+    expect(widget).toContain('data-assistant-prompt-en="Which advisory or service best fits my need?"');
+    expect(widget).toContain('data-label-en="Feasibility studies"');
+    expect(widget).toContain('data-assistant-prompt-en="I want to prepare a feasibility study. What information is required to start?"');
+    expect(widget).toContain('data-label-en="Sectors and opportunities"');
+    expect(widget).toContain('data-assistant-prompt-en="Help me explore the right sectors and investment opportunities."');
+    expect(widget).toContain('data-label-en="General questions"');
+    expect(widget).toMatch(/data-assistant-focus="true"[^>]*data-conversation-mode="general"/);
+    expect(widget).toContain('data-label-en="How do I get suitable funding?"');
+    expect(widget).toContain('data-assistant-prompt-en="How do I get suitable funding?"');
+    expect(widget).toContain('data-label-en="What is required to prepare a feasibility study?"');
+    expect(widget).toContain('data-assistant-prompt-en="What is required to prepare a feasibility study?"');
+    expect(widget).toContain('data-label-en="Which sectors can I study?"');
+    expect(widget).toContain('data-assistant-prompt-en="Which investment sectors can I study?"');
+  });
+
 });

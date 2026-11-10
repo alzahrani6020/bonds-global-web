@@ -113,4 +113,27 @@ describe('BONDS unified assistant workspace UI',()=>{
     expect(widget).toContain('width: 100vw;');
     expect(widget).toContain('height: 100dvh;');
   });
+  test('home launchpad exposes the requested English labels and prompts', () => {
+    expect(widget).toContain('Financial calculators');
+    expect(widget).toContain('I want to use the financial calculators. Help me choose the right calculator.');
+    expect(widget).toContain('Funding request');
+    expect(widget).toContain('I want to submit a funding request. What are the steps and requirements?');
+    expect(widget).toContain('Advisory and services');
+    expect(widget).toContain('Which advisory or service best fits my need?');
+    expect(widget).toContain('Feasibility studies');
+    expect(widget).toContain('I want to prepare a feasibility study. What information is required to start?');
+    expect(widget).toContain('Sectors and opportunities');
+    expect(widget).toContain('Help me explore the right sectors and investment opportunities.');
+    expect(widget).toContain('General questions');
+    expect(widget).toContain('Welcome to BONDS Assistant');
+    expect(widget).toContain('I can help with services, calculators, funding, feasibility studies, and investment opportunities.');
+    expect(widget).toContain('Start with BONDS Assistant');
+    expect(widget).toContain('Or ask a direct question');
+    expect(widget).toContain('How do I get suitable funding?');
+    expect(widget).toContain('What is required to prepare a feasibility study?');
+    expect(widget).toContain('Which investment sectors can I study?');
+    expect(widget).toContain('Which sectors can I study?');
+    expect(widget).toContain('On-site actions');
+  });
+
 });

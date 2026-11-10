@@ -1251,42 +1251,42 @@
           </div>
         </div>
         <div class="bonds-ai-notifications" aria-live="polite"></div>
-        <div class="bonds-ai-home-launchpad" aria-label="ابدأ مع مساعد بوندز">
+        <div class="bonds-ai-home-launchpad" aria-label="ابدأ مع مساعد بوندز" data-label-ar="ابدأ مع مساعد بوندز" data-label-en="Start with BONDS Assistant">
           <div class="bonds-ai-home-intro">
             <div class="bonds-ai-home-intro-icon" aria-hidden="true">●</div>
             <div>
-              <strong>مرحباً بك في مساعد بوندز</strong>
-              <p>يمكنني مساعدتك في الخدمات والحاسبات والتمويل ودراسات الجدوى والفرص الاستثمارية.</p>
+              <strong data-label-ar="مرحباً بك في مساعد بوندز" data-label-en="Welcome to BONDS Assistant">مرحباً بك في مساعد بوندز</strong>
+              <p data-label-ar="يمكنني مساعدتك في الخدمات والحاسبات والتمويل ودراسات الجدوى والفرص الاستثمارية." data-label-en="I can help with services, calculators, funding, feasibility studies, and investment opportunities.">يمكنني مساعدتك في الخدمات والحاسبات والتمويل ودراسات الجدوى والفرص الاستثمارية.</p>
             </div>
           </div>
           <div class="bonds-ai-home-grid">
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد استخدام الحاسبات المالية. ساعدني في اختيار الحاسبة المناسبة." data-conversation-mode="financial">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد استخدام الحاسبات المالية. ساعدني في اختيار الحاسبة المناسبة." data-conversation-mode="financial" data-label-ar="الحاسبات المالية" data-label-en="Financial calculators" data-assistant-prompt-en="I want to use the financial calculators. Help me choose the right calculator.">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h2M16 10h1M8 14h2M12 14h2M16 14h1M8 18h2M12 18h5"/></svg><span>الحاسبات المالية</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد تقديم طلب تمويل. ما الخطوات والمتطلبات؟" data-conversation-mode="financial">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد تقديم طلب تمويل. ما الخطوات والمتطلبات؟" data-conversation-mode="financial" data-label-ar="طلب تمويل" data-label-en="Funding request" data-assistant-prompt-en="I want to submit a funding request. What are the steps and requirements?">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M7 9h10M7 13h6M7 17h4"/></svg><span>طلب تمويل</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ما الاستشارة أو الخدمة الأنسب لاحتياجي؟" data-conversation-mode="financial">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ما الاستشارة أو الخدمة الأنسب لاحتياجي؟" data-conversation-mode="financial" data-label-ar="الاستشارات والخدمات" data-label-en="Advisory and services" data-assistant-prompt-en="Which advisory or service best fits my need?">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 12h8M8 16h8"/></svg><span>الاستشارات والخدمات</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد إعداد دراسة جدوى. ما المعلومات المطلوبة للبدء؟" data-conversation-mode="financial">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد إعداد دراسة جدوى. ما المعلومات المطلوبة للبدء؟" data-conversation-mode="financial" data-label-ar="دراسات الجدوى" data-label-en="Feasibility studies" data-assistant-prompt-en="I want to prepare a feasibility study. What information is required to start?">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>دراسات الجدوى</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ساعدني في استكشاف القطاعات والفرص الاستثمارية المناسبة." data-conversation-mode="financial">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ساعدني في استكشاف القطاعات والفرص الاستثمارية المناسبة." data-conversation-mode="financial" data-label-ar="القطاعات والفرص" data-label-en="Sectors and opportunities" data-assistant-prompt-en="Help me explore the right sectors and investment opportunities.">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 21h18M5 21V9l4-3v15M11 21V5l4-2v18M17 21v-9l3 2v7"/></svg><span>القطاعات والفرص</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-focus="true" data-conversation-mode="general">
+            <button type="button" class="bonds-ai-home-service" data-assistant-focus="true" data-conversation-mode="general" data-label-ar="الأسئلة العامة" data-label-en="General questions">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.6-4.8A7 7 0 0 1 3 12V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg><span>الأسئلة العامة</span>
             </button>
             <button type="button" class="bonds-ai-home-service" data-conversation-mode="execute" data-label-ar="تنفيذ على الموقع" data-label-en="On-site actions" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً." data-assistant-prompt-en="I want to perform an on-site action: open the matching page or form, or save a draft. Do not submit.">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 4h14v16H5z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg><span>تنفيذ على الموقع</span>
             </button>
           </div>
-          <div class="bonds-ai-home-quick-title">أو اطرح سؤالاً مباشراً</div>
+          <div class="bonds-ai-home-quick-title" data-label-ar="أو اطرح سؤالاً مباشراً" data-label-en="Or ask a direct question">أو اطرح سؤالاً مباشراً</div>
           <div class="bonds-ai-home-quick">
-            <button type="button" data-assistant-prompt="كيف أحصل على تمويل مناسب؟" data-conversation-mode="financial">كيف أحصل على تمويل مناسب؟</button>
-            <button type="button" data-assistant-prompt="ما متطلبات إعداد دراسة جدوى؟" data-conversation-mode="financial">ما متطلبات إعداد دراسة جدوى؟</button>
-            <button type="button" data-assistant-prompt="ما القطاعات الاستثمارية التي يمكنني دراستها؟" data-conversation-mode="financial">ما القطاعات التي يمكنني دراستها؟</button>
+            <button type="button" data-assistant-prompt="كيف أحصل على تمويل مناسب؟" data-conversation-mode="financial" data-assistant-prompt-en="How do I get suitable funding?" data-label-ar="كيف أحصل على تمويل مناسب؟" data-label-en="How do I get suitable funding?">كيف أحصل على تمويل مناسب؟</button>
+            <button type="button" data-assistant-prompt="ما متطلبات إعداد دراسة جدوى؟" data-conversation-mode="financial" data-assistant-prompt-en="What is required to prepare a feasibility study?" data-label-ar="ما متطلبات إعداد دراسة جدوى؟" data-label-en="What is required to prepare a feasibility study?">ما متطلبات إعداد دراسة جدوى؟</button>
+            <button type="button" data-assistant-prompt="ما القطاعات الاستثمارية التي يمكنني دراستها؟" data-conversation-mode="financial" data-assistant-prompt-en="Which investment sectors can I study?" data-label-ar="ما القطاعات التي يمكنني دراستها؟" data-label-en="Which sectors can I study?">ما القطاعات التي يمكنني دراستها؟</button>
           </div>
         </div>
         <div class="bonds-ai-chat-messages"></div>
@@ -1351,7 +1351,6 @@
         .map(element => [element.dataset.healthService, element])
     );
     const conversationModeButtons = Array.from(root.querySelectorAll('.bonds-ai-conversation-mode'));
-    const executeHomeTile = root.querySelector('.bonds-ai-home-service[data-conversation-mode="execute"]');
     const diagnosticsPanel = root.querySelector('.bonds-ai-request-diagnostics');
     const diagnosticsSummary = root.querySelector('.bonds-ai-diagnostics-summary');
     const diagnosticsMeta = root.querySelector('.bonds-ai-diagnostics-meta');
@@ -3194,9 +3193,15 @@
         button.setAttribute('aria-pressed', mode === state.conversationMode ? 'true' : 'false');
         button.textContent = en ? button.dataset.labelEn : button.dataset.labelAr;
       });
-      const executeHomeLabel = executeHomeTile?.querySelector('span');
-      if (executeHomeLabel) {
-        executeHomeLabel.textContent = en ? executeHomeTile.dataset.labelEn : executeHomeTile.dataset.labelAr;
+      root.querySelectorAll('.bonds-ai-home-service[data-label-en]').forEach(tile => {
+        const span = tile.querySelector('span');
+        if (span) span.textContent = en ? tile.dataset.labelEn : tile.dataset.labelAr;
+      });
+      root.querySelectorAll('.bonds-ai-home-intro [data-label-en], .bonds-ai-home-quick-title[data-label-en], .bonds-ai-home-quick button[data-label-en]').forEach(element => {
+        element.textContent = en ? element.dataset.labelEn : element.dataset.labelAr;
+      });
+      if (homeLaunchpad?.dataset.labelEn) {
+        homeLaunchpad.setAttribute('aria-label', en ? homeLaunchpad.dataset.labelEn : homeLaunchpad.dataset.labelAr);
       }
     }
 
