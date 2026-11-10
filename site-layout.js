@@ -512,6 +512,9 @@
     const currentSearch = window.location.search || '';
     function languageSwitchHref() {
       if (isEn) {
+        if (/^\/en\/v3\/city-intelligence/i.test(currentPath)) {
+          return '/v3/city-intelligence' + currentSearch;
+        }
         if (/^\/en\/v3\/?$/i.test(currentPath)) {
           const source = new URLSearchParams(currentSearch).get('from');
           return source && source.startsWith('/v3/') ? source : '/v3/city-intelligence';
@@ -520,6 +523,9 @@
           ? '/'
           : currentPath.replace(/^\/en(?=\/|$)/, '');
         return (arPath || '/') + currentSearch;
+      }
+      if (/^\/v3\/city-intelligence/i.test(currentPath)) {
+        return '/en/v3/city-intelligence' + currentSearch;
       }
       if (/^\/v3\//i.test(currentPath)) {
         return '/en/v3/?from=' + encodeURIComponent(currentPath + currentSearch);
@@ -665,7 +671,7 @@
       {
         heading: { ar: labels.intelligenceGroup, en: 'Cities & Markets' },
         items: [
-          { label: labels.cityIntelligence, href: isEn ? v3EnglishHubHref + '#city-intelligence' : '/v3/city-intelligence' },
+          { label: labels.cityIntelligence, href: isEn ? '/en/v3/city-intelligence' : '/v3/city-intelligence' },
           { label: labels.cityComparison, href: isEn ? v3EnglishHubHref + '#city-comparison' : '/v3/city-comparison' },
           { label: labels.investmentMap, href: isEn ? v3EnglishHubHref + '#investment-map' : '/v3/investment-map' },
           { label: labels.projectReadiness, href: isEn ? v3EnglishHubHref + '#project-readiness' : '/v3/project-readiness' },

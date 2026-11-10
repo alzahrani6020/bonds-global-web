@@ -170,7 +170,7 @@ describe('live source refresh and dynamic years', () => {
   });
 
   test('city intelligence and comparison contain no hard-coded year choices', () => {
-    const intelligence = read('v3/city-intelligence.html');
+    const intelligence = read('v3/city-intelligence.html') + read('v3/city-intelligence-app.js');
     const comparison = read('v3/city-comparison.html');
 
     expect(intelligence).toContain("API_URL + '/catalog/years?'");
@@ -209,7 +209,7 @@ describe('live source refresh and dynamic years', () => {
 
   test('country context preserves country scope, source and freshness', () => {
     const api = read('v3/api/index.js');
-    const page = read('v3/city-intelligence.html');
+    const page = read('v3/city-intelligence.html') + read('v3/city-intelligence-app.js');
 
     expect(api).toContain("geographic_scope: 'country'");
     expect(api).toContain('freshness_status');
@@ -268,7 +268,7 @@ describe('live source refresh and dynamic years', () => {
     const api = read('v3/api/data-engine.js');
     const index = read('v3/api/index.js');
     const engine = read('v3/engine/data-acquisition/engines/CityEngine.js');
-    const page = read('v3/city-intelligence.html');
+    const page = read('v3/city-intelligence.html') + read('v3/city-intelligence-app.js');
     const vercel = JSON.parse(read('vercel.json'));
     const liveFn = api.slice(
       api.indexOf('async function handleLiveCityRefresh'),
