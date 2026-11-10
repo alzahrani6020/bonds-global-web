@@ -1260,30 +1260,30 @@
             </div>
           </div>
           <div class="bonds-ai-home-grid">
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد استخدام الحاسبات المالية. ساعدني في اختيار الحاسبة المناسبة.">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد استخدام الحاسبات المالية. ساعدني في اختيار الحاسبة المناسبة." data-conversation-mode="financial">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 10h2M12 10h2M16 10h1M8 14h2M12 14h2M16 14h1M8 18h2M12 18h5"/></svg><span>الحاسبات المالية</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد تقديم طلب تمويل. ما الخطوات والمتطلبات؟">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد تقديم طلب تمويل. ما الخطوات والمتطلبات؟" data-conversation-mode="financial">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 5h16v14H4z"/><path d="M7 9h10M7 13h6M7 17h4"/></svg><span>طلب تمويل</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ما الاستشارة أو الخدمة الأنسب لاحتياجي؟">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ما الاستشارة أو الخدمة الأنسب لاحتياجي؟" data-conversation-mode="financial">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8 12h8M8 16h8"/></svg><span>الاستشارات والخدمات</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد إعداد دراسة جدوى. ما المعلومات المطلوبة للبدء؟">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="أريد إعداد دراسة جدوى. ما المعلومات المطلوبة للبدء؟" data-conversation-mode="financial">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg><span>دراسات الجدوى</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ساعدني في استكشاف القطاعات والفرص الاستثمارية المناسبة.">
+            <button type="button" class="bonds-ai-home-service" data-assistant-prompt="ساعدني في استكشاف القطاعات والفرص الاستثمارية المناسبة." data-conversation-mode="financial">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M3 21h18M5 21V9l4-3v15M11 21V5l4-2v18M17 21v-9l3 2v7"/></svg><span>القطاعات والفرص</span>
             </button>
-            <button type="button" class="bonds-ai-home-service" data-assistant-focus="true">
+            <button type="button" class="bonds-ai-home-service" data-assistant-focus="true" data-conversation-mode="general">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true"><path d="M21 15a4 4 0 0 1-4 4H8l-5 3 1.6-4.8A7 7 0 0 1 3 12V8a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/></svg><span>الأسئلة العامة</span>
             </button>
           </div>
           <div class="bonds-ai-home-quick-title">أو اطرح سؤالاً مباشراً</div>
           <div class="bonds-ai-home-quick">
-            <button type="button" data-assistant-prompt="كيف أحصل على تمويل مناسب؟">كيف أحصل على تمويل مناسب؟</button>
-            <button type="button" data-assistant-prompt="ما متطلبات إعداد دراسة جدوى؟">ما متطلبات إعداد دراسة جدوى؟</button>
-            <button type="button" data-assistant-prompt="ما القطاعات الاستثمارية التي يمكنني دراستها؟">ما القطاعات التي يمكنني دراستها؟</button>
+            <button type="button" data-assistant-prompt="كيف أحصل على تمويل مناسب؟" data-conversation-mode="financial">كيف أحصل على تمويل مناسب؟</button>
+            <button type="button" data-assistant-prompt="ما متطلبات إعداد دراسة جدوى؟" data-conversation-mode="financial">ما متطلبات إعداد دراسة جدوى؟</button>
+            <button type="button" data-assistant-prompt="ما القطاعات الاستثمارية التي يمكنني دراستها؟" data-conversation-mode="financial">ما القطاعات التي يمكنني دراستها؟</button>
           </div>
         </div>
         <div class="bonds-ai-chat-messages"></div>
@@ -4580,12 +4580,14 @@
 
     homePromptButtons.forEach(button => {
       button.addEventListener('click', () => {
+        setConversationMode(String(button.dataset.conversationMode || 'financial'));
         const prompt = String(button.dataset.assistantPrompt || '').trim();
         if (prompt) sendMessage(prompt);
       });
     });
     if (homeFocusButton) {
       homeFocusButton.addEventListener('click', () => {
+        setConversationMode(String(homeFocusButton.dataset.conversationMode || 'general'));
         input.focus();
       });
     }
