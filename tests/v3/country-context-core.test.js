@@ -94,7 +94,10 @@ describe('V3 country context core', () => {
       'v3/opportunity-bank.html',
       'v3/alerts.html'
     ]) {
-      expect(read(screen)).toContain('formatActivityLabel');
+      const source = screen === 'v3/city-intelligence.html'
+        ? read(screen) + read('v3/city-intelligence-app.js')
+        : read(screen);
+      expect(source).toContain('formatActivityLabel');
     }
   });
 
@@ -106,7 +109,9 @@ describe('V3 country context core', () => {
       'v3/opportunity-bank.html',
       'v3/alerts.html'
     ]) {
-      const source = read(screen);
+      const source = screen === 'v3/city-intelligence.html'
+        ? read(screen) + read('v3/city-intelligence-app.js')
+        : read(screen);
       const usesCountryAwareActivityCatalog =
         source.includes('/catalog/activities') ||
         (source.includes('/investment-taxonomy') && source.includes("include: 'activities'"));
@@ -127,7 +132,10 @@ describe('V3 country context core', () => {
       'v3/investment-map.html',
       'v3/opportunity-bank.html'
     ]) {
-      expect(read(screen)).toContain('formatProvenanceMoney');
+      const source = screen === 'v3/city-intelligence.html'
+        ? read(screen) + read('v3/city-intelligence-app.js')
+        : read(screen);
+      expect(source).toContain('formatProvenanceMoney');
     }
   });
 
@@ -136,7 +144,7 @@ describe('V3 country context core', () => {
     const map = read('v3/investment-map.html');
     const comparison = read('v3/city-comparison.html');
     const bank = read('v3/opportunity-bank.html');
-    const intelligence = read('v3/city-intelligence.html');
+    const intelligence = read('v3/city-intelligence.html') + read('v3/city-intelligence-app.js');
 
     expect(context).toContain('formatCurrency');
     expect(map).toContain('formatMarketMoney');

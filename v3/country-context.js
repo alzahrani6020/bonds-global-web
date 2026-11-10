@@ -105,7 +105,9 @@
   }
 
   function formatActivityLabel(activity, lang = 'ar') {
-    const label = activity?.name_ar || activity?.name_en || activity?.code || '-';
+    const label = lang === 'en'
+      ? (activity?.name_en || activity?.name_ar || activity?.code || '-')
+      : (activity?.name_ar || activity?.name_en || activity?.code || '-');
     const status = activity?.country?.availability_status;
     if (status === 'unknown') {
       return label + (lang === 'en' ? ' · Local status unverified' : ' · الحالة المحلية غير موثقة');

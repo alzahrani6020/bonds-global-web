@@ -39,7 +39,7 @@ describe('V3 activity dropdown UI on current taxonomy sources', () => {
   });
 
   test('city intelligence keeps its existing canonical catalog source', () => {
-    const page = read('v3/city-intelligence.html');
+    const page = read('v3/city-intelligence.html') + read('v3/city-intelligence-app.js');
     expect(page).toContain('/catalog/activities');
   });
 

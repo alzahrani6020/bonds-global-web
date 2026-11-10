@@ -1,6 +1,6 @@
 {
-  "version": 1794263176084,
-  "count": 765,
+  "version": 1794296638233,
+  "count": 766,
   "entries": [
     {
       "title": "About Us | Bonds Financial &amp; Management Consulting",
@@ -279,6 +279,13 @@
       "title": "BONDS Valuation Intelligence Platform | بوندز",
       "description": "BONDS Valuation Intelligence — multi-asset valuation across 10 axes and 3 advanced methodologies.",
       "url": "/en/valuation/",
+      "lang": "en",
+      "category": "English"
+    },
+    {
+      "title": "City Indicators | Bonds V3",
+      "description": "City catalog, source-backed indicators, evidence status and national context from Bonds.",
+      "url": "/en/v3/city-intelligence",
       "lang": "en",
       "category": "English"
     },

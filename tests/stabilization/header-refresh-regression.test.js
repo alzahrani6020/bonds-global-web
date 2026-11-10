@@ -57,7 +57,7 @@ describe('header hover and automated refresh stabilization', () => {
 
   test('city intelligence can show sourced national context without pretending it is city data', () => {
     const api = read('v3/api/index.js');
-    const page = read('v3/city-intelligence.html');
+    const page = read('v3/city-intelligence.html') + read('v3/city-intelligence-app.js');
     expect(api).toContain('async function handleCountryContext');
     expect(api).toContain("geographic_scope: 'country'");
     expect(page).toContain('أحدث سياق اقتصادي وطني متاح');

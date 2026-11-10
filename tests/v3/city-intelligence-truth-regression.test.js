@@ -18,7 +18,7 @@ describe('V3 city intelligence catalog and truth regressions', () => {
   });
 
   test('city intelligence loads canonical catalogs and explicitly pins readable dark dropdowns', () => {
-    const page = read('v3/city-intelligence.html');
+    const page = read('v3/city-intelligence.html') + read('v3/city-intelligence-app.js');
     expect(page).toContain("/catalog/countries");
     expect(page).toContain("/catalog/activities");
     expect(page).toContain("/catalog/cities?country=");
@@ -27,11 +27,24 @@ describe('V3 city intelligence catalog and truth regressions', () => {
     expect(page).toContain('/evidence?year=');
     expect(page).toContain('id="catalogSummary"');
     expect(page).toContain('function cityOrNational(');
-    expect(page).toContain('cityOrNational(\'population\', null, \'نسمة\'');
+    expect(page).toContain("cityOrNational('population', null, t('نسمة', 'people')");
     expect(page).toContain('سياق وطني');
     expect(page).toContain("API_URL + '/data/live-refresh'");
     expect(page).toContain('جلب حي من المصادر');
     expect(page).not.toContain('أكثر من 1200 مدينة');
+  });
+
+  test('English city indicators workspace shares the live engine and is wired as a language pair', () => {
+    const en = read('en/v3/city-intelligence.html');
+    const ar = read('v3/city-intelligence.html');
+    expect(en).toContain('lang="en"');
+    expect(en).toContain('dir="ltr"');
+    expect(en).toContain('/v3/city-intelligence-app.js');
+    expect(en).toContain('/v3/city-intelligence.css');
+    expect(en).toContain('Fetch live from sources');
+    expect(en).toContain('hreflang="ar"');
+    expect(ar).toContain('hreflang="en"');
+    expect(en).toContain('https://bonds-global.com/en/v3/city-intelligence');
   });
 
   test('city evidence endpoint is routed before the generic city detail route', () => {

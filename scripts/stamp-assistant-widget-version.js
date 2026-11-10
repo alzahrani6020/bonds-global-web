@@ -21,6 +21,7 @@ const TAG_PREFIX = 'global-assistant-';
 const REFERENCES = [
   'site-layout.js',
   'v3/city-intelligence.html',
+  'en/v3/city-intelligence.html',
   'v3/investment-map.html',
   'v3/project/index.html',
   'en/v3/project/index.html'
