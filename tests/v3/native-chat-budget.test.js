@@ -21,7 +21,8 @@ describe('Bonds Native chat generation budget', () => {
   });
 
   test('does not force English users into an Arabic-only response contract', () => {
-    expect(source).toContain('أجب بلغة آخر رسالة للمستخدم بأسلوب مختصر وواقعي.');
+    expect(source).toContain('function buildNativeChatPrompt');
+    expect(source).toContain('Answer the current request directly in its language.');
     expect(source).not.toContain('أجب بالعربية الفصحى بأسلوب مختصر وواقعي.');
   });
 
