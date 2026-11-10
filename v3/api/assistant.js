@@ -11,6 +11,7 @@ const forms = require('../../lib/assistant/form-registry.json');
 const { prepareConfirmation, resolveConfirmation } = require('../../lib/assistant/confirmation-engine');
 const { claimAssistantAction, resolveAssistantAction } = require('../../lib/assistant/idempotency');
 const { getSupabaseClient } = require('../lib/supabase');
+const { isExecuteEntitled } = require('../../lib/assistant/execute-entitlement');
 const { appendAssistantAuditBestEffort } = require('../../lib/assistant/audit-trail');
 const { saveWorkflowState, loadWorkflowState, setWorkflowStatus } = require('../../lib/assistant/workflow-state');
 const { workflowKeyFor } = require('../../lib/assistant/case-engine');
@@ -1361,11 +1362,23 @@ async function assistantRouter(req, res, path, user) {
     try { body = await parseBody(req); }
     catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
 
+    if (body.type === 'form_prefill') {
+      const entitled = await isExecuteEntitled(getSupabaseClient(), user);
+      if (!entitled) {
+        return sendJson(res, 422, createEnvelope({
+          status:'denied',
+          reply:'يتطلب هذا الإجراء اشتراك Pro أو Enterprise سارياً.',
+          context:{ code:'ENTITLEMENT_REQUIRED' }
+        }));
+      }
+    }
+
     const result = planRegisteredAction({
       type:body.type,
       target:body.target,
       form:body.form,
-      language:body.language
+      language:body.language,
+      fields:body.fields
     });
     const plannedAction = Array.isArray(result.actions) ? result.actions[0] : {
       id:null,
