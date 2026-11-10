@@ -46,7 +46,10 @@ describe('authenticated assistant conversation modes', () => {
   test('home launchpad binds prompts to financial mode and general questions to general mode before action', () => {
     const promptButtons = widget.match(/<button[^>]*data-assistant-prompt="[^"]*"[^>]*>/g) || [];
     expect(promptButtons.length).toBeGreaterThan(0);
-    expect(promptButtons.every(button => button.includes('data-conversation-mode="financial"'))).toBe(true);
+    const executePrompts = promptButtons.filter(button => button.includes('data-conversation-mode="execute"'));
+    const financialPrompts = promptButtons.filter(button => button.includes('data-conversation-mode="financial"'));
+    expect(executePrompts).toHaveLength(1);
+    expect(financialPrompts.length + executePrompts.length).toBe(promptButtons.length);
     expect(widget).toMatch(/<button[^>]*data-assistant-focus="true"[^>]*data-conversation-mode="general"[^>]*>/);
 
     const promptHandler = widget.match(/homePromptButtons\.forEach[\s\S]*?\n    \}\);/)?.[0] || '';
