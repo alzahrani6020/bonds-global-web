@@ -28,6 +28,12 @@ describe('authenticated assistant conversation modes', () => {
     expect(aiApi).not.toContain('execution_authorized: true');
   });
 
+  test('general mode keeps numeric financial calculations on verified calculator paths', () => {
+    expect(aiApi).toContain('function looksLikeFinancialCalculationRequest(text)');
+    expect(aiApi).toContain("conversationMode === 'general' && looksLikeFinancialCalculationRequest(lastUserText)");
+    expect(aiApi).toContain("source: 'bonds-assistant-calculator-required'");
+  });
+
   test('general mode keeps the same auth gate and skips service orchestration without explicit serviceCode', () => {
     const authGate = aiApi.indexOf("error: 'AUTHENTICATION_REQUIRED'");
     const modeGate = aiApi.indexOf("const allowServiceOrchestration = conversationMode !== 'general'");
