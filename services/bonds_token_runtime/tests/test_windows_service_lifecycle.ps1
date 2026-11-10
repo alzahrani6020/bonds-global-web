@@ -541,6 +541,18 @@ try {
     Invoke-Case "clean_reviewed_source_installs_and_starts_the_managed_scm_service" {
         $script:activationAttempted = $true
         $attempt = Invoke-Installer $originalInstaller
+        if ($attempt.exit_code -ne 0) {
+            $installerStdout = [string]$attempt.stdout
+            $installerStderr = [string]$attempt.stderr
+            if ($installerStdout.Length -gt 4000) { $installerStdout = $installerStdout.Substring(0, 4000) }
+            if ($installerStderr.Length -gt 4000) { $installerStderr = $installerStderr.Substring(0, 4000) }
+            $script:report["evidence"] = [ordered]@{
+                installer_exit_code = $attempt.exit_code
+                installer_stdout = $installerStdout
+                installer_stderr = $installerStderr
+            }
+            Write-Report
+        }
         Assert-Acceptance ($attempt.exit_code -eq 0) "INITIAL_INSTALL_FAILED"
         Wait-ServiceState "Running"
         Assert-OwnedService
