@@ -43,6 +43,17 @@ describe('BONDS unified assistant workspace UI',()=>{
     expect(widget).toContain('الأسئلة العامة');
     expect(widget).toContain('تنفيذ على الموقع');
     expect(widget).toContain('On-site actions');
+    expect(widget).toContain('Financial calculators');
+    expect(widget).toContain('Funding request');
+    expect(widget).toContain('Advisory and services');
+    expect(widget).toContain('Feasibility studies');
+    expect(widget).toContain('Sectors and opportunities');
+    expect(widget).toContain('General questions');
+    expect(widget).toContain('Welcome to BONDS Assistant');
+    expect(widget).toContain('Or ask a direct question');
+    expect(widget).toContain('How do I get suitable funding?');
+    expect(widget).toContain('What is required to prepare a feasibility study?');
+    expect(widget).toContain('Which sectors can I study?');
   });
 
   test('promotes structured work into workspace without changing assistant identity',()=>{
