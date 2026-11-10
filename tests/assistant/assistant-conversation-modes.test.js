@@ -58,6 +58,23 @@ describe('authenticated assistant conversation modes', () => {
     expect(focusHandler.indexOf('input.focus(')).toBeGreaterThan(focusHandler.indexOf('setConversationMode('));
   });
 
+  test('execute home tile and mode-aware suggestions stay aligned with governed actions', () => {
+    expect(widget).toContain('data-conversation-mode="execute" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً."');
+    expect(widget).toContain('<span>تنفيذ على الموقع</span>');
+
+    const setMode = widget.match(/function setConversationMode\(mode\) \{[\s\S]*?return state\.conversationMode;\n    \}/)?.[0] || '';
+    expect(setMode).toContain('renderSuggestions();');
+
+    expect(widget).toContain("'افتح الصفحة المناسبة في هذا الموقع'");
+    expect(widget).toContain("'ابحث عن النموذج المطلوب'");
+    expect(widget).toContain("'حمّل النموذج الحالي'");
+    expect(widget).toContain("'احفظ مسودة بدون إرسال نهائي'");
+    expect(widget).toContain("'ماذا يمكن أن يساعدني به مساعد بوندز؟'");
+    expect(widget).toContain("'لخّص هذه الصفحة'");
+    expect(widget).toContain("'ما الخطوة التالية بدون حسابات مالية؟'");
+    expect(widget).toContain("'كيف أستخدم خدمات بوندز؟'");
+  });
+
   test('shared widget persists and sends the selected mode with English labels available', () => {
     expect(widget).toContain("const CONVERSATION_MODE_STORAGE_KEY = 'bonds_assistant_conversation_mode';");
     expect(widget).toContain('conversation_mode: state.conversationMode');
