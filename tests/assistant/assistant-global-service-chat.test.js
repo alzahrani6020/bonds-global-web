@@ -62,12 +62,11 @@ describe('BONDS global service assistant', () => {
     expect(aiApi).toContain('enriched.serviceCapabilities =');
   });
 
-  test('server provides deterministic service answers before requiring native AI', () => {
-    expect(aiApi).toContain('function generateServiceDrivenReply(userMessage, context)');
-    expect(aiApi).toContain("msg.includes('متطلبات')");
-    expect(aiApi).toContain("msg.includes('مخرجات')");
-    expect(aiApi).toContain("msg.includes('قدرات')");
-    expect(aiApi).toContain("msg.includes('الخطوة التالية')");
+  test('does not keep unused data-driven or service-driven reply fallbacks', () => {
+    expect(aiApi).not.toContain('function generateServiceDrivenReply(userMessage, context)');
+    expect(aiApi).not.toContain('function generateDataDrivenReply(userMessage, context)');
+    expect(aiApi).toContain('runDeterministicLocalTools(');
+    expect(aiApi).toContain('runUniversalOrchestrator(');
   });
 
   test('verified service execution context is supplied to native AI evidence', () => {
