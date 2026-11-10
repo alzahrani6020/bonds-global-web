@@ -98,6 +98,42 @@ describe('authenticated assistant conversation modes', () => {
     expect(widget).toContain("languageCode() === 'en' && button.dataset.assistantPromptEn");
   });
 
+  test('home launchpad tiles and quick prompts expose independent bilingual labels and prompts', () => {
+    const labelLocks = [
+      'data-label-en="Financial calculators"',
+      'data-label-en="Funding request"',
+      'data-label-en="Advisory and services"',
+      'data-label-en="Feasibility studies"',
+      'data-label-en="Sectors and opportunities"',
+      'data-label-en="General questions"',
+      'data-label-en="On-site actions"',
+      'data-label-en="Welcome to BONDS Assistant"',
+      'data-label-en="Or ask a direct question"',
+      'data-label-en="How do I get suitable funding?"',
+      'data-label-en="What is required to prepare a feasibility study?"',
+      'data-label-en="Which sectors can I study?"'
+    ];
+    labelLocks.forEach(value => expect(widget).toContain(value));
+
+    const promptLocks = [
+      'data-assistant-prompt-en="I want to use the financial calculators. Help me choose the right calculator."',
+      'data-assistant-prompt-en="I want to submit a funding request. What are the steps and requirements?"',
+      'data-assistant-prompt-en="Which advisory or service best fits my need?"',
+      'data-assistant-prompt-en="I want to prepare a feasibility study. What information is required to start?"',
+      'data-assistant-prompt-en="Help me explore the right sectors and investment opportunities."',
+      'data-assistant-prompt-en="How do I get suitable funding?"',
+      'data-assistant-prompt-en="What is required to prepare a feasibility study?"',
+      'data-assistant-prompt-en="Which investment sectors can I study?"'
+    ];
+    promptLocks.forEach(value => expect(widget).toContain(value));
+
+    expect(widget).toContain('data-label-en="Start with BONDS Assistant"');
+    expect(widget).toContain('data-label-en="I can help with services, calculators, funding, feasibility studies, and investment opportunities."');
+    expect(widget).toMatch(/data-assistant-focus="true"[^>]*data-conversation-mode="general"/);
+    expect(widget).toContain("homeServiceTiles.forEach(tile => {");
+    expect(widget).toContain("homeQuickButtons.forEach(button => {");
+  });
+
   test('shared widget persists and sends the selected mode with English labels available', () => {
     expect(widget).toContain("const CONVERSATION_MODE_STORAGE_KEY = 'bonds_assistant_conversation_mode';");
     expect(widget).toContain('conversation_mode: state.conversationMode');
