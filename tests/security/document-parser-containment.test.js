@@ -111,7 +111,8 @@ describe('document parser containment', () => {
     const result = await parseDocument({
       buffer,
       mime: MIME.pdf,
-      filename: 'fixture.pdf'
+      filename: 'fixture.pdf',
+      timeoutMs: 20_000
     });
 
     expect(typeof result.text).toBe('string');

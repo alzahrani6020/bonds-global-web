@@ -9,7 +9,7 @@ const FALLBACK_PORT = 3099;
 
 let child = null;
 
-function ping(url, ms = 2000) {
+function ping(url, ms = 800) {
   return new Promise(resolve => {
     const req = http.get(url, res => {
       res.resume();
@@ -40,7 +40,8 @@ async function isHealthy(origin) {
 
 async function resolveBaseUrl() {
   const requested = process.env.BASE_URL ? process.env.BASE_URL.replace(/\/$/, '') : '';
-  const candidates = [requested, 'http://127.0.0.1:3010', 'http://127.0.0.1:3005']
+  const preferred = 'http://127.0.0.1:3010';
+  const candidates = [preferred, requested, 'http://127.0.0.1:3005']
     .filter(Boolean)
     .filter((url, index, list) => list.indexOf(url) === index);
 
