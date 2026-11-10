@@ -43,6 +43,8 @@
   const ASSISTANT_LAYOUT_MIN_WIDTH = 360;
   const ASSISTANT_LAYOUT_MIN_HEIGHT = 360;
   const ASSISTANT_DIAGNOSTICS_HISTORY_KEY = 'bonds.assistant.diagnostics.v1';
+  const CONVERSATION_MODE_STORAGE_KEY = 'bonds_assistant_conversation_mode';
+  const CONVERSATION_MODES = ['financial', 'general', 'execute'];
   const LOCAL_DISK_DB = 'bonds_assistant_local_disk_v1';
   const LOCAL_DISK_STORE = 'folders';
   const LOCAL_DISK_EXT = '(?:xlsx|xls|csv|pdf|docx?|jpe?g|png|webp|heic|heif|tiff?)';
@@ -129,6 +131,30 @@
       color: #cbd5e1;
       line-height: 1.45;
       margin-bottom: 0.45rem;
+    }
+    .bonds-ai-conversation-modes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+      padding: 0.55rem 0.75rem;
+      border-bottom: 1px solid rgba(197,160,40,0.15);
+      background: rgba(255,255,255,0.02);
+    }
+    .bonds-ai-conversation-mode {
+      border: 1px solid rgba(255,255,255,0.16);
+      background: transparent;
+      color: #cbd5e1;
+      border-radius: 8px;
+      padding: 0.4rem 0.5rem;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+    .bonds-ai-conversation-mode.active {
+      border-color: rgba(212,168,83,0.7);
+      background: rgba(212,168,83,0.16);
+      color: #f0c96a;
     }
     .bonds-ai-notification-card button {
       margin-inline-end: 0.35rem;
@@ -1206,6 +1232,11 @@
           <span class="bonds-ai-service-status" data-health-service="governance" data-status="checking">Governance</span>
           <span class="bonds-ai-health-updated" aria-live="polite">—</span>
         </div>
+        <div class="bonds-ai-conversation-modes" role="group" aria-label="وضع المحادثة">
+          <button type="button" class="bonds-ai-conversation-mode" data-conversation-mode="financial" data-label-ar="مالي" data-label-en="Financial">مالي</button>
+          <button type="button" class="bonds-ai-conversation-mode" data-conversation-mode="general" data-label-ar="عام" data-label-en="General">عام</button>
+          <button type="button" class="bonds-ai-conversation-mode" data-conversation-mode="execute" data-label-ar="تنفيذ" data-label-en="Execute">تنفيذ</button>
+        </div>
         <div class="bonds-ai-request-diagnostics" aria-live="polite">
           <div class="bonds-ai-diagnostics-head">
             <strong>Last Request Pipeline</strong>
@@ -1316,6 +1347,7 @@
       Array.from(root.querySelectorAll('[data-health-service]'))
         .map(element => [element.dataset.healthService, element])
     );
+    const conversationModeButtons = Array.from(root.querySelectorAll('[data-conversation-mode]'));
     const diagnosticsPanel = root.querySelector('.bonds-ai-request-diagnostics');
     const diagnosticsSummary = root.querySelector('.bonds-ai-diagnostics-summary');
     const diagnosticsMeta = root.querySelector('.bonds-ai-diagnostics-meta');
@@ -1960,8 +1992,18 @@
       }
     }
 
+    function readConversationMode() {
+      try {
+        const stored = window.sessionStorage?.getItem(CONVERSATION_MODE_STORAGE_KEY);
+        return CONVERSATION_MODES.includes(stored) ? stored : 'financial';
+      } catch (_) {
+        return 'financial';
+      }
+    }
+
     const state = {
       messages: [],
+      conversationMode: readConversationMode(),
       isOpen: false,
       isLoading: false,
       abortController: null,
@@ -3138,6 +3180,27 @@
 
     function languageCode() {
       return document.documentElement.lang === 'en' ? 'en' : 'ar';
+    }
+
+    function renderConversationMode() {
+      const en = languageCode() === 'en';
+      conversationModeButtons.forEach(button => {
+        const mode = String(button.dataset.conversationMode || '');
+        button.classList.toggle('active', mode === state.conversationMode);
+        button.setAttribute('aria-pressed', mode === state.conversationMode ? 'true' : 'false');
+        button.textContent = en ? button.dataset.labelEn : button.dataset.labelAr;
+      });
+    }
+
+    function setConversationMode(mode) {
+      state.conversationMode = CONVERSATION_MODES.includes(mode) ? mode : 'financial';
+      try {
+        window.sessionStorage?.setItem(CONVERSATION_MODE_STORAGE_KEY, state.conversationMode);
+      } catch (_) {
+        // Ignore unavailable storage.
+      }
+      renderConversationMode();
+      return state.conversationMode;
     }
 
     function parseLocalDiskPath(value) {
@@ -4336,6 +4399,7 @@
             messages: apiHistory,
             context,
             assistantState: structuredState,
+            conversation_mode: state.conversationMode,
             options: { stream: true }
           };
 
@@ -4505,6 +4569,14 @@
         }
       });
     }
+
+    renderConversationMode();
+    conversationModeButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        setConversationMode(String(button.dataset.conversationMode || 'financial'));
+        input.focus();
+      });
+    });
 
     homePromptButtons.forEach(button => {
       button.addEventListener('click', () => {

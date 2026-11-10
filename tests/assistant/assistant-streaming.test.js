@@ -9,13 +9,13 @@ describe('Assistant SSE transport streaming',()=>{
   test('keeps legacy JSON responses and makes SSE opt-in',()=>{
     expect(api).toContain("function sendJson(res, status, data)");
     expect(api).toContain("accept.includes('text/event-stream') || body?.options?.stream === true");
-    expect(api).toContain("function sendAssistantResponse(res, status, data, { stream = false } = {})");
+    expect(api).toContain("function sendAssistantResponse(res, status, data, { stream = false, conversationMode = 'financial' } = {})");
   });
 
   test('streams truthful lifecycle events without claiming token deltas',()=>{
     expect(api).toContain("writeEvent(res, 'status', { phase:'preparing', source:'assistant' })");
     expect(api).toContain("writeEvent(res, 'status', { phase:'inference', source:'bonds-assistant-ai', token_streaming:false })");
-    expect(api).toContain("writeEvent(res, 'final', data)");
+    expect(api).toContain("writeEvent(res, 'final', safeData)");
     expect(api).toContain("writeEvent(res, 'error'");
     expect(api).toContain("token_streaming:false");
     expect(api).not.toContain("writeEvent(res, 'delta'");
