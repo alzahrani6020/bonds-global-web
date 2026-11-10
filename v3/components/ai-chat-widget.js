@@ -156,6 +156,30 @@
       background: rgba(212,168,83,0.16);
       color: #f0c96a;
     }
+    .bonds-ai-execute-entitlement {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      padding: 0.45rem 0.75rem;
+      border-bottom: 1px solid rgba(197,160,40,0.15);
+      color: #cbd5e1;
+      font-size: 0.78rem;
+    }
+    .bonds-ai-execute-entitlement[hidden] { display: none; }
+    .bonds-ai-execute-entitlement-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 7px 12px;
+      border-radius: 8px;
+      background: #d4a853;
+      color: #0a0f1a;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 0.78rem;
+    }
+    .bonds-ai-execute-entitlement-link:hover { background: #f0c96a; color: #0a0f1a; }
     .bonds-ai-notification-card button {
       margin-inline-end: 0.35rem;
       background: rgba(212,168,83,0.14);
@@ -1237,6 +1261,7 @@
           <button type="button" class="bonds-ai-conversation-mode" data-conversation-mode="general" data-label-ar="عام" data-label-en="General">عام</button>
           <button type="button" class="bonds-ai-conversation-mode" data-conversation-mode="execute" data-label-ar="تنفيذ" data-label-en="Execute">تنفيذ</button>
         </div>
+        <div class="bonds-ai-execute-entitlement" hidden aria-live="polite"></div>
         <div class="bonds-ai-request-diagnostics" aria-live="polite">
           <div class="bonds-ai-diagnostics-head">
             <strong>Last Request Pipeline</strong>
@@ -1351,6 +1376,8 @@
         .map(element => [element.dataset.healthService, element])
     );
     const conversationModeButtons = Array.from(root.querySelectorAll('.bonds-ai-conversation-mode'));
+    const executeEntitlementEl = root.querySelector('.bonds-ai-execute-entitlement');
+    let executeEntitlementRequestId = 0;
     const diagnosticsPanel = root.querySelector('.bonds-ai-request-diagnostics');
     const diagnosticsSummary = root.querySelector('.bonds-ai-diagnostics-summary');
     const diagnosticsMeta = root.querySelector('.bonds-ai-diagnostics-meta');
@@ -3214,7 +3241,64 @@
       }
       renderConversationMode();
       renderSuggestions();
+      void renderExecuteEntitlementBanner();
       return state.conversationMode;
+    }
+
+    async function renderExecuteEntitlementBanner() {
+      const el = executeEntitlementEl;
+      if (!el) return;
+      const requestId = ++executeEntitlementRequestId;
+      if (state.conversationMode !== 'execute') {
+        el.hidden = true;
+        el.replaceChildren();
+        return;
+      }
+      if (!window.BondsAuth || typeof window.BondsAuth.checkFeatureAccess !== 'function') {
+        el.hidden = true;
+        el.replaceChildren();
+        return;
+      }
+      let access;
+      try {
+        access = await window.BondsAuth.checkFeatureAccess('pdfExport');
+      } catch (_error) {
+        if (requestId !== executeEntitlementRequestId) return;
+        el.hidden = true;
+        el.replaceChildren();
+        return;
+      }
+      if (requestId !== executeEntitlementRequestId) return;
+      if (state.conversationMode !== 'execute') {
+        el.hidden = true;
+        el.replaceChildren();
+        return;
+      }
+      if (!access || access.reason === 'not_logged_in') {
+        el.hidden = true;
+        el.replaceChildren();
+        return;
+      }
+      const en = languageCode() === 'en';
+      el.replaceChildren();
+      if (access.allowed) {
+        if (String(access.status || '') === 'trialing') {
+          const status = document.createElement('span');
+          status.className = 'bonds-ai-execute-entitlement-status';
+          status.textContent = en ? 'Pro trial is active.' : 'تجربة Pro سارية.';
+          el.appendChild(status);
+          el.hidden = false;
+          return;
+        }
+        el.hidden = true;
+        return;
+      }
+      const link = document.createElement('a');
+      link.className = 'bonds-ai-execute-entitlement-link';
+      link.href = en ? '/en/pricing.html' : '/pricing.html';
+      link.textContent = en ? 'Start 14-day Pro trial' : 'ابدأ تجربة Pro لـ14 يوماً';
+      el.appendChild(link);
+      el.hidden = false;
     }
 
     function parseLocalDiskPath(value) {
@@ -4621,6 +4705,7 @@
     }
 
     renderConversationMode();
+    void renderExecuteEntitlementBanner();
     conversationModeButtons.forEach(button => {
       button.addEventListener('click', () => {
         setConversationMode(String(button.dataset.conversationMode || 'financial'));
