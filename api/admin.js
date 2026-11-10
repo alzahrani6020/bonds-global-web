@@ -2102,7 +2102,7 @@ async function grantAccess(sb, body, admin, req) {
   const sub = {
     user_id: id,
     tier,
-    status: tier === 'free' ? 'inactive' : 'active',
+    status: expires_at ? 'trialing' : (tier === 'free' ? 'inactive' : 'active'),
     payment_method: 'manual',
     current_period_end: expires_at || null,
     created_at: now,
@@ -2128,12 +2128,32 @@ async function grantAccess(sb, body, admin, req) {
 
 async function cancelAccess(sb, body, admin, req) {
   if (!admin) throw new Error('Admin required');
-  const { id } = body;
-  if (!id) throw new Error('id required');
+  const { id, reason } = body;
+  if (!id) throw badRequest('id required');
 
   const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
   assertNotOwner(targetEmail, 'cancel access for');
   assertNotAdmin(targetRole, 'cancel access for');
+
+  const { data: subscription, error: subscriptionReadErr } = await sb.from('subscriptions')
+    .select('status,stripe_subscription_id')
+    .eq('user_id', id)
+    .maybeSingle();
+  if (subscriptionReadErr) throw subscriptionReadErr;
+
+  if (subscription?.status === 'cancelled') {
+    await logAdminAction(sb, admin, 'cancel_access', 'user', id, targetEmail || null, { reason: reason || null }, req);
+    return { success: true };
+  }
+
+  if (subscription?.stripe_subscription_id && process.env.STRIPE_SECRET_KEY) {
+    try {
+      const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+      await stripe.subscriptions.cancel(subscription.stripe_subscription_id);
+    } catch (stripeError) {
+      console.error('Stripe subscription cancellation failed; local access will still be revoked:', stripeError?.message || stripeError);
+    }
+  }
 
   const now = new Date().toISOString();
   const { error: profileErr } = await sb.from('profiles')
@@ -2143,11 +2163,71 @@ async function cancelAccess(sb, body, admin, req) {
 
   const { error: subErr } = await sb.from('subscriptions')
     .update({ status: 'cancelled', current_period_end: now, updated_at: now })
-    .eq('user_id', id);
+    .eq('user_id', id)
+    .in('status', ['active', 'trialing', 'past_due']);
   if (subErr) throw subErr;
 
-  await logAdminAction(sb, admin, 'cancel_access', 'user', id, targetEmail || null, {}, req);
+  await logAdminAction(sb, admin, 'cancel_access', 'user', id, targetEmail || null, { reason: reason || null }, req);
   return { success: true };
+}
+
+async function extendAccess(sb, body, admin, req) {
+  if (!admin) throw new Error('Admin required');
+  const { id, days, reason } = body;
+  if (!id) throw badRequest('id required');
+
+  const normalizedDays = Number(days);
+  if (![7, 14, 30].includes(normalizedDays)) throw badRequest('days must be 7, 14, or 30');
+
+  const normalizedReason = String(reason || '').trim();
+  if (!normalizedReason) throw badRequest('reason required');
+
+  const { email: targetEmail, role: targetRole } = await getTargetEmailAndRole(sb, id);
+  assertNotOwner(targetEmail, 'extend access for');
+  assertNotAdmin(targetRole, 'extend access for');
+
+  const { data: subscription, error: subscriptionErr } = await sb.from('subscriptions')
+    .select('tier,status,payment_method,stripe_subscription_id,current_period_end')
+    .eq('user_id', id)
+    .maybeSingle();
+  if (subscriptionErr) throw subscriptionErr;
+
+  const { data: profile, error: profileErr } = await sb.from('profiles')
+    .select('tier_expires_at')
+    .eq('id', id)
+    .maybeSingle();
+  if (profileErr) throw profileErr;
+
+  if (subscription?.payment_method === 'stripe' && subscription?.stripe_subscription_id) {
+    throw badRequest('Extension is only available for trials or manually granted subscriptions');
+  }
+
+  const nowMs = Date.now();
+  const candidates = [
+    nowMs,
+    Date.parse(subscription?.current_period_end || ''),
+    Date.parse(profile?.tier_expires_at || '')
+  ].filter(Number.isFinite);
+  const baseMs = Math.max(...candidates);
+  const newEnd = new Date(baseMs + normalizedDays * 24 * 60 * 60 * 1000).toISOString();
+  const now = new Date(nowMs).toISOString();
+
+  const { error: profileUpdateErr } = await sb.from('profiles')
+    .update({ tier_expires_at: newEnd })
+    .eq('id', id);
+  if (profileUpdateErr) throw profileUpdateErr;
+
+  const { error: subscriptionUpdateErr } = await sb.from('subscriptions')
+    .update({ current_period_end: newEnd, updated_at: now })
+    .eq('user_id', id);
+  if (subscriptionUpdateErr) throw subscriptionUpdateErr;
+
+  await logAdminAction(sb, admin, 'extend_access', 'user', id, targetEmail || null, {
+    days: normalizedDays,
+    newEnd,
+    reason: normalizedReason
+  }, req);
+  return { success: true, newEnd };
 }
 
 async function deleteUser(sb, body, admin, req) {
@@ -5564,6 +5644,7 @@ async function handler(req, res) {
         if (subAction === 'create') return res.status(200).json(await createUserAdmin(sb, req.body, admin, req));
         if (subAction === 'update') return res.status(200).json(await updateUser(sb, req.body, admin, req));
         if (subAction === 'grant-access') return res.status(200).json(await grantAccess(sb, req.body, admin, req));
+        if (subAction === 'extend-access') return res.status(200).json(await extendAccess(sb, req.body, admin, req));
         if (subAction === 'cancel-access') return res.status(200).json(await cancelAccess(sb, req.body, admin, req));
         if (subAction === 'delete') return res.status(200).json(await deleteUser(sb, req.body, admin, req));
         if (subAction === 'reset-password') return res.status(200).json(await resetPassword(sb, req.body, admin, req));

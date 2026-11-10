@@ -13,12 +13,14 @@ let mockConfig = {
   failAuthCreate: false,
   failInsertProfiles: false,
   failUpdateUserById: false,
+  subscriptionRow: null,
 };
 
 function resetMockConfig() {
   mockConfig.failAuthCreate = false;
   mockConfig.failInsertProfiles = false;
   mockConfig.failUpdateUserById = false;
+  mockConfig.subscriptionRow = null;
 }
 
 function mockResolveBuilder(builder) {
@@ -32,8 +34,22 @@ function mockResolveBuilder(builder) {
     return { data: null, error: { message: 'not found' } };
   }
 
+  if (table === 'subscriptions' && operation === 'select' && (terminal === 'single' || terminal === 'maybeSingle')) {
+    return {
+      data: mockConfig.subscriptionRow || {
+        user_id: 'user-1',
+        tier: 'pro',
+        status: 'trialing',
+        payment_method: 'manual',
+        stripe_subscription_id: null,
+        current_period_end: '2026-11-20T00:00:00.000Z'
+      },
+      error: null
+    };
+  }
+
   if (table === 'profiles' && operation === 'select' && (terminal === 'single' || terminal === 'maybeSingle')) {
-    return { data: { email: 'target@example.com' }, error: null };
+    return { data: { email: 'target@example.com', tier_expires_at: null }, error: null };
   }
 
   if (table === 'site_settings' && operation === 'select' && (terminal === 'single' || terminal === 'maybeSingle')) {
@@ -263,6 +279,87 @@ describe('/api/admin user operations HTTP contracts', () => {
       });
       expect(status).toBe(400);
       expect(json.error).toMatch(/tier/i);
+    });
+
+    test('grant with expires_at → 200', async () => {
+      const { status, json } = await call({
+        subAction: 'grant-access',
+        body: { id: 'user-1', tier: 'pro', expires_at: '2026-12-01T00:00:00.000Z' }
+      });
+      expect(status).toBe(200);
+      expect(json.success).toBe(true);
+    });
+  });
+
+  describe('extend access', () => {
+    test('days=14 with reason → 200', async () => {
+      const { status, json } = await call({
+        subAction: 'extend-access',
+        body: { id: 'user-1', days: 14, reason: 'extend trial' }
+      });
+      expect(status).toBe(200);
+      expect(json.success).toBe(true);
+    });
+
+    test('days=13 → 400', async () => {
+      const { status } = await call({
+        subAction: 'extend-access',
+        body: { id: 'user-1', days: 13, reason: 'extend trial' }
+      });
+      expect(status).toBe(400);
+    });
+
+    test.each([undefined, '', '   '])('missing or blank reason (%p) → 400', async (reason) => {
+      const { status } = await call({
+        subAction: 'extend-access',
+        body: { id: 'user-1', days: 14, reason }
+      });
+      expect(status).toBe(400);
+    });
+
+    test('missing id → 400', async () => {
+      const { status } = await call({
+        subAction: 'extend-access',
+        body: { days: 14, reason: 'extend trial' }
+      });
+      expect(status).toBe(400);
+    });
+
+    test('recurring Stripe subscription → 400', async () => {
+      const { status, json } = await call({
+        subAction: 'extend-access',
+        body: { id: 'user-1', days: 14, reason: 'extend trial' },
+        config: {
+          subscriptionRow: {
+            status: 'active',
+            payment_method: 'stripe',
+            stripe_subscription_id: 'sub_test',
+            current_period_end: '2026-12-01T00:00:00.000Z'
+          }
+        }
+      });
+      expect(status).toBe(400);
+      expect(json.error).toMatch(/trial|manual/i);
+    });
+  });
+
+  describe('cancel access', () => {
+    test('valid id → 200', async () => {
+      const { status, json } = await call({
+        subAction: 'cancel-access',
+        body: { id: 'user-1' }
+      });
+      expect(status).toBe(200);
+      expect(json.success).toBe(true);
+    });
+
+    test('missing id → 400', async () => {
+      const { status, json } = await call({
+        subAction: 'cancel-access',
+        body: {}
+      });
+      expect(status).toBe(400);
+      expect(json.error).toMatch(/id/i);
     });
   });
 

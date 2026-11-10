@@ -291,6 +291,27 @@
     </div>
   </div>
 
+  <!-- Extend Subscription Modal -->
+  <div class="modal-overlay" id="extendSubModal" onclick="if(event.target===this)closeExtendSubModal()">
+    <div class="modal">
+      <h3>تمديد الاشتراك</h3>
+      <div id="extendSubStatus" style="display:none;border-radius:10px;padding:0.75rem 1rem;margin-bottom:1rem;font-size:0.85rem;font-weight:600;"></div>
+      <input type="hidden" id="extendSubUserId">
+      <label for="extendSubDays">مدة التمديد *</label>
+      <select id="extendSubDays">
+        <option value="7">7 أيام</option>
+        <option value="14" selected>14 يوماً</option>
+        <option value="30">30 يوماً</option>
+      </select>
+      <label for="extendSubReason">سبب التمديد *</label>
+      <textarea id="extendSubReason" rows="3" placeholder="اكتب سبب التمديد" required></textarea>
+      <div class="modal-actions">
+        <button class="btn-sm btn-secondary" onclick="closeExtendSubModal()">إلغاء</button>
+        <button class="btn-sm btn-primary" onclick="submitExtendSub()">تأكيد التمديد</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/admin/admin-common.js?v=4"></script>
   <script>
     async function fetchStats({ limit = 50, offset = 0, tier = '', status = '' } = {}) {
@@ -372,7 +393,7 @@
         tbody.innerHTML = '<tr><td colspan="6" class="loading">لا يوجد اشتراكات</td></tr>';
       } else {
         tbody.innerHTML = subs.map(sub => {
-          const canCancel = sub.status === 'active' || sub.status === 'trialing';
+          const canCancel = sub.status === 'active' || sub.status === 'trialing' || sub.status === 'past_due';
           return `
           <tr>
             <td>${sub.user_id.slice(0, 8)}...</td>
@@ -381,7 +402,7 @@
             <td>${formatDate(sub.created_at)}</td>
             <td>${formatDate(sub.current_period_end || sub.created_at)}</td>
             <td>
-              <button class="btn-sm btn-primary" onclick="openGrantSubModal('${sub.user_id}')">مدد</button>
+              <button class="btn-sm btn-primary" onclick="openExtendSubModal('${sub.user_id}')">مدد</button>
               ${canCancel ? `<button class="btn-sm btn-danger" style="margin-right:0.35rem;" onclick="cancelSubscription('${sub.user_id}')">إيقاف</button>` : ''}
             </td>
           </tr>
@@ -532,6 +553,53 @@
       document.getElementById('grantSubModal').classList.add('active');
     }
     function closeGrantSubModal() { document.getElementById('grantSubModal').classList.remove('active'); }
+
+    function showExtendSubStatus(msg, isError) {
+      const el = document.getElementById('extendSubStatus');
+      el.textContent = msg;
+      el.className = isError ? 'status-error' : 'status-success';
+      el.style.display = msg ? 'block' : 'none';
+    }
+
+    function openExtendSubModal(userId) {
+      document.getElementById('extendSubUserId').value = userId || '';
+      document.getElementById('extendSubDays').value = '14';
+      document.getElementById('extendSubReason').value = '';
+      showExtendSubStatus('', false);
+      document.getElementById('extendSubModal').classList.add('active');
+    }
+
+    function closeExtendSubModal() {
+      document.getElementById('extendSubModal').classList.remove('active');
+    }
+
+    async function submitExtendSub() {
+      const id = document.getElementById('extendSubUserId').value;
+      const days = Number(document.getElementById('extendSubDays').value);
+      const reason = document.getElementById('extendSubReason').value.trim();
+      if (!id) return showExtendSubStatus('المستخدم مطلوب', true);
+      if (![7, 14, 30].includes(days)) return showExtendSubStatus('اختر مدة صحيحة', true);
+      if (!reason) return showExtendSubStatus('سبب التمديد مطلوب', true);
+      try {
+        const token = await BondsAdminCommon.getAdminToken();
+        const res = await fetch('/api/admin?action=users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ action: 'extend-access', id, days, reason })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showSubsStatus('✅ تم تمديد الاشتراك', false);
+          closeExtendSubModal();
+          refreshData();
+        } else {
+          showExtendSubStatus(data.error || 'فشل تمديد الاشتراك', true);
+        }
+      } catch (e) {
+        console.error('submitExtendSub error:', e);
+        showExtendSubStatus('خطأ في الاتصال', true);
+      }
+    }
 
     async function submitGrantSub() {
       const userId = document.getElementById('grantSubUser').value;
