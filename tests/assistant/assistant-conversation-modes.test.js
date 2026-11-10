@@ -43,6 +43,21 @@ describe('authenticated assistant conversation modes', () => {
     expect(aiApi).toContain("Boolean(String(context?.serviceCode || '').trim())");
   });
 
+  test('home launchpad binds prompts to financial mode and general questions to general mode before action', () => {
+    const promptButtons = widget.match(/<button[^>]*data-assistant-prompt="[^"]*"[^>]*>/g) || [];
+    expect(promptButtons.length).toBeGreaterThan(0);
+    expect(promptButtons.every(button => button.includes('data-conversation-mode="financial"'))).toBe(true);
+    expect(widget).toMatch(/<button[^>]*data-assistant-focus="true"[^>]*data-conversation-mode="general"[^>]*>/);
+
+    const promptHandler = widget.match(/homePromptButtons\.forEach[\s\S]*?\n    \}\);/)?.[0] || '';
+    expect(promptHandler.indexOf('setConversationMode(')).toBeGreaterThan(-1);
+    expect(promptHandler.indexOf('sendMessage(')).toBeGreaterThan(promptHandler.indexOf('setConversationMode('));
+
+    const focusHandler = widget.match(/if \(homeFocusButton\) \{[\s\S]*?\n    \}/)?.[0] || '';
+    expect(focusHandler.indexOf('setConversationMode(')).toBeGreaterThan(-1);
+    expect(focusHandler.indexOf('input.focus(')).toBeGreaterThan(focusHandler.indexOf('setConversationMode('));
+  });
+
   test('shared widget persists and sends the selected mode with English labels available', () => {
     expect(widget).toContain("const CONVERSATION_MODE_STORAGE_KEY = 'bonds_assistant_conversation_mode';");
     expect(widget).toContain('conversation_mode: state.conversationMode');
