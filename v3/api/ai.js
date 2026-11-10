@@ -110,7 +110,7 @@ async function persistDurableGoalWorkflow(durable, goalWorkflow, { supabase, use
 
 const MAX_CHAT_BODY_BYTES = 1_048_576;
 const CONVERSATION_MODES = new Set(['financial', 'general', 'execute']);
-const EXECUTE_ALLOWED_ACTION_TYPES = new Set(['navigate', 'form_find', 'form_load', 'draft']);
+const EXECUTE_ALLOWED_ACTION_TYPES = new Set(['site_navigate', 'form_find', 'form_load', 'form_save_draft']);
 
 function normalizeConversationMode(value) {
   const mode = String(value || '').trim().toLowerCase();
