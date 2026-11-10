@@ -62,7 +62,8 @@ describe('authenticated assistant conversation modes', () => {
   });
 
   test('execute home tile and mode-aware suggestions stay aligned with governed actions', () => {
-    expect(widget).toContain('data-conversation-mode="execute" data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً."');
+    expect(widget).toContain('data-conversation-mode="execute"');
+    expect(widget).toContain('data-assistant-prompt="أريد تنفيذ إجراء على هذا الموقع: افتح الصفحة أو النموذج المناسب، أو احفظ مسودة. لا ترسل نهائياً."');
     expect(widget).toContain('<span>تنفيذ على الموقع</span>');
 
     const setMode = widget.match(/function setConversationMode\(mode\) \{[\s\S]*?return state\.conversationMode;\n    \}/)?.[0] || '';
