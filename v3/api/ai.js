@@ -138,6 +138,14 @@ function sanitizeConversationModeResponse(value, conversationMode) {
   return out;
 }
 
+function looksLikeFinancialCalculationRequest(text) {
+  const value = String(text || '').trim();
+  if (!value) return false;
+  const hasNumberOrOperator = /\d|[%٪]|[+\-*/=]/.test(value);
+  const hasFinancialCalculationIntent = /(?:احسب|حساب|قسط|دفعة|فائدة|هامش|عائد|ربح|تكلفة|تمويل|قرض|استرداد|تدفق|ضريبة|زكاة|نسبة|calculate|payment|interest|margin|return|profit|cost|loan|cash\s*flow|tax|rate|percentage)/i.test(value);
+  return hasNumberOrOperator && hasFinancialCalculationIntent;
+}
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     const chunks = [];
@@ -459,6 +467,20 @@ async function aiChatHandlerImpl(req, res) {
     }
   } catch (err) {
     console.warn('[ai/chat] Deterministic local tools path failed:', err.message);
+  }
+
+  if (conversationMode === 'general' && looksLikeFinancialCalculationRequest(lastUserText)) {
+    return sendAssistantResponse(res, 200, {
+      reply: 'للحسابات المالية الرقمية أستخدم الحاسبات والأدوات الموثقة فقط، ولا أخمّن النتائج. اختر الحاسبة المناسبة أو اطلب مني فتحها.',
+      source: 'bonds-assistant-calculator-required',
+      provider: 'BONDS',
+      model: null,
+      context: {
+        cityCode: context.cityCode || null,
+        activityCode: context.activityCode || null,
+        serviceCode: context.serviceCode || null
+      }
+    }, { stream: streaming, conversationMode });
   }
 
   const hasDomainContext = Boolean(context?.cityCode || context?.cityName || context?.activityCode || context?.serviceCode);
