@@ -1994,7 +1994,7 @@
 
     function readConversationMode() {
       try {
-        const stored = window.localStorage?.getItem(CONVERSATION_MODE_STORAGE_KEY);
+        const stored = window.sessionStorage?.getItem(CONVERSATION_MODE_STORAGE_KEY);
         return CONVERSATION_MODES.includes(stored) ? stored : 'financial';
       } catch (_) {
         return 'financial';
@@ -3195,7 +3195,7 @@
     function setConversationMode(mode) {
       state.conversationMode = CONVERSATION_MODES.includes(mode) ? mode : 'financial';
       try {
-        window.localStorage?.setItem(CONVERSATION_MODE_STORAGE_KEY, state.conversationMode);
+        window.sessionStorage?.setItem(CONVERSATION_MODE_STORAGE_KEY, state.conversationMode);
       } catch (_) {
         // Ignore unavailable storage.
       }
