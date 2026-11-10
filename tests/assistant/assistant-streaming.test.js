@@ -9,7 +9,7 @@ describe('Assistant SSE transport streaming',()=>{
   test('keeps legacy JSON responses and makes SSE opt-in',()=>{
     expect(api).toContain("function sendJson(res, status, data)");
     expect(api).toContain("accept.includes('text/event-stream') || body?.options?.stream === true");
-    expect(api).toContain("function sendAssistantResponse(res, status, data, { stream = false, conversationMode = 'financial' } = {})");
+    expect(api).toContain("function sendAssistantResponse(res, status, data, { stream = false, conversationMode = 'financial', executeEntitled = false } = {})");
   });
 
   test('streams truthful lifecycle events without claiming token deltas',()=>{
