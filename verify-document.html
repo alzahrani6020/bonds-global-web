@@ -39,6 +39,8 @@
     <dt data-ar="تاريخ الإرسال" data-en="Sent at">تاريخ الإرسال</dt><dd id="sent"></dd>
     <dt>SHA-256</dt><dd id="hash" class="hash"></dd>
     <dt data-ar="بصمة الإصدار" data-en="Issued package hash">بصمة الإصدار</dt><dd id="issued-hash" class="hash"></dd>
+    <dt data-ar="بصمة PDF النهائي" data-en="Final PDF hash">بصمة PDF النهائي</dt><dd id="artifact-hash" class="hash"></dd>
+    <dt data-ar="النسخة النهائية" data-en="Final PDF">النسخة النهائية</dt><dd id="artifact-state"></dd>
     <dt data-ar="التوقيع" data-en="Signature">التوقيع</dt><dd id="signature-state"></dd>
     <dt data-ar="الختم" data-en="Stamp">الختم</dt><dd id="stamp-state"></dd>
   </dl>
@@ -68,6 +70,8 @@
     document.getElementById('sent').textContent=d.sent_at?new Date(d.sent_at).toLocaleString(en?'en-US':'ar-SA'):'-';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
+    document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
+    document.getElementById('artifact-state').textContent=d.final_pdf_verified?(en?'Verified':'موثقة بالبصمة'):(en?'Not finalized':'غير مثبتة');
     document.getElementById('signature-state').textContent=d.signature_verified?(en?'Verified':'موثق في السجل'):(en?'Not recorded':'غير مسجل');
     document.getElementById('stamp-state').textContent=d.stamp_verified?(en?'Verified':'موثق في السجل'):(en?'Not recorded':'غير مسجل');
     details.hidden=false;

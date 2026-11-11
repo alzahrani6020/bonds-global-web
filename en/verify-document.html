@@ -39,6 +39,8 @@
     <dt>Sent at</dt><dd id="sent"></dd>
     <dt>SHA-256</dt><dd id="hash" class="hash"></dd>
     <dt>Issued package hash</dt><dd id="issued-hash" class="hash"></dd>
+    <dt>Final PDF hash</dt><dd id="artifact-hash" class="hash"></dd>
+    <dt>Final PDF</dt><dd id="artifact-state"></dd>
     <dt>Signature</dt><dd id="signature-state"></dd>
     <dt>Stamp</dt><dd id="stamp-state"></dd>
   </dl>
@@ -61,6 +63,8 @@
     document.getElementById('sent').textContent=d.sent_at?new Date(d.sent_at).toLocaleString('en-US'):'-';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
+    document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
+    document.getElementById('artifact-state').textContent=d.final_pdf_verified?'Verified':'Not finalized';
     document.getElementById('signature-state').textContent=d.signature_verified?'Verified':'Not recorded';
     document.getElementById('stamp-state').textContent=d.stamp_verified?'Verified':'Not recorded';
     details.hidden=false;

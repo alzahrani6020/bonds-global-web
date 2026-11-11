@@ -111,12 +111,16 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain('https://api.qrserver.com');
   });
 
-  test('verification page is public-read only and noindex', () => {
-    const page = read('verify-document.html');
-    expect(page).toContain('noindex,nofollow');
-    expect(page).toContain('/api/correspondence?action=verify');
-    expect(page).toContain('checksum_sha256');
-    expect(page).not.toContain('SUPABASE');
+  test('verification pages expose document and final PDF integrity evidence', () => {
+    for (const rel of ['verify-document.html', 'en/verify-document.html']) {
+      const page = read(rel);
+      expect(page).toContain('noindex,nofollow');
+      expect(page).toContain('/api/correspondence?action=verify');
+      expect(page).toContain('checksum_sha256');
+      expect(page).toContain('artifact_hash');
+      expect(page).toContain('final_pdf_verified');
+      expect(page).not.toContain('SUPABASE');
+    }
   });
 
   test('letterhead does not retain executable legacy issuance or stamp fallback', () => {
