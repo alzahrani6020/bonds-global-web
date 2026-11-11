@@ -2,6 +2,8 @@
 'use strict';
 
 const API='/api/v3/deals';
+const EN=document.documentElement.lang==='en';
+const tr=(ar,en)=>EN?en:ar;
 const $=selector=>document.querySelector(selector);
 const statusEl=()=>$('#dealStatus');
 let activeDealId=null;
@@ -60,14 +62,14 @@ function row(label,value){
 function renderCollection(el,items,labelFn,valueFn){
   if(!el)return;
   if(!Array.isArray(items)||!items.length){
-    el.innerHTML='<div class="deal-empty">لا توجد عناصر بعد.</div>';
+    el.innerHTML='<div class="deal-empty">'+tr('لا توجد عناصر بعد.','No items yet.')+'</div>';
     return;
   }
   el.innerHTML=items.map(item=>row(labelFn(item),valueFn(item))).join('');
 }
 
 async function loadDeal(id){
-  setStatus('جاري تحميل الصفقة...');
+  setStatus(tr('جاري تحميل الصفقة...','Loading deal...'));
   const data=await api('/'+encodeURIComponent(id));
   const deal=data.deal||{};
   activeDealId=deal.id||id;
@@ -76,7 +78,7 @@ async function loadDeal(id){
   $('.deal-section-title').hidden=true;
   $('#dealCards').hidden=true;
   $('#dealDetail').hidden=false;
-  $('#dealTitle').textContent=deal.title||deal.deal_number||'الصفقة';
+  $('#dealTitle').textContent=deal.title||deal.deal_number||tr('الصفقة','Deal');
   $('#dealMeta').textContent=[deal.deal_number,deal.deal_type,deal.stage,money(deal.target_value,deal.currency)].filter(Boolean).join(' · ');
   $('#dealPartyCount').textContent=(workspace.parties||[]).length;
   $('#dealTaskCount').textContent=(workspace.tasks||[]).length;
@@ -93,13 +95,13 @@ async function loadDeal(id){
 }
 
 async function loadDeals(){
-  setStatus('جاري تحميل الصفقات...');
+  setStatus(tr('جاري تحميل الصفقات...','Loading deals...'));
   const data=await api();
   const deals=Array.isArray(data.deals)?data.deals:[];
   const host=$('#dealCards');
   host.hidden=false;
   if(!deals.length){
-    host.innerHTML='<div class="deal-empty">لا توجد صفقات بعد. أنشئ أول سجل صفقة من النموذج أعلاه.</div>';
+    host.innerHTML='<div class="deal-empty">'+tr('لا توجد صفقات بعد. أنشئ أول سجل صفقة من النموذج أعلاه.','No deals yet. Create the first deal record above.')+'</div>';
   }else{
     host.innerHTML=deals.map(deal=>
       '<article class="deal-card"><button type="button" data-deal-id="'+escapeHtml(deal.id)+'">'+
@@ -119,7 +121,7 @@ async function createDeal(event){
   const form=event.currentTarget;
   const payload=Object.fromEntries(new FormData(form).entries());
   if(payload.target_value==='')delete payload.target_value;
-  setStatus('جاري إنشاء سجل الصفقة...');
+  setStatus(tr('جاري إنشاء سجل الصفقة...','Creating deal record...'));
   const data=await api('',{method:'POST',body:JSON.stringify(payload)});
   form.reset();
   if(form.elements.currency)form.elements.currency.value='SAR';
@@ -134,7 +136,7 @@ async function createChild(event){
   const kind=String(form.dataset.dealChild||'').trim();
   if(!['parties','tasks','due-diligence','documents'].includes(kind))throw new Error('DEAL_CHILD_TYPE_INVALID');
   const payload=Object.fromEntries(new FormData(form).entries());
-  setStatus('جاري حفظ العنصر...');
+  setStatus(tr('جاري حفظ العنصر...','Saving item...'));
   await api('/'+encodeURIComponent(activeDealId)+'/'+kind,{
     method:'POST',
     body:JSON.stringify(payload)
