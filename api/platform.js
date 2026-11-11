@@ -2337,7 +2337,7 @@ module.exports = async function handler(req, res) {
     // Dynamic correspondence / Letterhead
     if (pathname === '/api/correspondence' || pathname === '/api/correspondence/') {
       const corrAction = String(req.query?.action || url.searchParams.get('action') || req.body?.action || '');
-      const corrRateCategory = corrAction === 'verify' ? 'public' : 'auth';
+      const corrRateCategory = (corrAction === 'verify' || corrAction === 'qr') ? 'public' : 'auth';
       if (await checkRateLimit(corrRateCategory, req, res)) return;
       return correspondence.handler(req, res);
     }
