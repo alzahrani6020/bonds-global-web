@@ -24,6 +24,11 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(sql).toContain('checksum_sha256 text not null');
     expect(sql).toContain('signed_by uuid');
     expect(sql).toContain('stamped_by uuid');
+    expect(sql).toContain('company_id uuid references public.companies');
+    expect(sql).toContain('signature_image_data text');
+    expect(sql).toContain('signature_hash text');
+    expect(sql).toContain('stamp_hash text');
+    expect(sql).toContain('issued_hash text');
   });
 
   test('server correspondence service enforces workflow, RBAC, immutable issuance and verification', () => {
@@ -39,6 +44,11 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("action === 'mark-signature'");
     expect(api).toContain("action === 'mark-stamp'");
     expect(api).toContain("Recipient is not authorized for correspondence");
+    expect(api).toContain("doc.confidentiality === 'restricted'");
+    expect(api).toContain("signature_data_url");
+    expect(api).toContain("issued_hash");
+    expect(api).toContain("signature_image_data: null");
+    expect(api).toContain("stamp_hash: null");
   });
 
   test('rich HTML is bounded and stripped of active content server-side', () => {
@@ -63,6 +73,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("verification_token");
     expect(client).toContain("Import legacy drafts");
     expect(client).toContain("for (let i = 0; i < sheets.length; i++)");
+    expect(client).toContain("renderGovernanceArtifacts");
+    expect(client).toContain("signature_data_url");
+    expect(client).toContain("Word-compatible .doc");
   });
 
   test('verification page is public-read only and noindex', () => {
