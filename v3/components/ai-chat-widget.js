@@ -2546,8 +2546,12 @@
     }
 
     async function resolveServiceContextFromPage() {
-      if (context.serviceCode) return;
       try {
+        const params = new URLSearchParams(window.location.search);
+        const queryServiceCode = String(params.get('service') || '').trim().slice(0, 100);
+        const current = routeIdentity(window.location.pathname + window.location.hash);
+        const isWorkspacePage = /^\/(?:en\/)?my-bonds\/workspace\/?$/i.test(window.location.pathname);
+
         const res = await fetch(SERVICE_CATALOG_API, {
           headers: await getAuthHeaders(),
           credentials: 'same-origin',
@@ -2555,13 +2559,36 @@
         });
         if (!res.ok) return;
         const data = await res.json();
-        const current = routeIdentity(window.location.pathname + window.location.hash);
-        const service = (data.services || []).find(row =>
-          [row.default_route_ar, row.default_route_en]
-            .filter(Boolean)
-            .some(route => routeIdentity(route) === current)
-        );
-        if (!service) return;
+        const services = Array.isArray(data.services) ? data.services : [];
+
+        let service = queryServiceCode
+          ? services.find(row => String(row.code || '').trim() === queryServiceCode)
+          : null;
+
+        if (!service && !isWorkspacePage) {
+          service = services.find(row =>
+            [row.default_route_ar, row.default_route_en]
+              .filter(Boolean)
+              .some(route => routeIdentity(route) === current)
+          ) || null;
+        }
+
+        if (!service) {
+          if (queryServiceCode || isWorkspacePage) {
+            updateContext({
+              serviceCode: null,
+              serviceName: null,
+              serviceNameEn: null,
+              serviceCapabilities: [],
+              serviceRequirements: [],
+              serviceDeliverables: [],
+              serviceDependencies: []
+            });
+            loadedServiceProfileCode = null;
+          }
+          return;
+        }
+
         updateContext({
           serviceCode: service.code || null,
           serviceName: service.name_ar || service.name_en || service.code || null,
@@ -4076,12 +4103,22 @@
           const plan = await requestGovernedPlan(action);
           const route = plan?.context?.navigation?.route;
           if (!safeInternalRoute(route)) throw new Error('UNSAFE_NAVIGATION_ROUTE');
+
+          let destinationRoute = route;
+          if (String(action.target || '') === 'service_workspace') {
+            const serviceCode = String(context.serviceCode || '').trim();
+            if (!serviceCode) throw new Error('SERVICE_WORKSPACE_REQUIRES_SERVICE');
+            const workspaceUrl = new URL(route, window.location.origin);
+            workspaceUrl.searchParams.set('service', serviceCode);
+            destinationRoute = workspaceUrl.pathname + workspaceUrl.search + workspaceUrl.hash;
+          }
+
           if (options && options.sameTab === true) {
-            window.location.assign(route);
+            window.location.assign(destinationRoute);
             return;
           }
           const link = document.createElement('a');
-          link.href = route;
+          link.href = destinationRoute;
           link.target = '_blank';
           link.rel = 'noopener noreferrer';
           document.body.appendChild(link);
