@@ -48,6 +48,8 @@ describe('deterministic assistant tools', () => {
     expect(parsePageOpen('افتح صفحة التمويل')).toEqual({ target:'funding' });
     expect(parsePageOpen('افتح مساحة العمل')).toEqual({ target:'service_workspace' });
     expect(parsePageOpen('open service workspace')).toEqual({ target:'service_workspace' });
+    expect(parsePageOpen('افتح مساحة الصفقات')).toEqual({ target:'deal_workspace' });
+    expect(parsePageOpen('open deal workspace')).toEqual({ target:'deal_workspace' });
     expect(parsePageOpen('كيف اعمل ميزانية')).toBeNull();
     expect(parseCalculatorOpen('افتح حاسبة التمويل')).toEqual({ calculator:'loan' });
     expect(parseCalculatorOpen('افتح صفحة حاسبة التمويل')).toEqual({ calculator:'loan' });

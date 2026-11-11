@@ -46,6 +46,7 @@ describe('BONDS_ASSISTANT_PROTOCOL_V1', () => {
   test('resolves only registered navigation keys', () => {
     expect(resolveNavigation('cash_flow','ar').route).toBe('/client/cash-flow');
     expect(resolveNavigation('cash_flow','en').route).toBe('/en/client/cash-flow');
+    expect(resolveNavigation('deal_workspace','ar').route).toBe('/my-bonds/deals/');
     expect(resolveNavigation('not-real','ar')).toBeNull();
   });
 

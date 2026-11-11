@@ -196,6 +196,15 @@
       "kind": "workspace",
       "risk": "low",
       "auth_required": true
+    },
+    "deal_workspace": {
+      "routes": {
+        "ar": "/my-bonds/deals/",
+        "en": "/en/my-bonds/deals/"
+      },
+      "kind": "workspace",
+      "risk": "low",
+      "auth_required": true
     }
   }
 }
