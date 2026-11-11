@@ -89,6 +89,26 @@ export default {
     const email = String(recipient).toLowerCase().trim();
     const now = new Date().toISOString();
     const supabase = getSupabase();
+    const providerMessageId = String(event?.data?.email_id || '').trim();
+
+    const correspondenceState = {
+      'email.sent': 'accepted',
+      'email.delivered': 'delivered',
+      'email.delivery_failed': 'failed',
+      'email.bounced': 'bounced',
+      'email.complained': 'complained'
+    }[type] || null;
+
+    if (correspondenceState && providerMessageId) {
+      const { error: correspondenceError } = await supabase
+        .from('correspondence_documents')
+        .update({
+          delivery_status: correspondenceState,
+          delivery_updated_at: now
+        })
+        .eq('provider_message_id', providerMessageId);
+      if (correspondenceError) throw correspondenceError;
+    }
 
     if (type === 'email.bounced' || type === 'email.delivery_failed') {
       const { error } = await supabase.from('calculator_leads')
@@ -100,10 +120,10 @@ export default {
         .update({ complained_at: now })
         .eq('email', email);
       if (error) throw error;
-    } else {
+    } else if (!['email.sent', 'email.delivered'].includes(type)) {
       return json(200, { success: true, ignored: true, type });
     }
 
-    return json(200, { success: true });
+    return json(200, { success: true, type, correspondence_updated: !!correspondenceState && !!providerMessageId });
   }
 };
