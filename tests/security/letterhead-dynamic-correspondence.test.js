@@ -182,7 +182,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain('hideLegacyGovernanceTriggers');
     expect(client).toContain('button[onclick="sendToManager()"]');
     expect(client).toContain("can('approve')");
-    expect(client).toContain("show('corr-stamp', can('stamp') && status === 'approved' && !doc?.stamped_by)");
+    expect(client).toContain("visible.add('corr-stamp')");
+    expect(client).toContain("can('stamp') && status === 'approved'");
+    expect(client).toContain("!!doc?.requires_stamp && !doc?.stamped_by");
     expect(client).toContain("window.prompt");
     expect(client).toContain('corr-cancel');
     expect(client).toContain("isEn ? 'Send to recipient' : 'إرسال للمستلم'");
