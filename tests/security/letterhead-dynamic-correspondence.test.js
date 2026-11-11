@@ -133,4 +133,44 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(ar).toContain('/components/letterhead-correspondence.js');
     expect(en).toContain('/components/letterhead-correspondence.js');
   });
+
+  test('command center enforces granular permissions, task SLA and governed delivery', () => {
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+    const migration = read('supabase/migrations/20261111233000_correspondence_command_center.sql');
+    const webhook = read('api/email-webhook.mjs');
+
+    expect(migration).toContain('correspondence_tasks');
+    expect(migration).toContain('correspondence_user_permissions');
+    expect(migration).toContain('delivery_status');
+    expect(migration).toContain('provider_message_id');
+    expect(migration).toContain('requires_signature');
+    expect(migration).toContain('requires_stamp');
+    expect(migration).toContain('enable row level security');
+    expect(migration).toContain('revoke all on public.correspondence_tasks from anon, authenticated');
+
+    expect(api).toContain('resolveCorrespondencePermissions');
+    expect(api).toContain("permissionByTarget");
+    expect(api).toContain('Segregation of duties prevents the document creator');
+    expect(api).toContain('A reason is required for return, rejection or cancellation');
+    expect(api).toContain("doc.recipient_email");
+    expect(api).toContain("delivery_status: 'accepted'");
+    expect(api).toContain("action === 'summary'");
+    expect(api).toContain("action === 'my-work'");
+    expect(api).toContain("page_size");
+    expect(api).toContain("['confidential','restricted']");
+
+    expect(client).toContain('corr-command-center');
+    expect(client).toContain('refreshCommandCenter');
+    expect(client).toContain("can('approve')");
+    expect(client).toContain("window.prompt");
+    expect(client).toContain('corr-cancel');
+
+    expect(webhook).toContain("'email.delivered': 'delivered'");
+    expect(webhook).toContain("'email.bounced': 'bounced'");
+    expect(webhook).toContain("'email.complained': 'complained'");
+    expect(webhook).toContain("event?.data?.email_id");
+    expect(webhook).toContain("eq('provider_message_id', providerMessageId)");
+  });
+
 });
