@@ -356,7 +356,7 @@
   function updateVerificationQr() {
     const token = state.document?.verification_token;
     if (!token) return;
-    const verifyUrl = location.origin + '/verify-document.html?token=' + encodeURIComponent(token);
+    const verifyUrl = location.origin + '/verify-document.html?token=' + encodeURIComponent(token) + (isEn ? '&lang=en' : '');
     document.querySelectorAll('.footer-qr-corner img').forEach(img => {
       img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(verifyUrl);
       img.alt = isEn ? 'Verify document' : 'تحقق من المستند';
@@ -398,6 +398,51 @@
     renderList(sentList, state.list.filter(d => ['sent','archived'].includes(d.status)), isEn ? 'No sent correspondence' : 'لا توجد مراسلات مرسلة');
   }
 
+  async function importLegacyDrafts() {
+    const prefix = isEn ? 'bonds_letterhead_en_' : 'bonds_letterhead_';
+    const key = prefix + 'drafts';
+    const flag = 'bonds_letterhead_legacy_imported_' + (isEn ? 'en' : 'ar');
+    if (localStorage.getItem(flag) === '1') return;
+    let drafts = [];
+    try { drafts = JSON.parse(localStorage.getItem(key) || '[]'); } catch (_) {}
+    if (!Array.isArray(drafts) || !drafts.length) return;
+    if (!confirm(isEn ? 'Import your legacy local drafts into the governed correspondence system?' : 'استيراد المسودات المحلية القديمة إلى نظام المراسلات الجديد؟')) return;
+
+    let imported = 0;
+    for (const legacyDraft of drafts.slice(0, 30)) {
+      try {
+        const pages = Array.isArray(legacyDraft.html) ? legacyDraft.html : [String(legacyDraft.html || '')];
+        const created = await api('create', {
+          method: 'POST',
+          body: {
+            language: isEn ? 'en' : 'ar',
+            direction: 'outgoing',
+            document_type: 'letter',
+            title: String(legacyDraft.name || (isEn ? 'Imported draft' : 'مسودة مستوردة')).slice(0, 200),
+            workspace_context: { ...currentWorkspaceContext(), imported_from: 'legacy_localStorage' }
+          }
+        });
+        await api('save-version', {
+          method: 'POST',
+          id: created.document.id,
+          body: {
+            pages_html: pages,
+            text_content: '',
+            title: String(legacyDraft.name || (isEn ? 'Imported draft' : 'مسودة مستوردة')).slice(0, 200),
+            workspace_context: { ...currentWorkspaceContext(), imported_from: 'legacy_localStorage' }
+          }
+        });
+        imported++;
+      } catch (e) {
+        toast('⚠️ ' + (isEn ? 'Legacy import stopped: ' : 'توقف استيراد المسودات: ') + e.message);
+        return;
+      }
+    }
+    localStorage.setItem(flag, '1');
+    toast('✅ ' + (isEn ? `Imported ${imported} legacy drafts` : `تم استيراد ${imported} مسودة قديمة`));
+    await refreshInboxDynamic();
+  }
+
   async function initialize() {
     buildGovernanceBar();
     const id = currentDocId();
@@ -407,6 +452,14 @@
       state.lastHistorySnapshot = snapshot();
       state.lastSavedSnapshot = '';
       renderGovernance();
+    }
+
+    const prefix = isEn ? 'bonds_letterhead_en_' : 'bonds_letterhead_';
+    let legacyDrafts = [];
+    try { legacyDrafts = JSON.parse(localStorage.getItem(prefix + 'drafts') || '[]'); } catch (_) {}
+    if (Array.isArray(legacyDrafts) && legacyDrafts.length && localStorage.getItem('bonds_letterhead_legacy_imported_' + (isEn ? 'en' : 'ar')) !== '1') {
+      const actions = document.getElementById('corr-actions');
+      if (actions) addButton(actions, 'corr-import-legacy', isEn ? 'Import legacy drafts' : 'استيراد المسودات القديمة', importLegacyDrafts);
     }
 
     document.addEventListener('input', e => {
@@ -435,6 +488,12 @@
   window.syncDraftsToCloud = window.saveDoc;
   window.loadDraftsFromCloud = function () {
     refreshInboxDynamic().then(() => toast(isEn ? '✅ Correspondence loaded' : '✅ تم تحميل المراسلات')).catch(e => toast('⚠️ ' + e.message));
+  };
+
+  window.loadArchive = function () {
+    const panel = document.getElementById('inbox-panel');
+    if (panel && !panel.classList.contains('open')) panel.classList.add('open');
+    refreshInboxDynamic().catch(e => toast('⚠️ ' + e.message));
   };
 
   window.toggleInbox = function () {
@@ -507,7 +566,7 @@
   window.shareDoc = function () {
     const token = state.document?.verification_token;
     if (!token) return toast('⚠️ ' + (isEn ? 'Issue the document before sharing' : 'أصدر المستند قبل مشاركته'));
-    const url = location.origin + '/verify-document.html?token=' + encodeURIComponent(token);
+    const url = location.origin + '/verify-document.html?token=' + encodeURIComponent(token) + (isEn ? '&lang=en' : '');
     if (navigator.share) {
       navigator.share({ title: state.document.reference_number || 'Bonds', url }).catch(() => {});
     } else {
