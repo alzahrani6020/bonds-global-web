@@ -200,7 +200,7 @@
     "deal_workspace": {
       "routes": {
         "ar": "/my-bonds/deals/",
-        "en": "/my-bonds/deals/"
+        "en": "/en/my-bonds/deals/"
       },
       "kind": "workspace",
       "risk": "low",
