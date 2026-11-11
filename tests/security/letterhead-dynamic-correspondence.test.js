@@ -164,6 +164,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("action === 'my-work'");
     expect(api).toContain("issued: ['archived']");
     expect(api).not.toContain("issued: ['sent', 'archived']");
+    expect(api).not.toContain("sent: 'send'");
     expect(api).toContain("await completeOpenTasks(sb, doc.id, user.id, 'send')");
     expect(api).toContain("await createOpenTask(sb, doc.id, 'archive'");
     expect(api).toContain("page_size");
