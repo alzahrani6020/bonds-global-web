@@ -801,21 +801,7 @@
         if (!ensureDoc()) return;
         insertAtCursor('<div><strong>الموضوع:</strong> </div><div><br></div>'); showToast('✅ تم إدراج الموضوع');
       };
-      window.generateRef = function() {
-        var year = new Date().getFullYear();
-        var key = LS_PREFIX + 'ref_counter';
-        var counter = JSON.parse(localStorage.getItem(key) || '{}');
-        if (counter.year !== year) { counter = { year: year, last: 0 }; }
-        counter.last++;
-        localStorage.setItem(key, JSON.stringify(counter));
-        var num = ('000' + counter.last).slice(-4);
-        var ref = 'BDS-' + year + '-' + num;
-        var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
-        archive.unshift({ ref: ref, date: new Date().toLocaleDateString('ar-SA'), ts: Date.now() });
-        localStorage.setItem(LS_PREFIX + 'refs', JSON.stringify(archive.slice(0, 50)));
-        insertAtCursor('<div><strong>رقم الصادر:</strong> <span style="color:#c0392b;">' + ref + '</span></div><div><br></div>');
-        showToast('✅ رقم الصادر: ' + ref);
-      };
+      window.generateRef = function() { showToast('⚠️ يتطلب رقم الصادر نظام المراسلات الديناميكي'); };
       window.loadArchive = function() {
         var menu = document.getElementById('archive-menu');
         var archive = JSON.parse(localStorage.getItem(LS_PREFIX + 'refs') || '[]');
@@ -845,23 +831,7 @@
         if (!ensureDoc()) return;
         insertAtCursor('<hr class="doc-ruler"><div><br></div>'); showToast('✅ تم إدراج الخط');
       };
-      window.insertStamp = function() {
-        if (!ensureDoc()) return;
-        var dateStr = new Date().toLocaleDateString('ar-SA', {year:'numeric', month:'long', day:'numeric'});
-        var id = 'stamp-' + Date.now();
-        var svg = '<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">' +
-          '<circle cx="100" cy="100" r="96" fill="none" stroke="#c0392b" stroke-width="3"/>' +
-          '<circle cx="100" cy="100" r="88" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="4,3"/>' +
-          '<path id="sa'+id+'" d="M 30,100 A 70,70 0 0,1 170,100" fill="none"/>' +
-          '<text fill="#c0392b" font-size="13" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif"><textPath href="#sa'+id+'" startOffset="50%" text-anchor="middle">بوندز للاستشارات المالية والإدارية</textPath></text>' +
-          '<path id="sb'+id+'" d="M 40,105 A 60,60 0 0,0 160,105" fill="none"/>' +
-          '<text fill="#c0392b" font-size="11" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif"><textPath href="#sb'+id+'" startOffset="50%" text-anchor="middle">موثّق رقمياً</textPath></text>' +
-          '<text x="100" y="92" text-anchor="middle" fill="#c0392b" font-size="10" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif">رخصة مزاولة النشاط 357359</text>' +
-          '<text x="100" y="118" text-anchor="middle" fill="#c0392b" font-size="9" font-weight="700" font-family="Noto Naskh Arabic, Tahoma, serif">'+dateStr+'</text>' +
-          '</svg>';
-        insertAtCursor('<div class="letter-stamp" id="'+id+'" contenteditable="false">' + svg + '</div><span>&nbsp;</span>');
-        showToast('🔴 تم إدراج الختم');
-      };
+      window.insertStamp = function() { showToast('⚠️ الختم متاح فقط عبر مسار الاعتماد الديناميكي'); };
       window.addNewPage = function() {
         pageCounter++;
         var container = document.getElementById('pages-container');
@@ -1070,33 +1040,7 @@
           showToast('✅ تم نسخ الرابط');
         }
       };
-      window.sendToManager = async function() {
-        saveDoc();
-        var allText = Array.from(document.querySelectorAll('.doc-content')).map(function(d){return d.innerText.trim();}).join(' ');
-        var title = document.title.replace(' | ورق مراسلات بوندز', '').replace(' | Bonds Letterhead', '') || 'مرفق من letterhead';
-        var html = '<html><body dir="rtl">' + Array.from(document.querySelectorAll('.sheet')).map(function(s){ return '<div style="margin-bottom:40px;">' + s.innerHTML + '</div>'; }).join('') + '</body></html>';
-        showToast('⏳ جاري الإرسال...');
-        try {
-          var sessionResult = await window.BondsAuth.getSession();
-          var token = sessionResult?.data?.session?.access_token || '';
-          if (!token) { showToast('⚠️ يجب تسجيل الدخول قبل الإرسال'); return; }
-          var r = await fetch('/api/send-letter', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': 'Bearer ' + token
-            },
-            body: JSON.stringify({ subject: title, html: html, text: allText.slice(0, 1200) })
-          });
-          var data = await r.json();
-          if (!r.ok) { showToast('⚠️ ' + (data.error || 'فشل الإرسال')); return; }
-          var sent = JSON.parse(localStorage.getItem(LS_PREFIX + 'sent') || '[]');
-          sent.unshift({ date: new Date().toLocaleString('ar-SA'), preview: allText.slice(0, 80) + '...' });
-          localStorage.setItem(LS_PREFIX + 'sent', JSON.stringify(sent.slice(0, 20)));
-          showToast('📨 تم الإرسال للمدير');
-          refreshInbox();
-        } catch(e) { showToast('⚠️ فشل الإرسال: ' + e.message); }
-      };
+      window.sendToManager = async function() { showToast('⚠️ الإرسال يتطلب نظام المراسلات الديناميكي'); };
       window.saveDraft = function() {
         var nameInput = document.getElementById('draft-name');
         var name = nameInput.value.trim();
