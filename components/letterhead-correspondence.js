@@ -30,6 +30,7 @@
     latestVersion: null,
     events: [],
     role: 'user',
+    permissions: [],
     list: [],
     lastSavedSnapshot: '',
     history: [],
@@ -122,6 +123,10 @@
     return ADMIN.has(state.role);
   }
 
+  function can(permission) {
+    return isAdmin() || state.permissions.includes(permission);
+  }
+
   function setEditorEditable(enabled) {
     document.querySelectorAll('.doc-content').forEach(d => {
       if (!enabled) d.contentEditable = 'false';
@@ -201,6 +206,7 @@
     });
     state.document = result.document;
     state.role = result.role || state.role;
+    state.permissions = Array.isArray(result.permissions) ? result.permissions : state.permissions;
     syncUrl(state.document.id);
     renderGovernance();
     return state.document;
@@ -284,6 +290,7 @@
     state.latestVersion = result.latest_version;
     state.events = result.events || [];
     state.role = result.role || 'user';
+    state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
     syncUrl(state.document.id);
     if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html);
     document.getElementById('corr-priority') && (document.getElementById('corr-priority').value = state.document.priority || 'normal');
@@ -435,17 +442,17 @@
     };
     show('corr-save', editable());
     show('corr-submit', ['draft','returned'].includes(status));
-    show('corr-review', isAdmin() && status === 'submitted');
-    show('corr-approve', isAdmin() && status === 'under_review');
-    show('corr-return', isAdmin() && ['submitted','under_review','approved'].includes(status));
-    show('corr-reject', isAdmin() && ['submitted','under_review','approved'].includes(status));
-    show('corr-cancel', (state.document?.owner_user_id && ['draft','returned'].includes(status)) || (isAdmin() && ['submitted'].includes(status)));
-    show('corr-sign', isAdmin() && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by);
-    show('corr-issue', isAdmin() && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by));
-    show('corr-stamp', isAdmin() && status === 'approved' && !!doc?.requires_stamp && !doc?.stamped_by);
-    show('corr-finalize-pdf', isAdmin() && status === 'issued' && !doc?.artifact_hash);
-    show('corr-send', isAdmin() && status === 'issued' && !!doc?.artifact_hash);
-    show('corr-archive', isAdmin() && ['issued','sent'].includes(status));
+    show('corr-review', can('review') && status === 'submitted');
+    show('corr-approve', can('approve') && status === 'under_review');
+    show('corr-return', ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))));
+    show('corr-reject', ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))));
+    show('corr-cancel', (state.document?.owner_user_id && ['draft','returned'].includes(status)) || (can('review') && status === 'submitted'));
+    show('corr-sign', can('sign') && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by);
+    show('corr-issue', can('issue') && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by));
+    show('corr-stamp', can('stamp') && status === 'approved' && !!doc?.requires_stamp && !doc?.stamped_by);
+    show('corr-finalize-pdf', can('finalize_pdf') && status === 'issued' && !doc?.artifact_hash);
+    show('corr-send', can('send') && status === 'issued' && !!doc?.artifact_hash);
+    show('corr-archive', can('archive') && ['issued','sent'].includes(status));
     renderGovernanceArtifacts();
     updateVerificationQr();
   }
@@ -457,6 +464,7 @@
     ]);
     state.summary = summaryResult;
     state.tasks = workResult.tasks || [];
+    if (Array.isArray(summaryResult.permissions)) state.permissions = summaryResult.permissions;
 
     const summary = document.getElementById('corr-summary');
     if (summary) {
@@ -749,8 +757,8 @@
   };
 
   window.openSignatureModal = function () {
-    if (!isAdmin() || !state.document || !['approved','issued'].includes(state.document.status)) {
-      return toast('⚠️ ' + (isEn ? 'Signature requires an approved document and admin permission' : 'التوقيع يتطلب مستندًا معتمدًا وصلاحية إدارية'));
+    if (!can('sign') || !state.document || !['approved','issued'].includes(state.document.status)) {
+      return toast('⚠️ ' + (isEn ? 'Signature requires an approved document and signing permission' : 'التوقيع يتطلب مستندًا معتمدًا وصلاحية التوقيع'));
     }
     return legacy.openSignatureModal?.();
   };
@@ -771,8 +779,8 @@
   };
 
   window.insertStamp = async function () {
-    if (!isAdmin() || !state.document || state.document.status !== 'approved') {
-      return toast('⚠️ ' + (isEn ? 'Stamp requires an approved document and admin permission before issuance' : 'الختم يتطلب مستندًا معتمدًا وصلاحية إدارية قبل الإصدار'));
+    if (!can('stamp') || !state.document || state.document.status !== 'approved') {
+      return toast('⚠️ ' + (isEn ? 'Stamp requires an approved document and stamp permission before issuance' : 'الختم يتطلب مستندًا معتمدًا وصلاحية الختم قبل الإصدار'));
     }
     try {
       await mark('mark-stamp');
