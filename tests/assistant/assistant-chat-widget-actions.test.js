@@ -31,8 +31,8 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(executeSource).toContain("const route = plan?.context?.navigation?.route;");
     expect(executeSource).toContain("if (!safeInternalRoute(route)) throw new Error('UNSAFE_NAVIGATION_ROUTE');");
     expect(executeSource).toContain('if (options && options.sameTab === true)');
-    expect(executeSource).toContain('window.location.assign(route)');
-    expect(executeSource).toContain("link.href = route;");
+    expect(executeSource).toContain('window.location.assign(destinationRoute)');
+    expect(executeSource).toContain("link.href = destinationRoute;");
     expect(executeSource).toContain("link.target = '_blank';");
     expect(executeSource).toContain("link.rel = 'noopener noreferrer';");
     expect(executeSource).not.toContain('window.location.assign(action.');
