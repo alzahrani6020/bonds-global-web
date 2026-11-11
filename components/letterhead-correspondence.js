@@ -247,6 +247,11 @@
     state.document = result.document;
     renderGovernance();
     if (!editable()) setEditorEditable(false);
+    if (target === 'issued') {
+      renderGovernanceArtifacts();
+      updateVerificationQr();
+      await persistIssuedPdfArtifact();
+    }
     toast('✅ ' + t.status + ': ' + state.document.status);
     await refreshInboxDynamic();
     return state.document;
@@ -364,6 +369,7 @@
     addButton(actions, 'corr-sign', t.sign, () => window.openSignatureModal());
     addButton(actions, 'corr-issue', t.issue, () => transition('issued'));
     addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp());
+    addButton(actions, 'corr-finalize-pdf', isEn ? 'Finalize PDF' : 'تثبيت PDF', () => persistIssuedPdfArtifact());
     addButton(actions, 'corr-send', t.send, () => window.sendToManager());
     addButton(actions, 'corr-archive', t.archive, () => transition('archived'));
   }
@@ -400,7 +406,8 @@
     show('corr-sign', isAdmin() && status === 'approved' && !doc?.signed_by);
     show('corr-issue', isAdmin() && status === 'approved' && !!doc?.signed_by);
     show('corr-stamp', isAdmin() && status === 'approved' && !doc?.stamped_by);
-    show('corr-send', isAdmin() && status === 'issued');
+    show('corr-finalize-pdf', isAdmin() && status === 'issued' && !doc?.artifact_hash);
+    show('corr-send', isAdmin() && status === 'issued' && !!doc?.artifact_hash);
     show('corr-archive', isAdmin() && ['issued','sent'].includes(status));
     renderGovernanceArtifacts();
     updateVerificationQr();
@@ -440,12 +447,70 @@
 
   function updateVerificationQr() {
     const token = state.document?.verification_token;
-    if (!token) return;
-    const verifyUrl = location.origin + (isEn ? '/en/verify-document.html?token=' : '/verify-document.html?token=') + encodeURIComponent(token);
     document.querySelectorAll('.footer-qr-corner img').forEach(img => {
-      img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(verifyUrl);
+      if (!token) {
+        img.style.visibility = 'hidden';
+        return;
+      }
+      img.src = '/api/correspondence?action=qr&token=' + encodeURIComponent(token) + '&lang=' + (isEn ? 'en' : 'ar');
       img.alt = isEn ? 'Verify document' : 'تحقق من المستند';
+      img.style.visibility = 'visible';
     });
+  }
+
+  async function waitForVerificationQr() {
+    const images = Array.from(document.querySelectorAll('.footer-qr-corner img')).filter(img => img.style.visibility !== 'hidden');
+    await Promise.all(images.map(img => {
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
+      return new Promise((resolve, reject) => {
+        const timer = setTimeout(() => reject(new Error(isEn ? 'Verification QR did not load' : 'تعذر تحميل رمز التحقق')), 8000);
+        img.addEventListener('load', () => { clearTimeout(timer); resolve(); }, { once: true });
+        img.addEventListener('error', () => { clearTimeout(timer); reject(new Error(isEn ? 'Verification QR failed to load' : 'فشل تحميل رمز التحقق')); }, { once: true });
+      });
+    }));
+  }
+
+  async function createPdfBlob() {
+    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
+      throw new Error(isEn ? 'PDF libraries unavailable' : 'مكتبات PDF غير متوفرة');
+    }
+    await waitForVerificationQr();
+    const sheets = Array.from(document.querySelectorAll('.sheet'));
+    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+    for (let i = 0; i < sheets.length; i++) {
+      const canvas = await html2canvas(sheets[i], { scale: 1.6, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
+      const img = canvas.toDataURL('image/jpeg', 0.9);
+      if (i > 0) pdf.addPage();
+      pdf.addImage(img, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+    }
+    return pdf.output('blob');
+  }
+
+  async function persistIssuedPdfArtifact() {
+    if (!state.document || state.document.status !== 'issued') return;
+    toast(isEn ? '⏳ Securing final PDF...' : '⏳ جاري تثبيت النسخة النهائية PDF...');
+    const blob = await createPdfBlob();
+    if (!blob.size || blob.size > 10 * 1024 * 1024) {
+      throw new Error(isEn ? 'Final PDF exceeds the 10 MB limit' : 'حجم PDF النهائي يتجاوز 10 ميجابايت');
+    }
+    const upload = await api('artifact-upload-url', { method: 'POST', id: state.document.id, body: {} });
+    const sb = window.BondsAuth?.getSupabase?.() || (typeof getSupabase === 'function' ? getSupabase() : null);
+    if (!sb) throw new Error(isEn ? 'Storage client unavailable' : 'خدمة التخزين غير متوفرة');
+    const { error } = await sb.storage.from('correspondence-artifacts').uploadToSignedUrl(
+      upload.path,
+      upload.token,
+      blob,
+      { contentType: 'application/pdf', upsert: true }
+    );
+    if (error) throw error;
+    const finalized = await api('artifact-finalize', {
+      method: 'POST',
+      id: state.document.id,
+      body: { path: upload.path }
+    });
+    state.document = finalized.document;
+    renderGovernance();
+    toast('✅ ' + (isEn ? 'Final PDF secured and hashed' : 'تم حفظ PDF النهائي وتثبيت بصمته'));
   }
 
   async function refreshInboxDynamic() {
@@ -775,19 +840,17 @@
 
   // Deterministic sequential multi-page PDF export.
   window.exportPDF = async function () {
-    if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') return toast('⚠️ PDF libraries unavailable');
-    const sheets = Array.from(document.querySelectorAll('.sheet'));
-    const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     toast(isEn ? '⏳ Creating PDF...' : '⏳ جاري إنشاء PDF...');
     try {
-      for (let i = 0; i < sheets.length; i++) {
-        const canvas = await html2canvas(sheets[i], { scale: 2, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
-        const img = canvas.toDataURL('image/png');
-        if (i > 0) pdf.addPage();
-        pdf.addImage(img, 'PNG', 0, 0, 210, 297);
-      }
-      const filename = state.document?.reference_number ? state.document.reference_number + '.pdf' : 'bonds-letterhead.pdf';
-      pdf.save(filename);
+      const blob = await createPdfBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = (state.document?.reference_number || 'bonds-letterhead') + '.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
       toast(isEn ? '✅ PDF downloaded' : '✅ تم تحميل PDF');
     } catch (e) {
       toast('⚠️ ' + (isEn ? 'PDF generation failed: ' : 'فشل إنشاء PDF: ') + e.message);
