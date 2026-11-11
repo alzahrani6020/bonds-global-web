@@ -325,15 +325,19 @@
     return state.document;
   }
 
-  function addButton(parent, id, label, handler) {
+  function addButton(parent, id, label, handler, options = {}) {
     let btn = document.getElementById(id);
     if (!btn) {
       btn = document.createElement('button');
       btn.id = id;
       btn.type = 'button';
       btn.textContent = label;
+      btn.className = ['corr-btn', options.primary ? 'corr-btn-primary' : '', options.danger ? 'corr-btn-danger' : ''].filter(Boolean).join(' ');
       btn.addEventListener('click', () => Promise.resolve(handler()).catch(e => toast('⚠️ ' + e.message)));
       parent.appendChild(btn);
+    } else {
+      btn.textContent = label;
+      btn.className = ['corr-btn', options.primary ? 'corr-btn-primary' : '', options.danger ? 'corr-btn-danger' : ''].filter(Boolean).join(' ');
     }
     return btn;
   }
@@ -355,12 +359,32 @@
 
   function buildGovernanceBar() {
     if (document.getElementById('correspondence-governance')) return;
-    const bar = document.createElement('div');
-    bar.id = 'correspondence-governance';
-    bar.setAttribute('style', 'position:sticky;top:0;z-index:80;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #dbe3ec;font:13px/1.4 system-ui;color:#0a2342;');
-    bar.innerHTML = `
-      <strong id="corr-status">${t.status}: draft</strong>
-      <span id="corr-reference">${t.ref}: ${t.noRef}</span>
+
+    const shell = document.createElement('section');
+    shell.id = 'correspondence-governance';
+    shell.className = 'corr-governance-shell';
+
+    const strip = document.createElement('div');
+    strip.className = 'corr-workflow-strip';
+    strip.innerHTML = `
+      <div class="corr-identity">
+        <span id="corr-status" class="corr-status-badge">${isEn ? 'Draft' : 'مسودة'}</span>
+        <span id="corr-reference" class="corr-ref">${isEn ? 'No reference yet' : 'لم يصدر رقم بعد'}</span>
+      </div>
+      <div class="corr-meta" id="corr-meta">
+        <span class="corr-meta-badge" id="corr-direction-badge"></span>
+        <span class="corr-meta-badge" id="corr-priority-badge"></span>
+        <span class="corr-meta-badge" id="corr-confidentiality-badge"></span>
+      </div>
+      <div class="corr-actions" id="corr-actions"></div>
+      <div class="corr-workflow" id="corr-workflow"></div>
+    `;
+
+    const details = document.createElement('div');
+    details.id = 'corr-details-panel';
+    details.className = 'corr-details-panel';
+    details.hidden = true;
+    details.innerHTML = `
       <label>${isEn ? 'Direction' : 'الاتجاه'}
         <select id="corr-direction">
           <option value="outgoing">${isEn ? 'Outgoing' : 'صادر'}</option>
@@ -371,7 +395,7 @@
       <label>${isEn ? 'Priority' : 'الأولوية'}
         <select id="corr-priority">
           <option value="low">${isEn ? 'Low' : 'منخفضة'}</option>
-          <option value="normal" selected>${isEn ? 'Normal' : 'عادية'}</option>
+          <option value="normal">${isEn ? 'Normal' : 'عادية'}</option>
           <option value="high">${isEn ? 'High' : 'عالية'}</option>
           <option value="urgent">${isEn ? 'Urgent' : 'عاجلة'}</option>
         </select>
@@ -379,60 +403,68 @@
       <label>${isEn ? 'Confidentiality' : 'السرية'}
         <select id="corr-confidentiality">
           <option value="public">${isEn ? 'Public' : 'عام'}</option>
-          <option value="internal" selected>${isEn ? 'Internal' : 'داخلي'}</option>
+          <option value="internal">${isEn ? 'Internal' : 'داخلي'}</option>
           <option value="confidential">${isEn ? 'Confidential' : 'سري'}</option>
           <option value="restricted">${isEn ? 'Restricted' : 'مقيد'}</option>
         </select>
       </label>
-      <button type="button" id="corr-details-toggle">${isEn ? 'Details' : 'بيانات الخطاب'}</button>
-      <span id="corr-actions" style="display:flex;flex-wrap:wrap;gap:6px"></span>
-    `;
-    const details = document.createElement('div');
-    details.id = 'corr-details-panel';
-    details.hidden = true;
-    details.setAttribute('style', 'flex-basis:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;padding-top:8px;');
-    details.innerHTML = `
       <label>${isEn ? 'Recipient organization' : 'الجهة المستلمة'}<input id="corr-recipient-org" type="text" maxlength="250"></label>
       <label>${isEn ? 'Recipient name' : 'اسم المستلم'}<input id="corr-recipient-name" type="text" maxlength="250"></label>
       <label>${isEn ? 'Recipient title' : 'منصب المستلم'}<input id="corr-recipient-title" type="text" maxlength="250"></label>
       <label>${isEn ? 'Recipient email' : 'بريد المستلم'}<input id="corr-recipient-email" type="email" maxlength="320" dir="ltr"></label>
       <label>${isEn ? 'Sender department' : 'إدارة المرسل'}<input id="corr-sender-dept" type="text" maxlength="250"></label>
     `;
-    bar.appendChild(details);
 
-    const commandCenter = document.createElement('div');
-    commandCenter.id = 'corr-command-center';
-    commandCenter.setAttribute('style', 'flex-basis:100%;display:grid;grid-template-columns:minmax(260px,1fr) minmax(260px,2fr);gap:10px;padding-top:8px;');
-    commandCenter.innerHTML = `
-      <section style="border:1px solid #dbe3ec;border-radius:10px;padding:10px;background:#f8fafc">
-        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
-          <strong>${isEn ? 'Command center' : 'مركز الأوامر'}</strong>
-          <button type="button" id="corr-command-refresh">${isEn ? 'Refresh' : 'تحديث'}</button>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:8px">
-          <input id="corr-command-search" type="search" maxlength="200" placeholder="${isEn ? 'Search reference, recipient, subject…' : 'ابحث بالرقم أو المستلم أو الموضوع…'}" style="flex:1;min-width:0;padding:7px;border:1px solid #cbd5e1;border-radius:8px">
-          <button type="button" id="corr-command-search-btn">${isEn ? 'Search' : 'بحث'}</button>
-        </div>
-        <div id="corr-command-results" style="display:grid;gap:5px;margin-top:8px"></div>
-        <div id="corr-summary" style="display:grid;grid-template-columns:repeat(3,minmax(70px,1fr));gap:6px;margin-top:8px"></div>
-      </section>
-      <section style="border:1px solid #dbe3ec;border-radius:10px;padding:10px;background:#fff">
-        <strong>${isEn ? 'My work / exceptions' : 'مهامي والاستثناءات'}</strong>
-        <div id="corr-my-work" style="display:grid;gap:6px;margin-top:8px"></div>
-      </section>
-      <section style="grid-column:1/-1;border:1px solid #dbe3ec;border-radius:10px;padding:10px;background:#fff">
-        <strong>${isEn ? 'Document activity' : 'سجل نشاط المستند'}</strong>
-        <div id="corr-timeline" style="display:grid;gap:5px;margin-top:8px;max-height:220px;overflow:auto"></div>
-      </section>
+    shell.append(strip, details);
+
+    const drawerBackdrop = document.createElement('div');
+    drawerBackdrop.id = 'corr-drawer-backdrop';
+    drawerBackdrop.className = 'corr-drawer-backdrop';
+    drawerBackdrop.setAttribute('aria-hidden', 'true');
+
+    const drawer = document.createElement('aside');
+    drawer.id = 'corr-command-drawer';
+    drawer.className = 'corr-command-drawer';
+    drawer.setAttribute('aria-hidden', 'true');
+    drawer.innerHTML = `
+      <div class="corr-drawer-header">
+        <strong>${isEn ? 'Correspondence center' : 'مركز المراسلات'}</strong>
+        <button type="button" id="corr-drawer-close" aria-label="${isEn ? 'Close command center' : 'إغلاق مركز المراسلات'}">✕</button>
+      </div>
+      <div class="corr-drawer-body">
+        <section class="corr-card">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+            <strong>${isEn ? 'Command center' : 'مركز الأوامر'}</strong>
+            <button type="button" class="corr-btn" id="corr-command-refresh">${isEn ? 'Refresh' : 'تحديث'}</button>
+          </div>
+          <div class="corr-search-row">
+            <input id="corr-command-search" type="search" maxlength="200" placeholder="${isEn ? 'Search reference, recipient, subject…' : 'ابحث بالرقم أو المستلم أو الموضوع…'}">
+            <button type="button" class="corr-btn" id="corr-command-search-btn">${isEn ? 'Search' : 'بحث'}</button>
+          </div>
+          <div id="corr-command-results" style="display:grid;gap:5px;margin-top:8px"></div>
+          <div id="corr-summary" class="corr-summary-grid"></div>
+        </section>
+        <section class="corr-card">
+          <strong>${isEn ? 'My work / exceptions' : 'مهامي والاستثناءات'}</strong>
+          <div id="corr-my-work" style="display:grid;gap:6px;margin-top:8px"></div>
+        </section>
+        <section class="corr-card">
+          <strong>${isEn ? 'Document activity' : 'سجل نشاط المستند'}</strong>
+          <div id="corr-timeline" class="corr-timeline"></div>
+        </section>
+      </div>
     `;
-    bar.appendChild(commandCenter);
-    hideLegacyGovernanceTriggers();
+
     const pages = document.getElementById('pages-container');
-    pages?.parentNode?.insertBefore(bar, pages);
-    document.getElementById('corr-details-toggle')?.addEventListener('click', () => {
-      const panel = document.getElementById('corr-details-panel');
-      if (panel) panel.hidden = !panel.hidden;
-    });
+    pages?.parentNode?.insertBefore(shell, pages);
+    document.body.append(drawerBackdrop, drawer);
+
+    hideLegacyGovernanceTriggers();
+
+    const closeDrawer = () => setCommandDrawer(false);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+    document.getElementById('corr-drawer-close')?.addEventListener('click', closeDrawer);
+
     document.getElementById('corr-command-refresh')?.addEventListener('click', () => {
       refreshCommandCenter().catch(e => toast('⚠️ ' + e.message));
     });
@@ -442,20 +474,58 @@
     searchInput?.addEventListener('keydown', event => {
       if (event.key === 'Enter') { event.preventDefault(); runSearch(); }
     });
+
     const actions = document.getElementById('corr-actions');
+    addButton(actions, 'corr-details-toggle', isEn ? 'Details' : 'بيانات الخطاب', () => {
+      const panel = document.getElementById('corr-details-panel');
+      if (panel) panel.hidden = !panel.hidden;
+    });
+    addButton(actions, 'corr-command-open', isEn ? 'Command center' : 'مركز المراسلات', () => setCommandDrawer(true));
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
-    addButton(actions, 'corr-submit', t.submit, () => transition('submitted'));
-    addButton(actions, 'corr-review', t.review, () => transition('under_review'));
-    addButton(actions, 'corr-approve', t.approve, () => transition('approved'));
+    addButton(actions, 'corr-submit', t.submit, () => transition('submitted'), { primary: true });
+    addButton(actions, 'corr-review', t.review, () => transition('under_review'), { primary: true });
+    addButton(actions, 'corr-approve', t.approve, () => transition('approved'), { primary: true });
     addButton(actions, 'corr-return', t.return, () => transition('returned'));
-    addButton(actions, 'corr-reject', t.reject, () => transition('rejected'));
-    addButton(actions, 'corr-cancel', isEn ? 'Cancel' : 'إلغاء', () => transition('cancelled'));
-    addButton(actions, 'corr-sign', t.sign, () => window.openSignatureModal());
-    addButton(actions, 'corr-issue', t.issue, () => transition('issued'));
-    addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp());
-    addButton(actions, 'corr-finalize-pdf', isEn ? 'Finalize PDF' : 'تثبيت PDF', () => persistIssuedPdfArtifact());
-    addButton(actions, 'corr-send', t.send, () => window.sendToManager());
-    addButton(actions, 'corr-archive', t.archive, () => transition('archived'));
+    addButton(actions, 'corr-reject', t.reject, () => transition('rejected'), { danger: true });
+    addButton(actions, 'corr-cancel', isEn ? 'Cancel' : 'إلغاء', () => transition('cancelled'), { danger: true });
+    addButton(actions, 'corr-sign', t.sign, () => window.openSignatureModal(), { primary: true });
+    addButton(actions, 'corr-issue', t.issue, () => transition('issued'), { primary: true });
+    addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp(), { primary: true });
+    addButton(actions, 'corr-finalize-pdf', isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية', () => persistIssuedPdfArtifact(), { primary: true });
+    addButton(actions, 'corr-send', isEn ? 'Send to recipient' : 'إرسال للمستلم', () => window.sendToManager(), { primary: true });
+    addButton(actions, 'corr-archive', t.archive, () => transition('archived'), { primary: true });
+  }
+
+  function setCommandDrawer(open) {
+    const drawer = document.getElementById('corr-command-drawer');
+    const backdrop = document.getElementById('corr-drawer-backdrop');
+    if (!drawer || !backdrop) return;
+    drawer.classList.toggle('open', !!open);
+    backdrop.classList.toggle('open', !!open);
+    drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+    backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (open) refreshCommandCenter().catch(() => {});
+  }
+
+  function statusLabel(status) {
+    const labels = isEn
+      ? { draft:'Draft', submitted:'Submitted', under_review:'Under review', approved:'Approved', issued:'Issued', sent:'Sent', archived:'Archived', returned:'Returned', rejected:'Rejected', cancelled:'Cancelled' }
+      : { draft:'مسودة', submitted:'مرسل للمراجعة', under_review:'قيد المراجعة', approved:'معتمد', issued:'صادر', sent:'مرسل', archived:'مؤرشف', returned:'معاد للتعديل', rejected:'مرفوض', cancelled:'ملغي' };
+    return labels[status] || status;
+  }
+
+  function renderWorkflowStrip(status) {
+    const target = document.getElementById('corr-workflow');
+    if (!target) return;
+    const canonical = ['draft','submitted','under_review','approved','issued','sent','archived'];
+    const currentIndex = canonical.indexOf(status);
+    target.innerHTML = '';
+    canonical.forEach((step, index) => {
+      const el = document.createElement('span');
+      el.className = 'corr-step' + (index < currentIndex ? ' is-complete' : '') + (step === status ? ' is-current' : '');
+      el.textContent = statusLabel(step);
+      target.appendChild(el);
+    });
   }
 
   function renderGovernance() {
@@ -464,36 +534,66 @@
     const status = doc?.status || 'draft';
     const statusEl = document.getElementById('corr-status');
     const refEl = document.getElementById('corr-reference');
-    if (statusEl) statusEl.textContent = t.status + ': ' + status;
-    if (refEl) refEl.textContent = t.ref + ': ' + (doc?.reference_number || t.noRef);
+    const directionBadge = document.getElementById('corr-direction-badge');
+    const priorityBadge = document.getElementById('corr-priority-badge');
+    const confidentialityBadge = document.getElementById('corr-confidentiality-badge');
+
+    if (statusEl) statusEl.textContent = statusLabel(status);
+    if (refEl) refEl.textContent = doc?.reference_number || (isEn ? 'No reference yet' : 'لم يصدر رقم بعد');
+
+    const directionMap = isEn ? { outgoing:'Outgoing', incoming:'Incoming', internal:'Internal' } : { outgoing:'صادر', incoming:'وارد', internal:'داخلي' };
+    const priorityMap = isEn ? { low:'Low', normal:'Normal', high:'High', urgent:'Urgent' } : { low:'منخفضة', normal:'عادية', high:'عالية', urgent:'عاجلة' };
+    const confidentialityMap = isEn ? { public:'Public', internal:'Internal', confidential:'Confidential', restricted:'Restricted' } : { public:'عام', internal:'داخلي', confidential:'سري', restricted:'مقيد' };
+    if (directionBadge) directionBadge.textContent = directionMap[doc?.direction || 'outgoing'];
+    if (priorityBadge) priorityBadge.textContent = priorityMap[doc?.priority || 'normal'];
+    if (confidentialityBadge) confidentialityBadge.textContent = confidentialityMap[doc?.confidentiality || 'internal'];
+
     if (doc) {
       const p = document.getElementById('corr-priority');
       const c = document.getElementById('corr-confidentiality');
-      if (p) { p.value = doc.priority || 'normal'; p.disabled = !editable(); }
-      if (c) { c.value = doc.confidentiality || 'internal'; c.disabled = !editable(); }
-      const direction = document.getElementById('corr-direction');
-      if (direction) { direction.value = doc.direction || 'outgoing'; direction.disabled = !editable(); }
+      const d = document.getElementById('corr-direction');
+      if (p) { p.value = doc.priority || 'normal'; p.disabled = !canEditCurrent(); }
+      if (c) { c.value = doc.confidentiality || 'internal'; c.disabled = !canEditCurrent(); }
+      if (d) { d.value = doc.direction || 'outgoing'; d.disabled = !canEditCurrent(); }
       ['corr-recipient-org','corr-recipient-name','corr-recipient-title','corr-recipient-email','corr-sender-dept']
-        .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !editable(); });
+        .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !canEditCurrent(); });
     }
 
-    const show = (id, yes) => {
+    renderWorkflowStrip(status);
+
+    const visible = new Set(['corr-details-toggle','corr-command-open']);
+    if (canEditCurrent()) visible.add('corr-save');
+
+    if (isOwner() && ['draft','returned'].includes(status)) visible.add('corr-submit');
+    if (can('review') && status === 'submitted') visible.add('corr-review');
+    if (can('approve') && status === 'under_review') visible.add('corr-approve');
+    if ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))) visible.add('corr-return');
+    if ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))) visible.add('corr-reject');
+    if ((isOwner() && ['draft','returned'].includes(status)) || (can('review') && status === 'submitted')) visible.add('corr-cancel');
+
+    if (can('sign') && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by) {
+      visible.add('corr-sign');
+    } else if (can('stamp') && status === 'approved' && !!doc?.requires_stamp && !doc?.stamped_by) {
+      visible.add('corr-stamp');
+    } else if (can('issue') && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by)) {
+      visible.add('corr-issue');
+    } else if (can('finalize_pdf') && status === 'issued' && !doc?.artifact_hash) {
+      visible.add('corr-finalize-pdf');
+    } else if (can('send') && status === 'issued' && !!doc?.artifact_hash) {
+      visible.add('corr-send');
+    } else if (can('archive') && ['issued','sent'].includes(status)) {
+      visible.add('corr-archive');
+    }
+
+    [
+      'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel',
+      'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive',
+      'corr-details-toggle','corr-command-open'
+    ].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.style.display = yes ? '' : 'none';
-    };
-    show('corr-save', canEditCurrent());
-    show('corr-submit', isOwner() && ['draft','returned'].includes(status));
-    show('corr-review', can('review') && status === 'submitted');
-    show('corr-approve', can('approve') && status === 'under_review');
-    show('corr-return', ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))));
-    show('corr-reject', ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))));
-    show('corr-cancel', (isOwner() && ['draft','returned'].includes(status)) || (can('review') && status === 'submitted'));
-    show('corr-sign', can('sign') && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by);
-    show('corr-issue', can('issue') && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by));
-    show('corr-stamp', can('stamp') && status === 'approved' && !doc?.stamped_by);
-    show('corr-finalize-pdf', can('finalize_pdf') && status === 'issued' && !doc?.artifact_hash);
-    show('corr-send', can('send') && status === 'issued' && !!doc?.artifact_hash);
-    show('corr-archive', can('archive') && ['issued','sent'].includes(status));
+      if (el) el.style.display = visible.has(id) ? '' : 'none';
+    });
+
     renderGovernanceArtifacts();
     updateVerificationQr();
     renderTimeline();
