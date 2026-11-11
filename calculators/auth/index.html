@@ -224,8 +224,8 @@
               <input type="text" id="signupCityFree" placeholder="مثال: London" />
             </div>
             <div class="form-group">
-              <label for="signupName">اسم المطعم / الشركة *</label>
-              <input type="text" id="signupName" required autocomplete="organization" placeholder="مثال: مطعم الذواقة" />
+              <label for="signupName">اسم المنشأة / الشركة *</label>
+              <input type="text" id="signupName" required autocomplete="organization" placeholder="مثال: شركة بوندز" />
             </div>
             <div class="form-group">
               <label for="signupPhone">رقم الجوال *</label>
@@ -601,6 +601,17 @@
 
       // Check redirect
       const redirectTo = window.BondsAuth.getRedirectUrl();
+      const redirectUrl = new URL(redirectTo, window.location.origin);
+      const isLetterheadRedirect = /^\/(?:en\/)?letterhead(?:\.html)?$/.test(redirectUrl.pathname);
+      if (isLetterheadRedirect) {
+        const loginDescription = document.querySelector('#loginPanel .auth-head p');
+        if (loginDescription) loginDescription.textContent = 'سجّل الدخول للمتابعة إلى محرر المراسلات الرسمي في بوندز.';
+        const backLink = document.querySelector('.auth-footer .back-link');
+        if (backLink) {
+          backLink.href = redirectUrl.pathname;
+          backLink.textContent = 'العودة إلى المراسلات →';
+        }
+      }
 
       // Login
       document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -843,7 +854,7 @@
 
         const { error } = await window.BondsAuth.sendOtpViaProxy(email, {
           shouldCreateUser: true,
-          data: { restaurant_name: name, phone: phone, country: country, city: city, language: 'ar' }
+          data: { organization_name: name, restaurant_name: name, phone: phone, country: country, city: city, language: 'ar' }
         });
         setLoading('signupBtn', false);
 

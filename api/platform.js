@@ -928,16 +928,27 @@ async function sendLetterAction(req, res) {
   }
 
   const { to, subject, body, html, text } = req.body || {};
-  const recipient = to && String(to).trim() ? String(to).trim() : process.env.MANAGER_EMAIL;
-  if (!recipient || !recipient.includes('@')) {
-    return res.status(400).json({ ok: false, error: 'A valid recipient email is required.' });
+  const configuredRecipients = [
+    process.env.MANAGER_EMAIL,
+    ...ADMIN_EMAILS
+  ].map(value => String(value || '').trim()).filter(value => value && value.includes('@'));
+  const uniqueRecipients = Array.from(new Set(configuredRecipients.map(value => value.toLowerCase())));
+
+  if (!uniqueRecipients.length) {
+    return res.status(503).json({ ok: false, error: 'Letterhead recipient is not configured.' });
   }
 
+  const requestedRecipient = String(to || '').trim().toLowerCase();
+  if (requestedRecipient && !uniqueRecipients.includes(requestedRecipient)) {
+    return res.status(403).json({ ok: false, error: 'Recipient is not authorized for letterhead submissions.' });
+  }
+
+  const recipient = requestedRecipient || uniqueRecipients[0];
   const result = await sendEmail({
     to: recipient,
-    subject: subject || 'New letterhead submission',
-    text: text || body || '',
-    html: Array.isArray(html) ? html.join('<hr>') : (html || '')
+    subject: String(subject || 'New letterhead submission').slice(0, 200),
+    text: String(text || body || '').slice(0, 20000),
+    html: Array.isArray(html) ? html.join('<hr>') : String(html || '')
   });
 
   if (result.success) return res.status(200).json({ ok: true });

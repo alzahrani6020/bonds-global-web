@@ -301,8 +301,8 @@ body{padding:0}
               <input type="text" id="signupCityFree" placeholder="e.g. London" />
             </div>
             <div class="form-group">
-              <label for="signupName">Restaurant / Company Name *</label>
-              <input type="text" id="signupName" required autocomplete="organization" placeholder="e.g. Tasty Bites" />
+              <label for="signupName">Organization / Company Name *</label>
+              <input type="text" id="signupName" required autocomplete="organization" placeholder="e.g. Bonds Global" />
             </div>
             <div class="form-group">
               <label for="signupPhone">Phone *</label>
@@ -671,6 +671,17 @@ body{padding:0}
       }
 
       const redirectTo = window.BondsAuth.getRedirectUrl();
+      const redirectUrl = new URL(redirectTo, window.location.origin);
+      const isLetterheadRedirect = /^\/(?:en\/)?letterhead(?:\.html)?$/.test(redirectUrl.pathname);
+      if (isLetterheadRedirect) {
+        const loginDescription = document.querySelector('#loginPanel .auth-head p');
+        if (loginDescription) loginDescription.textContent = 'Sign in to continue to the official Bonds correspondence editor.';
+        const backLink = document.querySelector('.auth-footer .back-link');
+        if (backLink) {
+          backLink.href = redirectUrl.pathname;
+          backLink.textContent = 'Back to correspondence →';
+        }
+      }
 
       document.getElementById('loginForm').addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -906,7 +917,7 @@ body{padding:0}
 
         const { error } = await window.BondsAuth.sendOtpViaProxy(email, {
           shouldCreateUser: true,
-          data: { restaurant_name: name, phone: phone, country: country, city: city, language: 'en' }
+          data: { organization_name: name, restaurant_name: name, phone: phone, country: country, city: city, language: 'en' }
         });
         setLoading('signupBtn', false);
 
