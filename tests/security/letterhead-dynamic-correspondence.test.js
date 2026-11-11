@@ -67,8 +67,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("fetch('/api/correspondence?'");
     expect(client).toContain("api('save-version'");
     expect(client).toContain("api('transition'");
-    expect(client).toContain("api('mark-signature'");
-    expect(client).toContain("api('mark-stamp'");
+    expect(client).toContain("mark('mark-signature'");
+    expect(client).toContain("mark('mark-stamp'");
     expect(client).toContain("api('send'");
     expect(client).toContain("verification_token");
     expect(client).toContain("Import legacy drafts");
