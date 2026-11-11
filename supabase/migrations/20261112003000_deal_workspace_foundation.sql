@@ -108,25 +108,53 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_bonds_deals_updated_at on public.bonds_deals;
-create trigger trg_bonds_deals_updated_at
-before update on public.bonds_deals
-for each row execute function public.touch_bonds_deal_updated_at();
+do $$
+begin
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'trg_bonds_deals_updated_at'
+      and tgrelid = 'public.bonds_deals'::regclass
+      and not tgisinternal
+  ) then
+    create trigger trg_bonds_deals_updated_at
+    before update on public.bonds_deals
+    for each row execute function public.touch_bonds_deal_updated_at();
+  end if;
 
-drop trigger if exists trg_bonds_deal_tasks_updated_at on public.bonds_deal_tasks;
-create trigger trg_bonds_deal_tasks_updated_at
-before update on public.bonds_deal_tasks
-for each row execute function public.touch_bonds_deal_updated_at();
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'trg_bonds_deal_tasks_updated_at'
+      and tgrelid = 'public.bonds_deal_tasks'::regclass
+      and not tgisinternal
+  ) then
+    create trigger trg_bonds_deal_tasks_updated_at
+    before update on public.bonds_deal_tasks
+    for each row execute function public.touch_bonds_deal_updated_at();
+  end if;
 
-drop trigger if exists trg_bonds_deal_dd_updated_at on public.bonds_deal_due_diligence_items;
-create trigger trg_bonds_deal_dd_updated_at
-before update on public.bonds_deal_due_diligence_items
-for each row execute function public.touch_bonds_deal_updated_at();
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'trg_bonds_deal_dd_updated_at'
+      and tgrelid = 'public.bonds_deal_due_diligence_items'::regclass
+      and not tgisinternal
+  ) then
+    create trigger trg_bonds_deal_dd_updated_at
+    before update on public.bonds_deal_due_diligence_items
+    for each row execute function public.touch_bonds_deal_updated_at();
+  end if;
 
-drop trigger if exists trg_bonds_deal_documents_updated_at on public.bonds_deal_documents;
-create trigger trg_bonds_deal_documents_updated_at
-before update on public.bonds_deal_documents
-for each row execute function public.touch_bonds_deal_updated_at();
+  if not exists (
+    select 1 from pg_trigger
+    where tgname = 'trg_bonds_deal_documents_updated_at'
+      and tgrelid = 'public.bonds_deal_documents'::regclass
+      and not tgisinternal
+  ) then
+    create trigger trg_bonds_deal_documents_updated_at
+    before update on public.bonds_deal_documents
+    for each row execute function public.touch_bonds_deal_updated_at();
+  end if;
+end;
+$$;
 
 alter table public.bonds_deals enable row level security;
 alter table public.bonds_deal_parties enable row level security;
