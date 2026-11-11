@@ -4030,6 +4030,23 @@
       if (button) button.disabled = false;
     }
 
+    function offerPrefillFormLoad(action, planned, button) {
+      addAssistantMessage(
+        languageCode() === 'en'
+          ? 'Open the registered form first, then confirm the suggested fields.'
+          : 'افتح النموذج المسجل أولاً، ثم أكّد الحقول المقترحة.'
+      );
+      void executeStructuredAction({
+        id: String(action.id || 'prefill') + '-load',
+        type: 'form_load',
+        capability: 'form_load',
+        target: planned.target,
+        risk: 'low',
+        requires_confirmation: false,
+        status: 'ready'
+      }, button);
+    }
+
     async function executeStructuredAction(action, button, options = {}) {
       if (!action || action.status === 'denied') return;
       if (action.requires_confirmation) {
@@ -4189,7 +4206,8 @@
 
           const adapter = window.BondsAssistantFormAdapter;
           if (!adapter || adapter.form_code !== planned.target || typeof adapter.applyPrefill !== 'function') {
-            throw new Error('PREFILL_ADAPTER_NOT_AVAILABLE');
+            offerPrefillFormLoad(action, planned, button);
+            return;
           }
 
           if (!(options && options.prefillConfirmed === true)) {
