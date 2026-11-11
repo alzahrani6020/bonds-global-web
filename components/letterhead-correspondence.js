@@ -184,6 +184,11 @@
         subject: subjectFromText(text),
         priority: document.getElementById('corr-priority')?.value || 'normal',
         confidentiality: document.getElementById('corr-confidentiality')?.value || 'internal',
+        recipient_organization: document.getElementById('corr-recipient-org')?.value || null,
+        recipient_name: document.getElementById('corr-recipient-name')?.value || null,
+        recipient_title: document.getElementById('corr-recipient-title')?.value || null,
+        recipient_email: document.getElementById('corr-recipient-email')?.value || null,
+        sender_department: document.getElementById('corr-sender-dept')?.value || null,
         workspace_context: currentWorkspaceContext()
       }
     });
@@ -214,6 +219,7 @@
           text_content: text,
           title: titleFromText(text),
           subject: subjectFromText(text),
+          direction: document.getElementById('corr-direction')?.value || doc.direction || 'outgoing',
           priority: document.getElementById('corr-priority')?.value || doc.priority || 'normal',
           confidentiality: document.getElementById('corr-confidentiality')?.value || doc.confidentiality || 'internal',
           recipient_organization: document.getElementById('corr-recipient-org')?.value || null,
