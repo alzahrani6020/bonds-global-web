@@ -35,7 +35,9 @@
     history: [],
     future: [],
     lastHistorySnapshot: '',
-    loading: false
+    loading: false,
+    summary: null,
+    tasks: []
   };
 
   const legacy = {
@@ -62,6 +64,11 @@
     if (options.token) params.set('token', options.token);
     if (options.status) params.set('status', options.status);
     if (options.direction) params.set('direction', options.direction);
+    if (options.query && typeof options.query === 'object') {
+      Object.entries(options.query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && String(value) !== '') params.set(key, String(value));
+      });
+    }
     const headers = action === 'verify' ? {} : await authHeaders();
     const res = await fetch('/api/correspondence?' + params.toString(), {
       method,
@@ -235,6 +242,7 @@
       try { localStorage.setItem('bonds_letterhead_offline_backup', snap); } catch (_) {}
       if (!silent) toast('✅ ' + t.saved + ' #' + result.version);
       renderGovernance();
+      refreshCommandCenter().catch(() => {});
       return state.document;
     } finally {
       state.loading = false;
@@ -243,6 +251,11 @@
 
   async function transition(target, note) {
     const doc = await ensureDocument();
+    if (['returned', 'rejected', 'cancelled'].includes(target) && !String(note || '').trim()) {
+      const reason = window.prompt(isEn ? 'Reason is required for this action:' : 'سبب الإجراء إلزامي:');
+      if (!String(reason || '').trim()) throw new Error(isEn ? 'A reason is required' : 'يجب إدخال السبب');
+      note = reason.trim();
+    }
     const result = await api('transition', { method: 'POST', id: doc.id, body: { target, note: note || null } });
     state.document = result.document;
     renderGovernance();
@@ -253,7 +266,7 @@
       await persistIssuedPdfArtifact();
     }
     toast('✅ ' + t.status + ': ' + state.document.status);
-    await refreshInboxDynamic();
+    await Promise.all([refreshInboxDynamic(), refreshCommandCenter()]);
     return state.document;
   }
 
@@ -291,6 +304,7 @@
     renderGovernance();
     renderGovernanceArtifacts();
     updateVerificationQr();
+    refreshCommandCenter().catch(() => {});
     return state.document;
   }
 
@@ -353,11 +367,32 @@
       <label>${isEn ? 'Sender department' : 'إدارة المرسل'}<input id="corr-sender-dept" type="text" maxlength="250"></label>
     `;
     bar.appendChild(details);
+
+    const commandCenter = document.createElement('div');
+    commandCenter.id = 'corr-command-center';
+    commandCenter.setAttribute('style', 'flex-basis:100%;display:grid;grid-template-columns:minmax(260px,1fr) minmax(260px,2fr);gap:10px;padding-top:8px;');
+    commandCenter.innerHTML = `
+      <section style="border:1px solid #dbe3ec;border-radius:10px;padding:10px;background:#f8fafc">
+        <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+          <strong>${isEn ? 'Command center' : 'مركز الأوامر'}</strong>
+          <button type="button" id="corr-command-refresh">${isEn ? 'Refresh' : 'تحديث'}</button>
+        </div>
+        <div id="corr-summary" style="display:grid;grid-template-columns:repeat(3,minmax(70px,1fr));gap:6px;margin-top:8px"></div>
+      </section>
+      <section style="border:1px solid #dbe3ec;border-radius:10px;padding:10px;background:#fff">
+        <strong>${isEn ? 'My work / exceptions' : 'مهامي والاستثناءات'}</strong>
+        <div id="corr-my-work" style="display:grid;gap:6px;margin-top:8px"></div>
+      </section>
+    `;
+    bar.appendChild(commandCenter);
     const pages = document.getElementById('pages-container');
     pages?.parentNode?.insertBefore(bar, pages);
     document.getElementById('corr-details-toggle')?.addEventListener('click', () => {
       const panel = document.getElementById('corr-details-panel');
       if (panel) panel.hidden = !panel.hidden;
+    });
+    document.getElementById('corr-command-refresh')?.addEventListener('click', () => {
+      refreshCommandCenter().catch(e => toast('⚠️ ' + e.message));
     });
     const actions = document.getElementById('corr-actions');
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
@@ -366,6 +401,7 @@
     addButton(actions, 'corr-approve', t.approve, () => transition('approved'));
     addButton(actions, 'corr-return', t.return, () => transition('returned'));
     addButton(actions, 'corr-reject', t.reject, () => transition('rejected'));
+    addButton(actions, 'corr-cancel', isEn ? 'Cancel' : 'إلغاء', () => transition('cancelled'));
     addButton(actions, 'corr-sign', t.sign, () => window.openSignatureModal());
     addButton(actions, 'corr-issue', t.issue, () => transition('issued'));
     addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp());
@@ -403,14 +439,63 @@
     show('corr-approve', isAdmin() && status === 'under_review');
     show('corr-return', isAdmin() && ['submitted','under_review','approved'].includes(status));
     show('corr-reject', isAdmin() && ['submitted','under_review','approved'].includes(status));
-    show('corr-sign', isAdmin() && status === 'approved' && !doc?.signed_by);
-    show('corr-issue', isAdmin() && status === 'approved' && !!doc?.signed_by);
-    show('corr-stamp', isAdmin() && status === 'approved' && !doc?.stamped_by);
+    show('corr-cancel', (state.document?.owner_user_id && ['draft','returned'].includes(status)) || (isAdmin() && ['submitted'].includes(status)));
+    show('corr-sign', isAdmin() && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by);
+    show('corr-issue', isAdmin() && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by));
+    show('corr-stamp', isAdmin() && status === 'approved' && !!doc?.requires_stamp && !doc?.stamped_by);
     show('corr-finalize-pdf', isAdmin() && status === 'issued' && !doc?.artifact_hash);
     show('corr-send', isAdmin() && status === 'issued' && !!doc?.artifact_hash);
     show('corr-archive', isAdmin() && ['issued','sent'].includes(status));
     renderGovernanceArtifacts();
     updateVerificationQr();
+  }
+
+  async function refreshCommandCenter() {
+    const [summaryResult, workResult] = await Promise.all([
+      api('summary'),
+      api('my-work')
+    ]);
+    state.summary = summaryResult;
+    state.tasks = workResult.tasks || [];
+
+    const summary = document.getElementById('corr-summary');
+    if (summary) {
+      const cards = [
+        [isEn ? 'Total' : 'الإجمالي', summaryResult.total || 0],
+        [isEn ? 'Urgent' : 'عاجل', summaryResult.urgent || 0],
+        [isEn ? 'Failed' : 'فشل الإرسال', summaryResult.failed_delivery || 0],
+        [isEn ? 'Draft' : 'مسودة', summaryResult.by_status?.draft || 0],
+        [isEn ? 'Review' : 'مراجعة', (summaryResult.by_status?.submitted || 0) + (summaryResult.by_status?.under_review || 0)],
+        [isEn ? 'Issued' : 'صادر', summaryResult.by_status?.issued || 0]
+      ];
+      summary.innerHTML = '';
+      cards.forEach(([label, value]) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'padding:7px;border-radius:8px;background:#fff;border:1px solid #e2e8f0;text-align:center';
+        card.innerHTML = '<div style="font-size:18px;font-weight:800">' + String(value) + '</div><div style="font-size:11px;color:#64748b">' + label + '</div>';
+        summary.appendChild(card);
+      });
+    }
+
+    const work = document.getElementById('corr-my-work');
+    if (work) {
+      work.innerHTML = '';
+      if (!state.tasks.length) {
+        work.textContent = isEn ? 'No open tasks' : 'لا توجد مهام مفتوحة';
+      } else {
+        state.tasks.slice(0, 12).forEach(task => {
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.style.cssText = 'text-align:start;padding:8px;border:1px solid ' + (task.overdue ? '#ef4444' : '#e2e8f0') + ';border-radius:8px;background:#fff;cursor:pointer';
+          const doc = task.correspondence_documents || {};
+          row.textContent = (task.overdue ? '⚠️ ' : '') + (doc.reference_number || doc.title || doc.id || '') + ' · ' + task.task_type;
+          row.addEventListener('click', () => {
+            if (task.document_id) loadDocument(task.document_id).catch(e => toast('⚠️ ' + e.message));
+          });
+          work.appendChild(row);
+        });
+      }
+    }
   }
 
   function renderGovernanceArtifacts() {
@@ -595,6 +680,7 @@
 
   async function initialize() {
     buildGovernanceBar();
+    refreshCommandCenter().catch(() => {});
     const id = currentDocId();
     if (id) {
       try { await loadDocument(id); } catch (e) { toast('⚠️ ' + t.loadFail + ': ' + e.message); }
@@ -703,7 +789,7 @@
       const result = await api('send', { method: 'POST', id: state.document.id, body: {} });
       state.document = result.document;
       renderGovernance();
-      await refreshInboxDynamic();
+      await Promise.all([refreshInboxDynamic(), refreshCommandCenter()]);
       toast('📨 ' + (isEn ? 'Sent and recorded' : 'تم الإرسال وتسجيل العملية'));
     } catch (e) {
       toast('⚠️ ' + e.message);
