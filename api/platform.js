@@ -9,6 +9,7 @@ const Stripe = require('stripe');
 const { sendEmail } = require('../lib/api/email');
 const { verifyBearer, verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { checkRateLimit } = require('../lib/api/rate-limit');
+const correspondence = require('../lib/api/correspondence');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 const {
@@ -927,32 +928,13 @@ async function sendLetterAction(req, res) {
     return res.status(401).json({ ok: false, error: 'Authentication required' });
   }
 
-  const { to, subject, body, html, text } = req.body || {};
-  const configuredRecipients = [
-    process.env.MANAGER_EMAIL,
-    ...ADMIN_EMAILS
-  ].map(value => String(value || '').trim()).filter(value => value && value.includes('@'));
-  const uniqueRecipients = Array.from(new Set(configuredRecipients.map(value => value.toLowerCase())));
-
-  if (!uniqueRecipients.length) {
-    return res.status(503).json({ ok: false, error: 'Letterhead recipient is not configured.' });
-  }
-
-  const requestedRecipient = String(to || '').trim().toLowerCase();
-  if (requestedRecipient && !uniqueRecipients.includes(requestedRecipient)) {
-    return res.status(403).json({ ok: false, error: 'Recipient is not authorized for letterhead submissions.' });
-  }
-
-  const recipient = requestedRecipient || uniqueRecipients[0];
-  const result = await sendEmail({
-    to: recipient,
-    subject: String(subject || 'New letterhead submission').slice(0, 200),
-    text: String(text || body || '').slice(0, 20000),
-    html: Array.isArray(html) ? html.join('<hr>') : String(html || '')
+  // Legacy direct-send is intentionally disabled. All governed correspondence must
+  // pass through /api/correspondence so workflow, immutable version, RBAC and audit
+  // checks cannot be bypassed by calling the old endpoint directly.
+  return res.status(410).json({
+    ok: false,
+    error: 'Legacy letterhead sending is disabled. Use the governed correspondence workflow.'
   });
-
-  if (result.success) return res.status(200).json({ ok: true });
-  return res.status(500).json({ ok: false, error: 'Failed to send email.' });
 }
 
 async function siteUsageHandler(req, res) {
@@ -2350,6 +2332,14 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/pro' || pathname === '/api/pro/') {
       if (await checkRateLimit('compute', req, res)) return;
       return proHandler(req, res);
+    }
+
+    // Dynamic correspondence / Letterhead
+    if (pathname === '/api/correspondence' || pathname === '/api/correspondence/') {
+      const corrAction = String(req.query?.action || url.searchParams.get('action') || req.body?.action || '');
+      const corrRateCategory = corrAction === 'verify' ? 'public' : 'auth';
+      if (await checkRateLimit(corrRateCategory, req, res)) return;
+      return correspondence.handler(req, res);
     }
 
     // Letterhead email

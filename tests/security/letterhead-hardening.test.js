@@ -30,12 +30,21 @@ describe('letterhead security and auth UX hardening', () => {
     }
   });
 
-  test('server restricts letterhead recipient to configured management addresses', () => {
+  test('legacy direct-send is disabled and governed correspondence route is present', () => {
     const platform = read('api/platform.js');
-    expect(platform).toContain("process.env.MANAGER_EMAIL");
-    expect(platform).toContain("...ADMIN_EMAILS");
-    expect(platform).toContain("Recipient is not authorized for letterhead submissions.");
-    expect(platform).toContain("Letterhead recipient is not configured.");
+    const vercel = read('vercel.json');
+    expect(platform).toContain("Legacy direct-send is intentionally disabled");
+    expect(platform).toContain("'/api/correspondence'");
+    expect(platform).toContain("correspondence.handler(req, res)");
+    expect(vercel).toContain('"/api/correspondence"');
+  });
+
+  test('letterhead pages load the dynamic governance client and are noindex', () => {
+    for (const rel of ['letterhead.html', 'en/letterhead.html']) {
+      const html = read(rel);
+      expect(html).toContain('/components/letterhead-correspondence.js');
+      expect(html).toContain('name="robots" content="noindex,nofollow"');
+    }
   });
 
   test('auth copy is organization-neutral and letterhead-aware', () => {
