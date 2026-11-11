@@ -338,6 +338,21 @@
     return btn;
   }
 
+  function hideLegacyGovernanceTriggers() {
+    [
+      'button[onclick="generateRef()"]',
+      'button[onclick="openSignatureModal()"]',
+      'button[onclick="insertStamp()"]',
+      'button[onclick="sendToManager()"]'
+    ].forEach(selector => {
+      document.querySelectorAll(selector).forEach(button => {
+        button.hidden = true;
+        button.setAttribute('aria-hidden', 'true');
+        button.tabIndex = -1;
+      });
+    });
+  }
+
   function buildGovernanceBar() {
     if (document.getElementById('correspondence-governance')) return;
     const bar = document.createElement('div');
@@ -411,6 +426,7 @@
       </section>
     `;
     bar.appendChild(commandCenter);
+    hideLegacyGovernanceTriggers();
     const pages = document.getElementById('pages-container');
     pages?.parentNode?.insertBefore(bar, pages);
     document.getElementById('corr-details-toggle')?.addEventListener('click', () => {
