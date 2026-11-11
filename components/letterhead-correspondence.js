@@ -31,6 +31,7 @@
     events: [],
     role: 'user',
     permissions: [],
+    userId: null,
     list: [],
     lastSavedSnapshot: '',
     history: [],
@@ -54,6 +55,7 @@
   async function authHeaders() {
     const session = await window.BondsAuth?.getSession?.();
     const token = session?.data?.session?.access_token || '';
+    state.userId = session?.data?.session?.user?.id || state.userId || null;
     if (!token) throw Object.assign(new Error(t.auth), { status: 401 });
     return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
   }
@@ -125,6 +127,14 @@
 
   function can(permission) {
     return isAdmin() || state.permissions.includes(permission);
+  }
+
+  function isOwner() {
+    return !!state.document && !!state.userId && state.document.owner_user_id === state.userId;
+  }
+
+  function canEditCurrent() {
+    return editable() && (!state.document || isOwner());
   }
 
   function setEditorEditable(enabled) {
@@ -455,13 +465,13 @@
       const el = document.getElementById(id);
       if (el) el.style.display = yes ? '' : 'none';
     };
-    show('corr-save', editable());
-    show('corr-submit', ['draft','returned'].includes(status));
+    show('corr-save', canEditCurrent());
+    show('corr-submit', isOwner() && ['draft','returned'].includes(status));
     show('corr-review', can('review') && status === 'submitted');
     show('corr-approve', can('approve') && status === 'under_review');
     show('corr-return', ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))));
     show('corr-reject', ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))));
-    show('corr-cancel', (state.document?.owner_user_id && ['draft','returned'].includes(status)) || (can('review') && status === 'submitted'));
+    show('corr-cancel', (isOwner() && ['draft','returned'].includes(status)) || (can('review') && status === 'submitted'));
     show('corr-sign', can('sign') && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by);
     show('corr-issue', can('issue') && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by));
     show('corr-stamp', can('stamp') && status === 'approved' && !!doc?.requires_stamp && !doc?.stamped_by);
@@ -489,8 +499,16 @@
       const row = document.createElement('div');
       row.style.cssText = 'display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:8px;padding:6px 8px;border-inline-start:3px solid #c59237;background:#f8fafc;border-radius:6px';
       const when = event.created_at ? new Date(event.created_at).toLocaleString(isEn ? 'en-US' : 'ar-SA') : '';
-      const reason = event.metadata?.note ? ' · ' + event.metadata.note : '';
-      row.innerHTML = '<span style="font-size:11px;color:#64748b">' + when + '</span><span><strong>' + String(event.action || '') + '</strong>' + reason + '</span>';
+      const reason = event.metadata?.note ? ' · ' + String(event.metadata.note) : '';
+      const timeEl = document.createElement('span');
+      timeEl.style.cssText = 'font-size:11px;color:#64748b';
+      timeEl.textContent = when;
+      const detailEl = document.createElement('span');
+      const strong = document.createElement('strong');
+      strong.textContent = String(event.action || '');
+      detailEl.appendChild(strong);
+      if (reason) detailEl.appendChild(document.createTextNode(reason));
+      row.append(timeEl, detailEl);
       timeline.appendChild(row);
     });
   }
