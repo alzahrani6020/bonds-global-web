@@ -78,6 +78,39 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("Word-compatible .doc");
   });
 
+  test('final PDF artifact is private, hashed and required before sending', () => {
+    const migration = read('supabase/migrations/20261111221000_correspondence_final_artifacts.sql');
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+
+    expect(migration).toContain("'correspondence-artifacts'");
+    expect(migration).toContain('false');
+    expect(migration).toContain("array['application/pdf']");
+    expect(migration).toContain('artifact_hash');
+    expect(api).toContain("action === 'artifact-upload-url'");
+    expect(api).toContain("action === 'artifact-finalize'");
+    expect(api).toContain('Final PDF artifact is required before sending');
+    expect(api).toContain('Final PDF artifact integrity check failed');
+    expect(api).toContain("contentType: 'application/pdf'");
+    expect(client).toContain("uploadToSignedUrl");
+    expect(client).toContain("api('artifact-finalize'");
+    expect(client).toContain("!!doc?.artifact_hash");
+  });
+
+  test('browser QR is same-origin and external QR service is server-proxied only', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    const api = read('lib/api/correspondence.js');
+
+    expect(client).toContain("'/api/correspondence?action=qr&token='");
+    expect(client).not.toContain('https://api.qrserver.com');
+    expect(ar).not.toContain('https://api.qrserver.com');
+    expect(en).not.toContain('https://api.qrserver.com');
+    expect(api).toContain("action === 'qr'");
+    expect(api).toContain('https://api.qrserver.com');
+  });
+
   test('verification page is public-read only and noindex', () => {
     const page = read('verify-document.html');
     expect(page).toContain('noindex,nofollow');
