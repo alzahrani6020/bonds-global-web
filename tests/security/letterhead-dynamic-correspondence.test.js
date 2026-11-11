@@ -175,6 +175,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain('searchCommandCenter');
     expect(client).toContain('renderTimeline');
     expect(client).toContain('canEditCurrent');
+    expect(client).toContain('hideLegacyGovernanceTriggers');
+    expect(client).toContain('button[onclick="sendToManager()"]');
     expect(client).toContain("can('approve')");
     expect(client).toContain("show('corr-stamp', can('stamp') && status === 'approved' && !doc?.stamped_by)");
     expect(client).toContain("window.prompt");
