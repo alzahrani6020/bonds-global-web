@@ -694,6 +694,34 @@
     state.lastHistorySnapshot = next;
   };
 
+  window.exportWord = function () {
+    const clone = document.getElementById('pages-container')?.cloneNode(true);
+    if (!clone) return toast('⚠️ ' + (isEn ? 'Document is unavailable' : 'المستند غير متوفر'));
+    clone.querySelectorAll('img').forEach(img => {
+      try { img.src = new URL(img.getAttribute('src') || '', location.href).href; } catch (_) {}
+    });
+    clone.querySelectorAll('[contenteditable]').forEach(el => el.removeAttribute('contenteditable'));
+    let css = '';
+    Array.from(document.styleSheets).forEach(sheet => {
+      try {
+        css += Array.from(sheet.cssRules || []).map(rule => rule.cssText).join('\n');
+      } catch (_) {}
+    });
+    const html = '<!doctype html><html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><style>' +
+      css + '\n@page{size:A4;margin:0}.sheet{page-break-after:always}</style></head><body>' +
+      clone.innerHTML + '</body></html>';
+    const blob = new Blob(['\ufeff', html], { type: 'application/msword;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (state.document?.reference_number || 'bonds-letterhead') + '.doc';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+    toast('✅ ' + (isEn ? 'Word-compatible .doc downloaded' : 'تم تنزيل ملف Word-compatible بصيغة .doc'));
+  };
+
   // Deterministic sequential multi-page PDF export.
   window.exportPDF = async function () {
     if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') return toast('⚠️ PDF libraries unavailable');
