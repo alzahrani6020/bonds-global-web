@@ -170,7 +170,11 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("page_size");
     expect(api).toContain("['confidential','restricted']");
 
-    expect(client).toContain('corr-command-center');
+    expect(client).toContain('corr-command-drawer');
+    expect(client).toContain('corr-workflow-strip');
+    expect(client).toContain('renderWorkflowStrip');
+    expect(client).toContain('setCommandDrawer');
+    expect(client).toContain('statusLabel');
     expect(client).toContain('refreshCommandCenter');
     expect(client).toContain('searchCommandCenter');
     expect(client).toContain('renderTimeline');
@@ -181,6 +185,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("show('corr-stamp', can('stamp') && status === 'approved' && !doc?.stamped_by)");
     expect(client).toContain("window.prompt");
     expect(client).toContain('corr-cancel');
+    expect(client).toContain("isEn ? 'Send to recipient' : 'إرسال للمستلم'");
+    expect(client).toContain("isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية'");
 
     expect(webhook).toContain("'email.delivered': 'delivered'");
     expect(webhook).toContain("'email.bounced': 'bounced'");
