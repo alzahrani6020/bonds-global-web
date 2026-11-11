@@ -139,6 +139,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const client = read('components/letterhead-correspondence.js');
     const migration = read('supabase/migrations/20261111233000_correspondence_command_center.sql');
     const webhook = read('api/email-webhook.mjs');
+    const email = read('lib/api/email.js');
 
     expect(migration).toContain('correspondence_tasks');
     expect(migration).toContain('correspondence_user_permissions');
@@ -162,6 +163,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
 
     expect(client).toContain('corr-command-center');
     expect(client).toContain('refreshCommandCenter');
+    expect(client).toContain('searchCommandCenter');
+    expect(client).toContain('renderTimeline');
+    expect(client).toContain('canEditCurrent');
     expect(client).toContain("can('approve')");
     expect(client).toContain("window.prompt");
     expect(client).toContain('corr-cancel');
@@ -171,6 +175,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(webhook).toContain("'email.complained': 'complained'");
     expect(webhook).toContain("event?.data?.email_id");
     expect(webhook).toContain("eq('provider_message_id', providerMessageId)");
+    expect(email).toContain("provider: 'smtp'");
   });
 
 });
