@@ -241,9 +241,9 @@
     return state.document;
   }
 
-  async function mark(action) {
+  async function mark(action, body = {}) {
     const doc = await ensureDocument();
-    const result = await api(action, { method: 'POST', id: doc.id, body: {} });
+    const result = await api(action, { method: 'POST', id: doc.id, body });
     state.document = result.document;
     renderGovernance();
     return state.document;
@@ -261,6 +261,7 @@
     document.getElementById('corr-confidentiality') && (document.getElementById('corr-confidentiality').value = state.document.confidentiality || 'internal');
     setEditorEditable(editable());
     renderGovernance();
+    renderGovernanceArtifacts();
     updateVerificationQr();
     return state.document;
   }
@@ -345,12 +346,45 @@
     show('corr-approve', isAdmin() && status === 'under_review');
     show('corr-return', isAdmin() && ['submitted','under_review','approved'].includes(status));
     show('corr-reject', isAdmin() && ['submitted','under_review','approved'].includes(status));
-    show('corr-sign', isAdmin() && ['approved','issued'].includes(status) && !doc?.signed_by);
+    show('corr-sign', isAdmin() && status === 'approved' && !doc?.signed_by);
     show('corr-issue', isAdmin() && status === 'approved' && !!doc?.signed_by);
-    show('corr-stamp', isAdmin() && ['approved','issued'].includes(status) && !doc?.stamped_by);
+    show('corr-stamp', isAdmin() && status === 'approved' && !doc?.stamped_by);
     show('corr-send', isAdmin() && status === 'issued');
     show('corr-archive', isAdmin() && ['issued','sent'].includes(status));
+    renderGovernanceArtifacts();
     updateVerificationQr();
+  }
+
+  function renderGovernanceArtifacts() {
+    document.querySelectorAll('[data-governance-artifact]').forEach(el => el.remove());
+    const doc = state.document;
+    if (!doc) return;
+    const target = document.querySelector('.doc-content:last-of-type') || Array.from(document.querySelectorAll('.doc-content')).pop();
+    if (!target) return;
+
+    if (doc.signature_image_data) {
+      const wrap = document.createElement('div');
+      wrap.dataset.governanceArtifact = 'signature';
+      wrap.contentEditable = 'false';
+      wrap.style.cssText = 'margin-top:24px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;';
+      const img = document.createElement('img');
+      img.src = doc.signature_image_data;
+      img.alt = isEn ? 'Governed signature' : 'توقيع موثق بالسجل';
+      img.style.cssText = 'max-width:200px;height:auto;display:block;';
+      const meta = document.createElement('small');
+      meta.textContent = isEn ? 'Signature recorded in Bonds audit trail' : 'التوقيع مسجل في سجل تدقيق بوندز';
+      wrap.append(img, meta);
+      target.appendChild(wrap);
+    }
+
+    if (doc.stamp_hash) {
+      const stamp = document.createElement('div');
+      stamp.dataset.governanceArtifact = 'stamp';
+      stamp.contentEditable = 'false';
+      stamp.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:3px double #a51d2d;border-radius:50%;color:#a51d2d;text-align:center;font-weight:700;white-space:pre-line;margin:14px 0;';
+      stamp.textContent = (isEn ? 'BONDS\nADMINISTRATIVE STAMP\n' : 'بوندز\nختم إداري\n') + (doc.reference_number || (isEn ? 'APPROVED' : 'معتمد'));
+      target.appendChild(stamp);
+    }
   }
 
   function updateVerificationQr() {
@@ -521,30 +555,27 @@
 
   window.saveSignature = async function () {
     try {
-      await mark('mark-signature');
-      legacy.saveSignature?.();
-      toast('✅ ' + (isEn ? 'Signature recorded in audit trail' : 'تم تسجيل التوقيع في سجل التدقيق'));
+      const canvas = document.getElementById('sig-canvas');
+      if (!canvas) throw new Error(isEn ? 'Signature canvas is unavailable' : 'لوحة التوقيع غير متوفرة');
+      const signatureData = canvas.toDataURL('image/png');
+      await mark('mark-signature', { signature_data_url: signatureData });
+      legacy.closeSignatureModal?.();
+      if (typeof window.clearSignature === 'function') window.clearSignature();
+      renderGovernanceArtifacts();
+      toast('✅ ' + (isEn ? 'Signature persisted and recorded in audit trail' : 'تم حفظ التوقيع وتسجيله في سجل التدقيق'));
     } catch (e) {
       toast('⚠️ ' + e.message);
     }
   };
 
   window.insertStamp = async function () {
-    if (!isAdmin() || !state.document || !['approved','issued'].includes(state.document.status)) {
-      return toast('⚠️ ' + (isEn ? 'Stamp requires an approved document and admin permission' : 'الختم يتطلب مستندًا معتمدًا وصلاحية إدارية'));
+    if (!isAdmin() || !state.document || state.document.status !== 'approved') {
+      return toast('⚠️ ' + (isEn ? 'Stamp requires an approved document and admin permission before issuance' : 'الختم يتطلب مستندًا معتمدًا وصلاحية إدارية قبل الإصدار'));
     }
     try {
       await mark('mark-stamp');
-      const doc = document.querySelector('.doc-content[contenteditable="true"]') || document.querySelector('.doc-content');
-      if (!doc) return;
-      const label = state.document.reference_number || (isEn ? 'APPROVED' : 'معتمد');
-      const stamp = document.createElement('div');
-      stamp.className = 'letter-stamp';
-      stamp.contentEditable = 'false';
-      stamp.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:3px double #a51d2d;border-radius:50%;color:#a51d2d;text-align:center;font-weight:700;white-space:pre-line;margin:10px;';
-      stamp.textContent = (isEn ? 'BONDS\nADMINISTRATIVE STAMP\n' : 'بوندز\nختم إداري\n') + label;
-      doc.appendChild(stamp);
-      toast('✅ ' + (isEn ? 'Governed stamp inserted' : 'تم إدراج الختم الإداري الموثق في السجل'));
+      renderGovernanceArtifacts();
+      toast('✅ ' + (isEn ? 'Governed stamp recorded' : 'تم تسجيل الختم الإداري في سجل التدقيق'));
     } catch (e) {
       toast('⚠️ ' + e.message);
     }
