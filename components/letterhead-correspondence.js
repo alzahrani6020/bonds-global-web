@@ -384,11 +384,20 @@
           <strong>${isEn ? 'Command center' : 'مركز الأوامر'}</strong>
           <button type="button" id="corr-command-refresh">${isEn ? 'Refresh' : 'تحديث'}</button>
         </div>
+        <div style="display:flex;gap:6px;margin-top:8px">
+          <input id="corr-command-search" type="search" maxlength="200" placeholder="${isEn ? 'Search reference, recipient, subject…' : 'ابحث بالرقم أو المستلم أو الموضوع…'}" style="flex:1;min-width:0;padding:7px;border:1px solid #cbd5e1;border-radius:8px">
+          <button type="button" id="corr-command-search-btn">${isEn ? 'Search' : 'بحث'}</button>
+        </div>
+        <div id="corr-command-results" style="display:grid;gap:5px;margin-top:8px"></div>
         <div id="corr-summary" style="display:grid;grid-template-columns:repeat(3,minmax(70px,1fr));gap:6px;margin-top:8px"></div>
       </section>
       <section style="border:1px solid #dbe3ec;border-radius:10px;padding:10px;background:#fff">
         <strong>${isEn ? 'My work / exceptions' : 'مهامي والاستثناءات'}</strong>
         <div id="corr-my-work" style="display:grid;gap:6px;margin-top:8px"></div>
+      </section>
+      <section style="grid-column:1/-1;border:1px solid #dbe3ec;border-radius:10px;padding:10px;background:#fff">
+        <strong>${isEn ? 'Document activity' : 'سجل نشاط المستند'}</strong>
+        <div id="corr-timeline" style="display:grid;gap:5px;margin-top:8px;max-height:220px;overflow:auto"></div>
       </section>
     `;
     bar.appendChild(commandCenter);
@@ -400,6 +409,12 @@
     });
     document.getElementById('corr-command-refresh')?.addEventListener('click', () => {
       refreshCommandCenter().catch(e => toast('⚠️ ' + e.message));
+    });
+    const searchInput = document.getElementById('corr-command-search');
+    const runSearch = () => searchCommandCenter(searchInput?.value || '').catch(e => toast('⚠️ ' + e.message));
+    document.getElementById('corr-command-search-btn')?.addEventListener('click', runSearch);
+    searchInput?.addEventListener('keydown', event => {
+      if (event.key === 'Enter') { event.preventDefault(); runSearch(); }
     });
     const actions = document.getElementById('corr-actions');
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
@@ -455,6 +470,54 @@
     show('corr-archive', can('archive') && ['issued','sent'].includes(status));
     renderGovernanceArtifacts();
     updateVerificationQr();
+    renderTimeline();
+  }
+
+  function renderTimeline() {
+    const timeline = document.getElementById('corr-timeline');
+    if (!timeline) return;
+    timeline.innerHTML = '';
+    if (!state.document) {
+      timeline.textContent = isEn ? 'Open a document to see its activity' : 'افتح مستندًا لعرض سجل نشاطه';
+      return;
+    }
+    if (!state.events.length) {
+      timeline.textContent = isEn ? 'No activity recorded' : 'لا توجد أحداث مسجلة';
+      return;
+    }
+    state.events.slice(0, 50).forEach(event => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:8px;padding:6px 8px;border-inline-start:3px solid #c59237;background:#f8fafc;border-radius:6px';
+      const when = event.created_at ? new Date(event.created_at).toLocaleString(isEn ? 'en-US' : 'ar-SA') : '';
+      const reason = event.metadata?.note ? ' · ' + event.metadata.note : '';
+      row.innerHTML = '<span style="font-size:11px;color:#64748b">' + when + '</span><span><strong>' + String(event.action || '') + '</strong>' + reason + '</span>';
+      timeline.appendChild(row);
+    });
+  }
+
+  async function searchCommandCenter(term) {
+    const resultsEl = document.getElementById('corr-command-results');
+    if (!resultsEl) return;
+    const q = String(term || '').trim();
+    if (!q) {
+      resultsEl.innerHTML = '';
+      return;
+    }
+    const result = await api('list', { query: { q, page: 1, page_size: 10 } });
+    resultsEl.innerHTML = '';
+    const documents = result.documents || [];
+    if (!documents.length) {
+      resultsEl.textContent = isEn ? 'No matching correspondence' : 'لا توجد مراسلات مطابقة';
+      return;
+    }
+    documents.forEach(doc => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.style.cssText = 'text-align:start;padding:7px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer';
+      row.textContent = (doc.reference_number || doc.title || doc.id) + ' · ' + doc.status + (doc.recipient_organization ? ' · ' + doc.recipient_organization : '');
+      row.addEventListener('click', () => loadDocument(doc.id).catch(e => toast('⚠️ ' + e.message)));
+      resultsEl.appendChild(row);
+    });
   }
 
   async function refreshCommandCenter() {
