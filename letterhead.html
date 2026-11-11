@@ -420,7 +420,57 @@
     .zoom-level { color:var(--text-secondary); font-size:12px; min-width:40px; display:inline-block; text-align:center; }
     .toolbar button:focus-visible, .toolbar select:focus-visible { outline:2px solid var(--gold); outline-offset:2px; }
     @media print { .pages-container { transform:none !important; } }
-  </style>
+  
+    /* Correspondence governance UI consolidation */
+    .corr-governance-shell{position:sticky;top:0;z-index:80;background:#fff;border-bottom:1px solid #dbe3ec;box-shadow:0 4px 14px rgba(10,35,66,.05);font:13px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#0a2342}
+    .corr-workflow-strip{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 14px}
+    .corr-identity{display:flex;align-items:center;gap:8px;min-width:220px}
+    .corr-status-badge,.corr-meta-badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-weight:700}
+    .corr-status-badge{background:#0a2342;color:#fff}
+    .corr-ref{color:#475569;font-weight:700}
+    .corr-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1}
+    .corr-meta-badge{background:#f1f5f9;color:#334155;font-weight:600}
+    .corr-workflow{display:flex;align-items:center;gap:4px;flex-wrap:wrap;flex-basis:100%;padding-top:2px}
+    .corr-step{display:inline-flex;align-items:center;gap:5px;color:#64748b;font-size:12px;font-weight:700}
+    .corr-step::after{content:"←";color:#cbd5e1;margin-inline:3px}
+    .corr-step:last-child::after{display:none}
+    .corr-step.is-current{color:#0a2342}
+    .corr-step.is-complete{color:#15803d}
+    .corr-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-inline-start:auto}
+    .corr-btn{border:1px solid #cbd5e1;background:#fff;color:#0a2342;border-radius:8px;padding:7px 11px;font-weight:700;cursor:pointer}
+    .corr-btn:hover{border-color:#c59237;background:#fffaf0}
+    .corr-btn-primary{background:#0a2342;color:#fff;border-color:#0a2342}
+    .corr-btn-danger{color:#b91c1c;border-color:#fecaca;background:#fff7f7}
+    .corr-drawer-toggle{white-space:nowrap}
+    .corr-details-panel{padding:0 14px 12px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+    .corr-details-panel[hidden]{display:none}
+    .corr-details-panel label{display:grid;gap:4px;color:#475569;font-size:12px;font-weight:700}
+    .corr-details-panel input,.corr-details-panel select{border:1px solid #cbd5e1;border-radius:8px;padding:7px 8px;background:#fff;color:#0f172a}
+    .corr-command-drawer{position:fixed;top:0;bottom:0;inset-inline-end:0;width:min(430px,94vw);z-index:2200;background:#fff;box-shadow:-14px 0 40px rgba(15,23,42,.18);transform:translateX(110%);transition:transform .2s ease;display:flex;flex-direction:column;color:#0f172a}
+    [dir="rtl"] .corr-command-drawer{transform:translateX(-110%)}
+    .corr-command-drawer.open{transform:translateX(0)}
+    .corr-drawer-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid #e2e8f0;background:#0a2342;color:#fff}
+    .corr-drawer-header button{border:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;border-radius:8px;padding:6px 9px;cursor:pointer}
+    .corr-drawer-body{padding:14px;overflow:auto;display:grid;gap:12px}
+    .corr-card{border:1px solid #e2e8f0;border-radius:12px;padding:11px;background:#fff}
+    .corr-search-row{display:flex;gap:6px;margin-top:8px}
+    .corr-search-row input{flex:1;min-width:0;padding:8px;border:1px solid #cbd5e1;border-radius:8px}
+    .corr-summary-grid{display:grid;grid-template-columns:repeat(3,minmax(70px,1fr));gap:6px;margin-top:8px}
+    .corr-drawer-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.25);z-index:2190;display:none}
+    .corr-drawer-backdrop.open{display:block}
+    .corr-timeline{display:grid;gap:5px;margin-top:8px;max-height:260px;overflow:auto}
+    @media (max-width:700px){
+      .corr-workflow-strip{padding:8px 10px}
+      .corr-identity{min-width:0;flex-basis:100%}
+      .corr-meta{order:3;flex-basis:100%}
+      .corr-actions{margin-inline-start:0}
+      .corr-workflow{overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px}
+    }
+    @media print{
+      .corr-governance-shell,.corr-command-drawer,.corr-drawer-backdrop{display:none!important}
+    }
+
+</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script defer src="/global-auth-gate.js?v=3"></script>
