@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Verify Bonds Correspondence | Bonds</title>
+  <meta name="description" content="Verify the authenticity, status, and digital fingerprints of correspondence issued by Bonds." />
+  <link rel="canonical" href="https://bonds-global.com/en/verify-document.html" />
+  <meta property="og:title" content="Verify Bonds Correspondence | Bonds" />
+  <meta property="og:description" content="Verify the authenticity, status, and digital fingerprints of correspondence issued by Bonds." />
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png" />
+  <meta property="og:url" content="https://bonds-global.com/en/verify-document.html" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Verify Bonds Correspondence | Bonds" />
+  <meta name="twitter:description" content="Verify the authenticity, status, and digital fingerprints of correspondence issued by Bonds." />
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png" />
+  <link rel="icon" href="/assets/bonds-mark.svg">
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;color:#0a2342;background:#f4f7fb}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
+    main{width:min(720px,100%);background:#fff;border:1px solid #dbe3ec;border-radius:18px;padding:28px;box-shadow:0 18px 50px #0a234214}
+    h1{margin-top:0}.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eaf8ef;color:#176b35;font-weight:700}
+    .bad{background:#fff0f0;color:#9f1c1c}.grid{display:grid;grid-template-columns:160px 1fr;gap:10px;margin-top:22px}
+    dt{font-weight:700}dd{margin:0;word-break:break-word}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+    a{color:#9b7727}@media(max-width:600px){.grid{grid-template-columns:1fr}.grid dd{margin-bottom:10px}}
+  </style>
+</head>
+<body>
+<main>
+  <h1>Verify Bonds correspondence</h1>
+  <div id="status" class="badge">Verifying…</div>
+  <dl class="grid" id="details" hidden>
+    <dt>Reference</dt><dd id="reference"></dd>
+    <dt>Subject</dt><dd id="subject"></dd>
+    <dt>Status</dt><dd id="doc-status"></dd>
+    <dt>Issued at</dt><dd id="issued"></dd>
+    <dt>Sent at</dt><dd id="sent"></dd>
+    <dt>SHA-256</dt><dd id="hash" class="hash"></dd>
+    <dt>Issued package hash</dt><dd id="issued-hash" class="hash"></dd>
+    <dt>Signature</dt><dd id="signature-state"></dd>
+    <dt>Stamp</dt><dd id="stamp-state"></dd>
+  </dl>
+  <p><a href="/en/">Back to Bonds</a></p>
+</main>
+<script>
+(async function(){
+  const status=document.getElementById('status'), details=document.getElementById('details');
+  const token=new URLSearchParams(location.search).get('token')||'';
+  if(!token){status.textContent='Missing verification token';status.classList.add('bad');return;}
+  try{
+    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.verified)throw new Error('not-verified');
+    status.textContent='Verified Bonds document';
+    document.getElementById('reference').textContent=d.reference_number||'-';
+    document.getElementById('subject').textContent=d.subject||d.title||'-';
+    document.getElementById('doc-status').textContent=d.status||'-';
+    document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('en-US'):'-';
+    document.getElementById('sent').textContent=d.sent_at?new Date(d.sent_at).toLocaleString('en-US'):'-';
+    document.getElementById('hash').textContent=d.checksum_sha256||'-';
+    document.getElementById('issued-hash').textContent=d.issued_hash||'-';
+    document.getElementById('signature-state').textContent=d.signature_verified?'Verified':'Not recorded';
+    document.getElementById('stamp-state').textContent=d.stamp_verified?'Verified':'Not recorded';
+    details.hidden=false;
+  }catch(e){
+    status.textContent='Document could not be verified';
+    status.classList.add('bad');
+  }
+})();
+</script>
+</body>
+</html>
