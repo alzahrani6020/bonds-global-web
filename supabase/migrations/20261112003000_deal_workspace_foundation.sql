@@ -1,5 +1,5 @@
 -- Bonds Deal Operating System - foundation.
--- Additive only. No DROP/TRUNCATE/DELETE/REINDEX operations.
+-- Strictly additive migration; destructive DDL/DML is intentionally absent.
 
 create table if not exists public.bonds_deals (
   id uuid primary key default gen_random_uuid(),
