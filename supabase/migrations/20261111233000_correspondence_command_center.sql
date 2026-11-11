@@ -61,3 +61,21 @@ drop trigger if exists trg_correspondence_task_updated_at on public.corresponden
 create trigger trg_correspondence_task_updated_at
 before update on public.correspondence_tasks
 for each row execute function public.touch_correspondence_task_updated_at();
+
+
+create table if not exists public.correspondence_user_permissions (
+  user_id uuid not null references auth.users(id) on delete cascade,
+  permission text not null check (
+    permission in ('review','approve','sign','stamp','issue','finalize_pdf','send','archive','read_all')
+  ),
+  granted_by uuid references auth.users(id) on delete set null,
+  granted_at timestamptz not null default now(),
+  primary key(user_id, permission)
+);
+
+create index if not exists idx_correspondence_user_permissions_permission
+  on public.correspondence_user_permissions(permission, user_id);
+
+alter table public.correspondence_user_permissions enable row level security;
+revoke all on public.correspondence_user_permissions from anon, authenticated;
+grant all on public.correspondence_user_permissions to service_role;
