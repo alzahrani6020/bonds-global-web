@@ -10,9 +10,6 @@ alter table public.correspondence_documents
   add column if not exists delivery_updated_at timestamptz;
 
 alter table public.correspondence_documents
-  drop constraint if exists correspondence_documents_delivery_status_check;
-
-alter table public.correspondence_documents
   add constraint correspondence_documents_delivery_status_check
   check (
     delivery_status is null
@@ -62,7 +59,6 @@ begin
 end;
 $$;
 
-drop trigger if exists trg_correspondence_task_updated_at on public.correspondence_tasks;
 create trigger trg_correspondence_task_updated_at
 before update on public.correspondence_tasks
 for each row execute function public.touch_correspondence_task_updated_at();
