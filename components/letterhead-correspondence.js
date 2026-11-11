@@ -178,7 +178,7 @@
       method: 'POST',
       body: {
         language: isEn ? 'en' : 'ar',
-        direction: 'outgoing',
+        direction: document.getElementById('corr-direction')?.value || 'outgoing',
         document_type: 'letter',
         title: titleFromText(text),
         subject: subjectFromText(text),
@@ -216,6 +216,11 @@
           subject: subjectFromText(text),
           priority: document.getElementById('corr-priority')?.value || doc.priority || 'normal',
           confidentiality: document.getElementById('corr-confidentiality')?.value || doc.confidentiality || 'internal',
+          recipient_organization: document.getElementById('corr-recipient-org')?.value || null,
+          recipient_name: document.getElementById('corr-recipient-name')?.value || null,
+          recipient_title: document.getElementById('corr-recipient-title')?.value || null,
+          recipient_email: document.getElementById('corr-recipient-email')?.value || null,
+          sender_department: document.getElementById('corr-sender-dept')?.value || null,
           workspace_context: currentWorkspaceContext()
         }
       });
@@ -259,6 +264,18 @@
     if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html);
     document.getElementById('corr-priority') && (document.getElementById('corr-priority').value = state.document.priority || 'normal');
     document.getElementById('corr-confidentiality') && (document.getElementById('corr-confidentiality').value = state.document.confidentiality || 'internal');
+    document.getElementById('corr-direction') && (document.getElementById('corr-direction').value = state.document.direction || 'outgoing');
+    const metadataMap = {
+      'corr-recipient-org': 'recipient_organization',
+      'corr-recipient-name': 'recipient_name',
+      'corr-recipient-title': 'recipient_title',
+      'corr-recipient-email': 'recipient_email',
+      'corr-sender-dept': 'sender_department'
+    };
+    Object.entries(metadataMap).forEach(([id, key]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = state.document[key] || '';
+    });
     setEditorEditable(editable());
     renderGovernance();
     renderGovernanceArtifacts();
@@ -287,6 +304,13 @@
     bar.innerHTML = `
       <strong id="corr-status">${t.status}: draft</strong>
       <span id="corr-reference">${t.ref}: ${t.noRef}</span>
+      <label>${isEn ? 'Direction' : 'الاتجاه'}
+        <select id="corr-direction">
+          <option value="outgoing">${isEn ? 'Outgoing' : 'صادر'}</option>
+          <option value="incoming">${isEn ? 'Incoming' : 'وارد'}</option>
+          <option value="internal">${isEn ? 'Internal' : 'داخلي'}</option>
+        </select>
+      </label>
       <label>${isEn ? 'Priority' : 'الأولوية'}
         <select id="corr-priority">
           <option value="low">${isEn ? 'Low' : 'منخفضة'}</option>
@@ -303,10 +327,27 @@
           <option value="restricted">${isEn ? 'Restricted' : 'مقيد'}</option>
         </select>
       </label>
+      <button type="button" id="corr-details-toggle">${isEn ? 'Details' : 'بيانات الخطاب'}</button>
       <span id="corr-actions" style="display:flex;flex-wrap:wrap;gap:6px"></span>
     `;
+    const details = document.createElement('div');
+    details.id = 'corr-details-panel';
+    details.hidden = true;
+    details.setAttribute('style', 'flex-basis:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;padding-top:8px;');
+    details.innerHTML = `
+      <label>${isEn ? 'Recipient organization' : 'الجهة المستلمة'}<input id="corr-recipient-org" type="text" maxlength="250"></label>
+      <label>${isEn ? 'Recipient name' : 'اسم المستلم'}<input id="corr-recipient-name" type="text" maxlength="250"></label>
+      <label>${isEn ? 'Recipient title' : 'منصب المستلم'}<input id="corr-recipient-title" type="text" maxlength="250"></label>
+      <label>${isEn ? 'Recipient email' : 'بريد المستلم'}<input id="corr-recipient-email" type="email" maxlength="320" dir="ltr"></label>
+      <label>${isEn ? 'Sender department' : 'إدارة المرسل'}<input id="corr-sender-dept" type="text" maxlength="250"></label>
+    `;
+    bar.appendChild(details);
     const pages = document.getElementById('pages-container');
     pages?.parentNode?.insertBefore(bar, pages);
+    document.getElementById('corr-details-toggle')?.addEventListener('click', () => {
+      const panel = document.getElementById('corr-details-panel');
+      if (panel) panel.hidden = !panel.hidden;
+    });
     const actions = document.getElementById('corr-actions');
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
     addButton(actions, 'corr-submit', t.submit, () => transition('submitted'));
@@ -334,6 +375,10 @@
       const c = document.getElementById('corr-confidentiality');
       if (p) { p.value = doc.priority || 'normal'; p.disabled = !editable(); }
       if (c) { c.value = doc.confidentiality || 'internal'; c.disabled = !editable(); }
+      const direction = document.getElementById('corr-direction');
+      if (direction) { direction.value = doc.direction || 'outgoing'; direction.disabled = !editable(); }
+      ['corr-recipient-org','corr-recipient-name','corr-recipient-title','corr-recipient-email','corr-sender-dept']
+        .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !editable(); });
     }
 
     const show = (id, yes) => {
