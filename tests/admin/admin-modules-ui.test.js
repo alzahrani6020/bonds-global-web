@@ -142,6 +142,18 @@ async function stabilizePage(page) {
   }
 }
 
+async function addAxeAfterStableNavigation(page) {
+  await stabilizePage(page);
+  try {
+    await page.addScriptTag({ content: axeCore.source });
+  } catch (error) {
+    if (!/Execution context was destroyed/i.test(error.message)) throw error;
+    await page.waitForLoadState('domcontentloaded');
+    await stabilizePage(page);
+    await page.addScriptTag({ content: axeCore.source });
+  }
+}
+
 describe('admin linked modules UI', () => {
   test('all dashboard-linked admin modules render without fatal UI failures', async () => {
     const targets = await getDashboardModuleTargets();
@@ -304,8 +316,7 @@ describe('admin linked modules UI', () => {
           }
         );
 
-        await stabilizePage(page);
-        await page.addScriptTag({ content: axeCore.source });
+        await addAxeAfterStableNavigation(page);
 
         const violations = await page.evaluate(async () => {
           const result = await axe.run(document, {

@@ -30,12 +30,16 @@
     latestVersion: null,
     events: [],
     role: 'user',
+    permissions: [],
+    userId: null,
     list: [],
     lastSavedSnapshot: '',
     history: [],
     future: [],
     lastHistorySnapshot: '',
-    loading: false
+    loading: false,
+    summary: null,
+    tasks: []
   };
 
   const legacy = {
@@ -51,6 +55,7 @@
   async function authHeaders() {
     const session = await window.BondsAuth?.getSession?.();
     const token = session?.data?.session?.access_token || '';
+    state.userId = session?.data?.session?.user?.id || state.userId || null;
     if (!token) throw Object.assign(new Error(t.auth), { status: 401 });
     return { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token };
   }
@@ -62,6 +67,11 @@
     if (options.token) params.set('token', options.token);
     if (options.status) params.set('status', options.status);
     if (options.direction) params.set('direction', options.direction);
+    if (options.query && typeof options.query === 'object') {
+      Object.entries(options.query).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && String(value) !== '') params.set(key, String(value));
+      });
+    }
     const headers = action === 'verify' ? {} : await authHeaders();
     const res = await fetch('/api/correspondence?' + params.toString(), {
       method,
@@ -113,6 +123,18 @@
 
   function isAdmin() {
     return ADMIN.has(state.role);
+  }
+
+  function can(permission) {
+    return isAdmin() || state.permissions.includes(permission);
+  }
+
+  function isOwner() {
+    return !!state.document && !!state.userId && state.document.owner_user_id === state.userId;
+  }
+
+  function canEditCurrent() {
+    return editable() && (!state.document || isOwner());
   }
 
   function setEditorEditable(enabled) {
@@ -194,6 +216,7 @@
     });
     state.document = result.document;
     state.role = result.role || state.role;
+    state.permissions = Array.isArray(result.permissions) ? result.permissions : state.permissions;
     syncUrl(state.document.id);
     renderGovernance();
     return state.document;
@@ -235,6 +258,7 @@
       try { localStorage.setItem('bonds_letterhead_offline_backup', snap); } catch (_) {}
       if (!silent) toast('✅ ' + t.saved + ' #' + result.version);
       renderGovernance();
+      refreshCommandCenter().catch(() => {});
       return state.document;
     } finally {
       state.loading = false;
@@ -243,6 +267,11 @@
 
   async function transition(target, note) {
     const doc = await ensureDocument();
+    if (['returned', 'rejected', 'cancelled'].includes(target) && !String(note || '').trim()) {
+      const reason = window.prompt(isEn ? 'Reason is required for this action:' : 'سبب الإجراء إلزامي:');
+      if (!String(reason || '').trim()) throw new Error(isEn ? 'A reason is required' : 'يجب إدخال السبب');
+      note = reason.trim();
+    }
     const result = await api('transition', { method: 'POST', id: doc.id, body: { target, note: note || null } });
     state.document = result.document;
     renderGovernance();
@@ -253,7 +282,7 @@
       await persistIssuedPdfArtifact();
     }
     toast('✅ ' + t.status + ': ' + state.document.status);
-    await refreshInboxDynamic();
+    await Promise.all([refreshInboxDynamic(), refreshCommandCenter()]);
     return state.document;
   }
 
@@ -271,6 +300,7 @@
     state.latestVersion = result.latest_version;
     state.events = result.events || [];
     state.role = result.role || 'user';
+    state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
     syncUrl(state.document.id);
     if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html);
     document.getElementById('corr-priority') && (document.getElementById('corr-priority').value = state.document.priority || 'normal');
@@ -291,30 +321,70 @@
     renderGovernance();
     renderGovernanceArtifacts();
     updateVerificationQr();
+    refreshCommandCenter().catch(() => {});
     return state.document;
   }
 
-  function addButton(parent, id, label, handler) {
+  function addButton(parent, id, label, handler, options = {}) {
     let btn = document.getElementById(id);
     if (!btn) {
       btn = document.createElement('button');
       btn.id = id;
       btn.type = 'button';
       btn.textContent = label;
+      btn.className = ['corr-btn', options.primary ? 'corr-btn-primary' : '', options.danger ? 'corr-btn-danger' : ''].filter(Boolean).join(' ');
       btn.addEventListener('click', () => Promise.resolve(handler()).catch(e => toast('⚠️ ' + e.message)));
       parent.appendChild(btn);
+    } else {
+      btn.textContent = label;
+      btn.className = ['corr-btn', options.primary ? 'corr-btn-primary' : '', options.danger ? 'corr-btn-danger' : ''].filter(Boolean).join(' ');
     }
     return btn;
   }
 
+  function hideLegacyGovernanceTriggers() {
+    [
+      'button[onclick="generateRef()"]',
+      'button[onclick="openSignatureModal()"]',
+      'button[onclick="insertStamp()"]',
+      'button[onclick="sendToManager()"]'
+    ].forEach(selector => {
+      document.querySelectorAll(selector).forEach(button => {
+        button.hidden = true;
+        button.setAttribute('aria-hidden', 'true');
+        button.tabIndex = -1;
+      });
+    });
+  }
+
   function buildGovernanceBar() {
     if (document.getElementById('correspondence-governance')) return;
-    const bar = document.createElement('div');
-    bar.id = 'correspondence-governance';
-    bar.setAttribute('style', 'position:sticky;top:0;z-index:80;display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 14px;background:#fff;border-bottom:1px solid #dbe3ec;font:13px/1.4 system-ui;color:#0a2342;');
-    bar.innerHTML = `
-      <strong id="corr-status">${t.status}: draft</strong>
-      <span id="corr-reference">${t.ref}: ${t.noRef}</span>
+
+    const shell = document.createElement('section');
+    shell.id = 'correspondence-governance';
+    shell.className = 'corr-governance-shell';
+
+    const strip = document.createElement('div');
+    strip.className = 'corr-workflow-strip';
+    strip.innerHTML = `
+      <div class="corr-identity">
+        <span id="corr-status" class="corr-status-badge">${isEn ? 'Draft' : 'مسودة'}</span>
+        <span id="corr-reference" class="corr-ref">${isEn ? 'No reference yet' : 'لم يصدر رقم بعد'}</span>
+      </div>
+      <div class="corr-meta" id="corr-meta">
+        <span class="corr-meta-badge" id="corr-direction-badge"></span>
+        <span class="corr-meta-badge" id="corr-priority-badge"></span>
+        <span class="corr-meta-badge" id="corr-confidentiality-badge"></span>
+      </div>
+      <div class="corr-actions" id="corr-actions"></div>
+      <div class="corr-workflow" id="corr-workflow"></div>
+    `;
+
+    const details = document.createElement('div');
+    details.id = 'corr-details-panel';
+    details.className = 'corr-details-panel';
+    details.hidden = true;
+    details.innerHTML = `
       <label>${isEn ? 'Direction' : 'الاتجاه'}
         <select id="corr-direction">
           <option value="outgoing">${isEn ? 'Outgoing' : 'صادر'}</option>
@@ -325,7 +395,7 @@
       <label>${isEn ? 'Priority' : 'الأولوية'}
         <select id="corr-priority">
           <option value="low">${isEn ? 'Low' : 'منخفضة'}</option>
-          <option value="normal" selected>${isEn ? 'Normal' : 'عادية'}</option>
+          <option value="normal">${isEn ? 'Normal' : 'عادية'}</option>
           <option value="high">${isEn ? 'High' : 'عالية'}</option>
           <option value="urgent">${isEn ? 'Urgent' : 'عاجلة'}</option>
         </select>
@@ -333,45 +403,129 @@
       <label>${isEn ? 'Confidentiality' : 'السرية'}
         <select id="corr-confidentiality">
           <option value="public">${isEn ? 'Public' : 'عام'}</option>
-          <option value="internal" selected>${isEn ? 'Internal' : 'داخلي'}</option>
+          <option value="internal">${isEn ? 'Internal' : 'داخلي'}</option>
           <option value="confidential">${isEn ? 'Confidential' : 'سري'}</option>
           <option value="restricted">${isEn ? 'Restricted' : 'مقيد'}</option>
         </select>
       </label>
-      <button type="button" id="corr-details-toggle">${isEn ? 'Details' : 'بيانات الخطاب'}</button>
-      <span id="corr-actions" style="display:flex;flex-wrap:wrap;gap:6px"></span>
-    `;
-    const details = document.createElement('div');
-    details.id = 'corr-details-panel';
-    details.hidden = true;
-    details.setAttribute('style', 'flex-basis:100%;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;padding-top:8px;');
-    details.innerHTML = `
       <label>${isEn ? 'Recipient organization' : 'الجهة المستلمة'}<input id="corr-recipient-org" type="text" maxlength="250"></label>
       <label>${isEn ? 'Recipient name' : 'اسم المستلم'}<input id="corr-recipient-name" type="text" maxlength="250"></label>
       <label>${isEn ? 'Recipient title' : 'منصب المستلم'}<input id="corr-recipient-title" type="text" maxlength="250"></label>
       <label>${isEn ? 'Recipient email' : 'بريد المستلم'}<input id="corr-recipient-email" type="email" maxlength="320" dir="ltr"></label>
       <label>${isEn ? 'Sender department' : 'إدارة المرسل'}<input id="corr-sender-dept" type="text" maxlength="250"></label>
     `;
-    bar.appendChild(details);
+
+    shell.append(strip, details);
+
+    const drawerBackdrop = document.createElement('div');
+    drawerBackdrop.id = 'corr-drawer-backdrop';
+    drawerBackdrop.className = 'corr-drawer-backdrop';
+    drawerBackdrop.setAttribute('aria-hidden', 'true');
+
+    const drawer = document.createElement('aside');
+    drawer.id = 'corr-command-drawer';
+    drawer.className = 'corr-command-drawer';
+    drawer.setAttribute('aria-hidden', 'true');
+    drawer.innerHTML = `
+      <div class="corr-drawer-header">
+        <strong>${isEn ? 'Correspondence center' : 'مركز المراسلات'}</strong>
+        <button type="button" id="corr-drawer-close" aria-label="${isEn ? 'Close command center' : 'إغلاق مركز المراسلات'}">✕</button>
+      </div>
+      <div class="corr-drawer-body">
+        <section class="corr-card">
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+            <strong>${isEn ? 'Command center' : 'مركز الأوامر'}</strong>
+            <button type="button" class="corr-btn" id="corr-command-refresh">${isEn ? 'Refresh' : 'تحديث'}</button>
+          </div>
+          <div class="corr-search-row">
+            <input id="corr-command-search" type="search" maxlength="200" placeholder="${isEn ? 'Search reference, recipient, subject…' : 'ابحث بالرقم أو المستلم أو الموضوع…'}">
+            <button type="button" class="corr-btn" id="corr-command-search-btn">${isEn ? 'Search' : 'بحث'}</button>
+          </div>
+          <div id="corr-command-results" style="display:grid;gap:5px;margin-top:8px"></div>
+          <div id="corr-summary" class="corr-summary-grid"></div>
+        </section>
+        <section class="corr-card">
+          <strong>${isEn ? 'My work / exceptions' : 'مهامي والاستثناءات'}</strong>
+          <div id="corr-my-work" style="display:grid;gap:6px;margin-top:8px"></div>
+        </section>
+        <section class="corr-card">
+          <strong>${isEn ? 'Document activity' : 'سجل نشاط المستند'}</strong>
+          <div id="corr-timeline" class="corr-timeline"></div>
+        </section>
+      </div>
+    `;
+
     const pages = document.getElementById('pages-container');
-    pages?.parentNode?.insertBefore(bar, pages);
-    document.getElementById('corr-details-toggle')?.addEventListener('click', () => {
+    pages?.parentNode?.insertBefore(shell, pages);
+    document.body.append(drawerBackdrop, drawer);
+
+    hideLegacyGovernanceTriggers();
+
+    const closeDrawer = () => setCommandDrawer(false);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+    document.getElementById('corr-drawer-close')?.addEventListener('click', closeDrawer);
+
+    document.getElementById('corr-command-refresh')?.addEventListener('click', () => {
+      refreshCommandCenter().catch(e => toast('⚠️ ' + e.message));
+    });
+    const searchInput = document.getElementById('corr-command-search');
+    const runSearch = () => searchCommandCenter(searchInput?.value || '').catch(e => toast('⚠️ ' + e.message));
+    document.getElementById('corr-command-search-btn')?.addEventListener('click', runSearch);
+    searchInput?.addEventListener('keydown', event => {
+      if (event.key === 'Enter') { event.preventDefault(); runSearch(); }
+    });
+
+    const actions = document.getElementById('corr-actions');
+    addButton(actions, 'corr-details-toggle', isEn ? 'Details' : 'بيانات الخطاب', () => {
       const panel = document.getElementById('corr-details-panel');
       if (panel) panel.hidden = !panel.hidden;
     });
-    const actions = document.getElementById('corr-actions');
+    addButton(actions, 'corr-command-open', isEn ? 'Command center' : 'مركز المراسلات', () => setCommandDrawer(true));
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
-    addButton(actions, 'corr-submit', t.submit, () => transition('submitted'));
-    addButton(actions, 'corr-review', t.review, () => transition('under_review'));
-    addButton(actions, 'corr-approve', t.approve, () => transition('approved'));
+    addButton(actions, 'corr-submit', t.submit, () => transition('submitted'), { primary: true });
+    addButton(actions, 'corr-review', t.review, () => transition('under_review'), { primary: true });
+    addButton(actions, 'corr-approve', t.approve, () => transition('approved'), { primary: true });
     addButton(actions, 'corr-return', t.return, () => transition('returned'));
-    addButton(actions, 'corr-reject', t.reject, () => transition('rejected'));
-    addButton(actions, 'corr-sign', t.sign, () => window.openSignatureModal());
-    addButton(actions, 'corr-issue', t.issue, () => transition('issued'));
-    addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp());
-    addButton(actions, 'corr-finalize-pdf', isEn ? 'Finalize PDF' : 'تثبيت PDF', () => persistIssuedPdfArtifact());
-    addButton(actions, 'corr-send', t.send, () => window.sendToManager());
-    addButton(actions, 'corr-archive', t.archive, () => transition('archived'));
+    addButton(actions, 'corr-reject', t.reject, () => transition('rejected'), { danger: true });
+    addButton(actions, 'corr-cancel', isEn ? 'Cancel' : 'إلغاء', () => transition('cancelled'), { danger: true });
+    addButton(actions, 'corr-sign', t.sign, () => window.openSignatureModal(), { primary: true });
+    addButton(actions, 'corr-issue', t.issue, () => transition('issued'), { primary: true });
+    addButton(actions, 'corr-stamp', t.stamp, () => window.insertStamp(), { primary: true });
+    addButton(actions, 'corr-finalize-pdf', isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية', () => persistIssuedPdfArtifact(), { primary: true });
+    addButton(actions, 'corr-send', isEn ? 'Send to recipient' : 'إرسال للمستلم', () => window.sendToManager(), { primary: true });
+    addButton(actions, 'corr-archive', t.archive, () => transition('archived'), { primary: true });
+  }
+
+  function setCommandDrawer(open) {
+    const drawer = document.getElementById('corr-command-drawer');
+    const backdrop = document.getElementById('corr-drawer-backdrop');
+    if (!drawer || !backdrop) return;
+    drawer.classList.toggle('open', !!open);
+    backdrop.classList.toggle('open', !!open);
+    drawer.setAttribute('aria-hidden', open ? 'false' : 'true');
+    backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+    if (open) refreshCommandCenter().catch(() => {});
+  }
+
+  function statusLabel(status) {
+    const labels = isEn
+      ? { draft:'Draft', submitted:'Submitted', under_review:'Under review', approved:'Approved', issued:'Issued', sent:'Sent', archived:'Archived', returned:'Returned', rejected:'Rejected', cancelled:'Cancelled' }
+      : { draft:'مسودة', submitted:'مرسل للمراجعة', under_review:'قيد المراجعة', approved:'معتمد', issued:'صادر', sent:'مرسل', archived:'مؤرشف', returned:'معاد للتعديل', rejected:'مرفوض', cancelled:'ملغي' };
+    return labels[status] || status;
+  }
+
+  function renderWorkflowStrip(status) {
+    const target = document.getElementById('corr-workflow');
+    if (!target) return;
+    const canonical = ['draft','submitted','under_review','approved','issued','sent','archived'];
+    const currentIndex = canonical.indexOf(status);
+    target.innerHTML = '';
+    canonical.forEach((step, index) => {
+      const el = document.createElement('span');
+      el.className = 'corr-step' + (index < currentIndex ? ' is-complete' : '') + (step === status ? ' is-current' : '');
+      el.textContent = statusLabel(step);
+      target.appendChild(el);
+    });
   }
 
   function renderGovernance() {
@@ -380,37 +534,173 @@
     const status = doc?.status || 'draft';
     const statusEl = document.getElementById('corr-status');
     const refEl = document.getElementById('corr-reference');
-    if (statusEl) statusEl.textContent = t.status + ': ' + status;
-    if (refEl) refEl.textContent = t.ref + ': ' + (doc?.reference_number || t.noRef);
+    const directionBadge = document.getElementById('corr-direction-badge');
+    const priorityBadge = document.getElementById('corr-priority-badge');
+    const confidentialityBadge = document.getElementById('corr-confidentiality-badge');
+
+    if (statusEl) statusEl.textContent = statusLabel(status);
+    if (refEl) refEl.textContent = doc?.reference_number || (isEn ? 'No reference yet' : 'لم يصدر رقم بعد');
+
+    const directionMap = isEn ? { outgoing:'Outgoing', incoming:'Incoming', internal:'Internal' } : { outgoing:'صادر', incoming:'وارد', internal:'داخلي' };
+    const priorityMap = isEn ? { low:'Low', normal:'Normal', high:'High', urgent:'Urgent' } : { low:'منخفضة', normal:'عادية', high:'عالية', urgent:'عاجلة' };
+    const confidentialityMap = isEn ? { public:'Public', internal:'Internal', confidential:'Confidential', restricted:'Restricted' } : { public:'عام', internal:'داخلي', confidential:'سري', restricted:'مقيد' };
+    if (directionBadge) directionBadge.textContent = directionMap[doc?.direction || 'outgoing'];
+    if (priorityBadge) priorityBadge.textContent = priorityMap[doc?.priority || 'normal'];
+    if (confidentialityBadge) confidentialityBadge.textContent = confidentialityMap[doc?.confidentiality || 'internal'];
+
     if (doc) {
       const p = document.getElementById('corr-priority');
       const c = document.getElementById('corr-confidentiality');
-      if (p) { p.value = doc.priority || 'normal'; p.disabled = !editable(); }
-      if (c) { c.value = doc.confidentiality || 'internal'; c.disabled = !editable(); }
-      const direction = document.getElementById('corr-direction');
-      if (direction) { direction.value = doc.direction || 'outgoing'; direction.disabled = !editable(); }
+      const d = document.getElementById('corr-direction');
+      if (p) { p.value = doc.priority || 'normal'; p.disabled = !canEditCurrent(); }
+      if (c) { c.value = doc.confidentiality || 'internal'; c.disabled = !canEditCurrent(); }
+      if (d) { d.value = doc.direction || 'outgoing'; d.disabled = !canEditCurrent(); }
       ['corr-recipient-org','corr-recipient-name','corr-recipient-title','corr-recipient-email','corr-sender-dept']
-        .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !editable(); });
+        .forEach(id => { const el = document.getElementById(id); if (el) el.disabled = !canEditCurrent(); });
     }
 
-    const show = (id, yes) => {
+    renderWorkflowStrip(status);
+
+    const visible = new Set(['corr-details-toggle','corr-command-open']);
+    if (canEditCurrent()) visible.add('corr-save');
+
+    if (isOwner() && ['draft','returned'].includes(status)) visible.add('corr-submit');
+    if (can('review') && status === 'submitted') visible.add('corr-review');
+    if (can('approve') && status === 'under_review') visible.add('corr-approve');
+    if ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))) visible.add('corr-return');
+    if ((status === 'submitted' && can('review')) || (['under_review','approved'].includes(status) && can('approve'))) visible.add('corr-reject');
+    if ((isOwner() && ['draft','returned'].includes(status)) || (can('review') && status === 'submitted')) visible.add('corr-cancel');
+
+    if (can('sign') && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by) {
+      visible.add('corr-sign');
+    } else if (can('stamp') && status === 'approved' && !!doc?.requires_stamp && !doc?.stamped_by) {
+      visible.add('corr-stamp');
+    } else if (can('issue') && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by)) {
+      visible.add('corr-issue');
+    } else if (can('finalize_pdf') && status === 'issued' && !doc?.artifact_hash) {
+      visible.add('corr-finalize-pdf');
+    } else if (can('send') && status === 'issued' && !!doc?.artifact_hash) {
+      visible.add('corr-send');
+    } else if (can('archive') && ['issued','sent'].includes(status)) {
+      visible.add('corr-archive');
+    }
+
+    [
+      'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel',
+      'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive',
+      'corr-details-toggle','corr-command-open'
+    ].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.style.display = yes ? '' : 'none';
-    };
-    show('corr-save', editable());
-    show('corr-submit', ['draft','returned'].includes(status));
-    show('corr-review', isAdmin() && status === 'submitted');
-    show('corr-approve', isAdmin() && status === 'under_review');
-    show('corr-return', isAdmin() && ['submitted','under_review','approved'].includes(status));
-    show('corr-reject', isAdmin() && ['submitted','under_review','approved'].includes(status));
-    show('corr-sign', isAdmin() && status === 'approved' && !doc?.signed_by);
-    show('corr-issue', isAdmin() && status === 'approved' && !!doc?.signed_by);
-    show('corr-stamp', isAdmin() && status === 'approved' && !doc?.stamped_by);
-    show('corr-finalize-pdf', isAdmin() && status === 'issued' && !doc?.artifact_hash);
-    show('corr-send', isAdmin() && status === 'issued' && !!doc?.artifact_hash);
-    show('corr-archive', isAdmin() && ['issued','sent'].includes(status));
+      if (el) el.style.display = visible.has(id) ? '' : 'none';
+    });
+
     renderGovernanceArtifacts();
     updateVerificationQr();
+    renderTimeline();
+  }
+
+  function renderTimeline() {
+    const timeline = document.getElementById('corr-timeline');
+    if (!timeline) return;
+    timeline.innerHTML = '';
+    if (!state.document) {
+      timeline.textContent = isEn ? 'Open a document to see its activity' : 'افتح مستندًا لعرض سجل نشاطه';
+      return;
+    }
+    if (!state.events.length) {
+      timeline.textContent = isEn ? 'No activity recorded' : 'لا توجد أحداث مسجلة';
+      return;
+    }
+    state.events.slice(0, 50).forEach(event => {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:grid;grid-template-columns:minmax(120px,auto) 1fr;gap:8px;padding:6px 8px;border-inline-start:3px solid #c59237;background:#f8fafc;border-radius:6px';
+      const when = event.created_at ? new Date(event.created_at).toLocaleString(isEn ? 'en-US' : 'ar-SA') : '';
+      const reason = event.metadata?.note ? ' · ' + String(event.metadata.note) : '';
+      const timeEl = document.createElement('span');
+      timeEl.style.cssText = 'font-size:11px;color:#64748b';
+      timeEl.textContent = when;
+      const detailEl = document.createElement('span');
+      const strong = document.createElement('strong');
+      strong.textContent = String(event.action || '');
+      detailEl.appendChild(strong);
+      if (reason) detailEl.appendChild(document.createTextNode(reason));
+      row.append(timeEl, detailEl);
+      timeline.appendChild(row);
+    });
+  }
+
+  async function searchCommandCenter(term) {
+    const resultsEl = document.getElementById('corr-command-results');
+    if (!resultsEl) return;
+    const q = String(term || '').trim();
+    if (!q) {
+      resultsEl.innerHTML = '';
+      return;
+    }
+    const result = await api('list', { query: { q, page: 1, page_size: 10 } });
+    resultsEl.innerHTML = '';
+    const documents = result.documents || [];
+    if (!documents.length) {
+      resultsEl.textContent = isEn ? 'No matching correspondence' : 'لا توجد مراسلات مطابقة';
+      return;
+    }
+    documents.forEach(doc => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.style.cssText = 'text-align:start;padding:7px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer';
+      row.textContent = (doc.reference_number || doc.title || doc.id) + ' · ' + doc.status + (doc.recipient_organization ? ' · ' + doc.recipient_organization : '');
+      row.addEventListener('click', () => loadDocument(doc.id).catch(e => toast('⚠️ ' + e.message)));
+      resultsEl.appendChild(row);
+    });
+  }
+
+  async function refreshCommandCenter() {
+    const [summaryResult, workResult] = await Promise.all([
+      api('summary'),
+      api('my-work')
+    ]);
+    state.summary = summaryResult;
+    state.tasks = workResult.tasks || [];
+    if (Array.isArray(summaryResult.permissions)) state.permissions = summaryResult.permissions;
+
+    const summary = document.getElementById('corr-summary');
+    if (summary) {
+      const cards = [
+        [isEn ? 'Total' : 'الإجمالي', summaryResult.total || 0],
+        [isEn ? 'Urgent' : 'عاجل', summaryResult.urgent || 0],
+        [isEn ? 'Failed' : 'فشل الإرسال', summaryResult.failed_delivery || 0],
+        [isEn ? 'Draft' : 'مسودة', summaryResult.by_status?.draft || 0],
+        [isEn ? 'Review' : 'مراجعة', (summaryResult.by_status?.submitted || 0) + (summaryResult.by_status?.under_review || 0)],
+        [isEn ? 'Issued' : 'صادر', summaryResult.by_status?.issued || 0]
+      ];
+      summary.innerHTML = '';
+      cards.forEach(([label, value]) => {
+        const card = document.createElement('div');
+        card.style.cssText = 'padding:7px;border-radius:8px;background:#fff;border:1px solid #e2e8f0;text-align:center';
+        card.innerHTML = '<div style="font-size:18px;font-weight:800">' + String(value) + '</div><div style="font-size:11px;color:#64748b">' + label + '</div>';
+        summary.appendChild(card);
+      });
+    }
+
+    const work = document.getElementById('corr-my-work');
+    if (work) {
+      work.innerHTML = '';
+      if (!state.tasks.length) {
+        work.textContent = isEn ? 'No open tasks' : 'لا توجد مهام مفتوحة';
+      } else {
+        state.tasks.slice(0, 12).forEach(task => {
+          const row = document.createElement('button');
+          row.type = 'button';
+          row.style.cssText = 'text-align:start;padding:8px;border:1px solid ' + (task.overdue ? '#ef4444' : '#e2e8f0') + ';border-radius:8px;background:#fff;cursor:pointer';
+          const doc = task.correspondence_documents || {};
+          row.textContent = (task.overdue ? '⚠️ ' : '') + (doc.reference_number || doc.title || doc.id || '') + ' · ' + task.task_type;
+          row.addEventListener('click', () => {
+            if (task.document_id) loadDocument(task.document_id).catch(e => toast('⚠️ ' + e.message));
+          });
+          work.appendChild(row);
+        });
+      }
+    }
   }
 
   function renderGovernanceArtifacts() {
@@ -595,6 +885,7 @@
 
   async function initialize() {
     buildGovernanceBar();
+    refreshCommandCenter().catch(() => {});
     const id = currentDocId();
     if (id) {
       try { await loadDocument(id); } catch (e) { toast('⚠️ ' + t.loadFail + ': ' + e.message); }
@@ -663,8 +954,8 @@
   };
 
   window.openSignatureModal = function () {
-    if (!isAdmin() || !state.document || !['approved','issued'].includes(state.document.status)) {
-      return toast('⚠️ ' + (isEn ? 'Signature requires an approved document and admin permission' : 'التوقيع يتطلب مستندًا معتمدًا وصلاحية إدارية'));
+    if (!can('sign') || !state.document || !['approved','issued'].includes(state.document.status)) {
+      return toast('⚠️ ' + (isEn ? 'Signature requires an approved document and signing permission' : 'التوقيع يتطلب مستندًا معتمدًا وصلاحية التوقيع'));
     }
     return legacy.openSignatureModal?.();
   };
@@ -685,8 +976,8 @@
   };
 
   window.insertStamp = async function () {
-    if (!isAdmin() || !state.document || state.document.status !== 'approved') {
-      return toast('⚠️ ' + (isEn ? 'Stamp requires an approved document and admin permission before issuance' : 'الختم يتطلب مستندًا معتمدًا وصلاحية إدارية قبل الإصدار'));
+    if (!can('stamp') || !state.document || state.document.status !== 'approved') {
+      return toast('⚠️ ' + (isEn ? 'Stamp requires an approved document and stamp permission before issuance' : 'الختم يتطلب مستندًا معتمدًا وصلاحية الختم قبل الإصدار'));
     }
     try {
       await mark('mark-stamp');
@@ -703,7 +994,7 @@
       const result = await api('send', { method: 'POST', id: state.document.id, body: {} });
       state.document = result.document;
       renderGovernance();
-      await refreshInboxDynamic();
+      await Promise.all([refreshInboxDynamic(), refreshCommandCenter()]);
       toast('📨 ' + (isEn ? 'Sent and recorded' : 'تم الإرسال وتسجيل العملية'));
     } catch (e) {
       toast('⚠️ ' + e.message);

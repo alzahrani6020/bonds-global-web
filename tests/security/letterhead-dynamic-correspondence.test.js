@@ -43,8 +43,10 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("action === 'verify'");
     expect(api).toContain("action === 'mark-signature'");
     expect(api).toContain("action === 'mark-stamp'");
-    expect(api).toContain("Recipient is not authorized for correspondence");
-    expect(api).toContain("doc.confidentiality === 'restricted'");
+    expect(api).toContain("Recipient must match the governed document recipient or an authorized administrative address");
+    expect(api).toContain("['confidential','restricted'].includes(doc.confidentiality)");
+    expect(api).toContain("confidentiality.in.(public,internal)");
+    expect(api).toContain("pagination: { page, page_size: pageSize, total: Number(count || 0) }");
     expect(api).toContain("signature_data_url");
     expect(api).toContain("issued_hash");
     expect(api).toContain("signature_image_data: null");
@@ -133,4 +135,67 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(ar).toContain('/components/letterhead-correspondence.js');
     expect(en).toContain('/components/letterhead-correspondence.js');
   });
+
+  test('command center enforces granular permissions, task SLA and governed delivery', () => {
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+    const migration = read('supabase/migrations/20261111233000_correspondence_command_center.sql');
+    const webhook = read('api/email-webhook.mjs');
+    const email = read('lib/api/email.js');
+
+    expect(migration).toContain('correspondence_tasks');
+    expect(migration).toContain('correspondence_user_permissions');
+    expect(migration).toContain('delivery_status');
+    expect(migration).toContain('provider_message_id');
+    expect(migration).toContain('requires_signature');
+    expect(migration).toContain('requires_stamp');
+    expect(migration).toContain('enable row level security');
+    expect(migration).toContain('revoke all on public.correspondence_tasks from anon, authenticated');
+    expect(migration).not.toMatch(/\bdrop\s+(table|column|constraint|trigger)\b/i);
+    expect(migration).not.toMatch(/\btruncate\b|\bdelete\s+from\b/i);
+
+    expect(api).toContain('resolveCorrespondencePermissions');
+    expect(api).toContain("permissionByTarget");
+    expect(api).toContain('Segregation of duties prevents the document creator');
+    expect(api).toContain('A reason is required for return, rejection or cancellation');
+    expect(api).toContain("doc.recipient_email");
+    expect(api).toContain("delivery_status: 'accepted'");
+    expect(api).toContain("action === 'summary'");
+    expect(api).toContain("action === 'my-work'");
+    expect(api).toContain("issued: ['archived']");
+    expect(api).not.toContain("issued: ['sent', 'archived']");
+    expect(api).not.toContain("sent: 'send'");
+    expect(api).toContain("await completeOpenTasks(sb, doc.id, user.id, 'send')");
+    expect(api).toContain("await createOpenTask(sb, doc.id, 'archive'");
+    expect(api).toContain("page_size");
+    expect(api).toContain("['confidential','restricted']");
+
+    expect(client).toContain('corr-command-drawer');
+    expect(client).toContain('corr-workflow-strip');
+    expect(client).toContain('renderWorkflowStrip');
+    expect(client).toContain('setCommandDrawer');
+    expect(client).toContain('statusLabel');
+    expect(client).toContain('refreshCommandCenter');
+    expect(client).toContain('searchCommandCenter');
+    expect(client).toContain('renderTimeline');
+    expect(client).toContain('canEditCurrent');
+    expect(client).toContain('hideLegacyGovernanceTriggers');
+    expect(client).toContain('button[onclick="sendToManager()"]');
+    expect(client).toContain("can('approve')");
+    expect(client).toContain("visible.add('corr-stamp')");
+    expect(client).toContain("can('stamp') && status === 'approved'");
+    expect(client).toContain("!!doc?.requires_stamp && !doc?.stamped_by");
+    expect(client).toContain("window.prompt");
+    expect(client).toContain('corr-cancel');
+    expect(client).toContain("isEn ? 'Send to recipient' : 'إرسال للمستلم'");
+    expect(client).toContain("isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية'");
+
+    expect(webhook).toContain("'email.delivered': 'delivered'");
+    expect(webhook).toContain("'email.bounced': 'bounced'");
+    expect(webhook).toContain("'email.complained': 'complained'");
+    expect(webhook).toContain("event?.data?.email_id");
+    expect(webhook).toContain("eq('provider_message_id', providerMessageId)");
+    expect(email).toContain("provider: 'smtp'");
+  });
+
 });
