@@ -1085,6 +1085,58 @@
     input.value = '';
   };
 
+  window.importDocumentFromDevice = async function (input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    try {
+      if (!editable()) {
+        throw new Error(isEn ? 'This document is locked in its current workflow status' : 'هذا المستند مقفل في حالة سير العمل الحالية');
+      }
+      if (file.size < 1 || file.size > 2 * 1024 * 1024) {
+        throw new Error(isEn ? 'Use a document smaller than 2 MB' : 'استخدم ملفًا بحجم أقل من 2 ميجابايت');
+      }
+      const allowed = /\.(txt|html?|docx)$/i.test(file.name || '');
+      if (!allowed) {
+        throw new Error(isEn ? 'Supported formats: TXT, HTML, HTM, DOCX' : 'الصيغ المدعومة: TXT وHTML وHTM وDOCX');
+      }
+
+      const buffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      const chunk = 0x8000;
+      for (let i = 0; i < bytes.length; i += chunk) {
+        binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+      }
+
+      const imported = await api('import-device', {
+        method: 'POST',
+        body: {
+          filename: file.name,
+          mime_type: file.type || '',
+          data_base64: btoa(binary)
+        }
+      });
+
+      const target = document.querySelector('.doc-content[contenteditable="true"]') || document.querySelector('.doc-content');
+      if (!target) throw new Error(isEn ? 'Editable document area was not found' : 'لم يتم العثور على منطقة المستند القابلة للتحرير');
+
+      const before = snapshot();
+      target.insertAdjacentHTML('beforeend', imported.html || '');
+      const after = snapshot();
+      if (before !== after) {
+        state.history.push(before);
+        if (state.history.length > 50) state.history.shift();
+        state.future = [];
+        state.lastHistorySnapshot = after;
+      }
+      toast('✅ ' + (isEn ? `Imported ${file.name} from this device` : `تم استيراد ${file.name} من الجهاز`));
+    } catch (e) {
+      toast('⚠️ ' + (e?.message || (isEn ? 'Device import failed' : 'فشل الاستيراد من الجهاز')));
+    } finally {
+      input.value = '';
+    }
+  };
+
   // Full-document, multi-page undo/redo.
   window.undoDoc = function () {
     if (!state.history.length) return toast('⚠️ ' + (isEn ? 'Nothing to undo' : 'لا يوجد تراجع'));
