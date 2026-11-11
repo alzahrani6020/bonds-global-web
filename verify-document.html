@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>التحقق من مراسلات بوندز | Bonds</title>
+  <link rel="icon" href="/assets/bonds-mark.svg">
+  <style>
+    :root{font-family:system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;color:#0a2342;background:#f4f7fb}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
+    main{width:min(720px,100%);background:#fff;border:1px solid #dbe3ec;border-radius:18px;padding:28px;box-shadow:0 18px 50px #0a234214}
+    h1{margin-top:0}.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eaf8ef;color:#176b35;font-weight:700}
+    .bad{background:#fff0f0;color:#9f1c1c}.grid{display:grid;grid-template-columns:160px 1fr;gap:10px;margin-top:22px}
+    dt{font-weight:700}dd{margin:0;word-break:break-word}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px}
+    a{color:#9b7727}@media(max-width:600px){.grid{grid-template-columns:1fr}.grid dd{margin-bottom:10px}}
+  </style>
+</head>
+<body>
+<main>
+  <h1 id="title">التحقق من المستند</h1>
+  <div id="status" class="badge">جاري التحقق…</div>
+  <dl class="grid" id="details" hidden>
+    <dt data-ar="رقم الصادر" data-en="Reference">رقم الصادر</dt><dd id="reference"></dd>
+    <dt data-ar="الموضوع" data-en="Subject">الموضوع</dt><dd id="subject"></dd>
+    <dt data-ar="الحالة" data-en="Status">الحالة</dt><dd id="doc-status"></dd>
+    <dt data-ar="تاريخ الإصدار" data-en="Issued at">تاريخ الإصدار</dt><dd id="issued"></dd>
+    <dt data-ar="تاريخ الإرسال" data-en="Sent at">تاريخ الإرسال</dt><dd id="sent"></dd>
+    <dt>SHA-256</dt><dd id="hash" class="hash"></dd>
+  </dl>
+  <p><a href="/" id="home">العودة إلى بوندز</a></p>
+</main>
+<script>
+(async function(){
+  const params=new URLSearchParams(location.search);
+  const en=params.get('lang')==='en';
+  document.documentElement.lang=en?'en':'ar';
+  document.documentElement.dir=en?'ltr':'rtl';
+  document.getElementById('title').textContent=en?'Verify Bonds correspondence':'التحقق من مراسلات بوندز';
+  document.getElementById('home').textContent=en?'Back to Bonds':'العودة إلى بوندز';
+  document.querySelectorAll('[data-ar]').forEach(el=>el.textContent=en?el.dataset.en:el.dataset.ar);
+  const status=document.getElementById('status'), details=document.getElementById('details');
+  const token=params.get('token')||'';
+  if(!token){status.textContent=en?'Missing verification token':'رمز التحقق غير موجود';status.classList.add('bad');return;}
+  try{
+    const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
+    const d=await r.json().catch(()=>({}));
+    if(!r.ok||!d.verified)throw new Error('not-verified');
+    status.textContent=en?'Verified Bonds document':'مستند بوندز متحقق منه';
+    document.getElementById('reference').textContent=d.reference_number||'-';
+    document.getElementById('subject').textContent=d.subject||d.title||'-';
+    document.getElementById('doc-status').textContent=d.status||'-';
+    document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString(en?'en-US':'ar-SA'):'-';
+    document.getElementById('sent').textContent=d.sent_at?new Date(d.sent_at).toLocaleString(en?'en-US':'ar-SA'):'-';
+    document.getElementById('hash').textContent=d.checksum_sha256||'-';
+    details.hidden=false;
+  }catch(e){
+    status.textContent=en?'Document could not be verified':'تعذر التحقق من المستند';
+    status.classList.add('bad');
+  }
+})();
+</script>
+</body>
+</html>
