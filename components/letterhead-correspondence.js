@@ -559,7 +559,7 @@
       if (!canvas) throw new Error(isEn ? 'Signature canvas is unavailable' : 'لوحة التوقيع غير متوفرة');
       const signatureData = canvas.toDataURL('image/png');
       await mark('mark-signature', { signature_data_url: signatureData });
-      legacy.closeSignatureModal?.();
+      document.getElementById('sig-modal')?.classList.remove('open');
       if (typeof window.clearSignature === 'function') window.clearSignature();
       renderGovernanceArtifacts();
       toast('✅ ' + (isEn ? 'Signature persisted and recorded in audit trail' : 'تم حفظ التوقيع وتسجيله في سجل التدقيق'));
