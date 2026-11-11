@@ -82,6 +82,20 @@
   width: 100%;
 }
 
+/* Accessibility: keep text/buttons on non-featured light pricing cards at WCAG AA contrast. */
+.pricing-card:not(.pricing-card--featured) .pricing-card__title {
+  color: #0a2342;
+}
+
+.pricing-card:not(.pricing-card--featured) .pricing-card__trial {
+  color: #665200;
+}
+
+.pricing-card:not(.pricing-card--featured) .pricing-card__cta.btn-outline {
+  color: #0a2342;
+  border-color: #0a2342;
+}
+
 .pricing-card__cta--spaced {
   margin-bottom: 0.5rem;
 }

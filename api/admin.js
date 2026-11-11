@@ -39,6 +39,7 @@ const { buildCommercialScoring } = require('../lib/analytics/commercial-scoring'
 const { buildBoardPack } = require('../lib/analytics/board-pack');
 const { answerNaturalLanguageAnalytics } = require('../lib/analytics/natural-language-analytics');
 const { resolveMigrationDbUrl, describeMigrationDbUrl } = require('../lib/db/migration-db-url');
+const { parseMigrationIdentity, findEquivalentMigration } = require('../lib/db/migration-idempotency');
 
 const CONFIGURED_OWNER_EMAIL = process.env.ADMIN_EMAIL || (process.env.ADMIN_EMAILS || '').split(',')[0].trim() || '';
 const OWNER_EMAILS = ['iiffund.dev@gmail.com'].map(e => e.toLowerCase());
@@ -134,6 +135,7 @@ async function applyMigration(targetFile, commitSha) {
   const { Client } = require('pg');
   const connectionString = resolveMigrationDbUrl();
   const sql = await fetchMigrationSql(targetFile, commitSha);
+  const identity = parseMigrationIdentity(targetFile);
 
   const client = new Client({
     connectionString,
@@ -150,6 +152,25 @@ async function applyMigration(targetFile, commitSha) {
   }
 
   try {
+    const history = await client.query(
+      `select version, name, statements
+         from supabase_migrations.schema_migrations
+        where version = $1 or name = $2
+        order by version desc`,
+      [identity.version, identity.name]
+    );
+
+    const equivalent = findEquivalentMigration(history.rows, targetFile, sql);
+    if (equivalent) {
+      return {
+        applied: [],
+        skipped: [targetFile],
+        alreadyAppliedAs: equivalent,
+        count: 0,
+        commit: commitSha
+      };
+    }
+
     await client.query('BEGIN');
     await client.query(sql);
     await client.query('COMMIT');
@@ -164,6 +185,7 @@ async function applyMigration(targetFile, commitSha) {
 
   return {
     applied: [targetFile],
+    skipped: [],
     count: 1,
     commit: commitSha
   };
