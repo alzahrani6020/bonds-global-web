@@ -45,6 +45,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("action === 'mark-stamp'");
     expect(api).toContain("Recipient must match the governed document recipient or an authorized administrative address");
     expect(api).toContain("['confidential','restricted'].includes(doc.confidentiality)");
+    expect(api).toContain("confidentiality.in.(public,internal)");
+    expect(api).toContain("pagination: { page, page_size: pageSize, total: Number(count || 0) }");
     expect(api).toContain("signature_data_url");
     expect(api).toContain("issued_hash");
     expect(api).toContain("signature_image_data: null");
