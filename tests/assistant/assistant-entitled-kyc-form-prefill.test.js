@@ -26,8 +26,11 @@ describe('entitled KYC form_prefill execute-mode contracts', () => {
     const start=widget.indexOf("if (action.type === 'form_prefill') {");
     const end=widget.indexOf("if (action.type === 'form_find' || action.type === 'form_load')",start);
     const source=widget.slice(start,end);
+    expect(source).toContain('options.prefillConfirmed === true');
+    expect(source).toContain('renderPrefillConfirmCard(action, planned, button)');
     expect(source).not.toContain('saveDraft(');
     expect(source).not.toContain('submit');
+    expect(source).not.toContain('requestConfirmation');
   });
 
   test.each([['client/kyc.html',arKyc],['en/client/kyc.html',enKyc]])('%s prefill adapter is field-id only and non-persisting', (_name, source) => {

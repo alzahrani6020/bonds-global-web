@@ -20,8 +20,11 @@ describe('entitled establishment form_prefill execute-mode contracts', () => {
     const start=widget.indexOf("if (action.type === 'form_prefill') {");
     const end=widget.indexOf("if (action.type === 'form_find' || action.type === 'form_load')",start);
     const source=widget.slice(start,end);
+    expect(source).toContain('options.prefillConfirmed === true');
+    expect(source).toContain('renderPrefillConfirmCard(action, planned, button)');
     expect(source).not.toContain('saveDraft(');
     expect(source).not.toContain('submit');
+    expect(source).not.toContain('requestConfirmation');
   });
 
   test.each([['client/establishment-information.html',ar],['en/client/establishment-information.html',en]])('%s prefill adapter stays field-id only and non-persisting', (_name, source) => {

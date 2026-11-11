@@ -3970,6 +3970,62 @@
       actionsEl.appendChild(card);
     }
 
+    function renderPrefillConfirmCard(action, planned, button) {
+      actionsEl.innerHTML = '';
+      const card = document.createElement('div');
+      card.className = 'bonds-ai-action-card';
+      card.dataset.actionId = String(action.id || '');
+      card.dataset.prefillConfirm = '1';
+
+      const title = document.createElement('strong');
+      title.textContent = languageCode() === 'en'
+        ? 'Review suggested fields'
+        : 'راجع الحقول المقترحة';
+
+      const detail = document.createElement('small');
+      detail.textContent = languageCode() === 'en'
+        ? 'These values stay suggested until you save the draft yourself.'
+        : 'تبقى هذه القيم مقترحة حتى تحفظ المسودة بنفسك.';
+
+      const list = document.createElement('ul');
+      const fields = planned && planned.input && planned.input.fields && typeof planned.input.fields === 'object'
+        ? planned.input.fields
+        : {};
+      Object.keys(fields).forEach((id) => {
+        const item = document.createElement('li');
+        item.textContent = id + ': ' + String(fields[id] == null ? '' : fields[id]);
+        list.appendChild(item);
+      });
+
+      const confirmButton = document.createElement('button');
+      confirmButton.type = 'button';
+      confirmButton.textContent = languageCode() === 'en' ? 'Fill suggested fields' : 'ملء الحقول المقترحة';
+
+      const cancelButton = document.createElement('button');
+      cancelButton.type = 'button';
+      cancelButton.textContent = languageCode() === 'en' ? 'Cancel' : 'إلغاء';
+
+      confirmButton.addEventListener('click', () => {
+        confirmButton.disabled = true;
+        cancelButton.disabled = true;
+        void executeStructuredAction(action, confirmButton, { prefillConfirmed: true });
+      });
+      cancelButton.addEventListener('click', () => {
+        actionsEl.innerHTML = '';
+        addAssistantMessage(
+          languageCode() === 'en' ? 'Suggested fill was cancelled.' : 'تم إلغاء الملء المقترح.'
+        );
+      });
+
+      card.appendChild(title);
+      card.appendChild(detail);
+      card.appendChild(list);
+      card.appendChild(confirmButton);
+      card.appendChild(cancelButton);
+      actionsEl.appendChild(card);
+      if (button) button.disabled = false;
+    }
+
     async function executeStructuredAction(action, button, options = {}) {
       if (!action || action.status === 'denied') return;
       if (action.requires_confirmation) {
@@ -4130,6 +4186,11 @@
           const adapter = window.BondsAssistantFormAdapter;
           if (!adapter || adapter.form_code !== planned.target || typeof adapter.applyPrefill !== 'function') {
             throw new Error('PREFILL_ADAPTER_NOT_AVAILABLE');
+          }
+
+          if (!(options && options.prefillConfirmed === true)) {
+            renderPrefillConfirmCard(action, planned, button);
+            return;
           }
 
           const result = adapter.applyPrefill(planned.input && planned.input.fields);
