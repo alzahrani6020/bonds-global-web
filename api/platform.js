@@ -9,6 +9,7 @@ const Stripe = require('stripe');
 const { sendEmail } = require('../lib/api/email');
 const { verifyBearer, verifyBearerAndUser } = require('../lib/api/auth-helper');
 const { checkRateLimit } = require('../lib/api/rate-limit');
+const correspondence = require('../lib/api/correspondence');
 const { setAllowedOrigin } = require('../lib/api/cors');
 const { calculateProject, aiInsight, buildHTMLReport } = require('../pro/pro-engine');
 const {
@@ -2350,6 +2351,12 @@ module.exports = async function handler(req, res) {
     if (pathname === '/api/pro' || pathname === '/api/pro/') {
       if (await checkRateLimit('compute', req, res)) return;
       return proHandler(req, res);
+    }
+
+    // Dynamic correspondence / Letterhead
+    if (pathname === '/api/correspondence' || pathname === '/api/correspondence/') {
+      if (await checkRateLimit(req.method === 'GET' ? 'auth' : 'strict', req, res)) return;
+      return correspondence.handler(req, res);
     }
 
     // Letterhead email
