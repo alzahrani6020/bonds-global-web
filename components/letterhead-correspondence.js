@@ -441,7 +441,7 @@
   function updateVerificationQr() {
     const token = state.document?.verification_token;
     if (!token) return;
-    const verifyUrl = location.origin + '/verify-document.html?token=' + encodeURIComponent(token) + (isEn ? '&lang=en' : '');
+    const verifyUrl = location.origin + (isEn ? '/en/verify-document.html?token=' : '/verify-document.html?token=') + encodeURIComponent(token);
     document.querySelectorAll('.footer-qr-corner img').forEach(img => {
       img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + encodeURIComponent(verifyUrl);
       img.alt = isEn ? 'Verify document' : 'تحقق من المستند';
@@ -648,7 +648,7 @@
   window.shareDoc = function () {
     const token = state.document?.verification_token;
     if (!token) return toast('⚠️ ' + (isEn ? 'Issue the document before sharing' : 'أصدر المستند قبل مشاركته'));
-    const url = location.origin + '/verify-document.html?token=' + encodeURIComponent(token) + (isEn ? '&lang=en' : '');
+    const url = location.origin + (isEn ? '/en/verify-document.html?token=' : '/verify-document.html?token=') + encodeURIComponent(token);
     if (navigator.share) {
       navigator.share({ title: state.document.reference_number || 'Bonds', url }).catch(() => {});
     } else {
