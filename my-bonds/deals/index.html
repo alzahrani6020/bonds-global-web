@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>مساحة الصفقات | بوندز</title>
+<meta name="description" content="مساحة بوندز لإدارة دورة الصفقة من التجهيز إلى الإغلاق.">
+<meta name="robots" content="noindex,follow">
+<link rel="stylesheet" href="/styles/fonts-ar.css">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/styles/page-shared.css">
+<link rel="stylesheet" href="/styles/institutional-system.css?v=6">
+<script src="/api/env" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
+<script defer src="/site-layout.js?v=3.8.8"></script>
+<script defer src="/components/deal-workspace.js?v=1"></script>
+<style>
+.deal-shell{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.deal-head{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.deal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:22px}.deal-card,.deal-form,.deal-panel{border:1px solid rgba(197,160,40,.22);background:rgba(255,255,255,.035);border-radius:14px;padding:16px}.deal-card button{width:100%;text-align:inherit;background:none;border:0;color:inherit;cursor:pointer;padding:0}.deal-meta{opacity:.72;font-size:.86rem}.deal-progress{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.deal-progress div{border:1px solid rgba(197,160,40,.2);border-radius:10px;padding:12px}.deal-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.deal-form .full{grid-column:1/-1}.deal-form input,.deal-form select,.deal-form textarea{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-form button{padding:11px 16px;border:0;border-radius:9px;background:#d4a853;color:#0a0f1a;font-weight:800;cursor:pointer}.deal-status{margin:12px 0;min-height:22px}.deal-section-title{margin-top:26px}.deal-list{display:grid;gap:8px}.deal-row{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:9px 0}.deal-empty{opacity:.65}@media(max-width:680px){.deal-form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+<main class="deal-shell">
+  <nav aria-label="مسار الصفحة"><a href="/my-bonds/">مساحتي</a> ‹ <span>مساحة الصفقات</span></nav>
+  <section class="deal-head">
+    <div>
+      <div class="sr-eyebrow">Bonds Deal Workspace</div>
+      <h1>مساحة الصفقات</h1>
+      <p>سجل مركزي للصفقة، الأطراف، المهام، الفحص النافي للجهالة ومستندات غرفة البيانات.</p>
+    </div>
+    <a href="/my-bonds/workspace/">مساحة الخدمات</a>
+  </section>
+
+  <div id="dealStatus" class="deal-status" role="status"></div>
+
+  <section id="dealCreatePanel" class="deal-panel">
+    <h2>إنشاء صفقة</h2>
+    <form id="dealCreateForm" class="deal-form">
+      <label>اسم الصفقة<input name="title" required maxlength="240"></label>
+      <label>نوع الصفقة
+        <select name="deal_type">
+          <option value="funding">تمويل</option>
+          <option value="investment">استثمار</option>
+          <option value="ma_buy">استحواذ - مشتري</option>
+          <option value="ma_sell">استحواذ - بائع</option>
+          <option value="joint_venture">مشروع مشترك</option>
+          <option value="restructuring">إعادة هيكلة</option>
+          <option value="other">أخرى</option>
+        </select>
+      </label>
+      <label>القيمة المستهدفة<input name="target_value" type="number" min="0" step="0.01"></label>
+      <label>العملة<input name="currency" value="SAR" maxlength="3"></label>
+      <label class="full">الملخص<textarea name="summary" rows="3" maxlength="4000"></textarea></label>
+      <div class="full"><button type="submit">إنشاء سجل الصفقة</button></div>
+    </form>
+  </section>
+
+  <h2 class="deal-section-title">الصفقات الحالية</h2>
+  <section id="dealCards" class="deal-grid"></section>
+
+  <section id="dealDetail" hidden>
+    <div class="deal-head">
+      <div><h2 id="dealTitle"></h2><div id="dealMeta" class="deal-meta"></div></div>
+      <button id="dealBack" type="button">العودة للقائمة</button>
+    </div>
+    <div class="deal-progress">
+      <div><strong id="dealPartyCount">0</strong><br>الأطراف</div>
+      <div><strong id="dealTaskCount">0</strong><br>المهام</div>
+      <div><strong id="dealDdCount">0</strong><br>بنود الفحص</div>
+      <div><strong id="dealDocumentCount">0</strong><br>مستندات غرفة البيانات</div>
+    </div>
+    <div class="deal-grid">
+      <section class="deal-card"><h3>الأطراف</h3><div id="dealParties" class="deal-list"></div></section>
+      <section class="deal-card"><h3>المهام</h3><div id="dealTasks" class="deal-list"></div></section>
+      <section class="deal-card"><h3>الفحص النافي للجهالة</h3><div id="dealDd" class="deal-list"></div></section>
+      <section class="deal-card"><h3>غرفة البيانات</h3><div id="dealDocuments" class="deal-list"></div></section>
+    </div>
+  </section>
+</main>
+<div id="site-footer"></div>
+</body>
+</html>
