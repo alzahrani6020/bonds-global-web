@@ -91,4 +91,33 @@ describe('/api/send-letter authentication contract', () => {
     expect(mockGetUser).toHaveBeenCalledWith('invalid-test-token');
     expect(mockSendEmail).not.toHaveBeenCalled();
   });
+  test('authenticated callers cannot bypass governed correspondence through legacy send-letter', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1', email: 'user@example.com' } },
+      error: null
+    });
+
+    const req = {
+      method: 'POST',
+      url: '/api/send-letter',
+      headers: {
+        host: 'localhost',
+        authorization: 'Bearer valid-test-token'
+      },
+      query: {},
+      body: {
+        subject: 'verification-only',
+        text: 'verification-only'
+      },
+      socket: { remoteAddress: '127.0.0.1' }
+    };
+    const res = mockRes();
+
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(410);
+    expect(res.body.error).toMatch(/governed correspondence workflow/i);
+    expect(mockSendEmail).not.toHaveBeenCalled();
+  });
+
 });
