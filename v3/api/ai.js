@@ -12,6 +12,7 @@
 
 const { getSupabaseClient } = require('../lib/supabase');
 const { getUserFromToken } = require('../lib/auth');
+const { isExecuteEntitled } = require('../../lib/assistant/execute-entitlement');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
 const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
 const { saveWorkflowState, loadWorkflowState } = require('../../lib/assistant/workflow-state');
@@ -49,8 +50,8 @@ function writeEvent(res, event, data) {
   res.write(`data: ${JSON.stringify(data)}\n\n`);
 }
 
-function sendAssistantResponse(res, status, data, { stream = false, conversationMode = 'financial' } = {}) {
-  const safeData = sanitizeConversationModeResponse(data, conversationMode);
+function sendAssistantResponse(res, status, data, { stream = false, conversationMode = 'financial', executeEntitled = false } = {}) {
+  const safeData = sanitizeConversationModeResponse(data, conversationMode, executeEntitled);
   if (!stream) return sendJson(res, status, safeData);
   if (status >= 400) {
     writeEvent(res, 'error', { error: safeData?.error || 'Request failed', status });
@@ -111,16 +112,17 @@ async function persistDurableGoalWorkflow(durable, goalWorkflow, { supabase, use
 const MAX_CHAT_BODY_BYTES = 1_048_576;
 const CONVERSATION_MODES = new Set(['financial', 'general', 'execute']);
 const EXECUTE_ALLOWED_ACTION_TYPES = new Set(['site_navigate', 'form_find', 'form_load', 'form_save_draft']);
+const EXECUTE_ENTITLED_ACTION_TYPES = new Set(['form_prefill']);
 
 function normalizeConversationMode(value) {
   const mode = String(value || '').trim().toLowerCase();
   return CONVERSATION_MODES.has(mode) ? mode : 'financial';
 }
 
-function sanitizeConversationModeResponse(value, conversationMode) {
+function sanitizeConversationModeResponse(value, conversationMode, executeEntitled = false) {
   if (conversationMode !== 'execute' || value == null) return value;
   if (Array.isArray(value)) {
-    return value.map(item => sanitizeConversationModeResponse(item, conversationMode));
+    return value.map(item => sanitizeConversationModeResponse(item, conversationMode, executeEntitled));
   }
   if (typeof value !== 'object') return value;
 
@@ -129,11 +131,15 @@ function sanitizeConversationModeResponse(value, conversationMode) {
     if (key === 'execution_authorized') continue;
     if (key === 'actions' && Array.isArray(child) && child.some(item => item && typeof item === 'object')) {
       out[key] = child
-        .filter(item => EXECUTE_ALLOWED_ACTION_TYPES.has(String(item?.type || item?.action || item?.kind || '').trim().toLowerCase()))
-        .map(item => sanitizeConversationModeResponse(item, conversationMode));
+        .filter(item => {
+          const type = String(item?.type || item?.action || item?.kind || '').trim().toLowerCase();
+          return EXECUTE_ALLOWED_ACTION_TYPES.has(type) ||
+            (executeEntitled === true && EXECUTE_ENTITLED_ACTION_TYPES.has(type));
+        })
+        .map(item => sanitizeConversationModeResponse(item, conversationMode, executeEntitled));
       continue;
     }
-    out[key] = sanitizeConversationModeResponse(child, conversationMode);
+    out[key] = sanitizeConversationModeResponse(child, conversationMode, executeEntitled);
   }
   return out;
 }
@@ -264,7 +270,7 @@ function buildNativeChatPrompt(messages, context, assistantState = null, convers
       ? 'CONVERSATION_MODE=general\nGENERAL_MODE_POLICY: Answer general questions without forcing service workflow. Do not invent financial figures; financial calculations must come from verified deterministic calculators/tools, otherwise state that a verified calculation is required.'
       : null,
     conversationMode === 'execute'
-      ? 'CONVERSATION_MODE=execute\nEXECUTE_MODE_POLICY: Only governed structured actions navigate, form_find, form_load, and draft are allowed. Confirmation requirements remain in force. Never grant or emit execution_authorized.'
+      ? 'CONVERSATION_MODE=execute\nEXECUTE_MODE_POLICY: Only governed structured actions navigate, form_find, form_load, and draft are allowed for authenticated users. Entitled Pro/Enterprise users may also receive suggested-only form_prefill actions for KYC fields. Never save, submit, or finalize form_prefill values automatically. Confirmation requirements remain in force. Never grant or emit execution_authorized.'
       : null,
     assistantState ? `CONVERSATION_STATE=${compactJson(assistantState, 3000)}` : 'CONVERSATION_STATE={}',
     Object.keys(compactEvidence).length ? `VERIFIED_BONDS_DATA=${compactJson(compactEvidence, 6000)}` : 'VERIFIED_BONDS_DATA={}',
@@ -428,6 +434,8 @@ async function aiChatHandlerImpl(req, res) {
     });
   }
 
+  const executeEntitled = await isExecuteEntitled(getSupabaseClient(), authenticatedUser);
+
   const lastUser = [...messages].reverse().find(m => m.role === 'user');
   const lastUserText = lastUser?.content || '';
 
@@ -462,7 +470,7 @@ async function aiChatHandlerImpl(req, res) {
           activityCode: context.activityCode || null,
           serviceCode: context.serviceCode || null
         }
-      }, { stream: streaming, conversationMode });
+      }, { stream: streaming, conversationMode, executeEntitled });
     }
   } catch (err) {
     console.warn('[ai/chat] Deterministic local tools path failed:', err.message);
@@ -479,7 +487,7 @@ async function aiChatHandlerImpl(req, res) {
         activityCode: context.activityCode || null,
         serviceCode: context.serviceCode || null
       }
-    }, { stream: streaming, conversationMode });
+    }, { stream: streaming, conversationMode, executeEntitled });
   }
 
   const hasDomainContext = Boolean(context?.cityCode || context?.cityName || context?.activityCode || context?.serviceCode);
@@ -513,7 +521,7 @@ async function aiChatHandlerImpl(req, res) {
             activityCode: context.activityCode || null,
             serviceCode: context.serviceCode || null
           }
-        }, { stream: streaming, conversationMode });
+        }, { stream: streaming, conversationMode, executeEntitled });
       }
     } catch (err) {
       console.warn('[ai/chat] Fast public fact path failed:', err.message);
@@ -583,7 +591,7 @@ async function aiChatHandlerImpl(req, res) {
     orchestrationMeta = orchestration || null;
 
     if (orchestration?.handled && orchestration.response) {
-      return sendAssistantResponse(res, 200, orchestration.response, { stream: streaming, conversationMode });
+      return sendAssistantResponse(res, 200, orchestration.response, { stream: streaming, conversationMode, executeEntitled });
     }
 
     if (orchestration?.resolvedContext) {
@@ -668,7 +676,7 @@ async function aiChatHandlerImpl(req, res) {
               ? orchestrationMeta.resolvedContext.conversationReference.active_topic
               : (lastUserText || null)
           }
-        }, { stream: streaming, conversationMode });
+        }, { stream: streaming, conversationMode, executeEntitled });
       }
     } catch (err) {
       console.warn('[ai/chat] Open-chat loop degraded to ordinary governed AI path:', err.message);
@@ -726,7 +734,7 @@ async function aiChatHandlerImpl(req, res) {
         nativeError,
         totalMs:Date.now() - requestStartedAt
       }) : undefined
-    }, { stream: streaming, conversationMode });
+    }, { stream: streaming, conversationMode, executeEntitled });
   }
 
   const reply = aiResult.reply;
@@ -762,7 +770,7 @@ async function aiChatHandlerImpl(req, res) {
       token_streaming:false,
       events:['status','final','error']
     } : null
-  }, { stream: streaming, conversationMode });
+  }, { stream: streaming, conversationMode, executeEntitled });
 }
 
 // Reference lists change rarely; re-reading them (all activities, up to 2000

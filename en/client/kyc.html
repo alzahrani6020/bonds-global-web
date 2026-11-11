@@ -271,6 +271,23 @@
 
     window.BondsAssistantFormAdapter={
       form_code:'kyc',
+      applyPrefill(fields){
+        const before=currentCase;
+        if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){
+          return {ok:false,code:'FORM_NOT_EDITABLE',applied:[]};
+        }
+        const allowed=['clientType','clientStatus','legalName','formerName','idNumber','unifiedNumber','birthDate','nationality','registeredAddress','city','phone','email'];
+        const values=fields&&typeof fields==='object'&&!Array.isArray(fields)?fields:{};
+        const applied=[];
+        allowed.forEach(id=>{
+          if(!Object.prototype.hasOwnProperty.call(values,id)) return;
+          const el=document.getElementById(id);
+          if(!el||el.disabled) return;
+          el.value=String(values[id]);
+          applied.push(id);
+        });
+        return {ok:applied.length>0,code:applied.length>0?'PREFILL_APPLIED':'PREFILL_NOT_APPLIED',applied};
+      },
       async saveDraft(){
         const before=currentCase;
         if(before&&before.status&&!['draft','additional_information_required'].includes(before.status)){

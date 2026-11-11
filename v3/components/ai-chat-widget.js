@@ -3745,9 +3745,10 @@
       const body = {
         type: action.type,
         target: action.target || undefined,
-        form: ['form_find', 'form_load', 'form_save_draft'].includes(action.type)
+        form: ['form_find', 'form_load', 'form_save_draft', 'form_prefill'].includes(action.type)
           ? action.target
           : undefined,
+        ...(action.type === 'form_prefill' ? { fields: action.input && action.input.fields } : {}),
         language: languageCode(),
         boundary: contextBoundaryKey()
       };
@@ -3770,12 +3771,14 @@
       if (action.type === 'form_find') return languageCode() === 'en' ? 'Find form' : 'العثور على النموذج';
       if (action.type === 'form_load') return languageCode() === 'en' ? 'Open form' : 'فتح النموذج';
       if (action.type === 'form_save_draft') return languageCode() === 'en' ? 'Save draft' : 'حفظ المسودة';
+      if (action.type === 'form_prefill') return languageCode() === 'en' ? 'Fill KYC fields' : 'ملء حقول اعرف عميلك';
       return languageCode() === 'en' ? 'Review action' : 'مراجعة الإجراء';
     }
 
     function actionTitle(action) {
       if (action.type === 'site_navigate') return languageCode() === 'en' ? 'Navigation' : 'تنقل معتمد';
       if (action.type === 'form_find' || action.type === 'form_load' || action.type === 'form_save_draft') return languageCode() === 'en' ? 'Registered form' : 'نموذج مسجل';
+      if (action.type === 'form_prefill') return languageCode() === 'en' ? 'Fill KYC fields' : 'ملء حقول اعرف عميلك';
       return languageCode() === 'en' ? 'Assistant action' : 'إجراء المساعد';
     }
 
@@ -4109,6 +4112,41 @@
             }
             throw err;
           }
+        }
+
+        if (action.type === 'form_prefill') {
+          const plan = await requestGovernedPlan(action);
+          const planned = Array.isArray(plan?.actions)
+            ? plan.actions.find(item => item?.type === 'form_prefill')
+            : null;
+          if (!planned || planned.target !== 'kyc' || planned.target !== action.target) {
+            throw new Error('PREFILL_PLAN_MISMATCH');
+          }
+
+          const adapter = window.BondsAssistantFormAdapter;
+          if (!adapter || adapter.form_code !== 'kyc' || typeof adapter.applyPrefill !== 'function') {
+            throw new Error('PREFILL_ADAPTER_NOT_AVAILABLE');
+          }
+
+          const result = adapter.applyPrefill(planned.input && planned.input.fields);
+          if (!result || result.ok !== true || !Array.isArray(result.applied) || result.applied.length === 0) {
+            throw new Error('PREFILL_NOT_APPLIED');
+          }
+
+          patchAssistantContextState({
+            last_action:{
+              id:String(action.id || ''),
+              type:'form_prefill',
+              target:'kyc',
+              status:'completed'
+            }
+          });
+          addAssistantMessage(
+            languageCode() === 'en'
+              ? 'Suggested fields were filled. Review them, then save the draft.'
+              : 'تم ملء الحقول المقترحة. راجعها ثم احفظ المسودة.'
+          );
+          return;
         }
 
         if (action.type === 'form_find' || action.type === 'form_load') {
