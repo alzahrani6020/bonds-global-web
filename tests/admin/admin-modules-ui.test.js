@@ -154,6 +154,48 @@ async function addAxeAfterStableNavigation(page) {
   }
 }
 
+
+async function runAxeAfterStableNavigation(page) {
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      return await page.evaluate(async () => {
+        const result = await axe.run(document, {
+          runOnly: {
+            type: 'tag',
+            values: ['wcag2a', 'wcag2aa', 'wcag21aa']
+          },
+          resultTypes: ['violations']
+        });
+
+        return result.violations
+          .filter(v =>
+            v.impact === 'critical' ||
+            v.impact === 'serious'
+          )
+          .map(v => ({
+            id: v.id,
+            impact: v.impact,
+            help: v.help,
+            nodes: v.nodes.map(node => ({
+              target: node.target,
+              html: node.html,
+              failureSummary: node.failureSummary
+            }))
+          }));
+      });
+    } catch (error) {
+      if (attempt > 0 || !/Execution context was destroyed/i.test(error.message)) {
+        throw error;
+      }
+      await page.waitForLoadState('domcontentloaded');
+      await stabilizePage(page);
+      await addAxeAfterStableNavigation(page);
+    }
+  }
+
+  throw new Error('AXE_RETRY_EXHAUSTED');
+}
+
 describe('admin linked modules UI', () => {
   test('all dashboard-linked admin modules render without fatal UI failures', async () => {
     const targets = await getDashboardModuleTargets();
@@ -318,31 +360,7 @@ describe('admin linked modules UI', () => {
 
         await addAxeAfterStableNavigation(page);
 
-        const violations = await page.evaluate(async () => {
-          const result = await axe.run(document, {
-            runOnly: {
-              type: 'tag',
-              values: ['wcag2a', 'wcag2aa', 'wcag21aa']
-            },
-            resultTypes: ['violations']
-          });
-
-          return result.violations
-            .filter(v =>
-              v.impact === 'critical' ||
-              v.impact === 'serious'
-            )
-            .map(v => ({
-              id: v.id,
-              impact: v.impact,
-              help: v.help,
-              nodes: v.nodes.map(node => ({
-                target: node.target,
-                html: node.html,
-                failureSummary: node.failureSummary
-              }))
-            }));
-        });
+        const violations = await runAxeAfterStableNavigation(page);
 
         if (violations.length) {
           failures.push({
