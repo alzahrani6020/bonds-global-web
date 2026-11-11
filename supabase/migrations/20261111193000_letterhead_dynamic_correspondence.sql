@@ -10,6 +10,7 @@ create table if not exists public.correspondence_sequences (
 create table if not exists public.correspondence_documents (
   id uuid primary key default gen_random_uuid(),
   owner_user_id uuid not null references auth.users(id) on delete cascade,
+  company_id uuid references public.companies(id) on delete set null,
   language text not null default 'ar' check (language in ('ar','en')),
   direction text not null default 'outgoing' check (direction in ('incoming','outgoing','internal')),
   document_type text not null default 'letter',
@@ -47,6 +48,7 @@ create table if not exists public.correspondence_documents (
 );
 
 create index if not exists idx_correspondence_owner_status on public.correspondence_documents(owner_user_id,status,updated_at desc);
+create index if not exists idx_correspondence_company_status on public.correspondence_documents(company_id,status,updated_at desc);
 create index if not exists idx_correspondence_reference on public.correspondence_documents(reference_number);
 create index if not exists idx_correspondence_verification on public.correspondence_documents(verification_token);
 
