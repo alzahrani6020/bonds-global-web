@@ -39,6 +39,7 @@ const {
 const { getCachedIntrospection } = require('../../lib/assistant/safe-introspection-cache');
 const { publicAssistantPolicyDescriptor } = require('../../lib/assistant/policy-engine');
 const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
+const { normalizeServiceCode, resolveServiceWorkspace } = require('../../lib/services/service-workspace-resolver');
 const { executeParallelServices } = require('../../lib/services/parallel-tool-execution');
 const { simulateAssistantPolicy } = require('../../lib/assistant/policy-simulation');
 const { verifySensitiveAction } = require('../../lib/assistant/sensitive-action-verifier');
@@ -73,6 +74,33 @@ function parseBody(req) {
     });
     req.on('error', reject);
   });
+}
+
+async function resolvePublishedExecuteWorkspaceService(supabase, rawCode) {
+  const code = normalizeServiceCode(rawCode);
+  if (!code || !supabase || typeof supabase.from !== 'function') return null;
+  try {
+    const { data:service, error:serviceError } = await supabase
+      .from('service_catalog')
+      .select('id,code,category_code,group_code,default_route_ar,default_route_en,metadata')
+      .eq('code', code)
+      .eq('status', 'published')
+      .eq('is_active', true)
+      .maybeSingle();
+    if (serviceError || !service) return null;
+    const { data:profile, error:profileError } = await supabase
+      .from('service_execution_profiles')
+      .select('execution_status,execution_mode,primary_action,is_active')
+      .eq('service_id', service.id)
+      .eq('is_active', true)
+      .maybeSingle();
+    if (profileError || !profile) return null;
+    const workspace = resolveServiceWorkspace(service, profile);
+    if (workspace?.ready !== true || workspace?.mode !== 'execute') return null;
+    return { code:service.code, workspace };
+  } catch (_error) {
+    return null;
+  }
 }
 
 async function assistantRouter(req, res, path, user) {
@@ -1362,6 +1390,18 @@ async function assistantRouter(req, res, path, user) {
     try { body = await parseBody(req); }
     catch (err) { return sendJson(res, 400, { error:'Invalid JSON body', detail:err.message }); }
 
+    if (body.type === 'site_navigate' && body.target === 'service_workspace') {
+      const verifiedWorkspace = await resolvePublishedExecuteWorkspaceService(getSupabaseClient(), body.service_code);
+      if (!verifiedWorkspace) {
+        return sendJson(res, 422, createEnvelope({
+          status:'denied',
+          reply:'مساحة العمل المطلوبة غير متاحة للتنفيذ.',
+          context:{ code:'SERVICE_WORKSPACE_NOT_AVAILABLE' }
+        }));
+      }
+      body.service_code = verifiedWorkspace.code;
+    }
+
     if (body.type === 'form_prefill') {
       const entitled = await isExecuteEntitled(getSupabaseClient(), user);
       if (!entitled) {
@@ -1378,7 +1418,8 @@ async function assistantRouter(req, res, path, user) {
       target:body.target,
       form:body.form,
       language:body.language,
-      fields:body.fields
+      fields:body.fields,
+      service_code:body.service_code
     });
     const plannedAction = Array.isArray(result.actions) ? result.actions[0] : {
       id:null,
@@ -1403,4 +1444,4 @@ async function assistantRouter(req, res, path, user) {
   return sendJson(res, 404, { error:'Assistant route not found' });
 }
 
-module.exports = { assistantRouter };
+module.exports = { assistantRouter, resolvePublishedExecuteWorkspaceService };

@@ -1409,6 +1409,8 @@
           activityCode: typeof parsed.activityCode === 'string' ? parsed.activityCode.slice(0, 100) : null,
           activityName: typeof parsed.activityName === 'string' ? parsed.activityName.slice(0, 200) : null,
           language: parsed.language === 'en' ? 'en' : 'ar',
+          workspaceType: typeof parsed.workspaceType === 'string' ? parsed.workspaceType.slice(0, 100) : null,
+          workspaceMode: parsed.workspaceMode === 'execute' ? 'execute' : null,
           studiesBrief: typeof parsed.studiesBrief === 'string' ? parsed.studiesBrief.slice(0, 500) : null,
           executionInputs
         };
@@ -1434,6 +1436,10 @@
       if (budgetPlanId) patch.budgetPlanId = budgetPlanId;
       if (/^\d{4}-\d{2}-\d{2}$/.test(actualThroughDate)) patch.actualThrough = actualThroughDate;
       return patch;
+    }
+
+    function readWorkspaceContext() {
+      return { ...readAccountingWorkspaceContext(), ...readStudiesWorkspaceContext() };
     }
 
     function readStudiesWorkspaceContext() {
@@ -2545,7 +2551,42 @@
       }
     }
 
+    function workspaceServiceHint() {
+      if (!/^\/(?:en\/)?my-bonds\/workspace\/?$/.test(window.location.pathname)) return '';
+      const hint = String(new URLSearchParams(window.location.search).get('service') || '').trim();
+      return /^[a-z0-9][a-z0-9_-]{0,99}$/i.test(hint) ? hint : '';
+    }
+
+    async function resolveVerifiedWorkspaceService() {
+      const hint = workspaceServiceHint();
+      if (!hint) return false;
+      if (context.serviceCode === hint && loadedServiceProfileCode === hint) return true;
+      try {
+        const res = await fetch(SERVICE_DETAIL_API + encodeURIComponent(hint), {
+          headers: await getAuthHeaders(),
+          credentials: 'same-origin',
+          cache: 'no-store'
+        });
+        if (!res.ok) return false;
+        const data = await res.json();
+        const verifiedCode = String(data?.service?.code || '').trim();
+        if (verifiedCode !== hint || data?.workspace?.mode !== 'execute') return false;
+        updateContext({
+          ...compactServiceProfile(data),
+          serviceCode:verifiedCode,
+          workspaceType:String(data?.workspace?.type || '').slice(0,100) || null,
+          workspaceMode:'execute'
+        });
+        loadedServiceProfileCode = verifiedCode;
+        return true;
+      } catch (err) {
+        console.warn('[BondsAssistantWorkspaceResolution]', err);
+        return false;
+      }
+    }
+
     async function resolveServiceContextFromPage() {
+      if (workspaceServiceHint() && await resolveVerifiedWorkspaceService()) return;
       if (context.serviceCode) return;
       try {
         const res = await fetch(SERVICE_CATALOG_API, {
@@ -2598,18 +2639,22 @@
 
     function refreshContext() {
       const bridge = readServiceAssistantContext();
-      if (Object.keys(bridge).length) {
+      const workspaceHint = workspaceServiceHint();
+      const safeBridge = workspaceHint && bridge.serviceCode && bridge.serviceCode !== workspaceHint
+        ? { ...bridge, serviceCode:null, serviceName:null, serviceNameEn:null, workspaceType:null, workspaceMode:null }
+        : bridge;
+      if (Object.keys(safeBridge).length) {
         updateContext({
-          ...bridge,
-          cityCode: context.cityCode || bridge.localityCode || null,
-          activityCode: context.activityCode || bridge.activityCode || null
+          ...safeBridge,
+          cityCode: context.cityCode || safeBridge.localityCode || null,
+          activityCode: context.activityCode || safeBridge.activityCode || null
         });
       }
       context.pagePath = (window.location.pathname + window.location.hash) || context.pagePath || '/';
       context.pageTitle = document.title || context.pageTitle || null;
       context.cityName = getCityName() || context.localityName || context.cityName || null;
       context.activityName = getActivityName() || context.activityName || null;
-      updateContext(readStudiesWorkspaceContext());
+      updateContext(readWorkspaceContext());
     }
 
     function notificationText(notification, field) {
@@ -3749,6 +3794,9 @@
           ? action.target
           : undefined,
         ...(action.type === 'form_prefill' ? { fields: action.input && action.input.fields } : {}),
+        ...(action.type === 'site_navigate' && action.input?.service_code
+          ? { service_code:String(action.input.service_code).slice(0,100) }
+          : {}),
         language: languageCode(),
         boundary: contextBoundaryKey()
       };
@@ -4619,7 +4667,7 @@
       setLoading(true);
       input.value = '';
 
-      context = { ...context, ...readAccountingWorkspaceContext(), ...readStudiesWorkspaceContext() };
+      context = { ...context, ...readWorkspaceContext() };
       const isProjectMode = context.mode === 'project' && context.projectId;
       const url = isProjectMode ? ECC_ADVISOR_URL : API_URL;
       const structuredState = assistantContextEnabled()

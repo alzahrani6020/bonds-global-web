@@ -43,6 +43,24 @@
       "risk": "low",
       "auth_required": true
     },
+    "my_bonds": {
+      "routes": {
+        "ar": "/my-bonds/",
+        "en": "/en/my-bonds/"
+      },
+      "kind": "workspace_hub",
+      "risk": "low",
+      "auth_required": true
+    },
+    "service_workspace": {
+      "routes": {
+        "ar": "/my-bonds/workspace/",
+        "en": "/en/my-bonds/workspace/"
+      },
+      "kind": "workspace",
+      "risk": "low",
+      "auth_required": true
+    },
     "funding_cases": {
       "routes": {
         "ar": "/client/funding-cases",
