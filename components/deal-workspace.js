@@ -4,6 +4,7 @@
 const API='/api/v3/deals';
 const $=selector=>document.querySelector(selector);
 const statusEl=()=>$('#dealStatus');
+let activeDealId=null;
 
 function setStatus(message,isError){
   const el=statusEl();
@@ -69,6 +70,7 @@ async function loadDeal(id){
   setStatus('جاري تحميل الصفقة...');
   const data=await api('/'+encodeURIComponent(id));
   const deal=data.deal||{};
+  activeDealId=deal.id||id;
   const workspace=data.workspace||{};
   $('#dealCreatePanel').hidden=true;
   $('.deal-section-title').hidden=true;
@@ -125,7 +127,24 @@ async function createDeal(event){
   if(data.deal?.id)await loadDeal(data.deal.id);
 }
 
+async function createChild(event){
+  event.preventDefault();
+  if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const kind=String(form.dataset.dealChild||'').trim();
+  if(!['parties','tasks','due-diligence','documents'].includes(kind))throw new Error('DEAL_CHILD_TYPE_INVALID');
+  const payload=Object.fromEntries(new FormData(form).entries());
+  setStatus('جاري حفظ العنصر...');
+  await api('/'+encodeURIComponent(activeDealId)+'/'+kind,{
+    method:'POST',
+    body:JSON.stringify(payload)
+  });
+  form.reset();
+  await loadDeal(activeDealId);
+}
+
 function backToList(){
+  activeDealId=null;
   $('#dealDetail').hidden=true;
   $('#dealCreatePanel').hidden=false;
   $('.deal-section-title').hidden=false;
@@ -140,6 +159,11 @@ document.addEventListener('DOMContentLoaded',async()=>{
     createDeal(event).catch(err=>setStatus(err.message,true));
   });
   $('#dealBack')?.addEventListener('click',backToList);
+  document.querySelectorAll('[data-deal-child]').forEach(form=>{
+    form.addEventListener('submit',event=>{
+      createChild(event).catch(err=>setStatus(err.message,true));
+    });
+  });
   try{
     await loadDeals();
     const id=new URLSearchParams(location.search).get('deal');
