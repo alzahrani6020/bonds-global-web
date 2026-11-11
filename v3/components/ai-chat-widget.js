@@ -3771,18 +3771,22 @@
       if (action.type === 'form_find') return languageCode() === 'en' ? 'Find form' : 'العثور على النموذج';
       if (action.type === 'form_load') return languageCode() === 'en' ? 'Open form' : 'فتح النموذج';
       if (action.type === 'form_save_draft') return languageCode() === 'en' ? 'Save draft' : 'حفظ المسودة';
-      if (action.type === 'form_prefill') return String(action.target || '') === 'establishment'
-        ? (languageCode() === 'en' ? 'Fill establishment fields' : 'ملء حقول المنشأة')
-        : (languageCode() === 'en' ? 'Fill KYC fields' : 'ملء حقول اعرف عميلك');
+      if (action.type === 'form_prefill') return String(action.target || '') === 'activity'
+        ? (languageCode() === 'en' ? 'Fill activity fields' : 'ملء حقول النشاط')
+        : String(action.target || '') === 'establishment'
+          ? (languageCode() === 'en' ? 'Fill establishment fields' : 'ملء حقول المنشأة')
+          : (languageCode() === 'en' ? 'Fill KYC fields' : 'ملء حقول اعرف عميلك');
       return languageCode() === 'en' ? 'Review action' : 'مراجعة الإجراء';
     }
 
     function actionTitle(action) {
       if (action.type === 'site_navigate') return languageCode() === 'en' ? 'Navigation' : 'تنقل معتمد';
       if (action.type === 'form_find' || action.type === 'form_load' || action.type === 'form_save_draft') return languageCode() === 'en' ? 'Registered form' : 'نموذج مسجل';
-      if (action.type === 'form_prefill') return String(action.target || '') === 'establishment'
-        ? (languageCode() === 'en' ? 'Fill establishment fields' : 'ملء حقول المنشأة')
-        : (languageCode() === 'en' ? 'Fill KYC fields' : 'ملء حقول اعرف عميلك');
+      if (action.type === 'form_prefill') return String(action.target || '') === 'activity'
+        ? (languageCode() === 'en' ? 'Fill activity fields' : 'ملء حقول النشاط')
+        : String(action.target || '') === 'establishment'
+          ? (languageCode() === 'en' ? 'Fill establishment fields' : 'ملء حقول المنشأة')
+          : (languageCode() === 'en' ? 'Fill KYC fields' : 'ملء حقول اعرف عميلك');
       return languageCode() === 'en' ? 'Assistant action' : 'إجراء المساعد';
     }
 
@@ -4179,7 +4183,7 @@
           const planned = Array.isArray(plan?.actions)
             ? plan.actions.find(item => item?.type === 'form_prefill')
             : null;
-          if (!planned || !['kyc','establishment'].includes(String(planned.target)) || planned.target !== action.target) {
+          if (!planned || !['kyc','establishment','activity'].includes(String(planned.target)) || planned.target !== action.target) {
             throw new Error('PREFILL_PLAN_MISMATCH');
           }
 
