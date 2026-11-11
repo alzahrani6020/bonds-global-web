@@ -713,6 +713,16 @@
   ],
   "redirects": [
     {
+      "source": "/ar/letterhead",
+      "destination": "/letterhead",
+      "statusCode": 301
+    },
+    {
+      "source": "/ar/letterhead.html",
+      "destination": "/letterhead",
+      "statusCode": 301
+    },
+    {
       "source": "/calculator",
       "destination": "/calculators/break-even",
       "statusCode": 301
