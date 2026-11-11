@@ -142,6 +142,15 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('context = { ...context, ...readAccountingWorkspaceContext(), ...readStudiesWorkspaceContext() };');
   });
 
+
+  test('binds service workspace navigation to verified current service context', () => {
+    expect(source).toContain("String(action.target || '') === 'service_workspace'");
+    expect(source).toContain("if (!serviceCode) throw new Error('SERVICE_WORKSPACE_REQUIRES_SERVICE')");
+    expect(source).toContain("workspaceUrl.searchParams.set('service', serviceCode)");
+    expect(source).toContain("const queryServiceCode = String(params.get('service') || '').trim().slice(0, 100)");
+    expect(source).toContain("loadedServiceProfileCode = null");
+  });
+
   test('tracks every chat message with stable metadata and visible timestamp', () => {
     expect(source).toContain('message_id: metadata.message_id || createMessageTrackingId');
     expect(source).toContain('turn_id: metadata.turn_id || createMessageTrackingId');
