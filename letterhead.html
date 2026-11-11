@@ -1072,9 +1072,6 @@
       };
       window.sendToManager = async function() {
         saveDoc();
-        var to = prompt('بريد المدير:', localStorage.getItem(LS_PREFIX + 'manager_email') || '');
-        if (!to) return;
-        localStorage.setItem(LS_PREFIX + 'manager_email', to);
         var allText = Array.from(document.querySelectorAll('.doc-content')).map(function(d){return d.innerText.trim();}).join(' ');
         var title = document.title.replace(' | ورق مراسلات بوندز', '').replace(' | Bonds Letterhead', '') || 'مرفق من letterhead';
         var html = '<html><body dir="rtl">' + Array.from(document.querySelectorAll('.sheet')).map(function(s){ return '<div style="margin-bottom:40px;">' + s.innerHTML + '</div>'; }).join('') + '</body></html>';
@@ -1089,7 +1086,7 @@
               'Content-Type': 'application/json',
               'Authorization': 'Bearer ' + token
             },
-            body: JSON.stringify({ to: to, subject: title, html: html, text: allText.slice(0, 1200) })
+            body: JSON.stringify({ subject: title, html: html, text: allText.slice(0, 1200) })
           });
           var data = await r.json();
           if (!r.ok) { showToast('⚠️ ' + (data.error || 'فشل الإرسال')); return; }
