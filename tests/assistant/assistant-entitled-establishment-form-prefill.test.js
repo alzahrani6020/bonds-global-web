@@ -11,7 +11,7 @@ describe('entitled establishment form_prefill execute-mode contracts', () => {
   test('widget supports governed establishment prefill without persistence or submit', () => {
     expect(widget).toContain("['form_find', 'form_load', 'form_save_draft', 'form_prefill'].includes(action.type)");
     expect(widget).toContain("action.type === 'form_prefill' ? { fields: action.input && action.input.fields } : {}");
-    expect(widget).toContain("!['kyc','establishment'].includes(String(planned.target))");
+    expect(widget).toContain("!['kyc','establishment','activity'].includes(String(planned.target))");
     expect(widget).toContain("adapter.form_code !== planned.target");
     expect(widget).toContain("target:planned.target");
     expect(widget).toContain("Fill establishment fields");
