@@ -149,6 +149,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(migration).toContain('requires_stamp');
     expect(migration).toContain('enable row level security');
     expect(migration).toContain('revoke all on public.correspondence_tasks from anon, authenticated');
+    expect(migration).not.toMatch(/\bdrop\s+(table|column|constraint|trigger)\b/i);
+    expect(migration).not.toMatch(/\btruncate\b|\bdelete\s+from\b/i);
 
     expect(api).toContain('resolveCorrespondencePermissions');
     expect(api).toContain("permissionByTarget");
