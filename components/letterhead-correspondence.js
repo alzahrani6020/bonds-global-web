@@ -474,7 +474,7 @@
     show('corr-cancel', (isOwner() && ['draft','returned'].includes(status)) || (can('review') && status === 'submitted'));
     show('corr-sign', can('sign') && status === 'approved' && doc?.requires_signature !== false && !doc?.signed_by);
     show('corr-issue', can('issue') && status === 'approved' && (doc?.requires_signature === false || !!doc?.signed_by) && (!doc?.requires_stamp || !!doc?.stamped_by));
-    show('corr-stamp', can('stamp') && status === 'approved' && !!doc?.requires_stamp && !doc?.stamped_by);
+    show('corr-stamp', can('stamp') && status === 'approved' && !doc?.stamped_by);
     show('corr-finalize-pdf', can('finalize_pdf') && status === 'issued' && !doc?.artifact_hash);
     show('corr-send', can('send') && status === 'issued' && !!doc?.artifact_hash);
     show('corr-archive', can('archive') && ['issued','sent'].includes(status));
