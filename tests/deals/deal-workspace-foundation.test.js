@@ -57,6 +57,7 @@ describe('Bonds Deal Workspace foundation', () => {
     expect(sql).toContain('create table if not exists public.bonds_deals');
     expect(sql).toContain('alter table public.bonds_deals enable row level security');
     expect(sql).toContain('user_id = auth.uid()');
+    expect(sql).not.toMatch(/\bdrop\b/i);
     expect(sql).not.toMatch(/\btruncate\b/i);
     expect(sql).not.toMatch(/\bdelete\s+from\b/i);
     expect(sql).not.toMatch(/grant\s+delete/i);
@@ -70,6 +71,16 @@ describe('Bonds Deal Workspace foundation', () => {
     expect(source).toContain("if (!user) return sendJson(res, 401");
     expect(source).toContain(".eq('user_id', user.id)");
     expect(source).not.toContain("req.method === 'DELETE'");
+  });
+
+  test('routes deals through the authenticated v3 router', () => {
+    const source=fs.readFileSync(
+      path.join(__dirname,'..','..','v3','api','index.js'),
+      'utf8'
+    );
+    expect(source).toContain("const { dealsRouter } = require('./deals');");
+    expect(source).toContain("if (path.startsWith('/deals'))");
+    expect(source).toContain('return await dealsRouter(req, res, path, supabase, user);');
   });
 
   test('workspace client uses authenticated same-origin API', () => {
