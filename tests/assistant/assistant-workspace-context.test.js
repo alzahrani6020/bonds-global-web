@@ -20,7 +20,7 @@ describe('verified assistant workspace context', () => {
     expect(request).toContain("source:'service_workspace'");
     expect(request).toContain("workspaceType:String(detail?.workspace?.type||'').slice(0,100)||null");
     expect(request).toContain("workspaceMode:'execute'");
-    expect(request).not.toContain('syncStudiesAssistantContext');
+    expect(request).toContain('function syncStudiesAssistantContext(){syncWorkspaceAssistantContext()}');
   });
 
   test('widget treats URL service as a hint and verifies it through the service API before stored context wins', () => {
@@ -38,7 +38,7 @@ describe('verified assistant workspace context', () => {
     expect(widget).toContain('...readAccountingWorkspaceContext()');
     expect(widget).toContain('...readStudiesWorkspaceContext()');
     expect(widget).toContain('return service ? `${base}|service:${service}` : base;');
-    expect(aiApi).toContain('return `page:${pagePath || '/'}|service:${serviceCode || 'none'}`;');
+    expect(aiApi).toContain("return `page:${pagePath || '/'}|service:${serviceCode || 'none'}`;");
   });
 
   test('governed plan forwards service_code only for site navigation and never a model URL', () => {

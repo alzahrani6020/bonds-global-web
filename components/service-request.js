@@ -193,6 +193,7 @@ function syncWorkspaceAssistantContext(){
  };
  try{sessionStorage.setItem('bonds_service_assistant_context_v1',JSON.stringify(payload))}catch(_){}
 }
+function syncStudiesAssistantContext(){syncWorkspaceAssistantContext()}
 function studiesPrefill(key,intentKey){
  const intent=readServiceIntent()||{};
  const live=liveParams();
