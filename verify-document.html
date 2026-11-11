@@ -27,6 +27,9 @@
     <dt data-ar="تاريخ الإصدار" data-en="Issued at">تاريخ الإصدار</dt><dd id="issued"></dd>
     <dt data-ar="تاريخ الإرسال" data-en="Sent at">تاريخ الإرسال</dt><dd id="sent"></dd>
     <dt>SHA-256</dt><dd id="hash" class="hash"></dd>
+    <dt data-ar="بصمة الإصدار" data-en="Issued package hash">بصمة الإصدار</dt><dd id="issued-hash" class="hash"></dd>
+    <dt data-ar="التوقيع" data-en="Signature">التوقيع</dt><dd id="signature-state"></dd>
+    <dt data-ar="الختم" data-en="Stamp">الختم</dt><dd id="stamp-state"></dd>
   </dl>
   <p><a href="/" id="home">العودة إلى بوندز</a></p>
 </main>
@@ -53,6 +56,9 @@
     document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString(en?'en-US':'ar-SA'):'-';
     document.getElementById('sent').textContent=d.sent_at?new Date(d.sent_at).toLocaleString(en?'en-US':'ar-SA'):'-';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
+    document.getElementById('issued-hash').textContent=d.issued_hash||'-';
+    document.getElementById('signature-state').textContent=d.signature_verified?(en?'Verified':'موثق في السجل'):(en?'Not recorded':'غير مسجل');
+    document.getElementById('stamp-state').textContent=d.stamp_verified?(en?'Verified':'موثق في السجل'):(en?'Not recorded':'غير مسجل');
     details.hidden=false;
   }catch(e){
     status.textContent=en?'Document could not be verified':'تعذر التحقق من المستند';
