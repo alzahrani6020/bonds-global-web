@@ -6,6 +6,7 @@ alter table public.correspondence_documents
   add column if not exists requires_stamp boolean not null default false,
   add column if not exists delivery_status text,
   add column if not exists provider_message_id text,
+  add column if not exists delivery_provider text,
   add column if not exists delivery_updated_at timestamptz;
 
 alter table public.correspondence_documents
@@ -20,6 +21,10 @@ alter table public.correspondence_documents
 
 create index if not exists idx_correspondence_delivery_status
   on public.correspondence_documents(delivery_status, delivery_updated_at desc);
+
+create index if not exists idx_correspondence_provider_message
+  on public.correspondence_documents(provider_message_id)
+  where provider_message_id is not null;
 
 create table if not exists public.correspondence_tasks (
   id uuid primary key default gen_random_uuid(),
