@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Deal Workspace | BONDS</title>
+<meta name="description" content="BONDS workspace for managing a deal from preparation through closing.">
+<meta name="robots" content="noindex,follow">
+<link rel="stylesheet" href="/styles/fonts-ar.css">
+<link rel="stylesheet" href="/styles.css">
+<link rel="stylesheet" href="/styles/page-shared.css">
+<link rel="stylesheet" href="/styles/institutional-system.css?v=6">
+<script src="/api/env" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+<script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
+<script defer src="/site-layout.js?v=3.8.8"></script>
+<script defer src="/components/deal-workspace.js?v=1"></script>
+<style>
+.deal-shell{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.deal-head{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.deal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:22px}.deal-card,.deal-form,.deal-panel{border:1px solid rgba(197,160,40,.22);background:rgba(255,255,255,.035);border-radius:14px;padding:16px}.deal-card button{width:100%;text-align:inherit;background:none;border:0;color:inherit;cursor:pointer;padding:0}.deal-meta{opacity:.72;font-size:.86rem}.deal-progress{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.deal-progress div{border:1px solid rgba(197,160,40,.2);border-radius:10px;padding:12px}.deal-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.deal-form .full{grid-column:1/-1}.deal-form input,.deal-form select,.deal-form textarea{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-form button,.deal-child-form button{padding:11px 16px;border:0;border-radius:9px;background:#d4a853;color:#0a0f1a;font-weight:800;cursor:pointer}.deal-child-form{display:grid;gap:8px;margin:10px 0 14px}.deal-child-form input,.deal-child-form select{width:100%;padding:9px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-status{margin:12px 0;min-height:22px}.deal-section-title{margin-top:26px}.deal-list{display:grid;gap:8px}.deal-row{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:9px 0}.deal-empty{opacity:.65}@media(max-width:680px){.deal-form{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="site-header"></div>
+<main class="deal-shell">
+  <nav aria-label="Breadcrumb"><a href="/en/my-bonds/">My BONDS</a> › <span>Deal Workspace</span></nav>
+  <section class="deal-head">
+    <div>
+      <div class="sr-eyebrow">Bonds Deal Workspace</div>
+      <h1>Deal Workspace</h1>
+      <p>A central deal record for parties, tasks, due diligence, and data-room documents.</p>
+    </div>
+    <a href="/en/my-bonds/workspace/">Service workspace</a>
+  </section>
+  <div id="dealStatus" class="deal-status" role="status"></div>
+  <section id="dealCreatePanel" class="deal-panel">
+    <h2>Create deal</h2>
+    <form id="dealCreateForm" class="deal-form">
+      <label>Deal name<input name="title" required maxlength="240"></label>
+      <label>Deal type
+        <select name="deal_type">
+          <option value="funding">Funding</option><option value="investment">Investment</option>
+          <option value="ma_buy">M&amp;A - Buy side</option><option value="ma_sell">M&amp;A - Sell side</option>
+          <option value="joint_venture">Joint venture</option><option value="restructuring">Restructuring</option><option value="other">Other</option>
+        </select>
+      </label>
+      <label>Target value<input name="target_value" type="number" min="0" step="0.01"></label>
+      <label>Currency<input name="currency" value="SAR" maxlength="3"></label>
+      <label class="full">Summary<textarea name="summary" rows="3" maxlength="4000"></textarea></label>
+      <div class="full"><button type="submit">Create deal record</button></div>
+    </form>
+  </section>
+  <h2 class="deal-section-title">Current deals</h2>
+  <section id="dealCards" class="deal-grid"></section>
+  <section id="dealDetail" hidden>
+    <div class="deal-head">
+      <div><h2 id="dealTitle"></h2><div id="dealMeta" class="deal-meta"></div></div>
+      <button id="dealBack" type="button">Back to list</button>
+    </div>
+    <div class="deal-progress">
+      <div><strong id="dealPartyCount">0</strong><br>Parties</div>
+      <div><strong id="dealTaskCount">0</strong><br>Tasks</div>
+      <div><strong id="dealDdCount">0</strong><br>Due diligence items</div>
+      <div><strong id="dealDocumentCount">0</strong><br>Data-room documents</div>
+    </div>
+    <div class="deal-grid">
+      <section class="deal-card"><h3>Parties</h3>
+        <form class="deal-child-form" data-deal-child="parties"><input name="name" required maxlength="240" placeholder="Party name"><select name="party_role"><option value="client">Client</option><option value="buyer">Buyer</option><option value="seller">Seller</option><option value="investor">Investor</option><option value="lender">Lender</option><option value="advisor">Advisor</option><option value="legal">Legal</option><option value="auditor">Auditor</option><option value="other">Other</option></select><button type="submit">Add party</button></form>
+        <div id="dealParties" class="deal-list"></div>
+      </section>
+      <section class="deal-card"><h3>Tasks</h3>
+        <form class="deal-child-form" data-deal-child="tasks"><input name="title" required maxlength="300" placeholder="Task"><select name="priority"><option value="normal">Normal</option><option value="high">High</option><option value="critical">Critical</option><option value="low">Low</option></select><button type="submit">Add task</button></form>
+        <div id="dealTasks" class="deal-list"></div>
+      </section>
+      <section class="deal-card"><h3>Due diligence</h3>
+        <form class="deal-child-form" data-deal-child="due-diligence"><input name="title" required maxlength="300" placeholder="Review item"><select name="area"><option value="financial">Financial</option><option value="commercial">Commercial</option><option value="legal">Legal</option><option value="tax">Tax</option><option value="operational">Operational</option><option value="technical">Technical</option><option value="governance">Governance</option></select><button type="submit">Add item</button></form>
+        <div id="dealDd" class="deal-list"></div>
+      </section>
+      <section class="deal-card"><h3>Data room</h3>
+        <form class="deal-child-form" data-deal-child="documents"><input name="name" required maxlength="300" placeholder="Document name"><input name="category" maxlength="120" placeholder="Category"><button type="submit">Register document</button></form>
+        <div id="dealDocuments" class="deal-list"></div>
+      </section>
+    </div>
+  </section>
+</main>
+<div id="site-footer"></div>
+</body>
+</html>
