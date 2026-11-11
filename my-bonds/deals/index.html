@@ -16,7 +16,7 @@
 <script defer src="/site-layout.js?v=3.8.8"></script>
 <script defer src="/components/deal-workspace.js?v=1"></script>
 <style>
-.deal-shell{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.deal-head{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.deal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:22px}.deal-card,.deal-form,.deal-panel{border:1px solid rgba(197,160,40,.22);background:rgba(255,255,255,.035);border-radius:14px;padding:16px}.deal-card button{width:100%;text-align:inherit;background:none;border:0;color:inherit;cursor:pointer;padding:0}.deal-meta{opacity:.72;font-size:.86rem}.deal-progress{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.deal-progress div{border:1px solid rgba(197,160,40,.2);border-radius:10px;padding:12px}.deal-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.deal-form .full{grid-column:1/-1}.deal-form input,.deal-form select,.deal-form textarea{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-form button{padding:11px 16px;border:0;border-radius:9px;background:#d4a853;color:#0a0f1a;font-weight:800;cursor:pointer}.deal-status{margin:12px 0;min-height:22px}.deal-section-title{margin-top:26px}.deal-list{display:grid;gap:8px}.deal-row{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:9px 0}.deal-empty{opacity:.65}@media(max-width:680px){.deal-form{grid-template-columns:1fr}}
+.deal-shell{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.deal-head{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.deal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:22px}.deal-card,.deal-form,.deal-panel{border:1px solid rgba(197,160,40,.22);background:rgba(255,255,255,.035);border-radius:14px;padding:16px}.deal-card button{width:100%;text-align:inherit;background:none;border:0;color:inherit;cursor:pointer;padding:0}.deal-meta{opacity:.72;font-size:.86rem}.deal-progress{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.deal-progress div{border:1px solid rgba(197,160,40,.2);border-radius:10px;padding:12px}.deal-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.deal-form .full{grid-column:1/-1}.deal-form input,.deal-form select,.deal-form textarea{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-form button,.deal-child-form button{padding:11px 16px;border:0;border-radius:9px;background:#d4a853;color:#0a0f1a;font-weight:800;cursor:pointer}.deal-child-form{display:grid;gap:8px;margin:10px 0 14px}.deal-child-form input,.deal-child-form select{width:100%;padding:9px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-status{margin:12px 0;min-height:22px}.deal-section-title{margin-top:26px}.deal-list{display:grid;gap:8px}.deal-row{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:9px 0}.deal-empty{opacity:.65}@media(max-width:680px){.deal-form{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -71,10 +71,42 @@
       <div><strong id="dealDocumentCount">0</strong><br>مستندات غرفة البيانات</div>
     </div>
     <div class="deal-grid">
-      <section class="deal-card"><h3>الأطراف</h3><div id="dealParties" class="deal-list"></div></section>
-      <section class="deal-card"><h3>المهام</h3><div id="dealTasks" class="deal-list"></div></section>
-      <section class="deal-card"><h3>الفحص النافي للجهالة</h3><div id="dealDd" class="deal-list"></div></section>
-      <section class="deal-card"><h3>غرفة البيانات</h3><div id="dealDocuments" class="deal-list"></div></section>
+      <section class="deal-card">
+        <h3>الأطراف</h3>
+        <form class="deal-child-form" data-deal-child="parties">
+          <input name="name" required maxlength="240" placeholder="اسم الطرف">
+          <select name="party_role"><option value="client">عميل</option><option value="buyer">مشتري</option><option value="seller">بائع</option><option value="investor">مستثمر</option><option value="lender">ممّول</option><option value="advisor">مستشار</option><option value="legal">قانوني</option><option value="auditor">مراجع</option><option value="other">أخرى</option></select>
+          <button type="submit">إضافة طرف</button>
+        </form>
+        <div id="dealParties" class="deal-list"></div>
+      </section>
+      <section class="deal-card">
+        <h3>المهام</h3>
+        <form class="deal-child-form" data-deal-child="tasks">
+          <input name="title" required maxlength="300" placeholder="المهمة">
+          <select name="priority"><option value="normal">عادية</option><option value="high">عالية</option><option value="critical">حرجة</option><option value="low">منخفضة</option></select>
+          <button type="submit">إضافة مهمة</button>
+        </form>
+        <div id="dealTasks" class="deal-list"></div>
+      </section>
+      <section class="deal-card">
+        <h3>الفحص النافي للجهالة</h3>
+        <form class="deal-child-form" data-deal-child="due-diligence">
+          <input name="title" required maxlength="300" placeholder="بند الفحص">
+          <select name="area"><option value="financial">مالي</option><option value="commercial">تجاري</option><option value="legal">قانوني</option><option value="tax">ضريبي</option><option value="operational">تشغيلي</option><option value="technical">تقني</option><option value="governance">حوكمة</option></select>
+          <button type="submit">إضافة بند</button>
+        </form>
+        <div id="dealDd" class="deal-list"></div>
+      </section>
+      <section class="deal-card">
+        <h3>غرفة البيانات</h3>
+        <form class="deal-child-form" data-deal-child="documents">
+          <input name="name" required maxlength="300" placeholder="اسم المستند">
+          <input name="category" maxlength="120" placeholder="التصنيف">
+          <button type="submit">تسجيل مستند</button>
+        </form>
+        <div id="dealDocuments" class="deal-list"></div>
+      </section>
     </div>
   </section>
 </main>
