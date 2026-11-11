@@ -123,8 +123,8 @@ describe('canonical service workspace resolver', () => {
     )).toMatchObject({
       type:WORKSPACE_TYPES.STUDIES_VALUATION,
       mode:'execute',
-      route_ar:'/my-bonds/workspace/',
-      route_en:'/en/my-bonds/workspace/'
+      route_ar:'/my-bonds/workspace/?service=scientific_research',
+      route_en:'/en/my-bonds/workspace/?service=scientific_research'
     });
   });
 

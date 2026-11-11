@@ -10,6 +10,7 @@ const T=lang==='ar'?{
 const params=new URLSearchParams(location.search);
 const serviceCode=params.get('service')||'';
 let detail=null;
+let detailVerified=false;
 let formTouched=false;
 let submitted=false;
 let intakeDatasetId=null;
@@ -170,15 +171,29 @@ function studiesRuntimeFromValues(values){
  const packet=bindings?bindings.studiesResearchPacket(serviceCode,values,geo):null;
  return {geo,packet,input:packet&&packet.query||null};
 }
-function syncStudiesAssistantContext(){
- if(!isStudiesWorkspaceService())return;
- const bindings=studiesBindings();
+function syncWorkspaceAssistantContext(){
+ if(!isServiceWorkspace||detailVerified!==true||detail?.workspace?.mode!=='execute')return;
+ const verifiedCode=String(detail?.service?.code||'').trim();
+ if(!verifiedCode||verifiedCode!==serviceCode)return;
  const values=typeof collectValues==='function'?collectValues():{};
- const payload=bindings
-  ?bindings.studiesAssistantContext(serviceCode,values,studiesParamMap(),lang,text(detail?.service))
-  :{version:1,source:'service_workspace',serviceCode,language:lang,executionInputs:values};
+ const studiesPayload=isStudiesWorkspaceService()&&studiesBindings()
+  ?studiesBindings().studiesAssistantContext(verifiedCode,values,studiesParamMap(),lang,text(detail?.service))
+  :{};
+ const payload={
+  ...studiesPayload,
+  version:1,
+  source:'service_workspace',
+  serviceCode:verifiedCode,
+  serviceName:text(detail?.service),
+  serviceNameEn:String(detail?.service?.name_en||detail?.service?.name_ar||verifiedCode).slice(0,200),
+  workspaceType:String(detail?.workspace?.type||'').slice(0,100)||null,
+  workspaceMode:'execute',
+  language:lang,
+  executionInputs:values
+ };
  try{sessionStorage.setItem('bonds_service_assistant_context_v1',JSON.stringify(payload))}catch(_){}
 }
+function syncStudiesAssistantContext(){syncWorkspaceAssistantContext()}
 function studiesPrefill(key,intentKey){
  const intent=readServiceIntent()||{};
  const live=liveParams();
@@ -322,7 +337,7 @@ function studiesWriteLocationToUrl(){
  });
  history.replaceState({},'',url);
  studiesRefreshContextChrome();
- syncStudiesAssistantContext();
+ syncWorkspaceAssistantContext();
  if(studiesCatalogBound) saveWorkspaceDraft();
 }
 function studiesRefreshContextChrome(){
@@ -1123,7 +1138,7 @@ function saveWorkspaceDraft(){
  const budget_rows=serviceCode==='planning_budgeting_forecasting'?[...document.querySelectorAll('[data-budget-row]')].map(row=>({period:row.querySelector('[data-budget-period]')?.value||'',status:row.querySelector('[data-budget-status]')?.value||'actual',metric:row.querySelector('[data-budget-metric]')?.value||'',actual:row.querySelector('[data-budget-actual]')?.value||'',budget:row.querySelector('[data-budget-budget]')?.value||'',forecast:row.querySelector('[data-budget-forecast]')?.value||''})):null;
  localStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,budget_rows,updated_at:new Date().toISOString()}));
  workspaceDirty=true;
- syncStudiesAssistantContext();
+ syncWorkspaceAssistantContext();
 }
 function restoreWorkspaceDraft(){
  if(!isServiceWorkspace)return;
@@ -1238,7 +1253,7 @@ function render(){
  bindWorkspaceDraft();
  applyStudiesSubmitLabel();
  bindStudiesCatalogDropdowns();
- syncStudiesAssistantContext();
+ syncWorkspaceAssistantContext();
 }
 const FINANCIAL_ACTIONS=new Set([
  'financial_analysis_run','cash_flow_analysis_run','funding_readiness_run','creditworthiness_run',
@@ -1602,7 +1617,7 @@ async function submit(e){
     activity:runtime.geo.activity||params.get('activity')||null,
     studies_brief:runtime.input||null
   };
-  syncStudiesAssistantContext();
+  syncWorkspaceAssistantContext();
   const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};
 
   if(isFinancialIntakeService()){
@@ -1772,7 +1787,9 @@ async function init(){
  try{
   try{
    detail=await json('/api/v3/services/'+encodeURIComponent(serviceCode)+'?'+contextQuery());
+   detailVerified=true;
   }catch(loadErr){
+   detailVerified=false;
    detail=studiesFallbackDetail();
    if(!detail) throw loadErr;
   }
@@ -1786,8 +1803,8 @@ async function init(){
   if(isStudiesWorkspaceService()) applyStudiesSubmitLabel();
   else $('#srSubmit').textContent=T.submit;
   requestForm.addEventListener('submit',submit);
-  requestForm.addEventListener('input',()=>{formTouched=true},{passive:true});
-  requestForm.addEventListener('change',()=>{formTouched=true},{passive:true});
+  requestForm.addEventListener('input',()=>{formTouched=true;syncWorkspaceAssistantContext()},{passive:true});
+  requestForm.addEventListener('change',()=>{formTouched=true;syncWorkspaceAssistantContext()},{passive:true});
   track('service_request_viewed',{delivery_type:detail.service?.delivery_type||null});
  }catch(err){showStatus(T.failed+': '+err.message,false)}
 }
