@@ -187,6 +187,15 @@
       },
       "kind": "page",
       "risk": "low"
+    },
+    "service_workspace": {
+      "routes": {
+        "ar": "/my-bonds/workspace/",
+        "en": "/en/my-bonds/workspace/"
+      },
+      "kind": "workspace",
+      "risk": "low",
+      "auth_required": true
     }
   }
 }

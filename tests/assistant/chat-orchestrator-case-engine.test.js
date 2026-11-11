@@ -5,6 +5,7 @@ const {
   asksHumanEscalationIntent,
   asksCurrentService,
   isDeterministicAssistantTurn,
+  serviceByCode,
   orchestrateChat
 } = require('../../lib/assistant/chat-orchestrator');
 const {
@@ -63,6 +64,33 @@ describe('BONDS Chat Orchestrator + Case Engine', () => {
       expect(result.handled).toBe(false);
     }
     expect(supabase.from).not.toHaveBeenCalled();
+  });
+
+  test('accepts session service context only when the catalog verifies it as published and active', async () => {
+    const makeQuery = result => {
+      const query = {
+        select: jest.fn(() => query),
+        eq: jest.fn(() => query),
+        limit: jest.fn(() => query),
+        maybeSingle: jest.fn(async () => result)
+      };
+      return query;
+    };
+    const verifiedQuery = makeQuery({
+      data:{ id:'svc-1', code:'financial_analysis', name_ar:'التحليل المالي', status:'published', is_active:true },
+      error:null
+    });
+    const missingQuery = makeQuery({ data:null, error:null });
+
+    await expect(serviceByCode({
+      supabase:{ from:jest.fn(() => verifiedQuery) },
+      serviceCode:'financial_analysis'
+    })).resolves.toMatchObject({ code:'financial_analysis' });
+
+    await expect(serviceByCode({
+      supabase:{ from:jest.fn(() => missingQuery) },
+      serviceCode:'stale_or_unknown'
+    })).resolves.toBeNull();
   });
 
   test('moves cases through declared stages without inventing service execution', () => {

@@ -46,6 +46,8 @@ describe('deterministic assistant tools', () => {
     expect(parsePageOpen('افتح الميزانية')).toEqual({ target:'budgeting' });
     expect(parsePageOpen('open budgeting page')).toEqual({ target:'budgeting' });
     expect(parsePageOpen('افتح صفحة التمويل')).toEqual({ target:'funding' });
+    expect(parsePageOpen('افتح مساحة العمل')).toEqual({ target:'service_workspace' });
+    expect(parsePageOpen('open service workspace')).toEqual({ target:'service_workspace' });
     expect(parsePageOpen('كيف اعمل ميزانية')).toBeNull();
     expect(parseCalculatorOpen('افتح حاسبة التمويل')).toEqual({ calculator:'loan' });
     expect(parseCalculatorOpen('افتح صفحة حاسبة التمويل')).toEqual({ calculator:'loan' });
@@ -60,6 +62,10 @@ describe('deterministic assistant tools', () => {
     expect(resolveDeterministicTool('افتح صفحة الميزانية')).toEqual({
       action:'site_navigate',
       input:{ target:'budgeting' }
+    });
+    expect(resolveDeterministicTool('افتح مساحة العمل')).toEqual({
+      action:'site_navigate',
+      input:{ target:'service_workspace' }
     });
   });
 

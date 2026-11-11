@@ -31,8 +31,8 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(executeSource).toContain("const route = plan?.context?.navigation?.route;");
     expect(executeSource).toContain("if (!safeInternalRoute(route)) throw new Error('UNSAFE_NAVIGATION_ROUTE');");
     expect(executeSource).toContain('if (options && options.sameTab === true)');
-    expect(executeSource).toContain('window.location.assign(route)');
-    expect(executeSource).toContain("link.href = route;");
+    expect(executeSource).toContain('window.location.assign(destinationRoute)');
+    expect(executeSource).toContain("link.href = destinationRoute;");
     expect(executeSource).toContain("link.target = '_blank';");
     expect(executeSource).toContain("link.rel = 'noopener noreferrer';");
     expect(executeSource).not.toContain('window.location.assign(action.');
@@ -140,6 +140,15 @@ describe('BONDS Assistant chat widget action renderer', () => {
     expect(source).toContain('#financialActualThrough');
     expect(source).toContain('function readStudiesWorkspaceContext()');
     expect(source).toContain('context = { ...context, ...readAccountingWorkspaceContext(), ...readStudiesWorkspaceContext() };');
+  });
+
+
+  test('binds service workspace navigation to verified current service context', () => {
+    expect(source).toContain("String(action.target || '') === 'service_workspace'");
+    expect(source).toContain("if (!serviceCode) throw new Error('SERVICE_WORKSPACE_REQUIRES_SERVICE')");
+    expect(source).toContain("workspaceUrl.searchParams.set('service', serviceCode)");
+    expect(source).toContain("const queryServiceCode = String(params.get('service') || '').trim().slice(0, 100)");
+    expect(source).toContain("loadedServiceProfileCode = null");
   });
 
   test('tracks every chat message with stable metadata and visible timestamp', () => {
