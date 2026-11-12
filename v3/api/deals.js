@@ -958,6 +958,11 @@ async function createPipelineEntry(req, res, supabase, user, dealId) {
     if (!member || member.side !== 'counterparty' || member.status === 'revoked') return sendJson(res, 422, { error:'PIPELINE_MEMBER_INVALID' });
   }
 
+  const { data:existing, error:existingError } = await supabase.from('bonds_deal_pipeline_entries')
+    .select('id').eq('deal_id', dealId).eq('party_id', payload.party_id).maybeSingle();
+  if (existingError && !isMissingRelation(existingError)) return sendJson(res, 503, { error:'DEAL_PIPELINE_READ_FAILED' });
+  if (existing) return sendJson(res, 409, { error:'PIPELINE_PARTY_ALREADY_EXISTS' });
+
   const { data, error } = await supabase.from('bonds_deal_pipeline_entries')
     .insert({ deal_id:dealId, created_by:user.id, ...payload }).select().single();
   if (error) return sendJson(res, error.code === '23505' ? 409 : 503, { error:error.code === '23505' ? 'PIPELINE_PARTY_ALREADY_EXISTS' : 'DEAL_PIPELINE_CREATE_FAILED' });
