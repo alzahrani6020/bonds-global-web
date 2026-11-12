@@ -80,6 +80,7 @@ const { COUNTRY_NAMES, canonicalizeCities, canonicalizeActivities, buildCountryC
 const { ARAB_COUNTRIES_GEO } = require('../master-data/countries-governorates-cities');
 const { CountryIndicatorEngine } = require('../../lib/data/country-indicator-engine');
 const { servicesRouter } = require('./services');
+const { investmentContextRouter } = require('./investment-context');
 const { calculateSiteIntelligence } = require('../../lib/geo/local-intelligence');
 
 function setCors(res, req) {
@@ -96,6 +97,7 @@ function getCategory(path) {
   if (path === '/ai/chat') return 'ai';
   if (path === '/assistant' || path.startsWith('/assistant/')) return 'compute';
   if (path === '/deals' || path.startsWith('/deals/')) return 'compute';
+  if (path.startsWith('/investment-context')) return 'compute';
   if (path === '/services/execute' || path.startsWith('/services/intake/') || path.startsWith('/services/accounting/') || /^\/services\/[^/]+\/execution$/.test(path)) return 'compute';
   if (path === '/data/live-refresh' || path === '/data/auto-fill') return 'compute';
   if (path === '/calculate' || path.startsWith('/calculate/') || path === '/compare/cities' || path.startsWith('/ucp/') || path.startsWith('/wave4/') || path.startsWith('/orchestrate') || path.startsWith('/fabric') || path.startsWith('/intelligence') || path.startsWith('/investment-intelligence') || path.startsWith('/capabilities') || path.startsWith('/enterprise-lifecycle') || path.startsWith('/ecc') || path === '/water-factory-data' || path === '/sector-data') return 'compute';
@@ -2789,6 +2791,11 @@ module.exports = async function handler(req, res) {
       const supabase = getSupabaseClient();
       const user = await getUserFromToken(req);
       return await servicesRouter(req, res, path, supabase, user);
+    }
+    if (path.startsWith('/investment-context')) {
+      const supabase = getSupabaseClient();
+      const user = await getUserFromToken(req);
+      return await investmentContextRouter(req, res, path, supabase, user);
     }
     if (path.match(/^\/countries\/[^\/]+\/context$/) && req.method === 'GET') return await handleCountryContext(req, res, path);
     if (path === '/models' && req.method === 'GET') return await handleModels(req, res);
