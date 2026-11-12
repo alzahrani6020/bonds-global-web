@@ -297,7 +297,7 @@
     return state.document;
   }
 
-  async function saveVersion(silent) {
+  async function saveVersion(silent, options = {}) {
     if (state.loading) return;
     const snap = snapshot();
     if (state.document && snap === state.lastSavedSnapshot) {
@@ -315,7 +315,7 @@
         body: {
           pages_html: pagesHtml(),
           text_content: text,
-          title: titleFromText(text),
+          title: options.titleOverride || titleFromText(text),
           subject: subjectFromText(text),
           direction: document.getElementById('corr-direction')?.value || doc.direction || 'outgoing',
           priority: document.getElementById('corr-priority')?.value || doc.priority || 'normal',
@@ -557,6 +557,7 @@
     });
 
     const actions = document.getElementById('corr-actions');
+    addButton(actions, 'corr-new', isEn ? 'New correspondence' : 'مراسلة جديدة', () => startNewCorrespondence());
     addButton(actions, 'corr-details-toggle', isEn ? 'Details' : 'بيانات الخطاب', () => {
       const panel = document.getElementById('corr-details-panel');
       if (panel) panel.hidden = !panel.hidden;
@@ -576,6 +577,32 @@
     addButton(actions, 'corr-finalize-pdf', isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية', () => persistIssuedPdfArtifact(), { primary: true });
     addButton(actions, 'corr-send', isEn ? 'Send to recipient' : 'إرسال للمستلم', () => window.sendToManager(), { primary: true });
     addButton(actions, 'corr-archive', t.archive, () => transition('archived'), { primary: true });
+  }
+
+  function startNewCorrespondence() {
+    if (state.document && canEditCurrent() && snapshot() !== state.lastSavedSnapshot && hasMeaningfulDraft()) {
+      const ok = confirm(isEn ? 'Discard unsaved changes and start a new correspondence?' : 'تجاهل التغييرات غير المحفوظة وبدء مراسلة جديدة؟');
+      if (!ok) return;
+    }
+    state.document = null;
+    state.latestVersion = null;
+    state.events = [];
+    state.history = [];
+    state.future = [];
+    try { localStorage.removeItem('bonds_letterhead_current_document'); } catch (_) {}
+    const url = new URL(location.href);
+    url.searchParams.delete('document');
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+    setPages([''], { markSaved: false });
+    state.lastSavedSnapshot = '';
+    ['corr-recipient-org','corr-recipient-name','corr-recipient-title','corr-recipient-email','corr-sender-dept'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const draftName = document.getElementById('draft-name');
+    if (draftName) draftName.value = '';
+    renderGovernance();
+    toast(isEn ? 'New correspondence ready' : 'تم فتح مراسلة جديدة');
   }
 
   function setCommandDrawer(open) {
@@ -645,7 +672,7 @@
     setEditorEditable(canEditCurrent());
     setLegacyEditorControlsDisabled(!canEditCurrent());
 
-    const visible = new Set(['corr-details-toggle','corr-command-open']);
+    const visible = new Set(['corr-new','corr-details-toggle','corr-command-open']);
     if (hasWorkspaceContext()) visible.add('corr-workspace-return');
     if (canEditCurrent()) visible.add('corr-save');
 
@@ -664,16 +691,16 @@
       visible.add('corr-issue');
     } else if (can('finalize_pdf') && status === 'issued' && !doc?.artifact_hash) {
       visible.add('corr-finalize-pdf');
-    } else if (can('send') && status === 'issued' && !!doc?.artifact_hash) {
+    } else if (can('send') && status === 'issued' && !!doc?.artifact_hash && (doc?.direction === 'internal' || !!doc?.recipient_email)) {
       visible.add('corr-send');
-    } else if (can('archive') && ['issued','sent'].includes(status)) {
+    } else if (can('archive') && (status === 'sent' || (status === 'issued' && doc?.direction === 'internal'))) {
       visible.add('corr-archive');
     }
 
     [
       'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive',
-      'corr-details-toggle','corr-command-open'
+      'corr-new','corr-details-toggle','corr-command-open'
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = visible.has(id) ? '' : 'none';
@@ -1080,7 +1107,10 @@
       try { localStorage.setItem('bonds_letterhead_offline_backup', snapshot()); } catch (_) {}
     });
   };
-  window.saveDraft = window.saveDoc;
+  window.saveDraft = function () {
+    const titleOverride = document.getElementById('draft-name')?.value?.trim()?.slice(0, 200) || null;
+    saveVersion(false, { titleOverride }).catch(e => toast('⚠️ ' + e.message));
+  };
   window.syncDraftsToCloud = window.saveDoc;
   window.loadDraftsFromCloud = function () {
     refreshInboxDynamic().then(() => toast(isEn ? '✅ Correspondence loaded' : '✅ تم تحميل المراسلات')).catch(e => toast('⚠️ ' + e.message));
@@ -1262,6 +1292,9 @@
 
           const doc = document.querySelector('.doc-content[contenteditable="true"]');
           if (!doc) throw new Error(isEn ? 'Editable document area was not found' : 'لم يتم العثور على منطقة مستند قابلة للتحرير');
+          if (doc.innerHTML.length + dataUrl.length > 650000) {
+            throw new Error(isEn ? 'This page is too large; add the image on a new page' : 'حجم هذه الصفحة كبير؛ أضف الصورة في صفحة جديدة');
+          }
           const el = document.createElement('img');
           el.src = dataUrl;
           el.alt = '';
