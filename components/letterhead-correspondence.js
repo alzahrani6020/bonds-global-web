@@ -33,6 +33,7 @@
     role: 'user',
     permissions: [],
     userId: null,
+    serverIsOwner: null,
     list: [],
     lastSavedSnapshot: '',
     history: [],
@@ -177,7 +178,9 @@
   }
 
   function isOwner() {
-    return !!state.document && !!state.userId && state.document.owner_user_id === state.userId;
+    if (!state.document) return false;
+    if (typeof state.serverIsOwner === 'boolean') return state.serverIsOwner;
+    return !!state.userId && state.document.owner_user_id === state.userId;
   }
 
   function canEditCurrent() {
@@ -310,6 +313,7 @@
     state.document = result.document;
     state.role = result.role || state.role;
     state.permissions = Array.isArray(result.permissions) ? result.permissions : state.permissions;
+    state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : true;
     syncUrl(state.document.id);
     renderGovernance();
     return state.document;
@@ -400,6 +404,7 @@
     state.events = result.events || [];
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
+    state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null;
     syncUrl(state.document.id);
     if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html, { markSaved: true });
     document.getElementById('corr-priority') && (document.getElementById('corr-priority').value = state.document.priority || 'normal');
@@ -611,6 +616,8 @@
     state.events = [];
     state.history = [];
     state.future = [];
+    state.serverIsOwner = null;
+    state.serverIsOwner = null;
     try { localStorage.removeItem('bonds_letterhead_current_document'); } catch (_) {}
     const url = new URL(location.href);
     url.searchParams.delete('document');
