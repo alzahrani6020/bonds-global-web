@@ -143,7 +143,7 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain('window.BONDS_GOVERNED_CORRESPONDENCE = true');
     expect(client).toContain("if (!state.document && !hasMeaningfulDraft()) return");
     expect(client).toContain("setPages([''], { markSaved: false })");
-    expect(client).toContain('if (options.markSaved) state.lastSavedSnapshot = snap');
+    expect(client).toContain('if (options.markSaved) state.lastSavedSnapshot = persistedSnapshot()');
     expect(client).toContain("setPages(JSON.parse(prev), { markSaved: false })");
     expect(ar).toContain('if (!window.BONDS_GOVERNED_CORRESPONDENCE)');
     expect(en).toContain('if (!window.BONDS_GOVERNED_CORRESPONDENCE)');
