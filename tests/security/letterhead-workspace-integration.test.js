@@ -239,4 +239,27 @@ describe('Letterhead governed workspace integration', () => {
   });
 
 
+  test('correspondence uses independent outgoing incoming and archive registers', () => {
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+    expect(api).toContain("next_correspondence_register");
+    expect(api).toContain("p_kind: kind");
+    expect(api).toContain("updates.incoming_number = incomingNumber");
+    expect(api).toContain("updates.outgoing_number = reference");
+    expect(api).toContain("updates.archive_number = await nextRegisterNumber(sb, 'archive')");
+    expect(client).toContain("corr-outgoing-number");
+    expect(client).toContain("corr-incoming-number");
+    expect(client).toContain("corr-archive-number");
+  });
+
+  test('rejected revision is linked to its source correspondence', () => {
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+    expect(api).toContain("related_document_id: cleanText(body.related_document_id, 64)");
+    expect(api).toContain("Related correspondence is not accessible to the current user");
+    expect(client).toContain("state.relatedDocumentId = source.id");
+    expect(client).toContain("related_document_id: state.relatedDocumentId || null");
+  });
+
+
 });
