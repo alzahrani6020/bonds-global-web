@@ -21,6 +21,12 @@ const {
   recordEvent
 } = require('../../lib/deals/deal-access');
 const {
+  normalizePipelineCreate,
+  normalizePipelinePatch,
+  normalizeOfferCreate,
+  normalizeOfferPatch
+} = require('../../lib/deals/deal-pipeline');
+const {
   DATA_ROOM_BUCKET,
   normalizeUploadSpec,
   normalizeDocumentPatch,
@@ -267,18 +273,22 @@ async function getDeal(res, supabase, user, dealId) {
   if (resolved.access.mode !== 'owner') return getMemberDeal(res, supabase, resolved, dealId);
   const deal = resolved.deal;
 
-  const [parties, tasks, dueDiligence, documents, documentRequests] = await Promise.all([
+  const [parties, tasks, dueDiligence, documents, documentRequests, pipeline, offers] = await Promise.all([
     supabase.from('bonds_deal_parties').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_tasks').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
     supabase.from('bonds_deal_due_diligence_items').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_documents').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
-    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false })
+    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
+    supabase.from('bonds_deal_pipeline_entries').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
+    supabase.from('bonds_deal_offers').select('*').eq('deal_id', dealId).order('received_at', { ascending:false })
   ]);
   const failed = [parties, tasks, dueDiligence, documents].find(row => row.error);
   if (failed) return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
   if (documentRequests.error && !isMissingRelation(documentRequests.error)) {
     return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
   }
+  if (pipeline.error && !isMissingRelation(pipeline.error)) return sendJson(res, 503, { error:'DEAL_PIPELINE_READ_FAILED' });
+  if (offers.error && !isMissingRelation(offers.error)) return sendJson(res, 503, { error:'DEAL_OFFERS_READ_FAILED' });
 
   const members = await supabase.from('bonds_deal_members').select('*').eq('deal_id', dealId).order('created_at', { ascending:true });
 
@@ -291,7 +301,9 @@ async function getDeal(res, supabase, user, dealId) {
       tasks:tasks.data || [],
       due_diligence:dueDiligence.data || [],
       documents:documents.data || [],
-      document_requests:documentRequests.error ? [] : (documentRequests.data || [])
+      document_requests:documentRequests.error ? [] : (documentRequests.data || []),
+      pipeline:pipeline.error ? [] : (pipeline.data || []),
+      offers:offers.error ? [] : (offers.data || [])
     }
   });
 }
@@ -300,7 +312,7 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
   const { access } = resolved;
   const deal = memberView(resolved.deal);
   const summary = accessSummary(access);
-  const empty = { parties:[], tasks:[], due_diligence:[], documents:[], document_requests:[] };
+  const empty = { parties:[], tasks:[], due_diligence:[], documents:[], document_requests:[], pipeline:[], offers:[] };
 
   if (!can(access, ACTIONS.VIEW_WORKSPACE)) {
     return sendJson(res, 200, { deal, access:summary, members:[access.member], workspace:empty });
@@ -918,6 +930,102 @@ async function createDocumentDownloadUrl(req, res, supabase, user, dealId, docum
   return sendJson(res, 200, { signed_url:signed.signedUrl, expires_in:60, version:{ id:version.id, version:version.version, file_name:version.file_name } });
 }
 
+
+async function createPipelineEntry(req, res, supabase, user, dealId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let payload;
+  try { payload = normalizePipelineCreate(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data:party, error:partyError } = await supabase.from('bonds_deal_parties')
+    .select('id,party_role').eq('id', payload.party_id).eq('deal_id', dealId).maybeSingle();
+  if (partyError) return sendJson(res, 503, { error:'DEAL_PARTY_READ_FAILED' });
+  if (!party) return sendJson(res, 422, { error:'PIPELINE_PARTY_NOT_FOUND' });
+  if (!['investor','lender','buyer'].includes(party.party_role)) return sendJson(res, 422, { error:'PIPELINE_PARTY_ROLE_INVALID' });
+  if (party.party_role !== payload.kind) return sendJson(res, 422, { error:'PIPELINE_KIND_PARTY_MISMATCH' });
+
+  if (payload.member_id) {
+    const { data:member, error:memberError } = await supabase.from('bonds_deal_members')
+      .select('id,side,status').eq('id', payload.member_id).eq('deal_id', dealId).maybeSingle();
+    if (memberError) return sendJson(res, 503, { error:'DEAL_MEMBER_READ_FAILED' });
+    if (!member || member.side !== 'counterparty' || member.status === 'revoked') return sendJson(res, 422, { error:'PIPELINE_MEMBER_INVALID' });
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_pipeline_entries')
+    .insert({ deal_id:dealId, created_by:user.id, ...payload }).select().single();
+  if (error) return sendJson(res, error.code === '23505' ? 409 : 503, { error:error.code === '23505' ? 'PIPELINE_PARTY_ALREADY_EXISTS' : 'DEAL_PIPELINE_CREATE_FAILED' });
+  await recordEvent(supabase, { deal_id:dealId, event_type:'pipeline_entry_created', entity_type:'deal_pipeline', entity_id:data.id, actor_id:user.id, metadata:{ kind:data.kind, status:data.status } });
+  return sendJson(res, 201, { pipeline_entry:data });
+}
+
+async function patchPipelineEntry(req, res, supabase, user, dealId, entryId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizePipelinePatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data, error } = await supabase.from('bonds_deal_pipeline_entries')
+    .update(patch).eq('id', entryId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_PIPELINE_UPDATE_FAILED' });
+  if (!data) return sendJson(res, 404, { error:'DEAL_PIPELINE_NOT_FOUND' });
+  await recordEvent(supabase, { deal_id:dealId, event_type:'pipeline_entry_updated', entity_type:'deal_pipeline', entity_id:entryId, actor_id:user.id, metadata:{ fields:Object.keys(patch), status:data.status } });
+  return sendJson(res, 200, { pipeline_entry:data });
+}
+
+async function createOffer(req, res, supabase, user, dealId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let payload;
+  try { payload = normalizeOfferCreate(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data:entry, error:entryError } = await supabase.from('bonds_deal_pipeline_entries')
+    .select('id').eq('id', payload.pipeline_entry_id).eq('deal_id', dealId).maybeSingle();
+  if (entryError) return sendJson(res, 503, { error:'DEAL_PIPELINE_READ_FAILED' });
+  if (!entry) return sendJson(res, 422, { error:'OFFER_PIPELINE_NOT_FOUND' });
+
+  if (payload.document_id) {
+    const { data:document, error:documentError } = await supabase.from('bonds_deal_documents')
+      .select('id').eq('id', payload.document_id).eq('deal_id', dealId).maybeSingle();
+    if (documentError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_READ_FAILED' });
+    if (!document) return sendJson(res, 422, { error:'OFFER_DOCUMENT_NOT_FOUND' });
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_offers')
+    .insert({ deal_id:dealId, created_by:user.id, ...payload }).select().single();
+  if (error) return sendJson(res, 503, { error:'DEAL_OFFER_CREATE_FAILED' });
+
+  const nextStatus = payload.offer_type === 'ioi' ? 'ioi_received' : 'term_sheet_received';
+  await supabase.from('bonds_deal_pipeline_entries').update({ status:nextStatus }).eq('id', payload.pipeline_entry_id).eq('deal_id', dealId);
+  await recordEvent(supabase, { deal_id:dealId, event_type:'offer_received', entity_type:'deal_offer', entity_id:data.id, actor_id:user.id, metadata:{ offer_type:data.offer_type, pipeline_entry_id:data.pipeline_entry_id } });
+  return sendJson(res, 201, { offer:data });
+}
+
+async function patchOffer(req, res, supabase, user, dealId, offerId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizeOfferPatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data, error } = await supabase.from('bonds_deal_offers')
+    .update(patch).eq('id', offerId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_OFFER_UPDATE_FAILED' });
+  if (!data) return sendJson(res, 404, { error:'DEAL_OFFER_NOT_FOUND' });
+  await recordEvent(supabase, { deal_id:dealId, event_type:'offer_updated', entity_type:'deal_offer', entity_id:offerId, actor_id:user.id, metadata:{ fields:Object.keys(patch), status:data.status } });
+  return sendJson(res, 200, { offer:data });
+}
+
 async function createChild(req, res, supabase, user, dealId, kind) {
   const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
   if (!resolved) return undefined;
@@ -981,6 +1089,18 @@ async function dealsRouter(req, res, path, supabase, user) {
     if (childAction === 'upload-url' && req.method === 'POST') return createDocumentUploadUrl(req, res, supabase, user, dealId, childId);
     if (childAction === 'confirm-upload' && req.method === 'POST') return confirmDocumentUpload(req, res, supabase, user, dealId, childId);
     if (childAction === 'download-url' && req.method === 'POST') return createDocumentDownloadUrl(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'pipeline') {
+    if (!childId && req.method === 'POST') return createPipelineEntry(req, res, supabase, user, dealId);
+    if (childId && !childAction && req.method === 'PATCH') return patchPipelineEntry(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'offers') {
+    if (!childId && req.method === 'POST') return createOffer(req, res, supabase, user, dealId);
+    if (childId && !childAction && req.method === 'PATCH') return patchOffer(req, res, supabase, user, dealId, childId);
     return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
   }
 
