@@ -619,6 +619,7 @@ async function patchDocumentRequest(req, res, supabase, user, dealId, requestId)
     }
   }
   if (patch.status === 'fulfilled') {
+    if (!current.document_id) return sendJson(res, 409, { error:'DOCUMENT_REQUEST_FILE_REQUIRED' });
     patch.fulfilled_at = new Date().toISOString();
     patch.fulfilled_by = user.id;
   }
