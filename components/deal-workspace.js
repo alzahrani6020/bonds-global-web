@@ -370,6 +370,104 @@ function renderOffers(items,pipeline,parties,access){
   });
 }
 
+
+function populateClosingEvidence(documents,offers){
+  const docSelects=['#dealClosingConditionEvidence','#dealClosingMilestoneEvidence'];
+  docSelects.forEach(selector=>{
+    const select=$(selector); if(!select)return;
+    const current=select.value;
+    select.innerHTML='<option value="">'+tr('بدون مستند','No document')+'</option>'+
+      (documents||[]).filter(d=>['received','reviewed','approved'].includes(d.status))
+        .map(d=>'<option value="'+escapeHtml(d.id)+'">'+escapeHtml(d.name)+'</option>').join('');
+    if(current)select.value=current;
+  });
+  const offer=$('#dealClosingOffer');
+  if(offer){
+    const current=offer.value;
+    offer.innerHTML='<option value="">'+tr('بدون عرض مرتبط','No linked offer')+'</option>'+
+      (offers||[]).filter(x=>['term_sheet','revised_term_sheet'].includes(x.offer_type))
+        .map(x=>'<option value="'+escapeHtml(x.id)+'">'+escapeHtml([x.offer_type,x.amount,x.currency].filter(Boolean).join(' · '))+'</option>').join('');
+    if(current)offer.value=current;
+  }
+}
+
+function renderClosingConditions(items,access){
+  const host=$('#dealClosingConditions'); if(!host)return;
+  host.textContent='';
+  if(!items.length){host.innerHTML='<div class="deal-empty">'+tr('لا توجد شروط إغلاق بعد.','No closing conditions yet.')+'</div>';return}
+  const editable=canDo(access,'edit_workspace');
+  items.forEach(item=>{
+    const row=document.createElement('div'); row.className='deal-row deal-row-stack';
+    const labelEl=document.createElement('span');
+    labelEl.textContent=[item.title,item.category,item.status,item.is_critical?tr('حرج','Critical'):'',item.owner].filter(Boolean).join(' · ');
+    row.appendChild(labelEl);
+    if(editable&&!['satisfied','waived'].includes(item.status)){
+      const actions=document.createElement('span');
+      ['in_progress','satisfied','waived','blocked'].forEach(status=>{
+        if(item.status!==status)actions.appendChild(actionButton(status,{closingConditionAction:status,closingConditionId:item.id}));
+      });
+      row.appendChild(actions);
+    }
+    host.appendChild(row);
+  });
+}
+
+function renderClosingMilestones(items,summary,access){
+  const host=$('#dealClosingMilestones'); if(host){
+    host.textContent='';
+    if(!items.length)host.innerHTML='<div class="deal-empty">'+tr('لم تُسجل أدلة الإغلاق بعد.','No closing evidence recorded yet.')+'</div>';
+    items.forEach(item=>{
+      const row=document.createElement('div'); row.className='deal-row';
+      row.textContent=[item.milestone_type,item.status,item.amount!=null?money(item.amount,item.currency):'',item.occurred_at?String(item.occurred_at).slice(0,10):''].filter(Boolean).join(' · ');
+      host.appendChild(row);
+    });
+  }
+  const summaryEl=$('#dealClosingSummary');
+  if(summaryEl){
+    const bits=[
+      (summary.term_sheet_signed?'✓ ':'✗ ')+tr('توقيع ورقة الشروط','Term sheet signed'),
+      (summary.cap_table_approved?'✓ ':'✗ ')+tr('اعتماد جدول الملكية','Cap table approved'),
+      (summary.funds_received?'✓ ':'✗ ')+tr('استلام الأموال','Funds received'),
+      (summary.signing_complete?'✓ ':'✗ ')+tr('اكتمال التوقيع','Signing complete'),
+      tr('شروط حرجة مفتوحة: ','Open critical conditions: ')+(summary.critical_open||0)
+    ];
+    summaryEl.textContent=bits.join(' · ');
+    summaryEl.dataset.ready=summary.ready_to_close?'true':'false';
+  }
+}
+
+async function createClosingCondition(event){
+  event.preventDefault(); if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const payload=Object.fromEntries(new FormData(form).entries());
+  payload.is_critical=Boolean(form.elements.is_critical?.checked);
+  if(!payload.due_at)delete payload.due_at;
+  if(!payload.evidence_document_id)delete payload.evidence_document_id;
+  await api('/'+encodeURIComponent(activeDealId)+'/closing/conditions',{method:'POST',body:JSON.stringify(payload)});
+  form.reset(); await loadDeal(activeDealId);
+}
+
+async function closingConditionAction(button){
+  if(!activeDealId)return;
+  await api('/'+encodeURIComponent(activeDealId)+'/closing/conditions/'+encodeURIComponent(button.dataset.closingConditionId),{
+    method:'PATCH',body:JSON.stringify({status:button.dataset.closingConditionAction})
+  });
+  await loadDeal(activeDealId);
+}
+
+async function recordClosingMilestone(event){
+  event.preventDefault(); if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const payload=Object.fromEntries(new FormData(form).entries());
+  payload.status='confirmed';
+  if(!payload.related_offer_id)delete payload.related_offer_id;
+  if(!payload.amount)delete payload.amount;
+  if(!payload.occurred_at)delete payload.occurred_at;
+  await api('/'+encodeURIComponent(activeDealId)+'/closing/milestones',{method:'POST',body:JSON.stringify(payload)});
+  form.reset(); if(form.elements.currency)form.elements.currency.value='SAR';
+  await loadDeal(activeDealId);
+}
+
 async function createPipelineEntry(event){
   event.preventDefault();
   if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
@@ -436,6 +534,9 @@ async function loadDeal(id){
   renderDocumentRequests(workspace.document_requests||[],access);
   renderPipeline(workspace.pipeline||[],workspace.parties||[],access);
   renderOffers(workspace.offers||[],workspace.pipeline||[],workspace.parties||[],access);
+  renderClosingConditions(workspace.closing_conditions||[],access);
+  renderClosingMilestones(workspace.closing_milestones||[],workspace.closing_summary||{},access);
+  populateClosingEvidence(workspace.documents||[],workspace.offers||[]);
   populatePipelineParties(workspace.parties||[],workspace.pipeline||[]);
   populateOfferPipeline(workspace.pipeline||[],workspace.parties||[]);
   applyAccess(access,deal);
@@ -475,6 +576,9 @@ function applyAccess(access,deal){
   setHidden('#dealOffersPanel',access.side==='counterparty');
   setHidden('#dealPipelineForm',!editable);
   setHidden('#dealOfferForm',!editable);
+  setHidden('#dealClosingPanel',access.side==='counterparty');
+  setHidden('#dealClosingConditionForm',!editable);
+  setHidden('#dealClosingMilestoneForm',!editable);
   const note=$('#dealAccessNote');
   if(note){
     if(access.mode==='member'){
@@ -714,6 +818,16 @@ document.addEventListener('DOMContentLoaded',async()=>{
   $('#dealOffers')?.addEventListener('click',event=>{
     const button=event.target.closest('[data-offer-action]');
     if(button)offerAction(button).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealClosingConditionForm')?.addEventListener('submit',event=>{
+    createClosingCondition(event).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealClosingConditions')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-closing-condition-action]');
+    if(button)closingConditionAction(button).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealClosingMilestoneForm')?.addEventListener('submit',event=>{
+    recordClosingMilestone(event).catch(err=>setStatus(err.message,true));
   });
   $('#dealDocuments')?.addEventListener('click',event=>{
     const button=event.target.closest('[data-document-action]');
