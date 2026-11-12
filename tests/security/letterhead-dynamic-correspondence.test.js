@@ -97,6 +97,11 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("uploadToSignedUrl");
     expect(client).toContain("api('artifact-finalize'");
     expect(client).toContain("!!doc?.artifact_hash");
+    expect(api).toContain("action === 'artifact-download-url'");
+    expect(api).toContain('artifact_document_hash');
+    expect(api).toContain('artifact_issued_hash');
+    expect(api).toContain('artifact_version');
+    expect(client).toContain('downloadOfficialPdf');
   });
 
   test('browser QR is same-origin and external QR service is server-proxied only', () => {
@@ -212,13 +217,15 @@ describe('Dynamic letterhead correspondence architecture', () => {
 
     expect(client).toContain('window.importDocumentFromDevice');
     expect(client).toContain("api('import-device'");
-    expect(client).toContain("if (!editable())");
+    expect(client).toContain("if (!canEditCurrent())");
     expect(client).toContain("file.size > 2 * 1024 * 1024");
-    expect(client).toContain("/\\.(txt|html?|docx)$/i");
+    expect(client).toContain("/\\.(txt|html?|docx|pdf)$/i");
 
     expect(api).toContain("action === 'import-device'");
     expect(api).toContain("require('mammoth')");
-    expect(api).toContain("Unsupported import type. Use TXT, HTML, HTM, or DOCX");
+    expect(api).toContain("Unsupported import type. Use TXT, HTML, HTM, DOCX, or PDF");
+    expect(api).toContain("require('pdf-parse/worker')");
+    expect(api).toContain("const { PDFParse } = require('pdf-parse')");
     expect(api).toContain('sanitizeHtml(html)');
 
     expect(client).toContain('window.loadDraftsFromCloud');
@@ -226,5 +233,29 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(en).toContain('Load correspondence from cloud');
   });
 
+
+  test('integrity hardening makes saves atomic, delivery idempotent and operational queries scalable', () => {
+    const api = read('lib/api/correspondence.js');
+    const email = read('lib/api/email.js');
+    const atomic = read('supabase/migrations/20261112084310_correspondence_integrity_hardening.sql');
+    const ops = read('supabase/migrations/20261112084442_correspondence_operational_queries.sql');
+
+    expect(atomic).toContain('save_correspondence_version_atomic');
+    expect(atomic).toContain('for update');
+    expect(atomic).toContain('security invoker');
+    expect(atomic).toContain('artifact_document_hash');
+    expect(atomic).toContain('send_idempotency_key');
+    expect(ops).toContain('get_correspondence_summary');
+    expect(ops).toContain('get_correspondence_my_work');
+    expect(ops).toContain('security invoker');
+    expect(api).toContain("sb.rpc('save_correspondence_version_atomic'");
+    expect(api).toContain("sb.rpc('get_correspondence_summary'");
+    expect(api).toContain("sb.rpc('get_correspondence_my_work'");
+    expect(api).not.toContain('.limit(1000)');
+    expect(api).not.toContain('.limit(200)');
+    expect(api).toContain("const idempotencyKey = ('correspondence-send/'");
+    expect(email).toContain('{ idempotencyKey }');
+    expect(email).toContain('Idempotent delivery requires the Resend provider');
+  });
 
 });
