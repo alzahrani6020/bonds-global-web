@@ -351,6 +351,8 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("stamp.className = 'official-stamp'");
     expect(client).not.toContain('#a51d2d');
     expect(client).not.toContain('rotate(-4deg)');
+    expect(ar).not.toContain('.letter-stamp');
+    expect(en).not.toContain('.letter-stamp');
   });
 
   test('mobile letterhead gives QR and approval artifacts their own responsive layout', () => {
