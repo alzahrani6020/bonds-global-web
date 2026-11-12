@@ -36,8 +36,8 @@ async function api(path='',options={}){
   let data={};
   try{data=await response.json()}catch(_){}
   if(response.status===401){
-    const redirect=encodeURIComponent(location.pathname+location.search);
-    location.assign('/calculators/auth?redirect='+redirect);
+    const redirect=encodeURIComponent(location.pathname+location.search+location.hash);
+    location.assign((EN?'/en/calculators/auth':'/calculators/auth')+'?redirect='+redirect);
     throw new Error('AUTHENTICATION_REQUIRED');
   }
   if(!response.ok)throw new Error(data.error||('HTTP_'+response.status));
