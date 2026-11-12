@@ -1,6 +1,6 @@
 # ADR — Phase F: Deal Lifecycle (from preparation to close)
 
-- **Status**: Accepted — F.0/F.1 deployed; F.2 implemented in this change
+- **Status**: Accepted — F.0/F.1/F.2 deployed; F.3 implemented in this change
 - **Date**: 2026-11-12
 - **Scope**: Clients (deal owners), advisors/admins, counterparties (investors, lenders, buyers)
 
@@ -142,13 +142,32 @@ The team can progress items through `not_started → in_progress / blocked → c
 | POST | `/deals/:id/documents/:did/download-url` | 60-second signed download |
 | PATCH | `/deals/:id/due-diligence/:itemId` | Operational DD update |
 
-## 6. Not in scope (next phases)
+## 6. F.3 Investor & lender pipeline
 
-- **F.3 Investor & lender pipeline**: outreach status, indications of interest, term-sheet comparison.
+F.3 extends the existing Deal Workspace and reuses `bonds_deal_parties` as the canonical identity for investors, lenders and buyers.
+
+- `bonds_deal_pipeline_entries` stores outreach state, relationship ownership and next action without duplicating party identity.
+- `bonds_deal_offers` stores IOIs, term sheets and revised term sheets for side-by-side decision comparison.
+- Equity economics (valuation/equity %) and debt economics (interest/tenor/fees) remain distinct fields so comparisons do not collapse unlike instruments.
+- Creating an IOI or term sheet advances the related pipeline entry to `ioi_received` or `term_sheet_received`.
+- Counterparties never receive the internal pipeline or competing offers through the API. Advisory team access follows existing Deal Workspace permissions.
+- The UI is embedded in `/my-bonds/deals/` and its English mirror; no parallel deal or financing system is introduced.
+
+### F.3 API additions
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/deals/:id/pipeline` | Add an existing investor/lender/buyer party to outreach pipeline |
+| PATCH | `/deals/:id/pipeline/:entryId` | Update outreach state / next action |
+| POST | `/deals/:id/offers` | Record IOI / term sheet / revised term sheet |
+| PATCH | `/deals/:id/offers/:offerId` | Update review/shortlist/accept/reject state |
+
+## 7. Not in scope (next phase)
+
 - **F.4 Closing management**: conditions precedent checklist, signing, funds-received evidence feeding `guard_term_sheet_signed`, `guard_cap_table_approved`, `guard_funds_received`.
 - Dynamic PDF watermarking on download (access is logged now; content stamping is a later hardening layer).
 - Email notifications for invitations/requests (reuse existing notification templates).
 
-## 7. Regulatory note
+## 8. Regulatory note
 
 Bonds provides workflow and records only. It does not arrange, market or place securities; any such activity remains with licensed parties under applicable CMA / SAMA rules.

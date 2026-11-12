@@ -101,6 +101,36 @@
         </form>
         <div id="dealDocuments" class="deal-list"></div>
       </section>
+      <section id="dealPipelinePanel" class="deal-card">
+        <h3>Investor &amp; lender pipeline</h3>
+        <p class="deal-meta">Reuse parties already recorded as investor, lender, or buyer; do not duplicate counterparty identity.</p>
+        <form id="dealPipelineForm" class="deal-child-form">
+          <select id="dealPipelineParty" name="party_id" required><option value="">Select party</option></select>
+          <select name="kind"><option value="investor">Investor</option><option value="lender">Lender</option><option value="buyer">Buyer</option></select>
+          <select name="status"><option value="identified">Identified</option><option value="contacted">Contacted</option><option value="nda_pending">NDA pending</option><option value="nda_signed">NDA signed</option><option value="materials_sent">Materials sent</option><option value="meeting">Meeting</option><option value="ioi_received">IOI received</option><option value="term_sheet_received">Term sheet received</option><option value="shortlisted">Shortlisted</option><option value="declined">Declined</option><option value="selected">Selected</option></select>
+          <input name="relationship_owner" maxlength="160" placeholder="Relationship owner">
+          <input name="next_action_at" type="date" aria-label="Next action date">
+          <textarea name="notes" rows="2" maxlength="3000" placeholder="Notes"></textarea>
+          <button type="submit">Add to pipeline</button>
+        </form>
+        <div id="dealPipeline" class="deal-list"></div>
+      </section>
+      <section id="dealOffersPanel" class="deal-card">
+        <h3>Offers &amp; term comparison</h3>
+        <form id="dealOfferForm" class="deal-child-form">
+          <select id="dealOfferPipeline" name="pipeline_entry_id" required><option value="">Select investor/lender</option></select>
+          <select name="offer_type"><option value="ioi">IOI</option><option value="term_sheet">Term sheet</option><option value="revised_term_sheet">Revised term sheet</option></select>
+          <input name="amount" type="number" min="0" step="0.01" placeholder="Amount">
+          <input name="valuation" type="number" min="0" step="0.01" placeholder="Valuation">
+          <input name="equity_percent" type="number" min="0" max="100" step="0.01" placeholder="Equity %">
+          <input name="interest_rate_percent" type="number" min="0" max="100" step="0.01" placeholder="Interest %">
+          <input name="tenor_months" type="number" min="0" step="1" placeholder="Tenor months">
+          <input name="currency" value="SAR" maxlength="3" placeholder="Currency">
+          <textarea name="conditions" rows="2" maxlength="5000" placeholder="Key conditions"></textarea>
+          <button type="submit">Record offer</button>
+        </form>
+        <div id="dealOffers" class="deal-list"></div>
+      </section>
       <section id="dealRequestsPanel" class="deal-card">
         <h3>Document requests</h3>
         <p class="deal-meta">Assign a request to a counterparty; they can upload only after their NDA is signed.</p>

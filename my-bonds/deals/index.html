@@ -126,6 +126,36 @@
         </form>
         <div id="dealDocuments" class="deal-list"></div>
       </section>
+      <section id="dealPipelinePanel" class="deal-card">
+        <h3>مسار المستثمرين والممولين</h3>
+        <p class="deal-meta">استخدم الأطراف المسجلة كمستثمر/ممّول/مشتري؛ لا تُكرر بيانات الجهة.</p>
+        <form id="dealPipelineForm" class="deal-child-form">
+          <select id="dealPipelineParty" name="party_id" required><option value="">اختر الطرف</option></select>
+          <select name="kind"><option value="investor">مستثمر</option><option value="lender">ممّول</option><option value="buyer">مشتري</option></select>
+          <select name="status"><option value="identified">تم تحديده</option><option value="contacted">تم التواصل</option><option value="nda_pending">بانتظار السرية</option><option value="nda_signed">السرية موقعة</option><option value="materials_sent">أرسلت المواد</option><option value="meeting">اجتماع</option><option value="ioi_received">ورد اهتمام</option><option value="term_sheet_received">ورد عرض شروط</option><option value="shortlisted">قائمة مختصرة</option><option value="declined">اعتذر</option><option value="selected">مختار</option></select>
+          <input name="relationship_owner" maxlength="160" placeholder="مسؤول العلاقة">
+          <input name="next_action_at" type="date" aria-label="الإجراء القادم">
+          <textarea name="notes" rows="2" maxlength="3000" placeholder="ملاحظات"></textarea>
+          <button type="submit">إضافة للمسار</button>
+        </form>
+        <div id="dealPipeline" class="deal-list"></div>
+      </section>
+      <section id="dealOffersPanel" class="deal-card">
+        <h3>العروض ومقارنة الشروط</h3>
+        <form id="dealOfferForm" class="deal-child-form">
+          <select id="dealOfferPipeline" name="pipeline_entry_id" required><option value="">اختر المستثمر/الممول</option></select>
+          <select name="offer_type"><option value="ioi">إبداء اهتمام</option><option value="term_sheet">عرض شروط</option><option value="revised_term_sheet">عرض شروط معدل</option></select>
+          <input name="amount" type="number" min="0" step="0.01" placeholder="المبلغ">
+          <input name="valuation" type="number" min="0" step="0.01" placeholder="التقييم">
+          <input name="equity_percent" type="number" min="0" max="100" step="0.01" placeholder="نسبة الملكية %">
+          <input name="interest_rate_percent" type="number" min="0" max="100" step="0.01" placeholder="الفائدة %">
+          <input name="tenor_months" type="number" min="0" step="1" placeholder="المدة بالأشهر">
+          <input name="currency" value="SAR" maxlength="3" placeholder="العملة">
+          <textarea name="conditions" rows="2" maxlength="5000" placeholder="الشروط الرئيسية"></textarea>
+          <button type="submit">تسجيل العرض</button>
+        </form>
+        <div id="dealOffers" class="deal-list"></div>
+      </section>
       <section id="dealRequestsPanel" class="deal-card">
         <h3>طلبات المستندات</h3>
         <p class="deal-meta">يمكن تعيين الطلب لطرف مقابل، ولا يستطيع الرفع إلا بعد توقيع اتفاقية السرية.</p>
