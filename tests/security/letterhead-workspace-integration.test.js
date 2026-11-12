@@ -262,4 +262,56 @@ describe('Letterhead governed workspace integration', () => {
   });
 
 
+  test('official outgoing issues require stamp and expose governed issuance ledger', () => {
+    const api = read('lib/api/correspondence.js');
+    expect(api).toContain("row.requires_stamp = row.direction === 'outgoing'");
+    expect(api).toContain("Outgoing official correspondence requires the Bonds administrative stamp before issuance");
+    expect(api).toContain("action === 'issue-ledger'");
+    expect(api).toContain("correspondence_issues");
+    expect(api).toContain("action === 'revoke-issue'");
+  });
+
+  test('official letter shows separate document and website QR codes', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    expect(client).toContain("footer-document-qr");
+    expect(client).toContain("footer-site-qr");
+    expect(client).not.toContain("التوقيع مسجل في سجل تدقيق بوندز");
+    expect(ar).toContain("تحقق من الخطاب");
+    expect(ar).toContain("موقع بوندز");
+    expect(en).toContain("Verify this letter");
+    expect(en).toContain("Bonds website");
+  });
+
+  test('signature and stamp are rendered as official artifacts with signer identity', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain("corr-signer-name");
+    expect(client).toContain("corr-signer-title");
+    expect(client).toContain("signer_name:");
+    expect(client).toContain("signer_title:");
+    expect(client).toContain("الختم الرسمي");
+    expect(client).toContain("التوقيع الرسمي");
+  });
+
+  test('verification page is an outgoing register with issue state version and official PDF', () => {
+    const page = read('verify-document.html');
+    expect(page).toContain("سجل صادر بوندز");
+    expect(page).toContain('id="issue-version"');
+    expect(page).toContain('id="issue-state"');
+    expect(page).toContain('id="official-pdf"');
+    expect(page).toContain('id="verify-count"');
+  });
+
+  test('issued correspondence can be reissued or revoked without mutating prior issue', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain("function startOfficialReissue()");
+    expect(client).toContain("state.relatedDocumentId = source.id");
+    expect(client).toContain("corr-reissue");
+    expect(client).toContain("corr-revoke-issue");
+    const migration = read('supabase/migrations/20261112132301_correspondence_issuance_ledger.sql');
+    expect(migration).toContain("supersedes_issue_id");
+    expect(migration).toContain("state = 'superseded'");
+  });
+
 });
