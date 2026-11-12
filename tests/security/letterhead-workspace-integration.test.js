@@ -59,16 +59,18 @@ describe('Letterhead governed workspace integration', () => {
   test('server validates and filters workspace context', () => {
     const api = read('lib/api/correspondence.js');
     expect(api).toContain('function cleanWorkspaceContext(input)');
-    expect(api).toContain('async function validateWorkspaceContext(sb, input)');
-    expect(api).toContain("['request_id','service_requests']");
-    expect(api).toContain("['funding_case_id','funding_cases']");
-    expect(api).toContain("['client_id','advisory_clients']");
-    expect(api).toContain("['user_projects','bonds_projects','projects','advisory_projects','city_projects']");
+    expect(api).toContain('async function validateWorkspaceContext(sb, input, user, role');
+    expect(api).toContain("sb.from('service_requests')");
+    expect(api).toContain("sb.from('funding_cases')");
+    expect(api).toContain("sb.from('advisory_clients')");
+    expect(api).toContain("['user_projects', 'id,user_id,company_id']");
+    expect(api).toContain("deny('project_id')");
+    expect(api).toContain("deny('client_id')");
     expect(api).toContain("sb.from('service_catalog').select('code').eq('code', ctx.service)");
     expect(api).toContain("query.contains('workspace_context', { [key]: value })");
     expect(api).toContain('function workspaceContextMatches(context, filters)');
-    expect(api).toContain('myWorkWorkspaceFilters');
-    expect(api).toContain('summaryWorkspaceFilters');
+    expect(api).toContain("sb.rpc('get_correspondence_summary_v2'");
+    expect(api).toContain("sb.rpc('get_correspondence_my_work_v2'");
   });
 
   test('My BONDS, service workspace and assistant registry expose correspondence as a first-class workspace', () => {
@@ -100,10 +102,11 @@ describe('Letterhead governed workspace integration', () => {
 
   test('workspace inbox, search, summary and tasks are scoped and localized', () => {
     const client = read('components/letterhead-correspondence.js');
-    expect(client).toContain("api('list', { query: workspaceQuery() })");
+    expect(client).toContain("page_size: state.inboxPageSize");
     expect(client).toContain("query: { ...workspaceQuery(), q, page: 1, page_size: 10 }");
     expect(client).toContain("api('summary', { query: workspaceQuery() })");
-    expect(client).toContain("api('my-work', { query: workspaceQuery() })");
+    expect(client).toContain('page_size: state.workPageSize');
+    expect(client).toContain('corr-work-pagination');
     expect(client).toContain('statusLabel(doc.status)');
   });
 
@@ -113,4 +116,62 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("'corr-workspace-return'");
     expect(client).toContain("isEn ? 'Back to workspace' : 'العودة لمساحة العمل'");
   });
+
+  test('editable correspondence restores typing and paste state after load and page resets', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain("d.contentEditable = isEditable ? 'true' : 'false'");
+    expect(client).toContain("d.setAttribute('aria-readonly', isEditable ? 'false' : 'true')");
+    expect(client).toContain("doc.contentEditable = canEditCurrent() ? 'true' : 'false'");
+    expect(client).toContain("doc.setAttribute('aria-readonly', canEditCurrent() ? 'false' : 'true')");
+    expect(client).toContain('setEditorEditable(canEditCurrent())');
+  });
+
+  test('undo redo and legacy write toggle preserve governed ownership checks', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain('if (!canEditCurrent()) return toast');
+    expect(client).toContain('window.undoDoc = function ()');
+    expect(client).toContain('window.redoDoc = function ()');
+    expect(client).toContain("if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user'");
+    expect(client).toContain("if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked or not owned by the current user'");
+    expect(client).toContain('if (!canEditCurrent()) return;');
+  });
+
+  test('governed mode prevents stale local content and phantom drafts', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    expect(client).toContain('window.BONDS_GOVERNED_CORRESPONDENCE = true');
+    expect(client).toContain("if (!state.document && !hasMeaningfulDraft()) return");
+    expect(client).toContain("setPages([''], { markSaved: false })");
+    expect(client).toContain('if (options.markSaved) state.lastSavedSnapshot = persistedSnapshot()');
+    expect(client).toContain("setPages(JSON.parse(prev), { markSaved: false })");
+    expect(ar).toContain('if (!window.BONDS_GOVERNED_CORRESPONDENCE)');
+    expect(en).toContain('if (!window.BONDS_GOVERNED_CORRESPONDENCE)');
+  });
+
+  test('official PDF and inbox use governed artifact and real pagination', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain("api('artifact-download-url'");
+    expect(client).toContain('state.inboxPageSize');
+    expect(client).toContain('corr-inbox-pagination');
+    expect(client).toContain('state.inboxTotal');
+  });
+
+  test('metadata-only edits are tracked as unsaved and explicit new correspondence is available', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain('function persistedSnapshot()');
+    expect(client).toContain("recipient_email: document.getElementById('corr-recipient-email')");
+    expect(client).toContain("addButton(actions, 'corr-new'");
+    expect(client).toContain('function startNewCorrespondence()');
+    expect(client).toContain("localStorage.removeItem('bonds_letterhead_current_document')");
+  });
+
+  test('external send requires a real recipient while internal correspondence may use governed admin routing', () => {
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+    expect(api).toContain("Recipient email is required for non-internal correspondence");
+    expect(client).toContain("doc?.direction === 'internal' || !!doc?.recipient_email");
+    expect(client).toContain("status === 'sent' || (status === 'issued' && doc?.direction === 'internal')");
+  });
+
 });
