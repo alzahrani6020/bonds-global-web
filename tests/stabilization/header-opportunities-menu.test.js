@@ -50,4 +50,10 @@ describe('header opportunities menu', () => {
     expect(funding).not.toContain('investmentAnalysisGroup');
     expect(funding).toContain('labels.fundingCases');
   });
+
+  test('deal workspace sends signed-out users to the matching-language login and keeps the shared-deals hash', () => {
+    const workspace = fs.readFileSync(path.resolve(__dirname, '../../components/deal-workspace.js'), 'utf8');
+    expect(workspace).toContain("(EN?'/en/calculators/auth':'/calculators/auth')+'?redirect='");
+    expect(workspace).toContain('location.pathname+location.search+location.hash');
+  });
 });
