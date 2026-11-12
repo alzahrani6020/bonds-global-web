@@ -354,13 +354,15 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
     });
   }
 
-  const [parties, tasks, dueDiligence, documents, members, documentRequests] = await Promise.all([
+  const [parties, tasks, dueDiligence, documents, members, documentRequests, pipeline, offers] = await Promise.all([
     supabase.from('bonds_deal_parties').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_tasks').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
     supabase.from('bonds_deal_due_diligence_items').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_documents').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
     supabase.from('bonds_deal_members').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
-    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false })
+    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
+    supabase.from('bonds_deal_pipeline_entries').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
+    supabase.from('bonds_deal_offers').select('*').eq('deal_id', dealId).order('received_at', { ascending:false })
   ]);
   const failed = [parties, tasks, dueDiligence, documents, members].find(row => row.error);
   if (failed) return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
@@ -376,7 +378,9 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
       tasks:tasks.data || [],
       due_diligence:dueDiligence.data || [],
       documents:documents.data || [],
-      document_requests:documentRequests.data || []
+      document_requests:documentRequests.data || [],
+      pipeline:pipeline.error ? [] : (pipeline.data || []),
+      offers:offers.error ? [] : (offers.data || [])
     }
   });
 }
