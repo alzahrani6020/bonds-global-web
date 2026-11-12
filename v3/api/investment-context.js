@@ -176,9 +176,24 @@ async function convertOpportunity(req,res,supabase,user,opportunityId){
   if(!sector)return sendJson(res,422,{error:'PROJECT_SECTOR_REQUIRED'});
 
   let cityId=null;
+  let geoPlaceId=null;
+  let geoSnapshot={};
   if(opportunity.city_code){
-    const {data:city}=await supabase.from('cities').select('id').eq('code',opportunity.city_code).maybeSingle();
+    const {data:city}=await supabase.from('cities')
+      .select('id,code,country_code,name_ar,name_en,geo_place_id,region')
+      .eq('code',opportunity.city_code).maybeSingle();
     cityId=city?.id||null;
+    geoPlaceId=city?.geo_place_id||null;
+    if(city){
+      geoSnapshot={
+        city_code:city.code,
+        country_code:city.country_code,
+        name_ar:city.name_ar,
+        name_en:city.name_en,
+        region:city.region||null,
+        source:'investment_opportunity'
+      };
+    }
   }
   const row={
     project_number:'PRJ-'+Date.now()+'-'+Math.floor(Math.random()*10000),
@@ -187,6 +202,8 @@ async function convertOpportunity(req,res,supabase,user,opportunityId){
     sector,
     activity:text(body.activity||opportunity.activity_code||sector,160),
     city_id:cityId,
+    geo_place_id:geoPlaceId,
+    geo_snapshot:geoSnapshot,
     currency:(text(body.currency,3)||'SAR').toUpperCase(),
     capital:Number.isFinite(Number(body.capital))?Number(body.capital):0,
     revenue:Number.isFinite(Number(body.revenue))?Number(body.revenue):0,
