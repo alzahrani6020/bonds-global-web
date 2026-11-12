@@ -614,7 +614,7 @@
         items: [
           { label: labels.feasibility, href: isEn ? '/en/my-bonds/workspace/?service=feasibility_studies' : '/my-bonds/workspace/?service=feasibility_studies' },
           { label: labels.valuation, href: valuationHref },
-          { label: labels.risk, href: (isEn ? '/en/my-bonds/workspace/' : '/my-bonds/workspace/') + '?service=risk_analysis' },
+          { label: labels.risk, href: isEn ? '/en/my-bonds/workspace/?service=risk_analysis' : '/my-bonds/workspace/?service=risk_analysis' },
         ],
       },
       {
