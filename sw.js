@@ -296,6 +296,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname === '/page-tracker-v2.js' ||
     url.pathname === '/components/emoji-icons.js' ||
     url.pathname === '/components/emoji-renderer.js' ||
+    url.pathname === '/components/letterhead-correspondence.js' ||
     url.pathname === '/components/ecc-icons.js' ||
     url.pathname === '/calculators/shared-enhancements.js' ||
     url.pathname === '/header-footer.css'
