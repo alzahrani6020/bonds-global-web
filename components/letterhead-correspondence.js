@@ -163,8 +163,10 @@
   }
 
   function setEditorEditable(enabled) {
+    const isEditable = !!enabled;
     document.querySelectorAll('.doc-content').forEach(d => {
-      if (!enabled) d.contentEditable = 'false';
+      d.contentEditable = isEditable ? 'true' : 'false';
+      d.setAttribute('aria-readonly', isEditable ? 'false' : 'true');
     });
   }
 
@@ -207,7 +209,8 @@
       if (doc) {
         doc.id = 'doc-' + (i + 1);
         doc.innerHTML = pages[i] || '';
-        doc.contentEditable = 'false';
+        doc.contentEditable = canEditCurrent() ? 'true' : 'false';
+        doc.setAttribute('aria-readonly', canEditCurrent() ? 'false' : 'true');
         doc.setAttribute('spellcheck', 'true');
       }
     });
@@ -277,7 +280,7 @@
       if (!silent) toast(isEn ? 'No changes to save' : 'لا توجد تغييرات جديدة');
       return state.document;
     }
-    if (!editable()) throw new Error(isEn ? 'Issued documents are locked' : 'المستند المُصدر مقفل ضد التعديل');
+    if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked or not owned by the current user' : 'هذا المستند مقفل أو غير مملوك للمستخدم الحالي');
     state.loading = true;
     try {
       const doc = await ensureDocument();
@@ -329,7 +332,7 @@
     const result = await api('transition', { method: 'POST', id: doc.id, body: { target, note: note || null } });
     state.document = result.document;
     renderGovernance();
-    if (!editable()) setEditorEditable(false);
+    setEditorEditable(canEditCurrent());
     if (target === 'issued') {
       renderGovernanceArtifacts();
       updateVerificationQr();
@@ -371,7 +374,7 @@
       const el = document.getElementById(id);
       if (el) el.value = state.document[key] || '';
     });
-    setEditorEditable(editable());
+    setEditorEditable(canEditCurrent());
     renderGovernance();
     renderGovernanceArtifacts();
     updateVerificationQr();
@@ -615,6 +618,7 @@
     }
 
     renderWorkflowStrip(status);
+    setEditorEditable(canEditCurrent());
     setLegacyEditorControlsDisabled(!canEditCurrent());
 
     const visible = new Set(['corr-details-toggle','corr-command-open']);
@@ -980,7 +984,7 @@
     saveVersion(false).catch(e => toast('⚠️ ' + e.message));
   };
   window.autoSave = function () {
-    if (!editable()) return;
+    if (!canEditCurrent()) return;
     saveVersion(true).catch(() => {
       try { localStorage.setItem('bonds_letterhead_offline_backup', snapshot()); } catch (_) {}
     });
@@ -1009,7 +1013,7 @@
   };
 
   window.toggleWrite = function () {
-    if (!editable()) return toast('⚠️ ' + (isEn ? 'Issued documents are locked' : 'المستند المُصدر مقفل'));
+    if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user' : 'هذا المستند مقفل أو غير مملوك للمستخدم الحالي'));
     return legacy.toggleWrite?.();
   };
 
