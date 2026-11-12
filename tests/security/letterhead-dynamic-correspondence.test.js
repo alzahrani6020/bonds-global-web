@@ -239,19 +239,19 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const api = read('lib/api/correspondence.js');
     const email = read('lib/api/email.js');
     const atomic = read('supabase/migrations/20261112084310_correspondence_integrity_hardening.sql');
-    const ops = read('supabase/migrations/20261112084442_correspondence_operational_queries.sql');
+    const ops = read('supabase/migrations/20261112090611_correspondence_company_filter_canonical.sql');
 
     expect(atomic).toContain('save_correspondence_version_atomic');
     expect(atomic).toContain('for update');
     expect(atomic).toContain('security invoker');
     expect(atomic).toContain('artifact_document_hash');
     expect(atomic).toContain('send_idempotency_key');
-    expect(ops).toContain('get_correspondence_summary');
-    expect(ops).toContain('get_correspondence_my_work');
+    expect(ops).toContain('get_correspondence_summary_v2');
+    expect(ops).toContain('get_correspondence_my_work_v2');
     expect(ops).toContain('security invoker');
     expect(api).toContain("sb.rpc('save_correspondence_version_atomic'");
-    expect(api).toContain("sb.rpc('get_correspondence_summary'");
-    expect(api).toContain("sb.rpc('get_correspondence_my_work'");
+    expect(api).toContain("sb.rpc('get_correspondence_summary_v2'");
+    expect(api).toContain("sb.rpc('get_correspondence_my_work_v2'");
     expect(api).not.toContain('.limit(1000)');
     expect(api).not.toContain('.limit(200)');
     expect(api).toContain("const idempotencyKey = ('correspondence-send/'");
