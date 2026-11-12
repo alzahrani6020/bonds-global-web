@@ -69,8 +69,8 @@ describe('Letterhead governed workspace integration', () => {
     expect(api).toContain("sb.from('service_catalog').select('code').eq('code', ctx.service)");
     expect(api).toContain("query.contains('workspace_context', { [key]: value })");
     expect(api).toContain('function workspaceContextMatches(context, filters)');
-    expect(api).toContain("sb.rpc('get_correspondence_summary'");
-    expect(api).toContain("sb.rpc('get_correspondence_my_work'");
+    expect(api).toContain("sb.rpc('get_correspondence_summary_v2'");
+    expect(api).toContain("sb.rpc('get_correspondence_my_work_v2'");
   });
 
   test('My BONDS, service workspace and assistant registry expose correspondence as a first-class workspace', () => {
