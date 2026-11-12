@@ -292,6 +292,125 @@ async function createDocumentRequest(event){
   await loadDeal(activeDealId);
 }
 
+
+function populatePipelineParties(parties,pipeline){
+  const select=$('#dealPipelineParty');
+  if(!select)return;
+  const used=new Set((pipeline||[]).map(x=>x.party_id));
+  const eligible=(parties||[]).filter(p=>['investor','lender','buyer'].includes(p.party_role)&&!used.has(p.id));
+  select.innerHTML='<option value="">'+tr('اختر الطرف','Select party')+'</option>'+
+    eligible.map(p=>'<option value="'+escapeHtml(p.id)+'" data-kind="'+escapeHtml(p.party_role)+'">'+escapeHtml([p.name,p.organization].filter(Boolean).join(' — '))+'</option>').join('');
+}
+
+function populateOfferPipeline(pipeline,parties){
+  const select=$('#dealOfferPipeline');
+  if(!select)return;
+  const byParty=new Map((parties||[]).map(p=>[p.id,p]));
+  select.innerHTML='<option value="">'+tr('اختر المستثمر/الممول','Select investor/lender')+'</option>'+
+    (pipeline||[]).filter(x=>x.status!=='declined').map(x=>{
+      const p=byParty.get(x.party_id)||{};
+      return '<option value="'+escapeHtml(x.id)+'">'+escapeHtml([p.name||x.kind,x.kind,x.status].filter(Boolean).join(' · '))+'</option>';
+    }).join('');
+}
+
+function renderPipeline(items,parties,access){
+  const host=$('#dealPipeline');
+  if(!host)return;
+  const byParty=new Map((parties||[]).map(p=>[p.id,p]));
+  host.textContent='';
+  if(!items?.length){host.innerHTML='<div class="deal-empty">'+tr('لا توجد جهات في المسار بعد.','No pipeline entries yet.')+'</div>';return}
+  const editable=canDo(access,'edit_workspace');
+  items.forEach(item=>{
+    const p=byParty.get(item.party_id)||{};
+    const rowEl=document.createElement('div'); rowEl.className='deal-row deal-row-stack';
+    const text=document.createElement('span');
+    text.textContent=[p.name||item.kind,p.organization,item.kind,item.status,item.next_action_at?tr('التالي ','Next ')+String(item.next_action_at).slice(0,10):''].filter(Boolean).join(' · ');
+    rowEl.appendChild(text);
+    if(editable){
+      const actions=document.createElement('span');
+      ['contacted','meeting','shortlisted','selected','declined'].forEach(status=>{
+        if(item.status!==status)actions.appendChild(actionButton(status,{pipelineAction:status,pipelineId:item.id}));
+      });
+      rowEl.appendChild(actions);
+    }
+    host.appendChild(rowEl);
+  });
+}
+
+function renderOffers(items,pipeline,parties,access){
+  const host=$('#dealOffers');
+  if(!host)return;
+  const byEntry=new Map((pipeline||[]).map(x=>[x.id,x]));
+  const byParty=new Map((parties||[]).map(p=>[p.id,p]));
+  host.textContent='';
+  if(!items?.length){host.innerHTML='<div class="deal-empty">'+tr('لا توجد عروض بعد.','No offers yet.')+'</div>';return}
+  const editable=canDo(access,'edit_workspace');
+  items.forEach(item=>{
+    const entry=byEntry.get(item.pipeline_entry_id)||{};
+    const p=byParty.get(entry.party_id)||{};
+    const rowEl=document.createElement('div'); rowEl.className='deal-row deal-row-stack';
+    const text=document.createElement('span');
+    const economics=[
+      item.amount!=null?money(item.amount,item.currency):'',
+      item.valuation!=null?tr('تقييم ','Valuation ')+money(item.valuation,item.currency):'',
+      item.equity_percent!=null?tr('ملكية ','Equity ')+item.equity_percent+'%':'',
+      item.interest_rate_percent!=null?tr('فائدة ','Interest ')+item.interest_rate_percent+'%':'',
+      item.tenor_months!=null?tr('مدة ','Tenor ')+item.tenor_months+tr(' شهر',' mo'):''
+    ].filter(Boolean).join(' · ');
+    text.textContent=[p.name||entry.kind,item.offer_type,item.status,economics,item.conditions].filter(Boolean).join(' — ');
+    rowEl.appendChild(text);
+    if(editable){
+      const actions=document.createElement('span');
+      ['under_review','shortlisted','accepted','rejected'].forEach(status=>{
+        if(item.status!==status)actions.appendChild(actionButton(status,{offerAction:status,offerId:item.id}));
+      });
+      rowEl.appendChild(actions);
+    }
+    host.appendChild(rowEl);
+  });
+}
+
+async function createPipelineEntry(event){
+  event.preventDefault();
+  if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const payload=Object.fromEntries(new FormData(form).entries());
+  const option=form.elements.party_id.selectedOptions?.[0];
+  if(option?.dataset.kind)payload.kind=option.dataset.kind;
+  if(!payload.next_action_at)delete payload.next_action_at;
+  await api('/'+encodeURIComponent(activeDealId)+'/pipeline',{method:'POST',body:JSON.stringify(payload)});
+  form.reset();
+  await loadDeal(activeDealId);
+}
+
+async function pipelineAction(button){
+  if(!activeDealId)return;
+  await api('/'+encodeURIComponent(activeDealId)+'/pipeline/'+encodeURIComponent(button.dataset.pipelineId),{
+    method:'PATCH',body:JSON.stringify({status:button.dataset.pipelineAction})
+  });
+  await loadDeal(activeDealId);
+}
+
+async function createOffer(event){
+  event.preventDefault();
+  if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const payload=Object.fromEntries(new FormData(form).entries());
+  ['amount','valuation','equity_percent','interest_rate_percent','tenor_months'].forEach(key=>{if(payload[key]==='')delete payload[key]});
+  await api('/'+encodeURIComponent(activeDealId)+'/offers',{method:'POST',body:JSON.stringify(payload)});
+  form.reset();
+  if(form.elements.currency)form.elements.currency.value='SAR';
+  await loadDeal(activeDealId);
+}
+
+async function offerAction(button){
+  if(!activeDealId)return;
+  await api('/'+encodeURIComponent(activeDealId)+'/offers/'+encodeURIComponent(button.dataset.offerId),{
+    method:'PATCH',body:JSON.stringify({status:button.dataset.offerAction})
+  });
+  await loadDeal(activeDealId);
+}
+
 async function loadDeal(id){
   setStatus(tr('جاري تحميل الصفقة...','Loading deal...'));
   const data=await api('/'+encodeURIComponent(id));
@@ -315,6 +434,10 @@ async function loadDeal(id){
   renderDueDiligence(workspace.due_diligence||[],access);
   renderDocuments(workspace.documents||[],access);
   renderDocumentRequests(workspace.document_requests||[],access);
+  renderPipeline(workspace.pipeline||[],workspace.parties||[],access);
+  renderOffers(workspace.offers||[],workspace.pipeline||[],workspace.parties||[],access);
+  populatePipelineParties(workspace.parties||[],workspace.pipeline||[]);
+  populateOfferPipeline(workspace.pipeline||[],workspace.parties||[]);
   applyAccess(access,deal);
   renderMembers(data.members||[],access);
   populateRequestMembers(data.members||[]);
@@ -348,6 +471,10 @@ function applyAccess(access,deal){
   setHidden('#dealLinkPanel',!canDo(access,'link_records'));
   setHidden('#dealEventsPanel',!canDo(access,'view_events'));
   setHidden('#dealRequestForm',!canDo(access,'edit_workspace'));
+  setHidden('#dealPipelinePanel',access.side==='counterparty');
+  setHidden('#dealOffersPanel',access.side==='counterparty');
+  setHidden('#dealPipelineForm',!editable);
+  setHidden('#dealOfferForm',!editable);
   const note=$('#dealAccessNote');
   if(note){
     if(access.mode==='member'){
@@ -573,6 +700,20 @@ document.addEventListener('DOMContentLoaded',async()=>{
   });
   $('#dealRequestForm')?.addEventListener('submit',event=>{
     createDocumentRequest(event).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealPipelineForm')?.addEventListener('submit',event=>{
+    createPipelineEntry(event).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealPipeline')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-pipeline-action]');
+    if(button)pipelineAction(button).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealOfferForm')?.addEventListener('submit',event=>{
+    createOffer(event).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealOffers')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-offer-action]');
+    if(button)offerAction(button).catch(err=>setStatus(err.message,true));
   });
   $('#dealDocuments')?.addEventListener('click',event=>{
     const button=event.target.closest('[data-document-action]');
