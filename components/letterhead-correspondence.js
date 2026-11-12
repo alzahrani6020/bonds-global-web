@@ -579,6 +579,7 @@
 
     const actions = document.getElementById('corr-actions');
     addButton(actions, 'corr-new', isEn ? 'New correspondence' : 'مراسلة جديدة', () => startNewCorrespondence());
+    addButton(actions, 'corr-revise-copy', isEn ? 'Revise as new draft' : 'إنشاء نسخة للتعديل', () => startRejectedRevision(), { primary: true });
     addButton(actions, 'corr-details-toggle', isEn ? 'Details' : 'بيانات الخطاب', () => {
       const panel = document.getElementById('corr-details-panel');
       if (panel) panel.hidden = !panel.hidden;
@@ -624,6 +625,66 @@
     if (draftName) draftName.value = '';
     renderGovernance();
     toast(isEn ? 'New correspondence ready' : 'تم فتح مراسلة جديدة');
+  }
+
+  function startRejectedRevision() {
+    if (!state.document || state.document.status !== 'rejected') return;
+    if (!isOwner() && !isAdmin()) {
+      return toast('⚠️ ' + (isEn ? 'Only the document owner or an administrator can create a revision copy' : 'لا يمكن إنشاء نسخة للتعديل إلا لمالك المستند أو المسؤول'));
+    }
+
+    const source = state.document;
+    const sourcePages = pagesHtml();
+    const sourceTitle = source.title || '';
+    const sourceMetadata = {
+      direction: source.direction || 'outgoing',
+      priority: source.priority || 'normal',
+      confidentiality: source.confidentiality || 'internal',
+      recipient_organization: source.recipient_organization || '',
+      recipient_name: source.recipient_name || '',
+      recipient_title: source.recipient_title || '',
+      recipient_email: source.recipient_email || '',
+      sender_department: source.sender_department || ''
+    };
+
+    state.document = null;
+    state.latestVersion = null;
+    state.events = [];
+    state.history = [];
+    state.future = [];
+    try { localStorage.removeItem('bonds_letterhead_current_document'); } catch (_) {}
+
+    const url = new URL(location.href);
+    url.searchParams.delete('document');
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+
+    setPages(sourcePages.length ? sourcePages : [''], { markSaved: false });
+    state.lastSavedSnapshot = '';
+
+    const valueMap = {
+      'corr-direction': sourceMetadata.direction,
+      'corr-priority': sourceMetadata.priority,
+      'corr-confidentiality': sourceMetadata.confidentiality,
+      'corr-recipient-org': sourceMetadata.recipient_organization,
+      'corr-recipient-name': sourceMetadata.recipient_name,
+      'corr-recipient-title': sourceMetadata.recipient_title,
+      'corr-recipient-email': sourceMetadata.recipient_email,
+      'corr-sender-dept': sourceMetadata.sender_department
+    };
+    Object.entries(valueMap).forEach(([id, value]) => {
+      const el = document.getElementById(id);
+      if (el) el.value = value;
+    });
+
+    const draftName = document.getElementById('draft-name');
+    if (draftName) {
+      draftName.value = (sourceTitle + (isEn ? ' - revision' : ' - نسخة معدلة')).trim().slice(0, 200);
+    }
+
+    renderGovernance();
+    setEditorEditable(true);
+    setLegacyEditorControlsDisabled(false);
+    toast(isEn ? 'Revision copy is ready to edit and save as a new draft' : 'تم إنشاء نسخة قابلة للتعديل؛ احفظها كمسودة جديدة');
   }
 
   function setCommandDrawer(open) {
@@ -694,6 +755,7 @@
     setLegacyEditorControlsDisabled(!canEditCurrent());
 
     const visible = new Set(['corr-new','corr-details-toggle','corr-command-open']);
+    if (status === 'rejected' && (isOwner() || isAdmin())) visible.add('corr-revise-copy');
     if (hasWorkspaceContext()) visible.add('corr-workspace-return');
     if (canEditCurrent()) visible.add('corr-save');
 
@@ -721,7 +783,7 @@
     [
       'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive',
-      'corr-new','corr-details-toggle','corr-command-open'
+      'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open'
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = visible.has(id) ? '' : 'none';
