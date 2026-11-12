@@ -53,6 +53,9 @@ describe('F.4 closing migration',()=>{
     expect(sql).not.toMatch(/\bdrop\b/i);
     expect(sql).not.toMatch(/\btruncate\b/i);
     expect(sql).not.toMatch(/delete\s+from/i);
+    expect(sql).toMatch(/record_type = 'term_sheet' and status in \('pending','signed','rejected'\)/i);
+    expect(sql).toMatch(/record_type = 'cap_table' and status in \('pending','approved','rejected'\)/i);
+    expect(sql).toMatch(/record_type = 'funding_confirmation' and status in \('pending','confirmed','rejected'\)/i);
   });
   test('does not expose internal closing records to counterparties through RLS',()=>{
     expect(sql).toMatch(/in \('owner','advisor','external_expert'\)/);
@@ -163,6 +166,16 @@ describe('F.4 router sequence',()=>{
     const cap=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'cap_table',status:'approved',document_id:capDoc.id});
     expect(cap.statusCode).toBe(409);
     expect(cap.body.error).toBe('CLOSING_TERM_SHEET_NOT_SIGNED');
+  });
+
+  test('analysts can edit deal work but cannot waive or confirm closing evidence',async()=>{
+    const s=seed();const deal=await createDeal(s);
+    const analyst={id:'33333333-3333-4333-8333-333333333333',email:'analyst@example.com',email_confirmed_at:'2026-01-01T00:00:00Z'};
+    const invite=await call(s,OWNER,'POST',`/deals/${deal.id}/members`,{email:analyst.email,side:'advisor',member_role:'analyst'});
+    expect(invite.statusCode).toBe(201);
+    await call(s,analyst,'GET','/deals');
+    expect((await call(s,analyst,'POST',`/deals/${deal.id}/tasks`,{title:'Analysis task'})).statusCode).toBe(201);
+    expect((await call(s,analyst,'POST',`/deals/${deal.id}/closing-items`,{title:'Waivable CP'})).statusCode).toBe(403);
   });
 
   test('counterparty never receives internal closing checklist or competing closing evidence',async()=>{
