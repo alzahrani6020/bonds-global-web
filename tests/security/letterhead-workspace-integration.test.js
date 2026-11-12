@@ -75,6 +75,7 @@ describe('Letterhead governed workspace integration', () => {
     const myEn = read('en/my-bonds/index.html');
     const service = read('components/service-request.js');
     const nav = JSON.parse(read('lib/assistant/navigation-registry.json'));
+    const tools = read('lib/assistant/deterministic-tools.js');
 
     expect(myAr).toContain('مساحة المراسلات');
     expect(myAr).toContain('../letterhead.html');
@@ -92,6 +93,8 @@ describe('Letterhead governed workspace integration', () => {
       risk: 'low',
       auth_required: true
     });
+    expect(tools).toContain("target: 'correspondence_workspace'");
+    expect(tools).toContain("correspondence_workspace: { ar: 'مساحة المراسلات', en: 'Correspondence workspace' }");
   });
 
   test('workspace inbox, search, summary and tasks are scoped and localized', () => {
