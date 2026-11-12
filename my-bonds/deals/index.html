@@ -173,6 +173,7 @@
           <select name="record_type" id="dealClosingRecordType"><option value="term_sheet">ورقة الشروط</option><option value="cap_table">جدول الملكية</option><option value="funding_confirmation">تأكيد استلام الأموال</option></select>
           <select name="status"><option value="pending">قيد الإعداد</option><option value="signed">موقعة</option><option value="approved">معتمدة</option><option value="confirmed">مؤكدة</option></select>
           <select name="offer_id" id="dealClosingOffer"><option value="">عرض شروط مرتبط (للتوقيع)</option></select>
+          <select name="document_id" id="dealClosingDocument" required><option value="">مستند الإثبات المرفوع</option></select>
           <input name="amount" type="number" min="0" step="0.01" placeholder="المبلغ (عند استلام الأموال)">
           <input name="currency" value="SAR" maxlength="3" placeholder="العملة">
           <input name="reference" maxlength="200" placeholder="مرجع التوقيع/الاعتماد/التحويل">
