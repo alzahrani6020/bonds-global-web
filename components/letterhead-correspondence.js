@@ -689,7 +689,7 @@
     history.replaceState(null, '', url.pathname + url.search + url.hash);
     setPages([''], { markSaved: false });
     state.lastSavedSnapshot = '';
-    ['corr-recipient-org','corr-recipient-name','corr-recipient-title','corr-recipient-email','corr-sender-dept'].forEach(id => {
+    ['corr-recipient-org','corr-recipient-name','corr-recipient-title','corr-recipient-email','corr-sender-dept','corr-signer-name','corr-signer-title'].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.value = '';
     });
@@ -1491,7 +1491,11 @@
       const canvas = document.getElementById('sig-canvas');
       if (!canvas) throw new Error(isEn ? 'Signature canvas is unavailable' : 'لوحة التوقيع غير متوفرة');
       const signatureData = canvas.toDataURL('image/png');
-      await mark('mark-signature', { signature_data_url: signatureData });
+      await mark('mark-signature', {
+        signature_data_url: signatureData,
+        signer_name: document.getElementById('corr-signer-name')?.value || null,
+        signer_title: document.getElementById('corr-signer-title')?.value || null
+      });
       document.getElementById('sig-modal')?.classList.remove('open');
       if (typeof window.clearSignature === 'function') window.clearSignature();
       renderGovernanceArtifacts();
