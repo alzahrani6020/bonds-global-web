@@ -22,6 +22,19 @@ async function call(supabase,user,method,route,body){
 }
 function seed(){return createFakeSupabase({funding_cases:[],enterprise_lifecycle_instances:[],bonds_projects:[]})}
 async function createDeal(s){const r=await call(s,OWNER,'POST','/deals',{title:'Closing test',deal_type:'investment'});expect(r.statusCode).toBe(201);return r.body.deal}
+
+async function makeReadyDocument(s,deal,name){
+  const created=await call(s,OWNER,'POST',`/deals/${deal.id}/documents`,{name,category:'legal'});
+  expect(created.statusCode).toBe(201);
+  const doc=created.body.document;
+  if(!s.db.tables.bonds_deal_document_versions)s.db.tables.bonds_deal_document_versions=[];
+  const serial=String(s.db.tables.bonds_deal_document_versions.length+1).padStart(12,'0');
+  s.db.tables.bonds_deal_document_versions.push({
+    id:`90000000-0000-4000-8000-${serial}`,
+    deal_id:deal.id,document_id:doc.id,version:1,upload_status:'ready'
+  });
+  return doc;
+}
 async function makeAcceptedTermSheet(s,deal){
   const party=(await call(s,OWNER,'POST',`/deals/${deal.id}/parties`,{name:'Fund Alpha',party_role:'investor'})).body.party;
   const pipe=(await call(s,OWNER,'POST',`/deals/${deal.id}/pipeline`,{party_id:party.id,kind:'investor'})).body.pipeline_entry;
@@ -76,10 +89,13 @@ describe('F.3 to F.4 lifecycle bridge',()=>{
     expect(passed('guard_funds_received',context)).toBe(true);
   });
 
-  test('received or under-review offers do not open negotiation terms',()=>{
+  test('shortlisted, received, or under-review offers do not open negotiation terms',()=>{
     const context=buildDealLifecycleContext({
       deal:{id:'d',status:'active'},
-      offers:[{id:'o1',offer_type:'term_sheet',status:'under_review'}]
+      offers:[
+        {id:'o1',offer_type:'term_sheet',status:'shortlisted'},
+        {id:'o2',offer_type:'term_sheet',status:'under_review'}
+      ]
     });
     expect(context.negotiation).toBeUndefined();
     expect(passed('guard_negotiation_terms',context)).toBe(false);
@@ -94,13 +110,16 @@ describe('F.4 router sequence',()=>{
     const cp=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-items`,{title:'Board approval',category:'corporate',required:true});
     expect(cp.statusCode).toBe(201);
 
-    const term=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'term_sheet',status:'signed',offer_id:offer.id,reference:'TS-1'});
+    const termDoc=await makeReadyDocument(s,deal,'Signed term sheet');
+    const term=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'term_sheet',status:'signed',offer_id:offer.id,document_id:termDoc.id,reference:'TS-1'});
     expect(term.statusCode).toBe(201);
 
-    const cap=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'cap_table',status:'approved',reference:'CAP-1'});
+    const capDoc=await makeReadyDocument(s,deal,'Approved cap table');
+    const cap=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'cap_table',status:'approved',document_id:capDoc.id,reference:'CAP-1'});
     expect(cap.statusCode).toBe(201);
 
-    const earlyFunds=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'funding_confirmation',status:'confirmed',amount:10000000});
+    const fundsDoc=await makeReadyDocument(s,deal,'Bank receipt');
+    const earlyFunds=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'funding_confirmation',status:'confirmed',document_id:fundsDoc.id,amount:10000000});
     expect(earlyFunds.statusCode).toBe(409);
     expect(earlyFunds.body.error).toBe('CLOSING_CONDITIONS_INCOMPLETE');
 
@@ -108,12 +127,25 @@ describe('F.4 router sequence',()=>{
     expect(closeCp.statusCode).toBe(200);
     expect(closeCp.body.closing_item.satisfied_at).toBeTruthy();
 
-    const funds=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'funding_confirmation',status:'confirmed',amount:10000000,currency:'SAR',reference:'BANK-1'});
+    const funds=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'funding_confirmation',status:'confirmed',document_id:fundsDoc.id,amount:10000000,currency:'SAR',reference:'BANK-1'});
     expect(funds.statusCode).toBe(201);
 
     const view=await call(s,OWNER,'GET',`/deals/${deal.id}`);
     expect(view.body.workspace.closing_items).toHaveLength(1);
     expect(view.body.workspace.closing_records).toHaveLength(3);
+  });
+
+  test('final closing states require a ready data-room evidence file',async()=>{
+    const s=seed();const deal=await createDeal(s);
+    const offer=await makeAcceptedTermSheet(s,deal);
+    const missing=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'term_sheet',status:'signed',offer_id:offer.id});
+    expect(missing.statusCode).toBe(422);
+    expect(missing.body.error).toBe('CLOSING_EVIDENCE_DOCUMENT_REQUIRED');
+
+    const doc=(await call(s,OWNER,'POST',`/deals/${deal.id}/documents`,{name:'Metadata only',category:'legal'})).body.document;
+    const notReady=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'term_sheet',status:'signed',offer_id:offer.id,document_id:doc.id});
+    expect(notReady.statusCode).toBe(409);
+    expect(notReady.body.error).toBe('CLOSING_EVIDENCE_FILE_NOT_READY');
   });
 
   test('cannot sign an unaccepted term sheet or approve cap table before term-sheet signature',async()=>{
@@ -122,11 +154,13 @@ describe('F.4 router sequence',()=>{
     const pipe=(await call(s,OWNER,'POST',`/deals/${deal.id}/pipeline`,{party_id:party.id,kind:'investor'})).body.pipeline_entry;
     const offer=(await call(s,OWNER,'POST',`/deals/${deal.id}/offers`,{pipeline_entry_id:pipe.id,offer_type:'term_sheet',amount:1})).body.offer;
 
-    const term=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'term_sheet',status:'signed',offer_id:offer.id});
+    const termDoc=await makeReadyDocument(s,deal,'Unaccepted term sheet');
+    const term=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'term_sheet',status:'signed',offer_id:offer.id,document_id:termDoc.id});
     expect(term.statusCode).toBe(409);
     expect(term.body.error).toBe('CLOSING_TERM_SHEET_OFFER_NOT_ACCEPTED');
 
-    const cap=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'cap_table',status:'approved'});
+    const capDoc=await makeReadyDocument(s,deal,'Premature cap table');
+    const cap=await call(s,OWNER,'POST',`/deals/${deal.id}/closing-records`,{record_type:'cap_table',status:'approved',document_id:capDoc.id});
     expect(cap.statusCode).toBe(409);
     expect(cap.body.error).toBe('CLOSING_TERM_SHEET_NOT_SIGNED');
   });
