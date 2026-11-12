@@ -327,10 +327,20 @@
         };
 
         try {
-          const response = await fetch('/api/contact', {
+          const response = await fetch('/api/v3/investment-context/direct-interest', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
+            credentials: 'same-origin',
+            body: JSON.stringify({
+              name: data.name,
+              phone: data.phone,
+              email: data.email || '',
+              city: data.city || '',
+              amount: data.amount || '',
+              investorType: data.investorType || '',
+              message: data.message || '',
+              website: data.website || ''
+            })
           });
           const result = await response.json();
           if (response.ok && result.success) {
