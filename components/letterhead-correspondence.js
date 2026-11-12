@@ -856,6 +856,17 @@
     await waitForVerificationQr();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+    const integrityMarker = state.document?.issued_hash
+      ? ['BONDS-DOC', state.document.id, state.document.current_version, state.document.document_hash, state.document.issued_hash].join(':')
+      : '';
+    if (integrityMarker && typeof pdf.setProperties === 'function') {
+      pdf.setProperties({
+        title: state.document.reference_number || 'Bonds correspondence',
+        subject: integrityMarker,
+        keywords: integrityMarker,
+        creator: 'Bonds Global Correspondence'
+      });
+    }
     for (let i = 0; i < sheets.length; i++) {
       const canvas = await html2canvas(sheets[i], { scale: 1.6, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
       const img = canvas.toDataURL('image/jpeg', 0.9);
