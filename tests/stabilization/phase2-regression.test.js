@@ -13,7 +13,11 @@ describe('stabilization phase 2', () => {
     expect(layout).toContain("tools: isEn ? 'Tools' : 'الأدوات'");
     expect(layout).toContain("aboutGovernance: isEn ? 'About' : 'عن بوندز'");
     expect(layout).toContain("heading: { ar: 'الاستشارات المالية', en: 'Financial Advisory' }");
-    expect(layout).toContain("heading: { ar: labels.fundingGroup");
+    expect(layout).toContain("heading: { ar: labels.fundingSourcesGroup");
+    expect(layout).toContain("heading: { ar: labels.fundingExecutionGroup");
+    expect(layout).toContain("heading: { ar: labels.fundingFileGroup");
+    expect(layout).toContain("navId: 'opportunities'");
+    expect(layout).toContain("heading: { ar: labels.dealsGroup");
     expect(layout).toContain("heading: { ar: labels.intelligenceGroup");
     expect(layout).toContain("return '/en/v3/?from=' + encodeURIComponent");
     expect(layout).toContain("Data Sources & Methodology");
