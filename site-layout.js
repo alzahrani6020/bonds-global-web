@@ -491,6 +491,10 @@
       transformationGroup: isEn ? 'Transformation & Risk' : 'التحول والمخاطر',
       fundingGroup: isEn ? 'Funding' : 'التمويل',
       investmentGroup: isEn ? 'Investment' : 'الاستثمار',
+      opportunitiesNav: isEn ? 'Deals' : 'الفرص',
+      dealsGroup: isEn ? 'Deals' : 'الصفقات',
+      dealWorkspace: isEn ? 'Deal Workspace' : 'مساحة الصفقات',
+      sharedDeals: isEn ? 'Shared with me' : 'فرص مشاركة معي',
       intelligenceGroup: isEn ? 'Cities & Markets' : 'المدن والأسواق',
       methodologyGroup: isEn ? 'Methodology & Data' : 'المنهجية والبيانات',
       methodology: isEn ? 'Calculation Methodology' : 'منهجية الحساب',
@@ -663,6 +667,10 @@
           { label: labels.fundingCases, href: fundingCasesHref },
         ],
       },
+    ];
+
+    const dealsHref = langBase + 'my-bonds/deals/';
+    const opportunitiesDropdown = [
       {
         heading: { ar: labels.investmentDiscoveryGroup, en: 'Opportunities & Discovery' },
         items: [
@@ -680,6 +688,13 @@
           { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
           { label: labels.compareOpportunities, href: isEn ? v3EnglishHubHref + '#city-comparison' : '/v3/city-comparison' },
           { label: labels.scenariosEngine, href: isEn ? v3EnglishHubHref + '#scenarios' : '/v3/scenarios' },
+        ],
+      },
+      {
+        heading: { ar: labels.dealsGroup, en: 'Deals' },
+        items: [
+          { label: labels.dealWorkspace, href: dealsHref },
+          { label: labels.sharedDeals, href: dealsHref + '#dealSharedPanel' },
         ],
       },
     ];
@@ -756,6 +771,7 @@
       { href: homeHref, label: labels.home },
       { type: 'dropdown', label: labels.services, items: serviceDropdown, all: { href: servicesHref, label: labels.allServices } },
       { type: 'dropdown', label: labels.fundingGroup, items: fundingDropdown },
+      { type: 'dropdown', navId: 'opportunities', label: labels.opportunitiesNav, items: opportunitiesDropdown },
       { href: langBase + 'sectors.html', label: labels.sectors },
       { type: 'dropdown', navId: 'tools', label: labels.tools, items: calcDropdown, all: { href: calcBase + 'investment-center/index.html', label: isEn ? 'All Tools →' : 'جميع الأدوات →' } },
       { type: 'dropdown', label: labels.knowledge, items: intelligenceDropdown },
