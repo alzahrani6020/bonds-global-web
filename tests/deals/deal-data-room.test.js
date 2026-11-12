@@ -27,6 +27,7 @@ describe('F.2 secure data-room domain', () => {
       size_bytes:1024
     })).toMatchObject({ file_name:'قوائم 2026.pdf', content_type:'application/pdf', size_bytes:1024 });
     expect(() => normalizeUploadSpec({ file_name:'x.exe', content_type:'application/x-msdownload', size_bytes:1 })).toThrow('UPLOAD_CONTENT_TYPE_NOT_ALLOWED');
+    expect(() => normalizeUploadSpec({ file_name:'invoice.exe', content_type:'application/pdf', size_bytes:100 })).toThrow('UPLOAD_EXTENSION_MISMATCH');
     expect(() => normalizeUploadSpec({ file_name:'x.pdf', content_type:'application/pdf', size_bytes:MAX_FILE_BYTES + 1 })).toThrow('UPLOAD_SIZE_INVALID');
   });
 
