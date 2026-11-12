@@ -884,6 +884,43 @@ async function handleServiceExecute(req, res, supabase, user) {
   try {
     const result = await executeService({ req, user, supabase, serviceCode, body });
 
+    if (user && body.project_id && result.body?.executed === true) {
+      try {
+        const { data:project } = await supabase
+          .from('bonds_projects')
+          .select('id')
+          .eq('id', String(body.project_id))
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (project) {
+          const artifactType = serviceCode === 'feasibility_studies'
+            ? 'feasibility'
+            : serviceCode === 'risk_analysis'
+              ? 'risk'
+              : null;
+
+          if (artifactType) {
+            await supabase.from('bonds_investment_artifacts').insert({
+              user_id:user.id,
+              project_id:project.id,
+              deal_id:body.deal_id || null,
+              opportunity_id:body.opportunity_id || null,
+              artifact_type:artifactType,
+              title:serviceCode,
+              source_url:body.source_url || null,
+              inputs:body.inputs || body.values || {},
+              results:result.body || {},
+              metadata:{ service_code:serviceCode, source:body.source || 'service_request_page' },
+              status:'saved'
+            });
+          }
+        }
+      } catch (contextErr) {
+        console.warn('[services/execute] investment artifact persistence skipped:', contextErr.message);
+      }
+    }
+
     if (dataset) {
       const now=new Date().toISOString();
       const inputHash=stableInputHash(dataset.reviewed_values || {});
