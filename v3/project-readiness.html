@@ -250,6 +250,9 @@
 
   <script>
     const STORAGE_KEY = 'bonds_project_readiness';
+    const contextParams = new URLSearchParams(location.search);
+    const projectId = contextParams.get('project_id') || null;
+    let lastReadiness = null;
 
     const sections = [
       {
@@ -331,13 +334,51 @@
       }
     }
 
-    function saveCurrent() {
+    async function saveCurrent() {
       const state = {};
       document.querySelectorAll('#readinessForm input[type="checkbox"]').forEach(el => {
         state[el.id] = el.checked;
       });
       localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      alert('تم حفظ التقييم');
+
+      if (!lastReadiness) calculate();
+      if (!projectId) {
+        alert('حُفظت المسودة محليًا. لربط الجاهزية بدورة حياة المشروع افتح الأداة من مشروع محدد.');
+        return;
+      }
+
+      try {
+        await window.BondsAuth?.ensureEnv?.();
+        const session = (await window.BondsAuth?.getSession?.())?.data?.session;
+        if (!session?.access_token) {
+          location.href = '/calculators/auth/index.html?redirect=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        const response = await fetch('/api/v3/investment-context/readiness', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + session.access_token
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            project_id: projectId,
+            readiness_score: lastReadiness.score,
+            strengths: lastReadiness.strengths,
+            weaknesses: lastReadiness.weaknesses,
+            missing_items: lastReadiness.missing,
+            action_plan: lastReadiness.actionPlan,
+            inputs: state,
+            source_url: location.href,
+            metadata: { source: 'v3-project-readiness' }
+          })
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(payload.error || ('HTTP ' + response.status));
+        alert('تم حفظ الجاهزية وربطها بالمشروع ودورة حياته.');
+      } catch (err) {
+        alert('تعذر حفظ الجاهزية في المشروع: ' + err.message);
+      }
     }
 
     function calculate() {
@@ -357,6 +398,18 @@
       });
 
       const score = totalWeight > 0 ? Math.round((earned / totalWeight) * 100) : 0;
+      const strengths = [];
+      document.querySelectorAll('#readinessForm input[type="checkbox"]').forEach(el => {
+        if (el.checked) strengths.push(el.nextElementSibling.textContent);
+      });
+      const actionPlan = missing.slice(0, 12).map(item => 'أكمل أو راجع: ' + item);
+      lastReadiness = {
+        score,
+        strengths,
+        weaknesses: missing.map(item => 'عنصر غير مكتمل: ' + item),
+        missing,
+        actionPlan
+      };
 
       let level = { text: 'غير جاهز', cls: 'not-ready' };
       if (score >= 90) level = { text: 'جاهز بالكامل ⭐', cls: 'fully' };
@@ -402,7 +455,7 @@
 
     document.getElementById('calculateBtn').addEventListener('click', calculate);
     document.getElementById('resetBtn').addEventListener('click', reset);
-    document.getElementById('saveBtn').addEventListener('click', saveCurrent);
+    document.getElementById('saveBtn').addEventListener('click', () => { saveCurrent(); });
   </script>
   <div id="site-footer"></div>
   <script src="shared-v3-ui.js" defer></script>
