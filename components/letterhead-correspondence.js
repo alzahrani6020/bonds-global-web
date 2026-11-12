@@ -168,6 +168,25 @@
     });
   }
 
+  function setLegacyEditorControlsDisabled(disabled) {
+    const mutatingCalls = [
+      'toggleWrite','undoDoc','redoDoc','insertDateTime','insertSubject','applyTemplate','insertTable','insertRuler',
+      'addNewPage','deletePage','clearAll','alignText','toggleList','indentText','outdentText','toggleBold',
+      'toggleItalic','toggleUnderline','setColor','findReplaceText','handleImageUpload','changeFont'
+    ];
+    document.querySelectorAll('button[onclick], select[onchange]').forEach(control => {
+      const code = control.getAttribute('onclick') || control.getAttribute('onchange') || '';
+      if (!mutatingCalls.some(name => code.includes(name + '('))) return;
+      control.disabled = !!disabled;
+      control.setAttribute('aria-disabled', disabled ? 'true' : 'false');
+      if (disabled) control.title = isEn ? 'Locked by correspondence workflow' : 'مقفل حسب حالة سير المراسلات';
+    });
+    const imageInput = document.getElementById('image-upload');
+    const importInput = document.getElementById('document-import');
+    if (imageInput) imageInput.disabled = !!disabled;
+    if (importInput) importInput.disabled = !!disabled;
+  }
+
   function setPages(pages) {
     if (!Array.isArray(pages) || !pages.length) pages = [''];
     const container = document.getElementById('pages-container');
@@ -283,6 +302,12 @@
         }
       });
       state.document = result.document;
+      state.latestVersion = {
+        version: result.version,
+        pages_html: pagesHtml(),
+        text_content: text,
+        checksum_sha256: result.checksum_sha256
+      };
       state.lastSavedSnapshot = snap;
       try { localStorage.setItem('bonds_letterhead_offline_backup', snap); } catch (_) {}
       if (!silent) toast('✅ ' + t.saved + ' #' + result.version);
@@ -590,6 +615,7 @@
     }
 
     renderWorkflowStrip(status);
+    setLegacyEditorControlsDisabled(!canEditCurrent());
 
     const visible = new Set(['corr-details-toggle','corr-command-open']);
     if (hasWorkspaceContext()) visible.add('corr-workspace-return');
@@ -1198,8 +1224,9 @@
     state.lastHistorySnapshot = next;
   };
 
-  function restoreCanonicalLockedDocument() {
+  async function restoreCanonicalLockedDocument() {
     if (!state.document || canEditCurrent()) return;
+    await loadDocument(state.document.id);
     if (Array.isArray(state.latestVersion?.pages_html) && state.latestVersion.pages_html.length) {
       setPages(state.latestVersion.pages_html);
       renderGovernanceArtifacts();
@@ -1227,8 +1254,12 @@
     });
   }
 
-  window.exportWord = function () {
-    restoreCanonicalLockedDocument();
+  window.exportWord = async function () {
+    try {
+      await restoreCanonicalLockedDocument();
+    } catch (e) {
+      return toast('⚠️ ' + (isEn ? 'Unable to reload the governed version: ' : 'تعذر تحميل النسخة المحكومة: ') + e.message);
+    }
     const clone = document.getElementById('pages-container')?.cloneNode(true);
     if (!clone) return toast('⚠️ ' + (isEn ? 'Document is unavailable' : 'المستند غير متوفر'));
     clone.querySelectorAll('img').forEach(img => {
@@ -1258,7 +1289,11 @@
 
   // Deterministic sequential multi-page PDF export.
   window.exportPDF = async function () {
-    restoreCanonicalLockedDocument();
+    try {
+      await restoreCanonicalLockedDocument();
+    } catch (e) {
+      return toast('⚠️ ' + (isEn ? 'Unable to reload the governed version: ' : 'تعذر تحميل النسخة المحكومة: ') + e.message);
+    }
     toast(isEn ? '⏳ Creating PDF...' : '⏳ جاري إنشاء PDF...');
     try {
       const blob = await createPdfBlob();
