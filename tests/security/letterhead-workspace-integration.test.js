@@ -59,16 +59,18 @@ describe('Letterhead governed workspace integration', () => {
   test('server validates and filters workspace context', () => {
     const api = read('lib/api/correspondence.js');
     expect(api).toContain('function cleanWorkspaceContext(input)');
-    expect(api).toContain('async function validateWorkspaceContext(sb, input)');
-    expect(api).toContain("['request_id','service_requests']");
-    expect(api).toContain("['funding_case_id','funding_cases']");
-    expect(api).toContain("['client_id','advisory_clients']");
-    expect(api).toContain("['user_projects','bonds_projects','projects','advisory_projects','city_projects']");
+    expect(api).toContain('async function validateWorkspaceContext(sb, input, user, role');
+    expect(api).toContain("sb.from('service_requests')");
+    expect(api).toContain("sb.from('funding_cases')");
+    expect(api).toContain("sb.from('advisory_clients')");
+    expect(api).toContain("['user_projects', 'id,user_id,company_id']");
+    expect(api).toContain("deny('project_id')");
+    expect(api).toContain("deny('client_id')");
     expect(api).toContain("sb.from('service_catalog').select('code').eq('code', ctx.service)");
     expect(api).toContain("query.contains('workspace_context', { [key]: value })");
     expect(api).toContain('function workspaceContextMatches(context, filters)');
-    expect(api).toContain('myWorkWorkspaceFilters');
-    expect(api).toContain('summaryWorkspaceFilters');
+    expect(api).toContain("sb.rpc('get_correspondence_summary'");
+    expect(api).toContain("sb.rpc('get_correspondence_my_work'");
   });
 
   test('My BONDS, service workspace and assistant registry expose correspondence as a first-class workspace', () => {
@@ -100,7 +102,7 @@ describe('Letterhead governed workspace integration', () => {
 
   test('workspace inbox, search, summary and tasks are scoped and localized', () => {
     const client = read('components/letterhead-correspondence.js');
-    expect(client).toContain("api('list', { query: workspaceQuery() })");
+    expect(client).toContain("page_size: state.inboxPageSize");
     expect(client).toContain("query: { ...workspaceQuery(), q, page: 1, page_size: 10 }");
     expect(client).toContain("api('summary', { query: workspaceQuery() })");
     expect(client).toContain("api('my-work', { query: workspaceQuery() })");
@@ -131,6 +133,27 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user'");
     expect(client).toContain("if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked or not owned by the current user'");
     expect(client).toContain('if (!canEditCurrent()) return;');
+  });
+
+  test('governed mode prevents stale local content and phantom drafts', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    expect(client).toContain('window.BONDS_GOVERNED_CORRESPONDENCE = true');
+    expect(client).toContain("if (!state.document && !hasMeaningfulDraft()) return");
+    expect(client).toContain("setPages([''], { markSaved: false })");
+    expect(client).toContain('if (options.markSaved) state.lastSavedSnapshot = snap');
+    expect(client).toContain("setPages(JSON.parse(prev), { markSaved: false })");
+    expect(ar).toContain('if (!window.BONDS_GOVERNED_CORRESPONDENCE)');
+    expect(en).toContain('if (!window.BONDS_GOVERNED_CORRESPONDENCE)');
+  });
+
+  test('official PDF and inbox use governed artifact and real pagination', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain("api('artifact-download-url'");
+    expect(client).toContain('state.inboxPageSize');
+    expect(client).toContain('corr-inbox-pagination');
+    expect(client).toContain('state.inboxTotal');
   });
 
 });
