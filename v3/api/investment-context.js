@@ -100,6 +100,7 @@ async function assertContextOwnership(supabase,user,body){
   if(projectId&&deal?.project_id&&deal.project_id!==projectId)throw new Error('CONTEXT_PROJECT_DEAL_MISMATCH');
   if(projectId&&opportunity?.project_id&&opportunity.project_id!==projectId)throw new Error('CONTEXT_PROJECT_OPPORTUNITY_MISMATCH');
   if(dealId&&opportunity?.deal_id&&opportunity.deal_id!==dealId)throw new Error('CONTEXT_DEAL_OPPORTUNITY_MISMATCH');
+  if(deal?.project_id&&opportunity?.project_id&&deal.project_id!==opportunity.project_id)throw new Error('CONTEXT_DEAL_OPPORTUNITY_PROJECT_MISMATCH');
 
   return {projectId:canonicalProjectId,dealId,opportunityId,project,deal,opportunity};
 }
@@ -168,6 +169,14 @@ async function convertOpportunity(req,res,supabase,user,opportunityId){
   if(!opportunity)return sendJson(res,404,{error:'OPPORTUNITY_NOT_FOUND'});
   if(opportunity.project_id){
     const project=await ownedProject(supabase,user.id,opportunity.project_id);
+    if (project && opportunity.deal_id) {
+      const deal=await ownedDeal(supabase,user.id,opportunity.deal_id);
+      if (deal && !deal.project_id) {
+        await supabase.from('bonds_deals').update({project_id:project.id}).eq('id',deal.id).eq('user_id',user.id);
+      } else if (deal?.project_id && deal.project_id !== project.id) {
+        return sendJson(res,409,{error:'CONTEXT_DEAL_OPPORTUNITY_PROJECT_MISMATCH'});
+      }
+    }
     return sendJson(res,200,{opportunity,project,reused:true});
   }
   let body={};
@@ -221,13 +230,24 @@ async function convertOpportunity(req,res,supabase,user,opportunityId){
   await supabase.from('bonds_investment_opportunities')
     .update({project_id:project.id,status:'converted'}).eq('id',opportunity.id).eq('user_id',user.id);
 
+  let lifecycleInstanceId=null;
   try{
     const engine=await new LifecycleEngine({supabase}).initialize();
-    await engine.createInstance({entityType:'project',entityId:project.id,userId:user.id});
+    const created=await engine.createInstance({entityType:'project',entityId:project.id,userId:user.id});
+    lifecycleInstanceId=created?.instance?.id||created?.instance?.instance_id||null;
   }catch(err){
     console.warn('[investment-context] lifecycle init failed:',err.message);
   }
-  return sendJson(res,201,{opportunity:{...opportunity,project_id:project.id,status:'converted'},project,reused:false});
+  if(opportunity.deal_id){
+    const deal=await ownedDeal(supabase,user.id,opportunity.deal_id);
+    if(deal){
+      await supabase.from('bonds_deals').update({
+        project_id:project.id,
+        ...(lifecycleInstanceId?{lifecycle_instance_id:lifecycleInstanceId}:{})
+      }).eq('id',deal.id).eq('user_id',user.id);
+    }
+  }
+  return sendJson(res,201,{opportunity:{...opportunity,project_id:project.id,status:'converted'},project,lifecycle_instance_id:lifecycleInstanceId,reused:false});
 }
 
 async function saveArtifact(req,res,supabase,user){
