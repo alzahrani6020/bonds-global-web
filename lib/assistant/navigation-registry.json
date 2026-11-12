@@ -205,6 +205,15 @@
       "kind": "workspace",
       "risk": "low",
       "auth_required": true
+    },
+    "correspondence_workspace": {
+      "routes": {
+        "ar": "/letterhead.html",
+        "en": "/en/letterhead.html"
+      },
+      "kind": "workspace",
+      "risk": "low",
+      "auth_required": true
     }
   }
 }
