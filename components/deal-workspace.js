@@ -87,7 +87,7 @@ function renderDueDiligence(items,access){
     host.innerHTML='<div class="deal-empty">'+tr('لا توجد عناصر بعد.','No items yet.')+'</div>';
     return;
   }
-  const editable=canDo(access,'edit_workspace');
+  const editable=canDo(access,'manage_closing');
   items.forEach(item=>{
     const rowEl=document.createElement('div');
     rowEl.className='deal-row';
@@ -595,8 +595,9 @@ function applyAccess(access,deal){
   setHidden('#dealPipelineForm',!editable);
   setHidden('#dealOfferForm',!editable);
   setHidden('#dealClosingPanel',access.side==='counterparty');
-  setHidden('#dealClosingItemForm',!editable);
-  setHidden('#dealClosingRecordForm',!editable);
+  const closingManage=canDo(access,'manage_closing');
+  setHidden('#dealClosingItemForm',!closingManage);
+  setHidden('#dealClosingRecordForm',!closingManage);
   const note=$('#dealAccessNote');
   if(note){
     if(access.mode==='member'){
