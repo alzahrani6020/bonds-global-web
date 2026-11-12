@@ -113,4 +113,24 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("'corr-workspace-return'");
     expect(client).toContain("isEn ? 'Back to workspace' : 'العودة لمساحة العمل'");
   });
+
+  test('editable correspondence restores typing and paste state after load and page resets', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain("d.contentEditable = isEditable ? 'true' : 'false'");
+    expect(client).toContain("d.setAttribute('aria-readonly', isEditable ? 'false' : 'true')");
+    expect(client).toContain("doc.contentEditable = canEditCurrent() ? 'true' : 'false'");
+    expect(client).toContain("doc.setAttribute('aria-readonly', canEditCurrent() ? 'false' : 'true')");
+    expect(client).toContain('setEditorEditable(canEditCurrent())');
+  });
+
+  test('undo redo and legacy write toggle preserve governed ownership checks', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain('if (!canEditCurrent()) return toast');
+    expect(client).toContain('window.undoDoc = function ()');
+    expect(client).toContain('window.redoDoc = function ()');
+    expect(client).toContain("if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user'");
+    expect(client).toContain("if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked or not owned by the current user'");
+    expect(client).toContain('if (!canEditCurrent()) return;');
+  });
+
 });
