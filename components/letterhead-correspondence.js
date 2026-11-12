@@ -99,6 +99,21 @@
     return JSON.stringify(pagesHtml());
   }
 
+  function persistedSnapshot() {
+    return JSON.stringify({
+      pages_html: pagesHtml(),
+      direction: document.getElementById('corr-direction')?.value || 'outgoing',
+      priority: document.getElementById('corr-priority')?.value || 'normal',
+      confidentiality: document.getElementById('corr-confidentiality')?.value || 'internal',
+      recipient_organization: document.getElementById('corr-recipient-org')?.value || '',
+      recipient_name: document.getElementById('corr-recipient-name')?.value || '',
+      recipient_title: document.getElementById('corr-recipient-title')?.value || '',
+      recipient_email: document.getElementById('corr-recipient-email')?.value || '',
+      sender_department: document.getElementById('corr-sender-dept')?.value || '',
+      workspace_context: currentWorkspaceContext()
+    });
+  }
+
   function currentWorkspaceContext() {
     const p = new URLSearchParams(location.search);
     const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id'];
@@ -223,7 +238,7 @@
     });
     const snap = snapshot();
     state.lastHistorySnapshot = snap;
-    if (options.markSaved) state.lastSavedSnapshot = snap;
+    if (options.markSaved) state.lastSavedSnapshot = persistedSnapshot();
   }
 
   function hasMeaningfulDraft() {
@@ -299,8 +314,8 @@
 
   async function saveVersion(silent, options = {}) {
     if (state.loading) return;
-    const snap = snapshot();
-    if (state.document && snap === state.lastSavedSnapshot) {
+    const snap = persistedSnapshot();
+    if (state.document && snap === state.lastSavedSnapshot && !options.titleOverride) {
       if (!silent) toast(isEn ? 'No changes to save' : 'لا توجد تغييرات جديدة');
       return state.document;
     }
@@ -335,7 +350,7 @@
         text_content: text,
         checksum_sha256: result.checksum_sha256
       };
-      state.lastSavedSnapshot = snap;
+      state.lastSavedSnapshot = persistedSnapshot();
       try { localStorage.setItem('bonds_letterhead_offline_backup', snap); } catch (_) {}
       if (!silent) toast('✅ ' + t.saved + ' #' + result.version);
       renderGovernance();
@@ -398,6 +413,9 @@
       const el = document.getElementById(id);
       if (el) el.value = state.document[key] || '';
     });
+    const draftName = document.getElementById('draft-name');
+    if (draftName) draftName.value = state.document.title || '';
+    state.lastSavedSnapshot = persistedSnapshot();
     setEditorEditable(canEditCurrent());
     renderGovernance();
     renderGovernanceArtifacts();
@@ -1486,7 +1504,7 @@
 
   window.addEventListener('beforeunload', event => {
     if (!canEditCurrent()) return;
-    if (snapshot() === state.lastSavedSnapshot) return;
+    if (persistedSnapshot() === state.lastSavedSnapshot) return;
     if (!hasMeaningfulDraft() && !state.document) return;
     event.preventDefault();
     event.returnValue = '';
