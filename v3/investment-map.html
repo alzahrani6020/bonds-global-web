@@ -680,6 +680,7 @@
             saturation: o.saturation
           }
         })).filter(c => !city || c.code === city);
+        window.BondsInvestmentArtifactSnapshot = { country, city, activity, opportunities: ops };
         await renderMarkers(mapped);
       } catch (err) {
         BondsCommon.showAdminStatus('status', 'فشل تحميل أعلى الفرص: ' + err.message, true);
