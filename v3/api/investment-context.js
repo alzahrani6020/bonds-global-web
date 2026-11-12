@@ -181,7 +181,7 @@ async function convertOpportunity(req,res,supabase,user,opportunityId){
   }
   let body={};
   try{body=await parseBody(req)}catch(err){return sendJson(res,400,{error:err.message})}
-  const sector=text(body.sector||opportunity.sector_code,160);
+  const sector=text(body.sector||opportunity.sector_code||opportunity.snapshot?.sector||opportunity.snapshot?.sector_code,160);
   if(!sector)return sendJson(res,422,{error:'PROJECT_SECTOR_REQUIRED'});
 
   let cityId=null;
