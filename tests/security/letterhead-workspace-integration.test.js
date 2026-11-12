@@ -105,7 +105,8 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("page_size: state.inboxPageSize");
     expect(client).toContain("query: { ...workspaceQuery(), q, page: 1, page_size: 10 }");
     expect(client).toContain("api('summary', { query: workspaceQuery() })");
-    expect(client).toContain("api('my-work', { query: workspaceQuery() })");
+    expect(client).toContain('page_size: state.workPageSize');
+    expect(client).toContain('corr-work-pagination');
     expect(client).toContain('statusLabel(doc.status)');
   });
 
@@ -154,6 +155,23 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain('state.inboxPageSize');
     expect(client).toContain('corr-inbox-pagination');
     expect(client).toContain('state.inboxTotal');
+  });
+
+  test('metadata-only edits are tracked as unsaved and explicit new correspondence is available', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain('function persistedSnapshot()');
+    expect(client).toContain("recipient_email: document.getElementById('corr-recipient-email')");
+    expect(client).toContain("addButton(actions, 'corr-new'");
+    expect(client).toContain('function startNewCorrespondence()');
+    expect(client).toContain("localStorage.removeItem('bonds_letterhead_current_document')");
+  });
+
+  test('external send requires a real recipient while internal correspondence may use governed admin routing', () => {
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+    expect(api).toContain("Recipient email is required for non-internal correspondence");
+    expect(client).toContain("doc?.direction === 'internal' || !!doc?.recipient_email");
+    expect(client).toContain("status === 'sent' || (status === 'issued' && doc?.direction === 'internal')");
   });
 
 });
