@@ -69,6 +69,229 @@ function renderCollection(el,items,labelFn,valueFn){
   el.innerHTML=items.map(item=>row(labelFn(item),valueFn(item))).join('');
 }
 
+
+function actionButton(text,attrs){
+  const button=document.createElement('button');
+  button.type='button';
+  button.textContent=text;
+  button.style.cssText='width:auto;color:#d4a853;text-decoration:underline;margin-inline-start:8px';
+  Object.entries(attrs||{}).forEach(([key,value])=>{button.dataset[key]=value});
+  return button;
+}
+
+function renderDueDiligence(items,access){
+  const host=$('#dealDd');
+  if(!host)return;
+  host.textContent='';
+  if(!Array.isArray(items)||!items.length){
+    host.innerHTML='<div class="deal-empty">'+tr('لا توجد عناصر بعد.','No items yet.')+'</div>';
+    return;
+  }
+  const editable=canDo(access,'edit_workspace');
+  items.forEach(item=>{
+    const rowEl=document.createElement('div');
+    rowEl.className='deal-row';
+    const text=document.createElement('span');
+    const risk=item.risk_rating?tr('مخاطر: ','Risk: ')+item.risk_rating:'';
+    text.textContent=[item.title,item.area,item.status,risk].filter(Boolean).join(' · ');
+    rowEl.appendChild(text);
+    if(editable){
+      const actions=document.createElement('span');
+      if(item.status!=='in_progress')actions.appendChild(actionButton(tr('بدء','Start'),{ddAction:'in_progress',ddId:item.id}));
+      if(item.status!=='complete')actions.appendChild(actionButton(tr('مكتمل','Complete'),{ddAction:'complete',ddId:item.id}));
+      if(item.status!=='blocked')actions.appendChild(actionButton(tr('محظور','Block'),{ddAction:'blocked',ddId:item.id}));
+      rowEl.appendChild(actions);
+    }
+    host.appendChild(rowEl);
+  });
+}
+
+function renderDocuments(items,access){
+  const host=$('#dealDocuments');
+  if(!host)return;
+  host.textContent='';
+  if(!Array.isArray(items)||!items.length){
+    host.innerHTML='<div class="deal-empty">'+tr('لا توجد مستندات بعد.','No documents yet.')+'</div>';
+    return;
+  }
+  const editable=canDo(access,'edit_workspace');
+  items.forEach(item=>{
+    const rowEl=document.createElement('div');
+    rowEl.className='deal-row deal-row-stack';
+    const text=document.createElement('span');
+    text.textContent=[item.name,item.category,item.status,item.visibility||'team',tr('نسخة ','v')+(item.version||1)].filter(Boolean).join(' · ');
+    rowEl.appendChild(text);
+    const actions=document.createElement('span');
+    if(item.status!=='requested'||item.storage_path){
+      actions.appendChild(actionButton(tr('تنزيل','Download'),{documentAction:'download',documentId:item.id}));
+    }
+    if(editable){
+      const input=document.createElement('input');
+      input.type='file';
+      input.dataset.documentFile=item.id;
+      input.accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.webp';
+      input.style.cssText='max-width:220px;margin-inline-start:8px';
+      actions.appendChild(input);
+      actions.appendChild(actionButton(tr('رفع نسخة','Upload version'),{documentAction:'upload',documentId:item.id}));
+      const nextVisibility=(item.visibility||'team')==='counterparty'?'team':'counterparty';
+      actions.appendChild(actionButton(
+        nextVisibility==='counterparty'?tr('إتاحة للطرف المقابل','Share with counterparty'):tr('للفريق فقط','Team only'),
+        {documentAction:'visibility',documentId:item.id,visibility:nextVisibility}
+      ));
+    }
+    rowEl.appendChild(actions);
+    host.appendChild(rowEl);
+  });
+}
+
+function populateRequestMembers(members){
+  const select=$('#dealRequestMember');
+  if(!select)return;
+  const current=select.value;
+  select.innerHTML='<option value="">'+tr('بدون طرف محدد','No specific counterparty')+'</option>';
+  (members||[]).filter(m=>m.side==='counterparty'&&m.status!=='revoked').forEach(member=>{
+    const option=document.createElement('option');
+    option.value=member.id;
+    option.textContent=[member.display_name,member.email,member.organization].filter(Boolean).join(' · ')||member.id;
+    select.appendChild(option);
+  });
+  if(current&&[...select.options].some(o=>o.value===current))select.value=current;
+}
+
+function renderDocumentRequests(items,access){
+  const host=$('#dealRequests');
+  if(!host)return;
+  host.textContent='';
+  if(!Array.isArray(items)||!items.length){
+    host.innerHTML='<div class="deal-empty">'+tr('لا توجد طلبات مستندات.','No document requests.')+'</div>';
+    return;
+  }
+  const editable=canDo(access,'edit_workspace');
+  const counterparty=access&&access.mode==='member'&&access.side==='counterparty';
+  items.forEach(item=>{
+    const rowEl=document.createElement('div');
+    rowEl.className='deal-row deal-row-stack';
+    const text=document.createElement('span');
+    text.textContent=[item.title,item.category,item.status,item.due_at?String(item.due_at).slice(0,10):''].filter(Boolean).join(' · ');
+    rowEl.appendChild(text);
+    const actions=document.createElement('span');
+    if(counterparty&&['open','submitted'].includes(item.status)){
+      const input=document.createElement('input');
+      input.type='file';
+      input.dataset.requestFile=item.id;
+      input.accept='.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv,.jpg,.jpeg,.png,.webp';
+      input.style.cssText='max-width:220px;margin-inline-start:8px';
+      actions.appendChild(input);
+      actions.appendChild(actionButton(tr('رفع المطلوب','Upload requested file'),{requestAction:'upload',requestId:item.id}));
+    }
+    if(editable&&item.status!=='fulfilled'){
+      actions.appendChild(actionButton(tr('اعتماد الاستلام','Mark fulfilled'),{requestAction:'fulfilled',requestId:item.id}));
+    }
+    rowEl.appendChild(actions);
+    host.appendChild(rowEl);
+  });
+}
+
+async function uploadWithSignedUrl(endpoint,file){
+  if(!file)throw new Error('FILE_REQUIRED');
+  const contentType=String(file.type||'').toLowerCase();
+  if(!contentType)throw new Error('FILE_TYPE_REQUIRED');
+  const data=await api(endpoint,{
+    method:'POST',
+    body:JSON.stringify({
+      file_name:file.name,
+      content_type:contentType,
+      size_bytes:file.size
+    })
+  });
+  const upload=data.upload||{};
+  const sb=window.BondsAuth&&window.BondsAuth.getSupabase?window.BondsAuth.getSupabase():null;
+  if(!sb)throw new Error('SUPABASE_CLIENT_UNAVAILABLE');
+  const result=await sb.storage.from(upload.bucket).uploadToSignedUrl(upload.path,upload.token,file,{contentType});
+  if(result.error)throw result.error;
+  const documentId=data.document?.id||data.version?.document_id;
+  if(!documentId||!data.version?.id)throw new Error('UPLOAD_CONFIRMATION_CONTEXT_MISSING');
+  await api('/'+encodeURIComponent(activeDealId)+'/documents/'+encodeURIComponent(documentId)+'/confirm-upload',{
+    method:'POST',
+    body:JSON.stringify({version_id:data.version.id})
+  });
+  return data;
+}
+
+async function documentAction(button){
+  if(!activeDealId)return;
+  const documentId=button.dataset.documentId;
+  const base='/'+encodeURIComponent(activeDealId)+'/documents/'+encodeURIComponent(documentId);
+  if(button.dataset.documentAction==='download'){
+    const data=await api(base+'/download-url',{method:'POST',body:'{}'});
+    location.assign(data.signed_url);
+    return;
+  }
+  if(button.dataset.documentAction==='visibility'){
+    await api(base,{method:'PATCH',body:JSON.stringify({visibility:button.dataset.visibility})});
+    await loadDeal(activeDealId);
+    return;
+  }
+  if(button.dataset.documentAction==='upload'){
+    const file=$('[data-document-file="'+CSS.escape(documentId)+'"]')?.files?.[0];
+    setStatus(tr('جاري رفع النسخة...','Uploading version...'));
+    await uploadWithSignedUrl(base+'/upload-url',file);
+    await loadDeal(activeDealId);
+    setStatus(tr('تم رفع النسخة وتثبيتها.','Version uploaded and confirmed.'));
+  }
+}
+
+async function requestAction(button){
+  if(!activeDealId)return;
+  const requestId=button.dataset.requestId;
+  const base='/'+encodeURIComponent(activeDealId)+'/requests/'+encodeURIComponent(requestId);
+  if(button.dataset.requestAction==='fulfilled'){
+    await api(base,{method:'PATCH',body:JSON.stringify({status:'fulfilled'})});
+    await loadDeal(activeDealId);
+    return;
+  }
+  if(button.dataset.requestAction==='upload'){
+    const file=$('[data-request-file="'+CSS.escape(requestId)+'"]')?.files?.[0];
+    setStatus(tr('جاري رفع المستند المطلوب...','Uploading requested document...'));
+    await uploadWithSignedUrl(base+'/upload-url',file);
+    await loadDeal(activeDealId);
+    setStatus(tr('تم رفع المستند وإرساله للفريق.','Document uploaded and submitted to the team.'));
+  }
+}
+
+async function dueDiligenceAction(button){
+  if(!activeDealId)return;
+  const itemId=button.dataset.ddId;
+  const status=button.dataset.ddAction;
+  const body={status};
+  if(status==='blocked'){
+    const risk=window.prompt(tr('درجة المخاطر: low / medium / high / critical','Risk rating: low / medium / high / critical'),'high');
+    if(risk)body.risk_rating=risk;
+    const finding=window.prompt(tr('سبب الحظر / الملاحظة','Blocking finding / note'))||'';
+    if(finding)body.finding=finding;
+  }
+  if(status==='complete'){
+    const resolution=window.prompt(tr('ملاحظة الإغلاق (اختياري)','Resolution note (optional)'))||'';
+    if(resolution)body.resolution_note=resolution;
+  }
+  await api('/'+encodeURIComponent(activeDealId)+'/due-diligence/'+encodeURIComponent(itemId),{
+    method:'PATCH',body:JSON.stringify(body)
+  });
+  await loadDeal(activeDealId);
+}
+
+async function createDocumentRequest(event){
+  event.preventDefault();
+  if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const payload=Object.fromEntries(new FormData(form).entries());
+  if(!payload.requested_from_member_id)delete payload.requested_from_member_id;
+  if(!payload.due_at)delete payload.due_at;
+  await api('/'+encodeURIComponent(activeDealId)+'/requests',{method:'POST',body:JSON.stringify(payload)});
+  form.reset();
+  await loadDeal(activeDealId);
+}
+
 async function loadDeal(id){
   setStatus(tr('جاري تحميل الصفقة...','Loading deal...'));
   const data=await api('/'+encodeURIComponent(id));
@@ -86,13 +309,15 @@ async function loadDeal(id){
   $('#dealTaskCount').textContent=(workspace.tasks||[]).length;
   $('#dealDdCount').textContent=(workspace.due_diligence||[]).length;
   $('#dealDocumentCount').textContent=(workspace.documents||[]).length;
+  const access=data.access||{mode:'owner',can:['view_workspace','edit_workspace','manage_members','view_events','edit_deal','link_records']};
   renderCollection($('#dealParties'),workspace.parties,x=>x.name,x=>x.party_role);
   renderCollection($('#dealTasks'),workspace.tasks,x=>x.title,x=>x.status);
-  renderCollection($('#dealDd'),workspace.due_diligence,x=>x.title,x=>x.area+' · '+x.status);
-  renderCollection($('#dealDocuments'),workspace.documents,x=>x.name,x=>x.category+' · '+x.status);
-  const access=data.access||{mode:'owner',can:['view_workspace','edit_workspace','manage_members','view_events','edit_deal','link_records']};
+  renderDueDiligence(workspace.due_diligence||[],access);
+  renderDocuments(workspace.documents||[],access);
+  renderDocumentRequests(workspace.document_requests||[],access);
   applyAccess(access,deal);
   renderMembers(data.members||[],access);
+  populateRequestMembers(data.members||[]);
   loadEvents(access).catch(()=>{});
   const url=new URL(location.href);
   url.searchParams.set('deal',deal.id);
@@ -122,6 +347,7 @@ function applyAccess(access,deal){
   setHidden('#dealMemberForm',!canDo(access,'manage_members'));
   setHidden('#dealLinkPanel',!canDo(access,'link_records'));
   setHidden('#dealEventsPanel',!canDo(access,'view_events'));
+  setHidden('#dealRequestForm',!canDo(access,'edit_workspace'));
   const note=$('#dealAccessNote');
   if(note){
     if(access.mode==='member'){
@@ -344,6 +570,21 @@ document.addEventListener('DOMContentLoaded',async()=>{
   $('#dealMembers')?.addEventListener('click',event=>{
     const button=event.target.closest('[data-member-action]');
     if(button)memberAction(button).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealRequestForm')?.addEventListener('submit',event=>{
+    createDocumentRequest(event).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealDocuments')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-document-action]');
+    if(button)documentAction(button).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealRequests')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-request-action]');
+    if(button)requestAction(button).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealDd')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-dd-action]');
+    if(button)dueDiligenceAction(button).catch(err=>setStatus(err.message,true));
   });
   const projectId=new URLSearchParams(location.search).get('project');
   if(projectId&&$('#dealCreateProject')){

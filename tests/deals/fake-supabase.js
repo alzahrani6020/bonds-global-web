@@ -24,7 +24,10 @@ const TABLE_DEFAULTS = {
     access_expires_at: null,
     ...row
   }),
-  bonds_deal_documents: row => ({ status: 'requested', confidentiality: 'confidential', ...row }),
+  bonds_deal_documents: row => ({ status: 'requested', confidentiality: 'confidential', visibility: 'team', version: 1, ...row }),
+  bonds_deal_document_requests: row => ({ status: 'open', ...row }),
+  bonds_deal_document_grants: row => ({ status: 'active', access_level: 'download', ...row }),
+  bonds_deal_document_versions: row => ({ upload_status: 'pending', ...row }),
   bonds_deal_due_diligence_items: row => ({ status: 'not_started', risk_rating: null, ...row })
 };
 
@@ -106,10 +109,50 @@ class Query {
 }
 
 function createFakeSupabase(seed = {}) {
-  const db = { tables: JSON.parse(JSON.stringify(seed)), seq: 1, failOn: null };
+  const db = {
+    tables: JSON.parse(JSON.stringify(seed)),
+    seq: 1,
+    failOn: null,
+    storageObjects: {}
+  };
   return {
     db,
-    from(table) { return new Query(db, table); }
+    from(table) { return new Query(db, table); },
+    storage: {
+      from(bucket) {
+        if (!db.storageObjects[bucket]) db.storageObjects[bucket] = new Set();
+        return {
+          async createSignedUploadUrl(objectPath) {
+            return {
+              data: {
+                path: objectPath,
+                token: 'signed-upload-token',
+                signedUrl: 'https://storage.example/upload/' + encodeURIComponent(objectPath)
+              },
+              error: null
+            };
+          },
+          async list(folder, options = {}) {
+            const prefix = folder ? folder.replace(/\/$/, '') + '/' : '';
+            const names = [...db.storageObjects[bucket]]
+              .filter(key => key.startsWith(prefix))
+              .map(key => key.slice(prefix.length))
+              .filter(name => !options.search || name.includes(options.search))
+              .map(name => ({ name }));
+            return { data: names.slice(0, options.limit || names.length), error: null };
+          },
+          async createSignedUrl(objectPath) {
+            if (!db.storageObjects[bucket].has(objectPath)) {
+              return { data: null, error: { message: 'not found' } };
+            }
+            return {
+              data: { signedUrl: 'https://storage.example/download/' + encodeURIComponent(objectPath) },
+              error: null
+            };
+          }
+        };
+      }
+    }
   };
 }
 

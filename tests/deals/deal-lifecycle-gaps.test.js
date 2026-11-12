@@ -136,7 +136,7 @@ describe('deals router — shared access', () => {
     const res = await call(supabase, OWNER, 'GET', `/deals/${deal.id}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.access.mode).toBe('owner');
-    expect(res.body.workspace).toEqual({ parties: [], tasks: [], due_diligence: [], documents: [] });
+    expect(res.body.workspace).toEqual({ parties: [], tasks: [], due_diligence: [], documents: [], document_requests: [] });
 
     const events = supabase.db.tables.bonds_deal_events.map(e => e.event_type);
     expect(events).toEqual(expect.arrayContaining(['deal_created', 'deal_linked']));
@@ -182,7 +182,8 @@ describe('deals router — shared access', () => {
     const supabase = seed();
     const deal = await createLinkedDeal(supabase);
     await call(supabase, OWNER, 'POST', `/deals/${deal.id}/parties`, { name: 'Founder', party_role: 'client' });
-    await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, { name: 'Teaser', category: 'marketing', confidentiality: 'standard' });
+    const teaser = await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, { name: 'Teaser', category: 'marketing', confidentiality: 'standard' });
+    await call(supabase, OWNER, 'PATCH', `/deals/${deal.id}/documents/${teaser.body.document.id}`, { visibility: 'counterparty' });
     await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, { name: 'Board minutes', category: 'legal', confidentiality: 'restricted' });
     const member = await join(supabase, INVESTOR, 'counterparty', 'investor_rep');
 
@@ -278,6 +279,43 @@ describe('deal lifecycle context', () => {
     expect(critical.dueDiligence).toBeUndefined();
     const items = Array.from({ length: 19 }, () => ({ status: 'complete' })).concat([{ status: 'blocked' }]);
     expect(buildDealLifecycleContext({ deal, dueDiligence: items }).dueDiligence).toBeUndefined();
+  });
+
+  test('adapter refuses metadata-only VDR evidence and opens the gate only for a ready stored version', async () => {
+    const supabase = seed();
+    const deal = await createLinkedDeal(supabase);
+    const member = await join(supabase, INVESTOR, 'counterparty', 'investor_rep');
+    await call(supabase, OWNER, 'POST', `/deals/${deal.id}/members/${member.id}/nda`, { nda_status: 'signed' });
+
+    const document = await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, {
+      name: 'Financial statements',
+      category: 'finance'
+    });
+    const row = supabase.db.tables.bonds_deal_documents.find(item => item.id === document.body.document.id);
+    row.status = 'approved';
+
+    const adapter = new DealContextAdapter({ supabase });
+    const withoutFile = await adapter.enrich({
+      instance: { entity_type: 'project', entity_id: PROJECT_ID },
+      context: {}
+    });
+    expect(withoutFile.vdr).toBeUndefined();
+    expect(evaluate('guard_vdr_access', withoutFile)).toBe(false);
+
+    supabase.db.tables.bonds_deal_document_versions = [{
+      id: '99999999-9999-4999-8999-999999999999',
+      deal_id: deal.id,
+      document_id: row.id,
+      upload_status: 'ready',
+      version: 1
+    }];
+    const withFile = await adapter.enrich({
+      instance: { entity_type: 'project', entity_id: PROJECT_ID },
+      context: {}
+    });
+    expect(withFile.vdr.documents).toHaveLength(1);
+    expect(withFile.vdr.documents[0].id).toBe(row.id);
+    expect(evaluate('guard_vdr_access', withFile)).toBe(true);
   });
 
   test('adapter merges the linked deal into the lifecycle context without dropping existing documents', async () => {
