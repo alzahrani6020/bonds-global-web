@@ -984,6 +984,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         }, 20000);
+        window.BondsInvestmentArtifactSnapshot = { request: payload, response: res };
         renderResults(res);
       } catch (err) {
         alert('فشل التحليل: ' + err.message);

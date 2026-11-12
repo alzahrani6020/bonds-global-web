@@ -307,6 +307,7 @@
     let activities = [];
     let taxonomySectors = [];
     let countryProfiles = new Map();
+    let currentOpportunities = [];
 
     async function fetchJson(url, options = {}) {
       const res = await fetch(url, options);
@@ -574,7 +575,9 @@
 
       try {
         const data = await fetchJson(`${API_URL}/opportunities/top?${params.toString()}`);
-        renderOpportunities(data.opportunities || []);
+        currentOpportunities = data.opportunities || [];
+        window.BondsInvestmentArtifactSnapshot = { filters:Object.fromEntries(params.entries()), opportunities:currentOpportunities };
+        renderOpportunities(currentOpportunities);
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل التحميل: ${err.message}</div>`;
       }
@@ -640,11 +643,44 @@
             <div class="actions">
               <a href="/v3/city-intelligence?city=${city?.code || ''}&activity=${activity?.code || ''}" class="primary">تحليل المدينة</a>
               <a href="/v3/city-comparison?activity=${activity?.code || ''}">قارن</a>
+              <button type="button" class="save-opportunity" data-index="${idx}">حفظ الفرصة</button>
             </div>
           </div>
         `;
       }).join('')}</div>`;
     }
+
+    document.getElementById('content').addEventListener('click', async event => {
+      const button = event.target.closest('.save-opportunity');
+      if (!button) return;
+      const opportunity = currentOpportunities[Number(button.dataset.index)];
+      if (!opportunity || !window.BondsInvestmentContext) return;
+      const city = opportunity.city || {};
+      const activity = opportunity.activity || {};
+      const previous = button.textContent;
+      button.disabled = true;
+      button.textContent = 'جاري الحفظ...';
+      try {
+        await window.BondsInvestmentContext.saveOpportunity({
+          source_type:'opportunity_bank',
+          source_key:[city.country_code,city.code,activity.code].filter(Boolean).join('|'),
+          title:[activity.name_ar || activity.name_en,city.name_ar || city.name_en].filter(Boolean).join(' — '),
+          country_code:city.country_code,
+          city_code:city.code,
+          sector_code:activity.sector_code || document.getElementById('sectorSelect').value,
+          activity_code:activity.code,
+          score:Number(opportunity.decisionScore ?? opportunity.score) || 0,
+          summary:opportunity.recommendation || null,
+          snapshot:opportunity
+        });
+        button.textContent = 'محفوظة';
+      } catch (err) {
+        button.textContent = previous;
+        alert('تعذر حفظ الفرصة: ' + err.message);
+      } finally {
+        button.disabled = false;
+      }
+    });
 
     document.getElementById('filterBtn').addEventListener('click', loadOpportunities);
 

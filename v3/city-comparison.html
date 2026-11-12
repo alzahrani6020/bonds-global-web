@@ -710,6 +710,7 @@
         if (activityCodes.length) url += `&activity_codes=${encodeURIComponent(activityCodes.join(','))}`;
         if (modelCode) url += `&model=${encodeURIComponent(modelCode)}`;
         const data = await fetchJson(url);
+        window.BondsInvestmentArtifactSnapshot = { cities: Array.from(selectedCities), year, response: data };
         renderComparison(data);
       } catch (err) {
         document.getElementById('content').innerHTML = `<div class="error">فشل المقارنة: ${err.message}</div>`;

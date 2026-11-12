@@ -25,7 +25,11 @@ describe('service request intake routing', () => {
   });
 
   test('request-only intake creates a service request tied to the approved dataset', () => {
-    expect(ui).toContain("metadata:{financial_dataset_id:intakeDatasetId,intake_mode:intakeMode}");
+    expect(ui).toContain("financial_dataset_id:intakeDatasetId");
+    expect(ui).toContain("intake_mode:intakeMode");
+    expect(ui).toContain("project_id:params.get('project_id')||null");
+    expect(ui).toContain("deal_id:params.get('deal_id')||null");
+    expect(ui).toContain("opportunity_id:params.get('opportunity_id')||null");
     expect(ui).toContain("const d=await json('/api/v3/services/requests'");
     expect(ui).toContain("if(isRequestOnlyIntakeService())");
   });

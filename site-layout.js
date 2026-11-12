@@ -371,6 +371,21 @@
 
   ensureServiceDiscoveryRuntime();
 
+  function ensureInvestmentContextRuntime() {
+    const relevant = [
+      '/v3/opportunity-bank','/v3/investment-map','/v3/city-comparison','/v3/scenarios',
+      '/v3/project-readiness','/valuation/','/my-bonds/workspace/','/en/my-bonds/workspace/'
+    ].some(path => location.pathname === path || location.pathname === path + '.html' || location.pathname.startsWith(path));
+    if (!relevant) return;
+    if (document.querySelector('script[src*="/components/investment-context.js"]')) return;
+    const script = document.createElement('script');
+    script.src = '/components/investment-context.js?v=1';
+    script.defer = true;
+    document.head.appendChild(script);
+  }
+
+  ensureInvestmentContextRuntime();
+
   function getDepth() {
     // Keep trailing slash so directory index pages (e.g. /valuation/) get the
     // correct depth and relative paths resolve to the parent directory.
