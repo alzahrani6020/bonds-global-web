@@ -136,7 +136,7 @@ describe('deals router — shared access', () => {
     const res = await call(supabase, OWNER, 'GET', `/deals/${deal.id}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.access.mode).toBe('owner');
-    expect(res.body.workspace).toEqual({ parties: [], tasks: [], due_diligence: [], documents: [], document_requests: [] });
+    expect(res.body.workspace).toEqual({ parties: [], tasks: [], due_diligence: [], documents: [], document_requests: [], pipeline: [], offers: [], closing_items: [], closing_records: [] });
 
     const events = supabase.db.tables.bonds_deal_events.map(e => e.event_type);
     expect(events).toEqual(expect.arrayContaining(['deal_created', 'deal_linked']));

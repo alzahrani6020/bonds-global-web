@@ -21,6 +21,18 @@ const {
   recordEvent
 } = require('../../lib/deals/deal-access');
 const {
+  normalizePipelineCreate,
+  normalizePipelinePatch,
+  normalizeOfferCreate,
+  normalizeOfferPatch
+} = require('../../lib/deals/deal-pipeline');
+const {
+  normalizeClosingItemCreate,
+  normalizeClosingItemPatch,
+  normalizeClosingRecordCreate,
+  normalizeClosingRecordPatch
+} = require('../../lib/deals/deal-closing');
+const {
   DATA_ROOM_BUCKET,
   normalizeUploadSpec,
   normalizeDocumentPatch,
@@ -267,18 +279,26 @@ async function getDeal(res, supabase, user, dealId) {
   if (resolved.access.mode !== 'owner') return getMemberDeal(res, supabase, resolved, dealId);
   const deal = resolved.deal;
 
-  const [parties, tasks, dueDiligence, documents, documentRequests] = await Promise.all([
+  const [parties, tasks, dueDiligence, documents, documentRequests, pipeline, offers, closingItems, closingRecords] = await Promise.all([
     supabase.from('bonds_deal_parties').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_tasks').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
     supabase.from('bonds_deal_due_diligence_items').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_documents').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
-    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false })
+    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
+    supabase.from('bonds_deal_pipeline_entries').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
+    supabase.from('bonds_deal_offers').select('*').eq('deal_id', dealId).order('received_at', { ascending:false }),
+    supabase.from('bonds_deal_closing_items').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
+    supabase.from('bonds_deal_closing_records').select('*').eq('deal_id', dealId).order('effective_at', { ascending:false })
   ]);
   const failed = [parties, tasks, dueDiligence, documents].find(row => row.error);
   if (failed) return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
   if (documentRequests.error && !isMissingRelation(documentRequests.error)) {
     return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
   }
+  if (pipeline.error && !isMissingRelation(pipeline.error)) return sendJson(res, 503, { error:'DEAL_PIPELINE_READ_FAILED' });
+  if (offers.error && !isMissingRelation(offers.error)) return sendJson(res, 503, { error:'DEAL_OFFERS_READ_FAILED' });
+  if (closingItems.error && !isMissingRelation(closingItems.error)) return sendJson(res, 503, { error:'DEAL_CLOSING_READ_FAILED' });
+  if (closingRecords.error && !isMissingRelation(closingRecords.error)) return sendJson(res, 503, { error:'DEAL_CLOSING_READ_FAILED' });
 
   const members = await supabase.from('bonds_deal_members').select('*').eq('deal_id', dealId).order('created_at', { ascending:true });
 
@@ -291,7 +311,11 @@ async function getDeal(res, supabase, user, dealId) {
       tasks:tasks.data || [],
       due_diligence:dueDiligence.data || [],
       documents:documents.data || [],
-      document_requests:documentRequests.error ? [] : (documentRequests.data || [])
+      document_requests:documentRequests.error ? [] : (documentRequests.data || []),
+      pipeline:pipeline.error ? [] : (pipeline.data || []),
+      offers:offers.error ? [] : (offers.data || []),
+      closing_items:closingItems.error ? [] : (closingItems.data || []),
+      closing_records:closingRecords.error ? [] : (closingRecords.data || [])
     }
   });
 }
@@ -300,7 +324,7 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
   const { access } = resolved;
   const deal = memberView(resolved.deal);
   const summary = accessSummary(access);
-  const empty = { parties:[], tasks:[], due_diligence:[], documents:[], document_requests:[] };
+  const empty = { parties:[], tasks:[], due_diligence:[], documents:[], document_requests:[], pipeline:[], offers:[], closing_items:[], closing_records:[] };
 
   if (!can(access, ACTIONS.VIEW_WORKSPACE)) {
     return sendJson(res, 200, { deal, access:summary, members:[access.member], workspace:empty });
@@ -342,13 +366,17 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
     });
   }
 
-  const [parties, tasks, dueDiligence, documents, members, documentRequests] = await Promise.all([
+  const [parties, tasks, dueDiligence, documents, members, documentRequests, pipeline, offers, closingItems, closingRecords] = await Promise.all([
     supabase.from('bonds_deal_parties').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_tasks').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
     supabase.from('bonds_deal_due_diligence_items').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_documents').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
     supabase.from('bonds_deal_members').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
-    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false })
+    supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
+    supabase.from('bonds_deal_pipeline_entries').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
+    supabase.from('bonds_deal_offers').select('*').eq('deal_id', dealId).order('received_at', { ascending:false }),
+    supabase.from('bonds_deal_closing_items').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
+    supabase.from('bonds_deal_closing_records').select('*').eq('deal_id', dealId).order('effective_at', { ascending:false })
   ]);
   const failed = [parties, tasks, dueDiligence, documents, members].find(row => row.error);
   if (failed) return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
@@ -364,7 +392,11 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
       tasks:tasks.data || [],
       due_diligence:dueDiligence.data || [],
       documents:documents.data || [],
-      document_requests:documentRequests.data || []
+      document_requests:documentRequests.data || [],
+      pipeline:pipeline.error ? [] : (pipeline.data || []),
+      offers:offers.error ? [] : (offers.data || []),
+      closing_items:closingItems.error ? [] : (closingItems.data || []),
+      closing_records:closingRecords.error ? [] : (closingRecords.data || [])
     }
   });
 }
@@ -918,6 +950,229 @@ async function createDocumentDownloadUrl(req, res, supabase, user, dealId, docum
   return sendJson(res, 200, { signed_url:signed.signedUrl, expires_in:60, version:{ id:version.id, version:version.version, file_name:version.file_name } });
 }
 
+
+async function createPipelineEntry(req, res, supabase, user, dealId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let payload;
+  try { payload = normalizePipelineCreate(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data:party, error:partyError } = await supabase.from('bonds_deal_parties')
+    .select('id,party_role').eq('id', payload.party_id).eq('deal_id', dealId).maybeSingle();
+  if (partyError) return sendJson(res, 503, { error:'DEAL_PARTY_READ_FAILED' });
+  if (!party) return sendJson(res, 422, { error:'PIPELINE_PARTY_NOT_FOUND' });
+  if (!['investor','lender','buyer'].includes(party.party_role)) return sendJson(res, 422, { error:'PIPELINE_PARTY_ROLE_INVALID' });
+  if (party.party_role !== payload.kind) return sendJson(res, 422, { error:'PIPELINE_KIND_PARTY_MISMATCH' });
+
+  if (payload.member_id) {
+    const { data:member, error:memberError } = await supabase.from('bonds_deal_members')
+      .select('id,side,status').eq('id', payload.member_id).eq('deal_id', dealId).maybeSingle();
+    if (memberError) return sendJson(res, 503, { error:'DEAL_MEMBER_READ_FAILED' });
+    if (!member || member.side !== 'counterparty' || member.status === 'revoked') return sendJson(res, 422, { error:'PIPELINE_MEMBER_INVALID' });
+  }
+
+  const { data:existing, error:existingError } = await supabase.from('bonds_deal_pipeline_entries')
+    .select('id').eq('deal_id', dealId).eq('party_id', payload.party_id).maybeSingle();
+  if (existingError && !isMissingRelation(existingError)) return sendJson(res, 503, { error:'DEAL_PIPELINE_READ_FAILED' });
+  if (existing) return sendJson(res, 409, { error:'PIPELINE_PARTY_ALREADY_EXISTS' });
+
+  const { data, error } = await supabase.from('bonds_deal_pipeline_entries')
+    .insert({ deal_id:dealId, created_by:user.id, ...payload }).select().single();
+  if (error) return sendJson(res, error.code === '23505' ? 409 : 503, { error:error.code === '23505' ? 'PIPELINE_PARTY_ALREADY_EXISTS' : 'DEAL_PIPELINE_CREATE_FAILED' });
+  await recordEvent(supabase, { deal_id:dealId, event_type:'pipeline_entry_created', entity_type:'deal_pipeline', entity_id:data.id, actor_id:user.id, metadata:{ kind:data.kind, status:data.status } });
+  return sendJson(res, 201, { pipeline_entry:data });
+}
+
+async function patchPipelineEntry(req, res, supabase, user, dealId, entryId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizePipelinePatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data, error } = await supabase.from('bonds_deal_pipeline_entries')
+    .update(patch).eq('id', entryId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_PIPELINE_UPDATE_FAILED' });
+  if (!data) return sendJson(res, 404, { error:'DEAL_PIPELINE_NOT_FOUND' });
+  await recordEvent(supabase, { deal_id:dealId, event_type:'pipeline_entry_updated', entity_type:'deal_pipeline', entity_id:entryId, actor_id:user.id, metadata:{ fields:Object.keys(patch), status:data.status } });
+  return sendJson(res, 200, { pipeline_entry:data });
+}
+
+async function createOffer(req, res, supabase, user, dealId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let payload;
+  try { payload = normalizeOfferCreate(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data:entry, error:entryError } = await supabase.from('bonds_deal_pipeline_entries')
+    .select('id').eq('id', payload.pipeline_entry_id).eq('deal_id', dealId).maybeSingle();
+  if (entryError) return sendJson(res, 503, { error:'DEAL_PIPELINE_READ_FAILED' });
+  if (!entry) return sendJson(res, 422, { error:'OFFER_PIPELINE_NOT_FOUND' });
+
+  if (payload.document_id) {
+    const { data:document, error:documentError } = await supabase.from('bonds_deal_documents')
+      .select('id').eq('id', payload.document_id).eq('deal_id', dealId).maybeSingle();
+    if (documentError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_READ_FAILED' });
+    if (!document) return sendJson(res, 422, { error:'OFFER_DOCUMENT_NOT_FOUND' });
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_offers')
+    .insert({ deal_id:dealId, created_by:user.id, ...payload }).select().single();
+  if (error) return sendJson(res, 503, { error:'DEAL_OFFER_CREATE_FAILED' });
+
+  const nextStatus = payload.offer_type === 'ioi' ? 'ioi_received' : 'term_sheet_received';
+  await supabase.from('bonds_deal_pipeline_entries').update({ status:nextStatus }).eq('id', payload.pipeline_entry_id).eq('deal_id', dealId);
+  await recordEvent(supabase, { deal_id:dealId, event_type:'offer_received', entity_type:'deal_offer', entity_id:data.id, actor_id:user.id, metadata:{ offer_type:data.offer_type, pipeline_entry_id:data.pipeline_entry_id } });
+  return sendJson(res, 201, { offer:data });
+}
+
+async function patchOffer(req, res, supabase, user, dealId, offerId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizeOfferPatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  const { data, error } = await supabase.from('bonds_deal_offers')
+    .update(patch).eq('id', offerId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_OFFER_UPDATE_FAILED' });
+  if (!data) return sendJson(res, 404, { error:'DEAL_OFFER_NOT_FOUND' });
+  await recordEvent(supabase, { deal_id:dealId, event_type:'offer_updated', entity_type:'deal_offer', entity_id:offerId, actor_id:user.id, metadata:{ fields:Object.keys(patch), status:data.status } });
+  return sendJson(res, 200, { offer:data });
+}
+
+
+async function validateClosingRecord(res, supabase, dealId, record) {
+  const finalStatus = (
+    (record.record_type === 'term_sheet' && record.status === 'signed') ||
+    (record.record_type === 'cap_table' && record.status === 'approved') ||
+    (record.record_type === 'funding_confirmation' && record.status === 'confirmed')
+  );
+  if (finalStatus && !record.document_id) {
+    sendJson(res, 422, { error:'CLOSING_EVIDENCE_DOCUMENT_REQUIRED' });
+    return false;
+  }
+  if (record.document_id) {
+    const { data:document, error } = await supabase.from('bonds_deal_documents')
+      .select('id').eq('id', record.document_id).eq('deal_id', dealId).maybeSingle();
+    if (error) { sendJson(res, 503, { error:'DEAL_DOCUMENT_READ_FAILED' }); return false; }
+    if (!document) { sendJson(res, 422, { error:'CLOSING_DOCUMENT_NOT_FOUND' }); return false; }
+    if (finalStatus) {
+      const { data:versions, error:versionError } = await supabase.from('bonds_deal_document_versions')
+        .select('id').eq('deal_id', dealId).eq('document_id', record.document_id)
+        .eq('upload_status','ready').limit(1);
+      if (versionError) { sendJson(res, 503, { error:'DEAL_DOCUMENT_VERSION_READ_FAILED' }); return false; }
+      if (!versions?.length) { sendJson(res, 409, { error:'CLOSING_EVIDENCE_FILE_NOT_READY' }); return false; }
+    }
+  }
+  if (record.record_type === 'term_sheet' && record.status === 'signed') {
+    if (!record.offer_id) { sendJson(res, 422, { error:'CLOSING_TERM_SHEET_OFFER_REQUIRED' }); return false; }
+    const { data:offer, error } = await supabase.from('bonds_deal_offers')
+      .select('id,offer_type,status').eq('id', record.offer_id).eq('deal_id', dealId).maybeSingle();
+    if (error) { sendJson(res, 503, { error:'DEAL_OFFER_READ_FAILED' }); return false; }
+    if (!offer || !['term_sheet','revised_term_sheet'].includes(offer.offer_type)) {
+      sendJson(res, 422, { error:'CLOSING_TERM_SHEET_OFFER_INVALID' }); return false;
+    }
+    if (offer.status !== 'accepted') { sendJson(res, 409, { error:'CLOSING_TERM_SHEET_OFFER_NOT_ACCEPTED' }); return false; }
+  }
+  if (record.record_type === 'cap_table' && record.status === 'approved') {
+    const { data:records, error } = await supabase.from('bonds_deal_closing_records')
+      .select('id').eq('deal_id', dealId).eq('record_type','term_sheet').eq('status','signed').limit(1);
+    if (error) { sendJson(res, 503, { error:'DEAL_CLOSING_READ_FAILED' }); return false; }
+    if (!records?.length) { sendJson(res, 409, { error:'CLOSING_TERM_SHEET_NOT_SIGNED' }); return false; }
+  }
+  if (record.record_type === 'funding_confirmation' && record.status === 'confirmed') {
+    const [capTable, items] = await Promise.all([
+      supabase.from('bonds_deal_closing_records').select('id').eq('deal_id', dealId).eq('record_type','cap_table').eq('status','approved').limit(1),
+      supabase.from('bonds_deal_closing_items').select('id,title,status,required').eq('deal_id', dealId)
+    ]);
+    if (capTable.error || items.error) { sendJson(res, 503, { error:'DEAL_CLOSING_READ_FAILED' }); return false; }
+    if (!capTable.data?.length) { sendJson(res, 409, { error:'CLOSING_CAP_TABLE_NOT_APPROVED' }); return false; }
+    const openRequired=(items.data||[]).filter(item=>item.required!==false&&!['satisfied','waived'].includes(item.status));
+    if (openRequired.length) {
+      sendJson(res, 409, { error:'CLOSING_CONDITIONS_INCOMPLETE', open_required:openRequired.map(item=>({id:item.id,title:item.title,status:item.status})) });
+      return false;
+    }
+  }
+  return true;
+}
+
+async function createClosingItem(req,res,supabase,user,dealId){
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
+  if(!resolved)return undefined;
+  const parsed=await readBody(req,res);if(!parsed)return undefined;
+  let payload;try{payload=normalizeClosingItemCreate(parsed.body)}catch(err){return sendJson(res,422,{error:err.message})}
+  if(payload.evidence_document_id){
+    const {data:document,error}=await supabase.from('bonds_deal_documents').select('id').eq('id',payload.evidence_document_id).eq('deal_id',dealId).maybeSingle();
+    if(error)return sendJson(res,503,{error:'DEAL_DOCUMENT_READ_FAILED'});
+    if(!document)return sendJson(res,422,{error:'CLOSING_DOCUMENT_NOT_FOUND'});
+  }
+  if(['satisfied','waived'].includes(payload.status)){payload.satisfied_by=user.id;payload.satisfied_at=new Date().toISOString()}
+  const {data,error}=await supabase.from('bonds_deal_closing_items').insert({deal_id:dealId,created_by:user.id,...payload}).select().single();
+  if(error)return sendJson(res,503,{error:'DEAL_CLOSING_ITEM_CREATE_FAILED'});
+  await recordEvent(supabase,{deal_id:dealId,event_type:'closing_item_created',entity_type:'deal_closing_item',entity_id:data.id,actor_id:user.id,metadata:{status:data.status,required:data.required}});
+  return sendJson(res,201,{closing_item:data});
+}
+
+async function patchClosingItem(req,res,supabase,user,dealId,itemId){
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
+  if(!resolved)return undefined;
+  const parsed=await readBody(req,res);if(!parsed)return undefined;
+  const {data:current,error:readError}=await supabase.from('bonds_deal_closing_items').select('*').eq('id',itemId).eq('deal_id',dealId).maybeSingle();
+  if(readError)return sendJson(res,503,{error:'DEAL_CLOSING_READ_FAILED'});
+  if(!current)return sendJson(res,404,{error:'DEAL_CLOSING_ITEM_NOT_FOUND'});
+  let patch;try{patch=normalizeClosingItemPatch(parsed.body)}catch(err){return sendJson(res,422,{error:err.message})}
+  if(patch.evidence_document_id){
+    const {data:document,error}=await supabase.from('bonds_deal_documents').select('id').eq('id',patch.evidence_document_id).eq('deal_id',dealId).maybeSingle();
+    if(error)return sendJson(res,503,{error:'DEAL_DOCUMENT_READ_FAILED'});
+    if(!document)return sendJson(res,422,{error:'CLOSING_DOCUMENT_NOT_FOUND'});
+  }
+  if(['satisfied','waived'].includes(patch.status)){patch.satisfied_by=user.id;patch.satisfied_at=new Date().toISOString()}
+  else if(patch.status){patch.satisfied_by=null;patch.satisfied_at=null}
+  const {data,error}=await supabase.from('bonds_deal_closing_items').update(patch).eq('id',itemId).eq('deal_id',dealId).select().maybeSingle();
+  if(error)return sendJson(res,503,{error:'DEAL_CLOSING_ITEM_UPDATE_FAILED'});
+  await recordEvent(supabase,{deal_id:dealId,event_type:'closing_item_updated',entity_type:'deal_closing_item',entity_id:itemId,actor_id:user.id,metadata:{fields:Object.keys(patch),status:data.status}});
+  return sendJson(res,200,{closing_item:data});
+}
+
+async function createClosingRecord(req,res,supabase,user,dealId){
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
+  if(!resolved)return undefined;
+  const parsed=await readBody(req,res);if(!parsed)return undefined;
+  let payload;try{payload=normalizeClosingRecordCreate(parsed.body)}catch(err){return sendJson(res,422,{error:err.message})}
+  if(!(await validateClosingRecord(res,supabase,dealId,payload)))return undefined;
+  const {data,error}=await supabase.from('bonds_deal_closing_records').insert({deal_id:dealId,created_by:user.id,...payload}).select().single();
+  if(error)return sendJson(res,503,{error:'DEAL_CLOSING_RECORD_CREATE_FAILED'});
+  await recordEvent(supabase,{deal_id:dealId,event_type:'closing_record_created',entity_type:'deal_closing_record',entity_id:data.id,actor_id:user.id,metadata:{record_type:data.record_type,status:data.status}});
+  return sendJson(res,201,{closing_record:data});
+}
+
+async function patchClosingRecord(req,res,supabase,user,dealId,recordId){
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
+  if(!resolved)return undefined;
+  const parsed=await readBody(req,res);if(!parsed)return undefined;
+  const {data:current,error:readError}=await supabase.from('bonds_deal_closing_records').select('*').eq('id',recordId).eq('deal_id',dealId).maybeSingle();
+  if(readError)return sendJson(res,503,{error:'DEAL_CLOSING_READ_FAILED'});
+  if(!current)return sendJson(res,404,{error:'DEAL_CLOSING_RECORD_NOT_FOUND'});
+  let patch;try{patch=normalizeClosingRecordPatch(parsed.body,current)}catch(err){return sendJson(res,422,{error:err.message})}
+  const next={...current,...patch};
+  if(!(await validateClosingRecord(res,supabase,dealId,next)))return undefined;
+  const {data,error}=await supabase.from('bonds_deal_closing_records').update(patch).eq('id',recordId).eq('deal_id',dealId).select().maybeSingle();
+  if(error)return sendJson(res,503,{error:'DEAL_CLOSING_RECORD_UPDATE_FAILED'});
+  await recordEvent(supabase,{deal_id:dealId,event_type:'closing_record_updated',entity_type:'deal_closing_record',entity_id:recordId,actor_id:user.id,metadata:{record_type:data.record_type,status:data.status,fields:Object.keys(patch)}});
+  return sendJson(res,200,{closing_record:data});
+}
+
 async function createChild(req, res, supabase, user, dealId, kind) {
   const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
   if (!resolved) return undefined;
@@ -982,6 +1237,30 @@ async function dealsRouter(req, res, path, supabase, user) {
     if (childAction === 'confirm-upload' && req.method === 'POST') return confirmDocumentUpload(req, res, supabase, user, dealId, childId);
     if (childAction === 'download-url' && req.method === 'POST') return createDocumentDownloadUrl(req, res, supabase, user, dealId, childId);
     return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'pipeline') {
+    if (!childId && req.method === 'POST') return createPipelineEntry(req, res, supabase, user, dealId);
+    if (childId && !childAction && req.method === 'PATCH') return patchPipelineEntry(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'offers') {
+    if (!childId && req.method === 'POST') return createOffer(req, res, supabase, user, dealId);
+    if (childId && !childAction && req.method === 'PATCH') return patchOffer(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'closing-items') {
+    if (!childId && req.method === 'POST') return createClosingItem(req,res,supabase,user,dealId);
+    if (childId && !childAction && req.method === 'PATCH') return patchClosingItem(req,res,supabase,user,dealId,childId);
+    return sendJson(res,404,{error:'DEAL_ENDPOINT_NOT_FOUND'});
+  }
+
+  if (dealId && child === 'closing-records') {
+    if (!childId && req.method === 'POST') return createClosingRecord(req,res,supabase,user,dealId);
+    if (childId && !childAction && req.method === 'PATCH') return patchClosingRecord(req,res,supabase,user,dealId,childId);
+    return sendJson(res,404,{error:'DEAL_ENDPOINT_NOT_FOUND'});
   }
 
   if (dealId && child === 'due-diligence' && childId) {
