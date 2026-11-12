@@ -187,4 +187,14 @@ describe('Letterhead governed workspace integration', () => {
   });
 
 
+  test('server-authoritative ownership controls rejected revision availability', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const api = read('lib/api/correspondence.js');
+    expect(client).toContain('serverIsOwner: null');
+    expect(client).toContain("typeof state.serverIsOwner === 'boolean'");
+    expect(client).toContain("state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null");
+    expect(api).toContain('is_owner: doc.owner_user_id === user.id');
+  });
+
+
 });
