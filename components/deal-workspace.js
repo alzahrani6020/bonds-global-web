@@ -593,6 +593,10 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }
   try{
     await loadDeals();
+    if(location.hash==='#dealSharedPanel'){
+      if(hasSharedDeals)$('#dealSharedPanel')?.scrollIntoView({block:'start'});
+      else setStatus(tr('لا توجد فرص مشاركة معك بعد. عند دعوتك إلى صفقة ببريدك المؤكد ستظهر هنا.','No opportunities have been shared with you yet. Deals you are invited to with your confirmed email will appear here.'));
+    }
     const id=new URLSearchParams(location.search).get('deal');
     if(id)await loadDeal(id);
   }catch(err){
