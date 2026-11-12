@@ -28,7 +28,9 @@ const TABLE_DEFAULTS = {
   bonds_deal_document_requests: row => ({ status: 'open', ...row }),
   bonds_deal_document_grants: row => ({ status: 'active', access_level: 'download', ...row }),
   bonds_deal_document_versions: row => ({ upload_status: 'pending', ...row }),
-  bonds_deal_due_diligence_items: row => ({ status: 'not_started', risk_rating: null, ...row })
+  bonds_deal_due_diligence_items: row => ({ status: 'not_started', risk_rating: null, ...row }),
+  bonds_deal_pipeline_entries: row => ({ status: 'identified', ...row }),
+  bonds_deal_offers: row => ({ status: 'received', currency: 'SAR', ...row })
 };
 
 class Query {
