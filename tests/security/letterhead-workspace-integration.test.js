@@ -63,7 +63,8 @@ describe('Letterhead governed workspace integration', () => {
     expect(api).toContain("['request_id','service_requests']");
     expect(api).toContain("['funding_case_id','funding_cases']");
     expect(api).toContain("['client_id','advisory_clients']");
-    expect(api).toContain("['user_projects','bonds_projects','projects']");
+    expect(api).toContain("['user_projects','bonds_projects','projects','advisory_projects','city_projects']");
+    expect(api).toContain("sb.from('service_catalog').select('code').eq('code', ctx.service)");
     expect(api).toContain("query.contains('workspace_context', { [key]: value })");
     expect(api).toContain('function workspaceContextMatches(context, filters)');
     expect(api).toContain('myWorkWorkspaceFilters');
