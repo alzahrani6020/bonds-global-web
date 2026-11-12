@@ -35,6 +35,7 @@
     userId: null,
     serverIsOwner: null,
     workspaceContext: null,
+    relatedDocumentId: null,
     list: [],
     lastSavedSnapshot: '',
     history: [],
@@ -333,13 +334,15 @@
         recipient_title: document.getElementById('corr-recipient-title')?.value || null,
         recipient_email: document.getElementById('corr-recipient-email')?.value || null,
         sender_department: document.getElementById('corr-sender-dept')?.value || null,
-        workspace_context: currentWorkspaceContext()
+        workspace_context: currentWorkspaceContext(),
+        related_document_id: state.relatedDocumentId || null
       }
     });
     state.document = result.document;
     state.role = result.role || state.role;
     state.permissions = Array.isArray(result.permissions) ? result.permissions : state.permissions;
     state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : true;
+    state.relatedDocumentId = state.document?.related_document_id || null;
     state.workspaceContext = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
       ? { ...state.document.workspace_context }
       : currentWorkspaceContext();
@@ -437,6 +440,7 @@
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
     state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null;
+    state.relatedDocumentId = state.document?.related_document_id || null;
     state.workspaceContext = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
       ? { ...state.document.workspace_context }
       : null;
@@ -511,7 +515,10 @@
     strip.innerHTML = `
       <div class="corr-identity">
         <span id="corr-status" class="corr-status-badge">${isEn ? 'Draft' : 'مسودة'}</span>
-        <span id="corr-reference" class="corr-ref">${isEn ? 'No reference yet' : 'لم يصدر رقم بعد'}</span>
+        <span id="corr-reference" class="corr-ref">${isEn ? 'No register number yet' : 'لا يوجد رقم قيد بعد'}</span>
+        <span id="corr-outgoing-number" class="corr-ref" hidden></span>
+        <span id="corr-incoming-number" class="corr-ref" hidden></span>
+        <span id="corr-archive-number" class="corr-ref" hidden></span>
       </div>
       <div class="corr-meta" id="corr-meta">
         <span class="corr-meta-badge" id="corr-direction-badge"></span>
@@ -653,6 +660,7 @@
     state.future = [];
     state.serverIsOwner = null;
     state.workspaceContext = null;
+    state.relatedDocumentId = null;
     try { localStorage.removeItem('bonds_letterhead_current_document'); } catch (_) {}
     const url = new URL(location.href);
     url.searchParams.delete('document');
@@ -676,6 +684,7 @@
     }
 
     const source = state.document;
+    state.relatedDocumentId = source.id;
     state.workspaceContext = source.workspace_context && typeof source.workspace_context === 'object'
       ? { ...source.workspace_context }
       : currentWorkspaceContext();
@@ -770,12 +779,30 @@
     const status = doc?.status || 'draft';
     const statusEl = document.getElementById('corr-status');
     const refEl = document.getElementById('corr-reference');
+    const outgoingEl = document.getElementById('corr-outgoing-number');
+    const incomingEl = document.getElementById('corr-incoming-number');
+    const archiveEl = document.getElementById('corr-archive-number');
     const directionBadge = document.getElementById('corr-direction-badge');
     const priorityBadge = document.getElementById('corr-priority-badge');
     const confidentialityBadge = document.getElementById('corr-confidentiality-badge');
 
     if (statusEl) statusEl.textContent = statusLabel(status);
-    if (refEl) refEl.textContent = doc?.reference_number || (isEn ? 'No reference yet' : 'لم يصدر رقم بعد');
+    if (refEl) {
+      const active = doc?.outgoing_number || doc?.incoming_number || doc?.reference_number || '';
+      refEl.textContent = active || (isEn ? 'No register number yet' : 'لا يوجد رقم قيد بعد');
+    }
+    if (outgoingEl) {
+      outgoingEl.hidden = !doc?.outgoing_number;
+      outgoingEl.textContent = doc?.outgoing_number ? (isEn ? 'Outgoing: ' : 'صادر: ') + doc.outgoing_number : '';
+    }
+    if (incomingEl) {
+      incomingEl.hidden = !doc?.incoming_number;
+      incomingEl.textContent = doc?.incoming_number ? (isEn ? 'Incoming: ' : 'وارد: ') + doc.incoming_number : '';
+    }
+    if (archiveEl) {
+      archiveEl.hidden = !doc?.archive_number;
+      archiveEl.textContent = doc?.archive_number ? (isEn ? 'Archive: ' : 'أرشفة: ') + doc.archive_number : '';
+    }
 
     const directionMap = isEn ? { outgoing:'Outgoing', incoming:'Incoming', internal:'Internal' } : { outgoing:'صادر', incoming:'وارد', internal:'داخلي' };
     const priorityMap = isEn ? { low:'Low', normal:'Normal', high:'High', urgent:'Urgent' } : { low:'منخفضة', normal:'عادية', high:'عالية', urgent:'عاجلة' };
