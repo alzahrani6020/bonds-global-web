@@ -120,9 +120,21 @@
 
   function currentWorkspaceContext() {
     const p = new URLSearchParams(location.search);
-    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id'];
+    const inherited = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
+      ? state.document.workspace_context
+      : {};
+    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id', 'return_to'];
     const ctx = {};
-    keys.forEach(k => { if (p.get(k)) ctx[k] = p.get(k); });
+    keys.forEach(k => {
+      const value = p.get(k) || inherited[k] || '';
+      if (value) ctx[k] = value;
+    });
+    if (!ctx.workspace && !ctx.service && !ctx.company_id && !ctx.project_id && !ctx.client_id && !ctx.funding_case_id && !ctx.request_id) {
+      ctx.workspace = 'correspondence';
+    }
+    if (!ctx.return_to && ctx.workspace === 'correspondence') {
+      ctx.return_to = isEn ? '/en/my-bonds/' : '/my-bonds/';
+    }
     ctx.source = 'letterhead';
     ctx.path = location.pathname;
     return ctx;
@@ -185,6 +197,19 @@
 
   function canEditCurrent() {
     return editable() && (!state.document || isOwner());
+  }
+
+  function canStartRejectedRevision() {
+    return !!state.document && state.document.status === 'rejected' && (isOwner() || isAdmin());
+  }
+
+  function prepareEditableAction() {
+    if (canEditCurrent()) return true;
+    if (canStartRejectedRevision()) {
+      startRejectedRevision();
+      return canEditCurrent();
+    }
+    return false;
   }
 
   function setEditorEditable(enabled) {
@@ -759,7 +784,7 @@
 
     renderWorkflowStrip(status);
     setEditorEditable(canEditCurrent());
-    setLegacyEditorControlsDisabled(!canEditCurrent());
+    setLegacyEditorControlsDisabled(!canEditCurrent() && !canStartRejectedRevision());
 
     const visible = new Set(['corr-new','corr-details-toggle','corr-command-open']);
     if (status === 'rejected' && (isOwner() || isAdmin())) visible.add('corr-revise-copy');
@@ -1251,7 +1276,7 @@
   };
 
   window.toggleWrite = function () {
-    if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user' : 'هذا المستند مقفل أو غير مملوك للمستخدم الحالي'));
+    if (!prepareEditableAction()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user' : 'هذا المستند مقفل أو غير مملوك للمستخدم الحالي'));
     return legacy.toggleWrite?.();
   };
 
@@ -1332,7 +1357,7 @@
   };
 
   window.deletePage = function () {
-    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    if (!prepareEditableAction()) return toast('⚠️ ' + t.notAllowed);
     const before = snapshot();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const active = window.getSelection()?.anchorNode?.parentElement?.closest?.('.sheet') || sheets[sheets.length - 1];
@@ -1352,7 +1377,7 @@
   };
 
   window.insertTable = function () {
-    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    if (!prepareEditableAction()) return toast('⚠️ ' + t.notAllowed);
     const before = snapshot();
     const rows = Number(prompt(isEn ? 'Rows (1-50):' : 'عدد الصفوف (1-50):', '3'));
     const cols = Number(prompt(isEn ? 'Columns (1-20):' : 'عدد الأعمدة (1-20):', '3'));
@@ -1371,7 +1396,7 @@
   };
 
   window.handleImageUpload = function (input) {
-    if (!canEditCurrent()) {
+    if (!prepareEditableAction()) {
       if (input) input.value = '';
       return toast('⚠️ ' + t.notAllowed);
     }
@@ -1434,7 +1459,7 @@
     const file = input.files?.[0];
     if (!file) return;
     try {
-      if (!canEditCurrent()) {
+      if (!prepareEditableAction()) {
         throw new Error(isEn ? 'This document is locked in its current workflow status' : 'هذا المستند مقفل في حالة سير العمل الحالية');
       }
       if (file.size < 1 || file.size > 2 * 1024 * 1024) {
@@ -1482,7 +1507,7 @@
 
   // Full-document, multi-page undo/redo.
   window.undoDoc = function () {
-    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    if (!prepareEditableAction()) return toast('⚠️ ' + t.notAllowed);
     if (!state.history.length) return toast('⚠️ ' + (isEn ? 'Nothing to undo' : 'لا يوجد تراجع'));
     state.future.push(snapshot());
     const prev = state.history.pop();
@@ -1490,7 +1515,7 @@
     state.lastHistorySnapshot = prev;
   };
   window.redoDoc = function () {
-    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    if (!prepareEditableAction()) return toast('⚠️ ' + t.notAllowed);
     if (!state.future.length) return toast('⚠️ ' + (isEn ? 'Nothing to redo' : 'لا يوجد إعادة'));
     state.history.push(snapshot());
     const next = state.future.pop();
@@ -1517,7 +1542,7 @@
       const original = window[name];
       if (typeof original !== 'function' || original.__bondsGovernedGuard) return;
       const guarded = function (...args) {
-        if (!canEditCurrent()) {
+        if (!prepareEditableAction()) {
           toast('⚠️ ' + t.notAllowed);
           return;
         }
