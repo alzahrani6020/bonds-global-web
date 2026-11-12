@@ -73,6 +73,15 @@ function isMissingColumn(error) {
   return Boolean(error && (error.code === '42703' || /column .* does not exist/i.test(String(error.message || ''))));
 }
 
+function isMissingRelation(error) {
+  return Boolean(error && (
+    error.code === '42P01' ||
+    error.code === 'PGRST205' ||
+    /relation .* does not exist/i.test(String(error.message || '')) ||
+    /could not find the table/i.test(String(error.message || ''))
+  ));
+}
+
 async function ownedDeal(supabase, userId, dealId) {
   let { data, error } = await supabase
     .from('bonds_deals')
@@ -265,8 +274,11 @@ async function getDeal(res, supabase, user, dealId) {
     supabase.from('bonds_deal_documents').select('*').eq('deal_id', dealId).order('created_at', { ascending:false }),
     supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false })
   ]);
-  const failed = [parties, tasks, dueDiligence, documents, documentRequests].find(row => row.error);
+  const failed = [parties, tasks, dueDiligence, documents].find(row => row.error);
   if (failed) return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
+  if (documentRequests.error && !isMissingRelation(documentRequests.error)) {
+    return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
+  }
 
   const members = await supabase.from('bonds_deal_members').select('*').eq('deal_id', dealId).order('created_at', { ascending:true });
 
@@ -279,7 +291,7 @@ async function getDeal(res, supabase, user, dealId) {
       tasks:tasks.data || [],
       due_diligence:dueDiligence.data || [],
       documents:documents.data || [],
-      document_requests:documentRequests.data || []
+      document_requests:documentRequests.error ? [] : (documentRequests.data || [])
     }
   });
 }
@@ -311,6 +323,9 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
         .eq('requested_from_member_id', access.member.id)
         .order('created_at', { ascending:false })
     ]);
+    if (isMissingColumn(documents.error) || isMissingRelation(grants.error) || isMissingRelation(requests.error)) {
+      return sendJson(res, 200, { deal, access:summary, members:[access.member], workspace:empty });
+    }
     if (documents.error || grants.error || requests.error) return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
     const visibleDocuments = (documents.data || []).filter(document =>
       memberCanSeeDocument(
@@ -335,8 +350,11 @@ async function getMemberDeal(res, supabase, resolved, dealId) {
     supabase.from('bonds_deal_members').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
     supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false })
   ]);
-  const failed = [parties, tasks, dueDiligence, documents, members, documentRequests].find(row => row.error);
+  const failed = [parties, tasks, dueDiligence, documents, members].find(row => row.error);
   if (failed) return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
+  if (documentRequests.error && !isMissingRelation(documentRequests.error)) {
+    return sendJson(res, 503, { error:'DEAL_WORKSPACE_READ_FAILED' });
+  }
   return sendJson(res, 200, {
     deal,
     access:summary,
