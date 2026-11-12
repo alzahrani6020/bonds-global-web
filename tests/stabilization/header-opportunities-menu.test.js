@@ -39,7 +39,7 @@ describe('header opportunities menu', () => {
     expect(menu).toContain('labels.compareOpportunities');
     expect(menu).toContain('labels.dealWorkspace');
     expect(menu).toContain("dealsHref + '?view=shared'");
-    expect(menu).not.toContain("dealsHref + '#dealSharedPanel'");
+    expect(menu).not.toContain("dealsHref + '?view=shared'");
     expect(layout).toContain("const dealsHref = isEn ? '/en/my-bonds/deals/' : '/my-bonds/deals/';");
     expect(layout).not.toContain("const dealsHref = langBase + 'my-bonds/deals/';");
   });
