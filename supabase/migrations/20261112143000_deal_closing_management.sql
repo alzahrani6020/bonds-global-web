@@ -26,6 +26,11 @@ create table if not exists public.bonds_deal_closing_records (
   record_type text not null check (record_type in ('term_sheet','cap_table','funding_confirmation')),
   status text not null default 'pending'
     check (status in ('pending','signed','approved','confirmed','rejected')),
+  check (
+    (record_type = 'term_sheet' and status in ('pending','signed','rejected')) or
+    (record_type = 'cap_table' and status in ('pending','approved','rejected')) or
+    (record_type = 'funding_confirmation' and status in ('pending','confirmed','rejected'))
+  ),
   offer_id uuid references public.bonds_deal_offers(id) on delete set null,
   document_id uuid references public.bonds_deal_documents(id) on delete set null,
   amount numeric check (amount is null or amount >= 0),
