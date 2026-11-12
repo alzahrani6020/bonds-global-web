@@ -453,7 +453,12 @@
       projectRescue: isEn ? 'Project Rescue' : 'إحياء المشاريع',
       fundingExtraction: isEn ? 'Funding Extraction' : 'استخراج التمويل',
       fundingHub: isEn ? 'Funding & Investment' : 'التمويل والاستثمار',
-      investmentOpportunities: isEn ? 'Investment Opportunities' : 'فرص استثمارية',
+      investmentOpportunities: isEn ? 'Direct Investment Opportunities' : 'الفرص الاستثمارية المباشرة',
+      investmentDiscoveryGroup: isEn ? 'Opportunities & Discovery' : 'الفرص والاستكشاف',
+      investmentAnalysisGroup: isEn ? 'Investment Analysis' : 'التحليل الاستثماري',
+      opportunityValuation: isEn ? 'Opportunity Valuation' : 'تقييم الفرصة',
+      returnFeasibility: isEn ? 'Return & Feasibility Analysis' : 'تحليل العائد والجدوى',
+      compareOpportunities: isEn ? 'Compare Opportunities' : 'مقارنة الفرص',
       fundingSources: isEn ? 'Funding Sources' : 'مصادر التمويل',
       fundingDirectory: isEn ? 'Funding Directory' : 'دليل التمويل',
       fundingReadiness: isEn ? 'Funding Readiness' : 'جاهزية التمويل',
@@ -659,10 +664,22 @@
         ],
       },
       {
-        heading: { ar: labels.investmentGroup, en: 'Investment' },
+        heading: { ar: labels.investmentDiscoveryGroup, en: 'Opportunities & Discovery' },
         items: [
-          { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
           { label: labels.opportunityBank, href: isEn ? v3EnglishHubHref + '#opportunity-bank' : '/v3/opportunity-bank' },
+          { label: labels.investmentOpportunities, href: investmentOpportunitiesHref },
+          { label: labels.investmentMap, href: isEn ? v3EnglishHubHref + '#investment-map' : '/v3/investment-map' },
+          { label: labels.projectReadiness, href: isEn ? v3EnglishHubHref + '#project-readiness' : '/v3/project-readiness' },
+        ],
+      },
+      {
+        heading: { ar: labels.investmentAnalysisGroup, en: 'Investment Analysis' },
+        items: [
+          { label: labels.opportunityValuation, href: valuationHref },
+          { label: labels.returnFeasibility, href: langBase + 'my-bonds/workspace/?service=feasibility_studies' },
+          { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
+          { label: labels.compareOpportunities, href: isEn ? v3EnglishHubHref + '#city-comparison' : '/v3/city-comparison' },
+          { label: labels.scenariosEngine, href: isEn ? v3EnglishHubHref + '#scenarios' : '/v3/scenarios' },
         ],
       },
     ];
