@@ -654,6 +654,16 @@ async function patchDocument(req, res, supabase, user, dealId, documentId) {
   let patch;
   try { patch = normalizeDocumentPatch(parsed.body); }
   catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  if (['received','reviewed','approved'].includes(patch.status)) {
+    const { data:readyVersions, error:readyError } = await supabase.from('bonds_deal_document_versions')
+      .select('id').eq('document_id', documentId).eq('deal_id', dealId).eq('upload_status', 'ready').limit(1);
+    if (readyError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_VERSION_READ_FAILED' });
+    if (!Array.isArray(readyVersions) || readyVersions.length === 0) {
+      return sendJson(res, 409, { error:'DEAL_DOCUMENT_FILE_NOT_READY' });
+    }
+  }
+
   const { data, error } = await supabase.from('bonds_deal_documents')
     .update(patch).eq('id', documentId).eq('deal_id', dealId).select().maybeSingle();
   if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_UPDATE_FAILED' });
