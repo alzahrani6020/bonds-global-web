@@ -162,6 +162,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
 
     expect(api).toContain('resolveCorrespondencePermissions');
     expect(api).toContain("permissionByTarget");
+    expect(api).toContain("target === doc.status");
+    expect(api).toContain("idempotent: true");
+    expect(api).toContain("allowed_targets: allowedTargets");
     expect(api).toContain('Segregation of duties prevents the document creator');
     expect(api).toContain('A reason is required for return, rejection or cancellation');
     expect(api).toContain("doc.recipient_email");
@@ -185,6 +188,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain('searchCommandCenter');
     expect(client).toContain('renderTimeline');
     expect(client).toContain('canEditCurrent');
+    expect(client).toContain('state.transitionPending');
+    expect(client).toContain("error?.data?.current_status");
+    expect(client).toContain('The latest state has been loaded.');
     expect(client).toContain('hideLegacyGovernanceTriggers');
     expect(client).toContain('button[onclick="sendToManager()"]');
     expect(client).toContain("can('approve')");
