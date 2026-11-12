@@ -836,11 +836,15 @@
   async function waitForVerificationQr() {
     const images = Array.from(document.querySelectorAll('.footer-qr-corner img')).filter(img => img.style.visibility !== 'hidden');
     await Promise.all(images.map(img => {
-      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-      return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(isEn ? 'Verification QR did not load' : 'تعذر تحميل رمز التحقق')), 8000);
-        img.addEventListener('load', () => { clearTimeout(timer); resolve(); }, { once: true });
-        img.addEventListener('error', () => { clearTimeout(timer); reject(new Error(isEn ? 'Verification QR failed to load' : 'فشل تحميل رمز التحقق')); }, { once: true });
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve(true);
+      return new Promise(resolve => {
+        const finish = ok => {
+          if (!ok) img.style.visibility = 'hidden';
+          resolve(ok);
+        };
+        const timer = setTimeout(() => finish(false), 4000);
+        img.addEventListener('load', () => { clearTimeout(timer); finish(true); }, { once: true });
+        img.addEventListener('error', () => { clearTimeout(timer); finish(false); }, { once: true });
       });
     }));
   }
@@ -890,10 +894,33 @@
     toast('✅ ' + (isEn ? 'Final PDF secured and hashed' : 'تم حفظ PDF النهائي وتثبيت بصمته'));
   }
 
-  async function refreshInboxDynamic() {
-    const result = await api('list', { query: workspaceQuery() });
+  async function downloadOfficialPdf() {
+    if (!state.document?.artifact_hash) throw new Error(isEn ? 'Official PDF is not available yet' : 'النسخة الرسمية PDF غير متوفرة بعد');
+    const result = await api('artifact-download-url', { method: 'POST', id: state.document.id, body: {} });
+    if (!result?.signed_url) throw new Error(isEn ? 'Official PDF download link is unavailable' : 'تعذر إنشاء رابط تنزيل النسخة الرسمية');
+    const a = document.createElement('a');
+    a.href = result.signed_url;
+    a.download = (state.document.reference_number || 'bonds-correspondence') + '.pdf';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  async function refreshInboxDynamic(page = state.inboxPage) {
+    const safePage = Math.max(1, Number(page || 1));
+    const result = await api('list', {
+      query: {
+        ...workspaceQuery(),
+        page: safePage,
+        page_size: state.inboxPageSize
+      }
+    });
     state.list = result.documents || [];
     state.role = result.role || state.role;
+    state.inboxPage = Number(result.pagination?.page || safePage);
+    state.inboxTotal = Number(result.pagination?.total || state.list.length);
+
     const draftsList = document.getElementById('drafts-list');
     const sentList = document.getElementById('sent-list');
     if (!draftsList || !sentList) return;
@@ -921,8 +948,34 @@
         el.appendChild(row);
       });
     }
-    renderList(draftsList, state.list.filter(d => !['sent','archived'].includes(d.status)), isEn ? 'No active correspondence' : 'لا توجد مراسلات نشطة');
-    renderList(sentList, state.list.filter(d => ['sent','archived'].includes(d.status)), isEn ? 'No sent correspondence' : 'لا توجد مراسلات مرسلة');
+
+    renderList(draftsList, state.list.filter(d => !['sent','archived'].includes(d.status)), isEn ? 'No active correspondence on this page' : 'لا توجد مراسلات نشطة في هذه الصفحة');
+    renderList(sentList, state.list.filter(d => ['sent','archived'].includes(d.status)), isEn ? 'No sent correspondence on this page' : 'لا توجد مراسلات مرسلة في هذه الصفحة');
+
+    let pager = document.getElementById('corr-inbox-pagination');
+    if (!pager) {
+      pager = document.createElement('div');
+      pager.id = 'corr-inbox-pagination';
+      pager.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px';
+      document.getElementById('inbox-body')?.appendChild(pager);
+    }
+    const totalPages = Math.max(1, Math.ceil(state.inboxTotal / state.inboxPageSize));
+    pager.innerHTML = '';
+    const prev = document.createElement('button');
+    prev.type = 'button';
+    prev.className = 'draft-btn';
+    prev.textContent = isEn ? 'Previous' : 'السابق';
+    prev.disabled = state.inboxPage <= 1;
+    prev.addEventListener('click', () => refreshInboxDynamic(state.inboxPage - 1).catch(e => toast('⚠️ ' + e.message)));
+    const label = document.createElement('span');
+    label.textContent = (isEn ? 'Page ' : 'صفحة ') + state.inboxPage + (isEn ? ' of ' : ' من ') + totalPages + ' · ' + state.inboxTotal;
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'draft-btn';
+    next.textContent = isEn ? 'Next' : 'التالي';
+    next.disabled = state.inboxPage >= totalPages;
+    next.addEventListener('click', () => refreshInboxDynamic(state.inboxPage + 1).catch(e => toast('⚠️ ' + e.message)));
+    pager.append(prev, label, next);
   }
 
   async function importLegacyDrafts() {
@@ -1122,6 +1175,7 @@
 
   window.deletePage = function () {
     if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    const before = snapshot();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const active = window.getSelection()?.anchorNode?.parentElement?.closest?.('.sheet') || sheets[sheets.length - 1];
     if (!active) return;
@@ -1136,10 +1190,12 @@
         el.textContent = isEn ? `Page ${i + 1} of ${arr.length}` : `الصفحة ${i + 1} من ${arr.length}`;
       });
     }
+    recordMutation(before);
   };
 
   window.insertTable = function () {
     if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    const before = snapshot();
     const rows = Number(prompt(isEn ? 'Rows (1-50):' : 'عدد الصفوف (1-50):', '3'));
     const cols = Number(prompt(isEn ? 'Columns (1-20):' : 'عدد الأعمدة (1-20):', '3'));
     if (!Number.isInteger(rows) || !Number.isInteger(cols) || rows < 1 || rows > 50 || cols < 1 || cols > 20) {
@@ -1153,6 +1209,7 @@
     }
     html += '</tbody></table><div><br></div>';
     document.execCommand('insertHTML', false, html);
+    recordMutation(before);
   };
 
   window.handleImageUpload = function (input) {
@@ -1162,23 +1219,50 @@
     }
     const file = input.files?.[0];
     if (!file) return;
-    if (!/^image\/(png|jpeg|webp|gif)$/i.test(file.type) || file.size > 2 * 1024 * 1024) {
+    if (!/^image\/(png|jpeg|webp)$/i.test(file.type) || file.size > 5 * 1024 * 1024) {
       input.value = '';
-      return toast('⚠️ ' + (isEn ? 'Use PNG/JPEG/WebP/GIF under 2 MB' : 'استخدم PNG/JPEG/WebP/GIF بحجم أقل من 2 ميجابايت'));
+      return toast('⚠️ ' + (isEn ? 'Use PNG/JPEG/WebP under 5 MB' : 'استخدم PNG/JPEG/WebP بحجم أقل من 5 ميجابايت'));
     }
+
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        if (img.width > 6000 || img.height > 6000) return toast('⚠️ ' + (isEn ? 'Image dimensions are too large' : 'أبعاد الصورة كبيرة جدًا'));
-        const doc = document.querySelector('.doc-content[contenteditable="true"]') || document.querySelector('.doc-content');
-        if (!doc) return;
-        const el = document.createElement('img');
-        el.src = e.target.result;
-        el.alt = '';
-        el.style.cssText = 'max-width:100%;height:auto;display:block;margin:10px 0;';
-        doc.appendChild(el);
+        try {
+          const before = snapshot();
+          const maxSide = 1600;
+          const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('Canvas unavailable');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          let quality = 0.82;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          while (dataUrl.length > 420000 && quality > 0.45) {
+            quality -= 0.08;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          if (dataUrl.length > 500000) {
+            throw new Error(isEn ? 'Image remains too large after compression' : 'الصورة ما زالت كبيرة بعد الضغط');
+          }
+
+          const doc = document.querySelector('.doc-content[contenteditable="true"]');
+          if (!doc) throw new Error(isEn ? 'Editable document area was not found' : 'لم يتم العثور على منطقة مستند قابلة للتحرير');
+          const el = document.createElement('img');
+          el.src = dataUrl;
+          el.alt = '';
+          el.style.cssText = 'max-width:100%;height:auto;display:block;margin:10px 0;';
+          doc.appendChild(el);
+          recordMutation(before);
+          window.autoSave?.();
+        } catch (error) {
+          toast('⚠️ ' + (error?.message || (isEn ? 'Image processing failed' : 'فشل تجهيز الصورة')));
+        }
       };
+      img.onerror = () => toast('⚠️ ' + (isEn ? 'Invalid image file' : 'ملف الصورة غير صالح'));
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
@@ -1195,9 +1279,9 @@
       if (file.size < 1 || file.size > 2 * 1024 * 1024) {
         throw new Error(isEn ? 'Use a document smaller than 2 MB' : 'استخدم ملفًا بحجم أقل من 2 ميجابايت');
       }
-      const allowed = /\.(txt|html?|docx)$/i.test(file.name || '');
+      const allowed = /\.(txt|html?|docx|pdf)$/i.test(file.name || '');
       if (!allowed) {
-        throw new Error(isEn ? 'Supported formats: TXT, HTML, HTM, DOCX' : 'الصيغ المدعومة: TXT وHTML وHTM وDOCX');
+        throw new Error(isEn ? 'Supported formats: TXT, HTML, HTM, DOCX, PDF' : 'الصيغ المدعومة: TXT وHTML وHTM وDOCX وPDF');
       }
 
       const buffer = await file.arrayBuffer();
@@ -1224,12 +1308,10 @@
       target.insertAdjacentHTML('beforeend', imported.html || '');
       const after = snapshot();
       if (before !== after) {
-        state.history.push(before);
-        if (state.history.length > 50) state.history.shift();
-        state.future = [];
-        state.lastHistorySnapshot = after;
+        recordMutation(before);
+        await saveVersion(true);
       }
-      toast('✅ ' + (isEn ? `Imported ${file.name} from this device` : `تم استيراد ${file.name} من الجهاز`));
+      toast('✅ ' + (isEn ? `Imported and saved ${file.name}` : `تم استيراد وحفظ ${file.name}`));
     } catch (e) {
       toast('⚠️ ' + (e?.message || (isEn ? 'Device import failed' : 'فشل الاستيراد من الجهاز')));
     } finally {
@@ -1323,12 +1405,21 @@
 
   // Deterministic sequential multi-page PDF export.
   window.exportPDF = async function () {
+    if (state.document?.artifact_hash) {
+      try {
+        await downloadOfficialPdf();
+        toast(isEn ? '✅ Official PDF downloaded' : '✅ تم تنزيل النسخة الرسمية PDF');
+      } catch (e) {
+        toast('⚠️ ' + (isEn ? 'Official PDF download failed: ' : 'فشل تنزيل النسخة الرسمية: ') + e.message);
+      }
+      return;
+    }
     try {
       await restoreCanonicalLockedDocument();
     } catch (e) {
       return toast('⚠️ ' + (isEn ? 'Unable to reload the governed version: ' : 'تعذر تحميل النسخة المحكومة: ') + e.message);
     }
-    toast(isEn ? '⏳ Creating PDF...' : '⏳ جاري إنشاء PDF...');
+    toast(isEn ? '⏳ Creating local PDF preview...' : '⏳ جاري إنشاء نسخة PDF محلية...');
     try {
       const blob = await createPdfBlob();
       const url = URL.createObjectURL(blob);
@@ -1339,7 +1430,7 @@
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      toast(isEn ? '✅ PDF downloaded' : '✅ تم تحميل PDF');
+      toast(isEn ? '✅ Local PDF downloaded' : '✅ تم تحميل نسخة PDF محلية');
     } catch (e) {
       toast('⚠️ ' + (isEn ? 'PDF generation failed: ' : 'فشل إنشاء PDF: ') + e.message);
     }
@@ -1347,5 +1438,13 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initialize().catch(e => toast('⚠️ ' + e.message));
+  });
+
+  window.addEventListener('beforeunload', event => {
+    if (!canEditCurrent()) return;
+    if (snapshot() === state.lastSavedSnapshot) return;
+    if (!hasMeaningfulDraft() && !state.document) return;
+    event.preventDefault();
+    event.returnValue = '';
   });
 })();
