@@ -43,7 +43,10 @@
     tasks: [],
     inboxPage: 1,
     inboxPageSize: 25,
-    inboxTotal: 0
+    inboxTotal: 0,
+    workPage: 1,
+    workPageSize: 25,
+    workTotal: 0
   };
 
   const legacy = {
@@ -784,13 +787,15 @@
     });
   }
 
-  async function refreshCommandCenter() {
+  async function refreshCommandCenter(page = state.workPage) {
     const [summaryResult, workResult] = await Promise.all([
       api('summary', { query: workspaceQuery() }),
-      api('my-work', { query: workspaceQuery() })
+      api('my-work', { query: { ...workspaceQuery(), page: Math.max(1, Number(page || 1)), page_size: state.workPageSize } })
     ]);
     state.summary = summaryResult;
     state.tasks = workResult.tasks || [];
+    state.workPage = Number(workResult.pagination?.page || Math.max(1, Number(page || 1)));
+    state.workTotal = Number(workResult.pagination?.total || state.tasks.length);
     if (Array.isArray(summaryResult.permissions)) state.permissions = summaryResult.permissions;
 
     const summary = document.getElementById('corr-summary');
@@ -818,7 +823,7 @@
       if (!state.tasks.length) {
         work.textContent = isEn ? 'No open tasks' : 'لا توجد مهام مفتوحة';
       } else {
-        state.tasks.slice(0, 12).forEach(task => {
+        state.tasks.forEach(task => {
           const row = document.createElement('button');
           row.type = 'button';
           row.style.cssText = 'text-align:start;padding:8px;border:1px solid ' + (task.overdue ? '#ef4444' : '#e2e8f0') + ';border-radius:8px;background:#fff;cursor:pointer';
@@ -830,6 +835,31 @@
           work.appendChild(row);
         });
       }
+
+      let pager = document.getElementById('corr-work-pagination');
+      if (!pager) {
+        pager = document.createElement('div');
+        pager.id = 'corr-work-pagination';
+        pager.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px';
+        work.parentNode?.appendChild(pager);
+      }
+      const totalPages = Math.max(1, Math.ceil(state.workTotal / state.workPageSize));
+      pager.innerHTML = '';
+      const prev = document.createElement('button');
+      prev.type = 'button';
+      prev.className = 'corr-btn';
+      prev.textContent = isEn ? 'Previous' : 'السابق';
+      prev.disabled = state.workPage <= 1;
+      prev.addEventListener('click', () => refreshCommandCenter(state.workPage - 1).catch(e => toast('⚠️ ' + e.message)));
+      const label = document.createElement('span');
+      label.textContent = (isEn ? 'Page ' : 'صفحة ') + state.workPage + (isEn ? ' of ' : ' من ') + totalPages + ' · ' + state.workTotal;
+      const next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'corr-btn';
+      next.textContent = isEn ? 'Next' : 'التالي';
+      next.disabled = state.workPage >= totalPages;
+      next.addEventListener('click', () => refreshCommandCenter(state.workPage + 1).catch(e => toast('⚠️ ' + e.message)));
+      pager.append(prev, label, next);
     }
   }
 
