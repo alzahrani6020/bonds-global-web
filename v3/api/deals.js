@@ -1053,11 +1053,27 @@ async function patchOffer(req, res, supabase, user, dealId, offerId) {
 
 
 async function validateClosingRecord(res, supabase, dealId, record) {
+  const finalStatus = (
+    (record.record_type === 'term_sheet' && record.status === 'signed') ||
+    (record.record_type === 'cap_table' && record.status === 'approved') ||
+    (record.record_type === 'funding_confirmation' && record.status === 'confirmed')
+  );
+  if (finalStatus && !record.document_id) {
+    sendJson(res, 422, { error:'CLOSING_EVIDENCE_DOCUMENT_REQUIRED' });
+    return false;
+  }
   if (record.document_id) {
     const { data:document, error } = await supabase.from('bonds_deal_documents')
       .select('id').eq('id', record.document_id).eq('deal_id', dealId).maybeSingle();
     if (error) { sendJson(res, 503, { error:'DEAL_DOCUMENT_READ_FAILED' }); return false; }
     if (!document) { sendJson(res, 422, { error:'CLOSING_DOCUMENT_NOT_FOUND' }); return false; }
+    if (finalStatus) {
+      const { data:versions, error:versionError } = await supabase.from('bonds_deal_document_versions')
+        .select('id').eq('deal_id', dealId).eq('document_id', record.document_id)
+        .eq('upload_status','ready').limit(1);
+      if (versionError) { sendJson(res, 503, { error:'DEAL_DOCUMENT_VERSION_READ_FAILED' }); return false; }
+      if (!versions?.length) { sendJson(res, 409, { error:'CLOSING_EVIDENCE_FILE_NOT_READY' }); return false; }
+    }
   }
   if (record.record_type === 'term_sheet' && record.status === 'signed') {
     if (!record.offer_id) { sendJson(res, 422, { error:'CLOSING_TERM_SHEET_OFFER_REQUIRED' }); return false; }
