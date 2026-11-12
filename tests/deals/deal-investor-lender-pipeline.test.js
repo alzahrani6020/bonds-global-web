@@ -102,9 +102,9 @@ describe('F.3 router and visibility',()=>{
 
     const first=await call(supabase,OWNER,'POST',`/deals/${deal.id}/pipeline`,{party_id:lender.id,kind:'lender'});
     expect(first.statusCode).toBe(201);
-    // Fake DB does not emulate unique indexes; API must still be deterministic at runtime.
     const duplicate=await call(supabase,OWNER,'POST',`/deals/${deal.id}/pipeline`,{party_id:lender.id,kind:'lender'});
-    expect([201,409]).toContain(duplicate.statusCode);
+    expect(duplicate.statusCode).toBe(409);
+    expect(duplicate.body.error).toBe('PIPELINE_PARTY_ALREADY_EXISTS');
   });
 
   test('advisory analyst can maintain pipeline while signed-NDA counterparty cannot see or mutate it',async()=>{
