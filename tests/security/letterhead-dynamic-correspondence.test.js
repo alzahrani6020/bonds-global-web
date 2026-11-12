@@ -49,8 +49,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("pagination: { page, page_size: pageSize, total: Number(count || 0) }");
     expect(api).toContain("signature_data_url");
     expect(api).toContain("issued_hash");
-    expect(api).toContain("signature_image_data: null");
-    expect(api).toContain("stamp_hash: null");
+    const atomic = read('supabase/migrations/20261112084310_correspondence_integrity_hardening.sql');
+    expect(atomic).toContain('signature_image_data = null');
+    expect(atomic).toContain('stamp_hash = null');
   });
 
   test('rich HTML is bounded and stripped of active content server-side', () => {
