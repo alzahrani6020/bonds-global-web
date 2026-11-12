@@ -20,6 +20,18 @@ const {
   findMembership,
   recordEvent
 } = require('../../lib/deals/deal-access');
+const {
+  DATA_ROOM_BUCKET,
+  normalizeUploadSpec,
+  normalizeDocumentPatch,
+  normalizeGrant,
+  normalizeDocumentRequest,
+  normalizeDocumentRequestPatch,
+  normalizeDueDiligencePatch,
+  buildStoragePath,
+  memberCanSeeDocument,
+  memberCanUploadRequest
+} = require('../../lib/deals/deal-data-room');
 
 const LEGACY_DEAL_COLUMNS = 'id,user_id,deal_number,title,deal_type,stage,status,currency,target_value,summary,metadata,created_at,updated_at';
 const DEAL_COLUMNS = LEGACY_DEAL_COLUMNS + ',project_id,lifecycle_instance_id,funding_case_id';
@@ -469,6 +481,388 @@ async function patchDeal(req, res, supabase, user, dealId) {
   return sendJson(res, 200, { deal:data });
 }
 
+
+async function recordDataRoomEvent(supabase, event) {
+  try {
+    await supabase.from('bonds_deal_document_access_log').insert({ metadata:{}, ...event });
+  } catch (_err) {
+    // Access logging must not break the primary operation.
+  }
+}
+
+async function loadDealDocument(res, supabase, dealId, documentId) {
+  const { data, error } = await supabase.from('bonds_deal_documents')
+    .select('*').eq('id', documentId).eq('deal_id', dealId).maybeSingle();
+  if (error) { sendJson(res, 503, { error:'DEAL_DOCUMENT_READ_FAILED' }); return null; }
+  if (!data) { sendJson(res, 404, { error:'DEAL_DOCUMENT_NOT_FOUND' }); return null; }
+  return data;
+}
+
+async function loadDocumentRequest(res, supabase, dealId, requestId) {
+  const { data, error } = await supabase.from('bonds_deal_document_requests')
+    .select('*').eq('id', requestId).eq('deal_id', dealId).maybeSingle();
+  if (error) { sendJson(res, 503, { error:'DEAL_DOCUMENT_REQUEST_READ_FAILED' }); return null; }
+  if (!data) { sendJson(res, 404, { error:'DEAL_DOCUMENT_REQUEST_NOT_FOUND' }); return null; }
+  return data;
+}
+
+async function listDocumentRequests(res, supabase, user, dealId) {
+  let resolved;
+  try { resolved = await resolveAccess(supabase, user, dealId); }
+  catch (_err) { return sendJson(res, 503, { error:'DEAL_READ_FAILED' }); }
+  if (!resolved) return sendJson(res, 404, { error:'DEAL_NOT_FOUND' });
+
+  let query = supabase.from('bonds_deal_document_requests').select('*').eq('deal_id', dealId).order('created_at', { ascending:false });
+  if (resolved.access.mode === 'member' && resolved.access.member.side === 'counterparty') {
+    if (!can(resolved.access, ACTIONS.VIEW_WORKSPACE)) return sendJson(res, 200, { requests:[] });
+    query = query.eq('requested_from_member_id', resolved.access.member.id);
+  } else if (!can(resolved.access, ACTIONS.VIEW_WORKSPACE)) {
+    return sendJson(res, 403, { error:'DEAL_ACTION_FORBIDDEN' });
+  }
+  const { data, error } = await query;
+  if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_REQUESTS_READ_FAILED' });
+  return sendJson(res, 200, { requests:data || [] });
+}
+
+async function createDocumentRequest(req, res, supabase, user, dealId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let normalized;
+  try { normalized = normalizeDocumentRequest(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  if (normalized.requested_from_member_id) {
+    const member = await loadMember(res, supabase, dealId, normalized.requested_from_member_id);
+    if (!member) return undefined;
+    if (member.side !== 'counterparty' || member.status === 'revoked') {
+      return sendJson(res, 422, { error:'DOCUMENT_REQUEST_MEMBER_INVALID' });
+    }
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_document_requests')
+    .insert({ deal_id:dealId, ...normalized, created_by:user.id })
+    .select().single();
+  if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_REQUEST_CREATE_FAILED' });
+  await recordDataRoomEvent(supabase, {
+    deal_id:dealId, document_id:null, version_id:null, actor_id:user.id,
+    action:'request_created', metadata:{ request_id:data.id, requested_from_member_id:data.requested_from_member_id }
+  });
+  await recordEvent(supabase, {
+    deal_id:dealId, event_type:'document_request_created', entity_type:'deal_document_request',
+    entity_id:data.id, actor_id:user.id, metadata:{}
+  });
+  return sendJson(res, 201, { request:data });
+}
+
+async function patchDocumentRequest(req, res, supabase, user, dealId, requestId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const current = await loadDocumentRequest(res, supabase, dealId, requestId);
+  if (!current) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizeDocumentRequestPatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  if (patch.requested_from_member_id) {
+    const member = await loadMember(res, supabase, dealId, patch.requested_from_member_id);
+    if (!member) return undefined;
+    if (member.side !== 'counterparty' || member.status === 'revoked') {
+      return sendJson(res, 422, { error:'DOCUMENT_REQUEST_MEMBER_INVALID' });
+    }
+  }
+  if (patch.status === 'fulfilled') {
+    patch.fulfilled_at = new Date().toISOString();
+    patch.fulfilled_by = user.id;
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_document_requests')
+    .update(patch).eq('id', requestId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_REQUEST_UPDATE_FAILED' });
+  return sendJson(res, 200, { request:data });
+}
+
+async function patchDueDiligence(req, res, supabase, user, dealId, itemId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizeDueDiligencePatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  if (patch.assigned_member_id) {
+    const member = await loadMember(res, supabase, dealId, patch.assigned_member_id);
+    if (!member) return undefined;
+  }
+  if (patch.evidence_document_id) {
+    const document = await loadDealDocument(res, supabase, dealId, patch.evidence_document_id);
+    if (!document) return undefined;
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_due_diligence_items')
+    .update(patch).eq('id', itemId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_DD_UPDATE_FAILED' });
+  if (!data) return sendJson(res, 404, { error:'DEAL_DD_NOT_FOUND' });
+  await recordDataRoomEvent(supabase, {
+    deal_id:dealId, document_id:patch.evidence_document_id || null, version_id:null,
+    actor_id:user.id, action:'due_diligence_updated', metadata:{ item_id:itemId, fields:Object.keys(patch) }
+  });
+  await recordEvent(supabase, {
+    deal_id:dealId, event_type:'due_diligence_item_updated', entity_type:'due_diligence_item',
+    entity_id:itemId, actor_id:user.id, metadata:{ fields:Object.keys(patch) }
+  });
+  return sendJson(res, 200, { due_diligence_item:data });
+}
+
+async function patchDocument(req, res, supabase, user, dealId, documentId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const current = await loadDealDocument(res, supabase, dealId, documentId);
+  if (!current) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizeDocumentPatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+  const { data, error } = await supabase.from('bonds_deal_documents')
+    .update(patch).eq('id', documentId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_UPDATE_FAILED' });
+  return sendJson(res, 200, { document:data });
+}
+
+async function setDocumentGrant(req, res, supabase, user, dealId, documentId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.MANAGE_MEMBERS);
+  if (!resolved) return undefined;
+  const document = await loadDealDocument(res, supabase, dealId, documentId);
+  if (!document) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let normalized;
+  try { normalized = normalizeGrant(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+  const member = await loadMember(res, supabase, dealId, normalized.member_id);
+  if (!member) return undefined;
+  if (member.side !== 'counterparty') return sendJson(res, 422, { error:'DOCUMENT_GRANT_MEMBER_INVALID' });
+
+  const { data:existing, error:readError } = await supabase.from('bonds_deal_document_grants')
+    .select('id').eq('document_id', documentId).eq('member_id', normalized.member_id).maybeSingle();
+  if (readError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_GRANT_READ_FAILED' });
+
+  let result;
+  if (existing) {
+    result = await supabase.from('bonds_deal_document_grants').update({
+      access_level:normalized.access_level, status:normalized.status, granted_by:user.id
+    }).eq('id', existing.id).select().single();
+  } else {
+    result = await supabase.from('bonds_deal_document_grants').insert({
+      deal_id:dealId, document_id:documentId, ...normalized, granted_by:user.id
+    }).select().single();
+  }
+  if (result.error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_GRANT_WRITE_FAILED' });
+  await recordDataRoomEvent(supabase, {
+    deal_id:dealId, document_id:documentId, version_id:null, actor_id:user.id,
+    action:'grant_changed', metadata:{ member_id:normalized.member_id, status:normalized.status }
+  });
+  return sendJson(res, 200, { grant:result.data });
+}
+
+async function createPendingVersion(supabase, user, dealId, document, spec, requestId) {
+  const { data:latest, error:versionError } = await supabase.from('bonds_deal_document_versions')
+    .select('version').eq('document_id', document.id).order('version', { ascending:false }).limit(1);
+  if (versionError) throw versionError;
+  const version = Array.isArray(latest) && latest[0] ? Number(latest[0].version) + 1 : Math.max(1, Number(document.version || 0) + 1);
+  const storagePath = buildStoragePath(dealId, document.id, version, spec.file_name);
+  const { data:row, error:insertError } = await supabase.from('bonds_deal_document_versions').insert({
+    deal_id:dealId,
+    document_id:document.id,
+    request_id:requestId || null,
+    version,
+    file_name:spec.file_name,
+    storage_bucket:DATA_ROOM_BUCKET,
+    storage_path:storagePath,
+    content_type:spec.content_type,
+    size_bytes:spec.size_bytes,
+    checksum_sha256:spec.checksum_sha256,
+    upload_status:'pending',
+    uploaded_by:user.id
+  }).select().single();
+  if (insertError) throw insertError;
+
+  const { data:signed, error:signError } = await supabase.storage.from(DATA_ROOM_BUCKET).createSignedUploadUrl(storagePath);
+  if (signError || !signed) {
+    await supabase.from('bonds_deal_document_versions').update({ upload_status:'failed' }).eq('id', row.id);
+    throw signError || new Error('SIGNED_UPLOAD_URL_FAILED');
+  }
+  await recordDataRoomEvent(supabase, {
+    deal_id:dealId, document_id:document.id, version_id:row.id, actor_id:user.id,
+    action:'upload_url_created', metadata:{ request_id:requestId || null, version }
+  });
+  return { row, signed };
+}
+
+async function createDocumentUploadUrl(req, res, supabase, user, dealId, documentId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const document = await loadDealDocument(res, supabase, dealId, documentId);
+  if (!document) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let spec;
+  try { spec = normalizeUploadSpec(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+  try {
+    const { row, signed } = await createPendingVersion(supabase, user, dealId, document, spec, null);
+    return sendJson(res, 201, {
+      upload:{ bucket:DATA_ROOM_BUCKET, path:row.storage_path, token:signed.token, signed_url:signed.signedUrl },
+      version:row
+    });
+  } catch (_err) {
+    return sendJson(res, 503, { error:'DEAL_DOCUMENT_UPLOAD_URL_FAILED' });
+  }
+}
+
+async function createRequestUploadUrl(req, res, supabase, user, dealId, requestId) {
+  let resolved;
+  try { resolved = await resolveAccess(supabase, user, dealId); }
+  catch (_err) { return sendJson(res, 503, { error:'DEAL_READ_FAILED' }); }
+  if (!resolved) return sendJson(res, 404, { error:'DEAL_NOT_FOUND' });
+  const request = await loadDocumentRequest(res, supabase, dealId, requestId);
+  if (!request) return undefined;
+
+  const teamAllowed = can(resolved.access, ACTIONS.EDIT_WORKSPACE);
+  const counterpartyAllowed = resolved.access.mode === 'member' &&
+    memberCanUploadRequest(request, resolved.access.member);
+  if (!teamAllowed && !counterpartyAllowed) return sendJson(res, 403, { error:'DEAL_ACTION_FORBIDDEN' });
+
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let spec;
+  try { spec = normalizeUploadSpec(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  let document = null;
+  if (request.document_id) {
+    document = await loadDealDocument(res, supabase, dealId, request.document_id);
+    if (!document) return undefined;
+  } else {
+    const { data, error } = await supabase.from('bonds_deal_documents').insert({
+      deal_id:dealId,
+      name:request.title,
+      category:request.category || 'general',
+      status:'requested',
+      confidentiality:'confidential',
+      visibility:'team',
+      version:1,
+      metadata:{ request_id:request.id }
+    }).select().single();
+    if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_CREATE_FAILED' });
+    document = data;
+    await supabase.from('bonds_deal_document_requests').update({ document_id:document.id }).eq('id', request.id);
+  }
+
+  try {
+    const { row, signed } = await createPendingVersion(supabase, user, dealId, document, spec, request.id);
+    return sendJson(res, 201, {
+      upload:{ bucket:DATA_ROOM_BUCKET, path:row.storage_path, token:signed.token, signed_url:signed.signedUrl },
+      version:row,
+      document
+    });
+  } catch (_err) {
+    return sendJson(res, 503, { error:'DEAL_DOCUMENT_UPLOAD_URL_FAILED' });
+  }
+}
+
+async function confirmDocumentUpload(req, res, supabase, user, dealId, documentId) {
+  let resolved;
+  try { resolved = await resolveAccess(supabase, user, dealId); }
+  catch (_err) { return sendJson(res, 503, { error:'DEAL_READ_FAILED' }); }
+  if (!resolved) return sendJson(res, 404, { error:'DEAL_NOT_FOUND' });
+  const document = await loadDealDocument(res, supabase, dealId, documentId);
+  if (!document) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  const versionId = String(parsed.body.version_id || '').trim();
+  if (!versionId) return sendJson(res, 422, { error:'VERSION_ID_REQUIRED' });
+
+  const { data:version, error } = await supabase.from('bonds_deal_document_versions')
+    .select('*').eq('id', versionId).eq('document_id', documentId).eq('deal_id', dealId).maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_VERSION_READ_FAILED' });
+  if (!version) return sendJson(res, 404, { error:'DEAL_DOCUMENT_VERSION_NOT_FOUND' });
+
+  const teamAllowed = can(resolved.access, ACTIONS.EDIT_WORKSPACE);
+  const uploaderAllowed = resolved.access.mode === 'member' && version.uploaded_by === user.id;
+  if (!teamAllowed && !uploaderAllowed) return sendJson(res, 403, { error:'DEAL_ACTION_FORBIDDEN' });
+  if (version.upload_status === 'ready') return sendJson(res, 200, { version, document });
+
+  const slash = version.storage_path.lastIndexOf('/');
+  const folder = slash >= 0 ? version.storage_path.slice(0, slash) : '';
+  const file = slash >= 0 ? version.storage_path.slice(slash + 1) : version.storage_path;
+  const { data:list, error:listError } = await supabase.storage.from(DATA_ROOM_BUCKET).list(folder, { search:file, limit:10 });
+  if (listError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_STORAGE_VERIFY_FAILED' });
+  const stored = (list || []).find(item => item.name === file);
+  if (!stored) return sendJson(res, 409, { error:'DEAL_DOCUMENT_UPLOAD_NOT_FOUND' });
+
+  const confirmedAt = new Date().toISOString();
+  const { data:ready, error:updateError } = await supabase.from('bonds_deal_document_versions')
+    .update({ upload_status:'ready', confirmed_at:confirmedAt }).eq('id', version.id).select().single();
+  if (updateError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_VERSION_UPDATE_FAILED' });
+
+  const { data:updatedDocument, error:documentError } = await supabase.from('bonds_deal_documents').update({
+    status:'received',
+    version:ready.version,
+    storage_bucket:ready.storage_bucket,
+    storage_path:ready.storage_path
+  }).eq('id', documentId).eq('deal_id', dealId).select().single();
+  if (documentError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_UPDATE_FAILED' });
+
+  if (ready.request_id) {
+    await supabase.from('bonds_deal_document_requests').update({ status:'submitted' }).eq('id', ready.request_id);
+  }
+  await recordDataRoomEvent(supabase, {
+    deal_id:dealId, document_id:documentId, version_id:ready.id, actor_id:user.id,
+    action:'upload_confirmed', metadata:{ request_id:ready.request_id || null, version:ready.version }
+  });
+  return sendJson(res, 200, { version:ready, document:updatedDocument });
+}
+
+async function createDocumentDownloadUrl(req, res, supabase, user, dealId, documentId) {
+  let resolved;
+  try { resolved = await resolveAccess(supabase, user, dealId); }
+  catch (_err) { return sendJson(res, 503, { error:'DEAL_READ_FAILED' }); }
+  if (!resolved) return sendJson(res, 404, { error:'DEAL_NOT_FOUND' });
+  const document = await loadDealDocument(res, supabase, dealId, documentId);
+  if (!document) return undefined;
+
+  let allowed = can(resolved.access, ACTIONS.VIEW_WORKSPACE) && !(resolved.access.mode === 'member' && resolved.access.member.side === 'counterparty');
+  if (resolved.access.mode === 'member' && resolved.access.member.side === 'counterparty') {
+    const { data:grants, error:grantError } = await supabase.from('bonds_deal_document_grants')
+      .select('member_id,status,access_level').eq('document_id', documentId).eq('deal_id', dealId);
+    if (grantError) return sendJson(res, 503, { error:'DEAL_DOCUMENT_GRANT_READ_FAILED' });
+    allowed = memberCanSeeDocument(document, resolved.access.member, grants || []);
+  }
+  if (!allowed) return sendJson(res, 403, { error:'DEAL_DOCUMENT_ACCESS_FORBIDDEN' });
+
+  const { data:versions, error } = await supabase.from('bonds_deal_document_versions')
+    .select('*').eq('document_id', documentId).eq('deal_id', dealId).eq('upload_status', 'ready')
+    .order('version', { ascending:false }).limit(1);
+  if (error) return sendJson(res, 503, { error:'DEAL_DOCUMENT_VERSION_READ_FAILED' });
+  const version = Array.isArray(versions) ? versions[0] : null;
+  if (!version) return sendJson(res, 409, { error:'DEAL_DOCUMENT_FILE_NOT_READY' });
+
+  const { data:signed, error:signError } = await supabase.storage.from(DATA_ROOM_BUCKET)
+    .createSignedUrl(version.storage_path, 60, { download:version.file_name });
+  if (signError || !signed?.signedUrl) return sendJson(res, 503, { error:'DEAL_DOCUMENT_DOWNLOAD_URL_FAILED' });
+  await recordDataRoomEvent(supabase, {
+    deal_id:dealId, document_id:documentId, version_id:version.id, actor_id:user.id,
+    action:'download_url_created', metadata:{ version:version.version }
+  });
+  return sendJson(res, 200, { signed_url:signed.signedUrl, expires_in:60, version:{ id:version.id, version:version.version, file_name:version.file_name } });
+}
+
 async function createChild(req, res, supabase, user, dealId, kind) {
   const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
   if (!resolved) return undefined;
@@ -517,6 +911,29 @@ async function dealsRouter(req, res, path, supabase, user) {
   }
   if (dealId && child === 'events' && !childId && req.method === 'GET') return listEvents(res, supabase, user, dealId);
   if (dealId && child === 'link' && !childId && req.method === 'POST') return linkDeal(req, res, supabase, user, dealId);
+
+  if (dealId && child === 'requests') {
+    if (!childId && req.method === 'GET') return listDocumentRequests(res, supabase, user, dealId);
+    if (!childId && req.method === 'POST') return createDocumentRequest(req, res, supabase, user, dealId);
+    if (childId && !childAction && req.method === 'PATCH') return patchDocumentRequest(req, res, supabase, user, dealId, childId);
+    if (childId && childAction === 'upload-url' && req.method === 'POST') return createRequestUploadUrl(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'documents' && childId) {
+    if (!childAction && req.method === 'PATCH') return patchDocument(req, res, supabase, user, dealId, childId);
+    if (childAction === 'grant' && req.method === 'POST') return setDocumentGrant(req, res, supabase, user, dealId, childId);
+    if (childAction === 'upload-url' && req.method === 'POST') return createDocumentUploadUrl(req, res, supabase, user, dealId, childId);
+    if (childAction === 'confirm-upload' && req.method === 'POST') return confirmDocumentUpload(req, res, supabase, user, dealId, childId);
+    if (childAction === 'download-url' && req.method === 'POST') return createDocumentDownloadUrl(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'due-diligence' && childId) {
+    if (!childAction && req.method === 'PATCH') return patchDueDiligence(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
   if (dealId && child && childId) return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
 
   if (!dealId && req.method === 'GET') return listDeals(res, supabase, user);
