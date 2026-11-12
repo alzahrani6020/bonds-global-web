@@ -270,13 +270,17 @@
     .footer-legal .label { color: var(--gold-light); font-weight: 700; font-size: 7pt; }
     .footer-legal .value { color: #fff; font-weight: 500; }
 
-    .footer-qr-corner {
+    .footer-qr-pair {
       align-self: center;
+      display: flex;
+      gap: 3mm;
       flex-shrink: 0;
+      align-items: flex-start;
     }
-    .footer-qr-corner img {
-      width: 22mm; height: 22mm; display: block; background: #fff;
-      padding: 3px; border-radius: 4px;
+    .footer-qr-box { text-align:center; font-size:5.5pt; color:#fff; line-height:1.2; }
+    .footer-qr-box img {
+      width: 18mm; height: 18mm; display: block; background: #fff;
+      padding: 2px; border-radius: 4px; margin-bottom:2px;
     }
 
     .footer-icons {
@@ -701,8 +705,15 @@
           </div>
         </div>
         <div class="page-number"></div>
-        <div class="footer-qr-corner">
-          <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Verification QR" style="visibility:hidden" loading="lazy" decoding="async" />
+        <div class="footer-qr-pair">
+          <div class="footer-qr-box footer-site-qr">
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Bonds website" style="visibility:hidden" loading="lazy" decoding="async" />
+            <span>Bonds website</span>
+          </div>
+          <div class="footer-qr-box footer-document-qr">
+            <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Verify this letter" style="visibility:hidden" loading="lazy" decoding="async" />
+            <span>Verify this letter</span>
+          </div>
         </div>
       </footer>
     </div>
