@@ -566,7 +566,7 @@
     const servicesHref = langBase + 'services.html';
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
-    const valuationHref = langBase + 'valuation/index.html';
+    const valuationHref = isEn ? '/en/valuation/index.html' : '/valuation/index.html';
     const clientPortalHref = isEn ? '/en/my-bonds/' : '/my-bonds/';
     const loginHref = langBase + 'calculators/auth/login.html';
     const signupHref = langBase + 'calculators/auth/index.html?tab=signup';
@@ -587,7 +587,7 @@
     const fundingCasesHref = isEn ? '/en/client/funding-cases' : '/client/funding-cases';
     const fundingExtractionHref = langBase + 'funding-extraction.html';
     const fundingRequirementsHref = fundingExtractionHref + '#funding-file';
-    const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
+    const investmentOpportunitiesHref = isEn ? '/en/investment-opportunities.html' : '/investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
     const calcBase = langBase + 'calculators/';
@@ -603,34 +603,34 @@
       {
         heading: { ar: 'الاستشارات المالية', en: 'Financial Advisory' },
         items: [
-          { label: labels.analysis, href: langBase + 'my-bonds/workspace/?service=financial_analysis' },
-          { label: labels.cashflow, href: langBase + 'my-bonds/workspace/?service=cashflow_management' },
-          { label: labels.budgets, href: langBase + 'my-bonds/workspace/?service=budgeting_forecasting' },
+          { label: labels.analysis, href: isEn ? '/en/my-bonds/workspace/?service=financial_analysis' : '/my-bonds/workspace/?service=financial_analysis' },
+          { label: labels.cashflow, href: isEn ? '/en/my-bonds/workspace/?service=cashflow_management' : '/my-bonds/workspace/?service=cashflow_management' },
+          { label: labels.budgets, href: isEn ? '/en/my-bonds/workspace/?service=budgeting_forecasting' : '/my-bonds/workspace/?service=budgeting_forecasting' },
           { label: labels.strategy, href: langBase + 'service-request.html?service=financial_strategy' },
         ],
       },
       {
         heading: { ar: 'الدراسات والتقييم', en: 'Studies & Valuation' },
         items: [
-          { label: labels.feasibility, href: langBase + 'my-bonds/workspace/?service=feasibility_studies' },
+          { label: labels.feasibility, href: isEn ? '/en/my-bonds/workspace/?service=feasibility_studies' : '/my-bonds/workspace/?service=feasibility_studies' },
           { label: labels.valuation, href: valuationHref },
-          { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
+          { label: labels.risk, href: isEn ? '/en/my-bonds/workspace/?service=risk_analysis' : '/my-bonds/workspace/?service=risk_analysis' },
         ],
       },
       {
         heading: { ar: 'التمويل وإعادة الهيكلة', en: 'Funding & Restructuring' },
         items: [
-          { label: labels.fundingExtraction, href: langBase + 'my-bonds/workspace/?service=funding_extraction' },
-          { label: labels.fundingReadiness, href: langBase + 'my-bonds/workspace/?service=funding_readiness' },
-          { label: labels.projectRescue, href: langBase + 'my-bonds/workspace/?service=project_rescue' },
+          { label: labels.fundingExtraction, href: isEn ? '/en/my-bonds/workspace/?service=funding_extraction' : '/my-bonds/workspace/?service=funding_extraction' },
+          { label: labels.fundingReadiness, href: isEn ? '/en/my-bonds/workspace/?service=funding_readiness' : '/my-bonds/workspace/?service=funding_readiness' },
+          { label: labels.projectRescue, href: isEn ? '/en/my-bonds/workspace/?service=project_rescue' : '/my-bonds/workspace/?service=project_rescue' },
         ],
       },
       {
         heading: { ar: 'الأعمال والسوق', en: 'Business & Market' },
         items: [
           { label: labels.operations, href: langBase + 'service-request.html?service=operational_consulting' },
-          { label: labels.research, href: langBase + 'my-bonds/workspace/?service=market_research' },
-          { label: labels.scientificResearch, href: langBase + 'my-bonds/workspace/?service=scientific_research' },
+          { label: labels.research, href: isEn ? '/en/my-bonds/workspace/?service=market_research' : '/my-bonds/workspace/?service=market_research' },
+          { label: labels.scientificResearch, href: isEn ? '/en/my-bonds/workspace/?service=scientific_research' : '/my-bonds/workspace/?service=scientific_research' },
         ],
       },
     ];
@@ -702,7 +702,7 @@
       },
     ];
 
-    const dealsHref = langBase + 'my-bonds/deals/';
+    const dealsHref = isEn ? '/en/my-bonds/deals/' : '/my-bonds/deals/';
     const opportunitiesDropdown = [
       {
         heading: { ar: labels.investmentDiscoveryGroup, en: 'Opportunities & Discovery' },
@@ -717,8 +717,8 @@
         heading: { ar: labels.investmentAnalysisGroup, en: 'Investment Analysis' },
         items: [
           { label: labels.opportunityValuation, href: valuationHref },
-          { label: labels.returnFeasibility, href: langBase + 'my-bonds/workspace/?service=feasibility_studies' },
-          { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
+          { label: labels.returnFeasibility, href: isEn ? '/en/my-bonds/workspace/?service=feasibility_studies' : '/my-bonds/workspace/?service=feasibility_studies' },
+          { label: labels.risk, href: isEn ? '/en/my-bonds/workspace/?service=risk_analysis' : '/my-bonds/workspace/?service=risk_analysis' },
           { label: labels.compareOpportunities, href: isEn ? v3EnglishHubHref + '#city-comparison' : '/v3/city-comparison' },
           { label: labels.scenariosEngine, href: isEn ? v3EnglishHubHref + '#scenarios' : '/v3/scenarios' },
         ],
