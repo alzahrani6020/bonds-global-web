@@ -16,9 +16,23 @@ function applyListMode(){
   const title=document.querySelector('.deal-section-title');
   const cards=$('#dealCards');
   const sharedPanel=$('#dealSharedPanel');
+  const detail=$('#dealDetail');
   const pageTitle=$('#dealPageTitle');
   const pageSubtitle=$('#dealPageSubtitle');
   const breadcrumb=$('#dealBreadcrumbLabel');
+  const detailOpen=Boolean(detail&&!detail.hidden);
+
+  // Deal detail is mutually exclusive with every list surface. This guard
+  // must run before shared/owned list-mode logic so loadDeal() cannot be
+  // undone by applyListMode(). backToList() hides detail before calling us,
+  // which restores the appropriate owned or shared list.
+  if(detailOpen){
+    if(create)create.hidden=true;
+    if(title)title.hidden=true;
+    if(cards)cards.hidden=true;
+    if(sharedPanel)sharedPanel.hidden=true;
+    return;
+  }
 
   if(sharedView){
     if(create)create.hidden=true;
