@@ -566,7 +566,7 @@
     const servicesHref = langBase + 'services.html';
     const contactHref = langBase + 'contact.html';
     const blogHref = langBase + '../blog/index.html';
-    const valuationHref = langBase + 'valuation/index.html';
+    const valuationHref = isEn ? '/en/valuation/index.html' : '/valuation/index.html';
     const clientPortalHref = isEn ? '/en/my-bonds/' : '/my-bonds/';
     const loginHref = langBase + 'calculators/auth/login.html';
     const signupHref = langBase + 'calculators/auth/index.html?tab=signup';
@@ -587,7 +587,7 @@
     const fundingCasesHref = isEn ? '/en/client/funding-cases' : '/client/funding-cases';
     const fundingExtractionHref = langBase + 'funding-extraction.html';
     const fundingRequirementsHref = fundingExtractionHref + '#funding-file';
-    const investmentOpportunitiesHref = langBase + 'investment-opportunities.html';
+    const investmentOpportunitiesHref = isEn ? '/en/investment-opportunities.html' : '/investment-opportunities.html';
     const cityIntelligenceHref = '/' + v3Base + 'city-intelligence.html';
     const projectRescueHref = langBase + 'project-rescue.html';
     const calcBase = langBase + 'calculators/';
@@ -614,7 +614,7 @@
         items: [
           { label: labels.feasibility, href: langBase + 'my-bonds/workspace/?service=feasibility_studies' },
           { label: labels.valuation, href: valuationHref },
-          { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
+          { label: labels.risk, href: (isEn ? '/en/my-bonds/workspace/' : '/my-bonds/workspace/') + '?service=risk_analysis' },
         ],
       },
       {
@@ -702,7 +702,7 @@
       },
     ];
 
-    const dealsHref = langBase + 'my-bonds/deals/';
+    const dealsHref = isEn ? '/en/my-bonds/deals/' : '/my-bonds/deals/';
     const opportunitiesDropdown = [
       {
         heading: { ar: labels.investmentDiscoveryGroup, en: 'Opportunities & Discovery' },
@@ -717,7 +717,7 @@
         heading: { ar: labels.investmentAnalysisGroup, en: 'Investment Analysis' },
         items: [
           { label: labels.opportunityValuation, href: valuationHref },
-          { label: labels.returnFeasibility, href: langBase + 'my-bonds/workspace/?service=feasibility_studies' },
+          { label: labels.returnFeasibility, href: (isEn ? '/en/my-bonds/workspace/' : '/my-bonds/workspace/') + '?service=feasibility_studies' },
           { label: labels.risk, href: langBase + 'my-bonds/workspace/?service=risk_analysis' },
           { label: labels.compareOpportunities, href: isEn ? v3EnglishHubHref + '#city-comparison' : '/v3/city-comparison' },
           { label: labels.scenariosEngine, href: isEn ? v3EnglishHubHref + '#scenarios' : '/v3/scenarios' },
