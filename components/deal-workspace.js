@@ -412,6 +412,14 @@ async function offerAction(button){
 }
 
 
+
+function populateClosingDocuments(documents){
+  const select=$('#dealClosingDocument');
+  if(!select)return;
+  select.innerHTML='<option value="">'+tr('مستند الإثبات المرفوع','Evidence document with uploaded file')+'</option>'+
+    (documents||[]).map(d=>'<option value="'+escapeHtml(d.id)+'">'+escapeHtml([d.name,d.category,d.status].filter(Boolean).join(' · '))+'</option>').join('');
+}
+
 function populateClosingOffers(offers){
   const select=$('#dealClosingOffer');
   if(!select)return;
@@ -547,6 +555,7 @@ async function loadDeal(id){
   renderClosingItems(workspace.closing_items||[],access);
   renderClosingRecords(workspace.closing_records||[],workspace.offers||[],access);
   populateClosingOffers(workspace.offers||[]);
+  populateClosingDocuments(workspace.documents||[]);
   syncClosingRecordForm();
   applyAccess(access,deal);
   renderMembers(data.members||[],access);
