@@ -21,6 +21,10 @@ describe('unified investment context',()=>{
     expect(sql).toContain('alter table public.bonds_investment_artifacts enable row level security');
     expect(sql).toContain('alter table public.bonds_investment_interest_leads enable row level security');
     expect(sql).toContain('revoke all on public.bonds_investment_interest_leads from anon');
+    const hardening=read('supabase/migrations/20261112161000_harden_investment_interest_leads.sql');
+    expect(hardening).toContain('revoke all on public.bonds_investment_interest_leads from authenticated');
+    expect(hardening).toContain('revoke all on public.bonds_investment_interest_leads from public');
+    expect(hardening).toContain('grant all on public.bonds_investment_interest_leads to service_role');
   });
 
   test('v3 router exposes context without a second serverless function',()=>{
