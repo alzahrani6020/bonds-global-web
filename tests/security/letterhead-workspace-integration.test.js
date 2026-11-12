@@ -29,8 +29,8 @@ describe('Letterhead governed workspace integration', () => {
     ]) {
       expect(client).toContain("'" + name + "'");
     }
-    expect(client).toContain('if (!canEditCurrent())');
-    expect(client).toContain('setLegacyEditorControlsDisabled(!canEditCurrent())');
+    expect(client).toContain('function prepareEditableAction()');
+    expect(client).toContain('setLegacyEditorControlsDisabled(!canEditCurrent() && !canStartRejectedRevision())');
     expect(client).toContain('imageInput.disabled = !!disabled');
     expect(client).toContain('importInput.disabled = !!disabled');
   });
@@ -128,10 +128,10 @@ describe('Letterhead governed workspace integration', () => {
 
   test('undo redo and legacy write toggle preserve governed ownership checks', () => {
     const client = read('components/letterhead-correspondence.js');
-    expect(client).toContain('if (!canEditCurrent()) return toast');
     expect(client).toContain('window.undoDoc = function ()');
     expect(client).toContain('window.redoDoc = function ()');
-    expect(client).toContain("if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user'");
+    expect(client).toContain('if (!prepareEditableAction()) return toast');
+    expect(client).toContain("if (!prepareEditableAction()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user'");
     expect(client).toContain("if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked or not owned by the current user'");
     expect(client).toContain('if (!canEditCurrent()) return;');
   });
