@@ -700,7 +700,7 @@ async function createPendingVersion(supabase, user, dealId, document, spec, requ
   const { data:latest, error:versionError } = await supabase.from('bonds_deal_document_versions')
     .select('version').eq('document_id', document.id).order('version', { ascending:false }).limit(1);
   if (versionError) throw versionError;
-  const version = Array.isArray(latest) && latest[0] ? Number(latest[0].version) + 1 : Math.max(1, Number(document.version || 0) + 1);
+  const version = Array.isArray(latest) && latest[0] ? Number(latest[0].version) + 1 : 1;
   const storagePath = buildStoragePath(dealId, document.id, version, spec.file_name);
   const { data:row, error:insertError } = await supabase.from('bonds_deal_document_versions').insert({
     deal_id:dealId,
