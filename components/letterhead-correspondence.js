@@ -694,7 +694,7 @@
       resultsEl.innerHTML = '';
       return;
     }
-    const result = await api('list', { query: { q, page: 1, page_size: 10 } });
+    const result = await api('list', { query: { ...workspaceQuery(), q, page: 1, page_size: 10 } });
     resultsEl.innerHTML = '';
     const documents = result.documents || [];
     if (!documents.length) {
@@ -705,7 +705,7 @@
       const row = document.createElement('button');
       row.type = 'button';
       row.style.cssText = 'text-align:start;padding:7px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;cursor:pointer';
-      row.textContent = (doc.reference_number || doc.title || doc.id) + ' · ' + doc.status + (doc.recipient_organization ? ' · ' + doc.recipient_organization : '');
+      row.textContent = (doc.reference_number || doc.title || doc.id) + ' · ' + statusLabel(doc.status) + (doc.recipient_organization ? ' · ' + doc.recipient_organization : '');
       row.addEventListener('click', () => loadDocument(doc.id).catch(e => toast('⚠️ ' + e.message)));
       resultsEl.appendChild(row);
     });
@@ -713,8 +713,8 @@
 
   async function refreshCommandCenter() {
     const [summaryResult, workResult] = await Promise.all([
-      api('summary'),
-      api('my-work')
+      api('summary', { query: workspaceQuery() }),
+      api('my-work', { query: workspaceQuery() })
     ]);
     state.summary = summaryResult;
     state.tasks = workResult.tasks || [];
