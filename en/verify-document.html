@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>Verify Bonds Correspondence | Bonds</title>
+  <title>Bonds Outgoing Register | Verify Official Issue</title>
   <meta name="description" content="Verify the authenticity, status, and digital fingerprints of correspondence issued by Bonds." />
   <link rel="canonical" href="https://bonds-global.com/en/verify-document.html" />
   <meta property="og:title" content="Verify Bonds Correspondence | Bonds" />
@@ -29,10 +29,12 @@
 </head>
 <body>
 <main>
-  <h1>Verify Bonds correspondence</h1>
+  <h1>Bonds Outgoing Register</h1>
   <div id="status" class="badge">Verifying…</div>
   <dl class="grid" id="details" hidden>
-    <dt>Reference</dt><dd id="reference"></dd>
+    <dt>Outgoing number</dt><dd id="reference"></dd>
+    <dt>Issue version</dt><dd id="issue-version"></dd>
+    <dt>Issue state</dt><dd id="issue-state"></dd>
     <dt>Subject</dt><dd id="subject"></dd>
     <dt>Status</dt><dd id="doc-status"></dd>
     <dt>Issued at</dt><dd id="issued"></dd>
@@ -43,6 +45,9 @@
     <dt>Final PDF</dt><dd id="artifact-state"></dd>
     <dt>Signature</dt><dd id="signature-state"></dd>
     <dt>Stamp</dt><dd id="stamp-state"></dd>
+    <dt>Authorized signatory</dt><dd id="signer"></dd>
+    <dt>Verification count</dt><dd id="verify-count"></dd>
+    <dt>Official PDF</dt><dd><a id="official-pdf" target="_blank" rel="noopener" hidden>Open official PDF</a></dd>
   </dl>
   <p><a href="/en/">Back to Bonds</a></p>
 </main>
@@ -55,8 +60,10 @@
     const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!d.verified)throw new Error('not-verified');
-    status.textContent='Verified Bonds document';
-    document.getElementById('reference').textContent=d.reference_number||'-';
+    status.textContent=d.issue_state==='active'?'Valid official Bonds issue':(d.issue_state==='revoked'?'Revoked official issue':'Superseded official issue');
+    document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
+    document.getElementById('issue-version').textContent=d.issue_version||'-';
+    document.getElementById('issue-state').textContent=d.issue_state||'-';
     document.getElementById('subject').textContent=d.subject||d.title||'-';
     document.getElementById('doc-status').textContent=d.status||'-';
     document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('en-US'):'-';
@@ -67,6 +74,9 @@
     document.getElementById('artifact-state').textContent=d.final_pdf_verified?'Verified':'Not finalized';
     document.getElementById('signature-state').textContent=d.signature_verified?'Verified':'Not recorded';
     document.getElementById('stamp-state').textContent=d.stamp_verified?'Verified':'Not recorded';
+    document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'-';
+    document.getElementById('verify-count').textContent=String(d.verification_count||0);
+    const pdf=document.getElementById('official-pdf'); if(d.official_pdf_url){pdf.href=d.official_pdf_url;pdf.hidden=false;}
     details.hidden=false;
   }catch(e){
     status.textContent='Document could not be verified';

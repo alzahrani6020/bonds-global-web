@@ -8,6 +8,43 @@ const $=selector=>document.querySelector(selector);
 const statusEl=()=>$('#dealStatus');
 let activeDealId=null;
 let hasSharedDeals=false;
+const params=new URLSearchParams(location.search);
+const sharedView=params.get('view')==='shared'||location.hash==='#dealSharedPanel';
+
+function applyListMode(){
+  const create=$('#dealCreatePanel');
+  const title=document.querySelector('.deal-section-title');
+  const cards=$('#dealCards');
+  const sharedPanel=$('#dealSharedPanel');
+  const pageTitle=$('#dealPageTitle');
+  const pageSubtitle=$('#dealPageSubtitle');
+  const breadcrumb=$('#dealBreadcrumbLabel');
+
+  if(sharedView){
+    if(create)create.hidden=true;
+    if(title)title.hidden=true;
+    if(cards)cards.hidden=true;
+    if(sharedPanel)sharedPanel.hidden=false;
+    if(pageTitle)pageTitle.textContent=tr('فرص مشاركة معي','Deals shared with me');
+    if(pageSubtitle)pageSubtitle.textContent=tr(
+      'الصفقات والفرص التي تمت دعوتك إليها أو مشاركتها مع بريدك المؤكد.',
+      'Deals and opportunities explicitly shared with your verified account.'
+    );
+    if(breadcrumb)breadcrumb.textContent=tr('فرص مشاركة معي','Shared with me');
+  }else{
+    if(create)create.hidden=false;
+    if(title)title.hidden=false;
+    if(cards)cards.hidden=false;
+    if(sharedPanel)sharedPanel.hidden=!hasSharedDeals;
+    if(pageTitle)pageTitle.textContent=tr('مساحة الصفقات','Deal Workspace');
+    if(pageSubtitle)pageSubtitle.textContent=tr(
+      'سجل مركزي للصفقة، الأطراف، المهام، الفحص النافي للجهالة ومستندات غرفة البيانات.',
+      'A central deal record for parties, tasks, due diligence, and data-room documents.'
+    );
+    if(breadcrumb)breadcrumb.textContent=tr('مساحة الصفقات','Deal Workspace');
+  }
+}
+
 
 function setStatus(message,isError){
   const el=statusEl();
@@ -564,6 +601,7 @@ async function loadDeal(id){
   const url=new URL(location.href);
   url.searchParams.set('deal',deal.id);
   history.replaceState({},'',url);
+  applyListMode();
   setStatus('');
 }
 
@@ -732,8 +770,20 @@ async function loadDeals(){
   const sharedHost=$('#dealSharedCards');
   hasSharedDeals=shared.length>0;
   if(sharedHost){
-    setHidden('#dealSharedPanel',!hasSharedDeals);
-    renderCards(sharedHost,shared,true);
+    if(sharedView){
+      setHidden('#dealSharedPanel',false);
+      if(shared.length){
+        renderCards(sharedHost,shared,true);
+      }else{
+        sharedHost.innerHTML='<div class="deal-empty">'+tr(
+          'لا توجد فرص مشاركة معك بعد. عند دعوتك إلى صفقة ببريدك المؤكد ستظهر هنا.',
+          'No opportunities have been shared with you yet. Deals you are invited to with your verified email will appear here.'
+        )+'</div>';
+      }
+    }else{
+      setHidden('#dealSharedPanel',!hasSharedDeals);
+      renderCards(sharedHost,shared,true);
+    }
   }
   const deals=Array.isArray(data.deals)?data.deals:[];
   const host=$('#dealCards');
@@ -792,10 +842,7 @@ async function createChild(event){
 function backToList(){
   activeDealId=null;
   $('#dealDetail').hidden=true;
-  $('#dealCreatePanel').hidden=false;
-  $('.deal-section-title').hidden=false;
-  $('#dealCards').hidden=false;
-  setHidden('#dealSharedPanel',!hasSharedDeals);
+  applyListMode();
   const url=new URL(location.href);
   url.searchParams.delete('deal');
   history.replaceState({},'',url);
@@ -868,10 +915,13 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }
   try{
     await loadDeals();
-    if(location.hash==='#dealSharedPanel'){
-      if(hasSharedDeals)$('#dealSharedPanel')?.scrollIntoView({block:'start'});
-      else setStatus(tr('لا توجد فرص مشاركة معك بعد. عند دعوتك إلى صفقة ببريدك المؤكد ستظهر هنا.','No opportunities have been shared with you yet. Deals you are invited to with your confirmed email will appear here.'));
+    if(location.hash==='#dealSharedPanel'&&!params.get('view')){
+      const url=new URL(location.href);
+      url.hash='';
+      url.searchParams.set('view','shared');
+      history.replaceState({},'',url);
     }
+    applyListMode();
     const id=new URLSearchParams(location.search).get('deal');
     if(id)await loadDeal(id);
   }catch(err){
