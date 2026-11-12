@@ -4,7 +4,7 @@ const { setAllowedOrigin } = require('../../lib/api/cors');
 
 function setCors(res, req) {
   setAllowedOrigin(res, req);
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization,x-admin-token');
 }
 
