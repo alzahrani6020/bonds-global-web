@@ -300,6 +300,7 @@ describe('deal lifecycle context', () => {
       context: {}
     });
     expect(withoutFile.vdr).toBeUndefined();
+    expect(evaluate('guard_vdr_access', withoutFile)).toBe(false);
 
     supabase.db.tables.bonds_deal_document_versions = [{
       id: '99999999-9999-4999-8999-999999999999',
@@ -312,7 +313,9 @@ describe('deal lifecycle context', () => {
       instance: { entity_type: 'project', entity_id: PROJECT_ID },
       context: {}
     });
-    expect(withFile.vdr).toEqual(expect.objectContaining({ status: 'active' }));
+    expect(withFile.vdr.documents).toHaveLength(1);
+    expect(withFile.vdr.documents[0].id).toBe(row.id);
+    expect(evaluate('guard_vdr_access', withFile)).toBe(true);
   });
 
   test('adapter merges the linked deal into the lifecycle context without dropping existing documents', async () => {
