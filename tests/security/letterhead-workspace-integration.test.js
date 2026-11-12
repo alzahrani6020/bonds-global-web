@@ -314,14 +314,51 @@ describe('Letterhead governed workspace integration', () => {
     expect(migration).toContain("state = 'superseded'");
   });
 
-  test('letterhead QR pair stays inside printable page above footer', () => {
+  test('letterhead reserves a verification safe zone and keeps dual QR inside printable page', () => {
     const ar = read('letterhead.html');
-    expect(ar).toContain('position: absolute;');
-    expect(ar).toContain('top: -25mm;');
-    expect(ar).toContain('left: 8mm;');
-    expect(ar).toContain('right: 8mm;');
-    expect(ar).toContain('footer-document-qr');
-    expect(ar).toContain('footer-site-qr');
+    const en = read('en/letterhead.html');
+    const client = read('components/letterhead-correspondence.js');
+    for (const page of [ar, en]) {
+      expect(page).toContain('.sheet.has-verification-zone .letter-body');
+      expect(page).toContain('padding-bottom: 28mm;');
+      expect(page).toContain('left: 18mm;');
+      expect(page).toContain('right: 18mm;');
+      expect(page).toContain('footer-document-qr');
+      expect(page).toContain('footer-site-qr');
+    }
+    expect(client).toContain("sheet.classList.toggle('has-verification-zone', !!token)");
+  });
+
+  test('official approval zone is page-break safe with a blue oval stamp', () => {
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    const client = read('components/letterhead-correspondence.js');
+    for (const page of [ar, en]) {
+      expect(page).toContain('--official-blue: #0b4f84');
+      expect(page).toContain('.official-approval-zone');
+      expect(page).toContain('break-inside: avoid;');
+      expect(page).toContain('page-break-inside: avoid;');
+      expect(page).toContain('.official-stamp');
+      expect(page).toContain('width: 132px;');
+      expect(page).toContain('height: 76px;');
+      expect(page).toContain('border: 2px double var(--official-blue);');
+      expect(page).toContain('transform: none;');
+    }
+    expect(client).toContain("row.className = 'official-approval-zone'");
+    expect(client).toContain("signature.className = 'official-signature'");
+    expect(client).toContain("stamp.className = 'official-stamp'");
+    expect(client).not.toContain('#a51d2d');
+    expect(client).not.toContain('rotate(-4deg)');
+  });
+
+  test('mobile letterhead gives QR and approval artifacts their own responsive layout', () => {
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    for (const page of [ar, en]) {
+      expect(page).toContain('width: min(100%, 78mm);');
+      expect(page).toContain('position: relative;');
+      expect(page).toContain('width: 120px; height: 70px;');
+    }
   });
 
 });
