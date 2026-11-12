@@ -72,18 +72,29 @@ describe('header hover and automated refresh stabilization', () => {
     expect(layout).toContain('{ label: labels.kyc, href: kycHref }');
   });
 
-  test('funding dropdown stays two columns without duplicate file or hub links', () => {
+  test('funding dropdown exposes three operational groups and opportunities stay separate', () => {
     const layout = read('site-layout.js');
     expect(layout).not.toContain("heading: { ar: 'نماذج', en: 'Forms' }");
+
+    expect(layout).toContain("heading: { ar: labels.fundingSourcesGroup, en: 'Funding Sources' }");
+    expect(layout).toContain("heading: { ar: labels.fundingExecutionGroup, en: 'Readiness & Execution' }");
+    expect(layout).toContain("heading: { ar: labels.fundingFileGroup, en: 'Funding File' }");
+
     expect(layout).toContain('{ label: labels.fundingSources, href: fundingSourcesHref }');
     expect(layout).toContain('{ label: labels.fundingDirectory, href: fundingDirectoryHref }');
+    expect(layout).toContain('{ label: labels.fundingPortal, href: fundingHubHref }');
     expect(layout).toContain('{ label: labels.fundingExtraction, href: fundingExtractionHref }');
     expect(layout).toContain('{ label: labels.fundingReadiness, href: fundingReadinessHref }');
+    expect(layout).toContain('{ label: labels.fundingRequirements, href: fundingRequirementsHref }');
     expect(layout).toContain('{ label: labels.fundingCases, href: fundingCasesHref }');
+    expect(layout).toContain('{ label: labels.establishmentInfo, href: establishmentInfoHref }');
+    expect(layout).toContain('{ label: labels.cashFlowForm, href: cashFlowFormHref }');
+    expect(layout).toContain('{ label: labels.clientPortalNav, href: clientPortalHref }');
+
+    expect(layout).toContain("navId: 'opportunities'");
     expect(layout).toContain('{ label: labels.investmentOpportunities, href: investmentOpportunitiesHref }');
-    expect(layout).not.toContain('{ label: labels.fundingHub, href: fundingHubHref }');
-    expect(layout).not.toContain('{ label: labels.fundingRequirements, href: fundingRequirementsHref }');
-    expect(layout).not.toContain('{ label: labels.clientPortalNav, href: clientPortalHref }');
+    expect(layout).toContain("heading: { ar: labels.dealsGroup, en: 'Deals' }");
+
     expect(layout).toContain("const fundingCasesHref = isEn ? '/en/client/funding-cases' : '/client/funding-cases';");
     expect(layout).toContain("const fundingRequirementsHref = fundingExtractionHref + '#funding-file';");
     expect(read('funding-extraction.html')).toContain('id="funding-file"');
