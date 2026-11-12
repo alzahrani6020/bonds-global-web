@@ -701,6 +701,15 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **ECC**: `aggregateProjectStatus` يعيد `deal` و `dealVisible`، وبطاقة الصفقة في مركز قيادة المشروع.
 - **الوثائق**: `docs/phase-f/PHASE_F_DEAL_LIFECYCLE_ADR.md`. الاختبارات: `tests/deals/`.
 
+### 11.18 سياق الاستثمار الموحد — Opportunity → Project → Analysis → Deal
+
+- **الأساس**: migration `20261112160000` — `bonds_investment_opportunities` (الفرص المحفوظة)، `bonds_investment_artifacts` (مخرجات الأدوات: جدوى، مخاطر، تقييم، جاهزية، مقارنة، سيناريو، خريطة)، `bonds_investment_interest_leads` (اهتمام المستثمرين المباشر؛ service-role فقط)، وأعمدة `project_id/deal_id/opportunity_id` على `asset_valuations`. API: `v3/api/investment-context.js` تحت `/api/v3/investment-context/*`، والواجهة `components/investment-context.js` (تقرأ `project_id` / `deal_id` / `opportunity_id` من الرابط). **لا تُنشئ جداول فرص أو مخرجات موازية.**
+- **الملكية**: `assertContextOwnership` هي نقطة التحقق الوحيدة لأي ربط بمشروع/صفقة/فرصة (تُستخدم أيضاً في `v3/api/services.js`). trigger `bonds_assert_investment_link_owner` (migration `20261112170000`) يرفض في قاعدة البيانات أي ربط في `asset_valuations` أو `bonds_investment_artifacts` بسجل لا يملكه صاحب الصف.
+- **دورة الحياة**: `ProjectAnalysisAdapter` (بين `DealContextAdapter` و `UcpAdapter`) يقرأ آخر artifacts الجدوى والمخاطر المملوكة لصاحب المشروع، ويمرر مدخلات الجدوى ودولة المشروع إلى UCP فتُحسب `guard_feasibility_confidence`. لا يُشغَّل UCP لمشروع بلا دراسة جدوى. التقييم عبر `ValuationAdapter` (احتياطي `asset_valuations.project_id`).
+- **الجاهزية**: التقييم الذاتي في `/v3/project-readiness` يُحفظ artifact استرشادياً (`assessment: self_reported`)؛ جدول `investment_readiness_scores` الذي تقرأه البوابة لا يكتبه إلا المحرك المؤسسي `evaluateReadiness`.
+- **مركز قيادة المشروع**: بطاقة «أدوات المشروع» (للمالك/المدير) تفتح الجدوى والمخاطر والتقييم والجاهزية والمقارنة والسيناريوهات مع `project_id`.
+- **الاختبارات**: `tests/investment/unified-investment-context.test.js` و `tests/investment/investment-context-lifecycle-gaps.test.js`.
+
 ---
 
 ## 12. تصميم footer التقرير (Report Footer)

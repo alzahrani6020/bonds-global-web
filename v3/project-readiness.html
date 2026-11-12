@@ -375,7 +375,10 @@
         });
         const payload = await response.json().catch(() => ({}));
         if (!response.ok) throw new Error(payload.error || ('HTTP ' + response.status));
-        alert('تم حفظ الجاهزية وربطها بالمشروع ودورة حياته.');
+        const official = payload.readiness && payload.readiness.readiness_score;
+        alert(official !== undefined && official !== null
+          ? 'حُفظ تقييمك الذاتي في المشروع، وحُدّثت درجة الجاهزية المؤسسية التي تعتمدها دورة الحياة: ' + official + '/100.'
+          : 'حُفظ تقييمك الذاتي في المشروع. درجة الجاهزية المؤسسية تُحسب من بيانات المشروع ولم تتوفر الآن.');
       } catch (err) {
         alert('تعذر حفظ الجاهزية في المشروع: ' + err.message);
       }

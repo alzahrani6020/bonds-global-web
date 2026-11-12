@@ -886,12 +886,13 @@ async function handleServiceExecute(req, res, supabase, user) {
 
     if (user && body.project_id && result.body?.executed === true) {
       try {
-        const { data:project } = await supabase
-          .from('bonds_projects')
-          .select('id')
-          .eq('id', String(body.project_id))
-          .eq('user_id', user.id)
-          .maybeSingle();
+        const { assertContextOwnership } = require('./investment-context');
+        const owned = await assertContextOwnership(supabase, user, {
+          project_id: body.project_id,
+          deal_id: body.deal_id || null,
+          opportunity_id: body.opportunity_id || null
+        });
+        const project = owned.project;
 
         if (project) {
           const artifactType = serviceCode === 'feasibility_studies'
@@ -904,8 +905,8 @@ async function handleServiceExecute(req, res, supabase, user) {
             await supabase.from('bonds_investment_artifacts').insert({
               user_id:user.id,
               project_id:project.id,
-              deal_id:body.deal_id || null,
-              opportunity_id:body.opportunity_id || null,
+              deal_id:owned.dealId || null,
+              opportunity_id:owned.opportunityId || null,
               artifact_type:artifactType,
               title:serviceCode,
               source_url:body.source_url || null,

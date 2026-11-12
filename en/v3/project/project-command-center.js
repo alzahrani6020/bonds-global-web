@@ -206,6 +206,28 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  function renderProjectToolsCard(project, role) {
+    if (role !== 'owner' && role !== 'admin') return '';
+    const id = encodeURIComponent(project.id);
+    const tools = [
+      { label: 'Feasibility study', href: `/en/my-bonds/workspace/?service=feasibility_studies&project_id=${id}` },
+      { label: 'Risk analysis', href: `/en/my-bonds/workspace/?service=risk_analysis&project_id=${id}` },
+      { label: 'Asset valuation', href: `/en/valuation/?project_id=${id}` },
+      { label: 'Investment readiness (Arabic)', href: `/v3/project-readiness?project_id=${id}` },
+      { label: 'City comparison (Arabic)', href: `/v3/city-comparison?project_id=${id}` },
+      { label: 'Scenarios (Arabic)', href: `/v3/scenarios?project_id=${id}` }
+    ];
+    return `
+      <div class="ecc-card project-tools-card">
+        <div class="ecc-card__title">Project tools</div>
+        <p style="color:var(--text-secondary);font-size:0.85rem;">Work you run from here is saved to this project; feasibility, risk, valuation and institutional readiness feed its lifecycle gates.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+          ${tools.map(tool => `<a class="ecc-btn ecc-btn--secondary" style="text-decoration:none;" href="${tool.href}">${tool.label}</a>`).join('')}
+        </div>
+      </div>
+    `;
+  }
+
   function renderDealCard(status, project, role) {
     if (!status.dealVisible) return '';
     const deal = status.deal;
@@ -411,6 +433,7 @@
           ${renderHealthCards(health)}
           ${renderMissionControl(mission)}
           ${renderDecisionCockpit(approvals, timeline)}
+          ${renderProjectToolsCard(project, role)}
           ${renderDealCard(data.status, project, role)}
           ${renderActionBar(project, lifecycle, role)}
         </div>
