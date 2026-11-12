@@ -29,6 +29,7 @@
       --paper: #ffffff;
       --text: #1a1a1a;
       --muted: #555;
+      --official-blue: #0b4f84;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -182,6 +183,9 @@
       padding: 10mm 16mm 0;
       z-index: 1;
     }
+    .sheet.has-verification-zone .letter-body {
+      padding-bottom: 28mm;
+    }
     .watermark-b {
       position: absolute;
       right: 8mm;
@@ -212,8 +216,62 @@
     .doc-content table th, .doc-content table td { border: 1.5px solid var(--navy); padding: 7px 12px; text-align: left; direction: ltr; }
     .doc-content table th { background: rgba(2,15,35,0.07); font-weight: 700; color: var(--navy); }
 
-    .letter-stamp { display: inline-block; width: 130px; height: 130px; vertical-align: middle; margin: 6px; }
+    .letter-stamp { display: inline-block; width: 132px; height: 76px; vertical-align: middle; margin: 6px; color: var(--official-blue); }
     .letter-stamp svg { width: 100%; height: 100%; display: block; }
+
+    .official-approval-zone {
+      margin-top: 24px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      gap: 24px;
+      width: fit-content;
+      max-width: 100%;
+      margin-inline-end: auto;
+      direction: ltr;
+      break-inside: avoid;
+      page-break-inside: avoid;
+      position: relative;
+      z-index: 2;
+    }
+    .official-signature {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 210px;
+      max-width: 48vw;
+      gap: 3px;
+      text-align: center;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .official-signature img {
+      max-width: 190px;
+      max-height: 74px;
+      object-fit: contain;
+      display: block;
+    }
+    .official-stamp {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 132px;
+      height: 76px;
+      flex: 0 0 132px;
+      border: 2px double var(--official-blue);
+      border-radius: 50%;
+      color: var(--official-blue);
+      background: rgba(255,255,255,.96);
+      text-align: center;
+      font-weight: 700;
+      white-space: pre-line;
+      transform: none;
+      font-size: 11px;
+      line-height: 1.35;
+      letter-spacing: .1px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
 
     .signature-block { display: inline-block; width: 220px; margin-top: 20px; text-align: center; direction: ltr; }
     .signature-block .sig-line { border-top: 1.5px solid var(--text); margin-bottom: 6px; }
@@ -272,13 +330,13 @@
 
     .footer-qr-pair {
       position: absolute;
-      left: 8mm;
-      right: 8mm;
+      left: 18mm;
+      right: 18mm;
       top: -25mm;
       display: flex;
       justify-content: space-between;
       align-items: flex-end;
-      gap: 6mm;
+      gap: 10mm;
       z-index: 8;
       direction: ltr;
       pointer-events: none;
@@ -358,6 +416,8 @@
       .logo-en { font-size: 22px; }
       .logo-ar { font-size: 11px; }
       .letter-body { padding: 10mm 16mm 0; }
+      .sheet.has-verification-zone .letter-body { padding-bottom: 28mm; }
+      .official-approval-zone { break-inside: avoid; page-break-inside: avoid; }
       .doc-content { min-height: auto; color: #000 !important; }
       .letterhead-footer { padding: 5mm 10mm 5mm 14mm; }
       [contenteditable]:empty::before, .doc-content:empty::before { content: none !important; }
@@ -380,6 +440,26 @@
       .contact-divider { display: none; }
       .contact-row { justify-content: center; }
       .letterhead-footer { flex-direction: column; height: auto; gap: 6mm; padding: 6mm; }
+      .footer-qr-pair {
+        position: relative;
+        left: auto;
+        right: auto;
+        top: auto;
+        width: min(100%, 78mm);
+        margin: 0 auto 2mm;
+        gap: 8mm;
+        order: -1;
+      }
+      .sheet.has-verification-zone .letter-body { padding-bottom: 8mm; }
+      .official-approval-zone {
+        width: 100%;
+        max-width: 100%;
+        gap: 14px;
+        justify-content: center;
+        margin-inline: 0;
+      }
+      .official-signature { width: min(210px, 52vw); }
+      .official-stamp { width: 120px; height: 70px; flex-basis: 120px; font-size: 10px; }
       .footer-legal { grid-template-columns: 1fr 1fr; text-align: center; }
       .footer-icons { flex-wrap: wrap; justify-content: center; }
       .f-icon { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.15); padding: 8px 0; }
