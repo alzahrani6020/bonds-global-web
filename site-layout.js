@@ -727,7 +727,7 @@
         heading: { ar: labels.dealsGroup, en: 'Deals' },
         items: [
           { label: labels.dealWorkspace, href: dealsHref },
-          { label: labels.sharedDeals, href: dealsHref + '#dealSharedPanel' },
+          { label: labels.sharedDeals, href: dealsHref + '?view=shared' },
         ],
       },
     ];
