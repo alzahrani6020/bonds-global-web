@@ -59,6 +59,29 @@ function financialWorkspaceHref(code){
  next.set('service',code);
  return (lang==='ar'?'/my-bonds/workspace/':'/en/my-bonds/workspace/')+'?'+next.toString();
 }
+
+function correspondenceWorkspaceHref(){
+ const next=new URLSearchParams();
+ const live=new URLSearchParams(location.search);
+ const allowed=['service','project_id','client_id','funding_case_id','request_id'];
+ allowed.forEach(key=>{const value=live.get(key);if(value)next.set(key,value)});
+ const workspaceType=String(detail?.workspace?.type||'').trim();
+ if(workspaceType)next.set('workspace',workspaceType);
+ next.set('return_to',location.pathname+location.search);
+ const base=lang==='ar'?'/letterhead.html':'/en/letterhead.html';
+ return base+'?'+next.toString();
+}
+function renderCorrespondenceWorkspaceLink(){
+ if(!isServiceWorkspace)return;
+ const hero=document.querySelector('.sr-hero');
+ if(!hero||document.getElementById('srCorrespondence'))return;
+ const link=document.createElement('a');
+ link.id='srCorrespondence';
+ link.className='sr-secondary';
+ link.href=correspondenceWorkspaceHref();
+ link.textContent=lang==='ar'?'فتح المراسلات':'Open correspondence';
+ hero.appendChild(link);
+}
 const STUDIES_WORKSPACE_SERVICES=Object.freeze([
  'market_research',
  'scientific_research',
@@ -1231,6 +1254,7 @@ function render(){
  renderFinancialWorkspaceShell();
  renderStudiesWorkspaceShell();
  applyWorkspaceTypeChrome();
+ renderCorrespondenceWorkspaceLink();
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
  renderFinancialIntake();

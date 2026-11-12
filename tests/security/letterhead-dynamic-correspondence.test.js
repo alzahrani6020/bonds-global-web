@@ -197,5 +197,34 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(webhook).toContain("eq('provider_message_id', providerMessageId)");
     expect(email).toContain("provider: 'smtp'");
   });
+  test('device import is distinct from cloud load and remains governed', () => {
+    const api = read('lib/api/correspondence.js');
+    const client = read('components/letterhead-correspondence.js');
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+
+    expect(ar).toContain('id="document-import"');
+    expect(en).toContain('id="document-import"');
+    expect(ar).toContain("document.getElementById('document-import').click()");
+    expect(en).toContain("document.getElementById('document-import').click()");
+    expect(ar).toContain('من الجهاز');
+    expect(en).toContain('From device');
+
+    expect(client).toContain('window.importDocumentFromDevice');
+    expect(client).toContain("api('import-device'");
+    expect(client).toContain("if (!editable())");
+    expect(client).toContain("file.size > 2 * 1024 * 1024");
+    expect(client).toContain("/\\.(txt|html?|docx)$/i");
+
+    expect(api).toContain("action === 'import-device'");
+    expect(api).toContain("require('mammoth')");
+    expect(api).toContain("Unsupported import type. Use TXT, HTML, HTM, or DOCX");
+    expect(api).toContain('sanitizeHtml(html)');
+
+    expect(client).toContain('window.loadDraftsFromCloud');
+    expect(ar).toContain('تحميل المراسلات من السحابة');
+    expect(en).toContain('Load correspondence from cloud');
+  });
+
 
 });
