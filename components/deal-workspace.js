@@ -411,6 +411,120 @@ async function offerAction(button){
   await loadDeal(activeDealId);
 }
 
+
+
+function populateClosingDocuments(documents){
+  const select=$('#dealClosingDocument');
+  if(!select)return;
+  select.innerHTML='<option value="">'+tr('مستند الإثبات المرفوع','Evidence document with uploaded file')+'</option>'+
+    (documents||[]).map(d=>'<option value="'+escapeHtml(d.id)+'">'+escapeHtml([d.name,d.category,d.status].filter(Boolean).join(' · '))+'</option>').join('');
+}
+
+function populateClosingOffers(offers){
+  const select=$('#dealClosingOffer');
+  if(!select)return;
+  const accepted=(offers||[]).filter(o=>['term_sheet','revised_term_sheet'].includes(o.offer_type)&&o.status==='accepted');
+  select.innerHTML='<option value="">'+tr('عرض شروط مرتبط (للتوقيع)','Linked accepted term sheet (for signing)')+'</option>'+
+    accepted.map(o=>'<option value="'+escapeHtml(o.id)+'">'+escapeHtml([o.offer_type,o.amount!=null?money(o.amount,o.currency):'',o.conditions].filter(Boolean).join(' · '))+'</option>').join('');
+}
+
+function syncClosingRecordForm(){
+  const form=$('#dealClosingRecordForm');
+  if(!form)return;
+  const type=String(form.elements.record_type?.value||'term_sheet');
+  const status=form.elements.status;
+  const allowed={
+    term_sheet:[['pending',tr('قيد الإعداد','Pending')],['signed',tr('موقعة','Signed')],['rejected',tr('مرفوضة','Rejected')]],
+    cap_table:[['pending',tr('قيد الإعداد','Pending')],['approved',tr('معتمدة','Approved')],['rejected',tr('مرفوضة','Rejected')]],
+    funding_confirmation:[['pending',tr('قيد الإعداد','Pending')],['confirmed',tr('مؤكدة','Confirmed')],['rejected',tr('مرفوضة','Rejected')]]
+  };
+  if(status)status.innerHTML=(allowed[type]||allowed.term_sheet).map(([value,labelText])=>'<option value="'+value+'">'+escapeHtml(labelText)+'</option>').join('');
+  const offer=form.elements.offer_id;
+  if(offer){
+    offer.disabled=type!=='term_sheet';
+    if(offer.disabled)offer.value='';
+  }
+  const amount=form.elements.amount;
+  if(amount)amount.disabled=type!=='funding_confirmation';
+}
+
+function renderClosingItems(items,access){
+  const host=$('#dealClosingItems');
+  if(!host)return;
+  host.textContent='';
+  if(!items?.length){host.innerHTML='<div class="deal-empty">'+tr('لا توجد شروط إغلاق بعد.','No closing conditions yet.')+'</div>';return}
+  const editable=canDo(access,'manage_closing');
+  items.forEach(item=>{
+    const row=document.createElement('div');row.className='deal-row deal-row-stack';
+    const text=document.createElement('span');
+    text.textContent=[item.title,item.category,item.required===false?tr('غير إلزامي','Optional'):tr('مطلوب','Required'),item.status,item.due_at?String(item.due_at).slice(0,10):''].filter(Boolean).join(' · ');
+    row.appendChild(text);
+    if(editable){
+      const actions=document.createElement('span');
+      ['in_progress','satisfied','waived','blocked'].forEach(status=>{
+        if(item.status!==status)actions.appendChild(actionButton(status,{closingItemAction:status,closingItemId:item.id}));
+      });
+      row.appendChild(actions);
+    }
+    host.appendChild(row);
+  });
+}
+
+function renderClosingRecords(records,offers,access){
+  const host=$('#dealClosingRecords');
+  if(!host)return;
+  const byOffer=new Map((offers||[]).map(o=>[o.id,o]));
+  host.textContent='';
+  if(!records?.length){host.innerHTML='<div class="deal-empty">'+tr('لا توجد أدلة إغلاق بعد.','No closing evidence yet.')+'</div>';return}
+  records.forEach(record=>{
+    const row=document.createElement('div');row.className='deal-row deal-row-stack';
+    const offer=byOffer.get(record.offer_id)||{};
+    const text=document.createElement('span');
+    text.textContent=[
+      record.record_type,record.status,record.reference,
+      record.amount!=null?money(record.amount,record.currency):'',
+      record.offer_id?(offer.offer_type||record.offer_id):'',
+      record.effective_at?String(record.effective_at).slice(0,10):''
+    ].filter(Boolean).join(' · ');
+    row.appendChild(text);
+    host.appendChild(row);
+  });
+}
+
+async function createClosingItem(event){
+  event.preventDefault();
+  if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const payload=Object.fromEntries(new FormData(form).entries());
+  payload.required=payload.required!=='false';
+  if(!payload.due_at)delete payload.due_at;
+  await api('/'+encodeURIComponent(activeDealId)+'/closing-items',{method:'POST',body:JSON.stringify(payload)});
+  form.reset();
+  await loadDeal(activeDealId);
+}
+
+async function closingItemAction(button){
+  if(!activeDealId)return;
+  await api('/'+encodeURIComponent(activeDealId)+'/closing-items/'+encodeURIComponent(button.dataset.closingItemId),{
+    method:'PATCH',body:JSON.stringify({status:button.dataset.closingItemAction})
+  });
+  await loadDeal(activeDealId);
+}
+
+async function createClosingRecord(event){
+  event.preventDefault();
+  if(!activeDealId)throw new Error('DEAL_NOT_SELECTED');
+  const form=event.currentTarget;
+  const payload=Object.fromEntries(new FormData(form).entries());
+  if(!payload.offer_id)delete payload.offer_id;
+  if(payload.amount==='')delete payload.amount;
+  await api('/'+encodeURIComponent(activeDealId)+'/closing-records',{method:'POST',body:JSON.stringify(payload)});
+  form.reset();
+  if(form.elements.currency)form.elements.currency.value='SAR';
+  syncClosingRecordForm();
+  await loadDeal(activeDealId);
+}
+
 async function loadDeal(id){
   setStatus(tr('جاري تحميل الصفقة...','Loading deal...'));
   const data=await api('/'+encodeURIComponent(id));
@@ -428,7 +542,7 @@ async function loadDeal(id){
   $('#dealTaskCount').textContent=(workspace.tasks||[]).length;
   $('#dealDdCount').textContent=(workspace.due_diligence||[]).length;
   $('#dealDocumentCount').textContent=(workspace.documents||[]).length;
-  const access=data.access||{mode:'owner',can:['view_workspace','edit_workspace','manage_members','view_events','edit_deal','link_records']};
+  const access=data.access||{mode:'owner',can:['view_workspace','edit_workspace','manage_members','view_events','edit_deal','link_records','manage_closing']};
   renderCollection($('#dealParties'),workspace.parties,x=>x.name,x=>x.party_role);
   renderCollection($('#dealTasks'),workspace.tasks,x=>x.title,x=>x.status);
   renderDueDiligence(workspace.due_diligence||[],access);
@@ -438,6 +552,11 @@ async function loadDeal(id){
   renderOffers(workspace.offers||[],workspace.pipeline||[],workspace.parties||[],access);
   populatePipelineParties(workspace.parties||[],workspace.pipeline||[]);
   populateOfferPipeline(workspace.pipeline||[],workspace.parties||[]);
+  renderClosingItems(workspace.closing_items||[],access);
+  renderClosingRecords(workspace.closing_records||[],workspace.offers||[],access);
+  populateClosingOffers(workspace.offers||[]);
+  populateClosingDocuments(workspace.documents||[]);
+  syncClosingRecordForm();
   applyAccess(access,deal);
   renderMembers(data.members||[],access);
   populateRequestMembers(data.members||[]);
@@ -475,6 +594,10 @@ function applyAccess(access,deal){
   setHidden('#dealOffersPanel',access.side==='counterparty');
   setHidden('#dealPipelineForm',!editable);
   setHidden('#dealOfferForm',!editable);
+  setHidden('#dealClosingPanel',access.side==='counterparty');
+  const closingManage=canDo(access,'manage_closing');
+  setHidden('#dealClosingItemForm',!closingManage);
+  setHidden('#dealClosingRecordForm',!closingManage);
   const note=$('#dealAccessNote');
   if(note){
     if(access.mode==='member'){
@@ -715,6 +838,17 @@ document.addEventListener('DOMContentLoaded',async()=>{
     const button=event.target.closest('[data-offer-action]');
     if(button)offerAction(button).catch(err=>setStatus(err.message,true));
   });
+  $('#dealClosingItemForm')?.addEventListener('submit',event=>{
+    createClosingItem(event).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealClosingItems')?.addEventListener('click',event=>{
+    const button=event.target.closest('[data-closing-item-action]');
+    if(button)closingItemAction(button).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealClosingRecordForm')?.addEventListener('submit',event=>{
+    createClosingRecord(event).catch(err=>setStatus(err.message,true));
+  });
+  $('#dealClosingRecordType')?.addEventListener('change',syncClosingRecordForm);
   $('#dealDocuments')?.addEventListener('click',event=>{
     const button=event.target.closest('[data-document-action]');
     if(button)documentAction(button).catch(err=>setStatus(err.message,true));
