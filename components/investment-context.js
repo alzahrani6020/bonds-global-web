@@ -81,9 +81,13 @@ async function saveOpportunity(input={}){
   const ctx=context();
   const sourceType=path.includes('investment-map')?'investment_map':'opportunity_bank';
   const p=params();
+  const controlValue=id=>document.getElementById(id)?.value||null;
+  const selectedCountry=input.country_code||p.get('country')||controlValue('countrySelect');
+  const selectedCity=input.city_code||p.get('city')||p.get('locality')||controlValue('citySelect');
+  const selectedSector=input.sector_code||p.get('sector')||controlValue('sectorSelect');
+  const selectedActivity=input.activity_code||p.get('activity')||controlValue('activitySelect');
   const sourceKey=input.source_key||[
-    path,p.get('country')||'',p.get('city')||p.get('locality')||'',
-    p.get('sector')||'',p.get('activity')||'',p.get('year')||''
+    path,selectedCountry||'',selectedCity||'',selectedSector||'',selectedActivity||'',p.get('year')||''
   ].join('|');
   const data=await api('/api/v3/investment-context/opportunities',{
     method:'POST',
@@ -92,10 +96,10 @@ async function saveOpportunity(input={}){
       source_type:input.source_type||sourceType,
       source_key:sourceKey,
       title:input.title||document.title,
-      country_code:input.country_code||p.get('country'),
-      city_code:input.city_code||p.get('city')||p.get('locality'),
-      sector_code:input.sector_code||p.get('sector'),
-      activity_code:input.activity_code||p.get('activity'),
+      country_code:selectedCountry,
+      city_code:selectedCity,
+      sector_code:selectedSector,
+      activity_code:selectedActivity,
       score:input.score,
       summary:input.summary,
       snapshot:input.snapshot||window.BondsInvestmentArtifactSnapshot||Object.fromEntries(p.entries()),
