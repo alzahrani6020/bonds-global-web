@@ -36,6 +36,7 @@
     serverIsOwner: null,
     workspaceContext: null,
     relatedDocumentId: null,
+    latestIssue: null,
     list: [],
     lastSavedSnapshot: '',
     history: [],
@@ -116,6 +117,8 @@
       recipient_title: document.getElementById('corr-recipient-title')?.value || '',
       recipient_email: document.getElementById('corr-recipient-email')?.value || '',
       sender_department: document.getElementById('corr-sender-dept')?.value || '',
+      signer_name: document.getElementById('corr-signer-name')?.value || '',
+      signer_title: document.getElementById('corr-signer-title')?.value || '',
       workspace_context: currentWorkspaceContext()
     });
   }
@@ -334,6 +337,8 @@
         recipient_title: document.getElementById('corr-recipient-title')?.value || null,
         recipient_email: document.getElementById('corr-recipient-email')?.value || null,
         sender_department: document.getElementById('corr-sender-dept')?.value || null,
+        signer_name: document.getElementById('corr-signer-name')?.value || null,
+        signer_title: document.getElementById('corr-signer-title')?.value || null,
         workspace_context: currentWorkspaceContext(),
         related_document_id: state.relatedDocumentId || null
       }
@@ -379,6 +384,8 @@
           recipient_title: document.getElementById('corr-recipient-title')?.value || null,
           recipient_email: document.getElementById('corr-recipient-email')?.value || null,
           sender_department: document.getElementById('corr-sender-dept')?.value || null,
+          signer_name: document.getElementById('corr-signer-name')?.value || null,
+          signer_title: document.getElementById('corr-signer-title')?.value || null,
           workspace_context: currentWorkspaceContext()
         }
       });
@@ -415,6 +422,9 @@
     renderGovernance();
     setEditorEditable(canEditCurrent());
     if (target === 'issued') {
+      const refreshed = await api('get', { id: state.document.id });
+      state.document = refreshed.document;
+      state.latestIssue = refreshed.latest_issue || null;
       renderGovernanceArtifacts();
       updateVerificationQr();
       toast('✅ ' + (isEn ? 'Document issued. Secure the final PDF as the next governed step.' : 'تم إصدار المستند. ثبّت PDF النهائي كخطوة حوكمة مستقلة.'));
@@ -436,6 +446,7 @@
     const result = await api('get', { id });
     state.document = result.document;
     state.latestVersion = result.latest_version;
+    state.latestIssue = result.latest_issue || null;
     state.events = result.events || [];
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
@@ -454,7 +465,9 @@
       'corr-recipient-name': 'recipient_name',
       'corr-recipient-title': 'recipient_title',
       'corr-recipient-email': 'recipient_email',
-      'corr-sender-dept': 'sender_department'
+      'corr-sender-dept': 'sender_department',
+      'corr-signer-name': 'signer_name',
+      'corr-signer-title': 'signer_title'
     };
     Object.entries(metadataMap).forEach(([id, key]) => {
       const el = document.getElementById(id);
@@ -562,6 +575,8 @@
       <label>${isEn ? 'Recipient title' : 'منصب المستلم'}<input id="corr-recipient-title" type="text" maxlength="250"></label>
       <label>${isEn ? 'Recipient email' : 'بريد المستلم'}<input id="corr-recipient-email" type="email" maxlength="320" dir="ltr"></label>
       <label>${isEn ? 'Sender department' : 'إدارة المرسل'}<input id="corr-sender-dept" type="text" maxlength="250"></label>
+      <label>${isEn ? 'Signer name' : 'اسم الموقّع'}<input id="corr-signer-name" type="text" maxlength="250"></label>
+      <label>${isEn ? 'Signer title' : 'صفة الموقّع'}<input id="corr-signer-title" type="text" maxlength="250"></label>
     `;
 
     shell.append(strip, details);
@@ -596,6 +611,10 @@
         <section class="corr-card">
           <strong>${isEn ? 'My work / exceptions' : 'مهامي والاستثناءات'}</strong>
           <div id="corr-my-work" style="display:grid;gap:6px;margin-top:8px"></div>
+        </section>
+        <section class="corr-card">
+          <strong>${isEn ? 'Outgoing issue ledger' : 'سجل صادر بوندز'}</strong>
+          <div id="corr-issue-ledger" style="display:grid;gap:6px;margin-top:8px"></div>
         </section>
         <section class="corr-card">
           <strong>${isEn ? 'Document activity' : 'سجل نشاط المستند'}</strong>
@@ -646,6 +665,8 @@
     addButton(actions, 'corr-finalize-pdf', isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية', () => persistIssuedPdfArtifact(), { primary: true });
     addButton(actions, 'corr-send', isEn ? 'Send to recipient' : 'إرسال للمستلم', () => window.sendToManager(), { primary: true });
     addButton(actions, 'corr-archive', t.archive, () => transition('archived'), { primary: true });
+    addButton(actions, 'corr-reissue', isEn ? 'Reissue' : 'إعادة إصدار', () => startOfficialReissue(), { primary: true });
+    addButton(actions, 'corr-revoke-issue', isEn ? 'Revoke issue' : 'سحب الإصدار', () => revokeCurrentIssue(), { danger: true });
   }
 
   function startNewCorrespondence() {
@@ -655,6 +676,7 @@
     }
     state.document = null;
     state.latestVersion = null;
+    state.latestIssue = null;
     state.events = [];
     state.history = [];
     state.future = [];
@@ -675,6 +697,74 @@
     if (draftName) draftName.value = '';
     renderGovernance();
     toast(isEn ? 'New correspondence ready' : 'تم فتح مراسلة جديدة');
+  }
+
+  function startOfficialReissue() {
+    if (!state.document || !['issued','sent','archived'].includes(state.document.status)) return;
+    const source = state.document;
+    state.relatedDocumentId = source.id;
+    state.workspaceContext = source.workspace_context && typeof source.workspace_context === 'object'
+      ? { ...source.workspace_context }
+      : currentWorkspaceContext();
+    const sourcePages = pagesHtml();
+    const metadata = {
+      direction: source.direction || 'outgoing',
+      priority: source.priority || 'normal',
+      confidentiality: source.confidentiality || 'internal',
+      recipient_organization: source.recipient_organization || '',
+      recipient_name: source.recipient_name || '',
+      recipient_title: source.recipient_title || '',
+      recipient_email: source.recipient_email || '',
+      sender_department: source.sender_department || '',
+      signer_name: source.signer_name || '',
+      signer_title: source.signer_title || ''
+    };
+
+    state.document = null;
+    state.latestVersion = null;
+    state.latestIssue = null;
+    state.events = [];
+    state.history = [];
+    state.future = [];
+    state.serverIsOwner = null;
+    try { localStorage.removeItem('bonds_letterhead_current_document'); } catch (_) {}
+
+    const url = new URL(location.href);
+    url.searchParams.delete('document');
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+    setPages(sourcePages.length ? sourcePages : [''], { markSaved: false });
+    state.lastSavedSnapshot = '';
+
+    const map = {
+      'corr-direction': metadata.direction,
+      'corr-priority': metadata.priority,
+      'corr-confidentiality': metadata.confidentiality,
+      'corr-recipient-org': metadata.recipient_organization,
+      'corr-recipient-name': metadata.recipient_name,
+      'corr-recipient-title': metadata.recipient_title,
+      'corr-recipient-email': metadata.recipient_email,
+      'corr-sender-dept': metadata.sender_department,
+      'corr-signer-name': metadata.signer_name,
+      'corr-signer-title': metadata.signer_title
+    };
+    Object.entries(map).forEach(([id,value]) => { const el=document.getElementById(id); if(el) el.value=value; });
+    const draftName=document.getElementById('draft-name');
+    if(draftName) draftName.value=(source.title || '') + (isEn ? ' - Reissue' : ' - إعادة إصدار');
+    setEditorEditable(true);
+    setLegacyEditorControlsDisabled(false);
+    renderGovernance();
+    toast(isEn ? 'Reissue draft created. Save it before submitting.' : 'تم إنشاء مسودة إعادة إصدار. احفظها قبل الإرسال للمراجعة.');
+  }
+
+  async function revokeCurrentIssue() {
+    if (!state.document) return;
+    const reason = window.prompt(isEn ? 'Reason for revoking this official issue:' : 'سبب سحب هذا الإصدار الرسمي:');
+    if (!String(reason || '').trim()) return;
+    const result = await api('revoke-issue', { method:'POST', id:state.document.id, body:{ reason:String(reason).trim() } });
+    state.latestIssue = result.issue || state.latestIssue;
+    renderGovernance();
+    refreshIssueLedger().catch(() => {});
+    toast(isEn ? 'Official issue revoked' : 'تم سحب الإصدار الرسمي');
   }
 
   function startRejectedRevision() {
@@ -703,6 +793,7 @@
 
     state.document = null;
     state.latestVersion = null;
+    state.latestIssue = null;
     state.events = [];
     state.history = [];
     state.future = [];
@@ -851,10 +942,12 @@
     } else if (can('archive') && (status === 'sent' || (status === 'issued' && doc?.direction === 'internal'))) {
       visible.add('corr-archive');
     }
+    if (['issued','sent','archived'].includes(status) && (isOwner() || can('issue'))) visible.add('corr-reissue');
+    if (['issued','sent','archived'].includes(status) && can('issue') && state.latestIssue?.state !== 'revoked') visible.add('corr-revoke-issue');
 
     [
       'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
-      'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive',
+      'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive','corr-reissue','corr-revoke-issue',
       'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open'
     ].forEach(id => {
       const el = document.getElementById(id);
@@ -864,6 +957,31 @@
     renderGovernanceArtifacts();
     updateVerificationQr();
     renderTimeline();
+  }
+
+  async function refreshIssueLedger() {
+    const target = document.getElementById('corr-issue-ledger');
+    if (!target) return;
+    if (!isAdmin() && !state.permissions.includes('read_all')) {
+      target.textContent = isEn ? 'Administrative access required' : 'يتطلب صلاحية إدارية';
+      return;
+    }
+    const result = await api('issue-ledger', { query:{ page:1, page_size:25 } });
+    target.innerHTML = '';
+    (result.issues || []).forEach(issue => {
+      const row = document.createElement('div');
+      row.style.cssText = 'padding:7px;border:1px solid #e2e8f0;border-radius:8px;background:#fff;font-size:12px;';
+      const d = issue.document || {};
+      row.textContent = [
+        issue.issue_number,
+        (isEn ? 'v' : 'إصدار ') + issue.issue_version,
+        d.subject || d.title || '',
+        d.recipient_organization || '',
+        issue.state
+      ].filter(Boolean).join(' · ');
+      target.appendChild(row);
+    });
+    if (!target.children.length) target.textContent = isEn ? 'No official issues' : 'لا توجد إصدارات رسمية';
   }
 
   function renderTimeline() {
@@ -922,6 +1040,7 @@
   }
 
   async function refreshCommandCenter(page = state.workPage) {
+    refreshIssueLedger().catch(() => {});
     const [summaryResult, workResult] = await Promise.all([
       api('summary', { query: workspaceQuery() }),
       api('my-work', { query: { ...workspaceQuery(), page: Math.max(1, Number(page || 1)), page_size: state.workPageSize } })
@@ -1001,49 +1120,86 @@
     document.querySelectorAll('[data-governance-artifact]').forEach(el => el.remove());
     const doc = state.document;
     if (!doc) return;
-    const target = document.querySelector('.doc-content:last-of-type') || Array.from(document.querySelectorAll('.doc-content')).pop();
-    if (!target) return;
 
-    if (doc.signature_image_data) {
-      const wrap = document.createElement('div');
-      wrap.dataset.governanceArtifact = 'signature';
-      wrap.contentEditable = 'false';
-      wrap.style.cssText = 'margin-top:24px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;';
-      const img = document.createElement('img');
-      img.src = doc.signature_image_data;
-      img.alt = isEn ? 'Governed signature' : 'توقيع موثق بالسجل';
-      img.style.cssText = 'max-width:200px;height:auto;display:block;';
-      const meta = document.createElement('small');
-      meta.textContent = isEn ? 'Signature recorded in Bonds audit trail' : 'التوقيع مسجل في سجل تدقيق بوندز';
-      wrap.append(img, meta);
-      target.appendChild(wrap);
+    const firstTarget = document.querySelector('.doc-content');
+    const lastTarget = Array.from(document.querySelectorAll('.doc-content')).pop();
+    if (!firstTarget || !lastTarget) return;
+
+    if (doc.outgoing_number || doc.incoming_number) {
+      const meta = document.createElement('div');
+      meta.dataset.governanceArtifact = 'issue-meta';
+      meta.contentEditable = 'false';
+      meta.style.cssText = 'display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin:0 0 18px;padding:8px 10px;border-bottom:1px solid #c59237;font-size:10pt;';
+      const ref = doc.outgoing_number || doc.incoming_number || doc.reference_number || '';
+      const issued = doc.issued_at ? new Date(doc.issued_at).toLocaleString(isEn ? 'en-US' : 'ar-SA') : '';
+      const version = state.latestIssue?.issue_version || 1;
+      meta.innerHTML = '<strong>' + (isEn ? 'Official issue: ' : 'رقم الصادر: ') + ref + '</strong><span>' + (isEn ? 'Issued: ' : 'تاريخ الإصدار: ') + issued + ' · ' + (isEn ? 'Version ' : 'الإصدار ') + version + '</span>';
+      firstTarget.prepend(meta);
     }
 
-    if (doc.stamp_hash) {
-      const stamp = document.createElement('div');
-      stamp.dataset.governanceArtifact = 'stamp';
-      stamp.contentEditable = 'false';
-      stamp.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:150px;height:150px;border:3px double #a51d2d;border-radius:50%;color:#a51d2d;text-align:center;font-weight:700;white-space:pre-line;margin:14px 0;';
-      stamp.textContent = (isEn ? 'BONDS\nADMINISTRATIVE STAMP\n' : 'بوندز\nختم إداري\n') + (doc.reference_number || (isEn ? 'APPROVED' : 'معتمد'));
-      target.appendChild(stamp);
+    if (doc.signature_image_data || doc.stamp_hash) {
+      const row = document.createElement('div');
+      row.dataset.governanceArtifact = 'signature-stamp';
+      row.contentEditable = 'false';
+      row.style.cssText = 'margin-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:28px;direction:' + (isEn ? 'ltr' : 'rtl') + ';';
+
+      if (doc.signature_image_data) {
+        const signature = document.createElement('div');
+        signature.style.cssText = 'display:flex;flex-direction:column;align-items:center;min-width:220px;gap:3px;text-align:center;';
+        const img = document.createElement('img');
+        img.src = doc.signature_image_data;
+        img.alt = isEn ? 'Official signature' : 'التوقيع الرسمي';
+        img.style.cssText = 'max-width:200px;max-height:85px;object-fit:contain;display:block;';
+        const name = document.createElement('strong');
+        name.textContent = doc.signer_name || (isEn ? 'Authorized signatory' : 'الموقّع المعتمد');
+        const title = document.createElement('small');
+        title.textContent = doc.signer_title || '';
+        signature.append(img, name, title);
+        row.appendChild(signature);
+      }
+
+      if (doc.stamp_hash) {
+        const stamp = document.createElement('div');
+        stamp.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:132px;height:132px;border:4px double #a51d2d;border-radius:50%;color:#a51d2d;text-align:center;font-weight:700;white-space:pre-line;transform:rotate(-4deg);font-size:12px;';
+        stamp.textContent = (isEn ? 'BONDS\nOFFICIAL STAMP\n' : 'بوندز\nالختم الرسمي\n') + (doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد'));
+        row.appendChild(stamp);
+      }
+
+      lastTarget.appendChild(row);
+    }
+
+    if (['issued','sent','archived'].includes(doc.status)) {
+      document.querySelectorAll('.sheet').forEach(sheet => {
+        const mark = document.createElement('div');
+        mark.dataset.governanceArtifact = 'official-watermark';
+        mark.contentEditable = 'false';
+        mark.textContent = isEn ? 'OFFICIAL BONDS ISSUED COPY' : 'نسخة رسمية صادرة من بوندز';
+        mark.style.cssText = 'position:absolute;left:50%;top:55%;transform:translate(-50%,-50%) rotate(-28deg);font-weight:800;font-size:34px;letter-spacing:1px;color:rgba(10,35,66,.045);pointer-events:none;z-index:0;white-space:nowrap;';
+        sheet.appendChild(mark);
+      });
     }
   }
 
   function updateVerificationQr() {
     const token = state.document?.verification_token;
-    document.querySelectorAll('.footer-qr-corner img').forEach(img => {
+    document.querySelectorAll('.footer-document-qr img').forEach(img => {
       if (!token) {
         img.style.visibility = 'hidden';
         return;
       }
       img.src = '/api/correspondence?action=qr&token=' + encodeURIComponent(token) + '&lang=' + (isEn ? 'en' : 'ar');
-      img.alt = isEn ? 'Verify document' : 'تحقق من المستند';
+      img.alt = isEn ? 'Verify this official issue' : 'تحقق من هذا الخطاب';
+      img.style.visibility = 'visible';
+    });
+    document.querySelectorAll('.footer-site-qr img').forEach(img => {
+      img.src = '/api/correspondence?action=site-qr';
+      img.alt = isEn ? 'Bonds website' : 'موقع بوندز';
       img.style.visibility = 'visible';
     });
   }
 
   async function waitForVerificationQr() {
-    const images = Array.from(document.querySelectorAll('.footer-qr-corner img')).filter(img => img.style.visibility !== 'hidden');
+    const images = Array.from(document.querySelectorAll('.footer-qr-box img')).filter(img => img.style.visibility !== 'hidden');
     await Promise.all(images.map(img => {
       if (img.complete && img.naturalWidth > 0) return Promise.resolve(true);
       return new Promise(resolve => {
