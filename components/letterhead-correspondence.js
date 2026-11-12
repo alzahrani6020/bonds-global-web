@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  window.BONDS_GOVERNED_CORRESPONDENCE = true;
 
   const isEn = (document.documentElement.lang || '').toLowerCase().startsWith('en');
   const t = {
@@ -39,7 +40,13 @@
     lastHistorySnapshot: '',
     loading: false,
     summary: null,
-    tasks: []
+    tasks: [],
+    inboxPage: 1,
+    inboxPageSize: 25,
+    inboxTotal: 0,
+    workPage: 1,
+    workPageSize: 25,
+    workTotal: 0
   };
 
   const legacy = {
@@ -95,9 +102,24 @@
     return JSON.stringify(pagesHtml());
   }
 
+  function persistedSnapshot() {
+    return JSON.stringify({
+      pages_html: pagesHtml(),
+      direction: document.getElementById('corr-direction')?.value || 'outgoing',
+      priority: document.getElementById('corr-priority')?.value || 'normal',
+      confidentiality: document.getElementById('corr-confidentiality')?.value || 'internal',
+      recipient_organization: document.getElementById('corr-recipient-org')?.value || '',
+      recipient_name: document.getElementById('corr-recipient-name')?.value || '',
+      recipient_title: document.getElementById('corr-recipient-title')?.value || '',
+      recipient_email: document.getElementById('corr-recipient-email')?.value || '',
+      sender_department: document.getElementById('corr-sender-dept')?.value || '',
+      workspace_context: currentWorkspaceContext()
+    });
+  }
+
   function currentWorkspaceContext() {
     const p = new URLSearchParams(location.search);
-    const keys = ['service', 'workspace', 'project_id', 'client_id', 'funding_case_id', 'request_id'];
+    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id'];
     const ctx = {};
     keys.forEach(k => { if (p.get(k)) ctx[k] = p.get(k); });
     ctx.source = 'letterhead';
@@ -107,13 +129,13 @@
 
   function hasWorkspaceContext() {
     const ctx = currentWorkspaceContext();
-    return ['service','workspace','project_id','client_id','funding_case_id','request_id'].some(key => !!ctx[key]);
+    return ['service','workspace','company_id','project_id','client_id','funding_case_id','request_id'].some(key => !!ctx[key]);
   }
 
   function workspaceQuery() {
     const ctx = currentWorkspaceContext();
     const query = {};
-    ['service','workspace','project_id','client_id','funding_case_id','request_id'].forEach(key => {
+    ['service','workspace','company_id','project_id','client_id','funding_case_id','request_id'].forEach(key => {
       if (ctx[key]) query[key] = ctx[key];
     });
     return query;
@@ -163,8 +185,10 @@
   }
 
   function setEditorEditable(enabled) {
+    const isEditable = !!enabled;
     document.querySelectorAll('.doc-content').forEach(d => {
-      if (!enabled) d.contentEditable = 'false';
+      d.contentEditable = isEditable ? 'true' : 'false';
+      d.setAttribute('aria-readonly', isEditable ? 'false' : 'true');
     });
   }
 
@@ -187,7 +211,7 @@
     if (importInput) importInput.disabled = !!disabled;
   }
 
-  function setPages(pages) {
+  function setPages(pages, options = {}) {
     if (!Array.isArray(pages) || !pages.length) pages = [''];
     const container = document.getElementById('pages-container');
     if (!container) return;
@@ -207,15 +231,36 @@
       if (doc) {
         doc.id = 'doc-' + (i + 1);
         doc.innerHTML = pages[i] || '';
-        doc.contentEditable = 'false';
+        doc.contentEditable = canEditCurrent() ? 'true' : 'false';
+        doc.setAttribute('aria-readonly', canEditCurrent() ? 'false' : 'true');
         doc.setAttribute('spellcheck', 'true');
       }
     });
     document.querySelectorAll('.page-number').forEach((el, i) => {
       el.textContent = isEn ? `Page ${i + 1} of ${pages.length}` : `الصفحة ${i + 1} من ${pages.length}`;
     });
-    state.lastHistorySnapshot = snapshot();
-    state.lastSavedSnapshot = snapshot();
+    const snap = snapshot();
+    state.lastHistorySnapshot = snap;
+    if (options.markSaved) state.lastSavedSnapshot = persistedSnapshot();
+  }
+
+  function hasMeaningfulDraft() {
+    if (textContent()) return true;
+    return Array.from(document.querySelectorAll('.doc-content')).some(doc =>
+      !!doc.querySelector('img,table,hr,ul,ol') || doc.innerHTML.replace(/<br\s*\/?>(\s*)/gi, '').replace(/&nbsp;/gi, '').trim().length > 0
+    );
+  }
+
+  function recordMutation(before) {
+    const after = snapshot();
+    if (before && before !== after) {
+      if (state.lastHistorySnapshot !== before) state.lastHistorySnapshot = before;
+      state.history.push(before);
+      if (state.history.length > 50) state.history.shift();
+      state.future = [];
+      state.lastHistorySnapshot = after;
+    }
+    return after;
   }
 
   function currentDocId() {
@@ -270,14 +315,14 @@
     return state.document;
   }
 
-  async function saveVersion(silent) {
+  async function saveVersion(silent, options = {}) {
     if (state.loading) return;
-    const snap = snapshot();
-    if (state.document && snap === state.lastSavedSnapshot) {
+    const snap = persistedSnapshot();
+    if (state.document && snap === state.lastSavedSnapshot && !options.titleOverride) {
       if (!silent) toast(isEn ? 'No changes to save' : 'لا توجد تغييرات جديدة');
       return state.document;
     }
-    if (!editable()) throw new Error(isEn ? 'Issued documents are locked' : 'المستند المُصدر مقفل ضد التعديل');
+    if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked or not owned by the current user' : 'هذا المستند مقفل أو غير مملوك للمستخدم الحالي');
     state.loading = true;
     try {
       const doc = await ensureDocument();
@@ -288,7 +333,7 @@
         body: {
           pages_html: pagesHtml(),
           text_content: text,
-          title: titleFromText(text),
+          title: options.titleOverride || titleFromText(text),
           subject: subjectFromText(text),
           direction: document.getElementById('corr-direction')?.value || doc.direction || 'outgoing',
           priority: document.getElementById('corr-priority')?.value || doc.priority || 'normal',
@@ -308,7 +353,7 @@
         text_content: text,
         checksum_sha256: result.checksum_sha256
       };
-      state.lastSavedSnapshot = snap;
+      state.lastSavedSnapshot = persistedSnapshot();
       try { localStorage.setItem('bonds_letterhead_offline_backup', snap); } catch (_) {}
       if (!silent) toast('✅ ' + t.saved + ' #' + result.version);
       renderGovernance();
@@ -329,7 +374,7 @@
     const result = await api('transition', { method: 'POST', id: doc.id, body: { target, note: note || null } });
     state.document = result.document;
     renderGovernance();
-    if (!editable()) setEditorEditable(false);
+    setEditorEditable(canEditCurrent());
     if (target === 'issued') {
       renderGovernanceArtifacts();
       updateVerificationQr();
@@ -356,7 +401,7 @@
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
     syncUrl(state.document.id);
-    if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html);
+    if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html, { markSaved: true });
     document.getElementById('corr-priority') && (document.getElementById('corr-priority').value = state.document.priority || 'normal');
     document.getElementById('corr-confidentiality') && (document.getElementById('corr-confidentiality').value = state.document.confidentiality || 'internal');
     document.getElementById('corr-direction') && (document.getElementById('corr-direction').value = state.document.direction || 'outgoing');
@@ -371,7 +416,10 @@
       const el = document.getElementById(id);
       if (el) el.value = state.document[key] || '';
     });
-    setEditorEditable(editable());
+    const draftName = document.getElementById('draft-name');
+    if (draftName) draftName.value = state.document.title || '';
+    state.lastSavedSnapshot = persistedSnapshot();
+    setEditorEditable(canEditCurrent());
     renderGovernance();
     renderGovernanceArtifacts();
     updateVerificationQr();
@@ -530,6 +578,7 @@
     });
 
     const actions = document.getElementById('corr-actions');
+    addButton(actions, 'corr-new', isEn ? 'New correspondence' : 'مراسلة جديدة', () => startNewCorrespondence());
     addButton(actions, 'corr-details-toggle', isEn ? 'Details' : 'بيانات الخطاب', () => {
       const panel = document.getElementById('corr-details-panel');
       if (panel) panel.hidden = !panel.hidden;
@@ -549,6 +598,32 @@
     addButton(actions, 'corr-finalize-pdf', isEn ? 'Secure final PDF' : 'تثبيت النسخة النهائية', () => persistIssuedPdfArtifact(), { primary: true });
     addButton(actions, 'corr-send', isEn ? 'Send to recipient' : 'إرسال للمستلم', () => window.sendToManager(), { primary: true });
     addButton(actions, 'corr-archive', t.archive, () => transition('archived'), { primary: true });
+  }
+
+  function startNewCorrespondence() {
+    if (state.document && canEditCurrent() && snapshot() !== state.lastSavedSnapshot && hasMeaningfulDraft()) {
+      const ok = confirm(isEn ? 'Discard unsaved changes and start a new correspondence?' : 'تجاهل التغييرات غير المحفوظة وبدء مراسلة جديدة؟');
+      if (!ok) return;
+    }
+    state.document = null;
+    state.latestVersion = null;
+    state.events = [];
+    state.history = [];
+    state.future = [];
+    try { localStorage.removeItem('bonds_letterhead_current_document'); } catch (_) {}
+    const url = new URL(location.href);
+    url.searchParams.delete('document');
+    history.replaceState(null, '', url.pathname + url.search + url.hash);
+    setPages([''], { markSaved: false });
+    state.lastSavedSnapshot = '';
+    ['corr-recipient-org','corr-recipient-name','corr-recipient-title','corr-recipient-email','corr-sender-dept'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+    const draftName = document.getElementById('draft-name');
+    if (draftName) draftName.value = '';
+    renderGovernance();
+    toast(isEn ? 'New correspondence ready' : 'تم فتح مراسلة جديدة');
   }
 
   function setCommandDrawer(open) {
@@ -615,9 +690,10 @@
     }
 
     renderWorkflowStrip(status);
+    setEditorEditable(canEditCurrent());
     setLegacyEditorControlsDisabled(!canEditCurrent());
 
-    const visible = new Set(['corr-details-toggle','corr-command-open']);
+    const visible = new Set(['corr-new','corr-details-toggle','corr-command-open']);
     if (hasWorkspaceContext()) visible.add('corr-workspace-return');
     if (canEditCurrent()) visible.add('corr-save');
 
@@ -636,16 +712,16 @@
       visible.add('corr-issue');
     } else if (can('finalize_pdf') && status === 'issued' && !doc?.artifact_hash) {
       visible.add('corr-finalize-pdf');
-    } else if (can('send') && status === 'issued' && !!doc?.artifact_hash) {
+    } else if (can('send') && status === 'issued' && !!doc?.artifact_hash && (doc?.direction === 'internal' || !!doc?.recipient_email)) {
       visible.add('corr-send');
-    } else if (can('archive') && ['issued','sent'].includes(status)) {
+    } else if (can('archive') && (status === 'sent' || (status === 'issued' && doc?.direction === 'internal'))) {
       visible.add('corr-archive');
     }
 
     [
       'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive',
-      'corr-details-toggle','corr-command-open'
+      'corr-new','corr-details-toggle','corr-command-open'
     ].forEach(id => {
       const el = document.getElementById(id);
       if (el) el.style.display = visible.has(id) ? '' : 'none';
@@ -711,13 +787,15 @@
     });
   }
 
-  async function refreshCommandCenter() {
+  async function refreshCommandCenter(page = state.workPage) {
     const [summaryResult, workResult] = await Promise.all([
       api('summary', { query: workspaceQuery() }),
-      api('my-work', { query: workspaceQuery() })
+      api('my-work', { query: { ...workspaceQuery(), page: Math.max(1, Number(page || 1)), page_size: state.workPageSize } })
     ]);
     state.summary = summaryResult;
     state.tasks = workResult.tasks || [];
+    state.workPage = Number(workResult.pagination?.page || Math.max(1, Number(page || 1)));
+    state.workTotal = Number(workResult.pagination?.total || state.tasks.length);
     if (Array.isArray(summaryResult.permissions)) state.permissions = summaryResult.permissions;
 
     const summary = document.getElementById('corr-summary');
@@ -745,7 +823,7 @@
       if (!state.tasks.length) {
         work.textContent = isEn ? 'No open tasks' : 'لا توجد مهام مفتوحة';
       } else {
-        state.tasks.slice(0, 12).forEach(task => {
+        state.tasks.forEach(task => {
           const row = document.createElement('button');
           row.type = 'button';
           row.style.cssText = 'text-align:start;padding:8px;border:1px solid ' + (task.overdue ? '#ef4444' : '#e2e8f0') + ';border-radius:8px;background:#fff;cursor:pointer';
@@ -757,6 +835,31 @@
           work.appendChild(row);
         });
       }
+
+      let pager = document.getElementById('corr-work-pagination');
+      if (!pager) {
+        pager = document.createElement('div');
+        pager.id = 'corr-work-pagination';
+        pager.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px';
+        work.parentNode?.appendChild(pager);
+      }
+      const totalPages = Math.max(1, Math.ceil(state.workTotal / state.workPageSize));
+      pager.innerHTML = '';
+      const prev = document.createElement('button');
+      prev.type = 'button';
+      prev.className = 'corr-btn';
+      prev.textContent = isEn ? 'Previous' : 'السابق';
+      prev.disabled = state.workPage <= 1;
+      prev.addEventListener('click', () => refreshCommandCenter(state.workPage - 1).catch(e => toast('⚠️ ' + e.message)));
+      const label = document.createElement('span');
+      label.textContent = (isEn ? 'Page ' : 'صفحة ') + state.workPage + (isEn ? ' of ' : ' من ') + totalPages + ' · ' + state.workTotal;
+      const next = document.createElement('button');
+      next.type = 'button';
+      next.className = 'corr-btn';
+      next.textContent = isEn ? 'Next' : 'التالي';
+      next.disabled = state.workPage >= totalPages;
+      next.addEventListener('click', () => refreshCommandCenter(state.workPage + 1).catch(e => toast('⚠️ ' + e.message)));
+      pager.append(prev, label, next);
     }
   }
 
@@ -808,11 +911,15 @@
   async function waitForVerificationQr() {
     const images = Array.from(document.querySelectorAll('.footer-qr-corner img')).filter(img => img.style.visibility !== 'hidden');
     await Promise.all(images.map(img => {
-      if (img.complete && img.naturalWidth > 0) return Promise.resolve();
-      return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => reject(new Error(isEn ? 'Verification QR did not load' : 'تعذر تحميل رمز التحقق')), 8000);
-        img.addEventListener('load', () => { clearTimeout(timer); resolve(); }, { once: true });
-        img.addEventListener('error', () => { clearTimeout(timer); reject(new Error(isEn ? 'Verification QR failed to load' : 'فشل تحميل رمز التحقق')); }, { once: true });
+      if (img.complete && img.naturalWidth > 0) return Promise.resolve(true);
+      return new Promise(resolve => {
+        const finish = ok => {
+          if (!ok) img.style.visibility = 'hidden';
+          resolve(ok);
+        };
+        const timer = setTimeout(() => finish(false), 4000);
+        img.addEventListener('load', () => { clearTimeout(timer); finish(true); }, { once: true });
+        img.addEventListener('error', () => { clearTimeout(timer); finish(false); }, { once: true });
       });
     }));
   }
@@ -824,6 +931,17 @@
     await waitForVerificationQr();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+    const integrityMarker = state.document?.issued_hash
+      ? ['BONDS-DOC', state.document.id, state.document.current_version, state.document.document_hash, state.document.issued_hash].join(':')
+      : '';
+    if (integrityMarker && typeof pdf.setProperties === 'function') {
+      pdf.setProperties({
+        title: state.document.reference_number || 'Bonds correspondence',
+        subject: integrityMarker,
+        keywords: integrityMarker,
+        creator: 'Bonds Global Correspondence'
+      });
+    }
     for (let i = 0; i < sheets.length; i++) {
       const canvas = await html2canvas(sheets[i], { scale: 1.6, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
       const img = canvas.toDataURL('image/jpeg', 0.9);
@@ -862,10 +980,33 @@
     toast('✅ ' + (isEn ? 'Final PDF secured and hashed' : 'تم حفظ PDF النهائي وتثبيت بصمته'));
   }
 
-  async function refreshInboxDynamic() {
-    const result = await api('list', { query: workspaceQuery() });
+  async function downloadOfficialPdf() {
+    if (!state.document?.artifact_hash) throw new Error(isEn ? 'Official PDF is not available yet' : 'النسخة الرسمية PDF غير متوفرة بعد');
+    const result = await api('artifact-download-url', { method: 'POST', id: state.document.id, body: {} });
+    if (!result?.signed_url) throw new Error(isEn ? 'Official PDF download link is unavailable' : 'تعذر إنشاء رابط تنزيل النسخة الرسمية');
+    const a = document.createElement('a');
+    a.href = result.signed_url;
+    a.download = (state.document.reference_number || 'bonds-correspondence') + '.pdf';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  async function refreshInboxDynamic(page = state.inboxPage) {
+    const safePage = Math.max(1, Number(page || 1));
+    const result = await api('list', {
+      query: {
+        ...workspaceQuery(),
+        page: safePage,
+        page_size: state.inboxPageSize
+      }
+    });
     state.list = result.documents || [];
     state.role = result.role || state.role;
+    state.inboxPage = Number(result.pagination?.page || safePage);
+    state.inboxTotal = Number(result.pagination?.total || state.list.length);
+
     const draftsList = document.getElementById('drafts-list');
     const sentList = document.getElementById('sent-list');
     if (!draftsList || !sentList) return;
@@ -893,8 +1034,34 @@
         el.appendChild(row);
       });
     }
-    renderList(draftsList, state.list.filter(d => !['sent','archived'].includes(d.status)), isEn ? 'No active correspondence' : 'لا توجد مراسلات نشطة');
-    renderList(sentList, state.list.filter(d => ['sent','archived'].includes(d.status)), isEn ? 'No sent correspondence' : 'لا توجد مراسلات مرسلة');
+
+    renderList(draftsList, state.list.filter(d => !['sent','archived'].includes(d.status)), isEn ? 'No active correspondence on this page' : 'لا توجد مراسلات نشطة في هذه الصفحة');
+    renderList(sentList, state.list.filter(d => ['sent','archived'].includes(d.status)), isEn ? 'No sent correspondence on this page' : 'لا توجد مراسلات مرسلة في هذه الصفحة');
+
+    let pager = document.getElementById('corr-inbox-pagination');
+    if (!pager) {
+      pager = document.createElement('div');
+      pager.id = 'corr-inbox-pagination';
+      pager.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:12px';
+      document.getElementById('inbox-body')?.appendChild(pager);
+    }
+    const totalPages = Math.max(1, Math.ceil(state.inboxTotal / state.inboxPageSize));
+    pager.innerHTML = '';
+    const prev = document.createElement('button');
+    prev.type = 'button';
+    prev.className = 'draft-btn';
+    prev.textContent = isEn ? 'Previous' : 'السابق';
+    prev.disabled = state.inboxPage <= 1;
+    prev.addEventListener('click', () => refreshInboxDynamic(state.inboxPage - 1).catch(e => toast('⚠️ ' + e.message)));
+    const label = document.createElement('span');
+    label.textContent = (isEn ? 'Page ' : 'صفحة ') + state.inboxPage + (isEn ? ' of ' : ' من ') + totalPages + ' · ' + state.inboxTotal;
+    const next = document.createElement('button');
+    next.type = 'button';
+    next.className = 'draft-btn';
+    next.textContent = isEn ? 'Next' : 'التالي';
+    next.disabled = state.inboxPage >= totalPages;
+    next.addEventListener('click', () => refreshInboxDynamic(state.inboxPage + 1).catch(e => toast('⚠️ ' + e.message)));
+    pager.append(prev, label, next);
   }
 
   async function importLegacyDrafts() {
@@ -950,8 +1117,10 @@
     if (id) {
       try { await loadDocument(id); } catch (e) { toast('⚠️ ' + t.loadFail + ': ' + e.message); }
     } else {
-      state.lastHistorySnapshot = snapshot();
+      setPages([''], { markSaved: false });
       state.lastSavedSnapshot = '';
+      state.history = [];
+      state.future = [];
       renderGovernance();
     }
 
@@ -980,12 +1149,16 @@
     saveVersion(false).catch(e => toast('⚠️ ' + e.message));
   };
   window.autoSave = function () {
-    if (!editable()) return;
+    if (!canEditCurrent()) return;
+    if (!state.document && !hasMeaningfulDraft()) return;
     saveVersion(true).catch(() => {
       try { localStorage.setItem('bonds_letterhead_offline_backup', snapshot()); } catch (_) {}
     });
   };
-  window.saveDraft = window.saveDoc;
+  window.saveDraft = function () {
+    const titleOverride = document.getElementById('draft-name')?.value?.trim()?.slice(0, 200) || null;
+    saveVersion(false, { titleOverride }).catch(e => toast('⚠️ ' + e.message));
+  };
   window.syncDraftsToCloud = window.saveDoc;
   window.loadDraftsFromCloud = function () {
     refreshInboxDynamic().then(() => toast(isEn ? '✅ Correspondence loaded' : '✅ تم تحميل المراسلات')).catch(e => toast('⚠️ ' + e.message));
@@ -1009,7 +1182,7 @@
   };
 
   window.toggleWrite = function () {
-    if (!editable()) return toast('⚠️ ' + (isEn ? 'Issued documents are locked' : 'المستند المُصدر مقفل'));
+    if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user' : 'هذا المستند مقفل أو غير مملوك للمستخدم الحالي'));
     return legacy.toggleWrite?.();
   };
 
@@ -1091,6 +1264,7 @@
 
   window.deletePage = function () {
     if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    const before = snapshot();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const active = window.getSelection()?.anchorNode?.parentElement?.closest?.('.sheet') || sheets[sheets.length - 1];
     if (!active) return;
@@ -1105,10 +1279,12 @@
         el.textContent = isEn ? `Page ${i + 1} of ${arr.length}` : `الصفحة ${i + 1} من ${arr.length}`;
       });
     }
+    recordMutation(before);
   };
 
   window.insertTable = function () {
     if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
+    const before = snapshot();
     const rows = Number(prompt(isEn ? 'Rows (1-50):' : 'عدد الصفوف (1-50):', '3'));
     const cols = Number(prompt(isEn ? 'Columns (1-20):' : 'عدد الأعمدة (1-20):', '3'));
     if (!Number.isInteger(rows) || !Number.isInteger(cols) || rows < 1 || rows > 50 || cols < 1 || cols > 20) {
@@ -1122,6 +1298,7 @@
     }
     html += '</tbody></table><div><br></div>';
     document.execCommand('insertHTML', false, html);
+    recordMutation(before);
   };
 
   window.handleImageUpload = function (input) {
@@ -1131,23 +1308,53 @@
     }
     const file = input.files?.[0];
     if (!file) return;
-    if (!/^image\/(png|jpeg|webp|gif)$/i.test(file.type) || file.size > 2 * 1024 * 1024) {
+    if (!/^image\/(png|jpeg|webp)$/i.test(file.type) || file.size > 5 * 1024 * 1024) {
       input.value = '';
-      return toast('⚠️ ' + (isEn ? 'Use PNG/JPEG/WebP/GIF under 2 MB' : 'استخدم PNG/JPEG/WebP/GIF بحجم أقل من 2 ميجابايت'));
+      return toast('⚠️ ' + (isEn ? 'Use PNG/JPEG/WebP under 5 MB' : 'استخدم PNG/JPEG/WebP بحجم أقل من 5 ميجابايت'));
     }
+
     const reader = new FileReader();
     reader.onload = e => {
       const img = new Image();
       img.onload = () => {
-        if (img.width > 6000 || img.height > 6000) return toast('⚠️ ' + (isEn ? 'Image dimensions are too large' : 'أبعاد الصورة كبيرة جدًا'));
-        const doc = document.querySelector('.doc-content[contenteditable="true"]') || document.querySelector('.doc-content');
-        if (!doc) return;
-        const el = document.createElement('img');
-        el.src = e.target.result;
-        el.alt = '';
-        el.style.cssText = 'max-width:100%;height:auto;display:block;margin:10px 0;';
-        doc.appendChild(el);
+        try {
+          const before = snapshot();
+          const maxSide = 1600;
+          const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, Math.round(img.width * scale));
+          canvas.height = Math.max(1, Math.round(img.height * scale));
+          const ctx = canvas.getContext('2d');
+          if (!ctx) throw new Error('Canvas unavailable');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          let quality = 0.82;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          while (dataUrl.length > 420000 && quality > 0.45) {
+            quality -= 0.08;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          if (dataUrl.length > 500000) {
+            throw new Error(isEn ? 'Image remains too large after compression' : 'الصورة ما زالت كبيرة بعد الضغط');
+          }
+
+          const doc = document.querySelector('.doc-content[contenteditable="true"]');
+          if (!doc) throw new Error(isEn ? 'Editable document area was not found' : 'لم يتم العثور على منطقة مستند قابلة للتحرير');
+          if (doc.innerHTML.length + dataUrl.length > 650000) {
+            throw new Error(isEn ? 'This page is too large; add the image on a new page' : 'حجم هذه الصفحة كبير؛ أضف الصورة في صفحة جديدة');
+          }
+          const el = document.createElement('img');
+          el.src = dataUrl;
+          el.alt = '';
+          el.style.cssText = 'max-width:100%;height:auto;display:block;margin:10px 0;';
+          doc.appendChild(el);
+          recordMutation(before);
+          window.autoSave?.();
+        } catch (error) {
+          toast('⚠️ ' + (error?.message || (isEn ? 'Image processing failed' : 'فشل تجهيز الصورة')));
+        }
       };
+      img.onerror = () => toast('⚠️ ' + (isEn ? 'Invalid image file' : 'ملف الصورة غير صالح'));
       img.src = e.target.result;
     };
     reader.readAsDataURL(file);
@@ -1164,9 +1371,9 @@
       if (file.size < 1 || file.size > 2 * 1024 * 1024) {
         throw new Error(isEn ? 'Use a document smaller than 2 MB' : 'استخدم ملفًا بحجم أقل من 2 ميجابايت');
       }
-      const allowed = /\.(txt|html?|docx)$/i.test(file.name || '');
+      const allowed = /\.(txt|html?|docx|pdf)$/i.test(file.name || '');
       if (!allowed) {
-        throw new Error(isEn ? 'Supported formats: TXT, HTML, HTM, DOCX' : 'الصيغ المدعومة: TXT وHTML وHTM وDOCX');
+        throw new Error(isEn ? 'Supported formats: TXT, HTML, HTM, DOCX, PDF' : 'الصيغ المدعومة: TXT وHTML وHTM وDOCX وPDF');
       }
 
       const buffer = await file.arrayBuffer();
@@ -1193,12 +1400,10 @@
       target.insertAdjacentHTML('beforeend', imported.html || '');
       const after = snapshot();
       if (before !== after) {
-        state.history.push(before);
-        if (state.history.length > 50) state.history.shift();
-        state.future = [];
-        state.lastHistorySnapshot = after;
+        recordMutation(before);
+        await saveVersion(true);
       }
-      toast('✅ ' + (isEn ? `Imported ${file.name} from this device` : `تم استيراد ${file.name} من الجهاز`));
+      toast('✅ ' + (isEn ? `Imported and saved ${file.name}` : `تم استيراد وحفظ ${file.name}`));
     } catch (e) {
       toast('⚠️ ' + (e?.message || (isEn ? 'Device import failed' : 'فشل الاستيراد من الجهاز')));
     } finally {
@@ -1212,7 +1417,7 @@
     if (!state.history.length) return toast('⚠️ ' + (isEn ? 'Nothing to undo' : 'لا يوجد تراجع'));
     state.future.push(snapshot());
     const prev = state.history.pop();
-    setPages(JSON.parse(prev));
+    setPages(JSON.parse(prev), { markSaved: false });
     state.lastHistorySnapshot = prev;
   };
   window.redoDoc = function () {
@@ -1220,7 +1425,7 @@
     if (!state.future.length) return toast('⚠️ ' + (isEn ? 'Nothing to redo' : 'لا يوجد إعادة'));
     state.history.push(snapshot());
     const next = state.future.pop();
-    setPages(JSON.parse(next));
+    setPages(JSON.parse(next), { markSaved: false });
     state.lastHistorySnapshot = next;
   };
 
@@ -1228,7 +1433,7 @@
     if (!state.document || canEditCurrent()) return;
     await loadDocument(state.document.id);
     if (Array.isArray(state.latestVersion?.pages_html) && state.latestVersion.pages_html.length) {
-      setPages(state.latestVersion.pages_html);
+      setPages(state.latestVersion.pages_html, { markSaved: true });
       renderGovernanceArtifacts();
     }
   }
@@ -1247,7 +1452,10 @@
           toast('⚠️ ' + t.notAllowed);
           return;
         }
-        return original.apply(this, args);
+        const before = snapshot();
+        const result = original.apply(this, args);
+        Promise.resolve(result).finally(() => recordMutation(before));
+        return result;
       };
       guarded.__bondsGovernedGuard = true;
       window[name] = guarded;
@@ -1289,12 +1497,21 @@
 
   // Deterministic sequential multi-page PDF export.
   window.exportPDF = async function () {
+    if (state.document?.artifact_hash) {
+      try {
+        await downloadOfficialPdf();
+        toast(isEn ? '✅ Official PDF downloaded' : '✅ تم تنزيل النسخة الرسمية PDF');
+      } catch (e) {
+        toast('⚠️ ' + (isEn ? 'Official PDF download failed: ' : 'فشل تنزيل النسخة الرسمية: ') + e.message);
+      }
+      return;
+    }
     try {
       await restoreCanonicalLockedDocument();
     } catch (e) {
       return toast('⚠️ ' + (isEn ? 'Unable to reload the governed version: ' : 'تعذر تحميل النسخة المحكومة: ') + e.message);
     }
-    toast(isEn ? '⏳ Creating PDF...' : '⏳ جاري إنشاء PDF...');
+    toast(isEn ? '⏳ Creating local PDF preview...' : '⏳ جاري إنشاء نسخة PDF محلية...');
     try {
       const blob = await createPdfBlob();
       const url = URL.createObjectURL(blob);
@@ -1305,7 +1522,7 @@
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      toast(isEn ? '✅ PDF downloaded' : '✅ تم تحميل PDF');
+      toast(isEn ? '✅ Local PDF downloaded' : '✅ تم تحميل نسخة PDF محلية');
     } catch (e) {
       toast('⚠️ ' + (isEn ? 'PDF generation failed: ' : 'فشل إنشاء PDF: ') + e.message);
     }
@@ -1313,5 +1530,13 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     initialize().catch(e => toast('⚠️ ' + e.message));
+  });
+
+  window.addEventListener('beforeunload', event => {
+    if (!canEditCurrent()) return;
+    if (persistedSnapshot() === state.lastSavedSnapshot) return;
+    if (!hasMeaningfulDraft() && !state.document) return;
+    event.preventDefault();
+    event.returnValue = '';
   });
 })();
