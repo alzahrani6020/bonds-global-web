@@ -1206,7 +1206,7 @@
           var saved = localStorage.getItem(LS_PREFIX+'doc_html');
           if (saved) { try { setAllHtml(JSON.parse(saved)); } catch(e) { setAllHtml(saved); } }
         }
-        document.querySelectorAll('.doc-content').forEach(bindDoc);
+        if (!window.BONDS_GOVERNED_CORRESPONDENCE) document.querySelectorAll('.doc-content').forEach(bindDoc);
         document.querySelectorAll('.footer-qr-corner img').forEach(function(img){
           var url = img.src;
           if (!url) return;
