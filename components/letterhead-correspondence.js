@@ -1227,6 +1227,10 @@
       img.style.visibility = 'visible';
     });
     document.querySelectorAll('.footer-site-qr img').forEach(img => {
+      if (!token) {
+        img.style.visibility = 'hidden';
+        return;
+      }
       img.src = '/api/correspondence?action=site-qr';
       img.alt = isEn ? 'Bonds website' : 'موقع بوندز';
       img.style.visibility = 'visible';
