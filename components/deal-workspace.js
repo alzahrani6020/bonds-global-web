@@ -87,7 +87,7 @@ function renderDueDiligence(items,access){
     host.innerHTML='<div class="deal-empty">'+tr('لا توجد عناصر بعد.','No items yet.')+'</div>';
     return;
   }
-  const editable=canDo(access,'manage_closing');
+  const editable=canDo(access,'edit_workspace');
   items.forEach(item=>{
     const rowEl=document.createElement('div');
     rowEl.className='deal-row';
@@ -453,7 +453,7 @@ function renderClosingItems(items,access){
   if(!host)return;
   host.textContent='';
   if(!items?.length){host.innerHTML='<div class="deal-empty">'+tr('لا توجد شروط إغلاق بعد.','No closing conditions yet.')+'</div>';return}
-  const editable=canDo(access,'edit_workspace');
+  const editable=canDo(access,'manage_closing');
   items.forEach(item=>{
     const row=document.createElement('div');row.className='deal-row deal-row-stack';
     const text=document.createElement('span');
@@ -542,7 +542,7 @@ async function loadDeal(id){
   $('#dealTaskCount').textContent=(workspace.tasks||[]).length;
   $('#dealDdCount').textContent=(workspace.due_diligence||[]).length;
   $('#dealDocumentCount').textContent=(workspace.documents||[]).length;
-  const access=data.access||{mode:'owner',can:['view_workspace','edit_workspace','manage_members','view_events','edit_deal','link_records']};
+  const access=data.access||{mode:'owner',can:['view_workspace','edit_workspace','manage_members','view_events','edit_deal','link_records','manage_closing']};
   renderCollection($('#dealParties'),workspace.parties,x=>x.name,x=>x.party_role);
   renderCollection($('#dealTasks'),workspace.tasks,x=>x.title,x=>x.status);
   renderDueDiligence(workspace.due_diligence||[],access);
