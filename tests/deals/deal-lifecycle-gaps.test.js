@@ -281,6 +281,40 @@ describe('deal lifecycle context', () => {
     expect(buildDealLifecycleContext({ deal, dueDiligence: items }).dueDiligence).toBeUndefined();
   });
 
+  test('adapter refuses metadata-only VDR evidence and opens the gate only for a ready stored version', async () => {
+    const supabase = seed();
+    const deal = await createLinkedDeal(supabase);
+    const member = await join(supabase, INVESTOR, 'counterparty', 'investor_rep');
+    await call(supabase, OWNER, 'POST', `/deals/${deal.id}/members/${member.id}/nda`, { nda_status: 'signed' });
+
+    const document = await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, {
+      name: 'Financial statements',
+      category: 'finance'
+    });
+    const row = supabase.db.tables.bonds_deal_documents.find(item => item.id === document.body.document.id);
+    row.status = 'approved';
+
+    const adapter = new DealContextAdapter({ supabase });
+    const withoutFile = await adapter.enrich({
+      instance: { entity_type: 'project', entity_id: PROJECT_ID },
+      context: {}
+    });
+    expect(withoutFile.vdr).toBeUndefined();
+
+    supabase.db.tables.bonds_deal_document_versions = [{
+      id: '99999999-9999-4999-8999-999999999999',
+      deal_id: deal.id,
+      document_id: row.id,
+      upload_status: 'ready',
+      version: 1
+    }];
+    const withFile = await adapter.enrich({
+      instance: { entity_type: 'project', entity_id: PROJECT_ID },
+      context: {}
+    });
+    expect(withFile.vdr).toEqual(expect.objectContaining({ status: 'active' }));
+  });
+
   test('adapter merges the linked deal into the lifecycle context without dropping existing documents', async () => {
     const supabase = seed();
     const deal = await createLinkedDeal(supabase);
