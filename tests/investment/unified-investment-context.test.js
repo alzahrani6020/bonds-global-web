@@ -95,7 +95,8 @@ describe('unified investment context',()=>{
     const source=read('v3/api/deals.js');
     const adr=read('docs/phase-f/PHASE_F_DEAL_LIFECYCLE_ADR.md');
     expect(source).toContain("child === 'pipeline'");
-    expect(source).toContain("child === 'closing'");
+    expect(source).toContain("child === 'closing-items'");
+    expect(source).toContain("child === 'closing-records'");
     expect(adr).toMatch(/F\.4/i);
   });
 });
