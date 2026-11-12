@@ -314,4 +314,14 @@ describe('Letterhead governed workspace integration', () => {
     expect(migration).toContain("state = 'superseded'");
   });
 
+  test('letterhead QR pair stays inside printable page above footer', () => {
+    const ar = read('letterhead.html');
+    expect(ar).toContain('position: absolute;');
+    expect(ar).toContain('top: -25mm;');
+    expect(ar).toContain('left: 8mm;');
+    expect(ar).toContain('right: 8mm;');
+    expect(ar).toContain('footer-document-qr');
+    expect(ar).toContain('footer-site-qr');
+  });
+
 });
