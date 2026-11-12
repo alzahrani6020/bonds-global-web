@@ -1537,12 +1537,19 @@
       const market = v.marketIntelligence || {};
       const condition = this.inputs.conditionAssessmentResult || null;
       const risk = this._lastRiskResult || null;
+      const contextParams = new URLSearchParams(location.search);
+      const projectId = contextParams.get('project_id') || null;
+      const dealId = contextParams.get('deal_id') || null;
+      const opportunityId = contextParams.get('opportunity_id') || null;
 
       const payload = {
         asset_class: this.currentAsset,
         asset_name: inputs.assetName || inputs.name || null,
         asset_identifier: inputs.assetIdentifier || inputs.identifier || null,
         user_id: user.id,
+        project_id: projectId,
+        deal_id: dealId,
+        opportunity_id: opportunityId,
         valuation_inputs: inputs,
         market_data_snapshot: {
           asset_class: market.assetClass,
@@ -1631,6 +1638,40 @@
 
         if (error) throw error;
         this._lastValuationId = data.id;
+
+        if (projectId || dealId || opportunityId) {
+          try {
+            const session = (await sb.auth.getSession()).data.session;
+            if (session?.access_token) {
+              await fetch('/api/v3/investment-context/artifacts', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + session.access_token
+                },
+                credentials: 'same-origin',
+                body: JSON.stringify({
+                  artifact_type: 'valuation',
+                  project_id: projectId,
+                  deal_id: dealId,
+                  opportunity_id: opportunityId,
+                  title: inputs.assetName || inputs.name || 'Valuation',
+                  source_url: location.href,
+                  inputs,
+                  results: payload.results,
+                  metadata: {
+                    asset_valuation_id: data.id,
+                    confidence_score: payload.confidence_score,
+                    data_quality_score: payload.data_quality_score
+                  }
+                })
+              });
+            }
+          } catch (contextErr) {
+            console.warn('[ValuationUI] investment context artifact save failed:', contextErr.message);
+          }
+        }
+
         alert((t.saveValuationSuccess || 'تم حفظ التقييم بنجاح.').replace('{id}', data.id));
       } catch (err) {
         console.error('[ValuationUI] saveValuation error:', err);
