@@ -105,6 +105,31 @@
     return ctx;
   }
 
+  function hasWorkspaceContext() {
+    const ctx = currentWorkspaceContext();
+    return ['service','workspace','project_id','client_id','funding_case_id','request_id'].some(key => !!ctx[key]);
+  }
+
+  function workspaceQuery() {
+    const ctx = currentWorkspaceContext();
+    const query = {};
+    ['service','workspace','project_id','client_id','funding_case_id','request_id'].forEach(key => {
+      if (ctx[key]) query[key] = ctx[key];
+    });
+    return query;
+  }
+
+  function workspaceReturnUrl() {
+    const current = new URL(location.href);
+    const explicit = current.searchParams.get('return_to');
+    if (explicit && explicit.startsWith('/') && !explicit.startsWith('//')) return explicit;
+    if (!hasWorkspaceContext()) return isEn ? '/en/my-bonds/' : '/my-bonds/';
+    const target = new URL(isEn ? '/en/my-bonds/workspace/' : '/my-bonds/workspace/', location.origin);
+    const ctx = workspaceQuery();
+    Object.entries(ctx).forEach(([key, value]) => target.searchParams.set(key, value));
+    return target.pathname + target.search;
+  }
+
   function subjectFromText(text) {
     const re = isEn ? /Subject\s*:\s*([^\n]+)/i : /الموضوع\s*:\s*([^\n]+)/;
     return (text.match(re)?.[1] || '').trim().slice(0, 500) || null;
@@ -175,7 +200,11 @@
   }
 
   function currentDocId() {
-    return state.document?.id || new URLSearchParams(location.search).get('document') || localStorage.getItem('bonds_letterhead_current_document') || '';
+    if (state.document?.id) return state.document.id;
+    const explicit = new URLSearchParams(location.search).get('document');
+    if (explicit) return explicit;
+    if (hasWorkspaceContext()) return '';
+    return localStorage.getItem('bonds_letterhead_current_document') || '';
   }
 
   function syncUrl(id) {
@@ -279,7 +308,7 @@
     if (target === 'issued') {
       renderGovernanceArtifacts();
       updateVerificationQr();
-      await persistIssuedPdfArtifact();
+      toast('✅ ' + (isEn ? 'Document issued. Secure the final PDF as the next governed step.' : 'تم إصدار المستند. ثبّت PDF النهائي كخطوة حوكمة مستقلة.'));
     }
     toast('✅ ' + t.status + ': ' + state.document.status);
     await Promise.all([refreshInboxDynamic(), refreshCommandCenter()]);
@@ -481,6 +510,7 @@
       if (panel) panel.hidden = !panel.hidden;
     });
     addButton(actions, 'corr-command-open', isEn ? 'Command center' : 'مركز المراسلات', () => setCommandDrawer(true));
+    addButton(actions, 'corr-workspace-return', isEn ? 'Back to workspace' : 'العودة لمساحة العمل', () => { location.href = workspaceReturnUrl(); });
     addButton(actions, 'corr-save', t.save, () => saveVersion(false));
     addButton(actions, 'corr-submit', t.submit, () => transition('submitted'), { primary: true });
     addButton(actions, 'corr-review', t.review, () => transition('under_review'), { primary: true });
@@ -562,6 +592,7 @@
     renderWorkflowStrip(status);
 
     const visible = new Set(['corr-details-toggle','corr-command-open']);
+    if (hasWorkspaceContext()) visible.add('corr-workspace-return');
     if (canEditCurrent()) visible.add('corr-save');
 
     if (isOwner() && ['draft','returned'].includes(status)) visible.add('corr-submit');
@@ -586,7 +617,7 @@
     }
 
     [
-      'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel',
+      'corr-save','corr-submit','corr-review','corr-approve','corr-return','corr-reject','corr-cancel','corr-workspace-return',
       'corr-sign','corr-issue','corr-stamp','corr-finalize-pdf','corr-send','corr-archive',
       'corr-details-toggle','corr-command-open'
     ].forEach(id => {
@@ -778,7 +809,9 @@
 
   async function persistIssuedPdfArtifact() {
     if (!state.document || state.document.status !== 'issued') return;
+    if (!can('finalize_pdf')) throw new Error(isEn ? 'Final PDF permission is required' : 'تثبيت PDF النهائي يتطلب صلاحية مستقلة');
     toast(isEn ? '⏳ Securing final PDF...' : '⏳ جاري تثبيت النسخة النهائية PDF...');
+    await loadDocument(state.document.id);
     const blob = await createPdfBlob();
     if (!blob.size || blob.size > 10 * 1024 * 1024) {
       throw new Error(isEn ? 'Final PDF exceeds the 10 MB limit' : 'حجم PDF النهائي يتجاوز 10 ميجابايت');
@@ -804,7 +837,7 @@
   }
 
   async function refreshInboxDynamic() {
-    const result = await api('list');
+    const result = await api('list', { query: workspaceQuery() });
     state.list = result.documents || [];
     state.role = result.role || state.role;
     const draftsList = document.getElementById('drafts-list');
@@ -828,7 +861,7 @@
         title.textContent = doc.reference_number ? doc.reference_number + ' — ' + (doc.subject || doc.title) : (doc.subject || doc.title);
         const meta = document.createElement('div');
         meta.style.cssText = 'color:#64748b;font-size:11px';
-        meta.textContent = doc.status + ' · ' + new Date(doc.updated_at).toLocaleString(isEn ? 'en-US' : 'ar-SA');
+        meta.textContent = statusLabel(doc.status) + ' · ' + new Date(doc.updated_at).toLocaleString(isEn ? 'en-US' : 'ar-SA');
         row.append(title, document.createElement('br'), meta);
         row.addEventListener('click', () => loadDocument(doc.id).catch(e => toast('⚠️ ' + e.message)));
         el.appendChild(row);
@@ -884,6 +917,7 @@
   }
 
   async function initialize() {
+    installGovernedMutationGuards();
     buildGovernanceBar();
     refreshCommandCenter().catch(() => {});
     const id = currentDocId();
@@ -1013,9 +1047,12 @@
   };
 
   window.switchLang = function (lang) {
-    const id = state.document?.id || currentDocId();
     const base = lang === 'en' ? '/en/letterhead.html' : '/letterhead.html';
-    location.href = id ? base + '?document=' + encodeURIComponent(id) : base;
+    const params = new URLSearchParams(location.search);
+    const id = state.document?.id || params.get('document') || '';
+    if (id) params.set('document', id);
+    else params.delete('document');
+    location.href = base + (params.toString() ? '?' + params.toString() : '');
   };
 
   window.translateSelection = function () {
@@ -1027,6 +1064,7 @@
   };
 
   window.deletePage = function () {
+    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const active = window.getSelection()?.anchorNode?.parentElement?.closest?.('.sheet') || sheets[sheets.length - 1];
     if (!active) return;
@@ -1044,6 +1082,7 @@
   };
 
   window.insertTable = function () {
+    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
     const rows = Number(prompt(isEn ? 'Rows (1-50):' : 'عدد الصفوف (1-50):', '3'));
     const cols = Number(prompt(isEn ? 'Columns (1-20):' : 'عدد الأعمدة (1-20):', '3'));
     if (!Number.isInteger(rows) || !Number.isInteger(cols) || rows < 1 || rows > 50 || cols < 1 || cols > 20) {
@@ -1060,6 +1099,10 @@
   };
 
   window.handleImageUpload = function (input) {
+    if (!canEditCurrent()) {
+      if (input) input.value = '';
+      return toast('⚠️ ' + t.notAllowed);
+    }
     const file = input.files?.[0];
     if (!file) return;
     if (!/^image\/(png|jpeg|webp|gif)$/i.test(file.type) || file.size > 2 * 1024 * 1024) {
@@ -1089,7 +1132,7 @@
     const file = input.files?.[0];
     if (!file) return;
     try {
-      if (!editable()) {
+      if (!canEditCurrent()) {
         throw new Error(isEn ? 'This document is locked in its current workflow status' : 'هذا المستند مقفل في حالة سير العمل الحالية');
       }
       if (file.size < 1 || file.size > 2 * 1024 * 1024) {
@@ -1139,6 +1182,7 @@
 
   // Full-document, multi-page undo/redo.
   window.undoDoc = function () {
+    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
     if (!state.history.length) return toast('⚠️ ' + (isEn ? 'Nothing to undo' : 'لا يوجد تراجع'));
     state.future.push(snapshot());
     const prev = state.history.pop();
@@ -1146,6 +1190,7 @@
     state.lastHistorySnapshot = prev;
   };
   window.redoDoc = function () {
+    if (!canEditCurrent()) return toast('⚠️ ' + t.notAllowed);
     if (!state.future.length) return toast('⚠️ ' + (isEn ? 'Nothing to redo' : 'لا يوجد إعادة'));
     state.history.push(snapshot());
     const next = state.future.pop();
@@ -1153,7 +1198,37 @@
     state.lastHistorySnapshot = next;
   };
 
+  function restoreCanonicalLockedDocument() {
+    if (!state.document || canEditCurrent()) return;
+    if (Array.isArray(state.latestVersion?.pages_html) && state.latestVersion.pages_html.length) {
+      setPages(state.latestVersion.pages_html);
+      renderGovernanceArtifacts();
+    }
+  }
+
+  function installGovernedMutationGuards() {
+    const mutationNames = [
+      'insertDateTime','insertSubject','applyTemplate','insertRuler','addNewPage','clearAll',
+      'alignText','toggleList','indentText','outdentText','toggleBold','toggleItalic',
+      'toggleUnderline','setColor','findReplaceText','changeFont'
+    ];
+    mutationNames.forEach(name => {
+      const original = window[name];
+      if (typeof original !== 'function' || original.__bondsGovernedGuard) return;
+      const guarded = function (...args) {
+        if (!canEditCurrent()) {
+          toast('⚠️ ' + t.notAllowed);
+          return;
+        }
+        return original.apply(this, args);
+      };
+      guarded.__bondsGovernedGuard = true;
+      window[name] = guarded;
+    });
+  }
+
   window.exportWord = function () {
+    restoreCanonicalLockedDocument();
     const clone = document.getElementById('pages-container')?.cloneNode(true);
     if (!clone) return toast('⚠️ ' + (isEn ? 'Document is unavailable' : 'المستند غير متوفر'));
     clone.querySelectorAll('img').forEach(img => {
@@ -1183,6 +1258,7 @@
 
   // Deterministic sequential multi-page PDF export.
   window.exportPDF = async function () {
+    restoreCanonicalLockedDocument();
     toast(isEn ? '⏳ Creating PDF...' : '⏳ جاري إنشاء PDF...');
     try {
       const blob = await createPdfBlob();
