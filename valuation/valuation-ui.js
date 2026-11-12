@@ -1622,6 +1622,10 @@
         valuation_date: new Date().toISOString().split('T')[0]
       };
 
+      const projectParam = new URLSearchParams(window.location.search).get('project_id') || '';
+      const projectId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(projectParam) ? projectParam : null;
+      if (projectId) payload.project_id = projectId;
+
       try {
         const { data, error } = await sb
           .from('asset_valuations')
@@ -1631,7 +1635,8 @@
 
         if (error) throw error;
         this._lastValuationId = data.id;
-        alert((t.saveValuationSuccess || 'تم حفظ التقييم بنجاح.').replace('{id}', data.id));
+        const savedMessage = (t.saveValuationSuccess || 'تم حفظ التقييم بنجاح.').replace('{id}', data.id);
+        alert(projectId ? savedMessage + '\n' + (t.saveValuationProjectLinked || 'وارتبط التقييم بالمشروع، وسيظهر في دورة حياته.') : savedMessage);
       } catch (err) {
         console.error('[ValuationUI] saveValuation error:', err);
         alert((t.saveValuationError || 'فشل حفظ التقييم: {error}').replace('{error}', err.message));

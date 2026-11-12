@@ -701,6 +701,17 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
 - **ECC**: `aggregateProjectStatus` يعيد `deal` و `dealVisible`، وبطاقة الصفقة في مركز قيادة المشروع.
 - **الوثائق**: `docs/phase-f/PHASE_F_DEAL_LIFECYCLE_ADR.md`. الاختبارات: `tests/deals/`.
 
+### 11.18 طبقة سياق المشروع — Project Context Layer
+تربط أدوات التحليل بسجل `bonds_projects` واحد عبر المعامل `project_id` في الرابط.
+
+- **المدخل**: بطاقة «أدوات المشروع» في `/v3/project?id=` تفتح الجدوى والمخاطر والتقييم والجاهزية مع `project_id`.
+- **التحقق من الملكية**: `lib/projects/project-context.js` (`loadOwnedProject`). أي `project_id` من المتصفح يُرفض بـ `PROJECT_NOT_FOUND` إن لم يملكه المستخدم (التنفيذ والإدخال في `v3/api/services.js`).
+- **الجدوى والمخاطر**: التنفيذ الناجح لـ `feasibility_studies` / `risk_analysis` مع مشروع يُحفظ في `bonds_reports` (رقم `BR-YYYY-XXXXXXXX`).
+- **دورة الحياة**: `ProjectAnalysisAdapter` (قبل `UcpAdapter`) يمرر مدخلات آخر دراسة جدوى ودولة المشروع إلى UCP، فتُحسب `guard_feasibility_confidence` من الدراسة الفعلية.
+- **التقييم**: عمود `asset_valuations.project_id` + trigger `asset_valuations_project_bridge` ينسخ التقييم إلى `bonds_valuations` (`AV-<id>`) بعد التحقق من الملكية (migration `20261112130000`).
+- **الجاهزية**: `/v3/project-readiness?project_id=` يشغّل المحرك المؤسسي ويحفظ في `investment_readiness_scores`؛ التقييم الذاتي يبقى استرشادياً ولا يغذي البوابة.
+- **الاختبارات**: `tests/projects/project-context.test.js`.
+
 ---
 
 ## 12. تصميم footer التقرير (Report Footer)

@@ -233,6 +233,17 @@
       <button type="button" id="saveBtn">حفظ التقييم</button>
     </div>
 
+    <section id="projectReadinessPanel" class="intro" hidden>
+      <h3>ربط الجاهزية بالمشروع</h3>
+      <p>التقييم الذاتي أعلاه للاسترشاد فقط. بوابة «درجة جاهزية الاستثمار» في دورة حياة المشروع تعتمد على التقييم المؤسسي المحسوب من بيانات المشروع الفعلية (التقييم، التمويل، المستندات).</p>
+      <div class="actions">
+        <button type="button" id="projectReadinessBtn" class="primary-btn">تشغيل التقييم المؤسسي وحفظه للمشروع</button>
+        <a id="projectCommandLink" href="#">فتح مركز قيادة المشروع</a>
+      </div>
+      <p id="projectReadinessStatus" role="status" aria-live="polite"></p>
+      <ul id="projectReadinessGaps"></ul>
+    </section>
+
     <div id="result" class="result">
       <div class="score-circle" id="scoreCircle">0%</div>
       <div class="level" id="levelText">-</div>
@@ -249,7 +260,9 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'bonds_project_readiness';
+    const PROJECT_PARAM = new URLSearchParams(location.search).get('project_id') || '';
+    const PROJECT_ID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(PROJECT_PARAM) ? PROJECT_PARAM : null;
+    const STORAGE_KEY = PROJECT_ID ? 'bonds_project_readiness_' + PROJECT_ID : 'bonds_project_readiness';
 
     const sections = [
       {
@@ -403,6 +416,46 @@
     document.getElementById('calculateBtn').addEventListener('click', calculate);
     document.getElementById('resetBtn').addEventListener('click', reset);
     document.getElementById('saveBtn').addEventListener('click', saveCurrent);
+
+    async function runProjectReadiness() {
+      const status = document.getElementById('projectReadinessStatus');
+      const gaps = document.getElementById('projectReadinessGaps');
+      const button = document.getElementById('projectReadinessBtn');
+      gaps.textContent = '';
+      const auth = window.BondsAuth;
+      const session = auth && auth.getSession ? (await auth.getSession()).data?.session : null;
+      if (!session) {
+        location.assign('/calculators/auth?redirect=' + encodeURIComponent(location.pathname + location.search));
+        return;
+      }
+      button.disabled = true;
+      status.textContent = 'جارٍ التقييم المؤسسي…';
+      try {
+        const response = await fetch('/api/v3/investment-intelligence/readiness/' + encodeURIComponent(PROJECT_ID), {
+          headers: { Authorization: 'Bearer ' + session.access_token },
+          cache: 'no-store'
+        });
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(response.status === 404 ? 'المشروع غير موجود أو لا تملك صلاحية عليه.' : (payload.error || ('HTTP ' + response.status)));
+        const output = payload.output || {};
+        status.textContent = 'حُفظت درجة الجاهزية المؤسسية للمشروع: ' + Math.round(Number(output.readinessScore) || 0) + '/100' + (output.grade ? ' (' + output.grade + ')' : '') + '.';
+        (Array.isArray(output.missingItems) ? output.missingItems : []).slice(0, 8).forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = typeof item === 'string' ? item : (item && (item.label || item.title || item.item)) || JSON.stringify(item);
+          gaps.appendChild(li);
+        });
+      } catch (err) {
+        status.textContent = 'تعذر التقييم المؤسسي: ' + err.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    if (PROJECT_ID) {
+      document.getElementById('projectReadinessPanel').hidden = false;
+      document.getElementById('projectCommandLink').href = '/v3/project?id=' + encodeURIComponent(PROJECT_ID);
+      document.getElementById('projectReadinessBtn').addEventListener('click', runProjectReadiness);
+    }
   </script>
   <div id="site-footer"></div>
   <script src="shared-v3-ui.js" defer></script>

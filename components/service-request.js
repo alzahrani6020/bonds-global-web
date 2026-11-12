@@ -1575,6 +1575,21 @@ function renderExecutionResult(payload){
    entries.length?'<div class="sr-list"><ul>'+entries.map(([k,v])=>'<li><strong>'+escapeHtml(humanizeKey(k))+'</strong>: '+formatFinancialValue(v)+'</li>').join('')+'</ul></div>':
    '<pre style="white-space:pre-wrap;overflow:auto">'+escapeHtml(JSON.stringify(result,null,2))+'</pre>'
   ));
+ const linked=payload?.project;
+ if(linked&&linked.id){
+  const isEn=location.pathname.startsWith('/en/');
+  const record=linked.analysis_record;
+  const note=document.createElement('p');
+  note.className='sr-project-link';
+  note.textContent=record
+   ?(isEn?'Saved to project '+(linked.name||'')+' as '+record.report_number+'. ':'حُفظت النتيجة في مشروع '+(linked.name||'')+' برقم '+record.report_number+'. ')
+   :(isEn?'Run linked to project '+(linked.name||'')+'. ':'نُفذ التحليل ضمن مشروع '+(linked.name||'')+'. ');
+  const link=document.createElement('a');
+  link.href=(isEn?'/en/v3/project?id=':'/v3/project?id=')+encodeURIComponent(linked.id);
+  link.textContent=isEn?'Open project command center':'فتح مركز قيادة المشروع';
+  note.appendChild(link);
+  box.appendChild(note);
+ }
 }
 
 function track(event,properties={}){
@@ -1624,7 +1639,8 @@ async function submit(e){
     locality_name:runtime.geo.city||params.get('locality_name')||null,
     sector:runtime.geo.sector||params.get('sector')||null,
     activity:runtime.geo.activity||params.get('activity')||null,
-    studies_brief:runtime.input||null
+    studies_brief:runtime.input||null,
+    project_id:params.get('project_id')||null
   };
   syncStudiesAssistantContext();
   const headers={'Content-Type':'application/json','Authorization':'Bearer '+session.access_token};

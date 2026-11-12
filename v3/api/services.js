@@ -2,6 +2,7 @@
 
 const { resolveGeoContext } = require('../../lib/geo/resolve-context');
 const { executeService, loadExecutionProfile } = require('../../lib/services/service-execution-router');
+const { requestedProjectId, loadOwnedProject, recordProjectAnalysis } = require('../../lib/projects/project-context');
 const { resolveServiceWorkspace } = require('../../lib/services/service-workspace-resolver');
 const { parseDocument, DocumentParserError } = require('../../lib/api/document-parser');
 const {
@@ -394,6 +395,13 @@ async function handleFinancialIntakePrepare(req, res, supabase, user) {
 
   const serviceCode = String(body.service_code || '').trim();
   if (!serviceCode) return sendJson(res, 400, { error: 'service_code is required' });
+
+  const intakeProject = requestedProjectId(body);
+  if (intakeProject.provided) {
+    const owned = await loadOwnedProject(supabase, user.id, intakeProject.projectId);
+    if (!owned) return sendJson(res, 404, { ok: false, error: { code: 'PROJECT_NOT_FOUND' } });
+    body = { ...body, project_id: owned.id };
+  }
 
   const profileState = await resolveFinancialIntakeProfile(supabase, serviceCode);
   if (profileState.error) {
@@ -832,6 +840,15 @@ async function handleServiceExecute(req, res, supabase, user) {
   const serviceCode = String(body.service_code || '').trim();
   if (!serviceCode) return sendJson(res, 400, { error: 'service_code is required' });
 
+  let project = null;
+  const projectRequest = requestedProjectId(body);
+  if (projectRequest.provided) {
+    if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+    project = await loadOwnedProject(supabase, user.id, projectRequest.projectId);
+    if (!project) return sendJson(res, 404, { ok: false, executed: false, error: { code: 'PROJECT_NOT_FOUND' } });
+    body = { ...body, project_id: project.id, context: { ...(body.context || {}), project_id: project.id } };
+  }
+
   let dataset = null;
   let targetValidation = null;
   let targetProfile = null;
@@ -970,6 +987,28 @@ async function handleServiceExecute(req, res, supabase, user) {
         })
         .eq('id', dataset.id)
         .eq('user_id', user.id);
+    }
+
+    if (project && result.body && result.body.executed === true) {
+      const record = await recordProjectAnalysis(supabase, {
+        project,
+        userId: user.id,
+        serviceCode,
+        language: body.language,
+        inputs: body.inputs || body.values,
+        resultBody: result.body,
+        datasetId: dataset ? dataset.id : null,
+        geo: {
+          country_code: body.country_code || body.context?.country,
+          sector: body.sector || body.context?.sector,
+          activity: body.activity || body.context?.activity,
+          city: body.city || body.context?.locality_name
+        }
+      });
+      result.body = {
+        ...result.body,
+        project: { id: project.id, name: project.name, analysis_record: record }
+      };
     }
 
     return sendJson(res, result.httpStatus, result.body);
