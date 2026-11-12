@@ -1141,15 +1141,15 @@
       const row = document.createElement('div');
       row.dataset.governanceArtifact = 'signature-stamp';
       row.contentEditable = 'false';
-      row.style.cssText = 'margin-top:28px;display:flex;align-items:flex-end;justify-content:space-between;gap:28px;direction:' + (isEn ? 'ltr' : 'rtl') + ';';
+      row.className = 'official-approval-zone';
 
       if (doc.signature_image_data) {
         const signature = document.createElement('div');
-        signature.style.cssText = 'display:flex;flex-direction:column;align-items:center;min-width:220px;gap:3px;text-align:center;';
+        signature.className = 'official-signature';
         const img = document.createElement('img');
         img.src = doc.signature_image_data;
         img.alt = isEn ? 'Official signature' : 'التوقيع الرسمي';
-        img.style.cssText = 'max-width:200px;max-height:85px;object-fit:contain;display:block;';
+        img.className = 'official-signature-image';
         const name = document.createElement('strong');
         name.textContent = doc.signer_name || (isEn ? 'Authorized signatory' : 'الموقّع المعتمد');
         const title = document.createElement('small');
@@ -1160,7 +1160,7 @@
 
       if (doc.stamp_hash) {
         const stamp = document.createElement('div');
-        stamp.style.cssText = 'display:inline-flex;align-items:center;justify-content:center;width:132px;height:132px;border:4px double #a51d2d;border-radius:50%;color:#a51d2d;text-align:center;font-weight:700;white-space:pre-line;transform:rotate(-4deg);font-size:12px;';
+        stamp.className = 'official-stamp';
         stamp.textContent = (isEn ? 'BONDS\nOFFICIAL STAMP\n' : 'بوندز\nالختم الرسمي\n') + (doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد'));
         row.appendChild(stamp);
       }
@@ -1182,6 +1182,9 @@
 
   function updateVerificationQr() {
     const token = state.document?.verification_token;
+    document.querySelectorAll('.sheet').forEach(sheet => {
+      sheet.classList.toggle('has-verification-zone', !!token);
+    });
     document.querySelectorAll('.footer-document-qr img').forEach(img => {
       if (!token) {
         img.style.visibility = 'hidden';
