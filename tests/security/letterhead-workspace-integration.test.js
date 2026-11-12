@@ -223,4 +223,20 @@ describe('Letterhead governed workspace integration', () => {
   });
 
 
+  test('initial rejected owner document opens as an editable safe revision automatically', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain('if (canStartRejectedRevision()) startRejectedRevision();');
+    expect(client).toContain("setEditorEditable(true)");
+    expect(client).toContain("setLegacyEditorControlsDisabled(false)");
+  });
+
+  test('revision copy retains workspace context after detaching from rejected source document', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain('workspaceContext: null');
+    expect(client).toContain("state.workspaceContext = source.workspace_context");
+    expect(client).toContain("state.workspaceContext && typeof state.workspaceContext === 'object'");
+    expect(client).toContain("state.workspaceContext = state.document?.workspace_context");
+  });
+
+
 });

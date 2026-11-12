@@ -34,6 +34,7 @@
     permissions: [],
     userId: null,
     serverIsOwner: null,
+    workspaceContext: null,
     list: [],
     lastSavedSnapshot: '',
     history: [],
@@ -122,7 +123,7 @@
     const p = new URLSearchParams(location.search);
     const inherited = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
       ? state.document.workspace_context
-      : {};
+      : (state.workspaceContext && typeof state.workspaceContext === 'object' ? state.workspaceContext : {});
     const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id', 'return_to'];
     const ctx = {};
     keys.forEach(k => {
@@ -339,6 +340,9 @@
     state.role = result.role || state.role;
     state.permissions = Array.isArray(result.permissions) ? result.permissions : state.permissions;
     state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : true;
+    state.workspaceContext = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
+      ? { ...state.document.workspace_context }
+      : currentWorkspaceContext();
     syncUrl(state.document.id);
     renderGovernance();
     return state.document;
@@ -376,6 +380,9 @@
         }
       });
       state.document = result.document;
+      state.workspaceContext = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
+        ? { ...state.document.workspace_context }
+        : state.workspaceContext;
       state.latestVersion = {
         version: result.version,
         pages_html: pagesHtml(),
@@ -430,6 +437,9 @@
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
     state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null;
+    state.workspaceContext = state.document?.workspace_context && typeof state.document.workspace_context === 'object'
+      ? { ...state.document.workspace_context }
+      : null;
     syncUrl(state.document.id);
     if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html, { markSaved: true });
     document.getElementById('corr-priority') && (document.getElementById('corr-priority').value = state.document.priority || 'normal');
@@ -642,7 +652,7 @@
     state.history = [];
     state.future = [];
     state.serverIsOwner = null;
-    state.serverIsOwner = null;
+    state.workspaceContext = null;
     try { localStorage.removeItem('bonds_letterhead_current_document'); } catch (_) {}
     const url = new URL(location.href);
     url.searchParams.delete('document');
@@ -666,6 +676,9 @@
     }
 
     const source = state.document;
+    state.workspaceContext = source.workspace_context && typeof source.workspace_context === 'object'
+      ? { ...source.workspace_context }
+      : currentWorkspaceContext();
     const sourcePages = pagesHtml();
     const sourceTitle = source.title || '';
     const sourceMetadata = {
@@ -1209,7 +1222,10 @@
     refreshCommandCenter().catch(() => {});
     const id = currentDocId();
     if (id) {
-      try { await loadDocument(id); } catch (e) { toast('⚠️ ' + t.loadFail + ': ' + e.message); }
+      try {
+        await loadDocument(id);
+        if (canStartRejectedRevision()) startRejectedRevision();
+      } catch (e) { toast('⚠️ ' + t.loadFail + ': ' + e.message); }
     } else {
       setPages([''], { markSaved: false });
       state.lastSavedSnapshot = '';
