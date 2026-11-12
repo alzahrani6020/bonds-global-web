@@ -1,5 +1,6 @@
 (function () {
   'use strict';
+  window.BONDS_GOVERNED_CORRESPONDENCE = true;
 
   const isEn = (document.documentElement.lang || '').toLowerCase().startsWith('en');
   const t = {
@@ -39,7 +40,10 @@
     lastHistorySnapshot: '',
     loading: false,
     summary: null,
-    tasks: []
+    tasks: [],
+    inboxPage: 1,
+    inboxPageSize: 25,
+    inboxTotal: 0
   };
 
   const legacy = {
@@ -97,7 +101,7 @@
 
   function currentWorkspaceContext() {
     const p = new URLSearchParams(location.search);
-    const keys = ['service', 'workspace', 'project_id', 'client_id', 'funding_case_id', 'request_id'];
+    const keys = ['service', 'workspace', 'company_id', 'project_id', 'client_id', 'funding_case_id', 'request_id'];
     const ctx = {};
     keys.forEach(k => { if (p.get(k)) ctx[k] = p.get(k); });
     ctx.source = 'letterhead';
@@ -107,13 +111,13 @@
 
   function hasWorkspaceContext() {
     const ctx = currentWorkspaceContext();
-    return ['service','workspace','project_id','client_id','funding_case_id','request_id'].some(key => !!ctx[key]);
+    return ['service','workspace','company_id','project_id','client_id','funding_case_id','request_id'].some(key => !!ctx[key]);
   }
 
   function workspaceQuery() {
     const ctx = currentWorkspaceContext();
     const query = {};
-    ['service','workspace','project_id','client_id','funding_case_id','request_id'].forEach(key => {
+    ['service','workspace','company_id','project_id','client_id','funding_case_id','request_id'].forEach(key => {
       if (ctx[key]) query[key] = ctx[key];
     });
     return query;
@@ -189,7 +193,7 @@
     if (importInput) importInput.disabled = !!disabled;
   }
 
-  function setPages(pages) {
+  function setPages(pages, options = {}) {
     if (!Array.isArray(pages) || !pages.length) pages = [''];
     const container = document.getElementById('pages-container');
     if (!container) return;
@@ -217,8 +221,28 @@
     document.querySelectorAll('.page-number').forEach((el, i) => {
       el.textContent = isEn ? `Page ${i + 1} of ${pages.length}` : `الصفحة ${i + 1} من ${pages.length}`;
     });
-    state.lastHistorySnapshot = snapshot();
-    state.lastSavedSnapshot = snapshot();
+    const snap = snapshot();
+    state.lastHistorySnapshot = snap;
+    if (options.markSaved) state.lastSavedSnapshot = snap;
+  }
+
+  function hasMeaningfulDraft() {
+    if (textContent()) return true;
+    return Array.from(document.querySelectorAll('.doc-content')).some(doc =>
+      !!doc.querySelector('img,table,hr,ul,ol') || doc.innerHTML.replace(/<br\s*\/?>(\s*)/gi, '').replace(/&nbsp;/gi, '').trim().length > 0
+    );
+  }
+
+  function recordMutation(before) {
+    const after = snapshot();
+    if (before && before !== after) {
+      if (state.lastHistorySnapshot !== before) state.lastHistorySnapshot = before;
+      state.history.push(before);
+      if (state.history.length > 50) state.history.shift();
+      state.future = [];
+      state.lastHistorySnapshot = after;
+    }
+    return after;
   }
 
   function currentDocId() {
@@ -359,7 +383,7 @@
     state.role = result.role || 'user';
     state.permissions = Array.isArray(result.permissions) ? result.permissions : [];
     syncUrl(state.document.id);
-    if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html);
+    if (state.latestVersion?.pages_html) setPages(state.latestVersion.pages_html, { markSaved: true });
     document.getElementById('corr-priority') && (document.getElementById('corr-priority').value = state.document.priority || 'normal');
     document.getElementById('corr-confidentiality') && (document.getElementById('corr-confidentiality').value = state.document.confidentiality || 'internal');
     document.getElementById('corr-direction') && (document.getElementById('corr-direction').value = state.document.direction || 'outgoing');
@@ -954,8 +978,10 @@
     if (id) {
       try { await loadDocument(id); } catch (e) { toast('⚠️ ' + t.loadFail + ': ' + e.message); }
     } else {
-      state.lastHistorySnapshot = snapshot();
+      setPages([''], { markSaved: false });
       state.lastSavedSnapshot = '';
+      state.history = [];
+      state.future = [];
       renderGovernance();
     }
 
@@ -985,6 +1011,7 @@
   };
   window.autoSave = function () {
     if (!canEditCurrent()) return;
+    if (!state.document && !hasMeaningfulDraft()) return;
     saveVersion(true).catch(() => {
       try { localStorage.setItem('bonds_letterhead_offline_backup', snapshot()); } catch (_) {}
     });
@@ -1216,7 +1243,7 @@
     if (!state.history.length) return toast('⚠️ ' + (isEn ? 'Nothing to undo' : 'لا يوجد تراجع'));
     state.future.push(snapshot());
     const prev = state.history.pop();
-    setPages(JSON.parse(prev));
+    setPages(JSON.parse(prev), { markSaved: false });
     state.lastHistorySnapshot = prev;
   };
   window.redoDoc = function () {
@@ -1224,7 +1251,7 @@
     if (!state.future.length) return toast('⚠️ ' + (isEn ? 'Nothing to redo' : 'لا يوجد إعادة'));
     state.history.push(snapshot());
     const next = state.future.pop();
-    setPages(JSON.parse(next));
+    setPages(JSON.parse(next), { markSaved: false });
     state.lastHistorySnapshot = next;
   };
 
@@ -1232,7 +1259,7 @@
     if (!state.document || canEditCurrent()) return;
     await loadDocument(state.document.id);
     if (Array.isArray(state.latestVersion?.pages_html) && state.latestVersion.pages_html.length) {
-      setPages(state.latestVersion.pages_html);
+      setPages(state.latestVersion.pages_html, { markSaved: true });
       renderGovernanceArtifacts();
     }
   }
@@ -1251,7 +1278,10 @@
           toast('⚠️ ' + t.notAllowed);
           return;
         }
-        return original.apply(this, args);
+        const before = snapshot();
+        const result = original.apply(this, args);
+        Promise.resolve(result).finally(() => recordMutation(before));
+        return result;
       };
       guarded.__bondsGovernedGuard = true;
       window[name] = guarded;
