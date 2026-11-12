@@ -327,6 +327,8 @@ describe('Letterhead governed workspace integration', () => {
       expect(page).toContain('footer-site-qr');
     }
     expect(client).toContain("sheet.classList.toggle('has-verification-zone', !!token)");
+    expect(client).toContain("document.querySelectorAll('.footer-site-qr img')");
+    expect(client).toContain("if (!token) {");
   });
 
   test('official approval zone is page-break safe with a blue oval stamp', () => {
