@@ -38,7 +38,8 @@ describe('header opportunities menu', () => {
     expect(menu).toContain('labels.opportunityValuation');
     expect(menu).toContain('labels.compareOpportunities');
     expect(menu).toContain('labels.dealWorkspace');
-    expect(menu).toContain("dealsHref + '#dealSharedPanel'");
+    expect(menu).toContain("dealsHref + '?view=shared'");
+    expect(menu).not.toContain("dealsHref + '#dealSharedPanel'");
     expect(layout).toContain("const dealsHref = isEn ? '/en/my-bonds/deals/' : '/my-bonds/deals/';");
     expect(layout).not.toContain("const dealsHref = langBase + 'my-bonds/deals/';");
   });
@@ -52,7 +53,7 @@ describe('header opportunities menu', () => {
     expect(funding).toContain('labels.fundingCases');
   });
 
-  test('deal workspace sends signed-out users to the matching-language login and keeps the shared-deals hash', () => {
+  test('deal workspace sends signed-out users to the matching-language login and preserves the requested shared view', () => {
     const workspace = fs.readFileSync(path.resolve(__dirname, '../../components/deal-workspace.js'), 'utf8');
     expect(workspace).toContain("(EN?'/en/calculators/auth':'/calculators/auth')+'?redirect='");
     expect(workspace).toContain('location.pathname+location.search+location.hash');
