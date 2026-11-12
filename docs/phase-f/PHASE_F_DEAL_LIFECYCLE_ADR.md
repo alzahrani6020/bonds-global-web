@@ -1,6 +1,6 @@
 # ADR — Phase F: Deal Lifecycle (from preparation to close)
 
-- **Status**: Accepted — F.0 deployed, F.1 implemented in this change
+- **Status**: Accepted — F.0/F.1 deployed; F.2 implemented in this change
 - **Date**: 2026-11-12
 - **Scope**: Clients (deal owners), advisors/admins, counterparties (investors, lenders, buyers)
 
@@ -89,13 +89,66 @@ No guard definitions were changed.
 - Existing tests in `tests/deals/deal-workspace-foundation.test.js` remain green.
 - New coverage: `tests/deals/deal-lifecycle-gaps.test.js`.
 
-## 5. Not in scope (next phases)
+## 5. F.2 Secure data room and operational due diligence
 
-- **F.2 Secure data room**: real uploads to a private Supabase bucket, short-lived signed URLs, per-document access log, watermarking.
+F.2 extends the same Deal Workspace; it does not introduce a parallel deal system.
+
+### 5.1 Private storage and versions
+
+- Private Supabase Storage bucket: `deal-data-room`.
+- Maximum object size: 50 MB.
+- MIME allow-list for PDF, Office documents, text/CSV, JPEG/PNG/WebP.
+- Uploads use server-authorized signed upload URLs. The service-role key never reaches the browser.
+- Every physical upload is a version row in `bonds_deal_document_versions`; the logical document remains in `bonds_deal_documents`.
+- Download URLs are generated only after deal access is re-authorized and expire after 60 seconds.
+- Object paths are scoped by `deal_id/document_id/version` and include a random nonce.
+
+### 5.2 Document visibility
+
+`bonds_deal_documents.visibility` is one of:
+
+- `team` — advisory team only (default).
+- `counterparty` — available to signed-NDA counterparties unless confidentiality is `restricted`.
+- `selected` — requires an active `bonds_deal_document_grants` row for that member.
+
+`restricted` confidentiality always overrides counterparty grants.
+
+### 5.3 Information requests
+
+`bonds_deal_document_requests` tracks requested documents, assigned counterparty, due date and status.
+A counterparty may upload only a request assigned to its active membership and only after NDA signature.
+The received file becomes a normal versioned data-room document.
+
+### 5.4 Auditability
+
+`bonds_deal_document_access_log` is append-only and records authorization-sensitive events including signed upload creation, upload confirmation, signed download creation, request creation, grant changes and due-diligence updates.
+
+### 5.5 Due-diligence workflow
+
+Existing `bonds_deal_due_diligence_items` gains assignment, due date, evidence-document link, remediation and resolution note.
+The team can progress items through `not_started → in_progress / blocked → complete`; existing lifecycle guard rules remain unchanged, so blocked or critical items continue to prevent due-diligence completion.
+
+### 5.6 API additions
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| GET/POST | `/deals/:id/requests` | List/create information requests |
+| PATCH | `/deals/:id/requests/:rid` | Update request status/details |
+| POST | `/deals/:id/requests/:rid/upload-url` | Authorized requested-document upload |
+| PATCH | `/deals/:id/documents/:did` | Update document visibility/status |
+| POST | `/deals/:id/documents/:did/grant` | Grant/revoke selected-member access |
+| POST | `/deals/:id/documents/:did/upload-url` | Create signed version upload |
+| POST | `/deals/:id/documents/:did/confirm-upload` | Verify object and commit version |
+| POST | `/deals/:id/documents/:did/download-url` | 60-second signed download |
+| PATCH | `/deals/:id/due-diligence/:itemId` | Operational DD update |
+
+## 6. Not in scope (next phases)
+
 - **F.3 Investor & lender pipeline**: outreach status, indications of interest, term-sheet comparison.
 - **F.4 Closing management**: conditions precedent checklist, signing, funds-received evidence feeding `guard_term_sheet_signed`, `guard_cap_table_approved`, `guard_funds_received`.
-- Email notifications for invitations (reuse existing notification templates).
+- Dynamic PDF watermarking on download (access is logged now; content stamping is a later hardening layer).
+- Email notifications for invitations/requests (reuse existing notification templates).
 
-## 6. Regulatory note
+## 7. Regulatory note
 
 Bonds provides workflow and records only. It does not arrange, market or place securities; any such activity remains with licensed parties under applicable CMA / SAMA rules.
