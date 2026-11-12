@@ -1651,7 +1651,13 @@ async function submit(e){
         lang,
         url:location.href,
         source:'service_request_page',
-        metadata:{financial_dataset_id:intakeDatasetId,intake_mode:intakeMode}
+        metadata:{
+          financial_dataset_id:intakeDatasetId,
+          intake_mode:intakeMode,
+          project_id:params.get('project_id')||null,
+          deal_id:params.get('deal_id')||null,
+          opportunity_id:params.get('opportunity_id')||null
+        }
       };
       const d=await json('/api/v3/services/requests',{method:'POST',headers,body:JSON.stringify(requestBody)});
       submitted=true;
@@ -1668,6 +1674,9 @@ async function submit(e){
       body:JSON.stringify({
         service_code:serviceCode,
         dataset_id:intakeDatasetId,
+        project_id:params.get('project_id')||null,
+        deal_id:params.get('deal_id')||null,
+        opportunity_id:params.get('opportunity_id')||null,
         country_code:context.country,
         sector:context.sector,
         activity:context.activity,
@@ -1694,6 +1703,10 @@ async function submit(e){
     headers,
     body:JSON.stringify({
       service_code:serviceCode,
+      project_id:params.get('project_id')||null,
+      deal_id:params.get('deal_id')||null,
+      opportunity_id:params.get('opportunity_id')||null,
+      source_url:location.href,
       inputs:values,
       values,
       input:runtime.input||undefined,
@@ -1744,7 +1757,12 @@ async function submit(e){
     form_version:detail.form?.version||null,
     lang,
     url:location.href,
-    source:'service_request_page'
+    source:'service_request_page',
+    metadata:{
+      project_id:params.get('project_id')||null,
+      deal_id:params.get('deal_id')||null,
+      opportunity_id:params.get('opportunity_id')||null
+    }
   };
   const d=await json('/api/v3/services/requests',{method:'POST',headers,body:JSON.stringify(body)});
   submitted=true;
