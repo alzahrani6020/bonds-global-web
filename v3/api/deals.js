@@ -546,6 +546,17 @@ async function patchDeal(req, res, supabase, user, dealId) {
   try { patch = normalizeDealPatch(body); }
   catch (err) { return sendJson(res, 422, { error:err.message }); }
 
+  if (patch.stage === 'closed' || patch.status === 'closed') {
+    try {
+      const closing = await loadClosingState(supabase, dealId);
+      if (closing.missing || closing.summary.ready_to_close !== true) {
+        return sendJson(res, 409, { error:'DEAL_CLOSING_NOT_READY', closing:closing.summary });
+      }
+    } catch (_err) {
+      return sendJson(res, 503, { error:'DEAL_CLOSING_READ_FAILED' });
+    }
+  }
+
   const { data, error } = await supabase
     .from('bonds_deals')
     .update(patch)
@@ -1053,6 +1064,129 @@ async function patchOffer(req, res, supabase, user, dealId, offerId) {
   return sendJson(res, 200, { offer:data });
 }
 
+
+async function loadClosingState(supabase, dealId) {
+  const [conditions, milestones] = await Promise.all([
+    supabase.from('bonds_deal_closing_conditions').select('*').eq('deal_id', dealId).order('created_at', { ascending:true }),
+    supabase.from('bonds_deal_closing_milestones').select('*').eq('deal_id', dealId).order('created_at', { ascending:true })
+  ]);
+  if (conditions.error || milestones.error) {
+    const error = conditions.error || milestones.error;
+    if (isMissingRelation(error)) return { conditions:[], milestones:[], missing:true, summary:closingGateSummary([],[]) };
+    throw error;
+  }
+  return {
+    conditions:conditions.data || [],
+    milestones:milestones.data || [],
+    missing:false,
+    summary:closingGateSummary(conditions.data || [], milestones.data || [])
+  };
+}
+
+async function validateClosingEvidence(res, supabase, dealId, documentId) {
+  if (!documentId) return null;
+  const document = await loadDealDocument(res, supabase, dealId, documentId);
+  if (!document) return null;
+  const { data:versions, error } = await supabase.from('bonds_deal_document_versions')
+    .select('id').eq('deal_id', dealId).eq('document_id', documentId).eq('upload_status', 'ready').limit(1);
+  if (error) { sendJson(res, 503, { error:'DEAL_DOCUMENT_VERSION_READ_FAILED' }); return null; }
+  if (!Array.isArray(versions) || versions.length === 0) {
+    sendJson(res, 409, { error:'CLOSING_EVIDENCE_FILE_NOT_READY' });
+    return null;
+  }
+  return document;
+}
+
+async function createClosingCondition(req, res, supabase, user, dealId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let payload;
+  try { payload = normalizeClosingCondition(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  if (payload.evidence_document_id) {
+    const document = await validateClosingEvidence(res, supabase, dealId, payload.evidence_document_id);
+    if (!document) return undefined;
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_closing_conditions')
+    .insert({ deal_id:dealId, created_by:user.id, ...payload }).select().single();
+  if (error) return sendJson(res, 503, { error:'DEAL_CLOSING_CONDITION_CREATE_FAILED' });
+  await recordEvent(supabase, {
+    deal_id:dealId, event_type:'closing_condition_created', entity_type:'deal_closing_condition',
+    entity_id:data.id, actor_id:user.id, metadata:{ category:data.category, is_critical:data.is_critical }
+  });
+  return sendJson(res, 201, { closing_condition:data });
+}
+
+async function patchClosingCondition(req, res, supabase, user, dealId, conditionId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let patch;
+  try { patch = normalizeClosingConditionPatch(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  if (patch.evidence_document_id) {
+    const document = await validateClosingEvidence(res, supabase, dealId, patch.evidence_document_id);
+    if (!document) return undefined;
+  }
+
+  const { data, error } = await supabase.from('bonds_deal_closing_conditions')
+    .update(patch).eq('id', conditionId).eq('deal_id', dealId).select().maybeSingle();
+  if (error) return sendJson(res, 503, { error:'DEAL_CLOSING_CONDITION_UPDATE_FAILED' });
+  if (!data) return sendJson(res, 404, { error:'DEAL_CLOSING_CONDITION_NOT_FOUND' });
+  await recordEvent(supabase, {
+    deal_id:dealId, event_type:'closing_condition_updated', entity_type:'deal_closing_condition',
+    entity_id:conditionId, actor_id:user.id, metadata:{ fields:Object.keys(patch), status:data.status }
+  });
+  return sendJson(res, 200, { closing_condition:data });
+}
+
+async function recordClosingMilestone(req, res, supabase, user, dealId) {
+  const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
+  if (!resolved) return undefined;
+  const parsed = await readBody(req, res);
+  if (!parsed) return undefined;
+  let payload;
+  try { payload = normalizeClosingMilestone(parsed.body); }
+  catch (err) { return sendJson(res, 422, { error:err.message }); }
+
+  if (payload.status === 'confirmed' && !payload.evidence_document_id) {
+    return sendJson(res, 422, { error:'CLOSING_MILESTONE_EVIDENCE_REQUIRED' });
+  }
+  if (payload.evidence_document_id) {
+    const document = await validateClosingEvidence(res, supabase, dealId, payload.evidence_document_id);
+    if (!document) return undefined;
+  }
+  if (payload.related_offer_id) {
+    const { data:offer, error:offerError } = await supabase.from('bonds_deal_offers')
+      .select('id,offer_type,status').eq('id', payload.related_offer_id).eq('deal_id', dealId).maybeSingle();
+    if (offerError) return sendJson(res, 503, { error:'DEAL_OFFER_READ_FAILED' });
+    if (!offer) return sendJson(res, 422, { error:'CLOSING_OFFER_NOT_FOUND' });
+    if (payload.milestone_type === 'term_sheet_signed' && !['term_sheet','revised_term_sheet'].includes(offer.offer_type)) {
+      return sendJson(res, 422, { error:'CLOSING_TERM_SHEET_OFFER_REQUIRED' });
+    }
+  }
+
+  const row={ deal_id:dealId, recorded_by:user.id, ...payload };
+  const { data, error } = await supabase.from('bonds_deal_closing_milestones')
+    .upsert(row,{ onConflict:'deal_id,milestone_type' }).select().single();
+  if (error) return sendJson(res, 503, { error:'DEAL_CLOSING_MILESTONE_SAVE_FAILED' });
+
+  await recordEvent(supabase, {
+    deal_id:dealId, event_type:'closing_milestone_recorded', entity_type:'deal_closing_milestone',
+    entity_id:data.id, actor_id:user.id,
+    metadata:{ milestone_type:data.milestone_type, status:data.status, evidence_document_id:data.evidence_document_id }
+  });
+
+  const closing = await loadClosingState(supabase, dealId);
+  return sendJson(res, 200, { closing_milestone:data, closing_summary:closing.summary });
+}
+
 async function createChild(req, res, supabase, user, dealId, kind) {
   const resolved = await authorize(res, supabase, user, dealId, ACTIONS.EDIT_WORKSPACE);
   if (!resolved) return undefined;
@@ -1091,6 +1225,7 @@ async function dealsRouter(req, res, path, supabase, user) {
   const child = parts[2] || null;
   const childId = parts[3] || null;
   const childAction = parts[4] || null;
+  const grandchildId = parts[5] || null;
 
   if (dealId && child === 'members') {
     if (!childId && req.method === 'GET') return listMembers(res, supabase, user, dealId);
@@ -1128,6 +1263,19 @@ async function dealsRouter(req, res, path, supabase, user) {
   if (dealId && child === 'offers') {
     if (!childId && req.method === 'POST') return createOffer(req, res, supabase, user, dealId);
     if (childId && !childAction && req.method === 'PATCH') return patchOffer(req, res, supabase, user, dealId, childId);
+    return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
+  }
+
+  if (dealId && child === 'closing') {
+    if (childId === 'conditions' && !childAction && req.method === 'POST') {
+      return createClosingCondition(req, res, supabase, user, dealId);
+    }
+    if (childId === 'conditions' && childAction && !grandchildId && req.method === 'PATCH') {
+      return patchClosingCondition(req, res, supabase, user, dealId, childAction);
+    }
+    if (childId === 'milestones' && !childAction && req.method === 'POST') {
+      return recordClosingMilestone(req, res, supabase, user, dealId);
+    }
     return sendJson(res, 404, { error:'DEAL_ENDPOINT_NOT_FOUND' });
   }
 
