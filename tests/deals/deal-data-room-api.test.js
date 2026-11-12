@@ -169,6 +169,19 @@ describe('F.2 secure data room API',()=>{
     expect(actions).toEqual(expect.arrayContaining(['upload_url_created','upload_confirmed','download_url_created']));
   });
 
+  test('a request cannot be marked fulfilled without a linked uploaded document',async()=>{
+    const supabase=createFakeSupabase();
+    const deal=await createDeal(supabase);
+    const requestRow=await call(supabase,OWNER,'POST',`/deals/${deal.id}/requests`,{
+      title:'Audited statements'
+    });
+    const result=await call(supabase,OWNER,'PATCH',`/deals/${deal.id}/requests/${requestRow.body.request.id}`,{
+      status:'fulfilled'
+    });
+    expect(result.statusCode).toBe(409);
+    expect(result.body.error).toBe('DOCUMENT_REQUEST_FILE_REQUIRED');
+  });
+
   test('counterparty can upload only the request assigned to them',async()=>{
     const supabase=createFakeSupabase();
     const deal=await createDeal(supabase);
