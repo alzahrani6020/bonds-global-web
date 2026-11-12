@@ -24,7 +24,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
 <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
 <script defer src="/site-layout.js?v=3.8.8"></script>
-<script defer src="/components/deal-workspace.js?v=5"></script>
+<script defer src="/components/deal-workspace.js?v=6"></script>
 <style>
 .deal-shell{max-width:1180px;margin:0 auto;padding:28px 18px 60px}.deal-head{display:flex;gap:18px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}.deal-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:22px}.deal-card,.deal-form,.deal-panel{border:1px solid rgba(197,160,40,.22);background:rgba(255,255,255,.035);border-radius:14px;padding:16px}.deal-card button{width:100%;text-align:inherit;background:none;border:0;color:inherit;cursor:pointer;padding:0}.deal-meta{opacity:.72;font-size:.86rem}.deal-progress{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.deal-progress div{border:1px solid rgba(197,160,40,.2);border-radius:10px;padding:12px}.deal-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.deal-form .full{grid-column:1/-1}.deal-form input,.deal-form select,.deal-form textarea{width:100%;padding:10px;border-radius:9px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-form button,.deal-child-form button{padding:11px 16px;border:0;border-radius:9px;background:#d4a853;color:#0a0f1a;font-weight:800;cursor:pointer}.deal-child-form{display:grid;gap:8px;margin:10px 0 14px}.deal-child-form input,.deal-child-form select,.deal-child-form textarea{width:100%;padding:9px;border-radius:8px;border:1px solid rgba(255,255,255,.16);background:#0f172a;color:inherit}.deal-status{margin:12px 0;min-height:22px}.deal-section-title{margin-top:26px}.deal-list{display:grid;gap:8px}.deal-row{display:flex;gap:10px;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08);padding:9px 0}.deal-row-stack{align-items:flex-start;flex-wrap:wrap}.deal-row-stack>span:last-child{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.deal-empty{opacity:.65}@media(max-width:680px){.deal-form{grid-template-columns:1fr}}
 </style>
@@ -155,6 +155,33 @@
           <button type="submit">تسجيل العرض</button>
         </form>
         <div id="dealOffers" class="deal-list"></div>
+      </section>
+      <section id="dealClosingPanel" class="deal-card">
+        <h3>إدارة الإغلاق</h3>
+        <p id="dealClosingSummary" class="deal-meta">يتم فحص أدلة الإغلاق والشروط الحرجة قبل السماح بإغلاق الصفقة.</p>
+        <form id="dealClosingConditionForm" class="deal-child-form">
+          <input name="title" required maxlength="300" placeholder="شرط الإغلاق">
+          <select name="category"><option value="legal">قانوني</option><option value="financial">مالي</option><option value="regulatory">تنظيمي</option><option value="commercial">تجاري</option><option value="operational">تشغيلي</option><option value="other">أخرى</option></select>
+          <input name="owner" maxlength="200" placeholder="المسؤول">
+          <input name="due_at" type="date" aria-label="تاريخ الاستحقاق">
+          <select id="dealClosingConditionEvidence" name="evidence_document_id"><option value="">بدون مستند إثبات</option></select>
+          <label><input name="is_critical" type="checkbox"> شرط حرج</label>
+          <textarea name="notes" rows="2" maxlength="3000" placeholder="ملاحظات"></textarea>
+          <button type="submit">إضافة شرط</button>
+        </form>
+        <div id="dealClosingConditions" class="deal-list"></div>
+        <hr>
+        <form id="dealClosingMilestoneForm" class="deal-child-form">
+          <select name="milestone_type"><option value="term_sheet_signed">توقيع ورقة الشروط</option><option value="cap_table_approved">اعتماد جدول الملكية</option><option value="funds_received">استلام الأموال</option><option value="signing_complete">اكتمال التوقيع</option></select>
+          <select id="dealClosingMilestoneEvidence" name="evidence_document_id" required><option value="">اختر مستند الإثبات</option></select>
+          <select id="dealClosingOffer" name="related_offer_id"><option value="">بدون عرض مرتبط</option></select>
+          <input name="amount" type="number" min="0" step="0.01" placeholder="المبلغ (إن وجد)">
+          <input name="currency" value="SAR" maxlength="3" placeholder="العملة">
+          <input name="occurred_at" type="date" aria-label="تاريخ الحدث">
+          <textarea name="notes" rows="2" maxlength="3000" placeholder="ملاحظات الإثبات"></textarea>
+          <button type="submit">تسجيل دليل مؤكد</button>
+        </form>
+        <div id="dealClosingMilestones" class="deal-list"></div>
       </section>
       <section id="dealRequestsPanel" class="deal-card">
         <h3>طلبات المستندات</h3>
