@@ -200,6 +200,39 @@
     `;
   }
 
+  function escapeDealText(value) {
+    return String(value === null || value === undefined ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function renderDealCard(status, project, role) {
+    if (!status.dealVisible) return '';
+    const deal = status.deal;
+    if (!deal) {
+      if (role !== 'owner' && role !== 'admin') return '';
+      return `
+        <div class="ecc-card deal-card">
+          <div class="ecc-card__title">مساحة الصفقة</div>
+          <p style="color:var(--text-secondary);font-size:0.85rem;">لا توجد صفقة مفتوحة مرتبطة بهذا المشروع. افتح مساحة صفقة لإدارة الأطراف واتفاقيات السرية والفحص والمستندات.</p>
+          <a class="ecc-btn ecc-btn--primary" style="text-decoration:none;" href="/my-bonds/deals/?project=${encodeURIComponent(project.id)}">فتح صفقة</a>
+        </div>
+      `;
+    }
+    const gates = deal.gates || {};
+    const members = deal.members || {};
+    const dd = deal.due_diligence || {};
+    return `
+      <div class="ecc-card deal-card">
+        <div class="ecc-card__title">مساحة الصفقة · ${escapeDealText(deal.deal_number)}</div>
+        <div class="mission-item__title">${escapeDealText(deal.title)}</div>
+        <div class="mission-item__desc">الأطراف المقابلة: ${Number(members.counterparties) || 0} · اتفاقيات سرية موقعة: ${Number(members.nda_signed) || 0} · غرفة الصفقة: ${gates.deal_room === 'active' ? 'نشطة' : 'غير نشطة'}</div>
+        <div class="mission-item__desc">الفحص النافي للجهالة: ${Number(dd.completion) || 0}% · مستندات جاهزة: ${Number(deal.vdr_documents) || 0}</div>
+        <a class="ecc-btn ecc-btn--secondary" style="text-decoration:none;margin-top:0.75rem;display:inline-flex;" href="/my-bonds/deals/?deal=${encodeURIComponent(deal.id)}">فتح مساحة الصفقة</a>
+      </div>
+    `;
+  }
+
   function renderDecisionCockpit(approvals, timeline) {
     const pending = (approvals || []).filter(a => a.status === 'pending');
     const recentDecisions = (timeline || [])
@@ -377,6 +410,7 @@
           ${renderHealthCards(health)}
           ${renderMissionControl(mission)}
           ${renderDecisionCockpit(approvals, timeline)}
+          ${renderDealCard(data.status, project, role)}
           ${renderActionBar(project, lifecycle, role)}
         </div>
       </div>

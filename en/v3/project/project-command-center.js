@@ -200,6 +200,39 @@
     `;
   }
 
+  function escapeDealText(value) {
+    return String(value === null || value === undefined ? '' : value)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function renderDealCard(status, project, role) {
+    if (!status.dealVisible) return '';
+    const deal = status.deal;
+    if (!deal) {
+      if (role !== 'owner' && role !== 'admin') return '';
+      return `
+        <div class="ecc-card deal-card">
+          <div class="ecc-card__title">Deal workspace</div>
+          <p style="color:var(--text-secondary);font-size:0.85rem;">No open deal is linked to this project. Open a deal workspace to manage parties, NDAs, due diligence and documents.</p>
+          <a class="ecc-btn ecc-btn--primary" style="text-decoration:none;" href="/en/my-bonds/deals/?project=${encodeURIComponent(project.id)}">Open a deal</a>
+        </div>
+      `;
+    }
+    const gates = deal.gates || {};
+    const members = deal.members || {};
+    const dd = deal.due_diligence || {};
+    return `
+      <div class="ecc-card deal-card">
+        <div class="ecc-card__title">Deal workspace · ${escapeDealText(deal.deal_number)}</div>
+        <div class="mission-item__title">${escapeDealText(deal.title)}</div>
+        <div class="mission-item__desc">Counterparties: ${Number(members.counterparties) || 0} · Signed NDAs: ${Number(members.nda_signed) || 0} · Deal room: ${gates.deal_room === 'active' ? 'active' : 'inactive'}</div>
+        <div class="mission-item__desc">Due diligence: ${Number(dd.completion) || 0}% · Ready documents: ${Number(deal.vdr_documents) || 0}</div>
+        <a class="ecc-btn ecc-btn--secondary" style="text-decoration:none;margin-top:0.75rem;display:inline-flex;" href="/en/my-bonds/deals/?deal=${encodeURIComponent(deal.id)}">Open deal workspace</a>
+      </div>
+    `;
+  }
+
   function renderDecisionCockpit(approvals, timeline) {
     const pending = (approvals || []).filter(a => a.status === 'pending');
     const recentDecisions = (timeline || [])
@@ -378,6 +411,7 @@
           ${renderHealthCards(health)}
           ${renderMissionControl(mission)}
           ${renderDecisionCockpit(approvals, timeline)}
+          ${renderDealCard(data.status, project, role)}
           ${renderActionBar(project, lifecycle, role)}
         </div>
       </div>

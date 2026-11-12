@@ -689,6 +689,18 @@ if (window.BondsAuth && window.BondsAuth.checkFeatureAccess) {
   - lookup الضيف يتطلب تطابق البريد أو الجوال ولا يُعيد سوى ملخص محدود.
 - **الإشعارات**: قوالب `notification_templates` تتضمن الآن رابط `{{portal_link}}` يؤدي إلى صفحة تفاصيل الحالة.
 
+### 11.17 مساحة الصفقات — Deal Workspace (Phase F)
+
+- **الأساس (F.0)**: جداول `bonds_deals` و `bonds_deal_parties/tasks/due_diligence_items/documents` (migration `20261112003000`)، و `v3/api/deals.js` تحت `/api/v3/deals/*`، وواجهة `/my-bonds/deals/` + `components/deal-workspace.js`. **لا تُنشئ جداول صفقات موازية.**
+- **F.1 (وصول مشترك وربط دورة الحياة)** — migration `20261112100000`:
+ - `bonds_deal_members`: دعوة بالبريد (تُفعَّل فقط لبريد مؤكد)، جانب `advisor/counterparty/external_expert`، أدوار `deal_manager/analyst/viewer/legal/auditor/investor_rep`، حالة اتفاقية السرية وانتهاء الصلاحية. الإلغاء بـ `status='revoked'` وليس الحذف.
+ - `bonds_deal_events`: سجل تدقيق append-only.
+ - أعمدة `project_id` و `lifecycle_instance_id` و `funding_case_id` على `bonds_deals`.
+- **الصلاحيات** في `lib/deals/deal-access.js` (`can()`): الطرف المقابل يرى المستندات غير المقيّدة فقط بعد توقيع السرية، ولا يكتب ولا يرى السجل أو الأعضاء الآخرين.
+- **دورة الحياة**: `DealContextAdapter` يغذي بوابات `guard_deal_room_active` و `guard_nda_signed` و `guard_vdr_access` و `guard_due_diligence_complete` من الصفقة المرتبطة بالمشروع.
+- **ECC**: `aggregateProjectStatus` يعيد `deal` و `dealVisible`، وبطاقة الصفقة في مركز قيادة المشروع.
+- **الوثائق**: `docs/phase-f/PHASE_F_DEAL_LIFECYCLE_ADR.md`. الاختبارات: `tests/deals/`.
+
 ---
 
 ## 12. تصميم footer التقرير (Report Footer)
