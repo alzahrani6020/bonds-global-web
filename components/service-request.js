@@ -63,7 +63,7 @@ function financialWorkspaceHref(code){
 function correspondenceWorkspaceHref(){
  const next=new URLSearchParams();
  const live=new URLSearchParams(location.search);
- const allowed=['service','project_id','client_id','funding_case_id','request_id'];
+ const allowed=['service','company_id','project_id','client_id','funding_case_id','request_id'];
  allowed.forEach(key=>{const value=live.get(key);if(value)next.set(key,value)});
  const workspaceType=String(detail?.workspace?.type||'').trim();
  if(workspaceType)next.set('workspace',workspaceType);

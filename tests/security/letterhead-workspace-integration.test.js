@@ -29,8 +29,8 @@ describe('Letterhead governed workspace integration', () => {
     ]) {
       expect(client).toContain("'" + name + "'");
     }
-    expect(client).toContain('if (!canEditCurrent())');
-    expect(client).toContain('setLegacyEditorControlsDisabled(!canEditCurrent())');
+    expect(client).toContain('function prepareEditableAction()');
+    expect(client).toContain('setLegacyEditorControlsDisabled(!canEditCurrent() && !canStartRejectedRevision())');
     expect(client).toContain('imageInput.disabled = !!disabled');
     expect(client).toContain('importInput.disabled = !!disabled');
   });
@@ -128,10 +128,10 @@ describe('Letterhead governed workspace integration', () => {
 
   test('undo redo and legacy write toggle preserve governed ownership checks', () => {
     const client = read('components/letterhead-correspondence.js');
-    expect(client).toContain('if (!canEditCurrent()) return toast');
     expect(client).toContain('window.undoDoc = function ()');
     expect(client).toContain('window.redoDoc = function ()');
-    expect(client).toContain("if (!canEditCurrent()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user'");
+    expect(client).toContain('if (!prepareEditableAction()) return toast');
+    expect(client).toContain("if (!prepareEditableAction()) return toast('⚠️ ' + (isEn ? 'This document is locked or not owned by the current user'");
     expect(client).toContain("if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked or not owned by the current user'");
     expect(client).toContain('if (!canEditCurrent()) return;');
   });
@@ -184,6 +184,42 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain('setEditorEditable(true)');
     expect(client).toContain('setLegacyEditorControlsDisabled(false)');
     expect(client).toContain("status === 'rejected' && (isOwner() || isAdmin())");
+  });
+
+
+  test('server-authoritative ownership controls rejected revision availability', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const api = read('lib/api/correspondence.js');
+    expect(client).toContain('serverIsOwner: null');
+    expect(client).toContain("typeof state.serverIsOwner === 'boolean'");
+    expect(client).toContain("state.serverIsOwner = typeof result.is_owner === 'boolean' ? result.is_owner : null");
+    expect(api).toContain('is_owner: doc.owner_user_id === user.id');
+  });
+
+
+  test('rejected owner toolbar actions create a safe revision instead of staying frozen', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain('function canStartRejectedRevision()');
+    expect(client).toContain('function prepareEditableAction()');
+    expect(client).toContain('startRejectedRevision();');
+    expect(client).toContain('setLegacyEditorControlsDisabled(!canEditCurrent() && !canStartRejectedRevision())');
+    expect(client).toContain('if (!prepareEditableAction())');
+  });
+
+  test('workspace context survives correspondence navigation and document reloads', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const api = read('lib/api/correspondence.js');
+    const serviceRequest = read('components/service-request.js');
+    const myBonds = read('my-bonds/index.html');
+    const myBondsEn = read('en/my-bonds/index.html');
+    expect(client).toContain("state.document?.workspace_context");
+    expect(client).toContain("'return_to'");
+    expect(client).toContain("ctx.workspace = 'correspondence'");
+    expect(api).toContain("'return_to'");
+    expect(api).toContain('Invalid workspace return path');
+    expect(serviceRequest).toContain("['service','company_id','project_id','client_id','funding_case_id','request_id']");
+    expect(myBonds).toContain('workspace=correspondence&return_to=%2Fmy-bonds%2F');
+    expect(myBondsEn).toContain('workspace=correspondence&return_to=%2Fen%2Fmy-bonds%2F');
   });
 
 
