@@ -1108,7 +1108,7 @@ async function validateClosingRecord(res, supabase, dealId, record) {
 }
 
 async function createClosingItem(req,res,supabase,user,dealId){
-  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.EDIT_WORKSPACE);
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
   if(!resolved)return undefined;
   const parsed=await readBody(req,res);if(!parsed)return undefined;
   let payload;try{payload=normalizeClosingItemCreate(parsed.body)}catch(err){return sendJson(res,422,{error:err.message})}
@@ -1125,7 +1125,7 @@ async function createClosingItem(req,res,supabase,user,dealId){
 }
 
 async function patchClosingItem(req,res,supabase,user,dealId,itemId){
-  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.EDIT_WORKSPACE);
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
   if(!resolved)return undefined;
   const parsed=await readBody(req,res);if(!parsed)return undefined;
   const {data:current,error:readError}=await supabase.from('bonds_deal_closing_items').select('*').eq('id',itemId).eq('deal_id',dealId).maybeSingle();
@@ -1146,7 +1146,7 @@ async function patchClosingItem(req,res,supabase,user,dealId,itemId){
 }
 
 async function createClosingRecord(req,res,supabase,user,dealId){
-  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.EDIT_WORKSPACE);
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
   if(!resolved)return undefined;
   const parsed=await readBody(req,res);if(!parsed)return undefined;
   let payload;try{payload=normalizeClosingRecordCreate(parsed.body)}catch(err){return sendJson(res,422,{error:err.message})}
@@ -1158,7 +1158,7 @@ async function createClosingRecord(req,res,supabase,user,dealId){
 }
 
 async function patchClosingRecord(req,res,supabase,user,dealId,recordId){
-  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.EDIT_WORKSPACE);
+  const resolved=await authorize(res,supabase,user,dealId,ACTIONS.MANAGE_CLOSING);
   if(!resolved)return undefined;
   const parsed=await readBody(req,res);if(!parsed)return undefined;
   const {data:current,error:readError}=await supabase.from('bonds_deal_closing_records').select('*').eq('id',recordId).eq('deal_id',dealId).maybeSingle();
