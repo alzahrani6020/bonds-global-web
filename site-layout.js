@@ -490,6 +490,9 @@
       financeManagementGroup: isEn ? 'Financial Management' : 'الإدارة المالية',
       transformationGroup: isEn ? 'Transformation & Risk' : 'التحول والمخاطر',
       fundingGroup: isEn ? 'Funding' : 'التمويل',
+      fundingSourcesGroup: isEn ? 'Funding Sources' : 'مصادر التمويل',
+      fundingExecutionGroup: isEn ? 'Readiness & Execution' : 'الجاهزية والتنفيذ',
+      fundingPortal: isEn ? 'Funding Hub' : 'بوابة التمويل',
       investmentGroup: isEn ? 'Investment' : 'الاستثمار',
       opportunitiesNav: isEn ? 'Deals' : 'الفرص',
       dealsGroup: isEn ? 'Deals' : 'الصفقات',
@@ -658,13 +661,28 @@
     // TOOLS-GENERATED:END
     const fundingDropdown = [
       {
-        heading: { ar: labels.fundingGroup, en: 'Funding' },
+        heading: { ar: labels.fundingSourcesGroup, en: 'Funding Sources' },
         items: [
           { label: labels.fundingSources, href: fundingSourcesHref },
           { label: labels.fundingDirectory, href: fundingDirectoryHref },
+          { label: labels.fundingPortal, href: fundingHubHref },
+        ],
+      },
+      {
+        heading: { ar: labels.fundingExecutionGroup, en: 'Readiness & Execution' },
+        items: [
           { label: labels.fundingExtraction, href: fundingExtractionHref },
           { label: labels.fundingReadiness, href: fundingReadinessHref },
+          { label: labels.fundingRequirements, href: fundingRequirementsHref },
+        ],
+      },
+      {
+        heading: { ar: labels.fundingFileGroup, en: 'Funding File' },
+        items: [
           { label: labels.fundingCases, href: fundingCasesHref },
+          { label: labels.establishmentInfo, href: establishmentInfoHref },
+          { label: labels.cashFlowForm, href: cashFlowFormHref },
+          { label: labels.clientPortalNav, href: clientPortalHref },
         ],
       },
     ];
