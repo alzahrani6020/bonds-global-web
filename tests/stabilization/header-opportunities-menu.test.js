@@ -39,7 +39,8 @@ describe('header opportunities menu', () => {
     expect(menu).toContain('labels.compareOpportunities');
     expect(menu).toContain('labels.dealWorkspace');
     expect(menu).toContain("dealsHref + '#dealSharedPanel'");
-    expect(layout).toContain("const dealsHref = langBase + 'my-bonds/deals/';");
+    expect(layout).toContain("const dealsHref = isEn ? '/en/my-bonds/deals/' : '/my-bonds/deals/';");
+    expect(layout).not.toContain("const dealsHref = langBase + 'my-bonds/deals/';");
   });
 
   test('funding menu no longer duplicates the opportunity links', () => {
