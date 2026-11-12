@@ -136,7 +136,7 @@ describe('deals router — shared access', () => {
     const res = await call(supabase, OWNER, 'GET', `/deals/${deal.id}`);
     expect(res.statusCode).toBe(200);
     expect(res.body.access.mode).toBe('owner');
-    expect(res.body.workspace).toEqual({ parties: [], tasks: [], due_diligence: [], documents: [] });
+    expect(res.body.workspace).toEqual({ parties: [], tasks: [], due_diligence: [], documents: [], document_requests: [] });
 
     const events = supabase.db.tables.bonds_deal_events.map(e => e.event_type);
     expect(events).toEqual(expect.arrayContaining(['deal_created', 'deal_linked']));
@@ -182,7 +182,8 @@ describe('deals router — shared access', () => {
     const supabase = seed();
     const deal = await createLinkedDeal(supabase);
     await call(supabase, OWNER, 'POST', `/deals/${deal.id}/parties`, { name: 'Founder', party_role: 'client' });
-    await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, { name: 'Teaser', category: 'marketing', confidentiality: 'standard' });
+    const teaser = await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, { name: 'Teaser', category: 'marketing', confidentiality: 'standard' });
+    await call(supabase, OWNER, 'PATCH', `/deals/${deal.id}/documents/${teaser.body.document.id}`, { visibility: 'counterparty' });
     await call(supabase, OWNER, 'POST', `/deals/${deal.id}/documents`, { name: 'Board minutes', category: 'legal', confidentiality: 'restricted' });
     const member = await join(supabase, INVESTOR, 'counterparty', 'investor_rep');
 
