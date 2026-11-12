@@ -1,6 +1,6 @@
 # ADR — Phase F: Deal Lifecycle (from preparation to close)
 
-- **Status**: Accepted — F.0/F.1/F.2 deployed; F.3 implemented in this change
+- **Status**: Accepted — F.0–F.3 deployed; F.4 implemented in this change
 - **Date**: 2026-11-12
 - **Scope**: Clients (deal owners), advisors/admins, counterparties (investors, lenders, buyers)
 
@@ -162,12 +162,44 @@ F.3 extends the existing Deal Workspace and reuses `bonds_deal_parties` as the c
 | POST | `/deals/:id/offers` | Record IOI / term sheet / revised term sheet |
 | PATCH | `/deals/:id/offers/:offerId` | Update review/shortlist/accept/reject state |
 
-## 7. Not in scope (next phase)
+## 7. F.4 Closing management
 
-- **F.4 Closing management**: conditions precedent checklist, signing, funds-received evidence feeding `guard_term_sheet_signed`, `guard_cap_table_approved`, `guard_funds_received`.
+F.4 completes the start-to-close Deal Workspace without changing lifecycle guard definitions or creating a parallel closing system.
+
+- `bonds_deal_closing_items` is the conditions-precedent checklist. Required items must be `satisfied` or explicitly `waived` before funds may be confirmed.
+- `bonds_deal_closing_records` stores governed closing evidence for a signed term sheet, approved cap table and confirmed receipt of funds.
+- Final closing states require a deal document whose physical data-room version is `ready`; a text reference alone cannot open a lifecycle guard.
+- A signed term sheet must reference an accepted F.3 term-sheet offer. Merely received, under-review or shortlisted terms do not open `guard_negotiation_terms`.
+- Cap-table approval is blocked until a signed term-sheet record exists.
+- Funds confirmation is blocked until the cap table is approved and all required closing conditions are satisfied/waived.
+- A dedicated `manage_closing` permission limits closing writes to the owner and advisory `deal_manager`; analysts retain normal workspace editing but cannot waive closing conditions or record final funding evidence.
+- Counterparties do not receive the internal closing checklist or competing closing evidence through the API.
+
+### 7.1 Lifecycle evidence bridge
+
+The existing `deal-context-adapter` maps only verified evidence into the current lifecycle paths:
+
+| Guard | F.3/F.4 evidence |
+|-------|-------------------|
+| `guard_negotiation_terms` | Accepted `term_sheet` / `revised_term_sheet` offer → `negotiation.terms` |
+| `guard_term_sheet_signed` | Closing record `term_sheet:signed` with ready data-room evidence |
+| `guard_cap_table_approved` | Closing record `cap_table:approved` with ready data-room evidence |
+| `guard_funds_received` | Closing record `funding_confirmation:confirmed` with ready data-room evidence |
+
+### 7.2 F.4 API additions
+
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/deals/:id/closing-items` | Add a condition precedent / closing checklist item |
+| PATCH | `/deals/:id/closing-items/:itemId` | Progress, satisfy, waive or block a closing item |
+| POST | `/deals/:id/closing-records` | Record governed term-sheet, cap-table or funding evidence |
+| PATCH | `/deals/:id/closing-records/:recordId` | Update a closing evidence record under the same sequence rules |
+
+## 8. Later hardening
+
 - Dynamic PDF watermarking on download (access is logged now; content stamping is a later hardening layer).
 - Email notifications for invitations/requests (reuse existing notification templates).
 
-## 8. Regulatory note
+## 9. Regulatory note
 
 Bonds provides workflow and records only. It does not arrange, market or place securities; any such activity remains with licensed parties under applicable CMA / SAMA rules.
