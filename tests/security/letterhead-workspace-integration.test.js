@@ -174,4 +174,17 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("status === 'sent' || (status === 'issued' && doc?.direction === 'internal')");
   });
 
+  test('rejected correspondence offers a safe editable revision copy without mutating the rejected record', () => {
+    const client = read('components/letterhead-correspondence.js');
+    expect(client).toContain("addButton(actions, 'corr-revise-copy'");
+    expect(client).toContain('function startRejectedRevision()');
+    expect(client).toContain("state.document.status !== 'rejected'");
+    expect(client).toContain("url.searchParams.delete('document')");
+    expect(client).toContain("setPages(sourcePages.length ? sourcePages : [''], { markSaved: false })");
+    expect(client).toContain('setEditorEditable(true)');
+    expect(client).toContain('setLegacyEditorControlsDisabled(false)');
+    expect(client).toContain("status === 'rejected' && (isOwner() || isAdmin())");
+  });
+
+
 });
