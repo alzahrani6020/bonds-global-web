@@ -43,6 +43,7 @@
     future: [],
     lastHistorySnapshot: '',
     loading: false,
+    transitionPending: false,
     summary: null,
     tasks: [],
     inboxPage: 1,
@@ -411,27 +412,53 @@
   }
 
   async function transition(target, note) {
+    if (state.transitionPending) return state.document;
+
     const doc = await ensureDocument();
+    if (doc.status === target) return doc;
+
     if (['returned', 'rejected', 'cancelled'].includes(target) && !String(note || '').trim()) {
       const reason = window.prompt(isEn ? 'Reason is required for this action:' : 'سبب الإجراء إلزامي:');
       if (!String(reason || '').trim()) throw new Error(isEn ? 'A reason is required' : 'يجب إدخال السبب');
       note = reason.trim();
     }
-    const result = await api('transition', { method: 'POST', id: doc.id, body: { target, note: note || null } });
-    state.document = result.document;
+
+    state.transitionPending = true;
     renderGovernance();
-    setEditorEditable(canEditCurrent());
-    if (target === 'issued') {
-      const refreshed = await api('get', { id: state.document.id });
-      state.document = refreshed.document;
-      state.latestIssue = refreshed.latest_issue || null;
-      renderGovernanceArtifacts();
-      updateVerificationQr();
-      toast('✅ ' + (isEn ? 'Document issued. Secure the final PDF as the next governed step.' : 'تم إصدار المستند. ثبّت PDF النهائي كخطوة حوكمة مستقلة.'));
+    try {
+      const result = await api('transition', { method: 'POST', id: doc.id, body: { target, note: note || null } });
+      state.document = result.document;
+      setEditorEditable(canEditCurrent());
+
+      if (target === 'issued' && !result.idempotent) {
+        const refreshed = await api('get', { id: state.document.id });
+        state.document = refreshed.document;
+        state.latestIssue = refreshed.latest_issue || null;
+        renderGovernanceArtifacts();
+        updateVerificationQr();
+        toast('✅ ' + (isEn ? 'Document issued. Secure the final PDF as the next governed step.' : 'تم إصدار المستند. ثبّت PDF النهائي كخطوة حوكمة مستقلة.'));
+      }
+
+      toast('✅ ' + t.status + ': ' + state.document.status);
+      await Promise.all([refreshInboxDynamic(), refreshCommandCenter()]);
+      return state.document;
+    } catch (error) {
+      if (error?.status === 409 && error?.data?.current_status) {
+        const refreshed = await api('get', { id: doc.id });
+        state.document = refreshed.document;
+        state.latestVersion = refreshed.latest_version;
+        state.latestIssue = refreshed.latest_issue || null;
+        state.events = refreshed.events || [];
+        toast(isEn
+          ? 'The correspondence state changed. The latest state has been loaded.'
+          : 'تغيّرت حالة المراسلة. تم تحميل الحالة الأحدث.');
+        return state.document;
+      }
+      throw error;
+    } finally {
+      state.transitionPending = false;
+      renderGovernance();
     }
-    toast('✅ ' + t.status + ': ' + state.document.status);
-    await Promise.all([refreshInboxDynamic(), refreshCommandCenter()]);
-    return state.document;
   }
 
   async function mark(action, body = {}) {
@@ -951,7 +978,12 @@
       'corr-new','corr-revise-copy','corr-details-toggle','corr-command-open'
     ].forEach(id => {
       const el = document.getElementById(id);
-      if (el) el.style.display = visible.has(id) ? '' : 'none';
+      if (el) {
+        el.style.display = visible.has(id) ? '' : 'none';
+        if (id.startsWith('corr-') && id !== 'corr-command-open' && id !== 'corr-details-toggle') {
+          el.disabled = !!state.transitionPending;
+        }
+      }
     });
 
     renderGovernanceArtifacts();
