@@ -294,16 +294,33 @@
     .footer-legal .value { color: #fff; font-weight: 500; }
 
     .footer-qr-pair {
-      align-self: center;
+      position: absolute;
+      left: 8mm;
+      right: 8mm;
+      top: -25mm;
       display: flex;
-      gap: 3mm;
-      flex-shrink: 0;
-      align-items: flex-start;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 6mm;
+      z-index: 8;
+      direction: ltr;
+      pointer-events: none;
     }
-    .footer-qr-box { text-align:center; font-size:5.5pt; color:#fff; line-height:1.2; }
+    .footer-qr-box {
+      text-align: center;
+      font-size: 6pt;
+      color: var(--navy);
+      line-height: 1.2;
+      background: rgba(255,255,255,.97);
+      border: 1px solid rgba(197,146,55,.85);
+      border-radius: 5px;
+      padding: 1.5mm;
+      box-shadow: 0 1mm 2mm rgba(10,26,51,.08);
+      direction: rtl;
+    }
     .footer-qr-box img {
       width: 18mm; height: 18mm; display: block; background: #fff;
-      padding: 2px; border-radius: 4px; margin-bottom:2px;
+      padding: 1px; border-radius: 3px; margin: 0 auto 2px;
     }
 
     .footer-icons {
