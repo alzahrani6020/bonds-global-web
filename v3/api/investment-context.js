@@ -1,6 +1,7 @@
 'use strict';
 
 const { LifecycleEngine } = require('../../lib/enterprise-lifecycle');
+const { evaluateReadiness } = require('../../lib/investment-intelligence');
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const OPPORTUNITY_SOURCES = new Set(['opportunity_bank','investment_map','direct','manual','imported']);
@@ -305,22 +306,37 @@ async function saveReadiness(req,res,supabase,user){
   const score=Number(body.readiness_score);
   if(!Number.isFinite(score)||score<0||score>100)return sendJson(res,422,{error:'READINESS_SCORE_INVALID'});
   const grade=score>=90?'A':score>=80?'B':score>=70?'C':score>=50?'D':'E';
-  const row={
-    project_id:projectId,user_id:user.id,readiness_score:score,grade,
-    strengths:Array.isArray(body.strengths)?body.strengths:[],
-    weaknesses:Array.isArray(body.weaknesses)?body.weaknesses:[],
-    missing_items:Array.isArray(body.missing_items)?body.missing_items:[],
-    action_plan:Array.isArray(body.action_plan)?body.action_plan:[]
-  };
-  const {data,error}=await supabase.from('investment_readiness_scores').insert(row).select().single();
-  if(error)return sendJson(res,503,{error:'READINESS_SAVE_FAILED'});
-  await supabase.from('bonds_investment_artifacts').insert({
+  const missingItems=Array.isArray(body.missing_items)?body.missing_items:[];
+  const {error:artifactError}=await supabase.from('bonds_investment_artifacts').insert({
     user_id:user.id,project_id:projectId,artifact_type:'readiness',
-    title:'Investment readiness',source_url:text(body.source_url,1000),
-    inputs:object(body.inputs),results:{readiness_score:score,grade,missing_items:row.missing_items},
-    metadata:object(body.metadata),status:'saved'
+    title:'Investment readiness self-assessment',source_url:text(body.source_url,1000),
+    inputs:object(body.inputs),
+    results:{
+      readiness_score:score,grade,missing_items:missingItems,
+      strengths:Array.isArray(body.strengths)?body.strengths:[],
+      weaknesses:Array.isArray(body.weaknesses)?body.weaknesses:[],
+      action_plan:Array.isArray(body.action_plan)?body.action_plan:[]
+    },
+    metadata:{...object(body.metadata),assessment:'self_reported'},status:'saved'
   });
-  return sendJson(res,201,{readiness:data});
+  if(artifactError)return sendJson(res,503,{error:'READINESS_SAVE_FAILED'});
+
+  // The lifecycle gate reads investment_readiness_scores, so only the institutional
+  // engine may write it; the self-assessment above stays advisory.
+  let readiness=null;
+  try{
+    const result=await evaluateReadiness({projectId,supabase});
+    const {data}=await supabase.from('investment_readiness_scores').insert({
+      project_id:projectId,user_id:user.id,
+      readiness_score:result.output.readinessScore,grade:result.output.grade,
+      strengths:result.output.strengths,weaknesses:result.output.weaknesses,
+      missing_items:result.output.missingItems,action_plan:result.output.actionPlan
+    }).select().single();
+    readiness=data||null;
+  }catch(err){
+    console.warn('[investment-context/readiness] institutional evaluation skipped:',err.message);
+  }
+  return sendJson(res,201,{readiness,self_assessment:{readiness_score:score,grade}});
 }
 
 async function createDirectInterest(req,res,supabase){
@@ -352,4 +368,4 @@ async function investmentContextRouter(req,res,path,supabase,user){
   return sendJson(res,404,{error:'INVESTMENT_CONTEXT_ENDPOINT_NOT_FOUND'});
 }
 
-module.exports={investmentContextRouter};
+module.exports={investmentContextRouter,assertContextOwnership};

@@ -61,7 +61,7 @@ describe('unified investment context',()=>{
     expect(page).toContain('/api/v3/investment-context/readiness');
     expect(page).toContain('project_id: projectId');
     expect(page).toContain('readiness_score: lastReadiness.score');
-    expect(page).toContain('تم حفظ الجاهزية وربطها بالمشروع ودورة حياته');
+    expect(page).toContain('درجة الجاهزية المؤسسية التي تعتمدها دورة الحياة');
   });
 
   test('feasibility and risk carry project context and persist results',()=>{
