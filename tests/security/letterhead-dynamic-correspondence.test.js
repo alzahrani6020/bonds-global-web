@@ -119,6 +119,35 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain('https://api.qrserver.com');
   });
 
+  test('public verification preview is integrity-gated and renders the official PDF with an electronic seal', () => {
+    const api = read('lib/api/correspondence.js');
+    const ar = read('verify-document.html');
+    const en = read('en/verify-document.html');
+
+    expect(api).toContain("action === 'official-preview'");
+    expect(api).toContain('isOfficialArtifactBindingValid');
+    expect(api).toContain('artifact_document_hash === doc.document_hash');
+    expect(api).toContain('artifact_issued_hash === doc.issued_hash');
+    expect(api).toContain('Number(doc.artifact_version || 0) === Number(doc.current_version || 0)');
+    expect(api).toContain("Content-Disposition");
+    expect(api).toContain("Content-Type', 'application/pdf");
+    expect(api).toContain("Cache-Control', 'private, no-store, max-age=0");
+    expect(api).toContain('Official PDF artifact integrity check failed');
+
+    for (const page of [ar, en]) {
+      expect(page).toContain('official_preview_url');
+      expect(page).toContain('id="official-viewer"');
+      expect(page).toContain('id="seal"');
+      expect(page).toContain('stamp_verified');
+      expect(page).toContain('39733');
+      expect(page).toContain('final_pdf_verified');
+      expect(page).toContain('signature_verified');
+      expect(page).toContain('id="failure"');
+    }
+    expect(ar).toContain('تصديق الختم إلكتروني');
+    expect(en).toContain('Electronic Stamp Certification');
+  });
+
   test('verification pages expose document and final PDF integrity evidence', () => {
     for (const rel of ['verify-document.html', 'en/verify-document.html']) {
       const page = read(rel);
