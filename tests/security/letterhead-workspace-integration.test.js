@@ -292,7 +292,7 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("signer_title:");
     expect(read('components/bonds-official-seal.js')).toContain("تصديق الختم الإلكتروني");
     expect(client).toContain('window.BondsOfficialSeal.create(');
-    expect(client).toContain("رقم السجل 39733");
+    expect(read('components/bonds-official-seal.js')).toContain("رقم السجل 39733");
     expect(client).toContain("التوقيع الرسمي");
   });
 
