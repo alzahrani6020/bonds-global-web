@@ -140,12 +140,7 @@
     setCheck('signature-check',!!d.signature_verified,'سجل التوقيع موجود (بيانات هوية الموقّع مستقلة)','سجل التوقيع غير موثق');
     setCheck('stamp-check',!!d.stamp_verified,'تصديق الختم الإلكتروني موثق','الختم الإلكتروني غير موثق');
 
-    // Certificate is metadata only. Never redraw a historical seal: the original
-    // immutable issued PDF contains the authoritative stamp and signature.
-    if(d.stamp_verified && d.final_pdf_verified && d.official_preview_url){
-      document.getElementById('seal').hidden=false;
-    }
-
+    // Never present an archival-stamp proof until the original PDF bytes match.
     if(d.final_pdf_verified&&d.official_preview_url){
       const preview=d.official_preview_url;
       const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
@@ -160,6 +155,7 @@
           feedback:document.getElementById('pdf-render-status'),
           language:'ar'
         });
+        document.getElementById('seal').hidden=!(pdfMatches && d.stamp_verified);
         pdfCheck.classList.toggle('bad',!pdfMatches);
         pdfCheck.textContent=pdfMatches
           ? 'تمت مطابقة SHA-256 للملف الأصلي بسجل الإصدار'
