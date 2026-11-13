@@ -332,6 +332,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
     const ar = read('letterhead.html');
     const en = read('en/letterhead.html');
     expect(client).toContain('canvas.height > pageHeightPx + 1');
+    expect(client).toContain('onclone: clonedDocument =>');
+    expect(client).toContain('contentBottom > footerTop + 1');
+    expect(client).toContain('clonedSheet.scrollHeight > clonedSheet.clientHeight + 1');
     expect(client).toContain('windowWidth: Math.max(1280, window.innerWidth)');
     expect(client).toContain('const totalPages = 1');
     expect(client).toContain('overflows A4');
