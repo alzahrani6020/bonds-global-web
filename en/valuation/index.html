@@ -55,6 +55,9 @@
 </head>
 <body class="valuation-page">
   <div id="site-header"></div>
+  <div class="container" id="valuationContextReturnWrap" hidden style="padding-top:1rem;">
+    <a id="valuationContextReturn" class="btn-outline" href="/en/v3/portfolio" style="display:inline-flex;text-decoration:none;">← Back to project</a>
+  </div>
 
   <main>
     <!-- Hero -->
@@ -268,5 +271,18 @@
   </script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>
+<script>
+  (function () {
+    const params = new URLSearchParams(location.search);
+    const projectId = params.get('project_id') || '';
+    const returnTo = params.get('return_to') || '';
+    const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '';
+    const wrap = document.getElementById('valuationContextReturnWrap');
+    const link = document.getElementById('valuationContextReturn');
+    if (!wrap || !link || (!safeReturnTo && !projectId)) return;
+    link.href = safeReturnTo || ('/en/v3/project/?id=' + encodeURIComponent(projectId));
+    wrap.hidden = false;
+  })();
+</script>
 </body>
 </html>
