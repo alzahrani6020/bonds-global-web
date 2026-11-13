@@ -1214,8 +1214,11 @@
 
   function updateVerificationQr() {
     const token = state.document?.verification_token;
+    // The Bonds website QR is always available, even before official issuance.
+    // Reserve its printable safe zone on every sheet; only the document
+    // verification QR depends on the issuance verification token.
     document.querySelectorAll('.sheet').forEach(sheet => {
-      sheet.classList.toggle('has-verification-zone', !!token);
+      sheet.classList.add('has-verification-zone');
     });
     document.querySelectorAll('.footer-document-qr img').forEach(img => {
       if (!token) {
@@ -1227,10 +1230,6 @@
       img.style.visibility = 'visible';
     });
     document.querySelectorAll('.footer-site-qr img').forEach(img => {
-      if (!token) {
-        img.style.visibility = 'hidden';
-        return;
-      }
       img.src = '/api/correspondence?action=site-qr';
       img.alt = isEn ? 'Bonds website' : 'موقع بوندز';
       img.style.visibility = 'visible';
