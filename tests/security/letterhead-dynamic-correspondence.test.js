@@ -137,7 +137,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     for (const page of [ar, en]) {
       expect(page).toContain('official_preview_url');
       expect(page).toContain('id="official-viewer"');
-      expect(page).toContain('id="seal"');
+      expect(page).not.toContain('id="seal"');
+      expect(page).toContain('id="official-viewer"');
       expect(page).toContain('stamp_verified');
       expect(page).toContain('/components/verified-pdf-viewer.js?v=1');
       expect(page).not.toContain('window.BondsOfficialSeal.create(');
@@ -147,9 +148,9 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).toContain('id="failure"');
     }
     expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
-    expect(ar).toContain('الختم الرسمي المعتمد هو الختم الموجود داخل ملف PDF الأصلي');
+    expect(ar).toContain('BondsVerifiedPdfViewer.render({');
     expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
-    expect(en).toContain('authentic issuance seal is the one embedded');
+    expect(en).toContain('BondsVerifiedPdfViewer.render({');
   });
 
   test('letterhead footer and PDF output stay within A4 in both locales', () => {
