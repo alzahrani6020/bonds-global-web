@@ -1882,11 +1882,7 @@ function studiesFallbackDetail(){
  };
 }
 async function init(){
- if(!serviceCode){
-  // Use the existing service catalog; do not duplicate its chooser.
-  location.replace(lang==='ar'?'/services.html':'/en/services.html');
-  return;
- }
+ if(!serviceCode){showStatus(T.failed+': service',false);return}
  $('#srLoading').textContent=T.loading;
  try{
   try{
