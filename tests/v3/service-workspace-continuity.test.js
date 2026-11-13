@@ -8,7 +8,9 @@ describe('service workspace continuity contract',()=>{
   const ui=fs.readFileSync(path.join(process.cwd(),'components/service-request.js'),'utf8');
 
   test('workspace persists draft inputs and restores them',()=>{
-    expect(ui).toContain("const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope");
+    expect(ui).toContain('let workspaceDraftKey=null;');
+    expect(ui).toContain("workspaceDraftKey='bonds_service_workspace_draft_v3:'+draftOwner");
+    expect(ui).toContain('if(!isServiceWorkspace||!workspaceDraftKey)return');
     expect(ui).toContain("['project_id','deal_id','opportunity_id']");
     expect(ui).toContain("workspaceDraftScope==='unassigned'?sessionStorage:localStorage");
     expect(ui).toContain('function saveWorkspaceDraft()');
