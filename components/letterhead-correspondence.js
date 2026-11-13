@@ -1184,7 +1184,7 @@
         img.alt = isEn ? 'Official signature' : 'التوقيع الرسمي';
         img.className = 'official-signature-image';
         const name = document.createElement('strong');
-        name.textContent = doc.signer_name || (isEn ? 'Authorized signatory' : 'الموقّع المعتمد');
+        name.textContent = doc.signer_name || (isEn ? 'Signer name not recorded' : 'اسم الموقّع غير مسجل');
         const title = document.createElement('small');
         title.textContent = doc.signer_title || '';
         signature.append(img, name, title);
@@ -1192,50 +1192,16 @@
       }
 
       if (doc.stamp_hash) {
-        // The same vector seal is rendered on the document and captured by the PDF.
-        // Never substitute a generic oval text box for the approved institutional design.
-        const ns = 'http://www.w3.org/2000/svg';
-        const make = (tag, attrs = {}, label) => {
-          const el = document.createElementNS(ns, tag);
-          Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
-          if (label !== undefined) el.textContent = label;
-          return el;
-        };
         const stamp = document.createElement('div');
         stamp.className = 'official-stamp';
         stamp.setAttribute('role', 'img');
         stamp.setAttribute('aria-label', isEn ? 'BONDS institutional electronic seal' : 'ختم بوندز المؤسسي الإلكتروني');
         stamp.contentEditable = 'false';
-        const svg = make('svg', { viewBox: '0 0 300 192', xmlns: ns, 'aria-hidden': 'true', focusable: 'false' });
-        const arcId = 'bonds-seal-title-' + String(doc.id || 'current').replace(/[^a-z0-9-]/gi, '').slice(0, 48);
-        const defs = make('defs');
-        defs.appendChild(make('path', { id: arcId, d: 'M 42 98 A 108 66 0 0 1 258 98' }));
-        svg.appendChild(defs);
-        svg.appendChild(make('ellipse', { cx:150,cy:96,rx:146,ry:91,fill:'white',stroke:'#083c9b','stroke-width':3.5 }));
-        svg.appendChild(make('ellipse', { cx:150,cy:96,rx:139,ry:84,fill:'none',stroke:'#083c9b','stroke-width':1.5 }));
-        const top = make('text', { fill:'#083c9b','font-size':15.6,'font-weight':700,'text-anchor':'middle',direction:'rtl' });
-        const curve = make('textPath', { href:'#'+arcId, startOffset:'50%' });
-        curve.textContent = 'بوندز للاستشارات المالية والإدارية';
-        top.appendChild(curve);
-        svg.appendChild(top);
-        svg.appendChild(make('text', { x:150,y:87,fill:'#083c9b','font-size':33,'font-weight':800,'text-anchor':'middle','font-family':'Georgia,serif' }, 'BONDS'));
-        svg.appendChild(make('text', { x:150,y:109,fill:'#083c9b','font-size':isEn ? 10.5 : 14.6,'font-weight':700,'text-anchor':'middle',direction:isEn ? 'ltr' : 'rtl' }, isEn ? 'ELECTRONIC STAMP CERTIFICATION' : 'تصديق الختم الإلكتروني'));
-        svg.appendChild(make('line', { x1:67,y1:118,x2:233,y2:118,stroke:'#083c9b','stroke-width':1.4 }));
-        const reference = String(doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد')).slice(0, 40);
-        svg.appendChild(make('text', { x:150,y:136,fill:'#083c9b','font-size':17,'font-weight':750,'text-anchor':'middle','font-family':'Arial,sans-serif' }, reference));
-        const rawDate = doc.issued_at || doc.stamped_at;
-        const date = rawDate && Number.isFinite(new Date(rawDate).getTime()) ? new Date(rawDate).toISOString().slice(0,10) : '';
-        if (date) svg.appendChild(make('text', { x:150,y:152,fill:'#083c9b','font-size':13,'font-weight':700,'text-anchor':'middle' }, date));
-        svg.appendChild(make('text', { x:150,y:173,fill:'#083c9b','font-size':14,'font-weight':700,'text-anchor':'middle',direction:isEn ? 'ltr' : 'rtl' }, isEn ? 'CR 39733' : 'رقم السجل 39733'));
-        for (const x of [30,270]) {
-          const points = Array.from({length:10},(_,i)=>{
-            const a = -Math.PI/2 + i*Math.PI/5;
-            const r = i%2===0 ? 10 : 4.5;
-            return (x+r*Math.cos(a)).toFixed(2)+','+(111+r*Math.sin(a)).toFixed(2);
-          }).join(' ');
-          svg.appendChild(make('polygon', { points, fill:'#083c9b' }));
-        }
-        stamp.appendChild(svg);
+        if (!window.BondsOfficialSeal?.create) throw new Error('Canonical seal unavailable');
+        stamp.appendChild(window.BondsOfficialSeal.create({
+          english: isEn, reference: doc.outgoing_number || doc.reference_number || '-',
+          date: doc.issued_at || doc.stamped_at
+        }));
         row.appendChild(stamp);
       }
 
