@@ -884,7 +884,15 @@ async function handleServiceExecute(req, res, supabase, user) {
   try {
     const result = await executeService({ req, user, supabase, serviceCode, body });
 
-    if (user && body.project_id && result.body?.executed === true) {
+    // Execution success is not proof that its project artifact was saved.
+    // Report persistence independently, preserving the execution response contract.
+    const artifactType = serviceCode === 'feasibility_studies'
+      ? 'feasibility'
+      : serviceCode === 'risk_analysis'
+        ? 'risk'
+        : null;
+    if (user && body.project_id && result.body?.executed === true && artifactType) {
+      let artifactPersistence = { status:'failed', code:'INVESTMENT_ARTIFACT_SAVE_FAILED' };
       try {
         const { assertContextOwnership } = require('./investment-context');
         const owned = await assertContextOwnership(supabase, user, {
@@ -892,34 +900,26 @@ async function handleServiceExecute(req, res, supabase, user) {
           deal_id: body.deal_id || null,
           opportunity_id: body.opportunity_id || null
         });
-        const project = owned.project;
-
-        if (project) {
-          const artifactType = serviceCode === 'feasibility_studies'
-            ? 'feasibility'
-            : serviceCode === 'risk_analysis'
-              ? 'risk'
-              : null;
-
-          if (artifactType) {
-            await supabase.from('bonds_investment_artifacts').insert({
-              user_id:user.id,
-              project_id:project.id,
-              deal_id:owned.dealId || null,
-              opportunity_id:owned.opportunityId || null,
-              artifact_type:artifactType,
-              title:serviceCode,
-              source_url:body.source_url || null,
-              inputs:body.inputs || body.values || {},
-              results:result.body || {},
-              metadata:{ service_code:serviceCode, source:body.source || 'service_request_page' },
-              status:'saved'
-            });
-          }
-        }
+        if (!owned.project) throw new Error('PROJECT_CONTEXT_NOT_FOUND');
+        const { data:artifact, error:insertError } = await supabase.from('bonds_investment_artifacts').insert({
+          user_id:user.id,
+          project_id:owned.project.id,
+          deal_id:owned.dealId || null,
+          opportunity_id:owned.opportunityId || null,
+          artifact_type:artifactType,
+          title:serviceCode,
+          source_url:body.source_url || null,
+          inputs:body.inputs || body.values || {},
+          results:result.body || {},
+          metadata:{ service_code:serviceCode, source:body.source || 'service_request_page' },
+          status:'saved'
+        }).select('id').single();
+        if (insertError || !artifact?.id) throw insertError || new Error('INVESTMENT_ARTIFACT_ID_MISSING');
+        artifactPersistence = { status:'saved', artifact_id:artifact.id };
       } catch (contextErr) {
-        console.warn('[services/execute] investment artifact persistence skipped:', contextErr.message);
+        console.warn('[services/execute] investment artifact persistence failed:', contextErr.message);
       }
+      result.body = { ...result.body, artifact_persistence:artifactPersistence };
     }
 
     if (dataset) {

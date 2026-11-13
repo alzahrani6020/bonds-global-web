@@ -1148,7 +1148,12 @@ function collectPlanningBudgetValues(){
  };
 }
 
-const workspaceDraftKey='bonds_service_workspace_draft_v1:'+serviceCode;
+// Scope drafts to their owning workflow; never restore a draft from a different project.
+const workspaceDraftScope=['project_id','deal_id','opportunity_id']
+ .map(key=>{const id=params.get(key);return id?key+':'+id:null})
+ .filter(Boolean).join('|')||'unassigned';
+const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope;
+const workspaceDraftStorage=workspaceDraftScope==='unassigned'?sessionStorage:localStorage;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
  if(!isServiceWorkspace)return;
@@ -1161,14 +1166,14 @@ function saveWorkspaceDraft(){
    else values[el.name]=el.value;
  });
  const budget_rows=serviceCode==='planning_budgeting_forecasting'?[...document.querySelectorAll('[data-budget-row]')].map(row=>({period:row.querySelector('[data-budget-period]')?.value||'',status:row.querySelector('[data-budget-status]')?.value||'actual',metric:row.querySelector('[data-budget-metric]')?.value||'',actual:row.querySelector('[data-budget-actual]')?.value||'',budget:row.querySelector('[data-budget-budget]')?.value||'',forecast:row.querySelector('[data-budget-forecast]')?.value||''})):null;
- localStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,budget_rows,updated_at:new Date().toISOString()}));
+ workspaceDraftStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,budget_rows,updated_at:new Date().toISOString()}));
  workspaceDirty=true;
  syncStudiesAssistantContext();
 }
 function restoreWorkspaceDraft(){
  if(!isServiceWorkspace)return;
  let saved=null;
- try{saved=JSON.parse(localStorage.getItem(workspaceDraftKey)||'null')}catch(_){}
+ try{saved=JSON.parse(workspaceDraftStorage.getItem(workspaceDraftKey)||'null')}catch(_){}
  if(!saved?.values||saved.service_code!==serviceCode)return;
  const form=$('#srRequestForm');if(!form)return;
  Object.entries(saved.values).forEach(([key,value])=>{
@@ -1191,7 +1196,7 @@ function bindWorkspaceDraft(){
 }
 function clearWorkspaceDraft(){
  if(!isServiceWorkspace)return;
- localStorage.removeItem(workspaceDraftKey);
+ workspaceDraftStorage.removeItem(workspaceDraftKey);
  workspaceDirty=false;
 }
 window.addEventListener('beforeunload',e=>{
@@ -1575,6 +1580,18 @@ function renderFinancialExecution(result,metrics){
  }
  return '';
 }
+function showExecutionPersistenceStatus(execution){
+ const projectId=params.get('project_id');
+ const requiresArtifact=projectId&&['feasibility_studies','risk_analysis'].includes(serviceCode);
+ const persistence=execution?.artifact_persistence;
+ if(!requiresArtifact){showStatus(T.executed,true);return true;}
+ if(persistence?.status==='saved'&&persistence.artifact_id){
+  showStatus(T.executed+' — '+(lang==='ar'?'حُفظ المخرج في المشروع':'Artifact saved to project'),true);
+  return true;
+ }
+ showStatus(T.executed+' — '+(lang==='ar'?'تعذّر تأكيد حفظ المخرج في المشروع. احتفظ بنسخة من النتائج.':'Project artifact persistence was not confirmed. Keep a copy of the results.'),false);
+ return false;
+}
 function renderExecutionResult(payload){
  let box=$('#srExecutionResult');
  if(!box){
@@ -1709,9 +1726,9 @@ async function submit(e){
     }
     submitted=true;
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null,dataset_id:intakeDatasetId});
-    showStatus(T.executed,true);
+    const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
-    clearWorkspaceDraft();
+    if(artifactSaved)clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;
   }
@@ -1743,9 +1760,9 @@ async function submit(e){
   if(executionResponse.ok&&execution.executed===true){
     submitted=true;
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null});
-    showStatus(T.executed,true);
+    const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
-    clearWorkspaceDraft();
+    if(artifactSaved)clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;
   }

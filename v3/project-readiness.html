@@ -249,9 +249,11 @@
   </div>
 
   <script>
-    const STORAGE_KEY = 'bonds_project_readiness';
     const contextParams = new URLSearchParams(location.search);
     const projectId = contextParams.get('project_id') || null;
+    // Keep project drafts separate; unassigned drafts live only within this tab.
+    const STORAGE_KEY = projectId ? 'bonds_project_readiness_v2:project:' + projectId : 'bonds_project_readiness_v2:unassigned';
+    const draftStorage = projectId ? localStorage : sessionStorage;
     const returnTo = contextParams.get('return_to') || '';
     const returnLink = document.getElementById('readinessContextReturn');
     const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') && !returnTo.includes('\\') ? returnTo : '';
@@ -333,7 +335,7 @@
 
     function loadSaved() {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        const saved = JSON.parse(draftStorage.getItem(STORAGE_KEY));
         if (!saved) return;
         Object.keys(saved).forEach(id => {
           const el = document.getElementById(id);
@@ -349,7 +351,7 @@
       document.querySelectorAll('#readinessForm input[type="checkbox"]').forEach(el => {
         state[el.id] = el.checked;
       });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      draftStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 
       if (!lastReadiness) calculate();
       if (!projectId) {
