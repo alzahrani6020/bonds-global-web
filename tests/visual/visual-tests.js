@@ -67,6 +67,56 @@ function writePng(png, filePath) {
 }
 
 
+
+async function runArabicLetterheadListGeometryGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8');
+  const styles = html.match(/<style>([\\s\\S]*?)<\\/style>/i)?.[1];
+  if (!styles) throw new Error('Arabic letterhead stylesheet unavailable');
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    const sentences = [
+      'صورة حديثة وواضحة من صك ملكية الأرض وكامل بيانات الملكية.',
+      'ما يثبت سريان الصك وسلامة الملكية وعدم وجود نزاعات أو مطالبات أو حقوق للغير.',
+      'بيان بأي رهون أو حجوزات أو قيود أو التزامات مرتبطة بالأرض.',
+      'الرفع المساحي والمخططات والإحداثيات والحدود والأطوال والمساحة المعتمدة.',
+      'جميع التراخيص والموافقات والاشتراطات التنظيمية والتخطيطية المتاحة حالياً وأي طلبات لم يتم التقدم بها.',
+      'بيان استخدامات الأرض وتصنيفها ونسب البناء والارتدادات المسموح بها، وما إذا أمكن تغيير الاستخدام.',
+      'أي مخططات أو دراسات سابقة متعلقة بتطوير البنية التحتية.',
+      'إفادة عن توفر وربط الخدمات والبنية التحتية.',
+      'بيان واضح عن التصور الاستثماري المطلوب من المالك.',
+      'أي مستندات أو بيانات إضافية تثبت سلامة الوضع النظامي.'
+    ];
+    const items = sentences.map((sentence, i) =>
+      '<li dir="ltr" style="direction:ltr;text-align:left"><span class="list-text">' + sentence + '</span></li>'
+    ).join('');
+    await page.setContent('<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><style>' +
+      styles + '</style><style>body{margin:30px}.doc-content{width:750px;min-height:0}</style></head><body>' +
+      '<div class="doc-content" dir="rtl"><ol dir="ltr" style="direction:ltr;text-align:left;padding-left:120px">' +
+      items + '</ol></div></body></html>');
+    const issue = await page.evaluate(() => {
+      const list = document.querySelector('.doc-content ol');
+      const listStyle = getComputedStyle(list);
+      const entries = Array.from(list.querySelectorAll('li'));
+      if (entries.length !== 10) return 'expected ten list entries';
+      if (listStyle.direction !== 'rtl' || listStyle.textAlign !== 'right' ||
+          listStyle.listStylePosition !== 'outside') return 'list direction/alignment/marker incorrect';
+      for (const li of entries) {
+        const style = getComputedStyle(li);
+        if (style.direction !== 'rtl' || style.textAlign !== 'right') return 'LTR item survived canonical CSS';
+        const text = li.querySelector('span').getBoundingClientRect();
+        const bounds = li.getBoundingClientRect();
+        if (Math.abs(text.right - bounds.right) > 5) return 'Arabic item content detached from right edge';
+      }
+      return '';
+    });
+    if (issue) throw new Error(issue);
+    await page.screenshot({ path: path.join(SNAPSHOTS_DIR, 'letterhead-rtl-ordered-list.png') });
+    console.log(' Arabic letterhead list geometry: ten pasted LTR-numbered Arabic entries corrected to RTL PASS');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runScenarioDropdownInteractionGate(browser) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: 1 });
   const pageErrors = [];
@@ -252,6 +302,12 @@ async function runScenarioDropdownInteractionGate(browser) {
     await runScenarioDropdownInteractionGate(browser);
   } catch (err) {
     console.error(` scenario dropdown interaction gate failed: ${err.message}`);
+    failed++;
+  }
+  try {
+    await runArabicLetterheadListGeometryGate(browser);
+  } catch (err) {
+    console.error(' Arabic letterhead list geometry failed: ' + err.message);
     failed++;
   }
   let created = 0;
