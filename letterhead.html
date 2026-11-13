@@ -570,9 +570,24 @@
       .corr-governance-shell,.corr-command-drawer,.corr-drawer-backdrop{display:none!important}
     }
 
-  /* Keep native ordered-list markers next to Arabic text in PDF capture. */
-    .doc-content[dir="rtl"] ol { direction: rtl; text-align: right; padding-right: 1.7em; padding-left: 0; margin-right: 0; }
-    .doc-content[dir="rtl"] ol > li { direction: rtl; text-align: right; padding-right: 0.15em; }
+  /* Arabic ordered lists must stay RTL even if pasted HTML carries dir=ltr or inline LTR styles. */
+    .doc-content[dir="rtl"] ol,
+    .doc-content[dir="rtl"] ol[dir="ltr"],
+    .doc-content[dir="rtl"] [dir="ltr"] ol,
+    .doc-content[dir="rtl"] [dir="rtl"] ol {
+      direction: rtl !important;
+      text-align: right !important;
+      list-style-position: outside !important;
+      padding-right: 1.7em !important;
+      padding-left: 0 !important;
+      margin-right: 0 !important;
+    }
+    .doc-content[dir="rtl"] ol > li,
+    .doc-content[dir="rtl"] ol > li[dir="ltr"] {
+      direction: rtl !important;
+      text-align: right !important;
+      padding-right: 0.15em !important;
+    }
     .doc-content[dir="rtl"] ol > li::marker { direction: rtl; }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
@@ -1265,36 +1280,10 @@
         reader.readAsDataURL(file);
         input.value = '';
       };
-      window.exportPDF = async function() {
-        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('مكتبات PDF غير محملة'); return; }
-        showToast('⏳ جاري إنشاء PDF...');
-        var sheets = Array.from(document.querySelectorAll('.sheet'));
-        var pdf = new window.jspdf.jsPDF('p','mm','a4');
-        var pageAdded = false;
-        try {
-          for (var sIdx = 0; sIdx < sheets.length; sIdx++) {
-            var canvas = await html2canvas(sheets[sIdx], { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' });
-            var pageHeightPx = Math.floor(canvas.width * 297 / 210);
-            var totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx));
-            for (var p = 0; p < totalPages; p++) {
-              var y = p * pageHeightPx;
-              var sliceHeight = Math.min(pageHeightPx, canvas.height - y);
-              var slice = document.createElement('canvas');
-              slice.width = canvas.width;
-              slice.height = sliceHeight;
-              var ctx = slice.getContext('2d');
-              ctx.drawImage(canvas, 0, y, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
-              var img = slice.toDataURL('image/png');
-              if (pageAdded) pdf.addPage();
-              pdf.addImage(img, 'PNG', 0, 0, 210, 210 * sliceHeight / canvas.width);
-              pageAdded = true;
-            }
-          }
-          pdf.save('bonds-letterhead.pdf');
-          showToast('✅ تم تحميل PDF');
-        } catch(e) {
-          showToast('⚠️ فشل إنشاء PDF');
-        }
+      // The legacy html2canvas page-slicing exporter produced unnumbered extra pages.
+      // Only the governed correspondence component may produce/download a PDF.
+      window.exportPDF = function() {
+        showToast("تصدير PDF غير متاح حتى اكتمال تحميل نظام المراسلات المحكوم.");
       };
       window.updateDocTitle = function() {
         var text = getText();
