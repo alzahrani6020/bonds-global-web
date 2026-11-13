@@ -265,7 +265,7 @@
                 const calculatorType = p.metadata?.calculator?.type;
                 const supported = ['cash-flow','loan','roi','pricing'];
                 if (supported.includes(calculatorType) && p.metadata.calculator.schema_version === 1) {
-                  return '/calculators/' + calculatorType + '?saved_project_id=' + encodeURIComponent(p.id);
+                  return '/calculators/' + calculatorType + '.html?saved_project_id=' + encodeURIComponent(p.id);
                 }
                 return (p.metadata && p.metadata.href) || '../v3/project?id=' + encodeURIComponent(p.id);
               })(),
