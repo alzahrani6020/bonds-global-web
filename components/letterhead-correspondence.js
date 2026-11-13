@@ -1291,7 +1291,7 @@
       const pageHeightPx = Math.floor(canvas.width * 297 / 210);
       // Issued documents must have one physical PDF page per numbered sheet.
       // Cropping an overflowing sheet creates an unnumbered page without a header.
-      if (canvas.height > pageHeightPx * 1.02) {
+      if (canvas.height > pageHeightPx + 1) {
         throw new Error(isEn
           ? `Page ${i + 1} overflows A4. Split the content into another letterhead page before finalizing the PDF.`
           : `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل اعتماد PDF النهائي.`);
