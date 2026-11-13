@@ -195,4 +195,14 @@ describe('Project workspace context continuity', () => {
     expect(client).toContain("renderContextReturn();");
     expect(client).toContain("link.id='dealContextReturn'");
   });
+
+  test('service workspace exposes a safe return link while retaining the full query context', () => {
+    const service = read('components/service-request.js');
+    expect(service).toContain('function workspaceReturnTarget()');
+    expect(service).toContain("new URLSearchParams(location.search).get('return_to')");
+    expect(service).toContain("value.startsWith('/')&&!value.startsWith('//')");
+    expect(service).toContain('function renderWorkspaceReturnLink()');
+    expect(service).toContain("link.id='srWorkspaceReturn'");
+    expect(service).toContain('renderWorkspaceReturnLink();');
+  });
 });
