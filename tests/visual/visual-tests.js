@@ -70,7 +70,7 @@ function writePng(png, filePath) {
 
 async function runArabicLetterheadListGeometryGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8');
-  const styles = html.match(/<style>([\\s\\S]*?)<\\/style>/i)?.[1];
+  const styles = html.split('<style>')[1]?.split('</style>')[0];
   if (!styles) throw new Error('Arabic letterhead stylesheet unavailable');
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   try {
