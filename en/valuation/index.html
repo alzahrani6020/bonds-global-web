@@ -276,7 +276,7 @@
     const params = new URLSearchParams(location.search);
     const projectId = params.get('project_id') || '';
     const returnTo = params.get('return_to') || '';
-    const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '';
+    const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') && !returnTo.includes('\\') ? returnTo : '';
     const wrap = document.getElementById('valuationContextReturnWrap');
     const link = document.getElementById('valuationContextReturn');
     if (!wrap || !link || (!safeReturnTo && !projectId)) return;

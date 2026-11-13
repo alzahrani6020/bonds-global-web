@@ -254,7 +254,7 @@
     const projectId = contextParams.get('project_id') || null;
     const returnTo = contextParams.get('return_to') || '';
     const returnLink = document.getElementById('readinessContextReturn');
-    const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '';
+    const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') && !returnTo.includes('\\') ? returnTo : '';
     if (returnLink && safeReturnTo) {
       returnLink.href = safeReturnTo;
       returnLink.textContent = '← العودة إلى مركز قيادة المشروع';

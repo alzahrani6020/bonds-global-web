@@ -163,7 +163,7 @@
   function workspaceReturnUrl() {
     const current = new URL(location.href);
     const explicit = current.searchParams.get('return_to');
-    if (explicit && explicit.startsWith('/') && !explicit.startsWith('//')) return explicit;
+    if (explicit && explicit.startsWith('/') && !explicit.startsWith('//') && !explicit.includes('\\')) return explicit;
     if (!hasWorkspaceContext()) return isEn ? '/en/my-bonds/' : '/my-bonds/';
     const target = new URL(isEn ? '/en/my-bonds/workspace/' : '/my-bonds/workspace/', location.origin);
     const ctx = workspaceQuery();

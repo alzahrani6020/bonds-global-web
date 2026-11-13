@@ -13,7 +13,7 @@ const sharedView=params.get('view')==='shared'||location.hash==='#dealSharedPane
 
 function safeReturnTo(){
   const value=params.get('return_to')||'';
-  return value.startsWith('/')&&!value.startsWith('//')?value:'';
+  return value.startsWith('/')&&!value.startsWith('//')&&!value.includes('\\')?value:'';
 }
 
 function renderContextReturn(){
