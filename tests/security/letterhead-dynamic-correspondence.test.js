@@ -148,6 +148,34 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(en).toContain('Electronic Stamp Certification');
   });
 
+  test('letterhead footer and PDF output stay within A4 in both locales', () => {
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    const client = read('components/letterhead-correspondence.js');
+
+    for (const page of [ar, en]) {
+      expect(page).toContain('flex-wrap: wrap');
+      expect(page).toContain('width: 16mm; height: 16mm');
+      expect(page).toContain('flex: 0 1 auto');
+      expect(page).toContain('white-space: nowrap');
+      expect(page).toContain('break-inside: avoid');
+      expect(page).toContain('page-break-inside: avoid');
+      expect(page).toContain('pageHeightPx');
+      expect(page).toContain('sliceHeight');
+      expect(page).not.toContain("sheet.querySelector('.footer-qr-corner img')");
+      expect(page).toContain('width: 148px');
+      expect(page).toContain('height: 92px');
+    }
+
+    expect(client).toContain("row.style.marginBottom = '8mm'");
+    expect(client).toContain('const pageHeightPx = Math.floor(canvas.width * 297 / 210)');
+    expect(client).toContain('const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx))');
+    expect(client).toContain('تصديق الختم إلكتروني');
+    expect(client).toContain('ELECTRONIC STAMP CERTIFICATION');
+    expect(client).toContain('رقم السجل 39733');
+    expect(client).toContain('CR 39733');
+  });
+
   test('verification pages expose document and final PDF integrity evidence', () => {
     for (const rel of ['verify-document.html', 'en/verify-document.html']) {
       const page = read(rel);
