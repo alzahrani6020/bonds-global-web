@@ -155,7 +155,7 @@
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
     document.getElementById('verify-count').textContent=String(d.verification_count||0);
 
-    const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;if(!ok)el.classList.add('bad');};
+    const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;el.classList.toggle('bad',!ok);};
     const pdfCheck=document.getElementById('pdf-check');
     pdfCheck.classList.add('bad');
     pdfCheck.textContent='Final PDF byte-level verification pending';
