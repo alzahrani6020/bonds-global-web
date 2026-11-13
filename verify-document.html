@@ -24,18 +24,18 @@
     .hero{padding:28px;border-bottom:1px solid #e4eaf1;display:flex;justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap}
     .brand{display:flex;gap:14px;align-items:center}.brand img{width:54px;height:54px;object-fit:contain}.brand h1{margin:0;font-size:28px}.sub{color:#66758a;margin-top:4px}
     .status{padding:10px 14px;border-radius:999px;font-weight:800;background:#eaf8ef;color:var(--green)}.status.bad{background:#fff0f0;color:var(--red)}.status.warn{background:#fff5e5;color:var(--orange)}
-    .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,270px);gap:24px;align-items:start}
+    .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
     .panel{min-width:0;max-width:100%;overflow-wrap:anywhere;border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
     .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
-    .seal{width:min(100%,420px);max-width:420px;min-width:0;margin-inline:auto;align-self:start;background:transparent;overflow:visible;}
-     .original-seal-note{line-height:1.9;background:#f4f7fb;border:1px solid #dbe3ec;border-radius:12px;padding:14px;font-size:14px;margin:0 0 12px}
+    
+     
     .viewer-wrap{display:none}.viewer-wrap.active{display:block}.verified-pdf-pages{width:100%;max-width:100%;min-width:0;display:flex;flex-direction:column;gap:14px;align-items:center;overflow:hidden;background:#edf1f6;padding:10px 0}.verified-pdf-page{display:block;max-width:100%;height:auto!important;background:#fff;box-shadow:0 2px 8px #0a234224}.pdf-render-status{font-size:14px;line-height:1.6;color:var(--navy);margin:10px 0;overflow-wrap:anywhere}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;border:1px solid var(--navy);color:var(--navy);background:#fff}.btn.primary{background:var(--navy);color:#fff}
     .integrity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.check{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #d7eadc;font-weight:700}.check.bad{background:#fff3f3;border-color:#f0d1d1;color:var(--red)}
     details{border:1px solid #e0e6ed;border-radius:14px;padding:14px 16px}summary{cursor:pointer;font-weight:800}.tech{margin-top:14px;display:grid;grid-template-columns:180px 1fr;gap:8px 12px}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
-    .failure{display:none;text-align:center;padding:34px}.failure.active{display:block}.failure h2{color:var(--red)}.footer{padding:18px 28px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer a{color:#f4c66a}
+.verification-entry-form{display:grid;gap:12px;max-width:620px;margin:20px auto;text-align:start}.verification-entry-form input{width:100%;min-width:0;padding:14px;border:1px solid #bdccdb;border-radius:10px;font:inherit;direction:ltr}.verification-entry-form label{font-weight:700}.entry-error{color:var(--red);font-weight:700}.failure{display:none;text-align:center;padding:34px}.failure.active{display:block}.failure h2{color:var(--red)}.footer{padding:18px 28px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer a{color:#f4c66a}
     [hidden]{display:none!important}
-    @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.seal{width:min(100%,360px);margin:auto}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.verified-pdf-pages{gap:8px;padding:6px 0}}
+    @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.verified-pdf-pages{gap:8px;padding:6px 0}}
   </style>
 </head>
 <body>
@@ -49,12 +49,31 @@
       <div id="status" class="status">جاري التحقق…</div>
     </header>
 
+    <section id="verification-entry" class="failure" hidden>
+      <h2>التحقق من مستند بوندز الرسمي</h2>
+      <p>امسح رمز QR الموجود داخل المستند الرسمي أو ألصق رابط التحقق الكامل.</p>
+      <form id="verification-entry-form" class="verification-entry-form">
+        <label for="verification-entry-input">رابط التحقق الرسمي أو رمز المستند</label>
+        <input id="verification-entry-input" required autocomplete="off" inputmode="url" placeholder="ألصق رابط QR الخاص بالمستند">
+        <button type="submit" class="btn primary">التحقق من المستند</button>
+      </form>
+      <p id="verification-entry-error" class="entry-error" hidden></p>
+    </section>
     <div id="failure" class="failure">
       <h2>تعذر التحقق من المستند</h2>
       <p>لم نتمكن من مطابقة رمز التحقق مع سجل بوندز الرسمي. تأكد من أن الرابط كامل أو امسح رمز QR مرة أخرى.</p>
     </div>
 
     <div id="verified-content" class="content" hidden>
+      <section id="viewer-wrap" class="panel viewer-wrap">
+        <h2>معاينة الخطاب الرسمي</h2>
+        <p id="pdf-render-status" class="pdf-render-status" role="status" aria-live="polite"></p>
+        <div id="official-viewer" class="verified-pdf-pages" aria-label="صفحات PDF الأصلية الموثقة"></div>
+        <div class="actions">
+          <a id="open-pdf" class="btn primary" target="_blank" rel="noopener">فتح بملء الشاشة</a>
+          <a id="download-pdf" class="btn" download>تنزيل النسخة الرسمية</a>
+        </div>
+      </section>
       <section class="result">
         <div class="panel">
           <h2>بيانات المستند</h2>
@@ -67,21 +86,10 @@
             <dt>حالة المستند</dt><dd id="doc-status">-</dd>
           </dl>
         </div>
-        <aside id="seal" class="seal" hidden>
-          <p class="original-seal-note">الختم الرسمي المعتمد هو الختم الموجود داخل ملف PDF الأصلي المحفوظ وقت الإصدار. لا تُنشئ شهادة التحقق ختمًا بديلًا.</p>
-          <a class="btn" href="#viewer-wrap">عرض الختم الأصلي داخل المستند</a>
-        </aside>
+
       </section>
 
-      <section id="viewer-wrap" class="panel viewer-wrap">
-        <h2>معاينة الخطاب الرسمي</h2>
-        <p id="pdf-render-status" class="pdf-render-status" role="status" aria-live="polite"></p>
-        <div id="official-viewer" class="verified-pdf-pages" aria-label="صفحات PDF الأصلية الموثقة"></div>
-        <div class="actions">
-          <a id="open-pdf" class="btn primary" target="_blank" rel="noopener">فتح بملء الشاشة</a>
-          <a id="download-pdf" class="btn" download>تنزيل النسخة الرسمية</a>
-        </div>
-      </section>
+
 
       <section class="panel">
         <h2>سلامة المستند</h2>
@@ -107,20 +115,34 @@
   </section>
 </main>
 <script src="/components/verified-pdf-viewer.js?v=1"></script>
+<script src="/components/verification-entry.js?v=1"></script>
 <script>
 (async function(){
   const params=new URLSearchParams(location.search);
   const token=params.get('token')||'';
   const status=document.getElementById('status'), content=document.getElementById('verified-content'), failure=document.getElementById('failure');
   const fail=()=>{status.textContent='تعذر التحقق من المستند';status.classList.add('bad');failure.classList.add('active');content.hidden=true;};
-  if(!/^[0-9a-f-]{36}$/i.test(token)){fail();return;}
+  if(!token){
+    status.textContent='لم يتم تحديد مستند للتحقق منه';
+    status.classList.add('warn');
+    const entry=document.getElementById('verification-entry');
+    entry.hidden=false;entry.classList.add('active');
+    window.BondsVerificationEntry.install({
+      input:document.getElementById('verification-entry-input'),
+      form:document.getElementById('verification-entry-form'),
+      error:document.getElementById('verification-entry-error'),
+      language:'ar'
+    });
+    return;
+  }
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(token)){fail();return;}
   try{
     const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
     const d=await r.json().catch(()=>({}));
     if(!r.ok||!d.verified){fail();return;}
     content.hidden=false;
     const state=d.issue_state||'active';
-    status.textContent=state==='active'?'✓ مستند رسمي ساري من بوندز':state==='revoked'?'✕ هذا الإصدار ملغي':'! تم استبدال هذا الإصدار';
+    status.textContent=state==='active'?'جارٍ التحقق من بصمة PDF الأصلي…':state==='revoked'?'✕ هذا الإصدار ملغي':'! تم استبدال هذا الإصدار';
     if(state==='revoked')status.classList.add('bad'); else if(state!=='active')status.classList.add('warn');
     document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
     document.getElementById('issue-version').textContent=d.issue_version||'-';
@@ -155,7 +177,12 @@
           feedback:document.getElementById('pdf-render-status'),
           language:'ar'
         });
-        document.getElementById('seal').hidden=!(pdfMatches && d.stamp_verified);
+        if(state==='active'){
+          status.textContent=pdfMatches && d.stamp_verified && d.signature_verified
+            ? '✓ مستند رسمي ساري — بصمة PDF الأصلية مطابقة'
+            : 'سجل المستند موجود — لم يكتمل فحص ملف PDF الأصلي';
+          status.classList.toggle('warn',!(pdfMatches && d.stamp_verified && d.signature_verified));
+        }
         pdfCheck.classList.toggle('bad',!pdfMatches);
         pdfCheck.textContent=pdfMatches
           ? 'تمت مطابقة SHA-256 للملف الأصلي بسجل الإصدار'
@@ -165,6 +192,7 @@
         document.getElementById('pdf-render-status').textContent='عارض PDF غير متاح؛ افتح النسخة الأصلية أو نزّلها.';
       }
     }else{
+      if(state==='active'){status.textContent='ملف PDF الأصلي غير متاح — التحقق غير مكتمل';status.classList.add('warn');}
       pdfCheck.textContent='لا توجد نسخة PDF نهائية مرتبطة ببصمة موثقة';
     }
   }catch(e){fail();}
