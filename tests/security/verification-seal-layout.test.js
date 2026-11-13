@@ -12,7 +12,7 @@ describe('BONDS seal provenance and original PDF integrity',()=>{
    expect(html).not.toContain('window.BondsOfficialSeal.create(');
    expect(html).not.toContain('/components/bonds-official-seal.js?v=1');
    expect(html).toContain('id="seal"');
-   expect(html).toContain('d.stamp_verified && d.final_pdf_verified && d.official_preview_url');
+   expect(html).toContain("document.getElementById('seal').hidden=!(pdfMatches && d.stamp_verified)");
    expect(html).toContain('/components/verified-pdf-viewer.js?v=1');
    expect(html).toContain('const pdfMatches=await window.BondsVerifiedPdfViewer.render({');
    expect(html).toContain('pdfCheck.classList.toggle(\'bad\',!pdfMatches)');
