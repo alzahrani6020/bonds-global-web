@@ -12,6 +12,7 @@ const serviceCode=params.get('service')||'';
 let detail=null;
 let formTouched=false;
 let submitted=false;
+let submitting=false;
 let intakeDatasetId=null;
 let intakeReview=null;
 let intakeMode='file';
@@ -1166,8 +1167,10 @@ function saveWorkspaceDraft(){
    else values[el.name]=el.value;
  });
  const budget_rows=serviceCode==='planning_budgeting_forecasting'?[...document.querySelectorAll('[data-budget-row]')].map(row=>({period:row.querySelector('[data-budget-period]')?.value||'',status:row.querySelector('[data-budget-status]')?.value||'actual',metric:row.querySelector('[data-budget-metric]')?.value||'',actual:row.querySelector('[data-budget-actual]')?.value||'',budget:row.querySelector('[data-budget-budget]')?.value||'',forecast:row.querySelector('[data-budget-forecast]')?.value||''})):null;
- workspaceDraftStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,budget_rows,updated_at:new Date().toISOString()}));
- workspaceDirty=true;
+ try{
+  workspaceDraftStorage.setItem(workspaceDraftKey,JSON.stringify({version:1,service_code:serviceCode,values,budget_rows,updated_at:new Date().toISOString()}));
+  workspaceDirty=false;
+ }catch(_){workspaceDirty=true}
  syncStudiesAssistantContext();
 }
 function restoreWorkspaceDraft(){
@@ -1196,8 +1199,8 @@ function bindWorkspaceDraft(){
 }
 function clearWorkspaceDraft(){
  if(!isServiceWorkspace)return;
- workspaceDraftStorage.removeItem(workspaceDraftKey);
- workspaceDirty=false;
+ try{workspaceDraftStorage.removeItem(workspaceDraftKey);workspaceDirty=false}
+ catch(_){workspaceDirty=true}
 }
 window.addEventListener('beforeunload',e=>{
  if(!isServiceWorkspace||!workspaceDirty)return;
@@ -1644,6 +1647,10 @@ function collectValues(){
 }
 async function submit(e){
  e.preventDefault();
+ if(submitting||submitted)return;
+ submitting=true;
+ const submitButton=$('#srSubmit');
+ if(submitButton)submitButton.disabled=true;
  try{
   await window.BondsAuth.ensureEnv();
   const u=await window.BondsAuth.getUser();const user=u.data?.user;
@@ -1806,6 +1813,10 @@ async function submit(e){
   $('#srSubmit').disabled=true;
   $('#srSuccessLink').hidden=true;
  }catch(err){showStatus(T.failed+': '+err.message,false)}
+ finally{
+  submitting=false;
+  if(submitButton&&!submitted)submitButton.disabled=false;
+ }
 }
 function studiesFallbackDetail(){
  if(serviceCode!=='scientific_research')return null;
