@@ -24,7 +24,7 @@
     .hero{padding:28px;border-bottom:1px solid #e4eaf1;display:flex;justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap}
     .brand{display:flex;gap:14px;align-items:center}.brand img{width:54px;height:54px;object-fit:contain}.brand h1{margin:0;font-size:28px}.sub{color:#66758a;margin-top:4px}
     .status{padding:10px 14px;border-radius:999px;font-weight:800;background:#eaf8ef;color:var(--green)}.status.bad{background:#fff0f0;color:var(--red)}.status.warn{background:#fff5e5;color:var(--orange)}
-    .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,270px);gap:24px;align-items:start}
+    .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:start}
     .panel{min-width:0;max-width:100%;overflow-wrap:anywhere;border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
     .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
     .seal{width:min(100%,420px);max-width:420px;min-width:0;margin-inline:auto;align-self:start;background:transparent;overflow:visible;}
@@ -55,6 +55,15 @@
     </div>
 
     <div id="verified-content" class="content" hidden>
+      <section id="viewer-wrap" class="panel viewer-wrap">
+        <h2>Official document preview</h2>
+        <p id="pdf-render-status" class="pdf-render-status" role="status" aria-live="polite"></p>
+        <div id="official-viewer" class="verified-pdf-pages" aria-label="Original verified PDF pages"></div>
+        <div class="actions">
+          <a id="open-pdf" class="btn primary" target="_blank" rel="noopener">Open full screen</a>
+          <a id="download-pdf" class="btn" download>Download official PDF</a>
+        </div>
+      </section>
       <section class="result">
         <div class="panel">
           <h2>Document details</h2>
@@ -67,21 +76,10 @@
             <dt>Document status</dt><dd id="doc-status">-</dd>
           </dl>
         </div>
-        <aside id="seal" class="seal" hidden>
-          <p class="original-seal-note">The authentic issuance seal is the one embedded in the original archived PDF below. No replacement seal is generated on this certificate.</p>
-          <a class="btn" href="#viewer-wrap">View original issued stamp and document</a>
-        </aside>
+
       </section>
 
-      <section id="viewer-wrap" class="panel viewer-wrap">
-        <h2>Official document preview</h2>
-        <p id="pdf-render-status" class="pdf-render-status" role="status" aria-live="polite"></p>
-        <div id="official-viewer" class="verified-pdf-pages" aria-label="Original verified PDF pages"></div>
-        <div class="actions">
-          <a id="open-pdf" class="btn primary" target="_blank" rel="noopener">Open full screen</a>
-          <a id="download-pdf" class="btn" download>Download official PDF</a>
-        </div>
-      </section>
+
 
       <section class="panel">
         <h2>Document integrity</h2>
@@ -120,7 +118,7 @@
     if(!r.ok||!d.verified){fail();return;}
     content.hidden=false;
     const state=d.issue_state||'active';
-    status.textContent=state==='active'?'✓ Valid official Bonds document':state==='revoked'?'✕ This issue has been revoked':'! This issue has been superseded';
+    status.textContent=state==='active'?'Checking archived PDF fingerprint…':state==='revoked'?'✕ This issue has been revoked':'! This issue has been superseded';
     if(state==='revoked')status.classList.add('bad'); else if(state!=='active')status.classList.add('warn');
     document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
     document.getElementById('issue-version').textContent=d.issue_version||'-';
@@ -155,7 +153,12 @@
           feedback:document.getElementById('pdf-render-status'),
           language:'en'
         });
-        document.getElementById('seal').hidden=!(pdfMatches && d.stamp_verified);
+        if(state==='active'){
+          status.textContent=pdfMatches && d.stamp_verified && d.signature_verified
+            ? '✓ Official document — original PDF hash verified'
+            : 'Document record found — original PDF verification incomplete';
+          status.classList.toggle('warn',!(pdfMatches && d.stamp_verified && d.signature_verified));
+        }
         pdfCheck.classList.toggle('bad',!pdfMatches);
         pdfCheck.textContent=pdfMatches
           ? 'Original PDF SHA-256 verified against issued record'
@@ -165,6 +168,7 @@
         document.getElementById('pdf-render-status').textContent='Verified PDF viewer unavailable; open or download the original.';
       }
     }else{
+      if(state==='active'){status.textContent='Original PDF unavailable — verification incomplete';status.classList.add('warn');}
       pdfCheck.textContent='No fingerprint-bound official PDF is available';
     }
   }catch(e){fail();}
