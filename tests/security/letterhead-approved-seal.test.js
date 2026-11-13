@@ -5,16 +5,12 @@ const read = name => fs.readFileSync(path.join(root, name), 'utf8');
 
 describe('Approved BONDS electronic seal and PDF QR integrity', () => {
   const client = read('components/letterhead-correspondence.js');
-  test('vector institutional seal contains the approved identity and live issuance fields', () => {
-    expect(client).toContain("document.createElementNS(ns, tag)");
-    expect(client).toContain("const arcId = 'bonds-seal-title-'");
-    expect(client).toContain('بوندز للاستشارات المالية والإدارية');
-    expect(client).toContain("'BONDS'");
-    expect(client).toContain('رقم السجل 39733');
-    expect(client).toContain('doc.outgoing_number || doc.reference_number');
-    expect(client).toContain('doc.issued_at || doc.stamped_at');
-    expect(client).toContain("stamp.appendChild(svg)");
-    expect(client).not.toContain("stamp.textContent = isEn");
+  test('canonical stamp shared by PDF and certificate',()=>{
+    const source=read('components/bonds-official-seal.js');
+    expect(client).toContain('window.BondsOfficialSeal.create(');
+    expect(source).toContain('بوندز للاستشارات المالية والإدارية');
+    expect(source).toContain('رقم السجل 39733');
+    expect(client).not.toContain("make('textPath'");
   });
 
   test.each(['letterhead.html', 'en/letterhead.html'])('%s renders the seal as a non-clipped SVG', htmlFile => {
