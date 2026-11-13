@@ -87,6 +87,6 @@ describe('calculator page integration',()=>{
   test('My Bonds opens the original calculator from a server-owned project',()=>{
     const html=fs.readFileSync(path.join(__dirname,'../../my-bonds/index.html'),'utf8');
     expect(html).toContain("p.metadata?.calculator?.type");
-    expect(html).toContain("'?saved_project_id=' + encodeURIComponent(p.id)");
+    expect(html).toContain("'.html?saved_project_id=' + encodeURIComponent(p.id)");
   });
 });
