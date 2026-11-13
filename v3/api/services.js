@@ -1303,6 +1303,31 @@ async function handleServiceRequests(req, res, supabase, user) {
     .is('deleted_at', null)
     .maybeSingle();
 
+  // Context identifiers in request metadata are untrusted until owner and
+  // cross-entity relationships are checked against the authenticated user.
+  const incomingMetadata = body.metadata && typeof body.metadata === 'object' && !Array.isArray(body.metadata)
+    ? body.metadata : {};
+  const contextIds = {
+    project_id:incomingMetadata.project_id || null,
+    deal_id:incomingMetadata.deal_id || null,
+    opportunity_id:incomingMetadata.opportunity_id || null
+  };
+  let verifiedContext = null;
+  if(Object.values(contextIds).some(Boolean)){
+    try{
+      const { assertContextOwnership } = require('./investment-context');
+      verifiedContext = await assertContextOwnership(supabase,user,contextIds);
+    }catch(error){
+      return sendJson(res,422,{error:{code:'SERVICE_REQUEST_CONTEXT_NOT_OWNED',detail:String(error.message||'INVALID_CONTEXT')}});
+    }
+  }
+  const safeMetadata = {
+    ...incomingMetadata,
+    project_id:verifiedContext?.projectId || null,
+    deal_id:verifiedContext?.dealId || null,
+    opportunity_id:verifiedContext?.opportunityId || null
+  };
+
   let geoContext = { place: null, snapshot: {} };
   try {
     geoContext = await resolveGeoContext(supabase, {
@@ -1332,7 +1357,7 @@ async function handleServiceRequests(req, res, supabase, user) {
     canonical_activity_id: canonicalActivityId,
     status: 'submitted',
     submitted_at: new Date().toISOString(),
-    metadata: { source: body.source || 'service_discovery', ...(body.metadata || {}) }
+    metadata: { ...safeMetadata, source:body.source || 'service_discovery' }
   };
 
   const { data: requestRowOut, error: requestError } = await supabase
