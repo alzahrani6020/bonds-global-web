@@ -160,7 +160,8 @@
     pdfCheck.classList.add('bad');
     pdfCheck.textContent='Final PDF byte-level verification pending';
     setCheck('signature-check',!!d.signature_verified,'Issuance signature record exists (signer identity displayed separately)','Issuance signature record not verified');
-    setCheck('stamp-check',!!d.stamp_verified,'Electronic stamp certification verified','Electronic stamp not verified');
+    // The archival stamp is only certified after verifying the exact PDF bytes.
+    setCheck('stamp-check',false,'Electronic stamp certification verified','Awaiting original PDF hash before certifying stamp');
 
     // Never present an archival-stamp proof until the original PDF bytes match.
     if(d.final_pdf_verified&&d.official_preview_url){
@@ -183,6 +184,7 @@
             : 'Document record found — original PDF verification incomplete';
           status.classList.toggle('warn',!(pdfMatches && d.stamp_verified && d.signature_verified));
         }
+        setCheck('stamp-check',!!(pdfMatches && d.stamp_verified),'Electronic stamp certified in original PDF','Original PDF stamp integrity not verified');
         pdfCheck.classList.toggle('bad',!pdfMatches);
         pdfCheck.textContent=pdfMatches
           ? 'Original PDF SHA-256 verified against issued record'
