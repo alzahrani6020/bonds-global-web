@@ -1287,14 +1287,34 @@
     }
     let pageAdded = false;
     for (let i = 0; i < sheets.length; i++) {
+      let clippedContent = false;
       const canvas = await html2canvas(sheets[i], {
         scale: 1.6,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
         // PDF must use desktop A4 layout even when triggered from a phone.
-        windowWidth: Math.max(1280, window.innerWidth)
+        windowWidth: Math.max(1280, window.innerWidth),
+        onclone: clonedDocument => {
+          const clonedSheet = clonedDocument.querySelectorAll('.sheet')[i];
+          const content = clonedSheet?.querySelector('.doc-content');
+          const footer = clonedSheet?.querySelector('.letterhead-footer');
+          if (!clonedSheet || !content || !footer) {
+            clippedContent = true;
+            return;
+          }
+          // An overflow:hidden A4 sheet can clip content without growing the canvas.
+          const contentBottom = content.getBoundingClientRect().bottom;
+          const footerTop = footer.getBoundingClientRect().top;
+          clippedContent = contentBottom > footerTop + 1 ||
+            clonedSheet.scrollHeight > clonedSheet.clientHeight + 1;
+        }
       });
+      if (clippedContent) {
+        throw new Error(isEn
+          ? `Page ${i + 1} content overlaps its footer or is clipped. Move content to a new page.`
+          : `محتوى الصفحة ${i + 1} متداخل مع التذييل أو مقصوص. انقل جزءًا من المحتوى إلى صفحة جديدة.`);
+      }
       const pageHeightPx = Math.floor(canvas.width * 297 / 210);
       // Issued documents must have one physical PDF page per numbered sheet.
       // Cropping an overflowing sheet creates an unnumbered page without a header.
