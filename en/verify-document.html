@@ -24,12 +24,12 @@
     .hero{padding:28px;border-bottom:1px solid #e4eaf1;display:flex;justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap}
     .brand{display:flex;gap:14px;align-items:center}.brand img{width:54px;height:54px;object-fit:contain}.brand h1{margin:0;font-size:28px}.sub{color:#66758a;margin-top:4px}
     .status{padding:10px 14px;border-radius:999px;font-weight:800;background:#eaf8ef;color:var(--green)}.status.bad{background:#fff0f0;color:var(--red)}.status.warn{background:#fff5e5;color:var(--orange)}
-    .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:24px;align-items:start}
-    .panel{border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
+    .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,270px);gap:24px;align-items:start}
+    .panel{min-width:0;max-width:100%;overflow-wrap:anywhere;border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
     .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
     .seal{width:min(100%,420px);max-width:420px;min-width:0;margin-inline:auto;align-self:start;background:transparent;overflow:visible;}
     .certificate-seal-svg{display:block;width:100%;height:auto;overflow:visible;font-family:'Vazirmatn',Arial,sans-serif;}
-    .viewer-wrap{display:none}.viewer-wrap.active{display:block}.viewer{width:100%;height:760px;border:1px solid #d9e2ec;border-radius:14px;background:#f5f7fa}
+    .viewer-wrap{display:none}.viewer-wrap.active{display:block}.viewer{display:block;max-width:100%;width:100%;height:760px;border:1px solid #d9e2ec;border-radius:14px;background:#f5f7fa}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;border:1px solid var(--navy);color:var(--navy);background:#fff}.btn.primary{background:var(--navy);color:#fff}
     .integrity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.check{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #d7eadc;font-weight:700}.check.bad{background:#fff3f3;border-color:#f0d1d1;color:var(--red)}
     details{border:1px solid #e0e6ed;border-radius:14px;padding:14px 16px}summary{cursor:pointer;font-weight:800}.tech{margin-top:14px;display:grid;grid-template-columns:180px 1fr;gap:8px 12px}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
@@ -43,7 +43,7 @@
   <section class="card">
     <header class="hero">
       <div class="brand">
-        <img src="/assets/bonds-mark.svg" alt="بوندز">
+        <img src="/assets/bonds-logo-2026-v2-sm.webp" alt="بوندز">
         <div><h1>Verify Official Document</h1><div class="sub">Bonds Digital Verification Certificate</div></div>
       </div>
       <div id="status" class="status">Verifying…</div>
@@ -68,19 +68,7 @@
           </dl>
         </div>
         <aside id="seal" class="seal" hidden>
-          <svg class="certificate-seal-svg" viewBox="0 0 300 192" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BONDS electronic seal certificate" preserveAspectRatio="xMidYMid meet">
-            <ellipse cx="150" cy="96" rx="146" ry="91" fill="#fff" stroke="#0d4da5" stroke-width="3"/>
-            <ellipse cx="150" cy="96" rx="139" ry="84" fill="none" stroke="#0d4da5" stroke-width="1.5"/>
-            <text x="150" y="33" font-size="12" text-anchor="middle" font-weight="700" fill="#0d4da5">Bonds Financial & Management Consulting</text>
-            <text x="150" y="83" font-family="Georgia,serif" font-weight="800" font-size="32" text-anchor="middle" fill="#0d4da5">BONDS</text>
-            <text x="150" y="104" font-size="10" font-weight="700" text-anchor="middle" fill="#0d4da5">ELECTRONIC STAMP CERTIFICATION</text>
-            <line x1="70" y1="111" x2="230" y2="111" stroke="#0d4da5" stroke-width="1.3"/>
-            <text id="seal-ref" x="150" y="133" font-family="Arial,sans-serif" font-size="15" font-weight="700" text-anchor="middle" fill="#0d4da5">-</text>
-            <text id="seal-date" x="150" y="150" font-family="Arial,sans-serif" font-size="12" text-anchor="middle" fill="#0d4da5">-</text>
-            <text x="150" y="168" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0d4da5">CR 39733</text>
-            <path d="M30 103 L33 111 L42 111 L35 116 L38 125 L30 119 L22 125 L25 116 L18 111 L27 111 Z" fill="#0d4da5"/>
-            <path d="M270 103 L273 111 L282 111 L275 116 L278 125 L270 119 L262 125 L265 116 L258 111 L267 111 Z" fill="#0d4da5"/>
-          </svg>
+
         </aside>
       </section>
 
@@ -116,6 +104,7 @@
     <footer class="footer"><span>This page is exclusively for verifying official Bonds documents.</span><span>CR 39733 · <a href="/">bonds-global.com</a></span></footer>
   </section>
 </main>
+<script src="/components/bonds-official-seal.js?v=1"></script>
 <script>
 (async function(){
   const params=new URLSearchParams(location.search);
@@ -135,7 +124,7 @@
     document.getElementById('issue-version').textContent=d.issue_version||'-';
     document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('en-US'):'-';
     document.getElementById('subject').textContent=d.subject||d.title||'-';
-    document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'-';
+    document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'Signatory details not recorded';
     document.getElementById('doc-status').textContent=state==='active'?'Active':state==='revoked'?'Revoked':'Superseded';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
@@ -149,8 +138,11 @@
 
     if(d.stamp_verified){
       document.getElementById('seal').hidden=false;
-      document.getElementById('seal-ref').textContent=d.issue_number||d.reference_number||'-';
-      document.getElementById('seal-date').textContent=d.issued_at?new Date(d.issued_at).toLocaleDateString('en-CA'):'-';
+      const container=document.getElementById('seal');
+      if (!window.BondsOfficialSeal?.create) throw new Error('Canonical seal unavailable');
+      container.replaceChildren(window.BondsOfficialSeal.create({
+        english:true,reference:d.issue_number||d.reference_number||'-',date:d.issued_at
+      }));
     }
 
     if(d.final_pdf_verified&&d.official_preview_url){

@@ -139,13 +139,15 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).toContain('id="official-viewer"');
       expect(page).toContain('id="seal"');
       expect(page).toContain('stamp_verified');
-      expect(page).toContain('39733');
+      expect(page).toContain('/components/bonds-official-seal.js?v=1');
       expect(page).toContain('final_pdf_verified');
       expect(page).toContain('signature_verified');
       expect(page).toContain('id="failure"');
     }
-    expect(ar).toContain('تصديق الختم الإلكتروني');
-    expect(en).toContain('ELECTRONIC STAMP CERTIFICATION');
+    expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
+    expect(ar).toContain('window.BondsOfficialSeal.create(');
+    expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
+    expect(en).toContain('window.BondsOfficialSeal.create(');
   });
 
   test('letterhead footer and PDF output stay within A4 in both locales', () => {
@@ -170,10 +172,10 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("row.style.marginBottom = '8mm'");
     expect(client).toContain('const pageHeightPx = Math.floor(canvas.width * 297 / 210)');
     expect(client).toContain('const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx))');
-    expect(client).toContain('تصديق الختم الإلكتروني');
-    expect(client).toContain('ELECTRONIC STAMP CERTIFICATION');
-    expect(client).toContain('رقم السجل 39733');
-    expect(client).toContain('CR 39733');
+    expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
+    expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
+    expect(read('components/bonds-official-seal.js')).toContain('رقم السجل 39733');
+    expect(read('components/bonds-official-seal.js')).toContain('CR 39733');
   });
 
   test('verification pages expose document and final PDF integrity evidence', () => {
