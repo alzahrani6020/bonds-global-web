@@ -65,6 +65,27 @@ describe('durable calculator project snapshots',()=>{
     expect(h.control.value).toBe('990');
     expect(calculate).toHaveBeenCalledTimes(1);
   });
+  test('invalid second field cannot partially overwrite the first field',async()=>{
+    const h=harness();
+    h.location.search='?saved_project_id='+h.id;
+    h.document.getElementById.mockImplementation(key=>key==='amount'?h.control:null);
+    h.fetch.mockImplementation(async()=>({ok:true,status:200,json:async()=>({project:{
+      id:h.id,metadata:{calculator:{schema_version:1,type:'loan',controls:[
+        {id:'amount',value:'990',checked:false,kind:'number'},
+        {id:'missing-control',value:'10',checked:false,kind:'number'}
+      ]}}
+    }})}));
+    await expect(h.api.restore({type:'loan',calculate:jest.fn()})).rejects.toThrow('CALCULATOR_SNAPSHOT_PARTIAL_RESTORE');
+    expect(h.control.value).toBe('1250');
+  });
+
+  test('restore does not dispatch individual input events that can reset dependent controls',async()=>{
+    const h=harness();
+    h.location.search='?saved_project_id='+h.id;
+    await h.api.restore({type:'loan',calculate:jest.fn()});
+    expect(h.control.dispatchEvent).not.toHaveBeenCalled();
+  });
+
   test('blocks mismatch between snapshot type and current calculator',async()=>{
     const h=harness();
     h.location.search='?saved_project_id='+h.id;
