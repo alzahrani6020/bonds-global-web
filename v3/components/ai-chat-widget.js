@@ -2246,13 +2246,14 @@
       if (!safe || !diagnosticsPanel) return null;
       state.diagnostics = safe;
       diagnosticsPanel.classList.add('visible');
+      const statusLabel = safe.status === 'NOT_AVAILABLE' ? '—' : safe.status;
       diagnosticsSummary.textContent = [
-        safe.status,
+        statusLabel,
         safe.timing?.server_processing_ms == null ? null : 'Server ' + safe.timing.server_processing_ms + 'ms',
         safe.timing?.end_to_end_ms == null ? null : 'E2E ' + safe.timing.end_to_end_ms + 'ms',
         safe.bottleneck?.stage ? diagnosticStageLabel(safe.bottleneck.stage) + ' ' + (safe.bottleneck.duration_ms ?? '—') + 'ms' : null
       ].filter(Boolean).join(' · ');
-      diagnosticsSummary.dataset.status = safe.status;
+      diagnosticsSummary.dataset.status = safe.status === 'NOT_AVAILABLE' ? '' : safe.status;
 
       // Keep diagnostics compact by default even on failures. The summary
       // already exposes status/timing/root cause; full stage detail is opt-in.
@@ -3238,6 +3239,49 @@
     function languageCode() {
       return document.documentElement.lang === 'en' ? 'en' : 'ar';
     }
+
+    // Static template chrome ships with Arabic defaults; mirror the launchpad
+    // localization so English pages get a fully English assistant shell.
+    function localizeStaticChrome() {
+      if (languageCode() !== 'en') return;
+      const set = (selector, props) => {
+        const el = root.querySelector(selector);
+        if (!el) return;
+        if (props.text !== undefined) el.textContent = props.text;
+        if (props.aria !== undefined) el.setAttribute('aria-label', props.aria);
+        if (props.title !== undefined) el.setAttribute('title', props.title);
+        if (props.placeholder !== undefined) el.setAttribute('placeholder', props.placeholder);
+      };
+      set('.bonds-ai-chat-toggle', { aria: 'Open BONDS Assistant' });
+      set('.bonds-ai-notification-badge', { aria: 'Unread notifications' });
+      set('.bonds-ai-chat-toggle-label', { text: 'BONDS Assistant' });
+      set('.bonds-ai-chat-window', { aria: 'BONDS AI Assistant' });
+      set('.bonds-ai-chat-header strong', { text: 'BONDS Assistant' });
+      set('.bonds-ai-default-status', { text: 'Investment opportunities analyst' });
+      set('.bonds-ai-chat-header-controls', { aria: 'BONDS Assistant view modes' });
+      const viewLabels = {
+        standard: { aria: 'Standard size', title: 'Standard size' },
+        workspace: { aria: 'Workspace', title: 'Workspace' },
+        fullscreen: { aria: 'Fullscreen', title: 'Fullscreen' },
+        collapsed: { aria: 'Collapse workspace', title: 'Collapse' }
+      };
+      Object.entries(viewLabels).forEach(([view, labels]) => {
+        set(`.bonds-ai-view-button[data-assistant-view="${view}"]`, labels);
+      });
+      set('.bonds-ai-layout-reset', { aria: 'Reset window position and size', title: 'Reset window' });
+      set('.bonds-ai-chat-close', { aria: 'Close', title: 'Close' });
+      set('.bonds-ai-service-statuses', { aria: 'BONDS Assistant services status' });
+      set('.bonds-ai-conversation-modes', { aria: 'Conversation mode' });
+      set('.bonds-ai-home-launchpad', { aria: 'Start with BONDS Assistant' });
+      set('.bonds-ai-attach-button', { aria: 'Attach a file or image', title: 'Attach a file or image' });
+      set('.bonds-ai-text-input', { placeholder: 'Type your question here...' });
+      set('.bonds-ai-voice-button', { aria: 'Talk to BONDS Assistant', title: 'Speak' });
+      set('.bonds-ai-send-button', { aria: 'Send' });
+      set('.bonds-ai-send-label', { text: 'Send' });
+      set('.bonds-ai-human-link', { text: 'Request human review' });
+      set('.bonds-ai-home-disclaimer', { text: 'BONDS Assistant can make mistakes; review important information before making a decision.' });
+    }
+    localizeStaticChrome();
 
     function renderConversationMode() {
       const en = languageCode() === 'en';
