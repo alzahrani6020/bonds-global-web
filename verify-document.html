@@ -4,91 +4,156 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="robots" content="noindex,nofollow">
-  <title>سجل صادر بوندز | التحقق من الإصدار الرسمي</title>
-  <meta name="description" content="صفحة التحقق من أصالة المراسلات الصادرة من بوندز وحالة المستند وبصمته الرقمية." />
-  <link rel="canonical" href="https://bonds-global.com/verify-document.html" />
-  <meta property="og:title" content="التحقق من مراسلات بوندز | Bonds" />
-  <meta property="og:description" content="تحقق من أصالة المراسلات الصادرة من بوندز وحالة المستند وبصمته الرقمية." />
-  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png" />
-  <meta property="og:url" content="https://bonds-global.com/verify-document.html" />
-  <meta property="og:type" content="website" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="التحقق من مراسلات بوندز | Bonds" />
-  <meta name="twitter:description" content="تحقق من أصالة المراسلات الصادرة من بوندز وحالة المستند وبصمته الرقمية." />
-  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png" />
+  <title>التحقق من مستند رسمي | بوندز</title>
+  <meta name="description" content="التحقق من أصالة مستندات بوندز الرسمية وحالة الإصدار وسلامة النسخة الرقمية.">
+  <link rel="canonical" href="https://bonds-global.com/verify-document.html">
+  <meta property="og:title" content="التحقق من مستند رسمي | بوندز">
+  <meta property="og:description" content="تحقق من أصالة مستندات بوندز الرسمية وحالة الإصدار وسلامة النسخة الرقمية.">
+  <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png">
+  <meta property="og:url" content="https://bonds-global.com/verify-document.html">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="التحقق من مستند رسمي | بوندز">
+  <meta name="twitter:description" content="تحقق من أصالة مستندات بوندز الرسمية وحالة الإصدار وسلامة النسخة الرقمية.">
+  <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.png">
   <link rel="icon" href="/assets/bonds-mark.svg">
   <style>
-    :root{font-family:system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;color:#0a2342;background:#f4f7fb}
-    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px}
-    main{width:min(720px,100%);background:#fff;border:1px solid #dbe3ec;border-radius:18px;padding:28px;box-shadow:0 18px 50px #0a234214}
-    h1{margin-top:0}.badge{display:inline-block;padding:6px 10px;border-radius:999px;background:#eaf8ef;color:#176b35;font-weight:700}
-    .bad{background:#fff0f0;color:#9f1c1c}.grid{display:grid;grid-template-columns:160px 1fr;gap:10px;margin-top:22px}
-    dt{font-weight:700}dd{margin:0;word-break:break-word}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px}
-    a{color:#9b7727}@media(max-width:600px){.grid{grid-template-columns:1fr}.grid dd{margin-bottom:10px}}
+    :root{font-family:system-ui,-apple-system,Segoe UI,Tahoma,sans-serif;color:#0a2342;background:#f4f7fb;--navy:#0a2342;--blue:#0a4aa8;--gold:#c8952d;--green:#176b35;--red:#9f1c1c;--orange:#9a5b00}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(180deg,#eef3f9,#f8fafc);padding:24px}
+    main{width:min(1080px,100%);margin:auto}.card{background:#fff;border:1px solid #dbe3ec;border-radius:22px;box-shadow:0 18px 50px #0a234214;overflow:hidden}
+    .hero{padding:28px;border-bottom:1px solid #e4eaf1;display:flex;justify-content:space-between;gap:24px;align-items:center;flex-wrap:wrap}
+    .brand{display:flex;gap:14px;align-items:center}.brand img{width:54px;height:54px;object-fit:contain}.brand h1{margin:0;font-size:28px}.sub{color:#66758a;margin-top:4px}
+    .status{padding:10px 14px;border-radius:999px;font-weight:800;background:#eaf8ef;color:var(--green)}.status.bad{background:#fff0f0;color:var(--red)}.status.warn{background:#fff5e5;color:var(--orange)}
+    .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:24px;align-items:start}
+    .panel{border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
+    .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
+    .seal{border:2px solid #0d4da5;border-radius:50%;padding:12px 20px;text-align:center;color:#0d4da5;min-height:180px;display:flex;flex-direction:column;justify-content:center;box-shadow:inset 0 0 0 4px #fff,inset 0 0 0 6px #0d4da5}
+    .seal .corp{font-weight:800;font-size:14px}.seal .bonds{font:800 30px Georgia,serif;letter-spacing:1px}.seal .label{font-weight:800}.seal .ref{font:700 16px ui-monospace,Consolas,monospace;margin-top:6px}.seal .reg{font-weight:800;margin-top:6px}
+    .viewer-wrap{display:none}.viewer-wrap.active{display:block}.viewer{width:100%;height:760px;border:1px solid #d9e2ec;border-radius:14px;background:#f5f7fa}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;border:1px solid var(--navy);color:var(--navy);background:#fff}.btn.primary{background:var(--navy);color:#fff}
+    .integrity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.check{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #d7eadc;font-weight:700}.check.bad{background:#fff3f3;border-color:#f0d1d1;color:var(--red)}
+    details{border:1px solid #e0e6ed;border-radius:14px;padding:14px 16px}summary{cursor:pointer;font-weight:800}.tech{margin-top:14px;display:grid;grid-template-columns:180px 1fr;gap:8px 12px}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
+    .failure{display:none;text-align:center;padding:34px}.failure.active{display:block}.failure h2{color:var(--red)}.footer{padding:18px 28px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer a{color:#f4c66a}
+    [hidden]{display:none!important}
+    @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.seal{max-width:320px;margin:auto}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.viewer{height:520px}}
   </style>
 </head>
 <body>
 <main>
-  <h1 id="title">سجل صادر بوندز</h1>
-  <div id="status" class="badge">جاري التحقق…</div>
-  <dl class="grid" id="details" hidden>
-    <dt>رقم الصادر</dt><dd id="reference"></dd>
-    <dt>رقم الإصدار</dt><dd id="issue-version"></dd>
-    <dt>حالة الإصدار</dt><dd id="issue-state"></dd>
-    <dt data-ar="الموضوع" data-en="Subject">الموضوع</dt><dd id="subject"></dd>
-    <dt data-ar="الحالة" data-en="Status">الحالة</dt><dd id="doc-status"></dd>
-    <dt data-ar="تاريخ الإصدار" data-en="Issued at">تاريخ الإصدار</dt><dd id="issued"></dd>
-    <dt data-ar="تاريخ الإرسال" data-en="Sent at">تاريخ الإرسال</dt><dd id="sent"></dd>
-    <dt>SHA-256</dt><dd id="hash" class="hash"></dd>
-    <dt data-ar="بصمة الإصدار" data-en="Issued package hash">بصمة الإصدار</dt><dd id="issued-hash" class="hash"></dd>
-    <dt data-ar="بصمة PDF النهائي" data-en="Final PDF hash">بصمة PDF النهائي</dt><dd id="artifact-hash" class="hash"></dd>
-    <dt data-ar="النسخة النهائية" data-en="Final PDF">النسخة النهائية</dt><dd id="artifact-state"></dd>
-    <dt data-ar="التوقيع" data-en="Signature">التوقيع</dt><dd id="signature-state"></dd>
-    <dt>الختم</dt><dd id="stamp-state"></dd>
-    <dt>الموقّع المعتمد</dt><dd id="signer"></dd>
-    <dt>عدد مرات التحقق</dt><dd id="verify-count"></dd>
-    <dt>النسخة الرسمية</dt><dd><a id="official-pdf" target="_blank" rel="noopener" hidden>عرض النسخة الرسمية PDF</a></dd>
-  </dl>
-  <p><a href="/" id="home">العودة إلى بوندز</a></p>
+  <section class="card">
+    <header class="hero">
+      <div class="brand">
+        <img src="/assets/bonds-mark.svg" alt="بوندز">
+        <div><h1>التحقق من مستند رسمي</h1><div class="sub">Bonds Digital Verification Certificate</div></div>
+      </div>
+      <div id="status" class="status">جاري التحقق…</div>
+    </header>
+
+    <div id="failure" class="failure">
+      <h2>تعذر التحقق من المستند</h2>
+      <p>لم نتمكن من مطابقة رمز التحقق مع سجل بوندز الرسمي. تأكد من أن الرابط كامل أو امسح رمز QR مرة أخرى.</p>
+    </div>
+
+    <div id="verified-content" class="content" hidden>
+      <section class="result">
+        <div class="panel">
+          <h2>بيانات المستند</h2>
+          <dl class="facts">
+            <dt>رقم الصادر</dt><dd id="reference">-</dd>
+            <dt>رقم النسخة</dt><dd id="issue-version">-</dd>
+            <dt>تاريخ الإصدار</dt><dd id="issued">-</dd>
+            <dt>الموضوع</dt><dd id="subject">-</dd>
+            <dt>الموقّع المعتمد</dt><dd id="signer">-</dd>
+            <dt>حالة المستند</dt><dd id="doc-status">-</dd>
+          </dl>
+        </div>
+        <aside id="seal" class="seal" hidden>
+          <div class="corp">بوندز للاستشارات المالية والإدارية</div>
+          <div class="bonds">BONDS</div>
+          <div class="label">تصديق الختم إلكتروني</div>
+          <div class="ref" id="seal-ref">-</div>
+          <div id="seal-date">-</div>
+          <div class="reg">رقم السجل 39733</div>
+        </aside>
+      </section>
+
+      <section id="viewer-wrap" class="panel viewer-wrap">
+        <h2>معاينة الخطاب الرسمي</h2>
+        <iframe id="official-viewer" class="viewer" title="معاينة الخطاب الرسمي"></iframe>
+        <div class="actions">
+          <a id="open-pdf" class="btn primary" target="_blank" rel="noopener">فتح بملء الشاشة</a>
+          <a id="download-pdf" class="btn" download>تنزيل النسخة الرسمية</a>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>سلامة المستند</h2>
+        <div class="integrity">
+          <div id="pdf-check" class="check">النسخة النهائية</div>
+          <div id="signature-check" class="check">التوقيع</div>
+          <div id="stamp-check" class="check">تصديق الختم الإلكتروني</div>
+        </div>
+      </section>
+
+      <details>
+        <summary>عرض التفاصيل التقنية</summary>
+        <dl class="tech">
+          <dt>SHA-256</dt><dd id="hash" class="hash">-</dd>
+          <dt>بصمة الإصدار</dt><dd id="issued-hash" class="hash">-</dd>
+          <dt>بصمة PDF النهائي</dt><dd id="artifact-hash" class="hash">-</dd>
+          <dt>عدد مرات التحقق</dt><dd id="verify-count">0</dd>
+        </dl>
+      </details>
+    </div>
+
+    <footer class="footer"><span>هذه الصفحة للتحقق من صحة مستندات بوندز الرسمية فقط.</span><span>السجل 39733 · <a href="/">bonds-global.com</a></span></footer>
+  </section>
 </main>
 <script>
 (async function(){
   const params=new URLSearchParams(location.search);
-  const en=params.get('lang')==='en';
-  document.documentElement.lang=en?'en':'ar';
-  document.documentElement.dir=en?'ltr':'rtl';
-  document.getElementById('title').textContent=en?'Bonds Outgoing Register':'سجل صادر بوندز';
-  document.getElementById('home').textContent=en?'Back to Bonds':'العودة إلى بوندز';
-  document.querySelectorAll('[data-ar]').forEach(el=>el.textContent=en?el.dataset.en:el.dataset.ar);
-  const status=document.getElementById('status'), details=document.getElementById('details');
   const token=params.get('token')||'';
-  if(!token){status.textContent=en?'Missing verification token':'رمز التحقق غير موجود';status.classList.add('bad');return;}
+  const status=document.getElementById('status'), content=document.getElementById('verified-content'), failure=document.getElementById('failure');
+  const fail=()=>{status.textContent='تعذر التحقق من المستند';status.classList.add('bad');failure.classList.add('active');content.hidden=true;};
+  if(!/^[0-9a-f-]{36}$/i.test(token)){fail();return;}
   try{
     const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.verified)throw new Error('not-verified');
-    status.textContent=d.issue_state==='active'?(en?'Valid official Bonds issue':'إصدار رسمي ساري من بوندز'):(d.issue_state==='revoked'?(en?'Revoked official issue':'إصدار مسحوب'):(en?'Superseded official issue':'إصدار تم استبداله'));
+    if(!r.ok||!d.verified){fail();return;}
+    content.hidden=false;
+    const state=d.issue_state||'active';
+    status.textContent=state==='active'?'✓ مستند رسمي ساري من بوندز':state==='revoked'?'✕ هذا الإصدار ملغي':'! تم استبدال هذا الإصدار';
+    if(state==='revoked')status.classList.add('bad'); else if(state!=='active')status.classList.add('warn');
     document.getElementById('reference').textContent=d.issue_number||d.reference_number||'-';
     document.getElementById('issue-version').textContent=d.issue_version||'-';
-    document.getElementById('issue-state').textContent=d.issue_state||'-';
+    document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString('ar-SA'):'-';
     document.getElementById('subject').textContent=d.subject||d.title||'-';
-    document.getElementById('doc-status').textContent=d.status||'-';
-    document.getElementById('issued').textContent=d.issued_at?new Date(d.issued_at).toLocaleString(en?'en-US':'ar-SA'):'-';
-    document.getElementById('sent').textContent=d.sent_at?new Date(d.sent_at).toLocaleString(en?'en-US':'ar-SA'):'-';
+    document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'-';
+    document.getElementById('doc-status').textContent=state==='active'?'ساري':state==='revoked'?'ملغي':'مستبدل';
     document.getElementById('hash').textContent=d.checksum_sha256||'-';
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
-    document.getElementById('artifact-state').textContent=d.final_pdf_verified?(en?'Verified':'موثقة بالبصمة'):(en?'Not finalized':'غير مثبتة');
-    document.getElementById('signature-state').textContent=d.signature_verified?(en?'Verified':'موثق في السجل'):(en?'Not recorded':'غير مسجل');
-    document.getElementById('stamp-state').textContent=d.stamp_verified?(en?'Verified':'موثق'):(en?'Not recorded':'غير مسجل');
-    document.getElementById('signer').textContent=[d.signer_name,d.signer_title].filter(Boolean).join(' — ')||'-';
     document.getElementById('verify-count').textContent=String(d.verification_count||0);
-    const pdf=document.getElementById('official-pdf'); if(d.official_pdf_url){pdf.href=d.official_pdf_url;pdf.hidden=false;}
-    details.hidden=false;
-  }catch(e){
-    status.textContent=en?'Document could not be verified':'تعذر التحقق من المستند';
-    status.classList.add('bad');
-  }
+
+    const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;if(!ok)el.classList.add('bad');};
+    setCheck('pdf-check',!!d.final_pdf_verified,'PDF النهائي مطابق للبصمة','PDF النهائي غير مثبت');
+    setCheck('signature-check',!!d.signature_verified,'التوقيع موثق إلكترونيًا','التوقيع غير موثق');
+    setCheck('stamp-check',!!d.stamp_verified,'تصديق الختم الإلكتروني موثق','الختم الإلكتروني غير موثق');
+
+    if(d.stamp_verified){
+      document.getElementById('seal').hidden=false;
+      document.getElementById('seal-ref').textContent=d.issue_number||d.reference_number||'-';
+      document.getElementById('seal-date').textContent=d.issued_at?new Date(d.issued_at).toLocaleDateString('en-CA'):'-';
+    }
+
+    if(d.final_pdf_verified&&d.official_preview_url){
+      const preview=d.official_preview_url;
+      const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
+      document.getElementById('official-viewer').src=preview;
+      document.getElementById('open-pdf').href=preview;
+      document.getElementById('download-pdf').href=d.official_pdf_url||preview+'&download=1';
+    }
+  }catch(e){fail();}
 })();
 </script>
 </body>
