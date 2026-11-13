@@ -1148,7 +1148,11 @@ function collectPlanningBudgetValues(){
  };
 }
 
-const workspaceDraftKey='bonds_service_workspace_draft_v1:'+serviceCode;
+// Scope drafts to their owning workflow; never restore a draft from a different project.
+const workspaceDraftScope=['project_id','deal_id','opportunity_id']
+ .map(key=>{const id=params.get(key);return id?key+':'+id:null})
+ .filter(Boolean).join('|')||'unassigned';
+const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
  if(!isServiceWorkspace)return;
