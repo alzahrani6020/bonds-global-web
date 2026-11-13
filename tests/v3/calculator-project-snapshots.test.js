@@ -98,7 +98,7 @@ describe('calculator page integration',()=>{
   for(const [name,fn] of names){
     test(name+' stores via the authenticated API instead of local summary',()=>{
       const html=fs.readFileSync(path.join(__dirname,'../../calculators/'+name+'.html'),'utf8');
-      expect(html).toContain('project-snapshots.js?v=1');
+      expect(html).toContain('project-snapshots.js?v=2');
       expect(html).toContain('window.'+fn+' = async function()');
       expect(html).toContain('BondsCalculatorProjects.save(');
       expect(html).toContain("BondsCalculatorProjects.restore({type:'"+name+"'");
