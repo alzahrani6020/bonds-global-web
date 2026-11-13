@@ -881,16 +881,33 @@ async function handleServiceExecute(req, res, supabase, user) {
     };
   }
 
+  const artifactType = serviceCode === 'feasibility_studies'
+    ? 'feasibility'
+    : serviceCode === 'risk_analysis'
+      ? 'risk'
+      : null;
+  // Reject unauthorized project-scoped executions before starting the financial engine.
+  if (body.project_id && artifactType) {
+    if (!user) return sendJson(res, 401, { ok:false, executed:false, error:{ code:'UNAUTHORIZED' } });
+    try {
+      const { assertContextOwnership } = require('./investment-context');
+      const owned = await assertContextOwnership(supabase, user, {
+        project_id: body.project_id,
+        deal_id: body.deal_id || null,
+        opportunity_id: body.opportunity_id || null
+      });
+      if (!owned.project) throw new Error('PROJECT_CONTEXT_NOT_FOUND');
+    } catch (contextErr) {
+      const code = String(contextErr.message || '').startsWith('CONTEXT_') ? 'PROJECT_CONTEXT_MISMATCH' : 'PROJECT_CONTEXT_NOT_FOUND';
+      return sendJson(res, code === 'PROJECT_CONTEXT_MISMATCH' ? 409 : 404, { ok:false, executed:false, error:{ code } });
+    }
+  }
+
   try {
     const result = await executeService({ req, user, supabase, serviceCode, body });
 
     // Execution success is not proof that its project artifact was saved.
     // Report persistence independently, preserving the execution response contract.
-    const artifactType = serviceCode === 'feasibility_studies'
-      ? 'feasibility'
-      : serviceCode === 'risk_analysis'
-        ? 'risk'
-        : null;
     if (user && body.project_id && result.body?.executed === true && artifactType) {
       let artifactPersistence = { status:'failed', code:'INVESTMENT_ARTIFACT_SAVE_FAILED' };
       try {

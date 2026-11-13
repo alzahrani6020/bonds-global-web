@@ -41,4 +41,18 @@ describe('service execution and artifact persistence contract', () => {
     expect(matches).toHaveLength(2);
     expect(ui).not.toMatch(/showStatus\(T\.executed,true\);\s*renderExecutionResult\(execution\);/);
   });
+  test('rejects unowned or mismatched project context before running the engine', () => {
+    const preflight = api.indexOf('if (body.project_id && artifactType)');
+    const engine = api.indexOf('await executeService({ req, user, supabase, serviceCode, body })');
+    expect(preflight).toBeGreaterThan(0);
+    expect(engine).toBeGreaterThan(preflight);
+    const check = api.slice(preflight, engine);
+    expect(check).toContain('if (!user) return sendJson(res, 401');
+    expect(check).toContain('await assertContextOwnership(supabase, user');
+    expect(check).toContain("code:'UNAUTHORIZED'");
+    expect(check).toContain("'PROJECT_CONTEXT_MISMATCH'");
+    expect(check).toContain("'PROJECT_CONTEXT_NOT_FOUND'");
+    expect(check).toContain('executed:false');
+  });
+
 });
