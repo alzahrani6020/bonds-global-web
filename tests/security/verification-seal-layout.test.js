@@ -1,20 +1,26 @@
-const fs = require('fs');
-const path = require('path');
-const root = path.join(__dirname, '../..');
-describe('BONDS verification certificate seal layout', () => {
-  for (const rel of ['verify-document.html','en/verify-document.html']) {
-    test(rel + ': certificate SVG separates seal text and border', () => {
-      const html = fs.readFileSync(path.join(root, rel), 'utf8');
-      expect(html).toContain('viewBox="0 0 300 192"');
-      expect(html).toContain('class="certificate-seal-svg"');
-      expect(html).toContain('rx="146" ry="91"');
-      expect(html).toContain('id="seal-ref" x="150" y="133"');
-      expect(html).toContain('id="seal-date" x="150" y="150"');
-      expect(html).toContain('.certificate-seal-svg{display:block;width:100%;height:auto;');
-      expect(html).toContain('.seal{width:min(100%,420px);');
-      expect(html).toContain("document.getElementById('seal-ref').textContent=");
-      expect(html).toContain("document.getElementById('seal-date').textContent=");
-      expect(html).not.toContain('.seal{border:2px solid #0d4da5;border-radius:50%');
-    });
-  }
+const fs=require('fs'),path=require('path'),root=path.join(__dirname,'../..');
+const read=p=>fs.readFileSync(path.join(root,p),'utf8');
+describe('single canonical BONDS seal',()=>{
+ const source=read('components/bonds-official-seal.js');
+ test('Arabic is not drawn with curved SVG textPath',()=>{
+  expect(source).toContain('بوندز للاستشارات المالية والإدارية');
+  expect(source).toContain('تصديق الختم الإلكتروني');
+  expect(source).toContain('رقم السجل 39733');
+  expect(source).not.toContain("element('textPath'");
+ });
+ for(const p of ['verify-document.html','en/verify-document.html','letterhead.html','en/letterhead.html']){
+  test(p+' loads canonical seal',()=>{
+    const html=read(p);
+    expect(html).toContain('/components/bonds-official-seal.js?v=1');
+    expect(html).not.toContain('<textPath');
+  });
+ }
+ for(const p of ['verify-document.html','en/verify-document.html']){
+   test(p+' renders live data and canonical logo',()=>{
+    const html=read(p);
+    expect(html).toContain('window.BondsOfficialSeal.create(');
+    expect(html).toContain('/assets/bonds-logo-2026-v2-sm.webp');
+    expect(html).toContain('max-width:100%');
+   });
+ }
 });
