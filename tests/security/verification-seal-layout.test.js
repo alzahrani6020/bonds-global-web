@@ -23,6 +23,18 @@ describe('BONDS seal provenance and original PDF integrity',()=>{
    expect(html).not.toContain('document.getElementById(\'official-viewer\').src=preview');
   });
  }
+ test('local uploaded PDF is compared by SHA-256 without sending or replacing files',()=>{
+  for(const page of ['verify-document.html','en/verify-document.html']){
+    const html=read(page);
+    expect(html).toContain('id="local-pdf-input"');
+    expect(html).toContain('type="file" accept="application/pdf,.pdf"');
+    expect(html).toContain("window.crypto.subtle.digest('SHA-256',bytes)");
+    expect(html).toContain('d.artifact_hash.toLowerCase()');
+    expect(html).toContain('file.arrayBuffer()');
+    expect(html).toContain('localPdfInput.addEventListener');
+    expect(html).not.toContain("localPdfInput.form.submit()");
+  }
+ });
  test('certificate displays original PDF first without substitute-stamp card',()=>{
   for(const page of ['verify-document.html','en/verify-document.html']){
    const html=read(page);
