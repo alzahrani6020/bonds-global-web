@@ -30,6 +30,16 @@ describe('service request persistence and readback contracts', () => {
     expect(client).toContain('await finalizeServiceRequestCreation(d,values,headers)');
   });
 
+  test('service discovery preserves vetted workflow context during workspace routing', () => {
+    const discovery = read('components/service-discovery.js');
+    for (const key of ['project_id','deal_id','opportunity_id','company_id','client_id','funding_case_id','request_id','return_to']) {
+      expect(discovery).toContain("'"+key+"'");
+    }
+    expect(discovery).toContain("const incoming = new URLSearchParams(window.location.search)");
+    expect(discovery).toContain("params.set(key, value)");
+    expect(discovery).toContain("routeWithParams(directRoute,params)");
+  });
+
   test('both language and workspace routes use the same cache-busted client', () => {
     for (const route of ['service-request.html','en/service-request.html','my-bonds/workspace/index.html','en/my-bonds/workspace/index.html']) {
       expect(read(route)).toContain('/components/service-request.js?v=18');
