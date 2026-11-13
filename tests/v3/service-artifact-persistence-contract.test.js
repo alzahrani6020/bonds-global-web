@@ -20,6 +20,22 @@ describe('service execution and artifact persistence contract', () => {
     expect(ui).toContain('تعذّر تأكيد حفظ المخرج في المشروع');
   });
 
+  test('scopes service drafts to project/deal/opportunity, and unassigned drafts to a tab', () => {
+    expect(ui).toContain("['project_id','deal_id','opportunity_id']");
+    expect(ui).toContain("'bonds_service_workspace_draft_v2:'");
+    expect(ui).toContain("workspaceDraftScope==='unassigned'?sessionStorage:localStorage");
+    expect(ui).toContain('workspaceDraftStorage.getItem(workspaceDraftKey)');
+    expect(ui).toContain('workspaceDraftStorage.setItem(workspaceDraftKey,');
+  });
+
+  test('scopes readiness drafts to one project, with tab-only unassigned drafts', () => {
+    const readiness = fs.readFileSync(path.join(__dirname, '../../v3/project-readiness.html'), 'utf8');
+    expect(readiness).toContain("'bonds_project_readiness_v2:project:' + projectId");
+    expect(readiness).toContain('projectId ? localStorage : sessionStorage');
+    expect(readiness).toContain('draftStorage.getItem(STORAGE_KEY)');
+    expect(readiness).toContain('draftStorage.setItem(STORAGE_KEY, JSON.stringify(state))');
+  });
+
   test('preserves unsubmitted local inputs when project artifact persistence fails', () => {
     const matches = ui.match(/if\(artifactSaved\)clearWorkspaceDraft\(\);/g) || [];
     expect(matches).toHaveLength(2);
