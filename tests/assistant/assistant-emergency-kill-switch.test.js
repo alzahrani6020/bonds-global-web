@@ -20,6 +20,8 @@ describe('Assistant Emergency Kill Switch',()=>{
   test('maps only state-changing routes to bounded feature keys',()=>{
     expect(featureForAssistantMutation('/assistant/workflows/transition','POST')).toBe('assistant.workflows.transition');
     expect(featureForAssistantMutation('/assistant/approvals','POST')).toBe('assistant.approvals.request');
+    expect(featureForAssistantMutation('/assistant/services/execute','POST')).toBe('assistant.services.execute');
+    expect(featureForAssistantMutation('/assistant/services/execute-parallel','POST')).toBe('assistant.services.execute_parallel');
     expect(featureForAssistantMutation('/assistant/approvals','GET')).toBeNull();
     expect(featureForAssistantMutation('/assistant/documents/read','POST')).toBeNull();
     expect(featureForAssistantMutation('/assistant/plan','POST')).toBeNull();
