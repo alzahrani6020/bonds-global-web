@@ -11,6 +11,24 @@ let hasSharedDeals=false;
 const params=new URLSearchParams(location.search);
 const sharedView=params.get('view')==='shared'||location.hash==='#dealSharedPanel';
 
+function safeReturnTo(){
+  const value=params.get('return_to')||'';
+  return value.startsWith('/')&&!value.startsWith('//')?value:'';
+}
+
+function renderContextReturn(){
+  const target=safeReturnTo();
+  if(!target)return;
+  const host=$('#dealLinkInfo')||$('#dealStatus');
+  if(!host||document.getElementById('dealContextReturn'))return;
+  const link=document.createElement('a');
+  link.id='dealContextReturn';
+  link.href=target;
+  link.textContent=tr('العودة إلى مركز المشروع','Back to project');
+  link.style.cssText='display:inline-flex;margin-inline-start:10px;color:#d4a853;text-decoration:underline;font-weight:700;';
+  host.appendChild(link);
+}
+
 function applyListMode(){
   const create=$('#dealCreatePanel');
   const title=document.querySelector('.deal-section-title');
@@ -675,6 +693,7 @@ function applyAccess(access,deal){
     }else{
       info.textContent=tr('غير مرتبطة بمشروع.','Not linked to a project.');
     }
+    renderContextReturn();
   }
   const linkInput=$('#dealLinkForm')?.elements?.project_id;
   if(linkInput)linkInput.value=deal.project_id||'';
@@ -863,6 +882,7 @@ function backToList(){
 }
 
 document.addEventListener('DOMContentLoaded',async()=>{
+  renderContextReturn();
   $('#dealCreateForm')?.addEventListener('submit',event=>{
     createDeal(event).catch(err=>setStatus(err.message,true));
   });
