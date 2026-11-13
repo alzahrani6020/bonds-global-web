@@ -100,6 +100,14 @@
         </div>
       </section>
 
+      <section class="panel local-pdf-comparison" aria-labelledby="local-pdf-title">
+        <h2 id="local-pdf-title">فحص نسخة PDF من جهازك</h2>
+        <p>اختر نسخة الخطاب الموجودة لديك لمقارنتها ببصمة PDF الرسمي المسجل. تتم المقارنة محليًا في المتصفح دون رفع الملف أو تعديل المستند الصادر.</p>
+        <label for="local-pdf-input">نسختك (PDF)</label>
+        <input id="local-pdf-input" type="file" accept="application/pdf,.pdf" />
+        <p id="local-pdf-result" class="check" role="status" aria-live="polite">لم يتم فحص أي ملف بعد.</p>
+      </section>
+
       <details>
         <summary>عرض التفاصيل التقنية</summary>
         <dl class="tech">
@@ -154,6 +162,39 @@
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
     document.getElementById('verify-count').textContent=String(d.verification_count||0);
+
+    // Compare a local copy only; no upload, archive mutation or PDF re-render.
+    const localPdfInput=document.getElementById('local-pdf-input');
+    const localPdfResult=document.getElementById('local-pdf-result');
+    let localPdfCheckSequence=0;
+    localPdfInput.addEventListener('change',async()=>{
+      const sequence=++localPdfCheckSequence;
+      const file=localPdfInput.files?.[0];
+      const report=(message,invalid)=>{
+        if(sequence!==localPdfCheckSequence)return;
+        localPdfResult.textContent=message;
+        localPdfResult.classList.toggle('bad',invalid);
+      };
+      if(!file){report("لم يتم فحص أي ملف بعد.",false);return;}
+      if(!d.final_pdf_verified||!/^[a-f0-9]{64}$/i.test(d.artifact_hash||'')){
+        report("لا توجد بصمة PDF رسمية معتمدة للمقارنة.",true);return;
+      }
+      if(file.size<5||file.size>25*1024*1024||!/\.pdf$/i.test(file.name)){
+        report("يجب اختيار ملف PDF صالح لا يتجاوز 25 ميغابايت.",true);return;
+      }
+      report("جارٍ حساب بصمة SHA-256 للملف الذي اخترته…",false);
+      try{
+        if(!window.crypto?.subtle)throw new Error('SHA-256 unavailable');
+        const bytes=await file.arrayBuffer();
+        const header=new TextDecoder('ascii').decode(bytes.slice(0,5));
+        if(header!=='%PDF-'){report("يجب اختيار ملف PDF صالح لا يتجاوز 25 ميغابايت.",true);return;}
+        const hash=await window.crypto.subtle.digest('SHA-256',bytes);
+        const actual=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
+        const matches=actual.toLowerCase()===d.artifact_hash.toLowerCase();
+        report((matches?"مطابق رقميًا: الملف الذي اخترته هو نفس ملف PDF النهائي المحفوظ في سجل الإصدار.":"غير مطابق: الملف الذي اخترته يختلف عن PDF الرسمي المحفوظ لهذا الإصدار. لا تعتمد هذه النسخة بوصفها نسخة موثقة.")+' SHA-256: '+actual,!matches);
+      }catch(_){report("تعذر فحص الملف على هذا الجهاز. لم تثبت مطابقته.",true);}
+    });
+
 
     const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;el.classList.toggle('bad',!ok);};
     const pdfCheck=document.getElementById('pdf-check');
