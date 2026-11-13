@@ -29,13 +29,13 @@
     .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
     .seal{width:min(100%,420px);max-width:420px;min-width:0;margin-inline:auto;align-self:start;background:transparent;overflow:visible;}
     .certificate-seal-svg{display:block;width:100%;height:auto;overflow:visible;font-family:'Vazirmatn',Arial,sans-serif;}
-    .viewer-wrap{display:none}.viewer-wrap.active{display:block}.viewer{display:block;max-width:100%;width:100%;height:760px;border:1px solid #d9e2ec;border-radius:14px;background:#f5f7fa}
+    .viewer-wrap{display:none}.viewer-wrap.active{display:block}.verified-pdf-pages{width:100%;max-width:100%;min-width:0;display:flex;flex-direction:column;gap:14px;align-items:center;overflow:hidden;background:#edf1f6;padding:10px 0}.verified-pdf-page{display:block;max-width:100%;height:auto!important;background:#fff;box-shadow:0 2px 8px #0a234224}.pdf-render-status{font-size:14px;line-height:1.6;color:var(--navy);margin:10px 0;overflow-wrap:anywhere}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;border:1px solid var(--navy);color:var(--navy);background:#fff}.btn.primary{background:var(--navy);color:#fff}
     .integrity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.check{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #d7eadc;font-weight:700}.check.bad{background:#fff3f3;border-color:#f0d1d1;color:var(--red)}
     details{border:1px solid #e0e6ed;border-radius:14px;padding:14px 16px}summary{cursor:pointer;font-weight:800}.tech{margin-top:14px;display:grid;grid-template-columns:180px 1fr;gap:8px 12px}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
     .failure{display:none;text-align:center;padding:34px}.failure.active{display:block}.failure h2{color:var(--red)}.footer{padding:18px 28px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer a{color:#f4c66a}
     [hidden]{display:none!important}
-    @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.seal{width:min(100%,360px);margin:auto}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.viewer{height:520px}}
+    @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.seal{width:min(100%,360px);margin:auto}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.verified-pdf-pages{gap:8px;padding:6px 0}}
   </style>
 </head>
 <body>
@@ -74,7 +74,8 @@
 
       <section id="viewer-wrap" class="panel viewer-wrap">
         <h2>Official document preview</h2>
-        <iframe id="official-viewer" class="viewer" title="Official document preview"></iframe>
+        <p id="pdf-render-status" class="pdf-render-status" role="status" aria-live="polite"></p>
+        <div id="official-viewer" class="verified-pdf-pages" aria-label="Original verified PDF pages"></div>
         <div class="actions">
           <a id="open-pdf" class="btn primary" target="_blank" rel="noopener">Open full screen</a>
           <a id="download-pdf" class="btn" download>Download official PDF</a>
@@ -105,6 +106,7 @@
   </section>
 </main>
 <script src="/components/bonds-official-seal.js?v=1"></script>
+<script src="/components/verified-pdf-viewer.js?v=1"></script>
 <script>
 (async function(){
   const params=new URLSearchParams(location.search);
@@ -148,9 +150,20 @@
     if(d.final_pdf_verified&&d.official_preview_url){
       const preview=d.official_preview_url;
       const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
-      document.getElementById('official-viewer').src=preview;
       document.getElementById('open-pdf').href=preview;
       document.getElementById('download-pdf').href=d.official_pdf_url||preview+'&download=1';
+      // The original PDF artifact is never reconstructed from correspondence HTML.
+      // A local SHA-256 comparison gates its canvas display on all devices.
+      if(window.BondsVerifiedPdfViewer?.render){
+        await window.BondsVerifiedPdfViewer.render({
+          url:preview,expectedHash:d.artifact_hash,
+          container:document.getElementById('official-viewer'),
+          feedback:document.getElementById('pdf-render-status'),
+          language:'en'
+        });
+      }else{
+        document.getElementById('pdf-render-status').textContent='Verified PDF viewer unavailable; open or download the original.';
+      }
     }
   }catch(e){fail();}
 })();
