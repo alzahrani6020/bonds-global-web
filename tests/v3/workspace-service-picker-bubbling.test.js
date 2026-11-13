@@ -8,10 +8,10 @@ describe('workspace chooser click opens header picker without immediately closin
  const ui=fs.readFileSync(path.join(process.cwd(),'components/service-request.js'),'utf8');
  test('stopPropagation prevents discovery outside-click handler from closing the picker',()=>{
   const start=ui.indexOf("action.addEventListener('click',event=>{");
-  const end=ui.indexOf("\n    });",start);
+  const end=ui.indexOf("\n   });",start);
   expect(start).toBeGreaterThan(0);
   expect(end).toBeGreaterThan(start);
-  const snippet=ui.slice(start,end+"\n    });".length);
+  const snippet=ui.slice(start,end+"\n   });".length);
   let onActionClick;
   const action={addEventListener:(name,callback)=>{if(name==='click')onActionClick=callback}};
   let open=false;
