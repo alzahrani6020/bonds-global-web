@@ -327,4 +327,17 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(email).toContain('Idempotent delivery requires the Resend provider');
   });
 
+  test('final PDF export rejects overflowing sheets and keeps Arabic markers RTL', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    expect(client).toContain('canvas.height > pageHeightPx + 1');
+    expect(client).toContain('windowWidth: Math.max(1280, window.innerWidth)');
+    expect(client).toContain('const totalPages = 1');
+    expect(client).toContain('overflows A4');
+    expect(ar).toContain('.doc-content[dir="rtl"] ol');
+    expect(ar).toContain('direction: rtl; text-align: right');
+    expect(en).toContain('ol[dir="rtl"]');
+  });
+
 });
