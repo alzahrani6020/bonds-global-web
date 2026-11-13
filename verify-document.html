@@ -179,7 +179,7 @@
       if(!d.final_pdf_verified||!/^[a-f0-9]{64}$/i.test(d.artifact_hash||'')){
         report("لا توجد بصمة PDF رسمية معتمدة للمقارنة.",true);return;
       }
-      if(file.size<5||file.size>25*1024*1024||!/\\.pdf$/i.test(file.name)){
+      if(file.size<5||file.size>25*1024*1024||!/\.pdf$/i.test(file.name)){
         report("يجب اختيار ملف PDF صالح لا يتجاوز 25 ميغابايت.",true);return;
       }
       report("جارٍ حساب بصمة SHA-256 للملف الذي اخترته…",false);
