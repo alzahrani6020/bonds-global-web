@@ -155,12 +155,13 @@
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
     document.getElementById('verify-count').textContent=String(d.verification_count||0);
 
-    const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;if(!ok)el.classList.add('bad');};
+    const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;el.classList.toggle('bad',!ok);};
     const pdfCheck=document.getElementById('pdf-check');
     pdfCheck.classList.add('bad');
     pdfCheck.textContent='التحقق من بصمة بايتات PDF جارٍ';
     setCheck('signature-check',!!d.signature_verified,'سجل التوقيع موجود (بيانات هوية الموقّع مستقلة)','سجل التوقيع غير موثق');
-    setCheck('stamp-check',!!d.stamp_verified,'تصديق الختم الإلكتروني موثق','الختم الإلكتروني غير موثق');
+    // A stamp record alone is not proof that the displayed archived PDF has the same stamp.
+    setCheck('stamp-check',false,'تصديق الختم الإلكتروني موثق','بانتظار مطابقة PDF الأصلي قبل اعتماد الختم');
 
     // Never present an archival-stamp proof until the original PDF bytes match.
     if(d.final_pdf_verified&&d.official_preview_url){
@@ -183,6 +184,7 @@
             : 'سجل المستند موجود — لم يكتمل فحص ملف PDF الأصلي';
           status.classList.toggle('warn',!(pdfMatches && d.stamp_verified && d.signature_verified));
         }
+        setCheck('stamp-check',!!(pdfMatches && d.stamp_verified),'تصديق الختم الإلكتروني موثق في ملف PDF الأصلي','لم تثبت مطابقة الختم مع ملف PDF الأصلي');
         pdfCheck.classList.toggle('bad',!pdfMatches);
         pdfCheck.textContent=pdfMatches
           ? 'تمت مطابقة SHA-256 للملف الأصلي بسجل الإصدار'

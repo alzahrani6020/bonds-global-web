@@ -18,6 +18,8 @@ describe('BONDS seal provenance and original PDF integrity',()=>{
    expect(html).toContain('const pdfMatches=await window.BondsVerifiedPdfViewer.render({');
    expect(html).toContain('pdfCheck.classList.toggle(\'bad\',!pdfMatches)');
    expect(html).toContain('expectedHash:d.artifact_hash');
+   expect(html).toContain("setCheck('stamp-check',!!(pdfMatches && d.stamp_verified)");
+   expect(html).not.toContain("setCheck('stamp-check',!!d.stamp_verified");
    expect(html).not.toContain('document.getElementById(\'official-viewer\').src=preview');
   });
  }
