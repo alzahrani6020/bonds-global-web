@@ -34,6 +34,7 @@
 <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
   <script src="shared-ui.js"></script>
+  <script src="/calculators/project-snapshots.js?v=1"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />  <link rel="manifest" href="/manifest.json" />
 
   <script src="shared-utils.js"></script>
@@ -1536,27 +1537,20 @@
       return false;
     };
 
-    window.saveLoanProject = function() {
+    window.saveLoanProject = async function() {
       try {
-        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
-          window.BondsAnalytics.trackEvent('calc_project_saved', { source: 'loan', country: document.getElementById('country')?.value || 'SA' });
-        }
-        var installmentText = document.getElementById('resInstallment')?.textContent || '—';
-        var totalInterestText = document.getElementById('resTotalInterest')?.textContent || '—';
-        var title = 'دراسة قرض وتمويل';
-        var summary = 'القسط ' + installmentText + ' · إجمالي الفائدة ' + totalInterestText;
-        var projects = JSON.parse(localStorage.getItem('bonds_guest_projects') || '[]');
-        projects.unshift({
-          title: title,
-          summary: summary,
-          href: window.location.pathname + window.location.search,
-          createdAt: new Date().toISOString(),
-          source: 'loan'
+        BondsUI.toast('جاري حفظ الدراسة في مساحتك...', 'info');
+        
+        var project = await window.BondsCalculatorProjects.save({
+          type: 'loan', title: 'دراسة قرض وتمويل', sector: 'تمويل',
+          summary: 'القسط ' + (document.getElementById('resInstallment')?.textContent || '—') + ' · إجمالي الفائدة ' + (document.getElementById('resTotalInterest')?.textContent || '—')
         });
-        localStorage.setItem('bonds_guest_projects', JSON.stringify(projects.slice(0, 20)));
-        BondsUI.toast('✅ تم حفظ المشروع في مساحتك', 'success');
+        if (!project?.id) throw new Error('PROJECT_PERSISTENCE_UNCONFIRMED');
+        if (window.BondsAnalytics?.trackEvent) window.BondsAnalytics.trackEvent('calc_project_saved', {source:'loan', project_id:project.id});
+        BondsUI.toast('تم حفظ الدراسة ومدخلاتها في مساحتك', 'success');
       } catch (e) {
-        BondsUI.toast('⚠️ لم يتم الحفظ محلياً', 'warning');
+        console.warn('[calculator-project-save]', e?.message);
+        BondsUI.toast('تعذّر حفظ الدراسة في مساحتك. راجع اتصالك وحسابك.', 'warning');
       }
     };
 
@@ -1678,5 +1672,13 @@
 </script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>
+<script>
+window.addEventListener('load', function() {
+  if (!new URLSearchParams(location.search).has('saved_project_id')) return;
+  window.BondsCalculatorProjects.restore({type:'loan',calculate:function() { calculateAll(); }})
+    .then(function(result) { if(result.restored) BondsUI.toast('تم استعادة المدخلات وإعادة حساب النتائج', 'success'); })
+    .catch(function(error) { console.warn('[calculator-project-restore]',error?.message); BondsUI.toast('تعذّرت استعادة هذه الدراسة. تحقق من صلاحية الوصول.', 'warning'); });
+});
+</script>
 </body>
 </html>

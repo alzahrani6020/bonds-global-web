@@ -34,6 +34,7 @@
 <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
   <script src="shared-ui.js"></script>
+  <script src="/calculators/project-snapshots.js?v=1"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />  <link rel="manifest" href="/manifest.json" />
 
   <script src="shared-utils.js"></script>
@@ -1822,28 +1823,20 @@
       return false;
     };
 
-    window.savePricingProject = function() {
+    window.savePricingProject = async function() {
       try {
-        if (window.BondsAnalytics && window.BondsAnalytics.trackEvent) {
-          window.BondsAnalytics.trackEvent('calc_project_saved', { source: 'pricing', country: document.getElementById('country')?.value || 'SA' });
-        }
-        var last = window._lastPricingResult;
-        var priceText = document.getElementById('resPriceBeforeTax')?.textContent || '—';
-        var profitText = document.getElementById('resProfitPerUnit')?.textContent || '—';
-        var title = last && last.r && last.r.netProfitPerUnit >= 0 ? 'تسعير منتج مربح' : 'دراسة تسعير منتج';
-        var summary = 'سعر البيع ' + priceText + ' · الربح/وحدة ' + profitText;
-        var projects = JSON.parse(localStorage.getItem('bonds_guest_projects') || '[]');
-        projects.unshift({
-          title: title,
-          summary: summary,
-          href: window.location.pathname + window.location.search,
-          createdAt: new Date().toISOString(),
-          source: 'pricing'
+        BondsUI.toast('جاري حفظ الدراسة في مساحتك...', 'info');
+        
+        var project = await window.BondsCalculatorProjects.save({
+          type: 'pricing', title: 'دراسة تسعير منتج', sector: 'تجارة',
+          summary: 'سعر البيع ' + (document.getElementById('resPriceBeforeTax')?.textContent || '—') + ' · الربح/وحدة ' + (document.getElementById('resProfitPerUnit')?.textContent || '—')
         });
-        localStorage.setItem('bonds_guest_projects', JSON.stringify(projects.slice(0, 20)));
-        BondsUI.toast('✅ تم حفظ المشروع في مساحتك', 'success');
+        if (!project?.id) throw new Error('PROJECT_PERSISTENCE_UNCONFIRMED');
+        if (window.BondsAnalytics?.trackEvent) window.BondsAnalytics.trackEvent('calc_project_saved', {source:'pricing', project_id:project.id});
+        BondsUI.toast('تم حفظ الدراسة ومدخلاتها في مساحتك', 'success');
       } catch (e) {
-        BondsUI.toast('⚠️ لم يتم الحفظ محلياً', 'warning');
+        console.warn('[calculator-project-save]', e?.message);
+        BondsUI.toast('تعذّر حفظ الدراسة في مساحتك. راجع اتصالك وحسابك.', 'warning');
       }
     };
 
@@ -1975,5 +1968,13 @@
 </script>
 <script src="/components/emoji-icons.js" defer></script>
 <script src="/components/emoji-renderer.js" defer></script>
+<script>
+window.addEventListener('load', function() {
+  if (!new URLSearchParams(location.search).has('saved_project_id')) return;
+  window.BondsCalculatorProjects.restore({type:'pricing',calculate:function() { calculateAll(); }})
+    .then(function(result) { if(result.restored) BondsUI.toast('تم استعادة المدخلات وإعادة حساب النتائج', 'success'); })
+    .catch(function(error) { console.warn('[calculator-project-restore]',error?.message); BondsUI.toast('تعذّرت استعادة هذه الدراسة. تحقق من صلاحية الوصول.', 'warning'); });
+});
+</script>
 </body>
 </html>
