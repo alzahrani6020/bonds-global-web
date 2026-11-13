@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="/styles/institutional-system.css?v=4">
 
   <script src="shared-ui.js"></script>
-  <script src="/calculators/project-snapshots.js?v=2"></script>
+  <script src="/calculators/project-snapshots.js?v=3"></script>
   <link rel="icon" href="../assets/bonds-mark.svg" type="image/svg+xml" />
   <link rel="manifest" href="/manifest.json" />
   <script src="shared-utils.js"></script>
@@ -377,7 +377,7 @@
         BondsUI.toast('تم حفظ الدراسة ومدخلاتها في مساحتك', 'success');
       } catch (e) {
         console.warn('[calculator-project-save]', e?.message);
-        BondsUI.toast('تعذّر حفظ الدراسة في مساحتك. راجع اتصالك وحسابك.', 'warning');
+        BondsUI.toast(e?.message?.startsWith('PROJECT_SAVED_READBACK_') ? 'أُنشئ سجل للدراسة لكن لم يتأكد حفظ المدخلات. لا تكرر الحفظ قبل مراجعة الدراسة في مساحتي.' : 'تعذّر حفظ الدراسة في مساحتك. راجع اتصالك وحسابك.', 'warning');
       }
     };
 
