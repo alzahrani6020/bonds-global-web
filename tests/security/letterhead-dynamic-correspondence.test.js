@@ -174,8 +174,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain('const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx))');
     expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
     expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
-    expect(client).toContain('رقم السجل 39733');
-    expect(client).toContain('CR 39733');
+    expect(read('components/bonds-official-seal.js')).toContain('رقم السجل 39733');
+    expect(read('components/bonds-official-seal.js')).toContain('CR 39733');
   });
 
   test('verification pages expose document and final PDF integrity evidence', () => {
