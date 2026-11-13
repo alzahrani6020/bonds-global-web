@@ -261,7 +261,14 @@
               id: p.id,
               title: p.name,
               summary: (p.metadata && p.metadata.summary) || fallbackSummary,
-              href: (p.metadata && p.metadata.href) || '../v3/project?id=' + encodeURIComponent(p.id),
+              href: (function(){
+                const calculatorType = p.metadata?.calculator?.type;
+                const supported = ['cash-flow','loan','roi','pricing'];
+                if (supported.includes(calculatorType) && p.metadata.calculator.schema_version === 1) {
+                  return '/calculators/' + calculatorType + '?saved_project_id=' + encodeURIComponent(p.id);
+                }
+                return (p.metadata && p.metadata.href) || '../v3/project?id=' + encodeURIComponent(p.id);
+              })(),
               createdAt: p.created_at,
               source: (p.metadata && p.metadata.source) || sector || 'v3',
               synced: true
