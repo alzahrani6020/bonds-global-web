@@ -1575,6 +1575,18 @@ function renderFinancialExecution(result,metrics){
  }
  return '';
 }
+function showExecutionPersistenceStatus(execution){
+ const projectId=params.get('project_id');
+ const requiresArtifact=projectId&&['feasibility_studies','risk_analysis'].includes(serviceCode);
+ const persistence=execution?.artifact_persistence;
+ if(!requiresArtifact){showStatus(T.executed,true);return true;}
+ if(persistence?.status==='saved'&&persistence.artifact_id){
+  showStatus(T.executed+' — '+(lang==='ar'?'حُفظ المخرج في المشروع':'Artifact saved to project'),true);
+  return true;
+ }
+ showStatus(T.executed+' — '+(lang==='ar'?'تعذّر تأكيد حفظ المخرج في المشروع. احتفظ بنسخة من النتائج.':'Project artifact persistence was not confirmed. Keep a copy of the results.'),false);
+ return false;
+}
 function renderExecutionResult(payload){
  let box=$('#srExecutionResult');
  if(!box){
@@ -1709,9 +1721,9 @@ async function submit(e){
     }
     submitted=true;
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null,dataset_id:intakeDatasetId});
-    showStatus(T.executed,true);
+    const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
-    clearWorkspaceDraft();
+    if(artifactSaved)clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;
   }
@@ -1743,9 +1755,9 @@ async function submit(e){
   if(executionResponse.ok&&execution.executed===true){
     submitted=true;
     track('service_executed',{action:execution.action||null,execution_status:execution.execution_status||null});
-    showStatus(T.executed,true);
+    const artifactSaved=showExecutionPersistenceStatus(execution);
     renderExecutionResult(execution);
-    clearWorkspaceDraft();
+    if(artifactSaved)clearWorkspaceDraft();
     $('#srSubmit').disabled=true;
     return;
   }
