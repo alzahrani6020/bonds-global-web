@@ -1289,7 +1289,14 @@
     for (let i = 0; i < sheets.length; i++) {
       const canvas = await html2canvas(sheets[i], { scale: 1.6, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
       const pageHeightPx = Math.floor(canvas.width * 297 / 210);
-      const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx));
+      // Issued documents must have one physical PDF page per numbered sheet.
+      // Cropping an overflowing sheet creates an unnumbered page without a header.
+      if (canvas.height > pageHeightPx * 1.02) {
+        throw new Error(isEn
+          ? `Page ${i + 1} overflows A4. Split the content into another letterhead page before finalizing the PDF.`
+          : `الصفحة ${i + 1} تتجاوز حدود A4. وزّع المحتوى على صفحة مراسلات إضافية قبل اعتماد PDF النهائي.`);
+      }
+      const totalPages = 1;
       for (let page = 0; page < totalPages; page++) {
         const y = page * pageHeightPx;
         const sliceHeight = Math.min(pageHeightPx, canvas.height - y);
