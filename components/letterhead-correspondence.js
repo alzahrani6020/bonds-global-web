@@ -1219,7 +1219,7 @@
         top.appendChild(curve);
         svg.appendChild(top);
         svg.appendChild(make('text', { x:150,y:87,fill:'#083c9b','font-size':33,'font-weight':800,'text-anchor':'middle','font-family':'Georgia,serif' }, 'BONDS'));
-        svg.appendChild(make('text', { x:150,y:109,fill:'#083c9b','font-size':14.6,'font-weight':700,'text-anchor':'middle',direction:'rtl' }, isEn ? 'Electronic seal certification' : 'تصديق الختم الإلكتروني'));
+        svg.appendChild(make('text', { x:150,y:109,fill:'#083c9b','font-size':isEn ? 10.5 : 14.6,'font-weight':700,'text-anchor':'middle',direction:isEn ? 'ltr' : 'rtl' }, isEn ? 'ELECTRONIC STAMP CERTIFICATION' : 'تصديق الختم الإلكتروني'));
         svg.appendChild(make('line', { x1:67,y1:118,x2:233,y2:118,stroke:'#083c9b','stroke-width':1.4 }));
         const reference = String(doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد')).slice(0, 40);
         svg.appendChild(make('text', { x:150,y:136,fill:'#083c9b','font-size':17,'font-weight':750,'text-anchor':'middle','font-family':'Arial,sans-serif' }, reference));
