@@ -100,10 +100,29 @@
     var response=await request('/api/v3/projects',{method:'POST',body:JSON.stringify(payload)});
     var id=response?.project?.id;
     if(!id)throw new Error('PROJECT_PERSISTENCE_UNCONFIRMED');
+    // The creation response is insufficient: verify a subsequent user-scoped read
+    // before reporting that the calculator inputs were saved.
+    // Preserve the new project's link even if verification fails; retrying POST
+    // could otherwise create an unintended duplicate record.
     var url=new URL(location.href);
     url.searchParams.set('saved_project_id',id);
     history.replaceState(history.state,'',url.pathname+url.search+url.hash);
-    return response.project;
+    var persisted;
+    try{
+      persisted=(await request('/api/v3/projects/'+encodeURIComponent(id),{method:'GET'}))?.project;
+    }catch(readError){
+      throw new Error('PROJECT_SAVED_READBACK_UNCONFIRMED');
+    }
+    var state=persisted?.metadata?.calculator;
+    if(persisted?.id!==id||state?.schema_version!==1||state?.type!==input.type||
+       !Array.isArray(state.controls)||state.controls.length!==controls.length||
+       state.controls.some(function(item,index){
+         return item?.id!==controls[index].id||item.value!==controls[index].value||
+                item.checked!==controls[index].checked;
+       })){
+      throw new Error('PROJECT_SAVED_READBACK_MISMATCH');
+    }
+    return persisted;
   }
   async function restore(input){
     requireType(input.type);
