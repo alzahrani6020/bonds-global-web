@@ -49,12 +49,19 @@
   const LOCAL_DISK_STORE = 'folders';
   const LOCAL_DISK_EXT = '(?:xlsx|xls|csv|pdf|docx?|jpe?g|png|webp|heic|heif|tiff?)';
 
+  const AUTH_SESSION_HEADER_TIMEOUT_MS = 1500;
+
   async function getAuthHeaders() {
     const headers = { 'Content-Type': 'application/json' };
     try {
       if (window.BondsAuth && window.BondsAuth.getSession) {
-        const { data } = await window.BondsAuth.getSession();
-        const token = data?.session?.access_token;
+        // The auth client can stay pending for seconds while it initializes
+        // on a cold cache; never let header collection block an interaction.
+        const sessionResult = await Promise.race([
+          window.BondsAuth.getSession(),
+          new Promise(resolve => setTimeout(() => resolve(null), AUTH_SESSION_HEADER_TIMEOUT_MS))
+        ]);
+        const token = sessionResult?.data?.session?.access_token;
         if (token) headers.Authorization = `Bearer ${token}`;
       }
     } catch (e) {

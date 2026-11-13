@@ -14,7 +14,7 @@ const { getSupabaseClient } = require('../lib/supabase');
 const { getUserFromToken } = require('../lib/auth');
 const { isExecuteEntitled } = require('../../lib/assistant/execute-entitlement');
 const { sanitizeAssistantState, conversationalStateView } = require('../../lib/assistant/context-state');
-const { orchestrateChat } = require('../../lib/assistant/chat-orchestrator');
+const { orchestrateChat, normalizePath, isHomepage } = require('../../lib/assistant/chat-orchestrator');
 const { saveWorkflowState, loadWorkflowState } = require('../../lib/assistant/workflow-state');
 const { workflowKeyFor } = require('../../lib/assistant/case-engine');
 const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assistant-outcome-bridge');
@@ -62,10 +62,13 @@ function sendAssistantResponse(res, status, data, { stream = false, conversation
 }
 
 function durableCaseBoundary(context = {}) {
-  const pagePath = String(context.pagePath || '').trim();
+  // Align with chat-orchestrator: both sides must derive the identical
+  // boundary string or the durable goal workflow is keyed on a different
+  // row than the orchestrator reads and updates.
+  const pagePath = normalizePath(context.pagePath);
   const serviceCode = String(context.serviceCode || '').trim();
   if (!pagePath && !serviceCode) return null;
-  const homepage = ['/', '/index.html', '/en', '/en/', '/en/index.html'].includes(pagePath || '/');
+  const homepage = isHomepage(pagePath);
   if (homepage && !serviceCode) return 'homepage/no_service_selected';
   return `page:${pagePath || '/'}|service:${serviceCode || 'none'}`;
 }
