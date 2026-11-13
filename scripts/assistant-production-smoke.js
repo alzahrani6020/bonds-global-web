@@ -231,7 +231,7 @@ async function assertAssistantProduction({
   const tampered = await post('/assistant/confirmation/resolve', {
     action: changedAction, confirmation, decision: 'confirm'
   });
-  expectStatus(tampered, 409, 'changed confirmation payload');
+  expectStatus(tampered, 422, 'changed confirmation payload');
   check(tampered.data.error === 'CONFIRMATION_PAYLOAD_CHANGED', 'payload mutation rejection');
 
   const governed = await post('/capabilities/execute', {

@@ -412,11 +412,17 @@ async function aiChatHandlerImpl(req, res) {
     });
   }
 
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return sendAssistantResponse(res, 400, { error: 'Invalid JSON body' }, { stream: wantsEventStream(req, body) });
+  }
   const { messages = [], context = {}, options = {}, assistantState = null } = body;
   const conversationMode = normalizeConversationMode(body.conversation_mode);
   const streaming = wantsEventStream(req, body);
   if (!Array.isArray(messages) || messages.length === 0) {
     return sendAssistantResponse(res, 400, { error: 'messages array is required' }, { stream: streaming, conversationMode });
+  }
+  if (!messages.every(message => message && typeof message === 'object')) {
+    return sendAssistantResponse(res, 400, { error: 'messages must contain objects' }, { stream: streaming, conversationMode });
   }
 
   let authenticatedUser = null;

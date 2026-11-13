@@ -88,4 +88,24 @@ describe('assistant chat rate-limit ownership', () => {
     expect(res.statusCode).toBe(401);
     expect(JSON.parse(res.body).error).toBe('AUTHENTICATION_REQUIRED');
   });
+
+  test('null JSON body is rejected with 400 instead of throwing', async () => {
+    const { req, res, done } = createRequestResponse('null');
+
+    await aiChatHandler(req, res);
+    await done;
+
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toBe('Invalid JSON body');
+  });
+
+  test('messages with non-object elements are rejected with 400 before authentication', async () => {
+    const { req, res, done } = createRequestResponse(JSON.stringify({ messages: [null] }));
+
+    await aiChatHandler(req, res);
+    await done;
+
+    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body).error).toBe('messages must contain objects');
+  });
 });

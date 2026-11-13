@@ -263,7 +263,7 @@ describe('BONDS Assistant V1 end-to-end governed journeys', () => {
       }
     });
 
-    expect(changed.statusCode).toBe(409);
+    expect(changed.statusCode).toBe(422);
     expect(changed.body.status).toBe('denied');
     expect(changed.body.error).toBe('CONFIRMATION_PAYLOAD_CHANGED');
   });
