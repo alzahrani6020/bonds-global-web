@@ -326,9 +326,23 @@ describe('Letterhead governed workspace integration', () => {
       expect(page).toContain('footer-document-qr');
       expect(page).toContain('footer-site-qr');
     }
-    expect(client).toContain("sheet.classList.toggle('has-verification-zone', !!token)");
+    expect(client).toContain("sheet.classList.add('has-verification-zone')");
     expect(client).toContain("document.querySelectorAll('.footer-site-qr img')");
+    expect(client).toContain("img.src = '/api/correspondence?action=site-qr';");
+    expect(client).toContain("document.querySelectorAll('.footer-document-qr img')");
     expect(client).toContain("if (!token) {");
+  });
+
+  test('website QR remains available before issuance while document verification stays gated', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const siteBlock = client.split("document.querySelectorAll('.footer-site-qr img').forEach(img => {")[1]
+      .split("    });")[0];
+    expect(siteBlock).toContain("img.src = '/api/correspondence?action=site-qr';");
+    expect(siteBlock).toContain("img.style.visibility = 'visible';");
+    expect(siteBlock).not.toContain("if (!token)");
+    const documentBlock = client.split("document.querySelectorAll('.footer-document-qr img').forEach(img => {")[1]
+      .split("    });")[0];
+    expect(documentBlock).toContain("if (!token)");
   });
 
   test('official approval zone is page-break safe with a blue oval stamp', () => {
