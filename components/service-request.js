@@ -56,7 +56,7 @@ function applyWorkspaceTypeChrome(){
 }
 function workspaceReturnTarget(){
  const value=new URLSearchParams(location.search).get('return_to')||'';
- return value.startsWith('/')&&!value.startsWith('//')?value:'';
+ return value.startsWith('/')&&!value.startsWith('//')&&!value.includes('\\')?value:'';
 }
 function renderWorkspaceReturnLink(){
  if(!isServiceWorkspace)return;
