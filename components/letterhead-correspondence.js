@@ -1174,6 +1174,7 @@
       row.dataset.governanceArtifact = 'signature-stamp';
       row.contentEditable = 'false';
       row.className = 'official-approval-zone';
+      row.style.marginBottom = '8mm';
 
       if (doc.signature_image_data) {
         const signature = document.createElement('div');
@@ -1193,7 +1194,12 @@
       if (doc.stamp_hash) {
         const stamp = document.createElement('div');
         stamp.className = 'official-stamp';
-        stamp.textContent = (isEn ? 'BONDS\nOFFICIAL STAMP\n' : 'بوندز\nالختم الرسمي\n') + (doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد'));
+        const stampReference = doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد');
+        const stampDateSource = doc.issued_at || doc.stamped_at || '';
+        const stampDate = stampDateSource ? new Date(stampDateSource).toISOString().slice(0, 10) : '';
+        stamp.textContent = isEn
+          ? ['BONDS', 'ELECTRONIC STAMP CERTIFICATION', stampReference, stampDate, 'CR 39733'].filter(Boolean).join('\n')
+          : ['بوندز', 'تصديق الختم إلكتروني', stampReference, stampDate, 'رقم السجل 39733'].filter(Boolean).join('\n');
         row.appendChild(stamp);
       }
 
@@ -1270,11 +1276,24 @@
         creator: 'Bonds Global Correspondence'
       });
     }
+    let pageAdded = false;
     for (let i = 0; i < sheets.length; i++) {
       const canvas = await html2canvas(sheets[i], { scale: 1.6, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
-      const img = canvas.toDataURL('image/jpeg', 0.9);
-      if (i > 0) pdf.addPage();
-      pdf.addImage(img, 'JPEG', 0, 0, 210, 297, undefined, 'FAST');
+      const pageHeightPx = Math.floor(canvas.width * 297 / 210);
+      const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx));
+      for (let page = 0; page < totalPages; page++) {
+        const y = page * pageHeightPx;
+        const sliceHeight = Math.min(pageHeightPx, canvas.height - y);
+        const slice = document.createElement('canvas');
+        slice.width = canvas.width;
+        slice.height = sliceHeight;
+        const ctx = slice.getContext('2d');
+        ctx.drawImage(canvas, 0, y, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+        const img = slice.toDataURL('image/jpeg', 0.9);
+        if (pageAdded) pdf.addPage();
+        pdf.addImage(img, 'JPEG', 0, 0, 210, 210 * sliceHeight / canvas.width, undefined, 'FAST');
+        pageAdded = true;
+      }
     }
     return pdf.output('blob');
   }

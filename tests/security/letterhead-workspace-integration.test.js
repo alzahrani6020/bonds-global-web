@@ -290,17 +290,21 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("corr-signer-title");
     expect(client).toContain("signer_name:");
     expect(client).toContain("signer_title:");
-    expect(client).toContain("الختم الرسمي");
+    expect(client).toContain("تصديق الختم إلكتروني");
+    expect(client).toContain("رقم السجل 39733");
     expect(client).toContain("التوقيع الرسمي");
   });
 
-  test('verification page is an outgoing register with issue state version and official PDF', () => {
+  test('verification page is a digital certificate with issue state and official PDF preview', () => {
     const page = read('verify-document.html');
-    expect(page).toContain("سجل صادر بوندز");
+    expect(page).toContain("التحقق من مستند رسمي");
     expect(page).toContain('id="issue-version"');
-    expect(page).toContain('id="issue-state"');
-    expect(page).toContain('id="official-pdf"');
+    expect(page).toContain('id="doc-status"');
+    expect(page).toContain('id="official-viewer"');
+    expect(page).toContain('id="open-pdf"');
+    expect(page).toContain('id="download-pdf"');
     expect(page).toContain('id="verify-count"');
+    expect(page).toContain('official_preview_url');
   });
 
   test('issued correspondence can be reissued or revoked without mutating prior issue', () => {
@@ -367,9 +371,9 @@ describe('Letterhead governed workspace integration', () => {
       expect(page).toContain('break-inside: avoid;');
       expect(page).toContain('page-break-inside: avoid;');
       expect(page).toContain('.official-stamp');
-      expect(page).toContain('width: 132px;');
-      expect(page).toContain('height: 76px;');
-      expect(page).toContain('border: 2px double var(--official-blue);');
+      expect(page).toContain('width: 148px;');
+      expect(page).toContain('height: 92px;');
+      expect(page).toContain('border: 3px double var(--official-blue);');
       expect(page).toContain('transform: none;');
     }
     expect(client).toContain("row.className = 'official-approval-zone'");
