@@ -1882,7 +1882,37 @@ function studiesFallbackDetail(){
  };
 }
 async function init(){
- if(!serviceCode){showStatus(T.failed+': service',false);return}
+ if(!serviceCode){
+  // Direct workspace links have no service context; render a usable entry state
+  // instead of leaving an endless loading card and a technical error.
+  const loading=$('#srLoading');
+  if(loading){
+   loading.hidden=false;
+   loading.textContent='';
+   const title=document.createElement('h1');
+   title.textContent=lang==='ar'?'اختر الخدمة لفتح مساحة العمل':'Choose a service to open its workspace';
+   const help=document.createElement('p');
+   help.textContent=lang==='ar'
+    ?'حدد الخدمة المطلوبة من نموذج اختيار الخدمات أعلى الصفحة، ثم اضغط «ابدأ الآن».'
+    :'Choose your service in the selector above, then select “Start now”.';
+   const action=document.createElement('button');
+   action.type='button';
+   action.className='sr-primary';
+   action.textContent=lang==='ar'?'اختيار الخدمة':'Choose service';
+   action.addEventListener('click',()=>{
+    const selector=document.querySelector('#bondsServiceTrigger');
+    if(selector){
+     selector.scrollIntoView({behavior:'smooth',block:'center'});
+     selector.click();
+    }else{
+     location.href=lang==='ar'?'/services.html':'/en/services.html';
+    }
+   });
+   loading.append(title,help,action);
+  }
+  const status=$('#srStatus');if(status){status.textContent='';status.hidden=true}
+  return;
+ }
  $('#srLoading').textContent=T.loading;
  try{
   try{
