@@ -328,6 +328,26 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(email).toContain('Idempotent delivery requires the Resend provider');
   });
 
+  test('legacy PDF exporter cannot create unnumbered pages and pasted RTL lists stay aligned', () => {
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    const governed = read('components/letterhead-correspondence.js');
+    for (const html of [ar, en]) {
+      expect(html).not.toContain('Math.max(1, Math.ceil(canvas.height / pageHeightPx))');
+      expect(html).not.toContain('for (var p = 0; p < totalPages; p++)');
+      expect(html).toContain('window.exportPDF = function()');
+      expect(html).toContain('list-style-position: outside !important');
+      expect(html).toContain('direction: rtl !important');
+      expect(html).toContain('text-align: right !important');
+    }
+    expect(ar).toContain('.doc-content[dir="rtl"] ol[dir="ltr"]');
+    expect(ar).toContain('.doc-content[dir="rtl"] ol > li[dir="ltr"]');
+    expect(en).toContain('.doc-content ol[dir="rtl"]');
+    expect(governed).toContain('const totalPages = 1');
+    expect(governed).toContain('if (state.document?.artifact_hash)');
+    expect(governed).toContain('await downloadOfficialPdf()');
+  });
+
   test('final PDF export rejects overflowing sheets and keeps Arabic markers RTL', () => {
     const client = read('components/letterhead-correspondence.js');
     const ar = read('letterhead.html');
