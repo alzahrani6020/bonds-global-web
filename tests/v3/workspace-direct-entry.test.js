@@ -25,9 +25,9 @@ describe('workspace direct entry without a service identifier', () => {
   });
   test('both workspace languages load the new script and worker tracks it', () => {
     for(const file of ['my-bonds/workspace/index.html','en/my-bonds/workspace/index.html','service-request.html','en/service-request.html']){
-      expect(read(file)).toContain('/components/service-request.js?v=20');
+      expect(read(file)).toContain('/components/service-request.js?v=21');
     }
-    expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.294';");
-    expect(read('sw.js')).toContain("'/components/service-request.js?v=20'");
+    expect(read('sw.js')).toContain("const CACHE_VERSION = 'v3.0.295';");
+    expect(read('sw.js')).toContain("'/components/service-request.js?v=21'");
   });
 });

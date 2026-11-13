@@ -1899,7 +1899,10 @@ async function init(){
    action.type='button';
    action.className='sr-primary';
    action.textContent=lang==='ar'?'اختيار الخدمة':'Choose service';
-   action.addEventListener('click',()=>{
+   action.addEventListener('click',event=>{
+    // The discovery widget closes on any document click outside its picker.
+    // Suppress this original click after opening the picker programmatically.
+    event.stopPropagation();
     const selector=document.querySelector('#bondsServiceTrigger');
     if(selector){
      selector.scrollIntoView({behavior:'smooth',block:'center'});
