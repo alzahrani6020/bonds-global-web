@@ -23,7 +23,7 @@ BEGIN
   IF p_values IS NULL OR jsonb_typeof(p_values) <> 'object' THEN
     RAISE EXCEPTION 'INVALID_SERVICE_REQUEST_VALUES';
   END IF;
-  IF jsonb_object_length(p_values) > 200 OR length(p_values::text) > 131072 THEN
+  IF (SELECT count(*) FROM jsonb_object_keys(p_values)) > 200 OR length(p_values::text) > 131072 THEN
     RAISE EXCEPTION 'SERVICE_REQUEST_VALUES_TOO_LARGE';
   END IF;
   IF EXISTS (SELECT 1 FROM jsonb_each(p_values) AS fields WHERE length(fields.key) > 128 OR fields.key = '') THEN
