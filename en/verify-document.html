@@ -27,15 +27,15 @@
     .content{padding:28px;display:grid;gap:24px}.result{display:grid;grid-template-columns:minmax(0,1fr) 270px;gap:24px;align-items:start}
     .panel{border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
     .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
-    .seal{border:2px solid #0d4da5;border-radius:50%;padding:12px 20px;text-align:center;color:#0d4da5;min-height:180px;display:flex;flex-direction:column;justify-content:center;box-shadow:inset 0 0 0 4px #fff,inset 0 0 0 6px #0d4da5}
-    .seal .corp{font-weight:800;font-size:14px}.seal .bonds{font:800 30px Georgia,serif;letter-spacing:1px}.seal .label{font-weight:800}.seal .ref{font:700 16px ui-monospace,Consolas,monospace;margin-top:6px}.seal .reg{font-weight:800;margin-top:6px}
+    .seal{width:min(100%,420px);max-width:420px;min-width:0;margin-inline:auto;align-self:start;background:transparent;overflow:visible;}
+    .certificate-seal-svg{display:block;width:100%;height:auto;overflow:visible;font-family:'Vazirmatn',Arial,sans-serif;}
     .viewer-wrap{display:none}.viewer-wrap.active{display:block}.viewer{width:100%;height:760px;border:1px solid #d9e2ec;border-radius:14px;background:#f5f7fa}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;border:1px solid var(--navy);color:var(--navy);background:#fff}.btn.primary{background:var(--navy);color:#fff}
     .integrity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.check{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #d7eadc;font-weight:700}.check.bad{background:#fff3f3;border-color:#f0d1d1;color:var(--red)}
     details{border:1px solid #e0e6ed;border-radius:14px;padding:14px 16px}summary{cursor:pointer;font-weight:800}.tech{margin-top:14px;display:grid;grid-template-columns:180px 1fr;gap:8px 12px}.hash{font-family:ui-monospace,Consolas,monospace;font-size:12px;word-break:break-all}
     .failure{display:none;text-align:center;padding:34px}.failure.active{display:block}.failure h2{color:var(--red)}.footer{padding:18px 28px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer a{color:#f4c66a}
     [hidden]{display:none!important}
-    @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.seal{max-width:320px;margin:auto}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.viewer{height:520px}}
+    @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.seal{width:min(100%,360px);margin:auto}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.viewer{height:520px}}
   </style>
 </head>
 <body>
@@ -68,12 +68,19 @@
           </dl>
         </div>
         <aside id="seal" class="seal" hidden>
-          <div class="corp">Bonds Financial & Management Consulting</div>
-          <div class="bonds">BONDS</div>
-          <div class="label">Electronic Stamp Certification</div>
-          <div class="ref" id="seal-ref">-</div>
-          <div id="seal-date">-</div>
-          <div class="reg">CR 39733</div>
+          <svg class="certificate-seal-svg" viewBox="0 0 300 192" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BONDS electronic seal certificate" preserveAspectRatio="xMidYMid meet">
+            <ellipse cx="150" cy="96" rx="146" ry="91" fill="#fff" stroke="#0d4da5" stroke-width="3"/>
+            <ellipse cx="150" cy="96" rx="139" ry="84" fill="none" stroke="#0d4da5" stroke-width="1.5"/>
+            <text x="150" y="33" font-size="12" text-anchor="middle" font-weight="700" fill="#0d4da5">Bonds Financial & Management Consulting</text>
+            <text x="150" y="83" font-family="Georgia,serif" font-weight="800" font-size="32" text-anchor="middle" fill="#0d4da5">BONDS</text>
+            <text x="150" y="104" font-size="10" font-weight="700" text-anchor="middle" fill="#0d4da5">ELECTRONIC STAMP CERTIFICATION</text>
+            <line x1="70" y1="111" x2="230" y2="111" stroke="#0d4da5" stroke-width="1.3"/>
+            <text id="seal-ref" x="150" y="133" font-family="Arial,sans-serif" font-size="15" font-weight="700" text-anchor="middle" fill="#0d4da5">-</text>
+            <text id="seal-date" x="150" y="150" font-family="Arial,sans-serif" font-size="12" text-anchor="middle" fill="#0d4da5">-</text>
+            <text x="150" y="168" font-size="11.5" font-weight="700" text-anchor="middle" fill="#0d4da5">CR 39733</text>
+            <path d="M30 103 L33 111 L42 111 L35 116 L38 125 L30 119 L22 125 L25 116 L18 111 L27 111 Z" fill="#0d4da5"/>
+            <path d="M270 103 L273 111 L282 111 L275 116 L278 125 L270 119 L262 125 L265 116 L258 111 L267 111 Z" fill="#0d4da5"/>
+          </svg>
         </aside>
       </section>
 

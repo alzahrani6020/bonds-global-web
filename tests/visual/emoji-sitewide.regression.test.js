@@ -61,7 +61,9 @@ function toUrlPath(rel) {
 function sourceHasEmojiSurface(source) {
   const visibleHtml = source
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '');
+    .replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi, '')
+    // The official certificate seal is a fixed institutional vector, not an emoji icon.
+    .replace(/<svg\b[^>]*class=[\"']certificate-seal-svg[\"'][^>]*>[\s\S]*?<\/svg>/gi, '');
 
   return /\bemoji-icon\b/i.test(visibleHtml) ||
     /<svg\b/i.test(visibleHtml) ||
