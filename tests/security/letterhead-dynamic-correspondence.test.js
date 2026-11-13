@@ -174,7 +174,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
 
     expect(client).toContain("row.style.marginBottom = '8mm'");
     expect(client).toContain('const pageHeightPx = Math.floor(canvas.width * 297 / 210)');
-    expect(client).toContain('const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx))');
+    expect(client).toContain('const totalPages = 1');
+    expect(client).toContain('canvas.height > pageHeightPx + 1');
     expect(read('components/bonds-official-seal.js')).toContain('تصديق الختم الإلكتروني');
     expect(read('components/bonds-official-seal.js')).toContain('ELECTRONIC STAMP CERTIFICATION');
     expect(read('components/bonds-official-seal.js')).toContain('رقم السجل 39733');
@@ -325,6 +326,22 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("const idempotencyKey = ('correspondence-send/'");
     expect(email).toContain('{ idempotencyKey }');
     expect(email).toContain('Idempotent delivery requires the Resend provider');
+  });
+
+  test('final PDF export rejects overflowing sheets and keeps Arabic markers RTL', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    expect(client).toContain('canvas.height > pageHeightPx + 1');
+    expect(client).toContain('onclone: clonedDocument =>');
+    expect(client).toContain('contentBottom > footerTop + 1');
+    expect(client).toContain('clonedSheet.scrollHeight > clonedSheet.clientHeight + 1');
+    expect(client).toContain('windowWidth: Math.max(1280, window.innerWidth)');
+    expect(client).toContain('const totalPages = 1');
+    expect(client).toContain('overflows A4');
+    expect(ar).toContain('.doc-content[dir="rtl"] ol');
+    expect(ar).toContain('direction: rtl; text-align: right');
+    expect(en).toContain('ol[dir="rtl"]');
   });
 
 });

@@ -554,6 +554,9 @@
     }
 
 
+  /* Preserve right-hand list markers when Arabic text is pasted in English correspondence. */
+    .doc-content[dir="ltr"] ol[dir="rtl"], .doc-content[dir="ltr"] [dir="rtl"] ol { direction: rtl; text-align: right; padding-right: 1.7em; padding-left: 0; }
+    .doc-content[dir="ltr"] ol[dir="rtl"] > li, .doc-content[dir="ltr"] [dir="rtl"] ol > li { direction: rtl; text-align: right; }
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
