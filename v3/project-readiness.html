@@ -219,7 +219,7 @@
   </section>
 
   <div class="container">
-    <a href="/v3/city-intelligence" class="back-link">← العودة إلى مؤشرات المدينة</a>
+    <a href="/v3/city-intelligence" class="back-link" id="readinessContextReturn">← العودة إلى مؤشرات المدينة</a>
 
     <div class="intro">
       <p>حدّد ما هو مكتمل من عناصر المشروع. النظام يحسب درجة الجاهزية من 100 ويعطيك قائمة بالنواقص والتوصيات.</p>
@@ -252,6 +252,16 @@
     const STORAGE_KEY = 'bonds_project_readiness';
     const contextParams = new URLSearchParams(location.search);
     const projectId = contextParams.get('project_id') || null;
+    const returnTo = contextParams.get('return_to') || '';
+    const returnLink = document.getElementById('readinessContextReturn');
+    const safeReturnTo = returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//') ? returnTo : '';
+    if (returnLink && safeReturnTo) {
+      returnLink.href = safeReturnTo;
+      returnLink.textContent = '← العودة إلى مركز قيادة المشروع';
+    } else if (returnLink && projectId) {
+      returnLink.href = '/v3/project/?id=' + encodeURIComponent(projectId);
+      returnLink.textContent = '← العودة إلى مركز قيادة المشروع';
+    }
     let lastReadiness = null;
 
     const sections = [
