@@ -165,8 +165,8 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).toContain('white-space: nowrap');
       expect(page).toContain('break-inside: avoid');
       expect(page).toContain('page-break-inside: avoid');
-      expect(page).toContain('pageHeightPx');
-      expect(page).toContain('sliceHeight');
+      expect(page).not.toContain('Math.max(1, Math.ceil(canvas.height / pageHeightPx))');
+      expect(page).not.toContain('for (var p = 0; p < totalPages; p++)');
       expect(page).not.toContain("sheet.querySelector('.footer-qr-corner img')");
       expect(page).toContain('width: 238px');
       expect(page).toContain('height: 152px');
