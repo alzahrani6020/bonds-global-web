@@ -21,21 +21,31 @@
     return controls;
   }
   function restoreControls(controls){
-    var restored=0;
-    controls.forEach(function(saved){
-      if(!saved||typeof saved.id!=='string')return;
+    // Validate the entire snapshot before modifying any visible input.
+    // Do not report a partial restore as a successful one.
+    if(!Array.isArray(controls)||controls.length===0||controls.length>1000)throw new Error('CALCULATOR_SNAPSHOT_INVALID');
+    var prepared=controls.map(function(saved){
+      if(!saved||typeof saved.id!=='string'||typeof saved.value!=='string'||saved.value.length>2000){
+        throw new Error('CALCULATOR_SNAPSHOT_INVALID');
+      }
       var el=document.getElementById(saved.id);
-      if(!el||!('value' in el)||el.disabled)return;
+      if(!el||!('value' in el)||el.disabled)throw new Error('CALCULATOR_SNAPSHOT_PARTIAL_RESTORE');
       var type=(el.type||'').toLowerCase();
-      if(['password','email','file','hidden','button','submit','reset','search'].indexOf(type)>=0)return;
-      if(typeof saved.value!=='string'||saved.value.length>2000)return;
-      el.value=saved.value;
-      if(type==='checkbox'||type==='radio')el.checked=saved.checked===true;
-      el.dispatchEvent(new Event('input',{bubbles:true}));
-      el.dispatchEvent(new Event('change',{bubbles:true}));
-      restored++;
+      if(['password','email','file','hidden','button','submit','reset','search'].indexOf(type)>=0){
+        throw new Error('CALCULATOR_SNAPSHOT_INVALID');
+      }
+      if((type==='checkbox'||type==='radio')&&saved.checked!==true&&saved.checked!==false){
+        throw new Error('CALCULATOR_SNAPSHOT_INVALID');
+      }
+      return {el:el,value:saved.value,checked:saved.checked,type:type};
     });
-    return restored;
+    // Apply controls as a batch: dispatching change per input here can reset
+    // dependent fields (pricing profile, financial options) during restoration.
+    prepared.forEach(function(item){
+      item.el.value=item.value;
+      if(item.type==='checkbox'||item.type==='radio')item.el.checked=item.checked;
+    });
+    return prepared.length;
   }
   async function sessionToken(){
     if(!root.BondsAuth?.getSession)throw new Error('AUTHENTICATION_REQUIRED');
