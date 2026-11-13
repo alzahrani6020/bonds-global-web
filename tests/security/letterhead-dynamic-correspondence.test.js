@@ -144,7 +144,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).toContain('signature_verified');
       expect(page).toContain('id="failure"');
     }
-    expect(ar).toContain('تصديق الختم إلكتروني');
+    expect(ar).toContain('تصديق الختم الإلكتروني');
     expect(en).toContain('Electronic Stamp Certification');
   });
 
@@ -163,14 +163,14 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).toContain('pageHeightPx');
       expect(page).toContain('sliceHeight');
       expect(page).not.toContain("sheet.querySelector('.footer-qr-corner img')");
-      expect(page).toContain('width: 148px');
-      expect(page).toContain('height: 92px');
+      expect(page).toContain('width: 238px');
+      expect(page).toContain('height: 152px');
     }
 
     expect(client).toContain("row.style.marginBottom = '8mm'");
     expect(client).toContain('const pageHeightPx = Math.floor(canvas.width * 297 / 210)');
     expect(client).toContain('const totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx))');
-    expect(client).toContain('تصديق الختم إلكتروني');
+    expect(client).toContain('تصديق الختم الإلكتروني');
     expect(client).toContain('ELECTRONIC STAMP CERTIFICATION');
     expect(client).toContain('رقم السجل 39733');
     expect(client).toContain('CR 39733');

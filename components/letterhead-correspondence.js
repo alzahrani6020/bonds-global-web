@@ -1192,14 +1192,50 @@
       }
 
       if (doc.stamp_hash) {
+        // The same vector seal is rendered on the document and captured by the PDF.
+        // Never substitute a generic oval text box for the approved institutional design.
+        const ns = 'http://www.w3.org/2000/svg';
+        const make = (tag, attrs = {}, label) => {
+          const el = document.createElementNS(ns, tag);
+          Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, String(value)));
+          if (label !== undefined) el.textContent = label;
+          return el;
+        };
         const stamp = document.createElement('div');
         stamp.className = 'official-stamp';
-        const stampReference = doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد');
-        const stampDateSource = doc.issued_at || doc.stamped_at || '';
-        const stampDate = stampDateSource ? new Date(stampDateSource).toISOString().slice(0, 10) : '';
-        stamp.textContent = isEn
-          ? ['BONDS', 'ELECTRONIC STAMP CERTIFICATION', stampReference, stampDate, 'CR 39733'].filter(Boolean).join('\n')
-          : ['بوندز', 'تصديق الختم إلكتروني', stampReference, stampDate, 'رقم السجل 39733'].filter(Boolean).join('\n');
+        stamp.setAttribute('role', 'img');
+        stamp.setAttribute('aria-label', isEn ? 'BONDS institutional electronic seal' : 'ختم بوندز المؤسسي الإلكتروني');
+        stamp.contentEditable = 'false';
+        const svg = make('svg', { viewBox: '0 0 300 192', xmlns: ns, 'aria-hidden': 'true', focusable: 'false' });
+        const arcId = 'bonds-seal-title-' + String(doc.id || 'current').replace(/[^a-z0-9-]/gi, '').slice(0, 48);
+        const defs = make('defs');
+        defs.appendChild(make('path', { id: arcId, d: 'M 42 98 A 108 66 0 0 1 258 98' }));
+        svg.appendChild(defs);
+        svg.appendChild(make('ellipse', { cx:150,cy:96,rx:146,ry:91,fill:'white',stroke:'#083c9b','stroke-width':3.5 }));
+        svg.appendChild(make('ellipse', { cx:150,cy:96,rx:139,ry:84,fill:'none',stroke:'#083c9b','stroke-width':1.5 }));
+        const top = make('text', { fill:'#083c9b','font-size':15.6,'font-weight':700,'text-anchor':'middle',direction:'rtl' });
+        const curve = make('textPath', { href:'#'+arcId, startOffset:'50%' });
+        curve.textContent = 'بوندز للاستشارات المالية والإدارية';
+        top.appendChild(curve);
+        svg.appendChild(top);
+        svg.appendChild(make('text', { x:150,y:87,fill:'#083c9b','font-size':33,'font-weight':800,'text-anchor':'middle','font-family':'Georgia,serif' }, 'BONDS'));
+        svg.appendChild(make('text', { x:150,y:109,fill:'#083c9b','font-size':isEn ? 10.5 : 14.6,'font-weight':700,'text-anchor':'middle',direction:isEn ? 'ltr' : 'rtl' }, isEn ? 'ELECTRONIC STAMP CERTIFICATION' : 'تصديق الختم الإلكتروني'));
+        svg.appendChild(make('line', { x1:67,y1:118,x2:233,y2:118,stroke:'#083c9b','stroke-width':1.4 }));
+        const reference = String(doc.outgoing_number || doc.reference_number || (isEn ? 'APPROVED' : 'معتمد')).slice(0, 40);
+        svg.appendChild(make('text', { x:150,y:136,fill:'#083c9b','font-size':17,'font-weight':750,'text-anchor':'middle','font-family':'Arial,sans-serif' }, reference));
+        const rawDate = doc.issued_at || doc.stamped_at;
+        const date = rawDate && Number.isFinite(new Date(rawDate).getTime()) ? new Date(rawDate).toISOString().slice(0,10) : '';
+        if (date) svg.appendChild(make('text', { x:150,y:152,fill:'#083c9b','font-size':13,'font-weight':700,'text-anchor':'middle' }, date));
+        svg.appendChild(make('text', { x:150,y:173,fill:'#083c9b','font-size':14,'font-weight':700,'text-anchor':'middle',direction:isEn ? 'ltr' : 'rtl' }, isEn ? 'CR 39733' : 'رقم السجل 39733'));
+        for (const x of [30,270]) {
+          const points = Array.from({length:10},(_,i)=>{
+            const a = -Math.PI/2 + i*Math.PI/5;
+            const r = i%2===0 ? 10 : 4.5;
+            return (x+r*Math.cos(a)).toFixed(2)+','+(111+r*Math.sin(a)).toFixed(2);
+          }).join(' ');
+          svg.appendChild(make('polygon', { points, fill:'#083c9b' }));
+        }
+        stamp.appendChild(svg);
         row.appendChild(stamp);
       }
 
@@ -1244,18 +1280,25 @@
 
   async function waitForVerificationQr() {
     const images = Array.from(document.querySelectorAll('.footer-qr-box img')).filter(img => img.style.visibility !== 'hidden');
-    await Promise.all(images.map(img => {
+    const ready = await Promise.all(images.map(img => {
       if (img.complete && img.naturalWidth > 0) return Promise.resolve(true);
       return new Promise(resolve => {
+        let settled = false;
         const finish = ok => {
-          if (!ok) img.style.visibility = 'hidden';
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
           resolve(ok);
         };
-        const timer = setTimeout(() => finish(false), 4000);
-        img.addEventListener('load', () => { clearTimeout(timer); finish(true); }, { once: true });
-        img.addEventListener('error', () => { clearTimeout(timer); finish(false); }, { once: true });
+        const timer = setTimeout(() => finish(false), 10000);
+        img.addEventListener('load', () => finish(img.naturalWidth > 0), { once: true });
+        img.addEventListener('error', () => finish(false), { once: true });
       });
     }));
+    // Fail closed: a governed PDF must not silently lose either required QR.
+    if (ready.some(ok => !ok)) {
+      throw new Error(isEn ? 'PDF blocked: a required QR code failed to load' : 'تعذر إنشاء PDF: رمز QR مطلوب لم يكتمل تحميله');
+    }
   }
 
   async function createPdfBlob() {

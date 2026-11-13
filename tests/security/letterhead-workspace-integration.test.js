@@ -290,7 +290,7 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("corr-signer-title");
     expect(client).toContain("signer_name:");
     expect(client).toContain("signer_title:");
-    expect(client).toContain("تصديق الختم إلكتروني");
+    expect(client).toContain("تصديق الختم الإلكتروني");
     expect(client).toContain("رقم السجل 39733");
     expect(client).toContain("التوقيع الرسمي");
   });
@@ -371,10 +371,10 @@ describe('Letterhead governed workspace integration', () => {
       expect(page).toContain('break-inside: avoid;');
       expect(page).toContain('page-break-inside: avoid;');
       expect(page).toContain('.official-stamp');
-      expect(page).toContain('width: 148px;');
-      expect(page).toContain('height: 92px;');
-      expect(page).toContain('border: 3px double var(--official-blue);');
-      expect(page).toContain('transform: none;');
+      expect(page).toContain('width: 238px;');
+      expect(page).toContain('height: 152px;');
+      expect(page).toContain('.official-stamp svg {');
+      expect(page).toContain('aspect-ratio: 300 / 192;');
     }
     expect(client).toContain("row.className = 'official-approval-zone'");
     expect(client).toContain("signature.className = 'official-signature'");
@@ -403,7 +403,7 @@ describe('Letterhead governed workspace integration', () => {
     for (const page of [ar, en]) {
       expect(page).toContain('width: min(100%, 78mm);');
       expect(page).toContain('position: relative;');
-      expect(page).toContain('width: 120px; height: 70px;');
+      expect(page).toContain('width: min(44vw, 200px);');
     }
   });
 
