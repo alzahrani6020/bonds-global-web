@@ -209,13 +209,14 @@
   function renderProjectToolsCard(project, role) {
     if (role !== 'owner' && role !== 'admin') return '';
     const id = encodeURIComponent(project.id);
+    const returnTo = encodeURIComponent(`/v3/project/?id=${id}`);
     const tools = [
-      { label: 'دراسة الجدوى', href: `/my-bonds/workspace/?service=feasibility_studies&project_id=${id}` },
-      { label: 'تحليل المخاطر', href: `/my-bonds/workspace/?service=risk_analysis&project_id=${id}` },
-      { label: 'تقييم الأصل', href: `/valuation/?project_id=${id}` },
-      { label: 'جاهزية الاستثمار', href: `/v3/project-readiness?project_id=${id}` },
-      { label: 'مقارنة المدن', href: `/v3/city-comparison?project_id=${id}` },
-      { label: 'السيناريوهات', href: `/v3/scenarios?project_id=${id}` }
+      { label: 'دراسة الجدوى', href: `/my-bonds/workspace/?service=feasibility_studies&project_id=${id}&return_to=${returnTo}` },
+      { label: 'تحليل المخاطر', href: `/my-bonds/workspace/?service=risk_analysis&project_id=${id}&return_to=${returnTo}` },
+      { label: 'تقييم الأصل', href: `/valuation/?project_id=${id}&return_to=${returnTo}` },
+      { label: 'جاهزية الاستثمار', href: `/v3/project-readiness?project_id=${id}&return_to=${returnTo}` },
+      { label: 'مقارنة المدن', href: `/v3/city-comparison?project_id=${id}&return_to=${returnTo}` },
+      { label: 'السيناريوهات', href: `/v3/scenarios?project_id=${id}&return_to=${returnTo}` }
     ];
     return `
       <div class="ecc-card project-tools-card">
@@ -237,7 +238,7 @@
         <div class="ecc-card deal-card">
           <div class="ecc-card__title">مساحة الصفقة</div>
           <p style="color:var(--text-secondary);font-size:0.85rem;">لا توجد صفقة مفتوحة مرتبطة بهذا المشروع. افتح مساحة صفقة لإدارة الأطراف واتفاقيات السرية والفحص والمستندات.</p>
-          <a class="ecc-btn ecc-btn--primary" style="text-decoration:none;" href="/my-bonds/deals/?project=${encodeURIComponent(project.id)}">فتح صفقة</a>
+          <a class="ecc-btn ecc-btn--primary" style="text-decoration:none;" href="/my-bonds/deals/?project=${encodeURIComponent(project.id)}&return_to=${encodeURIComponent('/v3/project/?id=' + encodeURIComponent(project.id))}">فتح صفقة</a>
         </div>
       `;
     }
@@ -250,7 +251,7 @@
         <div class="mission-item__title">${escapeDealText(deal.title)}</div>
         <div class="mission-item__desc">الأطراف المقابلة: ${Number(members.counterparties) || 0} · اتفاقيات سرية موقعة: ${Number(members.nda_signed) || 0} · غرفة الصفقة: ${gates.deal_room === 'active' ? 'نشطة' : 'غير نشطة'}</div>
         <div class="mission-item__desc">الفحص النافي للجهالة: ${Number(dd.completion) || 0}% · مستندات جاهزة: ${Number(deal.vdr_documents) || 0}</div>
-        <a class="ecc-btn ecc-btn--secondary" style="text-decoration:none;margin-top:0.75rem;display:inline-flex;" href="/my-bonds/deals/?deal=${encodeURIComponent(deal.id)}">فتح مساحة الصفقة</a>
+        <a class="ecc-btn ecc-btn--secondary" style="text-decoration:none;margin-top:0.75rem;display:inline-flex;" href="/my-bonds/deals/?deal=${encodeURIComponent(deal.id)}&return_to=${encodeURIComponent('/v3/project/?id=' + encodeURIComponent(project.id))}">فتح مساحة الصفقة</a>
       </div>
     `;
   }
