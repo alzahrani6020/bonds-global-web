@@ -55,6 +55,15 @@
     if(!response.ok)throw new Error(typeof data.error==='string'?data.error:('HTTP_'+response.status));
     return data;
   }
+  function outputSnapshot(){
+    var outputs={};
+    document.querySelectorAll('[id^="res"],[id$="Result"],[id$="Period"],[id^="becKpi"]').forEach(function(el){
+      if(!el.id||Object.keys(outputs).length>=120)return;
+      var text=String(el.textContent||'').trim();
+      if(text&&text.length<=300)outputs[el.id]=text;
+    });
+    return outputs;
+  }
   function savedId(){
     var id=new URLSearchParams(location.search).get('saved_project_id');
     return id&&/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id)?id:null;
@@ -74,13 +83,10 @@
       metadata:{
         source:input.type,
         summary:input.summary,
-        href:location.pathname+'?saved_project_id=__PROJECT_ID__',
-        calculator:{schema_version:1,type:input.type,controls:controls,metrics:input.metrics||{},saved_at:new Date().toISOString()}
+        href:location.pathname,
+        calculator:{schema_version:1,type:input.type,controls:controls,outputs:outputSnapshot(),saved_at:new Date().toISOString()}
       }
     };
-    // Link will be reconstructed from the project id by My Bonds, rather than
-    // storing an incorrect placeholder URL in the persistent record.
-    payload.metadata.href=location.pathname;
     var response=await request('/api/v3/projects',{method:'POST',body:JSON.stringify(payload)});
     var id=response?.project?.id;
     if(!id)throw new Error('PROJECT_PERSISTENCE_UNCONFIRMED');
