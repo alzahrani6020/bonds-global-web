@@ -1323,7 +1323,7 @@
       upload.path,
       upload.token,
       blob,
-      { contentType: 'application/pdf', upsert: true }
+      { contentType: 'application/pdf', upsert: false }
     );
     if (error) throw error;
     const finalized = await api('artifact-finalize', {

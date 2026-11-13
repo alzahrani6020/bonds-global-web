@@ -37,7 +37,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(api).toContain("const ADMIN_ROLES = new Set(['super_admin', 'admin'])");
     expect(api).toContain("Only the document owner can edit the draft");
     expect(api).toContain("Issued or workflow-controlled documents are immutable");
-    expect(api).toContain("Approved document must be signed before issuance");
+    expect(api).toContain("Approved document requires a signature record with signer name and capacity before issuance");
     expect(api).toContain("Sending correspondence requires admin permission");
     expect(api).toContain("Only issued documents can be sent");
     expect(api).toContain("action === 'verify'");
