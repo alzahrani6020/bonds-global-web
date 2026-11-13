@@ -11,8 +11,9 @@ describe('BONDS seal provenance and original PDF integrity',()=>{
    const html=read(page);
    expect(html).not.toContain('window.BondsOfficialSeal.create(');
    expect(html).not.toContain('/components/bonds-official-seal.js?v=1');
-   expect(html).toContain('id="seal"');
-   expect(html).toContain("document.getElementById('seal').hidden=!(pdfMatches && d.stamp_verified)");
+   expect(html).not.toContain('id="seal"');
+   expect(html).not.toContain('document.getElementById(\'seal\')');
+   expect(html).toContain('id="official-viewer"');
    expect(html).toContain('/components/verified-pdf-viewer.js?v=1');
    expect(html).toContain('const pdfMatches=await window.BondsVerifiedPdfViewer.render({');
    expect(html).toContain('pdfCheck.classList.toggle(\'bad\',!pdfMatches)');
@@ -20,8 +21,13 @@ describe('BONDS seal provenance and original PDF integrity',()=>{
    expect(html).not.toContain('document.getElementById(\'official-viewer\').src=preview');
   });
  }
- test('certificate distinguishes the original embedded seal from metadata',()=>{
-  expect(read('verify-document.html')).toContain('الختم الرسمي المعتمد هو الختم الموجود داخل ملف PDF الأصلي');
-  expect(read('en/verify-document.html')).toContain('authentic issuance seal is the one embedded');
+ test('certificate displays original PDF first without substitute-stamp card',()=>{
+  for(const page of ['verify-document.html','en/verify-document.html']){
+   const html=read(page);
+   expect(html.indexOf('id="viewer-wrap"')).toBeLessThan(html.indexOf('class="result"'));
+   expect(html).not.toContain('original-seal-note');
+   expect(html).toContain('id="verification-entry-form"');
+   expect(html).toContain('BondsVerificationEntry.install');
+  }
  });
 });
