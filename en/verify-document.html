@@ -100,6 +100,14 @@
         </div>
       </section>
 
+      <section class="panel local-pdf-comparison" aria-labelledby="local-pdf-title">
+        <h2 id="local-pdf-title">Check a PDF copy from your device</h2>
+        <p>Select a copy of the letter to compare its SHA-256 fingerprint with the issued official PDF. The file stays on your device and is never uploaded or used to replace an issued document.</p>
+        <label for="local-pdf-input">Your copy (PDF)</label>
+        <input id="local-pdf-input" type="file" accept="application/pdf,.pdf" />
+        <p id="local-pdf-result" class="check" role="status" aria-live="polite">No local file checked yet.</p>
+      </section>
+
       <details>
         <summary>Show technical details</summary>
         <dl class="tech">
@@ -154,6 +162,39 @@
     document.getElementById('issued-hash').textContent=d.issued_hash||'-';
     document.getElementById('artifact-hash').textContent=d.artifact_hash||'-';
     document.getElementById('verify-count').textContent=String(d.verification_count||0);
+
+    // Compare a local copy only; no upload, archive mutation or PDF re-render.
+    const localPdfInput=document.getElementById('local-pdf-input');
+    const localPdfResult=document.getElementById('local-pdf-result');
+    let localPdfCheckSequence=0;
+    localPdfInput.addEventListener('change',async()=>{
+      const sequence=++localPdfCheckSequence;
+      const file=localPdfInput.files?.[0];
+      const report=(message,invalid)=>{
+        if(sequence!==localPdfCheckSequence)return;
+        localPdfResult.textContent=message;
+        localPdfResult.classList.toggle('bad',invalid);
+      };
+      if(!file){report("No local file checked yet.",false);return;}
+      if(!d.final_pdf_verified||!/^[a-f0-9]{64}$/i.test(d.artifact_hash||'')){
+        report("No official final PDF fingerprint is available for comparison.",true);return;
+      }
+      if(file.size<5||file.size>25*1024*1024||!/\\.pdf$/i.test(file.name)){
+        report("Choose a valid PDF file smaller than 25 MB.",true);return;
+      }
+      report("Calculating SHA-256 of your selected file…",false);
+      try{
+        if(!window.crypto?.subtle)throw new Error('SHA-256 unavailable');
+        const bytes=await file.arrayBuffer();
+        const header=new TextDecoder('ascii').decode(bytes.slice(0,5));
+        if(header!=='%PDF-'){report("Choose a valid PDF file smaller than 25 MB.",true);return;}
+        const hash=await window.crypto.subtle.digest('SHA-256',bytes);
+        const actual=Array.from(new Uint8Array(hash),b=>b.toString(16).padStart(2,'0')).join('');
+        const matches=actual.toLowerCase()===d.artifact_hash.toLowerCase();
+        report((matches?"Exact byte match: the selected PDF is the archived final PDF for this issue.":"NOT A MATCH: your selected PDF differs from the official archived PDF for this issue. Do not treat this copy as digitally verified.")+' SHA-256: '+actual,!matches);
+      }catch(_){report("Could not inspect this PDF on this device; the copy is not verified.",true);}
+    });
+
 
     const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;el.classList.toggle('bad',!ok);};
     const pdfCheck=document.getElementById('pdf-check');
