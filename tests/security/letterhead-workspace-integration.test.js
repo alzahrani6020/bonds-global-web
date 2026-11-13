@@ -333,6 +333,18 @@ describe('Letterhead governed workspace integration', () => {
     expect(client).toContain("if (!token) {");
   });
 
+  test('website QR is present in initial HTML without waiting for correspondence hydration', () => {
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    for (const page of [ar, en]) {
+      const siteQr = page.split('<div class="footer-qr-box footer-site-qr">')[1].split('</div>')[0];
+      expect(siteQr).toContain('src="/api/correspondence?action=site-qr"');
+      expect(siteQr).toContain('style="visibility:visible"');
+      expect(siteQr).toContain('loading="eager"');
+      expect(siteQr).not.toContain('data:image/gif;base64');
+    }
+  });
+
   test('website QR remains available before issuance while document verification stays gated', () => {
     const client = read('components/letterhead-correspondence.js');
     const siteBlock = client.split("document.querySelectorAll('.footer-site-qr img').forEach(img => {")[1]
