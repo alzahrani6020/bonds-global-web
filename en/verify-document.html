@@ -28,7 +28,7 @@
     .panel{min-width:0;max-width:100%;overflow-wrap:anywhere;border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
     .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
     .seal{width:min(100%,420px);max-width:420px;min-width:0;margin-inline:auto;align-self:start;background:transparent;overflow:visible;}
-    .certificate-seal-svg{display:block;width:100%;height:auto;overflow:visible;font-family:'Vazirmatn',Arial,sans-serif;}
+     .original-seal-note{line-height:1.9;background:#f4f7fb;border:1px solid #dbe3ec;border-radius:12px;padding:14px;font-size:14px;margin:0 0 12px}
     .viewer-wrap{display:none}.viewer-wrap.active{display:block}.verified-pdf-pages{width:100%;max-width:100%;min-width:0;display:flex;flex-direction:column;gap:14px;align-items:center;overflow:hidden;background:#edf1f6;padding:10px 0}.verified-pdf-page{display:block;max-width:100%;height:auto!important;background:#fff;box-shadow:0 2px 8px #0a234224}.pdf-render-status{font-size:14px;line-height:1.6;color:var(--navy);margin:10px 0;overflow-wrap:anywhere}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;border:1px solid var(--navy);color:var(--navy);background:#fff}.btn.primary{background:var(--navy);color:#fff}
     .integrity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.check{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #d7eadc;font-weight:700}.check.bad{background:#fff3f3;border-color:#f0d1d1;color:var(--red)}
@@ -68,7 +68,8 @@
           </dl>
         </div>
         <aside id="seal" class="seal" hidden>
-
+          <p class="original-seal-note">The authentic issuance seal is the one embedded in the original archived PDF below. No replacement seal is generated on this certificate.</p>
+          <a class="btn" href="#viewer-wrap">View original issued stamp and document</a>
         </aside>
       </section>
 
@@ -105,7 +106,6 @@
     <footer class="footer"><span>This page is exclusively for verifying official Bonds documents.</span><span>CR 39733 · <a href="/">bonds-global.com</a></span></footer>
   </section>
 </main>
-<script src="/components/bonds-official-seal.js?v=1"></script>
 <script src="/components/verified-pdf-viewer.js?v=1"></script>
 <script>
 (async function(){
@@ -134,17 +134,16 @@
     document.getElementById('verify-count').textContent=String(d.verification_count||0);
 
     const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;if(!ok)el.classList.add('bad');};
-    setCheck('pdf-check',!!d.final_pdf_verified,'Final PDF matches its fingerprint','Final PDF not verified');
-    setCheck('signature-check',!!d.signature_verified,'Electronic signature verified','Signature not verified');
+    const pdfCheck=document.getElementById('pdf-check');
+    pdfCheck.classList.add('bad');
+    pdfCheck.textContent='Final PDF byte-level verification pending';
+    setCheck('signature-check',!!d.signature_verified,'Issuance signature record exists (signer identity displayed separately)','Issuance signature record not verified');
     setCheck('stamp-check',!!d.stamp_verified,'Electronic stamp certification verified','Electronic stamp not verified');
 
-    if(d.stamp_verified){
+    // Certificate is metadata only. Never redraw a historical seal: the original
+    // immutable issued PDF contains the authoritative stamp and signature.
+    if(d.stamp_verified && d.final_pdf_verified && d.official_preview_url){
       document.getElementById('seal').hidden=false;
-      const container=document.getElementById('seal');
-      if (!window.BondsOfficialSeal?.create) throw new Error('Canonical seal unavailable');
-      container.replaceChildren(window.BondsOfficialSeal.create({
-        english:true,reference:d.issue_number||d.reference_number||'-',date:d.issued_at
-      }));
     }
 
     if(d.final_pdf_verified&&d.official_preview_url){
@@ -155,15 +154,22 @@
       // The original PDF artifact is never reconstructed from correspondence HTML.
       // A local SHA-256 comparison gates its canvas display on all devices.
       if(window.BondsVerifiedPdfViewer?.render){
-        await window.BondsVerifiedPdfViewer.render({
+        const pdfMatches=await window.BondsVerifiedPdfViewer.render({
           url:preview,expectedHash:d.artifact_hash,
           container:document.getElementById('official-viewer'),
           feedback:document.getElementById('pdf-render-status'),
           language:'en'
         });
+        pdfCheck.classList.toggle('bad',!pdfMatches);
+        pdfCheck.textContent=pdfMatches
+          ? 'Original PDF SHA-256 verified against issued record'
+          : 'Original PDF could not be verified on this device';
       }else{
+        pdfCheck.textContent='Viewer unavailable: original PDF not verified in this browser';
         document.getElementById('pdf-render-status').textContent='Verified PDF viewer unavailable; open or download the original.';
       }
+    }else{
+      pdfCheck.textContent='No fingerprint-bound official PDF is available';
     }
   }catch(e){fail();}
 })();
