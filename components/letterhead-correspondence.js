@@ -1226,7 +1226,7 @@
         const rawDate = doc.issued_at || doc.stamped_at;
         const date = rawDate && Number.isFinite(new Date(rawDate).getTime()) ? new Date(rawDate).toISOString().slice(0,10) : '';
         if (date) svg.appendChild(make('text', { x:150,y:152,fill:'#083c9b','font-size':13,'font-weight':700,'text-anchor':'middle' }, date));
-        svg.appendChild(make('text', { x:150,y:173,fill:'#083c9b','font-size':14,'font-weight':700,'text-anchor':'middle',direction:'rtl' }, 'رقم السجل 39733'));
+        svg.appendChild(make('text', { x:150,y:173,fill:'#083c9b','font-size':14,'font-weight':700,'text-anchor':'middle',direction:isEn ? 'ltr' : 'rtl' }, isEn ? 'CR 39733' : 'رقم السجل 39733'));
         for (const x of [30,270]) {
           const points = Array.from({length:10},(_,i)=>{
             const a = -Math.PI/2 + i*Math.PI/5;
