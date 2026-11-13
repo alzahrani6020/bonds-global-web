@@ -287,11 +287,12 @@
     .letterhead-footer {
       background: var(--navy);
       color: #fff;
-      padding: 5mm 10mm 5mm 14mm;
+      padding: 4mm 9mm 4mm 12mm;
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       justify-content: space-between;
-      gap: 8mm;
+      gap: 4mm 5mm;
       direction: ltr;
       min-height: 34mm;
       position: relative;
@@ -315,14 +316,14 @@
     .footer-legal {
       display: grid;
       grid-template-columns: repeat(4, auto);
-      gap: 10px;
-      font-size: 7.5pt;
+      gap: 6px 8px;
+      font-size: 7pt;
       color: rgba(255,255,255,0.9);
       line-height: 1.4;
       text-align: left;
     }
     .footer-legal .legal-item { display: flex; flex-direction: column; gap: 2px; }
-    .footer-legal .label { color: var(--gold-light); font-weight: 700; font-size: 7pt; }
+    .footer-legal .label { color: var(--gold-light); font-weight: 700; font-size: 6.5pt; }
     .footer-legal .value { color: #fff; font-weight: 500; }
 
     .footer-qr-pair {
@@ -351,29 +352,31 @@
       direction: ltr;
     }
     .footer-qr-box img {
-      width: 18mm; height: 18mm; display: block; background: #fff;
+      width: 16mm; height: 16mm; display: block; background: #fff;
       padding: 1px; border-radius: 3px; margin: 0 auto 2px;
     }
 
     .footer-icons {
       display: flex;
       align-items: center;
-      gap: 14px;
-      flex: 1;
+      gap: 10px;
+      flex: 0 1 auto;
+      min-width: 0;
       justify-content: flex-end;
     }
     .f-icon {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       color: #fff;
-      font-size: 8.5pt;
+      font-size: 8pt;
       border-right: 1px solid rgba(255,255,255,0.2);
-      padding-right: 14px;
+      padding-right: 10px;
+      white-space: nowrap;
       direction: ltr;
     }
     .f-icon:last-child { border-right: none; padding-right: 0; }
-    .f-icon svg { width: 36px; height: 36px; flex-shrink: 0; stroke: var(--gold); fill: none; stroke-width: 1.6; border: 1.5px solid var(--gold); border-radius: 50%; padding: 6px; }
+    .f-icon svg { width: 28px; height: 28px; flex-shrink: 0; stroke: var(--gold); fill: none; stroke-width: 1.6; border: 1.5px solid var(--gold); border-radius: 50%; padding: 5px; }
     .f-icon .en { font-size: 7.5pt; color: var(--gold-light); text-transform: uppercase; letter-spacing: 0.5px; }
 
     .toast {
@@ -416,7 +419,8 @@
       .sheet.has-verification-zone .letter-body { padding-bottom: 28mm; }
       .official-approval-zone { break-inside: avoid; page-break-inside: avoid; }
       .doc-content { min-height: auto; color: #000 !important; }
-      .letterhead-footer { padding: 5mm 10mm 5mm 14mm; }
+      .letterhead-footer { padding: 4mm 9mm 4mm 12mm; break-inside: avoid; page-break-inside: avoid; }
+      [data-governance-artifact="signature-stamp"] { break-inside: avoid; page-break-inside: avoid; }
       [contenteditable]:empty::before, .doc-content:empty::before { content: none !important; }
     }
 
@@ -1236,25 +1240,36 @@
         reader.readAsDataURL(file);
         input.value = '';
       };
-      window.exportPDF = function() {
-        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('⚠️ PDF libraries not loaded'); return; }
+      window.exportPDF = async function() {
+        if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') { showToast('PDF libraries not loaded'); return; }
         showToast('⏳ Generating PDF...');
-        var sheets = document.querySelectorAll('.sheet');
+        var sheets = Array.from(document.querySelectorAll('.sheet'));
         var pdf = new window.jspdf.jsPDF('p','mm','a4');
-        var count = 0;
-        sheets.forEach(function(sheet, idx){
-          var qr = sheet.querySelector('.footer-qr-corner img');
-          var originalQR = qr ? qr.src : null;
-          if (qr && originalQR && /^https?:/.test(originalQR)) { qr.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; }
-          html2canvas(sheet, { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' }).then(function(canvas){
-            try { var img = canvas.toDataURL('image/png'); } catch(e) { showToast('⚠️ PDF generation failed'); if(qr && originalQR) qr.src = originalQR; return; }
-            if (idx > 0) pdf.addPage();
-            pdf.addImage(img, 'PNG', 0, 0, 210, 297);
-            count++;
-            if (qr && originalQR) qr.src = originalQR;
-            if (count === sheets.length) { pdf.save('bonds-letterhead.pdf'); showToast('✅ PDF downloaded'); }
-          }).catch(function(){ showToast('⚠️ PDF generation failed'); if(qr && originalQR) qr.src = originalQR; });
-        });
+        var pageAdded = false;
+        try {
+          for (var sIdx = 0; sIdx < sheets.length; sIdx++) {
+            var canvas = await html2canvas(sheets[sIdx], { scale: 2, useCORS: true, allowTaint: true, backgroundColor: '#ffffff' });
+            var pageHeightPx = Math.floor(canvas.width * 297 / 210);
+            var totalPages = Math.max(1, Math.ceil(canvas.height / pageHeightPx));
+            for (var p = 0; p < totalPages; p++) {
+              var y = p * pageHeightPx;
+              var sliceHeight = Math.min(pageHeightPx, canvas.height - y);
+              var slice = document.createElement('canvas');
+              slice.width = canvas.width;
+              slice.height = sliceHeight;
+              var ctx = slice.getContext('2d');
+              ctx.drawImage(canvas, 0, y, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+              var img = slice.toDataURL('image/png');
+              if (pageAdded) pdf.addPage();
+              pdf.addImage(img, 'PNG', 0, 0, 210, 210 * sliceHeight / canvas.width);
+              pageAdded = true;
+            }
+          }
+          pdf.save('bonds-letterhead.pdf');
+          showToast('✅ PDF downloaded');
+        } catch(e) {
+          showToast('⚠️ PDF generation failed');
+        }
       };
       window.updateDocTitle = function() {
         var text = getText();
