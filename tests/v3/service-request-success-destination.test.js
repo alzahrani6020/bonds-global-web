@@ -19,10 +19,12 @@ describe('service request success destination', () => {
 
   test('successful request creation does not redirect or link to my-bonds', () => {
     expect(ui).not.toContain("$('#srSuccessLink').href=lang==='ar'?'/my-bonds/':'/en/my-bonds/'");
-    expect(ui).toContain("$('#srSuccessLink').hidden=true");
+    expect(ui).toContain("if(successLink)successLink.hidden=true;");
   });
 
   test('request page keeps the created request reference visible in place', () => {
-    expect(ui).toContain("showStatus(T.sent+' — '+d.request.request_reference,true)");
+    expect(ui).toContain("showStatus(T.sent+' — '+reference,true)");
+    expect(ui).toContain("const verified=await confirmServiceRequestReadback(reference,expected,headers)");
+    expect(ui).toContain("if(verified){");
   });
 });
