@@ -54,6 +54,23 @@ function applyWorkspaceTypeChrome(){
  const eyebrow=document.querySelector('.sr-eyebrow');
  if(eyebrow) eyebrow.textContent=lang==='ar'?copy.ar:copy.en;
 }
+function workspaceReturnTarget(){
+ const value=new URLSearchParams(location.search).get('return_to')||'';
+ return value.startsWith('/')&&!value.startsWith('//')?value:'';
+}
+function renderWorkspaceReturnLink(){
+ if(!isServiceWorkspace)return;
+ const target=workspaceReturnTarget();
+ if(!target)return;
+ const hero=document.querySelector('.sr-hero');
+ if(!hero||document.getElementById('srWorkspaceReturn'))return;
+ const link=document.createElement('a');
+ link.id='srWorkspaceReturn';
+ link.className='sr-secondary';
+ link.href=target;
+ link.textContent=lang==='ar'?'العودة إلى المشروع':'Back to project';
+ hero.appendChild(link);
+}
 function financialWorkspaceHref(code){
  const next=new URLSearchParams(location.search);
  next.set('service',code);
@@ -1254,6 +1271,7 @@ function render(){
  renderFinancialWorkspaceShell();
  renderStudiesWorkspaceShell();
  applyWorkspaceTypeChrome();
+ renderWorkspaceReturnLink();
  renderCorrespondenceWorkspaceLink();
  renderFinancialOperationalInputs();
  renderStudiesOperationalInputs();
