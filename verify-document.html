@@ -28,7 +28,7 @@
     .panel{min-width:0;max-width:100%;overflow-wrap:anywhere;border:1px solid #dfe6ee;border-radius:18px;padding:20px;background:#fff}.panel h2{margin:0 0 14px;font-size:20px}
     .facts{display:grid;grid-template-columns:150px 1fr;gap:10px 16px}.facts dt{font-weight:800}.facts dd{margin:0;word-break:break-word}
     .seal{width:min(100%,420px);max-width:420px;min-width:0;margin-inline:auto;align-self:start;background:transparent;overflow:visible;}
-    .certificate-seal-svg{display:block;width:100%;height:auto;overflow:visible;font-family:'Vazirmatn',Arial,sans-serif;}
+     .original-seal-note{line-height:1.9;background:#f4f7fb;border:1px solid #dbe3ec;border-radius:12px;padding:14px;font-size:14px;margin:0 0 12px}
     .viewer-wrap{display:none}.viewer-wrap.active{display:block}.verified-pdf-pages{width:100%;max-width:100%;min-width:0;display:flex;flex-direction:column;gap:14px;align-items:center;overflow:hidden;background:#edf1f6;padding:10px 0}.verified-pdf-page{display:block;max-width:100%;height:auto!important;background:#fff;box-shadow:0 2px 8px #0a234224}.pdf-render-status{font-size:14px;line-height:1.6;color:var(--navy);margin:10px 0;overflow-wrap:anywhere}
     .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:800;border:1px solid var(--navy);color:var(--navy);background:#fff}.btn.primary{background:var(--navy);color:#fff}
     .integrity{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.check{padding:12px;border-radius:12px;background:#f3f8f5;border:1px solid #d7eadc;font-weight:700}.check.bad{background:#fff3f3;border-color:#f0d1d1;color:var(--red)}
@@ -68,7 +68,8 @@
           </dl>
         </div>
         <aside id="seal" class="seal" hidden>
-
+          <p class="original-seal-note">الختم الرسمي المعتمد هو الختم الموجود داخل ملف PDF الأصلي المحفوظ وقت الإصدار. لا تُنشئ شهادة التحقق ختمًا بديلًا.</p>
+          <a class="btn" href="#viewer-wrap">عرض الختم الأصلي داخل المستند</a>
         </aside>
       </section>
 
@@ -105,7 +106,6 @@
     <footer class="footer"><span>هذه الصفحة للتحقق من صحة مستندات بوندز الرسمية فقط.</span><span>السجل 39733 · <a href="/">bonds-global.com</a></span></footer>
   </section>
 </main>
-<script src="/components/bonds-official-seal.js?v=1"></script>
 <script src="/components/verified-pdf-viewer.js?v=1"></script>
 <script>
 (async function(){
@@ -134,19 +134,13 @@
     document.getElementById('verify-count').textContent=String(d.verification_count||0);
 
     const setCheck=(id,ok,yes,no)=>{const el=document.getElementById(id);el.textContent=ok?'✓ '+yes:'✕ '+no;if(!ok)el.classList.add('bad');};
-    setCheck('pdf-check',!!d.final_pdf_verified,'PDF النهائي مطابق للبصمة','PDF النهائي غير مثبت');
-    setCheck('signature-check',!!d.signature_verified,'التوقيع موثق إلكترونيًا','التوقيع غير موثق');
+    const pdfCheck=document.getElementById('pdf-check');
+    pdfCheck.classList.add('bad');
+    pdfCheck.textContent='التحقق من بصمة بايتات PDF جارٍ';
+    setCheck('signature-check',!!d.signature_verified,'سجل التوقيع موجود (بيانات هوية الموقّع مستقلة)','سجل التوقيع غير موثق');
     setCheck('stamp-check',!!d.stamp_verified,'تصديق الختم الإلكتروني موثق','الختم الإلكتروني غير موثق');
 
-    if(d.stamp_verified){
-      document.getElementById('seal').hidden=false;
-      const container=document.getElementById('seal');
-      if (!window.BondsOfficialSeal?.create) throw new Error('Canonical seal unavailable');
-      container.replaceChildren(window.BondsOfficialSeal.create({
-        english:false,reference:d.issue_number||d.reference_number||'-',date:d.issued_at
-      }));
-    }
-
+    // Never present an archival-stamp proof until the original PDF bytes match.
     if(d.final_pdf_verified&&d.official_preview_url){
       const preview=d.official_preview_url;
       const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
@@ -155,15 +149,23 @@
       // The original PDF artifact is never reconstructed from correspondence HTML.
       // A local SHA-256 comparison gates its canvas display on all devices.
       if(window.BondsVerifiedPdfViewer?.render){
-        await window.BondsVerifiedPdfViewer.render({
+        const pdfMatches=await window.BondsVerifiedPdfViewer.render({
           url:preview,expectedHash:d.artifact_hash,
           container:document.getElementById('official-viewer'),
           feedback:document.getElementById('pdf-render-status'),
           language:'ar'
         });
+        document.getElementById('seal').hidden=!(pdfMatches && d.stamp_verified);
+        pdfCheck.classList.toggle('bad',!pdfMatches);
+        pdfCheck.textContent=pdfMatches
+          ? 'تمت مطابقة SHA-256 للملف الأصلي بسجل الإصدار'
+          : 'لم تثبت مطابقة النسخة الأصلية على هذا الجهاز';
       }else{
+        pdfCheck.textContent='العارض غير متاح: لم تُتحقق بصمة PDF في هذا المتصفح';
         document.getElementById('pdf-render-status').textContent='عارض PDF غير متاح؛ افتح النسخة الأصلية أو نزّلها.';
       }
+    }else{
+      pdfCheck.textContent='لا توجد نسخة PDF نهائية مرتبطة ببصمة موثقة';
     }
   }catch(e){fail();}
 })();
