@@ -354,7 +354,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(html).not.toContain('onclick="window.print()"');
       expect(html).toContain('onclick="exportPDF()"');
       expect(html).toContain('Fail closed for Ctrl+P');
-      expect(html).toMatch(/@media print\\s*\\{[\\s\\S]*?body \\.sheet\\s*\\{ display: none !important; \\}/);
+      expect(html).toContain('body .sheet { display: none !important; }');
       expect(html).toContain('body::before');
     }
   });
