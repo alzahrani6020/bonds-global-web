@@ -154,3 +154,45 @@ describe('project command center tools', () => {
     expect(read('en/v3/project/index.html')).toContain('/en/v3/project/project-command-center.js?v=6');
   });
 });
+
+
+describe('Project workspace context continuity', () => {
+  test('project command centers propagate project_id and return_to to tools and deal workspace', () => {
+    const ar = read('v3/project/project-command-center.js');
+    const en = read('en/v3/project/project-command-center.js');
+
+    expect(ar).toContain("const returnTo = encodeURIComponent(`/v3/project/?id=${id}`)");
+    expect(ar).toContain("&return_to=${returnTo}");
+    expect(ar).toContain("/my-bonds/deals/?project=");
+    expect(ar).toContain("return_to=");
+
+    expect(en).toContain("const returnTo = encodeURIComponent(`/en/v3/project/?id=${id}`)");
+    expect(en).toContain("&return_to=${returnTo}");
+    expect(en).toContain("/en/my-bonds/deals/?project=");
+  });
+
+  test('valuation and readiness expose a safe return route to the originating project', () => {
+    const valuationAr = read('valuation/index.html');
+    const valuationEn = read('en/valuation/index.html');
+    const readiness = read('v3/project-readiness.html');
+
+    for (const page of [valuationAr, valuationEn, readiness]) {
+      expect(page).toContain("return_to");
+      expect(page).toContain("startsWith('/')");
+      expect(page).toContain("!returnTo.startsWith('//')");
+    }
+
+    expect(valuationAr).toContain("valuationContextReturn");
+    expect(valuationEn).toContain("valuationContextReturn");
+    expect(readiness).toContain("readinessContextReturn");
+  });
+
+  test('deal workspace preserves explicit project return context', () => {
+    const client = read('components/deal-workspace.js');
+    expect(client).toContain('function safeReturnTo()');
+    expect(client).toContain("params.get('return_to')");
+    expect(client).toContain('function renderContextReturn()');
+    expect(client).toContain("renderContextReturn();");
+    expect(client).toContain("id='dealContextReturn'");
+  });
+});
