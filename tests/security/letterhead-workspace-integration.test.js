@@ -369,6 +369,18 @@ describe('Letterhead governed workspace integration', () => {
     expect(en).not.toContain('.letter-stamp');
   });
 
+  test('desktop letterhead toolbar stays in document flow and cannot cover the page while scrolling', () => {
+    const ar = read('letterhead.html');
+    const en = read('en/letterhead.html');
+    for (const page of [ar, en]) {
+      const toolbarCss = page.split('.toolbar {')[1].split('    }')[0];
+      expect(toolbarCss).toContain('position: relative;');
+      expect(toolbarCss).toContain('top: auto;');
+      expect(toolbarCss).not.toContain('position: sticky;');
+      expect(toolbarCss).not.toContain('top: 10px;');
+    }
+  });
+
   test('mobile letterhead gives QR and approval artifacts their own responsive layout', () => {
     const ar = read('letterhead.html');
     const en = read('en/letterhead.html');
