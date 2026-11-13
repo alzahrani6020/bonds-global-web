@@ -1153,11 +1153,11 @@ function collectPlanningBudgetValues(){
 const workspaceDraftScope=['project_id','deal_id','opportunity_id']
  .map(key=>{const id=params.get(key);return id?key+':'+id:null})
  .filter(Boolean).join('|')||'unassigned';
-const workspaceDraftKey='bonds_service_workspace_draft_v2:'+serviceCode+':'+workspaceDraftScope;
+let workspaceDraftKey=null;
 const workspaceDraftStorage=workspaceDraftScope==='unassigned'?sessionStorage:localStorage;
 let workspaceDirty=false;
 function saveWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ if(!isServiceWorkspace||!workspaceDraftKey)return;
  const form=$('#srRequestForm');if(!form)return;
  const values={};
  form.querySelectorAll('[name]').forEach(el=>{
@@ -1174,7 +1174,7 @@ function saveWorkspaceDraft(){
  syncStudiesAssistantContext();
 }
 function restoreWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ if(!isServiceWorkspace||!workspaceDraftKey)return;
  let saved=null;
  try{saved=JSON.parse(workspaceDraftStorage.getItem(workspaceDraftKey)||'null')}catch(_){}
  if(!saved?.values||saved.service_code!==serviceCode)return;
@@ -1192,13 +1192,13 @@ function restoreWorkspaceDraft(){
  workspaceDirty=false;
 }
 function bindWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ if(!isServiceWorkspace||!workspaceDraftKey)return;
  const form=$('#srRequestForm');if(!form)return;
  form.addEventListener('input',saveWorkspaceDraft);
  form.addEventListener('change',saveWorkspaceDraft);
 }
 function clearWorkspaceDraft(){
- if(!isServiceWorkspace)return;
+ if(!isServiceWorkspace||!workspaceDraftKey)return;
  try{workspaceDraftStorage.removeItem(workspaceDraftKey);workspaceDirty=false}
  catch(_){workspaceDirty=true}
 }
@@ -1894,6 +1894,13 @@ async function init(){
   if(isServiceWorkspace&&detail?.workspace?.mode!=='execute'){
     location.replace((lang==='ar'?'/service-request.html':'/en/service-request.html')+location.search);
     return;
+  }
+  if(isServiceWorkspace){
+   // Never restore a draft without tying it to the authenticated user.
+   await window.BondsAuth.ensureEnv();
+   const identity=await window.BondsAuth.getUser();
+   const draftOwner=identity?.data?.user?.id||null;
+   if(draftOwner)workspaceDraftKey='bonds_service_workspace_draft_v3:'+draftOwner+':'+serviceCode+':'+workspaceDraftScope;
   }
   $('#srLoading').hidden=true;$('#srContent').hidden=false;render();
   await hydrateAccountingEntities();
