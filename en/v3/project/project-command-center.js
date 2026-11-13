@@ -209,13 +209,14 @@
   function renderProjectToolsCard(project, role) {
     if (role !== 'owner' && role !== 'admin') return '';
     const id = encodeURIComponent(project.id);
+    const returnTo = encodeURIComponent(`/en/v3/project/?id=${id}`);
     const tools = [
-      { label: 'Feasibility study', href: `/en/my-bonds/workspace/?service=feasibility_studies&project_id=${id}` },
-      { label: 'Risk analysis', href: `/en/my-bonds/workspace/?service=risk_analysis&project_id=${id}` },
-      { label: 'Asset valuation', href: `/en/valuation/?project_id=${id}` },
-      { label: 'Investment readiness (Arabic)', href: `/v3/project-readiness?project_id=${id}` },
-      { label: 'City comparison (Arabic)', href: `/v3/city-comparison?project_id=${id}` },
-      { label: 'Scenarios (Arabic)', href: `/v3/scenarios?project_id=${id}` }
+      { label: 'Feasibility study', href: `/en/my-bonds/workspace/?service=feasibility_studies&project_id=${id}&return_to=${returnTo}` },
+      { label: 'Risk analysis', href: `/en/my-bonds/workspace/?service=risk_analysis&project_id=${id}&return_to=${returnTo}` },
+      { label: 'Asset valuation', href: `/en/valuation/?project_id=${id}&return_to=${returnTo}` },
+      { label: 'Investment readiness (Arabic)', href: `/v3/project-readiness?project_id=${id}&return_to=${returnTo}` },
+      { label: 'City comparison (Arabic)', href: `/v3/city-comparison?project_id=${id}&return_to=${returnTo}` },
+      { label: 'Scenarios (Arabic)', href: `/v3/scenarios?project_id=${id}&return_to=${returnTo}` }
     ];
     return `
       <div class="ecc-card project-tools-card">
@@ -237,7 +238,7 @@
         <div class="ecc-card deal-card">
           <div class="ecc-card__title">Deal workspace</div>
           <p style="color:var(--text-secondary);font-size:0.85rem;">No open deal is linked to this project. Open a deal workspace to manage parties, NDAs, due diligence and documents.</p>
-          <a class="ecc-btn ecc-btn--primary" style="text-decoration:none;" href="/en/my-bonds/deals/?project=${encodeURIComponent(project.id)}">Open a deal</a>
+          <a class="ecc-btn ecc-btn--primary" style="text-decoration:none;" href="/en/my-bonds/deals/?project=${encodeURIComponent(project.id)}&return_to=${encodeURIComponent('/en/v3/project/?id=' + encodeURIComponent(project.id))}">Open a deal</a>
         </div>
       `;
     }
@@ -250,7 +251,7 @@
         <div class="mission-item__title">${escapeDealText(deal.title)}</div>
         <div class="mission-item__desc">Counterparties: ${Number(members.counterparties) || 0} · Signed NDAs: ${Number(members.nda_signed) || 0} · Deal room: ${gates.deal_room === 'active' ? 'active' : 'inactive'}</div>
         <div class="mission-item__desc">Due diligence: ${Number(dd.completion) || 0}% · Ready documents: ${Number(deal.vdr_documents) || 0}</div>
-        <a class="ecc-btn ecc-btn--secondary" style="text-decoration:none;margin-top:0.75rem;display:inline-flex;" href="/en/my-bonds/deals/?deal=${encodeURIComponent(deal.id)}">Open deal workspace</a>
+        <a class="ecc-btn ecc-btn--secondary" style="text-decoration:none;margin-top:0.75rem;display:inline-flex;" href="/en/my-bonds/deals/?deal=${encodeURIComponent(deal.id)}&return_to=${encodeURIComponent('/en/v3/project/?id=' + encodeURIComponent(project.id))}">Open deal workspace</a>
       </div>
     `;
   }
