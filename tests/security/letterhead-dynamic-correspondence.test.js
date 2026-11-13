@@ -145,7 +145,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).toContain('id="failure"');
     }
     expect(ar).toContain('تصديق الختم الإلكتروني');
-    expect(en).toContain('Electronic Stamp Certification');
+    expect(en).toContain('ELECTRONIC STAMP CERTIFICATION');
   });
 
   test('letterhead footer and PDF output stay within A4 in both locales', () => {
