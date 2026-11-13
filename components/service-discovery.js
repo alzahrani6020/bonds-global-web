@@ -657,6 +657,17 @@
       activity:intent.activity_code || '',
       service:serviceCode
     });
+    // Preserve only recognized workflow identifiers when launching a service.
+    // Ownership and entity relationships must still be validated server-side.
+    const incoming = new URLSearchParams(window.location.search);
+    for (const key of ['project_id','deal_id','opportunity_id','company_id','client_id','funding_case_id','request_id','return_to']) {
+      const value = incoming.get(key);
+      if (!value) continue;
+      if (key === 'return_to') {
+        if (!value.startsWith('/') || value.startsWith('//') || value.includes('\\')) continue;
+      } else if (!/^[A-Za-z0-9_-]{1,128}$/.test(value)) continue;
+      params.set(key, value);
+    }
 
     if (directRoute && workspaceExecute) {
       track('service_workspace_route',{

@@ -1645,6 +1645,41 @@ function collectValues(){
  });
  return values;
 }
+// Never claim a saved request until its owner can read back the persisted fields.
+async function confirmServiceRequestReadback(reference,expected,headers){
+ if(!reference)return false;
+ try{
+  const result=await json('/api/v3/services/requests?reference='+encodeURIComponent(reference),{headers,credentials:'same-origin',cache:'no-store'});
+  if(!Array.isArray(result.requests)||result.requests.length!==1||
+     result.requests[0].request_reference!==reference||!result.values||
+     typeof result.values!=='object'||Array.isArray(result.values))return false;
+  const saved=result.values;
+  const keys=Object.keys(expected);
+  return Object.keys(saved).length===keys.length&&
+   keys.every(key=>Object.prototype.hasOwnProperty.call(saved,key)&&
+    JSON.stringify(saved[key])===JSON.stringify(expected[key]));
+ }catch(_){return false}
+}
+async function finalizeServiceRequestCreation(response,expected,headers,extra={}){
+ const reference=response?.request?.request_reference;
+ // POST may have already inserted a record; a failed readback must not create a duplicate.
+ submitted=true;
+ if(!reference){
+  showStatus(lang==='ar'?'تعذر تأكيد رقم الطلب؛ تحقق من طلباتك قبل إعادة الإرسال.':'Request reference was not confirmed; check your requests before resubmitting.',false);
+  return;
+ }
+ const verified=await confirmServiceRequestReadback(reference,expected,headers);
+ track('service_converted',{request_reference:reference,...extra,readback_verified:verified});
+ if(verified){
+  clearWorkspaceDraft();
+  showStatus(T.sent+' — '+reference,true);
+ }else{
+  showStatus((lang==='ar'?'تم استلام الطلب رقم ':'Request received: ')+reference+
+   (lang==='ar'?'، لكن لم يتم تأكيد استرجاع البيانات المحفوظة. لا تعد إرسال الطلب قبل المراجعة.':'. Saved fields could not be verified. Do not resubmit until reviewed.'),false);
+ }
+ const successLink=$('#srSuccessLink');
+ if(successLink)successLink.hidden=true;
+}
 async function submit(e){
  e.preventDefault();
  if(submitting||submitted)return;
@@ -1702,11 +1737,7 @@ async function submit(e){
         }
       };
       const d=await json('/api/v3/services/requests',{method:'POST',headers,body:JSON.stringify(requestBody)});
-      submitted=true;
-      track('service_converted',{request_reference:d.request.request_reference,dataset_id:intakeDatasetId});
-      showStatus(T.sent+' — '+d.request.request_reference,true);
-      $('#srSubmit').disabled=true;
-      $('#srSuccessLink').hidden=true;
+      await finalizeServiceRequestCreation(d,requestBody.values,headers,{dataset_id:intakeDatasetId});
       return;
     }
 
@@ -1807,11 +1838,7 @@ async function submit(e){
     }
   };
   const d=await json('/api/v3/services/requests',{method:'POST',headers,body:JSON.stringify(body)});
-  submitted=true;
-  track('service_converted',{request_reference:d.request.request_reference});
-  showStatus(T.sent+' — '+d.request.request_reference,true);
-  $('#srSubmit').disabled=true;
-  $('#srSuccessLink').hidden=true;
+  await finalizeServiceRequestCreation(d,values,headers);
  }catch(err){showStatus(T.failed+': '+err.message,false)}
  finally{
   submitting=false;

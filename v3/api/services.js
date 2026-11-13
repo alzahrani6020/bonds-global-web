@@ -1229,6 +1229,18 @@ async function handleServiceRequests(req, res, supabase, user) {
       services = data || [];
     }
 
+    // Detail readback is limited to the authenticated owner's exact reference.
+    // Never expose form values through the general requests listing.
+    let savedValues = null;
+    if (reference && requests?.length === 1) {
+      const { data: rows, error: valuesError } = await supabase
+        .from('service_request_values')
+        .select('field_key,value')
+        .eq('service_request_id', requests[0].id);
+      if (valuesError) return sendJson(res, 500, { error: 'Failed to load service request values' });
+      savedValues = Object.fromEntries((rows || []).map(row => [row.field_key, row.value]));
+    }
+
     const serviceMap = new Map(services.map(row => [row.id, row]));
     const safeRequests = (requests || []).map(row => ({
       id: row.id,
@@ -1246,7 +1258,8 @@ async function handleServiceRequests(req, res, supabase, user) {
 
     return sendJson(res, 200, {
       requests: safeRequests,
-      count: safeRequests.length
+      count: safeRequests.length,
+      ...(reference ? { values: savedValues } : {})
     });
   }
 
