@@ -21,9 +21,10 @@ function harness(options={}){
   const fetch=jest.fn(async(url,opts)=>{
     if(options.status===503)return {ok:false,status:503,json:async()=>({error:'UNAVAILABLE'})};
     if(opts.method==='POST')return {ok:true,status:201,json:async()=>({project:{id}})};
+    if(options.readStatus===404)return {ok:false,status:404,json:async()=>({error:'NOT_FOUND'})};
     return {ok:true,status:200,json:async()=>({project:{
       id,metadata:{calculator:{schema_version:1,type:'loan',
-        controls:[{id:'amount',value:'990',checked:false,kind:'number'}]}}}
+        controls:[{id:'amount',value:options.readMismatch?'990':(location.search.includes('saved_project_id')&&options.restore?'990':'1250'),checked:false,kind:'number'}]}}}
     })};
   });
   vm.runInNewContext(source,{window,document,location,history,fetch,URL,URLSearchParams,
@@ -36,13 +37,26 @@ describe('durable calculator project snapshots',()=>{
     const h=harness();
     const p=await h.api.save({type:'loan',title:'دراسة قرض وتمويل',summary:'قسط 100'});
     expect(p.id).toBe(h.id);
-    expect(h.fetch).toHaveBeenCalledTimes(1);
+    expect(h.fetch).toHaveBeenCalledTimes(2);
     const [url,opts]=h.fetch.mock.calls[0];
     expect(url).toBe('/api/v3/projects');
     expect(opts.headers.Authorization).toBe('Bearer test-token');
     const payload=JSON.parse(opts.body);
     expect(payload.metadata.calculator.controls[0].value).toBe('1250');
     expect(payload.metadata.calculator.type).toBe('loan');
+    expect(h.location.search).toContain('saved_project_id=');
+  });
+  test('does not claim success when saved project readback is missing',async()=>{
+    const h=harness({readStatus:404});
+    await expect(h.api.save({type:'loan',title:'Loan',summary:'x'}))
+      .rejects.toThrow('PROJECT_SAVED_READBACK_UNCONFIRMED');
+    expect(h.fetch).toHaveBeenCalledTimes(2);
+    expect(h.location.search).toContain('saved_project_id=');
+  });
+  test('does not claim success when persisted fields differ',async()=>{
+    const h=harness({readMismatch:true});
+    await expect(h.api.save({type:'loan',title:'Loan',summary:'x'}))
+      .rejects.toThrow('PROJECT_SAVED_READBACK_MISMATCH');
     expect(h.location.search).toContain('saved_project_id=');
   });
   test('returns failure without showing a saved project when server rejects the write',async()=>{
@@ -56,7 +70,7 @@ describe('durable calculator project snapshots',()=>{
     expect(h.fetch).not.toHaveBeenCalled();
   });
   test('loads the owned snapshot, restores inputs, recalculates',async()=>{
-    const h=harness();
+    const h=harness({restore:true});
     h.location.search='?saved_project_id='+h.id;
     const calculate=jest.fn();
     const result=await h.api.restore({type:'loan',calculate});
