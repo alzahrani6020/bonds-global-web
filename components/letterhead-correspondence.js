@@ -1287,7 +1287,14 @@
     }
     let pageAdded = false;
     for (let i = 0; i < sheets.length; i++) {
-      const canvas = await html2canvas(sheets[i], { scale: 1.6, useCORS: true, allowTaint: false, backgroundColor: '#ffffff' });
+      const canvas = await html2canvas(sheets[i], {
+        scale: 1.6,
+        useCORS: true,
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        // PDF must use desktop A4 layout even when triggered from a phone.
+        windowWidth: Math.max(1280, window.innerWidth)
+      });
       const pageHeightPx = Math.floor(canvas.width * 297 / 210);
       // Issued documents must have one physical PDF page per numbered sheet.
       // Cropping an overflowing sheet creates an unnumbered page without a header.
