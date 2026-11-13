@@ -193,6 +193,6 @@ describe('Project workspace context continuity', () => {
     expect(client).toContain("params.get('return_to')");
     expect(client).toContain('function renderContextReturn()');
     expect(client).toContain("renderContextReturn();");
-    expect(client).toContain("id='dealContextReturn'");
+    expect(client).toContain("link.id='dealContextReturn'");
   });
 });
