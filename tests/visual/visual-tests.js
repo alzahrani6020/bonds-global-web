@@ -152,6 +152,8 @@ async function runVerifiedPdfModalDirectionGate(browser) {
       const zoom=await page.locator('.bonds-pdf-dialog [data-action="fit"]').innerText();
       if(zoom!=='125%')throw new Error('A4 zoom did not change');
       await page.click('[data-action="close"]');
+      await page.waitForFunction(()=>!document.querySelector('.bonds-pdf-dialog').open &&
+        document.querySelector('body > #viewer canvas')!==null,{timeout:5000});
       const closed=await page.evaluate(()=>({
         closed:!document.querySelector('.bonds-pdf-dialog').open,
         original:document.querySelector('body > #viewer')!==null,
