@@ -1381,6 +1381,21 @@
       const sheet = sheets[i];
       const content = sheet.querySelector('.doc-content');
       const footer = sheet.querySelector('.letterhead-footer');
+      // The final PDF must render the saved issued version, not a changed DOM.
+      // Canonicalize both fragments through the same HTML parser so harmless
+      // serialization differences cannot trigger a false mismatch.
+      if (state.document?.status === 'issued' && content) {
+        const canonical = html => {
+          const tpl = document.createElement('template');
+          tpl.innerHTML = html;
+          return tpl.innerHTML;
+        };
+        if (canonical(content.innerHTML) !== canonical(saved[i] || '')) {
+          throw new Error(isEn
+            ? `A4 page ${i + 1} differs from the approved saved version`
+            : `محتوى صفحة A4 رقم ${i + 1} لا يطابق النسخة المعتمدة المحفوظة`);
+        }
+      }
       const pageLabel = sheet.querySelector('.page-number')?.textContent?.trim();
       const expected = isEn
         ? `Page ${i + 1} of ${total}`
