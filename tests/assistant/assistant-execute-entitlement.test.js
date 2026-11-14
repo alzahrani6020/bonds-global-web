@@ -14,9 +14,64 @@ function supabaseFor(row, error = null) {
   };
 }
 
+// Routes queries by table so admin_roles lookups and subscription lookups
+// can return different rows for the same client.
+function supabaseRouter({ adminRole = null, adminRolesError = null, subscription = null } = {}) {
+  return {
+    from: jest.fn((table) => {
+      const row = table === 'admin_roles' ? (adminRole ? { role: adminRole } : null) : subscription;
+      const error = table === 'admin_roles' ? adminRolesError : null;
+      return {
+        select: jest.fn(() => ({
+          eq: jest.fn(() => ({
+            maybeSingle: jest.fn(async () => ({ data: row, error }))
+          }))
+        }))
+      };
+    })
+  };
+}
+
 describe('execute entitlement', () => {
   test.each(['admin','super_admin'])('%s is entitled without subscription lookup', async (role) => {
     expect(await isExecuteEntitled({}, { id:'admin-1', app_metadata:{ role } })).toBe(true);
+  });
+
+  test('user_metadata.role="admin" does not grant entitlement', async () => {
+    const supabase = supabaseRouter({ subscription: null });
+    expect(await isExecuteEntitled(supabase, {
+      id:'user-1',
+      user_metadata:{ role:'admin' }
+    })).toBe(false);
+  });
+
+  test('top-level user.role="admin" does not grant entitlement', async () => {
+    const supabase = supabaseRouter({ subscription: null });
+    expect(await isExecuteEntitled(supabase, { id:'user-1', role:'admin' })).toBe(false);
+  });
+
+  test.each(['admin','super_admin'])('%s granted via admin_roles table is entitled without a subscription', async (role) => {
+    const supabase = supabaseRouter({ adminRole: role, subscription: null });
+    expect(await isExecuteEntitled(supabase, { id:'admin-1' })).toBe(true);
+  });
+
+  test.each(['viewer','support'])('admin_roles role "%s" does not grant execute entitlement', async (role) => {
+    const supabase = supabaseRouter({ adminRole: role, subscription: null });
+    expect(await isExecuteEntitled(supabase, { id:'staff-1' })).toBe(false);
+  });
+
+  test('admin_roles lookup error fails closed', async () => {
+    const supabase = supabaseRouter({ adminRolesError: new Error('boom'), subscription: null });
+    expect(await isExecuteEntitled(supabase, { id:'user-1' })).toBe(false);
+  });
+
+  test('app_metadata claim wins without touching the roles table', async () => {
+    const supabase = supabaseRouter({ adminRole: null, subscription: null });
+    expect(await isExecuteEntitled(supabase, {
+      id:'admin-1',
+      app_metadata:{ role:'super_admin' },
+      user_metadata:{ role:'viewer' }
+    })).toBe(true);
   });
 
   test('trialing pro with a future period end is entitled', async () => {
