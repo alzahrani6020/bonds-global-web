@@ -135,30 +135,38 @@ async function main() {
       // A green export is insufficient unless known broken layouts are rejected.
       const assertSourceGeometry = new Function('state', 'isEn',
         productionFunctions + '\nreturn assertPdfSourceGeometry;')(state, false);
-      function expectRejection(label, change, restore) {
+      function expectRejection(label, change, restore, expectedReason) {
         change();
-        let rejected = false;
-        try { assertSourceGeometry(sheets); } catch (_) { rejected = true; }
-        restore();
-        if (!rejected) throw new Error('Production PDF guard accepted ' + label);
+        let rejection = null;
+        try { assertSourceGeometry(sheets); } catch (error) { rejection = error; }
+        finally { restore(); }
+        if (!rejection) throw new Error('Production PDF guard accepted ' + label);
+        if (expectedReason && !String(rejection.message).includes(expectedReason)) {
+          throw new Error('Wrong PDF guard rejection for ' + label + ': ' + rejection.message);
+        }
+        // Every negative control must leave the approved document exactly intact.
+        assertSourceGeometry(sheets);
       }
       expectRejection('one saved logical page versus two physical sheets',
         () => { state.latestVersion.pages_html = [geometry[0].pageLabel]; },
         () => { state.latestVersion.pages_html = sheets.map(s =>
-          s.querySelector('.doc-content').innerHTML); });
+          s.querySelector('.doc-content').innerHTML); }, 'عدد صفحات PDF');
       expectRejection('incorrect printed page label',
         () => { sheets[1].querySelector('.page-number').textContent = 'الصفحة 1 من 2'; },
-        () => { sheets[1].querySelector('.page-number').textContent = geometry[1].pageLabel; });
+        () => { sheets[1].querySelector('.page-number').textContent = geometry[1].pageLabel; }, 'ترقيم');
       const list = sheets[1].querySelector('ol');
-      const priorDirection = list.style.direction;
+      const priorStyleAttribute = list.getAttribute('style');
       expectRejection('left-to-right Arabic numbered list',
         () => { list.style.direction = 'ltr'; },
-        () => { list.style.direction = priorDirection; });
+        () => {
+          if (priorStyleAttribute === null) list.removeAttribute('style');
+          else list.setAttribute('style', priorStyleAttribute);
+        }, 'not RTL');
       const secondContent = sheets[1].querySelector('.doc-content');
       const originallySavedHtml = secondContent.innerHTML;
       expectRejection('changed issued page content after approval',
         () => { secondContent.innerHTML = originallySavedHtml + '<p>تغيير غير معتمد</p>'; },
-        () => { secondContent.innerHTML = originallySavedHtml; });
+        () => { secondContent.innerHTML = originallySavedHtml; }, 'لا يطابق النسخة المعتمدة');
       assertSourceGeometry(sheets);
       return { captures, pdfBase64, geometry, negativeControls: 4 };
     }, productionFunctions);
