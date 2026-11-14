@@ -23,9 +23,10 @@ class OpportunityScoringEngine {
   }
 
   /**
-   * Calculate and save opportunity_score for a single city/activity/year.
+   * Calculate the opportunity score without writing anything (read-only).
+   * Anonymous API callers always take this path.
    */
-  async calculateAndSave({ cityId, activityId, year }) {
+  async calculate({ cityId, activityId, year }) {
     if (!cityId || !activityId || !year) {
       throw new Error('cityId, activityId and year are required');
     }
@@ -42,7 +43,15 @@ class OpportunityScoringEngine {
       return null;
     }
 
-    const scoreResult = this._computeScore(marketRow, city, benchmarks, peers);
+    return this._computeScore(marketRow, city, benchmarks, peers);
+  }
+
+  /**
+   * Calculate and save opportunity_score for a single city/activity/year.
+   */
+  async calculateAndSave({ cityId, activityId, year }) {
+    const scoreResult = await this.calculate({ cityId, activityId, year });
+    if (!scoreResult) return null;
 
     const { error } = await this.supabase
       .from('city_market_data')
