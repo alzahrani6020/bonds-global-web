@@ -20,6 +20,18 @@ describe('Public document verification entry never invents authenticity',()=>{
     expect(parser(input)).toBe(null);
   }
  });
+ test('verification failure UI distinguishes missing issues, invalid tokens, rate limit and service failures',()=>{
+  for(const p of ['verify-document.html','en/verify-document.html']){
+   const html=read(p);
+   expect(html).toContain("if(r.status===404){fail('missing');return;}");
+   expect(html).toContain("if(r.status===400){fail('invalid');return;}");
+   expect(html).toContain("if(r.status===429){fail('limited');return;}");
+   expect(html).toContain("if(!r.ok){fail('unavailable');return;}");
+   expect(html).toContain("if(!d.verified){fail('missing');return;}");
+   expect(html).toContain("catch(e){console.warn('[BONDS verification] request failed'");
+   expect(html).not.toContain('if(!r.ok||!d.verified){fail();return;}');
+  }
+ });
  for(const p of ['verify-document.html','en/verify-document.html']){
   test(p+' distinguishes missing token from invalid issuer token',()=>{
    const html=read(p);
