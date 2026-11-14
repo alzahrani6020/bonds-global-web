@@ -137,6 +137,8 @@
     <footer class="footer"><span>This page is exclusively for verifying official Bonds documents.</span><span>CR 39733 · <a href="/">bonds-global.com</a></span></footer>
   </section>
 </main>
+<script src="/api/env"></script>
+<script src="/bonds-auth-2026.js?v=3.1.3"></script>
 <script src="/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal"></script>
 <script src="/components/verification-entry.js?v=1"></script>
 <script>
@@ -223,8 +225,32 @@
     if(d.final_pdf_verified&&d.official_preview_url){
       const preview=d.official_preview_url;
       const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
-      document.getElementById('open-pdf').href=preview;
-      document.getElementById('download-pdf').href=d.official_pdf_url||preview+'&download=1';
+      const protectedPdf=!!d.pdf_access_requires_login;
+      let accessToken='';
+      if(protectedPdf){
+        try{accessToken=(await window.BondsAuth?.getSession())?.data?.session?.access_token||'';}catch(_){}
+        if(!accessToken){
+          const notice=document.createElement('p');
+          notice.textContent="This issued PDF is protected. Sign in to your authorized account to inspect the official bytes.";
+          const login=document.createElement('a');
+          login.className='btn primary';
+          login.textContent="Sign in to view official PDF";
+          login.href="/en/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search);
+          wrap.append(notice,login);
+          pdfCheck.textContent="Document registered; PDF review requires an authorized sign-in.";
+          return;
+        }
+      }
+      const openPdf=document.getElementById('open-pdf');
+      const downloadPdf=document.getElementById('download-pdf');
+      if(protectedPdf){
+        openPdf.removeAttribute('href');downloadPdf.removeAttribute('href');
+        openPdf.setAttribute('aria-disabled','true');
+        downloadPdf.setAttribute('aria-disabled','true');
+      }else{
+        openPdf.href=preview;
+        downloadPdf.href=d.official_pdf_url||preview+'&download=1';
+      }
       // The expanded reading interface reuses verified PDF canvases; RTL controls
       // do not mirror or modify the archived PDF artwork.
       let pdfModalInstalled=false;
@@ -235,7 +261,15 @@
           url:preview,expectedHash:d.artifact_hash,
           container:document.getElementById('official-viewer'),
           feedback:document.getElementById('pdf-render-status'),
-          language:'en'
+          language:'en',
+          authorizationToken:accessToken,
+          onVerifiedBytes:protectedPdf?bytes=>{
+            const blobUrl=URL.createObjectURL(new Blob([bytes],{type:'application/pdf'}));
+            openPdf.href=blobUrl;downloadPdf.href=blobUrl;
+            openPdf.removeAttribute('aria-disabled');
+            downloadPdf.removeAttribute('aria-disabled');
+            window.addEventListener('pagehide',()=>URL.revokeObjectURL(blobUrl),{once:true});
+          }:null
         });
         if(pdfMatches && !pdfModalInstalled && window.BondsVerifiedPdfViewer?.installModal){
           pdfModalInstalled=window.BondsVerifiedPdfViewer.installModal({
