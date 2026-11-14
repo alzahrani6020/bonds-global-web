@@ -23,6 +23,20 @@ function ping(url, ms = 800) {
   });
 }
 
+function pingStatus(url, ms = 800) {
+  return new Promise(resolve => {
+    const req = http.get(url, res => {
+      res.resume();
+      resolve(res.statusCode);
+    });
+    req.setTimeout(ms, () => {
+      req.destroy();
+      resolve(0);
+    });
+    req.on('error', () => resolve(0));
+  });
+}
+
 async function waitFor(url, ms = 10000) {
   const started = Date.now();
   while (Date.now() - started < ms) {
@@ -33,9 +47,14 @@ async function waitFor(url, ms = 10000) {
 }
 
 async function isHealthy(origin) {
-  if (!(await ping(origin + '/'))) return false;
-  if (!(await ping(origin + '/admin/dashboard.html'))) return false;
-  return ping(origin + '/api/env');
+  // A plain static file server (e.g. python -m http.server) answers / and
+  // /admin/dashboard.html but cannot serve /api/env — it must be rejected,
+  // otherwise test suites bind to a poisoned origin and see empty DOMs.
+  const root = await pingStatus(origin + '/');
+  if (!(root >= 200 && root < 400)) return false;
+  const dashboard = await pingStatus(origin + '/admin/dashboard.html');
+  if (!(dashboard >= 200 && dashboard < 400)) return false;
+  return (await pingStatus(origin + '/api/env')) === 200;
 }
 
 async function resolveBaseUrl() {
