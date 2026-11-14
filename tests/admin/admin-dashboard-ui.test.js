@@ -1,18 +1,21 @@
 const { chromium } = require('playwright');
 const axeCore = require('axe-core');
+const { resolveBaseUrl, stopSpawnedServer } = require('../helpers/local-dev-server');
 
 jest.setTimeout(30000);
 
-const BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
+let BASE_URL = process.env.BASE_URL || 'http://localhost:3005';
 
 let browser;
 
 beforeAll(async () => {
+  BASE_URL = await resolveBaseUrl();
   browser = await chromium.launch({ headless: true });
 });
 
 afterAll(async () => {
   if (browser) await browser.close();
+  stopSpawnedServer();
 });
 
 async function openAdmin(viewport) {
