@@ -5,6 +5,11 @@
 const { getCapability, getService } = require('../../lib/capabilities/bonds-capability-registry');
 const { getRuntimeAdapter } = require('../../lib/capabilities/runtime-adapters');
 const calculatorRegistry = require('../../lib/assistant/calculator-registry.json');
+const {
+  parseLoanRequest,
+  computeLoanInstallment,
+  buildLoanAnswer
+} = require('../../lib/assistant/deterministic-tools');
 
 describe('assistant calculator capabilities', () => {
   test('calculator capabilities are registered without service-token or throughput coupling', () => {
@@ -99,5 +104,38 @@ describe('assistant calculator capabilities', () => {
       ok:false,
       error:{ code:'CALCULATOR_NOT_REGISTERED' }
     });
+  });
+
+  test('quick loan request parser extracts amount, term and rate', () => {
+    expect(parseLoanRequest('احسب قسط تمويل 100,000 ريال على 5 سنوات بفائدة 8%'))
+      .toEqual({ amount:100000, years:5, ratePct:8 });
+    expect(parseLoanRequest('احسب قسط قرض ٥٠٠ ألف على ٣ سنوات بفائدة ٥٪؟'))
+      .toEqual({ amount:500000, years:3, ratePct:5 });
+    expect(parseLoanRequest('what is the monthly payment for a 200000 SAR loan over 4 years at 6.5 percent?'))
+      .toEqual({ amount:200000, years:4, ratePct:6.5 });
+    expect(parseLoanRequest('من هو وزير الدفاع')).toBeNull();
+    expect(parseLoanRequest('احسب قسط تمويل على 5 سنوات بفائدة 8%')).toBeNull();
+  });
+
+  test('loan installment math matches the reducing-balance formula', () => {
+    expect(computeLoanInstallment({ amount:100000, years:5, ratePct:8 }))
+      .toMatchObject({ months:60, installment:2027.64, total:121658.37, totalInterest:21658.37 });
+    expect(computeLoanInstallment({ amount:100000, years:5, ratePct:0 }))
+      .toMatchObject({ months:60, installment:1666.67 });
+  });
+
+  test('loan answer carries the reply and the calculator navigation action', () => {
+    const answer = buildLoanAnswer({ amount:100000, years:5, ratePct:8 }, 'ar');
+    expect(answer.ok).toBe(true);
+    expect(answer.reply).toContain('٢٬٠٢٨');
+    expect(answer.reply).toContain('ر.س');
+    expect(answer.actions).toEqual([{
+      type:'site_navigate',
+      capability:'site_navigate',
+      target:'calculator_loan',
+      risk:'low'
+    }]);
+    const en = buildLoanAnswer({ amount:100000, years:5, ratePct:8 }, 'en');
+    expect(en.reply).toContain('SAR');
   });
 });

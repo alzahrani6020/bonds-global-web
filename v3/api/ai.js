@@ -21,6 +21,7 @@ const { publishAssistantOutcomeBestEffort } = require('../../lib/dual-core/assis
 const { EVENT_TYPES: DUAL_CORE_EVENT_TYPES } = require('../../lib/dual-core/event-taxonomy');
 const { executeGovernedAction } = require('../../lib/services/service-execution-router');
 const { runUniversalOrchestrator, isFastPublicFact, runDeterministicLocalTools } = require('../../lib/assistant/universal-orchestrator');
+const { parseLoanRequest, buildLoanAnswer } = require('../../lib/assistant/deterministic-tools');
 const { buildRequestDiagnostics } = require('../../lib/assistant/request-diagnostics');
 const { runWithClientAbort } = require('../../lib/ai/request-abort-context');
 const crypto = require('crypto');
@@ -447,6 +448,28 @@ async function aiChatHandlerImpl(req, res) {
 
   const lastUser = [...messages].reverse().find(m => m.role === 'user');
   const lastUserText = lastUser?.content || '';
+
+  // Quick loan-installment answer: when the request carries amount + term +
+  // rate, compute the reducing-balance installment here (same math as
+  // calculators/loan.html) instead of bouncing the user to the calculator.
+  const loanRequest = parseLoanRequest(lastUserText);
+  if (loanRequest) {
+    const loanLanguage = /[؀-ۿ]/.test(lastUserText) ? 'ar' : 'en';
+    const loan = buildLoanAnswer(loanRequest, loanLanguage);
+    return sendAssistantResponse(res, 200, {
+      reply: enforceAssistantIdentity(loan.reply),
+      source: 'bonds-assistant-finance-tool',
+      provider: 'BONDS',
+      model: null,
+      actions: loan.actions,
+      context: {
+        cityCode: context.cityCode || null,
+        activityCode: context.activityCode || null,
+        serviceCode: context.serviceCode || null
+      }
+    }, { stream: streaming, conversationMode, executeEntitled });
+  }
+
 
   // Open-page / calculator / here-question / math must beat service orchestration.
   // Otherwise "افتح صفحة حاسبة التمويل" on a service page is stolen as analysis
