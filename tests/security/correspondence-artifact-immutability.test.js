@@ -243,7 +243,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
         pdf_hash:pdfHash
       },error:null}],
       'correspondence_documents:maybeSingle':[{data:{
-        id:'doc-1',current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
+        id:'doc-1',confidentiality:'public',current_version:1,document_hash:'HASH-1',issued_hash:'IH-1',
         artifact_path:'scope/doc-1/v1/final.pdf',artifact_hash:pdfHash,
         artifact_document_hash:'HASH-1',artifact_issued_hash:'IH-1',artifact_version:1
       },error:null}]
