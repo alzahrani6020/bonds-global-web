@@ -101,6 +101,13 @@ describe('/api/v3/intelligence', () => {
     expect(source).not.toContain('user?.id || body.userId');
   });
 
+  test('adapt endpoint derives the actor from the session, not the request body', () => {
+    const fs = require('fs');
+    const path = require('path');
+    const source = fs.readFileSync(path.join(__dirname, '../../v3/api/intelligence.js'), 'utf8');
+    expect(source).toContain('adapt(engine, { ...context, userId: user?.id || null })');
+  });
+
   test('POST /intelligence/adapt runs a single engine', async () => {
     const req = mockReq({
       method: 'POST',

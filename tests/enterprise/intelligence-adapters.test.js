@@ -187,4 +187,81 @@ describe('EnterpriseIntelligenceAdapters', () => {
     expect(node.executed).toBe(false);
   });
 
+  describe('anonymous write guards', () => {
+    const OpportunityScoringEngine = require('../../v3/engine/OpportunityScoringEngine.js');
+    const { EventMonitorEngine } = require('../../lib/decision-os/event-monitor-engine.js');
+    const scoreResult = { score: 55, breakdown: { growth: 1 } };
+
+    afterEach(() => {
+      jest.restoreAllMocks();
+    });
+
+    test('opportunity computes read-only for anonymous callers (no city_market_data write)', async () => {
+      const calculateSpy = jest.spyOn(OpportunityScoringEngine.prototype, 'calculate')
+        .mockResolvedValue(scoreResult);
+      const saveSpy = jest.spyOn(OpportunityScoringEngine.prototype, 'calculateAndSave')
+        .mockResolvedValue(scoreResult);
+
+      const result = await adapt('opportunity', {
+        cityId: 'c1', activityId: 'a1', year: 2026, supabase: {}, userId: null
+      });
+
+      expect(calculateSpy).toHaveBeenCalledWith({ cityId: 'c1', activityId: 'a1', year: 2026 });
+      expect(saveSpy).not.toHaveBeenCalled();
+      expect(result.output.persisted).toBe(false);
+      expect(result.output.score).toBe(55);
+    });
+
+    test('opportunity saves for an authenticated actor', async () => {
+      const calculateSpy = jest.spyOn(OpportunityScoringEngine.prototype, 'calculate')
+        .mockResolvedValue(scoreResult);
+      const saveSpy = jest.spyOn(OpportunityScoringEngine.prototype, 'calculateAndSave')
+        .mockResolvedValue(scoreResult);
+
+      const result = await adapt('opportunity', {
+        cityId: 'c1', activityId: 'a1', year: 2026, supabase: {}, userId: 'user-1'
+      });
+
+      expect(saveSpy).toHaveBeenCalled();
+      expect(calculateSpy).not.toHaveBeenCalled();
+      expect(result.output.persisted).toBe(true);
+    });
+
+    test('event monitor refuses persistence and notifications for anonymous callers', async () => {
+      const evaluateSpy = jest.spyOn(EventMonitorEngine.prototype, 'evaluate')
+        .mockResolvedValue({ evaluated: 0, persisted: 0, notified: 0 });
+
+      await adapt('event_monitor', {
+        evaluateAlerts: true,
+        persistAlerts: true,
+        sendNotifications: true,
+        userId: null
+      });
+
+      expect(evaluateSpy).toHaveBeenCalledWith(expect.objectContaining({
+        evaluateAlerts: true,
+        persistAlerts: false,
+        sendNotifications: false
+      }));
+    });
+
+    test('event monitor honors persistence and notifications for an authenticated actor', async () => {
+      const evaluateSpy = jest.spyOn(EventMonitorEngine.prototype, 'evaluate')
+        .mockResolvedValue({ evaluated: 1, persisted: 1, notified: 1 });
+
+      await adapt('event_monitor', {
+        evaluateAlerts: true,
+        persistAlerts: true,
+        sendNotifications: true,
+        userId: 'user-1'
+      });
+
+      expect(evaluateSpy).toHaveBeenCalledWith(expect.objectContaining({
+        evaluateAlerts: true,
+        persistAlerts: true,
+        sendNotifications: true
+      }));
+    });
+  });
+
 });
