@@ -66,7 +66,9 @@ async function intelligenceRouter(req, res, path, supabase, user = null) {
       const body = await parseBody(req);
       const { engine, ...context } = body;
       if (!engine) return sendJson(res, 400, { error: 'engine is required' });
-      const result = await adapt(engine, context);
+      // The actor always comes from the session; a caller-supplied userId
+      // in the body is ignored (spread order) and anonymous callers get null.
+      const result = await adapt(engine, { ...context, userId: user?.id || null });
       return sendJson(res, 200, result);
     }
 
