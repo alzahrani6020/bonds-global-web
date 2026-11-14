@@ -69,3 +69,29 @@ new, governed issue linked to its previous record.
    deterministic browser/font dependencies, including mobile.
 6. Confirm the suite passes on good cases and fails on the known regression
    before enabling fail-closed production issuance.
+
+## Multi-format evidence inspection (read-only experimental module)
+
+The sibling `scripts/digital-evidence.py` can inspect signatures and SHA-256 for
+PDF, PNG/JPEG/GIF/BMP, WAV/MP3, ISO BMFF (e.g. MP4/HEIC), RTF, OLE legacy
+Office containers, and UTF-8 text. For DOCX/XLSX/PPTX it can also compare
+hashes of individual internal OOXML document parts without extracting or
+executing attachments. File format identification uses magic bytes and OOXML
+part names rather than trusting the filename extension.
+
+```bash
+python3 scripts/digital-evidence.py --reference original.docx --candidate submitted.docx
+python3 -m unittest discover -s tests/correspondence -p 'test_*.py' -v
+```
+
+**Do not interpret a matching hash as proof that a file is human-created or
+genuine, or a mismatch as fraud.** These are integrity and structure checks,
+not forensic AI-origin classifiers. Comparing OOXML part hashes is not
+equivalent to comparing how Word/Excel/PowerPoint renders content. Likewise,
+JPEG/PNG/audio/video support at this stage is container identification and
+byte integrity only, not perceptual matching, deepfake detection, signature
+validation, EXIF forensics or C2PA provenance verification.
+
+Missing/unsupported content, unknown creators, unverifiable signers and
+AI-origin questions remain `UNKNOWN`. Nothing here is a production issuance
+gate. The existing governed correspondence PDF issuance path is unchanged.
