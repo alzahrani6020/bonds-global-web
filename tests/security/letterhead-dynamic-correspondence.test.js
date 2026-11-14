@@ -409,6 +409,27 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(client).toContain("await downloadOfficialPdf()");
   });
 
+  test('official PDF geometry must be inspected before rasterization and archival upload', () => {
+    const client = read('components/letterhead-correspondence.js');
+    const boundary = client.indexOf('  function assertPdfSourceGeometry(sheets)');
+    const exportAt = client.indexOf('  async function createPdfBlob()');
+    const uploadAt = client.indexOf('  async function persistIssuedPdfArtifact()');
+    expect(boundary).toBeGreaterThan(0);
+    expect(exportAt).toBeGreaterThan(boundary);
+    expect(uploadAt).toBeGreaterThan(exportAt);
+    const validator = client.slice(boundary, exportAt);
+    expect(validator).toContain("state.document?.status === 'issued'");
+    expect(validator).toContain('saved.length !== total');
+    expect(validator).toContain('pageLabel !== expected');
+    expect(validator).toContain("listStyle.direction !== 'rtl'");
+    expect(validator).toContain('letterheadContinuation');
+    const exportBody = client.slice(exportAt, uploadAt);
+    expect(exportBody).toContain('assertPdfSourceGeometry(sheets);');
+    expect(exportBody.indexOf('assertPdfSourceGeometry(sheets);'))
+      .toBeLessThan(exportBody.indexOf("new window.jspdf.jsPDF('p', 'mm', 'a4')"));
+    expect(client.slice(uploadAt)).toContain('const blob = await createPdfBlob();');
+  });
+
   test('final PDF export rejects overflowing sheets and keeps Arabic markers RTL', () => {
     const client = read('components/letterhead-correspondence.js');
     const ar = read('letterhead.html');

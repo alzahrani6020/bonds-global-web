@@ -22,12 +22,38 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain("Final PDF does not contain the issued-document integrity marker");
   });
 
+  test('signature modal collects both required identity fields and rejects empty input locally',()=>{
+    const html=read('letterhead.html');
+    const router=read('api/platform.js');
+    expect(html).toContain('id="corr-signer-name"');
+    expect(html).toContain('id="corr-signer-title"');
+    expect(ui).toContain("document.getElementById('corr-signer-name')?.value?.trim()");
+    expect(ui).toContain("document.getElementById('corr-signer-title')?.value?.trim()");
+    expect(ui).toContain('يجب إدخال اسم الموقّع وصفته الرسمية قبل حفظ التوقيع');
+    expect(router).toContain('return await correspondence.handler(req, res)');
+    expect(router).toContain('status >= 400 && status < 500');
+    expect(router).toContain('return res.status(status).json({ error: err.message');
+  });
+
   test('future issuance requires signer name and title but does not invent historical names',()=>{
     expect(api).toContain("Signer name and capacity are required before signing");
     expect(api).toContain("!doc.signer_name || !doc.signer_title");
     expect(api).toContain("issue.signature_hash === doc.signature_hash && issue.issued_hash === doc.issued_hash");
     expect(api).toContain("signer_name: (issue.signature_hash");
     expect(api).toContain("signer_title: (issue.signature_hash");
+  });
+
+  test('QR verification independently reads stored bytes before claiming PDF integrity',()=>{
+    const start=api.indexOf("if (action === 'verify')");
+    const end=api.indexOf("if (action === 'official-preview')",start);
+    expect(start).toBeGreaterThan(-1);
+    expect(end).toBeGreaterThan(start);
+    const verify=api.slice(start,end);
+    expect(verify).toContain('await loadPublicVerifiedArtifact(sb, doc, issue)');
+    expect(verify).toContain('let finalPdfVerified = false');
+    expect(verify).toContain('finalPdfVerified = true');
+    expect(verify).toContain('officialPreviewUrl = finalPdfVerified');
+    expect(verify).toContain('official_pdf_url: officialPdfUrl');
   });
 
   test('the server independently verifies historic archived PDF bytes on every preview',()=>{
