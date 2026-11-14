@@ -131,7 +131,31 @@ async function main() {
         firstListStart: sheet.querySelector('ol').getAttribute('start'),
         direction: getComputedStyle(sheet.querySelector('ol')).direction
       }));
-      return { captures, pdfBase64, geometry };
+      // Negative controls exercise the actual production guard, not a test copy.
+      // A green export is insufficient unless known broken layouts are rejected.
+      const assertSourceGeometry = new Function('state', 'isEn',
+        productionFunctions + '\nreturn assertPdfSourceGeometry;')(state, false);
+      function expectRejection(label, change, restore) {
+        change();
+        let rejected = false;
+        try { assertSourceGeometry(sheets); } catch (_) { rejected = true; }
+        restore();
+        if (!rejected) throw new Error('Production PDF guard accepted ' + label);
+      }
+      expectRejection('one saved logical page versus two physical sheets',
+        () => { state.latestVersion.pages_html = [geometry[0].pageLabel]; },
+        () => { state.latestVersion.pages_html = sheets.map(s =>
+          s.querySelector('.doc-content').innerHTML); });
+      expectRejection('incorrect printed page label',
+        () => { sheets[1].querySelector('.page-number').textContent = 'الصفحة 1 من 2'; },
+        () => { sheets[1].querySelector('.page-number').textContent = geometry[1].pageLabel; });
+      const list = sheets[1].querySelector('ol');
+      const priorDirection = list.style.direction;
+      expectRejection('left-to-right Arabic numbered list',
+        () => { list.style.direction = 'ltr'; },
+        () => { list.style.direction = priorDirection; });
+      assertSourceGeometry(sheets);
+      return { captures, pdfBase64, geometry, negativeControls: 3 };
     }, productionFunctions);
     const pdf = Buffer.from(exported.pdfBase64, 'base64');
     const pdfPath = path.join(temp, 'candidate.pdf');
