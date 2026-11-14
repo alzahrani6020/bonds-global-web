@@ -1365,6 +1365,66 @@
     return changed;
   }
 
+  // Fail closed at the official-PDF boundary, before any storage upload.
+  // Issued documents are immutable; do not silently repaginate their saved HTML.
+  function assertPdfSourceGeometry(sheets) {
+    const total = sheets.length;
+    if (!total) throw new Error('No A4 letterhead pages to export');
+    const saved = state.latestVersion?.pages_html;
+    if (state.document?.status === 'issued' && (!Array.isArray(saved) || saved.length !== total)) {
+      throw new Error(isEn
+        ? 'Issued PDF page count differs from the saved document version'
+        : 'عدد صفحات PDF لا يطابق صفحات النسخة المعتمدة المحفوظة');
+    }
+    let precedingListLast = null;
+    for (let i = 0; i < total; i++) {
+      const sheet = sheets[i];
+      const content = sheet.querySelector('.doc-content');
+      const footer = sheet.querySelector('.letterhead-footer');
+      const pageLabel = sheet.querySelector('.page-number')?.textContent?.trim();
+      const expected = isEn
+        ? `Page ${i + 1} of ${total}`
+        : `الصفحة ${i + 1} من ${total}`;
+      if (!content || !footer || pageLabel !== expected) {
+        throw new Error(isEn
+          ? `A4 page ${i + 1} is missing its content/footer or has an incorrect page label`
+          : `صفحة A4 رقم ${i + 1} ناقصة أو تحمل ترقيمًا غير مطابق`);
+      }
+      const last = content.lastElementChild;
+      const contentBottom = Math.max(content.getBoundingClientRect().bottom,
+        last?.getBoundingClientRect().bottom || 0);
+      if (contentBottom > footer.getBoundingClientRect().top - 2 ||
+          sheet.scrollHeight > sheet.clientHeight + 1) {
+        throw new Error(isEn
+          ? `A4 page ${i + 1} overlaps its footer or clips content`
+          : `صفحة A4 رقم ${i + 1} متداخلة مع التذييل أو مقصوصة`);
+      }
+      if (!isEn && content.getAttribute('dir') === 'rtl') {
+        for (const ol of content.querySelectorAll('ol')) {
+          const listStyle = window.getComputedStyle(ol);
+          if (listStyle.direction !== 'rtl' || listStyle.textAlign !== 'right') {
+            throw new Error(`Arabic PDF list on A4 page ${i + 1} is not RTL`);
+          }
+          const first = ol.querySelector(':scope > li');
+          if (first) {
+            const itemStyle = window.getComputedStyle(first);
+            if (itemStyle.direction !== 'rtl' || itemStyle.textAlign !== 'right') {
+              throw new Error(`Arabic PDF list item on A4 page ${i + 1} is not RTL`);
+            }
+          }
+          if (ol.dataset.letterheadContinuation === '1') {
+            if (precedingListLast === null ||
+                Number(ol.getAttribute('start') || 1) !== precedingListLast) {
+              throw new Error(`Arabic PDF list numbering discontinuity on page ${i + 1}`);
+            }
+          }
+          precedingListLast = Number(ol.getAttribute('start') || 1) +
+            ol.querySelectorAll(':scope > li').length;
+        }
+      }
+    }
+  }
+
   async function createPdfBlob() {
     if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
       throw new Error(isEn ? 'PDF libraries unavailable' : 'مكتبات PDF غير متوفرة');
@@ -1372,6 +1432,7 @@
     await waitForVerificationQr();
     paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
+    assertPdfSourceGeometry(sheets);
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
       ? ['BONDS-DOC', state.document.id, state.document.current_version, state.document.document_hash, state.document.issued_hash].join(':')
