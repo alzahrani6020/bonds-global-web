@@ -68,6 +68,67 @@ function writePng(png, filePath) {
 
 
 
+async function runLetterheadNestedPaginationGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const setPagesCode = code.slice(code.indexOf('  function setPages('), code.indexOf('  function hasMeaningfulDraft()'));
+  const paginateCode = code.slice(code.indexOf('  function moveLastDraftBlock('), code.indexOf('  async function createPdfBlob()'));
+  if (!setPagesCode.includes('function setPages') || !paginateCode.includes('function paginateEditableSheets')) {
+    throw new Error('Actual governed A4 paginator was not found');
+  }
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const result = await page.evaluate(({ setPagesCode, paginateCode }) => {
+      const doc = document.querySelector('.doc-content');
+      const original = 'المخططات والمستندات والبيانات العقارية والتراخيص المتعلقة بأرض جدة في حي الورود، والحقوق والالتزامات وما يلزم للدراسة الاستثمارية.';
+      const paragraphs = Array.from({ length: 7 }, (_, i) => '<p>مقدمة ' + (i + 1) + ': ' + original.repeat(2) + '</p>').join('');
+      const items = Array.from({ length: 10 }, (_, i) => '<li><p>البند ' + (i + 1) + ': ' + original + '</p></li>').join('');
+      doc.innerHTML = '<div>' + paragraphs + '<ol start="1">' + items + '</ol>' +
+        '<p>بوندز للاستشارات المالية والإدارية، ممثلة في مالكها الدكتور طلال بن حسن الزهراني.</p></div>';
+      const state = {};
+      const isEn = false;
+      const canEditCurrent = () => true;
+      const pagesHtml = () => Array.from(document.querySelectorAll('.doc-content')).map(x => x.innerHTML);
+      const snapshot = () => JSON.stringify(pagesHtml());
+      const persistedSnapshot = () => snapshot();
+      const run = new Function('state', 'isEn', 'canEditCurrent', 'pagesHtml', 'snapshot', 'persistedSnapshot',
+        setPagesCode + paginateCode + '\nreturn paginateEditableSheets();');
+      const changed = run(state, isEn, canEditCurrent, pagesHtml, snapshot, persistedSnapshot);
+      const sheets = Array.from(document.querySelectorAll('#pages-container .sheet'));
+      const texts = sheets.map(x => x.querySelector('.doc-content').innerText);
+      const allItems = Array.from(document.querySelectorAll('#pages-container .doc-content li'));
+      const labels = sheets.map(x => x.querySelector('.page-number')?.textContent || '');
+      const geometry = sheets.map(x => {
+        const doc = x.querySelector('.doc-content');
+        const footer = x.querySelector('.letterhead-footer');
+        const last = doc.lastElementChild;
+        return { bottom: Math.max(doc.getBoundingClientRect().bottom, last?.getBoundingClientRect().bottom || 0),
+          footer: footer.getBoundingClientRect().top, overflow: x.scrollHeight - x.clientHeight,
+          sheetHeight: x.getBoundingClientRect().height, a4Height: x.getBoundingClientRect().width * 297 / 210 };
+      });
+      const olStarts = Array.from(document.querySelectorAll('#pages-container ol')).map(x => Number(x.getAttribute('start') || 1));
+      return { changed, pages: sheets.length, items: allItems.length, labels, geometry, olStarts,
+        textComplete: texts.join(' ').includes('بوندز للاستشارات المالية والإدارية') };
+    }, { setPagesCode, paginateCode });
+    if (!result.changed || result.pages < 2 || result.items !== 10 || !result.textComplete) {
+      throw new Error('Nested original-like Arabic letter was not preserved and paginated: ' + JSON.stringify(result));
+    }
+    for (let i = 0; i < result.pages; i++) {
+      if (!result.labels[i].includes((i + 1) + ' من ' + result.pages)) {
+        throw new Error('Page numbering mismatch: ' + JSON.stringify(result.labels));
+      }
+      if (result.geometry[i].bottom > result.geometry[i].footer + 2 || result.geometry[i].overflow > 1 || result.geometry[i].sheetHeight > result.geometry[i].a4Height + 1) {
+        throw new Error('A4 overflow/clipped page ' + (i + 1) + ': ' + JSON.stringify(result.geometry[i]));
+      }
+    }
+    console.log(' Arabic nested letter A4 pagination: ' + result.pages + ' physical sheets, 10 items, correct page labels PASS');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runArabicLetterheadListGeometryGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8');
   const styles = html.split('<style>')[1]?.split('</style>')[0];
@@ -302,6 +363,12 @@ async function runScenarioDropdownInteractionGate(browser) {
     await runScenarioDropdownInteractionGate(browser);
   } catch (err) {
     console.error(` scenario dropdown interaction gate failed: ${err.message}`);
+    failed++;
+  }
+  try {
+    await runLetterheadNestedPaginationGate(browser);
+  } catch (err) {
+    console.error(' Arabic nested letter A4 pagination failed: ' + err.message);
     failed++;
   }
   try {

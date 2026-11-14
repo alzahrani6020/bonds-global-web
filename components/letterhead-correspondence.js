@@ -359,6 +359,8 @@
 
   async function saveVersion(silent, options = {}) {
     if (state.loading) return;
+    if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked' : 'المستند مقفل');
+    paginateEditableSheets();
     const snap = persistedSnapshot();
     if (state.document && snap === state.lastSavedSnapshot && !options.titleOverride) {
       if (!silent) toast(isEn ? 'No changes to save' : 'لا توجد تغييرات جديدة');
@@ -1267,11 +1269,108 @@
     }
   }
 
+  // Paginate editable drafts by whole content blocks before rendering physical A4 pages.
+  // Never mutate issued, sent or archived documents; those must retain their issued bytes.
+  function moveLastDraftBlock(source, destination) {
+    const tail = source.lastElementChild;
+    if (!tail) return false;
+    const tag = tail.tagName;
+    if ((tag === 'OL' || tag === 'UL') && tail.children.length > 1) {
+      const remainingCount = tail.children.length - 1;
+      const nextNumber = tag === 'OL'
+        ? (Number(tail.getAttribute('start')) || 1) + remainingCount : 0;
+      const item = tail.lastElementChild;
+      let continuation = destination.firstElementChild;
+      if (!continuation || continuation.tagName !== tag ||
+          continuation.getAttribute('data-letterhead-continuation') !== '1') {
+        continuation = tail.cloneNode(false);
+        continuation.setAttribute('data-letterhead-continuation', '1');
+        destination.insertBefore(continuation, destination.firstChild);
+      }
+      continuation.insertBefore(item, continuation.firstChild);
+      if (tag === 'OL') continuation.setAttribute('start', String(nextNumber));
+      return true;
+    }
+    // Pasted HTML commonly wraps an entire letter in one <div>, whose nested
+    // paragraphs and <ol> must be split instead of treating the wrapper as atomic.
+    if (tag === 'DIV' && tail.children.length &&
+        !Array.from(tail.childNodes).some(node => node.nodeType === 3 && node.textContent.trim())) {
+      let wrapper = destination.firstElementChild;
+      if (!wrapper || wrapper.tagName !== 'DIV' ||
+          wrapper.getAttribute('data-letterhead-continuation') !== '1') {
+        wrapper = tail.cloneNode(false);
+        wrapper.setAttribute('data-letterhead-continuation', '1');
+        destination.insertBefore(wrapper, destination.firstChild);
+      }
+      if (!moveLastDraftBlock(tail, wrapper)) return false;
+      if (!tail.children.length && !tail.textContent.trim()) tail.remove();
+      return true;
+    }
+    destination.insertBefore(tail, destination.firstChild);
+    return true;
+  }
+
+  function paginateEditableSheets() {
+    if (!canEditCurrent()) return false;
+    const container = document.getElementById('pages-container');
+    if (!container) throw new Error('Letterhead pages container missing');
+    const sheets = () => Array.from(container.querySelectorAll('.sheet'));
+    let changed = false;
+    let moves = 0;
+    for (let pageIndex = 0; pageIndex < sheets().length; pageIndex++) {
+      while (true) {
+        if (++moves > 500 || sheets().length > 50) {
+          throw new Error(isEn ? 'Automatic A4 pagination exceeded safety limits' : 'تجاوز تقسيم صفحات A4 الحد الآمن');
+        }
+        const sheet = sheets()[pageIndex];
+        const doc = sheet.querySelector('.doc-content');
+        const footer = sheet.querySelector('.letterhead-footer');
+        if (!doc || !footer) throw new Error('Letterhead page structure missing');
+        const last = doc.lastElementChild;
+        const lastBottom = last ? last.getBoundingClientRect().bottom : doc.getBoundingClientRect().bottom;
+        const contentBottom = Math.max(lastBottom, doc.getBoundingClientRect().bottom);
+        const footerTop = footer.getBoundingClientRect().top - 4;
+        const a4Height = sheet.getBoundingClientRect().width * 297 / 210;
+        const physicalOverflow = sheet.getBoundingClientRect().height > a4Height + 1;
+        if (!physicalOverflow && contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
+        const canSplitLast = !!last && (last.tagName === 'DIV' && last.children.length > 0 ||
+          (last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 1);
+        if (!last || (doc.children.length === 1 && !canSplitLast)) {
+          throw new Error(isEn
+            ? `A4 page ${pageIndex + 1} has a block that cannot fit. Split that paragraph before issuing.`
+            : `تحتوي صفحة A4 رقم ${pageIndex + 1} على فقرة طويلة لا تتسع لها. قسّم الفقرة قبل الإصدار.`);
+        }
+        if (pageIndex + 1 >= sheets().length) {
+          setPages([...pagesHtml(), '']);
+        }
+        const current = sheets()[pageIndex].querySelector('.doc-content');
+        const destination = sheets()[pageIndex + 1].querySelector('.doc-content');
+        if (!moveLastDraftBlock(current, destination)) {
+          throw new Error(isEn ? 'A4 draft pagination cannot move a block' : 'تعذر نقل فقرة خلال تقسيم صفحات A4');
+        }
+        changed = true;
+      }
+    }
+    if (changed) {
+      const count = sheets().length;
+      sheets().forEach((sheet, index) => {
+        sheet.dataset.page = String(index + 1);
+        const number = sheet.querySelector('.page-number');
+        if (number) number.textContent = isEn
+          ? `Page ${index + 1} of ${count}`
+          : `الصفحة ${index + 1} من ${count}`;
+      });
+      state.lastHistorySnapshot = snapshot();
+    }
+    return changed;
+  }
+
   async function createPdfBlob() {
     if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
       throw new Error(isEn ? 'PDF libraries unavailable' : 'مكتبات PDF غير متوفرة');
     }
     await waitForVerificationQr();
+    paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
