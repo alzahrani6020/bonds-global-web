@@ -4833,6 +4833,8 @@ async function handler(req, res) {
         return res.status(200).json(await getBankTransfers(sb));
       }
       if (action === 'settings') {
+        const admin = await verifyAdminStrict(req, sb);
+        if (!admin) return res.status(403).json({ error: 'Admin required' });
         return res.status(200).json(await getSettings(sb));
       }
       if (action === 'exceptions') {
