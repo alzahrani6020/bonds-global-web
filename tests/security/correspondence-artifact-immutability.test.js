@@ -56,6 +56,19 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain("Cache-Control', 'private, no-store, max-age=0");
   });
 
+  test('protected correspondence requires both authentication and per-document authorization before PDF bytes are fetched',()=>{
+    const preview=api.slice(api.indexOf("if (action === 'official-preview')"),api.indexOf("if (action === 'qr')"));
+    expect(preview).toContain("['confidential', 'restricted'].includes(doc.confidentiality)");
+    expect(preview).toContain("const viewer = await resolveUser(req)");
+    expect(preview).toContain("const viewerRole = await resolveRole(sb, viewer.id)");
+    expect(preview).toContain("const viewerMemberships = await resolveMemberships(sb, viewer.id)");
+    expect(preview).toContain("const viewerPermissions = await resolveCorrespondencePermissions(sb, viewer.id, viewerRole)");
+    expect(preview).toContain("!canRead(doc, viewer, viewerRole, viewerMemberships, viewerPermissions)");
+    expect(preview).toContain("res.status(401)");
+    expect(preview).toContain("res.status(403)");
+    expect(preview.indexOf("!canRead(doc, viewer, viewerRole")).toBeLessThan(preview.indexOf("await loadPublicVerifiedArtifact(sb, doc, issue)"));
+  });
+
   test('a revoked official issue stays verifiable but loses its public download URLs',()=>{
     expect(api).toContain("issue.state !== 'revoked'");
     expect(api).toContain("if (issue.state === 'revoked')");
