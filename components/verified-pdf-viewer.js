@@ -31,6 +31,7 @@ async function render({url,expectedHash,container,feedback,language='ar',authori
   const headers={Accept:'application/pdf'};
   if(authorizationToken)headers.Authorization='Bearer '+authorizationToken;
   const response=await fetch(url,{cache:'no-store',credentials:'same-origin',headers});
+  if(response.status===401||response.status===403)throw new Error('PDF_ACCESS_DENIED');
   if(!response.ok||!String(response.headers.get('content-type')||'').toLowerCase().includes('application/pdf')) throw new Error('Official PDF not available');
   const bytes=await response.arrayBuffer();
   if(!bytes.byteLength) throw new Error('Empty PDF');
@@ -72,7 +73,9 @@ async function render({url,expectedHash,container,feedback,language='ar',authori
   return true;
  }catch(error){
   container.replaceChildren();
-  say(message);
+  say(error?.message==='PDF_ACCESS_DENIED'
+    ? (en?'Your account is not authorized to view this official PDF.':'حسابك غير مخوّل للاطلاع على ملف PDF الرسمي.')
+    : message);
   if(root.console?.warn) root.console.warn('[BONDS verified PDF display unavailable]',error?.message);
   return false;
  }
