@@ -238,6 +238,10 @@
           login.href="/en/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search);
           wrap.append(notice,login);
           pdfCheck.textContent="Document registered; PDF review requires an authorized sign-in.";
+          if(state==='active'){
+            status.textContent="Registered official issue — sign in to verify protected PDF";
+            status.classList.add('warn');
+          }
           return;
         }
       }
