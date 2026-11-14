@@ -39,6 +39,9 @@ async function render({url,expectedHash,container,feedback,language='ar',authori
   // The worker is version-pinned to the matching renderer. No document is uploaded to this CDN.
   const pdfjs=await import(PDFJS_BASE+'pdf.min.mjs');
   pdfjs.GlobalWorkerOptions.workerSrc=PDFJS_BASE+'pdf.worker.min.mjs';
+  // PDF.js may transfer ownership of its input ArrayBuffer to a worker.
+  // Keep an independently verified copy for authorized download/open actions.
+  const documentBytes=typeof onVerifiedBytes==='function'?bytes.slice(0):null;
   const task=pdfjs.getDocument({data:new Uint8Array(bytes),isEvalSupported:false});
   const pdf=await task.promise;
   if(!Number.isInteger(pdf.numPages)||pdf.numPages<1||pdf.numPages>100) throw new Error('Unsupported page count');
@@ -65,7 +68,7 @@ async function render({url,expectedHash,container,feedback,language='ar',authori
    container.appendChild(canvas);
    page.cleanup();
   }
-  if(typeof onVerifiedBytes==='function')onVerifiedBytes(bytes);
+  if(typeof onVerifiedBytes==='function')onVerifiedBytes(documentBytes);
   return true;
  }catch(error){
   container.replaceChildren();
