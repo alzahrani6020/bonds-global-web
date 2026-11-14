@@ -1402,7 +1402,10 @@
       if (!isEn && content.getAttribute('dir') === 'rtl') {
         for (const ol of content.querySelectorAll('ol')) {
           const listStyle = window.getComputedStyle(ol);
-          if (listStyle.direction !== 'rtl' || listStyle.textAlign !== 'right') {
+          // Reject an explicitly LTR list even when a theme stylesheet masks it
+          // in computed style. An issued Arabic list must not carry an LTR override.
+          if (ol.getAttribute('dir') === 'ltr' || ol.style.direction === 'ltr' ||
+              listStyle.direction !== 'rtl' || listStyle.textAlign !== 'right') {
             throw new Error(`Arabic PDF list on A4 page ${i + 1} is not RTL`);
           }
           const first = ol.querySelector(':scope > li');
