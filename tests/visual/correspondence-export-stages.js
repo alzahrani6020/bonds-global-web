@@ -154,8 +154,13 @@ async function main() {
       expectRejection('left-to-right Arabic numbered list',
         () => { list.style.direction = 'ltr'; },
         () => { list.style.direction = priorDirection; });
+      const secondContent = sheets[1].querySelector('.doc-content');
+      const originallySavedHtml = secondContent.innerHTML;
+      expectRejection('changed issued page content after approval',
+        () => { secondContent.innerHTML = originallySavedHtml + '<p>تغيير غير معتمد</p>'; },
+        () => { secondContent.innerHTML = originallySavedHtml; });
       assertSourceGeometry(sheets);
-      return { captures, pdfBase64, geometry, negativeControls: 3 };
+      return { captures, pdfBase64, geometry, negativeControls: 4 };
     }, productionFunctions);
     const pdf = Buffer.from(exported.pdfBase64, 'base64');
     const pdfPath = path.join(temp, 'candidate.pdf');
