@@ -45,4 +45,18 @@ describe('Intent Engine', () => {
     expect(result.intent).toBe('scientific_research');
     expect(getIntent('scientific_research').id).toBe('scientific_research');
   });
+
+  it('declares only engines with a live dispatch facade', () => {
+    // knowledge/certificate/report/ai have no execution path in
+    // ENGINE_RUNNERS (or anywhere); declaring them promised capabilities
+    // that silently degraded. The contract must stay honest.
+    const PHANTOM = ['knowledge', 'certificate', 'report', 'ai'];
+    for (const intent of listIntents()) {
+      for (const code of PHANTOM) {
+        expect(intent.engines).not.toContain(code);
+      }
+    }
+    expect(getIntent('value_asset').engines).toEqual(expect.arrayContaining(['valuation', 'confidence']));
+    expect(getIntent('issue_certificate').engines).toEqual(expect.arrayContaining(['valuation', 'confidence']));
+  });
 });

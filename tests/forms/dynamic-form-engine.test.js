@@ -28,12 +28,12 @@ describe('Dynamic Form Engine', () => {
 
   it('uses intent engines for feasibility orchestration', () => {
     const form = buildForm({ sector: 'company', intent: 'feasibility', language: 'en' });
-    expect(form.requiredEngines).toEqual(['feasibility', 'market', 'risk', 'knowledge']);
+    expect(form.requiredEngines).toEqual(['feasibility', 'market', 'risk']);
   });
 
   it('uses intent engines for risk analysis orchestration', () => {
     const form = buildForm({ sector: 'company', intent: 'risk_analysis', language: 'en' });
-    expect(form.requiredEngines).toEqual(['risk', 'market', 'knowledge']);
+    expect(form.requiredEngines).toEqual(['risk', 'market']);
   });
 
   it('falls back to sector default engines when intent is not registered', () => {
