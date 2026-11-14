@@ -156,11 +156,19 @@ async function main() {
         () => { sheets[1].querySelector('.page-number').textContent = geometry[1].pageLabel; }, 'ترقيم');
       const list = sheets[1].querySelector('ol');
       const priorStyleAttribute = list.getAttribute('style');
+      const savedSecondHtml = state.latestVersion.pages_html[1];
       expectRejection('left-to-right Arabic numbered list',
-        () => { list.style.direction = 'ltr'; },
+        () => {
+          list.style.direction = 'ltr';
+          // Keep the synthetic saved fixture consistent with the injected list
+          // so this test isolates the RTL guard, not the content-integrity guard.
+          state.latestVersion.pages_html[1] =
+            sheets[1].querySelector('.doc-content').innerHTML;
+        },
         () => {
           if (priorStyleAttribute === null) list.removeAttribute('style');
           else list.setAttribute('style', priorStyleAttribute);
+          state.latestVersion.pages_html[1] = savedSecondHtml;
         }, 'not RTL');
       const secondContent = sheets[1].querySelector('.doc-content');
       const originallySavedHtml = secondContent.innerHTML;
