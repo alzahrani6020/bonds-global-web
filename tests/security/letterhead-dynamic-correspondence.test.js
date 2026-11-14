@@ -348,6 +348,17 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(governed).toContain('await downloadOfficialPdf()');
   });
 
+  test('print button cannot bypass governed PDF and browser Ctrl+P cannot print a forged official sheet', () => {
+    for (const file of ['letterhead.html', 'en/letterhead.html']) {
+      const html = read(file);
+      expect(html).not.toContain('onclick="window.print()"');
+      expect(html).toContain('onclick="exportPDF()"');
+      expect(html).toContain('Fail closed for Ctrl+P');
+      expect(html).toContain('body .sheet { display: none !important; }');
+      expect(html).toContain('body::before');
+    }
+  });
+
   test('final PDF export rejects overflowing sheets and keeps Arabic markers RTL', () => {
     const client = read('components/letterhead-correspondence.js');
     const ar = read('letterhead.html');
