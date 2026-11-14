@@ -153,6 +153,29 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(en).toContain('BondsVerifiedPdfViewer.render({');
   });
 
+
+  test('verified PDF modal follows letterhead language direction without rebuilding official PDF', () => {
+    const ar=read('verify-document.html');
+    const en=read('en/verify-document.html');
+    const viewer=read('components/verified-pdf-viewer.js');
+    expect(ar).toContain('<html lang="ar" dir="rtl">');
+    expect(en).toContain('<html lang="en" dir="ltr">');
+    expect(ar).toContain('.viewer-wrap{direction:rtl;text-align:right}');
+    expect(en).toContain('.viewer-wrap{direction:ltr;text-align:left}');
+    expect(ar).toContain("language:'ar'");
+    expect(en).toContain("language:'en'");
+    expect(ar).toContain('BondsVerifiedPdfViewer.installModal({');
+    expect(en).toContain('BondsVerifiedPdfViewer.installModal({');
+    expect(viewer).toContain('function installModal({trigger,container,download,language=');
+    expect(viewer).toContain("dialog.dir=dir;");
+    expect(viewer).toContain('canvas.dataset.pdfNaturalWidth');
+    expect(viewer).toContain("if(!pages().length)return;");
+    expect(viewer).toContain('if(actual.toLowerCase()!==expectedHash.toLowerCase())');
+    expect(viewer).toContain('scroll.appendChild(container)');
+    expect(viewer).not.toContain('html2canvas(');
+    expect(viewer).not.toContain('jsPDF(');
+  });
+
   test('letterhead footer and PDF output stay within A4 in both locales', () => {
     const ar = read('letterhead.html');
     const en = read('en/letterhead.html');

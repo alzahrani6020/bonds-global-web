@@ -36,6 +36,21 @@
 .verification-entry-form{display:grid;gap:12px;max-width:620px;margin:20px auto;text-align:start}.verification-entry-form input{width:100%;min-width:0;padding:14px;border:1px solid #bdccdb;border-radius:10px;font:inherit;direction:ltr}.verification-entry-form label{font-weight:700}.entry-error{color:var(--red);font-weight:700}.failure{display:none;text-align:center;padding:34px}.failure.active{display:block}.failure h2{color:var(--red)}.footer{padding:18px 28px;background:var(--navy);color:#fff;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}.footer a{color:#f4c66a}
     [hidden]{display:none!important}
     @media(max-width:760px){body{padding:10px}.hero,.content{padding:18px}.result{grid-template-columns:1fr}.facts,.tech{grid-template-columns:1fr}.integrity{grid-template-columns:1fr}.verified-pdf-pages{gap:8px;padding:6px 0}}
+
+    /* Official document viewer follows the letterhead reading direction. */
+    .viewer-wrap{direction:ltr;text-align:left}
+    .viewer-wrap .actions{direction:ltr;justify-content:flex-start}
+    .viewer-wrap .verified-pdf-pages{direction:ltr;align-items:center}
+    .viewer-wrap .verified-pdf-page{direction:ltr;transform:none}
+    .bonds-pdf-dialog{position:fixed;inset:0;box-sizing:border-box;width:100vw;max-width:100vw;height:100dvh;max-height:100dvh;margin:0;border:0;border-radius:0;padding:0;overflow:hidden;background:#edf1f6;color:#0a2342}
+    .bonds-pdf-dialog::backdrop{background:rgba(5,15,30,.82)}
+    .bonds-pdf-dialog-toolbar{direction:inherit;background:#0a2342;color:#fff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .bonds-pdf-dialog-actions{display:flex;direction:inherit;gap:6px;align-items:center;flex-wrap:wrap}
+    .bonds-pdf-dialog-actions button,.bonds-pdf-dialog-actions a{cursor:pointer;min-height:36px;border:1px solid #cad7e5;border-radius:7px;background:white;color:#0a2342;padding:7px 10px;font:inherit;font-size:13px;text-decoration:none}
+    .bonds-pdf-dialog-scroll{height:calc(100dvh - 86px);overflow:auto;overscroll-behavior:contain;padding:14px;box-sizing:border-box;direction:inherit}
+    .bonds-pdf-dialog-scroll .verified-pdf-pages{direction:inherit;align-items:center;max-width:none;width:max-content;min-width:100%;overflow:visible;gap:14px;padding:0 8px 14px;box-sizing:border-box}
+    .bonds-pdf-dialog-scroll .verified-pdf-page{direction:ltr;transform:none;max-width:none;box-shadow:0 6px 24px #0a234238}
+    @media(max-width:760px){.bonds-pdf-dialog-toolbar{gap:5px;padding:8px}.bonds-pdf-dialog-toolbar strong{font-size:13px}.bonds-pdf-dialog-actions{gap:4px}.bonds-pdf-dialog-actions button,.bonds-pdf-dialog-actions a{min-height:34px;padding:6px 8px}.bonds-pdf-dialog-scroll{padding:8px;height:calc(100dvh - 118px)}}
   </style>
 </head>
 <body>
@@ -210,6 +225,9 @@
       const wrap=document.getElementById('viewer-wrap');wrap.classList.add('active');
       document.getElementById('open-pdf').href=preview;
       document.getElementById('download-pdf').href=d.official_pdf_url||preview+'&download=1';
+      // The expanded reading interface reuses verified PDF canvases; RTL controls
+      // do not mirror or modify the archived PDF artwork.
+      let pdfModalInstalled=false;
       // The original PDF artifact is never reconstructed from correspondence HTML.
       // A local SHA-256 comparison gates its canvas display on all devices.
       if(window.BondsVerifiedPdfViewer?.render){
@@ -219,6 +237,14 @@
           feedback:document.getElementById('pdf-render-status'),
           language:'en'
         });
+        if(pdfMatches && !pdfModalInstalled && window.BondsVerifiedPdfViewer?.installModal){
+          pdfModalInstalled=window.BondsVerifiedPdfViewer.installModal({
+            trigger:document.getElementById('open-pdf'),
+            container:document.getElementById('official-viewer'),
+            download:document.getElementById('download-pdf'),
+            language:'en'
+          });
+        }
         if(state==='active'){
           status.textContent=pdfMatches && d.stamp_verified && d.signature_verified
             ? '✓ Official document — original PDF hash verified'
