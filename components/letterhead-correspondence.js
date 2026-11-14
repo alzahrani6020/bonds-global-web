@@ -1271,6 +1271,45 @@
 
   // Paginate editable drafts by whole content blocks before rendering physical A4 pages.
   // Never mutate issued, sent or archived documents; those must retain their issued bytes.
+  function moveLastDraftBlock(source, destination) {
+    const tail = source.lastElementChild;
+    if (!tail) return false;
+    const tag = tail.tagName;
+    if ((tag === 'OL' || tag === 'UL') && tail.children.length > 1) {
+      const remainingCount = tail.children.length - 1;
+      const nextNumber = tag === 'OL'
+        ? (Number(tail.getAttribute('start')) || 1) + remainingCount : 0;
+      const item = tail.lastElementChild;
+      let continuation = destination.firstElementChild;
+      if (!continuation || continuation.tagName !== tag ||
+          continuation.getAttribute('data-letterhead-continuation') !== '1') {
+        continuation = tail.cloneNode(false);
+        continuation.setAttribute('data-letterhead-continuation', '1');
+        destination.insertBefore(continuation, destination.firstChild);
+      }
+      continuation.insertBefore(item, continuation.firstChild);
+      if (tag === 'OL') continuation.setAttribute('start', String(nextNumber));
+      return true;
+    }
+    // Pasted HTML commonly wraps an entire letter in one <div>, whose nested
+    // paragraphs and <ol> must be split instead of treating the wrapper as atomic.
+    if (tag === 'DIV' && tail.children.length &&
+        !Array.from(tail.childNodes).some(node => node.nodeType === 3 && node.textContent.trim())) {
+      let wrapper = destination.firstElementChild;
+      if (!wrapper || wrapper.tagName !== 'DIV' ||
+          wrapper.getAttribute('data-letterhead-continuation') !== '1') {
+        wrapper = tail.cloneNode(false);
+        wrapper.setAttribute('data-letterhead-continuation', '1');
+        destination.insertBefore(wrapper, destination.firstChild);
+      }
+      if (!moveLastDraftBlock(tail, wrapper)) return false;
+      if (!tail.children.length && !tail.textContent.trim()) tail.remove();
+      return true;
+    }
+    destination.insertBefore(tail, destination.firstChild);
+    return true;
+  }
+
   function paginateEditableSheets() {
     if (!canEditCurrent()) return false;
     const container = document.getElementById('pages-container');
@@ -1292,9 +1331,9 @@
         const contentBottom = Math.max(lastBottom, doc.getBoundingClientRect().bottom);
         const footerTop = footer.getBoundingClientRect().top - 4;
         if (contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
-        if (!last || (doc.children.length === 1 &&
-            !(last.tagName === 'OL' && last.children.length > 1) &&
-            !(last.tagName === 'UL' && last.children.length > 1))) {
+        const canSplitLast = !!last && (last.tagName === 'DIV' && last.children.length > 0 ||
+          (last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 1);
+        if (!last || (doc.children.length === 1 && !canSplitLast)) {
           throw new Error(isEn
             ? `A4 page ${pageIndex + 1} has a block that cannot fit. Split that paragraph before issuing.`
             : `تحتوي صفحة A4 رقم ${pageIndex + 1} على فقرة طويلة لا تتسع لها. قسّم الفقرة قبل الإصدار.`);
@@ -1304,24 +1343,8 @@
         }
         const current = sheets()[pageIndex].querySelector('.doc-content');
         const destination = sheets()[pageIndex + 1].querySelector('.doc-content');
-        const tail = current.lastElementChild;
-        if ((tail.tagName === 'OL' || tail.tagName === 'UL') && tail.children.length > 1) {
-          const item = tail.lastElementChild;
-          const remainingCount = tail.children.length - 1;
-          const nextNumber = tail.tagName === 'OL'
-            ? (Number(tail.getAttribute('start')) || 1) + remainingCount : 0;
-          item.remove();
-          let continuation = destination.firstElementChild;
-          if (!continuation || continuation.tagName !== tail.tagName ||
-              continuation.getAttribute('data-letterhead-continuation') !== '1') {
-            continuation = tail.cloneNode(false);
-            continuation.setAttribute('data-letterhead-continuation', '1');
-            destination.insertBefore(continuation, destination.firstChild);
-          }
-          continuation.insertBefore(item, continuation.firstChild);
-          if (tail.tagName === 'OL') continuation.setAttribute('start', String(nextNumber));
-        } else {
-          destination.insertBefore(tail, destination.firstChild);
+        if (!moveLastDraftBlock(current, destination)) {
+          throw new Error(isEn ? 'A4 draft pagination cannot move a block' : 'تعذر نقل فقرة خلال تقسيم صفحات A4');
         }
         changed = true;
       }
