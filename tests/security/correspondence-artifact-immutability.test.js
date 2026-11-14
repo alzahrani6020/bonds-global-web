@@ -84,8 +84,8 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain('subject: pdfAccessRequiresLogin ? null : doc.subject');
     expect(api).toContain('signer_name: (!pdfAccessRequiresLogin');
     expect(viewer).toContain("if(authorizationToken)headers.Authorization='Bearer '+authorizationToken");
-    expect(viewer).toContain("if(typeof onVerifiedBytes==='function')onVerifiedBytes(bytes)");
-    expect(viewer.indexOf('actual.toLowerCase()!==expectedHash.toLowerCase()')).toBeLessThan(viewer.indexOf("onVerifiedBytes(bytes)"));
+    expect(viewer).toContain("if(typeof onVerifiedBytes==='function')onVerifiedBytes(documentBytes)");
+    expect(viewer.indexOf('actual.toLowerCase()!==expectedHash.toLowerCase()')).toBeLessThan(viewer.indexOf("onVerifiedBytes(documentBytes)"));
   });
 
   test('a revoked official issue stays verifiable but loses its public download URLs',()=>{
