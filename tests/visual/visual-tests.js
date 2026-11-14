@@ -104,12 +104,24 @@ async function runIssuedPdfGeometryGate(browser) {
       const wrongSavedCount = check();
       state.latestVersion.pages_html = [doc.innerHTML];
       const list = doc.querySelector('ol');
+      const savedHtml = state.latestVersion.pages_html[0];
+      const priorDir = list.getAttribute('dir');
+      const priorStyle = list.getAttribute('style');
       list.setAttribute('dir', 'ltr');
       list.style.setProperty('direction', 'ltr', 'important');
+      // Isolate the direction check: a separate negative test covers
+      // post-approval HTML mismatch. Do not let that guard shadow RTL.
+      state.latestVersion.pages_html[0] = doc.innerHTML;
       const wrongRtl = check();
-      return { clean, matching, wrongPageLabel, wrongSavedCount, wrongRtl };
+      if (priorDir === null) list.removeAttribute('dir');
+      else list.setAttribute('dir', priorDir);
+      if (priorStyle === null) list.removeAttribute('style');
+      else list.setAttribute('style', priorStyle);
+      state.latestVersion.pages_html[0] = savedHtml;
+      const restored = check();
+      return { clean, matching, wrongPageLabel, wrongSavedCount, wrongRtl, restored };
     }, guard);
-    if (report.clean !== 'PASS' || report.matching !== 'PASS' ||
+    if (report.clean !== 'PASS' || report.matching !== 'PASS' || report.restored !== 'PASS' ||
         !report.wrongPageLabel.includes('ترقيم') ||
         !report.wrongSavedCount.includes('عدد صفحات PDF') ||
         !report.wrongRtl.includes('not RTL')) {
