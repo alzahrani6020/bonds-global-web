@@ -264,4 +264,10 @@ describe('EnterpriseIntelligenceAdapters', () => {
     });
   });
 
+  test('adapt rejects unknown engines with a coded error', async () => {
+    await expect(adapt('does_not_exist', {})).rejects.toMatchObject({
+      code: 'ADAPTER_UNAVAILABLE'
+    });
+  });
+
 });
