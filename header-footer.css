@@ -2281,6 +2281,24 @@ html[dir="rtl"] .main-header .dropdown.is-open > .dropdown-menu--grouped,
 }
 
 
+/* Company Programs adds one desktop nav item. Preserve the true 1280px
+ * mobile boundary and fit the authenticated 1321–1440px layout without
+ * allowing navigation to overlap account controls or leave the viewport. */
+@media (min-width: 1321px) and (max-width: 1440px) {
+  .main-header__inner {
+    padding-inline: 0.75rem;
+    gap: 0.35rem;
+  }
+  .main-header .main-nav { min-width: 0; }
+  .main-header .main-nav > ul { gap: 0.05rem; }
+  .main-header .main-nav > ul > li > a,
+  .main-header .main-nav > ul > li > .dropdown-toggle {
+    font-size: 0.78rem;
+    padding-inline: 0.3rem !important;
+  }
+  .main-header .header-actions { gap: 0.25rem; }
+}
+
 /* ===== Responsive authenticated-header collision guard ===== */
 @media (min-width: 1321px) and (max-width: 1440px) {
   .main-header__inner {
