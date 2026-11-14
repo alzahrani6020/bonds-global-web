@@ -144,7 +144,19 @@
   const params=new URLSearchParams(location.search);
   const token=params.get('token')||'';
   const status=document.getElementById('status'), content=document.getElementById('verified-content'), failure=document.getElementById('failure');
-  const fail=()=>{status.textContent='تعذر التحقق من المستند';status.classList.add('bad');failure.classList.add('active');content.hidden=true;};
+  const fail=(reason='invalid')=>{
+    const messages={
+      invalid:['رابط التحقق غير صالح','رمز التحقق في الرابط غير صالح. امسح رمز QR من المستند الأصلي مرة أخرى.'],
+      missing:['المستند غير موجود في السجل','لم يُعثر على إصدار رسمي يطابق رمز التحقق.'],
+      limited:['التحقق مقيّد مؤقتًا','تم تجاوز عدد طلبات التحقق المسموح. أعد المحاولة بعد انتهاء مهلة التقييد.'],
+      unavailable:['خدمة التحقق غير متاحة حاليًا','تعذر إكمال التحقق بسبب مشكلة اتصال أو خادم. هذا لا يعني أن المستند مزور أو غير صحيح.']
+    };
+    const message=messages[reason]||messages.unavailable;
+    status.textContent=message[0];status.classList.add('bad');
+    failure.querySelector('h2').textContent=message[0];
+    failure.querySelector('p').textContent=message[1];
+    failure.classList.add('active');content.hidden=true;
+  };
   if(!token){
     status.textContent='لم يتم تحديد مستند للتحقق منه';
     status.classList.add('warn');
@@ -162,7 +174,11 @@
   try{
     const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.verified){fail();return;}
+    if(r.status===404){fail('missing');return;}
+    if(r.status===400){fail('invalid');return;}
+    if(r.status===429){fail('limited');return;}
+    if(!r.ok){fail('unavailable');return;}
+    if(!d.verified){fail('missing');return;}
     content.hidden=false;
     const state=d.issue_state||'active';
     status.textContent=state==='active'?'جارٍ التحقق من بصمة PDF الأصلي…':state==='revoked'?'✕ هذا الإصدار ملغي':'! تم استبدال هذا الإصدار';
@@ -264,7 +280,7 @@
       if(state==='active'){status.textContent='ملف PDF الأصلي غير متاح — التحقق غير مكتمل';status.classList.add('warn');}
       pdfCheck.textContent='لا توجد نسخة PDF نهائية مرتبطة ببصمة موثقة';
     }
-  }catch(e){fail();}
+  }catch(e){console.warn('[BONDS verification] request failed',e?.name||'Error');fail('unavailable');}
 })();
 </script>
 </body>
