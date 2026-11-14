@@ -30,10 +30,10 @@ def fixture_pdf(path, message="Safe synthetic correspondence", page_count=1):
                    (safe_message, index + 1, page_count)).encode("ascii")
         stream_id = obj(b"<< /Length %d >>\nstream\n" % len(content) +
                         content + b"\nendstream")
-        page_ids.append(obj(("<< /Type /Page /Parent %d 0 R /MediaBox [0 0 595 842] "
+        page_ids.append(obj((("<< /Type /Page /Parent %d 0 R /MediaBox [0 0 595 842] "
                              "/Resources << /Font << /F1 %d 0 R >> >> "
                              "/Contents %d 0 R >>") %
-                             (pages_id, font_id, stream_id)).encode("ascii"))
+                             (pages_id, font_id, stream_id)).encode("ascii")))
     objects[catalog_id - 1] = ("<< /Type /Catalog /Pages %d 0 R >>" % pages_id).encode()
     objects[pages_id - 1] = ("<< /Type /Pages /Kids [%s] /Count %d >>" %
                             (" ".join("%d 0 R" % item for item in page_ids),
