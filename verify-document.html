@@ -238,6 +238,10 @@
           login.href="/calculators/auth/index.html?redirect="+encodeURIComponent(location.pathname+location.search);
           wrap.append(notice,login);
           pdfCheck.textContent="المستند مسجل؛ فحص ملف PDF يتطلب تسجيل دخول مخول.";
+          if(state==='active'){
+            status.textContent="إصدار رسمي مسجل — سجل الدخول للتحقق من ملف PDF المحمي";
+            status.classList.add('warn');
+          }
           return;
         }
       }
