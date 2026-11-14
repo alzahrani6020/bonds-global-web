@@ -1208,7 +1208,7 @@ async function handleServiceRequests(req, res, supabase, user) {
 
     let query = supabase
       .from('service_requests')
-      .select('id,request_reference,service_id,status,country_code,region_name,locality_name,project_id,deal_id,opportunity_id,submitted_at,completed_at,created_at,updated_at')
+      .select('id,request_reference,service_id,status,country_code,region_name,locality_name,submitted_at,completed_at,created_at,updated_at')
       .eq('user_id', user.id)
       .order('created_at', { ascending:false })
       .limit(100);
@@ -1249,9 +1249,6 @@ async function handleServiceRequests(req, res, supabase, user) {
       country_code: row.country_code,
       region_name: row.region_name,
       locality_name: row.locality_name,
-      project_id:row.project_id,
-      deal_id:row.deal_id,
-      opportunity_id:row.opportunity_id,
       submitted_at: row.submitted_at,
       completed_at: row.completed_at,
       created_at: row.created_at,
@@ -1306,31 +1303,6 @@ async function handleServiceRequests(req, res, supabase, user) {
     .is('deleted_at', null)
     .maybeSingle();
 
-  // Context identifiers in request metadata are untrusted until owner and
-  // cross-entity relationships are checked against the authenticated user.
-  const incomingMetadata = body.metadata && typeof body.metadata === 'object' && !Array.isArray(body.metadata)
-    ? body.metadata : {};
-  const contextIds = {
-    project_id:incomingMetadata.project_id || null,
-    deal_id:incomingMetadata.deal_id || null,
-    opportunity_id:incomingMetadata.opportunity_id || null
-  };
-  let verifiedContext = null;
-  if(Object.values(contextIds).some(Boolean)){
-    try{
-      const { assertContextOwnership } = require('./investment-context');
-      verifiedContext = await assertContextOwnership(supabase,user,contextIds);
-    }catch(error){
-      return sendJson(res,422,{error:{code:'SERVICE_REQUEST_CONTEXT_NOT_OWNED',detail:String(error.message||'INVALID_CONTEXT')}});
-    }
-  }
-  const safeMetadata = {
-    ...incomingMetadata,
-    project_id:verifiedContext?.projectId || null,
-    deal_id:verifiedContext?.dealId || null,
-    opportunity_id:verifiedContext?.opportunityId || null
-  };
-
   let geoContext = { place: null, snapshot: {} };
   try {
     geoContext = await resolveGeoContext(supabase, {
@@ -1360,28 +1332,28 @@ async function handleServiceRequests(req, res, supabase, user) {
     canonical_activity_id: canonicalActivityId,
     status: 'submitted',
     submitted_at: new Date().toISOString(),
-    metadata: { ...safeMetadata, source:body.source || 'service_discovery' },
-    project_id:verifiedContext?.projectId || null,
-    deal_id:verifiedContext?.dealId || null,
-    opportunity_id:verifiedContext?.opportunityId || null
+    metadata: { source: body.source || 'service_discovery', ...(body.metadata || {}) }
   };
 
-  if(body.values != null && (typeof body.values !== 'object' || Array.isArray(body.values)))
-    return sendJson(res,400,{error:'Invalid service request values'});
-  const valuePayload=body.values || {};
-  const formVersion=body.form_version == null ? null : Number(body.form_version);
-  if(formVersion !== null && (!Number.isInteger(formVersion) || formVersion < 0))
-    return sendJson(res,400,{error:'Invalid service request form version'});
-  // The RPC writes the request and all its values in one PostgreSQL transaction.
-  // Any failure rolls back both inserts; no partially submitted request remains.
-  const {data:requestRowOut,error:requestError}=await supabase
-    .rpc('create_service_request_atomic',{
-      p_request:requestRow,
-      p_values:valuePayload,
-      p_form_version:formVersion
-    });
-  if(requestError || !requestRowOut?.id)
-    return sendJson(res,400,{error:requestError?.message||'Service request not saved'});
+  const { data: requestRowOut, error: requestError } = await supabase
+    .from('service_requests')
+    .insert(requestRow)
+    .select('id,request_reference,status,geo_place_id,geo_snapshot,created_at')
+    .single();
+  if (requestError) return sendJson(res, 400, { error: requestError.message });
+
+  if (body.values && typeof body.values === 'object' && !Array.isArray(body.values)) {
+    const valueRows = Object.entries(body.values).map(([field_key,value]) => ({
+      service_request_id: requestRowOut.id,
+      field_key,
+      value,
+      form_version: body.form_version || null
+    }));
+    if (valueRows.length) {
+      const { error: valuesError } = await supabase.from('service_request_values').insert(valueRows);
+      if (valuesError) return sendJson(res, 400, { error: valuesError.message, request: requestRowOut });
+    }
+  }
 
   await supabase.from('calculator_events').insert({
     event:'service_requested',
