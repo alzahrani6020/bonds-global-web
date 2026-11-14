@@ -1330,7 +1330,9 @@
         const lastBottom = last ? last.getBoundingClientRect().bottom : doc.getBoundingClientRect().bottom;
         const contentBottom = Math.max(lastBottom, doc.getBoundingClientRect().bottom);
         const footerTop = footer.getBoundingClientRect().top - 4;
-        if (contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
+        const a4Height = sheet.getBoundingClientRect().width * 297 / 210;
+        const physicalOverflow = sheet.getBoundingClientRect().height > a4Height + 1;
+        if (!physicalOverflow && contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
         const canSplitLast = !!last && (last.tagName === 'DIV' && last.children.length > 0 ||
           (last.tagName === 'OL' || last.tagName === 'UL') && last.children.length > 1);
         if (!last || (doc.children.length === 1 && !canSplitLast)) {
