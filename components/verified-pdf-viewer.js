@@ -51,6 +51,7 @@ async function render({url,expectedHash,container,feedback,language='ar'}){
    const viewport=page.getViewport({scale:scale*ratio});
    const canvas=document.createElement('canvas');
    canvas.className='verified-pdf-page';
+   canvas.dataset.pdfNaturalWidth=String(natural.width);
    canvas.setAttribute('aria-label',(en?'Official PDF page ':'صفحة PDF الرسمية ')+index+'/'+pdf.numPages);
    canvas.style.width=(natural.width*scale)+'px';
    canvas.style.height=(natural.height*scale)+'px';
@@ -70,5 +71,69 @@ async function render({url,expectedHash,container,feedback,language='ar'}){
   return false;
  }
 }
-root.BondsVerifiedPdfViewer=Object.freeze({render,sameOriginOfficialUrl});
+
+function installModal({trigger,container,download,language='ar'}){
+  if(!trigger||!container||typeof HTMLDialogElement==='undefined')return false;
+  const en=language==='en';
+  const dir=en?'ltr':'rtl';
+  const dialog=document.createElement('dialog');
+  dialog.className='bonds-pdf-dialog';
+  dialog.dir=dir;
+  dialog.setAttribute('aria-label',en?'Official A4 PDF':'الخطاب الرسمي A4');
+  dialog.innerHTML='<div class="bonds-pdf-dialog-toolbar"><strong></strong><div class="bonds-pdf-dialog-actions">'+
+    '<button type="button" data-action="zoom-in" aria-label="Zoom in">+</button>'+
+    '<button type="button" data-action="fit" aria-label="Fit to width">100%</button>'+
+    '<button type="button" data-action="zoom-out" aria-label="Zoom out">−</button>'+
+    '<a data-action="download" download></a>'+
+    '<button type="button" data-action="close"></button></div></div>'+
+    '<div class="bonds-pdf-dialog-scroll"></div>';
+  dialog.querySelector('strong').textContent=en?'Official letter — A4':'الخطاب الرسمي — A4';
+  dialog.querySelector('[data-action="download"]').textContent=en?'Download original':'تنزيل الأصل';
+  dialog.querySelector('[data-action="close"]').textContent=en?'Close':'إغلاق';
+  const dl=dialog.querySelector('[data-action="download"]');
+  if(download?.href)dl.href=download.href;
+  else dl.hidden=true;
+  const scroll=dialog.querySelector('.bonds-pdf-dialog-scroll');
+  const marker=document.createComment('official PDF viewer original position');
+  container.parentNode.insertBefore(marker,container);
+  const initialStyle=new Map();
+  document.body.appendChild(dialog);
+  let zoom=1;
+  const pages=()=>Array.from(container.querySelectorAll('.verified-pdf-page'));
+  const fit=()=>{
+    // A4 pixels are not mirrored by RTL: only navigation and controls are RTL.
+    const width=Math.max(200,scroll.clientWidth-32);
+    pages().forEach(canvas=>{
+      const natural=Number(canvas.dataset.pdfNaturalWidth)||595;
+      const a4px=natural*96/72;
+      canvas.style.width=Math.round(Math.min(width,a4px)*zoom)+'px';
+    });
+    dialog.querySelector('[data-action="fit"]').textContent=Math.round(zoom*100)+'%';
+  };
+  dialog.querySelector('[data-action="zoom-in"]').addEventListener('click',()=>{zoom=Math.min(3,zoom+.25);fit();});
+  dialog.querySelector('[data-action="zoom-out"]').addEventListener('click',()=>{zoom=Math.max(.5,zoom-.25);fit();});
+  dialog.querySelector('[data-action="fit"]').addEventListener('click',()=>{zoom=1;fit();});
+  dialog.querySelector('[data-action="close"]').addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('close',()=>{
+    marker.parentNode?.insertBefore(container,marker);
+    pages().forEach(canvas=>{canvas.style.width=initialStyle.get(canvas)||'';});
+    trigger.focus();
+  });
+  dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close();});
+  trigger.addEventListener('click',e=>{
+    if(!pages().length)return; // fall back to original PDF in new tab
+    e.preventDefault();
+    if(dialog.open)return;
+    pages().forEach(canvas=>initialStyle.set(canvas,canvas.style.width));
+    scroll.appendChild(container);
+    zoom=1;
+    dialog.showModal();
+    fit();
+    dialog.querySelector('[data-action="close"]').focus();
+  });
+  window.addEventListener('resize',()=>{if(dialog.open)fit();});
+  return true;
+}
+
+root.BondsVerifiedPdfViewer=Object.freeze({render,sameOriginOfficialUrl,installModal});
 })(window);
