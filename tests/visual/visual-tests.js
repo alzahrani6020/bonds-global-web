@@ -105,7 +105,8 @@ async function runLetterheadNestedPaginationGate(browser) {
         const footer = x.querySelector('.letterhead-footer');
         const last = doc.lastElementChild;
         return { bottom: Math.max(doc.getBoundingClientRect().bottom, last?.getBoundingClientRect().bottom || 0),
-          footer: footer.getBoundingClientRect().top, overflow: x.scrollHeight - x.clientHeight };
+          footer: footer.getBoundingClientRect().top, overflow: x.scrollHeight - x.clientHeight,
+          sheetHeight: x.getBoundingClientRect().height, a4Height: x.getBoundingClientRect().width * 297 / 210 };
       });
       const olStarts = Array.from(document.querySelectorAll('#pages-container ol')).map(x => Number(x.getAttribute('start') || 1));
       return { changed, pages: sheets.length, items: allItems.length, labels, geometry, olStarts,
@@ -118,7 +119,7 @@ async function runLetterheadNestedPaginationGate(browser) {
       if (!result.labels[i].includes((i + 1) + ' من ' + result.pages)) {
         throw new Error('Page numbering mismatch: ' + JSON.stringify(result.labels));
       }
-      if (result.geometry[i].bottom > result.geometry[i].footer + 2 || result.geometry[i].overflow > 1) {
+      if (result.geometry[i].bottom > result.geometry[i].footer + 2 || result.geometry[i].overflow > 1 || result.geometry[i].sheetHeight > result.geometry[i].a4Height + 1) {
         throw new Error('A4 overflow/clipped page ' + (i + 1) + ': ' + JSON.stringify(result.geometry[i]));
       }
     }
