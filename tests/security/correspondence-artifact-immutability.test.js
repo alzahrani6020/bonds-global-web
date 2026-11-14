@@ -69,6 +69,25 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(preview.indexOf("!canRead(doc, viewer, viewerRole")).toBeLessThan(preview.indexOf("await loadPublicVerifiedArtifact(sb, doc, issue)"));
   });
 
+  test('restricted issue QR reveals only public status and authorized viewer obtains SHA-verified blob',()=>{
+    const viewer=read('components/verified-pdf-viewer.js');
+    for(const page of ['verify-document.html','en/verify-document.html']){
+      const html=read(page);
+      expect(html).toContain('pdf_access_requires_login');
+      expect(html).toContain('window.BondsAuth?.getSession()');
+      expect(html).toContain('encodeURIComponent(location.pathname+location.search)');
+      expect(html).toContain('authorizationToken:accessToken');
+      expect(html).toContain('onVerifiedBytes:protectedPdf?bytes=>');
+      expect(html).toContain('URL.createObjectURL(new Blob([bytes]');
+    }
+    expect(api).toContain('title: pdfAccessRequiresLogin ? null : doc.title');
+    expect(api).toContain('subject: pdfAccessRequiresLogin ? null : doc.subject');
+    expect(api).toContain('signer_name: (!pdfAccessRequiresLogin');
+    expect(viewer).toContain("if(authorizationToken)headers.Authorization='Bearer '+authorizationToken");
+    expect(viewer).toContain("if(typeof onVerifiedBytes==='function')onVerifiedBytes(bytes)");
+    expect(viewer.indexOf('actual.toLowerCase()!==expectedHash.toLowerCase()')).toBeLessThan(viewer.indexOf("onVerifiedBytes(bytes)"));
+  });
+
   test('a revoked official issue stays verifiable but loses its public download URLs',()=>{
     expect(api).toContain("issue.state !== 'revoked'");
     expect(api).toContain("if (issue.state === 'revoked')");
