@@ -2521,6 +2521,12 @@ async function handleCityMarket(req, res, path) {
 
 async function handleUcpCalculate(req, res) {
   if (req.method !== 'POST') return sendJson(res, 405, { error: 'Method not allowed' });
+
+  // UCP executes through the service-role Supabase client, so the endpoint
+  // must never run for anonymous callers.
+  const user = await getUserFromToken(req);
+  if (!user) return sendJson(res, 401, { error: 'Unauthorized' });
+
   const body = await parseBody(req);
   const {
     sector, country, templateCode, inputs = {}, scenarioCodes, weightCode,
@@ -2549,7 +2555,8 @@ async function handleUcpCalculate(req, res) {
       policyCodes,
       businessFormulaCodes,
       context,
-      asset
+      asset,
+      userId: user.id
     });
 
     if (legacyAdapter) {
