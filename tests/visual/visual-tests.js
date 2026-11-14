@@ -68,6 +68,58 @@ function writePng(png, filePath) {
 
 
 
+async function runIssuedPdfGeometryGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const begin = code.indexOf('  function assertPdfSourceGeometry(sheets)');
+  const end = code.indexOf('  async function createPdfBlob()', begin);
+  if (begin < 0 || end < 0) throw new Error('Production PDF source geometry gate missing');
+  const guard = code.slice(begin, end);
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const report = await page.evaluate(guardCode => {
+      const doc = document.querySelector('.doc-content');
+      doc.innerHTML = '<ol start="1"><li><p>صك ملكية الأرض والتراخيص</p></li></ol>';
+      const sheets = [document.querySelector('#pages-container .sheet')];
+      const state = { document: { status: 'issued' }, latestVersion: { pages_html: [doc.innerHTML] } };
+      const execute = new Function('sheets', 'state', 'isEn', guardCode +
+        '\nreturn assertPdfSourceGeometry(sheets);');
+      function check() {
+        try { execute(sheets, state, false); return 'PASS'; }
+        catch (error) { return String(error.message); }
+      }
+      const clean = check();
+      const label = sheets[0].querySelector('.page-number');
+      const correctLabel = label.textContent;
+      label.textContent = 'الصفحة 1 من 1';
+      const matching = check();
+      label.textContent = 'الصفحة 1 من 2';
+      const wrongPageLabel = check();
+      label.textContent = correctLabel;
+      state.latestVersion.pages_html = [doc.innerHTML, '<p>missing second sheet</p>'];
+      const wrongSavedCount = check();
+      state.latestVersion.pages_html = [doc.innerHTML];
+      const list = doc.querySelector('ol');
+      list.setAttribute('dir', 'ltr');
+      list.style.setProperty('direction', 'ltr', 'important');
+      const wrongRtl = check();
+      return { clean, matching, wrongPageLabel, wrongSavedCount, wrongRtl };
+    }, guard);
+    if (report.clean !== 'PASS' || report.matching !== 'PASS' ||
+        !report.wrongPageLabel.includes('ترقيم') ||
+        !report.wrongSavedCount.includes('عدد صفحات PDF') ||
+        !report.wrongRtl.includes('not RTL')) {
+      throw new Error('Issued A4 geometry gate did not reject bad input: ' +
+        JSON.stringify(report));
+    }
+    console.log(' Official PDF source geometry: valid PASS, page label / saved count / RTL negative cases blocked');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runLetterheadNestedPaginationGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
@@ -431,6 +483,12 @@ async function runScenarioDropdownInteractionGate(browser) {
     await runScenarioDropdownInteractionGate(browser);
   } catch (err) {
     console.error(` scenario dropdown interaction gate failed: ${err.message}`);
+    failed++;
+  }
+  try {
+    await runIssuedPdfGeometryGate(browser);
+  } catch (err) {
+    console.error(' Issued PDF geometry gate failed: ' + err.message);
     failed++;
   }
   try {
