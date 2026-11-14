@@ -117,6 +117,9 @@ jobs:
       - name: Run Mobile Interaction Tests
         run: npm run test:mobile
 
+      - name: Run isolated real correspondence PDF export chain
+        run: node tests/visual/correspondence-export-stages.js
+
       - name: Run Visual Regression Tests
         run: npm run test:visual
 
