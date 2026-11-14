@@ -126,6 +126,23 @@ describe('/api/v3/intelligence', () => {
     expect(res._json.engine).toBe('recommendation');
   });
 
+  test('POST /intelligence/run with an unknown engine returns a coded 400', async () => {
+    const req = mockReq({
+      method: 'POST',
+      url: '/api/v3/intelligence/run',
+      body: {
+        engines: ['does_not_exist'],
+        sector: 'restaurant',
+        country: 'SA',
+        language: 'ar'
+      }
+    });
+    const res = mockRes();
+    await handler(req, res);
+    expect(res.statusCode).toBe(400);
+    expect(res._json.error_code).toBe('UNKNOWN_ENGINES');
+  });
+
   test('POST /intelligence/synthesize returns actions', async () => {
     const req = mockReq({
       method: 'POST',
