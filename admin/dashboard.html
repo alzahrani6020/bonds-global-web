@@ -976,6 +976,62 @@
       let onlineAutoRefresh = true;
       let tokenRefreshTimer = null;
       let currentIframe = null;
+      // Keep recently used module iframes alive so switching back does not
+      // reload the whole module (auth + fetches + render). Bounded to avoid
+      // unbounded memory/timer growth across modules.
+      const moduleCache = new Map();
+      const MODULE_CACHE_LIMIT = 5;
+      let moduleLoadTimer = null;
+
+      function clearModuleLoadTimer() {
+        if (moduleLoadTimer) { clearTimeout(moduleLoadTimer); moduleLoadTimer = null; }
+      }
+
+      async function pushTokenTo(iframe) {
+        try {
+          const { data: { session } } = await sb.auth.getSession();
+          const token = session?.access_token || window.__ADMIN_TOKEN || '';
+          if (token) {
+            iframe.contentWindow.postMessage(
+              { type: 'admin-token', token },
+              location.origin
+            );
+            sendLocaleToFrame(iframe);
+          }
+        } catch (e) {}
+      }
+
+      function startTokenRefresh() {
+        tokenRefreshTimer = setInterval(async () => {
+          if (!currentIframe || !currentIframe.contentWindow) return;
+          await pushTokenTo(currentIframe);
+        }, 300000);
+      }
+
+      function evictOldestModule() {
+        const oldest = moduleCache.keys().next().value;
+        if (oldest) moduleCache.delete(oldest);
+      }
+
+      function showModuleLoadError(url, title) {
+        iframeWrap.innerHTML = '';
+        const box = document.createElement('div');
+        box.className = 'iframe-loader';
+        box.style.flexDirection = 'column';
+        box.style.gap = '12px';
+        const msg = document.createElement('p');
+        msg.textContent = (adminI18n?.t('dashboard.sectionLoadFailed') || 'تعذر تحميل هذا القسم. قد تكون الجلسة منتهية أو توجد مشكلة مؤقتة.');
+        const retry = document.createElement('button');
+        retry.className = 'btn-outline';
+        retry.textContent = (adminI18n?.t('dashboard.retry') || 'إعادة المحاولة');
+        retry.addEventListener('click', () => {
+          moduleCache.delete(url);
+          loadModule(url, title);
+        });
+        box.appendChild(msg);
+        box.appendChild(retry);
+        iframeWrap.appendChild(box);
+      }
 
       async function apiGet(action, params) {
         const token = (await sb.auth.getSession())?.data?.session?.access_token || '';
@@ -1204,6 +1260,7 @@
         if (titleEl) titleEl.textContent = title || 'لوحة التحكم الموحدة';
         if (onlineRefreshTimer) { clearInterval(onlineRefreshTimer); onlineRefreshTimer = null; }
         if (tokenRefreshTimer) { clearInterval(tokenRefreshTimer); tokenRefreshTimer = null; }
+        clearModuleLoadTimer();
         currentIframe = null;
         if (url === 'overview') {
           iframeWrap.innerHTML = '<div class="overview" id="overviewPanel"></div>';
@@ -1213,6 +1270,18 @@
         if (url === 'online-users') {
           iframeWrap.innerHTML = '<div class="overview" id="onlineUsersPanel"></div>';
           renderOnlineUsers();
+          return;
+        }
+        const cached = moduleCache.get(url);
+        if (cached) {
+          // Reactivate the live iframe instead of reloading the module.
+          moduleCache.delete(url);
+          moduleCache.set(url, cached);
+          iframeWrap.innerHTML = '';
+          iframeWrap.appendChild(cached);
+          currentIframe = cached;
+          startTokenRefresh();
+          pushTokenTo(cached);
           return;
         }
         iframeWrap.innerHTML = '<div class="iframe-loader"><div class="spinner"></div><p>' + (adminI18n?.t('dashboard.loadingSection') || '') + '</p></div>';
@@ -1225,37 +1294,27 @@
         iframe.style.overflow = 'auto';
         iframe.setAttribute('sandbox', 'allow-scripts allow-same-origin allow-forms allow-popups allow-downloads');
         iframe.onload = async () => {
+          clearModuleLoadTimer();
           try {
             if (iframe.contentDocument) adminI18n?.bind(iframe.contentDocument);
           } catch (e) {}
-          try {
-            const { data: { session } } = await sb.auth.getSession();
-            const token = session?.access_token || window.__ADMIN_TOKEN || '';
-            if (token) {
-              iframe.contentWindow.postMessage(
-                { type: 'admin-token', token },
-                location.origin
-              );
-              sendLocaleToFrame(iframe);
-            }
-          } catch (e) {}
+          await pushTokenTo(iframe);
+          if (!moduleCache.has(url)) {
+            moduleCache.set(url, iframe);
+            if (moduleCache.size > MODULE_CACHE_LIMIT) evictOldestModule();
+          }
         };
+        iframe.onerror = () => {
+          clearModuleLoadTimer();
+          showModuleLoadError(url, title);
+        };
+        moduleLoadTimer = setTimeout(() => {
+          showModuleLoadError(url, title);
+        }, 25000);
         iframeWrap.innerHTML = '';
         iframeWrap.appendChild(iframe);
         currentIframe = iframe;
-        tokenRefreshTimer = setInterval(async () => {
-          if (!currentIframe || !currentIframe.contentWindow) return;
-          try {
-            const { data: { session } } = await sb.auth.getSession();
-            const token = session?.access_token || window.__ADMIN_TOKEN || '';
-            if (token) {
-              currentIframe.contentWindow.postMessage(
-                { type: 'admin-token', token },
-                location.origin
-              );
-            }
-          } catch (e) {}
-        }, 300000);
+        startTokenRefresh();
       }
 
       function setActive(target) {
