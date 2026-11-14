@@ -1682,18 +1682,31 @@
     if (!can('sign') || !state.document || !['approved','issued'].includes(state.document.status)) {
       return toast('⚠️ ' + (isEn ? 'Signature requires an approved document and signing permission' : 'التوقيع يتطلب مستندًا معتمدًا وصلاحية التوقيع'));
     }
+    const name = document.getElementById('corr-signer-name');
+    const title = document.getElementById('corr-signer-title');
+    if (name) name.value = state.document.signer_name || name.value || '';
+    if (title) title.value = state.document.signer_title || title.value || '';
     return legacy.openSignatureModal?.();
   };
 
   window.saveSignature = async function () {
     try {
+      const signerName = document.getElementById('corr-signer-name')?.value?.trim() || '';
+      const signerTitle = document.getElementById('corr-signer-title')?.value?.trim() || '';
+      if (!signerName || !signerTitle) {
+        const missing = !signerName ? 'corr-signer-name' : 'corr-signer-title';
+        document.getElementById(missing)?.focus();
+        throw new Error(isEn
+          ? 'Enter the signer full name and official capacity before saving the signature'
+          : 'يجب إدخال اسم الموقّع وصفته الرسمية قبل حفظ التوقيع');
+      }
       const canvas = document.getElementById('sig-canvas');
       if (!canvas) throw new Error(isEn ? 'Signature canvas is unavailable' : 'لوحة التوقيع غير متوفرة');
       const signatureData = canvas.toDataURL('image/png');
       await mark('mark-signature', {
         signature_data_url: signatureData,
-        signer_name: document.getElementById('corr-signer-name')?.value || null,
-        signer_title: document.getElementById('corr-signer-title')?.value || null
+        signer_name: signerName,
+        signer_title: signerTitle
       });
       document.getElementById('sig-modal')?.classList.remove('open');
       if (typeof window.clearSignature === 'function') window.clearSignature();

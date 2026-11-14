@@ -22,6 +22,19 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain("Final PDF does not contain the issued-document integrity marker");
   });
 
+  test('signature modal collects both required identity fields and rejects empty input locally',()=>{
+    const html=read('letterhead.html');
+    const router=read('api/platform.js');
+    expect(html).toContain('id="corr-signer-name"');
+    expect(html).toContain('id="corr-signer-title"');
+    expect(ui).toContain("document.getElementById('corr-signer-name')?.value?.trim()");
+    expect(ui).toContain("document.getElementById('corr-signer-title')?.value?.trim()");
+    expect(ui).toContain('يجب إدخال اسم الموقّع وصفته الرسمية قبل حفظ التوقيع');
+    expect(router).toContain('return await correspondence.handler(req, res)');
+    expect(router).toContain('status >= 400 && status < 500');
+    expect(router).toContain('return res.status(status).json({ error: err.message');
+  });
+
   test('future issuance requires signer name and title but does not invent historical names',()=>{
     expect(api).toContain("Signer name and capacity are required before signing");
     expect(api).toContain("!doc.signer_name || !doc.signer_title");

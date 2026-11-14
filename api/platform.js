@@ -2339,7 +2339,17 @@ module.exports = async function handler(req, res) {
       const corrAction = String(req.query?.action || url.searchParams.get('action') || req.body?.action || '');
       const corrRateCategory = (corrAction === 'verify' || corrAction === 'qr') ? 'public' : 'auth';
       if (await checkRateLimit(corrRateCategory, req, res)) return;
-      return correspondence.handler(req, res);
+      try {
+        return await correspondence.handler(req, res);
+      } catch (err) {
+        // Correspondence workflow/validation errors are client responses, not
+        // generic HTTP 500 failures. Do not disclose unexpected server errors.
+        const status = Number(err?.status);
+        if (Number.isInteger(status) && status >= 400 && status < 500) {
+          return res.status(status).json({ error: err.message || 'Correspondence request rejected' });
+        }
+        throw err;
+      }
     }
 
     // Letterhead email
