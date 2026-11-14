@@ -3,7 +3,7 @@
  * Strategy: cache-first for static assets, network-first for pages.
  * Bump CACHE_VERSION when core assets change.
  */
-const CACHE_VERSION = 'v3.0.298';
+const CACHE_VERSION = 'v3.0.299';
 const STATIC_CACHE = `bonds-static-${CACHE_VERSION}`;
 const IMAGE_CACHE = `bonds-images-${CACHE_VERSION}`;
 
@@ -297,6 +297,7 @@ self.addEventListener('fetch', (event) => {
     url.pathname === '/components/emoji-icons.js' ||
     url.pathname === '/components/emoji-renderer.js' ||
     url.pathname === '/components/letterhead-correspondence.js' ||
+    url.pathname === '/components/verified-pdf-viewer.js' ||
     url.pathname === '/components/ecc-icons.js' ||
     url.pathname === '/calculators/shared-enhancements.js' ||
     url.pathname === '/header-footer.css'
