@@ -1658,9 +1658,9 @@
           return;
         }
         notifDropdown.innerHTML = '<div class="notif-header">الإشعارات</div><div class="notif-list">' + items.slice(0, 8).map(n => `
-          <a href="javascript:void(0)" class="notif-item" data-target="${n.target || ''}">
-            <div class="notif-item__title">${n.title}</div>
-            <div>${n.body}</div>
+          <a href="javascript:void(0)" class="notif-item" data-target="${escapeHtml(n.target || '')}">
+            <div class="notif-item__title">${escapeHtml(n.title)}</div>
+            <div>${escapeHtml(n.body)}</div>
             <div class="notif-item__time">${timeAgo(n.time)}</div>
           </a>
         `).join('') + '</div>';

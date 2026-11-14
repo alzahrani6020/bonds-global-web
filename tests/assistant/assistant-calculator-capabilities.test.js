@@ -135,6 +135,10 @@ describe('assistant calculator capabilities', () => {
       target:'calculator_loan',
       risk:'low'
     }]);
+    expect(answer.ui).toMatchObject([{
+      type:'loan_result',
+      title:expect.stringContaining('القسط الشهري')
+    }]);
     const en = buildLoanAnswer({ amount:100000, years:5, ratePct:8 }, 'en');
     expect(en.reply).toContain('SAR');
   });
