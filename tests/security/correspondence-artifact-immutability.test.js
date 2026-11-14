@@ -46,8 +46,8 @@ describe('Correspondence issuance integrity boundaries',()=>{
     expect(api).toContain("Signer name and capacity are required before signing");
     expect(api).toContain("!doc.signer_name || !doc.signer_title");
     expect(api).toContain("issue.signature_hash === doc.signature_hash && issue.issued_hash === doc.issued_hash");
-    expect(api).toContain("signer_name: (issue.signature_hash");
-    expect(api).toContain("signer_title: (issue.signature_hash");
+    expect(api).toContain("signer_name: (!pdfAccessRequiresLogin && issue.signature_hash");
+    expect(api).toContain("signer_title: (!pdfAccessRequiresLogin && issue.signature_hash");
   });
 
   test('the server independently verifies historic archived PDF bytes on every preview',()=>{
