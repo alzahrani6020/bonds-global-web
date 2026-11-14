@@ -637,7 +637,10 @@ describe('BONDS planner-first universal orchestrator', () => {
     expect(result.reply).toContain('https://example.com/gold');
     expect(result.reply).not.toContain('youtube.com');
     expect(result.reply).not.toContain('/tag/');
-    expect(result.trace.map(item => item.action)).toEqual(['web_search']);
+    // Verification is attempted and its failure is recorded (never silent):
+    // the trace shows the evidence_verify step with a coded error execution.
+    expect(result.trace.map(item => item.action)).toEqual(['web_search', 'evidence_verify']);
+    expect(result.trace[1].execution.error.code).toBe('EVIDENCE_VERIFY_EXCEPTION');
   });
 
   test('keeps Wikipedia hits whose snippets were truncated mid-tag', async () => {
