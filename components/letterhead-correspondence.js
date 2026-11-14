@@ -359,6 +359,8 @@
 
   async function saveVersion(silent, options = {}) {
     if (state.loading) return;
+    if (!canEditCurrent()) throw new Error(isEn ? 'This document is locked' : 'المستند مقفل');
+    paginateEditableSheets();
     const snap = persistedSnapshot();
     if (state.document && snap === state.lastSavedSnapshot && !options.titleOverride) {
       if (!silent) toast(isEn ? 'No changes to save' : 'لا توجد تغييرات جديدة');
@@ -1267,11 +1269,83 @@
     }
   }
 
+  // Paginate editable drafts by whole content blocks before rendering physical A4 pages.
+  // Never mutate issued, sent or archived documents; those must retain their issued bytes.
+  function paginateEditableSheets() {
+    if (!canEditCurrent()) return false;
+    const container = document.getElementById('pages-container');
+    if (!container) throw new Error('Letterhead pages container missing');
+    const sheets = () => Array.from(container.querySelectorAll('.sheet'));
+    let changed = false;
+    let moves = 0;
+    for (let pageIndex = 0; pageIndex < sheets().length; pageIndex++) {
+      while (true) {
+        if (++moves > 500 || sheets().length > 50) {
+          throw new Error(isEn ? 'Automatic A4 pagination exceeded safety limits' : 'تجاوز تقسيم صفحات A4 الحد الآمن');
+        }
+        const sheet = sheets()[pageIndex];
+        const doc = sheet.querySelector('.doc-content');
+        const footer = sheet.querySelector('.letterhead-footer');
+        if (!doc || !footer) throw new Error('Letterhead page structure missing');
+        const last = doc.lastElementChild;
+        const lastBottom = last ? last.getBoundingClientRect().bottom : doc.getBoundingClientRect().bottom;
+        const contentBottom = Math.max(lastBottom, doc.getBoundingClientRect().bottom);
+        const footerTop = footer.getBoundingClientRect().top - 4;
+        if (contentBottom <= footerTop && sheet.scrollHeight <= sheet.clientHeight + 1) break;
+        if (!last || (doc.children.length === 1 &&
+            !(last.tagName === 'OL' && last.children.length > 1) &&
+            !(last.tagName === 'UL' && last.children.length > 1))) {
+          throw new Error(isEn
+            ? `A4 page ${pageIndex + 1} has a block that cannot fit. Split that paragraph before issuing.`
+            : `تحتوي صفحة A4 رقم ${pageIndex + 1} على فقرة طويلة لا تتسع لها. قسّم الفقرة قبل الإصدار.`);
+        }
+        if (pageIndex + 1 >= sheets().length) {
+          setPages([...pagesHtml(), '']);
+        }
+        const current = sheets()[pageIndex].querySelector('.doc-content');
+        const destination = sheets()[pageIndex + 1].querySelector('.doc-content');
+        const tail = current.lastElementChild;
+        if ((tail.tagName === 'OL' || tail.tagName === 'UL') && tail.children.length > 1) {
+          const item = tail.lastElementChild;
+          const remainingCount = tail.children.length - 1;
+          const nextNumber = tail.tagName === 'OL'
+            ? (Number(tail.getAttribute('start')) || 1) + remainingCount : 0;
+          item.remove();
+          let continuation = destination.firstElementChild;
+          if (!continuation || continuation.tagName !== tail.tagName ||
+              continuation.getAttribute('data-letterhead-continuation') !== '1') {
+            continuation = tail.cloneNode(false);
+            continuation.setAttribute('data-letterhead-continuation', '1');
+            destination.insertBefore(continuation, destination.firstChild);
+          }
+          continuation.insertBefore(item, continuation.firstChild);
+          if (tail.tagName === 'OL') continuation.setAttribute('start', String(nextNumber));
+        } else {
+          destination.insertBefore(tail, destination.firstChild);
+        }
+        changed = true;
+      }
+    }
+    if (changed) {
+      const count = sheets().length;
+      sheets().forEach((sheet, index) => {
+        sheet.dataset.page = String(index + 1);
+        const number = sheet.querySelector('.page-number');
+        if (number) number.textContent = isEn
+          ? `Page ${index + 1} of ${count}`
+          : `الصفحة ${index + 1} من ${count}`;
+      });
+      state.lastHistorySnapshot = snapshot();
+    }
+    return changed;
+  }
+
   async function createPdfBlob() {
     if (typeof html2canvas === 'undefined' || typeof window.jspdf === 'undefined') {
       throw new Error(isEn ? 'PDF libraries unavailable' : 'مكتبات PDF غير متوفرة');
     }
     await waitForVerificationQr();
+    paginateEditableSheets();
     const sheets = Array.from(document.querySelectorAll('.sheet'));
     const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
     const integrityMarker = state.document?.issued_hash
