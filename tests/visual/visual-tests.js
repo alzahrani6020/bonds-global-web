@@ -123,6 +123,38 @@ async function runLetterheadNestedPaginationGate(browser) {
         throw new Error('A4 overflow/clipped page ' + (i + 1) + ': ' + JSON.stringify(result.geometry[i]));
       }
     }
+    // Preserve ordered-list numbering after DOM pagination. Merely retaining ten
+    // <li> nodes does not prove that lists continue from the previous sheet.
+    const listSequence = await page.evaluate(() => {
+      const lists = Array.from(document.querySelectorAll('#pages-container .doc-content ol'));
+      let expected = 1;
+      return lists.map(list => {
+        const start = Number(list.getAttribute('start') || 1);
+        const count = list.querySelectorAll(':scope > li').length;
+        const css = getComputedStyle(list);
+        const li = list.querySelector(':scope > li');
+        const liCss = li ? getComputedStyle(li) : null;
+        const stage = { start, count, expected, direction: css.direction,
+          align: css.textAlign, itemDirection: liCss?.direction,
+          itemAlign: liCss?.textAlign };
+        expected = start + count;
+        return stage;
+      });
+    });
+    if (!listSequence.length || listSequence.reduce((sum, part) => sum + part.count, 0) !== 10) {
+      throw new Error('List continuity evidence missing: ' + JSON.stringify(listSequence));
+    }
+    for (const part of listSequence) {
+      if (part.start !== part.expected || part.direction !== 'rtl' ||
+          part.align !== 'right' || part.itemDirection !== 'rtl' || part.itemAlign !== 'right') {
+        throw new Error('Arabic list sequence or RTL geometry differs: ' + JSON.stringify(listSequence));
+      }
+    }
+    fs.writeFileSync(path.join(SNAPSHOTS_DIR, 'letterhead-a4-source-stage.json'),
+      JSON.stringify({ logicalSheets: result.pages, pageLabels: result.labels,
+        geometry: result.geometry, orderedLists: listSequence }, null, 2));
+    await page.screenshot({ path: path.join(SNAPSHOTS_DIR, 'letterhead-a4-source-stage.png'),
+      fullPage: true });
     console.log(' Arabic nested letter A4 pagination: ' + result.pages + ' physical sheets, 10 items, correct page labels PASS');
   } finally {
     await page.close();
@@ -409,7 +441,12 @@ async function runScenarioDropdownInteractionGate(browser) {
   }
   try {
     await runVerifiedPdfModalDirectionGate(browser);
-        await runArabicLetterheadListGeometryGate(browser);
+  } catch (err) {
+    console.error(' Verified PDF viewer modal failed: ' + err.message);
+    failed++;
+  }
+  try {
+    await runArabicLetterheadListGeometryGate(browser);
   } catch (err) {
     console.error(' Arabic letterhead list geometry failed: ' + err.message);
     failed++;
