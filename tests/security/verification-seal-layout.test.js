@@ -14,7 +14,7 @@ describe('BONDS seal provenance and original PDF integrity',()=>{
    expect(html).not.toContain('id="seal"');
    expect(html).not.toContain('document.getElementById(\'seal\')');
    expect(html).toContain('id="official-viewer"');
-   expect(html).toContain('/components/verified-pdf-viewer.js?v=1');
+   expect(html).toContain('/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal');
    expect(html).toContain('const pdfMatches=await window.BondsVerifiedPdfViewer.render({');
    expect(html).toContain('pdfCheck.classList.toggle(\'bad\',!pdfMatches)');
    expect(html).toContain('expectedHash:d.artifact_hash');

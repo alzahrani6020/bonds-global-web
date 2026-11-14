@@ -140,7 +140,7 @@ describe('Dynamic letterhead correspondence architecture', () => {
       expect(page).not.toContain('id="seal"');
       expect(page).toContain('id="official-viewer"');
       expect(page).toContain('stamp_verified');
-      expect(page).toContain('/components/verified-pdf-viewer.js?v=1');
+      expect(page).toContain('/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal');
       expect(page).not.toContain('window.BondsOfficialSeal.create(');
       expect(page).toContain('const pdfMatches=await window.BondsVerifiedPdfViewer.render({');
       expect(page).toContain('final_pdf_verified');
@@ -153,6 +153,20 @@ describe('Dynamic letterhead correspondence architecture', () => {
     expect(en).toContain('BondsVerifiedPdfViewer.render({');
   });
 
+
+  test('official PDF viewer does not return obsolete script after production updates', () => {
+    const ar=read('verify-document.html');
+    const en=read('en/verify-document.html');
+    const sw=read('sw.js');
+    const vercel=JSON.parse(read('vercel.json'));
+    const asset='/components/verified-pdf-viewer.js?v=20261114-rtl-verified-modal';
+    expect(ar).toContain(asset);
+    expect(en).toContain(asset);
+    expect(sw).toContain("url.pathname === '/components/verified-pdf-viewer.js'");
+    const rule=vercel.headers.find(h=>h.source==='/components/verified-pdf-viewer.js');
+    expect(rule).toBeTruthy();
+    expect(rule.headers).toContainEqual({key:'Cache-Control',value:'no-cache, no-store, must-revalidate'});
+  });
 
   test('verified PDF modal follows letterhead language direction without rebuilding official PDF', () => {
     const ar=read('verify-document.html');

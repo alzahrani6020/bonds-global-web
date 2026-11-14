@@ -540,6 +540,15 @@
       ]
     },
     {
+      "source": "/components/verified-pdf-viewer.js",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
+        }
+      ]
+    },
+    {
       "source": "/components/letterhead-correspondence.js",
       "headers": [
         {
