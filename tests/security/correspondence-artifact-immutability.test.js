@@ -58,7 +58,7 @@ describe('Correspondence issuance integrity boundaries',()=>{
 
   test('protected correspondence requires both authentication and per-document authorization before PDF bytes are fetched',()=>{
     const preview=api.slice(api.indexOf("if (action === 'official-preview')"),api.indexOf("if (action === 'qr')"));
-    expect(preview).toContain("['confidential', 'restricted'].includes(doc.confidentiality)");
+    expect(preview).toContain("doc.confidentiality !== 'public'");
     expect(preview).toContain("const viewer = await resolveUser(req)");
     expect(preview).toContain("const viewerRole = await resolveRole(sb, viewer.id)");
     expect(preview).toContain("const viewerMemberships = await resolveMemberships(sb, viewer.id)");
