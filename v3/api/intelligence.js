@@ -122,7 +122,10 @@ async function intelligenceRouter(req, res, path, supabase, user = null) {
     return sendJson(res, 404, { error: 'Intelligence endpoint not found' });
   } catch (err) {
     console.error('[intelligence]', err.message);
-    sendJson(res, 400, { error: err.message });
+    sendJson(res, 400, {
+      error: err.message,
+      error_code: err.code || 'INTELLIGENCE_REQUEST_FAILED'
+    });
   }
 }
 

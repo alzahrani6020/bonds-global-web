@@ -462,6 +462,7 @@ async function aiChatHandlerImpl(req, res) {
       provider: 'BONDS',
       model: null,
       actions: loan.actions,
+      ...(Array.isArray(loan.ui) && loan.ui.length ? { ui: loan.ui } : {}),
       context: {
         cityCode: context.cityCode || null,
         activityCode: context.activityCode || null,
