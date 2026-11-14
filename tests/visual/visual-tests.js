@@ -129,6 +129,40 @@ async function runLetterheadNestedPaginationGate(browser) {
   }
 }
 
+
+async function runVerifiedPdfModalDirectionGate(browser) {
+  const js=fs.readFileSync(path.join(__dirname,'../../components/verified-pdf-viewer.js'),'utf8');
+  for(const [lang,dir] of [['ar','rtl'],['en','ltr']]){
+    const page=await browser.newPage({viewport:{width:390,height:844}});
+    try{
+      await page.setContent('<!doctype html><html dir="'+dir+'"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><a id="open" href="/api/correspondence?action=official-preview&token=00000000-0000-4000-8000-000000000000">Open</a><a id="download" href="/api/correspondence?action=official-preview&token=00000000-0000-4000-8000-000000000000&download=1">Download</a><div id="viewer" class="verified-pdf-pages"><canvas class="verified-pdf-page" data-pdf-natural-width="595" width="100" height="142"></canvas><canvas class="verified-pdf-page" data-pdf-natural-width="595" width="100" height="142"></canvas></div></body></html>');
+      await page.addScriptTag({content:js});
+      const installed=await page.evaluate(language=>window.BondsVerifiedPdfViewer.installModal({trigger:document.getElementById('open'),container:document.getElementById('viewer'),download:document.getElementById('download'),language}),lang);
+      if(!installed)throw new Error('Official PDF modal did not install');
+      await page.click('#open');
+      const opened=await page.evaluate(()=>{
+        const dialog=document.querySelector('.bonds-pdf-dialog');
+        return {open:dialog.open,dir:dialog.dir,readOnly:dialog.querySelectorAll('canvas').length,
+          download:dialog.querySelector('[data-action="download"]').getAttribute('href'),
+          pageCount:dialog.querySelector('.bonds-pdf-dialog-scroll .verified-pdf-pages').children.length};
+      });
+      if(!opened.open||opened.dir!==dir||opened.pageCount!==2||
+         !opened.download.includes('download=1'))throw new Error('PDF modal direction/pages mismatch '+JSON.stringify(opened));
+      await page.click('[data-action="zoom-in"]');
+      const zoom=await page.locator('.bonds-pdf-dialog [data-action="fit"]').innerText();
+      if(zoom!=='125%')throw new Error('A4 zoom did not change');
+      await page.click('[data-action="close"]');
+      const closed=await page.evaluate(()=>({
+        closed:!document.querySelector('.bonds-pdf-dialog').open,
+        original:document.querySelector('body > #viewer')!==null,
+        canvases:document.querySelectorAll('body > #viewer canvas').length
+      }));
+      if(!closed.closed||!closed.original||closed.canvases!==2)throw new Error('Viewer not returned after modal close '+JSON.stringify(closed));
+    }finally{await page.close();}
+  }
+  console.log(' Arabic RTL / English LTR verified PDF modal: A4 zoom and restore PASS');
+}
+
 async function runArabicLetterheadListGeometryGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8');
   const styles = html.split('<style>')[1]?.split('</style>')[0];
@@ -372,7 +406,8 @@ async function runScenarioDropdownInteractionGate(browser) {
     failed++;
   }
   try {
-    await runArabicLetterheadListGeometryGate(browser);
+    await runVerifiedPdfModalDirectionGate(browser);
+        await runArabicLetterheadListGeometryGate(browser);
   } catch (err) {
     console.error(' Arabic letterhead list geometry failed: ' + err.message);
     failed++;
