@@ -90,14 +90,16 @@ async function runIssuedPdfGeometryGate(browser) {
         try { execute(sheets, state, false); return 'PASS'; }
         catch (error) { return String(error.message); }
       }
-      const clean = check();
       const label = sheets[0].querySelector('.page-number');
-      const correctLabel = label.textContent;
+      const originalLabel = label.textContent;
+      // The standalone HTML fixture has a template label. Initialize the
+      // valid issued-state geometry before exercising rejection cases.
       label.textContent = 'الصفحة 1 من 1';
+      const clean = check();
       const matching = check();
       label.textContent = 'الصفحة 1 من 2';
       const wrongPageLabel = check();
-      label.textContent = correctLabel;
+      label.textContent = 'الصفحة 1 من 1';
       state.latestVersion.pages_html = [doc.innerHTML, '<p>missing second sheet</p>'];
       const wrongSavedCount = check();
       state.latestVersion.pages_html = [doc.innerHTML];
