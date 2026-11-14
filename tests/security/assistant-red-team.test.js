@@ -183,7 +183,7 @@ describe('BONDS Assistant V1 security red-team', () => {
           decision:'confirm'
         }
       });
-      expect(response.statusCode).toBe(409);
+      expect(response.statusCode).toBe(422);
       expect(response.body.status).toBe('denied');
       expect(response.body.error).toBe('CONFIRMATION_PAYLOAD_CHANGED');
     });

@@ -59,6 +59,13 @@ body.heritage-public .canva-page-hero .canva-h1,
 body.heritage-public .hero h1,
 body.heritage-public .hero__title,
 body.heritage-public .funding-hub__hero h1{color:#fff!important}
+/* v2026 hero titles use !important with higher specificity
+   (.hero.v2026 .hero__title = 0,3,0) — raise the heritage override so dark
+   heritage heroes keep white text instead of falling back to navy. */
+body.heritage-public .hero.v2026 .hero__title,
+body.heritage-public .page-hero.v2026 .page-hero__title,
+body.heritage-public .case-hero.v2026 .case-hero__title,
+body.heritage-public .article-hero.v2026 .article-hero__title{color:#fff!important;-webkit-text-fill-color:#fff!important}
 body.heritage-public .canva-page-hero p,
 body.heritage-public .canva-page-hero .canva-lead,
 body.heritage-public .hero__desc,

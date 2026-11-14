@@ -60,18 +60,28 @@ function sendJson(res, status, body) {
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let raw = '';
+    let settled = false;
     req.on('data', chunk => {
+      if (settled) return;
       raw += chunk;
       if (raw.length > 262144) {
+        settled = true;
         reject(new Error('request body too large'));
         req.destroy();
       }
     });
     req.on('end', () => {
+      if (settled) return;
+      settled = true;
       try { resolve(raw ? JSON.parse(raw) : {}); }
       catch (err) { reject(err); }
     });
-    req.on('error', reject);
+    req.on('error', err => {
+      if (!settled) {
+        settled = true;
+        reject(err);
+      }
+    });
   });
 }
 
@@ -212,7 +222,12 @@ async function assistantRouter(req, res, path, user) {
   }
 
   if (path.match(/^\/assistant\/services\/[^/]+$/) && req.method === 'GET') {
-    const serviceCode=decodeURIComponent(path.split('/').pop());
+    let serviceCode;
+    try {
+      serviceCode = decodeURIComponent(path.split('/').pop());
+    } catch (_decodeError) {
+      return sendJson(res, 404, { protocol:PROTOCOL, status:'denied', error:'SERVICE_NOT_FOUND' });
+    }
     try {
       const resolved=await loadExecutionProfile(getSupabaseClient(),serviceCode);
       if(!resolved) {
@@ -589,7 +604,18 @@ async function assistantRouter(req, res, path, user) {
         resume_required:Boolean(workflow)
       });
     } catch (err) {
-      return sendJson(res, 409, {
+      const validationError = [
+        'CONFIRMATION_REQUIRED',
+        'CONFIRMATION_ACTION_MISMATCH',
+        'CONFIRMATION_PAYLOAD_CHANGED',
+        'INVALID_CONFIRMATION_DECISION'
+      ].includes(err.message);
+      const notFound = err.message === 'WORKFLOW_NOT_FOUND';
+      const conflict = [
+        'WORKFLOW_BOUNDARY_CONFLICT',
+        'WORKFLOW_VERSION_CONFLICT'
+      ].includes(err.message);
+      return sendJson(res, validationError ? 422 : notFound ? 404 : conflict ? 409 : 503, {
         protocol:PROTOCOL,
         status:'denied',
         error:err.message
@@ -1085,7 +1111,8 @@ async function assistantRouter(req, res, path, user) {
         'WORKFLOW_USER_REQUIRED',
         'INVALID_WORKFLOW_KEY',
         'INVALID_WORKFLOW_VERSION',
-        'WORKFLOW_EVENT_STATUS_BLOCKED'
+        'WORKFLOW_EVENT_STATUS_BLOCKED',
+        'WORKFLOW_STATE_INVALID'
       ].includes(err.message);
 
       if ([
