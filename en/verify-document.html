@@ -144,7 +144,19 @@
   const params=new URLSearchParams(location.search);
   const token=params.get('token')||'';
   const status=document.getElementById('status'), content=document.getElementById('verified-content'), failure=document.getElementById('failure');
-  const fail=()=>{status.textContent='Document could not be verified';status.classList.add('bad');failure.classList.add('active');content.hidden=true;};
+  const fail=(reason='invalid')=>{
+    const messages={
+      invalid:['Invalid verification link','The QR link contains an invalid verification token. Scan the original QR again.'],
+      missing:['Document not found','This verification token is not registered in the official issue ledger.'],
+      limited:['Verification temporarily limited','Too many verification requests. Try again after the displayed retry interval.'],
+      unavailable:['Verification service unavailable','The service could not complete the verification. This does not establish that the document is invalid.']
+    };
+    const message=messages[reason]||messages.unavailable;
+    status.textContent=message[0];status.classList.add('bad');
+    failure.querySelector('h2').textContent=message[0];
+    failure.querySelector('p').textContent=message[1];
+    failure.classList.add('active');content.hidden=true;
+  };
   if(!token){
     status.textContent='No document selected';
     status.classList.add('warn');
@@ -162,7 +174,11 @@
   try{
     const r=await fetch('/api/correspondence?action=verify&token='+encodeURIComponent(token),{cache:'no-store'});
     const d=await r.json().catch(()=>({}));
-    if(!r.ok||!d.verified){fail();return;}
+    if(r.status===404){fail('missing');return;}
+    if(r.status===400){fail('invalid');return;}
+    if(r.status===429){fail('limited');return;}
+    if(!r.ok){fail('unavailable');return;}
+    if(!d.verified){fail('missing');return;}
     content.hidden=false;
     const state=d.issue_state||'active';
     status.textContent=state==='active'?'Checking archived PDF fingerprint…':state==='revoked'?'✕ This issue has been revoked':'! This issue has been superseded';
@@ -264,7 +280,7 @@
       if(state==='active'){status.textContent='Original PDF unavailable — verification incomplete';status.classList.add('warn');}
       pdfCheck.textContent='No fingerprint-bound official PDF is available';
     }
-  }catch(e){fail();}
+  }catch(e){console.warn('[BONDS verification] request failed',e?.name||'Error');fail('unavailable');}
 })();
 </script>
 </body>
