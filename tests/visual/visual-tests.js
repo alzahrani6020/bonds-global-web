@@ -68,6 +68,60 @@ function writePng(png, filePath) {
 
 
 
+async function runIssuedPdfGeometryGate(browser) {
+  const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
+    .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  const code = fs.readFileSync(path.join(__dirname, '../../components/letterhead-correspondence.js'), 'utf8');
+  const begin = code.indexOf('  function assertPdfSourceGeometry(sheets)');
+  const end = code.indexOf('  async function createPdfBlob()', begin);
+  if (begin < 0 || end < 0) throw new Error('Production PDF source geometry gate missing');
+  const guard = code.slice(begin, end);
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  try {
+    await page.setContent(html, { waitUntil: 'domcontentloaded' });
+    const report = await page.evaluate(guardCode => {
+      const doc = document.querySelector('.doc-content');
+      doc.innerHTML = '<ol start="1"><li><p>صك ملكية الأرض والتراخيص</p></li></ol>';
+      const sheets = [document.querySelector('#pages-container .sheet')];
+      const state = { document: { status: 'issued' }, latestVersion: { pages_html: [doc.innerHTML] } };
+      const execute = new Function('sheets', 'state', 'isEn', guardCode +
+        '\nreturn assertPdfSourceGeometry(sheets);');
+      function check() {
+        try { execute(sheets, state, false); return 'PASS'; }
+        catch (error) { return String(error.message); }
+      }
+      const label = sheets[0].querySelector('.page-number');
+      const originalLabel = label.textContent;
+      // The standalone HTML fixture has a template label. Initialize the
+      // valid issued-state geometry before exercising rejection cases.
+      label.textContent = 'الصفحة 1 من 1';
+      const clean = check();
+      const matching = check();
+      label.textContent = 'الصفحة 1 من 2';
+      const wrongPageLabel = check();
+      label.textContent = 'الصفحة 1 من 1';
+      state.latestVersion.pages_html = [doc.innerHTML, '<p>missing second sheet</p>'];
+      const wrongSavedCount = check();
+      state.latestVersion.pages_html = [doc.innerHTML];
+      const list = doc.querySelector('ol');
+      list.setAttribute('dir', 'ltr');
+      list.style.setProperty('direction', 'ltr', 'important');
+      const wrongRtl = check();
+      return { clean, matching, wrongPageLabel, wrongSavedCount, wrongRtl };
+    }, guard);
+    if (report.clean !== 'PASS' || report.matching !== 'PASS' ||
+        !report.wrongPageLabel.includes('ترقيم') ||
+        !report.wrongSavedCount.includes('عدد صفحات PDF') ||
+        !report.wrongRtl.includes('not RTL')) {
+      throw new Error('Issued A4 geometry gate did not reject bad input: ' +
+        JSON.stringify(report));
+    }
+    console.log(' Official PDF source geometry: valid PASS, page label / saved count / RTL negative cases blocked');
+  } finally {
+    await page.close();
+  }
+}
+
 async function runLetterheadNestedPaginationGate(browser) {
   const html = fs.readFileSync(path.join(__dirname, '../../letterhead.html'), 'utf8')
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
@@ -123,6 +177,38 @@ async function runLetterheadNestedPaginationGate(browser) {
         throw new Error('A4 overflow/clipped page ' + (i + 1) + ': ' + JSON.stringify(result.geometry[i]));
       }
     }
+    // Preserve ordered-list numbering after DOM pagination. Merely retaining ten
+    // <li> nodes does not prove that lists continue from the previous sheet.
+    const listSequence = await page.evaluate(() => {
+      const lists = Array.from(document.querySelectorAll('#pages-container .doc-content ol'));
+      let expected = 1;
+      return lists.map(list => {
+        const start = Number(list.getAttribute('start') || 1);
+        const count = list.querySelectorAll(':scope > li').length;
+        const css = getComputedStyle(list);
+        const li = list.querySelector(':scope > li');
+        const liCss = li ? getComputedStyle(li) : null;
+        const stage = { start, count, expected, direction: css.direction,
+          align: css.textAlign, itemDirection: liCss?.direction,
+          itemAlign: liCss?.textAlign };
+        expected = start + count;
+        return stage;
+      });
+    });
+    if (!listSequence.length || listSequence.reduce((sum, part) => sum + part.count, 0) !== 10) {
+      throw new Error('List continuity evidence missing: ' + JSON.stringify(listSequence));
+    }
+    for (const part of listSequence) {
+      if (part.start !== part.expected || part.direction !== 'rtl' ||
+          part.align !== 'right' || part.itemDirection !== 'rtl' || part.itemAlign !== 'right') {
+        throw new Error('Arabic list sequence or RTL geometry differs: ' + JSON.stringify(listSequence));
+      }
+    }
+    fs.writeFileSync(path.join(SNAPSHOTS_DIR, 'letterhead-a4-source-stage.json'),
+      JSON.stringify({ logicalSheets: result.pages, pageLabels: result.labels,
+        geometry: result.geometry, orderedLists: listSequence }, null, 2));
+    await page.screenshot({ path: path.join(SNAPSHOTS_DIR, 'letterhead-a4-source-stage.png'),
+      fullPage: true });
     console.log(' Arabic nested letter A4 pagination: ' + result.pages + ' physical sheets, 10 items, correct page labels PASS');
   } finally {
     await page.close();
@@ -402,6 +488,12 @@ async function runScenarioDropdownInteractionGate(browser) {
     failed++;
   }
   try {
+    await runIssuedPdfGeometryGate(browser);
+  } catch (err) {
+    console.error(' Issued PDF geometry gate failed: ' + err.message);
+    failed++;
+  }
+  try {
     await runLetterheadNestedPaginationGate(browser);
   } catch (err) {
     console.error(' Arabic nested letter A4 pagination failed: ' + err.message);
@@ -409,7 +501,12 @@ async function runScenarioDropdownInteractionGate(browser) {
   }
   try {
     await runVerifiedPdfModalDirectionGate(browser);
-        await runArabicLetterheadListGeometryGate(browser);
+  } catch (err) {
+    console.error(' Verified PDF viewer modal failed: ' + err.message);
+    failed++;
+  }
+  try {
+    await runArabicLetterheadListGeometryGate(browser);
   } catch (err) {
     console.error(' Arabic letterhead list geometry failed: ' + err.message);
     failed++;

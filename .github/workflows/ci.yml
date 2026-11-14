@@ -58,6 +58,12 @@ jobs:
         working-directory: services/bonds_token_runtime
         run: python3 -m unittest discover -s tests -p "test_*.py"
 
+      - name: Validate official correspondence PDF fidelity engine (read-only)
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+          python3 -m unittest discover -s tests/correspondence -p "test_*.py" -v
+
       - name: Run Site Audit
         run: npm run audit
 
@@ -110,6 +116,9 @@ jobs:
 
       - name: Run Mobile Interaction Tests
         run: npm run test:mobile
+
+      - name: Run isolated real correspondence PDF export chain
+        run: node tests/visual/correspondence-export-stages.js
 
       - name: Run Visual Regression Tests
         run: npm run test:visual
