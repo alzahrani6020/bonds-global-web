@@ -100,7 +100,7 @@ def compare_rgb(a, b, tolerance=CHANNEL_TOLERANCE):
 def rasterize(pdf, page, prefix):
     prefix = Path(prefix)
     run_tool(["pdftoppm", "-f", str(page), "-l", str(page),
-              "-singlefile", "-r", str(DPI), "-ppm", str(pdf),
+              "-singlefile", "-r", str(DPI), str(pdf),
               str(prefix)], timeout=45)
     return read_ppm(str(prefix) + ".ppm")
 
@@ -132,7 +132,9 @@ def compare(reference, candidate, logical_pages=None, expected_sha=None):
             checks["input"] = result("UNKNOWN", reason="missing_or_oversized_PDF")
             report["status"] = "UNKNOWN"
             return report
-        if p.open("rb").read(5) != b"%PDF-":
+        with p.open("rb") as stream:
+            pdf_magic = stream.read(5)
+        if pdf_magic != b"%PDF-":
             checks["input"] = result("UNKNOWN", reason="not_a_PDF")
             report["status"] = "UNKNOWN"
             return report
