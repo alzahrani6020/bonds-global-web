@@ -57,7 +57,7 @@ describe('Correspondence issuance integrity boundaries',()=>{
   });
 
   test('a revoked official issue stays verifiable but loses its public download URLs',()=>{
-    expect(api).toContain("issue.state !== 'revoked'");
+    expect(api).toContain("['active', 'superseded'].includes(issue.state)");
     expect(api).toContain("if (issue.state === 'revoked')");
     expect(api).toContain('status(410)');
     expect(api).toContain('This official issue has been revoked and is no longer available');
@@ -195,6 +195,22 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
     await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
     expect(res.statusCode).toBe(410);
     expect(res._json.error).toContain('revoked');
+    expect(scenario.sb.storage.from).not.toHaveBeenCalled();
+  });
+
+  test('pending successor returns 409 and cannot download a PDF',async()=>{
+    const scenario=makeScenario();
+    mockCurrentScenario=scenario;
+    scenario.results={
+      'correspondence_issues:maybeSingle':[{data:{
+        id:'iss-pending',document_id:'doc-new',state:'pending',
+        issue_version:2,issue_number:'OUT-PENDING',verification_token:TOKEN
+      },error:null}]
+    };
+    const res=mockRes();
+    await runCorrespondence(mockReq({method:'GET',query:{action:'official-preview',token:TOKEN}}),res);
+    expect(res.statusCode).toBe(409);
+    expect(res._json.error).toContain('awaiting final PDF');
     expect(scenario.sb.storage.from).not.toHaveBeenCalled();
   });
 
