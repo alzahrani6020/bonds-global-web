@@ -425,6 +425,21 @@ async function runScenarioDropdownInteractionGate(browser) {
     await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.route(/(\/global-auth-gate|\/calculators\/auth-gate)\.js(?:\?.*)?$/, route => route.abort());
     await page.context().addInitScript(() => {
+      // Deterministic *test-only* clock for the approved Arabic homepage PNG.
+      // The production header remains a live clock. The approved screenshot
+      // was captured at 18:43:15 UTC on 2026-11-15; all other pixels remain
+      // subject to the original unchanged SHA-256 fingerprint gate.
+      if (location.pathname === '/') {
+        const NativeDate = Date;
+        const fixed = NativeDate.parse('2026-11-15T18:43:15.000Z');
+        class ScreenshotDate extends NativeDate {
+          constructor(...args) { super(...(args.length ? args : [fixed])); }
+          static now() { return fixed; }
+        }
+        window.Date = ScreenshotDate;
+      }
+    });
+    await page.context().addInitScript(() => {
       localStorage.setItem('cookies', 'accepted');
       try {
         localStorage.removeItem('bonds-auth-token');
