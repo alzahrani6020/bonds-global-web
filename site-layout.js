@@ -1184,6 +1184,11 @@
     if (topbar) topbar.style.display = 'none';
 
     function setPadding() {
+      // Redesigned homepages have an in-flow sticky header, so compensation must be zero.
+      if (document.body.classList.contains('bonds-redesign')) {
+        document.body.style.paddingTop = '0px';
+        return;
+      }
       // Measure after layout/CSS settle; cap to avoid inflated heights from
       // temporarily visible dropdown markup before styles apply.
       const measured = header.getBoundingClientRect().height || header.offsetHeight || 70;
