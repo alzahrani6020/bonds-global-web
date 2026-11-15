@@ -35,6 +35,16 @@
     return `<span class="cv-badge cv-badge--neutral">${escapeHtml(result || '-')}</span>`;
   }
 
+  function verifierCell(event) {
+    if (!event.actor_user_id) return '<span class="cv-muted">هوية غير مسجلة</span>';
+    const id = escapeHtml(event.actor_user_id);
+    const email = event.verifier_email ? escapeHtml(event.verifier_email) : '';
+    const phone = event.verifier_phone ? escapeHtml(event.verifier_phone) : '';
+    return '<div>' + (email || id) + '</div>'
+      + (email ? '<small class="cv-muted">' + id + '</small>' : '')
+      + (phone ? '<div class="cv-muted">' + phone + '</div>' : '');
+  }
+
   function openLetterButton(documentId) {
     if (!documentId) return '<span class="cv-muted">—</span>';
     const href = '/letterhead.html?document=' + encodeURIComponent(documentId);
@@ -89,7 +99,7 @@
         <td>${escapeHtml(ev.document?.recipient_name || ev.document?.recipient_organization || '-')}</td>
         <td>${escapeHtml(ev.document?.subject || ev.document?.title || '-')}</td>
         <td>${resultBadge(ev.result)}</td>
-        <td>${ev.actor_user_id ? escapeHtml(ev.actor_user_id) : '<span class="cv-muted">هوية غير مسجلة</span>'}</td>
+        <td>${verifierCell(ev)}</td>
         <td>${openLetterButton(ev.document_id)}</td>
       </tr>`).join('');
 
