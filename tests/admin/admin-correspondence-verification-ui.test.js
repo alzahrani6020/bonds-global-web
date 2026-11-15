@@ -46,7 +46,7 @@ describe('correspondence verification module UI contracts', () => {
     expect(app).toContain('ev.document?.recipient_name || ev.document?.recipient_organization');
     expect(app).toContain('ev.document?.subject || ev.document?.title');
     expect(app).toContain('زائر غير مسجل');
-    expect(app).toContain("colspan=\\\"8\\\"");
+    expect(app).toContain('colspan="8"');
     expect(app).toContain('escapeHtml(ev.document?.subject');
   });
 
