@@ -190,7 +190,7 @@ test('unverified BONDS email blocks remote proof before any network call',async(
  expect(response.statusCode).toBe(403);
  expect(global.fetch).not.toHaveBeenCalled();
 });
-test('non-owner cannot probe an SCC identity even with an entitlement',async()=>{
+test('unsubscribed workspace employee cannot probe an SCC identity',async()=>{
  const owner=qb(null);
  const member=qb({role:'member'});
  const workspace=qb({id:WS,name:'A'});
