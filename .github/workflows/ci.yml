@@ -116,6 +116,9 @@ jobs:
           done
           echo "Server did not start in time" && exit 1
 
+      - name: Verify CRM browser workflow (isolated auth and database)
+        run: node tests/crm/browser-acceptance.js
+
       - name: Run Assistant End-to-End CI Journeys
         run: npm run test:assistant:e2e-ci
 
