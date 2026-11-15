@@ -128,7 +128,10 @@ async function getDashboardModuleTargets() {
 }
 
 function normalizePath(target) {
-  return target.replace(/\/+$/, '');
+  // cleanUrls 308-redirects ".html?x=1" to "?x=1"; navigating the extensionless
+  // URL directly removes the mid-measurement navigation that destroyed the
+  // execution context and flaked this suite on CI.
+  return target.replace(/\.html(?=\?|$)/i, '').replace(/\/+$/, '');
 }
 
 async function stabilizePage(page) {
