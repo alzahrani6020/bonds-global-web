@@ -403,7 +403,7 @@
   const fd=new FormData(event.currentTarget);
   const email=String(fd.get('email')||'').trim().toLowerCase();
   const role=String(fd.get('role')||'');
-  if(!/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(email)||!['viewer','editor','admin'].includes(role))
+  if(!/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(email)||!['viewer','editor','admin'].includes(role))
    return notify(english?'Invalid invitation data':'بيانات الدعوة غير صحيحة',true);
   const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
   try{
