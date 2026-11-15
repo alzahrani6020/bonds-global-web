@@ -10,10 +10,26 @@ describe('Customer CRM installable workspace integrity',()=>{
  test('all locally linked app assets exist and manifest is installable',()=>{
   for(const asset of ['crm-app.js','crm-app.css','crm-manifest.webmanifest'])
     expect(fs.existsSync(path.join(root,'my-bonds/crm',asset))).toBe(true);
-  expect(html).toContain('/my-bonds/crm/crm-app.js?v=1');
+  expect(html).toContain('/my-bonds/crm/crm-app.js?v=2');
   expect(manifest.start_url).toMatch(/^\/my-bonds\/crm\//);
   expect(manifest.display).toBe('standalone');
   for(const icon of manifest.icons)expect(fs.existsSync(path.join(root,icon.src.replace(/^\//,'')))).toBe(true);
+ });
+ test('multiple owned workspaces are selectable and can be created from either locale',()=>{
+  const en=read('en/my-bonds/crm/index.html');
+  for(const page of [html,en]){
+   expect(page).toContain('id="workspace-create-open"');
+   expect(page).toContain('id="workspace-create-cancel"');
+   expect(page).toContain('id="workspace-select"');
+  }
+  expect(js).toContain("$('workspace-switch-label').hidden=spaces.length===0");
+  expect(js).toContain("$('workspace-create-open').addEventListener('click'");
+  expect(js).toContain("$('workspace-create-cancel').addEventListener('click'");
+  expect(js).toContain("$('workspace-select').value=w.id");
+  expect(js).toContain("availableWorkspaces.push(workspace)");
+  const multi=read('supabase/migrations/20261115193300_crm_multiple_owner_workspaces.sql');
+  expect(multi).toContain('drop constraint if exists crm_app_workspaces_owner_user_id_key');
+  expect(multi).not.toMatch(/\\b(delete|truncate|drop table)\\b/i);
  });
  test('browser uses signed-in Supabase session and workspace-scoped queries',()=>{
   expect(js).toContain('window.BondsAuth.ensureEnv()');
@@ -33,7 +49,7 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(en).toContain('<html lang="en" dir="ltr">');
   expect(en).toContain('data-section="companies"');
   expect(en).toContain('Companies');
-  expect(en).toContain('/my-bonds/crm/crm-app.js?v=1');
+  expect(en).toContain('/my-bonds/crm/crm-app.js?v=2');
   expect(js).toContain('document.documentElement.lang');
   expect(js).toContain('translations');
  });
