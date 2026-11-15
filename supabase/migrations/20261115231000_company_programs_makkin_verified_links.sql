@@ -4,8 +4,8 @@
 begin;
 create table if not exists public.company_program_makkin_links (
   id uuid primary key default gen_random_uuid(),
-  workspace_id uuid not null unique
-    references public.crm_app_workspaces(id) on delete restrict,
+  workspace_link_id uuid not null unique
+    references public.company_program_workspaces(id) on delete restrict,
   makkin_tenant_id text not null unique
     check (length(btrim(makkin_tenant_id)) between 1 and 128),
   state text not null default 'pending'
