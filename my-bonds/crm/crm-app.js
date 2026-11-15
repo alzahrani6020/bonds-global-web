@@ -21,7 +21,7 @@
   success:[['company_id','الشركة','ref:companies'],['contact_id','جهة الاتصال','ref:contacts'],['health_score','مؤشر الصحة','number'],['risk_level','درجة المخاطر','select:low|medium|high|critical'],['lifecycle_stage','المرحلة','select:onboarding|activated|adopting|healthy|at_risk|churned'],['next_review_at','المراجعة المقبلة','datetime-local'],['success_plan','خطة النجاح','textarea']]
  };
  const columns={companies:['name','sector','city','status'],contacts:['name','email','phone','role'],deals:['title','stage','value_amount','next_action'],activities:['subject','kind','status','scheduled_at'],renewals:['title','renewal_date','status','risk_level'],success:['health_score','risk_level','lifecycle_stage','next_review_at'],pipelines:['name','description','is_active','is_default'],stages:['name','pipeline_id','sort_order','probability']};
- let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null;
+ let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null,currentUser=null,currentRole=null;
  const escape = value => String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const notify=(message,error=false)=>{const n=$('status');n.textContent=t(message);n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
  const must = result => {if(result.error)throw result.error;return result.data;};
@@ -131,14 +131,24 @@
  }
 
  function showSection(name) {
+  if(name==='members'||name==='audit'){
+   if(currentRole!=='owner'){notify(english?'Owner access required':'هذه الصفحة للمالك فقط',true);return;}
+  }
   current=name; $('section-heading').textContent=t(sectionTitles[name]);
   document.querySelectorAll('#crm-nav button').forEach(b=>b.classList.toggle('active',b.dataset.section===name));
   $('csv-export').hidden=name!=='contacts';
   $('csv-import').hidden=name!=='contacts';
+  $('new-record').hidden=currentRole==='viewer'||name==='members'||name==='audit';
+  if(currentRole==='viewer')$('csv-import').hidden=true;
   $('overview').hidden=name!=='overview';
-  $('records-section').hidden=name==='overview';
+  $('records-section').hidden=name==='overview'||name==='members'||name==='audit';
+  $('membership-section').hidden=name!=='members';
+  $('audit-section').hidden=name!=='audit';
   $('editor').hidden=true; editing=null;
-  if(name==='overview')renderOverview();else renderRecords();
+  if(name==='overview')renderOverview();
+  else if(name==='members')renderMembers().catch(err=>notify(err.message,true));
+  else if(name==='audit')renderAudit().catch(err=>notify(err.message,true));
+  else renderRecords();
  }
  function nameFor(group,id){return (rows[group]||[]).find(x=>x.id===id)?.name || (rows[group]||[]).find(x=>x.id===id)?.title || '—';}
  function renderOverview(){
@@ -194,6 +204,22 @@
   const out=await Promise.all(Object.entries(tableNames).map(async([k,t])=>[k,must(await sb.from(t).select('*').eq('workspace_id',workspace.id).order('updated_at',{ascending:false}).limit(500))]));
   rows=Object.fromEntries(out);showSection(current);
  }
+ async function renderMembers(){
+  if(!workspace||currentRole!=='owner')return;
+  const list=must(await sb.from('crm_app_members').select('id,member_user_id,role,active,updated_at')
+   .eq('workspace_id',workspace.id).order('updated_at',{ascending:false}).limit(250));
+  $('members-head').innerHTML='<tr><th>'+(english?'Member UUID':'معرف الموظف')+'</th><th>'+(english?'Role':'الدور')+'</th><th>'+(english?'Status':'الحالة')+'</th><th>'+(english?'Action':'الإجراء')+'</th></tr>';
+  $('members-body').innerHTML=list.length?list.map(m=>'<tr><td>'+escape(m.member_user_id)+'</td><td>'+escape(m.role)+'</td><td>'+(m.active?(english?'Active':'نشط'):(english?'Revoked':'ملغي'))+'</td><td><button class="secondary" type="button" data-member="'+escape(m.id)+'" data-active="'+m.active+'">'+(m.active?(english?'Revoke':'إلغاء الصلاحية'):(english?'Restore':'استعادة الصلاحية'))+'</button></td></tr>').join('')
+   :'<tr><td colspan="4">'+(english?'No staff members':'لا يوجد أعضاء')+'</td></tr>';
+ }
+ async function renderAudit(){
+  if(!workspace||currentRole!=='owner')return;
+  const list=must(await sb.from('crm_app_audit').select('created_at,actor_user_id,entity,entity_id,action,changed_columns')
+   .eq('workspace_id',workspace.id).order('created_at',{ascending:false}).limit(250));
+  $('audit-head').innerHTML='<tr><th>'+(english?'Time':'الوقت')+'</th><th>'+(english?'Actor':'المنفذ')+'</th><th>'+(english?'Object':'السجل')+'</th><th>'+(english?'Action':'الإجراء')+'</th><th>'+(english?'Changed columns':'الحقول المتغيرة')+'</th></tr>';
+  $('audit-body').innerHTML=list.length?list.map(x=>'<tr><td>'+escape(new Date(x.created_at).toLocaleString(english?'en-US':'ar-SA'))+'</td><td>'+escape(x.actor_user_id||'system')+'</td><td>'+escape(x.entity)+' '+escape(x.entity_id)+'</td><td>'+escape(x.action)+'</td><td>'+escape((x.changed_columns||[]).join(', '))+'</td></tr>').join('')
+   :'<tr><td colspan="5">'+(english?'No audit events':'لا يوجد سجل تغييرات')+'</td></tr>';
+ }
  async function initialize(){
   try{
    await window.BondsAuth.ensureEnv();
@@ -201,8 +227,18 @@
    if(!sb)throw new Error('تعذّر تهيئة خدمة المصادقة');
    const result=await sb.auth.getUser(),user=result.data?.user;
    if(!user){$('auth-gate').hidden=false;return;}
-   const spaces=must(await sb.from('crm_app_workspaces').select('id,name').eq('owner_user_id',user.id).limit(1));
-   workspace=spaces[0]||null;
+   currentUser=user;
+   // RLS makes owned and assigned workspaces visible; never trust browser role claims.
+   const spaces=must(await sb.from('crm_app_workspaces').select('id,name,owner_user_id').limit(20));
+   workspace=spaces.find(w=>w.owner_user_id===user.id)||spaces[0]||null;
+   currentRole=workspace?.owner_user_id===user.id?'owner':null;
+   if(workspace&&!currentRole){
+    const membership=must(await sb.from('crm_app_members').select('role').eq('workspace_id',workspace.id)
+     .eq('member_user_id',user.id).eq('active',true).limit(1));
+    currentRole=membership[0]?.role||null;
+   }
+   const ownerOnly=currentRole==='owner';
+   document.querySelectorAll('#crm-nav [data-section="members"],#crm-nav [data-section="audit"]').forEach(el=>el.hidden=!ownerOnly);
    $('onboarding').hidden=!!workspace;$('workspace-content').hidden=!workspace;
    if(workspace){$('workspace-name').textContent=workspace.name;await refresh();}
   }catch(e){notify('تعذر تحميل مساحة CRM: '+(e.message||e),true);}
@@ -218,7 +254,7 @@
  $('crm-nav').addEventListener('click',e=>{const n=e.target.closest('[data-section]');if(n&&workspace)showSection(n.dataset.section);});
  $('refresh').addEventListener('click',()=>refresh().then(()=>notify('تم تحديث السجلات')).catch(e=>notify(e.message,true)));
  $('search').addEventListener('input',()=>renderRecords());
- $('new-record').addEventListener('click',()=>openEditor());
+ $('new-record').addEventListener('click',()=>{if(currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);openEditor();});
  $('csv-export').addEventListener('click',async()=>{
   const button=$('csv-export');button.disabled=true;
   try{await exportContacts();}catch(err){notify((english?'Export failed: ':'تعذر التصدير: ')+err.message,true);}
@@ -238,15 +274,45 @@
  });
  $('records-body').addEventListener('click',async e=>{
   const edit=e.target.closest('[data-edit]'),archive=e.target.closest('[data-archive]'),group=normalSection(current);
-  if(edit){openEditor((rows[group]||[]).find(r=>r.id===edit.dataset.edit));return;}
+  if(edit){if(currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);openEditor((rows[group]||[]).find(r=>r.id===edit.dataset.edit));return;}
+  if(archive&&currentRole==='viewer')return notify(english?'Read-only access':'صلاحية العرض فقط',true);
   if(archive&&group==='activities'&&window.confirm('أرشفة النشاط دون حذف العملاء؟')){
    try{must(await sb.from('crm_app_activities').update({deleted_at:new Date().toISOString(),updated_at:new Date().toISOString()}).eq('workspace_id',workspace.id).eq('id',archive.dataset.archive));await refresh();notify('تمت أرشفة النشاط');}
    catch(err){notify(err.message,true);}
   }
  });
+ $('member-form').addEventListener('submit',async event=>{
+  event.preventDefault();
+  if(currentRole!=='owner'||!workspace)return notify(english?'Owner access required':'هذه العملية للمالك فقط',true);
+  const fd=new FormData(event.currentTarget),member=String(fd.get('member_user_id')||'').trim();
+  const role=String(fd.get('role')||'');
+  if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(member)||
+    !['admin','editor','viewer'].includes(role)||member===currentUser?.id){
+   return notify(english?'Invalid employee UUID or role':'معرف الموظف أو الدور غير صحيح',true);
+  }
+  const button=event.currentTarget.querySelector('[type="submit"]');button.disabled=true;
+  try{
+   must(await sb.from('crm_app_members').insert({workspace_id:workspace.id,member_user_id:member,role}).select('id'));
+   await renderMembers();event.currentTarget.reset();
+   notify(english?'Membership granted':'تم منح صلاحية العضو');
+  }catch(err){notify(err.message,true);}finally{button.disabled=false;}
+ });
+ $('members-body').addEventListener('click',async event=>{
+  const button=event.target.closest('[data-member]');
+  if(!button||currentRole!=='owner'||!workspace)return;
+  const active=button.dataset.active==='true';
+  if(!window.confirm(active?(english?'Revoke this employee?':'إلغاء صلاحية هذا الموظف؟'):(english?'Restore this employee?':'استعادة صلاحية هذا الموظف؟')))return;
+  button.disabled=true;
+  try{
+   must(await sb.from('crm_app_members').update({active:!active,updated_at:new Date().toISOString()})
+    .eq('workspace_id',workspace.id).eq('id',button.dataset.member).select('id'));
+   await renderMembers();
+  }catch(err){notify(err.message,true);}finally{button.disabled=false;}
+ });
  $('record-form').addEventListener('submit',async e=>{
   e.preventDefault();const button=$('save-record');button.disabled=true;
   try{
+   if(!['owner','admin','editor'].includes(currentRole))throw Error(english?'Read-only access':'صلاحية العرض فقط');
    const group=normalSection(current),fd=new FormData(e.currentTarget),payload={workspace_id:workspace.id};
    for(const [key,,spec='text',required=false] of defs[group]){
     let val=spec==='checkbox'?fd.has(key):String(fd.get(key)||'').trim();
