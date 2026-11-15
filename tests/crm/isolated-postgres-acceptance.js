@@ -54,8 +54,8 @@ async function main(){
   assert.equal(rls.length,tables.length,'CRM tables missing from migration');
   for(const row of rls)assert.equal(row.relrowsecurity,true,'RLS missing for '+row.relname);
 
-  const a=randomUUID(),b=randomUUID();
-  await client.query('insert into auth.users(id) values($1),($2)',[a,b]);
+  const a=randomUUID(),b=randomUUID(),editor=randomUUID(),viewer=randomUUID(),admin=randomUUID();
+  await client.query('insert into auth.users(id) values($1),($2),($3),($4),($5)',[a,b,editor,viewer,admin]);
   async function as(user,fn){
    await client.query('begin');
    try{
@@ -69,6 +69,34 @@ async function main(){
   const first=await as(a,()=>client.query("insert into crm_app_workspaces(owner_user_id,name) values($1,'Tenant A') returning id",[a]));
   const second=await as(b,()=>client.query("insert into crm_app_workspaces(owner_user_id,name) values($1,'Tenant B') returning id",[b]));
   const wa=first.rows[0].id,wb=second.rows[0].id;
+  // Only owner can grant employee access; viewers cannot edit or add records.
+  await as(a,()=>client.query(
+   "insert into crm_app_members(workspace_id,member_user_id,role) values($1,$2,'editor'),($1,$3,'viewer'),($1,$4,'admin')",
+   [wa,editor,viewer,admin]));
+  const memberWorkspace=await as(editor,()=>client.query('select id from crm_app_workspaces where id=$1',[wa]));
+  assert.equal(memberWorkspace.rowCount,1,'Editor cannot read assigned workspace');
+  const outsiderMember=await as(b,()=>client.query('select id from crm_app_members where workspace_id=$1',[wa]));
+  assert.equal(outsiderMember.rowCount,0,'Unrelated owner can read members');
+  const viewerWorkspace=await as(viewer,()=>client.query('select id from crm_app_workspaces where id=$1',[wa]));
+  assert.equal(viewerWorkspace.rowCount,1,'Viewer cannot open assigned workspace');
+  await assert.rejects(()=>as(viewer,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Viewer Escalation')",[wa])),
+   e=>e.code==='42501','Viewer must not insert');
+  await assert.rejects(()=>as(editor,()=>client.query("insert into crm_app_members(workspace_id,member_user_id,role) values($1,$2,'admin')",[wa,b])),
+   e=>e.code==='42501','Editor must not add members');
+  const employeeCompany=await as(editor,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Editor Company') returning id",[wa]));
+  assert.equal(employeeCompany.rowCount,1,'Editor cannot create workspace-scoped records');
+  const {rows:auditRows}=await as(a,()=>client.query("select action,entity,actor_user_id,changed_columns from crm_app_audit where workspace_id=$1 and entity='crm_app_companies'",[wa]));
+  assert.ok(auditRows.some(x=>x.action==='INSERT'&&x.actor_user_id===editor),'Editor write missing from audit');
+  const hiddenAudit=await as(viewer,()=>client.query('select id from crm_app_audit where workspace_id=$1',[wa]));
+  assert.equal(hiddenAudit.rowCount,0,'Viewer can read internal audit records');
+  await assert.rejects(()=>as(editor,()=>client.query("insert into crm_app_audit(workspace_id,entity,entity_id,action,changed_columns) values($1,'forgery',$2,'INSERT',array['name'])",[wa,randomUUID()])),
+   e=>e.code==='42501','Members must never write audit logs directly');
+  const ownerMemberRows=await as(a,()=>client.query("select role from crm_app_members where workspace_id=$1",[wa]));
+  assert.equal(ownerMemberRows.rowCount,3,'Owner cannot inspect member list');
+  // Owner revokes editor access, effective immediately on next operation.
+  await as(a,()=>client.query("update crm_app_members set active=false where workspace_id=$1 and member_user_id=$2",[wa,editor]));
+  const revoked=await as(editor,()=>client.query("select id from crm_app_companies where workspace_id=$1",[wa]));
+  assert.equal(revoked.rowCount,0,'Revoked employee can still read company data');
   const company=await as(a,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Company A') returning id,status",[wa]));
   const ca=company.rows[0].id;
   assert.equal(company.rows[0].status,'prospect');
