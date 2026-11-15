@@ -14,7 +14,8 @@ describe('homepage illustrative market data labels', () => {
     expect(html).not.toContain('<span>LIVE</span>');
     expect(html).not.toContain('SPREAD');
     expect(html).not.toContain('SOFR');
-    expect(html).toContain('رؤية أوسع لقرارات أدق');
+    expect(html).toContain('شريكك في النمو والتمويل');
+    expect(html).not.toContain('bonds-hero__eyebrow');
     expect(html).toContain('الاعتماد على بيانات موثوقة');
   });
 
