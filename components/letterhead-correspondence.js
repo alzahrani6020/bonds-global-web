@@ -197,8 +197,10 @@
 
   function isOwner() {
     if (!state.document) return false;
+    // Never infer document ownership from a locally cached user or document.
+    // The API's explicit owner decision must win even when it is false.
     if (typeof state.serverIsOwner === 'boolean') return state.serverIsOwner;
-    return !!state.userId && state.document.owner_user_id === state.userId;
+    return false;
   }
 
   function canEditCurrent() {
