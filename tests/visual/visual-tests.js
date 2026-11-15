@@ -519,6 +519,21 @@ async function runScenarioDropdownInteractionGate(browser) {
         }
 
         ensureDir(path.dirname(snapshotPath));
+        if (p.name === 'index-ar' || p.name === 'index-en') {
+          const geometry = await page.evaluate(() => {
+            const box = selector => {
+              const element = document.querySelector(selector);
+              if (!element) return null;
+              const rect = element.getBoundingClientRect();
+              const css = getComputedStyle(element);
+              return { top: Math.round(rect.top), bottom: Math.round(rect.bottom), height: Math.round(rect.height), position: css.position, overflow: css.overflow, transform: css.transform };
+            };
+            return { scrollY: window.scrollY, bodyPaddingTop: getComputedStyle(document.body).paddingTop,
+              siteHeader: box('#site-header'), header: box('.main-header'), main: box('main'),
+              hero: box('.bonds-hero'), copy: box('.bonds-hero__copy'), title: box('#bonds-hero-title') };
+          });
+          console.log('BONDS_HOME_LAYOUT_GEOMETRY=' + viewport.name + '/' + p.name + ' ' + JSON.stringify(geometry));
+        }
         await page.screenshot({ path: snapshotPath, fullPage: FULL_PAGE });
 
         if (UPDATE_BASELINE) {
