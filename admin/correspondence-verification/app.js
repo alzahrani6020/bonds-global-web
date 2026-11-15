@@ -85,8 +85,11 @@
       <tr>
         <td>${escapeHtml(fmtDateTime(ev.created_at))}</td>
         <td>${escapeHtml(ev.issue_number || (ev.issue && ev.issue.issue_number) || '-')}</td>
+        <td>${escapeHtml(fmtDateTime(ev.issue?.issued_at || ev.document?.issued_at))}</td>
+        <td>${escapeHtml(ev.document?.recipient_name || ev.document?.recipient_organization || '-')}</td>
+        <td>${escapeHtml(ev.document?.subject || ev.document?.title || '-')}</td>
         <td>${resultBadge(ev.result)}</td>
-        <td>${ev.actor_user_id ? escapeHtml(ev.actor_user_id) : '<span class="cv-muted">تحقق عام</span>'}</td>
+        <td>${ev.actor_user_id ? escapeHtml(ev.actor_user_id) : '<span class="cv-muted">هوية غير مسجلة</span>'}</td>
         <td>${openLetterButton(ev.document_id)}</td>
       </tr>`).join('');
 
@@ -128,13 +131,16 @@
               <tr>
                 <th>الوقت</th>
                 <th>رقم الخطاب</th>
+                <th>تاريخ الإصدار</th>
+                <th>الموجّه إليه</th>
+                <th>الموضوع</th>
                 <th>النتيجة</th>
-                <th>هوية المتحقق</th>
+                <th>معرّف حساب المتحقق</th>
                 <th>الخطاب</th>
               </tr>
             </thead>
             <tbody>
-              ${rows || '<tr><td colspan="5" class="cv-muted">لا توجد عمليات تحقق بعد.</td></tr>'}
+              ${rows || '<tr><td colspan="8" class="cv-muted">لا توجد عمليات تحقق بعد.</td></tr>'}
             </tbody>
           </table>
         </div>

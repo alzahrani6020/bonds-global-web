@@ -695,7 +695,7 @@ async function getVerificationEvents(sb, params = {}) {
 
   let query = sb
     .from('correspondence_verification_events')
-    .select('*, issue:correspondence_issues(issue_number,state,issue_version)', { count: 'exact' });
+    .select('*, issue:correspondence_issues(issue_number,state,issue_version,issued_at), document:correspondence_documents!correspondence_verification_events_document_id_fkey(title,subject,recipient_name,recipient_organization,issued_at,confidentiality)', { count: 'exact' });
   if (issueNumber) query = query.ilike('issue_number', `%${issueNumber}%`);
   if (from && !Number.isNaN(Date.parse(from))) query = query.gte('created_at', new Date(from).toISOString());
   if (to && !Number.isNaN(Date.parse(to))) query = query.lte('created_at', new Date(to).toISOString());
