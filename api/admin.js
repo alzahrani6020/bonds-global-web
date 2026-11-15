@@ -2640,8 +2640,15 @@ async function getCrmOverview(sb) {
     sb.from('crm_activities').select('id,organization_id,client_id,opportunity_id,activity_type,subject,details,status,scheduled_at,completed_at,created_at,updated_at')
       .is('deleted_at',null).order('created_at',{ascending:false}).limit(1000)
   ]);
-  for (const result of [orgsRes, clientsRes, oppsRes, renewalsRes, successRes, serviceRequestsRes, activitiesRes]) {
+  for (const result of [orgsRes, clientsRes, oppsRes, renewalsRes, successRes, serviceRequestsRes]) {
     if (result.error) throw result.error;
+  }
+  // A staged rollout must not take the existing administrative CRM offline
+  // before the additive crm_activities migration is verified. Only tolerate
+  // the specific missing-table errors; do not mask auth, network or SQL faults.
+  const activitiesUnavailable = Boolean(activitiesRes.error);
+  if (activitiesRes.error && !['42P01', 'PGRST205'].includes(activitiesRes.error.code)) {
+    throw activitiesRes.error;
   }
 
   const opportunities = oppsRes.data || [];
@@ -2714,6 +2721,7 @@ async function getCrmOverview(sb) {
     customerSuccessRecords: success,
     serviceRequests: serviceRequestQueue,
     activities: activitiesRes.data || [],
+    activitiesUnavailable,
     pipeline,
     renewalSummary,
     customerSuccess,
