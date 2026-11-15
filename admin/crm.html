@@ -30,7 +30,10 @@
 <main>
   <div class="top">
     <div><h1 style="margin:0">CRM وإدارة الشركات</h1><div class="muted">Organizations · Pipeline · Renewals · Customer Success</div></div>
-    <button class="btn btn2" onclick="loadCrm()">تحديث</button>
+    <div class="crm-top-actions">
+      <a class="btn crm-app-link" href="/my-bonds/crm/" aria-label="فتح برنامج إدارة علاقات العملاء للشركات">فتح برنامج CRM للشركات</a>
+      <button class="btn btn2" type="button" onclick="loadCrm()">تحديث اللوحة الإدارية</button>
+    </div>
   </div>
   <div id="status" class="status"></div>
 
@@ -38,7 +41,7 @@
     <section class="card span-12"><div class="kpis" id="kpis"></div></section>
 
     <section class="card span-12">
-      <h2>Commercial Scoring</h2>
+      <h2>التقييم التجاري · Commercial Scoring</h2>
       <div class="muted">Rule-based operational prioritization · ليس احتمال تحويل أو توقع إيراد · UNKNOWN عند نقص الدليل</div>
       <div class="kpis" id="scoringKpis" style="margin-top:.75rem"></div>
     </section>
@@ -117,6 +120,13 @@
     if(!res.ok||!data.success) throw new Error(data.error||('HTTP '+res.status));
     return data;
   }
+  function confidenceSummary(value){
+    if(value==null)return 'UNKNOWN';
+    if(typeof value!=='object')return esc(value);
+    const levels=[['high','مرتفع'],['medium','متوسط'],['low','منخفض'],['unknown','غير محدد']];
+    return levels.filter(([key])=>Number(value[key]||0)>0)
+      .map(([key,label])=>label+': '+Number(value[key]).toLocaleString('en-US')).join(' · ')||'UNKNOWN';
+  }
   function render(){
     const p=crm.pipeline||{}, r=crm.renewalSummary||{}, cs=crm.customerSuccess||{};
     document.getElementById('kpis').innerHTML=[
@@ -129,9 +139,9 @@
     const leadScore=scoring.leadScoring||{}, oppScore=scoring.opportunityScoring||{};
     document.getElementById('scoringKpis').innerHTML=[
       ['Lead Score',leadScore.averageScore==null?'UNKNOWN':leadScore.averageScore+'/100','entities: '+Number(leadScore.entityCount||0)],
-      ['Lead Confidence',JSON.stringify(leadScore.confidence||{}),'evidence coverage'],
+      ['Lead Confidence',confidenceSummary(leadScore.confidence),'evidence coverage'],
       ['Opportunity Score',oppScore.averageScore==null?'UNKNOWN':oppScore.averageScore+'/100','entities: '+Number(oppScore.entityCount||0)],
-      ['Opportunity Confidence',JSON.stringify(oppScore.confidence||{}),'evidence coverage']
+      ['Opportunity Confidence',confidenceSummary(oppScore.confidence),'evidence coverage']
     ].map(x=>'<div class="kpi"><b>'+esc(x[1])+'</b><span class="muted">'+esc(x[0])+' · '+esc(x[2])+'</span></div>').join('');
 
     const stages=['lead','qualified','proposal','negotiation','won','lost'];
