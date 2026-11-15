@@ -35,9 +35,105 @@
   return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
  };
  const normalSection=s=>s==='pipeline'?'pipelines':s;
+ // CSV import is deliberately one bounded, atomic database INSERT. Never store
+ // customer files in browser storage or submit tenant identifiers from CSV.
+ const contactCsvFields=['name','email','phone','role','source','status','is_decision_maker'];
+ function parseCsv(text){
+  const records=[];let row=[],field='',quoted=false;
+  const source=String(text||'').replace(/^\uFEFF/,'');
+  for(let i=0;i<source.length;i++){
+   const c=source[i];
+   if(quoted){
+    if(c==='"'&&source[i+1]==='"'){field+='"';i++;}
+    else if(c==='"')quoted=false;
+    else field+=c;
+   }else if(c==='"'&&field==='')quoted=true;
+   else if(c===','){row.push(field);field='';}
+   else if(c==='\n'||c==='\r'){
+    if(c==='\r'&&source[i+1]==='\n')i++;
+    row.push(field);field='';
+    if(row.some(x=>x.trim()!==''))records.push(row);
+    row=[];
+   }else field+=c;
+  }
+  if(quoted)throw Error('Unclosed CSV quotation');
+  row.push(field);
+  if(row.some(x=>x.trim()!==''))records.push(row);
+  return records;
+ }
+ function csvCell(value){
+  let v=String(value==null?'':value);
+  // Neutralize spreadsheet formula evaluation when files are opened in Excel.
+  if(/^\s*[=+@\-\t\r]/.test(v))v="'"+v;
+  return '"'+v.replace(/"/g,'""')+'"';
+ }
+ async function exportContacts(){
+  const out=[];const batchSize=250;const cap=10000;
+  for(let start=0;start<cap;start+=batchSize){
+   const records=must(await sb.from('crm_app_contacts').select(contactCsvFields.join(','))
+     .eq('workspace_id',workspace.id).order('created_at',{ascending:true})
+     .order('id',{ascending:true}).range(start,start+batchSize-1));
+   out.push(...records);
+   if(records.length<batchSize)break;
+  }
+  if(out.length===cap)throw Error('Export exceeds 10,000 records. Use smaller batches via the CRM administrator.');
+  const data='\uFEFF'+contactCsvFields.join(',')+'\r\n'+out.map(item=>contactCsvFields.map(key=>csvCell(item[key])).join(',')).join('\r\n');
+  const url=URL.createObjectURL(new Blob([data],{type:'text/csv;charset=utf-8'}));
+  try{
+   const a=document.createElement('a');
+   a.href=url;a.download='bonds-crm-contacts-'+new Date().toISOString().slice(0,10)+'.csv';
+   document.body.appendChild(a);a.click();a.remove();
+  }finally{URL.revokeObjectURL(url);}
+  notify((english?'Exported contacts: ':'تم تصدير جهات الاتصال: ')+out.length);
+ }
+ async function importContacts(file){
+  if(!file) return;
+  if(file.size>262144)throw Error(english?'Maximum CSV size: 256 KB':'الحد الأقصى لملف CSV هو 256 كيلوبايت');
+  const records=parseCsv(await file.text());
+  if(records.length<2)throw Error(english?'CSV has no contact rows':'ملف CSV لا يحتوي على جهات اتصال');
+  const headers=records.shift().map(x=>x.trim().toLowerCase());
+  if(new Set(headers).size!==headers.length||!headers.includes('name')||
+      headers.some(x=>!contactCsvFields.includes(x)))throw Error(english?'Invalid CSV headers':'أعمدة CSV غير صحيحة');
+  if(records.length>100)throw Error(english?'Maximum 100 contacts per import':'الحد الأقصى 100 جهة اتصال في الاستيراد الواحد');
+  const seen=new Set(),payload=[];
+  for(let i=0;i<records.length;i++){
+   const values=records[i];
+   if(values.length!==headers.length)throw Error('CSV row '+(i+2)+' has invalid column count');
+   const entry=Object.fromEntries(headers.map((k,j)=>[k,values[j].trim()]));
+   if(!entry.name||entry.name.length>240)throw Error('CSV row '+(i+2)+': invalid name');
+   if(entry.email&&(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(entry.email)||entry.email.length>254))throw Error('CSV row '+(i+2)+': invalid email');
+   const status=entry.status||'lead';
+   if(!['lead','prospect','customer','active','inactive','archived'].includes(status))throw Error('CSV row '+(i+2)+': invalid status');
+   const email=entry.email?.toLowerCase();
+   if(email){
+    if(seen.has(email))throw Error('CSV row '+(i+2)+': repeated email');
+    seen.add(email);
+   }
+   const yes=String(entry.is_decision_maker||'').toLowerCase();
+   if(yes&&!['true','false','1','0','yes','no'].includes(yes))throw Error('CSV row '+(i+2)+': invalid boolean');
+   const row={workspace_id:workspace.id,name:entry.name,status,
+     is_decision_maker:['true','1','yes'].includes(yes)};
+   for(const k of ['email','phone','role','source']){
+    if(entry[k]){
+     if(entry[k].length>(k==='email'?254:160))throw Error('CSV row '+(i+2)+': field too long');
+     row[k]=entry[k];
+    }
+   }
+   payload.push(row);
+  }
+  if(!window.confirm((english?'Import ':'استيراد ')+payload.length+(english?' contacts into your CRM?':' جهة اتصال إلى مساحة CRM؟')))return;
+  // A single PostgREST insert runs in one transaction: any constraint failure
+  // rejects the complete batch, including workspace-boundary violations.
+  must(await sb.from('crm_app_contacts').insert(payload).select('id'));
+  await refresh();
+  notify((english?'Imported contacts: ':'تم استيراد جهات الاتصال: ')+payload.length);
+ }
+
  function showSection(name) {
   current=name; $('section-heading').textContent=t(sectionTitles[name]);
   document.querySelectorAll('#crm-nav button').forEach(b=>b.classList.toggle('active',b.dataset.section===name));
+  $('csv-export').hidden=name!=='contacts';
+  $('csv-import').hidden=name!=='contacts';
   $('overview').hidden=name!=='overview';
   $('records-section').hidden=name==='overview';
   $('editor').hidden=true; editing=null;
@@ -110,6 +206,19 @@
  $('refresh').addEventListener('click',()=>refresh().then(()=>notify('تم تحديث السجلات')).catch(e=>notify(e.message,true)));
  $('search').addEventListener('input',()=>renderRecords());
  $('new-record').addEventListener('click',()=>openEditor());
+ $('csv-export').addEventListener('click',async()=>{
+  const button=$('csv-export');button.disabled=true;
+  try{await exportContacts();}catch(err){notify((english?'Export failed: ':'تعذر التصدير: ')+err.message,true);}
+  finally{button.disabled=false;}
+ });
+ $('csv-import').addEventListener('click',()=>{$('csv-file').click();});
+ $('csv-file').addEventListener('change',async(event)=>{
+  const file=event.target.files?.[0];
+  if(!file)return;
+  $('csv-import').disabled=true;
+  try{await importContacts(file);}catch(err){notify((english?'Import failed: ':'تعذر الاستيراد: ')+err.message,true);}
+  finally{event.target.value='';$('csv-import').disabled=false;}
+ });
  $('editor-close').addEventListener('click',()=>{$('editor').hidden=true;});
  $('records-body').addEventListener('click',async e=>{
   const edit=e.target.closest('[data-edit]'),archive=e.target.closest('[data-archive]'),group=normalSection(current);
