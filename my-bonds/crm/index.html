@@ -79,6 +79,9 @@
    <section id="records-section" class="section" hidden>
     <div class="section-actions">
       <input id="search" type="search" placeholder="بحث في السجلات" aria-label="بحث داخل القسم">
+      <button type="button" class="secondary" id="csv-export" hidden>تصدير جهات الاتصال CSV</button>
+      <button type="button" class="secondary" id="csv-import" hidden>استيراد جهات الاتصال CSV</button>
+      <input type="file" id="csv-file" accept=".csv,text/csv" hidden aria-label="استيراد جهات الاتصال CSV">
       <button type="button" class="primary" id="new-record">إضافة جديد</button>
     </div>
     <div class="panel overflow"><table><thead id="records-head"></thead><tbody id="records-body"></tbody></table></div>
