@@ -10,8 +10,14 @@ describe('Bonds CRM admin and company program visual/navigation acceptance',()=>
  const layout=read('site-layout.js');
  test('admin dashboard remains separate from customer company application',()=>{
   expect(admin).toContain('href="/my-bonds/crm/"');
-  expect(admin).toContain('href="#crm-extensions"');
-  expect(read('admin/crm-extended.js')).toContain('id="crm-install"');
+  expect(admin).toContain('id="crm-install-shortcut"');
+  expect(admin).not.toContain('class="btn btn2 crm-install-shortcut" href="#crm-extensions"');
+  const extended=read('admin/crm-extended.js');
+  expect(extended).toContain('id="crm-install"');
+  expect(extended).toContain("installShortcut.addEventListener('click',requestInstall)");
+  expect(extended).toContain("await p.prompt()");
+  expect(extended).toContain("window.addEventListener('appinstalled',markInstalled)");
+  expect(extended).toContain('تم قبول طلب التثبيت؛ تحقق من ظهور التطبيق على جهازك');
   expect(customer).toContain('id="crm-nav"');
   expect(layout).toContain("href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/'");
   expect(layout).toContain("href: '/admin/crm.html'");
