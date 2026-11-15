@@ -34,10 +34,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b "$branch"
           git add tests/visual/baselines
-          git commit -m "test(visual): regenerate baselines on the CI renderer
-
-Baselines are renderer-sensitive; regenerating them on the same ubuntu
-runner that executes the visual gate keeps comparisons meaningful."
+          git commit -m "test(visual): regenerate baselines on the CI renderer (renderer-sensitive)"
           git push origin "$branch"
           gh pr create --base main --head "$branch" \
             --title "test(visual): regenerate baselines on the CI renderer" \
