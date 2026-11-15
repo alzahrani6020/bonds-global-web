@@ -104,3 +104,44 @@ test('denies writes and invalid workspace source',async()=>{
  await handler({method:'GET',query:{workspace_type:'unknown',workspace_id:WS}},invalid);
  expect(invalid.statusCode).toBe(400);
 });
+
+
+test('integration-status requires verified tenant+user mapping and never releases external IDs',async()=>{
+ const owner=qb({id:WS,name:'Legal Company'});
+ const link=qb({id:WS});
+ const rows=qb([{program_key:'hr',status:'active',valid_from:'2020-01-01T00:00:00Z',valid_until:null}],null,'list');
+ const tenant=qb({workspace_link_id:WS,makkin_tenant_id:'hidden-tenant',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const member=qb({workspace_link_id:WS,bonds_user_id:USER,makkin_user_id:'hidden-user',state:'verified',verified_at:'2026-01-01',verified_by:USER});
+ const from=jest.fn(table=>({
+   crm_app_workspaces:owner,company_program_workspaces:link,
+   company_program_entitlements:rows,
+   company_program_makkin_links:tenant,
+   company_program_makkin_user_links:member
+ })[table]||(()=>{throw Error('unexpected table '+table)})());
+ createClient.mockReturnValue({from});
+ const response=res();
+ await handler({method:'GET',query:{workspace_id:WS,action:'integration-status',program_key:'hr'}},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body).toMatchObject({mappingReady:true,operationalReady:false,mappingStatus:'MAPPING_VERIFIED_NOT_OPERATIONAL'});
+ expect(JSON.stringify(response.body)).not.toContain('hidden-tenant');
+ expect(JSON.stringify(response.body)).not.toContain('hidden-user');
+});
+test('integration-status refuses paid HR when only CRM is subscribed',async()=>{
+ const owner=qb({id:WS,name:'Company A'});
+ const link=qb({id:WS});
+ const rows=qb([{program_key:'crm',status:'active',valid_from:'2020-01-01',valid_until:null}],null,'list');
+ const from=jest.fn(table=>({
+  crm_app_workspaces:owner,company_program_workspaces:link,company_program_entitlements:rows
+ })[table]||(()=>{throw Error('must never query Makkin mapping')})());
+ createClient.mockReturnValue({from});
+ const response=res();
+ await handler({method:'GET',query:{workspace_id:WS,action:'integration-status',program_key:'hr'}},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body).toMatchObject({mappingReady:false,operationalReady:false,mappingStatus:'ENTITLEMENT_REQUIRED'});
+ expect(from).not.toHaveBeenCalledWith('company_program_makkin_links');
+});
+test('integration-status rejects unknown application keys before touching identity',async()=>{
+ const response=res();
+ await handler({method:'GET',query:{workspace_id:WS,action:'integration-status',program_key:'invented'}},response);
+ expect(response.statusCode).toBe(400);
+});
