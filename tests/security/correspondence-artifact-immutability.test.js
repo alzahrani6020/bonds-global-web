@@ -305,6 +305,33 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
     expect(res.headers['Content-Type']).toBe('application/pdf');
   });
 
+  test('guest QR validation returns 401 before ledger lookup or counter mutation',async()=>{
+    const scenario=makeScenario();
+    mockCurrentScenario=scenario;
+    const res=mockRes();
+    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    expect(res.statusCode).toBe(401);
+    expect(res._json.error).toContain('Sign in');
+    expect(scenario.sb.from).not.toHaveBeenCalled();
+    expect(scenario.sb.rpc).not.toHaveBeenCalled();
+  });
+
+  test('authenticated QR verifications are attributed to server-verified account IDs',()=>{
+    const api=read('lib/api/correspondence.js');
+    const verify=api.slice(api.indexOf("if (action === 'verify')"),api.indexOf("if (action === 'official-preview')"));
+    expect(verify).toContain('const verifier = await resolveUser(req)');
+    expect(verify).toContain('if (!verifier || verifier.is_anonymous)');
+    expect(verify).toContain('actor_user_id: verifier.id');
+    expect(verify.indexOf('const verifier = await resolveUser(req)')).toBeLessThan(verify.indexOf("increment_issue_verification_count"));
+    for(const page of ['verify-document.html','en/verify-document.html']){
+      const html=read(page);
+      expect(html).toContain("window.BondsAuth?.getSession()");
+      expect(html).toContain("location.replace(");
+      expect(html).toContain("encodeURIComponent(location.pathname+location.search)");
+      expect(html).toContain("headers:{Authorization:'Bearer '+accessToken}");
+    }
+  });
+
   test('verify keeps a revoked issue verifiable with successor but withholds download URLs',async()=>{
     const scenario=makeScenario();
     mockCurrentScenario=scenario;
@@ -334,7 +361,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       'correspondence_documents:maybeSingle':[{data:boundDoc,error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:{host:'localhost',authorization:'Bearer valid-token'},query:{action:'verify',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._json.verified).toBe(true);
     expect(res._json.issue_state).toBe('revoked');
@@ -371,7 +398,7 @@ describe('Correspondence revoked issue and issuance race behavior',()=>{
       'correspondence_documents:maybeSingle':[{data:boundDoc,error:null}]
     };
     const res=mockRes();
-    await runCorrespondence(mockReq({method:'GET',query:{action:'verify',token:TOKEN}}),res);
+    await runCorrespondence(mockReq({method:'GET',headers:{host:'localhost',authorization:'Bearer valid-token'},query:{action:'verify',token:TOKEN}}),res);
     expect(res.statusCode).toBe(200);
     expect(res._json.verified).toBe(true);
     expect(res._json.official_preview_url).toContain('action=official-preview');
