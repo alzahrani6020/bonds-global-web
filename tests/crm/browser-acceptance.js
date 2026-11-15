@@ -98,6 +98,18 @@ async function main(){
   await page.locator('#workspace-form input[name="name"]').fill('Isolated Company');
   await page.locator('#workspace-form button[type="submit"]').click();
   await page.waitForFunction(()=>document.querySelector('#workspace-content')?.hidden===false);
+  // A signed-in owner may create and switch between two distinct workspaces.
+  const firstWorkspace=await page.evaluate(()=>window.__crmTestState.db.crm_app_workspaces[0].id);
+  await page.locator('#workspace-create-open').click();
+  await page.locator('#workspace-form input[name="name"]').fill('Second Isolated Company');
+  await page.locator('#workspace-form button[type="submit"]').click();
+  await page.waitForFunction(()=>window.__crmTestState.db.crm_app_workspaces.length===2 && document.querySelector('#onboarding')?.hidden===true);
+  assert.equal(await page.locator('#workspace-select option').count(),2,'Workspace selection must include both owner spaces');
+  assert.equal(await page.locator('#workspace-select').isVisible(),true,'Workspace picker must stay visible');
+  await page.locator('#workspace-select').selectOption(firstWorkspace);
+  await page.waitForFunction(id=>document.querySelector('#workspace-select')?.value===id,firstWorkspace);
+  assert.equal(await page.locator('#workspace-name').textContent(),'Isolated Company');
+  // Return to the original workspace before existing CRM lifecycle tests.
   // Owner dispatches an email invitation; browser never receives a raw token.
   await page.locator('#crm-nav [data-section="members"]').click();
   await page.locator('#invite-form [name="email"]').fill('employee@example.com');
