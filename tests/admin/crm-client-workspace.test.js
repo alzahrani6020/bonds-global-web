@@ -45,4 +45,17 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(sql).not.toContain('owner_user_id uuid not null references auth.users(id) on delete cascade');
  });
 
+ test('admin overview tolerates only the absent activities table',()=>{
+  const api=read('api/admin.js');
+  expect(api).toContain("['42P01', 'PGRST205'].includes(activitiesRes.error.code)");
+  expect(api).toContain('activitiesUnavailable');
+  expect(api).toContain('for (const result of [orgsRes, clientsRes, oppsRes, renewalsRes, successRes, serviceRequestsRes])');
+ });
+ test('rendering activity KPIs excludes archived tasks and dates use local wall time',()=>{
+  expect(js).toContain("!r.deleted_at&&r.status==='open'");
+  expect(js).toContain('d.getHours()');
+  expect(js).toContain('d.getMinutes()');
+  expect(js).not.toContain("new Date(v).toISOString().slice(0,16)");
+ });
+
 });
