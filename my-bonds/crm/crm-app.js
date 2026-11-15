@@ -2,6 +2,9 @@
 (async function () {
  'use strict';
  const $ = id => document.getElementById(id);
+ const english=document.documentElement.lang==='en';
+ const translations={"نظرة عامة":"Overview","الشركات":"Companies","جهات الاتصال":"Contacts","الصفقات":"Deals","مسارات المبيعات":"Sales pipelines","الأنشطة والمهام":"Activities and tasks","التجديدات":"Renewals","نجاح العملاء":"Customer success","محتمل":"Lead","مؤهل":"Qualified","عرض":"Proposal","تفاوض":"Negotiation","رابحة":"Won","خاسرة":"Lost","مهمة":"Task","مكالمة":"Call","اجتماع":"Meeting","بريد":"Email","ملاحظة":"Note","واتساب":"WhatsApp","رسالة":"Message","زيارة":"Visit","مفتوحة":"Open","مكتملة":"Completed","ملغاة":"Cancelled","الاسم":"Name","الاسم القانوني":"Legal name","السجل التجاري":"Commercial registration","الرقم الضريبي":"Tax number","البريد":"Email","الهاتف":"Phone","المدينة":"City","الدولة":"Country","القطاع":"Sector","الحالة":"Status","الشركة":"Company","الدور":"Role","المصدر":"Source","صاحب قرار":"Decision maker","عنوان الصفقة":"Deal title","جهة الاتصال":"Contact","المرحلة":"Stage","القيمة":"Value","العملة":"Currency","احتمال الإغلاق %":"Probability %","تاريخ الإغلاق":"Expected close date","الإجراء التالي":"Next action","موعد الإجراء":"Next action date","الموضوع":"Subject","النوع":"Type","الصفقة":"Deal","الموعد":"Scheduled date","التفاصيل":"Details","التجديد":"Renewal","تاريخ التجديد":"Renewal date","درجة المخاطر":"Risk level","ملاحظات":"Notes","مؤشر الصحة":"Health score","المراجعة المقبلة":"Next review","خطة النجاح":"Success plan","المهام المفتوحة":"Open tasks","التجديدات القادمة":"Upcoming renewals","لا توجد متابعات مجدولة":"No scheduled follow-ups","إجراءات":"Actions","تعديل":"Edit","أرشفة":"Archive","لا توجد سجلات":"No records","إضافة":"Add","لا":"No","نعم":"Yes"};
+ const t=value=>english?(translations[value]||value):value;
  const tableNames = {companies:'crm_app_companies',contacts:'crm_app_contacts',deals:'crm_app_deals',activities:'crm_app_activities',renewals:'crm_app_renewals',success:'crm_app_success'};
  const sectionTitles = {overview:'نظرة عامة',companies:'الشركات',contacts:'جهات الاتصال',deals:'الصفقات',pipeline:'مسارات المبيعات',activities:'الأنشطة والمهام',renewals:'التجديدات',success:'نجاح العملاء'};
  const stageLabels = {lead:'محتمل',qualified:'مؤهل',proposal:'عرض',negotiation:'تفاوض',won:'رابحة',lost:'خاسرة'};
@@ -18,13 +21,13 @@
  const columns={companies:['name','sector','city','status'],contacts:['name','email','phone','role'],deals:['title','stage','value_amount','next_action'],activities:['subject','kind','status','scheduled_at'],renewals:['title','renewal_date','status','risk_level'],success:['health_score','risk_level','lifecycle_stage','next_review_at']};
  let sb,workspace=null,current='overview',rows={},editing=null,installPrompt=null;
  const escape = value => String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const notify=(message,error=false)=>{const n=$('status');n.textContent=message;n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
+ const notify=(message,error=false)=>{const n=$('status');n.textContent=t(message);n.className='notice'+(error?' error':'');n.hidden=!message;n.style.display=message?'block':'none';};
  const must = result => {if(result.error)throw result.error;return result.data;};
  const formatValue=v=>v==null?'—':typeof v==='boolean'?(v?'نعم':'لا'):String(v);
  const toInputValue=(v,type)=>!v?'':type==='datetime-local'?new Date(v).toISOString().slice(0,16):String(v);
  const normalSection=s=>s==='pipeline'?'deals':s;
  function showSection(name) {
-  current=name; $('section-heading').textContent=sectionTitles[name];
+  current=name; $('section-heading').textContent=t(sectionTitles[name]);
   document.querySelectorAll('#crm-nav button').forEach(b=>b.classList.toggle('active',b.dataset.section===name));
   $('overview').hidden=name!=='overview';
   $('records-section').hidden=name==='overview';
@@ -34,27 +37,27 @@
  function nameFor(group,id){return (rows[group]||[]).find(x=>x.id===id)?.name || (rows[group]||[]).find(x=>x.id===id)?.title || '—';}
  function renderOverview(){
   const metrics=[['الشركات',rows.companies?.length||0],['جهات الاتصال',rows.contacts?.length||0],['الصفقات',rows.deals?.length||0],['المهام المفتوحة',(rows.activities||[]).filter(r=>r.status==='open').length],['التجديدات القادمة',(rows.renewals||[]).filter(r=>r.status==='upcoming').length]];
-  $('kpis').innerHTML=metrics.map(([k,v])=>'<div class="kpi"><b>'+v+'</b><span>'+escape(k)+'</span></div>').join('');
+  $('kpis').innerHTML=metrics.map(([k,v])=>'<div class="kpi"><b>'+v+'</b><span>'+escape(t(k))+'</span></div>').join('');
   const deals=rows.deals||[],total=Math.max(1,deals.length);
-  $('pipeline-summary').innerHTML=Object.entries(stageLabels).map(([k,label])=>{const n=deals.filter(r=>r.stage===k).length;return '<div class="bar-row"><div class="bar-title"><span>'+label+'</span><span>'+n+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+(n/total*100)+'%"></div></div></div>';}).join('');
+  $('pipeline-summary').innerHTML=Object.entries(stageLabels).map(([k,label])=>{const n=deals.filter(r=>r.stage===k).length;return '<div class="bar-row"><div class="bar-title"><span>'+t(label)+'</span><span>'+n+'</span></div><div class="bar-track"><div class="bar-fill" style="width:'+(n/total*100)+'%"></div></div></div>';}).join('');
   const tasks=(rows.activities||[]).filter(r=>r.status==='open'&&r.scheduled_at).sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at)).slice(0,8);
-  $('upcoming-tasks').innerHTML=tasks.length?tasks.map(r=>'<p>'+escape(r.subject)+' — '+escape(new Date(r.scheduled_at).toLocaleDateString('ar-SA'))+'</p>').join(''):'لا توجد متابعات مجدولة';
+  $('upcoming-tasks').innerHTML=tasks.length?tasks.map(r=>'<p>'+escape(r.subject)+' — '+escape(new Date(r.scheduled_at).toLocaleDateString('ar-SA'))+'</p>').join(''):t('لا توجد متابعات مجدولة');
  }
  function renderRecords(){
   const group=normalSection(current),schema=defs[group],list=(rows[group]||[]).filter(r=>group!=='activities'||!r.deleted_at);
   const query=($('search').value||'').toLocaleLowerCase();
   const filtered=list.filter(r=>!query||Object.values(r).some(v=>String(v??'').toLocaleLowerCase().includes(query)));
-  $('records-head').innerHTML='<tr>'+columns[group].map(k=>'<th>'+escape(schema.find(d=>d[0]===k)?.[1]||k)+'</th>').join('')+'<th>إجراءات</th></tr>';
+  $('records-head').innerHTML='<tr>'+columns[group].map(k=>'<th>'+escape(t(schema.find(d=>d[0]===k)?.[1]||k))+'</th>').join('')+'<th>'+t('إجراءات')+'</th></tr>';
   $('records-body').innerHTML=filtered.length?filtered.map(r=>'<tr>'+columns[group].map(k=>'<td>'+escape(k.endsWith('_id')?nameFor(k==='company_id'?'companies':'contacts',r[k]):formatValue(r[k]))+'</td>').join('')+'<td><button type="button" class="secondary" data-edit="'+escape(r.id)+'">تعديل</button>'+(group==='activities'?'<button type="button" class="secondary" data-archive="'+escape(r.id)+'">أرشفة</button>':'')+'</td></tr>').join(''):'<tr><td colspan="7">لا توجد سجلات</td></tr>';
  }
  function buildField(def,record){
   const [key,label,spec='text',required=false]=def,value=record?.[key];
-  const head='<label class="field">'+escape(label),tail='</label>';
+  const head='<label class="field">'+escape(t(label)),tail='</label>';
   if(spec==='checkbox')return head+'<input type="checkbox" name="'+key+'" '+(value?'checked':'')+'>'+tail;
   if(spec==='textarea')return head+'<textarea name="'+key+'" rows="3">'+escape(value||'')+'</textarea>'+tail;
   if(spec.startsWith('select:')||spec.startsWith('ref:')){
    const reference=spec.startsWith('ref:');
-   const options=reference?(rows[spec.slice(4)]||[]).map(r=>[r.id,r.name||r.title]):spec.slice(7).split('|').map(x=>[x,stageLabels[x]||kinds[x]||statusLabels[x]||x]);
+   const options=reference?(rows[spec.slice(4)]||[]).map(r=>[r.id,r.name||r.title]):spec.slice(7).split('|').map(x=>[x,t(stageLabels[x]||kinds[x]||statusLabels[x]||x)]);
    // An empty option is valid for nullable foreign keys, but not for NOT NULL
    // enum columns. When creating, select the first valid enum rather than NULL.
    const selected=value==null?(reference?'':(options[0]?.[0]||'')):String(value);
@@ -64,7 +67,7 @@
  }
  function openEditor(record=null){
   const group=normalSection(current);
-  editing=record; $('editor-title').textContent=record?'تعديل '+sectionTitles[current]:'إضافة '+sectionTitles[current];
+  editing=record; $('editor-title').textContent=(record?t('تعديل'):t('إضافة'))+' '+t(sectionTitles[current]);
   $('editor-fields').innerHTML=defs[group].map(def=>buildField(def,record)).join('');
   $('editor').hidden=false;$('editor').scrollIntoView({block:'start',behavior:'smooth'});
  }
