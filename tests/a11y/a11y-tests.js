@@ -62,25 +62,57 @@ const PAGES = [
       // analytics/presence polling alive, which can stall CI for minutes per page.
       await page.goto(fullUrl, { waitUntil: 'domcontentloaded', timeout: 15000 });
       await page.waitForTimeout(350);
-      await page.addScriptTag({ content: axeCore.source });
+      // Settle scroll-reveal animations before measuring: elements scanned
+      // mid-reveal report transient color-contrast violations (observed
+      // flakiness on pricing cards). Zero animation/transition durations,
+      // scroll through the page to trigger observers, then measure the
+      // settled state users actually see.
+      const settleAnimations = () => page.evaluate(() => {
+        try {
+          const style = document.createElement('style');
+          style.textContent = '*,*::before,*::after{animation-duration:0s!important;animation-delay:0s!important;transition-duration:0s!important;transition-delay:0s!important}';
+          (document.head || document.documentElement).appendChild(style);
+          const root = document.scrollingElement || document.documentElement;
+          if (root) window.scrollTo(0, root.scrollHeight);
+        } catch (_) {
+          // Settling is best-effort; measurement proceeds either way.
+        }
+      });
 
-      // Keep the watchdog in the Node runner, not inside page.evaluate().
-      // A navigation destroys the page execution context (and any in-page timer),
-      // so the host must remain able to abort the scan deterministically.
-      const scan = page.evaluate(async () => {
-        // eslint-disable-next-line no-undef
-        return await axe.run(document, {
-          runOnly: {
-            type: 'tag',
-            values: ['wcag2a', 'wcag2aa', 'wcag21aa'],
-          },
-          resultTypes: ['violations'],
-        });
-      });
-      const watchdog = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('axe scan timed out after 10s')), 10000);
-      });
-      const result = await Promise.race([scan, watchdog]);
+      // Redirecting pages (auth-gated calculators) may navigate after
+      // domcontentloaded and destroy the execution context mid-measurement;
+      // retry once on the post-navigation document instead of failing the page.
+      let result = null;
+      for (let attempt = 0; attempt < 2 && !result; attempt += 1) {
+        try {
+          await settleAnimations();
+          await page.waitForTimeout(150);
+          await page.addScriptTag({ content: axeCore.source });
+
+          // Keep the watchdog in the Node runner, not inside page.evaluate().
+          // A navigation destroys the page execution context (and any in-page timer),
+          // so the host must remain able to abort the scan deterministically.
+          const scan = page.evaluate(async () => {
+            // eslint-disable-next-line no-undef
+            return await axe.run(document, {
+              runOnly: {
+                type: 'tag',
+                values: ['wcag2a', 'wcag2aa', 'wcag21aa'],
+              },
+              resultTypes: ['violations'],
+            });
+          });
+          const watchdog = new Promise((_, reject) => {
+            setTimeout(() => reject(new Error('axe scan timed out after 10s')), 10000);
+          });
+          result = await Promise.race([scan, watchdog]);
+        } catch (err) {
+          const destroyed = /Execution context was destroyed/.test(String(err?.message || err));
+          if (!destroyed || attempt === 1) throw err;
+          await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {});
+          await page.waitForTimeout(300);
+        }
+      }
 
       const criticalOrSerious = result.violations.filter(
         (v) => v.impact === 'critical' || v.impact === 'serious'
