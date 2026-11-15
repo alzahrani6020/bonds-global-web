@@ -347,3 +347,21 @@ html body.bonds-redesign #site-header .main-header__inner{
     filter:saturate(1.22) contrast(1.09) brightness(1.05);
   }
 }
+
+
+/* Reference globe occupies most of the photo area and sits in the lower corner.
+   Correct the previous 64% / -40% placement, which hid too much of the globe. */
+@media (min-width:1501px) {
+  html[dir="rtl"] body.bonds-redesign .bonds-hero__globe {
+    top:auto!important;bottom:-23%!important;
+    left:-15%!important;right:auto!important;
+    width:min(83%,735px)!important;max-height:none!important;
+  }
+  html[dir="ltr"] body.bonds-redesign .bonds-hero__globe {
+    top:auto!important;bottom:-23%!important;
+    right:-15%!important;left:auto!important;
+    width:min(83%,735px)!important;max-height:none!important;
+  }
+  html body.bonds-redesign .bonds-quicklink strong {font-size:21px}
+  html body.bonds-redesign .bonds-quicklink span:last-child {font-size:16px}
+}
