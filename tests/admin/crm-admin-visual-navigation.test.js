@@ -10,6 +10,8 @@ describe('Bonds CRM admin and company program visual/navigation acceptance',()=>
  const layout=read('site-layout.js');
  test('admin dashboard remains separate from customer company application',()=>{
   expect(admin).toContain('href="/my-bonds/crm/"');
+  expect(admin).toContain('href="#crm-extensions"');
+  expect(read('admin/crm-extended.js')).toContain('id="crm-install"');
   expect(customer).toContain('id="crm-nav"');
   expect(layout).toContain("href: isEn ? '/en/my-bonds/crm/' : '/my-bonds/crm/'");
   expect(layout).toContain("href: '/admin/crm.html'");
