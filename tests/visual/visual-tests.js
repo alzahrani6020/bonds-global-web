@@ -450,7 +450,18 @@ async function runScenarioDropdownInteractionGate(browser) {
       const diffPath = path.join(DIFFS_DIR, viewport.name, `${p.name}.png`);
 
       try {
-        await page.goto(fullUrl, { waitUntil: 'networkidle' });
+        if (viewport.name === 'tablet' && p.name === 'cash-flow-ar') {
+          // The cash-flow calculator can retain ongoing third-party network
+          // requests after its actual UI is ready. A networkidle timeout here
+          // must not fail an otherwise rendered and visually checked page.
+          // Require both generated 12-month data tables before screenshotting;
+          // the baseline pixel comparison below remains fully enforced.
+          await page.goto(fullUrl, { waitUntil: 'domcontentloaded' });
+          await page.waitForSelector('#inflowTableWrap table.cashflow-table tbody tr', { state: 'attached', timeout: 15000 });
+          await page.waitForSelector('#outflowTableWrap table.cashflow-table tbody tr', { state: 'attached', timeout: 15000 });
+        } else {
+          await page.goto(fullUrl, { waitUntil: 'networkidle' });
+        }
         await page.addStyleTag({
           content: `
             *, *::before, *::after {

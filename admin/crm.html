@@ -21,31 +21,49 @@
     .forms{display:grid;grid-template-columns:1fr 1fr;gap:1rem}.muted{color:#475569}.status{display:none;padding:.75rem;border-radius:10px;background:#fee2e2;color:#991b1b;margin-top:.75rem}
     @media(max-width:900px){.span-8,.span-6,.span-4{grid-column:span 12}.forms{grid-template-columns:1fr}.pipeline{grid-template-columns:repeat(6,240px)}}
   </style>
-  <link rel="stylesheet" href="/admin/crm-scc380-theme.css?v=1">
+  <link rel="manifest" href="/admin/crm-manifest.webmanifest">
+  <meta name="theme-color" content="#0066cc">
+  <link rel="icon" href="/assets/icons/icon-192.png" sizes="192x192">
+  <link rel="stylesheet" href="/admin/crm-scc380-theme.css?v=2">
 </head>
 <body class="crm-scc380">
-<main>
+<nav class="crm-admin-sidebar" aria-label="تنقل إدارة علاقات العملاء">
+  <div class="crm-admin-brand"><span class="crm-admin-mark" aria-hidden="true">B</span><span><strong>BONDS CRM</strong><small>إدارة الشركات · مكين</small></span></div>
+  <a class="crm-admin-nav-link active" href="#crm-overview">نظرة عامة</a>
+  <a class="crm-admin-nav-link" href="#crm-scoring">التقييم التجاري</a>
+  <a class="crm-admin-nav-link" href="#crm-pipeline">مسار المبيعات</a>
+  <a class="crm-admin-nav-link" href="#crm-requests">طلبات الخدمات</a>
+  <a class="crm-admin-nav-link" href="#crm-organizations">المؤسسات والتجديدات</a>
+  <a class="crm-admin-nav-link" href="#crm-extensions">الأنشطة والعمليات</a>
+  <a class="crm-admin-nav-link crm-admin-nav-primary" href="/my-bonds/crm/">فتح برنامج CRM للشركات</a>
+  <a class="crm-admin-nav-link crm-admin-nav-back" href="/admin/dashboard">العودة للوحة التحكم</a>
+</nav>
+<main id="crm-overview">
   <div class="top">
     <div><h1 style="margin:0">CRM وإدارة الشركات</h1><div class="muted">Organizations · Pipeline · Renewals · Customer Success</div></div>
-    <button class="btn btn2" onclick="loadCrm()">تحديث</button>
+    <div class="crm-top-actions">
+      <a class="btn crm-app-link" href="/my-bonds/crm/" aria-label="فتح برنامج إدارة علاقات العملاء للشركات">فتح برنامج CRM للشركات</a>
+      <button class="btn btn2 crm-install-shortcut" id="crm-install-shortcut" type="button" aria-label="تثبيت برنامج CRM الإداري">تثبيت CRM الإداري</button>
+      <button class="btn btn2" type="button" onclick="loadCrm()">تحديث اللوحة الإدارية</button>
+    </div>
   </div>
   <div id="status" class="status"></div>
 
   <div class="grid">
     <section class="card span-12"><div class="kpis" id="kpis"></div></section>
 
-    <section class="card span-12">
-      <h2>Commercial Scoring</h2>
+    <section class="card span-12" id="crm-scoring">
+      <h2>التقييم التجاري · Commercial Scoring</h2>
       <div class="muted">Rule-based operational prioritization · ليس احتمال تحويل أو توقع إيراد · UNKNOWN عند نقص الدليل</div>
       <div class="kpis" id="scoringKpis" style="margin-top:.75rem"></div>
     </section>
 
-    <section class="card span-12">
+    <section class="card span-12" id="crm-pipeline">
       <h2>Pipeline</h2>
-      <div id="pipeline" class="pipeline"></div>
+      <div id="pipeline" class="pipeline" tabindex="0" role="region" aria-label="مسار فرص المبيعات — يمكن التمرير أفقيًا باستخدام لوحة المفاتيح"></div>
     </section>
 
-    <section class="card span-12">
+    <section class="card span-12" id="crm-requests">
       <h2>طلبات الخدمات</h2>
       <div class="scroll">
         <table>
@@ -55,7 +73,7 @@
       </div>
     </section>
 
-    <section class="card span-6">
+    <section class="card span-6" id="crm-organizations">
       <h2>المؤسسات</h2>
       <div class="scroll"><table><thead><tr><th>الاسم</th><th>الحالة</th><th>القطاع</th><th>الدولة</th></tr></thead><tbody id="orgRows"></tbody></table></div>
     </section>
@@ -98,6 +116,7 @@
       </div>
     </section>
   </div>
+  <div id="crm-extensions"><div id="bonds-crm-extensions" class="grid" data-navigation-anchor="crm-extensions" aria-label="إدارة العملاء والصفقات والأنشطة المتقدمة"></div></div>
 </main>
 <script src="/supabase-client.js"></script>
 <script src="/bonds-auth-2026.js?v=3.1.3"></script>
@@ -113,6 +132,13 @@
     if(!res.ok||!data.success) throw new Error(data.error||('HTTP '+res.status));
     return data;
   }
+  function confidenceSummary(value){
+    if(value==null)return 'UNKNOWN';
+    if(typeof value!=='object')return esc(value);
+    const levels=[['high','مرتفع'],['medium','متوسط'],['low','منخفض'],['unknown','غير محدد']];
+    return levels.filter(([key])=>Number(value[key]||0)>0)
+      .map(([key,label])=>label+': '+Number(value[key]).toLocaleString('en-US')).join(' · ')||'UNKNOWN';
+  }
   function render(){
     const p=crm.pipeline||{}, r=crm.renewalSummary||{}, cs=crm.customerSuccess||{};
     document.getElementById('kpis').innerHTML=[
@@ -125,9 +151,9 @@
     const leadScore=scoring.leadScoring||{}, oppScore=scoring.opportunityScoring||{};
     document.getElementById('scoringKpis').innerHTML=[
       ['Lead Score',leadScore.averageScore==null?'UNKNOWN':leadScore.averageScore+'/100','entities: '+Number(leadScore.entityCount||0)],
-      ['Lead Confidence',JSON.stringify(leadScore.confidence||{}),'evidence coverage'],
+      ['Lead Confidence',confidenceSummary(leadScore.confidence),'evidence coverage'],
       ['Opportunity Score',oppScore.averageScore==null?'UNKNOWN':oppScore.averageScore+'/100','entities: '+Number(oppScore.entityCount||0)],
-      ['Opportunity Confidence',JSON.stringify(oppScore.confidence||{}),'evidence coverage']
+      ['Opportunity Confidence',confidenceSummary(oppScore.confidence),'evidence coverage']
     ].map(x=>'<div class="kpi"><b>'+esc(x[1])+'</b><span class="muted">'+esc(x[0])+' · '+esc(x[2])+'</span></div>').join('');
 
     const stages=['lead','qualified','proposal','negotiation','won','lost'];
@@ -151,6 +177,7 @@
 
     const sel=document.getElementById('oppOrg');
     sel.innerHTML='<option value="">بدون مؤسسة</option>'+(crm.organizations||[]).map(o=>'<option value="'+esc(o.id)+'">'+esc(o.name)+'</option>').join('');
+    if(window.BondsCrmExtra) window.BondsCrmExtra.render(crm);
   }
   async function loadCrm(){error('');try{crm=await api('/api/admin?action=crm-overview');render()}catch(e){error('فشل تحميل CRM: '+e.message)}}
   async function updateServiceRequestStatus(id){
@@ -177,5 +204,6 @@
   }catch(e){error('فشل إنشاء الفرصة: '+e.message)}}
   if(window.__ADMIN_ROLE)loadCrm();else window.addEventListener('admin-auth-ready',loadCrm,{once:true});
 </script>
+<script src="/admin/crm-extended.js?v=1"></script>
 </body>
 </html>

@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+ <meta name="referrer" content="no-referrer">
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width,initial-scale=1">
+ <meta name="robots" content="noindex,nofollow">
+ <title>بوندز CRM للشركات | مساحة عمل العميل</title>
+ <meta name="description" content="برنامج بوندز لإدارة العملاء والشركات والصفقات والمتابعات وتجديدات العملاء.">
+ <meta property="og:title" content="بوندز CRM — مساحة الشركات">
+ <meta property="og:description" content="إدارة علاقات العملاء والصفقات والأنشطة والتجديدات ضمن مساحة عمل خاصة بالشركة.">
+ <meta property="og:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp?v=2026">
+ <meta property="og:url" content="https://bonds-global.com/my-bonds/crm/">
+ <meta property="og:type" content="website">
+ <meta name="twitter:card" content="summary_large_image">
+ <meta name="twitter:title" content="بوندز CRM — مساحة الشركات">
+ <meta name="twitter:description" content="إدارة علاقات العملاء والصفقات والأنشطة والتجديدات ضمن مساحة عمل خاصة بالشركة.">
+ <meta name="twitter:image" content="https://bonds-global.com/assets/bonds-logo-2026-v2.webp?v=2026">
+ <meta name="theme-color" content="#0066cc">
+ <link rel="manifest" href="/my-bonds/crm/crm-manifest.webmanifest">
+ <link rel="icon" href="/assets/icons/icon-192.png" sizes="192x192">
+ <link rel="stylesheet" href="/my-bonds/crm/crm-app.css?v=1">
+ <script src="/api/env" defer></script>
+ <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js" defer></script>
+ <script src="/bonds-auth-2026.js?v=3.1.3" defer></script>
+ <script src="/my-bonds/crm/crm-app.js?v=1" defer></script>
+</head>
+<body>
+<div class="app">
+ <aside class="sidebar" aria-label="أقسام CRM">
+  <a class="brand" href="/my-bonds/"><span class="brand-mark">B</span><span><b>BONDS CRM</b><small>برامج الشركات</small></span></a>
+  <div class="workspace-name" id="workspace-name">مساحة العميل</div>
+  <label id="workspace-switch-label" hidden>اختيار مساحة العمل<select id="workspace-select" aria-label="اختيار مساحة العمل"></select></label>
+  <nav class="sidebar-nav" id="crm-nav" aria-label="تنقل برنامج CRM">
+   <button type="button" data-section="overview" class="active">نظرة عامة</button>
+   <button type="button" data-section="companies">الشركات</button>
+   <button type="button" data-section="contacts">جهات الاتصال</button>
+   <button type="button" data-section="deals">الصفقات</button>
+   <button type="button" data-section="pipeline">مسارات المبيعات</button>
+   <button type="button" data-section="stages">مراحل مسارات المبيعات</button>
+   <button type="button" data-section="activities">الأنشطة والمهام</button>
+   <button type="button" data-section="renewals">التجديدات</button>
+   <button type="button" data-section="success">نجاح العملاء</button>
+   <button type="button" data-section="members">فريق العمل والصلاحيات</button>
+   <button type="button" data-section="audit">سجل التدقيق</button>
+  </nav>
+  <a href="/en/my-bonds/crm/" class="back" lang="en">English</a>
+  <a href="/my-bonds/" class="back">العودة إلى مساحتي</a>
+ </aside>
+ <main class="content">
+  <header class="toolbar">
+   <div><p class="eyebrow">CRM للشركات · محفوظ في حسابك</p><h1 id="section-heading">نظرة عامة</h1></div>
+   <div class="toolbar-actions">
+    <button class="secondary" id="refresh" type="button">تحديث</button>
+    <button class="primary" id="install" type="button">تثبيت البرنامج</button>
+   </div>
+  </header>
+  <p class="hint" id="install-hint" role="status"></p>
+  <p class="notice" id="status" role="status" aria-live="polite"></p>
+  <section id="auth-gate" class="panel" hidden>
+   <h2>يلزم تسجيل الدخول</h2><p>استخدم حساب بوندز للوصول إلى مساحة CRM الخاصة بك؛ لن تُعرض بيانات شركة أخرى.</p>
+   <a href="/my-bonds/" class="primary link-button">تسجيل الدخول من مساحتي</a>
+  </section>
+  <section id="onboarding" class="panel" hidden>
+   <h2>إنشاء مساحة CRM الخاصة بشركتك</h2>
+   <p class="muted">تُحفظ بياناتك بمعزل عن CRM بوندز الداخلي وحسابات الآخرين.</p>
+   <form id="workspace-form">
+    <label>اسم الشركة أو النشاط
+     <input name="name" required maxlength="180" placeholder="اسم الشركة">
+    </label>
+    <button type="submit" class="primary">إنشاء مساحة العمل</button>
+   </form>
+  </section>
+  <section id="workspace-content" hidden>
+   <section id="overview" class="section">
+    <div id="kpis" class="kpis"></div>
+    <div class="row-panels">
+     <article class="panel"><h2>مراحل الصفقات</h2><div id="pipeline-summary"></div></article>
+     <article class="panel"><h2>المتابعات القادمة</h2><div id="upcoming-tasks"></div></article>
+    </div>
+    <p class="muted">الأرقام مؤشرات تشغيلية مبنية على بياناتك؛ قيمة الصفقات المرجحة ليست توقعًا مؤكدًا للإيراد.</p>
+   </section>
+   <section id="records-section" class="section" hidden>
+    <div class="section-actions">
+      <input id="search" type="search" placeholder="بحث في السجلات" aria-label="بحث داخل القسم">
+      <button type="button" class="secondary" id="csv-export" hidden>تصدير جهات الاتصال CSV</button>
+      <button type="button" class="secondary" id="csv-import" hidden>استيراد جهات الاتصال CSV</button>
+      <input type="file" id="csv-file" accept=".csv,text/csv" hidden aria-label="استيراد جهات الاتصال CSV">
+      <button type="button" class="primary" id="new-record">إضافة جديد</button>
+    </div>
+    <div class="panel overflow"><table><thead id="records-head"></thead><tbody id="records-body"></tbody></table></div>
+    <div class="section-actions"><button id="page-prev" type="button" class="secondary" disabled>السابق</button><span id="page-info" role="status" aria-live="polite">0 / 0</span><button id="page-next" type="button" class="secondary" disabled>التالي</button></div>
+    <p class="muted">تظهر السجلات التابعة لمساحة عملك فقط. الأرشفة متاحة للأنشطة والمهام دون حذف جهات الاتصال.</p>
+   </section>
+
+   <section id="membership-section" class="panel" hidden>
+    <p class="muted">إضافة موظف مسجل في بوندز باستخدام معرف حسابه UUID. المالك وحده يدير الأعضاء؛ ويظهر سجل التدقيق للمالك فقط.</p>
+    <form id="invite-form">
+     <label>البريد الإلكتروني للموظف<input name="email" type="email" maxlength="254" required autocomplete="off"></label>
+     <label>الصلاحية<select name="role"><option value="viewer">مشاهد</option><option value="editor">محرر</option><option value="admin">مدير</option></select></label>
+     <button type="submit" class="primary">إرسال دعوة البريد الإلكتروني</button>
+    </form>
+    <p class="muted">ترسل الدعوة من خادم بوندز فقط، وتُفعّل عند قبولها من بريد مؤكد مطابق. تستمر صلاحية الرابط 48 ساعة.</p>
+    <hr>
+    <p class="muted">الربط المباشر لموظف مسجل بالفعل باستخدام UUID:</p>
+    <form id="member-form">
+     <label>معرف حساب الموظف (UUID)<input name="member_user_id" required placeholder="00000000-0000-0000-0000-000000000000"></label>
+     <label>الدور<select name="role"><option value="viewer">Viewer</option><option value="editor">Editor</option><option value="admin">Admin</option></select></label>
+     <button type="submit" class="primary">إضافة إلى مساحة العمل</button>
+    </form>
+    <div class="overflow"><table><thead id="members-head"></thead><tbody id="members-body"></tbody></table></div>
+   </section>
+   <section id="audit-section" class="panel" hidden>
+    <div class="overflow"><table><thead id="audit-head"></thead><tbody id="audit-body"></tbody></table></div>
+   </section>
+   <section id="editor" class="panel" hidden>
+    <div class="editor-head"><h2 id="editor-title">تحرير</h2><button class="secondary" type="button" id="editor-close">إغلاق</button></div>
+    <form id="record-form"><div class="editor-fields" id="editor-fields"></div>
+      <button class="primary" type="submit" id="save-record">حفظ</button>
+    </form>
+   </section>
+  </section>
+ </main>
+</div>
+</body>
+</html>

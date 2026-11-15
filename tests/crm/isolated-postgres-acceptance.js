@@ -1,0 +1,171 @@
+'use strict';
+// Runs ONLY against an isolated PostgreSQL container. Never use the production DSN.
+// This verifies that the client CRM migration executes, that tenant RLS restricts
+// both reads and writes, and that stage/tenant FKs cannot be bypassed.
+const fs=require('node:fs');
+const path=require('node:path');
+const assert=require('node:assert/strict');
+const {randomUUID}=require('node:crypto');
+const {Client}=require('pg');
+
+async function main(){
+ const url=process.env.CRM_TEST_DATABASE_URL;
+ if(!url || !/^(?:postgres(?:ql)?:\/\/)/.test(url) || /supabase\.co|bonds-global/i.test(url)){
+  throw Error('CRM_TEST_DATABASE_URL must be a disposable local PostgreSQL instance');
+ }
+ const client=new Client({connectionString:url,connectionTimeoutMillis:5000});
+ await client.connect();
+ try{
+  await client.query(`
+   create role anon nologin;
+   create role authenticated nologin;
+   create role service_role nologin;
+   create schema auth;
+   create table auth.users(id uuid primary key,email text,email_confirmed_at timestamptz);
+   create function auth.uid() returns uuid language sql stable
+    as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+   grant usage on schema auth,public to authenticated;
+   grant execute on function auth.uid() to authenticated;`);
+  const migration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261115020000_crm_client_app_isolated_workspaces.sql'),'utf8');
+  await client.query(migration);
+  // The administrative ledger has FKs to pre-existing Bonds tables. In this
+  // disposable database, create minimal referenced-table stubs first, then
+  // execute the unmodified administrative migration as a real SQL script.
+  await client.query(`
+   create table public.crm_organizations(id uuid primary key);
+   create table public.advisory_clients(id uuid primary key);
+   create table public.crm_opportunities(id uuid primary key);`);
+  const adminMigration=fs.readFileSync(path.resolve(__dirname,'../../supabase/migrations/20261115010000_crm_activities_makkin_additive.sql'),'utf8');
+  await client.query(adminMigration);
+  const {rows:adminSecurity}=await client.query(`
+   select c.relrowsecurity as rls,
+    has_table_privilege('authenticated','public.crm_activities','SELECT') as browser_read,
+    has_table_privilege('service_role','public.crm_activities','SELECT') as service_read
+   from pg_class c where c.oid='public.crm_activities'::regclass`);
+  assert.equal(adminSecurity[0].rls,true,'Admin activities require RLS');
+  assert.equal(adminSecurity[0].browser_read,false,'Browser role can read administrative CRM activities');
+  assert.equal(adminSecurity[0].service_read,true,'Service role cannot access administrative CRM activities');
+  const adminActivity=await client.query("insert into crm_activities(subject) values('Admin task') returning id,status");
+  assert.equal(adminActivity.rows[0].status,'open');
+  await assert.rejects(()=>client.query("insert into crm_activities(subject,status) values('Invalid completion','completed')"),
+   error=>error.code==='23514','Completed admin activity must have completed_at timestamp');
+  const tables=['crm_app_workspaces','crm_app_companies','crm_app_contacts','crm_app_deals','crm_app_activities','crm_app_renewals','crm_app_success','crm_app_pipelines','crm_app_pipeline_stages'];
+  const {rows:rls}=await client.query("select relname,relrowsecurity from pg_class where relnamespace='public'::regnamespace and relname=any($1)",[tables]);
+  assert.equal(rls.length,tables.length,'CRM tables missing from migration');
+  for(const row of rls)assert.equal(row.relrowsecurity,true,'RLS missing for '+row.relname);
+
+  const a=randomUUID(),b=randomUUID(),editor=randomUUID(),viewer=randomUUID(),admin=randomUUID();
+  await client.query('insert into auth.users(id) values($1),($2),($3),($4),($5)',[a,b,editor,viewer,admin]);
+  async function as(user,fn){
+   await client.query('begin');
+   try{
+    await client.query('set local role authenticated');
+    await client.query("select set_config('request.jwt.claim.sub',$1,true)",[user]);
+    const result=await fn();
+    await client.query('commit');
+    return result;
+   }catch(e){await client.query('rollback');throw e;}
+  }
+  const first=await as(a,()=>client.query("insert into crm_app_workspaces(owner_user_id,name) values($1,'Tenant A') returning id",[a]));
+  const second=await as(b,()=>client.query("insert into crm_app_workspaces(owner_user_id,name) values($1,'Tenant B') returning id",[b]));
+  const wa=first.rows[0].id,wb=second.rows[0].id;
+  // Only owner can grant employee access; viewers cannot edit or add records.
+  await as(a,()=>client.query(
+   "insert into crm_app_members(workspace_id,member_user_id,role) values($1,$2,'editor'),($1,$3,'viewer'),($1,$4,'admin')",
+   [wa,editor,viewer,admin]));
+  const memberWorkspace=await as(editor,()=>client.query('select id from crm_app_workspaces where id=$1',[wa]));
+  assert.equal(memberWorkspace.rowCount,1,'Editor cannot read assigned workspace');
+  const outsiderMember=await as(b,()=>client.query('select id from crm_app_members where workspace_id=$1',[wa]));
+  assert.equal(outsiderMember.rowCount,0,'Unrelated owner can read members');
+  const viewerWorkspace=await as(viewer,()=>client.query('select id from crm_app_workspaces where id=$1',[wa]));
+  assert.equal(viewerWorkspace.rowCount,1,'Viewer cannot open assigned workspace');
+  await assert.rejects(()=>as(viewer,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Viewer Escalation')",[wa])),
+   e=>e.code==='42501','Viewer must not insert');
+  await assert.rejects(()=>as(editor,()=>client.query("insert into crm_app_members(workspace_id,member_user_id,role) values($1,$2,'admin')",[wa,b])),
+   e=>e.code==='42501','Editor must not add members');
+  // The owner may change roles; member privileges update without trusting cached JWT roles.
+  await as(a,()=>client.query("update crm_app_members set role='viewer' where workspace_id=$1 and member_user_id=$2",[wa,editor]));
+  await assert.rejects(()=>as(editor,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Blocked after downgrade')",[wa])),
+   e=>e.code==='42501','Downgraded editor retains write access');
+  await as(a,()=>client.query("update crm_app_members set role='editor' where workspace_id=$1 and member_user_id=$2",[wa,editor]));
+  const employeeCompany=await as(editor,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Editor Company') returning id",[wa]));
+  assert.equal(employeeCompany.rowCount,1,'Editor cannot create workspace-scoped records');
+  const membershipAudit=await as(a,()=>client.query("select action,changed_columns from crm_app_audit where workspace_id=$1 and entity='crm_app_members' and action='UPDATE'",[wa]));
+  assert.ok(membershipAudit.rows.some(r=>r.changed_columns.includes('role')),'Role changes missing from immutable audit log');
+  const {rows:auditRows}=await as(a,()=>client.query("select action,entity,actor_user_id,changed_columns from crm_app_audit where workspace_id=$1 and entity='crm_app_companies'",[wa]));
+  assert.ok(auditRows.some(x=>x.action==='INSERT'&&x.actor_user_id===editor),'Editor write missing from audit');
+  const hiddenAudit=await as(viewer,()=>client.query('select id from crm_app_audit where workspace_id=$1',[wa]));
+  assert.equal(hiddenAudit.rowCount,0,'Viewer can read internal audit records');
+  await assert.rejects(()=>as(editor,()=>client.query("insert into crm_app_audit(workspace_id,entity,entity_id,action,changed_columns) values($1,'forgery',$2,'INSERT',array['name'])",[wa,randomUUID()])),
+   e=>e.code==='42501','Members must never write audit logs directly');
+  const ownerMemberRows=await as(a,()=>client.query("select role from crm_app_members where workspace_id=$1",[wa]));
+  assert.equal(ownerMemberRows.rowCount,3,'Owner cannot inspect member list');
+  // Owner revokes editor access, effective immediately on next operation.
+  await as(a,()=>client.query("update crm_app_members set active=false where workspace_id=$1 and member_user_id=$2",[wa,editor]));
+  const revoked=await as(editor,()=>client.query("select id from crm_app_companies where workspace_id=$1",[wa]));
+  assert.equal(revoked.rowCount,0,'Revoked employee can still read company data');
+  const company=await as(a,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Company A') returning id,status",[wa]));
+  const ca=company.rows[0].id;
+  assert.equal(company.rows[0].status,'prospect');
+
+  const invisible=await as(b,()=>client.query('select id from crm_app_companies where id=$1',[ca]));
+  assert.equal(invisible.rowCount,0,'Tenant B can read tenant A company');
+  const unauthorizedEdit=await as(b,()=>client.query("update crm_app_companies set name='Tampered' where id=$1 returning id",[ca]));
+  assert.equal(unauthorizedEdit.rowCount,0,'Tenant B can update tenant A company');
+  await assert.rejects(()=>as(b,()=>client.query("insert into crm_app_companies(workspace_id,name) values($1,'Escalation')",[wa])),
+    error=>error.code==='42501','Tenant B insert into tenant A workspace must be denied');
+
+  const contact=await as(a,()=>client.query("insert into crm_app_contacts(workspace_id,company_id,name,email) values($1,$2,'Contact A','User@Example.com') returning id",[wa,ca]));
+  assert.equal(contact.rowCount,1);
+  await assert.rejects(()=>as(a,()=>client.query("insert into crm_app_contacts(workspace_id,name,email) values($1,'Contact A','user@example.com')",[wa])),
+    error=>error.code==='23505','Identical contact names and emails must be unique within workspace');
+  const sharedInbox=await as(a,()=>client.query("insert into crm_app_contacts(workspace_id,name,email) values($1,'Different Person','user@example.com') returning id",[wa]));
+  assert.equal(sharedInbox.rowCount,1,'Different people must be able to share one corporate email');
+  const otherContact=await as(b,()=>client.query("insert into crm_app_contacts(workspace_id,name,email) values($1,'Contact B','user@example.com') returning id",[wb]));
+  assert.equal(otherContact.rowCount,1,'Emails may repeat in different tenant workspaces');
+
+  const pa=(await as(a,()=>client.query("insert into crm_app_pipelines(workspace_id,name,is_default) values($1,'Sales A',true) returning id",[wa]))).rows[0].id;
+  const pb=(await as(b,()=>client.query("insert into crm_app_pipelines(workspace_id,name,is_default) values($1,'Sales B',true) returning id",[wb]))).rows[0].id;
+  const sa=(await as(a,()=>client.query("insert into crm_app_pipeline_stages(workspace_id,pipeline_id,name) values($1,$2,'Qualified') returning id",[wa,pa]))).rows[0].id;
+  const sb=(await as(b,()=>client.query("insert into crm_app_pipeline_stages(workspace_id,pipeline_id,name) values($1,$2,'Closed') returning id",[wb,pb]))).rows[0].id;
+  await assert.rejects(()=>as(a,()=>client.query("insert into crm_app_deals(workspace_id,title,pipeline_id,pipeline_stage_id) values($1,'Bad Stage',$2,$3)",[wa,pa,sb])),
+    error=>error.code==='23503','Cross-tenant stage FK must reject');
+  const deal=await as(a,()=>client.query("insert into crm_app_deals(workspace_id,company_id,title,pipeline_id,pipeline_stage_id) values($1,$2,'Deal A',$3,$4) returning id,currency,stage",[wa,ca,pa,sa]));
+  assert.equal(deal.rows[0].currency,'SAR');
+  assert.equal(deal.rows[0].stage,'lead');
+
+  const activity=await as(a,()=>client.query("insert into crm_app_activities(workspace_id,company_id,deal_id,subject) values($1,$2,$3,'Follow up') returning id",[wa,ca,deal.rows[0].id]));
+  const activityId=activity.rows[0].id;
+  const changed=await as(a,()=>client.query("update crm_app_activities set deleted_at=now() where id=$1 returning id,deleted_at",[activityId]));
+  assert.ok(changed.rows[0].deleted_at,'Activity soft archive did not persist');
+  const hidden=await as(b,()=>client.query('select id from crm_app_activities where id=$1',[activityId]));
+  assert.equal(hidden.rowCount,0,'Tenant B can read tenant A activity');
+
+  // Real PostgreSQL acceptance of a one-time invitation by a matching,
+  // verified user (not a simulated browser role).
+  const invitee=randomUUID(),unverified=randomUUID(),outsider=randomUUID();
+  await client.query("insert into auth.users(id,email,email_confirmed_at) values($1,'invitee@example.com',now()),($2,'pending@example.com',null),($3,'other@example.com',now())",[invitee,unverified,outsider]);
+  const inviteToken='local-invite-token-for-verified-user-0123456789';
+  const hash=require('node:crypto').createHash('sha256').update(inviteToken).digest('hex');
+  await client.query("insert into crm_app_invitations(workspace_id,invited_email,invited_role,token_hash,invited_by,expires_at) values($1,'invitee@example.com','viewer',$2,$3,now()+interval '48 hours')",[wa,hash,a]);
+  await assert.rejects(()=>as(outsider,()=>client.query("select public.crm_app_accept_invite($1)",[inviteToken])),
+   e=>e.code==='22023','Mismatched invite email must fail');
+  const claimed=await as(invitee,()=>client.query("select public.crm_app_accept_invite($1) as workspace_id",[inviteToken]));
+  assert.equal(claimed.rows[0].workspace_id,wa,'Invitation did not activate correct workspace');
+  const approved=await as(invitee,()=>client.query("select role from crm_app_members where workspace_id=$1 and member_user_id=$2",[wa,invitee]));
+  assert.equal(approved.rows[0].role,'viewer');
+  await assert.rejects(()=>as(invitee,()=>client.query("select public.crm_app_accept_invite($1)",[inviteToken])),
+   e=>e.code==='22023','Invitation token must not be reusable');
+  const pendingToken='local-invite-token-for-unverified-user-0123456789';
+  await client.query("insert into crm_app_invitations(workspace_id,invited_email,invited_role,token_hash,invited_by,expires_at) values($1,'pending@example.com','editor',$2,$3,now()+interval '48 hours')",[wa,require('node:crypto').createHash('sha256').update(pendingToken).digest('hex'),a]);
+  await assert.rejects(()=>as(unverified,()=>client.query("select public.crm_app_accept_invite($1)",[pendingToken])),
+   e=>e.code==='28000','Unverified email must not activate invitation');
+  const inviteRead=await as(invitee,()=>client.query("select id from crm_app_invitations where workspace_id=$1",[wa]).catch(e=>e));
+  assert.equal(inviteRead.code,'42501','Pending invites must remain private to browser roles');
+
+  await assert.rejects(()=>client.query('delete from auth.users where id=$1',[a]),error=>error.code==='23503',
+   'Deleting owner must not cascade CRM company records');
+  console.log('CRM ISOLATED POSTGRES ACCEPTANCE: PASS — both migrations, 9x RLS, tenant CRUD, CSV dedupe, pipelines, archive, owner retention');
+ }finally{await client.end();}
+}
+main().catch(e=>{console.error('CRM ISOLATED POSTGRES ACCEPTANCE: FAIL',e.message,'SQLSTATE='+String(e.code||'unknown'));process.exitCode=1;});
