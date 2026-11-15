@@ -100,8 +100,8 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(js).toContain('if(records.length>100)');
   expect(js).toContain("sb.from('crm_app_contacts').insert(payload)");
   expect(js).toContain(".eq('workspace_id',workspace.id)");
-  expect(sql).toContain('create unique index crm_app_contacts_workspace_email_unique');
-  expect(sql).toContain('on public.crm_app_contacts(workspace_id,lower(btrim(email)))');
+  expect(sql).toContain('create unique index crm_app_contacts_workspace_identity_unique');
+  expect(sql).toContain('on public.crm_app_contacts(workspace_id,lower(btrim(name)),lower(btrim(email)))');
  });
  test('blank deal currency does not violate the NOT NULL database constraint',()=>{
   expect(js).toContain("if(group==='deals' && !payload.currency)");
