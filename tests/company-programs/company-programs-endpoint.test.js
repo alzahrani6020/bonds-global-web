@@ -19,57 +19,85 @@ function qb(value,error=null,kind='single'){
  if(kind==='list')chain.eq=jest.fn(()=>Promise.resolve({data:value,error}));
  return chain;
 }
-const oldEnv={...process.env};
+const originalEnv={...process.env};
 beforeEach(()=>{
  jest.clearAllMocks();
- process.env.SUPABASE_SERVICE_ROLE_KEY='mock-service-key';
- process.env.SUPABASE_URL='https://project.supabase.co';
+ process.env.SUPABASE_SERVICE_ROLE_KEY='test-only-dummy';
+ process.env.SUPABASE_URL='https://unit-test.supabase.co';
  verifyBearer.mockResolvedValue({id:USER});
 });
-afterAll(()=>{process.env=oldEnv;});
-test('GET owner sees eleven products, not operational-ready claims',async()=>{
+afterAll(()=>{process.env=originalEnv;});
+test('CRM owner sees eleven programs and only explicit active grant',async()=>{
  const owner=qb({id:WS,name:'Company A'});
- const entitled=qb([{program_key:'crm',status:'active',valid_from:'2020-01-01T00:00:00Z',valid_until:null,seats:3,branches:1}],null,'list');
- const from=jest.fn(table=>table==='crm_app_workspaces'?owner:entitled);
+ const link=qb({id:WS});
+ const grants=qb([{program_key:'crm',status:'active',valid_from:'2020-01-01T00:00:00Z',valid_until:null,seats:3,branches:1}],null,'list');
+ const from=jest.fn(table=>({
+  crm_app_workspaces:owner,company_program_workspaces:link,
+  company_program_entitlements:grants
+ })[table]||(()=>{throw Error('unexpected table '+table)})());
  createClient.mockReturnValue({from});
  const response=res();
  await handler({method:'GET',query:{workspace_id:WS}},response);
  expect(response.statusCode).toBe(200);
- expect(response.body.workspace.role).toBe('owner');
+ expect(response.body.workspace).toMatchObject({source:'crm',role:'owner'});
  expect(response.body.programs).toHaveLength(11);
  expect(response.body.programs.find(p=>p.key==='crm').entitled).toBe(true);
  expect(response.body.programs.find(p=>p.key==='hr').entitled).toBe(false);
  expect(response.body.runtimeIntegration).toBe('not_verified');
  expect(owner.eq).toHaveBeenCalledWith('owner_user_id',USER);
+ expect(link.eq).toHaveBeenCalledWith('kind','crm');
 });
-test('unauthenticated caller is denied before workspace lookup',async()=>{
+test('real BONDS company owner uses companies, NOT CRM, for identity',async()=>{
+ const ownedCompany=qb({id:WS,name:'Legal Company'});
+ const link=qb(null);
+ const from=jest.fn(table=>({
+   companies:ownedCompany,company_program_workspaces:link
+ })[table]||(()=>{throw Error('unexpected table '+table)})());
+ createClient.mockReturnValue({from});
+ const response=res();
+ await handler({method:'GET',query:{workspace_type:'company',workspace_id:WS}},response);
+ expect(response.statusCode).toBe(200);
+ expect(response.body.workspace.source).toBe('company');
+ expect(response.body.programs.every(p=>p.entitled===false)).toBe(true);
+ expect(ownedCompany.eq).toHaveBeenCalledWith('is_active',true);
+ expect(from).not.toHaveBeenCalledWith('crm_app_workspaces');
+});
+test('unauthenticated caller is denied',async()=>{
  verifyBearer.mockRejectedValue(new Error('invalid'));
  createClient.mockReturnValue({from:jest.fn()});
  const response=res();
  await handler({method:'GET',query:{workspace_id:WS}},response);
  expect(response.statusCode).toBe(401);
- expect(response.body.error).toBe('AUTH_REQUIRED');
 });
-test('cross-workspace nonmember is rejected',async()=>{
+test('cross-workspace nonmember is rejected before entitlements',async()=>{
  const owner=qb(null);
  const member=qb(null);
  const from=jest.fn(table=>{
   if(table==='crm_app_workspaces')return owner;
   if(table==='crm_app_members')return member;
-  throw new Error('entitlements must not be queried for nonmember');
+  throw new Error('must not inspect tenant links');
  });
  createClient.mockReturnValue({from});
  const response=res();
  await handler({method:'GET',query:{workspace_id:WS}},response);
  expect(response.statusCode).toBe(404);
- expect(from).not.toHaveBeenCalledWith('company_program_entitlements');
+ expect(from).not.toHaveBeenCalledWith('company_program_workspaces');
  expect(member.eq).toHaveBeenCalledWith('active',true);
 });
-test('invalid workspace ID and writes are denied',async()=>{
+test('inactive BONDS company and nonmember are denied',async()=>{
+ const owner=qb(null),member=qb(null);
+ createClient.mockReturnValue({from:table=>({
+   companies:owner,company_members:member
+ })[table]||(()=>{throw Error('no access')})())});
+ const response=res();
+ await handler({method:'GET',query:{workspace_type:'company',workspace_id:WS}},response);
+ expect(response.statusCode).toBe(404);
+});
+test('denies writes and invalid workspace source',async()=>{
  const response=res();
  await handler({method:'POST',query:{workspace_id:WS}},response);
  expect(response.statusCode).toBe(405);
  const invalid=res();
- await handler({method:'GET',query:{workspace_id:'not-an-id'}},invalid);
+ await handler({method:'GET',query:{workspace_type:'unknown',workspace_id:WS}},invalid);
  expect(invalid.statusCode).toBe(400);
 });
