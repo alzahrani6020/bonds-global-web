@@ -194,8 +194,9 @@ test('non-owner cannot probe an SCC identity even with an entitlement',async()=>
  const owner=qb(null);
  const member=qb({role:'member'});
  const workspace=qb({id:WS,name:'A'});
+ let workspaceQueries=0;
  createClient.mockReturnValue({from:table=>{
-  if(table==='crm_app_workspaces')return owner;
+  if(table==='crm_app_workspaces')return workspaceQueries++===0?owner:workspace;
   if(table==='crm_app_members')return member;
   if(table==='company_program_workspaces')return qb({id:WS});
   if(table==='company_program_entitlements')return qb([],null,'list');
