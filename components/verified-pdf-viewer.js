@@ -37,12 +37,13 @@ async function render({url,expectedHash,container,feedback,language='ar',authori
   if(!bytes.byteLength) throw new Error('Empty PDF');
   const actual=await sha256(bytes);
   if(actual.toLowerCase()!==expectedHash.toLowerCase()) throw new Error('Original PDF SHA-256 mismatch');
-  // The worker is version-pinned to the matching renderer. No document is uploaded to this CDN.
+  // SHA-256 matched: make a private local copy available for opening even if
+  // PDF.js is blocked on this device. No unverified bytes are exposed.
+  const documentBytes=typeof onVerifiedBytes==='function'?bytes.slice(0):null;
+  if(typeof onVerifiedBytes==='function')onVerifiedBytes(documentBytes);
+  // PDF.js may transfer its own byte array to a worker; the blob is independent.
   const pdfjs=await import(PDFJS_BASE+'pdf.min.mjs');
   pdfjs.GlobalWorkerOptions.workerSrc=PDFJS_BASE+'pdf.worker.min.mjs';
-  // PDF.js may transfer ownership of its input ArrayBuffer to a worker.
-  // Keep an independently verified copy for authorized download/open actions.
-  const documentBytes=typeof onVerifiedBytes==='function'?bytes.slice(0):null;
   const task=pdfjs.getDocument({data:new Uint8Array(bytes),isEvalSupported:false});
   const pdf=await task.promise;
   if(!Number.isInteger(pdf.numPages)||pdf.numPages<1||pdf.numPages>100) throw new Error('Unsupported page count');
@@ -69,7 +70,6 @@ async function render({url,expectedHash,container,feedback,language='ar',authori
    container.appendChild(canvas);
    page.cleanup();
   }
-  if(typeof onVerifiedBytes==='function')onVerifiedBytes(documentBytes);
   return true;
  }catch(error){
   container.replaceChildren();
