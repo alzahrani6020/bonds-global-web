@@ -109,4 +109,14 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(sql).toContain("currency text not null default 'SAR'");
  });
 
+ test('PWA manifests install into language-matched workspace routes',()=>{
+  const en=read('en/my-bonds/crm/index.html');
+  const enManifest=JSON.parse(read('en/my-bonds/crm/crm-manifest.webmanifest'));
+  expect(en).toContain('href="/en/my-bonds/crm/crm-manifest.webmanifest"');
+  expect(enManifest.start_url).toMatch(/^\/en\/my-bonds\/crm\//);
+  expect(enManifest.scope).toBe('/en/my-bonds/crm/');
+  expect(enManifest.lang).toBe('en');
+  expect(manifest.scope).toBe('/my-bonds/crm/');
+ });
+
 });
