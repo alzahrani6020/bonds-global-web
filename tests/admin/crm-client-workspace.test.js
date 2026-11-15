@@ -58,4 +58,21 @@ describe('Customer CRM installable workspace integrity',()=>{
   expect(js).not.toContain("new Date(v).toISOString().slice(0,16)");
  });
 
+ test('custom pipeline and stage tables enforce workspace-scoped relationships',()=>{
+  const sql=read('supabase/migrations/20261115020000_crm_client_app_isolated_workspaces.sql');
+  for(const table of ['crm_app_pipelines','crm_app_pipeline_stages']){
+   expect(sql).toContain('create table public.'+table);
+   expect(js).toContain("'"+table+"'");
+  }
+  expect(sql).toContain('crm_app_deal_pipeline_stage_fk');
+  expect(sql).toContain('foreign key(workspace_id,pipeline_id,pipeline_stage_id)');
+  expect(sql).toContain('references public.crm_app_pipeline_stages(workspace_id,pipeline_id,id)');
+  expect(sql).toContain("'crm_app_pipelines','crm_app_pipeline_stages'");
+  expect(js).toContain("stage.pipeline_id!==payload.pipeline_id");
+  const ar=read('my-bonds/crm/index.html'),en=read('en/my-bonds/crm/index.html');
+  expect(ar).toContain('data-section="stages"');
+  expect(en).toContain('data-section="stages"');
+  expect(js).toContain("key==='is_active'");
+ });
+
 });
