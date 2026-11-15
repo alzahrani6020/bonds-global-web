@@ -43,7 +43,7 @@ create table if not exists public.company_program_makkin_user_links (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   unique (workspace_link_id,bonds_user_id),
-  unique (workspace_link_id,makkin_user_id),
+  unique (makkin_user_id),
   check ((state='verified' and verified_at is not null and verified_by is not null
           and verified_by <> bonds_user_id)
      or state<>'verified')
