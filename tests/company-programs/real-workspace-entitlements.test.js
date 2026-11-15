@@ -22,7 +22,7 @@ describe('Company programs - no phantom capabilities',()=>{
     const fs=require('fs');
     const api=fs.readFileSync(require('path').join(__dirname,'../../lib/api/company-programs.js'),'utf8');
     expect(api).toContain("if(!['GET','POST'].includes(req.method))");
-    expect(api).toContain("req.query?.action!=='probe-mapping'");
+    expect(api).toContain("['probe-mapping','session-check'].includes(req.query?.action)");
     expect(api).toContain('VERIFIED_EMAIL_REQUIRED');
     expect(api).toContain('PROGRAM_ENTITLEMENT_REQUIRED');
     expect(api).toContain('operationalReady:false');
