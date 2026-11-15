@@ -1,5 +1,7 @@
 -- Disposable PostgreSQL 16 acceptance fixture; no real accounts or issued files.
 CREATE ROLE service_role NOLOGIN;
+CREATE ROLE anon NOLOGIN;
+CREATE ROLE authenticated NOLOGIN;
 CREATE TABLE public.correspondence_documents (
  id uuid PRIMARY KEY,
  status text NOT NULL DEFAULT 'approved',
@@ -34,6 +36,8 @@ CREATE TABLE public.correspondence_issues (
  document_hash text,
  issued_hash text NOT NULL,
  pdf_hash text,
+ verification_count bigint NOT NULL DEFAULT 0,
+ last_verified_at timestamptz,
  signature_hash text,
  stamp_hash text,
  issued_by uuid,
@@ -41,6 +45,19 @@ CREATE TABLE public.correspondence_issues (
  supersedes_issue_id uuid REFERENCES public.correspondence_issues(id),
  UNIQUE(document_id,issue_version)
 );
+CREATE TABLE public.correspondence_verification_events (
+ id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+ issue_id uuid REFERENCES public.correspondence_issues(id) ON DELETE SET NULL,
+ document_id uuid REFERENCES public.correspondence_documents(id) ON DELETE SET NULL,
+ issue_number text,
+ actor_user_id uuid,
+ result text NOT NULL CHECK (result IN ('verified','failed')),
+ ip_hash text,
+ user_agent_hash text,
+ created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE public.correspondence_verification_events ENABLE ROW LEVEL SECURITY;
+GRANT INSERT, SELECT ON public.correspondence_verification_events TO service_role;
 -- Historic rows are deliberately inserted BEFORE the migration.
 INSERT INTO public.correspondence_documents
 (id,status,verification_token,current_version,document_hash,issued_hash,artifact_path,artifact_hash,artifact_document_hash,artifact_issued_hash,artifact_version,issued_at)
