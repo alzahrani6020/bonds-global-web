@@ -853,8 +853,8 @@
   <div class="main-header__inner">
     <a href="${homeHref}" class="header-brand">
       <img class="header-brand__image" src="/assets/bonds-logo-2026-v2-sm.webp?v=2026f" alt="${isEn ? 'Bonds' : 'بوندز'}" width="112" height="44" />
-      <span class="bonds-brand-map" aria-hidden="true"></span>
-      <span class="bonds-brand-wordmark" aria-hidden="true"><strong>BONDS GLOBAL</strong><small>${isEn ? 'FINANCIAL & BUSINESS ADVISORY' : 'بوندز جلوبال للاستشارات المالية والإدارية'}</small></span>
+      ${redesignNav ? '<span class="bonds-brand-map" aria-hidden="true"></span>' : ''}
+      ${redesignNav ? '<span class="bonds-brand-wordmark" aria-hidden="true"><strong>BONDS GLOBAL</strong><small>' + (isEn ? 'FINANCIAL & BUSINESS ADVISORY' : 'بوندز جلوبال للاستشارات المالية والإدارية') + '</small></span>' : ''}
     </a>
     <nav class="main-nav" id="mainNav">
       <ul>
